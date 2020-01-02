@@ -14,7 +14,6 @@ const store = createStore(
 );
 
 // State persistence
-// TODO: Persist this to file in electron
 store.subscribe(() => {
   saveState(store.getState());
 });

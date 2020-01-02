@@ -17,3 +17,13 @@ export const validateItemString = text => {
   const matches = text.match(regex);
   return (matches && matches.length) > 0;
 };
+
+// Removes key from object without mutating original object
+export const removeByKey = (object, deleteKey) => {
+  return Object.keys(object)
+    .filter(key => key !== deleteKey)
+    .reduce((result, current) => {
+      result[current] = object[current];
+      return result;
+    }, {});
+};

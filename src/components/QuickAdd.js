@@ -108,6 +108,8 @@ class QuickAdd extends Component {
   }
 
   render() {
+    // Starting with tnTN and then any following characters
+    // Has to be in a capture group...
     const inputRegex = new RegExp("((^[tnTN].*))");
     return (
       <MentionsInput

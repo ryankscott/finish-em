@@ -1,6 +1,7 @@
 import uuidv4 from "uuid/v4";
-import { CREATE_ITEM } from "../actions";
+import { CREATE_ITEM, DELETE_ITEM } from "../actions";
 import { merge } from "lodash";
+import { removeByKey } from "../utils";
 
 const initialState = {
   projects: {
@@ -46,6 +47,12 @@ const itemApp = (state = initialState, action) => {
             project: 0
           }
         })
+      };
+    case DELETE_ITEM:
+      return {
+        ...state,
+        // Trying to remove a key from object without mutating
+        items: removeByKey(state.items, action.id)
       };
 
     default:
