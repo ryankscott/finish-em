@@ -37,8 +37,7 @@ class Item extends Component {
     return (
       <ItemContainer id={this.props.id} tabIndex="0">
         <ItemType>{this.props.type}</ItemType>
-        {this.props.text}
-        {this.props.scheduledDate}
+        {this.props.text} - {this.props.scheduledDate}
         {this.props.dueDate}
       </ItemContainer>
     );

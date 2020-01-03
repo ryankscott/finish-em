@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import QuickAdd from "./QuickAdd";
-import ItemList from "../containers/ItemList";
+import FilteredItemList from "../containers/FilteredItemList";
 
 class App extends Component {
   render() {
@@ -11,7 +11,7 @@ class App extends Component {
           <p> Press Control+Shift+N to add something</p>
         </header>
         <QuickAdd />
-        <ItemList />
+        <FilteredItemList />
       </div>
     );
   }

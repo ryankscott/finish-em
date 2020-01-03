@@ -1,7 +1,5 @@
 import uuidv4 from "uuid/v4";
-import { CREATE_ITEM, DELETE_ITEM } from "../actions";
-import { merge } from "lodash";
-import { removeByKey } from "../utils";
+import { CREATE_ITEM, DELETE_ITEM, SET_VISIBILITY_FILTER } from "../actions";
 
 const initialState = {
   projects: {
@@ -11,16 +9,16 @@ const initialState = {
       description: "Where all items are first stored"
     }
   },
-  items: {
-    "5eea6e08-a760-4732-83ca-2329cc718fce": {
+  items: [
+    {
       id: "5eea6e08-a760-4732-83ca-2329cc718fce",
       type: "TODO",
       text: "Learn org-mode",
       project: 0,
-      scheduledDate: null,
+      scheduledDate: "2020-01-02",
       dueDate: null
     },
-    "f2c91c07-e2bf-4a61-ad83-59261031775f": {
+    {
       id: "f2c91c07-e2bf-4a61-ad83-59261031775f",
       type: "NOTE",
       text: "Write better code",
@@ -28,7 +26,8 @@ const initialState = {
       scheduledDate: null,
       dueDate: null
     }
-  }
+  ],
+  visibilityFilter: "SHOW_SCHEDULED"
 };
 
 const itemApp = (state = initialState, action) => {
@@ -37,22 +36,30 @@ const itemApp = (state = initialState, action) => {
       const uuid = uuidv4();
       return {
         ...state,
-        items: merge({}, state.items, {
-          [uuid]: {
+        items: [
+          ...state.items,
+          {
             id: uuid,
             type: action.itemType,
             text: action.text,
-            scheuledDate: null,
+            scheduledDate: null,
             dueDate: null,
             project: 0
           }
-        })
+        ]
       };
+
     case DELETE_ITEM:
       return {
         ...state,
         // Trying to remove a key from object without mutating
-        items: removeByKey(state.items, action.id)
+        items: state.items.filter(i => i.id != action.id)
+      };
+
+    case SET_VISIBILITY_FILTER:
+      return {
+        ...state,
+        visibilityFilter: action.filter
       };
 
     default:
