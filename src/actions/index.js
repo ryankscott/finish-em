@@ -1,7 +1,8 @@
 // Actions
 export const CREATE_ITEM = "CREATE_ITEM";
 export const DELETE_ITEM = "DELETE_ITEM";
-export const SET_VISIBILITY_FILTER = "SET_VISIBILITY_FILTER";
+export const REFILE_ITEM = "REFILE_ITEM";
+export const CREATE_PROJECT = "CREATE_PROJECT";
 import { getItemTypeFromString, getItemTextFromString } from "../utils";
 
 // Action creators
@@ -23,9 +24,19 @@ export function deleteItem(id) {
     id: id
   };
 }
-export function setVisibilityFilter(filter) {
+
+export function refileItem(id, projectId) {
   return {
-    type: SET_VISIBILITY_FILTER,
-    filter: filter
+    type: REFILE_ITEM,
+    id: id,
+    projectId: projectId
+  };
+}
+
+export function createProject(name, description) {
+  return {
+    type: CREATE_PROJECT,
+    name: name,
+    description: description
   };
 }

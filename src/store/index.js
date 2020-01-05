@@ -2,12 +2,12 @@ import { createStore, compose } from "redux";
 import itemApp from "../reducers";
 import { loadState, saveState } from "./localstorage";
 
-const persistedState = loadState();
+// const persistedState = loadState();
 
 // TODO: Only turn on devtools when in dev mode
 const store = createStore(
   itemApp,
-  persistedState,
+  //  persistedState,
   compose(
     window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
   )
