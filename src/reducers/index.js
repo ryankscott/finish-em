@@ -3,6 +3,7 @@ import {
   CREATE_ITEM,
   DELETE_ITEM,
   REFILE_ITEM,
+  UPDATE_ITEM,
   CREATE_PROJECT
 } from "../actions";
 
@@ -23,7 +24,7 @@ const initialState = {
     {
       id: "5eea6e08-a760-4732-83ca-2329cc718fce",
       type: "TODO",
-      text: "Learn org-mode",
+      text: "TODO - Learn org-mode",
       projectId: null,
       scheduledDate: "2020-01-02",
       dueDate: null
@@ -31,7 +32,7 @@ const initialState = {
     {
       id: "f2c91c07-e2bf-4a61-ad83-59261031775f",
       type: "NOTE",
-      text: "Write better code",
+      text: "NOTE - Write better code",
       projectId: null,
       scheduledDate: null,
       dueDate: null
@@ -52,7 +53,7 @@ const itemApp = (state = initialState, action) => {
             type: action.itemType,
             text: action.text,
             scheduledDate: null,
-            dueDate: null,
+            dueDate: action.dueDate,
             projectId: null
           }
         ]
@@ -75,6 +76,18 @@ const itemApp = (state = initialState, action) => {
           return i;
         })
       };
+    case UPDATE_ITEM:
+      return {
+        ...state,
+        items: state.items.map(i => {
+          if (i.id == action.id) {
+            i.text = action.text;
+            i.itemType = action.itemType;
+          }
+          return i;
+        })
+      };
+
     case CREATE_PROJECT:
       const projectUUID = uuidv4();
       return {

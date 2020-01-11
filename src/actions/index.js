@@ -1,20 +1,29 @@
 // Actions
 export const CREATE_ITEM = "CREATE_ITEM";
 export const DELETE_ITEM = "DELETE_ITEM";
+export const UPDATE_ITEM = "UPDATE_ITEM";
 export const REFILE_ITEM = "REFILE_ITEM";
 export const CREATE_PROJECT = "CREATE_PROJECT";
-import { getItemTypeFromString, getItemTextFromString } from "../utils";
+import {
+  getItemTypeFromString,
+  capitaliseItemTypeFromString,
+  extractDateFromString,
+  removeDateFromString
+} from "../utils";
 
 // Action creators
 export function createItem(text) {
   // TODO: Turn this into a proper parsing
   const itemType = getItemTypeFromString(text);
-  const itemText = getItemTextFromString(text);
+  const dueDate = extractDateFromString(text);
+  let newText = removeDateFromString(text);
+  newText = capitaliseItemTypeFromString(newText);
 
   return {
     type: CREATE_ITEM,
-    text: itemText,
-    itemType: itemType
+    text: newText,
+    itemType: itemType,
+    dueDate: dueDate
   };
 }
 
@@ -30,6 +39,21 @@ export function refileItem(id, projectId) {
     type: REFILE_ITEM,
     id: id,
     projectId: projectId
+  };
+}
+
+export function updateItem(id, text) {
+  const itemType = getItemTypeFromString(text);
+  const dueDate = extractDateFromString(text);
+  let newText = removeDateFromString(text);
+  newText = capitaliseItemTypeFromString(newText);
+
+  return {
+    type: UPDATE_ITEM,
+    id: id,
+    text: newText,
+    itemType: itemType,
+    dueDate: dueDate
   };
 }
 

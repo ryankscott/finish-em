@@ -1,17 +1,25 @@
 const styles = {
-  mentionStyle: {
+  itemMentionStyle: {
     display: "inline-block",
     position: "relative",
     fontSize: "16px",
     fontWeight: "normal",
     fontFamily: "Helvetica",
-    color: "#FFFFFF",
+    textDecoration: "underline green",
+    color: "green",
     zIndex: 2,
-    backgroundColor: "#ff9e80",
-    border: "1px solid #ff8e80",
-    borderRadius: "5px",
-    padding: "3px 2px 2px 3px",
-    margin: "11px 0px 0px -5px"
+    margin: "13px 0px 0px -3px"
+  },
+  dateMentionStyle: {
+    display: "inline-block",
+    position: "relative",
+    fontSize: "16px",
+    fontWeight: "normal",
+    fontFamily: "Helvetica",
+    textDecoration: "underline blue",
+    color: "blue",
+    zIndex: 2,
+    margin: "13px 0px 0px -6px"
   },
   mentionInputStyle: {
     control: {
@@ -41,14 +49,13 @@ const styles = {
         fontFamily: "Helvetica",
         borderRadius: "5px",
         border: "1px solid rgba(100,100,100,0.20)",
-        fontSize: "14px",
-        width: "60px"
+        fontSize: "14px"
       },
 
       item: {
         color: "#777777",
         margin: "0px",
-        padding: "5px 0px 5px 5px",
+        padding: "5px 5px 5px 5px",
         borderBottom: "1px solid rgba(100,100,100,0.25)",
         "&focused": {
           backgroundColor: "#ff9e80",

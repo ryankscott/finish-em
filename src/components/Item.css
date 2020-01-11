@@ -1,0 +1,16 @@
+div.DraftEditor-root {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0px 0px 10px;
+  background-color: whitesmoke;
+  height: 30px;
+  width: 350px;
+  overflow-y: auto;
+}
+div.DraftEditor-editorContainer,
+div.public-DraftEditor-content {
+  height: 100%;
+  &:focus {
+    border: 1px solid blue;
+  }
+}

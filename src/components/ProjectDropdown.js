@@ -4,18 +4,18 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import { createItem } from "../actions";
 
-
-// TODO work out how to display this overlapping the next item
 const Container = styled.div`
+  position: absolute;
   display: flex;
   flex-direction: column;
   border: 1px solid #ccc;
   margin: 0px;
   padding: 0px;
-  width: 150px;
+  width: 80px;
   display: ${props => (!props.visible ? "none" : null)};
   border-radius: 5px;
-z-index: 2;
+  z-index: 1;
+  background-color: #fff;
 `;
 
 const ProjectItem = styled.div`
@@ -23,9 +23,11 @@ const ProjectItem = styled.div`
   height: 30px;
   padding: 2px 5px;
   align-items: center;
-  &:hover {
-    background-color: red;
-  }
+  justify-content: center;
+  background-color: "#FFF";
+  border-radius: 5px;
+  font-family: "Helvetica", sans-serif;
+  font-size: 12px;
   &:focus {
     background-color: #acdaef;
     color: #555;
@@ -50,10 +52,11 @@ class ProjectDropdown extends Component {
     return (
       // Only render if it's not just the Inbox project that exists
       <Container visible={this.props.visible && projects.length > 1}>
-        {projects.map(p => {
+        {projects.map((p, index) => {
           if (p.id != null) {
             return (
               <ProjectItem
+                autoFocus={index == 0}
                 id={p.id}
                 key={p.id}
                 tabIndex={0}

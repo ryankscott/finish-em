@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import QuickAdd from "./QuickAdd";
+import QuickAdd2 from "./QuickAdd2";
 import FilteredItemList from "../containers/FilteredItemList";
 import ProjectList from "../containers/ProjectList";
 import { connect } from "react-redux";
@@ -21,7 +21,7 @@ class App extends Component {
             <li>j and k (or up and down) for down and up</li>
           </ul>
         </div>
-        <QuickAdd />
+        <QuickAdd2 editable={false} />
         <ProjectList items={this.props.items} />
       </div>
     );

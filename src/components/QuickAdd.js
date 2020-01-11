@@ -7,14 +7,25 @@ import styles from "./QuickAddStyles";
 
 import { createItem } from "../actions";
 
-const autoComplete = [
+const itemAutoComplete = [
   {
     id: "todo",
-    display: "TODO "
+    display: "TODO"
   },
   {
     id: "note",
-    display: "NOTE "
+    display: "NOTE"
+  }
+];
+
+const dateAutoComplete = [
+  {
+    id: "today",
+    display: "Today"
+  },
+  {
+    id: "tomorrow",
+    display: "Tomorrow"
   }
 ];
 
@@ -54,8 +65,14 @@ class QuickAdd extends Component {
       >
         <Mention
           trigger={inputRegex}
-          data={autoComplete}
-          style={styles.mentionStyle}
+          data={itemAutoComplete}
+          appendSpaceOnAdd
+          style={styles.itemMentionStyle}
+        />
+        <Mention
+          trigger="@s"
+          data={dateAutoComplete}
+          style={styles.dateMentionStyle}
           appendSpaceOnAdd
         />
       </MentionsInput>

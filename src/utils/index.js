@@ -1,20 +1,38 @@
-// TODO: What about leading space
+import chrono from "chrono-node";
+
+export const itemRegex = new RegExp("^(TODO)|(NOTE)s*.*", "gi");
+
 export const getItemTypeFromString = text => {
   const words = text.split(" ");
   const itemType = words[0];
-  return itemType;
+  return itemType.toUpperCase();
 };
 
-export const getItemTextFromString = text => {
+export const capitaliseItemTypeFromString = text => {
   const words = text.split(" ");
-  const itemText = words.slice(1).join(" ");
-  return itemText;
+  const t = words.shift().toUpperCase();
+  words.unshift(t);
+  return words.join(" ");
+};
+
+export const extractDateFromString = text => {
+  const dates = chrono.parse(text);
+  return dates.length ? dates[0].ref : null;
+};
+
+export const removeDateFromString = text => {
+  const dates = chrono.parse(text);
+  if (dates.length == 0) {
+    return text;
+  }
+  const startString = text.slice(0, dates[0].index);
+  const endString = text.slice(dates[0].index + dates[0].text.length);
+  return (startString + endString).trim();
 };
 
 // TODO: Think about tags etc.
 export const validateItemString = text => {
-  const regex = /^\**\s*TODO|NOTE/;
-  const matches = text.match(regex);
+  const matches = text.match(itemRegex);
   return (matches && matches.length) > 0;
 };
 

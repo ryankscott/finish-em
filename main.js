@@ -8,7 +8,7 @@ let mainWindow, quickAddWindow;
 function createQuickAddWindow() {
   quickAddWindow = new BrowserWindow({
     width: 600,
-    height: 250,
+    height: 80,
     transparent: true,
     frame: false,
     focused: true,
@@ -24,7 +24,7 @@ function createQuickAddWindow() {
       : `file://${path.join(__dirname, "../build/index.html?quickAdd")}`
   );
   // Open dev tools
-  quickAddWindow.webContents.openDevTools();
+  //quickAddWindow.webContents.openDevTools();
 
   // On closing derefernce
   quickAddWindow.on("closed", () => {
