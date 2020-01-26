@@ -65,7 +65,7 @@ const Container = styled.div`
   z-index: 1;
   background-color: #fff;
   width: 660px;
-`; // TODO: I don't know where the additional 5 px have come from
+`;
 
 const generateOptions = options => {
   return options
