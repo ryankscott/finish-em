@@ -24,9 +24,7 @@ class ViewManager extends Component {
   render() {
     return (
       <Router>
-        <div>
-          <Route path="/" component={ViewManager.View} />
-        </div>
+        <Route path="/" component={ViewManager.View} />
       </Router>
     );
   }

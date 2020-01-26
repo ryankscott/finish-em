@@ -1,4 +1,5 @@
 import chrono from "chrono-node";
+import { isBefore, formatDistanceToNow, parseISO, isValid } from "date-fns";
 
 export const itemRegex = new RegExp("^(TODO)|(NOTE)s*.*", "gi");
 
@@ -15,6 +16,12 @@ export const capitaliseItemTypeFromString = text => {
   return words.join(" ");
 };
 
+export const removeItemTypeFromString = text => {
+  const words = text.split(" ");
+  words.shift();
+  return words.join(" ").trim();
+};
+
 export const extractDateFromString = text => {
   const dates = chrono.parse(text);
   return dates.length ? dates[0].ref : null;
@@ -22,7 +29,7 @@ export const extractDateFromString = text => {
 
 export const removeDateFromString = text => {
   const dates = chrono.parse(text);
-  if (dates.length == 0) {
+  if (dates.length == 0 || dates === undefined) {
     return text;
   }
   const startString = text.slice(0, dates[0].index);
@@ -44,4 +51,21 @@ export const removeByKey = (object, deleteKey) => {
       result[current] = object[current];
       return result;
     }, {});
+};
+
+// TODO: This is less than ideal as it really should name the day of the week
+// or today / tomorrow and if not then a DDD MM YY
+export const formatDateStringRelativeToNow = dateString => {
+  const parsedDate = parseISO(dateString);
+  if (isValid(parsedDate)) {
+    return isBefore(parsedDate, new Date())
+      ? formatDistanceToNow(parsedDate) + " ago"
+      : "in " + formatDistanceToNow(parsedDate);
+  }
+  return "";
+};
+
+export const isDateStringBeforeToday = dateString => {
+  const parsedDate = parseISO(dateString);
+  return isValid(parsedDate) ? isBefore(parsedDate, new Date()) : null;
 };

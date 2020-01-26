@@ -1,73 +1,106 @@
 import React, { Component } from "react";
-import styled from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
+import Select from "react-select";
+import { theme } from "../theme";
 
 import { connect } from "react-redux";
 import { createItem } from "../actions";
+const customStyles = {
+  input: () => ({
+    padding: "5px",
+    fontFamily: theme.font.sansSerif
+  }),
+  menu: (provided, state) => ({
+    margin: "4px 0px 0px 0px",
+    padding: "0px",
+    border: "1px solid",
+    backgroundColor: theme.colours.backgroundColour,
+    borderColor: theme.colours.borderColour
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    color: theme.colours.defaultTextColour,
+    backgroundColor: state.isFocused
+      ? theme.colours.focusBackgroundColour
+      : "white",
+    padding: "2px 10px",
+    margin: 0,
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.small,
+    fontWeight: state.isFocused
+      ? theme.fontWeights.bold
+      : theme.fontWeights.regular
+  }),
+  control: () => ({
+    width: "100%",
+    margin: 0,
+    padding: 0,
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.small
+  }),
+  singleValue: (provided, state) => ({}),
+  indicatorsContainer: () => ({ display: "none" }),
+  dropdownIndicator: () => ({
+    display: "none"
+  }),
+  noOptionsMessage: () => ({
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.xsmall,
+    fontWeight: theme.fontWeights.thin,
+    padding: "2px 5px"
+  })
+};
 
 const Container = styled.div`
+  box-styling: border-box;
   position: absolute;
   display: flex;
   flex-direction: column;
-  border: 1px solid #ccc;
-  margin: 0px;
+  border: 1px solid;
+  border-color: ${props => props.theme.colours.borderColour};
+  margin: 0px 0px 0px 10px;
+  height: 35px;
   padding: 0px;
-  width: 80px;
   display: ${props => (!props.visible ? "none" : null)};
-  border-radius: 5px;
   z-index: 1;
   background-color: #fff;
-`;
+  width: 660px;
+`; // TODO: I don't know where the additional 5 px have come from
 
-const ProjectItem = styled.div`
-  display: flex;
-  height: 30px;
-  padding: 2px 5px;
-  align-items: center;
-  justify-content: center;
-  background-color: "#FFF";
-  border-radius: 5px;
-  font-family: "Helvetica", sans-serif;
-  font-size: 12px;
-  &:focus {
-    background-color: #acdaef;
-    color: #555;
-  }
-  border-bottom: 1px solid #ccc;
-`;
+const generateOptions = options => {
+  return options
+    .filter(m => m.id != null)
+    .map(m => ({ value: m.id, label: m.name }));
+};
 
 class ProjectDropdown extends Component {
   constructor(props) {
     super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.state = { selectedOption: null };
+    this.handleChange = this.handleChange.bind(this);
   }
 
-  handleSubmit(e) {
-    if (e.key == "Enter") {
-      this.props.onSubmit(e.target.id);
-    }
+  handleChange(e) {
+    this.props.onSubmit(e.value);
   }
 
   render() {
     const { projects } = this.props;
+    // Only render if it's not just the Inbox project that exists
     return (
-      // Only render if it's not just the Inbox project that exists
-      <Container visible={this.props.visible && projects.length > 1}>
-        {projects.map((p, index) => {
-          if (p.id != null) {
-            return (
-              <ProjectItem
-                autoFocus={index == 0}
-                id={p.id}
-                key={p.id}
-                tabIndex={0}
-                onKeyDown={this.handleSubmit}
-              >
-                {p.name}
-              </ProjectItem>
-            );
-          }
-        })}
-      </Container>
+      <ThemeProvider theme={theme}>
+        <Container visible={this.props.visible && projects.length > 1}>
+          <Select
+            autoFocus={true}
+            placeholder="Refile to..."
+            isSearchable
+            value={this.state.selectedOption}
+            onChange={this.handleChange}
+            options={generateOptions(this.props.projects)}
+            styles={customStyles}
+          />
+        </Container>
+      </ThemeProvider>
     );
   }
 }

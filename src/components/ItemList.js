@@ -1,9 +1,18 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Item from "../components/Item";
+import styled, { ThemeProvider } from "styled-components";
+import { theme } from "../theme";
 
 import { connect } from "react-redux";
 import { updateItem, createItem, deleteItem, refileItem } from "../actions";
+
+const NoItemText = styled.p`
+  color: ${props => props.theme.colours.disabledTextColour};
+  font-family: ${props => props.theme.font.sansSerif};
+  font-size: ${props => props.theme.fontSizes.small};
+  padding-left: 10px;
+`;
 
 class ItemList extends Component {
   constructor(props) {
@@ -12,7 +21,7 @@ class ItemList extends Component {
 
   render() {
     return (
-      <div>
+      <ThemeProvider theme={theme}>
         {this.props.items.map(i => {
           return (
             <Item
@@ -20,17 +29,17 @@ class ItemList extends Component {
               key={i.id}
               type={i.type}
               text={i.text}
+              completed={i.completed}
               projectID={i.projectID}
               scheduledDate={i.scheduledDate}
               dueDate={i.dueDate}
-              readOnly={false}
-              onSubmit={this.props.updateItem}
               onDelete={this.props.deleteItem}
               onRefile={this.props.refileItem}
             />
           );
         })}
-      </div>
+        {this.props.items.length == 0 && <NoItemText>No items</NoItemText>}
+      </ThemeProvider>
     );
   }
 }

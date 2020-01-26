@@ -4,6 +4,9 @@ import CreateProject from "../components/CreateProject";
 import FilteredItemList from "../containers/FilteredItemList";
 import { connect } from "react-redux";
 import uuidv4 from "uuid/v4";
+import styled, { ThemeProvider } from "styled-components";
+import { theme } from "../theme";
+import { Header, SubTitle } from "../components/Typography";
 
 class ProjectList extends Component {
   constructor(props) {
@@ -12,28 +15,22 @@ class ProjectList extends Component {
 
   render() {
     return (
-      <div>
-        <h1> Projects </h1>
-        {this.props.projects.map(p => {
-          return (
-            <div key={uuidv4()}>
-              <Project
-                id={p.id}
-                key={p.id}
-                name={p.name}
-                description={p.description}
-              />
-              <FilteredItemList
-                key={"i" + p.id}
-                items={this.props.items}
-                filter="SHOW_FROM_PROJECT"
-                params={{ projectId: p.id }}
-              />
-            </div>
-          );
-        })}
-        <CreateProject />
-      </div>
+      <ThemeProvider theme={theme}>
+        <div>
+          {this.props.projects.map(p => {
+            return (
+              <div key={uuidv4()}>
+                <Project
+                  id={p.id}
+                  key={p.id}
+                  name={p.name}
+                  description={p.description}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </ThemeProvider>
     );
   }
 }

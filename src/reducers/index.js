@@ -1,9 +1,14 @@
+import { combineReducers } from "redux";
 import uuidv4 from "uuid/v4";
 import {
   CREATE_ITEM,
   DELETE_ITEM,
   REFILE_ITEM,
+  UNCOMPLETE_ITEM,
+  COMPLETE_ITEM,
   UPDATE_ITEM,
+  SET_SCHEDULED_DATE,
+  SET_DUE_DATE,
   CREATE_PROJECT
 } from "../actions";
 
@@ -18,29 +23,62 @@ const initialState = {
       id: uuidv4(),
       name: "Finish Em",
       description: "All items relating to this project"
+    },
+    {
+      id: uuidv4(),
+      name: "Home",
+      description: "All items for home"
+    },
+    {
+      id: uuidv4(),
+      name: "Work",
+      description: "Non descript work items"
     }
   ],
   items: [
     {
       id: "5eea6e08-a760-4732-83ca-2329cc718fce",
       type: "TODO",
-      text: "TODO - Learn org-mode",
+      text: "TODO Learn org-mode",
       projectId: null,
-      scheduledDate: "2020-01-02",
-      dueDate: null
+      scheduledDate: null,
+      dueDate: null,
+      completed: false,
+      deleted: false,
+      createdAt: new Date(2020, 1, 1),
+      completedAt: null,
+      lastUpdatedAt: new Date(2020, 1, 1)
     },
     {
       id: "f2c91c07-e2bf-4a61-ad83-59261031775f",
+      type: "TODO",
+      text: "TODO Write better code",
+      projectId: null,
+      scheduledDate: new Date(2020, 3, 2),
+      dueDate: null,
+      completed: false,
+      deleted: false,
+      createdAt: new Date(2020, 1, 1),
+      completedAt: null,
+      lastUpdatedAt: new Date(2020, 1, 1)
+    },
+    {
+      id: "f2b91c07-e2bf-4a61-ad83-59261031775f",
       type: "NOTE",
-      text: "NOTE - Write better code",
+      text: "NOTE Carrot in German is mohren",
       projectId: null,
       scheduledDate: null,
-      dueDate: null
+      dueDate: null,
+      completed: false,
+      deleted: false,
+      createdAt: new Date(2020, 1, 1),
+      completedAt: null,
+      lastUpdatedAt: new Date(2020, 1, 1)
     }
   ]
 };
 
-const itemApp = (state = initialState, action) => {
+const rootReducer = (state = initialState, action) => {
   switch (action.type) {
     case CREATE_ITEM:
       const itemUUID = uuidv4();
@@ -54,16 +92,51 @@ const itemApp = (state = initialState, action) => {
             text: action.text,
             scheduledDate: null,
             dueDate: action.dueDate,
-            projectId: null
+            projectId: null,
+            completed: false,
+            deleted: false,
+            completedAt: null,
+            createdAt: new Date(),
+            lastUpdatedAt: new Date()
           }
         ]
       };
 
+    // TODO: Should we have a deleted flag?
     case DELETE_ITEM:
       return {
         ...state,
-        // Trying to remove a key from object without mutating
-        items: state.items.filter(i => i.id != action.id)
+        items: state.items.map(i => {
+          if (i.id == action.id) {
+            i.deleted = true;
+            i.lastUpdatedAt = new Date();
+          }
+          return i;
+        })
+      };
+    case COMPLETE_ITEM:
+      return {
+        ...state,
+        items: state.items.map(i => {
+          if (i.id == action.id) {
+            i.completed = true;
+            i.lastUpdatedAt = new Date();
+            i.completedAt = new Date();
+          }
+          return i;
+        })
+      };
+    case UNCOMPLETE_ITEM:
+      return {
+        ...state,
+        items: state.items.map(i => {
+          if (i.id == action.id) {
+            i.completed = false;
+            i.lastUpdatedAt = new Date();
+            i.completedAt = null;
+          }
+          return i;
+        })
       };
 
     case REFILE_ITEM:
@@ -72,6 +145,29 @@ const itemApp = (state = initialState, action) => {
         items: state.items.map(i => {
           if (i.id == action.id) {
             i.projectId = action.projectId;
+            i.lastUpdatedAt = new Date();
+          }
+          return i;
+        })
+      };
+    case SET_SCHEDULED_DATE:
+      return {
+        ...state,
+        items: state.items.map(i => {
+          if (i.id == action.id) {
+            i.scheduledDate = action.date;
+            i.lastUpdatedAt = new Date();
+          }
+          return i;
+        })
+      };
+    case SET_DUE_DATE:
+      return {
+        ...state,
+        items: state.items.map(i => {
+          if (i.id == action.id) {
+            i.dueDate = action.date;
+            i.lastUpdatedAt = new Date();
           }
           return i;
         })
@@ -83,6 +179,7 @@ const itemApp = (state = initialState, action) => {
           if (i.id == action.id) {
             i.text = action.text;
             i.itemType = action.itemType;
+            i.lastUpdatedAt = new Date();
           }
           return i;
         })
@@ -107,4 +204,4 @@ const itemApp = (state = initialState, action) => {
   }
 };
 
-export default itemApp;
+export default rootReducer;

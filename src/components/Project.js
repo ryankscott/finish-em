@@ -1,35 +1,17 @@
 import React, { Component } from "react";
-import styled from "styled-components";
-
+import styled, { ThemeProvider } from "styled-components";
+import { useParams } from "react-router-dom";
 import { connect } from "react-redux";
+
+import { theme } from "../theme";
 import { createItem } from "../actions";
+import { Header, Title, SubTitle, Paragraph } from "./Typography";
+import FilteredItemList from "../containers/FilteredItemList";
 
 const ProjectContainer = styled.div`
   display: flex;
   flex-direction: column;
-  margin: 20px 0px;
-`;
-
-const ProjectName = styled.h2`
-  padding: 2px;
-  margin: 2px;
-  font-size: 18px;
-  font-family: "Helvetica", sans-serif;
-`;
-
-const ProjectDescription = styled.p`
-  font-size: 12px;
-  font-family: "Helvetica", sans-serif;
-  margin: 2px 0px;
-`;
-
-const HorizontalRule = styled.hr`
-  margin: 5px 0px;
-  border: none;
-  width: 250px;
-  height: 1px;
-  color: #333;
-  background-color: #333;
+  margin: 50px 50px;
 `;
 
 class Project extends Component {
@@ -38,17 +20,35 @@ class Project extends Component {
   }
 
   render() {
+    const project = this.props.projects.find(p => {
+      return p.id == this.props.projectId;
+    });
+
     return (
-      <ProjectContainer id={this.props.id}>
-        <ProjectName>{this.props.name}</ProjectName>
-        <HorizontalRule />
-        <ProjectDescription>{this.props.description}</ProjectDescription>
-      </ProjectContainer>
+      <ThemeProvider theme={theme}>
+        <ProjectContainer>
+          <Header>{project.name} </Header>
+          <Paragraph>{project.description}</Paragraph>
+          <SubTitle> Notes </SubTitle>
+          <FilteredItemList
+            filter="SHOW_FROM_PROJECT"
+            params={{ projectId: this.props.projectId, type: "NOTE" }}
+          />
+          <SubTitle> Todos </SubTitle>
+          <FilteredItemList
+            filter="SHOW_FROM_PROJECT"
+            params={{ projectId: this.props.projectId, type: "TODO" }}
+          />
+        </ProjectContainer>
+      </ThemeProvider>
     );
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  projects: state.projects,
+  items: state.items
+});
 const mapDispatchToProps = dispatch => ({});
 export default connect(
   mapStateToProps,
