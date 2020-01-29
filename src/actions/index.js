@@ -1,5 +1,6 @@
 // Actions
 export const CREATE_ITEM = "CREATE_ITEM";
+export const ARCHIVE_ITEM = "ARCHIVE_ITEM";
 export const DELETE_ITEM = "DELETE_ITEM";
 export const UPDATE_ITEM = "UPDATE_ITEM";
 export const REFILE_ITEM = "REFILE_ITEM";
@@ -38,6 +39,13 @@ export function deleteItem(id) {
     id: id
   };
 }
+export function archiveItem(id) {
+  return {
+    type: ARCHIVE_ITEM,
+    id: id
+  };
+}
+
 export function completeItem(id) {
   return {
     type: COMPLETE_ITEM,

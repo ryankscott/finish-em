@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router-dom";
 import { connect } from "react-redux";
@@ -14,39 +14,33 @@ const ProjectContainer = styled.div`
   margin: 50px 50px;
 `;
 
-class Project extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const project = this.props.projects.find(p => {
-      return p.id == this.props.projectId;
-    });
-
-    return (
-      <ThemeProvider theme={theme}>
-        <ProjectContainer>
-          <Header>{project.name} </Header>
-          <Paragraph>{project.description}</Paragraph>
-          <SubTitle> Notes </SubTitle>
-          <FilteredItemList
-            filter="SHOW_FROM_PROJECT"
-            params={{ projectId: this.props.projectId, type: "NOTE" }}
-          />
-          <SubTitle> Todos </SubTitle>
-          <FilteredItemList
-            filter="SHOW_FROM_PROJECT"
-            params={{ projectId: this.props.projectId, type: "TODO" }}
-          />
-        </ProjectContainer>
-      </ThemeProvider>
-    );
-  }
+function Project(props) {
+  return (
+    <ThemeProvider theme={theme}>
+      <ProjectContainer id="project-container">
+        <Header>{props.project.name} </Header>
+        <Paragraph>{props.project.description}</Paragraph>
+        <SubTitle> Notes </SubTitle>
+        <FilteredItemList
+          filter="SHOW_FROM_PROJECT_BY_TYPE"
+          params={{ projectId: props.project.id, type: "NOTE" }}
+        />
+        <SubTitle> Todos </SubTitle>
+        <FilteredItemList
+          filter="SHOW_FROM_PROJECT_BY_TYPE"
+          params={{ projectId: props.project.id, type: "TODO" }}
+        />
+        <SubTitle> Archive </SubTitle>
+        <FilteredItemList
+          filter="SHOW_ARCHIVED_FROM_PROJECT"
+          params={{ projectId: props.project.id, type: "TODO" }}
+        />
+      </ProjectContainer>
+    </ThemeProvider>
+  );
 }
 
 const mapStateToProps = state => ({
-  projects: state.projects,
   items: state.items
 });
 const mapDispatchToProps = dispatch => ({});

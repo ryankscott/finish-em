@@ -1,13 +1,12 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-
 import { connect } from "react-redux";
-import { configure, HotKeys, getApplicationKeyMap } from "react-hotkeys";
 import { formatRelative, isBefore, parseISO, isValid, isAfter } from "date-fns";
 import { enGB } from "date-fns/esm/locale";
+import * as Mousetrap from "Mousetrap";
 
 import {
-  deleteItem,
+  archiveItem,
   refileItem,
   completeItem,
   uncompleteItem,
@@ -17,11 +16,7 @@ import {
 import { theme } from "../theme";
 import ProjectDropdown from "../components/ProjectDropdown";
 import DatePicker from "../components/DatePicker";
-import {
-  formatDateStringRelativeToNow,
-  isDateStringBeforeToday,
-  removeItemTypeFromString
-} from "../utils";
+import { removeItemTypeFromString } from "../utils";
 
 const ItemContainer = styled.div`
   font-family: ${props => props.theme.font.sansSerif};
@@ -38,6 +33,7 @@ const ItemContainer = styled.div`
   padding: 5px 5px 5px 5px;
   margin: 0px 0px 0px 10px;
   align-items: center;
+  cursor: pointer;
   :focus {
     background-color: ${props => props.theme.colours.focusBackgroundColour};
     border-color: ${props => props.theme.colours.focusBorderColour};
@@ -56,7 +52,6 @@ const ItemType = styled.div`
   margin: 2px 5px 2px 2px;
   padding: 2px 0px;
   border-radius: 5px;
-  cursor: pointer;
 `;
 
 const DueDate = styled.div`
@@ -85,96 +80,88 @@ const ItemBody = styled.span`
     props.completed == true ? "line-through" : null};
 `;
 
-// React-hotkeys configuration
-configure({
-  logLevel: "debug"
-});
-
 class Item extends Component {
   constructor(props) {
     super(props);
     this.state = {
       projectDropdownVisible: false,
       scheduledDatePopupVisible: false,
-      dueDatePopupVisible: false
+      dueDatePopupVisible: false,
+      focussed: false
     };
-    this.refileItem = this.refileItem.bind(this);
     this.setScheduledDate = this.setScheduledDate.bind(this);
     this.setDueDate = this.setDueDate.bind(this);
+    this.refileItem = this.refileItem.bind(this);
 
     this.hotkeyHandler = {
-      TEST: event => {
-        console.log(getApplicationKeyMap());
-      },
       SET_SCHEDULED_DATE: event => {
         console.log("scheduling");
         this.setState({
-          scheduledDatePopupVisible: true
+          scheduledDatePopupVisible: !this.state.scheduledDatePopupVisible,
+          dueDatePopupVisible: false,
+          projectDropdownVisible: false
         });
       },
       SET_DUE_DATE: event => {
+        console.log("due date");
         this.setState({
-          dueDatePopupVisible: true
+          dueDatePopupVisible: !this.state.dueDatePopupVisible,
+          scheduledDatePopupVisible: false,
+          projectDropdownVisible: false
         });
       },
-      DELETE: event => {
-        // TODO: This is probably wrong
-        this.props.deleteItem(event.target.id);
+      ARCHIVE: event => {
+        console.log("archiving");
+        this.props.archiveItem(event.target.id);
       },
       COMPLETE: event => {
+        console.log("completing");
         this.props.completeItem(event.target.id);
       },
       UNCOMPLETE: event => {
+        console.log("uncompleting");
         this.props.uncompleteItem(event.target.id);
       },
       REFILE: event => {
         console.log("refiling");
+        console.log("id: " + event.target.id);
+        console.log("target: ");
+        console.log(event.target);
+        console.log("dropdown visible: " + this.state.projectDropdownVisible);
+        console.log("is in focus: " + this.state.focussed);
+        // if (!this.state.focussed) return;
         this.setState({
-          projectDropdownVisible: true
+          projectDropdownVisible: !this.state.projectDropdownVisible,
+          dueDatePopupVisible: false,
+          scheduledDatePopupVisible: false
         });
       },
       ESCAPE: event => {
+        console.log("escaping");
         this.setState({
           projectDropdownVisible: false,
           dueDatePopupVisible: false,
           scheduledDatePopupVisible: false
         });
       }
-      // // TODO: Yikes that's a complicated meat-ball
-      // MOVE_UP: event => {
-      //   event.target.parentElement.previousSibling &&
-      //     event.target.parentElement.previousSibling.firstChild.focus();
-      // },
-      // MOVE_DOWN: event => {
-      //   event.target.parentElement.nextSibling &&
-      //     event.target.parentElement.nextSibling.firstChild.focus();
-      // }
-    };
-    this.keyMaps = {
-      TODO: {
-        SET_SCHEDULED_DATE: { sequence: "s", action: "keyup" },
-        SET_DUE_DATE: "d",
-        DELETE: "i x",
-        REFILE: "i r",
-        COMPLETE: "i w d",
-        UNCOMPLETE: "i w t",
-        ESCAPE: ["Escape", "j k"],
-        // MOVE_UP: ["k", "ArrowUp"],
-        // MOVE_DOWN: ["j", "ArrowDown"],
-        TEST: "t"
-      },
-      NOTE: {
-        DELETE: "i x",
-        REFILE: "i r",
-        ESCAPE: ["Escape", "j k"],
-        // MOVE_UP: ["k", "ArrowUp"],
-        // MOVE_DOWN: ["j", "ArrowDown"],
-        TEST: "t"
-      }
     };
   }
-
-  // TODO: This is a hack so that I can have access to the props...
+  componentDidMount() {
+    Mousetrap.bind("r", this.hotkeyHandler.REFILE);
+    Mousetrap.bind("s", this.hotkeyHandler.SET_SCHEDULED_DATE);
+    Mousetrap.bind("c", this.hotkeyHandler.COMPLETE);
+    Mousetrap.bind("u", this.hotkeyHandler.UNCOMPLETE);
+    Mousetrap.bind("d", this.hotkeyHandler.SET_DUE_DATE);
+    Mousetrap.bind("a", this.hotkeyHandler.ARCHIVE);
+    Mousetrap.bind("escape", this.hotkeyHandler.ESCAPE);
+  }
+  componentWillUnmount() {
+    Mousetrap.unbind("r");
+    Mousetrap.unbind("s");
+    Mousetrap.unbind("d");
+    Mousetrap.unbind("a");
+    Mousetrap.unbind("escape");
+  }
 
   setScheduledDate(d) {
     this.props.setScheduledDate(this.props.id, d);
@@ -186,7 +173,6 @@ class Item extends Component {
     this.setState({ dueDatePopupVisible: false });
   }
 
-  // TODO: This feels wrong but I can't find a better way to get the id of the item
   refileItem(projectId) {
     this.props.refileItem(this.props.id, projectId);
     this.setState({ projectDropdownVisible: false });
@@ -197,52 +183,51 @@ class Item extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
-        <HotKeys
-          keyMap={this.keyMaps[this.props.type]}
-          handlers={this.hotkeyHandler}
+        <ItemContainer
+          onFocus={() => this.setState({ focussed: true })}
+          onBlur={() => this.setState({ focussed: false })}
+          id={this.props.id}
           tabIndex={0}
         >
-          <ItemContainer id={this.props.id} tabIndex={0}>
-            <ItemType itemType={this.props.type}>
-              {this.props.completed ? "DONE" : this.props.type}
-            </ItemType>
-            <ItemBody completed={this.props.completed}>
-              {removeItemTypeFromString(this.props.text)}
-            </ItemBody>
-            {this.props.dueDate && (
-              <DueDate>
-                {"Due: " +
-                  formatRelative(this.props.dueDate, new Date(), {
-                    locale: enGB
-                  })}
-              </DueDate>
-            )}
-            {this.props.scheduledDate && (
-              <ScheduledDate>
-                {"Scheduled: " +
-                  formatRelative(this.props.scheduledDate, new Date(), {
-                    locale: enGB
-                  })}
-              </ScheduledDate>
-            )}
-          </ItemContainer>
-          <DatePicker
-            visible={this.state.scheduledDatePopupVisible}
-            onSubmit={this.setScheduledDate}
-            close={() => this.setState({ scheduledDatePopupVisible: false })}
-            placeholder={"Schedule: "}
-          />
-          <DatePicker
-            visible={this.state.dueDatePopupVisible}
-            onSubmit={this.setDueDate}
-            close={() => this.setState({ dueDatePopupVisible: false })}
-            placeholder={"Due: "}
-          />
-          <ProjectDropdown
-            onSubmit={this.refileItem}
-            visible={this.state.projectDropdownVisible}
-          />
-        </HotKeys>
+          <ItemType itemType={this.props.type}>
+            {this.props.completed ? "DONE" : this.props.type}
+          </ItemType>
+          <ItemBody completed={this.props.completed}>
+            {removeItemTypeFromString(this.props.text)}
+          </ItemBody>
+          {this.props.dueDate && (
+            <DueDate>
+              {"Due: " +
+                formatRelative(this.props.dueDate, new Date(), {
+                  locale: enGB
+                })}
+            </DueDate>
+          )}
+          {this.props.scheduledDate && (
+            <ScheduledDate>
+              {"Scheduled: " +
+                formatRelative(this.props.scheduledDate, new Date(), {
+                  locale: enGB
+                })}
+            </ScheduledDate>
+          )}
+        </ItemContainer>
+        <DatePicker
+          placeholder={"Schedule to: "}
+          visible={this.state.scheduledDatePopupVisible}
+          onSubmit={this.setScheduledDate}
+        />
+        <DatePicker
+          placeholder={"Due on: "}
+          visible={this.state.dueDatePopupVisible}
+          onSubmit={this.setDueDate}
+        />
+
+        <ProjectDropdown
+          placeholder={this.props.id}
+          visible={this.state.projectDropdownVisible}
+          onSubmit={this.refileItem}
+        />
       </ThemeProvider>
     );
   }
@@ -256,8 +241,8 @@ const mapDispatchToProps = dispatch => ({
   completeItem: id => {
     dispatch(completeItem(id));
   },
-  deleteItem: id => {
-    dispatch(deleteItem(id));
+  archiveItem: id => {
+    dispatch(archiveItem(id));
   },
   refileItem: (id, projectId) => {
     dispatch(refileItem(id, projectId));

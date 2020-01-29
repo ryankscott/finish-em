@@ -5,7 +5,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 
 import { connect } from "react-redux";
-import { updateItem, createItem, deleteItem, refileItem } from "../actions";
+import { deleteItem, refileItem } from "../actions";
 
 const NoItemText = styled.p`
   color: ${props => props.theme.colours.disabledTextColour};
@@ -25,19 +25,14 @@ class ItemList extends Component {
         {this.props.items.map(i => {
           return (
             <Item
-              id={i.id}
+              {...i}
               key={i.id}
-              type={i.type}
-              text={i.text}
-              completed={i.completed}
-              projectID={i.projectID}
-              scheduledDate={i.scheduledDate}
-              dueDate={i.dueDate}
               onDelete={this.props.deleteItem}
               onRefile={this.props.refileItem}
             />
           );
         })}
+
         {this.props.items.length == 0 && <NoItemText>No items</NoItemText>}
       </ThemeProvider>
     );
@@ -48,9 +43,6 @@ class ItemList extends Component {
 const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
-  updateItem: (id, text) => {
-    dispatch(updateItem(id, text));
-  },
   deleteItem: id => {
     dispatch(deleteItem(id));
   },

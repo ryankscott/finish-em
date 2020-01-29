@@ -63,7 +63,6 @@ class DatePicker extends Component {
       <ThemeProvider theme={theme}>
         <Container visible={this.props.visible}>
           <DayPickerInput
-            tabIndex={0}
             showWeekNumbers
             value={this.state.selectedDay}
             onDayChange={this.handleDayChange}

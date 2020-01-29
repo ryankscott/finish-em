@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import QuickAdd from "./QuickAdd";
 import FilteredItemList from "../containers/FilteredItemList";
 import ProjectList from "../containers/ProjectList";
@@ -9,7 +9,14 @@ import Sidebar from "../components/Sidebar";
 import { connect } from "react-redux";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import { theme } from "../theme";
-import { Route, Switch, useParams } from "react-router-dom";
+import {
+  useHistory,
+  Route,
+  Switch,
+  useParams,
+  BrowserRouter as Router
+} from "react-router-dom";
+import * as Mousetrap from "Mousetrap";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -39,37 +46,82 @@ const MainContainer = styled.div`
   padding: 10px 20px;
 `;
 
-const ProjectWrapper = () => {
+const ProjectWrapper = props => {
   let { id } = useParams();
-  return <Project projectId={id} />;
+  const project = props.projects.find(p => {
+    return p.id == id;
+  });
+  return <Project project={project} />;
 };
 
-class App extends Component {
-  constructor(props) {
-    super(props);
+function App(props) {
+  let history = useHistory();
+
+  function goToDailyAgenda() {
+    history.push("/dailyAgenda");
   }
 
-  render() {
-    return (
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <Container>
-          <Sidebar />
-          <MainContainer>
-            <Switch>
-              <Route exact path="/" component={Inbox} />
-              <Route exact path="/inbox" component={Inbox} />
-              <Route exact path="/dailyAgenda" component={DailyAgenda} />
-              <Route path="/projects/:id" children={<ProjectWrapper />} />
-            </Switch>
-          </MainContainer>
-        </Container>
-      </ThemeProvider>
-    );
+  function goToInbox() {
+    history.push("/inbox");
   }
+
+  function goToProject(number) {
+    if (number >= props.projects.length) return;
+    const id = props.projects[number].id;
+    history.push("/projects/" + id);
+  }
+
+  useEffect(() => {
+    Mousetrap.bind("g d a", () => goToDailyAgenda());
+    Mousetrap.bind("g i", () => goToInbox());
+    Mousetrap.bind("g 1", () => goToProject(1));
+    Mousetrap.bind("g 2", () => goToProject(2));
+    Mousetrap.bind("g 3", () => goToProject(3));
+    Mousetrap.bind("g 4", () => goToProject(4));
+    Mousetrap.bind("g 5", () => goToProject(5));
+    Mousetrap.bind("g 6", () => goToProject(6));
+    Mousetrap.bind("g 7", () => goToProject(7));
+    Mousetrap.bind("g 8", () => goToProject(8));
+    Mousetrap.bind("g 9", () => goToProject(9));
+    return function cleanup() {
+      Mousetrap.unbind("g a");
+      Mousetrap.unbind("g i");
+      Mousetrap.unbind("g 1");
+      Mousetrap.unbind("g 2");
+      Mousetrap.unbind("g 3");
+      Mousetrap.unbind("g 4");
+      Mousetrap.unbind("g 5");
+      Mousetrap.unbind("g 6");
+      Mousetrap.unbind("g 7");
+      Mousetrap.unbind("g 8");
+      Mousetrap.unbind("g 9");
+    };
+  });
+
+  return (
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <Container>
+        <Sidebar />
+        <MainContainer>
+          <Switch>
+            <Route exact path="/" component={Inbox} />
+            <Route exact path="/inbox" component={Inbox} />
+            <Route exact path="/dailyAgenda" component={DailyAgenda} />
+            <Route
+              path="/projects/:id"
+              children={<ProjectWrapper projects={props.projects} />}
+            />
+          </Switch>
+        </MainContainer>
+      </Container>
+    </ThemeProvider>
+  );
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  projects: state.projects
+});
 
 const mapDispatchToProps = dispatch => ({});
 export default connect(

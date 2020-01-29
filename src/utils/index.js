@@ -52,20 +52,3 @@ export const removeByKey = (object, deleteKey) => {
       return result;
     }, {});
 };
-
-// TODO: This is less than ideal as it really should name the day of the week
-// or today / tomorrow and if not then a DDD MM YY
-export const formatDateStringRelativeToNow = dateString => {
-  const parsedDate = parseISO(dateString);
-  if (isValid(parsedDate)) {
-    return isBefore(parsedDate, new Date())
-      ? formatDistanceToNow(parsedDate) + " ago"
-      : "in " + formatDistanceToNow(parsedDate);
-  }
-  return "";
-};
-
-export const isDateStringBeforeToday = dateString => {
-  const parsedDate = parseISO(dateString);
-  return isValid(parsedDate) ? isBefore(parsedDate, new Date()) : null;
-};

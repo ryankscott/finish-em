@@ -52,8 +52,8 @@ const customStyles = {
 };
 
 const Container = styled.div`
+  position: inline;
   box-styling: border-box;
-  position: absolute;
   display: flex;
   flex-direction: column;
   border: 1px solid;
@@ -62,7 +62,6 @@ const Container = styled.div`
   height: 35px;
   padding: 0px;
   display: ${props => (!props.visible ? "none" : null)};
-  z-index: 1;
   background-color: #fff;
   width: 660px;
 `;
@@ -92,7 +91,7 @@ class ProjectDropdown extends Component {
         <Container visible={this.props.visible && projects.length > 1}>
           <Select
             autoFocus={true}
-            placeholder="Refile to..."
+            placeholder={this.props.placeholder}
             isSearchable
             value={this.state.selectedOption}
             onChange={this.handleChange}

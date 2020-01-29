@@ -4,32 +4,67 @@ import ItemList from "../components/ItemList";
 import { removeItemTypeFromString, isDateStringBeforeToday } from "../utils";
 import { isSameDay, isAfter } from "date-fns";
 
-// TODO: Need to better express filters and params
+function filterArray(array, filters, anyMatch) {
+  const filterKeys = Object.keys(filters);
+  return array.filter(item => {
+    // validates all filter criteria
+    const filterResults = filterKeys.map(key => {
+      // ignores non-function predicates
+      if (typeof filters[key] !== "function") return true;
+      // TODO: Maybe change this to not care about the key
+      return filters[key](item[key]);
+    });
+    // If anyMatch is set to true, if one of the filter matches it will return the item
+    return anyMatch
+      ? filterResults.some(f => f == true)
+      : filterResults.every(f => f == true);
+  });
+}
+
 const getFilteredItems = (items, filter, params) => {
   switch (filter) {
     case "SHOW_ALL":
       return items;
     case "SHOW_INBOX":
-      return items.filter(i => i.projectId == null);
+      return filterArray(items, {
+        projectId: projectId => projectId == null
+      });
     case "SHOW_COMPLETED":
-      return items.filter(i => i.completed);
+      return filterArray(items, {
+        completed: completed => completed == true
+      });
     case "SHOW_SCHEDULED":
-      return items.filter(i => i.scheduledDate != null);
-    // TODO: Fix this comparison (string to ? )
+      return filterArray(items, {
+        scheduledDate: scheduledDate => scheduledDate != null
+      });
     case "SHOW_SCHEDULED_ON_DAY":
-      return items.filter(i =>
-        isSameDay(i.scheduledDate, params.scheduledDate)
-      );
-    case "SHOW_UNSCHEDULED":
-      return items.filter(i => i.scheduledDate == null);
-    case "SHOW_FROM_PROJECT":
-      return items.filter(
-        i => i.projectId == params.projectId && i.type == params.type
-      );
+      return filterArray(items, {
+        scheduledDate: scheduledDate =>
+          isSameDay(scheduledDate, params.scheduledDate)
+      });
+    case "SHOW_NOT_SCHEDULED":
+      return filterArray(items, {
+        scheduledDate: scheduledDate => scheduledDate == null
+      });
+    case "SHOW_FROM_PROJECT_BY_TYPE":
+      return filterArray(items, {
+        projectId: projectId => projectId == params.projectId,
+        type: type => type == params.type,
+        archived: archived => archived == false
+      });
+    case "SHOW_ARCHIVED_FROM_PROJECT":
+      return filterArray(items, {
+        projectId: projectId => projectId == params.projectId,
+        archived: archived => archived == true
+      });
     case "SHOW_OVERDUE":
-      return items.filter(
-        i =>
-          isAfter(new Date(), i.scheduledDate) || isAfter(new Date(), i.dueDate)
+      return filterArray(
+        items,
+        {
+          scheduledDate: scheduledDate => isAfter(new Date(), scheduledDate),
+          dueDate: dueDate => isAfter(new Date(), dueDate)
+        },
+        true
       );
     default:
       throw new Error("Unknown filter: " + filter);

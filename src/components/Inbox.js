@@ -13,25 +13,18 @@ const Container = styled.div`
   margin: 50px 0px 0px 50px;
 `;
 
-class Inbox extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  render() {
-    return (
-      <ThemeProvider theme={theme}>
-        <Container>
-          <Header> Inbox </Header>
-          <SubTitle> Add an item </SubTitle>
-          <QuickAdd />
-          <SubTitle> Items in inbox </SubTitle>
-          <FilteredItemList filter="SHOW_INBOX" />
-        </Container>
-      </ThemeProvider>
-    );
-  }
+function Inbox(props) {
+  return (
+    <ThemeProvider theme={theme}>
+      <Container>
+        <Header> Inbox </Header>
+        <SubTitle> Add an item </SubTitle>
+        <QuickAdd />
+        <SubTitle> Items in inbox </SubTitle>
+        <FilteredItemList filter="SHOW_INBOX" />
+      </Container>
+    </ThemeProvider>
+  );
 }
 
 const mapStateToProps = state => ({

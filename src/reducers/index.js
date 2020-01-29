@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import uuidv4 from "uuid/v4";
 import {
   CREATE_ITEM,
+  ARCHIVE_ITEM,
   DELETE_ITEM,
   REFILE_ITEM,
   UNCOMPLETE_ITEM,
@@ -45,6 +46,7 @@ const initialState = {
       dueDate: null,
       completed: false,
       deleted: false,
+      archived: false,
       createdAt: new Date(2020, 1, 1),
       completedAt: null,
       lastUpdatedAt: new Date(2020, 1, 1)
@@ -58,6 +60,7 @@ const initialState = {
       dueDate: null,
       completed: false,
       deleted: false,
+      archived: false,
       createdAt: new Date(2020, 1, 1),
       completedAt: null,
       lastUpdatedAt: new Date(2020, 1, 1)
@@ -71,6 +74,7 @@ const initialState = {
       dueDate: null,
       completed: false,
       deleted: false,
+      archived: false,
       createdAt: new Date(2020, 1, 1),
       completedAt: null,
       lastUpdatedAt: new Date(2020, 1, 1)
@@ -95,6 +99,7 @@ const rootReducer = (state = initialState, action) => {
             projectId: null,
             completed: false,
             deleted: false,
+            archived: false,
             completedAt: null,
             createdAt: new Date(),
             lastUpdatedAt: new Date()
@@ -102,7 +107,6 @@ const rootReducer = (state = initialState, action) => {
         ]
       };
 
-    // TODO: Should we have a deleted flag?
     case DELETE_ITEM:
       return {
         ...state,
@@ -114,6 +118,19 @@ const rootReducer = (state = initialState, action) => {
           return i;
         })
       };
+
+    case ARCHIVE_ITEM:
+      return {
+        ...state,
+        items: state.items.map(i => {
+          if (i.id == action.id) {
+            i.archived = true;
+            i.lastUpdatedAt = new Date();
+          }
+          return i;
+        })
+      };
+
     case COMPLETE_ITEM:
       return {
         ...state,
