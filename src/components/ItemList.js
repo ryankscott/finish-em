@@ -14,29 +14,23 @@ const NoItemText = styled.p`
   padding-left: 10px;
 `;
 
-class ItemList extends Component {
-  constructor(props) {
-    super(props);
-  }
+function ItemList(props) {
+  return (
+    <ThemeProvider theme={theme}>
+      {props.items.map(i => {
+        return (
+          <Item
+            {...i}
+            key={i.id}
+            onDelete={props.deleteItem}
+            onRefile={props.refileItem}
+          />
+        );
+      })}
 
-  render() {
-    return (
-      <ThemeProvider theme={theme}>
-        {this.props.items.map(i => {
-          return (
-            <Item
-              {...i}
-              key={i.id}
-              onDelete={this.props.deleteItem}
-              onRefile={this.props.refileItem}
-            />
-          );
-        })}
-
-        {this.props.items.length == 0 && <NoItemText>No items</NoItemText>}
-      </ThemeProvider>
-    );
-  }
+      {props.items.length == 0 && <NoItemText>No items</NoItemText>}
+    </ThemeProvider>
+  );
 }
 
 // TODO: Add PropTypes

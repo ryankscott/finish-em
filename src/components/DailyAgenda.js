@@ -23,40 +23,34 @@ const AgendaContainer = styled.div`
   margin: 50px;
 `;
 
-class DailyAgenda extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
+function DailyAgenda(props) {
+  return (
+    <ThemeProvider theme={theme}>
+      <AgendaContainer>
+        <DateContainer>
+          <Header>{format(today, "EEEE do MMMM yyyy")}</Header>
+          <SubTitle>Week of year: {format(new Date(), "w")} / 52</SubTitle>
+          <SubTitle>
+            Week of quarter: {format(new Date(), "w") % 13} / 13
+          </SubTitle>
+        </DateContainer>
 
-  render() {
-    const today = new Date();
-    return (
-      <ThemeProvider theme={theme}>
-        <AgendaContainer>
-          <DateContainer>
-            <Header>{format(today, "EEEE do MMMM yyyy")}</Header>
-            <SubTitle>Week of year: {format(today, "w")} / 52</SubTitle>
-            <SubTitle>Week of quarter: {format(today, "w") % 13} / 13</SubTitle>
-          </DateContainer>
+        <Section>
+          <SubTitle> Overdue </SubTitle>
+          <FilteredItemList items={props.items} filter="SHOW_OVERDUE" />
+        </Section>
 
-          <Section>
-            <SubTitle> Overdue </SubTitle>
-            <FilteredItemList items={this.props.items} filter="SHOW_OVERDUE" />
-          </Section>
-
-          <Section>
-            <SubTitle> Scheduled Today </SubTitle>
-            <FilteredItemList
-              items={this.props.items}
-              filter="SHOW_SCHEDULED_ON_DAY"
-              params={{ scheduledDate: today }}
-            />
-          </Section>
-        </AgendaContainer>
-      </ThemeProvider>
-    );
-  }
+        <Section>
+          <SubTitle> Scheduled Today </SubTitle>
+          <FilteredItemList
+            items={props.items}
+            filter="SHOW_SCHEDULED_ON_DAY"
+            params={{ scheduledDate: today }}
+          />
+        </Section>
+      </AgendaContainer>
+    </ThemeProvider>
+  );
 }
 
 const mapStateToProps = state => ({

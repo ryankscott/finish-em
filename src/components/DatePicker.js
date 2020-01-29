@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import Select from "react-select";
+import { format } from "date-fns";
+import { connect } from "react-redux";
+import moment from "moment";
+
 import { theme } from "../theme";
 import "./DatePicker.css";
 import DayPickerInput from "react-day-picker/DayPickerInput";
-import { format } from "date-fns";
-
-import { connect } from "react-redux";
-import moment from "moment";
 
 // const CustomOverlay = ({ classNames, selectedDay, children, ...props }) => {
 //   return (

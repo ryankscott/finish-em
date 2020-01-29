@@ -21,7 +21,7 @@ function Inbox(props) {
         <SubTitle> Add an item </SubTitle>
         <QuickAdd />
         <SubTitle> Items in inbox </SubTitle>
-        <FilteredItemList filter="SHOW_INBOX" />
+        <FilteredItemList items={props.items} filter="SHOW_INBOX" />
       </Container>
     </ThemeProvider>
   );

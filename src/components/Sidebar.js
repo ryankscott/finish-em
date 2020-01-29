@@ -25,34 +25,27 @@ const StyledLink = styled(Link)`
   margin: 5px 0px 5px 10px;
 `;
 
-class Sidebar extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {};
-  }
-
-  render() {
-    return (
-      <ThemeProvider theme={theme}>
-        <Container>
-          <Header invert> Views </Header>
-          <StyledLink to="/inbox"> Inbox </StyledLink>
-          <StyledLink to="/dailyAgenda"> Daily Agenda </StyledLink>
-          <Header invert> Projects </Header>
-          {this.props.projects.map(p => {
-            const pathName = "/projects/" + p.id;
-            if (p.id != null) {
-              return (
-                <StyledLink key={p.id} to={pathName}>
-                  {p.name}
-                </StyledLink>
-              );
-            }
-          })}
-        </Container>
-      </ThemeProvider>
-    );
-  }
+function Sidebar(props) {
+  return (
+    <ThemeProvider theme={theme}>
+      <Container>
+        <Header invert> Views </Header>
+        <StyledLink to="/inbox"> Inbox </StyledLink>
+        <StyledLink to="/dailyAgenda"> Daily Agenda </StyledLink>
+        <Header invert> Projects </Header>
+        {props.projects.map(p => {
+          const pathName = "/projects/" + p.id;
+          if (p.id != null) {
+            return (
+              <StyledLink key={p.id} to={pathName}>
+                {p.name}
+              </StyledLink>
+            );
+          }
+        })}
+      </Container>
+    </ThemeProvider>
+  );
 }
 
 const mapStateToProps = state => ({
