@@ -28,7 +28,7 @@ function DailyAgenda(props) {
     <ThemeProvider theme={theme}>
       <AgendaContainer>
         <DateContainer>
-          <Header>{format(today, "EEEE do MMMM yyyy")}</Header>
+          <Header>{format(new Date(), "EEEE do MMMM yyyy")}</Header>
           <SubTitle>Week of year: {format(new Date(), "w")} / 52</SubTitle>
           <SubTitle>
             Week of quarter: {format(new Date(), "w") % 13} / 13
@@ -45,7 +45,7 @@ function DailyAgenda(props) {
           <FilteredItemList
             items={props.items}
             filter="SHOW_SCHEDULED_ON_DAY"
-            params={{ scheduledDate: today }}
+            params={{ scheduledDate: new Date() }}
           />
         </Section>
       </AgendaContainer>
