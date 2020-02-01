@@ -180,9 +180,6 @@ class Item extends Component {
     console.log("Key pressed:  " + event.key);
     if (this.props.type == "TODO") {
       switch (event.key) {
-        case "r":
-          this.hotkeyHandler.REFILE(event);
-          return;
         case "s":
           this.hotkeyHandler.SET_SCHEDULED_DATE(event);
           return;
@@ -204,6 +201,9 @@ class Item extends Component {
         return;
       case "escape":
         this.hotkeyHandler.ESCAPE(event);
+        return;
+      case "r":
+        this.hotkeyHandler.REFILE(event);
         return;
     }
   }

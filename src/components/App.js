@@ -76,7 +76,7 @@ function App(props) {
 
   useEffect(() => {
     Mousetrap.bind("g d a", () => goToDailyAgenda());
-    Mousetrap.bind("g p i", () => goToInbox());
+    Mousetrap.bind("g i", () => goToInbox());
     Mousetrap.bind("g p 1", () => goToProject(1));
     Mousetrap.bind("g p 2", () => goToProject(2));
     Mousetrap.bind("g p 3", () => goToProject(3));
