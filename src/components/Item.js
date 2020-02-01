@@ -1,9 +1,15 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
-import { formatRelative, isBefore, parseISO, isValid, isAfter } from "date-fns";
+import {
+  format,
+  formatRelative,
+  isBefore,
+  parseISO,
+  isValid,
+  isAfter
+} from "date-fns";
 import { enGB } from "date-fns/esm/locale";
-import * as Mousetrap from "Mousetrap";
 
 import {
   archiveItem,
@@ -24,7 +30,7 @@ const ItemContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-areas:
-    "type body body body body body body body body body"
+    "type body body body body body body body body tag"
     "scheduled scheduled scheduled scheduled . . due due due due";
   height: 50px;
   width: 650px;
@@ -49,6 +55,17 @@ const ItemType = styled.div`
     props.itemType == "TODO"
       ? props.theme.colours.primaryColour
       : props.theme.colours.penternaryColour};
+  margin: 2px 5px 2px 2px;
+  padding: 2px 0px;
+  border-radius: 5px;
+`;
+
+const ItemTag = styled.div`
+  grid-area: tag;
+  text-align: center;
+  font-size: ${props => props.theme.fontSizes.xsmall};
+  color: ${props => props.theme.colours.altTextColour};
+  background-color: ${props => props.theme.colours.tertiaryColour};
   margin: 2px 5px 2px 2px;
   padding: 2px 0px;
   border-radius: 5px;
@@ -86,12 +103,12 @@ class Item extends Component {
     this.state = {
       projectDropdownVisible: false,
       scheduledDatePopupVisible: false,
-      dueDatePopupVisible: false,
-      focussed: false
+      dueDatePopupVisible: false
     };
     this.setScheduledDate = this.setScheduledDate.bind(this);
     this.setDueDate = this.setDueDate.bind(this);
     this.refileItem = this.refileItem.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
 
     this.hotkeyHandler = {
       SET_SCHEDULED_DATE: event => {
@@ -112,24 +129,20 @@ class Item extends Component {
       },
       ARCHIVE: event => {
         console.log("archiving");
+        console.log("id: " + event.target.id);
         this.props.archiveItem(event.target.id);
       },
       COMPLETE: event => {
         console.log("completing");
+        console.log("id: " + event.target.id);
         this.props.completeItem(event.target.id);
       },
       UNCOMPLETE: event => {
         console.log("uncompleting");
+        console.log("id: " + event.target.id);
         this.props.uncompleteItem(event.target.id);
       },
       REFILE: event => {
-        console.log("refiling");
-        console.log("id: " + event.target.id);
-        console.log("target: ");
-        console.log(event.target);
-        console.log("dropdown visible: " + this.state.projectDropdownVisible);
-        console.log("is in focus: " + this.state.focussed);
-        // if (!this.state.focussed) return;
         this.setState({
           projectDropdownVisible: !this.state.projectDropdownVisible,
           dueDatePopupVisible: false,
@@ -146,22 +159,7 @@ class Item extends Component {
       }
     };
   }
-  componentDidMount() {
-    Mousetrap.bind("r", this.hotkeyHandler.REFILE);
-    Mousetrap.bind("s", this.hotkeyHandler.SET_SCHEDULED_DATE);
-    Mousetrap.bind("c", this.hotkeyHandler.COMPLETE);
-    Mousetrap.bind("u", this.hotkeyHandler.UNCOMPLETE);
-    Mousetrap.bind("d", this.hotkeyHandler.SET_DUE_DATE);
-    Mousetrap.bind("a", this.hotkeyHandler.ARCHIVE);
-    Mousetrap.bind("escape", this.hotkeyHandler.ESCAPE);
-  }
-  componentWillUnmount() {
-    Mousetrap.unbind("r");
-    Mousetrap.unbind("s");
-    Mousetrap.unbind("d");
-    Mousetrap.unbind("a");
-    Mousetrap.unbind("escape");
-  }
+  componentDidMount() {}
 
   setScheduledDate(d) {
     this.props.setScheduledDate(this.props.id, d);
@@ -178,21 +176,54 @@ class Item extends Component {
     this.setState({ projectDropdownVisible: false });
   }
 
+  handleKeyPress(event) {
+    console.log("Key pressed:  " + event.key);
+    if (this.props.type == "TODO") {
+      switch (event.key) {
+        case "r":
+          this.hotkeyHandler.REFILE(event);
+          return;
+        case "s":
+          this.hotkeyHandler.SET_SCHEDULED_DATE(event);
+          return;
+        case "c":
+          this.hotkeyHandler.COMPLETE(event);
+          return;
+        case "u":
+          this.hotkeyHandler.UNCOMPLETE(event);
+          return;
+        case "d":
+          this.hotkeyHandler.SET_DUE_DATE(event);
+          return;
+      }
+    }
+
+    switch (event.key) {
+      case "a":
+        this.hotkeyHandler.ARCHIVE(event);
+        return;
+      case "escape":
+        this.hotkeyHandler.ESCAPE(event);
+        return;
+    }
+  }
+
   // TODO: Consider extracting DueDate to a component
   // TODO: Proper locales
   render() {
     return (
       <ThemeProvider theme={theme}>
         <ItemContainer
-          onFocus={() => this.setState({ focussed: true })}
-          onBlur={() => this.setState({ focussed: false })}
+          onKeyDown={this.handleKeyPress}
           id={this.props.id}
-          tabIndex={0}
+          tabIndex="0"
         >
           <ItemType itemType={this.props.type}>
             {this.props.completed ? "DONE" : this.props.type}
           </ItemType>
           <ItemBody completed={this.props.completed}>
+            {this.props.type == "NOTE" &&
+              format(this.props.createdAt, "dd/MM/yyyy") + " - "}
             {removeItemTypeFromString(this.props.text)}
           </ItemBody>
           {this.props.dueDate && (
@@ -224,7 +255,8 @@ class Item extends Component {
         />
 
         <ProjectDropdown
-          placeholder={this.props.id}
+          key={"p" + this.props.id}
+          placeholder={"Refile to: "}
           visible={this.state.projectDropdownVisible}
           onSubmit={this.refileItem}
         />

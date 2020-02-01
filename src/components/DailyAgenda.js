@@ -4,12 +4,16 @@ import { format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
 import FilteredItemList from "../containers/FilteredItemList";
-import { Header, Title, SubTitle } from "./Typography";
+import { Paragraph, Header, Title, SubTitle } from "./Typography";
 
 const DateContainer = styled.div`
   display: grid;
-  grid-template-rows: 100%;
-  grid-template-columns: 12fr 4fr 4fr;
+  grid-template-rows: 4fr 1fr;
+  grid-template-areas:
+    "day day day day"
+    "week_of_year . . week_of_quarter";
+  align-items: end;
+  width: 100%;
 `;
 
 const Section = styled.div`
@@ -21,6 +25,7 @@ const AgendaContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin: 50px;
+  width: 100%;
 `;
 
 function DailyAgenda(props) {
@@ -28,11 +33,15 @@ function DailyAgenda(props) {
     <ThemeProvider theme={theme}>
       <AgendaContainer>
         <DateContainer>
-          <Header>{format(new Date(), "EEEE do MMMM yyyy")}</Header>
-          <SubTitle>Week of year: {format(new Date(), "w")} / 52</SubTitle>
-          <SubTitle>
+          <Header style={{ gridArea: "day" }}>
+            {format(new Date(), "EEEE do MMMM yyyy")}
+          </Header>
+          <Paragraph style={{ gridArea: "week_of_year" }}>
+            Week of year: {format(new Date(), "w")} / 52
+          </Paragraph>
+          <Paragraph style={{ gridArea: "week_of_quarter" }}>
             Week of quarter: {format(new Date(), "w") % 13} / 13
-          </SubTitle>
+          </Paragraph>
         </DateContainer>
 
         <Section>

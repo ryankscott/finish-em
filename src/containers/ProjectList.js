@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Project from "../components/Project";
-import CreateProject from "../components/CreateProject";
 import FilteredItemList from "../containers/FilteredItemList";
 import { connect } from "react-redux";
 import uuidv4 from "uuid/v4";

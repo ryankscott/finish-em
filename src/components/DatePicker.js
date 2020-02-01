@@ -18,7 +18,7 @@ import DayPickerInput from "react-day-picker/DayPickerInput";
 // };
 
 const Container = styled.div`
-  position: absolute;
+  position: relative;
   display: flex;
   flex-direction: column;
   font-family: ${props => props.theme.font.sansSerif};

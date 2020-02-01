@@ -9,6 +9,11 @@ export const UNCOMPLETE_ITEM = "UNCOMPLETE_ITEM";
 export const SET_SCHEDULED_DATE = "SET_SCHEDULED_DATE";
 export const SET_DUE_DATE = "SET_DUE_DATE";
 export const CREATE_PROJECT = "CREATE_PROJECT";
+export const SHOW_SHORTCUT_DIALOG = "SHOW_SHORTCUT_DIALOG";
+export const HIDE_SHORTCUT_DIALOG = "HIDE_SHORTCUT_DIALOG";
+export const TOGGLE_SHORTCUT_DIALOG = "TOGGLE_SHORTCUT_DIALOG";
+export const SHOW_CREATE_PROJECT_DIALOG = "SHOW_CREATE_PROJECT_DIALOG";
+export const HIDE_CREATE_PROJECT_DIALOG = "HIDE_CREATE_PROJECT_DIALOG";
 import {
   getItemTypeFromString,
   capitaliseItemTypeFromString,
@@ -102,5 +107,28 @@ export function createProject(name, description) {
     type: CREATE_PROJECT,
     name: name,
     description: description
+  };
+}
+export function hideShortcutDialog() {
+  return {
+    type: HIDE_SHORTCUT_DIALOG
+  };
+}
+
+export function toggleShortcutDialog() {
+  return {
+    type: TOGGLE_SHORTCUT_DIALOG
+  };
+}
+
+export function showCreateProjectDialog() {
+  return {
+    type: SHOW_CREATE_PROJECT_DIALOG
+  };
+}
+
+export function hideCreateProjectDialog() {
+  return {
+    type: HIDE_CREATE_PROJECT_DIALOG
   };
 }

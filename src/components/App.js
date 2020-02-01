@@ -6,6 +6,7 @@ import DailyAgenda from "../components/DailyAgenda";
 import Inbox from "../components/Inbox";
 import Project from "../components/Project";
 import Sidebar from "../components/Sidebar";
+import ShortcutDialog from "../components/ShortcutDialog";
 import { connect } from "react-redux";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import { theme } from "../theme";
@@ -17,6 +18,7 @@ import {
   BrowserRouter as Router
 } from "react-router-dom";
 import * as Mousetrap from "Mousetrap";
+import { showCreateProjectDialog, toggleShortcutDialog } from "../actions";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -36,6 +38,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   margin: 0px;
+  width: 100%;
   height: 100%;
   position: fixed;
 `;
@@ -83,6 +86,8 @@ function App(props) {
     Mousetrap.bind("g 7", () => goToProject(7));
     Mousetrap.bind("g 8", () => goToProject(8));
     Mousetrap.bind("g 9", () => goToProject(9));
+    Mousetrap.bind("?", props.toggleShortcutDialog);
+    Mousetrap.bind("c p", props.showCreateProjectDialog);
     return function cleanup() {
       Mousetrap.unbind("g a");
       Mousetrap.unbind("g i");
@@ -95,6 +100,7 @@ function App(props) {
       Mousetrap.unbind("g 7");
       Mousetrap.unbind("g 8");
       Mousetrap.unbind("g 9");
+      Mousetrap.unbind("?");
     };
   });
 
@@ -113,6 +119,7 @@ function App(props) {
               children={<ProjectWrapper projects={props.projects} />}
             />
           </Switch>
+          <ShortcutDialog />
         </MainContainer>
       </Container>
     </ThemeProvider>
@@ -123,7 +130,14 @@ const mapStateToProps = state => ({
   projects: state.projects
 });
 
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = dispatch => ({
+  toggleShortcutDialog: () => {
+    dispatch(toggleShortcutDialog());
+  },
+  showCreateProjectDialog: () => {
+    dispatch(showCreateProjectDialog());
+  }
+});
 export default connect(
   mapStateToProps,
   mapDispatchToProps

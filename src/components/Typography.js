@@ -4,7 +4,7 @@ import { theme } from "../theme";
 
 export const Header = styled.h1`
   font-size: ${props => props.theme.fontSizes.xlarge};
-  font-weight: ${props => props.theme.fontWeights.bold};
+  font-weight: ${props => props.theme.fontWeights.regular};
   color: ${props => props.theme.colours.primaryColour};
   padding-top: 20px;
 `;
@@ -20,7 +20,7 @@ export const Title = styled.h2`
 `;
 
 export const SubTitle = styled.h2`
-  font-size: ${props => props.theme.fontSizes.large};
+  font-size: ${props => props.theme.fontSizes.regular};
   font-weight: ${props => props.theme.fontWeights.regular};
   color: ${props =>
     props.invert
@@ -32,5 +32,9 @@ export const SubTitle = styled.h2`
 export const Paragraph = styled.p`
   font-size: ${props => props.theme.fontSizes.small};
   font-family: ${props => props.theme.font.sansSerif};
-  margin: 2px 0px;
+  color: ${props =>
+    props.invert
+      ? props.theme.colours.altTextColour
+      : props.theme.colours.defaultTextColour};
+  margin: 2px 5px;
 `;

@@ -21,7 +21,7 @@ function filterArray(array, filters, anyMatch) {
   });
 }
 
-const getFilteredItems = (items, filter, params) => {
+const filterItems = (items, filter, params) => {
   switch (filter) {
     case "SHOW_ALL":
       return items;
@@ -79,7 +79,7 @@ class FilteredItemList extends Component {
   render() {
     return (
       <ItemList
-        items={getFilteredItems(
+        items={filterItems(
           this.props.items,
           this.props.filter,
           this.props.params

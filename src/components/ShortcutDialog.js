@@ -93,6 +93,10 @@ function ShortcutDialog(props) {
               <ShortcutKeys>?</ShortcutKeys>
               <Paragraph invert>Show Shortcuts</Paragraph>
             </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>c p</ShortcutKeys>
+              <Paragraph invert>Create Project</Paragraph>
+            </Shortcut>
           </Column>
           <Column>
             <Shortcut>
