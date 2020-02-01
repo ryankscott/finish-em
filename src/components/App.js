@@ -76,16 +76,16 @@ function App(props) {
 
   useEffect(() => {
     Mousetrap.bind("g d a", () => goToDailyAgenda());
-    Mousetrap.bind("g i", () => goToInbox());
-    Mousetrap.bind("g 1", () => goToProject(1));
-    Mousetrap.bind("g 2", () => goToProject(2));
-    Mousetrap.bind("g 3", () => goToProject(3));
-    Mousetrap.bind("g 4", () => goToProject(4));
-    Mousetrap.bind("g 5", () => goToProject(5));
-    Mousetrap.bind("g 6", () => goToProject(6));
-    Mousetrap.bind("g 7", () => goToProject(7));
-    Mousetrap.bind("g 8", () => goToProject(8));
-    Mousetrap.bind("g 9", () => goToProject(9));
+    Mousetrap.bind("g p i", () => goToInbox());
+    Mousetrap.bind("g p 1", () => goToProject(1));
+    Mousetrap.bind("g p 2", () => goToProject(2));
+    Mousetrap.bind("g p 3", () => goToProject(3));
+    Mousetrap.bind("g p 4", () => goToProject(4));
+    Mousetrap.bind("g p 5", () => goToProject(5));
+    Mousetrap.bind("g p 6", () => goToProject(6));
+    Mousetrap.bind("g p 7", () => goToProject(7));
+    Mousetrap.bind("g p 8", () => goToProject(8));
+    Mousetrap.bind("g p 9", () => goToProject(9));
     Mousetrap.bind("?", props.toggleShortcutDialog);
     Mousetrap.bind("c p", props.showCreateProjectDialog);
     return function cleanup() {
