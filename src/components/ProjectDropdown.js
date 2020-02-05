@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
+import uuidv4 from "uuid/v4";
 import { theme } from "../theme";
 
 import { connect } from "react-redux";
-import { createItem } from "../actions";
+import { createItem, createProject } from "../actions";
 const customStyles = {
   input: () => ({
     padding: "5px",
@@ -79,8 +80,14 @@ class ProjectDropdown extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
-  handleChange(e) {
-    this.props.onSubmit(e.value);
+  handleChange(newValue, actionMeta) {
+    if (actionMeta.action == "select-option") {
+      this.props.onSubmit(newValue.value);
+    } else if (actionMeta.action == "create-option") {
+      const newProjectId = uuidv4();
+      this.props.createProject(newProjectId, newValue.value);
+      this.props.onSubmit(newProjectId);
+    }
   }
 
   render() {
@@ -89,7 +96,7 @@ class ProjectDropdown extends Component {
     return (
       <ThemeProvider theme={theme}>
         <Container visible={this.props.visible && projects.length > 1}>
-          <Select
+          <CreatableSelect
             autoFocus={true}
             placeholder={this.props.placeholder}
             isSearchable
@@ -107,7 +114,11 @@ class ProjectDropdown extends Component {
 const mapStateToProps = state => ({
   projects: state.projects
 });
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = dispatch => ({
+  createProject: (id, name) => {
+    dispatch(createProject(id, name, ""));
+  }
+});
 export default connect(
   mapStateToProps,
   mapDispatchToProps

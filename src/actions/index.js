@@ -9,6 +9,7 @@ export const UNCOMPLETE_ITEM = "UNCOMPLETE_ITEM";
 export const SET_SCHEDULED_DATE = "SET_SCHEDULED_DATE";
 export const SET_DUE_DATE = "SET_DUE_DATE";
 export const CREATE_PROJECT = "CREATE_PROJECT";
+export const UPDATE_PROJECT_DESCRIPTION = "UPDATE_PROJECT_DESCRIPTION";
 export const SHOW_SHORTCUT_DIALOG = "SHOW_SHORTCUT_DIALOG";
 export const HIDE_SHORTCUT_DIALOG = "HIDE_SHORTCUT_DIALOG";
 export const TOGGLE_SHORTCUT_DIALOG = "TOGGLE_SHORTCUT_DIALOG";
@@ -102,13 +103,25 @@ export function updateItem(id, text) {
   };
 }
 
-export function createProject(name, description) {
+export function createProject(id, name, description) {
+  console.log(id);
+  console.log(name);
   return {
     type: CREATE_PROJECT,
+    id: id,
     name: name,
     description: description
   };
 }
+
+export function updateProjectDescription(id, description) {
+  return {
+    type: UPDATE_PROJECT_DESCRIPTION,
+    id: id,
+    description: description
+  };
+}
+
 export function hideShortcutDialog() {
   return {
     type: HIDE_SHORTCUT_DIALOG

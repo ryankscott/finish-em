@@ -13,18 +13,29 @@ const Container = styled.div`
   margin: 50px 0px 0px 50px;
 `;
 
-function Inbox(props) {
-  return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <Header> Inbox </Header>
-        <SubTitle> Add an item </SubTitle>
-        <QuickAdd />
-        <SubTitle> Items in inbox </SubTitle>
-        <FilteredItemList items={props.items} filter="SHOW_INBOX" />
-      </Container>
-    </ThemeProvider>
-  );
+class Inbox extends Component {
+  constructor(props) {
+    super(props);
+  }
+  // TODO: Hack fix to stop React crashing
+  // https://github.com/facebook/draft-js/issues/1320
+  componentDidCatch() {
+    this.forceUpdate();
+  }
+
+  render() {
+    return (
+      <ThemeProvider theme={theme}>
+        <Container>
+          <Header> Inbox </Header>
+          <SubTitle> Add an item </SubTitle>
+          <QuickAdd />
+          <SubTitle> Items in inbox </SubTitle>
+          <FilteredItemList items={this.props.items} filter="SHOW_INBOX" />
+        </Container>
+      </ThemeProvider>
+    );
+  }
 }
 
 const mapStateToProps = state => ({

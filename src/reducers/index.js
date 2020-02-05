@@ -11,6 +11,7 @@ import {
   SET_SCHEDULED_DATE,
   SET_DUE_DATE,
   CREATE_PROJECT,
+  UPDATE_PROJECT_DESCRIPTION,
   SHOW_SHORTCUT_DIALOG,
   TOGGLE_SHORTCUT_DIALOG,
   HIDE_SHORTCUT_DIALOG,
@@ -91,25 +92,32 @@ const initialState = {
   }
 };
 
-const projectReducer = (state = initialState, action) => {
+const projectReducer = (state = initialState.projects, action) => {
   switch (action.type) {
     case CREATE_PROJECT:
-      const projectUUID = uuidv4();
       return [
         ...state,
         {
-          id: projectUUID,
+          id: action.id,
           name: action.name,
           description: action.description
         }
       ];
+
+    case UPDATE_PROJECT_DESCRIPTION:
+      return state.map(p => {
+        if (p.id == action.id) {
+          p.description = action.description;
+        }
+        return p;
+      });
 
     default:
       return state;
   }
 };
 
-const uiReducer = (state = initialState, action) => {
+const uiReducer = (state = initialState.ui, action) => {
   switch (action.type) {
     case SHOW_SHORTCUT_DIALOG:
       return {
@@ -142,7 +150,7 @@ const uiReducer = (state = initialState, action) => {
   }
 };
 
-const itemReducer = (state = initialState, action) => {
+const itemReducer = (state = initialState.items, action) => {
   switch (action.type) {
     case CREATE_ITEM:
       console.log(state);

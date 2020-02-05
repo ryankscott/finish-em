@@ -30,8 +30,10 @@ const GlobalStyle = createGlobalStyle`
     padding: 0px;
     margin: 0px;
   }
-  input:focus {
+  *:focus {
     outline:none;
+    outline-style:none;
+    box-shadow:none;
   }
 `;
 const Container = styled.div`

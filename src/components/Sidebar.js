@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { format } from "date-fns";
 import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
 

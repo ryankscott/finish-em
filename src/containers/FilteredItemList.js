@@ -71,22 +71,10 @@ const filterItems = (items, filter, params) => {
   }
 };
 
-class FilteredItemList extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <ItemList
-        items={filterItems(
-          this.props.items,
-          this.props.filter,
-          this.props.params
-        )}
-      />
-    );
-  }
+function FilteredItemList(props) {
+  return (
+    <ItemList items={filterItems(props.items, props.filter, props.params)} />
+  );
 }
 
 const mapStateToProps = state => ({

@@ -120,7 +120,6 @@ class Item extends Component {
         });
       },
       SET_DUE_DATE: event => {
-        console.log("due date");
         this.setState({
           dueDatePopupVisible: !this.state.dueDatePopupVisible,
           scheduledDatePopupVisible: false,
@@ -128,18 +127,12 @@ class Item extends Component {
         });
       },
       ARCHIVE: event => {
-        console.log("archiving");
-        console.log("id: " + event.target.id);
         this.props.archiveItem(event.target.id);
       },
       COMPLETE: event => {
-        console.log("completing");
-        console.log("id: " + event.target.id);
         this.props.completeItem(event.target.id);
       },
       UNCOMPLETE: event => {
-        console.log("uncompleting");
-        console.log("id: " + event.target.id);
         this.props.uncompleteItem(event.target.id);
       },
       REFILE: event => {
