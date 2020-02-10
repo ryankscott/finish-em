@@ -15,6 +15,8 @@ import {
   archiveItem,
   refileItem,
   completeItem,
+  deleteItem,
+  undeleteItem,
   uncompleteItem,
   setScheduledDate,
   setDueDate
@@ -114,7 +116,6 @@ class Item extends Component {
 
     this.hotkeyHandler = {
       SET_SCHEDULED_DATE: event => {
-        console.log("scheduling");
         this.setState({
           scheduledDatePopupVisible: !this.state.scheduledDatePopupVisible,
           dueDatePopupVisible: false,
@@ -137,6 +138,12 @@ class Item extends Component {
       UNCOMPLETE: event => {
         this.props.uncompleteItem(event.target.id);
       },
+      DELETE: event => {
+        this.props.deleteItem(event.target.id);
+      },
+      UNDELETE: event => {
+        this.props.undeleteItem(event.target.id);
+      },
       REFILE: event => {
         this.setState({
           projectDropdownVisible: !this.state.projectDropdownVisible,
@@ -145,7 +152,6 @@ class Item extends Component {
         });
       },
       ESCAPE: event => {
-        console.log("escaping");
         this.setState({
           projectDropdownVisible: false,
           dueDatePopupVisible: false,
@@ -199,6 +205,12 @@ class Item extends Component {
         return;
       case "r":
         this.hotkeyHandler.REFILE(event);
+        return;
+      case "x":
+        this.hotkeyHandler.DELETE(event);
+        return;
+      case "z":
+        this.hotkeyHandler.UNDELETE(event);
         return;
     }
   }
@@ -268,6 +280,12 @@ const mapDispatchToProps = dispatch => ({
   },
   completeItem: id => {
     dispatch(completeItem(id));
+  },
+  undeleteItem: id => {
+    dispatch(undeleteItem(id));
+  },
+  deleteItem: id => {
+    dispatch(deleteItem(id));
   },
   archiveItem: id => {
     dispatch(archiveItem(id));

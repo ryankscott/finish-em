@@ -4,7 +4,11 @@ import { useParams, useHistory } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { theme } from "../theme";
-import { updateProjectDescription, deleteProject } from "../actions";
+import {
+  updateProjectDescription,
+  deleteProject,
+  hideDeleteProjectDialog
+} from "../actions";
 import { Header, Title, Header1 } from "./Typography";
 import EditableParagraph from "./EditableParagraph";
 import FilteredItemList from "../containers/FilteredItemList";
@@ -27,18 +31,17 @@ const HeaderContainer = styled.div`
 function Project(props) {
   let history = useHistory();
 
-  function deleteProject(id) {
+  function deleteProject() {
     props.deleteProject(props.project.id);
     history.push("/inbox");
   }
-
-  function showDeleteDialog() {}
 
   return (
     <ThemeProvider theme={theme}>
       <ProjectContainer>
         <HeaderContainer>
           <Title>{props.project.name} </Title>
+          <DeleteProjectDialog onDelete={() => deleteProject()} />
         </HeaderContainer>
         <EditableParagraph
           key={props.project.id}
@@ -74,6 +77,7 @@ const mapDispatchToProps = dispatch => ({
   },
   deleteProject: id => {
     dispatch(deleteProject(id));
+    dispatch(hideDeleteProjectDialog());
   }
 });
 export default connect(

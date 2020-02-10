@@ -25,44 +25,60 @@ const filterItems = (items, filter, params) => {
   switch (filter) {
     case "SHOW_ALL":
       return items;
+    case "SHOW_DELETED":
+      return filterArray(items, {
+        deleted: deleted => deleted == true
+      });
+    case "SHOW_ARCHIVED":
+      return filterArray(items, {
+        archived: archived => archived == true
+      });
     case "SHOW_INBOX":
       return filterArray(items, {
-        projectId: projectId => projectId == null
+        projectId: projectId => projectId == null,
+        deleted: deleted => deleted == false
       });
     case "SHOW_COMPLETED":
       return filterArray(items, {
-        completed: completed => completed == true
+        completed: completed => completed == true,
+        deleted: deleted => deleted == false
       });
     case "SHOW_SCHEDULED":
       return filterArray(items, {
-        scheduledDate: scheduledDate => scheduledDate != null
+        scheduledDate: scheduledDate => scheduledDate != null,
+        deleted: deleted => deleted == false
       });
     case "SHOW_SCHEDULED_ON_DAY":
       return filterArray(items, {
         scheduledDate: scheduledDate =>
-          isSameDay(scheduledDate, params.scheduledDate)
+          isSameDay(scheduledDate, params.scheduledDate),
+        deleted: deleted => deleted == false
       });
     case "SHOW_NOT_SCHEDULED":
       return filterArray(items, {
-        scheduledDate: scheduledDate => scheduledDate == null
+        scheduledDate: scheduledDate => scheduledDate == null,
+        deleted: deleted => deleted == false
       });
     case "SHOW_FROM_PROJECT_BY_TYPE":
       return filterArray(items, {
         projectId: projectId => projectId == params.projectId,
         type: type => type == params.type,
-        archived: archived => archived == false
+        archived: archived => archived == false,
+        deleted: deleted => deleted == false
       });
     case "SHOW_ARCHIVED_FROM_PROJECT":
       return filterArray(items, {
         projectId: projectId => projectId == params.projectId,
-        archived: archived => archived == true
+        archived: archived => archived == true,
+        deleted: deleted => deleted == false
       });
     case "SHOW_OVERDUE":
       return filterArray(
         items,
         {
           scheduledDate: scheduledDate => isAfter(new Date(), scheduledDate),
-          dueDate: dueDate => isAfter(new Date(), dueDate)
+          dueDate: dueDate => isAfter(new Date(), dueDate),
+          deleted: deleted => deleted == false
         },
         true
       );

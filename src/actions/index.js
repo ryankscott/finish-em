@@ -2,6 +2,7 @@
 export const CREATE_ITEM = "CREATE_ITEM";
 export const ARCHIVE_ITEM = "ARCHIVE_ITEM";
 export const DELETE_ITEM = "DELETE_ITEM";
+export const UNDELETE_ITEM = "UNDELETE_ITEM";
 export const UPDATE_ITEM = "UPDATE_ITEM";
 export const REFILE_ITEM = "REFILE_ITEM";
 export const COMPLETE_ITEM = "COMPLETE_ITEM";
@@ -17,6 +18,9 @@ export const TOGGLE_SHORTCUT_DIALOG = "TOGGLE_SHORTCUT_DIALOG";
 export const SHOW_CREATE_PROJECT_DIALOG = "SHOW_CREATE_PROJECT_DIALOG";
 export const HIDE_CREATE_PROJECT_DIALOG = "HIDE_CREATE_PROJECT_DIALOG";
 export const TOGGLE_CREATE_PROJECT_DIALOG = "TOGGLE_CREATE_PROJECT_DIALOG";
+export const SHOW_DELETE_PROJECT_DIALOG = "SHOW_DELETE_PROJECT_DIALOG";
+export const HIDE_DELETE_PROJECT_DIALOG = "HIDE_DELETE_PROJECT_DIALOG";
+export const TOGGLE_DELETE_PROJECT_DIALOG = "TOGGLE_DELETE_PROJECT_DIALOG";
 import {
   getItemTypeFromString,
   capitaliseItemTypeFromString,
@@ -44,6 +48,12 @@ export function createItem(text) {
 export function deleteItem(id) {
   return {
     type: DELETE_ITEM,
+    id: id
+  };
+}
+export function undeleteItem(id) {
+  return {
+    type: UNDELETE_ITEM,
     id: id
   };
 }
@@ -154,5 +164,22 @@ export function toggleCreateProjectDialog() {
 export function hideCreateProjectDialog() {
   return {
     type: HIDE_CREATE_PROJECT_DIALOG
+  };
+}
+
+export function showDeleteProjectDialog() {
+  return {
+    type: SHOW_DELETE_PROJECT_DIALOG
+  };
+}
+export function toggleDeleteProjectDialog() {
+  return {
+    type: TOGGLE_DELETE_PROJECT_DIALOG
+  };
+}
+
+export function hideDeleteProjectDialog() {
+  return {
+    type: HIDE_DELETE_PROJECT_DIALOG
   };
 }

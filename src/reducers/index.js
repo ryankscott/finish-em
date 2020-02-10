@@ -4,6 +4,7 @@ import {
   CREATE_ITEM,
   ARCHIVE_ITEM,
   DELETE_ITEM,
+  UNDELETE_ITEM,
   REFILE_ITEM,
   UNCOMPLETE_ITEM,
   COMPLETE_ITEM,
@@ -18,7 +19,10 @@ import {
   HIDE_SHORTCUT_DIALOG,
   TOGGLE_CREATE_PROJECT_DIALOG,
   SHOW_CREATE_PROJECT_DIALOG,
-  HIDE_CREATE_PROJECT_DIALOG
+  HIDE_CREATE_PROJECT_DIALOG,
+  TOGGLE_DELETE_PROJECT_DIALOG,
+  SHOW_DELETE_PROJECT_DIALOG,
+  HIDE_DELETE_PROJECT_DIALOG
 } from "../actions";
 
 const initialState = {
@@ -106,7 +110,8 @@ const initialState = {
   ],
   ui: {
     shortcutDialogVisible: false,
-    createProjectDialogVisible: false
+    createProjectDialogVisible: false,
+    deleteProjectDialogVisible: false
   }
 };
 
@@ -182,6 +187,21 @@ const uiReducer = (state = initialState.ui, action) => {
         ...state,
         createProjectDialogVisible: false
       };
+    case TOGGLE_DELETE_PROJECT_DIALOG:
+      return {
+        ...state,
+        deleteProjectDialogVisible: !state.deleteProjectDialogVisible
+      };
+    case SHOW_DELETE_PROJECT_DIALOG:
+      return {
+        ...state,
+        deleteProjectDialogVisible: true
+      };
+    case HIDE_DELETE_PROJECT_DIALOG:
+      return {
+        ...state,
+        deleteProjectDialogVisible: false
+      };
 
     default:
       return state;
@@ -213,7 +233,7 @@ const itemReducer = (state = initialState.items, action) => {
     case DELETE_PROJECT:
       return state.map(i => {
         if (i.projectId == action.id) {
-          i.projectId = null;
+          i.deleted = true;
           i.lastUpdatedAt = new Date();
         }
         return i;
@@ -223,6 +243,14 @@ const itemReducer = (state = initialState.items, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.deleted = true;
+          i.lastUpdatedAt = new Date();
+        }
+        return i;
+      });
+    case UNDELETE_ITEM:
+      return state.map(i => {
+        if (i.id == action.id) {
+          i.deleted = false;
           i.lastUpdatedAt = new Date();
         }
         return i;

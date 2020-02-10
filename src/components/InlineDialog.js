@@ -19,6 +19,7 @@ const Container = styled.div`
   justify-content: center;
   align-items: center;
   border-radius: 3px;
+  margin: 2px;
 `;
 
 const HeaderContainer = styled.div`

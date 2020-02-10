@@ -47,8 +47,18 @@ function Sidebar(props) {
         <SectionHeader>
           <Header invert> Views </Header>
         </SectionHeader>
-        <StyledNavLink to="/inbox"> Inbox </StyledNavLink>
-        <StyledNavLink to="/dailyAgenda"> Daily Agenda </StyledNavLink>
+        <StyledNavLink
+          to="/inbox"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          📥 Inbox
+        </StyledNavLink>
+        <StyledNavLink
+          to="/dailyAgenda"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          📅 Daily Agenda{" "}
+        </StyledNavLink>
         <SectionHeader>
           <Header invert>Projects</Header>
           <CreateProjectDialog />
@@ -67,6 +77,21 @@ function Sidebar(props) {
             );
           }
         })}
+        <SectionHeader>
+          <Header invert>Other</Header>
+        </SectionHeader>
+        <StyledNavLink
+          to="/trash"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          🗑 Trash
+        </StyledNavLink>
+        <StyledNavLink
+          to="/archive"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          🗃 Archive
+        </StyledNavLink>
       </Container>
     </ThemeProvider>
   );
