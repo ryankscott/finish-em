@@ -11,10 +11,12 @@ import {
   SET_SCHEDULED_DATE,
   SET_DUE_DATE,
   CREATE_PROJECT,
+  DELETE_PROJECT,
   UPDATE_PROJECT_DESCRIPTION,
   SHOW_SHORTCUT_DIALOG,
   TOGGLE_SHORTCUT_DIALOG,
   HIDE_SHORTCUT_DIALOG,
+  TOGGLE_CREATE_PROJECT_DIALOG,
   SHOW_CREATE_PROJECT_DIALOG,
   HIDE_CREATE_PROJECT_DIALOG
 } from "../actions";
@@ -24,22 +26,38 @@ const initialState = {
     {
       id: null,
       name: "Inbox",
-      description: "Default landing space for all items"
+      deleted: false,
+      description: "Default landing space for all items",
+      lastUpdatedAt: new Date(),
+      deletedAt: new Date(),
+      createdAt: new Date()
     },
     {
       id: uuidv4(),
       name: "Finish Em",
-      description: "All items relating to this project"
+      deleted: false,
+      description: "All items relating to this project",
+      lastUpdatedAt: new Date(),
+      deletedAt: new Date(),
+      createdAt: new Date()
     },
     {
       id: uuidv4(),
       name: "Home",
-      description: "All items for home"
+      deleted: false,
+      description: "All items for home",
+      lastUpdatedAt: new Date(),
+      deletedAt: new Date(),
+      createdAt: new Date()
     },
     {
       id: uuidv4(),
       name: "Work",
-      description: "Non descript work items"
+      deleted: false,
+      description: "Non descript work items",
+      lastUpdatedAt: new Date(),
+      deletedAt: new Date(),
+      createdAt: new Date()
     }
   ],
   items: [
@@ -88,7 +106,7 @@ const initialState = {
   ],
   ui: {
     shortcutDialogVisible: false,
-    showCreateProjectDialog: false
+    createProjectDialogVisible: false
   }
 };
 
@@ -100,7 +118,10 @@ const projectReducer = (state = initialState.projects, action) => {
         {
           id: action.id,
           name: action.name,
-          description: action.description
+          description: action.description,
+          deleted: false,
+          createdAt: new Date(),
+          lastUpdatedAt: new Date()
         }
       ];
 
@@ -108,6 +129,17 @@ const projectReducer = (state = initialState.projects, action) => {
       return state.map(p => {
         if (p.id == action.id) {
           p.description = action.description;
+          p.lastUpdatedAt = new Date();
+        }
+        return p;
+      });
+
+    case DELETE_PROJECT:
+      return state.map(p => {
+        if (p.id == action.id) {
+          p.deleted = true;
+          p.lastUpdatedAt = new Date();
+          p.deletedAt = new Date();
         }
         return p;
       });
@@ -134,15 +166,21 @@ const uiReducer = (state = initialState.ui, action) => {
         ...state,
         shortcutDialogVisible: !state.shortcutDialogVisible
       };
+
+    case TOGGLE_CREATE_PROJECT_DIALOG:
+      return {
+        ...state,
+        createProjectDialogVisible: !state.createProjectDialogVisible
+      };
     case SHOW_CREATE_PROJECT_DIALOG:
       return {
         ...state,
-        showCreateProjectDialog: true
+        createProjectDialogVisible: true
       };
     case HIDE_CREATE_PROJECT_DIALOG:
       return {
         ...state,
-        showCreateProjectDialog: false
+        createProjectDialogVisible: false
       };
 
     default:
@@ -153,7 +191,6 @@ const uiReducer = (state = initialState.ui, action) => {
 const itemReducer = (state = initialState.items, action) => {
   switch (action.type) {
     case CREATE_ITEM:
-      console.log(state);
       const itemUUID = uuidv4();
       return [
         ...state,
@@ -172,6 +209,15 @@ const itemReducer = (state = initialState.items, action) => {
           lastUpdatedAt: new Date()
         }
       ];
+
+    case DELETE_PROJECT:
+      return state.map(i => {
+        if (i.projectId == action.id) {
+          i.projectId = null;
+          i.lastUpdatedAt = new Date();
+        }
+        return i;
+      });
 
     case DELETE_ITEM:
       return state.map(i => {

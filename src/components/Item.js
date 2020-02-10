@@ -40,6 +40,8 @@ const ItemContainer = styled.div`
   margin: 0px 0px 0px 10px;
   align-items: center;
   cursor: pointer;
+  color: ${props =>
+    props.archived ? "#CCC" : theme.colours.defaultTextColour};
   :focus {
     background-color: ${props => props.theme.colours.focusBackgroundColour};
     border-color: ${props => props.theme.colours.focusBorderColour};
@@ -210,6 +212,7 @@ class Item extends Component {
           onKeyDown={this.handleKeyPress}
           id={this.props.id}
           tabIndex="0"
+          archived={this.props.archived}
         >
           <ItemType itemType={this.props.type}>
             {this.props.completed ? "DONE" : this.props.type}

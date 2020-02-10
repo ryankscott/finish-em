@@ -4,7 +4,11 @@ import { connect } from "react-redux";
 import { theme } from "../theme";
 
 const StyledButton = styled.button`
-  background-color: inherit;
+  background-color: ${props =>
+    props.invert
+      ? props.theme.colours.darkDialogBackgroundColour
+      : props.theme.colours.lightDialogBackgroundColour}
+
   color: ${props =>
     props.invert
       ? props.theme.colours.altTextColour
@@ -15,10 +19,15 @@ const StyledButton = styled.button`
   height: 20px;
   width: 20px;
   margin: 2px;
+  border-radius: 50%;
   text-align: center;
   float: right;
   &:hover {
     cursor: pointer;
+    background-color: ${props =>
+      props.invert
+        ? props.theme.colours.focusDarkDialogBackgroundColour
+        : props.theme.colours.focusLightDialogBackgroundColour}
   }
 `;
 

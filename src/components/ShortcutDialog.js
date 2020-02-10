@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import Item from "../components/Item";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
-import { SubTitle, Title, Paragraph } from "./Typography";
+import { Header1, Title, Paragraph } from "./Typography";
 import IconButton from "./IconButton";
 import { hideShortcutDialog } from "../actions";
 
@@ -77,7 +77,7 @@ function ShortcutDialog(props) {
           <Title invert>Shortcuts</Title>
         </Header>
         <Header>
-          <SubTitle invert> App </SubTitle>
+          <Header1 invert> App </Header1>
         </Header>
         <Body>
           <Column>
@@ -114,7 +114,7 @@ function ShortcutDialog(props) {
           </Column>
         </Body>
         <Header>
-          <SubTitle invert> Item </SubTitle>
+          <Header1 invert> Item </Header1>
         </Header>
         <Body>
           <Column>

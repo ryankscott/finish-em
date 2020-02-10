@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
 import FilteredItemList from "../containers/FilteredItemList";
-import { Paragraph, Header, Title, SubTitle } from "./Typography";
+import { Paragraph, Header, Title, Header1 } from "./Typography";
 
 const DateContainer = styled.div`
   display: grid;
@@ -14,11 +14,13 @@ const DateContainer = styled.div`
     "week_of_year . . week_of_quarter";
   align-items: end;
   width: 100%;
+  margin-bottom: 10px;
 `;
 
 const Section = styled.div`
   display: flex;
   flex-direction: column;
+  margin: 10px 0px;
 `;
 
 const AgendaContainer = styled.div`
@@ -33,9 +35,9 @@ function DailyAgenda(props) {
     <ThemeProvider theme={theme}>
       <AgendaContainer>
         <DateContainer>
-          <Header style={{ gridArea: "day" }}>
+          <Title style={{ gridArea: "day" }}>
             {format(new Date(), "EEEE do MMMM yyyy")}
-          </Header>
+          </Title>
           <Paragraph style={{ gridArea: "week_of_year" }}>
             Week of year: {format(new Date(), "w")} / 52
           </Paragraph>
@@ -43,14 +45,12 @@ function DailyAgenda(props) {
             Week of quarter: {format(new Date(), "w") % 13} / 13
           </Paragraph>
         </DateContainer>
-
         <Section>
-          <SubTitle> Overdue </SubTitle>
+          <Header1> Overdue </Header1>
           <FilteredItemList items={props.items} filter="SHOW_OVERDUE" />
         </Section>
-
         <Section>
-          <SubTitle> Scheduled Today </SubTitle>
+          <Header1> Scheduled Today </Header1>
           <FilteredItemList
             items={props.items}
             filter="SHOW_SCHEDULED_ON_DAY"

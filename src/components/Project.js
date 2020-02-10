@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { connect } from "react-redux";
 
 import { theme } from "../theme";
-import { updateProjectDescription } from "../actions";
-import { Header, Title, SubTitle } from "./Typography";
+import { updateProjectDescription, deleteProject } from "../actions";
+import { Header, Title, Header1 } from "./Typography";
 import EditableParagraph from "./EditableParagraph";
 import FilteredItemList from "../containers/FilteredItemList";
+import Button from "./Button";
+import DeleteProjectDialog from "./DeleteProjectDialog";
 
 const ProjectContainer = styled.div`
   display: flex;
@@ -15,45 +17,52 @@ const ProjectContainer = styled.div`
   margin: 50px 50px;
 `;
 
-class Project extends Component {
-  constructor(props) {
-    super(props);
-    this.updateDescription = this.updateDescription.bind(this);
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+`;
+
+function Project(props) {
+  let history = useHistory();
+
+  function deleteProject(id) {
+    props.deleteProject(props.project.id);
+    history.push("/inbox");
   }
 
-  updateDescription(input) {
-    this.props.updateDescription(this.props.project.id, input);
-  }
+  function showDeleteDialog() {}
 
-  render() {
-    return (
-      <ThemeProvider theme={theme}>
-        <ProjectContainer>
-          <Header>{this.props.project.name} </Header>
-          <EditableParagraph
-            key={this.props.project.id}
-            onUpdate={input => this.updateDescription(input)}
-            input={this.props.project.description}
-          />
-          <SubTitle> Notes </SubTitle>
-          <FilteredItemList
-            filter="SHOW_FROM_PROJECT_BY_TYPE"
-            params={{ projectId: this.props.project.id, type: "NOTE" }}
-          />
-          <SubTitle> Todos </SubTitle>
-          <FilteredItemList
-            filter="SHOW_FROM_PROJECT_BY_TYPE"
-            params={{ projectId: this.props.project.id, type: "TODO" }}
-          />
-          <SubTitle> Archive </SubTitle>
-          <FilteredItemList
-            filter="SHOW_ARCHIVED_FROM_PROJECT"
-            params={{ projectId: this.props.project.id, type: "TODO" }}
-          />
-        </ProjectContainer>
-      </ThemeProvider>
-    );
-  }
+  return (
+    <ThemeProvider theme={theme}>
+      <ProjectContainer>
+        <HeaderContainer>
+          <Title>{props.project.name} </Title>
+        </HeaderContainer>
+        <EditableParagraph
+          key={props.project.id}
+          onUpdate={input => props.updateDescription(props.project.id, input)}
+          input={props.project.description}
+        />
+        <Header1> Notes </Header1>
+        <FilteredItemList
+          filter="SHOW_FROM_PROJECT_BY_TYPE"
+          params={{ projectId: props.project.id, type: "NOTE" }}
+        />
+        <Header1> Todos </Header1>
+        <FilteredItemList
+          filter="SHOW_FROM_PROJECT_BY_TYPE"
+          params={{ projectId: props.project.id, type: "TODO" }}
+        />
+        <Header1> Archive </Header1>
+        <FilteredItemList
+          filter="SHOW_ARCHIVED_FROM_PROJECT"
+          params={{ projectId: props.project.id, type: "TODO" }}
+        />
+      </ProjectContainer>
+    </ThemeProvider>
+  );
 }
 
 const mapStateToProps = state => ({
@@ -62,6 +71,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateDescription: (id, text) => {
     dispatch(updateProjectDescription(id, text));
+  },
+  deleteProject: id => {
+    dispatch(deleteProject(id));
   }
 });
 export default connect(

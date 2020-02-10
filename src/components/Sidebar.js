@@ -51,12 +51,11 @@ function Sidebar(props) {
         <StyledNavLink to="/dailyAgenda"> Daily Agenda </StyledNavLink>
         <SectionHeader>
           <Header invert>Projects</Header>
-          <Button onClick={props.showCreateProjectDialog}> Add Project </Button>
           <CreateProjectDialog />
         </SectionHeader>
         {props.projects.map(p => {
           const pathName = "/projects/" + p.id;
-          if (p.id != null) {
+          if (!(p.id == null || p.deleted == true)) {
             return (
               <StyledNavLink
                 key={p.id}

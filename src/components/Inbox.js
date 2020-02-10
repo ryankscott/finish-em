@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { theme } from "../theme";
 import FilteredItemList from "../containers/FilteredItemList";
 import QuickAdd from "./QuickAdd";
-import { Header, SubTitle } from "./Typography";
+import { Header1, Title } from "./Typography";
 
 const Container = styled.div`
   display: flex;
@@ -27,10 +27,10 @@ class Inbox extends Component {
     return (
       <ThemeProvider theme={theme}>
         <Container>
-          <Header> Inbox </Header>
-          <SubTitle> Add an item </SubTitle>
+          <Title> Inbox </Title>
+          <Header1> Add an item </Header1>
           <QuickAdd />
-          <SubTitle> Items in inbox </SubTitle>
+          <Header1> Items in inbox </Header1>
           <FilteredItemList items={this.props.items} filter="SHOW_INBOX" />
         </Container>
       </ThemeProvider>

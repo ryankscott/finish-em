@@ -9,12 +9,14 @@ export const UNCOMPLETE_ITEM = "UNCOMPLETE_ITEM";
 export const SET_SCHEDULED_DATE = "SET_SCHEDULED_DATE";
 export const SET_DUE_DATE = "SET_DUE_DATE";
 export const CREATE_PROJECT = "CREATE_PROJECT";
+export const DELETE_PROJECT = "DELETE_PROJECT";
 export const UPDATE_PROJECT_DESCRIPTION = "UPDATE_PROJECT_DESCRIPTION";
 export const SHOW_SHORTCUT_DIALOG = "SHOW_SHORTCUT_DIALOG";
 export const HIDE_SHORTCUT_DIALOG = "HIDE_SHORTCUT_DIALOG";
 export const TOGGLE_SHORTCUT_DIALOG = "TOGGLE_SHORTCUT_DIALOG";
 export const SHOW_CREATE_PROJECT_DIALOG = "SHOW_CREATE_PROJECT_DIALOG";
 export const HIDE_CREATE_PROJECT_DIALOG = "HIDE_CREATE_PROJECT_DIALOG";
+export const TOGGLE_CREATE_PROJECT_DIALOG = "TOGGLE_CREATE_PROJECT_DIALOG";
 import {
   getItemTypeFromString,
   capitaliseItemTypeFromString,
@@ -104,13 +106,17 @@ export function updateItem(id, text) {
 }
 
 export function createProject(id, name, description) {
-  console.log(id);
-  console.log(name);
   return {
     type: CREATE_PROJECT,
     id: id,
     name: name,
     description: description
+  };
+}
+export function deleteProject(id) {
+  return {
+    type: DELETE_PROJECT,
+    id: id
   };
 }
 
@@ -137,6 +143,11 @@ export function toggleShortcutDialog() {
 export function showCreateProjectDialog() {
   return {
     type: SHOW_CREATE_PROJECT_DIALOG
+  };
+}
+export function toggleCreateProjectDialog() {
+  return {
+    type: TOGGLE_CREATE_PROJECT_DIALOG
   };
 }
 

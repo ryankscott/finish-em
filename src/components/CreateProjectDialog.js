@@ -3,32 +3,15 @@ import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import uuidv4 from "uuid/v4";
 
+import { Header2 } from "./Typography";
 import { theme } from "../theme";
-import { createProject, hideCreateProjectDialog } from "../actions";
+import {
+  createProject,
+  toggleCreateProjectDialog,
+  hideCreateProjectDialog
+} from "../actions";
 import Button from "./Button";
-import IconButton from "./IconButton";
-// TODO: IconButton is shit
-
-const Container = styled.div`
-  position: absolute;
-  top: 230px;
-  box-sizing: border-box;
-  display: ${props => (props.visible ? "flex" : "none")};
-  flex-direction: column;
-  width: 200px;
-  background-color: ${props => props.theme.colours.lightDialogBackgroundColour};
-  z-index: 2;
-  padding: 5px 5px 8px 5px;
-  justify-content: center;
-  align-items: center;
-  border-radius: 3px;
-`;
-
-const InputContainer = styled.div`
-display: flex;
-flex-direction column;
-margin-bottom: 10px;
-`;
+import InlineDialog from "./InlineDialog";
 
 const StyledInput = styled.input`
   font-size: ${props => props.theme.fontSizes.xsmall};
@@ -38,11 +21,11 @@ const StyledInput = styled.input`
   width: 150px;
 `;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  margin-bottom: 5px;
+const BodyContainer = styled.div`
+display: flex;
+flex-direction column;
+margin: 5px 0px;
+padding: 0px 0px 10px 0px;
 `;
 
 class CreateProjectDialog extends Component {
@@ -72,40 +55,52 @@ class CreateProjectDialog extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
-        <Container visible={this.props.visible}>
-          <Header>
-            <IconButton onClick={this.props.closeCreateProjectDialog}>
-              ×
-            </IconButton>
-          </Header>
-          <InputContainer>
-            <StyledInput
-              id="createProjectName"
-              type="text"
-              value={this.state.projectName}
-              onChange={this.handleChange}
-              required
-              placeholder="Project name"
-              tabIndex="0"
-            />
-            <StyledInput
-              id="createProjectDescription"
-              type="text"
-              value={this.state.projectDescription}
-              onChange={this.handleChange}
-              placeholder="Project description"
-              tabIndex="0"
-            />
-          </InputContainer>
-          <Button onClick={this.handleSubmit}>Create</Button>
-        </Container>
+        <InlineDialog
+          onClose={() => this.props.closeCreateProjectDialog()}
+          placement={"bottom-start"}
+          isOpen={this.props.visible}
+          content={
+            <div>
+              <Header2>Create Project</Header2>
+              <BodyContainer>
+                <StyledInput
+                  id="createProjectName"
+                  type="text"
+                  value={this.state.projectName}
+                  onChange={this.handleChange}
+                  required
+                  placeholder="Project name"
+                  tabIndex="0"
+                />
+                <StyledInput
+                  id="createProjectDescription"
+                  type="text"
+                  value={this.state.projectDescription}
+                  onChange={this.handleChange}
+                  placeholder="Project description"
+                  tabIndex="0"
+                />
+              </BodyContainer>
+              <Button type="primary" onClick={this.handleSubmit}>
+                Create
+              </Button>
+            </div>
+          }
+        >
+          <Button
+            type="primary"
+            onClick={() => this.props.toggleCreateProjectDialog()}
+          >
+            Add Project
+          </Button>
+        </InlineDialog>
       </ThemeProvider>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  visible: state.ui.showCreateProjectDialog
+  visible: state.ui.createProjectDialogVisible
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -115,6 +110,9 @@ const mapDispatchToProps = dispatch => ({
   },
   closeCreateProjectDialog: () => {
     dispatch(hideCreateProjectDialog());
+  },
+  toggleCreateProjectDialog: () => {
+    dispatch(toggleCreateProjectDialog());
   }
 });
 

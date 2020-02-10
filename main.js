@@ -21,7 +21,7 @@ function createQuickAddWindow() {
   quickAddWindow.loadURL(
     isDev
       ? "http://localhost:1234?quickAdd"
-      : `file://${path.join(__dirname, "../build/index.html?quickAdd")}`
+      : `file://${__dirname}/build/index.html?quickAdd`
   );
   // Open dev tools
   //quickAddWindow.webContents.openDevTools();
@@ -46,11 +46,11 @@ function createMainWindow() {
   mainWindow.loadURL(
     isDev
       ? "http://localhost:1234?main"
-      : `file://${path.join(__dirname, "../build/index.html?main")}`
+      : `file://${__dirname}/build/index.html?main`
   );
 
   // Open dev tools
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
 
   // On closing derefernce
   // TODO: Change to an array for multi-window support

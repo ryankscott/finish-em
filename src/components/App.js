@@ -30,11 +30,11 @@ const GlobalStyle = createGlobalStyle`
     padding: 0px;
     margin: 0px;
   }
-  *:focus {
-    outline:none;
-    outline-style:none;
-    box-shadow:none;
-  }
+  // *:focus {
+  //   outline:none;
+  //   outline-style:none;
+  //   box-shadow:none;
+  // }
 `;
 const Container = styled.div`
   display: flex;

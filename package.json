@@ -1,31 +1,46 @@
 {
   "name": "Finish-em",
   "version": "0.0.1",
+  "author": "Ryan Scott (ryan@ryankennethscott.com)",
+  "description": "An org-mode inspired personal organiser",
   "main": "main.js",
+  "homepage": "./",
+  "build": {
+    "appId": "com.ryankscott",
+    "files": [
+      "main.js",
+      "src/assets/*",
+      "build/**/*"
+    ]
+  },
   "scripts": {
     "dev": "parcel ./src/index.html -d build/",
     "start-dev": "ELECTRON_START_URL=http://localhost:1234 electron .",
     "start": "electron .",
+    "clean": "rm -rf build/ .cache dist/",
     "build": "parcel build ./src/*.html -d build/ --public-url ./",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder",
+    "dist": "electron-builder -m",
     "postinstall": "electron-builder install-app-deps"
   },
   "devDependencies": {
     "autoprefixer": "^9.7.4",
     "electron": "^7.1.7",
     "electron-builder": "^21.2.0",
-    "electron-is-dev": "^1.1.0",
     "electron-reload": "^1.5.0",
     "parcel-bundler": "^1.12.4",
     "postcss-modules": "^1.5.0"
   },
   "dependencies": {
+    "@atlaskit/css-reset": "^5.0.9",
+    "@atlaskit/inline-dialog": "^12.1.7",
+    "@atlaskit/theme": "^9.5.0",
     "@babel/runtime": "^7.8.3",
     "chrono-node": "^1.3.11",
     "components": "^0.1.0",
     "date-fns": "^2.9.0",
     "draft-js": "^0.11.4",
+    "electron-is-dev": "^1.1.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "mousetrap": "^1.6.5",
@@ -35,6 +50,7 @@
     "react-dom": "^16.12.0",
     "react-hotkeys": "^2.0.0",
     "react-mentions": "^3.3.1",
+    "react-popper": "^1.3.7",
     "react-redux": "^7.1.3",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
