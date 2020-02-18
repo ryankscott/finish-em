@@ -54,7 +54,7 @@ const Column = styled.div`
 `;
 
 const ShortcutKeys = styled(Paragraph)`
-  width: 40px;
+  width: 80px;
   color: ${props => props.theme.colours.primaryColour};
 `;
 
@@ -97,6 +97,14 @@ function ShortcutDialog(props) {
               <ShortcutKeys>c p</ShortcutKeys>
               <Paragraph invert>Create Project</Paragraph>
             </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>[</ShortcutKeys>
+              <Paragraph invert>Close Sidebar</Paragraph>
+            </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>d p</ShortcutKeys>
+              <Paragraph invert>Delete Project</Paragraph>
+            </Shortcut>
           </Column>
           <Column>
             <Shortcut>
@@ -110,6 +118,14 @@ function ShortcutDialog(props) {
             <Shortcut>
               <ShortcutKeys>g p n</ShortcutKeys>
               <Paragraph invert>Go to Project n</Paragraph>
+            </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>⌘+Shift+N</ShortcutKeys>
+              <Paragraph invert>Quick Add</Paragraph>
+            </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>]</ShortcutKeys>
+              <Paragraph invert>Open Sidebar</Paragraph>
             </Shortcut>
           </Column>
         </Body>
@@ -130,6 +146,14 @@ function ShortcutDialog(props) {
               <ShortcutKeys>d</ShortcutKeys>
               <Paragraph invert>Set Due Date</Paragraph>
             </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>x</ShortcutKeys>
+              <Paragraph invert>Delete</Paragraph>
+            </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>z</ShortcutKeys>
+              <Paragraph invert>Restore</Paragraph>
+            </Shortcut>
           </Column>
           <Column>
             <Shortcut>
@@ -143,6 +167,10 @@ function ShortcutDialog(props) {
             <Shortcut>
               <ShortcutKeys>s</ShortcutKeys>
               <Paragraph invert>Set Scheduled Date</Paragraph>
+            </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>e</ShortcutKeys>
+              <Paragraph invert>Edit</Paragraph>
             </Shortcut>
           </Column>
         </Body>

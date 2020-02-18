@@ -1,11 +1,13 @@
 div.DraftEditor-root {
   display: flex;
   flex-direction: column;
-  padding: 10px 0px 0px 10px;
   background-color: whitesmoke;
-  height: 30px;
+  height: 40px;
   width: 650px;
   overflow-y: auto;
+  justify-content: center;
+  line-height: 40px;
+  vertical-align: middle;
 }
 div.DraftEditor-editorContainer,
 div.public-DraftEditor-content {

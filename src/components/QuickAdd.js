@@ -7,22 +7,24 @@ import EditableItem from "./EditableItem";
 class QuickAdd extends React.Component {
   constructor(props) {
     super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-  handleSubmit(id, text) {
-    this.props.onSubmit(text);
   }
 
   render() {
-    return <EditableItem onSubmit={this.handleSubmit} readOnly={false} />;
+    return (
+      <EditableItem
+        onSubmit={(id, text) => this.props.onSubmit(text, this.props.projectId)}
+        readOnly={false}
+      />
+    );
   }
 }
 
 const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
-  onSubmit: text => {
-    dispatch(createItem(text));
+  // TODO: fix creating things on the quick add
+  onSubmit: (text, projectId) => {
+    dispatch(createItem(text, projectId));
   }
 });
 

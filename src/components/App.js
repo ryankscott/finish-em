@@ -20,9 +20,21 @@ import {
   BrowserRouter as Router
 } from "react-router-dom";
 import * as Mousetrap from "Mousetrap";
-import { showCreateProjectDialog, toggleShortcutDialog } from "../actions";
+import {
+  showSidebar,
+  hideSidebar,
+  showCreateProjectDialog,
+  hideShortcutDialog,
+  hideCreateProjectDialog,
+  hideDeleteProjectDialog,
+  toggleShortcutDialog
+} from "../actions";
 
 const GlobalStyle = createGlobalStyle`
+  html {
+    height: 100%;
+  }
+
   body {
     font-family: ${props => props.theme.font.sansSerif};
     color: ${props => props.theme.colours.defaultTextColour};
@@ -31,6 +43,7 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
     padding: 0px;
     margin: 0px;
+    height: 100%;
   }
   // *:focus {
   //   outline:none;
@@ -44,13 +57,14 @@ const Container = styled.div`
   margin: 0px;
   width: 100%;
   height: 100%;
-  position: fixed;
 `;
 
 const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 10px 20px;
+  margin-left: ${props => (props.sidebarVisible ? "270px" : "0px")};
+  transition: all 0.2s ease-in-out;
 `;
 
 const ProjectWrapper = props => {
@@ -90,7 +104,10 @@ function App(props) {
     Mousetrap.bind("g p 7", () => goToProject(7));
     Mousetrap.bind("g p 8", () => goToProject(8));
     Mousetrap.bind("g p 9", () => goToProject(9));
+    Mousetrap.bind("[", props.hideSidebar);
+    Mousetrap.bind("]", props.showSidebar);
     Mousetrap.bind("?", props.toggleShortcutDialog);
+    Mousetrap.bind("escape", props.hideDialogs);
     Mousetrap.bind("c p", props.showCreateProjectDialog);
     return function cleanup() {
       Mousetrap.unbind("g a");
@@ -113,7 +130,7 @@ function App(props) {
       <GlobalStyle />
       <Container>
         <Sidebar />
-        <MainContainer>
+        <MainContainer sidebarVisible={props.sidebarVisible}>
           <Switch>
             <Route exact path="/" component={Inbox} />
             <Route exact path="/inbox" component={Inbox} />
@@ -133,7 +150,8 @@ function App(props) {
 }
 
 const mapStateToProps = state => ({
-  projects: state.projects
+  projects: state.projects,
+  sidebarVisible: state.ui.sidebarVisible
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -142,6 +160,18 @@ const mapDispatchToProps = dispatch => ({
   },
   showCreateProjectDialog: () => {
     dispatch(showCreateProjectDialog());
+  },
+  hideSidebar: () => {
+    dispatch(hideSidebar());
+  },
+
+  showSidebar: () => {
+    dispatch(showSidebar());
+  },
+  hideDialogs: () => {
+    dispatch(hideShortcutDialog());
+    dispatch(hideCreateProjectDialog());
+    dispatch(hideDeleteProjectDialog());
   }
 });
 export default connect(

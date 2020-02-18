@@ -20,11 +20,13 @@ padding: 5px;
 margin-bottom: 10px;
 `;
 
-// TODO:Manually positioning this is stupid
 const Container = styled.div`
   position: relative;
-  top: 130px;
-  right: 420px;
+`;
+
+const ActionContainer = styled.div`
+  display: flex;
+  flex-direction: flex-end;
 `;
 
 class DeleteProjectDialog extends Component {
@@ -47,16 +49,18 @@ class DeleteProjectDialog extends Component {
                   Are you sure you want to delete this project?
                 </Paragraph>
               </BodyContainer>
-              <Button type="error" compact onClick={this.props.onDelete}>
-                Yes
-              </Button>
-              <Button
-                type="primary"
-                compact
-                onClick={() => this.props.closeDeleteProjectDialog()}
-              >
-                No
-              </Button>
+              <ActionContainer>
+                <Button type="error" compact onClick={this.props.onDelete}>
+                  Yes
+                </Button>
+                <Button
+                  type="primary"
+                  compact
+                  onClick={() => this.props.closeDeleteProjectDialog()}
+                >
+                  No
+                </Button>
+              </ActionContainer>
             </div>
           }
         >

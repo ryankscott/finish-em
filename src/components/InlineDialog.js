@@ -7,6 +7,7 @@ import { theme } from "../theme";
 import IconButton from "./IconButton";
 // TODO: IconButton is shit
 
+// TODO: How to animate this without blocking other clicks display: none hides it but won't animate
 const Container = styled.div`
   position: relative;
   box-sizing: border-box;
@@ -20,6 +21,7 @@ const Container = styled.div`
   align-items: center;
   border-radius: 3px;
   margin: 2px;
+  transition: all 0.1s ease-in-out;
 `;
 
 const HeaderContainer = styled.div`
@@ -38,6 +40,20 @@ const BodyContainer = styled.div`
 class InlineDialog extends Component {
   constructor(props) {
     super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+  componentDidMount() {
+    document.addEventListener("mousedown", this.handleClick, false);
+  }
+  componentWillUnount() {
+    document.removeEventListener("mousedown", this.handleClick, false);
+  }
+
+  handleClick(e) {
+    if (e && this.node && this.node.contains(e.target)) {
+      return;
+    }
+    this.props.onClose();
   }
 
   render() {
@@ -50,7 +66,10 @@ class InlineDialog extends Component {
           {({ ref, style, placement, arrowProps }) => (
             <div ref={ref} style={style} data-placement={this.props.placement}>
               <ThemeProvider theme={theme}>
-                <Container visible={this.props.isOpen}>
+                <Container
+                  ref={node => (this.node = node)}
+                  visible={this.props.isOpen}
+                >
                   <HeaderContainer>
                     <IconButton onClick={this.props.onClose}>×</IconButton>
                   </HeaderContainer>

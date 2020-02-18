@@ -1,20 +1,20 @@
 const { ipcMain, app, BrowserWindow, globalShortcut } = require("electron");
 const isDev = require("electron-is-dev");
-const path = require("path");
 
 // TODO: Change to an array for multi-window support
 let mainWindow, quickAddWindow;
 
 function createQuickAddWindow() {
   quickAddWindow = new BrowserWindow({
-    width: 600,
-    height: 80,
+    width: 550,
+    height: 280,
     transparent: true,
     frame: false,
     focused: true,
     resizable: false,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      preload: __dirname + "/src/preload.js"
     }
   });
 
@@ -24,7 +24,7 @@ function createQuickAddWindow() {
       : `file://${__dirname}/build/index.html?quickAdd`
   );
   // Open dev tools
-  //quickAddWindow.webContents.openDevTools();
+  //  quickAddWindow.webContents.openDevTools();
 
   // On closing derefernce
   quickAddWindow.on("closed", () => {
@@ -38,7 +38,8 @@ function createMainWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      preload: __dirname + "/src/preload.js"
     }
   });
 
@@ -80,4 +81,8 @@ app.on("activate", () => {
   if (mainWindow === null) {
     createMainWindow();
   }
+});
+
+ipcMain.on("close-quickadd", (event, arg) => {
+  quickAddWindow.close();
 });

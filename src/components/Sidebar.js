@@ -11,12 +11,19 @@ import { Header, SubTitle } from "./Typography";
 import { showCreateProjectDialog } from "../actions";
 
 const Container = styled.div`
+  opacity: ${props => (props.visible ? "1" : "0")};
   background-color: ${props => props.theme.colours.altBackgroundColour};
-  padding: 20px;
-  height: 100%;
-  width: 250px;
+  padding: ${props => (props.visible ? "20px" : "0px")};
+  width: ${props => (props.visible ? "250px" : "0px")};
   display: flex;
   flex-direction: column;
+  transition: all 0.2s ease-in-out;
+  height: 100%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
 `;
 
 const StyledNavLink = styled(NavLink)`
@@ -43,7 +50,7 @@ const SectionHeader = styled.div`
 function Sidebar(props) {
   return (
     <ThemeProvider theme={theme}>
-      <Container>
+      <Container visible={props.sidebarVisible}>
         <SectionHeader>
           <Header invert> Views </Header>
         </SectionHeader>
@@ -51,13 +58,13 @@ function Sidebar(props) {
           to="/inbox"
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
-          📥 Inbox
+          {"📥  Inbox"}
         </StyledNavLink>
         <StyledNavLink
           to="/dailyAgenda"
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
-          📅 Daily Agenda{" "}
+          {" 📅 Daily Agenda "}
         </StyledNavLink>
         <SectionHeader>
           <Header invert>Projects</Header>
@@ -84,13 +91,13 @@ function Sidebar(props) {
           to="/trash"
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
-          🗑 Trash
+          {" 🗑 Trash"}
         </StyledNavLink>
         <StyledNavLink
           to="/archive"
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
-          🗃 Archive
+          {" 🗃 Archive"}
         </StyledNavLink>
       </Container>
     </ThemeProvider>
@@ -98,7 +105,8 @@ function Sidebar(props) {
 }
 
 const mapStateToProps = state => ({
-  projects: state.projects
+  projects: state.projects,
+  sidebarVisible: state.ui.sidebarVisible
 });
 const mapDispatchToProps = dispatch => ({
   showCreateProjectDialog: () => {

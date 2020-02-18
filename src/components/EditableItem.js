@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
+import styled, { ThemeProvider, keyframes } from "styled-components";
 import { connect } from "react-redux";
-import { configure, HotKeys } from "react-hotkeys";
 import {
   Editor,
   EditorState,
@@ -12,12 +11,36 @@ import {
   Modifier
 } from "draft-js";
 import chrono from "chrono-node";
-import { theme } from "../theme";
+import { headShake } from "react-animations";
+import isElectron from "is-electron";
 
 import { validateItemString } from "../utils";
 import "./EditableItem.css";
+import { theme } from "../theme";
 
+const Icon = styled.div`
+  flex-direction: row;
+  justify-content: center;
+  align-self: center;
+  font-family: ${props => props.theme.font.sansSerif};
+  font-size: ${props => props.theme.fontSizes.xlarge};
+  background-color: whitesmoke;
+  padding 0px 10px;
+  line-height: 35px;
+  text-align: center;
+  vertical-align: middle;
+  color: ${props => props.theme.colours.disabledTextColour};
+`;
+
+const headShakeAnimation = keyframes`${headShake}`;
+
+const AnimationBox = styled.div`
+  animation: 1s ${headShakeAnimation};
+`;
 const ValidationBox = styled.div`
+  background-color: whitesmoke;
+  display: flex;
+  flex-direction: row;
   border: 1px solid;
   border-color: ${props =>
     props.valid
@@ -28,14 +51,9 @@ const ValidationBox = styled.div`
   width: 660px;
   font-family: ${props => props.theme.font.sansSerif};
   font-size: ${props => props.theme.fontSizes.medium};
+  margin: 2px;
   margin-left: 10px;
 `;
-
-// React-hotkeys configuration
-configure({
-  logLevel: "warn",
-  ignoreRepeatedEventsWhenKeyHeldDown: false
-});
 
 const styles = {
   itemType: {
@@ -122,9 +140,11 @@ class EditableItem extends Component {
       valid: true,
       readOnly: this.props.readOnly,
       focus: false,
-      editorState: moveSelectionToEnd(es)
+      editorState: moveSelectionToEnd(es),
+      animateBox: false
     };
 
+    this.handleReturn = this.handleReturn.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.validateInput = this.validateInput.bind(this);
@@ -137,7 +157,12 @@ class EditableItem extends Component {
       .getCurrentContent()
       .getPlainText("\u0001");
     const valid = validateItemString(text);
-    this.setState({ valid });
+    valid
+      ? this.setState({
+          valid,
+          animateBox: false
+        })
+      : this.setState({ valid });
   }
 
   clearInput() {
@@ -158,22 +183,43 @@ class EditableItem extends Component {
       editorState,
       contentState.getSelectionAfter()
     );
+    console.log("clearing input");
+    console.log(editorState.getCurrentContent().getPlainText(""));
 
     this.setState({ editorState });
   }
 
-  handleKeyDown(e) {
-    // Clear input on Enter
-    if (e.key == "Enter" && this.state.valid) {
+  handleReturn(e) {
+    console.log("Handling return");
+    if (this.state.valid) {
       this.props.onSubmit(
         this.state.id,
         this.state.editorState.getCurrentContent().getPlainText("")
       );
       this.clearInput();
+      if (isElectron()) {
+        //    window.ipcRenderer.send("close-quickadd");
+      }
+    } else {
+      this.setState({
+        animateBox: true
+      });
     }
+    return "handled";
+  }
+
+  handleKeyDown(e, es, et) {
+    if (e.key == "Escape") {
+      if (isElectron()) {
+        window.ipcRenderer.send("close-quickadd");
+      }
+    }
+    console.log("handling key down");
+    return;
   }
 
   handleChange(e) {
+    console.log("handling change");
     this.validateInput();
     this.setState({ editorState: e });
   }
@@ -187,15 +233,39 @@ class EditableItem extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
-        <ValidationBox valid={this.state.valid}>
-          <Editor
-            editorState={this.state.editorState}
-            readOnly={this.state.readOnly}
-            onChange={this.handleChange}
-            keyBindingFn={this.handleKeyDown}
-            onFocus={this.onFocus}
-          />
-        </ValidationBox>
+        {this.state.animateBox ? (
+          <AnimationBox>
+            <ValidationBox valid={this.state.valid}>
+              <Icon>+</Icon>
+              <Editor
+                handleReturn={this.handleReturn}
+                editorState={this.state.editorState}
+                readOnly={this.state.readOnly}
+                onChange={this.handleChange}
+                handleKeyCommand={this.handleKeyDown}
+                onFocus={this.onFocus}
+                ref={element => {
+                  this.editor = element;
+                }}
+              />
+            </ValidationBox>
+          </AnimationBox>
+        ) : (
+          <ValidationBox valid={this.state.valid}>
+            <Icon>+</Icon>
+            <Editor
+              handleReturn={this.handleReturn}
+              editorState={this.state.editorState}
+              readOnly={this.state.readOnly}
+              onChange={this.handleChange}
+              handleKeyCommand={this.handleKeyDown}
+              onFocus={this.onFocus}
+              ref={element => {
+                this.editor = element;
+              }}
+            />
+          </ValidationBox>
+        )}
       </ThemeProvider>
     );
   }

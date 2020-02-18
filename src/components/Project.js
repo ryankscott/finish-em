@@ -1,19 +1,21 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams, useHistory } from "react-router-dom";
 import { connect } from "react-redux";
-
+import * as Mousetrap from "Mousetrap";
 import { theme } from "../theme";
 import {
   updateProjectDescription,
   deleteProject,
-  hideDeleteProjectDialog
+  hideDeleteProjectDialog,
+  toggleDeleteProjectDialog
 } from "../actions";
 import { Header, Title, Header1 } from "./Typography";
 import EditableParagraph from "./EditableParagraph";
 import FilteredItemList from "../containers/FilteredItemList";
 import Button from "./Button";
 import DeleteProjectDialog from "./DeleteProjectDialog";
+import QuickAdd from "./QuickAdd";
 
 const ProjectContainer = styled.div`
   display: flex;
@@ -36,6 +38,13 @@ function Project(props) {
     history.push("/inbox");
   }
 
+  useEffect(() => {
+    Mousetrap.bind("d p", () => props.toggleDeleteProjectDialog());
+    return function cleanup() {
+      Mousetrap.unbind("d p");
+    };
+  });
+
   return (
     <ThemeProvider theme={theme}>
       <ProjectContainer>
@@ -48,6 +57,8 @@ function Project(props) {
           onUpdate={input => props.updateDescription(props.project.id, input)}
           input={props.project.description}
         />
+        <Header1> Add to project </Header1>
+        <QuickAdd projectId={props.project.id} />
         <Header1> Notes </Header1>
         <FilteredItemList
           filter="SHOW_FROM_PROJECT_BY_TYPE"
@@ -78,6 +89,9 @@ const mapDispatchToProps = dispatch => ({
   deleteProject: id => {
     dispatch(deleteProject(id));
     dispatch(hideDeleteProjectDialog());
+  },
+  toggleDeleteProjectDialog: () => {
+    dispatch(toggleDeleteProjectDialog());
   }
 });
 export default connect(

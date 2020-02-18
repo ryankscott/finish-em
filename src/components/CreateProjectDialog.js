@@ -71,6 +71,10 @@ class CreateProjectDialog extends Component {
                   required
                   placeholder="Project name"
                   tabIndex="0"
+                  ref={createProjectInput =>
+                    (this.createProjectInput = createProjectInput)
+                  }
+                  autoFocus
                 />
                 <StyledInput
                   id="createProjectDescription"

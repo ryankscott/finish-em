@@ -10,6 +10,8 @@ const StyledParagraph = styled(Paragraph)`
   height: 100px;
   width: 650px;
   margin: 2px;
+  margin-left: 10px;
+  margin-bottom: 10px;
   padding: 5px;
   border: ${props =>
     props.editing ? "1px solid " + props.theme.colours.borderColour : "none"};

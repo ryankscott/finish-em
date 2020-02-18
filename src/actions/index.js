@@ -4,6 +4,7 @@ export const ARCHIVE_ITEM = "ARCHIVE_ITEM";
 export const DELETE_ITEM = "DELETE_ITEM";
 export const UNDELETE_ITEM = "UNDELETE_ITEM";
 export const UPDATE_ITEM = "UPDATE_ITEM";
+export const UPDATE_ITEM_DESCRIPTION = "UPDATE_ITEM_DESCRIPTION";
 export const REFILE_ITEM = "REFILE_ITEM";
 export const COMPLETE_ITEM = "COMPLETE_ITEM";
 export const UNCOMPLETE_ITEM = "UNCOMPLETE_ITEM";
@@ -12,6 +13,8 @@ export const SET_DUE_DATE = "SET_DUE_DATE";
 export const CREATE_PROJECT = "CREATE_PROJECT";
 export const DELETE_PROJECT = "DELETE_PROJECT";
 export const UPDATE_PROJECT_DESCRIPTION = "UPDATE_PROJECT_DESCRIPTION";
+export const SHOW_SIDEBAR = "SHOW_SIDEBAR";
+export const HIDE_SIDEBAR = "HIDE_SIDEBAR";
 export const SHOW_SHORTCUT_DIALOG = "SHOW_SHORTCUT_DIALOG";
 export const HIDE_SHORTCUT_DIALOG = "HIDE_SHORTCUT_DIALOG";
 export const TOGGLE_SHORTCUT_DIALOG = "TOGGLE_SHORTCUT_DIALOG";
@@ -29,19 +32,22 @@ import {
 } from "../utils";
 
 // Action creators
-export function createItem(text) {
+export function createItem(text, projectId) {
   // TODO: Turn this into a proper parsing
   const itemType = getItemTypeFromString(text);
   // TODO: This is kinda weird I pull the date out as a date and then change it to text
   const dueDate = extractDateFromString(text);
   let newText = removeDateFromString(text);
   newText = capitaliseItemTypeFromString(newText);
+  console.log("creating item");
+  console.log(newText);
 
   return {
     type: CREATE_ITEM,
     text: newText,
     itemType: itemType,
-    dueDate: dueDate
+    dueDate: dueDate,
+    projectId: projectId
   };
 }
 
@@ -97,6 +103,14 @@ export function setDueDate(id, date) {
     type: SET_DUE_DATE,
     id: id,
     date: date
+  };
+}
+
+export function updateItemDescription(id, text) {
+  return {
+    type: UPDATE_ITEM_DESCRIPTION,
+    id: id,
+    text: text
   };
 }
 
@@ -181,5 +195,16 @@ export function toggleDeleteProjectDialog() {
 export function hideDeleteProjectDialog() {
   return {
     type: HIDE_DELETE_PROJECT_DIALOG
+  };
+}
+
+export function showSidebar() {
+  return {
+    type: SHOW_SIDEBAR
+  };
+}
+export function hideSidebar() {
+  return {
+    type: HIDE_SIDEBAR
   };
 }

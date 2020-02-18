@@ -1,7 +1,12 @@
 import { createStore, compose } from "redux";
 import rootReducer from "../reducers";
 import { persistStore, persistReducer, createTransform } from "redux-persist";
+import isElectron from "is-electron";
 import storage from "redux-persist/lib/storage";
+let createElectronStorage;
+if (isElectron()) {
+  createElectronStorage = window.require("redux-persist-electron-storage");
+}
 
 // Redux-persist stores dates as JSON, these functions will restore them as dates
 const replacer = (key, value) =>
@@ -17,11 +22,22 @@ export const encode = toDeshydrate => JSON.stringify(toDeshydrate, replacer);
 
 export const decode = toRehydrate => JSON.parse(toRehydrate, reviver);
 
-const persistConfig = {
-  key: "root",
-  storage,
-  transforms: [createTransform(encode, decode)]
-};
+let persistConfig;
+if (isElectron()) {
+  persistConfig = {
+    version: 0,
+    key: "root",
+    storage: createElectronStorage(),
+    transforms: [createTransform(encode, decode)]
+  };
+} else {
+  persistConfig = {
+    version: 0,
+    key: "root",
+    storage,
+    transforms: [createTransform(encode, decode)]
+  };
+}
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // TODO: Only turn on devtools when in dev mode

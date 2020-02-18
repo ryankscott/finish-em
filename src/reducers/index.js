@@ -9,13 +9,16 @@ import {
   UNCOMPLETE_ITEM,
   COMPLETE_ITEM,
   UPDATE_ITEM,
+  UPDATE_ITEM_DESCRIPTION,
   SET_SCHEDULED_DATE,
   SET_DUE_DATE,
   CREATE_PROJECT,
   DELETE_PROJECT,
   UPDATE_PROJECT_DESCRIPTION,
-  SHOW_SHORTCUT_DIALOG,
+  SHOW_SIDEBAR,
+  HIDE_SIDEBAR,
   TOGGLE_SHORTCUT_DIALOG,
+  SHOW_SHORTCUT_DIALOG,
   HIDE_SHORTCUT_DIALOG,
   TOGGLE_CREATE_PROJECT_DIALOG,
   SHOW_CREATE_PROJECT_DIALOG,
@@ -109,6 +112,7 @@ const initialState = {
     }
   ],
   ui: {
+    sidebarVisible: true,
     shortcutDialogVisible: false,
     createProjectDialogVisible: false,
     deleteProjectDialogVisible: false
@@ -166,6 +170,7 @@ const uiReducer = (state = initialState.ui, action) => {
         ...state,
         shortcutDialogVisible: false
       };
+
     case TOGGLE_SHORTCUT_DIALOG:
       return {
         ...state,
@@ -202,6 +207,16 @@ const uiReducer = (state = initialState.ui, action) => {
         ...state,
         deleteProjectDialogVisible: false
       };
+    case SHOW_SIDEBAR:
+      return {
+        ...state,
+        sidebarVisible: true
+      };
+    case HIDE_SIDEBAR:
+      return {
+        ...state,
+        sidebarVisible: false
+      };
 
     default:
       return state;
@@ -220,7 +235,7 @@ const itemReducer = (state = initialState.items, action) => {
           text: action.text,
           scheduledDate: null,
           dueDate: action.dueDate,
-          projectId: null,
+          projectId: action.projectId,
           completed: false,
           deleted: false,
           archived: false,
@@ -317,6 +332,14 @@ const itemReducer = (state = initialState.items, action) => {
         if (i.id == action.id) {
           i.text = action.text;
           i.itemType = action.itemType;
+          i.lastUpdatedAt = new Date();
+        }
+        return i;
+      });
+    case UPDATE_ITEM_DESCRIPTION:
+      return state.map(i => {
+        if (i.id == action.id) {
+          i.text = action.text;
           i.lastUpdatedAt = new Date();
         }
         return i;
