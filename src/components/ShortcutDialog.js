@@ -136,7 +136,7 @@ function ShortcutDialog(props) {
           <Column>
             <Shortcut>
               <ShortcutKeys>r</ShortcutKeys>
-              <Paragraph invert>Refile to project</Paragraph>
+              <Paragraph invert>Unarchive</Paragraph>
             </Shortcut>
             <Shortcut>
               <ShortcutKeys>c</ShortcutKeys>
@@ -171,6 +171,10 @@ function ShortcutDialog(props) {
             <Shortcut>
               <ShortcutKeys>e</ShortcutKeys>
               <Paragraph invert>Edit</Paragraph>
+            </Shortcut>
+            <Shortcut>
+              <ShortcutKeys>m</ShortcutKeys>
+              <Paragraph invert>Move to project</Paragraph>
             </Shortcut>
           </Column>
         </Body>

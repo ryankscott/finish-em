@@ -3,9 +3,10 @@ import uuidv4 from "uuid/v4";
 import {
   CREATE_ITEM,
   ARCHIVE_ITEM,
+  UNARCHIVE_ITEM,
   DELETE_ITEM,
   UNDELETE_ITEM,
-  REFILE_ITEM,
+  MOVE_ITEM,
   UNCOMPLETE_ITEM,
   COMPLETE_ITEM,
   UPDATE_ITEM,
@@ -280,6 +281,15 @@ const itemReducer = (state = initialState.items, action) => {
         return i;
       });
 
+    case UNARCHIVE_ITEM:
+      return state.map(i => {
+        if (i.id == action.id) {
+          i.archived = false;
+          i.lastUpdatedAt = new Date();
+        }
+        return i;
+      });
+
     case COMPLETE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
@@ -300,7 +310,7 @@ const itemReducer = (state = initialState.items, action) => {
         return i;
       });
 
-    case REFILE_ITEM:
+    case MOVE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
           i.projectId = action.projectId;

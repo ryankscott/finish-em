@@ -24,7 +24,7 @@ const customStyles = {
     backgroundColor: state.isFocused
       ? theme.colours.focusBackgroundColour
       : "white",
-    padding: "2px 10px",
+    padding: "5px 10px",
     margin: 0,
     fontFamily: theme.font.sansSerif,
     fontSize: theme.fontSizes.small,
@@ -64,7 +64,7 @@ const Container = styled.div`
   padding: 0px;
   display: ${props => (!props.visible ? "none" : null)};
   background-color: #fff;
-  width: 660px;
+  width: 250px;
 `;
 
 const generateOptions = options => {

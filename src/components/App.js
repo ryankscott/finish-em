@@ -45,11 +45,6 @@ const GlobalStyle = createGlobalStyle`
     margin: 0px;
     height: 100%;
   }
-  // *:focus {
-  //   outline:none;
-  //   outline-style:none;
-  //   box-shadow:none;
-  // }
 `;
 const Container = styled.div`
   display: flex;

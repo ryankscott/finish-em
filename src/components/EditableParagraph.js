@@ -2,17 +2,19 @@ import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { theme } from "../theme";
-import { Paragraph } from "./Typography";
+import marked from "marked";
 import { setEndOfContenteditable } from "../utils";
 
-const StyledParagraph = styled(Paragraph)`
+const StyledDiv = styled.p`
   padding: 2px;
-  height: 100px;
   width: 650px;
+  min-height: 100px;
   margin: 2px;
   margin-left: 10px;
   margin-bottom: 10px;
   padding: 5px;
+  font-size: ${props => props.theme.fontSizes.small};
+  font-family: ${props => props.theme.font.sansSerif};
   border: ${props =>
     props.editing ? "1px solid " + props.theme.colours.borderColour : "none"};
   &:hover {
@@ -28,51 +30,66 @@ class EditableParagraph extends Component {
     super(props);
     this.state = {
       input: this.props.input,
-      editing: false
+      disabled: true
     };
     this.handleBlur = this.handleBlur.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
+    this.getMarkdownText = this.getMarkdownText.bind(this);
+    this.getRawText = this.getRawText.bind(this);
   }
+
   handleBlur(e) {
     this.setState({
-      editing: false
+      disabled: true,
+      input: this.editor.innerText
     });
-    this.props.onUpdate(e.target.innerText);
+    this.props.onUpdate(this.editor.innerText);
   }
 
   handleClick(e) {
     this.setState({
-      editing: true
+      disabled: false
     });
+
+    this.editor.focus();
+    e.preventDefault();
   }
 
-  handleKeyPress(event) {
-    // On e start editing
-    if (event.key == "e") {
-      if (this.state.editing == false) {
+  handleKeyPress(e) {
+    if (e.key == "e") {
+      if (this.state.disabled) {
         this.setState({
-          editing: true
+          disabled: false
         });
-        event.preventDefault();
-        setEndOfContenteditable(event.target);
+        e.preventDefault();
       }
     }
+  }
+
+  // NOTE: We have to replace newlines with HTML breaks
+  getRawText() {
+    return { __html: this.state.input.replace(/\n/gi, "<br/>") };
+  }
+
+  getMarkdownText() {
+    return { __html: marked(this.state.input) };
   }
 
   render() {
     return (
       <ThemeProvider theme={theme}>
-        <StyledParagraph
+        <StyledDiv
+          ref={editor => (this.editor = editor)}
+          contentEditable={!this.state.disabled}
+          onClick={this.handleClick}
+          onBlur={this.handleBlur}
           tabIndex={0}
           onKeyDown={this.handleKeyPress}
-          contentEditable={this.state.editing}
-          onBlur={this.handleBlur}
-          onClick={this.handleClick}
-          suppressContentEditableWarning={true}
-        >
-          {this.state.input}
-        </StyledParagraph>
+          dangerouslySetInnerHTML={
+            this.state.disabled ? this.getMarkdownText() : this.getRawText()
+          }
+        />
       </ThemeProvider>
     );
   }

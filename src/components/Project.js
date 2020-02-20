@@ -54,7 +54,9 @@ function Project(props) {
         </HeaderContainer>
         <EditableParagraph
           key={props.project.id}
-          onUpdate={input => props.updateDescription(props.project.id, input)}
+          onUpdate={input => {
+            props.updateDescription(props.project.id, input);
+          }}
           input={props.project.description}
         />
         <Header1> Add to project </Header1>

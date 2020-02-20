@@ -1,11 +1,12 @@
 // Actions
 export const CREATE_ITEM = "CREATE_ITEM";
 export const ARCHIVE_ITEM = "ARCHIVE_ITEM";
+export const UNARCHIVE_ITEM = "UNARCHIVE_ITEM";
 export const DELETE_ITEM = "DELETE_ITEM";
 export const UNDELETE_ITEM = "UNDELETE_ITEM";
 export const UPDATE_ITEM = "UPDATE_ITEM";
 export const UPDATE_ITEM_DESCRIPTION = "UPDATE_ITEM_DESCRIPTION";
-export const REFILE_ITEM = "REFILE_ITEM";
+export const MOVE_ITEM = "MOVE_ITEM";
 export const COMPLETE_ITEM = "COMPLETE_ITEM";
 export const UNCOMPLETE_ITEM = "UNCOMPLETE_ITEM";
 export const SET_SCHEDULED_DATE = "SET_SCHEDULED_DATE";
@@ -39,8 +40,6 @@ export function createItem(text, projectId) {
   const dueDate = extractDateFromString(text);
   let newText = removeDateFromString(text);
   newText = capitaliseItemTypeFromString(newText);
-  console.log("creating item");
-  console.log(newText);
 
   return {
     type: CREATE_ITEM,
@@ -69,6 +68,12 @@ export function archiveItem(id) {
     id: id
   };
 }
+export function unarchiveItem(id) {
+  return {
+    type: UNARCHIVE_ITEM,
+    id: id
+  };
+}
 
 export function completeItem(id) {
   return {
@@ -83,9 +88,9 @@ export function uncompleteItem(id) {
   };
 }
 
-export function refileItem(id, projectId) {
+export function moveItem(id, projectId) {
   return {
-    type: REFILE_ITEM,
+    type: MOVE_ITEM,
     id: id,
     projectId: projectId
   };

@@ -33,11 +33,8 @@ const Icon = styled.div`
 `;
 
 const headShakeAnimation = keyframes`${headShake}`;
-
-const AnimationBox = styled.div`
-  animation: 1s ${headShakeAnimation};
-`;
 const ValidationBox = styled.div`
+  animation: 1s ${props => (props.animate ? headShakeAnimation : "none")};
   background-color: whitesmoke;
   display: flex;
   flex-direction: row;
@@ -141,7 +138,7 @@ class EditableItem extends Component {
       readOnly: this.props.readOnly,
       focus: false,
       editorState: moveSelectionToEnd(es),
-      animateBox: false
+      animate: false
     };
 
     this.handleReturn = this.handleReturn.bind(this);
@@ -160,7 +157,7 @@ class EditableItem extends Component {
     valid
       ? this.setState({
           valid,
-          animateBox: false
+          animate: false
         })
       : this.setState({ valid });
   }
@@ -183,14 +180,10 @@ class EditableItem extends Component {
       editorState,
       contentState.getSelectionAfter()
     );
-    console.log("clearing input");
-    console.log(editorState.getCurrentContent().getPlainText(""));
-
     this.setState({ editorState });
   }
 
   handleReturn(e) {
-    console.log("Handling return");
     if (this.state.valid) {
       this.props.onSubmit(
         this.state.id,
@@ -201,10 +194,14 @@ class EditableItem extends Component {
         //    window.ipcRenderer.send("close-quickadd");
       }
     } else {
-      this.setState({
-        animateBox: true
-      });
+      this.setState(
+        {
+          animate: true
+        },
+        () => setTimeout(() => this.setState({ animate: false }), 200)
+      );
     }
+
     return "handled";
   }
 
@@ -214,12 +211,10 @@ class EditableItem extends Component {
         window.ipcRenderer.send("close-quickadd");
       }
     }
-    console.log("handling key down");
     return;
   }
 
   handleChange(e) {
-    console.log("handling change");
     this.validateInput();
     this.setState({ editorState: e });
   }
@@ -233,39 +228,20 @@ class EditableItem extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
-        {this.state.animateBox ? (
-          <AnimationBox>
-            <ValidationBox valid={this.state.valid}>
-              <Icon>+</Icon>
-              <Editor
-                handleReturn={this.handleReturn}
-                editorState={this.state.editorState}
-                readOnly={this.state.readOnly}
-                onChange={this.handleChange}
-                handleKeyCommand={this.handleKeyDown}
-                onFocus={this.onFocus}
-                ref={element => {
-                  this.editor = element;
-                }}
-              />
-            </ValidationBox>
-          </AnimationBox>
-        ) : (
-          <ValidationBox valid={this.state.valid}>
-            <Icon>+</Icon>
-            <Editor
-              handleReturn={this.handleReturn}
-              editorState={this.state.editorState}
-              readOnly={this.state.readOnly}
-              onChange={this.handleChange}
-              handleKeyCommand={this.handleKeyDown}
-              onFocus={this.onFocus}
-              ref={element => {
-                this.editor = element;
-              }}
-            />
-          </ValidationBox>
-        )}
+        <ValidationBox animate={this.state.animate} valid={this.state.valid}>
+          <Icon>+</Icon>
+          <Editor
+            handleReturn={this.handleReturn}
+            editorState={this.state.editorState}
+            readOnly={this.state.readOnly}
+            onChange={this.handleChange}
+            handleKeyCommand={this.handleKeyDown}
+            onFocus={this.onFocus}
+            ref={element => {
+              this.editor = element;
+            }}
+          />
+        </ValidationBox>
       </ThemeProvider>
     );
   }

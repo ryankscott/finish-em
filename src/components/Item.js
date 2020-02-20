@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
+import styled, { ThemeProvider, keyframes } from "styled-components";
 import { connect } from "react-redux";
 import {
   format,
@@ -11,9 +11,12 @@ import {
 } from "date-fns";
 import { enGB } from "date-fns/esm/locale";
 
+import { headShake } from "react-animations";
+
 import {
   archiveItem,
-  refileItem,
+  unarchiveItem,
+  moveItem,
   updateItemDescription,
   completeItem,
   deleteItem,
@@ -27,7 +30,9 @@ import ProjectDropdown from "../components/ProjectDropdown";
 import DatePicker from "../components/DatePicker";
 import { removeItemTypeFromString } from "../utils";
 
+const headShakeAnimation = keyframes`${headShake}`;
 const ItemContainer = styled.div`
+  animation: 1s ${props => (props.animate ? headShakeAnimation : "none")};
   font-family: ${props => props.theme.font.sansSerif};
   font-size: ${props => props.theme.fontSizes.medium};
   display: grid;
@@ -110,11 +115,12 @@ class Item extends Component {
       scheduledDatePopupVisible: false,
       dueDatePopupVisible: false,
       descriptionEditable: false,
-      preventDefaultEvents: false
+      preventDefaultEvents: false,
+      animate: false
     };
     this.setScheduledDate = this.setScheduledDate.bind(this);
     this.setDueDate = this.setDueDate.bind(this);
-    this.refileItem = this.refileItem.bind(this);
+    this.moveItem = this.moveItem.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
 
     this.hotkeyHandler = {
@@ -144,6 +150,12 @@ class Item extends Component {
         }
         this.props.archiveItem(event.target.id);
       },
+      UNARCHIVE: event => {
+        if (this.state.preventDefaultEvents == true) {
+          return;
+        }
+        this.props.unarchiveItem(event.target.id);
+      },
       COMPLETE: event => {
         if (this.state.preventDefaultEvents == true) {
           return;
@@ -168,7 +180,7 @@ class Item extends Component {
         }
         this.props.undeleteItem(event.target.id);
       },
-      REFILE: event => {
+      MOVE: event => {
         if (this.state.preventDefaultEvents == true) {
           return;
         }
@@ -232,13 +244,12 @@ class Item extends Component {
     this.setState({ dueDatePopupVisible: false });
   }
 
-  refileItem(projectId) {
-    this.props.refileItem(this.props.id, projectId);
+  moveItem(projectId) {
+    this.props.moveItem(this.props.id, projectId);
     this.setState({ projectDropdownVisible: false });
   }
 
   handleKeyPress(event) {
-    console.log("Key pressed:  " + event.key);
     if (this.props.type == "TODO") {
       switch (event.key) {
         case "s":
@@ -255,10 +266,13 @@ class Item extends Component {
           return;
       }
     }
-
+    console.log(event.key);
     switch (event.key) {
       case "a":
         this.hotkeyHandler.ARCHIVE(event);
+        return;
+      case "r":
+        this.hotkeyHandler.UNARCHIVE(event);
         return;
       case "Enter":
         this.hotkeyHandler.ENTER(event);
@@ -266,8 +280,8 @@ class Item extends Component {
       case "Escape":
         this.hotkeyHandler.ESCAPE(event);
         return;
-      case "r":
-        this.hotkeyHandler.REFILE(event);
+      case "m":
+        this.hotkeyHandler.MOVE(event);
         return;
       case "x":
         this.hotkeyHandler.DELETE(event);
@@ -277,6 +291,20 @@ class Item extends Component {
         return;
       case "e":
         this.hotkeyHandler.EDIT(event);
+        return;
+      case "Meta":
+        return;
+      case "Tab":
+        return;
+      case "Shift":
+        return;
+      default:
+        this.setState(
+          {
+            animate: true
+          },
+          () => setTimeout(() => this.setState({ animate: false }), 200)
+        );
         return;
     }
   }
@@ -292,6 +320,7 @@ class Item extends Component {
           tabIndex="0"
           archived={this.props.archived}
           itemType={this.props.type}
+          animate={this.state.animate}
         >
           <ItemType itemType={this.props.type}>
             {this.props.completed ? "DONE" : this.props.type}
@@ -334,9 +363,9 @@ class Item extends Component {
 
         <ProjectDropdown
           key={"p" + this.props.id}
-          placeholder={"Refile to: "}
+          placeholder={"Move to: "}
           visible={this.state.projectDropdownVisible}
-          onSubmit={this.refileItem}
+          onSubmit={this.moveItem}
         />
       </ThemeProvider>
     );
@@ -363,8 +392,11 @@ const mapDispatchToProps = dispatch => ({
   archiveItem: id => {
     dispatch(archiveItem(id));
   },
-  refileItem: (id, projectId) => {
-    dispatch(refileItem(id, projectId));
+  unarchiveItem: id => {
+    dispatch(unarchiveItem(id));
+  },
+  moveItem: (id, projectId) => {
+    dispatch(moveItem(id, projectId));
   },
   setScheduledDate: (id, date) => {
     dispatch(setScheduledDate(id, date));
