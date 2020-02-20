@@ -23,7 +23,6 @@ const Container = styled.div`
   z-index: 1;
   top: 0;
   left: 0;
-  overflow-x: hidden;
 `;
 
 const StyledNavLink = styled(NavLink)`

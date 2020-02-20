@@ -10,7 +10,7 @@ import { hideShortcutDialog } from "../actions";
 import { connect } from "react-redux";
 
 const ShortcutContainer = styled.div`
-display: ${props => (props.visible ? "block" : "none")};
+  display: ${props => (props.visible ? "block" : "none")};
   position: absolute;
   background-color: ${props => props.theme.colours.altBackgroundColour}
   color: ${props => props.theme.colours.altTextColour}

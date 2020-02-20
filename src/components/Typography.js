@@ -39,7 +39,7 @@ export const Header2 = styled.h2`
 `;
 
 export const Paragraph = styled.p`
-  font-size: ${props => props.theme.fontSizes.small};
+  font-size: ${props => props.theme.fontSizes.xsmall};
   font-family: ${props => props.theme.font.sansSerif};
   color: ${props =>
     props.invert

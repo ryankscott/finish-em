@@ -9,24 +9,24 @@ import IconButton from "./IconButton";
 
 // TODO: How to animate this without blocking other clicks display: none hides it but won't animate
 const Container = styled.div`
-  position: relative;
+  position: absolute;
   box-sizing: border-box;
   display: ${props => (props.visible ? "flex" : "none")};
   flex-direction: column;
   width: 200px;
   background-color: ${props => props.theme.colours.lightDialogBackgroundColour};
-  z-index: 2;
   padding: 5px 5px 8px 5px;
   justify-content: center;
   align-items: center;
   border-radius: 3px;
   margin: 2px;
   transition: all 0.1s ease-in-out;
+  z-index: 99;
 `;
 
 const HeaderContainer = styled.div`
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   width: 100%;
   margin: 0px;
   padding: 0px;
