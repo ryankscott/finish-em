@@ -50,10 +50,14 @@ class InlineDialog extends Component {
   }
 
   handleClick(e) {
+    // Don't close if we're clicking on the dialog
     if (e && this.node && this.node.contains(e.target)) {
       return;
     }
-    this.props.onClose();
+    // Only close if it's currently open
+    if (this.props.isOpen) {
+      this.props.onClose();
+    }
   }
 
   render() {
