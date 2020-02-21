@@ -1,78 +1,134 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import Select from "react-select";
-import { format } from "date-fns";
-import { connect } from "react-redux";
-import moment from "moment";
-
+import uuidv4 from "uuid/v4";
 import { theme } from "../theme";
+import { add, lastDayOfWeek } from "date-fns";
 import "./DatePicker.css";
-import DayPickerInput from "react-day-picker/DayPickerInput";
+import DayPicker from "react-day-picker/DayPicker";
 
-// const CustomOverlay = ({ classNames, selectedDay, children, ...props }) => {
-//   return (
-//     <div style={{}} {...props}>
-//       <div className={classNames.overlay}>{children}</div>
-//     </div>
-//   );
-// };
+import { connect } from "react-redux";
+const customStyles = {
+  input: () => ({
+    padding: "5px",
+    fontFamily: theme.font.sansSerif
+  }),
+  menu: (provided, state) => ({
+    margin: "4px 0px 0px 0px",
+    padding: "0px",
+    border: "1px solid",
+    backgroundColor: theme.colours.backgroundColour,
+    borderColor: theme.colours.borderColour,
+    tabIndex: 0
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    tabIndex: 0,
+    color: theme.colours.defaultTextColour,
+    backgroundColor: state.isFocused
+      ? theme.colours.focusBackgroundColour
+      : "white",
+    padding: "5px 10px",
+    margin: 0,
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.small,
+    fontWeight: state.isFocused
+      ? theme.fontWeights.bold
+      : theme.fontWeights.regular
+  }),
+  control: () => ({
+    width: "100%",
+    margin: 0,
+    padding: 0,
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.small
+  }),
+  singleValue: (provided, state) => ({}),
+  indicatorsContainer: () => ({ display: "none" }),
+  dropdownIndicator: () => ({
+    display: "none"
+  }),
+  noOptionsMessage: () => ({
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.xsmall,
+    fontWeight: theme.fontWeights.thin,
+    padding: "2px 5px"
+  })
+};
 
 const Container = styled.div`
-  position: relative;
+  position: inline;
+  box-styling: border-box;
   display: flex;
   flex-direction: column;
-  font-family: ${props => props.theme.font.sansSerif};
+  border: 1px solid;
   border-color: ${props => props.theme.colours.borderColour};
+  margin: 0px 0px 0px 10px;
+  height: 35px;
+  padding: 0px;
   display: ${props => (!props.visible ? "none" : null)};
-  z-index: 1;
   background-color: #fff;
-  margin-left: 10px;
+  width: 250px;
 `;
 
-class DatePicker extends Component {
+const options = [
+  { value: new Date(), label: "Today" },
+  { value: add(new Date(), { days: 1 }), label: "Tomorrow" },
+  {
+    value: add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), { days: 1 }),
+    label: "Next Week"
+  },
+  {
+    value: null,
+    label: "Custom date"
+  }
+];
+
+class ProjectDropdown extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      selectedDay: undefined,
-      isEmpty: true
-    };
-    this.handleDayChange = this.handleDayChange.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.state = { selectedOption: null, dayPickerVisible: false };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleDayClick = this.handleDayClick.bind(this);
   }
 
-  handleDayChange(selectedDay, modifiers, dayPickerInput) {
-    const input = dayPickerInput.getInput();
+  handleChange(newValue, actionMeta) {
+    if (actionMeta.action == "select-option") {
+      // if it's a custom date then show the calendar item
+      if (newValue.label == "Custom date") {
+        this.setState({
+          dayPickerVisible: true
+        });
+        return;
+      }
+      this.props.onSubmit(newValue.value);
+    }
+  }
+
+  handleDayClick(day, modifiers, e) {
     this.setState({
-      selectedDay,
-      isEmpty: !input.value.trim()
+      dayPickerVisible: false
     });
-  }
-
-  handleKeyDown(e) {
-    const { selectedDay, isEmpty } = this.state;
-    if (e.key == "Enter") {
-      selectedDay && !isEmpty ? this.props.onSubmit(selectedDay) : null;
-    }
-    if (e.key == "Escape") {
-      this.props.close();
-    }
+    this.props.onSubmit(day);
   }
 
   render() {
     return (
       <ThemeProvider theme={theme}>
         <Container visible={this.props.visible}>
-          <DayPickerInput
-            showWeekNumbers
-            value={this.state.selectedDay}
-            onDayChange={this.handleDayChange}
-            placeholder={this.props.placeholder + " yyyy-mm-dd"}
-            inputProps={{
-              onKeyDown: e => {
-                this.handleKeyDown(e);
-              }
-            }}
+          <Select
+            tabIndex={0}
+            autoFocus={true}
+            placeholder={this.props.placeholder}
+            value={this.state.selectedOption}
+            onChange={this.handleChange}
+            options={options}
+            styles={customStyles}
+            defaultMenuIsOpen={true}
           />
+          {this.state.dayPickerVisible && (
+            <DayPicker tabIndex={0} onDayClick={this.handleDayClick} />
+          )}
         </Container>
       </ThemeProvider>
     );
@@ -84,4 +140,4 @@ const mapDispatchToProps = dispatch => ({});
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(DatePicker);
+)(ProjectDropdown);

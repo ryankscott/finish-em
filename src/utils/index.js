@@ -1,5 +1,5 @@
 import chrono from "chrono-node";
-import { isBefore, formatDistanceToNow, parseISO, isValid } from "date-fns";
+import { isAfter, format, isToday, isTomorrow, isThisWeek } from "date-fns";
 
 export const itemRegex = new RegExp("^(TODO)|(NOTE)s*.*", "gi");
 
@@ -64,5 +64,17 @@ export const setEndOfContenteditable = contentEditableElement => {
     selection = window.getSelection(); //get the selection object (allows you to change selection)
     selection.removeAllRanges(); //remove any selections already made
     selection.addRange(range); //make the range you have just created the visible selection
+  }
+};
+
+export const formatRelativeDate = date => {
+  if (isToday(date)) {
+    return "Today";
+  } else if (isTomorrow(date)) {
+    return "Tomorrow";
+  } else if (isThisWeek(date) && isAfter(date, new Date())) {
+    return format(date, "EEE");
+  } else {
+    return format(date, "d/M/yyyy");
   }
 };

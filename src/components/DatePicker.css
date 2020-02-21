@@ -6,6 +6,7 @@
   border: 1px solid #ccc;
   font-size: 0.875em;
   background-color: #fff;
+  z-index: 2;
 }
 
 .DayPicker-wrapper {

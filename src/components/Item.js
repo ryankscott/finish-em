@@ -28,7 +28,7 @@ import {
 import { theme } from "../theme";
 import ProjectDropdown from "../components/ProjectDropdown";
 import DatePicker from "../components/DatePicker";
-import { removeItemTypeFromString } from "../utils";
+import { formatRelativeDate, removeItemTypeFromString } from "../utils";
 
 const headShakeAnimation = keyframes`${headShake}`;
 const ItemContainer = styled.div`
@@ -299,12 +299,14 @@ class Item extends Component {
       case "Shift":
         return;
       default:
-        this.setState(
-          {
-            animate: true
-          },
-          () => setTimeout(() => this.setState({ animate: false }), 200)
-        );
+        if (this.state.descriptionEditable == false) {
+          this.setState(
+            {
+              animate: true
+            },
+            () => setTimeout(() => this.setState({ animate: false }), 200)
+          );
+        }
         return;
     }
   }
@@ -335,18 +337,12 @@ class Item extends Component {
           </ItemBody>
           {this.props.dueDate && (
             <DueDate>
-              {"Due: " +
-                formatRelative(this.props.dueDate, new Date(), {
-                  locale: enGB
-                })}
+              {"Due: " + formatRelativeDate(this.props.dueDate)}
             </DueDate>
           )}
           {this.props.scheduledDate && (
             <ScheduledDate>
-              {"Scheduled: " +
-                formatRelative(this.props.scheduledDate, new Date(), {
-                  locale: enGB
-                })}
+              {"Scheduled: " + formatRelativeDate(this.props.scheduledDate)}
             </ScheduledDate>
           )}
         </ItemContainer>
