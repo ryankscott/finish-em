@@ -48,6 +48,11 @@ class InlineDialog extends Component {
   componentWillUnount() {
     document.removeEventListener("mousedown", this.handleClick, false);
   }
+  componentDidUpdate(prevProps) {
+    if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
+      this.props.onOpen();
+    }
+  }
 
   handleClick(e) {
     // Don't close if we're clicking on the dialog

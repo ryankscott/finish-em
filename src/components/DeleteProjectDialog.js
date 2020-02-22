@@ -41,6 +41,7 @@ class DeleteProjectDialog extends Component {
           onClose={() => this.props.closeDeleteProjectDialog()}
           placement={"bottom-start"}
           isOpen={this.props.visible}
+          onOpen={() => {}}
           content={
             <div>
               <Header2>Delete Project</Header2>
@@ -56,6 +57,7 @@ class DeleteProjectDialog extends Component {
                 <Button
                   type="primary"
                   compact
+                  autoFocus
                   onClick={() => this.props.closeDeleteProjectDialog()}
                 >
                   No

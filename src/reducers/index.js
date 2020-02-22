@@ -1,9 +1,8 @@
 import { combineReducers } from "redux";
 import uuidv4 from "uuid/v4";
+import { RRule } from "rrule";
 import {
   CREATE_ITEM,
-  ARCHIVE_ITEM,
-  UNARCHIVE_ITEM,
   DELETE_ITEM,
   UNDELETE_ITEM,
   MOVE_ITEM,
@@ -13,6 +12,7 @@ import {
   UPDATE_ITEM_DESCRIPTION,
   SET_SCHEDULED_DATE,
   SET_DUE_DATE,
+  SET_REPEAT_RULE,
   CREATE_PROJECT,
   DELETE_PROJECT,
   UPDATE_PROJECT_DESCRIPTION,
@@ -78,10 +78,10 @@ const initialState = {
       dueDate: null,
       completed: false,
       deleted: false,
-      archived: false,
       createdAt: new Date(2020, 1, 1),
       completedAt: null,
-      lastUpdatedAt: new Date(2020, 1, 1)
+      lastUpdatedAt: new Date(2020, 1, 1),
+      repeat: null
     },
     {
       id: "f2c91c07-e2bf-4a61-ad83-59261031775f",
@@ -92,10 +92,10 @@ const initialState = {
       dueDate: null,
       completed: false,
       deleted: false,
-      archived: false,
       createdAt: new Date(2020, 1, 1),
       completedAt: null,
-      lastUpdatedAt: new Date(2020, 1, 1)
+      lastUpdatedAt: new Date(2020, 1, 1),
+      repeat: null
     },
     {
       id: "f2b91c07-e2bf-4a61-ad83-59261031775f",
@@ -106,10 +106,10 @@ const initialState = {
       dueDate: null,
       completed: false,
       deleted: false,
-      archived: false,
       createdAt: new Date(2020, 1, 1),
       completedAt: null,
-      lastUpdatedAt: new Date(2020, 1, 1)
+      lastUpdatedAt: new Date(2020, 1, 1),
+      repeat: null
     }
   ],
   ui: {
@@ -239,10 +239,10 @@ const itemReducer = (state = initialState.items, action) => {
           projectId: action.projectId,
           completed: false,
           deleted: false,
-          archived: false,
           completedAt: null,
           createdAt: new Date(),
-          lastUpdatedAt: new Date()
+          lastUpdatedAt: new Date(),
+          repeat: null
         }
       ];
 
@@ -272,30 +272,18 @@ const itemReducer = (state = initialState.items, action) => {
         return i;
       });
 
-    case ARCHIVE_ITEM:
-      return state.map(i => {
-        if (i.id == action.id) {
-          i.archived = true;
-          i.lastUpdatedAt = new Date();
-        }
-        return i;
-      });
-
-    case UNARCHIVE_ITEM:
-      return state.map(i => {
-        if (i.id == action.id) {
-          i.archived = false;
-          i.lastUpdatedAt = new Date();
-        }
-        return i;
-      });
-
     case COMPLETE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
-          i.completed = true;
+          if (i.repeat == null) {
+            i.completed = true;
+            i.completedAt = new Date();
+            // We should set the due date if there's a repeat to the next occurrence
+          } else {
+            const r = RRule.fromString(i.repeat);
+            i.dueDate = r.after(new Date());
+          }
           i.lastUpdatedAt = new Date();
-          i.completedAt = new Date();
         }
         return i;
       });
@@ -333,6 +321,19 @@ const itemReducer = (state = initialState.items, action) => {
         if (i.id == action.id) {
           i.dueDate = action.date;
           i.lastUpdatedAt = new Date();
+        }
+        return i;
+      });
+
+    case SET_REPEAT_RULE:
+      return state.map(i => {
+        if (i.id == action.id) {
+          i.repeat = action.rule ? action.rule.toString() : action.rule;
+          i.lastUpdatedAt = new Date();
+          // If we don't have the due date we should set this to the next instance of the repeat after today
+          if (i.dueDate == null) {
+            i.dueDate = action.rule.after(new Date(), (inc = true));
+          }
         }
         return i;
       });

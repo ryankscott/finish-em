@@ -12,9 +12,8 @@ const DateContainer = styled.div`
   grid-template-areas:
     "day day day day"
     "week_of_year . . week_of_quarter";
-  align-items: end;
-  width: 100%;
   margin-bottom: 10px;
+  width: 650px;
 `;
 
 const Section = styled.div`
@@ -28,6 +27,7 @@ const AgendaContainer = styled.div`
   flex-direction: column;
   margin: 50px;
   width: 100%;
+  align-items: center;
 `;
 
 function DailyAgenda(props) {

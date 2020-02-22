@@ -5,7 +5,6 @@ import ProjectList from "../containers/ProjectList";
 import DailyAgenda from "../components/DailyAgenda";
 import Inbox from "../components/Inbox";
 import Trash from "../components/Trash";
-import Archive from "../components/Archive";
 import Project from "../components/Project";
 import Sidebar from "../components/Sidebar";
 import ShortcutDialog from "../components/ShortcutDialog";
@@ -60,6 +59,8 @@ const MainContainer = styled.div`
   padding: 10px 20px;
   margin-left: ${props => (props.sidebarVisible ? "270px" : "0px")};
   transition: all 0.2s ease-in-out;
+  width: 100%;
+  align-items: center;
 `;
 
 const ProjectWrapper = props => {
@@ -131,7 +132,6 @@ function App(props) {
             <Route exact path="/inbox" component={Inbox} />
             <Route exact path="/dailyAgenda" component={DailyAgenda} />
             <Route exact path="/trash" component={Trash} />
-            <Route exact path="/archive" component={Archive} />
             <Route
               path="/projects/:id"
               children={<ProjectWrapper projects={props.projects} />}

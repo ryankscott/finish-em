@@ -92,12 +92,6 @@ function Sidebar(props) {
         >
           {" 🗑 Trash"}
         </StyledNavLink>
-        <StyledNavLink
-          to="/archive"
-          activeStyle={{ fontWeight: theme.fontWeights.bold }}
-        >
-          {" 🗃 Archive"}
-        </StyledNavLink>
       </Container>
     </ThemeProvider>
   );

@@ -80,6 +80,12 @@ class ProjectDropdown extends Component {
     this.handleChange = this.handleChange.bind(this);
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.visible !== this.props.visible && this.props.visible) {
+      this.selectRef.focus();
+    }
+  }
+
   handleChange(newValue, actionMeta) {
     if (actionMeta.action == "select-option") {
       this.props.onSubmit(newValue.value);
@@ -97,6 +103,9 @@ class ProjectDropdown extends Component {
       <ThemeProvider theme={theme}>
         <Container visible={this.props.visible && projects.length > 1}>
           <CreatableSelect
+            ref={ref => {
+              this.selectRef = ref;
+            }}
             autoFocus={true}
             placeholder={this.props.placeholder}
             isSearchable

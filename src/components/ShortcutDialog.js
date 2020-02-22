@@ -10,7 +10,7 @@ import { hideShortcutDialog } from "../actions";
 import { connect } from "react-redux";
 
 const ShortcutContainer = styled.div`
-  display: ${props => (props.visible ? "block" : "none")};
+  display: ${props => (props.isOpen ? "block" : "none")};
   position: absolute;
   background-color: ${props => props.theme.colours.altBackgroundColour}
   color: ${props => props.theme.colours.altTextColour}
@@ -64,128 +64,150 @@ const Shortcut = styled.div`
   margin-left: 50px;
 `;
 
-function ShortcutDialog(props) {
-  return (
-    <ThemeProvider theme={theme}>
-      <ShortcutContainer visible={props.visible}>
-        <Controls>
-          <IconButton invert onClick={props.closeShortcutDialog}>
-            ×
-          </IconButton>
-        </Controls>
-        <Header>
-          <Title invert>Shortcuts</Title>
-        </Header>
-        <Header>
-          <Header1 invert> App </Header1>
-        </Header>
-        <Body>
-          <Column>
-            <Shortcut>
-              <ShortcutKeys>g i</ShortcutKeys>
-              <Paragraph invert>Go to Inbox</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>g d a</ShortcutKeys>
-              <Paragraph invert>Go to Daily Agenda</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>?</ShortcutKeys>
-              <Paragraph invert>Show Shortcuts</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>c p</ShortcutKeys>
-              <Paragraph invert>Create Project</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>[</ShortcutKeys>
-              <Paragraph invert>Close Sidebar</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>d p</ShortcutKeys>
-              <Paragraph invert>Delete Project</Paragraph>
-            </Shortcut>
-          </Column>
-          <Column>
-            <Shortcut>
-              <ShortcutKeys>g p 1</ShortcutKeys>
-              <Paragraph invert>Go to Project 1</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>g p 2</ShortcutKeys>
-              <Paragraph invert>Go to Project 2</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>g p n</ShortcutKeys>
-              <Paragraph invert>Go to Project n</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>⌘+Shift+N</ShortcutKeys>
-              <Paragraph invert>Quick Add</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>]</ShortcutKeys>
-              <Paragraph invert>Open Sidebar</Paragraph>
-            </Shortcut>
-          </Column>
-        </Body>
-        <Header>
-          <Header1 invert> Item </Header1>
-        </Header>
-        <Body>
-          <Column>
-            <Shortcut>
-              <ShortcutKeys>r</ShortcutKeys>
-              <Paragraph invert>Unarchive</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>c</ShortcutKeys>
-              <Paragraph invert>Complete</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>d</ShortcutKeys>
-              <Paragraph invert>Set Due Date</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>x</ShortcutKeys>
-              <Paragraph invert>Delete</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>z</ShortcutKeys>
-              <Paragraph invert>Restore</Paragraph>
-            </Shortcut>
-          </Column>
-          <Column>
-            <Shortcut>
-              <ShortcutKeys>a</ShortcutKeys>
-              <Paragraph invert>Archive</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>u</ShortcutKeys>
-              <Paragraph invert>Uncomplete</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>s</ShortcutKeys>
-              <Paragraph invert>Set Scheduled Date</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>e</ShortcutKeys>
-              <Paragraph invert>Edit</Paragraph>
-            </Shortcut>
-            <Shortcut>
-              <ShortcutKeys>m</ShortcutKeys>
-              <Paragraph invert>Move to project</Paragraph>
-            </Shortcut>
-          </Column>
-        </Body>
-      </ShortcutContainer>
-    </ThemeProvider>
-  );
+class ShortcutDialog extends Component {
+  constructor(props) {
+    super(props);
+    this.handleClick = this.handleClick.bind(this);
+  }
+  componentDidMount() {
+    document.addEventListener("mousedown", this.handleClick, false);
+  }
+  componentWillUnount() {
+    document.removeEventListener("mousedown", this.handleClick, false);
+  }
+  handleClick(e) {
+    // Don't close if we're clicking on the dialog
+    if (e && this.node && this.node.contains(e.target)) {
+      return;
+    }
+    // Only close if it's currently open
+    if (this.props.isOpen) {
+      this.props.closeShortcutDialog();
+    }
+  }
+
+  render() {
+    return (
+      <ThemeProvider theme={theme}>
+        <ShortcutContainer
+          ref={node => (this.node = node)}
+          isOpen={this.props.isOpen}
+        >
+          <Controls>
+            <IconButton invert onClick={this.props.closeShortcutDialog}>
+              ×
+            </IconButton>
+          </Controls>
+          <Header>
+            <Title invert>Shortcuts</Title>
+          </Header>
+          <Header>
+            <Header1 invert> App </Header1>
+          </Header>
+          <Body>
+            <Column>
+              <Shortcut>
+                <ShortcutKeys>g i</ShortcutKeys>
+                <Paragraph invert>Go to Inbox</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>g d a</ShortcutKeys>
+                <Paragraph invert>Go to Daily Agenda</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>?</ShortcutKeys>
+                <Paragraph invert>Show Shortcuts</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>c p</ShortcutKeys>
+                <Paragraph invert>Create Project</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>[</ShortcutKeys>
+                <Paragraph invert>Close Sidebar</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>d p</ShortcutKeys>
+                <Paragraph invert>Delete Project</Paragraph>
+              </Shortcut>
+            </Column>
+            <Column>
+              <Shortcut>
+                <ShortcutKeys>g p 1</ShortcutKeys>
+                <Paragraph invert>Go to Project 1</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>g p 2</ShortcutKeys>
+                <Paragraph invert>Go to Project 2</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>g p n</ShortcutKeys>
+                <Paragraph invert>Go to Project n</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>⌘+Shift+N</ShortcutKeys>
+                <Paragraph invert>Quick Add</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>]</ShortcutKeys>
+                <Paragraph invert>Open Sidebar</Paragraph>
+              </Shortcut>
+            </Column>
+          </Body>
+          <Header>
+            <Header1 invert> Item </Header1>
+          </Header>
+          <Body>
+            <Column>
+              <Shortcut>
+                <ShortcutKeys>c</ShortcutKeys>
+                <Paragraph invert>Complete</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>d</ShortcutKeys>
+                <Paragraph invert>Set Due Date</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>x</ShortcutKeys>
+                <Paragraph invert>Delete</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>z</ShortcutKeys>
+                <Paragraph invert>Restore</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>r</ShortcutKeys>
+                <Paragraph invert>Repeat</Paragraph>
+              </Shortcut>
+            </Column>
+            <Column>
+              <Shortcut>
+                <ShortcutKeys>u</ShortcutKeys>
+                <Paragraph invert>Uncomplete</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>s</ShortcutKeys>
+                <Paragraph invert>Set Scheduled Date</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>e</ShortcutKeys>
+                <Paragraph invert>Edit</Paragraph>
+              </Shortcut>
+              <Shortcut>
+                <ShortcutKeys>m</ShortcutKeys>
+                <Paragraph invert>Move to project</Paragraph>
+              </Shortcut>
+            </Column>
+          </Body>
+        </ShortcutContainer>
+      </ThemeProvider>
+    );
+  }
 }
 
 // TODO: Add PropTypes
 const mapStateToProps = state => ({
-  visible: state.ui.shortcutDialogVisible
+  isOpen: state.ui.shortcutDialogVisible
 });
 
 const mapDispatchToProps = dispatch => ({

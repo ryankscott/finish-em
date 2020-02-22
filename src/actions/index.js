@@ -1,7 +1,5 @@
 // Actions
 export const CREATE_ITEM = "CREATE_ITEM";
-export const ARCHIVE_ITEM = "ARCHIVE_ITEM";
-export const UNARCHIVE_ITEM = "UNARCHIVE_ITEM";
 export const DELETE_ITEM = "DELETE_ITEM";
 export const UNDELETE_ITEM = "UNDELETE_ITEM";
 export const UPDATE_ITEM = "UPDATE_ITEM";
@@ -11,6 +9,7 @@ export const COMPLETE_ITEM = "COMPLETE_ITEM";
 export const UNCOMPLETE_ITEM = "UNCOMPLETE_ITEM";
 export const SET_SCHEDULED_DATE = "SET_SCHEDULED_DATE";
 export const SET_DUE_DATE = "SET_DUE_DATE";
+export const SET_REPEAT_RULE = "SET_REPEAT_RULE";
 export const CREATE_PROJECT = "CREATE_PROJECT";
 export const DELETE_PROJECT = "DELETE_PROJECT";
 export const UPDATE_PROJECT_DESCRIPTION = "UPDATE_PROJECT_DESCRIPTION";
@@ -62,18 +61,6 @@ export function undeleteItem(id) {
     id: id
   };
 }
-export function archiveItem(id) {
-  return {
-    type: ARCHIVE_ITEM,
-    id: id
-  };
-}
-export function unarchiveItem(id) {
-  return {
-    type: UNARCHIVE_ITEM,
-    id: id
-  };
-}
 
 export function completeItem(id) {
   return {
@@ -108,6 +95,13 @@ export function setDueDate(id, date) {
     type: SET_DUE_DATE,
     id: id,
     date: date
+  };
+}
+export function setRepeatRule(id, rule) {
+  return {
+    type: SET_REPEAT_RULE,
+    id: id,
+    rule: rule
   };
 }
 

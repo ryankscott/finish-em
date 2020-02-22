@@ -59,11 +59,13 @@ class CreateProjectDialog extends Component {
           onClose={() => this.props.closeCreateProjectDialog()}
           placement={"bottom-start"}
           isOpen={this.props.visible}
+          onOpen={() => this.createProjectInput.focus()}
           content={
             <div>
               <Header2>Create Project</Header2>
               <BodyContainer>
                 <StyledInput
+                  autoFocus
                   id="createProjectName"
                   type="text"
                   value={this.state.projectName}
@@ -74,7 +76,6 @@ class CreateProjectDialog extends Component {
                   ref={createProjectInput =>
                     (this.createProjectInput = createProjectInput)
                   }
-                  autoFocus
                 />
                 <StyledInput
                   id="createProjectDescription"

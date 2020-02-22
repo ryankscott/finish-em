@@ -71,11 +71,6 @@ function Project(props) {
           filter="SHOW_FROM_PROJECT_BY_TYPE"
           params={{ projectId: props.project.id, type: "TODO" }}
         />
-        <Header1> Archive </Header1>
-        <FilteredItemList
-          filter="SHOW_ARCHIVED_FROM_PROJECT"
-          params={{ projectId: props.project.id, type: "TODO" }}
-        />
       </ProjectContainer>
     </ThemeProvider>
   );

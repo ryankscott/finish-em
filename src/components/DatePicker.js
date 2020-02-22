@@ -81,15 +81,21 @@ const options = [
   {
     value: null,
     label: "Custom date"
-  }
+  },
+  { value: null, label: "No date" }
 ];
 
-class ProjectDropdown extends Component {
+class DatePicker extends Component {
   constructor(props) {
     super(props);
     this.state = { selectedOption: null, dayPickerVisible: false };
     this.handleChange = this.handleChange.bind(this);
     this.handleDayClick = this.handleDayClick.bind(this);
+  }
+  componentDidUpdate(prevProps) {
+    if (prevProps.visible !== this.props.visible && this.props.visible) {
+      this.selectRef.focus();
+    }
   }
 
   handleChange(newValue, actionMeta) {
@@ -117,6 +123,9 @@ class ProjectDropdown extends Component {
       <ThemeProvider theme={theme}>
         <Container visible={this.props.visible}>
           <Select
+            ref={ref => {
+              this.selectRef = ref;
+            }}
             tabIndex={0}
             autoFocus={true}
             placeholder={this.props.placeholder}
@@ -140,4 +149,4 @@ const mapDispatchToProps = dispatch => ({});
 export default connect(
   mapStateToProps,
   mapDispatchToProps
-)(ProjectDropdown);
+)(DatePicker);

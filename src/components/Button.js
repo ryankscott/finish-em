@@ -26,15 +26,13 @@ const getTheme = type => {
   return theme.button[type];
 };
 
-function Button(props) {
-  return (
-    <ThemeProvider theme={getTheme(props.type)}>
-      <StyledButton compact={props.compact} onClick={props.onClick}>
-        {props.children}
-      </StyledButton>
-    </ThemeProvider>
-  );
-}
+const Button = props => (
+  <ThemeProvider theme={getTheme(props.type)}>
+    <StyledButton compact={props.compact} onClick={props.onClick}>
+      {props.children}
+    </StyledButton>
+  </ThemeProvider>
+);
 
 const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => ({});

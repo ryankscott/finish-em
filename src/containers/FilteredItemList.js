@@ -29,10 +29,6 @@ const filterItems = (items, filter, params) => {
       return filterArray(items, {
         deleted: deleted => deleted == true
       });
-    case "SHOW_ARCHIVED":
-      return filterArray(items, {
-        archived: archived => archived == true
-      });
     case "SHOW_INBOX":
       return filterArray(items, {
         projectId: projectId => projectId == null,
@@ -63,13 +59,6 @@ const filterItems = (items, filter, params) => {
       return filterArray(items, {
         projectId: projectId => projectId == params.projectId,
         type: type => type == params.type,
-        archived: archived => archived == false,
-        deleted: deleted => deleted == false
-      });
-    case "SHOW_ARCHIVED_FROM_PROJECT":
-      return filterArray(items, {
-        projectId: projectId => projectId == params.projectId,
-        archived: archived => archived == true,
         deleted: deleted => deleted == false
       });
     case "SHOW_OVERDUE":

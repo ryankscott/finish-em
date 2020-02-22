@@ -9,16 +9,21 @@ if (isElectron()) {
 }
 
 // Redux-persist stores dates as JSON, these functions will restore them as dates
-const replacer = (key, value) =>
-  value instanceof Date ? value.toISOString() : value;
+const replacer = (key, value) => {
+  if (value instanceof Date) return value.toISOString();
+  else return value;
+};
 
-const reviver = (key, value) =>
-  typeof value === "string" &&
-  value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
-    ? new Date(value)
-    : value;
+const reviver = (key, value) => {
+  if (
+    typeof value === "string" &&
+    value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
+  )
+    return new Date(value);
+  else return value;
+};
 
-export const encode = toDeshydrate => JSON.stringify(toDeshydrate, replacer);
+export const encode = toDehydrate => JSON.stringify(toDehydrate, replacer);
 
 export const decode = toRehydrate => JSON.parse(toRehydrate, reviver);
 
