@@ -65,6 +65,18 @@ function Sidebar(props) {
         >
           {" 📅 Daily Agenda "}
         </StyledNavLink>
+        <StyledNavLink
+          to="/unscheduled"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          {"🗓 Unscheduled"}
+        </StyledNavLink>
+        <StyledNavLink
+          to="/trash"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          {" 🗑 Trash"}
+        </StyledNavLink>
         <SectionHeader>
           <Header invert>Projects</Header>
           <CreateProjectDialog />
@@ -83,21 +95,6 @@ function Sidebar(props) {
             );
           }
         })}
-        <SectionHeader>
-          <Header invert>Other</Header>
-        </SectionHeader>
-        <StyledNavLink
-          to="/trash"
-          activeStyle={{ fontWeight: theme.fontWeights.bold }}
-        >
-          {" 🗑 Trash"}
-        </StyledNavLink>
-        <StyledNavLink
-          to="/unscheduled"
-          activeStyle={{ fontWeight: theme.fontWeights.bold }}
-        >
-          {"🗓 Unscheduled"}
-        </StyledNavLink>
       </Container>
     </ThemeProvider>
   );
