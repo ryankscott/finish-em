@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import ItemList from "../components/ItemList";
-import { isSameDay, isPast } from "date-fns";
+import { isSameDay, isAfter, isPast } from "date-fns";
 
 const comparators = {
   STATUS: (a, b) => {
