@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import ItemList from "../components/ItemList";
-import { isSameDay, isAfter, isPast } from "date-fns";
+import { endOfDay, isSameDay, isAfter, isPast } from "date-fns";
 
 const comparators = {
   STATUS: (a, b) => {
@@ -77,7 +77,8 @@ const filterItems = (items, filter, params) => {
     case "SHOW_OVERDUE":
       return items.filter(
         i =>
-          isPast(i.scheduledDate) || (isPast(i.dueDate) && i.deleted == false)
+          isPast(endOfDay(i.scheduledDate)) ||
+          (isPast(endOfDay(i.dueDate)) && i.deleted == false)
       );
     default:
       throw new Error("Unknown filter: " + filter);

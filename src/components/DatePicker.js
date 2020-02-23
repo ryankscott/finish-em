@@ -73,7 +73,10 @@ const Container = styled.div`
 
 const options = [
   { value: new Date(), label: "Today" },
-  { value: add(new Date(), { days: 1 }), label: "Tomorrow" },
+  {
+    value: add(new Date(), { days: 1 }),
+    label: "Tomorrow"
+  },
   {
     value: add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), { days: 1 }),
     label: "Next Week"
