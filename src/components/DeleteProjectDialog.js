@@ -5,7 +5,7 @@ import InlineDialog from "./InlineDialog";
 
 import { Header2, Paragraph } from "./Typography";
 import { theme } from "../theme";
-import Button from "./Button";
+import { Button } from "./Button";
 import {
   deleteProject,
   toggleDeleteProjectDialog,
