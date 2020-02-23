@@ -13,13 +13,14 @@ const DateContainer = styled.div`
     "day day day day"
     "week_of_year . . week_of_quarter";
   margin-bottom: 10px;
-  width: 650px;
+  width: 100%;
 `;
 
 const Section = styled.div`
   display: flex;
   flex-direction: column;
   margin: 10px 0px;
+  width: 100%;
 `;
 
 const AgendaContainer = styled.div`
@@ -28,6 +29,7 @@ const AgendaContainer = styled.div`
   margin: 50px;
   width: 100%;
   align-items: center;
+  width: 675px;
 `;
 
 function DailyAgenda(props) {
@@ -47,7 +49,11 @@ function DailyAgenda(props) {
         </DateContainer>
         <Section>
           <Header1> Overdue </Header1>
-          <FilteredItemList items={props.items} filter="SHOW_OVERDUE" />
+          <FilteredItemList
+            items={props.items}
+            filter="SHOW_OVERDUE"
+            sortCriteria="DUE"
+          />
         </Section>
         <Section>
           <Header1> Scheduled Today </Header1>

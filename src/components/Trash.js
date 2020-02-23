@@ -12,6 +12,7 @@ const TrashContainer = styled.div`
   flex-direction: column;
   margin: 50px 50px;
   padding-bottom: 50px;
+  width: 675px;
 `;
 
 const HeaderContainer = styled.div`

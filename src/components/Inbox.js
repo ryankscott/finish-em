@@ -11,6 +11,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   margin: 50px 0px 0px 50px;
+  width: 675px;
 `;
 
 class Inbox extends Component {
@@ -30,7 +31,7 @@ class Inbox extends Component {
           <Title> Inbox </Title>
           <Header1> Add an item </Header1>
           <QuickAdd />
-          <Header1> Items in inbox </Header1>
+          <Header1> Items </Header1>
           <FilteredItemList items={this.props.items} filter="SHOW_INBOX" />
         </Container>
       </ThemeProvider>

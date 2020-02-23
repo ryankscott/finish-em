@@ -191,7 +191,7 @@ class EditableItem extends Component {
       );
       this.clearInput();
       if (isElectron()) {
-        //    window.ipcRenderer.send("close-quickadd");
+        window.ipcRenderer.send("close-quickadd");
       }
     } else {
       this.setState(

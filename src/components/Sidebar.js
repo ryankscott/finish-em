@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 
 import { theme } from "../theme";
 import FilteredItemList from "../containers/FilteredItemList";
-import Button from "./Button";
+import { Button } from "./Button";
 import CreateProjectDialog from "./CreateProjectDialog";
 import { Header, SubTitle } from "./Typography";
 import { showCreateProjectDialog } from "../actions";
@@ -91,6 +91,12 @@ function Sidebar(props) {
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
           {" 🗑 Trash"}
+        </StyledNavLink>
+        <StyledNavLink
+          to="/unscheduled"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          {"🗓 Unscheduled"}
         </StyledNavLink>
       </Container>
     </ThemeProvider>

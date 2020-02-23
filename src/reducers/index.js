@@ -332,7 +332,7 @@ const itemReducer = (state = initialState.items, action) => {
           i.lastUpdatedAt = new Date();
           // If we don't have the due date we should set this to the next instance of the repeat after today
           if (i.dueDate == null) {
-            i.dueDate = action.rule.after(new Date(), (inc = true));
+            i.dueDate = action.rule.after(new Date(), true);
           }
         }
         return i;

@@ -12,7 +12,7 @@ import {
 import { enGB } from "date-fns/esm/locale";
 import { RRule } from "rrule";
 
-import { headShake } from "react-animations";
+import { headShake, fadeInDown } from "react-animations";
 
 import {
   moveItem,
@@ -32,14 +32,16 @@ import RepeatPicker from "../components/RepeatPicker";
 import { formatRelativeDate, removeItemTypeFromString } from "../utils";
 
 const headShakeAnimation = keyframes`${headShake}`;
+const fadeInDownAnimation = keyframes`${fadeInDown}`;
 const ItemContainer = styled.div`
-  animation: 1s ${props => (props.animate ? headShakeAnimation : "none")};
+  animation: 1s
+    ${props => (props.badshortcutAnimation ? headShakeAnimation : "none")};
   font-family: ${props => props.theme.font.sansSerif};
   font-size: ${props => props.theme.fontSizes.medium};
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-areas:
-    "type body body body body body body body body tag"
+    "type body body body body body body body body project"
     "scheduled scheduled scheduled .  due due due repeat repeat repeat";
   height: ${props => (props.itemType == "TODO" ? "50px" : "30px")};
   width: 650px;
@@ -72,8 +74,8 @@ const ItemType = styled.div`
   border-radius: 5px;
 `;
 
-const ItemTag = styled.div`
-  grid-area: tag;
+const ItemProject = styled.div`
+  grid-area: project;
   text-align: center;
   font-size: ${props => props.theme.fontSizes.xsmall};
   color: ${props => props.theme.colours.altTextColour};
@@ -135,7 +137,7 @@ class Item extends Component {
       repeatDropdownVisible: false,
       descriptionEditable: false,
       preventDefaultEvents: false,
-      animate: false
+      badshortcutAnimation: false
     };
     this.setScheduledDate = this.setScheduledDate.bind(this);
     this.setDueDate = this.setDueDate.bind(this);
@@ -262,6 +264,8 @@ class Item extends Component {
     };
   }
 
+  onComponentWillMount() {}
+
   setRepeatRule(r) {
     this.props.setRepeatRule(this.props.id, r);
     this.setState({ repeatDropdownVisible: false });
@@ -344,9 +348,13 @@ class Item extends Component {
         if (this.state.descriptionEditable == false) {
           this.setState(
             {
-              animate: true
+              badshortcutAnimation: true
             },
-            () => setTimeout(() => this.setState({ animate: false }), 200)
+            () =>
+              setTimeout(
+                () => this.setState({ badshortcutAnimation: false }),
+                200
+              )
           );
         }
         return;
@@ -356,6 +364,9 @@ class Item extends Component {
   // TODO: Consider extracting DueDate to a component
   // TODO: Proper locales
   render() {
+    // const project = this.props.projects.find(
+    //   p => (p.id = this.props.projectId)
+    // );
     // Rehydrate the string repeating rule to an object
     const repeat = this.props.repeat
       ? RRule.fromString(this.props.repeat)
@@ -367,7 +378,7 @@ class Item extends Component {
           id={this.props.id}
           tabIndex="0"
           itemType={this.props.type}
-          animate={this.state.animate}
+          badshortcutAnimation={this.state.badshortcutAnimation}
           ref={container => (this.container = container)}
         >
           <ItemType itemType={this.props.type} completed={this.props.completed}>
@@ -424,7 +435,9 @@ class Item extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  projects: state.projects
+});
 const mapDispatchToProps = dispatch => ({
   updateItemDescription: (id, itemId) => {
     dispatch(updateItemDescription(id, itemId));

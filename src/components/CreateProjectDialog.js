@@ -10,7 +10,7 @@ import {
   toggleCreateProjectDialog,
   hideCreateProjectDialog
 } from "../actions";
-import Button from "./Button";
+import { Button } from "./Button";
 import InlineDialog from "./InlineDialog";
 
 const StyledInput = styled.input`

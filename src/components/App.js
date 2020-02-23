@@ -6,6 +6,7 @@ import DailyAgenda from "../components/DailyAgenda";
 import Inbox from "../components/Inbox";
 import Trash from "../components/Trash";
 import Project from "../components/Project";
+import Unscheduled from "../components/Unscheduled";
 import Sidebar from "../components/Sidebar";
 import ShortcutDialog from "../components/ShortcutDialog";
 import { connect } from "react-redux";
@@ -15,6 +16,7 @@ import {
   useHistory,
   Route,
   Switch,
+  Redirect,
   useParams,
   BrowserRouter as Router
 } from "react-router-dom";
@@ -132,6 +134,7 @@ function App(props) {
             <Route exact path="/inbox" component={Inbox} />
             <Route exact path="/dailyAgenda" component={DailyAgenda} />
             <Route exact path="/trash" component={Trash} />
+            <Route exact path="/unscheduled" component={Unscheduled} />
             <Route
               path="/projects/:id"
               children={<ProjectWrapper projects={props.projects} />}

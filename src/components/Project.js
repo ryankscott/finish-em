@@ -21,6 +21,7 @@ const ProjectContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin: 50px 50px;
+  width: 675px;
 `;
 
 const HeaderContainer = styled.div`
@@ -70,6 +71,7 @@ function Project(props) {
         <FilteredItemList
           filter="SHOW_FROM_PROJECT_BY_TYPE"
           params={{ projectId: props.project.id, type: "TODO" }}
+          sortCriteria="STATUS"
         />
       </ProjectContainer>
     </ThemeProvider>
