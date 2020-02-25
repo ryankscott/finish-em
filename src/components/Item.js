@@ -23,6 +23,8 @@ import {
   uncompleteItem,
   setScheduledDate,
   setRepeatRule,
+  setParent,
+  removeParent,
   setDueDate
 } from "../actions";
 import { theme } from "../theme";
@@ -44,11 +46,12 @@ const ItemContainer = styled.div`
     "type body body body body body body body body project"
     "scheduled scheduled scheduled .  due due due repeat repeat repeat";
   height: ${props => (props.itemType == "TODO" ? "50px" : "30px")};
-  width: 650px;
+  width: ${props => (props.parentId ? "600px" : "650px")}
   border: 1px solid;
   border-color: ${props => props.theme.colours.borderColour};
   padding: 5px 5px 5px 5px;
   margin: 0px 0px 0px 10px;
+margin-left: ${props => (props.parentId ? "50px" : "0px")}
   align-items: center;
   cursor: pointer;
   color: ${props => theme.colours.defaultTextColour};
@@ -146,6 +149,19 @@ class Item extends Component {
     this.handleKeyPress = this.handleKeyPress.bind(this);
 
     this.hotkeyHandler = {
+      REMOVE_PARENT: event => {
+        if (this.state.preventDefaultEvents == true) {
+          return;
+        }
+        // TODO: this doesn't handle if the previous item is a sibling of another item
+        this.props.removeParent(event.target.id, props.prevItemId);
+      },
+      SET_PARENT: event => {
+        if (this.state.preventDefaultEvents == true) {
+          return;
+        }
+        this.props.setParent(event.target.id, props.prevItemId);
+      },
       SET_SCHEDULED_DATE: event => {
         if (this.state.preventDefaultEvents == true) {
           return;
@@ -336,6 +352,12 @@ class Item extends Component {
       case "e":
         this.hotkeyHandler.EDIT(event);
         return;
+      case ">":
+        this.hotkeyHandler.SET_PARENT(event);
+        return;
+      case "<":
+        this.hotkeyHandler.REMOVE_PARENT(event);
+        return;
       case "Meta":
         return;
       case "?":
@@ -377,6 +399,7 @@ class Item extends Component {
           onKeyDown={this.handleKeyPress}
           id={this.props.id}
           tabIndex="0"
+          parentId={this.props.parentId}
           itemType={this.props.type}
           badshortcutAnimation={this.state.badshortcutAnimation}
           ref={container => (this.container = container)}
@@ -465,8 +488,15 @@ const mapDispatchToProps = dispatch => ({
   },
   setRepeatRule: (id, rule) => {
     dispatch(setRepeatRule(id, rule));
+  },
+  setParent: (id, parentId) => {
+    dispatch(setParent(id, parentId));
+  },
+  removeParent: (id, parentId) => {
+    dispatch(removeParent(id, parentId));
   }
 });
+
 export default connect(
   mapStateToProps,
   mapDispatchToProps

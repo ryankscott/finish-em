@@ -108,6 +108,7 @@ const compositeDecorator = new CompositeDecorator([
     component: dateSpan
   }
 ]);
+
 const moveSelectionToEnd = editorState => {
   const content = editorState.getCurrentContent();
   const blockMap = content.getBlockMap();
@@ -137,7 +138,7 @@ class EditableItem extends Component {
       valid: true,
       readOnly: this.props.readOnly,
       focus: false,
-      editorState: moveSelectionToEnd(es),
+      editorState: es,
       animate: false
     };
 
@@ -237,9 +238,6 @@ class EditableItem extends Component {
             onChange={this.handleChange}
             handleKeyCommand={this.handleKeyDown}
             onFocus={this.onFocus}
-            ref={element => {
-              this.editor = element;
-            }}
           />
         </ValidationBox>
       </ThemeProvider>

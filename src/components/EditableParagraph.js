@@ -33,6 +33,7 @@ class EditableParagraph extends Component {
       disabled: true
     };
     this.handleBlur = this.handleBlur.bind(this);
+    this.handleFocus = this.handleFocus.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.getMarkdownText = this.getMarkdownText.bind(this);
@@ -42,9 +43,9 @@ class EditableParagraph extends Component {
   handleBlur(e) {
     this.setState({
       disabled: true,
-      input: this.editor.innerText
+      input: this.editableParagraph.innerText
     });
-    this.props.onUpdate(this.editor.innerText);
+    this.props.onUpdate(this.editableParagraph.innerText);
   }
 
   handleClick(e) {
@@ -52,8 +53,11 @@ class EditableParagraph extends Component {
       disabled: false
     });
 
-    this.editor.focus();
-    e.preventDefault();
+    this.editableParagraph.focus();
+  }
+
+  handleFocus(e) {
+    setEndOfContenteditable(this.editableParagraph);
   }
 
   handleKeyPress(e) {
@@ -80,10 +84,13 @@ class EditableParagraph extends Component {
     return (
       <ThemeProvider theme={theme}>
         <StyledDiv
-          ref={editor => (this.editor = editor)}
+          ref={editableParagraph =>
+            (this.editableParagraph = editableParagraph)
+          }
           contentEditable={!this.state.disabled}
           onClick={this.handleClick}
           onBlur={this.handleBlur}
+          onFocus={this.handleFocus}
           tabIndex={0}
           onKeyDown={this.handleKeyPress}
           dangerouslySetInnerHTML={

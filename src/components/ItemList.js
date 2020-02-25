@@ -17,11 +17,12 @@ const NoItemText = styled.p`
 function ItemList(props) {
   return (
     <ThemeProvider theme={theme}>
-      {props.items.map(i => {
+      {props.items.map((item, index) => {
         return (
           <Item
-            {...i}
-            key={i.id}
+            {...item}
+            key={item.id}
+            prevItemId={index > 0 ? props.items[index - 1].id : null}
             onDelete={props.deleteItem}
             onRefile={props.refileItem}
           />

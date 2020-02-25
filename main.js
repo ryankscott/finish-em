@@ -1,5 +1,6 @@
 const { ipcMain, app, BrowserWindow, globalShortcut } = require("electron");
 const isDev = require("electron-is-dev");
+const path = require("path");
 
 // TODO: Change to an array for multi-window support
 let mainWindow, quickAddWindow;
@@ -14,7 +15,7 @@ function createQuickAddWindow() {
     resizable: false,
     webPreferences: {
       nodeIntegration: true,
-      preload: __dirname + "/src/preload.js"
+      preload: path.join(__dirname + "/src/preload.js")
     }
   });
 
@@ -39,7 +40,7 @@ function createMainWindow() {
     height: 800,
     webPreferences: {
       nodeIntegration: true,
-      preload: __dirname + "/src/preload.js"
+      preload: path.join(__dirname + "/src/preload.js")
     }
   });
 

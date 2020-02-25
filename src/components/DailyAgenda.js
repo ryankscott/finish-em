@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { format } from "date-fns";
+import { startOfWeek, format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
 import FilteredItemList from "../containers/FilteredItemList";
 import { Paragraph, Header, Title, Header1 } from "./Typography";
+import EditableParagraph from "./EditableParagraph";
+import { setDailyGoal, setWeeklyGoal } from "../actions";
 
 const DateContainer = styled.div`
   display: grid;
@@ -33,6 +35,8 @@ const AgendaContainer = styled.div`
 `;
 
 function DailyAgenda(props) {
+  const week = format(startOfWeek(new Date()), "yyyy-MM-dd");
+  const day = format(new Date(), "yyyy-MM-dd");
   return (
     <ThemeProvider theme={theme}>
       <AgendaContainer>
@@ -47,6 +51,23 @@ function DailyAgenda(props) {
             Week of quarter: {format(new Date(), "w") % 13} / 13
           </Paragraph>
         </DateContainer>
+        {/* <Header1> Weekly Goal </Header1> */}
+        {/* <Paragraph> */}
+        {/*   {props.weeklyGoal[week] */}
+        {/*     ? props.weeklyGoal[week] */}
+        {/*     : "No weekly goal set"} */}
+        {/* </Paragraph> */}
+        <Header1> Daily Goal </Header1>
+        <EditableParagraph
+          onUpdate={input => {
+            props.setDailyGoal(day, input);
+          }}
+          input={
+            props.dailyGoal[day]
+              ? props.dailyGoal[day].text
+              : "No daily goal set"
+          }
+        />
         <Section>
           <Header1> Overdue </Header1>
           <FilteredItemList
@@ -69,9 +90,18 @@ function DailyAgenda(props) {
 }
 
 const mapStateToProps = state => ({
-  items: state.items
+  items: state.items,
+  weeklyGoal: state.weeklyGoal,
+  dailyGoal: state.dailyGoal
 });
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = dispatch => ({
+  setWeeklyGoal: (week, text) => {
+    dispatch(setWeeklyGoal(week, text));
+  },
+  setDailyGoal: (day, text) => {
+    dispatch(setDailyGoal(day, text));
+  }
+});
 export default connect(
   mapStateToProps,
   mapDispatchToProps
