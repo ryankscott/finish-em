@@ -195,26 +195,31 @@ export const itemReducer = (state = initialState, action) => {
       });
 
     case SET_PARENT:
+      const findParent = parentId => {
+        // go through each item until we find the one with parent id
+        const parent = state.find(s => s.id == parentId);
+        // if we find it (which we should) we need to see if it has a parent
+        return parent.parentId == null
+          ? parent.id
+          : findParent(parent.parentId);
+      };
       return state.map(i => {
         if (i.id == action.id) {
-          i.parentId = action.parentId;
-          i.lastUpdatedAt = new Date();
-        } else if (i.id == action.parentId) {
-          console.log(i);
-          i.children.push(action.id);
+          const parentId = findParent(action.parentId);
+          i.parentId = parentId;
           i.lastUpdatedAt = new Date();
         }
         return i;
       });
+    // TODO: deal with children
 
     case REMOVE_PARENT:
       return state.map(i => {
         if (i.id == action.id) {
           i.parentId = null;
           i.lastUpdatedAt = new Date();
-        } else if (i.id == action.parentId) {
-          i.children = i.children.filter(c => c != action.id);
         }
+
         return i;
       });
 

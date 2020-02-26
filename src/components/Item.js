@@ -51,7 +51,7 @@ const ItemContainer = styled.div`
   border-color: ${props => props.theme.colours.borderColour};
   padding: 5px 5px 5px 5px;
   margin: 0px 0px 0px 10px;
-margin-left: ${props => (props.parentId ? "50px" : "0px")}
+  margin-left: ${props => (props.parentId ? "50px" : "0px")}
   align-items: center;
   cursor: pointer;
   color: ${props => theme.colours.defaultTextColour};
