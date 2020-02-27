@@ -45,7 +45,7 @@ const ItemContainer = styled.div`
   grid-template-areas:
     "type body body body body body body body body project"
     "scheduled scheduled scheduled .  due due due repeat repeat repeat";
-  height: ${props => (props.itemType == "TODO" ? "50px" : "30px")};
+  min-height: ${props => (props.itemType == "TODO" ? "50px" : "30px")};
   width: ${props => (props.parentId ? "600px" : "650px")}
   border: 1px solid;
   border-color: ${props => props.theme.colours.borderColour};
