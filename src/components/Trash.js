@@ -29,7 +29,11 @@ function Trash(props) {
         <HeaderContainer>
           <Title> Trash </Title>
         </HeaderContainer>
-        <FilteredItemList filter="SHOW_DELETED" />
+        <FilteredItemList
+          noIndentation={true}
+          showSubtasks={true}
+          filter="SHOW_DELETED"
+        />
       </TrashContainer>
     </ThemeProvider>
   );

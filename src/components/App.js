@@ -9,6 +9,7 @@ import Project from "../components/Project";
 import Unscheduled from "../components/Unscheduled";
 import Sidebar from "../components/Sidebar";
 import ShortcutDialog from "../components/ShortcutDialog";
+import { keymap } from "../keymap";
 import { connect } from "react-redux";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import { theme } from "../theme";
@@ -20,7 +21,7 @@ import {
   useParams,
   BrowserRouter as Router
 } from "react-router-dom";
-import * as Mousetrap from "Mousetrap";
+import { configure, getApplicationKeyMap, GlobalHotKeys } from "react-hotkeys";
 import {
   showSidebar,
   hideSidebar,
@@ -30,6 +31,10 @@ import {
   hideDeleteProjectDialog,
   toggleShortcutDialog
 } from "../actions";
+
+configure({
+  logLevel: "error"
+});
 
 const GlobalStyle = createGlobalStyle`
   html {
@@ -80,51 +85,52 @@ function App(props) {
     history.push("/dailyAgenda");
   }
 
+  function goToTrash() {
+    history.push("/trash");
+  }
+
   function goToInbox() {
     history.push("/inbox");
+  }
+
+  function goToUnscheduled() {
+    history.push("/unscheduled");
   }
 
   function goToProject(number) {
     if (number >= props.projects.length) return;
     const id = props.projects[number].id;
     history.push("/projects/" + id);
+    console.log(id);
   }
 
-  useEffect(() => {
-    Mousetrap.bind("g d a", () => goToDailyAgenda());
-    Mousetrap.bind("g i", () => goToInbox());
-    Mousetrap.bind("g p 1", () => goToProject(1));
-    Mousetrap.bind("g p 2", () => goToProject(2));
-    Mousetrap.bind("g p 3", () => goToProject(3));
-    Mousetrap.bind("g p 4", () => goToProject(4));
-    Mousetrap.bind("g p 5", () => goToProject(5));
-    Mousetrap.bind("g p 6", () => goToProject(6));
-    Mousetrap.bind("g p 7", () => goToProject(7));
-    Mousetrap.bind("g p 8", () => goToProject(8));
-    Mousetrap.bind("g p 9", () => goToProject(9));
-    Mousetrap.bind("[", props.hideSidebar);
-    Mousetrap.bind("]", props.showSidebar);
-    Mousetrap.bind("?", props.toggleShortcutDialog);
-    Mousetrap.bind("escape", props.hideDialogs);
-    Mousetrap.bind("c p", props.showCreateProjectDialog);
-    return function cleanup() {
-      Mousetrap.unbind("g a");
-      Mousetrap.unbind("g i");
-      Mousetrap.unbind("g 1");
-      Mousetrap.unbind("g 2");
-      Mousetrap.unbind("g 3");
-      Mousetrap.unbind("g 4");
-      Mousetrap.unbind("g 5");
-      Mousetrap.unbind("g 6");
-      Mousetrap.unbind("g 7");
-      Mousetrap.unbind("g 8");
-      Mousetrap.unbind("g 9");
-      Mousetrap.unbind("?");
-    };
-  });
+  const handlers = {
+    GO_TO_PROJECT_1: () => goToProject(1),
+    GO_TO_PROJECT_2: () => goToProject(2),
+    GO_TO_PROJECT_3: () => goToProject(3),
+    GO_TO_PROJECT_4: () => goToProject(4),
+    GO_TO_PROJECT_5: () => goToProject(5),
+    GO_TO_PROJECT_6: () => goToProject(6),
+    GO_TO_PROJECT_7: () => goToProject(7),
+    GO_TO_PROJECT_8: () => goToProject(8),
+    GO_TO_PROJECT_9: () => goToProject(9),
+    GO_TO_DAILY_AGENDA: () => goToDailyAgenda(),
+    GO_TO_INBOX: () => goToInbox(),
+    GO_TO_TRASH: () => goToTrash(),
+    GO_TO_UNSCHEDULED: () => goToUnscheduled(),
+    SHOW_SIDEBAR: () => props.showSidebar(),
+    HIDE_SIDEBAR: () => props.hideSidebar(),
+    TOGGLE_SHORTCUT_DIALOG: () => props.toggleShortcutDialog(),
+    ESCAPE: () => props.hideDialogs(),
+    SHOW_CREATE_PROJECT_DIALOG: e => {
+      props.showCreateProjectDialog();
+      e.preventDefault();
+    }
+  };
 
   return (
     <ThemeProvider theme={theme}>
+      <GlobalHotKeys keyMap={keymap.APP} handlers={handlers} />
       <GlobalStyle />
       <Container>
         <Sidebar />
@@ -154,12 +160,14 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   toggleShortcutDialog: () => {
+    console.log("shortcut dialog");
     dispatch(toggleShortcutDialog());
   },
   showCreateProjectDialog: () => {
     dispatch(showCreateProjectDialog());
   },
   hideSidebar: () => {
+    console.log("hide sidebar");
     dispatch(hideSidebar());
   },
 

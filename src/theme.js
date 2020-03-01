@@ -5,7 +5,7 @@ export const theme = {
     sansSerif: "-apple-system, BlinkMacSystemFont, Helvetica, sans-serif"
   },
   fontSizes: {
-    xsmall: "12px",
+    xsmall: "13px",
     small: "14px",
     regular: "16px",
     large: "18px",

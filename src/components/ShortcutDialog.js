@@ -6,6 +6,8 @@ import { theme } from "../theme";
 import { Header1, Title, Paragraph } from "./Typography";
 import IconButton from "./IconButton";
 import { hideShortcutDialog } from "../actions";
+import { getApplicationKeyMap } from "react-hotkeys";
+import { capitaliseEachWordInString } from "../utils";
 
 import { connect } from "react-redux";
 
@@ -17,8 +19,6 @@ const ShortcutContainer = styled.div`
   opacity: 0.85
   width: 80%;
   max-width: 650px;
-  height: 80%;
-  max-height: 500px;
   left: 200px;
   right: 0;
   top: 50px;
@@ -26,6 +26,7 @@ const ShortcutContainer = styled.div`
   margin-right: auto;
   flex-direction: row;
   padding: 2px;
+  padding-bottom: 40px;
 `;
 
 const Header = styled.div`
@@ -33,6 +34,7 @@ const Header = styled.div`
   flex-direction: row;
   justify-content: center;
   align-items: baseline;
+  margin-bottom: 20px;
 `;
 const Controls = styled.div`
   display: flex;
@@ -50,18 +52,24 @@ const Column = styled.div`
   display: flex;
   flex-direction: column;
   width: 50%;
-  justify-content: center;
+`;
+
+const Row = styled.span`
+  display: flex;
+  flex-direction: row;
+  padding: 2px 10px;
+  margin-left: 50px;
 `;
 
 const ShortcutKeys = styled(Paragraph)`
-  width: 80px;
+  width: 60px;
   color: ${props => props.theme.colours.primaryColour};
 `;
 
 const Shortcut = styled.div`
   display: flex;
   flex-direction: row;
-  margin-left: 50px;
+  margin-left: 60px;
 `;
 
 class ShortcutDialog extends Component {
@@ -86,12 +94,20 @@ class ShortcutDialog extends Component {
     }
   }
 
+  handleKeyDown(e) {
+    if (e.key == "Escape") {
+      this.props.closeShortcutDialog();
+    }
+  }
+
   render() {
+    const keymap = getApplicationKeyMap();
     return (
       <ThemeProvider theme={theme}>
         <ShortcutContainer
           ref={node => (this.node = node)}
           isOpen={this.props.isOpen}
+          onKeyDown={this.handleKeyDown}
         >
           <Controls>
             <IconButton invert onClick={this.props.closeShortcutDialog}>
@@ -101,102 +117,53 @@ class ShortcutDialog extends Component {
           <Header>
             <Title invert>Shortcuts</Title>
           </Header>
-          <Header>
-            <Header1 invert> App </Header1>
-          </Header>
+
           <Body>
-            <Column>
-              <Shortcut>
-                <ShortcutKeys>g i</ShortcutKeys>
-                <Paragraph invert>Go to Inbox</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>g d a</ShortcutKeys>
-                <Paragraph invert>Go to Daily Agenda</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>?</ShortcutKeys>
-                <Paragraph invert>Show Shortcuts</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>c p</ShortcutKeys>
-                <Paragraph invert>Create Project</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>[</ShortcutKeys>
-                <Paragraph invert>Close Sidebar</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>d p</ShortcutKeys>
-                <Paragraph invert>Delete Project</Paragraph>
-              </Shortcut>
+            <Column key={1}>
+              {Object.keys(keymap).map((k, i) => {
+                if (i % 2 == 1) return;
+                const shortcutName = capitaliseEachWordInString(
+                  k.replace(/_/gi, " ")
+                );
+                // TODO this only shows first sequence
+                const shortcuts = (
+                  <ShortcutKeys key={i + "k"}>
+                    {keymap[k].sequences[0].sequence}
+                  </ShortcutKeys>
+                );
+
+                return (
+                  <Row key={i + "d"}>
+                    {shortcuts}
+                    <Paragraph key={i} invert>
+                      {shortcutName}
+                    </Paragraph>
+                  </Row>
+                );
+              })}
             </Column>
-            <Column>
-              <Shortcut>
-                <ShortcutKeys>g p 1</ShortcutKeys>
-                <Paragraph invert>Go to Project 1</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>g p 2</ShortcutKeys>
-                <Paragraph invert>Go to Project 2</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>g p n</ShortcutKeys>
-                <Paragraph invert>Go to Project n</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>⌘+Shift+N</ShortcutKeys>
-                <Paragraph invert>Quick Add</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>]</ShortcutKeys>
-                <Paragraph invert>Open Sidebar</Paragraph>
-              </Shortcut>
-            </Column>
-          </Body>
-          <Header>
-            <Header1 invert> Item </Header1>
-          </Header>
-          <Body>
-            <Column>
-              <Shortcut>
-                <ShortcutKeys>c</ShortcutKeys>
-                <Paragraph invert>Complete</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>d</ShortcutKeys>
-                <Paragraph invert>Set Due Date</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>x</ShortcutKeys>
-                <Paragraph invert>Delete</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>z</ShortcutKeys>
-                <Paragraph invert>Restore</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>r</ShortcutKeys>
-                <Paragraph invert>Repeat</Paragraph>
-              </Shortcut>
-            </Column>
-            <Column>
-              <Shortcut>
-                <ShortcutKeys>u</ShortcutKeys>
-                <Paragraph invert>Uncomplete</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>s</ShortcutKeys>
-                <Paragraph invert>Set Scheduled Date</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>e</ShortcutKeys>
-                <Paragraph invert>Edit</Paragraph>
-              </Shortcut>
-              <Shortcut>
-                <ShortcutKeys>m</ShortcutKeys>
-                <Paragraph invert>Move to project</Paragraph>
-              </Shortcut>
+            <Column key={2}>
+              {Object.keys(keymap).map((k, i) => {
+                if (i % 2 == 0) return;
+                const shortcutName = capitaliseEachWordInString(
+                  k.replace(/_/gi, " ")
+                );
+                // TODO this only shows first sequence
+                const shortcuts = (
+                  <ShortcutKeys key={i + "k"}>
+                    {keymap[k].sequences[0].sequence}
+                  </ShortcutKeys>
+                );
+
+                return (
+                  <Row key={i + "d"}>
+                    {shortcuts}
+                    <Paragraph key={i} invert>
+                      {shortcutName}
+                    </Paragraph>
+                  </Row>
+                );
+              })}
             </Column>
           </Body>
         </ShortcutContainer>

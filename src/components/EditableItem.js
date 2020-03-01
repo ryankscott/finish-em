@@ -17,6 +17,7 @@ import isElectron from "is-electron";
 import { validateItemString } from "../utils";
 import "./EditableItem.css";
 import { theme } from "../theme";
+import { addIcon } from "../assets/icons";
 
 const Icon = styled.div`
   flex-direction: row;
@@ -26,7 +27,6 @@ const Icon = styled.div`
   font-size: ${props => props.theme.fontSizes.xlarge};
   background-color: whitesmoke;
   padding 0px 10px;
-  line-height: 35px;
   text-align: center;
   vertical-align: middle;
   color: ${props => props.theme.colours.disabledTextColour};
@@ -49,7 +49,6 @@ const ValidationBox = styled.div`
   font-family: ${props => props.theme.font.sansSerif};
   font-size: ${props => props.theme.fontSizes.medium};
   margin: 2px;
-  margin-left: 10px;
 `;
 
 const styles = {
@@ -133,7 +132,6 @@ class EditableItem extends Component {
       compositeDecorator
     );
     this.state = {
-      id: this.props.id,
       projectDropdownVisible: false,
       valid: true,
       readOnly: this.props.readOnly,
@@ -185,9 +183,9 @@ class EditableItem extends Component {
   }
 
   handleReturn(e) {
+    console.log("returning");
     if (this.state.valid) {
       this.props.onSubmit(
-        this.state.id,
         this.state.editorState.getCurrentContent().getPlainText("")
       );
       this.clearInput();
@@ -230,7 +228,7 @@ class EditableItem extends Component {
     return (
       <ThemeProvider theme={theme}>
         <ValidationBox animate={this.state.animate} valid={this.state.valid}>
-          <Icon>+</Icon>
+          <Icon>{addIcon}</Icon>
           <Editor
             handleReturn={this.handleReturn}
             editorState={this.state.editorState}

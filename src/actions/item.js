@@ -9,8 +9,9 @@ export const UNCOMPLETE_ITEM = "UNCOMPLETE_ITEM";
 export const SET_SCHEDULED_DATE = "SET_SCHEDULED_DATE";
 export const SET_DUE_DATE = "SET_DUE_DATE";
 export const SET_REPEAT_RULE = "SET_REPEAT_RULE";
-export const SET_PARENT = "SET_PARENT";
-export const REMOVE_PARENT = "REMOVE_PARENT";
+export const ADD_CHILD_ITEM = "ADD_CHILD_ITEM";
+export const HIDE_CHILDREN = "HIDE_CHILDREN";
+export const SHOW_CHILDREN = "SHOW_CHILDREN";
 
 import {
   getItemTypeFromString,
@@ -19,7 +20,7 @@ import {
   removeDateFromString
 } from "../utils";
 
-export function createItem(text, projectId) {
+export function createItem(id, text, projectId, parentId) {
   // TODO: Turn this into a proper parsing
   const itemType = getItemTypeFromString(text);
   // TODO: This is kinda weird I pull the date out as a date and then change it to text
@@ -29,10 +30,12 @@ export function createItem(text, projectId) {
 
   return {
     type: CREATE_ITEM,
+    id: id,
     text: newText,
     itemType: itemType,
     dueDate: dueDate,
-    projectId: projectId
+    projectId: projectId,
+    parentId: parentId
   };
 }
 
@@ -92,26 +95,33 @@ export function setRepeatRule(id, rule) {
   };
 }
 
-export function setParent(id, parentId) {
-  return {
-    type: SET_PARENT,
-    id: id,
-    parentId: parentId
-  };
-}
-export function removeParent(id, parentId) {
-  return {
-    type: REMOVE_PARENT,
-    id: id,
-    parentId: parentId
-  };
-}
-
 export function updateItemDescription(id, text) {
   return {
     type: UPDATE_ITEM_DESCRIPTION,
     id: id,
     text: text
+  };
+}
+export function addChildItem(id, parentId) {
+  console.log("Adding children to: " + parentId);
+  console.log("Child: " + id);
+  return {
+    type: ADD_CHILD_ITEM,
+    id: id,
+    parentId: parentId
+  };
+}
+export function showChildren(id) {
+  return {
+    type: SHOW_CHILDREN,
+    id: id
+  };
+}
+
+export function hideChildren(id) {
+  return {
+    type: HIDE_CHILDREN,
+    id: id
   };
 }
 

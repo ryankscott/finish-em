@@ -84,3 +84,29 @@ export const formatRelativeDate = date => {
     return format(date, "d/M/yyyy");
   }
 };
+
+export const getItemById = (id, items) => {
+  return items.find(i => i.id == id);
+};
+
+export const getSubtasksFromTasks = (items, allItems) => {
+  const itemsWithSubtasks = items.filter(i => i.children.length > 0);
+  const subtasks = itemsWithSubtasks.map(i =>
+    i.children.flatMap(x => getItemById(x, allItems))
+  );
+  return subtasks.flat();
+};
+
+export const getTasksAndSubtasks = (items, filter) => {
+  const filteredItems = items.filter(filter);
+  const subtasks = getSubtasksFromTasks(filteredItems, items);
+  return [...filteredItems, ...subtasks];
+};
+
+export const capitaliseEachWordInString = text => {
+  return text
+    .toLowerCase()
+    .split(" ")
+    .map(s => s.charAt(0).toUpperCase() + s.substring(1))
+    .join(" ");
+};

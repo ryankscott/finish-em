@@ -57,6 +57,8 @@ class EditableParagraph extends Component {
   }
 
   handleFocus(e) {
+    console.log("focussing");
+    console.log(e);
     setEndOfContenteditable(this.editableParagraph);
   }
 
@@ -92,6 +94,7 @@ class EditableParagraph extends Component {
           onBlur={this.handleBlur}
           onFocus={this.handleFocus}
           tabIndex={0}
+          autoFocus
           onKeyDown={this.handleKeyPress}
           dangerouslySetInnerHTML={
             this.state.disabled ? this.getMarkdownText() : this.getRawText()

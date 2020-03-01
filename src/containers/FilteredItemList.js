@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import ItemList from "../components/ItemList";
 import { endOfDay, isSameDay, isAfter, isPast } from "date-fns";
+import { getTasksAndSubtasks } from "../utils";
 
 const comparators = {
   STATUS: (a, b) => {
@@ -51,31 +52,44 @@ const filterItems = (items, filter, params) => {
     case "SHOW_ALL":
       return items;
     case "SHOW_DELETED":
-      return items.filter(i => i.deleted == true);
+      return getTasksAndSubtasks(items, i => i.deleted == true);
     case "SHOW_INBOX":
-      return items.filter(i => i.projectId == null && i.deleted == false);
+      return getTasksAndSubtasks(
+        items,
+        i => i.projectId == null && i.deleted == false
+      );
     case "SHOW_COMPLETED":
-      return items.filter(i => i.completed == true && i.deleted == false);
+      return getTasksAndSubtasks(
+        items,
+        i => i.completed == true && i.deleted == false
+      );
     case "SHOW_SCHEDULED":
-      return items.filter(i => i.scheduledDate != null && i.deleted == false);
+      return getTasksAndSubtasks(
+        items,
+        i => i.scheduledDate != null && i.deleted == false
+      );
     case "SHOW_SCHEDULED_ON_DAY":
-      return items.filter(
+      return getTasksAndSubtasks(
+        items,
         i =>
           isSameDay(i.scheduledDate, params.scheduledDate) && i.deleted == false
       );
     case "SHOW_NOT_SCHEDULED":
-      return items.filter(
+      return getTasksAndSubtasks(
+        items,
         i => i.type == "TODO" && i.scheduledDate == null && i.deleted == false
       );
     case "SHOW_FROM_PROJECT_BY_TYPE":
-      return items.filter(
+      return getTasksAndSubtasks(
+        items,
         i =>
           i.projectId == params.projectId &&
           i.type == params.type &&
           i.deleted == false
       );
     case "SHOW_OVERDUE":
-      return items.filter(
+      return getTasksAndSubtasks(
+        items,
         i =>
           isPast(endOfDay(i.scheduledDate)) ||
           (isPast(endOfDay(i.dueDate)) && i.deleted == false)
@@ -88,7 +102,13 @@ const filterItems = (items, filter, params) => {
 function FilteredItemList(props) {
   const filteredItems = filterItems(props.items, props.filter, props.params);
   const sortedItems = sortItems(filteredItems, props.sortCriteria);
-  return <ItemList items={sortedItems} />;
+  return (
+    <ItemList
+      noIndentation={props.noIndentation}
+      showSubtasks={props.showSubtasks}
+      items={sortedItems}
+    />
+  );
 }
 
 const mapStateToProps = state => ({

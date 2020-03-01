@@ -1,4 +1,5 @@
 import {
+  ADD_CHILD_ITEM,
   CREATE_ITEM,
   DELETE_ITEM,
   UNDELETE_ITEM,
@@ -10,12 +11,12 @@ import {
   SET_SCHEDULED_DATE,
   SET_DUE_DATE,
   SET_REPEAT_RULE,
-  SET_PARENT,
-  REMOVE_PARENT,
-  DELETE_PROJECT
+  DELETE_PROJECT,
+  SHOW_CHILDREN,
+  HIDE_CHILDREN
 } from "../actions";
 import { RRule } from "rrule";
-import uuidv4 from "uuid/v4";
+import { getItemById } from "../utils";
 
 const initialState = [
   {
@@ -32,6 +33,8 @@ const initialState = [
     lastUpdatedAt: new Date(2020, 1, 1),
     repeat: null,
     parentId: null,
+    hidden: false,
+    childrenHidden: false,
     children: []
   },
   {
@@ -48,6 +51,8 @@ const initialState = [
     lastUpdatedAt: new Date(2020, 1, 1),
     repeat: null,
     parentId: null,
+    hidden: false,
+    childrenHidden: false,
     children: []
   },
   {
@@ -64,6 +69,8 @@ const initialState = [
     lastUpdatedAt: new Date(2020, 1, 1),
     repeat: null,
     parentId: null,
+    hidden: false,
+    childrenHidden: false,
     children: []
   }
 ];
@@ -71,11 +78,10 @@ const initialState = [
 export const itemReducer = (state = initialState, action) => {
   switch (action.type) {
     case CREATE_ITEM:
-      const itemUUID = uuidv4();
       return [
         ...state,
         {
-          id: itemUUID,
+          id: action.id,
           type: action.itemType,
           text: action.text,
           scheduledDate: null,
@@ -87,7 +93,9 @@ export const itemReducer = (state = initialState, action) => {
           createdAt: new Date(),
           lastUpdatedAt: new Date(),
           repeat: null,
-          parentId: null,
+          parentId: action.parentId,
+          hidden: false,
+          childrenHidden: false,
           children: []
         }
       ];
@@ -106,6 +114,14 @@ export const itemReducer = (state = initialState, action) => {
         if (i.id == action.id) {
           i.deleted = true;
           i.lastUpdatedAt = new Date();
+
+          // Remove the child from parents
+          if (i.parentId != null) {
+            const parent = getItemById(i.parentId, state);
+            parent.children = parent.children.filter(c => c != action.id);
+          }
+
+          // Delete children from parent?
         }
         return i;
       });
@@ -114,6 +130,35 @@ export const itemReducer = (state = initialState, action) => {
         if (i.id == action.id) {
           i.deleted = false;
           i.lastUpdatedAt = new Date();
+        }
+        return i;
+      });
+
+    case SHOW_CHILDREN:
+      return state.map(i => {
+        if (i.id == action.id) {
+          i.lastUpdatedAt = new Date();
+          i.hiddenChildren = false;
+          i.children.map(c => {
+            const child = getItemById(c, state);
+            child.hidden = false;
+            child.lastUpdatedAt = new Date();
+          });
+        }
+        return i;
+      });
+
+    case HIDE_CHILDREN:
+      return state.map(i => {
+        if (i.id == action.id) {
+          i.lastUpdatedAt = new Date();
+          i.hiddenChildren = true;
+          i.children.map(c => {
+            const child = getItemById(c, state);
+            console.log(child);
+            child.hidden = true;
+            child.lastUpdatedAt = new Date();
+          });
         }
         return i;
       });
@@ -134,12 +179,27 @@ export const itemReducer = (state = initialState, action) => {
         return i;
       });
 
+    case ADD_CHILD_ITEM:
+      return state.map(i => {
+        if (i.id == action.parentId) {
+          i.children = [...i.children, action.id];
+          i.lastUpdatedAt = new Date();
+        }
+        return i;
+      });
+
+    // TODO: Uncompleting recurring items
     case UNCOMPLETE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
           i.completed = false;
           i.lastUpdatedAt = new Date();
           i.completedAt = null;
+          // If there's a repeating due date, set it to the next occurence (including today)
+          if (i.repeat != null) {
+            const r = RRule.fromString(i.repeat);
+            i.dueDate = r.after(new Date(), true);
+          }
         }
         return i;
       });
@@ -191,35 +251,6 @@ export const itemReducer = (state = initialState, action) => {
           i.itemType = action.itemType;
           i.lastUpdatedAt = new Date();
         }
-        return i;
-      });
-
-    case SET_PARENT:
-      const findParent = parentId => {
-        // go through each item until we find the one with parent id
-        const parent = state.find(s => s.id == parentId);
-        // if we find it (which we should) we need to see if it has a parent
-        return parent.parentId == null
-          ? parent.id
-          : findParent(parent.parentId);
-      };
-      return state.map(i => {
-        if (i.id == action.id) {
-          const parentId = findParent(action.parentId);
-          i.parentId = parentId;
-          i.lastUpdatedAt = new Date();
-        }
-        return i;
-      });
-    // TODO: deal with children
-
-    case REMOVE_PARENT:
-      return state.map(i => {
-        if (i.id == action.id) {
-          i.parentId = null;
-          i.lastUpdatedAt = new Date();
-        }
-
         return i;
       });
 

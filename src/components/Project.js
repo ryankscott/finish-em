@@ -54,14 +54,14 @@ function Project(props) {
           <DeleteProjectDialog onDelete={() => deleteProject()} />
         </HeaderContainer>
         <EditableParagraph
-          key={props.project.id}
+          key={props.project.id + "d"}
           onUpdate={input => {
             props.updateDescription(props.project.id, input);
           }}
           input={props.project.description}
         />
-        <Header1> Add to project </Header1>
-        <QuickAdd projectId={props.project.id} />
+        {/* <Header1> Add to project </Header1> */}
+        {/* <QuickAdd projectId={props.project.id} /> */}
         <Header1> Notes </Header1>
         <FilteredItemList
           filter="SHOW_FROM_PROJECT_BY_TYPE"

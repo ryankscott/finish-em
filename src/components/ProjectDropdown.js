@@ -59,7 +59,6 @@ const Container = styled.div`
   flex-direction: column;
   border: 1px solid;
   border-color: ${props => props.theme.colours.borderColour};
-  margin: 0px 0px 0px 10px;
   height: 35px;
   padding: 0px;
   display: ${props => (!props.visible ? "none" : null)};
