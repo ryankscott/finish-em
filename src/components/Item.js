@@ -130,7 +130,7 @@ const RepeatDate = styled.div`
 const SubTextContainer = styled.div`
   display: flex;
   flex-direction: row;
-  align-items: baseline;
+  align-items: center;
   justify-content: ${props => props.position};
   margin-left: ${props => (props.position == "start" ? "32px" : "0px")};
 `;
@@ -341,7 +341,6 @@ class Item extends Component {
   }
 
   showDueDateDropdown(e) {
-    a;
     this.setState({
       dueDateDropdownVisible: !this.state.dueDateDropdownVisible,
       scheduledDateDropdownVisible: false,

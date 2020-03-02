@@ -15,7 +15,7 @@ export const keymap = {
     GO_TO_UNSCHEDULED: ["g p u", "g+p+u"],
     SHOW_SIDEBAR: ["s s b", "s+s+b", "["],
     HIDE_SIDEBAR: ["h s b", "h+s+b", "]"],
-    TOGGLE_SHORTCUT_DIALOG: ["s s d", "s+s+d"],
+    TOGGLE_SHORTCUT_DIALOG: ["s s d", "s+s+d", "?", "shift+/"],
     SHOW_CREATE_PROJECT_DIALOG: "s c p",
     ESCAPE: "Escape"
   },

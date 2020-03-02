@@ -31,9 +31,11 @@ import {
   hideDeleteProjectDialog,
   toggleShortcutDialog
 } from "../actions";
+import { helpIcon } from "../assets/icons.js";
 
 configure({
-  logLevel: "error"
+  logLevel: "verbose",
+  allowCombinationSubmatches: true
 });
 
 const GlobalStyle = createGlobalStyle`
@@ -58,6 +60,15 @@ const Container = styled.div`
   margin: 0px;
   width: 100%;
   height: 100%;
+`;
+
+const ShortcutIcon = styled.div`
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  :hover {
+    cursor: pointer;
+  }
 `;
 
 const MainContainer = styled.div`
@@ -148,6 +159,9 @@ function App(props) {
           </Switch>
           <ShortcutDialog />
         </MainContainer>
+        <ShortcutIcon onClick={props.toggleShortcutDialog}>
+          {helpIcon}
+        </ShortcutIcon>
       </Container>
     </ThemeProvider>
   );
@@ -160,14 +174,12 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   toggleShortcutDialog: () => {
-    console.log("shortcut dialog");
     dispatch(toggleShortcutDialog());
   },
   showCreateProjectDialog: () => {
     dispatch(showCreateProjectDialog());
   },
   hideSidebar: () => {
-    console.log("hide sidebar");
     dispatch(hideSidebar());
   },
 
