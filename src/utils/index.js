@@ -90,7 +90,7 @@ export const getItemById = (id, items) => {
 };
 
 export const getSubtasksFromTasks = (items, allItems) => {
-  const itemsWithSubtasks = items.filter(i => i.children.length > 0);
+  const itemsWithSubtasks = items.filter(i => (i.children && i.children.length > 0));
   const subtasks = itemsWithSubtasks.map(i =>
     i.children.flatMap(x => getItemById(x, allItems))
   );

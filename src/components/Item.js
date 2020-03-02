@@ -420,7 +420,7 @@ class Item extends Component {
             badshortcutAnimation={this.state.badshortcutAnimation}
             ref={container => (this.container = container)}
           >
-            {this.props.children.length > 0 && (
+            {this.props.children && this.props.children.length > 0 && (
               <ExpandIcon onClick={this.handleExpand}>
                 {this.props.hiddenChildren ? collapsedIcon : expandedIcon}
               </ExpandIcon>
