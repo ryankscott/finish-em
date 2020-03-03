@@ -1,6 +1,11 @@
 import { createStore, compose } from "redux";
 import rootReducer from "../reducers";
-import { persistStore, persistReducer, createTransform } from "redux-persist";
+import {
+  createMigrate,
+  persistStore,
+  persistReducer,
+  createTransform
+} from "redux-persist";
 import isElectron from "is-electron";
 import storage from "redux-persist/lib/storage";
 let createElectronStorage;
@@ -26,6 +31,20 @@ const reviver = (key, value) => {
 export const encode = toDehydrate => JSON.stringify(toDehydrate, replacer);
 
 export const decode = toRehydrate => JSON.parse(toRehydrate, reviver);
+/*
+const migrations = {
+  0: state => {
+    return {
+      ...state,
+      items: items.map(i => {
+        if (i.children == undefined) {
+          i.children = [];
+        }
+        return i;
+      })
+    };
+  }
+};*/
 
 let persistConfig;
 if (isElectron()) {

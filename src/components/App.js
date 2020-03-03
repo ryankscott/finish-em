@@ -34,7 +34,7 @@ import {
 import { helpIcon } from "../assets/icons.js";
 
 configure({
-  logLevel: "verbose",
+  logLevel: "debug",
   allowCombinationSubmatches: true
 });
 
@@ -86,6 +86,7 @@ const ProjectWrapper = props => {
   const project = props.projects.find(p => {
     return p.id == id;
   });
+  console.log(project);
   return <Project project={project} />;
 };
 
@@ -147,15 +148,24 @@ function App(props) {
         <Sidebar />
         <MainContainer sidebarVisible={props.sidebarVisible}>
           <Switch>
-            <Route exact path="/" component={Inbox} />
-            <Route exact path="/inbox" component={Inbox} />
-            <Route exact path="/dailyAgenda" component={DailyAgenda} />
-            <Route exact path="/trash" component={Trash} />
-            <Route exact path="/unscheduled" component={Unscheduled} />
-            <Route
-              path="/projects/:id"
-              children={<ProjectWrapper projects={props.projects} />}
-            />
+            <Route path="/inbox">
+              <Inbox />
+            </Route>
+            <Route path="/dailyAgenda">
+              <DailyAgenda />
+            </Route>
+            <Route path="/trash">
+              <Trash />
+            </Route>
+            <Route path="/unscheduled">
+              <Unscheduled />
+            </Route>
+            <Route path="/projects/:id">
+              <ProjectWrapper projects={props.projects} />
+            </Route>
+            <Route path="/">
+              <Inbox />
+            </Route>
           </Switch>
           <ShortcutDialog />
         </MainContainer>

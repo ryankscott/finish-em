@@ -15,7 +15,7 @@ function createQuickAddWindow() {
     resizable: false,
     webPreferences: {
       nodeIntegration: true,
-      preload: path.join(__dirname + "/src/preload.js")
+      preload: path.join(__dirname + "/preload.js")
     }
   });
 
@@ -40,7 +40,7 @@ function createMainWindow() {
     height: 800,
     webPreferences: {
       nodeIntegration: true,
-      preload: path.join(__dirname + "/src/preload.js")
+      preload: path.join(__dirname + "/preload.js")
     }
   });
 

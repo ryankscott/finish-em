@@ -9,6 +9,7 @@
     "appId": "com.ryankscott",
     "files": [
       "main.js",
+      "preload.js",
       "src/assets/*",
       "build/**/*"
     ]

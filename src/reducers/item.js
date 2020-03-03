@@ -182,7 +182,9 @@ export const itemReducer = (state = initialState, action) => {
     case ADD_CHILD_ITEM:
       return state.map(i => {
         if (i.id == action.parentId) {
-          i.children = [...i.children, action.id];
+          console.log(i.children);
+          i.children =
+            i.children == undefined ? [action.id] : [...i.children, action.id];
           i.lastUpdatedAt = new Date();
         }
         return i;
