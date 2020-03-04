@@ -90,7 +90,11 @@ const Icon = styled.div`
 `;
 
 const ExpandIcon = styled.div`
+  display: flex;
   grid-area: collapse;
+  justify-content: center;
+  align-self: start;
+  margin-top: 10px;
 `;
 
 const DueDate = styled.div`
@@ -461,7 +465,7 @@ class Item extends Component {
             )}
             {this.props.repeat && (
               <RepeatDate completed={this.props.completed}>
-                <SubTextContainer key={"repeat"} position={"end"}>
+                <SubTextContainer key={"repeat"} position={"flex-end"}>
                   {repeatIcon}
                   <SubText key={"subtext-repeat"}>{repeat.toText()}</SubText>
                 </SubTextContainer>
