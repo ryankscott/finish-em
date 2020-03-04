@@ -63,7 +63,7 @@ const Container = styled.div`
 `;
 
 const ShortcutIcon = styled.div`
-  position: absolute;
+  position: fixed;
   bottom: 10px;
   right: 10px;
   :hover {
