@@ -37,7 +37,11 @@ import ProjectDropdown from "./ProjectDropdown";
 import EditableItem from "./EditableItem";
 import DatePicker from "./DatePicker";
 import RepeatPicker from "./RepeatPicker";
-import { formatRelativeDate, removeItemTypeFromString } from "../utils";
+import {
+  getProjectNameById,
+  formatRelativeDate,
+  removeItemTypeFromString
+} from "../utils";
 import {
   repeatIcon,
   dueIcon,
@@ -58,7 +62,7 @@ const Container = styled.div`
   display: ${props => (props.hidden ? "none" : "grid")};
   grid-template-columns: 20px 40px repeat(9, 1fr);
   grid-template-areas:
-    "collapse type body body body body body body body body body"
+    "collapse type body body body body body body body project project"
     "collapse scheduled scheduled scheduled .  due due due repeat repeat repeat";
   min-height: ${props => (props.itemType == "TODO" ? "50px" : "30px")};
   width: ${props =>
@@ -157,6 +161,18 @@ const Subtasks = styled.div`
   color: ${props => props.theme.colours.defaultTextColour};
 `;
 
+const Project = styled.div`
+  grid-area: project;
+  display: flex;
+  justify-content: center;
+  width: 70px;
+  padding: 2px 5px;
+  font-size: ${props => props.theme.fontSizes.xsmall};
+  color: ${props => props.theme.colours.altTextColour};
+  background-color: ${props => props.theme.colours.primaryColour};
+  border-radius: 5px;
+`;
+
 class Item extends Component {
   constructor(props) {
     super(props);
@@ -175,6 +191,7 @@ class Item extends Component {
     this.moveItem = this.moveItem.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handleExpand = this.handleExpand.bind(this);
+    this.handleIconClick = this.handleIconClick.bind(this);
 
     this.handlers = {
       TODO: {
@@ -395,6 +412,16 @@ class Item extends Component {
     }
   }
 
+  handleIconClick() {
+    if (this.props.type == "TODO") {
+      this.props.completed
+        ? this.props.uncompleteItem(this.props.id)
+        : this.props.completeItem(this.props.id);
+      return;
+    }
+    return;
+  }
+
   handleExpand() {
     this.props.hiddenChildren
       ? this.props.showChildren(this.props.id)
@@ -428,7 +455,7 @@ class Item extends Component {
                 {this.props.hiddenChildren ? collapsedIcon : expandedIcon}
               </ExpandIcon>
             )}
-            <Icon>
+            <Icon onClick={this.handleIconClick}>
               {this.props.type == "NOTE"
                 ? noteIcon
                 : this.props.completed
@@ -443,6 +470,15 @@ class Item extends Component {
             >
               {removeItemTypeFromString(this.props.text)}
             </Body>
+            {this.props.showProject && (
+              <Project>
+                {" "}
+                {getProjectNameById(
+                  this.props.projectId,
+                  this.props.projects
+                )}{" "}
+              </Project>
+            )}
             {this.props.scheduledDate && (
               <ScheduledDate completed={this.props.completed}>
                 <SubTextContainer key={"scheduled"} position={"start"}>

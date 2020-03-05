@@ -74,6 +74,7 @@ function DailyAgenda(props) {
             items={props.items}
             filter="SHOW_OVERDUE"
             sortCriteria="DUE"
+            showProject={true}
           />
         </Section>
         <Section>
@@ -82,6 +83,8 @@ function DailyAgenda(props) {
             items={props.items}
             filter="SHOW_SCHEDULED_ON_DAY"
             params={{ scheduledDate: new Date() }}
+            sortCriteria="STATUS"
+            showProject={true}
           />
         </Section>
       </AgendaContainer>

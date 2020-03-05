@@ -69,6 +69,7 @@ const Container = styled.div`
 const generateOptions = options => {
   return options
     .filter(m => m.id != null)
+    .filter(m => m.deleted == false)
     .map(m => ({ value: m.id, label: m.name }));
 };
 

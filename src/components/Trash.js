@@ -33,6 +33,7 @@ function Trash(props) {
           noIndentation={true}
           showSubtasks={true}
           filter="SHOW_DELETED"
+          showProject={true}
         />
       </TrashContainer>
     </ThemeProvider>

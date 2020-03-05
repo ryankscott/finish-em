@@ -34,6 +34,7 @@ function ItemList(props) {
                 onDelete={props.deleteItem}
                 onRefile={props.refileItem}
                 noIndentation={props.noIndentation}
+                showProject={props.showProject}
               />
               {item.children &&
                 item.children.map(c => {
@@ -45,6 +46,7 @@ function ItemList(props) {
                       onDelete={props.deleteItem}
                       onRefile={props.refileItem}
                       noIndentation={props.noIndentation}
+                      showProject={props.showProject}
                     />
                   );
                 })}

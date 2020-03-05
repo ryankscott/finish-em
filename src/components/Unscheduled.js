@@ -29,7 +29,11 @@ function Unscheduled(props) {
         <HeaderContainer>
           <Title> Unscheduled </Title>
         </HeaderContainer>
-        <FilteredItemList filter="SHOW_NOT_SCHEDULED" sortCriteria="DUE" />
+        <FilteredItemList
+          filter="SHOW_NOT_SCHEDULED"
+          sortCriteria="DUE"
+          showProject={true}
+        />
       </UnscheduledContainer>
     </ThemeProvider>
   );

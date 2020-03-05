@@ -91,8 +91,9 @@ const filterItems = (items, filter, params) => {
       return getTasksAndSubtasks(
         items,
         i =>
-          isPast(endOfDay(i.scheduledDate)) ||
-          (isPast(endOfDay(i.dueDate)) && i.deleted == false)
+          (isPast(endOfDay(i.scheduledDate)) ||
+            (isPast(endOfDay(i.dueDate)) && i.deleted == false)) &&
+          i.completed == false
       );
     default:
       throw new Error("Unknown filter: " + filter);
@@ -107,6 +108,7 @@ function FilteredItemList(props) {
       noIndentation={props.noIndentation}
       showSubtasks={props.showSubtasks}
       items={sortedItems}
+      showProject={props.showProject}
     />
   );
 }
