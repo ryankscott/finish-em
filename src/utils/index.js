@@ -90,7 +90,9 @@ export const getItemById = (id, items) => {
 };
 
 export const getSubtasksFromTasks = (items, allItems) => {
-  const itemsWithSubtasks = items.filter(i => (i.children && i.children.length > 0));
+  const itemsWithSubtasks = items.filter(
+    i => i.children && i.children.length > 0
+  );
   const subtasks = itemsWithSubtasks.map(i =>
     i.children.flatMap(x => getItemById(x, allItems))
   );
@@ -109,4 +111,13 @@ export const capitaliseEachWordInString = text => {
     .split(" ")
     .map(s => s.charAt(0).toUpperCase() + s.substring(1))
     .join(" ");
+};
+
+export const getProjectById = (id, projects) => {
+  return projects.find(i => i.id == id);
+};
+
+export const getProjectNameById = (id, projects) => {
+  const p = projects.find(i => i.id == id);
+  return p ? p.name : "";
 };
