@@ -179,13 +179,17 @@ export const itemReducer = (state = initialState, action) => {
         return i;
       });
 
+    // TODO: A Child needs to inheirit properties from the parent
     case ADD_CHILD_ITEM:
+      const parent = getItemById(action.parentId, state);
+      const child = getItemById(action.Id, state);
       return state.map(i => {
         if (i.id == action.parentId) {
-          console.log(i.children);
           i.children =
             i.children == undefined ? [action.id] : [...i.children, action.id];
           i.lastUpdatedAt = new Date();
+        } else if (i.id == action.id) {
+          i.projectId = parent.projectId;
         }
         return i;
       });
@@ -211,6 +215,11 @@ export const itemReducer = (state = initialState, action) => {
         if (i.id == action.id) {
           i.projectId = action.projectId;
           i.lastUpdatedAt = new Date();
+          i.children &&
+            i.children.map(c => {
+              const child = getItemById(c, state);
+              return (child.projectId = action.projectId);
+            });
         }
         return i;
       });
