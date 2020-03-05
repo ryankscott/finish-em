@@ -103,8 +103,6 @@ export function updateItemDescription(id, text) {
   };
 }
 export function addChildItem(id, parentId) {
-  console.log("Adding children to: " + parentId);
-  console.log("Child: " + id);
   return {
     type: ADD_CHILD_ITEM,
     id: id,
