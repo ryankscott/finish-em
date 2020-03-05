@@ -34,8 +34,7 @@ import {
 import { helpIcon } from "../assets/icons.js";
 
 configure({
-  logLevel: "debug",
-  allowCombinationSubmatches: true
+  logLevel: "warning"
 });
 
 const GlobalStyle = createGlobalStyle`
