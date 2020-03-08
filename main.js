@@ -61,7 +61,6 @@ function createMainWindow() {
   });
 
   const handleRedirect = (e, url) => {
-    console.log(url);
     if (url != mainWindow.getURL()) {
       e.preventDefault();
       require("electron").shell.openExternal(url);
