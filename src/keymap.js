@@ -15,20 +15,19 @@ export const keymap = {
     GO_TO_UNSCHEDULED: ["g p u", "g+p+u"],
     SHOW_SIDEBAR: ["s s b", "s+s+b", "["],
     HIDE_SIDEBAR: ["h s b", "h+s+b", "]"],
-    TOGGLE_SHORTCUT_DIALOG: ["?", "Shift+/", "Shift+?", "?+Shift"],
+    TOGGLE_SHORTCUT_DIALOG: ["?", "s s d", "Shift+/", "Shift+?", "?+Shift"],
     SHOW_CREATE_PROJECT_DIALOG: "s c p",
     ESCAPE: "Escape"
   },
   ITEM: {
-    SET_SCHEDULED_DATE: ["s s", "s+s"],
-    SET_DUE_DATE: ["s d", "s+d"],
+    SET_SCHEDULED_DATE: ["s i", "s+"],
+    SET_DUE_DATE: ["d i", "d+i"],
     CREATE_SUBTASK: ["c s", "c+s"],
     COMPLETE_ITEM: ["c i", "c+i"],
     UNCOMPLETE_ITEM: ["u i", "u+i"],
     REPEAT_ITEM: ["r i", "r+i"],
     DELETE_ITEM: ["d i", "d+i"],
     UNDELETE_ITEM: ["n i", "n+i"],
-    EDIT_ITEM_DESCRIPTION: ["e i", "e+i"],
     MOVE_ITEM: ["m i", "m+i"],
     TOGGLE_CHILDREN: ["t i", "t+i"]
   }

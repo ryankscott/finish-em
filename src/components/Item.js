@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, forwardRef } from "react";
 import styled, { ThemeProvider, keyframes } from "styled-components";
 import { connect } from "react-redux";
 import {
@@ -12,6 +12,7 @@ import {
 import { enGB } from "date-fns/esm/locale";
 import { RRule } from "rrule";
 import uuidv4 from "uuid/v4";
+import marked from "marked";
 
 import { headShake, fadeInDown } from "react-animations";
 import { HotKeys } from "react-hotkeys";
@@ -37,6 +38,7 @@ import ProjectDropdown from "./ProjectDropdown";
 import EditableItem from "./EditableItem";
 import DatePicker from "./DatePicker";
 import RepeatPicker from "./RepeatPicker";
+import EditableText from "./EditableText";
 import {
   getProjectNameById,
   formatRelativeDate,
@@ -57,22 +59,24 @@ const headShakeAnimation = keyframes`${headShake}`;
 const Container = styled.div`
   animation: 1s
     ${props => (props.badshortcutAnimation ? headShakeAnimation : "none")};
+  transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
+  max-height: ${props => (props.hidden ? "0px" : "200px")};
   font-family: ${props => props.theme.font.sansSerif};
   font-size: ${props => props.theme.fontSizes.medium};
-  display: ${props => (props.hidden ? "none" : "grid")};
-  grid-template-columns: 20px 40px repeat(9, 1fr);
+  display: grid;
+  opacity: ${props => (props.hidden ? "0" : "1")};
+  grid-template-columns: ${props =>
+    props.isSubtask && !props.noIndentation
+      ? "60px 30px repeat(20, 1fr)"
+      : "30px 30px repeat(20, 1fr)"};
+  grid-auto-rows: minmax(20px, auto);
   grid-template-areas:
-    "collapse type body body body body body body body project project"
-    "collapse scheduled scheduled scheduled .  due due due repeat repeat repeat";
-  min-height: ${props => (props.itemType == "TODO" ? "50px" : "30px")};
-  width: ${props =>
-    props.isSubtask && !props.noIndentation ? "600px" : "650px"}
-  border-bottom: 1px solid;
-  border-top: 1px solid;
+    "collapse type body body body body body body body body body body body body body body body body body project project project"
+    ". . scheduled scheduled scheduled scheduled . . . . due due due due . . . . repeat repeat repeat repeat";
+  border-bottom: ${props => (props.hidden ? "0px" : "1px solid")}
+  border-top : ${props => (props.hidden ? "0px" : "1px solid")}
   border-color: ${props => props.theme.colours.borderColour};
-  padding: 5px 5px 5px 5px;
-  margin-left: ${props =>
-    props.isSubtask && !props.noIndentation ? "50px" : "0px"}
+  padding: ${props => (props.hidden ? "0px" : "5px 5px 5px 5px")};
   align-items: center;
   cursor: pointer;
   color: ${props => theme.colours.defaultTextColour};
@@ -90,23 +94,19 @@ const Icon = styled.div`
   display: flex;
   grid-area: type;
   justify-content: start;
-  padding-left: 5px;
 `;
 
 const ExpandIcon = styled.div`
   display: flex;
   grid-area: collapse;
   justify-content: center;
-  align-self: start;
-  margin-top: 10px;
+  align-self: center;
 `;
 
 const DueDate = styled.div`
   grid-area: due;
   font-size: ${props => props.theme.fontSizes.xsmall};
   color: ${props => props.theme.colours.defaultTextColour}
-  margin: 2px 5px 2px 2px;
-  padding: 2px 5px;
   border-radius: 5px;
   text-align: end;
   text-decoration: ${props =>
@@ -117,8 +117,6 @@ const ScheduledDate = styled.div`
   grid-area: scheduled;
   font-size: ${props => props.theme.fontSizes.xsmall};
   color: ${props => props.theme.colours.defaultTextColour}
-  margin: 2px 5px 2px 2px;
-  padding: 2px 5px;
   border-radius: 5px;
   text-decoration: ${props =>
     props.completed == true ? "line-through" : null};
@@ -128,8 +126,6 @@ const RepeatDate = styled.div`
   grid-area: repeat;
   font-size: ${props => props.theme.fontSizes.xsmall};
   color: ${props => props.theme.colours.defaultTextColour}
-  margin: 2px 5px 2px 2px;
-  padding: 2px 5px;
   border-radius: 5px;
   text-decoration: ${props =>
     props.completed == true ? "line-through" : null};
@@ -148,7 +144,7 @@ const SubText = styled.div`
 `;
 
 const Body = styled.span`
-  padding: 8px 0px;
+  margin: 5px 10px;
   grid-area: body;
   font-size: ${props => props.theme.fontSizes.regular};
   text-decoration: ${props =>
@@ -165,8 +161,9 @@ const Project = styled.div`
   grid-area: project;
   display: flex;
   justify-content: center;
-  width: 70px;
-  padding: 2px 5px;
+  text-align: center;
+  margin: 2px 2px 2px 2px;
+  padding: 2px 4px;
   font-size: ${props => props.theme.fontSizes.xsmall};
   color: ${props => props.theme.colours.altTextColour};
   background-color: ${props => props.theme.colours.primaryColour};
@@ -192,9 +189,13 @@ class Item extends Component {
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handleExpand = this.handleExpand.bind(this);
     this.handleIconClick = this.handleIconClick.bind(this);
+    this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
 
     this.handlers = {
       TODO: {
+        EDIT_ITEM_DESCRIPTION: event => {
+          console.log(this.description);
+        },
         TOGGLE_CHILDREN: event => {
           this.props.hiddenChildren
             ? this.props.showChildren(this.props.id)
@@ -257,18 +258,6 @@ class Item extends Component {
         UNDELETE_ITEM: event => {
           this.props.undeleteItem(event.target.id);
         },
-        EDIT_ITEM_DESCRIPTION: event => {
-          if (this.props.deleted || this.props.completed) return;
-          this.setState(
-            {
-              descriptionEditable: true
-            },
-            () => {
-              this.description.focus();
-            }
-          );
-          event.preventDefault();
-        },
         MOVE_ITEM: event => {
           if (this.props.deleted || this.props.completed) return;
           this.setState({
@@ -279,23 +268,7 @@ class Item extends Component {
           });
           event.preventDefault();
         },
-        ENTER: event => {
-          this.setState(
-            {
-              descriptionEditable: false
-            },
-            () => {
-              this.description.blur();
-            }
-          );
-          // TODO: This is kinda silly because the TEXT expects the type at the front
-          this.props.updateItemDescription(
-            event.target.parentElement.id,
-            this.props.type + " " + event.target.innerText
-          );
-        },
         ESCAPE: event => {
-          this.description.blur();
           this.setState({
             projectDropdownVisible: false,
             dueDateDropdownVisible: false,
@@ -321,32 +294,6 @@ class Item extends Component {
           });
           event.preventDefault();
         },
-        ENTER: event => {
-          this.setState(
-            {
-              descriptionEditable: false
-            },
-            () => {
-              this.description.blur();
-            }
-          );
-          // TODO: This is kinda silly because the TEXT expects the type at the front
-          this.props.updateItemDescription(
-            event.target.parentElement.id,
-            this.props.type + " " + event.target.innerText
-          );
-        },
-        EDIT_ITEM_DESCRIPTION: event => {
-          this.setState(
-            {
-              descriptionEditable: true
-            },
-            () => {
-              this.description.focus();
-            }
-          );
-          event.preventDefault();
-        },
         ESCAPE: event => {
           this.description.blur();
           this.setState({
@@ -359,6 +306,13 @@ class Item extends Component {
         }
       }
     };
+  }
+
+  handleDescriptionChange(text) {
+    this.props.updateItemDescription(
+      this.props.id,
+      this.props.type + " " + text
+    );
   }
 
   showDueDateDropdown(e) {
@@ -404,9 +358,6 @@ class Item extends Component {
 
   handleKeyPress(event) {
     switch (event.key) {
-      case "Enter":
-        this.handlers[this.props.type].ENTER(event);
-        return;
       case "Escape":
         this.handlers[this.props.type].ESCAPE(event);
     }
@@ -432,7 +383,9 @@ class Item extends Component {
   // TODO: Consider extracting DueDate to a component
   // TODO: Proper locales
   render() {
+    const description = React.createRef();
     // Rehydrate the string repeating rule to an object
+    //
     const repeat = this.props.repeat
       ? RRule.fromString(this.props.repeat)
       : this.props.repeat;
@@ -445,7 +398,7 @@ class Item extends Component {
             isSubtask={this.props.parentId != null}
             onKeyDown={this.handleKeyPress}
             id={this.props.id}
-            tabIndex="0"
+            tabIndex={this.props.hidden ? "-1" : "0"}
             itemType={this.props.type}
             badshortcutAnimation={this.state.badshortcutAnimation}
             ref={container => (this.container = container)}
@@ -462,26 +415,23 @@ class Item extends Component {
                 ? todoCheckedIcon
                 : todoUncheckedIcon}
             </Icon>
-            <Body
-              ref={c => (this.description = c)}
-              contentEditable={this.state.descriptionEditable}
-              completed={this.props.completed}
-              suppressContentEditableWarning={true}
-            >
-              {removeItemTypeFromString(this.props.text)}
+            <Body completed={this.props.completed}>
+              <EditableText
+                editable={this.state.descriptionEditable}
+                readOnly={this.props.completed}
+                input={removeItemTypeFromString(this.props.text)}
+                onUpdate={this.handleDescriptionChange}
+                singleline={true}
+              />
             </Body>
             {this.props.showProject && (
               <Project>
-                {" "}
-                {getProjectNameById(
-                  this.props.projectId,
-                  this.props.projects
-                )}{" "}
+                {getProjectNameById(this.props.projectId, this.props.projects)}
               </Project>
             )}
             {this.props.scheduledDate && (
               <ScheduledDate completed={this.props.completed}>
-                <SubTextContainer key={"scheduled"} position={"start"}>
+                <SubTextContainer key={"scheduled"} position={"flex-start"}>
                   {scheduledIcon}
                   <SubText key={"subtext-scheduled"}>
                     {formatRelativeDate(this.props.scheduledDate)}

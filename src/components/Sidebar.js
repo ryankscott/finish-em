@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 import { theme } from "../theme";
-import FilteredItemList from "../containers/FilteredItemList";
 import { Button } from "./Button";
 import CreateProjectDialog from "./CreateProjectDialog";
 import { Header, SubTitle } from "./Typography";

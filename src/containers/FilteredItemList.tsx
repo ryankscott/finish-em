@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { FunctionComponent } from "react";
 import { connect } from "react-redux";
 import ItemList from "../components/ItemList";
 import { endOfDay, isSameDay, isAfter, isPast } from "date-fns";
@@ -47,7 +47,7 @@ const sortItems = (items, criteria) => {
       return items;
   }
 };
-const filterItems = (items, filter, params) => {
+const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
   switch (filter) {
     case "SHOW_ALL":
       return items;
@@ -100,7 +100,37 @@ const filterItems = (items, filter, params) => {
   }
 };
 
-function FilteredItemList(props) {
+enum FilterEnum {
+  ShowAll = "SHOW_ALL",
+  ShowDeleted = "SHOW_DELETED",
+  ShowInbox = "SHOW_INBOX",
+  ShowCompleted = "SHOW_COMPLETED",
+  ShowScheduled = "SHOW_SCHEDULED",
+  ShowScheduledOnDay = "SHOW_SCHEDULED_ON_DAY",
+  ShowNotScheduled = "SHOW_NOT_SCHEDULED",
+  ShowFromProjectByType = "SHOW_FROM_PROJECT_BY_TYPE",
+  ShowOverdue = "SHOW_OVERDUE"
+}
+
+enum SortCriteriaEnum {
+  Status = "STATUS",
+  Due = "DUE",
+  Scheduled = "SCHEDULED"
+}
+
+// TODO create an Item type and update this array
+type FilteredItemListProps = {
+  items: Array<any>;
+  filter: FilterEnum;
+  sortCriteria: SortCriteriaEnum;
+  params: Object;
+  noIndentation: boolean;
+  showSubtasks: boolean;
+  showProject: boolean;
+  listName: string;
+};
+
+const FilteredItemList: FunctionComponent<FilteredItemListProps> = props => {
   const filteredItems = filterItems(props.items, props.filter, props.params);
   const sortedItems = sortItems(filteredItems, props.sortCriteria);
   return (
@@ -109,9 +139,10 @@ function FilteredItemList(props) {
       showSubtasks={props.showSubtasks}
       items={sortedItems}
       showProject={props.showProject}
+      name={props.listName}
     />
   );
-}
+};
 
 const mapStateToProps = state => ({
   items: state.items

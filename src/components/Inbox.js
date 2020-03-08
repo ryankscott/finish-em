@@ -3,7 +3,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList from "../containers/FilteredItemList.tsx";
 import QuickAdd from "./QuickAdd";
 import { Header1, Title } from "./Typography";
 
@@ -31,8 +31,11 @@ class Inbox extends Component {
           <Title> Inbox </Title>
           <Header1> Add an item </Header1>
           <QuickAdd />
-          <Header1> Items </Header1>
-          <FilteredItemList items={this.props.items} filter="SHOW_INBOX" />
+          <FilteredItemList
+            items={this.props.items}
+            filter="SHOW_INBOX"
+            listName="Items"
+          />
         </Container>
       </ThemeProvider>
     );

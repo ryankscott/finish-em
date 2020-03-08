@@ -4,7 +4,7 @@ import Item from "../components/Item";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { getItemById } from "../utils";
-
+import { Header1, Paragraph } from "./Typography";
 import { connect } from "react-redux";
 import { deleteItem, refileItem } from "../actions";
 
@@ -19,10 +19,22 @@ const Container = styled.div`
   margin: 10px 0px;
 `;
 
-function ItemList(props) {
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+`;
+
+const ItemList = props => {
   return (
     <ThemeProvider theme={theme}>
       <Container>
+        <HeaderContainer>
+          <Header1>{props.name}</Header1>
+        </HeaderContainer>
+
         {props.items.map((item, index) => {
           const isSubtask = item.parentId != null;
           if (!props.showSubtasks && isSubtask) return;
@@ -57,7 +69,7 @@ function ItemList(props) {
       </Container>
     </ThemeProvider>
   );
-}
+};
 
 // TODO: Add PropTypes
 const mapStateToProps = state => ({});

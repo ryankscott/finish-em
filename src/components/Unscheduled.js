@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 
 import { theme } from "../theme";
 import { Header, Title } from "./Typography";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList from "../containers/FilteredItemList.tsx";
 
 const UnscheduledContainer = styled.div`
   display: flex;
@@ -15,24 +15,22 @@ const UnscheduledContainer = styled.div`
   width: 675px;
 `;
 
-const HeaderContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
-`;
-
 function Unscheduled(props) {
   return (
     <ThemeProvider theme={theme}>
       <UnscheduledContainer>
-        <HeaderContainer>
-          <Title> Unscheduled </Title>
-        </HeaderContainer>
+        <Title> Unscheduled </Title>
+        <FilteredItemList
+          filter="SHOW_OVERDUE"
+          sortCriteria="DUE"
+          showProject={true}
+          listName="Overdue"
+        />
         <FilteredItemList
           filter="SHOW_NOT_SCHEDULED"
           sortCriteria="DUE"
           showProject={true}
+          listName="Unscheduled"
         />
       </UnscheduledContainer>
     </ThemeProvider>

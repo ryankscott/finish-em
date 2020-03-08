@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import QuickAdd from "./QuickAdd";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList from "../containers/FilteredItemList.tsx";
 import ProjectList from "../containers/ProjectList";
 import DailyAgenda from "../components/DailyAgenda";
 import Inbox from "../components/Inbox";
-import Trash from "../components/Trash";
+import Trash from "../components/Trash.tsx";
 import Project from "../components/Project";
 import Unscheduled from "../components/Unscheduled";
 import Sidebar from "../components/Sidebar";

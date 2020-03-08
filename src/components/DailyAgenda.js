@@ -3,9 +3,9 @@ import styled, { ThemeProvider } from "styled-components";
 import { startOfWeek, format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList from "../containers/FilteredItemList.tsx";
 import { Paragraph, Header, Title, Header1 } from "./Typography";
-import EditableParagraph from "./EditableParagraph";
+import EditableText from "./EditableText";
 import { setDailyGoal, setWeeklyGoal } from "../actions";
 
 const DateContainer = styled.div`
@@ -58,7 +58,7 @@ function DailyAgenda(props) {
         {/*     : "No weekly goal set"} */}
         {/* </Paragraph> */}
         <Header1> Daily Goal </Header1>
-        <EditableParagraph
+        <EditableText
           onUpdate={input => {
             props.setDailyGoal(day, input);
           }}
@@ -67,24 +67,25 @@ function DailyAgenda(props) {
               ? props.dailyGoal[day].text
               : "No daily goal set"
           }
+          height="150px"
         />
         <Section>
-          <Header1> Overdue </Header1>
           <FilteredItemList
             items={props.items}
             filter="SHOW_OVERDUE"
             sortCriteria="DUE"
             showProject={true}
+            listName="Overdue"
           />
         </Section>
         <Section>
-          <Header1> Scheduled Today </Header1>
           <FilteredItemList
             items={props.items}
             filter="SHOW_SCHEDULED_ON_DAY"
             params={{ scheduledDate: new Date() }}
             sortCriteria="STATUS"
             showProject={true}
+            listName="Scheduled Today"
           />
         </Section>
       </AgendaContainer>

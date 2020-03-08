@@ -54,7 +54,72 @@ export const removeByKey = (object, deleteKey) => {
 };
 
 // Thanks https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity
-export const setEndOfContenteditable = contentEditableElement => {
+//
+
+//From: http://www.w3.org/TR/html-markup/syntax.html#syntax-elements
+var voidNodeTags = [
+  "AREA",
+  "BASE",
+  "BR",
+  "COL",
+  "EMBED",
+  "HR",
+  "IMG",
+  "INPUT",
+  "KEYGEN",
+  "LINK",
+  "MENUITEM",
+  "META",
+  "PARAM",
+  "SOURCE",
+  "TRACK",
+  "WBR",
+  "BASEFONT",
+  "BGSOUND",
+  "FRAME",
+  "ISINDEX"
+];
+
+//From: https://stackoverflow.com/questions/237104/array-containsobj-in-javascript
+Array.prototype.contains = function(obj) {
+  var i = this.length;
+  while (i--) {
+    if (this[i] === obj) {
+      return true;
+    }
+  }
+  return false;
+};
+
+//Basic idea from: https://stackoverflow.com/questions/19790442/test-if-an-element-can-contain-text
+function canContainText(node) {
+  if (node.nodeType == 1) {
+    //is an element node
+    return !voidNodeTags.contains(node.nodeName);
+  } else {
+    //is not an element node
+    return false;
+  }
+}
+
+function getLastChildElement(el) {
+  var lc = el.lastChild;
+  while (lc && lc.nodeType != 1) {
+    if (lc.previousSibling) lc = lc.previousSibling;
+    else break;
+  }
+  return lc;
+}
+
+//Based on Nico Burns's answer
+export const setEndOfContenteditable = function(contentEditableElement) {
+  while (
+    getLastChildElement(contentEditableElement) &&
+    canContainText(getLastChildElement(contentEditableElement))
+  ) {
+    contentEditableElement = getLastChildElement(contentEditableElement);
+  }
+
   var range, selection;
   if (document.createRange) {
     //Firefox, Chrome, Opera, Safari, IE 9+

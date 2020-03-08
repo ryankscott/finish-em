@@ -11,8 +11,8 @@ import {
   toggleDeleteProjectDialog
 } from "../actions";
 import { Header, Title, Header1 } from "./Typography";
-import EditableParagraph from "./EditableParagraph";
-import FilteredItemList from "../containers/FilteredItemList";
+import EditableText from "./EditableText";
+import FilteredItemList from "../containers/FilteredItemList.tsx";
 import Button from "./Button";
 import DeleteProjectDialog from "./DeleteProjectDialog";
 import QuickAdd from "./QuickAdd";
@@ -53,25 +53,26 @@ function Project(props) {
           <Title>{props.project.name} </Title>
           <DeleteProjectDialog onDelete={() => deleteProject()} />
         </HeaderContainer>
-        <EditableParagraph
+        <EditableText
           key={props.project.id + "d"}
           onUpdate={input => {
             props.updateDescription(props.project.id, input);
           }}
           input={props.project.description}
+          height="150px"
         />
-        {/* <Header1> Add to project </Header1> */}
-        {/* <QuickAdd projectId={props.project.id} /> */}
-        <Header1> Notes </Header1>
+        <Header1> Add to project </Header1>
+        <QuickAdd projectId={props.project.id} />
         <FilteredItemList
           filter="SHOW_FROM_PROJECT_BY_TYPE"
           params={{ projectId: props.project.id, type: "NOTE" }}
+          listName="Notes"
         />
-        <Header1> Todos </Header1>
         <FilteredItemList
           filter="SHOW_FROM_PROJECT_BY_TYPE"
           params={{ projectId: props.project.id, type: "TODO" }}
           sortCriteria="STATUS"
+          listName="Todos"
         />
       </ProjectContainer>
     </ThemeProvider>
