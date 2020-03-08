@@ -59,6 +59,17 @@ function createMainWindow() {
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
+
+  const handleRedirect = (e, url) => {
+    console.log(url);
+    if (url != mainWindow.getURL()) {
+      e.preventDefault();
+      require("electron").shell.openExternal(url);
+    }
+  };
+
+  mainWindow.webContents.on("will-navigate", handleRedirect);
+  mainWindow.webContents.on("new-window", handleRedirect);
 }
 
 app.on("ready", () => {
