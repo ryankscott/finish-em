@@ -29,10 +29,6 @@ const StyledDiv = styled.div`
     padding: 0px 0px;
     margin: 0px;
   }
-  -moz-user-select: text;
-  -khtml-user-select: text;
-  -webkit-user-select: text;
-  -o-user-select: text;
 `;
 
 class EditableText extends Component {
@@ -64,6 +60,10 @@ class EditableText extends Component {
 
   handleClick(e) {
     if (this.props.readOnly) return;
+    console.log(e.target.nodeName);
+    if (e.target.nodeName == "A") {
+      return;
+    }
     this.setState(
       {
         editable: true
