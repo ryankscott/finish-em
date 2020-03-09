@@ -60,6 +60,7 @@ function Project(props) {
           }}
           input={props.project.description}
           height="150px"
+          width="670px"
         />
         <Header1> Add to project </Header1>
         <QuickAdd projectId={props.project.id} />

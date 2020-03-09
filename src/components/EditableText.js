@@ -6,11 +6,15 @@ import marked from "marked";
 import { setEndOfContenteditable } from "../utils";
 
 const StyledDiv = styled.div`
+  display: inline-block;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  overflow-y: scroll;
   height: ${props => props.height || "auto"};
   width: ${props => props.width || "100%"};
   margin: 0px;
-  padding: 5px 0px;
-  padding-left: 5px;
+  padding: 5px 5px;
   cursor: ${props => (props.readOnly ? "default" : "text")};
   font-size: ${props => props.theme.fontSizes.small};
   font-family: ${props => props.theme.font.sansSerif};
@@ -126,7 +130,13 @@ class EditableText extends Component {
           onClick={this.handleClick}
           onBlur={this.handleBlur}
           onFocus={this.handleFocus}
-          tabIndex={this.props.tabIndex || 0}
+          tabIndex={
+            this.props.tabIndex
+              ? this.props.tabIndex
+              : this.props.readOnly
+              ? -1
+              : 0
+          }
           autoFocus
           onKeyDown={this.handleKeyPress}
           singleline={this.props.singleline}
