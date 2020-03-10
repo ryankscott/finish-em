@@ -6,9 +6,6 @@ import marked from "marked";
 import { setEndOfContenteditable } from "../utils";
 
 const StyledDiv = styled.div`
-  display: inline-block;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   overflow: hidden;
   overflow-y: scroll;
   height: ${props => props.height || "auto"};
