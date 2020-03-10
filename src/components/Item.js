@@ -181,8 +181,7 @@ class Item extends Component {
       descriptionEditable: false,
       badshortcutAnimation: false,
       quickAddContainerVisible: false,
-      currentKeyPress: null,
-      prevKeyPress: null
+      keyPresses: []
     };
     this.setScheduledDate = this.setScheduledDate.bind(this);
     this.setDueDate = this.setDueDate.bind(this);
@@ -362,28 +361,30 @@ class Item extends Component {
 
   // TODO: Refactor the shit out of this
   handleKeyPress(event) {
-    this.setState(
-      {
-        prevKeyPress: this.state.currentKeyPress,
-        currentKeyPress: event.key
-      },
-      () => {
-        setTimeout(() => {
-          console.log("clearing timeout");
-          this.setState({
-            currentKeyPress: null,
-            prevKeyPress: null
-          });
-        }, 1000);
-      }
-    );
+    const kp =
+      this.state.keyPresses.length > 2
+        ? [this.state.keyPresses.shift()]
+        : this.state.keyPresses;
+    kp.push(event.key);
 
-    const keySequence = this.state.currentKeyPress + " " + event.key;
+    this.setState({}, () => {
+      setTimeout(() => {
+        this.setState({
+          keyPresses: []
+        });
+      }, 1000);
+    });
+    // TODO support 3 or more letter shortcuts
+    // TODO handle not matching
     for (let [key, value] of Object.entries(keymap.ITEM)) {
-      const found = value.findIndex(f => f == keySequence);
-      if (found >= 0) {
-        this.handlers[this.props.type][key](event);
-      }
+      kp.forEach((k, v) => {
+        if (v < kp.length) {
+          const combo = k + " " + kp[v + 1];
+          if (combo == value) {
+            this.handlers[this.props.type][key](event);
+          }
+        }
+      });
     }
 
     switch (event.key) {

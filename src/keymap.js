@@ -20,15 +20,15 @@ export const keymap = {
     ESCAPE: "Escape"
   },
   ITEM: {
-    SET_SCHEDULED_DATE: ["i s", "i+s"],
-    SET_DUE_DATE: ["i d", "i+d"],
-    CREATE_SUBTASK: ["i c s", "i+c+s"],
-    COMPLETE_ITEM: ["i c", "i+c"],
-    UNCOMPLETE_ITEM: ["i u", "i+u"],
-    REPEAT_ITEM: ["i r", "i+r"],
-    DELETE_ITEM: ["i x", "i+x"],
-    UNDELETE_ITEM: ["i n", "i+n"],
-    MOVE_ITEM: ["i m", "i+m"],
-    TOGGLE_CHILDREN: ["i t", "i+t"]
+    SET_SCHEDULED_DATE: "i s",
+    SET_DUE_DATE: "i d",
+    CREATE_SUBTASK: "i k",
+    COMPLETE_ITEM: "i c",
+    UNCOMPLETE_ITEM: "i u",
+    REPEAT_ITEM: "i r",
+    DELETE_ITEM: "i x",
+    UNDELETE_ITEM: "i n",
+    MOVE_ITEM: "i m",
+    TOGGLE_CHILDREN: "i t"
   }
 };
