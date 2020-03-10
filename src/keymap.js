@@ -10,14 +10,13 @@ export const keymap = {
     GO_TO_PROJECT_8: "a g 8",
     GO_TO_PROJECT_9: "a g 9",
     GO_TO_DAILY_AGENDA: "a g d",
-    GO_TO_INBOX: ["a g i", "a+g+i"],
-    GO_TO_TRASH: ["a g t", "a+g+t"],
-    GO_TO_UNSCHEDULED: ["a g u", "a+g+u"],
-    SHOW_SIDEBAR: ["a s s", "a+s+s", "["],
-    HIDE_SIDEBAR: ["a s h", "a+s+h", "]"],
-    TOGGLE_SHORTCUT_DIALOG: ["?", "a c s", "Shift+/", "Shift+?", "?+Shift"],
-    SHOW_CREATE_PROJECT_DIALOG: "a p s",
-    ESCAPE: "Escape"
+    GO_TO_INBOX: "a g i",
+    GO_TO_TRASH: "a g t",
+    GO_TO_UNSCHEDULED: "a g u",
+    SHOW_SIDEBAR: "a s s",
+    HIDE_SIDEBAR: "a s h",
+    TOGGLE_SHORTCUT_DIALOG: "a s d",
+    SHOW_CREATE_PROJECT_DIALOG: "a p s"
   },
   ITEM: {
     SET_SCHEDULED_DATE: "i s",

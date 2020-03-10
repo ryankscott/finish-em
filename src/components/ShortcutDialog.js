@@ -9,6 +9,8 @@ import { hideShortcutDialog } from "../actions";
 import { getApplicationKeyMap } from "react-hotkeys";
 import { capitaliseEachWordInString } from "../utils";
 
+import { keymap } from "../keymap";
+
 import { connect } from "react-redux";
 
 const ShortcutContainer = styled.div`
@@ -100,8 +102,8 @@ class ShortcutDialog extends Component {
     }
   }
 
+  // TODO fix this to have a split between app or item keywords
   render() {
-    const keymap = getApplicationKeyMap();
     return (
       <ThemeProvider theme={theme}>
         <ShortcutContainer
@@ -117,19 +119,15 @@ class ShortcutDialog extends Component {
           <Header>
             <Title invert>Shortcuts</Title>
           </Header>
-
           <Body>
             <Column key={1}>
-              {Object.keys(keymap).map((k, i) => {
-                if (i % 2 == 1) return;
+              {Object.keys(keymap.APP).map((k, i) => {
                 const shortcutName = capitaliseEachWordInString(
                   k.replace(/_/gi, " ")
                 );
                 // TODO this only shows first sequence
                 const shortcuts = (
-                  <ShortcutKeys key={i + "k"}>
-                    {keymap[k].sequences[0].sequence}
-                  </ShortcutKeys>
+                  <ShortcutKeys key={i + "k"}>{keymap.APP[k]}</ShortcutKeys>
                 );
 
                 return (
@@ -143,16 +141,13 @@ class ShortcutDialog extends Component {
               })}
             </Column>
             <Column key={2}>
-              {Object.keys(keymap).map((k, i) => {
-                if (i % 2 == 0) return;
+              {Object.keys(keymap.ITEM).map((k, i) => {
                 const shortcutName = capitaliseEachWordInString(
                   k.replace(/_/gi, " ")
                 );
                 // TODO this only shows first sequence
                 const shortcuts = (
-                  <ShortcutKeys key={i + "k"}>
-                    {keymap[k].sequences[0].sequence}
-                  </ShortcutKeys>
+                  <ShortcutKeys key={i + "k"}>{keymap.ITEM[k]}</ShortcutKeys>
                 );
 
                 return (
