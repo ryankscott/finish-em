@@ -77,7 +77,11 @@ const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
     case "SHOW_NOT_SCHEDULED":
       return getTasksAndSubtasks(
         items,
-        i => i.type == "TODO" && i.scheduledDate == null && i.deleted == false
+        i =>
+          i.type == "TODO" &&
+          i.scheduledDate == null &&
+          i.deleted == false &&
+          i.completed == false
       );
     case "SHOW_FROM_PROJECT_BY_TYPE":
       return getTasksAndSubtasks(
