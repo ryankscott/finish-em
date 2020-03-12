@@ -361,35 +361,33 @@ class Item extends Component {
 
   // TODO: Refactor the shit out of this
   handleKeyPress(event) {
-    const kp =
-      this.state.keyPresses.length > 2
-        ? [this.state.keyPresses.shift()]
-        : this.state.keyPresses;
-    kp.push(event.key);
+    let currentKeyPresses = this.state.keyPresses;
+    // Remove the first value in the array (3 is the max shortcut matching length)
+    currentKeyPresses =
+      currentKeyPresses.length >= 3
+        ? currentKeyPresses.slice(1)
+        : currentKeyPresses;
+    currentKeyPresses.push(event.key);
 
+    // After 1s remove the first item in the array
     this.setState({}, () => {
       setTimeout(() => {
         this.setState({
-          keyPresses: []
+          keyPresses: this.state.keyPresses.slice(1)
         });
       }, 1000);
     });
-    // TODO support 3 or more letter shortcuts
     // TODO handle not matching
     for (let [key, value] of Object.entries(keymap.ITEM)) {
-      kp.forEach((k, v) => {
-        if (v < kp.length) {
-          const combo = k + " " + kp[v + 1];
+      currentKeyPresses.forEach((k, v) => {
+        if (v < currentKeyPresses.length) {
+          const combo = k + " " + currentKeyPresses[v + 1];
           if (combo == value) {
             this.handlers[this.props.type][key](event);
+            return;
           }
         }
       });
-    }
-
-    switch (event.key) {
-      case "Escape":
-        this.handlers[this.props.type].ESCAPE(event);
     }
   }
 
