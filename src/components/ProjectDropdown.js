@@ -113,6 +113,7 @@ class ProjectDropdown extends Component {
             onChange={this.handleChange}
             options={generateOptions(this.props.projects)}
             styles={customStyles}
+            autoFocus
           />
         </Container>
       </ThemeProvider>

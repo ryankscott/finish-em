@@ -129,13 +129,13 @@ class DatePicker extends Component {
               this.selectRef = ref;
             }}
             tabIndex={0}
-            autoFocus={true}
             placeholder={this.props.placeholder}
             value={this.state.selectedOption}
             onChange={this.handleChange}
             options={options}
             styles={customStyles}
             defaultMenuIsOpen={true}
+            autoFocus
           />
           {this.state.dayPickerVisible && (
             <DayPicker tabIndex={0} onDayClick={this.handleDayClick} />
