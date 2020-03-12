@@ -109,10 +109,11 @@ function App(props) {
   }
 
   function goToProject(number) {
-    if (number >= props.projects.length) return;
-    const id = props.projects[number].id;
+    const activeProjects = props.projects.filter(p => p.deleted == false);
+    console.log(activeProjects);
+    if (number >= activeProjects.length) return;
+    const id = activeProjects[number].id;
     history.push("/projects/" + id);
-    console.log(id);
   }
 
   const handlers = {
