@@ -15,20 +15,17 @@ import { connect } from "react-redux";
 
 const ShortcutContainer = styled.div`
   display: ${props => (props.isOpen ? "block" : "none")};
-  position: absolute;
+  position: fixed;
   background-color: ${props => props.theme.colours.altBackgroundColour}
   color: ${props => props.theme.colours.altTextColour}
   opacity: 0.85
   width: 80%;
   max-width: 650px;
-  left: 200px;
-  right: 0;
-  top: 50px;
-  margin-left: auto;
-  margin-right: auto;
-  flex-direction: row;
+  min-height: 550px;
+  top: 50%;
+  left: calc(50% + 145px);
+  transform: translate(-50%, -50%);
   padding: 2px;
-  padding-bottom: 40px;
 `;
 
 const Header = styled.div`

@@ -146,6 +146,7 @@ function App(props) {
       <Container>
         <Sidebar />
         <MainContainer sidebarVisible={props.sidebarVisible}>
+          <ShortcutDialog />
           <Switch>
             <Route path="/inbox">
               <Inbox />
@@ -166,7 +167,6 @@ function App(props) {
               <Inbox />
             </Route>
           </Switch>
-          <ShortcutDialog />
         </MainContainer>
         <ShortcutIcon onClick={props.toggleShortcutDialog}>
           {helpIcon}
