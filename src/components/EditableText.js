@@ -98,7 +98,6 @@ class EditableText extends Component {
       }
     }
     if (e.key == "Enter" && this.props.singleline) {
-      console.log(this.editableText.innerText);
       this.setState({
         editable: false,
         input: this.editableText.innerText

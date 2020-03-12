@@ -85,7 +85,6 @@ const ProjectWrapper = props => {
   const project = props.projects.find(p => {
     return p.id == id;
   });
-  console.log(project);
   return <Project project={project} />;
 };
 
@@ -110,7 +109,6 @@ function App(props) {
 
   function goToProject(number) {
     const activeProjects = props.projects.filter(p => p.deleted == false);
-    console.log(activeProjects);
     if (number >= activeProjects.length) return;
     const id = activeProjects[number].id;
     history.push("/projects/" + id);
