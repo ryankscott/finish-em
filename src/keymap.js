@@ -28,6 +28,8 @@ export const keymap = {
     DELETE_ITEM: "i x",
     UNDELETE_ITEM: "i n",
     MOVE_ITEM: "i m",
-    TOGGLE_CHILDREN: "i t"
+    TOGGLE_CHILDREN: "i t",
+    NEXT_ITEM: "ArrowDown",
+    PREV_ITEM: "ArrowUp"
   }
 };

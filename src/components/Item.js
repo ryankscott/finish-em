@@ -197,6 +197,18 @@ class Item extends Component {
         // EDIT_ITEM_DESCRIPTION: event => {
         //   console.log(this.description);
         // },
+        NEXT_ITEM: event => {
+          const nextItem = event.target.parentNode.nextSibling;
+          if (nextItem) {
+            nextItem.firstChild.focus();
+          }
+        },
+        PREV_ITEM: event => {
+          const prevItem = event.target.parentNode.previousSibling;
+          if (prevItem) {
+            prevItem.firstChild.focus();
+          }
+        },
         TOGGLE_CHILDREN: event => {
           this.props.hiddenChildren
             ? this.props.showChildren(this.props.id)
@@ -368,22 +380,39 @@ class Item extends Component {
         ? currentKeyPresses.slice(1)
         : currentKeyPresses;
     currentKeyPresses.push(event.key);
+    console.log(this.state.keyPresses);
+    console.log(event.key);
+    console.log(currentKeyPresses);
 
-    // After 1s remove the first item in the array
-    this.setState({}, () => {
+    // Clear keypress history if using the arrow keys. Enables quick scrolling
+    if (event.key == "ArrowUp" || event.key == "ArrowDown") {
       setTimeout(() => {
         this.setState({
-          keyPresses: this.state.keyPresses.slice(1)
+          keyPresses: []
         });
-      }, 1000);
-    });
+      }, 200);
+      // After 1s remove the first item in the array
+    } else {
+      this.setState({}, () => {
+        setTimeout(() => {
+          this.setState({
+            keyPresses: this.state.keyPresses.slice(1)
+          });
+        }, 500);
+      });
+    }
     // TODO handle not matching
     for (let [key, value] of Object.entries(keymap.ITEM)) {
       currentKeyPresses.forEach((k, v) => {
         if (v < currentKeyPresses.length) {
           const combo = k + " " + currentKeyPresses[v + 1];
           if (combo == value) {
-            this.handlers[this.props.type][key](event);
+            this.handlers["TODO"][key](event);
+            return;
+          }
+          const single = k;
+          if (single == value) {
+            this.handlers["TODO"][key](event);
             return;
           }
         }
