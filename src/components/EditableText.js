@@ -61,10 +61,12 @@ class EditableText extends Component {
 
   handleClick(e) {
     if (this.props.readOnly) return;
-    console.log(e.target.nodeName);
+    // Handle links normally
     if (e.target.nodeName == "A") {
       return;
     }
+    // Ignore clicks if it's already editable
+    if (this.state.editable) return;
     this.setState(
       {
         editable: true
