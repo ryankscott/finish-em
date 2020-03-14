@@ -17,7 +17,7 @@ import {
   useParams,
   BrowserRouter as Router
 } from "react-router-dom";
-import * as Mousetrap from "Mousetrap";
+import * as Mousetrap from "mousetrap";
 import { showCreateProjectDialog, toggleShortcutDialog } from "../actions";
 
 const GlobalStyle = createGlobalStyle`
