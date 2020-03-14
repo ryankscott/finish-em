@@ -402,6 +402,7 @@ class Item extends Component {
       });
     }
     // TODO handle not matching
+    // TODO handle multiple key bindings for each action
     for (let [key, value] of Object.entries(keymap.ITEM)) {
       currentKeyPresses.forEach((k, v) => {
         if (v < currentKeyPresses.length) {
