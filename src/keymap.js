@@ -13,6 +13,7 @@ export const keymap = {
     GO_TO_INBOX: "a g i",
     GO_TO_TRASH: "a g t",
     GO_TO_UNSCHEDULED: "a g u",
+    GO_TO_COMPLETED: "a g c",
     SHOW_SIDEBAR: "a s s",
     HIDE_SIDEBAR: "a s h",
     TOGGLE_SHORTCUT_DIALOG: "a s d",

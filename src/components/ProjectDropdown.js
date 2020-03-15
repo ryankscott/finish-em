@@ -5,7 +5,7 @@ import uuidv4 from "uuid/v4";
 import { theme } from "../theme";
 
 import { connect } from "react-redux";
-import { createItem, createProject } from "../actions";
+import { createProject } from "../actions";
 const customStyles = {
   input: () => ({
     padding: "5px",
@@ -129,7 +129,4 @@ const mapDispatchToProps = dispatch => ({
     dispatch(createProject(id, name, ""));
   }
 });
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProjectDropdown);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectDropdown);

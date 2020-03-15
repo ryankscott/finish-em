@@ -1,21 +1,10 @@
 import React, { Component, forwardRef } from "react";
 import styled, { ThemeProvider, keyframes } from "styled-components";
 import { connect } from "react-redux";
-import {
-  format,
-  formatRelative,
-  isBefore,
-  parseISO,
-  isValid,
-  isAfter
-} from "date-fns";
-import { enGB } from "date-fns/esm/locale";
 import { RRule } from "rrule";
 import uuidv4 from "uuid/v4";
-import marked from "marked";
 
-import { headShake, fadeInDown } from "react-animations";
-import { HotKeys } from "react-hotkeys";
+import { headShake } from "react-animations";
 import { keymap } from "../keymap";
 
 import {
@@ -74,7 +63,7 @@ const Container = styled.div`
     "collapse type body body body body body body body body body body body body body body body body body project project project"
     ". . scheduled scheduled scheduled scheduled . . . . due due due due . . . . repeat repeat repeat repeat";
   border-bottom: ${props => (props.hidden ? "0px" : "1px solid")}
-  border-top : ${props => (props.hidden ? "0px" : "1px solid")}
+  border-top: ${props => (props.hidden ? "0px" : "1px solid")};
   border-color: ${props => props.theme.colours.borderColour};
   padding: ${props => (props.hidden ? "0px" : "5px 5px 5px 5px")};
   align-items: center;
@@ -244,15 +233,12 @@ class Item extends Component {
             projectDropdownVisible: false,
             repeatDropdownVisible: false
           });
-          console.log("Checklist");
         },
         COMPLETE_ITEM: event => {
-          console.log("completing");
           if (this.props.deleted || this.props.completed) return;
           this.props.completeItem(event.target.id);
         },
         UNCOMPLETE_ITEM: event => {
-          console.log("uncompleting");
           if (this.props.deleted) return;
           this.props.uncompleteItem(event.target.id);
         },
@@ -380,9 +366,6 @@ class Item extends Component {
         ? currentKeyPresses.slice(1)
         : currentKeyPresses;
     currentKeyPresses.push(event.key);
-    console.log(this.state.keyPresses);
-    console.log(event.key);
-    console.log(currentKeyPresses);
 
     // Clear keypress history if using the arrow keys. Enables quick scrolling
     if (event.key == "ArrowUp" || event.key == "ArrowDown") {
@@ -592,7 +575,4 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Item);
+export default connect(mapStateToProps, mapDispatchToProps)(Item);

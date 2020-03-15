@@ -1,12 +1,11 @@
-import React, { Component } from "react";
+import React from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 import { theme } from "../theme";
-import { Button } from "./Button";
 import CreateProjectDialog from "./CreateProjectDialog";
-import { Header, SubTitle } from "./Typography";
+import { Header } from "./Typography";
 import { showCreateProjectDialog } from "../actions";
 
 const Container = styled.div`
@@ -62,7 +61,7 @@ function Sidebar(props) {
           to="/dailyAgenda"
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
-          {" 📅 Daily Agenda "}
+          {"📅 Daily Agenda "}
         </StyledNavLink>
         <StyledNavLink
           to="/unscheduled"
@@ -74,7 +73,13 @@ function Sidebar(props) {
           to="/trash"
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
-          {" 🗑 Trash"}
+          {"🗑 Trash"}
+        </StyledNavLink>
+        <StyledNavLink
+          to="/completed"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          {"✅ Completed"}
         </StyledNavLink>
         <SectionHeader>
           <Header invert>Projects</Header>
@@ -108,7 +113,4 @@ const mapDispatchToProps = dispatch => ({
     dispatch(showCreateProjectDialog());
   }
 });
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Sidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);

@@ -13,15 +13,11 @@ import {
 } from "../actions";
 
 const BodyContainer = styled.div`
-display: flex;
-flex-direction column;
-margin: 0px;
-padding: 5px;
-margin-bottom: 10px;
-`;
-
-const Container = styled.div`
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0px;
+  padding: 5px;
+  margin-bottom: 10px;
 `;
 
 const ActionContainer = styled.div`

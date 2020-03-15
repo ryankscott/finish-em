@@ -58,7 +58,7 @@ const customStyles = {
 
 const Container = styled.div`
   position: inline;
-  box-styling: border-box;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   border: 1px solid;
@@ -148,7 +148,4 @@ class DatePicker extends Component {
 
 const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => ({});
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DatePicker);
+export default connect(mapStateToProps, mapDispatchToProps)(DatePicker);

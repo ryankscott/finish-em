@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import Select from "react-select";
-import uuidv4 from "uuid/v4";
 import { theme } from "../theme";
 import { format } from "date-fns";
 import { RRule } from "rrule";
@@ -146,7 +145,4 @@ class RepeatPicker extends Component {
 
 const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => ({});
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(RepeatPicker);
+export default connect(mapStateToProps, mapDispatchToProps)(RepeatPicker);

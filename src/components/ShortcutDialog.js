@@ -1,12 +1,9 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-import Item from "../components/Item";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { Header1, Title, Paragraph } from "./Typography";
 import IconButton from "./IconButton";
 import { hideShortcutDialog } from "../actions";
-import { getApplicationKeyMap } from "react-hotkeys";
 import { capitaliseEachWordInString } from "../utils";
 
 import { keymap } from "../keymap";
@@ -16,12 +13,12 @@ import { connect } from "react-redux";
 const ShortcutContainer = styled.div`
   display: ${props => (props.isOpen ? "block" : "none")};
   position: fixed;
-  background-color: ${props => props.theme.colours.altBackgroundColour}
+  background-color: ${props => props.theme.colours.altBackgroundColour};
   color: ${props => props.theme.colours.altTextColour}
   opacity: 0.85
   width: 80%;
   max-width: 650px;
-  min-height: 550px;
+  min-height: 580px;
   top: 50%;
   left: calc(50% + 145px);
   transform: translate(-50%, -50%);
@@ -61,7 +58,7 @@ const Row = styled.span`
 `;
 
 const ShortcutKeys = styled(Paragraph)`
-  width: 60px;
+  width: 80px;
   color: ${props => props.theme.colours.primaryColour};
 `;
 
@@ -175,7 +172,4 @@ const mapDispatchToProps = dispatch => ({
   }
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ShortcutDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(ShortcutDialog);

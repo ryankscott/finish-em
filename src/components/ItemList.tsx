@@ -1,12 +1,10 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-import Item from "../components/Item";
+import Item from "./Item";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { getItemById } from "../utils";
-import { Header1, Paragraph } from "./Typography";
+import { Header1 } from "./Typography";
 import { connect } from "react-redux";
-import { deleteItem, refileItem } from "../actions";
 
 const NoItemText = styled.p`
   color: ${props => props.theme.colours.disabledTextColour};
@@ -27,7 +25,15 @@ const HeaderContainer = styled.div`
   margin-bottom: 20px;
 `;
 
-const ItemList = props => {
+interface ItemListProps {
+  name: string;
+  items: [];
+  showSubtasks: boolean;
+  noIndentation: boolean;
+  showProject: boolean;
+}
+
+const ItemList = (props: ItemListProps) => {
   return (
     <ThemeProvider theme={theme}>
       <Container>
@@ -35,7 +41,7 @@ const ItemList = props => {
           <Header1>{props.name}</Header1>
         </HeaderContainer>
 
-        {props.items.map((item, index) => {
+        {props.items.map(item => {
           const isSubtask = item.parentId != null;
           if (!props.showSubtasks && isSubtask) return;
           return (
@@ -43,8 +49,6 @@ const ItemList = props => {
               <Item
                 {...item}
                 key={item.id}
-                onDelete={props.deleteItem}
-                onRefile={props.refileItem}
                 noIndentation={props.noIndentation}
                 showProject={props.showProject}
               />
@@ -55,8 +59,6 @@ const ItemList = props => {
                     <Item
                       {...childItem}
                       key={c}
-                      onDelete={props.deleteItem}
-                      onRefile={props.refileItem}
                       noIndentation={props.noIndentation}
                       showProject={props.showProject}
                     />
@@ -74,16 +76,6 @@ const ItemList = props => {
 // TODO: Add PropTypes
 const mapStateToProps = state => ({});
 
-const mapDispatchToProps = dispatch => ({
-  deleteItem: id => {
-    dispatch(deleteItem(id));
-  },
-  refileItem: (id, projectId) => {
-    dispatch(refileItem(id, projectId));
-  }
-});
+const mapDispatchToProps = dispatch => ({});
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ItemList);
+export default connect(mapStateToProps, mapDispatchToProps)(ItemList);

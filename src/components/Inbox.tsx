@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
-import FilteredItemList from "../containers/FilteredItemList.tsx";
+import FilteredItemList from "../containers/FilteredItemList";
 import QuickAdd from "./QuickAdd";
 import { Header1, Title } from "./Typography";
 
@@ -46,7 +45,4 @@ const mapStateToProps = state => ({
   items: state.items
 });
 const mapDispatchToProps = dispatch => ({});
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Inbox);
+export default connect(mapStateToProps, mapDispatchToProps)(Inbox);
