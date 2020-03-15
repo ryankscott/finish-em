@@ -6,7 +6,7 @@ import { theme } from "../theme";
 import { Title } from "./Typography";
 import FilteredItemList from "../containers/FilteredItemList";
 
-const TrashContainer = styled.div`
+const CompletedContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin: 50px 50px;
@@ -21,26 +21,21 @@ const HeaderContainer = styled.div`
   align-items: baseline;
 `;
 
-type TrashProps = {
-  noIndentation: boolean;
-  showSubtasks: boolean;
-  filter: string;
-  showProject: boolean;
-};
+type CompletedProps = {};
 
-const Trash: FunctionComponent<TrashProps> = () => (
+const Completed: FunctionComponent<CompletedProps> = () => (
   <ThemeProvider theme={theme}>
-    <TrashContainer>
+    <CompletedContainer>
       <HeaderContainer>
-        <Title> Trash </Title>
+        <Title> Completed </Title>
       </HeaderContainer>
       <FilteredItemList
         noIndentation={true}
         showSubtasks={true}
-        filter="SHOW_DELETED"
+        filter="SHOW_COMPLETED"
         showProject={true}
       />
-    </TrashContainer>
+    </CompletedContainer>
   </ThemeProvider>
 );
 
@@ -48,4 +43,4 @@ const mapStateToProps = state => ({
   items: state.items
 });
 const mapDispatchToProps = dispatch => ({});
-export default connect(mapStateToProps, mapDispatchToProps)(Trash);
+export default connect(mapStateToProps, mapDispatchToProps)(Completed);

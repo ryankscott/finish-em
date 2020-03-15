@@ -5,6 +5,7 @@ import Trash from "../components/Trash.tsx";
 import Project from "../components/Project";
 import Unscheduled from "../components/Unscheduled";
 import Sidebar from "../components/Sidebar";
+import Completed from "../components/Completed";
 import ShortcutDialog from "../components/ShortcutDialog";
 import { keymap } from "../keymap";
 import { connect } from "react-redux";
@@ -97,6 +98,10 @@ function App(props) {
     history.push("/unscheduled");
   }
 
+  function goToCompleted() {
+    history.push("/completed");
+  }
+
   function goToProject(number) {
     const activeProjects = props.projects.filter(p => p.deleted == false);
     if (number >= activeProjects.length) return;
@@ -117,6 +122,7 @@ function App(props) {
     GO_TO_DAILY_AGENDA: () => goToDailyAgenda(),
     GO_TO_INBOX: () => goToInbox(),
     GO_TO_TRASH: () => goToTrash(),
+    GO_TO_COMPLETED: () => goToCompleted(),
     GO_TO_UNSCHEDULED: () => goToUnscheduled(),
     SHOW_SIDEBAR: () => props.showSidebar(),
     HIDE_SIDEBAR: () => props.hideSidebar(),
@@ -148,6 +154,9 @@ function App(props) {
             </Route>
             <Route path="/unscheduled">
               <Unscheduled />
+            </Route>
+            <Route path="/completed">
+              <Completed />
             </Route>
             <Route path="/projects/:id">
               <ProjectWrapper projects={props.projects} />

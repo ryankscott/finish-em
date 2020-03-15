@@ -62,7 +62,7 @@ function Sidebar(props) {
           to="/dailyAgenda"
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
-          {" 📅 Daily Agenda "}
+          {"📅 Daily Agenda "}
         </StyledNavLink>
         <StyledNavLink
           to="/unscheduled"
@@ -74,7 +74,13 @@ function Sidebar(props) {
           to="/trash"
           activeStyle={{ fontWeight: theme.fontWeights.bold }}
         >
-          {" 🗑 Trash"}
+          {"🗑 Trash"}
+        </StyledNavLink>
+        <StyledNavLink
+          to="/completed"
+          activeStyle={{ fontWeight: theme.fontWeights.bold }}
+        >
+          {"✅ Completed"}
         </StyledNavLink>
         <SectionHeader>
           <Header invert>Projects</Header>
@@ -108,7 +114,4 @@ const mapDispatchToProps = dispatch => ({
     dispatch(showCreateProjectDialog());
   }
 });
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Sidebar);
+export default connect(mapStateToProps, mapDispatchToProps)(Sidebar);
