@@ -1,7 +1,4 @@
-import React, { useState, useEffect } from "react";
-import QuickAdd from "./QuickAdd";
-import FilteredItemList from "../containers/FilteredItemList.tsx";
-import ProjectList from "../containers/ProjectList";
+import React from "react";
 import DailyAgenda from "../components/DailyAgenda";
 import Inbox from "../components/Inbox";
 import Trash from "../components/Trash.tsx";
@@ -13,14 +10,7 @@ import { keymap } from "../keymap";
 import { connect } from "react-redux";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import { theme } from "../theme";
-import {
-  useHistory,
-  Route,
-  Switch,
-  Redirect,
-  useParams,
-  BrowserRouter as Router
-} from "react-router-dom";
+import { useHistory, Route, Switch, useParams } from "react-router-dom";
 import {
   showCreateProjectDialog,
   toggleShortcutDialog,
