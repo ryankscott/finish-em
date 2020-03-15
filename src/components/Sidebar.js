@@ -1,12 +1,11 @@
-import React, { Component } from "react";
+import React from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { NavLink } from "react-router-dom";
 
 import { theme } from "../theme";
-import { Button } from "./Button";
 import CreateProjectDialog from "./CreateProjectDialog";
-import { Header, SubTitle } from "./Typography";
+import { Header } from "./Typography";
 import { showCreateProjectDialog } from "../actions";
 
 const Container = styled.div`

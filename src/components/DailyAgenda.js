@@ -3,8 +3,8 @@ import styled, { ThemeProvider } from "styled-components";
 import { startOfWeek, format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
-import FilteredItemList from "../containers/FilteredItemList.tsx";
-import { Paragraph, Header, Title, Header1 } from "./Typography";
+import FilteredItemList from "../containers/FilteredItemList";
+import { Paragraph, Title, Header1 } from "./Typography";
 import EditableText from "./EditableText";
 import { setDailyGoal } from "../actions";
 
@@ -35,7 +35,6 @@ const AgendaContainer = styled.div`
 `;
 
 function DailyAgenda(props) {
-  const week = format(startOfWeek(new Date()), "yyyy-MM-dd");
   const day = format(new Date(), "yyyy-MM-dd");
   return (
     <ThemeProvider theme={theme}>
@@ -103,7 +102,6 @@ function DailyAgenda(props) {
 
 const mapStateToProps = state => ({
   items: state.items,
-  weeklyGoal: state.weeklyGoal,
   dailyGoal: state.dailyGoal
 });
 const mapDispatchToProps = dispatch => ({

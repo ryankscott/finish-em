@@ -11,7 +11,7 @@ import {
 } from "../actions";
 import { Title, Header1 } from "./Typography";
 import EditableText from "./EditableText";
-import FilteredItemList from "../containers/FilteredItemList.tsx";
+import FilteredItemList from "../containers/FilteredItemList";
 import DeleteProjectDialog from "./DeleteProjectDialog";
 import QuickAdd from "./QuickAdd";
 

@@ -21,9 +21,7 @@ const HeaderContainer = styled.div`
   align-items: baseline;
 `;
 
-type CompletedProps = {};
-
-const Completed: FunctionComponent<CompletedProps> = () => (
+const Completed: FunctionComponent = () => (
   <ThemeProvider theme={theme}>
     <CompletedContainer>
       <HeaderContainer>

@@ -1,6 +1,4 @@
-import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { theme } from "../theme";
+import styled from "styled-components";
 
 export const Title = styled.h1`
   font-size: ${props => props.theme.fontSizes.xlarge};

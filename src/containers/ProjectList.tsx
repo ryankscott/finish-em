@@ -2,11 +2,10 @@ import React, { Component } from "react";
 import Project from "../components/Project";
 import { connect } from "react-redux";
 import uuidv4 from "uuid/v4";
-import styled, { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
-import { Header, SubTitle } from "../components/Typography";
 
-const ProjectList = props => {
+const ProjectList = () => {
   <ThemeProvider theme={theme}>
     <div>
       {this.props.projects.map(p => {
@@ -32,7 +31,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({});
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ProjectList);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectList);

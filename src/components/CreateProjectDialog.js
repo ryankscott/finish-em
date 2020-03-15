@@ -22,10 +22,10 @@ const StyledInput = styled.input`
 `;
 
 const BodyContainer = styled.div`
-display: flex;
-flex-direction column;
-margin: 5px 0px;
-padding: 0px 0px 10px 0px;
+  display: flex;
+  flex-direction: column;
+  margin: 5px 0px;
+  padding: 0px 0px 10px 0px;
 `;
 
 class CreateProjectDialog extends Component {
@@ -72,7 +72,7 @@ class CreateProjectDialog extends Component {
                   onChange={this.handleChange}
                   required
                   placeholder="Project name"
-                  tabIndex="0"
+                  tabIndex={0}
                   ref={createProjectInput =>
                     (this.createProjectInput = createProjectInput)
                   }
@@ -83,16 +83,21 @@ class CreateProjectDialog extends Component {
                   value={this.state.projectDescription}
                   onChange={this.handleChange}
                   placeholder="Project description"
-                  tabIndex="0"
+                  tabIndex={0}
                 />
               </BodyContainer>
-              <Button type="primary" onClick={this.handleSubmit}>
+              <Button
+                compact={false}
+                type="primary"
+                onClick={this.handleSubmit}
+              >
                 Create
               </Button>
             </div>
           }
         >
           <Button
+            compact={false}
             type="primary"
             onClick={() => this.props.toggleCreateProjectDialog()}
           >

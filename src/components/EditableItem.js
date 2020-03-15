@@ -7,7 +7,6 @@ import {
   ContentState,
   CompositeDecorator,
   SelectionState,
-  KeyBindingUtil,
   Modifier
 } from "draft-js";
 import chrono from "chrono-node";
@@ -26,7 +25,7 @@ const Icon = styled.div`
   font-family: ${props => props.theme.font.sansSerif};
   font-size: ${props => props.theme.fontSizes.xlarge};
   background-color: whitesmoke;
-  padding 0px 10px;
+  padding: 0px 10px;
   text-align: center;
   vertical-align: middle;
   color: ${props => props.theme.colours.disabledTextColour};
@@ -245,7 +244,4 @@ class EditableItem extends Component {
 
 const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => ({});
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditableItem);
+export default connect(mapStateToProps, mapDispatchToProps)(EditableItem);
