@@ -21,8 +21,22 @@ import {
   useParams,
   BrowserRouter as Router
 } from "react-router-dom";
-import * as Mousetrap from "mousetrap";
-import { showCreateProjectDialog, toggleShortcutDialog } from "../actions";
+import {
+  showCreateProjectDialog,
+  toggleShortcutDialog,
+  showSidebar,
+  hideSidebar,
+  showCreateProjectDialog,
+  hideShortcutDialog,
+  hideCreateProjectDialog,
+  hideDeleteProjectDialog,
+  toggleShortcutDialog
+} from "../actions";
+import { helpIcon } from "../assets/icons.js";
+
+configure({
+  logLevel: "warning"
+});
 
 const GlobalStyle = createGlobalStyle`
   html {
@@ -187,7 +201,4 @@ const mapDispatchToProps = dispatch => ({
     dispatch(hideDeleteProjectDialog());
   }
 });
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);
