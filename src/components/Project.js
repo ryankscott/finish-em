@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { useParams, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { connect } from "react-redux";
-import * as Mousetrap from "Mousetrap";
 import { theme } from "../theme";
 import {
   updateProjectDescription,
@@ -10,10 +9,9 @@ import {
   hideDeleteProjectDialog,
   toggleDeleteProjectDialog
 } from "../actions";
-import { Header, Title, Header1 } from "./Typography";
+import { Title, Header1 } from "./Typography";
 import EditableText from "./EditableText";
 import FilteredItemList from "../containers/FilteredItemList.tsx";
-import Button from "./Button";
 import DeleteProjectDialog from "./DeleteProjectDialog";
 import QuickAdd from "./QuickAdd";
 
@@ -38,13 +36,6 @@ function Project(props) {
     props.deleteProject(props.project.id);
     history.push("/inbox");
   }
-
-  useEffect(() => {
-    Mousetrap.bind("d p", () => props.toggleDeleteProjectDialog());
-    return function cleanup() {
-      Mousetrap.unbind("d p");
-    };
-  });
 
   return (
     <ThemeProvider theme={theme}>
@@ -95,7 +86,4 @@ const mapDispatchToProps = dispatch => ({
     dispatch(toggleDeleteProjectDialog());
   }
 });
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Project);
+export default connect(mapStateToProps, mapDispatchToProps)(Project);
