@@ -11,16 +11,15 @@ import { connect } from "react-redux";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import { theme } from "../theme";
 import { useHistory, Route, Switch, useParams } from "react-router-dom";
+import { GlobalHotKeys, configure } from "react-hotkeys";
 import {
-  showCreateProjectDialog,
   toggleShortcutDialog,
   showSidebar,
   hideSidebar,
   showCreateProjectDialog,
   hideShortcutDialog,
   hideCreateProjectDialog,
-  hideDeleteProjectDialog,
-  toggleShortcutDialog
+  hideDeleteProjectDialog
 } from "../actions";
 import { helpIcon } from "../assets/icons.js";
 
