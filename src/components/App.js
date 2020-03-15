@@ -21,21 +21,8 @@ import {
   useParams,
   BrowserRouter as Router
 } from "react-router-dom";
-import { configure, getApplicationKeyMap, GlobalHotKeys } from "react-hotkeys";
-import {
-  showSidebar,
-  hideSidebar,
-  showCreateProjectDialog,
-  hideShortcutDialog,
-  hideCreateProjectDialog,
-  hideDeleteProjectDialog,
-  toggleShortcutDialog
-} from "../actions";
-import { helpIcon } from "../assets/icons.js";
-
-configure({
-  logLevel: "warning"
-});
+import * as Mousetrap from "mousetrap";
+import { showCreateProjectDialog, toggleShortcutDialog } from "../actions";
 
 const GlobalStyle = createGlobalStyle`
   html {
