@@ -6,7 +6,7 @@ import { theme } from "../theme";
 import FilteredItemList from "../containers/FilteredItemList.tsx";
 import { Paragraph, Header, Title, Header1 } from "./Typography";
 import EditableText from "./EditableText";
-import { setDailyGoal, setWeeklyGoal } from "../actions";
+import { setDailyGoal } from "../actions";
 
 const DateContainer = styled.div`
   display: grid;
@@ -81,6 +81,14 @@ function DailyAgenda(props) {
         <Section>
           <FilteredItemList
             items={props.items}
+            filter="SHOW_DUE_ON_DAY"
+            params={{ dueDate: new Date() }}
+            sortCriteria="DUE"
+            showProject={true}
+            listName="Due Today"
+          />
+          <FilteredItemList
+            items={props.items}
             filter="SHOW_SCHEDULED_ON_DAY"
             params={{ scheduledDate: new Date() }}
             sortCriteria="STATUS"
@@ -99,14 +107,8 @@ const mapStateToProps = state => ({
   dailyGoal: state.dailyGoal
 });
 const mapDispatchToProps = dispatch => ({
-  setWeeklyGoal: (week, text) => {
-    dispatch(setWeeklyGoal(week, text));
-  },
   setDailyGoal: (day, text) => {
     dispatch(setDailyGoal(day, text));
   }
 });
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DailyAgenda);
+export default connect(mapStateToProps, mapDispatchToProps)(DailyAgenda);

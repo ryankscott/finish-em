@@ -68,6 +68,11 @@ const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
         items,
         i => i.scheduledDate != null && i.deleted == false
       );
+    case "SHOW_DUE_ON_DAY":
+      return getTasksAndSubtasks(
+        items,
+        i => isSameDay(i.dueDate, params.dueDate) && i.deleted == false
+      );
     case "SHOW_SCHEDULED_ON_DAY":
       return getTasksAndSubtasks(
         items,
@@ -111,6 +116,7 @@ enum FilterEnum {
   ShowCompleted = "SHOW_COMPLETED",
   ShowScheduled = "SHOW_SCHEDULED",
   ShowScheduledOnDay = "SHOW_SCHEDULED_ON_DAY",
+  ShowDueOnDay = "SHOW_DUE_ON_DAY",
   ShowNotScheduled = "SHOW_NOT_SCHEDULED",
   ShowFromProjectByType = "SHOW_FROM_PROJECT_BY_TYPE",
   ShowOverdue = "SHOW_OVERDUE"
@@ -152,7 +158,4 @@ const mapStateToProps = state => ({
   items: state.items
 });
 const mapDispatchToProps = dispatch => ({});
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(FilteredItemList);
+export default connect(mapStateToProps, mapDispatchToProps)(FilteredItemList);
