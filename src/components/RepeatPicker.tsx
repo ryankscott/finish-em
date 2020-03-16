@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import CreatableSelect from "react-select/creatable";
-import uuidv4 from "uuid/v4";
+import Select from "react-select";
 import { theme } from "../theme";
+import { format } from "date-fns";
+import { RRule } from "rrule";
 
 import { connect } from "react-redux";
-import { createProject } from "../actions";
 const customStyles = {
   input: () => ({
     padding: "5px",
@@ -16,10 +16,12 @@ const customStyles = {
     padding: "0px",
     border: "1px solid",
     backgroundColor: theme.colours.backgroundColour,
-    borderColor: theme.colours.borderColour
+    borderColor: theme.colours.borderColour,
+    tabIndex: 0
   }),
   option: (provided, state) => ({
     ...provided,
+    tabIndex: 0,
     color: theme.colours.defaultTextColour,
     backgroundColor: state.isFocused
       ? theme.colours.focusBackgroundColour
@@ -51,10 +53,12 @@ const customStyles = {
     padding: "2px 5px"
   })
 };
-
-const Container = styled.div`
+interface ContainerProps {
+  visible: boolean;
+}
+const Container = styled.div<ContainerProps>`
   position: inline;
-  box-styling: border-box;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   border: 1px solid;
@@ -66,20 +70,55 @@ const Container = styled.div`
   width: 250px;
 `;
 
-const generateOptions = options => {
-  return options
-    .filter(m => m.id != null)
-    .filter(m => m.deleted == false)
-    .map(m => ({ value: m.id, label: m.name }));
-};
+const options = [
+  {
+    value: new RRule({
+      freq: RRule.DAILY,
+      interval: 1
+    }),
+    label: "Daily"
+  },
+  {
+    value: new RRule({
+      freq: RRule.DAILY,
+      interval: 1,
+      byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR]
+    }),
+    label: "Weekdays"
+  },
+  {
+    value: new RRule({
+      freq: RRule.WEEKLY,
+      interval: 1
+    }),
+    label: "Weekly on " + format(new Date(), "EEE")
+  },
+  {
+    value: new RRule({
+      freq: RRule.MONTHLY,
+      interval: 1
+    }),
+    label: "Monthly on the " + format(new Date(), "do")
+  },
 
-class ProjectDropdown extends Component {
+  { value: null, label: "None" }
+];
+
+interface RepeatPickerProps {
+  visible: boolean;
+  onSubmit: (value: string) => void;
+  placeholder: string;
+}
+interface RepeatPickerState {
+  selectedOption: {};
+}
+
+class RepeatPicker extends Component<RepeatPickerProps, RepeatPickerState> {
   constructor(props) {
     super(props);
-    this.state = { selectedOption: null };
+    this.state = { selectedOption: null, dayPickerVisible: false };
     this.handleChange = this.handleChange.bind(this);
   }
-
   componentDidUpdate(prevProps) {
     if (prevProps.visible !== this.props.visible && this.props.visible) {
       this.selectRef.focus();
@@ -89,31 +128,25 @@ class ProjectDropdown extends Component {
   handleChange(newValue, actionMeta) {
     if (actionMeta.action == "select-option") {
       this.props.onSubmit(newValue.value);
-    } else if (actionMeta.action == "create-option") {
-      const newProjectId = uuidv4();
-      this.props.createProject(newProjectId, newValue.value);
-      this.props.onSubmit(newProjectId);
     }
   }
 
   render() {
-    const { projects } = this.props;
-    // Only render if it's not just the Inbox project that exists
     return (
       <ThemeProvider theme={theme}>
-        <Container visible={this.props.visible && projects.length > 1}>
-          <CreatableSelect
+        <Container visible={this.props.visible}>
+          <Select
             ref={ref => {
               this.selectRef = ref;
             }}
+            tabIndex={0}
             autoFocus={true}
             placeholder={this.props.placeholder}
-            isSearchable
             value={this.state.selectedOption}
             onChange={this.handleChange}
-            options={generateOptions(this.props.projects)}
+            options={options}
             styles={customStyles}
-            autoFocus
+            defaultMenuIsOpen={true}
           />
         </Container>
       </ThemeProvider>
@@ -121,12 +154,6 @@ class ProjectDropdown extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  projects: state.projects
-});
-const mapDispatchToProps = dispatch => ({
-  createProject: (id, name) => {
-    dispatch(createProject(id, name, ""));
-  }
-});
-export default connect(mapStateToProps, mapDispatchToProps)(ProjectDropdown);
+const mapStateToProps = state => ({});
+const mapDispatchToProps = dispatch => ({});
+export default connect(mapStateToProps, mapDispatchToProps)(RepeatPicker);

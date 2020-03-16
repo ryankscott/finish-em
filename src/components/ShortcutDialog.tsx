@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
-import { Header1, Title, Paragraph } from "./Typography";
+import { Title, Paragraph } from "./Typography";
 import IconButton from "./IconButton";
 import { hideShortcutDialog } from "../actions";
 import { capitaliseEachWordInString } from "../utils";
@@ -10,12 +10,15 @@ import { keymap } from "../keymap";
 
 import { connect } from "react-redux";
 
-const ShortcutContainer = styled.div`
+interface ShortcutContainerProps {
+  isOpen: boolean;
+}
+const ShortcutContainer = styled.div<ShortcutContainerProps>`
   display: ${props => (props.isOpen ? "block" : "none")};
   position: fixed;
   background-color: ${props => props.theme.colours.altBackgroundColour};
-  color: ${props => props.theme.colours.altTextColour}
-  opacity: 0.85
+  color: ${props => props.theme.colours.altTextColour};
+  opacity: 0.85;
   width: 80%;
   max-width: 650px;
   min-height: 580px;
@@ -32,6 +35,7 @@ const Header = styled.div`
   align-items: baseline;
   margin-bottom: 20px;
 `;
+
 const Controls = styled.div`
   display: flex;
   flex-direction: row;
@@ -68,7 +72,15 @@ const Shortcut = styled.div`
   margin-left: 60px;
 `;
 
-class ShortcutDialog extends Component {
+interface ShortcutDialogProps {
+  isOpen: boolean;
+  closeShortcutDialog: () => void;
+}
+interface ShortcutDialogState {}
+class ShortcutDialog extends Component<
+  ShortcutDialogProps,
+  ShortcutDialogState
+> {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);

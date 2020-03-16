@@ -8,7 +8,10 @@ import IconButton from "./IconButton";
 // TODO: IconButton is shit
 
 // TODO: How to animate this without blocking other clicks display: none hides it but won't animate
-const Container = styled.div`
+interface ContainerProps {
+  visible: boolean;
+}
+const Container = styled.div<ContainerProps>`
   position: absolute;
   box-sizing: border-box;
   display: ${props => (props.visible ? "flex" : "none")};
@@ -37,7 +40,30 @@ const BodyContainer = styled.div`
   padding: 5px;
 `;
 
-class InlineDialog extends Component {
+export interface InlineDialogProps {
+  isOpen: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+  placement:
+    | "auto"
+    | "auto-start"
+    | "auto-end"
+    | "top"
+    | "top-start"
+    | "top-end"
+    | "bottom"
+    | "bottom-start"
+    | "bottom-end"
+    | "right"
+    | "right-start"
+    | "right-end"
+    | "left"
+    | "left-start"
+    | "left-end";
+  content: string;
+}
+interface InlineDialogState {}
+class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
@@ -72,7 +98,7 @@ class InlineDialog extends Component {
           {({ ref }) => <div ref={ref}>{this.props.children}</div>}
         </Reference>
         <Popper placement={this.props.placement}>
-          {({ ref, style, placement, arrowProps }) => (
+          {({ ref, style, arrowProps }) => (
             <div ref={ref} style={style} data-placement={this.props.placement}>
               <ThemeProvider theme={theme}>
                 <Container

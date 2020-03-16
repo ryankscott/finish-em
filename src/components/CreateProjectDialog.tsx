@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import uuidv4 from "uuid/v4";
+import { Uuid } from "@typed/uuid";
 
 import { Header2 } from "./Typography";
 import { theme } from "../theme";
@@ -28,7 +29,20 @@ const BodyContainer = styled.div`
   padding: 0px 0px 10px 0px;
 `;
 
-class CreateProjectDialog extends Component {
+export interface CreateProjectDialogProps {
+  visible: boolean;
+  createProject: (id: Uuid, name: string, description: string) => void;
+  closeCreateProjectDialog: () => void;
+  toggleCreateProjectDialog: () => void;
+}
+interface CreateProjectDialogState {
+  projectName: string;
+  projectDescription: string;
+}
+class CreateProjectDialog extends Component<
+  CreateProjectDialogProps,
+  CreateProjectDialogState
+> {
   constructor(props) {
     super(props);
     this.state = {

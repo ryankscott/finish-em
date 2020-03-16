@@ -56,11 +56,6 @@ const styles = {
     fontSize: theme.fontSizes.medium,
     color: theme.colours.tertiaryColour,
     textDecoration: "underline"
-  },
-  date: {
-    fontFamily: theme.font.sansSerif,
-    fontSize: theme.fontSizes.medium,
-    color: theme.colours.primaryColour
   }
 };
 
@@ -78,18 +73,6 @@ const itemTypeStrategy = (contentBlock, callback, contentState) => {
   findWithRegex(itemTypeRegex, contentBlock, callback);
 };
 
-const dateStrategy = (contentBlock, callback, contentState) => {
-  const foundDates = chrono.parse(contentBlock.getText());
-  foundDates.forEach((item, index) => {
-    callback(item.index, item.index + item.text.length);
-  });
-};
-const dateSpan = props => (
-  <span style={styles.date} data-offset-key={props.offsetKey}>
-    {props.children}
-  </span>
-);
-
 const itemTypeSpan = props => (
   <span style={styles.itemType} data-offset-key={props.offsetKey}>
     {props.children}
@@ -100,10 +83,6 @@ const compositeDecorator = new CompositeDecorator([
   {
     strategy: itemTypeStrategy,
     component: itemTypeSpan
-  },
-  {
-    strategy: dateStrategy,
-    component: dateSpan
   }
 ]);
 

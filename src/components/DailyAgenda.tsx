@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { startOfWeek, format } from "date-fns";
+import { format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
 import FilteredItemList from "../containers/FilteredItemList";
@@ -34,7 +34,13 @@ const AgendaContainer = styled.div`
   width: 675px;
 `;
 
-function DailyAgenda(props) {
+// TODO: Update with item prop
+export interface DailyAgendaProps {
+  setDailyGoal: (day: string, input: string) => void;
+  items: Object[];
+}
+
+function DailyAgenda(props: DailyAgendaProps) {
   const day = format(new Date(), "yyyy-MM-dd");
   return (
     <ThemeProvider theme={theme}>

@@ -2,13 +2,13 @@ import React from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 
-const StyledButton = styled.button`
-  background-color: ${props => props.theme.backgroundColour}
+const StyledButton = styled.button<StyledProps>`
+  background-color: ${props => props.theme.backgroundColour};
   color: ${props => props.theme.colour};
   font-size: ${props => props.theme.fontSizes.xsmall};
   padding: 2px 5px;
-  height: ${(props: StyledProps) => (props.compact ? "25px" : "30px")};
-  width: ${(props: StyledProps) => (props.compact ? "60px" : "90px")};
+  height: ${props => (props.compact ? "25px" : "30px")};
+  width: ${props => (props.compact ? "60px" : "90px")};
   margin: 2px;
   border-radius: 5px;
   border: 1px solid;
@@ -21,16 +21,16 @@ const StyledButton = styled.button`
   }
 `;
 
-type StyledProps = {
+interface StyledProps {
   compact: boolean;
-};
+}
 
-type ButtonProps = {
+export interface ButtonProps {
   onClick: (x: void) => void;
   compact: boolean;
   type: string;
   children?: React.ReactChild;
-};
+}
 
 const getTheme = (type: string) => {
   return theme.button[type];

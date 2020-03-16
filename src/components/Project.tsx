@@ -14,6 +14,7 @@ import EditableText from "./EditableText";
 import FilteredItemList from "../containers/FilteredItemList";
 import DeleteProjectDialog from "./DeleteProjectDialog";
 import QuickAdd from "./QuickAdd";
+import { Uuid } from "@typed/uuid";
 
 const ProjectContainer = styled.div`
   display: flex;
@@ -28,8 +29,22 @@ const HeaderContainer = styled.div`
   justify-content: space-between;
   align-items: baseline;
 `;
+export interface ProjectInterface {
+  id: Uuid;
+  name: string;
+  deleted: boolean;
+  description: string;
+  lastUpdatedAt: Date;
+  deletedAt: Date;
+  createdAt: Date;
+}
 
-function Project(props) {
+export interface ProjectProps {
+  deleteProject: (id: Uuid) => void;
+  updateDescription: (id: Uuid, input: string) => void;
+  project: ProjectInterface;
+}
+function Project(props: ProjectProps) {
   let history = useHistory();
 
   function deleteProject() {
@@ -75,10 +90,10 @@ const mapStateToProps = state => ({
   items: state.items
 });
 const mapDispatchToProps = dispatch => ({
-  updateDescription: (id, text) => {
+  updateDescription: (id: Uuid, text: string) => {
     dispatch(updateProjectDescription(id, text));
   },
-  deleteProject: id => {
+  deleteProject: (id: Uuid) => {
     dispatch(deleteProject(id));
     dispatch(hideDeleteProjectDialog());
   },

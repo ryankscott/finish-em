@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
+import uuidv4 from "uuid/v4";
 import { theme } from "../theme";
-import { format } from "date-fns";
-import { RRule } from "rrule";
+import { Uuid } from "@typed/uuid";
 
 import { connect } from "react-redux";
+import { createProject } from "../actions";
 const customStyles = {
   input: () => ({
     padding: "5px",
@@ -16,12 +17,10 @@ const customStyles = {
     padding: "0px",
     border: "1px solid",
     backgroundColor: theme.colours.backgroundColour,
-    borderColor: theme.colours.borderColour,
-    tabIndex: 0
+    borderColor: theme.colours.borderColour
   }),
   option: (provided, state) => ({
     ...provided,
-    tabIndex: 0,
     color: theme.colours.defaultTextColour,
     backgroundColor: state.isFocused
       ? theme.colours.focusBackgroundColour
@@ -54,9 +53,12 @@ const customStyles = {
   })
 };
 
-const Container = styled.div`
+interface ContainerProps {
+  visible: boolean;
+}
+const Container = styled.div<ContainerProps>`
   position: inline;
-  box-styling: border-box;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   border: 1px solid;
@@ -68,46 +70,32 @@ const Container = styled.div`
   width: 250px;
 `;
 
-const options = [
-  {
-    value: new RRule({
-      freq: RRule.DAILY,
-      interval: 1
-    }),
-    label: "Daily"
-  },
-  {
-    value: new RRule({
-      freq: RRule.DAILY,
-      interval: 1,
-      byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR]
-    }),
-    label: "Weekdays"
-  },
-  {
-    value: new RRule({
-      freq: RRule.WEEKLY,
-      interval: 1
-    }),
-    label: "Weekly on " + format(new Date(), "EEE")
-  },
-  {
-    value: new RRule({
-      freq: RRule.MONTHLY,
-      interval: 1
-    }),
-    label: "Monthly on the " + format(new Date(), "do")
-  },
-
-  { value: null, label: "None" }
-];
-
-class RepeatPicker extends Component {
+const generateOptions = options => {
+  return options
+    .filter(m => m.id != null)
+    .filter(m => m.deleted == false)
+    .map(m => ({ value: m.id, label: m.name }));
+};
+interface ProjectDropdownProps {
+  visible: boolean;
+  onSubmit: (value: string) => void;
+  createProject: (id: Uuid, value: string) => void;
+  placeholder: string;
+  projects: Object[];
+}
+interface ProjectDropdownState {
+  selectedOption: {};
+}
+class ProjectDropdown extends Component<
+  ProjectDropdownProps,
+  ProjectDropdownState
+> {
   constructor(props) {
     super(props);
-    this.state = { selectedOption: null, dayPickerVisible: false };
+    this.state = { selectedOption: null };
     this.handleChange = this.handleChange.bind(this);
   }
+
   componentDidUpdate(prevProps) {
     if (prevProps.visible !== this.props.visible && this.props.visible) {
       this.selectRef.focus();
@@ -117,25 +105,31 @@ class RepeatPicker extends Component {
   handleChange(newValue, actionMeta) {
     if (actionMeta.action == "select-option") {
       this.props.onSubmit(newValue.value);
+    } else if (actionMeta.action == "create-option") {
+      const newProjectId = uuidv4();
+      this.props.createProject(newProjectId, newValue.value);
+      this.props.onSubmit(newProjectId);
     }
   }
 
   render() {
+    const { projects } = this.props;
+    // Only render if it's not just the Inbox project that exists
     return (
       <ThemeProvider theme={theme}>
-        <Container visible={this.props.visible}>
-          <Select
+        <Container visible={this.props.visible && projects.length > 1}>
+          <CreatableSelect
             ref={ref => {
               this.selectRef = ref;
             }}
-            tabIndex={0}
             autoFocus={true}
             placeholder={this.props.placeholder}
+            isSearchable
             value={this.state.selectedOption}
             onChange={this.handleChange}
-            options={options}
+            options={generateOptions(this.props.projects)}
             styles={customStyles}
-            defaultMenuIsOpen={true}
+            autoFocus
           />
         </Container>
       </ThemeProvider>
@@ -143,6 +137,12 @@ class RepeatPicker extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
-const mapDispatchToProps = dispatch => ({});
-export default connect(mapStateToProps, mapDispatchToProps)(RepeatPicker);
+const mapStateToProps = state => ({
+  projects: state.projects
+});
+const mapDispatchToProps = dispatch => ({
+  createProject: (id, name) => {
+    dispatch(createProject(id, name, ""));
+  }
+});
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectDropdown);

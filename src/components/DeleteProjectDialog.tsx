@@ -6,11 +6,7 @@ import InlineDialog from "./InlineDialog";
 import { Header2, Paragraph } from "./Typography";
 import { theme } from "../theme";
 import { Button } from "./Button";
-import {
-  deleteProject,
-  toggleDeleteProjectDialog,
-  hideDeleteProjectDialog
-} from "../actions";
+import { toggleDeleteProjectDialog, hideDeleteProjectDialog } from "../actions";
 
 const BodyContainer = styled.div`
   display: flex;
@@ -24,8 +20,18 @@ const ActionContainer = styled.div`
   display: flex;
   flex-direction: flex-end;
 `;
+export interface DeleteProjectDialogProps {
+  visible: boolean;
+  onDelete: () => void;
+  closeDeleteProjectDialog: () => void;
+  toggleDeleteProjectDialog: () => void;
+}
+interface DeleteProjectDialogState {}
 
-class DeleteProjectDialog extends Component {
+class DeleteProjectDialog extends Component<
+  DeleteProjectDialogProps,
+  DeleteProjectDialogState
+> {
   constructor(props) {
     super(props);
   }

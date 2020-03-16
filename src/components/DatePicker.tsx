@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
+import styled, { ThemeProvider, StyledFunction } from "styled-components";
 import Select from "react-select";
-import uuidv4 from "uuid/v4";
 import { theme } from "../theme";
 import { add, lastDayOfWeek } from "date-fns";
 import "./DatePicker.css";
@@ -56,7 +55,10 @@ const customStyles = {
   })
 };
 
-const Container = styled.div`
+interface ContainerProps {
+  visible: boolean;
+}
+const Container = styled.div<ContainerProps>`
   position: inline;
   box-sizing: border-box;
   display: flex;
@@ -87,7 +89,16 @@ const options = [
   { value: null, label: "No date" }
 ];
 
-class DatePicker extends Component {
+export interface DatePickerProps {
+  visible: boolean;
+  onSubmit: (Date) => void;
+  placeholder: string;
+}
+interface DatePickerState {
+  selectedOption: boolean;
+  dayPickerVisible: boolean;
+}
+class DatePicker extends Component<DatePickerProps, DatePickerState> {
   constructor(props) {
     super(props);
     this.state = { selectedOption: null, dayPickerVisible: false };
