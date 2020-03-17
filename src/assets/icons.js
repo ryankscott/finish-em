@@ -177,3 +177,20 @@ export const helpIcon = (
     <line x1="12" y1="17" x2="12.01" y2="17"></line>
   </svg>
 );
+
+export const closeIcon = (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#CCC"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
