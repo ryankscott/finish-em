@@ -7,8 +7,12 @@ import { theme } from "../theme";
 import CreateProjectDialog from "./CreateProjectDialog";
 import { Header } from "./Typography";
 import { showCreateProjectDialog } from "../actions";
+import { ProjectInterface } from "./Project";
 
-const Container = styled.div`
+interface ContainerProps {
+  visible: boolean;
+}
+const Container = styled.div<ContainerProps>`
   opacity: ${props => (props.visible ? "1" : "0")};
   background-color: ${props => props.theme.colours.altBackgroundColour};
   padding: ${props => (props.visible ? "20px" : "0px")};
@@ -44,12 +48,16 @@ const SectionHeader = styled.div`
   justify-content: space-between;
 `;
 
-function Sidebar(props) {
+interface SidebarProps {
+  sidebarVisible: boolean;
+  projects: ProjectInterface[];
+}
+const Sidebar = (props: SidebarProps) => {
   return (
     <ThemeProvider theme={theme}>
       <Container visible={props.sidebarVisible}>
         <SectionHeader>
-          <Header invert> Views </Header>
+          <Header> Views </Header>
         </SectionHeader>
         <StyledNavLink
           to="/inbox"
@@ -82,10 +90,10 @@ function Sidebar(props) {
           {"✅ Completed"}
         </StyledNavLink>
         <SectionHeader>
-          <Header invert>Projects</Header>
+          <Header>Projects</Header>
           <CreateProjectDialog />
         </SectionHeader>
-        {props.projects.map(p => {
+        {props.projects.map((p: ProjectInterface) => {
           const pathName = "/projects/" + p.id;
           if (!(p.id == null || p.deleted == true)) {
             return (
@@ -102,7 +110,7 @@ function Sidebar(props) {
       </Container>
     </ThemeProvider>
   );
-}
+};
 
 const mapStateToProps = state => ({
   projects: state.projects,

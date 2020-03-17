@@ -9,7 +9,6 @@ import {
   SelectionState,
   Modifier
 } from "draft-js";
-import chrono from "chrono-node";
 import { headShake } from "react-animations";
 import isElectron from "is-electron";
 
