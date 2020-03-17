@@ -63,9 +63,11 @@ export interface InlineDialogProps {
 }
 interface InlineDialogState {}
 class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
+  private node: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
+    this.node = React.createRef();
   }
   componentDidMount() {
     document.addEventListener("mousedown", this.handleClick, false);
@@ -81,7 +83,7 @@ class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
 
   handleClick(e) {
     // Don't close if we're clicking on the dialog
-    if (e && this.node && this.node.contains(e.target)) {
+    if (e && this.node && this.node.current.contains(e.target)) {
       return;
     }
     // Only close if it's currently open
@@ -100,17 +102,13 @@ class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
           {({ ref, style, arrowProps }) => (
             <div ref={ref} style={style} data-placement={this.props.placement}>
               <ThemeProvider theme={theme}>
-                <Container
-                  ref={node => (this.node = node)}
-                  visible={this.props.isOpen}
-                >
+                <Container ref={this.node} visible={this.props.isOpen}>
                   <HeaderContainer>
                     <CloseButton onClick={this.props.onClose} />
                   </HeaderContainer>
                   <BodyContainer>{this.props.content}</BodyContainer>
                 </Container>
               </ThemeProvider>
-
               <div ref={arrowProps.ref} style={arrowProps.style} />
             </div>
           )}

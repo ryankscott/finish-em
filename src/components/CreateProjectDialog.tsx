@@ -43,6 +43,7 @@ class CreateProjectDialog extends Component<
   CreateProjectDialogProps,
   CreateProjectDialogState
 > {
+  private createProjectInput: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = {
@@ -51,6 +52,7 @@ class CreateProjectDialog extends Component<
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.createProjectInput = React.createRef();
   }
   handleChange(e) {
     e.target.id == "createProjectName"
@@ -73,7 +75,7 @@ class CreateProjectDialog extends Component<
           onClose={() => this.props.closeCreateProjectDialog()}
           placement={"bottom-start"}
           isOpen={this.props.visible}
-          onOpen={() => this.createProjectInput.focus()}
+          onOpen={() => this.createProjectInput.current.focus()}
           content={
             <div>
               <Header2>Create Project</Header2>
@@ -87,9 +89,7 @@ class CreateProjectDialog extends Component<
                   required
                   placeholder="Project name"
                   tabIndex={0}
-                  ref={createProjectInput =>
-                    (this.createProjectInput = createProjectInput)
-                  }
+                  ref={this.createProjectInput}
                 />
                 <StyledInput
                   id="createProjectDescription"
