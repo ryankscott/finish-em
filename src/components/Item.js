@@ -244,10 +244,11 @@ class Item extends Component {
               }
             }
           }
+          // TODO: Fix issue for first item
           const parent = event.target.parentNode.parentNode;
-          const prevItem = parent.previousSibling;
+          const prevItem = parent.previousSibling.firstChild;
           if (prevItem) {
-            prevItem.firstChild.firstChild.focus();
+            prevItem.firstChild.focus();
             return;
           }
         },
@@ -360,8 +361,6 @@ class Item extends Component {
         }
       }
     };
-  }
-
   }
 
   handleDescriptionChange(text) {
@@ -485,102 +484,104 @@ class Item extends Component {
       : this.props.repeat;
     return (
       <ThemeProvider theme={theme}>
-        <Container
-          hidden={this.props.hidden}
-          noIndentation={this.props.noIndentation}
-          isSubtask={this.props.parentId != null}
-          onKeyDown={this.handleKeyPress}
-          id={this.props.id}
-          tabIndex={this.props.hidden ? "-1" : "0"}
-          itemType={this.props.type}
-          badshortcutAnimation={this.state.badshortcutAnimation}
-          ref={container => (this.container = container)}
-        >
-          {this.props.children && this.props.children.length > 0 && (
-            <ExpandIcon onClick={this.handleExpand}>
-              {this.props.hiddenChildren ? collapsedIcon : expandedIcon}
-            </ExpandIcon>
-          )}
-          <Icon onClick={this.handleIconClick}>
-            {this.props.type == "NOTE"
-              ? noteIcon
-              : this.props.completed
-              ? todoCheckedIcon
-              : todoUncheckedIcon}
-          </Icon>
-          <Body id="body" completed={this.props.completed}>
-            <EditableText
-              editable={this.state.descriptionEditable}
-              readOnly={this.props.completed}
-              input={removeItemTypeFromString(this.props.text)}
-              onUpdate={this.handleDescriptionChange}
-              singleline={true}
+        <div id={this.props.id}>
+          <Container
+            hidden={this.props.hidden}
+            noIndentation={this.props.noIndentation}
+            isSubtask={this.props.parentId != null}
+            onKeyDown={this.handleKeyPress}
+            id={this.props.id}
+            tabIndex={this.props.hidden ? "-1" : "0"}
+            itemType={this.props.type}
+            badshortcutAnimation={this.state.badshortcutAnimation}
+            ref={container => (this.container = container)}
+          >
+            {this.props.children && this.props.children.length > 0 && (
+              <ExpandIcon onClick={this.handleExpand}>
+                {this.props.hiddenChildren ? collapsedIcon : expandedIcon}
+              </ExpandIcon>
+            )}
+            <Icon onClick={this.handleIconClick}>
+              {this.props.type == "NOTE"
+                ? noteIcon
+                : this.props.completed
+                ? todoCheckedIcon
+                : todoUncheckedIcon}
+            </Icon>
+            <Body id="body" completed={this.props.completed}>
+              <EditableText
+                editable={this.state.descriptionEditable}
+                readOnly={this.props.completed}
+                input={removeItemTypeFromString(this.props.text)}
+                onUpdate={this.handleDescriptionChange}
+                singleline={true}
+              />
+            </Body>
+            {this.props.showProject && (
+              <Project>
+                {getProjectNameById(this.props.projectId, this.props.projects)}
+              </Project>
+            )}
+            {this.props.scheduledDate && (
+              <ScheduledDate completed={this.props.completed}>
+                <SubTextContainer key={"scheduled"} position={"flex-start"}>
+                  {scheduledIcon}
+                  <SubText key={"subtext-scheduled"}>
+                    {formatRelativeDate(this.props.scheduledDate)}
+                  </SubText>
+                </SubTextContainer>
+              </ScheduledDate>
+            )}
+            {this.props.dueDate && (
+              <DueDate completed={this.props.completed}>
+                <SubTextContainer key={"due"} position={"center"}>
+                  {dueIcon}
+                  <SubText key={"subtext-due"}>
+                    {formatRelativeDate(this.props.dueDate)}{" "}
+                  </SubText>
+                </SubTextContainer>
+              </DueDate>
+            )}
+            {this.props.repeat && (
+              <RepeatDate completed={this.props.completed}>
+                <SubTextContainer key={"repeat"} position={"flex-end"}>
+                  {repeatIcon}
+                  <SubText key={"subtext-repeat"}>{repeat.toText()}</SubText>
+                </SubTextContainer>
+              </RepeatDate>
+            )}
+          </Container>
+          <QuickAddContainer visible={this.state.quickAddContainerVisible}>
+            <EditableItem
+              onSubmit={text => this.createSubTask(text)}
+              readOnly={false}
             />
-          </Body>
-          {this.props.showProject && (
-            <Project>
-              {getProjectNameById(this.props.projectId, this.props.projects)}
-            </Project>
-          )}
-          {this.props.scheduledDate && (
-            <ScheduledDate completed={this.props.completed}>
-              <SubTextContainer key={"scheduled"} position={"flex-start"}>
-                {scheduledIcon}
-                <SubText key={"subtext-scheduled"}>
-                  {formatRelativeDate(this.props.scheduledDate)}
-                </SubText>
-              </SubTextContainer>
-            </ScheduledDate>
-          )}
-          {this.props.dueDate && (
-            <DueDate completed={this.props.completed}>
-              <SubTextContainer key={"due"} position={"center"}>
-                {dueIcon}
-                <SubText key={"subtext-due"}>
-                  {formatRelativeDate(this.props.dueDate)}{" "}
-                </SubText>
-              </SubTextContainer>
-            </DueDate>
-          )}
-          {this.props.repeat && (
-            <RepeatDate completed={this.props.completed}>
-              <SubTextContainer key={"repeat"} position={"flex-end"}>
-                {repeatIcon}
-                <SubText key={"subtext-repeat"}>{repeat.toText()}</SubText>
-              </SubTextContainer>
-            </RepeatDate>
-          )}
-        </Container>
-        <QuickAddContainer visible={this.state.quickAddContainerVisible}>
-          <EditableItem
-            onSubmit={text => this.createSubTask(text)}
-            readOnly={false}
+          </QuickAddContainer>
+          <DatePicker
+            key={"sd" + this.props.id}
+            placeholder={"Schedule to: "}
+            visible={this.state.scheduledDateDropdownVisible}
+            onSubmit={this.setScheduledDate}
           />
-        </QuickAddContainer>
-        <DatePicker
-          key={"sd" + this.props.id}
-          placeholder={"Schedule to: "}
-          visible={this.state.scheduledDateDropdownVisible}
-          onSubmit={this.setScheduledDate}
-        />
-        <DatePicker
-          key={"dd" + this.props.id}
-          placeholder={"Due on: "}
-          visible={this.state.dueDateDropdownVisible}
-          onSubmit={this.setDueDate}
-        />
-        <RepeatPicker
-          key={"rp" + this.props.id}
-          placeholder={"Repeat: "}
-          visible={this.state.repeatDropdownVisible}
-          onSubmit={this.setRepeatRule}
-        />
-        <ProjectDropdown
-          key={"p" + this.props.id}
-          placeholder={"Move to: "}
-          visible={this.state.projectDropdownVisible}
-          onSubmit={this.moveItem}
-        />
+          <DatePicker
+            key={"dd" + this.props.id}
+            placeholder={"Due on: "}
+            visible={this.state.dueDateDropdownVisible}
+            onSubmit={this.setDueDate}
+          />
+          <RepeatPicker
+            key={"rp" + this.props.id}
+            placeholder={"Repeat: "}
+            visible={this.state.repeatDropdownVisible}
+            onSubmit={this.setRepeatRule}
+          />
+          <ProjectDropdown
+            key={"p" + this.props.id}
+            placeholder={"Move to: "}
+            visible={this.state.projectDropdownVisible}
+            onSubmit={this.moveItem}
+          />
+        </div>
       </ThemeProvider>
     );
   }
