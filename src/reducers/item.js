@@ -173,6 +173,7 @@ export const itemReducer = (state = initialState, action) => {
           } else {
             const r = RRule.fromString(i.repeat);
             i.dueDate = r.after(new Date());
+            i.scheduledDate = null;
           }
           i.lastUpdatedAt = new Date();
         }
@@ -182,7 +183,6 @@ export const itemReducer = (state = initialState, action) => {
     // TODO: A Child needs to inheirit properties from the parent
     case ADD_CHILD_ITEM:
       const parent = getItemById(action.parentId, state);
-      const child = getItemById(action.Id, state);
       return state.map(i => {
         if (i.id == action.parentId) {
           i.children =
