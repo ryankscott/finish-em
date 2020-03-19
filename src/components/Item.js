@@ -187,15 +187,68 @@ class Item extends Component {
         //   console.log(this.description);
         // },
         NEXT_ITEM: event => {
-          const nextItem = event.target.parentNode.nextSibling;
+          // If it's a parent element we need to get the first child
+          if (this.props.children.length > 0) {
+            const nextItem = event.target.parentNode.nextSibling;
+            if (nextItem) {
+              nextItem.firstChild.focus();
+              return;
+            }
+          }
+          // If it's a child
+          if (this.props.parentId != null) {
+            const nextItem = event.target.parentNode.nextSibling;
+            if (nextItem) {
+              nextItem.firstChild.focus();
+              return;
+            }
+            // If it's the last child
+            else {
+              const nextItem =
+                event.target.parentNode.parentNode.nextSibling.firstChild;
+              if (nextItem) {
+                nextItem.firstChild.focus();
+                return;
+              }
+            }
+          }
+          const parent = event.target.parentNode.parentNode;
+          const nextItem = parent.nextSibling;
           if (nextItem) {
-            nextItem.firstChild.focus();
+            nextItem.firstChild.firstChild.focus();
+            return;
           }
         },
         PREV_ITEM: event => {
-          const prevItem = event.target.parentNode.previousSibling;
+          if (this.props.children.length > 0) {
+            const prevItem = event.target.parentNode.previousSibling;
+            if (prevItem) {
+              prevItem.firstChild.focus();
+              return;
+            }
+          }
+          // If it's a child
+          if (this.props.parentId != null) {
+            const nextItem = event.target.parentNode.previousSibling;
+            if (nextItem) {
+              nextItem.firstChild.focus();
+              return;
+            }
+            // If it's the last child
+            else {
+              const prevItem =
+                event.target.parentNode.parentNode.previousSibling.firstChild;
+              if (prevItem) {
+                prevItem.firstChild.focus();
+                return;
+              }
+            }
+          }
+          const parent = event.target.parentNode.parentNode;
+          const prevItem = parent.previousSibling;
           if (prevItem) {
-            prevItem.firstChild.focus();
+            prevItem.firstChild.firstChild.focus();
+            return;
           }
         },
         TOGGLE_CHILDREN: event => {
@@ -307,6 +360,8 @@ class Item extends Component {
         }
       }
     };
+  }
+
   }
 
   handleDescriptionChange(text) {
