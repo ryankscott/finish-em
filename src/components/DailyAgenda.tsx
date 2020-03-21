@@ -81,6 +81,7 @@ function DailyAgenda(props: DailyAgendaProps) {
             sortCriteria="DUE"
             showProject={true}
             listName="Overdue"
+            hideCompleted={true}
           />
         </Section>
         <Section>

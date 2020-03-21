@@ -82,11 +82,7 @@ const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
     case "SHOW_NOT_SCHEDULED":
       return getTasksAndSubtasks(
         items,
-        i =>
-          i.type == "TODO" &&
-          i.scheduledDate == null &&
-          i.deleted == false &&
-          i.completed == false
+        i => i.type == "TODO" && i.scheduledDate == null && i.deleted == false
       );
     case "SHOW_FROM_PROJECT_BY_TYPE":
       return getTasksAndSubtasks(
@@ -100,9 +96,8 @@ const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
       return getTasksAndSubtasks(
         items,
         i =>
-          (isPast(endOfDay(i.scheduledDate)) ||
-            (isPast(endOfDay(i.dueDate)) && i.deleted == false)) &&
-          i.completed == false
+          isPast(endOfDay(i.scheduledDate)) ||
+          (isPast(endOfDay(i.dueDate)) && i.deleted == false)
       );
     default:
       throw new Error("Unknown filter: " + filter);
@@ -138,10 +133,14 @@ interface FilteredItemListProps {
   showSubtasks: boolean;
   showProject: boolean;
   listName: string;
+  hideCompleted: boolean;
 }
 
 const FilteredItemList: FunctionComponent<FilteredItemListProps> = props => {
-  const filteredItems = filterItems(props.items, props.filter, props.params);
+  let filteredItems = filterItems(props.items, props.filter, props.params);
+  filteredItems = props.hideCompleted
+    ? filteredItems.filter(i => i.completed == false)
+    : filteredItems;
   const sortedItems = sortItems(filteredItems, props.sortCriteria);
   return (
     <ItemList
