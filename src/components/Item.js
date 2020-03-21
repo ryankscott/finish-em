@@ -28,6 +28,7 @@ import EditableItem from "./EditableItem";
 import DatePicker from "./DatePicker";
 import RepeatPicker from "./RepeatPicker";
 import EditableText from "./EditableText";
+import ExpandIcon from "./ExpandIcon";
 import {
   getProjectNameById,
   formatRelativeDate,
@@ -83,13 +84,6 @@ const Icon = styled.div`
   display: flex;
   grid-area: type;
   justify-content: start;
-`;
-
-const ExpandIcon = styled.div`
-  display: flex;
-  grid-area: collapse;
-  justify-content: center;
-  align-self: center;
 `;
 
 const DueDate = styled.div`
@@ -496,11 +490,11 @@ class Item extends Component {
             badshortcutAnimation={this.state.badshortcutAnimation}
             ref={container => (this.container = container)}
           >
-            {this.props.children && this.props.children.length > 0 && (
-              <ExpandIcon onClick={this.handleExpand}>
-                {this.props.hiddenChildren ? collapsedIcon : expandedIcon}
-              </ExpandIcon>
-            )}
+            <ExpandIcon
+              expanded={this.props.hiddenChildren}
+              onClick={this.handleExpand}
+              visible={this.props.children && this.props.children.length > 0}
+            />
             <Icon onClick={this.handleIconClick}>
               {this.props.type == "NOTE"
                 ? noteIcon
