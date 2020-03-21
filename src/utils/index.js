@@ -17,6 +17,9 @@ export const capitaliseItemTypeFromString = text => {
 };
 
 export const removeItemTypeFromString = text => {
+  if (!text) {
+    return "";
+  }
   const words = text.split(" ");
   words.shift();
   return words.join(" ").trim();
@@ -139,6 +142,9 @@ export const setEndOfContenteditable = function(contentEditableElement) {
 };
 
 export const formatRelativeDate = date => {
+  if (!date) {
+    return;
+  }
   if (isToday(date)) {
     return "Today";
   } else if (isTomorrow(date)) {
