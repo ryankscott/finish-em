@@ -167,7 +167,7 @@ function App(props) {
           </Switch>
         </MainContainer>
         <ShortcutIcon onClick={props.toggleShortcutDialog}>
-          {helpIcon}
+          {helpIcon()}
         </ShortcutIcon>
       </Container>
     </ThemeProvider>
