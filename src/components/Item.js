@@ -4,7 +4,6 @@ import { connect } from "react-redux";
 import { RRule } from "rrule";
 import uuidv4 from "uuid/v4";
 
-import { headShake } from "react-animations";
 import { keymap } from "../keymap";
 
 import {
@@ -29,26 +28,11 @@ import DatePicker from "./DatePicker";
 import RepeatPicker from "./RepeatPicker";
 import EditableText from "./EditableText";
 import ExpandIcon from "./ExpandIcon";
-import {
-  getProjectNameById,
-  formatRelativeDate,
-  removeItemTypeFromString
-} from "../utils";
-import {
-  repeatIcon,
-  dueIcon,
-  scheduledIcon,
-  todoUncheckedIcon,
-  todoCheckedIcon,
-  noteIcon,
-  expandedIcon,
-  collapsedIcon
-} from "../assets/icons";
-const headShakeAnimation = keyframes`${headShake}`;
+import IconButton from "./IconButton2";
+import DateRenderer from "./DateRenderer";
+import { getProjectNameById, removeItemTypeFromString } from "../utils";
 
 const Container = styled.div`
-  animation: 1s
-    ${props => (props.badshortcutAnimation ? headShakeAnimation : "none")};
   transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
   max-height: ${props => (props.hidden ? "0px" : "200px")};
   font-family: ${props => props.theme.font.sansSerif};
@@ -61,15 +45,15 @@ const Container = styled.div`
       : "30px 30px repeat(20, 1fr)"};
   grid-auto-rows: minmax(20px, auto);
   grid-template-areas:
-    "collapse type body body body body body body body body body body body body body body body body body project project project"
-    ". . scheduled scheduled scheduled scheduled . . . . due due due due . . . . repeat repeat repeat repeat";
+    "EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT"
+    ". . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . . . DUE DUE DUE DUE . . . . REPEAT REPEAT REPEAT REPEAT";
   border-bottom: ${props => (props.hidden ? "0px" : "1px solid")}
   border-top: ${props => (props.hidden ? "0px" : "1px solid")};
   border-color: ${props => props.theme.colours.borderColour};
   padding: ${props => (props.hidden ? "0px" : "5px 5px 5px 5px")};
   align-items: center;
   cursor: pointer;
-  color: ${props => theme.colours.defaultTextColour};
+  color: ${props => props.theme.colours.defaultTextColour};
   :focus {
     background-color: ${props => props.theme.colours.focusBackgroundColour};
     border-color: ${props => props.theme.colours.focusBorderColour};
@@ -80,69 +64,17 @@ const QuickAddContainer = styled.div`
   display: ${props => (props.visible ? "block" : "none")};
 `;
 
-const Icon = styled.div`
-  display: flex;
-  grid-area: type;
-  justify-content: start;
-`;
-
-const DueDate = styled.div`
-  grid-area: due;
-  font-size: ${props => props.theme.fontSizes.xsmall};
-  color: ${props => props.theme.colours.defaultTextColour}
-  border-radius: 5px;
-  text-align: end;
-  text-decoration: ${props =>
-    props.completed == true ? "line-through" : null};
-`;
-
-const ScheduledDate = styled.div`
-  grid-area: scheduled;
-  font-size: ${props => props.theme.fontSizes.xsmall};
-  color: ${props => props.theme.colours.defaultTextColour}
-  border-radius: 5px;
-  text-decoration: ${props =>
-    props.completed == true ? "line-through" : null};
-`;
-
-const RepeatDate = styled.div`
-  grid-area: repeat;
-  font-size: ${props => props.theme.fontSizes.xsmall};
-  color: ${props => props.theme.colours.defaultTextColour}
-  border-radius: 5px;
-  text-decoration: ${props =>
-    props.completed == true ? "line-through" : null};
-`;
-
-const SubTextContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: ${props => props.position};
-  margin-left: ${props => (props.position == "start" ? "32px" : "0px")};
-`;
-
-const SubText = styled.div`
-  padding: 0px 5px;
-`;
-
 const Body = styled.div`
   margin: 5px 10px;
-  grid-area: body;
+  grid-area: DESC;
   font-size: ${props => props.theme.fontSizes.regular};
   text-decoration: ${props =>
     props.completed == true ? "line-through" : null};
 `;
 
-const Subtasks = styled.div`
-  grid-area: subtasks;
-  font-size: ${props => props.theme.fontSizes.xsmall};
-  color: ${props => props.theme.colours.defaultTextColour};
-`;
-
 const Project = styled.div`
-  grid-area: project;
-  display: flex;
+  grid-area: PROJECT;
+  display: ${props => (props.visible ? "flex" : "none")};
   justify-content: center;
   text-align: center;
   margin: 2px 2px 2px 2px;
@@ -162,7 +94,6 @@ class Item extends Component {
       dueDateDropdownVisible: false,
       repeatDropdownVisible: false,
       descriptionEditable: false,
-      badshortcutAnimation: false,
       quickAddContainerVisible: false,
       keyPresses: []
     };
@@ -177,7 +108,7 @@ class Item extends Component {
 
     this.handlers = {
       TODO: {
-        // EDIT_ITEM_DESCRIPTION: event => {
+        // EDIT_ITEM_DESC: event => {
         //   console.log(this.description);
         // },
         NEXT_ITEM: event => {
@@ -246,7 +177,7 @@ class Item extends Component {
             return;
           }
         },
-        TOGGLE_CHILDREN: event => {
+        TOGGLE_CHILDREN: () => {
           this.props.hiddenChildren
             ? this.props.showChildren(this.props.id)
             : this.props.hideChildren(this.props.id);
@@ -272,7 +203,7 @@ class Item extends Component {
           });
           event.preventDefault();
         },
-        CREATE_SUBTASK: event => {
+        CREATE_SUBTASK: () => {
           if (this.props.deleted || this.props.completed) return;
           this.setState({
             quickAddContainerVisible: !this.state.quickAddContainerVisible,
@@ -282,13 +213,13 @@ class Item extends Component {
             repeatDropdownVisible: false
           });
         },
-        COMPLETE_ITEM: event => {
+        COMPLETE_ITEM: () => {
           if (this.props.deleted || this.props.completed) return;
-          this.props.completeItem(event.target.id);
+          this.props.completeItem(this.props.id);
         },
-        UNCOMPLETE_ITEM: event => {
+        UNCOMPLETE_ITEM: () => {
           if (this.props.deleted) return;
-          this.props.uncompleteItem(event.target.id);
+          this.props.uncompleteItem(this.props.id);
         },
         REPEAT_ITEM: event => {
           if (this.props.deleted || this.props.completed) return;
@@ -304,8 +235,8 @@ class Item extends Component {
           if (this.props.deleted) return;
           this.props.deleteItem(event.target.id);
         },
-        UNDELETE_ITEM: event => {
-          this.props.undeleteItem(event.target.id);
+        UNDELETE_ITEM: () => {
+          this.props.undeleteItem(this.props.id);
         },
         MOVE_ITEM: event => {
           if (this.props.deleted || this.props.completed) return;
@@ -317,7 +248,7 @@ class Item extends Component {
           });
           event.preventDefault();
         },
-        ESCAPE: event => {
+        ESCAPE: () => {
           this.setState({
             projectDropdownVisible: false,
             dueDateDropdownVisible: false,
@@ -328,11 +259,11 @@ class Item extends Component {
         }
       },
       NOTE: {
-        DELETE_ITEM: event => {
-          this.props.deleteItem(event.target.id);
+        DELETE_ITEM: () => {
+          this.props.deleteItem(this.props.id);
         },
-        UNDELETE_ITEM: event => {
-          this.props.undeleteItem(event.target.id);
+        UNDELETE_ITEM: () => {
+          this.props.undeleteItem(this.props.id);
         },
         MOVE_ITEM: event => {
           this.setState({
@@ -343,7 +274,7 @@ class Item extends Component {
           });
           event.preventDefault();
         },
-        ESCAPE: event => {
+        ESCAPE: () => {
           this.description.blur();
           this.setState({
             projectDropdownVisible: false,
@@ -364,7 +295,7 @@ class Item extends Component {
     );
   }
 
-  showDueDateDropdown(e) {
+  showDueDateDropdown() {
     this.setState({
       dueDateDropdownVisible: !this.state.dueDateDropdownVisible,
       scheduledDateDropdownVisible: false,
@@ -469,8 +400,6 @@ class Item extends Component {
     return;
   }
 
-  // TODO: Consider extracting DueDate to a component
-  // TODO: Proper locales
   render() {
     // Rehydrate the string repeating rule to an object
     const repeat = this.props.repeat
@@ -478,7 +407,7 @@ class Item extends Component {
       : this.props.repeat;
     return (
       <ThemeProvider theme={theme}>
-        <div id={this.props.id}>
+        <div key={this.props.id} id={this.props.id}>
           <Container
             hidden={this.props.hidden}
             noIndentation={this.props.noIndentation}
@@ -490,18 +419,26 @@ class Item extends Component {
             badshortcutAnimation={this.state.badshortcutAnimation}
             ref={container => (this.container = container)}
           >
-            <ExpandIcon
-              expanded={this.props.hiddenChildren}
-              onClick={this.handleExpand}
-              visible={this.props.children && this.props.children.length > 0}
-            />
-            <Icon onClick={this.handleIconClick}>
-              {this.props.type == "NOTE"
-                ? noteIcon
-                : this.props.completed
-                ? todoCheckedIcon
-                : todoUncheckedIcon}
-            </Icon>
+            <div style={{ gridArea: "EXPAND" }}>
+              <ExpandIcon
+                expanded={this.props.hiddenChildren}
+                onClick={this.handleExpand}
+                visible={this.props.children && this.props.children.length > 0}
+              />
+            </div>
+            <div style={{ gridArea: "TYPE" }}>
+              <IconButton
+                onClick={this.handleIconClick}
+                visible={true}
+                icon={
+                  this.props.type == "NOTE"
+                    ? "NOTE"
+                    : this.props.completed
+                    ? "TODO_CHECKED"
+                    : "TODO_UNCHECKED"
+                }
+              />
+            </div>
             <Body id="body" completed={this.props.completed}>
               <EditableText
                 editable={this.state.descriptionEditable}
@@ -511,39 +448,36 @@ class Item extends Component {
                 singleline={true}
               />
             </Body>
-            {this.props.showProject && (
-              <Project>
-                {getProjectNameById(this.props.projectId, this.props.projects)}
-              </Project>
-            )}
-            {this.props.scheduledDate && (
-              <ScheduledDate completed={this.props.completed}>
-                <SubTextContainer key={"scheduled"} position={"flex-start"}>
-                  {scheduledIcon}
-                  <SubText key={"subtext-scheduled"}>
-                    {formatRelativeDate(this.props.scheduledDate)}
-                  </SubText>
-                </SubTextContainer>
-              </ScheduledDate>
-            )}
-            {this.props.dueDate && (
-              <DueDate completed={this.props.completed}>
-                <SubTextContainer key={"due"} position={"center"}>
-                  {dueIcon}
-                  <SubText key={"subtext-due"}>
-                    {formatRelativeDate(this.props.dueDate)}{" "}
-                  </SubText>
-                </SubTextContainer>
-              </DueDate>
-            )}
-            {this.props.repeat && (
-              <RepeatDate completed={this.props.completed}>
-                <SubTextContainer key={"repeat"} position={"flex-end"}>
-                  {repeatIcon}
-                  <SubText key={"subtext-repeat"}>{repeat.toText()}</SubText>
-                </SubTextContainer>
-              </RepeatDate>
-            )}
+            <Project visible={this.props.showProject}>
+              {getProjectNameById(this.props.projectId, this.props.projects)}
+            </Project>
+            <div style={{ gridArea: "SCHEDULED" }}>
+              <DateRenderer
+                visible={this.props.scheduledDate}
+                completed={this.props.completed}
+                type="SCHEDULED"
+                position="flex-start"
+                date={this.props.scheduledDate}
+              />
+            </div>
+            <div style={{ gridArea: "DUE" }}>
+              <DateRenderer
+                visible={this.props.dueDate}
+                completed={this.props.completed}
+                type="DUE"
+                position="center"
+                date={this.props.dueDate}
+              />
+            </div>
+            <div style={{ gridArea: "REPEAT" }}>
+              <DateRenderer
+                visible={repeat}
+                completed={this.props.completed}
+                type="REPEAT"
+                position="flex-end"
+                repeat={repeat}
+              />
+            </div>
           </Container>
           <QuickAddContainer visible={this.state.quickAddContainerVisible}>
             <EditableItem

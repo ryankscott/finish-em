@@ -205,7 +205,7 @@ class EditableItem extends Component {
     return (
       <ThemeProvider theme={theme}>
         <ValidationBox animate={this.state.animate} valid={this.state.valid}>
-          <Icon>{addIcon}</Icon>
+          <Icon>{addIcon()}</Icon>
           <Editor
             handleReturn={this.handleReturn}
             editorState={this.state.editorState}

@@ -1,10 +1,14 @@
 import React from "react";
-export const repeatIcon = (
+
+// TODO: Support colours
+// TODO: Add types
+
+export const repeatIcon = (width, height) => (
   <svg
     key="repeatIcon"
     xmlns="http://www.w3.org/2000/svg"
-    width="12"
-    height="12"
+    width={width ? width : "12"}
+    height={height ? height : "12"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -19,12 +23,12 @@ export const repeatIcon = (
   </svg>
 );
 
-export const dueIcon = (
+export const dueIcon = (width, height) => (
   <svg
     key="dueIcon"
     xmlns="http://www.w3.org/2000/svg"
-    width="12"
-    height="12"
+    width={width ? width : "12"}
+    height={height ? height : "12"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -38,12 +42,12 @@ export const dueIcon = (
   </svg>
 );
 
-export const scheduledIcon = (
+export const scheduledIcon = (width, height) => (
   <svg
     key="scheduledIcon"
     xmlns="http://www.w3.org/2000/svg"
-    width="12"
-    height="12"
+    width={width ? width : "12"}
+    height={height ? height : "12"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -58,11 +62,11 @@ export const scheduledIcon = (
   </svg>
 );
 
-export const noteIcon = (
+export const noteIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
+    width={width ? width : "18"}
+    height={height ? height : "18"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -78,11 +82,11 @@ export const noteIcon = (
   </svg>
 );
 
-export const todoCheckedIcon = (
+export const todoCheckedIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
+    width={width ? width : "16"}
+    height={height ? height : "16"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -95,11 +99,11 @@ export const todoCheckedIcon = (
   </svg>
 );
 
-export const todoUncheckedIcon = (
+export const todoUncheckedIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
+    width={width ? width : "16"}
+    height={height ? height : "16"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -111,11 +115,11 @@ export const todoUncheckedIcon = (
   </svg>
 );
 
-export const addIcon = (
+export const addIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
+    width={width ? width : "18"}
+    height={height ? height : "18"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -128,11 +132,11 @@ export const addIcon = (
   </svg>
 );
 
-export const expandedIcon = (
+export const expandedIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
+    width={width ? width : "18"}
+    height={height ? height : "18"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -144,11 +148,11 @@ export const expandedIcon = (
   </svg>
 );
 
-export const collapsedIcon = (
+export const collapsedIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="18"
-    height="18"
+    width={width ? width : "18"}
+    height={height ? height : "18"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -160,11 +164,11 @@ export const collapsedIcon = (
   </svg>
 );
 
-export const helpIcon = (
+export const helpIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
+    width={width ? width : "24"}
+    height={height ? height : "24"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="#CCC"

@@ -23,7 +23,7 @@ interface Props {
 const ExpandIcon = (props: Props): ReactElement => {
   return (
     <Container visible={props.visible} onClick={props.onClick}>
-      {props.expanded ? expandedIcon : collapsedIcon}
+      {props.expanded ? expandedIcon() : collapsedIcon()}
     </Container>
   );
 };
