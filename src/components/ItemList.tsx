@@ -44,7 +44,7 @@ const ItemList = (props: ItemListProps) => {
           const isSubtask = item.parentId != null;
           if (!props.showSubtasks && isSubtask) return;
           return (
-            <div>
+            <div key={"container-" + item.id}>
               <Item
                 {...item}
                 key={item.id}
