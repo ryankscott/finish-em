@@ -90,15 +90,17 @@ class ProjectDropdown extends Component<
   ProjectDropdownProps,
   ProjectDropdownState
 > {
+  private selectRef: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = { selectedOption: null };
     this.handleChange = this.handleChange.bind(this);
+    this.selectRef = React.createRef();
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.visible !== this.props.visible && this.props.visible) {
-      this.selectRef.focus();
+      this.selectRef.current.focus();
     }
   }
 
@@ -119,9 +121,7 @@ class ProjectDropdown extends Component<
       <ThemeProvider theme={theme}>
         <Container visible={this.props.visible && projects.length > 1}>
           <CreatableSelect
-            ref={ref => {
-              this.selectRef = ref;
-            }}
+            ref={this.selectRef}
             autoFocus={true}
             placeholder={this.props.placeholder}
             isSearchable
@@ -129,7 +129,6 @@ class ProjectDropdown extends Component<
             onChange={this.handleChange}
             options={generateOptions(this.props.projects)}
             styles={customStyles}
-            autoFocus
           />
         </Container>
       </ThemeProvider>

@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 
@@ -21,7 +21,7 @@ const HeaderContainer = styled.div`
   align-items: baseline;
 `;
 
-const Trash: FunctionComponent = () => (
+const Trash = () => (
   <ThemeProvider theme={theme}>
     <TrashContainer>
       <HeaderContainer>

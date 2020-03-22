@@ -125,7 +125,7 @@ enum SortCriteriaEnum {
 
 // TODO create an Item type and update this array
 interface FilteredItemListProps {
-  items: Array<any>;
+  items: [];
   filter: FilterEnum;
   sortCriteria: SortCriteriaEnum;
   params: Object;

@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { createItem } from "../actions";
 import EditableItem from "./EditableItem";
 import uuidv4 from "uuid/v4";
+import { Uuid } from "@typed/uuid";
 
 const QuickAdd = props => (
   <EditableItem
@@ -14,8 +15,7 @@ const QuickAdd = props => (
 const mapStateToProps = state => ({});
 
 const mapDispatchToProps = dispatch => ({
-  // TODO: fix creating things on the quick add
-  onSubmit: (text: string, projectId: string) => {
+  onSubmit: (text: string, projectId: Uuid) => {
     dispatch(createItem(uuidv4(), text, projectId, null));
   }
 });

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { Title, Paragraph } from "./Typography";
-import IconButton from "./IconButton";
+import CloseButton from "./CloseButton";
 import { hideShortcutDialog } from "../actions";
 import { capitaliseEachWordInString } from "../utils";
 
@@ -118,9 +118,7 @@ class ShortcutDialog extends Component<
           onKeyDown={this.handleKeyDown}
         >
           <Controls>
-            <IconButton invert onClick={this.props.closeShortcutDialog}>
-              ×
-            </IconButton>
+            <CloseButton invert onClick={this.props.closeShortcutDialog} />
           </Controls>
           <Header>
             <Title invert>Shortcuts</Title>
@@ -173,7 +171,6 @@ class ShortcutDialog extends Component<
   }
 }
 
-// TODO: Add PropTypes
 const mapStateToProps = state => ({
   isOpen: state.ui.shortcutDialogVisible
 });

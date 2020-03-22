@@ -1,10 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import Item from "./Item";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { getItemById } from "../utils";
 import { Header1 } from "./Typography";
-import { connect } from "react-redux";
 
 const NoItemText = styled.p`
   color: ${props => props.theme.colours.disabledTextColour};
@@ -24,7 +23,7 @@ const HeaderContainer = styled.div`
   align-items: baseline;
   margin-bottom: 20px;
 `;
-
+// TODO: Fix this to have an ItemInterface
 interface ItemListProps {
   name: string;
   items: [];
@@ -73,9 +72,4 @@ const ItemList = (props: ItemListProps) => {
   );
 };
 
-// TODO: Add PropTypes
-const mapStateToProps = state => ({});
-
-const mapDispatchToProps = dispatch => ({});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ItemList);
+export default ItemList;

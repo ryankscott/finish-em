@@ -2,6 +2,9 @@ import React from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 
+interface StyledProps {
+  compact: boolean;
+}
 const StyledButton = styled.button<StyledProps>`
   background-color: ${props => props.theme.backgroundColour};
   color: ${props => props.theme.colour};
@@ -21,12 +24,8 @@ const StyledButton = styled.button<StyledProps>`
   }
 `;
 
-interface StyledProps {
-  compact: boolean;
-}
-
 export interface ButtonProps {
-  onClick: (x: void) => void;
+  onClick: () => void;
   compact: boolean;
   type: string;
   children?: React.ReactChild;
@@ -36,7 +35,7 @@ const getTheme = (type: string) => {
   return theme.button[type];
 };
 
-export const Button: React.FunctionComponent<ButtonProps> = props => (
+export const Button = (props: ButtonProps) => (
   <ThemeProvider theme={getTheme(props.type)}>
     <StyledButton compact={props.compact} onClick={props.onClick}>
       {props.children}

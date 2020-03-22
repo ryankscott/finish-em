@@ -99,15 +99,17 @@ interface DatePickerState {
   dayPickerVisible: boolean;
 }
 class DatePicker extends Component<DatePickerProps, DatePickerState> {
+  private selectRef: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = { selectedOption: null, dayPickerVisible: false };
     this.handleChange = this.handleChange.bind(this);
     this.handleDayClick = this.handleDayClick.bind(this);
+    this.selectRef = React.createRef();
   }
   componentDidUpdate(prevProps) {
     if (prevProps.visible !== this.props.visible && this.props.visible) {
-      this.selectRef.focus();
+      this.selectRef.current.focus();
     }
   }
 
@@ -136,9 +138,7 @@ class DatePicker extends Component<DatePickerProps, DatePickerState> {
       <ThemeProvider theme={theme}>
         <Container visible={this.props.visible}>
           <Select
-            ref={ref => {
-              this.selectRef = ref;
-            }}
+            ref={this.selectRef}
             tabIndex={0}
             placeholder={this.props.placeholder}
             value={this.state.selectedOption}
