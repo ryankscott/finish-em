@@ -2,6 +2,7 @@ import React, { ReactElement } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import {
+  closeIcon,
   expandedIcon,
   collapsedIcon,
   dueIcon,
@@ -15,6 +16,7 @@ import {
 } from "../assets/icons";
 
 const iconMapping = {
+  CLOSE: closeIcon,
   EXPAND: expandedIcon,
   COLLAPSE: collapsedIcon,
   HELP: helpIcon,
@@ -76,7 +78,9 @@ interface Props {
   width?: number;
   invert?: boolean;
   text?: string;
+  coloured?: boolean;
   icon:
+    | "CLOSE"
     | "EXPAND"
     | "COLLAPSE"
     | "HELP"
@@ -98,6 +102,7 @@ const IconButton = (props: Props): ReactElement => {
         visible={props.visible}
         onClick={props.onClick}
         invert={props.invert}
+        coloured={props.coloured}
       >
         {iconMapping[props.icon](props.width, props.height)}
         {props.text}

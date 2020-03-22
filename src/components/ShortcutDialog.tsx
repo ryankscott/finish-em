@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { Title, Paragraph } from "./Typography";
-import CloseButton from "./CloseButton";
+import IconButton from "./IconButton";
 import { hideShortcutDialog } from "../actions";
 import { capitaliseEachWordInString } from "../utils";
 
@@ -118,7 +118,12 @@ class ShortcutDialog extends Component<
           onKeyDown={this.handleKeyDown}
         >
           <Controls>
-            <CloseButton invert onClick={this.props.closeShortcutDialog} />
+            <IconButton
+              icon="CLOSE"
+              visible
+              invert
+              onClick={this.props.closeShortcutDialog}
+            />
           </Controls>
           <Header>
             <Title invert>Shortcuts</Title>

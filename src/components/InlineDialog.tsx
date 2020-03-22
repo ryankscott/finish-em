@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { Manager, Reference, Popper } from "react-popper";
 
 import { theme } from "../theme";
-import CloseButton from "./CloseButton";
+import IconButton from "./IconButton";
 
 // TODO: How to animate this without blocking other clicks display: none hides it but won't animate
 interface ContainerProps {
@@ -104,7 +104,12 @@ class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
               <ThemeProvider theme={theme}>
                 <Container ref={this.node} visible={this.props.isOpen}>
                   <HeaderContainer>
-                    <CloseButton onClick={this.props.onClose} />
+                    <IconButton
+                      onClick={this.props.onClose}
+                      visible={true}
+                      icon="CLOSE"
+                      coloured={true}
+                    />
                   </HeaderContainer>
                   <BodyContainer>{this.props.content}</BodyContainer>
                 </Container>
