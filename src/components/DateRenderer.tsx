@@ -1,5 +1,5 @@
 import React, { ReactElement } from "react";
-import IconButton from "./IconButton2";
+import IconButton from "./IconButton";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { formatRelativeDate } from "../utils";

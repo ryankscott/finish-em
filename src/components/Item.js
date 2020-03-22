@@ -28,7 +28,7 @@ import DatePicker from "./DatePicker";
 import RepeatPicker from "./RepeatPicker";
 import EditableText from "./EditableText";
 import ExpandIcon from "./ExpandIcon";
-import IconButton from "./IconButton2";
+import IconButton from "./IconButton";
 import DateRenderer from "./DateRenderer";
 import { getProjectNameById, removeItemTypeFromString } from "../utils";
 
