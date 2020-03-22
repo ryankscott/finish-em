@@ -37,7 +37,7 @@ interface ContainerProps {
 // TODO: Add background colour and invert props
 const Container = styled.div<ContainerProps>`
   display: ${props => (props.visible ? "flex" : "none")};
-
+  font-size: ${props => props.theme.fontSizes.xsmall};
   background-color: ${props =>
     props.coloured
       ? props.invert
@@ -75,6 +75,7 @@ interface Props {
   height?: number;
   width?: number;
   invert?: boolean;
+  text?: string;
   icon:
     | "EXPAND"
     | "COLLAPSE"
@@ -99,6 +100,7 @@ const IconButton = (props: Props): ReactElement => {
         invert={props.invert}
       >
         {iconMapping[props.icon](props.width, props.height)}
+        {props.text}
       </Container>
     </ThemeProvider>
   );
