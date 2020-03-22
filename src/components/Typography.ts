@@ -15,7 +15,10 @@ export const Header = styled.h2`
   margin: 10px 0px;
 `;
 
-export const Header1 = styled.h2`
+interface Header1Props {
+  invert?: boolean;
+}
+export const Header1 = styled.h2<Header1Props>`
   font-size: ${props => props.theme.fontSizes.regular};
   font-weight: ${props => props.theme.fontWeights.regular};
   color: ${props =>
@@ -25,7 +28,11 @@ export const Header1 = styled.h2`
   padding-top: 8px;
   margin: 8px 5px;
 `;
-export const Header2 = styled.h2`
+
+interface Header2Props {
+  invert?: boolean;
+}
+export const Header2 = styled.h2<Header2Props>`
   font-size: ${props => props.theme.fontSizes.regular};
   font-weight: ${props => props.theme.fontWeights.regular};
   color: ${props =>
@@ -36,7 +43,10 @@ export const Header2 = styled.h2`
   margin: 0px 5px 5px 5px;
 `;
 
-export const Paragraph = styled.p`
+interface ParagraphProps {
+  invert?: boolean;
+}
+export const Paragraph = styled.p<ParagraphProps>`
   font-size: ${props => props.theme.fontSizes.xsmall};
   font-family: ${props => props.theme.font.sansSerif};
   color: ${props =>

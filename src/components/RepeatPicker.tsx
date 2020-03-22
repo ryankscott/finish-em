@@ -111,17 +111,20 @@ interface RepeatPickerProps {
 }
 interface RepeatPickerState {
   selectedOption: {};
+  dayPickerVisible: boolean;
 }
 
 class RepeatPicker extends Component<RepeatPickerProps, RepeatPickerState> {
+  private selectRef: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = { selectedOption: null, dayPickerVisible: false };
     this.handleChange = this.handleChange.bind(this);
+    this.selectRef = React.createRef();
   }
   componentDidUpdate(prevProps) {
     if (prevProps.visible !== this.props.visible && this.props.visible) {
-      this.selectRef.focus();
+      this.selectRef.current.focus();
     }
   }
 
@@ -136,11 +139,9 @@ class RepeatPicker extends Component<RepeatPickerProps, RepeatPickerState> {
       <ThemeProvider theme={theme}>
         <Container visible={this.props.visible}>
           <Select
-            ref={ref => {
-              this.selectRef = ref;
-            }}
+            ref={this.selectRef}
             tabIndex={0}
-            autoFocus={true}
+            autoFocus
             placeholder={this.props.placeholder}
             value={this.state.selectedOption}
             onChange={this.handleChange}

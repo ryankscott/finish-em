@@ -130,7 +130,7 @@ enum SortCriteriaEnum {
 
 // TODO create an Item type and update this array
 interface FilteredItemListProps {
-  items: Array<any>;
+  items: [];
   filter: FilterEnum;
   sortCriteria: SortCriteriaEnum;
   params: Object;
@@ -140,7 +140,7 @@ interface FilteredItemListProps {
   listName: string;
 }
 
-const FilteredItemList: FunctionComponent<FilteredItemListProps> = props => {
+const FilteredItemList = (props: FilteredItemListProps) => {
   const filteredItems = filterItems(props.items, props.filter, props.params);
   const sortedItems = sortItems(filteredItems, props.sortCriteria);
   return (

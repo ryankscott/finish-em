@@ -2,13 +2,16 @@ import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { theme } from "../theme";
+import { closeIcon } from "../assets/icons";
 
-const StyledButton = styled.button`
+interface StyledButtonProps {
+  invert: boolean;
+}
+const StyledButton = styled.button<StyledButtonProps>`
   background-color: ${props =>
     props.invert
       ? props.theme.colours.darkDialogBackgroundColour
-      : props.theme.colours.lightDialogBackgroundColour}
-
+      : props.theme.colours.lightDialogBackgroundColour};
   color: ${props =>
     props.invert
       ? props.theme.colours.altTextColour
@@ -27,23 +30,24 @@ const StyledButton = styled.button`
     background-color: ${props =>
       props.invert
         ? props.theme.colours.focusDarkDialogBackgroundColour
-        : props.theme.colours.focusLightDialogBackgroundColour}
+        : props.theme.colours.focusLightDialogBackgroundColour};
   }
 `;
 
-function IconButton(props) {
+interface CloseButtonProps {
+  invert: boolean;
+  onClick: () => void;
+}
+const CloseButton = (props: CloseButtonProps) => {
   return (
     <ThemeProvider theme={theme}>
       <StyledButton invert={props.invert} onClick={props.onClick}>
-        {props.children}
+        {closeIcon}
       </StyledButton>
     </ThemeProvider>
   );
-}
+};
 
 const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => ({});
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(IconButton);
+export default connect(mapStateToProps, mapDispatchToProps)(CloseButton);
