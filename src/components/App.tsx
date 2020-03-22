@@ -7,10 +7,11 @@ import Unscheduled from "./Unscheduled";
 import Sidebar from "./Sidebar";
 import Completed from "./Completed";
 import ShortcutDialog from "./ShortcutDialog";
-import { keymap } from "../keymap";
+import { app as appKeymap } from "../keymap";
 import { connect } from "react-redux";
 import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
 import { theme } from "../theme";
+import { ProjectType } from "../interfaces";
 import { useHistory, Route, Switch, useParams } from "react-router-dom";
 import { GlobalHotKeys, configure } from "react-hotkeys";
 import {
@@ -60,8 +61,10 @@ const ShortcutIcon = styled.div`
     cursor: pointer;
   }
 `;
-
-const MainContainer = styled.div`
+interface MainContainerProps {
+  sidebarVisible: boolean;
+}
+const MainContainer = styled.div<MainContainerProps>`
   display: flex;
   flex-direction: column;
   padding: 10px 20px;
@@ -71,7 +74,10 @@ const MainContainer = styled.div`
   align-items: center;
 `;
 
-const ProjectWrapper = props => {
+interface ProjectWrapperProps {
+  projects: ProjectType[];
+}
+const ProjectWrapper = (props: ProjectWrapperProps) => {
   let { id } = useParams();
   const project = props.projects.find(p => {
     return p.id == id;
@@ -136,7 +142,7 @@ function App(props) {
 
   return (
     <ThemeProvider theme={theme}>
-      <GlobalHotKeys keyMap={keymap.APP} handlers={handlers} />
+      <GlobalHotKeys keyMap={appKeymap} handlers={handlers} />
       <GlobalStyle />
       <Container>
         <Sidebar />

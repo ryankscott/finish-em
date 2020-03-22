@@ -4,6 +4,8 @@ import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { getItemById } from "../utils";
 import { Header1 } from "./Typography";
+import { item as itemKeymap } from "../keymap";
+import { ItemType } from "../interfaces";
 
 const NoItemText = styled.p`
   color: ${props => props.theme.colours.disabledTextColour};
@@ -26,7 +28,7 @@ const HeaderContainer = styled.div`
 // TODO: Fix this to have an ItemInterface
 interface ItemListProps {
   name: string;
-  items: [];
+  items: ItemType[];
   showSubtasks: boolean;
   noIndentation: boolean;
   showProject: boolean;
@@ -46,20 +48,22 @@ const ItemList = (props: ItemListProps) => {
           return (
             <div key={"container-" + item.id}>
               <Item
-                {...item}
+                item={item}
                 key={item.id}
                 noIndentation={props.noIndentation}
                 showProject={props.showProject}
+                keymap={itemKeymap}
               />
               {item.children &&
                 item.children.map(c => {
                   const childItem = getItemById(c, props.items);
                   return (
                     <Item
-                      {...childItem}
+                      item={childItem}
                       key={c}
                       noIndentation={props.noIndentation}
                       showProject={props.showProject}
+                      keymap={itemKeymap}
                     />
                   );
                 })}

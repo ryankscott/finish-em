@@ -1,10 +1,11 @@
-import React, { Component, forwardRef } from "react";
-import styled, { ThemeProvider, keyframes } from "styled-components";
+import React, { Component } from "react";
+import { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { RRule } from "rrule";
 import uuidv4 from "uuid/v4";
-
-import { keymap } from "../keymap";
+import { Uuid } from "@typed/uuid";
+import { ItemType, ProjectType } from "../interfaces";
+import { Body, Container, Project, QuickAdd } from "./styled/item";
 
 import {
   addChildItem,
@@ -32,60 +33,38 @@ import IconButton from "./IconButton";
 import DateRenderer from "./DateRenderer";
 import { getProjectNameById, removeItemTypeFromString } from "../utils";
 
-const Container = styled.div`
-  transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
-  max-height: ${props => (props.hidden ? "0px" : "200px")};
-  font-family: ${props => props.theme.font.sansSerif};
-  font-size: ${props => props.theme.fontSizes.medium};
-  display: grid;
-  opacity: ${props => (props.hidden ? "0" : "1")};
-  grid-template-columns: ${props =>
-    props.isSubtask && !props.noIndentation
-      ? "60px 30px repeat(20, 1fr)"
-      : "30px 30px repeat(20, 1fr)"};
-  grid-auto-rows: minmax(20px, auto);
-  grid-template-areas:
-    "EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT"
-    ". . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . . . DUE DUE DUE DUE . . . . REPEAT REPEAT REPEAT REPEAT";
-  border-bottom: ${props => (props.hidden ? "0px" : "1px solid")}
-  border-top: ${props => (props.hidden ? "0px" : "1px solid")};
-  border-color: ${props => props.theme.colours.borderColour};
-  padding: ${props => (props.hidden ? "0px" : "5px 5px 5px 5px")};
-  align-items: center;
-  cursor: pointer;
-  color: ${props => props.theme.colours.defaultTextColour};
-  :focus {
-    background-color: ${props => props.theme.colours.focusBackgroundColour};
-    border-color: ${props => props.theme.colours.focusBorderColour};
-  }
-`;
+interface ItemProps {
+  item: ItemType;
+  hidden: boolean;
+  hiddenChildren: boolean;
+  noIndentation: boolean;
+  showProject: boolean;
+  keymap: Object;
+  projects: ProjectType[];
+  updateItemDescription: (text: string) => void;
+  setRepeatRule: (id: Uuid, rule: RRule) => void;
+  setScheduledDate: (id: Uuid, date: Date) => void;
+  setDueDate: (id: Uuid, date: Date) => void;
+  completeItem: (id: Uuid) => void;
+  uncompleteItem: (id: Uuid) => void;
+  moveItem: (id: Uuid, projectId: Uuid) => void;
+  createSubTask(id: Uuid, text: string, projectId: Uuid);
+  showChildren: (id: Uuid) => void;
+  hideChildren: (id: Uuid) => void;
+}
 
-const QuickAddContainer = styled.div`
-  display: ${props => (props.visible ? "block" : "none")};
-`;
+interface ItemState {
+  projectDropdownVisible: boolean;
+  scheduledDateDropdownVisible: boolean;
+  dueDateDropdownVisible: boolean;
+  repeatDropdownVisible: boolean;
+  descriptionEditable: boolean;
+  quickAddContainerVisible: boolean;
+  keyPresses: string[];
+}
 
-const Body = styled.div`
-  margin: 5px 10px;
-  grid-area: DESC;
-  font-size: ${props => props.theme.fontSizes.regular};
-  text-decoration: ${props =>
-    props.completed == true ? "line-through" : null};
-`;
-
-const Project = styled.div`
-  grid-area: PROJECT;
-  display: ${props => (props.visible ? "flex" : "none")};
-  justify-content: center;
-  text-align: center;
-  margin: 2px 2px 2px 2px;
-  padding: 2px 4px;
-  font-size: ${props => props.theme.fontSizes.xsmall};
-  color: ${props => props.theme.colours.altTextColour};
-  background-color: ${props => props.theme.colours.primaryColour};
-  border-radius: 5px;
-`;
-
-class Item extends Component {
+class Item extends Component<ItemProps, ItemState> {
+  private container: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = {
@@ -105,7 +84,7 @@ class Item extends Component {
     this.handleExpand = this.handleExpand.bind(this);
     this.handleIconClick = this.handleIconClick.bind(this);
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
-
+    this.container = React.createRef();
     this.handlers = {
       TODO: {
         // EDIT_ITEM_DESC: event => {
@@ -113,7 +92,7 @@ class Item extends Component {
         // },
         NEXT_ITEM: event => {
           // If it's a parent element we need to get the first child
-          if (this.props.children.length > 0) {
+          if (this.props.item.children.length > 0) {
             const nextItem = event.target.parentNode.nextSibling;
             if (nextItem) {
               nextItem.firstChild.focus();
@@ -121,7 +100,7 @@ class Item extends Component {
             }
           }
           // If it's a child
-          if (this.props.parentId != null) {
+          if (this.props.item.parentId != null) {
             const nextItem = event.target.parentNode.nextSibling;
             if (nextItem) {
               nextItem.firstChild.focus();
@@ -145,7 +124,7 @@ class Item extends Component {
           }
         },
         PREV_ITEM: event => {
-          if (this.props.children.length > 0) {
+          if (this.props.item.children.length > 0) {
             const prevItem = event.target.parentNode.previousSibling;
             if (prevItem) {
               prevItem.firstChild.focus();
@@ -153,7 +132,7 @@ class Item extends Component {
             }
           }
           // If it's a child
-          if (this.props.parentId != null) {
+          if (this.props.item.parentId != null) {
             const nextItem = event.target.parentNode.previousSibling;
             if (nextItem) {
               nextItem.firstChild.focus();
@@ -178,12 +157,12 @@ class Item extends Component {
           }
         },
         TOGGLE_CHILDREN: () => {
-          this.props.hiddenChildren
-            ? this.props.showChildren(this.props.id)
-            : this.props.hideChildren(this.props.id);
+          this.props.item.hiddenChildren
+            ? this.props.showChildren(this.props.item.id)
+            : this.props.hideChildren(this.props.item.id);
         },
         SET_SCHEDULED_DATE: event => {
-          if (this.props.deleted || this.props.completed) return;
+          if (this.props.item.deleted || this.props.item.completed) return;
           this.setState({
             scheduledDateDropdownVisible: !this.state
               .scheduledDateDropdownVisible,
@@ -194,7 +173,7 @@ class Item extends Component {
           event.preventDefault();
         },
         SET_DUE_DATE: event => {
-          if (this.props.deleted || this.props.completed) return;
+          if (this.props.item.deleted || this.props.item.completed) return;
           this.setState({
             dueDateDropdownVisible: !this.state.dueDateDropdownVisible,
             scheduledDateDropdownVisible: false,
@@ -204,7 +183,7 @@ class Item extends Component {
           event.preventDefault();
         },
         CREATE_SUBTASK: () => {
-          if (this.props.deleted || this.props.completed) return;
+          if (this.props.item.deleted || this.props.item.completed) return;
           this.setState({
             quickAddContainerVisible: !this.state.quickAddContainerVisible,
             scheduledDateDropdownVisible: false,
@@ -214,15 +193,15 @@ class Item extends Component {
           });
         },
         COMPLETE_ITEM: () => {
-          if (this.props.deleted || this.props.completed) return;
-          this.props.completeItem(this.props.id);
+          if (this.props.item.deleted || this.props.item.completed) return;
+          this.props.completeItem(this.props.item.id);
         },
         UNCOMPLETE_ITEM: () => {
-          if (this.props.deleted) return;
-          this.props.uncompleteItem(this.props.id);
+          if (this.props.item.deleted) return;
+          this.props.uncompleteItem(this.props.item.id);
         },
         REPEAT_ITEM: event => {
-          if (this.props.deleted || this.props.completed) return;
+          if (this.props.item.deleted || this.props.item.completed) return;
           this.setState({
             repeatDropdownVisible: !this.state.repeatDropdownVisible,
             scheduledDateDropdownVisible: false,
@@ -232,14 +211,14 @@ class Item extends Component {
           event.preventDefault();
         },
         DELETE_ITEM: event => {
-          if (this.props.deleted) return;
+          if (this.props.item.deleted) return;
           this.props.deleteItem(event.target.id);
         },
         UNDELETE_ITEM: () => {
-          this.props.undeleteItem(this.props.id);
+          this.props.undeleteItem(this.props.item.id);
         },
         MOVE_ITEM: event => {
-          if (this.props.deleted || this.props.completed) return;
+          if (this.props.item.deleted || this.props.item.completed) return;
           this.setState({
             projectDropdownVisible: !this.state.projectDropdownVisible,
             dueDateDropdownVisible: false,
@@ -259,11 +238,77 @@ class Item extends Component {
         }
       },
       NOTE: {
+        NEXT_ITEM: event => {
+          // If it's a parent element we need to get the first child
+          if (this.props.item.children.length > 0) {
+            const nextItem = event.target.parentNode.nextSibling;
+            if (nextItem) {
+              nextItem.firstChild.focus();
+              return;
+            }
+          }
+          // If it's a child
+          if (this.props.item.parentId != null) {
+            const nextItem = event.target.parentNode.nextSibling;
+            if (nextItem) {
+              nextItem.firstChild.focus();
+              return;
+            }
+            // If it's the last child
+            else {
+              const nextItem =
+                event.target.parentNode.parentNode.nextSibling.firstChild;
+              if (nextItem) {
+                nextItem.firstChild.focus();
+                return;
+              }
+            }
+          }
+          const parent = event.target.parentNode.parentNode;
+          const nextItem = parent.nextSibling;
+          if (nextItem) {
+            nextItem.firstChild.firstChild.focus();
+            return;
+          }
+        },
+        PREV_ITEM: event => {
+          if (this.props.item.children.length > 0) {
+            const prevItem = event.target.parentNode.previousSibling;
+            if (prevItem) {
+              prevItem.firstChild.focus();
+              return;
+            }
+          }
+          // If it's a child
+          if (this.props.item.parentId != null) {
+            const nextItem = event.target.parentNode.previousSibling;
+            if (nextItem) {
+              nextItem.firstChild.focus();
+              return;
+            }
+            // If it's the last child
+            else {
+              const prevItem =
+                event.target.parentNode.parentNode.previousSibling.firstChild;
+              if (prevItem) {
+                prevItem.firstChild.focus();
+                return;
+              }
+            }
+          }
+          // TODO: Fix issue for first item
+          const parent = event.target.parentNode.parentNode;
+          const prevItem = parent.previousSibling.firstChild;
+          if (prevItem) {
+            prevItem.firstChild.focus();
+            return;
+          }
+        },
         DELETE_ITEM: () => {
-          this.props.deleteItem(this.props.id);
+          this.props.item.deleteItem(this.props.item.id);
         },
         UNDELETE_ITEM: () => {
-          this.props.undeleteItem(this.props.id);
+          this.props.item.undeleteItem(this.props.item.id);
         },
         MOVE_ITEM: event => {
           this.setState({
@@ -290,8 +335,8 @@ class Item extends Component {
 
   handleDescriptionChange(text) {
     this.props.updateItemDescription(
-      this.props.id,
-      this.props.type + " " + text
+      this.props.item.id,
+      this.props.item.type.concat(" ", text)
     );
   }
 
@@ -308,31 +353,35 @@ class Item extends Component {
   }
 
   setRepeatRule(r) {
-    this.props.setRepeatRule(this.props.id, r);
+    this.props.setRepeatRule(this.props.item.id, r);
     this.setState({ repeatDropdownVisible: false });
-    this.container.focus();
+    this.container.current.focus();
   }
 
   setScheduledDate(d) {
-    this.props.setScheduledDate(this.props.id, d);
+    this.props.setScheduledDate(this.props.item.id, d);
     this.setState({ scheduledDateDropdownVisible: false });
-    this.container.focus();
+    this.container.current.focus();
   }
 
   setDueDate(d) {
-    this.props.setDueDate(this.props.id, d);
+    this.props.setDueDate(this.props.item.id, d);
     this.setState({ dueDateDropdownVisible: false });
-    this.container.focus();
+    this.container.current.focus();
   }
 
   moveItem(projectId) {
-    this.props.moveItem(this.props.id, projectId);
+    this.props.moveItem(this.props.item.id, projectId);
     this.setState({ projectDropdownVisible: false });
-    this.container.focus();
+    this.container.current.focus();
   }
 
   createSubTask(text) {
-    this.props.createSubTask(this.props.id, text, this.props.projectId);
+    this.props.createSubTask(
+      this.props.item.id,
+      text,
+      this.props.item.projectId
+    );
     this.setState({ quickAddContainerVisible: false });
   }
 
@@ -365,17 +414,17 @@ class Item extends Component {
     }
     // TODO handle not matching
     // TODO handle multiple key bindings for each action
-    for (let [key, value] of Object.entries(keymap.ITEM)) {
+    for (let [key, value] of Object.entries(this.props.keymap)) {
       currentKeyPresses.forEach((k, v) => {
         if (v < currentKeyPresses.length) {
           const combo = k + " " + currentKeyPresses[v + 1];
           if (combo == value) {
-            this.handlers["TODO"][key](event);
+            this.handlers[this.props.item.type][key](event);
             return;
           }
           const single = k;
           if (single == value) {
-            this.handlers["TODO"][key](event);
+            this.handlers[this.props.item.type][key](event);
             return;
           }
         }
@@ -384,10 +433,10 @@ class Item extends Component {
   }
 
   handleIconClick() {
-    if (this.props.type == "TODO") {
-      this.props.completed
-        ? this.props.uncompleteItem(this.props.id)
-        : this.props.completeItem(this.props.id);
+    if (this.props.item.type == "TODO") {
+      this.props.item.completed
+        ? this.props.uncompleteItem(this.props.item.id)
+        : this.props.completeItem(this.props.item.id);
       return;
     }
     return;
@@ -395,35 +444,36 @@ class Item extends Component {
 
   handleExpand() {
     this.props.hiddenChildren
-      ? this.props.showChildren(this.props.id)
-      : this.props.hideChildren(this.props.id);
+      ? this.props.showChildren(this.props.item.id)
+      : this.props.hideChildren(this.props.item.id);
     return;
   }
 
   render() {
     // Rehydrate the string repeating rule to an object
-    const repeat = this.props.repeat
-      ? RRule.fromString(this.props.repeat)
-      : this.props.repeat;
+    const repeat = this.props.item.repeat
+      ? RRule.fromString(this.props.item.repeat)
+      : this.props.item.repeat;
     return (
       <ThemeProvider theme={theme}>
-        <div key={this.props.id} id={this.props.id}>
+        <div key={this.props.item.id} id={this.props.item.id}>
           <Container
             hidden={this.props.hidden}
             noIndentation={this.props.noIndentation}
-            isSubtask={this.props.parentId != null}
+            isSubtask={this.props.item.parentId != null}
             onKeyDown={this.handleKeyPress}
-            id={this.props.id}
-            tabIndex={this.props.hidden ? "-1" : "0"}
-            itemType={this.props.type}
-            badshortcutAnimation={this.state.badshortcutAnimation}
-            ref={container => (this.container = container)}
+            id={this.props.item.id}
+            tabIndex={this.props.hidden ? -1 : 0}
+            itemType={this.props.item.type}
+            ref={this.container}
           >
             <div style={{ gridArea: "EXPAND" }}>
               <ExpandIcon
                 expanded={this.props.hiddenChildren}
                 onClick={this.handleExpand}
-                visible={this.props.children && this.props.children.length > 0}
+                visible={
+                  this.props.children && this.props.item.children.length > 0
+                }
               />
             </div>
             <div style={{ gridArea: "TYPE" }}>
@@ -431,80 +481,83 @@ class Item extends Component {
                 onClick={this.handleIconClick}
                 visible={true}
                 icon={
-                  this.props.type == "NOTE"
+                  this.props.item.type == "NOTE"
                     ? "NOTE"
-                    : this.props.completed
+                    : this.props.item.completed
                     ? "TODO_CHECKED"
                     : "TODO_UNCHECKED"
                 }
               />
             </div>
-            <Body id="body" completed={this.props.completed}>
+            <Body id="body" completed={this.props.item.completed}>
               <EditableText
                 editable={this.state.descriptionEditable}
-                readOnly={this.props.completed}
-                input={removeItemTypeFromString(this.props.text)}
+                readOnly={this.props.item.completed}
+                input={removeItemTypeFromString(this.props.item.text)}
                 onUpdate={this.handleDescriptionChange}
                 singleline={true}
               />
             </Body>
             <Project visible={this.props.showProject}>
-              {getProjectNameById(this.props.projectId, this.props.projects)}
+              {getProjectNameById(
+                this.props.item.projectId,
+                this.props.projects
+              )}
             </Project>
             <div style={{ gridArea: "SCHEDULED" }}>
               <DateRenderer
-                visible={this.props.scheduledDate}
-                completed={this.props.completed}
+                visible={this.props.item.scheduledDate != null}
+                completed={this.props.item.completed}
                 type="SCHEDULED"
                 position="flex-start"
-                date={this.props.scheduledDate}
+                date={this.props.item.scheduledDate}
               />
             </div>
             <div style={{ gridArea: "DUE" }}>
               <DateRenderer
-                visible={this.props.dueDate}
-                completed={this.props.completed}
+                visible={this.props.item.dueDate != null}
+                completed={this.props.item.completed}
                 type="DUE"
                 position="center"
-                date={this.props.dueDate}
+                date={this.props.item.dueDate}
               />
             </div>
             <div style={{ gridArea: "REPEAT" }}>
               <DateRenderer
                 visible={repeat}
-                completed={this.props.completed}
+                completed={this.props.item.completed}
                 type="REPEAT"
                 position="flex-end"
                 repeat={repeat}
               />
             </div>
           </Container>
-          <QuickAddContainer visible={this.state.quickAddContainerVisible}>
+          <QuickAdd visible={this.state.quickAddContainerVisible}>
             <EditableItem
               onSubmit={text => this.createSubTask(text)}
               readOnly={false}
             />
-          </QuickAddContainer>
+          </QuickAdd>
           <DatePicker
-            key={"sd" + this.props.id}
+            key={"sd" + this.props.item.id}
             placeholder={"Schedule to: "}
             visible={this.state.scheduledDateDropdownVisible}
             onSubmit={this.setScheduledDate}
           />
           <DatePicker
-            key={"dd" + this.props.id}
+            key={"dd" + this.props.item.id}
             placeholder={"Due on: "}
             visible={this.state.dueDateDropdownVisible}
             onSubmit={this.setDueDate}
           />
           <RepeatPicker
-            key={"rp" + this.props.id}
+            key={"rp" + this.props.item.id}
             placeholder={"Repeat: "}
             visible={this.state.repeatDropdownVisible}
             onSubmit={this.setRepeatRule}
           />
           <ProjectDropdown
-            key={"p" + this.props.id}
+            key={"p" + this.props.item.id}
             placeholder={"Move to: "}
             visible={this.state.projectDropdownVisible}
             onSubmit={this.moveItem}

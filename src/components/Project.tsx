@@ -15,6 +15,7 @@ import FilteredItemList from "../containers/FilteredItemList";
 import DeleteProjectDialog from "./DeleteProjectDialog";
 import QuickAdd from "./QuickAdd";
 import { Uuid } from "@typed/uuid";
+import { ProjectType } from "../interfaces";
 
 const ProjectContainer = styled.div`
   display: flex;
@@ -29,20 +30,11 @@ const HeaderContainer = styled.div`
   justify-content: space-between;
   align-items: baseline;
 `;
-export interface ProjectInterface {
-  id: Uuid;
-  name: string;
-  deleted: boolean;
-  description: string;
-  lastUpdatedAt: Date;
-  deletedAt: Date;
-  createdAt: Date;
-}
 
 export interface ProjectProps {
   deleteProject: (id: Uuid) => void;
   updateDescription: (id: Uuid, input: string) => void;
-  project: ProjectInterface;
+  project: ProjectType;
 }
 function Project(props: ProjectProps) {
   let history = useHistory();

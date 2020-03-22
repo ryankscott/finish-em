@@ -160,7 +160,6 @@ class EditableItem extends Component {
   }
 
   handleReturn(e) {
-    console.log("returning");
     if (this.state.valid) {
       this.props.onSubmit(
         this.state.editorState.getCurrentContent().getPlainText("")

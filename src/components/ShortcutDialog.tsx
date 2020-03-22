@@ -6,7 +6,7 @@ import IconButton from "./IconButton";
 import { hideShortcutDialog } from "../actions";
 import { capitaliseEachWordInString } from "../utils";
 
-import { keymap } from "../keymap";
+import { app as appKeymap, item as itemKeymap } from "../keymap";
 
 import { connect } from "react-redux";
 
@@ -66,12 +66,7 @@ const ShortcutKeys = styled(Paragraph)`
   color: ${props => props.theme.colours.primaryColour};
 `;
 
-const Shortcut = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin-left: 60px;
-`;
-
+// TODO: Refactor me
 interface ShortcutDialogProps {
   isOpen: boolean;
   closeShortcutDialog: () => void;
@@ -81,9 +76,11 @@ class ShortcutDialog extends Component<
   ShortcutDialogProps,
   ShortcutDialogState
 > {
+  private node: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.handleClick = this.handleClick.bind(this);
+    this.node = React.createRef();
   }
   componentDidMount() {
     document.addEventListener("mousedown", this.handleClick, false);
@@ -93,7 +90,7 @@ class ShortcutDialog extends Component<
   }
   handleClick(e) {
     // Don't close if we're clicking on the dialog
-    if (e && this.node && this.node.contains(e.target)) {
+    if (e && this.node && this.node.current.contains(e.target)) {
       return;
     }
     // Only close if it's currently open
@@ -113,7 +110,7 @@ class ShortcutDialog extends Component<
     return (
       <ThemeProvider theme={theme}>
         <ShortcutContainer
-          ref={node => (this.node = node)}
+          ref={this.node}
           isOpen={this.props.isOpen}
           onKeyDown={this.handleKeyDown}
         >
@@ -126,17 +123,17 @@ class ShortcutDialog extends Component<
             />
           </Controls>
           <Header>
-            <Title invert>Shortcuts</Title>
+            <Title>Shortcuts</Title>
           </Header>
           <Body>
             <Column key={1}>
-              {Object.keys(keymap.APP).map((k, i) => {
+              {Object.keys(appKeymap).map((k, i) => {
                 const shortcutName = capitaliseEachWordInString(
                   k.replace(/_/gi, " ")
                 );
                 // TODO this only shows first sequence
                 const shortcuts = (
-                  <ShortcutKeys key={i + "k"}>{keymap.APP[k]}</ShortcutKeys>
+                  <ShortcutKeys key={i + "k"}>{appKeymap[k]}</ShortcutKeys>
                 );
 
                 return (
@@ -150,13 +147,13 @@ class ShortcutDialog extends Component<
               })}
             </Column>
             <Column key={2}>
-              {Object.keys(keymap.ITEM).map((k, i) => {
+              {Object.keys(itemKeymap).map((k, i) => {
                 const shortcutName = capitaliseEachWordInString(
                   k.replace(/_/gi, " ")
                 );
                 // TODO this only shows first sequence
                 const shortcuts = (
-                  <ShortcutKeys key={i + "k"}>{keymap.ITEM[k]}</ShortcutKeys>
+                  <ShortcutKeys key={i + "k"}>{itemKeymap[k]}</ShortcutKeys>
                 );
 
                 return (

@@ -155,7 +155,6 @@ export const itemReducer = (state = initialState, action) => {
           i.hiddenChildren = true;
           i.children.map(c => {
             const child = getItemById(c, state);
-            console.log(child);
             child.hidden = true;
             child.lastUpdatedAt = new Date();
           });
