@@ -31,10 +31,6 @@ const SubTextContainer = styled.div<SubTextProps>`
   margin-left: ${props => (props.position == "flex-start" ? "32px" : "0px")};
 `;
 
-const SubText = styled.div`
-  padding: 0px 5px;
-`;
-
 interface DefaultProps {
   visible: boolean;
   completed: boolean;
@@ -68,14 +64,14 @@ const DateRenderer = (props: Props): ReactElement => {
             visible={props.visible}
             onClick={() => {}}
             icon={props.type}
+            text={
+              props.visible
+                ? props.date
+                  ? formatRelativeDate(props.date)
+                  : props.repeat.toText()
+                : null
+            }
           />
-          <SubText key={"subtext-" + props.type}>
-            {props.visible
-              ? props.date
-                ? formatRelativeDate(props.date)
-                : props.repeat.toText()
-              : null}
-          </SubText>
         </SubTextContainer>
       </Container>
     </ThemeProvider>

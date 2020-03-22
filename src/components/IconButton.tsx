@@ -39,6 +39,7 @@ interface ContainerProps {
 // TODO: Add background colour and invert props
 const Container = styled.div<ContainerProps>`
   display: ${props => (props.visible ? "flex" : "none")};
+  align-items: center;
   font-size: ${props => props.theme.fontSizes.xsmall};
   background-color: ${props =>
     props.coloured
@@ -57,7 +58,7 @@ const Container = styled.div<ContainerProps>`
   padding: 2px;
   border: none;
   margin: 2px;
-  border-radius: 50%;
+  border-radius: 50%; // TODO: 50% or calc
   text-align: center;
   float: right;
   &:hover {
@@ -69,6 +70,10 @@ const Container = styled.div<ContainerProps>`
           : props.theme.colours.focusLightDialogBackgroundColour
         : null}
   }
+`;
+
+const Text = styled.div`
+  padding: 0px 5px;
 `;
 
 interface Props {
@@ -105,7 +110,7 @@ const IconButton = (props: Props): ReactElement => {
         coloured={props.coloured}
       >
         {iconMapping[props.icon](props.width, props.height)}
-        {props.text}
+        <Text>{props.text}</Text>
       </Container>
     </ThemeProvider>
   );
