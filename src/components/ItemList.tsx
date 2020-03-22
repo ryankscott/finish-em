@@ -65,7 +65,6 @@ const ItemList = (props: ItemListProps) => {
                       item={childItem}
                       key={c}
                       hidden={childItem.hidden}
-                      hiddenChildren={item.hiddenChildren}
                       noIndentation={props.noIndentation}
                       showProject={props.showProject}
                       keymap={itemKeymap}

@@ -36,11 +36,11 @@ import { getProjectNameById, removeItemTypeFromString } from "../utils";
 interface ItemProps {
   item: ItemType;
   hidden: boolean;
-  hiddenChildren: boolean;
   noIndentation: boolean;
   showProject: boolean;
   keymap: Object;
   projects: ProjectType[];
+  hiddenChildren: boolean;
   updateItemDescription: (text: string) => void;
   setRepeatRule: (id: Uuid, rule: RRule) => void;
   setScheduledDate: (id: Uuid, date: Date) => void;
@@ -305,10 +305,10 @@ class Item extends Component<ItemProps, ItemState> {
           }
         },
         DELETE_ITEM: () => {
-          this.props.item.deleteItem(this.props.item.id);
+          this.props.deleteItem(this.props.item.id);
         },
         UNDELETE_ITEM: () => {
-          this.props.item.undeleteItem(this.props.item.id);
+          this.props.undeleteItem(this.props.item.id);
         },
         MOVE_ITEM: event => {
           this.setState({
