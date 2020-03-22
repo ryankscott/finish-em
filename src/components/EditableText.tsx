@@ -5,7 +5,13 @@ import { theme } from "../theme";
 import marked from "marked";
 import { setEndOfContenteditable } from "../utils";
 
-const StyledDiv = styled.div`
+interface ContainerProps {
+  width: number;
+  height: number;
+  readOnly: boolean;
+  editing: boolean;
+}
+const Container = styled.div<ContainerProps>`
   overflow: hidden;
   overflow-y: scroll;
   height: ${props => props.height || "auto"};
@@ -32,7 +38,22 @@ const StyledDiv = styled.div`
   }
 `;
 
-class EditableText extends Component {
+interface EditableTextProps {
+  readOnly: boolean;
+  input: string;
+  tabIndex: number;
+  width: number;
+  height: number;
+  singleline: boolean;
+  onUpdate: (input: string) => void;
+}
+interface EditableTextState {
+  input: string;
+  editable: boolean;
+}
+
+class EditableText extends Component<EditableTextProps, EditableTextState> {
+  private editableText: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = {
@@ -45,6 +66,7 @@ class EditableText extends Component {
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.getMarkdownText = this.getMarkdownText.bind(this);
     this.getRawText = this.getRawText.bind(this);
+    this.editableText = React.createRef();
   }
 
   handleBlur(e) {
@@ -54,9 +76,9 @@ class EditableText extends Component {
     if (!this.state.editable) return;
     this.setState({
       editable: false,
-      input: this.editableText.innerText
+      input: this.editableText.current.innerText
     });
-    this.props.onUpdate(this.editableText.innerText);
+    this.props.onUpdate(this.editableText.current.innerText);
   }
 
   handleClick(e) {
@@ -72,7 +94,7 @@ class EditableText extends Component {
         editable: true
       },
       () => {
-        this.editableText.focus();
+        this.editableText.current.focus();
         setEndOfContenteditable(this.editableText);
       }
     );
@@ -90,7 +112,7 @@ class EditableText extends Component {
           },
           () => {
             // The item should be focussed here but double check
-            this.editableText.focus();
+            this.editableText.current.focus();
             setEndOfContenteditable(this.editableText);
           }
         );
@@ -100,9 +122,9 @@ class EditableText extends Component {
     if (e.key == "Enter" && this.props.singleline) {
       this.setState({
         editable: false,
-        input: this.editableText.innerText
+        input: this.editableText.current.innerText
       });
-      this.props.onUpdate(this.editableText.innerText);
+      this.props.onUpdate(this.editableText.current.innerText);
       e.preventDefault();
     }
   }
@@ -119,9 +141,9 @@ class EditableText extends Component {
   render() {
     return (
       <ThemeProvider theme={theme}>
-        <StyledDiv
+        <Container
           readOnly={this.props.readOnly}
-          ref={editableText => (this.editableText = editableText)}
+          ref={this.editableText}
           width={this.props.width}
           height={this.props.height}
           contentEditable={this.state.editable}
@@ -149,7 +171,4 @@ class EditableText extends Component {
 
 const mapStateToProps = state => ({});
 const mapDispatchToProps = dispatch => ({});
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(EditableText);
+export default connect(mapStateToProps, mapDispatchToProps)(EditableText);

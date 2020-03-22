@@ -25,7 +25,7 @@ const HeaderContainer = styled.div`
   align-items: baseline;
   margin-bottom: 20px;
 `;
-// TODO: Fix this to have an ItemInterface
+
 interface ItemListProps {
   name: string;
   items: ItemType[];
@@ -34,6 +34,7 @@ interface ItemListProps {
   showProject: boolean;
 }
 
+// TODO: I've screwed this up because of using interfaces
 const ItemList = (props: ItemListProps) => {
   return (
     <ThemeProvider theme={theme}>
@@ -50,6 +51,8 @@ const ItemList = (props: ItemListProps) => {
               <Item
                 item={item}
                 key={item.id}
+                hidden={item.hidden}
+                hiddenChildren={item.hiddenChildren}
                 noIndentation={props.noIndentation}
                 showProject={props.showProject}
                 keymap={itemKeymap}
@@ -61,6 +64,8 @@ const ItemList = (props: ItemListProps) => {
                     <Item
                       item={childItem}
                       key={c}
+                      hidden={childItem.hidden}
+                      hiddenChildren={item.hiddenChildren}
                       noIndentation={props.noIndentation}
                       showProject={props.showProject}
                       keymap={itemKeymap}

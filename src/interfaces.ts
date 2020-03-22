@@ -12,6 +12,8 @@ export interface ItemType {
   dueDate: Date;
   scheduledDate: Date;
   repeat: RRule | string;
+  hidden: boolean;
+  hiddenChildren: boolean;
 }
 
 export interface ProjectType {

@@ -30,8 +30,13 @@ const Icon = styled.div`
   color: ${props => props.theme.colours.disabledTextColour};
 `;
 
+interface ValidationBoxProps {
+  animate: boolean;
+  valid: boolean;
+  focus: boolean;
+}
 const headShakeAnimation = keyframes`${headShake}`;
-const ValidationBox = styled.div`
+const ValidationBox = styled.div<ValidationBoxProps>`
   animation: 1s ${props => (props.animate ? headShakeAnimation : "none")};
   background-color: whitesmoke;
   display: flex;
@@ -101,7 +106,20 @@ const moveSelectionToEnd = editorState => {
   return EditorState.forceSelection(editorState, selection);
 };
 
-class EditableItem extends Component {
+interface EditableItemProps {
+  text: string;
+  readOnly: boolean;
+  onSubmit: ()
+}
+interface EditableItemState {
+  projectDropdownVisible: boolean;
+  valid: boolean;
+  readOnly: boolean;
+  focus: boolean;
+  animate: boolean;
+  editorState: EditorState;
+}
+class EditableItem extends Component<EditableItemProps, EditableItemState> {
   constructor(props) {
     super(props);
     const es = EditorState.createWithContent(

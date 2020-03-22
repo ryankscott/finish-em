@@ -157,7 +157,7 @@ class Item extends Component<ItemProps, ItemState> {
           }
         },
         TOGGLE_CHILDREN: () => {
-          this.props.item.hiddenChildren
+          this.props.hiddenChildren
             ? this.props.showChildren(this.props.item.id)
             : this.props.hideChildren(this.props.item.id);
         },
@@ -469,10 +469,11 @@ class Item extends Component<ItemProps, ItemState> {
           >
             <div style={{ gridArea: "EXPAND" }}>
               <ExpandIcon
-                expanded={this.props.hiddenChildren}
+                expanded={!this.props.hiddenChildren}
                 onClick={this.handleExpand}
                 visible={
-                  this.props.children && this.props.item.children.length > 0
+                  this.props.item.children &&
+                  this.props.item.children.length > 0
                 }
               />
             </div>

@@ -149,6 +149,7 @@ export const itemReducer = (state = initialState, action) => {
       });
 
     case HIDE_CHILDREN:
+      console.log(action);
       return state.map(i => {
         if (i.id == action.id) {
           i.lastUpdatedAt = new Date();
