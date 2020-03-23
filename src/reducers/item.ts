@@ -18,7 +18,9 @@ import {
 import { RRule } from "rrule";
 import { getItemById } from "../utils";
 import { ItemType } from "../interfaces";
+import { startOfDay } from "date-fns";
 
+// TODO: Fix the IDs here
 const initialState: ItemType[] = [
   {
     id: "5eea6e08-a760-4732-83ca-2329cc718fce",
@@ -249,7 +251,12 @@ export const itemReducer = (state = initialState, action) => {
           i.lastUpdatedAt = new Date();
           // If we don't have the due date we should set this to the next instance of the repeat after today
           if (i.dueDate == null) {
-            i.dueDate = action.rule.after(new Date(), true);
+            console.log(
+              action.rule.all(function(date, i) {
+                return i < 2;
+              })
+            );
+            i.dueDate = action.rule.after(startOfDay(new Date()), true);
           }
         }
         return i;
