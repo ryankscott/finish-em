@@ -35,12 +35,10 @@ import { getProjectNameById, removeItemTypeFromString } from "../utils";
 
 interface ItemProps {
   item: ItemType;
-  hidden: boolean;
   noIndentation: boolean;
   showProject: boolean;
   keymap: Object;
   projects: ProjectType[];
-  hiddenChildren: boolean;
   updateItemDescription: (text: string) => void;
   setRepeatRule: (id: Uuid, rule: RRule) => void;
   setScheduledDate: (id: Uuid, date: Date) => void;
@@ -157,7 +155,7 @@ class Item extends Component<ItemProps, ItemState> {
           }
         },
         TOGGLE_CHILDREN: () => {
-          this.props.hiddenChildren
+          this.props.item.hiddenChildren
             ? this.props.showChildren(this.props.item.id)
             : this.props.hideChildren(this.props.item.id);
         },
@@ -437,13 +435,12 @@ class Item extends Component<ItemProps, ItemState> {
       this.props.item.completed
         ? this.props.uncompleteItem(this.props.item.id)
         : this.props.completeItem(this.props.item.id);
-      return;
     }
     return;
   }
 
   handleExpand() {
-    this.props.hiddenChildren
+    this.props.item.hiddenChildren
       ? this.props.showChildren(this.props.item.id)
       : this.props.hideChildren(this.props.item.id);
     return;
@@ -458,18 +455,18 @@ class Item extends Component<ItemProps, ItemState> {
       <ThemeProvider theme={theme}>
         <div key={this.props.item.id} id={this.props.item.id}>
           <Container
-            hidden={this.props.hidden}
+            hidden={this.props.item.hidden}
             noIndentation={this.props.noIndentation}
             isSubtask={this.props.item.parentId != null}
             onKeyDown={this.handleKeyPress}
             id={this.props.item.id}
-            tabIndex={this.props.hidden ? -1 : 0}
+            tabIndex={this.props.item.hidden ? -1 : 0}
             itemType={this.props.item.type}
             ref={this.container}
           >
             <div style={{ gridArea: "EXPAND" }}>
               <ExpandIcon
-                expanded={!this.props.hiddenChildren}
+                expanded={!this.props.item.hiddenChildren}
                 onClick={this.handleExpand}
                 visible={
                   this.props.item.children &&
