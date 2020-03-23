@@ -208,9 +208,9 @@ class Item extends Component<ItemProps, ItemState> {
           });
           event.preventDefault();
         },
-        DELETE_ITEM: event => {
+        DELETE_ITEM: () => {
           if (this.props.item.deleted) return;
-          this.props.deleteItem(event.target.id);
+          this.props.deleteItem(this.props.item.id);
         },
         UNDELETE_ITEM: () => {
           this.props.undeleteItem(this.props.item.id);
@@ -430,7 +430,7 @@ class Item extends Component<ItemProps, ItemState> {
     }
   }
 
-  handleIconClick() {
+  handleIconClick(e) {
     if (this.props.item.type == "TODO") {
       this.props.item.completed
         ? this.props.uncompleteItem(this.props.item.id)
@@ -579,9 +579,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateItemDescription(id, itemId));
   },
   uncompleteItem: id => {
+    console.log("uncomplete item");
     dispatch(uncompleteItem(id));
   },
   completeItem: id => {
+    console.log("complete item");
     dispatch(completeItem(id));
   },
   undeleteItem: id => {
