@@ -95,7 +95,7 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
       },
       () => {
         this.editableText.current.focus();
-        setEndOfContenteditable(this.editableText);
+        setEndOfContenteditable(this.editableText.current);
       }
     );
   }
