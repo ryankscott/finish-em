@@ -30,6 +30,7 @@ const iconMapping = {
 };
 
 interface ContainerProps {
+  text?: boolean;
   visible?: boolean;
   width?: number;
   height?: number;
@@ -46,8 +47,7 @@ const Container = styled.div<ContainerProps>`
       ? props.invert
         ? props.theme.colours.darkDialogBackgroundColour
         : props.theme.colours.lightDialogBackgroundColour
-      : null}
-
+      : null};
   color: ${props =>
     props.coloured
       ? props.invert
@@ -58,7 +58,7 @@ const Container = styled.div<ContainerProps>`
   padding: 2px;
   border: none;
   margin: 2px;
-  border-radius: 50%; // TODO: 50% or calc
+  border-radius: ${props => (props.text ? "5px" : "50%")};
   text-align: center;
   float: right;
   &:hover {
@@ -68,7 +68,7 @@ const Container = styled.div<ContainerProps>`
         ? props.invert
           ? props.theme.colours.focusDarkDialogBackgroundColour
           : props.theme.colours.focusLightDialogBackgroundColour
-        : null}
+        : null};
   }
 `;
 
@@ -77,7 +77,7 @@ const Text = styled.div`
 `;
 
 interface Props {
-  onClick: () => void;
+  onClick: (event?: React.MouseEvent) => void;
   visible: boolean;
   height?: number;
   width?: number;
@@ -108,9 +108,10 @@ const IconButton = (props: Props): ReactElement => {
         onClick={props.onClick}
         invert={props.invert}
         coloured={props.coloured}
+        text={props.text != undefined}
       >
         {iconMapping[props.icon](props.width, props.height)}
-        <Text>{props.text}</Text>
+        {props.text && <Text>{props.text}</Text>}
       </Container>
     </ThemeProvider>
   );

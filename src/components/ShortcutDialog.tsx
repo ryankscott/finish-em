@@ -40,6 +40,7 @@ const Controls = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  padding: 2px;
 `;
 
 const Body = styled.div`
@@ -97,6 +98,7 @@ class ShortcutDialog extends Component<
     if (this.props.isOpen) {
       this.props.closeShortcutDialog();
     }
+    e.preventDefault();
   }
 
   handleKeyDown(e) {
@@ -119,6 +121,7 @@ class ShortcutDialog extends Component<
               icon="CLOSE"
               visible
               invert
+              coloured
               onClick={this.props.closeShortcutDialog}
             />
           </Controls>
