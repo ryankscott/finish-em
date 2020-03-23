@@ -11,6 +11,7 @@ export interface ItemType {
   projectId: Uuid;
   dueDate: Date;
   scheduledDate: Date;
+  lastUpdatedAt: Date;
   repeat: RRule | string;
   hidden: boolean;
   hiddenChildren: boolean;

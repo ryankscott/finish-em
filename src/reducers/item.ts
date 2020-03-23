@@ -17,8 +17,9 @@ import {
 } from "../actions";
 import { RRule } from "rrule";
 import { getItemById } from "../utils";
+import { ItemType } from "../interfaces";
 
-const initialState = [
+const initialState: ItemType[] = [
   {
     id: "5eea6e08-a760-4732-83ca-2329cc718fce",
     type: "TODO",

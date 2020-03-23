@@ -4,8 +4,9 @@ import {
   DELETE_PROJECT,
   UPDATE_PROJECT_DESCRIPTION
 } from "../actions";
+import { ProjectType } from "../interfaces";
 
-const initialState = [
+const initialState: ProjectType[] = [
   {
     id: null,
     name: "Inbox",
