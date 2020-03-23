@@ -12,6 +12,8 @@ export interface ItemType {
   dueDate: Date;
   scheduledDate: Date;
   lastUpdatedAt: Date;
+  completedAt: Date;
+  deletedAt: Date;
   repeat: RRule | string;
   hidden: boolean;
   hiddenChildren: boolean;
