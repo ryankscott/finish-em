@@ -417,12 +417,14 @@ class Item extends Component<ItemProps, ItemState> {
         if (v < currentKeyPresses.length) {
           const combo = k + " " + currentKeyPresses[v + 1];
           if (combo == value) {
-            this.handlers[this.props.item.type][key](event);
+            const handler = this.handlers[this.props.item.type][key];
+            handler ? handler(event) : null;
             return;
           }
           const single = k;
           if (single == value) {
-            this.handlers[this.props.item.type][key](event);
+            const handler = this.handlers[this.props.item.type][key];
+            handler ? handler(event) : null;
             return;
           }
         }
