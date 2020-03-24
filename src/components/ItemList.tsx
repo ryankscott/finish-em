@@ -3,7 +3,6 @@ import Item from "./Item";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { getItemById } from "../utils";
-import { Header1 } from "./Typography";
 import { item as itemKeymap } from "../keymap";
 import { ItemType } from "../interfaces";
 
@@ -18,16 +17,7 @@ const Container = styled.div`
   margin: 10px 0px;
 `;
 
-const HeaderContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 20px;
-`;
-
 interface ItemListProps {
-  name: string;
   items: ItemType[];
   showSubtasks: boolean;
   noIndentation: boolean;
@@ -39,20 +29,14 @@ const ItemList = (props: ItemListProps) => {
   return (
     <ThemeProvider theme={theme}>
       <Container>
-        <HeaderContainer>
-          <Header1>{props.name}</Header1>
-        </HeaderContainer>
-
         {props.items.map(item => {
           const isSubtask = item.parentId != null;
           if (!props.showSubtasks && isSubtask) return;
           return (
             <div key={"container-" + item.id}>
               <Item
-                item={item}
                 key={item.id}
-                hidden={item.hidden}
-                hiddenChildren={item.hiddenChildren}
+                item={item}
                 noIndentation={props.noIndentation}
                 showProject={props.showProject}
                 keymap={itemKeymap}
@@ -64,7 +48,6 @@ const ItemList = (props: ItemListProps) => {
                     <Item
                       item={childItem}
                       key={c}
-                      hidden={childItem.hidden}
                       noIndentation={props.noIndentation}
                       showProject={props.showProject}
                       keymap={itemKeymap}

@@ -1,8 +1,13 @@
-import React, { FunctionComponent } from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import ItemList from "../components/ItemList";
 import { endOfDay, isSameDay, isAfter, isPast } from "date-fns";
 import { getTasksAndSubtasks } from "../utils";
+import { selectStyles } from "../theme";
+import Select from "react-select";
+import styled from "styled-components";
+import { Header1 } from "../components/Typography";
+import { ItemType } from "../interfaces";
 
 const comparators = {
   STATUS: (a, b) => {
@@ -13,7 +18,7 @@ const comparators = {
     }
     return 0;
   },
-  DUE: (a, b) => {
+  DUE_DESC: (a, b) => {
     if (a.dueDate == null) {
       return 1;
     } else if (isAfter(a.dueDate, b.dueDate)) {
@@ -23,13 +28,33 @@ const comparators = {
     }
     return 0;
   },
-  SCHEDULED: (a, b) => {
+  DUE_ASC: (a, b) => {
+    if (a.dueDate == null) {
+      return -1;
+    } else if (isAfter(a.dueDate, b.dueDate)) {
+      return -1;
+    } else if (isAfter(b.dueDate, a.dueDate)) {
+      return 1;
+    }
+    return 0;
+  },
+  SCHEDULED_DESC: (a, b) => {
     if (a.scheduledDate == null) {
       return 1;
     } else if (isAfter(a.scheduledDate, b.scheduledDate)) {
       return 1;
     } else if (isAfter(b.scheduledDate, a.scheduledDate)) {
       return -1;
+    }
+    return 0;
+  },
+  SCHEDULED_ASC: (a, b) => {
+    if (a.scheduledDate == null) {
+      return -1;
+    } else if (isAfter(a.scheduledDate, b.scheduledDate)) {
+      return -1;
+    } else if (isAfter(b.scheduledDate, a.scheduledDate)) {
+      return 1;
     }
     return 0;
   }
@@ -39,14 +64,19 @@ const sortItems = (items, criteria) => {
   switch (criteria) {
     case "STATUS":
       return items.sort(comparators.STATUS);
-    case "DUE":
-      return items.sort(comparators.DUE);
-    case "SCHEDULED":
-      return items.sort(comparators.SCHEDULED);
+    case "DUE_ASC":
+      return items.sort(comparators.DUE_ASC);
+    case "DUE_DESC":
+      return items.sort(comparators.DUE_ASC);
+    case "SCHEDULED_ASC":
+      return items.sort(comparators.SCHEDULED_ASC);
+    case "SCHEDULED_DESC":
+      return items.sort(comparators.SCHEDULED_DESC);
     default:
       return items;
   }
 };
+
 const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
   switch (filter) {
     case "SHOW_ALL":
@@ -104,6 +134,42 @@ const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
   }
 };
 
+const options = [
+  { value: "DUE_ASC", label: "Due️ ⬆️" },
+  { value: "DUE_DESC", label: "Due ⬇️" },
+  { value: "SCHEDULED_ASC", label: "Scheduled ⬆️️" },
+  { value: "SCHEDULED_DESC", label: "Scheduled ⬇️" },
+  { value: "STATUS", label: "Status ✅" }
+];
+
+const SortSelect = styled(Select)`
+  width: 110px;
+  caret-color: transparent;
+`;
+
+const HeaderContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+`;
+
+const Container = styled.div`
+  margin: 10px 0px;
+`;
+
+interface FilteredItemListProps {
+  items: ItemType[];
+  params: Object;
+  noIndentation: boolean;
+  showSubtasks: boolean;
+  showProject: boolean;
+  listName: string;
+  hideCompleted: boolean;
+  filter: FilterEnum;
+}
+
 enum FilterEnum {
   ShowAll = "SHOW_ALL",
   ShowDeleted = "SHOW_DELETED",
@@ -119,39 +185,58 @@ enum FilterEnum {
 
 enum SortCriteriaEnum {
   Status = "STATUS",
-  Due = "DUE",
-  Scheduled = "SCHEDULED"
+  DueAsc = "DUE_ASC",
+  DueDesc = "DUE_DESC",
+  ScheduledAsc = "SCHEDULED_ASC",
+  ScheduledDesc = "SCHEDULED_DESC"
 }
 
-// TODO create an Item type and update this array
-interface FilteredItemListProps {
-  items: [];
-  filter: FilterEnum;
+interface FilteredItemListState {
+  filteredItems: ItemType[];
   sortCriteria: SortCriteriaEnum;
-  params: Object;
-  noIndentation: boolean;
-  showSubtasks: boolean;
-  showProject: boolean;
-  listName: string;
-  hideCompleted: boolean;
 }
 
-const FilteredItemList: FunctionComponent<FilteredItemListProps> = props => {
-  let filteredItems = filterItems(props.items, props.filter, props.params);
-  filteredItems = props.hideCompleted
-    ? filteredItems.filter(i => i.completed == false)
-    : filteredItems;
-  const sortedItems = sortItems(filteredItems, props.sortCriteria);
-  return (
-    <ItemList
-      noIndentation={props.noIndentation}
-      showSubtasks={props.showSubtasks}
-      items={sortedItems}
-      showProject={props.showProject}
-      name={props.listName}
-    />
-  );
-};
+class FilteredItemList extends Component<
+  FilteredItemListProps,
+  FilteredItemListState
+> {
+  constructor(props) {
+    super(props);
+    this.state = {
+      filteredItems: filterItems(
+        this.props.items,
+        this.props.filter,
+        this.props.params
+      ),
+      sortCriteria: SortCriteriaEnum.DueDesc
+    };
+  }
+
+  render() {
+    return (
+      <Container>
+        <HeaderContainer>
+          <Header1>{this.props.listName}</Header1>
+          <SortSelect
+            options={options}
+            autoFocus={true}
+            placeholder={"Sort 🔽"}
+            styles={selectStyles}
+            onChange={e => {
+              this.setState({ sortCriteria: e.value });
+            }}
+          />
+        </HeaderContainer>
+        <ItemList
+          noIndentation={this.props.noIndentation}
+          showSubtasks={this.props.showSubtasks}
+          items={sortItems(this.props.items, this.state.sortCriteria)}
+          showProject={this.props.showProject}
+        />
+      </Container>
+    );
+  }
+}
 
 const mapStateToProps = state => ({
   items: state.items
