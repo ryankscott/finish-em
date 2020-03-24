@@ -8,6 +8,7 @@ import Select from "react-select";
 import styled from "styled-components";
 import { Header1 } from "../components/Typography";
 import { ItemType } from "../interfaces";
+import { sortIcon } from "../assets/icons";
 
 const comparators = {
   STATUS: (a, b) => {
@@ -145,6 +146,7 @@ const options = [
 const SortSelect = styled(Select)`
   width: 110px;
   caret-color: transparent;
+  padding: 2px;
 `;
 
 const HeaderContainer = styled.div`
@@ -153,6 +155,11 @@ const HeaderContainer = styled.div`
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 20px;
+`;
+const SortContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 `;
 
 const Container = styled.div`
@@ -211,21 +218,23 @@ class FilteredItemList extends Component<
       sortCriteria: SortCriteriaEnum.DueDesc
     };
   }
-
+  // TODO: Add sort icon
   render() {
     return (
       <Container>
         <HeaderContainer>
           <Header1>{this.props.listName}</Header1>
-          <SortSelect
-            options={options}
-            autoFocus={true}
-            placeholder={"Sort 🔽"}
-            styles={selectStyles}
-            onChange={e => {
-              this.setState({ sortCriteria: e.value });
-            }}
-          />
+          <SortContainer>
+            <SortSelect
+              options={options}
+              autoFocus={true}
+              placeholder={"Sort by:"}
+              styles={selectStyles}
+              onChange={e => {
+                this.setState({ sortCriteria: e.value });
+              }}
+            />
+          </SortContainer>
         </HeaderContainer>
         <ItemList
           noIndentation={this.props.noIndentation}
