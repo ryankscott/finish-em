@@ -2,56 +2,11 @@ import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import CreatableSelect from "react-select/creatable";
 import uuidv4 from "uuid/v4";
-import { theme } from "../theme";
+import { theme, selectStyles } from "../theme";
 import { Uuid } from "@typed/uuid";
 
 import { connect } from "react-redux";
 import { createProject } from "../actions";
-const customStyles = {
-  input: () => ({
-    padding: "5px",
-    fontFamily: theme.font.sansSerif
-  }),
-  menu: (provided, state) => ({
-    margin: "4px 0px 0px 0px",
-    padding: "0px",
-    border: "1px solid",
-    backgroundColor: theme.colours.backgroundColour,
-    borderColor: theme.colours.borderColour
-  }),
-  option: (provided, state) => ({
-    ...provided,
-    color: theme.colours.defaultTextColour,
-    backgroundColor: state.isFocused
-      ? theme.colours.focusBackgroundColour
-      : "white",
-    padding: "5px 10px",
-    margin: 0,
-    fontFamily: theme.font.sansSerif,
-    fontSize: theme.fontSizes.small,
-    fontWeight: state.isFocused
-      ? theme.fontWeights.bold
-      : theme.fontWeights.regular
-  }),
-  control: () => ({
-    width: "100%",
-    margin: 0,
-    padding: 0,
-    fontFamily: theme.font.sansSerif,
-    fontSize: theme.fontSizes.small
-  }),
-  singleValue: (provided, state) => ({}),
-  indicatorsContainer: () => ({ display: "none" }),
-  dropdownIndicator: () => ({
-    display: "none"
-  }),
-  noOptionsMessage: () => ({
-    fontFamily: theme.font.sansSerif,
-    fontSize: theme.fontSizes.xsmall,
-    fontWeight: theme.fontWeights.thin,
-    padding: "2px 5px"
-  })
-};
 
 interface ContainerProps {
   visible: boolean;
@@ -61,8 +16,6 @@ const Container = styled.div<ContainerProps>`
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  border: 1px solid;
-  border-color: ${props => props.theme.colours.borderColour};
   height: 35px;
   padding: 0px;
   display: ${props => (!props.visible ? "none" : null)};
@@ -128,7 +81,7 @@ class ProjectDropdown extends Component<
             value={this.state.selectedOption}
             onChange={this.handleChange}
             options={generateOptions(this.props.projects)}
-            styles={customStyles}
+            styles={selectStyles}
           />
         </Container>
       </ThemeProvider>

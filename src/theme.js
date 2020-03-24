@@ -1,4 +1,5 @@
 import { lighten, darken } from "polished";
+import { formatRelative } from "date-fns";
 
 export const theme = {
   font: {
@@ -56,4 +57,64 @@ export const theme = {
     errorColour: "#fe5e41",
     warningColour: "#f9df77"
   }
+};
+
+export const selectStyles = {
+  container: () => ({}),
+  input: () => ({
+    padding: "5px 0px",
+    fontFamily: theme.font.sansSerif,
+    color: theme.colours.defaultTextColour
+  }),
+  menu: (provided, state) => ({
+    margin: "2px 0px",
+    padding: "5px 0px",
+    border: "1px solid",
+    backgroundColor: theme.colours.backgroundColour,
+    borderColor: theme.colours.borderColour,
+    borderRadius: "5px",
+    tabIndex: 0
+  }),
+  option: (provided, state) => ({
+    ...provided,
+    tabIndex: 0,
+    color: theme.colours.defaultTextColour,
+    backgroundColor: state.isFocused
+      ? theme.colours.focusBackgroundColour
+      : theme.colours.backgroundColour,
+    padding: "5px 10px",
+    margin: "0px",
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.xsmall,
+    fontWeight: state.isFocused
+      ? theme.fontWeights.bold
+      : theme.fontWeights.regular,
+    zIndex: 9999
+  }),
+  placeholder: () => ({
+    color: theme.colours.defaultTextColour,
+    backgroundColor: theme.colours.backgroundColour
+  }),
+  control: () => ({
+    width: "100%",
+    margin: 0,
+    padding: 0,
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.xsmall,
+    backgroundColor: theme.colours.backgroundColour,
+    border: "1px solid",
+    borderColor: theme.colours.borderColour,
+    borderRadius: "5px"
+  }),
+  singleValue: (provided, state) => ({}),
+  indicatorsContainer: () => ({ display: "none" }),
+  dropdownIndicator: () => ({
+    display: "none"
+  }),
+  noOptionsMessage: () => ({
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.xsmall,
+    fontWeight: theme.fontWeights.thin,
+    padding: "2px 5px"
+  })
 };
