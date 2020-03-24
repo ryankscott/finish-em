@@ -98,7 +98,6 @@ class ShortcutDialog extends Component<
     if (this.props.isOpen) {
       this.props.closeShortcutDialog();
     }
-    e.preventDefault();
   }
 
   handleKeyDown(e) {
