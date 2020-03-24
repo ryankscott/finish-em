@@ -3,7 +3,6 @@ import {
   CREATE_ITEM,
   DELETE_ITEM,
   UNDELETE_ITEM,
-  UPDATE_ITEM,
   UPDATE_ITEM_DESCRIPTION,
   MOVE_ITEM,
   COMPLETE_ITEM,
@@ -251,23 +250,8 @@ export const itemReducer = (state = initialState, action) => {
           i.lastUpdatedAt = new Date();
           // If we don't have the due date we should set this to the next instance of the repeat after today
           if (i.dueDate == null) {
-            console.log(
-              action.rule.all(function(date, i) {
-                return i < 2;
-              })
-            );
             i.dueDate = action.rule.after(startOfDay(new Date()), true);
           }
-        }
-        return i;
-      });
-
-    case UPDATE_ITEM:
-      return state.map(i => {
-        if (i.id == action.id) {
-          i.text = action.text;
-          i.itemType = action.itemType;
-          i.lastUpdatedAt = new Date();
         }
         return i;
       });
