@@ -4,6 +4,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { formatRelativeDate } from "../utils";
 import { RRule } from "rrule";
+import { parseISO } from "date-fns/esm";
 interface ContainerProps {
   visible: boolean;
   completed: boolean;
@@ -47,6 +48,20 @@ interface DateProps extends DefaultProps {
 
 type Props = RepeatProps | DateProps;
 
+// TODO: Fix this nasty hack, somehow we sometimes get strings as dates
+const resolveText = (date: Date, repeat: RRule) : string {
+  if (date != null && date != undefined) {
+    if (typeof date == "string") {
+      return formatRelativeDate(parseISO(date))
+    }
+    return formatRelativeDate(date)
+  } else if ( repeat != null && repeat != undefined) {
+    return repeat.toText()
+  }
+  return ""
+
+}
+
 const DateRenderer = (props: Props): ReactElement => {
   return (
     <ThemeProvider theme={theme}>
@@ -65,11 +80,7 @@ const DateRenderer = (props: Props): ReactElement => {
             onClick={() => {}}
             icon={props.type}
             text={
-              props.visible
-                ? props.date
-                  ? formatRelativeDate(props.date)
-                  : props.repeat.toText()
-                : null
+              props.visible && resolveText(props.date, props.repeat)
             }
           />
         </SubTextContainer>

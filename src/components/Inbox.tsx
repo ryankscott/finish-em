@@ -16,7 +16,6 @@ const Container = styled.div`
 class Inbox extends Component {
   constructor(props) {
     super(props);
-    console.log(this.props.items);
   }
   // TODO: Hack fix to stop React crashing
   // https://github.com/facebook/draft-js/issues/1320
