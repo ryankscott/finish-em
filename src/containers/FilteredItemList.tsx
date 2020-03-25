@@ -6,7 +6,7 @@ import { getTasksAndSubtasks } from "../utils";
 import { selectStyles } from "../theme";
 import Select from "react-select";
 import styled from "styled-components";
-import { Header1 } from "../components/Typography";
+import { Header1, Paragraph } from "../components/Typography";
 import { ItemType } from "../interfaces";
 import { sortIcon } from "../assets/icons";
 
@@ -134,6 +134,11 @@ const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
       throw new Error("Unknown filter: " + filter);
   }
 };
+const hideCompleted = (items: ItemType[], hide: boolean) => {
+  if (hide) {
+    return items.filter(i => i.completed == false);
+  } else return items;
+};
 
 const options = [
   { value: "DUE_ASC", label: "Due️ ⬆️" },
@@ -161,21 +166,14 @@ const SortContainer = styled.div`
   flex-direction: row;
   align-items: center;
 `;
-
+const CompletedContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`;
 const Container = styled.div`
   margin: 10px 0px;
 `;
-
-interface FilteredItemListProps {
-  items: ItemType[];
-  params: Object;
-  noIndentation: boolean;
-  showSubtasks: boolean;
-  showProject: boolean;
-  listName: string;
-  hideCompleted: boolean;
-  filter: FilterEnum;
-}
 
 enum FilterEnum {
   ShowAll = "SHOW_ALL",
@@ -201,12 +199,24 @@ enum SortCriteriaEnum {
 interface FilteredItemListState {
   filteredItems: ItemType[];
   sortCriteria: SortCriteriaEnum;
+  hideCompleted: boolean;
+}
+interface FilteredItemListProps {
+  items: ItemType[];
+  params: Object;
+  noIndentation: boolean;
+  showSubtasks: boolean;
+  showProject: boolean;
+  listName: string;
+  hideCompleted: boolean;
+  filter: FilterEnum;
 }
 
 class FilteredItemList extends Component<
   FilteredItemListProps,
   FilteredItemListState
 > {
+  private hide_completed_checkbox: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = {
@@ -215,8 +225,10 @@ class FilteredItemList extends Component<
         this.props.filter,
         this.props.params
       ),
-      sortCriteria: SortCriteriaEnum.DueDesc
+      sortCriteria: SortCriteriaEnum.DueDesc,
+      hideCompleted: false
     };
+    this.hide_completed_checkbox = React.createRef();
   }
   // TODO: Add sort icon
   render() {
@@ -224,6 +236,21 @@ class FilteredItemList extends Component<
       <Container>
         <HeaderContainer>
           <Header1>{this.props.listName}</Header1>
+          <CompletedContainer>
+            <Paragraph>Hide Completed?</Paragraph>
+            <input
+              id="hide_completed"
+              name="hide_completed"
+              type="checkbox"
+              value="Hide Completed?"
+              onChange={() => {
+                this.setState({
+                  hideCompleted: !this.state.hideCompleted
+                });
+              }}
+              ref={this.hide_completed_checkbox}
+            ></input>
+          </CompletedContainer>
           <SortContainer>
             <SortSelect
               options={options}
@@ -239,7 +266,10 @@ class FilteredItemList extends Component<
         <ItemList
           noIndentation={this.props.noIndentation}
           showSubtasks={this.props.showSubtasks}
-          items={sortItems(this.props.items, this.state.sortCriteria)}
+          items={hideCompleted(
+            sortItems(this.props.items, this.state.sortCriteria),
+            this.state.hideCompleted
+          )}
           showProject={this.props.showProject}
         />
       </Container>
