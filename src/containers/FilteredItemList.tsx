@@ -154,23 +154,34 @@ const SortSelect = styled(Select)`
   padding: 2px;
 `;
 
-const HeaderContainer = styled.div`
-  display: flex;
+const HeaderBar = styled.div`
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-areas: "name name name . . . hide hide hide sort";
   flex-direction: row;
   justify-content: space-between;
   align-items: baseline;
   margin-bottom: 20px;
 `;
 const SortContainer = styled.div`
+  grid-area: sort;
   display: flex;
   flex-direction: row;
   align-items: center;
+  margin: 2px;
 `;
 const CompletedContainer = styled.div`
+  grid-area: hide;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  justify-content: right;
+  margin: 2px;
 `;
+
+const ListName = styled.div`
+  grid-area: name;
+`;
+
 const Container = styled.div`
   margin: 10px 0px;
 `;
@@ -232,8 +243,10 @@ class FilteredItemList extends Component<
   render() {
     return (
       <Container>
-        <HeaderContainer>
-          <Header1>{this.props.listName}</Header1>
+        <HeaderBar>
+          <ListName>
+            <Header1>{this.props.listName}</Header1>
+          </ListName>
           <CompletedContainer>
             <Paragraph>Hide Completed?</Paragraph>
             <input
@@ -258,7 +271,7 @@ class FilteredItemList extends Component<
               }}
             />
           </SortContainer>
-        </HeaderContainer>
+        </HeaderBar>
         <ItemList
           noIndentation={this.props.noIndentation}
           showSubtasks={this.props.showSubtasks}
