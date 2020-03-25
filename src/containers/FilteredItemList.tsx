@@ -216,7 +216,6 @@ class FilteredItemList extends Component<
   FilteredItemListProps,
   FilteredItemListState
 > {
-  private hide_completed_checkbox: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = {
@@ -241,7 +240,6 @@ class FilteredItemList extends Component<
               id="hide_completed"
               name="hide_completed"
               type="checkbox"
-              value="Hide Completed?"
               onChange={() => {
                 this.setState({
                   hideCompleted: !this.state.hideCompleted
@@ -265,7 +263,7 @@ class FilteredItemList extends Component<
           noIndentation={this.props.noIndentation}
           showSubtasks={this.props.showSubtasks}
           items={hideCompleted(
-            sortItems(this.props.items, this.state.sortCriteria),
+            sortItems(this.state.filteredItems, this.state.sortCriteria),
             true
           )}
           showProject={this.props.showProject}

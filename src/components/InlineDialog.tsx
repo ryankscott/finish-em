@@ -83,7 +83,7 @@ class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
 
   handleClick(e) {
     // Don't close if we're clicking on the dialog
-    if (e && this.node && this.node.current.contains(e.target)) {
+    if (e && this.node.current && this.node.current.contains(e.target)) {
       return;
     }
     // Only close if it's currently open
