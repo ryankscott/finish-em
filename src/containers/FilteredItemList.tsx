@@ -228,7 +228,6 @@ class FilteredItemList extends Component<
       sortCriteria: SortCriteriaEnum.DueDesc,
       hideCompleted: false
     };
-    this.hide_completed_checkbox = React.createRef();
   }
   // TODO: Add sort icon
   render() {
@@ -248,7 +247,6 @@ class FilteredItemList extends Component<
                   hideCompleted: !this.state.hideCompleted
                 });
               }}
-              ref={this.hide_completed_checkbox}
             ></input>
           </CompletedContainer>
           <SortContainer>
@@ -268,7 +266,7 @@ class FilteredItemList extends Component<
           showSubtasks={this.props.showSubtasks}
           items={hideCompleted(
             sortItems(this.props.items, this.state.sortCriteria),
-            this.state.hideCompleted
+            true
           )}
           showProject={this.props.showProject}
         />
