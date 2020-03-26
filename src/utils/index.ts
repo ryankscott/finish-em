@@ -1,22 +1,24 @@
 import chrono from "chrono-node";
 import { isAfter, format, isToday, isTomorrow, isThisWeek } from "date-fns";
+import { ItemType, ProjectType } from "../interfaces";
+import { Uuid } from "@typed/uuid";
 
 export const itemRegex = new RegExp("^(TODO)|(NOTE)s*.*", "gi");
 
-export const getItemTypeFromString = text => {
+export const getItemTypeFromString = (text: string): string => {
   const words = text.split(" ");
   const itemType = words[0];
   return itemType.toUpperCase();
 };
 
-export const capitaliseItemTypeFromString = text => {
+export const capitaliseItemTypeFromString = (text: string): string => {
   const words = text.split(" ");
   const t = words.shift().toUpperCase();
   words.unshift(t);
   return words.join(" ");
 };
 
-export const removeItemTypeFromString = text => {
+export const removeItemTypeFromString = (text: string): string => {
   if (!text) {
     return "";
   }
@@ -25,12 +27,12 @@ export const removeItemTypeFromString = text => {
   return words.join(" ").trim();
 };
 
-export const extractDateFromString = text => {
+export const extractDateFromString = (text: string): Date => {
   const dates = chrono.parse(text);
   return dates.length ? dates[0].ref : null;
 };
 
-export const removeDateFromString = text => {
+export const removeDateFromString = (text: string): string => {
   const dates = chrono.parse(text);
   if (dates.length == 0 || dates === undefined) {
     return text;
@@ -41,13 +43,13 @@ export const removeDateFromString = text => {
 };
 
 // TODO: Think about tags etc.
-export const validateItemString = text => {
+export const validateItemString = (text: string): boolean => {
   const matches = text.match(itemRegex);
   return (matches && matches.length) > 0;
 };
 
 // Removes key from object without mutating original object
-export const removeByKey = (object, deleteKey) => {
+export const removeByKey = (object: Object, deleteKey: string): Object => {
   return Object.keys(object)
     .filter(key => key !== deleteKey)
     .reduce((result, current) => {
@@ -114,7 +116,7 @@ function getLastChildElement(el) {
   return lc;
 }
 
-//Based on Nico Burns's answer
+// Based on Nico Burns's answer
 export const setEndOfContenteditable = function(contentEditableElement) {
   while (
     getLastChildElement(contentEditableElement) &&
@@ -141,10 +143,7 @@ export const setEndOfContenteditable = function(contentEditableElement) {
   }
 };
 
-export const formatRelativeDate = date => {
-  if (!date) {
-    return;
-  }
+export const formatRelativeDate = (date: Date): string => {
   if (isToday(date)) {
     return "Today";
   } else if (isTomorrow(date)) {
@@ -156,11 +155,14 @@ export const formatRelativeDate = date => {
   }
 };
 
-export const getItemById = (id, items) => {
+export const getItemById = (id: Uuid, items: ItemType[]): ItemType => {
   return items.find(i => i.id == id);
 };
 
-export const getSubtasksFromTasks = (items, allItems) => {
+export const getSubtasksFromTasks = (
+  items: ItemType[],
+  allItems: ItemType[]
+) => {
   const itemsWithSubtasks = items.filter(
     i => i.children && i.children.length > 0
   );
@@ -170,13 +172,16 @@ export const getSubtasksFromTasks = (items, allItems) => {
   return subtasks.flat();
 };
 
-export const getTasksAndSubtasks = (items, filter) => {
+export const getTasksAndSubtasks = (
+  items: ItemType[],
+  filter: (ItemType) => boolean
+): ItemType[] => {
   const filteredItems = items.filter(filter);
   const subtasks = getSubtasksFromTasks(filteredItems, items);
   return [...filteredItems, ...subtasks];
 };
 
-export const capitaliseEachWordInString = text => {
+export const capitaliseEachWordInString = (text: string): string => {
   return text
     .toLowerCase()
     .split(" ")
@@ -184,11 +189,17 @@ export const capitaliseEachWordInString = text => {
     .join(" ");
 };
 
-export const getProjectById = (id, projects) => {
+export const getProjectById = (
+  id: Uuid,
+  projects: ProjectType[]
+): ProjectType => {
   return projects.find(i => i.id == id);
 };
 
-export const getProjectNameById = (id, projects) => {
+export const getProjectNameById = (
+  id: Uuid,
+  projects: ProjectType[]
+): string => {
   const p = projects.find(i => i.id == id);
   return p ? p.name : "";
 };

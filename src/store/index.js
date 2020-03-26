@@ -13,53 +13,46 @@ if (isElectron()) {
   createElectronStorage = window.require("redux-persist-electron-storage");
 }
 
-// Redux-persist stores dates as JSON, these functions will restore them as dates
-const replacer = (key, value) => {
-  if (value instanceof Date) return value.toISOString();
-  else return value;
-};
-
-const reviver = (key, value) => {
-  if (
-    typeof value === "string" &&
-    value.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)
-  )
-    return new Date(value);
-  else return value;
-};
-
-export const encode = toDehydrate => JSON.stringify(toDehydrate, replacer);
-
-export const decode = toRehydrate => JSON.parse(toRehydrate, reviver);
-/*
 const migrations = {
-  0: state => {
+  1: state => {
     return {
       ...state,
-      items: items.map(i => {
+      items: state.items.map(i => {
         if (i.children == undefined) {
           i.children = [];
+        }
+        if (i.childrenHidden == undefined) {
+          i.childrenHidden = false;
+        }
+        if (i.hidden == undefined) {
+          i.hidden = false;
+        }
+        if (i.repeat == undefined) {
+          i.repeat = null;
+        }
+        if (i.deletedAt == undefined) {
+          i.deletedAt = null;
         }
         return i;
       })
     };
   }
-};*/
+};
 
 let persistConfig;
 if (isElectron()) {
   persistConfig = {
-    version: 0,
+    version: 1,
     key: "root",
     storage: createElectronStorage(),
-    transforms: [createTransform(encode, decode)]
+    migrate: createMigrate(migrations, { debug: true })
   };
 } else {
   persistConfig = {
-    version: 0,
+    version: 1,
     key: "root",
     storage,
-    transforms: [createTransform(encode, decode)]
+    migrate: createMigrate(migrations, { debug: true })
   };
 }
 const persistedReducer = persistReducer(persistConfig, rootReducer);

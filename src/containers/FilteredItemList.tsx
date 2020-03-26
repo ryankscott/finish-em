@@ -1,17 +1,17 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import ItemList from "../components/ItemList";
-import { endOfDay, isSameDay, isAfter, isPast } from "date-fns";
+import { endOfDay, isSameDay, isAfter, isPast, parseISO } from "date-fns";
 import { getTasksAndSubtasks } from "../utils";
 import { selectStyles } from "../theme";
 import Select from "react-select";
 import styled from "styled-components";
 import { Header1, Paragraph } from "../components/Typography";
 import { ItemType } from "../interfaces";
-import { sortIcon } from "../assets/icons";
+import { Uuid } from "@typed/uuid";
 
 const comparators = {
-  STATUS: (a, b) => {
+  STATUS: (a: ItemType, b: ItemType) => {
     if (a.completed == true && b.completed == false) {
       return 1;
     } else if (a.completed == false && b.completed == true) {
@@ -19,49 +19,57 @@ const comparators = {
     }
     return 0;
   },
-  DUE_DESC: (a, b) => {
-    if (a.dueDate == null) {
+  DUE_DESC: (a: ItemType, b: ItemType) => {
+    const dueDateA = parseISO(a.dueDate);
+    const dueDateB = parseISO(b.dueDate);
+    if (dueDateA == null) {
       return 1;
-    } else if (isAfter(a.dueDate, b.dueDate)) {
+    } else if (isAfter(dueDateA, dueDateB)) {
       return 1;
-    } else if (isAfter(b.dueDate, a.dueDate)) {
+    } else if (isAfter(dueDateB, dueDateA)) {
       return -1;
     }
     return 0;
   },
-  DUE_ASC: (a, b) => {
-    if (a.dueDate == null) {
+  DUE_ASC: (a: ItemType, b: ItemType) => {
+    const dueDateA = parseISO(a.dueDate);
+    const dueDateB = parseISO(b.dueDate);
+    if (dueDateA == null) {
       return -1;
-    } else if (isAfter(a.dueDate, b.dueDate)) {
+    } else if (isAfter(dueDateA, dueDateB)) {
       return -1;
-    } else if (isAfter(b.dueDate, a.dueDate)) {
+    } else if (isAfter(dueDateB, dueDateA)) {
       return 1;
     }
     return 0;
   },
-  SCHEDULED_DESC: (a, b) => {
-    if (a.scheduledDate == null) {
+  SCHEDULED_DESC: (a: ItemType, b: ItemType) => {
+    const scheduledDateA = parseISO(a.scheduledDate);
+    const scheduledDateB = parseISO(b.scheduledDate);
+    if (scheduledDateA == null) {
       return 1;
-    } else if (isAfter(a.scheduledDate, b.scheduledDate)) {
+    } else if (isAfter(scheduledDateA, scheduledDateB)) {
       return 1;
-    } else if (isAfter(b.scheduledDate, a.scheduledDate)) {
+    } else if (isAfter(scheduledDateB, scheduledDateA)) {
       return -1;
     }
     return 0;
   },
-  SCHEDULED_ASC: (a, b) => {
-    if (a.scheduledDate == null) {
+  SCHEDULED_ASC: (a: ItemType, b: ItemType) => {
+    const scheduledDateA = parseISO(a.scheduledDate);
+    const scheduledDateB = parseISO(b.scheduledDate);
+    if (scheduledDateA == null) {
       return -1;
-    } else if (isAfter(a.scheduledDate, b.scheduledDate)) {
+    } else if (isAfter(scheduledDateA, scheduledDateB)) {
       return -1;
-    } else if (isAfter(b.scheduledDate, a.scheduledDate)) {
+    } else if (isAfter(scheduledDateB, scheduledDateA)) {
       return 1;
     }
     return 0;
   }
 };
 
-const sortItems = (items, criteria) => {
+const sortItems = (items: ItemType[], criteria: SortCriteriaEnum) => {
   switch (criteria) {
     case "STATUS":
       return items.sort(comparators.STATUS);
@@ -78,7 +86,11 @@ const sortItems = (items, criteria) => {
   }
 };
 
-const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
+const filterItems = (
+  items: ItemType[],
+  filter: FilterEnum,
+  params: FilterParamsType
+) => {
   switch (filter) {
     case "SHOW_ALL":
       return items;
@@ -102,13 +114,15 @@ const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
     case "SHOW_DUE_ON_DAY":
       return getTasksAndSubtasks(
         items,
-        i => isSameDay(i.dueDate, params.dueDate) && i.deleted == false
+        i =>
+          isSameDay(parseISO(i.dueDate), params.dueDate) && i.deleted == false
       );
     case "SHOW_SCHEDULED_ON_DAY":
       return getTasksAndSubtasks(
         items,
         i =>
-          isSameDay(i.scheduledDate, params.scheduledDate) && i.deleted == false
+          isSameDay(parseISO(i.scheduledDate), params.scheduledDate) &&
+          i.deleted == false
       );
     case "SHOW_NOT_SCHEDULED":
       return getTasksAndSubtasks(
@@ -124,12 +138,12 @@ const filterItems = (items: Array<any>, filter: FilterEnum, params: Object) => {
           i.deleted == false
       );
     case "SHOW_OVERDUE":
-      return getTasksAndSubtasks(
-        items,
-        i =>
-          isPast(endOfDay(i.scheduledDate)) ||
-          (isPast(endOfDay(i.dueDate)) && i.deleted == false)
-      );
+      return getTasksAndSubtasks(items, i => {
+        return (
+          isPast(endOfDay(parseISO(i.scheduledDate))) ||
+          (isPast(endOfDay(parseISO(i.dueDate))) && i.deleted == false)
+        );
+      });
     default:
       throw new Error("Unknown filter: " + filter);
   }
@@ -207,6 +221,13 @@ enum SortCriteriaEnum {
   ScheduledDesc = "SCHEDULED_DESC"
 }
 
+interface FilterParamsType {
+  dueDate?: Date;
+  scheduledDate?: Date;
+  projectId?: Uuid;
+  type?: "TODO" | "NOTE";
+}
+
 interface FilteredItemListState {
   filteredItems: ItemType[];
   sortCriteria: SortCriteriaEnum;
@@ -214,7 +235,7 @@ interface FilteredItemListState {
 }
 interface FilteredItemListProps {
   items: ItemType[];
-  params: Object;
+  params: FilterParamsType;
   noIndentation: boolean;
   showSubtasks: boolean;
   showProject: boolean;
@@ -277,7 +298,7 @@ class FilteredItemList extends Component<
           showSubtasks={this.props.showSubtasks}
           items={hideCompleted(
             sortItems(this.state.filteredItems, this.state.sortCriteria),
-            true
+            this.state.hideCompleted
           )}
           showProject={this.props.showProject}
         />

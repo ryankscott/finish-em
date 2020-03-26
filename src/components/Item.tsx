@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
-import { RRule } from "rrule";
+import { RRule, rrulestr } from "rrule";
 import uuidv4 from "uuid/v4";
 import { Uuid } from "@typed/uuid";
 import { ItemType, ProjectType } from "../interfaces";
@@ -31,7 +31,12 @@ import EditableText from "./EditableText";
 import ExpandIcon from "./ExpandIcon";
 import IconButton from "./IconButton";
 import DateRenderer from "./DateRenderer";
-import { getProjectNameById, removeItemTypeFromString } from "../utils";
+import {
+  getProjectNameById,
+  removeItemTypeFromString,
+  formatRelativeDate
+} from "../utils";
+import { parseISO } from "date-fns";
 
 interface ItemProps {
   item: ItemType;
@@ -449,9 +454,17 @@ class Item extends Component<ItemProps, ItemState> {
   }
 
   render() {
+    // TODO #22: Somehow we sometimes get a null item being passed in
     if (!this.props.item) return null;
-    // Rehydrate the string repeating rule to an object
-    const repeat = "";
+    const repeat = this.props.item.repeat
+      ? rrulestr(this.props.item.repeat).toText()
+      : "";
+    const dueDate = this.props.item.dueDate
+      ? formatRelativeDate(parseISO(this.props.item.dueDate))
+      : null;
+    const scheduledDate = this.props.item.scheduledDate
+      ? formatRelativeDate(parseISO(this.props.item.scheduledDate))
+      : null;
     return (
       <ThemeProvider theme={theme}>
         <div key={this.props.item.id} id={this.props.item.id}>
@@ -509,7 +522,7 @@ class Item extends Component<ItemProps, ItemState> {
                 completed={this.props.item.completed}
                 type="SCHEDULED"
                 position="flex-start"
-                date={this.props.item.scheduledDate}
+                text={scheduledDate}
               />
             </div>
             <div style={{ gridArea: "DUE" }}>
@@ -518,16 +531,16 @@ class Item extends Component<ItemProps, ItemState> {
                 completed={this.props.item.completed}
                 type="DUE"
                 position="center"
-                date={this.props.item.dueDate}
+                text={dueDate}
               />
             </div>
             <div style={{ gridArea: "REPEAT" }}>
               <DateRenderer
-                visible={repeat}
+                visible={this.props.item.repeat != null}
                 completed={this.props.item.completed}
                 type="REPEAT"
                 position="flex-end"
-                repeat={repeat}
+                text={repeat}
               />
             </div>
           </Container>

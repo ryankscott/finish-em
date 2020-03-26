@@ -14,10 +14,10 @@ import {
   SHOW_CHILDREN,
   HIDE_CHILDREN
 } from "../actions";
-import { RRule } from "rrule";
 import { getItemById } from "../utils";
 import { ItemType } from "../interfaces";
 import { startOfDay } from "date-fns";
+import RRule, { rrulestr } from "rrule";
 
 // TODO: Fix the IDs here
 const initialState: ItemType[] = [
@@ -77,7 +77,7 @@ const initialState: ItemType[] = [
   }
 ];
 
-export const itemReducer = (state = initialState, action) => {
+export const itemReducer = (state: ItemType[] = initialState, action) => {
   switch (action.type) {
     case CREATE_ITEM:
       return [
@@ -91,6 +91,7 @@ export const itemReducer = (state = initialState, action) => {
           projectId: action.projectId,
           completed: false,
           deleted: false,
+          deletedAt: null,
           completedAt: null,
           createdAt: new Date(),
           lastUpdatedAt: new Date(),
@@ -106,7 +107,7 @@ export const itemReducer = (state = initialState, action) => {
       return state.map(i => {
         if (i.projectId == action.id) {
           i.deleted = true;
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
       });
@@ -115,7 +116,8 @@ export const itemReducer = (state = initialState, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.deleted = true;
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
+          i.deletedAt = new Date().toISOString();
 
           // Remove the child from parents
           if (i.parentId != null) {
@@ -131,7 +133,8 @@ export const itemReducer = (state = initialState, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.deleted = false;
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
+          i.deletedAt = null;
         }
         return i;
       });
@@ -139,12 +142,12 @@ export const itemReducer = (state = initialState, action) => {
     case SHOW_CHILDREN:
       return state.map(i => {
         if (i.id == action.id) {
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
           i.hiddenChildren = false;
           i.children.map(c => {
             const child = getItemById(c, state);
             child.hidden = false;
-            child.lastUpdatedAt = new Date();
+            child.lastUpdatedAt = new Date().toISOString();
           });
         }
         return i;
@@ -153,12 +156,12 @@ export const itemReducer = (state = initialState, action) => {
     case HIDE_CHILDREN:
       return state.map(i => {
         if (i.id == action.id) {
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
           i.hiddenChildren = true;
           i.children.map(c => {
             const child = getItemById(c, state);
             child.hidden = true;
-            child.lastUpdatedAt = new Date();
+            child.lastUpdatedAt = new Date().toISOString();
           });
         }
         return i;
@@ -169,14 +172,15 @@ export const itemReducer = (state = initialState, action) => {
         if (i.id == action.id) {
           if (i.repeat == null) {
             i.completed = true;
-            i.completedAt = new Date();
+            i.completedAt = new Date().toISOString();
             // We should set the due date if there's a repeat to the next occurrence
           } else {
-            const r = RRule.fromString(i.repeat);
-            i.dueDate = r.after(new Date());
+            i.dueDate = rrulestr(i.repeat)
+              .after(new Date())
+              .toISOString();
             i.scheduledDate = null;
           }
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
       });
@@ -188,7 +192,7 @@ export const itemReducer = (state = initialState, action) => {
         if (i.id == action.parentId) {
           i.children =
             i.children == undefined ? [action.id] : [...i.children, action.id];
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
         } else if (i.id == action.id) {
           i.projectId = parent.projectId;
         }
@@ -200,12 +204,13 @@ export const itemReducer = (state = initialState, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.completed = false;
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
           i.completedAt = null;
           // If there's a repeating due date, set it to the next occurence (including today)
           if (i.repeat != null) {
-            const r = RRule.fromString(i.repeat);
-            i.dueDate = r.after(new Date(), true);
+            i.dueDate = rrulestr(i.repeat)
+              .after(new Date(), true)
+              .toISOString();
           }
         }
         return i;
@@ -215,7 +220,7 @@ export const itemReducer = (state = initialState, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.projectId = action.projectId;
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
           i.children &&
             i.children.map(c => {
               const child = getItemById(c, state);
@@ -228,8 +233,8 @@ export const itemReducer = (state = initialState, action) => {
     case SET_SCHEDULED_DATE:
       return state.map(i => {
         if (i.id == action.id) {
-          i.scheduledDate = action.date;
-          i.lastUpdatedAt = new Date();
+          i.scheduledDate = action.date.toISOString();
+          i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
       });
@@ -237,8 +242,8 @@ export const itemReducer = (state = initialState, action) => {
     case SET_DUE_DATE:
       return state.map(i => {
         if (i.id == action.id) {
-          i.dueDate = action.date;
-          i.lastUpdatedAt = new Date();
+          i.dueDate = action.date.toISOString();
+          i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
       });
@@ -246,8 +251,8 @@ export const itemReducer = (state = initialState, action) => {
     case SET_REPEAT_RULE:
       return state.map(i => {
         if (i.id == action.id) {
-          i.repeat = action.rule ? action.rule.toString() : action.rule;
-          i.lastUpdatedAt = new Date();
+          i.repeat = action.rule.toString();
+          i.lastUpdatedAt = new Date().toISOString();
           // If we don't have the due date we should set this to the next instance of the repeat after today
           if (i.dueDate == null) {
             i.dueDate = action.rule.after(startOfDay(new Date()), true);
@@ -260,7 +265,7 @@ export const itemReducer = (state = initialState, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.text = action.text;
-          i.lastUpdatedAt = new Date();
+          i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
       });
