@@ -48,19 +48,21 @@ interface DateProps extends DefaultProps {
 
 type Props = RepeatProps | DateProps;
 
-// TODO: Fix this nasty hack, somehow we sometimes get strings as dates
-const resolveText = (date: Date, repeat: RRule) : string {
-  if (date != null && date != undefined) {
-    if (typeof date == "string") {
-      return formatRelativeDate(parseISO(date))
-    }
-    return formatRelativeDate(date)
-  } else if ( repeat != null && repeat != undefined) {
-    return repeat.toText()
+// TODO #21: Fix this nasty hack, somehow we sometimes get strings as dates
+const resolveText = (date: Date, repeat: RRule): string => {
+  return "";
+  /*
+  if (repeat == null || repeat == undefined) return "";
+  if (typeof date == "string") {
+    return formatRelativeDate(parseISO(date));
   }
-  return ""
-
-}
+  try {
+    return repeat.toText();
+  } catch (e) {
+    console.log(e);
+    console.log(repeat);
+  }*/
+};
 
 const DateRenderer = (props: Props): ReactElement => {
   return (
@@ -79,9 +81,7 @@ const DateRenderer = (props: Props): ReactElement => {
             visible={props.visible}
             onClick={() => {}}
             icon={props.type}
-            text={
-              props.visible && resolveText(props.date, props.repeat)
-            }
+            text={props.visible && resolveText(props.date, props.repeat)}
           />
         </SubTextContainer>
       </Container>

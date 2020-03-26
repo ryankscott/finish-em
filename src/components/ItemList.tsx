@@ -30,6 +30,7 @@ const ItemList = (props: ItemListProps) => {
     <ThemeProvider theme={theme}>
       <Container>
         {props.items.map(item => {
+          if (item == undefined) return;
           const isSubtask = item.parentId != null;
           if (!props.showSubtasks && isSubtask) return;
           return (

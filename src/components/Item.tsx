@@ -449,10 +449,9 @@ class Item extends Component<ItemProps, ItemState> {
   }
 
   render() {
+    if (!this.props.item) return null;
     // Rehydrate the string repeating rule to an object
-    const repeat = this.props.item.repeat
-      ? RRule.fromString(this.props.item.repeat)
-      : this.props.item.repeat;
+    const repeat = "";
     return (
       <ThemeProvider theme={theme}>
         <div key={this.props.item.id} id={this.props.item.id}>
@@ -581,11 +580,9 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateItemDescription(id, itemId));
   },
   uncompleteItem: id => {
-    console.log("uncomplete item");
     dispatch(uncompleteItem(id));
   },
   completeItem: id => {
-    console.log("complete item");
     dispatch(completeItem(id));
   },
   undeleteItem: id => {
