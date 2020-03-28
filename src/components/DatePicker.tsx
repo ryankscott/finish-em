@@ -42,7 +42,7 @@ const options = [
 
 export interface DatePickerProps {
   visible: boolean;
-  onSubmit: (Date) => void;
+  onSubmit: (d: Date) => void;
   placeholder: string;
 }
 interface DatePickerState {
