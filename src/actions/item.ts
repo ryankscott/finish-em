@@ -200,3 +200,18 @@ export function hideChildren(id: Uuid): HideChildrenAction {
     id: id
   };
 }
+
+export type ItemActions =
+  | HideChildrenAction
+  | ShowChildrenAction
+  | AddChildItemAction
+  | UpdateItemDescriptionAction
+  | SetRepeatRuleAction
+  | SetDueDateAction
+  | SetScheduledDateAction
+  | MoveItemAction
+  | UncompleteItemAction
+  | CompleteItemAction
+  | UndeleteItemAction
+  | DeleteItemAction
+  | CreateItemAction;
