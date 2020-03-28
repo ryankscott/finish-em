@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, KeyboardEvent } from "react";
 import { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { RRule, rrulestr } from "rrule";
@@ -335,7 +335,7 @@ class Item extends Component<ItemProps, ItemState> {
     };
   }
 
-  handleDescriptionChange(text) {
+  handleDescriptionChange(text: string) {
     this.props.updateItemDescription(
       this.props.id,
       this.props.type.concat(" ", text)
@@ -354,37 +354,37 @@ class Item extends Component<ItemProps, ItemState> {
     });
   }
 
-  setRepeatRule(r) {
+  setRepeatRule(r: RRule) {
     this.props.setRepeatRule(this.props.id, r);
     this.setState({ repeatDropdownVisible: false });
     this.container.current.focus();
   }
 
-  setScheduledDate(d) {
+  setScheduledDate(d: Date) {
     this.props.setScheduledDate(this.props.id, d);
     this.setState({ scheduledDateDropdownVisible: false });
     this.container.current.focus();
   }
 
-  setDueDate(d) {
+  setDueDate(d: Date) {
     this.props.setDueDate(this.props.id, d);
     this.setState({ dueDateDropdownVisible: false });
     this.container.current.focus();
   }
 
-  moveItem(projectId) {
+  moveItem(projectId: Uuid) {
     this.props.moveItem(this.props.id, projectId);
     this.setState({ projectDropdownVisible: false });
     this.container.current.focus();
   }
 
-  createSubTask(text) {
+  createSubTask(text: string) {
     this.props.createSubTask(this.props.id, text, this.props.projectId);
     this.setState({ quickAddContainerVisible: false });
   }
 
   // TODO: Refactor the shit out of this
-  handleKeyPress(event) {
+  handleKeyPress(event: KeyboardEvent<HTMLDivElement>) {
     let currentKeyPresses = this.state.keyPresses;
     // Remove the first value in the array (3 is the max shortcut matching length)
     currentKeyPresses =
@@ -432,7 +432,7 @@ class Item extends Component<ItemProps, ItemState> {
     }
   }
 
-  handleIconClick(e) {
+  handleIconClick() {
     if (this.props.type == "TODO") {
       this.props.completed
         ? this.props.uncompleteItem(this.props.id)
@@ -571,42 +571,42 @@ const mapStateToProps = state => ({
   projects: state.projects
 });
 const mapDispatchToProps = dispatch => ({
-  createSubTask: (parentId, text, projectId) => {
+  createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => {
     const childId = uuidv4();
     dispatch(createItem(childId, text, projectId, parentId));
     dispatch(addChildItem(childId, parentId));
   },
-  updateItemDescription: (id, itemId) => {
-    dispatch(updateItemDescription(id, itemId));
+  updateItemDescription: (id: Uuid, text: string) => {
+    dispatch(updateItemDescription(id, text));
   },
-  uncompleteItem: id => {
+  uncompleteItem: (id: Uuid) => {
     dispatch(uncompleteItem(id));
   },
-  completeItem: id => {
+  completeItem: (id: Uuid) => {
     dispatch(completeItem(id));
   },
-  undeleteItem: id => {
+  undeleteItem: (id: Uuid) => {
     dispatch(undeleteItem(id));
   },
-  deleteItem: id => {
+  deleteItem: (id: Uuid) => {
     dispatch(deleteItem(id));
   },
-  moveItem: (id, projectId) => {
+  moveItem: (id: Uuid, projectId: Uuid) => {
     dispatch(moveItem(id, projectId));
   },
-  setScheduledDate: (id, date) => {
+  setScheduledDate: (id: Uuid, date: Date) => {
     dispatch(setScheduledDate(id, date));
   },
-  setDueDate: (id, date) => {
+  setDueDate: (id: Uuid, date: Date) => {
     dispatch(setDueDate(id, date));
   },
-  setRepeatRule: (id, rule) => {
+  setRepeatRule: (id: Uuid, rule: RRule) => {
     dispatch(setRepeatRule(id, rule));
   },
-  hideChildren: id => {
+  hideChildren: (id: Uuid) => {
     dispatch(hideChildren(id));
   },
-  showChildren: id => {
+  showChildren: (id: Uuid) => {
     dispatch(showChildren(id));
   }
 });
