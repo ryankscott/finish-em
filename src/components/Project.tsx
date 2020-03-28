@@ -64,12 +64,12 @@ function Project(props: ProjectProps) {
         <QuickAdd projectId={props.project.id} />
         <FilteredItemList
           filter="SHOW_FROM_PROJECT_BY_TYPE"
-          params={{ projectId: props.project.id, type: "NOTE" }}
+          filterParams={{ projectId: props.project.id, type: "NOTE" }}
           listName="Notes"
         />
         <FilteredItemList
           filter="SHOW_FROM_PROJECT_BY_TYPE"
-          params={{ projectId: props.project.id, type: "TODO" }}
+          filterParams={{ projectId: props.project.id, type: "TODO" }}
           sortCriteria="STATUS"
           listName="Todos"
         />

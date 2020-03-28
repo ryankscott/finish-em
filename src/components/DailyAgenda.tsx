@@ -88,7 +88,7 @@ function DailyAgenda(props: DailyAgendaProps) {
           <FilteredItemList
             items={props.items}
             filter="SHOW_DUE_ON_DAY"
-            params={{ dueDate: new Date() }}
+            filterParams={{ dueDate: new Date() }}
             sortCriteria="DUE"
             showProject={true}
             listName="Due Today"
@@ -96,7 +96,7 @@ function DailyAgenda(props: DailyAgendaProps) {
           <FilteredItemList
             items={props.items}
             filter="SHOW_SCHEDULED_ON_DAY"
-            params={{ scheduledDate: new Date() }}
+            filterParams={{ scheduledDate: new Date() }}
             sortCriteria="STATUS"
             showProject={true}
             listName="Scheduled Today"

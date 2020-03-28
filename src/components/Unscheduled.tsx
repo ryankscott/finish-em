@@ -23,14 +23,12 @@ const Unscheduled = () => (
         sortCriteria="DUE"
         showProject={true}
         listName="Overdue"
-        hideCompleted={true}
       />
       <FilteredItemList
         filter="SHOW_NOT_SCHEDULED"
         sortCriteria="DUE"
         showProject={true}
         listName="Unscheduled"
-        hideCompleted={true}
       />
     </UnscheduledContainer>
   </ThemeProvider>
