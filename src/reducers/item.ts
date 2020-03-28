@@ -17,12 +17,13 @@ import {
 import { getItemById } from "../utils";
 import { ItemType } from "../interfaces";
 import { startOfDay } from "date-fns";
-import RRule, { rrulestr } from "rrule";
+import { rrulestr } from "rrule";
+import uuidv4 from "uuid/v4";
 
 // TODO: Fix the IDs here
 const initialState: ItemType[] = [
   {
-    id: "5eea6e08-a760-4732-83ca-2329cc718fce",
+    id: uuidv4(),
     type: "TODO",
     text: "TODO Learn org-mode",
     projectId: null,
@@ -30,35 +31,37 @@ const initialState: ItemType[] = [
     dueDate: null,
     completed: false,
     deleted: false,
-    createdAt: new Date(2020, 1, 1),
+    deletedAt: null,
+    createdAt: new Date(2020, 1, 1).toISOString(),
     completedAt: null,
-    lastUpdatedAt: new Date(2020, 1, 1),
+    lastUpdatedAt: new Date(2020, 1, 1).toISOString(),
     repeat: null,
     parentId: null,
     hidden: false,
-    childrenHidden: false,
+    hiddenChildren: false,
     children: []
   },
   {
-    id: "f2c91c07-e2bf-4a61-ad83-59261031775f",
+    id: uuidv4(),
     type: "TODO",
     text: "TODO Write better code",
     projectId: null,
-    scheduledDate: new Date(2020, 3, 2),
+    scheduledDate: new Date(2020, 3, 2).toISOString(),
     dueDate: null,
     completed: false,
     deleted: false,
-    createdAt: new Date(2020, 1, 1),
+    deletedAt: null,
+    createdAt: new Date(2020, 1, 1).toISOString(),
     completedAt: null,
-    lastUpdatedAt: new Date(2020, 1, 1),
+    lastUpdatedAt: new Date(2020, 1, 1).toISOString(),
     repeat: null,
     parentId: null,
     hidden: false,
-    childrenHidden: false,
+    hiddenChildren: false,
     children: []
   },
   {
-    id: "f2b91c07-e2bf-4a61-ad83-59261031775f",
+    id: uuidv4(),
     type: "NOTE",
     text: "NOTE Carrot in German is mohren",
     projectId: null,
@@ -66,18 +69,22 @@ const initialState: ItemType[] = [
     dueDate: null,
     completed: false,
     deleted: false,
-    createdAt: new Date(2020, 1, 1),
+    deletedAt: null,
+    createdAt: new Date(2020, 1, 1).toISOString(),
     completedAt: null,
-    lastUpdatedAt: new Date(2020, 1, 1),
+    lastUpdatedAt: new Date(2020, 1, 1).toISOString(),
     repeat: null,
     parentId: null,
     hidden: false,
-    childrenHidden: false,
+    hiddenChildren: false,
     children: []
   }
 ];
 
-export const itemReducer = (state: ItemType[] = initialState, action) => {
+export const itemReducer = (
+  state: ItemType[] = initialState,
+  action
+): ItemType[] => {
   switch (action.type) {
     case CREATE_ITEM:
       return [
@@ -87,18 +94,18 @@ export const itemReducer = (state: ItemType[] = initialState, action) => {
           type: action.itemType,
           text: action.text,
           scheduledDate: null,
-          dueDate: action.dueDate,
+          dueDate: action.dueDate ? action.dueDate.toISOString() : null,
           projectId: action.projectId,
           completed: false,
           deleted: false,
           deletedAt: null,
           completedAt: null,
-          createdAt: new Date(),
-          lastUpdatedAt: new Date(),
+          createdAt: new Date().toISOString(),
+          lastUpdatedAt: new Date().toISOString(),
           repeat: null,
           parentId: action.parentId,
           hidden: false,
-          childrenHidden: false,
+          hiddenChildren: false,
           children: []
         }
       ];
@@ -116,9 +123,8 @@ export const itemReducer = (state: ItemType[] = initialState, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.deleted = true;
-          i.lastUpdatedAt = new Date().toISOString();
           i.deletedAt = new Date().toISOString();
-
+          i.lastUpdatedAt = new Date().toISOString();
           // Remove the child from parents
           if (i.parentId != null) {
             const parent = getItemById(i.parentId, state);
@@ -133,8 +139,8 @@ export const itemReducer = (state: ItemType[] = initialState, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.deleted = false;
-          i.lastUpdatedAt = new Date().toISOString();
           i.deletedAt = null;
+          i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
       });
@@ -142,8 +148,8 @@ export const itemReducer = (state: ItemType[] = initialState, action) => {
     case SHOW_CHILDREN:
       return state.map(i => {
         if (i.id == action.id) {
-          i.lastUpdatedAt = new Date().toISOString();
           i.hiddenChildren = false;
+          i.lastUpdatedAt = new Date().toISOString();
           i.children.map(c => {
             const child = getItemById(c, state);
             child.hidden = false;
@@ -156,8 +162,8 @@ export const itemReducer = (state: ItemType[] = initialState, action) => {
     case HIDE_CHILDREN:
       return state.map(i => {
         if (i.id == action.id) {
-          i.lastUpdatedAt = new Date().toISOString();
           i.hiddenChildren = true;
+          i.lastUpdatedAt = new Date().toISOString();
           i.children.map(c => {
             const child = getItemById(c, state);
             child.hidden = true;
@@ -190,11 +196,13 @@ export const itemReducer = (state: ItemType[] = initialState, action) => {
       const parent = getItemById(action.parentId, state);
       return state.map(i => {
         if (i.id == action.parentId) {
+          i.hiddenChildren = false;
           i.children =
             i.children == undefined ? [action.id] : [...i.children, action.id];
           i.lastUpdatedAt = new Date().toISOString();
         } else if (i.id == action.id) {
           i.projectId = parent.projectId;
+          i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
       });
@@ -204,8 +212,8 @@ export const itemReducer = (state: ItemType[] = initialState, action) => {
       return state.map(i => {
         if (i.id == action.id) {
           i.completed = false;
-          i.lastUpdatedAt = new Date().toISOString();
           i.completedAt = null;
+          i.lastUpdatedAt = new Date().toISOString();
           // If there's a repeating due date, set it to the next occurence (including today)
           if (i.repeat != null) {
             i.dueDate = rrulestr(i.repeat)
