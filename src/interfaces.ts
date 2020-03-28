@@ -12,6 +12,7 @@ export interface ItemType {
   scheduledDate: string;
   lastUpdatedAt: string;
   completedAt: string;
+  createdAt: string;
   deletedAt: string;
   repeat: string;
   hidden: boolean;
