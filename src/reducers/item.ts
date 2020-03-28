@@ -241,7 +241,7 @@ export const itemReducer = (
     case SET_SCHEDULED_DATE:
       return state.map(i => {
         if (i.id == action.id) {
-          i.scheduledDate = action.date.toISOString();
+          i.scheduledDate = action.date?.toISOString();
           i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
@@ -250,7 +250,7 @@ export const itemReducer = (
     case SET_DUE_DATE:
       return state.map(i => {
         if (i.id == action.id) {
-          i.dueDate = action.date.toISOString();
+          i.dueDate = action.date?.toISOString();
           i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
@@ -259,7 +259,7 @@ export const itemReducer = (
     case SET_REPEAT_RULE:
       return state.map(i => {
         if (i.id == action.id) {
-          i.repeat = action.rule.toString();
+          i.repeat = action.rule?.toString();
           i.lastUpdatedAt = new Date().toISOString();
           // If we don't have the due date we should set this to the next instance of the repeat after today
           if (i.dueDate == null) {
