@@ -21,8 +21,8 @@ const migrations = {
         if (i.children == undefined) {
           i.children = [];
         }
-        if (i.childrenHidden == undefined) {
-          i.childrenHidden = false;
+        if (i.hiddenChildren == undefined) {
+          i.hiddenChildren = false;
         }
         if (i.hidden == undefined) {
           i.hidden = false;
