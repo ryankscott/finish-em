@@ -92,7 +92,6 @@ const comparators = {
 };
 
 const sortItems = (items: ItemType[], criteria: SortCriteriaEnum) => {
-  console.log(criteria);
   switch (criteria) {
     case "STATUS":
       return items.sort(comparators.STATUS);
@@ -194,8 +193,8 @@ const getFilteredItems = (
 };
 
 const options = [
-  { value: "DUE_ASC", label: "Due️ ⬆️" },
   { value: "DUE_DESC", label: "Due ⬇️" },
+  { value: "DUE_ASC", label: "Due️ ⬆️" },
   { value: "SCHEDULED_ASC", label: "Scheduled ⬆️️" },
   { value: "SCHEDULED_DESC", label: "Scheduled ⬇️" },
   { value: "STATUS", label: "Status ✅" }
@@ -318,7 +317,6 @@ class FilteredItemList extends Component<
       this.props.filter,
       this.props.filterParams
     );
-    console.log(filteredItems);
     return (
       <Container>
         <HeaderBar>
@@ -340,6 +338,7 @@ class FilteredItemList extends Component<
           <SortContainer>
             <SortSelect
               options={options}
+              defaultValue={options[0]}
               autoFocus={true}
               placeholder={"Sort by:"}
               styles={selectStyles}
