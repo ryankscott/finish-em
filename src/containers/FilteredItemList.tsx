@@ -90,7 +90,7 @@ const filterItems = (
   items: ItemType[],
   filter: FilterEnum,
   params: FilterParamsType
-) => {
+): ItemType[] => {
   switch (filter) {
     case "SHOW_ALL":
       return items;
@@ -148,10 +148,26 @@ const filterItems = (
       throw new Error("Unknown filter: " + filter);
   }
 };
-const hideCompleted = (items: ItemType[], hide: boolean) => {
+
+const hideCompletedItems = (items: ItemType[], hide: boolean): ItemType[] => {
   if (hide) {
     return items.filter(i => i.completed == false);
   } else return items;
+};
+
+const getFilteredItems = (
+  items: ItemType[],
+  hideCompleted: boolean,
+  sortCriteria: SortCriteriaEnum,
+  filterCriteria: FilterEnum,
+  filterParams: FilterParamsType
+) => {
+  const filteredItems = filterItems(items, filterCriteria, filterParams);
+  const itemsWithCompletedHidden = hideCompletedItems(
+    filteredItems,
+    hideCompleted
+  );
+  return sortItems(itemsWithCompletedHidden, sortCriteria);
 };
 
 const options = [
@@ -171,7 +187,9 @@ const SortSelect = styled(Select)`
 const HeaderBar = styled.div`
   display: grid;
   grid-template-columns: repeat(10, 1fr);
-  grid-template-areas: "name name name . . . hide hide hide sort";
+  grid-template-areas:
+    "name name name . . . . . . . "
+    ". . . . . . hide hide hide sort";
   flex-direction: row;
   justify-content: space-between;
   align-items: baseline;
@@ -184,6 +202,7 @@ const SortContainer = styled.div`
   align-items: center;
   margin: 2px;
 `;
+
 const CompletedContainer = styled.div`
   grid-area: hide;
   display: flex;
@@ -229,7 +248,6 @@ interface FilterParamsType {
 }
 
 interface FilteredItemListState {
-  filteredItems: ItemType[];
   sortCriteria: SortCriteriaEnum;
   hideCompleted: boolean;
 }
@@ -240,7 +258,6 @@ interface FilteredItemListProps {
   showSubtasks: boolean;
   showProject: boolean;
   listName: string;
-  hideCompleted: boolean;
   filter: FilterEnum;
 }
 
@@ -251,17 +268,19 @@ class FilteredItemList extends Component<
   constructor(props) {
     super(props);
     this.state = {
-      filteredItems: filterItems(
-        this.props.items,
-        this.props.filter,
-        this.props.params
-      ),
       sortCriteria: SortCriteriaEnum.DueDesc,
       hideCompleted: false
     };
   }
-  // TODO: Add sort icon
+  // TODO: Add sort and filtering back
   render() {
+    const shownItems = getFilteredItems(
+      this.props.items,
+      this.state.hideCompleted,
+      this.state.sortCriteria,
+      this.props.filter,
+      this.props.params
+    );
     return (
       <Container>
         <HeaderBar>
@@ -294,13 +313,10 @@ class FilteredItemList extends Component<
           </SortContainer>
         </HeaderBar>
         <ItemList
+          showProject={this.props.showProject}
           noIndentation={this.props.noIndentation}
           showSubtasks={this.props.showSubtasks}
-          items={hideCompleted(
-            sortItems(this.state.filteredItems, this.state.sortCriteria),
-            this.state.hideCompleted
-          )}
-          showProject={this.props.showProject}
+          items={shownItems}
         />
       </Container>
     );

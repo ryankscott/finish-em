@@ -24,7 +24,6 @@ interface ItemListProps {
   showProject: boolean;
 }
 
-// TODO: I've screwed this up because of using interfaces
 const ItemList = (props: ItemListProps) => {
   return (
     <ThemeProvider theme={theme}>
@@ -36,8 +35,8 @@ const ItemList = (props: ItemListProps) => {
           return (
             <div key={"container-" + item.id}>
               <Item
+                {...item}
                 key={item.id}
-                item={item}
                 noIndentation={props.noIndentation}
                 showProject={props.showProject}
                 keymap={itemKeymap}
@@ -47,7 +46,7 @@ const ItemList = (props: ItemListProps) => {
                   const childItem = getItemById(c, props.items);
                   return (
                     <Item
-                      item={childItem}
+                      {...childItem}
                       key={c}
                       noIndentation={props.noIndentation}
                       showProject={props.showProject}
