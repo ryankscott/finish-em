@@ -1,7 +1,14 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import ItemList from "../components/ItemList";
-import { endOfDay, isSameDay, isAfter, isPast, parseISO } from "date-fns";
+import {
+  endOfDay,
+  isSameDay,
+  isAfter,
+  isPast,
+  parseISO,
+  isValid
+} from "date-fns";
 import { getTasksAndSubtasks } from "../utils";
 import { selectStyles } from "../theme";
 import Select from "react-select";
@@ -9,6 +16,13 @@ import styled from "styled-components";
 import { Header1, Paragraph } from "../components/Typography";
 import { ItemType } from "../interfaces";
 import { Uuid } from "@typed/uuid";
+
+/*
+If compareFunction(a, b) returns less than 0, sort a to an index lower than b (i.e. a comes first).
+If compareFunction(a, b) returns greater than 0, sort b to an index lower than a (i.e. b comes first).
+If compareFunction(a, b) returns 0, leave a and b unchanged with respect to each other, but sorted with respect to all different elements. Note: the ECMAscript standard does not guarantee this behavior, thus, not all browsers (e.g. Mozilla versions dating back to at least 2003) respect this.
+compareFunction(a, b) must always return the same value when given a specific pair of elements a and b as its two arguments. If inconsistent results are returned, then the sort order is undefined.
+*/
 
 const comparators = {
   STATUS: (a: ItemType, b: ItemType) => {
@@ -22,8 +36,10 @@ const comparators = {
   DUE_DESC: (a: ItemType, b: ItemType) => {
     const dueDateA = parseISO(a.dueDate);
     const dueDateB = parseISO(b.dueDate);
-    if (dueDateA == null) {
+    if (!isValid(dueDateA)) {
       return 1;
+    } else if (!isValid(dueDateB)) {
+      return -1;
     } else if (isAfter(dueDateA, dueDateB)) {
       return 1;
     } else if (isAfter(dueDateB, dueDateA)) {
@@ -34,7 +50,9 @@ const comparators = {
   DUE_ASC: (a: ItemType, b: ItemType) => {
     const dueDateA = parseISO(a.dueDate);
     const dueDateB = parseISO(b.dueDate);
-    if (dueDateA == null) {
+    if (!isValid(dueDateA)) {
+      return 1;
+    } else if (!isValid(dueDateB)) {
       return -1;
     } else if (isAfter(dueDateA, dueDateB)) {
       return -1;
@@ -46,8 +64,10 @@ const comparators = {
   SCHEDULED_DESC: (a: ItemType, b: ItemType) => {
     const scheduledDateA = parseISO(a.scheduledDate);
     const scheduledDateB = parseISO(b.scheduledDate);
-    if (scheduledDateA == null) {
+    if (!isValid(scheduledDateA)) {
       return 1;
+    } else if (!isValid(scheduledDateB)) {
+      return -1;
     } else if (isAfter(scheduledDateA, scheduledDateB)) {
       return 1;
     } else if (isAfter(scheduledDateB, scheduledDateA)) {
@@ -58,7 +78,9 @@ const comparators = {
   SCHEDULED_ASC: (a: ItemType, b: ItemType) => {
     const scheduledDateA = parseISO(a.scheduledDate);
     const scheduledDateB = parseISO(b.scheduledDate);
-    if (scheduledDateA == null) {
+    if (!isValid(scheduledDateA)) {
+      return 1;
+    } else if (!isValid(scheduledDateB)) {
       return -1;
     } else if (isAfter(scheduledDateA, scheduledDateB)) {
       return -1;
@@ -70,13 +92,14 @@ const comparators = {
 };
 
 const sortItems = (items: ItemType[], criteria: SortCriteriaEnum) => {
+  console.log(criteria);
   switch (criteria) {
     case "STATUS":
       return items.sort(comparators.STATUS);
     case "DUE_ASC":
       return items.sort(comparators.DUE_ASC);
     case "DUE_DESC":
-      return items.sort(comparators.DUE_ASC);
+      return items.sort(comparators.DUE_DESC);
     case "SCHEDULED_ASC":
       return items.sort(comparators.SCHEDULED_ASC);
     case "SCHEDULED_DESC":
@@ -89,7 +112,7 @@ const sortItems = (items: ItemType[], criteria: SortCriteriaEnum) => {
 const filterItems = (
   items: ItemType[],
   filter: FilterEnum,
-  params: FilterParamsType
+  params?: FilterParamsType
 ): ItemType[] => {
   switch (filter) {
     case "SHOW_ALL":
@@ -177,38 +200,49 @@ const options = [
   { value: "SCHEDULED_DESC", label: "Scheduled ⬇️" },
   { value: "STATUS", label: "Status ✅" }
 ];
+const CompletedText = styled(Paragraph)`
+  text-decoration: pointer;
+`;
 
 const SortSelect = styled(Select)`
   width: 110px;
   caret-color: transparent;
   padding: 2px;
+  position: absolute;
 `;
 
 const HeaderBar = styled.div`
   display: grid;
   grid-template-columns: repeat(10, 1fr);
+  grid-template-rows: 45px 35px;
   grid-template-areas:
-    "name name name . . . . . . . "
-    ". . . . . . hide hide hide sort";
+    "name name name . . . . . . ."
+    "hide hide hide . . . . sort sort sort";
   flex-direction: row;
   justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 20px;
-`;
-const SortContainer = styled.div`
-  grid-area: sort;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin: 2px;
+  align-items: flex-end;
+  margin-bottom: 10px;
 `;
 
-const CompletedContainer = styled.div`
-  grid-area: hide;
+const SortContainer = styled.div`
   display: flex;
+  justify-content: flex-end;
+  grid-area: sort;
+  position: relative;
+  width: 100%;
+  height: 100%;
+`;
+
+interface CompletedContainerProps {
+  visible: boolean;
+}
+const CompletedContainer = styled.div<CompletedContainerProps>`
+  grid-area: hide;
+  display: ${props => (props.visible ? "flex" : "none")};
   flex-direction: row;
-  justify-content: right;
+  justify-content: flex-start;
   margin: 2px;
+  cursor: pointer;
 `;
 
 const ListName = styled.div`
@@ -251,14 +285,15 @@ interface FilteredItemListState {
   sortCriteria: SortCriteriaEnum;
   hideCompleted: boolean;
 }
+
 interface FilteredItemListProps {
   items: ItemType[];
-  params: FilterParamsType;
   noIndentation: boolean;
   showSubtasks: boolean;
   showProject: boolean;
   listName: string;
   filter: FilterEnum;
+  filterParams: FilterParamsType;
 }
 
 class FilteredItemList extends Component<
@@ -274,31 +309,33 @@ class FilteredItemList extends Component<
   }
   // TODO: Add sort and filtering back
   render() {
-    const shownItems = getFilteredItems(
+    const completedItems = this.props.items.filter(i => i.completed == true)
+      .length;
+    const filteredItems = getFilteredItems(
       this.props.items,
       this.state.hideCompleted,
       this.state.sortCriteria,
       this.props.filter,
-      this.props.params
+      this.props.filterParams
     );
+    console.log(filteredItems);
     return (
       <Container>
         <HeaderBar>
           <ListName>
             <Header1>{this.props.listName}</Header1>
           </ListName>
-          <CompletedContainer>
-            <Paragraph>Hide Completed?</Paragraph>
-            <input
-              id="hide_completed"
-              name="hide_completed"
-              type="checkbox"
-              onChange={() => {
-                this.setState({
-                  hideCompleted: !this.state.hideCompleted
-                });
-              }}
-            ></input>
+          <CompletedContainer
+            visible={completedItems > 0}
+            onClick={() =>
+              this.setState({ hideCompleted: !this.state.hideCompleted })
+            }
+          >
+            <CompletedText>
+              {(this.state.hideCompleted ? "Show " : "Hide ") +
+                completedItems.toString() +
+                " completed"}
+            </CompletedText>
           </CompletedContainer>
           <SortContainer>
             <SortSelect
@@ -316,7 +353,7 @@ class FilteredItemList extends Component<
           showProject={this.props.showProject}
           noIndentation={this.props.noIndentation}
           showSubtasks={this.props.showSubtasks}
-          items={shownItems}
+          items={filteredItems}
         />
       </Container>
     );
