@@ -3,7 +3,6 @@ import { Uuid } from "@typed/uuid";
 export const CREATE_ITEM = "CREATE_ITEM";
 export const DELETE_ITEM = "DELETE_ITEM";
 export const UNDELETE_ITEM = "UNDELETE_ITEM";
-export const UPDATE_ITEM = "UPDATE_ITEM";
 export const UPDATE_ITEM_DESCRIPTION = "UPDATE_ITEM_DESCRIPTION";
 export const MOVE_ITEM = "MOVE_ITEM";
 export const COMPLETE_ITEM = "COMPLETE_ITEM";
@@ -18,31 +17,28 @@ export const SHOW_CHILDREN = "SHOW_CHILDREN";
 import {
   getItemTypeFromString,
   capitaliseItemTypeFromString,
-  extractDateFromString,
   removeDateFromString
 } from "../utils";
 import RRule from "rrule";
 
-interface CreateItemAction {
+export interface CreateItemAction {
   type: typeof CREATE_ITEM;
   id: Uuid;
   itemType: "TODO" | "NOTE";
   text: string;
-  projectId: Uuid;
-  parentId: Uuid;
-  dueDate: Date;
+  projectId?: Uuid;
+  parentId?: Uuid;
 }
 
 export function createItem(
   id: Uuid,
   text: string,
-  projectId: Uuid,
-  parentId: Uuid
+  projectId?: Uuid,
+  parentId?: Uuid
 ): CreateItemAction {
-  // TODO: Turn this into a proper parsing
   const itemType = getItemTypeFromString(text);
-  // TODO: This is kinda weird I pull the date out as a date and then change it to text
-  const dueDate = extractDateFromString(text);
+
+  // const dueDate = extractDateFromString(text);
   let newText = removeDateFromString(text);
   newText = capitaliseItemTypeFromString(newText);
 
@@ -51,12 +47,11 @@ export function createItem(
     id: id,
     text: newText,
     itemType: itemType,
-    dueDate: dueDate,
     projectId: projectId,
     parentId: parentId
   };
 }
-interface DeleteItemAction {
+export interface DeleteItemAction {
   type: typeof DELETE_ITEM;
   id: Uuid;
 }
@@ -67,7 +62,7 @@ export function deleteItem(id: Uuid): DeleteItemAction {
   };
 }
 
-interface UndeleteItemAction {
+export interface UndeleteItemAction {
   type: typeof UNDELETE_ITEM;
   id: Uuid;
 }
@@ -77,7 +72,7 @@ export function undeleteItem(id: Uuid): UndeleteItemAction {
     id: id
   };
 }
-interface CompleteItemAction {
+export interface CompleteItemAction {
   type: typeof COMPLETE_ITEM;
   id: Uuid;
 }
@@ -88,7 +83,7 @@ export function completeItem(id: Uuid): CompleteItemAction {
   };
 }
 
-interface UncompleteItemAction {
+export interface UncompleteItemAction {
   type: typeof UNCOMPLETE_ITEM;
   id: Uuid;
 }
@@ -99,7 +94,7 @@ export function uncompleteItem(id: Uuid): UncompleteItemAction {
   };
 }
 
-interface MoveItemAction {
+export interface MoveItemAction {
   type: typeof MOVE_ITEM;
   id: Uuid;
   projectId: Uuid;
@@ -112,7 +107,7 @@ export function moveItem(id: Uuid, projectId: Uuid): MoveItemAction {
   };
 }
 
-interface SetScheduledDateAction {
+export interface SetScheduledDateAction {
   type: typeof SET_SCHEDULED_DATE;
   id: Uuid;
   date: Date;
@@ -125,7 +120,7 @@ export function setScheduledDate(id: Uuid, date: Date): SetScheduledDateAction {
   };
 }
 
-interface SetDueDateAction {
+export interface SetDueDateAction {
   type: typeof SET_DUE_DATE;
   id: Uuid;
   date: Date;
@@ -138,7 +133,7 @@ export function setDueDate(id: Uuid, date: Date): SetDueDateAction {
   };
 }
 
-interface SetRepeatRuleAction {
+export interface SetRepeatRuleAction {
   type: typeof SET_REPEAT_RULE;
   id: Uuid;
   rule: RRule;
@@ -150,7 +145,7 @@ export function setRepeatRule(id: Uuid, rule: RRule): SetRepeatRuleAction {
     rule: rule
   };
 }
-interface UpdateItemDescriptionAction {
+export interface UpdateItemDescriptionAction {
   type: typeof UPDATE_ITEM_DESCRIPTION;
   id: Uuid;
   text: string;
@@ -166,7 +161,7 @@ export function updateItemDescription(
   };
 }
 
-interface AddChildItemAction {
+export interface AddChildItemAction {
   type: typeof ADD_CHILD_ITEM;
   id: Uuid;
   parentId: Uuid;
@@ -179,7 +174,7 @@ export function addChildItem(id: Uuid, parentId: Uuid): AddChildItemAction {
   };
 }
 
-interface ShowChildrenAction {
+export interface ShowChildrenAction {
   type: typeof SHOW_CHILDREN;
   id: Uuid;
 }
@@ -190,7 +185,7 @@ export function showChildren(id: Uuid): ShowChildrenAction {
   };
 }
 
-interface HideChildrenAction {
+export interface HideChildrenAction {
   type: typeof HIDE_CHILDREN;
   id: Uuid;
 }
