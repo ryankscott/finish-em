@@ -5,10 +5,13 @@ import { Uuid } from "@typed/uuid";
 
 export const itemRegex = new RegExp("^(TODO)|(NOTE)s*.*", "gi");
 
-export const getItemTypeFromString = (text: string): string => {
+export const getItemTypeFromString = (text: string): "TODO" | "NOTE" => {
   const words = text.split(" ");
   const itemType = words[0];
-  return itemType.toUpperCase();
+  const upperItemType = itemType.toUpperCase();
+  if (upperItemType == "NOTE") return "NOTE";
+  if (upperItemType == "TODO") return "TODO";
+  return "TODO";
 };
 
 export const capitaliseItemTypeFromString = (text: string): string => {
