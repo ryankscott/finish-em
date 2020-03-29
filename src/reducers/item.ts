@@ -7,7 +7,6 @@ import { rrulestr } from "rrule";
 import uuidv4 from "uuid/v4";
 import { ItemActions } from "../actions";
 
-// TODO: Fix the IDs here
 export const initialState: ItemType[] = [
   {
     id: uuidv4(),
@@ -112,16 +111,26 @@ export const itemReducer = (
           i.deleted = true;
           i.deletedAt = new Date().toISOString();
           i.lastUpdatedAt = new Date().toISOString();
-          // Remove the child from parents
+          // if we're removing a child, remove the reference to it on the parent
           if (i.parentId != null) {
             const parent = getItemById(i.parentId, state);
             parent.children = parent.children.filter(c => c != action.id);
+            parent.lastUpdatedAt = new Date().toISOString()
+            i.parentId = null;
           }
-
-          // Delete children from parent?
+          // If there's children, update them all to get rid of the parent ID
+          if (i.children != []) {
+            i.children.map(c => {
+              const child = getItemById(c, state)
+              child.parentId = null
+              child.lastUpdatedAt = new Date().toISOString()
+            })
+            i.children = [];
+          }
         }
         return i;
       });
+
     case item.UNDELETE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
@@ -171,9 +180,9 @@ export const itemReducer = (
             i.dueDate = rrulestr(i.repeat)
               .after(new Date())
               .toISOString();
-            i.scheduledDate = null;
           }
           i.lastUpdatedAt = new Date().toISOString();
+          i.scheduledDate = null;
         }
         return i;
       });
