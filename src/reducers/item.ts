@@ -1,27 +1,14 @@
-import {
-  ADD_CHILD_ITEM,
-  CREATE_ITEM,
-  DELETE_ITEM,
-  UNDELETE_ITEM,
-  UPDATE_ITEM_DESCRIPTION,
-  MOVE_ITEM,
-  COMPLETE_ITEM,
-  UNCOMPLETE_ITEM,
-  SET_SCHEDULED_DATE,
-  SET_DUE_DATE,
-  SET_REPEAT_RULE,
-  DELETE_PROJECT,
-  SHOW_CHILDREN,
-  HIDE_CHILDREN
-} from "../actions";
+import * as item from "../actions/item";
+import { DELETE_PROJECT, DeleteProjectAction } from "../actions/project";
 import { getItemById } from "../utils";
 import { ItemType } from "../interfaces";
 import { startOfDay } from "date-fns";
 import { rrulestr } from "rrule";
 import uuidv4 from "uuid/v4";
+import { ItemActions } from "../actions";
 
 // TODO: Fix the IDs here
-const initialState: ItemType[] = [
+export const initialState: ItemType[] = [
   {
     id: uuidv4(),
     type: "TODO",
@@ -83,10 +70,10 @@ const initialState: ItemType[] = [
 
 export const itemReducer = (
   state: ItemType[] = initialState,
-  action
+  action: ItemActions | DeleteProjectAction
 ): ItemType[] => {
   switch (action.type) {
-    case CREATE_ITEM:
+    case item.CREATE_ITEM:
       return [
         ...state,
         {
@@ -94,7 +81,7 @@ export const itemReducer = (
           type: action.itemType,
           text: action.text,
           scheduledDate: null,
-          dueDate: action.dueDate ? action.dueDate.toISOString() : null,
+          dueDate: null,
           projectId: action.projectId,
           completed: false,
           deleted: false,
@@ -119,7 +106,7 @@ export const itemReducer = (
         return i;
       });
 
-    case DELETE_ITEM:
+    case item.DELETE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
           i.deleted = true;
@@ -135,7 +122,7 @@ export const itemReducer = (
         }
         return i;
       });
-    case UNDELETE_ITEM:
+    case item.UNDELETE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
           i.deleted = false;
@@ -145,7 +132,7 @@ export const itemReducer = (
         return i;
       });
 
-    case SHOW_CHILDREN:
+    case item.SHOW_CHILDREN:
       return state.map(i => {
         if (i.id == action.id) {
           i.hiddenChildren = false;
@@ -159,7 +146,7 @@ export const itemReducer = (
         return i;
       });
 
-    case HIDE_CHILDREN:
+    case item.HIDE_CHILDREN:
       return state.map(i => {
         if (i.id == action.id) {
           i.hiddenChildren = true;
@@ -173,7 +160,7 @@ export const itemReducer = (
         return i;
       });
 
-    case COMPLETE_ITEM:
+    case item.COMPLETE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
           if (i.repeat == null) {
@@ -192,7 +179,7 @@ export const itemReducer = (
       });
 
     // TODO: A Child needs to inheirit properties from the parent
-    case ADD_CHILD_ITEM:
+    case item.ADD_CHILD_ITEM:
       const parent = getItemById(action.parentId, state);
       return state.map(i => {
         if (i.id == action.parentId) {
@@ -208,7 +195,7 @@ export const itemReducer = (
       });
 
     // TODO: Uncompleting recurring items
-    case UNCOMPLETE_ITEM:
+    case item.UNCOMPLETE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
           i.completed = false;
@@ -224,7 +211,7 @@ export const itemReducer = (
         return i;
       });
 
-    case MOVE_ITEM:
+    case item.MOVE_ITEM:
       return state.map(i => {
         if (i.id == action.id) {
           i.projectId = action.projectId;
@@ -238,7 +225,7 @@ export const itemReducer = (
         return i;
       });
 
-    case SET_SCHEDULED_DATE:
+    case item.SET_SCHEDULED_DATE:
       return state.map(i => {
         if (i.id == action.id) {
           i.scheduledDate = action.date?.toISOString();
@@ -247,7 +234,7 @@ export const itemReducer = (
         return i;
       });
 
-    case SET_DUE_DATE:
+    case item.SET_DUE_DATE:
       return state.map(i => {
         if (i.id == action.id) {
           i.dueDate = action.date?.toISOString();
@@ -256,20 +243,22 @@ export const itemReducer = (
         return i;
       });
 
-    case SET_REPEAT_RULE:
+    case item.SET_REPEAT_RULE:
       return state.map(i => {
         if (i.id == action.id) {
           i.repeat = action.rule?.toString();
           i.lastUpdatedAt = new Date().toISOString();
           // If we don't have the due date we should set this to the next instance of the repeat after today
           if (i.dueDate == null) {
-            i.dueDate = action.rule.after(startOfDay(new Date()), true);
+            i.dueDate = action.rule
+              .after(startOfDay(new Date()), true)
+              .toISOString();
           }
         }
         return i;
       });
 
-    case UPDATE_ITEM_DESCRIPTION:
+    case item.UPDATE_ITEM_DESCRIPTION:
       return state.map(i => {
         if (i.id == action.id) {
           i.text = action.text;
