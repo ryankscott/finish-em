@@ -11,6 +11,7 @@ import {
 } from "draft-js";
 import { headShake } from "react-animations";
 import isElectron from "is-electron";
+import { itemRegex } from "../utils";
 
 import { validateItemString } from "../utils";
 import "./EditableItem.css";
@@ -22,7 +23,7 @@ const Icon = styled.div`
   justify-content: center;
   align-self: center;
   font-family: ${props => props.theme.font.sansSerif};
-  font-size: ${props => props.theme.fontSizes.xlarge};
+  font-size: ${props => props.theme.fontSizes.large};
   background-color: whitesmoke;
   padding: 0px 10px;
   text-align: center;
@@ -33,7 +34,7 @@ const Icon = styled.div`
 interface ValidationBoxProps {
   animate: boolean;
   valid: boolean;
-  focus: boolean;
+  focus?: boolean;
 }
 const headShakeAnimation = keyframes`${headShake}`;
 const ValidationBox = styled.div<ValidationBoxProps>`
@@ -50,20 +51,17 @@ const ValidationBox = styled.div<ValidationBoxProps>`
       : props.theme.colours.errorColour};
   width: 660px;
   font-family: ${props => props.theme.font.sansSerif};
-  font-size: ${props => props.theme.fontSizes.medium};
+  font-size: ${props => props.theme.fontSizes.small};
   margin: 2px;
 `;
 
 const styles = {
   itemType: {
     fontFamily: theme.font.sansSerif,
-    fontSize: theme.fontSizes.medium,
-    color: theme.colours.tertiaryColour,
-    textDecoration: "underline"
+    fontSize: theme.fontSizes.small,
+    color: theme.colours.primaryColour
   }
 };
-
-const itemTypeRegex = new RegExp("^(TODO)|(NOTE)s*", "gi");
 
 const findWithRegex = (regex, contentBlock, callback) => {
   const text = contentBlock.getText();
@@ -74,9 +72,8 @@ const findWithRegex = (regex, contentBlock, callback) => {
   }
 };
 const itemTypeStrategy = (contentBlock, callback, contentState) => {
-  findWithRegex(itemTypeRegex, contentBlock, callback);
+  findWithRegex(itemRegex, contentBlock, callback);
 };
-
 const itemTypeSpan = props => (
   <span style={styles.itemType} data-offset-key={props.offsetKey}>
     {props.children}
@@ -109,7 +106,7 @@ const moveSelectionToEnd = editorState => {
 interface EditableItemProps {
   text: string;
   readOnly: boolean;
-  onSubmit: ()
+  onSubmit: (t: string) => void;
 }
 interface EditableItemState {
   projectDropdownVisible: boolean;
@@ -177,7 +174,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
     this.setState({ editorState });
   }
 
-  handleReturn(e) {
+  handleReturn() {
     if (this.state.valid) {
       this.props.onSubmit(
         this.state.editorState.getCurrentContent().getPlainText("")
