@@ -66,12 +66,14 @@ function Project(props: ProjectProps) {
           filter="SHOW_FROM_PROJECT_BY_TYPE"
           filterParams={{ projectId: props.project.id, type: "NOTE" }}
           listName="Notes"
+          showFilterBar={false}
         />
         <FilteredItemList
           filter="SHOW_FROM_PROJECT_BY_TYPE"
           filterParams={{ projectId: props.project.id, type: "TODO" }}
           sortCriteria="STATUS"
           listName="Todos"
+          showFilterBar={true}
         />
       </ProjectContainer>
     </ThemeProvider>

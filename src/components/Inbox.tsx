@@ -34,6 +34,7 @@ class Inbox extends Component {
             items={this.props.items}
             filter="SHOW_INBOX"
             listName="Items"
+            showFilterBar={true}
           />
         </Container>
       </ThemeProvider>

@@ -32,6 +32,7 @@ const Trash = () => (
         showSubtasks={true}
         filter="SHOW_DELETED"
         showProject={true}
+        showFilterBar={true}
       />
     </TrashContainer>
   </ThemeProvider>

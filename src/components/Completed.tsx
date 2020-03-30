@@ -32,6 +32,7 @@ const Completed = () => (
         showSubtasks={true}
         filter="SHOW_COMPLETED"
         showProject={true}
+        showFilterBar={false}
       />
     </CompletedContainer>
   </ThemeProvider>

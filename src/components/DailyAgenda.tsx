@@ -81,7 +81,8 @@ function DailyAgenda(props: DailyAgendaProps) {
             sortCriteria="DUE"
             showProject={true}
             listName="Overdue"
-            hideCompleted={true}
+            hideCompletedItems={true}
+            showFilterBar={true}
           />
         </Section>
         <Section>
@@ -92,6 +93,7 @@ function DailyAgenda(props: DailyAgendaProps) {
             sortCriteria="DUE"
             showProject={true}
             listName="Due Today"
+            showFilterBar={true}
           />
           <FilteredItemList
             items={props.items}
@@ -100,6 +102,7 @@ function DailyAgenda(props: DailyAgendaProps) {
             sortCriteria="STATUS"
             showProject={true}
             listName="Scheduled Today"
+            showFilterBar={true}
           />
         </Section>
       </AgendaContainer>

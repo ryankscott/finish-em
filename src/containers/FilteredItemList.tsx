@@ -234,8 +234,11 @@ const HeaderBar = styled.div`
   margin-bottom: 10px;
 `;
 
-const SortContainer = styled.div`
-  display: flex;
+interface SortContainerProps {
+  visible: boolean;
+}
+const SortContainer = styled.div<SortContainerProps>`
+  display: ${props => (props.visible ? "flex" : "none")};
   justify-content: flex-end;
   grid-area: sort;
   position: relative;
@@ -302,6 +305,8 @@ interface FilteredItemListProps {
   noIndentation: boolean;
   showSubtasks: boolean;
   showProject: boolean;
+  showFilterBar: boolean;
+  hideCompletedItems: boolean;
   listName: string;
   filter: FilterEnum;
   filterParams: FilterParamsType;
@@ -315,7 +320,7 @@ class FilteredItemList extends Component<
     super(props);
     this.state = {
       sortCriteria: SortCriteriaEnum.DueDesc,
-      hideCompleted: false
+      hideCompleted: false || this.props.hideCompletedItems
     };
   }
   // TODO: Add sort and filtering back
@@ -328,7 +333,6 @@ class FilteredItemList extends Component<
       this.props.filterParams
     );
     const completedItems = filteredItems.numberOfCompletedItems;
-    console.log(completedItems);
     return (
       <Container>
         <HeaderBar>
@@ -336,7 +340,11 @@ class FilteredItemList extends Component<
             <Header1>{this.props.listName}</Header1>
           </ListName>
           <CompletedContainer
-            visible={completedItems > 0}
+            visible={
+              completedItems > 0 &&
+              this.props.showFilterBar &&
+              !this.props.hideCompletedItems
+            }
             onClick={() =>
               this.setState({ hideCompleted: !this.state.hideCompleted })
             }
@@ -347,7 +355,11 @@ class FilteredItemList extends Component<
                 " completed"}
             </CompletedText>
           </CompletedContainer>
-          <SortContainer>
+          <SortContainer
+            visible={
+              filteredItems.sortedItems.length > 0 && this.props.showFilterBar
+            }
+          >
             <SortSelect
               options={options}
               defaultValue={options[0]}
