@@ -89,7 +89,7 @@ export const itemReducer = (
           createdAt: new Date().toISOString(),
           lastUpdatedAt: new Date().toISOString(),
           repeat: null,
-          parentId: action.parentId,
+          parentId: null,
           hidden: false,
           hiddenChildren: false,
           children: []
@@ -187,7 +187,7 @@ export const itemReducer = (
         return i;
       });
 
-    // TODO: A Child needs to inheirit properties from the parent
+    // TODO: This is incorrectly named it should be ADD_PARENT
     case item.ADD_CHILD_ITEM:
       const parent = getItemById(action.parentId, state);
       return state.map(i => {
@@ -199,6 +199,7 @@ export const itemReducer = (
         } else if (i.id == action.id) {
           i.projectId = parent.projectId;
           i.lastUpdatedAt = new Date().toISOString();
+          i.parentId = action.parentId
         }
         return i;
       });
@@ -211,11 +212,6 @@ export const itemReducer = (
           i.completedAt = null;
           i.lastUpdatedAt = new Date().toISOString();
           // If there's a repeating due date, set it to the next occurence (including today)
-          if (i.repeat != null) {
-            i.dueDate = rrulestr(i.repeat)
-              .after(new Date(), true)
-              .toISOString();
-          }
         }
         return i;
       });

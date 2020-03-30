@@ -573,7 +573,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => {
     const childId = uuidv4();
-    dispatch(createItem(childId, text, projectId, parentId));
+    dispatch(createItem(childId, text, projectId));
     dispatch(addChildItem(childId, parentId));
   },
   updateItemDescription: (id: Uuid, text: string) => {

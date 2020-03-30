@@ -36,18 +36,14 @@ describe("ItemActions", () => {
     const id = uuidv4();
     const text = "TODO add tests";
     const projectId = uuidv4();
-    const parentId = uuidv4();
     const expectedAction: item.CreateItemAction = {
       type: item.CREATE_ITEM,
       id: id,
       text: text,
       itemType: "TODO",
-      projectId: projectId,
-      parentId: parentId
+      projectId: projectId
     };
-    expect(item.createItem(id, text, projectId, parentId)).toEqual(
-      expectedAction
-    );
+    expect(item.createItem(id, text, projectId)).toEqual(expectedAction);
   });
 
   it("should create an action to create a NOTE item when prefixed with NOTE", () => {
@@ -60,12 +56,9 @@ describe("ItemActions", () => {
       id: id,
       text: text,
       itemType: "NOTE",
-      projectId: projectId,
-      parentId: parentId
+      projectId: projectId
     };
-    expect(item.createItem(id, text, projectId, parentId)).toEqual(
-      expectedAction
-    );
+    expect(item.createItem(id, text, projectId)).toEqual(expectedAction);
   });
 
   it("should create an action to create a TODO item if the prefix isn't NOTE or TODO", () => {
@@ -78,12 +71,9 @@ describe("ItemActions", () => {
       id: id,
       text: text,
       itemType: "TODO",
-      projectId: projectId,
-      parentId: parentId
+      projectId: projectId
     };
-    expect(item.createItem(id, text, projectId, parentId)).toEqual(
-      expectedAction
-    );
+    expect(item.createItem(id, text, projectId)).toEqual(expectedAction);
   });
 
   it("should create an action to complete an item", () => {

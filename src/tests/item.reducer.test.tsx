@@ -8,7 +8,7 @@ import { parseISO } from "date-fns";
 // Set the date to a random date
 
 describe("item reducer", () => {
-  it("should handle create an  with no projectID but a parentID", () => {
+  it("should handle create an item with no projectID", () => {
     Mockdate.set("2020-02-20");
     const id = uuidv4();
     const parentId = uuidv4();
@@ -17,8 +17,7 @@ describe("item reducer", () => {
         id: id,
         type: item.CREATE_ITEM,
         itemType: "TODO",
-        text: "TODO Run the tests",
-        parentId: parentId
+        text: "TODO Run the tests"
       })
     ).toEqual([
       {
@@ -34,7 +33,7 @@ describe("item reducer", () => {
         createdAt: new Date().toISOString(),
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
-        parentId: parentId,
+        parentId: null,
         hidden: false,
         hiddenChildren: false,
         children: []
@@ -43,7 +42,7 @@ describe("item reducer", () => {
     Mockdate.reset();
   });
 
-  it("should handle create an item with projectID and but no parentID", () => {
+  it("should handle create an item with projectID", () => {
     Mockdate.set("2020-02-20");
     const id = uuidv4();
     const projectId = uuidv4();
@@ -63,6 +62,7 @@ describe("item reducer", () => {
         scheduledDate: null,
         dueDate: null,
         projectId: projectId,
+        parentId: null,
         completed: false,
         deleted: false,
         deletedAt: null,
@@ -70,44 +70,6 @@ describe("item reducer", () => {
         createdAt: new Date().toISOString(),
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
-        hidden: false,
-        hiddenChildren: false,
-        children: []
-      }
-    ]);
-    Mockdate.reset();
-  });
-
-  it("should handle create an item with projectID and parentID", () => {
-    Mockdate.set("2020-02-20");
-    const id = uuidv4();
-    const projectId = uuidv4();
-    const parentId = uuidv4();
-    expect(
-      itemReducer([], {
-        id: id,
-        type: item.CREATE_ITEM,
-        itemType: "TODO",
-        text: "TODO Run the tests",
-        projectId: projectId,
-        parentId: parentId
-      })
-    ).toEqual([
-      {
-        id: id,
-        type: "TODO",
-        text: "TODO Run the tests",
-        scheduledDate: null,
-        dueDate: null,
-        projectId: projectId,
-        completed: false,
-        deleted: false,
-        deletedAt: null,
-        completedAt: null,
-        createdAt: new Date().toISOString(),
-        lastUpdatedAt: new Date().toISOString(),
-        repeat: null,
-        parentId: parentId,
         hidden: false,
         hiddenChildren: false,
         children: []
@@ -780,6 +742,224 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: repeat,
         parentId: null,
+        hidden: false,
+        hiddenChildren: false,
+        children: []
+      }
+    ]);
+    Mockdate.reset();
+  });
+
+  it("should handle the uncompleting of an item without a repeat, and persist the scheduled date and due date", () => {
+    Mockdate.set("1990-02-03");
+    const id = uuidv4();
+    const createdAt = new Date(1990, 1, 1).toISOString();
+    const lastUpdatedAt = new Date(1990, 1, 2).toISOString();
+    const scheduledDate = new Date(1990, 1, 3).toISOString();
+    const dueDate = new Date(1990, 1, 3).toISOString();
+    const completedAt = new Date(1990, 1, 3).toISOString();
+    expect(
+      itemReducer(
+        [
+          {
+            id: id,
+            type: "TODO",
+            text: "TODO Run the tests",
+            scheduledDate: scheduledDate,
+            dueDate: dueDate,
+            completed: true,
+            deleted: false,
+            deletedAt: null,
+            completedAt: completedAt,
+            createdAt: createdAt,
+            lastUpdatedAt: lastUpdatedAt,
+            repeat: null,
+            parentId: null,
+            hidden: false,
+            hiddenChildren: false,
+            children: []
+          }
+        ],
+        {
+          id: id,
+          type: item.UNCOMPLETE_ITEM
+        }
+      )
+    ).toEqual([
+      {
+        id: id,
+        type: "TODO",
+        text: "TODO Run the tests",
+        scheduledDate: scheduledDate,
+        dueDate: dueDate,
+        completed: false,
+        deleted: false,
+        deletedAt: null,
+        completedAt: null,
+        createdAt: createdAt,
+        lastUpdatedAt: new Date().toISOString(),
+        repeat: null,
+        parentId: null,
+        hidden: false,
+        hiddenChildren: false,
+        children: []
+      }
+    ]);
+    Mockdate.reset();
+  });
+
+  it("should handle the uncompleting of an item with a repeat", () => {
+    Mockdate.set("1990-02-03");
+    const id = uuidv4();
+    const createdAt = new Date(1990, 1, 1).toISOString();
+    const lastUpdatedAt = new Date(1990, 1, 2).toISOString();
+    const scheduledDate = new Date(1990, 1, 3).toISOString();
+    const dueDate = new Date(1990, 1, 3).toISOString();
+    const completedAt = new Date(1990, 1, 3).toISOString();
+    const repeat = new RRule({
+      freq: RRule.DAILY,
+      interval: 1
+    }).toString();
+    expect(
+      itemReducer(
+        [
+          {
+            id: id,
+            type: "TODO",
+            text: "TODO Run the tests",
+            scheduledDate: scheduledDate,
+            dueDate: dueDate,
+            completed: true,
+            deleted: false,
+            deletedAt: null,
+            completedAt: completedAt,
+            createdAt: createdAt,
+            lastUpdatedAt: lastUpdatedAt,
+            repeat: repeat,
+            parentId: null,
+            hidden: false,
+            hiddenChildren: false,
+            children: []
+          }
+        ],
+        {
+          id: id,
+          type: item.UNCOMPLETE_ITEM
+        }
+      )
+    ).toEqual([
+      {
+        id: id,
+        type: "TODO",
+        text: "TODO Run the tests",
+        scheduledDate: scheduledDate,
+        dueDate: dueDate,
+        completed: false,
+        deleted: false,
+        deletedAt: null,
+        completedAt: null,
+        createdAt: createdAt,
+        lastUpdatedAt: new Date().toISOString(),
+        repeat: repeat,
+        parentId: null,
+        hidden: false,
+        hiddenChildren: false,
+        children: []
+      }
+    ]);
+    Mockdate.reset();
+  });
+
+  it("should handle adding a child to an item", () => {
+    Mockdate.set("2020-02-20");
+    const id = uuidv4();
+    const childId = uuidv4();
+    const projectId = uuidv4();
+    const createdAt = new Date(1990, 1, 1).toISOString();
+    const lastUpdatedAt = new Date(1990, 1, 2).toISOString();
+    expect(
+      itemReducer(
+        [
+          {
+            id: id,
+            type: "TODO",
+            text: "TODO Run the tests",
+            scheduledDate: null,
+            dueDate: null,
+            completed: false,
+            deleted: false,
+            deletedAt: null,
+            completedAt: null,
+            createdAt: createdAt,
+            lastUpdatedAt: lastUpdatedAt,
+            repeat: null,
+            parentId: null,
+            projectId: projectId,
+            hidden: false,
+            hiddenChildren: false,
+            children: []
+          },
+          {
+            id: childId,
+            type: "TODO",
+            text: "TODO Eat dinner",
+            scheduledDate: null,
+            dueDate: null,
+            completed: false,
+            deleted: false,
+            deletedAt: null,
+            completedAt: null,
+            createdAt: createdAt,
+            lastUpdatedAt: lastUpdatedAt,
+            repeat: null,
+            parentId: null,
+            projectId: null,
+            hidden: false,
+            hiddenChildren: false,
+            children: []
+          }
+        ],
+        {
+          id: childId,
+          type: item.ADD_CHILD_ITEM,
+          parentId: id
+        }
+      )
+    ).toEqual([
+      {
+        id: id,
+        type: "TODO",
+        text: "TODO Run the tests",
+        scheduledDate: null,
+        dueDate: null,
+        completed: false,
+        deleted: false,
+        deletedAt: null,
+        completedAt: null,
+        createdAt: createdAt,
+        lastUpdatedAt: new Date().toISOString(),
+        repeat: null,
+        parentId: null,
+        projectId: projectId,
+        hidden: false,
+        hiddenChildren: false,
+        children: [childId]
+      },
+      {
+        id: childId,
+        type: "TODO",
+        text: "TODO Eat dinner",
+        scheduledDate: null,
+        dueDate: null,
+        completed: false,
+        deleted: false,
+        deletedAt: null,
+        completedAt: null,
+        createdAt: createdAt,
+        lastUpdatedAt: new Date().toISOString(),
+        repeat: null,
+        parentId: id,
+        projectId: projectId,
         hidden: false,
         hiddenChildren: false,
         children: []
