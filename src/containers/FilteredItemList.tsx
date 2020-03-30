@@ -91,7 +91,10 @@ const comparators = {
   }
 };
 
-const sortItems = (items: ItemType[], criteria: SortCriteriaEnum) => {
+const sortItems = (
+  items: ItemType[],
+  criteria: SortCriteriaEnum
+): ItemType[] => {
   switch (criteria) {
     case "STATUS":
       return items.sort(comparators.STATUS);
@@ -183,13 +186,20 @@ const getFilteredItems = (
   sortCriteria: SortCriteriaEnum,
   filterCriteria: FilterEnum,
   filterParams: FilterParamsType
-) => {
+): {
+  numberOfCompletedItems: number;
+  sortedItems: ItemType[];
+} => {
   const filteredItems = filterItems(items, filterCriteria, filterParams);
-  const itemsWithCompletedHidden = hideCompletedItems(
-    filteredItems,
-    hideCompleted
-  );
-  return sortItems(itemsWithCompletedHidden, sortCriteria);
+  const uncompletedItems = hideCompletedItems(filteredItems, true);
+  const numberOfCompletedItems = filteredItems.length - uncompletedItems.length;
+  const sortedItems = hideCompleted
+    ? sortItems(uncompletedItems, sortCriteria)
+    : sortItems(filteredItems, sortCriteria);
+  return {
+    numberOfCompletedItems: numberOfCompletedItems,
+    sortedItems: sortedItems
+  };
 };
 
 const options = [
@@ -199,6 +209,7 @@ const options = [
   { value: "SCHEDULED_DESC", label: "Scheduled ⬇️" },
   { value: "STATUS", label: "Status ✅" }
 ];
+
 const CompletedText = styled(Paragraph)`
   text-decoration: pointer;
 `;
@@ -250,6 +261,7 @@ const ListName = styled.div`
 
 const Container = styled.div`
   margin: 10px 0px;
+  z-index: 1;
 `;
 
 enum FilterEnum {
@@ -308,8 +320,6 @@ class FilteredItemList extends Component<
   }
   // TODO: Add sort and filtering back
   render() {
-    const completedItems = this.props.items.filter(i => i.completed == true)
-      .length;
     const filteredItems = getFilteredItems(
       this.props.items,
       this.state.hideCompleted,
@@ -317,6 +327,8 @@ class FilteredItemList extends Component<
       this.props.filter,
       this.props.filterParams
     );
+    const completedItems = filteredItems.numberOfCompletedItems;
+    console.log(completedItems);
     return (
       <Container>
         <HeaderBar>
@@ -352,7 +364,7 @@ class FilteredItemList extends Component<
           showProject={this.props.showProject}
           noIndentation={this.props.noIndentation}
           showSubtasks={this.props.showSubtasks}
-          items={filteredItems}
+          items={filteredItems.sortedItems}
         />
       </Container>
     );
