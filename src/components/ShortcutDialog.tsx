@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
-import { Title, Paragraph } from "./Typography";
+import { Title, Paragraph, Header1 } from "./Typography";
 import IconButton from "./IconButton";
 import { hideShortcutDialog } from "../actions";
 import { capitaliseEachWordInString } from "../utils";
@@ -26,6 +26,7 @@ const ShortcutContainer = styled.div<ShortcutContainerProps>`
   left: calc(50% + 145px);
   transform: translate(-50%, -50%);
   padding: 2px;
+  z-index: 99;
 `;
 
 const Header = styled.div`
@@ -45,27 +46,82 @@ const Controls = styled.div`
 
 const Body = styled.div`
   display: flex;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+`;
+
+const Row = styled.div`
+  display: flex;
   flex-direction: row;
   width: 100%;
 `;
 
-const Column = styled.div`
+const Data = styled.div`
   display: flex;
-  flex-direction: column;
   width: 50%;
+  justify-content: center;
 `;
 
-const Row = styled.span`
+const ShortcutTable = styled.div`
   display: flex;
-  flex-direction: row;
-  padding: 2px 10px;
-  margin-left: 50px;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const ShortcutName = styled(Paragraph)`
+  width: 180px;
+  color: ${props => props.theme.colours.altTextColour};
 `;
 
 const ShortcutKeys = styled(Paragraph)`
-  width: 80px;
+  width: 40px;
   color: ${props => props.theme.colours.primaryColour};
 `;
+
+const generateRows = (keymap: { [key: string]: string }): any => {
+  const shortcuts = Object.entries(keymap);
+  const numberOfShortcuts = shortcuts.length;
+
+  return shortcuts.map((value, idx) => {
+    if (idx < numberOfShortcuts - 1) {
+      if (idx % 2 == 1) return;
+      return (
+        <Row>
+          <Data>
+            <ShortcutName>
+              {capitaliseEachWordInString(
+                shortcuts[idx][0].replace(/_/gi, " ")
+              )}
+            </ShortcutName>
+            <ShortcutKeys key={idx + "k"}>{shortcuts[idx][1]}</ShortcutKeys>
+          </Data>
+          <Data>
+            <ShortcutName>
+              {capitaliseEachWordInString(
+                shortcuts[idx + 1][0].replace(/_/gi, " ")
+              )}
+            </ShortcutName>
+            <ShortcutKeys key={idx + "k"}>{shortcuts[idx + 1][1]}</ShortcutKeys>
+          </Data>
+        </Row>
+      );
+    } else {
+      return (
+        <Row>
+          <Data>
+            <ShortcutName>
+              {capitaliseEachWordInString(
+                shortcuts[idx][0].replace(/_/gi, " ")
+              )}
+            </ShortcutName>
+            <ShortcutKeys key={idx + "k"}>{shortcuts[idx][1]}</ShortcutKeys>
+          </Data>
+        </Row>
+      );
+    }
+  });
+};
 
 // TODO: Refactor me
 interface ShortcutDialogProps {
@@ -128,46 +184,10 @@ class ShortcutDialog extends Component<
             <Title>Shortcuts</Title>
           </Header>
           <Body>
-            <Column key={1}>
-              {Object.keys(appKeymap).map((k, i) => {
-                const shortcutName = capitaliseEachWordInString(
-                  k.replace(/_/gi, " ")
-                );
-                // TODO this only shows first sequence
-                const shortcuts = (
-                  <ShortcutKeys key={i + "k"}>{appKeymap[k]}</ShortcutKeys>
-                );
-
-                return (
-                  <Row key={i + "d"}>
-                    {shortcuts}
-                    <Paragraph key={i} invert>
-                      {shortcutName}
-                    </Paragraph>
-                  </Row>
-                );
-              })}
-            </Column>
-            <Column key={2}>
-              {Object.keys(itemKeymap).map((k, i) => {
-                const shortcutName = capitaliseEachWordInString(
-                  k.replace(/_/gi, " ")
-                );
-                // TODO this only shows first sequence
-                const shortcuts = (
-                  <ShortcutKeys key={i + "k"}>{itemKeymap[k]}</ShortcutKeys>
-                );
-
-                return (
-                  <Row key={i + "d"}>
-                    {shortcuts}
-                    <Paragraph key={i} invert>
-                      {shortcutName}
-                    </Paragraph>
-                  </Row>
-                );
-              })}
-            </Column>
+            <Header1 invert>App</Header1>
+            <ShortcutTable>{generateRows(appKeymap)}</ShortcutTable>
+            <Header1 invert>Item</Header1>
+            <ShortcutTable>{generateRows(itemKeymap)}</ShortcutTable>
           </Body>
         </ShortcutContainer>
       </ThemeProvider>
