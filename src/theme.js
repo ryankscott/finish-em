@@ -60,11 +60,14 @@ export const theme = {
 };
 
 export const selectStyles = {
-  container: () => ({}),
+  container: () => ({
+    zIndex: 2,
+  }),
   input: () => ({
     padding: "5px 0px",
     fontFamily: theme.font.sansSerif,
-    color: theme.colours.defaultTextColour
+    color: theme.colours.defaultTextColour,
+    zIndex: 2,
   }),
   menu: (provided, state) => ({
     margin: "2px 0px",
@@ -73,7 +76,8 @@ export const selectStyles = {
     backgroundColor: theme.colours.backgroundColour,
     borderColor: theme.colours.borderColour,
     borderRadius: "5px",
-    tabIndex: 0
+    tabIndex: 0,
+    zIndex: 2,
   }),
   option: (provided, state) => ({
     ...provided,
@@ -89,7 +93,7 @@ export const selectStyles = {
     fontWeight: state.isFocused
       ? theme.fontWeights.bold
       : theme.fontWeights.regular,
-    zIndex: 9999
+    zIndex: 2,
   }),
   placeholder: () => ({
     color: theme.colours.defaultTextColour,
@@ -104,7 +108,8 @@ export const selectStyles = {
     backgroundColor: theme.colours.backgroundColour,
     border: "1px solid",
     borderColor: theme.colours.borderColour,
-    borderRadius: "5px"
+    borderRadius: "5px",
+    zIndex: 2,
   }),
   singleValue: (provided, state) => ({}),
   indicatorsContainer: () => ({ display: "none" }),
