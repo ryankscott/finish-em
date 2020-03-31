@@ -19,14 +19,13 @@ const ShortcutContainer = styled.div<ShortcutContainerProps>`
   background-color: ${props => props.theme.colours.altBackgroundColour};
   color: ${props => props.theme.colours.altTextColour};
   opacity: 0.85;
-  width: 80%;
-  max-width: 650px;
-  min-height: 580px;
+  width: 650px;
   top: 50%;
   left: calc(50% + 145px);
   transform: translate(-50%, -50%);
   padding: 2px;
   z-index: 99;
+  height: "580px";
 `;
 
 const Header = styled.div`
@@ -87,30 +86,34 @@ const generateRows = (keymap: { [key: string]: string }): any => {
     if (idx < numberOfShortcuts - 1) {
       if (idx % 2 == 1) return;
       return (
-        <Row>
-          <Data>
-            <ShortcutName>
+        <Row key={"row-" + idx}>
+          <Data key={"data-" + idx}>
+            <ShortcutName key={"shortcutname-" + idx}>
               {capitaliseEachWordInString(
                 shortcuts[idx][0].replace(/_/gi, " ")
               )}
             </ShortcutName>
-            <ShortcutKeys key={idx + "k"}>{shortcuts[idx][1]}</ShortcutKeys>
+            <ShortcutKeys key={"shortcutkey-" + idx}>
+              {shortcuts[idx][1]}
+            </ShortcutKeys>
           </Data>
-          <Data>
-            <ShortcutName>
+          <Data key={"data-" + (idx + 1)}>
+            <ShortcutName key={"shortcutname-" + (idx + 1)}>
               {capitaliseEachWordInString(
                 shortcuts[idx + 1][0].replace(/_/gi, " ")
               )}
             </ShortcutName>
-            <ShortcutKeys key={idx + "k"}>{shortcuts[idx + 1][1]}</ShortcutKeys>
+            <ShortcutKeys key={"shortcutkey-" + (idx + 1)}>
+              {shortcuts[idx + 1][1]}
+            </ShortcutKeys>
           </Data>
         </Row>
       );
     } else {
       return (
-        <Row>
-          <Data>
-            <ShortcutName>
+        <Row key={"row-" + idx}>
+          <Data key={"data-" + idx}>
+            <ShortcutName key={"shortcutname-" + idx}>
               {capitaliseEachWordInString(
                 shortcuts[idx][0].replace(/_/gi, " ")
               )}
