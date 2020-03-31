@@ -189,6 +189,7 @@ const getFilteredItems = (
   filterParams: FilterParamsType
 ): {
   numberOfCompletedItems: number;
+  numberOfAllItems: number;
   sortedItems: ItemType[];
 } => {
   const filteredItems = filterItems(items, filterCriteria, filterParams);
@@ -199,6 +200,7 @@ const getFilteredItems = (
     : sortItems(filteredItems, sortCriteria);
   return {
     numberOfCompletedItems: numberOfCompletedItems,
+    numberOfAllItems: filteredItems.length,
     sortedItems: sortedItems
   };
 };
@@ -243,7 +245,7 @@ interface FilterBarProps {
   visible: boolean;
 }
 const FilterBar = styled.div<FilterBarProps>`
-  display: "grid";
+  display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-areas: "hide hide hide . . . . sort sort sort";
   width: 100%;
@@ -283,6 +285,7 @@ const ListName = styled.div`
   align-items: center;
   justify-content: space-between;
   grid-area: name;
+  cursor: pointer;
 `;
 
 const Container = styled.div`
@@ -355,6 +358,7 @@ class FilteredItemList extends Component<
       this.props.filter,
       this.props.filterParams
     );
+    console.log(filteredItems.sortedItems);
     const completedItems = filteredItems.numberOfCompletedItems;
     return (
       <Container>
@@ -379,7 +383,7 @@ class FilteredItemList extends Component<
             visible={
               this.props.showFilterBar &&
               !this.state.hideItemList &&
-              filteredItems.sortedItems.length > 0
+              filteredItems.numberOfAllItems > 0
             }
           >
             <CompletedContainer
@@ -389,9 +393,9 @@ class FilteredItemList extends Component<
               }
             >
               <CompletedText>
-                {(this.state.hideCompleted ? "Show " : "Hide ") +
-                  completedItems.toString() +
-                  " completed"}
+                {this.state.hideCompleted
+                  ? "Show completed items"
+                  : "Hide completed items"}
               </CompletedText>
             </CompletedContainer>
             <SortContainer visible={filteredItems.sortedItems.length > 0}>
