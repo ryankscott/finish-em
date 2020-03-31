@@ -213,17 +213,6 @@ const options = [
   { value: "STATUS", label: "Status ✅" }
 ];
 
-const CompletedText = styled(Paragraph)`
-  text-decoration: pointer;
-`;
-
-const SortSelect = styled(Select)`
-  width: 110px;
-  caret-color: transparent;
-  padding: 2px;
-  position: absolute;
-`;
-
 const HeaderBar = styled.div`
   display: flex;
   flex-direction: column;
@@ -252,6 +241,7 @@ const FilterBar = styled.div<FilterBarProps>`
   opacity: ${props => (props.visible ? 1 : 0)};
   height: ${props => (props.visible ? "40px" : "0px")};
   transition: 0.2s ease-in-out;
+  align-content: flex-end;
 `;
 
 interface SortContainerProps {
@@ -266,6 +256,18 @@ const SortContainer = styled.div<SortContainerProps>`
   width: 100%;
   height: 100%;
 `;
+interface SortSelectProps {
+  visible: boolean;
+}
+const SortSelect = styled(Select)<SortSelectProps>`
+  width: 110px;
+  caret-color: transparent;
+  padding: 0px 2px;
+  position: absolute;
+  display: ${props => (props.visible ? "flex" : "none")};
+  flex-direction: column;
+  top: -12px;
+`;
 
 interface CompletedContainerProps {
   visible: boolean;
@@ -275,8 +277,12 @@ const CompletedContainer = styled.div<CompletedContainerProps>`
   display: ${props => (props.visible ? "flex" : "none")};
   flex-direction: row;
   justify-content: flex-start;
-  margin: 2px;
+  margin: 0px 2px;
   cursor: pointer;
+`;
+
+const CompletedText = styled(Paragraph)`
+  text-decoration: pointer;
 `;
 
 const ListName = styled.div`
@@ -398,8 +404,16 @@ class FilteredItemList extends Component<
                   : "Hide completed items"}
               </CompletedText>
             </CompletedContainer>
-            <SortContainer visible={filteredItems.sortedItems.length > 0}>
+            <SortContainer
+              visible={
+                filteredItems.sortedItems.length > 0 && !this.state.hideItemList
+              }
+            >
               <SortSelect
+                visible={
+                  filteredItems.sortedItems.length > 0 &&
+                  !this.state.hideItemList
+                }
                 options={options}
                 defaultValue={options[0]}
                 autoFocus={true}
