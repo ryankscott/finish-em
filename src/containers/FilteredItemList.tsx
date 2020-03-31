@@ -222,21 +222,26 @@ const SortSelect = styled(Select)`
 `;
 
 const HeaderBar = styled.div`
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: 45px 35px;
-  grid-template-areas:
-    "name name name . . . . . . ."
-    "hide hide hide . . . . sort sort sort";
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
   margin-bottom: 10px;
+`;
+
+interface FilterBarProps {
+  visible: boolean;
+}
+const FilterBar = styled.div<FilterBarProps>`
+  display: ${props => (props.visible ? "grid" : "none")};
+  grid-template-columns: repeat(10, 1fr);
+  grid-template-areas: "hide hide hide . . . . sort sort sort";
+  width: 100%;
+  height: 40px;
 `;
 
 interface SortContainerProps {
   visible: boolean;
 }
+
 const SortContainer = styled.div<SortContainerProps>`
   display: ${props => (props.visible ? "flex" : "none")};
   justify-content: flex-end;
@@ -323,7 +328,6 @@ class FilteredItemList extends Component<
       hideCompleted: false || this.props.hideCompletedItems
     };
   }
-  // TODO: Add sort and filtering back
   render() {
     const filteredItems = getFilteredItems(
       this.props.items,
@@ -339,38 +343,32 @@ class FilteredItemList extends Component<
           <ListName>
             <Header1>{this.props.listName}</Header1>
           </ListName>
-          <CompletedContainer
-            visible={
-              completedItems > 0 &&
-              this.props.showFilterBar &&
-              !this.props.hideCompletedItems
-            }
-            onClick={() =>
-              this.setState({ hideCompleted: !this.state.hideCompleted })
-            }
-          >
-            <CompletedText>
-              {(this.state.hideCompleted ? "Show " : "Hide ") +
-                completedItems.toString() +
-                " completed"}
-            </CompletedText>
-          </CompletedContainer>
-          <SortContainer
-            visible={
-              filteredItems.sortedItems.length > 0 && this.props.showFilterBar
-            }
-          >
-            <SortSelect
-              options={options}
-              defaultValue={options[0]}
-              autoFocus={true}
-              placeholder={"Sort by:"}
-              styles={selectStyles}
-              onChange={e => {
-                this.setState({ sortCriteria: e.value });
-              }}
-            />
-          </SortContainer>
+          <FilterBar visible={this.props.showFilterBar}>
+            <CompletedContainer
+              visible={completedItems > 0 && !this.props.hideCompletedItems}
+              onClick={() =>
+                this.setState({ hideCompleted: !this.state.hideCompleted })
+              }
+            >
+              <CompletedText>
+                {(this.state.hideCompleted ? "Show " : "Hide ") +
+                  completedItems.toString() +
+                  " completed"}
+              </CompletedText>
+            </CompletedContainer>
+            <SortContainer visible={filteredItems.sortedItems.length > 0}>
+              <SortSelect
+                options={options}
+                defaultValue={options[0]}
+                autoFocus={true}
+                placeholder={"Sort by:"}
+                styles={selectStyles}
+                onChange={e => {
+                  this.setState({ sortCriteria: e.value });
+                }}
+              />
+            </SortContainer>
+          </FilterBar>
         </HeaderBar>
         <ItemList
           showProject={this.props.showProject}
