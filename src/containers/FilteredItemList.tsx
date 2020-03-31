@@ -16,6 +16,7 @@ import styled from "styled-components";
 import { Header1, Paragraph } from "../components/Typography";
 import { ItemType } from "../interfaces";
 import { Uuid } from "@typed/uuid";
+import { collapsedIcon, expandedIcon } from "../assets/icons";
 
 /*
 If compareFunction(a, b) returns less than 0, sort a to an index lower than b (i.e. a comes first).
@@ -227,15 +228,28 @@ const HeaderBar = styled.div`
   margin-bottom: 10px;
 `;
 
+interface ItemListContainerProps {
+  visible: boolean;
+}
+const ItemListContainer = styled.div<ItemListContainerProps>`
+  width: 100%;
+  display: flex;
+  opacity: ${props => (props.visible ? 1 : 0)};
+  height: ${props => (props.visible ? "100%" : "0px")};
+  transition: 0.2s ease-in-out;
+`;
+
 interface FilterBarProps {
   visible: boolean;
 }
 const FilterBar = styled.div<FilterBarProps>`
-  display: ${props => (props.visible ? "grid" : "none")};
+  display: "grid";
   grid-template-columns: repeat(10, 1fr);
   grid-template-areas: "hide hide hide . . . . sort sort sort";
   width: 100%;
-  height: 40px;
+  opacity: ${props => (props.visible ? 1 : 0)};
+  height: ${props => (props.visible ? "40px" : "0px")};
+  transition: 0.2s ease-in-out;
 `;
 
 interface SortContainerProps {
@@ -264,12 +278,15 @@ const CompletedContainer = styled.div<CompletedContainerProps>`
 `;
 
 const ListName = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   grid-area: name;
 `;
 
 const Container = styled.div`
   margin: 10px 0px;
-  z-index: 1;
 `;
 
 enum FilterEnum {
@@ -303,6 +320,7 @@ interface FilterParamsType {
 interface FilteredItemListState {
   sortCriteria: SortCriteriaEnum;
   hideCompleted: boolean;
+  hideItemList: boolean;
 }
 
 interface FilteredItemListProps {
@@ -325,7 +343,8 @@ class FilteredItemList extends Component<
     super(props);
     this.state = {
       sortCriteria: SortCriteriaEnum.DueDesc,
-      hideCompleted: false || this.props.hideCompletedItems
+      hideCompleted: false || this.props.hideCompletedItems,
+      hideItemList: false
     };
   }
   render() {
@@ -340,10 +359,29 @@ class FilteredItemList extends Component<
     return (
       <Container>
         <HeaderBar>
-          <ListName>
-            <Header1>{this.props.listName}</Header1>
+          <ListName
+            onClick={() =>
+              this.setState({
+                hideItemList: !this.state.hideItemList
+              })
+            }
+          >
+            <Header1>
+              {this.props.listName}
+              <Paragraph>
+                {filteredItems.sortedItems.length +
+                  (filteredItems.sortedItems.length == 1 ? " item" : " items")}
+              </Paragraph>
+            </Header1>
+            {this.state.hideItemList ? collapsedIcon() : expandedIcon()}
           </ListName>
-          <FilterBar visible={this.props.showFilterBar}>
+          <FilterBar
+            visible={
+              this.props.showFilterBar &&
+              !this.state.hideItemList &&
+              filteredItems.sortedItems.length > 0
+            }
+          >
             <CompletedContainer
               visible={completedItems > 0 && !this.props.hideCompletedItems}
               onClick={() =>
@@ -370,12 +408,14 @@ class FilteredItemList extends Component<
             </SortContainer>
           </FilterBar>
         </HeaderBar>
-        <ItemList
-          showProject={this.props.showProject}
-          noIndentation={this.props.noIndentation}
-          showSubtasks={this.props.showSubtasks}
-          items={filteredItems.sortedItems}
-        />
+        <ItemListContainer visible={!this.state.hideItemList}>
+          <ItemList
+            showProject={this.props.showProject}
+            noIndentation={this.props.noIndentation}
+            showSubtasks={this.props.showSubtasks}
+            items={filteredItems.sortedItems}
+          />
+        </ItemListContainer>
       </Container>
     );
   }
