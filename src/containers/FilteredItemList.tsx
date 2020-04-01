@@ -206,15 +206,14 @@ const getFilteredItems = (
   const cleanedItemList = hideOrphans
     ? hideChildrenWithoutParents(filteredItems)
     : filteredItems;
-  const uncompletedItems = hideCompletedItems(cleanedItemList);
-  const numberOfCompletedItems =
-    cleanedItemList.length - uncompletedItems.length;
+  const uncompletedItems = hideCompletedItems(filteredItems);
+  const numberOfCompletedItems = filteredItems.length - uncompletedItems.length;
   const sortedItems = hideCompleted
     ? sortItems(uncompletedItems, sortCriteria)
-    : sortItems(cleanedItemList, sortCriteria);
+    : sortItems(filteredItems, sortCriteria);
   return {
     numberOfCompletedItems: numberOfCompletedItems,
-    numberOfAllItems: cleanedItemList.length,
+    numberOfAllItems: filteredItems.length,
     sortedItems: sortedItems
   };
 };
