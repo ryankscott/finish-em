@@ -206,14 +206,15 @@ const getFilteredItems = (
   const cleanedItemList = hideOrphans
     ? hideChildrenWithoutParents(filteredItems)
     : filteredItems;
-  const uncompletedItems = hideCompletedItems(filteredItems);
-  const numberOfCompletedItems = filteredItems.length - uncompletedItems.length;
+  const uncompletedItems = hideCompletedItems(cleanedItemList);
+  const numberOfCompletedItems =
+    cleanedItemList.length - uncompletedItems.length;
   const sortedItems = hideCompleted
     ? sortItems(uncompletedItems, sortCriteria)
-    : sortItems(filteredItems, sortCriteria);
+    : sortItems(cleanedItemList, sortCriteria);
   return {
     numberOfCompletedItems: numberOfCompletedItems,
-    numberOfAllItems: filteredItems.length,
+    numberOfAllItems: cleanedItemList.length,
     sortedItems: sortedItems
   };
 };
@@ -287,7 +288,8 @@ interface CompletedContainerProps {
 }
 const CompletedContainer = styled.div<CompletedContainerProps>`
   grid-area: hide;
-  display: ${props => (props.visible ? "flex" : "none")};
+  display: flex;
+  opacity: ${props => (props.visible ? 1 : 0)};
   flex-direction: row;
   justify-content: flex-start;
   margin: 0px 2px;
