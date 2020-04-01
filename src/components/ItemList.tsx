@@ -45,6 +45,8 @@ const ItemList = (props: ItemListProps) => {
               {item.children &&
                 item.children.map(c => {
                   const childItem = getItemById(c, props.items);
+                  // Fometimes the child item has been filtered out, so we don't want to render an empty container
+                  if (!childItem) return;
                   return (
                     <Item
                       {...childItem}
