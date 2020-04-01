@@ -148,11 +148,14 @@ class ShortcutDialog extends Component<
   componentWillUnount() {
     document.removeEventListener("mousedown", this.handleClick, false);
   }
+
   handleClick(e) {
+    if (e.target.parentElement.id == "shortcut-icon") return;
     // Don't close if we're clicking on the dialog
     if (e && this.node && this.node.current.contains(e.target)) {
       return;
     }
+
     // Only close if it's currently open
     if (this.props.isOpen) {
       this.props.closeShortcutDialog();
@@ -165,7 +168,6 @@ class ShortcutDialog extends Component<
     }
   }
 
-  // TODO fix this to have a split between app or item keywords
   render() {
     return (
       <ThemeProvider theme={theme}>

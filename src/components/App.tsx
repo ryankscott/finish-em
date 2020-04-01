@@ -172,7 +172,7 @@ function App(props) {
             </Route>
           </Switch>
         </MainContainer>
-        <ShortcutIcon onClick={props.toggleShortcutDialog}>
+        <ShortcutIcon id="shortcut-icon" onClick={props.toggleShortcutDialog}>
           {helpIcon()}
         </ShortcutIcon>
       </Container>
