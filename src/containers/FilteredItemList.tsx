@@ -175,6 +175,17 @@ const filterItems = (
   }
 };
 
+const hideChildrenWithoutParents = (items: ItemType[]): ItemType[] => {
+  return items.filter(i => {
+    if (i.parentId == null) return true;
+    if (i.parentId != null) {
+      const found = items.find(t => t.id == i.parentId);
+      if (found) return true;
+    }
+    return false;
+  });
+};
+
 const hideCompletedItems = (items: ItemType[]): ItemType[] => {
   return items.filter(i => i.completed == false);
 };
@@ -182,6 +193,7 @@ const hideCompletedItems = (items: ItemType[]): ItemType[] => {
 const getFilteredItems = (
   items: ItemType[],
   hideCompleted: boolean,
+  hideOrphans: boolean,
   sortCriteria: SortCriteriaEnum,
   filterCriteria: FilterEnum,
   filterParams: FilterParamsType
@@ -191,16 +203,18 @@ const getFilteredItems = (
   sortedItems: ItemType[];
 } => {
   const filteredItems = filterItems(items, filterCriteria, filterParams);
-  // TODO: We need to remove children items without parents in the list
-  // This probably needs to be optional due to views like trash
-  const uncompletedItems = hideCompletedItems(filteredItems, true);
-  const numberOfCompletedItems = filteredItems.length - uncompletedItems.length;
+  const cleanedItemList = hideOrphans
+    ? hideChildrenWithoutParents(filteredItems)
+    : filteredItems;
+  const uncompletedItems = hideCompletedItems(cleanedItemList);
+  const numberOfCompletedItems =
+    cleanedItemList.length - uncompletedItems.length;
   const sortedItems = hideCompleted
     ? sortItems(uncompletedItems, sortCriteria)
-    : sortItems(filteredItems, sortCriteria);
+    : sortItems(cleanedItemList, sortCriteria);
   return {
     numberOfCompletedItems: numberOfCompletedItems,
-    numberOfAllItems: filteredItems.length,
+    numberOfAllItems: cleanedItemList.length,
     sortedItems: sortedItems
   };
 };
@@ -339,6 +353,7 @@ interface FilteredItemListProps {
   showProject: boolean;
   showFilterBar: boolean;
   hideCompletedItems: boolean;
+  hideOrphans: boolean;
   listName: string;
   filter: FilterEnum;
   filterParams: FilterParamsType;
@@ -360,6 +375,7 @@ class FilteredItemList extends Component<
     const filteredItems = getFilteredItems(
       this.props.items,
       this.state.hideCompleted,
+      this.props.hideOrphans || true,
       this.state.sortCriteria,
       this.props.filter,
       this.props.filterParams
