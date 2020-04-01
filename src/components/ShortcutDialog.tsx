@@ -150,12 +150,10 @@ class ShortcutDialog extends Component<
   }
 
   handleClick(e) {
+    // Don't handle if we're clicking on the shortcut icon again
     if (e.target.parentElement.id == "shortcut-icon") return;
     // Don't close if we're clicking on the dialog
-    if (e && this.node && this.node.current.contains(e.target)) {
-      return;
-    }
-
+    if (e && this.node && this.node.current.contains(e.target)) return;
     // Only close if it's currently open
     if (this.props.isOpen) {
       this.props.closeShortcutDialog();
