@@ -175,10 +175,8 @@ const filterItems = (
   }
 };
 
-const hideCompletedItems = (items: ItemType[], hide: boolean): ItemType[] => {
-  if (hide) {
-    return items.filter(i => i.completed == false);
-  } else return items;
+const hideCompletedItems = (items: ItemType[]): ItemType[] => {
+  return items.filter(i => i.completed == false);
 };
 
 const getFilteredItems = (
@@ -193,6 +191,8 @@ const getFilteredItems = (
   sortedItems: ItemType[];
 } => {
   const filteredItems = filterItems(items, filterCriteria, filterParams);
+  // TODO: We need to remove children items without parents in the list
+  // This probably needs to be optional due to views like trash
   const uncompletedItems = hideCompletedItems(filteredItems, true);
   const numberOfCompletedItems = filteredItems.length - uncompletedItems.length;
   const sortedItems = hideCompleted
