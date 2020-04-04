@@ -174,31 +174,8 @@ export function addChildItem(id: Uuid, parentId: Uuid): AddChildItemAction {
   };
 }
 
-export interface ShowChildrenAction {
-  type: typeof SHOW_CHILDREN;
-  id: Uuid;
-}
-export function showChildren(id: Uuid): ShowChildrenAction {
-  return {
-    type: SHOW_CHILDREN,
-    id: id
-  };
-}
-
-export interface HideChildrenAction {
-  type: typeof HIDE_CHILDREN;
-  id: Uuid;
-}
-export function hideChildren(id: Uuid): HideChildrenAction {
-  return {
-    type: HIDE_CHILDREN,
-    id: id
-  };
-}
 
 export type ItemActions =
-  | HideChildrenAction
-  | ShowChildrenAction
   | AddChildItemAction
   | UpdateItemDescriptionAction
   | SetRepeatRuleAction

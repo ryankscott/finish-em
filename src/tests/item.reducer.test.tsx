@@ -34,8 +34,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -70,8 +68,6 @@ describe("item reducer", () => {
         createdAt: new Date().toISOString(),
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -101,8 +97,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -126,8 +120,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -158,8 +150,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: [childId1, childId2]
           },
           {
@@ -176,8 +166,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: id,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           },
           {
@@ -194,8 +182,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: id,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -219,8 +205,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       },
       {
@@ -237,8 +221,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       },
       {
@@ -255,8 +237,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -287,8 +267,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: [childId1, childId2]
           },
           {
@@ -305,8 +283,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: id,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           },
           {
@@ -323,8 +299,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: id,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -348,8 +322,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: [childId2]
       },
       {
@@ -366,8 +338,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       },
       {
@@ -384,8 +354,6 @@ describe("item reducer", () => {
         lastUpdatedAt: lastUpdatedAt,
         repeat: null,
         parentId: id,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -415,8 +383,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -440,199 +406,13 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
     Mockdate.reset();
   });
 
-  it("should handle showing the children of an item", () => {
-    Mockdate.set("2020-02-20");
-    const id = uuidv4();
-    const childId = uuidv4();
-    const createdAt = new Date(1990, 1, 1).toISOString();
-    const lastUpdatedAt = new Date(1990, 1, 2).toISOString();
-    expect(
-      itemReducer(
-        [
-          {
-            id: id,
-            type: "TODO",
-            text: "TODO Run the tests",
-            scheduledDate: null,
-            dueDate: null,
-            completed: false,
-            deleted: false,
-            deletedAt: null,
-            completedAt: null,
-            createdAt: createdAt,
-            lastUpdatedAt: lastUpdatedAt,
-            repeat: null,
-            parentId: null,
-            hidden: false,
-            hiddenChildren: true,
-            children: [childId]
-          },
-          {
-            id: childId,
-            type: "TODO",
-            text: "TODO Eat dinner",
-            scheduledDate: null,
-            dueDate: null,
-            completed: false,
-            deleted: false,
-            deletedAt: null,
-            completedAt: null,
-            createdAt: createdAt,
-            lastUpdatedAt: lastUpdatedAt,
-            repeat: null,
-            parentId: id,
-            hidden: true,
-            hiddenChildren: false,
-            children: []
-          }
-        ],
-        {
-          id: id,
-          type: item.SHOW_CHILDREN
-        }
-      )
-    ).toEqual([
-      {
-        id: id,
-        type: "TODO",
-        text: "TODO Run the tests",
-        scheduledDate: null,
-        dueDate: null,
-        completed: false,
-        deleted: false,
-        deletedAt: null,
-        completedAt: null,
-        createdAt: createdAt,
-        lastUpdatedAt: new Date().toISOString(),
-        repeat: null,
-        parentId: null,
-        hidden: false,
-        hiddenChildren: false,
-        children: [childId]
-      },
-      {
-        id: childId,
-        type: "TODO",
-        text: "TODO Eat dinner",
-        scheduledDate: null,
-        dueDate: null,
-        completed: false,
-        deleted: false,
-        deletedAt: null,
-        completedAt: null,
-        createdAt: createdAt,
-        lastUpdatedAt: new Date().toISOString(),
-        repeat: null,
-        parentId: id,
-        hidden: false,
-        hiddenChildren: false,
-        children: []
-      }
-    ]);
-    Mockdate.reset();
-  });
-
-  it("should handle hiding the children of an item", () => {
-    Mockdate.set("2020-02-20");
-    const id = uuidv4();
-    const childId = uuidv4();
-    const createdAt = new Date(1990, 1, 1).toISOString();
-    const lastUpdatedAt = new Date(1990, 1, 2).toISOString();
-    expect(
-      itemReducer(
-        [
-          {
-            id: id,
-            type: "TODO",
-            text: "TODO Run the tests",
-            scheduledDate: null,
-            dueDate: null,
-            completed: false,
-            deleted: false,
-            deletedAt: null,
-            completedAt: null,
-            createdAt: createdAt,
-            lastUpdatedAt: lastUpdatedAt,
-            repeat: null,
-            parentId: null,
-            hidden: false,
-            hiddenChildren: false,
-            children: [childId]
-          },
-          {
-            id: childId,
-            type: "TODO",
-            text: "TODO Eat dinner",
-            scheduledDate: null,
-            dueDate: null,
-            completed: false,
-            deleted: false,
-            deletedAt: null,
-            completedAt: null,
-            createdAt: createdAt,
-            lastUpdatedAt: lastUpdatedAt,
-            repeat: null,
-            parentId: id,
-            hidden: false,
-            hiddenChildren: false,
-            children: []
-          }
-        ],
-        {
-          id: id,
-          type: item.HIDE_CHILDREN
-        }
-      )
-    ).toEqual([
-      {
-        id: id,
-        type: "TODO",
-        text: "TODO Run the tests",
-        scheduledDate: null,
-        dueDate: null,
-        completed: false,
-        deleted: false,
-        deletedAt: null,
-        completedAt: null,
-        createdAt: createdAt,
-        lastUpdatedAt: new Date().toISOString(),
-        repeat: null,
-        parentId: null,
-        hidden: false,
-        hiddenChildren: true,
-        children: [childId]
-      },
-      {
-        id: childId,
-        type: "TODO",
-        text: "TODO Eat dinner",
-        scheduledDate: null,
-        dueDate: null,
-        completed: false,
-        deleted: false,
-        deletedAt: null,
-        completedAt: null,
-        createdAt: createdAt,
-        lastUpdatedAt: new Date().toISOString(),
-        repeat: null,
-        parentId: id,
-        hidden: true,
-        hiddenChildren: false,
-        children: []
-      }
-    ]);
-    Mockdate.reset();
-  });
-
-  it("should handle hiding the completing of an item without a repeat", () => {
+  it("should handle the completing of an item without a repeat", () => {
     Mockdate.set("2020-02-20");
     const id = uuidv4();
     const createdAt = new Date(1990, 1, 1).toISOString();
@@ -655,8 +435,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -680,8 +458,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -717,8 +493,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: repeat,
             parentId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -742,8 +516,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: repeat,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -775,8 +547,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: null,
             parentId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -800,8 +570,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: null,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -837,8 +605,6 @@ describe("item reducer", () => {
             lastUpdatedAt: lastUpdatedAt,
             repeat: repeat,
             parentId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -862,8 +628,6 @@ describe("item reducer", () => {
         lastUpdatedAt: new Date().toISOString(),
         repeat: repeat,
         parentId: null,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);
@@ -895,8 +659,6 @@ describe("item reducer", () => {
             repeat: null,
             parentId: null,
             projectId: projectId,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           },
           {
@@ -914,8 +676,6 @@ describe("item reducer", () => {
             repeat: null,
             parentId: null,
             projectId: null,
-            hidden: false,
-            hiddenChildren: false,
             children: []
           }
         ],
@@ -941,8 +701,6 @@ describe("item reducer", () => {
         repeat: null,
         parentId: null,
         projectId: projectId,
-        hidden: false,
-        hiddenChildren: false,
         children: [childId]
       },
       {
@@ -960,8 +718,6 @@ describe("item reducer", () => {
         repeat: null,
         parentId: id,
         projectId: projectId,
-        hidden: false,
-        hiddenChildren: false,
         children: []
       }
     ]);

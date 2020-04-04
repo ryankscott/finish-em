@@ -147,22 +147,4 @@ describe("ItemActions", () => {
     };
     expect(item.addChildItem(id, parentId)).toEqual(expectedAction);
   });
-
-  it("should create an action to show children items of an item", () => {
-    const id = uuidv4();
-    const expectedAction: item.ShowChildrenAction = {
-      type: item.SHOW_CHILDREN,
-      id: id
-    };
-    expect(item.showChildren(id)).toEqual(expectedAction);
-  });
-
-  it("should create an action to hide children items of an item", () => {
-    const id = uuidv4();
-    const expectedAction: item.HideChildrenAction = {
-      type: item.HIDE_CHILDREN,
-      id: id
-    };
-    expect(item.hideChildren(id)).toEqual(expectedAction);
-  });
 });

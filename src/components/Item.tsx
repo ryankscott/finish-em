@@ -18,9 +18,7 @@ import {
   uncompleteItem,
   setScheduledDate,
   setRepeatRule,
-  setDueDate,
-  hideChildren,
-  showChildren
+  setDueDate
 } from "../actions";
 import { theme } from "../theme";
 import ProjectDropdown from "./ProjectDropdown";
@@ -34,7 +32,8 @@ import DateRenderer from "./DateRenderer";
 import {
   getProjectNameById,
   removeItemTypeFromString,
-  formatRelativeDate
+  formatRelativeDate,
+  getItemById
 } from "../utils";
 import { parseISO } from "date-fns";
 
@@ -43,6 +42,7 @@ interface ItemProps extends ItemType {
   showProject: boolean;
   keymap: Object;
   projects: ProjectType[];
+  items: ItemType[];
   updateItemDescription: (text: string) => void;
   setRepeatRule: (id: Uuid, rule: RRule) => void;
   setScheduledDate: (id: Uuid, date: Date) => void;
@@ -50,9 +50,9 @@ interface ItemProps extends ItemType {
   completeItem: (id: Uuid) => void;
   uncompleteItem: (id: Uuid) => void;
   moveItem: (id: Uuid, projectId: Uuid) => void;
-  createSubTask(id: Uuid, text: string, projectId: Uuid);
-  showChildren: (id: Uuid) => void;
-  hideChildren: (id: Uuid) => void;
+  createSubTask: (id: Uuid, text: string, projectId: Uuid) => void;
+  deleteItem: (id: Uuid) => void;
+  undeleteItem: (id: Uuid) => void;
 }
 
 interface ItemState {
@@ -63,11 +63,12 @@ interface ItemState {
   descriptionEditable: boolean;
   quickAddContainerVisible: boolean;
   keyPresses: string[];
+  hideChildren: boolean;
 }
 
 class Item extends Component<ItemProps, ItemState> {
   private container: React.RefObject<HTMLInputElement>;
-  constructor(props) {
+  constructor(props: ItemProps) {
     super(props);
     this.state = {
       projectDropdownVisible: false,
@@ -76,6 +77,7 @@ class Item extends Component<ItemProps, ItemState> {
       repeatDropdownVisible: false,
       descriptionEditable: false,
       quickAddContainerVisible: false,
+      hideChildren: false,
       keyPresses: []
     };
     this.setScheduledDate = this.setScheduledDate.bind(this);
@@ -159,9 +161,9 @@ class Item extends Component<ItemProps, ItemState> {
           }
         },
         TOGGLE_CHILDREN: () => {
-          this.props.hiddenChildren
-            ? this.props.showChildren(this.props.id)
-            : this.props.hideChildren(this.props.id);
+          this.state.hideChildren
+            ? this.setState({ hideChildren: false })
+            : this.setState({ hideChildren: true });
         },
         SET_SCHEDULED_DATE: event => {
           if (this.props.deleted || this.props.completed) return;
@@ -442,10 +444,11 @@ class Item extends Component<ItemProps, ItemState> {
   }
 
   handleExpand() {
-    this.props.hiddenChildren
-      ? this.props.showChildren(this.props.id)
-      : this.props.hideChildren(this.props.id);
-    return;
+    this.state.hideChildren
+      ? this.setState({
+          hideChildren: false
+        })
+      : this.setState({ hideChildren: true });
   }
 
   render() {
@@ -462,7 +465,6 @@ class Item extends Component<ItemProps, ItemState> {
       <ThemeProvider theme={theme}>
         <div key={this.props.id} id={this.props.id}>
           <Container
-            hidden={this.props.hidden}
             noIndentation={this.props.noIndentation}
             isSubtask={this.props.parentId != null}
             onKeyDown={this.handleKeyPress}
@@ -473,7 +475,7 @@ class Item extends Component<ItemProps, ItemState> {
           >
             <div style={{ gridArea: "EXPAND" }}>
               <ExpandIcon
-                expanded={!this.props.hiddenChildren}
+                expanded={!this.state.hideChildren}
                 onClick={this.handleExpand}
                 visible={this.props.children && this.props.children.length > 0}
               />
@@ -501,7 +503,9 @@ class Item extends Component<ItemProps, ItemState> {
               />
             </Body>
             <Project visible={this.props.showProject}>
-              {getProjectNameById(this.props.projectId, this.props.projects)}
+              {this.props.showProject
+                ? getProjectNameById(this.props.projectId, this.props.projects)
+                : "null"}
             </Project>
             <div style={{ gridArea: "SCHEDULED" }}>
               <DateRenderer
@@ -562,13 +566,41 @@ class Item extends Component<ItemProps, ItemState> {
             onSubmit={this.moveItem}
           />
         </div>
+        {!this.state.hideChildren &&
+          this.props.children?.map(c => {
+            const childItem = getItemById(c, this.props.items);
+            // Sometimes the child item has been filtered out, so we don't want to render an empty container
+            if (!childItem) return;
+            return (
+              <Item
+                {...childItem}
+                key={c}
+                items={this.props.items}
+                noIndentation={this.props.noIndentation}
+                showProject={this.props.showProject}
+                keymap={this.props.keymap}
+                projects={this.props.projects}
+                updateItemDescription={this.props.updateItemDescription}
+                setScheduledDate={this.props.setScheduledDate}
+                setDueDate={this.props.setDueDate}
+                setRepeatRule={this.props.setRepeatRule}
+                moveItem={this.props.moveItem}
+                completeItem={this.props.completeItem}
+                uncompleteItem={this.props.uncompleteItem}
+                createSubTask={this.props.createSubTask}
+                deleteItem={this.props.deleteItem}
+                undeleteItem={this.props.undeleteItem}
+              />
+            );
+          })}
       </ThemeProvider>
     );
   }
 }
 
 const mapStateToProps = state => ({
-  projects: state.projects
+  projects: state.projects,
+  items: state.items
 });
 const mapDispatchToProps = dispatch => ({
   createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => {
@@ -602,12 +634,6 @@ const mapDispatchToProps = dispatch => ({
   },
   setRepeatRule: (id: Uuid, rule: RRule) => {
     dispatch(setRepeatRule(id, rule));
-  },
-  hideChildren: (id: Uuid) => {
-    dispatch(hideChildren(id));
-  },
-  showChildren: (id: Uuid) => {
-    dispatch(showChildren(id));
   }
 });
 

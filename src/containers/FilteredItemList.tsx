@@ -190,6 +190,7 @@ const hideCompletedItems = (items: ItemType[]): ItemType[] => {
   return items.filter(i => i.completed == false);
 };
 
+// TODO: Work out if we can get rid of hideOrphans
 const getFilteredItems = (
   items: ItemType[],
   hideCompleted: boolean,
@@ -381,7 +382,6 @@ class FilteredItemList extends Component<
       this.props.filter,
       this.props.filterParams
     );
-    console.log(filteredItems.sortedItems);
     const completedItems = filteredItems.numberOfCompletedItems;
     return (
       <Container>

@@ -89,7 +89,7 @@ var voidNodeTags = [
 ];
 
 //From: https://stackoverflow.com/questions/237104/array-containsobj-in-javascript
-Array.prototype.contains = function(obj) {
+Array.prototype.contains = function (obj) {
   var i = this.length;
   while (i--) {
     if (this[i] === obj) {
@@ -120,7 +120,7 @@ function getLastChildElement(el) {
 }
 
 // Based on Nico Burns's answer
-export const setEndOfContenteditable = function(contentEditableElement) {
+export const setEndOfContenteditable = function (contentEditableElement) {
   while (
     getLastChildElement(contentEditableElement) &&
     canContainText(getLastChildElement(contentEditableElement))
@@ -204,5 +204,5 @@ export const getProjectNameById = (
   projects: ProjectType[]
 ): string => {
   const p = projects.find(i => i.id == id);
-  return p ? p.name : "";
+  return p ? p.name : "Inbox";
 };

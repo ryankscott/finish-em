@@ -2,7 +2,6 @@ import React from "react";
 import Item from "./Item";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
-import { getItemById } from "../utils";
 import { item as itemKeymap } from "../keymap";
 import { ItemType } from "../interfaces";
 
@@ -31,8 +30,7 @@ const ItemList = (props: ItemListProps) => {
       <Container>
         {props.items.map(item => {
           if (item == undefined) return;
-          const isSubtask = item.parentId != null;
-          if (!props.showSubtasks && isSubtask) return;
+          if (item.parentId != null) return;
           return (
             <div key={"container-" + item.id}>
               <Item
@@ -42,21 +40,6 @@ const ItemList = (props: ItemListProps) => {
                 showProject={props.showProject}
                 keymap={itemKeymap}
               />
-              {item.children &&
-                item.children.map(c => {
-                  const childItem = getItemById(c, props.items);
-                  // Fometimes the child item has been filtered out, so we don't want to render an empty container
-                  if (!childItem) return;
-                  return (
-                    <Item
-                      {...childItem}
-                      key={c}
-                      noIndentation={props.noIndentation}
-                      showProject={props.showProject}
-                      keymap={itemKeymap}
-                    />
-                  );
-                })}
             </div>
           );
         })}

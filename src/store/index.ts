@@ -14,25 +14,12 @@ if (isElectron()) {
 }
 
 const migrations = {
-  1: state => {
+  2: state => {
     return {
       ...state,
       items: state.items.map(i => {
-        if (i.children == undefined) {
-          i.children = [];
-        }
-        if (i.hiddenChildren == undefined) {
-          i.hiddenChildren = false;
-        }
-        if (i.hidden == undefined) {
-          i.hidden = false;
-        }
-        if (i.repeat == undefined) {
-          i.repeat = null;
-        }
-        if (i.deletedAt == undefined) {
-          i.deletedAt = null;
-        }
+        delete i.hidden
+        delete i.hiddenChildren
         return i;
       })
     };
@@ -42,14 +29,14 @@ const migrations = {
 let persistConfig;
 if (isElectron()) {
   persistConfig = {
-    version: 1,
+    version: 2,
     key: "root",
     storage: createElectronStorage(),
     migrate: createMigrate(migrations, { debug: true })
   };
 } else {
   persistConfig = {
-    version: 1,
+    version: 2,
     key: "root",
     storage,
     migrate: createMigrate(migrations, { debug: true })

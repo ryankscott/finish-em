@@ -15,8 +15,6 @@ export interface ItemType {
   createdAt: string;
   deletedAt: string;
   repeat: string;
-  hidden: boolean;
-  hiddenChildren: boolean;
 }
 
 export interface ProjectType {

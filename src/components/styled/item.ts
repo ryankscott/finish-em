@@ -1,12 +1,11 @@
 import styled from "styled-components";
 interface ContainerProps {
-  hidden: boolean;
   isSubtask: boolean;
   noIndentation: boolean;
 }
 export const Container = styled.div<ContainerProps>`
   transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
-  max-height: ${props => (props.hidden ? "0px" : "200px")};
+  max-height:  200px;
   font-family: ${props => props.theme.font.sansSerif};
   font-size: ${props => props.theme.fontSizes.medium};
   display: grid;

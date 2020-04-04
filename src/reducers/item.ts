@@ -23,8 +23,6 @@ export const initialState: ItemType[] = [
     lastUpdatedAt: new Date(2020, 1, 1).toISOString(),
     repeat: null,
     parentId: null,
-    hidden: false,
-    hiddenChildren: false,
     children: []
   },
   {
@@ -42,8 +40,6 @@ export const initialState: ItemType[] = [
     lastUpdatedAt: new Date(2020, 1, 1).toISOString(),
     repeat: null,
     parentId: null,
-    hidden: false,
-    hiddenChildren: false,
     children: []
   },
   {
@@ -61,8 +57,6 @@ export const initialState: ItemType[] = [
     lastUpdatedAt: new Date(2020, 1, 1).toISOString(),
     repeat: null,
     parentId: null,
-    hidden: false,
-    hiddenChildren: false,
     children: []
   }
 ];
@@ -90,8 +84,6 @@ export const itemReducer = (
           lastUpdatedAt: new Date().toISOString(),
           repeat: null,
           parentId: null,
-          hidden: false,
-          hiddenChildren: false,
           children: []
         }
       ];
@@ -100,6 +92,7 @@ export const itemReducer = (
       return state.map(i => {
         if (i.projectId == action.id) {
           i.deleted = true;
+          i.projectId == null;
           i.lastUpdatedAt = new Date().toISOString();
         }
         return i;
@@ -141,33 +134,6 @@ export const itemReducer = (
         return i;
       });
 
-    case item.SHOW_CHILDREN:
-      return state.map(i => {
-        if (i.id == action.id) {
-          i.hiddenChildren = false;
-          i.lastUpdatedAt = new Date().toISOString();
-          i.children.map(c => {
-            const child = getItemById(c, state);
-            child.hidden = false;
-            child.lastUpdatedAt = new Date().toISOString();
-          });
-        }
-        return i;
-      });
-
-    case item.HIDE_CHILDREN:
-      return state.map(i => {
-        if (i.id == action.id) {
-          i.hiddenChildren = true;
-          i.lastUpdatedAt = new Date().toISOString();
-          i.children.map(c => {
-            const child = getItemById(c, state);
-            child.hidden = true;
-            child.lastUpdatedAt = new Date().toISOString();
-          });
-        }
-        return i;
-      });
 
     case item.COMPLETE_ITEM:
       return state.map(i => {
@@ -192,7 +158,6 @@ export const itemReducer = (
       const parent = getItemById(action.parentId, state);
       return state.map(i => {
         if (i.id == action.parentId) {
-          i.hiddenChildren = false;
           i.children =
             i.children == undefined ? [action.id] : [...i.children, action.id];
           i.lastUpdatedAt = new Date().toISOString();
