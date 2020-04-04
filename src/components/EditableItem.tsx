@@ -34,7 +34,6 @@ const Icon = styled.div`
 interface ValidationBoxProps {
   animate: boolean;
   valid: boolean;
-  focus?: boolean;
 }
 const headShakeAnimation = keyframes`${headShake}`;
 const ValidationBox = styled.div<ValidationBoxProps>`
@@ -45,9 +44,7 @@ const ValidationBox = styled.div<ValidationBoxProps>`
   border: 1px solid;
   border-color: ${props =>
     props.valid
-      ? props.focus
-        ? props.theme.colours.neutralColour
-        : props.theme.colours.borderColour
+      ? props.theme.colours.borderColour
       : props.theme.colours.errorColour};
   width: 660px;
   font-family: ${props => props.theme.font.sansSerif};
@@ -71,9 +68,11 @@ const findWithRegex = (regex, contentBlock, callback) => {
     callback(start, start + matchArr[0].length);
   }
 };
+
 const itemTypeStrategy = (contentBlock, callback, contentState) => {
   findWithRegex(itemRegex, contentBlock, callback);
 };
+
 const itemTypeSpan = props => (
   <span style={styles.itemType} data-offset-key={props.offsetKey}>
     {props.children}
@@ -87,47 +86,29 @@ const compositeDecorator = new CompositeDecorator([
   }
 ]);
 
-const moveSelectionToEnd = editorState => {
-  const content = editorState.getCurrentContent();
-  const blockMap = content.getBlockMap();
-
-  const key = blockMap.last().getKey();
-  const length = blockMap.last().getLength();
-
-  const selection = new SelectionState({
-    anchorKey: key,
-    anchorOffset: length,
-    focusKey: key,
-    focusOffset: length
-  });
-  return EditorState.forceSelection(editorState, selection);
-};
-
 interface EditableItemProps {
   text: string;
   readOnly: boolean;
+  focus: boolean;
   onSubmit: (t: string) => void;
 }
 interface EditableItemState {
-  projectDropdownVisible: boolean;
   valid: boolean;
   readOnly: boolean;
-  focus: boolean;
   animate: boolean;
   editorState: EditorState;
 }
 class EditableItem extends Component<EditableItemProps, EditableItemState> {
-  constructor(props) {
+  private editor: React.RefObject<HTMLInputElement>;
+  constructor(props: EditableItemProps) {
     super(props);
     const es = EditorState.createWithContent(
       ContentState.createFromText(this.props.text ? this.props.text : ""),
       compositeDecorator
     );
     this.state = {
-      projectDropdownVisible: false,
       valid: true,
       readOnly: this.props.readOnly,
-      focus: false,
       editorState: es,
       animate: false
     };
@@ -138,6 +119,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
     this.validateInput = this.validateInput.bind(this);
     this.clearInput = this.clearInput.bind(this);
     this.onFocus = this.onFocus.bind(this);
+    this.editor = React.createRef();
   }
 
   validateInput() {
@@ -155,6 +137,12 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
 
   clearInput() {
     let { editorState } = this.state;
+    /*
+     TODO: There has to be a better way. This doens't work
+    this.setState({
+      editorState: EditorState.createEmpty(compositeDecorator)
+    }); */
+
     let contentState = editorState.getCurrentContent();
     const firstBlock = contentState.getFirstBlock();
     const lastBlock = contentState.getLastBlock();
@@ -210,9 +198,17 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
   }
 
   onFocus(e) {
+    console.log("On focus handler");
     this.setState({
-      editorState: moveSelectionToEnd(this.state.editorState)
+      editorState: EditorState.moveFocusToEnd(this.state.editorState)
     });
+  }
+
+  // TODO: This seems wrong, but can't think of a better way right now
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.focus) {
+      this.editor.current.focus();
+    }
   }
 
   render() {
@@ -221,6 +217,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
         <ValidationBox animate={this.state.animate} valid={this.state.valid}>
           <Icon>{addIcon()}</Icon>
           <Editor
+            ref={this.editor}
             handleReturn={this.handleReturn}
             editorState={this.state.editorState}
             readOnly={this.state.readOnly}

@@ -186,7 +186,7 @@ class Item extends Component<ItemProps, ItemState> {
           });
           event.preventDefault();
         },
-        CREATE_SUBTASK: () => {
+        CREATE_SUBTASK: event => {
           if (this.props.deleted || this.props.completed) return;
           this.setState({
             quickAddContainerVisible: !this.state.quickAddContainerVisible,
@@ -195,6 +195,7 @@ class Item extends Component<ItemProps, ItemState> {
             projectDropdownVisible: false,
             repeatDropdownVisible: false
           });
+          event.preventDefault();
         },
         COMPLETE_ITEM: () => {
           if (this.props.deleted || this.props.completed) return;
@@ -469,7 +470,7 @@ class Item extends Component<ItemProps, ItemState> {
             isSubtask={this.props.parentId != null}
             onKeyDown={this.handleKeyPress}
             id={this.props.id}
-            tabIndex={this.props.hidden ? -1 : 0}
+            tabIndex={0}
             itemType={this.props.type}
             ref={this.container}
           >
@@ -495,6 +496,7 @@ class Item extends Component<ItemProps, ItemState> {
             </div>
             <Body id="body" completed={this.props.completed}>
               <EditableText
+                key={this.props.id}
                 editable={this.state.descriptionEditable}
                 readOnly={this.props.completed}
                 input={removeItemTypeFromString(this.props.text)}
@@ -539,6 +541,7 @@ class Item extends Component<ItemProps, ItemState> {
             <EditableItem
               onSubmit={text => this.createSubTask(text)}
               readOnly={false}
+              focus={this.state.quickAddContainerVisible}
             />
           </QuickAdd>
           <DatePicker

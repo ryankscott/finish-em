@@ -61,7 +61,6 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
       editable: false
     };
     this.handleBlur = this.handleBlur.bind(this);
-    this.handleFocus = this.handleFocus.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.getMarkdownText = this.getMarkdownText.bind(this);
@@ -89,33 +88,18 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     }
     // Ignore clicks if it's already editable
     if (this.state.editable) return;
-    this.setState(
-      {
-        editable: true
-      },
-      () => {
-        this.editableText.current.focus();
-        setEndOfContenteditable(this.editableText.current);
-      }
-    );
+    this.setState({ editable: true });
+    this.editableText.current.focus();
+    setEndOfContenteditable(this.editableText.current);
   }
-
-  handleFocus(e) {}
 
   handleKeyPress(e) {
     if (this.props.readOnly) return;
     if (e.key == "e") {
       if (!this.state.editable) {
-        this.setState(
-          {
-            editable: true
-          },
-          () => {
-            // The item should be focussed here but double check
-            this.editableText.current.focus();
-            setEndOfContenteditable(this.editableText);
-          }
-        );
+        this.setState({ editable: true });
+        setEndOfContenteditable(this.editableText);
+        this.editableText.current.focus();
         e.preventDefault();
       }
     }
@@ -149,7 +133,6 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
           contentEditable={this.state.editable}
           onClick={this.handleClick}
           onBlur={this.handleBlur}
-          onFocus={this.handleFocus}
           tabIndex={
             this.props.tabIndex
               ? this.props.tabIndex
@@ -157,9 +140,8 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
               ? -1
               : 0
           }
-          autoFocus
+          editing={this.state.editable}
           onKeyDown={this.handleKeyPress}
-          singleline={this.props.singleline}
           dangerouslySetInnerHTML={
             this.state.editable ? this.getRawText() : this.getMarkdownText()
           }
