@@ -166,8 +166,9 @@ const filterItems = (
     case "SHOW_OVERDUE":
       return getTasksAndSubtasks(items, i => {
         return (
-          isPast(endOfDay(parseISO(i.scheduledDate))) ||
-          (isPast(endOfDay(parseISO(i.dueDate))) && i.deleted == false)
+          (isPast(endOfDay(parseISO(i.scheduledDate))) ||
+            isPast(endOfDay(parseISO(i.dueDate)))) &&
+          i.deleted == false
         );
       });
     default:
