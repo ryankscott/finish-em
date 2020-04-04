@@ -205,9 +205,11 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
   }
 
   // TODO: This seems wrong, but can't think of a better way right now
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.focus) {
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.focus) {
       this.editor.current.focus();
+    } else {
+      this.editor.current.blur();
     }
   }
 
