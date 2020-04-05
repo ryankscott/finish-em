@@ -4,6 +4,8 @@ import { itemReducer } from "./item";
 import { projectReducer } from "./project";
 import { SET_WEEKLY_GOAL, SET_DAILY_GOAL } from "../actions";
 
+// TODO: Create a state interface
+
 const initialState = {
   weeklyGoal: {},
   dailyGoal: {}

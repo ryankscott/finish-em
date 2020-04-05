@@ -5,7 +5,7 @@ import { RRule, rrulestr } from "rrule";
 import uuidv4 from "uuid/v4";
 import { Uuid } from "@typed/uuid";
 import { ItemType, ProjectType } from "../interfaces";
-import { Body, Container, Project, QuickAdd } from "./styled/item";
+import { Body, Container, Project, QuickAdd } from "./styled/Item";
 
 import {
   addChildItem,

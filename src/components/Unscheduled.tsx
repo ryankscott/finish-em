@@ -25,7 +25,6 @@ const Unscheduled = () => (
         showFilterBar={true}
         showSubtasks={true}
         noIndentation={false}
-        hideOrphans={false}
         hideCompletedItems={true}
       />
       <FilteredItemList
@@ -35,7 +34,6 @@ const Unscheduled = () => (
         showFilterBar={true}
         showSubtasks={true}
         noIndentation={false}
-        hideOrphans={false}
         hideCompletedItems={true}
       />
     </UnscheduledContainer>

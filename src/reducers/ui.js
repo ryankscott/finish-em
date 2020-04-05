@@ -18,7 +18,7 @@ const initialState = {
   createProjectDialogVisible: false,
   deleteProjectDialogVisible: false
 };
-
+// TODO: Convert to TS
 export const uiReducer = (state = initialState, action) => {
   switch (action.type) {
     case SHOW_SHORTCUT_DIALOG:

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { connect } from "react-redux";
 import { Manager, Reference, Popper } from "react-popper";
 
 import { theme } from "../theme";
@@ -123,8 +122,4 @@ class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
   }
 }
 
-const mapStateToProps = state => ({});
-
-const mapDispatchToProps = dispatch => ({});
-
-export default connect(mapStateToProps, mapDispatchToProps)(InlineDialog);
+export default InlineDialog;

@@ -87,7 +87,6 @@ function DailyAgenda(props: DailyAgendaProps) {
             showProject={true}
             showFilterBar={true}
             hideCompletedItems={true}
-            hideOrphans={false}
             listName="Overdue"
             filter={FilterEnum.ShowOverdue}
           />
@@ -99,7 +98,6 @@ function DailyAgenda(props: DailyAgendaProps) {
             showProject={true}
             showFilterBar={true}
             hideCompletedItems={false}
-            hideOrphans={false}
             listName="Due Today"
             filter={FilterEnum.ShowDueOnDay}
             filterParams={{ dueDate: new Date() }}
@@ -110,7 +108,6 @@ function DailyAgenda(props: DailyAgendaProps) {
             showProject={true}
             showFilterBar={true}
             hideCompletedItems={false}
-            hideOrphans={false}
             listName="Scheduled Today"
             filter={FilterEnum.ShowScheduledOnDay}
             filterParams={{ scheduledDate: new Date() }}

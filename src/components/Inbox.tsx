@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import { theme } from "../theme";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
 import QuickAdd from "./QuickAdd";
 import { Header1, Title } from "./Typography";
 
@@ -31,10 +31,13 @@ class Inbox extends Component {
           <Header1> Add an item </Header1>
           <QuickAdd />
           <FilteredItemList
-            items={this.props.items}
-            filter="SHOW_INBOX"
+            filter={FilterEnum.ShowInbox}
             listName="Items"
             showFilterBar={true}
+            noIndentation={false}
+            showProject={true}
+            hideCompletedItems={false}
+            showSubtasks={true}
           />
         </Container>
       </ThemeProvider>

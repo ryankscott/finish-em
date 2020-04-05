@@ -11,7 +11,7 @@ import {
 } from "../actions";
 import { Title, Header1 } from "./Typography";
 import EditableText from "./EditableText";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
 import DeleteProjectDialog from "./DeleteProjectDialog";
 import QuickAdd from "./QuickAdd";
 import { Uuid } from "@typed/uuid";
@@ -63,17 +63,24 @@ function Project(props: ProjectProps) {
         <Header1> Add to project </Header1>
         <QuickAdd projectId={props.project.id} />
         <FilteredItemList
-          filter="SHOW_FROM_PROJECT_BY_TYPE"
+          filter={FilterEnum.ShowFromProjectByType}
           filterParams={{ projectId: props.project.id, type: "NOTE" }}
           listName="Notes"
           showFilterBar={false}
+          noIndentation={false}
+          showProject={true}
+          hideCompletedItems={false}
+          showSubtasks={true}
         />
         <FilteredItemList
-          filter="SHOW_FROM_PROJECT_BY_TYPE"
+          filter={FilterEnum.ShowFromProjectByType}
           filterParams={{ projectId: props.project.id, type: "TODO" }}
-          sortCriteria="STATUS"
           listName="Todos"
           showFilterBar={true}
+          noIndentation={false}
+          showProject={true}
+          hideCompletedItems={false}
+          showSubtasks={true}
         />
       </ProjectContainer>
     </ThemeProvider>

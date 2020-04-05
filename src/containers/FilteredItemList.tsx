@@ -11,12 +11,21 @@ import {
 } from "date-fns";
 import { getTasksAndSubtasks } from "../utils";
 import { selectStyles } from "../theme";
-import Select from "react-select";
-import styled from "styled-components";
 import { Header1, Paragraph } from "../components/Typography";
 import { ItemType } from "../interfaces";
 import { Uuid } from "@typed/uuid";
 import { collapsedIcon, expandedIcon } from "../assets/icons";
+import {
+  Container,
+  HeaderBar,
+  ListName,
+  FilterBar,
+  CompletedContainer,
+  CompletedText,
+  SortContainer,
+  SortSelect,
+  ItemListContainer
+} from "../components/styled/FilteredItemList";
 
 /*
 If compareFunction(a, b) returns less than 0, sort a to an index lower than b (i.e. a comes first).
@@ -176,26 +185,13 @@ const filterItems = (
   }
 };
 
-const hideChildrenWithoutParents = (items: ItemType[]): ItemType[] => {
-  return items.filter(i => {
-    if (i.parentId == null) return true;
-    if (i.parentId != null) {
-      const found = items.find(t => t.id == i.parentId);
-      if (found) return true;
-    }
-    return false;
-  });
-};
-
 const hideCompletedItems = (items: ItemType[]): ItemType[] => {
   return items.filter(i => i.completed == false);
 };
 
-// TODO: Work out if we can get rid of hideOrphans
 const getFilteredItems = (
   items: ItemType[],
   hideCompleted: boolean,
-  hideOrphans: boolean,
   sortCriteria: SortCriteriaEnum,
   filterCriteria: FilterEnum,
   filterParams: FilterParamsType
@@ -205,18 +201,14 @@ const getFilteredItems = (
   sortedItems: ItemType[];
 } => {
   const filteredItems = filterItems(items, filterCriteria, filterParams);
-  const cleanedItemList = hideOrphans
-    ? hideChildrenWithoutParents(filteredItems)
-    : filteredItems;
-  const uncompletedItems = hideCompletedItems(cleanedItemList);
-  const numberOfCompletedItems =
-    cleanedItemList.length - uncompletedItems.length;
+  const uncompletedItems = hideCompletedItems(filteredItems);
+  const numberOfCompletedItems = filteredItems.length - uncompletedItems.length;
   const sortedItems = hideCompleted
     ? sortItems(uncompletedItems, sortCriteria)
-    : sortItems(cleanedItemList, sortCriteria);
+    : sortItems(filteredItems, sortCriteria);
   return {
     numberOfCompletedItems: numberOfCompletedItems,
-    numberOfAllItems: cleanedItemList.length,
+    numberOfAllItems: filteredItems.length,
     sortedItems: sortedItems
   };
 };
@@ -228,92 +220,6 @@ const options = [
   { value: "SCHEDULED_DESC", label: "Scheduled ⬇️" },
   { value: "STATUS", label: "Status ✅" }
 ];
-
-const HeaderBar = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 10px;
-`;
-
-interface ItemListContainerProps {
-  visible: boolean;
-}
-const ItemListContainer = styled.div<ItemListContainerProps>`
-  width: 100%;
-  display: flex;
-  opacity: ${props => (props.visible ? 1 : 0)};
-  height: ${props => (props.visible ? "100%" : "0px")};
-  transition: 0.2s ease-in-out;
-`;
-
-interface FilterBarProps {
-  visible: boolean;
-}
-const FilterBar = styled.div<FilterBarProps>`
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-areas: "hide hide hide . . . . sort sort sort";
-  width: 100%;
-  opacity: ${props => (props.visible ? 1 : 0)};
-  height: ${props => (props.visible ? "40px" : "0px")};
-  transition: 0.2s ease-in-out;
-  align-content: flex-end;
-`;
-
-interface SortContainerProps {
-  visible: boolean;
-}
-
-const SortContainer = styled.div<SortContainerProps>`
-  display: ${props => (props.visible ? "flex" : "none")};
-  justify-content: flex-end;
-  grid-area: sort;
-  position: relative;
-  width: 100%;
-  height: 100%;
-`;
-interface SortSelectProps {
-  visible: boolean;
-}
-const SortSelect = styled(Select)<SortSelectProps>`
-  width: 110px;
-  caret-color: transparent;
-  padding: 0px 2px;
-  position: absolute;
-  display: ${props => (props.visible ? "flex" : "none")};
-  flex-direction: column;
-  top: -12px;
-`;
-
-interface CompletedContainerProps {
-  visible: boolean;
-}
-const CompletedContainer = styled.div<CompletedContainerProps>`
-  grid-area: hide;
-  display: flex;
-  opacity: ${props => (props.visible ? 1 : 0)};
-  flex-direction: row;
-  justify-content: flex-start;
-  margin: 0px 2px;
-  cursor: pointer;
-`;
-
-const CompletedText = styled(Paragraph)`
-  text-decoration: pointer;
-`;
-
-const ListName = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  grid-area: name;
-  cursor: pointer;
-`;
-
-const Container = styled.div`
-  margin: 10px 0px;
-`;
 
 export enum FilterEnum {
   ShowAll = "SHOW_ALL",
@@ -349,6 +255,7 @@ interface FilteredItemListState {
   hideItemList: boolean;
 }
 
+// TODO: Allow default sort order
 interface FilteredItemListProps {
   items: ItemType[];
   noIndentation: boolean;
@@ -356,8 +263,7 @@ interface FilteredItemListProps {
   showProject: boolean;
   showFilterBar: boolean;
   hideCompletedItems: boolean;
-  hideOrphans: boolean;
-  listName: string;
+  listName?: string;
   filter: FilterEnum;
   filterParams?: FilterParamsType;
 }
@@ -378,12 +284,22 @@ class FilteredItemList extends Component<
     const filteredItems = getFilteredItems(
       this.props.items,
       this.state.hideCompleted,
-      this.props.hideOrphans || true,
       this.state.sortCriteria,
       this.props.filter,
       this.props.filterParams
     );
     const completedItems = filteredItems.numberOfCompletedItems;
+    const getItemCount = (
+      filteredItems: any,
+      hideCompleted: boolean
+    ): string => {
+      const items = hideCompleted
+        ? filteredItems.numberOfAllItems - filteredItems.numberOfCompletedItems
+        : filteredItems.sortedItems.length;
+      return (
+        items + (filteredItems.sortedItems.length == 1 ? " item" : " items")
+      );
+    };
     return (
       <Container>
         <HeaderBar>
@@ -397,8 +313,7 @@ class FilteredItemList extends Component<
             <Header1>
               {this.props.listName}
               <Paragraph>
-                {filteredItems.sortedItems.length +
-                  (filteredItems.sortedItems.length == 1 ? " item" : " items")}
+                {getItemCount(filteredItems, this.state.hideCompleted)}
               </Paragraph>
             </Header1>
             {this.state.hideItemList ? collapsedIcon() : expandedIcon()}

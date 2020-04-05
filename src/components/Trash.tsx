@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 
 import { theme } from "../theme";
 import { Title } from "./Typography";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
 
 const TrashContainer = styled.div`
   display: flex;
@@ -30,9 +30,10 @@ const Trash = () => (
       <FilteredItemList
         noIndentation={true}
         showSubtasks={true}
-        filter="SHOW_DELETED"
+        filter={FilterEnum.ShowDeleted}
         showProject={true}
         showFilterBar={true}
+        hideCompletedItems={false}
       />
     </TrashContainer>
   </ThemeProvider>

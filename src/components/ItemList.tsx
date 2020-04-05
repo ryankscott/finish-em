@@ -30,6 +30,7 @@ const ItemList = (props: ItemListProps) => {
       <Container>
         {props.items.map(item => {
           if (item == undefined) return;
+          // TODO: Work out how to render orphaned items properly
           if (item.parentId != null) return;
           return (
             <div key={"container-" + item.id}>

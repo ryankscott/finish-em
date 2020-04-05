@@ -9,7 +9,7 @@ import Completed from "./Completed";
 import ShortcutDialog from "./ShortcutDialog";
 import { app as appKeymap } from "../keymap";
 import { connect } from "react-redux";
-import styled, { ThemeProvider, createGlobalStyle } from "styled-components";
+import { ThemeProvider, createGlobalStyle } from "styled-components";
 import { theme } from "../theme";
 import { ProjectType } from "../interfaces";
 import { useHistory, Route, Switch, useParams } from "react-router-dom";
@@ -24,6 +24,7 @@ import {
   hideDeleteProjectDialog
 } from "../actions";
 import { helpIcon } from "../assets/icons.js";
+import { Container, MainContainer, ShortcutIcon } from "./styled/App";
 
 configure({
   logLevel: "warning"
@@ -44,34 +45,6 @@ const GlobalStyle = createGlobalStyle`
     margin: 0px;
     height: 100%;
   }
-`;
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin: 0px;
-  width: 100%;
-  height: 100%;
-`;
-
-const ShortcutIcon = styled.div`
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  :hover {
-    cursor: pointer;
-  }
-`;
-interface MainContainerProps {
-  sidebarVisible: boolean;
-}
-const MainContainer = styled.div<MainContainerProps>`
-  display: flex;
-  flex-direction: column;
-  padding: 10px 20px;
-  margin-left: ${props => (props.sidebarVisible ? "270px" : "0px")};
-  transition: all 0.2s ease-in-out;
-  width: 100%;
-  align-items: center;
 `;
 
 interface ProjectWrapperProps {

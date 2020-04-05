@@ -5,8 +5,6 @@ import { theme, selectStyles } from "../theme";
 import { format } from "date-fns";
 import { RRule } from "rrule";
 
-import { connect } from "react-redux";
-
 interface ContainerProps {
   visible: boolean;
 }
@@ -107,6 +105,4 @@ class RepeatPicker extends Component<RepeatPickerProps, RepeatPickerState> {
   }
 }
 
-const mapStateToProps = state => ({});
-const mapDispatchToProps = dispatch => ({});
-export default connect(mapStateToProps, mapDispatchToProps)(RepeatPicker);
+export default RepeatPicker;

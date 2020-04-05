@@ -1,17 +1,18 @@
 import React from "react";
-import Project, { ProjectInterface } from "../components/Project";
+import Project from "../components/Project";
 import { connect } from "react-redux";
 import uuidv4 from "uuid/v4";
 import { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
+import { ProjectType } from "../interfaces";
 
 interface ProjectListProps {
-  projects: ProjectInterface[];
+  projects: ProjectType[];
 }
 const ProjectList = (props: ProjectListProps) => {
   <ThemeProvider theme={theme}>
     <div>
-      {props.projects.map((p: ProjectInterface) => {
+      {props.projects.map((p: ProjectType) => {
         return (
           <div key={uuidv4()}>
             <Project

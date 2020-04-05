@@ -1,25 +1,11 @@
 import React from "react";
-import styled, { ThemeProvider } from "styled-components";
+import { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 
 import { theme } from "../theme";
 import { Title } from "./Typography";
-import FilteredItemList from "../containers/FilteredItemList";
-
-const CompletedContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 50px 50px;
-  padding-bottom: 50px;
-  width: 675px;
-`;
-
-const HeaderContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
-`;
+import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
+import { CompletedContainer, HeaderContainer } from "./styled/Completed";
 
 const Completed = () => (
   <ThemeProvider theme={theme}>
@@ -30,9 +16,10 @@ const Completed = () => (
       <FilteredItemList
         noIndentation={true}
         showSubtasks={true}
-        filter="SHOW_COMPLETED"
+        filter={FilterEnum.ShowCompleted}
         showProject={true}
         showFilterBar={false}
+        hideCompletedItems={false}
       />
     </CompletedContainer>
   </ThemeProvider>
