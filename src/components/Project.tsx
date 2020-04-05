@@ -68,7 +68,7 @@ function Project(props: ProjectProps) {
           listName="Notes"
           isFilterable={false}
           noIndentOnSubtasks={false}
-          showProject={true}
+          showProject={false}
           hideCompletedItems={false}
         />
         <FilteredItemList
@@ -77,7 +77,7 @@ function Project(props: ProjectProps) {
           listName="Todos"
           isFilterable={true}
           noIndentOnSubtasks={false}
-          showProject={true}
+          showProject={false}
           hideCompletedItems={false}
         />
       </ProjectContainer>
