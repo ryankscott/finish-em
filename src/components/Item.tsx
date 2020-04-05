@@ -68,6 +68,8 @@ interface ItemState {
 
 class Item extends Component<ItemProps, ItemState> {
   private container: React.RefObject<HTMLInputElement>;
+  private editor: React.RefObject<HTMLInputElement>;
+  private quickAdd: React.RefObject<HTMLInputElement>;
   constructor(props: ItemProps) {
     super(props);
     this.state = {
@@ -89,6 +91,8 @@ class Item extends Component<ItemProps, ItemState> {
     this.handleIconClick = this.handleIconClick.bind(this);
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.container = React.createRef();
+    this.editor = React.createRef();
+    this.quickAdd = React.createRef();
     this.handlers = {
       TODO: {
         // EDIT_ITEM_DESC: event => {
@@ -195,6 +199,7 @@ class Item extends Component<ItemProps, ItemState> {
             projectDropdownVisible: false,
             repeatDropdownVisible: false
           });
+          this.quickAdd.current.focus();
           event.preventDefault();
         },
         COMPLETE_ITEM: () => {
@@ -240,6 +245,10 @@ class Item extends Component<ItemProps, ItemState> {
             descriptionEditable: false,
             repeatDropdownVisible: false
           });
+        },
+        EDIT_ITEM_DESC: event => {
+          this.editor.current.focus();
+          event.preventDefault();
         }
       },
       NOTE: {
@@ -496,8 +505,8 @@ class Item extends Component<ItemProps, ItemState> {
             </div>
             <Body id="body" completed={this.props.completed}>
               <EditableText
+                innerRef={this.editor}
                 key={this.props.id}
-                editable={this.state.descriptionEditable}
                 readOnly={this.props.completed}
                 input={removeItemTypeFromString(this.props.text)}
                 onUpdate={this.handleDescriptionChange}
@@ -539,9 +548,10 @@ class Item extends Component<ItemProps, ItemState> {
           </Container>
           <QuickAdd visible={this.state.quickAddContainerVisible}>
             <EditableItem
-              onSubmit={text => this.createSubTask(text)}
+              innerRef={this.quickAdd}
               readOnly={false}
               focus={this.state.quickAddContainerVisible}
+              onSubmit={text => this.createSubTask(text)}
             />
           </QuickAdd>
           <DatePicker

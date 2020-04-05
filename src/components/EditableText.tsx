@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider } from "styled-components";
-import { connect } from "react-redux";
 import { theme } from "../theme";
 import marked from "marked";
 import { setEndOfContenteditable } from "../utils";
@@ -45,6 +44,7 @@ interface EditableTextProps {
   width: number;
   height: number;
   singleline: boolean;
+  innerRef: any; // TODO: Make this the proper ref type
   onUpdate: (input: string) => void;
 }
 interface EditableTextState {
@@ -53,7 +53,6 @@ interface EditableTextState {
 }
 
 class EditableText extends Component<EditableTextProps, EditableTextState> {
-  private editableText: React.RefObject<HTMLInputElement>;
   constructor(props) {
     super(props);
     this.state = {
@@ -61,11 +60,11 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
       editable: false
     };
     this.handleBlur = this.handleBlur.bind(this);
+    this.handleFocus = this.handleFocus.bind(this);
     this.handleClick = this.handleClick.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.getMarkdownText = this.getMarkdownText.bind(this);
     this.getRawText = this.getRawText.bind(this);
-    this.editableText = React.createRef();
   }
 
   handleBlur(e) {
@@ -75,9 +74,9 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     if (!this.state.editable) return;
     this.setState({
       editable: false,
-      input: this.editableText.current.innerText
+      input: this.props.innerRef.current.innerText
     });
-    this.props.onUpdate(this.editableText.current.innerText);
+    this.props.onUpdate(this.props.innerRef.current.innerText);
   }
 
   handleClick(e) {
@@ -89,26 +88,27 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     // Ignore clicks if it's already editable
     if (this.state.editable) return;
     this.setState({ editable: true });
-    this.editableText.current.focus();
-    setEndOfContenteditable(this.editableText.current);
+    this.props.innerRef.current.focus();
+    setEndOfContenteditable(this.props.innerRef.current);
   }
 
   handleKeyPress(e) {
     if (this.props.readOnly) return;
-    if (e.key == "e") {
-      if (!this.state.editable) {
-        this.setState({ editable: true });
-        setEndOfContenteditable(this.editableText);
-        this.editableText.current.focus();
-        e.preventDefault();
-      }
-    }
+    // TODO: We should be able to call this at the Item and have the ability to update the text
     if (e.key == "Enter" && this.props.singleline) {
       this.setState({
         editable: false,
-        input: this.editableText.current.innerText
+        input: this.props.innerRef.current.innerText
       });
-      this.props.onUpdate(this.editableText.current.innerText);
+      this.props.onUpdate(this.props.innerRef.current.innerText);
+      this.props.innerRef.current.blur();
+      e.preventDefault();
+    } else if (e.key == "Escape") {
+      this.setState({
+        editable: false,
+        input: this.props.innerRef.current.innerText
+      });
+      this.props.innerRef.current.blur();
       e.preventDefault();
     }
   }
@@ -122,24 +122,27 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     return { __html: marked(this.state.input) };
   }
 
+  handleFocus() {
+    if (!this.state.editable) {
+      this.setState({ editable: true }, () => {
+        setEndOfContenteditable(this.props.innerRef.current);
+      });
+    }
+  }
+
   render() {
     return (
       <ThemeProvider theme={theme}>
         <Container
           readOnly={this.props.readOnly}
-          ref={this.editableText}
+          ref={this.props.innerRef}
           width={this.props.width}
           height={this.props.height}
           contentEditable={this.state.editable}
           onClick={this.handleClick}
+          onFocus={this.handleFocus}
           onBlur={this.handleBlur}
-          tabIndex={
-            this.props.tabIndex
-              ? this.props.tabIndex
-              : this.props.readOnly
-              ? -1
-              : 0
-          }
+          tabIndex={-1}
           editing={this.state.editable}
           onKeyDown={this.handleKeyPress}
           dangerouslySetInnerHTML={
@@ -151,6 +154,6 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
   }
 }
 
-const mapStateToProps = state => ({});
-const mapDispatchToProps = dispatch => ({});
-export default connect(mapStateToProps, mapDispatchToProps)(EditableText);
+export default React.forwardRef((props, ref) => (
+  <EditableText innerRef={ref} {...props} />
+));

@@ -19,6 +19,7 @@ export const app = {
   SHOW_CREATE_PROJECT_DIALOG: "a p s"
 };
 export const item = {
+  EDIT_ITEM_DESC: "i e",
   SET_SCHEDULED_DATE: "i s",
   SET_DUE_DATE: "i d",
   CREATE_SUBTASK: "i k",

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import styled, { ThemeProvider, keyframes } from "styled-components";
-import { connect } from "react-redux";
 import {
   Editor,
   EditorState,
@@ -90,6 +89,7 @@ interface EditableItemProps {
   text: string;
   readOnly: boolean;
   focus: boolean;
+  innerRef: any; // TODO Change this to the right type
   onSubmit: (t: string) => void;
 }
 interface EditableItemState {
@@ -99,7 +99,6 @@ interface EditableItemState {
   editorState: EditorState;
 }
 class EditableItem extends Component<EditableItemProps, EditableItemState> {
-  private editor: React.RefObject<HTMLInputElement>;
   constructor(props: EditableItemProps) {
     super(props);
     const es = EditorState.createWithContent(
@@ -119,7 +118,6 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
     this.validateInput = this.validateInput.bind(this);
     this.clearInput = this.clearInput.bind(this);
     this.onFocus = this.onFocus.bind(this);
-    this.editor = React.createRef();
   }
 
   validateInput() {
@@ -198,19 +196,9 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
   }
 
   onFocus(e) {
-    console.log("On focus handler");
     this.setState({
       editorState: EditorState.moveFocusToEnd(this.state.editorState)
     });
-  }
-
-  // TODO: This seems wrong, but can't think of a better way right now
-  componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.focus) {
-      this.editor.current.focus();
-    } else {
-      this.editor.current.blur();
-    }
   }
 
   render() {
@@ -219,7 +207,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
         <ValidationBox animate={this.state.animate} valid={this.state.valid}>
           <Icon>{addIcon()}</Icon>
           <Editor
-            ref={this.editor}
+            ref={this.props.innerRef}
             handleReturn={this.handleReturn}
             editorState={this.state.editorState}
             readOnly={this.state.readOnly}
@@ -233,6 +221,6 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
   }
 }
 
-const mapStateToProps = state => ({});
-const mapDispatchToProps = dispatch => ({});
-export default connect(mapStateToProps, mapDispatchToProps)(EditableItem);
+export default React.forwardRef((props, ref) => (
+  <EditableItem innerRef={ref} {...props} />
+));
