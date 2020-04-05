@@ -88,8 +88,6 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     // Ignore clicks if it's already editable
     if (this.state.editable) return;
     this.setState({ editable: true });
-    this.props.innerRef.current.focus();
-    setEndOfContenteditable(this.props.innerRef.current);
   }
 
   handleKeyPress(e) {
