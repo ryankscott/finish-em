@@ -96,9 +96,6 @@ class Item extends Component<ItemProps, ItemState> {
     this.quickAdd = React.createRef();
     this.handlers = {
       TODO: {
-        // EDIT_ITEM_DESC: event => {
-        //   console.log(this.description);
-        // },
         NEXT_ITEM: event => {
           // If it's a parent element we need to get the first child
           if (this.props.children.length > 0) {
@@ -342,6 +339,10 @@ class Item extends Component<ItemProps, ItemState> {
             descriptionEditable: false,
             repeatDropdownVisible: false
           });
+        },
+        EDIT_ITEM_DESC: event => {
+          this.editor.current.focus();
+          event.preventDefault();
         }
       }
     };
