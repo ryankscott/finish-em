@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import ItemList from "../components/ItemList";
+import ItemList, { RenderingStrategy } from "../components/ItemList";
 import {
   endOfDay,
   isSameDay,
@@ -26,6 +25,7 @@ import {
   SortSelect,
   ItemListContainer
 } from "../components/styled/FilteredItemList";
+import { connect } from "react-redux";
 
 /*
 If compareFunction(a, b) returns less than 0, sort a to an index lower than b (i.e. a comes first).
@@ -162,7 +162,11 @@ const filterItems = (
     case "SHOW_NOT_SCHEDULED":
       return getTasksAndSubtasks(
         items,
-        i => i.type == "TODO" && i.scheduledDate == null && i.deleted == false
+        i =>
+          i.type == "TODO" &&
+          i.scheduledDate == null &&
+          i.deleted == false &&
+          i.completed == false
       );
     case "SHOW_FROM_PROJECT_BY_TYPE":
       return getTasksAndSubtasks(
@@ -177,7 +181,8 @@ const filterItems = (
         return (
           (isPast(endOfDay(parseISO(i.scheduledDate))) ||
             isPast(endOfDay(parseISO(i.dueDate)))) &&
-          i.deleted == false
+          i.deleted == false &&
+          i.completed == false
         );
       });
     default:
@@ -186,7 +191,9 @@ const filterItems = (
 };
 
 const hideCompletedItems = (items: ItemType[]): ItemType[] => {
-  return items.filter(i => i.completed == false);
+  return items.filter(
+    i => i.completed == false || (i.completed == true && i.parentId != null)
+  );
 };
 
 const getFilteredItems = (
@@ -253,19 +260,19 @@ interface FilteredItemListState {
   sortCriteria: SortCriteriaEnum;
   hideCompleted: boolean;
   hideItemList: boolean;
+  isAbleToToggleCompleted?: boolean;
 }
 
-// TODO: Allow default sort order
 interface FilteredItemListProps {
   items: ItemType[];
-  noIndentOnSubtasks?: boolean;
   showProject: boolean;
-  hideCompletedItems: boolean;
   listName?: string;
   filter: FilterEnum;
   filterParams?: FilterParamsType;
-  defaultSortOrder?: SortCriteriaEnum;
   isFilterable?: boolean;
+  renderingStrategy?: RenderingStrategy;
+  defaultSortOrder?: SortCriteriaEnum;
+  noIndentOnSubtasks?: boolean;
 }
 
 class FilteredItemList extends Component<
@@ -276,7 +283,7 @@ class FilteredItemList extends Component<
     super(props);
     this.state = {
       sortCriteria: SortCriteriaEnum.DueDesc,
-      hideCompleted: false || this.props.hideCompletedItems,
+      hideCompleted: false,
       hideItemList: false
     };
   }
@@ -289,17 +296,12 @@ class FilteredItemList extends Component<
       this.props.filterParams
     );
     const completedItems = filteredItems.numberOfCompletedItems;
-    const getItemCount = (
-      filteredItems: any,
-      hideCompleted: boolean
-    ): string => {
-      const items = hideCompleted
-        ? filteredItems.numberOfAllItems - filteredItems.numberOfCompletedItems
-        : filteredItems.sortedItems.length;
-      return (
-        items + (filteredItems.sortedItems.length == 1 ? " item" : " items")
-      );
-    };
+
+    // NOTE: For some filters where we're not showing completed items, we want to not show that option
+    const hideCompletedToggle =
+      this.props.filter == FilterEnum.ShowOverdue ||
+      this.props.filter == FilterEnum.ShowNotScheduled ||
+      this.props.filter == FilterEnum.ShowCompleted;
     return (
       <Container>
         <HeaderBar>
@@ -313,7 +315,8 @@ class FilteredItemList extends Component<
             <Header1>
               {this.props.listName}
               <Paragraph>
-                {getItemCount(filteredItems, this.state.hideCompleted)}
+                {filteredItems.sortedItems.length +
+                  (filteredItems.sortedItems.length == 1 ? " item" : " items")}
               </Paragraph>
             </Header1>
             {this.state.hideItemList ? collapsedIcon() : expandedIcon()}
@@ -326,10 +329,9 @@ class FilteredItemList extends Component<
             }
           >
             <CompletedContainer
-              visible={completedItems > 0 && !this.props.hideCompletedItems}
+              visible={completedItems > 0 && !hideCompletedToggle}
               onClick={() => {
-                if (!this.props.hideCompletedItems)
-                  this.setState({ hideCompleted: !this.state.hideCompleted });
+                this.setState({ hideCompleted: !this.state.hideCompleted });
               }}
             >
               <CompletedText>
@@ -363,8 +365,8 @@ class FilteredItemList extends Component<
         <ItemListContainer visible={!this.state.hideItemList}>
           <ItemList
             showProject={this.props.showProject}
-            noIndentOnSubtasks={this.props.noIndentOnSubtasks}
             items={filteredItems.sortedItems}
+            renderingStrategy={this.props.renderingStrategy}
           />
         </ItemListContainer>
       </Container>

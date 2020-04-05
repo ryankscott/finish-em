@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { theme } from "../theme";
 import { Title } from "./Typography";
 import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
+import { RenderingStrategy } from "./ItemList";
 
 const TrashContainer = styled.div`
   display: flex;
@@ -28,11 +29,10 @@ const Trash = () => (
         <Title> Trash </Title>
       </HeaderContainer>
       <FilteredItemList
-        noIndentOnSubtasks={true}
         filter={FilterEnum.ShowDeleted}
         showProject={true}
         isFilterable={true}
-        hideCompletedItems={false}
+        renderingStrategy={RenderingStrategy.Orphan}
       />
     </TrashContainer>
   </ThemeProvider>

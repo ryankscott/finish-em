@@ -67,18 +67,14 @@ function Project(props: ProjectProps) {
           filterParams={{ projectId: props.project.id, type: "NOTE" }}
           listName="Notes"
           isFilterable={false}
-          noIndentOnSubtasks={false}
           showProject={false}
-          hideCompletedItems={false}
         />
         <FilteredItemList
           filter={FilterEnum.ShowFromProjectByType}
           filterParams={{ projectId: props.project.id, type: "TODO" }}
           listName="Todos"
           isFilterable={true}
-          noIndentOnSubtasks={false}
           showProject={false}
-          hideCompletedItems={false}
         />
       </ProjectContainer>
     </ThemeProvider>

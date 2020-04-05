@@ -34,9 +34,7 @@ class Inbox extends Component {
             filter={FilterEnum.ShowInbox}
             listName="Items"
             isFilterable={true}
-            noIndentOnSubtasks={false}
             showProject={true}
-            hideCompletedItems={false}
           />
         </Container>
       </ThemeProvider>

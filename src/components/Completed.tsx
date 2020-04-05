@@ -14,11 +14,9 @@ const Completed = () => (
         <Title> Completed </Title>
       </HeaderContainer>
       <FilteredItemList
-        noIndentOnSubtasks={true}
         filter={FilterEnum.ShowCompleted}
         showProject={true}
         isFilterable={false}
-        hideCompletedItems={false}
       />
     </CompletedContainer>
   </ThemeProvider>

@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { theme } from "../theme";
 import { Title } from "./Typography";
 import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
+import { RenderingStrategy } from "./ItemList";
 
 const UnscheduledContainer = styled.div`
   display: flex;
@@ -23,16 +24,16 @@ const Unscheduled = () => (
         showProject={true}
         listName="Overdue"
         isFilterable={true}
-        noIndentOnSubtasks={false}
         hideCompletedItems={true}
+        renderingStrategy={RenderingStrategy.Orphan}
       />
       <FilteredItemList
         filter={FilterEnum.ShowNotScheduled}
         showProject={true}
         listName="Unscheduled"
         isFilterable={true}
-        noIndentOnSubtasks={false}
         hideCompletedItems={true}
+        renderingStrategy={RenderingStrategy.Orphan}
       />
     </UnscheduledContainer>
   </ThemeProvider>
