@@ -258,8 +258,7 @@ interface FilteredItemListState {
 // TODO: Allow default sort order
 interface FilteredItemListProps {
   items: ItemType[];
-  noIndentOnSubtasks: boolean;
-  showSubtasks: boolean;
+  noIndentOnSubtasks?: boolean;
   showProject: boolean;
   hideCompletedItems: boolean;
   listName?: string;
@@ -365,7 +364,6 @@ class FilteredItemList extends Component<
           <ItemList
             showProject={this.props.showProject}
             noIndentOnSubtasks={this.props.noIndentOnSubtasks}
-            showSubtasks={this.props.showSubtasks}
             items={filteredItems.sortedItems}
           />
         </ItemListContainer>

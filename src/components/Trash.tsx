@@ -29,7 +29,6 @@ const Trash = () => (
       </HeaderContainer>
       <FilteredItemList
         noIndentOnSubtasks={true}
-        showSubtasks={true}
         filter={FilterEnum.ShowDeleted}
         showProject={true}
         isFilterable={true}

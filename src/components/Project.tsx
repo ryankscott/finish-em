@@ -70,7 +70,6 @@ function Project(props: ProjectProps) {
           noIndentOnSubtasks={false}
           showProject={true}
           hideCompletedItems={false}
-          showSubtasks={true}
         />
         <FilteredItemList
           filter={FilterEnum.ShowFromProjectByType}
@@ -80,7 +79,6 @@ function Project(props: ProjectProps) {
           noIndentOnSubtasks={false}
           showProject={true}
           hideCompletedItems={false}
-          showSubtasks={true}
         />
       </ProjectContainer>
     </ThemeProvider>

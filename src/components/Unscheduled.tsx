@@ -23,7 +23,6 @@ const Unscheduled = () => (
         showProject={true}
         listName="Overdue"
         isFilterable={true}
-        showSubtasks={true}
         noIndentOnSubtasks={false}
         hideCompletedItems={true}
       />
@@ -32,7 +31,6 @@ const Unscheduled = () => (
         showProject={true}
         listName="Unscheduled"
         isFilterable={true}
-        showSubtasks={true}
         noIndentOnSubtasks={false}
         hideCompletedItems={true}
       />

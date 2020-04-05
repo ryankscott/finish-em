@@ -15,7 +15,6 @@ const Completed = () => (
       </HeaderContainer>
       <FilteredItemList
         noIndentOnSubtasks={true}
-        showSubtasks={true}
         filter={FilterEnum.ShowCompleted}
         showProject={true}
         isFilterable={false}

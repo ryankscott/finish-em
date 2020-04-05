@@ -19,7 +19,6 @@ const Container = styled.div`
 
 interface ItemListProps {
   items: ItemType[];
-  showSubtasks: boolean;
   noIndentOnSubtasks: boolean;
   showProject: boolean;
 }

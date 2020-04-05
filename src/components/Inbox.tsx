@@ -37,7 +37,6 @@ class Inbox extends Component {
             noIndentOnSubtasks={false}
             showProject={true}
             hideCompletedItems={false}
-            showSubtasks={true}
           />
         </Container>
       </ThemeProvider>

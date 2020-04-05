@@ -83,7 +83,6 @@ function DailyAgenda(props: DailyAgendaProps) {
         <Section>
           <FilteredItemList
             noIndentOnSubtasks={false}
-            showSubtasks={true}
             showProject={true}
             isFilterable={true}
             hideCompletedItems={true}
@@ -94,7 +93,6 @@ function DailyAgenda(props: DailyAgendaProps) {
         <Section>
           <FilteredItemList
             noIndentOnSubtasks={false}
-            showSubtasks={true}
             showProject={true}
             isFilterable={true}
             hideCompletedItems={false}
@@ -104,7 +102,6 @@ function DailyAgenda(props: DailyAgendaProps) {
           />
           <FilteredItemList
             noIndentOnSubtasks={false}
-            showSubtasks={true}
             showProject={true}
             isFilterable={true}
             hideCompletedItems={false}
