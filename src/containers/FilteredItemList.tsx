@@ -315,7 +315,7 @@ const Container = styled.div`
   margin: 10px 0px;
 `;
 
-enum FilterEnum {
+export enum FilterEnum {
   ShowAll = "SHOW_ALL",
   ShowDeleted = "SHOW_DELETED",
   ShowInbox = "SHOW_INBOX",
@@ -359,7 +359,7 @@ interface FilteredItemListProps {
   hideOrphans: boolean;
   listName: string;
   filter: FilterEnum;
-  filterParams: FilterParamsType;
+  filterParams?: FilterParamsType;
 }
 
 class FilteredItemList extends Component<
@@ -412,9 +412,10 @@ class FilteredItemList extends Component<
           >
             <CompletedContainer
               visible={completedItems > 0 && !this.props.hideCompletedItems}
-              onClick={() =>
-                this.setState({ hideCompleted: !this.state.hideCompleted })
-              }
+              onClick={() => {
+                if (!this.props.hideCompletedItems)
+                  this.setState({ hideCompleted: !this.state.hideCompleted });
+              }}
             >
               <CompletedText>
                 {this.state.hideCompleted

@@ -58,7 +58,7 @@ const options = [
 
 interface RepeatPickerProps {
   visible: boolean;
-  onSubmit: (value: string) => void;
+  onSubmit: (value: RRule) => void;
   placeholder: string;
 }
 interface RepeatPickerState {

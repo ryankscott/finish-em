@@ -89,7 +89,7 @@ interface EditableItemProps {
   text: string;
   readOnly: boolean;
   focus: boolean;
-  innerRef: any; // TODO Change this to the right type
+  innerRef: React.RefObject<HTMLInputElement>;
   onSubmit: (t: string) => void;
 }
 interface EditableItemState {

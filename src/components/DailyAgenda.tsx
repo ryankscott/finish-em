@@ -3,10 +3,11 @@ import styled, { ThemeProvider } from "styled-components";
 import { format } from "date-fns";
 import { connect } from "react-redux";
 import { theme } from "../theme";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
 import { Paragraph, Title, Header1 } from "./Typography";
 import EditableText from "./EditableText";
 import { setDailyGoal } from "../actions";
+import { ItemType } from "../interfaces";
 
 const DateContainer = styled.div`
   display: grid;
@@ -37,11 +38,13 @@ const AgendaContainer = styled.div`
 // TODO: Update with item prop
 export interface DailyAgendaProps {
   setDailyGoal: (day: string, input: string) => void;
-  items: Object[];
+  items: ItemType[];
+  dailyGoal: any[];
 }
 
 function DailyAgenda(props: DailyAgendaProps) {
   const day = format(new Date(), "yyyy-MM-dd");
+  const editor = React.createRef<HTMLInputElement>();
   return (
     <ThemeProvider theme={theme}>
       <AgendaContainer>
@@ -53,7 +56,7 @@ function DailyAgenda(props: DailyAgendaProps) {
             Week of year: {format(new Date(), "w")} / 52
           </Paragraph>
           <Paragraph style={{ gridArea: "week_of_quarter" }}>
-            Week of quarter: {format(new Date(), "w") % 13} / 13
+            Week of quarter: {parseInt(format(new Date(), "w")) % 13} / 13
           </Paragraph>
         </DateContainer>
         {/* <Header1> Weekly Goal </Header1> */}
@@ -64,45 +67,53 @@ function DailyAgenda(props: DailyAgendaProps) {
         {/* </Paragraph> */}
         <Header1> Daily Goal </Header1>
         <EditableText
-          onUpdate={input => {
-            props.setDailyGoal(day, input);
-          }}
+          readOnly={false}
           input={
             props.dailyGoal[day]
               ? props.dailyGoal[day].text
               : "No daily goal set"
           }
-          height="150px"
+          height={150}
+          singleline={false}
+          ref={editor}
+          onUpdate={input => {
+            props.setDailyGoal(day, input);
+          }}
         />
         <Section>
           <FilteredItemList
-            items={props.items}
-            filter="SHOW_OVERDUE"
-            sortCriteria="DUE"
+            noIndentation={false}
+            showSubtasks={true}
             showProject={true}
-            listName="Overdue"
-            hideCompletedItems={true}
             showFilterBar={true}
+            hideCompletedItems={true}
+            hideOrphans={false}
+            listName="Overdue"
+            filter={FilterEnum.ShowOverdue}
           />
         </Section>
         <Section>
           <FilteredItemList
-            items={props.items}
-            filter="SHOW_DUE_ON_DAY"
-            filterParams={{ dueDate: new Date() }}
-            sortCriteria="DUE"
+            noIndentation={false}
+            showSubtasks={true}
             showProject={true}
-            listName="Due Today"
             showFilterBar={true}
+            hideCompletedItems={false}
+            hideOrphans={false}
+            listName="Due Today"
+            filter={FilterEnum.ShowDueOnDay}
+            filterParams={{ dueDate: new Date() }}
           />
           <FilteredItemList
-            items={props.items}
-            filter="SHOW_SCHEDULED_ON_DAY"
-            filterParams={{ scheduledDate: new Date() }}
-            sortCriteria="STATUS"
+            noIndentation={false}
+            showSubtasks={true}
             showProject={true}
-            listName="Scheduled Today"
             showFilterBar={true}
+            hideCompletedItems={false}
+            hideOrphans={false}
+            listName="Scheduled Today"
+            filter={FilterEnum.ShowScheduledOnDay}
+            filterParams={{ scheduledDate: new Date() }}
           />
         </Section>
       </AgendaContainer>

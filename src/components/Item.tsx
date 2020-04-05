@@ -70,6 +70,7 @@ class Item extends Component<ItemProps, ItemState> {
   private container: React.RefObject<HTMLInputElement>;
   private editor: React.RefObject<HTMLInputElement>;
   private quickAdd: React.RefObject<HTMLInputElement>;
+  handlers: {};
   constructor(props: ItemProps) {
     super(props);
     this.state = {
@@ -334,7 +335,6 @@ class Item extends Component<ItemProps, ItemState> {
           event.preventDefault();
         },
         ESCAPE: () => {
-          this.description.blur();
           this.setState({
             projectDropdownVisible: false,
             dueDateDropdownVisible: false,
@@ -505,7 +505,7 @@ class Item extends Component<ItemProps, ItemState> {
             </div>
             <Body id="body" completed={this.props.completed}>
               <EditableText
-                innerRef={this.editor}
+                ref={this.editor}
                 key={this.props.id}
                 readOnly={this.props.completed}
                 input={removeItemTypeFromString(this.props.text)}
@@ -548,7 +548,7 @@ class Item extends Component<ItemProps, ItemState> {
           </Container>
           <QuickAdd visible={this.state.quickAddContainerVisible}>
             <EditableItem
-              innerRef={this.quickAdd}
+              ref={this.quickAdd}
               readOnly={false}
               focus={this.state.quickAddContainerVisible}
               onSubmit={text => this.createSubTask(text)}

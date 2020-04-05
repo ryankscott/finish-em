@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 
 import { theme } from "../theme";
 import { Title } from "./Typography";
-import FilteredItemList from "../containers/FilteredItemList";
+import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
 
 const UnscheduledContainer = styled.div`
   display: flex;
@@ -19,19 +19,24 @@ const Unscheduled = () => (
     <UnscheduledContainer>
       <Title> Unscheduled </Title>
       <FilteredItemList
-        filter="SHOW_OVERDUE"
-        sortCriteria="DUE"
+        filter={FilterEnum.ShowOverdue}
         showProject={true}
         listName="Overdue"
         showFilterBar={true}
+        showSubtasks={true}
+        noIndentation={false}
+        hideOrphans={false}
         hideCompletedItems={true}
       />
       <FilteredItemList
-        filter="SHOW_NOT_SCHEDULED"
-        sortCriteria="DUE"
+        filter={FilterEnum.ShowNotScheduled}
         showProject={true}
         listName="Unscheduled"
         showFilterBar={true}
+        showSubtasks={true}
+        noIndentation={false}
+        hideOrphans={false}
+        hideCompletedItems={true}
       />
     </UnscheduledContainer>
   </ThemeProvider>

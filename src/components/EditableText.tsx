@@ -40,11 +40,10 @@ const Container = styled.div<ContainerProps>`
 interface EditableTextProps {
   readOnly: boolean;
   input: string;
-  tabIndex: number;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   singleline: boolean;
-  innerRef: any; // TODO: Make this the proper ref type
+  innerRef: React.RefObject<HTMLInputElement>;
   onUpdate: (input: string) => void;
 }
 interface EditableTextState {
@@ -152,6 +151,8 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
   }
 }
 
-export default React.forwardRef((props, ref) => (
-  <EditableText innerRef={ref} {...props} />
-));
+export default React.forwardRef(
+  (props, ref: React.RefObject<HTMLInputElement>) => (
+    <EditableText innerRef={ref} {...props} />
+  )
+);
