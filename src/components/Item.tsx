@@ -38,7 +38,7 @@ import {
 import { parseISO } from "date-fns";
 
 interface ItemProps extends ItemType {
-  noIndentation: boolean;
+  noIndentOnSubtasks: boolean;
   showProject: boolean;
   keymap: Object;
   projects: ProjectType[];
@@ -475,7 +475,7 @@ class Item extends Component<ItemProps, ItemState> {
       <ThemeProvider theme={theme}>
         <div key={this.props.id} id={this.props.id}>
           <Container
-            noIndentation={this.props.noIndentation}
+            noIndentOnSubtasks={this.props.noIndentOnSubtasks}
             isSubtask={this.props.parentId != null}
             onKeyDown={this.handleKeyPress}
             id={this.props.id}
@@ -589,7 +589,7 @@ class Item extends Component<ItemProps, ItemState> {
                 {...childItem}
                 key={c}
                 items={this.props.items}
-                noIndentation={this.props.noIndentation}
+                noIndentOnSubtasks={this.props.noIndentOnSubtasks}
                 showProject={this.props.showProject}
                 keymap={this.props.keymap}
                 projects={this.props.projects}

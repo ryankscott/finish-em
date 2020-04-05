@@ -20,7 +20,7 @@ const Container = styled.div`
 interface ItemListProps {
   items: ItemType[];
   showSubtasks: boolean;
-  noIndentation: boolean;
+  noIndentOnSubtasks: boolean;
   showProject: boolean;
 }
 
@@ -37,7 +37,7 @@ const ItemList = (props: ItemListProps) => {
               <Item
                 {...item}
                 key={item.id}
-                noIndentation={props.noIndentation}
+                noIndentOnSubtasks={props.noIndentOnSubtasks}
                 showProject={props.showProject}
                 keymap={itemKeymap}
               />

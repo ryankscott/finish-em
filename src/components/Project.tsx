@@ -66,8 +66,8 @@ function Project(props: ProjectProps) {
           filter={FilterEnum.ShowFromProjectByType}
           filterParams={{ projectId: props.project.id, type: "NOTE" }}
           listName="Notes"
-          showFilterBar={false}
-          noIndentation={false}
+          isFilterable={false}
+          noIndentOnSubtasks={false}
           showProject={true}
           hideCompletedItems={false}
           showSubtasks={true}
@@ -76,8 +76,8 @@ function Project(props: ProjectProps) {
           filter={FilterEnum.ShowFromProjectByType}
           filterParams={{ projectId: props.project.id, type: "TODO" }}
           listName="Todos"
-          showFilterBar={true}
-          noIndentation={false}
+          isFilterable={true}
+          noIndentOnSubtasks={false}
           showProject={true}
           hideCompletedItems={false}
           showSubtasks={true}

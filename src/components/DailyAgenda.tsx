@@ -82,10 +82,10 @@ function DailyAgenda(props: DailyAgendaProps) {
         />
         <Section>
           <FilteredItemList
-            noIndentation={false}
+            noIndentOnSubtasks={false}
             showSubtasks={true}
             showProject={true}
-            showFilterBar={true}
+            isFilterable={true}
             hideCompletedItems={true}
             listName="Overdue"
             filter={FilterEnum.ShowOverdue}
@@ -93,20 +93,20 @@ function DailyAgenda(props: DailyAgendaProps) {
         </Section>
         <Section>
           <FilteredItemList
-            noIndentation={false}
+            noIndentOnSubtasks={false}
             showSubtasks={true}
             showProject={true}
-            showFilterBar={true}
+            isFilterable={true}
             hideCompletedItems={false}
             listName="Due Today"
             filter={FilterEnum.ShowDueOnDay}
             filterParams={{ dueDate: new Date() }}
           />
           <FilteredItemList
-            noIndentation={false}
+            noIndentOnSubtasks={false}
             showSubtasks={true}
             showProject={true}
-            showFilterBar={true}
+            isFilterable={true}
             hideCompletedItems={false}
             listName="Scheduled Today"
             filter={FilterEnum.ShowScheduledOnDay}

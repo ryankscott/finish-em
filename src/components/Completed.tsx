@@ -14,11 +14,11 @@ const Completed = () => (
         <Title> Completed </Title>
       </HeaderContainer>
       <FilteredItemList
-        noIndentation={true}
+        noIndentOnSubtasks={true}
         showSubtasks={true}
         filter={FilterEnum.ShowCompleted}
         showProject={true}
-        showFilterBar={false}
+        isFilterable={false}
         hideCompletedItems={false}
       />
     </CompletedContainer>

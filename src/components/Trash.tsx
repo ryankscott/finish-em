@@ -28,11 +28,11 @@ const Trash = () => (
         <Title> Trash </Title>
       </HeaderContainer>
       <FilteredItemList
-        noIndentation={true}
+        noIndentOnSubtasks={true}
         showSubtasks={true}
         filter={FilterEnum.ShowDeleted}
         showProject={true}
-        showFilterBar={true}
+        isFilterable={true}
         hideCompletedItems={false}
       />
     </TrashContainer>

@@ -22,18 +22,18 @@ const Unscheduled = () => (
         filter={FilterEnum.ShowOverdue}
         showProject={true}
         listName="Overdue"
-        showFilterBar={true}
+        isFilterable={true}
         showSubtasks={true}
-        noIndentation={false}
+        noIndentOnSubtasks={false}
         hideCompletedItems={true}
       />
       <FilteredItemList
         filter={FilterEnum.ShowNotScheduled}
         showProject={true}
         listName="Unscheduled"
-        showFilterBar={true}
+        isFilterable={true}
         showSubtasks={true}
-        noIndentation={false}
+        noIndentOnSubtasks={false}
         hideCompletedItems={true}
       />
     </UnscheduledContainer>

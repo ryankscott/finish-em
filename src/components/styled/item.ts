@@ -1,7 +1,7 @@
 import styled from "styled-components";
 interface ContainerProps {
   isSubtask: boolean;
-  noIndentation: boolean;
+  noIndentOnSubtasks: boolean;
 }
 export const Container = styled.div<ContainerProps>`
   transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
@@ -11,7 +11,7 @@ export const Container = styled.div<ContainerProps>`
   display: grid;
   opacity: ${props => (props.hidden ? "0" : "1")};
   grid-template-columns: ${props =>
-    props.isSubtask && !props.noIndentation
+    props.isSubtask && !props.noIndentOnSubtasks
       ? "60px 30px repeat(20, 1fr)"
       : "30px 30px repeat(20, 1fr)"};
   grid-auto-rows: minmax(20px, auto);

@@ -33,8 +33,8 @@ class Inbox extends Component {
           <FilteredItemList
             filter={FilterEnum.ShowInbox}
             listName="Items"
-            showFilterBar={true}
-            noIndentation={false}
+            isFilterable={true}
+            noIndentOnSubtasks={false}
             showProject={true}
             hideCompletedItems={false}
             showSubtasks={true}

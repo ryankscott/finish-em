@@ -234,7 +234,7 @@ export enum FilterEnum {
   ShowOverdue = "SHOW_OVERDUE"
 }
 
-enum SortCriteriaEnum {
+export enum SortCriteriaEnum {
   Status = "STATUS",
   DueAsc = "DUE_ASC",
   DueDesc = "DUE_DESC",
@@ -258,14 +258,15 @@ interface FilteredItemListState {
 // TODO: Allow default sort order
 interface FilteredItemListProps {
   items: ItemType[];
-  noIndentation: boolean;
+  noIndentOnSubtasks: boolean;
   showSubtasks: boolean;
   showProject: boolean;
-  showFilterBar: boolean;
   hideCompletedItems: boolean;
   listName?: string;
   filter: FilterEnum;
   filterParams?: FilterParamsType;
+  defaultSortOrder?: SortCriteriaEnum;
+  isFilterable?: boolean;
 }
 
 class FilteredItemList extends Component<
@@ -320,7 +321,7 @@ class FilteredItemList extends Component<
           </ListName>
           <FilterBar
             visible={
-              this.props.showFilterBar &&
+              this.props.isFilterable &&
               !this.state.hideItemList &&
               filteredItems.numberOfAllItems > 0
             }
@@ -349,7 +350,7 @@ class FilteredItemList extends Component<
                   !this.state.hideItemList
                 }
                 options={options}
-                defaultValue={options[0]}
+                defaultValue={this.props.defaultSortOrder || options[0]}
                 autoFocus={true}
                 placeholder={"Sort by:"}
                 styles={selectStyles}
@@ -363,7 +364,7 @@ class FilteredItemList extends Component<
         <ItemListContainer visible={!this.state.hideItemList}>
           <ItemList
             showProject={this.props.showProject}
-            noIndentation={this.props.noIndentation}
+            noIndentOnSubtasks={this.props.noIndentOnSubtasks}
             showSubtasks={this.props.showSubtasks}
             items={filteredItems.sortedItems}
           />
