@@ -119,7 +119,11 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     return { __html: marked(this.state.input) };
   }
 
-  handleFocus() {
+  handleFocus(e) {
+    // NOTE: Weirdly Chrome sometimes fires a focus event before a click
+    if (e.target.nodeName == "A") {
+      return;
+    }
     if (!this.state.editable) {
       this.setState({ editable: true }, () => {
         setEndOfContenteditable(this.props.innerRef.current);
