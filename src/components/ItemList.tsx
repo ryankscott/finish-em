@@ -7,9 +7,9 @@ import { ItemType } from "../interfaces";
 import { getItemById } from "../utils";
 
 const NoItemText = styled.p`
-  color: ${props => props.theme.colours.disabledTextColour};
-  font-family: ${props => props.theme.font.sansSerif};
-  font-size: ${props => props.theme.fontSizes.small};
+  color: ${(props) => props.theme.colours.disabledTextColour};
+  font-family: ${(props) => props.theme.font.sansSerif};
+  font-size: ${(props) => props.theme.fontSizes.small};
   padding-left: 10px;
 `;
 
@@ -20,7 +20,7 @@ const Container = styled.div`
 
 export enum RenderingStrategy {
   Default = "DEFAULT",
-  Orphan = "ORPHAN"
+  Orphan = "ORPHAN",
 }
 
 interface ItemListProps {
@@ -45,7 +45,7 @@ const ItemList = (props: ItemListProps) => {
   return (
     <ThemeProvider theme={theme}>
       <Container>
-        {props.items.map(item => {
+        {props.items.map((item) => {
           if (item == undefined) return;
 
           switch (props.renderingStrategy) {
@@ -92,8 +92,6 @@ const ItemList = (props: ItemListProps) => {
                 </div>
               );
           }
-
-          // TODO: Work out how to render orphaned items properly
         })}
         {props.items.length == 0 && <NoItemText>No items</NoItemText>}
       </Container>

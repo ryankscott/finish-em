@@ -24,7 +24,6 @@ const Unscheduled = () => (
         showProject={true}
         listName="Overdue"
         isFilterable={true}
-        hideCompletedItems={true}
         renderingStrategy={RenderingStrategy.Orphan}
       />
       <FilteredItemList
@@ -32,15 +31,14 @@ const Unscheduled = () => (
         showProject={true}
         listName="Unscheduled"
         isFilterable={true}
-        hideCompletedItems={true}
         renderingStrategy={RenderingStrategy.Orphan}
       />
     </UnscheduledContainer>
   </ThemeProvider>
 );
 
-const mapStateToProps = state => ({
-  items: state.items
+const mapStateToProps = (state) => ({
+  items: state.items,
 });
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = (dispatch) => ({});
 export default connect(mapStateToProps, mapDispatchToProps)(Unscheduled);

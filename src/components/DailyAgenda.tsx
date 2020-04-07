@@ -42,7 +42,7 @@ export interface DailyAgendaProps {
   dailyGoal: any[];
 }
 
-function DailyAgenda(props: DailyAgendaProps) {
+const DailyAgenda = (props: DailyAgendaProps) => {
   const day = format(new Date(), "yyyy-MM-dd");
   const editor = React.createRef<HTMLInputElement>();
   return (
@@ -76,7 +76,7 @@ function DailyAgenda(props: DailyAgendaProps) {
           height={150}
           singleline={false}
           ref={editor}
-          onUpdate={input => {
+          onUpdate={(input) => {
             props.setDailyGoal(day, input);
           }}
         />
@@ -85,6 +85,7 @@ function DailyAgenda(props: DailyAgendaProps) {
             isFilterable={true}
             listName="Overdue"
             filter={FilterEnum.ShowOverdue}
+            showProject={true}
           />
         </Section>
         <Section>
@@ -106,15 +107,15 @@ function DailyAgenda(props: DailyAgendaProps) {
       </AgendaContainer>
     </ThemeProvider>
   );
-}
+};
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   items: state.items,
-  dailyGoal: state.dailyGoal
+  dailyGoal: state.dailyGoal,
 });
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   setDailyGoal: (day, text) => {
     dispatch(setDailyGoal(day, text));
-  }
+  },
 });
 export default connect(mapStateToProps, mapDispatchToProps)(DailyAgenda);

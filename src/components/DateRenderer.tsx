@@ -9,11 +9,11 @@ interface ContainerProps {
 }
 
 const Container = styled.div<ContainerProps>`
-  display: ${props => (props.visible ? "flex" : "none")};
-  font-size: ${props => props.theme.fontSizes.xsmall};
-  color: ${props => props.theme.colours.defaultTextColour};
+  display: ${(props) => (props.visible ? "flex" : "none")};
+  font-size: ${(props) => props.theme.fontSizes.xsmall};
+  color: ${(props) => props.theme.colours.defaultTextColour};
   border-radius: 5px;
-  text-decoration: ${props =>
+  text-decoration: ${(props) =>
     props.completed == true ? "line-through" : null};
 `;
 
@@ -22,11 +22,11 @@ interface SubTextProps {
   position: "center" | "flex-end" | "flex-start";
 }
 const SubTextContainer = styled.div<SubTextProps>`
-  display: ${props => (props.visible ? "flex" : "none")};
+  display: ${(props) => (props.visible ? "flex" : "none")};
   flex-direction: row;
   align-items: center;
-  justify-content: ${props => props.position};
-  margin-left: ${props => (props.position == "flex-start" ? "32px" : "0px")};
+  justify-content: ${(props) => props.position};
+  margin-left: ${(props) => (props.position == "flex-start" ? "32px" : "0px")};
 `;
 
 interface Props {
@@ -37,7 +37,6 @@ interface Props {
   text: string;
 }
 
-// TODO #21: Fix this nasty hack, somehow we sometimes get strings as dates
 const DateRenderer = (props: Props): ReactElement => {
   return (
     <ThemeProvider theme={theme}>

@@ -21,6 +21,7 @@ export const capitaliseItemTypeFromString = (text: string): string => {
   return words.join(" ");
 };
 
+// TODO This should return some sort of error if the first word isn't NOTE or TODO
 export const removeItemTypeFromString = (text: string): string => {
   if (!text) {
     return "";
@@ -45,7 +46,6 @@ export const removeDateFromString = (text: string): string => {
   return (startString + endString).trim();
 };
 
-// TODO: Think about tags etc.
 export const validateItemString = (text: string): boolean => {
   const matches = text.match(itemRegex);
   return (matches && matches.length) > 0;
@@ -89,7 +89,7 @@ var voidNodeTags = [
 ];
 
 //From: https://stackoverflow.com/questions/237104/array-containsobj-in-javascript
-Array.prototype.contains = function(obj) {
+Array.prototype.contains = function (obj) {
   var i = this.length;
   while (i--) {
     if (this[i] === obj) {
@@ -120,7 +120,7 @@ function getLastChildElement(el: Node) {
 }
 
 // Based on Nico Burns's answer
-export const setEndOfContenteditable = function(contentEditableElement) {
+export const setEndOfContenteditable = function (contentEditableElement) {
   while (
     getLastChildElement(contentEditableElement) &&
     canContainText(getLastChildElement(contentEditableElement))

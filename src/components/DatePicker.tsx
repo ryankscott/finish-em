@@ -18,7 +18,7 @@ const Container = styled.div<ContainerProps>`
   flex-direction: column;
   height: 35px;
   padding: 0px;
-  display: ${props => (!props.visible ? "none" : null)};
+  display: ${(props) => (!props.visible ? "none" : null)};
   background-color: #fff;
   width: 250px;
 `;
@@ -27,17 +27,17 @@ const options = [
   { value: new Date(), label: "Today" },
   {
     value: add(new Date(), { days: 1 }),
-    label: "Tomorrow"
+    label: "Tomorrow",
   },
   {
     value: add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), { days: 1 }),
-    label: "Next Week"
+    label: "Next Week",
   },
   {
     value: null,
-    label: "Custom date"
+    label: "Custom date",
   },
-  { value: null, label: "No date" }
+  { value: null, label: "No date" },
 ];
 
 export interface DatePickerProps {
@@ -58,18 +58,13 @@ class DatePicker extends Component<DatePickerProps, DatePickerState> {
     this.handleDayClick = this.handleDayClick.bind(this);
     this.selectRef = React.createRef();
   }
-  componentDidUpdate(prevProps) {
-    if (prevProps.visible !== this.props.visible && this.props.visible) {
-      this.selectRef.current.focus();
-    }
-  }
 
   handleChange(newValue, actionMeta) {
     if (actionMeta.action == "select-option") {
       // if it's a custom date then show the calendar item
       if (newValue.label == "Custom date") {
         this.setState({
-          dayPickerVisible: true
+          dayPickerVisible: true,
         });
         return;
       }
@@ -79,7 +74,7 @@ class DatePicker extends Component<DatePickerProps, DatePickerState> {
 
   handleDayClick(day, modifiers, e) {
     this.setState({
-      dayPickerVisible: false
+      dayPickerVisible: false,
     });
     this.props.onSubmit(day);
   }
@@ -108,6 +103,6 @@ class DatePicker extends Component<DatePickerProps, DatePickerState> {
   }
 }
 
-const mapStateToProps = state => ({});
-const mapDispatchToProps = dispatch => ({});
+const mapStateToProps = (state) => ({});
+const mapDispatchToProps = (dispatch) => ({});
 export default connect(mapStateToProps, mapDispatchToProps)(DatePicker);

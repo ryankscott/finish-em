@@ -7,7 +7,7 @@ import {
   updateProjectDescription,
   deleteProject,
   hideDeleteProjectDialog,
-  toggleDeleteProjectDialog
+  toggleDeleteProjectDialog,
 } from "../actions";
 import { Title, Header1 } from "./Typography";
 import EditableText from "./EditableText";
@@ -36,7 +36,7 @@ export interface ProjectProps {
   updateDescription: (id: Uuid, input: string) => void;
   project: ProjectType;
 }
-function Project(props: ProjectProps) {
+const Project = (props: ProjectProps) => {
   let history = useHistory();
 
   function deleteProject() {
@@ -53,7 +53,7 @@ function Project(props: ProjectProps) {
         </HeaderContainer>
         <EditableText
           key={props.project.id + "d"}
-          onUpdate={input => {
+          onUpdate={(input) => {
             props.updateDescription(props.project.id, input);
           }}
           input={props.project.description}
@@ -79,12 +79,12 @@ function Project(props: ProjectProps) {
       </ProjectContainer>
     </ThemeProvider>
   );
-}
+};
 
-const mapStateToProps = state => ({
-  items: state.items
+const mapStateToProps = (state) => ({
+  items: state.items,
 });
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   updateDescription: (id: Uuid, text: string) => {
     dispatch(updateProjectDescription(id, text));
   },
@@ -94,6 +94,6 @@ const mapDispatchToProps = dispatch => ({
   },
   toggleDeleteProjectDialog: () => {
     dispatch(toggleDeleteProjectDialog());
-  }
+  },
 });
 export default connect(mapStateToProps, mapDispatchToProps)(Project);

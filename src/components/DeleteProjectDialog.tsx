@@ -26,72 +26,62 @@ export interface DeleteProjectDialogProps {
   closeDeleteProjectDialog: () => void;
   toggleDeleteProjectDialog: () => void;
 }
-interface DeleteProjectDialogState {}
 
-class DeleteProjectDialog extends Component<
-  DeleteProjectDialogProps,
-  DeleteProjectDialogState
-> {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <ThemeProvider theme={theme}>
-        <InlineDialog
-          onClose={() => this.props.closeDeleteProjectDialog()}
-          placement={"bottom-start"}
-          isOpen={this.props.visible}
-          onOpen={() => {}}
-          content={
-            <div>
-              <Header2>Delete Project</Header2>
-              <BodyContainer>
-                <Paragraph>
-                  Are you sure you want to delete this project?
-                </Paragraph>
-              </BodyContainer>
-              <ActionContainer>
-                <Button type="error" compact onClick={this.props.onDelete}>
-                  Yes
-                </Button>
-                <Button
-                  type="primary"
-                  compact
-                  autoFocus
-                  onClick={() => this.props.closeDeleteProjectDialog()}
-                >
-                  No
-                </Button>
-              </ActionContainer>
-            </div>
-          }
+const DeleteProjectDialog = (props: DeleteProjectDialogProps) => {
+  return (
+    <ThemeProvider theme={theme}>
+      <InlineDialog
+        onClose={() => props.closeDeleteProjectDialog()}
+        placement={"bottom-start"}
+        isOpen={props.visible}
+        onOpen={() => {}}
+        content={
+          <div>
+            <Header2>Delete Project</Header2>
+            <BodyContainer>
+              <Paragraph>
+                Are you sure you want to delete this project?
+              </Paragraph>
+            </BodyContainer>
+            <ActionContainer>
+              <Button type="error" compact onClick={this.props.onDelete}>
+                Yes
+              </Button>
+              <Button
+                type="primary"
+                compact
+                autoFocus
+                onClick={() => props.closeDeleteProjectDialog()}
+              >
+                No
+              </Button>
+            </ActionContainer>
+          </div>
+        }
+      >
+        <Button
+          type="primary"
+          onClick={() => props.toggleDeleteProjectDialog()}
+          compact
         >
-          <Button
-            type="primary"
-            onClick={() => this.props.toggleDeleteProjectDialog()}
-            compact
-          >
-            Delete
-          </Button>
-        </InlineDialog>
-      </ThemeProvider>
-    );
-  }
-}
+          Delete
+        </Button>
+      </InlineDialog>
+    </ThemeProvider>
+  );
+};
 
-const mapStateToProps = state => ({
-  visible: state.ui.deleteProjectDialogVisible
+const mapStateToProps = (state) => ({
+  visible: state.ui.deleteProjectDialogVisible,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   closeDeleteProjectDialog: () => {
     dispatch(hideDeleteProjectDialog());
   },
   toggleDeleteProjectDialog: () => {
     dispatch(toggleDeleteProjectDialog());
-  }
+  },
 });
 
 export default connect(
