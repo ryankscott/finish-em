@@ -136,6 +136,7 @@ export const expandedIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     height={height ? height : "18"}
+    width={width ? width : "18"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -151,6 +152,7 @@ export const collapsedIcon = (width, height) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     height={height ? height : "18"}
+    width={width ? width : "18"}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
