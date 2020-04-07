@@ -6,9 +6,8 @@ import {
   isAfter,
   isPast,
   parseISO,
-  isValid
+  isValid,
 } from "date-fns";
-import { getTasksAndSubtasks } from "../utils";
 import { selectStyles } from "../theme";
 import { Header1, Paragraph } from "../components/Typography";
 import { ItemType } from "../interfaces";
@@ -23,7 +22,7 @@ import {
   CompletedText,
   SortContainer,
   SortSelect,
-  ItemListContainer
+  ItemListContainer,
 } from "../components/styled/FilteredItemList";
 import { connect } from "react-redux";
 
@@ -98,7 +97,7 @@ const comparators = {
       return 1;
     }
     return 0;
-  }
+  },
 };
 
 const sortItems = (
@@ -130,54 +129,41 @@ const filterItems = (
     case "SHOW_ALL":
       return items;
     case "SHOW_DELETED":
-      return getTasksAndSubtasks(items, i => i.deleted == true);
+      return items.filter((i) => i.deleted == true);
     case "SHOW_INBOX":
-      return getTasksAndSubtasks(
-        items,
-        i => i.projectId == null && i.deleted == false
-      );
+      return items.filter((i) => i.projectId == null && i.deleted == false);
     case "SHOW_COMPLETED":
-      return getTasksAndSubtasks(
-        items,
-        i => i.completed == true && i.deleted == false
-      );
+      return items.filter((i) => i.completed == true && i.deleted == false);
     case "SHOW_SCHEDULED":
-      return getTasksAndSubtasks(
-        items,
-        i => i.scheduledDate != null && i.deleted == false
-      );
+      return items.filter((i) => i.scheduledDate != null && i.deleted == false);
     case "SHOW_DUE_ON_DAY":
-      return getTasksAndSubtasks(
-        items,
-        i =>
+      return items.filter(
+        (i) =>
           isSameDay(parseISO(i.dueDate), params.dueDate) && i.deleted == false
       );
     case "SHOW_SCHEDULED_ON_DAY":
-      return getTasksAndSubtasks(
-        items,
-        i =>
+      return items.filter(
+        (i) =>
           isSameDay(parseISO(i.scheduledDate), params.scheduledDate) &&
           i.deleted == false
       );
     case "SHOW_NOT_SCHEDULED":
-      return getTasksAndSubtasks(
-        items,
-        i =>
+      return items.filter(
+        (i) =>
           i.type == "TODO" &&
           i.scheduledDate == null &&
           i.deleted == false &&
           i.completed == false
       );
     case "SHOW_FROM_PROJECT_BY_TYPE":
-      return getTasksAndSubtasks(
-        items,
-        i =>
+      return items.filter(
+        (i) =>
           i.projectId == params.projectId &&
           i.type == params.type &&
           i.deleted == false
       );
     case "SHOW_OVERDUE":
-      return getTasksAndSubtasks(items, i => {
+      return items.filter((i) => {
         return (
           (isPast(endOfDay(parseISO(i.scheduledDate))) ||
             isPast(endOfDay(parseISO(i.dueDate)))) &&
@@ -192,7 +178,7 @@ const filterItems = (
 
 const hideCompletedItems = (items: ItemType[]): ItemType[] => {
   return items.filter(
-    i => i.completed == false || (i.completed == true && i.parentId != null)
+    (i) => i.completed == false || (i.completed == true && i.parentId != null)
   );
 };
 
@@ -216,7 +202,7 @@ const getFilteredItems = (
   return {
     numberOfCompletedItems: numberOfCompletedItems,
     numberOfAllItems: filteredItems.length,
-    sortedItems: sortedItems
+    sortedItems: sortedItems,
   };
 };
 
@@ -225,7 +211,7 @@ const options = [
   { value: "DUE_ASC", label: "Due️ ⬆️" },
   { value: "SCHEDULED_ASC", label: "Scheduled ⬆️️" },
   { value: "SCHEDULED_DESC", label: "Scheduled ⬇️" },
-  { value: "STATUS", label: "Status ✅" }
+  { value: "STATUS", label: "Status ✅" },
 ];
 
 export enum FilterEnum {
@@ -238,7 +224,7 @@ export enum FilterEnum {
   ShowDueOnDay = "SHOW_DUE_ON_DAY",
   ShowNotScheduled = "SHOW_NOT_SCHEDULED",
   ShowFromProjectByType = "SHOW_FROM_PROJECT_BY_TYPE",
-  ShowOverdue = "SHOW_OVERDUE"
+  ShowOverdue = "SHOW_OVERDUE",
 }
 
 export enum SortCriteriaEnum {
@@ -246,7 +232,7 @@ export enum SortCriteriaEnum {
   DueAsc = "DUE_ASC",
   DueDesc = "DUE_DESC",
   ScheduledAsc = "SCHEDULED_ASC",
-  ScheduledDesc = "SCHEDULED_DESC"
+  ScheduledDesc = "SCHEDULED_DESC",
 }
 
 interface FilterParamsType {
@@ -284,7 +270,7 @@ class FilteredItemList extends Component<
     this.state = {
       sortCriteria: SortCriteriaEnum.DueDesc,
       hideCompleted: false,
-      hideItemList: false
+      hideItemList: false,
     };
   }
   render() {
@@ -308,7 +294,7 @@ class FilteredItemList extends Component<
           <ListName
             onClick={() =>
               this.setState({
-                hideItemList: !this.state.hideItemList
+                hideItemList: !this.state.hideItemList,
               })
             }
           >
@@ -355,7 +341,7 @@ class FilteredItemList extends Component<
                 autoFocus={true}
                 placeholder={"Sort by:"}
                 styles={selectStyles}
-                onChange={e => {
+                onChange={(e) => {
                   this.setState({ sortCriteria: e.value });
                 }}
               />
@@ -374,8 +360,8 @@ class FilteredItemList extends Component<
   }
 }
 
-const mapStateToProps = state => ({
-  items: state.items
+const mapStateToProps = (state) => ({
+  items: state.items,
 });
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = (dispatch) => ({});
 export default connect(mapStateToProps, mapDispatchToProps)(FilteredItemList);
