@@ -3,6 +3,9 @@
     "esModuleInterop": true,
     "jsx": "react",
     "allowJs": true,
-    "checkJs": true
+    "checkJs": true,
+    "paths": {
+      "*": ["src/type_shims/*"]
+    },
   }
 }
