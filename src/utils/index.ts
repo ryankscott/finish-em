@@ -89,7 +89,7 @@ var voidNodeTags = [
 ];
 
 //From: https://stackoverflow.com/questions/237104/array-containsobj-in-javascript
-Array.prototype.contains = function (obj) {
+Array.prototype.contains = function(obj) {
   var i = this.length;
   while (i--) {
     if (this[i] === obj) {
@@ -100,17 +100,17 @@ Array.prototype.contains = function (obj) {
 };
 
 //Basic idea from: https://stackoverflow.com/questions/19790442/test-if-an-element-can-contain-text
-function canContainText(node) {
+function canContainText(node: Node) {
   if (node.nodeType == 1) {
     //is an element node
-    return !voidNodeTags.contains(node.nodeName);
+    return !voidNodeTags.includes(node.nodeName);
   } else {
     //is not an element node
     return false;
   }
 }
 
-function getLastChildElement(el) {
+function getLastChildElement(el: Node) {
   var lc = el.lastChild;
   while (lc && lc.nodeType != 1) {
     if (lc.previousSibling) lc = lc.previousSibling;
@@ -120,7 +120,7 @@ function getLastChildElement(el) {
 }
 
 // Based on Nico Burns's answer
-export const setEndOfContenteditable = function (contentEditableElement) {
+export const setEndOfContenteditable = function(contentEditableElement) {
   while (
     getLastChildElement(contentEditableElement) &&
     canContainText(getLastChildElement(contentEditableElement))
@@ -171,7 +171,7 @@ export const getSubtasksFromTasks = (
 
 export const getTasksAndSubtasks = (
   items: ItemType[],
-  filter: (ItemType) => boolean
+  filter: (_: ItemType) => boolean
 ): ItemType[] => {
   const filteredItems = items.filter(filter);
   const subtasks = getSubtasksFromTasks(filteredItems, items);
