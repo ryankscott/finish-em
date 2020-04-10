@@ -18,7 +18,7 @@ import {
   uncompleteItem,
   setScheduledDate,
   setRepeatRule,
-  setDueDate
+  setDueDate,
 } from "../actions";
 import { theme } from "../theme";
 import ProjectDropdown from "./ProjectDropdown";
@@ -33,7 +33,7 @@ import {
   getProjectNameById,
   removeItemTypeFromString,
   formatRelativeDate,
-  getItemById
+  getItemById,
 } from "../utils";
 import { parseISO } from "date-fns";
 
@@ -80,8 +80,8 @@ class Item extends Component<ItemProps, ItemState> {
       repeatDropdownVisible: false,
       descriptionEditable: false,
       quickAddContainerVisible: false,
-      hideChildren: false,
-      keyPresses: []
+      hideChildren: true,
+      keyPresses: [],
     };
     this.setScheduledDate = this.setScheduledDate.bind(this);
     this.setDueDate = this.setDueDate.bind(this);
@@ -96,7 +96,7 @@ class Item extends Component<ItemProps, ItemState> {
     this.quickAdd = React.createRef();
     this.handlers = {
       TODO: {
-        NEXT_ITEM: event => {
+        NEXT_ITEM: (event) => {
           // If it's a parent element we need to get the first child
           if (this.props.children.length > 0) {
             const nextItem = event.target.parentNode.nextSibling;
@@ -129,7 +129,7 @@ class Item extends Component<ItemProps, ItemState> {
             return;
           }
         },
-        PREV_ITEM: event => {
+        PREV_ITEM: (event) => {
           if (this.props.children.length > 0) {
             const prevItem = event.target.parentNode.previousSibling;
             if (prevItem) {
@@ -167,35 +167,35 @@ class Item extends Component<ItemProps, ItemState> {
             ? this.setState({ hideChildren: false })
             : this.setState({ hideChildren: true });
         },
-        SET_SCHEDULED_DATE: event => {
+        SET_SCHEDULED_DATE: (event) => {
           if (this.props.deleted || this.props.completed) return;
           this.setState({
             scheduledDateDropdownVisible: !this.state
               .scheduledDateDropdownVisible,
             dueDateDropdownVisible: false,
             projectDropdownVisible: false,
-            repeatDropdownVisible: false
+            repeatDropdownVisible: false,
           });
           event.preventDefault();
         },
-        SET_DUE_DATE: event => {
+        SET_DUE_DATE: (event) => {
           if (this.props.deleted || this.props.completed) return;
           this.setState({
             dueDateDropdownVisible: !this.state.dueDateDropdownVisible,
             scheduledDateDropdownVisible: false,
             projectDropdownVisible: false,
-            repeatDropdownVisible: false
+            repeatDropdownVisible: false,
           });
           event.preventDefault();
         },
-        CREATE_SUBTASK: event => {
+        CREATE_SUBTASK: (event) => {
           if (this.props.deleted || this.props.completed) return;
           this.setState({
             quickAddContainerVisible: !this.state.quickAddContainerVisible,
             scheduledDateDropdownVisible: false,
             dueDateDropdownVisible: false,
             projectDropdownVisible: false,
-            repeatDropdownVisible: false
+            repeatDropdownVisible: false,
           });
           this.quickAdd.current.focus();
           event.preventDefault();
@@ -208,13 +208,13 @@ class Item extends Component<ItemProps, ItemState> {
           if (this.props.deleted) return;
           this.props.uncompleteItem(this.props.id);
         },
-        REPEAT_ITEM: event => {
+        REPEAT_ITEM: (event) => {
           if (this.props.deleted || this.props.completed) return;
           this.setState({
             repeatDropdownVisible: !this.state.repeatDropdownVisible,
             scheduledDateDropdownVisible: false,
             dueDateDropdownVisible: false,
-            projectDropdownVisible: false
+            projectDropdownVisible: false,
           });
           event.preventDefault();
         },
@@ -225,13 +225,13 @@ class Item extends Component<ItemProps, ItemState> {
         UNDELETE_ITEM: () => {
           this.props.undeleteItem(this.props.id);
         },
-        MOVE_ITEM: event => {
+        MOVE_ITEM: (event) => {
           if (this.props.deleted || this.props.completed) return;
           this.setState({
             projectDropdownVisible: !this.state.projectDropdownVisible,
             dueDateDropdownVisible: false,
             scheduledDateDropdownVisible: false,
-            repeatDropdownVisible: false
+            repeatDropdownVisible: false,
           });
           event.preventDefault();
         },
@@ -241,16 +241,16 @@ class Item extends Component<ItemProps, ItemState> {
             dueDateDropdownVisible: false,
             scheduledDateDropdownVisible: false,
             descriptionEditable: false,
-            repeatDropdownVisible: false
+            repeatDropdownVisible: false,
           });
         },
-        EDIT_ITEM_DESC: event => {
+        EDIT_ITEM_DESC: (event) => {
           this.editor.current.focus();
           event.preventDefault();
-        }
+        },
       },
       NOTE: {
-        NEXT_ITEM: event => {
+        NEXT_ITEM: (event) => {
           // If it's a parent element we need to get the first child
           if (this.props.children.length > 0) {
             const nextItem = event.target.parentNode.nextSibling;
@@ -283,7 +283,7 @@ class Item extends Component<ItemProps, ItemState> {
             return;
           }
         },
-        PREV_ITEM: event => {
+        PREV_ITEM: (event) => {
           if (this.props.children.length > 0) {
             const prevItem = event.target.parentNode.previousSibling;
             if (prevItem) {
@@ -322,12 +322,12 @@ class Item extends Component<ItemProps, ItemState> {
         UNDELETE_ITEM: () => {
           this.props.undeleteItem(this.props.id);
         },
-        MOVE_ITEM: event => {
+        MOVE_ITEM: (event) => {
           this.setState({
             projectDropdownVisible: !this.state.projectDropdownVisible,
             dueDateDropdownVisible: false,
             scheduledDateDropdownVisible: false,
-            repeatDropdownVisible: false
+            repeatDropdownVisible: false,
           });
           event.preventDefault();
         },
@@ -337,14 +337,14 @@ class Item extends Component<ItemProps, ItemState> {
             dueDateDropdownVisible: false,
             scheduledDateDropdownVisible: false,
             descriptionEditable: false,
-            repeatDropdownVisible: false
+            repeatDropdownVisible: false,
           });
         },
-        EDIT_ITEM_DESC: event => {
+        EDIT_ITEM_DESC: (event) => {
           this.editor.current.focus();
           event.preventDefault();
-        }
-      }
+        },
+      },
     };
   }
 
@@ -360,10 +360,10 @@ class Item extends Component<ItemProps, ItemState> {
       dueDateDropdownVisible: !this.state.dueDateDropdownVisible,
       scheduledDateDropdownVisible: false,
       projectDropdownVisible: false,
-      repeatDropdownVisible: false
+      repeatDropdownVisible: false,
     });
     this.setState({
-      dueDateDropdownVisible: !this.state.dueDateDropdownVisible
+      dueDateDropdownVisible: !this.state.dueDateDropdownVisible,
     });
   }
 
@@ -410,7 +410,7 @@ class Item extends Component<ItemProps, ItemState> {
     if (event.key == "ArrowUp" || event.key == "ArrowDown") {
       setTimeout(() => {
         this.setState({
-          keyPresses: []
+          keyPresses: [],
         });
       }, 200);
       // After 1s remove the first item in the array
@@ -418,7 +418,7 @@ class Item extends Component<ItemProps, ItemState> {
       this.setState({}, () => {
         setTimeout(() => {
           this.setState({
-            keyPresses: this.state.keyPresses.slice(1)
+            keyPresses: this.state.keyPresses.slice(1),
           });
         }, 500);
       });
@@ -457,7 +457,7 @@ class Item extends Component<ItemProps, ItemState> {
   handleExpand() {
     this.state.hideChildren
       ? this.setState({
-          hideChildren: false
+          hideChildren: false,
         })
       : this.setState({ hideChildren: true });
   }
@@ -552,7 +552,7 @@ class Item extends Component<ItemProps, ItemState> {
               ref={this.quickAdd}
               readOnly={false}
               focus={this.state.quickAddContainerVisible}
-              onSubmit={text => this.createSubTask(text)}
+              onSubmit={(text) => this.createSubTask(text)}
             />
           </QuickAdd>
           <DatePicker
@@ -581,7 +581,7 @@ class Item extends Component<ItemProps, ItemState> {
           />
         </div>
         {!this.state.hideChildren &&
-          this.props.children?.map(c => {
+          this.props.children?.map((c) => {
             const childItem = getItemById(c, this.props.items);
             // Sometimes the child item has been filtered out, so we don't want to render an empty container
             if (!childItem) return;
@@ -612,11 +612,11 @@ class Item extends Component<ItemProps, ItemState> {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   projects: state.projects,
-  items: state.items
+  items: state.items,
 });
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => {
     const childId = uuidv4();
     dispatch(createItem(childId, text, projectId));
@@ -648,7 +648,7 @@ const mapDispatchToProps = dispatch => ({
   },
   setRepeatRule: (id: Uuid, rule: RRule) => {
     dispatch(setRepeatRule(id, rule));
-  }
+  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Item);
