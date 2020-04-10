@@ -34,7 +34,7 @@ class Inbox extends Component {
             filter={FilterEnum.ShowInbox}
             listName="Items"
             isFilterable={true}
-            showProject={true}
+            showProject={false}
           />
         </Container>
       </ThemeProvider>
@@ -42,8 +42,8 @@ class Inbox extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  items: state.items
+const mapStateToProps = (state) => ({
+  items: state.items,
 });
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = (dispatch) => ({});
 export default connect(mapStateToProps, mapDispatchToProps)(Inbox);
