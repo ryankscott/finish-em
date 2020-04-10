@@ -6,7 +6,7 @@ import uuidv4 from "uuid/v4";
 import { Uuid } from "@typed/uuid";
 
 interface QuickAddProps {
-  projectId: Uuid;
+  projectId?: Uuid;
   onSubmit: (text: string, projectId: Uuid) => void;
 }
 const QuickAdd = (props: QuickAddProps) => (
