@@ -6,7 +6,7 @@ import {
   ContentState,
   CompositeDecorator,
   SelectionState,
-  Modifier
+  Modifier,
 } from "draft-js";
 import { headShake } from "react-animations";
 import isElectron from "is-electron";
@@ -21,13 +21,13 @@ const Icon = styled.div`
   flex-direction: row;
   justify-content: center;
   align-self: center;
-  font-family: ${props => props.theme.font.sansSerif};
-  font-size: ${props => props.theme.fontSizes.large};
+  font-family: ${(props) => props.theme.font.sansSerif};
+  font-size: ${(props) => props.theme.fontSizes.large};
   background-color: whitesmoke;
   padding: 0px 10px;
   text-align: center;
   vertical-align: middle;
-  color: ${props => props.theme.colours.disabledTextColour};
+  color: ${(props) => props.theme.colours.disabledTextColour};
 `;
 
 interface ValidationBoxProps {
@@ -36,18 +36,18 @@ interface ValidationBoxProps {
 }
 const headShakeAnimation = keyframes`${headShake}`;
 const ValidationBox = styled.div<ValidationBoxProps>`
-  animation: 1s ${props => (props.animate ? headShakeAnimation : "none")};
+  animation: 1s ${(props) => (props.animate ? headShakeAnimation : "none")};
   background-color: whitesmoke;
   display: flex;
   flex-direction: row;
   border: 1px solid;
-  border-color: ${props =>
+  border-color: ${(props) =>
     props.valid
       ? props.theme.colours.borderColour
       : props.theme.colours.errorColour};
   width: 660px;
-  font-family: ${props => props.theme.font.sansSerif};
-  font-size: ${props => props.theme.fontSizes.small};
+  font-family: ${(props) => props.theme.font.sansSerif};
+  font-size: ${(props) => props.theme.fontSizes.small};
   margin: 2px;
 `;
 
@@ -55,8 +55,8 @@ const styles = {
   itemType: {
     fontFamily: theme.font.sansSerif,
     fontSize: theme.fontSizes.small,
-    color: theme.colours.primaryColour
-  }
+    color: theme.colours.primaryColour,
+  },
 };
 
 const findWithRegex = (regex, contentBlock, callback) => {
@@ -72,7 +72,7 @@ const itemTypeStrategy = (contentBlock, callback, contentState) => {
   findWithRegex(itemRegex, contentBlock, callback);
 };
 
-const itemTypeSpan = props => (
+const itemTypeSpan = (props) => (
   <span style={styles.itemType} data-offset-key={props.offsetKey}>
     {props.children}
   </span>
@@ -81,8 +81,8 @@ const itemTypeSpan = props => (
 const compositeDecorator = new CompositeDecorator([
   {
     strategy: itemTypeStrategy,
-    component: itemTypeSpan
-  }
+    component: itemTypeSpan,
+  },
 ]);
 
 interface EditableItemProps {
@@ -91,6 +91,7 @@ interface EditableItemProps {
   focus: boolean;
   innerRef: React.RefObject<HTMLInputElement>;
   onSubmit: (t: string) => void;
+  onEscape?: () => void;
 }
 interface EditableItemState {
   valid: boolean;
@@ -109,7 +110,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
       valid: true,
       readOnly: this.props.readOnly,
       editorState: es,
-      animate: false
+      animate: false,
     };
 
     this.handleReturn = this.handleReturn.bind(this);
@@ -128,7 +129,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
     valid
       ? this.setState({
           valid,
-          animate: false
+          animate: false,
         })
       : this.setState({ valid });
   }
@@ -149,7 +150,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
       anchorOffset: 0,
       focusKey: lastBlock.getKey(),
       focusOffset: lastBlock.getLength(),
-      hasFocus: true
+      hasFocus: true,
     });
     contentState = Modifier.removeRange(contentState, allSelected, "backward");
     editorState = EditorState.push(editorState, contentState, "remove-range");
@@ -172,7 +173,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
     } else {
       this.setState(
         {
-          animate: true
+          animate: true,
         },
         () => setTimeout(() => this.setState({ animate: false }), 200)
       );
@@ -183,6 +184,8 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
 
   handleKeyDown(e, es, et) {
     if (e.key == "Escape") {
+      this.clearInput();
+      this.props.onEscape();
       if (isElectron()) {
         window.ipcRenderer.send("close-quickadd");
       }
@@ -197,7 +200,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
 
   onFocus(e) {
     this.setState({
-      editorState: EditorState.moveFocusToEnd(this.state.editorState)
+      editorState: EditorState.moveFocusToEnd(this.state.editorState),
     });
   }
 
@@ -212,7 +215,7 @@ class EditableItem extends Component<EditableItemProps, EditableItemState> {
             editorState={this.state.editorState}
             readOnly={this.state.readOnly}
             onChange={this.handleChange}
-            handleKeyCommand={this.handleKeyDown}
+            keyBindingFn={this.handleKeyDown}
             onFocus={this.onFocus}
           />
         </ValidationBox>

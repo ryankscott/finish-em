@@ -553,6 +553,9 @@ class Item extends Component<ItemProps, ItemState> {
               readOnly={false}
               focus={this.state.quickAddContainerVisible}
               onSubmit={(text) => this.createSubTask(text)}
+              onEscape={() =>
+                this.setState({ quickAddContainerVisible: false })
+              }
             />
           </QuickAdd>
           <DatePicker
@@ -560,24 +563,30 @@ class Item extends Component<ItemProps, ItemState> {
             placeholder={"Schedule to: "}
             visible={this.state.scheduledDateDropdownVisible}
             onSubmit={this.setScheduledDate}
+            onEscape={() =>
+              this.setState({ scheduledDateDropdownVisible: false })
+            }
           />
           <DatePicker
             key={"dd" + this.props.id}
             placeholder={"Due on: "}
             visible={this.state.dueDateDropdownVisible}
             onSubmit={this.setDueDate}
+            onEscape={() => this.setState({ dueDateDropdownVisible: false })}
           />
           <RepeatPicker
             key={"rp" + this.props.id}
             placeholder={"Repeat: "}
             visible={this.state.repeatDropdownVisible}
             onSubmit={this.setRepeatRule}
+            onEscape={() => this.setState({ repeatDropdownVisible: false })}
           />
           <ProjectDropdown
             key={"p" + this.props.id}
             placeholder={"Move to: "}
             visible={this.state.projectDropdownVisible}
             onSubmit={this.moveItem}
+            onEscape={() => this.setState({ projectDropdownVisible: false })}
           />
         </div>
         {!this.state.hideChildren &&

@@ -13,23 +13,23 @@ interface ContainerProps {
 const Container = styled.div<ContainerProps>`
   overflow: hidden;
   overflow-y: scroll;
-  height: ${props => props.height || "auto"};
-  width: ${props => props.width || "100%"};
+  height: ${(props) => props.height || "auto"};
+  width: ${(props) => props.width || "100%"};
   margin: 0px;
   padding: 5px 5px;
-  cursor: ${props => (props.readOnly ? "default" : "text")};
-  font-size: ${props => props.theme.fontSizes.small};
-  font-family: ${props => props.theme.font.sansSerif};
-  border: ${props =>
+  cursor: ${(props) => (props.readOnly ? "default" : "text")};
+  font-size: ${(props) => props.theme.fontSizes.small};
+  font-family: ${(props) => props.theme.font.sansSerif};
+  border: ${(props) =>
     props.editing ? "1px solid " + props.theme.colours.borderColour : "none"};
   &:hover {
-    background-color: ${props =>
+    background-color: ${(props) =>
       props.readOnly
         ? props.theme.colours.backgroundColour
         : props.theme.colours.focusBackgroundColour};
   }
   &:focus {
-    background-color: ${props => props.theme.colours.focusBackgroundColour};
+    background-color: ${(props) => props.theme.colours.focusBackgroundColour};
   }
   & > p {
     padding: 0px 0px;
@@ -56,7 +56,7 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     super(props);
     this.state = {
       input: this.props.input,
-      editable: false
+      editable: false,
     };
     this.handleBlur = this.handleBlur.bind(this);
     this.handleFocus = this.handleFocus.bind(this);
@@ -73,7 +73,7 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     if (!this.state.editable) return;
     this.setState({
       editable: false,
-      input: this.props.innerRef.current.innerText
+      input: this.props.innerRef.current.innerText,
     });
     this.props.onUpdate(this.props.innerRef.current.innerText);
   }
@@ -95,7 +95,7 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     if (e.key == "Enter" && this.props.singleline) {
       this.setState({
         editable: false,
-        input: this.props.innerRef.current.innerText
+        input: this.props.innerRef.current.innerText,
       });
       this.props.onUpdate(this.props.innerRef.current.innerText);
       this.props.innerRef.current.blur();
@@ -103,7 +103,7 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     } else if (e.key == "Escape") {
       this.setState({
         editable: false,
-        input: this.props.innerRef.current.innerText
+        input: this.props.innerRef.current.innerText,
       });
       this.props.innerRef.current.blur();
       e.preventDefault();
@@ -145,7 +145,7 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
           onBlur={this.handleBlur}
           tabIndex={-1}
           editing={this.state.editable}
-          onKeyDown={this.handleKeyPress}
+          onKeyPress={this.handleKeyPress}
           dangerouslySetInnerHTML={
             this.state.editable ? this.getRawText() : this.getMarkdownText()
           }

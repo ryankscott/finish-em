@@ -43,6 +43,7 @@ const options = [
 export interface DatePickerProps {
   visible: boolean;
   onSubmit: (d: Date) => void;
+  onEscape?: () => void;
   placeholder: string;
 }
 interface DatePickerState {
@@ -92,6 +93,12 @@ class DatePicker extends Component<DatePickerProps, DatePickerState> {
             options={options}
             styles={selectStyles}
             defaultMenuIsOpen={true}
+            escapeClearsValue={true}
+            onKeyDown={(e: KeyboardEvent) => {
+              if (e.key == "Escape") {
+                this.props.onEscape();
+              }
+            }}
             autoFocus
           />
           {this.state.dayPickerVisible && (

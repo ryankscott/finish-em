@@ -15,7 +15,7 @@ const Container = styled.div<ContainerProps>`
   flex-direction: column;
   height: 35px;
   padding: 0px;
-  display: ${props => (!props.visible ? "none" : null)};
+  display: ${(props) => (!props.visible ? "none" : null)};
   background-color: #fff;
   width: 250px;
 `;
@@ -24,39 +24,40 @@ const options = [
   {
     value: new RRule({
       freq: RRule.DAILY,
-      interval: 1
+      interval: 1,
     }),
-    label: "Daily"
+    label: "Daily",
   },
   {
     value: new RRule({
       freq: RRule.DAILY,
       interval: 1,
-      byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR]
+      byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR],
     }),
-    label: "Weekdays"
+    label: "Weekdays",
   },
   {
     value: new RRule({
       freq: RRule.WEEKLY,
-      interval: 1
+      interval: 1,
     }),
-    label: "Weekly on " + format(new Date(), "EEE")
+    label: "Weekly on " + format(new Date(), "EEE"),
   },
   {
     value: new RRule({
       freq: RRule.MONTHLY,
-      interval: 1
+      interval: 1,
     }),
-    label: "Monthly on the " + format(new Date(), "do")
+    label: "Monthly on the " + format(new Date(), "do"),
   },
 
-  { value: null, label: "None" }
+  { value: null, label: "None" },
 ];
 
 interface RepeatPickerProps {
   visible: boolean;
   onSubmit: (value: RRule) => void;
+  onEscape?: () => void;
   placeholder: string;
 }
 interface RepeatPickerState {
@@ -96,6 +97,11 @@ class RepeatPicker extends Component<RepeatPickerProps, RepeatPickerState> {
             value={this.state.selectedOption}
             onChange={this.handleChange}
             options={options}
+            onKeyDown={(e: KeyboardEvent) => {
+              if (e.key == "Escape") {
+                this.props.onEscape();
+              }
+            }}
             styles={selectStyles}
             defaultMenuIsOpen={true}
           />

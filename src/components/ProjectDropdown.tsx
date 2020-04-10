@@ -18,20 +18,21 @@ const Container = styled.div<ContainerProps>`
   flex-direction: column;
   height: 35px;
   padding: 0px;
-  display: ${props => (!props.visible ? "none" : null)};
+  display: ${(props) => (!props.visible ? "none" : null)};
   background-color: #fff;
   width: 250px;
 `;
 
-const generateOptions = options => {
+const generateOptions = (options) => {
   return options
-    .filter(m => m.id != null)
-    .filter(m => m.deleted == false)
-    .map(m => ({ value: m.id, label: m.name }));
+    .filter((m) => m.id != null)
+    .filter((m) => m.deleted == false)
+    .map((m) => ({ value: m.id, label: m.name }));
 };
 interface ProjectDropdownProps {
   visible: boolean;
   onSubmit: (value: string) => void;
+  onEscape?: () => void;
   createProject: (id: Uuid, value: string) => void;
   placeholder: string;
   projects: Object[];
@@ -82,6 +83,12 @@ class ProjectDropdown extends Component<
             onChange={this.handleChange}
             options={generateOptions(this.props.projects)}
             styles={selectStyles}
+            escapeClearsValue={true}
+            onKeyDown={(e: KeyboardEvent) => {
+              if (e.key == "Escape") {
+                this.props.onEscape();
+              }
+            }}
           />
         </Container>
       </ThemeProvider>
@@ -89,12 +96,12 @@ class ProjectDropdown extends Component<
   }
 }
 
-const mapStateToProps = state => ({
-  projects: state.projects
+const mapStateToProps = (state) => ({
+  projects: state.projects,
 });
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   createProject: (id, name) => {
     dispatch(createProject(id, name, ""));
-  }
+  },
 });
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectDropdown);

@@ -31,5 +31,6 @@ export const item = {
   MOVE_ITEM: "i m",
   TOGGLE_CHILDREN: "i t",
   NEXT_ITEM: "ArrowDown",
-  PREV_ITEM: "ArrowUp"
+  PREV_ITEM: "ArrowUp",
+  ESCAPE: "Escape"
 };
