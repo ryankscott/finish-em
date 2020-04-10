@@ -32,14 +32,14 @@ const Trash = () => (
         filter={FilterEnum.ShowDeleted}
         showProject={true}
         isFilterable={true}
-        renderingStrategy={RenderingStrategy.Orphan}
+        renderingStrategy={RenderingStrategy.All}
       />
     </TrashContainer>
   </ThemeProvider>
 );
 
-const mapStateToProps = state => ({
-  items: state.items
+const mapStateToProps = (state) => ({
+  items: state.items,
 });
-const mapDispatchToProps = dispatch => ({});
+const mapDispatchToProps = (dispatch) => ({});
 export default connect(mapStateToProps, mapDispatchToProps)(Trash);

@@ -24,14 +24,14 @@ const Unscheduled = () => (
         showProject={true}
         listName="Overdue"
         isFilterable={true}
-        renderingStrategy={RenderingStrategy.Orphan}
+        renderingStrategy={RenderingStrategy.All}
       />
       <FilteredItemList
         filter={FilterEnum.ShowNotScheduled}
         showProject={true}
         listName="Unscheduled"
         isFilterable={true}
-        renderingStrategy={RenderingStrategy.Orphan}
+        renderingStrategy={RenderingStrategy.All}
       />
     </UnscheduledContainer>
   </ThemeProvider>

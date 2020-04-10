@@ -20,7 +20,7 @@ const Container = styled.div`
 
 export enum RenderingStrategy {
   Default = "DEFAULT",
-  Orphan = "ORPHAN",
+  All = "ALL",
 }
 
 interface ItemListProps {
@@ -35,7 +35,7 @@ interface ItemListProps {
   - If an item has a parent, don't render it
   - For each item, render the item and it's children  (In the Item component)
 
- 2. Orphan rendering
+ 2. All rendering
   - If an item has a parent and the parent is in the list, don't render it
   - If an item has a parent and the parent isn't in the list, render it
   -  
@@ -62,7 +62,7 @@ const ItemList = (props: ItemListProps) => {
                   />
                 </div>
               );
-            case "ORPHAN":
+            case "ALL":
               if (item.parentId != null) {
                 const parent = getItemById(item.parentId, props.items);
                 if (parent) return null;
