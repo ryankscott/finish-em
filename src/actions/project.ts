@@ -1,12 +1,11 @@
-import { Uuid, uuid } from "@typed/uuid";
-import { CreateProjectDialogProps } from "../components/CreateProjectDialog";
-import { UPDATE_ITEM_DESCRIPTION, CREATE_ITEM } from "./item";
+import { Uuid } from "@typed/uuid";
 export const CREATE_PROJECT = "CREATE_PROJECT";
 export const DELETE_PROJECT = "DELETE_PROJECT";
 export const UPDATE_PROJECT_DESCRIPTION = "UPDATE_PROJECT_DESCRIPTION";
+export const UPDATE_PROJECT_NAME = "UPDATE_PROJECT_NAME";
 
 export interface CreateProjectAction {
-  type: typeof CREATE_ITEM;
+  type: typeof CREATE_PROJECT;
   id: Uuid;
   name: string;
   description: string;
@@ -31,7 +30,7 @@ export function deleteProject(id: Uuid) {
   };
 }
 export interface UpdateProjectDescriptionAction {
-  type: typeof UPDATE_ITEM_DESCRIPTION;
+  type: typeof UPDATE_PROJECT_DESCRIPTION;
   id: Uuid;
   description: string;
 }
@@ -42,8 +41,21 @@ export function updateProjectDescription(id: Uuid, description: string) {
     description: description
   };
 }
+export interface UpdateProjectNameAction {
+  type: typeof UPDATE_PROJECT_NAME;
+  id: Uuid;
+  name: string;
+}
+export function updateProjectName(id: Uuid, name: string) {
+  return {
+    type: UPDATE_PROJECT_NAME,
+    id: id,
+    name: name
+  };
+}
 
 export type ProjectActions =
   | CreateProjectAction
   | DeleteProjectAction
-  | UpdateProjectDescriptionAction;
+  | UpdateProjectDescriptionAction
+  | UpdateProjectNameAction;

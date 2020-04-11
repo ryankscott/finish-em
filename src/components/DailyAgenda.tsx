@@ -67,6 +67,7 @@ const DailyAgenda = (props: DailyAgendaProps) => {
         {/* </Paragraph> */}
         <Header1> Daily Goal </Header1>
         <EditableText
+          style={Paragraph}
           readOnly={false}
           input={
             props.dailyGoal[day]

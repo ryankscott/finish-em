@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import { theme } from "../theme";
 import {
   updateProjectDescription,
+  updateProjectName,
   deleteProject,
   hideDeleteProjectDialog,
   toggleDeleteProjectDialog,
@@ -28,7 +29,7 @@ const HeaderContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-end;
 `;
 
 export interface ProjectProps {
@@ -38,6 +39,8 @@ export interface ProjectProps {
 }
 const Project = (props: ProjectProps) => {
   let history = useHistory();
+  let name = React.createRef();
+  let description = React.createRef();
 
   function deleteProject() {
     props.deleteProject(props.project.id);
@@ -48,7 +51,18 @@ const Project = (props: ProjectProps) => {
     <ThemeProvider theme={theme}>
       <ProjectContainer>
         <HeaderContainer>
-          <Title>{props.project.name} </Title>
+          <EditableText
+            key={props.project.id + "t"}
+            input={props.project.name}
+            style={Title}
+            onUpdate={() => {}}
+            readOnly={false}
+            singleline={true}
+            innerRef={name}
+            onUpdate={(input) => {
+              props.updateName(props.project.id, input);
+            }}
+          />
           <DeleteProjectDialog onDelete={() => deleteProject()} />
         </HeaderContainer>
         <EditableText
@@ -56,9 +70,11 @@ const Project = (props: ProjectProps) => {
           onUpdate={(input) => {
             props.updateDescription(props.project.id, input);
           }}
+          innerRef={description}
           input={props.project.description}
           height="150px"
           width="670px"
+          readOnly={false}
         />
         <Header1> Add to project </Header1>
         <QuickAdd projectId={props.project.id} />
@@ -87,6 +103,9 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   updateDescription: (id: Uuid, text: string) => {
     dispatch(updateProjectDescription(id, text));
+  },
+  updateName: (id: Uuid, text: string) => {
+    dispatch(updateProjectName(id, text));
   },
   deleteProject: (id: Uuid) => {
     dispatch(deleteProject(id));

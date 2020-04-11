@@ -21,10 +21,10 @@ const ActionContainer = styled.div`
   flex-direction: flex-end;
 `;
 export interface DeleteProjectDialogProps {
-  visible: boolean;
+  visible?: boolean;
   onDelete: () => void;
-  closeDeleteProjectDialog: () => void;
-  toggleDeleteProjectDialog: () => void;
+  closeDeleteProjectDialog?: () => void;
+  toggleDeleteProjectDialog?: () => void;
 }
 
 const DeleteProjectDialog = (props: DeleteProjectDialogProps) => {
@@ -44,7 +44,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps) => {
               </Paragraph>
             </BodyContainer>
             <ActionContainer>
-              <Button type="error" compact onClick={this.props.onDelete}>
+              <Button type="error" compact onClick={props.onDelete}>
                 Yes
               </Button>
               <Button

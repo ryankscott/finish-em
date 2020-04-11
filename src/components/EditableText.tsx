@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
+import styled, { ThemeProvider, StyledComponent } from "styled-components";
 import { theme } from "../theme";
 import marked from "marked";
 import { setEndOfContenteditable } from "../utils";
+import { Paragraph, Title, Header } from "./Typography";
 
 interface ContainerProps {
   width: number;
@@ -15,11 +16,9 @@ const Container = styled.div<ContainerProps>`
   overflow-y: scroll;
   height: ${(props) => props.height || "auto"};
   width: ${(props) => props.width || "100%"};
-  margin: 0px;
+  margin: 0px 2px;
   padding: 5px 5px;
   cursor: ${(props) => (props.readOnly ? "default" : "text")};
-  font-size: ${(props) => props.theme.fontSizes.small};
-  font-family: ${(props) => props.theme.font.sansSerif};
   border: ${(props) =>
     props.editing ? "1px solid " + props.theme.colours.borderColour : "none"};
   &:hover {
@@ -38,12 +37,13 @@ const Container = styled.div<ContainerProps>`
 `;
 
 interface EditableTextProps {
-  readOnly: boolean;
+  readOnly?: boolean;
   input: string;
   width?: number;
   height?: number;
-  singleline: boolean;
+  singleline?: boolean;
   innerRef: React.RefObject<HTMLInputElement>;
+  style?: typeof Title | typeof Paragraph | typeof Header;
   onUpdate: (input: string) => void;
 }
 interface EditableTextState {
@@ -95,9 +95,9 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     if (e.key == "Enter" && this.props.singleline) {
       this.setState({
         editable: false,
-        input: this.props.innerRef.current.innerText,
+        input: this.props.innerRef.current.innerText.trim(),
       });
-      this.props.onUpdate(this.props.innerRef.current.innerText);
+      this.props.onUpdate(this.props.innerRef.current.innerText.trim());
       this.props.innerRef.current.blur();
       e.preventDefault();
     } else if (e.key == "Escape") {
@@ -135,6 +135,7 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
     return (
       <ThemeProvider theme={theme}>
         <Container
+          as={this.props.style || Paragraph}
           readOnly={this.props.readOnly}
           ref={this.props.innerRef}
           width={this.props.width}
