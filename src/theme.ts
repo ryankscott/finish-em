@@ -20,6 +20,18 @@ export const theme = {
         xbold: "700"
     },
     button: {
+        default: {
+            backgroundColour: "inherit",
+            colour: "#333333",
+            borderColour: "#e0e0e0",
+            hoverBackgroundColour: darken(0.05, "#Fbfbfb")
+        },
+        invert: {
+            backgroundColour: "#404040",
+            colour: "#Fbfbfb",
+            borderColour: "#e0e0e0",
+            hoverBackgroundColour: lighten(0.05, "#404040")
+        },
         primary: {
             backgroundColour: "#45b9ef",
             colour: "#EEEEEE",
@@ -42,8 +54,8 @@ export const theme = {
         tertiaryColour: "#fe5e41",
         quarternaryColour: "#f9df77",
         penternaryColour: "#511a37",
-        borderColour: "#e0e0e0",
         backgroundColour: "#Fbfbfb",
+        borderColour: "#e0e0e0",
         altBackgroundColour: "#404040",
         lightDialogBackgroundColour: "#F0f0f0",
         focusLightDialogBackgroundColour: darken(0.05, "#F0f0f0"),
@@ -96,7 +108,7 @@ export const selectStyles = {
     }),
     placeholder: () => ({
         color: theme.colours.defaultTextColour,
-        backgroundColor: theme.colours.backgroundColour
+        backgroundColor: theme.colours.backgroundColour,
     }),
     control: () => ({
         width: "100%",
@@ -109,6 +121,9 @@ export const selectStyles = {
         borderColor: theme.colours.borderColour,
         borderRadius: "5px",
         zIndex: 2,
+        '&:hover': {
+            backgroundColor: theme.button.default.hoverBackgroundColour
+        }
     }),
     singleValue: () => ({}),
     indicatorsContainer: () => ({ display: "none" }),
