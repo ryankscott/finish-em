@@ -9,7 +9,7 @@ export const HeaderBar = styled.div`
 `;
 
 interface ItemListContainerProps {
-    visible: boolean;
+  visible: boolean;
 }
 export const ItemListContainer = styled.div<ItemListContainerProps>`
   width: 100%;
@@ -20,12 +20,12 @@ export const ItemListContainer = styled.div<ItemListContainerProps>`
 `;
 
 interface FilterBarProps {
-    visible: boolean;
+  visible: boolean;
 }
 export const FilterBar = styled.div<FilterBarProps>`
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-areas: "hide hide hide . . . . sort sort sort";
+  grid-template-columns: 30px 30px repeat(8, 1fr);
+  grid-template-areas: "delete hide . . . . .  sort sort sort";
   width: 100%;
   opacity: ${props => (props.visible ? 1 : 0)};
   height: ${props => (props.visible ? "40px" : "0px")};
@@ -34,7 +34,7 @@ export const FilterBar = styled.div<FilterBarProps>`
 `;
 
 interface SortContainerProps {
-    visible: boolean;
+  visible: boolean;
 }
 
 export const SortContainer = styled.div<SortContainerProps>`
@@ -46,34 +46,47 @@ export const SortContainer = styled.div<SortContainerProps>`
   height: 100%;
 `;
 interface SortSelectProps {
-    visible: boolean;
+  visible: boolean;
 }
 export const SortSelect = styled(Select) <SortSelectProps>`
   width: 110px;
   caret-color: transparent;
-  padding: 0px 2px;
+  padding: 0px 5px;
   position: absolute;
   display: ${props => (props.visible ? "flex" : "none")};
   flex-direction: column;
-  top: -12px;
+  top: -8px;
+`;
+
+interface DeleteContainerProps {
+  visible: boolean;
+}
+export const DeleteContainer = styled.div<DeleteContainerProps>`
+  grid-area: delete;
+  height: 100%;
+  display: ${props => props.visible ? "flex" : "none"};
+  flex-direction: column;
+  justify-content: flex-end;
+  align-content: flex-end;
+  align-self: flex-end;
+  align-items: flex-end;
 `;
 
 interface CompletedContainerProps {
-    visible: boolean;
+  visible: boolean;
 }
 export const CompletedContainer = styled.div<CompletedContainerProps>`
   grid-area: hide;
   display: flex;
+  height: 100%;
   opacity: ${props => (props.visible ? 1 : 0)};
   flex-direction: row;
   justify-content: flex-start;
   margin: 0px 2px;
   cursor: pointer;
+  align-items: flex-end;
 `;
 
-export const CompletedText = styled(Paragraph)`
-  text-decoration: pointer;
-`;
 
 export const ListName = styled.div`
   display: flex;

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import styled, { ThemeProvider } from "styled-components";
 import { connect } from "react-redux";
 import InlineDialog from "./InlineDialog";
@@ -44,13 +44,12 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps) => {
               </Paragraph>
             </BodyContainer>
             <ActionContainer>
-              <Button type="error" compact onClick={props.onDelete}>
+              <Button type="error" spacing="compact" onClick={props.onDelete}>
                 Yes
               </Button>
               <Button
                 type="primary"
-                compact
-                autoFocus
+                spacing="compact"
                 onClick={() => props.closeDeleteProjectDialog()}
               >
                 No
@@ -62,7 +61,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps) => {
         <Button
           type="primary"
           onClick={() => props.toggleDeleteProjectDialog()}
-          compact
+          spacing="compact"
         >
           Delete
         </Button>

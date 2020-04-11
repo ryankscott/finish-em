@@ -1,11 +1,11 @@
 import React, { ReactElement } from "react";
-import IconButton from "./IconButton";
+import { Button } from "./Button";
 import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 interface ContainerProps {
   visible: boolean;
   completed: boolean;
-  type: "DUE" | "REPEAT" | "SCHEDULED";
+  type: "due" | "repeat" | "scheduled";
 }
 
 const Container = styled.div<ContainerProps>`
@@ -33,7 +33,7 @@ interface Props {
   visible: boolean;
   completed: boolean;
   position: "center" | "flex-end" | "flex-start";
-  type: "DUE" | "REPEAT" | "SCHEDULED";
+  type: "due" | "repeat" | "scheduled";
   text: string;
 }
 
@@ -50,12 +50,14 @@ const DateRenderer = (props: Props): ReactElement => {
           key={props.type}
           position={props.position}
         >
-          <IconButton
-            visible={props.visible}
+          <Button
+            type="default"
+            spacing="compact"
             onClick={() => {}}
             icon={props.type}
-            text={props.text}
-          />
+          >
+            {props.text}
+          </Button>
         </SubTextContainer>
       </Container>
     </ThemeProvider>

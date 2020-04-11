@@ -9,13 +9,13 @@ import { theme } from "../theme";
 import {
   createProject,
   toggleCreateProjectDialog,
-  hideCreateProjectDialog
+  hideCreateProjectDialog,
 } from "../actions";
 import { Button } from "./Button";
 import InlineDialog from "./InlineDialog";
 
 const StyledInput = styled.input`
-  font-size: ${props => props.theme.fontSizes.xsmall};
+  font-size: ${(props) => props.theme.fontSizes.xsmall};
   padding: 2px 5px;
   margin: 2px 2px;
   height: 25px;
@@ -48,7 +48,7 @@ class CreateProjectDialog extends Component<
     super(props);
     this.state = {
       projectName: "",
-      projectDescription: ""
+      projectDescription: "",
     };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -101,7 +101,7 @@ class CreateProjectDialog extends Component<
                 />
               </BodyContainer>
               <Button
-                compact={false}
+                spacing="default"
                 type="primary"
                 onClick={this.handleSubmit}
               >
@@ -111,7 +111,7 @@ class CreateProjectDialog extends Component<
           }
         >
           <Button
-            compact={false}
+            spacing="default"
             type="primary"
             onClick={() => this.props.toggleCreateProjectDialog()}
           >
@@ -123,11 +123,11 @@ class CreateProjectDialog extends Component<
   }
 }
 
-const mapStateToProps = state => ({
-  visible: state.ui.createProjectDialogVisible
+const mapStateToProps = (state) => ({
+  visible: state.ui.createProjectDialogVisible,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   createProject: (id, name, description) => {
     dispatch(createProject(id, name, description));
     dispatch(hideCreateProjectDialog());
@@ -137,7 +137,7 @@ const mapDispatchToProps = dispatch => ({
   },
   toggleCreateProjectDialog: () => {
     dispatch(toggleCreateProjectDialog());
-  }
+  },
 });
 
 export default connect(

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import styled, { ThemeProvider, StyledComponent } from "styled-components";
+import styled, { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import marked from "marked";
 import { setEndOfContenteditable } from "../utils";
@@ -16,11 +16,11 @@ const Container = styled.div<ContainerProps>`
   overflow-y: scroll;
   height: ${(props) => props.height || "auto"};
   width: ${(props) => props.width || "100%"};
-  margin: 0px 2px;
+  margin: 2px 2px;
   padding: 5px 5px;
   cursor: ${(props) => (props.readOnly ? "default" : "text")};
-  border: ${(props) =>
-    props.editing ? "1px solid " + props.theme.colours.borderColour : "none"};
+  border: ${(props) => (props.editing ? "1px solid " : "none")};
+  border-color: ${(props) => props.theme.colours.borderColour};
   &:hover {
     background-color: ${(props) =>
       props.readOnly

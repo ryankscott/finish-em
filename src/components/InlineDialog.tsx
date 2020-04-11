@@ -3,7 +3,7 @@ import styled, { ThemeProvider } from "styled-components";
 import { Manager, Reference, Popper } from "react-popper";
 
 import { theme } from "../theme";
-import IconButton from "./IconButton";
+import { Button } from "./Button";
 
 // TODO: How to animate this without blocking other clicks display: none hides it but won't animate
 interface ContainerProps {
@@ -12,10 +12,11 @@ interface ContainerProps {
 const Container = styled.div<ContainerProps>`
   position: absolute;
   box-sizing: border-box;
-  display: ${props => (props.visible ? "flex" : "none")};
+  display: ${(props) => (props.visible ? "flex" : "none")};
   flex-direction: column;
   width: 200px;
-  background-color: ${props => props.theme.colours.lightDialogBackgroundColour};
+  background-color: ${(props) =>
+    props.theme.colours.lightDialogBackgroundColour};
   padding: 5px 5px 8px 5px;
   justify-content: center;
   align-items: center;
@@ -58,7 +59,7 @@ export interface InlineDialogProps {
     | "left"
     | "left-start"
     | "left-end";
-  content: string;
+  content: Element;
 }
 interface InlineDialogState {}
 class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
@@ -74,6 +75,7 @@ class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
   componentWillUnount() {
     document.removeEventListener("mousedown", this.handleClick, false);
   }
+  // TODO: Fix this with refs
   componentDidUpdate(prevProps) {
     if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
       this.props.onOpen();
@@ -103,11 +105,11 @@ class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
               <ThemeProvider theme={theme}>
                 <Container ref={this.node} visible={this.props.isOpen}>
                   <HeaderContainer>
-                    <IconButton
+                    <Button
+                      spacing="default"
+                      type="default"
                       onClick={this.props.onClose}
-                      visible={true}
-                      icon="CLOSE"
-                      coloured={true}
+                      icon="close"
                     />
                   </HeaderContainer>
                   <BodyContainer>{this.props.content}</BodyContainer>

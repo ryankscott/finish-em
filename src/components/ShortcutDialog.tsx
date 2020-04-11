@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { ThemeProvider } from "styled-components";
 import { theme } from "../theme";
 import { Title, Header1 } from "./Typography";
-import IconButton from "./IconButton";
 import { hideShortcutDialog } from "../actions";
 import { capitaliseEachWordInString } from "../utils";
 
@@ -18,8 +17,9 @@ import {
   Controls,
   ShortcutTable,
   Body,
-  Header
+  Header,
 } from "./styled/ShortcutDialog";
+import { Button } from "./Button";
 const generateRows = (keymap: { [key: string]: string }): any => {
   const shortcuts = Object.entries(keymap);
   const numberOfShortcuts = shortcuts.length;
@@ -120,11 +120,12 @@ class ShortcutDialog extends Component<
           }
         >
           <Controls>
-            <IconButton
-              icon="CLOSE"
-              visible
-              invert
-              coloured
+            <Button
+              width={24}
+              height={24}
+              type="invert"
+              spacing="default"
+              icon="close"
               onClick={this.props.closeShortcutDialog}
             />
           </Controls>
@@ -143,14 +144,14 @@ class ShortcutDialog extends Component<
   }
 }
 
-const mapStateToProps = state => ({
-  isOpen: state.ui.shortcutDialogVisible
+const mapStateToProps = (state) => ({
+  isOpen: state.ui.shortcutDialogVisible,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   closeShortcutDialog: () => {
     dispatch(hideShortcutDialog());
-  }
+  },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ShortcutDialog);

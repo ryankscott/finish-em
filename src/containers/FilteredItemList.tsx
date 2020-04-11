@@ -12,19 +12,20 @@ import { selectStyles } from "../theme";
 import { Header1, Paragraph } from "../components/Typography";
 import { ItemType } from "../interfaces";
 import { Uuid } from "@typed/uuid";
-import { collapsedIcon, expandedIcon } from "../assets/icons";
 import {
   Container,
   HeaderBar,
   ListName,
   FilterBar,
   CompletedContainer,
-  CompletedText,
   SortContainer,
   SortSelect,
+  DeleteContainer,
   ItemListContainer,
 } from "../components/styled/FilteredItemList";
 import { connect } from "react-redux";
+import { Button } from "../components/Button";
+import { Tooltip } from "../components/Tooltip";
 
 /*
 If compareFunction(a, b) returns less than 0, sort a to an index lower than b (i.e. a comes first).
@@ -182,6 +183,8 @@ const hideCompletedItems = (items: ItemType[]): ItemType[] => {
   );
 };
 
+const deleteCompletedItems = () => {};
+
 const getFilteredItems = (
   items: ItemType[],
   hideCompleted: boolean,
@@ -273,6 +276,7 @@ class FilteredItemList extends Component<
       hideItemList: false,
     };
   }
+
   render() {
     const filteredItems = getFilteredItems(
       this.props.items,
@@ -291,13 +295,7 @@ class FilteredItemList extends Component<
     return (
       <Container>
         <HeaderBar>
-          <ListName
-            onClick={() =>
-              this.setState({
-                hideItemList: !this.state.hideItemList,
-              })
-            }
-          >
+          <ListName>
             <Header1>
               {this.props.listName}
               <Paragraph>
@@ -305,7 +303,18 @@ class FilteredItemList extends Component<
                   (filteredItems.sortedItems.length == 1 ? " item" : " items")}
               </Paragraph>
             </Header1>
-            {this.state.hideItemList ? collapsedIcon() : expandedIcon()}
+
+            <Button
+              type="default"
+              width={24}
+              height={24}
+              icon={this.state.hideItemList ? "collapse" : "expand"}
+              onClick={() =>
+                this.setState({
+                  hideItemList: !this.state.hideItemList,
+                })
+              }
+            ></Button>
           </ListName>
           <FilterBar
             visible={
@@ -316,21 +325,44 @@ class FilteredItemList extends Component<
           >
             <CompletedContainer
               visible={completedItems > 0 && !hideCompletedToggle}
-              onClick={() => {
-                this.setState({ hideCompleted: !this.state.hideCompleted });
-              }}
             >
-              <CompletedText>
-                {this.state.hideCompleted
-                  ? "Show completed items"
-                  : "Hide completed items"}
-              </CompletedText>
+              <Button
+                dataFor="complete-button"
+                type="default"
+                width={24}
+                height={24}
+                icon={this.state.hideCompleted ? "hide" : "show"}
+                onClick={() => {
+                  this.setState({
+                    hideCompleted: !this.state.hideCompleted,
+                  });
+                }}
+              ></Button>
+              <Tooltip id="complete-button" text={"Toggle completed items"} />
             </CompletedContainer>
+            <DeleteContainer
+              visible={
+                filteredItems.sortedItems.length > 0 && !this.state.hideItemList
+              }
+            >
+              <Button
+                dataFor="trash-button"
+                spacing="default"
+                type="default"
+                icon="trash"
+                height={24}
+                width={24}
+                onClick={() => {
+                  this.deleteCompletedItems;
+                }}
+              ></Button>
+            </DeleteContainer>
             <SortContainer
               visible={
                 filteredItems.sortedItems.length > 0 && !this.state.hideItemList
               }
             >
+              <Tooltip id="trash-button" text={"Delete completed items"} />
               <SortSelect
                 visible={
                   filteredItems.sortedItems.length > 0 &&

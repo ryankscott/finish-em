@@ -64,3 +64,37 @@ export const Project = styled.div<ProjectProps>`
   background-color: ${props => props.theme.colours.primaryColour};
   border-radius: 5px;
 `;
+
+interface ExpandContainerProps {
+  visible: boolean;
+}
+
+export const ExpandContainer = styled.div<ExpandContainerProps>`
+  grid-area: EXPAND; 
+  display: ${props => (props.visible ? "flex" : "none")};
+`
+export const TypeContainer = styled.div`
+  grid-area: TYPE; 
+  display: flex;
+`
+interface ScheduledContainerProps {
+  visible: boolean;
+}
+export const ScheduledContainer = styled.div<ScheduledContainerProps>`
+  grid-area: SCHEDULED; 
+  display: ${props => (props.visible ? "flex" : "none")};
+`
+interface DueContainerProps {
+  visible: boolean;
+}
+export const DueContainer = styled.div<DueContainerProps>`
+  grid-area: DUE; 
+  display: ${props => (props.visible ? "flex" : "none")};
+`
+interface RepeatContainerProps {
+  visible: boolean;
+}
+export const RepeatContainer = styled.div<RepeatContainerProps>`
+  grid-area: REPEAT; 
+  display: ${props => (props.visible ? "flex" : "none")};
+`

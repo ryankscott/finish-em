@@ -5,7 +5,17 @@ import { RRule, rrulestr } from "rrule";
 import uuidv4 from "uuid/v4";
 import { Uuid } from "@typed/uuid";
 import { ItemType, ProjectType } from "../interfaces";
-import { Body, Container, Project, QuickAdd } from "./styled/Item";
+import {
+  Body,
+  Container,
+  Project,
+  QuickAdd,
+  ExpandContainer,
+  ScheduledContainer,
+  DueContainer,
+  RepeatContainer,
+  TypeContainer,
+} from "./styled/Item";
 
 import {
   addChildItem,
@@ -26,8 +36,6 @@ import EditableItem from "./EditableItem";
 import DatePicker from "./DatePicker";
 import RepeatPicker from "./RepeatPicker";
 import EditableText from "./EditableText";
-import ExpandIcon from "./ExpandIcon";
-import IconButton from "./IconButton";
 import DateRenderer from "./DateRenderer";
 import {
   getProjectNameById,
@@ -36,6 +44,7 @@ import {
   getItemById,
 } from "../utils";
 import { parseISO } from "date-fns";
+import { Button } from "./Button";
 
 interface ItemProps extends ItemType {
   noIndentOnSubtasks: boolean;
@@ -484,29 +493,35 @@ class Item extends Component<ItemProps, ItemState> {
             itemType={this.props.type}
             ref={this.container}
           >
-            <div style={{ gridArea: "EXPAND" }}>
-              <ExpandIcon
-                expanded={!this.state.hideChildren}
+            <ExpandContainer visible={this.props.children.length > 0}>
+              <Button
+                type="default"
+                spacing="default"
                 onClick={this.handleExpand}
-                visible={this.props.children && this.props.children.length > 0}
-              />
-            </div>
-            <div style={{ gridArea: "TYPE" }}>
-              <IconButton
+                height={24}
+                width={24}
+                icon={this.state.hideChildren ? "expand" : "collapse"}
+              ></Button>
+            </ExpandContainer>
+            <TypeContainer>
+              <Button
+                type="default"
+                spacing="default"
                 onClick={this.handleIconClick}
-                visible={true}
+                height={24}
+                width={24}
                 icon={
                   this.props.type == "NOTE"
-                    ? "NOTE"
+                    ? "note"
                     : this.props.completed
-                    ? "TODO_CHECKED"
-                    : "TODO_UNCHECKED"
+                    ? "todo_checked"
+                    : "todo_unchecked"
                 }
               />
-            </div>
+            </TypeContainer>
             <Body id="body" completed={this.props.completed}>
               <EditableText
-                ref={this.editor}
+                innerRef={this.editor}
                 key={this.props.id}
                 readOnly={this.props.completed}
                 input={removeItemTypeFromString(this.props.text)}
@@ -519,37 +534,37 @@ class Item extends Component<ItemProps, ItemState> {
                 ? getProjectNameById(this.props.projectId, this.props.projects)
                 : "null"}
             </Project>
-            <div style={{ gridArea: "SCHEDULED" }}>
+            <ScheduledContainer visible={this.props.scheduledDate != null}>
               <DateRenderer
                 visible={this.props.scheduledDate != null}
                 completed={this.props.completed}
-                type="SCHEDULED"
+                type="scheduled"
                 position="flex-start"
                 text={scheduledDate}
               />
-            </div>
-            <div style={{ gridArea: "DUE" }}>
+            </ScheduledContainer>
+            <DueContainer visible={this.props.dueDate != null}>
               <DateRenderer
                 visible={this.props.dueDate != null}
                 completed={this.props.completed}
-                type="DUE"
+                type="due"
                 position="center"
                 text={dueDate}
               />
-            </div>
-            <div style={{ gridArea: "REPEAT" }}>
+            </DueContainer>
+            <RepeatContainer visible={this.props.repeat != null}>
               <DateRenderer
                 visible={this.props.repeat != null}
                 completed={this.props.completed}
-                type="REPEAT"
+                type="repeat"
                 position="flex-end"
                 text={repeat}
               />
-            </div>
+            </RepeatContainer>
           </Container>
           <QuickAdd visible={this.state.quickAddContainerVisible}>
             <EditableItem
-              ref={this.quickAdd}
+              innerRef={this.quickAdd}
               readOnly={false}
               focus={this.state.quickAddContainerVisible}
               onSubmit={(text) => this.createSubTask(text)}
