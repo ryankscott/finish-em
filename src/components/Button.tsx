@@ -1,7 +1,7 @@
-import React from "react";
-import { ThemeProvider } from "styled-components";
-import { theme } from "../theme";
-import { StyledButton, Contents, Icon, Text } from "./styled/Button";
+import React, { ReactElement } from 'react'
+import { ThemeProvider } from 'styled-components'
+import { theme } from '../theme'
+import { StyledButton, Contents, Icon, Text } from './styled/Button'
 import {
   closeIcon,
   expandedIcon,
@@ -17,7 +17,7 @@ import {
   trashIcon,
   hideIcon,
   showIcon,
-} from "../assets/icons";
+} from '../assets/icons'
 
 const iconMapping = {
   close: closeIcon(),
@@ -34,38 +34,40 @@ const iconMapping = {
   trash: trashIcon(),
   hide: hideIcon(),
   show: showIcon(),
-};
-
-export interface ButtonProps {
-  onClick: () => void;
-  spacing?: "compact" | "default";
-  type: "primary" | "error" | "default" | "invert";
-  children?: React.ReactChild;
-  dataFor?: string;
-  width?: number;
-  height?: number;
-  icon?:
-    | "close"
-    | "expand"
-    | "collapse"
-    | "help"
-    | "repeat"
-    | "due"
-    | "scheduled"
-    | "note"
-    | "add"
-    | "todo_unchecked"
-    | "todo_checked"
-    | "trash"
-    | "show"
-    | "hide";
 }
 
-const getTheme = (type: string) => {
-  return theme.button[type];
-};
+// TODO: Change width and height to strings
+export interface ButtonProps {
+  onClick: () => void
+  spacing?: 'compact' | 'default'
+  type: 'primary' | 'error' | 'default' | 'invert'
+  children?: React.ReactChild
+  tabIndex?: number
+  dataFor?: string
+  width?: string
+  height?: string
+  icon?:
+    | 'close'
+    | 'expand'
+    | 'collapse'
+    | 'help'
+    | 'repeat'
+    | 'due'
+    | 'scheduled'
+    | 'note'
+    | 'add'
+    | 'todo_unchecked'
+    | 'todo_checked'
+    | 'trash'
+    | 'show'
+    | 'hide'
+}
 
-export const Button = (props: ButtonProps) => {
+const getTheme = (type: string): {} => {
+  return theme.button[type]
+}
+
+export const Button = (props: ButtonProps): ReactElement => {
   return (
     <ThemeProvider theme={getTheme(props.type)}>
       <StyledButton
@@ -76,6 +78,7 @@ export const Button = (props: ButtonProps) => {
         hasChildren={props.children != undefined}
         data-tip
         data-for={props.dataFor}
+        tabIndex={-1 || props.tabIndex}
       >
         <Contents>
           {props.icon && <Icon>{iconMapping[props.icon]}</Icon>}
@@ -83,5 +86,5 @@ export const Button = (props: ButtonProps) => {
         </Contents>
       </StyledButton>
     </ThemeProvider>
-  );
-};
+  )
+}

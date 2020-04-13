@@ -1,19 +1,19 @@
-import React from "react";
-import DailyAgenda from "./DailyAgenda";
-import Inbox from "./Inbox";
-import Trash from "./Trash";
-import Project from "./Project";
-import Unscheduled from "./Unscheduled";
-import Sidebar from "./Sidebar";
-import Completed from "./Completed";
-import ShortcutDialog from "./ShortcutDialog";
-import { app as appKeymap } from "../keymap";
-import { connect } from "react-redux";
-import { ThemeProvider, createGlobalStyle } from "styled-components";
-import { theme } from "../theme";
-import { ProjectType } from "../interfaces";
-import { useHistory, Route, Switch, useParams } from "react-router-dom";
-import { GlobalHotKeys, configure } from "react-hotkeys";
+import React, { ReactElement } from 'react'
+import { connect } from 'react-redux'
+import { ThemeProvider, createGlobalStyle } from 'styled-components'
+import { useHistory, Route, Switch, useParams } from 'react-router-dom'
+import { GlobalHotKeys, configure } from 'react-hotkeys'
+import DailyAgenda from './DailyAgenda'
+import Inbox from './Inbox'
+import Trash from './Trash'
+import Project from './Project'
+import Unscheduled from './Unscheduled'
+import Sidebar from './Sidebar'
+import Completed from './Completed'
+import ShortcutDialog from './ShortcutDialog'
+import { app as appKeymap } from '../keymap'
+import { theme } from '../theme'
+import { ProjectType } from '../interfaces'
 import {
   toggleShortcutDialog,
   showSidebar,
@@ -21,71 +21,86 @@ import {
   showCreateProjectDialog,
   hideShortcutDialog,
   hideCreateProjectDialog,
-  hideDeleteProjectDialog
-} from "../actions";
-import { helpIcon } from "../assets/icons.js";
-import { Container, MainContainer, ShortcutIcon } from "./styled/App";
+  hideDeleteProjectDialog,
+} from '../actions/index'
+import { helpIcon } from '../assets/icons.js'
+import { Container, MainContainer, ShortcutIcon } from './styled/App'
 
 configure({
-  logLevel: "warning"
-});
+  logLevel: 'warning',
+})
 
 const GlobalStyle = createGlobalStyle`
   html {
     height: 100%;
+    box-sizing: 'border-box';
   }
-
   body {
-    font-family: ${props => props.theme.font.sansSerif};
-    color: ${props => props.theme.colours.defaultTextColour};
-    font-weight: ${props => props.theme.fontWeights.regular};
-    background-color: ${props => props.theme.colours.backgroundColour};
+    font-family: ${(props) => props.theme.font.sansSerif};
+    color: ${(props) => props.theme.colours.defaultTextColour};
+    font-weight: ${(props) => props.theme.fontWeights.regular};
+    background-color: ${(props) => props.theme.colours.backgroundColour};
     box-sizing: border-box;
     padding: 0px;
     margin: 0px;
     height: 100%;
   }
-`;
-
+`
 interface ProjectWrapperProps {
-  projects: ProjectType[];
+  projects: ProjectType[]
 }
-const ProjectWrapper = (props: ProjectWrapperProps) => {
-  let { id } = useParams();
-  const project = props.projects.find(p => {
-    return p.id == id;
-  });
-  return <Project project={project} />;
-};
+const ProjectWrapper = (props: ProjectWrapperProps): ReactElement => {
+  const { id } = useParams()
+  const project = props.projects.find((p) => p.id?.toString() === id)
+  console.log(project)
+  return <Project project={project} />
+}
 
-function App(props) {
-  let history = useHistory();
+interface AppProps {
+  projects: ProjectType[]
+  sidebarVisible: boolean
+  toggleShortcutDialog: () => void
+  goToInbox: () => void
+  goToTrash: () => void
+  showSidebar: () => void
+  hideSidebar: () => void
+  hideDialogs: () => void
+  showCreateProjectDialog: () => void
+}
 
-  function goToDailyAgenda() {
-    history.push("/dailyAgenda");
+const App = (props: AppProps): ReactElement => {
+  const history = useHistory()
+
+  function goToDailyAgenda(): void {
+    history.push('/dailyAgenda')
+    return
   }
 
-  function goToTrash() {
-    history.push("/trash");
+  function goToTrash(): void {
+    history.push('/trash')
+    return
   }
 
-  function goToInbox() {
-    history.push("/inbox");
+  function goToInbox(): void {
+    history.push('/inbox')
+    return
   }
 
-  function goToUnscheduled() {
-    history.push("/unscheduled");
+  function goToUnscheduled(): void {
+    history.push('/unscheduled')
+    return
   }
 
-  function goToCompleted() {
-    history.push("/completed");
+  function goToCompleted(): void {
+    history.push('/completed')
+    return
   }
 
-  function goToProject(number) {
-    const activeProjects = props.projects.filter(p => p.deleted == false);
-    if (number >= activeProjects.length) return;
-    const id = activeProjects[number].id;
-    history.push("/projects/" + id);
+  function goToProject(number: number): void {
+    const activeProjects = props.projects.filter((p) => p.deleted === false)
+    if (number >= activeProjects.length) return
+    const { id } = activeProjects[number]
+    history.push(`/projects/${id}`)
   }
 
   const handlers = {
@@ -107,19 +122,20 @@ function App(props) {
     HIDE_SIDEBAR: () => props.hideSidebar(),
     TOGGLE_SHORTCUT_DIALOG: () => props.toggleShortcutDialog(),
     ESCAPE: () => props.hideDialogs(),
-    SHOW_CREATE_PROJECT_DIALOG: e => {
-      props.showCreateProjectDialog();
-      e.preventDefault();
-    }
-  };
+    SHOW_CREATE_PROJECT_DIALOG: (e) => {
+      props.showCreateProjectDialog()
+      e.preventDefault()
+    },
+  }
 
+  const { sidebarVisible, toggleShortcutDialog } = props
   return (
     <ThemeProvider theme={theme}>
       <GlobalHotKeys keyMap={appKeymap} handlers={handlers} />
       <GlobalStyle />
       <Container>
         <Sidebar />
-        <MainContainer sidebarVisible={props.sidebarVisible}>
+        <MainContainer sidebarVisible={sidebarVisible}>
           <ShortcutDialog />
           <Switch>
             <Route path="/inbox">
@@ -145,37 +161,37 @@ function App(props) {
             </Route>
           </Switch>
         </MainContainer>
-        <ShortcutIcon id="shortcut-icon" onClick={props.toggleShortcutDialog}>
+        <ShortcutIcon id="shortcut-icon" onClick={toggleShortcutDialog}>
           {helpIcon()}
         </ShortcutIcon>
       </Container>
     </ThemeProvider>
-  );
+  )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   projects: state.projects,
-  sidebarVisible: state.ui.sidebarVisible
-});
+  sidebarVisible: state.ui.sidebarVisible,
+})
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   toggleShortcutDialog: () => {
-    dispatch(toggleShortcutDialog());
+    dispatch(toggleShortcutDialog())
   },
   showCreateProjectDialog: () => {
-    dispatch(showCreateProjectDialog());
+    dispatch(showCreateProjectDialog())
   },
   hideSidebar: () => {
-    dispatch(hideSidebar());
+    dispatch(hideSidebar())
   },
 
   showSidebar: () => {
-    dispatch(showSidebar());
+    dispatch(showSidebar())
   },
   hideDialogs: () => {
-    dispatch(hideShortcutDialog());
-    dispatch(hideCreateProjectDialog());
-    dispatch(hideDeleteProjectDialog());
-  }
-});
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+    dispatch(hideShortcutDialog())
+    dispatch(hideCreateProjectDialog())
+    dispatch(hideDeleteProjectDialog())
+  },
+})
+export default connect(mapStateToProps, mapDispatchToProps)(App)

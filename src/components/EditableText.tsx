@@ -1,137 +1,113 @@
-import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { theme } from "../theme";
-import marked from "marked";
-import { setEndOfContenteditable } from "../utils";
-import { Paragraph, Title, Header } from "./Typography";
-
-interface ContainerProps {
-  width: number;
-  height: number;
-  readOnly: boolean;
-  editing: boolean;
-}
-const Container = styled.div<ContainerProps>`
-  overflow: hidden;
-  overflow-y: scroll;
-  height: ${(props) => props.height || "auto"};
-  width: ${(props) => props.width || "100%"};
-  margin: 2px 2px;
-  padding: 5px 0px 5px 5px;
-  cursor: ${(props) => (props.readOnly ? "default" : "text")};
-  border: ${(props) => (props.editing ? "1px solid " : "none")};
-  border-color: ${(props) => props.theme.colours.borderColour};
-  &:hover {
-    background-color: ${(props) =>
-      props.readOnly
-        ? props.theme.colours.backgroundColour
-        : props.theme.colours.focusBackgroundColour};
-  }
-  &:focus {
-    background-color: ${(props) => props.theme.colours.focusBackgroundColour};
-  }
-  & > p {
-    padding: 0px 0px;
-    margin: 0px;
-  }
-`;
+import React, { Component, ReactElement } from 'react'
+import { ThemeProvider } from 'styled-components'
+import { theme } from '../theme'
+import marked from 'marked'
+import { setEndOfContenteditable } from '../utils'
+import { Paragraph, Title, Header } from './Typography'
+import { Container } from './styled/EditableText'
 
 interface EditableTextProps {
-  readOnly?: boolean;
-  input: string;
-  width?: number;
-  height?: number;
-  singleline?: boolean;
-  innerRef: React.RefObject<HTMLInputElement>;
-  style?: typeof Title | typeof Paragraph | typeof Header;
-  onUpdate: (input: string) => void;
+  input: string
+  innerRef: React.RefObject<HTMLInputElement>
+  onUpdate: (input: string) => void
+  readOnly?: boolean
+  width?: string
+  height?: string
+  singleline?: boolean
+  style?: typeof Title | typeof Paragraph | typeof Header
 }
 interface EditableTextState {
-  input: string;
-  editable: boolean;
+  input: string
+  editable: boolean
 }
 
 class EditableText extends Component<EditableTextProps, EditableTextState> {
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
       input: this.props.input,
       editable: false,
-    };
-    this.handleBlur = this.handleBlur.bind(this);
-    this.handleFocus = this.handleFocus.bind(this);
-    this.handleClick = this.handleClick.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.getMarkdownText = this.getMarkdownText.bind(this);
-    this.getRawText = this.getRawText.bind(this);
+    }
+    this.handleBlur = this.handleBlur.bind(this)
+    this.handleFocus = this.handleFocus.bind(this)
+    this.handleClick = this.handleClick.bind(this)
+    this.handleKeyPress = this.handleKeyPress.bind(this)
+    this.getMarkdownText = this.getMarkdownText.bind(this)
+    this.getRawText = this.getRawText.bind(this)
   }
 
-  handleBlur(e) {
+  handleBlur(e): void {
     // Ignore events if it's read only
-    if (this.props.readOnly) return;
+    if (this.props.readOnly) return
     // Ignore events if we're not editing
-    if (!this.state.editable) return;
+    if (!this.state.editable) return
     this.setState({
       editable: false,
       input: this.props.innerRef.current.innerText,
-    });
-    this.props.onUpdate(this.props.innerRef.current.innerText);
+    })
+    this.props.onUpdate(this.props.innerRef.current.innerText)
+    return
   }
 
-  handleClick(e) {
-    if (this.props.readOnly) return;
+  handleClick(e): void {
+    if (this.props.readOnly) return
     // Handle links normally
-    if (e.target.nodeName == "A") {
-      return;
+    if (e.target.nodeName == 'A') {
+      return
     }
     // Ignore clicks if it's already editable
-    if (this.state.editable) return;
-    this.setState({ editable: true });
+    if (this.state.editable) return
+    this.setState({ editable: true })
+    return
   }
 
-  handleKeyPress(e) {
-    if (this.props.readOnly) return;
+  handleKeyPress(e): void {
+    if (this.props.readOnly) return
     // TODO: We should be able to call this at the Item and have the ability to update the text
-    if (e.key == "Enter" && this.props.singleline) {
+    if (e.key == 'Enter' && this.props.singleline) {
       this.setState({
         editable: false,
         input: this.props.innerRef.current.innerText.trim(),
-      });
-      this.props.onUpdate(this.props.innerRef.current.innerText.trim());
-      this.props.innerRef.current.blur();
-      e.preventDefault();
-    } else if (e.key == "Escape") {
+      })
+      this.props.onUpdate(this.props.innerRef.current.innerText.trim())
+      this.props.innerRef.current.blur()
+      e.preventDefault()
+    } else if (e.key == 'Escape') {
       this.setState({
         editable: false,
         input: this.props.innerRef.current.innerText,
-      });
-      this.props.innerRef.current.blur();
-      e.preventDefault();
+      })
+      this.props.innerRef.current.blur()
+      e.preventDefault()
     }
+    return
   }
 
+  // TODO: Fix the return type
   // NOTE: We have to replace newlines with HTML breaks
-  getRawText() {
-    return { __html: this.state.input.replace(/\n/gi, "<br/>") };
+  getRawText(): {} {
+    return { __html: this.state.input.replace(/\n/gi, '<br/>') }
   }
 
-  getMarkdownText() {
-    return { __html: marked(this.state.input) };
+  // TODO: Fix the return type
+  getMarkdownText(): {} {
+    return { __html: marked(this.state.input) }
   }
 
-  handleFocus(e) {
+  handleFocus(e): void {
     // NOTE: Weirdly Chrome sometimes fires a focus event before a click
-    if (e.target.nodeName == "A") {
-      return;
+    if (e.target.nodeName == 'A') {
+      return
     }
     if (!this.state.editable) {
       this.setState({ editable: true }, () => {
-        setEndOfContenteditable(this.props.innerRef.current);
-      });
+        setEndOfContenteditable(this.props.innerRef.current)
+      })
     }
+    return
   }
 
-  render() {
+  render(): ReactElement {
     return (
       <ThemeProvider theme={theme}>
         <Container
@@ -152,12 +128,12 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
           }
         />
       </ThemeProvider>
-    );
+    )
   }
 }
 
 export default React.forwardRef(
-  (props, ref: React.RefObject<HTMLInputElement>) => (
+  (props: EditableTextProps, ref: React.RefObject<HTMLInputElement>) => (
     <EditableText innerRef={ref} {...props} />
-  )
-);
+  ),
+)

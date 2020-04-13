@@ -1,24 +1,10 @@
-import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import Select from "react-select";
-import { theme, selectStyles } from "../theme";
-import { format } from "date-fns";
-import { RRule } from "rrule";
-
-interface ContainerProps {
-  visible: boolean;
-}
-const Container = styled.div<ContainerProps>`
-  position: inline;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  height: 35px;
-  padding: 0px;
-  display: ${(props) => (!props.visible ? "none" : null)};
-  background-color: #fff;
-  width: 250px;
-`;
+import React, { Component, ReactElement } from 'react'
+import { ThemeProvider } from 'styled-components'
+import Select from 'react-select'
+import { theme, selectStyles } from '../theme'
+import { format } from 'date-fns'
+import { RRule } from 'rrule'
+import { Container } from './styled/RepeatPicker'
 
 const options = [
   {
@@ -26,7 +12,7 @@ const options = [
       freq: RRule.DAILY,
       interval: 1,
     }),
-    label: "Daily",
+    label: 'Daily',
   },
   {
     value: new RRule({
@@ -34,72 +20,71 @@ const options = [
       interval: 1,
       byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR],
     }),
-    label: "Weekdays",
+    label: 'Weekdays',
   },
   {
     value: new RRule({
       freq: RRule.WEEKLY,
       interval: 1,
     }),
-    label: "Weekly on " + format(new Date(), "EEE"),
+    label: 'Weekly on ' + format(new Date(), 'EEE'),
   },
   {
     value: new RRule({
       freq: RRule.MONTHLY,
       interval: 1,
     }),
-    label: "Monthly on the " + format(new Date(), "do"),
+    label: 'Monthly on the ' + format(new Date(), 'do'),
   },
 
-  { value: null, label: "None" },
-];
+  { value: null, label: 'None' },
+]
 
 interface RepeatPickerProps {
-  visible: boolean;
-  onSubmit: (value: RRule) => void;
-  onEscape?: () => void;
-  placeholder: string;
+  onSubmit: (value: RRule) => void
+  onEscape?: () => void
+  placeholder: string
 }
 interface RepeatPickerState {
-  selectedOption: {};
-  dayPickerVisible: boolean;
+  selectedOption: {}
+  dayPickerVisible: boolean
 }
 
 class RepeatPicker extends Component<RepeatPickerProps, RepeatPickerState> {
-  private selectRef: React.RefObject<HTMLInputElement>;
   constructor(props) {
-    super(props);
-    this.state = { selectedOption: null, dayPickerVisible: false };
-    this.handleChange = this.handleChange.bind(this);
-    this.selectRef = React.createRef();
+    super(props)
+    this.state = { selectedOption: null, dayPickerVisible: false }
+    this.handleChange = this.handleChange.bind(this)
+    this.selectRef = React.createRef()
   }
-  componentDidUpdate(prevProps) {
+
+  componentDidUpdate(prevProps): void {
     if (prevProps.visible !== this.props.visible && this.props.visible) {
-      this.selectRef.current.focus();
+      this.selectRef.current.focus()
     }
+    return
   }
 
-  handleChange(newValue, actionMeta) {
-    if (actionMeta.action == "select-option") {
-      this.props.onSubmit(newValue.value);
+  handleChange(newValue, actionMeta): void {
+    if (actionMeta.action == 'select-option') {
+      this.props.onSubmit(newValue.value)
     }
+    return
   }
 
-  render() {
+  render(): ReactElement {
     return (
       <ThemeProvider theme={theme}>
-        <Container visible={this.props.visible}>
+        <Container>
           <Select
-            ref={this.selectRef}
-            tabIndex={0}
-            autoFocus
+            autoFocus={true}
             placeholder={this.props.placeholder}
             value={this.state.selectedOption}
             onChange={this.handleChange}
             options={options}
-            onKeyDown={(e: KeyboardEvent) => {
-              if (e.key == "Escape") {
-                this.props.onEscape();
+            onKeyDown={(e) => {
+              if (e.key == 'Escape') {
+                this.props.onEscape()
               }
             }}
             styles={selectStyles}
@@ -107,8 +92,8 @@ class RepeatPicker extends Component<RepeatPickerProps, RepeatPickerState> {
           />
         </Container>
       </ThemeProvider>
-    );
+    )
   }
 }
 
-export default RepeatPicker;
+export default RepeatPicker

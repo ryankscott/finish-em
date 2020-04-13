@@ -1,18 +1,18 @@
-import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { Manager, Reference, Popper } from "react-popper";
+import React, { Component, ReactElement } from 'react'
+import styled, { ThemeProvider } from 'styled-components'
+import { Manager, Reference, Popper } from 'react-popper'
 
-import { theme } from "../theme";
-import { Button } from "./Button";
+import { theme } from '../theme'
+import { Button } from './Button'
 
 // TODO: How to animate this without blocking other clicks display: none hides it but won't animate
 interface ContainerProps {
-  visible: boolean;
+  visible: boolean
 }
 const Container = styled.div<ContainerProps>`
   position: absolute;
   box-sizing: border-box;
-  display: ${(props) => (props.visible ? "flex" : "none")};
+  display: ${(props) => (props.visible ? 'flex' : 'none')};
   flex-direction: column;
   width: 200px;
   background-color: ${(props) =>
@@ -24,7 +24,7 @@ const Container = styled.div<ContainerProps>`
   margin: 2px;
   transition: all 0.1s ease-in-out;
   z-index: 99;
-`;
+`
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -32,68 +32,73 @@ const HeaderContainer = styled.div`
   width: 100%;
   margin: 0px;
   padding: 0px;
-`;
+`
 
 const BodyContainer = styled.div`
   margin: 0px;
   padding: 5px;
-`;
+`
 
 export interface InlineDialogProps {
-  isOpen: boolean;
-  onOpen: () => void;
-  onClose: () => void;
+  isOpen: boolean
+  onOpen: () => void
+  onClose: () => void
   placement:
-    | "auto"
-    | "auto-start"
-    | "auto-end"
-    | "top"
-    | "top-start"
-    | "top-end"
-    | "bottom"
-    | "bottom-start"
-    | "bottom-end"
-    | "right"
-    | "right-start"
-    | "right-end"
-    | "left"
-    | "left-start"
-    | "left-end";
-  content: Element;
+    | 'auto'
+    | 'auto-start'
+    | 'auto-end'
+    | 'top'
+    | 'top-start'
+    | 'top-end'
+    | 'bottom'
+    | 'bottom-start'
+    | 'bottom-end'
+    | 'right'
+    | 'right-start'
+    | 'right-end'
+    | 'left'
+    | 'left-start'
+    | 'left-end'
+  content: ReactElement
 }
-interface InlineDialogState {}
-class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
-  private node: React.RefObject<HTMLInputElement>;
+
+// TODO: Replace this with the react-tooltip?
+class InlineDialog extends Component<InlineDialogProps, {}> {
+  private node: React.RefObject<any>
   constructor(props) {
-    super(props);
-    this.handleClick = this.handleClick.bind(this);
-    this.node = React.createRef();
+    super(props)
+    this.handleClick = this.handleClick.bind(this)
+    this.node = React.createRef()
   }
-  componentDidMount() {
-    document.addEventListener("mousedown", this.handleClick, false);
+  componentDidMount(): void {
+    document.addEventListener('mousedown', this.handleClick, false)
+    return
   }
-  componentWillUnount() {
-    document.removeEventListener("mousedown", this.handleClick, false);
+  componentWillUnount(): void {
+    document.removeEventListener('mousedown', this.handleClick, false)
+    return
   }
   // TODO: Fix this with refs
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps): void {
     if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-      this.props.onOpen();
+      this.props.onOpen()
     }
+    return
   }
 
-  handleClick(e) {
+  handleClick(e): void {
     // Don't close if we're clicking on the dialog
     if (e && this.node.current && this.node.current.contains(e.target)) {
-      return;
+      return
     }
     // Only close if it's currently open
     if (this.props.isOpen) {
-      this.props.onClose();
+      this.props.onClose()
     }
+    return
   }
 
-  render() {
+  render(): ReactElement {
     return (
       <Manager>
         <Reference>
@@ -120,8 +125,8 @@ class InlineDialog extends Component<InlineDialogProps, InlineDialogState> {
           )}
         </Popper>
       </Manager>
-    );
+    )
   }
 }
 
-export default InlineDialog;
+export default InlineDialog

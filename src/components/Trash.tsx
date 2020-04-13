@@ -1,28 +1,14 @@
-import React from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { connect } from "react-redux";
+import React, { ReactElement } from 'react'
+import { ThemeProvider } from 'styled-components'
+import { connect } from 'react-redux'
 
-import { theme } from "../theme";
-import { Title } from "./Typography";
-import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
-import { RenderingStrategy } from "./ItemList";
+import { theme } from '../theme'
+import { Title } from './Typography'
+import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
+import { RenderingStrategy } from './ItemList'
+import { HeaderContainer, TrashContainer } from './styled/Trash'
 
-const TrashContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 50px 50px;
-  padding-bottom: 50px;
-  width: 675px;
-`;
-
-const HeaderContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: baseline;
-`;
-
-const Trash = () => (
+const Trash = (): ReactElement => (
   <ThemeProvider theme={theme}>
     <TrashContainer>
       <HeaderContainer>
@@ -36,10 +22,10 @@ const Trash = () => (
       />
     </TrashContainer>
   </ThemeProvider>
-);
+)
 
 const mapStateToProps = (state) => ({
   items: state.items,
-});
-const mapDispatchToProps = (dispatch) => ({});
-export default connect(mapStateToProps, mapDispatchToProps)(Trash);
+})
+const mapDispatchToProps = (dispatch) => ({})
+export default connect(mapStateToProps, mapDispatchToProps)(Trash)

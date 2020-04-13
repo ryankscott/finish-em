@@ -1,29 +1,24 @@
-import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { connect } from "react-redux";
-import { theme } from "../theme";
-import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
-import QuickAdd from "./QuickAdd";
-import { Header1, Title } from "./Typography";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 50px 0px 0px 50px;
-  width: 675px;
-`;
+import React, { Component, ReactElement } from 'react'
+import { ThemeProvider } from 'styled-components'
+import { connect } from 'react-redux'
+import { theme } from '../theme'
+import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
+import QuickAdd from './QuickAdd'
+import { Header1, Title } from './Typography'
+import { Container } from './styled/Inbox'
 
 class Inbox extends Component {
   constructor(props) {
-    super(props);
+    super(props)
   }
   // TODO: Hack fix to stop React crashing
   // https://github.com/facebook/draft-js/issues/1320
-  componentDidCatch() {
-    this.forceUpdate();
+  componentDidCatch(): void {
+    this.forceUpdate()
+    return
   }
 
-  render() {
+  render(): ReactElement {
     return (
       <ThemeProvider theme={theme}>
         <Container>
@@ -38,12 +33,12 @@ class Inbox extends Component {
           />
         </Container>
       </ThemeProvider>
-    );
+    )
   }
 }
 
 const mapStateToProps = (state) => ({
   items: state.items,
-});
-const mapDispatchToProps = (dispatch) => ({});
-export default connect(mapStateToProps, mapDispatchToProps)(Inbox);
+})
+const mapDispatchToProps = (dispatch) => ({})
+export default connect(mapStateToProps, mapDispatchToProps)(Inbox)

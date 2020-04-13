@@ -1,38 +1,27 @@
-import React from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { connect } from "react-redux";
-import InlineDialog from "./InlineDialog";
+import React, { ReactElement } from 'react'
+import { ThemeProvider } from 'styled-components'
+import { connect } from 'react-redux'
+import InlineDialog from './InlineDialog'
 
-import { Header2, Paragraph } from "./Typography";
-import { theme } from "../theme";
-import { Button } from "./Button";
-import { toggleDeleteProjectDialog, hideDeleteProjectDialog } from "../actions";
+import { Header2, Paragraph } from './Typography'
+import { theme } from '../theme'
+import { Button } from './Button'
+import { toggleDeleteProjectDialog, hideDeleteProjectDialog } from '../actions'
+import { BodyContainer, ActionContainer } from './styled/DeleteProjectDialog'
 
-const BodyContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 0px;
-  padding: 5px;
-  margin-bottom: 10px;
-`;
-
-const ActionContainer = styled.div`
-  display: flex;
-  flex-direction: flex-end;
-`;
 export interface DeleteProjectDialogProps {
-  visible?: boolean;
-  onDelete: () => void;
-  closeDeleteProjectDialog?: () => void;
-  toggleDeleteProjectDialog?: () => void;
+  visible?: boolean
+  onDelete: () => void
+  closeDeleteProjectDialog?: () => void
+  toggleDeleteProjectDialog?: () => void
 }
 
-const DeleteProjectDialog = (props: DeleteProjectDialogProps) => {
+const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
   return (
     <ThemeProvider theme={theme}>
       <InlineDialog
         onClose={() => props.closeDeleteProjectDialog()}
-        placement={"bottom-start"}
+        placement={'bottom-start'}
         isOpen={props.visible}
         onOpen={() => {}}
         content={
@@ -67,23 +56,20 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps) => {
         </Button>
       </InlineDialog>
     </ThemeProvider>
-  );
-};
+  )
+}
 
 const mapStateToProps = (state) => ({
   visible: state.ui.deleteProjectDialogVisible,
-});
+})
 
 const mapDispatchToProps = (dispatch) => ({
   closeDeleteProjectDialog: () => {
-    dispatch(hideDeleteProjectDialog());
+    dispatch(hideDeleteProjectDialog())
   },
   toggleDeleteProjectDialog: () => {
-    dispatch(toggleDeleteProjectDialog());
+    dispatch(toggleDeleteProjectDialog())
   },
-});
+})
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DeleteProjectDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(DeleteProjectDialog)

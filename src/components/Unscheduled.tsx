@@ -1,21 +1,14 @@
-import React from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { connect } from "react-redux";
+import React, { ReactElement } from 'react'
+import { ThemeProvider } from 'styled-components'
+import { connect } from 'react-redux'
 
-import { theme } from "../theme";
-import { Title } from "./Typography";
-import FilteredItemList, { FilterEnum } from "../containers/FilteredItemList";
-import { RenderingStrategy } from "./ItemList";
+import { theme } from '../theme'
+import { Title } from './Typography'
+import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
+import { RenderingStrategy } from './ItemList'
+import { UnscheduledContainer } from './styled/Unscheduled'
 
-const UnscheduledContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 50px 50px;
-  padding-bottom: 50px;
-  width: 675px;
-`;
-
-const Unscheduled = () => (
+const Unscheduled = (): ReactElement => (
   <ThemeProvider theme={theme}>
     <UnscheduledContainer>
       <Title> Unscheduled </Title>
@@ -35,10 +28,10 @@ const Unscheduled = () => (
       />
     </UnscheduledContainer>
   </ThemeProvider>
-);
+)
 
 const mapStateToProps = (state) => ({
   items: state.items,
-});
-const mapDispatchToProps = (dispatch) => ({});
-export default connect(mapStateToProps, mapDispatchToProps)(Unscheduled);
+})
+const mapDispatchToProps = (dispatch) => ({})
+export default connect(mapStateToProps, mapDispatchToProps)(Unscheduled)

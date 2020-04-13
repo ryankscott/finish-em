@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const CompletedContainer = styled.div`
+export const TrashContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin: 50px 50px;

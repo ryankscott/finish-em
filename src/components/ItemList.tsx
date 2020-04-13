@@ -1,32 +1,21 @@
-import React from "react";
-import Item from "./Item";
-import styled, { ThemeProvider } from "styled-components";
-import { theme } from "../theme";
-import { item as itemKeymap } from "../keymap";
-import { ItemType } from "../interfaces";
-import { getItemById } from "../utils";
-
-const NoItemText = styled.p`
-  color: ${(props) => props.theme.colours.disabledTextColour};
-  font-family: ${(props) => props.theme.font.sansSerif};
-  font-size: ${(props) => props.theme.fontSizes.small};
-  padding-left: 10px;
-`;
-
-const Container = styled.div`
-  width: 100%;
-  margin: 10px 0px;
-`;
+import React, { ReactElement } from 'react'
+import Item from './Item'
+import { ThemeProvider } from 'styled-components'
+import { theme } from '../theme'
+import { item as itemKeymap } from '../keymap'
+import { ItemType } from '../interfaces'
+import { getItemById } from '../utils'
+import { Container, NoItemText } from './styled/ItemList'
 
 export enum RenderingStrategy {
-  Default = "DEFAULT",
-  All = "ALL",
+  Default = 'DEFAULT',
+  All = 'ALL',
 }
 
 interface ItemListProps {
-  items: ItemType[];
-  showProject: boolean;
-  renderingStrategy?: RenderingStrategy;
+  items: ItemType[]
+  showProject: boolean
+  renderingStrategy?: RenderingStrategy
 }
 
 /* We need two strategies for rendering items:
@@ -41,18 +30,18 @@ interface ItemListProps {
   -  
 
 */
-const ItemList = (props: ItemListProps) => {
+const ItemList = (props: ItemListProps): ReactElement => {
   return (
     <ThemeProvider theme={theme}>
       <Container>
         {props.items.map((item) => {
-          if (item == undefined) return;
+          if (item == undefined) return
 
           switch (props.renderingStrategy) {
-            case "DEFAULT":
-              if (item.parentId != null) return;
+            case 'DEFAULT':
+              if (item.parentId != null) return
               return (
-                <div key={"container-" + item.id}>
+                <div key={'container-' + item.id}>
                   <Item
                     {...item}
                     key={item.id}
@@ -61,14 +50,14 @@ const ItemList = (props: ItemListProps) => {
                     keymap={itemKeymap}
                   />
                 </div>
-              );
-            case "ALL":
+              )
+            case 'ALL':
               if (item.parentId != null) {
-                const parent = getItemById(item.parentId, props.items);
-                if (parent) return null;
+                const parent = getItemById(item.parentId, props.items)
+                if (parent) return null
               }
               return (
-                <div key={"container-" + item.id}>
+                <div key={'container-' + item.id}>
                   <Item
                     {...item}
                     key={item.id}
@@ -77,11 +66,11 @@ const ItemList = (props: ItemListProps) => {
                     keymap={itemKeymap}
                   />
                 </div>
-              );
+              )
             default:
-              if (item.parentId != null) return;
+              if (item.parentId != null) return
               return (
-                <div key={"container-" + item.id}>
+                <div key={'container-' + item.id}>
                   <Item
                     {...item}
                     key={item.id}
@@ -90,13 +79,13 @@ const ItemList = (props: ItemListProps) => {
                     keymap={itemKeymap}
                   />
                 </div>
-              );
+              )
           }
         })}
         {props.items.length == 0 && <NoItemText>No items</NoItemText>}
       </Container>
     </ThemeProvider>
-  );
-};
+  )
+}
 
-export default ItemList;
+export default ItemList

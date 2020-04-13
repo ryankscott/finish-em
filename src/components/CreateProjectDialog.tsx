@@ -1,18 +1,18 @@
-import React, { Component } from "react";
-import styled, { ThemeProvider } from "styled-components";
-import { connect } from "react-redux";
-import uuidv4 from "uuid/v4";
-import { Uuid } from "@typed/uuid";
+import React, { Component, ReactElement } from 'react'
+import styled, { ThemeProvider } from 'styled-components'
+import { connect } from 'react-redux'
+import uuidv4 from 'uuid/v4'
+import { Uuid } from '@typed/uuid'
 
-import { Header2 } from "./Typography";
-import { theme } from "../theme";
+import { Header2 } from './Typography'
+import { theme } from '../theme'
 import {
   createProject,
   toggleCreateProjectDialog,
   hideCreateProjectDialog,
-} from "../actions";
-import { Button } from "./Button";
-import InlineDialog from "./InlineDialog";
+} from '../actions'
+import { Button } from './Button'
+import InlineDialog from './InlineDialog'
 
 const StyledInput = styled.input`
   font-size: ${(props) => props.theme.fontSizes.xsmall};
@@ -20,60 +20,63 @@ const StyledInput = styled.input`
   margin: 2px 2px;
   height: 25px;
   width: 150px;
-`;
+`
 
 const BodyContainer = styled.div`
   display: flex;
   flex-direction: column;
   margin: 5px 0px;
   padding: 0px 0px 10px 0px;
-`;
+`
 
 export interface CreateProjectDialogProps {
-  visible: boolean;
-  createProject: (id: Uuid, name: string, description: string) => void;
-  closeCreateProjectDialog: () => void;
-  toggleCreateProjectDialog: () => void;
+  visible: boolean
+  createProject: (id: Uuid, name: string, description: string) => void
+  closeCreateProjectDialog: () => void
+  toggleCreateProjectDialog: () => void
 }
 interface CreateProjectDialogState {
-  projectName: string;
-  projectDescription: string;
+  projectName: string
+  projectDescription: string
 }
 class CreateProjectDialog extends Component<
   CreateProjectDialogProps,
   CreateProjectDialogState
 > {
-  private createProjectInput: React.RefObject<HTMLInputElement>;
+  private createProjectInput: React.RefObject<HTMLInputElement>
   constructor(props) {
-    super(props);
+    super(props)
     this.state = {
-      projectName: "",
-      projectDescription: "",
-    };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.createProjectInput = React.createRef();
+      projectName: '',
+      projectDescription: '',
+    }
+    this.handleChange = this.handleChange.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this)
+    this.createProjectInput = React.createRef()
   }
-  handleChange(e) {
-    e.target.id == "createProjectName"
+  handleChange(e): void {
+    e.target.id == 'createProjectName'
       ? this.setState({ projectName: e.target.value })
-      : this.setState({ projectDescription: e.target.value });
+      : this.setState({ projectDescription: e.target.value })
+    return
   }
 
-  handleSubmit() {
-    const { projectName, projectDescription } = this.state;
-    if (projectName == "") return;
-    this.setState({ projectName: "", projectDescription: "" });
-    const projectId = uuidv4();
-    this.props.createProject(projectId, projectName, projectDescription);
+  handleSubmit(): void {
+    const { projectName, projectDescription } = this.state
+    // Don't allow submitting blank project names
+    if (projectName == '') return
+    this.setState({ projectName: '', projectDescription: '' })
+    const projectId = uuidv4()
+    this.props.createProject(projectId, projectName, projectDescription)
+    return
   }
 
-  render() {
+  render(): ReactElement {
     return (
       <ThemeProvider theme={theme}>
         <InlineDialog
           onClose={() => this.props.closeCreateProjectDialog()}
-          placement={"bottom-start"}
+          placement={'bottom-start'}
           isOpen={this.props.visible}
           onOpen={() => this.createProjectInput.current.focus()}
           content={
@@ -119,28 +122,25 @@ class CreateProjectDialog extends Component<
           </Button>
         </InlineDialog>
       </ThemeProvider>
-    );
+    )
   }
 }
 
 const mapStateToProps = (state) => ({
   visible: state.ui.createProjectDialogVisible,
-});
+})
 
 const mapDispatchToProps = (dispatch) => ({
-  createProject: (id, name, description) => {
-    dispatch(createProject(id, name, description));
-    dispatch(hideCreateProjectDialog());
+  createProject: (id: Uuid, name: string, description: string) => {
+    dispatch(createProject(id, name, description))
+    dispatch(hideCreateProjectDialog())
   },
   closeCreateProjectDialog: () => {
-    dispatch(hideCreateProjectDialog());
+    dispatch(hideCreateProjectDialog())
   },
   toggleCreateProjectDialog: () => {
-    dispatch(toggleCreateProjectDialog());
+    dispatch(toggleCreateProjectDialog())
   },
-});
+})
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CreateProjectDialog);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateProjectDialog)
