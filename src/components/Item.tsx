@@ -581,6 +581,11 @@ class Item extends Component<ItemProps, ItemState> {
                   type="repeat"
                   position="flex-end"
                   text={repeat}
+                  onClick={() =>
+                    this.setState({
+                      repeatDropdownVisible: !this.state.repeatDropdownVisible,
+                    })
+                  }
                 />
               </RepeatContainer>
             )}
