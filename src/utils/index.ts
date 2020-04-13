@@ -91,17 +91,6 @@ const voidNodeTags = [
   'ISINDEX',
 ]
 
-//From: https://stackoverflow.com/questions/237104/array-containsobj-in-javascript
-Array.prototype.contains = function (obj) {
-  let i = this.length
-  while (i--) {
-    if (this[i] === obj) {
-      return true
-    }
-  }
-  return false
-}
-
 //Basic idea from: https://stackoverflow.com/questions/19790442/test-if-an-element-can-contain-text
 function canContainText(node: Node) {
   if (node.nodeType == 1) {
@@ -162,7 +151,7 @@ export const getItemById = (id: Uuid, items: ItemType[]): ItemType => {
 export const getSubtasksFromTasks = (
   items: ItemType[],
   allItems: ItemType[],
-) => {
+): ItemType[] => {
   const itemsWithSubtasks = items.filter(
     (i) => i.children && i.children.length > 0,
   )
