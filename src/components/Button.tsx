@@ -75,7 +75,6 @@ export const Button = (props: ButtonProps): ReactElement => {
         height={props.height}
         width={props.width}
         onClick={props.onClick}
-        hasChildren={props.children != undefined}
         data-tip
         data-for={props.dataFor}
         tabIndex={-1 || props.tabIndex}

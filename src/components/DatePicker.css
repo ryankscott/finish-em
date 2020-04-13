@@ -5,8 +5,9 @@
   font-family: -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
   border: 1px solid #ccc;
   font-size: 0.875em;
-  background-color: #fff;
+  background-color: #fbfbfb;
   z-index: 2;
+  border-radius: 5px;
 }
 
 .DayPicker-wrapper {
@@ -126,6 +127,9 @@
   text-align: center;
   cursor: pointer;
 }
+.DayPicker-Day:hover {
+  background-color: #eaecec;
+}
 
 .DayPicker-WeekNumber {
   display: table-cell;
@@ -162,11 +166,9 @@
 
 .DayPicker-Day--selected:not(.DayPicker-Day--disabled):not(.DayPicker-Day--outside) {
   position: relative;
-
   background-color: #4a90e2;
   color: #f0f8ff;
 }
-
 /* Default modifiers */
 /*
 .DayPicker-Day--today {

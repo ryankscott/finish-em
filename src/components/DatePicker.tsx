@@ -7,7 +7,7 @@ import './DatePicker.css'
 import DayPicker from 'react-day-picker/DayPicker'
 import { Container } from './styled/DatePicker'
 
-const options = [
+const options: { value: string; label: string }[] = [
   { value: new Date().toISOString(), label: 'Today' },
   {
     value: add(new Date(), { days: 1 }).toISOString(),
@@ -27,7 +27,7 @@ const options = [
 ]
 
 export interface DatePickerProps {
-  onSubmit: (d: Date) => void
+  onSubmit: (d: string) => void
   onEscape?: () => void
   placeholder: string
 }
@@ -61,7 +61,7 @@ class DatePicker extends Component<DatePickerProps, DatePickerState> {
     this.setState({
       dayPickerVisible: false,
     })
-    this.props.onSubmit(day)
+    this.props.onSubmit(day.toISOString())
     return
   }
 

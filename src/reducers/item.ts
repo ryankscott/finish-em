@@ -202,7 +202,6 @@ export const itemReducer = (
       })
 
     case item.SET_DUE_DATE:
-      console.log(action)
       return state.map((i) => {
         if (i.id == action.id) {
           i.dueDate = action.date

@@ -336,7 +336,7 @@ class FilteredItemList extends Component<
               <Tooltip id="complete-button" text={'Toggle completed items'} />
             </CompletedContainer>
             <DeleteContainer
-              visible={sortedItems.length > 0 && !this.state.hideItemList}
+              visible={completedItems.length > 0 && !this.state.hideItemList}
             >
               <Button
                 dataFor="trash-button"

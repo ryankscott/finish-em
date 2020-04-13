@@ -52,7 +52,6 @@ interface ProjectWrapperProps {
 const ProjectWrapper = (props: ProjectWrapperProps): ReactElement => {
   const { id } = useParams()
   const project = props.projects.find((p) => p.id?.toString() === id)
-  console.log(project)
   return <Project project={project} />
 }
 
