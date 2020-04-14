@@ -45,6 +45,7 @@ import {
 } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
+import { withHotkeys } from './withHotkeys'
 
 interface ItemProps extends ItemType {
     noIndentOnSubtasks: boolean
@@ -69,7 +70,7 @@ interface ItemState {
     scheduledDateDropdownVisible: boolean
     dueDateDropdownVisible: boolean
     repeatDropdownVisible: boolean
-    descriptionEditable: boolean
+    isEditingDescription: boolean
     quickAddContainerVisible: boolean
     keyPresses: string[]
     hideChildren: boolean
@@ -87,8 +88,8 @@ class Item extends Component<ItemProps, ItemState> {
             scheduledDateDropdownVisible: false,
             dueDateDropdownVisible: false,
             repeatDropdownVisible: false,
-            descriptionEditable: false,
             quickAddContainerVisible: false,
+            isEditingDescription: false,
             hideChildren: true,
             keyPresses: [],
         }
@@ -255,12 +256,14 @@ class Item extends Component<ItemProps, ItemState> {
                         projectDropdownVisible: false,
                         dueDateDropdownVisible: false,
                         scheduledDateDropdownVisible: false,
-                        descriptionEditable: false,
                         repeatDropdownVisible: false,
                     })
                     this.container.current.focus()
                 },
                 EDIT_ITEM_DESC: (event) => {
+                    this.setState({
+                        isEditingDescription: true,
+                    })
                     this.editor.current.focus()
                     event.preventDefault()
                 },
@@ -355,7 +358,6 @@ class Item extends Component<ItemProps, ItemState> {
                         projectDropdownVisible: false,
                         dueDateDropdownVisible: false,
                         scheduledDateDropdownVisible: false,
-                        descriptionEditable: false,
                         repeatDropdownVisible: false,
                     })
                 },
@@ -420,6 +422,8 @@ class Item extends Component<ItemProps, ItemState> {
 
     // TODO: Refactor the shit out of this
     handleKeyPress(event: KeyboardEvent<HTMLDivElement>): void {
+        // Don't handle key presses if we're editing the description
+        if (this.state.isEditingDescription) return
         let currentKeyPresses = this.state.keyPresses
         // Remove the first value in the array (3 is the max shortcut matching length)
         currentKeyPresses =
@@ -427,7 +431,6 @@ class Item extends Component<ItemProps, ItemState> {
                 ? currentKeyPresses.slice(1)
                 : currentKeyPresses
         currentKeyPresses.push(event.key)
-
         // Clear keypress history if using the arrow keys. Enables quick scrolling
         if (event.key == 'ArrowUp' || event.key == 'ArrowDown') {
             setTimeout(() => {
@@ -542,10 +545,17 @@ class Item extends Component<ItemProps, ItemState> {
                             <EditableText
                                 innerRef={this.editor}
                                 readOnly={this.props.completed}
+                                onEditingChange={(editing) =>
+                                    this.setState({
+                                        isEditingDescription: editing,
+                                    })
+                                }
                                 input={removeItemTypeFromString(
                                     this.props.text,
                                 )}
-                                onUpdate={this.handleDescriptionChange}
+                                onUpdate={(text) =>
+                                    this.handleDescriptionChange(text)
+                                }
                                 singleline={true}
                             />
                         </Body>
@@ -566,13 +576,14 @@ class Item extends Component<ItemProps, ItemState> {
                                     type="scheduled"
                                     position="flex-start"
                                     text={scheduledDate}
-                                    onClick={() =>
+                                    onClick={() => {
+                                        if (this.props.completed) return
                                         this.setState({
                                             scheduledDateDropdownVisible: !this
                                                 .state
                                                 .scheduledDateDropdownVisible,
                                         })
-                                    }
+                                    }}
                                 />
                             </ScheduledContainer>
                         )}
@@ -583,12 +594,13 @@ class Item extends Component<ItemProps, ItemState> {
                                     type="due"
                                     position="center"
                                     text={dueDate}
-                                    onClick={() =>
+                                    onClick={() => {
+                                        if (this.props.completed) return
                                         this.setState({
                                             dueDateDropdownVisible: !this.state
                                                 .dueDateDropdownVisible,
                                         })
-                                    }
+                                    }}
                                 />
                             </DueContainer>
                         )}
@@ -599,12 +611,13 @@ class Item extends Component<ItemProps, ItemState> {
                                     type="repeat"
                                     position="flex-end"
                                     text={repeat}
-                                    onClick={() =>
+                                    onClick={() => {
+                                        if (this.props.completed) return
                                         this.setState({
                                             repeatDropdownVisible: !this.state
                                                 .repeatDropdownVisible,
                                         })
-                                    }
+                                    }}
                                 />
                             </RepeatContainer>
                         )}
@@ -740,4 +753,4 @@ const mapDispatchToProps = (dispatch) => ({
     },
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(Item)
+export default connect(mapStateToProps, mapDispatchToProps)(withHotkeys(Item))
