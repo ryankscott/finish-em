@@ -41,6 +41,7 @@
     "@typescript-eslint/parser": "^2.27.0",
     "autoprefixer": "^9.7.4",
     "babel-jest": "^25.2.3",
+    "cypress": "^4.3.0",
     "electron": "^7.1.7",
     "electron-builder": "^21.2.0",
     "electron-devtools-installer": "^2.2.4",

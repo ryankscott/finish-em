@@ -6,23 +6,23 @@ import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
 
 interface QuickAddProps {
-  projectId?: Uuid
-  onSubmit: (text: string, projectId: Uuid) => void
+    projectId?: Uuid
+    onSubmit: (text: string, projectId: Uuid) => void
 }
 const QuickAdd = (props: QuickAddProps): ReactElement => (
-  <EditableItem
-    text=""
-    onSubmit={(text) => props.onSubmit(text, props.projectId)}
-    readOnly={false}
-  />
+    <EditableItem
+        text=""
+        onSubmit={(text) => props.onSubmit(text, props.projectId)}
+        readOnly={false}
+    />
 )
 
 const mapStateToProps = (state) => ({})
 
 const mapDispatchToProps = (dispatch) => ({
-  onSubmit: (text: string, projectId: Uuid) => {
-    dispatch(createItem(uuidv4(), text, projectId, null))
-  },
+    onSubmit: (text: string, projectId: Uuid) => {
+        dispatch(createItem(uuidv4(), text, projectId, null))
+    },
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(QuickAdd)
