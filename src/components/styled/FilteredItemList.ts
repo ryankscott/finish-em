@@ -22,23 +22,28 @@ export const FilterBar = styled.div`
     height: 40px;
     transition: 0.2s ease-in-out;
 `
+export const SortIcon = styled.div`
+    padding-right: 35px;
+`
 
 export const SortContainer = styled.div`
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     grid-area: sort;
     position: relative;
     width: 100%;
     transition: 0.2s ease-in-out;
 `
+
 export const SortSelect = styled(Select)`
-    width: 110px;
+    width: 123px;
     caret-color: transparent;
-    padding: 0px 5px;
+    padding: 0px 2px;
     position: absolute;
-    display: 'flex' 
+    display: 'flex';
     flex-direction: column;
-    top: -8px;
+    top: -11px;
+    right: 0px;
 `
 
 export const DeleteContainer = styled.div`

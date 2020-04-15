@@ -22,8 +22,8 @@ export const StyledButton = styled.button<StyledProps>`
             : props.spacing === 'compact'
             ? '5px 8px'
             : '8px 10px'};
-    height: ${(props) => (props.width ? props.width : 'auto')};
-    width: ${(props) => (props.height ? props.height : 'auto')};
+    width: ${(props) => (props.width ? props.width : 'auto')};
+    height: ${(props) => (props.height ? props.height : 'auto')};
     margin: 2px;
     border: none;
     border-radius: 5px;

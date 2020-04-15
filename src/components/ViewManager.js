@@ -4,30 +4,30 @@ import App from './App'
 import QuickAdd from './QuickAdd'
 
 class ViewManager extends Component {
-  static Views() {
-    return {
-      main: <App />,
-      quickAdd: <QuickAdd />,
+    static Views() {
+        return {
+            main: <App />,
+            quickAdd: <QuickAdd />,
+        }
     }
-  }
 
-  static View(props) {
-    const name = props.location.search.substr(1)
-    if (name == '') {
-      return ViewManager.Views()['main']
+    static View(props) {
+        const name = props.location.search.substr(1)
+        if (name == '') {
+            return ViewManager.Views()['main']
+        }
+        const view = ViewManager.Views()[name]
+        if (view == null) throw new Error("View '" + name + "' is undefined")
+        return view
     }
-    const view = ViewManager.Views()[name]
-    if (view == null) throw new Error("View '" + name + "' is undefined")
-    return view
-  }
 
-  render() {
-    return (
-      <Router>
-        <Route path="/" component={ViewManager.View} />
-      </Router>
-    )
-  }
+    render() {
+        return (
+            <Router>
+                <Route path="/" component={ViewManager.View} />
+            </Router>
+        )
+    }
 }
 
 export default ViewManager

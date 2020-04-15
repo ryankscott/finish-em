@@ -70,6 +70,36 @@ export const theme = {
     },
 }
 
+export const sortPlaceholderStyles = (base, state) => ({
+    ...base,
+    display: 'flex',
+    alignContent: 'center',
+    justifyContent: 'space-between',
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.xsmall,
+    color: theme.colours.defaultTextColour,
+    border: '0px',
+})
+
+export const sortControlStyles = (base, state) => ({
+    ...base,
+    width: '100%',
+    margin: 0,
+    padding: 0,
+    fontFamily: theme.font.sansSerif,
+    fontSize: theme.fontSizes.xsmall,
+    backgroundColor: state.isFocused
+        ? theme.button.default.hoverBackgroundColour
+        : theme.colours.backgroundColour,
+    border: '0px',
+    borderRadius: '5px',
+    boxShadow: 'none',
+    zIndex: 2,
+    '&:hover': {
+        backgroundColor: theme.button.default.hoverBackgroundColour,
+    },
+})
+
 export const selectStyles = {
     container: () => ({
         zIndex: 2,

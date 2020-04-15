@@ -17,6 +17,7 @@ import {
     trashIcon,
     hideIcon,
     showIcon,
+    sortIcon,
 } from '../assets/icons'
 
 const iconMapping = {
@@ -34,6 +35,7 @@ const iconMapping = {
     trash: trashIcon(),
     hide: hideIcon(),
     show: showIcon(),
+    sort: sortIcon(),
 }
 
 // TODO: Change width and height to strings
@@ -41,7 +43,7 @@ export interface ButtonProps {
     onClick: () => void
     spacing?: 'compact' | 'default'
     type: 'primary' | 'error' | 'default' | 'invert'
-    children?: React.ReactChild
+    text?: string
     tabIndex?: number
     dataFor?: string
     width?: string
@@ -61,6 +63,7 @@ export interface ButtonProps {
         | 'trash'
         | 'show'
         | 'hide'
+        | 'sort'
 }
 
 const getTheme = (type: string): {} => {
@@ -78,13 +81,13 @@ export const Button = (props: ButtonProps): ReactElement => {
                 data-tip
                 data-for={props.dataFor}
                 tabIndex={-1 || props.tabIndex}
-                iconOnly={props.icon && !props.children}
+                iconOnly={props.icon && !props.text}
             >
                 <Contents>
                     {props.icon && <Icon>{iconMapping[props.icon]}</Icon>}
-                    {props.children && (
+                    {props.text && (
                         <Text hasIcon={props.icon != undefined}>
-                            {props.children}
+                            {props.text}
                         </Text>
                     )}
                 </Contents>

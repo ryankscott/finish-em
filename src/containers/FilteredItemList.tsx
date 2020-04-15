@@ -8,7 +8,11 @@ import {
     parseISO,
     isValid,
 } from 'date-fns'
-import { selectStyles } from '../theme'
+import {
+    selectStyles,
+    sortControlStyles,
+    sortPlaceholderStyles,
+} from '../theme'
 import { Header1, Paragraph } from '../components/Typography'
 import { ItemType } from '../interfaces'
 import { Uuid } from '@typed/uuid'
@@ -22,11 +26,14 @@ import {
     SortSelect,
     DeleteContainer,
     ItemListContainer,
+    SortIcon,
 } from '../components/styled/FilteredItemList'
 import { connect } from 'react-redux'
 import { Button } from '../components/Button'
 import { Tooltip } from '../components/Tooltip'
 import { deleteItem } from '../actions/item'
+import { components } from 'react-select'
+import { sortIcon } from '../assets/icons'
 
 /*
 If compareFunction(a, b) returns less than 0, sort a to an index lower than b (i.e. a comes first).
@@ -188,11 +195,11 @@ const filterItems = (
 }
 
 const options = [
-    { value: 'DUE_DESC', label: 'Due ⬇️' },
-    { value: 'DUE_ASC', label: 'Due️ ⬆️' },
-    { value: 'SCHEDULED_ASC', label: 'Scheduled ⬆️️' },
-    { value: 'SCHEDULED_DESC', label: 'Scheduled ⬇️' },
-    { value: 'STATUS', label: 'Status ✅' },
+    { value: 'DUE_DESC', label: 'Due Desc' },
+    { value: 'DUE_ASC', label: 'Due️ Asc' },
+    { value: 'SCHEDULED_ASC', label: 'Scheduled Asc️' },
+    { value: 'SCHEDULED_DESC', label: 'Scheduled Desc' },
+    { value: 'STATUS', label: 'Completed' },
 ]
 
 export enum FilterEnum {
@@ -384,16 +391,16 @@ class FilteredItemList extends Component<
                                 {sortedItems.length > 0 &&
                                     !this.state.hideItemList && (
                                         <SortContainer>
+                                            <SortIcon>{sortIcon()}</SortIcon>
                                             <SortSelect
                                                 options={options}
-                                                defaultValue={
-                                                    this.props
-                                                        .defaultSortOrder ||
-                                                    options[0]
-                                                }
-                                                autoFocus={false}
-                                                placeholder={'Sort by:'}
-                                                styles={selectStyles}
+                                                autoFocus={true}
+                                                placeholder="Sort"
+                                                styles={{
+                                                    ...selectStyles,
+                                                    placeholder: sortPlaceholderStyles,
+                                                    control: sortControlStyles,
+                                                }}
                                                 onChange={(e) => {
                                                     this.setState({
                                                         sortCriteria: e.value,
