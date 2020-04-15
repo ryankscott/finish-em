@@ -391,7 +391,7 @@ class FilteredItemList extends Component<
                                                         .defaultSortOrder ||
                                                     options[0]
                                                 }
-                                                autoFocus={true}
+                                                autoFocus={false}
                                                 placeholder={'Sort by:'}
                                                 styles={selectStyles}
                                                 onChange={(e) => {
