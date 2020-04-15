@@ -318,7 +318,7 @@ class FilteredItemList extends Component<
                             width="24px"
                             height="24px"
                             icon={
-                                this.state.hideItemList ? 'collapse' : 'expand'
+                                this.state.hideItemList ? 'expand' : 'collapse'
                             }
                             onClick={() =>
                                 this.setState({
