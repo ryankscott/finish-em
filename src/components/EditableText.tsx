@@ -46,7 +46,9 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
             editable: false,
             input: this.props.innerRef.current.innerText,
         })
-        this.props.onEditingChange(false)
+        if (this.props.onEditingChange) {
+            this.props.onEditingChange(false)
+        }
         this.props.onUpdate(this.props.innerRef.current.innerText)
         return
     }
@@ -60,7 +62,9 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
         // Ignore clicks if it's already editable
         if (this.state.editable) return
         this.setState({ editable: true })
-        this.props.onEditingChange(true)
+        if (this.props.onEditingChange) {
+            this.props.onEditingChange(true)
+        }
         return
     }
 
@@ -71,7 +75,9 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
                 editable: false,
                 input: this.props.innerRef.current.innerText.trim(),
             })
-            this.props.onEditingChange(false)
+            if (this.props.onEditingChange) {
+                this.props.onEditingChange(false)
+            }
             this.props.onUpdate(this.props.innerRef.current.innerText.trim())
             this.props.innerRef.current.blur()
             e.preventDefault()
@@ -80,7 +86,9 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
                 editable: false,
                 input: this.props.innerRef.current.innerText,
             })
-            this.props.onEditingChange(false)
+            if (this.props.onEditingChange) {
+                this.props.onEditingChange(false)
+            }
             this.props.innerRef.current.blur()
             e.preventDefault()
         }
@@ -110,7 +118,10 @@ class EditableText extends Component<EditableTextProps, EditableTextState> {
             this.setState({ editable: true }, () => {
                 setEndOfContenteditable(this.props.innerRef.current)
             })
-            this.props.onEditingChange(true)
+
+            if (this.props.onEditingChange) {
+                this.props.onEditingChange(true)
+            }
         }
         return
     }
