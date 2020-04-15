@@ -261,7 +261,9 @@ class FilteredItemList extends Component<
     deleteCompletedItems(): void {
         const { completedItems } = this.getFilteredItems()
         completedItems.map((c) => {
-            this.props.deleteItem(c.id)
+            if (c.parentId == null) {
+                this.props.deleteItem(c.id)
+            }
         })
         return
     }
