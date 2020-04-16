@@ -388,7 +388,7 @@ class FilteredItemList extends Component<
                                             />
                                         </DeleteContainer>
                                     )}
-                                {sortedItems.length > 0 &&
+                                {sortedItems.length > 1 &&
                                     !this.state.hideItemList && (
                                         <SortContainer>
                                             <SortIcon>{sortIcon()}</SortIcon>
