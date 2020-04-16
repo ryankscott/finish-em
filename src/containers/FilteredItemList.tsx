@@ -394,7 +394,7 @@ class FilteredItemList extends Component<
                                             <SortIcon>{sortIcon()}</SortIcon>
                                             <SortSelect
                                                 options={options}
-                                                autoFocus={true}
+                                                autoFocus={false}
                                                 placeholder="Sort"
                                                 styles={{
                                                     ...selectStyles,
