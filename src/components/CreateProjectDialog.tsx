@@ -1,4 +1,4 @@
-import React, { Component, ReactElement } from 'react'
+import React, { ReactElement, useState } from 'react'
 import styled, { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 import uuidv4 from 'uuid/v4'
@@ -35,93 +35,78 @@ export interface CreateProjectDialogProps {
     closeCreateProjectDialog: () => void
     toggleCreateProjectDialog: () => void
 }
-interface CreateProjectDialogState {
-    projectName: string
-    projectDescription: string
-}
-class CreateProjectDialog extends Component<
-    CreateProjectDialogProps,
-    CreateProjectDialogState
-> {
-    private createProjectInput: React.RefObject<HTMLInputElement>
-    constructor(props) {
-        super(props)
-        this.state = {
-            projectName: '',
-            projectDescription: '',
-        }
-        this.handleChange = this.handleChange.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
-        this.createProjectInput = React.createRef()
-    }
-    handleChange(e): void {
+
+function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
+    const [projectName, setProjectName] = useState('')
+    const [projectDescription, setProjectDescription] = useState('')
+    const createProjectInput = React.createRef<HTMLInputElement>()
+
+    const handleChange = (e): void => {
         e.target.id == 'createProjectName'
-            ? this.setState({ projectName: e.target.value })
-            : this.setState({ projectDescription: e.target.value })
+            ? setProjectName(e.target.value)
+            : setProjectDescription(e.target.value)
         return
     }
 
-    handleSubmit(): void {
-        const { projectName, projectDescription } = this.state
+    const handleSubmit = (): void => {
         // Don't allow submitting blank project names
         if (projectName == '') return
-        this.setState({ projectName: '', projectDescription: '' })
+        setProjectName('')
+        setProjectDescription('')
         const projectId = uuidv4()
-        this.props.createProject(projectId, projectName, projectDescription)
+        props.createProject(projectId, projectName, projectDescription)
         return
     }
 
-    render(): ReactElement {
-        return (
-            <ThemeProvider theme={theme}>
-                <InlineDialog
-                    onClose={() => this.props.closeCreateProjectDialog()}
-                    placement={'bottom-start'}
-                    isOpen={this.props.visible}
-                    onOpen={() => this.createProjectInput.current.focus()}
-                    content={
-                        <div>
-                            <Header2>Create Project</Header2>
-                            <BodyContainer>
-                                <StyledInput
-                                    autoFocus
-                                    id="createProjectName"
-                                    type="text"
-                                    value={this.state.projectName}
-                                    onChange={this.handleChange}
-                                    required
-                                    placeholder="Project name"
-                                    tabIndex={0}
-                                    ref={this.createProjectInput}
-                                />
-                                <StyledInput
-                                    id="createProjectDescription"
-                                    type="text"
-                                    value={this.state.projectDescription}
-                                    onChange={this.handleChange}
-                                    placeholder="Project description"
-                                    tabIndex={0}
-                                />
-                            </BodyContainer>
-                            <Button
-                                spacing="default"
-                                type="primary"
-                                onClick={this.handleSubmit}
-                                text="Create"
-                            ></Button>
-                        </div>
-                    }
-                >
-                    <Button
-                        spacing="default"
-                        type="primary"
-                        onClick={() => this.props.toggleCreateProjectDialog()}
-                        text="Add Project"
-                    ></Button>
-                </InlineDialog>
-            </ThemeProvider>
-        )
-    }
+    return (
+        <ThemeProvider theme={theme}>
+            <InlineDialog
+                onClose={() => props.closeCreateProjectDialog()}
+                placement={'bottom-start'}
+                isOpen={props.visible}
+                onOpen={() => createProjectInput.current.focus()}
+                content={
+                    <div>
+                        <Header2>Create Project</Header2>
+                        <BodyContainer>
+                            <StyledInput
+                                autoFocus
+                                id="createProjectName"
+                                type="text"
+                                value={projectName}
+                                onChange={handleChange}
+                                required
+                                placeholder="Project name"
+                                tabIndex={0}
+                                ref={createProjectInput}
+                            />
+                            <StyledInput
+                                id="createProjectDescription"
+                                type="text"
+                                value={projectDescription}
+                                onChange={handleChange}
+                                placeholder="Project description"
+                                tabIndex={0}
+                            />
+                        </BodyContainer>
+                        <Button
+                            spacing="default"
+                            type="primary"
+                            onClick={handleSubmit}
+                            text="Create"
+                        ></Button>
+                    </div>
+                }
+            >
+                <Button
+                    spacing="default"
+                    type="primary"
+                    onClick={() => props.toggleCreateProjectDialog()}
+                    text="Add Project"
+                ></Button>
+            </InlineDialog>
+        </ThemeProvider>
+    )
 }
 
 const mapStateToProps = (state) => ({

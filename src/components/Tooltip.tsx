@@ -11,7 +11,13 @@ interface TooltipProps {
 export const Tooltip = (props: TooltipProps): ReactElement => {
     return (
         <ThemeProvider theme={theme}>
-            <ReactTooltip id={props.id} type="dark" effect="float" place="top">
+            <ReactTooltip
+                id={props.id}
+                type="dark"
+                effect="float"
+                place="top"
+                delayShow={500}
+            >
                 <Paragraph invert>{props.text}</Paragraph>
             </ReactTooltip>
         </ThemeProvider>

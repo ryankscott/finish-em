@@ -1,12 +1,11 @@
-import React, { Component, ReactElement } from 'react'
-import { ThemeProvider } from 'styled-components'
+import React, { ReactElement, useState } from 'react'
 import {
-  Editor,
-  EditorState,
-  ContentState,
-  CompositeDecorator,
-  SelectionState,
-  Modifier,
+    Editor,
+    EditorState,
+    ContentState,
+    CompositeDecorator,
+    SelectionState,
+    Modifier,
 } from 'draft-js'
 import isElectron from 'is-electron'
 import { itemRegex } from '../utils'
@@ -15,184 +14,159 @@ import { validateItemString } from '../utils'
 import './EditableItem.css'
 import { theme } from '../theme'
 import { addIcon } from '../assets/icons'
+import { ThemeProvider } from 'styled-components'
 import { ValidationBox, Icon } from './styled/EditableItem'
 
 const styles = {
-  itemType: {
-    fontFamily: theme.font.sansSerif,
-    fontSize: theme.fontSizes.small,
-    color: theme.colours.primaryColour,
-  },
+    itemType: {
+        fontFamily: theme.font.sansSerif,
+        fontSize: theme.fontSizes.small,
+        color: theme.colours.primaryColour,
+    },
 }
 
 const findWithRegex = (regex, contentBlock, callback) => {
-  const text = contentBlock.getText()
-  let matchArr, start
-  while ((matchArr = regex.exec(text)) !== null) {
-    start = matchArr.index
-    callback(start, start + matchArr[0].length)
-  }
+    const text = contentBlock.getText()
+    let matchArr, start
+    while ((matchArr = regex.exec(text)) !== null) {
+        start = matchArr.index
+        callback(start, start + matchArr[0].length)
+    }
 }
 
 const itemTypeStrategy = (contentBlock, callback, contentState) => {
-  findWithRegex(itemRegex, contentBlock, callback)
+    findWithRegex(itemRegex, contentBlock, callback)
 }
 
 const itemTypeSpan = (props): ReactElement => (
-  <span style={styles.itemType} data-offset-key={props.offsetKey}>
-    {props.children}
-  </span>
+    <span style={styles.itemType} data-offset-key={props.offsetKey}>
+        {props.children}
+    </span>
 )
 
 const compositeDecorator = new CompositeDecorator([
-  {
-    strategy: itemTypeStrategy,
-    component: itemTypeSpan,
-  },
+    {
+        strategy: itemTypeStrategy,
+        component: itemTypeSpan,
+    },
 ])
 
 interface EditableItemProps {
-  text: string
-  readOnly: boolean
-  innerRef: React.RefObject<HTMLInputElement>
-  onSubmit: (t: string) => void
-  onEscape?: () => void
+    text: string
+    readOnly: boolean
+    innerRef: React.RefObject<HTMLInputElement>
+    onSubmit: (t: string) => void
+    onEscape?: () => void
 }
-interface EditableItemState {
-  valid: boolean
-  readOnly: boolean
-  animate: boolean
-  editorState: EditorState
-}
-class EditableItem extends Component<EditableItemProps, EditableItemState> {
-  constructor(props: EditableItemProps) {
-    super(props)
+function EditableItem(props: EditableItemProps): ReactElement {
     const es = EditorState.createWithContent(
-      ContentState.createFromText(this.props.text ? this.props.text : ''),
-      compositeDecorator,
+        ContentState.createFromText(props.text ? props.text : ''),
+        compositeDecorator,
     )
-    this.state = {
-      valid: true,
-      readOnly: this.props.readOnly,
-      editorState: es,
-      animate: false,
+    const [valid, setValid] = useState(true)
+    const [animate, setAnimate] = useState(false)
+    const [editorState, setEditorState] = useState(es)
+
+    const validateInput = (): void => {
+        const text = editorState.getCurrentContent().getPlainText('\u0001')
+        const valid = validateItemString(text)
+        if (valid) {
+            setAnimate(false)
+        }
+        setValid(valid)
+        return
     }
 
-    this.handleReturn = this.handleReturn.bind(this)
-    this.handleChange = this.handleChange.bind(this)
-    this.handleKeyDown = this.handleKeyDown.bind(this)
-    this.validateInput = this.validateInput.bind(this)
-    this.clearInput = this.clearInput.bind(this)
-    this.onFocus = this.onFocus.bind(this)
-  }
-
-  validateInput(): void {
-    const text = this.state.editorState
-      .getCurrentContent()
-      .getPlainText('\u0001')
-    const valid = validateItemString(text)
-    valid
-      ? this.setState({
-          valid,
-          animate: false,
-        })
-      : this.setState({ valid })
-    return
-  }
-
-  clearInput(): void {
-    let { editorState } = this.state
-    /*
+    const clearInput = (): void => {
+        /*
      TODO: There has to be a better way. This doesn't work
     this.setState({
       editorState: EditorState.createEmpty(compositeDecorator)
     }); */
 
-    let contentState = editorState.getCurrentContent()
-    const firstBlock = contentState.getFirstBlock()
-    const lastBlock = contentState.getLastBlock()
-    const allSelected = new SelectionState({
-      anchorKey: firstBlock.getKey(),
-      anchorOffset: 0,
-      focusKey: lastBlock.getKey(),
-      focusOffset: lastBlock.getLength(),
-      hasFocus: true,
-    })
-    contentState = Modifier.removeRange(contentState, allSelected, 'backward')
-    editorState = EditorState.push(editorState, contentState, 'remove-range')
-    editorState = EditorState.forceSelection(
-      editorState,
-      contentState.getSelectionAfter(),
-    )
-    this.setState({ editorState })
-    return
-  }
-
-  handleReturn(): string {
-    if (this.state.valid) {
-      this.props.onSubmit(
-        this.state.editorState.getCurrentContent().getPlainText(''),
-      )
-      this.clearInput()
-      if (isElectron()) {
-        window.ipcRenderer.send('close-quickadd')
-      }
-    } else {
-      this.setState(
-        {
-          animate: true,
-        },
-        () => setTimeout(() => this.setState({ animate: false }), 200),
-      )
+        let contentState = editorState.getCurrentContent()
+        const firstBlock = contentState.getFirstBlock()
+        const lastBlock = contentState.getLastBlock()
+        const allSelected = new SelectionState({
+            anchorKey: firstBlock.getKey(),
+            anchorOffset: 0,
+            focusKey: lastBlock.getKey(),
+            focusOffset: lastBlock.getLength(),
+            hasFocus: true,
+        })
+        contentState = Modifier.removeRange(
+            contentState,
+            allSelected,
+            'backward',
+        )
+        editorState = EditorState.push(
+            editorState,
+            contentState,
+            'remove-range',
+        )
+        editorState = EditorState.forceSelection(
+            editorState,
+            contentState.getSelectionAfter(),
+        )
+        setEditorState(editorState)
+        return
     }
 
-    return 'handled'
-  }
+    const handleReturn = (): string => {
+        if (valid) {
+            props.onSubmit(editorState.getCurrentContent().getPlainText(''))
+            clearInput()
+            if (isElectron()) {
+                window.ipcRenderer.send('close-quickadd')
+            }
+        } else {
+            setAnimate(true)
+            setTimeout(() => setAnimate(false), 200)
+        }
 
-  handleKeyDown(e, es, et): void {
-    if (e.key == 'Escape') {
-      this.clearInput()
-      this.props.onEscape()
-      if (isElectron()) {
-        window.ipcRenderer.send('close-quickadd')
-      }
+        return 'handled'
     }
-    return
-  }
 
-  handleChange(e): void {
-    this.validateInput()
-    this.setState({ editorState: e })
-    return
-  }
+    const handleKeyDown = (e, es, et): void => {
+        if (e.key == 'Escape') {
+            clearInput()
+            props.onEscape()
+            if (isElectron()) {
+                window.ipcRenderer.send('close-quickadd')
+            }
+        }
+        return
+    }
 
-  onFocus(e): void {
-    this.setState({
-      editorState: EditorState.moveFocusToEnd(this.state.editorState),
-    })
-    return
-  }
+    const handleChange = (e): void => {
+        validateInput()
+        setEditorState(e)
+        return
+    }
 
-  render(): ReactElement {
+    const onFocus = (e): void => {
+        setEditorState(EditorState.moveFocusToEnd(editorState))
+        return
+    }
+
     return (
-      <ThemeProvider theme={theme}>
-        <ValidationBox animate={this.state.animate} valid={this.state.valid}>
-          <Icon>{addIcon()}</Icon>
-          <Editor
-            ref={this.props.innerRef}
-            handleReturn={this.handleReturn}
-            editorState={this.state.editorState}
-            readOnly={this.state.readOnly}
-            onChange={this.handleChange}
-            keyBindingFn={this.handleKeyDown}
-            onFocus={this.onFocus}
-          />
-        </ValidationBox>
-      </ThemeProvider>
+        <ThemeProvider theme={theme}>
+            <ValidationBox animate={animate} valid={valid}>
+                <Icon>{addIcon()}</Icon>
+                <Editor
+                    ref={props.innerRef}
+                    handleReturn={handleReturn}
+                    editorState={editorState}
+                    readOnly={props.readOnly}
+                    onChange={handleChange}
+                    keyBindingFn={handleKeyDown}
+                    onFocus={onFocus}
+                />
+            </ValidationBox>
+        </ThemeProvider>
     )
-  }
 }
 
 export default React.forwardRef((props: EditableItemProps, ref) => (
-  <EditableItem innerRef={ref} {...props} />
+    <EditableItem innerRef={ref} {...props} />
 ))

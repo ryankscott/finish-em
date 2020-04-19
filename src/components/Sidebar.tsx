@@ -5,9 +5,17 @@ import { connect } from 'react-redux'
 import { theme } from '../theme'
 import CreateProjectDialog from './CreateProjectDialog'
 import { Header } from './Typography'
-import { showCreateProjectDialog } from '../actions'
+import { showCreateProjectDialog, toggleSidebar } from '../actions'
 import { ProjectType } from '../interfaces'
-import { Container, SectionHeader, StyledNavLink } from './styled/Sidebar'
+import {
+    Container,
+    SectionHeader,
+    StyledNavLink,
+    Footer,
+    StyledHorizontalRule,
+} from './styled/Sidebar'
+import { Button } from './Button'
+import { getFirstLetterFromEachWord } from '../utils'
 
 interface SidebarProps {
     sidebarVisible: boolean
@@ -18,58 +26,107 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         <ThemeProvider theme={theme}>
             <Container visible={props.sidebarVisible}>
                 <SectionHeader>
-                    <Header> Views </Header>
+                    {props.sidebarVisible && <Header> Views </Header>}
                 </SectionHeader>
-                <StyledNavLink
-                    to="/inbox"
-                    activeStyle={{ fontWeight: theme.fontWeights.bold }}
-                >
-                    {'📥  Inbox'}
+                <StyledNavLink visible={props.sidebarVisible} to="/inbox">
+                    <Button
+                        icon="inbox"
+                        text={props.sidebarVisible ? 'Inbox' : ''}
+                        spacing={props.sidebarVisible ? 'compact' : 'default'}
+                        type="invert"
+                        textSize="small"
+                        iconSize={props.sidebarVisible ? '16px' : '20px'}
+                        onClick={() => {}}
+                    />
                 </StyledNavLink>
-                <StyledNavLink
-                    to="/dailyAgenda"
-                    activeStyle={{ fontWeight: theme.fontWeights.bold }}
-                >
-                    {'📅 Daily Agenda '}
+                <StyledNavLink visible={props.sidebarVisible} to="/dailyAgenda">
+                    <Button
+                        icon="calendar"
+                        text={props.sidebarVisible ? 'Daily Agenda' : ''}
+                        spacing="compact"
+                        type="invert"
+                        textSize="small"
+                        iconSize={props.sidebarVisible ? '16px' : '20px'}
+                        onClick={() => {}}
+                    />
                 </StyledNavLink>
-                <StyledNavLink
-                    to="/unscheduled"
-                    activeStyle={{ fontWeight: theme.fontWeights.bold }}
-                >
-                    {'🗓 Unscheduled'}
+                <StyledNavLink visible={props.sidebarVisible} to="/unscheduled">
+                    <Button
+                        icon="scheduled"
+                        text={props.sidebarVisible ? 'Unscheduled' : ''}
+                        spacing="compact"
+                        type="invert"
+                        textSize="small"
+                        iconSize={props.sidebarVisible ? '16px' : '20px'}
+                        onClick={() => {}}
+                    />
                 </StyledNavLink>
-                <StyledNavLink
-                    to="/trash"
-                    activeStyle={{ fontWeight: theme.fontWeights.bold }}
-                >
-                    {'🗑 Trash'}
+                <StyledNavLink visible={props.sidebarVisible} to="/trash">
+                    <Button
+                        icon="trash"
+                        text={props.sidebarVisible ? 'Trash' : ''}
+                        spacing="compact"
+                        type="invert"
+                        textSize="small"
+                        iconSize={props.sidebarVisible ? '16px' : '20px'}
+                        onClick={() => {}}
+                    />
                 </StyledNavLink>
-                <StyledNavLink
-                    to="/completed"
-                    activeStyle={{ fontWeight: theme.fontWeights.bold }}
-                >
-                    {'✅ Completed'}
+                <StyledNavLink visible={props.sidebarVisible} to="/completed">
+                    <Button
+                        icon="todo_checked"
+                        text={props.sidebarVisible ? 'Completed' : ''}
+                        spacing="compact"
+                        type="invert"
+                        textSize="small"
+                        iconSize={props.sidebarVisible ? '16px' : '20px'}
+                        onClick={() => {}}
+                    />
                 </StyledNavLink>
+                {!props.sidebarVisible && <StyledHorizontalRule />}
                 <SectionHeader>
-                    <Header>Projects</Header>
-                    <CreateProjectDialog />
+                    {props.sidebarVisible && <Header>Projects</Header>}
+                    {props.sidebarVisible && <CreateProjectDialog />}
                 </SectionHeader>
                 {props.projects.map((p: ProjectType) => {
                     const pathName = '/projects/' + p.id
                     if (!(p.id == null || p.deleted == true)) {
                         return (
                             <StyledNavLink
+                                visible={props.sidebarVisible}
                                 key={p.id}
                                 to={pathName}
-                                activeStyle={{
-                                    fontWeight: theme.fontWeights.bold,
-                                }}
                             >
-                                {p.name}
+                                <Button
+                                    text={
+                                        props.sidebarVisible
+                                            ? p.name
+                                            : getFirstLetterFromEachWord(p.name)
+                                    }
+                                    spacing="compact"
+                                    type="invert"
+                                    onClick={() => {}}
+                                    textSize="small"
+                                    iconSize="16px"
+                                />
                             </StyledNavLink>
                         )
                     }
                 })}
+                <Footer visible={props.sidebarVisible}>
+                    <Button
+                        spacing="compact"
+                        icon={
+                            props.sidebarVisible ? 'slide_left' : 'slide_right'
+                        }
+                        type="invert"
+                        onClick={() => {
+                            props.toggleSidebar()
+                        }}
+                        textSize="small"
+                        iconSize="16px"
+                    />
+                </Footer>
             </Container>
         </ThemeProvider>
     )
@@ -82,6 +139,9 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
     showCreateProjectDialog: () => {
         dispatch(showCreateProjectDialog())
+    },
+    toggleSidebar: () => {
+        dispatch(toggleSidebar())
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar)

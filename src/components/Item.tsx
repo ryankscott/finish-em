@@ -1,4 +1,4 @@
-import React, { Component, KeyboardEvent, ReactElement } from 'react'
+import React, { KeyboardEvent, ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 import { RRule, rrulestr } from 'rrule'
@@ -45,7 +45,8 @@ import {
 } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
-import { withHotkeys } from './withHotkeys'
+//import { useHotkeys } from 'react-hotkeys-hook'
+import { item } from '../keymap'
 
 interface ItemProps extends ItemType {
     noIndentOnSubtasks: boolean
@@ -65,366 +66,318 @@ interface ItemProps extends ItemType {
     undeleteItem: (id: Uuid) => void
 }
 
-interface ItemState {
-    projectDropdownVisible: boolean
-    scheduledDateDropdownVisible: boolean
-    dueDateDropdownVisible: boolean
-    repeatDropdownVisible: boolean
-    isEditingDescription: boolean
-    quickAddContainerVisible: boolean
-    keyPresses: string[]
-    hideChildren: boolean
-}
+function Item(props: ItemProps): ReactElement {
+    const [projectDropdownVisible, setProjectDropdownVisible] = useState(false)
+    const [
+        scheduledDateDropdownVisible,
+        setScheduledDateDropdownVisible,
+    ] = useState(false)
+    const [dueDateDropdownVisible, setDueDateDropdownVisible] = useState(false)
+    const [repeatDropdownVisible, setRepeatDropdownVisible] = useState(false)
+    const [
+        createSubtaskDropdownVisible,
+        setCreateSubtaskDropdownVisible,
+    ] = useState(false)
+    const [isEditingDescription, setIsEditingDescription] = useState(false)
+    const [hideChildren, setHideChildren] = useState(false)
+    const [keyPresses, setKeyPresses] = useState([])
 
-class Item extends Component<ItemProps, ItemState> {
-    private quickAdd: React.RefObject<HTMLInputElement>
-    private container: React.RefObject<HTMLInputElement>
-    private editor: React.RefObject<HTMLInputElement>
-    handlers: {}
-    constructor(props: ItemProps) {
-        super(props)
-        this.state = {
-            projectDropdownVisible: false,
-            scheduledDateDropdownVisible: false,
-            dueDateDropdownVisible: false,
-            repeatDropdownVisible: false,
-            quickAddContainerVisible: false,
-            isEditingDescription: false,
-            hideChildren: true,
-            keyPresses: [],
-        }
-        this.setScheduledDate = this.setScheduledDate.bind(this)
-        this.setDueDate = this.setDueDate.bind(this)
-        this.setRepeatRule = this.setRepeatRule.bind(this)
-        this.moveItem = this.moveItem.bind(this)
-        this.handleKeyPress = this.handleKeyPress.bind(this)
-        this.handleExpand = this.handleExpand.bind(this)
-        this.handleIconClick = this.handleIconClick.bind(this)
-        this.handleDescriptionChange = this.handleDescriptionChange.bind(this)
-        this.quickAdd = React.createRef<HTMLInputElement>()
-        this.editor = React.createRef<HTMLInputElement>()
-        this.container = React.createRef<HTMLInputElement>()
-        this.handlers = {
-            TODO: {
-                NEXT_ITEM: (event) => {
-                    // If it's a parent element we need to get the first child
-                    if (this.props.children.length > 0) {
-                        const nextItem = event.target.parentNode.nextSibling
-                        if (nextItem) {
-                            nextItem.firstChild.focus()
-                            return
-                        }
-                    }
-                    // If it's a child
-                    if (this.props.parentId != null) {
-                        const nextItem = event.target.parentNode.nextSibling
-                        if (nextItem) {
-                            nextItem.firstChild.focus()
-                            return
-                        }
-                        // If it's the last child
-                        else {
-                            const nextItem =
-                                event.target.parentNode.parentNode.nextSibling
-                                    .firstChild
-                            if (nextItem) {
-                                nextItem.firstChild.focus()
-                                return
-                            }
-                        }
-                    }
-                    const parent = event.target.parentNode.parentNode
-                    const nextItem = parent.nextSibling
+    const quickAdd = React.createRef<HTMLInputElement>()
+    const editor = React.createRef<HTMLInputElement>()
+    const container = React.createRef<HTMLInputElement>()
+    const handlers = {
+        TODO: {
+            NEXT_ITEM: (event) => {
+                // If it's a parent element we need to get the first child
+                if (props.children.length > 0) {
+                    const nextItem = event.target.parentNode.nextSibling
                     if (nextItem) {
-                        nextItem.firstChild.firstChild.focus()
+                        nextItem.firstChild.focus()
                         return
                     }
-                },
-                PREV_ITEM: (event) => {
-                    if (this.props.children.length > 0) {
-                        const prevItem = event.target.parentNode.previousSibling
+                }
+                // If it's a child
+                if (props.parentId != null) {
+                    const nextItem = event.target.parentNode.nextSibling
+                    if (nextItem) {
+                        nextItem.firstChild.focus()
+                        return
+                    }
+                    // If it's the last child
+                    else {
+                        const nextItem =
+                            event.target.parentNode.parentNode.nextSibling
+                                .firstChild
+                        if (nextItem) {
+                            nextItem.firstChild.focus()
+                            return
+                        }
+                    }
+                }
+                const parent = event.target.parentNode.parentNode
+                const nextItem = parent.nextSibling
+                if (nextItem) {
+                    nextItem.firstChild.firstChild.focus()
+                    return
+                }
+            },
+            PREV_ITEM: (event) => {
+                if (props.children.length > 0) {
+                    const prevItem = event.target.parentNode.previousSibling
+                    if (prevItem) {
+                        prevItem.firstChild.focus()
+                        return
+                    }
+                }
+                // If it's a child
+                if (props.parentId != null) {
+                    const nextItem = event.target.parentNode.previousSibling
+                    if (nextItem) {
+                        nextItem.firstChild.focus()
+                        return
+                    }
+                    // If it's the last child
+                    else {
+                        const prevItem =
+                            event.target.parentNode.parentNode.previousSibling
+                                .firstChild
                         if (prevItem) {
                             prevItem.firstChild.focus()
                             return
                         }
                     }
-                    // If it's a child
-                    if (this.props.parentId != null) {
-                        const nextItem = event.target.parentNode.previousSibling
+                }
+                // TODO: Fix issue for first item
+                const parent = event.target.parentNode.parentNode
+                const prevItem = parent.previousSibling.firstChild
+                if (prevItem) {
+                    prevItem.firstChild.focus()
+                    return
+                }
+            },
+            TOGGLE_CHILDREN: () => {
+                setHideChildren(!hideChildren)
+            },
+            SET_SCHEDULED_DATE: (event) => {
+                if (props.deleted || props.completed) return
+                setScheduledDateDropdownVisible(!scheduledDateDropdownVisible)
+                setDueDateDropdownVisible(false)
+                setProjectDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setCreateSubtaskDropdownVisible(false)
+                event.preventDefault()
+            },
+            SET_DUE_DATE: (event) => {
+                if (props.deleted || props.completed) return
+                setScheduledDateDropdownVisible(false)
+                setDueDateDropdownVisible(!dueDateDropdownVisible)
+                setProjectDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setCreateSubtaskDropdownVisible(false)
+                event.preventDefault()
+            },
+            CREATE_SUBTASK: (event) => {
+                if (props.deleted || props.completed) return
+                setScheduledDateDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setProjectDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setCreateSubtaskDropdownVisible(!createSubtaskDropdownVisible)
+                quickAdd.current.focus()
+                event.preventDefault()
+            },
+            REPEAT_ITEM: (event) => {
+                if (props.deleted || props.completed) return
+                setScheduledDateDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setProjectDropdownVisible(false)
+                setRepeatDropdownVisible(!repeatDropdownVisible)
+                setCreateSubtaskDropdownVisible(false)
+                event.preventDefault()
+            },
+            MOVE_ITEM: (event) => {
+                if (props.deleted || props.completed) return
+                setScheduledDateDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setProjectDropdownVisible(!projectDropdownVisible)
+                setRepeatDropdownVisible(false)
+                setCreateSubtaskDropdownVisible(false)
+                event.preventDefault()
+            },
+            ESCAPE: () => {
+                setScheduledDateDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setProjectDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setCreateSubtaskDropdownVisible(false)
+                container.current.focus()
+            },
+            COMPLETE_ITEM: () => {
+                if (props.deleted || props.completed) return
+                props.completeItem(props.id)
+            },
+            UNCOMPLETE_ITEM: () => {
+                if (props.deleted) return
+                props.uncompleteItem(props.id)
+            },
+            DELETE_ITEM: () => {
+                if (props.deleted) return
+                props.deleteItem(props.id)
+            },
+            UNDELETE_ITEM: () => {
+                props.undeleteItem(props.id)
+            },
+            EDIT_ITEM_DESC: (event) => {
+                setIsEditingDescription(true)
+                editor.current.focus()
+                event.preventDefault()
+            },
+        },
+        NOTE: {
+            NEXT_ITEM: (event) => {
+                // If it's a parent element we need to get the first child
+                if (props.children.length > 0) {
+                    const nextItem = event.target.parentNode.nextSibling
+                    if (nextItem) {
+                        nextItem.firstChild.focus()
+                        return
+                    }
+                }
+                // If it's a child
+                if (props.parentId != null) {
+                    const nextItem = event.target.parentNode.nextSibling
+                    if (nextItem) {
+                        nextItem.firstChild.focus()
+                        return
+                    }
+                    // If it's the last child
+                    else {
+                        const nextItem =
+                            event.target.parentNode.parentNode.nextSibling
+                                .firstChild
                         if (nextItem) {
                             nextItem.firstChild.focus()
                             return
                         }
-                        // If it's the last child
-                        else {
-                            const prevItem =
-                                event.target.parentNode.parentNode
-                                    .previousSibling.firstChild
-                            if (prevItem) {
-                                prevItem.firstChild.focus()
-                                return
-                            }
-                        }
                     }
-                    // TODO: Fix issue for first item
-                    const parent = event.target.parentNode.parentNode
-                    const prevItem = parent.previousSibling.firstChild
+                }
+                const parent = event.target.parentNode.parentNode
+                const nextItem = parent.nextSibling
+                if (nextItem) {
+                    nextItem.firstChild.firstChild.focus()
+                    return
+                }
+            },
+            PREV_ITEM: (event) => {
+                if (props.children.length > 0) {
+                    const prevItem = event.target.parentNode.previousSibling
                     if (prevItem) {
                         prevItem.firstChild.focus()
                         return
                     }
-                },
-                TOGGLE_CHILDREN: () => {
-                    this.state.hideChildren
-                        ? this.setState({ hideChildren: false })
-                        : this.setState({ hideChildren: true })
-                },
-                SET_SCHEDULED_DATE: (event) => {
-                    if (this.props.deleted || this.props.completed) return
-                    this.setState({
-                        scheduledDateDropdownVisible: !this.state
-                            .scheduledDateDropdownVisible,
-                        dueDateDropdownVisible: false,
-                        projectDropdownVisible: false,
-                        repeatDropdownVisible: false,
-                    })
-                    event.preventDefault()
-                },
-                SET_DUE_DATE: (event) => {
-                    if (this.props.deleted || this.props.completed) return
-                    this.setState({
-                        dueDateDropdownVisible: !this.state
-                            .dueDateDropdownVisible,
-                        scheduledDateDropdownVisible: false,
-                        projectDropdownVisible: false,
-                        repeatDropdownVisible: false,
-                    })
-                    event.preventDefault()
-                },
-                CREATE_SUBTASK: (event) => {
-                    if (this.props.deleted || this.props.completed) return
-                    this.setState({
-                        quickAddContainerVisible: !this.state
-                            .quickAddContainerVisible,
-                        scheduledDateDropdownVisible: false,
-                        dueDateDropdownVisible: false,
-                        projectDropdownVisible: false,
-                        repeatDropdownVisible: false,
-                    })
-                    this.quickAdd.current.focus()
-                    event.preventDefault()
-                },
-                COMPLETE_ITEM: () => {
-                    if (this.props.deleted || this.props.completed) return
-                    this.props.completeItem(this.props.id)
-                },
-                UNCOMPLETE_ITEM: () => {
-                    if (this.props.deleted) return
-                    this.props.uncompleteItem(this.props.id)
-                },
-                REPEAT_ITEM: (event) => {
-                    if (this.props.deleted || this.props.completed) return
-                    this.setState({
-                        repeatDropdownVisible: !this.state
-                            .repeatDropdownVisible,
-                        scheduledDateDropdownVisible: false,
-                        dueDateDropdownVisible: false,
-                        projectDropdownVisible: false,
-                    })
-                    event.preventDefault()
-                },
-                DELETE_ITEM: () => {
-                    if (this.props.deleted) return
-                    this.props.deleteItem(this.props.id)
-                },
-                UNDELETE_ITEM: () => {
-                    this.props.undeleteItem(this.props.id)
-                },
-                MOVE_ITEM: (event) => {
-                    if (this.props.deleted || this.props.completed) return
-                    this.setState({
-                        projectDropdownVisible: !this.state
-                            .projectDropdownVisible,
-                        dueDateDropdownVisible: false,
-                        scheduledDateDropdownVisible: false,
-                        repeatDropdownVisible: false,
-                    })
-                    event.preventDefault()
-                },
-                ESCAPE: () => {
-                    this.setState({
-                        projectDropdownVisible: false,
-                        dueDateDropdownVisible: false,
-                        scheduledDateDropdownVisible: false,
-                        repeatDropdownVisible: false,
-                    })
-                    this.container.current.focus()
-                },
-                EDIT_ITEM_DESC: (event) => {
-                    this.setState({
-                        isEditingDescription: true,
-                    })
-                    this.editor.current.focus()
-                    event.preventDefault()
-                },
-            },
-            NOTE: {
-                NEXT_ITEM: (event) => {
-                    // If it's a parent element we need to get the first child
-                    if (this.props.children.length > 0) {
-                        const nextItem = event.target.parentNode.nextSibling
-                        if (nextItem) {
-                            nextItem.firstChild.focus()
-                            return
-                        }
-                    }
-                    // If it's a child
-                    if (this.props.parentId != null) {
-                        const nextItem = event.target.parentNode.nextSibling
-                        if (nextItem) {
-                            nextItem.firstChild.focus()
-                            return
-                        }
-                        // If it's the last child
-                        else {
-                            const nextItem =
-                                event.target.parentNode.parentNode.nextSibling
-                                    .firstChild
-                            if (nextItem) {
-                                nextItem.firstChild.focus()
-                                return
-                            }
-                        }
-                    }
-                    const parent = event.target.parentNode.parentNode
-                    const nextItem = parent.nextSibling
+                }
+                // If it's a child
+                if (props.parentId != null) {
+                    const nextItem = event.target.parentNode.previousSibling
                     if (nextItem) {
-                        nextItem.firstChild.firstChild.focus()
+                        nextItem.firstChild.focus()
                         return
                     }
-                },
-                PREV_ITEM: (event) => {
-                    if (this.props.children.length > 0) {
-                        const prevItem = event.target.parentNode.previousSibling
+                    // If it's the last child
+                    else {
+                        const prevItem =
+                            event.target.parentNode.parentNode.previousSibling
+                                .firstChild
                         if (prevItem) {
                             prevItem.firstChild.focus()
                             return
                         }
                     }
-                    // If it's a child
-                    if (this.props.parentId != null) {
-                        const nextItem = event.target.parentNode.previousSibling
-                        if (nextItem) {
-                            nextItem.firstChild.focus()
-                            return
-                        }
-                        // If it's the last child
-                        else {
-                            const prevItem =
-                                event.target.parentNode.parentNode
-                                    .previousSibling.firstChild
-                            if (prevItem) {
-                                prevItem.firstChild.focus()
-                                return
-                            }
-                        }
-                    }
-                    // TODO: Fix issue for first item
-                    const parent = event.target.parentNode.parentNode
-                    const prevItem = parent.previousSibling.firstChild
-                    if (prevItem) {
-                        prevItem.firstChild.focus()
-                        return
-                    }
-                },
-                DELETE_ITEM: () => {
-                    this.props.deleteItem(this.props.id)
-                },
-                UNDELETE_ITEM: () => {
-                    this.props.undeleteItem(this.props.id)
-                },
-                MOVE_ITEM: (event) => {
-                    this.setState({
-                        projectDropdownVisible: !this.state
-                            .projectDropdownVisible,
-                        dueDateDropdownVisible: false,
-                        scheduledDateDropdownVisible: false,
-                        repeatDropdownVisible: false,
-                    })
-                    event.preventDefault()
-                },
-                ESCAPE: () => {
-                    this.setState({
-                        projectDropdownVisible: false,
-                        dueDateDropdownVisible: false,
-                        scheduledDateDropdownVisible: false,
-                        repeatDropdownVisible: false,
-                    })
-                },
-                EDIT_ITEM_DESC: (event) => {
-                    this.editor.current.focus()
-                    event.preventDefault()
-                },
+                }
+                // TODO: Fix issue for first item
+                const parent = event.target.parentNode.parentNode
+                const prevItem = parent.previousSibling.firstChild
+                if (prevItem) {
+                    prevItem.firstChild.focus()
+                    return
+                }
             },
-        }
+            DELETE_ITEM: () => {
+                props.deleteItem(props.id)
+            },
+            UNDELETE_ITEM: () => {
+                props.undeleteItem(props.id)
+            },
+            MOVE_ITEM: (event) => {
+                if (props.deleted) return
+                setScheduledDateDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setProjectDropdownVisible(!projectDropdownVisible)
+                setRepeatDropdownVisible(false)
+                setCreateSubtaskDropdownVisible(false)
+                event.preventDefault()
+            },
+            ESCAPE: () => {
+                setScheduledDateDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setProjectDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setCreateSubtaskDropdownVisible(false)
+            },
+            EDIT_ITEM_DESC: (event) => {
+                setIsEditingDescription(true)
+                //                editor.current.focus()
+                event.preventDefault()
+            },
+        },
     }
 
-    handleDescriptionChange(text: string): void {
-        this.props.updateItemDescription(
-            this.props.id,
-            this.props.type.concat(' ', text),
-        )
+    const handleDescriptionChange = (text: string): void => {
+        props.updateItemDescription(props.id, props.type.concat(' ', text))
         return
     }
 
-    showDueDateDropdown(): void {
-        this.setState({
-            dueDateDropdownVisible: !this.state.dueDateDropdownVisible,
-            scheduledDateDropdownVisible: false,
-            projectDropdownVisible: false,
-            repeatDropdownVisible: false,
-        })
-        this.setState({
-            dueDateDropdownVisible: !this.state.dueDateDropdownVisible,
-        })
+    const setRepeatRule = (r: RRule): void => {
+        props.setRepeatRule(props.id, r)
+        setRepeatDropdownVisible(false)
         return
     }
 
-    setRepeatRule(r: RRule): void {
-        this.props.setRepeatRule(this.props.id, r)
-        this.setState({ repeatDropdownVisible: false })
+    const setScheduledDate = (d: string): void => {
+        props.setScheduledDate(props.id, d)
+        setScheduledDateDropdownVisible(false)
         return
     }
 
-    setScheduledDate(d: string): void {
-        this.props.setScheduledDate(this.props.id, d)
-        this.setState({ scheduledDateDropdownVisible: false })
+    const setDueDate = (d: string): void => {
+        props.setDueDate(props.id, d)
+        setDueDateDropdownVisible(false)
         return
     }
 
-    setDueDate(d: string): void {
-        this.props.setDueDate(this.props.id, d)
-        this.setState({ dueDateDropdownVisible: false })
+    const moveItem = (projectId: Uuid): void => {
+        props.moveItem(props.id, projectId)
+        setProjectDropdownVisible(false)
         return
     }
 
-    moveItem(projectId: Uuid): void {
-        this.props.moveItem(this.props.id, projectId)
-        this.setState({ projectDropdownVisible: false })
+    const createSubTask = (text: string): void => {
+        props.createSubTask(props.id, text, props.projectId)
+        setCreateSubtaskDropdownVisible(false)
         return
     }
+    /* TODO: Try move this to somewhere central
+    Not to future self - You've tried
+     -  To extract this as hooks (useHotkeys.tsx)
+     - react-hotkey-hooks
+     
+    They all have the same problem of binding to *all* the item components in the DOM :(
+    */
 
-    createSubTask(text: string): void {
-        this.props.createSubTask(this.props.id, text, this.props.projectId)
-        this.setState({ quickAddContainerVisible: false })
-        return
-    }
-
-    // TODO: Refactor the shit out of this
-    handleKeyPress(event: KeyboardEvent<HTMLDivElement>): void {
+    const handleKeyPress = (event: KeyboardEvent<HTMLDivElement>): void => {
         // Don't handle key presses if we're editing the description
-        if (this.state.isEditingDescription) return
-        let currentKeyPresses = this.state.keyPresses
+        if (isEditingDescription) return
+        let currentKeyPresses = keyPresses
         // Remove the first value in the array (3 is the max shortcut matching length)
         currentKeyPresses =
             currentKeyPresses.length >= 3
@@ -434,34 +387,28 @@ class Item extends Component<ItemProps, ItemState> {
         // Clear keypress history if using the arrow keys. Enables quick scrolling
         if (event.key == 'ArrowUp' || event.key == 'ArrowDown') {
             setTimeout(() => {
-                this.setState({
-                    keyPresses: [],
-                })
+                setKeyPresses([])
             }, 200)
             // After 1s remove the first item in the array
         } else {
-            this.setState({}, () => {
-                setTimeout(() => {
-                    this.setState({
-                        keyPresses: this.state.keyPresses.slice(1),
-                    })
-                }, 500)
-            })
+            setTimeout(() => {
+                setKeyPresses(keyPresses.slice(1))
+            }, 500)
         }
         // TODO handle not matching
         // TODO handle multiple key bindings for each action
-        for (const [key, value] of Object.entries(this.props.keymap)) {
+        for (const [key, value] of Object.entries(props.keymap)) {
             currentKeyPresses.forEach((k, v) => {
                 if (v < currentKeyPresses.length) {
                     const combo = k + ' ' + currentKeyPresses[v + 1]
                     if (combo == value) {
-                        const handler = this.handlers[this.props.type][key]
+                        const handler = handlers[props.type][key]
                         handler ? handler(event) : null
                         return
                     }
                     const single = k
                     if (single == value) {
-                        const handler = this.handlers[this.props.type][key]
+                        const handler = handlers[props.type][key]
                         handler ? handler(event) : null
                         return
                     }
@@ -470,248 +417,209 @@ class Item extends Component<ItemProps, ItemState> {
         }
         return
     }
-
-    handleIconClick(): void {
-        if (this.props.type == 'TODO') {
-            this.props.completed
-                ? this.props.uncompleteItem(this.props.id)
-                : this.props.completeItem(this.props.id)
+    const handleIconClick = (): void => {
+        if (props.type == 'TODO') {
+            props.completed
+                ? props.uncompleteItem(props.id)
+                : props.completeItem(props.id)
         }
         return
     }
 
-    handleExpand(): void {
-        this.state.hideChildren
-            ? this.setState({
-                  hideChildren: false,
-              })
-            : this.setState({ hideChildren: true })
+    const handleExpand = (): void => {
+        setHideChildren(!hideChildren)
         return
     }
 
-    render(): ReactElement {
-        const repeat = this.props.repeat
-            ? rrulestr(this.props.repeat).toText()
-            : ''
-        const dueDate = this.props.dueDate
-            ? formatRelativeDate(parseISO(this.props.dueDate))
-            : null
-        const scheduledDate = this.props.scheduledDate
-            ? formatRelativeDate(parseISO(this.props.scheduledDate))
-            : null
-        return (
-            <ThemeProvider theme={theme}>
-                <div key={this.props.id} id={this.props.id}>
-                    <Container
-                        ref={this.container}
-                        noIndentOnSubtasks={this.props.noIndentOnSubtasks}
-                        isSubtask={this.props.parentId != null}
-                        onKeyDown={this.handleKeyPress}
-                        id={this.props.id}
-                        tabIndex={0}
-                        itemType={this.props.type}
-                    >
-                        {this.props.children.length > 0 && (
-                            <ExpandContainer>
-                                <Button
-                                    type="default"
-                                    spacing="compact"
-                                    onClick={this.handleExpand}
-                                    icon={
-                                        this.state.hideChildren
-                                            ? 'expand'
-                                            : 'collapse'
-                                    }
-                                ></Button>
-                            </ExpandContainer>
-                        )}
-                        <TypeContainer>
+    const repeat = props.repeat ? rrulestr(props.repeat).toText() : ''
+    const dueDate = props.dueDate
+        ? formatRelativeDate(parseISO(props.dueDate))
+        : null
+    const scheduledDate = props.scheduledDate
+        ? formatRelativeDate(parseISO(props.scheduledDate))
+        : null
+
+    return (
+        <ThemeProvider theme={theme}>
+            <div key={props.id} id={props.id}>
+                <Container
+                    key={props.id}
+                    ref={container}
+                    noIndentOnSubtasks={props.noIndentOnSubtasks}
+                    isSubtask={props.parentId != null}
+                    onKeyDown={handleKeyPress}
+                    id={props.id}
+                    tabIndex={0}
+                    itemType={props.type}
+                >
+                    {props.children.length > 0 && (
+                        <ExpandContainer>
                             <Button
                                 type="default"
                                 spacing="compact"
-                                onClick={this.handleIconClick}
-                                height="24px"
-                                width="24px"
-                                icon={
-                                    this.props.type == 'NOTE'
-                                        ? 'note'
-                                        : this.props.completed
-                                        ? 'todo_checked'
-                                        : 'todo_unchecked'
-                                }
+                                onClick={handleExpand}
+                                icon={hideChildren ? 'expand' : 'collapse'}
+                            ></Button>
+                        </ExpandContainer>
+                    )}
+                    <TypeContainer>
+                        <Button
+                            type="default"
+                            spacing="compact"
+                            onClick={handleIconClick}
+                            height="24px"
+                            width="24px"
+                            icon={
+                                props.type == 'NOTE'
+                                    ? 'note'
+                                    : props.completed
+                                    ? 'todo_checked'
+                                    : 'todo_unchecked'
+                            }
+                        />
+                    </TypeContainer>
+                    <Body id="body" completed={props.completed}>
+                        <EditableText
+                            innerRef={editor}
+                            readOnly={props.completed}
+                            onEditingChange={(editing) =>
+                                setIsEditingDescription(editing)
+                            }
+                            input={removeItemTypeFromString(props.text)}
+                            onUpdate={(text) => handleDescriptionChange(text)}
+                            singleline={true}
+                        />
+                    </Body>
+                    {props.showProject && (
+                        <Project>
+                            {props.showProject
+                                ? getProjectNameById(
+                                      props.projectId,
+                                      props.projects,
+                                  )
+                                : 'null'}
+                        </Project>
+                    )}
+                    {props.scheduledDate && (
+                        <ScheduledContainer>
+                            <DateRenderer
+                                completed={props.completed}
+                                type="scheduled"
+                                position="flex-start"
+                                text={scheduledDate}
+                                onClick={() => {
+                                    if (props.completed) return
+                                    setScheduledDateDropdownVisible(
+                                        scheduledDateDropdownVisible,
+                                    )
+                                }}
                             />
-                        </TypeContainer>
-                        <Body id="body" completed={this.props.completed}>
-                            <EditableText
-                                innerRef={this.editor}
-                                readOnly={this.props.completed}
-                                onEditingChange={(editing) =>
-                                    this.setState({
-                                        isEditingDescription: editing,
-                                    })
-                                }
-                                input={removeItemTypeFromString(
-                                    this.props.text,
-                                )}
-                                onUpdate={(text) =>
-                                    this.handleDescriptionChange(text)
-                                }
-                                singleline={true}
+                        </ScheduledContainer>
+                    )}
+                    {props.dueDate && (
+                        <DueContainer>
+                            <DateRenderer
+                                completed={props.completed}
+                                type="due"
+                                position="center"
+                                text={dueDate}
+                                onClick={() => {
+                                    if (props.completed) return
+                                    setDueDateDropdownVisible(
+                                        dueDateDropdownVisible,
+                                    )
+                                }}
                             />
-                        </Body>
-                        {this.props.showProject && (
-                            <Project>
-                                {this.props.showProject
-                                    ? getProjectNameById(
-                                          this.props.projectId,
-                                          this.props.projects,
-                                      )
-                                    : 'null'}
-                            </Project>
-                        )}
-                        {this.props.scheduledDate && (
-                            <ScheduledContainer>
-                                <DateRenderer
-                                    completed={this.props.completed}
-                                    type="scheduled"
-                                    position="flex-start"
-                                    text={scheduledDate}
-                                    onClick={() => {
-                                        if (this.props.completed) return
-                                        this.setState({
-                                            scheduledDateDropdownVisible: !this
-                                                .state
-                                                .scheduledDateDropdownVisible,
-                                        })
-                                    }}
-                                />
-                            </ScheduledContainer>
-                        )}
-                        {this.props.dueDate && (
-                            <DueContainer>
-                                <DateRenderer
-                                    completed={this.props.completed}
-                                    type="due"
-                                    position="center"
-                                    text={dueDate}
-                                    onClick={() => {
-                                        if (this.props.completed) return
-                                        this.setState({
-                                            dueDateDropdownVisible: !this.state
-                                                .dueDateDropdownVisible,
-                                        })
-                                    }}
-                                />
-                            </DueContainer>
-                        )}
-                        {this.props.repeat && (
-                            <RepeatContainer>
-                                <DateRenderer
-                                    completed={this.props.completed}
-                                    type="repeat"
-                                    position="flex-end"
-                                    text={repeat}
-                                    onClick={() => {
-                                        if (this.props.completed) return
-                                        this.setState({
-                                            repeatDropdownVisible: !this.state
-                                                .repeatDropdownVisible,
-                                        })
-                                    }}
-                                />
-                            </RepeatContainer>
-                        )}
-                    </Container>
-                    <QuickAdd visible={this.state.quickAddContainerVisible}>
-                        <EditableItem
-                            text=""
-                            innerRef={this.quickAdd}
-                            readOnly={false}
-                            onSubmit={(text) => this.createSubTask(text)}
-                            onEscape={() =>
-                                this.setState({
-                                    quickAddContainerVisible: false,
-                                })
-                            }
-                        />
-                    </QuickAdd>
-                    {this.state.scheduledDateDropdownVisible && (
-                        <DatePicker
-                            key={'sd' + this.props.id}
-                            placeholder={'Schedule to: '}
-                            onSubmit={this.setScheduledDate}
-                            onEscape={() =>
-                                this.setState({
-                                    scheduledDateDropdownVisible: false,
-                                })
-                            }
-                        />
+                        </DueContainer>
                     )}
-                    {this.state.dueDateDropdownVisible && (
-                        <DatePicker
-                            key={'dd' + this.props.id}
-                            placeholder={'Due on: '}
-                            onSubmit={this.setDueDate}
-                            onEscape={() =>
-                                this.setState({ dueDateDropdownVisible: false })
-                            }
-                        />
-                    )}
-                    {this.state.repeatDropdownVisible && (
-                        <RepeatPicker
-                            key={'rp' + this.props.id}
-                            placeholder={'Repeat: '}
-                            onSubmit={this.setRepeatRule}
-                            onEscape={() =>
-                                this.setState({ repeatDropdownVisible: false })
-                            }
-                        />
-                    )}
-                    {this.state.projectDropdownVisible && (
-                        <ProjectDropdown
-                            key={'p' + this.props.id}
-                            placeholder={'Move to: '}
-                            onSubmit={this.moveItem}
-                            onEscape={() =>
-                                this.setState({ projectDropdownVisible: false })
-                            }
-                        />
-                    )}
-                </div>
-                {!this.state.hideChildren &&
-                    this.props.children?.map((c) => {
-                        const childItem = getItemById(c, this.props.items)
-                        // Sometimes the child item has been filtered out, so we don't want to render an empty container
-                        if (!childItem) return
-                        return (
-                            <Item
-                                {...childItem}
-                                key={c}
-                                items={this.props.items}
-                                noIndentOnSubtasks={
-                                    this.props.noIndentOnSubtasks
-                                }
-                                showProject={this.props.showProject}
-                                keymap={this.props.keymap}
-                                projects={this.props.projects}
-                                updateItemDescription={
-                                    this.props.updateItemDescription
-                                }
-                                setScheduledDate={this.props.setScheduledDate}
-                                setDueDate={this.props.setDueDate}
-                                setRepeatRule={this.props.setRepeatRule}
-                                moveItem={this.props.moveItem}
-                                completeItem={this.props.completeItem}
-                                uncompleteItem={this.props.uncompleteItem}
-                                createSubTask={this.props.createSubTask}
-                                deleteItem={this.props.deleteItem}
-                                undeleteItem={this.props.undeleteItem}
+                    {props.repeat && (
+                        <RepeatContainer>
+                            <DateRenderer
+                                completed={props.completed}
+                                type="repeat"
+                                position="flex-end"
+                                text={repeat}
+                                onClick={() => {
+                                    if (props.completed) return
+                                    setRepeatDropdownVisible(
+                                        repeatDropdownVisible,
+                                    )
+                                }}
                             />
-                        )
-                    })}
-            </ThemeProvider>
-        )
-    }
+                        </RepeatContainer>
+                    )}
+                </Container>
+                <QuickAdd visible={createSubtaskDropdownVisible}>
+                    <EditableItem
+                        text=""
+                        innerRef={quickAdd}
+                        readOnly={false}
+                        onSubmit={(text) => createSubTask(text)}
+                        onEscape={() => setCreateSubtaskDropdownVisible(false)}
+                    />
+                </QuickAdd>
+                {scheduledDateDropdownVisible && (
+                    <DatePicker
+                        key={'sd' + props.id}
+                        placeholder={'Schedule to: '}
+                        onSubmit={setScheduledDate}
+                        onEscape={() => setScheduledDateDropdownVisible(false)}
+                    />
+                )}
+                {dueDateDropdownVisible && (
+                    <DatePicker
+                        key={'dd' + props.id}
+                        placeholder={'Due on: '}
+                        onSubmit={setDueDate}
+                        onEscape={() => setDueDateDropdownVisible(false)}
+                    />
+                )}
+                {repeatDropdownVisible && (
+                    <RepeatPicker
+                        key={'rp' + props.id}
+                        placeholder={'Repeat: '}
+                        onSubmit={setRepeatRule}
+                        onEscape={() => setRepeatDropdownVisible(false)}
+                    />
+                )}
+                {projectDropdownVisible && (
+                    <ProjectDropdown
+                        key={'p' + props.id}
+                        placeholder={'Move to: '}
+                        onSubmit={moveItem}
+                        onEscape={() => setProjectDropdownVisible(false)}
+                    />
+                )}
+            </div>
+            {!hideChildren &&
+                props.children?.map((c) => {
+                    const childItem = getItemById(c, props.items)
+                    // Sometimes the child item has been filtered out, so we don't want to render an empty container
+                    if (!childItem) return
+                    return (
+                        <Item
+                            {...childItem}
+                            key={c}
+                            items={props.items}
+                            noIndentOnSubtasks={props.noIndentOnSubtasks}
+                            showProject={props.showProject}
+                            keymap={props.keymap}
+                            projects={props.projects}
+                            updateItemDescription={props.updateItemDescription}
+                            setScheduledDate={props.setScheduledDate}
+                            setDueDate={props.setDueDate}
+                            setRepeatRule={props.setRepeatRule}
+                            moveItem={props.moveItem}
+                            completeItem={props.completeItem}
+                            uncompleteItem={props.uncompleteItem}
+                            createSubTask={props.createSubTask}
+                            deleteItem={props.deleteItem}
+                            undeleteItem={props.undeleteItem}
+                        />
+                    )
+                })}
+        </ThemeProvider>
+    )
 }
 
 const mapStateToProps = (state) => ({
@@ -753,4 +661,4 @@ const mapDispatchToProps = (dispatch) => ({
     },
 })
 
-export default connect(mapStateToProps, mapDispatchToProps)(withHotkeys(Item))
+export default connect(mapStateToProps, mapDispatchToProps)(Item)

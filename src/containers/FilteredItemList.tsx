@@ -1,4 +1,4 @@
-import React, { Component, ReactElement } from 'react'
+import React, { ReactElement, useState } from 'react'
 import ItemList, { RenderingStrategy } from '../components/ItemList'
 import {
     endOfDay,
@@ -32,7 +32,6 @@ import { connect } from 'react-redux'
 import { Button } from '../components/Button'
 import { Tooltip } from '../components/Tooltip'
 import { deleteItem } from '../actions/item'
-import { components } from 'react-select'
 import { sortIcon } from '../assets/icons'
 
 /*
@@ -230,13 +229,6 @@ interface FilterParamsType {
     type?: 'TODO' | 'NOTE'
 }
 
-interface FilteredItemListState {
-    sortCriteria: SortCriteriaEnum
-    hideCompleted: boolean
-    hideItemList: boolean
-    isAbleToToggleCompleted?: boolean
-}
-
 interface FilteredItemListProps {
     items: ItemType[]
     showProject: boolean
@@ -250,38 +242,17 @@ interface FilteredItemListProps {
     deleteItem: (id: Uuid) => void
 }
 
-class FilteredItemList extends Component<
-    FilteredItemListProps,
-    FilteredItemListState
-> {
-    constructor(props) {
-        super(props)
-        this.state = {
-            sortCriteria: SortCriteriaEnum.DueDesc,
-            hideCompleted: false,
-            hideItemList: false,
-        }
-        this.deleteCompletedItems = this.deleteCompletedItems.bind(this)
-        this.getFilteredItems = this.getFilteredItems.bind(this)
-    }
+function FilteredItemList(props: FilteredItemListProps): ReactElement {
+    const [sortCriteria, setSortCriteria] = useState(SortCriteriaEnum.DueDesc)
+    const [hideCompleted, setHideCompleted] = useState(false)
+    const [hideItemList, setHideItemList] = useState(false)
 
-    deleteCompletedItems(): void {
-        const { completedItems } = this.getFilteredItems()
-        completedItems.map((c) => {
-            if (c.parentId == null) {
-                this.props.deleteItem(c.id)
-            }
-        })
-        return
-    }
-
-    getFilteredItems(): {
+    const getFilteredItems = (): {
         completedItems: ItemType[]
         allItems: ItemType[]
         sortedItems: ItemType[]
-    } {
-        const { items, filter, filterParams } = this.props
-        const { hideCompleted, sortCriteria } = this.state
+    } => {
+        const { items, filter, filterParams } = props
 
         const allItems = filterItems(items, filter, filterParams)
         const uncompletedItems = allItems.filter((i) => i.completed == false)
@@ -296,134 +267,116 @@ class FilteredItemList extends Component<
         }
     }
 
-    render(): ReactElement {
-        // TODO: Unsure if this should be done in state
-        const {
-            completedItems,
-            allItems,
-            sortedItems,
-        } = this.getFilteredItems()
-
-        // NOTE: For some filters where we're not showing completed items, we want to not show that option
-        const hideCompletedToggle =
-            this.props.filter == FilterEnum.ShowOverdue ||
-            this.props.filter == FilterEnum.ShowNotScheduled ||
-            this.props.filter == FilterEnum.ShowCompleted
-        return (
-            <Container>
-                <HeaderBar>
-                    <ListName>
-                        <Header1>
-                            {this.props.listName}
-                            <Paragraph>
-                                {sortedItems.length +
-                                    (sortedItems.length == 1
-                                        ? ' item'
-                                        : ' items')}
-                            </Paragraph>
-                        </Header1>
-                        <Button
-                            type="default"
-                            width="24px"
-                            height="24px"
-                            icon={
-                                this.state.hideItemList ? 'expand' : 'collapse'
-                            }
-                            onClick={() =>
-                                this.setState({
-                                    hideItemList: !this.state.hideItemList,
-                                })
-                            }
-                        ></Button>
-                    </ListName>
-                    {this.props.isFilterable &&
-                        !this.state.hideItemList &&
-                        allItems.length > 0 && (
-                            <FilterBar>
-                                <CompletedContainer
-                                    visible={
-                                        completedItems.length > 0 &&
-                                        !hideCompletedToggle
-                                    }
-                                >
-                                    <Button
-                                        dataFor="complete-button"
-                                        type="default"
-                                        width="24px"
-                                        height="24px"
-                                        icon={
-                                            this.state.hideCompleted
-                                                ? 'hide'
-                                                : 'show'
-                                        }
-                                        onClick={() => {
-                                            this.setState({
-                                                hideCompleted: !this.state
-                                                    .hideCompleted,
-                                            })
-                                        }}
-                                    ></Button>
-                                    <Tooltip
-                                        id="complete-button"
-                                        text={'Toggle completed items'}
-                                    />
-                                </CompletedContainer>
-                                {completedItems.length > 0 &&
-                                    !this.state.hideItemList && (
-                                        <DeleteContainer>
-                                            <Button
-                                                dataFor="trash-button"
-                                                spacing="default"
-                                                type="default"
-                                                icon="trash"
-                                                width="24px"
-                                                height="24px"
-                                                onClick={() => {
-                                                    this.deleteCompletedItems()
-                                                }}
-                                            ></Button>
-                                            <Tooltip
-                                                id="trash-button"
-                                                text={'Delete completed items'}
-                                            />
-                                        </DeleteContainer>
-                                    )}
-                                {sortedItems.length > 1 &&
-                                    !this.state.hideItemList && (
-                                        <SortContainer>
-                                            <SortIcon>{sortIcon()}</SortIcon>
-                                            <SortSelect
-                                                options={options}
-                                                autoFocus={false}
-                                                placeholder="Sort"
-                                                styles={{
-                                                    ...selectStyles,
-                                                    placeholder: sortPlaceholderStyles,
-                                                    control: sortControlStyles,
-                                                }}
-                                                onChange={(e) => {
-                                                    this.setState({
-                                                        sortCriteria: e.value,
-                                                    })
-                                                }}
-                                            />
-                                        </SortContainer>
-                                    )}
-                            </FilterBar>
-                        )}
-                </HeaderBar>
-                {!this.state.hideItemList && (
-                    <ItemListContainer>
-                        <ItemList
-                            showProject={this.props.showProject}
-                            items={sortedItems}
-                            renderingStrategy={this.props.renderingStrategy}
-                        />
-                    </ItemListContainer>
-                )}
-            </Container>
-        )
+    const deleteCompletedItems = (): void => {
+        const { completedItems } = getFilteredItems()
+        completedItems.map((c) => {
+            if (c.parentId == null) {
+                props.deleteItem(c.id)
+            }
+        })
+        return
     }
+
+    // TODO: Unsure if this should be done in state
+    const { completedItems, allItems, sortedItems } = getFilteredItems()
+
+    // NOTE: For some filters where we're not showing completed items, we want to not show that option
+    const hideCompletedToggle =
+        props.filter == FilterEnum.ShowOverdue ||
+        props.filter == FilterEnum.ShowNotScheduled ||
+        props.filter == FilterEnum.ShowCompleted
+    return (
+        <Container>
+            <HeaderBar>
+                <ListName>
+                    <Header1>
+                        {props.listName}
+                        <Paragraph>
+                            {sortedItems.length +
+                                (sortedItems.length == 1 ? ' item' : ' items')}
+                        </Paragraph>
+                    </Header1>
+                    <Button
+                        type="default"
+                        width="24px"
+                        height="24px"
+                        icon={hideItemList ? 'expand' : 'collapse'}
+                        onClick={() => setHideItemList(!hideItemList)}
+                    ></Button>
+                </ListName>
+                {props.isFilterable && !hideItemList && allItems.length > 0 && (
+                    <FilterBar>
+                        <CompletedContainer
+                            visible={
+                                completedItems.length > 0 &&
+                                !hideCompletedToggle
+                            }
+                        >
+                            <Button
+                                dataFor="complete-button"
+                                spacing="compact"
+                                type="default"
+                                iconSize="20px"
+                                icon={hideCompleted ? 'hide' : 'show'}
+                                onClick={() => {
+                                    setHideCompleted(!hideCompleted)
+                                }}
+                            ></Button>
+                            <Tooltip
+                                id="complete-button"
+                                text={'Toggle completed items'}
+                            />
+                        </CompletedContainer>
+                        {completedItems.length > 0 && !hideItemList && (
+                            <DeleteContainer>
+                                <Button
+                                    dataFor="trash-button"
+                                    spacing="compact"
+                                    iconSize="20px"
+                                    type="default"
+                                    icon="trash_sweep"
+                                    onClick={() => {
+                                        deleteCompletedItems()
+                                    }}
+                                ></Button>
+                                <Tooltip
+                                    id="trash-button"
+                                    text={'Delete completed items'}
+                                />
+                            </DeleteContainer>
+                        )}
+                        {sortedItems.length > 1 && !hideItemList && (
+                            <SortContainer>
+                                <SortIcon>{sortIcon()}</SortIcon>
+                                <SortSelect
+                                    options={options}
+                                    autoFocus={false}
+                                    placeholder="Sort"
+                                    styles={{
+                                        ...selectStyles,
+                                        placeholder: sortPlaceholderStyles,
+                                        control: sortControlStyles,
+                                    }}
+                                    onChange={(e) => {
+                                        setSortCriteria(e.value)
+                                    }}
+                                />
+                            </SortContainer>
+                        )}
+                    </FilterBar>
+                )}
+            </HeaderBar>
+            {!hideItemList && (
+                <ItemListContainer>
+                    <ItemList
+                        showProject={props.showProject}
+                        items={sortedItems}
+                        renderingStrategy={props.renderingStrategy}
+                    />
+                </ItemListContainer>
+            )}
+        </Container>
+    )
 }
 
 const mapStateToProps = (state) => ({

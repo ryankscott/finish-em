@@ -15,10 +15,9 @@ export const StyledButton = styled.button<StyledProps>`
     align-items: center;
     background-color: ${(props) => props.theme.backgroundColour};
     color: ${(props) => props.theme.colour};
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
     padding: ${(props) =>
         props.iconOnly
-            ? '2px'
+            ? '5px'
             : props.spacing === 'compact'
             ? '5px 8px'
             : '8px 10px'};
@@ -50,12 +49,16 @@ export const Icon = styled.div`
 
 interface TextProps {
     hasIcon: boolean
+    textSize?: 'xsmall' | 'small' | 'regular' | 'large'
 }
 export const Text = styled.div<TextProps>`
     display: flex;
     flex-direction: column;
     justify-content: center;
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    font-size: ${(props) =>
+        props.textSize
+            ? props.theme.fontSizes[props.textSize]
+            : props.theme.fontSizes.xsmall};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     margin-left: ${(props) => (props.hasIcon ? '4px' : '0px')};
 `

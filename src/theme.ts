@@ -30,7 +30,7 @@ export const theme = {
             backgroundColour: '#404040',
             colour: '#Fbfbfb',
             borderColour: '#e0e0e0',
-            hoverBackgroundColour: lighten(0.05, '#404040'),
+            hoverBackgroundColour: lighten(0.1, '#404040'),
         },
         primary: {
             backgroundColour: '#45b9ef',

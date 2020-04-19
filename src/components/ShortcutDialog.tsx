@@ -1,4 +1,4 @@
-import React, { Component, ReactElement } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import { Title, Header1 } from './Typography'
@@ -75,76 +75,66 @@ interface ShortcutDialogProps {
     isOpen: boolean
     closeShortcutDialog: () => void
 }
-class ShortcutDialog extends Component<ShortcutDialogProps, {}> {
-    private node: React.RefObject<HTMLInputElement>
-    constructor(props: ShortcutDialogProps) {
-        super(props)
-        this.handleClick = this.handleClick.bind(this)
-        this.node = React.createRef()
-    }
-    componentDidMount(): void {
-        document.addEventListener('mousedown', this.handleClick, false)
-        return
-    }
-    componentWillUnmount(): void {
-        document.removeEventListener('mousedown', this.handleClick, false)
-        return
-    }
+function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
+    const node = React.createRef()
 
-    handleClick(e: React.MouseEvent): void {
+    const handleClick = (e: React.MouseEvent): void => {
         // Don't handle if we're clicking on the shortcut icon again
         if (e.target?.parentElement?.id == 'shortcut-icon') return
         // Don't close if we're clicking on the dialog
         if (e && this?.node?.current?.contains(e.target)) return
         // Only close if it's currently open
-        if (this.props.isOpen) {
-            this.props.closeShortcutDialog()
+        if (props.isOpen) {
+            props.closeShortcutDialog()
         }
         return
     }
 
-    handleKeyDown(e: React.KeyboardEvent<HTMLDivElement>): void {
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClick, false)
+        return () => {
+            document.removeEventListener('mousedown', handleClick)
+        }
+    })
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>): void => {
         if (e.key == 'Escape') {
-            this.props.closeShortcutDialog()
+            props.closeShortcutDialog()
         }
         return
     }
 
-    render(): ReactElement {
-        return (
-            <ThemeProvider theme={theme}>
-                <ShortcutContainer
-                    ref={this.node}
-                    isOpen={this.props.isOpen}
-                    onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) =>
-                        this.handleKeyDown(e)
-                    }
-                >
-                    <Controls>
-                        <Button
-                            width="24px"
-                            height="24px"
-                            type="invert"
-                            spacing="default"
-                            icon="close"
-                            onClick={this.props.closeShortcutDialog}
-                        />
-                    </Controls>
-                    <Header>
-                        <Title>Shortcuts</Title>
-                    </Header>
-                    <Body>
-                        <Header1 invert>App</Header1>
-                        <ShortcutTable>{generateRows(appKeymap)}</ShortcutTable>
-                        <Header1 invert>Item</Header1>
-                        <ShortcutTable>
-                            {generateRows(itemKeymap)}
-                        </ShortcutTable>
-                    </Body>
-                </ShortcutContainer>
-            </ThemeProvider>
-        )
-    }
+    return (
+        <ThemeProvider theme={theme}>
+            <ShortcutContainer
+                ref={node}
+                isOpen={props.isOpen}
+                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) =>
+                    handleKeyDown(e)
+                }
+            >
+                <Controls>
+                    <Button
+                        width="24px"
+                        height="24px"
+                        type="invert"
+                        spacing="default"
+                        icon="close"
+                        onClick={props.closeShortcutDialog}
+                    />
+                </Controls>
+                <Header>
+                    <Title>Shortcuts</Title>
+                </Header>
+                <Body>
+                    <Header1 invert>App</Header1>
+                    <ShortcutTable>{generateRows(appKeymap)}</ShortcutTable>
+                    <Header1 invert>Item</Header1>
+                    <ShortcutTable>{generateRows(itemKeymap)}</ShortcutTable>
+                </Body>
+            </ShortcutContainer>
+        </ThemeProvider>
+    )
 }
 
 const mapStateToProps = (state) => ({

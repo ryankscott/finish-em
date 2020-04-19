@@ -1,4 +1,4 @@
-import React, { Component, ReactElement } from 'react'
+import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import marked from 'marked'
@@ -17,139 +17,120 @@ interface EditableTextProps {
     singleline?: boolean
     style?: typeof Title | typeof Paragraph | typeof Header
 }
-interface EditableTextState {
-    input: string
-    editable: boolean
-}
 
-class EditableText extends Component<EditableTextProps, EditableTextState> {
-    constructor(props) {
-        super(props)
-        this.state = {
-            input: this.props.input,
-            editable: false,
-        }
-        this.handleBlur = this.handleBlur.bind(this)
-        this.handleFocus = this.handleFocus.bind(this)
-        this.handleClick = this.handleClick.bind(this)
-        this.handleKeyPress = this.handleKeyPress.bind(this)
-        this.getMarkdownText = this.getMarkdownText.bind(this)
-        this.getRawText = this.getRawText.bind(this)
-    }
+function EditableText(props: EditableTextProps): ReactElement {
+    const [input, setInput] = useState(props.input)
+    const [editable, setEditable] = useState(false)
 
-    handleBlur(e): void {
+    const handleBlur = (e): void => {
         // Ignore events if it's read only
-        if (this.props.readOnly) return
+        if (props.readOnly) return
         // Ignore events if we're not editing
-        if (!this.state.editable) return
-        this.setState({
-            editable: false,
-            input: this.props.innerRef.current.innerText,
-        })
-        if (this.props.onEditingChange) {
-            this.props.onEditingChange(false)
+        if (!editable) return
+        setEditable(false)
+        setInput(props.innerRef.current.innerText)
+        if (props.onEditingChange) {
+            props.onEditingChange(false)
         }
-        this.props.onUpdate(this.props.innerRef.current.innerText)
+        props.onUpdate(props.innerRef.current.innerText)
         return
     }
 
-    handleClick(e): void {
-        if (this.props.readOnly) return
+    useEffect(() => {
+        if (editable) {
+            setEndOfContenteditable(props.innerRef.current)
+        }
+    }, [editable])
+
+    const handleClick = (e): void => {
+        if (props.readOnly) return
         // Handle links normally
         if (e.target.nodeName == 'A') {
             return
         }
         // Ignore clicks if it's already editable
-        if (this.state.editable) return
-        this.setState({ editable: true })
-        if (this.props.onEditingChange) {
-            this.props.onEditingChange(true)
+        if (editable) return
+        setEditable(true)
+        if (props.onEditingChange) {
+            props.onEditingChange(true)
         }
         return
     }
 
-    handleKeyPress(e): void {
+    const handleKeyPress = (e): void => {
         // TODO: We should be able to call this at the Item and have the ability to update the text
-        if (e.key == 'Enter' && this.props.singleline) {
-            this.setState({
-                editable: false,
-                input: this.props.innerRef.current.innerText.trim(),
-            })
-            if (this.props.onEditingChange) {
-                this.props.onEditingChange(false)
+        if (e.key == 'Enter' && props.singleline) {
+            setEditable(false)
+            setInput(props.innerRef.current.innerText.trim())
+            if (props.onEditingChange) {
+                props.onEditingChange(false)
             }
-            this.props.onUpdate(this.props.innerRef.current.innerText.trim())
-            this.props.innerRef.current.blur()
+            props.onUpdate(props.innerRef.current.innerText.trim())
+            props.innerRef.current.blur()
             e.preventDefault()
         } else if (e.key == 'Escape') {
-            this.setState({
-                editable: false,
-                input: this.props.innerRef.current.innerText,
-            })
-            if (this.props.onEditingChange) {
-                this.props.onEditingChange(false)
+            setEditable(false)
+            setInput(props.innerRef.current.innerText)
+            if (props.onEditingChange) {
+                props.onEditingChange(false)
             }
-            this.props.innerRef.current.blur()
+            props.innerRef.current.blur()
             e.preventDefault()
         }
         return
     }
 
-    // TODO: Fix the return type
-    // NOTE: We have to replace newlines with HTML breaks
-    getRawText(): {} {
-        return { __html: this.state.input.replace(/\n/gi, '<br/>') }
-    }
-
-    // TODO: Fix the return type
-    getMarkdownText(): {} {
-        return { __html: marked(this.state.input) }
-    }
-
-    handleFocus(e): void {
+    const handleFocus = (e): void => {
         // NOTE: Weirdly Chrome sometimes fires a focus event before a click
-        if (this.props.readOnly) {
+        if (props.readOnly) {
             return
         }
         if (e.target.nodeName == 'A') {
             return
         }
-        if (!this.state.editable) {
-            this.setState({ editable: true }, () => {
-                setEndOfContenteditable(this.props.innerRef.current)
-            })
+        if (!editable) {
+            setEditable(true)
 
-            if (this.props.onEditingChange) {
-                this.props.onEditingChange(true)
+            if (props.onEditingChange) {
+                props.onEditingChange(true)
             }
         }
+
+        setEndOfContenteditable(props.innerRef.current)
         return
     }
 
-    render(): ReactElement {
-        return (
-            <ThemeProvider theme={theme}>
-                <Container
-                    as={this.props.style || Paragraph}
-                    readOnly={this.props.readOnly}
-                    ref={this.props.innerRef}
-                    width={this.props.width}
-                    height={this.props.height}
-                    contentEditable={this.state.editable}
-                    onClick={this.handleClick}
-                    onFocus={this.handleFocus}
-                    onBlur={this.handleBlur}
-                    tabIndex={-1}
-                    onKeyPress={this.handleKeyPress}
-                    dangerouslySetInnerHTML={
-                        this.state.editable
-                            ? this.getRawText()
-                            : this.getMarkdownText()
-                    }
-                />
-            </ThemeProvider>
-        )
+    // TODO: Fix the return type
+    // NOTE: We have to replace newlines with HTML breaks
+    const getRawText = (): {} => {
+        return { __html: input.replace(/\n/gi, '<br/>') }
     }
+
+    // TODO: Fix the return type
+    const getMarkdownText = (): {} => {
+        return { __html: marked(input) }
+    }
+
+    return (
+        <ThemeProvider theme={theme}>
+            <Container
+                as={props.style || Paragraph}
+                readOnly={props.readOnly}
+                ref={props.innerRef}
+                width={props.width}
+                height={props.height}
+                contentEditable={editable}
+                onClick={handleClick}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                tabIndex={-1}
+                onKeyPress={handleKeyPress}
+                dangerouslySetInnerHTML={
+                    editable ? getRawText() : getMarkdownText()
+                }
+            />
+        </ThemeProvider>
+    )
 }
 
 export default React.forwardRef(

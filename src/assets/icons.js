@@ -36,35 +36,25 @@ export const dueIcon = (width, height) => (
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-        <circle cx="12" cy="12" r="10">
-            {' '}
-        </circle>
-        <line x1="12" y1="8" x2="12" y2="12">
-            {' '}
-        </line>
-        <line x1="12" y1="16" x2="12.01" y2="16">
-            {' '}
-        </line>
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
     </svg>
 )
 
 export const scheduledIcon = (width, height) => (
     <svg
-        key="scheduledIcon"
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
+        fill="currentColor"
+        strokeWidth="1"
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-        <line x1="16" y1="2" x2="16" y2="6"></line>
-        <line x1="8" y1="2" x2="8" y2="6"></line>
-        <line x1="3" y1="10" x2="21" y2="10"></line>
+        <path d="M0 0h24v24H0V0z" fill="none" />
+        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
     </svg>
 )
 
@@ -227,12 +217,12 @@ export const trashIcon = (width, height) => (
 export const showIcon = (width, height) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        width={width ? width : '16'}
-        height={height ? height : '16'}
+        width={width ? width : '14'}
+        height={height ? height : '14'}
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
     >
@@ -245,12 +235,12 @@ export const hideIcon = (width, height) => {
     return (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            width={width ? width : '16'}
-            height={height ? height : '16'}
+            width={width ? width : '14'}
+            height={height ? height : '14'}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.75"
             strokeLinecap="round"
             strokeLinejoin="round"
         >
@@ -273,3 +263,93 @@ export const sortIcon = (width, height) => {
         </svg>
     )
 }
+
+export const trashSweepIcon = (width, height) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 32 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <polyline points="3 6 5 6 21 6"> </polyline>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        <line x1="25" y1="8" x2="32" y2="8"></line>
+        <line x1="25" y1="14" x2="30" y2="14"></line>
+        <line x1="25" y1="20" x2="28" y2="20"></line>
+    </svg>
+)
+
+export const inboxIcon = (width, height) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
+        <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+    </svg>
+)
+
+export const calendarIcon = (width, height) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+    </svg>
+)
+
+export const slideLeftIcon = (width, height) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <polyline points="11 17 6 12 11 7"></polyline>
+        <polyline points="18 17 13 12 18 7"></polyline>
+    </svg>
+)
+
+export const slideRightIcon = (width, height) => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <polyline points="13 17 18 12 13 7"></polyline>
+        <polyline points="6 17 11 12 6 7"></polyline>
+    </svg>
+)

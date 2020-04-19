@@ -1,48 +1,19 @@
-import React, { Component, ReactElement } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import React, { ReactElement, useEffect } from 'react'
+import { ThemeProvider } from 'styled-components'
 import { Manager, Reference, Popper } from 'react-popper'
 
 import { theme } from '../theme'
 import { Button } from './Button'
-
-// TODO: How to animate this without blocking other clicks display: none hides it but won't animate
-interface ContainerProps {
-    visible: boolean
-}
-const Container = styled.div<ContainerProps>`
-    position: absolute;
-    box-sizing: border-box;
-    display: ${(props) => (props.visible ? 'flex' : 'none')};
-    flex-direction: column;
-    width: 200px;
-    background-color: ${(props) =>
-        props.theme.colours.lightDialogBackgroundColour};
-    padding: 5px 5px 8px 5px;
-    justify-content: center;
-    align-items: center;
-    border-radius: 3px;
-    margin: 2px;
-    transition: all 0.1s ease-in-out;
-    z-index: 99;
-`
-
-const HeaderContainer = styled.div`
-    display: flex;
-    justify-content: flex-end;
-    width: 100%;
-    margin: 0px;
-    padding: 0px;
-`
-
-const BodyContainer = styled.div`
-    margin: 0px;
-    padding: 5px;
-`
+import {
+    HeaderContainer,
+    Container,
+    BodyContainer,
+} from './styled/InlineDialog'
 
 export interface InlineDialogProps {
     isOpen: boolean
-    onOpen: () => void
-    onClose: () => void
+    onOpen?: () => void
+    onClose?: () => void
     placement:
         | 'auto'
         | 'auto-start'
@@ -63,82 +34,59 @@ export interface InlineDialogProps {
 }
 
 // TODO: Replace this with the react-tooltip?
-class InlineDialog extends Component<InlineDialogProps, {}> {
-    private node: React.RefObject<any>
-    constructor(props) {
-        super(props)
-        this.handleClick = this.handleClick.bind(this)
-        this.node = React.createRef()
-    }
-    componentDidMount(): void {
-        document.addEventListener('mousedown', this.handleClick, false)
-        return
-    }
-    componentWillUnount(): void {
-        document.removeEventListener('mousedown', this.handleClick, false)
-        return
-    }
-    // TODO: Fix this with refs
-    componentDidUpdate(prevProps): void {
-        if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen) {
-            this.props.onOpen()
-        }
-        return
-    }
+function InlineDialog(props: InlineDialogProps): ReactElement {
+    const node = React.createRef()
 
-    handleClick(e): void {
+    const handleClick = (e): void => {
         // Don't close if we're clicking on the dialog
-        if (e && this.node.current && this.node.current.contains(e.target)) {
+        if (e && node.current && node.current.contains(e.target)) {
             return
         }
         // Only close if it's currently open
-        if (this.props.isOpen) {
-            this.props.onClose()
+        if (props.isOpen) {
+            props.onClose()
         }
+
         return
     }
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClick, false)
+        return () => {
+            document.removeEventListener('mousedown', handleClick, false)
+        }
+    })
 
-    render(): ReactElement {
-        return (
-            <Manager>
-                <Reference>
-                    {({ ref }) => <div ref={ref}>{this.props.children}</div>}
-                </Reference>
-                <Popper placement={this.props.placement}>
-                    {({ ref, style, arrowProps }) => (
-                        <div
-                            ref={ref}
-                            style={style}
-                            data-placement={this.props.placement}
-                        >
-                            <ThemeProvider theme={theme}>
-                                <Container
-                                    ref={this.node}
-                                    visible={this.props.isOpen}
-                                >
-                                    <HeaderContainer>
-                                        <Button
-                                            spacing="default"
-                                            type="default"
-                                            onClick={this.props.onClose}
-                                            icon="close"
-                                        />
-                                    </HeaderContainer>
-                                    <BodyContainer>
-                                        {this.props.content}
-                                    </BodyContainer>
-                                </Container>
-                            </ThemeProvider>
-                            <div
-                                ref={arrowProps.ref}
-                                style={arrowProps.style}
-                            />
-                        </div>
-                    )}
-                </Popper>
-            </Manager>
-        )
-    }
+    return (
+        <Manager>
+            <Reference>
+                {({ ref }) => <div ref={ref}>{props.children}</div>}
+            </Reference>
+            <Popper placement={props.placement}>
+                {({ ref, style, arrowProps }) => (
+                    <div
+                        ref={ref}
+                        style={style}
+                        data-placement={props.placement}
+                    >
+                        <ThemeProvider theme={theme}>
+                            <Container ref={node} visible={props.isOpen}>
+                                <HeaderContainer>
+                                    <Button
+                                        spacing="default"
+                                        type="default"
+                                        onClick={props.onClose}
+                                        icon="close"
+                                    />
+                                </HeaderContainer>
+                                <BodyContainer>{props.content}</BodyContainer>
+                            </Container>
+                        </ThemeProvider>
+                        <div ref={arrowProps.ref} style={arrowProps.style} />
+                    </div>
+                )}
+            </Popper>
+        </Manager>
+    )
 }
 
 export default InlineDialog
