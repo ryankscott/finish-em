@@ -33,6 +33,7 @@ import { Button } from '../components/Button'
 import { Tooltip } from '../components/Tooltip'
 import { deleteItem } from '../actions/item'
 import { sortIcon } from '../assets/icons'
+import { getItemById } from '../utils'
 
 /*
 If compareFunction(a, b) returns less than 0, sort a to an index lower than b (i.e. a comes first).
@@ -255,7 +256,14 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         const { items, filter, filterParams } = props
 
         const allItems = filterItems(items, filter, filterParams)
-        const uncompletedItems = allItems.filter((i) => i.completed == false)
+        const uncompletedItems = allItems.filter((i) => {
+            return (
+                (i.completed == false && i.parentId == null) ||
+                (i.completed == false &&
+                    i.parentId != null &&
+                    getItemById(i.parentId, items).completed == false)
+            )
+        })
         const completedItems = allItems.filter((i) => i.completed === true)
         const sortedItems = hideCompleted
             ? sortItems(uncompletedItems, sortCriteria)

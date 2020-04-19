@@ -28,7 +28,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 <SectionHeader>
                     {props.sidebarVisible && <Header> Views </Header>}
                 </SectionHeader>
-                <StyledNavLink visible={props.sidebarVisible} to="/inbox">
+                <StyledNavLink to="/inbox">
                     <Button
                         icon="inbox"
                         text={props.sidebarVisible ? 'Inbox' : ''}
@@ -39,7 +39,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         onClick={() => {}}
                     />
                 </StyledNavLink>
-                <StyledNavLink visible={props.sidebarVisible} to="/dailyAgenda">
+                <StyledNavLink to="/dailyAgenda">
                     <Button
                         icon="calendar"
                         text={props.sidebarVisible ? 'Daily Agenda' : ''}
@@ -50,7 +50,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         onClick={() => {}}
                     />
                 </StyledNavLink>
-                <StyledNavLink visible={props.sidebarVisible} to="/unscheduled">
+                <StyledNavLink to="/unscheduled">
                     <Button
                         icon="scheduled"
                         text={props.sidebarVisible ? 'Unscheduled' : ''}
@@ -61,7 +61,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         onClick={() => {}}
                     />
                 </StyledNavLink>
-                <StyledNavLink visible={props.sidebarVisible} to="/trash">
+                <StyledNavLink to="/trash">
                     <Button
                         icon="trash"
                         text={props.sidebarVisible ? 'Trash' : ''}
@@ -72,7 +72,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         onClick={() => {}}
                     />
                 </StyledNavLink>
-                <StyledNavLink visible={props.sidebarVisible} to="/completed">
+                <StyledNavLink to="/completed">
                     <Button
                         icon="todo_checked"
                         text={props.sidebarVisible ? 'Completed' : ''}
@@ -92,11 +92,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     const pathName = '/projects/' + p.id
                     if (!(p.id == null || p.deleted == true)) {
                         return (
-                            <StyledNavLink
-                                visible={props.sidebarVisible}
-                                key={p.id}
-                                to={pathName}
-                            >
+                            <StyledNavLink key={p.id} to={pathName}>
                                 <Button
                                     text={
                                         props.sidebarVisible
