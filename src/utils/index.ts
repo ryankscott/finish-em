@@ -2,6 +2,7 @@ import chrono from 'chrono-node'
 import { isAfter, format, isToday, isTomorrow, isThisWeek } from 'date-fns'
 import { ItemType, ProjectType } from '../interfaces'
 import { Uuid } from '@typed/uuid'
+import RRule from 'rrule'
 
 export const itemRegex = new RegExp('^(TODO)|(NOTE)s*.*', 'gi')
 
@@ -201,4 +202,65 @@ export const getFirstLetterFromEachWord = (input: string): string => {
     if (words.length == 1) return input.slice(0, 2)
     const letters = words.map((w) => w[0])
     return letters.join('').toUpperCase()
+}
+
+const getNumberAndSuffix = (i: number): string => {
+    const j = i % 10,
+        k = i % 100
+    if (j == 1 && k != 11) {
+        return i + 'st'
+    }
+    if (j == 2 && k != 12) {
+        return i + 'nd'
+    }
+    if (j == 3 && k != 13) {
+        return i + 'rd'
+    }
+    return i + 'th'
+}
+
+const dayToString = (i: number): string => {
+    switch (i) {
+        case 0:
+            return 'Monday'
+            break
+        case 1:
+            return 'Tuesday'
+            break
+        case 2:
+            return 'Wednesday'
+            break
+        case 3:
+            return 'Thursday'
+            break
+        case 3:
+            return 'Friday'
+            break
+        case 3:
+            return 'Saturday'
+            break
+        case 3:
+            return 'Sunday'
+            break
+
+        default:
+            break
+    }
+}
+
+export const rruleToText = (input: RRule): string => {
+    console.log(input)
+    switch (input.options.freq) {
+        case RRule.MONTHLY:
+            const date = input.options.bymonthday[0]
+            const dateString = getNumberAndSuffix(date)
+            return dateString + ' of the month'
+            break
+        case RRule.WEEKLY:
+            const day = input.options.byweekday[0]
+            return 'every ' + dayToString(day)
+        default:
+            return input.toText()
+            break
+    }
 }

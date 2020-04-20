@@ -26,6 +26,7 @@ const options = [
         value: new RRule({
             freq: RRule.WEEKLY,
             interval: 1,
+            byweekday: new Date().getDay() - 1
         }),
         label: 'Weekly on ' + format(new Date(), 'EEE'),
     },
@@ -33,6 +34,7 @@ const options = [
         value: new RRule({
             freq: RRule.MONTHLY,
             interval: 1,
+            bymonthday: new Date().getDate()
         }),
         label: 'Monthly on the ' + format(new Date(), 'do'),
     },
