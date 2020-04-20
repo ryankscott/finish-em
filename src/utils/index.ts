@@ -147,6 +147,9 @@ export const formatRelativeDate = (date: Date): string => {
 export const getItemById = (id: Uuid, items: ItemType[]): ItemType => {
     return items.find((i) => i.id == id)
 }
+export const getItemIndexById = (id: Uuid, items: ItemType[]): number => {
+    return items.findIndex((i) => i.id == id)
+}
 
 export const getSubtasksFromTasks = (
     items: ItemType[],
@@ -195,6 +198,7 @@ export const getProjectNameById = (
 
 export const getFirstLetterFromEachWord = (input: string): string => {
     const words = input.split(' ')
+    if (words.length == 1) return input.slice(0, 2)
     const letters = words.map((w) => w[0])
     return letters.join('').toUpperCase()
 }
