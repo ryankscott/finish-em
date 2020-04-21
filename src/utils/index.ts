@@ -249,7 +249,6 @@ const dayToString = (i: number): string => {
 }
 
 export const rruleToText = (input: RRule): string => {
-    console.log(input)
     switch (input.options.freq) {
         case RRule.MONTHLY:
             const date = input.options.bymonthday[0]
