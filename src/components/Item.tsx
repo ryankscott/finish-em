@@ -435,7 +435,6 @@ function Item(props: ItemProps): ReactElement {
     const repeat = props.repeat
         ? rruleToText(RRule.fromString(props.repeat))
         : ''
-    const repeat = props.repeat ? rrulestr(props.repeat).toText() : ''
     const dueDate = props.dueDate
         ? formatRelativeDate(parseISO(props.dueDate))
         : null
@@ -514,7 +513,7 @@ function Item(props: ItemProps): ReactElement {
                                 onClick={() => {
                                     if (props.completed) return
                                     setScheduledDateDropdownVisible(
-                                        scheduledDateDropdownVisible,
+                                        !scheduledDateDropdownVisible,
                                     )
                                 }}
                             />
@@ -530,7 +529,7 @@ function Item(props: ItemProps): ReactElement {
                                 onClick={() => {
                                     if (props.completed) return
                                     setDueDateDropdownVisible(
-                                        dueDateDropdownVisible,
+                                        !dueDateDropdownVisible,
                                     )
                                 }}
                             />
@@ -546,7 +545,7 @@ function Item(props: ItemProps): ReactElement {
                                 onClick={() => {
                                     if (props.completed) return
                                     setRepeatDropdownVisible(
-                                        repeatDropdownVisible,
+                                        !repeatDropdownVisible,
                                     )
                                 }}
                             />
