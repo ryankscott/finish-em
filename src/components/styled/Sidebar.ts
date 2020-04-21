@@ -6,7 +6,7 @@ interface ContainerProps {
 }
 export const Container = styled.div<ContainerProps>`
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
-    padding: ${(props) => (props.visible ? '20px' : '0px')};
+    padding: ${(props) => (props.visible ? '10px' : '0px')};
     width: ${(props) => (props.visible ? '250px' : '50px')};
     align-items: ${(props) => (props.visible ? 'none' : 'center')};
     display: flex;
@@ -46,7 +46,7 @@ interface FooterProps {
 }
 export const Footer = styled.div<FooterProps>`
     position: absolute;
-    bottom: ${(props) => (props.visible ? '50px' : '10px')};
+    bottom: ${(props) => (props.visible ? '30px' : '10px')};
     right: 10px;
     display: flex;
     flex-direction: row;

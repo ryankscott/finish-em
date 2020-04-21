@@ -2,6 +2,7 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 
+import { lighten, darken } from 'polished'
 import { theme } from '../theme'
 import CreateProjectDialog from './CreateProjectDialog'
 import { Header } from './Typography'
@@ -28,56 +29,96 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 <SectionHeader>
                     {props.sidebarVisible && <Header> Views </Header>}
                 </SectionHeader>
-                <StyledNavLink to="/inbox">
+                <StyledNavLink
+                    to="/inbox"
+                    activeStyle={{
+                        backgroundColor: lighten(
+                            0.05,
+                            theme.colours.altBackgroundColour,
+                        ),
+                    }}
+                >
                     <Button
                         icon="inbox"
                         text={props.sidebarVisible ? 'Inbox' : ''}
                         spacing={props.sidebarVisible ? 'compact' : 'default'}
-                        type="invert"
+                        type="subtle"
                         textSize="small"
                         iconSize={props.sidebarVisible ? '16px' : '20px'}
                         onClick={() => {}}
                     />
                 </StyledNavLink>
-                <StyledNavLink to="/dailyAgenda">
+                <StyledNavLink
+                    to="/dailyAgenda"
+                    activeStyle={{
+                        backgroundColor: lighten(
+                            0.05,
+                            theme.colours.altBackgroundColour,
+                        ),
+                    }}
+                >
                     <Button
                         icon="calendar"
                         text={props.sidebarVisible ? 'Daily Agenda' : ''}
                         spacing="compact"
-                        type="invert"
+                        type="subtle"
                         textSize="small"
                         iconSize={props.sidebarVisible ? '16px' : '20px'}
                         onClick={() => {}}
                     />
                 </StyledNavLink>
-                <StyledNavLink to="/unscheduled">
+                <StyledNavLink
+                    to="/unscheduled"
+                    activeStyle={{
+                        backgroundColor: lighten(
+                            0.05,
+                            theme.colours.altBackgroundColour,
+                        ),
+                    }}
+                >
                     <Button
                         icon="scheduled"
                         text={props.sidebarVisible ? 'Unscheduled' : ''}
                         spacing="compact"
-                        type="invert"
+                        type="subtle"
                         textSize="small"
                         iconSize={props.sidebarVisible ? '16px' : '20px'}
                         onClick={() => {}}
                     />
                 </StyledNavLink>
-                <StyledNavLink to="/trash">
+                <StyledNavLink
+                    to="/trash"
+                    activeStyle={{
+                        backgroundColor: lighten(
+                            0.05,
+                            theme.colours.altBackgroundColour,
+                        ),
+                    }}
+                >
                     <Button
                         icon="trash"
                         text={props.sidebarVisible ? 'Trash' : ''}
                         spacing="compact"
-                        type="invert"
+                        type="subtle"
                         textSize="small"
                         iconSize={props.sidebarVisible ? '16px' : '20px'}
                         onClick={() => {}}
                     />
                 </StyledNavLink>
-                <StyledNavLink to="/completed">
+                <StyledNavLink
+                    to="/completed"
+                    activeStyle={{
+                        backgroundColor: lighten(
+                            0.05,
+                            theme.colours.altBackgroundColour,
+                        ),
+                    }}
+                >
                     <Button
                         icon="todo_checked"
                         text={props.sidebarVisible ? 'Completed' : ''}
                         spacing="compact"
-                        type="invert"
+                        type="subtle"
                         textSize="small"
                         iconSize={props.sidebarVisible ? '16px' : '20px'}
                         onClick={() => {}}
@@ -92,7 +133,16 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     const pathName = '/projects/' + p.id
                     if (!(p.id == null || p.deleted == true)) {
                         return (
-                            <StyledNavLink key={p.id} to={pathName}>
+                            <StyledNavLink
+                                key={p.id}
+                                to={pathName}
+                                activeStyle={{
+                                    backgroundColor: lighten(
+                                        0.05,
+                                        theme.colours.altBackgroundColour,
+                                    ),
+                                }}
+                            >
                                 <Button
                                     text={
                                         props.sidebarVisible
@@ -100,7 +150,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                             : getFirstLetterFromEachWord(p.name)
                                     }
                                     spacing="compact"
-                                    type="invert"
+                                    type="subtle"
                                     onClick={() => {}}
                                     textSize="small"
                                     iconSize="16px"

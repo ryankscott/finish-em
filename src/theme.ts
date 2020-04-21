@@ -44,6 +44,11 @@ export const theme = {
             borderColour: '#fe5e41',
             hoverBackgroundColour: darken(0.05, '#fe5e41'),
         },
+        subtle: {
+            backgroundColour: 'inherit',
+            colour: '#EEEEEE',
+            borderColour: '#e0e0e0',
+        },
     },
     colours: {
         defaultTextColour: '#333333',
