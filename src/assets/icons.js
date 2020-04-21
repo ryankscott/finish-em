@@ -162,12 +162,13 @@ export const expandedIcon = (width, height) => (
 
 export const helpIcon = (width, height) => (
     <svg
+        id="help"
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '24'}
         height={height ? height : '24'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="#CCC"
+        stroke="#BBB"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

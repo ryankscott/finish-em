@@ -31,7 +31,7 @@ const iconMapping = {
 export interface ButtonProps {
     onClick: () => void
     spacing?: 'compact' | 'default'
-    type: 'primary' | 'error' | 'default' | 'invert'
+    type: 'primary' | 'error' | 'default' | 'invert' | 'subtle'
     text?: string
     textSize?: 'xsmall' | 'small' | 'regular' | 'large'
     iconSize?: string

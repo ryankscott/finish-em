@@ -23,8 +23,8 @@ import {
     hideCreateProjectDialog,
     hideDeleteProjectDialog,
 } from '../actions/index'
-import { helpIcon } from '../assets/icons.js'
 import { Container, MainContainer, ShortcutIcon } from './styled/App'
+import { Button } from './Button'
 
 configure({
     logLevel: 'warning',
@@ -160,8 +160,12 @@ const App = (props: AppProps): ReactElement => {
                         </Route>
                     </Switch>
                 </MainContainer>
-                <ShortcutIcon id="shortcut-icon" onClick={toggleShortcutDialog}>
-                    {helpIcon()}
+                <ShortcutIcon id="shortcut-icon">
+                    <Button
+                        type="default"
+                        icon="help"
+                        onClick={toggleShortcutDialog}
+                    ></Button>
                 </ShortcutIcon>
             </Container>
         </ThemeProvider>
