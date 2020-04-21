@@ -162,6 +162,7 @@ const App = (props: AppProps): ReactElement => {
                 </MainContainer>
                 <ShortcutIcon id="shortcut-icon">
                     <Button
+                        id="shortcut-button"
                         type="default"
                         icon="help"
                         onClick={toggleShortcutDialog}

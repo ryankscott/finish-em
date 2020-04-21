@@ -80,6 +80,7 @@ function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
 
     const handleClick = (e: React.MouseEvent): void => {
         // Don't handle if we're clicking on the shortcut icon again
+        if (e.target.id == 'shortcut-button' || e.target.id == 'help') return
         if (e.target?.parentElement?.id == 'help') return
         // Don't close if we're clicking on the dialog
         if (e && this?.node?.current?.contains(e.target)) return

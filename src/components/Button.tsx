@@ -29,6 +29,7 @@ const iconMapping = {
 
 // TODO: Change width and height to strings
 export interface ButtonProps {
+    id?: string
     onClick: () => void
     spacing?: 'compact' | 'default'
     type: 'primary' | 'error' | 'default' | 'invert' | 'subtle'
@@ -70,6 +71,7 @@ export const Button = (props: ButtonProps): ReactElement => {
     return (
         <ThemeProvider theme={getTheme(props.type)}>
             <StyledButton
+                id={props.id}
                 spacing={props.spacing}
                 height={props.height}
                 width={props.width}
