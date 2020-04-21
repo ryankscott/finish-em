@@ -42,6 +42,8 @@ import {
     removeItemTypeFromString,
     formatRelativeDate,
     getItemById,
+    getItemIndexById,
+    rruleToText,
 } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
@@ -430,7 +432,9 @@ function Item(props: ItemProps): ReactElement {
         setHideChildren(!hideChildren)
         return
     }
-
+    const repeat = props.repeat
+        ? rruleToText(RRule.fromString(props.repeat))
+        : ''
     const repeat = props.repeat ? rrulestr(props.repeat).toText() : ''
     const dueDate = props.dueDate
         ? formatRelativeDate(parseISO(props.dueDate))
