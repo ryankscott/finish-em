@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react'
+import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'

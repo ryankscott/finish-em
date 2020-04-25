@@ -1,7 +1,7 @@
-import React, { KeyboardEvent, ReactElement, useState, useEffect } from 'react'
+import React, { KeyboardEvent, ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
-import { RRule, rrulestr } from 'rrule'
+import { RRule } from 'rrule'
 import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
 import { ItemType, ProjectType } from '../interfaces'
@@ -41,21 +41,17 @@ import {
     getProjectNameById,
     removeItemTypeFromString,
     formatRelativeDate,
-    getItemById,
-    getItemIndexById,
     rruleToText,
 } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
-//import { useHotkeys } from 'react-hotkeys-hook'
-import { item } from '../keymap'
 
 interface ItemProps extends ItemType {
     noIndentOnSubtasks: boolean
     showProject: boolean
     keymap: {}
     projects: ProjectType[]
-    items: ItemType[]
+    items: ItemType
     updateItemDescription: (id: Uuid, text: string) => void
     setRepeatRule: (id: Uuid, rule: RRule) => void
     setScheduledDate: (id: Uuid, date: Date) => void
@@ -432,6 +428,7 @@ function Item(props: ItemProps): ReactElement {
         setHideChildren(!hideChildren)
         return
     }
+
     const repeat = props.repeat
         ? rruleToText(RRule.fromString(props.repeat))
         : ''
@@ -596,7 +593,7 @@ function Item(props: ItemProps): ReactElement {
             </div>
             {!hideChildren &&
                 props.children?.map((c) => {
-                    const childItem = getItemById(c, props.items)
+                    const childItem = props.items.items[c]
                     // Sometimes the child item has been filtered out, so we don't want to render an empty container
                     if (!childItem) return
                     return (

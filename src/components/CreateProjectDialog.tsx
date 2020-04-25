@@ -62,7 +62,7 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
         <ThemeProvider theme={theme}>
             <InlineDialog
                 onClose={() => props.closeCreateProjectDialog()}
-                placement={'bottom-start'}
+                placement="bottom-start"
                 isOpen={props.visible}
                 onOpen={() => createProjectInput.current.focus()}
                 content={

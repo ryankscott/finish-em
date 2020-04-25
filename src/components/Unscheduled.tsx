@@ -9,29 +9,29 @@ import { RenderingStrategy } from './ItemList'
 import { UnscheduledContainer } from './styled/Unscheduled'
 
 const Unscheduled = (): ReactElement => (
-  <ThemeProvider theme={theme}>
-    <UnscheduledContainer>
-      <Title> Unscheduled </Title>
-      <FilteredItemList
-        filter={FilterEnum.ShowOverdue}
-        showProject={true}
-        listName="Overdue"
-        isFilterable={true}
-        renderingStrategy={RenderingStrategy.All}
-      />
-      <FilteredItemList
-        filter={FilterEnum.ShowNotScheduled}
-        showProject={true}
-        listName="Unscheduled"
-        isFilterable={true}
-        renderingStrategy={RenderingStrategy.All}
-      />
-    </UnscheduledContainer>
-  </ThemeProvider>
+    <ThemeProvider theme={theme}>
+        <UnscheduledContainer>
+            <Title> Unscheduled </Title>
+            <FilteredItemList
+                filter={FilterEnum.ShowOverdue}
+                showProject={true}
+                listName="Overdue"
+                isFilterable={true}
+                renderingStrategy={RenderingStrategy.All}
+            />
+            <FilteredItemList
+                filter={FilterEnum.ShowNotScheduled}
+                showProject={true}
+                listName="Unscheduled"
+                isFilterable={true}
+                renderingStrategy={RenderingStrategy.All}
+            />
+        </UnscheduledContainer>
+    </ThemeProvider>
 )
 
 const mapStateToProps = (state) => ({
-  items: state.items,
+    items: state.items,
 })
 const mapDispatchToProps = (dispatch) => ({})
 export default connect(mapStateToProps, mapDispatchToProps)(Unscheduled)

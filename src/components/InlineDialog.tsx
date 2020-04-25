@@ -31,6 +31,7 @@ export interface InlineDialogProps {
         | 'left-start'
         | 'left-end'
     content: ReactElement
+    children: ReactElement
 }
 
 // TODO: Replace this with the react-tooltip?

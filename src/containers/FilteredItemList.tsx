@@ -225,8 +225,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
 }
 
 const mapStateToProps = (state, props) => {
-    //console.log(getFilteredItems(state, props))
-
     return {
         items: getFilteredItems(state, props),
         completedItems: getCompletedItems(state, props),
@@ -234,6 +232,7 @@ const mapStateToProps = (state, props) => {
     }
 }
 const mapDispatchToProps = (dispatch) => ({
+    // TODO: Move this to the reducer and create a new action
     deleteCompletedItems: (completedItems) => {
         completedItems.map((c) => {
             if (c.parentId == null) {

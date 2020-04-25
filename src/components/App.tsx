@@ -55,9 +55,11 @@ const ProjectWrapper = (props: ProjectWrapperProps): ReactElement => {
     return <Project project={project} />
 }
 
-interface AppProps {
-    projects: ProjectType[]
+interface StateProps {
     sidebarVisible: boolean
+    projects: ProjectType[]
+}
+interface DispatchProps {
     toggleShortcutDialog: () => void
     goToInbox: () => void
     goToTrash: () => void
@@ -66,6 +68,9 @@ interface AppProps {
     hideDialogs: () => void
     showCreateProjectDialog: () => void
 }
+interface OwnProps {}
+
+type AppProps = OwnProps & StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
@@ -173,12 +178,12 @@ const App = (props: AppProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     sidebarVisible: state.ui.sidebarVisible,
 })
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleShortcutDialog: () => {
         dispatch(toggleShortcutDialog())
     },

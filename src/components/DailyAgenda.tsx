@@ -10,88 +10,92 @@ import { setDailyGoal } from '../actions'
 import { ItemType } from '../interfaces'
 import { AgendaContainer, DateContainer, Section } from './styled/DailyAgenda'
 
-// TODO: Update with item prop
-export interface DailyAgendaProps {
-  setDailyGoal: (day: string, input: string) => void
-  items: ItemType[]
-  dailyGoal: any[]
+interface OwnProps {}
+interface StateProps {
+    dailyGoal: any[]
+    items: ItemType[]
 }
+interface DispatchProps {
+    setDailyGoal: (day: string, input: string) => void
+}
+type DailyAgendaProps = OwnProps & StateProps & DispatchProps
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
-  const day = format(new Date(), 'yyyy-MM-dd')
-  const editor = React.createRef<HTMLInputElement>()
-  return (
-    <ThemeProvider theme={theme}>
-      <AgendaContainer>
-        <DateContainer>
-          <Title style={{ gridArea: 'day' }}>
-            {format(new Date(), 'EEEE do MMMM yyyy')}
-          </Title>
-          <Paragraph style={{ gridArea: 'week_of_year' }}>
-            Week of year: {format(new Date(), 'w')} / 52
-          </Paragraph>
-          <Paragraph style={{ gridArea: 'week_of_quarter' }}>
-            Week of quarter: {parseInt(format(new Date(), 'w')) % 13} / 13
-          </Paragraph>
-        </DateContainer>
-        {/* <Header1> Weekly Goal </Header1> */}
-        {/* <Paragraph> */}
-        {/*   {props.weeklyGoal[week] */}
-        {/*     ? props.weeklyGoal[week] */}
-        {/*     : "No weekly goal set"} */}
-        {/* </Paragraph> */}
-        <Header1> Daily Goal </Header1>
-        <EditableText
-          style={Paragraph}
-          readOnly={false}
-          input={
-            props.dailyGoal[day]
-              ? props.dailyGoal[day].text
-              : 'No daily goal set'
-          }
-          height={150}
-          singleline={false}
-          ref={editor}
-          onUpdate={(input) => {
-            props.setDailyGoal(day, input)
-          }}
-        />
-        <Section>
-          <FilteredItemList
-            isFilterable={true}
-            listName="Overdue"
-            filter={FilterEnum.ShowOverdue}
-            showProject={true}
-          />
-        </Section>
-        <Section>
-          <FilteredItemList
-            showProject={true}
-            isFilterable={true}
-            listName="Due Today"
-            filter={FilterEnum.ShowDueOnDay}
-            filterParams={{ dueDate: new Date() }}
-          />
-          <FilteredItemList
-            showProject={true}
-            isFilterable={true}
-            listName="Scheduled Today"
-            filter={FilterEnum.ShowScheduledOnDay}
-            filterParams={{ scheduledDate: new Date() }}
-          />
-        </Section>
-      </AgendaContainer>
-    </ThemeProvider>
-  )
+    const day = format(new Date(), 'yyyy-MM-dd')
+    const editor = React.createRef<HTMLInputElement>()
+    return (
+        <ThemeProvider theme={theme}>
+            <AgendaContainer>
+                <DateContainer>
+                    <Title style={{ gridArea: 'day' }}>
+                        {format(new Date(), 'EEEE do MMMM yyyy')}
+                    </Title>
+                    <Paragraph style={{ gridArea: 'week_of_year' }}>
+                        Week of year: {format(new Date(), 'w')} / 52
+                    </Paragraph>
+                    <Paragraph style={{ gridArea: 'week_of_quarter' }}>
+                        Week of quarter:{' '}
+                        {parseInt(format(new Date(), 'w')) % 13} / 13
+                    </Paragraph>
+                </DateContainer>
+                {/* <Header1> Weekly Goal </Header1> */}
+                {/* <Paragraph> */}
+                {/*   {props.weeklyGoal[week] */}
+                {/*     ? props.weeklyGoal[week] */}
+                {/*     : "No weekly goal set"} */}
+                {/* </Paragraph> */}
+                <Header1> Daily Goal </Header1>
+                <EditableText
+                    style={Paragraph}
+                    readOnly={false}
+                    input={
+                        props.dailyGoal[day]
+                            ? props.dailyGoal[day].text
+                            : 'No daily goal set'
+                    }
+                    height={150}
+                    singleline={false}
+                    ref={editor}
+                    onUpdate={(input) => {
+                        props.setDailyGoal(day, input)
+                    }}
+                />
+                <Section>
+                    <FilteredItemList
+                        isFilterable={true}
+                        listName="Overdue"
+                        filter={FilterEnum.ShowOverdue}
+                        showProject={true}
+                    />
+                </Section>
+                <Section>
+                    <FilteredItemList
+                        showProject={true}
+                        isFilterable={true}
+                        listName="Due Today"
+                        filter={FilterEnum.ShowDueOnDay}
+                        filterParams={{ dueDate: new Date() }}
+                    />
+                    <FilteredItemList
+                        showProject={true}
+                        isFilterable={true}
+                        listName="Scheduled Today"
+                        filter={FilterEnum.ShowScheduledOnDay}
+                        filterParams={{ scheduledDate: new Date() }}
+                    />
+                </Section>
+            </AgendaContainer>
+        </ThemeProvider>
+    )
 }
 
-const mapStateToProps = (state) => ({
-  items: state.items,
-  dailyGoal: state.dailyGoal,
+const mapStateToProps = (state): StateProps => ({
+    items: state.items,
+    dailyGoal: state.dailyGoal,
 })
-const mapDispatchToProps = (dispatch) => ({
-  setDailyGoal: (day, text) => {
-    dispatch(setDailyGoal(day, text))
-  },
+const mapDispatchToProps = (dispatch): DispatchProps => ({
+    setDailyGoal: (day, text) => {
+        dispatch(setDailyGoal(day, text))
+    },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(DailyAgenda)

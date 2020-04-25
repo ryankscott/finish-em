@@ -4,7 +4,6 @@ import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType } from '../interfaces'
-import { getItemById } from '../utils'
 import { Container, NoItemText } from './styled/ItemList'
 
 export enum RenderingStrategy {
@@ -52,13 +51,7 @@ const ItemList = (props: ItemListProps): ReactElement => {
                                 </div>
                             )
                         case 'ALL':
-                            if (item.parentId != null) {
-                                const parent = getItemById(
-                                    item.parentId,
-                                    props.items,
-                                )
-                                if (parent) return null
-                            }
+                            if (item.parentId != null) return
                             return (
                                 <div key={'container-' + item.id}>
                                     <Item
