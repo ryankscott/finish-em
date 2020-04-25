@@ -233,13 +233,13 @@ const dayToString = (i: number): string => {
         case 3:
             return 'Thursday'
             break
-        case 3:
+        case 4:
             return 'Friday'
             break
-        case 3:
+        case 5:
             return 'Saturday'
             break
-        case 3:
+        case 6:
             return 'Sunday'
             break
 
