@@ -24,6 +24,7 @@ export const StyledNavLink = styled(NavLink)`
     color: ${(props) => props.theme.colours.altTextColour};
     text-decoration: none;
     margin: 2px;
+    padding: 0px 5px;
     outline: none;
     &:active: {
         outline: none;
@@ -38,7 +39,7 @@ export const SectionHeader = styled.div`
     flex-direction: row;
     align-items: first baseline;
     justify-content: space-between;
-    margin: 5px 0px;
+    margin: 5px 5px;
 `
 
 interface FooterProps {
