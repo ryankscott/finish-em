@@ -1,6 +1,11 @@
+import { Uuid } from '@typed/uuid'
+
 export const SHOW_SIDEBAR = 'SHOW_SIDEBAR'
 export const TOGGLE_SIDEBAR = 'TOGGLE_SIDEBAR'
 export const HIDE_SIDEBAR = 'HIDE_SIDEBAR'
+export const SHOW_FOCUSBAR = 'SHOW_FOCUSBAR'
+export const TOGGLE_FOCUSBAR = 'TOGGLE_FOCUSBAR'
+export const HIDE_FOCUSBAR = 'HIDE_FOCUSBAR'
 export const SHOW_SHORTCUT_DIALOG = 'SHOW_SHORTCUT_DIALOG'
 export const HIDE_SHORTCUT_DIALOG = 'HIDE_SHORTCUT_DIALOG'
 export const TOGGLE_SHORTCUT_DIALOG = 'TOGGLE_SHORTCUT_DIALOG'
@@ -10,6 +15,7 @@ export const TOGGLE_CREATE_PROJECT_DIALOG = 'TOGGLE_CREATE_PROJECT_DIALOG'
 export const SHOW_DELETE_PROJECT_DIALOG = 'SHOW_DELETE_PROJECT_DIALOG'
 export const HIDE_DELETE_PROJECT_DIALOG = 'HIDE_DELETE_PROJECT_DIALOG'
 export const TOGGLE_DELETE_PROJECT_DIALOG = 'TOGGLE_DELETE_PROJECT_DIALOG'
+export const SET_ACTIVE_ITEM = 'SET_ACTIVE_ITEM'
 
 interface ShowShortcutDialogAction {
     type: typeof SHOW_SHORTCUT_DIALOG
@@ -118,6 +124,42 @@ export function toggleSidebar(): ToggleSidebarAction {
         type: TOGGLE_SIDEBAR,
     }
 }
+interface ShowFocusbarAction {
+    type: typeof SHOW_FOCUSBAR
+}
+
+export function showFocusbar(): ShowFocusbarAction {
+    return {
+        type: SHOW_FOCUSBAR,
+    }
+}
+interface HideFocusbarAction {
+    type: typeof HIDE_FOCUSBAR
+}
+
+export function hideFocusbar(): HideFocusbarAction {
+    return {
+        type: HIDE_FOCUSBAR,
+    }
+}
+interface ToggleFocusbarAction {
+    type: typeof TOGGLE_FOCUSBAR
+}
+export function toggleFocusbar(): ToggleFocusbarAction {
+    return {
+        type: TOGGLE_FOCUSBAR,
+    }
+}
+interface SetActiveItemAction {
+    type: typeof SET_ACTIVE_ITEM
+    id: Uuid
+}
+export function setActiveItem(id: Uuid): SetActiveItemAction {
+    return {
+        type: SET_ACTIVE_ITEM,
+        id: id,
+    }
+}
 
 export type UIActions =
     | ShowShortcutDialogAction
@@ -132,3 +174,7 @@ export type UIActions =
     | ShowSidebarAction
     | HideSidebarAction
     | ToggleSidebarAction
+    | ShowFocusbarAction
+    | HideFocusbarAction
+    | ToggleFocusbarAction
+    | SetActiveItemAction
