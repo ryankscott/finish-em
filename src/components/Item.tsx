@@ -29,6 +29,7 @@ import {
     setScheduledDate,
     setRepeatRule,
     setDueDate,
+    setActiveItem,
 } from '../actions'
 import { theme } from '../theme'
 import ProjectDropdown from './ProjectDropdown'
@@ -45,13 +46,9 @@ import {
 } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
+//import { useHotkeys } from 'react-hotkeys-hook'
 
-interface ItemProps extends ItemType {
-    noIndentOnSubtasks: boolean
-    showProject: boolean
-    keymap: {}
-    projects: ProjectType[]
-    items: ItemType
+interface DispatchProps {
     updateItemDescription: (id: Uuid, text: string) => void
     setRepeatRule: (id: Uuid, rule: RRule) => void
     setScheduledDate: (id: Uuid, date: Date) => void
@@ -62,7 +59,19 @@ interface ItemProps extends ItemType {
     createSubTask: (id: Uuid, text: string, projectId: Uuid) => void
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
+    setActiveItem: (id: Uuid) => void
 }
+interface StateProps {
+    projects: ProjectType[]
+    items: ItemType[]
+}
+interface OwnProps extends ItemType {
+    noIndentOnSubtasks: boolean
+    showProject: boolean
+    keymap: {}
+}
+
+type ItemProps = OwnProps & StateProps & DispatchProps
 
 function Item(props: ItemProps): ReactElement {
     const [projectDropdownVisible, setProjectDropdownVisible] = useState(false)
@@ -451,6 +460,7 @@ function Item(props: ItemProps): ReactElement {
                     id={props.id}
                     tabIndex={0}
                     itemType={props.type}
+                    onFocus={() => props.setActiveItem(props.id)}
                 >
                     {props.children.length > 0 && (
                         <ExpandContainer>
@@ -622,11 +632,11 @@ function Item(props: ItemProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     items: state.items,
 })
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => {
         const childId = uuidv4()
         dispatch(createItem(childId, text, projectId))
@@ -658,6 +668,9 @@ const mapDispatchToProps = (dispatch) => ({
     },
     setRepeatRule: (id: Uuid, rule: RRule) => {
         dispatch(setRepeatRule(id, rule))
+    },
+    setActiveItem: (id: Uuid) => {
+        dispatch(setActiveItem(id))
     },
 })
 

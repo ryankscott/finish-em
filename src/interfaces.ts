@@ -33,13 +33,10 @@ export interface ProjectType {
     createdAt: string
 }
 
-export type Projects<ProjectType> = {
-    projects: { [key: string]: ProjectType }
-    order: Uuid[]
-}
-
 export interface UIType {
+    activeItem: Uuid
     sidebarVisible: boolean
+    focusbarVisible: boolean
     shortcutDialogVisible: boolean
     createProjectDialogVisible: boolean
     deleteProjectDialogVisible: boolean

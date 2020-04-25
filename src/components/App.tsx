@@ -10,6 +10,7 @@ import Project from './Project'
 import Unscheduled from './Unscheduled'
 import Sidebar from './Sidebar'
 import Completed from './Completed'
+import Focusbar from './Focusbar'
 import ShortcutDialog from './ShortcutDialog'
 import { app as appKeymap } from '../keymap'
 import { theme } from '../theme'
@@ -23,8 +24,14 @@ import {
     hideCreateProjectDialog,
     hideDeleteProjectDialog,
 } from '../actions/index'
-import { Container, MainContainer, ShortcutIcon } from './styled/App'
+import {
+    Container,
+    MainContainer,
+    ShortcutIcon,
+    FocusContainer,
+} from './styled/App'
 import { Button } from './Button'
+import { Tooltip } from './Tooltip'
 
 configure({
     logLevel: 'warning',
@@ -165,13 +172,21 @@ const App = (props: AppProps): ReactElement => {
                         </Route>
                     </Switch>
                 </MainContainer>
+                <FocusContainer focusContainerVisible={true}>
+                    <Focusbar />
+                </FocusContainer>
                 <ShortcutIcon id="shortcut-icon">
                     <Button
+                        dataFor="shortcut-button"
                         id="shortcut-button"
                         type="default"
                         icon="help"
                         onClick={toggleShortcutDialog}
                     ></Button>
+                    <Tooltip
+                        id="shortcut-button"
+                        text={'Show shortcuts'}
+                    ></Tooltip>
                 </ShortcutIcon>
             </Container>
         </ThemeProvider>
