@@ -25,6 +25,7 @@ import {
 } from '../actions/index'
 import { Container, MainContainer, ShortcutIcon } from './styled/App'
 import { Button } from './Button'
+import { Tooltip } from './Tooltip'
 
 configure({
     logLevel: 'warning',
@@ -162,11 +163,16 @@ const App = (props: AppProps): ReactElement => {
                 </MainContainer>
                 <ShortcutIcon id="shortcut-icon">
                     <Button
+                        dataFor="shortcut-button"
                         id="shortcut-button"
                         type="default"
                         icon="help"
                         onClick={toggleShortcutDialog}
                     ></Button>
+                    <Tooltip
+                        id="shortcut-button"
+                        text={'Show shortcuts'}
+                    ></Tooltip>
                 </ShortcutIcon>
             </Container>
         </ThemeProvider>

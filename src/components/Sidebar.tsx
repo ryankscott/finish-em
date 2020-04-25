@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 
-import { lighten, darken } from 'polished'
+import { lighten } from 'polished'
 import { theme } from '../theme'
 import CreateProjectDialog from './CreateProjectDialog'
 import { Header } from './Typography'
