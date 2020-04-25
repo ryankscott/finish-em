@@ -1,5 +1,6 @@
 import styled from 'styled-components'
 import { NavLink } from 'react-router-dom'
+import { lighten } from 'polished'
 
 interface ContainerProps {
     visible: boolean
@@ -26,11 +27,15 @@ export const StyledNavLink = styled(NavLink)`
     margin: 2px;
     padding: 0px 5px;
     outline: none;
-    &:active: {
+    &:active {
         outline: none;
     }
-    &:focus: {
+    &:focus {
         outline: none;
+    }
+    &:hover {
+        background-color: ${(props) =>
+            lighten(0.05, props.theme.colours.altBackgroundColour)};
     }
 `
 

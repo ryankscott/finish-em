@@ -2,7 +2,9 @@ import * as ui from '../actions/ui'
 import { UIType } from '../interfaces'
 
 const initialState: UIType = {
+    activeItem: null,
     sidebarVisible: true,
+    focusbarVisible: true,
     shortcutDialogVisible: false,
     createProjectDialogVisible: false,
     deleteProjectDialogVisible: false,
@@ -74,7 +76,26 @@ export const uiReducer = (
                 ...state,
                 sidebarVisible: !state.sidebarVisible,
             }
-
+        case ui.SHOW_FOCUSBAR:
+            return {
+                ...state,
+                focusbarVisible: true,
+            }
+        case ui.HIDE_FOCUSBAR:
+            return {
+                ...state,
+                focusbarVisible: false,
+            }
+        case ui.TOGGLE_FOCUSBAR:
+            return {
+                ...state,
+                focusbarVisible: !state.focusbarVisible,
+            }
+        case ui.SET_ACTIVE_ITEM:
+            return {
+                ...state,
+                activeItem: action.id,
+            }
         default:
             return state
     }
