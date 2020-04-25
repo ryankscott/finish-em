@@ -135,6 +135,13 @@ function EditableItem(props: EditableItemProps): ReactElement {
                 window.ipcRenderer.send('close-quickadd')
             }
         }
+        // Don't try remove text if there is none
+        if (
+            e.key == 'Backspace' &&
+            editorState.getCurrentContent().getPlainText() == ''
+        ) {
+            e.preventDefault()
+        }
         return
     }
 
