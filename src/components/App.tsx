@@ -39,7 +39,7 @@ configure({
 
 const GlobalStyle = createGlobalStyle`
   html {
-    height: 100%;
+    height: 100vmax;
     box-sizing: 'border-box';
   }
   body {
@@ -50,7 +50,8 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
     padding: 0px;
     margin: 0px;
-    height: 100%;
+    height: 100vmax;
+    overflow: hidden;
   }
 `
 interface ProjectWrapperProps {
@@ -64,12 +65,11 @@ const ProjectWrapper = (props: ProjectWrapperProps): ReactElement => {
 
 interface StateProps {
     sidebarVisible: boolean
+    focusbarVisible: boolean
     projects: ProjectType[]
 }
 interface DispatchProps {
     toggleShortcutDialog: () => void
-    goToInbox: () => void
-    goToTrash: () => void
     showSidebar: () => void
     hideSidebar: () => void
     hideDialogs: () => void
@@ -139,14 +139,14 @@ const App = (props: AppProps): ReactElement => {
         },
     }
 
-    const { sidebarVisible, toggleShortcutDialog } = props
+    const { sidebarVisible, focusbarVisible, toggleShortcutDialog } = props
     return (
         <ThemeProvider theme={theme}>
             <GlobalHotKeys keyMap={appKeymap} handlers={handlers} />
             <GlobalStyle />
             <Container>
                 <Sidebar />
-                <MainContainer sidebarVisible={sidebarVisible}>
+                <MainContainer visible={sidebarVisible}>
                     <ShortcutDialog />
                     <Switch>
                         <Route path="/inbox">
@@ -172,7 +172,7 @@ const App = (props: AppProps): ReactElement => {
                         </Route>
                     </Switch>
                 </MainContainer>
-                <FocusContainer focusContainerVisible={true}>
+                <FocusContainer visible={focusbarVisible}>
                     <Focusbar />
                 </FocusContainer>
                 <ShortcutIcon id="shortcut-icon">
@@ -181,6 +181,7 @@ const App = (props: AppProps): ReactElement => {
                         id="shortcut-button"
                         type="default"
                         icon="help"
+                        iconColour="#CCC"
                         onClick={toggleShortcutDialog}
                     ></Button>
                     <Tooltip
@@ -196,6 +197,7 @@ const App = (props: AppProps): ReactElement => {
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     sidebarVisible: state.ui.sidebarVisible,
+    focusbarVisible: state.ui.focusbarVisible,
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
@@ -208,7 +210,6 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     hideSidebar: () => {
         dispatch(hideSidebar())
     },
-
     showSidebar: () => {
         dispatch(showSidebar())
     },

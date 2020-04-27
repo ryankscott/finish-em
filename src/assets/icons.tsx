@@ -1,9 +1,12 @@
 import React from 'react'
 
-// TODO: Support colours
-// TODO: Add types
+import * as CSS from 'csstype'
 
-export const repeatIcon = (width, height) => (
+export const repeatIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         key="repeatIcon"
         xmlns="http://www.w3.org/2000/svg"
@@ -11,7 +14,7 @@ export const repeatIcon = (width, height) => (
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -23,7 +26,11 @@ export const repeatIcon = (width, height) => (
     </svg>
 )
 
-export const dueIcon = (width, height) => (
+export const dueIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         key="dueIcon"
         xmlns="http://www.w3.org/2000/svg"
@@ -31,7 +38,7 @@ export const dueIcon = (width, height) => (
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -42,13 +49,17 @@ export const dueIcon = (width, height) => (
     </svg>
 )
 
-export const scheduledIcon = (width, height) => (
+export const scheduledIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
-        fill="currentColor"
+        fill={colour ? colour : 'currentColor'}
         strokeWidth="1"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -58,14 +69,18 @@ export const scheduledIcon = (width, height) => (
     </svg>
 )
 
-export const noteIcon = (width, height) => (
+export const noteIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '18'}
         height={height ? height : '18'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -78,14 +93,18 @@ export const noteIcon = (width, height) => (
     </svg>
 )
 
-export const todoCheckedIcon = (width, height) => (
+export const todoCheckedIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -95,14 +114,18 @@ export const todoCheckedIcon = (width, height) => (
     </svg>
 )
 
-export const todoUncheckedIcon = (width, height) => (
+export const todoUncheckedIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -111,14 +134,18 @@ export const todoUncheckedIcon = (width, height) => (
     </svg>
 )
 
-export const addIcon = (width, height) => (
+export const addIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '18'}
         height={height ? height : '18'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -128,14 +155,18 @@ export const addIcon = (width, height) => (
     </svg>
 )
 
-export const collapsedIcon = (width, height) => (
+export const collapsedIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         height={height ? height : '18'}
         width={width ? width : '18'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -144,14 +175,18 @@ export const collapsedIcon = (width, height) => (
     </svg>
 )
 
-export const expandedIcon = (width, height) => (
+export const expandedIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         height={height ? height : '18'}
         width={width ? width : '18'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -160,7 +195,11 @@ export const expandedIcon = (width, height) => (
     </svg>
 )
 
-export const helpIcon = (width, height) => (
+export const helpIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         id="help"
         xmlns="http://www.w3.org/2000/svg"
@@ -168,7 +207,7 @@ export const helpIcon = (width, height) => (
         height={height ? height : '24'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="#BBB"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -179,14 +218,18 @@ export const helpIcon = (width, height) => (
     </svg>
 )
 
-export const closeIcon = (width, height) => (
+export const closeIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -196,14 +239,18 @@ export const closeIcon = (width, height) => (
     </svg>
 )
 
-export const trashIcon = (width, height) => (
+export const trashIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -215,14 +262,18 @@ export const trashIcon = (width, height) => (
     </svg>
 )
 
-export const showIcon = (width, height) => (
+export const showIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '14'}
         height={height ? height : '14'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -232,47 +283,56 @@ export const showIcon = (width, height) => (
     </svg>
 )
 
-export const hideIcon = (width, height) => {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={width ? width : '14'}
-            height={height ? height : '14'}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-            <line x1="1" y1="1" x2="23" y2="23"></line>
-        </svg>
-    )
-}
+export const hideIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '14'}
+        height={height ? height : '14'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+    </svg>
+)
 
-export const sortIcon = (width, height) => {
-    return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={width ? width : '16'}
-            height={height ? height : '16'}
-            viewBox="0 0 24 24"
-        >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
-        </svg>
-    )
-}
+export const sortIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        stroke={colour ? colour : 'currentColor'}
+    >
+        <path d="M0 0h24v24H0V0z" fill="none" />
+        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
+    </svg>
+)
 
-export const trashSweepIcon = (width, height) => (
+export const trashSweepIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 32 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -287,14 +347,18 @@ export const trashSweepIcon = (width, height) => (
     </svg>
 )
 
-export const inboxIcon = (width, height) => (
+export const inboxIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -304,14 +368,18 @@ export const inboxIcon = (width, height) => (
     </svg>
 )
 
-export const calendarIcon = (width, height) => (
+export const calendarIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -323,14 +391,18 @@ export const calendarIcon = (width, height) => (
     </svg>
 )
 
-export const slideLeftIcon = (width, height) => (
+export const slideLeftIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -340,19 +412,44 @@ export const slideLeftIcon = (width, height) => (
     </svg>
 )
 
-export const slideRightIcon = (width, height) => (
+export const slideRightIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         fill="none"
-        stroke="currentColor"
+        stroke={colour ? colour : 'currentColor'}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
     >
         <polyline points="13 17 18 12 13 7"></polyline>
         <polyline points="6 17 11 12 6 7"></polyline>
+    </svg>
+)
+
+export const upLevelIcon = (
+    width: CSS.WidthProperty<number>,
+    height: CSS.HeightProperty<number>,
+    colour: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <polyline points="9 14 4 9 9 4"></polyline>
+        <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
     </svg>
 )

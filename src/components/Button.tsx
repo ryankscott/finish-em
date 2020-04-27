@@ -5,37 +5,39 @@ import { StyledButton, Contents, Icon, Text } from './styled/Button'
 import * as ic from '../assets/icons'
 
 const iconMapping = {
-    close: (w, h) => ic.closeIcon(w, h),
-    expand: (w, h) => ic.expandedIcon(w, h),
-    collapse: (w, h) => ic.collapsedIcon(w, h),
-    help: (w, h) => ic.helpIcon(w, h),
-    repeat: (w, h) => ic.repeatIcon(w, h),
-    due: (w, h) => ic.dueIcon(w, h),
-    scheduled: (w, h) => ic.scheduledIcon(w, h),
-    note: (w, h) => ic.noteIcon(w, h),
-    add: (w, h) => ic.addIcon(w, h),
-    todo_unchecked: (w, h) => ic.todoUncheckedIcon(w, h),
-    todo_checked: (w, h) => ic.todoCheckedIcon(w, h),
-    trash: (w, h) => ic.trashIcon(w, h),
-    trash_sweep: (w, h) => ic.trashSweepIcon(w, h),
-    hide: (w, h) => ic.hideIcon(w, h),
-    show: (w, h) => ic.showIcon(w, h),
-    sort: (w, h) => ic.sortIcon(w, h),
-    inbox: (w, h) => ic.inboxIcon(w, h),
-    calendar: (w, h) => ic.calendarIcon(w, h),
-    slide_left: (w, h) => ic.slideLeftIcon(w, h),
-    slide_right: (w, h) => ic.slideRightIcon(w, h),
+    close: (w, h, c) => ic.closeIcon(w, h, c),
+    expand: (w, h, c) => ic.expandedIcon(w, h, c),
+    collapse: (w, h, c) => ic.collapsedIcon(w, h, c),
+    help: (w, h, c) => ic.helpIcon(w, h, c),
+    repeat: (w, h, c) => ic.repeatIcon(w, h, c),
+    due: (w, h, c) => ic.dueIcon(w, h, c),
+    scheduled: (w, h, c) => ic.scheduledIcon(w, h, c),
+    note: (w, h, c) => ic.noteIcon(w, h, c),
+    add: (w, h, c) => ic.addIcon(w, h, c),
+    todo_unchecked: (w, h, c) => ic.todoUncheckedIcon(w, h, c),
+    todo_checked: (w, h, c) => ic.todoCheckedIcon(w, h, c),
+    trash: (w, h, c) => ic.trashIcon(w, h, c),
+    trash_sweep: (w, h, c) => ic.trashSweepIcon(w, h, c),
+    hide: (w, h, c) => ic.hideIcon(w, h, c),
+    show: (w, h, c) => ic.showIcon(w, h, c),
+    sort: (w, h, c) => ic.sortIcon(w, h, c),
+    inbox: (w, h, c) => ic.inboxIcon(w, h, c),
+    calendar: (w, h, c) => ic.calendarIcon(w, h, c),
+    slide_left: (w, h, c) => ic.slideLeftIcon(w, h, c),
+    slide_right: (w, h, c) => ic.slideRightIcon(w, h, c),
+    up_level: (w, h, c) => ic.upLevelIcon(w, h, c),
 }
 
 // TODO: Change width and height to strings
 export interface ButtonProps {
     id?: string
-    onClick: () => void
+    onClick?: (e: MouseEvent) => void
     spacing?: 'compact' | 'default'
     type: 'primary' | 'error' | 'default' | 'invert' | 'subtle'
     text?: string
     textSize?: 'xsmall' | 'small' | 'regular' | 'large'
     iconSize?: string
+    iconColour?: string
     tabIndex?: number
     dataFor?: string
     width?: string
@@ -61,6 +63,7 @@ export interface ButtonProps {
         | 'calendar'
         | 'slide_right'
         | 'slide_left'
+        | 'up_level'
 }
 
 const getTheme = (type: string): {} => {
@@ -87,6 +90,7 @@ export const Button = (props: ButtonProps): ReactElement => {
                             {iconMapping[props.icon](
                                 props.iconSize || null,
                                 props.iconSize || null,
+                                props.iconColour || null,
                             )}
                         </Icon>
                     )}

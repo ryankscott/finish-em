@@ -9,7 +9,7 @@ interface DateRendererProps {
     position: 'center' | 'flex-end' | 'flex-start'
     type: 'due' | 'repeat' | 'scheduled'
     text: string
-    onClick?: () => void
+    onClick?: (e: MouseEvent) => void
 }
 
 const DateRenderer = (props: DateRendererProps): ReactElement => {
@@ -23,6 +23,7 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
                         onClick={props.onClick}
                         icon={props.type}
                         text={props.text}
+                        iconColour={!props.text ? '#CCC' : null}
                     ></Button>
                 </SubTextContainer>
             </Container>

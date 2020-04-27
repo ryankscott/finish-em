@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { RRule } from 'rrule'
 import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
-import { ItemType, ProjectType } from '../interfaces'
+import { ItemType, ProjectType, Items } from '../interfaces'
 import {
     Body,
     Container,
@@ -30,6 +30,7 @@ import {
     setRepeatRule,
     setDueDate,
     setActiveItem,
+    showFocusbar,
 } from '../actions'
 import { theme } from '../theme'
 import ProjectDropdown from './ProjectDropdown'
@@ -51,8 +52,8 @@ import { Button } from './Button'
 interface DispatchProps {
     updateItemDescription: (id: Uuid, text: string) => void
     setRepeatRule: (id: Uuid, rule: RRule) => void
-    setScheduledDate: (id: Uuid, date: Date) => void
-    setDueDate: (id: Uuid, date: Date) => void
+    setScheduledDate: (id: Uuid, date: string) => void
+    setDueDate: (id: Uuid, date: string) => void
     completeItem: (id: Uuid) => void
     uncompleteItem: (id: Uuid) => void
     moveItem: (id: Uuid, projectId: Uuid) => void
@@ -60,12 +61,21 @@ interface DispatchProps {
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
     setActiveItem: (id: Uuid) => void
+    showFocusbar: () => void
 }
 interface StateProps {
     projects: ProjectType[]
-    items: ItemType[]
+    items: Items
 }
+
+export enum ItemProperties {
+    Due = 'due',
+    Repeat = 'repeat',
+    Scheduled = 'scheduled',
+}
+
 interface OwnProps extends ItemType {
+    hideIcons?: ItemProperties[]
     noIndentOnSubtasks: boolean
     showProject: boolean
     keymap: {}
@@ -94,6 +104,11 @@ function Item(props: ItemProps): ReactElement {
     const container = React.createRef<HTMLInputElement>()
     const handlers = {
         TODO: {
+            SET_ACTIVE_ITEM: () => {
+                props.showFocusbar()
+                props.setActiveItem(props.id)
+                return
+            },
             NEXT_ITEM: (event) => {
                 // If it's a parent element we need to get the first child
                 if (props.children.length > 0) {
@@ -424,7 +439,8 @@ function Item(props: ItemProps): ReactElement {
         }
         return
     }
-    const handleIconClick = (): void => {
+    const handleIconClick = (e): void => {
+        e.stopPropagation()
         if (props.type == 'TODO') {
             props.completed
                 ? props.uncompleteItem(props.id)
@@ -433,7 +449,8 @@ function Item(props: ItemProps): ReactElement {
         return
     }
 
-    const handleExpand = (): void => {
+    const handleExpand = (e): void => {
+        e.stopPropagation()
         setHideChildren(!hideChildren)
         return
     }
@@ -459,10 +476,13 @@ function Item(props: ItemProps): ReactElement {
                     onKeyDown={handleKeyPress}
                     id={props.id}
                     tabIndex={0}
+                    onClick={() => {
+                        props.showFocusbar()
+                        props.setActiveItem(props.id)
+                    }}
                     itemType={props.type}
-                    onFocus={() => props.setActiveItem(props.id)}
                 >
-                    {props.children.length > 0 && (
+                    {props.children?.length > 0 && (
                         <ExpandContainer>
                             <Button
                                 type="default"
@@ -510,54 +530,61 @@ function Item(props: ItemProps): ReactElement {
                                 : 'null'}
                         </Project>
                     )}
-                    {props.scheduledDate && (
-                        <ScheduledContainer>
+
+                    <ScheduledContainer>
+                        {!props.hideIcons?.includes(
+                            ItemProperties.Scheduled,
+                        ) && (
                             <DateRenderer
                                 completed={props.completed}
                                 type="scheduled"
                                 position="flex-start"
                                 text={scheduledDate}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.stopPropagation()
                                     if (props.completed) return
                                     setScheduledDateDropdownVisible(
                                         !scheduledDateDropdownVisible,
                                     )
                                 }}
                             />
-                        </ScheduledContainer>
-                    )}
-                    {props.dueDate && (
-                        <DueContainer>
+                        )}
+                    </ScheduledContainer>
+
+                    <DueContainer>
+                        {!props.hideIcons?.includes(ItemProperties.Due) && (
                             <DateRenderer
                                 completed={props.completed}
                                 type="due"
                                 position="center"
                                 text={dueDate}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.stopPropagation()
                                     if (props.completed) return
                                     setDueDateDropdownVisible(
                                         !dueDateDropdownVisible,
                                     )
                                 }}
                             />
-                        </DueContainer>
-                    )}
-                    {props.repeat && (
-                        <RepeatContainer>
+                        )}
+                    </DueContainer>
+                    <RepeatContainer>
+                        {!props.hideIcons?.includes(ItemProperties.Repeat) && (
                             <DateRenderer
                                 completed={props.completed}
                                 type="repeat"
                                 position="flex-end"
                                 text={repeat}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.stopPropagation()
                                     if (props.completed) return
                                     setRepeatDropdownVisible(
                                         !repeatDropdownVisible,
                                     )
                                 }}
                             />
-                        </RepeatContainer>
-                    )}
+                        )}
+                    </RepeatContainer>
                 </Container>
                 <QuickAdd visible={createSubtaskDropdownVisible}>
                     <EditableItem
@@ -625,6 +652,8 @@ function Item(props: ItemProps): ReactElement {
                             createSubTask={props.createSubTask}
                             deleteItem={props.deleteItem}
                             undeleteItem={props.undeleteItem}
+                            showFocusbar={props.showFocusbar}
+                            setActiveItem={props.setActiveItem}
                         />
                     )
                 })}
@@ -671,6 +700,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     setActiveItem: (id: Uuid) => {
         dispatch(setActiveItem(id))
+    },
+    showFocusbar: () => {
+        dispatch(showFocusbar())
     },
 })
 

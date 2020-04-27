@@ -224,14 +224,14 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state, props) => {
+const mapStateToProps = (state, props): StateProps => {
     return {
         items: getFilteredItems(state, props),
         completedItems: getCompletedItems(state, props),
         uncompletedItems: getUncompletedItems(state, props),
     }
 }
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     // TODO: Move this to the reducer and create a new action
     deleteCompletedItems: (completedItems) => {
         completedItems.map((c) => {

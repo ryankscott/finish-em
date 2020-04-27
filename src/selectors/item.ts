@@ -1,9 +1,9 @@
 import { endOfDay, isSameDay, isPast, parseISO } from 'date-fns'
 import { createSelector } from 'reselect'
-import { Item } from '../interfaces'
 import { pickBy } from 'lodash'
+import { ItemType } from '../interfaces'
 
-export const getFilteredItems = (state, props) => {
+export const getFilteredItems = (state, props): ItemType[] => {
     const items = state.items.items
         switch (props.filter) {
             case 'SHOW_ALL':
@@ -70,16 +70,16 @@ export const getFilteredItems = (state, props) => {
 }
 
 export const getCompletedItems = createSelector(getFilteredItems, (items) => {
-    return pickBy(items,(i) => i.completed === true)
+    return pickBy<ItemType>(items,(i) => i.completed === true)
 })
 
-export const getAllItems = (state) => state.items.items
+export const getAllItems = (state): ItemType[] => state.items.items
 
 export const getUncompletedItems = createSelector(
     getFilteredItems,
     getAllItems,
     (items, allItems) => {
-        return pickBy(items, (i) => {
+        return pickBy<ItemType>(items, (i) => {
             return (
                 (i.completed == false && i.parentId == null) ||
                 (i.completed == false &&
