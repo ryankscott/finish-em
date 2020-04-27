@@ -8,7 +8,7 @@ interface ContainerProps {
 export const Container = styled.div<ContainerProps>`
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
     padding: ${(props) => (props.visible ? '10px' : '0px')};
-    width: ${(props) => (props.visible ? '250px' : '50px')};
+    width: ${(props) => (props.visible ? '300px' : '50px')};
     align-items: ${(props) => (props.visible ? 'none' : 'center')};
     display: flex;
     flex-direction: column;

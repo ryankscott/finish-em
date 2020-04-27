@@ -12,7 +12,7 @@ export const ShortcutContainer = styled.div<ShortcutContainerProps>`
     opacity: 0.85;
     width: 650px;
     top: 50%;
-    left: calc(50% + 145px);
+    left: calc(50%);
     transform: translate(-50%, -50%);
     padding: 2px;
     z-index: 99;
@@ -24,7 +24,7 @@ export const Header = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: baseline;
-    margin-bottom: 20px;
+    margin: 5px 0px;
 `
 
 export const Controls = styled.div`

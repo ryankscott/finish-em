@@ -38,9 +38,11 @@ configure({
 })
 
 const GlobalStyle = createGlobalStyle`
+* {
+    box-sizing: border-box;
+}
   html {
-    height: 100vmax;
-    box-sizing: 'border-box';
+    box-sizing: border-box;
   }
   body {
     font-family: ${(props) => props.theme.font.sansSerif};
@@ -50,8 +52,6 @@ const GlobalStyle = createGlobalStyle`
     box-sizing: border-box;
     padding: 0px;
     margin: 0px;
-    height: 100vmax;
-    overflow: hidden;
   }
 `
 interface ProjectWrapperProps {

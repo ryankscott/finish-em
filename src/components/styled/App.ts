@@ -5,7 +5,6 @@ export const Container = styled.div`
     flex-direction: row;
     margin: 0px;
     width: 100%;
-    height: 100vmax;
 `
 
 export const ShortcutIcon = styled.div`
@@ -27,7 +26,6 @@ export const MainContainer = styled.div<MainContainerProps>`
     transition: all 0.2s ease-in-out;
     width: 100%;
     align-items: center;
-    overflow: auto;
 `
 
 interface FocusContainerProps {
@@ -42,5 +40,4 @@ export const FocusContainer = styled.div<FocusContainerProps>`
     align-items: center;
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
-    height: 100vmax;
 `

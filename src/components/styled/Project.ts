@@ -1,15 +1,17 @@
 import styled from 'styled-components'
 
 export const ProjectContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 50px 50px;
-  width: 675px;
+    display: flex;
+    flex-direction: column;
+    margin: 20px 20px;
+    padding: 20px 20px;
+    margin-top: 50px; /* Note: This is because there's less padding on the editable title */
+    width: 675px;
 `
 
 export const HeaderContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
 `

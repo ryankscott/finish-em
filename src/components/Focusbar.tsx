@@ -24,10 +24,10 @@ import { useHistory } from 'react-router-dom'
 const Container = styled.div`
     display: flex;
     flex-direction: column;
-    margin: 5px 5px;
-    padding: 5px;
-    height: 100vh;
+    box-sizing: border-box;
     width: 100%;
+    padding: 10px;
+    height: 100vh;
 `
 const SubtaskContainer = styled.div`
     display: flex;
@@ -46,7 +46,7 @@ const AttributeContainer = styled.div`
 const TitleContainer = styled.div`
     display: flex;
     flex-direction: row;
-    margin: 5px 0px;
+    margin: 10px 0px;
     margin-bottom: 20px;
     align-items: center;
 `
@@ -121,7 +121,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         style={{
                             gridArea: 'CLOSE',
                             display: 'flex',
-                            justifyContent: 'end',
+                            justifyContent: 'flex-end',
                         }}
                     >
                         <Button

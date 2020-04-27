@@ -11,7 +11,6 @@ if (isElectron()) {
 export const migratev2tov3Items = (its: ItemType[]): Items => {
     const o = []
     const is = {}
-    console.log(typeof its)
     its.forEach((i: ItemType) => {
         is[i.id] = i
         o.push(i.id)
@@ -20,10 +19,10 @@ export const migratev2tov3Items = (its: ItemType[]): Items => {
 }
 
 const migrations = {
-    2: (state) => {
+    3: (state) => {
         return {
             ...state,
-            items: migratev2tov3Items(state.    ),
+            items: migratev2tov3Items(state.items),
             ui: {
                 ...state.ui,
                 activeItem: null,
