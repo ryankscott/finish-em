@@ -18,7 +18,7 @@ export const itemReducer = produce(
         draftState: Items = initialState,
         action: ItemActions | DeleteProjectAction,
     ): Items => {
-        const i = draftState.items[action.id]
+        const i = draftState?.items[action.id]
         switch (action.type) {
             case item.CREATE_ITEM:
                 draftState.items[action.id.toString()] = {

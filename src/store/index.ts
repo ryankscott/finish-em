@@ -8,11 +8,11 @@ let createElectronStorage
 if (isElectron()) {
     createElectronStorage = window.require('redux-persist-electron-storage')
 }
-
-const v2tov3Migrator = (inputItems: ItemType[]): Items => {
+export const migratev2tov3Items = (its: ItemType[]): Items => {
     const o = []
     const is = {}
-    inputItems.forEach((i: ItemType) => {
+    console.log(typeof its)
+    its.forEach((i: ItemType) => {
         is[i.id] = i
         o.push(i.id)
     })
@@ -23,7 +23,12 @@ const migrations = {
     2: (state) => {
         return {
             ...state,
-            items: v2tov3Migrator(JSON.parse(state['persist:root'].items)),
+            items: migratev2tov3Items(state.    ),
+            ui: {
+                ...state.ui,
+                activeItem: null,
+                focusbarVisible: false,
+            },
         }
     },
 }
@@ -33,6 +38,7 @@ if (isElectron()) {
     persistConfig = {
         version: 3,
         key: 'root',
+        debug: true,
         storage: createElectronStorage(),
         migrate: createMigrate(migrations, { debug: true }),
     }
@@ -40,6 +46,7 @@ if (isElectron()) {
     persistConfig = {
         version: 3,
         key: 'root',
+        debug: true,
         storage,
         migrate: createMigrate(migrations, { debug: true }),
     }
