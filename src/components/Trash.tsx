@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { connect } from 'react-redux'
 
 import { theme } from '../theme'
 import { Title } from './Typography'
@@ -24,8 +23,4 @@ const Trash = (): ReactElement => (
     </ThemeProvider>
 )
 
-const mapStateToProps = (state) => ({
-    items: state.items,
-})
-const mapDispatchToProps = (dispatch) => ({})
-export default connect(mapStateToProps, mapDispatchToProps)(Trash)
+export default Trash
