@@ -90,7 +90,7 @@ type FocusbarProps = OwnProps & DispatchProps & StateProps
 const Focusbar = (props: FocusbarProps): ReactElement => {
     const ref = React.createRef<HTMLInputElement>()
     const i = props.items.items[props.activeItem]
-    if (!i) return
+    if (!i) return null
     const repeatText = i.repeat ? rruleToText(RRule.fromString(i.repeat)) : ''
     const dueDate = i.dueDate ? formatRelativeDate(parseISO(i.dueDate)) : null
     const scheduledDate = i.scheduledDate
