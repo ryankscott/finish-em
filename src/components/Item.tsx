@@ -532,8 +532,10 @@ function Item(props: ItemProps): ReactElement {
                     )}
 
                     <ScheduledContainer>
-                        {!props.hideIcons?.includes(
-                            ItemProperties.Scheduled,
+                        {!(
+                            props.hideIcons?.includes(
+                                ItemProperties.Scheduled,
+                            ) || props.type == 'NOTE'
                         ) && (
                             <DateRenderer
                                 completed={props.completed}
@@ -552,7 +554,10 @@ function Item(props: ItemProps): ReactElement {
                     </ScheduledContainer>
 
                     <DueContainer>
-                        {!props.hideIcons?.includes(ItemProperties.Due) && (
+                        {!(
+                            props.hideIcons?.includes(ItemProperties.Due) ||
+                            props.type == 'NOTE'
+                        ) && (
                             <DateRenderer
                                 completed={props.completed}
                                 type="due"
@@ -569,7 +574,10 @@ function Item(props: ItemProps): ReactElement {
                         )}
                     </DueContainer>
                     <RepeatContainer>
-                        {!props.hideIcons?.includes(ItemProperties.Repeat) && (
+                        {!(
+                            props.hideIcons?.includes(ItemProperties.Repeat) ||
+                            props.type == 'NOTE'
+                        ) && (
                             <DateRenderer
                                 completed={props.completed}
                                 type="repeat"
