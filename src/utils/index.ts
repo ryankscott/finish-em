@@ -200,7 +200,7 @@ export const getProjectNameById = (
 export const getFirstLetterFromEachWord = (input: string): string => {
     const words = input.split(' ')
     if (words.length == 1) return input.slice(0, 2)
-    const letters = words.map((w) => w[0])
+    const letters = words.map((w) => w[0]).slice(0, 2)
     return letters.join('').toUpperCase()
 }
 
