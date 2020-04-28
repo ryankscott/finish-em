@@ -43,10 +43,9 @@ export const dueIcon = (
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-        <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-    </svg>
+<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+<line x1="4" y1="22" x2="4" y2="15"></line>
+</svg>
 )
 
 export const scheduledIcon = (
