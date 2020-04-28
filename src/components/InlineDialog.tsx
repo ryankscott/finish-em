@@ -14,6 +14,7 @@ export interface InlineDialogProps {
     isOpen: boolean
     onOpen?: () => void
     onClose?: () => void
+    hideCloseButton: boolean
     placement:
         | 'auto'
         | 'auto-start'
@@ -71,14 +72,16 @@ function InlineDialog(props: InlineDialogProps): ReactElement {
                     >
                         <ThemeProvider theme={theme}>
                             <Container ref={node} visible={props.isOpen}>
-                                <HeaderContainer>
-                                    <Button
-                                        spacing="default"
-                                        type="default"
-                                        onClick={props.onClose}
-                                        icon="close"
-                                    />
-                                </HeaderContainer>
+                                {!props.hideCloseButton && (
+                                    <HeaderContainer>
+                                        <Button
+                                            spacing="default"
+                                            type="default"
+                                            onClick={props.onClose}
+                                            icon="close"
+                                        />
+                                    </HeaderContainer>
+                                )}
                                 <BodyContainer>{props.content}</BodyContainer>
                             </Container>
                         </ThemeProvider>

@@ -3,11 +3,16 @@ import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 import InlineDialog from './InlineDialog'
 
-import { Header2, Paragraph } from './Typography'
+import { Paragraph, Header3 } from './Typography'
 import { theme } from '../theme'
 import { Button } from './Button'
 import { toggleDeleteProjectDialog, hideDeleteProjectDialog } from '../actions'
-import { BodyContainer, ActionContainer } from './styled/DeleteProjectDialog'
+import {
+    BodyContainer,
+    ActionContainer,
+    Container,
+    HeaderContainer,
+} from './styled/DeleteProjectDialog'
 
 export interface DeleteProjectDialogProps {
     visible?: boolean
@@ -24,9 +29,18 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                 placement={'bottom-start'}
                 isOpen={props.visible}
                 onOpen={() => {}}
+                hideCloseButton={true}
                 content={
-                    <div>
-                        <Header2>Delete Project</Header2>
+                    <Container>
+                        <HeaderContainer>
+                            <Header3>Delete Project</Header3>
+                            <Button
+                                spacing="default"
+                                type="default"
+                                onClick={() => props.closeDeleteProjectDialog()}
+                                icon="close"
+                            />
+                        </HeaderContainer>
                         <BodyContainer>
                             <Paragraph>
                                 Are you sure you want to delete this project?
@@ -35,18 +49,20 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                         <ActionContainer>
                             <Button
                                 type="error"
-                                spacing="compact"
+                                spacing="default"
                                 onClick={props.onDelete}
                                 text="Yes"
+                                width={'80px'}
                             ></Button>
                             <Button
                                 type="primary"
-                                spacing="compact"
+                                spacing="default"
                                 onClick={() => props.closeDeleteProjectDialog()}
                                 text="No"
+                                width={'80px'}
                             ></Button>
                         </ActionContainer>
-                    </div>
+                    </Container>
                 }
             >
                 <Button

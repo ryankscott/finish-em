@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
 
-import { Header2 } from './Typography'
+import { Header3 } from './Typography'
 import { theme } from '../theme'
 import {
     createProject,
@@ -16,17 +16,28 @@ import InlineDialog from './InlineDialog'
 
 const StyledInput = styled.input`
     font-size: ${(props) => props.theme.fontSizes.xsmall};
-    padding: 2px 5px;
-    margin: 2px 2px;
-    height: 25px;
-    width: 150px;
+    height: 30px;
+    margin: 2px 5px;
+`
+const HeaderContainer = styled.div`
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: flex-end;
 `
 
 const BodyContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin: 5px 0px;
-    padding: 0px 0px 10px 0px;
+    margin: 10px 2px;
+`
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 190px;
+    padding: 0px 0px;
+    margin: 0px 2px;
 `
 
 export interface CreateProjectDialogProps {
@@ -65,9 +76,20 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
                 placement="bottom-start"
                 isOpen={props.visible}
                 onOpen={() => createProjectInput.current.focus()}
+                hideCloseButton={true}
                 content={
-                    <div>
-                        <Header2>Create Project</Header2>
+                    <Container>
+                        <HeaderContainer>
+                            <Header3>Create Project</Header3>
+                            <Button
+                                spacing="default"
+                                type="default"
+                                onClick={() => {
+                                    props.closeCreateProjectDialog()
+                                }}
+                                icon="close"
+                            />
+                        </HeaderContainer>
                         <BodyContainer>
                             <StyledInput
                                 autoFocus
@@ -95,7 +117,7 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
                             onClick={handleSubmit}
                             text="Create"
                         ></Button>
-                    </div>
+                    </Container>
                 }
             >
                 <Button

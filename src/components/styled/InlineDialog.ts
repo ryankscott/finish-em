@@ -8,14 +8,13 @@ export const Container = styled.div<ContainerProps>`
     box-sizing: border-box;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     flex-direction: column;
-    width: 200px;
     background-color: ${(props) =>
         props.theme.colours.lightDialogBackgroundColour};
-    padding: 5px 5px 8px 5px;
+    padding: 2px;
+    margin: 2px;
     justify-content: center;
     align-items: center;
     border-radius: 3px;
-    margin: 2px;
     transition: all 0.1s ease-in-out;
     z-index: 99;
 `

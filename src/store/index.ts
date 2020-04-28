@@ -17,7 +17,7 @@ export const migratev2tov3Items = (its: ItemType[]): Items => {
     })
     return { items: is, order: o }
 }
-
+// Note: The number here denotes the version you want to migrate to
 const migrations = {
     3: (state) => {
         return {

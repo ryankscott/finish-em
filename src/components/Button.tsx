@@ -31,7 +31,7 @@ const iconMapping = {
 // TODO: Change width and height to strings
 export interface ButtonProps {
     id?: string
-    onClick?: (e: MouseEvent) => void
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
     spacing?: 'compact' | 'default'
     type: 'primary' | 'error' | 'default' | 'invert' | 'subtle'
     text?: string
