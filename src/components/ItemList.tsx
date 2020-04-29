@@ -33,47 +33,79 @@ const ItemList = (props: ItemListProps): ReactElement => {
     return (
         <ThemeProvider theme={theme}>
             <Container>
-                {props.items.map((item) => {
+                {props.items.map((item, idx) => {
                     if (item == undefined) return
-
                     switch (props.renderingStrategy) {
                         case 'DEFAULT':
                             if (item.parentId != null) return
                             return (
                                 <div key={'container-' + item.id}>
-                                    <Item
-                                        {...item}
-                                        key={item.id}
-                                        noIndentOnSubtasks={false}
-                                        showProject={props.showProject}
-                                        keymap={itemKeymap}
-                                    />
+                                    {idx == 0 ? (
+                                        <Item
+                                            {...item}
+                                            autoFocus
+                                            key={item.id}
+                                            noIndentOnSubtasks={false}
+                                            showProject={props.showProject}
+                                            keymap={itemKeymap}
+                                        />
+                                    ) : (
+                                        <Item
+                                            {...item}
+                                            key={item.id}
+                                            noIndentOnSubtasks={false}
+                                            showProject={props.showProject}
+                                            keymap={itemKeymap}
+                                        />
+                                    )}
                                 </div>
                             )
                         case 'ALL':
                             if (item.parentId != null) return
                             return (
                                 <div key={'container-' + item.id}>
-                                    <Item
-                                        {...item}
-                                        key={item.id}
-                                        noIndentOnSubtasks={true}
-                                        showProject={props.showProject}
-                                        keymap={itemKeymap}
-                                    />
+                                    {idx == 0 ? (
+                                        <Item
+                                            {...item}
+                                            autoFocus
+                                            key={item.id}
+                                            noIndentOnSubtasks={false}
+                                            showProject={props.showProject}
+                                            keymap={itemKeymap}
+                                        />
+                                    ) : (
+                                        <Item
+                                            {...item}
+                                            key={item.id}
+                                            noIndentOnSubtasks={false}
+                                            showProject={props.showProject}
+                                            keymap={itemKeymap}
+                                        />
+                                    )}
                                 </div>
                             )
                         default:
                             if (item.parentId != null) return
                             return (
                                 <div key={'container-' + item.id}>
-                                    <Item
-                                        {...item}
-                                        key={item.id}
-                                        noIndentOnSubtasks={false}
-                                        showProject={props.showProject}
-                                        keymap={itemKeymap}
-                                    />
+                                    {idx == 0 ? (
+                                        <Item
+                                            {...item}
+                                            autoFocus
+                                            key={item.id}
+                                            noIndentOnSubtasks={false}
+                                            showProject={props.showProject}
+                                            keymap={itemKeymap}
+                                        />
+                                    ) : (
+                                        <Item
+                                            {...item}
+                                            key={item.id}
+                                            noIndentOnSubtasks={false}
+                                            showProject={props.showProject}
+                                            keymap={itemKeymap}
+                                        />
+                                    )}
                                 </div>
                             )
                     }

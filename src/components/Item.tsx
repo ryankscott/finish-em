@@ -1,4 +1,4 @@
-import React, { KeyboardEvent, ReactElement, useState } from 'react'
+import React, { KeyboardEvent, ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 import { RRule } from 'rrule'
@@ -78,6 +78,7 @@ interface OwnProps extends ItemType {
     hideIcons?: ItemProperties[]
     noIndentOnSubtasks: boolean
     showProject: boolean
+    autoFocus?: boolean
     keymap: {}
 }
 
@@ -353,6 +354,10 @@ function Item(props: ItemProps): ReactElement {
             },
         },
     }
+
+    useEffect(() => {
+        if (props.autoFocus) container.current.focus()
+    })
 
     const handleDescriptionChange = (text: string): void => {
         props.updateItemDescription(props.id, props.type.concat(' ', text))
