@@ -34,7 +34,11 @@ export interface ProjectType {
 }
 
 export interface UIType {
-    activeItem: Uuid
+    activeItem: {
+        past: Uuid[]
+        present: Uuid
+        future: Uuid[]
+    }
     sidebarVisible: boolean
     focusbarVisible: boolean
     shortcutDialogVisible: boolean

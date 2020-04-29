@@ -17,9 +17,10 @@ import RRule from 'rrule'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
 import Item, { ItemProperties } from './Item'
-import { hideFocusbar, setActiveItem } from '../actions/ui'
+import { hideFocusbar, setActiveItem, undoSetActiveItem } from '../actions/ui'
 import { updateItemDescription } from '../actions'
 import { useHistory } from 'react-router-dom'
+import { Tooltip } from './Tooltip'
 
 const Container = styled.div`
     display: flex;
@@ -55,7 +56,7 @@ interface HeaderContainerProps {
 }
 const HeaderContainer = styled.div<HeaderContainerProps>`
     display: ${(props) => (props.visible ? 'grid' : 'none')};
-    grid-template-areas: 'BACK . . . CLOSE';
+    grid-template-areas: 'BACK UP . . CLOSE';
     grid-template-columns: repeat(5, 1fr);
     flex-direction: row;
     width: 100%;
@@ -79,17 +80,22 @@ interface DispatchProps {
     closeFocusbar: () => void
     setActiveItem: (id: Uuid) => void
     updateItemDescription: (id: Uuid, text: string) => void
+    undoSetActiveItem: () => void
 }
 interface StateProps {
     items: Items
     projects: ProjectType[]
-    activeItem: Uuid
+    activeItem: {
+        past: Uuid[]
+        present: Uuid
+        future: Uuid[]
+    }
     focusbarVisible: boolean
 }
 type FocusbarProps = OwnProps & DispatchProps & StateProps
 const Focusbar = (props: FocusbarProps): ReactElement => {
     const ref = React.createRef<HTMLInputElement>()
-    const i = props?.items?.items[props?.activeItem]
+    const i = props?.items?.items[props?.activeItem.present]
     if (!i) return null
     const repeatText = i.repeat ? rruleToText(RRule.fromString(i.repeat)) : ''
     const dueDate = i.dueDate ? formatRelativeDate(parseISO(i.dueDate)) : null
@@ -107,14 +113,28 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         <ThemeProvider theme={theme}>
             <Container>
                 <HeaderContainer visible={props.focusbarVisible}>
-                    {i.parentId != null && (
+                    {props.activeItem?.past?.length > 0 && (
                         <div style={{ gridArea: 'BACK' }}>
                             <Button
+                                dataFor="back-button"
+                                type="default"
+                                spacing="compact"
+                                onClick={() => props.undoSetActiveItem()}
+                                icon={'back'}
+                            ></Button>
+                            <Tooltip id="back-button" text={'Back'} />
+                        </div>
+                    )}
+                    {i.parentId != null && (
+                        <div style={{ gridArea: 'UP' }}>
+                            <Button
+                                dataFor="up-button"
                                 type="default"
                                 spacing="compact"
                                 onClick={() => props.setActiveItem(i.parentId)}
                                 icon={'up_level'}
-                            />
+                            ></Button>
+                            <Tooltip id="up-button" text={'Up level'} />
                         </div>
                     )}
                     <div
@@ -258,6 +278,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     setActiveItem: (id: Uuid) => {
         dispatch(setActiveItem(id))
+    },
+    undoSetActiveItem: () => {
+        dispatch(undoSetActiveItem())
     },
 })
 

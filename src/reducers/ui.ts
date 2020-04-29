@@ -2,7 +2,11 @@ import * as ui from '../actions/ui'
 import { UIType } from '../interfaces'
 
 const initialState: UIType = {
-    activeItem: null,
+    activeItem: {
+        past: [],
+        present: null,
+        future: [],
+    },
     sidebarVisible: true,
     focusbarVisible: true,
     shortcutDialogVisible: false,
@@ -94,8 +98,44 @@ export const uiReducer = (
         case ui.SET_ACTIVE_ITEM:
             return {
                 ...state,
-                activeItem: action.id,
+                activeItem: {
+                    past: state.activeItem.present
+                        ? [...state.activeItem.past, state.activeItem.present]
+                        : state.activeItem.past,
+                    present: action.id,
+                    future: [],
+                },
             }
+        case ui.UNDO_SET_ACTIVE_ITEM:
+            const previous =
+                state.activeItem.past[state.activeItem.past.length - 1]
+            const newPast = state.activeItem.past.slice(
+                0,
+                state.activeItem.past.length - 1,
+            )
+            return {
+                ...state,
+                activeItem: {
+                    past: newPast ? newPast : [],
+                    present: previous,
+                    future: [
+                        state.activeItem.present,
+                        ...state.activeItem.future,
+                    ],
+                },
+            }
+        case ui.REDO_SET_ACTIVE_ITEM:
+            const next = state.activeItem.future[0]
+            const newFuture = state.activeItem.future.slice(1)
+            return {
+                ...state,
+                activeItem: {
+                    past: [...state.activeItem.past, state.activeItem.present],
+                    present: next,
+                    future: newFuture,
+                },
+            }
+
         default:
             return state
     }

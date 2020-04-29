@@ -30,12 +30,25 @@ const migrations = {
             },
         }
     },
+    4: (state) => {
+        return {
+            ...state,
+            ui: {
+                ...state.ui,
+                activeItem: {
+                    past: [],
+                    present: state.ui.activeItem ? state.ui.activeItem : null,
+                    future: [],
+                },
+            },
+        }
+    },
 }
 
 let persistConfig
 if (isElectron()) {
     persistConfig = {
-        version: 3,
+        version: 4,
         key: 'root',
         debug: true,
         storage: createElectronStorage(),
@@ -43,7 +56,7 @@ if (isElectron()) {
     }
 } else {
     persistConfig = {
-        version: 3,
+        version: 4,
         key: 'root',
         debug: true,
         storage,

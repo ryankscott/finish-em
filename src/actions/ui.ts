@@ -16,6 +16,8 @@ export const SHOW_DELETE_PROJECT_DIALOG = 'SHOW_DELETE_PROJECT_DIALOG'
 export const HIDE_DELETE_PROJECT_DIALOG = 'HIDE_DELETE_PROJECT_DIALOG'
 export const TOGGLE_DELETE_PROJECT_DIALOG = 'TOGGLE_DELETE_PROJECT_DIALOG'
 export const SET_ACTIVE_ITEM = 'SET_ACTIVE_ITEM'
+export const UNDO_SET_ACTIVE_ITEM = 'UNDO_SET_ACTIVE_ITEM'
+export const REDO_SET_ACTIVE_ITEM = 'REDO_SET_ACTIVE_ITEM'
 
 interface ShowShortcutDialogAction {
     type: typeof SHOW_SHORTCUT_DIALOG
@@ -160,6 +162,22 @@ export function setActiveItem(id: Uuid): SetActiveItemAction {
         id: id,
     }
 }
+interface UndoSetActiveItemAction {
+    type: typeof UNDO_SET_ACTIVE_ITEM
+}
+export function undoSetActiveItem(): UndoSetActiveItemAction {
+    return {
+        type: UNDO_SET_ACTIVE_ITEM,
+    }
+}
+interface RedoSetActiveItemAction {
+    type: typeof REDO_SET_ACTIVE_ITEM
+}
+export function redoSetActiveItem(): RedoSetActiveItemAction {
+    return {
+        type: REDO_SET_ACTIVE_ITEM,
+    }
+}
 
 export type UIActions =
     | ShowShortcutDialogAction
@@ -178,3 +196,5 @@ export type UIActions =
     | HideFocusbarAction
     | ToggleFocusbarAction
     | SetActiveItemAction
+    | UndoSetActiveItemAction
+    | RedoSetActiveItemAction
