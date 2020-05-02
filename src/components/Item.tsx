@@ -8,7 +8,6 @@ import { ItemType, ProjectType, Items } from '../interfaces'
 import {
     Body,
     Container,
-    Project,
     QuickAdd,
     ExpandContainer,
     ScheduledContainer,
@@ -38,9 +37,7 @@ import EditableItem from './EditableItem'
 import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
 import EditableText from './EditableText'
-import DateRenderer from './DateRenderer'
 import {
-    getProjectNameById,
     removeItemTypeFromString,
     formatRelativeDate,
     rruleToText,
@@ -75,23 +72,15 @@ export enum ItemProperties {
 }
 
 interface OwnProps extends ItemType {
-    hideIcons?: ItemProperties[]
+    hideIcons?: boolean
     noIndentOnSubtasks: boolean
     showProject: boolean
-    autoFocus?: boolean
     keymap: {}
 }
 
 type ItemProps = OwnProps & StateProps & DispatchProps
 
 function Item(props: ItemProps): ReactElement {
-    const [projectDropdownVisible, setProjectDropdownVisible] = useState(false)
-    const [
-        scheduledDateDropdownVisible,
-        setScheduledDateDropdownVisible,
-    ] = useState(false)
-    const [dueDateDropdownVisible, setDueDateDropdownVisible] = useState(false)
-    const [repeatDropdownVisible, setRepeatDropdownVisible] = useState(false)
     const [
         createSubtaskDropdownVisible,
         setCreateSubtaskDropdownVisible,
@@ -183,55 +172,32 @@ function Item(props: ItemProps): ReactElement {
             },
             SET_SCHEDULED_DATE: (event) => {
                 if (props.deleted || props.completed) return
-                setScheduledDateDropdownVisible(!scheduledDateDropdownVisible)
-                setDueDateDropdownVisible(false)
-                setProjectDropdownVisible(false)
-                setRepeatDropdownVisible(false)
                 setCreateSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             SET_DUE_DATE: (event) => {
                 if (props.deleted || props.completed) return
-                setScheduledDateDropdownVisible(false)
-                setDueDateDropdownVisible(!dueDateDropdownVisible)
-                setProjectDropdownVisible(false)
-                setRepeatDropdownVisible(false)
                 setCreateSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             CREATE_SUBTASK: (event) => {
-                if (props.deleted || props.completed) return
-                setScheduledDateDropdownVisible(false)
-                setDueDateDropdownVisible(false)
-                setProjectDropdownVisible(false)
-                setRepeatDropdownVisible(false)
+                if (props.deleted || props.completed || props.parentId != null)
+                    return
                 setCreateSubtaskDropdownVisible(!createSubtaskDropdownVisible)
                 quickAdd.current.focus()
                 event.preventDefault()
             },
             REPEAT_ITEM: (event) => {
                 if (props.deleted || props.completed) return
-                setScheduledDateDropdownVisible(false)
-                setDueDateDropdownVisible(false)
-                setProjectDropdownVisible(false)
-                setRepeatDropdownVisible(!repeatDropdownVisible)
                 setCreateSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             MOVE_ITEM: (event) => {
                 if (props.deleted || props.completed) return
-                setScheduledDateDropdownVisible(false)
-                setDueDateDropdownVisible(false)
-                setProjectDropdownVisible(!projectDropdownVisible)
-                setRepeatDropdownVisible(false)
                 setCreateSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             ESCAPE: () => {
-                setScheduledDateDropdownVisible(false)
-                setDueDateDropdownVisible(false)
-                setProjectDropdownVisible(false)
-                setRepeatDropdownVisible(false)
                 setCreateSubtaskDropdownVisible(false)
                 container.current.focus()
             },
@@ -333,18 +299,10 @@ function Item(props: ItemProps): ReactElement {
             },
             MOVE_ITEM: (event) => {
                 if (props.deleted) return
-                setScheduledDateDropdownVisible(false)
-                setDueDateDropdownVisible(false)
-                setProjectDropdownVisible(!projectDropdownVisible)
-                setRepeatDropdownVisible(false)
                 setCreateSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             ESCAPE: () => {
-                setScheduledDateDropdownVisible(false)
-                setDueDateDropdownVisible(false)
-                setProjectDropdownVisible(false)
-                setRepeatDropdownVisible(false)
                 setCreateSubtaskDropdownVisible(false)
             },
             EDIT_ITEM_DESC: (event) => {
@@ -355,44 +313,6 @@ function Item(props: ItemProps): ReactElement {
         },
     }
 
-    useEffect(() => {
-        if (props.autoFocus) container.current.focus()
-    })
-
-    const handleDescriptionChange = (text: string): void => {
-        props.updateItemDescription(props.id, props.type.concat(' ', text))
-        return
-    }
-
-    const setRepeatRule = (r: RRule): void => {
-        props.setRepeatRule(props.id, r)
-        setRepeatDropdownVisible(false)
-        return
-    }
-
-    const setScheduledDate = (d: string): void => {
-        props.setScheduledDate(props.id, d)
-        setScheduledDateDropdownVisible(false)
-        return
-    }
-
-    const setDueDate = (d: string): void => {
-        props.setDueDate(props.id, d)
-        setDueDateDropdownVisible(false)
-        return
-    }
-
-    const moveItem = (projectId: Uuid): void => {
-        props.moveItem(props.id, projectId)
-        setProjectDropdownVisible(false)
-        return
-    }
-
-    const createSubTask = (text: string): void => {
-        props.createSubTask(props.id, text, props.projectId)
-        setCreateSubtaskDropdownVisible(false)
-        return
-    }
     /* TODO: Try move this to somewhere central
     Not to future self - You've tried
      -  To extract this as hooks (useHotkeys.tsx)
@@ -460,13 +380,13 @@ function Item(props: ItemProps): ReactElement {
         return
     }
 
-    const repeat = props.repeat
+    const repeatText = props.repeat
         ? rruleToText(RRule.fromString(props.repeat))
         : ''
-    const dueDate = props.dueDate
+    const dueDateText = props.dueDate
         ? formatRelativeDate(parseISO(props.dueDate))
         : null
-    const scheduledDate = props.scheduledDate
+    const scheduledDateText = props.scheduledDate
         ? formatRelativeDate(parseISO(props.scheduledDate))
         : null
 
@@ -521,80 +441,88 @@ function Item(props: ItemProps): ReactElement {
                                 setIsEditingDescription(editing)
                             }
                             input={removeItemTypeFromString(props.text)}
-                            onUpdate={(text) => handleDescriptionChange(text)}
+                            onUpdate={(text) =>
+                                props.updateItemDescription(
+                                    props.id,
+                                    props.type.concat(' ', text),
+                                )
+                            }
                             singleline={true}
                         />
                     </Body>
                     {props.showProject && (
-                        <Project>
-                            {props.showProject
-                                ? getProjectNameById(
-                                      props.projectId,
-                                      props.projects,
-                                  )
-                                : 'null'}
-                        </Project>
+                        <div
+                            style={{
+                                gridArea: 'PROJECT',
+                                display: 'flex',
+                                justifyContent: 'flex-end',
+                            }}
+                        >
+                            <ProjectDropdown
+                                disableClick={true}
+                                projectId={props.projectId}
+                                completed={props.completed}
+                                onSubmit={(projectId) => {
+                                    props.moveItem(props.id, projectId)
+                                }}
+                            />
+                        </div>
                     )}
-
                     <ScheduledContainer>
                         {!(
-                            props.hideIcons?.includes(
-                                ItemProperties.Scheduled,
-                            ) || props.type == 'NOTE'
+                            props.hideIcons ||
+                            props.type == 'NOTE' ||
+                            !props.scheduledDate
                         ) && (
-                            <DateRenderer
-                                completed={props.completed}
+                            <DatePicker
+                                disableClick={true}
+                                key={'sd' + props.id}
+                                style={'subtleInvert'}
+                                placeholder={'Scheduled on: '}
+                                onSubmit={(d) =>
+                                    props.setScheduledDate(props.id, d)
+                                }
                                 type="scheduled"
-                                position="flex-start"
-                                text={scheduledDate}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    if (props.completed) return
-                                    setScheduledDateDropdownVisible(
-                                        !scheduledDateDropdownVisible,
-                                    )
-                                }}
+                                text={scheduledDateText}
+                                completed={props.completed}
                             />
                         )}
                     </ScheduledContainer>
 
                     <DueContainer>
                         {!(
-                            props.hideIcons?.includes(ItemProperties.Due) ||
-                            props.type == 'NOTE'
+                            props.hideIcons ||
+                            props.type == 'NOTE' ||
+                            !props.dueDate
                         ) && (
-                            <DateRenderer
-                                completed={props.completed}
+                            <DatePicker
+                                disableClick={true}
+                                style={'subtleInvert'}
+                                key={'dd' + props.id}
+                                placeholder={'Due on: '}
+                                onSubmit={(d) => props.setDueDate(props.id, d)}
                                 type="due"
-                                position="center"
-                                text={dueDate}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    if (props.completed) return
-                                    setDueDateDropdownVisible(
-                                        !dueDateDropdownVisible,
-                                    )
-                                }}
+                                text={dueDateText}
+                                completed={props.completed}
                             />
                         )}
                     </DueContainer>
                     <RepeatContainer>
                         {!(
-                            props.hideIcons?.includes(ItemProperties.Repeat) ||
-                            props.type == 'NOTE'
+                            props.hideIcons ||
+                            props.type == 'NOTE' ||
+                            !props.repeat
                         ) && (
-                            <DateRenderer
+                            <RepeatPicker
+                                disableClick={true}
+                                style={'subtleInvert'}
                                 completed={props.completed}
-                                type="repeat"
-                                position="flex-end"
-                                text={repeat}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    if (props.completed) return
-                                    setRepeatDropdownVisible(
-                                        !repeatDropdownVisible,
-                                    )
-                                }}
+                                text={repeatText}
+                                key={'rp' + props.id}
+                                placeholder={'Repeat: '}
+                                onSubmit={(r) =>
+                                    props.setRepeatRule(props.id, r)
+                                }
                             />
                         )}
                     </RepeatContainer>
@@ -604,42 +532,13 @@ function Item(props: ItemProps): ReactElement {
                         text=""
                         innerRef={quickAdd}
                         readOnly={false}
-                        onSubmit={(text) => createSubTask(text)}
+                        onSubmit={(text) => {
+                            props.createSubTask(props.id, text, props.projectId)
+                            setCreateSubtaskDropdownVisible(false)
+                        }}
                         onEscape={() => setCreateSubtaskDropdownVisible(false)}
                     />
                 </QuickAdd>
-                {scheduledDateDropdownVisible && (
-                    <DatePicker
-                        key={'sd' + props.id}
-                        placeholder={'Schedule to: '}
-                        onSubmit={setScheduledDate}
-                        onEscape={() => setScheduledDateDropdownVisible(false)}
-                    />
-                )}
-                {dueDateDropdownVisible && (
-                    <DatePicker
-                        key={'dd' + props.id}
-                        placeholder={'Due on: '}
-                        onSubmit={setDueDate}
-                        onEscape={() => setDueDateDropdownVisible(false)}
-                    />
-                )}
-                {repeatDropdownVisible && (
-                    <RepeatPicker
-                        key={'rp' + props.id}
-                        placeholder={'Repeat: '}
-                        onSubmit={setRepeatRule}
-                        onEscape={() => setRepeatDropdownVisible(false)}
-                    />
-                )}
-                {projectDropdownVisible && (
-                    <ProjectDropdown
-                        key={'p' + props.id}
-                        placeholder={'Move to: '}
-                        onSubmit={moveItem}
-                        onEscape={() => setProjectDropdownVisible(false)}
-                    />
-                )}
             </div>
             {!hideChildren &&
                 props.children?.map((c) => {

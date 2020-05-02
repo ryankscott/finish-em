@@ -6,10 +6,11 @@ import { Container, SubTextContainer } from './styled/DateRenderer'
 
 interface DateRendererProps {
     completed: boolean
+    style?: 'subtle' | 'subtleInvert' | 'default'
     position: 'center' | 'flex-end' | 'flex-start'
     type: 'due' | 'repeat' | 'scheduled'
     text: string
-    onClick?: (e: MouseEvent) => void
+    onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
 }
 
 const DateRenderer = (props: DateRendererProps): ReactElement => {
@@ -18,12 +19,14 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
             <Container completed={props.completed} type={props.type}>
                 <SubTextContainer key={props.type} position={props.position}>
                     <Button
-                        type="default"
+                        type={props.style || 'default'}
                         spacing="compact"
                         onClick={props.onClick}
                         icon={props.type}
                         text={props.text}
-                        iconColour={!props.text ? '#CCC' : null}
+                        iconColour={
+                            !props.text ? theme.colours.lightIconColour : null
+                        }
                     ></Button>
                 </SubTextContainer>
             </Container>

@@ -145,7 +145,7 @@ export const addIcon = (
         viewBox="0 0 24 24"
         fill="none"
         stroke={colour ? colour : 'currentColor'}
-        strokeWidth="2"
+        strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
     >
@@ -313,7 +313,8 @@ export const sortIcon = (
             width={width ? width : '16'}
             height={height ? height : '16'}
             viewBox="0 0 24 24"
-            stroke={colour ? colour : 'currentColor'}
+            stroke="none"
+            fill={colour ? colour : 'currentColor'}
         >
             <path d="M0 0h24v24H0V0z" fill="none" />
             <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
@@ -337,14 +338,45 @@ export const trashSweepIcon = (
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-        <polyline points="3 6 5 6 21 6"> </polyline>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-        <line x1="10" y1="11" x2="10" y2="17"></line>
-        <line x1="14" y1="11" x2="14" y2="17"></line>
-        <line x1="25" y1="8" x2="32" y2="8"></line>
-        <line x1="25" y1="14" x2="30" y2="14"></line>
-        <line x1="25" y1="20" x2="28" y2="20"></line>
-    </svg>
+   <polyline
+     transform="matrix(1.2986688,0,0,1.3641064,-3.7558438,-4.2473659)"
+     id="polyline68"
+     points="3 6 5 6 21 6" />
+  <path
+     id="path70"
+     d="M 20.56441,3.9177464 V 23.060795 a 2.5242294,2.7347212 0 0 1 -2.524229,2.73472 H 5.4190333 A 2.5242294,2.7347212 0 0 1 2.894804,23.060795 V 3.9177464 m 3.7863441,0 V 1.1830252 A 2.5242294,2.7347212 0 0 1 9.205377,-1.551696 h 5.04846 a 2.5242294,2.7347212 0 0 1 2.52423,2.7347212 v 2.7347212" />
+  <line
+     id="line74"
+     y2="20.998405"
+     x2="14.595375"
+     y1="9"
+     x1="14.595375" />
+  <line
+     id="line76"
+     y2="8.5773249"
+     x2="32"
+     y1="8.5773249"
+     x1="24" />
+  <line
+     id="line78"
+     y2="13.59158"
+     x2="29.99979"
+     y1="13.59158"
+     x1="23.99979" />
+  <line
+     id="line80"
+     y2="18.540035"
+     x2="26.99979"
+     y1="18.540035"
+     x1="23.99979" />
+  <line
+     x1="8.5953751"
+     y1="9"
+     x2="8.5953751"
+     y2="20.998405"
+     id="line74-9"
+     />
+</svg>
 )
 
 export const inboxIcon = (

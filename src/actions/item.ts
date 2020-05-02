@@ -14,178 +14,173 @@ export const ADD_CHILD_ITEM = 'ADD_CHILD_ITEM'
 export const HIDE_CHILDREN = 'HIDE_CHILDREN'
 export const SHOW_CHILDREN = 'SHOW_CHILDREN'
 
-import {
-  getItemTypeFromString,
-  capitaliseItemTypeFromString,
-  removeDateFromString,
-} from '../utils'
+import { getItemTypeFromString, capitaliseItemTypeFromString } from '../utils'
 import RRule from 'rrule'
 
 export interface CreateItemAction {
-  type: typeof CREATE_ITEM
-  id: Uuid
-  itemType: 'TODO' | 'NOTE'
-  text: string
-  projectId?: Uuid
-  parentId?: Uuid
+    type: typeof CREATE_ITEM
+    id: Uuid
+    itemType: 'TODO' | 'NOTE'
+    text: string
+    projectId?: Uuid
+    parentId?: Uuid
 }
 
 export function createItem(
-  id: Uuid,
-  text: string,
-  projectId?: Uuid,
-  parentId?: Uuid,
+    id: Uuid,
+    text: string,
+    projectId?: Uuid,
+    parentId?: Uuid,
 ): CreateItemAction {
-  const itemType = getItemTypeFromString(text)
+    const itemType = getItemTypeFromString(text)
 
-  // const dueDate = extractDateFromString(text);
-  let newText = removeDateFromString(text)
-  newText = capitaliseItemTypeFromString(newText)
+    // const dueDate = extractDateFromString(text);
+    const newText = capitaliseItemTypeFromString(text)
 
-  return {
-    type: CREATE_ITEM,
-    id: id,
-    text: newText,
-    itemType: itemType,
-    projectId: projectId,
-    parentId: parentId,
-  }
+    return {
+        type: CREATE_ITEM,
+        id: id,
+        text: newText,
+        itemType: itemType,
+        projectId: projectId,
+        parentId: parentId,
+    }
 }
 export interface DeleteItemAction {
-  type: typeof DELETE_ITEM
-  id: Uuid
+    type: typeof DELETE_ITEM
+    id: Uuid
 }
 export function deleteItem(id: Uuid): DeleteItemAction {
-  return {
-    type: DELETE_ITEM,
-    id: id,
-  }
+    return {
+        type: DELETE_ITEM,
+        id: id,
+    }
 }
 
 export interface UndeleteItemAction {
-  type: typeof UNDELETE_ITEM
-  id: Uuid
+    type: typeof UNDELETE_ITEM
+    id: Uuid
 }
 export function undeleteItem(id: Uuid): UndeleteItemAction {
-  return {
-    type: UNDELETE_ITEM,
-    id: id,
-  }
+    return {
+        type: UNDELETE_ITEM,
+        id: id,
+    }
 }
 export interface CompleteItemAction {
-  type: typeof COMPLETE_ITEM
-  id: Uuid
+    type: typeof COMPLETE_ITEM
+    id: Uuid
 }
 export function completeItem(id: Uuid): CompleteItemAction {
-  return {
-    type: COMPLETE_ITEM,
-    id: id,
-  }
+    return {
+        type: COMPLETE_ITEM,
+        id: id,
+    }
 }
 
 export interface UncompleteItemAction {
-  type: typeof UNCOMPLETE_ITEM
-  id: Uuid
+    type: typeof UNCOMPLETE_ITEM
+    id: Uuid
 }
 export function uncompleteItem(id: Uuid): UncompleteItemAction {
-  return {
-    type: UNCOMPLETE_ITEM,
-    id: id,
-  }
+    return {
+        type: UNCOMPLETE_ITEM,
+        id: id,
+    }
 }
 
 export interface MoveItemAction {
-  type: typeof MOVE_ITEM
-  id: Uuid
-  projectId: Uuid
+    type: typeof MOVE_ITEM
+    id: Uuid
+    projectId: Uuid
 }
 export function moveItem(id: Uuid, projectId: Uuid): MoveItemAction {
-  return {
-    type: MOVE_ITEM,
-    id: id,
-    projectId: projectId,
-  }
+    return {
+        type: MOVE_ITEM,
+        id: id,
+        projectId: projectId,
+    }
 }
 
 export interface SetScheduledDateAction {
-  type: typeof SET_SCHEDULED_DATE
-  id: Uuid
-  date: string
+    type: typeof SET_SCHEDULED_DATE
+    id: Uuid
+    date: string
 }
 export function setScheduledDate(
-  id: Uuid,
-  date: string,
+    id: Uuid,
+    date: string,
 ): SetScheduledDateAction {
-  return {
-    type: SET_SCHEDULED_DATE,
-    id: id,
-    date: date,
-  }
+    return {
+        type: SET_SCHEDULED_DATE,
+        id: id,
+        date: date,
+    }
 }
 
 export interface SetDueDateAction {
-  type: typeof SET_DUE_DATE
-  id: Uuid
-  date: string
+    type: typeof SET_DUE_DATE
+    id: Uuid
+    date: string
 }
 export function setDueDate(id: Uuid, date: string): SetDueDateAction {
-  return {
-    type: SET_DUE_DATE,
-    id: id,
-    date: date,
-  }
+    return {
+        type: SET_DUE_DATE,
+        id: id,
+        date: date,
+    }
 }
 
 export interface SetRepeatRuleAction {
-  type: typeof SET_REPEAT_RULE
-  id: Uuid
-  rule: RRule
+    type: typeof SET_REPEAT_RULE
+    id: Uuid
+    rule: RRule
 }
 export function setRepeatRule(id: Uuid, rule: RRule): SetRepeatRuleAction {
-  return {
-    type: SET_REPEAT_RULE,
-    id: id,
-    rule: rule,
-  }
+    return {
+        type: SET_REPEAT_RULE,
+        id: id,
+        rule: rule,
+    }
 }
 export interface UpdateItemDescriptionAction {
-  type: typeof UPDATE_ITEM_DESCRIPTION
-  id: Uuid
-  text: string
+    type: typeof UPDATE_ITEM_DESCRIPTION
+    id: Uuid
+    text: string
 }
 export function updateItemDescription(
-  id: Uuid,
-  text: string,
+    id: Uuid,
+    text: string,
 ): UpdateItemDescriptionAction {
-  return {
-    type: UPDATE_ITEM_DESCRIPTION,
-    id: id,
-    text: text,
-  }
+    return {
+        type: UPDATE_ITEM_DESCRIPTION,
+        id: id,
+        text: text,
+    }
 }
 
 export interface AddChildItemAction {
-  type: typeof ADD_CHILD_ITEM
-  id: Uuid
-  parentId: Uuid
+    type: typeof ADD_CHILD_ITEM
+    id: Uuid
+    parentId: Uuid
 }
 export function addChildItem(id: Uuid, parentId: Uuid): AddChildItemAction {
-  return {
-    type: ADD_CHILD_ITEM,
-    id: id,
-    parentId: parentId,
-  }
+    return {
+        type: ADD_CHILD_ITEM,
+        id: id,
+        parentId: parentId,
+    }
 }
 
 export type ItemActions =
-  | AddChildItemAction
-  | UpdateItemDescriptionAction
-  | SetRepeatRuleAction
-  | SetDueDateAction
-  | SetScheduledDateAction
-  | MoveItemAction
-  | UncompleteItemAction
-  | CompleteItemAction
-  | UndeleteItemAction
-  | DeleteItemAction
-  | CreateItemAction
+    | AddChildItemAction
+    | UpdateItemDescriptionAction
+    | SetRepeatRuleAction
+    | SetDueDateAction
+    | SetScheduledDateAction
+    | MoveItemAction
+    | UncompleteItemAction
+    | CompleteItemAction
+    | UndeleteItemAction
+    | DeleteItemAction
+    | CreateItemAction

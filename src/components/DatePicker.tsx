@@ -5,7 +5,8 @@ import { theme, selectStyles } from '../theme'
 import { add, lastDayOfWeek } from 'date-fns'
 import './DatePicker.css'
 import DayPicker from 'react-day-picker/DayPicker'
-import { Container } from './styled/DatePicker'
+import { SelectContainer } from './styled/DatePicker'
+import DateRenderer from './DateRenderer'
 
 const options: { value: string; label: string }[] = [
     { value: new Date().toISOString(), label: 'Today' },
@@ -29,10 +30,16 @@ const options: { value: string; label: string }[] = [
 export interface DatePickerProps {
     onSubmit: (d: string) => void
     onEscape?: () => void
+    style?: 'default' | 'subtle' | 'subtleInvert'
+    disableClick?: boolean
     placeholder: string
+    completed: boolean
+    text: string
+    type: 'due' | 'scheduled'
 }
 
 function DatePicker(props: DatePickerProps): ReactElement {
+    const [showSelect, setShowSelect] = useState(false)
     const [dayPickerVisible, setDayPickerVisible] = useState(false)
 
     const handleChange = (newValue, actionMeta): void => {
@@ -44,37 +51,60 @@ function DatePicker(props: DatePickerProps): ReactElement {
             }
             props.onSubmit(newValue.value)
         }
+        setShowSelect(false)
         return
     }
 
     const handleDayClick = (day, modifiers, e): void => {
         setDayPickerVisible(false)
         props.onSubmit(day.toISOString())
+        setShowSelect(false)
         return
     }
 
     return (
         <ThemeProvider theme={theme}>
-            <Container>
-                <Select
-                    autoFocus={true}
-                    placeholder={props.placeholder}
-                    onChange={handleChange}
-                    options={options}
-                    styles={selectStyles}
-                    escapeClearsValue={true}
-                    defaultMenuIsOpen={true}
-                    tabIndex="0"
-                    onKeyDown={(e) => {
-                        if (e.key == 'Escape') {
-                            props.onEscape()
-                        }
+            <div>
+                <DateRenderer
+                    style={props.style}
+                    completed={props.completed}
+                    type={props.type}
+                    position="center"
+                    text={props.text}
+                    onClick={(e) => {
+                        if (props.disableClick) return
+                        e.stopPropagation()
+                        if (props.completed) return
+                        setShowSelect(!showSelect)
                     }}
                 />
-                {dayPickerVisible && (
-                    <DayPicker tabIndex={0} onDayClick={handleDayClick} />
+                {showSelect && (
+                    <SelectContainer>
+                        <Select
+                            autoFocus={true}
+                            placeholder={props.placeholder}
+                            onChange={handleChange}
+                            options={options}
+                            styles={selectStyles}
+                            escapeClearsValue={true}
+                            defaultMenuIsOpen={true}
+                            tabIndex="0"
+                            onKeyDown={(e) => {
+                                if (e.key == 'Escape') {
+                                    setShowSelect(false)
+                                }
+                                e.stopPropagation()
+                            }}
+                        />
+                        {dayPickerVisible && (
+                            <DayPicker
+                                tabIndex={0}
+                                onDayClick={handleDayClick}
+                            />
+                        )}
+                    </SelectContainer>
                 )}
-            </Container>
+            </div>
         </ThemeProvider>
     )
 }

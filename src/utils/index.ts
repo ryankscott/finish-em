@@ -1,10 +1,18 @@
 import chrono from 'chrono-node'
-import { isAfter, format, isToday, isTomorrow, isThisWeek } from 'date-fns'
+import {
+    isAfter,
+    format,
+    isToday,
+    isTomorrow,
+    isThisWeek,
+    differenceInDays,
+    isYesterday,
+} from 'date-fns'
 import { ItemType, ProjectType } from '../interfaces'
 import { Uuid } from '@typed/uuid'
 import RRule from 'rrule'
 
-export const itemRegex = new RegExp('^(TODO)|(NOTE)s*.*', 'gi')
+export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
     const words = text.split(' ')
@@ -138,40 +146,16 @@ export const formatRelativeDate = (date: Date): string => {
         return 'Today'
     } else if (isTomorrow(date)) {
         return 'Tomorrow'
-    } else if (isThisWeek(date) && isAfter(date, new Date())) {
+    } else if (isYesterday(date)) {
+        return 'Yesterday'
+    } else if (
+        differenceInDays(date, new Date()) < 7 &&
+        isAfter(date, new Date())
+    ) {
         return format(date, 'EEEE')
     } else {
         return format(date, 'd/M/yyyy')
     }
-}
-
-export const getItemById = (id: Uuid, items: ItemType[]): ItemType => {
-    return items.find((i) => i.id == id)
-}
-export const getItemIndexById = (id: Uuid, items: ItemType[]): number => {
-    return items.findIndex((i) => i.id == id)
-}
-
-export const getSubtasksFromTasks = (
-    items: ItemType[],
-    allItems: ItemType[],
-): ItemType[] => {
-    const itemsWithSubtasks = items.filter(
-        (i) => i.children && i.children.length > 0,
-    )
-    const subtasks = itemsWithSubtasks.map((i) =>
-        i.children.flatMap((x) => getItemById(x, allItems)),
-    )
-    return subtasks.flat()
-}
-
-export const getTasksAndSubtasks = (
-    items: ItemType[],
-    filter: (_: ItemType) => boolean,
-): ItemType[] => {
-    const filteredItems = items.filter(filter)
-    const subtasks = getSubtasksFromTasks(filteredItems, items)
-    return [...filteredItems, ...subtasks]
 }
 
 export const capitaliseEachWordInString = (text: string): string => {

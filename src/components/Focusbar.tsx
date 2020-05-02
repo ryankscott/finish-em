@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import { connect } from 'react-redux'
 import { Items, ProjectType } from '../interfaces'
@@ -10,70 +10,35 @@ import {
     removeItemTypeFromString,
     rruleToText,
     formatRelativeDate,
-    getProjectNameById,
 } from '../utils'
-import DateRenderer from './DateRenderer'
 import RRule from 'rrule'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
 import Item, { ItemProperties } from './Item'
 import { hideFocusbar, setActiveItem, undoSetActiveItem } from '../actions/ui'
-import { updateItemDescription } from '../actions'
-import { useHistory } from 'react-router-dom'
+import {
+    updateItemDescription,
+    completeItem,
+    uncompleteItem,
+    setScheduledDate,
+    setDueDate,
+    setRepeatRule,
+    moveItem,
+} from '../actions'
 import { Tooltip } from './Tooltip'
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 10px;
-    height: 100vh;
-`
-const SubtaskContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    margin: 15px 0px;
-    margin-top: 30px;
-`
-const AttributeContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    margin: 2px;
-    min-height: 30px;
-`
-const TitleContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    margin: 10px 0px;
-    margin-bottom: 20px;
-    align-items: center;
-`
-interface HeaderContainerProps {
-    visible: boolean
-}
-const HeaderContainer = styled.div<HeaderContainerProps>`
-    display: ${(props) => (props.visible ? 'grid' : 'none')};
-    grid-template-areas: 'BACK UP . . CLOSE';
-    grid-template-columns: repeat(5, 1fr);
-    flex-direction: row;
-    width: 100%;
-    margin-bottom: 10px;
-`
-
-export const Project = styled.div`
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    margin: 2px;
-    padding: 4px 8px;
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
-    color: ${(props) => props.theme.colours.altTextColour};
-    background-color: ${(props) => props.theme.colours.primaryColour};
-    border-radius: 5px;
-`
+import {
+    Container,
+    HeaderContainer,
+    TitleContainer,
+    AttributeContainer,
+    SubtaskContainer,
+    AttributeValue,
+    AttributeKey,
+} from './styled/FocusBar'
+import DatePicker from './DatePicker'
+import RepeatPicker from './RepeatPicker'
+import ProjectDropdown from './ProjectDropdown'
+import ItemCreator from './ItemCreator'
 
 interface OwnProps {}
 interface DispatchProps {
@@ -81,6 +46,12 @@ interface DispatchProps {
     setActiveItem: (id: Uuid) => void
     updateItemDescription: (id: Uuid, text: string) => void
     undoSetActiveItem: () => void
+    moveItem: (id: Uuid, projectId: Uuid) => void
+    completeItem: (id: Uuid) => void
+    uncompleteItem: (id: Uuid) => void
+    setScheduledDate: (id: Uuid, date: string) => void
+    setDueDate: (id: Uuid, date: string) => void
+    setRepeatRule: (id: Uuid, rule: RRule) => void
 }
 interface StateProps {
     items: Items
@@ -102,12 +73,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     const scheduledDate = i.scheduledDate
         ? formatRelativeDate(parseISO(i.scheduledDate))
         : null
-
-    const history = useHistory()
-    function goToProject(id: Uuid): void {
-        if (!id) return
-        history.push(`/projects/${id}`)
-    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -158,6 +123,13 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         spacing="compact"
                         height="24px"
                         width="24px"
+                        onClick={() => {
+                            if (i.type == 'TODO') {
+                                i.completed
+                                    ? props.uncompleteItem(i.id)
+                                    : props.completeItem(i.id)
+                            }
+                        }}
                         icon={
                             i.type == 'NOTE'
                                 ? 'note'
@@ -181,49 +153,77 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                 </TitleContainer>
 
                 <AttributeContainer>
-                    <Paragraph>Project: </Paragraph>
-                    <Button
-                        type="primary"
-                        spacing="compact"
-                        text={getProjectNameById(i.projectId, props.projects)}
-                        onClick={() => goToProject(i.projectId)}
-                    />
+                    <AttributeKey>
+                        <Paragraph>Project: </Paragraph>
+                    </AttributeKey>
+                    <AttributeValue>
+                        <ProjectDropdown
+                            projectId={i.projectId}
+                            completed={i.completed}
+                            onSubmit={(projectId) => {
+                                props.moveItem(i.id, projectId)
+                            }}
+                        />
+                    </AttributeValue>
                 </AttributeContainer>
                 {i.type == 'TODO' && (
                     <>
                         <AttributeContainer>
-                            <Paragraph>Scheduled: </Paragraph>
-                            <DateRenderer
-                                completed={i.completed}
-                                type="scheduled"
-                                position="flex-start"
-                                text={scheduledDate}
-                            />
+                            <AttributeKey>
+                                <Paragraph>Scheduled: </Paragraph>
+                            </AttributeKey>
+                            <AttributeValue>
+                                <DatePicker
+                                    key={'sd' + i.id}
+                                    placeholder={'Scheduled on: '}
+                                    onSubmit={(d) =>
+                                        props.setScheduledDate(i.id, d)
+                                    }
+                                    type="scheduled"
+                                    text={scheduledDate}
+                                    completed={i.completed}
+                                />
+                            </AttributeValue>
                         </AttributeContainer>
                         <AttributeContainer>
-                            <Paragraph>Due: </Paragraph>
-                            <DateRenderer
-                                completed={i.completed}
-                                type="due"
-                                position="flex-start"
-                                text={dueDate}
-                            />
+                            <AttributeKey>
+                                <Paragraph>Due: </Paragraph>
+                            </AttributeKey>
+                            <AttributeValue>
+                                <DatePicker
+                                    key={'dd' + i.id}
+                                    placeholder={'Due on: '}
+                                    onSubmit={(d) => props.setDueDate(i.id, d)}
+                                    type="due"
+                                    text={dueDate}
+                                    completed={i.completed}
+                                />
+                            </AttributeValue>
                         </AttributeContainer>
                         <AttributeContainer>
-                            <Paragraph>Repeating: </Paragraph>
-                            <DateRenderer
-                                completed={i.completed}
-                                type="repeat"
-                                position="flex-start"
-                                text={repeatText}
-                            />
+                            <AttributeKey>
+                                <Paragraph>Repeating: </Paragraph>
+                            </AttributeKey>
+                            <AttributeValue>
+                                <RepeatPicker
+                                    completed={i.completed}
+                                    text={repeatText}
+                                    key={'rp' + i.id}
+                                    placeholder={'Repeat: '}
+                                    onSubmit={(r) =>
+                                        props.setRepeatRule(i.id, r)
+                                    }
+                                />
+                            </AttributeValue>
                         </AttributeContainer>
                     </>
                 )}
                 {i.parentId != null && (
                     <AttributeContainer>
-                        <Paragraph>Parent:</Paragraph>
-                        <Paragraph>
+                        <AttributeKey>
+                            <Paragraph>Parent:</Paragraph>
+                        </AttributeKey>
+                        <AttributeValue>
                             <Button
                                 type="default"
                                 spacing="compact"
@@ -234,13 +234,17 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                     props.items.items[i.parentId].text,
                                 )}
                             />
-                        </Paragraph>
+                        </AttributeValue>
                     </AttributeContainer>
                 )}
-                {i.children.length > 0 && (
-                    <SubtaskContainer>
-                        <Header3>Subtasks: </Header3>
-                    </SubtaskContainer>
+                {i.parentId == null && i.type == 'TODO' && (
+                    <>
+                        <SubtaskContainer>
+                            <Header3>Subtasks: </Header3>
+                            <ItemCreator type="subtask" parentId={i.id} />
+                        </SubtaskContainer>
+                        <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
+                    </>
                 )}
                 {i.children?.map((c) => {
                     const childItem = props.items.items[c]
@@ -250,11 +254,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             {...childItem}
                             key={c}
                             noIndentOnSubtasks={true}
-                            hideIcons={[
-                                ItemProperties.Due,
-                                ItemProperties.Scheduled,
-                                ItemProperties.Repeat,
-                            ]}
+                            hideIcons={true}
                         />
                     )
                 })}
@@ -270,6 +270,15 @@ const mapStateToProps = (state): StateProps => ({
     focusbarVisible: state.ui.focusbarVisible,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
+    moveItem: (id: Uuid, projectId: Uuid) => {
+        dispatch(moveItem(id, projectId))
+    },
+    completeItem: (id: Uuid) => {
+        dispatch(completeItem(id))
+    },
+    uncompleteItem: (id: Uuid) => {
+        dispatch(uncompleteItem(id))
+    },
     updateItemDescription: (id: Uuid, text: string) => {
         dispatch(updateItemDescription(id, text))
     },
@@ -281,6 +290,15 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     undoSetActiveItem: () => {
         dispatch(undoSetActiveItem())
+    },
+    setScheduledDate: (id: Uuid, date: string) => {
+        dispatch(setScheduledDate(id, date))
+    },
+    setDueDate: (id: Uuid, date: string) => {
+        dispatch(setDueDate(id, date))
+    },
+    setRepeatRule: (id: Uuid, rule: RRule) => {
+        dispatch(setRepeatRule(id, rule))
     },
 })
 

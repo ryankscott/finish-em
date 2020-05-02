@@ -5,6 +5,7 @@ export const theme = {
         sansSerif: '-apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
     },
     fontSizes: {
+        xxsmall: '12px',
         xsmall: '13px',
         small: '14px',
         regular: '16px',
@@ -49,6 +50,11 @@ export const theme = {
             colour: '#EEEEEE',
             borderColour: '#e0e0e0',
         },
+        subtleInvert: {
+            backgroundColour: 'inherit',
+            colour: '#333333',
+            borderColour: 'none',
+        },
     },
     colours: {
         defaultTextColour: '#333333',
@@ -72,6 +78,8 @@ export const theme = {
         neutralColour: '#45b9ef',
         errorColour: '#fe5e41',
         warningColour: '#f9df77',
+        defaultIconColour: '#333333',
+        lightIconColour: '#CCCCCC',
     },
 }
 
@@ -108,15 +116,18 @@ export const sortControlStyles = (base, state) => ({
 export const selectStyles = {
     container: () => ({
         zIndex: 2,
+        padding: '0px 0px',
+        minWidth: '120px',
     }),
     input: () => ({
-        padding: '5px 0px',
+        padding: '5px 2px',
         fontFamily: theme.font.sansSerif,
         color: theme.colours.defaultTextColour,
+        fontSize: theme.fontSizes.xxsmall,
         zIndex: 2,
     }),
     menu: () => ({
-        margin: '2px 0px',
+        margin: '0px 0px',
         padding: '5px 0px',
         border: '1px solid',
         backgroundColor: theme.colours.backgroundColour,
@@ -135,7 +146,7 @@ export const selectStyles = {
         padding: '5px 10px',
         margin: '0px',
         fontFamily: theme.font.sansSerif,
-        fontSize: theme.fontSizes.xsmall,
+        fontSize: theme.fontSizes.xxsmall,
         fontWeight: state.isFocused
             ? theme.fontWeights.bold
             : theme.fontWeights.regular,
@@ -143,6 +154,7 @@ export const selectStyles = {
     }),
     placeholder: () => ({
         color: theme.colours.defaultTextColour,
+        fontSize: theme.fontSizes.xxsmall,
     }),
     control: () => ({
         width: '100%',
@@ -160,10 +172,8 @@ export const selectStyles = {
         },
     }),
     singleValue: () => ({}),
-    indicatorsContainer: () => ({ display: 'none' }),
-    dropdownIndicator: () => ({
-        display: 'none',
-    }),
+    indicatorsContainer: () => ({}),
+    dropdownIndicator: () => ({ display: 'none' }),
     noOptionsMessage: () => ({
         fontFamily: theme.font.sansSerif,
         fontSize: theme.fontSizes.xsmall,

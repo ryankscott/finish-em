@@ -6,7 +6,8 @@ export const ProjectContainer = styled.div`
     margin: 20px 20px;
     padding: 20px 20px;
     margin-top: 50px; /* Note: This is because there's less padding on the editable title */
-    width: 675px;
+    width: 100%;
+    max-width: 700px;
 `
 
 export const HeaderContainer = styled.div`
@@ -14,4 +15,9 @@ export const HeaderContainer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-end;
+`
+export const AddProjectContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
 `

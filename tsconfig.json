@@ -1,12 +1,12 @@
 {
-  "compilerOptions": {
-    "esModuleInterop": true,
-    "jsx": "react",
-    "allowJs": true,
-    "checkJs": true,
-    "paths": {
-      "*": ["src/type_shims/*"]
-    },
-    "lib": ["es2019", "dom"]
-  }
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "jsx": "react",
+        "allowJs": true,
+        "checkJs": true,
+        "paths": {
+            "*": ["src/type_shims/*"]
+        },
+        "lib": ["es2019", "dom"]
+    }
 }

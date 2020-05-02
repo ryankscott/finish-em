@@ -40,72 +40,39 @@ const ItemList = (props: ItemListProps): ReactElement => {
                             if (item.parentId != null) return
                             return (
                                 <div key={'container-' + item.id}>
-                                    {idx == 0 ? (
-                                        <Item
-                                            {...item}
-                                            autoFocus
-                                            key={item.id}
-                                            noIndentOnSubtasks={false}
-                                            showProject={props.showProject}
-                                            keymap={itemKeymap}
-                                        />
-                                    ) : (
-                                        <Item
-                                            {...item}
-                                            key={item.id}
-                                            noIndentOnSubtasks={false}
-                                            showProject={props.showProject}
-                                            keymap={itemKeymap}
-                                        />
-                                    )}
+                                    <Item
+                                        {...item}
+                                        key={item.id}
+                                        noIndentOnSubtasks={false}
+                                        showProject={props.showProject}
+                                        keymap={itemKeymap}
+                                    />
                                 </div>
                             )
                         case 'ALL':
                             if (item.parentId != null) return
                             return (
                                 <div key={'container-' + item.id}>
-                                    {idx == 0 ? (
-                                        <Item
-                                            {...item}
-                                            autoFocus
-                                            key={item.id}
-                                            noIndentOnSubtasks={false}
-                                            showProject={props.showProject}
-                                            keymap={itemKeymap}
-                                        />
-                                    ) : (
-                                        <Item
-                                            {...item}
-                                            key={item.id}
-                                            noIndentOnSubtasks={false}
-                                            showProject={props.showProject}
-                                            keymap={itemKeymap}
-                                        />
-                                    )}
+                                    <Item
+                                        {...item}
+                                        key={item.id}
+                                        noIndentOnSubtasks={false}
+                                        showProject={props.showProject}
+                                        keymap={itemKeymap}
+                                    />
                                 </div>
                             )
                         default:
                             if (item.parentId != null) return
                             return (
                                 <div key={'container-' + item.id}>
-                                    {idx == 0 ? (
-                                        <Item
-                                            {...item}
-                                            autoFocus
-                                            key={item.id}
-                                            noIndentOnSubtasks={false}
-                                            showProject={props.showProject}
-                                            keymap={itemKeymap}
-                                        />
-                                    ) : (
-                                        <Item
-                                            {...item}
-                                            key={item.id}
-                                            noIndentOnSubtasks={false}
-                                            showProject={props.showProject}
-                                            keymap={itemKeymap}
-                                        />
-                                    )}
+                                    <Item
+                                        {...item}
+                                        key={item.id}
+                                        noIndentOnSubtasks={false}
+                                        showProject={props.showProject}
+                                        keymap={itemKeymap}
+                                    />
                                 </div>
                             )
                     }

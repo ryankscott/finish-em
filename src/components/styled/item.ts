@@ -50,19 +50,6 @@ export const Body = styled.div<BodyProps>`
         props.completed === true ? 'line-through' : null};
 `
 
-export const Project = styled.div`
-    grid-area: PROJECT;
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    margin: 2px 2px 2px 2px;
-    padding: 2px 4px;
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
-    color: ${(props) => props.theme.colours.altTextColour};
-    background-color: ${(props) => props.theme.colours.primaryColour};
-    border-radius: 5px;
-`
-
 export const ExpandContainer = styled.div`
     grid-area: EXPAND;
     display: flex;

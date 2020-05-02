@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
@@ -13,32 +13,12 @@ import {
 } from '../actions'
 import { Button } from './Button'
 import InlineDialog from './InlineDialog'
-
-const StyledInput = styled.input`
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
-    height: 30px;
-    margin: 2px 5px;
-`
-const HeaderContainer = styled.div`
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    align-items: flex-end;
-`
-
-const BodyContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    margin: 10px 2px;
-`
-const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 190px;
-    padding: 0px 0px;
-    margin: 0px 2px;
-`
+import {
+    Container,
+    HeaderContainer,
+    BodyContainer,
+    StyledInput,
+} from './styled/CreateProjectDialog'
 
 export interface CreateProjectDialogProps {
     visible: boolean

@@ -13,6 +13,7 @@ export const Container = styled.div<ContainerProps>`
     width: ${(props) => props.width || '100%'};
     margin: 2px 2px;
     padding: 5px 0px 5px 5px;
+    min-height: 26px;
     cursor: ${(props) => (props.readOnly ? 'default' : 'text')};
     border: ${(props) => (props.editing ? '1px solid ' : 'none')};
     border-color: ${(props) => props.theme.colours.borderColour};

@@ -34,7 +34,7 @@ export interface ButtonProps {
     id?: string
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
     spacing?: 'compact' | 'default'
-    type: 'primary' | 'error' | 'default' | 'invert' | 'subtle'
+    type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
     text?: string
     textSize?: 'xsmall' | 'small' | 'regular' | 'large'
     iconSize?: string

@@ -10,14 +10,18 @@ import {
     hideDeleteProjectDialog,
     toggleDeleteProjectDialog,
 } from '../actions'
-import { Title, Header1 } from './Typography'
+import { Title } from './Typography'
 import EditableText from './EditableText'
 import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
 import DeleteProjectDialog from './DeleteProjectDialog'
-import QuickAdd from './QuickAdd'
 import { Uuid } from '@typed/uuid'
 import { ProjectType } from '../interfaces'
-import { ProjectContainer, HeaderContainer } from './styled/Project'
+import {
+    ProjectContainer,
+    HeaderContainer,
+    AddProjectContainer,
+} from './styled/Project'
+import ItemCreator from './ItemCreator'
 
 export interface ProjectProps {
     deleteProject: (id: Uuid) => void
@@ -60,10 +64,15 @@ const Project = (props: ProjectProps): ReactElement => {
                     innerRef={description}
                     input={props.project.description}
                     height="150px"
-                    width="670px"
                 />
-                <Header1> Add to project </Header1>
-                <QuickAdd projectId={props.project.id} />
+                <AddProjectContainer>
+                    <ItemCreator
+                        type="item"
+                        projectId={props.project.id}
+                        buttonText="Add to project"
+                        width="100%"
+                    />
+                </AddProjectContainer>
                 <FilteredItemList
                     filter={FilterEnum.ShowFromProjectByType}
                     filterParams={{ projectId: props.project.id, type: 'NOTE' }}

@@ -23,6 +23,6 @@ export const AgendaContainer = styled.div`
     margin: 20px 20px;
     padding: 20px 20px;
     width: 100%;
+    max-width: 700px;
     align-items: center;
-    width: 675px;
 `

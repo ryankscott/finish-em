@@ -19,18 +19,26 @@ import {
     SortSelect,
     DeleteContainer,
     ItemListContainer,
-    SortIcon,
 } from '../components/styled/FilteredItemList'
 import { connect } from 'react-redux'
 import { Button } from '../components/Button'
 import { Tooltip } from '../components/Tooltip'
 import { deleteItem } from '../actions/item'
-import { sortIcon } from '../assets/icons'
 import {
     getFilteredItems,
     getCompletedItems,
     getUncompletedItems,
 } from '../selectors/item'
+import { components } from 'react-select'
+import { sortIcon } from '../assets/icons'
+
+const DropdownIndicator = (props): ReactElement => {
+    return (
+        <components.DropdownIndicator {...props}>
+            {sortIcon()}
+        </components.DropdownIndicator>
+    )
+}
 
 const sortItems = (
     items: ItemType[],
@@ -98,6 +106,38 @@ interface DispatchProps {
     deleteCompletedItems: (completedItems: ItemType[]) => void
 }
 
+const determineVisibilityRules = (
+    filter: FilterEnum,
+    isFilterable: boolean,
+    hideItemList: boolean,
+    items: ItemType[],
+    sortedItems: ItemType[],
+    completedItems: ItemType[],
+): {
+    showCompletedToggle: boolean
+    showFilterBar: boolean
+    showDeleteButton: boolean
+    showSortButton: boolean
+} => {
+    const hideCompletedToggle =
+        filter == FilterEnum.ShowOverdue ||
+        filter == FilterEnum.ShowNotScheduled ||
+        filter == FilterEnum.ShowCompleted
+    const showCompletedToggle =
+        Object.keys(completedItems).length > 0 && !hideCompletedToggle
+    const showFilterBar =
+        isFilterable && Object.keys(items).length > 0 && !hideItemList
+    const showDeleteButton =
+        Object.keys(completedItems).length > 0 && !hideItemList
+    const showSortButton = Object.keys(sortedItems).length > 1 && !hideItemList
+    return {
+        showCompletedToggle,
+        showFilterBar,
+        showDeleteButton,
+        showSortButton,
+    }
+}
+
 interface OwnProps {
     showProject: boolean
     listName?: string
@@ -122,43 +162,45 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         ? sortItems(props.uncompletedItems, sortCriteria)
         : sortItems(allItems, sortCriteria)
 
-    // NOTE: For some filters where we're not showing completed items, we want to not show that option
-    const hideCompletedToggle =
-        props.filter == FilterEnum.ShowOverdue ||
-        props.filter == FilterEnum.ShowNotScheduled ||
-        props.filter == FilterEnum.ShowCompleted
+    const visibility = determineVisibilityRules(
+        props.filter,
+        props.isFilterable,
+        hideItemList,
+        props.items,
+        sortedItems,
+        completedItems,
+    )
+    const sortedItemsLength = Object.keys(sortedItems).length
+
     return (
         <Container>
             <HeaderBar>
                 <ListName>
-                    <Header1>
-                        {props.listName}
-                        <Paragraph>
-                            {sortedItems.length +
-                                (sortedItems.length == 1 ? ' item' : ' items')}
-                        </Paragraph>
-                    </Header1>
                     <Button
                         type="default"
-                        width="24px"
-                        height="24px"
+                        width="16px"
+                        height="16px"
                         icon={hideItemList ? 'expand' : 'collapse'}
                         onClick={() => setHideItemList(!hideItemList)}
                     ></Button>
+                    <Header1>
+                        {props.listName}
+                        <Paragraph>
+                            {sortedItemsLength +
+                                (sortedItemsLength == 1 ? ' item' : ' items')}
+                        </Paragraph>
+                    </Header1>
                 </ListName>
-                {props.isFilterable && !hideItemList && allItems.length > 0 && (
+                {visibility.showFilterBar && (
                     <FilterBar>
                         <CompletedContainer
-                            visible={
-                                completedItems.length > 0 &&
-                                !hideCompletedToggle
-                            }
+                            visible={visibility.showCompletedToggle}
                         >
                             <Button
                                 dataFor="complete-button"
-                                spacing="compact"
+                                iconSize="18px"
                                 type="default"
-                                iconSize="20px"
+                                spacing="compact"
                                 icon={hideCompleted ? 'hide' : 'show'}
                                 onClick={() => {
                                     setHideCompleted(!hideCompleted)
@@ -169,12 +211,12 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                 text={'Toggle completed items'}
                             />
                         </CompletedContainer>
-                        {completedItems.length > 0 && !hideItemList && (
+                        {visibility.showDeleteButton && (
                             <DeleteContainer>
                                 <Button
                                     dataFor="trash-button"
                                     spacing="compact"
-                                    iconSize="20px"
+                                    iconSize="18px"
                                     type="default"
                                     icon="trash_sweep"
                                     onClick={() => {
@@ -189,18 +231,22 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                 />
                             </DeleteContainer>
                         )}
-                        {sortedItems.length > 1 && !hideItemList && (
+                        {visibility.showSortButton && (
                             <SortContainer>
-                                <SortIcon>{sortIcon()}</SortIcon>
                                 <SortSelect
                                     options={options}
                                     defaultOption={options[0]}
                                     autoFocus={false}
                                     placeholder="Sort"
+                                    components={{ DropdownIndicator }}
                                     styles={{
                                         ...selectStyles,
                                         placeholder: sortPlaceholderStyles,
                                         control: sortControlStyles,
+                                        dropdownIndicator: () => ({}),
+                                        indicatorsContainer: () => ({
+                                            paddingRight: '5px',
+                                        }),
                                     }}
                                     onChange={(e) => {
                                         setSortCriteria(e.value)

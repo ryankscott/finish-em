@@ -17,7 +17,7 @@ export const FilterBar = styled.div`
     display: grid;
     align-content: flex-end;
     grid-template-columns: 30px 30px repeat(8, 1fr);
-    grid-template-areas: 'delete hide . . . . .  sort sort sort';
+    grid-template-areas: 'delete hide hide . . . . sort sort sort';
     width: 100%;
     height: 40px;
     transition: 0.2s ease-in-out;
@@ -36,7 +36,7 @@ export const SortContainer = styled.div`
 `
 
 export const SortSelect = styled(Select)`
-    width: 123px;
+    width: 145px;
     caret-color: transparent;
     padding: 0px 2px;
     position: absolute;
@@ -77,7 +77,7 @@ export const ListName = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     grid-area: name;
 `
 

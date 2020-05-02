@@ -52,9 +52,10 @@ const compositeDecorator = new CompositeDecorator([
 ])
 
 interface EditableItemProps {
+    hideIcon?: boolean
     text: string
     readOnly: boolean
-    innerRef: React.RefObject<HTMLInputElement>
+    innerRef?: React.RefObject<HTMLInputElement>
     onSubmit: (t: string) => void
     onEscape?: () => void
 }
@@ -158,8 +159,12 @@ function EditableItem(props: EditableItemProps): ReactElement {
 
     return (
         <ThemeProvider theme={theme}>
-            <ValidationBox animate={animate} valid={valid}>
-                <Icon>{addIcon()}</Icon>
+            <ValidationBox
+                animate={animate}
+                valid={valid}
+                hideIcon={props.hideIcon}
+            >
+                {props.hideIcon ? null : <Icon>{addIcon()}</Icon>}
                 <Editor
                     ref={props.innerRef}
                     handleReturn={handleReturn}

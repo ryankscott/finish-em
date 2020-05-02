@@ -2,17 +2,16 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
-import QuickAdd from './QuickAdd'
-import { Header1, Title } from './Typography'
+import { Title } from './Typography'
 import { Container } from './styled/Inbox'
+import ItemCreator from './ItemCreator'
 
 function Inbox(): ReactElement {
     return (
         <ThemeProvider theme={theme}>
             <Container>
                 <Title> Inbox </Title>
-                <Header1> Add an item </Header1>
-                <QuickAdd />
+                <ItemCreator type="item" buttonText="Add Item" />
                 <FilteredItemList
                     filter={FilterEnum.ShowInbox}
                     listName="Items"
