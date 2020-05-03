@@ -333,15 +333,16 @@ function Item(props: ItemProps): ReactElement {
             },
             MOVE_ITEM: (event) => {
                 if (props.deleted) return
-                setCreateSubtaskDropdownVisible(false)
+                setProjectDropdownVisible(true)
                 event.preventDefault()
             },
             ESCAPE: () => {
-                setCreateSubtaskDropdownVisible(false)
+                setProjectDropdownVisible(false)
             },
             EDIT_ITEM_DESC: (event) => {
                 setIsEditingDescription(true)
-                //                editor.current.focus()
+                setIsEditingDescription(true)
+                setIsDescriptionReadOnly(false)
                 event.preventDefault()
             },
         },
