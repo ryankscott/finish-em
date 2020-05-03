@@ -27,6 +27,7 @@ const iconMapping = {
     slide_right: (w, h, c) => ic.slideRightIcon(w, h, c),
     up_level: (w, h, c) => ic.upLevelIcon(w, h, c),
     back: (w, h, c) => ic.backIcon(w, h, c),
+    settings: (w, h, c) => ic.settingsIcon(w, h, c),
 }
 
 // TODO: Change width and height to strings
@@ -66,6 +67,7 @@ export interface ButtonProps {
         | 'slide_left'
         | 'up_level'
         | 'back'
+        | 'settings'
 }
 
 const getTheme = (type: string): {} => {

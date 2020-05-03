@@ -5,6 +5,8 @@ import { theme } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType } from '../interfaces'
 import { Container, NoItemText } from './styled/ItemList'
+import { connect } from 'react-redux'
+import { Uuid } from '@typed/uuid'
 
 export enum RenderingStrategy {
     Default = 'DEFAULT',
@@ -13,13 +15,14 @@ export enum RenderingStrategy {
 
 interface ItemListProps {
     items: ItemType[]
+    order: Uuid[]
     showProject: boolean
     renderingStrategy?: RenderingStrategy
 }
 
 /* We need two strategies for rendering items:
 
-1.  Default
+1.  Default 
   - If an item has a parent, don't render it
   - For each item, render the item and it's children  (In the Item component)
 
@@ -29,26 +32,15 @@ interface ItemListProps {
   -  
 
 */
-const ItemList = (props: ItemListProps): ReactElement => {
+
+function ItemList(props: ItemListProps): ReactElement {
     return (
         <ThemeProvider theme={theme}>
             <Container>
-                {props.items.map((item, idx) => {
+                {props.order.map((o, index) => {
+                    const item = props.items.filter((i) => i.id == o)[0]
                     if (item == undefined) return
                     switch (props.renderingStrategy) {
-                        case 'DEFAULT':
-                            if (item.parentId != null) return
-                            return (
-                                <div key={'container-' + item.id}>
-                                    <Item
-                                        {...item}
-                                        key={item.id}
-                                        noIndentOnSubtasks={false}
-                                        showProject={props.showProject}
-                                        keymap={itemKeymap}
-                                    />
-                                </div>
-                            )
                         case 'ALL':
                             if (item.parentId != null) return
                             return (
@@ -62,6 +54,7 @@ const ItemList = (props: ItemListProps): ReactElement => {
                                     />
                                 </div>
                             )
+
                         default:
                             if (item.parentId != null) return
                             return (
@@ -83,4 +76,10 @@ const ItemList = (props: ItemListProps): ReactElement => {
     )
 }
 
-export default ItemList
+const mapStateToProps = (state) => ({
+    order: state.items.order,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(ItemList)

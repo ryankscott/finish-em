@@ -6,6 +6,7 @@ import { Container, SubTextContainer } from './styled/DateRenderer'
 
 interface DateRendererProps {
     completed: boolean
+    visible?: boolean
     style?: 'subtle' | 'subtleInvert' | 'default'
     position: 'center' | 'flex-end' | 'flex-start'
     type: 'due' | 'repeat' | 'scheduled'
@@ -16,7 +17,11 @@ interface DateRendererProps {
 const DateRenderer = (props: DateRendererProps): ReactElement => {
     return (
         <ThemeProvider theme={theme}>
-            <Container completed={props.completed} type={props.type}>
+            <Container
+                visible={props.visible}
+                completed={props.completed}
+                type={props.type}
+            >
                 <SubTextContainer key={props.type} position={props.position}>
                     <Button
                         type={props.style || 'default'}

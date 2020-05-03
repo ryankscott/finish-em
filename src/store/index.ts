@@ -43,12 +43,20 @@ const migrations = {
             },
         }
     },
+    5: (state) => {
+        return {
+            ...state,
+            features: {
+                dragAndDrop: true,
+            },
+        }
+    },
 }
 
 let persistConfig
 if (isElectron()) {
     persistConfig = {
-        version: 4,
+        version: 5,
         key: 'root',
         debug: true,
         storage: createElectronStorage(),
@@ -56,7 +64,7 @@ if (isElectron()) {
     }
 } else {
     persistConfig = {
-        version: 4,
+        version: 5,
         key: 'root',
         debug: true,
         storage,

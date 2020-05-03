@@ -56,20 +56,39 @@ export const ExpandContainer = styled.div`
 `
 export const TypeContainer = styled.div`
     grid-area: TYPE;
-    display: flex;
+    display: 'flex';
 `
-export const ScheduledContainer = styled.div`
+interface ProjectContainerProps {
+    visible: boolean
+}
+export const ProjectContainer = styled.div<ProjectContainerProps>`
+    grid-area: PROJECT;
+    display: ${(props) => (props.visible ? 'flex' : 'none')};
+    justify-content: flex-end;
+`
+
+interface ScheduledContainerProps {
+    visible: boolean
+}
+export const ScheduledContainer = styled.div<ScheduledContainerProps>`
     grid-area: SCHEDULED;
-    display: flex;
+    display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-start;
 `
-export const DueContainer = styled.div`
+
+interface DueContainerProps {
+    visible: boolean
+}
+export const DueContainer = styled.div<DueContainerProps>`
     grid-area: DUE;
-    display: flex;
+    display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: center;
 `
-export const RepeatContainer = styled.div`
+interface RepeatContainerProps {
+    visible: boolean
+}
+export const RepeatContainer = styled.div<RepeatContainerProps>`
     grid-area: REPEAT;
-    display: flex;
+    display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-end;
 `

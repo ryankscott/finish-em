@@ -13,6 +13,7 @@ export const SET_REPEAT_RULE = 'SET_REPEAT_RULE'
 export const ADD_CHILD_ITEM = 'ADD_CHILD_ITEM'
 export const HIDE_CHILDREN = 'HIDE_CHILDREN'
 export const SHOW_CHILDREN = 'SHOW_CHILDREN'
+export const REORDER_ITEM = 'REORDER_ITEM'
 
 import { getItemTypeFromString, capitaliseItemTypeFromString } from '../utils'
 import RRule from 'rrule'
@@ -171,6 +172,18 @@ export function addChildItem(id: Uuid, parentId: Uuid): AddChildItemAction {
         parentId: parentId,
     }
 }
+export interface ReorderItemAction {
+    type: typeof REORDER_ITEM
+    id: Uuid
+    destinationId: Uuid
+}
+export function reorderItem(id: Uuid, destinationId: Uuid): ReorderItemAction {
+    return {
+        type: REORDER_ITEM,
+        id: id,
+        destinationId: destinationId,
+    }
+}
 
 export type ItemActions =
     | AddChildItemAction
@@ -184,3 +197,4 @@ export type ItemActions =
     | UndeleteItemAction
     | DeleteItemAction
     | CreateItemAction
+    | ReorderItemAction

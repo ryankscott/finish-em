@@ -6,7 +6,7 @@ interface ContainerProps {
 }
 
 export const Container = styled.div<ContainerProps>`
-    display: flex;
+    display: 'flex';
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     color: ${(props) => props.theme.colours.defaultTextColour};
     border-radius: 5px;

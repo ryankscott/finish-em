@@ -37,6 +37,7 @@ interface ItemCreatorProps {
     createItem: (text: string, projectId: Uuid) => void
 }
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
+    const textRef = React.createRef<HTMLInputElement>()
     const [showItemCreator, setShowItemCreator] = useState(false)
     return (
         <Container>
@@ -47,9 +48,12 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                 type="primary"
                 spacing="compact"
                 icon="add"
+                height={props.buttonText ? 'auto' : '30px'}
+                width={props.buttonText ? 'auto' : '30px'}
                 text={showItemCreator ? '' : props.buttonText}
                 onClick={() => {
                     setShowItemCreator(!showItemCreator)
+                    textRef.current.focus()
                 }}
             />
             <Tooltip
@@ -58,13 +62,13 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
             ></Tooltip>
             <ItemCreatorContainer width={props.width} visible={showItemCreator}>
                 <EditableItem
+                    ref={textRef}
                     hideIcon={true}
                     text=""
                     onSubmit={(text) => {
                         props.type == 'item'
                             ? props.createItem(text, props.projectId)
                             : props.createSubTask(props.parentId, text, null)
-                        setShowItemCreator(false)
                     }}
                     readOnly={false}
                 />

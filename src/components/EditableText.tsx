@@ -43,9 +43,13 @@ function EditableText(props: EditableTextProps): ReactElement {
     }, [editable])
 
     const handleClick = (e): void => {
-        if (props.readOnly) return
         // Handle links normally
         if (e.target.nodeName == 'A') {
+            return
+        }
+        if (props.readOnly) {
+            e.preventDefault()
+            e.stopPropagation()
             return
         }
         // Ignore clicks if it's already editable
@@ -58,6 +62,11 @@ function EditableText(props: EditableTextProps): ReactElement {
     }
 
     const handleKeyPress = (e): void => {
+        if (props.readOnly) {
+            e.preventDefault()
+            e.stopPropagation()
+            return
+        }
         // TODO: We should be able to call this at the Item and have the ability to update the text
         if (e.key == 'Enter' && props.singleline) {
             setEditable(false)
@@ -83,6 +92,8 @@ function EditableText(props: EditableTextProps): ReactElement {
     const handleFocus = (e): void => {
         // NOTE: Weirdly Chrome sometimes fires a focus event before a click
         if (props.readOnly) {
+            e.preventDefault()
+            e.stopPropagation()
             return
         }
         if (e.target.nodeName == 'A') {

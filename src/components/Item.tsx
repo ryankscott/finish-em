@@ -14,6 +14,7 @@ import {
     DueContainer,
     RepeatContainer,
     TypeContainer,
+    ProjectContainer,
 } from './styled/Item'
 
 import {
@@ -85,9 +86,17 @@ function Item(props: ItemProps): ReactElement {
         createSubtaskDropdownVisible,
         setCreateSubtaskDropdownVisible,
     ] = useState(false)
+    const [dueDateDropdownVisible, setDueDateDropdownVisible] = useState(false)
+    const [
+        scheduledDateDropdownVisible,
+        setScheduledDateDropdownVisible,
+    ] = useState(false)
+    const [repeatDropdownVisible, setRepeatDropdownVisible] = useState(false)
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [hideChildren, setHideChildren] = useState(false)
     const [keyPresses, setKeyPresses] = useState([])
+    const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
+    const [projectDropdownVisible, setProjectDropdownVisible] = useState(false)
 
     const quickAdd = React.createRef<HTMLInputElement>()
     const editor = React.createRef<HTMLInputElement>()
@@ -173,32 +182,57 @@ function Item(props: ItemProps): ReactElement {
             SET_SCHEDULED_DATE: (event) => {
                 if (props.deleted || props.completed) return
                 setCreateSubtaskDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setScheduledDateDropdownVisible(true)
+                setRepeatDropdownVisible(false)
+                setProjectDropdownVisible(false)
                 event.preventDefault()
             },
             SET_DUE_DATE: (event) => {
                 if (props.deleted || props.completed) return
                 setCreateSubtaskDropdownVisible(false)
+                setDueDateDropdownVisible(true)
+                setScheduledDateDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setProjectDropdownVisible(false)
                 event.preventDefault()
             },
             CREATE_SUBTASK: (event) => {
                 if (props.deleted || props.completed || props.parentId != null)
                     return
                 setCreateSubtaskDropdownVisible(!createSubtaskDropdownVisible)
+                setDueDateDropdownVisible(false)
+                setScheduledDateDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setProjectDropdownVisible(false)
                 quickAdd.current.focus()
                 event.preventDefault()
             },
             REPEAT_ITEM: (event) => {
                 if (props.deleted || props.completed) return
                 setCreateSubtaskDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setScheduledDateDropdownVisible(false)
+                setRepeatDropdownVisible(true)
+                setProjectDropdownVisible(false)
                 event.preventDefault()
             },
             MOVE_ITEM: (event) => {
                 if (props.deleted || props.completed) return
                 setCreateSubtaskDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setScheduledDateDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setProjectDropdownVisible(true)
                 event.preventDefault()
             },
             ESCAPE: () => {
                 setCreateSubtaskDropdownVisible(false)
+                setCreateSubtaskDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setScheduledDateDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setProjectDropdownVisible(false)
                 container.current.focus()
             },
             COMPLETE_ITEM: () => {
@@ -218,7 +252,7 @@ function Item(props: ItemProps): ReactElement {
             },
             EDIT_ITEM_DESC: (event) => {
                 setIsEditingDescription(true)
-                editor.current.focus()
+                setIsDescriptionReadOnly(false)
                 event.preventDefault()
             },
         },
@@ -313,6 +347,12 @@ function Item(props: ItemProps): ReactElement {
         },
     }
 
+    useEffect(() => {
+        if (!isDescriptionReadOnly) {
+            editor.current.focus()
+        }
+    }, [isDescriptionReadOnly])
+
     /* TODO: Try move this to somewhere central
     Not to future self - You've tried
      -  To extract this as hooks (useHotkeys.tsx)
@@ -364,6 +404,7 @@ function Item(props: ItemProps): ReactElement {
         }
         return
     }
+
     const handleIconClick = (e): void => {
         e.stopPropagation()
         if (props.type == 'TODO') {
@@ -385,11 +426,10 @@ function Item(props: ItemProps): ReactElement {
         : ''
     const dueDateText = props.dueDate
         ? formatRelativeDate(parseISO(props.dueDate))
-        : null
+        : ''
     const scheduledDateText = props.scheduledDate
         ? formatRelativeDate(parseISO(props.scheduledDate))
-        : null
-
+        : ''
     return (
         <ThemeProvider theme={theme}>
             <div key={props.id} id={props.id}>
@@ -436,95 +476,89 @@ function Item(props: ItemProps): ReactElement {
                     <Body id="body" completed={props.completed}>
                         <EditableText
                             innerRef={editor}
-                            readOnly={props.completed}
+                            readOnly={isDescriptionReadOnly}
                             onEditingChange={(editing) =>
                                 setIsEditingDescription(editing)
                             }
                             input={removeItemTypeFromString(props.text)}
-                            onUpdate={(text) =>
+                            onUpdate={(text) => {
+                                setIsDescriptionReadOnly(true)
                                 props.updateItemDescription(
                                     props.id,
                                     props.type.concat(' ', text),
                                 )
-                            }
+                            }}
                             singleline={true}
                         />
                     </Body>
-                    {props.showProject && (
-                        <div
-                            style={{
-                                gridArea: 'PROJECT',
-                                display: 'flex',
-                                justifyContent: 'flex-end',
+                    <ProjectContainer visible={true}>
+                        <ProjectDropdown
+                            showSelect={projectDropdownVisible}
+                            disableClick={true}
+                            projectId={props.projectId}
+                            completed={props.completed}
+                            onSubmit={(projectId) => {
+                                props.moveItem(props.id, projectId)
                             }}
-                        >
-                            <ProjectDropdown
-                                disableClick={true}
-                                projectId={props.projectId}
-                                completed={props.completed}
-                                onSubmit={(projectId) => {
-                                    props.moveItem(props.id, projectId)
-                                }}
-                            />
-                        </div>
-                    )}
-                    <ScheduledContainer>
-                        {!(
-                            props.hideIcons ||
-                            props.type == 'NOTE' ||
-                            !props.scheduledDate
-                        ) && (
-                            <DatePicker
-                                disableClick={true}
-                                key={'sd' + props.id}
-                                style={'subtleInvert'}
-                                placeholder={'Scheduled on: '}
-                                onSubmit={(d) =>
-                                    props.setScheduledDate(props.id, d)
-                                }
-                                type="scheduled"
-                                text={scheduledDateText}
-                                completed={props.completed}
-                            />
-                        )}
+                        />
+                    </ProjectContainer>
+                    <ScheduledContainer
+                        visible={
+                            scheduledDateDropdownVisible ||
+                            props.scheduledDate != null
+                        }
+                    >
+                        <DatePicker
+                            showSelect={scheduledDateDropdownVisible}
+                            disableClick={true}
+                            key={'sd' + props.id}
+                            style={'subtleInvert'}
+                            placeholder={'Scheduled on: '}
+                            onSubmit={(d) => {
+                                props.setScheduledDate(props.id, d)
+                                setScheduledDateDropdownVisible(false)
+                            }}
+                            type="scheduled"
+                            text={scheduledDateText}
+                            completed={props.completed}
+                        />
                     </ScheduledContainer>
-
-                    <DueContainer>
-                        {!(
-                            props.hideIcons ||
-                            props.type == 'NOTE' ||
-                            !props.dueDate
-                        ) && (
-                            <DatePicker
-                                disableClick={true}
-                                style={'subtleInvert'}
-                                key={'dd' + props.id}
-                                placeholder={'Due on: '}
-                                onSubmit={(d) => props.setDueDate(props.id, d)}
-                                type="due"
-                                text={dueDateText}
-                                completed={props.completed}
-                            />
-                        )}
+                    <DueContainer
+                        visible={
+                            dueDateDropdownVisible || props.dueDate != null
+                        }
+                    >
+                        <DatePicker
+                            showSelect={dueDateDropdownVisible}
+                            disableClick={true}
+                            style={'subtleInvert'}
+                            key={'dd' + props.id}
+                            placeholder={'Due on: '}
+                            onSubmit={(d) => {
+                                props.setDueDate(props.id, d)
+                                setDueDateDropdownVisible(false)
+                            }}
+                            type="due"
+                            text={dueDateText}
+                            completed={props.completed}
+                        />
                     </DueContainer>
-                    <RepeatContainer>
-                        {!(
-                            props.hideIcons ||
-                            props.type == 'NOTE' ||
-                            !props.repeat
-                        ) && (
-                            <RepeatPicker
-                                disableClick={true}
-                                style={'subtleInvert'}
-                                completed={props.completed}
-                                text={repeatText}
-                                key={'rp' + props.id}
-                                placeholder={'Repeat: '}
-                                onSubmit={(r) =>
-                                    props.setRepeatRule(props.id, r)
-                                }
-                            />
-                        )}
+                    <RepeatContainer
+                        visible={repeatDropdownVisible || props.repeat != null}
+                    >
+                        <RepeatPicker
+                            showSelect={repeatDropdownVisible}
+                            disableClick={true}
+                            style={'subtleInvert'}
+                            completed={props.completed}
+                            text={repeatText}
+                            key={'rp' + props.id}
+                            placeholder={'Repeat: '}
+                            onSubmit={(r) => {
+                                setRepeatDropdownVisible(false)
+                                props.setRepeatRule(props.id, r)
+                            }}
+                        />
                     </RepeatContainer>
                 </Container>
                 <QuickAdd visible={createSubtaskDropdownVisible}>

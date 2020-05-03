@@ -6,7 +6,6 @@ export const Container = styled.div`
     margin: 0px;
     width: 100%;
     height: 100%;
-    overflow: hidden;
 `
 
 export const ShortcutIcon = styled.div`
@@ -28,7 +27,6 @@ export const MainContainer = styled.div<MainContainerProps>`
     transition: all 0.2s ease-in-out;
     width: 100%;
     align-items: center;
-    height: 100%;
     overflow: scroll;
     min-width: 600px;
 `
@@ -45,6 +43,5 @@ export const FocusContainer = styled.div<FocusContainerProps>`
     align-items: center;
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
-    height: 100%;
     overflow: scroll;
 `

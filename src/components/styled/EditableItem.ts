@@ -33,6 +33,6 @@ export const ValidationBox = styled.div<ValidationBoxProps>`
             : props.theme.colours.errorColour};
     font-family: ${(props) => props.theme.font.sansSerif};
     font-size: ${(props) => props.theme.fontSizes.small};
-    margin: 2px;
+    margin: 0px;
     padding-left: ${(props) => (props.hideIcon ? '10px' : '0px')};
 `

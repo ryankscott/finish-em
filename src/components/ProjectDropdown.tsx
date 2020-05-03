@@ -8,7 +8,7 @@ import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
 import { ProjectType } from '../interfaces'
-import { Container, Project } from './styled/ProjectDropdown'
+import { Container } from './styled/ProjectDropdown'
 import { getProjectNameById } from '../utils'
 import { Button } from './Button'
 
@@ -20,15 +20,23 @@ const generateOptions = (
         .filter((m) => m.deleted == false)
         .map((m) => ({ value: m.id, label: m.name }))
 }
-interface ProjectDropdownProps {
+
+interface DispatchProps {
+    createProject: (id: Uuid, value: string) => void
+}
+interface StateProps {
+    projects: ProjectType[]
+}
+interface OwnProps {
+    onSubmit: (value: string) => void
+    onEscape?: () => void
     projectId: Uuid
     disableClick?: boolean
     completed: boolean
-    onSubmit: (value: string) => void
-    onEscape?: () => void
-    createProject: (id: Uuid, value: string) => void
-    projects: ProjectType[]
+    showSelect?: boolean
 }
+
+type ProjectDropdownProps = DispatchProps & StateProps & OwnProps
 function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
     const handleChange = (newValue, actionMeta): void => {
@@ -58,7 +66,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                     }}
                     text={getProjectNameById(props.projectId, props.projects)}
                 />
-                {showSelect && (
+                {(showSelect || props.showSelect) && (
                     <Container visible={props.projects.length > 1}>
                         <CreatableSelect
                             autoFocus={true}
@@ -71,7 +79,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                             defaultMenuIsOpen={true}
                             onKeyDown={(e) => {
                                 if (e.key == 'Escape') {
-                                    props.onEscape()
+                                    setShowSelect(false)
                                 }
                             }}
                         />
@@ -82,10 +90,10 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
 })
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     createProject: (id: Uuid, name: string) => {
         dispatch(createProject(id, name, ''))
     },

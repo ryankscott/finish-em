@@ -31,6 +31,7 @@ export interface DatePickerProps {
     onSubmit: (d: string) => void
     onEscape?: () => void
     style?: 'default' | 'subtle' | 'subtleInvert'
+    showSelect?: boolean
     disableClick?: boolean
     placeholder: string
     completed: boolean
@@ -55,7 +56,7 @@ function DatePicker(props: DatePickerProps): ReactElement {
         return
     }
 
-    const handleDayClick = (day, modifiers, e): void => {
+    const handleDayClick = (day): void => {
         setDayPickerVisible(false)
         props.onSubmit(day.toISOString())
         setShowSelect(false)
@@ -78,7 +79,7 @@ function DatePicker(props: DatePickerProps): ReactElement {
                         setShowSelect(!showSelect)
                     }}
                 />
-                {showSelect && (
+                {(showSelect || props.showSelect) && (
                     <SelectContainer>
                         <Select
                             autoFocus={true}
@@ -93,7 +94,6 @@ function DatePicker(props: DatePickerProps): ReactElement {
                                 if (e.key == 'Escape') {
                                     setShowSelect(false)
                                 }
-                                e.stopPropagation()
                             }}
                         />
                         {dayPickerVisible && (

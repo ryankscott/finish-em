@@ -68,7 +68,7 @@ export const itemReducer = produce(
                     i.children = []
                 }
                 // Remove from order
-                draftState.order.filter((o) => o.id != action.id)
+                draftState.order.filter((o) => o != action.id)
                 break
 
             case item.UNDELETE_ITEM:
@@ -150,6 +150,23 @@ export const itemReducer = produce(
                 i.lastUpdatedAt = new Date().toISOString()
                 break
 
+            case item.REORDER_ITEM:
+                // Initialise where everything is
+                const sourceIndex = draftState.order.indexOf(action.id)
+                const destinationIndex = draftState.order.indexOf(
+                    action.destinationId,
+                )
+                const newOrder = draftState.order
+                newOrder.splice(sourceIndex, 1)
+                const startOfArray = newOrder.slice(0, destinationIndex)
+                const endOfArray = newOrder.slice(
+                    destinationIndex,
+                    newOrder.length,
+                )
+                draftState.order = [...startOfArray, action.id, ...endOfArray]
+                break
+
+            // TODO: Implement the deleting of project action
             /*case DELETE_PROJECT:
             return state.map((i) => {
                 if (i.projectId == action.id) {

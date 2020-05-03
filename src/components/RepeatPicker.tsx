@@ -46,6 +46,7 @@ const options = [
 interface RepeatPickerProps {
     onSubmit: (value: RRule) => void
     onEscape?: () => void
+    showSelect?: boolean
     text: string
     placeholder: string
     completed: boolean
@@ -62,7 +63,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
         setShowSelect(false)
         return
     }
-
     return (
         <ThemeProvider theme={theme}>
             <div>
@@ -80,7 +80,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                     }}
                 />
 
-                {showSelect && (
+                {(showSelect || props.showSelect) && (
                     <SelectContainer>
                         <Select
                             autoFocus={true}
@@ -91,7 +91,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                                 if (e.key == 'Escape') {
                                     setShowSelect(false)
                                 }
-                                e.stopPropagation()
                             }}
                             styles={selectStyles}
                             defaultMenuIsOpen={true}

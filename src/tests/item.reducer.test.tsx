@@ -785,6 +785,397 @@ describe('item reducer', () => {
         })
         Mockdate.reset()
     })
+    it('should handle reordering items - start to end', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const id2 = uuidv4()
+        const id3 = uuidv4()
+        const projectId = uuidv4()
+        const createdAt = new Date(1990, 1, 1).toISOString()
+        const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
+        expect(
+            itemReducer(
+                {
+                    items: {
+                        [id]: {
+                            id: id,
+                            type: 'TODO',
+                            text: 'TODO First item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: projectId,
+                            children: [],
+                        },
+                        [id2]: {
+                            id: id2,
+                            type: 'TODO',
+                            text: 'TODO Second Item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: null,
+                            children: [],
+                        },
+                        [id3]: {
+                            id: id3,
+                            type: 'TODO',
+                            text: 'TODO Third item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: null,
+                            children: [],
+                        },
+                    },
+                    order: [id, id2, id3],
+                },
+                {
+                    id: id3,
+                    type: item.REORDER_ITEM,
+                    destinationId: id,
+                },
+            ),
+        ).toEqual({
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO First item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: projectId,
+                    children: [],
+                },
+                [id2]: {
+                    id: id2,
+                    type: 'TODO',
+                    text: 'TODO Second Item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: null,
+                    children: [],
+                },
+                [id3]: {
+                    id: id3,
+                    type: 'TODO',
+                    text: 'TODO Third item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: null,
+                    children: [],
+                },
+            },
+            order: [id3, id, id2],
+        })
+        Mockdate.reset()
+    })
+
+    it('should handle reordering items - middle', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const id2 = uuidv4()
+        const id3 = uuidv4()
+        const projectId = uuidv4()
+        const createdAt = new Date(1990, 1, 1).toISOString()
+        const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
+        expect(
+            itemReducer(
+                {
+                    items: {
+                        [id]: {
+                            id: id,
+                            type: 'TODO',
+                            text: 'TODO First item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: projectId,
+                            children: [],
+                        },
+                        [id2]: {
+                            id: id2,
+                            type: 'TODO',
+                            text: 'TODO Second Item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: null,
+                            children: [],
+                        },
+                        [id3]: {
+                            id: id3,
+                            type: 'TODO',
+                            text: 'TODO Third item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: null,
+                            children: [],
+                        },
+                    },
+                    order: [id, id2, id3],
+                },
+                {
+                    id: id3,
+                    type: item.REORDER_ITEM,
+                    destinationId: id2,
+                },
+            ),
+        ).toEqual({
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO First item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: projectId,
+                    children: [],
+                },
+                [id2]: {
+                    id: id2,
+                    type: 'TODO',
+                    text: 'TODO Second Item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: null,
+                    children: [],
+                },
+                [id3]: {
+                    id: id3,
+                    type: 'TODO',
+                    text: 'TODO Third item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: null,
+                    children: [],
+                },
+            },
+            order: [id, id3, id2],
+        })
+        Mockdate.reset()
+    })
+    it('should handle reordering items - reverse', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const id2 = uuidv4()
+        const id3 = uuidv4()
+        const projectId = uuidv4()
+        const createdAt = new Date(1990, 1, 1).toISOString()
+        const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
+        expect(
+            itemReducer(
+                {
+                    items: {
+                        [id]: {
+                            id: id,
+                            type: 'TODO',
+                            text: 'TODO First item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: projectId,
+                            children: [],
+                        },
+                        [id2]: {
+                            id: id2,
+                            type: 'TODO',
+                            text: 'TODO Second Item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: null,
+                            children: [],
+                        },
+                        [id3]: {
+                            id: id3,
+                            type: 'TODO',
+                            text: 'TODO Third item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: null,
+                            children: [],
+                        },
+                    },
+                    order: [id, id2, id3],
+                },
+                {
+                    id: id,
+                    type: item.REORDER_ITEM,
+                    destinationId: id3,
+                },
+            ),
+        ).toEqual({
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO First item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: projectId,
+                    children: [],
+                },
+                [id2]: {
+                    id: id2,
+                    type: 'TODO',
+                    text: 'TODO Second Item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: null,
+                    children: [],
+                },
+                [id3]: {
+                    id: id3,
+                    type: 'TODO',
+                    text: 'TODO Third item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: null,
+                    children: [],
+                },
+            },
+            order: [id2, id3, id],
+        })
+        Mockdate.reset()
+    })
 })
 
 /*

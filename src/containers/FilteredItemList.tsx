@@ -31,6 +31,7 @@ import {
 } from '../selectors/item'
 import { components } from 'react-select'
 import { sortIcon } from '../assets/icons'
+import ReorderableItemList from '../components/ReorderableItemList'
 
 const DropdownIndicator = (props): ReactElement => {
     return (
@@ -96,16 +97,6 @@ interface FilterParamsType {
     type?: 'TODO' | 'NOTE'
 }
 
-interface StateProps {
-    items: ItemType[]
-    completedItems: ItemType[]
-    uncompletedItems: ItemType[]
-}
-
-interface DispatchProps {
-    deleteCompletedItems: (completedItems: ItemType[]) => void
-}
-
 const determineVisibilityRules = (
     filter: FilterEnum,
     isFilterable: boolean,
@@ -113,6 +104,7 @@ const determineVisibilityRules = (
     items: ItemType[],
     sortedItems: ItemType[],
     completedItems: ItemType[],
+    dragAndDropEnabled: boolean,
 ): {
     showCompletedToggle: boolean
     showFilterBar: boolean
@@ -129,13 +121,27 @@ const determineVisibilityRules = (
         isFilterable && Object.keys(items).length > 0 && !hideItemList
     const showDeleteButton =
         Object.keys(completedItems).length > 0 && !hideItemList
-    const showSortButton = Object.keys(sortedItems).length > 1 && !hideItemList
+    const showSortButton =
+        Object.keys(sortedItems).length > 1 &&
+        !hideItemList &&
+        !dragAndDropEnabled
     return {
         showCompletedToggle,
         showFilterBar,
         showDeleteButton,
         showSortButton,
     }
+}
+
+interface StateProps {
+    items: ItemType[]
+    completedItems: ItemType[]
+    uncompletedItems: ItemType[]
+    features: FeatureType
+}
+
+interface DispatchProps {
+    deleteCompletedItems: (completedItems: ItemType[]) => void
 }
 
 interface OwnProps {
@@ -169,6 +175,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         props.items,
         sortedItems,
         completedItems,
+        props.features.dragAndDrop,
     )
     const sortedItemsLength = Object.keys(sortedItems).length
 
@@ -259,11 +266,19 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             </HeaderBar>
             {!hideItemList && (
                 <ItemListContainer>
-                    <ItemList
-                        showProject={props.showProject}
-                        items={sortedItems}
-                        renderingStrategy={props.renderingStrategy}
-                    />
+                    {props.features.dragAndDrop ? (
+                        <ReorderableItemList
+                            showProject={props.showProject}
+                            items={sortedItems}
+                            renderingStrategy={props.renderingStrategy}
+                        />
+                    ) : (
+                        <ItemList
+                            showProject={props.showProject}
+                            items={sortedItems}
+                            renderingStrategy={props.renderingStrategy}
+                        />
+                    )}
                 </ItemListContainer>
             )}
         </Container>
@@ -275,6 +290,7 @@ const mapStateToProps = (state, props): StateProps => {
         items: getFilteredItems(state, props),
         completedItems: getCompletedItems(state, props),
         uncompletedItems: getUncompletedItems(state, props),
+        features: state.features,
     }
 }
 const mapDispatchToProps = (dispatch): DispatchProps => ({

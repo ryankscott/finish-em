@@ -143,6 +143,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         innerRef={ref}
                         style={Header1}
                         input={removeItemTypeFromString(i.text)}
+                        singleline={true}
                         onUpdate={(text) => {
                             props.updateItemDescription(
                                 i.id,

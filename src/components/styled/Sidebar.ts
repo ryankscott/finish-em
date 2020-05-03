@@ -12,6 +12,7 @@ export const Container = styled.div<ContainerProps>`
     align-items: ${(props) => (props.visible ? 'none' : 'center')};
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
     transition: all 0.2s ease-in-out;
     height: 100%;
     position: fixed;
@@ -19,6 +20,11 @@ export const Container = styled.div<ContainerProps>`
     top: 0;
     left: 0;
 `
+export const BodyContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+`
+
 export const StyledNavLink = styled(NavLink)`
     font-size: ${(props) => props.theme.fontSizes.regular};
     font-weight: ${(props) => props.theme.fontWeights.regular};
@@ -51,12 +57,17 @@ interface FooterProps {
     visible: boolean
 }
 export const Footer = styled.div<FooterProps>`
-    position: absolute;
-    bottom: ${(props) => (props.visible ? '30px' : '10px')};
-    right: 10px;
-    display: flex;
+    margin-right: ${(props) => (props.visible ? '10px' : '0px')};
+    display: grid;
+    grid-template-columns: ${(props) =>
+        props.visible ? 'repeat(5, 1fr)' : '100%'};
+    grid-template-areas: ${(props) =>
+        props.visible
+            ? `'settings settings settings settings settings collapse'`
+            : `'settings'
+'collapse'`};
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: space-between;
 `
 export const StyledHorizontalRule = styled.hr`
     box-sizing: border-box;

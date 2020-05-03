@@ -45,3 +45,7 @@ export interface UIType {
     createProjectDialogVisible: boolean
     deleteProjectDialogVisible: boolean
 }
+
+export interface FeatureType {
+    dragAndDrop: boolean
+}

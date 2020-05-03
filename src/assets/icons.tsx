@@ -43,9 +43,9 @@ export const dueIcon = (
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-<line x1="4" y1="22" x2="4" y2="15"></line>
-</svg>
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+        <line x1="4" y1="22" x2="4" y2="15"></line>
+    </svg>
 )
 
 export const scheduledIcon = (
@@ -287,40 +287,39 @@ export const hideIcon = (
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
 ): React.SVGProps<SVGSVGElement> => (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={width ? width : '14'}
-            height={height ? height : '14'}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke={colour ? colour : 'currentColor'}
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-            <line x1="1" y1="1" x2="23" y2="23"></line>
-        </svg>
-    )
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '14'}
+        height={height ? height : '14'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+        <line x1="1" y1="1" x2="23" y2="23"></line>
+    </svg>
+)
 
 export const sortIcon = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
 ): React.SVGProps<SVGSVGElement> => (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width={width ? width : '16'}
-            height={height ? height : '16'}
-            viewBox="0 0 24 24"
-            stroke="none"
-            fill={colour ? colour : 'currentColor'}
-        >
-            <path d="M0 0h24v24H0V0z" fill="none" />
-            <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
-        </svg>
-    )
-}
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        stroke="none"
+        fill={colour ? colour : 'currentColor'}
+    >
+        <path d="M0 0h24v24H0V0z" fill="none" />
+        <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
+    </svg>
+)
 
 export const trashSweepIcon = (
     width?: CSS.WidthProperty<number>,
@@ -338,45 +337,39 @@ export const trashSweepIcon = (
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-   <polyline
-     transform="matrix(1.2986688,0,0,1.3641064,-3.7558438,-4.2473659)"
-     id="polyline68"
-     points="3 6 5 6 21 6" />
-  <path
-     id="path70"
-     d="M 20.56441,3.9177464 V 23.060795 a 2.5242294,2.7347212 0 0 1 -2.524229,2.73472 H 5.4190333 A 2.5242294,2.7347212 0 0 1 2.894804,23.060795 V 3.9177464 m 3.7863441,0 V 1.1830252 A 2.5242294,2.7347212 0 0 1 9.205377,-1.551696 h 5.04846 a 2.5242294,2.7347212 0 0 1 2.52423,2.7347212 v 2.7347212" />
-  <line
-     id="line74"
-     y2="20.998405"
-     x2="14.595375"
-     y1="9"
-     x1="14.595375" />
-  <line
-     id="line76"
-     y2="8.5773249"
-     x2="32"
-     y1="8.5773249"
-     x1="24" />
-  <line
-     id="line78"
-     y2="13.59158"
-     x2="29.99979"
-     y1="13.59158"
-     x1="23.99979" />
-  <line
-     id="line80"
-     y2="18.540035"
-     x2="26.99979"
-     y1="18.540035"
-     x1="23.99979" />
-  <line
-     x1="8.5953751"
-     y1="9"
-     x2="8.5953751"
-     y2="20.998405"
-     id="line74-9"
-     />
-</svg>
+        <polyline
+            transform="matrix(1.2986688,0,0,1.3641064,-3.7558438,-4.2473659)"
+            id="polyline68"
+            points="3 6 5 6 21 6"
+        />
+        <path
+            id="path70"
+            d="M 20.56441,3.9177464 V 23.060795 a 2.5242294,2.7347212 0 0 1 -2.524229,2.73472 H 5.4190333 A 2.5242294,2.7347212 0 0 1 2.894804,23.060795 V 3.9177464 m 3.7863441,0 V 1.1830252 A 2.5242294,2.7347212 0 0 1 9.205377,-1.551696 h 5.04846 a 2.5242294,2.7347212 0 0 1 2.52423,2.7347212 v 2.7347212"
+        />
+        <line id="line74" y2="20.998405" x2="14.595375" y1="9" x1="14.595375" />
+        <line id="line76" y2="8.5773249" x2="32" y1="8.5773249" x1="24" />
+        <line
+            id="line78"
+            y2="13.59158"
+            x2="29.99979"
+            y1="13.59158"
+            x1="23.99979"
+        />
+        <line
+            id="line80"
+            y2="18.540035"
+            x2="26.99979"
+            y1="18.540035"
+            x1="23.99979"
+        />
+        <line
+            x1="8.5953751"
+            y1="9"
+            x2="8.5953751"
+            y2="20.998405"
+            id="line74-9"
+        />
+    </svg>
 )
 
 export const inboxIcon = (
@@ -502,7 +495,28 @@ export const backIcon = (
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-    <line x1="19" y1="12" x2="5" y2="12"></line>
-    <polyline points="12 19 5 12 12 5"></polyline>
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+    </svg>
+)
+
+export const settingsIcon = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
     </svg>
 )

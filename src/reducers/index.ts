@@ -3,44 +3,46 @@ import { uiReducer } from './ui'
 import { itemReducer } from './item'
 import { projectReducer } from './project'
 import { SET_WEEKLY_GOAL, SET_DAILY_GOAL } from '../actions'
+import { featureReducer } from './feature'
 
 // TODO: Create a state interface
 
 const initialState = {
-  weeklyGoal: {},
-  dailyGoal: {},
+    weeklyGoal: {},
+    dailyGoal: {},
 }
 
 const weeklyGoalReducer = (state = initialState.weeklyGoal, action) => {
-  switch (action.type) {
-    case SET_WEEKLY_GOAL:
-      const newState = { ...state }
-      newState[action.week] = { week: action.week, text: action.text }
-      return newState
+    switch (action.type) {
+        case SET_WEEKLY_GOAL:
+            const newState = { ...state }
+            newState[action.week] = { week: action.week, text: action.text }
+            return newState
 
-    default:
-      return state
-  }
+        default:
+            return state
+    }
 }
 
 const dailyGoalReducer = (state = initialState.dailyGoal, action) => {
-  switch (action.type) {
-    case SET_DAILY_GOAL:
-      const newState = { ...state }
-      newState[action.day] = { day: action.day, text: action.text }
-      return newState
+    switch (action.type) {
+        case SET_DAILY_GOAL:
+            const newState = { ...state }
+            newState[action.day] = { day: action.day, text: action.text }
+            return newState
 
-    default:
-      return state
-  }
+        default:
+            return state
+    }
 }
 
 const rootReducer = combineReducers({
-  items: itemReducer,
-  projects: projectReducer,
-  ui: uiReducer,
-  weeklyGoal: weeklyGoalReducer,
-  dailyGoal: dailyGoalReducer,
+    items: itemReducer,
+    projects: projectReducer,
+    ui: uiReducer,
+    weeklyGoal: weeklyGoalReducer,
+    dailyGoal: dailyGoalReducer,
+    features: featureReducer,
 })
 
 export default rootReducer
