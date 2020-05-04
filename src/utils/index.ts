@@ -8,7 +8,7 @@ import {
     differenceInDays,
     isYesterday,
 } from 'date-fns'
-import { ItemType, ProjectType } from '../interfaces'
+import { ItemType, ProjectType, Item } from '../interfaces'
 import { Uuid } from '@typed/uuid'
 import RRule from 'rrule'
 
@@ -188,10 +188,7 @@ export const getFirstLetterFromEachWord = (input: string): string => {
     const words = input.split(' ')
     if (words.length == 1) {
         const word = words[0]
-        console.log(word)
-        console.log(hasEmoji([...word][0]))
         if (hasEmoji([...word][0])) {
-            console.log([...word])
             return [...word][0]
         }
         return word.slice(0, 2)
@@ -261,4 +258,16 @@ export const rruleToText = (input: RRule): string => {
             return input.toText()
             break
     }
+}
+
+export const filterItems = (
+    input: Item,
+    filterFunc: (ItemType) => boolean,
+): Item => {
+    const filtered = Object.entries(input).filter((e) => filterFunc(e[1]))
+    return Object.fromEntries(filtered)
+}
+
+export const convertItemToItemType = (input: Item): ItemType[] => {
+    return Object.values(input)
 }

@@ -7,7 +7,7 @@ import {
     sortPlaceholderStyles,
 } from '../theme'
 import { Header1, Paragraph } from '../components/Typography'
-import { ItemType } from '../interfaces'
+import { ItemType, FeatureType, Item } from '../interfaces'
 import { Uuid } from '@typed/uuid'
 import {
     Container,
@@ -32,6 +32,7 @@ import {
 import { components } from 'react-select'
 import { sortIcon } from '../assets/icons'
 import ReorderableItemList from '../components/ReorderableItemList'
+import { convertItemToItemType } from '../utils'
 
 const DropdownIndicator = (props): ReactElement => {
     return (
@@ -134,9 +135,9 @@ const determineVisibilityRules = (
 }
 
 interface StateProps {
-    items: ItemType[]
-    completedItems: ItemType[]
-    uncompletedItems: ItemType[]
+    items: Item
+    completedItems: Item
+    uncompletedItems: Item
     features: FeatureType
 }
 
@@ -165,16 +166,16 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const allItems = props.items
     const completedItems = props.completedItems
     const sortedItems = hideCompleted
-        ? sortItems(props.uncompletedItems, sortCriteria)
-        : sortItems(allItems, sortCriteria)
+        ? sortItems(convertItemToItemType(props.uncompletedItems), sortCriteria)
+        : sortItems(convertItemToItemType(allItems), sortCriteria)
 
     const visibility = determineVisibilityRules(
         props.filter,
         props.isFilterable,
         hideItemList,
-        props.items,
+        convertItemToItemType(props.items),
         sortedItems,
-        completedItems,
+        convertItemToItemType(completedItems),
         props.features.dragAndDrop,
     )
     const sortedItemsLength = Object.keys(sortedItems).length
@@ -226,7 +227,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     icon="trash_sweep"
                                     onClick={() => {
                                         props.deleteCompletedItems(
-                                            props.completedItems,
+                                            convertItemToItemType(
+                                                props.completedItems,
+                                            ),
                                         )
                                     }}
                                 ></Button>
@@ -293,8 +296,8 @@ const mapStateToProps = (state, props): StateProps => {
 }
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     // TODO: Move this to the reducer and create a new action
-    deleteCompletedItems: (completedItems) => {
-        completedItems.map((c) => {
+    deleteCompletedItems: (completedItems: ItemType[]) => {
+        completedItems.forEach((c) => {
             if (c.parentId == null) {
                 dispatch(deleteItem(c.id))
             }

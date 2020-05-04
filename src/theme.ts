@@ -22,7 +22,7 @@ export const theme = {
     },
     button: {
         default: {
-            backgroundColour: 'inherit',
+            backgroundColour: '#Fbfbfb',
             colour: '#333333',
             borderColour: '#e0e0e0',
             hoverBackgroundColour: darken(0.05, '#Fbfbfb'),

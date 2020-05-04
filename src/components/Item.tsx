@@ -463,8 +463,6 @@ function Item(props: ItemProps): ReactElement {
                             type="default"
                             spacing="compact"
                             onClick={handleIconClick}
-                            height="24px"
-                            width="24px"
                             icon={
                                 props.type == 'NOTE'
                                     ? 'note'
@@ -494,7 +492,7 @@ function Item(props: ItemProps): ReactElement {
                     </Body>
                     <ProjectContainer visible={!props.hideIcons}>
                         <ProjectDropdown
-                            style={'subtleInvert'}
+                            style={'default'}
                             showSelect={projectDropdownVisible}
                             disableClick={true}
                             projectId={props.projectId}

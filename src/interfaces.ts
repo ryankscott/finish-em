@@ -18,8 +18,12 @@ export interface ItemType {
     repeat: string
 }
 
+export interface Item {
+    [key: string]: ItemType
+}
+
 export type Items = {
-    items: { [key: string]: ItemType }
+    items: Item
     order: Uuid[]
 }
 

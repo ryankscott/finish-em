@@ -24,8 +24,8 @@ export const StyledButton = styled.button<StyledProps>`
     width: ${(props) => (props.width ? props.width : 'auto')};
     height: ${(props) => (props.height ? props.height : 'auto')};
     margin: 2px;
-    border: none;
     border-radius: 5px;
+    border: none;
     border-color: ${(props) => props.theme.borderColour};
     text-align: center;
     &:hover {
