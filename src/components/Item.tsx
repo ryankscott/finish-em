@@ -494,6 +494,7 @@ function Item(props: ItemProps): ReactElement {
                     </Body>
                     <ProjectContainer visible={!props.hideIcons}>
                         <ProjectDropdown
+                            style={'subtleInvert'}
                             showSelect={projectDropdownVisible}
                             disableClick={true}
                             projectId={props.projectId}

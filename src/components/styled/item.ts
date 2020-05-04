@@ -17,7 +17,7 @@ export const Container = styled.div<ContainerProps>`
             : '30px 30px repeat(20, 1fr)'};
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
-        'EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT'
+        'EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT'
         '.  SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . . . DUE DUE DUE DUE . . . . REPEAT REPEAT REPEAT REPEAT REPEAT';
     border-bottom: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-top: ${(props) => (props.hidden ? '0px' : '1px solid')};

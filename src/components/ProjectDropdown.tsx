@@ -30,6 +30,7 @@ interface StateProps {
 interface OwnProps {
     onSubmit: (value: string) => void
     onEscape?: () => void
+    style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     projectId: Uuid
     disableClick?: boolean
     completed: boolean
@@ -57,7 +58,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
             <div>
                 <Button
                     spacing="compact"
-                    type="primary"
+                    type={props.style || 'default'}
                     onClick={(e) => {
                         if (props.disableClick) return
                         e.stopPropagation()
