@@ -17,7 +17,7 @@ import {
     BodyContainer,
 } from './styled/Sidebar'
 import { Button } from './Button'
-import { getFirstLetterFromEachWord } from '../utils'
+import { createShortProjectName } from '../utils'
 import Settings from './Settings'
 
 interface SidebarProps {
@@ -152,9 +152,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                         text={
                                             props.sidebarVisible
                                                 ? p.name
-                                                : getFirstLetterFromEachWord(
-                                                      p.name,
-                                                  )
+                                                : createShortProjectName(p.name)
                                         }
                                         spacing="compact"
                                         type="subtle"
