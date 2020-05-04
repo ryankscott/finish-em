@@ -492,7 +492,7 @@ function Item(props: ItemProps): ReactElement {
                             singleline={true}
                         />
                     </Body>
-                    <ProjectContainer visible={true}>
+                    <ProjectContainer visible={!props.hideIcons}>
                         <ProjectDropdown
                             showSelect={projectDropdownVisible}
                             disableClick={true}
@@ -505,8 +505,9 @@ function Item(props: ItemProps): ReactElement {
                     </ProjectContainer>
                     <ScheduledContainer
                         visible={
-                            scheduledDateDropdownVisible ||
-                            props.scheduledDate != null
+                            (scheduledDateDropdownVisible ||
+                                props.scheduledDate != null) &&
+                            !props.hideIcons
                         }
                     >
                         <DatePicker
@@ -526,7 +527,8 @@ function Item(props: ItemProps): ReactElement {
                     </ScheduledContainer>
                     <DueContainer
                         visible={
-                            dueDateDropdownVisible || props.dueDate != null
+                            (dueDateDropdownVisible || props.dueDate != null) &&
+                            !props.hideIcons
                         }
                     >
                         <DatePicker
@@ -545,7 +547,10 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </DueContainer>
                     <RepeatContainer
-                        visible={repeatDropdownVisible || props.repeat != null}
+                        visible={
+                            (repeatDropdownVisible || props.repeat != null) &&
+                            !props.hideIcons
+                        }
                     >
                         <RepeatPicker
                             showSelect={repeatDropdownVisible}
