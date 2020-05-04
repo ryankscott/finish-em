@@ -185,8 +185,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 <ListName>
                     <Button
                         type="default"
-                        width="16px"
-                        height="16px"
                         icon={hideItemList ? 'expand' : 'collapse'}
                         onClick={() => setHideItemList(!hideItemList)}
                     ></Button>
