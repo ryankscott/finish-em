@@ -22,3 +22,9 @@ export const Project = styled.div`
     background-color: ${(props) => props.theme.colours.primaryColour};
     border-radius: 5px;
 `
+export const DisabledContainer = styled.div`
+/*    border-radius: 5px;
+    padding: 2px 5px;
+    background-color: ${(props) =>
+        props.theme.button.default.hoverBackgroundColour}; */
+`

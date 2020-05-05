@@ -5,3 +5,19 @@ export const SelectContainer = styled.div`
     position: absolute;
     flex-direction: column;
 `
+interface DisabledContainerProps {
+    completed: boolean
+}
+export const DisabledContainer = styled.div<DisabledContainerProps>`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-decoration: ${(props) =>
+        props.completed ? 'strike-through' : 'none'};
+`
+
+export const IconContainer = styled.div`
+    display: flex;
+    padding-right: 2px;
+    align-items: center;
+`

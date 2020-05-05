@@ -4,8 +4,11 @@ import Select from 'react-select'
 import { theme, selectStyles } from '../theme'
 import { format } from 'date-fns'
 import { RRule } from 'rrule'
-import { SelectContainer } from './styled/RepeatPicker'
+import { SelectContainer, DisabledContainer } from './styled/RepeatPicker'
 import DateRenderer from './DateRenderer'
+import { Paragraph } from './Typography'
+import { repeatIcon } from '../assets/icons'
+import { IconContainer } from './styled/DatePicker'
 
 const options = [
     {
@@ -63,22 +66,38 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
         setShowSelect(false)
         return
     }
+
+    const generateDisabledElement = (
+        text: string,
+        completed: boolean,
+    ): ReactElement => {
+        return (
+            <DisabledContainer completed={completed}>
+                <IconContainer>{repeatIcon()}</IconContainer>
+                <Paragraph>{text}</Paragraph>
+            </DisabledContainer>
+        )
+    }
+
     return (
         <ThemeProvider theme={theme}>
             <div>
-                <DateRenderer
-                    completed={props.completed}
-                    type="repeat"
-                    position="center"
-                    style={props.style}
-                    text={props.text}
-                    onClick={(e) => {
-                        if (props.disableClick) return
-                        e.stopPropagation()
-                        if (props.completed) return
-                        setShowSelect(!showSelect)
-                    }}
-                />
+                {props.disableClick ? (
+                    generateDisabledElement(props.text, props.completed)
+                ) : (
+                    <DateRenderer
+                        completed={props.completed}
+                        type="repeat"
+                        position="center"
+                        style={props.style}
+                        text={props.text}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            if (props.completed) return
+                            setShowSelect(!showSelect)
+                        }}
+                    />
+                )}
 
                 {(showSelect || props.showSelect) && (
                     <SelectContainer>

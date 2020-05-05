@@ -8,9 +8,10 @@ import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
 import { ProjectType } from '../interfaces'
-import { Container } from './styled/ProjectDropdown'
+import { Container, DisabledContainer } from './styled/ProjectDropdown'
 import { getProjectNameById } from '../utils'
 import { Button } from './Button'
+import { Paragraph } from './Typography'
 
 const generateOptions = (
     options: ProjectType[],
@@ -56,17 +57,20 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
     return (
         <ThemeProvider theme={theme}>
             <div>
+                {props.disableClick ? (
+                <DisabledContainer>
+                <Paragraph>{getProjectNameById(props.projectId, props.projects)} </Paragraph>
+</DisabledContainer>):(
                 <Button
                     spacing="compact"
                     type={props.style || 'default'}
                     onClick={(e) => {
-                        if (props.disableClick) return
                         e.stopPropagation()
                         if (props.completed) return
                         setShowSelect(!showSelect)
                     }}
                     text={getProjectNameById(props.projectId, props.projects)}
-                />
+                />)
                 {(showSelect || props.showSelect) && (
                     <Container visible={props.projects.length > 1}>
                         <CreatableSelect

@@ -5,8 +5,11 @@ import { theme, selectStyles } from '../theme'
 import { add, lastDayOfWeek } from 'date-fns'
 import './DatePicker.css'
 import DayPicker from 'react-day-picker/DayPicker'
-import { SelectContainer } from './styled/DatePicker'
+import { SelectContainer, IconContainer } from './styled/DatePicker'
 import DateRenderer from './DateRenderer'
+import { Paragraph } from './Typography'
+import { dueIcon, scheduledIcon } from '../assets/icons'
+import { DisabledContainer } from './styled/RepeatPicker'
 
 const options: { value: string; label: string }[] = [
     { value: new Date().toISOString(), label: 'Today' },
@@ -62,23 +65,44 @@ function DatePicker(props: DatePickerProps): ReactElement {
         setShowSelect(false)
         return
     }
+    const generateDisabledElement = (
+        text: string,
+        completed: boolean,
+        type: 'due' | 'scheduled',
+    ): ReactElement => {
+        return (
+            <DisabledContainer completed={completed}>
+                <IconContainer>
+                    {type == 'due' ? dueIcon() : scheduledIcon()}
+                </IconContainer>
+                <Paragraph>{text}</Paragraph>
+            </DisabledContainer>
+        )
+    }
 
     return (
         <ThemeProvider theme={theme}>
             <div>
-                <DateRenderer
-                    style={props.style}
-                    completed={props.completed}
-                    type={props.type}
-                    position="center"
-                    text={props.text}
-                    onClick={(e) => {
-                        if (props.disableClick) return
-                        e.stopPropagation()
-                        if (props.completed) return
-                        setShowSelect(!showSelect)
-                    }}
-                />
+                {props.disableClick ? (
+                    generateDisabledElement(
+                        props.text,
+                        props.completed,
+                        props.type,
+                    )
+                ) : (
+                    <DateRenderer
+                        style={props.style}
+                        completed={props.completed}
+                        type={props.type}
+                        position="center"
+                        text={props.text}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            if (props.completed) return
+                            setShowSelect(!showSelect)
+                        }}
+                    />
+                )}
                 {(showSelect || props.showSelect) && (
                     <SelectContainer>
                         <Select
