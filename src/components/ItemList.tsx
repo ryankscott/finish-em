@@ -16,8 +16,8 @@ export enum RenderingStrategy {
 interface ItemListProps {
     items: ItemType[]
     order: Uuid[]
-    showProject: boolean
     renderingStrategy?: RenderingStrategy
+    hideProject?: boolean
 }
 
 /* We need two strategies for rendering items:
@@ -49,7 +49,7 @@ function ItemList(props: ItemListProps): ReactElement {
                                         {...item}
                                         key={item.id}
                                         noIndentOnSubtasks={false}
-                                        showProject={props.showProject}
+                                        hideProject={props.hideProject}
                                         keymap={itemKeymap}
                                     />
                                 </div>
@@ -63,7 +63,7 @@ function ItemList(props: ItemListProps): ReactElement {
                                         {...item}
                                         key={item.id}
                                         noIndentOnSubtasks={false}
-                                        showProject={props.showProject}
+                                        hideProject={props.hideProject}
                                         keymap={itemKeymap}
                                     />
                                 </div>

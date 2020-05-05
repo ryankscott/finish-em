@@ -17,14 +17,6 @@ export enum RenderingStrategy {
     All = 'ALL',
 }
 
-interface ItemListProps {
-    items: ItemType[]
-    order: Uuid[]
-    showProject: boolean
-    renderingStrategy?: RenderingStrategy
-    reorderItem: (id: Uuid, destinationId: Uuid) => void
-}
-
 /* We need two strategies for rendering items:
 
 1.  Default 
@@ -51,6 +43,14 @@ const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
     padding: '20px',
     width: '100%',
 })
+
+interface ReorderableItemListProps {
+    items: ItemType[]
+    order: Uuid[]
+    hideProject: boolean
+    renderingStrategy?: RenderingStrategy
+    reorderItem: (id: Uuid, destinationId: Uuid) => void
+}
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     return (
@@ -106,8 +106,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             noIndentOnSubtasks={
                                                                 false
                                                             }
-                                                            showProject={
-                                                                props.showProject
+                                                            hideProject={
+                                                                props.hideProject
                                                             }
                                                             keymap={itemKeymap}
                                                         />
@@ -146,8 +146,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             noIndentOnSubtasks={
                                                                 false
                                                             }
-                                                            showProject={
-                                                                props.showProject
+                                                            hideProject={
+                                                                props.hideProject
                                                             }
                                                             keymap={itemKeymap}
                                                         />

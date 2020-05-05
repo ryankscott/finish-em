@@ -75,7 +75,7 @@ export enum ItemProperties {
 interface OwnProps extends ItemType {
     hideIcons?: boolean
     noIndentOnSubtasks: boolean
-    showProject: boolean
+    hideProject?: boolean
     keymap: {}
 }
 
@@ -490,7 +490,9 @@ function Item(props: ItemProps): ReactElement {
                             singleline={props.type == 'NOTE' ? false : true}
                         />
                     </Body>
-                    <ProjectContainer visible={!props.hideIcons}>
+                    <ProjectContainer
+                        visible={!(props.hideIcons || props.hideProject)}
+                    >
                         <ProjectDropdown
                             style={'default'}
                             showSelect={projectDropdownVisible}
@@ -590,7 +592,7 @@ function Item(props: ItemProps): ReactElement {
                             key={c}
                             items={props.items}
                             noIndentOnSubtasks={props.noIndentOnSubtasks}
-                            showProject={props.showProject}
+                            hideProject={props.hideProject}
                             keymap={props.keymap}
                             projects={props.projects}
                             updateItemDescription={props.updateItemDescription}

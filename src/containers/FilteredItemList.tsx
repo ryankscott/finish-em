@@ -269,13 +269,13 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 <ItemListContainer>
                     {props.features.dragAndDrop ? (
                         <ReorderableItemList
-                            showProject={props.showProject}
+                            hideProject={props.hideProject}
                             items={sortedItems}
                             renderingStrategy={props.renderingStrategy}
                         />
                     ) : (
                         <ItemList
-                            showProject={props.showProject}
+                            hideProject={props.hideProject}
                             items={sortedItems}
                             renderingStrategy={props.renderingStrategy}
                         />

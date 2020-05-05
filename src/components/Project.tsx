@@ -78,14 +78,14 @@ const Project = (props: ProjectProps): ReactElement => {
                     filterParams={{ projectId: props.project.id, type: 'NOTE' }}
                     listName="Notes"
                     isFilterable={false}
-                    showProject={false}
+                    hideProject={true}
                 />
                 <FilteredItemList
                     filter={FilterEnum.ShowFromProjectByType}
                     filterParams={{ projectId: props.project.id, type: 'TODO' }}
                     listName="Todos"
                     isFilterable={true}
-                    showProject={false}
+                    hideProject={true}
                 />
             </ProjectContainer>
         </ThemeProvider>
