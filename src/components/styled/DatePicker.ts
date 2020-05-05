@@ -14,6 +14,8 @@ export const DisabledContainer = styled.div<DisabledContainerProps>`
     display: flex;
     flex-direction: row;
     align-items: center;
+    padding: 0px 5px;
+    margin: 0px 2px;
     text-decoration: ${(props) =>
         props.completed ? 'strike-through' : 'none'};
 `
