@@ -32,7 +32,9 @@ function EditableText(props: EditableTextProps): ReactElement {
         if (props.onEditingChange) {
             props.onEditingChange(false)
         }
-        props.onUpdate(props.innerRef.current.innerText)
+        props.onUpdate(
+            props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
+        )
         return
     }
 
@@ -119,7 +121,8 @@ function EditableText(props: EditableTextProps): ReactElement {
 
     // TODO: Fix the return type
     const getMarkdownText = (): {} => {
-        return { __html: marked(input) }
+        console.log(input)
+        return { __html: marked(input, { breaks: true }) }
     }
 
     return (

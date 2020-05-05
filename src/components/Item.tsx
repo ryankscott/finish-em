@@ -487,7 +487,7 @@ function Item(props: ItemProps): ReactElement {
                                     props.type.concat(' ', text),
                                 )
                             }}
-                            singleline={true}
+                            singleline={props.type == 'NOTE' ? false : true}
                         />
                     </Body>
                     <ProjectContainer visible={!props.hideIcons}>
