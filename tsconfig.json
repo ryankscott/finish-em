@@ -4,9 +4,6 @@
         "jsx": "react",
         "allowJs": true,
         "checkJs": true,
-        "paths": {
-            "*": ["src/type_shims/*"]
-        },
         "lib": ["es2019", "dom"],
         "downlevelIteration": true
     }
