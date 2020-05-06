@@ -28,6 +28,7 @@ const iconMapping = {
     up_level: (w, h, c) => ic.upLevelIcon(w, h, c),
     back: (w, h, c) => ic.backIcon(w, h, c),
     settings: (w, h, c) => ic.settingsIcon(w, h, c),
+    subtask: (w, h, c) => ic.subtaskIcon(w, h, c),
 }
 
 // TODO: Change width and height to strings
@@ -68,6 +69,7 @@ export interface ButtonProps {
         | 'up_level'
         | 'back'
         | 'settings'
+        | 'subtask'
 }
 
 const getTheme = (type: string): {} => {

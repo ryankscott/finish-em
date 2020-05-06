@@ -15,6 +15,7 @@ import {
     RepeatContainer,
     TypeContainer,
     ProjectContainer,
+    SubtaskContainer,
 } from './styled/Item'
 
 import {
@@ -93,7 +94,7 @@ function Item(props: ItemProps): ReactElement {
     ] = useState(false)
     const [repeatDropdownVisible, setRepeatDropdownVisible] = useState(false)
     const [isEditingDescription, setIsEditingDescription] = useState(false)
-    const [hideChildren, setHideChildren] = useState(false)
+    const [hideChildren, setHideChildren] = useState(true)
     const [keyPresses, setKeyPresses] = useState([])
     const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
     const [projectDropdownVisible, setProjectDropdownVisible] = useState(false)
@@ -452,7 +453,6 @@ function Item(props: ItemProps): ReactElement {
                         <ExpandContainer>
                             <Button
                                 type="default"
-                                spacing="compact"
                                 onClick={handleExpand}
                                 icon={hideChildren ? 'expand' : 'collapse'}
                             ></Button>
@@ -490,6 +490,16 @@ function Item(props: ItemProps): ReactElement {
                             singleline={props.type == 'NOTE' ? false : true}
                         />
                     </Body>
+                    <SubtaskContainer
+                        visible={!props.hideIcons && props.parentId != null}
+                    >
+                        <Button
+                            icon="subtask"
+                            type="default"
+                            onClick={(e) => {props.setActiveItem(props.parentId); e.stopPropagation()}
+                        ></Button>
+                    </SubtaskContainer>
+
                     <ProjectContainer
                         visible={!(props.hideIcons || props.hideProject)}
                     >

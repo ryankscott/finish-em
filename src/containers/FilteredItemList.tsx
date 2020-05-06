@@ -145,12 +145,18 @@ interface DispatchProps {
     deleteCompletedItems: (completedItems: ItemType[]) => void
 }
 
+// TODO: Implement custom filters
+
 interface OwnProps {
-    showProject: boolean
+    hideProject: boolean
     listName?: string
     filter: FilterEnum
     filterParams?: FilterParamsType
     isFilterable?: boolean
+    customFilter: {
+        filter: (input: ItemType) => boolean
+        order: 'asc' | 'desc'
+    }
     renderingStrategy?: RenderingStrategy
     defaultSortOrder?: SortCriteriaEnum
     noIndentOnSubtasks?: boolean

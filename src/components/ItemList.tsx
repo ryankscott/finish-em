@@ -29,8 +29,6 @@ interface ItemListProps {
  2. All rendering
   - If an item has a parent and the parent is in the list, don't render it
   - If an item has a parent and the parent isn't in the list, render it
-  -  
-
 */
 
 function ItemList(props: ItemListProps): ReactElement {
@@ -42,7 +40,26 @@ function ItemList(props: ItemListProps): ReactElement {
                     if (item == undefined) return
                     switch (props.renderingStrategy) {
                         case 'ALL':
-                            if (item.parentId != null) return
+                            if (item.parentId != null) {
+                                const parentExists = props.items.filter(
+                                    (i) => i.id == item.parentId,
+                                )
+                                if (parentExists.length > 0) {
+                                    return
+                                } else {
+                                    return (
+                                        <div key={'container-' + item.id}>
+                                            <Item
+                                                {...item}
+                                                key={item.id}
+                                                noIndentOnSubtasks={true}
+                                                hideProject={props.hideProject}
+                                                keymap={itemKeymap}
+                                            />
+                                        </div>
+                                    )
+                                }
+                            }
                             return (
                                 <div key={'container-' + item.id}>
                                     <Item

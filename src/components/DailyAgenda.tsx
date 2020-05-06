@@ -9,6 +9,7 @@ import EditableText from './EditableText'
 import { setDailyGoal } from '../actions'
 import { ItemType } from '../interfaces'
 import { AgendaContainer, DateContainer, Section } from './styled/DailyAgenda'
+import { RenderingStrategy } from './ItemList'
 
 interface OwnProps {}
 interface StateProps {
@@ -38,12 +39,6 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         {parseInt(format(new Date(), 'w')) % 13} / 13
                     </Paragraph>
                 </DateContainer>
-                {/* <Header1> Weekly Goal </Header1> */}
-                {/* <Paragraph> */}
-                {/*   {props.weeklyGoal[week] */}
-                {/*     ? props.weeklyGoal[week] */}
-                {/*     : "No weekly goal set"} */}
-                {/* </Paragraph> */}
                 <Header1> Daily Goal </Header1>
                 <EditableText
                     style={Paragraph}
@@ -53,7 +48,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                             ? props.dailyGoal[day].text
                             : 'No daily goal set'
                     }
-                    height={150}
+                    height={'150px'}
                     singleline={false}
                     ref={editor}
                     onUpdate={(input) => {
@@ -66,6 +61,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         listName="Overdue"
                         filter={FilterEnum.ShowOverdue}
                         showProject={true}
+                        renderingStrategy={RenderingStrategy.All}
                     />
                 </Section>
                 <Section>
@@ -75,6 +71,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         listName="Due Today"
                         filter={FilterEnum.ShowDueOnDay}
                         filterParams={{ dueDate: new Date() }}
+                        renderingStrategy={RenderingStrategy.All}
                     />
                     <FilteredItemList
                         showProject={true}
@@ -82,6 +79,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         listName="Scheduled Today"
                         filter={FilterEnum.ShowScheduledOnDay}
                         filterParams={{ scheduledDate: new Date() }}
+                        renderingStrategy={RenderingStrategy.All}
                     />
                 </Section>
             </AgendaContainer>
