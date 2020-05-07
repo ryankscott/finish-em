@@ -496,7 +496,10 @@ function Item(props: ItemProps): ReactElement {
                         <Button
                             icon="subtask"
                             type="default"
-                            onClick={(e) => {props.setActiveItem(props.parentId); e.stopPropagation()}
+                            onClick={(e) => {
+                                props.setActiveItem(props.parentId)
+                                e.stopPropagation()
+                            }}
                         ></Button>
                     </SubtaskContainer>
 
