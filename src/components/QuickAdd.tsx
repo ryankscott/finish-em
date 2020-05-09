@@ -1,19 +1,27 @@
 import React, { ReactElement } from 'react'
 import { connect } from 'react-redux'
 import { createItem } from '../actions'
-import EditableItem from './EditableItem'
 import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
+import EditableText from './EditableText'
+import { validateItemString } from '../utils'
 
 interface QuickAddProps {
     projectId?: Uuid
     onSubmit: (text: string, projectId: Uuid) => void
 }
 const QuickAdd = (props: QuickAddProps): ReactElement => (
-    <EditableItem
-        text=""
-        onSubmit={(text) => props.onSubmit(text, props.projectId)}
+    <EditableText
+        innerRef={}
+        onUpdate={(text) => {
+            props.onSubmit(text, props.projectId)
+        }}
         readOnly={false}
+        shouldValidate={true}
+        validationRule={validateItemString}
+        shouldSubmitOnBlur={false}
+        input=""
+        singleline={true}
     />
 )
 

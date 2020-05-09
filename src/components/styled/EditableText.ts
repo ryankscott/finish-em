@@ -5,18 +5,26 @@ interface ContainerProps {
     height: number
     readOnly: boolean
     editing: boolean
+    valid: boolean
 }
+
 export const Container = styled.div<ContainerProps>`
     overflow: hidden;
     overflow-y: scroll;
     height: ${(props) => props.height || 'auto'};
     width: ${(props) => props.width || '100%'};
-    margin: 2px 2px;
-    padding: 5px 0px 5px 5px;
+    margin: 0px;
+    padding: 5px 5px;
+    padding-left: 10px;
     min-height: 26px;
+    border-radius: 5px;
+    border: 1px solid;
+    border-color: ${(props) =>
+        props.editing ? props.theme.colours.borderColour : 'transparent'};
     cursor: ${(props) => (props.readOnly ? 'default' : 'text')};
-    border: ${(props) => (props.editing ? '1px solid ' : 'none')};
-    border-color: ${(props) => props.theme.colours.borderColour};
+    background-color: ${(props) => props.theme.colours.backgroundColour};
+    color: ${(props) =>
+        props.valid ? 'auto' : props.theme.colours.errorColour};
     &:hover {
         background-color: ${(props) =>
             props.readOnly
@@ -25,7 +33,9 @@ export const Container = styled.div<ContainerProps>`
     }
     &:focus {
         background-color: ${(props) =>
-            props.theme.colours.focusBackgroundColour};
+            props.readOnly
+                ? props.theme.colours.backgroundColour
+                : props.theme.colours.focusBackgroundColour};
     }
     & > p {
         padding: 0px 0px;

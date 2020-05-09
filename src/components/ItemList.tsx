@@ -17,7 +17,7 @@ interface ItemListProps {
     items: ItemType[]
     order: Uuid[]
     renderingStrategy?: RenderingStrategy
-    hideProject?: boolean
+    hideIcons: ItemIcons[]
 }
 
 /* We need two strategies for rendering items:
@@ -53,7 +53,7 @@ function ItemList(props: ItemListProps): ReactElement {
                                                 {...item}
                                                 key={item.id}
                                                 noIndentOnSubtasks={true}
-                                                hideProject={props.hideProject}
+                                                hideIcons={props.hideIcons}
                                                 keymap={itemKeymap}
                                             />
                                         </div>
@@ -66,7 +66,7 @@ function ItemList(props: ItemListProps): ReactElement {
                                         {...item}
                                         key={item.id}
                                         noIndentOnSubtasks={false}
-                                        hideProject={props.hideProject}
+                                        hideIcons={props.hideIcons}
                                         keymap={itemKeymap}
                                     />
                                 </div>
@@ -80,7 +80,7 @@ function ItemList(props: ItemListProps): ReactElement {
                                         {...item}
                                         key={item.id}
                                         noIndentOnSubtasks={false}
-                                        hideProject={props.hideProject}
+                                        hideIcons={props.hideIcons}
                                         keymap={itemKeymap}
                                     />
                                 </div>

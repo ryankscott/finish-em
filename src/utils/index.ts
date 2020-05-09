@@ -4,7 +4,6 @@ import {
     format,
     isToday,
     isTomorrow,
-    isThisWeek,
     differenceInDays,
     isYesterday,
 } from 'date-fns'

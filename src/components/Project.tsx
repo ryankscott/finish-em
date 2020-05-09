@@ -22,6 +22,7 @@ import {
     AddProjectContainer,
 } from './styled/Project'
 import ItemCreator from './ItemCreator'
+import { ItemIcons } from './Item'
 
 export interface ProjectProps {
     deleteProject: (id: Uuid) => void
@@ -71,6 +72,7 @@ const Project = (props: ProjectProps): ReactElement => {
                         projectId={props.project.id}
                         buttonText="Add to project"
                         width="100%"
+                        initiallyExpanded={false}
                     />
                 </AddProjectContainer>
                 <FilteredItemList
@@ -78,14 +80,14 @@ const Project = (props: ProjectProps): ReactElement => {
                     filterParams={{ projectId: props.project.id, type: 'NOTE' }}
                     listName="Notes"
                     isFilterable={false}
-                    hideProject={true}
+                    hideIcons={[ItemIcons.Project]}
                 />
                 <FilteredItemList
                     filter={FilterEnum.ShowFromProjectByType}
                     filterParams={{ projectId: props.project.id, type: 'TODO' }}
                     listName="Todos"
                     isFilterable={true}
-                    hideProject={true}
+                    hideIcons={[ItemIcons.Project]}
                 />
             </ProjectContainer>
         </ThemeProvider>
