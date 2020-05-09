@@ -17,8 +17,7 @@ const QuickAdd = (props: QuickAddProps): ReactElement => (
             props.onSubmit(text, props.projectId)
         }}
         readOnly={false}
-        shouldValidate={true}
-        validationRule={validateItemString}
+        validation={{ validate: true, rule: validateItemString }}
         shouldSubmitOnBlur={false}
         input=""
         singleline={true}

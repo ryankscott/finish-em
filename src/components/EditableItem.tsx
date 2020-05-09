@@ -30,12 +30,14 @@ function EditableItem(props: EditableItemProps): ReactElement {
             <Container hideIcon={props.hideIcon}>
                 {props.hideIcon ? null : <Icon>{addIcon()}</Icon>}
                 <EditableText
-                    ref={props.innerRef}
+                    innerRef={props.innerRef}
                     onUpdate={handleUpdate}
                     singleline={true}
                     input={''}
-                    shouldValidate={true}
-                    validationRule={validateItemString}
+                    validation={{
+                        validate: true,
+                        rule: validateItemString,
+                    }}
                     shouldSubmitOnBlur={false}
                 ></EditableText>
             </Container>

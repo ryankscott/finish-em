@@ -4,42 +4,32 @@ import { createItem, addChildItem } from '../actions'
 import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
 import { Button } from './Button'
-import styled from 'styled-components'
 import { Tooltip } from './Tooltip'
 import EditableText from './EditableText'
 import { validateItemString } from '../utils'
+import { Container, ItemCreatorContainer } from './styled/ItemCreator'
 
-const Container = styled.div`
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-`
-interface ItemCreatorContainer {
-    visible: boolean
-    width: string
+interface DispatchProps {
+    createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => void
+    createItem: (text: string, projectId: Uuid) => void
 }
-const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
-    position: relative;
-    width: ${(props) =>
-        props.visible ? (props.width ? props.width : '100%') : '0px'};
-    opacity: ${(props) => (props.visible ? '1' : '0')};
-    transition: all 0.2s ease-in-out;
-`
-interface ItemCreatorProps {
+
+interface StateProps {}
+
+interface OwnProps {
+    type: 'item' | 'subtask'
+    initiallyExpanded: boolean
+    shouldCloseOnSubmit?: boolean
     parentId?: Uuid
     projectId?: Uuid
     buttonText?: string
     width?: string
-    type: 'item' | 'subtask'
-    initiallyExpanded: boolean
-    shouldCloseOnSubmit?: boolean
     hideButton?: boolean
     innerRef?: React.RefObject<HTMLInputElement>
-    createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => void
-    createItem: (text: string, projectId: Uuid) => void
     onCreate?: () => void
 }
+
+type ItemCreatorProps = OwnProps & StateProps & DispatchProps
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     const textRef: React.RefObject<HTMLInputElement> = props.innerRef
         ? props.innerRef
@@ -92,8 +82,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         }
                     }}
                     readOnly={false}
-                    shouldValidate={true}
-                    validationRule={validateItemString}
+                    validation={{ validate: true, rule: validateItemString }}
                     shouldSubmitOnBlur={false}
                     input=""
                     singleline={true}

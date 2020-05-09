@@ -6,13 +6,16 @@ import { setEndOfContenteditable } from '../utils'
 import { Paragraph, Title, Header } from './Typography'
 import { Container } from './styled/EditableText'
 
+type validation =
+    | false
+    | {
+          validate: true
+          rule: (input: string) => boolean
+      }
 interface EditableTextProps {
     input: string
     innerRef: React.RefObject<HTMLInputElement>
     onUpdate: (input: string) => void
-    onEditingChange?: (isEditing: boolean) => void
-    shouldValidate: boolean
-    validationRule?: (input: string) => boolean
     shouldSubmitOnBlur: boolean
     readOnly?: boolean
     width?: string
@@ -20,6 +23,8 @@ interface EditableTextProps {
     singleline?: boolean
     style?: typeof Title | typeof Paragraph | typeof Header
     onKeyDown?: (input: string) => void
+    onEditingChange?: (isEditing: boolean) => void
+    validation: validation
 }
 
 function EditableText(props: EditableTextProps): ReactElement {
@@ -64,8 +69,8 @@ function EditableText(props: EditableTextProps): ReactElement {
         }
         // Validate input
         if (props.shouldSubmitOnBlur) {
-            if (props.shouldValidate) {
-                if (props.validationRule(props.innerRef.current.innerText)) {
+            if (props.validation.validate) {
+                if (props.validation.rule(props.innerRef.current.innerText)) {
                     props.onUpdate(
                         props.innerRef.current.innerText.replace(
                             /\r/gi,
@@ -104,8 +109,8 @@ function EditableText(props: EditableTextProps): ReactElement {
                 props.onEditingChange(false)
             }
             // Validate input
-            if (props.shouldValidate) {
-                if (props.validationRule(currentVal)) {
+            if (props.validation.validate) {
+                if (props.validation.rule(currentVal)) {
                     props.onUpdate(
                         props.innerRef.current.innerText.replace(
                             /\r/gi,
@@ -176,7 +181,7 @@ function EditableText(props: EditableTextProps): ReactElement {
         <ThemeProvider theme={theme}>
             <Container
                 placeholder="foo"
-                valid={props.shouldValidate ? valid : true}
+                valid={props.validation.validate ? valid : true}
                 as={props.style || Paragraph}
                 readOnly={props.readOnly}
                 ref={props.innerRef}
