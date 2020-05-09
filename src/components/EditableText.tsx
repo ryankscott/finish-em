@@ -7,7 +7,7 @@ import { Paragraph, Title, Header } from './Typography'
 import { Container } from './styled/EditableText'
 
 type validation =
-    | false
+    | { validate: false }
     | {
           validate: true
           rule: (input: string) => boolean
@@ -27,7 +27,7 @@ interface EditableTextProps {
     validation: validation
 }
 
-function EditableText(props: EditableTextProps): ReactElement {
+function InternalEditableText(props: EditableTextProps): ReactElement {
     const [input, setInput] = useState(props.input)
     const [editable, setEditable] = useState(false)
     const [valid, setValid] = useState(true)
@@ -57,7 +57,7 @@ function EditableText(props: EditableTextProps): ReactElement {
         }
         return
     }
-    const handleBlur = (e): void => {
+    const handleBlur = (): void => {
         // Ignore events if it's read only
         if (props.readOnly) return
         // Ignore events if we're not editing
@@ -98,7 +98,9 @@ function EditableText(props: EditableTextProps): ReactElement {
 
     const handleKeyPress = (e): void => {
         const currentVal = props.innerRef.current.innerText.trim()
-        setValid(props.validationRule(currentVal))
+        if (props.validation.validate) {
+            setValid(props.validation.rule(currentVal))
+        }
 
         if (props.onKeyDown) {
             props.onKeyDown(currentVal)
@@ -202,8 +204,11 @@ function EditableText(props: EditableTextProps): ReactElement {
     )
 }
 
-export default React.forwardRef(
+const EditableText = React.forwardRef(
     (props: EditableTextProps, ref: React.RefObject<HTMLInputElement>) => (
-        <EditableText innerRef={ref} {...props} />
+        <InternalEditableText innerRef={ref} {...props} />
     ),
 )
+
+EditableText.displayName = 'EditableText'
+export default EditableText

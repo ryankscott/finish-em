@@ -10,6 +10,7 @@ interface QuickAddProps {
     projectId?: Uuid
     onSubmit: (text: string, projectId: Uuid) => void
 }
+
 const QuickAdd = (props: QuickAddProps): ReactElement => (
     <EditableText
         innerRef={}
@@ -24,7 +25,7 @@ const QuickAdd = (props: QuickAddProps): ReactElement => (
     />
 )
 
-const mapStateToProps = (state) => ({})
+const mapStateToProps = () => ({})
 
 const mapDispatchToProps = (dispatch) => ({
     onSubmit: (text: string, projectId: Uuid) => {

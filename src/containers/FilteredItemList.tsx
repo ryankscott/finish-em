@@ -148,6 +148,16 @@ interface DispatchProps {
 
 // TODO: Implement custom filters
 
+type filters =
+    | {
+          filter: FilterEnum
+          params: FilterParamsType
+      }
+    | {
+          customFilter: (input: ItemType) => boolean
+          order: 'asc' | 'desc'
+      }
+
 // TODO: Create Hide Icons prop
 interface OwnProps {
     listName?: string

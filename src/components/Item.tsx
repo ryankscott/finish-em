@@ -63,7 +63,7 @@ interface DispatchProps {
     setDueDate: (id: Uuid, date: string) => void
     completeItem: (id: Uuid) => void
     uncompleteItem: (id: Uuid) => void
-    moveItem: (id: Uuid, projectId: Uuid) => void
+    moveItem: (id: Uuid, projectId: Uuid | string) => void
     createSubTask: (id: Uuid, text: string, projectId: Uuid) => void
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
@@ -473,10 +473,11 @@ function Item(props: ItemProps): ReactElement {
                                     : 'todo_unchecked'
                             }
                         />
+                        // hello world
                     </TypeContainer>
                     <Body id="body" completed={props.completed}>
                         <EditableText
-                            validation={false}
+                            validation={{ validate: false }}
                             shouldSubmitOnBlur={true}
                             innerRef={editor}
                             readOnly={isDescriptionReadOnly}
@@ -641,7 +642,7 @@ const mapStateToProps = (state): StateProps => ({
     items: state.items,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => {
+    createSubTask: (parentId: Uuid, text: string, projectId: Uuid | string) => {
         const childId = uuidv4()
         dispatch(createItem(childId, text, projectId))
         dispatch(addChildItem(childId, parentId))
