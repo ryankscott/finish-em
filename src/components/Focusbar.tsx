@@ -14,7 +14,7 @@ import {
 import RRule from 'rrule'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
-import Item, { ItemProperties } from './Item'
+import Item, { ItemIcons } from './Item'
 import { hideFocusbar, setActiveItem, undoSetActiveItem } from '../actions/ui'
 import {
     updateItemDescription,
@@ -242,7 +242,11 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     <>
                         <SubtaskContainer>
                             <Header3>Subtasks: </Header3>
-                            <ItemCreator type="subtask" parentId={i.id} />
+                            <ItemCreator
+                                type="subtask"
+                                parentId={i.id}
+                                initiallyExpanded={false}
+                            />
                         </SubtaskContainer>
                         <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
                     </>
@@ -255,7 +259,13 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             {...childItem}
                             key={c}
                             noIndentOnSubtasks={true}
-                            hideIcons={true}
+                            hideIcons={[
+                                ItemIcons.Due,
+                                ItemIcons.Scheduled,
+                                ItemIcons.Repeat,
+                                ItemIcons.Project,
+                                ItemIcons.Subtask,
+                            ]}
                         />
                     )
                 })}

@@ -11,7 +11,11 @@ function Inbox(): ReactElement {
         <ThemeProvider theme={theme}>
             <Container>
                 <Title> Inbox </Title>
-                <ItemCreator type="item" buttonText="Add Item" />
+                <ItemCreator
+                    type="item"
+                    buttonText="Add Item"
+                    initiallyExpanded={false}
+                />
                 <FilteredItemList
                     filter={FilterEnum.ShowInbox}
                     listName="Items"

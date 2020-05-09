@@ -37,6 +37,9 @@ interface QuickAddProps {
 }
 export const QuickAdd = styled.div<QuickAddProps>`
     display: ${(props) => (props.visible ? 'block' : 'none')};
+    border: 1px solid;
+    border-radius: 5px;
+    border-color: ${(props) => props.theme.colours.borderColour};
 `
 
 interface BodyProps {
