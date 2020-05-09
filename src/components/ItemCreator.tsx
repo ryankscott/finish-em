@@ -86,6 +86,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     shouldSubmitOnBlur={false}
                     input=""
                     singleline={true}
+                    shouldClearOnSubmit={false}
                 />
             </ItemCreatorContainer>
         </Container>

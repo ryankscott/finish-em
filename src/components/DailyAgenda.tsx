@@ -56,6 +56,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     }}
                     validation={{ validate: false }}
                     shouldSubmitOnBlur={true}
+                    shouldClearOnSubmit={false}
                 />
                 <Section>
                     <FilteredItemList

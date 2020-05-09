@@ -5,6 +5,7 @@ import marked from 'marked'
 import { setEndOfContenteditable } from '../utils'
 import { Paragraph, Title, Header } from './Typography'
 import { Container } from './styled/EditableText'
+import { isValid } from 'date-fns'
 
 type validation =
     | { validate: false }
@@ -17,6 +18,7 @@ interface EditableTextProps {
     innerRef: React.RefObject<HTMLInputElement>
     onUpdate: (input: string) => void
     shouldSubmitOnBlur: boolean
+    shouldClearOnSubmit: boolean
     readOnly?: boolean
     width?: string
     height?: string
@@ -28,16 +30,24 @@ interface EditableTextProps {
 }
 
 function InternalEditableText(props: EditableTextProps): ReactElement {
-    const [input, setInput] = useState(props.input)
     const [editable, setEditable] = useState(false)
+    const [input, setInput] = useState(props.input)
     const [valid, setValid] = useState(true)
-    // TODO: Remove from state
+
+    useEffect(() => {
+        setInput(props.input)
+    })
 
     useEffect(() => {
         if (editable) {
             setEndOfContenteditable(props.innerRef.current)
         }
     }, [editable])
+
+    const clearInput = (): void => {
+        props.innerRef.current.innerText = ''
+        setInput('')
+    }
 
     const handleClick = (e): void => {
         // Handle links normally
@@ -77,33 +87,31 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                             '<br/>',
                         ),
                     )
-                    setInput('')
-                    props.innerRef.current.innerText = ''
+                    if (props.shouldClearOnSubmit) {
+                        clearInput()
+                    }
                 }
             } else {
                 props.onUpdate(
                     props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
                 )
-                setInput('')
-                props.innerRef.current.innerText = ''
+                if (props.shouldClearOnSubmit) {
+                    clearInput()
+                }
             }
             return
         }
     }
-    const clearInput = (): void => {
-        setInput('')
-        setValid(true)
-        props.innerRef.current.innerText = ''
-    }
 
     const handleKeyPress = (e): void => {
-        const currentVal = props.innerRef.current.innerText.trim()
-        if (props.validation.validate) {
-            setValid(props.validation.rule(currentVal))
-        }
+        const currentVal = props.innerRef.current.innerText
 
         if (props.onKeyDown) {
             props.onKeyDown(currentVal)
+        }
+
+        if (props.validation.validate) {
+            setValid(props.validation.rule(currentVal))
         }
 
         if (e.key == 'Enter' && props.singleline) {
@@ -120,7 +128,9 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                         ),
                     )
                     setEditable(false)
-                    clearInput()
+                    if (props.shouldClearOnSubmit) {
+                        clearInput()
+                    }
                     props.innerRef.current.blur()
                 }
                 e.preventDefault()
@@ -129,13 +139,14 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 props.onUpdate(
                     props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
                 )
-                clearInput()
+                if (props.shouldClearOnSubmit) {
+                    clearInput()
+                }
                 props.innerRef.current.blur()
                 e.preventDefault()
                 return
             }
         } else if (e.key == 'Escape') {
-            setInput(props.innerRef.current.innerText)
             if (props.onEditingChange) {
                 props.onEditingChange(false)
             }
@@ -158,7 +169,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
         if (!editable) {
             setEditable(true)
-
             if (props.onEditingChange) {
                 props.onEditingChange(true)
             }
@@ -168,15 +178,20 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         return
     }
 
-    // TODO: Fix the return type
     // NOTE: We have to replace newlines with HTML breaks
     const getRawText = (): {} => {
-        return { __html: input.replace(/\n/gi, '<br/>') }
+        return {
+            __html: input.replace(/\n/gi, '<br/>'),
+        }
     }
 
     // TODO: Fix the return type
     const getMarkdownText = (): {} => {
-        return { __html: marked(input, { breaks: true }) }
+        return {
+            __html: marked(input, {
+                breaks: true,
+            }),
+        }
     }
 
     return (

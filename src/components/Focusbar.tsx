@@ -152,6 +152,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         }}
                         validation={{ validate: false }}
                         shouldSubmitOnBlur={true}
+                        shouldClearOnSubmit={false}
                     />
                 </TitleContainer>
 

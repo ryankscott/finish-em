@@ -56,6 +56,7 @@ const Project = (props: ProjectProps): ReactElement => {
                         onUpdate={(input) => {
                             props.updateName(props.project.id, input)
                         }}
+                        shouldClearOnSubmit={false}
                     />
                     <DeleteProjectDialog onDelete={() => deleteProject()} />
                 </HeaderContainer>
@@ -69,6 +70,7 @@ const Project = (props: ProjectProps): ReactElement => {
                     innerRef={description}
                     input={props.project.description}
                     height="150px"
+                    shouldClearOnSubmit={false}
                 />
                 <AddProjectContainer>
                     <ItemCreator

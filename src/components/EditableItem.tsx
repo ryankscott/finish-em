@@ -39,7 +39,8 @@ function EditableItem(props: EditableItemProps): ReactElement {
                         rule: validateItemString,
                     }}
                     shouldSubmitOnBlur={false}
-                ></EditableText>
+                    shouldClearOnSubmit={true}
+                />
             </Container>
         </ThemeProvider>
     )

@@ -71,6 +71,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                             style={getListStyle(snapshot.isDraggingOver)}
                         >
                             {props.order.map((o, index) => {
+                                // Get each item
                                 const item = props.items.filter(
                                     (i) => i.id == o,
                                 )[0]

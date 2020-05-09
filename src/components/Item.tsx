@@ -492,6 +492,7 @@ function Item(props: ItemProps): ReactElement {
                                 )
                             }}
                             singleline={props.type == 'NOTE' ? false : true}
+                            shouldClearOnSubmit={false}
                         />
                     </Body>
                     <SubtaskContainer

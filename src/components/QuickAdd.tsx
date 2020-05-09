@@ -22,6 +22,7 @@ const QuickAdd = (props: QuickAddProps): ReactElement => (
         shouldSubmitOnBlur={false}
         input=""
         singleline={true}
+        shouldClearOnSubmit={true}
     />
 )
 
