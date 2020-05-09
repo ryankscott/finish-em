@@ -37,6 +37,9 @@ interface QuickAddProps {
 }
 export const QuickAdd = styled.div<QuickAddProps>`
     display: ${(props) => (props.visible ? 'block' : 'none')};
+    border: 1px solid;
+    border-radius: 5px;
+    border-color: ${(props) => props.theme.colours.borderColour};
 `
 
 interface BodyProps {
@@ -63,6 +66,7 @@ interface ProjectContainerProps {
 }
 export const ProjectContainer = styled.div<ProjectContainerProps>`
     grid-area: PROJECT;
+    position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-end;
 `
@@ -72,6 +76,7 @@ interface ScheduledContainerProps {
 }
 export const ScheduledContainer = styled.div<ScheduledContainerProps>`
     grid-area: SCHEDULED;
+    position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-start;
 `
@@ -81,6 +86,7 @@ interface DueContainerProps {
 }
 export const DueContainer = styled.div<DueContainerProps>`
     grid-area: DUE;
+    position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: center;
 `
@@ -89,6 +95,7 @@ interface RepeatContainerProps {
 }
 export const RepeatContainer = styled.div<RepeatContainerProps>`
     grid-area: REPEAT;
+    position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-end;
 `

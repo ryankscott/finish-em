@@ -58,19 +58,29 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
         <ThemeProvider theme={theme}>
             <div>
                 {props.disableClick ? (
-                <DisabledContainer>
-                <Paragraph>{getProjectNameById(props.projectId, props.projects)} </Paragraph>
-</DisabledContainer>):(
-                <Button
-                    spacing="compact"
-                    type={props.style || 'default'}
-                    onClick={(e) => {
-                        e.stopPropagation()
-                        if (props.completed) return
-                        setShowSelect(!showSelect)
-                    }}
-                    text={getProjectNameById(props.projectId, props.projects)}
-                />)
+                    <DisabledContainer>
+                        <Paragraph>
+                            {getProjectNameById(
+                                props.projectId,
+                                props.projects,
+                            )}
+                        </Paragraph>
+                    </DisabledContainer>
+                ) : (
+                    <Button
+                        spacing="compact"
+                        type={props.style || 'default'}
+                        onClick={(e) => {
+                            if (props.completed) return
+                            setShowSelect(!showSelect)
+                            e.stopPropagation()
+                        }}
+                        text={getProjectNameById(
+                            props.projectId,
+                            props.projects,
+                        )}
+                    />
+                )}
                 {(showSelect || props.showSelect) && (
                     <Container visible={props.projects.length > 1}>
                         <CreatableSelect
@@ -86,6 +96,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                                 if (e.key == 'Escape') {
                                     setShowSelect(false)
                                 }
+                                e.stopPropagation()
                             }}
                         />
                     </Container>

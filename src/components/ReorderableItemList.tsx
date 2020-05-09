@@ -47,7 +47,7 @@ const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
 interface ReorderableItemListProps {
     items: ItemType[]
     order: Uuid[]
-    hideProject: boolean
+    hideIcons: ItemIcons[]
     renderingStrategy?: RenderingStrategy
     reorderItem: (id: Uuid, destinationId: Uuid) => void
 }
@@ -106,8 +106,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             noIndentOnSubtasks={
                                                                 false
                                                             }
-                                                            hideProject={
-                                                                props.hideProject
+                                                            hideIcons={
+                                                                props.hideIcons
                                                             }
                                                             keymap={itemKeymap}
                                                         />
@@ -146,8 +146,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             noIndentOnSubtasks={
                                                                 false
                                                             }
-                                                            hideProject={
-                                                                props.hideProject
+                                                            hideIcons={
+                                                                props.hideIcons
                                                             }
                                                             keymap={itemKeymap}
                                                         />

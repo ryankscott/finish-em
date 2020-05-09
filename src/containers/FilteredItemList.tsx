@@ -33,6 +33,7 @@ import { components } from 'react-select'
 import { sortIcon } from '../assets/icons'
 import ReorderableItemList from '../components/ReorderableItemList'
 import { convertItemToItemType } from '../utils'
+import { ItemIcons } from '../components/Item'
 
 const DropdownIndicator = (props): ReactElement => {
     return (
@@ -147,8 +148,8 @@ interface DispatchProps {
 
 // TODO: Implement custom filters
 
+// TODO: Create Hide Icons prop
 interface OwnProps {
-    hideProject: boolean
     listName?: string
     filter: FilterEnum
     filterParams?: FilterParamsType
@@ -157,6 +158,7 @@ interface OwnProps {
         filter: (input: ItemType) => boolean
         order: 'asc' | 'desc'
     }
+    hideIcons: ItemIcons[]
     renderingStrategy?: RenderingStrategy
     defaultSortOrder?: SortCriteriaEnum
     noIndentOnSubtasks?: boolean
@@ -275,13 +277,13 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 <ItemListContainer>
                     {props.features.dragAndDrop ? (
                         <ReorderableItemList
-                            hideProject={props.hideProject}
+                            hideIcons={props.hideIcons}
                             items={sortedItems}
                             renderingStrategy={props.renderingStrategy}
                         />
                     ) : (
                         <ItemList
-                            hideProject={props.hideProject}
+                            hideIcons={props.hideIcons}
                             items={sortedItems}
                             renderingStrategy={props.renderingStrategy}
                         />

@@ -53,7 +53,7 @@ const GlobalStyle = createGlobalStyle`
     padding: 0px;
     margin: 0px;
   }
-  button:focus {outline:0;}
+  *:focus {outline:0;}
 `
 interface ProjectWrapperProps {
     projects: ProjectType[]

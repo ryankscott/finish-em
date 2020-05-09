@@ -35,7 +35,6 @@ import {
 } from '../actions'
 import { theme } from '../theme'
 import ProjectDropdown from './ProjectDropdown'
-import EditableItem from './EditableItem'
 import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
 import EditableText from './EditableText'
@@ -46,7 +45,16 @@ import {
 } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
+import ItemCreator from './ItemCreator'
 //import { useHotkeys } from 'react-hotkeys-hook'
+
+export enum ItemIcons {
+    Due = 'due',
+    Scheduled = 'scheduled',
+    Repeat = 'repeat',
+    Project = 'project',
+    Subtask = 'subtask',
+}
 
 interface DispatchProps {
     updateItemDescription: (id: Uuid, text: string) => void
@@ -67,16 +75,9 @@ interface StateProps {
     items: Items
 }
 
-export enum ItemProperties {
-    Due = 'due',
-    Repeat = 'repeat',
-    Scheduled = 'scheduled',
-}
-
 interface OwnProps extends ItemType {
-    hideIcons?: boolean
+    hideIcons: ItemIcons[]
     noIndentOnSubtasks: boolean
-    hideProject?: boolean
     keymap: {}
 }
 
@@ -348,7 +349,7 @@ function Item(props: ItemProps): ReactElement {
             },
         },
     }
-
+    const hiddenIcons = props.hideIcons || []
     useEffect(() => {
         if (!isDescriptionReadOnly) {
             editor.current.focus()
@@ -432,6 +433,7 @@ function Item(props: ItemProps): ReactElement {
     const scheduledDateText = props.scheduledDate
         ? formatRelativeDate(parseISO(props.scheduledDate))
         : ''
+
     return (
         <ThemeProvider theme={theme}>
             <div key={props.id} id={props.id}>
@@ -474,6 +476,8 @@ function Item(props: ItemProps): ReactElement {
                     </TypeContainer>
                     <Body id="body" completed={props.completed}>
                         <EditableText
+                            shouldValidate={false}
+                            shouldSubmitOnBlur={true}
                             innerRef={editor}
                             readOnly={isDescriptionReadOnly}
                             onEditingChange={(editing) =>
@@ -491,17 +495,23 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </Body>
                     <SubtaskContainer
-                        visible={!props.hideIcons && props.parentId != null}
+                        visible={
+                            !hiddenIcons.includes(ItemIcons.Subtask) &&
+                            props.parentId != null
+                        }
                     >
                         <Button
                             icon="subtask"
                             type="default"
-                            onClick={(e) => {props.setActiveItem(props.parentId); e.stopPropagation()}
+                            onClick={(e) => {
+                                props.setActiveItem(props.parentId)
+                                e.stopPropagation()
+                            }}
                         ></Button>
                     </SubtaskContainer>
 
                     <ProjectContainer
-                        visible={!(props.hideIcons || props.hideProject)}
+                        visible={!hiddenIcons.includes(ItemIcons.Project)}
                     >
                         <ProjectDropdown
                             style={'default'}
@@ -518,7 +528,7 @@ function Item(props: ItemProps): ReactElement {
                         visible={
                             (scheduledDateDropdownVisible ||
                                 props.scheduledDate != null) &&
-                            !props.hideIcons
+                            !hiddenIcons?.includes(ItemIcons.Scheduled)
                         }
                     >
                         <DatePicker
@@ -539,7 +549,7 @@ function Item(props: ItemProps): ReactElement {
                     <DueContainer
                         visible={
                             (dueDateDropdownVisible || props.dueDate != null) &&
-                            !props.hideIcons
+                            !hiddenIcons.includes(ItemIcons.Due)
                         }
                     >
                         <DatePicker
@@ -560,7 +570,7 @@ function Item(props: ItemProps): ReactElement {
                     <RepeatContainer
                         visible={
                             (repeatDropdownVisible || props.repeat != null) &&
-                            !props.hideIcons
+                            !hiddenIcons.includes(ItemIcons.Repeat)
                         }
                     >
                         <RepeatPicker
@@ -579,15 +589,17 @@ function Item(props: ItemProps): ReactElement {
                     </RepeatContainer>
                 </Container>
                 <QuickAdd visible={createSubtaskDropdownVisible}>
-                    <EditableItem
-                        text=""
+                    <ItemCreator
                         innerRef={quickAdd}
-                        readOnly={false}
-                        onSubmit={(text) => {
-                            props.createSubTask(props.id, text, props.projectId)
+                        hideButton={true}
+                        type="subtask"
+                        initiallyExpanded={true}
+                        projectId={props.projectId}
+                        shouldCloseOnSubmit={true}
+                        parentId={props.id}
+                        onCreate={() => {
                             setCreateSubtaskDropdownVisible(false)
                         }}
-                        onEscape={() => setCreateSubtaskDropdownVisible(false)}
                     />
                 </QuickAdd>
             </div>
@@ -602,7 +614,7 @@ function Item(props: ItemProps): ReactElement {
                             key={c}
                             items={props.items}
                             noIndentOnSubtasks={props.noIndentOnSubtasks}
-                            hideProject={props.hideProject}
+                            hideIcons={props.hideIcons}
                             keymap={props.keymap}
                             projects={props.projects}
                             updateItemDescription={props.updateItemDescription}

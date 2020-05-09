@@ -1,38 +1,32 @@
-import styled, { keyframes } from 'styled-components'
-import { headShake } from 'react-animations'
+import styled from 'styled-components'
 
 export const Icon = styled.div`
+    display: flex;
     flex-direction: row;
     justify-content: center;
     align-self: center;
     font-family: ${(props) => props.theme.font.sansSerif};
     font-size: ${(props) => props.theme.fontSizes.large};
-    background-color: whitesmoke;
-    padding: 0px 10px;
+    background-color: ${(props) => props.theme.colours.backgroundColour};
+    padding: 0px 2px;
+    padding-left: 5px;
     text-align: center;
     vertical-align: middle;
     color: ${(props) => props.theme.colours.disabledTextColour};
 `
 
-interface ValidationBoxProps {
-    animate: boolean
+interface ContainerProps {
     hideIcon: boolean
-    valid: boolean
 }
-export const headShakeAnimation = keyframes`${headShake}`
-export const ValidationBox = styled.div<ValidationBoxProps>`
-    animation: 1s ${(props) => (props.animate ? headShakeAnimation : 'none')};
-    background-color: whitesmoke;
+export const Container = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
     border: 1px solid;
     border-radius: 5px;
-    border-color: ${(props) =>
-        props.valid
-            ? props.theme.colours.borderColour
-            : props.theme.colours.errorColour};
+    background-color: ${(props) => props.theme.colours.backgroundColour};
+    border-color: ${(props) => props.theme.colours.borderColour};
     font-family: ${(props) => props.theme.font.sansSerif};
     font-size: ${(props) => props.theme.fontSizes.small};
     margin: 0px;
-    padding-left: ${(props) => (props.hideIcon ? '10px' : '0px')};
+    padding: 0px;
 `

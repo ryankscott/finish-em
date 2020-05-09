@@ -33,5 +33,5 @@ export const item = {
     NEXT_ITEM: 'ArrowDown',
     PREV_ITEM: 'ArrowUp',
     ESCAPE: 'Escape',
-    SET_ACTIVE_ITEM: 'Enter',
+    SET_ACTIVE_ITEM: ' ',
 }

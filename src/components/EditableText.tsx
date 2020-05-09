@@ -11,32 +11,22 @@ interface EditableTextProps {
     innerRef: React.RefObject<HTMLInputElement>
     onUpdate: (input: string) => void
     onEditingChange?: (isEditing: boolean) => void
+    shouldValidate: boolean
+    validationRule?: (input: string) => boolean
+    shouldSubmitOnBlur: boolean
     readOnly?: boolean
     width?: string
     height?: string
     singleline?: boolean
     style?: typeof Title | typeof Paragraph | typeof Header
+    onKeyDown?: (input: string) => void
 }
 
 function EditableText(props: EditableTextProps): ReactElement {
     const [input, setInput] = useState(props.input)
     const [editable, setEditable] = useState(false)
-
-    const handleBlur = (e): void => {
-        // Ignore events if it's read only
-        if (props.readOnly) return
-        // Ignore events if we're not editing
-        if (!editable) return
-        setEditable(false)
-        setInput(props.innerRef.current.innerText)
-        if (props.onEditingChange) {
-            props.onEditingChange(false)
-        }
-        props.onUpdate(
-            props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
-        )
-        return
-    }
+    const [valid, setValid] = useState(true)
+    // TODO: Remove from state
 
     useEffect(() => {
         if (editable) {
@@ -62,29 +52,87 @@ function EditableText(props: EditableTextProps): ReactElement {
         }
         return
     }
-
-    const handleKeyPress = (e): void => {
-        if (props.readOnly) {
-            e.preventDefault()
-            e.stopPropagation()
+    const handleBlur = (e): void => {
+        // Ignore events if it's read only
+        if (props.readOnly) return
+        // Ignore events if we're not editing
+        if (!editable) return
+        setEditable(false)
+        setInput(props.innerRef.current.innerText)
+        if (props.onEditingChange) {
+            props.onEditingChange(false)
+        }
+        // Validate input
+        if (props.shouldSubmitOnBlur) {
+            if (props.shouldValidate) {
+                if (props.validationRule(props.innerRef.current.innerText)) {
+                    props.onUpdate(
+                        props.innerRef.current.innerText.replace(
+                            /\r/gi,
+                            '<br/>',
+                        ),
+                    )
+                    setInput('')
+                    props.innerRef.current.innerText = ''
+                }
+            } else {
+                props.onUpdate(
+                    props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
+                )
+                setInput('')
+                props.innerRef.current.innerText = ''
+            }
             return
         }
-        // TODO: We should be able to call this at the Item and have the ability to update the text
+    }
+    const clearInput = (): void => {
+        setInput('')
+        setValid(true)
+        props.innerRef.current.innerText = ''
+    }
+
+    const handleKeyPress = (e): void => {
+        const currentVal = props.innerRef.current.innerText.trim()
+        setValid(props.validationRule(currentVal))
+
+        if (props.onKeyDown) {
+            props.onKeyDown(currentVal)
+        }
+
         if (e.key == 'Enter' && props.singleline) {
-            setEditable(false)
-            setInput(props.innerRef.current.innerText.trim())
             if (props.onEditingChange) {
                 props.onEditingChange(false)
             }
-            props.onUpdate(props.innerRef.current.innerText.trim())
-            props.innerRef.current.blur()
-            e.preventDefault()
+            // Validate input
+            if (props.shouldValidate) {
+                if (props.validationRule(currentVal)) {
+                    props.onUpdate(
+                        props.innerRef.current.innerText.replace(
+                            /\r/gi,
+                            '<br/>',
+                        ),
+                    )
+                    setEditable(false)
+                    clearInput()
+                    props.innerRef.current.blur()
+                }
+                e.preventDefault()
+                return
+            } else {
+                props.onUpdate(
+                    props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
+                )
+                clearInput()
+                props.innerRef.current.blur()
+                e.preventDefault()
+                return
+            }
         } else if (e.key == 'Escape') {
-            setEditable(false)
             setInput(props.innerRef.current.innerText)
             if (props.onEditingChange) {
                 props.onEditingChange(false)
             }
+            setEditable(false)
             props.innerRef.current.blur()
             e.preventDefault()
         }
@@ -121,18 +169,20 @@ function EditableText(props: EditableTextProps): ReactElement {
 
     // TODO: Fix the return type
     const getMarkdownText = (): {} => {
-        console.log(input)
         return { __html: marked(input, { breaks: true }) }
     }
 
     return (
         <ThemeProvider theme={theme}>
             <Container
+                placeholder="foo"
+                valid={props.shouldValidate ? valid : true}
                 as={props.style || Paragraph}
                 readOnly={props.readOnly}
                 ref={props.innerRef}
                 width={props.width}
                 height={props.height}
+                editing={editable}
                 contentEditable={editable}
                 onClick={handleClick}
                 onFocus={handleFocus}
