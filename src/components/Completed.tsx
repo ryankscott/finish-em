@@ -13,8 +13,10 @@ const Completed = (): ReactElement => (
                 <Title> Completed </Title>
             </HeaderContainer>
             <FilteredItemList
-                filter={FilterEnum.ShowCompleted}
-                showProject={true}
+                filter={{
+                    type: 'default',
+                    filter: FilterEnum.ShowCompleted,
+                }}
                 isFilterable={false}
             />
         </CompletedContainer>

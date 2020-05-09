@@ -84,6 +84,13 @@ export enum FilterEnum {
     ShowOverdue = 'SHOW_OVERDUE',
 }
 
+interface FilterParamsType {
+    dueDate?: Date
+    scheduledDate?: Date
+    projectId?: Uuid
+    type?: 'TODO' | 'NOTE'
+}
+
 export enum SortCriteriaEnum {
     Status = 'STATUS',
     DueAsc = 'DUE_ASC',
@@ -92,15 +99,8 @@ export enum SortCriteriaEnum {
     ScheduledDesc = 'SCHEDULED_DESC',
 }
 
-interface FilterParamsType {
-    dueDate?: Date
-    scheduledDate?: Date
-    projectId?: Uuid
-    type?: 'TODO' | 'NOTE'
-}
-
 const determineVisibilityRules = (
-    filter: FilterEnum,
+    filter: FilterType,
     isFilterable: boolean,
     hideItemList: boolean,
     items: ItemType[],
@@ -113,10 +113,11 @@ const determineVisibilityRules = (
     showDeleteButton: boolean
     showSortButton: boolean
 } => {
+    const f = filter.type == 'default' ? filter.filter : null
     const hideCompletedToggle =
-        filter == FilterEnum.ShowOverdue ||
-        filter == FilterEnum.ShowNotScheduled ||
-        filter == FilterEnum.ShowCompleted
+        f == FilterEnum.ShowOverdue ||
+        f == FilterEnum.ShowNotScheduled ||
+        f == FilterEnum.ShowCompleted
     const showCompletedToggle =
         Object.keys(completedItems).length > 0 && !hideCompletedToggle
     const showFilterBar =
@@ -148,27 +149,23 @@ interface DispatchProps {
 
 // TODO: Implement custom filters
 
-type filters =
+type FilterType =
     | {
+          type: 'default'
           filter: FilterEnum
-          params: FilterParamsType
+          params?: FilterParamsType
       }
     | {
-          customFilter: (input: ItemType) => boolean
-          order: 'asc' | 'desc'
+          type: 'custom'
+          filter: (input: ItemType) => boolean
+          params?: {}
       }
 
-// TODO: Create Hide Icons prop
 interface OwnProps {
-    listName?: string
-    filter: FilterEnum
-    filterParams?: FilterParamsType
-    isFilterable?: boolean
-    customFilter: {
-        filter: (input: ItemType) => boolean
-        order: 'asc' | 'desc'
-    }
+    filter: FilterType
     hideIcons: ItemIcons[]
+    isFilterable?: boolean
+    listName?: string
     renderingStrategy?: RenderingStrategy
     defaultSortOrder?: SortCriteriaEnum
     noIndentOnSubtasks?: boolean

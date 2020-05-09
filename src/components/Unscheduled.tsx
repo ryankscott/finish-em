@@ -1,37 +1,42 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { connect } from 'react-redux'
 
 import { theme } from '../theme'
 import { Title } from './Typography'
 import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
-import { RenderingStrategy } from './ItemList'
 import { UnscheduledContainer } from './styled/Unscheduled'
+import { isPast, endOfDay, parseISO } from 'date-fns'
+import { ItemType } from '../interfaces'
 
 const Unscheduled = (): ReactElement => (
     <ThemeProvider theme={theme}>
         <UnscheduledContainer>
             <Title> Unscheduled </Title>
             <FilteredItemList
-                filter={FilterEnum.ShowOverdue}
-                showProject={true}
                 listName="Overdue"
+                filter={{
+                    type: 'custom',
+                    filter: (i: ItemType) => {
+                        return (
+                            isPast(endOfDay(parseISO(i.dueDate))) &&
+                            i.scheduledDate == null &&
+                            i.deleted == false &&
+                            i.completed == false
+                        )
+                    },
+                }}
                 isFilterable={true}
-                renderingStrategy={RenderingStrategy.All}
             />
             <FilteredItemList
-                filter={FilterEnum.ShowNotScheduled}
-                showProject={true}
+                filter={{
+                    type: 'default',
+                    filter: FilterEnum.ShowNotScheduled,
+                }}
                 listName="Unscheduled"
                 isFilterable={true}
-                renderingStrategy={RenderingStrategy.All}
             />
         </UnscheduledContainer>
     </ThemeProvider>
 )
 
-const mapStateToProps = (state) => ({
-    items: state.items,
-})
-const mapDispatchToProps = (dispatch) => ({})
-export default connect(mapStateToProps, mapDispatchToProps)(Unscheduled)
+export default Unscheduled

@@ -63,7 +63,7 @@ interface DispatchProps {
     setDueDate: (id: Uuid, date: string) => void
     completeItem: (id: Uuid) => void
     uncompleteItem: (id: Uuid) => void
-    moveItem: (id: Uuid, projectId: Uuid | string) => void
+    moveItem: (id: Uuid, projectId: Uuid) => void
     createSubTask: (id: Uuid, text: string, projectId: Uuid) => void
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
@@ -473,7 +473,6 @@ function Item(props: ItemProps): ReactElement {
                                     : 'todo_unchecked'
                             }
                         />
-                        // hello world
                     </TypeContainer>
                     <Body id="body" completed={props.completed}>
                         <EditableText

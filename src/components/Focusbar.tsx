@@ -150,7 +150,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                 i.type.concat(' ', text),
                             )
                         }}
-                    ></EditableText>
+                        validation={{ validate: false }}
+                        shouldSubmitOnBlur={true}
+                    />
                 </TitleContainer>
 
                 <AttributeContainer>
