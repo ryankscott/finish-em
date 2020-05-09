@@ -17,10 +17,12 @@ function Inbox(): ReactElement {
                     initiallyExpanded={false}
                 />
                 <FilteredItemList
-                    filter={FilterEnum.ShowInbox}
                     listName="Items"
+                    filter={{
+                        type: 'default',
+                        filter: FilterEnum.ShowInbox,
+                    }}
                     isFilterable={true}
-                    showProject={false}
                 />
             </Container>
         </ThemeProvider>

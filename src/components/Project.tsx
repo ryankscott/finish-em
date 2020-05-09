@@ -46,6 +46,8 @@ const Project = (props: ProjectProps): ReactElement => {
             <ProjectContainer>
                 <HeaderContainer>
                     <EditableText
+                        shouldSubmitOnBlur={true}
+                        validation={{ validate: false }}
                         key={props.project.id + 'name'}
                         input={props.project.name}
                         style={Title}
@@ -58,6 +60,8 @@ const Project = (props: ProjectProps): ReactElement => {
                     <DeleteProjectDialog onDelete={() => deleteProject()} />
                 </HeaderContainer>
                 <EditableText
+                    shouldSubmitOnBlur={true}
+                    validation={{ validate: false }}
                     key={props.project.id + 'description'}
                     onUpdate={(input) => {
                         props.updateDescription(props.project.id, input)
@@ -76,16 +80,22 @@ const Project = (props: ProjectProps): ReactElement => {
                     />
                 </AddProjectContainer>
                 <FilteredItemList
-                    filter={FilterEnum.ShowFromProjectByType}
-                    filterParams={{ projectId: props.project.id, type: 'NOTE' }}
                     listName="Notes"
+                    filter={{
+                        type: 'default',
+                        filter: FilterEnum.ShowFromProjectByType,
+                        params: { projectId: props.project.id, type: 'NOTE' },
+                    }}
                     isFilterable={false}
                     hideIcons={[ItemIcons.Project]}
                 />
                 <FilteredItemList
-                    filter={FilterEnum.ShowFromProjectByType}
-                    filterParams={{ projectId: props.project.id, type: 'TODO' }}
                     listName="Todos"
+                    filter={{
+                        type: 'default',
+                        filter: FilterEnum.ShowFromProjectByType,
+                        params: { projectId: props.project.id, type: 'TODO' },
+                    }}
                     isFilterable={true}
                     hideIcons={[ItemIcons.Project]}
                 />
@@ -94,9 +104,7 @@ const Project = (props: ProjectProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state) => ({
-    items: state.items,
-})
+const mapStateToProps = (state) => ({})
 const mapDispatchToProps = (dispatch) => ({
     updateDescription: (id: Uuid, text: string) => {
         dispatch(updateProjectDescription(id, text))

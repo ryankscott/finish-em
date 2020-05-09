@@ -14,8 +14,7 @@ const Trash = (): ReactElement => (
                 <Title> Trash </Title>
             </HeaderContainer>
             <FilteredItemList
-                filter={FilterEnum.ShowDeleted}
-                showProject={true}
+                filter={{ type: 'default', filter: FilterEnum.ShowDeleted }}
                 isFilterable={true}
                 renderingStrategy={RenderingStrategy.All}
             />

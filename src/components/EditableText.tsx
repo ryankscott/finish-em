@@ -182,7 +182,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     return (
         <ThemeProvider theme={theme}>
             <Container
-                placeholder="foo"
                 valid={props.validation.validate ? valid : true}
                 as={props.style || Paragraph}
                 readOnly={props.readOnly}

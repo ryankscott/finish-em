@@ -63,19 +63,6 @@ export const validateItemString = (text: string): boolean => {
     return (matches && matches.length) > 0
 }
 
-// Removes key from object without mutating original object
-export const removeByKey = (
-    object: Record<string, any>,
-    deleteKey: string,
-): Record<string, any> => {
-    return Object.keys(object)
-        .filter((key) => key !== deleteKey)
-        .reduce((result, current) => {
-            result[current] = object[current]
-            return result
-        }, {})
-}
-
 // Thanks https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity
 //
 
@@ -277,7 +264,7 @@ export const rruleToText = (input: RRule): string => {
 
 export const filterItems = (
     input: Item,
-    filterFunc: (ItemType) => boolean,
+    filterFunc: (i: ItemType) => boolean,
 ): Item => {
     const filtered = Object.entries(input).filter((e) => filterFunc(e[1]))
     return Object.fromEntries(filtered)

@@ -35,7 +35,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         Week of year: {format(new Date(), 'w')} / 52
                     </Paragraph>
                     <Paragraph style={{ gridArea: 'week_of_quarter' }}>
-                        Week of quarter:{' '}
+                        Week of quarter:
                         {parseInt(format(new Date(), 'w')) % 13} / 13
                     </Paragraph>
                 </DateContainer>
@@ -50,17 +50,21 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     }
                     height={'150px'}
                     singleline={false}
-                    ref={editor}
+                    innerRef={editor}
                     onUpdate={(input) => {
                         props.setDailyGoal(day, input)
                     }}
+                    validation={{ validate: false }}
+                    shouldSubmitOnBlur={true}
                 />
                 <Section>
                     <FilteredItemList
                         isFilterable={true}
                         listName="Overdue"
-                        filter={FilterEnum.ShowOverdue}
-                        showProject={true}
+                        filter={{
+                            type: 'default',
+                            filter: FilterEnum.ShowOverdue,
+                        }}
                         renderingStrategy={RenderingStrategy.All}
                     />
                 </Section>
@@ -69,16 +73,22 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         showProject={true}
                         isFilterable={true}
                         listName="Due Today"
-                        filter={FilterEnum.ShowDueOnDay}
-                        filterParams={{ dueDate: new Date() }}
+                        filter={{
+                            type: 'default',
+                            filter: FilterEnum.ShowDueOnDay,
+                            params: { dueDate: new Date() },
+                        }}
                         renderingStrategy={RenderingStrategy.All}
                     />
                     <FilteredItemList
                         showProject={true}
                         isFilterable={true}
                         listName="Scheduled Today"
-                        filter={FilterEnum.ShowScheduledOnDay}
-                        filterParams={{ scheduledDate: new Date() }}
+                        filter={{
+                            type: 'default',
+                            filter: FilterEnum.ShowScheduledOnDay,
+                            params: { scheduledDate: new Date() },
+                        }}
                         renderingStrategy={RenderingStrategy.All}
                     />
                 </Section>
