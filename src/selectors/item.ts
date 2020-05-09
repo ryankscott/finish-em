@@ -59,7 +59,9 @@ export const getFilteredItems = (state, props): Item => {
                     (i) =>
                         i.projectId == props.filter.params.projectId &&
                         i.type == props.filter.params.type &&
-                        i.deleted == false,
+                        !i.deleted &&
+                        !i.completed &&
+                        i.parentId == null,
                 )
             case 'SHOW_OVERDUE':
                 return filterItems(items, (i) => {
