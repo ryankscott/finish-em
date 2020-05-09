@@ -63,7 +63,7 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
                             <Header3>Create Project</Header3>
                             <Button
                                 spacing="default"
-                                type="default"
+                                type="subtleInvert"
                                 onClick={() => {
                                     props.closeCreateProjectDialog()
                                 }}

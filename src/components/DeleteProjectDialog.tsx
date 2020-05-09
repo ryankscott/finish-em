@@ -36,7 +36,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                             <Header3>Delete Project</Header3>
                             <Button
                                 spacing="default"
-                                type="default"
+                                type="subtleInvert"
                                 onClick={() => props.closeDeleteProjectDialog()}
                                 icon="close"
                             />
