@@ -226,6 +226,7 @@ function Item(props: ItemProps): ReactElement {
             },
             CONVERT_TO_SUBTASK: (event) => {
                 if (props.deleted || props.completed) return
+                console.log('here')
                 setCreateSubtaskDropdownVisible(false)
                 setDueDateDropdownVisible(false)
                 setScheduledDateDropdownVisible(false)
@@ -528,7 +529,8 @@ function Item(props: ItemProps): ReactElement {
                     <ConvertSubtaskContainer
                         visible={
                             !hiddenIcons.includes(ItemIcons.Subtask) &&
-                            props.parentId != null
+                            (convertSubtaskDropdownVisible ||
+                                props.parentId != null)
                         }
                     >
                         <SubtaskDropdown
