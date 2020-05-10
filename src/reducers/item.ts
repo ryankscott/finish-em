@@ -166,6 +166,36 @@ export const itemReducer = produce(
                 draftState.order = [...startOfArray, action.id, ...endOfArray]
                 break
 
+            case item.CONVERT_SUBTASK:
+                // Need to remove the reference from the parent
+                console.log(i.parentId)
+                const p = draftState.items[i.parentId]
+                p.children = p.children.filter((c) => c != action.id)
+                i.parentId = null
+                i.lastUpdatedAt = new Date().toISOString()
+                break
+
+            case item.CHANGE_PARENT_ITEM:
+                // Also need to remove the reference from the old parent
+                if (i.parentId) {
+                    const oldParent = draftState.items[i.parentId]
+                    oldParent.children = oldParent.children.filter(
+                        (c) => c != action.id,
+                    )
+                    i.parentId = null
+                    i.lastUpdatedAt = new Date().toISOString()
+                }
+                // Add need to add it to the new parent
+                i.parentId = action.parentId
+                i.lastUpdatedAt = new Date().toISOString()
+                const newParent = draftState.items[action.parentId]
+                newParent.children =
+                    newParent.children.length > 0
+                        ? [...newParent.children, action.id]
+                        : [action.id]
+                newParent.lastUpdatedAt = new Date().toISOString()
+                break
+
             // TODO: Implement the deleting of project action
             /*case DELETE_PROJECT:
             return state.map((i) => {

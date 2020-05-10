@@ -45,6 +45,7 @@ export interface ButtonProps {
     dataFor?: string
     width?: string
     height?: string
+    iconPosition?: 'before' | 'after'
     icon?:
         | 'close'
         | 'expand'
@@ -91,8 +92,8 @@ export const Button = (props: ButtonProps): ReactElement => {
                 iconOnly={props.icon && !props.text}
             >
                 <Contents>
-                    {props.icon && (
-                        <Icon>
+                    {props.icon && !(props.iconPosition == 'after') && (
+                        <Icon iconPosition={props.iconPosition}>
                             {iconMapping[props.icon](
                                 props.iconSize || null,
                                 props.iconSize || null,
@@ -107,6 +108,15 @@ export const Button = (props: ButtonProps): ReactElement => {
                         >
                             {props.text}
                         </Text>
+                    )}
+                    {props.icon && props.iconPosition == 'after' && (
+                        <Icon iconPosition={props.iconPosition}>
+                            {iconMapping[props.icon](
+                                props.iconSize || null,
+                                props.iconSize || null,
+                                props.iconColour || null,
+                            )}
+                        </Icon>
                     )}
                 </Contents>
             </StyledButton>

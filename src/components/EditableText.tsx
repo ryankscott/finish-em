@@ -115,9 +115,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
 
         if (e.key == 'Enter' && props.singleline) {
-            if (props.onEditingChange) {
-                props.onEditingChange(false)
-            }
             // Validate input
             if (props.validation.validate) {
                 if (props.validation.rule(currentVal)) {
@@ -127,13 +124,11 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                             '<br/>',
                         ),
                     )
-                    setEditable(false)
                     if (props.shouldClearOnSubmit) {
                         clearInput()
+                        setEditable(false)
                     }
-                    props.innerRef.current.blur()
                 }
-                e.preventDefault()
                 return
             } else {
                 props.onUpdate(
@@ -141,9 +136,8 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 )
                 if (props.shouldClearOnSubmit) {
                     clearInput()
+                    setEditable(false)
                 }
-                props.innerRef.current.blur()
-                e.preventDefault()
                 return
             }
         } else if (e.key == 'Escape') {
@@ -151,8 +145,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 props.onEditingChange(false)
             }
             setEditable(false)
-            props.innerRef.current.blur()
-            e.preventDefault()
         }
         return
     }

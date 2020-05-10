@@ -15,7 +15,7 @@ import {
     RepeatContainer,
     TypeContainer,
     ProjectContainer,
-    SubtaskContainer,
+    SubtaskContainer as ConvertSubtaskContainer,
 } from './styled/Item'
 
 import {
@@ -32,6 +32,8 @@ import {
     setDueDate,
     setActiveItem,
     showFocusbar,
+    changeParentItem,
+    convertSubtask,
 } from '../actions'
 import { theme } from '../theme'
 import ProjectDropdown from './ProjectDropdown'
@@ -42,10 +44,12 @@ import {
     removeItemTypeFromString,
     formatRelativeDate,
     rruleToText,
+    getProjectNameById,
 } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
 import ItemCreator from './ItemCreator'
+import SubtaskDropdown from './SubtaskDropdown'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
 export enum ItemIcons {
@@ -69,6 +73,8 @@ interface DispatchProps {
     undeleteItem: (id: Uuid) => void
     setActiveItem: (id: Uuid) => void
     showFocusbar: () => void
+    convertSubtask: (id: Uuid) => void
+    changeParentItem: (id: Uuid, parentId: Uuid) => void
 }
 interface StateProps {
     projects: ProjectType[]
@@ -88,6 +94,10 @@ function Item(props: ItemProps): ReactElement {
         createSubtaskDropdownVisible,
         setCreateSubtaskDropdownVisible,
     ] = useState(false)
+    const [
+        convertSubtaskDropdownVisible,
+        setConvertSubtaskDropdownVisible,
+    ] = useState(false)
     const [dueDateDropdownVisible, setDueDateDropdownVisible] = useState(false)
     const [
         scheduledDateDropdownVisible,
@@ -103,6 +113,7 @@ function Item(props: ItemProps): ReactElement {
     const quickAdd = React.createRef<HTMLInputElement>()
     const editor = React.createRef<HTMLInputElement>()
     const container = React.createRef<HTMLInputElement>()
+
     const handlers = {
         TODO: {
             SET_ACTIVE_ITEM: () => {
@@ -188,6 +199,7 @@ function Item(props: ItemProps): ReactElement {
                 setScheduledDateDropdownVisible(true)
                 setRepeatDropdownVisible(false)
                 setProjectDropdownVisible(false)
+                setConvertSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             SET_DUE_DATE: (event) => {
@@ -197,6 +209,7 @@ function Item(props: ItemProps): ReactElement {
                 setScheduledDateDropdownVisible(false)
                 setRepeatDropdownVisible(false)
                 setProjectDropdownVisible(false)
+                setConvertSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             CREATE_SUBTASK: (event) => {
@@ -207,7 +220,18 @@ function Item(props: ItemProps): ReactElement {
                 setScheduledDateDropdownVisible(false)
                 setRepeatDropdownVisible(false)
                 setProjectDropdownVisible(false)
+                setConvertSubtaskDropdownVisible(false)
                 quickAdd.current.focus()
+                event.preventDefault()
+            },
+            CONVERT_TO_SUBTASK: (event) => {
+                if (props.deleted || props.completed) return
+                setCreateSubtaskDropdownVisible(false)
+                setDueDateDropdownVisible(false)
+                setScheduledDateDropdownVisible(false)
+                setRepeatDropdownVisible(false)
+                setProjectDropdownVisible(false)
+                setConvertSubtaskDropdownVisible(true)
                 event.preventDefault()
             },
             REPEAT_ITEM: (event) => {
@@ -217,6 +241,7 @@ function Item(props: ItemProps): ReactElement {
                 setScheduledDateDropdownVisible(false)
                 setRepeatDropdownVisible(true)
                 setProjectDropdownVisible(false)
+                setConvertSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             MOVE_ITEM: (event) => {
@@ -226,6 +251,7 @@ function Item(props: ItemProps): ReactElement {
                 setScheduledDateDropdownVisible(false)
                 setRepeatDropdownVisible(false)
                 setProjectDropdownVisible(true)
+                setConvertSubtaskDropdownVisible(false)
                 event.preventDefault()
             },
             ESCAPE: () => {
@@ -235,6 +261,7 @@ function Item(props: ItemProps): ReactElement {
                 setScheduledDateDropdownVisible(false)
                 setRepeatDropdownVisible(false)
                 setProjectDropdownVisible(false)
+                setConvertSubtaskDropdownVisible(false)
                 container.current.focus()
             },
             COMPLETE_ITEM: () => {
@@ -433,6 +460,9 @@ function Item(props: ItemProps): ReactElement {
     const scheduledDateText = props.scheduledDate
         ? formatRelativeDate(parseISO(props.scheduledDate))
         : ''
+    const subtaskText = props.parentId
+        ? removeItemTypeFromString(props.items.items[props.parentId].text)
+        : ''
 
     return (
         <ThemeProvider theme={theme}>
@@ -495,26 +525,36 @@ function Item(props: ItemProps): ReactElement {
                             shouldClearOnSubmit={false}
                         />
                     </Body>
-                    <SubtaskContainer
+                    <ConvertSubtaskContainer
                         visible={
                             !hiddenIcons.includes(ItemIcons.Subtask) &&
                             props.parentId != null
                         }
                     >
-                        <Button
-                            icon="subtask"
-                            type="default"
-                            onClick={(e) => {
-                                props.setActiveItem(props.parentId)
-                                e.stopPropagation()
+                        <SubtaskDropdown
+                            key={'st' + props.id}
+                            itemId={props.id}
+                            text={subtaskText}
+                            showSelect={convertSubtaskDropdownVisible}
+                            disableClick={true}
+                            parentId={props.parentId}
+                            completed={props.completed}
+                            onSubmit={(parentId) => {
+                                if (parentId) {
+                                    props.changeParentItem(props.id, parentId)
+                                } else {
+                                    props.convertSubtask(props.id)
+                                }
+                                setConvertSubtaskDropdownVisible(false)
                             }}
-                        ></Button>
-                    </SubtaskContainer>
+                        />
+                    </ConvertSubtaskContainer>
 
                     <ProjectContainer
                         visible={!hiddenIcons.includes(ItemIcons.Project)}
                     >
                         <ProjectDropdown
+                            key={'pd' + props.id}
                             style={'default'}
                             showSelect={projectDropdownVisible}
                             disableClick={true}
@@ -630,6 +670,8 @@ function Item(props: ItemProps): ReactElement {
                             undeleteItem={props.undeleteItem}
                             showFocusbar={props.showFocusbar}
                             setActiveItem={props.setActiveItem}
+                            convertSubtask={props.convertSubtask}
+                            changeParentItem={props.changeParentItem}
                         />
                     )
                 })}
@@ -679,6 +721,12 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     showFocusbar: () => {
         dispatch(showFocusbar())
+    },
+    convertSubtask: (id: Uuid) => {
+        dispatch(convertSubtask(id))
+    },
+    changeParentItem: (id: Uuid, parentId: Uuid) => {
+        dispatch(changeParentItem(id, parentId))
     },
 })
 

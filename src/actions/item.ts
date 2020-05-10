@@ -14,6 +14,8 @@ export const ADD_CHILD_ITEM = 'ADD_CHILD_ITEM'
 export const HIDE_CHILDREN = 'HIDE_CHILDREN'
 export const SHOW_CHILDREN = 'SHOW_CHILDREN'
 export const REORDER_ITEM = 'REORDER_ITEM'
+export const CONVERT_SUBTASK = 'CONVERT_SUBTASK'
+export const CHANGE_PARENT_ITEM = 'CHANGE_PARENT_ITEM'
 
 import { getItemTypeFromString, capitaliseItemTypeFromString } from '../utils'
 import RRule from 'rrule'
@@ -185,6 +187,35 @@ export function reorderItem(id: Uuid, destinationId: Uuid): ReorderItemAction {
     }
 }
 
+export interface ConvertSubtaskAction {
+    type: typeof CONVERT_SUBTASK
+    id: Uuid
+}
+
+export function convertSubtask(id: Uuid): ConvertSubtaskAction {
+    return {
+        type: CONVERT_SUBTASK,
+        id: id,
+    }
+}
+
+export interface ChangeParentItemAction {
+    type: typeof CHANGE_PARENT_ITEM
+    id: Uuid
+    parentId: Uuid
+}
+
+export function changeParentItem(
+    id: Uuid,
+    parentId: Uuid,
+): ChangeParentItemAction {
+    return {
+        type: CHANGE_PARENT_ITEM,
+        id: id,
+        parentId: parentId,
+    }
+}
+
 export type ItemActions =
     | AddChildItemAction
     | UpdateItemDescriptionAction
@@ -198,3 +229,5 @@ export type ItemActions =
     | DeleteItemAction
     | CreateItemAction
     | ReorderItemAction
+    | ConvertSubtaskAction
+    | ChangeParentItemAction

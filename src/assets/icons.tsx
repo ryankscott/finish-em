@@ -532,6 +532,7 @@ export const subtaskIcon = (
         height={height ? height : '16'}
         viewBox="0 0 24 24"
         stroke={colour ? colour : 'currentColor'}
+        fill={colour ? colour : 'currentColor'}
         strokeWidth="0"
         strokeLinecap="round"
         strokeLinejoin="round"

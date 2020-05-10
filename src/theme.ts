@@ -118,6 +118,7 @@ export const selectStyles = {
         zIndex: 2,
         padding: '0px 0px',
         minWidth: '120px',
+        maxHeight: '180px',
     }),
     input: () => ({
         padding: '5px 2px',

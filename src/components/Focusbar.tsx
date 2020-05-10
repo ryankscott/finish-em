@@ -24,6 +24,8 @@ import {
     setDueDate,
     setRepeatRule,
     moveItem,
+    convertSubtask,
+    changeParentItem,
 } from '../actions'
 import { Tooltip } from './Tooltip'
 import {
@@ -39,6 +41,8 @@ import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
 import ProjectDropdown from './ProjectDropdown'
 import ItemCreator from './ItemCreator'
+import SubtaskDropdown from './SubtaskDropdown'
+import { getProjectNameById } from '../../build/src.8023e083'
 
 interface OwnProps {}
 interface DispatchProps {
@@ -52,6 +56,8 @@ interface DispatchProps {
     setScheduledDate: (id: Uuid, date: string) => void
     setDueDate: (id: Uuid, date: string) => void
     setRepeatRule: (id: Uuid, rule: RRule) => void
+    convertSubtask: (id: Uuid) => void
+    changeParentItem: (id: Uuid, parentId: Uuid) => void
 }
 interface StateProps {
     items: Items
@@ -73,6 +79,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     const scheduledDate = i.scheduledDate
         ? formatRelativeDate(parseISO(i.scheduledDate))
         : null
+    const subtaskText = i.parentId
+        ? removeItemTypeFromString(props.items.items[i.parentId].text)
+        : ''
 
     return (
         <ThemeProvider theme={theme}>
@@ -222,25 +231,26 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         </AttributeContainer>
                     </>
                 )}
-                {i.parentId != null && (
-                    <AttributeContainer>
-                        <AttributeKey>
-                            <Paragraph>Parent:</Paragraph>
-                        </AttributeKey>
-                        <AttributeValue>
-                            <Button
-                                type="default"
-                                spacing="compact"
-                                onClick={() => {
-                                    props.setActiveItem(i.parentId)
-                                }}
-                                text={removeItemTypeFromString(
-                                    props.items.items[i.parentId].text,
-                                )}
-                            />
-                        </AttributeValue>
-                    </AttributeContainer>
-                )}
+                <AttributeContainer>
+                    <AttributeKey>
+                        <Paragraph>Parent:</Paragraph>
+                    </AttributeKey>
+                    <AttributeValue>
+                        <SubtaskDropdown
+                            itemId={i.id}
+                            text={subtaskText}
+                            parentId={i.parentId}
+                            completed={i.completed}
+                            onSubmit={(parentId) => {
+                                if (parentId) {
+                                    props.changeParentItem(i.id, parentId)
+                                } else {
+                                    props.convertSubtask(i.id)
+                                }
+                            }}
+                        />
+                    </AttributeValue>
+                </AttributeContainer>
                 {i.parentId == null && i.type == 'TODO' && (
                     <>
                         <SubtaskContainer>
@@ -313,6 +323,12 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     setRepeatRule: (id: Uuid, rule: RRule) => {
         dispatch(setRepeatRule(id, rule))
+    },
+    convertSubtask: (id: Uuid) => {
+        dispatch(convertSubtask(id))
+    },
+    changeParentItem: (id: Uuid, parentId: Uuid) => {
+        dispatch(changeParentItem(id, parentId))
     },
 })
 

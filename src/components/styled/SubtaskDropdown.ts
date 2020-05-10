@@ -4,7 +4,7 @@ interface ContainerProps {
     visible: boolean
 }
 export const Container = styled.div<ContainerProps>`
-    position: absolute;
+    position: fixed;
     display: flex;
     flex-direction: column;
     padding: 0px;

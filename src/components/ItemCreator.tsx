@@ -76,6 +76,9 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                             : props.createSubTask(props.parentId, text, null)
                         if (props.shouldCloseOnSubmit) {
                             setShowItemCreator(false)
+                        } else {
+                            console.log('focussing')
+                            textRef.current.focus()
                         }
                         if (props.onCreate) {
                             props.onCreate()
@@ -83,10 +86,10 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     }}
                     readOnly={false}
                     validation={{ validate: true, rule: validateItemString }}
-                    shouldSubmitOnBlur={false}
                     input=""
                     singleline={true}
-                    shouldClearOnSubmit={false}
+                    shouldClearOnSubmit={true}
+                    shouldSubmitOnBlur={false}
                 />
             </ItemCreatorContainer>
         </Container>

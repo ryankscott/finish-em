@@ -41,10 +41,17 @@ export const Contents = styled.div`
     margin: 0px;
 `
 
-export const Icon = styled.div`
+interface IconProps {
+    iconPosition: 'after' | 'before'
+}
+export const Icon = styled.div<IconProps>`
     display: flex;
     flex-direction: row;
     justify-content: center;
+    align-items: center;
+    padding-left: ${(props) => (props.iconPosition == 'after' ? '5px' : '0px')}
+    padding-right: ${(props) =>
+        props.iconPosition == 'before' ? '5px' : '0px'}
 `
 
 interface TextProps {
