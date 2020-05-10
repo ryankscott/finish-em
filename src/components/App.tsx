@@ -32,6 +32,7 @@ import {
 } from './styled/App'
 import { Button } from './Button'
 import { Tooltip } from './Tooltip'
+import { getProjectById } from '../utils'
 
 configure({
     logLevel: 'warning',
@@ -115,6 +116,38 @@ const App = (props: AppProps): ReactElement => {
         history.push(`/projects/${id}`)
     }
 
+    function goToNextProject(): void {
+        const path = history.location.pathname
+        if (!path.includes('projects')) {
+            goToProject(1)
+            return
+        }
+        const projectId = path.split('/')[2]
+        const project = getProjectById(projectId, props.projects)
+        const projectIndex = props.projects.indexOf(project)
+        if (projectIndex == props.projects.length - 1) {
+            goToProject(1)
+        } else {
+            goToProject(projectIndex + 1)
+        }
+    }
+
+    function goToPreviousProject(): void {
+        const path = history.location.pathname
+        if (!path.includes('projects')) {
+            goToProject(props.projects.length - 1)
+            return
+        }
+        const projectId = path.split('/')[2]
+        const project = getProjectById(projectId, props.projects)
+        const projectIndex = props.projects.indexOf(project)
+        if (projectIndex == 1) {
+            goToProject(props.projects.length - 1)
+        } else {
+            goToProject(projectIndex - 1)
+        }
+    }
+
     const handlers = {
         GO_TO_PROJECT_1: () => goToProject(1),
         GO_TO_PROJECT_2: () => goToProject(2),
@@ -126,6 +159,8 @@ const App = (props: AppProps): ReactElement => {
         GO_TO_PROJECT_8: () => goToProject(8),
         GO_TO_PROJECT_9: () => goToProject(9),
         GO_TO_DAILY_AGENDA: () => goToDailyAgenda(),
+        GO_TO_NEXT_PROJECT: () => goToNextProject(),
+        GO_TO_PREV_PROJECT: () => goToPreviousProject(),
         GO_TO_INBOX: () => goToInbox(),
         GO_TO_TRASH: () => goToTrash(),
         GO_TO_COMPLETED: () => goToCompleted(),

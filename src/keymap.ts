@@ -8,6 +8,8 @@ export const app = {
     GO_TO_PROJECT_7: 'a g 7',
     GO_TO_PROJECT_8: 'a g 8',
     GO_TO_PROJECT_9: 'a g 9',
+    GO_TO_NEXT_PROJECT: 'a g ]',
+    GO_TO_PREV_PROJECT: 'a g [',
     GO_TO_DAILY_AGENDA: 'a g d',
     GO_TO_INBOX: 'a g i',
     GO_TO_TRASH: 'a g t',
