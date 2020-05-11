@@ -1,7 +1,7 @@
 import { Uuid } from '@typed/uuid'
 
 export interface ItemType {
-    id: Uuid
+    id: Uuid | '0'
     type: 'NOTE' | 'TODO'
     text: string
     deleted: boolean
@@ -28,13 +28,22 @@ export type Items = {
 }
 
 export interface ProjectType {
-    id: Uuid
+    id: Uuid | '0'
     name: string
     deleted: boolean
     description: string
     lastUpdatedAt: string
     deletedAt: string
     createdAt: string
+}
+
+export interface Project {
+    [key: string]: ProjectType
+}
+
+export interface Projects {
+    projects: Project
+    order: Uuid[]
 }
 
 export interface UIType {

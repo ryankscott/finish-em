@@ -33,6 +33,14 @@ export const StyledButton = styled.button<StyledProps>`
         border-color: ${(props) => props.theme.hoverBackgroundColour};
         cursor: pointer;
     }
+    &:active {
+        background-color: ${(props) => props.theme.hoverBackgroundColour};
+        border-color: ${(props) => props.theme.hoverBackgroundColour};
+    }
+    &:focus {
+        background-color: ${(props) => props.theme.hoverBackgroundColour};
+        border-color: ${(props) => props.theme.hoverBackgroundColour};
+    }
 `
 export const Contents = styled.div`
     display: flex;

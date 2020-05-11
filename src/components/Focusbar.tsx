@@ -42,7 +42,6 @@ import RepeatPicker from './RepeatPicker'
 import ProjectDropdown from './ProjectDropdown'
 import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
-import { getProjectNameById } from '../../build/src.8023e083'
 
 interface OwnProps {}
 interface DispatchProps {

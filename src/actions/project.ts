@@ -3,6 +3,7 @@ export const CREATE_PROJECT = 'CREATE_PROJECT'
 export const DELETE_PROJECT = 'DELETE_PROJECT'
 export const UPDATE_PROJECT_DESCRIPTION = 'UPDATE_PROJECT_DESCRIPTION'
 export const UPDATE_PROJECT_NAME = 'UPDATE_PROJECT_NAME'
+export const REORDER_PROJECT = 'REORDER_PROJECT'
 
 export interface CreateProjectAction {
     type: typeof CREATE_PROJECT
@@ -64,8 +65,25 @@ export function updateProjectName(
     }
 }
 
+export interface ReorderProjectAction {
+    type: typeof REORDER_PROJECT
+    id: Uuid
+    destinationId: Uuid
+}
+export function reorderProject(
+    id: Uuid,
+    destinationId: Uuid,
+): ReorderProjectAction {
+    return {
+        type: REORDER_PROJECT,
+        id: id,
+        destinationId: destinationId,
+    }
+}
+
 export type ProjectActions =
     | CreateProjectAction
     | DeleteProjectAction
     | UpdateProjectDescriptionAction
     | UpdateProjectNameAction
+    | ReorderProjectAction

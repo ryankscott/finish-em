@@ -88,7 +88,7 @@ export const Button = (props: ButtonProps): ReactElement => {
                 onClick={props.onClick}
                 data-tip
                 data-for={props.dataFor}
-                tabIndex={-1 || props.tabIndex}
+                tabIndex={props.tabIndex != undefined ? props.tabIndex : -1}
                 iconOnly={props.icon && !props.text}
             >
                 <Contents>

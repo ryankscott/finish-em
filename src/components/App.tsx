@@ -32,7 +32,6 @@ import {
 } from './styled/App'
 import { Button } from './Button'
 import { Tooltip } from './Tooltip'
-import { getProjectById } from '../utils'
 
 configure({
     logLevel: 'warning',
@@ -57,18 +56,18 @@ const GlobalStyle = createGlobalStyle`
   *:focus {outline:0;}
 `
 interface ProjectWrapperProps {
-    projects: ProjectType[]
+    projects: Projects
 }
 const ProjectWrapper = (props: ProjectWrapperProps): ReactElement => {
     const { id } = useParams()
-    const project = props.projects.find((p) => p.id?.toString() === id)
+    const project = props.projects.projects[id]
     return <Project project={project} />
 }
 
 interface StateProps {
     sidebarVisible: boolean
     focusbarVisible: boolean
-    projects: ProjectType[]
+    projects: Projects
 }
 interface DispatchProps {
     toggleShortcutDialog: () => void
@@ -110,9 +109,7 @@ const App = (props: AppProps): ReactElement => {
     }
 
     function goToProject(number: number): void {
-        const activeProjects = props.projects.filter((p) => p.deleted === false)
-        if (number >= activeProjects.length) return
-        const { id } = activeProjects[number]
+        const id = props.projects.order[number]
         history.push(`/projects/${id}`)
     }
 
@@ -123,9 +120,8 @@ const App = (props: AppProps): ReactElement => {
             return
         }
         const projectId = path.split('/')[2]
-        const project = getProjectById(projectId, props.projects)
-        const projectIndex = props.projects.indexOf(project)
-        if (projectIndex == props.projects.length - 1) {
+        const projectIndex = props.projects.order.indexOf(projectId)
+        if (projectIndex == props.projects.order.length - 1) {
             goToProject(1)
         } else {
             goToProject(projectIndex + 1)
@@ -139,10 +135,9 @@ const App = (props: AppProps): ReactElement => {
             return
         }
         const projectId = path.split('/')[2]
-        const project = getProjectById(projectId, props.projects)
-        const projectIndex = props.projects.indexOf(project)
+        const projectIndex = props.projects.order.indexOf(projectId)
         if (projectIndex == 1) {
-            goToProject(props.projects.length - 1)
+            goToProject(props.projects.order.length - 1)
         } else {
             goToProject(projectIndex - 1)
         }

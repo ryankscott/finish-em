@@ -96,6 +96,7 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
                             type="primary"
                             onClick={handleSubmit}
                             text="Create"
+                            tabIndex={0}
                         ></Button>
                     </Container>
                 }

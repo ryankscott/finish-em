@@ -27,7 +27,7 @@ export const itemReducer = produce(
                     text: action.text,
                     scheduledDate: null,
                     dueDate: null,
-                    projectId: action.projectId,
+                    projectId: action.projectId ? action.projectId : '0',
                     completed: false,
                     deleted: false,
                     deletedAt: null,
@@ -68,7 +68,9 @@ export const itemReducer = produce(
                     i.children = []
                 }
                 // Remove from order
-                draftState.order.filter((o) => o != action.id)
+                draftState.order = draftState.order.filter(
+                    (o) => o != action.id,
+                )
                 break
 
             case item.UNDELETE_ITEM:
@@ -168,7 +170,6 @@ export const itemReducer = produce(
 
             case item.CONVERT_SUBTASK:
                 // Need to remove the reference from the parent
-                console.log(i.parentId)
                 const p = draftState.items[i.parentId]
                 p.children = p.children.filter((c) => c != action.id)
                 i.parentId = null

@@ -1,55 +1,34 @@
 import uuidv4 from 'uuid/v4'
 import * as project from '../actions/project'
-import { ProjectType } from '../interfaces'
+import { Projects } from '../interfaces'
+import { Uuid } from '@typed/uuid'
+import produce from 'immer'
 
-const initialState: ProjectType[] = [
-    {
-        id: null,
-        name: 'Inbox',
-        deleted: false,
-        description: 'Default landing space for all items',
-        lastUpdatedAt: new Date().toISOString(),
-        deletedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
+const initialState: Projects = {
+    projects: {
+        0: {
+            id: 0,
+            name: 'Inbox',
+            deleted: false,
+            description: 'Default landing space for all items',
+            lastUpdatedAt: new Date().toISOString(),
+            deletedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+        },
     },
-    {
-        id: uuidv4(),
-        name: 'Finish Em',
-        deleted: false,
-        description: 'All items relating to this project',
-        lastUpdatedAt: new Date().toISOString(),
-        deletedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: uuidv4(),
-        name: 'Home',
-        deleted: false,
-        description: 'All items for home',
-        lastUpdatedAt: new Date().toISOString(),
-        deletedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: uuidv4(),
-        name: 'Work',
-        deleted: false,
-        description: 'Non descript work items',
-        lastUpdatedAt: new Date().toISOString(),
-        deletedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-    },
-]
+    order: ['0'],
+}
 
-export const projectReducer = (
-    state = initialState,
-    action: project.ProjectActions,
-): ProjectType[] => {
-    switch (action.type) {
-        case project.CREATE_PROJECT:
-            return [
-                ...state,
-                {
+export const projectReducer = produce(
+    (
+        draftState: Projects = initialState,
+        action: project.ProjectActions,
+    ): Projects => {
+        const p = draftState?.projects[action.id]
+
+        switch (action.type) {
+            case project.CREATE_PROJECT:
+                draftState.projects[action.id.toString()] = {
                     id: action.id,
                     name: action.name,
                     description: action.description,
@@ -57,38 +36,52 @@ export const projectReducer = (
                     deletedAt: null,
                     createdAt: new Date().toISOString(),
                     lastUpdatedAt: new Date().toISOString(),
-                },
-            ]
-
-        case project.UPDATE_PROJECT_DESCRIPTION:
-            return state.map((p) => {
-                if (p.id == action.id) {
-                    p.description = action.description
-                    p.lastUpdatedAt = new Date().toISOString()
                 }
-                return p
-            })
-
-        case project.UPDATE_PROJECT_NAME:
-            return state.map((p) => {
-                if (p.id == action.id) {
-                    p.name = action.name
-                    p.lastUpdatedAt = new Date().toISOString()
+                if (draftState.order) {
+                    draftState.order = [...draftState.order, action.id]
+                } else {
+                    draftState.order = [action.id]
                 }
-                return p
-            })
+                break
 
-        case project.DELETE_PROJECT:
-            return state.map((p) => {
-                if (p.id == action.id) {
-                    p.deleted = true
-                    p.lastUpdatedAt = new Date().toISOString()
-                    p.deletedAt = new Date().toISOString()
-                }
-                return p
-            })
+            case project.UPDATE_PROJECT_DESCRIPTION:
+                p.description = action.description
+                p.lastUpdatedAt = new Date().toISOString()
+                break
 
-        default:
-            return state
-    }
-}
+            case project.UPDATE_PROJECT_NAME:
+                p.name = action.name
+                p.lastUpdatedAt = new Date().toISOString()
+                break
+
+            case project.DELETE_PROJECT:
+                p.deleted = true
+                p.lastUpdatedAt = new Date().toISOString()
+                p.deletedAt = new Date().toISOString()
+                // Don't forget to remove it from the ordering
+                draftState.order = draftState.order.filter(
+                    (p) => p != action.id,
+                )
+                break
+
+            case project.REORDER_PROJECT:
+                // Initialise where everything is
+                const sourceIndex = draftState.order.indexOf(action.id)
+                const destinationIndex = draftState.order.indexOf(
+                    action.destinationId,
+                )
+                const newOrder = draftState.order
+                newOrder.splice(sourceIndex, 1)
+                const startOfArray = newOrder.slice(0, destinationIndex)
+                const endOfArray = newOrder.slice(
+                    destinationIndex,
+                    newOrder.length,
+                )
+                draftState.order = [...startOfArray, action.id, ...endOfArray]
+                break
+
+            default:
+                return draftState
+        }
+    },
+)

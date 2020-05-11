@@ -44,7 +44,6 @@ import {
     removeItemTypeFromString,
     formatRelativeDate,
     rruleToText,
-    getProjectNameById,
 } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
@@ -226,7 +225,6 @@ function Item(props: ItemProps): ReactElement {
             },
             CONVERT_TO_SUBTASK: (event) => {
                 if (props.deleted || props.completed) return
-                console.log('here')
                 setCreateSubtaskDropdownVisible(false)
                 setDueDateDropdownVisible(false)
                 setScheduledDateDropdownVisible(false)
@@ -247,6 +245,7 @@ function Item(props: ItemProps): ReactElement {
             },
             MOVE_ITEM: (event) => {
                 if (props.deleted || props.completed) return
+                console.log('moving')
                 setCreateSubtaskDropdownVisible(false)
                 setDueDateDropdownVisible(false)
                 setScheduledDateDropdownVisible(false)
@@ -552,9 +551,7 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </ConvertSubtaskContainer>
 
-                    <ProjectContainer
-                        visible={!hiddenIcons.includes(ItemIcons.Project)}
-                    >
+                    <ProjectContainer visible={projectDropdownVisible}>
                         <ProjectDropdown
                             key={'pd' + props.id}
                             style={'default'}

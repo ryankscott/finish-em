@@ -3,17 +3,33 @@ import rootReducer from '../reducers'
 import { createMigrate, persistStore, persistReducer } from 'redux-persist'
 import isElectron from 'is-electron'
 import storage from 'redux-persist/lib/storage'
-import { Items, ItemType } from '../interfaces'
+import { Items, ItemType, ProjectType, Projects } from '../interfaces'
 let createElectronStorage
 if (isElectron()) {
     createElectronStorage = window.require('redux-persist-electron-storage')
 }
+
+export const migratev5tov6Projects = (pts: ProjectType[]): Projects => {
+    const order = []
+    const projects = {}
+    pts.forEach((p: ProjectType) => {
+        projects[p.id] = p
+        order.push(p.id)
+    })
+    return { projects: projects, order: order }
+}
+
 export const migratev2tov3Items = (its: ItemType[]): Items => {
     const o = []
     const is = {}
     its.forEach((i: ItemType) => {
-        is[i.id] = i
-        o.push(i.id)
+        if (i.id == null) {
+            is[0] = i
+            o.push(0)
+        } else {
+            is[i.id] = i
+            o.push(i.id)
+        }
     })
     return { items: is, order: o }
 }
@@ -51,12 +67,18 @@ const migrations = {
             },
         }
     },
+    6: (state) => {
+        return {
+            ...state,
+            projects: migratev5tov6Projects(state.projects),
+        }
+    },
 }
 
 let persistConfig
 if (isElectron()) {
     persistConfig = {
-        version: 5,
+        version: 6,
         key: 'root',
         debug: true,
         storage: createElectronStorage(),
@@ -64,7 +86,7 @@ if (isElectron()) {
     }
 } else {
     persistConfig = {
-        version: 5,
+        version: 6,
         key: 'root',
         debug: true,
         storage,

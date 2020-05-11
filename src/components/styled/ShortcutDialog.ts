@@ -16,7 +16,7 @@ export const ShortcutContainer = styled.div<ShortcutContainerProps>`
     transform: translate(-50%, -50%);
     padding: 2px;
     z-index: 99;
-    height: 600px;
+    height: 700px;
 `
 
 export const Header = styled.div`
