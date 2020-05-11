@@ -1,6 +1,6 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { format } from 'date-fns'
+import { format, sub, add } from 'date-fns'
 import { connect } from 'react-redux'
 import { theme } from '../theme'
 import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
@@ -8,8 +8,15 @@ import { Paragraph, Title, Header1 } from './Typography'
 import EditableText from './EditableText'
 import { setDailyGoal } from '../actions'
 import { ItemType } from '../interfaces'
-import { AgendaContainer, DateContainer, Section } from './styled/DailyAgenda'
+import {
+    AgendaContainer,
+    DateContainer,
+    Section,
+    BackContainer,
+    ForwardContainer,
+} from './styled/DailyAgenda'
 import { RenderingStrategy } from './ItemList'
+import { Button } from './Button'
 
 interface OwnProps {}
 interface StateProps {
@@ -22,21 +29,40 @@ interface DispatchProps {
 type DailyAgendaProps = OwnProps & StateProps & DispatchProps
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
-    const day = format(new Date(), 'yyyy-MM-dd')
+    const [date, setDate] = useState(new Date())
     const editor = React.createRef<HTMLInputElement>()
     return (
         <ThemeProvider theme={theme}>
             <AgendaContainer>
                 <DateContainer>
+                    <BackContainer>
+                        <Button
+                            spacing="compact"
+                            type="default"
+                            icon="back"
+                            onClick={() => {
+                                setDate(sub(date, { days: 1 }))
+                            }}
+                        />
+                    </BackContainer>
                     <Title style={{ gridArea: 'day' }}>
-                        {format(new Date(), 'EEEE do MMMM yyyy')}
+                        {format(date, 'EEEE do MMMM yyyy')}
                     </Title>
+                    <ForwardContainer>
+                        <Button
+                            spacing="compact"
+                            type="default"
+                            icon="forward"
+                            onClick={() => {
+                                setDate(add(date, { days: 1 }))
+                            }}
+                        />
+                    </ForwardContainer>
                     <Paragraph style={{ gridArea: 'week_of_year' }}>
-                        Week of year: {format(new Date(), 'w')} / 52
+                        Week of year: {format(date, 'w')} / 52
                     </Paragraph>
                     <Paragraph style={{ gridArea: 'week_of_quarter' }}>
-                        Week of quarter:{' '}
-                        {parseInt(format(new Date(), 'w')) % 13} / 13
+                        Week of quarter: {parseInt(format(date, 'w')) % 13} / 13
                     </Paragraph>
                 </DateContainer>
                 <Header1> Daily Goal </Header1>
@@ -44,15 +70,15 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     style={Paragraph}
                     readOnly={false}
                     input={
-                        props.dailyGoal[day]
-                            ? props.dailyGoal[day].text
+                        props.dailyGoal[format(date, 'yyyy-MM-dd')]
+                            ? props.dailyGoal[format(date, 'yyyy-MM-dd')].text
                             : 'No daily goal set'
                     }
                     height={'150px'}
                     singleline={false}
                     innerRef={editor}
                     onUpdate={(input) => {
-                        props.setDailyGoal(day, input)
+                        props.setDailyGoal(format(date, 'yyyy-MM-dd'), input)
                     }}
                     validation={{ validate: false }}
                     shouldSubmitOnBlur={true}
@@ -77,7 +103,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         filter={{
                             type: 'default',
                             filter: FilterEnum.ShowDueOnDay,
-                            params: { dueDate: new Date() },
+                            params: { dueDate: date },
                         }}
                         renderingStrategy={RenderingStrategy.All}
                     />
@@ -88,7 +114,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         filter={{
                             type: 'default',
                             filter: FilterEnum.ShowScheduledOnDay,
-                            params: { scheduledDate: new Date() },
+                            params: { scheduledDate: date },
                         }}
                         renderingStrategy={RenderingStrategy.All}
                     />
