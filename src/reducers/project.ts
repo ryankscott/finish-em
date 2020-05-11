@@ -12,7 +12,7 @@ const initialState: Projects = {
             deleted: false,
             description: 'Default landing space for all items',
             lastUpdatedAt: new Date().toISOString(),
-            deletedAt: new Date().toISOString(),
+            deletedAt: null,
             createdAt: new Date().toISOString(),
         },
     },

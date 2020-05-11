@@ -36,7 +36,7 @@ describe('item reducer', () => {
                     lastUpdatedAt: new Date().toISOString(),
                     repeat: null,
                     parentId: null,
-                    projectId: undefined,
+                    projectId: '0',
                     children: [],
                 },
             },
@@ -135,7 +135,7 @@ describe('item reducer', () => {
                     children: [],
                 },
             },
-            order: [id],
+            order: [],
         })
         Mockdate.reset()
     })
