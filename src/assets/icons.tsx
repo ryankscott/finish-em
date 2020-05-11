@@ -499,6 +499,26 @@ export const backIcon = (
         <polyline points="12 19 5 12 12 5"></polyline>
     </svg>
 )
+export const forwardIcon = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+    </svg>
+)
 
 export const settingsIcon = (
     width?: CSS.WidthProperty<number>,

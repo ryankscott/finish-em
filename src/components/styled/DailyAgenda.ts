@@ -2,10 +2,10 @@ import styled from 'styled-components'
 
 export const DateContainer = styled.div`
     display: grid;
-    grid-template-rows: 4fr 1fr;
+    grid-template-rows: 6fr 1fr;
     grid-template-areas:
-        'day day day day'
-        'week_of_year . . week_of_quarter';
+        'back day day day day forward'
+        'week_of_year . . . . week_of_quarter';
     margin-bottom: 10px;
     width: 100%;
 `
@@ -24,5 +24,21 @@ export const AgendaContainer = styled.div`
     padding: 20px 20px;
     width: 100%;
     max-width: 700px;
+    align-items: center;
+`
+
+export const BackContainer = styled.div`
+    grid-area: back;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+`
+
+export const ForwardContainer = styled.div`
+    grid-area: forward;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
     align-items: center;
 `

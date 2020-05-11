@@ -27,6 +27,7 @@ const iconMapping = {
     slide_right: (w, h, c) => ic.slideRightIcon(w, h, c),
     up_level: (w, h, c) => ic.upLevelIcon(w, h, c),
     back: (w, h, c) => ic.backIcon(w, h, c),
+    forward: (w, h, c) => ic.forwardIcon(w, h, c),
     settings: (w, h, c) => ic.settingsIcon(w, h, c),
     subtask: (w, h, c) => ic.subtaskIcon(w, h, c),
 }
@@ -69,6 +70,7 @@ export interface ButtonProps {
         | 'slide_left'
         | 'up_level'
         | 'back'
+        | 'forward'
         | 'settings'
         | 'subtask'
 }
