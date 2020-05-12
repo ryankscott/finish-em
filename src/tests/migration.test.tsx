@@ -1,9 +1,9 @@
 import uuidv4 from 'uuid/v4'
 import Mockdate from 'mockdate'
-import { ItemType } from '../interfaces'
-import { migratev2tov3Items } from '../store'
+import { ItemType, ProjectType } from '../interfaces'
+import { migratev2tov3Items, migratev5tov6Projects } from '../store'
 
-describe('migration v2 test', () => {
+describe('migration tests', () => {
     it('should handle migration of a v2 item to a v3 item', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
@@ -123,5 +123,92 @@ describe('migration v2 test', () => {
             order: [id, childId1, childId2],
         })
         Mockdate.reset()
+    })
+    it('should handle the migration of a project of v5 to v6', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const id1 = uuidv4()
+        const id2 = uuidv4()
+
+        const v5Projects: ProjectType[] = [
+            {
+                id: null,
+                name: 'Inbox',
+                deleted: false,
+                description: 'Default landing space for all items',
+                lastUpdatedAt: new Date().toISOString(),
+                deletedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+            },
+            {
+                id: id,
+                name: 'Finish Em',
+                deleted: false,
+                description: 'All items relating to this project',
+                lastUpdatedAt: new Date().toISOString(),
+                deletedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+            },
+            {
+                id: id1,
+                name: 'Home',
+                deleted: false,
+                description: 'All items for home',
+                lastUpdatedAt: new Date().toISOString(),
+                deletedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+            },
+            {
+                id: id2,
+                name: 'Work',
+                deleted: false,
+                description: 'Non descript work items',
+                lastUpdatedAt: new Date().toISOString(),
+                deletedAt: new Date().toISOString(),
+                createdAt: new Date().toISOString(),
+            },
+        ]
+
+        expect(migratev5tov6Projects(v5Projects)).toEqual({
+            projects: {
+                '0': {
+                    id: '0',
+                    name: 'Inbox',
+                    deleted: false,
+                    description: 'Default landing space for all items',
+                    lastUpdatedAt: new Date().toISOString(),
+                    deletedAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                },
+                [id]: {
+                    id: id,
+                    name: 'Finish Em',
+                    deleted: false,
+                    description: 'All items relating to this project',
+                    lastUpdatedAt: new Date().toISOString(),
+                    deletedAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                },
+                [id1]: {
+                    id: id1,
+                    name: 'Home',
+                    deleted: false,
+                    description: 'All items for home',
+                    lastUpdatedAt: new Date().toISOString(),
+                    deletedAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                },
+                [id2]: {
+                    id: id2,
+                    name: 'Work',
+                    deleted: false,
+                    description: 'Non descript work items',
+                    lastUpdatedAt: new Date().toISOString(),
+                    deletedAt: new Date().toISOString(),
+                    createdAt: new Date().toISOString(),
+                },
+            },
+            order: ['0', id, id1, id2],
+        })
     })
 })

@@ -43,7 +43,7 @@ export interface Project {
 
 export interface Projects {
     projects: Project
-    order: Uuid[]
+    order: (Uuid | string)[]
 }
 
 export interface UIType {

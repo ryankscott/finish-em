@@ -14,7 +14,6 @@ import Focusbar from './Focusbar'
 import ShortcutDialog from './ShortcutDialog'
 import { app as appKeymap } from '../keymap'
 import { theme } from '../theme'
-import { ProjectType } from '../interfaces'
 import {
     toggleShortcutDialog,
     showSidebar,

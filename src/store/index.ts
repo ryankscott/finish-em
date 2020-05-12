@@ -13,8 +13,14 @@ export const migratev5tov6Projects = (pts: ProjectType[]): Projects => {
     const order = []
     const projects = {}
     pts.forEach((p: ProjectType) => {
-        projects[p.id] = p
-        order.push(p.id)
+        if (p.id == null) {
+            projects['0'] = p
+            projects['0'].id = '0'
+            order.push('0')
+        } else {
+            projects[p.id] = p
+            order.push(p.id)
+        }
     })
     return { projects: projects, order: order }
 }
@@ -23,13 +29,8 @@ export const migratev2tov3Items = (its: ItemType[]): Items => {
     const o = []
     const is = {}
     its.forEach((i: ItemType) => {
-        if (i.id == null) {
-            is[0] = i
-            o.push(0)
-        } else {
-            is[i.id] = i
-            o.push(i.id)
-        }
+        is[i.id] = i
+        o.push(i.id)
     })
     return { items: is, order: o }
 }

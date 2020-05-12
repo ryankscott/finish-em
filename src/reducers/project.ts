@@ -1,13 +1,11 @@
-import uuidv4 from 'uuid/v4'
 import * as project from '../actions/project'
 import { Projects } from '../interfaces'
-import { Uuid } from '@typed/uuid'
 import produce from 'immer'
 
 const initialState: Projects = {
     projects: {
-        0: {
-            id: 0,
+        '0': {
+            id: '0',
             name: 'Inbox',
             deleted: false,
             description: 'Default landing space for all items',
