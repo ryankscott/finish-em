@@ -11,7 +11,7 @@ if (isElectron()) {
 
 export const migratev5tov6Items = (its: Items): Items => {
     const iTemp = Object.entries(its.items).map(([id, value]) => {
-        if (value.projectId == null) {
+        if (value.projectId == null || value.projectId == undefined) {
             value.projectId = '0'
         }
         return [id, value]

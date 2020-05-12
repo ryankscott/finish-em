@@ -5,7 +5,7 @@ import { theme, selectStyles } from '../theme'
 import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
-import { Item, ProjectType, Items, Projects } from '../interfaces'
+import { Item,  Items, Projects } from '../interfaces'
 import { Button } from './Button'
 import { Paragraph } from './Typography'
 import { removeItemTypeFromString} from '../utils'
@@ -27,9 +27,12 @@ const generateOptions = (
 
     const getItemText = (
         text: string,
-        projectId: Uuid,
+        projectId: Uuid | '0',
         projects: Projects,
     ): string => {
+        console.log(text)
+        console.log(projects)
+        console.log(projectId)
         const longText = `[${projects.projects[projectId].name}] ${removeItemTypeFromString(text)}`
         return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
     }
@@ -75,7 +78,7 @@ const generateOptions = (
 interface DispatchProps {}
 interface StateProps {
     items: Items
-    projects: ProjectType[]
+    projects: Projects
 }
 interface OwnProps {
     itemId: Uuid

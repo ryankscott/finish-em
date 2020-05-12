@@ -37,7 +37,7 @@ interface OwnProps {
     onSubmit: (value: string) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
-    projectId: Uuid
+    projectId: Uuid | "0"
     disableClick?: boolean
     completed: boolean
     showSelect?: boolean
