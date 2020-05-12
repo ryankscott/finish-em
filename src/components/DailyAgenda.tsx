@@ -35,7 +35,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         Week of year: {format(new Date(), 'w')} / 52
                     </Paragraph>
                     <Paragraph style={{ gridArea: 'week_of_quarter' }}>
-                        Week of quarter:
+                        Week of quarter:{' '}
                         {parseInt(format(new Date(), 'w')) % 13} / 13
                     </Paragraph>
                 </DateContainer>
