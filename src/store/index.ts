@@ -9,11 +9,25 @@ if (isElectron()) {
     createElectronStorage = window.require('redux-persist-electron-storage')
 }
 
+export const migratev5tov6Items = (its: Items): Items => {
+    const iTemp = Object.entries(its.items).map(([id, value]) => {
+        if (value.projectId == null) {
+            value.projectId = '0'
+        }
+        return [id, value]
+    })
+    const items = Object.fromEntries(iTemp)
+    return {
+        items: items,
+        order: its.order,
+    }
+}
+
 export const migratev5tov6Projects = (pts: ProjectType[]): Projects => {
     const order = []
     const projects = {}
     pts.forEach((p: ProjectType) => {
-        if (p.id == null) {
+        if (p.id == null || p.id == undefined) {
             projects['0'] = p
             projects['0'].id = '0'
             order.push('0')
@@ -72,6 +86,7 @@ const migrations = {
         return {
             ...state,
             projects: migratev5tov6Projects(state.projects),
+            items: migratev5tov6Items(state.items),
         }
     },
 }
