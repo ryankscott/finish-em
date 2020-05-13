@@ -31,6 +31,8 @@ export const migratev5tov6Projects = (pts: ProjectType[]): Projects => {
             projects['0'] = p
             projects['0'].id = '0'
             order.push('0')
+        } else if (p.deleted == true) {
+            projects[p.id] = p
         } else {
             projects[p.id] = p
             order.push(p.id)
