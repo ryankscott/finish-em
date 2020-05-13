@@ -5,6 +5,7 @@ import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
 import { Title } from './Typography'
 import { Container } from './styled/Inbox'
 import ItemCreator from './ItemCreator'
+import { ItemIcons } from './Item'
 
 function Inbox(): ReactElement {
     return (
@@ -24,6 +25,7 @@ function Inbox(): ReactElement {
                         filter: FilterEnum.ShowInbox,
                     }}
                     isFilterable={true}
+                    hideIcons={[ItemIcons.Project]}
                 />
             </Container>
         </ThemeProvider>
