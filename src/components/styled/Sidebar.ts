@@ -15,6 +15,7 @@ export const Container = styled.div<ContainerProps>`
     justify-content: space-between;
     transition: all 0.2s ease-in-out;
     height: 100%;
+    width: 100%;
     position: fixed;
     z-index: 1;
     top: 0;
