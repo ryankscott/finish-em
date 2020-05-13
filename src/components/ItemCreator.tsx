@@ -77,9 +77,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         if (props.shouldCloseOnSubmit) {
                             setShowItemCreator(false)
                         } else {
-                            console.log(textRef.current)
                             textRef.current.focus()
-                            console.log(document.activeElement)
                         }
                         if (props.onCreate) {
                             props.onCreate()

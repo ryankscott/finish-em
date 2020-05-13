@@ -194,6 +194,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         props.features.dragAndDrop,
     )
     const sortedItemsLength = Object.keys(sortedItems).length
+    console.log(sortedItems)
 
     return (
         <Container>

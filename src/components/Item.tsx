@@ -245,7 +245,6 @@ function Item(props: ItemProps): ReactElement {
             },
             MOVE_ITEM: (event) => {
                 if (props.deleted || props.completed) return
-                console.log('moving')
                 setCreateSubtaskDropdownVisible(false)
                 setDueDateDropdownVisible(false)
                 setScheduledDateDropdownVisible(false)
@@ -376,7 +375,9 @@ function Item(props: ItemProps): ReactElement {
             },
         },
     }
+
     const hiddenIcons = props.hideIcons || []
+
     useEffect(() => {
         if (!isDescriptionReadOnly) {
             editor.current.focus()
@@ -551,7 +552,12 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </ConvertSubtaskContainer>
 
-                    <ProjectContainer visible={projectDropdownVisible}>
+                    <ProjectContainer
+                        visible={
+                            projectDropdownVisible ||
+                            !hiddenIcons?.includes(ItemIcons.Project)
+                        }
+                    >
                         <ProjectDropdown
                             key={'pd' + props.id}
                             style={'default'}
@@ -561,6 +567,7 @@ function Item(props: ItemProps): ReactElement {
                             completed={props.completed}
                             onSubmit={(projectId) => {
                                 props.moveItem(props.id, projectId)
+                                setProjectDropdownVisible(false)
                             }}
                         />
                     </ProjectContainer>

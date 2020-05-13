@@ -30,9 +30,6 @@ const generateOptions = (
         projectId: Uuid | '0',
         projects: Projects,
     ): string => {
-        console.log(text)
-        console.log(projects)
-        console.log(projectId)
         const longText = `[${projects.projects[projectId].name}] ${removeItemTypeFromString(text)}`
         return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
     }
