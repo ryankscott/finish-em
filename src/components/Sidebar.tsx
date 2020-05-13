@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, Dispatch } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 
@@ -7,7 +7,7 @@ import { theme } from '../theme'
 import CreateProjectDialog from './CreateProjectDialog'
 import { Header } from './Typography'
 import { showCreateProjectDialog, toggleSidebar } from '../actions'
-import { ProjectType } from '../interfaces'
+import { Projects } from '../interfaces'
 import {
     Container,
     SectionHeader,
@@ -19,11 +19,19 @@ import {
 import { Button } from './Button'
 import { createShortProjectName } from '../utils'
 import Settings from './Settings'
+import { Uuid } from '@typed/uuid'
 
-interface SidebarProps {
+interface StateProps {
+    projects: Projects
     sidebarVisible: boolean
-    projects: ProjectType[]
 }
+interface DispatchProps {
+    showCreateProjectDialog: () => void
+    toggleSidebar: () => void
+}
+interface OwnProps {}
+
+type SidebarProps = StateProps & DispatchProps & OwnProps
 const Sidebar = (props: SidebarProps): ReactElement => {
     return (
         <ThemeProvider theme={theme}>
@@ -134,35 +142,38 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         {props.sidebarVisible && <Header>Projects</Header>}
                         {props.sidebarVisible && <CreateProjectDialog />}
                     </SectionHeader>
-                    {props.projects.map((p: ProjectType) => {
-                        const pathName = '/projects/' + p.id
-                        if (!(p.id == null || p.deleted == true)) {
-                            return (
-                                <StyledNavLink
-                                    key={p.id}
-                                    to={pathName}
-                                    activeStyle={{
-                                        backgroundColor: lighten(
-                                            0.05,
-                                            theme.colours.altBackgroundColour,
-                                        ),
-                                    }}
-                                >
-                                    <Button
-                                        text={
-                                            props.sidebarVisible
-                                                ? p.name
-                                                : createShortProjectName(p.name)
-                                        }
-                                        spacing="compact"
-                                        type="subtle"
-                                        onClick={() => {}}
-                                        textSize="small"
-                                        iconSize="16px"
-                                    />
-                                </StyledNavLink>
-                            )
-                        }
+                    {props.projects.order?.map((p: Uuid) => {
+                        // Don't render the inbox here
+                        if (p == 0) return
+                        const pathName = '/projects/' + p
+                        const project = props.projects.projects[p]
+                        return (
+                            <StyledNavLink
+                                key={p}
+                                to={pathName}
+                                activeStyle={{
+                                    backgroundColor: lighten(
+                                        0.05,
+                                        theme.colours.altBackgroundColour,
+                                    ),
+                                }}
+                            >
+                                <Button
+                                    text={
+                                        props.sidebarVisible
+                                            ? project.name
+                                            : createShortProjectName(
+                                                  project.name,
+                                              )
+                                    }
+                                    spacing="compact"
+                                    type="subtle"
+                                    onClick={() => {}}
+                                    textSize="small"
+                                    iconSize="16px"
+                                />
+                            </StyledNavLink>
+                        )
                     })}
                 </BodyContainer>
                 <Footer visible={props.sidebarVisible}>
@@ -172,7 +183,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             width: '100%',
                         }}
                     >
-                        <Settings collapsed={!props.sidebarVisible} />
+                        <Settings />
                     </div>
                     <div style={{ gridArea: 'collapse' }}>
                         <Button
@@ -195,11 +206,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     sidebarVisible: state.ui.sidebarVisible,
 })
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     showCreateProjectDialog: () => {
         dispatch(showCreateProjectDialog())
     },

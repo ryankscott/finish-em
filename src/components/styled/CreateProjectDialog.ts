@@ -4,6 +4,7 @@ export const StyledInput = styled.input`
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     height: 30px;
     margin: 2px 5px;
+    padding: 2px 5px;
 `
 export const HeaderContainer = styled.div`
     display: flex;

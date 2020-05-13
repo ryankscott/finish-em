@@ -35,6 +35,5 @@ export const item = {
     NEXT_ITEM: 'ArrowDown',
     PREV_ITEM: 'ArrowUp',
     ESCAPE: 'Escape',
-    SET_ACTIVE_ITEM: ' ',
     CONVERT_TO_SUBTASK: 'i v',
 }

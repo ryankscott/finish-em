@@ -7,32 +7,37 @@ import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
-import { ProjectType } from '../interfaces'
+import { Projects, Project } from '../interfaces'
 import { Container, DisabledContainer } from './styled/ProjectDropdown'
-import { getProjectNameById } from '../utils'
 import { Button } from './Button'
 import { Paragraph } from './Typography'
 
 const generateOptions = (
-    options: ProjectType[],
+    projectId: Uuid
+    options: Project,
 ): { value: Uuid; label: string }[] => {
-    return options
-        .filter((m) => m.id != null)
-        .filter((m) => m.deleted == false)
-        .map((m) => ({ value: m.id, label: m.name }))
+    const p =
+        Object.values(options).length > 0
+            ? Object.values(options)
+            : [Object.values(options)]
+    return p
+        .filter((p) => p.id != '0')
+        .filter((p) => p.id != projectId)
+        .filter((p) => p.deleted == false)
+        .map((p) => ({ value: p.id, label: p.name }))
 }
 
 interface DispatchProps {
     createProject: (id: Uuid, value: string) => void
 }
 interface StateProps {
-    projects: ProjectType[]
+    projects: Projects
 }
 interface OwnProps {
     onSubmit: (value: string) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
-    projectId: Uuid
+    projectId: Uuid | "0"
     disableClick?: boolean
     completed: boolean
     showSelect?: boolean
@@ -60,10 +65,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                 {props.disableClick ? (
                     <DisabledContainer>
                         <Paragraph>
-                            {getProjectNameById(
-                                props.projectId,
-                                props.projects,
-                            )}
+                            {props.projects.projects[props.projectId].name}
                         </Paragraph>
                     </DisabledContainer>
                 ) : (
@@ -75,20 +77,17 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                             setShowSelect(!showSelect)
                             e.stopPropagation()
                         }}
-                        text={getProjectNameById(
-                            props.projectId,
-                            props.projects,
-                        )}
+                        text={props.projects.projects[props.projectId].name}
                     />
                 )}
                 {(showSelect || props.showSelect) && (
-                    <Container visible={props.projects.length > 1}>
+                    <Container visible={props.projects.order.length > 1}>
                         <CreatableSelect
                             autoFocus={true}
                             placeholder={'Project:'}
                             isSearchable
                             onChange={handleChange}
-                            options={generateOptions(props.projects)}
+                            options={generateOptions(props.projectId, props.projects.projects)}
                             styles={selectStyles}
                             escapeClearsValue={true}
                             defaultMenuIsOpen={true}
@@ -96,7 +95,6 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                                 if (e.key == 'Escape') {
                                     setShowSelect(false)
                                 }
-                                e.stopPropagation()
                             }}
                         />
                     </Container>

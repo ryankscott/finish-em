@@ -14,7 +14,7 @@ export const getFilteredItems = (state, props): Item => {
             case 'SHOW_INBOX':
                 return filterItems(
                     items,
-                    (i) => i.projectId == null && i.deleted == false,
+                    (i) => i.projectId == '0' && i.deleted == false,
                 )
             case 'SHOW_COMPLETED':
                 return filterItems(

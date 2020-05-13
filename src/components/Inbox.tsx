@@ -15,6 +15,7 @@ function Inbox(): ReactElement {
                     type="item"
                     buttonText="Add Item"
                     initiallyExpanded={false}
+                    projectId={'0'}
                 />
                 <FilteredItemList
                     listName="Items"

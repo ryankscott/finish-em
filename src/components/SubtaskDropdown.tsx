@@ -5,35 +5,35 @@ import { theme, selectStyles } from '../theme'
 import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
-import { Item, ProjectType, Items } from '../interfaces'
+import { Item,  Items, Projects } from '../interfaces'
 import { Button } from './Button'
 import { Paragraph } from './Typography'
-import { removeItemTypeFromString, getProjectNameById } from '../utils'
+import { removeItemTypeFromString} from '../utils'
 import { subtaskIcon } from '../assets/icons'
 import { DisabledContainer, Container } from './styled/SubtaskDropdown'
 
 const generateOptions = (
     options: Item,
-    projects: ProjectType[],
+    projects: Projects,
     parentId: Uuid,
     itemId: Uuid
 ): {
     label: string
     options: {
-        value: Uuid | null
+        value: Uuid | '0'
         label: string
     }[]
 }[] => {
+
     const getItemText = (
         text: string,
-        projectId: Uuid,
-        projects: ProjectType[],
+        projectId: Uuid | '0',
+        projects: Projects,
     ): string => {
-        const longText = `[${getProjectNameById(
-            projectId,
-            projects,
-        )}] ${removeItemTypeFromString(text)}`
-
+        console.log(text)
+        console.log(projects)
+        console.log(projectId)
+        const longText = `[${projects.projects[projectId].name}] ${removeItemTypeFromString(text)}`
         return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
     }
 
@@ -53,6 +53,7 @@ const generateOptions = (
                 label: getItemText(m.text, m.projectId, projects),
             }
         })
+
     const createOptions = (
         options: {
             value: Uuid | null
@@ -77,7 +78,7 @@ const generateOptions = (
 interface DispatchProps {}
 interface StateProps {
     items: Items
-    projects: ProjectType[]
+    projects: Projects
 }
 interface OwnProps {
     itemId: Uuid

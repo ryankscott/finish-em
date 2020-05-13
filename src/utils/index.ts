@@ -156,20 +156,6 @@ export const capitaliseEachWordInString = (text: string): string => {
         .join(' ')
 }
 
-export const getProjectById = (
-    id: Uuid,
-    projects: ProjectType[],
-): ProjectType => {
-    return projects.find((i) => i.id == id)
-}
-
-export const getProjectNameById = (
-    id: Uuid,
-    projects: ProjectType[],
-): string => {
-    const p = projects.find((i) => i.id == id)
-    return p ? p.name : 'Inbox'
-}
 export const hasEmoji = (input: string): boolean => {
     return emojiRegex.test(input)
 }

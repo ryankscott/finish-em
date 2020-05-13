@@ -8,7 +8,7 @@ export interface ItemType {
     completed: boolean
     parentId: Uuid
     children: Uuid[]
-    projectId: Uuid
+    projectId: Uuid | '0'
     dueDate: string
     scheduledDate: string
     lastUpdatedAt: string
@@ -28,13 +28,22 @@ export type Items = {
 }
 
 export interface ProjectType {
-    id: Uuid
+    id: Uuid | '0'
     name: string
     deleted: boolean
     description: string
     lastUpdatedAt: string
     deletedAt: string
     createdAt: string
+}
+
+export interface Project {
+    [key: string]: ProjectType
+}
+
+export interface Projects {
+    projects: Project
+    order: (Uuid | string)[]
 }
 
 export interface UIType {
