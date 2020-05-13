@@ -105,7 +105,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                 type="default"
                                 spacing="compact"
                                 onClick={() => props.setActiveItem(i.parentId)}
-                                icon={'up_level'}
+                                icon={'upLevel'}
                             ></Button>
                             <Tooltip id="up-button" text={'Up level'} />
                         </div>
@@ -142,8 +142,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             i.type == 'NOTE'
                                 ? 'note'
                                 : i.completed
-                                ? 'todo_checked'
-                                : 'todo_unchecked'
+                                ? 'todoChecked'
+                                : 'todoUnchecked'
                         }
                     />
                     <EditableText

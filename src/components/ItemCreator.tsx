@@ -95,9 +95,9 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state) => ({})
+const mapStateToProps = (state): StateProps => ({})
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     createItem: (text: string, projectId: Uuid) => {
         dispatch(createItem(uuidv4(), text, projectId))
     },

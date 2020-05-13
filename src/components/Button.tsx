@@ -14,22 +14,24 @@ const iconMapping = {
     scheduled: (w, h, c) => ic.scheduledIcon(w, h, c),
     note: (w, h, c) => ic.noteIcon(w, h, c),
     add: (w, h, c) => ic.addIcon(w, h, c),
-    todo_unchecked: (w, h, c) => ic.todoUncheckedIcon(w, h, c),
-    todo_checked: (w, h, c) => ic.todoCheckedIcon(w, h, c),
+    todoUnchecked: (w, h, c) => ic.todoUncheckedIcon(w, h, c),
+    todoChecked: (w, h, c) => ic.todoCheckedIcon(w, h, c),
     trash: (w, h, c) => ic.trashIcon(w, h, c),
-    trash_sweep: (w, h, c) => ic.trashSweepIcon(w, h, c),
+    trashSweep: (w, h, c) => ic.trashSweepIcon(w, h, c),
     hide: (w, h, c) => ic.hideIcon(w, h, c),
     show: (w, h, c) => ic.showIcon(w, h, c),
     sort: (w, h, c) => ic.sortIcon(w, h, c),
     inbox: (w, h, c) => ic.inboxIcon(w, h, c),
     calendar: (w, h, c) => ic.calendarIcon(w, h, c),
-    slide_left: (w, h, c) => ic.slideLeftIcon(w, h, c),
-    slide_right: (w, h, c) => ic.slideRightIcon(w, h, c),
-    up_level: (w, h, c) => ic.upLevelIcon(w, h, c),
+    slideLeft: (w, h, c) => ic.slideLeftIcon(w, h, c),
+    slideRight: (w, h, c) => ic.slideRightIcon(w, h, c),
+    upLevel: (w, h, c) => ic.upLevelIcon(w, h, c),
     back: (w, h, c) => ic.backIcon(w, h, c),
     forward: (w, h, c) => ic.forwardIcon(w, h, c),
     settings: (w, h, c) => ic.settingsIcon(w, h, c),
     subtask: (w, h, c) => ic.subtaskIcon(w, h, c),
+    more: (w, h, c) => ic.moreIcon(w, h, c),
+    flag: (w, h, c) => ic.flagIcon(w, h, c),
 }
 
 // TODO: Change width and height to strings
@@ -57,22 +59,24 @@ export interface ButtonProps {
         | 'scheduled'
         | 'note'
         | 'add'
-        | 'todo_unchecked'
-        | 'todo_checked'
+        | 'todoUnchecked'
+        | 'todoChecked'
         | 'trash'
-        | 'trash_sweep'
+        | 'trashSweep'
         | 'show'
         | 'hide'
         | 'sort'
         | 'inbox'
         | 'calendar'
-        | 'slide_right'
-        | 'slide_left'
-        | 'up_level'
+        | 'slideRight'
+        | 'slideLeft'
+        | 'upLevel'
         | 'back'
         | 'forward'
         | 'settings'
         | 'subtask'
+        | 'more'
+        | 'flag'
 }
 
 const getTheme = (type: string): {} => {

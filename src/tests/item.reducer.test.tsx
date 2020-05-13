@@ -38,6 +38,7 @@ describe('item reducer', () => {
                     parentId: null,
                     projectId: '0',
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id],
@@ -75,6 +76,7 @@ describe('item reducer', () => {
                     lastUpdatedAt: new Date().toISOString(),
                     repeat: null,
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id],
@@ -107,6 +109,7 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: null,
                             children: [],
+                            flagged: false,
                         },
                     },
                     order: [id],
@@ -133,9 +136,10 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: null,
                     children: [],
+                    flagged: false,
                 },
             },
-            order: [],
+            order: [id],
         })
         Mockdate.reset()
     })

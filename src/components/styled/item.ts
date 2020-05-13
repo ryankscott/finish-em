@@ -3,6 +3,7 @@ import styled from 'styled-components'
 interface ContainerProps {
     isSubtask: boolean
     noIndentOnSubtasks: boolean
+    flagged: boolean
 }
 export const Container = styled.div<ContainerProps>`
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
@@ -17,7 +18,7 @@ export const Container = styled.div<ContainerProps>`
             : '30px 30px repeat(20, 1fr)'};
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
-        'EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT'
+        'EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
         'SUBTASK SUBTASK SUBTASK SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . .  DUE DUE DUE DUE . . .  REPEAT REPEAT REPEAT REPEAT REPEAT';
     border-bottom: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-top: ${(props) => (props.hidden ? '0px' : '1px solid')};
@@ -26,9 +27,15 @@ export const Container = styled.div<ContainerProps>`
     align-items: center;
     cursor: pointer;
     color: ${(props) => props.theme.colours.defaultTextColour};
+    background-color: ${(props) =>
+        props.flagged
+            ? props.theme.colours.errorBackgroundColour
+            : props.theme.colours.backgroundColour};
     :focus {
         background-color: ${(props) =>
-            props.theme.colours.focusBackgroundColour};
+            props.flagged
+                ? props.theme.colours.errorBackgroundColour
+                : props.theme.colours.focusBackgroundColour};
         border-color: ${(props) => props.theme.colours.focusBorderColour};
     }
 `
@@ -99,12 +106,21 @@ export const RepeatContainer = styled.div<RepeatContainerProps>`
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: center;
 `
-interface SubtaskContainerProps {
+interface ConvertSubtaskContainerProps {
     visible: boolean
 }
-export const SubtaskContainer = styled.div<SubtaskContainerProps>`
+export const ConvertSubtaskContainer = styled.div<ConvertSubtaskContainerProps>`
     grid-area: SUBTASK;
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-start;
+`
+interface MoreContainerProps {
+    visible: boolean
+}
+export const MoreContainer = styled.div<MoreContainerProps>`
+    grid-area: MORE;
+    position: relative;
+    display: ${(props) => (props.visible ? 'flex' : 'none')};
+    justify-content: flex-end;
 `

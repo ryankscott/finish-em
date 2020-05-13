@@ -16,6 +16,7 @@ export interface ItemType {
     createdAt: string
     deletedAt: string
     repeat: string
+    flagged: boolean
 }
 
 export interface Item {

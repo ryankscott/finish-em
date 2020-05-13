@@ -16,6 +16,7 @@ export const SHOW_CHILDREN = 'SHOW_CHILDREN'
 export const REORDER_ITEM = 'REORDER_ITEM'
 export const CONVERT_SUBTASK = 'CONVERT_SUBTASK'
 export const CHANGE_PARENT_ITEM = 'CHANGE_PARENT_ITEM'
+export const TOGGLE_FLAG = 'TOGGLE_FLAG'
 
 import { getItemTypeFromString, capitaliseItemTypeFromString } from '../utils'
 import RRule from 'rrule'
@@ -216,6 +217,18 @@ export function changeParentItem(
     }
 }
 
+export interface ToggleFlagAction {
+    type: typeof TOGGLE_FLAG
+    id: Uuid
+}
+
+export function toggleFlag(id: Uuid): ToggleFlagAction {
+    return {
+        type: TOGGLE_FLAG,
+        id: id,
+    }
+}
+
 export type ItemActions =
     | AddChildItemAction
     | UpdateItemDescriptionAction
@@ -231,3 +244,4 @@ export type ItemActions =
     | ReorderItemAction
     | ConvertSubtaskAction
     | ChangeParentItemAction
+    | ToggleFlagAction
