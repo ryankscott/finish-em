@@ -13,7 +13,7 @@ import { Button } from './Button'
 import { Paragraph } from './Typography'
 
 const generateOptions = (
-    projectId: Uuid
+    projectId: Uuid,
     options: Project,
 ): { value: Uuid; label: string }[] => {
     const p =
@@ -37,7 +37,7 @@ interface OwnProps {
     onSubmit: (value: string) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
-    projectId: Uuid | "0"
+    projectId: Uuid | '0'
     disableClick?: boolean
     completed: boolean
     showSelect?: boolean
@@ -64,7 +64,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
             <div>
                 {props.disableClick ? (
                     <DisabledContainer>
-                        <Paragraph>
+                        <Paragraph invert>
                             {props.projects.projects[props.projectId].name}
                         </Paragraph>
                     </DisabledContainer>
@@ -87,7 +87,10 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                             placeholder={'Project:'}
                             isSearchable
                             onChange={handleChange}
-                            options={generateOptions(props.projectId, props.projects.projects)}
+                            options={generateOptions(
+                                props.projectId,
+                                props.projects.projects,
+                            )}
                             styles={selectStyles}
                             escapeClearsValue={true}
                             defaultMenuIsOpen={true}

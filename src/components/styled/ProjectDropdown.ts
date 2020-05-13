@@ -26,4 +26,7 @@ export const DisabledContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    background-color: ${(props) => props.theme.colours.primaryColour};
+    border-radius: 5px;
+    padding: 2px 5px;
 `

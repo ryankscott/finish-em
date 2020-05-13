@@ -18,7 +18,7 @@ export const Container = styled.div<ContainerProps>`
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
         'EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT'
-        'SUBTASK SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . . . DUE DUE DUE DUE . . . . REPEAT REPEAT REPEAT REPEAT REPEAT';
+        'SUBTASK SUBTASK SUBTASK SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . .  DUE DUE DUE DUE . . .  REPEAT REPEAT REPEAT REPEAT REPEAT';
     border-bottom: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-top: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-color: ${(props) => props.theme.colours.borderColour};
@@ -78,7 +78,7 @@ export const ScheduledContainer = styled.div<ScheduledContainerProps>`
     grid-area: SCHEDULED;
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
-    justify-content: flex-start;
+    justify-content: center;
 `
 
 interface DueContainerProps {
@@ -97,7 +97,7 @@ export const RepeatContainer = styled.div<RepeatContainerProps>`
     grid-area: REPEAT;
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
-    justify-content: flex-end;
+    justify-content: center;
 `
 interface SubtaskContainerProps {
     visible: boolean
@@ -106,5 +106,5 @@ export const SubtaskContainer = styled.div<SubtaskContainerProps>`
     grid-area: SUBTASK;
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
-    justify-content: flex-end;
+    justify-content: flex-start;
 `
