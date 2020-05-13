@@ -67,10 +67,7 @@ export const itemReducer = produce(
                     })
                     i.children = []
                 }
-                // Remove from order
-                draftState.order = draftState.order.filter(
-                    (o) => o != action.id,
-                )
+                // NOTE: We don't remove from order due to things like the trash view
                 break
 
             case item.UNDELETE_ITEM:
