@@ -15,7 +15,6 @@ export const Container = styled.div<ContainerProps>`
     justify-content: space-between;
     transition: all 0.2s ease-in-out;
     height: 100%;
-    width: 100%;
     position: fixed;
     z-index: 1;
     top: 0;
@@ -24,6 +23,7 @@ export const Container = styled.div<ContainerProps>`
 export const BodyContainer = styled.div`
     display: flex;
     flex-direction: column;
+    width: 100%;
 `
 
 export const StyledNavLink = styled(NavLink)`
