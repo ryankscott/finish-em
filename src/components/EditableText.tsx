@@ -103,6 +103,14 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
     }
 
+    const handleKeyUp = (e): void => {
+        if (e.key == 'Escape') {
+            if (props.onEditingChange) {
+                props.onEditingChange(false)
+            }
+            setEditable(false)
+        }
+    }
     const handleKeyPress = (e): void => {
         const currentVal = props.innerRef.current.innerText
 
@@ -124,8 +132,12 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                             '<br/>',
                         ),
                     )
+
+                    // If we're clearing on submission we should clear the input and continue allowing editing
                     if (props.shouldClearOnSubmit) {
+                        e.preventDefault()
                         clearInput()
+                    } else {
                         setEditable(false)
                     }
                 }
@@ -134,17 +146,16 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 props.onUpdate(
                     props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
                 )
+                // If we're clearing on submission we should clear the input and continue allowing editing
                 if (props.shouldClearOnSubmit) {
+                    e.preventDefault()
                     clearInput()
+                } else {
                     setEditable(false)
                 }
+
                 return
             }
-        } else if (e.key == 'Escape') {
-            if (props.onEditingChange) {
-                props.onEditingChange(false)
-            }
-            setEditable(false)
         }
         return
     }
@@ -202,6 +213,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 onBlur={handleBlur}
                 tabIndex={-1}
                 onKeyPress={handleKeyPress}
+                onKeyUp={handleKeyUp}
                 dangerouslySetInnerHTML={
                     editable ? getRawText() : getMarkdownText()
                 }
