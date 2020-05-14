@@ -37,14 +37,13 @@ export const dueIcon = (
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
-        fill="none"
+        fill={colour ? colour : 'currentColor'}
         stroke={colour ? colour : 'currentColor'}
-        strokeWidth="2"
+        strokeWidth="0.1"
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-        <line x1="4" y1="22" x2="4" y2="15"></line>
+        <path d="M22 5.72l-4.6-3.86-1.29 1.53 4.6 3.86L22 5.72zM7.88 3.39L6.6 1.86 2 5.71l1.29 1.53 4.59-3.85zM12.5 8H11v6l4.75 2.85.75-1.23-4-2.37V8zM12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
     </svg>
 )
 
@@ -403,16 +402,13 @@ export const calendarIcon = (
         width={width ? width : '16'}
         height={height ? height : '16'}
         viewBox="0 0 24 24"
-        fill="none"
+        fill={colour ? colour : 'currentColor'}
         stroke={colour ? colour : 'currentColor'}
-        strokeWidth="2"
+        strokeWidth="0.1"
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-        <line x1="16" y1="2" x2="16" y2="6"></line>
-        <line x1="8" y1="2" x2="8" y2="6"></line>
-        <line x1="3" y1="10" x2="21" y2="10"></line>
+        <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zm0-12H5V5h14v2zM7 11h5v5H7z" />
     </svg>
 )
 
@@ -567,5 +563,48 @@ export const subtaskIcon = (
             transform="rotate(90)"
         />
         <path d="m 12.75,24 h 10.5 v -8 h -4.5 c -0.0351,-1.235437 -0.06497,-3.76714 0,-5 h -6 V 8 H 17 V 0 H 7 v 8 h 4.25 v 3 h -6 v 5 h -4.5 v 8 h 10.6 l -0.1,-8 h -4.5 v -3.5 h 10.5 V 16 h -4.5 z M 8.5,6.5 v -5 h 7 v 5 z m 1.25,11 v 5 h -7.5 v -5 z m 12,0 v 5 h -7.5 v -5 z" />
+    </svg>
+)
+
+export const moreIcon = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <circle cx="12" cy="12" r="1"></circle>
+        <circle cx="12" cy="5" r="1"></circle>
+        <circle cx="12" cy="19" r="1"></circle>
+    </svg>
+)
+
+export const flagIcon = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+        <line x1="4" y1="22" x2="4" y2="15"></line>
     </svg>
 )

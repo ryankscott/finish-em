@@ -128,7 +128,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         }}
                     >
                         <Button
-                            icon="todo_checked"
+                            icon="todoChecked"
                             text={props.sidebarVisible ? 'Completed' : ''}
                             spacing="compact"
                             type="subtle"
@@ -190,8 +190,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             spacing="compact"
                             icon={
                                 props.sidebarVisible
-                                    ? 'slide_left'
-                                    : 'slide_right'
+                                    ? 'slideLeft'
+                                    : 'slideRight'
                             }
                             type="invert"
                             onClick={() => {

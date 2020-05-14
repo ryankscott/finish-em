@@ -15,7 +15,8 @@ import {
     RepeatContainer,
     TypeContainer,
     ProjectContainer,
-    SubtaskContainer as ConvertSubtaskContainer,
+    ConvertSubtaskContainer,
+    MoreContainer,
 } from './styled/Item'
 
 import {
@@ -49,6 +50,7 @@ import { parseISO } from 'date-fns'
 import { Button } from './Button'
 import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
+import MoreDropdown from './MoreDropdown'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
 export enum ItemIcons {
@@ -469,6 +471,7 @@ function Item(props: ItemProps): ReactElement {
         <ThemeProvider theme={theme}>
             <div key={props.id} id={props.id}>
                 <Container
+                    flagged={props.flagged}
                     key={props.id}
                     ref={container}
                     noIndentOnSubtasks={props.noIndentOnSubtasks}
@@ -485,7 +488,7 @@ function Item(props: ItemProps): ReactElement {
                     {props.children?.length > 0 && (
                         <ExpandContainer>
                             <Button
-                                type="default"
+                                type="subtleInvert"
                                 onClick={handleExpand}
                                 icon={hideChildren ? 'expand' : 'collapse'}
                             ></Button>
@@ -493,15 +496,15 @@ function Item(props: ItemProps): ReactElement {
                     )}
                     <TypeContainer>
                         <Button
-                            type="default"
+                            type="subtleInvert"
                             spacing="compact"
                             onClick={handleIconClick}
                             icon={
                                 props.type == 'NOTE'
                                     ? 'note'
                                     : props.completed
-                                    ? 'todo_checked'
-                                    : 'todo_unchecked'
+                                    ? 'todoChecked'
+                                    : 'todoUnchecked'
                             }
                         />
                     </TypeContainer>
@@ -526,6 +529,28 @@ function Item(props: ItemProps): ReactElement {
                             shouldClearOnSubmit={false}
                         />
                     </Body>
+                    <ProjectContainer
+                        visible={
+                            projectDropdownVisible ||
+                            !hiddenIcons?.includes(ItemIcons.Project)
+                        }
+                    >
+                        <ProjectDropdown
+                            key={'pd' + props.id}
+                            style={'default'}
+                            showSelect={projectDropdownVisible}
+                            disableClick={true}
+                            projectId={props.projectId}
+                            completed={props.completed}
+                            onSubmit={(projectId) => {
+                                props.moveItem(props.id, projectId)
+                                setProjectDropdownVisible(false)
+                            }}
+                        />
+                    </ProjectContainer>
+                    <MoreContainer visible={true}>
+                        <MoreDropdown itemId={props.id}></MoreDropdown>
+                    </MoreContainer>
                     <ConvertSubtaskContainer
                         visible={
                             !hiddenIcons.includes(ItemIcons.Subtask) &&
@@ -552,25 +577,6 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </ConvertSubtaskContainer>
 
-                    <ProjectContainer
-                        visible={
-                            projectDropdownVisible ||
-                            !hiddenIcons?.includes(ItemIcons.Project)
-                        }
-                    >
-                        <ProjectDropdown
-                            key={'pd' + props.id}
-                            style={'default'}
-                            showSelect={projectDropdownVisible}
-                            disableClick={true}
-                            projectId={props.projectId}
-                            completed={props.completed}
-                            onSubmit={(projectId) => {
-                                props.moveItem(props.id, projectId)
-                                setProjectDropdownVisible(false)
-                            }}
-                        />
-                    </ProjectContainer>
                     <ScheduledContainer
                         visible={
                             (scheduledDateDropdownVisible ||

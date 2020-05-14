@@ -5,6 +5,7 @@ export const theme = {
         sansSerif: '-apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
     },
     fontSizes: {
+        xxxsmall: '11px',
         xxsmall: '12px',
         xsmall: '13px',
         small: '14px',
@@ -46,14 +47,16 @@ export const theme = {
             hoverBackgroundColour: darken(0.05, '#fe5e41'),
         },
         subtle: {
-            backgroundColour: 'inherit',
+            backgroundColour: 'rgba(255,255,255, 0.01)',
             colour: '#EEEEEE',
             borderColour: '#e0e0e0',
+            hoverBackgroundColour: 'rgba(255,255,255, 0.01)',
         },
         subtleInvert: {
-            backgroundColour: 'inherit',
+            backgroundColour: 'rgba(0,0,0, 0.01)',
             colour: '#333333',
             borderColour: 'none',
+            hoverBackgroundColour: 'rgba(0,0,0, 0.05)',
         },
     },
     colours: {
@@ -77,6 +80,7 @@ export const theme = {
         okColour: '#59cd90',
         neutralColour: '#45b9ef',
         errorColour: '#fe5e41',
+        errorBackgroundColour: lighten(0.3, '#fe5e41'),
         warningColour: '#f9df77',
         defaultIconColour: '#333333',
         lightIconColour: '#CCCCCC',

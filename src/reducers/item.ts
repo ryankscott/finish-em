@@ -37,6 +37,7 @@ export const itemReducer = produce(
                     repeat: null,
                     parentId: null,
                     children: [],
+                    flagged: false,
                 }
                 if (draftState.order) {
                     draftState.order = [...draftState.order, action.id]
@@ -194,17 +195,25 @@ export const itemReducer = produce(
                 newParent.lastUpdatedAt = new Date().toISOString()
                 break
 
+            case item.TOGGLE_FLAG:
+                i.flagged = !i.flagged
+                i.lastUpdatedAt = new Date().toISOString()
+                break
+
             // TODO: Implement the deleting of project action
-            /*case DELETE_PROJECT:
-            return state.map((i) => {
-                if (i.projectId == action.id) {
-                    i.deleted = true
-                    i.projectId == null
-                    i.lastUpdatedAt = new Date().toISOString()
-                }
-                return i
-            })
-*/
+            case DELETE_PROJECT:
+                const x = Object.entries(draftState.items[action.id]).map(
+                    ([k, v]) => {
+                        if (v.projectId == action.id) {
+                            v.deleted = true
+                            v.projectId = null
+                            v.lastUpdatedAt = new Date().toISOString()
+                        }
+                        return [k, v]
+                    },
+                )
+                draftState.items = Object.fromEntries(x)
+                break
 
             default:
                 return draftState

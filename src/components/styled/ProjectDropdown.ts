@@ -1,26 +1,15 @@
 import styled from 'styled-components'
+import { Paragraph } from '../Typography'
 
 interface ContainerProps {
     visible: boolean
 }
 export const Container = styled.div<ContainerProps>`
     position: absolute;
-    display: flex;
     flex-direction: column;
     padding: 0px;
     margin: 0px;
-    display: ${(props) => (!props.visible ? 'none' : null)};
-`
-export const Project = styled.div`
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    margin: 2px 2px 2px 2px;
-    padding: 2px 4px;
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
-    color: ${(props) => props.theme.colours.altTextColour};
-    background-color: ${(props) => props.theme.colours.primaryColour};
-    border-radius: 5px;
+    display: ${(props) => (!props.visible ? 'none' : 'flex')};
 `
 export const DisabledContainer = styled.div`
     display: flex;
@@ -29,4 +18,8 @@ export const DisabledContainer = styled.div`
     background-color: ${(props) => props.theme.colours.primaryColour};
     border-radius: 5px;
     padding: 2px 5px;
+`
+export const ProjectName = styled(Paragraph)`
+    font-size: ${(props) => props.theme.fontSizes.xxxsmall};
+    color: ${(props) => props.theme.colours.altTextColour};
 `
