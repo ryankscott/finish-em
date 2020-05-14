@@ -8,9 +8,12 @@ import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
 import { Projects, Project } from '../interfaces'
-import { Container, DisabledContainer } from './styled/ProjectDropdown'
+import {
+    Container,
+    DisabledContainer,
+    ProjectName,
+} from './styled/ProjectDropdown'
 import { Button } from './Button'
-import { Paragraph } from './Typography'
 
 const generateOptions = (
     projectId: Uuid,
@@ -64,9 +67,9 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
             <div>
                 {props.disableClick ? (
                     <DisabledContainer>
-                        <Paragraph invert>
+                        <ProjectName>
                             {props.projects.projects[props.projectId].name}
-                        </Paragraph>
+                        </ProjectName>
                     </DisabledContainer>
                 ) : (
                     <Button

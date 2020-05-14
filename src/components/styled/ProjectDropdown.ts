@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { Paragraph } from '../Typography'
 
 interface ContainerProps {
     visible: boolean
@@ -17,4 +18,8 @@ export const DisabledContainer = styled.div`
     background-color: ${(props) => props.theme.colours.primaryColour};
     border-radius: 5px;
     padding: 2px 5px;
+`
+export const ProjectName = styled(Paragraph)`
+    font-size: ${(props) => props.theme.fontSizes.xxxsmall};
+    color: ${(props) => props.theme.colours.altTextColour};
 `
