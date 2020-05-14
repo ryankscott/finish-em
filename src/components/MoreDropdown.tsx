@@ -31,6 +31,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                     type={'subtleInvert'}
                     spacing={'default'}
                     icon={'more'}
+                    width={'18px'}
                     onClick={(e) => {
                         setShowDialog(!showDialog)
                         e.stopPropagation()
@@ -49,7 +50,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                             }}
                         >
                             <Icon>{flagIcon(12, 12)}</Icon>
-                            {'Add Flag'}
+                            {'Toggle Flag'}
                         </Option>
                     </DialogContainer>
                 )}

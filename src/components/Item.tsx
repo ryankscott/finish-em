@@ -110,6 +110,7 @@ function Item(props: ItemProps): ReactElement {
     const [keyPresses, setKeyPresses] = useState([])
     const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
     const [projectDropdownVisible, setProjectDropdownVisible] = useState(false)
+    const [moreDropdownVisible, setMoreDropdownVisible] = useState(false)
 
     const quickAdd = React.createRef<HTMLInputElement>()
     const editor = React.createRef<HTMLInputElement>()
@@ -471,6 +472,12 @@ function Item(props: ItemProps): ReactElement {
         <ThemeProvider theme={theme}>
             <div key={props.id} id={props.id}>
                 <Container
+                    onMouseEnter={() => {
+                        setMoreDropdownVisible(true)
+                    }}
+                    onMouseLeave={() => {
+                        setMoreDropdownVisible(false)
+                    }}
                     flagged={props.flagged}
                     key={props.id}
                     ref={container}
@@ -548,7 +555,7 @@ function Item(props: ItemProps): ReactElement {
                             }}
                         />
                     </ProjectContainer>
-                    <MoreContainer visible={true}>
+                    <MoreContainer visible={moreDropdownVisible}>
                         <MoreDropdown itemId={props.id}></MoreDropdown>
                     </MoreContainer>
                     <ConvertSubtaskContainer
