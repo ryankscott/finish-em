@@ -144,7 +144,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     </SectionHeader>
                     {props.projects.order?.map((p: Uuid) => {
                         // Don't render the inbox here
-                        if (p == 0) return
+                        if (p == '0') return
                         const pathName = '/projects/' + p
                         const project = props.projects.projects[p]
                         return (
