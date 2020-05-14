@@ -1,52 +1,12 @@
 import React, { ReactElement, useState } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import { Button } from './Button'
 import { flagIcon } from '../assets/icons'
 import { Uuid } from '@typed/uuid'
 import { toggleFlag } from '../actions'
 import { connect } from 'react-redux'
-
-const DialogContainer = styled.div`
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    padding: 0px;
-    margin: 0px;
-    background-color: ${(props) => props.theme.colours.backgroundColour};
-    border: 1px solid;
-    border-color: ${(props) => props.theme.colours.borderColour};
-    border-radius: 5px;
-    min-width: 80px;
-    padding: 5px 0px;
-    z-index: 2;
-`
-const Icon = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    padding: 0px 2px;
-    padding-right: 5px;
-`
-
-const Option = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    background-color: ${(props) => props.theme.colours.backgroundColour};
-    padding: 2px 5px;
-    padding-left: 10px;
-    border-radius: 2px;
-    :hover {
-        background-color: ${(props) =>
-            props.theme.colours.lightDialogBackgroundColour};
-    }
-    font-size: ${(props) => props.theme.fontSizes.xxsmall};
-    font-family: ${(props) => props.theme.font.sansSerif};
-    color: ${(props) => props.theme.colours.defaultTextColour};
-    z-index: 3;
-`
+import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
 
 interface DispatchProps {
     toggleFlag: (id: Uuid) => void
@@ -89,7 +49,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                             }}
                         >
                             <Icon>{flagIcon(12, 12)}</Icon>
-                            {'Flag'}
+                            {'Add Flag'}
                         </Option>
                     </DialogContainer>
                 )}
