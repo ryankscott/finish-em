@@ -73,7 +73,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         // Ignore events if we're not editing
         if (!editable) return
         setEditable(false)
-        setInput(props.innerRef.current.innerText)
+
         if (props.onEditingChange) {
             props.onEditingChange(false)
         }
