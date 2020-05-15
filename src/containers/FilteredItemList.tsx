@@ -239,7 +239,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     spacing="compact"
                                     iconSize="18px"
                                     type="default"
-                                    icon="trash_sweep"
+                                    icon="trashSweep"
                                     onClick={() => {
                                         props.deleteCompletedItems(
                                             convertItemToItemType(
