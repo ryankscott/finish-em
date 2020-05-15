@@ -1,36 +1,34 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
+import { OptionsType } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import { theme, selectStyles } from '../theme'
 import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
-import { Item,  Items, Projects } from '../interfaces'
+import { Item, Items, Projects } from '../interfaces'
 import { Button } from './Button'
 import { Paragraph } from './Typography'
-import { removeItemTypeFromString} from '../utils'
+import { removeItemTypeFromString } from '../utils'
 import { subtaskIcon } from '../assets/icons'
 import { DisabledContainer, Container } from './styled/SubtaskDropdown'
+
+type OptionType = { value: string; label: string }
 
 const generateOptions = (
     options: Item,
     projects: Projects,
     parentId: Uuid,
-    itemId: Uuid
-): {
-    label: string
-    options: {
-        value: Uuid | '0'
-        label: string
-    }[]
-}[] => {
-
+    itemId: Uuid,
+): { label: string; options: OptionsType<OptionType> }[] => {
     const getItemText = (
         text: string,
         projectId: Uuid | '0',
         projects: Projects,
     ): string => {
-        const longText = `[${projects.projects[projectId].name}] ${removeItemTypeFromString(text)}`
+        const longText = `[${
+            projects.projects[projectId].name
+        }] ${removeItemTypeFromString(text)}`
         return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
     }
 
@@ -52,12 +50,9 @@ const generateOptions = (
         })
 
     const createOptions = (
-        options: {
-            value: Uuid | null
-            label: string
-        }[],
+        options: OptionsType<OptionType>,
         isSubtask: boolean,
-    ): => {
+    ): { label: string; options: OptionsType<OptionType> }[] => {
         return isSubtask
             ? [
                   {
@@ -72,7 +67,6 @@ const generateOptions = (
     return createOptions(filteredValues, parentId != null)
 }
 
-interface DispatchProps {}
 interface StateProps {
     items: Items
     projects: Projects
@@ -81,7 +75,7 @@ interface OwnProps {
     itemId: Uuid
     text: string
     parentId: Uuid | undefined
-    onSubmit: (value: string) => void
+    onSubmit: (value: Uuid) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     disableClick?: boolean
@@ -89,7 +83,7 @@ interface OwnProps {
     showSelect?: boolean
 }
 
-type SubtaskProps = DispatchProps & StateProps & OwnProps
+type SubtaskProps = StateProps & OwnProps
 function SubtaskDropdown(props: SubtaskProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
     const handleChange = (newValue, actionMeta): void => {
@@ -142,7 +136,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                                 props.items.items,
                                 props.projects,
                                 props.parentId,
-                                props.itemId
+                                props.itemId,
                             )}
                             styles={selectStyles}
                             escapeClearsValue={true}
@@ -159,11 +153,11 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
             </div>
         </ThemeProvider>
     )
-} 
+}
 
 const mapStateToProps = (state): StateProps => ({
     items: state.items,
     projects: state.projects,
 })
-const mapDispatchToProps = (dispatch): DispatchProps => ({})
+const mapDispatchToProps = (dispatch): {} => ({})
 export default connect(mapStateToProps, mapDispatchToProps)(SubtaskDropdown)

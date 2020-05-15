@@ -7,7 +7,7 @@ import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
-import { Projects, Project } from '../interfaces'
+import { Projects, Project, ProjectType } from '../interfaces'
 import {
     Container,
     DisabledContainer,
@@ -16,13 +16,10 @@ import {
 import { Button } from './Button'
 
 const generateOptions = (
-    projectId: Uuid,
+    projectId: Uuid | '0',
     options: Project,
-): { value: Uuid; label: string }[] => {
-    const p =
-        Object.values(options).length > 0
-            ? Object.values(options)
-            : [Object.values(options)]
+): { value: Uuid | '0'; label: string }[] => {
+    const p: ProjectType[] = Object.values(options)
     return p
         .filter((p) => p.id != '0')
         .filter((p) => p.id != projectId)
@@ -31,13 +28,13 @@ const generateOptions = (
 }
 
 interface DispatchProps {
-    createProject: (id: Uuid, value: string) => void
+    createProject: (id: Uuid, value: Uuid | '0') => void
 }
 interface StateProps {
     projects: Projects
 }
 interface OwnProps {
-    onSubmit: (value: string) => void
+    onSubmit: (value: Uuid | '0') => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     projectId: Uuid | '0'

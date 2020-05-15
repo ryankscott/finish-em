@@ -26,14 +26,14 @@ export interface CreateItemAction {
     id: Uuid
     itemType: 'TODO' | 'NOTE'
     text: string
-    projectId?: Uuid
+    projectId?: Uuid | '0'
     parentId?: Uuid
 }
 
 export function createItem(
     id: Uuid,
     text: string,
-    projectId?: Uuid,
+    projectId?: Uuid | '0',
     parentId?: Uuid,
 ): CreateItemAction {
     const itemType = getItemTypeFromString(text)

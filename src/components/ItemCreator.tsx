@@ -10,18 +10,16 @@ import { validateItemString } from '../utils'
 import { Container, ItemCreatorContainer } from './styled/ItemCreator'
 
 interface DispatchProps {
-    createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => void
-    createItem: (text: string, projectId: Uuid) => void
+    createSubTask: (parentId: Uuid, text: string, projectId: Uuid | '0') => void
+    createItem: (text: string, projectId: Uuid | '0') => void
 }
-
-interface StateProps {}
 
 interface OwnProps {
     type: 'item' | 'subtask'
     initiallyExpanded: boolean
     shouldCloseOnSubmit?: boolean
     parentId?: Uuid
-    projectId?: Uuid
+    projectId?: Uuid | '0'
     buttonText?: string
     width?: string
     hideButton?: boolean
@@ -29,7 +27,7 @@ interface OwnProps {
     onCreate?: () => void
 }
 
-type ItemCreatorProps = OwnProps & StateProps & DispatchProps
+type ItemCreatorProps = OwnProps & DispatchProps
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     const textRef: React.RefObject<HTMLInputElement> = props.innerRef
         ? props.innerRef
@@ -95,13 +93,13 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state): StateProps => ({})
+const mapStateToProps = (state): {} => ({})
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    createItem: (text: string, projectId: Uuid) => {
+    createItem: (text: string, projectId: Uuid | '0') => {
         dispatch(createItem(uuidv4(), text, projectId))
     },
-    createSubTask: (parentId: Uuid, text: string, projectId: Uuid) => {
+    createSubTask: (parentId: Uuid, text: string, projectId: Uuid | '0') => {
         const childId = uuidv4()
         dispatch(createItem(childId, text, projectId))
         dispatch(addChildItem(childId, parentId))

@@ -2,10 +2,9 @@
     "compilerOptions": {
         "esModuleInterop": true,
         "jsx": "react",
-        "allowJs": true,
-        "checkJs": true,
         "lib": ["es2019", "dom"],
         "downlevelIteration": true
     },
-    "exclude": ["node_modules", "**/*.spec.ts", "**/**/build"]
+    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.jsx", "src/**/*.js"],
+    "exclude": ["node_modules", "**/*.js", "build", "cypress"]
 }

@@ -68,7 +68,7 @@ interface DispatchProps {
     setDueDate: (id: Uuid, date: string) => void
     completeItem: (id: Uuid) => void
     uncompleteItem: (id: Uuid) => void
-    moveItem: (id: Uuid, projectId: Uuid) => void
+    moveItem: (id: Uuid, projectId: Uuid | '0') => void
     createSubTask: (id: Uuid, text: string, projectId: Uuid) => void
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
@@ -703,7 +703,7 @@ const mapStateToProps = (state): StateProps => ({
     items: state.items,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    createSubTask: (parentId: Uuid, text: string, projectId: Uuid | string) => {
+    createSubTask: (parentId: Uuid, text: string, projectId: Uuid | '0') => {
         const childId = uuidv4()
         dispatch(createItem(childId, text, projectId))
         dispatch(addChildItem(childId, parentId))

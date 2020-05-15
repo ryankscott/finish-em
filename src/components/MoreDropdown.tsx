@@ -12,14 +12,13 @@ interface DispatchProps {
     toggleFlag: (id: Uuid) => void
 }
 
-interface StateProps {}
 interface OwnProps {
     itemId: Uuid
     showDialog?: boolean
     disableClick?: boolean
 }
 
-type MoreDropdownProps = DispatchProps & StateProps & OwnProps
+type MoreDropdownProps = DispatchProps & OwnProps
 
 function MoreDropdown(props: MoreDropdownProps): ReactElement {
     const [showDialog, setShowDialog] = useState(false)
@@ -59,7 +58,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state): StateProps => ({})
+const mapStateToProps = (state): {} => ({})
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleFlag: (id: Uuid) => {
         dispatch(toggleFlag(id))

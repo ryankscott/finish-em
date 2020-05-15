@@ -1,4 +1,4 @@
-import React, { ReactElement, Dispatch } from 'react'
+import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 
@@ -29,9 +29,8 @@ interface DispatchProps {
     showCreateProjectDialog: () => void
     toggleSidebar: () => void
 }
-interface OwnProps {}
 
-type SidebarProps = StateProps & DispatchProps & OwnProps
+type SidebarProps = StateProps & DispatchProps
 const Sidebar = (props: SidebarProps): ReactElement => {
     return (
         <ThemeProvider theme={theme}>
@@ -58,7 +57,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
-                            onClick={() => {}}
                         />
                     </StyledNavLink>
                     <StyledNavLink
@@ -77,7 +75,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
-                            onClick={() => {}}
                         />
                     </StyledNavLink>
                     <StyledNavLink
@@ -96,7 +93,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
-                            onClick={() => {}}
                         />
                     </StyledNavLink>
                     <StyledNavLink
@@ -115,7 +111,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
-                            onClick={() => {}}
                         />
                     </StyledNavLink>
                     <StyledNavLink
@@ -134,7 +129,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
-                            onClick={() => {}}
                         />
                     </StyledNavLink>
                     {!props.sidebarVisible && <StyledHorizontalRule />}
@@ -168,7 +162,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                     }
                                     spacing="compact"
                                     type="subtle"
-                                    onClick={() => {}}
                                     textSize="small"
                                     iconSize="16px"
                                 />
