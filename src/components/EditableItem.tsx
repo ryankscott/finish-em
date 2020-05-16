@@ -17,7 +17,7 @@ interface EditableItemProps {
     onSubmit: (t: string) => void
     onEscape?: () => void
 }
-function EditableItem(props: EditableItemProps): ReactElement {
+function InternalEditableItem(props: EditableItemProps): ReactElement {
     const handleUpdate = (value): void => {
         props.onSubmit(value)
         if (isElectron()) {
@@ -46,6 +46,11 @@ function EditableItem(props: EditableItemProps): ReactElement {
     )
 }
 
-export default React.forwardRef((props: EditableItemProps, ref) => (
-    <EditableItem innerRef={ref} {...props} />
-))
+const EditableItem = React.forwardRef(
+    (props: EditableItemProps, ref: React.RefObject<HTMLInputElement>) => (
+        <InternalEditableItem innerRef={ref} {...props} />
+    ),
+)
+
+EditableItem.displayName = 'EditableItem'
+export default EditableItem

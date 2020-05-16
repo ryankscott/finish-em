@@ -35,9 +35,8 @@ export interface InlineDialogProps {
     children: ReactElement
 }
 
-// TODO: Replace this with the react-tooltip?
 function InlineDialog(props: InlineDialogProps): ReactElement {
-    const node = React.createRef()
+    const node = React.createRef<HTMLDivElement>()
 
     const handleClick = (e): void => {
         // Don't close if we're clicking on the dialog

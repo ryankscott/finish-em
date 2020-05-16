@@ -85,7 +85,7 @@ interface StateProps {
 interface OwnProps extends ItemType {
     hideIcons: ItemIcons[]
     noIndentOnSubtasks: boolean
-    keymap: {}
+    keymap?: {}
 }
 
 type ItemProps = OwnProps & StateProps & DispatchProps

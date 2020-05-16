@@ -43,13 +43,12 @@ import ProjectDropdown from './ProjectDropdown'
 import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
 
-interface OwnProps {}
 interface DispatchProps {
     closeFocusbar: () => void
     setActiveItem: (id: Uuid) => void
     updateItemDescription: (id: Uuid, text: string) => void
     undoSetActiveItem: () => void
-    moveItem: (id: Uuid, projectId: Uuid) => void
+    moveItem: (id: Uuid, projectId: Uuid | '0') => void
     completeItem: (id: Uuid) => void
     uncompleteItem: (id: Uuid) => void
     setScheduledDate: (id: Uuid, date: string) => void
@@ -68,7 +67,7 @@ interface StateProps {
     }
     focusbarVisible: boolean
 }
-type FocusbarProps = OwnProps & DispatchProps & StateProps
+type FocusbarProps = DispatchProps & StateProps
 const Focusbar = (props: FocusbarProps): ReactElement => {
     const ref = React.createRef<HTMLInputElement>()
     const i = props?.items?.items[props?.activeItem.present]
@@ -293,7 +292,7 @@ const mapStateToProps = (state): StateProps => ({
     focusbarVisible: state.ui.focusbarVisible,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    moveItem: (id: Uuid, projectId: Uuid) => {
+    moveItem: (id: Uuid, projectId: Uuid | '0') => {
         dispatch(moveItem(id, projectId))
     },
     completeItem: (id: Uuid) => {

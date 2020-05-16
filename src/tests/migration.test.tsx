@@ -31,8 +31,9 @@ describe('migration tests', () => {
                 lastUpdatedAt: new Date().toISOString(),
                 repeat: null,
                 parentId: null,
-                projectId: undefined,
+                projectId: '0',
                 children: [],
+                flagged: false,
             },
             {
                 id: childId1,
@@ -47,9 +48,10 @@ describe('migration tests', () => {
                 createdAt: createdAt,
                 lastUpdatedAt: lastUpdatedAt,
                 repeat: null,
-                projectId: undefined,
+                projectId: '0',
                 parentId: id,
                 children: [],
+                flagged: false,
             },
             {
                 id: childId2,
@@ -64,9 +66,10 @@ describe('migration tests', () => {
                 createdAt: createdAt,
                 lastUpdatedAt: lastUpdatedAt,
                 repeat: null,
-                projectId: undefined,
+                projectId: '0',
                 parentId: id,
                 children: [],
+                flagged: false,
             },
         ]
 
@@ -86,8 +89,9 @@ describe('migration tests', () => {
                     lastUpdatedAt: new Date().toISOString(),
                     repeat: null,
                     parentId: null,
-                    projectId: undefined,
+                    projectId: '0',
                     children: [],
+                    flagged: false,
                 },
                 [childId1]: {
                     id: childId1,
@@ -102,9 +106,10 @@ describe('migration tests', () => {
                     createdAt: createdAt,
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
-                    projectId: undefined,
+                    projectId: '0',
                     parentId: id,
                     children: [],
+                    flagged: false,
                 },
                 [childId2]: {
                     id: childId2,
@@ -220,7 +225,6 @@ describe('migration tests', () => {
         const id = uuidv4()
         const childId1 = uuidv4()
         const childId2 = uuidv4()
-        const projectId = uuidv4()
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
 
@@ -240,8 +244,9 @@ describe('migration tests', () => {
                     lastUpdatedAt: new Date().toISOString(),
                     repeat: null,
                     parentId: null,
-                    projectId: null,
+                    projectId: '0',
                     children: [],
+                    flagged: false,
                 },
                 [childId1]: {
                     id: childId1,
@@ -256,9 +261,10 @@ describe('migration tests', () => {
                     createdAt: createdAt,
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
-                    projectId: projectId,
+                    projectId: '0',
                     parentId: id,
                     children: [],
+                    flagged: false,
                 },
                 [childId2]: {
                     id: childId2,
@@ -273,9 +279,10 @@ describe('migration tests', () => {
                     createdAt: createdAt,
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
-                    projectId: null,
+                    projectId: '0',
                     parentId: id,
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id, childId1, childId2],
@@ -298,6 +305,7 @@ describe('migration tests', () => {
                     parentId: null,
                     projectId: '0',
                     children: [],
+                    flagged: false,
                 },
                 [childId1]: {
                     id: childId1,
@@ -312,9 +320,10 @@ describe('migration tests', () => {
                     createdAt: createdAt,
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
-                    projectId: projectId,
+                    projectId: '0',
                     parentId: id,
                     children: [],
+                    flagged: false,
                 },
                 [childId2]: {
                     id: childId2,
@@ -332,6 +341,7 @@ describe('migration tests', () => {
                     projectId: '0',
                     parentId: id,
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id, childId1, childId2],

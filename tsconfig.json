@@ -3,8 +3,11 @@
         "esModuleInterop": true,
         "jsx": "react",
         "lib": ["es2019", "dom"],
-        "downlevelIteration": true
+        "downlevelIteration": true,
+        "allowJs": true,
+        "noEmit": true,
+        "skipLibCheck": true
     },
     "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.jsx", "src/**/*.js"],
-    "exclude": ["node_modules", "**/*.js", "build", "cypress"]
+    "exclude": ["node_modules", "**/*.js", "dist", "build", "cypress"]
 }

@@ -5,7 +5,6 @@ import marked from 'marked'
 import { setEndOfContenteditable } from '../utils'
 import { Paragraph, Title, Header } from './Typography'
 import { Container } from './styled/EditableText'
-import { isValid } from 'date-fns'
 
 type validation =
     | { validate: false }

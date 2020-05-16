@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { ReactElement } from 'react'
 import { connect } from 'react-redux'
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
@@ -31,11 +32,13 @@ import {
 } from './styled/App'
 import { Button } from './Button'
 import { Tooltip } from './Tooltip'
+import { Projects } from '../interfaces'
 
 configure({
     logLevel: 'warning',
 })
 
+// TODO: Fix props for global styles
 const GlobalStyle = createGlobalStyle`
 * {
     box-sizing: border-box;
@@ -75,9 +78,8 @@ interface DispatchProps {
     hideDialogs: () => void
     showCreateProjectDialog: () => void
 }
-interface OwnProps {}
 
-type AppProps = OwnProps & StateProps & DispatchProps
+type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
@@ -130,7 +132,7 @@ const App = (props: AppProps): ReactElement => {
     function goToPreviousProject(): void {
         const path = history.location.pathname
         if (!path.includes('projects')) {
-            goToProject(props.projects.length - 1)
+            goToProject(props.projects.order.length - 1)
             return
         }
         const projectId = path.split('/')[2]
@@ -173,7 +175,7 @@ const App = (props: AppProps): ReactElement => {
     return (
         <ThemeProvider theme={theme}>
             <GlobalHotKeys keyMap={appKeymap} handlers={handlers} />
-            <GlobalStyle />
+            <GlobalStyle theme={theme} />
             <Container>
                 <Sidebar />
                 <MainContainer visible={sidebarVisible}>

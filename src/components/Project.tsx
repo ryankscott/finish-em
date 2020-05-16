@@ -24,12 +24,18 @@ import {
 import ItemCreator from './ItemCreator'
 import { ItemIcons } from './Item'
 
-export interface ProjectProps {
-    deleteProject: (id: Uuid) => void
-    updateDescription: (id: Uuid, input: string) => void
-    project: ProjectType
-    updateName: (id: Uuid, input: string) => void
+export interface DispatchProps {
+    deleteProject: (id: Uuid | '0') => void
+    updateDescription: (id: Uuid | '0', input: string) => void
+    updateName: (id: Uuid | '0', input: string) => void
+    toggleDeleteProjectDialog: () => void
 }
+
+export interface OwnProps {
+    project: ProjectType
+}
+
+type ProjectProps = DispatchProps & OwnProps
 const Project = (props: ProjectProps): ReactElement => {
     const history = useHistory()
     const name = React.createRef<HTMLInputElement>()
@@ -106,8 +112,8 @@ const Project = (props: ProjectProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state) => ({})
-const mapDispatchToProps = (dispatch) => ({
+const mapStateToProps = (state): {} => ({})
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     updateDescription: (id: Uuid, text: string) => {
         dispatch(updateProjectDescription(id, text))
     },

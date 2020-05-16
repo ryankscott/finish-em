@@ -3,7 +3,6 @@ import uuidv4 from 'uuid/v4'
 import Mockdate from 'mockdate'
 import * as item from '../actions/item'
 import RRule from 'rrule'
-import { parseISO } from 'date-fns'
 import { Items } from '../interfaces'
 
 const blankState: Items = { items: {}, order: [] }
@@ -110,6 +109,7 @@ describe('item reducer', () => {
                             parentId: null,
                             children: [],
                             flagged: false,
+                            projectId: '0',
                         },
                     },
                     order: [id],
@@ -137,6 +137,7 @@ describe('item reducer', () => {
                     parentId: null,
                     children: [],
                     flagged: false,
+                    projectId: '0',
                 },
             },
             order: [id],
@@ -170,6 +171,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: null,
                             children: [childId1, childId2],
+                            projectId: '0',
+                            flagged: false,
                         },
                         [childId1]: {
                             id: childId1,
@@ -186,6 +189,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: id,
                             children: [],
+                            projectId: '0',
+                            flagged: false,
                         },
                         [childId2]: {
                             id: childId2,
@@ -202,6 +207,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: id,
                             children: [],
+                            projectId: '0',
+                            flagged: false,
                         },
                     },
                     order: [id, childId1, childId2],
@@ -228,6 +235,8 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: null,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
                 [childId1]: {
                     id: childId1,
@@ -244,6 +253,8 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: null,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
                 [childId2]: {
                     id: childId2,
@@ -260,6 +271,8 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: null,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
             },
             order: [id, childId1, childId2],
@@ -293,6 +306,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: null,
                             children: [childId1, childId2],
+                            projectId: '0',
+                            flagged: false,
                         },
                         [childId1]: {
                             id: childId1,
@@ -309,6 +324,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: id,
                             children: [],
+                            projectId: '0',
+                            flagged: false,
                         },
                         [childId2]: {
                             id: childId2,
@@ -325,6 +342,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: id,
                             children: [],
+                            projectId: '0',
+                            flagged: false,
                         },
                     },
                     order: [id, childId1, childId2],
@@ -351,6 +370,8 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: null,
                     children: [childId2],
+                    projectId: '0',
+                    flagged: false,
                 },
                 [childId1]: {
                     id: childId1,
@@ -367,6 +388,8 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: null,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
                 [childId2]: {
                     id: childId2,
@@ -383,6 +406,8 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: id,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
             },
             order: [id, childId1, childId2],
@@ -415,6 +440,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: null,
                             children: [],
+                            projectId: '0',
+                            flagged: false,
                         },
                     },
                     order: [id],
@@ -441,6 +468,8 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: null,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
             },
             order: [id],
@@ -473,6 +502,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: null,
                             children: [],
+                            projectId: '0',
+                            flagged: false,
                         },
                     },
                     order: [id],
@@ -527,6 +558,7 @@ describe('item reducer', () => {
                             type: 'TODO',
                             text: 'TODO Run the tests',
                             scheduledDate: scheduledDate,
+                            projectId: '0',
                             dueDate: dueDate,
                             completed: false,
                             deleted: false,
@@ -537,6 +569,7 @@ describe('item reducer', () => {
                             repeat: repeat,
                             parentId: null,
                             children: [],
+                            flagged: false,
                         },
                     },
                     order: [id],
@@ -553,6 +586,7 @@ describe('item reducer', () => {
                     type: 'TODO',
                     text: 'TODO Run the tests',
                     scheduledDate: null,
+                    projectId: '0',
                     dueDate: new Date(1990, 1, 4, 1).toISOString(),
                     completed: false,
                     deleted: false,
@@ -563,6 +597,7 @@ describe('item reducer', () => {
                     repeat: repeat,
                     parentId: null,
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id],
@@ -597,6 +632,8 @@ describe('item reducer', () => {
                             repeat: null,
                             parentId: null,
                             children: [],
+                            projectId: '0',
+                            flagged: false,
                         },
                     },
                     order: [id],
@@ -622,7 +659,9 @@ describe('item reducer', () => {
                     lastUpdatedAt: new Date().toISOString(),
                     repeat: null,
                     parentId: null,
+                    projectId: '0',
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id],
@@ -661,6 +700,8 @@ describe('item reducer', () => {
                             repeat: repeat,
                             parentId: null,
                             children: [],
+                            flagged: false,
+                            projectId: '0',
                         },
                     },
                     order: [id],
@@ -687,6 +728,8 @@ describe('item reducer', () => {
                     repeat: repeat,
                     parentId: null,
                     children: [],
+                    flagged: false,
+                    projectId: '0',
                 },
             },
             order: [id],
@@ -721,6 +764,7 @@ describe('item reducer', () => {
                             parentId: null,
                             projectId: projectId,
                             children: [],
+                            flagged: false,
                         },
                         [childId]: {
                             id: childId,
@@ -738,6 +782,7 @@ describe('item reducer', () => {
                             parentId: null,
                             projectId: null,
                             children: [],
+                            flagged: false,
                         },
                     },
                     order: [id, childId],
@@ -766,6 +811,7 @@ describe('item reducer', () => {
                     parentId: null,
                     projectId: projectId,
                     children: [childId],
+                    flagged: false,
                 },
                 [childId]: {
                     id: childId,
@@ -783,6 +829,7 @@ describe('item reducer', () => {
                     parentId: id,
                     projectId: projectId,
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id, childId],
@@ -817,6 +864,7 @@ describe('item reducer', () => {
                             parentId: null,
                             projectId: projectId,
                             children: [],
+                            flagged: false,
                         },
                         [id2]: {
                             id: id2,
@@ -832,7 +880,8 @@ describe('item reducer', () => {
                             lastUpdatedAt: lastUpdatedAt,
                             repeat: null,
                             parentId: null,
-                            projectId: null,
+                            projectId: '0',
+                            flagged: false,
                             children: [],
                         },
                         [id3]: {
@@ -849,8 +898,9 @@ describe('item reducer', () => {
                             lastUpdatedAt: lastUpdatedAt,
                             repeat: null,
                             parentId: null,
-                            projectId: null,
                             children: [],
+                            projectId: '0',
+                            flagged: false,
                         },
                     },
                     order: [id, id2, id3],
@@ -894,8 +944,9 @@ describe('item reducer', () => {
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
                     parentId: null,
-                    projectId: null,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
                 [id3]: {
                     id: id3,
@@ -911,8 +962,9 @@ describe('item reducer', () => {
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
                     parentId: null,
-                    projectId: null,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
             },
             order: [id3, id, id2],
@@ -948,6 +1000,7 @@ describe('item reducer', () => {
                             parentId: null,
                             projectId: projectId,
                             children: [],
+                            flagged: false,
                         },
                         [id2]: {
                             id: id2,
@@ -963,8 +1016,9 @@ describe('item reducer', () => {
                             lastUpdatedAt: lastUpdatedAt,
                             repeat: null,
                             parentId: null,
-                            projectId: null,
+                            projectId: '0',
                             children: [],
+                            flagged: false,
                         },
                         [id3]: {
                             id: id3,
@@ -980,8 +1034,9 @@ describe('item reducer', () => {
                             lastUpdatedAt: lastUpdatedAt,
                             repeat: null,
                             parentId: null,
-                            projectId: null,
+                            projectId: '0',
                             children: [],
+                            flagged: false,
                         },
                     },
                     order: [id, id2, id3],
@@ -1010,6 +1065,7 @@ describe('item reducer', () => {
                     parentId: null,
                     projectId: projectId,
                     children: [],
+                    flagged: false,
                 },
                 [id2]: {
                     id: id2,
@@ -1025,8 +1081,9 @@ describe('item reducer', () => {
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
                     parentId: null,
-                    projectId: null,
+                    projectId: '0',
                     children: [],
+                    flagged: false,
                 },
                 [id3]: {
                     id: id3,
@@ -1042,8 +1099,9 @@ describe('item reducer', () => {
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
                     parentId: null,
-                    projectId: null,
+                    projectId: '0',
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id, id3, id2],
@@ -1078,6 +1136,7 @@ describe('item reducer', () => {
                             parentId: null,
                             projectId: projectId,
                             children: [],
+                            flagged: false,
                         },
                         [id2]: {
                             id: id2,
@@ -1093,8 +1152,9 @@ describe('item reducer', () => {
                             lastUpdatedAt: lastUpdatedAt,
                             repeat: null,
                             parentId: null,
-                            projectId: null,
+                            projectId: '0',
                             children: [],
+                            flagged: false,
                         },
                         [id3]: {
                             id: id3,
@@ -1110,8 +1170,9 @@ describe('item reducer', () => {
                             lastUpdatedAt: lastUpdatedAt,
                             repeat: null,
                             parentId: null,
-                            projectId: null,
+                            projectId: '0',
                             children: [],
+                            flagged: false,
                         },
                     },
                     order: [id, id2, id3],
@@ -1140,6 +1201,7 @@ describe('item reducer', () => {
                     parentId: null,
                     projectId: projectId,
                     children: [],
+                    flagged: false,
                 },
                 [id2]: {
                     id: id2,
@@ -1155,8 +1217,9 @@ describe('item reducer', () => {
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
                     parentId: null,
-                    projectId: null,
+                    projectId: '0',
                     children: [],
+                    flagged: false,
                 },
                 [id3]: {
                     id: id3,
@@ -1172,8 +1235,9 @@ describe('item reducer', () => {
                     lastUpdatedAt: lastUpdatedAt,
                     repeat: null,
                     parentId: null,
-                    projectId: null,
+                    projectId: '0',
                     children: [],
+                    flagged: false,
                 },
             },
             order: [id2, id3, id],
@@ -1181,35 +1245,3 @@ describe('item reducer', () => {
         Mockdate.reset()
     })
 })
-
-/*
-/*
-    expect(
-      reducer(
-        [
-          {
-            text: "Use Redux",
-            completed: false,
-            id: 0
-          }
-        ],
-        {
-          type: types.ADD_TODO,
-          text: "Run the tests"
-        }
-      )
-    ).toEqual([
-      {
-        text: "Run the tests",
-        completed: false,
-        id: 1
-      },
-      {
-        text: "Use Redux",
-        completed: false,
-        id: 0
-      }
-    ]);
-  });
-});
-*/

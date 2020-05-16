@@ -13,7 +13,7 @@ interface QuickAddProps {
 
 const QuickAdd = (props: QuickAddProps): ReactElement => (
     <EditableText
-        innerRef={}
+        innerRef={React.createRef<HTMLInputElement>()}
         onUpdate={(text) => {
             props.onSubmit(text, props.projectId)
         }}

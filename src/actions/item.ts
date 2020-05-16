@@ -96,9 +96,9 @@ export function uncompleteItem(id: Uuid): UncompleteItemAction {
 export interface MoveItemAction {
     type: typeof MOVE_ITEM
     id: Uuid
-    projectId: Uuid
+    projectId: Uuid | '0'
 }
-export function moveItem(id: Uuid, projectId: Uuid): MoveItemAction {
+export function moveItem(id: Uuid, projectId: Uuid | '0'): MoveItemAction {
     return {
         type: MOVE_ITEM,
         id: id,
