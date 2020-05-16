@@ -50,7 +50,6 @@ describe('ItemActions', () => {
         const id = uuidv4()
         const text = 'NOTE add tests'
         const projectId = uuidv4()
-        const parentId = uuidv4()
         const expectedAction: item.CreateItemAction = {
             type: item.CREATE_ITEM,
             id: id,
@@ -65,7 +64,6 @@ describe('ItemActions', () => {
         const id = uuidv4()
         const text = 'CAT add tests'
         const projectId = uuidv4()
-        const parentId = uuidv4()
         const expectedAction: item.CreateItemAction = {
             type: item.CREATE_ITEM,
             id: id,
@@ -106,7 +104,7 @@ describe('ItemActions', () => {
 
     it('should create an action to set the due date of an item', () => {
         const id = uuidv4()
-        const date = new Date()
+        const date = new Date().toISOString()
         const expectedAction: item.SetDueDateAction = {
             type: item.SET_DUE_DATE,
             id: id,
@@ -117,7 +115,7 @@ describe('ItemActions', () => {
 
     it('should create an action to set the scheduled date of an item', () => {
         const id = uuidv4()
-        const date = new Date()
+        const date = new Date().toISOString()
         const expectedAction: item.SetScheduledDateAction = {
             type: item.SET_SCHEDULED_DATE,
             id: id,

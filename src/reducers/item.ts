@@ -83,6 +83,7 @@ export const itemReducer = produce(
                     i.completedAt = new Date().toISOString()
                     // We should set the due date if there's a repeat to the next occurrence
                 } else {
+                    console.log(rrulestr(i.repeat).after(new Date()))
                     i.dueDate = rrulestr(i.repeat)
                         .after(new Date())
                         .toISOString()

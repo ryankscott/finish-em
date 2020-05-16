@@ -530,6 +530,8 @@ describe('item reducer', () => {
                     repeat: null,
                     parentId: null,
                     children: [],
+                    projectId: '0',
+                    flagged: false,
                 },
             },
             order: [id],
@@ -548,6 +550,7 @@ describe('item reducer', () => {
         const repeat = new RRule({
             freq: RRule.DAILY,
             interval: 1,
+            dtstart: new Date(Date.UTC(1990, 1, 3, 0, 0)),
         }).toString()
         expect(
             itemReducer(
@@ -587,7 +590,7 @@ describe('item reducer', () => {
                     text: 'TODO Run the tests',
                     scheduledDate: null,
                     projectId: '0',
-                    dueDate: new Date(1990, 1, 4, 1).toISOString(),
+                    dueDate: new Date(Date.UTC(1990, 1, 4)).toISOString(),
                     completed: false,
                     deleted: false,
                     deletedAt: null,
@@ -929,6 +932,7 @@ describe('item reducer', () => {
                     parentId: null,
                     projectId: projectId,
                     children: [],
+                    flagged: false,
                 },
                 [id2]: {
                     id: id2,
