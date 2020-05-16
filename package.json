@@ -1,6 +1,6 @@
 {
     "name": "Finish-em",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "author": "Ryan Scott (ryan@ryankennethscott.com)",
     "description": "An org-mode inspired personal organiser",
     "main": "main.js",
