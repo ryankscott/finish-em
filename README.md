@@ -1,3 +1,5 @@
+![CI](https://github.com/ryankscott/finish-em/workflows/CI/badge.svg)
+
 # Finish-em
 
 An org-mode inspired personal organiser
