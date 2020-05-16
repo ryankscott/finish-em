@@ -1,6 +1,6 @@
 {
     "name": "Finish-em",
-    "version": "0.1.1",
+    "version": "0.1.10",
     "author": "Ryan Scott (ryan@ryankennethscott.com)",
     "description": "An org-mode inspired personal organiser",
     "main": "main.js",
@@ -104,5 +104,15 @@
         "rrule": "^2.6.4",
         "styled-components": "^4.4.1",
         "uuid": "^3.3.3"
+    },
+    "mac": {
+        "target": [
+            "dmg",
+            "mas",
+            "zip"
+        ]
+    },
+    "dmg": {
+        "icon": false
     }
 }
