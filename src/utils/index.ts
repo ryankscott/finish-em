@@ -12,6 +12,7 @@ import RRule from 'rrule'
 
 export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
 import emojiRegex from 'emoji-regex/text.js'
+import { RenderingStrategy } from '../components/ItemList'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
     const words = text.split(' ')
@@ -246,9 +247,19 @@ export const rruleToText = (input: RRule): string => {
 export const filterItems = (
     input: Item,
     filterFunc: (i: ItemType) => boolean,
+    renderingStrategy: RenderingStrategy,
 ): Item => {
-    const filtered = Object.entries(input).filter((e) => filterFunc(e[1]))
-    return Object.fromEntries(filtered)
+    if (renderingStrategy == RenderingStrategy.All) {
+        const f = Object.entries(input).filter((e) => {
+            return filterFunc(e[1])
+        })
+        return Object.fromEntries(f)
+    } else {
+        const f1 = Object.entries(input).filter((e) => {
+            return filterFunc(e[1]) && e[1].parentId == null
+        })
+        return Object.fromEntries(f1)
+    }
 }
 
 export const convertItemToItemType = (input: Item): ItemType[] => {
