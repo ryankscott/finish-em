@@ -147,8 +147,6 @@ interface DispatchProps {
     deleteCompletedItems: (completedItems: ItemType[]) => void
 }
 
-// TODO: Implement custom filters
-
 type FilterType =
     | {
           type: 'default'

@@ -77,45 +77,62 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                 )[0]
                                 if (item == undefined) return
                                 switch (props.renderingStrategy) {
-                                    case 'ALL':
-                                        if (item.parentId != null) return
-                                        return (
-                                            <Draggable
-                                                key={item.id}
-                                                draggableId={item.id}
-                                                index={index}
-                                            >
-                                                {(provided, snapshot) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        style={getItemStyle(
-                                                            snapshot.isDragging,
-                                                            provided
-                                                                .draggableProps
-                                                                .style,
-                                                        )}
-                                                        key={
-                                                            'container-' +
-                                                            item.id
-                                                        }
+                                    case RenderingStrategy.All:
+                                        if (item.parentId != null) {
+                                            const parentExists = props.items.filter(
+                                                (i) => i.id == item.parentId,
+                                            )
+                                            if (parentExists.length > 0) {
+                                                return
+                                            } else {
+                                                return (
+                                                    <Draggable
+                                                        key={item.id}
+                                                        draggableId={item.id}
+                                                        index={index}
                                                     >
-                                                        <Item
-                                                            {...item}
-                                                            key={item.id}
-                                                            noIndentOnSubtasks={
-                                                                false
-                                                            }
-                                                            hideIcons={
-                                                                props.hideIcons
-                                                            }
-                                                            keymap={itemKeymap}
-                                                        />
-                                                    </div>
-                                                )}
-                                            </Draggable>
-                                        )
+                                                        {(
+                                                            provided,
+                                                            snapshot,
+                                                        ) => (
+                                                            <div
+                                                                ref={
+                                                                    provided.innerRef
+                                                                }
+                                                                {...provided.draggableProps}
+                                                                {...provided.dragHandleProps}
+                                                                style={getItemStyle(
+                                                                    snapshot.isDragging,
+                                                                    provided
+                                                                        .draggableProps
+                                                                        .style,
+                                                                )}
+                                                                key={
+                                                                    'container-' +
+                                                                    item.id
+                                                                }
+                                                            >
+                                                                <Item
+                                                                    {...item}
+                                                                    key={
+                                                                        item.id
+                                                                    }
+                                                                    noIndentOnSubtasks={
+                                                                        false
+                                                                    }
+                                                                    hideIcons={
+                                                                        props.hideIcons
+                                                                    }
+                                                                    keymap={
+                                                                        itemKeymap
+                                                                    }
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </Draggable>
+                                                )
+                                            }
+                                        }
 
                                     default:
                                         if (item.parentId != null) return

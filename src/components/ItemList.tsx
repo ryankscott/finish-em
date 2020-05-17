@@ -39,7 +39,7 @@ function ItemList(props: ItemListProps): ReactElement {
                     const item = props.items.filter((i) => i.id == o)[0]
                     if (item == undefined) return
                     switch (props.renderingStrategy) {
-                        case 'ALL':
+                        case RenderingStrategy.All:
                             if (item.parentId != null) {
                                 const parentExists = props.items.filter(
                                     (i) => i.id == item.parentId,
