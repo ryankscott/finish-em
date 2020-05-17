@@ -214,7 +214,7 @@ const App = (props: AppProps): ReactElement => {
                     <Button
                         dataFor="shortcut-button"
                         id="shortcut-button"
-                        type="default"
+                        type="subtleInvert"
                         icon="help"
                         iconColour="#CCC"
                         onClick={toggleShortcutDialog}
