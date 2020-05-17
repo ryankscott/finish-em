@@ -16,6 +16,24 @@ export const ShortcutIcon = styled.div`
         cursor: pointer;
     }
 `
+
+interface SidebarContainerProps {
+    visible: boolean
+}
+
+export const SidebarContainer = styled.div<SidebarContainerProps>`
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+    transition: all 0.2s ease-in-out;
+    overflow: scroll;
+    padding: ${(props) => (props.visible ? '10px' : '0px')};
+    width: ${(props) => (props.visible ? '300px' : '50px')};
+    min-width: ${(props) => (props.visible ? '300px' : '50px')};
+    background-color: ${(props) => props.theme.colours.altBackgroundColour};
+    overflow: scroll;
+`
+
 interface MainContainerProps {
     visible: boolean
 }
@@ -23,7 +41,6 @@ export const MainContainer = styled.div<MainContainerProps>`
     display: flex;
     flex-direction: column;
     padding: 10px 20px;
-    margin-left: ${(props) => (props.visible ? '270px' : '50px')};
     transition: all 0.2s ease-in-out;
     width: 100%;
     align-items: center;

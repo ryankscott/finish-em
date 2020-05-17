@@ -29,6 +29,7 @@ import {
     MainContainer,
     ShortcutIcon,
     FocusContainer,
+    SidebarContainer,
 } from './styled/App'
 import { Button } from './Button'
 import { Tooltip } from './Tooltip'
@@ -177,7 +178,9 @@ const App = (props: AppProps): ReactElement => {
             <GlobalHotKeys keyMap={appKeymap} handlers={handlers} />
             <GlobalStyle theme={theme} />
             <Container>
-                <Sidebar />
+                <SidebarContainer visible={sidebarVisible}>
+                    <Sidebar />
+                </SidebarContainer>
                 <MainContainer visible={sidebarVisible}>
                     <ShortcutDialog />
                     <Switch>

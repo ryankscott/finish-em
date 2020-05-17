@@ -26,6 +26,7 @@ interface EditableTextProps {
     onKeyDown?: (input: string) => void
     onEditingChange?: (isEditing: boolean) => void
     validation: validation
+    onEscape?: () => void
 }
 
 function InternalEditableText(props: EditableTextProps): ReactElement {
@@ -108,6 +109,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 props.onEditingChange(false)
             }
             setEditable(false)
+            props?.onEscape()
         }
     }
     const handleKeyPress = (e): void => {

@@ -4,6 +4,7 @@ import { createMigrate, persistStore, persistReducer } from 'redux-persist'
 import isElectron from 'is-electron'
 import storage from 'redux-persist/lib/storage'
 import { Items, ItemType, ProjectType, Projects } from '../interfaces'
+
 let createElectronStorage
 if (isElectron()) {
     createElectronStorage = window.require('redux-persist-electron-storage')

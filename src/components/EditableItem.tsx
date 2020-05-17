@@ -27,7 +27,14 @@ function InternalEditableItem(props: EditableItemProps): ReactElement {
 
     return (
         <ThemeProvider theme={theme}>
-            <Container hideIcon={props.hideIcon}>
+            <Container
+                onKeyUp={(e) => {
+                    if (e.key == 'Escape') {
+                        props?.onEscape()
+                    }
+                }}
+                hideIcon={props.hideIcon}
+            >
                 {props.hideIcon ? null : <Icon>{addIcon()}</Icon>}
                 <EditableText
                     innerRef={props.innerRef}

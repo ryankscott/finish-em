@@ -7,18 +7,13 @@ interface ContainerProps {
 }
 export const Container = styled.div<ContainerProps>`
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
-    padding: ${(props) => (props.visible ? '10px' : '0px')};
-    width: ${(props) => (props.visible ? '300px' : '50px')};
     align-items: ${(props) => (props.visible ? 'none' : 'center')};
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     transition: all 0.2s ease-in-out;
-    height: 100%;
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    left: 0;
+    width: 100%;
+    height: 100vh;
 `
 export const BodyContainer = styled.div`
     display: flex;

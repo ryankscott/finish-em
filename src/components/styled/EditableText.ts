@@ -37,4 +37,8 @@ export const Container = styled.div<ContainerProps>`
         padding: 0px 0px;
         margin: 0px;
     }
+    outline: 0;
+    :active {
+        outline: 0;
+    }
 `
