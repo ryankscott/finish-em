@@ -3,15 +3,10 @@ import Item, { ItemIcons } from './Item'
 import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import { item as itemKeymap } from '../keymap'
-import { ItemType } from '../interfaces'
+import { ItemType, RenderingStrategy } from '../interfaces'
 import { Container, NoItemText } from './styled/ItemList'
 import { connect } from 'react-redux'
 import { Uuid } from '@typed/uuid'
-
-export enum RenderingStrategy {
-    Default = 'DEFAULT',
-    All = 'ALL',
-}
 
 interface ItemListProps {
     items: ItemType[]

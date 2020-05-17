@@ -7,12 +7,11 @@ import {
     differenceInDays,
     isYesterday,
 } from 'date-fns'
-import { ItemType, Item } from '../interfaces'
+import { ItemType, Item, RenderingStrategy } from '../interfaces'
 import RRule from 'rrule'
 
 export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
 import emojiRegex from 'emoji-regex/text.js'
-import { RenderingStrategy } from '../components/ItemList'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
     const words = text.split(' ')
@@ -247,9 +246,9 @@ export const rruleToText = (input: RRule): string => {
 export const filterItems = (
     input: Item,
     filterFunc: (i: ItemType) => boolean,
-    renderingStrategy: RenderingStrategy,
+    rs: RenderingStrategy,
 ): Item => {
-    if (renderingStrategy == RenderingStrategy.All) {
+    if (rs == RenderingStrategy.All) {
         const f = Object.entries(input).filter((e) => {
             return filterFunc(e[1])
         })

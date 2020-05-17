@@ -3,7 +3,7 @@ import Item, { ItemIcons } from './Item'
 import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import { item as itemKeymap } from '../keymap'
-import { ItemType } from '../interfaces'
+import { ItemType, RenderingStrategy } from '../interfaces'
 import { Container, NoItemText } from './styled/ItemList'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import uuidv4 from 'uuid/v4'
@@ -11,11 +11,6 @@ import * as CSS from 'csstype'
 import { connect } from 'react-redux'
 import { reorderItem } from '../actions'
 import { Uuid } from '@typed/uuid'
-
-export enum RenderingStrategy {
-    Default = 'DEFAULT',
-    All = 'ALL',
-}
 
 /* We need two strategies for rendering items:
 

@@ -7,7 +7,7 @@ import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
 import { Paragraph, Title, Header1 } from './Typography'
 import EditableText from './EditableText'
 import { setDailyGoal } from '../actions'
-import { ItemType } from '../interfaces'
+import { ItemType, RenderingStrategy } from '../interfaces'
 import {
     AgendaContainer,
     DateContainer,
@@ -15,10 +15,8 @@ import {
     BackContainer,
     ForwardContainer,
 } from './styled/DailyAgenda'
-import { RenderingStrategy } from './ItemList'
 import { Button } from './Button'
 
-interface OwnProps {}
 interface StateProps {
     dailyGoal: any[]
     items: ItemType[]
@@ -26,7 +24,7 @@ interface StateProps {
 interface DispatchProps {
     setDailyGoal: (day: string, input: string) => void
 }
-type DailyAgendaProps = OwnProps & StateProps & DispatchProps
+type DailyAgendaProps = StateProps & DispatchProps
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     const [date, setDate] = useState(new Date())

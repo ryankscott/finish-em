@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import ItemList, { RenderingStrategy } from '../components/ItemList'
+import ItemList from '../components/ItemList'
 import { orderBy } from 'lodash'
 import {
     selectStyles,
@@ -7,7 +7,7 @@ import {
     sortPlaceholderStyles,
 } from '../theme'
 import { Header1, Paragraph } from '../components/Typography'
-import { ItemType, FeatureType, Item } from '../interfaces'
+import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
 import { Uuid } from '@typed/uuid'
 import {
     Container,

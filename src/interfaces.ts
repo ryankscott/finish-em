@@ -1,5 +1,10 @@
 import { Uuid } from '@typed/uuid'
 
+export enum RenderingStrategy {
+    Default = 'DEFAULT',
+    All = 'ALL',
+}
+
 export interface ItemType {
     id: Uuid
     type: 'NOTE' | 'TODO'
