@@ -1,12 +1,12 @@
 {
     "name": "Finish-em",
-    "version": "0.1.10",
+    "version": "0.1.11",
     "author": "Ryan Scott (ryan@ryankennethscott.com)",
     "description": "An org-mode inspired personal organiser",
     "repository": {
         "type": "git",
         "url": "git://github.com/ryankscott/finish-em/"
-    },
+    }
     "main": "main.js",
     "homepage": "./",
     "build": {
