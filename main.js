@@ -1,6 +1,8 @@
 const { ipcMain, app, BrowserWindow, globalShortcut } = require('electron')
 const isDev = require('electron-is-dev')
 const path = require('path')
+const { getMailLink } = require('./src/scripts/index.ts')
+
 // TODO: Change to an array for multi-window support
 let mainWindow, quickAddWindow
 
@@ -74,6 +76,7 @@ function createMainWindow() {
 app.on('ready', () => {
     createMainWindow()
     globalShortcut.register('Command+Shift+N', createQuickAddWindow)
+    globalShortcut.register('Command+Shift+M', getMailLink)
 })
 
 // Quit when all windows are closed.
