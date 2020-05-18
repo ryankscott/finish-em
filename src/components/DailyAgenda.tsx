@@ -91,6 +91,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                             filter: FilterEnum.ShowOverdue,
                         }}
                         renderingStrategy={RenderingStrategy.All}
+                        noIndentOnSubtasks={true}
                     />
                 </Section>
                 <Section>

@@ -4,9 +4,12 @@ import Select from 'react-select'
 import { theme, selectStyles } from '../theme'
 import { format } from 'date-fns'
 import { RRule } from 'rrule'
-import { SelectContainer, DisabledContainer } from './styled/RepeatPicker'
+import {
+    SelectContainer,
+    DisabledContainer,
+    DisabledText,
+} from './styled/RepeatPicker'
 import DateRenderer from './DateRenderer'
-import { Paragraph } from './Typography'
 import { repeatIcon } from '../assets/icons'
 import { IconContainer } from './styled/DatePicker'
 
@@ -73,8 +76,8 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     ): ReactElement => {
         return (
             <DisabledContainer completed={completed}>
-                <IconContainer>{repeatIcon()}</IconContainer>
-                <Paragraph>{text}</Paragraph>
+                <IconContainer>{repeatIcon(12, 12)}</IconContainer>
+                <DisabledText>{text}</DisabledText>
             </DisabledContainer>
         )
     }

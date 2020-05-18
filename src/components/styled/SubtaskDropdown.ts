@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { Paragraph } from '../Typography'
 
 interface ContainerProps {
     visible: boolean
@@ -26,4 +27,7 @@ export const DisabledContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+`
+export const DisabledText = styled(Paragraph)`
+    font-size: ${(props) => props.theme.fontSizes.xxsmall};
 `

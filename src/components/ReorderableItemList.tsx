@@ -113,7 +113,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                         item.id
                                                                     }
                                                                     noIndentOnSubtasks={
-                                                                        false
+                                                                        true
                                                                     }
                                                                     hideIcons={
                                                                         props.hideIcons

@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { Paragraph } from '../Typography'
 
 export const SelectContainer = styled.div`
     display: flex;
@@ -24,4 +25,7 @@ export const IconContainer = styled.div`
     display: flex;
     padding-right: 2px;
     align-items: center;
+`
+export const DisabledText = styled(Paragraph)`
+    font-size: ${(props) => props.theme.fontSizes.xxsmall};
 `

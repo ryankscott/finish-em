@@ -13,6 +13,7 @@ export const DialogContainer = styled.div`
     min-width: 120px;
     padding: 5px 0px;
     z-index: 2;
+    right: 0px;
 `
 export const Icon = styled.div`
     display: flex;

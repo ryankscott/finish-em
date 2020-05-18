@@ -8,10 +8,13 @@ import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { Item, Items, Projects } from '../interfaces'
 import { Button } from './Button'
-import { Paragraph } from './Typography'
 import { removeItemTypeFromString } from '../utils'
 import { subtaskIcon } from '../assets/icons'
-import { DisabledContainer, Container } from './styled/SubtaskDropdown'
+import {
+    DisabledContainer,
+    Container,
+    DisabledText,
+} from './styled/SubtaskDropdown'
 
 type OptionType = { value: string; label: string }
 
@@ -100,12 +103,12 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
             <div>
                 {props.disableClick ? (
                     <DisabledContainer>
-                        {subtaskIcon()}
-                        <Paragraph>
+                        {subtaskIcon(12, 12)}
+                        <DisabledText>
                             {removeItemTypeFromString(
                                 props.items.items[props.parentId]?.text,
                             )}
-                        </Paragraph>
+                        </DisabledText>
                     </DisabledContainer>
                 ) : (
                     <Button

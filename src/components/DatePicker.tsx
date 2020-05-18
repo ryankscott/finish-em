@@ -5,11 +5,15 @@ import { theme, selectStyles } from '../theme'
 import { add, lastDayOfWeek } from 'date-fns'
 import './DatePicker.css'
 import DayPicker from 'react-day-picker/DayPicker'
-import { SelectContainer, IconContainer } from './styled/DatePicker'
+import {
+    SelectContainer,
+    IconContainer,
+    DisabledContainer,
+    DisabledText,
+} from './styled/DatePicker'
 import DateRenderer from './DateRenderer'
 import { Paragraph } from './Typography'
 import { dueIcon, scheduledIcon } from '../assets/icons'
-import { DisabledContainer } from './styled/RepeatPicker'
 
 const options: { value: string; label: string }[] = [
     { value: new Date().toISOString(), label: 'Today' },
@@ -73,9 +77,9 @@ function DatePicker(props: DatePickerProps): ReactElement {
         return (
             <DisabledContainer completed={completed}>
                 <IconContainer>
-                    {type == 'due' ? dueIcon() : scheduledIcon()}
+                    {type == 'due' ? dueIcon(14, 14) : scheduledIcon(14, 14)}
                 </IconContainer>
-                <Paragraph>{text}</Paragraph>
+                <DisabledText>{text}</DisabledText>
             </DisabledContainer>
         )
     }

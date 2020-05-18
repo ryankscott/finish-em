@@ -674,7 +674,7 @@ function Item(props: ItemProps): ReactElement {
                             key={c}
                             items={props.items}
                             noIndentOnSubtasks={props.noIndentOnSubtasks}
-                            hideIcons={props.hideIcons}
+                            hideIcons={[...props.hideIcons, ItemIcons.Subtask]}
                             keymap={props.keymap}
                             projects={props.projects}
                             updateItemDescription={props.updateItemDescription}
