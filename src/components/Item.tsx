@@ -560,6 +560,7 @@ function Item(props: ItemProps): ReactElement {
                             onSubmit={(projectId) => {
                                 props.moveItem(props.id, projectId)
                                 setProjectDropdownVisible(false)
+                                container.current.focus()
                             }}
                         />
                     </ProjectContainer>
@@ -588,6 +589,7 @@ function Item(props: ItemProps): ReactElement {
                                     props.convertSubtask(props.id)
                                 }
                                 setConvertSubtaskDropdownVisible(false)
+                                container.current.focus()
                             }}
                         />
                     </ConvertSubtaskContainer>
@@ -608,6 +610,7 @@ function Item(props: ItemProps): ReactElement {
                             onSubmit={(d) => {
                                 props.setScheduledDate(props.id, d)
                                 setScheduledDateDropdownVisible(false)
+                                container.current.focus()
                             }}
                             type="scheduled"
                             text={scheduledDateText}
@@ -629,6 +632,7 @@ function Item(props: ItemProps): ReactElement {
                             onSubmit={(d) => {
                                 props.setDueDate(props.id, d)
                                 setDueDateDropdownVisible(false)
+                                container.current.focus()
                             }}
                             type="due"
                             text={dueDateText}
@@ -652,6 +656,7 @@ function Item(props: ItemProps): ReactElement {
                             onSubmit={(r) => {
                                 setRepeatDropdownVisible(false)
                                 props.setRepeatRule(props.id, r)
+                                container.current.focus()
                             }}
                         />
                     </RepeatContainer>
@@ -667,6 +672,7 @@ function Item(props: ItemProps): ReactElement {
                         parentId={props.id}
                         onCreate={() => {
                             setCreateSubtaskDropdownVisible(false)
+                            container.current.focus()
                         }}
                     />
                 </QuickAdd>
