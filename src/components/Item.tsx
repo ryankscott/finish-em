@@ -258,7 +258,6 @@ function Item(props: ItemProps): ReactElement {
             },
             ESCAPE: () => {
                 setCreateSubtaskDropdownVisible(false)
-                setCreateSubtaskDropdownVisible(false)
                 setDueDateDropdownVisible(false)
                 setScheduledDateDropdownVisible(false)
                 setRepeatDropdownVisible(false)
@@ -372,7 +371,6 @@ function Item(props: ItemProps): ReactElement {
             },
             EDIT_ITEM_DESC: (event) => {
                 setIsEditingDescription(true)
-                setIsEditingDescription(true)
                 setIsDescriptionReadOnly(false)
                 event.preventDefault()
             },
@@ -396,8 +394,18 @@ function Item(props: ItemProps): ReactElement {
     */
 
     const handleKeyPress = (event: KeyboardEvent<HTMLDivElement>): void => {
-        // Don't handle key presses if we're editing the description
-        if (isEditingDescription) return
+        // Don't handle key presses if we're changing anything
+        if (
+            isEditingDescription ||
+            createSubtaskDropdownVisible ||
+            dueDateDropdownVisible ||
+            scheduledDateDropdownVisible ||
+            repeatDropdownVisible ||
+            projectDropdownVisible ||
+            convertSubtaskDropdownVisible
+        )
+            return
+
         let currentKeyPresses = keyPresses
         // Remove the first value in the array (3 is the max shortcut matching length)
         currentKeyPresses =
