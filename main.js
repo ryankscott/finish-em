@@ -1,10 +1,30 @@
 const { ipcMain, app, BrowserWindow, globalShortcut } = require('electron')
 const isDev = require('electron-is-dev')
 const path = require('path')
-const { getMailLink } = require('./src/scripts/index.ts')
+const applescript = require('applescript')
 
 // TODO: Change to an array for multi-window support
 let mainWindow, quickAddWindow
+const getMailLink = () => {
+    const script = `
+    tell application "Mail"
+		set theSelection to selection
+		set theMessage to item 1 of theSelection
+		set theSubject to subject of theMessage
+		set theSender to sender of theMessage
+		set theID to message id of theMessage
+		set theLink to "message://%3c" & theID & "%3e"
+        set theItem to "TODO [" & theSubject & " - " & theSender & " ](" & theLink & ")"
+        set the clipboard to theItem
+		return theItem
+	end tell
+`
+    applescript.execString(script, (err, rtn) => {
+        if (err) {
+            console.log(err)
+        }
+    })
+}
 
 function createQuickAddWindow() {
     quickAddWindow = new BrowserWindow({

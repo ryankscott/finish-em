@@ -8,6 +8,12 @@
         "noEmit": true,
         "skipLibCheck": true
     },
-    "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.jsx", "src/**/*.js"],
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/**/*.jsx",
+        "src/**/*.js",
+        "scripts.ts"
+    ],
     "exclude": ["node_modules", "**/*.js", "dist", "build", "cypress"]
 }
