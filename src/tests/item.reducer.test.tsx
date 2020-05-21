@@ -483,6 +483,7 @@ describe('item reducer', () => {
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
         const scheduledDate = new Date(1990, 1, 3).toISOString()
+        const dueDate = new Date(1990, 1, 3).toISOString()
         expect(
             itemReducer(
                 {
@@ -492,7 +493,7 @@ describe('item reducer', () => {
                             type: 'TODO',
                             text: 'TODO Run the tests',
                             scheduledDate: scheduledDate,
-                            dueDate: null,
+                            dueDate: dueDate,
                             completed: false,
                             deleted: false,
                             deletedAt: null,
@@ -519,8 +520,8 @@ describe('item reducer', () => {
                     id: id,
                     type: 'TODO',
                     text: 'TODO Run the tests',
-                    scheduledDate: null,
-                    dueDate: null,
+                    scheduledDate: scheduledDate,
+                    dueDate: dueDate,
                     completed: true,
                     deleted: false,
                     deletedAt: null,
@@ -588,7 +589,7 @@ describe('item reducer', () => {
                     id: id,
                     type: 'TODO',
                     text: 'TODO Run the tests',
-                    scheduledDate: null,
+                    scheduledDate: scheduledDate,
                     projectId: '0',
                     dueDate: new Date(Date.UTC(1990, 1, 4)).toISOString(),
                     completed: false,

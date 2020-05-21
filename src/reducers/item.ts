@@ -88,7 +88,6 @@ export const itemReducer = produce(
                         .toISOString()
                 }
                 i.lastUpdatedAt = new Date().toISOString()
-                i.scheduledDate = null
                 break
 
             // TODO: This is incorrectly named it should be ADD_PARENT
