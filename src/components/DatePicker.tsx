@@ -12,7 +12,6 @@ import {
     DisabledText,
 } from './styled/DatePicker'
 import DateRenderer from './DateRenderer'
-import { Paragraph } from './Typography'
 import { dueIcon, scheduledIcon } from '../assets/icons'
 
 const options: { value: string; label: string }[] = [
@@ -51,6 +50,7 @@ function DatePicker(props: DatePickerProps): ReactElement {
     const [dayPickerVisible, setDayPickerVisible] = useState(false)
 
     const handleChange = (newValue, actionMeta): void => {
+        setDayPickerVisible(false)
         if (actionMeta.action == 'select-option') {
             // if it's a custom date then show the calendar item
             if (newValue.label == 'Custom date') {
@@ -115,17 +115,20 @@ function DatePicker(props: DatePickerProps): ReactElement {
                             onChange={handleChange}
                             options={options}
                             styles={selectStyles}
-                            escapeClearsValue={true}
                             defaultMenuIsOpen={true}
+                            escapeClearsValue={true}
                             tabIndex="0"
                             onKeyDown={(e) => {
                                 if (e.key == 'Escape') {
-                                    setShowSelect(false)
+                                    if (props.onEscape) {
+                                        props.onEscape()
+                                    }
                                 }
                             }}
                         />
                         {dayPickerVisible && (
                             <DayPicker
+                                autoFocus
                                 tabIndex={0}
                                 onDayClick={handleDayClick}
                             />

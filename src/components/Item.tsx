@@ -613,6 +613,9 @@ function Item(props: ItemProps): ReactElement {
                                 container.current.focus()
                             }}
                             type="scheduled"
+                            onEscape={() =>
+                                setScheduledDateDropdownVisible(false)
+                            }
                             text={scheduledDateText}
                             completed={props.completed}
                         />
@@ -634,6 +637,7 @@ function Item(props: ItemProps): ReactElement {
                                 setDueDateDropdownVisible(false)
                                 container.current.focus()
                             }}
+                            onEscape={() => setDueDateDropdownVisible(false)}
                             type="due"
                             text={dueDateText}
                             completed={props.completed}
