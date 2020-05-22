@@ -1,4 +1,5 @@
 import { lighten, darken } from 'polished'
+import CSS from 'csstype'
 
 export const theme = {
     font: {
@@ -117,72 +118,82 @@ export const sortControlStyles = (base, state) => ({
     },
 })
 
-export const selectStyles = {
-    container: () => ({
-        zIndex: 2,
-        padding: '0px 0px',
-        minWidth: '120px',
-        maxHeight: '180px',
-    }),
-    input: () => ({
-        padding: '5px 2px',
-        fontFamily: theme.font.sansSerif,
-        color: theme.colours.defaultTextColour,
-        fontSize: theme.fontSizes.xxsmall,
-        zIndex: 2,
-    }),
-    menu: () => ({
-        margin: '0px 0px',
-        padding: '5px 0px',
-        border: '1px solid',
-        backgroundColor: theme.colours.backgroundColour,
-        borderColor: theme.colours.borderColour,
-        borderRadius: '5px',
-        tabIndex: 0,
-        zIndex: 2,
-    }),
-    option: (provided, state) => ({
-        ...provided,
-        tabIndex: 0,
-        color: theme.colours.defaultTextColour,
-        backgroundColor: state.isFocused
-            ? theme.colours.focusBackgroundColour
-            : theme.colours.backgroundColour,
-        padding: '5px 10px',
-        margin: '0px',
-        fontFamily: theme.font.sansSerif,
-        fontSize: theme.fontSizes.xxsmall,
-        fontWeight: state.isFocused
-            ? theme.fontWeights.bold
-            : theme.fontWeights.regular,
-        zIndex: 2,
-    }),
-    placeholder: () => ({
-        color: theme.colours.defaultTextColour,
-        fontSize: theme.fontSizes.xxsmall,
-    }),
-    control: () => ({
-        width: '100%',
-        margin: 0,
-        padding: 0,
-        fontFamily: theme.font.sansSerif,
-        fontSize: theme.fontSizes.xsmall,
-        backgroundColor: theme.colours.backgroundColour,
-        border: '1px solid',
-        borderColor: theme.colours.borderColour,
-        borderRadius: '5px',
-        zIndex: 2,
-        '&:hover': {
-            backgroundColor: theme.button.default.hoverBackgroundColour,
-        },
-    }),
-    singleValue: () => ({}),
-    indicatorsContainer: () => ({}),
-    dropdownIndicator: () => ({ display: 'none' }),
-    noOptionsMessage: () => ({
-        fontFamily: theme.font.sansSerif,
-        fontSize: theme.fontSizes.xsmall,
-        fontWeight: theme.fontWeights.thin,
-        padding: '2px 5px',
-    }),
+interface SelectStylesProps {
+    fontSize: 'xxsmall' | 'xxxsmall'
+    minWidth?: CSS.MinWidthProperty<number>
+    maxHeight?: CSS.MaxHeightProperty<number>
+    width?: CSS.WidthProperty<number>
+    zIndex?: number
+}
+export const selectStyles = (props: SelectStylesProps) => {
+    return {
+        container: () => ({
+            zIndex: props.zIndex != undefined ? props.zIndex : 1,
+            padding: '0px 0px',
+            width: props.width || 'auto',
+            minWidth: props.minWidth || '120px',
+            maxHeight: props.maxHeight || '180px',
+        }),
+        input: () => ({
+            padding: '5px 2px',
+            fontFamily: theme.font.sansSerif,
+            color: theme.colours.defaultTextColour,
+            fontSize: theme.fontSizes[props.fontSize],
+            zIndex: props.zIndex != undefined ? props.zIndex : 1,
+        }),
+        menu: () => ({
+            margin: '0px 0px',
+            padding: '5px 0px',
+            border: '1px solid',
+            backgroundColor: theme.colours.backgroundColour,
+            borderColor: theme.colours.borderColour,
+            borderRadius: '5px',
+            tabIndex: 0,
+            zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
+        }),
+        option: (provided, state) => ({
+            ...provided,
+            tabIndex: 0,
+            color: theme.colours.defaultTextColour,
+            backgroundColor: state.isFocused
+                ? theme.colours.focusBackgroundColour
+                : theme.colours.backgroundColour,
+            padding: '5px 10px',
+            margin: '0px',
+            fontFamily: theme.font.sansSerif,
+            fontSize: theme.fontSizes[props.fontSize],
+            fontWeight: state.isFocused
+                ? theme.fontWeights.bold
+                : theme.fontWeights.regular,
+            zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
+        }),
+        placeholder: () => ({
+            color: theme.colours.defaultTextColour,
+            fontSize: theme.fontSizes[props.fontSize],
+        }),
+        control: () => ({
+            width: '100%',
+            margin: 0,
+            padding: 0,
+            fontFamily: theme.font.sansSerif,
+            fontSize: theme.fontSizes[props.fontSize],
+            backgroundColor: theme.colours.backgroundColour,
+            border: '1px solid',
+            borderColor: theme.colours.borderColour,
+            borderRadius: '5px',
+            zIndex: props.zIndex != undefined ? props.zIndex : 1,
+            '&:hover': {
+                backgroundColor: theme.button.default.hoverBackgroundColour,
+            },
+        }),
+        singleValue: () => ({}),
+        indicatorsContainer: () => ({}),
+        dropdownIndicator: () => ({ display: 'none' }),
+        noOptionsMessage: () => ({
+            fontFamily: theme.font.sansSerif,
+            fontSize: theme.fontSizes[props.fontSize],
+            fontWeight: theme.fontWeights.thin,
+            padding: '2px 5px',
+        }),
+    }
 }

@@ -12,6 +12,9 @@ import {
 import DateRenderer from './DateRenderer'
 import { repeatIcon } from '../assets/icons'
 import { IconContainer } from './styled/DatePicker'
+import RepeatDialog from './RepeatDialog'
+import { rruleToText, capitaliseFirstLetter } from '../utils'
+import { Tooltip } from './Tooltip'
 
 const options = [
     {
@@ -45,15 +48,16 @@ const options = [
         }),
         label: 'Monthly on the ' + format(new Date(), 'do'),
     },
-
+    { value: null, label: 'Custom repeat' },
     { value: null, label: 'None' },
 ]
 
 interface RepeatPickerProps {
+    id: string
+    repeat: RRule
     onSubmit: (value: RRule) => void
     onEscape?: () => void
     showSelect?: boolean
-    text: string
     placeholder: string
     completed: boolean
     style?: 'default' | 'subtle' | 'subtleInvert'
@@ -62,8 +66,13 @@ interface RepeatPickerProps {
 
 function RepeatPicker(props: RepeatPickerProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
+    const [repeatDialogVisible, setRepeatDialogVisible] = useState(false)
     const handleChange = (newValue, actionMeta): void => {
         if (actionMeta.action == 'select-option') {
+            if (newValue.label == 'Custom repeat') {
+                setRepeatDialogVisible(true)
+                return
+            }
             props.onSubmit(newValue.value)
         }
         setShowSelect(false)
@@ -71,35 +80,62 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     }
 
     const generateDisabledElement = (
-        text: string,
+        id: string,
+        shortText: string,
+        longText: string,
         completed: boolean,
     ): ReactElement => {
         return (
-            <DisabledContainer completed={completed}>
-                <IconContainer>{repeatIcon(12, 12)}</IconContainer>
-                <DisabledText>{text}</DisabledText>
-            </DisabledContainer>
+            <>
+                <DisabledContainer
+                    data-for={'disabled-repeat-' + id}
+                    data-tip
+                    completed={completed}
+                >
+                    <IconContainer>{repeatIcon(12, 12)}</IconContainer>
+                    <DisabledText>{shortText}</DisabledText>
+                </DisabledContainer>
+                <Tooltip id={'disabled-repeat-' + id} text={longText} />
+            </>
         )
     }
-
+    const repeatText = props.repeat
+        ? capitaliseFirstLetter(rruleToText(props.repeat))
+        : ''
+    const repeatLongText = props.repeat
+        ? capitaliseFirstLetter(props.repeat.toText())
+        : ''
     return (
         <ThemeProvider theme={theme}>
             <div>
                 {props.disableClick ? (
-                    generateDisabledElement(props.text, props.completed)
+                    generateDisabledElement(
+                        props.id,
+                        repeatText,
+                        repeatLongText,
+                        props.completed,
+                    )
                 ) : (
-                    <DateRenderer
-                        completed={props.completed}
-                        type="repeat"
-                        position="center"
-                        style={props.style}
-                        text={props.text}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            if (props.completed) return
-                            setShowSelect(!showSelect)
-                        }}
-                    />
+                    <>
+                        <DateRenderer
+                            data-tip
+                            data-for={'repeat-' + props.id}
+                            completed={props.completed}
+                            icon="repeat"
+                            position="center"
+                            style={props.style}
+                            text={repeatText}
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                if (props.completed) return
+                                setShowSelect(!showSelect)
+                            }}
+                        />
+                        <Tooltip
+                            id={'repeat-' + props.id}
+                            text={repeatLongText}
+                        />
+                    </>
                 )}
 
                 {(showSelect || props.showSelect) && (
@@ -109,14 +145,31 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                             placeholder={props.placeholder}
                             onChange={handleChange}
                             options={options}
+                            tabIndex="0"
+                            defaultMenuIsOpen={true}
+                            escapeClearsValue={true}
                             onKeyDown={(e) => {
                                 if (e.key == 'Escape') {
                                     setShowSelect(false)
+                                    if (props.onEscape) {
+                                        props.onEscape()
+                                    }
                                 }
                             }}
-                            styles={selectStyles}
-                            defaultMenuIsOpen={true}
+                            styles={selectStyles({
+                                fontSize: 'xxsmall',
+                                minWidth: '140px',
+                            })}
                         />
+                        {repeatDialogVisible && (
+                            <RepeatDialog
+                                onSubmit={(r) => {
+                                    props.onSubmit(r)
+                                    setRepeatDialogVisible(false)
+                                    setShowSelect(false)
+                                }}
+                            ></RepeatDialog>
+                        )}
                     </SelectContainer>
                 )}
             </div>

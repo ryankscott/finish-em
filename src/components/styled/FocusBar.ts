@@ -32,6 +32,7 @@ export const AttributeKey = styled.div`
     margin-left: 0px;
 `
 export const AttributeValue = styled.div`
+    position: relative;
     display: flex;
     justify-content: flex-start;
     align-items: center;

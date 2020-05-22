@@ -141,12 +141,17 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                                 props.parentId,
                                 props.itemId,
                             )}
-                            styles={selectStyles}
+                            styles={selectStyles({
+                                fontSize: 'xxsmall',
+                            })}
                             escapeClearsValue={true}
                             defaultMenuIsOpen={true}
                             onKeyDown={(e) => {
                                 if (e.key == 'Escape') {
                                     setShowSelect(false)
+                                    if (props.onEscape) {
+                                        props.onEscape()
+                                    }
                                 }
                                 e.stopPropagation()
                             }}

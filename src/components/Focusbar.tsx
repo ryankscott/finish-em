@@ -6,11 +6,7 @@ import { Items, ProjectType } from '../interfaces'
 import { Uuid } from '@typed/uuid'
 import EditableText from './EditableText'
 import { Header1, Paragraph, Header3 } from './Typography'
-import {
-    removeItemTypeFromString,
-    rruleToText,
-    formatRelativeDate,
-} from '../utils'
+import { removeItemTypeFromString, formatRelativeDate } from '../utils'
 import RRule from 'rrule'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
@@ -72,7 +68,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     const ref = React.createRef<HTMLInputElement>()
     const i = props?.items?.items[props?.activeItem.present]
     if (!i) return null
-    const repeatText = i.repeat ? rruleToText(RRule.fromString(i.repeat)) : ''
     const dueDate = i.dueDate ? formatRelativeDate(parseISO(i.dueDate)) : null
     const scheduledDate = i.scheduledDate
         ? formatRelativeDate(parseISO(i.scheduledDate))
@@ -190,7 +185,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                     onSubmit={(d) =>
                                         props.setScheduledDate(i.id, d)
                                     }
-                                    type="scheduled"
+                                    icon="scheduled"
                                     text={scheduledDate}
                                     completed={i.completed}
                                 />
@@ -205,7 +200,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                     key={'dd' + i.id}
                                     placeholder={'Due on: '}
                                     onSubmit={(d) => props.setDueDate(i.id, d)}
-                                    type="due"
+                                    icon="due"
                                     text={dueDate}
                                     completed={i.completed}
                                 />
@@ -217,8 +212,13 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             </AttributeKey>
                             <AttributeValue>
                                 <RepeatPicker
+                                    id={i.id}
+                                    repeat={
+                                        i.repeat
+                                            ? RRule.fromString(i.repeat)
+                                            : null
+                                    }
                                     completed={i.completed}
-                                    text={repeatText}
                                     key={'rp' + i.id}
                                     placeholder={'Repeat: '}
                                     onSubmit={(r) =>

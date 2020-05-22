@@ -1,12 +1,13 @@
 import styled from 'styled-components'
+import { IconType } from '../../interfaces'
 
 interface ContainerProps {
     completed: boolean
-    type: 'due' | 'repeat' | 'scheduled'
+    type: IconType
 }
 
 export const Container = styled.div<ContainerProps>`
-    display: 'flex';
+    display: flex;
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     color: ${(props) => props.theme.colours.defaultTextColour};
     border-radius: 5px;
@@ -19,6 +20,8 @@ interface SubTextProps {
 }
 export const SubTextContainer = styled.div<SubTextProps>`
     display: flex;
+    min-width: 40px;
+    min-height: 20px;
     flex-direction: row;
     align-items: center;
     justify-content: ${(props) => props.position};

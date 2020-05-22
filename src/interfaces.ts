@@ -5,6 +5,35 @@ export enum RenderingStrategy {
     All = 'ALL',
 }
 
+export type IconType =
+    | 'close'
+    | 'expand'
+    | 'collapse'
+    | 'help'
+    | 'repeat'
+    | 'due'
+    | 'scheduled'
+    | 'note'
+    | 'add'
+    | 'todoUnchecked'
+    | 'todoChecked'
+    | 'trash'
+    | 'trashSweep'
+    | 'show'
+    | 'hide'
+    | 'sort'
+    | 'inbox'
+    | 'calendar'
+    | 'slideRight'
+    | 'slideLeft'
+    | 'upLevel'
+    | 'back'
+    | 'forward'
+    | 'settings'
+    | 'subtask'
+    | 'more'
+    | 'flag'
+
 export interface ItemType {
     id: Uuid
     type: 'NOTE' | 'TODO'

@@ -7,6 +7,7 @@ import { Uuid } from '@typed/uuid'
 import { toggleFlag } from '../actions'
 import { connect } from 'react-redux'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
+import { Tooltip } from './Tooltip'
 
 interface DispatchProps {
     toggleFlag: (id: Uuid) => void
@@ -27,6 +28,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
         <ThemeProvider theme={theme}>
             <div>
                 <Button
+                    dataFor={'more'}
                     type={'subtleInvert'}
                     spacing={'default'}
                     icon={'more'}
@@ -54,6 +56,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                     </DialogContainer>
                 )}
             </div>
+            <Tooltip id="more" text={'More actions'} />
         </ThemeProvider>
     )
 }

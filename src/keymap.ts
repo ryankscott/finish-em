@@ -17,7 +17,7 @@ export const app = {
     GO_TO_COMPLETED: 'a g c',
     SHOW_SIDEBAR: 'a s s',
     HIDE_SIDEBAR: 'a s h',
-    TOGGLE_SHORTCUT_DIALOG: 'a s d',
+    TOGGLE_SHORTCUT_DIALOG: ['?', 'Shift+?'],
     SHOW_CREATE_PROJECT_DIALOG: 'a p s',
 }
 export const item = {
