@@ -10,7 +10,7 @@ export const DialogContainer = styled.div`
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
     border-radius: 5px;
-    min-width: 120px;
+    min-width: 150px;
     padding: 5px 0px;
     z-index: 2;
     right: 0px;
@@ -20,8 +20,7 @@ export const Icon = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 0px 2px;
-    padding-right: 5px;
+    padding: 0px 5px;
 `
 
 export const Option = styled.div`
@@ -29,8 +28,7 @@ export const Option = styled.div`
     flex-direction: row;
     justify-content: flex-start;
     background-color: ${(props) => props.theme.colours.backgroundColour};
-    padding: 2px 5px;
-    padding-left: 10px;
+    padding: 5px 5px;
     border-radius: 2px;
     :hover {
         background-color: ${(props) =>

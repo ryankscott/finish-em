@@ -562,7 +562,10 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </ProjectContainer>
                     <MoreContainer visible={moreDropdownVisible}>
-                        <MoreDropdown itemId={props.id}></MoreDropdown>
+                        <MoreDropdown
+                            itemId={props.id}
+                            deleted={props.deleted}
+                        ></MoreDropdown>
                     </MoreContainer>
                     <ConvertSubtaskContainer
                         visible={
