@@ -99,7 +99,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
         <ThemeProvider theme={theme}>
             <Container onClick={(e) => e.stopPropagation()}>
                 <OptionContainer>
-                    <Label>Starts on: </Label>
+                    <Label>Starts: </Label>
                     <Value>
                         <DatePicker
                             text={startDateText}
@@ -119,7 +119,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                         <Input
                             type="number"
                             min="0"
-                            max="100"
+                            max="999"
                             id="repeats-every"
                             name="repeats-every"
                             onChange={(e) =>
@@ -145,7 +145,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                     </Value>
                 </OptionContainer>
                 <OptionContainer>
-                    <Label>Ends on: </Label>
+                    <Label>Ends: </Label>
                     <Value>
                         <StyledSelect
                             key="end"
@@ -176,7 +176,9 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                 id="repeat-number"
                                 name="repeats-number"
                                 onChange={(e) =>
-                                    setRepeatNumber(e.target.value)
+                                    setRepeatNumber(
+                                        parseInt(e.target.value, 10),
+                                    )
                                 }
                             ></Input>
                         </Value>
