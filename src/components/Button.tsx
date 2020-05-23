@@ -3,6 +3,7 @@ import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import { StyledButton, Contents, Icon, Text } from './styled/Button'
 import * as ic from '../assets/icons'
+import { IconType } from '../interfaces'
 
 const iconMapping = {
     close: (w, h, c) => ic.closeIcon(w, h, c),
@@ -41,7 +42,7 @@ export interface ButtonProps {
     spacing?: 'compact' | 'default'
     type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
     text?: string
-    textSize?: 'xsmall' | 'small' | 'regular' | 'large'
+    textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
     iconSize?: string
     iconColour?: string
     tabIndex?: number
@@ -49,35 +50,7 @@ export interface ButtonProps {
     width?: string
     height?: string
     iconPosition?: 'before' | 'after'
-    icon?:
-        | 'close'
-        | 'expand'
-        | 'collapse'
-        | 'help'
-        | 'repeat'
-        | 'due'
-        | 'scheduled'
-        | 'note'
-        | 'add'
-        | 'todoUnchecked'
-        | 'todoChecked'
-        | 'trash'
-        | 'trashSweep'
-        | 'show'
-        | 'hide'
-        | 'sort'
-        | 'inbox'
-        | 'calendar'
-        | 'slideRight'
-        | 'slideLeft'
-        | 'upLevel'
-        | 'back'
-        | 'forward'
-        | 'settings'
-        | 'subtask'
-        | 'more'
-        | 'flag'
-}
+    icon?: IconType
 
 const getTheme = (type: string): {} => {
     return theme.button[type]

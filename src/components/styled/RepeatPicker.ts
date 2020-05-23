@@ -5,6 +5,8 @@ export const SelectContainer = styled.div`
     display: flex;
     position: absolute;
     flex-direction: column;
+    left: 0px;
+    top: 0px;
 `
 interface DisabledContainerProps {
     completed: boolean

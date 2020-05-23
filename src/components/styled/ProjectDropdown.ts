@@ -10,6 +10,7 @@ export const Container = styled.div<ContainerProps>`
     padding: 0px;
     margin: 0px;
     display: ${(props) => (!props.visible ? 'none' : 'flex')};
+    top: 0px;
 `
 export const DisabledContainer = styled.div`
     display: flex;

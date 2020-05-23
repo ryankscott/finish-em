@@ -1,11 +1,17 @@
 import styled from 'styled-components'
 import { Paragraph } from '../Typography'
 
+export const Container = styled.div`
+    position: relative;
+`
+
 export const SelectContainer = styled.div`
     display: flex;
-    position: absolute;
     flex-direction: column;
     min-width: 80px;
+    position: absolute;
+    top: 0px;
+    left: 0px;
 `
 
 interface DisabledContainerProps {

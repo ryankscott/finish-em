@@ -5,12 +5,13 @@ interface ContainerProps {
     visible: boolean
 }
 export const Container = styled.div<ContainerProps>`
-    position: fixed;
+    position: absolute;
     display: flex;
     flex-direction: column;
     padding: 0px;
     margin: 0px;
     display: ${(props) => (!props.visible ? 'none' : null)};
+    top: 0px;
 `
 export const Project = styled.div`
     display: flex;

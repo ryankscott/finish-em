@@ -261,7 +261,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     placeholder="Sort"
                                     components={{ DropdownIndicator }}
                                     styles={{
-                                        ...selectStyles,
+                                        ...selectStyles({
+                                            fontSize: 'xxsmall',
+                                        }),
                                         placeholder: sortPlaceholderStyles,
                                         control: sortControlStyles,
                                         dropdownIndicator: () => ({}),

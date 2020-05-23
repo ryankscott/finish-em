@@ -264,3 +264,6 @@ export const filterItems = (
 export const convertItemToItemType = (input: Item): ItemType[] => {
     return Object.values(input)
 }
+export const capitaliseFirstLetter = (input: string): string => {
+    return input.charAt(0).toUpperCase() + input.slice(1)
+}

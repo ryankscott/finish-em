@@ -25,6 +25,7 @@ interface OwnProps {
     hideButton?: boolean
     innerRef?: React.RefObject<HTMLInputElement>
     onCreate?: () => void
+    onEscape?: () => void
 }
 
 type ItemCreatorProps = OwnProps & DispatchProps
@@ -87,6 +88,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     singleline={true}
                     shouldClearOnSubmit={true}
                     shouldSubmitOnBlur={false}
+                    onEscape={props.onEscape}
                 />
             </ItemCreatorContainer>
         </Container>

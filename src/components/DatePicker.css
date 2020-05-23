@@ -1,5 +1,7 @@
 /* DayPicker styles */
 .DayPicker {
+    position: absolute;
+    right: 0px;
     display: inline-block;
     font-size: 12px;
     font-family: -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;

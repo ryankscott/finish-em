@@ -8,6 +8,10 @@ interface TooltipProps {
     id: string
     text: string
 }
+
+export const StyledParagraph = styled(Paragraph)`
+    font-size: ${(props) => props.theme.fontSizes.xxsmall};
+`
 export const StyledTooltip = styled(ReactTooltip)`
     padding: 2px 5px !important;
     margin: 0px !important;
@@ -22,7 +26,7 @@ export const Tooltip = (props: TooltipProps): ReactElement => {
                 place="top"
                 delayShow={500}
             >
-                <Paragraph invert>{props.text}</Paragraph>
+                <StyledParagraph invert>{props.text}</StyledParagraph>
             </StyledTooltip>
         </ThemeProvider>
     )

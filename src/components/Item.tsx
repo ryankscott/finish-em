@@ -41,11 +41,7 @@ import ProjectDropdown from './ProjectDropdown'
 import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
 import EditableText from './EditableText'
-import {
-    removeItemTypeFromString,
-    formatRelativeDate,
-    rruleToText,
-} from '../utils'
+import { removeItemTypeFromString, formatRelativeDate } from '../utils'
 import { parseISO } from 'date-fns'
 import { Button } from './Button'
 import ItemCreator from './ItemCreator'
@@ -463,9 +459,6 @@ function Item(props: ItemProps): ReactElement {
         return
     }
 
-    const repeatText = props.repeat
-        ? rruleToText(RRule.fromString(props.repeat))
-        : ''
     const dueDateText = props.dueDate
         ? formatRelativeDate(parseISO(props.dueDate))
         : ''
@@ -557,6 +550,10 @@ function Item(props: ItemProps): ReactElement {
                             disableClick={true}
                             projectId={props.projectId}
                             completed={props.completed}
+                            onEscape={() => {
+                                setProjectDropdownVisible(false)
+                                container.current.focus()
+                            }}
                             onSubmit={(projectId) => {
                                 props.moveItem(props.id, projectId)
                                 setProjectDropdownVisible(false)
@@ -582,6 +579,10 @@ function Item(props: ItemProps): ReactElement {
                             disableClick={true}
                             parentId={props.parentId}
                             completed={props.completed}
+                            onEscape={() => {
+                                setConvertSubtaskDropdownVisible(false)
+                                container.current.focus()
+                            }}
                             onSubmit={(parentId) => {
                                 if (parentId) {
                                     props.changeParentItem(props.id, parentId)
@@ -612,10 +613,11 @@ function Item(props: ItemProps): ReactElement {
                                 setScheduledDateDropdownVisible(false)
                                 container.current.focus()
                             }}
-                            type="scheduled"
-                            onEscape={() =>
+                            icon="scheduled"
+                            onEscape={() => {
                                 setScheduledDateDropdownVisible(false)
-                            }
+                                container.current.focus()
+                            }}
                             text={scheduledDateText}
                             completed={props.completed}
                         />
@@ -637,8 +639,11 @@ function Item(props: ItemProps): ReactElement {
                                 setDueDateDropdownVisible(false)
                                 container.current.focus()
                             }}
-                            onEscape={() => setDueDateDropdownVisible(false)}
-                            type="due"
+                            onEscape={() => {
+                                setDueDateDropdownVisible(false)
+                                container.current.focus()
+                            }}
+                            icon="due"
                             text={dueDateText}
                             completed={props.completed}
                         />
@@ -650,13 +655,22 @@ function Item(props: ItemProps): ReactElement {
                         }
                     >
                         <RepeatPicker
+                            id={props.id}
                             showSelect={repeatDropdownVisible}
                             disableClick={true}
                             style={'subtleInvert'}
                             completed={props.completed}
-                            text={repeatText}
+                            repeat={
+                                props.repeat
+                                    ? RRule.fromString(props.repeat)
+                                    : null
+                            }
                             key={'rp' + props.id}
                             placeholder={'Repeat: '}
+                            onEscape={() => {
+                                setRepeatDropdownVisible(false)
+                                container.current.focus()
+                            }}
                             onSubmit={(r) => {
                                 setRepeatDropdownVisible(false)
                                 props.setRepeatRule(props.id, r)
@@ -675,6 +689,10 @@ function Item(props: ItemProps): ReactElement {
                         shouldCloseOnSubmit={true}
                         parentId={props.id}
                         onCreate={() => {
+                            setCreateSubtaskDropdownVisible(false)
+                            container.current.focus()
+                        }}
+                        onEscape={() => {
                             setCreateSubtaskDropdownVisible(false)
                             container.current.focus()
                         }}

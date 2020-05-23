@@ -91,12 +91,17 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                                 props.projectId,
                                 props.projects.projects,
                             )}
-                            styles={selectStyles}
+                            styles={selectStyles({
+                                fontSize: 'xxsmall',
+                            })}
                             escapeClearsValue={true}
                             defaultMenuIsOpen={true}
                             onKeyDown={(e) => {
                                 if (e.key == 'Escape') {
                                     setShowSelect(false)
+                                    if (props.onEscape) {
+                                        props.onEscape()
+                                    }
                                 }
                             }}
                         />
