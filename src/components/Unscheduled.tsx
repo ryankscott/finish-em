@@ -3,9 +3,16 @@ import { ThemeProvider } from 'styled-components'
 
 import { theme } from '../theme'
 import { Title } from './Typography'
-import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
+import FilteredItemList from '../containers/FilteredItemList'
 import { UnscheduledContainer } from './styled/Unscheduled'
-import { isPast, endOfDay, parseISO } from 'date-fns'
+import {
+    isPast,
+    endOfDay,
+    parseISO,
+    isToday,
+    isThisWeek,
+    isThisMonth,
+} from 'date-fns'
 import { ItemType } from '../interfaces'
 
 const Unscheduled = (): ReactElement => (
@@ -28,11 +35,60 @@ const Unscheduled = (): ReactElement => (
                 isFilterable={true}
             />
             <FilteredItemList
+                listName="Created today"
                 filter={{
-                    type: 'default',
-                    filter: FilterEnum.ShowNotScheduled,
+                    type: 'custom',
+                    filter: (i: ItemType) => {
+                        return (
+                            i.scheduledDate == null &&
+                            isToday(parseISO(i.createdAt))
+                        )
+                    },
                 }}
-                listName="Unscheduled"
+                isFilterable={true}
+            />
+            <FilteredItemList
+                listName="Created this week"
+                filter={{
+                    type: 'custom',
+                    filter: (i: ItemType) => {
+                        return (
+                            i.scheduledDate == null &&
+                            !isToday(parseISO(i.createdAt)) &&
+                            isThisWeek(parseISO(i.createdAt))
+                        )
+                    },
+                }}
+                isFilterable={true}
+            />
+            <FilteredItemList
+                listName="Created this month"
+                filter={{
+                    type: 'custom',
+                    filter: (i: ItemType) => {
+                        return (
+                            i.scheduledDate == null &&
+                            !isToday(parseISO(i.createdAt)) &&
+                            !isThisWeek(parseISO(i.createdAt)) &&
+                            isThisMonth(parseISO(i.createdAt))
+                        )
+                    },
+                }}
+                isFilterable={true}
+            />
+            <FilteredItemList
+                listName="Older"
+                filter={{
+                    type: 'custom',
+                    filter: (i: ItemType) => {
+                        return (
+                            i.scheduledDate == null &&
+                            !isToday(parseISO(i.createdAt)) &&
+                            !isThisWeek(parseISO(i.createdAt)) &&
+                            !isThisMonth(parseISO(i.createdAt))
+                        )
+                    },
+                }}
                 isFilterable={true}
             />
         </UnscheduledContainer>
