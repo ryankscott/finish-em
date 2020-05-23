@@ -17,6 +17,7 @@ export const REORDER_ITEM = 'REORDER_ITEM'
 export const CONVERT_SUBTASK = 'CONVERT_SUBTASK'
 export const CHANGE_PARENT_ITEM = 'CHANGE_PARENT_ITEM'
 export const TOGGLE_FLAG = 'TOGGLE_FLAG'
+export const DELETE_PERMANENT_ITEM = 'DELETE_PERMANENT_ITEM'
 
 import { getItemTypeFromString, capitaliseItemTypeFromString } from '../utils'
 import RRule from 'rrule'
@@ -229,6 +230,18 @@ export function toggleFlag(id: Uuid): ToggleFlagAction {
     }
 }
 
+export interface DeletePermanentlyAction {
+    type: typeof DELETE_PERMANENT_ITEM
+    id: Uuid
+}
+
+export function deletePermanently(id: Uuid): DeletePermanentlyAction {
+    return {
+        type: DELETE_PERMANENT_ITEM,
+        id: id,
+    }
+}
+
 export type ItemActions =
     | AddChildItemAction
     | UpdateItemDescriptionAction
@@ -245,3 +258,4 @@ export type ItemActions =
     | ConvertSubtaskAction
     | ChangeParentItemAction
     | ToggleFlagAction
+    | DeletePermanentlyAction

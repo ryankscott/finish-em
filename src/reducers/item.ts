@@ -50,7 +50,8 @@ export const itemReducer = produce(
                 i.deleted = true
                 i.deletedAt = new Date().toISOString()
                 i.lastUpdatedAt = new Date().toISOString()
-                // if we're removing a child, remove the reference to it on the parent
+
+                // if we're deleting a child, remove the reference to it on the parent
                 if (i.parentId != null) {
                     const parent = draftState.items[i.parentId]
                     parent.children = parent.children.filter(
@@ -59,14 +60,14 @@ export const itemReducer = produce(
                     parent.lastUpdatedAt = new Date().toISOString()
                     i.parentId = null
                 }
-                // If there's children, update them all to get rid of the parent ID
+                // If there's children, update them all as deleted
                 if (i.children != []) {
                     i.children.map((c) => {
                         const child = draftState.items[c]
-                        child.parentId = null
+                        child.deleted = true
+                        child.deletedAt = new Date().toISOString()
                         child.lastUpdatedAt = new Date().toISOString()
                     })
-                    i.children = []
                 }
                 // NOTE: We don't remove from order due to things like the trash view
                 break
@@ -212,6 +213,36 @@ export const itemReducer = produce(
                     },
                 )
                 draftState.items = Object.fromEntries(x)
+                break
+
+            case item.DELETE_PERMANENT_ITEM:
+                // Don't allow permanent delete if it's not already deleted
+                if (i.deleted == false) {
+                    return
+                }
+                // Don't allow deleting if all the children are deleted
+                if (i.children != []) {
+                    const allChildrenDeleted = i.children.every((c) => {
+                        const child = draftState.items[c]
+                        return child.deleted
+                    })
+                    if (!allChildrenDeleted) return
+                }
+                // Delete all children
+                if (i.children != []) {
+                    i.children.map((c) => {
+                        draftState.order = draftState.order.filter(
+                            (o) => o != c,
+                        )
+                        delete draftState.items[c]
+                    })
+                }
+
+                // Delete parent / item
+                delete draftState.items[action.id]
+                draftState.order = draftState.order.filter(
+                    (o) => o != action.id,
+                )
                 break
 
             default:

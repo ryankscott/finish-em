@@ -33,6 +33,7 @@ export type IconType =
     | 'subtask'
     | 'more'
     | 'flag'
+    | 'trashPermanent'
 
 export interface ItemType {
     id: Uuid

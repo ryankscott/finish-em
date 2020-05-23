@@ -83,6 +83,8 @@ describe('item reducer', () => {
         Mockdate.reset()
     })
 
+    // TODO:
+
     it('should handle mark an item as deleted', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
@@ -145,7 +147,7 @@ describe('item reducer', () => {
         Mockdate.reset()
     })
 
-    it('should remove the parentId from all children and all children from the parent, when the parent is deleted', () => {
+    it('should delete all subtasks when a parent is deleted', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
         const childId1 = uuidv4()
@@ -234,7 +236,7 @@ describe('item reducer', () => {
                     lastUpdatedAt: new Date().toISOString(),
                     repeat: null,
                     parentId: null,
-                    children: [],
+                    children: [childId1, childId2],
                     projectId: '0',
                     flagged: false,
                 },
@@ -245,13 +247,13 @@ describe('item reducer', () => {
                     scheduledDate: null,
                     dueDate: null,
                     completed: false,
-                    deleted: false,
-                    deletedAt: null,
+                    deleted: true,
+                    deletedAt: new Date().toISOString(),
                     completedAt: null,
                     createdAt: createdAt,
                     lastUpdatedAt: new Date().toISOString(),
                     repeat: null,
-                    parentId: null,
+                    parentId: id,
                     children: [],
                     projectId: '0',
                     flagged: false,
@@ -263,13 +265,13 @@ describe('item reducer', () => {
                     scheduledDate: null,
                     dueDate: null,
                     completed: false,
-                    deleted: false,
-                    deletedAt: null,
+                    deleted: true,
+                    deletedAt: new Date().toISOString(),
                     completedAt: null,
                     createdAt: createdAt,
                     lastUpdatedAt: new Date().toISOString(),
                     repeat: null,
-                    parentId: null,
+                    parentId: id,
                     children: [],
                     projectId: '0',
                     flagged: false,
@@ -540,7 +542,6 @@ describe('item reducer', () => {
         Mockdate.reset()
     })
 
-    // TODO: Remove hack of adding 1 hour to expected time (probably due to being in GMT +1)
     it('should set the due date of a repeating item to the next occurence of the repeat when completing', () => {
         Mockdate.set('1990-02-03')
         const id = uuidv4()
@@ -840,6 +841,7 @@ describe('item reducer', () => {
         })
         Mockdate.reset()
     })
+
     it('should handle reordering items - start to end', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
@@ -1113,6 +1115,7 @@ describe('item reducer', () => {
         })
         Mockdate.reset()
     })
+
     it('should handle reordering items - reverse', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
@@ -1248,5 +1251,332 @@ describe('item reducer', () => {
             order: [id2, id3, id],
         })
         Mockdate.reset()
+    })
+
+    // TODO:
+    it('should handle the permanent delete of an item when its already deleted', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const projectId = uuidv4()
+        const createdAt = new Date(1990, 1, 1).toISOString()
+        const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
+        const deletedAt = new Date(1990, 1, 2).toISOString()
+        expect(
+            itemReducer(
+                {
+                    items: {
+                        [id]: {
+                            id: id,
+                            type: 'TODO',
+                            text: 'TODO First item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: true,
+                            deletedAt: deletedAt,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: projectId,
+                            children: [],
+                            flagged: false,
+                        },
+                    },
+                    order: [id],
+                },
+                {
+                    id: id,
+                    type: item.DELETE_PERMANENT_ITEM,
+                },
+            ),
+        ).toEqual({
+            items: {},
+            order: [],
+        })
+        Mockdate.reset()
+    })
+
+    // TODO:
+    it('should fail the permanent delete of an item when its not deleted', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const projectId = uuidv4()
+        const createdAt = new Date(1990, 1, 1).toISOString()
+        const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
+        const deletedAt = new Date(1990, 1, 2).toISOString()
+        expect(
+            itemReducer(
+                {
+                    items: {
+                        [id]: {
+                            id: id,
+                            type: 'TODO',
+                            text: 'TODO First item',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            projectId: projectId,
+                            children: [],
+                            flagged: false,
+                        },
+                    },
+                    order: [id],
+                },
+                {
+                    id: id,
+                    type: item.DELETE_PERMANENT_ITEM,
+                },
+            ),
+        ).toEqual({
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO First item',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    projectId: projectId,
+                    children: [],
+                    flagged: false,
+                },
+            },
+            order: [id],
+        })
+        Mockdate.reset()
+    })
+
+    // TODO:
+    it('should fail the permanent delete of an item when it as undeleted subtasks', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const childId1 = uuidv4()
+        const childId2 = uuidv4()
+        const createdAt = new Date(1990, 1, 1).toISOString()
+        const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
+        const deletedAt = new Date(1990, 1, 2).toISOString()
+        expect(
+            itemReducer(
+                {
+                    items: {
+                        [id]: {
+                            id: id,
+                            type: 'TODO',
+                            text: 'TODO Run the tests',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: true,
+                            deletedAt: deletedAt,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            children: [childId1, childId2],
+                            projectId: '0',
+                            flagged: false,
+                        },
+                        [childId1]: {
+                            id: childId1,
+                            type: 'TODO',
+                            text: 'TODO Eat dinner',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: id,
+                            children: [],
+                            projectId: '0',
+                            flagged: false,
+                        },
+                        [childId2]: {
+                            id: childId2,
+                            type: 'TODO',
+                            text: 'TODO Eat dessert',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: true,
+                            deletedAt: deletedAt,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: id,
+                            children: [],
+                            projectId: '0',
+                            flagged: false,
+                        },
+                    },
+                    order: [id, childId1, childId2],
+                },
+                {
+                    id: id,
+                    type: item.DELETE_PERMANENT_ITEM,
+                },
+            ),
+        ).toEqual({
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO Run the tests',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: true,
+                    deletedAt: deletedAt,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: null,
+                    children: [childId1, childId2],
+                    projectId: '0',
+                    flagged: false,
+                },
+                [childId1]: {
+                    id: childId1,
+                    type: 'TODO',
+                    text: 'TODO Eat dinner',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: id,
+                    children: [],
+                    projectId: '0',
+                    flagged: false,
+                },
+                [childId2]: {
+                    id: childId2,
+                    type: 'TODO',
+                    text: 'TODO Eat dessert',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: true,
+                    deletedAt: deletedAt,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    parentId: id,
+                    children: [],
+                    projectId: '0',
+                    flagged: false,
+                },
+            },
+            order: [id, childId1, childId2],
+        }),
+            Mockdate.reset()
+    })
+
+    it('should delete all children of a parent when the parent is deleted', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const childId1 = uuidv4()
+        const childId2 = uuidv4()
+        const createdAt = new Date(1990, 1, 1).toISOString()
+        const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
+        const deletedAt = new Date(1990, 1, 2).toISOString()
+        expect(
+            itemReducer(
+                {
+                    items: {
+                        [id]: {
+                            id: id,
+                            type: 'TODO',
+                            text: 'TODO Run the tests',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: true,
+                            deletedAt: deletedAt,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            children: [childId1, childId2],
+                            projectId: '0',
+                            flagged: false,
+                        },
+                        [childId1]: {
+                            id: childId1,
+                            type: 'TODO',
+                            text: 'TODO Eat dinner',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: true,
+                            deletedAt: deletedAt,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: id,
+                            children: [],
+                            projectId: '0',
+                            flagged: false,
+                        },
+                        [childId2]: {
+                            id: childId2,
+                            type: 'TODO',
+                            text: 'TODO Eat dessert',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: true,
+                            deletedAt: deletedAt,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: id,
+                            children: [],
+                            projectId: '0',
+                            flagged: false,
+                        },
+                    },
+                    order: [id, childId1, childId2],
+                },
+                {
+                    id: id,
+                    type: item.DELETE_PERMANENT_ITEM,
+                },
+            ),
+        ).toEqual({
+            items: {},
+            order: [],
+        }),
+            Mockdate.reset()
     })
 })

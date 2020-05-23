@@ -608,3 +608,31 @@ export const flagIcon = (
         <line x1="4" y1="22" x2="4" y2="15"></line>
     </svg>
 )
+
+export const trashPermanentIcon = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <polyline id="polyline90" points="3 6 5 6 21 6" />
+        <path
+            id="path92"
+            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+        />
+        <g transform="translate(0.5,0.5)" id="g108">
+            <line x1="14.671" y1="10.463" x2="8.463" y2="16.670" />
+            <line x1="8.463" y1="10.463" x2="14.671" y2="16.670" />
+        </g>
+    </svg>
+)

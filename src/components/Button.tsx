@@ -33,6 +33,7 @@ const iconMapping = {
     subtask: (w, h, c) => ic.subtaskIcon(w, h, c),
     more: (w, h, c) => ic.moreIcon(w, h, c),
     flag: (w, h, c) => ic.flagIcon(w, h, c),
+    trashPermanent: (w, h, c) => ic.trashPermanentIcon(w, h, c),
 }
 
 // TODO: Change width and height to strings
@@ -51,6 +52,7 @@ export interface ButtonProps {
     height?: string
     iconPosition?: 'before' | 'after'
     icon?: IconType
+}
 
 const getTheme = (type: string): {} => {
     return theme.button[type]
