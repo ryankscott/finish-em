@@ -173,7 +173,9 @@ type FilteredItemListProps = StateProps & DispatchProps & OwnProps
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const [sortCriteria, setSortCriteria] = useState(SortCriteriaEnum.DueDesc)
     const [hideCompleted, setHideCompleted] = useState(false)
-    const [hideItemList, setHideItemList] = useState(false)
+    const [hideItemList, setHideItemList] = useState(
+        Object.keys(props.items).length == 0,
+    )
 
     // TODO: Unsure if this should be done in state
     const allItems = props.items
