@@ -3,7 +3,6 @@ const isDev = require('electron-is-dev')
 const path = require('path')
 const applescript = require('applescript')
 
-// TODO: Change to an array for multi-window support
 let mainWindow, quickAddWindow
 const getMailLink = () => {
     const script = `

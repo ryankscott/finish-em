@@ -36,7 +36,6 @@ const iconMapping = {
     trashPermanent: (w, h, c) => ic.trashPermanentIcon(w, h, c),
 }
 
-// TODO: Change width and height to strings
 export interface ButtonProps {
     id?: string
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void

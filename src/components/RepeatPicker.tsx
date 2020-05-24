@@ -116,61 +116,56 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                         props.completed,
                     )
                 ) : (
-                    <>
-                        <DateRenderer
-                            data-tip
-                            data-for={'repeat-' + props.id}
-                            completed={props.completed}
-                            icon="repeat"
-                            position="center"
-                            style={props.style}
-                            text={repeatText}
-                            onClick={(e) => {
-                                e.stopPropagation()
-                                if (props.completed) return
-                                setShowSelect(!showSelect)
-                            }}
-                        />
-                        <Tooltip
-                            id={'repeat-' + props.id}
-                            text={repeatLongText}
-                        />
-                    </>
+                    <DateRenderer
+                        tooltipText={repeatLongText}
+                        completed={props.completed}
+                        icon="repeat"
+                        position="center"
+                        style={props.style}
+                        text={repeatText}
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            if (props.completed) return
+                            setShowSelect(!showSelect)
+                        }}
+                    />
                 )}
 
                 {(showSelect || props.showSelect) && (
-                    <SelectContainer>
-                        <Select
-                            autoFocus={true}
-                            placeholder={props.placeholder}
-                            onChange={handleChange}
-                            options={options}
-                            tabIndex="0"
-                            defaultMenuIsOpen={true}
-                            escapeClearsValue={true}
-                            onKeyDown={(e) => {
-                                if (e.key == 'Escape') {
-                                    setShowSelect(false)
-                                    if (props.onEscape) {
-                                        props.onEscape()
+                    <>
+                        <SelectContainer>
+                            <Select
+                                autoFocus={true}
+                                placeholder={props.placeholder}
+                                onChange={handleChange}
+                                options={options}
+                                tabIndex="0"
+                                defaultMenuIsOpen={true}
+                                escapeClearsValue={true}
+                                onKeyDown={(e) => {
+                                    if (e.key == 'Escape') {
+                                        setShowSelect(false)
+                                        if (props.onEscape) {
+                                            props.onEscape()
+                                        }
                                     }
-                                }
-                            }}
-                            styles={selectStyles({
-                                fontSize: 'xxsmall',
-                                minWidth: '140px',
-                            })}
-                        />
-                        {repeatDialogVisible && (
-                            <RepeatDialog
-                                onSubmit={(r) => {
-                                    props.onSubmit(r)
-                                    setRepeatDialogVisible(false)
-                                    setShowSelect(false)
                                 }}
-                            ></RepeatDialog>
-                        )}
-                    </SelectContainer>
+                                styles={selectStyles({
+                                    fontSize: 'xxsmall',
+                                    minWidth: '140px',
+                                })}
+                            />
+                            {repeatDialogVisible && (
+                                <RepeatDialog
+                                    onSubmit={(r) => {
+                                        props.onSubmit(r)
+                                        setRepeatDialogVisible(false)
+                                        setShowSelect(false)
+                                    }}
+                                ></RepeatDialog>
+                            )}
+                        </SelectContainer>
+                    </>
                 )}
             </div>
         </ThemeProvider>

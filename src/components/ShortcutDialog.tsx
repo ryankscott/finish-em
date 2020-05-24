@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react'
+import React, { ReactElement, useEffect, Dispatch } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { theme } from '../theme'
 import { Title, Header1 } from './Typography'
@@ -70,11 +70,13 @@ const generateRows = (keymap: { [key: string]: string }): ReactElement[] => {
     })
 }
 
-// TODO: Refactor me
-interface ShortcutDialogProps {
+interface StateProps {
     isOpen: boolean
+}
+interface DispatchProps {
     closeShortcutDialog: () => void
 }
+type ShortcutDialogProps = StateProps & DispatchProps
 function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
     const node = React.createRef()
 
@@ -138,11 +140,11 @@ function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state): StateProps => ({
     isOpen: state.ui.shortcutDialogVisible,
 })
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     closeShortcutDialog: () => {
         dispatch(hideShortcutDialog())
     },

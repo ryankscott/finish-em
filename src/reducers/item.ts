@@ -92,9 +92,22 @@ export const itemReducer = produce(
                 break
 
             // TODO: This is incorrectly named it should be ADD_PARENT
+            // TODO: Make sure you can't add a child to a parent that's a subtask
             case item.ADD_CHILD_ITEM:
-                const parent = draftState.items[action.parentId]
-                const child = draftState.items[action.id]
+                const parent = draftState.items[action.parentId.toString()]
+                const child = draftState.items[action.id.toString()]
+
+                // TODO: This breaks immer?
+                // If the child has children already then return
+                /*if (child.children != []) {
+                    break
+                }*/
+
+                // if the parent has a parent then return
+                if (parent.parentId != null) {
+                    break
+                }
+
                 // Update parent item
                 parent.children =
                     parent.children == undefined
@@ -174,6 +187,7 @@ export const itemReducer = produce(
                 i.lastUpdatedAt = new Date().toISOString()
                 break
 
+            // TODO: Make sure you can't add a child to a parent that's a subtask
             case item.CHANGE_PARENT_ITEM:
                 // Also need to remove the reference from the old parent
                 if (i.parentId) {
@@ -200,13 +214,12 @@ export const itemReducer = produce(
                 i.lastUpdatedAt = new Date().toISOString()
                 break
 
-            // TODO: Implement the deleting of project action
             case DELETE_PROJECT:
                 const x = Object.entries(draftState.items[action.id]).map(
                     ([k, v]) => {
                         if (v.projectId == action.id) {
                             v.deleted = true
-                            v.projectId = null
+                            v.projectId = '0'
                             v.lastUpdatedAt = new Date().toISOString()
                         }
                         return [k, v]
