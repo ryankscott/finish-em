@@ -166,6 +166,9 @@ export const selectStyles = (props: SelectStylesProps) => {
                 ? theme.fontWeights.bold
                 : theme.fontWeights.regular,
             zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
+            '&:active': {
+                backgroundColor: theme.button.default.hoverBackgroundColour,
+            },
         }),
         placeholder: () => ({
             color: theme.colours.defaultTextColour,
