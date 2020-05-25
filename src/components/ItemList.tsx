@@ -5,7 +5,6 @@ import { theme } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType, RenderingStrategy } from '../interfaces'
 import { Container, NoItemText } from './styled/ItemList'
-import { connect } from 'react-redux'
 import { Uuid } from '@typed/uuid'
 
 interface ItemListProps {
@@ -30,23 +29,22 @@ function ItemList(props: ItemListProps): ReactElement {
     return (
         <ThemeProvider theme={theme}>
             <Container>
-                {props.order.map((o, index) => {
-                    const item = props.items.filter((i) => i.id == o)[0]
-                    if (item == undefined) return
+                {props.items.map((o, index) => {
+                    if (o == undefined) return
                     switch (props.renderingStrategy) {
                         case RenderingStrategy.All:
-                            if (item.parentId != null) {
+                            if (o.parentId != null) {
                                 const parentExists = props.items.filter(
-                                    (i) => i.id == item.parentId,
+                                    (i) => i.id == o.parentId,
                                 )
                                 if (parentExists.length > 0) {
                                     return
                                 } else {
                                     return (
-                                        <div key={'container-' + item.id}>
+                                        <div key={'container-' + p.id}>
                                             <Item
-                                                {...item}
-                                                key={item.id}
+                                                {...o}
+                                                key={o.id}
                                                 noIndentOnSubtasks={true}
                                                 hideIcons={props.hideIcons}
                                                 keymap={itemKeymap}
@@ -56,10 +54,10 @@ function ItemList(props: ItemListProps): ReactElement {
                                 }
                             }
                             return (
-                                <div key={'container-' + item.id}>
+                                <div key={'container-' + o.id}>
                                     <Item
-                                        {...item}
-                                        key={item.id}
+                                        {...o}
+                                        key={o.id}
                                         noIndentOnSubtasks={false}
                                         hideIcons={props.hideIcons}
                                         keymap={itemKeymap}
@@ -68,12 +66,12 @@ function ItemList(props: ItemListProps): ReactElement {
                             )
 
                         default:
-                            if (item.parentId != null) return
+                            if (o.parentId != null) return
                             return (
-                                <div key={'container-' + item.id}>
+                                <div key={'container-' + o.id}>
                                     <Item
-                                        {...item}
-                                        key={item.id}
+                                        {...o}
+                                        key={o.id}
                                         noIndentOnSubtasks={false}
                                         hideIcons={props.hideIcons}
                                         keymap={itemKeymap}
@@ -88,10 +86,4 @@ function ItemList(props: ItemListProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state) => ({
-    order: state.items.order,
-})
-
-const mapDispatchToProps = (dispatch) => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(ItemList)
+export default ItemList
