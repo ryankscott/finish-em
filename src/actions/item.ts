@@ -1,4 +1,5 @@
 import { Uuid } from '@typed/uuid'
+import { toast } from 'react-toastify'
 
 export const CREATE_ITEM = 'CREATE_ITEM'
 export const DELETE_ITEM = 'DELETE_ITEM'
@@ -56,6 +57,7 @@ export interface DeleteItemAction {
     id: Uuid
 }
 export function deleteItem(id: Uuid): DeleteItemAction {
+    toast.dark('Item deleted')
     return {
         type: DELETE_ITEM,
         id: id,

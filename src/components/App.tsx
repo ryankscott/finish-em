@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { ReactElement } from 'react'
 import { connect } from 'react-redux'
-import { ThemeProvider, createGlobalStyle } from 'styled-components'
+import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
 import { GlobalHotKeys, configure } from 'react-hotkeys'
 import DailyAgenda from './DailyAgenda'
@@ -34,10 +34,52 @@ import {
 import { Button } from './Button'
 import { Tooltip } from './Tooltip'
 import { Projects } from '../interfaces'
+import { ToastContainer, Slide } from 'react-toastify'
+
+import 'react-toastify/dist/ReactToastify.css'
 
 configure({
     logLevel: 'warning',
 })
+
+const StyledToastContainer = styled(ToastContainer).attrs((props) => ({
+    className: 'toast-container',
+    toastClassName: 'toast',
+    bodyClassName: 'body',
+    progressClassName: 'progress',
+}))`
+    /* .toast-container */
+    width: 400px;
+    border: 1px solid;
+    border-radius: 5px;
+    height: 80px;
+
+    font-family: ${(props) => props.theme.font.sansSerif};
+    font-size: ${(props) => props.theme.fontSizes.small};
+    /* .toast is passed to toastClassName */
+    .toast {
+        background-color: ${(props) =>
+            props.theme.colours.darkDialogBackgroundColour};
+        color: ${(props) => props.theme.colours.altTextColour};
+    }
+
+    /* .body is passed to bodyClassName */
+    .body {
+    }
+
+    /* .progress is passed to progressClassName */
+    .progress {
+        background: linear-gradient(
+            to right,
+            #4cd964,
+            #5ac8fa,
+            #007aff,
+            #34aadc,
+            #5856d6,
+            #ff2d55
+        );
+    }
+`
 
 // TODO: Fix props for global styles
 const GlobalStyle = createGlobalStyle`
@@ -225,6 +267,18 @@ const App = (props: AppProps): ReactElement => {
                     ></Tooltip>
                 </ShortcutIcon>
             </Container>
+            <StyledToastContainer
+                position="bottom-center"
+                autoClose={3000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                transition={Slide}
+            />
         </ThemeProvider>
     )
 }

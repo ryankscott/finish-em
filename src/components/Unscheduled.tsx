@@ -40,6 +40,8 @@ const Unscheduled = (): ReactElement => (
                     type: 'custom',
                     filter: (i: ItemType) => {
                         return (
+                            i.deleted == false &&
+                            i.completed == false &&
                             i.scheduledDate == null &&
                             isToday(parseISO(i.createdAt))
                         )
@@ -53,6 +55,8 @@ const Unscheduled = (): ReactElement => (
                     type: 'custom',
                     filter: (i: ItemType) => {
                         return (
+                            i.deleted == false &&
+                            i.completed == false &&
                             i.scheduledDate == null &&
                             !isToday(parseISO(i.createdAt)) &&
                             isThisWeek(parseISO(i.createdAt))
@@ -67,6 +71,8 @@ const Unscheduled = (): ReactElement => (
                     type: 'custom',
                     filter: (i: ItemType) => {
                         return (
+                            i.deleted == false &&
+                            i.completed == false &&
                             i.scheduledDate == null &&
                             !isToday(parseISO(i.createdAt)) &&
                             !isThisWeek(parseISO(i.createdAt)) &&
@@ -82,6 +88,8 @@ const Unscheduled = (): ReactElement => (
                     type: 'custom',
                     filter: (i: ItemType) => {
                         return (
+                            i.deleted == false &&
+                            i.completed == false &&
                             i.scheduledDate == null &&
                             !isToday(parseISO(i.createdAt)) &&
                             !isThisWeek(parseISO(i.createdAt)) &&
