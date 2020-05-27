@@ -57,7 +57,6 @@ export const Body = styled.div<BodyProps>`
     text-decoration: ${(props) =>
         props.completed === true ? 'line-through' : null};
 `
-
 export const ExpandContainer = styled.div`
     grid-area: EXPAND;
     display: flex;

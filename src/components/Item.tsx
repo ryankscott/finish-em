@@ -498,7 +498,8 @@ function Item(props: ItemProps): ReactElement {
                             <Button
                                 type="subtleInvert"
                                 onClick={handleExpand}
-                                icon={hideChildren ? 'expand' : 'collapse'}
+                                icon={'expand'}
+                                rotate={hideChildren == true ? 1 : 0}
                             ></Button>
                         </ExpandContainer>
                     )}

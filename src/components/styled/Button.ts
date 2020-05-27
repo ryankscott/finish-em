@@ -51,15 +51,20 @@ export const Contents = styled.div`
 
 interface IconProps {
     iconPosition: 'after' | 'before'
+    rotate?: number
+    translate?: number
 }
 export const Icon = styled.div<IconProps>`
     display: flex;
+    transition: all 0.1s ease-out;
+    transform: ${(props) => (props.rotate ? `rotate(90deg)` : '')};
+    translate: ${(props) => (props.translate ? 'rotateY(180deg)' : '')};
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding-left: ${(props) => (props.iconPosition == 'after' ? '5px' : '0px')}
+    padding-left: ${(props) => (props.iconPosition == 'after' ? '5px' : '0px')};
     padding-right: ${(props) =>
-        props.iconPosition == 'before' ? '5px' : '0px'}
+        props.iconPosition == 'before' ? '5px' : '0px'};
 `
 
 interface TextProps {

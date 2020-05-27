@@ -194,14 +194,14 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         props.features.dragAndDrop,
     )
     const sortedItemsLength = Object.keys(sortedItems).length
-
     return (
         <Container>
             <HeaderBar>
                 <ListName>
                     <Button
                         type="default"
-                        icon={hideItemList ? 'expand' : 'collapse'}
+                        icon={'expand'}
+                        rotate={hideItemList == true ? 1 : 0}
                         onClick={() => setHideItemList(!hideItemList)}
                     ></Button>
                     <Header1>

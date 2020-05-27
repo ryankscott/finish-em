@@ -51,6 +51,8 @@ export interface ButtonProps {
     height?: string
     iconPosition?: 'before' | 'after'
     icon?: IconType
+    rotate?: number // Note: This lovely little hack is because of a StyledComponents bug https://github.com/styled-components/styled-components/issues/1198
+    translate?: number
 }
 
 const getTheme = (type: string): {} => {
@@ -73,7 +75,17 @@ export const Button = (props: ButtonProps): ReactElement => {
             >
                 <Contents>
                     {props.icon && !(props.iconPosition == 'after') && (
-                        <Icon iconPosition={props.iconPosition}>
+                        <Icon
+                            iconPosition={props.iconPosition}
+                            rotate={
+                                props.rotate != undefined ? props.rotate : 0
+                            }
+                            translate={
+                                props.translate != undefined
+                                    ? props.translate
+                                    : 0
+                            }
+                        >
                             {iconMapping[props.icon](
                                 props.iconSize || null,
                                 props.iconSize || null,

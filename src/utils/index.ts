@@ -237,6 +237,12 @@ export const rruleToText = (input: RRule): string => {
         case RRule.WEEKLY:
             const day = input.options.byweekday[0]
             return 'every ' + dayToString(day)
+        case RRule.DAILY:
+            const d = input.options.byweekday
+            if (d?.length > 0) {
+                return input.toText()
+            }
+            return 'daily'
         default:
             return input.toText()
             break

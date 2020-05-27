@@ -41,7 +41,7 @@ function ItemList(props: ItemListProps): ReactElement {
                                     return
                                 } else {
                                     return (
-                                        <div key={'container-' + p.id}>
+                                        <div key={'container-' + o.id}>
                                             <Item
                                                 {...o}
                                                 key={o.id}
