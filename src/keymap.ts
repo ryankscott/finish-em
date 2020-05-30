@@ -13,6 +13,7 @@ export const app = {
     GO_TO_DAILY_AGENDA: 'a g d',
     GO_TO_INBOX: 'a g i',
     GO_TO_TRASH: 'a g t',
+    GO_TO_STALE: 'a g s',
     GO_TO_UNSCHEDULED: 'a g u',
     GO_TO_COMPLETED: 'a g c',
     SHOW_SIDEBAR: 'a s s',

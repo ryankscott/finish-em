@@ -17,6 +17,7 @@ import {
     ProjectContainer,
     ConvertSubtaskContainer,
     MoreContainer,
+    StatusContainer,
 } from './styled/Item'
 
 import {
@@ -42,11 +43,12 @@ import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
 import EditableText from './EditableText'
 import { removeItemTypeFromString, formatRelativeDate } from '../utils'
-import { parseISO } from 'date-fns'
+import { parseISO, differenceInDays } from 'date-fns'
 import { Button } from './Button'
 import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
 import MoreDropdown from './MoreDropdown'
+import { dueIcon } from '../assets/icons'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
 export enum ItemIcons {
@@ -479,7 +481,6 @@ function Item(props: ItemProps): ReactElement {
                     onMouseLeave={() => {
                         setMoreDropdownVisible(false)
                     }}
-                    flagged={props.flagged}
                     key={props.id}
                     ref={container}
                     noIndentOnSubtasks={props.noIndentOnSubtasks}
@@ -492,6 +493,7 @@ function Item(props: ItemProps): ReactElement {
                         props.setActiveItem(props.id)
                     }}
                     itemType={props.type}
+                    flagged={props.flagged}
                 >
                     {props.children?.length > 0 && (
                         <ExpandContainer>
@@ -503,6 +505,15 @@ function Item(props: ItemProps): ReactElement {
                             ></Button>
                         </ExpandContainer>
                     )}
+                    <StatusContainer
+                        stale={
+                            differenceInDays(
+                                parseISO(props.lastUpdatedAt),
+                                new Date(),
+                            ) < 7
+                        }
+                        flagged={props.flagged}
+                    />
                     <TypeContainer>
                         <Button
                             type="subtleInvert"
@@ -598,7 +609,6 @@ function Item(props: ItemProps): ReactElement {
                             }}
                         />
                     </ConvertSubtaskContainer>
-
                     <ScheduledContainer
                         visible={
                             (scheduledDateDropdownVisible ||

@@ -14,14 +14,14 @@ export const Container = styled.div<ContainerProps>`
     opacity: ${(props) => (props.hidden ? '0' : '1')};
     margin-left: ${(props) =>
         props.isSubtask && !props.noIndentOnSubtasks ? '20px' : '0px'};
-    grid-template-columns: 30px 30px repeat(20, 1fr);
+    grid-template-columns: 5px 30px 30px repeat(20, 1fr);
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
-        'EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
-        '. SUBTASK SUBTASK SUBTASK . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
+        'STATUS EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
+        'STATUS . SUBTASK SUBTASK SUBTASK . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
     border-top: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-color: ${(props) => props.theme.colours.borderColour};
-    padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 5px')};
+    padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
     align-items: center;
     cursor: pointer;
     color: ${(props) => props.theme.colours.defaultTextColour};
@@ -120,4 +120,21 @@ export const MoreContainer = styled.div<MoreContainerProps>`
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-end;
+`
+
+interface StatusContainerProps {
+    stale: boolean
+    flagged: boolean
+}
+
+export const StatusContainer = styled.div<StatusContainerProps>`
+    grid-area: STATUS;
+    background: ${(props) =>
+        props.flagged
+            ? props.theme.colours.errorColour
+            : props.stale
+            ? 'repeating-linear-gradient(-45deg, transparent, transparent 0px, #e0e0e0 3px, #e0e0e0 6px)'
+            : props.theme.colours.borderColour};
+    height: calc(100% + 10px);
+    width: 100%;
 `

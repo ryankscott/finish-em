@@ -34,6 +34,7 @@ export type IconType =
     | 'more'
     | 'flag'
     | 'trashPermanent'
+    | 'stale'
 
 export interface ItemType {
     id: Uuid

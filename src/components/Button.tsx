@@ -34,6 +34,7 @@ const iconMapping = {
     more: (w, h, c) => ic.moreIcon(w, h, c),
     flag: (w, h, c) => ic.flagIcon(w, h, c),
     trashPermanent: (w, h, c) => ic.trashPermanentIcon(w, h, c),
+    stale: (w, h, c) => ic.staleIcon(w, h, c),
 }
 
 export interface ButtonProps {
@@ -59,6 +60,7 @@ const getTheme = (type: string): {} => {
     return theme.button[type]
 }
 
+// TODO: Add tooltips to the button?
 export const Button = (props: ButtonProps): ReactElement => {
     return (
         <ThemeProvider theme={getTheme(props.type)}>
@@ -79,11 +81,6 @@ export const Button = (props: ButtonProps): ReactElement => {
                             iconPosition={props.iconPosition}
                             rotate={
                                 props.rotate != undefined ? props.rotate : 0
-                            }
-                            translate={
-                                props.translate != undefined
-                                    ? props.translate
-                                    : 0
                             }
                         >
                             {iconMapping[props.icon](

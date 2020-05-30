@@ -7,6 +7,7 @@ import { GlobalHotKeys, configure } from 'react-hotkeys'
 import DailyAgenda from './DailyAgenda'
 import Inbox from './Inbox'
 import Trash from './Trash'
+import Stale from './Stale'
 import Project from './Project'
 import Unscheduled from './Unscheduled'
 import Sidebar from './Sidebar'
@@ -67,7 +68,9 @@ const StyledToastContainer = styled(ToastContainer).attrs((props) => ({
     .body {
     }
 
-    /* .progress is passed to progressClassName */
+    /* 
+    TODO: Update this to theme colours
+    .progress is passed to progressClassName */
     .progress {
         background: linear-gradient(
             to right,
@@ -152,6 +155,11 @@ const App = (props: AppProps): ReactElement => {
         return
     }
 
+    function goToStale(): void {
+        history.push('/stale')
+        return
+    }
+
     function goToProject(number: number): void {
         const id = props.projects.order[number]
         history.push(`/projects/${id}`)
@@ -202,6 +210,7 @@ const App = (props: AppProps): ReactElement => {
         GO_TO_PREV_PROJECT: () => goToPreviousProject(),
         GO_TO_INBOX: () => goToInbox(),
         GO_TO_TRASH: () => goToTrash(),
+        GO_TO_STALE: () => goToStale(),
         GO_TO_COMPLETED: () => goToCompleted(),
         GO_TO_UNSCHEDULED: () => goToUnscheduled(),
         SHOW_SIDEBAR: () => props.showSidebar(),
@@ -234,6 +243,9 @@ const App = (props: AppProps): ReactElement => {
                         </Route>
                         <Route path="/trash">
                             <Trash />
+                        </Route>
+                        <Route path="/stale">
+                            <Stale />
                         </Route>
                         <Route path="/unscheduled">
                             <Unscheduled />

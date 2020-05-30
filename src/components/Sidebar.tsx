@@ -132,6 +132,24 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
                         />
                     </StyledNavLink>
+                    <StyledNavLink
+                        to="/stale"
+                        activeStyle={{
+                            backgroundColor: lighten(
+                                0.05,
+                                theme.colours.altBackgroundColour,
+                            ),
+                        }}
+                    >
+                        <Button
+                            icon="stale"
+                            text={props.sidebarVisible ? 'Stale' : ''}
+                            spacing="compact"
+                            type="subtle"
+                            textSize="small"
+                            iconSize={props.sidebarVisible ? '16px' : '20px'}
+                        />
+                    </StyledNavLink>
                     {!props.sidebarVisible && <StyledHorizontalRule />}
                     <SectionHeader>
                         {props.sidebarVisible && <Header>Projects</Header>}
