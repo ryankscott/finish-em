@@ -39,7 +39,7 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
                         textSize={props.textSize}
                         iconColour={
                             !props.text
-                                ? themes[props.theme].colours.lightIconColour
+                                ? themes[props.theme].colours.altIconColour
                                 : null
                         }
                     ></Button>

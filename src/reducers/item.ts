@@ -37,7 +37,7 @@ export const itemReducer = produce(
                     repeat: null,
                     parentId: null,
                     children: [],
-                    flagged: false,
+                    labelId: null,
                 }
                 if (draftState.order) {
                     draftState.order = [...draftState.order, action.id]
@@ -209,11 +209,6 @@ export const itemReducer = produce(
                 newParent.lastUpdatedAt = new Date().toISOString()
                 break
 
-            case item.TOGGLE_FLAG:
-                i.flagged = !i.flagged
-                i.lastUpdatedAt = new Date().toISOString()
-                break
-
             case DELETE_PROJECT:
                 const x = Object.entries(draftState.items[action.id]).map(
                     ([k, v]) => {
@@ -256,6 +251,28 @@ export const itemReducer = produce(
                 draftState.order = draftState.order.filter(
                     (o) => o != action.id,
                 )
+                break
+
+            case item.ADD_LABEL:
+                if (i.deleted == true) {
+                    return
+                }
+                if (i.completed == true) {
+                    return
+                }
+                i.labelId = action.labelId
+                i.lastUpdatedAt = new Date().toISOString()
+                break
+
+            case item.DELETE_LABEL:
+                if (i.deleted == true) {
+                    return
+                }
+                if (i.completed == true) {
+                    return
+                }
+                i.labelId = null
+                i.lastUpdatedAt = new Date().toISOString()
                 break
 
             default:

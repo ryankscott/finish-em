@@ -8,8 +8,10 @@ interface StyledProps {
     iconOnly: boolean
 }
 
+// TODO: Fix the font-family here
 export const StyledButton = styled.button<StyledProps>`
     display: flex;
+    font-family: -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
     flex-direction: row;
     justify-content: center;
     align-items: center;

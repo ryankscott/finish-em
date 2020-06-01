@@ -13,6 +13,7 @@ export const Container = styled.div<ContainerProps>`
     transition: all 0.2s ease-in-out;
     width: 100%;
     height: 100vh;
+    padding: 2px;
 `
 export const BodyContainer = styled.div`
     display: flex;
@@ -25,7 +26,7 @@ export const StyledNavLink = styled(NavLink)`
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};
     text-decoration: none;
-    margin: 2px;
+    margin: 1px 2px;
     padding: 0px 5px;
     outline: none;
     &:active {

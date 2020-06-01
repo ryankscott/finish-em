@@ -1,9 +1,11 @@
 import styled from 'styled-components'
+import CSS from 'csstype'
+import { transparentize } from 'polished'
 
 interface ContainerProps {
     isSubtask: boolean
     noIndentOnSubtasks: boolean
-    flagged: boolean
+    labelColour: CSS.Color
 }
 export const Container = styled.div<ContainerProps>`
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
@@ -17,8 +19,8 @@ export const Container = styled.div<ContainerProps>`
     grid-template-columns: 5px 30px 30px repeat(20, 1fr);
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
-        'STATUS EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
-        'STATUS . SUBTASK SUBTASK SUBTASK . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
+        'LABEL EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
+        'LABEL . SUBTASK SUBTASK SUBTASK . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
     border: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-color: ${(props) => props.theme.colours.borderColour};
     padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
@@ -26,13 +28,13 @@ export const Container = styled.div<ContainerProps>`
     cursor: pointer;
     color: ${(props) => props.theme.colours.textColour};
     background-color: ${(props) =>
-        props.flagged
-            ? props.theme.colours.errorBackgroundColour
+        props.labelColour != null
+            ? transparentize(0.9, props.labelColour)
             : props.theme.colours.backgroundColour};
     :focus {
         background-color: ${(props) =>
-            props.flagged
-                ? props.theme.colours.errorBackgroundColour
+            props.labelColour != null
+                ? transparentize(0.8, props.labelColour)
                 : props.theme.colours.focusBackgroundColour};
         border-color: ${(props) => props.theme.colours.focusBorderColour};
     }
@@ -122,16 +124,16 @@ export const MoreContainer = styled.div<MoreContainerProps>`
     justify-content: flex-end;
 `
 
-interface StatusContainerProps {
+interface LabelContainerProps {
     stale: boolean
-    flagged: boolean
+    labelColour: CSS.Color
 }
 
-export const StatusContainer = styled.div<StatusContainerProps>`
-    grid-area: STATUS;
+export const LabelContainer = styled.div<LabelContainerProps>`
+    grid-area: LABEL;
     background: ${(props) =>
-        props.flagged
-            ? props.theme.colours.errorColour
+        props.labelColour
+            ? props.labelColour
             : props.stale
             ? `repeating-linear-gradient(-45deg, ${props.theme.colours.backgroundColour}, ${props.theme.colours.backgroundColour} 0px, ${props.theme.colours.borderColour} 3px, ${props.theme.colours.borderColour} 6px)`
             : props.theme.colours.borderColour};

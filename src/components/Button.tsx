@@ -36,6 +36,7 @@ const iconMapping = {
     flag: (w, h, c) => ic.flagIcon(w, h, c),
     trashPermanent: (w, h, c) => ic.trashPermanentIcon(w, h, c),
     stale: (w, h, c) => ic.staleIcon(w, h, c),
+    label: (w, h, c) => ic.labelIcon(w, h, c),
 }
 
 interface StateProps {
