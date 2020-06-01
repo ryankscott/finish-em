@@ -36,6 +36,7 @@ export type IconType =
     | 'flag'
     | 'trashPermanent'
     | 'stale'
+    | 'label'
 
 export interface ItemType {
     id: Uuid
@@ -53,7 +54,7 @@ export interface ItemType {
     createdAt: string
     deletedAt: string
     repeat: string
-    flagged: boolean
+    labelId: Uuid | null
 }
 
 export interface Item {
@@ -84,6 +85,15 @@ export interface Projects {
     order: (Uuid | string)[]
 }
 
+export interface LabelType {
+    id: Uuid | string
+    name: string
+    colour: CSS.Color
+}
+
+export interface Label {
+    [key: string]: LabelType
+}
 export interface UIType {
     theme: string
     activeItem: {
@@ -96,6 +106,7 @@ export interface UIType {
     shortcutDialogVisible: boolean
     createProjectDialogVisible: boolean
     deleteProjectDialogVisible: boolean
+    labels: LabelType
 }
 
 export interface FeatureType {

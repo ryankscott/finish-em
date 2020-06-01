@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { RRule } from 'rrule'
 import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
-import { ItemType, ProjectType, Items } from '../interfaces'
+import { ItemType, ProjectType, Items, Label } from '../interfaces'
 import {
     Body,
     Container,
@@ -17,7 +17,7 @@ import {
     ProjectContainer,
     ConvertSubtaskContainer,
     MoreContainer,
-    StatusContainer,
+    LabelContainer,
 } from './styled/Item'
 
 import {
@@ -48,6 +48,7 @@ import Button from './Button'
 import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
 import MoreDropdown from './MoreDropdown'
+import Tooltip from './Tooltip'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
 export enum ItemIcons {
@@ -78,6 +79,7 @@ interface StateProps {
     projects: ProjectType[]
     items: Items
     theme: string
+    labels: Label
 }
 
 interface OwnProps extends ItemType {
@@ -472,6 +474,12 @@ function Item(props: ItemProps): ReactElement {
         ? removeItemTypeFromString(props.items.items[props.parentId].text)
         : ''
 
+    const labelName = props.labelId ? props.labels[props.labelId].name : null
+    const labelId = props.labelId ? props.labels[props.labelId].id : null
+    const labelColour = props.labelId
+        ? props.labels[props.labelId].colour
+        : null
+
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div key={props.id} id={props.id}>
@@ -494,7 +502,7 @@ function Item(props: ItemProps): ReactElement {
                         props.setActiveItem(props.id)
                     }}
                     itemType={props.type}
-                    flagged={props.flagged}
+                    labelColour={labelColour}
                 >
                     {props.children?.length > 0 && (
                         <ExpandContainer>
@@ -506,15 +514,23 @@ function Item(props: ItemProps): ReactElement {
                             ></Button>
                         </ExpandContainer>
                     )}
-                    <StatusContainer
+                    <LabelContainer
+                        data-tip
+                        data-for={'label-' + props.id}
                         stale={
                             differenceInDays(
                                 parseISO(props.lastUpdatedAt),
                                 new Date(),
                             ) > 7
                         }
-                        flagged={props.flagged}
+                        labelColour={labelColour}
                     />
+                    {labelId && (
+                        <Tooltip
+                            id={'label-' + props.id}
+                            text={labelName}
+                        ></Tooltip>
+                    )}
                     <TypeContainer>
                         <Button
                             type="subtleInvert"
@@ -574,7 +590,8 @@ function Item(props: ItemProps): ReactElement {
                             }}
                         />
                     </ProjectContainer>
-                    <MoreContainer visible={moreDropdownVisible}>
+
+                    <MoreContainer visible={true}>
                         <MoreDropdown
                             itemId={props.id}
                             deleted={props.deleted}
@@ -758,6 +775,7 @@ const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     items: state.items,
     theme: state.ui.theme,
+    labels: state.ui.labels,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     createSubTask: (parentId: Uuid, text: string, projectId: Uuid | '0') => {

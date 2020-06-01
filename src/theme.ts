@@ -28,14 +28,14 @@ export const themes: { [key: string]: ThemeType } = {
         },
         button: {
             default: {
-                backgroundColour: '#Fbfbfb',
+                backgroundColour: '#F5f5f5',
                 colour: '#333333',
                 borderColour: '#e0e0e0',
-                hoverBackgroundColour: darken(0.05, '#Fbfbfb'),
+                hoverBackgroundColour: darken(0.05, '#F5f5f5'),
             },
             invert: {
                 backgroundColour: '#404040',
-                colour: '#Fbfbfb',
+                colour: '#F5f5f5',
                 borderColour: '#e0e0e0',
                 hoverBackgroundColour: lighten(0.1, '#404040'),
             },
@@ -73,11 +73,11 @@ export const themes: { [key: string]: ThemeType } = {
             tertiaryColour: '#fe5e41',
             quarternaryColour: '#f9df77',
             penternaryColour: '#9B5DE5',
-            backgroundColour: '#Fbfbfb',
+            backgroundColour: '#F5f5f5',
             borderColour: '#e0e0e0',
             altBackgroundColour: '#404040',
-            dialogBackgroundColour: '#F0f0f0',
-            focusDialogBackgroundColour: darken(0.05, '#F0f0f0'),
+            dialogBackgroundColour: '#F5F5F5',
+            focusDialogBackgroundColour: darken(0.05, '#F5F5F5'),
             altDialogBackgroundColour: '#404040',
             focusAltDialogBackgroundColour: lighten(0.05, '#404040'),
             focusBackgroundColour: darken(0.05, '#FEFEFE'), // TODO: How to get it to refer to backgroundColour
@@ -89,7 +89,7 @@ export const themes: { [key: string]: ThemeType } = {
             staleBackgroundColour: lighten(0.3, '#9B5DE5'),
             warningColour: '#f9df77',
             iconColour: '#333333',
-            altIconColour: '#CCCCCC',
+            altIconColour: '#404040',
         },
     },
     dark: {
@@ -118,13 +118,13 @@ export const themes: { [key: string]: ThemeType } = {
         button: {
             default: {
                 backgroundColour: '#404040',
-                colour: '#Fbfbfb',
+                colour: '#EEEEEE',
                 borderColour: '#e0e0e0',
                 hoverBackgroundColour: darken(0.1, '#404040'),
             },
             invert: {
                 backgroundColour: '#404040',
-                colour: '#Fbfbfb',
+                colour: '#EEEEEE',
                 borderColour: '#e0e0e0',
                 hoverBackgroundColour: darken(0.1, '#404040'),
             },

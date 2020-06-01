@@ -145,4 +145,23 @@ describe('ItemActions', () => {
         }
         expect(item.addChildItem(id, parentId)).toEqual(expectedAction)
     })
+
+    it('should create an action to add a label to an item', () => {
+        const id = uuidv4()
+        const labelId = uuidv4()
+        const expectedAction: item.AddLabelAction = {
+            type: item.ADD_LABEL,
+            id: id,
+            labelId: labelId,
+        }
+        expect(item.addLabel(id, labelId)).toEqual(expectedAction)
+    })
+    it('should creat`e an action to delete the label from an item', () => {
+        const id = uuidv4()
+        const expectedAction: item.DeleteLabelAction = {
+            type: item.DELETE_LABEL,
+            id: id,
+        }
+        expect(item.deleteLabel(id)).toEqual(expectedAction)
+    })
 })

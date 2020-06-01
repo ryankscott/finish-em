@@ -10,6 +10,23 @@ if (isElectron()) {
     createElectronStorage = window.require('redux-persist-electron-storage')
 }
 
+// Remove flagged item and introduces label
+export const migratev7tov8Items = (its: Items): Items => {
+    const iTemp = Object.entries(its.items).map(([id, value]) => {
+        value.labelId = value.flagged
+            ? '4702c2d3-bcda-40a2-bd34-e0db07578076'
+            : null
+        delete value.flagged
+        return [id, value]
+    })
+    const items = Object.fromEntries(iTemp)
+    return {
+        items: items,
+        order: its.order,
+    }
+}
+
+// Changes references to projects
 export const migratev5tov6Items = (its: Items): Items => {
     const iTemp = Object.entries(its.items).map(([id, value]) => {
         if (value.projectId == null || value.projectId == undefined) {
@@ -23,7 +40,7 @@ export const migratev5tov6Items = (its: Items): Items => {
         order: its.order,
     }
 }
-
+// Changes projects from an array to an object
 export const migratev5tov6Projects = (pts: ProjectType[]): Projects => {
     const order = []
     const projects = {}
@@ -98,12 +115,38 @@ const migrations = {
             ui: { ...state.ui, theme: 'light' },
         }
     },
+    8: (state) => {
+        return {
+            ...state,
+            items: migratev7tov8Items(state.items),
+            ui: {
+                ...state.ui,
+                labels: {
+                    '4702c2d3-bcda-40a2-bd34-e0db07578076': {
+                        id: '4702c2d3-bcda-40a2-bd34-e0db07578076',
+                        name: 'Blocked',
+                        colour: '#fe5e41',
+                    },
+                    '5bd4d5ce-447f-45d5-a557-c8942bbfbae4': {
+                        id: '5bd4d5ce-447f-45d5-a557-c8942bbfbae4',
+                        name: 'High Priority',
+                        colour: '#f9df77',
+                    },
+                    'a342c159-9691-4684-a109-156ba46c1ea4': {
+                        id: 'a342c159-9691-4684-a109-156ba46c1ea4',
+                        name: 'Pending',
+                        colour: '#59cd90',
+                    },
+                },
+            },
+        }
+    },
 }
 
 let persistConfig
 if (isElectron()) {
     persistConfig = {
-        version: 7,
+        version: 8,
         key: 'root',
         debug: true,
         storage: createElectronStorage(),
@@ -111,7 +154,7 @@ if (isElectron()) {
     }
 } else {
     persistConfig = {
-        version: 7,
+        version: 8,
         key: 'root',
         debug: true,
         storage,

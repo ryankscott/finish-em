@@ -33,7 +33,7 @@ export const Container = styled.div<ContainerProps>`
     &:focus {
         background-color: ${(props) =>
             props.readOnly
-                ? props.theme.colours.backgroundColour
+                ? 'inherit'
                 : props.theme.colours.focusBackgroundColour};
     }
     & > p {

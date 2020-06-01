@@ -5,6 +5,7 @@ import {
     migratev2tov3Items,
     migratev5tov6Projects,
     migratev5tov6Items,
+    migratev7tov8Items,
 } from '../store'
 
 describe('migration tests', () => {
@@ -346,6 +347,111 @@ describe('migration tests', () => {
                 },
             },
             order: [id, childId1, childId2],
+        })
+        Mockdate.reset()
+    })
+    // Removes flagged value, introduces labelId
+    it('should handle migration of a v7 item to a v8 item without flags', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const v7Items: Items = {
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO Run the tests',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: new Date().toISOString(),
+                    lastUpdatedAt: new Date().toISOString(),
+                    repeat: null,
+                    parentId: null,
+                    projectId: '0',
+                    children: [],
+                    flagged: false,
+                },
+            },
+            order: [id],
+        }
+        expect(migratev7tov8Items(v7Items)).toEqual({
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO Run the tests',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: new Date().toISOString(),
+                    lastUpdatedAt: new Date().toISOString(),
+                    repeat: null,
+                    parentId: null,
+                    projectId: '0',
+                    children: [],
+                    labelId: null,
+                },
+            },
+            order: [id],
+        })
+        Mockdate.reset()
+    })
+    // If it has a flag it should be migrated to a blocked label
+    it('should handle migration of a v7 item to a v8 item without flags', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+
+        const v7Items: Items = {
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO Run the tests',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: new Date().toISOString(),
+                    lastUpdatedAt: new Date().toISOString(),
+                    repeat: null,
+                    parentId: null,
+                    projectId: '0',
+                    children: [],
+                    flagged: true,
+                },
+            },
+            order: [id],
+        }
+        expect(migratev7tov8Items(v7Items)).toEqual({
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO Run the tests',
+                    scheduledDate: null,
+                    dueDate: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: new Date().toISOString(),
+                    lastUpdatedAt: new Date().toISOString(),
+                    repeat: null,
+                    parentId: null,
+                    projectId: '0',
+                    children: [],
+                    labelId: '4702c2d3-bcda-40a2-bd34-e0db07578076',
+                },
+            },
+            order: [id],
         })
         Mockdate.reset()
     })

@@ -26,7 +26,7 @@ const options: { value: string; label: string }[] = [
     { value: null, label: 'No date' },
 ]
 
-interface StatePRops {
+interface StateProps {
     theme: string
 }
 

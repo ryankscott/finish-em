@@ -8,6 +8,7 @@ import { toggleFlag, deletePermanently } from '../actions'
 import { connect } from 'react-redux'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
 import Tooltip from './Tooltip'
+import LabelDialog from './LabelDialog'
 
 interface DispatchProps {
     toggleFlag: (id: Uuid) => void
@@ -29,6 +30,7 @@ type MoreDropdownProps = DispatchProps & OwnProps & StateProps
 
 function MoreDropdown(props: MoreDropdownProps): ReactElement {
     const [showDialog, setShowDialog] = useState(false)
+    const [showLabelDialog, setShowLabelDialog] = useState(false)
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
@@ -46,34 +48,44 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                 />
 
                 {(showDialog || props.showDialog) && (
-                    <DialogContainer>
-                        <Option
-                            key={0}
-                            onClick={(e) => {
-                                props.toggleFlag(props.itemId)
-                                e.stopPropagation()
-                                e.preventDefault()
-                                setShowDialog(false)
-                            }}
-                        >
-                            <Icon>{flagIcon(12, 12)}</Icon>
-                            {'Toggle Flag'}
-                        </Option>
-                        {props.deleted && (
+                    <>
+                        <DialogContainer>
                             <Option
-                                key={1}
+                                key={0}
                                 onClick={(e) => {
-                                    props.deletePermanently(props.itemId)
                                     e.stopPropagation()
                                     e.preventDefault()
-                                    setShowDialog(false)
+                                    setShowLabelDialog(!showLabelDialog)
                                 }}
                             >
-                                <Icon>{trashPermanentIcon(14, 14)}</Icon>
-                                {'Delete Permanently'}
+                                <Icon>{flagIcon(12, 12)}</Icon>
+                                {'Add Label'}
                             </Option>
-                        )}
-                    </DialogContainer>
+                            {props.deleted && (
+                                <Option
+                                    key={1}
+                                    onClick={(e) => {
+                                        props.deletePermanently(props.itemId)
+                                        e.stopPropagation()
+                                        e.preventDefault()
+                                        setShowDialog(false)
+                                    }}
+                                >
+                                    <Icon>{trashPermanentIcon(14, 14)}</Icon>
+                                    {'Delete Permanently'}
+                                </Option>
+                            )}
+                            {showLabelDialog && (
+                                <LabelDialog
+                                    itemId={props.itemId}
+                                    onClose={() => {
+                                        setShowDialog(false)
+                                        setShowLabelDialog(false)
+                                    }}
+                                />
+                            )}
+                        </DialogContainer>
+                    </>
                 )}
             </div>
             <Tooltip id="more" text={'More actions'} />

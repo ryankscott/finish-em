@@ -678,3 +678,24 @@ export const darkModeIcon = (
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
     </svg>
 )
+
+export const labelIcon = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill={colour ? colour : 'currentColor'}
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="0.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+    </svg>
+)

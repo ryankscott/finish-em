@@ -9,6 +9,7 @@ import Inbox from './Inbox'
 import Trash from './Trash'
 import Stale from './Stale'
 import Project from './Project'
+import Labels from './Labels'
 import Unscheduled from './Unscheduled'
 import Sidebar from './Sidebar'
 import Completed from './Completed'
@@ -60,6 +61,9 @@ const GlobalStyle = createGlobalStyle`
     margin: 0px;
   }
   *:focus {outline:0;}
+  a {
+      color: ${(props) => props.theme.colours.textColour};
+  }
 `
 interface ProjectWrapperProps {
     projects: Projects
@@ -210,6 +214,9 @@ const App = (props: AppProps): ReactElement => {
                         </Route>
                         <Route path="/completed">
                             <Completed />
+                        </Route>
+                        <Route path="/labels">
+                            <Labels />
                         </Route>
                         <Route path="/projects/:id">
                             <ProjectWrapper projects={props.projects} />
