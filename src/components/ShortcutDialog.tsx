@@ -1,6 +1,6 @@
-import React, { ReactElement, useEffect, Dispatch } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { Title, Header1 } from './Typography'
 import { hideShortcutDialog } from '../actions'
 import { capitaliseEachWordInString } from '../utils'
@@ -19,7 +19,7 @@ import {
     Body,
     Header,
 } from './styled/ShortcutDialog'
-import { Button } from './Button'
+import Button from './Button'
 const generateRows = (keymap: { [key: string]: string }): ReactElement[] => {
     const shortcuts = Object.entries(keymap)
     const numberOfShortcuts = shortcuts.length
@@ -72,6 +72,7 @@ const generateRows = (keymap: { [key: string]: string }): ReactElement[] => {
 
 interface StateProps {
     isOpen: boolean
+    theme: string
 }
 interface DispatchProps {
     closeShortcutDialog: () => void
@@ -108,7 +109,7 @@ function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
     }
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <ShortcutContainer
                 ref={node}
                 isOpen={props.isOpen}
@@ -142,6 +143,7 @@ function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
 
 const mapStateToProps = (state): StateProps => ({
     isOpen: state.ui.shortcutDialogVisible,
+    theme: state.ui.theme,
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({

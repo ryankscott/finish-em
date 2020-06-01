@@ -4,8 +4,8 @@ import { connect } from 'react-redux'
 import InlineDialog from './InlineDialog'
 
 import { Paragraph, Header3 } from './Typography'
-import { theme } from '../theme'
-import { Button } from './Button'
+import { themes } from '../theme'
+import Button from './Button'
 import { toggleDeleteProjectDialog, hideDeleteProjectDialog } from '../actions'
 import {
     BodyContainer,
@@ -23,7 +23,7 @@ export interface DeleteProjectDialogProps {
 
 const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <InlineDialog
                 onClose={() => props.closeDeleteProjectDialog()}
                 placement={'bottom-start'}
@@ -78,6 +78,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
 
 const mapStateToProps = (state) => ({
     visible: state.ui.deleteProjectDialogVisible,
+    theme: state.ui.theme,
 })
 
 const mapDispatchToProps = (dispatch) => ({

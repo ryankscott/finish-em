@@ -1,11 +1,7 @@
 import React, { ReactElement, useState } from 'react'
 import ItemList from '../components/ItemList'
 import { orderBy } from 'lodash'
-import {
-    selectStyles,
-    sortControlStyles,
-    sortPlaceholderStyles,
-} from '../theme'
+import { themes, selectStyles } from '../theme'
 import { Header1, Paragraph } from '../components/Typography'
 import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
 import { Uuid } from '@typed/uuid'
@@ -21,8 +17,8 @@ import {
     ItemListContainer,
 } from '../components/styled/FilteredItemList'
 import { connect } from 'react-redux'
-import { Button } from '../components/Button'
-import { Tooltip } from '../components/Tooltip'
+import Button from '../components/Button'
+import Tooltip from '../components/Tooltip'
 import { deleteItem } from '../actions/item'
 import {
     getFilteredItems,
@@ -141,6 +137,7 @@ interface StateProps {
     completedItems: Item
     uncompletedItems: Item
     features: FeatureType
+    theme: string
 }
 
 interface DispatchProps {
@@ -265,12 +262,8 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     styles={{
                                         ...selectStyles({
                                             fontSize: 'xxsmall',
-                                        }),
-                                        placeholder: sortPlaceholderStyles,
-                                        control: sortControlStyles,
-                                        dropdownIndicator: () => ({}),
-                                        indicatorsContainer: () => ({
-                                            paddingRight: '5px',
+                                            theme: themes[props.theme],
+                                            showDropdownIndicator: true,
                                         }),
                                     }}
                                     onChange={(e) => {
@@ -309,6 +302,7 @@ const mapStateToProps = (state, props): StateProps => {
         completedItems: getCompletedItems(state, props),
         uncompletedItems: getUncompletedItems(state, props),
         features: state.features,
+        theme: state.ui.theme,
     }
 }
 const mapDispatchToProps = (dispatch): DispatchProps => ({

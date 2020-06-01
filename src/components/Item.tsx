@@ -37,18 +37,17 @@ import {
     changeParentItem,
     convertSubtask,
 } from '../actions'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import ProjectDropdown from './ProjectDropdown'
 import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
 import EditableText from './EditableText'
 import { removeItemTypeFromString, formatRelativeDate } from '../utils'
 import { parseISO, differenceInDays } from 'date-fns'
-import { Button } from './Button'
+import Button from './Button'
 import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
 import MoreDropdown from './MoreDropdown'
-import { dueIcon } from '../assets/icons'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
 export enum ItemIcons {
@@ -78,6 +77,7 @@ interface DispatchProps {
 interface StateProps {
     projects: ProjectType[]
     items: Items
+    theme: string
 }
 
 interface OwnProps extends ItemType {
@@ -272,6 +272,7 @@ function Item(props: ItemProps): ReactElement {
                 props.uncompleteItem(props.id)
             },
             DELETE_ITEM: () => {
+                console.log('deleting')
                 if (props.deleted) return
                 props.deleteItem(props.id)
             },
@@ -472,7 +473,7 @@ function Item(props: ItemProps): ReactElement {
         : ''
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <div key={props.id} id={props.id}>
                 <Container
                     onMouseEnter={() => {
@@ -510,7 +511,7 @@ function Item(props: ItemProps): ReactElement {
                             differenceInDays(
                                 parseISO(props.lastUpdatedAt),
                                 new Date(),
-                            ) < 7
+                            ) > 7
                         }
                         flagged={props.flagged}
                     />
@@ -729,6 +730,7 @@ function Item(props: ItemProps): ReactElement {
                                     ? [...props.hideIcons, ItemIcons.Subtask]
                                     : [ItemIcons.Subtask]
                             }
+                            theme={props.theme}
                             keymap={props.keymap}
                             projects={props.projects}
                             updateItemDescription={props.updateItemDescription}
@@ -755,6 +757,7 @@ function Item(props: ItemProps): ReactElement {
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     items: state.items,
+    theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     createSubTask: (parentId: Uuid, text: string, projectId: Uuid | '0') => {

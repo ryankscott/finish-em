@@ -17,6 +17,9 @@ export const ShortcutContainer = styled.div<ShortcutContainerProps>`
     padding: 2px;
     z-index: 99;
     height: 700px;
+    border: 1px solid;
+    border-color: ${(props) => props.theme.colours.borderColour};
+    border-radius: 5px;
 `
 
 export const Header = styled.div`

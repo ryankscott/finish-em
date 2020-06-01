@@ -32,10 +32,10 @@ export const Option = styled.div`
     border-radius: 2px;
     :hover {
         background-color: ${(props) =>
-            props.theme.colours.lightDialogBackgroundColour};
+            props.theme.colours.focusBackgroundColour};
     }
     font-size: ${(props) => props.theme.fontSizes.xxsmall};
     font-family: ${(props) => props.theme.font.sansSerif};
-    color: ${(props) => props.theme.colours.defaultTextColour};
+    color: ${(props) => props.theme.colours.textColour};
     z-index: 3;
 `

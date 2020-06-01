@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import {
     IconContainer,
     DisabledContainer,
@@ -12,8 +12,12 @@ import DateRenderer from './DateRenderer'
 import { dueIcon, scheduledIcon } from '../assets/icons'
 import DateSelect from './DateSelect'
 import { IconType } from '../interfaces'
+import { connect } from 'react-redux'
 
-export interface DatePickerProps {
+interface StateProps {
+    theme: string
+}
+interface OwnProps {
     onSubmit: (d: string) => void
     onEscape?: () => void
     style?: 'default' | 'subtle' | 'subtleInvert'
@@ -26,6 +30,8 @@ export interface DatePickerProps {
     icon?: IconType
     zIndex?: number
 }
+
+type DatePickerProps = StateProps & OwnProps
 
 function DatePicker(props: DatePickerProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
@@ -59,7 +65,7 @@ function DatePicker(props: DatePickerProps): ReactElement {
     }
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Container>
                 {props.disableClick ? (
                     generateDisabledElement(
@@ -85,7 +91,6 @@ function DatePicker(props: DatePickerProps): ReactElement {
                 {(props.showSelect || showSelect) && (
                     <SelectContainer>
                         <DateSelect
-                            autoFocus={true}
                             placeholder={props.placeholder}
                             onEscape={() => {
                                 setShowSelect(false)
@@ -107,4 +112,10 @@ function DatePicker(props: DatePickerProps): ReactElement {
     )
 }
 
-export default DatePicker
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(DatePicker)

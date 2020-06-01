@@ -1,4 +1,6 @@
 import styled from 'styled-components'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export const Container = styled.div`
     display: flex;
@@ -24,14 +26,15 @@ interface SidebarContainerProps {
 export const SidebarContainer = styled.div<SidebarContainerProps>`
     display: flex;
     flex-direction: column;
-    padding: 10px 20px;
     transition: all 0.2s ease-in-out;
     overflow: scroll;
-    padding: ${(props) => (props.visible ? '10px' : '0px')};
+    padding: ${(props) => (props.visible ? '2px' : '0px')};
     width: ${(props) => (props.visible ? '300px' : '50px')};
     min-width: ${(props) => (props.visible ? '300px' : '50px')};
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
     overflow: scroll;
+    border: 1px solid;
+    border-color: ${(props) => props.theme.colours.borderColour};
 `
 
 interface MainContainerProps {
@@ -62,4 +65,43 @@ export const FocusContainer = styled.div<FocusContainerProps>`
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
     overflow: scroll;
+`
+
+export const StyledToastContainer = styled(ToastContainer).attrs((props) => ({
+    className: 'toast-container',
+    toastClassName: 'toast',
+    bodyClassName: 'body',
+    progressClassName: 'progress',
+}))`
+    /* .toast-container */
+    border-radius: 5px;
+    font-family: ${(props) => props.theme.font.sansSerif};
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    /* .toast is passed to toastClassName */
+    .toast {
+        padding: 2px 5px;
+        background-color: ${(props) =>
+            props.theme.colours.darkDialogBackgroundColour};
+        color: ${(props) => props.theme.colours.altTextColour};
+        border: 0px;
+        border-radius: 5px;
+    }
+
+    /* .body is passed to bodyClassName */
+    .body {
+    }
+
+    /* 
+    TODO: Update this to theme colours
+    .progress is passed to progressClassName */
+    .progress {
+        background: linear-gradient(
+            to right,
+            ${(props) => props.theme.colours.primaryColour},
+            ${(props) => props.theme.colours.secondaryColour},
+            ${(props) => props.theme.colours.tertiaryColour},
+            ${(props) => props.theme.colours.quarternaryColour},
+            ${(props) => props.theme.colours.penternaryColour}
+        );
+    }
 `

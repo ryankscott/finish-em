@@ -17,13 +17,16 @@ export const Icon = styled.div`
 
 interface ContainerProps {
     hideIcon: boolean
+    subtle?: boolean
 }
 export const Container = styled.div<ContainerProps>`
     display: flex;
     flex-direction: row;
     border: 1px solid;
     border-radius: 5px;
-    background-color: ${(props) => props.theme.colours.backgroundColour};
+    opacity: ${(props) => (props.subtle ? 0.8 : 1)};
+    background-color: ${(props) =>
+        props.subtle ? 'inherit' : props.theme.colours.backgroundColour};
     border-color: ${(props) => props.theme.colours.borderColour};
     font-family: ${(props) => props.theme.font.sansSerif};
     font-size: ${(props) => props.theme.fontSizes.small};

@@ -148,8 +148,8 @@ export const addIcon = (
         strokeLinecap="round"
         strokeLinejoin="round"
     >
-        <line x1="12" y1="5" x2="12" y2="19"></line>
-        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <line x1="12" y1="4" x2="12" y2="20"></line>
+        <line x1="4" y1="12" x2="20" y2="12"></line>
     </svg>
 )
 
@@ -656,5 +656,25 @@ export const staleIcon = (
         <g>
             <path d="M18,22l-0.01-6L14,12l3.99-4.01L18,2H6v6l4,4l-4,3.99V22H18z M8,7.5V4h8v3.5l-4,4L8,7.5z" />
         </g>
+    </svg>
+)
+
+export const darkModeIcon = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '16'}
+        height={height ? height : '16'}
+        viewBox="0 0 24 24"
+        fill={colour ? colour : 'currentColor'}
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="0.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
     </svg>
 )

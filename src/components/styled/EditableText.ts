@@ -22,16 +22,19 @@ export const Container = styled.div<ContainerProps>`
     border-color: ${(props) =>
         props.editing ? props.theme.colours.borderColour : 'transparent'};
     cursor: ${(props) => (props.readOnly ? 'default' : 'text')};
-    background-color: rgba(0, 0, 0, 0);
     color: ${(props) =>
         props.valid ? 'auto' : props.theme.colours.errorColour};
     &:hover {
         background-color: ${(props) =>
-            props.readOnly ? 'rgba(0,0,0, 0.01)' : 'rgba(0,0,0, 0.02)'};
+            props.readOnly
+                ? 'inherit'
+                : props.theme.colours.focusBackgroundColour};
     }
     &:focus {
         background-color: ${(props) =>
-            props.readOnly ? 'rgba(0,0,0, 0.01)' : 'rgba(0,0,0, 0.02)'};
+            props.readOnly
+                ? props.theme.colours.backgroundColour
+                : props.theme.colours.focusBackgroundColour};
     }
     & > p {
         padding: 0px 0px;

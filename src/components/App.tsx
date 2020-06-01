@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { ReactElement } from 'react'
 import { connect } from 'react-redux'
-import styled, { ThemeProvider, createGlobalStyle } from 'styled-components'
+import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
 import { GlobalHotKeys, configure } from 'react-hotkeys'
 import DailyAgenda from './DailyAgenda'
@@ -15,7 +15,7 @@ import Completed from './Completed'
 import Focusbar from './Focusbar'
 import ShortcutDialog from './ShortcutDialog'
 import { app as appKeymap } from '../keymap'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import {
     toggleShortcutDialog,
     showSidebar,
@@ -31,58 +31,16 @@ import {
     ShortcutIcon,
     FocusContainer,
     SidebarContainer,
+    StyledToastContainer,
 } from './styled/App'
-import { Button } from './Button'
-import { Tooltip } from './Tooltip'
+import Button from './Button'
+import Tooltip from './Tooltip'
 import { Projects } from '../interfaces'
-import { ToastContainer, Slide } from 'react-toastify'
-
-import 'react-toastify/dist/ReactToastify.css'
+import { Slide } from 'react-toastify'
 
 configure({
     logLevel: 'warning',
 })
-
-const StyledToastContainer = styled(ToastContainer).attrs((props) => ({
-    className: 'toast-container',
-    toastClassName: 'toast',
-    bodyClassName: 'body',
-    progressClassName: 'progress',
-}))`
-    /* .toast-container */
-    width: 400px;
-    border: 1px solid;
-    border-radius: 5px;
-    height: 80px;
-
-    font-family: ${(props) => props.theme.font.sansSerif};
-    font-size: ${(props) => props.theme.fontSizes.small};
-    /* .toast is passed to toastClassName */
-    .toast {
-        background-color: ${(props) =>
-            props.theme.colours.darkDialogBackgroundColour};
-        color: ${(props) => props.theme.colours.altTextColour};
-    }
-
-    /* .body is passed to bodyClassName */
-    .body {
-    }
-
-    /* 
-    TODO: Update this to theme colours
-    .progress is passed to progressClassName */
-    .progress {
-        background: linear-gradient(
-            to right,
-            #4cd964,
-            #5ac8fa,
-            #007aff,
-            #34aadc,
-            #5856d6,
-            #ff2d55
-        );
-    }
-`
 
 // TODO: Fix props for global styles
 const GlobalStyle = createGlobalStyle`
@@ -94,7 +52,7 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     font-family: ${(props) => props.theme.font.sansSerif};
-    color: ${(props) => props.theme.colours.defaultTextColour};
+    color: ${(props) => props.theme.colours.textColour};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     background-color: ${(props) => props.theme.colours.backgroundColour};
     box-sizing: border-box;
@@ -225,9 +183,9 @@ const App = (props: AppProps): ReactElement => {
 
     const { sidebarVisible, focusbarVisible, toggleShortcutDialog } = props
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <GlobalHotKeys keyMap={appKeymap} handlers={handlers} />
-            <GlobalStyle theme={theme} />
+            <GlobalStyle theme={themes[props.theme]} />
             <Container>
                 <SidebarContainer visible={sidebarVisible}>
                     <Sidebar />
@@ -270,7 +228,7 @@ const App = (props: AppProps): ReactElement => {
                         id="shortcut-button"
                         type="subtleInvert"
                         icon="help"
-                        iconColour="#CCC"
+                        iconColour={themes[props.theme].colours.altIconColour}
                         onClick={toggleShortcutDialog}
                     ></Button>
                     <Tooltip
@@ -299,6 +257,7 @@ const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     sidebarVisible: state.ui.sidebarVisible,
     focusbarVisible: state.ui.focusbarVisible,
+    theme: state.ui.theme,
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({

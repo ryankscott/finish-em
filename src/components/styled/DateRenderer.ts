@@ -9,7 +9,7 @@ interface ContainerProps {
 export const Container = styled.div<ContainerProps>`
     display: flex;
     font-size: ${(props) => props.theme.fontSizes.xsmall};
-    color: ${(props) => props.theme.colours.defaultTextColour};
+    color: ${(props) => props.theme.colours.textColour};
     border-radius: 5px;
     text-decoration: ${(props) =>
         props.completed == true ? 'line-through' : null};

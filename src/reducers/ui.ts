@@ -7,6 +7,7 @@ const initialState: UIType = {
         present: null,
         future: [],
     },
+    theme: 'Light',
     sidebarVisible: true,
     focusbarVisible: true,
     shortcutDialogVisible: false,
@@ -134,6 +135,11 @@ export const uiReducer = (
                     present: next,
                     future: newFuture,
                 },
+            }
+        case ui.TOGGLE_DARK_MODE:
+            return {
+                ...state,
+                theme: state.theme == 'light' ? 'dark' : 'light',
             }
 
         default:

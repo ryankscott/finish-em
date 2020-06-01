@@ -1,12 +1,16 @@
 import React, { ReactElement } from 'react'
-import { Button } from './Button'
+import Button from './Button'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { Container, SubTextContainer } from './styled/DateRenderer'
 import { IconType } from '../interfaces'
-import { Tooltip } from './Tooltip'
+import Tooltip from './Tooltip'
+import { connect } from 'react-redux'
 
-interface DateRendererProps {
+interface StateProps {
+    theme: string
+}
+interface OwnProps {
     completed: boolean
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
     style?: 'subtle' | 'subtleInvert' | 'default'
@@ -16,10 +20,11 @@ interface DateRendererProps {
     text: string
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
 }
+type DateRendererProps = OwnProps & StateProps
 
 const DateRenderer = (props: DateRendererProps): ReactElement => {
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Container completed={props.completed} type={props.icon}>
                 <SubTextContainer key={props.icon} position={props.position}>
                     <Button
@@ -33,16 +38,26 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
                         text={props.text}
                         textSize={props.textSize}
                         iconColour={
-                            !props.text ? theme.colours.lightIconColour : null
+                            !props.text
+                                ? themes[props.theme].colours.lightIconColour
+                                : null
                         }
                     ></Button>
                 </SubTextContainer>
-                <Tooltip
-                    id={'data-renderer-' + props.icon + '-' + props.text}
-                    text={props.tooltipText}
-                />
+                {props.tooltipText && (
+                    <Tooltip
+                        id={'data-renderer-' + props.icon + '-' + props.text}
+                        text={props.tooltipText}
+                    />
+                )}
             </Container>
         </ThemeProvider>
     )
 }
-export default DateRenderer
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(DateRenderer)

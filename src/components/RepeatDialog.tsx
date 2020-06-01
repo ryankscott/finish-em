@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { theme, selectStyles } from '../theme'
 import RRule, { Frequency } from 'rrule'
-import { Button } from './Button'
+import Button from './Button'
 import DatePicker from './DatePicker'
 import { formatRelativeDate } from '../utils'
 import { parseISO } from 'date-fns'
@@ -96,7 +96,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
         }
     }
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Container onClick={(e) => e.stopPropagation()}>
                 <OptionContainer>
                     <Label>Starts: </Label>

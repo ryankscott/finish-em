@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import Item, { ItemIcons } from './Item'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType, RenderingStrategy } from '../interfaces'
 import { Container, NoItemText } from './styled/ItemList'
@@ -21,33 +21,43 @@ import { Uuid } from '@typed/uuid'
  2. All rendering
   - If an item has a parent and the parent is in the list, don't render it
   - If an item has a parent and the parent isn't in the list, render it
-  -  
-
 */
 
-const getItemStyle = (isDragging: boolean, draggableStyle): CSS.Properties => ({
-    userSelect: 'none',
-    margin: '0 0 0 0',
-    // change background colour if dragging
-    background: isDragging ? theme.colours.focusBackgroundColour : 'inherit',
-
-    ...draggableStyle,
-})
-const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
-    background: isDraggingOver ? 'inherit' : 'inherit',
-    padding: '20px',
-    width: '100%',
-})
-
-interface ReorderableItemListProps {
-    items: ItemType[]
-    order: Uuid[]
-    hideIcons: ItemIcons[]
-    renderingStrategy?: RenderingStrategy
+interface DispatchProps {
     reorderItem: (id: Uuid, destinationId: Uuid) => void
 }
+interface StateProps {
+    theme: string
+    order: Uuid[]
+}
+interface OwnProps {
+    items: ItemType[]
+    hideIcons: ItemIcons[]
+    renderingStrategy?: RenderingStrategy
+}
+
+type ReorderableItemListProps = OwnProps & StateProps
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
+    const theme = themes[props.theme]
+    const getItemStyle = (
+        isDragging: boolean,
+        draggableStyle,
+    ): CSS.Properties => ({
+        userSelect: 'none',
+        margin: '0 0 0 0',
+        // change background colour if dragging
+        background: isDragging
+            ? theme.colours.focusBackgroundColour
+            : 'inherit',
+        ...draggableStyle,
+    })
+    const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
+        background: isDraggingOver ? 'inherit' : 'inherit',
+        padding: '20px',
+        width: '100%',
+    })
+
     return (
         <ThemeProvider theme={theme}>
             <DragDropContext
@@ -181,11 +191,12 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state): StateProps => ({
     order: state.items.order,
+    theme: state.ui.theme,
 })
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     reorderItem: (id: Uuid, destinationId: Uuid) => {
         dispatch(reorderItem(id, destinationId))
     },

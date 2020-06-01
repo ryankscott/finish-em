@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { connect } from 'react-redux'
 import { Items, ProjectType } from '../interfaces'
 import { Uuid } from '@typed/uuid'
@@ -9,7 +9,7 @@ import { Header1, Paragraph, Header3 } from './Typography'
 import { removeItemTypeFromString, formatRelativeDate } from '../utils'
 import RRule from 'rrule'
 import { parseISO } from 'date-fns'
-import { Button } from './Button'
+import Button from './Button'
 import Item, { ItemIcons } from './Item'
 import { hideFocusbar, setActiveItem, undoSetActiveItem } from '../actions/ui'
 import {
@@ -23,7 +23,7 @@ import {
     convertSubtask,
     changeParentItem,
 } from '../actions'
-import { Tooltip } from './Tooltip'
+import Tooltip from './Tooltip'
 import {
     Container,
     HeaderContainer,
@@ -62,22 +62,25 @@ interface StateProps {
         future: Uuid[]
     }
     focusbarVisible: boolean
+    theme: string
 }
 type FocusbarProps = DispatchProps & StateProps
 const Focusbar = (props: FocusbarProps): ReactElement => {
     const ref = React.createRef<HTMLInputElement>()
     const i = props?.items?.items[props?.activeItem.present]
     if (!i) return null
-    const dueDate = i.dueDate ? formatRelativeDate(parseISO(i.dueDate)) : null
+    const dueDate = i.dueDate
+        ? formatRelativeDate(parseISO(i.dueDate))
+        : 'Add due date'
     const scheduledDate = i.scheduledDate
         ? formatRelativeDate(parseISO(i.scheduledDate))
-        : null
+        : 'Schedule'
     const subtaskText = i.parentId
         ? removeItemTypeFromString(props.items.items[i.parentId].text)
-        : ''
+        : 'Convert to subtask'
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Container>
                 <HeaderContainer visible={props.focusbarVisible}>
                     {props.activeItem?.past?.length > 0 && (
@@ -290,6 +293,7 @@ const mapStateToProps = (state): StateProps => ({
     activeItem: state.ui.activeItem,
     projects: state.projects,
     focusbarVisible: state.ui.focusbarVisible,
+    theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     moveItem: (id: Uuid, projectId: Uuid | '0') => {

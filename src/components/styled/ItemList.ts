@@ -10,6 +10,4 @@ export const NoItemText = styled.p`
 export const Container = styled.div`
     width: 100%;
     margin: 10px 0px;
-    border-bottom: 1px solid;
-    border-color: ${(props) => props.theme.colours.borderColour};
 `

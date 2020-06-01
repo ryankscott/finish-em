@@ -1,24 +1,22 @@
 import React, { ReactElement } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
-import ReactTooltip from 'react-tooltip'
-import { Paragraph } from './Typography'
+import { ThemeProvider } from 'styled-components'
+import { themes } from '../theme'
+import { StyledTooltip, StyledParagraph } from './styled/Tooltip'
+import { connect } from 'react-redux'
 
-interface TooltipProps {
+interface StateProps {
+    theme: string
+}
+interface OwnProps {
     id: string
     text: string
 }
 
-export const StyledParagraph = styled(Paragraph)`
-    font-size: ${(props) => props.theme.fontSizes.xxsmall};
-`
-export const StyledTooltip = styled(ReactTooltip)`
-    padding: 2px 5px !important;
-    margin: 0px !important;
-`
-export const Tooltip = (props: TooltipProps): ReactElement => {
+type TooltipProps = StateProps & OwnProps
+
+const Tooltip = (props: TooltipProps): ReactElement => {
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <StyledTooltip
                 id={props.id}
                 type="dark"
@@ -31,3 +29,9 @@ export const Tooltip = (props: TooltipProps): ReactElement => {
         </ThemeProvider>
     )
 }
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Tooltip)

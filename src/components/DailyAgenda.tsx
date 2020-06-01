@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { format, sub, add } from 'date-fns'
 import { connect } from 'react-redux'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
 import { Paragraph, Title, Header1 } from './Typography'
 import EditableText from './EditableText'
@@ -14,12 +14,14 @@ import {
     Section,
     BackContainer,
     ForwardContainer,
+    DailyTitle,
 } from './styled/DailyAgenda'
-import { Button } from './Button'
+import Button from './Button'
 
 interface StateProps {
     dailyGoal: any[]
     items: ItemType[]
+    theme: string
 }
 interface DispatchProps {
     setDailyGoal: (day: string, input: string) => void
@@ -30,7 +32,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     const [date, setDate] = useState(new Date())
     const editor = React.createRef<HTMLInputElement>()
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <AgendaContainer>
                 <DateContainer>
                     <BackContainer>
@@ -43,9 +45,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                             }}
                         />
                     </BackContainer>
-                    <Title style={{ gridArea: 'day' }}>
-                        {format(date, 'EEEE do MMMM yyyy')}
-                    </Title>
+                    <DailyTitle>{format(date, 'EEEE do MMMM yyyy')}</DailyTitle>
                     <ForwardContainer>
                         <Button
                             spacing="compact"
@@ -126,6 +126,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
 const mapStateToProps = (state): StateProps => ({
     items: state.items,
     dailyGoal: state.dailyGoal,
+    theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     setDailyGoal: (day, text) => {

@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import {
     updateProjectDescription,
     updateProjectName,
@@ -20,22 +20,27 @@ import {
     ProjectContainer,
     HeaderContainer,
     AddProjectContainer,
+    StaleContainer,
 } from './styled/Project'
 import ItemCreator from './ItemCreator'
 import { ItemIcons } from './Item'
 
-export interface DispatchProps {
+interface StateProps {
+    theme: string
+}
+
+interface DispatchProps {
     deleteProject: (id: Uuid | '0') => void
     updateDescription: (id: Uuid | '0', input: string) => void
     updateName: (id: Uuid | '0', input: string) => void
     toggleDeleteProjectDialog: () => void
 }
 
-export interface OwnProps {
+interface OwnProps {
     project: ProjectType
 }
 
-type ProjectProps = DispatchProps & OwnProps
+type ProjectProps = DispatchProps & OwnProps & StateProps
 const Project = (props: ProjectProps): ReactElement => {
     const history = useHistory()
     const name = React.createRef<HTMLInputElement>()
@@ -48,7 +53,7 @@ const Project = (props: ProjectProps): ReactElement => {
     }
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <ProjectContainer>
                 <HeaderContainer>
                     <EditableText
@@ -112,7 +117,9 @@ const Project = (props: ProjectProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state): {} => ({})
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     updateDescription: (id: Uuid, text: string) => {
         dispatch(updateProjectDescription(id, text))

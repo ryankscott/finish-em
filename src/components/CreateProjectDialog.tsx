@@ -5,13 +5,13 @@ import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
 
 import { Header3 } from './Typography'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import {
     createProject,
     toggleCreateProjectDialog,
     hideCreateProjectDialog,
 } from '../actions'
-import { Button } from './Button'
+import Button from './Button'
 import InlineDialog from './InlineDialog'
 import {
     Container,
@@ -20,12 +20,19 @@ import {
     StyledInput,
 } from './styled/CreateProjectDialog'
 
-export interface CreateProjectDialogProps {
+interface StateProps {
+    theme: string
     visible: boolean
+}
+
+interface DispatchProps {
     createProject: (id: Uuid, name: string, description: string) => void
     closeCreateProjectDialog: () => void
     toggleCreateProjectDialog: () => void
 }
+
+interface OwnProps {}
+type CreateProjectDialogProps = OwnProps & DispatchProps & StateProps
 
 function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
     const [projectName, setProjectName] = useState('')
@@ -50,7 +57,7 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
     }
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <InlineDialog
                 onClose={() => props.closeCreateProjectDialog()}
                 placement="bottom-start"
@@ -112,11 +119,12 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state): StateProps => ({
     visible: state.ui.createProjectDialogVisible,
+    theme: state.ui.theme,
 })
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch): DispatchProps => ({
     createProject: (id: Uuid, name: string, description: string) => {
         dispatch(createProject(id, name, description))
         dispatch(hideCreateProjectDialog())

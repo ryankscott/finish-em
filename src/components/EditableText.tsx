@@ -1,10 +1,11 @@
 import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import marked from 'marked'
 import { setEndOfContenteditable } from '../utils'
 import { Paragraph, Title, Header } from './Typography'
 import { Container } from './styled/EditableText'
+import { connect } from 'react-redux'
 
 type validation =
     | { validate: false }
@@ -12,7 +13,12 @@ type validation =
           validate: true
           rule: (input: string) => boolean
       }
-interface EditableTextProps {
+
+interface StateProps {
+    theme: string
+}
+
+interface OwnProps {
     input: string
     innerRef: React.RefObject<HTMLInputElement>
     onUpdate: (input: string) => void
@@ -28,6 +34,8 @@ interface EditableTextProps {
     validation: validation
     onEscape?: () => void
 }
+
+type EditableTextProps = OwnProps & StateProps
 
 function InternalEditableText(props: EditableTextProps): ReactElement {
     const [editable, setEditable] = useState(false)
@@ -199,7 +207,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     }
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Container
                 valid={props.validation.validate ? valid : true}
                 as={props.style || Paragraph}
@@ -230,4 +238,10 @@ const EditableText = React.forwardRef(
 )
 
 EditableText.displayName = 'EditableText'
-export default EditableText
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditableText)

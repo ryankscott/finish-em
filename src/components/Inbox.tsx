@@ -1,17 +1,34 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
 import { Title } from './Typography'
-import { Container } from './styled/Inbox'
+import { Container, IconContainer, Header } from './styled/Inbox'
 import ItemCreator from './ItemCreator'
 import { ItemIcons } from './Item'
+import { connect } from 'react-redux'
+import { inboxIcon } from '../assets/icons'
 
-function Inbox(): ReactElement {
+interface StateProps {
+    theme: string
+}
+
+type InboxProps = StateProps
+
+function Inbox(props: InboxProps): ReactElement {
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Container>
-                <Title> Inbox </Title>
+                <Header>
+                    <IconContainer>
+                        {inboxIcon(
+                            24,
+                            24,
+                            themes[props.theme].colours.primaryColour,
+                        )}
+                    </IconContainer>
+                    <Title>Inbox</Title>
+                </Header>
                 <ItemCreator
                     type="item"
                     buttonText="Add Item"
@@ -32,4 +49,10 @@ function Inbox(): ReactElement {
     )
 }
 
-export default Inbox
+const mapStateToProps = (state) => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Inbox)

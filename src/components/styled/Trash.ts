@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const TrashContainer = styled.div`
+export const Container = styled.div`
     display: flex;
     flex-direction: column;
     margin: 20px 20px;
@@ -9,9 +9,12 @@ export const TrashContainer = styled.div`
     max-width: 700px;
 `
 
+export const IconContainer = styled.div`
+    padding: 5px 10px 10px 5px;
+`
+
 export const HeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: baseline;
+    align-items: flex-end;
 `

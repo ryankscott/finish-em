@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { Title } from '../Typography'
 
 export const DateContainer = styled.div`
     display: grid;
@@ -8,6 +9,7 @@ export const DateContainer = styled.div`
         'week_of_year . . . . week_of_quarter';
     margin-bottom: 10px;
     width: 100%;
+    align-items: baseline;
 `
 
 export const Section = styled.div`
@@ -41,4 +43,10 @@ export const ForwardContainer = styled.div`
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
+`
+
+export const DailyTitle = styled(Title)`
+    grid-area: day;
+    display: flex;
+    justify-content: center;
 `

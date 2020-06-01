@@ -1,17 +1,30 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { Title } from './Typography'
-import { HeaderContainer, TrashContainer } from './styled/Trash'
+import { HeaderContainer, Container, IconContainer } from './styled/Trash'
 import FilteredItemList from '../containers/FilteredItemList'
 import { RenderingStrategy, ItemType } from '../interfaces'
 import { isToday, isThisWeek, isThisMonth, parseISO } from 'date-fns'
+import { connect } from 'react-redux'
+import { trashIcon } from '../assets/icons'
 
-const Trash = (): ReactElement => (
-    <ThemeProvider theme={theme}>
-        <TrashContainer>
+interface StateProps {
+    theme: string
+}
+type TrashProps = StateProps
+const Trash = (props: TrashProps): ReactElement => (
+    <ThemeProvider theme={themes[props.theme]}>
+        <Container>
             <HeaderContainer>
+                <IconContainer>
+                    {trashIcon(
+                        24,
+                        24,
+                        themes[props.theme].colours.primaryColour,
+                    )}
+                </IconContainer>
                 <Title> Trash </Title>
             </HeaderContainer>
             <FilteredItemList
@@ -74,8 +87,13 @@ const Trash = (): ReactElement => (
                 isFilterable={true}
                 renderingStrategy={RenderingStrategy.All}
             />
-        </TrashContainer>
+        </Container>
     </ThemeProvider>
 )
 
-export default Trash
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Trash)

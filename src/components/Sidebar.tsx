@@ -2,8 +2,7 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 
-import { lighten } from 'polished'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import CreateProjectDialog from './CreateProjectDialog'
 import { Header } from './Typography'
 import { showCreateProjectDialog, toggleSidebar } from '../actions'
@@ -15,8 +14,10 @@ import {
     Footer,
     StyledHorizontalRule,
     BodyContainer,
+    SettingsContainer,
+    CollapseContainer,
 } from './styled/Sidebar'
-import { Button } from './Button'
+import Button from './Button'
 import { createShortProjectName } from '../utils'
 import Settings from './Settings'
 import { Uuid } from '@typed/uuid'
@@ -24,6 +25,7 @@ import { Uuid } from '@typed/uuid'
 interface StateProps {
     projects: Projects
     sidebarVisible: boolean
+    theme: string
 }
 interface DispatchProps {
     showCreateProjectDialog: () => void
@@ -32,6 +34,8 @@ interface DispatchProps {
 
 type SidebarProps = StateProps & DispatchProps
 const Sidebar = (props: SidebarProps): ReactElement => {
+    console.log(props.theme)
+    const theme = themes[props.theme]
     return (
         <ThemeProvider theme={theme}>
             <Container visible={props.sidebarVisible}>
@@ -42,10 +46,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/inbox"
                         activeStyle={{
-                            backgroundColor: lighten(
-                                0.05,
-                                theme.colours.altBackgroundColour,
-                            ),
+                            backgroundColor:
+                                theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -63,10 +65,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/dailyAgenda"
                         activeStyle={{
-                            backgroundColor: lighten(
-                                0.05,
-                                theme.colours.altBackgroundColour,
-                            ),
+                            backgroundColor:
+                                theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -81,10 +81,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/unscheduled"
                         activeStyle={{
-                            backgroundColor: lighten(
-                                0.05,
-                                theme.colours.altBackgroundColour,
-                            ),
+                            backgroundColor:
+                                theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -99,10 +97,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/trash"
                         activeStyle={{
-                            backgroundColor: lighten(
-                                0.05,
-                                theme.colours.altBackgroundColour,
-                            ),
+                            backgroundColor:
+                                theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -117,10 +113,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/completed"
                         activeStyle={{
-                            backgroundColor: lighten(
-                                0.05,
-                                theme.colours.altBackgroundColour,
-                            ),
+                            backgroundColor:
+                                theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -135,10 +129,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/stale"
                         activeStyle={{
-                            backgroundColor: lighten(
-                                0.05,
-                                theme.colours.altBackgroundColour,
-                            ),
+                            backgroundColor:
+                                theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -165,10 +157,9 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 key={p}
                                 to={pathName}
                                 activeStyle={{
-                                    backgroundColor: lighten(
-                                        0.05,
-                                        theme.colours.altBackgroundColour,
-                                    ),
+                                    backgroundColor:
+                                        theme.colours
+                                            .focusAltDialogBackgroundColour,
                                 }}
                             >
                                 <Button
@@ -189,15 +180,10 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     })}
                 </BodyContainer>
                 <Footer visible={props.sidebarVisible}>
-                    <div
-                        style={{
-                            gridArea: 'settings',
-                            width: '100%',
-                        }}
-                    >
+                    <SettingsContainer collapsed={!props.sidebarVisible}>
                         <Settings />
-                    </div>
-                    <div style={{ gridArea: 'collapse' }}>
+                    </SettingsContainer>
+                    <CollapseContainer>
                         <Button
                             spacing="compact"
                             icon={
@@ -211,7 +197,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             }}
                             iconSize="16px"
                         />
-                    </div>
+                    </CollapseContainer>
                 </Footer>
             </Container>
         </ThemeProvider>
@@ -221,6 +207,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     sidebarVisible: state.ui.sidebarVisible,
+    theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     showCreateProjectDialog: () => {

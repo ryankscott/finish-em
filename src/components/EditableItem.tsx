@@ -1,15 +1,20 @@
 import React, { ReactElement } from 'react'
 import isElectron from 'is-electron'
+import electron from 'electron'
 
 import { validateItemString } from '../utils'
-import './EditableItem.css'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { addIcon } from '../assets/icons'
 import { ThemeProvider } from 'styled-components'
 import { Container, Icon } from './styled/EditableItem'
 import EditableText from './EditableText'
+import { connect } from 'react-redux'
 
-interface EditableItemProps {
+interface StateProps {
+    theme: string
+}
+
+interface OwnProps {
     hideIcon?: boolean
     text: string
     readOnly: boolean
@@ -17,16 +22,18 @@ interface EditableItemProps {
     onSubmit: (t: string) => void
     onEscape?: () => void
 }
+
+type EditableItemProps = StateProps & OwnProps
 function InternalEditableItem(props: EditableItemProps): ReactElement {
     const handleUpdate = (value): void => {
         props.onSubmit(value)
         if (isElectron()) {
-            window.ipcRenderer.send('close-quickadd')
+            electron.ipcRenderer.send('close-quickadd')
         }
     }
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Container
                 onKeyUp={(e) => {
                     if (e.key == 'Escape') {
@@ -60,4 +67,10 @@ const EditableItem = React.forwardRef(
 )
 
 EditableItem.displayName = 'EditableItem'
-export default EditableItem
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(EditableItem)

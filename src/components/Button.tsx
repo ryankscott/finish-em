@@ -1,9 +1,10 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { StyledButton, Contents, Icon, Text } from './styled/Button'
 import * as ic from '../assets/icons'
 import { IconType } from '../interfaces'
+import { connect } from 'react-redux'
 
 const iconMapping = {
     close: (w, h, c) => ic.closeIcon(w, h, c),
@@ -37,7 +38,10 @@ const iconMapping = {
     stale: (w, h, c) => ic.staleIcon(w, h, c),
 }
 
-export interface ButtonProps {
+interface StateProps {
+    theme: string
+}
+interface OwnProps {
     id?: string
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
     spacing?: 'compact' | 'default'
@@ -56,14 +60,13 @@ export interface ButtonProps {
     translate?: number
 }
 
-const getTheme = (type: string): {} => {
-    return theme.button[type]
-}
+type ButtonProps = OwnProps & StateProps
 
 // TODO: Add tooltips to the button?
-export const Button = (props: ButtonProps): ReactElement => {
+const Button = (props: ButtonProps): ReactElement => {
+    const theme = themes[props.theme].button[props.type]
     return (
-        <ThemeProvider theme={getTheme(props.type)}>
+        <ThemeProvider theme={theme}>
             <StyledButton
                 id={props.id}
                 spacing={props.spacing}
@@ -112,3 +115,10 @@ export const Button = (props: ButtonProps): ReactElement => {
         </ThemeProvider>
     )
 }
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Button)

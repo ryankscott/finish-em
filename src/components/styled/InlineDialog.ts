@@ -8,15 +8,16 @@ export const Container = styled.div<ContainerProps>`
     box-sizing: border-box;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     flex-direction: column;
-    background-color: ${(props) =>
-        props.theme.colours.lightDialogBackgroundColour};
+    background-color: ${(props) => props.theme.colours.dialogBackgroundColour};
     padding: 2px;
     margin: 2px;
     justify-content: center;
     align-items: center;
-    border-radius: 3px;
+    border-radius: 5px;
     transition: all 0.1s ease-in-out;
     z-index: 99;
+    border: 1px solid;
+    border-color: ${(props) => props.theme.colours.borderColour};
 `
 
 export const HeaderContainer = styled.div`

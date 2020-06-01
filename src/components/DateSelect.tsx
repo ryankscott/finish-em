@@ -1,10 +1,11 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import Select from 'react-select'
-import { theme, selectStyles } from '../theme'
+import { themes, selectStyles } from '../theme'
 import { add, lastDayOfWeek } from 'date-fns'
 import './DatePicker.css'
 import DayPicker from 'react-day-picker/DayPicker'
+import { connect } from 'react-redux'
 
 const options: { value: string; label: string }[] = [
     { value: new Date().toISOString(), label: 'Today' },
@@ -25,7 +26,11 @@ const options: { value: string; label: string }[] = [
     { value: null, label: 'No date' },
 ]
 
-export interface DateSelectProps {
+interface StatePRops {
+    theme: string
+}
+
+interface OwnProps {
     autoFocus?: boolean
     defaultOpen?: boolean
     disabled?: boolean
@@ -36,6 +41,8 @@ export interface DateSelectProps {
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
     zIndex?: number
 }
+
+type DateSelectProps = OwnProps & StateProps
 
 function DateSelect(props: DateSelectProps): ReactElement {
     const [dayPickerVisible, setDayPickerVisible] = useState(false)
@@ -60,7 +67,7 @@ function DateSelect(props: DateSelectProps): ReactElement {
     }
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Select
                 isDisabled={
                     props.disabled != undefined ? props.disabled : false
@@ -74,6 +81,7 @@ function DateSelect(props: DateSelectProps): ReactElement {
                 styles={selectStyles({
                     fontSize: props.textSize || 'xxsmall',
                     zIndex: props.zIndex,
+                    theme: themes[props.theme],
                 })}
                 defaultMenuIsOpen={
                     props.defaultOpen != undefined ? props.defaultOpen : true
@@ -99,4 +107,10 @@ function DateSelect(props: DateSelectProps): ReactElement {
     )
 }
 
-export default DateSelect
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(DateSelect)

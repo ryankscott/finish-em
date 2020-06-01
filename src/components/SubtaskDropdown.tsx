@@ -2,12 +2,12 @@ import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { OptionsType } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
-import { theme, selectStyles } from '../theme'
+import { themes, selectStyles } from '../theme'
 import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
 import { Item, Items, Projects } from '../interfaces'
-import { Button } from './Button'
+import Button from './Button'
 import { removeItemTypeFromString } from '../utils'
 import { subtaskIcon } from '../assets/icons'
 import {
@@ -73,6 +73,7 @@ const generateOptions = (
 interface StateProps {
     items: Items
     projects: Projects
+    theme: string
 }
 interface OwnProps {
     itemId: Uuid
@@ -99,7 +100,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
 
     // Only render if it's not just the Inbox project that exists
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <div>
                 {props.disableClick ? (
                     <DisabledContainer>
@@ -119,11 +120,15 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                             setShowSelect(!showSelect)
                             e.stopPropagation()
                         }}
-                        text={removeItemTypeFromString(
-                            props.items.items[props.parentId]?.text,
-                        )}
+                        text={
+                            removeItemTypeFromString(
+                                props.items.items[props.parentId]?.text,
+                            ) || 'Add to item'
+                        }
                         iconColour={
-                            !props.text ? theme.colours.lightIconColour : null
+                            !props.text
+                                ? themes[props.theme].colours.altIconColour
+                                : null
                         }
                         icon={'subtask'}
                     />
@@ -143,6 +148,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                             )}
                             styles={selectStyles({
                                 fontSize: 'xxsmall',
+                                theme: themes[props.theme],
                             })}
                             escapeClearsValue={true}
                             defaultMenuIsOpen={true}
@@ -166,6 +172,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
 const mapStateToProps = (state): StateProps => ({
     items: state.items,
     projects: state.projects,
+    theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): {} => ({})
 export default connect(mapStateToProps, mapDispatchToProps)(SubtaskDropdown)

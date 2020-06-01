@@ -1,47 +1,27 @@
 import React, { ReactElement, useState } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
-import { Button } from './Button'
+import { ThemeProvider } from 'styled-components'
+import { themes } from '../theme'
+import Button from './Button'
 import Switch from 'react-switch'
-import { Paragraph } from './Typography'
 import { connect } from 'react-redux'
-import { showSidebar } from '../actions'
+import { showSidebar, toggleDarkMode } from '../actions'
 import { FeatureType } from '../interfaces'
 import {
     enableDragAndDrop,
     disableDragAndDrop,
     toggleDragAndDrop,
 } from '../actions/feature'
+import {
+    Container,
+    Setting,
+    SettingsContainer,
+    SettingLabel,
+} from './styled/Settings'
 
-const Container = styled.div``
-
-const Setting = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 5px 5px;
-    width: 100%;
-    height: 25px;
-    align-items: bottom;
-    justify-content: 'center';
-`
-const SettingLabel = styled(Paragraph)`
-    color: ${(props) => props.theme.colours.altTextColour};
-    font-size: ${(props) => props.theme.fontSizes.xxsmall};
-    margin: 0px 10px;
-    margin-right: 15px;
-`
-
-const SettingsContainer = styled.div`
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    margin: 10px 5px;
-`
 interface StateProps {
     features: FeatureType
     sidebarVisible: boolean
+    theme: string
 }
 
 interface OwnProps {}
@@ -51,12 +31,14 @@ interface DispatchProps {
     enableDragAndDrop: () => void
     disableDragAndDrop: () => void
     toggleDragAndDrop: () => void
+    toggleDarkMode: () => void
 }
 
 type SettingsPickerProps = StateProps & DispatchProps & OwnProps
 
 function Settings(props: SettingsPickerProps): ReactElement {
     const [showSettings, setShowSettings] = useState(false)
+    const theme = themes[props.theme]
     return (
         <ThemeProvider theme={theme}>
             <Container>
@@ -89,6 +71,18 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                 height={14}
                             />
                         </Setting>
+                        <Setting>
+                            <SettingLabel>Dark mode</SettingLabel>
+                            <Switch
+                                onChange={() => props.toggleDarkMode()}
+                                checked={props.theme == 'dark'}
+                                onColor={theme.colours.primaryColour}
+                                checkedIcon={false}
+                                uncheckedIcon={false}
+                                width={24}
+                                height={14}
+                            />
+                        </Setting>
                     </SettingsContainer>
                 )}
             </Container>
@@ -98,8 +92,12 @@ function Settings(props: SettingsPickerProps): ReactElement {
 const mapStateToProps = (state): StateProps => ({
     features: state.features,
     sidebarVisible: state.ui.sidebarVisible,
+    theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
+    toggleDarkMode: () => {
+        dispatch(toggleDarkMode())
+    },
     showSidebar: () => {
         dispatch(showSidebar())
     },

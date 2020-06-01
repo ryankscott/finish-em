@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import CreatableSelect from 'react-select/creatable'
 import uuidv4 from 'uuid/v4'
-import { theme, selectStyles } from '../theme'
+import { themes, selectStyles } from '../theme'
 import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
@@ -13,7 +13,7 @@ import {
     DisabledContainer,
     ProjectName,
 } from './styled/ProjectDropdown'
-import { Button } from './Button'
+import Button from './Button'
 
 const generateOptions = (
     projectId: Uuid | '0',
@@ -32,6 +32,7 @@ interface DispatchProps {
 }
 interface StateProps {
     projects: Projects
+    theme: string
 }
 interface OwnProps {
     onSubmit: (value: Uuid | '0') => void
@@ -60,7 +61,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
 
     // Only render if it's not just the Inbox project that exists
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <div>
                 {props.disableClick ? (
                     <DisabledContainer>
@@ -93,6 +94,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                             )}
                             styles={selectStyles({
                                 fontSize: 'xxsmall',
+                                theme: themes[props.theme],
                             })}
                             escapeClearsValue={true}
                             defaultMenuIsOpen={true}
@@ -114,6 +116,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
 
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
+    theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     createProject: (id: Uuid, name: string) => {

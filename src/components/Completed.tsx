@@ -1,26 +1,32 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { Title } from './Typography'
-import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
-import { CompletedContainer, HeaderContainer } from './styled/Completed'
+import FilteredItemList from '../containers/FilteredItemList'
+import { Container, IconContainer, HeaderContainer } from './styled/Completed'
 import { isToday, parseISO, isThisMonth, isThisWeek } from 'date-fns'
 import { ItemType } from '../interfaces'
+import { connect } from 'react-redux'
+import { todoCheckedIcon } from '../assets/icons'
 
-const Completed = (): ReactElement => (
-    <ThemeProvider theme={theme}>
-        <CompletedContainer>
+interface StateProps {
+    theme: string
+}
+type CompletedProps = StateProps
+const Completed = (props: CompletedProps): ReactElement => (
+    <ThemeProvider theme={themes[props.theme]}>
+        <Container>
             <HeaderContainer>
+                <IconContainer>
+                    {todoCheckedIcon(
+                        24,
+                        24,
+                        themes[props.theme].colours.primaryColour,
+                    )}
+                </IconContainer>
                 <Title> Completed </Title>
             </HeaderContainer>
-            <FilteredItemList
-                filter={{
-                    type: 'default',
-                    filter: FilterEnum.ShowCompleted,
-                }}
-                isFilterable={false}
-            />
             <FilteredItemList
                 listName="Completed today"
                 filter={{
@@ -78,8 +84,13 @@ const Completed = (): ReactElement => (
                 }}
                 isFilterable={true}
             />
-        </CompletedContainer>
+        </Container>
     </ThemeProvider>
 )
 
-export default Completed
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Completed)

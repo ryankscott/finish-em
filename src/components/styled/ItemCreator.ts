@@ -16,4 +16,7 @@ export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
         props.visible ? (props.width ? props.width : '100%') : '0px'};
     opacity: ${(props) => (props.visible ? '1' : '0')};
     transition: all 0.2s ease-in-out;
+    border: 1px solid;
+    border-color: ${(props) => props.theme.colours.borderColour};
+    border-radius: 5px;
 `

@@ -1,13 +1,13 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
-import { Button } from './Button'
+import { themes } from '../theme'
+import Button from './Button'
 import { flagIcon, trashPermanentIcon } from '../assets/icons'
 import { Uuid } from '@typed/uuid'
 import { toggleFlag, deletePermanently } from '../actions'
 import { connect } from 'react-redux'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
-import { Tooltip } from './Tooltip'
+import Tooltip from './Tooltip'
 
 interface DispatchProps {
     toggleFlag: (id: Uuid) => void
@@ -21,13 +21,17 @@ interface OwnProps {
     disableClick?: boolean
 }
 
-type MoreDropdownProps = DispatchProps & OwnProps
+interface StateProps {
+    theme: string
+}
+
+type MoreDropdownProps = DispatchProps & OwnProps & StateProps
 
 function MoreDropdown(props: MoreDropdownProps): ReactElement {
     const [showDialog, setShowDialog] = useState(false)
 
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <div>
                 <Button
                     dataFor={'more'}
@@ -77,7 +81,9 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state): {} => ({})
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleFlag: (id: Uuid) => {
         dispatch(toggleFlag(id))

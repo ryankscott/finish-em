@@ -5,6 +5,8 @@ export const Title = styled.h1`
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.primaryColour};
     padding-top: 20px;
+    display: flex;
+    align-items: center;
 `
 
 export const Header = styled.h2`
@@ -24,7 +26,7 @@ export const Header1 = styled.h2<Header1Props>`
     color: ${(props) =>
         props.invert
             ? props.theme.colours.altTextColour
-            : props.theme.colours.defaultTextColour};
+            : props.theme.colours.textColour};
     padding-top: 8px;
     margin: 8px 5px;
 `
@@ -38,7 +40,7 @@ export const Header2 = styled.h2<Header2Props>`
     color: ${(props) =>
         props.invert
             ? props.theme.colours.altTextColour
-            : props.theme.colours.defaultTextColour};
+            : props.theme.colours.textColour};
     padding-top: 0px;
     margin: 0px 5px 5px 5px;
 `
@@ -51,7 +53,7 @@ export const Header3 = styled.h3<Header3Props>`
     color: ${(props) =>
         props.invert
             ? props.theme.colours.altTextColour
-            : props.theme.colours.defaultTextColour};
+            : props.theme.colours.textColour};
     padding-top: 0px;
     margin: 0px 5px 5px 5px;
 `
@@ -65,7 +67,7 @@ export const Paragraph = styled.p<ParagraphProps>`
     color: ${(props) =>
         props.invert
             ? props.theme.colours.altTextColour
-            : props.theme.colours.defaultTextColour};
+            : props.theme.colours.textColour};
     margin: 2px 5px;
     margin: 2px 2px;
 `

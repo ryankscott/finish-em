@@ -1,19 +1,24 @@
 import React, { ReactElement } from 'react'
 import Item, { ItemIcons } from './Item'
 import { ThemeProvider } from 'styled-components'
-import { theme } from '../theme'
+import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType, RenderingStrategy } from '../interfaces'
 import { Container, NoItemText } from './styled/ItemList'
-import { Uuid } from '@typed/uuid'
+import { connect } from 'react-redux'
 
-interface ItemListProps {
-    items: ItemType[]
-    order: Uuid[]
-    renderingStrategy?: RenderingStrategy
-    hideIcons: ItemIcons[]
+interface StateProps {
+    theme: string
 }
 
+interface OwnProps {
+    items: ItemType[]
+    renderingStrategy?: RenderingStrategy
+    hideIcons: ItemIcons[]
+    theme: string
+}
+
+type ItemListProps = OwnProps & StateProps
 /* We need two strategies for rendering items:
 
 1.  Default 
@@ -27,7 +32,7 @@ interface ItemListProps {
 
 function ItemList(props: ItemListProps): ReactElement {
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <Container>
                 {props.items.map((o, index) => {
                     if (o == undefined) return
@@ -86,4 +91,10 @@ function ItemList(props: ItemListProps): ReactElement {
     )
 }
 
-export default ItemList
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(ItemList)

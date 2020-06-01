@@ -19,12 +19,12 @@ export const Container = styled.div<ContainerProps>`
     grid-template-areas:
         'STATUS EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
         'STATUS . SUBTASK SUBTASK SUBTASK . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
-    border-top: ${(props) => (props.hidden ? '0px' : '1px solid')};
+    border: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-color: ${(props) => props.theme.colours.borderColour};
     padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
     align-items: center;
     cursor: pointer;
-    color: ${(props) => props.theme.colours.defaultTextColour};
+    color: ${(props) => props.theme.colours.textColour};
     background-color: ${(props) =>
         props.flagged
             ? props.theme.colours.errorBackgroundColour
@@ -133,7 +133,7 @@ export const StatusContainer = styled.div<StatusContainerProps>`
         props.flagged
             ? props.theme.colours.errorColour
             : props.stale
-            ? 'repeating-linear-gradient(-45deg, transparent, transparent 0px, #e0e0e0 3px, #e0e0e0 6px)'
+            ? `repeating-linear-gradient(-45deg, ${props.theme.colours.backgroundColour}, ${props.theme.colours.backgroundColour} 0px, ${props.theme.colours.borderColour} 3px, ${props.theme.colours.borderColour} 6px)`
             : props.theme.colours.borderColour};
     height: calc(100% + 10px);
     width: 100%;

@@ -14,10 +14,17 @@ export const HeaderContainer = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
 `
 export const AddProjectContainer = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+    padding: 2px 0px;
+`
+
+export const StaleContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    height: 100%;
 `

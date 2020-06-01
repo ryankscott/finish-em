@@ -1,6 +1,5 @@
 import styled from 'styled-components'
 import { NavLink } from 'react-router-dom'
-import { lighten } from 'polished'
 
 interface ContainerProps {
     visible: boolean
@@ -37,7 +36,7 @@ export const StyledNavLink = styled(NavLink)`
     }
     &:hover {
         background-color: ${(props) =>
-            lighten(0.05, props.theme.colours.altBackgroundColour)};
+            props.theme.colours.focusAltDialogBackgroundColour};
     }
 `
 
@@ -47,14 +46,18 @@ export const SectionHeader = styled.div`
     align-items: first baseline;
     justify-content: space-between;
     margin: 5px 5px;
+    padding: 5px;
 `
 
 interface FooterProps {
     visible: boolean
 }
 export const Footer = styled.div<FooterProps>`
-    margin-right: ${(props) => (props.visible ? '10px' : '0px')};
+    margin-right: ${(props) => (props.visible ? '2px' : '0px')};
+    padding: 2px;
     display: grid;
+    justify-content: center;
+    width: 100%;
     grid-template-columns: ${(props) =>
         props.visible ? 'repeat(5, 1fr)' : '100%'};
     grid-template-areas: ${(props) =>
@@ -69,4 +72,20 @@ export const StyledHorizontalRule = styled.hr`
     box-sizing: border-box;
     width: 80%;
     color: ${(props) => props.theme.altTextColour};
+`
+
+export const CollapseContainer = styled.div`
+    grid-area: collapse;
+    display: flex;
+    justify-content: center;
+`
+
+interface SettingsContainerProps {
+    collapsed: boolean
+}
+export const SettingsContainer = styled.div<SettingsContainerProps>`
+    grid-area: settings;
+    width: 100%;
+    display: flex;
+    justify-content: ${(props) => (props.collapsed ? 'center' : 'flex-start')};
 `

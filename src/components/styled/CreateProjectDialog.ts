@@ -5,6 +5,11 @@ export const StyledInput = styled.input`
     height: 30px;
     margin: 2px 5px;
     padding: 2px 5px;
+    color: ${(props) => props.theme.colours.textColour};
+    background-color: ${(props) => props.theme.colours.backgroundColour};
+    border: 1px solid;
+    border-radius: 2px;
+    border-color: ${(props) => props.theme.colours.borderColour};
 `
 export const HeaderContainer = styled.div`
     display: flex;

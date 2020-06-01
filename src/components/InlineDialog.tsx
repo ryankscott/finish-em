@@ -2,15 +2,19 @@ import React, { ReactElement, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { Manager, Reference, Popper } from 'react-popper'
 
-import { theme } from '../theme'
-import { Button } from './Button'
+import { themes } from '../theme'
+import Button from './Button'
 import {
     HeaderContainer,
     Container,
     BodyContainer,
 } from './styled/InlineDialog'
+import { connect } from 'react-redux'
 
-export interface InlineDialogProps {
+interface StateProps {
+    theme: string
+}
+interface OwnProps {
     isOpen: boolean
     onOpen?: () => void
     onClose?: () => void
@@ -34,6 +38,7 @@ export interface InlineDialogProps {
     content: ReactElement
     children: ReactElement
 }
+type InlineDialogProps = OwnProps & StateProps
 
 function InlineDialog(props: InlineDialogProps): ReactElement {
     const node = React.createRef<HTMLDivElement>()
@@ -69,7 +74,7 @@ function InlineDialog(props: InlineDialogProps): ReactElement {
                         style={style}
                         data-placement={props.placement}
                     >
-                        <ThemeProvider theme={theme}>
+                        <ThemeProvider theme={themes[props.theme]}>
                             <Container ref={node} visible={props.isOpen}>
                                 {!props.hideCloseButton && (
                                     <HeaderContainer>
@@ -92,4 +97,10 @@ function InlineDialog(props: InlineDialogProps): ReactElement {
     )
 }
 
-export default InlineDialog
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(InlineDialog)

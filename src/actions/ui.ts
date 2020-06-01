@@ -18,6 +18,7 @@ export const TOGGLE_DELETE_PROJECT_DIALOG = 'TOGGLE_DELETE_PROJECT_DIALOG'
 export const SET_ACTIVE_ITEM = 'SET_ACTIVE_ITEM'
 export const UNDO_SET_ACTIVE_ITEM = 'UNDO_SET_ACTIVE_ITEM'
 export const REDO_SET_ACTIVE_ITEM = 'REDO_SET_ACTIVE_ITEM'
+export const TOGGLE_DARK_MODE = 'TOGGLE_DARK_MODE'
 
 interface ShowShortcutDialogAction {
     type: typeof SHOW_SHORTCUT_DIALOG
@@ -178,6 +179,14 @@ export function redoSetActiveItem(): RedoSetActiveItemAction {
         type: REDO_SET_ACTIVE_ITEM,
     }
 }
+interface ToggleDarkModeAction {
+    type: typeof TOGGLE_DARK_MODE
+}
+export function toggleDarkMode(): ToggleDarkModeAction {
+    return {
+        type: TOGGLE_DARK_MODE,
+    }
+}
 
 export type UIActions =
     | ShowShortcutDialogAction
@@ -198,3 +207,4 @@ export type UIActions =
     | SetActiveItemAction
     | UndoSetActiveItemAction
     | RedoSetActiveItemAction
+    | ToggleDarkModeAction

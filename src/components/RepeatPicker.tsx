@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import Select from 'react-select'
-import { theme, selectStyles } from '../theme'
+import { themes, selectStyles } from '../theme'
 import { format } from 'date-fns'
 import { RRule } from 'rrule'
 import {
@@ -14,7 +14,8 @@ import { repeatIcon } from '../assets/icons'
 import { IconContainer } from './styled/DatePicker'
 import RepeatDialog from './RepeatDialog'
 import { rruleToText, capitaliseFirstLetter } from '../utils'
-import { Tooltip } from './Tooltip'
+import Tooltip from './Tooltip'
+import { connect } from 'react-redux'
 
 const options = [
     {
@@ -52,7 +53,11 @@ const options = [
     { value: null, label: 'None' },
 ]
 
-interface RepeatPickerProps {
+interface StateProps {
+    theme: string
+}
+
+interface OwnProps {
     id: string
     repeat: RRule
     onSubmit: (value: RRule) => void
@@ -63,6 +68,8 @@ interface RepeatPickerProps {
     style?: 'default' | 'subtle' | 'subtleInvert'
     disableClick?: boolean
 }
+
+type RepeatPickerProps = OwnProps & StateProps
 
 function RepeatPicker(props: RepeatPickerProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
@@ -101,12 +108,12 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     }
     const repeatText = props.repeat
         ? capitaliseFirstLetter(rruleToText(props.repeat))
-        : ''
+        : 'Repeat'
     const repeatLongText = props.repeat
         ? capitaliseFirstLetter(props.repeat.toText())
         : ''
     return (
-        <ThemeProvider theme={theme}>
+        <ThemeProvider theme={themes[props.theme]}>
             <div>
                 {props.disableClick ? (
                     generateDisabledElement(
@@ -153,6 +160,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                                 styles={selectStyles({
                                     fontSize: 'xxsmall',
                                     minWidth: '140px',
+                                    theme: themes[props.theme],
                                 })}
                             />
                             {repeatDialogVisible && (
@@ -172,4 +180,9 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     )
 }
 
-export default RepeatPicker
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+
+const mapDispatchToProps = (dispatch) => ({})
+export default connect(mapStateToProps, mapDispatchToProps)(RepeatPicker)

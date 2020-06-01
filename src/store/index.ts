@@ -92,12 +92,18 @@ const migrations = {
             items: migratev5tov6Items(state.items),
         }
     },
+    7: (state) => {
+        return {
+            ...state,
+            ui: { ...state.ui, theme: 'light' },
+        }
+    },
 }
 
 let persistConfig
 if (isElectron()) {
     persistConfig = {
-        version: 6,
+        version: 7,
         key: 'root',
         debug: true,
         storage: createElectronStorage(),
@@ -105,7 +111,7 @@ if (isElectron()) {
     }
 } else {
     persistConfig = {
-        version: 6,
+        version: 7,
         key: 'root',
         debug: true,
         storage,
