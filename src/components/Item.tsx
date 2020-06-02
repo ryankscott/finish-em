@@ -747,6 +747,7 @@ function Item(props: ItemProps): ReactElement {
                                     ? [...props.hideIcons, ItemIcons.Subtask]
                                     : [ItemIcons.Subtask]
                             }
+                            labels={props.labels}
                             theme={props.theme}
                             keymap={props.keymap}
                             projects={props.projects}
