@@ -15,7 +15,7 @@ export const Container = styled.div<ContainerProps>`
     align-items: center;
     border-radius: 5px;
     transition: all 0.1s ease-in-out;
-    z-index: 99;
+    z-index: 100;
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
 `

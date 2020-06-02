@@ -71,7 +71,7 @@ function InlineDialog(props: InlineDialogProps): ReactElement {
                 {({ ref, style, arrowProps }) => (
                     <div
                         ref={ref}
-                        style={style}
+                        style={{ zIndex: 100, ...style }}
                         data-placement={props.placement}
                     >
                         <ThemeProvider theme={themes[props.theme]}>

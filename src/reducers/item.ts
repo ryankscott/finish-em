@@ -210,16 +210,14 @@ export const itemReducer = produce(
                 break
 
             case DELETE_PROJECT:
-                const x = Object.entries(draftState.items[action.id]).map(
-                    ([k, v]) => {
-                        if (v.projectId == action.id) {
-                            v.deleted = true
-                            v.projectId = '0'
-                            v.lastUpdatedAt = new Date().toISOString()
-                        }
-                        return [k, v]
-                    },
-                )
+                const x = Object.entries(draftState.items).map(([k, v]) => {
+                    if (v.projectId == action.id) {
+                        v.deleted = true
+                        v.projectId = '0'
+                        v.lastUpdatedAt = new Date().toISOString()
+                    }
+                    return [k, v]
+                })
                 draftState.items = Object.fromEntries(x)
                 break
 
