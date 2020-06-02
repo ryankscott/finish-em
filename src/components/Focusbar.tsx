@@ -22,6 +22,8 @@ import {
     moveItem,
     convertSubtask,
     changeParentItem,
+    addLabel,
+    deleteItem,
 } from '../actions'
 import Tooltip from './Tooltip'
 import {
@@ -38,6 +40,7 @@ import RepeatPicker from './RepeatPicker'
 import ProjectDropdown from './ProjectDropdown'
 import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
+import LabelDropdown from './LabelDropdown'
 
 interface DispatchProps {
     closeFocusbar: () => void
@@ -52,6 +55,8 @@ interface DispatchProps {
     setRepeatRule: (id: Uuid, rule: RRule) => void
     convertSubtask: (id: Uuid) => void
     changeParentItem: (id: Uuid, parentId: Uuid) => void
+    addLabel: (id: Uuid, labelId: Uuid | string) => void
+    deleteItem: (id: Uuid) => void
 }
 interface StateProps {
     items: Items
@@ -69,6 +74,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     const ref = React.createRef<HTMLInputElement>()
     const i = props?.items?.items[props?.activeItem.present]
     if (!i) return null
+
+    // TODO: Do I need these? Or can I move to the component
     const dueDate = i.dueDate
         ? formatRelativeDate(parseISO(i.dueDate))
         : 'Add due date'
@@ -124,7 +131,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                 </HeaderContainer>
                 <TitleContainer>
                     <Button
-                        type="default"
+                        type={'default'}
                         spacing="compact"
                         height="24px"
                         width="24px"
@@ -159,6 +166,17 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         shouldSubmitOnBlur={true}
                         shouldClearOnSubmit={false}
                     />
+                    <Button
+                        dataFor="delete-button"
+                        type={'default'}
+                        icon="trash"
+                        spacing="compact"
+                        onClick={() => {
+                            props.deleteItem(i.id)
+                        }}
+                    ></Button>
+
+                    <Tooltip id="delete-button" text={'Delete'} />
                 </TitleContainer>
 
                 <AttributeContainer>
@@ -167,6 +185,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     </AttributeKey>
                     <AttributeValue>
                         <ProjectDropdown
+                            disableClick={i.deleted}
                             projectId={i.projectId}
                             completed={i.completed}
                             onSubmit={(projectId) => {
@@ -183,6 +202,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             </AttributeKey>
                             <AttributeValue>
                                 <DatePicker
+                                    disableClick={i.deleted}
                                     key={'sd' + i.id}
                                     placeholder={'Scheduled on: '}
                                     onSubmit={(d) =>
@@ -200,6 +220,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             </AttributeKey>
                             <AttributeValue>
                                 <DatePicker
+                                    disableClick={i.deleted}
                                     key={'dd' + i.id}
                                     placeholder={'Due on: '}
                                     onSubmit={(d) => props.setDueDate(i.id, d)}
@@ -215,6 +236,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             </AttributeKey>
                             <AttributeValue>
                                 <RepeatPicker
+                                    disableClick={i.deleted}
                                     id={i.id}
                                     repeat={
                                         i.repeat
@@ -238,6 +260,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     </AttributeKey>
                     <AttributeValue>
                         <SubtaskDropdown
+                            disableClick={i.deleted}
                             itemId={i.id}
                             text={subtaskText}
                             parentId={i.parentId}
@@ -249,6 +272,21 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                     props.convertSubtask(i.id)
                                 }
                             }}
+                        />
+                    </AttributeValue>
+                </AttributeContainer>
+                <AttributeContainer>
+                    <AttributeKey>
+                        <Paragraph>Label:</Paragraph>
+                    </AttributeKey>
+                    <AttributeValue>
+                        <LabelDropdown
+                            disableClick={i.deleted}
+                            completed={i.completed}
+                            labelId={i.labelId}
+                            onSubmit={(labelId) =>
+                                props.addLabel(i.id, labelId)
+                            }
                         />
                     </AttributeValue>
                 </AttributeContainer>
@@ -331,6 +369,12 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     changeParentItem: (id: Uuid, parentId: Uuid) => {
         dispatch(changeParentItem(id, parentId))
+    },
+    addLabel: (id: Uuid, labelId: Uuid | string) => {
+        dispatch(addLabel(id, labelId))
+    },
+    deleteItem: (id: Uuid) => {
+        dispatch(deleteItem(id))
     },
 })
 
