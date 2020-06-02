@@ -34,7 +34,6 @@ interface DispatchProps {
 
 type SidebarProps = StateProps & DispatchProps
 const Sidebar = (props: SidebarProps): ReactElement => {
-    console.log(props.theme)
     const theme = themes[props.theme]
     return (
         <ThemeProvider theme={theme}>
