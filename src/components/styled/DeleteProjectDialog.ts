@@ -26,4 +26,5 @@ export const Container = styled.div`
     width: 200px;
     padding: 0px 5px;
     margin: 0px 2px;
+    z-index: 99;
 `

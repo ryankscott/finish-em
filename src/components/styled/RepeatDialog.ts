@@ -3,11 +3,10 @@ import Select from 'react-select'
 
 export const Container = styled.div`
     display: flex;
-    background-color: ${(props) =>
-        props.theme.colours.lightDialogBackgroundColour};
+    background-color: ${(props) => props.theme.colours.dialogBackgroundColour};
     flex-direction: column;
     padding: 10px 5px;
-    z-index: 2;
+    z-index: 99;
     position: absolute;
     top: 30px;
     right: 0px;
