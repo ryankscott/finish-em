@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { theme, selectStyles } from '../theme'
+import { themes, selectStyles } from '../theme'
 import RRule, { Frequency } from 'rrule'
 import Button from './Button'
 import DatePicker from './DatePicker'
@@ -15,6 +15,7 @@ import {
     Input,
     ButtonContainer,
 } from './styled/RepeatDialog'
+import { connect } from 'react-redux'
 
 const frequencyOptions: { value: Frequency; label: string }[] = [
     {
@@ -50,10 +51,13 @@ const endOptions: {}[] = [
     },
 ]
 
+interface StateProps {
+    theme: string
+}
 interface OwnProps {
     onSubmit: (RRule) => void
 }
-type RepeatDialogProps = OwnProps
+type RepeatDialogProps = OwnProps & StateProps
 const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
     const [startDate, setStartDate] = useState(new Date().toISOString())
     const [endDate, setEndDate] = useState(new Date().toISOString())
@@ -135,6 +139,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                 minWidth: '50px',
                                 width: '65px',
                                 zIndex: 9,
+                                theme: themes[props.theme],
                             })}
                             onChange={(newValue, actionMeta) => {
                                 if (actionMeta.action == 'select-option') {
@@ -156,6 +161,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                 minWidth: '100px',
                                 width: '110px',
                                 zIndex: 8,
+                                theme: themes[props.theme],
                             })}
                             onChange={(newValue, actionMeta) => {
                                 if (actionMeta.action == 'select-option') {
@@ -219,4 +225,9 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
     )
 }
 
-export default RepeatDialog
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
+const mapDispatchToProps = (dispatch) => ({})
+
+export default connect(mapStateToProps, mapDispatchToProps)(RepeatDialog)
