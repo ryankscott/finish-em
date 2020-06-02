@@ -117,7 +117,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 props.onEditingChange(false)
             }
             setEditable(false)
-            props?.onEscape()
+            props.onEscape ? props.onEscape() : null
         }
     }
     const handleKeyPress = (e): void => {

@@ -37,7 +37,7 @@ function InternalEditableItem(props: EditableItemProps): ReactElement {
             <Container
                 onKeyUp={(e) => {
                     if (e.key == 'Escape') {
-                        props?.onEscape()
+                        props.onEscape ? props.onEscape() : null
                     }
                 }}
                 hideIcon={props.hideIcon}
