@@ -40,10 +40,11 @@ const Unscheduled = (props: UnscheduledProps): ReactElement => (
                     type: 'custom',
                     filter: (i: ItemType) => {
                         return (
-                            isPast(endOfDay(parseISO(i.dueDate))) &&
                             i.scheduledDate == null &&
                             i.deleted == false &&
-                            i.completed == false
+                            i.completed == false &&
+                            i.type == 'TODO' &&
+                            isPast(endOfDay(parseISO(i.dueDate)))
                         )
                     },
                 }}
@@ -58,6 +59,7 @@ const Unscheduled = (props: UnscheduledProps): ReactElement => (
                             i.deleted == false &&
                             i.completed == false &&
                             i.scheduledDate == null &&
+                            i.type == 'TODO' &&
                             isToday(parseISO(i.createdAt))
                         )
                     },
@@ -73,6 +75,7 @@ const Unscheduled = (props: UnscheduledProps): ReactElement => (
                             i.deleted == false &&
                             i.completed == false &&
                             i.scheduledDate == null &&
+                            i.type == 'TODO' &&
                             !isToday(parseISO(i.createdAt)) &&
                             isThisWeek(parseISO(i.createdAt))
                         )
@@ -89,6 +92,7 @@ const Unscheduled = (props: UnscheduledProps): ReactElement => (
                             i.deleted == false &&
                             i.completed == false &&
                             i.scheduledDate == null &&
+                            i.type == 'TODO' &&
                             !isToday(parseISO(i.createdAt)) &&
                             !isThisWeek(parseISO(i.createdAt)) &&
                             isThisMonth(parseISO(i.createdAt))
@@ -106,6 +110,7 @@ const Unscheduled = (props: UnscheduledProps): ReactElement => (
                             i.deleted == false &&
                             i.completed == false &&
                             i.scheduledDate == null &&
+                            i.type == 'TODO' &&
                             !isToday(parseISO(i.createdAt)) &&
                             !isThisWeek(parseISO(i.createdAt)) &&
                             !isThisMonth(parseISO(i.createdAt))
