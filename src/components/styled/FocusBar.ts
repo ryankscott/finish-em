@@ -21,24 +21,23 @@ export const AttributeContainer = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    margin: 2px 10px;
+    justify-content: flex-start;
+    margin: 2px 20px;
     min-height: 30px;
 `
 export const AttributeKey = styled.div`
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    width: 65%;
     margin-left: 0px;
+    min-width: 100px;
 `
 export const AttributeValue = styled.div`
     position: relative;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    width: 35%;
-    min-width: 190px;
+    min-width: 120px;
 `
 
 export const TitleContainer = styled.div`
