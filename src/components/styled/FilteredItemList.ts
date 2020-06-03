@@ -28,7 +28,7 @@ export const SortIcon = styled.div`
 
 export const SortContainer = styled.div`
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     grid-area: sort;
     position: relative;
     width: 100%;
@@ -36,14 +36,14 @@ export const SortContainer = styled.div`
 `
 
 export const SortSelect = styled(Select)`
-    width: 145px;
+    width: 125px;
     caret-color: transparent;
     padding: 0px 2px;
     position: absolute;
-    display: 'flex';
+    display: flex;
     flex-direction: column;
-    top: -11px;
-    right: 0px;
+    top: 1px;
+    right: 30px;
 `
 
 export const DeleteContainer = styled.div`

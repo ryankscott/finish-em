@@ -60,7 +60,7 @@ export const Icon = styled.div<IconProps>`
     display: flex;
     transition: all 0.1s ease-out;
     transform: ${(props) => (props.rotate ? `rotate(90deg)` : '')};
-    translate: ${(props) => (props.translate ? 'rotateY(180deg)' : '')};
+    transform: ${(props) => (props.translate ? 'rotateY(180deg)' : '')};
     flex-direction: row;
     justify-content: center;
     align-items: center;

@@ -28,7 +28,7 @@ import {
 import { components } from 'react-select'
 import { sortIcon } from '../assets/icons'
 import ReorderableItemList from '../components/ReorderableItemList'
-import { convertItemToItemType } from '../utils'
+import { convertItemToItemType, capitaliseFirstLetter } from '../utils'
 import { ItemIcons } from '../components/Item'
 
 const DropdownIndicator = (props): ReactElement => {
@@ -42,30 +42,36 @@ const DropdownIndicator = (props): ReactElement => {
 const sortItems = (
     items: ItemType[],
     criteria: SortCriteriaEnum,
+    direction: SortDirectionEnum,
 ): ItemType[] => {
     switch (criteria) {
         case 'STATUS':
-            return orderBy(items, [(i) => i.completed], 'asc')
-        case 'DUE_ASC':
-            return orderBy(items, [(i) => new Date(i.dueDate)], 'asc')
-        case 'DUE_DESC':
-            return orderBy(items, [(i) => new Date(i.dueDate)], 'desc')
-        case 'SCHEDULED_ASC':
-            return orderBy(items, [(i) => new Date(i.scheduledDate)], 'asc')
-        case 'SCHEDULED_DESC':
-            return orderBy(items, [(i) => new Date(i.scheduledDate)], 'desc')
+            return orderBy(items, [(i) => i.completed], direction)
+        case 'DUE':
+            return orderBy(items, [(i) => new Date(i.dueDate)], direction)
+        case 'SCHEDULED':
+            return orderBy(items, [(i) => new Date(i.scheduledDate)], direction)
         default:
             return items
     }
 }
 
-const options = [
-    { value: 'DUE_DESC', label: 'Due Desc' },
-    { value: 'DUE_ASC', label: 'Due️ Asc' },
-    { value: 'SCHEDULED_ASC', label: 'Scheduled Asc️' },
-    { value: 'SCHEDULED_DESC', label: 'Scheduled Desc' },
+const sortOptions = [
+    { value: 'DUE', label: 'Due' },
+    { value: 'SCHEDULED', label: 'Scheduled' },
     { value: 'STATUS', label: 'Completed' },
 ]
+
+export enum SortCriteriaEnum {
+    Status = 'STATUS',
+    Due = 'DUE',
+    Scheduled = 'SCHEDULED',
+}
+
+export enum SortDirectionEnum {
+    Ascending = 'asc',
+    Descending = 'desc',
+}
 
 export enum FilterEnum {
     ShowAll = 'SHOW_ALL',
@@ -85,14 +91,6 @@ interface FilterParamsType {
     scheduledDate?: Date
     projectId?: Uuid
     type?: 'TODO' | 'NOTE'
-}
-
-export enum SortCriteriaEnum {
-    Status = 'STATUS',
-    DueAsc = 'DUE_ASC',
-    DueDesc = 'DUE_DESC',
-    ScheduledAsc = 'SCHEDULED_ASC',
-    ScheduledDesc = 'SCHEDULED_DESC',
 }
 
 const determineVisibilityRules = (
@@ -168,7 +166,10 @@ interface OwnProps {
 type FilteredItemListProps = StateProps & DispatchProps & OwnProps
 
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
-    const [sortCriteria, setSortCriteria] = useState(SortCriteriaEnum.DueDesc)
+    const [sortCriteria, setSortCriteria] = useState(SortCriteriaEnum.Due)
+    const [sortDirection, setSortDirection] = useState(
+        SortDirectionEnum.Ascending,
+    )
     const [hideCompleted, setHideCompleted] = useState(false)
     const [hideItemList, setHideItemList] = useState(
         Object.keys(props.items).length == 0,
@@ -178,8 +179,16 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const allItems = props.items
     const completedItems = props.completedItems
     const sortedItems = hideCompleted
-        ? sortItems(convertItemToItemType(props.uncompletedItems), sortCriteria)
-        : sortItems(convertItemToItemType(allItems), sortCriteria)
+        ? sortItems(
+              convertItemToItemType(props.uncompletedItems),
+              sortCriteria,
+              sortDirection,
+          )
+        : sortItems(
+              convertItemToItemType(allItems),
+              sortCriteria,
+              sortDirection,
+          )
 
     const visibility = determineVisibilityRules(
         props.filter,
@@ -254,21 +263,48 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                         {visibility.showSortButton && (
                             <SortContainer>
                                 <SortSelect
-                                    options={options}
-                                    defaultOption={options[0]}
+                                    options={sortOptions}
+                                    defaultOption={sortOptions[0]}
                                     autoFocus={false}
-                                    placeholder="Sort"
+                                    placeholder="Sort by:"
                                     components={{ DropdownIndicator }}
                                     styles={{
                                         ...selectStyles({
                                             fontSize: 'xxsmall',
                                             theme: themes[props.theme],
                                             showDropdownIndicator: true,
+                                            minWidth: '100px',
                                         }),
                                     }}
                                     onChange={(e) => {
                                         setSortCriteria(e.value)
                                     }}
+                                />
+                                <Button
+                                    dataFor={'sort-direction-button'}
+                                    type="default"
+                                    spacing="compact"
+                                    translate={
+                                        sortDirection ==
+                                        SortDirectionEnum.Ascending
+                                            ? 1
+                                            : 0
+                                    }
+                                    icon={'sortDirection'}
+                                    onClick={() => {
+                                        sortDirection ==
+                                        SortDirectionEnum.Ascending
+                                            ? setSortDirection(
+                                                  SortDirectionEnum.Descending,
+                                              )
+                                            : setSortDirection(
+                                                  SortDirectionEnum.Ascending,
+                                              )
+                                    }}
+                                />
+                                <Tooltip
+                                    id="sort-direction-button"
+                                    text={'Toggle sort direction'}
                                 />
                             </SortContainer>
                         )}

@@ -23,6 +23,7 @@ export type IconType =
     | 'show'
     | 'hide'
     | 'sort'
+    | 'sortDirection'
     | 'inbox'
     | 'calendar'
     | 'slideRight'

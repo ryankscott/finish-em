@@ -23,6 +23,7 @@ const iconMapping = {
     hide: (w, h, c) => ic.hideIcon(w, h, c),
     show: (w, h, c) => ic.showIcon(w, h, c),
     sort: (w, h, c) => ic.sortIcon(w, h, c),
+    sortDirection: (w, h, c) => ic.sortDirectionIcon(w, h, c),
     inbox: (w, h, c) => ic.inboxIcon(w, h, c),
     calendar: (w, h, c) => ic.calendarIcon(w, h, c),
     slideLeft: (w, h, c) => ic.slideLeftIcon(w, h, c),
@@ -85,6 +86,11 @@ const Button = (props: ButtonProps): ReactElement => {
                             iconPosition={props.iconPosition}
                             rotate={
                                 props.rotate != undefined ? props.rotate : 0
+                            }
+                            translate={
+                                props.translate != undefined
+                                    ? props.translate
+                                    : 0
                             }
                         >
                             {iconMapping[props.icon](
