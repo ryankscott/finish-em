@@ -18,9 +18,12 @@ import {
 type OptionType = { value: string; label: string; color: CSS.Color }
 
 const generateOptions = (labels: Label): OptionType[] => {
-    return Object.values(labels).map((l) => {
-        return { value: l.id, label: l.name, color: l.colour }
-    })
+    return [
+        ...Object.values(labels).map((l) => {
+            return { value: l.id, label: l.name, color: l.colour }
+        }),
+        { value: '', label: 'No label', color: 'inherit' },
+    ]
 }
 
 interface StateProps {
@@ -49,16 +52,15 @@ function LabelDropdown(props: LabelProps): ReactElement {
         return
     }
 
-    const text = props.labels[props.labelId]?.name
+    const text = props.labels[props?.labelId]?.name
+    const colour = props.labels[props?.labelId]?.colour
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div>
                 {props.disableClick ? (
                     <DisabledContainer>
-                        {labelIcon(12, 12, props.labels[props.labelId].colour)}
-                        <DisabledText>
-                            {props.labels[props.labelId].name}
-                        </DisabledText>
+                        {labelIcon(12, 12, colour)}
+                        <DisabledText>{name}</DisabledText>
                     </DisabledContainer>
                 ) : (
                     <Button
@@ -70,9 +72,7 @@ function LabelDropdown(props: LabelProps): ReactElement {
                             e.stopPropagation()
                         }}
                         text={text || 'Add label'}
-                        iconColour={
-                            text ? props.labels[props.labelId].colour : null
-                        }
+                        iconColour={text ? colour : null}
                         icon={'label'}
                     />
                 )}

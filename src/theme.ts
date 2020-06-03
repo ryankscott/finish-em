@@ -1,6 +1,7 @@
 import { lighten, darken } from 'polished'
 import CSS from 'csstype'
 import { ThemeType } from './interfaces'
+import { StylesConfig } from 'react-select'
 
 export const themes: { [key: string]: ThemeType } = {
     light: {
@@ -66,8 +67,8 @@ export const themes: { [key: string]: ThemeType } = {
         },
         colours: {
             textColour: '#333333',
-            disabledTextColour: lighten(0.35, '#333333'),
             altTextColour: '#EEEEEE',
+            disabledTextColour: lighten(0.35, '#333333'),
             primaryColour: '#45b9ef',
             secondaryColour: '#59cd90',
             tertiaryColour: '#fe5e41',
@@ -156,8 +157,8 @@ export const themes: { [key: string]: ThemeType } = {
         },
         colours: {
             textColour: '#EEEEEE',
-            disabledTextColour: darken(0.35, '#EEEEEE'),
             altTextColour: '#EEEEEE',
+            disabledTextColour: darken(0.35, '#EEEEEE'),
             primaryColour: '#45b9ef',
             secondaryColour: '#59cd90',
             tertiaryColour: '#fe5e41',
@@ -186,14 +187,14 @@ export const themes: { [key: string]: ThemeType } = {
 
 interface SelectStylesProps {
     fontSize: 'xxsmall' | 'xxxsmall'
+    theme: ThemeType
     minWidth?: CSS.MinWidthProperty<number>
     maxHeight?: CSS.MaxHeightProperty<number>
     width?: CSS.WidthProperty<number>
     zIndex?: number
-    theme: ThemeType
     showDropdownIndicator?: boolean
 }
-export const selectStyles = (props: SelectStylesProps) => {
+export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     return {
         container: () => ({
             zIndex: props.zIndex != undefined ? props.zIndex : 1,
@@ -219,26 +220,30 @@ export const selectStyles = (props: SelectStylesProps) => {
             tabIndex: 0,
             zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
         }),
-        option: (provided, state) => ({
-            ...provided,
-            tabIndex: 0,
-            color: props.theme.colours.textColour,
-            backgroundColor: state.isFocused
-                ? props.theme.colours.focusBackgroundColour
-                : props.theme.colours.backgroundColour,
-            padding: '5px 10px',
-            margin: '0px',
-            fontFamily: props.theme.font.sansSerif,
-            fontSize: props.theme.fontSizes[props.fontSize],
-            fontWeight: state.isFocused
-                ? props.theme.fontWeights.bold
-                : props.theme.fontWeights.regular,
-            zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
-            '&:active': {
-                backgroundColor:
-                    props.theme.button.default.hoverBackgroundColour,
-            },
-        }),
+        option: (styles, { data, isFocused }) => {
+            return {
+                ...styles,
+                tabIndex: 0,
+                color: props.theme.colours.textColour,
+                backgroundColor: data.color
+                    ? data.color
+                    : isFocused
+                    ? props.theme.colours.focusBackgroundColour
+                    : props.theme.colours.backgroundColour,
+                padding: '5px 10px',
+                margin: '0px',
+                fontFamily: props.theme.font.sansSerif,
+                fontSize: props.theme.fontSizes[props.fontSize],
+                fontWeight: isFocused
+                    ? props.theme.fontWeights.bold
+                    : props.theme.fontWeights.regular,
+                zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
+                '&:active': {
+                    backgroundColor:
+                        props.theme.button.default.hoverBackgroundColour,
+                },
+            }
+        },
         placeholder: () => ({
             color: props.theme.colours.textColour,
             fontSize: props.theme.fontSizes[props.fontSize],

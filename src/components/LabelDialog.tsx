@@ -12,7 +12,8 @@ import {
 import Button from './Button'
 import { Label } from '../interfaces'
 import { Uuid } from '@typed/uuid'
-import { addLabel } from '../actions/item'
+import { addLabel, deleteLabel } from '../actions/item'
+import { rgb } from 'polished'
 
 interface StateProps {
     theme: string
@@ -21,6 +22,7 @@ interface StateProps {
 
 interface DispatchProps {
     addLabel: (id: Uuid, labelId: Uuid | string) => void
+    deleteLabel: (id: Uuid) => void
 }
 interface OwnProps {
     itemId: Uuid
@@ -59,6 +61,17 @@ export const LabelDialog = (props: LabelDialogProps): ReactElement => {
                             </LabelContainer>
                         )
                     })}
+                    <LabelContainer
+                        key={''}
+                        colour={rgb(255,255,255,0)}
+                        onClick={(e) => {
+                            props.deleteLabel(props.itemId)
+                            e.stopPropagation()
+                            props.onClose()
+                        }}
+                    >
+                        {'No label'}
+                    </LabelContainer>
                 </BodyContainer>
             </Container>
         </ThemeProvider>
@@ -74,6 +87,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     addLabel: (id: Uuid, labelId: Uuid | string) => {
         dispatch(addLabel(id, labelId))
     },
+    deleteLabel: (id: Uuid) => {
+        dispatch(deleteLabel(id)
+    }
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(LabelDialog)

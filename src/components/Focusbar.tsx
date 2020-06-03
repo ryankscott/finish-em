@@ -23,6 +23,7 @@ import {
     convertSubtask,
     changeParentItem,
     addLabel,
+    deleteLabel,
     deleteItem,
 } from '../actions'
 import Tooltip from './Tooltip'
@@ -285,8 +286,11 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             completed={i.completed}
                             labelId={i.labelId}
                             onSubmit={(labelId) =>
+                                if(labelId){
                                 props.addLabel(i.id, labelId)
-                            }
+                            } else {
+                                props.deleteLabel(i.id)
+                            }}
                         />
                     </AttributeValue>
                 </AttributeContainer>
@@ -372,6 +376,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     addLabel: (id: Uuid, labelId: Uuid | string) => {
         dispatch(addLabel(id, labelId))
+    },
+    deleteLabel: (id: Uuid) => {
+        dispatch(deleteLabel(id))
     },
     deleteItem: (id: Uuid) => {
         dispatch(deleteItem(id))
