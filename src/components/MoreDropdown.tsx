@@ -4,14 +4,13 @@ import { themes } from '../theme'
 import Button from './Button'
 import { flagIcon, trashPermanentIcon } from '../assets/icons'
 import { Uuid } from '@typed/uuid'
-import { toggleFlag, deletePermanently } from '../actions'
 import { connect } from 'react-redux'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
 import Tooltip from './Tooltip'
 import LabelDialog from './LabelDialog'
+import { deletePermanently } from '../actions/item'
 
 interface DispatchProps {
-    toggleFlag: (id: Uuid) => void
     deletePermanently: (id: Uuid) => void
 }
 
@@ -99,9 +98,6 @@ const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    toggleFlag: (id: Uuid) => {
-        dispatch(toggleFlag(id))
-    },
     deletePermanently: (id: Uuid) => {
         dispatch(deletePermanently(id))
     },
