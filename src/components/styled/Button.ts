@@ -54,13 +54,19 @@ export const Contents = styled.div`
 interface IconProps {
     iconPosition: 'after' | 'before'
     rotate?: number
-    translate?: number
+    translateY?: number
+    translateZ?: number
 }
 export const Icon = styled.div<IconProps>`
     display: flex;
     transition: all 0.1s ease-out;
     transform: ${(props) => (props.rotate ? `rotate(90deg)` : '')};
-    transform: ${(props) => (props.translate ? 'rotateY(180deg)' : '')};
+    transform: ${(props) =>
+        props.translateY
+            ? 'rotateY(180deg)'
+            : props.translateZ
+            ? 'rotateZ(180deg)'
+            : ''};
     flex-direction: row;
     justify-content: center;
     align-items: center;

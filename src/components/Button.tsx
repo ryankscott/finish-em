@@ -59,7 +59,8 @@ interface OwnProps {
     iconPosition?: 'before' | 'after'
     icon?: IconType
     rotate?: number // Note: This lovely little hack is because of a StyledComponents bug https://github.com/styled-components/styled-components/issues/1198
-    translate?: number
+    translateY?: number
+    translateZ?: number
 }
 
 type ButtonProps = OwnProps & StateProps
@@ -87,9 +88,14 @@ const Button = (props: ButtonProps): ReactElement => {
                             rotate={
                                 props.rotate != undefined ? props.rotate : 0
                             }
-                            translate={
-                                props.translate != undefined
-                                    ? props.translate
+                            translateY={
+                                props.translateY != undefined
+                                    ? props.translateY
+                                    : 0
+                            }
+                            translateZ={
+                                props.translateZ != undefined
+                                    ? props.translateZ
                                     : 0
                             }
                         >

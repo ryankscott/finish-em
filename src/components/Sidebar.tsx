@@ -58,7 +58,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
-                            translate={props.sidebarVisible == true ? 1 : 0}
+                            translateY={props.sidebarVisible == true ? 1 : 0}
                         />
                     </StyledNavLink>
                     <StyledNavLink
