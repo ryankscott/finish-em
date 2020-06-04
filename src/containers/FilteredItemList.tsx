@@ -51,6 +51,8 @@ const sortItems = (
             return orderBy(items, [(i) => new Date(i.dueDate)], direction)
         case 'SCHEDULED':
             return orderBy(items, [(i) => new Date(i.scheduledDate)], direction)
+        case 'LABEL':
+            return orderBy(items, [(i) => i.labelId], direction)
         default:
             return items
     }
@@ -60,12 +62,14 @@ const sortOptions = [
     { value: 'DUE', label: 'Due' },
     { value: 'SCHEDULED', label: 'Scheduled' },
     { value: 'STATUS', label: 'Completed' },
+    { value: 'LABEL', label: 'Label' },
 ]
 
 export enum SortCriteriaEnum {
     Status = 'STATUS',
     Due = 'DUE',
     Scheduled = 'SCHEDULED',
+    Label = 'LABEL',
 }
 
 export enum SortDirectionEnum {
