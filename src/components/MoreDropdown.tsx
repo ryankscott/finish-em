@@ -50,17 +50,19 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                 {(showDialog || props.showDialog) && (
                     <>
                         <DialogContainer>
-                            <Option
-                                key={0}
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    e.preventDefault()
-                                    setShowLabelDialog(!showLabelDialog)
-                                }}
-                            >
-                                <Icon>{flagIcon(12, 12)}</Icon>
-                                {'Add Label'}
-                            </Option>
+                            {!props.deleted && (
+                                <Option
+                                    key={0}
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        e.preventDefault()
+                                        setShowLabelDialog(!showLabelDialog)
+                                    }}
+                                >
+                                    <Icon>{flagIcon(12, 12)}</Icon>
+                                    {'Add Label'}
+                                </Option>
+                            )}
                             {props.deleted && (
                                 <Option
                                     key={1}
