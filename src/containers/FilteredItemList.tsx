@@ -264,7 +264,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                             <SortContainer>
                                 <SortSelect
                                     options={sortOptions}
-                                    defaultOption={sortOptions[0]}
+                                    defaultValue={sortOptions[0]}
                                     autoFocus={false}
                                     placeholder="Sort by:"
                                     components={{ DropdownIndicator }}
