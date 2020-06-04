@@ -26,15 +26,15 @@ import {
     getUncompletedItems,
 } from '../selectors/item'
 import { components } from 'react-select'
-import { sortIcon } from '../assets/icons'
+import { collapsedIcon } from '../assets/icons'
 import ReorderableItemList from '../components/ReorderableItemList'
-import { convertItemToItemType, capitaliseFirstLetter } from '../utils'
+import { convertItemToItemType } from '../utils'
 import { ItemIcons } from '../components/Item'
 
 const DropdownIndicator = (props): ReactElement => {
     return (
         <components.DropdownIndicator {...props}>
-            {sortIcon()}
+            {collapsedIcon()}
         </components.DropdownIndicator>
     )
 }
@@ -264,7 +264,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                             <SortContainer>
                                 <SortSelect
                                     options={sortOptions}
-                                    defaultOption={sortOptions[0]}
+                                    defaultValue={sortOptions[0]}
                                     autoFocus={false}
                                     placeholder="Sort by:"
                                     components={{ DropdownIndicator }}
@@ -284,13 +284,13 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     dataFor={'sort-direction-button'}
                                     type="default"
                                     spacing="compact"
-                                    translate={
+                                    translateZ={
                                         sortDirection ==
                                         SortDirectionEnum.Ascending
                                             ? 1
                                             : 0
                                     }
-                                    icon={'sortDirection'}
+                                    icon={'sort'}
                                     onClick={() => {
                                         sortDirection ==
                                         SortDirectionEnum.Ascending
