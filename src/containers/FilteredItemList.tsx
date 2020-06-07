@@ -268,12 +268,15 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     autoFocus={false}
                                     placeholder="Sort by:"
                                     components={{ DropdownIndicator }}
+                                    defaultIsOpen={true}
                                     styles={{
                                         ...selectStyles({
                                             fontSize: 'xxsmall',
+                                            fontWeight: themes[props.theme].fontWeights.bold
                                             theme: themes[props.theme],
                                             showDropdownIndicator: true,
                                             minWidth: '100px',
+                                            addTextShadow: true,
                                         }),
                                     }}
                                     onChange={(e) => {

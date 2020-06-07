@@ -19,7 +19,7 @@ export const StyledButton = styled.button<StyledProps>`
     color: ${(props) => props.theme.colour};
     padding: ${(props) =>
         props.iconOnly
-            ? '5px'
+            ? '2px'
             : props.spacing === 'compact'
             ? '5px 8px'
             : '8px 10px'};

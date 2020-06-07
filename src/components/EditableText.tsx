@@ -6,6 +6,8 @@ import { setEndOfContenteditable } from '../utils'
 import { Paragraph, Title, Header } from './Typography'
 import { Container } from './styled/EditableText'
 import { connect } from 'react-redux'
+import CSS from 'csstype'
+import { fontSizeType } from '../interfaces'
 
 type validation =
     | { validate: false }
@@ -24,6 +26,9 @@ interface OwnProps {
     onUpdate: (input: string) => void
     shouldSubmitOnBlur: boolean
     shouldClearOnSubmit: boolean
+    validation: validation
+    backgroundColour?: CSS.Color
+    fontSize?: fontSizeType
     readOnly?: boolean
     width?: string
     height?: string
@@ -31,7 +36,6 @@ interface OwnProps {
     style?: typeof Title | typeof Paragraph | typeof Header
     onKeyDown?: (input: string) => void
     onEditingChange?: (isEditing: boolean) => void
-    validation: validation
     onEscape?: () => void
 }
 
@@ -75,6 +79,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
         return
     }
+
     const handleBlur = (): void => {
         // Ignore events if it's read only
         if (props.readOnly) return
@@ -120,6 +125,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             props.onEscape ? props.onEscape() : null
         }
     }
+
     const handleKeyPress = (e): void => {
         const currentVal = props.innerRef.current.innerText
 
@@ -209,6 +215,8 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container
+                fontSize={props.fontSize}
+                backgroundColour={props.backgroundColour}
                 valid={props.validation.validate ? valid : true}
                 as={props.style || Paragraph}
                 readOnly={props.readOnly}

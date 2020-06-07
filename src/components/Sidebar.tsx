@@ -14,12 +14,10 @@ import {
     Footer,
     StyledHorizontalRule,
     BodyContainer,
-    SettingsContainer,
     CollapseContainer,
 } from './styled/Sidebar'
 import Button from './Button'
 import { createShortProjectName } from '../utils'
-import Settings from './Settings'
 import { Uuid } from '@typed/uuid'
 
 interface StateProps {
@@ -195,9 +193,26 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     })}
                 </BodyContainer>
                 <Footer visible={props.sidebarVisible}>
-                    <SettingsContainer collapsed={!props.sidebarVisible}>
-                        <Settings />
-                    </SettingsContainer>
+                    <StyledNavLink
+                        to="/settings"
+                        activeStyle={{
+                            backgroundColor:
+                                theme.colours.focusAltDialogBackgroundColour,
+                            borderRadius: '5px',
+                        }}
+                    >
+                        <Button
+                            icon="settings"
+                            text={props.sidebarVisible ? 'Settings' : ''}
+                            spacing={
+                                props.sidebarVisible ? 'compact' : 'default'
+                            }
+                            type="subtle"
+                            textSize="small"
+                            iconSize={props.sidebarVisible ? '16px' : '20px'}
+                            translateY={props.sidebarVisible == true ? 1 : 0}
+                        />
+                    </StyledNavLink>
                     <CollapseContainer>
                         <Button
                             spacing="compact"
@@ -210,7 +225,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             onClick={() => {
                                 props.toggleSidebar()
                             }}
-                            iconSize="16px"
+                            iconSize="18px"
                         />
                     </CollapseContainer>
                 </Footer>

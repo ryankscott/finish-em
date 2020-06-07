@@ -38,6 +38,8 @@ export type IconType =
     | 'trashPermanent'
     | 'stale'
     | 'label'
+    | 'edit'
+    | 'colour'
 
 export interface ItemType {
     id: Uuid
@@ -202,3 +204,16 @@ export interface ThemeType {
         altIconColour: CSS.Color
     }
 }
+
+export type fontSizeType =
+    | 'xxxsmall'
+    | 'xxsmall'
+    | 'xsmall'
+    | 'small'
+    | 'regular'
+    | 'large'
+    | 'xlarge'
+    | 'xxlarge'
+    | 'xxxlarge'
+
+export type fontWeightType = 'thin' | 'regular' | 'bold' | 'xbold'

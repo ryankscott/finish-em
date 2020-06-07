@@ -403,7 +403,8 @@ function Item(props: ItemProps): ReactElement {
             scheduledDateDropdownVisible ||
             repeatDropdownVisible ||
             projectDropdownVisible ||
-            convertSubtaskDropdownVisible
+            convertSubtaskDropdownVisible ||
+            moreDropdownVisible
         )
             return
 
@@ -479,16 +480,19 @@ function Item(props: ItemProps): ReactElement {
     const labelColour = props.labelId
         ? props.labels[props.labelId].colour
         : null
-
+    let moreDropdownTimeout = null
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div key={props.id} id={props.id}>
                 <Container
                     onMouseEnter={() => {
                         setMoreDropdownVisible(true)
+                        clearTimeout(moreDropdownTimeout)
                     }}
                     onMouseLeave={() => {
-                        setMoreDropdownVisible(false)
+                        moreDropdownTimeout = setTimeout(() => {
+                            setMoreDropdownVisible(false)
+                        }, 1000)
                     }}
                     key={props.id}
                     ref={container}
@@ -591,7 +595,7 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </ProjectContainer>
 
-                    <MoreContainer visible={true}>
+                    <MoreContainer visible={moreDropdownVisible}>
                         <MoreDropdown
                             itemId={props.id}
                             deleted={props.deleted}

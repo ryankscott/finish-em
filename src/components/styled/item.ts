@@ -29,7 +29,7 @@ export const Container = styled.div<ContainerProps>`
     color: ${(props) => props.theme.colours.textColour};
     background-color: ${(props) =>
         props.labelColour != null
-            ? transparentize(0.9, props.labelColour)
+            ? transparentize(0.8, props.labelColour)
             : props.theme.colours.backgroundColour};
     :focus {
         background-color: ${(props) =>

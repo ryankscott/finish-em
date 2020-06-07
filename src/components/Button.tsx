@@ -38,6 +38,8 @@ const iconMapping = {
     trashPermanent: (w, h, c) => ic.trashPermanentIcon(w, h, c),
     stale: (w, h, c) => ic.staleIcon(w, h, c),
     label: (w, h, c) => ic.labelIcon(w, h, c),
+    edit: (w, h, c) => ic.editIcon(w, h, c),
+    colour: (w, h, c) => ic.colourIcon(w, h, c),
 }
 
 interface StateProps {

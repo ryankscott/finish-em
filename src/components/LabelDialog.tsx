@@ -8,12 +8,12 @@ import {
     LabelHeader,
     LabelContainer,
     BodyContainer,
+    LabelName,
 } from './styled/LabelDialog'
 import Button from './Button'
-import { Label } from '../interfaces'
+import { Label, LabelType } from '../interfaces'
 import { Uuid } from '@typed/uuid'
 import { addLabel, deleteLabel } from '../actions/item'
-import { rgb } from 'polished'
 
 interface StateProps {
     theme: string
@@ -28,10 +28,13 @@ interface OwnProps {
     itemId: Uuid
     onClose: () => void
 }
+
 type LabelDialogProps = OwnProps & StateProps & DispatchProps
-export const LabelDialog = (props: LabelDialogProps): ReactElement => {
+function LabelDialog(props: LabelDialogProps): ReactElement {
+    const theme = themes[props.theme]
+
     return (
-        <ThemeProvider theme={themes[props.theme]}>
+        <ThemeProvider theme={theme}>
             <Container>
                 <HeaderContainer>
                     <LabelHeader>Labels</LabelHeader>
@@ -48,29 +51,33 @@ export const LabelDialog = (props: LabelDialogProps): ReactElement => {
                 <BodyContainer>
                     {Object.values(props.labels).map((m: LabelType) => {
                         return (
-                            <LabelContainer
-                                key={m.id}
-                                colour={m.colour}
-                                onClick={(e) => {
-                                    props.addLabel(props.itemId, m.id)
-                                    e.stopPropagation()
-                                    props.onClose()
-                                }}
-                            >
-                                {m.name}
-                            </LabelContainer>
+                            <div id={m.id} key={'f-' + m.id}>
+                                <LabelContainer
+                                    key={'lc-' + m.id}
+                                    colour={m.colour}
+                                    onClick={() => {
+                                        props.addLabel(props.itemId, m.id)
+                                        props.onClose()
+                                    }}
+                                >
+                                    <LabelName colour={m.colour}>
+                                        {m.name}
+                                    </LabelName>
+                                </LabelContainer>
+                            </div>
                         )
                     })}
-                    <LabelContainer
-                        key={''}
-                        colour={rgb(255,255,255,0)}
-                        onClick={(e) => {
-                            props.deleteLabel(props.itemId)
-                            e.stopPropagation()
-                            props.onClose()
-                        }}
-                    >
-                        {'No label'}
+                    <LabelContainer key={''} colour={''}>
+                        <LabelName
+                            colour={''}
+                            onClick={(e) => {
+                                props.deleteLabel(props.itemId)
+                                e.stopPropagation()
+                                props.onClose()
+                            }}
+                        >
+                            {'No label'}
+                        </LabelName>
                     </LabelContainer>
                 </BodyContainer>
             </Container>
@@ -88,8 +95,8 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
         dispatch(addLabel(id, labelId))
     },
     deleteLabel: (id: Uuid) => {
-        dispatch(deleteLabel(id)
-    }
+        dispatch(deleteLabel(id))
+    },
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(LabelDialog)

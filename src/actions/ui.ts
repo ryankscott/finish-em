@@ -19,6 +19,8 @@ export const SET_ACTIVE_ITEM = 'SET_ACTIVE_ITEM'
 export const UNDO_SET_ACTIVE_ITEM = 'UNDO_SET_ACTIVE_ITEM'
 export const REDO_SET_ACTIVE_ITEM = 'REDO_SET_ACTIVE_ITEM'
 export const TOGGLE_DARK_MODE = 'TOGGLE_DARK_MODE'
+export const RENAME_LABEL = 'RENAME_LABEL'
+export const SET_LABEL_COLOUR = 'SET_LABEL_COLOUR'
 
 interface ShowShortcutDialogAction {
     type: typeof SHOW_SHORTCUT_DIALOG
@@ -187,6 +189,32 @@ export function toggleDarkMode(): ToggleDarkModeAction {
         type: TOGGLE_DARK_MODE,
     }
 }
+export interface RenameLabelAction {
+    type: typeof RENAME_LABEL
+    id: Uuid
+    text: string
+}
+
+export function renameLabel(id: Uuid, text: string): RenameLabelAction {
+    return {
+        type: RENAME_LABEL,
+        id: id,
+        text: text,
+    }
+}
+export interface SetLabelColourAction {
+    type: typeof SET_LABEL_COLOUR
+    id: Uuid
+    colour: string
+}
+
+export function setLabelColour(id: Uuid, colour: string): SetLabelColourAction {
+    return {
+        type: SET_LABEL_COLOUR,
+        id: id,
+        colour: colour,
+    }
+}
 
 export type UIActions =
     | ShowShortcutDialogAction
@@ -208,3 +236,5 @@ export type UIActions =
     | UndoSetActiveItemAction
     | RedoSetActiveItemAction
     | ToggleDarkModeAction
+    | RenameLabelAction
+    | SetLabelColourAction

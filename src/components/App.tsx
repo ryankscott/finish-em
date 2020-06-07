@@ -15,6 +15,7 @@ import Sidebar from './Sidebar'
 import Completed from './Completed'
 import Focusbar from './Focusbar'
 import ShortcutDialog from './ShortcutDialog'
+import Settings from './Settings'
 import { app as appKeymap } from '../keymap'
 import { themes } from '../theme'
 import {
@@ -122,6 +123,10 @@ const App = (props: AppProps): ReactElement => {
         return
     }
 
+    function goToSettings(): void {
+        history.push('/settings')
+    }
+
     function goToProject(number: number): void {
         const id = props.projects.order[number]
         history.push(`/projects/${id}`)
@@ -217,6 +222,9 @@ const App = (props: AppProps): ReactElement => {
                         </Route>
                         <Route path="/labels">
                             <Labels />
+                        </Route>
+                        <Route path="/Settings">
+                            <Settings />
                         </Route>
                         <Route path="/projects/:id">
                             <ProjectWrapper projects={props.projects} />

@@ -1,6 +1,6 @@
-import { lighten, darken } from 'polished'
+import { lighten, darken, readableColor } from 'polished'
 import CSS from 'csstype'
-import { ThemeType } from './interfaces'
+import { ThemeType, fontSizeType } from './interfaces'
 import { StylesConfig } from 'react-select'
 
 export const themes: { [key: string]: ThemeType } = {
@@ -186,7 +186,7 @@ export const themes: { [key: string]: ThemeType } = {
 }
 
 interface SelectStylesProps {
-    fontSize: 'xxsmall' | 'xxxsmall'
+    fontSize: fontSizeType
     theme: ThemeType
     minWidth?: CSS.MinWidthProperty<number>
     maxHeight?: CSS.MaxHeightProperty<number>
@@ -221,15 +221,17 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
         }),
         option: (styles, { data, isFocused }) => {
+            const backgroundColour = data.color
+                ? data.color
+                : isFocused
+                ? props.theme.colours.focusBackgroundColour
+                : props.theme.colours.backgroundColour
+            console.log(backgroundColour)
             return {
                 ...styles,
                 tabIndex: 0,
-                color: props.theme.colours.textColour,
-                backgroundColor: data.color
-                    ? data.color
-                    : isFocused
-                    ? props.theme.colours.focusBackgroundColour
-                    : props.theme.colours.backgroundColour,
+                color: readableColor(backgroundColour),
+                backgroundColor: backgroundColour,
                 padding: '5px 10px',
                 margin: '0px',
                 fontFamily: props.theme.font.sansSerif,

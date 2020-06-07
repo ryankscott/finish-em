@@ -14,15 +14,20 @@ import {
     Container,
     DisabledText,
 } from './styled/LabelDropdown'
+import { transparentize } from 'polished'
 
 type OptionType = { value: string; label: string; color: CSS.Color }
 
 const generateOptions = (labels: Label): OptionType[] => {
     return [
         ...Object.values(labels).map((l) => {
-            return { value: l.id, label: l.name, color: l.colour }
+            return {
+                value: l.id,
+                label: l.name,
+                color: transparentize(0.8, l.colour),
+            }
         }),
-        { value: '', label: 'No label', color: 'inherit' },
+        { value: '', label: 'No label', color: '' },
     ]
 }
 

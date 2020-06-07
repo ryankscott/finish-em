@@ -1,11 +1,15 @@
 import styled from 'styled-components'
-
+import CSS from 'csstype'
+import { darken } from 'polished'
+import { fontSizeType } from '../../interfaces'
 interface ContainerProps {
     width: number
     height: number
     readOnly: boolean
     editing: boolean
     valid: boolean
+    backgroundColour: CSS.Color
+    fontSize: fontSizeType
 }
 
 export const Container = styled.div<ContainerProps>`
@@ -16,23 +20,37 @@ export const Container = styled.div<ContainerProps>`
     margin: 0px;
     padding: 5px 5px;
     padding-left: 10px;
-    min-height: 26px;
+    min-height: 25px;
     border-radius: 5px;
     border: 1px solid;
+    font-size: ${(props) =>
+        props.fontSize ? props.theme.fontSizes[props.fontSize] : 'auto'};
     border-color: ${(props) =>
-        props.editing ? props.theme.colours.borderColour : 'transparent'};
+        props.backgroundColour
+            ? darken(0.1, props.backgroundColour)
+            : props.editing
+            ? props.backgroundColour
+                ? props.backgroundColour
+                : props.theme.colours.borderColour
+            : 'transparent'};
     cursor: ${(props) => (props.readOnly ? 'default' : 'text')};
     color: ${(props) =>
         props.valid ? 'auto' : props.theme.colours.errorColour};
+    background-color: ${(props) =>
+        props.backgroundColour ? props.backgroundColour : 'inherit'};
     &:hover {
         background-color: ${(props) =>
-            props.readOnly
+            props.backgroundColour
+                ? darken(0.1, props.backgroundColour)
+                : props.readOnly
                 ? 'inherit'
                 : props.theme.colours.focusBackgroundColour};
     }
     &:focus {
         background-color: ${(props) =>
-            props.readOnly
+            props.backgroundColour
+                ? darken(0.1, props.backgroundColour)
+                : props.readOnly
                 ? 'inherit'
                 : props.theme.colours.focusBackgroundColour};
     }

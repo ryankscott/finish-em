@@ -1,11 +1,10 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
-import Button from './Button'
 import Switch from 'react-switch'
 import { connect } from 'react-redux'
-import { showSidebar, toggleDarkMode } from '../actions'
-import { FeatureType } from '../interfaces'
+import { toggleDarkMode, setLabelColour, renameLabel } from '../actions'
+import { FeatureType, LabelType } from '../interfaces'
 import {
     enableDragAndDrop,
     disableDragAndDrop,
@@ -15,50 +14,65 @@ import {
     Container,
     Setting,
     SettingsContainer,
+    SettingsCategory,
     SettingLabel,
+    HeaderContainer,
+    IconContainer,
+    SettingsCategoryHeader,
+    Popover,
+    StyledTwitterPicker,
+    LabelContainer,
 } from './styled/Settings'
+import { settingsIcon } from '../assets/icons'
+import { Title } from './Typography'
+import EditableText from './EditableText'
+import { transparentize } from 'polished'
+import { Uuid } from '@typed/uuid'
+import Button from './Button'
 
 interface StateProps {
     features: FeatureType
-    sidebarVisible: boolean
     theme: string
+    labels: LabelType
 }
 
 interface OwnProps {}
 
 interface DispatchProps {
-    showSidebar: () => void
     enableDragAndDrop: () => void
     disableDragAndDrop: () => void
     toggleDragAndDrop: () => void
     toggleDarkMode: () => void
+    setLabelColour: (id: Uuid, colour: string) => void
+    renameLabel: (id: Uuid, text: string) => void
 }
 
 type SettingsPickerProps = StateProps & DispatchProps & OwnProps
 
 function Settings(props: SettingsPickerProps): ReactElement {
-    const [showSettings, setShowSettings] = useState(false)
     const theme = themes[props.theme]
+    const [showColourPicker, setShowColourPicker] = useState(false)
+    const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
+
+    let labelText = null
     return (
         <ThemeProvider theme={theme}>
             <Container>
-                <Button
-                    spacing="compact"
-                    icon="settings"
-                    type="invert"
-                    onClick={() => {
-                        if (!props.sidebarVisible) {
-                            props.showSidebar()
-                            setShowSettings(true)
-                            return
-                        }
-                        setShowSettings(!showSettings)
-                    }}
-                    text={props.sidebarVisible ? 'Settings' : ''}
-                    iconSize="16px"
-                />
-                {showSettings && props.sidebarVisible && (
-                    <SettingsContainer>
+                <HeaderContainer>
+                    <IconContainer>
+                        {settingsIcon(
+                            24,
+                            24,
+                            themes[props.theme].colours.primaryColour,
+                        )}
+                    </IconContainer>
+                    <Title> Settings </Title>
+                </HeaderContainer>
+                <SettingsContainer>
+                    <SettingsCategory>
+                        <SettingsCategoryHeader>
+                            General User interface
+                        </SettingsCategoryHeader>
                         <Setting>
                             <SettingLabel>Drag and drop</SettingLabel>
                             <Switch
@@ -83,23 +97,108 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                 height={14}
                             />
                         </Setting>
-                    </SettingsContainer>
-                )}
+                    </SettingsCategory>
+                    <SettingsCategory>
+                        <SettingsCategoryHeader>Labels</SettingsCategoryHeader>
+                        {Object.values(props.labels).map((m: LabelType) => {
+                            labelText = React.createRef<HTMLInputElement>()
+                            return (
+                                <div id={m.id} key={'f-' + m.id}>
+                                    <LabelContainer key={'lc-' + m.id}>
+                                        <EditableText
+                                            key={'et-' + m.id}
+                                            input={m.name}
+                                            backgroundColour={transparentize(
+                                                0.9,
+                                                m.colour,
+                                            )}
+                                            fontSize={'xxsmall'}
+                                            innerRef={labelText}
+                                            shouldSubmitOnBlur={true}
+                                            onEscape={() => {
+                                                labelText.current.blur()
+                                            }}
+                                            validation={{ validate: false }}
+                                            singleline={true}
+                                            shouldClearOnSubmit={false}
+                                            onUpdate={(e) => {
+                                                props.renameLabel(m.id, e)
+                                                labelText.current.blur()
+                                            }}
+                                        ></EditableText>
+                                        <Button
+                                            id={m.id}
+                                            key={'col-' + m.id}
+                                            icon="colour"
+                                            iconSize={'18px'}
+                                            spacing="compact"
+                                            type="default"
+                                            onClick={(e) => {
+                                                setShowColourPicker(
+                                                    !showColourPicker,
+                                                )
+                                                console.log(
+                                                    document.getElementById(
+                                                        m.id,
+                                                    ).offsetTop,
+                                                )
+                                                setColourPickerTriggeredBy(m.id)
+                                                e.stopPropagation()
+                                            }}
+                                        />
+                                    </LabelContainer>
+                                </div>
+                            )
+                        })}
+                        {showColourPicker && (
+                            <Popover
+                                top={
+                                    document.getElementById(
+                                        colourPickerTriggeredBy,
+                                    ).offsetTop + 25
+                                }
+                                left={
+                                    document.getElementById(
+                                        colourPickerTriggeredBy,
+                                    ).offsetLeft
+                                }
+                            >
+                                <StyledTwitterPicker
+                                    key={'tp-'}
+                                    width={'210px'}
+                                    triangle={'hide'}
+                                    colors={[
+                                        theme.colours.primaryColour,
+                                        theme.colours.secondaryColour,
+                                        theme.colours.tertiaryColour,
+                                        theme.colours.quarternaryColour,
+                                        theme.colours.penternaryColour,
+                                    ]}
+                                    onChange={(colour, e) => {
+                                        props.setLabelColour(
+                                            colourPickerTriggeredBy,
+                                            colour.hex,
+                                        )
+                                        setShowColourPicker(false)
+                                        e.stopPropagation()
+                                    }}
+                                />
+                            </Popover>
+                        )}
+                    </SettingsCategory>
+                </SettingsContainer>
             </Container>
         </ThemeProvider>
     )
 }
 const mapStateToProps = (state): StateProps => ({
     features: state.features,
-    sidebarVisible: state.ui.sidebarVisible,
     theme: state.ui.theme,
+    labels: state.ui.labels,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleDarkMode: () => {
         dispatch(toggleDarkMode())
-    },
-    showSidebar: () => {
-        dispatch(showSidebar())
     },
     enableDragAndDrop: () => {
         dispatch(enableDragAndDrop())
@@ -109,6 +208,12 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     toggleDragAndDrop: () => {
         dispatch(toggleDragAndDrop())
+    },
+    setLabelColour: (id: Uuid, colour: string) => {
+        dispatch(setLabelColour(id, colour))
+    },
+    renameLabel: (id: Uuid, text: string) => {
+        dispatch(renameLabel(id, text))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Settings)
