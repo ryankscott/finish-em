@@ -226,7 +226,6 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
                 : isFocused
                 ? props.theme.colours.focusBackgroundColour
                 : props.theme.colours.backgroundColour
-            console.log(backgroundColour)
             return {
                 ...styles,
                 tabIndex: 0,
