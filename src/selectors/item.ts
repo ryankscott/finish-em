@@ -93,6 +93,38 @@ export const getFilteredItems = (state, props): Item => {
                     },
                     props.renderingStrategy,
                 )
+            case 'SHOW_BY_LABEL':
+                return filterItems(
+                    items,
+                    (i) => {
+                        return (
+                            i.deleted == false &&
+                            i.type == 'TODO' &&
+                            i.labelId == props.filter.params.labelId
+                        )
+                    },
+                    props.renderingStrategy,
+                )
+            case 'SHOW_BY_LABEL_ON_DAY':
+                return filterItems(
+                    items,
+                    (i) => {
+                        return (
+                            i.deleted == false &&
+                            i.type == 'TODO' &&
+                            i.labelId == props.filter.params.labelId &&
+                            (isSameDay(
+                                parseISO(i.scheduledDate),
+                                parseISO(props.filter.params.scheduledDate),
+                            ) ||
+                                isSameDay(
+                                    parseISO(i.dueDate),
+                                    parseISO(props.filter.params.dueDate),
+                                ))
+                        )
+                    },
+                    props.renderingStrategy,
+                )
             default:
                 throw new Error('Unknown filter: ' + props.filter)
         }
