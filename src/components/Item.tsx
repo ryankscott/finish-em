@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { RRule } from 'rrule'
 import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
-import { ItemType, ProjectType, Items, Label } from '../interfaces'
+import { ItemType, ProjectType, Item, Label } from '../interfaces'
 import {
     Body,
     Container,
@@ -49,6 +49,7 @@ import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
 import MoreDropdown from './MoreDropdown'
 import Tooltip from './Tooltip'
+import { getAllItems } from '../selectors/item'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
 export enum ItemIcons {
@@ -77,7 +78,7 @@ interface DispatchProps {
 }
 interface StateProps {
     projects: ProjectType[]
-    items: Items
+    items: Item
     theme: string
     labels: Label
 }
@@ -472,7 +473,7 @@ function Item(props: ItemProps): ReactElement {
         ? formatRelativeDate(parseISO(props.scheduledDate))
         : ''
     const subtaskText = props.parentId
-        ? removeItemTypeFromString(props.items.items[props.parentId].text)
+        ? removeItemTypeFromString(props.items[props.parentId].text)
         : ''
 
     const labelName = props.labelId ? props.labels[props.labelId].name : null
@@ -737,7 +738,7 @@ function Item(props: ItemProps): ReactElement {
             </div>
             {!hideChildren &&
                 props.children?.map((c) => {
-                    const childItem = props.items.items[c]
+                    const childItem = props.items[c]
                     // Sometimes the child item has been filtered out, so we don't want to render an empty container
                     if (!childItem) return
                     return (
@@ -778,7 +779,7 @@ function Item(props: ItemProps): ReactElement {
 
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
-    items: state.items,
+    items: getAllItems(state),
     theme: state.ui.theme,
     labels: state.ui.labels,
 })
