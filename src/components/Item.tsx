@@ -743,33 +743,14 @@ function Item(props: ItemProps): ReactElement {
                     if (!childItem) return
                     return (
                         <Item
-                            {...childItem}
                             key={c}
-                            items={props.items}
-                            noIndentOnSubtasks={props.noIndentOnSubtasks}
+                            {...props}
+                            {...childItem}
                             hideIcons={
                                 props.hideIcons
                                     ? [...props.hideIcons, ItemIcons.Subtask]
                                     : [ItemIcons.Subtask]
                             }
-                            labels={props.labels}
-                            theme={props.theme}
-                            keymap={props.keymap}
-                            projects={props.projects}
-                            updateItemDescription={props.updateItemDescription}
-                            setScheduledDate={props.setScheduledDate}
-                            setDueDate={props.setDueDate}
-                            setRepeatRule={props.setRepeatRule}
-                            moveItem={props.moveItem}
-                            completeItem={props.completeItem}
-                            uncompleteItem={props.uncompleteItem}
-                            createSubTask={props.createSubTask}
-                            deleteItem={props.deleteItem}
-                            undeleteItem={props.undeleteItem}
-                            showFocusbar={props.showFocusbar}
-                            setActiveItem={props.setActiveItem}
-                            convertSubtask={props.convertSubtask}
-                            changeParentItem={props.changeParentItem}
                         />
                     )
                 })}
