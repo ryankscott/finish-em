@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 import { Paragraph } from '../Typography'
 import CSS from 'csstype'
-import { readableColor, transparentize } from 'polished'
+import { transparentize } from 'polished'
 
 export const Container = styled.div`
     position: absolute;
@@ -37,10 +37,7 @@ interface LabelNameProps {
 }
 export const LabelName = styled.div<LabelNameProps>`
     font-size: ${(props) => props.theme.fontSizes.xxsmall};
-    color: ${(props) =>
-        readableColor(
-            props.colour ? props.colour : props.theme.colours.backgroundColour,
-        )};
+    color: ${(props) => props.theme.colours.textColour};
     padding: 2px;
     padding-left: 10px;
     &:hover {
