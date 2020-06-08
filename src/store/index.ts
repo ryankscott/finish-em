@@ -3,7 +3,13 @@ import rootReducer from '../reducers'
 import { createMigrate, persistStore, persistReducer } from 'redux-persist'
 import isElectron from 'is-electron'
 import storage from 'redux-persist/lib/storage'
-import { Items, ItemType, ProjectType, Projects } from '../interfaces'
+import {
+    Items,
+    ItemType,
+    ProjectType,
+    Projects,
+    FilterEnum,
+} from '../interfaces'
 
 let createElectronStorage
 if (isElectron()) {
@@ -141,12 +147,42 @@ const migrations = {
             },
         }
     },
+    9: (state) => {
+        return {
+            ...state,
+            extensions: {
+                '0dd1d2ee-2a95-47e4-9c27-6d429d284c18': {
+                    id: '0dd1d2ee-2a95-47e4-9c27-6d429d284c18',
+                    path: '/dailyAgenda',
+                    location: 'main',
+                    component: {
+                        name: 'FilteredItemList',
+                        props: {
+                            hideIcons: [],
+                            isFilterable: true,
+                            listName: 'Pending Items',
+                            filter: {
+                                type: 'default',
+                                filter: FilterEnum.ShowByLabelOnDay,
+                                params: {
+                                    labelId:
+                                        'a342c159-9691-4684-a109-156ba46c1ea4',
+                                    scheduledDate: new Date(),
+                                    dueDate: new Date(),
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        }
+    },
 }
 
 let persistConfig
 if (isElectron()) {
     persistConfig = {
-        version: 8,
+        version: 9,
         key: 'root',
         debug: true,
         storage: createElectronStorage(),
@@ -154,7 +190,7 @@ if (isElectron()) {
     }
 } else {
     persistConfig = {
-        version: 8,
+        version: 9,
         key: 'root',
         debug: true,
         storage,

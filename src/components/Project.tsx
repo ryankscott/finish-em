@@ -12,15 +12,14 @@ import {
 } from '../actions'
 import { Title } from './Typography'
 import EditableText from './EditableText'
-import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
+import FilteredItemList from '../containers/FilteredItemList'
 import DeleteProjectDialog from './DeleteProjectDialog'
 import { Uuid } from '@typed/uuid'
-import { ProjectType } from '../interfaces'
+import { ProjectType, FilterEnum } from '../interfaces'
 import {
     ProjectContainer,
     HeaderContainer,
     AddProjectContainer,
-    StaleContainer,
 } from './styled/Project'
 import ItemCreator from './ItemCreator'
 import { ItemIcons } from './Item'

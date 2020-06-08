@@ -3,11 +3,17 @@ import { ThemeProvider } from 'styled-components'
 import { format, sub, add } from 'date-fns'
 import { connect } from 'react-redux'
 import { themes } from '../theme'
-import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
-import { Paragraph, Title, Header1 } from './Typography'
+import FilteredItemList from '../containers/FilteredItemList'
+import { useHistory } from 'react-router-dom'
+import { Paragraph, Header1 } from './Typography'
 import EditableText from './EditableText'
 import { setDailyGoal } from '../actions'
-import { ItemType, RenderingStrategy } from '../interfaces'
+import {
+    ItemType,
+    RenderingStrategy,
+    Extensions,
+    FilterEnum,
+} from '../interfaces'
 import {
     AgendaContainer,
     DateContainer,
@@ -22,6 +28,7 @@ interface StateProps {
     dailyGoal: any[]
     items: ItemType[]
     theme: string
+    extensions: Extensions
 }
 interface DispatchProps {
     setDailyGoal: (day: string, input: string) => void
@@ -31,6 +38,7 @@ type DailyAgendaProps = StateProps & DispatchProps
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     const [date, setDate] = useState(new Date())
     const editor = React.createRef<HTMLInputElement>()
+    const history = useHistory()
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <AgendaContainer>
@@ -82,6 +90,26 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     shouldSubmitOnBlur={true}
                     shouldClearOnSubmit={false}
                 />
+                {props.extensions &&
+                    Object.values(props.extensions).map((e) => {
+                        if (e.path == history.location.pathname) {
+                            if (e.location == 'main') {
+                                switch (e.component.name) {
+                                    case 'FilteredItemList':
+                                        return (
+                                            <Section key={e.id}>
+                                                <FilteredItemList
+                                                    {...e.component.props}
+                                                />
+                                            </Section>
+                                        )
+                                        break
+                                    default:
+                                        break
+                                }
+                            }
+                        }
+                    })}
                 <Section>
                     <FilteredItemList
                         isFilterable={true}
@@ -127,6 +155,7 @@ const mapStateToProps = (state): StateProps => ({
     items: state.items,
     dailyGoal: state.dailyGoal,
     theme: state.ui.theme,
+    extensions: state.extensions,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     setDailyGoal: (day, text) => {

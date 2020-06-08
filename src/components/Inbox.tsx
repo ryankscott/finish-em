@@ -1,13 +1,14 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
-import FilteredItemList, { FilterEnum } from '../containers/FilteredItemList'
+import FilteredItemList from '../containers/FilteredItemList'
 import { Title } from './Typography'
 import { Container, IconContainer, Header } from './styled/Inbox'
 import ItemCreator from './ItemCreator'
 import { ItemIcons } from './Item'
 import { connect } from 'react-redux'
 import { inboxIcon } from '../assets/icons'
+import { FilterEnum } from '../interfaces'
 
 interface StateProps {
     theme: string

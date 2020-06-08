@@ -1,5 +1,6 @@
 import { Uuid } from '@typed/uuid'
 import CSS from 'csstype'
+import { OwnProps } from './containers/FilteredItemList'
 
 export enum RenderingStrategy {
     Default = 'DEFAULT',
@@ -109,7 +110,7 @@ export interface UIType {
     shortcutDialogVisible: boolean
     createProjectDialogVisible: boolean
     deleteProjectDialogVisible: boolean
-    labels: LabelType
+    labels: Label
 }
 
 export interface FeatureType {
@@ -204,6 +205,21 @@ export interface ThemeType {
         altIconColour: CSS.Color
     }
 }
+export type ExtensionComponent = {
+    name: 'FilteredItemList'
+    props: OwnProps
+}
+
+export interface ExtensionType {
+    id: string
+    path: string
+    location: 'main' | 'focusBar' | 'sideBar'
+    component: ExtensionComponent
+}
+
+export interface Extensions {
+    [key: string]: ExtensionType
+}
 
 export type fontSizeType =
     | 'xxxsmall'
@@ -217,3 +233,93 @@ export type fontSizeType =
     | 'xxxlarge'
 
 export type fontWeightType = 'thin' | 'regular' | 'bold' | 'xbold'
+
+export enum FilterEnum {
+    ShowAll = 'SHOW_ALL',
+    ShowDeleted = 'SHOW_DELETED',
+    ShowInbox = 'SHOW_INBOX',
+    ShowCompleted = 'SHOW_COMPLETED',
+    ShowScheduled = 'SHOW_SCHEDULED',
+    ShowScheduledOnDay = 'SHOW_SCHEDULED_ON_DAY',
+    ShowDueOnDay = 'SHOW_DUE_ON_DAY',
+    ShowNotScheduled = 'SHOW_NOT_SCHEDULED',
+    ShowFromProjectByType = 'SHOW_FROM_PROJECT_BY_TYPE',
+    ShowOverdue = 'SHOW_OVERDUE',
+    ShowByLabel = 'SHOW_BY_LABEL',
+    ShowByLabelOnDay = 'SHOW_BY_LABEL_ON_DAY',
+}
+
+// TODO: I think all the Dates should be strings
+export type FilterType =
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowAll
+          params: {}
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowDeleted
+          params: {}
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowInbox
+          params: {}
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowCompleted
+          params: {}
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowScheduled
+          params: {}
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowDueOnDay
+          params: { dueDate: Date }
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowScheduledOnDay
+          params: { scheduledDate: Date }
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowNotScheduled
+          params: {}
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowFromProjectByType
+          params: { projectId: Uuid; type: 'TODO' | 'NOTE' }
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowOverdue
+          params: { scheduledDate: Date; dueDate: Date }
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowByLabel
+          params: { labelId: string }
+      }
+    | {
+          type: 'default'
+          filter: FilterEnum.ShowByLabelOnDay
+          params: { labelId: string; dueDate: Date; scheduledDate: Date }
+      }
+    | {
+          type: 'custom'
+          filter: (input: ItemType) => boolean
+          params?: {}
+      }
+
+export interface FilterParamsType {
+    dueDate?: Date
+    scheduledDate?: Date
+    projectId?: Uuid
+    type?: 'TODO' | 'NOTE'
+}

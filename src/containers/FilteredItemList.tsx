@@ -3,8 +3,14 @@ import ItemList from '../components/ItemList'
 import { orderBy } from 'lodash'
 import { themes, selectStyles } from '../theme'
 import { Header1, Paragraph } from '../components/Typography'
-import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
-import { Uuid } from '@typed/uuid'
+import {
+    ItemType,
+    FeatureType,
+    Item,
+    RenderingStrategy,
+    FilterType,
+    FilterEnum,
+} from '../interfaces'
 import {
     Container,
     HeaderBar,
@@ -77,26 +83,6 @@ export enum SortDirectionEnum {
     Descending = 'desc',
 }
 
-export enum FilterEnum {
-    ShowAll = 'SHOW_ALL',
-    ShowDeleted = 'SHOW_DELETED',
-    ShowInbox = 'SHOW_INBOX',
-    ShowCompleted = 'SHOW_COMPLETED',
-    ShowScheduled = 'SHOW_SCHEDULED',
-    ShowScheduledOnDay = 'SHOW_SCHEDULED_ON_DAY',
-    ShowDueOnDay = 'SHOW_DUE_ON_DAY',
-    ShowNotScheduled = 'SHOW_NOT_SCHEDULED',
-    ShowFromProjectByType = 'SHOW_FROM_PROJECT_BY_TYPE',
-    ShowOverdue = 'SHOW_OVERDUE',
-}
-
-interface FilterParamsType {
-    dueDate?: Date
-    scheduledDate?: Date
-    projectId?: Uuid
-    type?: 'TODO' | 'NOTE'
-}
-
 const determineVisibilityRules = (
     filter: FilterType,
     isFilterable: boolean,
@@ -146,19 +132,7 @@ interface DispatchProps {
     deleteCompletedItems: (completedItems: ItemType[]) => void
 }
 
-type FilterType =
-    | {
-          type: 'default'
-          filter: FilterEnum
-          params?: FilterParamsType
-      }
-    | {
-          type: 'custom'
-          filter: (input: ItemType) => boolean
-          params?: {}
-      }
-
-interface OwnProps {
+export interface OwnProps {
     filter: FilterType
     hideIcons: ItemIcons[]
     isFilterable?: boolean
@@ -167,7 +141,7 @@ interface OwnProps {
     defaultSortOrder?: SortCriteriaEnum
     noIndentOnSubtasks?: boolean
 }
-type FilteredItemListProps = StateProps & DispatchProps & OwnProps
+export type FilteredItemListProps = StateProps & DispatchProps & OwnProps
 
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const [sortCriteria, setSortCriteria] = useState(SortCriteriaEnum.Due)
@@ -211,7 +185,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     <Button
                         type="default"
                         icon={'expand'}
-                        rotate={hideItemList == true ? 1 : 0}
+                        rotate={hideItemList == true ? 0 : 1}
                         onClick={() => setHideItemList(!hideItemList)}
                     ></Button>
                     <Header1>
@@ -276,11 +250,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     styles={{
                                         ...selectStyles({
                                             fontSize: 'xxsmall',
-                                            fontWeight: themes[props.theme].fontWeights.bold
                                             theme: themes[props.theme],
                                             showDropdownIndicator: true,
                                             minWidth: '100px',
-                                            addTextShadow: true,
                                         }),
                                     }}
                                     onChange={(e) => {
