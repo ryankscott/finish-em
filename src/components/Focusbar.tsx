@@ -83,7 +83,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     const scheduledDate = i.scheduledDate
         ? formatRelativeDate(parseISO(i.scheduledDate))
         : 'Schedule'
-    const subtaskText = i.parentId
+    const parentText = i.parentId
         ? removeItemTypeFromString(props.items.items[i.parentId].text)
         : 'Convert to subtask'
 
@@ -263,7 +263,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         <SubtaskDropdown
                             disableClick={i.deleted}
                             itemId={i.id}
-                            text={subtaskText}
+                            text={parentText}
                             parentId={i.parentId}
                             completed={i.completed}
                             onSubmit={(parentId) => {

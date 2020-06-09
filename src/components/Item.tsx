@@ -15,9 +15,13 @@ import {
     RepeatContainer,
     TypeContainer,
     ProjectContainer,
-    ConvertSubtaskContainer,
+    ParentItemContainer,
     MoreContainer,
     LabelContainer,
+    ProjectName,
+    AttributeContainer,
+    AttributeIcon,
+    AttributeText,
 } from './styled/Item'
 
 import {
@@ -38,18 +42,20 @@ import {
     convertSubtask,
 } from '../actions'
 import { themes } from '../theme'
-import ProjectDropdown from './ProjectDropdown'
-import DatePicker from './DatePicker'
-import RepeatPicker from './RepeatPicker'
 import EditableText from './EditableText'
-import { removeItemTypeFromString, formatRelativeDate } from '../utils'
+import {
+    removeItemTypeFromString,
+    formatRelativeDate,
+    capitaliseFirstLetter,
+    rruleToText,
+} from '../utils'
 import { parseISO, differenceInDays } from 'date-fns'
 import Button from './Button'
 import ItemCreator from './ItemCreator'
-import SubtaskDropdown from './SubtaskDropdown'
 import MoreDropdown from './MoreDropdown'
 import Tooltip from './Tooltip'
 import { getAllItems } from '../selectors/item'
+import { scheduledIcon, dueIcon, repeatIcon } from '../assets/icons'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
 export enum ItemIcons {
@@ -472,7 +478,11 @@ function Item(props: ItemProps): ReactElement {
     const scheduledDateText = props.scheduledDate
         ? formatRelativeDate(parseISO(props.scheduledDate))
         : ''
-    const subtaskText = props.parentId
+    const repeatText = props.repeat
+        ? capitaliseFirstLetter(rruleToText(props.repeat))
+        : 'Repeat'
+
+    const parentTaskText = props.parentId
         ? removeItemTypeFromString(props.items[props.parentId].text)
         : ''
 
@@ -482,6 +492,7 @@ function Item(props: ItemProps): ReactElement {
         ? props.labels[props.labelId].colour
         : null
     let moreDropdownTimeout = null
+    console.log(props.projectId != '0')
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div key={props.id} id={props.id}>
@@ -577,23 +588,11 @@ function Item(props: ItemProps): ReactElement {
                             !hiddenIcons?.includes(ItemIcons.Project)
                         }
                     >
-                        <ProjectDropdown
-                            key={'pd' + props.id}
-                            style={'default'}
-                            showSelect={projectDropdownVisible}
-                            disableClick={true}
-                            projectId={props.projectId}
-                            completed={props.completed}
-                            onEscape={() => {
-                                setProjectDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                            onSubmit={(projectId) => {
-                                props.moveItem(props.id, projectId)
-                                setProjectDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                        />
+                        <ProjectName>
+                            {props.projectId != '0'
+                                ? props.projects[props.projectId]
+                                : 'Inbox'}
+                        </ProjectName>
                     </ProjectContainer>
 
                     <MoreContainer visible={moreDropdownVisible}>
@@ -602,36 +601,18 @@ function Item(props: ItemProps): ReactElement {
                             deleted={props.deleted}
                         ></MoreDropdown>
                     </MoreContainer>
-                    <ConvertSubtaskContainer
+                    <ParentItemContainer
                         visible={
                             !hiddenIcons.includes(ItemIcons.Subtask) &&
                             (convertSubtaskDropdownVisible ||
                                 props.parentId != null)
                         }
                     >
-                        <SubtaskDropdown
-                            key={'st' + props.id}
-                            itemId={props.id}
-                            text={subtaskText}
-                            showSelect={convertSubtaskDropdownVisible}
-                            disableClick={true}
-                            parentId={props.parentId}
-                            completed={props.completed}
-                            onEscape={() => {
-                                setConvertSubtaskDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                            onSubmit={(parentId) => {
-                                if (parentId) {
-                                    props.changeParentItem(props.id, parentId)
-                                } else {
-                                    props.convertSubtask(props.id)
-                                }
-                                setConvertSubtaskDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                        />
-                    </ConvertSubtaskContainer>
+                        <AttributeContainer completed={props.completed}>
+                            <AttributeIcon> {repeatIcon(14, 14)}</AttributeIcon>
+                            <AttributeText>{parentTaskText}</AttributeText>
+                        </AttributeContainer>
+                    </ParentItemContainer>
                     <ScheduledContainer
                         visible={
                             (scheduledDateDropdownVisible ||
@@ -639,25 +620,12 @@ function Item(props: ItemProps): ReactElement {
                             !hiddenIcons?.includes(ItemIcons.Scheduled)
                         }
                     >
-                        <DatePicker
-                            showSelect={scheduledDateDropdownVisible}
-                            disableClick={true}
-                            key={'sd' + props.id}
-                            style={'subtleInvert'}
-                            placeholder={'Scheduled on: '}
-                            onSubmit={(d) => {
-                                props.setScheduledDate(props.id, d)
-                                setScheduledDateDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                            icon="scheduled"
-                            onEscape={() => {
-                                setScheduledDateDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                            text={scheduledDateText}
-                            completed={props.completed}
-                        />
+                        <AttributeContainer completed={props.completed}>
+                            <AttributeIcon>
+                                {scheduledIcon(14, 14)}
+                            </AttributeIcon>
+                            <AttributeText>{scheduledDateText}</AttributeText>
+                        </AttributeContainer>
                     </ScheduledContainer>
                     <DueContainer
                         visible={
@@ -665,25 +633,10 @@ function Item(props: ItemProps): ReactElement {
                             !hiddenIcons.includes(ItemIcons.Due)
                         }
                     >
-                        <DatePicker
-                            showSelect={dueDateDropdownVisible}
-                            disableClick={true}
-                            style={'subtleInvert'}
-                            key={'dd' + props.id}
-                            placeholder={'Due on: '}
-                            onSubmit={(d) => {
-                                props.setDueDate(props.id, d)
-                                setDueDateDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                            onEscape={() => {
-                                setDueDateDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                            icon="due"
-                            text={dueDateText}
-                            completed={props.completed}
-                        />
+                        <AttributeContainer completed={props.completed}>
+                            <AttributeIcon> {dueIcon(14, 14)}</AttributeIcon>
+                            <AttributeText>{dueDateText}</AttributeText>
+                        </AttributeContainer>
                     </DueContainer>
                     <RepeatContainer
                         visible={
@@ -691,29 +644,10 @@ function Item(props: ItemProps): ReactElement {
                             !hiddenIcons.includes(ItemIcons.Repeat)
                         }
                     >
-                        <RepeatPicker
-                            id={props.id}
-                            showSelect={repeatDropdownVisible}
-                            disableClick={true}
-                            style={'subtleInvert'}
-                            completed={props.completed}
-                            repeat={
-                                props.repeat
-                                    ? RRule.fromString(props.repeat)
-                                    : null
-                            }
-                            key={'rp' + props.id}
-                            placeholder={'Repeat: '}
-                            onEscape={() => {
-                                setRepeatDropdownVisible(false)
-                                container.current.focus()
-                            }}
-                            onSubmit={(r) => {
-                                setRepeatDropdownVisible(false)
-                                props.setRepeatRule(props.id, r)
-                                container.current.focus()
-                            }}
-                        />
+                        <AttributeContainer completed={props.completed}>
+                            <AttributeIcon> {repeatIcon(14, 14)}</AttributeIcon>
+                            <AttributeText>{repeatText}</AttributeText>
+                        </AttributeContainer>
                     </RepeatContainer>
                 </Container>
                 <QuickAdd visible={createSubtaskDropdownVisible}>

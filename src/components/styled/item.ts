@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import CSS from 'csstype'
 import { transparentize } from 'polished'
+import { Paragraph } from '../Typography'
 
 interface ContainerProps {
     isSubtask: boolean
@@ -20,7 +21,7 @@ export const Container = styled.div<ContainerProps>`
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
         'LABEL EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
-        'LABEL . SUBTASK SUBTASK SUBTASK . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
+        'LABEL . PARENT PARENT PARENT . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
     border: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-color: ${(props) => props.theme.colours.borderColour};
     padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
@@ -77,6 +78,16 @@ export const ProjectContainer = styled.div<ProjectContainerProps>`
     justify-content: flex-end;
 `
 
+export const ProjectName = styled.div`
+    font-size: ${(props) => props.theme.fontSizes.xxsmall};
+    color: ${(props) => props.theme.colours.altTextColour};
+    border-radius: 5px;
+    border: 1px solid;
+    padding: 2px 5px;
+    border-color: ${(props) => props.theme.colours.primaryColour};
+    background-color: ${(props) => props.theme.colours.primaryColour};
+`
+
 interface ScheduledContainerProps {
     visible: boolean
 }
@@ -105,11 +116,11 @@ export const RepeatContainer = styled.div<RepeatContainerProps>`
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: center;
 `
-interface ConvertSubtaskContainerProps {
+interface ParentItemContainerProps {
     visible: boolean
 }
-export const ConvertSubtaskContainer = styled.div<ConvertSubtaskContainerProps>`
-    grid-area: SUBTASK;
+export const ParentItemContainer = styled.div<ParentItemContainerProps>`
+    grid-area: PARENT;
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-start;
@@ -139,4 +150,25 @@ export const LabelContainer = styled.div<LabelContainerProps>`
             : props.theme.colours.borderColour};
     height: calc(100% + 10px);
     width: 100%;
+`
+interface AttributeContainerProps {
+    completed: boolean
+}
+export const AttributeContainer = styled.div<AttributeContainerProps>`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0px 5px;
+    margin: 0px 2px;
+    text-decoration: ${(props) =>
+        props.completed ? 'strike-through' : 'none'};
+`
+
+export const AttributeIcon = styled.div`
+    display: flex;
+    padding-right: 2px;
+    align-items: center;
+`
+export const AttributeText = styled(Paragraph)`
+    font-size: ${(props) => props.theme.fontSizes.xxsmall};
 `
