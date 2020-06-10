@@ -305,7 +305,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     ) : (
                         <ItemList
                             hideIcons={props.hideIcons}
-                            items={sortedItems}
+                            inputItems={sortedItems}
                             renderingStrategy={props.renderingStrategy}
                         />
                     )}
