@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useState, useEffect } from 'react'
 import ItemList from '../components/ItemList'
 import { orderBy } from 'lodash'
 import { themes, selectStyles } from '../theme'
@@ -167,6 +167,10 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
               sortCriteria,
               sortDirection,
           )
+
+    useEffect(() => {
+        setHideItemList(Object.keys(props.items).length == 0)
+    }, [props.items])
 
     const visibility = determineVisibilityRules(
         props.filter,
