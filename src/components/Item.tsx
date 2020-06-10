@@ -45,6 +45,7 @@ import MoreDropdown from './MoreDropdown'
 import Tooltip from './Tooltip'
 import { getAllItems } from '../selectors/item'
 import { scheduledIcon, dueIcon, repeatIcon } from '../assets/icons'
+import { ItemAttribute } from './ItemAttribute'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
 export enum ItemIcons {
@@ -246,10 +247,11 @@ function Item(props: ItemProps): ReactElement {
                             props.parentId != null
                         }
                     >
-                        <AttributeContainer completed={props.completed}>
-                            <AttributeIcon> {repeatIcon(14, 14)}</AttributeIcon>
-                            <AttributeText>{parentTaskText}</AttributeText>
-                        </AttributeContainer>
+                        <ItemAttribute
+                            completed={props.completed}
+                            type={'parent'}
+                            text={parentTaskText}
+                        />
                     </ParentItemContainer>
                     <ScheduledContainer
                         visible={
@@ -257,12 +259,11 @@ function Item(props: ItemProps): ReactElement {
                             !hiddenIcons?.includes(ItemIcons.Scheduled)
                         }
                     >
-                        <AttributeContainer completed={props.completed}>
-                            <AttributeIcon>
-                                {scheduledIcon(14, 14)}
-                            </AttributeIcon>
-                            <AttributeText>{scheduledDateText}</AttributeText>
-                        </AttributeContainer>
+                        <ItemAttribute
+                            completed={props.completed}
+                            type={'scheduled'}
+                            text={scheduledDateText}
+                        />
                     </ScheduledContainer>
                     <DueContainer
                         visible={
@@ -270,10 +271,11 @@ function Item(props: ItemProps): ReactElement {
                             !hiddenIcons.includes(ItemIcons.Due)
                         }
                     >
-                        <AttributeContainer completed={props.completed}>
-                            <AttributeIcon> {dueIcon(14, 14)}</AttributeIcon>
-                            <AttributeText>{dueDateText}</AttributeText>
-                        </AttributeContainer>
+                        <ItemAttribute
+                            completed={props.completed}
+                            type={'due'}
+                            text={dueDateText}
+                        />
                     </DueContainer>
                     <RepeatContainer
                         visible={
@@ -281,10 +283,11 @@ function Item(props: ItemProps): ReactElement {
                             !hiddenIcons.includes(ItemIcons.Repeat)
                         }
                     >
-                        <AttributeContainer completed={props.completed}>
-                            <AttributeIcon> {repeatIcon(14, 14)}</AttributeIcon>
-                            <AttributeText>{repeatText}</AttributeText>
-                        </AttributeContainer>
+                        <ItemAttribute
+                            completed={props.completed}
+                            type={'repeat'}
+                            text={repeatText}
+                        />
                     </RepeatContainer>
                 </Container>
             </div>

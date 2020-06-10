@@ -66,7 +66,6 @@ interface OwnProps {
     placeholder: string
     completed: boolean
     style?: 'default' | 'subtle' | 'subtleInvert'
-    disableClick?: boolean
 }
 
 type RepeatPickerProps = OwnProps & StateProps
@@ -86,26 +85,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
         return
     }
 
-    const generateDisabledElement = (
-        id: string,
-        shortText: string,
-        longText: string,
-        completed: boolean,
-    ): ReactElement => {
-        return (
-            <>
-                <DisabledContainer
-                    data-for={'disabled-repeat-' + id}
-                    data-tip
-                    completed={completed}
-                >
-                    <IconContainer>{repeatIcon(12, 12)}</IconContainer>
-                    <DisabledText>{shortText}</DisabledText>
-                </DisabledContainer>
-                <Tooltip id={'disabled-repeat-' + id} text={longText} />
-            </>
-        )
-    }
     const repeatText = props.repeat
         ? capitaliseFirstLetter(rruleToText(props.repeat))
         : 'Repeat'
@@ -115,28 +94,19 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div>
-                {props.disableClick ? (
-                    generateDisabledElement(
-                        props.id,
-                        repeatText,
-                        repeatLongText,
-                        props.completed,
-                    )
-                ) : (
-                    <DateRenderer
-                        tooltipText={repeatLongText}
-                        completed={props.completed}
-                        icon="repeat"
-                        position="center"
-                        style={props.style}
-                        text={repeatText}
-                        onClick={(e) => {
-                            e.stopPropagation()
-                            if (props.completed) return
-                            setShowSelect(!showSelect)
-                        }}
-                    />
-                )}
+                <DateRenderer
+                    tooltipText={repeatLongText}
+                    completed={props.completed}
+                    icon="repeat"
+                    position="center"
+                    style={props.style}
+                    text={repeatText}
+                    onClick={(e) => {
+                        e.stopPropagation()
+                        if (props.completed) return
+                        setShowSelect(!showSelect)
+                    }}
+                />
 
                 {(showSelect || props.showSelect) && (
                     <>

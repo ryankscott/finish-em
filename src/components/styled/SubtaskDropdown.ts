@@ -24,11 +24,3 @@ export const Project = styled.div`
     background-color: ${(props) => props.theme.colours.primaryColour};
     border-radius: 5px;
 `
-export const DisabledContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-`
-export const DisabledText = styled(Paragraph)`
-    font-size: ${(props) => props.theme.fontSizes.xxsmall};
-`

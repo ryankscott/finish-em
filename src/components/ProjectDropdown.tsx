@@ -8,11 +8,7 @@ import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
 import { Projects, Project, ProjectType } from '../interfaces'
-import {
-    Container,
-    DisabledContainer,
-    ProjectName,
-} from './styled/ProjectDropdown'
+import { Container } from './styled/ProjectDropdown'
 import Button from './Button'
 
 const generateOptions = (
@@ -39,7 +35,6 @@ interface OwnProps {
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     projectId: Uuid | '0'
-    disableClick?: boolean
     completed: boolean
     showSelect?: boolean
 }
@@ -63,24 +58,16 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div>
-                {props.disableClick ? (
-                    <DisabledContainer>
-                        <ProjectName>
-                            {props.projects.projects[props.projectId].name}
-                        </ProjectName>
-                    </DisabledContainer>
-                ) : (
-                    <Button
-                        spacing="compact"
-                        type={props.style || 'default'}
-                        onClick={(e) => {
-                            if (props.completed) return
-                            setShowSelect(!showSelect)
-                            e.stopPropagation()
-                        }}
-                        text={props.projects.projects[props.projectId].name}
-                    />
-                )}
+                <Button
+                    spacing="compact"
+                    type={props.style || 'default'}
+                    onClick={(e) => {
+                        if (props.completed) return
+                        setShowSelect(!showSelect)
+                        e.stopPropagation()
+                    }}
+                    text={props.projects.projects[props.projectId].name}
+                />
                 {(showSelect || props.showSelect) && (
                     <Container visible={props.projects.order.length > 1}>
                         <CreatableSelect
