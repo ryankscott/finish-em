@@ -360,7 +360,7 @@ function ItemList(props: ItemListProps): ReactElement {
                     handleKeyPress(e)
                 }}
             >
-                {props.inputItems.map((o, index) => {
+                {props.inputItems.map((o) => {
                     switch (props.renderingStrategy) {
                         case RenderingStrategy.All:
                             // If the item has a parent, we need to find if that parent exists in the list we've been provided
@@ -382,12 +382,28 @@ function ItemList(props: ItemListProps): ReactElement {
                                         hideIcons={props.hideIcons}
                                         keymap={itemKeymap}
                                     />
+                                    {o.children?.map((c) => {
+                                        const childItem = props.items.items[c]
+                                        return (
+                                            <Item
+                                                key={c}
+                                                noIndentOnSubtasks={false}
+                                                {...childItem}
+                                                hideIcons={
+                                                    props.hideIcons
+                                                        ? [
+                                                              ...props.hideIcons,
+                                                              ItemIcons.Subtask,
+                                                          ]
+                                                        : [ItemIcons.Subtask]
+                                                }
+                                            />
+                                        )
+                                    })}
                                 </div>
                             )
 
                         default:
-                            // Default rendering won't render children elements as they get rendered in the Item component itself
-                            if (o.parentId != null) return
                             return (
                                 <div key={'container-' + o.id}>
                                     <Item
@@ -397,10 +413,29 @@ function ItemList(props: ItemListProps): ReactElement {
                                         hideIcons={props.hideIcons}
                                         keymap={itemKeymap}
                                     />
+                                    {o.children?.map((c) => {
+                                        const childItem = props.items.items[c]
+                                        return (
+                                            <Item
+                                                key={c}
+                                                {...childItem}
+                                                noIndentOnSubtasks={false}
+                                                hideIcons={
+                                                    props.hideIcons
+                                                        ? [
+                                                              ...props.hideIcons,
+                                                              ItemIcons.Subtask,
+                                                          ]
+                                                        : [ItemIcons.Subtask]
+                                                }
+                                            />
+                                        )
+                                    })}
                                 </div>
                             )
                     }
                 })}
+
                 {props.inputItems.length == 0 && (
                     <NoItemText>No items</NoItemText>
                 )}

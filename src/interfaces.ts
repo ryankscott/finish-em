@@ -95,6 +95,10 @@ export interface LabelType {
     colour: CSS.Color
 }
 
+export interface TaskVisibility {
+    [key: string]: boolean
+}
+
 export interface Label {
     [key: string]: LabelType
 }
@@ -111,6 +115,7 @@ export interface UIType {
     createProjectDialogVisible: boolean
     deleteProjectDialogVisible: boolean
     labels: Label
+    subtasksVisible: TaskVisibility
 }
 
 export interface FeatureType {

@@ -31,6 +31,7 @@ const initialState: UIType = {
             colour: '#59cd90',
         },
     },
+    subtasksVisible: {},
 }
 export const uiReducer = produce(
     (state = initialState, action: ui.UIActions): UIType => {
@@ -144,6 +145,20 @@ export const uiReducer = produce(
 
             case ui.SET_LABEL_COLOUR:
                 state.labels[action.id].colour = action.colour
+                break
+
+            case ui.SHOW_SUBTASKS:
+                state.subtasksVisible[action.id] = true
+                break
+
+            case ui.HIDE_SUBTASKS:
+                state.subtasksVisible[action.id] = false
+                break
+
+            case ui.TOGGLE_SUBTASKS:
+                state.subtasksVisible[action.id] = !state.subtasksVisible[
+                    action.id
+                ]
                 break
 
             default:

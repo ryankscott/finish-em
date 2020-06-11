@@ -198,7 +198,7 @@ export const itemReducer = produce(
                     i.parentId = null
                     i.lastUpdatedAt = new Date().toISOString()
                 }
-                // Add need to add it to the new parent
+                // Need to add it to the new parent
                 i.parentId = action.parentId
                 i.lastUpdatedAt = new Date().toISOString()
                 const newParent = draftState.items[action.parentId]

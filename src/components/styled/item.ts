@@ -6,13 +6,14 @@ interface ContainerProps {
     isSubtask: boolean
     noIndentOnSubtasks: boolean
     labelColour: CSS.Color
+    visible: boolean
 }
 export const Container = styled.div<ContainerProps>`
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
     max-height: 200px;
     font-family: ${(props) => props.theme.font.sansSerif};
     font-size: ${(props) => props.theme.fontSizes.medium};
-    display: grid;
+    display: ${(props) => (props.visible ? 'grid' : 'none')};
     opacity: ${(props) => (props.hidden ? '0' : '1')};
     margin-left: ${(props) =>
         props.isSubtask && !props.noIndentOnSubtasks ? '20px' : '0px'};

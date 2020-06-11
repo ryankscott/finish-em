@@ -27,6 +27,7 @@ import {
     uncompleteItem,
     setActiveItem,
     showFocusbar,
+    toggleSubtasks,
 } from '../actions'
 import { themes } from '../theme'
 import EditableText from './EditableText'
@@ -60,12 +61,14 @@ interface DispatchProps {
     undeleteItem: (id: Uuid) => void
     setActiveItem: (id: Uuid) => void
     showFocusbar: () => void
+    toggleSubtasks: (id: Uuid) => void
 }
 interface StateProps {
     projects: ProjectType[]
     items: Item
     theme: string
     labels: Label
+    subtasksVisible: boolean
 }
 
 interface OwnProps extends ItemType {
@@ -79,7 +82,6 @@ type ItemProps = OwnProps & StateProps & DispatchProps
 function Item(props: ItemProps): ReactElement {
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
-    const [hideChildren, setHideChildren] = useState(true)
 
     // const [keyPresses, setKeyPresses] = useState([])
 
@@ -106,7 +108,7 @@ function Item(props: ItemProps): ReactElement {
 
     const handleExpand = (e): void => {
         e.stopPropagation()
-        setHideChildren(!hideChildren)
+        props.toggleSubtasks(props.id)
         return
     }
 
@@ -131,6 +133,13 @@ function Item(props: ItemProps): ReactElement {
         ? props.labels[props.labelId].colour
         : null
 
+    const isVisible =
+        props.parentId != null
+            ? props.subtasksVisible[props.parentId] == false
+                ? false
+                : true
+            : true
+
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div key={props.id} id={props.id}>
@@ -139,6 +148,7 @@ function Item(props: ItemProps): ReactElement {
                     ref={container}
                     noIndentOnSubtasks={props.noIndentOnSubtasks}
                     isSubtask={props.parentId != null}
+                    visible={isVisible}
                     id={props.id}
                     tabIndex={0}
                     onClick={() => {
@@ -154,7 +164,11 @@ function Item(props: ItemProps): ReactElement {
                                 type="subtleInvert"
                                 onClick={handleExpand}
                                 icon={'expand'}
-                                rotate={hideChildren == true ? 0 : 1}
+                                rotate={
+                                    props.subtasksVisible[props.id] == false
+                                        ? 0
+                                        : 1
+                                }
                             ></Button>
                         </ExpandContainer>
                     )}
@@ -276,24 +290,6 @@ function Item(props: ItemProps): ReactElement {
                     </RepeatContainer>
                 </Container>
             </div>
-            {!hideChildren &&
-                props.children?.map((c) => {
-                    const childItem = props.items[c]
-                    // Sometimes the child item has been filtered out, so we don't want to render an empty container
-                    if (!childItem) return
-                    return (
-                        <Item
-                            key={c}
-                            {...props}
-                            {...childItem}
-                            hideIcons={
-                                props.hideIcons
-                                    ? [...props.hideIcons, ItemIcons.Subtask]
-                                    : [ItemIcons.Subtask]
-                            }
-                        />
-                    )
-                })}
         </ThemeProvider>
     )
 }
@@ -303,6 +299,7 @@ const mapStateToProps = (state): StateProps => ({
     items: getAllItems(state),
     theme: state.ui.theme,
     labels: state.ui.labels,
+    subtasksVisible: state.ui.subtasksVisible,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     updateItemDescription: (id: Uuid, text: string) => {
@@ -325,6 +322,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     showFocusbar: () => {
         dispatch(showFocusbar())
+    },
+    toggleSubtasks: (id: Uuid) => {
+        dispatch(toggleSubtasks(id))
     },
 })
 

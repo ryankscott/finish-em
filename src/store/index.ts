@@ -177,12 +177,21 @@ const migrations = {
             },
         }
     },
+    10: (state) => {
+        return {
+            ...state,
+            ui: {
+                ...state.ui,
+                subtasksVisible: {},
+            },
+        }
+    },
 }
 
 let persistConfig
 if (isElectron()) {
     persistConfig = {
-        version: 9,
+        version: 10,
         key: 'root',
         debug: true,
         storage: createElectronStorage(),
@@ -190,7 +199,7 @@ if (isElectron()) {
     }
 } else {
     persistConfig = {
-        version: 9,
+        version: 10,
         key: 'root',
         debug: true,
         storage,
