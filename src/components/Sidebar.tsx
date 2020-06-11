@@ -43,16 +43,13 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/inbox"
                         activeStyle={{
-                            backgroundColor:
-                                theme.colours.focusAltDialogBackgroundColour,
+                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
                             icon="inbox"
                             text={props.sidebarVisible ? 'Inbox' : ''}
-                            spacing={
-                                props.sidebarVisible ? 'compact' : 'default'
-                            }
+                            spacing={props.sidebarVisible ? 'compact' : 'default'}
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
@@ -62,8 +59,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/dailyAgenda"
                         activeStyle={{
-                            backgroundColor:
-                                theme.colours.focusAltDialogBackgroundColour,
+                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -78,8 +74,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/unscheduled"
                         activeStyle={{
-                            backgroundColor:
-                                theme.colours.focusAltDialogBackgroundColour,
+                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -94,8 +89,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/trash"
                         activeStyle={{
-                            backgroundColor:
-                                theme.colours.focusAltDialogBackgroundColour,
+                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -110,8 +104,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/completed"
                         activeStyle={{
-                            backgroundColor:
-                                theme.colours.focusAltDialogBackgroundColour,
+                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -126,8 +119,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/stale"
                         activeStyle={{
-                            backgroundColor:
-                                theme.colours.focusAltDialogBackgroundColour,
+                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -142,8 +134,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/labels"
                         activeStyle={{
-                            backgroundColor:
-                                theme.colours.focusAltDialogBackgroundColour,
+                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
                         <Button
@@ -170,18 +161,14 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 key={p}
                                 to={pathName}
                                 activeStyle={{
-                                    backgroundColor:
-                                        theme.colours
-                                            .focusAltDialogBackgroundColour,
+                                    backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                                 }}
                             >
                                 <Button
                                     text={
                                         props.sidebarVisible
                                             ? project.name
-                                            : createShortProjectName(
-                                                  project.name,
-                                              )
+                                            : createShortProjectName(project.name)
                                     }
                                     spacing="compact"
                                     type="subtle"
@@ -196,17 +183,14 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <StyledNavLink
                         to="/settings"
                         activeStyle={{
-                            backgroundColor:
-                                theme.colours.focusAltDialogBackgroundColour,
+                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                             borderRadius: '5px',
                         }}
                     >
                         <Button
                             icon="settings"
                             text={props.sidebarVisible ? 'Settings' : ''}
-                            spacing={
-                                props.sidebarVisible ? 'compact' : 'default'
-                            }
+                            spacing={props.sidebarVisible ? 'compact' : 'default'}
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
@@ -216,11 +200,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <CollapseContainer>
                         <Button
                             spacing="compact"
-                            icon={
-                                props.sidebarVisible
-                                    ? 'slideLeft'
-                                    : 'slideRight'
-                            }
+                            icon={props.sidebarVisible ? 'slideLeft' : 'slideRight'}
                             type="invert"
                             onClick={() => {
                                 props.toggleSidebar()

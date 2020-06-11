@@ -40,6 +40,8 @@ import Tooltip from './Tooltip'
 import { Projects } from '../interfaces'
 import { Slide } from 'react-toastify'
 
+const MIN_WIDTH_FOR_SIDEBAR = 700
+
 configure({
     logLevel: 'warning',
 })
@@ -92,6 +94,12 @@ type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
+
+    window.addEventListener('resize', () => {
+        if (window.innerHeight < MIN_WIDTH_FOR_SIDEBAR && props.sidebarVisible == true) {
+            props.hideSidebar()
+        }
+    })
 
     function goToDailyAgenda(): void {
         history.push('/dailyAgenda')
@@ -246,10 +254,7 @@ const App = (props: AppProps): ReactElement => {
                         iconColour={themes[props.theme].colours.altIconColour}
                         onClick={toggleShortcutDialog}
                     ></Button>
-                    <Tooltip
-                        id="shortcut-button"
-                        text={'Show shortcuts'}
-                    ></Tooltip>
+                    <Tooltip id="shortcut-button" text={'Show shortcuts'}></Tooltip>
                 </ShortcutIcon>
             </Container>
             <StyledToastContainer
