@@ -41,7 +41,7 @@ import { parseISO, differenceInDays } from 'date-fns'
 import Button from './Button'
 import MoreDropdown from './MoreDropdown'
 import Tooltip from './Tooltip'
-import { getAllItems } from '../selectors/item'
+import { getItemParentId } from '../selectors/item'
 import { ItemAttribute } from './ItemAttribute'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -65,10 +65,10 @@ interface DispatchProps {
 }
 interface StateProps {
     projects: ProjectType[]
-    items: Item
     theme: string
     labels: Label
     subtasksVisible: boolean
+    parentItem: ItemType
 }
 
 interface OwnProps extends ItemType {
@@ -124,7 +124,7 @@ function Item(props: ItemProps): ReactElement {
         : 'Repeat'
 
     const parentTaskText = props.parentId
-        ? removeItemTypeFromString(props.items[props.parentId].text)
+        ? removeItemTypeFromString(props.parentItem.text)
         : ''
 
     const labelName = props.labelId ? props.labels[props.labelId].name : null
@@ -294,12 +294,12 @@ function Item(props: ItemProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state): StateProps => ({
+const mapStateToProps = (state, props): StateProps => ({
     projects: state.projects,
-    items: getAllItems(state),
     theme: state.ui.theme,
     labels: state.ui.labels,
     subtasksVisible: state.ui.subtasksVisible,
+    parentItem: getItemParentId(state, props),
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     updateItemDescription: (id: Uuid, text: string) => {

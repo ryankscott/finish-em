@@ -1,6 +1,6 @@
 import { endOfDay, isSameDay, isPast, parseISO } from 'date-fns'
 import { createSelector } from 'reselect'
-import { Item } from '../interfaces'
+import { Item, ItemType } from '../interfaces'
 import { filterItems } from '../utils'
 
 export const getRenderingStrategy = (state, props) => {
@@ -145,6 +145,8 @@ export const getCompletedItems = createSelector(
 )
 
 export const getAllItems = (state): Item => state.items.items
+export const getItemParentId = (state, props): ItemType =>
+    state.items.items[props.parentId]
 
 export const getUncompletedItems = createSelector(
     [getFilteredItems, getAllItems, getRenderingStrategy],
