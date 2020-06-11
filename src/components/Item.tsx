@@ -17,9 +17,6 @@ import {
     MoreContainer,
     LabelContainer,
     ProjectName,
-    AttributeContainer,
-    AttributeIcon,
-    AttributeText,
 } from './styled/Item'
 
 import {
@@ -44,7 +41,6 @@ import Button from './Button'
 import MoreDropdown from './MoreDropdown'
 import Tooltip from './Tooltip'
 import { getAllItems } from '../selectors/item'
-import { scheduledIcon, dueIcon, repeatIcon } from '../assets/icons'
 import { ItemAttribute } from './ItemAttribute'
 //import { useHotkeys } from 'react-hotkeys-hook'
 
@@ -83,7 +79,6 @@ type ItemProps = OwnProps & StateProps & DispatchProps
 function Item(props: ItemProps): ReactElement {
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
-    const [moreDropdownVisible, setMoreDropdownVisible] = useState(false)
     const [hideChildren, setHideChildren] = useState(true)
 
     // const [keyPresses, setKeyPresses] = useState([])
@@ -123,7 +118,7 @@ function Item(props: ItemProps): ReactElement {
         : ''
 
     const repeatText = props.repeat
-        ? capitaliseFirstLetter(rruleToText(RRule.fromText(props.repeat)))
+        ? capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat)))
         : 'Repeat'
 
     const parentTaskText = props.parentId
@@ -135,21 +130,11 @@ function Item(props: ItemProps): ReactElement {
     const labelColour = props.labelId
         ? props.labels[props.labelId].colour
         : null
-    let moreDropdownTimeout = null
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div key={props.id} id={props.id}>
                 <Container
-                    onMouseOver={() => {
-                        setMoreDropdownVisible(true)
-                        clearTimeout(moreDropdownTimeout)
-                    }}
-                    onMouseLeave={() => {
-                        moreDropdownTimeout = setTimeout(() => {
-                            setMoreDropdownVisible(false)
-                        }, 1000)
-                    }}
                     key={props.id}
                     ref={container}
                     noIndentOnSubtasks={props.noIndentOnSubtasks}
@@ -235,7 +220,7 @@ function Item(props: ItemProps): ReactElement {
                         </ProjectName>
                     </ProjectContainer>
 
-                    <MoreContainer visible={moreDropdownVisible}>
+                    <MoreContainer visible={true}>
                         <MoreDropdown
                             itemId={props.id}
                             deleted={props.deleted}
