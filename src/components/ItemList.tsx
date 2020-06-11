@@ -13,6 +13,7 @@ import {
     completeItem,
     undeleteItem,
     deleteItem,
+    toggleSubtasks,
 } from '../actions'
 import { Uuid } from '@typed/uuid'
 
@@ -26,6 +27,7 @@ interface DispatchProps {
     uncompleteItem: (id: Uuid) => void
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
+    toggleSubtasks: (id: Uuid) => void
 }
 
 interface StateProps {
@@ -57,7 +59,9 @@ function ItemList(props: ItemListProps): ReactElement {
     const [keyPresses, setKeyPresses] = useState([])
     const handlers = {
         TODO: {
-            TOGGLE_CHILDREN: () => {},
+            TOGGLE_CHILDREN: () => {
+                props.toggleSubtasks(event.target.id)
+            },
             NEXT_ITEM: (event) => {
                 const item = props.items.items[event.target.id]
                 // If it's a parent element we need to get the first child
@@ -467,6 +471,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     uncompleteItem: (id: Uuid) => {
         dispatch(uncompleteItem(id))
+    },
+    toggleSubtasks: (id: Uuid) => {
+        dispatch(toggleSubtasks(id))
     },
 })
 
