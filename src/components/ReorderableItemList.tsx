@@ -3,7 +3,7 @@ import Item, { ItemIcons } from './Item'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
-import { ItemType, RenderingStrategy } from '../interfaces'
+import { ItemType, RenderingStrategy, Items } from '../interfaces'
 import { Container, NoItemText } from './styled/ItemList'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import uuidv4 from 'uuid/v4'
@@ -28,28 +28,23 @@ interface DispatchProps {
 }
 interface StateProps {
     theme: string
-    order: Uuid[]
+    items: Items
 }
 interface OwnProps {
-    items: ItemType[]
+    inputItems: ItemType[]
     hideIcons: ItemIcons[]
     renderingStrategy?: RenderingStrategy
 }
 
-type ReorderableItemListProps = OwnProps & StateProps
+type ReorderableItemListProps = OwnProps & StateProps & DispatchProps
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     const theme = themes[props.theme]
-    const getItemStyle = (
-        isDragging: boolean,
-        draggableStyle,
-    ): CSS.Properties => ({
+    const getItemStyle = (isDragging: boolean, draggableStyle): CSS.Properties => ({
         userSelect: 'none',
         margin: '0 0 0 0',
         // change background colour if dragging
-        background: isDragging
-            ? theme.colours.focusBackgroundColour
-            : 'inherit',
+        background: isDragging ? theme.colours.focusBackgroundColour : 'inherit',
         ...draggableStyle,
     })
     const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
@@ -62,10 +57,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         <ThemeProvider theme={theme}>
             <DragDropContext
                 onDragEnd={(e) => {
-                    props.reorderItem(
-                        e.draggableId,
-                        props.order[e.destination.index],
-                    )
+                    props.reorderItem(e.draggableId, props.items.order[e.destination.index])
                 }}
             >
                 <Droppable droppableId={uuidv4()} type="ITEM">
@@ -75,72 +67,73 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                             ref={provided.innerRef}
                             style={getListStyle(snapshot.isDraggingOver)}
                         >
-                            {props.order.map((o, index) => {
+                            {props.items.order.map((o, index) => {
                                 // Get each item
-                                const item = props.items.filter(
-                                    (i) => i.id == o,
-                                )[0]
+                                const item = props.inputItems.filter((i) => i.id == o)[0]
                                 if (item == undefined) return
                                 switch (props.renderingStrategy) {
                                     case RenderingStrategy.All:
+                                        // If the item has a parent find out if it exists in the list we've been provided
                                         if (item.parentId != null) {
-                                            const parentExists = props.items.filter(
+                                            const parentExists = props.inputItems.find(
                                                 (i) => i.id == item.parentId,
                                             )
-                                            if (parentExists.length > 0) {
+                                            if (parentExists) {
                                                 return
-                                            } else {
-                                                return (
-                                                    <Draggable
-                                                        key={item.id}
-                                                        draggableId={item.id}
-                                                        index={index}
-                                                    >
-                                                        {(
-                                                            provided,
-                                                            snapshot,
-                                                        ) => (
-                                                            <div
-                                                                ref={
-                                                                    provided.innerRef
-                                                                }
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                style={getItemStyle(
-                                                                    snapshot.isDragging,
-                                                                    provided
-                                                                        .draggableProps
-                                                                        .style,
-                                                                )}
-                                                                key={
-                                                                    'container-' +
-                                                                    item.id
-                                                                }
-                                                            >
-                                                                <Item
-                                                                    {...item}
-                                                                    key={
-                                                                        item.id
-                                                                    }
-                                                                    noIndentOnSubtasks={
-                                                                        true
-                                                                    }
-                                                                    hideIcons={
-                                                                        props.hideIcons
-                                                                    }
-                                                                    keymap={
-                                                                        itemKeymap
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        )}
-                                                    </Draggable>
-                                                )
                                             }
+                                            return (
+                                                <Draggable
+                                                    key={item.id}
+                                                    draggableId={item.id}
+                                                    index={index}
+                                                >
+                                                    {(provided, snapshot) => (
+                                                        <div
+                                                            ref={provided.innerRef}
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            style={getItemStyle(
+                                                                snapshot.isDragging,
+                                                                provided.draggableProps.style,
+                                                            )}
+                                                            key={'container-' + item.id}
+                                                        >
+                                                            <Item
+                                                                {...item}
+                                                                key={item.id}
+                                                                noIndentOnSubtasks={true}
+                                                                hideIcons={props.hideIcons}
+                                                                keymap={itemKeymap}
+                                                            />
+
+                                                            {item.children?.map((c) => {
+                                                                const childItem =
+                                                                    props.items.items[c]
+                                                                return (
+                                                                    <Item
+                                                                        key={c}
+                                                                        noIndentOnSubtasks={false}
+                                                                        {...childItem}
+                                                                        hideIcons={
+                                                                            props.hideIcons
+                                                                                ? [
+                                                                                      ...props.hideIcons,
+                                                                                      ItemIcons.Subtask,
+                                                                                  ]
+                                                                                : [
+                                                                                      ItemIcons.Subtask,
+                                                                                  ]
+                                                                        }
+                                                                    />
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    )}
+                                                </Draggable>
+                                            )
                                         }
 
                                     default:
-                                        if (item.parentId != null) return
                                         return (
                                             <Draggable
                                                 key={item.id}
@@ -154,35 +147,42 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                         {...provided.dragHandleProps}
                                                         style={getItemStyle(
                                                             snapshot.isDragging,
-                                                            provided
-                                                                .draggableProps
-                                                                .style,
+                                                            provided.draggableProps.style,
                                                         )}
-                                                        key={
-                                                            'container-' +
-                                                            item.id
-                                                        }
+                                                        key={'container-' + item.id}
                                                     >
                                                         <Item
                                                             {...item}
                                                             key={item.id}
-                                                            noIndentOnSubtasks={
-                                                                false
-                                                            }
-                                                            hideIcons={
-                                                                props.hideIcons
-                                                            }
+                                                            noIndentOnSubtasks={false}
+                                                            hideIcons={props.hideIcons}
                                                             keymap={itemKeymap}
                                                         />
+                                                        {item.children?.map((c) => {
+                                                            const childItem = props.items.items[c]
+                                                            return (
+                                                                <Item
+                                                                    key={c}
+                                                                    noIndentOnSubtasks={false}
+                                                                    {...childItem}
+                                                                    hideIcons={
+                                                                        props.hideIcons
+                                                                            ? [
+                                                                                  ...props.hideIcons,
+                                                                                  ItemIcons.Subtask,
+                                                                              ]
+                                                                            : [ItemIcons.Subtask]
+                                                                    }
+                                                                />
+                                                            )
+                                                        })}
                                                     </div>
                                                 )}
                                             </Draggable>
                                         )
                                 }
                             })}
-                            {props.items.length == 0 && (
-                                <NoItemText>No items</NoItemText>
-                            )}
+                            {props.items.length == 0 && <NoItemText>No items</NoItemText>}
                         </Container>
                     )}
                 </Droppable>
@@ -192,8 +192,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 }
 
 const mapStateToProps = (state): StateProps => ({
-    order: state.items.order,
     theme: state.ui.theme,
+    items: state.items,
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({

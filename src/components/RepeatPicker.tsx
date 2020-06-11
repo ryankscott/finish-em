@@ -4,17 +4,10 @@ import Select from 'react-select'
 import { themes, selectStyles } from '../theme'
 import { format } from 'date-fns'
 import { RRule } from 'rrule'
-import {
-    SelectContainer,
-    DisabledContainer,
-    DisabledText,
-} from './styled/RepeatPicker'
+import { SelectContainer } from './styled/RepeatPicker'
 import DateRenderer from './DateRenderer'
-import { repeatIcon } from '../assets/icons'
-import { IconContainer } from './styled/DatePicker'
 import RepeatDialog from './RepeatDialog'
 import { rruleToText, capitaliseFirstLetter } from '../utils'
-import Tooltip from './Tooltip'
 import { connect } from 'react-redux'
 
 const options = [
@@ -58,7 +51,6 @@ interface StateProps {
 }
 
 interface OwnProps {
-    id: string
     repeat: RRule
     onSubmit: (value: RRule) => void
     onEscape?: () => void

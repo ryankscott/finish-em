@@ -14,11 +14,7 @@ export const getFilteredItems = (state, props): Item => {
             case 'SHOW_ALL':
                 return items
             case 'SHOW_DELETED':
-                return filterItems(
-                    items,
-                    (i) => i.deleted == true,
-                    props.renderingStrategy,
-                )
+                return filterItems(items, (i) => i.deleted == true, props.renderingStrategy)
             case 'SHOW_INBOX':
                 return filterItems(
                     items,
@@ -43,20 +39,16 @@ export const getFilteredItems = (state, props): Item => {
                 return filterItems(
                     items,
                     (i) =>
-                        isSameDay(
-                            parseISO(i.dueDate),
-                            props.filter.params.dueDate,
-                        ) && i.deleted == false,
+                        isSameDay(parseISO(i.dueDate), props.filter.params.dueDate) &&
+                        i.deleted == false,
                     props.renderingStrategy,
                 )
             case 'SHOW_SCHEDULED_ON_DAY':
                 return filterItems(
                     items,
                     (i) =>
-                        isSameDay(
-                            parseISO(i.scheduledDate),
-                            props.filter.params.scheduledDate,
-                        ) && i.deleted == false,
+                        isSameDay(parseISO(i.scheduledDate), props.filter.params.scheduledDate) &&
+                        i.deleted == false,
                     props.renderingStrategy,
                 )
             case 'SHOW_NOT_SCHEDULED':
@@ -136,17 +128,13 @@ export const getFilteredItems = (state, props): Item => {
 export const getCompletedItems = createSelector(
     [getFilteredItems, getRenderingStrategy],
     (items, renderingStrategy) => {
-        return filterItems(
-            items,
-            (i) => i.completed === true,
-            renderingStrategy,
-        )
+        return filterItems(items, (i) => i.completed === true, renderingStrategy)
     },
 )
 
 export const getAllItems = (state): Item => state.items.items
-export const getItemParentId = (state, props): ItemType =>
-    state.items.items[props.parentId]
+
+export const getItemParentId = (state, props): ItemType => state.items.items[props.parentId]
 
 export const getUncompletedItems = createSelector(
     [getFilteredItems, getAllItems, getRenderingStrategy],

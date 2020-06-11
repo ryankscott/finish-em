@@ -75,6 +75,7 @@ interface OwnProps extends ItemType {
     hideIcons: ItemIcons[]
     noIndentOnSubtasks: boolean
     keymap?: {}
+    alwaysVisible?: boolean
 }
 
 type ItemProps = OwnProps & StateProps & DispatchProps
@@ -99,9 +100,7 @@ function Item(props: ItemProps): ReactElement {
     const handleIconClick = (e): void => {
         e.stopPropagation()
         if (props.type == 'TODO') {
-            props.completed
-                ? props.uncompleteItem(props.id)
-                : props.completeItem(props.id)
+            props.completed ? props.uncompleteItem(props.id) : props.completeItem(props.id)
         }
         return
     }
@@ -112,9 +111,7 @@ function Item(props: ItemProps): ReactElement {
         return
     }
 
-    const dueDateText = props.dueDate
-        ? formatRelativeDate(parseISO(props.dueDate))
-        : ''
+    const dueDateText = props.dueDate ? formatRelativeDate(parseISO(props.dueDate)) : ''
     const scheduledDateText = props.scheduledDate
         ? formatRelativeDate(parseISO(props.scheduledDate))
         : ''
@@ -123,23 +120,19 @@ function Item(props: ItemProps): ReactElement {
         ? capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat)))
         : 'Repeat'
 
-    const parentTaskText = props.parentId
-        ? removeItemTypeFromString(props.parentItem.text)
-        : ''
+    const parentTaskText = props.parentId ? removeItemTypeFromString(props.parentItem.text) : ''
 
     const labelName = props.labelId ? props.labels[props.labelId].name : null
     const labelId = props.labelId ? props.labels[props.labelId].id : null
-    const labelColour = props.labelId
-        ? props.labels[props.labelId].colour
-        : null
+    const labelColour = props.labelId ? props.labels[props.labelId].colour : null
 
+    // Make it invisible if it has a parent which is hiding subtasks
     const isVisible =
         props.parentId != null
             ? props.subtasksVisible[props.parentId] == false
                 ? false
                 : true
             : true
-
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div key={props.id} id={props.id}>
@@ -148,7 +141,7 @@ function Item(props: ItemProps): ReactElement {
                     ref={container}
                     noIndentOnSubtasks={props.noIndentOnSubtasks}
                     isSubtask={props.parentId != null}
-                    visible={isVisible}
+                    visible={isVisible || props.alwaysVisible}
                     id={props.id}
                     tabIndex={0}
                     onClick={() => {
@@ -164,31 +157,17 @@ function Item(props: ItemProps): ReactElement {
                                 type="subtleInvert"
                                 onClick={handleExpand}
                                 icon={'expand'}
-                                rotate={
-                                    props.subtasksVisible[props.id] == false
-                                        ? 0
-                                        : 1
-                                }
+                                rotate={props.subtasksVisible[props.id] == false ? 0 : 1}
                             ></Button>
                         </ExpandContainer>
                     )}
                     <LabelContainer
                         data-tip
                         data-for={'label-' + props.id}
-                        stale={
-                            differenceInDays(
-                                parseISO(props.lastUpdatedAt),
-                                new Date(),
-                            ) > 7
-                        }
+                        stale={differenceInDays(parseISO(props.lastUpdatedAt), new Date()) > 7}
                         labelColour={labelColour}
                     />
-                    {labelId && (
-                        <Tooltip
-                            id={'label-' + props.id}
-                            text={labelName}
-                        ></Tooltip>
-                    )}
+                    {labelId && <Tooltip id={'label-' + props.id} text={labelName}></Tooltip>}
                     <TypeContainer>
                         <Button
                             type="subtleInvert"
@@ -209,42 +188,27 @@ function Item(props: ItemProps): ReactElement {
                             shouldSubmitOnBlur={true}
                             innerRef={editor}
                             readOnly={isDescriptionReadOnly}
-                            onEditingChange={(editing) =>
-                                setIsEditingDescription(editing)
-                            }
+                            onEditingChange={(editing) => setIsEditingDescription(editing)}
                             input={removeItemTypeFromString(props.text)}
                             onUpdate={(text) => {
                                 setIsDescriptionReadOnly(true)
-                                props.updateItemDescription(
-                                    props.id,
-                                    props.type.concat(' ', text),
-                                )
+                                props.updateItemDescription(props.id, props.type.concat(' ', text))
                             }}
                             singleline={props.type == 'NOTE' ? false : true}
                             shouldClearOnSubmit={false}
                         />
                     </Body>
-                    <ProjectContainer
-                        visible={hiddenIcons?.includes(ItemIcons.Project)}
-                    >
+                    <ProjectContainer visible={!hiddenIcons?.includes(ItemIcons.Project)}>
                         <ProjectName>
-                            {props.projectId != '0'
-                                ? props.projects[props.projectId]
-                                : 'Inbox'}
+                            {props.projectId != '0' ? props.projects[props.projectId] : 'Inbox'}
                         </ProjectName>
                     </ProjectContainer>
 
                     <MoreContainer visible={true}>
-                        <MoreDropdown
-                            itemId={props.id}
-                            deleted={props.deleted}
-                        ></MoreDropdown>
+                        <MoreDropdown itemId={props.id} deleted={props.deleted}></MoreDropdown>
                     </MoreContainer>
                     <ParentItemContainer
-                        visible={
-                            !hiddenIcons.includes(ItemIcons.Subtask) &&
-                            props.parentId != null
-                        }
+                        visible={!hiddenIcons.includes(ItemIcons.Subtask) && props.parentId != null}
                     >
                         <ItemAttribute
                             completed={props.completed}
@@ -265,10 +229,7 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </ScheduledContainer>
                     <DueContainer
-                        visible={
-                            props.dueDate != null &&
-                            !hiddenIcons.includes(ItemIcons.Due)
-                        }
+                        visible={props.dueDate != null && !hiddenIcons.includes(ItemIcons.Due)}
                     >
                         <ItemAttribute
                             completed={props.completed}
@@ -277,10 +238,7 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </DueContainer>
                     <RepeatContainer
-                        visible={
-                            props.repeat != null &&
-                            !hiddenIcons.includes(ItemIcons.Repeat)
-                        }
+                        visible={props.repeat != null && !hiddenIcons.includes(ItemIcons.Repeat)}
                     >
                         <ItemAttribute
                             completed={props.completed}

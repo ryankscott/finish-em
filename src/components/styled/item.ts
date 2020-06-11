@@ -15,8 +15,7 @@ export const Container = styled.div<ContainerProps>`
     font-size: ${(props) => props.theme.fontSizes.medium};
     display: ${(props) => (props.visible ? 'grid' : 'none')};
     opacity: ${(props) => (props.hidden ? '0' : '1')};
-    margin-left: ${(props) =>
-        props.isSubtask && !props.noIndentOnSubtasks ? '20px' : '0px'};
+    margin-left: ${(props) => (props.isSubtask && !props.noIndentOnSubtasks ? '20px' : '0px')};
     grid-template-columns: 5px 30px 30px repeat(20, 1fr);
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
@@ -57,8 +56,7 @@ export const Body = styled.div<BodyProps>`
     margin: 5px 10px;
     grid-area: DESC;
     font-size: ${(props) => props.theme.fontSizes.regular};
-    text-decoration: ${(props) =>
-        props.completed === true ? 'line-through' : null};
+    text-decoration: ${(props) => (props.completed === true ? 'line-through' : null)};
 `
 export const ExpandContainer = styled.div`
     grid-area: EXPAND;

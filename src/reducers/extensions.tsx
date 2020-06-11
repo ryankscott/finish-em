@@ -15,11 +15,9 @@ const initialState: Extensions = {
                 listName: 'Pending Items',
                 filter: {
                     type: 'default',
-                    filter: FilterEnum.ShowByLabelOnDay,
+                    filter: FilterEnum.ShowByLabel,
                     params: {
                         labelId: 'a342c159-9691-4684-a109-156ba46c1ea4',
-                        scheduledDate: new Date(),
-                        dueDate: new Date(),
                     },
                 },
             },

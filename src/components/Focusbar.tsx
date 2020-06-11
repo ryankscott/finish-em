@@ -58,6 +58,7 @@ interface DispatchProps {
     changeParentItem: (id: Uuid, parentId: Uuid) => void
     addLabel: (id: Uuid, labelId: Uuid | string) => void
     deleteItem: (id: Uuid) => void
+    deleteLabel: (id: Uuid) => void
 }
 interface StateProps {
     items: Items
@@ -77,9 +78,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     if (!i) return null
 
     // TODO: Do I need these? Or can I move to the component
-    const dueDate = i.dueDate
-        ? formatRelativeDate(parseISO(i.dueDate))
-        : 'Add due date'
+    const dueDate = i.dueDate ? formatRelativeDate(parseISO(i.dueDate)) : 'Add due date'
     const scheduledDate = i.scheduledDate
         ? formatRelativeDate(parseISO(i.scheduledDate))
         : 'Schedule'
@@ -138,9 +137,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         width="24px"
                         onClick={() => {
                             if (i.type == 'TODO') {
-                                i.completed
-                                    ? props.uncompleteItem(i.id)
-                                    : props.completeItem(i.id)
+                                i.completed ? props.uncompleteItem(i.id) : props.completeItem(i.id)
                             }
                         }}
                         icon={
@@ -158,10 +155,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         input={removeItemTypeFromString(i.text)}
                         singleline={true}
                         onUpdate={(text) => {
-                            props.updateItemDescription(
-                                i.id,
-                                i.type.concat(' ', text),
-                            )
+                            props.updateItemDescription(i.id, i.type.concat(' ', text))
                         }}
                         validation={{ validate: false }}
                         shouldSubmitOnBlur={true}
@@ -186,7 +180,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     </AttributeKey>
                     <AttributeValue>
                         <ProjectDropdown
-                            disableClick={i.deleted}
                             projectId={i.projectId}
                             completed={i.completed}
                             onSubmit={(projectId) => {
@@ -203,12 +196,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             </AttributeKey>
                             <AttributeValue>
                                 <DatePicker
-                                    disableClick={i.deleted}
                                     key={'sd' + i.id}
                                     placeholder={'Scheduled on: '}
-                                    onSubmit={(d) =>
-                                        props.setScheduledDate(i.id, d)
-                                    }
+                                    onSubmit={(d) => props.setScheduledDate(i.id, d)}
                                     icon="scheduled"
                                     text={scheduledDate}
                                     completed={i.completed}
@@ -221,7 +211,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             </AttributeKey>
                             <AttributeValue>
                                 <DatePicker
-                                    disableClick={i.deleted}
                                     key={'dd' + i.id}
                                     placeholder={'Due on: '}
                                     onSubmit={(d) => props.setDueDate(i.id, d)}
@@ -237,19 +226,12 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             </AttributeKey>
                             <AttributeValue>
                                 <RepeatPicker
-                                    disableClick={i.deleted}
                                     id={i.id}
-                                    repeat={
-                                        i.repeat
-                                            ? RRule.fromString(i.repeat)
-                                            : null
-                                    }
+                                    repeat={i.repeat ? RRule.fromString(i.repeat) : null}
                                     completed={i.completed}
                                     key={'rp' + i.id}
                                     placeholder={'Repeat: '}
-                                    onSubmit={(r) =>
-                                        props.setRepeatRule(i.id, r)
-                                    }
+                                    onSubmit={(r) => props.setRepeatRule(i.id, r)}
                                 />
                             </AttributeValue>
                         </AttributeContainer>
@@ -261,7 +243,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     </AttributeKey>
                     <AttributeValue>
                         <SubtaskDropdown
-                            disableClick={i.deleted}
                             itemId={i.id}
                             text={parentText}
                             parentId={i.parentId}
@@ -282,14 +263,14 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     </AttributeKey>
                     <AttributeValue>
                         <LabelDropdown
-                            disableClick={i.deleted}
                             completed={i.completed}
                             labelId={i.labelId}
-                            onSubmit={(labelId) =>
-                                if(labelId){
-                                props.addLabel(i.id, labelId)
-                            } else {
-                                props.deleteLabel(i.id)
+                            onSubmit={(labelId) => {
+                                if (labelId) {
+                                    props.addLabel(i.id, labelId)
+                                } else {
+                                    props.deleteLabel(i.id)
+                                }
                             }}
                         />
                     </AttributeValue>
@@ -298,11 +279,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     <>
                         <SubtaskContainer>
                             <Header3>Subtasks: </Header3>
-                            <ItemCreator
-                                type="subtask"
-                                parentId={i.id}
-                                initiallyExpanded={false}
-                            />
+                            <ItemCreator type="subtask" parentId={i.id} initiallyExpanded={false} />
                         </SubtaskContainer>
                         <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
                     </>
@@ -315,6 +292,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             {...childItem}
                             key={c}
                             noIndentOnSubtasks={true}
+                            alwaysVisible={true}
                             hideIcons={[
                                 ItemIcons.Due,
                                 ItemIcons.Scheduled,
