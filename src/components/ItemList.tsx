@@ -361,27 +361,16 @@ function ItemList(props: ItemListProps): ReactElement {
                 }}
             >
                 {props.inputItems.map((o, index) => {
-                    if (o == undefined) return
                     switch (props.renderingStrategy) {
                         case RenderingStrategy.All:
+                            // If the item has a parent, we need to find if that parent exists in the list we've been provided
                             if (o.parentId != null) {
-                                const parentExists = props.inputItems.filter(
+                                const parentExists = props.inputItems.find(
                                     (i) => i.id == o.parentId,
                                 )
-                                if (parentExists.length > 0) {
+                                // If it exists it will get rendered later, so don't render it
+                                if (parentExists) {
                                     return
-                                } else {
-                                    return (
-                                        <div key={'container-' + o.id}>
-                                            <Item
-                                                {...o}
-                                                key={o.id}
-                                                noIndentOnSubtasks={true}
-                                                hideIcons={props.hideIcons}
-                                                keymap={itemKeymap}
-                                            />
-                                        </div>
-                                    )
                                 }
                             }
                             return (
@@ -397,6 +386,7 @@ function ItemList(props: ItemListProps): ReactElement {
                             )
 
                         default:
+                            // Default rendering won't render children elements as they get rendered in the Item component itself
                             if (o.parentId != null) return
                             return (
                                 <div key={'container-' + o.id}>
