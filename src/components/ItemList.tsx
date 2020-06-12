@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, KeyboardEvent } from 'react'
+import React, { ReactElement } from 'react'
 import Item, { ItemIcons } from './Item'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
@@ -56,248 +56,154 @@ type ItemListProps = OwnProps & StateProps & DispatchProps
 configure({ logLevel: 'debug' })
 function ItemList(props: ItemListProps): ReactElement {
     const handlers = {
-        TODO: {
-            TOGGLE_CHILDREN: () => {
-                props.toggleSubtasks(event.target.id)
-            },
-            NEXT_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                // If it's a parent element we need to get the first child
-                if (item.children.length > 0) {
-                    const nextItem = event.target.parentNode.nextSibling
-                    if (nextItem) {
-                        nextItem.firstChild.focus()
-                        return
-                    }
-                }
-                // If it's a child
-                if (item.parentId != null) {
-                    const nextItem = event.target.parentNode.nextSibling
-                    if (nextItem) {
-                        nextItem.firstChild.focus()
-                        return
-                    }
-                    // If it's the last child
-                    else {
-                        const nextItem = event.target.parentNode.parentNode.nextSibling.firstChild
-                        if (nextItem) {
-                            nextItem.firstChild.focus()
-                            return
-                        }
-                    }
-                }
-
-                const parent = event.target.parentNode.parentNode
-                const nextItem = parent.nextSibling
-                if (nextItem) {
-                    nextItem.firstChild.firstChild.focus()
-                    return
-                }
-            },
-            PREV_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.children.length > 0) {
-                    const prevItem = event.target.parentNode.previousSibling
-                    if (prevItem) {
-                        prevItem.firstChild.focus()
-                        return
-                    }
-                }
-                // If it's a child
-                if (item.parentId != null) {
-                    const nextItem = event.target.parentNode.previousSibling
-                    if (nextItem) {
-                        nextItem.firstChild.focus()
-                        return
-                    }
-                    // If it's the last child
-                    else {
-                        const prevItem =
-                            event.target.parentNode.parentNode.previousSibling.firstChild
-                        if (prevItem) {
-                            prevItem.firstChild.focus()
-                            return
-                        }
-                    }
-                }
-                const parent = event.target.parentNode.parentNode
-                const prevItem = parent.previousSibling?.firstChild
-                if (prevItem) {
-                    prevItem.firstChild.focus()
-                    return
-                }
-            },
-            SET_ACTIVE_ITEM: (event) => {
-                props.showFocusbar()
-                props.setActiveItem(event.target.id)
-                return
-            },
-            SET_SCHEDULED_DATE: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed) return
-                console.log('scheduled')
-                event.preventDefault()
-            },
-            SET_DUE_DATE: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed) return
-                console.log('due date')
-                event.preventDefault()
-            },
-            CREATE_SUBTASK: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed || item.parentId != null) return
-                console.log('create sub task')
-                event.preventDefault()
-            },
-            CONVERT_TO_SUBTASK: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed) return
-                console.log('convert to sub task')
-                event.preventDefault()
-            },
-            REPEAT_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed) return
-                console.log('repeat')
-                event.preventDefault()
-            },
-            MOVE_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed) return
-                console.log('move item')
-                event.preventDefault()
-            },
-            ESCAPE: () => {
-                console.log('escape')
-            },
-            COMPLETE_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed) return
-                props.completeItem(item.id)
-            },
-            UNCOMPLETE_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted) return
-                props.uncompleteItem(item.id)
-            },
-            DELETE_ITEM: () => {
-                console.log('deleting')
-                const item = props.items.items[event.target.id]
-                if (item.deleted) return
-                props.deleteItem(item.id)
-            },
-            UNDELETE_ITEM: () => {
-                const item = props.items.items[event.target.id]
-                props.undeleteItem(item.id)
-            },
-            EDIT_ITEM_DESC: (event) => {
-                const item = props.items.items[event.target.id]
-                event.preventDefault()
-            },
+        TOGGLE_CHILDREN: (event) => {
+            props.toggleSubtasks(event.target.id)
         },
-        NOTE: {
-            NEXT_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                // If it's a parent element we need to get the first child
-                if (item.children.length > 0) {
-                    const nextItem = event.target.parentNode.nextSibling
-                    if (nextItem) {
-                        nextItem.firstChild.focus()
-                        return
-                    }
-                }
-                // If it's a child
-                if (item.parentId != null) {
-                    const nextItem = event.target.parentNode.nextSibling
-                    if (nextItem) {
-                        nextItem.firstChild.focus()
-                        return
-                    }
-                    // If it's the last child
-                    else {
-                        const nextItem = event.target.parentNode.parentNode.nextSibling.firstChild
-                        if (nextItem) {
-                            nextItem.firstChild.focus()
-                            return
-                        }
-                    }
-                }
-
-                const parent = event.target.parentNode.parentNode
-                const nextItem = parent.nextSibling
+        NEXT_ITEM: (event) => {
+            const item = props.items.items[event.target.id]
+            // If it's a parent element we need to get the first child
+            if (item.children.length > 0) {
+                const nextItem = event.target.parentNode.nextSibling
                 if (nextItem) {
-                    nextItem.firstChild.firstChild.focus()
+                    nextItem.firstChild.focus()
                     return
                 }
-            },
-            PREV_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.children.length > 0) {
-                    const prevItem = event.target.parentNode.previousSibling
+            }
+            // If it's a child
+            if (item.parentId != null) {
+                const nextItem = event.target.parentNode.nextSibling
+                if (nextItem) {
+                    nextItem.firstChild.focus()
+                    return
+                }
+                // If it's the last child
+                else {
+                    const nextItem = event.target.parentNode.parentNode.nextSibling.firstChild
+                    if (nextItem) {
+                        nextItem.firstChild.focus()
+                        return
+                    }
+                }
+            }
+
+            const parent = event.target.parentNode.parentNode
+            const nextItem = parent.nextSibling
+            if (nextItem) {
+                nextItem.firstChild.firstChild.focus()
+                return
+            }
+        },
+        PREV_ITEM: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.children.length > 0) {
+                const prevItem = event.target.parentNode.previousSibling
+                if (prevItem) {
+                    prevItem.firstChild.focus()
+                    return
+                }
+            }
+            // If it's a child
+            if (item.parentId != null) {
+                const nextItem = event.target.parentNode.previousSibling
+                if (nextItem) {
+                    nextItem.firstChild.focus()
+                    return
+                }
+                // If it's the last child
+                else {
+                    const prevItem = event.target.parentNode.parentNode.previousSibling.firstChild
                     if (prevItem) {
                         prevItem.firstChild.focus()
                         return
                     }
                 }
-                // If it's a child
-                if (item.parentId != null) {
-                    const nextItem = event.target.parentNode.previousSibling
-                    if (nextItem) {
-                        nextItem.firstChild.focus()
-                        return
-                    }
-                    // If it's the last child
-                    else {
-                        const prevItem =
-                            event.target.parentNode.parentNode.previousSibling.firstChild
-                        if (prevItem) {
-                            prevItem.firstChild.focus()
-                            return
-                        }
-                    }
-                }
-                const parent = event.target.parentNode.parentNode
-                const prevItem = parent.previousSibling?.firstChild
-                if (prevItem) {
-                    prevItem.firstChild.focus()
-                    return
-                }
-            },
-            SET_ACTIVE_ITEM: (event) => {
-                props.showFocusbar()
-                props.setActiveItem(event.target.id)
+            }
+            const parent = event.target.parentNode.parentNode
+            const prevItem = parent.previousSibling?.firstChild
+            if (prevItem) {
+                prevItem.firstChild.focus()
                 return
-            },
-            MOVE_ITEM: (event) => {
-                const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed) return
-                console.log('move item')
-                event.preventDefault()
-            },
-            ESCAPE: () => {
-                console.log('escape')
-            },
-            DELETE_ITEM: () => {
-                console.log('deleting')
-                const item = props.items.items[event.target.id]
-                if (item.deleted) return
-                props.deleteItem(item.id)
-            },
-            UNDELETE_ITEM: () => {
-                const item = props.items.items[event.target.id]
-                props.undeleteItem(item.id)
-            },
-            EDIT_ITEM_DESC: (event) => {
-                const item = props.items.items[event.target.id]
-                event.preventDefault()
-            },
+            }
+        },
+        SET_ACTIVE_ITEM: (event) => {
+            props.showFocusbar()
+            props.setActiveItem(event.target.id)
+            return
+        },
+        SET_SCHEDULED_DATE: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('scheduled')
+            event.preventDefault()
+        },
+        SET_DUE_DATE: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('due date')
+            event.preventDefault()
+        },
+        CREATE_SUBTASK: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.deleted || item.completed || item.parentId != null) return
+            console.log('create sub task')
+            event.preventDefault()
+        },
+        CONVERT_TO_SUBTASK: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('convert to sub task')
+            event.preventDefault()
+        },
+        REPEAT_ITEM: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('repeat')
+            event.preventDefault()
+        },
+        MOVE_ITEM: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.deleted || item.completed) return
+            console.log('move item')
+            event.preventDefault()
+        },
+        ESCAPE: () => {
+            console.log('escape')
+        },
+        COMPLETE_ITEM: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            props.completeItem(item.id)
+        },
+        UNCOMPLETE_ITEM: (event) => {
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted) return
+            props.uncompleteItem(item.id)
+        },
+        DELETE_ITEM: () => {
+            console.log('deleting')
+            const item = props.items.items[event.target.id]
+            if (item.deleted) return
+            props.deleteItem(item.id)
+        },
+        UNDELETE_ITEM: () => {
+            const item = props.items.items[event.target.id]
+            props.undeleteItem(item.id)
+        },
+        EDIT_ITEM_DESC: (event) => {
+            const item = props.items.items[event.target.id]
+            event.preventDefault()
         },
     }
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <HotKeys keyMap={itemKeymap} handlers={handlers['TODO']}>
+            <HotKeys keyMap={itemKeymap} handlers={handlers}>
                 <Container>
                     {props.inputItems.map((o) => {
                         switch (props.renderingStrategy) {
