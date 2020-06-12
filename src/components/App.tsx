@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
@@ -95,10 +95,12 @@ type AppProps = StateProps & DispatchProps
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
 
-    window.addEventListener('resize', () => {
-        if (window.innerHeight < MIN_WIDTH_FOR_SIDEBAR && props.sidebarVisible == true) {
-            props.hideSidebar()
-        }
+    useEffect(() => {
+        window.addEventListener('resize', () => {
+            if ((window.innerWidth < MIN_WIDTH_FOR_SIDEBAR) & (props.sidebarVisible == true)) {
+                props.hideSidebar()
+            }
+        })
     })
 
     function goToDailyAgenda(): void {
