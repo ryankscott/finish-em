@@ -74,7 +74,6 @@ interface StateProps {
 interface OwnProps extends ItemType {
     hideIcons: ItemIcons[]
     noIndentOnSubtasks: boolean
-    keymap?: {}
     alwaysVisible?: boolean
 }
 
