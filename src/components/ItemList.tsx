@@ -16,9 +16,7 @@ import {
     toggleSubtasks,
 } from '../actions'
 import { Uuid } from '@typed/uuid'
-
-const DEBUG_KEYHANDLING = false
-const MAX_SHORTCUT_LENGTH = 2
+import { HotKeys, configure } from 'react-hotkeys'
 
 interface DispatchProps {
     showFocusbar: () => void
@@ -55,8 +53,8 @@ type ItemListProps = OwnProps & StateProps & DispatchProps
   - If an item has a parent and the parent isn't in the list, render it
 */
 
+configure({ logLevel: 'debug' })
 function ItemList(props: ItemListProps): ReactElement {
-    const [keyPresses, setKeyPresses] = useState([])
     const handlers = {
         TODO: {
             TOGGLE_CHILDREN: () => {
@@ -81,9 +79,7 @@ function ItemList(props: ItemListProps): ReactElement {
                     }
                     // If it's the last child
                     else {
-                        const nextItem =
-                            event.target.parentNode.parentNode.nextSibling
-                                .firstChild
+                        const nextItem = event.target.parentNode.parentNode.nextSibling.firstChild
                         if (nextItem) {
                             nextItem.firstChild.focus()
                             return
@@ -117,8 +113,7 @@ function ItemList(props: ItemListProps): ReactElement {
                     // If it's the last child
                     else {
                         const prevItem =
-                            event.target.parentNode.parentNode.previousSibling
-                                .firstChild
+                            event.target.parentNode.parentNode.previousSibling.firstChild
                         if (prevItem) {
                             prevItem.firstChild.focus()
                             return
@@ -151,8 +146,7 @@ function ItemList(props: ItemListProps): ReactElement {
             },
             CREATE_SUBTASK: (event) => {
                 const item = props.items.items[event.target.id]
-                if (item.deleted || item.completed || item.parentId != null)
-                    return
+                if (item.deleted || item.completed || item.parentId != null) return
                 console.log('create sub task')
                 event.preventDefault()
             },
@@ -222,9 +216,7 @@ function ItemList(props: ItemListProps): ReactElement {
                     }
                     // If it's the last child
                     else {
-                        const nextItem =
-                            event.target.parentNode.parentNode.nextSibling
-                                .firstChild
+                        const nextItem = event.target.parentNode.parentNode.nextSibling.firstChild
                         if (nextItem) {
                             nextItem.firstChild.focus()
                             return
@@ -258,8 +250,7 @@ function ItemList(props: ItemListProps): ReactElement {
                     // If it's the last child
                     else {
                         const prevItem =
-                            event.target.parentNode.parentNode.previousSibling
-                                .firstChild
+                            event.target.parentNode.parentNode.previousSibling.firstChild
                         if (prevItem) {
                             prevItem.firstChild.focus()
                             return
@@ -304,146 +295,87 @@ function ItemList(props: ItemListProps): ReactElement {
         },
     }
 
-    const handleKeyPress = (event: KeyboardEvent<HTMLDivElement>): void => {
-        const item = props.items.items[event.target.id]
-
-        // Remove the first value in the array (3 is the max shortcut matching length)
-        let currentKeyPresses = keyPresses
-        currentKeyPresses =
-            currentKeyPresses.length == MAX_SHORTCUT_LENGTH + 1
-                ? currentKeyPresses.slice(1)
-                : currentKeyPresses
-        currentKeyPresses.push(event.key)
-
-        // Clear keypress history if using the arrow keys. Enables quick scrolling
-        if (
-            event.key == 'ArrowUp' ||
-            event.key == 'ArrowDown' ||
-            event.key == 'j' ||
-            event.key == 'k'
-        ) {
-            setTimeout(() => {
-                setKeyPresses([])
-            }, 200)
-            // After 1s remove the first item in the array
-        } else {
-            setTimeout(() => {
-                setKeyPresses(keyPresses.slice(1))
-            }, 500)
-        }
-        // TODO handle not matching
-        // TODO handle multiple key bindings for each action
-        for (const [key, value] of Object.entries(itemKeymap)) {
-            currentKeyPresses.forEach((k, v) => {
-                if (v < currentKeyPresses.length) {
-                    const combo = k + ' ' + currentKeyPresses[v + 1]
-                    if (combo == value) {
-                        const handler = handlers[item.type][key]
-                        if (DEBUG_KEYHANDLING && handler) {
-                            console.log(handler)
-                        }
-                        handler ? handler(event) : null
-                        return
-                    }
-                    const single = k
-                    if (single == value) {
-                        const handler = handlers[item.type][key]
-                        handler ? handler(event) : null
-                        return
-                    }
-                }
-            })
-        }
-        event.stopPropagation()
-        return
-    }
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <Container
-                onKeyDown={(e) => {
-                    handleKeyPress(e)
-                }}
-            >
-                {props.inputItems.map((o) => {
-                    switch (props.renderingStrategy) {
-                        case RenderingStrategy.All:
-                            // If the item has a parent, we need to find if that parent exists in the list we've been provided
-                            if (o.parentId != null) {
-                                const parentExists = props.inputItems.find(
-                                    (i) => i.id == o.parentId,
-                                )
-                                // If it exists it will get rendered later, so don't render it
-                                if (parentExists) {
-                                    return
+            <HotKeys keyMap={itemKeymap} handlers={handlers['TODO']}>
+                <Container>
+                    {props.inputItems.map((o) => {
+                        switch (props.renderingStrategy) {
+                            case RenderingStrategy.All:
+                                // If the item has a parent, we need to find if that parent exists in the list we've been provided
+                                if (o.parentId != null) {
+                                    const parentExists = props.inputItems.find(
+                                        (i) => i.id == o.parentId,
+                                    )
+                                    // If it exists it will get rendered later, so don't render it
+                                    if (parentExists) {
+                                        return
+                                    }
                                 }
-                            }
-                            return (
-                                <div key={'container-' + o.id}>
-                                    <Item
-                                        {...o}
-                                        key={o.id}
-                                        noIndentOnSubtasks={false}
-                                        hideIcons={props.hideIcons}
-                                        keymap={itemKeymap}
-                                    />
-                                    {o.children?.map((c) => {
-                                        const childItem = props.items.items[c]
-                                        return (
-                                            <Item
-                                                key={c}
-                                                noIndentOnSubtasks={false}
-                                                {...childItem}
-                                                hideIcons={
-                                                    props.hideIcons
-                                                        ? [
-                                                              ...props.hideIcons,
-                                                              ItemIcons.Subtask,
-                                                          ]
-                                                        : [ItemIcons.Subtask]
-                                                }
-                                            />
-                                        )
-                                    })}
-                                </div>
-                            )
+                                return (
+                                    <div key={'container-' + o.id}>
+                                        <Item
+                                            {...o}
+                                            key={o.id}
+                                            noIndentOnSubtasks={false}
+                                            hideIcons={props.hideIcons}
+                                        />
+                                        {o.children?.map((c) => {
+                                            const childItem = props.items.items[c]
+                                            return (
+                                                <Item
+                                                    key={c}
+                                                    noIndentOnSubtasks={false}
+                                                    {...childItem}
+                                                    hideIcons={
+                                                        props.hideIcons
+                                                            ? [
+                                                                  ...props.hideIcons,
+                                                                  ItemIcons.Subtask,
+                                                              ]
+                                                            : [ItemIcons.Subtask]
+                                                    }
+                                                />
+                                            )
+                                        })}
+                                    </div>
+                                )
 
-                        default:
-                            return (
-                                <div key={'container-' + o.id}>
-                                    <Item
-                                        {...o}
-                                        key={o.id}
-                                        noIndentOnSubtasks={false}
-                                        hideIcons={props.hideIcons}
-                                        keymap={itemKeymap}
-                                    />
-                                    {o.children?.map((c) => {
-                                        const childItem = props.items.items[c]
-                                        return (
-                                            <Item
-                                                key={c}
-                                                {...childItem}
-                                                noIndentOnSubtasks={false}
-                                                hideIcons={
-                                                    props.hideIcons
-                                                        ? [
-                                                              ...props.hideIcons,
-                                                              ItemIcons.Subtask,
-                                                          ]
-                                                        : [ItemIcons.Subtask]
-                                                }
-                                            />
-                                        )
-                                    })}
-                                </div>
-                            )
-                    }
-                })}
+                            default:
+                                return (
+                                    <div key={'container-' + o.id}>
+                                        <Item
+                                            {...o}
+                                            key={o.id}
+                                            noIndentOnSubtasks={false}
+                                            hideIcons={props.hideIcons}
+                                        />
+                                        {o.children?.map((c) => {
+                                            const childItem = props.items.items[c]
+                                            return (
+                                                <Item
+                                                    key={c}
+                                                    {...childItem}
+                                                    noIndentOnSubtasks={false}
+                                                    hideIcons={
+                                                        props.hideIcons
+                                                            ? [
+                                                                  ...props.hideIcons,
+                                                                  ItemIcons.Subtask,
+                                                              ]
+                                                            : [ItemIcons.Subtask]
+                                                    }
+                                                />
+                                            )
+                                        })}
+                                    </div>
+                                )
+                        }
+                    })}
 
-                {props.inputItems.length == 0 && (
-                    <NoItemText>No items</NoItemText>
-                )}
-            </Container>
+                    {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
+                </Container>
+            </HotKeys>
         </ThemeProvider>
     )
 }
