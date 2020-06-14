@@ -120,9 +120,9 @@ function Item(props: ItemProps): ReactElement {
 
     const parentTaskText = props.parentId ? removeItemTypeFromString(props.parentItem.text) : ''
 
-    const labelName = props.labelId ? props.labels[props.labelId].name : null
-    const labelId = props.labelId ? props.labels[props.labelId].id : null
-    const labelColour = props.labelId ? props.labels[props.labelId].colour : null
+    const labelName = props.labelId ? props.labels.labels[props.labelId].name : null
+    const labelId = props.labelId ? props.labels.labels[props.labelId].id : null
+    const labelColour = props.labelId ? props.labels.labels[props.labelId].colour : null
 
     // Make it invisible if it has a parent which is hiding subtasks
     const isVisible = (() => {

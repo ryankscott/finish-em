@@ -13,7 +13,7 @@ if (isElectron()) {
 let persistConfig
 if (isElectron()) {
     persistConfig = {
-        version: 11,
+        version: 12,
         key: 'root',
         debug: true,
         storage: createElectronStorage(),
@@ -21,7 +21,7 @@ if (isElectron()) {
     }
 } else {
     persistConfig = {
-        version: 11,
+        version: 12,
         key: 'root',
         debug: true,
         storage,

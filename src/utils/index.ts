@@ -2,7 +2,7 @@ import chrono from 'chrono-node'
 import { ItemType, Item, RenderingStrategy } from '../interfaces'
 import RRule from 'rrule'
 
-// import * as ic from '../assets/icons'
+import * as ic from '../assets/icons'
 export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
 import emojiRegex from 'emoji-regex/text.js'
 import {

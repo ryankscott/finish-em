@@ -157,7 +157,7 @@ export const migrations = {
                             listName: 'Pending Items',
                             filter: {
                                 type: 'default',
-                                filter: FilterEnum.ShowByLabelOnDay,
+                                filter: 'SHOW_BY_LABEL_ON_DAY',
                                 params: {
                                     labelId: 'a342c159-9691-4684-a109-156ba46c1ea4',
                                     scheduledDate: new Date(),
@@ -195,7 +195,7 @@ export const migrations = {
                             listName: 'Pending Items',
                             filter: {
                                 type: 'default',
-                                filter: FilterEnum.ShowByLabel,
+                                filter: 'SHOW_BY_LABEL',
                                 params: {
                                     labelId: 'a342c159-9691-4684-a109-156ba46c1ea4',
                                 },
@@ -215,6 +215,7 @@ export const migrations = {
         return {
             ...state,
             ui: {
+                ...state.ui,
                 // Refactor labels
                 labels: migratev11tov12Labels(state.ui.labels),
                 // Reset subtasksVisible
