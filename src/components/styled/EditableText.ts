@@ -23,8 +23,7 @@ export const Container = styled.div<ContainerProps>`
     min-height: 25px;
     border-radius: 5px;
     border: 1px solid;
-    font-size: ${(props) =>
-        props.fontSize ? props.theme.fontSizes[props.fontSize] : 'auto'};
+    font-size: ${(props) => (props.fontSize ? props.theme.fontSizes[props.fontSize] : 'auto')};
     border-color: ${(props) =>
         props.backgroundColour
             ? darken(0.1, props.backgroundColour)
@@ -34,10 +33,8 @@ export const Container = styled.div<ContainerProps>`
                 : props.theme.colours.borderColour
             : 'transparent'};
     cursor: ${(props) => (props.readOnly ? 'default' : 'text')};
-    color: ${(props) =>
-        props.valid ? 'auto' : props.theme.colours.errorColour};
-    background-color: ${(props) =>
-        props.backgroundColour ? props.backgroundColour : 'inherit'};
+    color: ${(props) => (props.valid ? 'auto' : props.theme.colours.errorColour)};
+    background-color: ${(props) => (props.backgroundColour ? props.backgroundColour : 'inherit')};
     &:hover {
         background-color: ${(props) =>
             props.backgroundColour

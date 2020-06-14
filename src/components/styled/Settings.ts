@@ -9,17 +9,6 @@ export const Container = styled.div`
     padding: 20px 20px;
     width: 100%;
 `
-
-export const HeaderContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: flex-end;
-`
-
-export const IconContainer = styled.div`
-    padding: 5px 10px 10px 5px;
-`
-
 export const SettingsContainer = styled.div`
     position: relative;
     display: flex;
@@ -61,7 +50,6 @@ interface PopoverProps {
 export const Popover = styled.div<PopoverProps>`
     position: absolute;
     top: ${(props) => {
-        console.log(props.top)
         return Math.round(props.top) + 'px'
     }};
     left: ${(props) => {
@@ -89,12 +77,10 @@ export const LabelContainer = styled.div<LabelContainerProps>`
     background-color: ${(props) => props.theme.colours.backgroundColour};
 `
 export const StyledTwitterPicker = styled(TwitterPicker)`
-    background-color: ${(props) =>
-        props.theme.colours.backgroundColour + ' !important'};
+    background-color: ${(props) => props.theme.colours.backgroundColour + ' !important'};
     border: 1px solid !important;
     border-radius: 5px !important;
-    border-color: ${(props) =>
-        props.theme.colours.borderColour + ' !important'};
+    border-color: ${(props) => props.theme.colours.borderColour + ' !important'};
 
     & > div {
         border-color: ${(props) =>

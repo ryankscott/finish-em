@@ -1440,7 +1440,6 @@ describe('item reducer', () => {
         const projectId = uuidv4()
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
-        const deletedAt = new Date(1990, 1, 2).toISOString()
         expect(
             itemReducer(
                 {

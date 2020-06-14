@@ -94,20 +94,13 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         if (props.shouldSubmitOnBlur) {
             if (props.validation.validate) {
                 if (props.validation.rule(props.innerRef.current.innerText)) {
-                    props.onUpdate(
-                        props.innerRef.current.innerText.replace(
-                            /\r/gi,
-                            '<br/>',
-                        ),
-                    )
+                    props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
                     if (props.shouldClearOnSubmit) {
                         clearInput()
                     }
                 }
             } else {
-                props.onUpdate(
-                    props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
-                )
+                props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
                 if (props.shouldClearOnSubmit) {
                     clearInput()
                 }
@@ -141,12 +134,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             // Validate input
             if (props.validation.validate) {
                 if (props.validation.rule(currentVal)) {
-                    props.onUpdate(
-                        props.innerRef.current.innerText.replace(
-                            /\r/gi,
-                            '<br/>',
-                        ),
-                    )
+                    props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
 
                     // If we're clearing on submission we should clear the input and continue allowing editing
                     if (props.shouldClearOnSubmit) {
@@ -158,9 +146,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 }
                 return
             } else {
-                props.onUpdate(
-                    props.innerRef.current.innerText.replace(/\r/gi, '<br/>'),
-                )
+                props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
                 // If we're clearing on submission we should clear the input and continue allowing editing
                 if (props.shouldClearOnSubmit) {
                     e.preventDefault()
@@ -231,9 +217,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 tabIndex={-1}
                 onKeyPress={handleKeyPress}
                 onKeyUp={handleKeyUp}
-                dangerouslySetInnerHTML={
-                    editable ? getRawText() : getMarkdownText()
-                }
+                dangerouslySetInnerHTML={editable ? getRawText() : getMarkdownText()}
             />
         </ThemeProvider>
     )

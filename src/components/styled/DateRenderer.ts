@@ -11,8 +11,7 @@ export const Container = styled.div<ContainerProps>`
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     color: ${(props) => props.theme.colours.textColour};
     border-radius: 5px;
-    text-decoration: ${(props) =>
-        props.completed == true ? 'line-through' : null};
+    text-decoration: ${(props) => (props.completed == true ? 'line-through' : null)};
 `
 
 interface SubTextProps {
@@ -25,6 +24,5 @@ export const SubTextContainer = styled.div<SubTextProps>`
     flex-direction: row;
     align-items: center;
     justify-content: ${(props) => props.position};
-    margin-left: ${(props) =>
-        props.position == 'flex-start' ? '32px' : '0px'};
+    margin-left: ${(props) => (props.position == 'flex-start' ? '32px' : '0px')};
 `

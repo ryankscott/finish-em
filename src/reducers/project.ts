@@ -18,10 +18,7 @@ const initialState: Projects = {
 }
 
 export const projectReducer = produce(
-    (
-        draftState: Projects = initialState,
-        action: project.ProjectActions,
-    ): Projects => {
+    (draftState: Projects = initialState, action: project.ProjectActions): Projects => {
         const p = draftState?.projects[action.id]
 
         switch (action.type) {
@@ -57,24 +54,17 @@ export const projectReducer = produce(
                 p.lastUpdatedAt = new Date().toISOString()
                 p.deletedAt = new Date().toISOString()
                 // Don't forget to remove it from the ordering
-                draftState.order = draftState.order.filter(
-                    (p) => p != action.id,
-                )
+                draftState.order = draftState.order.filter((p) => p != action.id)
                 break
 
             case project.REORDER_PROJECT:
                 // Initialise where everything is
                 const sourceIndex = draftState.order.indexOf(action.id)
-                const destinationIndex = draftState.order.indexOf(
-                    action.destinationId,
-                )
+                const destinationIndex = draftState.order.indexOf(action.destinationId)
                 const newOrder = draftState.order
                 newOrder.splice(sourceIndex, 1)
                 const startOfArray = newOrder.slice(0, destinationIndex)
-                const endOfArray = newOrder.slice(
-                    destinationIndex,
-                    newOrder.length,
-                )
+                const endOfArray = newOrder.slice(destinationIndex, newOrder.length)
                 draftState.order = [...startOfArray, action.id, ...endOfArray]
                 break
 

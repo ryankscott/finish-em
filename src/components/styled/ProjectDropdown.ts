@@ -1,5 +1,4 @@
 import styled from 'styled-components'
-import { Paragraph } from '../Typography'
 
 interface ContainerProps {
     visible: boolean
@@ -11,16 +10,4 @@ export const Container = styled.div<ContainerProps>`
     margin: 0px;
     display: ${(props) => (!props.visible ? 'none' : 'flex')};
     top: 0px;
-`
-export const DisabledContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    background-color: ${(props) => props.theme.colours.primaryColour};
-    border-radius: 5px;
-    padding: 2px 5px;
-`
-export const ProjectName = styled(Paragraph)`
-    font-size: ${(props) => props.theme.fontSizes.xxxsmall};
-    color: ${(props) => props.theme.colours.altTextColour};
 `

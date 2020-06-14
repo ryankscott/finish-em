@@ -36,8 +36,7 @@ export const StyledNavLink = styled(NavLink)`
         outline: none;
     }
     &:hover {
-        background-color: ${(props) =>
-            props.theme.colours.focusAltDialogBackgroundColour};
+        background-color: ${(props) => props.theme.colours.focusAltDialogBackgroundColour};
     }
 `
 
@@ -59,8 +58,7 @@ export const Footer = styled.div<FooterProps>`
     display: grid;
     justify-content: center;
     width: 100%;
-    grid-template-columns: ${(props) =>
-        props.visible ? 'repeat(5, 1fr)' : '100%'};
+    grid-template-columns: ${(props) => (props.visible ? 'repeat(5, 1fr)' : '100%')};
     grid-template-areas: ${(props) =>
         props.visible
             ? `'settings settings settings settings settings collapse'`

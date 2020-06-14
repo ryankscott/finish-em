@@ -3,24 +3,23 @@ import CSS from 'csstype'
 import { transparentize } from 'polished'
 
 interface ContainerProps {
-    isSubtask: boolean
-    noIndentOnSubtasks: boolean
     labelColour: CSS.Color
+    visible: boolean
+    shouldIndent: boolean
 }
 export const Container = styled.div<ContainerProps>`
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
     max-height: 200px;
     font-family: ${(props) => props.theme.font.sansSerif};
     font-size: ${(props) => props.theme.fontSizes.medium};
-    display: grid;
+    display: ${(props) => (props.visible ? 'grid' : 'none')};
     opacity: ${(props) => (props.hidden ? '0' : '1')};
-    margin-left: ${(props) =>
-        props.isSubtask && !props.noIndentOnSubtasks ? '20px' : '0px'};
+    margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
     grid-template-columns: 5px 30px 30px repeat(20, 1fr);
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
         'LABEL EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
-        'LABEL . SUBTASK SUBTASK SUBTASK . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
+        'LABEL . PARENT PARENT PARENT . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
     border: ${(props) => (props.hidden ? '0px' : '1px solid')};
     border-color: ${(props) => props.theme.colours.borderColour};
     padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
@@ -56,8 +55,7 @@ export const Body = styled.div<BodyProps>`
     margin: 5px 10px;
     grid-area: DESC;
     font-size: ${(props) => props.theme.fontSizes.regular};
-    text-decoration: ${(props) =>
-        props.completed === true ? 'line-through' : null};
+    text-decoration: ${(props) => (props.completed === true ? 'line-through' : null)};
 `
 export const ExpandContainer = styled.div`
     grid-area: EXPAND;
@@ -75,6 +73,16 @@ export const ProjectContainer = styled.div<ProjectContainerProps>`
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-end;
+`
+
+export const ProjectName = styled.div`
+    font-size: ${(props) => props.theme.fontSizes.xxsmall};
+    color: ${(props) => props.theme.colours.altTextColour};
+    border-radius: 5px;
+    border: 1px solid;
+    padding: 2px 5px;
+    border-color: ${(props) => props.theme.colours.primaryColour};
+    background-color: ${(props) => props.theme.colours.primaryColour};
 `
 
 interface ScheduledContainerProps {
@@ -105,11 +113,11 @@ export const RepeatContainer = styled.div<RepeatContainerProps>`
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: center;
 `
-interface ConvertSubtaskContainerProps {
+interface ParentItemContainerProps {
     visible: boolean
 }
-export const ConvertSubtaskContainer = styled.div<ConvertSubtaskContainerProps>`
-    grid-area: SUBTASK;
+export const ParentItemContainer = styled.div<ParentItemContainerProps>`
+    grid-area: PARENT;
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-start;

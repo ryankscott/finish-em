@@ -2,13 +2,13 @@ import React from 'react'
 
 import * as CSS from 'csstype'
 
-export const repeatIcon = (
+export const repeat = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
 ): React.SVGProps<SVGSVGElement> => (
     <svg
-        key="repeatIcon"
+        key="repeat"
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
@@ -26,13 +26,13 @@ export const repeatIcon = (
     </svg>
 )
 
-export const dueIcon = (
+export const due = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
 ): React.SVGProps<SVGSVGElement> => (
     <svg
-        key="dueIcon"
+        key="due"
         xmlns="http://www.w3.org/2000/svg"
         width={width ? width : '16'}
         height={height ? height : '16'}
@@ -47,7 +47,7 @@ export const dueIcon = (
     </svg>
 )
 
-export const scheduledIcon = (
+export const scheduled = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -67,7 +67,7 @@ export const scheduledIcon = (
     </svg>
 )
 
-export const noteIcon = (
+export const note = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -91,7 +91,7 @@ export const noteIcon = (
     </svg>
 )
 
-export const todoCheckedIcon = (
+export const todoChecked = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -112,7 +112,7 @@ export const todoCheckedIcon = (
     </svg>
 )
 
-export const todoUncheckedIcon = (
+export const todoUnchecked = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -132,7 +132,7 @@ export const todoUncheckedIcon = (
     </svg>
 )
 
-export const addIcon = (
+export const add = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -153,7 +153,7 @@ export const addIcon = (
     </svg>
 )
 
-export const collapsedIcon = (
+export const collapsed = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -173,7 +173,7 @@ export const collapsedIcon = (
     </svg>
 )
 
-export const expandedIcon = (
+export const expanded = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -193,7 +193,7 @@ export const expandedIcon = (
     </svg>
 )
 
-export const helpIcon = (
+export const help = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -216,7 +216,7 @@ export const helpIcon = (
     </svg>
 )
 
-export const closeIcon = (
+export const close = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -237,7 +237,7 @@ export const closeIcon = (
     </svg>
 )
 
-export const trashIcon = (
+export const trash = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -260,7 +260,7 @@ export const trashIcon = (
     </svg>
 )
 
-export const showIcon = (
+export const show = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -281,7 +281,7 @@ export const showIcon = (
     </svg>
 )
 
-export const hideIcon = (
+export const hide = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -302,7 +302,7 @@ export const hideIcon = (
     </svg>
 )
 
-export const sortIcon = (
+export const sort = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -320,7 +320,7 @@ export const sortIcon = (
     </svg>
 )
 
-export const trashSweepIcon = (
+export const trashSweep = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -347,31 +347,13 @@ export const trashSweepIcon = (
         />
         <line id="line74" y2="20.998405" x2="14.595375" y1="9" x1="14.595375" />
         <line id="line76" y2="8.5773249" x2="32" y1="8.5773249" x1="24" />
-        <line
-            id="line78"
-            y2="13.59158"
-            x2="29.99979"
-            y1="13.59158"
-            x1="23.99979"
-        />
-        <line
-            id="line80"
-            y2="18.540035"
-            x2="26.99979"
-            y1="18.540035"
-            x1="23.99979"
-        />
-        <line
-            x1="8.5953751"
-            y1="9"
-            x2="8.5953751"
-            y2="20.998405"
-            id="line74-9"
-        />
+        <line id="line78" y2="13.59158" x2="29.99979" y1="13.59158" x1="23.99979" />
+        <line id="line80" y2="18.540035" x2="26.99979" y1="18.540035" x1="23.99979" />
+        <line x1="8.5953751" y1="9" x2="8.5953751" y2="20.998405" id="line74-9" />
     </svg>
 )
 
-export const inboxIcon = (
+export const inbox = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -392,7 +374,7 @@ export const inboxIcon = (
     </svg>
 )
 
-export const calendarIcon = (
+export const calendar = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -412,7 +394,7 @@ export const calendarIcon = (
     </svg>
 )
 
-export const slideLeftIcon = (
+export const slideLeft = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -433,7 +415,7 @@ export const slideLeftIcon = (
     </svg>
 )
 
-export const slideRightIcon = (
+export const slideRight = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -454,7 +436,7 @@ export const slideRightIcon = (
     </svg>
 )
 
-export const upLevelIcon = (
+export const upLevel = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -475,7 +457,7 @@ export const upLevelIcon = (
     </svg>
 )
 
-export const backIcon = (
+export const back = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -495,7 +477,7 @@ export const backIcon = (
         <polyline points="12 19 5 12 12 5"></polyline>
     </svg>
 )
-export const forwardIcon = (
+export const forward = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -516,7 +498,7 @@ export const forwardIcon = (
     </svg>
 )
 
-export const settingsIcon = (
+export const settings = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -537,7 +519,7 @@ export const settingsIcon = (
     </svg>
 )
 
-export const subtaskIcon = (
+export const subtask = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -566,7 +548,7 @@ export const subtaskIcon = (
     </svg>
 )
 
-export const moreIcon = (
+export const more = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -588,7 +570,7 @@ export const moreIcon = (
     </svg>
 )
 
-export const flagIcon = (
+export const flag = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -609,7 +591,7 @@ export const flagIcon = (
     </svg>
 )
 
-export const trashPermanentIcon = (
+export const trashPermanent = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -637,7 +619,7 @@ export const trashPermanentIcon = (
     </svg>
 )
 
-export const staleIcon = (
+export const stale = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -659,7 +641,7 @@ export const staleIcon = (
     </svg>
 )
 
-export const darkModeIcon = (
+export const darkMode = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -679,7 +661,7 @@ export const darkModeIcon = (
     </svg>
 )
 
-export const labelIcon = (
+export const label = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -700,7 +682,7 @@ export const labelIcon = (
     </svg>
 )
 
-export const sortDirectionIcon = (
+export const sortDirection = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -719,7 +701,7 @@ export const sortDirectionIcon = (
         <path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3zm7 14.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z" />
     </svg>
 )
-export const editIcon = (
+export const edit = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -740,7 +722,7 @@ export const editIcon = (
     </svg>
 )
 
-export const colourIcon = (
+export const colour = (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -761,5 +743,45 @@ export const colourIcon = (
         <circle cx="9.5" cy="7.5" r="1.5" />
         <circle cx="14.5" cy="7.5" r="1.5" />
         <circle cx="17.5" cy="11.5" r="1.5" />
+    </svg>
+)
+
+export const expandAll = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '12'}
+        height={height ? height : '12'}
+        viewBox="0 0 24 24"
+        fill={colour ? colour : 'currentColor'}
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="0.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z" />
+    </svg>
+)
+
+export const collapseAll = (
+    width?: CSS.WidthProperty<number>,
+    height?: CSS.HeightProperty<number>,
+    colour?: CSS.Color,
+): React.SVGProps<SVGSVGElement> => (
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={width ? width : '12'}
+        height={height ? height : '12'}
+        viewBox="0 0 24 24"
+        fill={colour ? colour : 'currentColor'}
+        stroke={colour ? colour : 'currentColor'}
+        strokeWidth="0.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M7.41 18.59L8.83 20 12 16.83 15.17 20l1.41-1.41L12 14l-4.59 4.59zm9.18-13.18L15.17 4 12 7.17 8.83 4 7.41 5.41 12 10l4.59-4.59z" />
     </svg>
 )

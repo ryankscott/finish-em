@@ -15,12 +15,8 @@ import EditableText from './EditableText'
 import FilteredItemList from '../containers/FilteredItemList'
 import DeleteProjectDialog from './DeleteProjectDialog'
 import { Uuid } from '@typed/uuid'
-import { ProjectType, FilterEnum } from '../interfaces'
-import {
-    ProjectContainer,
-    HeaderContainer,
-    AddProjectContainer,
-} from './styled/Project'
+import { ProjectType } from '../interfaces'
+import { ProjectContainer, HeaderContainer, AddProjectContainer } from './styled/Project'
 import ItemCreator from './ItemCreator'
 import { ItemIcons } from './Item'
 
@@ -93,21 +89,13 @@ const Project = (props: ProjectProps): ReactElement => {
                 </AddProjectContainer>
                 <FilteredItemList
                     listName="Notes"
-                    filter={{
-                        type: 'default',
-                        filter: FilterEnum.ShowFromProjectByType,
-                        params: { projectId: props.project.id, type: 'NOTE' },
-                    }}
+                    filter={`projectId == "${props.project.id}" and type == "NOTE"`}
                     isFilterable={false}
                     hideIcons={[ItemIcons.Project]}
                 />
                 <FilteredItemList
                     listName="Todos"
-                    filter={{
-                        type: 'default',
-                        filter: FilterEnum.ShowFromProjectByType,
-                        params: { projectId: props.project.id, type: 'TODO' },
-                    }}
+                    filter={`projectId == "${props.project.id}" and type == "TODO"`}
                     isFilterable={true}
                     hideIcons={[ItemIcons.Project]}
                 />

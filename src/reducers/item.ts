@@ -14,10 +14,7 @@ export const initialState: Items = {
 }
 
 export const itemReducer = produce(
-    (
-        draftState: Items = initialState,
-        action: ItemActions | DeleteProjectAction,
-    ): Items => {
+    (draftState: Items = initialState, action: ItemActions | DeleteProjectAction): Items => {
         const i = draftState?.items[action.id]
         switch (action.type) {
             case item.CREATE_ITEM:
@@ -54,9 +51,7 @@ export const itemReducer = produce(
                 // if we're deleting a child, remove the reference to it on the parent
                 if (i.parentId != null) {
                     const parent = draftState.items[i.parentId]
-                    parent.children = parent.children.filter(
-                        (c) => c != action.id,
-                    )
+                    parent.children = parent.children.filter((c) => c != action.id)
                     parent.lastUpdatedAt = new Date().toISOString()
                     i.parentId = null
                 }
@@ -84,9 +79,7 @@ export const itemReducer = produce(
                     i.completedAt = new Date().toISOString()
                     // We should set the due date if there's a repeat to the next occurrence
                 } else {
-                    i.dueDate = rrulestr(i.repeat)
-                        .after(new Date())
-                        .toISOString()
+                    i.dueDate = rrulestr(i.repeat).after(new Date()).toISOString()
                 }
                 i.lastUpdatedAt = new Date().toISOString()
                 break
@@ -99,9 +92,9 @@ export const itemReducer = produce(
 
                 // TODO: This breaks immer?
                 // If the child has children already then return
-                /*if (child.children != []) {
-                    break
-                }*/
+                //if (child.children != []) {
+                //    break
+                // }
 
                 // if the parent has a parent then return
                 if (parent.parentId != null) {
@@ -110,9 +103,7 @@ export const itemReducer = produce(
 
                 // Update parent item
                 parent.children =
-                    parent.children == undefined
-                        ? [action.id]
-                        : [...parent.children, action.id]
+                    parent.children == undefined ? [action.id] : [...parent.children, action.id]
                 parent.lastUpdatedAt = new Date().toISOString()
                 // Update child
                 child.projectId = parent.projectId
@@ -152,9 +143,7 @@ export const itemReducer = produce(
                 i.lastUpdatedAt = new Date().toISOString()
                 // If we don't have the due date we should set this to the next instance of the repeat after today
                 if (i.dueDate == null) {
-                    i.dueDate = action.rule
-                        .after(startOfDay(new Date()), true)
-                        .toISOString()
+                    i.dueDate = action.rule.after(startOfDay(new Date()), true).toISOString()
                 }
                 break
 
@@ -166,16 +155,11 @@ export const itemReducer = produce(
             case item.REORDER_ITEM:
                 // Initialise where everything is
                 const sourceIndex = draftState.order.indexOf(action.id)
-                const destinationIndex = draftState.order.indexOf(
-                    action.destinationId,
-                )
+                const destinationIndex = draftState.order.indexOf(action.destinationId)
                 const newOrder = draftState.order
                 newOrder.splice(sourceIndex, 1)
                 const startOfArray = newOrder.slice(0, destinationIndex)
-                const endOfArray = newOrder.slice(
-                    destinationIndex,
-                    newOrder.length,
-                )
+                const endOfArray = newOrder.slice(destinationIndex, newOrder.length)
                 draftState.order = [...startOfArray, action.id, ...endOfArray]
                 break
 
@@ -192,20 +176,16 @@ export const itemReducer = produce(
                 // Also need to remove the reference from the old parent
                 if (i.parentId) {
                     const oldParent = draftState.items[i.parentId]
-                    oldParent.children = oldParent.children.filter(
-                        (c) => c != action.id,
-                    )
+                    oldParent.children = oldParent.children.filter((c) => c != action.id)
                     i.parentId = null
                     i.lastUpdatedAt = new Date().toISOString()
                 }
-                // Add need to add it to the new parent
+                // Need to add it to the new parent
                 i.parentId = action.parentId
                 i.lastUpdatedAt = new Date().toISOString()
                 const newParent = draftState.items[action.parentId]
                 newParent.children =
-                    newParent.children.length > 0
-                        ? [...newParent.children, action.id]
-                        : [action.id]
+                    newParent.children.length > 0 ? [...newParent.children, action.id] : [action.id]
                 newParent.lastUpdatedAt = new Date().toISOString()
                 break
 
@@ -237,18 +217,14 @@ export const itemReducer = produce(
                 // Delete all children
                 if (i.children != []) {
                     i.children.map((c) => {
-                        draftState.order = draftState.order.filter(
-                            (o) => o != c,
-                        )
+                        draftState.order = draftState.order.filter((o) => o != c)
                         delete draftState.items[c]
                     })
                 }
 
                 // Delete parent / item
                 delete draftState.items[action.id]
-                draftState.order = draftState.order.filter(
-                    (o) => o != action.id,
-                )
+                draftState.order = draftState.order.filter((o) => o != action.id)
                 break
 
             case item.ADD_LABEL:

@@ -9,12 +9,7 @@ import { connect } from 'react-redux'
 import { Item, Items, Projects } from '../interfaces'
 import Button from './Button'
 import { removeItemTypeFromString } from '../utils'
-import { subtaskIcon } from '../assets/icons'
-import {
-    DisabledContainer,
-    Container,
-    DisabledText,
-} from './styled/SubtaskDropdown'
+import { Container } from './styled/SubtaskDropdown'
 
 type OptionType = { value: string; label: string }
 
@@ -24,14 +19,8 @@ const generateOptions = (
     parentId: Uuid,
     itemId: Uuid,
 ): { label: string; options: OptionsType<OptionType> }[] => {
-    const getItemText = (
-        text: string,
-        projectId: Uuid | '0',
-        projects: Projects,
-    ): string => {
-        const longText = `[${
-            projects.projects[projectId].name
-        }] ${removeItemTypeFromString(text)}`
+    const getItemText = (text: string, projectId: Uuid | '0', projects: Projects): string => {
+        const longText = `[${projects.projects[projectId].name}] ${removeItemTypeFromString(text)}`
         return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
     }
 
@@ -82,7 +71,6 @@ interface OwnProps {
     onSubmit: (value: Uuid) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
-    disableClick?: boolean
     completed: boolean
     showSelect?: boolean
 }
@@ -102,37 +90,21 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div>
-                {props.disableClick ? (
-                    <DisabledContainer>
-                        {subtaskIcon(12, 12)}
-                        <DisabledText>
-                            {removeItemTypeFromString(
-                                props.items.items[props.parentId]?.text,
-                            )}
-                        </DisabledText>
-                    </DisabledContainer>
-                ) : (
-                    <Button
-                        spacing="compact"
-                        type={props.style || 'default'}
-                        onClick={(e) => {
-                            if (props.completed) return
-                            setShowSelect(!showSelect)
-                            e.stopPropagation()
-                        }}
-                        text={
-                            removeItemTypeFromString(
-                                props.items.items[props.parentId]?.text,
-                            ) || 'Add to item'
-                        }
-                        iconColour={
-                            !props.text
-                                ? themes[props.theme].colours.altIconColour
-                                : null
-                        }
-                        icon={'subtask'}
-                    />
-                )}
+                <Button
+                    spacing="compact"
+                    type={props.style || 'default'}
+                    onClick={(e) => {
+                        if (props.completed) return
+                        setShowSelect(!showSelect)
+                        e.stopPropagation()
+                    }}
+                    text={
+                        removeItemTypeFromString(props.items.items[props.parentId]?.text) ||
+                        'Add to item'
+                    }
+                    iconColour={!props.text ? themes[props.theme].colours.altIconColour : null}
+                    icon={'subtask'}
+                />
                 {(showSelect || props.showSelect) && (
                     <Container visible={Object.keys(props.items).length > 1}>
                         <CreatableSelect

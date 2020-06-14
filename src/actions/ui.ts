@@ -21,6 +21,9 @@ export const REDO_SET_ACTIVE_ITEM = 'REDO_SET_ACTIVE_ITEM'
 export const TOGGLE_DARK_MODE = 'TOGGLE_DARK_MODE'
 export const RENAME_LABEL = 'RENAME_LABEL'
 export const SET_LABEL_COLOUR = 'SET_LABEL_COLOUR'
+export const SHOW_SUBTASKS = 'SHOW_SUBTASKS'
+export const HIDE_SUBTASKS = 'HIDE_SUBTASKS'
+export const TOGGLE_SUBTASKS = 'TOGGLE_SUBTASKS'
 
 interface ShowShortcutDialogAction {
     type: typeof SHOW_SHORTCUT_DIALOG
@@ -216,6 +219,47 @@ export function setLabelColour(id: Uuid, colour: string): SetLabelColourAction {
     }
 }
 
+export interface ShowSubtasksAction {
+    type: typeof SHOW_SUBTASKS
+    id: Uuid
+    componentId: Uuid
+}
+
+export function showSubtasks(id: Uuid, componentId: Uuid): ShowSubtasksAction {
+    return {
+        type: SHOW_SUBTASKS,
+        id: id,
+        componentId: componentId,
+    }
+}
+export interface HideSubtasksAction {
+    type: typeof HIDE_SUBTASKS
+    id: Uuid
+    componentId: Uuid
+}
+
+export function hideSubtasks(id: Uuid, componentId: Uuid): HideSubtasksAction {
+    return {
+        type: HIDE_SUBTASKS,
+        id: id,
+        componentId: componentId,
+    }
+}
+
+export interface ToggleSubtasksAction {
+    type: typeof TOGGLE_SUBTASKS
+    id: Uuid
+    componentId: Uuid
+}
+
+export function toggleSubtasks(id: Uuid, componentId: Uuid): ToggleSubtasksAction {
+    return {
+        type: TOGGLE_SUBTASKS,
+        id: id,
+        componentId: componentId,
+    }
+}
+
 export type UIActions =
     | ShowShortcutDialogAction
     | HideShortcutDialogAction
@@ -238,3 +282,6 @@ export type UIActions =
     | ToggleDarkModeAction
     | RenameLabelAction
     | SetLabelColourAction
+    | ShowSubtasksAction
+    | HideSubtasksAction
+    | ToggleSubtasksAction

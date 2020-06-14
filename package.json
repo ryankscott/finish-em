@@ -1,6 +1,6 @@
 {
     "name": "Finish-em",
-    "version": "0.2.5",
+    "version": "0.3.0",
     "author": "Ryan Scott (ryan@ryankennethscott.com)",
     "description": "An org-mode inspired personal organiser",
     "repository": {
@@ -84,6 +84,7 @@
         "emoji-regex": "^9.0.0",
         "eslint-config-prettier": "^6.10.1",
         "eslint-plugin-prettier": "^3.1.2",
+        "filtrex": "^2.0.0",
         "immer": "^6.0.3",
         "is-electron": "^2.2.0",
         "lodash": "^4.17.15",

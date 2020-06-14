@@ -60,9 +60,7 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
                                         props.onClose()
                                     }}
                                 >
-                                    <LabelName colour={m.colour}>
-                                        {m.name}
-                                    </LabelName>
+                                    <LabelName colour={m.colour}>{m.name}</LabelName>
                                 </LabelContainer>
                             </div>
                         )
@@ -87,7 +85,7 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
 
 const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
-    labels: state.ui.labels,
+    labels: state.ui.labels.labels,
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({

@@ -1,21 +1,18 @@
 // @ts-nocheck
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { ThemeProvider, createGlobalStyle } from 'styled-components'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
 import { GlobalHotKeys, configure } from 'react-hotkeys'
 import DailyAgenda from './DailyAgenda'
-import Inbox from './Inbox'
-import Trash from './Trash'
-import Stale from './Stale'
-import Project from './Project'
-import Labels from './Labels'
-import Unscheduled from './Unscheduled'
 import Sidebar from './Sidebar'
-import Completed from './Completed'
 import Focusbar from './Focusbar'
 import ShortcutDialog from './ShortcutDialog'
 import Settings from './Settings'
+import Inbox from './Inbox'
+import Project from './Project'
+import View from './View'
+import Labels from './Labels'
 import { app as appKeymap } from '../keymap'
 import { themes } from '../theme'
 import {
@@ -37,8 +34,10 @@ import {
 } from './styled/App'
 import Button from './Button'
 import Tooltip from './Tooltip'
-import { Projects } from '../interfaces'
+import { Projects, Views } from '../interfaces'
 import { Slide } from 'react-toastify'
+
+const MIN_WIDTH_FOR_SIDEBAR = 700
 
 configure({
     logLevel: 'warning',
@@ -79,6 +78,7 @@ interface StateProps {
     sidebarVisible: boolean
     focusbarVisible: boolean
     projects: Projects
+    views: Views
 }
 interface DispatchProps {
     toggleShortcutDialog: () => void
@@ -92,6 +92,14 @@ type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
+
+    useEffect(() => {
+        window.addEventListener('resize', () => {
+            if ((window.innerWidth < MIN_WIDTH_FOR_SIDEBAR) & (props.sidebarVisible == true)) {
+                props.hideSidebar()
+            }
+        })
+    })
 
     function goToDailyAgenda(): void {
         history.push('/dailyAgenda')
@@ -202,33 +210,35 @@ const App = (props: AppProps): ReactElement => {
                 <MainContainer visible={sidebarVisible}>
                     <ShortcutDialog />
                     <Switch>
-                        <Route path="/inbox">
-                            <Inbox />
-                        </Route>
                         <Route path="/dailyAgenda">
                             <DailyAgenda />
-                        </Route>
-                        <Route path="/trash">
-                            <Trash />
-                        </Route>
-                        <Route path="/stale">
-                            <Stale />
-                        </Route>
-                        <Route path="/unscheduled">
-                            <Unscheduled />
-                        </Route>
-                        <Route path="/completed">
-                            <Completed />
                         </Route>
                         <Route path="/labels">
                             <Labels />
                         </Route>
+                        <Route path="/inbox">
+                            <Inbox />
+                        </Route>
+                        {Object.values(props.views.order).map((v) => {
+                            const view = props.views.views[v]
+                            return (
+                                <Route key={view.id} path={`/${view.name}`}>
+                                    <View
+                                        key={view.id}
+                                        id={view.id}
+                                        name={view.name}
+                                        icon={view.icon}
+                                    />
+                                </Route>
+                            )
+                        })}
                         <Route path="/Settings">
                             <Settings />
                         </Route>
                         <Route path="/projects/:id">
                             <ProjectWrapper projects={props.projects} />
                         </Route>
+
                         <Route path="/">
                             <Inbox />
                         </Route>
@@ -246,10 +256,7 @@ const App = (props: AppProps): ReactElement => {
                         iconColour={themes[props.theme].colours.altIconColour}
                         onClick={toggleShortcutDialog}
                     ></Button>
-                    <Tooltip
-                        id="shortcut-button"
-                        text={'Show shortcuts'}
-                    ></Tooltip>
+                    <Tooltip id="shortcut-button" text={'Show shortcuts'}></Tooltip>
                 </ShortcutIcon>
             </Container>
             <StyledToastContainer
@@ -273,6 +280,7 @@ const mapStateToProps = (state): StateProps => ({
     sidebarVisible: state.ui.sidebarVisible,
     focusbarVisible: state.ui.focusbarVisible,
     theme: state.ui.theme,
+    views: state.ui.views,
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({

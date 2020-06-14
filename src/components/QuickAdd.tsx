@@ -31,7 +31,6 @@ function QuickAdd(props: QuickAddProps): ReactElement {
     })
 
     const handleEscape = (): void => {
-        console.log('escaping')
         window.ipcRenderer.send('close-quickadd')
     }
 

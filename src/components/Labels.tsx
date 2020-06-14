@@ -2,12 +2,11 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 
 import { themes } from '../theme'
-import { Title } from './Typography'
-import { HeaderContainer, Container, IconContainer } from './styled/Labels'
+import { Container } from './styled/View'
 import FilteredItemList from '../containers/FilteredItemList'
-import { RenderingStrategy, ItemType, LabelType, Label } from '../interfaces'
+import { RenderingStrategy, LabelType, Label } from '../interfaces'
 import { connect } from 'react-redux'
-import { labelIcon } from '../assets/icons'
+import ViewHeader from './ViewHeader'
 
 interface StateProps {
     theme: string
@@ -17,31 +16,13 @@ type LabelProps = StateProps
 const Labels = (props: LabelProps): ReactElement => (
     <ThemeProvider theme={themes[props.theme]}>
         <Container>
-            <HeaderContainer>
-                <IconContainer>
-                    {labelIcon(
-                        24,
-                        24,
-                        themes[props.theme].colours.primaryColour,
-                    )}
-                </IconContainer>
-                <Title> Labels </Title>
-            </HeaderContainer>
-
-            {Object.values(props.labels).map((l: LabelType) => (
+            <ViewHeader name={'Labels'} icon={'label'} />
+            {Object.values(props.labels.labels).map((l: LabelType) => (
                 <FilteredItemList
+                    id={l.id}
                     key={l.id}
                     listName={l.name}
-                    filter={{
-                        type: 'custom',
-                        filter: (i: ItemType) => {
-                            return (
-                                i.completed == false &&
-                                i.deleted == false &&
-                                i.labelId == l.id
-                            )
-                        },
-                    }}
+                    filter={`not completed and not deleted and labelId == "${l.id}"`}
                     isFilterable={true}
                     renderingStrategy={RenderingStrategy.All}
                 />

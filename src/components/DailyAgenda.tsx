@@ -4,16 +4,10 @@ import { format, sub, add } from 'date-fns'
 import { connect } from 'react-redux'
 import { themes } from '../theme'
 import FilteredItemList from '../containers/FilteredItemList'
-import { useHistory } from 'react-router-dom'
 import { Paragraph, Header1 } from './Typography'
 import EditableText from './EditableText'
 import { setDailyGoal } from '../actions'
-import {
-    ItemType,
-    RenderingStrategy,
-    Extensions,
-    FilterEnum,
-} from '../interfaces'
+import { ItemType, RenderingStrategy, FilterEnum } from '../interfaces'
 import {
     AgendaContainer,
     DateContainer,
@@ -28,7 +22,6 @@ interface StateProps {
     dailyGoal: any[]
     items: ItemType[]
     theme: string
-    extensions: Extensions
 }
 interface DispatchProps {
     setDailyGoal: (day: string, input: string) => void
@@ -38,7 +31,6 @@ type DailyAgendaProps = StateProps & DispatchProps
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     const [date, setDate] = useState(new Date())
     const editor = React.createRef<HTMLInputElement>()
-    const history = useHistory()
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <AgendaContainer>
@@ -90,59 +82,31 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     shouldSubmitOnBlur={true}
                     shouldClearOnSubmit={false}
                 />
-                {props.extensions &&
-                    Object.values(props.extensions).map((e) => {
-                        if (e.path == history.location.pathname) {
-                            if (e.location == 'main') {
-                                switch (e.component.name) {
-                                    case 'FilteredItemList':
-                                        return (
-                                            <Section key={e.id}>
-                                                <FilteredItemList
-                                                    {...e.component.props}
-                                                />
-                                            </Section>
-                                        )
-                                        break
-                                    default:
-                                        break
-                                }
-                            }
-                        }
-                    })}
                 <Section>
                     <FilteredItemList
+                        id="c25ce4ec-a6ae-46c1-9c58-25b51ff08e93"
                         isFilterable={true}
                         listName="Overdue"
-                        filter={{
-                            type: 'default',
-                            filter: FilterEnum.ShowOverdue,
-                        }}
+                        filter="overdue(dueDate) or overdue(scheduledDate)"
                         renderingStrategy={RenderingStrategy.All}
                         noIndentOnSubtasks={true}
                     />
                 </Section>
                 <Section>
                     <FilteredItemList
+                        id="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
                         showProject={true}
                         isFilterable={true}
                         listName="Due Today"
-                        filter={{
-                            type: 'default',
-                            filter: FilterEnum.ShowDueOnDay,
-                            params: { dueDate: date },
-                        }}
+                        filter="today(dueDate)"
                         renderingStrategy={RenderingStrategy.All}
                     />
                     <FilteredItemList
+                        id="a4e1c649-378f-4d14-9aac-2d2720270dd8"
                         showProject={true}
                         isFilterable={true}
                         listName="Scheduled Today"
-                        filter={{
-                            type: 'default',
-                            filter: FilterEnum.ShowScheduledOnDay,
-                            params: { scheduledDate: date },
-                        }}
+                        filter="today(scheduledDate)"
                         renderingStrategy={RenderingStrategy.All}
                     />
                 </Section>
@@ -155,7 +119,6 @@ const mapStateToProps = (state): StateProps => ({
     items: state.items,
     dailyGoal: state.dailyGoal,
     theme: state.ui.theme,
-    extensions: state.extensions,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     setDailyGoal: (day, text) => {

@@ -8,12 +8,7 @@ import CSS from 'csstype'
 import { connect } from 'react-redux'
 import { Items, Label } from '../interfaces'
 import Button from './Button'
-import { labelIcon } from '../assets/icons'
-import {
-    DisabledContainer,
-    Container,
-    DisabledText,
-} from './styled/LabelDropdown'
+import { Container } from './styled/LabelDropdown'
 import { transparentize } from 'polished'
 
 type OptionType = { value: string; label: string; color: CSS.Color }
@@ -41,7 +36,6 @@ interface OwnProps {
     onSubmit: (value: Uuid) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
-    disableClick?: boolean
     completed: boolean
     showSelect?: boolean
 }
@@ -62,25 +56,18 @@ function LabelDropdown(props: LabelProps): ReactElement {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div>
-                {props.disableClick ? (
-                    <DisabledContainer>
-                        {labelIcon(12, 12, colour)}
-                        <DisabledText>{name}</DisabledText>
-                    </DisabledContainer>
-                ) : (
-                    <Button
-                        spacing="compact"
-                        type={props.style || 'default'}
-                        onClick={(e) => {
-                            if (props.completed) return
-                            setShowSelect(!showSelect)
-                            e.stopPropagation()
-                        }}
-                        text={text || 'Add label'}
-                        iconColour={text ? colour : null}
-                        icon={'label'}
-                    />
-                )}
+                <Button
+                    spacing="compact"
+                    type={props.style || 'default'}
+                    onClick={(e) => {
+                        if (props.completed) return
+                        setShowSelect(!showSelect)
+                        e.stopPropagation()
+                    }}
+                    text={text || 'Add label'}
+                    iconColour={text ? colour : null}
+                    icon={'label'}
+                />
                 {(showSelect || props.showSelect) && (
                     <Container visible={Object.keys(props.items).length > 1}>
                         <CreatableSelect
@@ -114,7 +101,7 @@ function LabelDropdown(props: LabelProps): ReactElement {
 
 const mapStateToProps = (state): StateProps => ({
     items: state.items,
-    labels: state.ui.labels,
+    labels: state.ui.labels.labels,
     theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): {} => ({})
