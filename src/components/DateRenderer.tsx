@@ -28,20 +28,14 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
             <Container completed={props.completed} type={props.icon}>
                 <SubTextContainer key={props.icon} position={props.position}>
                     <Button
-                        dataFor={
-                            'data-renderer-' + props.icon + '-' + props.text
-                        }
+                        dataFor={'data-renderer-' + props.icon + '-' + props.text}
                         type={props.style || 'default'}
                         spacing="compact"
                         onClick={props.onClick}
                         icon={props.icon}
                         text={props.text}
                         textSize={props.textSize}
-                        iconColour={
-                            !props.text
-                                ? themes[props.theme].colours.altIconColour
-                                : null
-                        }
+                        iconColour={!props.text ? themes[props.theme].colours.altIconColour : null}
                     ></Button>
                 </SubTextContainer>
                 {props.tooltipText && (

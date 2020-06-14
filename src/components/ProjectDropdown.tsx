@@ -75,10 +75,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                             placeholder={'Project:'}
                             isSearchable
                             onChange={handleChange}
-                            options={generateOptions(
-                                props.projectId,
-                                props.projects.projects,
-                            )}
+                            options={generateOptions(props.projectId, props.projects.projects)}
                             styles={selectStyles({
                                 fontSize: 'xxsmall',
                                 theme: themes[props.theme],

@@ -16,8 +16,8 @@ export const ItemListContainer = styled.div`
 export const FilterBar = styled.div`
     display: grid;
     align-content: flex-end;
-    grid-template-columns: 30px 30px repeat(8, 1fr);
-    grid-template-areas: 'delete hide hide . . . . sort sort sort';
+    grid-template-columns: repeat(20, 1fr);
+    grid-template-areas: 'delete hide hide . . . . . . . . . . . . sort sort sort sort sort collapse expand';
     width: 100%;
     height: 40px;
     transition: 0.2s ease-in-out;
@@ -73,6 +73,14 @@ export const CompletedContainer = styled.div<CompletedContainerProps>`
     align-items: flex-end;
 `
 
+export const CollapseContainer = styled.div`
+    grid-area: collapse;
+`
+
+export const ExpandContainer = styled.div`
+    grid-area: expand;
+`
+
 export const ListName = styled.div`
     display: flex;
     flex-direction: row;
@@ -83,4 +91,5 @@ export const ListName = styled.div`
 
 export const Container = styled.div`
     margin: 10px 0px;
+    width: 100%;
 `

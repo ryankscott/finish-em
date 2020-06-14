@@ -2,7 +2,7 @@ import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import Button from './Button'
-import { flagIcon, trashPermanentIcon } from '../assets/icons'
+import { flag, trashPermanent } from '../assets/icons'
 import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
@@ -58,7 +58,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                                         setShowLabelDialog(!showLabelDialog)
                                     }}
                                 >
-                                    <Icon>{flagIcon(12, 12)}</Icon>
+                                    <Icon>{flag(12, 12)}</Icon>
                                     {'Add Label'}
                                 </Option>
                             )}
@@ -72,7 +72,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                                         setShowDialog(false)
                                     }}
                                 >
-                                    <Icon>{trashPermanentIcon(14, 14)}</Icon>
+                                    <Icon>{trashPermanent(14, 14)}</Icon>
                                     {'Delete Permanently'}
                                 </Option>
                             )}

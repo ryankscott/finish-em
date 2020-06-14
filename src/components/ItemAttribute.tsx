@@ -1,15 +1,6 @@
 import React, { ReactElement } from 'react'
-import {
-    AttributeContainer,
-    AttributeIcon,
-    AttributeText,
-} from './styled/ItemAttribute'
-import {
-    repeatIcon,
-    dueIcon,
-    scheduledIcon,
-    subtaskIcon,
-} from '../assets/icons'
+import { AttributeContainer, AttributeIcon, AttributeText } from './styled/ItemAttribute'
+import { repeat, due, scheduled, subtask } from '../assets/icons'
 
 interface OwnProps {
     type: 'repeat' | 'due' | 'scheduled' | 'parent'
@@ -18,18 +9,16 @@ interface OwnProps {
 }
 type ItemAttributeProps = OwnProps
 
-const getIcon = (
-    icon: 'repeat' | 'due' | 'scheduled' | 'parent',
-): React.SVGProps<SVGElement> => {
+const getIcon = (icon: 'repeat' | 'due' | 'scheduled' | 'parent'): React.SVGProps<SVGElement> => {
     switch (icon) {
         case 'repeat':
-            return repeatIcon(14, 14)
+            return repeat(14, 14)
         case 'due':
-            return dueIcon(14, 14)
+            return due(14, 14)
         case 'scheduled':
-            return scheduledIcon(14, 14)
+            return scheduled(14, 14)
         case 'parent':
-            return subtaskIcon(14, 14)
+            return subtask(14, 14)
         default:
             break
     }

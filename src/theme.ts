@@ -7,8 +7,7 @@ export const themes: { [key: string]: ThemeType } = {
     light: {
         name: 'Light',
         font: {
-            sansSerif:
-                '-apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
+            sansSerif: '-apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
         },
         fontSizes: {
             xxxsmall: '10px',
@@ -96,8 +95,7 @@ export const themes: { [key: string]: ThemeType } = {
     dark: {
         name: 'Dark',
         font: {
-            sansSerif:
-                '-apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
+            sansSerif: '-apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
         },
         fontSizes: {
             xxxsmall: '10px',
@@ -240,8 +238,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
                     : props.theme.fontWeights.regular,
                 zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
                 '&:active': {
-                    backgroundColor:
-                        props.theme.button.default.hoverBackgroundColour,
+                    backgroundColor: props.theme.button.default.hoverBackgroundColour,
                 },
             }
         },
@@ -263,8 +260,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             borderRadius: '5px',
             zIndex: props.zIndex != undefined ? props.zIndex : 1,
             '&:hover': {
-                backgroundColor:
-                    props.theme.button.default.hoverBackgroundColour,
+                backgroundColor: props.theme.button.default.hoverBackgroundColour,
             },
         }),
         singleValue: () => ({}),
@@ -278,9 +274,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             display: 'none',
         }),
         dropdownIndicator: () =>
-            props.showDropdownIndicator
-                ? { display: 'auto' }
-                : { display: 'none' },
+            props.showDropdownIndicator ? { display: 'auto' } : { display: 'none' },
         noOptionsMessage: () => ({
             fontFamily: props.theme.font.sansSerif,
             fontSize: props.theme.fontSizes[props.fontSize],

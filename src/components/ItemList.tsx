@@ -35,6 +35,7 @@ interface StateProps {
 
 // TODO: inputItems should just be an array of IDs
 interface OwnProps {
+    componentId: Uuid
     inputItems: ItemType[]
     renderingStrategy?: RenderingStrategy
     hideIcons: ItemIcons[]
@@ -203,8 +204,8 @@ function ItemList(props: ItemListProps): ReactElement {
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <HotKeys keyMap={itemKeymap} handlers={handlers}>
-                <Container>
+            <Container>
+                <HotKeys keyMap={itemKeymap} handlers={handlers}>
                     {props.inputItems.map((o) => {
                         switch (props.renderingStrategy) {
                             case RenderingStrategy.All:
@@ -223,7 +224,8 @@ function ItemList(props: ItemListProps): ReactElement {
                                         <Item
                                             {...o}
                                             key={o.id}
-                                            noIndentOnSubtasks={false}
+                                            componentId={props.componentId}
+                                            shouldIndent={false}
                                             hideIcons={props.hideIcons}
                                         />
                                         {o.children?.map((c) => {
@@ -231,8 +233,8 @@ function ItemList(props: ItemListProps): ReactElement {
                                             return (
                                                 <Item
                                                     key={c}
-                                                    noIndentOnSubtasks={false}
                                                     {...childItem}
+                                                    componentId={props.componentId}
                                                     hideIcons={
                                                         props.hideIcons
                                                             ? [
@@ -241,6 +243,7 @@ function ItemList(props: ItemListProps): ReactElement {
                                                               ]
                                                             : [ItemIcons.Subtask]
                                                     }
+                                                    shouldIndent={true}
                                                 />
                                             )
                                         })}
@@ -253,8 +256,9 @@ function ItemList(props: ItemListProps): ReactElement {
                                         <Item
                                             {...o}
                                             key={o.id}
-                                            noIndentOnSubtasks={false}
+                                            componentId={props.componentId}
                                             hideIcons={props.hideIcons}
+                                            shouldIndent={false}
                                         />
                                         {o.children?.map((c) => {
                                             const childItem = props.items.items[c]
@@ -262,7 +266,8 @@ function ItemList(props: ItemListProps): ReactElement {
                                                 <Item
                                                     key={c}
                                                     {...childItem}
-                                                    noIndentOnSubtasks={false}
+                                                    shouldIndent={true}
+                                                    componentId={props.componentId}
                                                     hideIcons={
                                                         props.hideIcons
                                                             ? [
@@ -280,8 +285,8 @@ function ItemList(props: ItemListProps): ReactElement {
                     })}
 
                     {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
-                </Container>
-            </HotKeys>
+                </HotKeys>
+            </Container>
         </ThemeProvider>
     )
 }

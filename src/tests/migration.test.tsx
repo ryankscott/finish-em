@@ -1,12 +1,13 @@
 import uuidv4 from 'uuid/v4'
 import Mockdate from 'mockdate'
-import { ItemType, ProjectType, Items } from '../interfaces'
+import { ItemType, ProjectType, Items, Label } from '../interfaces'
 import {
     migratev2tov3Items,
     migratev5tov6Projects,
     migratev5tov6Items,
     migratev7tov8Items,
-} from '../store'
+    migratev11tov12Labels,
+} from '../store/migrations'
 
 describe('migration tests', () => {
     it('should handle migration of a v2 item to a v3 item', () => {
@@ -454,5 +455,48 @@ describe('migration tests', () => {
             order: [id],
         })
         Mockdate.reset()
+    })
+    it('should handle migration of a v11 label to a v12 label', () => {
+        const v11Labels: Label = {
+            '4702c2d3-bcda-40a2-bd34-e0db07578076': {
+                id: '4702c2d3-bcda-40a2-bd34-e0db07578076',
+                name: 'Blocked',
+                colour: '#fe5e41',
+            },
+            '5bd4d5ce-447f-45d5-a557-c8942bbfbae4': {
+                id: '5bd4d5ce-447f-45d5-a557-c8942bbfbae4',
+                name: 'High Priority',
+                colour: '#f9df77',
+            },
+            'a342c159-9691-4684-a109-156ba46c1ea4': {
+                id: 'a342c159-9691-4684-a109-156ba46c1ea4',
+                name: 'Pending',
+                colour: '#59cd90',
+            },
+        }
+        expect(migratev11tov12Labels(v11Labels)).toEqual({
+            labels: {
+                '4702c2d3-bcda-40a2-bd34-e0db07578076': {
+                    id: '4702c2d3-bcda-40a2-bd34-e0db07578076',
+                    name: 'Blocked',
+                    colour: '#fe5e41',
+                },
+                '5bd4d5ce-447f-45d5-a557-c8942bbfbae4': {
+                    id: '5bd4d5ce-447f-45d5-a557-c8942bbfbae4',
+                    name: 'High Priority',
+                    colour: '#f9df77',
+                },
+                'a342c159-9691-4684-a109-156ba46c1ea4': {
+                    id: 'a342c159-9691-4684-a109-156ba46c1ea4',
+                    name: 'Pending',
+                    colour: '#59cd90',
+                },
+            },
+            order: [
+                '4702c2d3-bcda-40a2-bd34-e0db07578076',
+                '5bd4d5ce-447f-45d5-a557-c8942bbfbae4',
+                'a342c159-9691-4684-a109-156ba46c1ea4',
+            ],
+        })
     })
 })

@@ -6,7 +6,7 @@ import { themes } from '../theme'
 import CreateProjectDialog from './CreateProjectDialog'
 import { Header } from './Typography'
 import { showCreateProjectDialog, toggleSidebar } from '../actions'
-import { Projects } from '../interfaces'
+import { Projects, Views } from '../interfaces'
 import {
     Container,
     SectionHeader,
@@ -24,6 +24,7 @@ interface StateProps {
     projects: Projects
     sidebarVisible: boolean
     theme: string
+    views: Views
 }
 interface DispatchProps {
     showCreateProjectDialog: () => void
@@ -49,11 +50,10 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         <Button
                             icon="inbox"
                             text={props.sidebarVisible ? 'Inbox' : ''}
-                            spacing={props.sidebarVisible ? 'compact' : 'default'}
+                            spacing="compact"
                             type="subtle"
                             textSize="small"
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
-                            translateY={props.sidebarVisible == true ? 1 : 0}
                         />
                     </StyledNavLink>
                     <StyledNavLink
@@ -65,66 +65,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         <Button
                             icon="calendar"
                             text={props.sidebarVisible ? 'Daily Agenda' : ''}
-                            spacing="compact"
-                            type="subtle"
-                            textSize="small"
-                            iconSize={props.sidebarVisible ? '16px' : '20px'}
-                        />
-                    </StyledNavLink>
-                    <StyledNavLink
-                        to="/unscheduled"
-                        activeStyle={{
-                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                        }}
-                    >
-                        <Button
-                            icon="scheduled"
-                            text={props.sidebarVisible ? 'Unscheduled' : ''}
-                            spacing="compact"
-                            type="subtle"
-                            textSize="small"
-                            iconSize={props.sidebarVisible ? '16px' : '20px'}
-                        />
-                    </StyledNavLink>
-                    <StyledNavLink
-                        to="/trash"
-                        activeStyle={{
-                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                        }}
-                    >
-                        <Button
-                            icon="trash"
-                            text={props.sidebarVisible ? 'Trash' : ''}
-                            spacing="compact"
-                            type="subtle"
-                            textSize="small"
-                            iconSize={props.sidebarVisible ? '16px' : '20px'}
-                        />
-                    </StyledNavLink>
-                    <StyledNavLink
-                        to="/completed"
-                        activeStyle={{
-                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                        }}
-                    >
-                        <Button
-                            icon="todoChecked"
-                            text={props.sidebarVisible ? 'Completed' : ''}
-                            spacing="compact"
-                            type="subtle"
-                            textSize="small"
-                            iconSize={props.sidebarVisible ? '16px' : '20px'}
-                        />
-                    </StyledNavLink>
-                    <StyledNavLink
-                        to="/stale"
-                        activeStyle={{
-                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                        }}
-                    >
-                        <Button
-                            icon="stale"
-                            text={props.sidebarVisible ? 'Stale' : ''}
                             spacing="compact"
                             type="subtle"
                             textSize="small"
@@ -146,6 +86,27 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             iconSize={props.sidebarVisible ? '16px' : '20px'}
                         />
                     </StyledNavLink>
+                    {Object.values(props.views.order).map((v) => {
+                        const view = props.views.views[v]
+                        return (
+                            <StyledNavLink
+                                key={view.id}
+                                to={`/${view.name}`}
+                                activeStyle={{
+                                    backgroundColor: theme.colours.focusAltDialogBackgroundColour,
+                                }}
+                            >
+                                <Button
+                                    icon={view.icon}
+                                    text={props.sidebarVisible ? view.name : ''}
+                                    spacing="compact"
+                                    type="subtle"
+                                    textSize="small"
+                                    iconSize={props.sidebarVisible ? '16px' : '20px'}
+                                />
+                            </StyledNavLink>
+                        )
+                    })}
                     {!props.sidebarVisible && <StyledHorizontalRule />}
                     <SectionHeader>
                         {props.sidebarVisible && <Header>Projects</Header>}
@@ -218,6 +179,7 @@ const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     sidebarVisible: state.ui.sidebarVisible,
     theme: state.ui.theme,
+    views: state.ui.views,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     showCreateProjectDialog: () => {

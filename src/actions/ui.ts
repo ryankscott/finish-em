@@ -222,35 +222,41 @@ export function setLabelColour(id: Uuid, colour: string): SetLabelColourAction {
 export interface ShowSubtasksAction {
     type: typeof SHOW_SUBTASKS
     id: Uuid
+    componentId: Uuid
 }
 
-export function showSubtasks(id: Uuid): ShowSubtasksAction {
+export function showSubtasks(id: Uuid, componentId: Uuid): ShowSubtasksAction {
     return {
         type: SHOW_SUBTASKS,
         id: id,
+        componentId: componentId,
     }
 }
 export interface HideSubtasksAction {
     type: typeof HIDE_SUBTASKS
     id: Uuid
+    componentId: Uuid
 }
 
-export function hideSubtasks(id: Uuid): HideSubtasksAction {
+export function hideSubtasks(id: Uuid, componentId: Uuid): HideSubtasksAction {
     return {
         type: HIDE_SUBTASKS,
         id: id,
+        componentId: componentId,
     }
 }
 
 export interface ToggleSubtasksAction {
     type: typeof TOGGLE_SUBTASKS
     id: Uuid
+    componentId: Uuid
 }
 
-export function toggleSubtasks(id: Uuid): ToggleSubtasksAction {
+export function toggleSubtasks(id: Uuid, componentId: Uuid): ToggleSubtasksAction {
     return {
         type: TOGGLE_SUBTASKS,
         id: id,
+        componentId: componentId,
     }
 }
 

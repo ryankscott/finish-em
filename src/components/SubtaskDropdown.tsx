@@ -19,14 +19,8 @@ const generateOptions = (
     parentId: Uuid,
     itemId: Uuid,
 ): { label: string; options: OptionsType<OptionType> }[] => {
-    const getItemText = (
-        text: string,
-        projectId: Uuid | '0',
-        projects: Projects,
-    ): string => {
-        const longText = `[${
-            projects.projects[projectId].name
-        }] ${removeItemTypeFromString(text)}`
+    const getItemText = (text: string, projectId: Uuid | '0', projects: Projects): string => {
+        const longText = `[${projects.projects[projectId].name}] ${removeItemTypeFromString(text)}`
         return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
     }
 
@@ -105,15 +99,10 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                         e.stopPropagation()
                     }}
                     text={
-                        removeItemTypeFromString(
-                            props.items.items[props.parentId]?.text,
-                        ) || 'Add to item'
+                        removeItemTypeFromString(props.items.items[props.parentId]?.text) ||
+                        'Add to item'
                     }
-                    iconColour={
-                        !props.text
-                            ? themes[props.theme].colours.altIconColour
-                            : null
-                    }
+                    iconColour={!props.text ? themes[props.theme].colours.altIconColour : null}
                     icon={'subtask'}
                 />
                 {(showSelect || props.showSelect) && (

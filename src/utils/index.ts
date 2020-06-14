@@ -1,17 +1,23 @@
 import chrono from 'chrono-node'
-import {
-    isAfter,
-    format,
-    isToday,
-    isTomorrow,
-    differenceInDays,
-    isYesterday,
-} from 'date-fns'
 import { ItemType, Item, RenderingStrategy } from '../interfaces'
 import RRule from 'rrule'
 
+// import * as ic from '../assets/icons'
 export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
 import emojiRegex from 'emoji-regex/text.js'
+import {
+    parseISO,
+    isToday,
+    isThisWeek,
+    isThisMonth,
+    isPast,
+    endOfDay,
+    differenceInDays,
+    isTomorrow,
+    isYesterday,
+    format,
+    isAfter,
+} from 'date-fns'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
     const words = text.split(' ')
@@ -136,10 +142,7 @@ export const formatRelativeDate = (date: Date): string => {
         return 'Tomorrow'
     } else if (isYesterday(date)) {
         return 'Yesterday'
-    } else if (
-        differenceInDays(date, new Date()) < 7 &&
-        isAfter(date, new Date())
-    ) {
+    } else if (differenceInDays(date, new Date()) < 7 && isAfter(date, new Date())) {
         return format(date, 'EEEE')
     } else {
         return format(date, 'd/M/yyyy')
@@ -272,4 +275,67 @@ export const convertItemToItemType = (input: Item): ItemType[] => {
 }
 export const capitaliseFirstLetter = (input: string): string => {
     return input.charAt(0).toUpperCase() + input.slice(1)
+}
+
+export const iconMapping = {
+    close: (w, h, c) => ic.close(w, h, c),
+    expand: (w, h, c) => ic.expanded(w, h, c),
+    collapse: (w, h, c) => ic.collapsed(w, h, c),
+    help: (w, h, c) => ic.help(w, h, c),
+    repeat: (w, h, c) => ic.repeat(w, h, c),
+    due: (w, h, c) => ic.due(w, h, c),
+    scheduled: (w, h, c) => ic.scheduled(w, h, c),
+    note: (w, h, c) => ic.note(w, h, c),
+    add: (w, h, c) => ic.add(w, h, c),
+    todoUnchecked: (w, h, c) => ic.todoUnchecked(w, h, c),
+    todoChecked: (w, h, c) => ic.todoChecked(w, h, c),
+    trash: (w, h, c) => ic.trash(w, h, c),
+    trashSweep: (w, h, c) => ic.trashSweep(w, h, c),
+    hide: (w, h, c) => ic.hide(w, h, c),
+    show: (w, h, c) => ic.show(w, h, c),
+    sort: (w, h, c) => ic.sort(w, h, c),
+    sortDirection: (w, h, c) => ic.sortDirection(w, h, c),
+    inbox: (w, h, c) => ic.inbox(w, h, c),
+    calendar: (w, h, c) => ic.calendar(w, h, c),
+    slideLeft: (w, h, c) => ic.slideLeft(w, h, c),
+    slideRight: (w, h, c) => ic.slideRight(w, h, c),
+    upLevel: (w, h, c) => ic.upLevel(w, h, c),
+    back: (w, h, c) => ic.back(w, h, c),
+    forward: (w, h, c) => ic.forward(w, h, c),
+    settings: (w, h, c) => ic.settings(w, h, c),
+    subtask: (w, h, c) => ic.subtask(w, h, c),
+    more: (w, h, c) => ic.more(w, h, c),
+    flag: (w, h, c) => ic.flag(w, h, c),
+    trashPermanent: (w, h, c) => ic.trashPermanent(w, h, c),
+    stale: (w, h, c) => ic.stale(w, h, c),
+    label: (w, h, c) => ic.label(w, h, c),
+    edit: (w, h, c) => ic.edit(w, h, c),
+    colour: (w, h, c) => ic.colour(w, h, c),
+    expandAll: (w, h, c) => ic.expandAll(w, h, c),
+    collapseAll: (w, h, c) => ic.collapseAll(w, h, c),
+}
+
+// Filtrex options
+
+const overdue = (dueDate: string): boolean => {
+    return isPast(endOfDay(parseISO(dueDate)))
+}
+const today = (d: string): boolean => {
+    return isToday(parseISO(d))
+}
+
+const thisWeek = (d: string): boolean => {
+    return isThisWeek(parseISO(d))
+}
+
+const thisMonth = (d: string): boolean => {
+    return isThisMonth(parseISO(d))
+}
+
+const daysFromToday = (a: string): number => {
+    return differenceInDays(parseISO(a), new Date())
+}
+
+export const filtrexOptions = {
+    extraFunctions: { overdue, today, thisWeek, thisMonth, daysFromToday },
 }

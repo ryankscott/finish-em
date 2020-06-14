@@ -41,13 +41,14 @@ interface DispatchProps {
     uncompleteItem: (id: Uuid) => void
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
-    toggleSubtasks: (id: Uuid) => void
+    toggleSubtasks: (id: Uuid, componentId: Uuid) => void
 }
 interface StateProps {
     theme: string
     items: Items
 }
 interface OwnProps {
+    componentId: Uuid
     inputItems: ItemType[]
     hideIcons: ItemIcons[]
     renderingStrategy?: RenderingStrategy
@@ -264,6 +265,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                 <Item
                                                                     {...item}
                                                                     key={item.id}
+                                                                    componentId={props.componentId}
                                                                     noIndentOnSubtasks={true}
                                                                     hideIcons={props.hideIcons}
                                                                     keymap={itemKeymap}
@@ -275,10 +277,13 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                     return (
                                                                         <Item
                                                                             key={c}
+                                                                            {...childItem}
+                                                                            componentId={
+                                                                                props.componentId
+                                                                            }
                                                                             noIndentOnSubtasks={
                                                                                 false
                                                                             }
-                                                                            {...childItem}
                                                                             hideIcons={
                                                                                 props.hideIcons
                                                                                     ? [
@@ -319,6 +324,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             <Item
                                                                 {...item}
                                                                 key={item.id}
+                                                                componentId={props.componentId}
                                                                 noIndentOnSubtasks={false}
                                                                 hideIcons={props.hideIcons}
                                                             />
@@ -328,8 +334,11 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                 return (
                                                                     <Item
                                                                         key={c}
-                                                                        noIndentOnSubtasks={false}
                                                                         {...childItem}
+                                                                        noIndentOnSubtasks={false}
+                                                                        componentId={
+                                                                            props.componentId
+                                                                        }
                                                                         hideIcons={
                                                                             props.hideIcons
                                                                                 ? [
@@ -386,8 +395,8 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     uncompleteItem: (id: Uuid) => {
         dispatch(uncompleteItem(id))
     },
-    toggleSubtasks: (id: Uuid) => {
-        dispatch(toggleSubtasks(id))
+    toggleSubtasks: (id: Uuid, componentId: Uuid) => {
+        dispatch(toggleSubtasks(id, componentId))
     },
 })
 

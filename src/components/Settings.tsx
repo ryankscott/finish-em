@@ -5,30 +5,23 @@ import Switch from 'react-switch'
 import { connect } from 'react-redux'
 import { toggleDarkMode, setLabelColour, renameLabel } from '../actions'
 import { FeatureType, LabelType } from '../interfaces'
-import {
-    enableDragAndDrop,
-    disableDragAndDrop,
-    toggleDragAndDrop,
-} from '../actions/feature'
+import { enableDragAndDrop, disableDragAndDrop, toggleDragAndDrop } from '../actions/feature'
 import {
     Container,
     Setting,
     SettingsContainer,
     SettingsCategory,
     SettingLabel,
-    HeaderContainer,
-    IconContainer,
     SettingsCategoryHeader,
     Popover,
     StyledTwitterPicker,
     LabelContainer,
 } from './styled/Settings'
-import { settingsIcon } from '../assets/icons'
-import { Title } from './Typography'
 import EditableText from './EditableText'
 import { transparentize } from 'polished'
 import { Uuid } from '@typed/uuid'
 import Button from './Button'
+import ViewHeader from './ViewHeader'
 
 interface StateProps {
     features: FeatureType
@@ -58,21 +51,10 @@ function Settings(props: SettingsPickerProps): ReactElement {
     return (
         <ThemeProvider theme={theme}>
             <Container>
-                <HeaderContainer>
-                    <IconContainer>
-                        {settingsIcon(
-                            24,
-                            24,
-                            themes[props.theme].colours.primaryColour,
-                        )}
-                    </IconContainer>
-                    <Title> Settings </Title>
-                </HeaderContainer>
+                <ViewHeader name={'Settings'} icon="settings" />
                 <SettingsContainer>
                     <SettingsCategory>
-                        <SettingsCategoryHeader>
-                            General User interface
-                        </SettingsCategoryHeader>
+                        <SettingsCategoryHeader>General User interface</SettingsCategoryHeader>
                         <Setting>
                             <SettingLabel>Drag and drop</SettingLabel>
                             <Switch
@@ -100,7 +82,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     </SettingsCategory>
                     <SettingsCategory>
                         <SettingsCategoryHeader>Labels</SettingsCategoryHeader>
-                        {Object.values(props.labels).map((m: LabelType) => {
+                        {Object.values(props.labels.labels).map((m: LabelType) => {
                             labelText = React.createRef<HTMLInputElement>()
                             return (
                                 <div id={m.id} key={'f-' + m.id}>
@@ -108,10 +90,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                         <EditableText
                                             key={'et-' + m.id}
                                             input={m.name}
-                                            backgroundColour={transparentize(
-                                                0.9,
-                                                m.colour,
-                                            )}
+                                            backgroundColour={transparentize(0.9, m.colour)}
                                             fontSize={'xxsmall'}
                                             innerRef={labelText}
                                             shouldSubmitOnBlur={true}
@@ -134,14 +113,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                             spacing="compact"
                                             type="default"
                                             onClick={(e) => {
-                                                setShowColourPicker(
-                                                    !showColourPicker,
-                                                )
-                                                console.log(
-                                                    document.getElementById(
-                                                        m.id,
-                                                    ).offsetTop,
-                                                )
+                                                setShowColourPicker(!showColourPicker)
                                                 setColourPickerTriggeredBy(m.id)
                                                 e.stopPropagation()
                                             }}
@@ -153,15 +125,9 @@ function Settings(props: SettingsPickerProps): ReactElement {
                         {showColourPicker && (
                             <Popover
                                 top={
-                                    document.getElementById(
-                                        colourPickerTriggeredBy,
-                                    ).offsetTop + 25
+                                    document.getElementById(colourPickerTriggeredBy).offsetTop + 25
                                 }
-                                left={
-                                    document.getElementById(
-                                        colourPickerTriggeredBy,
-                                    ).offsetLeft
-                                }
+                                left={document.getElementById(colourPickerTriggeredBy).offsetLeft}
                             >
                                 <StyledTwitterPicker
                                     key={'tp-'}
@@ -175,10 +141,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                         theme.colours.penternaryColour,
                                     ]}
                                     onChange={(colour, e) => {
-                                        props.setLabelColour(
-                                            colourPickerTriggeredBy,
-                                            colour.hex,
-                                        )
+                                        props.setLabelColour(colourPickerTriggeredBy, colour.hex)
                                         setShowColourPicker(false)
                                         e.stopPropagation()
                                     }}

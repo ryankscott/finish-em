@@ -3,10 +3,9 @@ import CSS from 'csstype'
 import { transparentize } from 'polished'
 
 interface ContainerProps {
-    isSubtask: boolean
-    noIndentOnSubtasks: boolean
     labelColour: CSS.Color
     visible: boolean
+    shouldIndent: boolean
 }
 export const Container = styled.div<ContainerProps>`
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
@@ -15,7 +14,7 @@ export const Container = styled.div<ContainerProps>`
     font-size: ${(props) => props.theme.fontSizes.medium};
     display: ${(props) => (props.visible ? 'grid' : 'none')};
     opacity: ${(props) => (props.hidden ? '0' : '1')};
-    margin-left: ${(props) => (props.isSubtask && !props.noIndentOnSubtasks ? '20px' : '0px')};
+    margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
     grid-template-columns: 5px 30px 30px repeat(20, 1fr);
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:

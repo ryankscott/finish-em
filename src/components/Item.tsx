@@ -3,7 +3,7 @@ import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 import { RRule } from 'rrule'
 import { Uuid } from '@typed/uuid'
-import { ItemType, ProjectType, Item, Label } from '../interfaces'
+import { ItemType, Projects, Item, Label } from '../interfaces'
 import {
     Body,
     Container,
@@ -61,10 +61,10 @@ interface DispatchProps {
     undeleteItem: (id: Uuid) => void
     setActiveItem: (id: Uuid) => void
     showFocusbar: () => void
-    toggleSubtasks: (id: Uuid) => void
+    toggleSubtasks: (id: Uuid, componentId: Uuid) => void
 }
 interface StateProps {
-    projects: ProjectType[]
+    projects: Projects
     theme: string
     labels: Label
     subtasksVisible: boolean
@@ -72,8 +72,9 @@ interface StateProps {
 }
 
 interface OwnProps extends ItemType {
+    componentId: Uuid
     hideIcons: ItemIcons[]
-    noIndentOnSubtasks: boolean
+    shouldIndent: boolean
     alwaysVisible?: boolean
 }
 
@@ -82,8 +83,6 @@ type ItemProps = OwnProps & StateProps & DispatchProps
 function Item(props: ItemProps): ReactElement {
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
-
-    // const [keyPresses, setKeyPresses] = useState([])
 
     const editor = React.createRef<HTMLInputElement>()
     const container = React.createRef<HTMLInputElement>()
@@ -106,7 +105,7 @@ function Item(props: ItemProps): ReactElement {
 
     const handleExpand = (e): void => {
         e.stopPropagation()
-        props.toggleSubtasks(props.id)
+        props.toggleSubtasks(props.id, props.componentId)
         return
     }
 
@@ -126,20 +125,36 @@ function Item(props: ItemProps): ReactElement {
     const labelColour = props.labelId ? props.labels[props.labelId].colour : null
 
     // Make it invisible if it has a parent which is hiding subtasks
-    const isVisible =
-        props.parentId != null
-            ? props.subtasksVisible[props.parentId] == false
-                ? false
-                : true
-            : true
+    const isVisible = (() => {
+        if (props.parentId != null) {
+            const parentVisibility = props.subtasksVisible[props.parentId]
+            if (parentVisibility != undefined) {
+                const componentVisibility = parentVisibility[props.componentId]
+                if (componentVisibility != undefined) {
+                    return componentVisibility
+                }
+                return true
+            }
+            return true
+        }
+        return true
+    })()
+    const subtasksVisible = (() => {
+        const itemVisibility = props.subtasksVisible[props.id]
+        if (itemVisibility != undefined) {
+            const componentVisibility = itemVisibility[props.componentId]
+            if (componentVisibility) return componentVisibility
+            return false
+        }
+        return false
+    })()
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div key={props.id} id={props.id}>
                 <Container
                     key={props.id}
                     ref={container}
-                    noIndentOnSubtasks={props.noIndentOnSubtasks}
-                    isSubtask={props.parentId != null}
+                    shouldIndent={props.shouldIndent}
                     visible={isVisible || props.alwaysVisible}
                     id={props.id}
                     tabIndex={0}
@@ -156,7 +171,7 @@ function Item(props: ItemProps): ReactElement {
                                 type="subtleInvert"
                                 onClick={handleExpand}
                                 icon={'expand'}
-                                rotate={props.subtasksVisible[props.id] == false ? 0 : 1}
+                                rotate={subtasksVisible == false ? 0 : 1}
                             ></Button>
                         </ExpandContainer>
                     )}
@@ -199,7 +214,9 @@ function Item(props: ItemProps): ReactElement {
                     </Body>
                     <ProjectContainer visible={!hiddenIcons?.includes(ItemIcons.Project)}>
                         <ProjectName>
-                            {props.projectId != '0' ? props.projects[props.projectId] : 'Inbox'}
+                            {props.projectId != '0'
+                                ? props.projects.projects[props.projectId].name
+                                : 'Inbox'}
                         </ProjectName>
                     </ProjectContainer>
 
@@ -254,7 +271,7 @@ function Item(props: ItemProps): ReactElement {
 const mapStateToProps = (state, props): StateProps => ({
     projects: state.projects,
     theme: state.ui.theme,
-    labels: state.ui.labels,
+    labels: state.ui.labels.labels,
     subtasksVisible: state.ui.subtasksVisible,
     parentItem: getItemParentId(state, props),
 })
@@ -280,8 +297,8 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     showFocusbar: () => {
         dispatch(showFocusbar())
     },
-    toggleSubtasks: (id: Uuid) => {
-        dispatch(toggleSubtasks(id))
+    toggleSubtasks: (id: Uuid, componentId: Uuid) => {
+        dispatch(toggleSubtasks(id, componentId))
     },
 })
 

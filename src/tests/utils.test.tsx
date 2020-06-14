@@ -22,9 +22,7 @@ describe('Creating a short project name testing', () => {
         expect(createShortProjectName('🗄')).toEqual('🗄')
     })
     it('should handle lots of words', () => {
-        expect(
-            createShortProjectName('this is a long project name with stuff'),
-        ).toEqual('TI')
+        expect(createShortProjectName('this is a long project name with stuff')).toEqual('TI')
     })
 })
 describe('Getting an item type from string', () => {

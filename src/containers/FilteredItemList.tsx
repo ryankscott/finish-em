@@ -3,14 +3,7 @@ import ItemList from '../components/ItemList'
 import { orderBy } from 'lodash'
 import { themes, selectStyles } from '../theme'
 import { Header1, Paragraph } from '../components/Typography'
-import {
-    ItemType,
-    FeatureType,
-    Item,
-    RenderingStrategy,
-    FilterType,
-    FilterEnum,
-} from '../interfaces'
+import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
 import {
     Container,
     HeaderBar,
@@ -21,6 +14,8 @@ import {
     SortSelect,
     DeleteContainer,
     ItemListContainer,
+    ExpandContainer,
+    CollapseContainer,
 } from '../components/styled/FilteredItemList'
 import { connect } from 'react-redux'
 import Button from '../components/Button'
@@ -28,13 +23,15 @@ import Tooltip from '../components/Tooltip'
 import { deleteItem } from '../actions/item'
 import { getFilteredItems, getCompletedItems, getUncompletedItems } from '../selectors/item'
 import { components } from 'react-select'
-import { collapsedIcon } from '../assets/icons'
+import { collapsed } from '../assets/icons'
 import ReorderableItemList from '../components/ReorderableItemList'
 import { convertItemToItemType } from '../utils'
 import { ItemIcons } from '../components/Item'
+import { hideSubtasks, showSubtasks } from '../actions'
+import { Uuid } from '@typed/uuid'
 
 const DropdownIndicator = (props): ReactElement => {
-    return <components.DropdownIndicator {...props}>{collapsedIcon()}</components.DropdownIndicator>
+    return <components.DropdownIndicator {...props}>{collapsed()}</components.DropdownIndicator>
 }
 
 const sortItems = (
@@ -76,25 +73,20 @@ export enum SortDirectionEnum {
 }
 
 const determineVisibilityRules = (
-    filter: FilterType,
     isFilterable: boolean,
     hideItemList: boolean,
     items: ItemType[],
     sortedItems: ItemType[],
     completedItems: ItemType[],
     dragAndDropEnabled: boolean,
+    hideCompletedToggle: boolean,
 ): {
     showCompletedToggle: boolean
     showFilterBar: boolean
     showDeleteButton: boolean
     showSortButton: boolean
 } => {
-    const f = filter.type == 'default' ? filter.filter : null
-    const hideCompletedToggle =
-        f == FilterEnum.ShowOverdue ||
-        f == FilterEnum.ShowNotScheduled ||
-        f == FilterEnum.ShowCompleted
-    const showCompletedToggle = Object.keys(completedItems).length > 0 && !hideCompletedToggle
+    const showCompletedToggle = Object.keys(completedItems).length > 0 && hideCompletedToggle
     const showFilterBar = isFilterable && Object.keys(items).length > 0 && !hideItemList
     const showDeleteButton = Object.keys(completedItems).length > 0 && !hideItemList
     const showSortButton =
@@ -117,16 +109,20 @@ interface StateProps {
 
 interface DispatchProps {
     deleteCompletedItems: (completedItems: ItemType[]) => void
+    hideAllSubtasks: (parentItems: ItemType[], componentId: Uuid) => void
+    showAllSubtasks: (parentItems: ItemType[], componentId: Uuid) => void
 }
 
 export interface OwnProps {
-    filter: FilterType
+    id: string
+    filter: string
     hideIcons: ItemIcons[]
     isFilterable?: boolean
     listName?: string
     renderingStrategy?: RenderingStrategy
     defaultSortOrder?: SortCriteriaEnum
     noIndentOnSubtasks?: boolean
+    hideCompletedToggle?: boolean
 }
 export type FilteredItemListProps = StateProps & DispatchProps & OwnProps
 
@@ -148,13 +144,13 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     }, [props.items])
 
     const visibility = determineVisibilityRules(
-        props.filter,
         props.isFilterable,
         hideItemList,
         convertItemToItemType(props.items),
         sortedItems,
         convertItemToItemType(completedItems),
         props.features.dragAndDrop,
+        props.hideCompletedToggle,
     )
     const sortedItemsLength = Object.keys(sortedItems).length
     return (
@@ -206,6 +202,28 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                 <Tooltip id="trash-button" text={'Delete completed items'} />
                             </DeleteContainer>
                         )}
+                        <ExpandContainer>
+                            <Button
+                                dataFor={'expand-all-button'}
+                                type="default"
+                                spacing="compact"
+                                icon="expandAll"
+                                iconSize={'18px'}
+                                onClick={() => props.showAllSubtasks(sortedItems, props.id)}
+                            />
+                            <Tooltip id="expand-all-button" text={'Expand all subtaks'} />
+                        </ExpandContainer>
+                        <CollapseContainer>
+                            <Button
+                                dataFor={'collapse-all-button'}
+                                type="default"
+                                spacing="compact"
+                                icon="collapseAll"
+                                iconSize={'18px'}
+                                onClick={() => props.hideAllSubtasks(sortedItems, props.id)}
+                            />
+                            <Tooltip id="collapse-all-button" text={'Collapse all subtaks'} />
+                        </CollapseContainer>
                         {visibility.showSortButton && (
                             <SortContainer>
                                 <SortSelect
@@ -254,12 +272,14 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 <ItemListContainer>
                     {props.features.dragAndDrop ? (
                         <ReorderableItemList
+                            componentId={props.id}
                             hideIcons={props.hideIcons}
                             inputItems={sortedItems}
                             renderingStrategy={props.renderingStrategy}
                         />
                     ) : (
                         <ItemList
+                            componentId={props.id}
                             hideIcons={props.hideIcons}
                             inputItems={sortedItems}
                             renderingStrategy={props.renderingStrategy}
@@ -281,6 +301,21 @@ const mapStateToProps = (state, props): StateProps => {
     }
 }
 const mapDispatchToProps = (dispatch): DispatchProps => ({
+    hideAllSubtasks: (allItems: ItemType[], componentId: Uuid) => {
+        allItems.forEach((a) => {
+            if (a.children.length > 0) {
+                dispatch(hideSubtasks(a.id, componentId))
+            }
+        })
+    },
+    showAllSubtasks: (allItems: ItemType[], componentId: Uuid) => {
+        allItems.forEach((a) => {
+            if (a.children.length > 0) {
+                dispatch(showSubtasks(a.id, componentId))
+            }
+        })
+    },
+
     // TODO: Move this to the reducer and create a new action
     deleteCompletedItems: (completedItems: ItemType[]) => {
         completedItems.forEach((c) => {

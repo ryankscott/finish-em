@@ -101,7 +101,7 @@ function LabelDropdown(props: LabelProps): ReactElement {
 
 const mapStateToProps = (state): StateProps => ({
     items: state.items,
-    labels: state.ui.labels,
+    labels: state.ui.labels.labels,
     theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): {} => ({})
