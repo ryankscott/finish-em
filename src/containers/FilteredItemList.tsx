@@ -86,9 +86,13 @@ const determineVisibilityRules = (
     showDeleteButton: boolean
     showSortButton: boolean
 } => {
-    const showCompletedToggle = Object.keys(completedItems).length > 0 && hideCompletedToggle
+    // Show completed toggle if we have a completed item and it hasn't been disabled
+    const showCompletedToggle = completedItems.length > 0 && !hideCompletedToggle
+    // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
     const showFilterBar = isFilterable && Object.keys(items).length > 0 && !hideItemList
-    const showDeleteButton = Object.keys(completedItems).length > 0 && !hideItemList
+    // Show delete button if we have at least one deleted item
+    const showDeleteButton = completedItems.length > 0 && !hideItemList
+    // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
     const showSortButton =
         Object.keys(sortedItems).length > 1 && !hideItemList && !dragAndDropEnabled
     return {
@@ -146,9 +150,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const visibility = determineVisibilityRules(
         props.isFilterable,
         hideItemList,
-        convertItemToItemType(props.items),
+        Object.values(props.items),
         sortedItems,
-        convertItemToItemType(completedItems),
+        Object.values(completedItems),
         props.features.dragAndDrop,
         props.hideCompletedToggle,
     )
@@ -178,12 +182,17 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                 iconSize="18px"
                                 type="default"
                                 spacing="compact"
-                                icon={hideCompleted ? 'hide' : 'show'}
+                                icon={hideCompleted ? 'show' : 'hide'}
                                 onClick={() => {
                                     setHideCompleted(!hideCompleted)
                                 }}
                             ></Button>
-                            <Tooltip id="complete-button" text={'Toggle completed items'} />
+                            <Tooltip
+                                id="complete-button"
+                                text={
+                                    hideCompleted ? 'Show completed items' : 'Hide completed items'
+                                }
+                            />
                         </CompletedContainer>
                         {visibility.showDeleteButton && (
                             <DeleteContainer>
