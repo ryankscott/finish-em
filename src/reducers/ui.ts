@@ -475,11 +475,25 @@ export const uiReducer = produce(
                 break
 
             case ui.SHOW_SUBTASKS:
-                state.subtasksVisible[action.id][action.componentId] = true
+                const itemV = state.subtasksVisible[action.id]
+                if (itemV != undefined) {
+                    state.subtasksVisible[action.id][action.componentId] = true
+                } else {
+                    state.subtasksVisible[action.id] = {
+                        [action.componentId]: true,
+                    }
+                }
                 break
 
             case ui.HIDE_SUBTASKS:
-                state.subtasksVisible[action.id][action.componentId] = false
+                const iv = state.subtasksVisible[action.id]
+                if (iv != undefined) {
+                    state.subtasksVisible[action.id][action.componentId] = false
+                } else {
+                    state.subtasksVisible[action.id] = {
+                        [action.componentId]: false,
+                    }
+                }
                 break
 
             case ui.TOGGLE_SUBTASKS:
@@ -496,7 +510,6 @@ export const uiReducer = produce(
                     state.subtasksVisible[action.id] = {
                         [action.componentId]: false,
                     }
-                    console.log(state.subtasksVisible[action.id])
                 }
 
                 break
