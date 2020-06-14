@@ -92,7 +92,6 @@ type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
-    console.log(props.theme)
 
     useEffect(() => {
         window.addEventListener('resize', () => {
