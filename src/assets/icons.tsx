@@ -2,31 +2,31 @@ import React from 'react'
 
 import * as CSS from 'csstype'
 
-export const repeat = (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
-): React.SVGProps<SVGSVGElement> => (
-    <svg
-        key="repeat"
-        xmlns="http://www.w3.org/2000/svg"
-        width={width ? width : '16'}
-        height={height ? height : '16'}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke={colour ? colour : 'currentColor'}
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-    >
-        <polyline points="17 1 21 5 17 9"> </polyline>
-        <path d="M3 11V9a4 4 0 0 1 4-4h14"> </path>
-        <polyline points="7 23 3 19 7 15"> </polyline>
-        <path d="M21 13v2a4 4 0 0 1-4 4H3"> </path>
-    </svg>
-)
-
-export const due = (
+export const Icons = {
+    repeat: (
+        width?: CSS.WidthProperty<number>,
+        height?: CSS.HeightProperty<number>,
+        colour?: CSS.Color,
+    ): React.SVGProps<SVGSVGElement> => (
+        <svg
+            key="repeat"
+            xmlns="http://www.w3.org/2000/svg"
+            width={width ? width : '16'}
+            height={height ? height : '16'}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={colour ? colour : 'currentColor'}
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <polyline points="17 1 21 5 17 9"> </polyline>
+            <path d="M3 11V9a4 4 0 0 1 4-4h14"> </path>
+            <polyline points="7 23 3 19 7 15"> </polyline>
+            <path d="M21 13v2a4 4 0 0 1-4 4H3"> </path>
+        </svg>
+    ),
+ due: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -45,9 +45,8 @@ export const due = (
     >
         <path d="M22 5.72l-4.6-3.86-1.29 1.53 4.6 3.86L22 5.72zM7.88 3.39L6.6 1.86 2 5.71l1.29 1.53 4.59-3.85zM12.5 8H11v6l4.75 2.85.75-1.23-4-2.37V8zM12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
     </svg>
-)
-
-export const scheduled = (
+),,
+scheduled: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -65,9 +64,9 @@ export const scheduled = (
         <path d="M0 0h24v24H0V0z" fill="none" />
         <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
     </svg>
-)
+),
 
-export const note = (
+note: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -89,9 +88,9 @@ export const note = (
         <line x1="16" y1="17" x2="8" y2="17"></line>
         <polyline points="10 9 9 9 8 9"> </polyline>
     </svg>
-)
+),
 
-export const todoChecked = (
+todoChecked: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -110,9 +109,9 @@ export const todoChecked = (
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"> </path>
         <polyline points="22 4 12 14.01 9 11.01"> </polyline>
     </svg>
-)
+),
 
-export const todoUnchecked = (
+todoUnchecked: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -130,9 +129,9 @@ export const todoUnchecked = (
     >
         <circle cx="12" cy="12" r="10"></circle>
     </svg>
-)
+),
 
-export const add = (
+add: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -151,9 +150,9 @@ export const add = (
         <line x1="12" y1="4" x2="12" y2="20"></line>
         <line x1="4" y1="12" x2="20" y2="12"></line>
     </svg>
-)
+),
 
-export const collapsed = (
+collapse: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -171,9 +170,8 @@ export const collapsed = (
     >
         <polyline points="6 9 12 15 18 9"> </polyline>
     </svg>
-)
-
-export const expanded = (
+),
+expand: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -191,9 +189,9 @@ export const expanded = (
     >
         <polyline points="9 18 15 12 9 6"> </polyline>
     </svg>
-)
+),
 
-export const help = (
+help: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -214,9 +212,9 @@ export const help = (
         <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"> </path>
         <line x1="12" y1="17" x2="12.01" y2="17"></line>
     </svg>
-)
+),
 
-export const close = (
+close: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -235,9 +233,9 @@ export const close = (
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
     </svg>
-)
+),
 
-export const trash = (
+trash: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -258,9 +256,9 @@ export const trash = (
         <line x1="10" y1="11" x2="10" y2="17"></line>
         <line x1="14" y1="11" x2="14" y2="17"></line>
     </svg>
-)
+),
 
-export const show = (
+show: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -279,9 +277,9 @@ export const show = (
         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"> </path>
         <circle cx="12" cy="12" r="3"></circle>
     </svg>
-)
+),
 
-export const hide = (
+hide: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -300,9 +298,9 @@ export const hide = (
         <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
         <line x1="1" y1="1" x2="23" y2="23"></line>
     </svg>
-)
+),
 
-export const sort = (
+sort: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -318,9 +316,9 @@ export const sort = (
         <path d="M0 0h24v24H0V0z" fill="none" />
         <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
     </svg>
-)
+),
 
-export const trashSweep = (
+trashSweep: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -351,9 +349,9 @@ export const trashSweep = (
         <line id="line80" y2="18.540035" x2="26.99979" y1="18.540035" x1="23.99979" />
         <line x1="8.5953751" y1="9" x2="8.5953751" y2="20.998405" id="line74-9" />
     </svg>
-)
+),
 
-export const inbox = (
+inbox: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -372,9 +370,9 @@ export const inbox = (
         <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
         <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
     </svg>
-)
+),
 
-export const calendar = (
+calendar: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -392,9 +390,9 @@ export const calendar = (
     >
         <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V9h14v10zm0-12H5V5h14v2zM7 11h5v5H7z" />
     </svg>
-)
+),
 
-export const slideLeft = (
+slideLeft: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -413,9 +411,9 @@ export const slideLeft = (
         <polyline points="11 17 6 12 11 7"></polyline>
         <polyline points="18 17 13 12 18 7"></polyline>
     </svg>
-)
+),
 
-export const slideRight = (
+slideRight: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -434,9 +432,9 @@ export const slideRight = (
         <polyline points="13 17 18 12 13 7"></polyline>
         <polyline points="6 17 11 12 6 7"></polyline>
     </svg>
-)
+),
 
-export const upLevel = (
+upLevel: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -455,9 +453,9 @@ export const upLevel = (
         <polyline points="9 14 4 9 9 4"></polyline>
         <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
     </svg>
-)
+),
 
-export const back = (
+back: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -476,8 +474,8 @@ export const back = (
         <line x1="19" y1="12" x2="5" y2="12"></line>
         <polyline points="12 19 5 12 12 5"></polyline>
     </svg>
-)
-export const forward = (
+),
+forward: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -496,9 +494,9 @@ export const forward = (
         <line x1="5" y1="12" x2="19" y2="12"></line>
         <polyline points="12 5 19 12 12 19"></polyline>
     </svg>
-)
+),
 
-export const settings = (
+settings: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -517,9 +515,9 @@ export const settings = (
         <circle cx="12" cy="12" r="3"></circle>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
     </svg>
-)
+),
 
-export const subtask = (
+subtask: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -546,9 +544,9 @@ export const subtask = (
         />
         <path d="m 12.75,24 h 10.5 v -8 h -4.5 c -0.0351,-1.235437 -0.06497,-3.76714 0,-5 h -6 V 8 H 17 V 0 H 7 v 8 h 4.25 v 3 h -6 v 5 h -4.5 v 8 h 10.6 l -0.1,-8 h -4.5 v -3.5 h 10.5 V 16 h -4.5 z M 8.5,6.5 v -5 h 7 v 5 z m 1.25,11 v 5 h -7.5 v -5 z m 12,0 v 5 h -7.5 v -5 z" />
     </svg>
-)
+),
 
-export const more = (
+more: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -568,9 +566,9 @@ export const more = (
         <circle cx="12" cy="5" r="1"></circle>
         <circle cx="12" cy="19" r="1"></circle>
     </svg>
-)
+),
 
-export const flag = (
+flag: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -589,9 +587,9 @@ export const flag = (
         <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
         <line x1="4" y1="22" x2="4" y2="15"></line>
     </svg>
-)
+),
 
-export const trashPermanent = (
+trashPermanent: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -617,9 +615,9 @@ export const trashPermanent = (
             <line x1="8.463" y1="10.463" x2="14.671" y2="16.670" />
         </g>
     </svg>
-)
+),
 
-export const stale = (
+stale: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -639,9 +637,9 @@ export const stale = (
             <path d="M18,22l-0.01-6L14,12l3.99-4.01L18,2H6v6l4,4l-4,3.99V22H18z M8,7.5V4h8v3.5l-4,4L8,7.5z" />
         </g>
     </svg>
-)
+),
 
-export const darkMode = (
+darkMode: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -659,9 +657,9 @@ export const darkMode = (
     >
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
     </svg>
-)
+),
 
-export const label = (
+label: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -680,9 +678,9 @@ export const label = (
         <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
         <line x1="7" y1="7" x2="7.01" y2="7"></line>
     </svg>
-)
+),
 
-export const sortDirection = (
+sortDirection: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -700,8 +698,8 @@ export const sortDirection = (
     >
         <path d="M16 17.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3zm7 14.01V10h-2v7.01h-3L15 21l4-3.99h-3zM9 3L5 6.99h3V14h2V6.99h3L9 3z" />
     </svg>
-)
-export const edit = (
+),
+edit: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -720,9 +718,9 @@ export const edit = (
         <path d="M12 20h9"></path>
         <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
     </svg>
-)
+),
 
-export const colour = (
+colour: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -744,9 +742,8 @@ export const colour = (
         <circle cx="14.5" cy="7.5" r="1.5" />
         <circle cx="17.5" cy="11.5" r="1.5" />
     </svg>
-)
-
-export const expandAll = (
+),
+expandAll: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -764,9 +761,9 @@ export const expandAll = (
     >
         <path d="M12 5.83L15.17 9l1.41-1.41L12 3 7.41 7.59 8.83 9 12 5.83zm0 12.34L8.83 15l-1.41 1.41L12 21l4.59-4.59L15.17 15 12 18.17z" />
     </svg>
-)
+),
 
-export const collapseAll = (
+collapseAll: (
     width?: CSS.WidthProperty<number>,
     height?: CSS.HeightProperty<number>,
     colour?: CSS.Color,
@@ -785,3 +782,4 @@ export const collapseAll = (
         <path d="M7.41 18.59L8.83 20 12 16.83 15.17 20l1.41-1.41L12 14l-4.59 4.59zm9.18-13.18L15.17 4 12 7.17 8.83 4 7.41 5.41 12 10l4.59-4.59z" />
     </svg>
 )
+}

@@ -4,7 +4,7 @@ import { themes } from '../theme'
 import { StyledButton, Contents, Icon, Text } from './styled/Button'
 import { IconType } from '../interfaces'
 import { connect } from 'react-redux'
-import { iconMapping } from '../utils'
+import { Icons } from '../assets/icons'
 
 interface StateProps {
     theme: string
@@ -55,7 +55,7 @@ const Button = (props: ButtonProps): ReactElement => {
                             translateY={props.translateY != undefined ? props.translateY : 0}
                             translateZ={props.translateZ != undefined ? props.translateZ : 0}
                         >
-                            {iconMapping[props.icon](
+                            {Icons[props.icon](
                                 props.iconSize || null,
                                 props.iconSize || null,
                                 props.iconColour || null,
@@ -69,7 +69,7 @@ const Button = (props: ButtonProps): ReactElement => {
                     )}
                     {props.icon && props.iconPosition == 'after' && (
                         <Icon iconPosition={props.iconPosition}>
-                            {iconMapping[props.icon](
+                            {Icons[props.icon](
                                 props.iconSize || null,
                                 props.iconSize || null,
                                 props.iconColour || null,

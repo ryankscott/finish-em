@@ -12,9 +12,7 @@ describe('ProjectActions', () => {
             name: name,
             description: description,
         }
-        expect(project.createProject(id, name, description)).toEqual(
-            expectedAction,
-        )
+        expect(project.createProject(id, name, description)).toEqual(expectedAction)
     })
 
     it('should create an action to delete a project', () => {
@@ -34,9 +32,7 @@ describe('ProjectActions', () => {
             id: id,
             description: description,
         }
-        expect(project.updateProjectDescription(id, description)).toEqual(
-            expectedAction,
-        )
+        expect(project.updateProjectDescription(id, description)).toEqual(expectedAction)
     })
     it('should create an action to update a project name', () => {
         const id = uuidv4()
@@ -56,8 +52,6 @@ describe('ProjectActions', () => {
             id: id,
             destinationId: destinationId,
         }
-        expect(project.reorderProject(id, destinationId)).toEqual(
-            expectedAction,
-        )
+        expect(project.reorderProject(id, destinationId)).toEqual(expectedAction)
     })
 })
