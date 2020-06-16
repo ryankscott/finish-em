@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 import { Item, ItemType } from '../interfaces'
 import { filterItems, filtrexOptions } from '../utils'
-import { compileExpression } from 'filtrex'
+import { compileExpression } from '../utils/filtrex.js'
 
 export const getRenderingStrategy = (state, props) => {
     return props.renderingStrategy
