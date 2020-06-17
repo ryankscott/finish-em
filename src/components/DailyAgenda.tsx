@@ -7,7 +7,7 @@ import FilteredItemList from '../containers/FilteredItemList'
 import { Paragraph, Header1 } from './Typography'
 import EditableText from './EditableText'
 import { setDailyGoal } from '../actions'
-import { ItemType, RenderingStrategy, FilterEnum } from '../interfaces'
+import { ItemType, RenderingStrategy } from '../interfaces'
 import {
     AgendaContainer,
     DateContainer,
