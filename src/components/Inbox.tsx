@@ -28,7 +28,7 @@ const Inbox = (props: InboxProps): ReactElement => (
             <FilteredItemList
                 id="e62c66d4-0933-4198-bce6-47d6093259d6"
                 listName="Items"
-                filter='projectId == "0" and not deleted and not completed'
+                filter='projectId == "0" and not (deleted or completed)'
                 isFilterable={true}
                 hideIcons={[ItemIcons.Project]}
             />
