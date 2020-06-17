@@ -8,7 +8,7 @@ import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
 import Tooltip from './Tooltip'
 import LabelDialog from './LabelDialog'
 import { deletePermanently } from '../actions/item'
-import {Icons}from "../assets/icons"
+import { Icons } from "../assets/icons"
 
 interface DispatchProps {
     deletePermanently: (id: Uuid) => void

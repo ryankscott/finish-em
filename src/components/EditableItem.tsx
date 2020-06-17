@@ -4,7 +4,7 @@ import electron from 'electron'
 
 import { validateItemString } from '../utils'
 import { themes } from '../theme'
-import { add } from '../assets/icons'
+import { Icons } from '../assets/icons'
 import { ThemeProvider } from 'styled-components'
 import { Container, Icon } from './styled/EditableItem'
 import EditableText from './EditableText'
@@ -42,7 +42,7 @@ function InternalEditableItem(props: EditableItemProps): ReactElement {
                 }}
                 hideIcon={props.hideIcon}
             >
-                {props.hideIcon ? null : <Icon>{add()}</Icon>}
+                {props.hideIcon ? null : <Icon>{Icons['add']()}</Icon>}
                 <EditableText
                     innerRef={props.innerRef}
                     onUpdate={handleUpdate}
