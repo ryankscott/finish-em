@@ -1,33 +1,18 @@
 import React, { ReactElement } from 'react'
 import { AttributeContainer, AttributeIcon, AttributeText } from './styled/ItemAttribute'
-import { repeat, due, scheduled, subtask } from '../assets/icons'
+import { Icons } from '../assets/icons'
 
 interface OwnProps {
-    type: 'repeat' | 'due' | 'scheduled' | 'parent'
+    type: 'repeat' | 'due' | 'scheduled' | 'subtask'
     text: string
     completed: boolean
 }
 type ItemAttributeProps = OwnProps
 
-const getIcon = (icon: 'repeat' | 'due' | 'scheduled' | 'parent'): React.SVGProps<SVGElement> => {
-    switch (icon) {
-        case 'repeat':
-            return repeat(14, 14)
-        case 'due':
-            return due(14, 14)
-        case 'scheduled':
-            return scheduled(14, 14)
-        case 'parent':
-            return subtask(14, 14)
-        default:
-            break
-    }
-}
-
 export const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
     return (
         <AttributeContainer completed={props.completed}>
-            <AttributeIcon> {getIcon(props.type)}</AttributeIcon>
+            <AttributeIcon> {Icons[props.type](14, 14)}</AttributeIcon>
             <AttributeText>{props.text}</AttributeText>
         </AttributeContainer>
     )

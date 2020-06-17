@@ -228,7 +228,7 @@ function Item(props: ItemProps): ReactElement {
                     >
                         <ItemAttribute
                             completed={props.completed}
-                            type={'parent'}
+                            type={'subtask'}
                             text={parentTaskText}
                         />
                     </ParentItemContainer>

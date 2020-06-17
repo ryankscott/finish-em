@@ -65,7 +65,7 @@ export const migratev2tov3Items = (its: ItemType[]): Items => {
 }
 
 export const migratev11tov12Labels = (ls: Label): Labels => {
-    return { labels: ls, order: Object.keys(ls) }
+    return { labels: Object.values(ls), order: Object.keys(ls) }
 }
 
 // Note: The number here denotes the version you want to migrate to

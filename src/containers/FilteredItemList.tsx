@@ -23,15 +23,19 @@ import Tooltip from '../components/Tooltip'
 import { deleteItem } from '../actions/item'
 import { getFilteredItems, getCompletedItems, getUncompletedItems } from '../selectors/item'
 import { components } from 'react-select'
-import { collapsed } from '../assets/icons'
 import ReorderableItemList from '../components/ReorderableItemList'
 import { convertItemToItemType } from '../utils'
 import { ItemIcons } from '../components/Item'
 import { hideSubtasks, showSubtasks } from '../actions'
 import { Uuid } from '@typed/uuid'
+import { Icons } from '../assets/icons'
 
 const DropdownIndicator = (props): ReactElement => {
-    return <components.DropdownIndicator {...props}>{collapsed()}</components.DropdownIndicator>
+    return (
+        <components.DropdownIndicator {...props}>
+            {Icons['collapse']()}
+        </components.DropdownIndicator>
+    )
 }
 
 const sortItems = (
