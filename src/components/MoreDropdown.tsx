@@ -2,13 +2,13 @@ import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import Button from './Button'
-import { flag, trashPermanent } from '../assets/icons'
 import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
 import Tooltip from './Tooltip'
 import LabelDialog from './LabelDialog'
 import { deletePermanently } from '../actions/item'
+import {Icons}from "../assets/icons"
 
 interface DispatchProps {
     deletePermanently: (id: Uuid) => void
@@ -58,7 +58,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                                         setShowLabelDialog(!showLabelDialog)
                                     }}
                                 >
-                                    <Icon>{flag(12, 12)}</Icon>
+                                    <Icon>{Icons['flag'](12, 12)}</Icon>
                                     {'Add Label'}
                                 </Option>
                             )}
@@ -72,7 +72,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                                         setShowDialog(false)
                                     }}
                                 >
-                                    <Icon>{trashPermanent(14, 14)}</Icon>
+                                    <Icon>{Icons['trashPermanent'(14, 14)}</Icon>
                                     {'Delete Permanently'}
                                 </Option>
                             )}
