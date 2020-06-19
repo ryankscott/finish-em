@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import { Container, SelectContainer } from './styled/DatePicker'
@@ -20,17 +20,31 @@ interface OwnProps {
     text: string
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
     icon?: IconType
-    zIndex?: number
 }
 
 type DatePickerProps = StateProps & OwnProps
 
 function DatePicker(props: DatePickerProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
+    const node = useRef()
+
+    const handleClick = (e): null => {
+        if (node.current.contains(e.target)) {
+            return
+        }
+        setShowSelect(false)
+    }
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClick)
+        return () => {
+            document.removeEventListener('mousedown', handleClick)
+        }
+    }, [])
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <Container>
+            <Container ref={node}>
                 <DateRenderer
                     style={props.style}
                     completed={props.completed}
@@ -59,7 +73,6 @@ function DatePicker(props: DatePickerProps): ReactElement {
                                 props.onSubmit(d)
                             }}
                             textSize={props.textSize}
-                            zIndex={props.zIndex}
                         ></DateSelect>
                     </SelectContainer>
                 )}

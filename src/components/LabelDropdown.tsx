@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from 'styled-components'
 import CreatableSelect from 'react-select/creatable'
 import { themes, selectStyles } from '../theme'
@@ -50,12 +50,27 @@ function LabelDropdown(props: LabelProps): ReactElement {
         setShowSelect(false)
         return
     }
+    const node = useRef()
+
+    const handleClick = (e): null => {
+        if (node.current.contains(e.target)) {
+            return
+        }
+        setShowSelect(false)
+    }
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClick)
+        return () => {
+            document.removeEventListener('mousedown', handleClick)
+        }
+    }, [])
 
     const text = props.labels[props?.labelId]?.name
     const colour = props.labels[props?.labelId]?.colour
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div>
+            <div ref={node}>
                 <Button
                     spacing="compact"
                     type={props.style || 'default'}

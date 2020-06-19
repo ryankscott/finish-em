@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from 'styled-components'
 import CreatableSelect from 'react-select/creatable'
 import uuidv4 from 'uuid/v4'
@@ -53,11 +53,26 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
         setShowSelect(false)
         return
     }
+    const node = useRef()
+
+    const handleClick = (e): null => {
+        if (node.current.contains(e.target)) {
+            return
+        }
+        setShowSelect(false)
+    }
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClick)
+        return () => {
+            document.removeEventListener('mousedown', handleClick)
+        }
+    }, [])
 
     // Only render if it's not just the Inbox project that exists
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div>
+            <div ref={node}>
                 <Button
                     spacing="compact"
                     type={props.style || 'default'}

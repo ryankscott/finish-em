@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useState, useRef, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
 import Select from 'react-select'
 import { themes, selectStyles } from '../theme'
@@ -76,16 +76,27 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
         setShowSelect(false)
         return
     }
+    const node = useRef()
 
-    const repeatText = props.repeat
-        ? capitaliseFirstLetter(rruleToText(props.repeat))
-        : 'Repeat'
-    const repeatLongText = props.repeat
-        ? capitaliseFirstLetter(props.repeat.toText())
-        : ''
+    const handleClick = (e): null => {
+        if (node.current.contains(e.target)) {
+            return
+        }
+        setShowSelect(false)
+    }
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClick)
+        return () => {
+            document.removeEventListener('mousedown', handleClick)
+        }
+    }, [])
+
+    const repeatText = props.repeat ? capitaliseFirstLetter(rruleToText(props.repeat)) : 'Repeat'
+    const repeatLongText = props.repeat ? capitaliseFirstLetter(props.repeat.toText()) : ''
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div>
+            <div ref={node}>
                 <DateRenderer
                     tooltipText={repeatLongText}
                     completed={props.completed}
