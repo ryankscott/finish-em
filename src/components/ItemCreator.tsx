@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from 'react'
+import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 import { createItem, addChildItem } from '../actions'
 import uuidv4 from 'uuid/v4'
@@ -35,12 +35,31 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         : React.createRef<HTMLInputElement>()
     const [showItemCreator, setShowItemCreator] = useState(props.initiallyExpanded)
 
+    const node = useRef<HTMLDivElement>()
+    const handleClick = (e): null => {
+        if (node.current.contains(e.target)) {
+            return
+        }
+        setShowItemCreator(false)
+    }
     useEffect(() => {
         showItemCreator ? textRef.current.focus() : textRef.current.blur()
-    })
+        document.addEventListener('mousedown', handleClick)
+        return () => {
+            document.removeEventListener('mousedown', handleClick)
+        }
+    }, [])
 
     return (
-        <Container>
+        <Container
+            ref={node}
+            onKeyDown={(e) => {
+                console.log(e.key)
+                if (e.key == 'Escape') {
+                    setShowItemCreator(false)
+                }
+            }}
+        >
             {!props.hideButton && (
                 <Button
                     dataFor={'add-item' + props.parentId + props.projectId + props.type}
