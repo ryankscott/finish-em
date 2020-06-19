@@ -66,12 +66,8 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
     const [endType, setEndType] = useState('never')
     const [repeatNumber, setRepeatNumber] = useState(1)
 
-    const startDateText = startDate
-        ? formatRelativeDate(parseISO(startDate))
-        : 'Start date'
-    const endDateText = endDate
-        ? formatRelativeDate(parseISO(endDate))
-        : 'End date'
+    const startDateText = startDate ? formatRelativeDate(parseISO(startDate)) : 'Start date'
+    const endDateText = endDate ? formatRelativeDate(parseISO(endDate)) : 'End date'
 
     const handleSubmit = (): void => {
         if (endType == 'date') {
@@ -113,7 +109,6 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                 setStartDate(val)
                             }}
                             completed={false}
-                            zIndex={10}
                         ></DatePicker>
                     </Value>
                 </OptionContainer>
@@ -126,9 +121,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                             max="999"
                             id="repeats-every"
                             name="repeats-every"
-                            onChange={(e) =>
-                                setRepeatInterval(parseInt(e.target.value, 10))
-                            }
+                            onChange={(e) => setRepeatInterval(parseInt(e.target.value, 10))}
                         ></Input>
                         <StyledSelect
                             key="freq"
@@ -138,7 +131,6 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                 fontSize: 'xxxsmall',
                                 minWidth: '50px',
                                 width: '65px',
-                                zIndex: 9,
                                 theme: themes[props.theme],
                             })}
                             onChange={(newValue, actionMeta) => {
@@ -160,7 +152,6 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                 fontSize: 'xxxsmall',
                                 minWidth: '100px',
                                 width: '110px',
-                                zIndex: 8,
                                 theme: themes[props.theme],
                             })}
                             onChange={(newValue, actionMeta) => {
@@ -181,11 +172,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                 max="100"
                                 id="repeat-number"
                                 name="repeats-number"
-                                onChange={(e) =>
-                                    setRepeatNumber(
-                                        parseInt(e.target.value, 10),
-                                    )
-                                }
+                                onChange={(e) => setRepeatNumber(parseInt(e.target.value, 10))}
                             ></Input>
                         </Value>
                     </OptionContainer>
@@ -202,7 +189,6 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                 onSubmit={(val) => {
                                     setEndDate(val)
                                 }}
-                                zIndex={7}
                             ></DatePicker>
                         </Value>
                     </OptionContainer>

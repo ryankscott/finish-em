@@ -189,35 +189,40 @@ interface SelectStylesProps {
     minWidth?: CSS.MinWidthProperty<number>
     maxHeight?: CSS.MaxHeightProperty<number>
     width?: CSS.WidthProperty<number>
-    zIndex?: number
     showDropdownIndicator?: boolean
 }
 export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     return {
         container: () => ({
-            zIndex: props.zIndex != undefined ? props.zIndex : 1,
             padding: '0px 0px',
             width: props.width || 'auto',
             minWidth: props.minWidth || '120px',
             maxHeight: props.maxHeight || '180px',
+            zIndex: 1,
         }),
         input: () => ({
             padding: '5px 2px',
             fontFamily: props.theme.font.sansSerif,
             color: props.theme.colours.textColour,
             fontSize: props.theme.fontSizes[props.fontSize],
-            zIndex: props.zIndex != undefined ? props.zIndex : 1,
         }),
-        menu: () => ({
-            margin: '0px 0px',
-            padding: '5px 0px',
-            border: '1px solid',
-            backgroundColor: props.theme.colours.backgroundColour,
-            borderColor: props.theme.colours.borderColour,
-            borderRadius: '5px',
-            tabIndex: 0,
-            zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
-        }),
+        menuPortal: () => {
+            return {
+                zIndex: 999,
+            }
+        },
+        menu: () => {
+            return {
+                margin: '0px 0px',
+                padding: '5px 0px',
+                border: '1px solid',
+                backgroundColor: props.theme.colours.backgroundColour,
+                borderColor: props.theme.colours.borderColour,
+                borderRadius: '5px',
+                tabIndex: 0,
+                zIndex: 999,
+            }
+        },
         option: (styles, { data, isFocused }) => {
             const backgroundColour = data.color
                 ? data.color
@@ -233,10 +238,10 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
                 margin: '0px',
                 fontFamily: props.theme.font.sansSerif,
                 fontSize: props.theme.fontSizes[props.fontSize],
+                zIndex: 999,
                 fontWeight: isFocused
                     ? props.theme.fontWeights.bold
                     : props.theme.fontWeights.regular,
-                zIndex: props.zIndex != undefined ? props.zIndex + 1 : 2,
                 '&:active': {
                     backgroundColor: props.theme.button.default.hoverBackgroundColour,
                 },
@@ -258,12 +263,11 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             border: '1px solid',
             borderColor: props.theme.colours.borderColour,
             borderRadius: '5px',
-            zIndex: props.zIndex != undefined ? props.zIndex : 1,
+            zIndex: 0,
             '&:hover': {
                 backgroundColor: props.theme.button.default.hoverBackgroundColour,
             },
         }),
-        singleValue: () => ({}),
         indicatorsContainer: () => ({
             display: 'flex',
             flexDirection: 'row',

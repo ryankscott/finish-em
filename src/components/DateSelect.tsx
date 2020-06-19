@@ -39,7 +39,6 @@ interface OwnProps {
     onEscape?: () => void
     placeholder: string
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
-    zIndex?: number
 }
 
 type DateSelectProps = OwnProps & StateProps
@@ -69,23 +68,16 @@ function DateSelect(props: DateSelectProps): ReactElement {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Select
-                isDisabled={
-                    props.disabled != undefined ? props.disabled : false
-                }
-                autoFocus={
-                    props.autoFocus != undefined ? props.autoFocus : true
-                }
+                isDisabled={props.disabled != undefined ? props.disabled : false}
+                autoFocus={props.autoFocus != undefined ? props.autoFocus : true}
                 placeholder={props.placeholder}
                 onChange={handleChange}
                 options={options}
                 styles={selectStyles({
                     fontSize: props.textSize || 'xxsmall',
-                    zIndex: props.zIndex,
                     theme: themes[props.theme],
                 })}
-                defaultMenuIsOpen={
-                    props.defaultOpen != undefined ? props.defaultOpen : true
-                }
+                defaultMenuIsOpen={props.defaultOpen != undefined ? props.defaultOpen : true}
                 escapeClearsValue={true}
                 tabIndex="0"
                 onKeyDown={(e) => {
@@ -95,12 +87,8 @@ function DateSelect(props: DateSelectProps): ReactElement {
                 }}
             />
             {dayPickerVisible && (
-                <div style={{ zIndex: props.zIndex }}>
-                    <DayPicker
-                        autoFocus
-                        tabIndex={0}
-                        onDayClick={handleDayClick}
-                    />
+                <div>
+                    <DayPicker tabIndex={0} onDayClick={handleDayClick} />
                 </div>
             )}
         </ThemeProvider>
