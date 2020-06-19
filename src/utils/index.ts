@@ -16,6 +16,7 @@ import {
     isYesterday,
     format,
     isAfter,
+    isSameDay,
 } from 'date-fns'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
@@ -284,6 +285,10 @@ const today = (d: string): boolean => {
     return isToday(parseISO(d))
 }
 
+const sameDay = (d: string, d1: string): boolean => {
+    return isSameDay(parseISO(d), parseISO(d1))
+}
+
 const thisWeek = (d: string): boolean => {
     return isThisWeek(parseISO(d))
 }
@@ -297,5 +302,5 @@ const daysFromToday = (a: string): number => {
 }
 
 export const filtrexOptions = {
-    extraFunctions: { overdue, today, thisWeek, thisMonth, daysFromToday },
+    extraFunctions: { overdue, today, thisWeek, thisMonth, daysFromToday, sameDay },
 }

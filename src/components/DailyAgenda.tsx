@@ -1,6 +1,6 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { format, sub, add } from 'date-fns'
+import { format, sub, add, parseISO } from 'date-fns'
 import { connect } from 'react-redux'
 import { themes } from '../theme'
 import FilteredItemList from '../containers/FilteredItemList'
@@ -29,7 +29,7 @@ interface DispatchProps {
 type DailyAgendaProps = StateProps & DispatchProps
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
-    const [date, setDate] = useState(new Date())
+    const [currentDate, setDate] = useState(new Date())
     const editor = React.createRef<HTMLInputElement>()
     return (
         <ThemeProvider theme={themes[props.theme]}>
@@ -41,26 +41,26 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                             type="default"
                             icon="back"
                             onClick={() => {
-                                setDate(sub(date, { days: 1 }))
+                                setDate(sub(currentDate, { days: 1 }))
                             }}
                         />
                     </BackContainer>
-                    <DailyTitle>{format(date, 'EEEE do MMMM yyyy')}</DailyTitle>
+                    <DailyTitle>{format(currentDate, 'EEEE do MMMM yyyy')}</DailyTitle>
                     <ForwardContainer>
                         <Button
                             spacing="compact"
                             type="default"
                             icon="forward"
                             onClick={() => {
-                                setDate(add(date, { days: 1 }))
+                                setDate(add(currentDate, { days: 1 }))
                             }}
                         />
                     </ForwardContainer>
                     <Paragraph style={{ gridArea: 'week_of_year' }}>
-                        Week of year: {format(date, 'w')} / 52
+                        Week of year: {format(currentDate, 'w')} / 52
                     </Paragraph>
                     <Paragraph style={{ gridArea: 'week_of_quarter' }}>
-                        Week of quarter: {parseInt(format(date, 'w')) % 13} / 13
+                        Week of quarter: {parseInt(format(currentDate, 'w')) % 13} / 13
                     </Paragraph>
                 </DateContainer>
                 <Header1> Daily Goal </Header1>
@@ -68,17 +68,17 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     style={Paragraph}
                     readOnly={false}
                     input={
-                        props.dailyGoal[format(date, 'yyyy-MM-dd')]
-                            ? props.dailyGoal[format(date, 'yyyy-MM-dd')].text
+                        props.dailyGoal[format(currentDate, 'yyyy-MM-dd')]
+                            ? props.dailyGoal[format(currentDate, 'yyyy-MM-dd')].text
                             : 'No daily goal set'
                     }
                     height={'150px'}
                     singleline={false}
                     innerRef={editor}
                     onUpdate={(input) => {
-                        props.setDailyGoal(format(date, 'yyyy-MM-dd'), input)
+                        props.setDailyGoal(format(currentDate, 'yyyy-MM-dd'), input)
                     }}
-                    validation={{ validate: false }}
+                    validation={false}
                     shouldSubmitOnBlur={true}
                     shouldClearOnSubmit={false}
                 />
@@ -98,7 +98,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         showProject={true}
                         isFilterable={true}
                         listName="Due Today"
-                        filter="today(dueDate)"
+                        filter={`sameDay(dueDate, "${currentDate.toISOString()}")`}
                         renderingStrategy={RenderingStrategy.All}
                     />
                     <FilteredItemList
@@ -106,7 +106,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         showProject={true}
                         isFilterable={true}
                         listName="Scheduled Today"
-                        filter="today(scheduledDate)"
+                        filter={`sameDay(scheduledDate, "${currentDate.toISOString()}")`}
                         renderingStrategy={RenderingStrategy.All}
                     />
                 </Section>
