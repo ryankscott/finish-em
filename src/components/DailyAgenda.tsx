@@ -87,7 +87,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         id="c25ce4ec-a6ae-46c1-9c58-25b51ff08e93"
                         isFilterable={true}
                         listName="Overdue"
-                        filter="overdue(dueDate) or overdue(scheduledDate) and not (completed or deleted)"
+                        filter="(overdue(dueDate) or overdue(scheduledDate)) and not (completed or deleted)"
                         renderingStrategy={RenderingStrategy.All}
                         noIndentOnSubtasks={true}
                     />
