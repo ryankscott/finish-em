@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import Button from './Button'
@@ -8,7 +8,7 @@ import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
 import Tooltip from './Tooltip'
 import LabelDialog from './LabelDialog'
 import { deletePermanently } from '../actions/item'
-import { Icons } from "../assets/icons"
+import { Icons } from '../assets/icons'
 
 interface DispatchProps {
     deletePermanently: (id: Uuid) => void
@@ -30,10 +30,25 @@ type MoreDropdownProps = DispatchProps & OwnProps & StateProps
 function MoreDropdown(props: MoreDropdownProps): ReactElement {
     const [showDialog, setShowDialog] = useState(false)
     const [showLabelDialog, setShowLabelDialog] = useState(false)
+    const node = useRef()
+
+    const handleClick = (e): null => {
+        if (node.current.contains(e.target)) {
+            return
+        }
+        setShowLabelDialog(false)
+    }
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClick)
+        return () => {
+            document.removeEventListener('mousedown', handleClick)
+        }
+    }, [])
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div>
+            <div ref={node}>
                 <Button
                     dataFor={'more'}
                     type={'subtleInvert'}
@@ -72,7 +87,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                                         setShowDialog(false)
                                     }}
                                 >
-                                    <Icon>{Icons['trashPermanent'(14, 14)}</Icon>
+                                    <Icon>{Icons['trashPermanent'](14, 14)}</Icon>
                                     {'Delete Permanently'}
                                 </Option>
                             )}
