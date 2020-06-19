@@ -53,7 +53,7 @@ const Project = (props: ProjectProps): ReactElement => {
                 <HeaderContainer>
                     <EditableText
                         shouldSubmitOnBlur={true}
-                        validation={{ validate: false }}
+                        validation={false}
                         key={props.project.id + 'name'}
                         input={props.project.name}
                         style={Title}
@@ -68,7 +68,7 @@ const Project = (props: ProjectProps): ReactElement => {
                 </HeaderContainer>
                 <EditableText
                     shouldSubmitOnBlur={true}
-                    validation={{ validate: false }}
+                    validation={false}
                     key={props.project.id + 'description'}
                     onUpdate={(input) => {
                         props.updateDescription(props.project.id, input)

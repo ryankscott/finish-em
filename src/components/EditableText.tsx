@@ -10,7 +10,7 @@ import CSS from 'csstype'
 import { fontSizeType } from '../interfaces'
 
 type validation =
-    | { validate: false }
+    | false
     | {
           validate: true
           rule: (input: string) => boolean

@@ -31,8 +31,7 @@ export const Option = styled.div`
     padding: 5px 5px;
     border-radius: 2px;
     :hover {
-        background-color: ${(props) =>
-            props.theme.colours.focusBackgroundColour};
+        background-color: ${(props) => props.theme.colours.focusBackgroundColour};
     }
     font-size: ${(props) => props.theme.fontSizes.xxsmall};
     font-family: ${(props) => props.theme.font.sansSerif};

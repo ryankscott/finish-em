@@ -26,7 +26,7 @@ import ViewHeader from './ViewHeader'
 interface StateProps {
     features: FeatureType
     theme: string
-    labels: LabelType
+    labels: Labels
 }
 
 interface OwnProps {}
@@ -97,7 +97,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                             onEscape={() => {
                                                 labelText.current.blur()
                                             }}
-                                            validation={{ validate: false }}
+                                            validation={false}
                                             singleline={true}
                                             shouldClearOnSubmit={false}
                                             onUpdate={(e) => {

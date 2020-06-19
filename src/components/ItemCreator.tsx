@@ -54,7 +54,6 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         <Container
             ref={node}
             onKeyDown={(e) => {
-                console.log(e.key)
                 if (e.key == 'Escape') {
                     setShowItemCreator(false)
                 }

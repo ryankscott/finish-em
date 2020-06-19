@@ -4,11 +4,7 @@ import { Manager, Reference, Popper } from 'react-popper'
 
 import { themes } from '../theme'
 import Button from './Button'
-import {
-    HeaderContainer,
-    Container,
-    BodyContainer,
-} from './styled/InlineDialog'
+import { HeaderContainer, Container, BodyContainer } from './styled/InlineDialog'
 import { connect } from 'react-redux'
 
 interface StateProps {
@@ -64,9 +60,7 @@ function InlineDialog(props: InlineDialogProps): ReactElement {
 
     return (
         <Manager>
-            <Reference>
-                {({ ref }) => <div ref={ref}>{props.children}</div>}
-            </Reference>
+            <Reference>{({ ref }) => <div ref={ref}>{props.children}</div>}</Reference>
             <Popper placement={props.placement}>
                 {({ ref, style, arrowProps }) => (
                     <div

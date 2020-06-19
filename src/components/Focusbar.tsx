@@ -157,7 +157,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         onUpdate={(text) => {
                             props.updateItemDescription(i.id, i.type.concat(' ', text))
                         }}
-                        validation={{ validate: false }}
+                        validation={false}
                         shouldSubmitOnBlur={true}
                         shouldClearOnSubmit={false}
                     />

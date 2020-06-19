@@ -42,9 +42,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                             />
                         </HeaderContainer>
                         <BodyContainer>
-                            <Paragraph>
-                                Are you sure you want to delete this project?
-                            </Paragraph>
+                            <Paragraph>Are you sure you want to delete this project?</Paragraph>
                         </BodyContainer>
                         <ActionContainer>
                             <Button
