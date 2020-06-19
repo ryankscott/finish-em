@@ -266,9 +266,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                     {...item}
                                                                     key={item.id}
                                                                     componentId={props.componentId}
-                                                                    noIndentOnSubtasks={true}
+                                                                    shouldIndent={false}
                                                                     hideIcons={props.hideIcons}
-                                                                    keymap={itemKeymap}
                                                                 />
 
                                                                 {item.children?.map((c) => {
@@ -281,9 +280,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                             componentId={
                                                                                 props.componentId
                                                                             }
-                                                                            noIndentOnSubtasks={
-                                                                                false
-                                                                            }
+                                                                            shouldIndent={true}
                                                                             hideIcons={
                                                                                 props.hideIcons
                                                                                     ? [
@@ -325,7 +322,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                 {...item}
                                                                 key={item.id}
                                                                 componentId={props.componentId}
-                                                                noIndentOnSubtasks={false}
+                                                                shouldIndent={false}
                                                                 hideIcons={props.hideIcons}
                                                             />
                                                             {item.children?.map((c) => {
@@ -335,7 +332,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                     <Item
                                                                         key={c}
                                                                         {...childItem}
-                                                                        noIndentOnSubtasks={false}
+                                                                        shouldIndent={true}
                                                                         componentId={
                                                                             props.componentId
                                                                         }
