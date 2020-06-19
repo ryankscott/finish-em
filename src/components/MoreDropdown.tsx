@@ -36,7 +36,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
         if (node.current.contains(e.target)) {
             return
         }
-        setShowLabelDialog(false)
+        setShowDialog(false)
     }
 
     useEffect(() => {
