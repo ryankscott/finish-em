@@ -35,7 +35,7 @@ import {
     SubtaskContainer,
     AttributeValue,
     AttributeKey,
-} from './styled/FocusBar'
+} from './styled/Focusbar'
 import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
 import ProjectDropdown from './ProjectDropdown'
