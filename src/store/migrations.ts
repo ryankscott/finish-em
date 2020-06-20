@@ -577,7 +577,9 @@ export const migrations = {
                                 },
                             },
                         },
-                }
+                    },
+                },
+            },
         }
     },
 }
