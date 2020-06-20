@@ -333,7 +333,7 @@ const initialState: UIType = {
                 component: {
                     name: 'FilteredItemList',
                     props: {
-                        id: '2e30abeb-5df5-49f0-90ad-5dad9a18afaa',
+                        id: 'cd464833-1b54-4a52-8474-9632be6e3d4f',
                         filter:
                             'not deleted and not completed and daysFromToday(i.lastUpdatedAt) > 31',
                         hideIcons: [],
@@ -511,7 +511,36 @@ export const uiReducer = produce(
                         [action.componentId]: false,
                     }
                 }
+                break
 
+            case ui.SET_FILTEREDITEMLIST_NAME:
+                if (
+                    (state.components.components[action.componentId].component.name =
+                        'FilteredItemList')
+                ) {
+                    state.components.components[action.componentId].component.props.listName =
+                        action.name
+                }
+                break
+
+            case ui.SET_FILTEREDITEMLIST_FILTER:
+                if (
+                    (state.components.components[action.componentId].component.name =
+                        'FilteredItemList')
+                ) {
+                    state.components.components[action.componentId].component.props.filter =
+                        action.filter
+                }
+                break
+
+            case ui.SET_FILTEREDITEMLIST_FILTERABLE:
+                if (
+                    (state.components.components[action.componentId].component.name =
+                        'FilteredItemList')
+                ) {
+                    state.components.components[action.componentId].component.props.isFilterable =
+                        action.filterable
+                }
                 break
 
             default:
