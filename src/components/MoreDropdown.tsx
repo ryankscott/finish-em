@@ -30,7 +30,7 @@ type MoreDropdownProps = DispatchProps & OwnProps & StateProps
 function MoreDropdown(props: MoreDropdownProps): ReactElement {
     const [showDialog, setShowDialog] = useState(false)
     const [showLabelDialog, setShowLabelDialog] = useState(false)
-    const node = useRef()
+    const node = useRef<HTMLDivElement>()
 
     const handleClick = (e): null => {
         if (node.current.contains(e.target)) {

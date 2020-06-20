@@ -73,7 +73,7 @@ interface StateProps {
 }
 type FocusbarProps = DispatchProps & StateProps
 const Focusbar = (props: FocusbarProps): ReactElement => {
-    const ref = React.createRef<HTMLInputElement>()
+    const ref = React.useRef<HTMLInputElement>()
     const i = props?.items?.items[props?.activeItem.present]
     if (!i) return null
 

@@ -83,7 +83,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     <SettingsCategory>
                         <SettingsCategoryHeader>Labels</SettingsCategoryHeader>
                         {Object.values(props.labels.labels).map((m: LabelType) => {
-                            labelText = React.createRef<HTMLInputElement>()
+                            labelText = React.useRef<HTMLInputElement>()
                             return (
                                 <div id={m.id} key={'f-' + m.id}>
                                     <LabelContainer key={'lc-' + m.id}>

@@ -6,11 +6,7 @@ import { Uuid } from '@typed/uuid'
 
 import { Header3 } from './Typography'
 import { themes } from '../theme'
-import {
-    createProject,
-    toggleCreateProjectDialog,
-    hideCreateProjectDialog,
-} from '../actions'
+import { createProject, toggleCreateProjectDialog, hideCreateProjectDialog } from '../actions'
 import Button from './Button'
 import InlineDialog from './InlineDialog'
 import {
@@ -37,7 +33,7 @@ type CreateProjectDialogProps = OwnProps & DispatchProps & StateProps
 function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
     const [projectName, setProjectName] = useState('')
     const [projectDescription, setProjectDescription] = useState('')
-    const createProjectInput = React.createRef<HTMLInputElement>()
+    const createProjectInput = React.useRef<HTMLInputElement>()
 
     const handleChange = (e): void => {
         e.target.id == 'createProjectName'

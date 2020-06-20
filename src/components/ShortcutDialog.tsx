@@ -31,19 +31,13 @@ const generateRows = (keymap: { [key: string]: string }): ReactElement[] => {
                 <Row key={'row-' + idx}>
                     <Data key={'data-' + idx}>
                         <ShortcutName key={'shortcutname-' + idx}>
-                            {capitaliseEachWordInString(
-                                shortcuts[idx][0].replace(/_/gi, ' '),
-                            )}
+                            {capitaliseEachWordInString(shortcuts[idx][0].replace(/_/gi, ' '))}
                         </ShortcutName>
-                        <ShortcutKeys key={'shortcutkey-' + idx}>
-                            {shortcuts[idx][1]}
-                        </ShortcutKeys>
+                        <ShortcutKeys key={'shortcutkey-' + idx}>{shortcuts[idx][1]}</ShortcutKeys>
                     </Data>
                     <Data key={'data-' + (idx + 1)}>
                         <ShortcutName key={'shortcutname-' + (idx + 1)}>
-                            {capitaliseEachWordInString(
-                                shortcuts[idx + 1][0].replace(/_/gi, ' '),
-                            )}
+                            {capitaliseEachWordInString(shortcuts[idx + 1][0].replace(/_/gi, ' '))}
                         </ShortcutName>
                         <ShortcutKeys key={'shortcutkey-' + (idx + 1)}>
                             {shortcuts[idx + 1][1]}
@@ -56,13 +50,9 @@ const generateRows = (keymap: { [key: string]: string }): ReactElement[] => {
                 <Row key={'row-' + idx}>
                     <Data key={'data-' + idx}>
                         <ShortcutName key={'shortcutname-' + idx}>
-                            {capitaliseEachWordInString(
-                                shortcuts[idx][0].replace(/_/gi, ' '),
-                            )}
+                            {capitaliseEachWordInString(shortcuts[idx][0].replace(/_/gi, ' '))}
                         </ShortcutName>
-                        <ShortcutKeys key={idx + 'k'}>
-                            {shortcuts[idx][1]}
-                        </ShortcutKeys>
+                        <ShortcutKeys key={idx + 'k'}>{shortcuts[idx][1]}</ShortcutKeys>
                     </Data>
                 </Row>
             )
@@ -79,7 +69,7 @@ interface DispatchProps {
 }
 type ShortcutDialogProps = StateProps & DispatchProps
 function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
-    const node = React.createRef()
+    const node = React.useRef()
 
     const handleClick = (e: React.MouseEvent): void => {
         // Don't handle if we're clicking on the shortcut icon again
@@ -113,9 +103,7 @@ function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
             <ShortcutContainer
                 ref={node}
                 isOpen={props.isOpen}
-                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) =>
-                    handleKeyDown(e)
-                }
+                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => handleKeyDown(e)}
             >
                 <Controls>
                     <Button

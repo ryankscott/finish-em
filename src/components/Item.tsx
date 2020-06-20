@@ -84,8 +84,8 @@ function Item(props: ItemProps): ReactElement {
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
 
-    const editor = React.createRef<HTMLInputElement>()
-    const container = React.createRef<HTMLInputElement>()
+    const editor = React.useRef<HTMLInputElement>()
+    const container = React.useRef<HTMLInputElement>()
 
     const hiddenIcons = props.hideIcons || []
 

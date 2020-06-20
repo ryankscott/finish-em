@@ -26,7 +26,7 @@ type DatePickerProps = StateProps & OwnProps
 
 function DatePicker(props: DatePickerProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
-    const node = useRef()
+    const node = useRef<HTMLDivElement>()
 
     const handleClick = (e): null => {
         if (node.current.contains(e.target)) {

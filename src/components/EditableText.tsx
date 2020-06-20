@@ -92,7 +92,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
         // Validate input
         if (props.shouldSubmitOnBlur) {
-            if (props.validation.validate) {
+            if (props.validation != false) {
                 if (props.validation.rule(props.innerRef.current.innerText)) {
                     props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
                     if (props.shouldClearOnSubmit) {
@@ -126,13 +126,13 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             props.onKeyDown(currentVal)
         }
 
-        if (props.validation.validate) {
+        if (props.validation != false) {
             setValid(props.validation.rule(currentVal))
         }
 
         if (e.key == 'Enter' && props.singleline) {
             // Validate input
-            if (props.validation.validate) {
+            if (props.validation != false) {
                 if (props.validation.rule(currentVal)) {
                     props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
 
@@ -203,7 +203,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             <Container
                 fontSize={props.fontSize}
                 backgroundColour={props.backgroundColour}
-                valid={props.validation.validate ? valid : true}
+                valid={props.validation != false ? valid : true}
                 as={props.style || Paragraph}
                 readOnly={props.readOnly}
                 ref={props.innerRef}

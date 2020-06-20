@@ -59,7 +59,7 @@ export const DeleteContainer = styled.div`
     align-items: flex-end;
 `
 
-// NOTE: This is hear due to the fact that the sort select is absolutely positions
+// NOTE: This is here due to the fact that the sort select is absolutely positions
 // If I remove this element from the DOM it position goes whack
 interface CompletedContainerProps {
     visible: boolean
@@ -88,7 +88,7 @@ export const ListName = styled.div`
     grid-template-rows: auto;
     grid-template-columns: 30px repeat(9, 1fr);
     grid-template-areas:
-        'hide header edit . . . . . . .'
+        'hide header header header edit . . . . .'
         'hide count  . . . . . . . .';
     width: 100%;
 `
@@ -116,46 +116,4 @@ export const Container = styled.div`
     position: relative;
     margin: 10px 0px;
     width: 100%;
-`
-export const DialogContainer = styled.div`
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    padding: 2px;
-    margin: 2px;
-    background-color: ${(props) => props.theme.colours.backgroundColour};
-    border: 1px solid;
-    border-color: ${(props) => props.theme.colours.borderColour};
-    border-radius: 5px;
-    min-width: 160px;
-    padding: 5px 5px;
-    z-index: 2;
-    left: 0px;
-    top: 25px;
-`
-export const DialogHeader = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-`
-export const DialogName = styled(Paragraph)`
-    font-size: ${(props) => props.theme.fontSizes['regular']};
-    font-weight: ${(props) => props.theme.fontWeights['regular']};
-    padding: 5px 5px;
-`
-
-export const Setting = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 2px 5px;
-    width: 100%;
-    height: 30px;
-    align-items: bottom;
-`
-export const SettingLabel = styled(Paragraph)`
-    color: ${(props) => props.theme.colours.textColour};
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
-    width: 100px;
 `

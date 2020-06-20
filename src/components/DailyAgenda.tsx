@@ -30,7 +30,7 @@ type DailyAgendaProps = StateProps & DispatchProps
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     const [currentDate, setDate] = useState(new Date())
-    const editor = React.createRef<HTMLInputElement>()
+    const editor = React.useRef<HTMLInputElement>()
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <AgendaContainer>
@@ -90,6 +90,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         filter="(overdue(dueDate) or overdue(scheduledDate)) and not (completed or deleted)"
                         renderingStrategy={RenderingStrategy.All}
                         noIndentOnSubtasks={true}
+                        readOnly={true}
                     />
                 </Section>
                 <Section>
@@ -100,6 +101,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         listName="Due Today"
                         filter={`sameDay(dueDate, "${currentDate.toISOString()}")`}
                         renderingStrategy={RenderingStrategy.All}
+                        readOnly={true}
                     />
                     <FilteredItemList
                         id="a4e1c649-378f-4d14-9aac-2d2720270dd8"
@@ -108,6 +110,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         listName="Scheduled Today"
                         filter={`sameDay(scheduledDate, "${currentDate.toISOString()}")`}
                         renderingStrategy={RenderingStrategy.All}
+                        readOnly={true}
                     />
                 </Section>
             </AgendaContainer>

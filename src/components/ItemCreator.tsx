@@ -32,7 +32,7 @@ type ItemCreatorProps = OwnProps & DispatchProps
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     const textRef: React.RefObject<HTMLInputElement> = props.innerRef
         ? props.innerRef
-        : React.createRef<HTMLInputElement>()
+        : React.useRef<HTMLInputElement>()
     const [showItemCreator, setShowItemCreator] = useState(props.initiallyExpanded)
 
     const node = useRef<HTMLDivElement>()

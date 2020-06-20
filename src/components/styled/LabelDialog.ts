@@ -4,6 +4,7 @@ import CSS from 'csstype'
 import { transparentize } from 'polished'
 
 export const Container = styled.div`
+    z-index: 2;
     position: absolute;
     top: 0px;
     min-width: 180px;
@@ -54,9 +55,7 @@ export const LabelContainer = styled.div<LabelContainerProps>`
     align-items: center;
     height: 25px;
     background-color: ${(props) =>
-        props.colour
-            ? transparentize(0.8, props.colour)
-            : props.theme.colours.backgroundColour};
+        props.colour ? transparentize(0.8, props.colour) : props.theme.colours.backgroundColour};
     &:hover {
         font-weight: ${(props) => props.theme.fontWeights.bold};
         cursor: pointer;

@@ -1,10 +1,9 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 
-import { HeaderContainer, IconContainer } from './styled/ViewHeader'
+import { HeaderContainer, IconContainer, HeaderTitle } from './styled/ViewHeader'
 import { themes } from '../theme'
 import { IconType } from '../interfaces'
-import { Title } from './Typography'
 import { connect } from 'react-redux'
 import { Icons } from '../assets/icons'
 
@@ -24,7 +23,7 @@ const ViewHeader = (props: ViewHeaderProps): ReactElement => (
             <IconContainer>
                 {Icons[props.icon](24, 24, themes[props.theme].colours.primaryColour)}
             </IconContainer>
-            <Title> {props.name} </Title>
+            <HeaderTitle> {props.name} </HeaderTitle>
         </HeaderContainer>
     </ThemeProvider>
 )

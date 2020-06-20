@@ -551,4 +551,33 @@ export const migrations = {
             },
         }
     },
+    13: (state) => {
+        return {
+            ...state,
+            ui: {
+                ...state.ui,
+                components: {
+                    ...state.ui.components,
+                    components: {
+                        ...state.ui.components.components,
+                        'cd464833-1b54-4a52-8474-9632be6e3d4f': {
+                            id: 'cd464833-1b54-4a52-8474-9632be6e3d4f',
+                            viewId: '0524ccae-1005-4b75-80ca-f04691ad6431',
+                            location: 'main',
+                            component: {
+                                name: 'FilteredItemList',
+                                props: {
+                                    id: 'cd464833-1b54-4a52-8474-9632be6e3d4f',
+                                    filter:
+                                        'not deleted and not completed and daysFromToday(i.lastUpdatedAt) > 31',
+                                    hideIcons: [],
+                                    listName: 'Last update more than a month ago',
+                                    renderingStrategy: RenderingStrategy.All,
+                                    isFilterable: true,
+                                },
+                            },
+                        },
+                }
+        }
+    },
 }

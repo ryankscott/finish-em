@@ -38,8 +38,8 @@ interface OwnProps {
 type ProjectProps = DispatchProps & OwnProps & StateProps
 const Project = (props: ProjectProps): ReactElement => {
     const history = useHistory()
-    const name = React.createRef<HTMLInputElement>()
-    const description = React.createRef<HTMLInputElement>()
+    const name = React.useRef<HTMLInputElement>()
+    const description = React.useRef<HTMLInputElement>()
 
     function deleteProject(): void {
         props.deleteProject(props.project.id)

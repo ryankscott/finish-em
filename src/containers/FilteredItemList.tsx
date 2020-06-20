@@ -2,7 +2,6 @@ import React, { ReactElement, useState, useEffect } from 'react'
 import ItemList from '../components/ItemList'
 import { orderBy } from 'lodash'
 import { themes, selectStyles } from '../theme'
-import Switch from 'react-switch'
 import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
 import {
     Container,
@@ -20,11 +19,6 @@ import {
     ListHeader,
     EditButtonContainer,
     ListCount,
-    DialogContainer,
-    DialogHeader,
-    DialogName,
-    SettingLabel,
-    Setting,
 } from '../components/styled/FilteredItemList'
 import { connect } from 'react-redux'
 import Button from '../components/Button'
@@ -39,7 +33,7 @@ import { hideSubtasks, showSubtasks } from '../actions'
 import { Uuid } from '@typed/uuid'
 import { Icons } from '../assets/icons'
 import { ThemeProvider } from 'styled-components'
-import EditableText from '../components/EditableText'
+import FilteredItemDialog from '../components/FilteredItemDialog'
 
 const DropdownIndicator = (props): ReactElement => {
     return (
@@ -150,6 +144,7 @@ export interface OwnProps {
     defaultSortOrder?: SortCriteriaEnum
     noIndentOnSubtasks?: boolean
     hideCompletedToggle?: boolean
+    readOnly?: boolean
 }
 export type FilteredItemListProps = StateProps & DispatchProps & OwnProps
 
@@ -158,9 +153,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
     const [hideCompleted, setHideCompleted] = useState(false)
     const [hideItemList, setHideItemList] = useState(Object.keys(props.items).length == 0)
-    const [showEditDialog, setShowEditDialog] = useState(false)
 
-    const nameRef = React.createRef<HTMLInputElement>()
     const theme = themes[props.theme]
     // TODO: Unsure if this should be done in state
     const allItems = props.items
@@ -190,6 +183,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     <ListName>
                         <HideButtonContainer>
                             <Button
+                                key={`btn-${props.id}`}
                                 type="default"
                                 icon={'expand'}
                                 rotate={hideItemList == true ? 0 : 1}
@@ -201,80 +195,16 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                             {sortedItemsLength + (sortedItemsLength == 1 ? ' item' : ' items')}
                         </ListCount>
                         <EditButtonContainer>
-                            <Button
-                                height="22px"
-                                width="22px"
-                                iconSize="14px"
-                                type={'default'}
-                                spacing={'compact'}
-                                onClick={() => setShowEditDialog(!showEditDialog)}
-                                icon="edit"
-                            />
+                            {!props.readOnly && (
+                                <FilteredItemDialog
+                                    key={`dlg-${props.id}`}
+                                    componentId={props.id}
+                                    listName={props.listName}
+                                    filter={props.filter}
+                                    isFilterable={props.isFilterable}
+                                />
+                            )}
                         </EditButtonContainer>
-                        {showEditDialog && (
-                            <>
-                                <DialogContainer>
-                                    <DialogHeader>
-                                        <DialogName>{'Update List'}</DialogName>
-                                        <Button
-                                            type="subtle"
-                                            spacing="compact"
-                                            icon="close"
-                                            onClick={() => {
-                                                setShowEditDialog(false)
-                                            }}
-                                        />
-                                    </DialogHeader>
-
-                                    <Setting>
-                                        <SettingLabel>Name</SettingLabel>
-                                        <EditableText
-                                            innerRef={nameRef}
-                                            key={'ed-name'}
-                                            input={props.listName}
-                                            fontSize={'xsmall'}
-                                            shouldSubmitOnBlur={true}
-                                            onEscape={() => {}}
-                                            validation={false}
-                                            singleline={true}
-                                            shouldClearOnSubmit={false}
-                                            onUpdate={(e) => {
-                                                console.log(e)
-                                            }}
-                                        />
-                                    </Setting>
-                                    <Setting>
-                                        <SettingLabel>Filter</SettingLabel>
-                                        <EditableText
-                                            innerRef={nameRef}
-                                            key={'ed-name'}
-                                            input={props.filter}
-                                            fontSize={'xsmall'}
-                                            shouldSubmitOnBlur={true}
-                                            onEscape={() => {}}
-                                            validation={false}
-                                            singleline={false}
-                                            shouldClearOnSubmit={false}
-                                            onUpdate={(e) => {
-                                                console.log(e)
-                                            }}
-                                        />
-                                    </Setting>
-                                    <Setting>
-                                        <SettingLabel>Filterable</SettingLabel>
-                                        <Switch
-                                            checked={props.isFilterable}
-                                            onChange={() => console.log('foo')}
-                                            onColor={theme.colours.primaryColour}
-                                            checkedIcon={false}
-                                            uncheckedIcon={false}
-                                            width={24}
-                                            height={14}
-                                        />
-                                    </Setting>
-                                </DialogContainer>
-                            </>
-                        )}
                     </ListName>
                     {visibility.showFilterBar && (
                         <FilterBar>

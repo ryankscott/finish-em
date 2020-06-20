@@ -31,6 +31,7 @@ const Inbox = (props: InboxProps): ReactElement => (
                 filter='projectId == "0" and not (deleted or completed)'
                 isFilterable={true}
                 hideIcons={[ItemIcons.Project]}
+                readOnly={true}
             />
         </Container>
     </ThemeProvider>

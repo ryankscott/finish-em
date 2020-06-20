@@ -24,9 +24,7 @@ export const Header1 = styled.h2<Header1Props>`
     font-size: ${(props) => props.theme.fontSizes.regular};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) =>
-        props.invert
-            ? props.theme.colours.altTextColour
-            : props.theme.colours.textColour};
+        props.invert ? props.theme.colours.altTextColour : props.theme.colours.textColour};
     padding-top: 8px;
     margin: 8px 5px;
 `
@@ -38,9 +36,7 @@ export const Header2 = styled.h2<Header2Props>`
     font-size: ${(props) => props.theme.fontSizes.regular};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) =>
-        props.invert
-            ? props.theme.colours.altTextColour
-            : props.theme.colours.textColour};
+        props.invert ? props.theme.colours.altTextColour : props.theme.colours.textColour};
     padding-top: 0px;
     margin: 0px 5px 5px 5px;
 `
@@ -51,9 +47,7 @@ export const Header3 = styled.h3<Header3Props>`
     font-size: ${(props) => props.theme.fontSizes.small};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) =>
-        props.invert
-            ? props.theme.colours.altTextColour
-            : props.theme.colours.textColour};
+        props.invert ? props.theme.colours.altTextColour : props.theme.colours.textColour};
     padding-top: 0px;
     margin: 0px 5px 5px 5px;
 `
@@ -65,9 +59,7 @@ export const Paragraph = styled.p<ParagraphProps>`
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     font-family: ${(props) => props.theme.font.sansSerif};
     color: ${(props) =>
-        props.invert
-            ? props.theme.colours.altTextColour
-            : props.theme.colours.textColour};
+        props.invert ? props.theme.colours.altTextColour : props.theme.colours.textColour};
     margin: 2px 5px;
     margin: 2px 2px;
 `

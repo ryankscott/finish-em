@@ -24,7 +24,7 @@ const QuickAddContainer = styled.div`
 `
 
 function QuickAdd(props: QuickAddProps): ReactElement {
-    const ref = React.createRef<HTMLInputElement>()
+    const ref = React.useRef<HTMLInputElement>()
 
     useEffect(() => {
         ref.current.focus()

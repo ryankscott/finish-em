@@ -37,7 +37,7 @@ interface OwnProps {
 type InlineDialogProps = OwnProps & StateProps
 
 function InlineDialog(props: InlineDialogProps): ReactElement {
-    const node = React.createRef<HTMLDivElement>()
+    const node = React.useRef<HTMLDivElement>()
 
     const handleClick = (e): void => {
         // Don't close if we're clicking on the dialog

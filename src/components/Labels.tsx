@@ -25,6 +25,7 @@ const Labels = (props: LabelProps): ReactElement => (
                     filter={`not completed and not deleted and labelId == "${l.id}"`}
                     isFilterable={true}
                     renderingStrategy={RenderingStrategy.All}
+                    readOnly={true}
                 />
             ))}
         </Container>

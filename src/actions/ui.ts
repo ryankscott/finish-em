@@ -24,6 +24,9 @@ export const SET_LABEL_COLOUR = 'SET_LABEL_COLOUR'
 export const SHOW_SUBTASKS = 'SHOW_SUBTASKS'
 export const HIDE_SUBTASKS = 'HIDE_SUBTASKS'
 export const TOGGLE_SUBTASKS = 'TOGGLE_SUBTASKS'
+export const SET_FILTEREDITEMLIST_NAME = 'SET_FILTEREDITEMLIST_NAME'
+export const SET_FILTEREDITEMLIST_FILTER = 'SET_FILTEREDITEMLIST_FILTER'
+export const SET_FILTEREDITEMLIST_FILTERABLE = 'SET_FILTEREDITEMLIST_FILTERABLE'
 
 interface ShowShortcutDialogAction {
     type: typeof SHOW_SHORTCUT_DIALOG
@@ -260,6 +263,52 @@ export function toggleSubtasks(id: Uuid, componentId: Uuid): ToggleSubtasksActio
     }
 }
 
+export interface SetFilteredItemListName {
+    type: typeof SET_FILTEREDITEMLIST_NAME
+    componentId: Uuid
+    name: string
+}
+
+export function setFilteredItemListName(componentId: Uuid, name: string): SetFilteredItemListName {
+    return {
+        type: SET_FILTEREDITEMLIST_NAME,
+        componentId: componentId,
+        name: name,
+    }
+}
+export interface SetFilteredItemListFilter {
+    type: typeof SET_FILTEREDITEMLIST_FILTER
+    componentId: Uuid
+    filter: string
+}
+
+export function setFilteredItemListFilter(
+    componentId: Uuid,
+    filter: string,
+): SetFilteredItemListFilter {
+    return {
+        type: SET_FILTEREDITEMLIST_FILTER,
+        componentId: componentId,
+        filter: filter,
+    }
+}
+export interface SetFilteredItemListFilterable {
+    type: typeof SET_FILTEREDITEMLIST_FILTERABLE
+    componentId: Uuid
+    filterable: boolean
+}
+
+export function setFilteredItemListFilterable(
+    componentId: Uuid,
+    filterable: boolean,
+): SetFilteredItemListFilterable {
+    return {
+        type: SET_FILTEREDITEMLIST_FILTERABLE,
+        componentId: componentId,
+        filterable: filterable,
+    }
+}
+
 export type UIActions =
     | ShowShortcutDialogAction
     | HideShortcutDialogAction
@@ -285,3 +334,6 @@ export type UIActions =
     | ShowSubtasksAction
     | HideSubtasksAction
     | ToggleSubtasksAction
+    | SetFilteredItemListName
+    | SetFilteredItemListFilter
+    | SetFilteredItemListFilterable
