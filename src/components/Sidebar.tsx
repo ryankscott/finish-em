@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 import { themes } from '../theme'
 import CreateProjectDialog from './CreateProjectDialog'
 import { Header } from './Typography'
-import { showCreateProjectDialog, toggleSidebar } from '../actions'
+import { showCreateProjectDialog, toggleSidebar, reorderProject } from '../actions'
 import { Projects, Views } from '../interfaces'
 import {
     Container,
@@ -19,6 +19,9 @@ import {
 import Button from './Button'
 import { createShortProjectName } from '../utils'
 import { Uuid } from '@typed/uuid'
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import uuidv4 from 'uuid/v4'
+import * as CSS from 'csstype'
 
 interface StateProps {
     projects: Projects
@@ -29,11 +32,31 @@ interface StateProps {
 interface DispatchProps {
     showCreateProjectDialog: () => void
     toggleSidebar: () => void
+    reorderProject: (id: Uuid, destinationId: Uuid) => void
 }
 
 type SidebarProps = StateProps & DispatchProps
 const Sidebar = (props: SidebarProps): ReactElement => {
     const theme = themes[props.theme]
+    const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
+        background: isDraggingOver ? 'inherit' : 'inherit',
+        padding: '5px',
+        width: '100%',
+    })
+
+    const getProjectStyle = (isDragging: boolean, draggableStyle): CSS.Properties => ({
+        ...draggableStyle,
+        display: 'flex',
+        flexDirection: 'row',
+        height: 'auto',
+        userSelect: 'none',
+        margin: '0px',
+        padding: '0px',
+        // change background colour if dragging
+        background: isDragging
+            ? theme.colours.focusAltDialogBackgroundColour
+            : theme.colours.altBackgroundColour,
+    })
     return (
         <ThemeProvider theme={theme}>
             <Container visible={props.sidebarVisible}>
@@ -112,33 +135,71 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         {props.sidebarVisible && <Header>Projects</Header>}
                         {props.sidebarVisible && <CreateProjectDialog />}
                     </SectionHeader>
-                    {props.projects.order?.map((p: Uuid) => {
-                        // Don't render the inbox here
-                        if (p == '0') return
-                        const pathName = '/projects/' + p
-                        const project = props.projects.projects[p]
-                        return (
-                            <StyledNavLink
-                                key={p}
-                                to={pathName}
-                                activeStyle={{
-                                    backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                                }}
-                            >
-                                <Button
-                                    text={
-                                        props.sidebarVisible
-                                            ? project.name
-                                            : createShortProjectName(project.name)
-                                    }
-                                    spacing="compact"
-                                    type="subtle"
-                                    textSize="small"
-                                    iconSize="16px"
-                                />
-                            </StyledNavLink>
-                        )
-                    })}
+                    <DragDropContext
+                        onDragEnd={(e) => {
+                            props.reorderProject(
+                                e.draggableId,
+                                props.projects.order[e.destination.index],
+                            )
+                        }}
+                    >
+                        <Droppable droppableId={uuidv4()} type="PROJECT">
+                            {(provided, snapshot) => (
+                                <div
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}
+                                    style={getListStyle(snapshot.isDraggingOver)}
+                                >
+                                    {props.projects.order?.map((p: Uuid, index) => {
+                                        // Don't render the inbox here
+                                        if (p == '0') return
+                                        const pathName = '/projects/' + p
+                                        const project = props.projects.projects[p]
+                                        return (
+                                            <Draggable key={p} draggableId={p} index={index}>
+                                                {(provided, snapshot) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        key={'container-' + p}
+                                                        style={getProjectStyle(
+                                                            snapshot.isDragging,
+                                                            provided.draggableProps.style,
+                                                        )}
+                                                    >
+                                                        <StyledNavLink
+                                                            key={p}
+                                                            to={pathName}
+                                                            activeStyle={{
+                                                                backgroundColor:
+                                                                    theme.colours
+                                                                        .focusAltDialogBackgroundColour,
+                                                            }}
+                                                        >
+                                                            <Button
+                                                                text={
+                                                                    props.sidebarVisible
+                                                                        ? project.name
+                                                                        : createShortProjectName(
+                                                                              project.name,
+                                                                          )
+                                                                }
+                                                                spacing="compact"
+                                                                type="subtle"
+                                                                textSize="small"
+                                                                iconSize="16px"
+                                                            />
+                                                        </StyledNavLink>
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </Droppable>
+                    </DragDropContext>
                 </BodyContainer>
                 <Footer visible={props.sidebarVisible}>
                     <StyledNavLink
@@ -187,6 +248,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     toggleSidebar: () => {
         dispatch(toggleSidebar())
+    },
+    reorderProject: (id: Uuid, destinationId: Uuid) => {
+        dispatch(reorderProject(id, destinationId))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar)

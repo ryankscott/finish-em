@@ -5,8 +5,6 @@ interface ContainerProps {
     visible: boolean
 }
 export const Container = styled.div<ContainerProps>`
-    position: relative;
-    z-index: 0;
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
     align-items: ${(props) => (props.visible ? 'none' : 'center')};
     display: flex;
@@ -24,6 +22,7 @@ export const BodyContainer = styled.div`
 `
 
 export const StyledNavLink = styled(NavLink)`
+    width: 100%;
     font-size: ${(props) => props.theme.fontSizes.regular};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};

@@ -11,11 +11,7 @@ export interface CreateProjectAction {
     name: string
     description: string
 }
-export function createProject(
-    id: Uuid,
-    name: string,
-    description: string,
-): CreateProjectAction {
+export function createProject(id: Uuid, name: string, description: string): CreateProjectAction {
     return {
         type: CREATE_PROJECT,
         id: id,
@@ -54,10 +50,7 @@ export interface UpdateProjectNameAction {
     id: Uuid
     name: string
 }
-export function updateProjectName(
-    id: Uuid,
-    name: string,
-): UpdateProjectNameAction {
+export function updateProjectName(id: Uuid, name: string): UpdateProjectNameAction {
     return {
         type: UPDATE_PROJECT_NAME,
         id: id,
@@ -70,10 +63,7 @@ export interface ReorderProjectAction {
     id: Uuid
     destinationId: Uuid
 }
-export function reorderProject(
-    id: Uuid,
-    destinationId: Uuid,
-): ReorderProjectAction {
+export function reorderProject(id: Uuid, destinationId: Uuid): ReorderProjectAction {
     return {
         type: REORDER_PROJECT,
         id: id,
