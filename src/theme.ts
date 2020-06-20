@@ -206,11 +206,10 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             color: props.theme.colours.textColour,
             fontSize: props.theme.fontSizes[props.fontSize],
         }),
-        menuPortal: () => {
-            return {
-                zIndex: 999,
-            }
-        },
+        valueContainer: (base) => ({
+            ...base,
+            color: props.theme.colours.textColour,
+        }),
         menu: () => {
             return {
                 margin: '0px 0px',
@@ -251,12 +250,17 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             color: props.theme.colours.textColour,
             fontSize: props.theme.fontSizes[props.fontSize],
         }),
-        control: () => ({
+        singleValue: (base) => ({
+            ...base,
+            color: props.theme.colours.textColour,
+        }),
+        control: (base) => ({
             display: 'flex',
             flexDirection: 'row',
             width: '100%',
             margin: 0,
             padding: 0,
+            color: props.theme.colours.textColour,
             fontFamily: props.theme.font.sansSerif,
             fontSize: props.theme.fontSizes[props.fontSize],
             backgroundColor: props.theme.colours.backgroundColour,
