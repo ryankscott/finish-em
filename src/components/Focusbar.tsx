@@ -25,6 +25,7 @@ import {
     addLabel,
     deleteLabel,
     deleteItem,
+    undeleteItem,
 } from '../actions'
 import Tooltip from './Tooltip'
 import {
@@ -58,6 +59,7 @@ interface DispatchProps {
     changeParentItem: (id: Uuid, parentId: Uuid) => void
     addLabel: (id: Uuid, labelId: Uuid | string) => void
     deleteItem: (id: Uuid) => void
+    undeleteItem: (id: Uuid) => void
     deleteLabel: (id: Uuid) => void
 }
 interface StateProps {
@@ -161,17 +163,34 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         shouldSubmitOnBlur={true}
                         shouldClearOnSubmit={false}
                     />
-                    <Button
-                        dataFor="delete-button"
-                        type={'default'}
-                        icon="trash"
-                        spacing="compact"
-                        onClick={() => {
-                            props.deleteItem(i.id)
-                        }}
-                    ></Button>
+                    {i.deleted ? (
+                        <>
+                            <Button
+                                dataFor="restore-button"
+                                type={'default'}
+                                icon="restore"
+                                spacing="compact"
+                                onClick={() => {
+                                    props.undeleteItem(i.id)
+                                }}
+                            ></Button>
+                            <Tooltip id="restore-button" text={'Restore'} />{' '}
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                dataFor="delete-button"
+                                type={'default'}
+                                icon="trash"
+                                spacing="compact"
+                                onClick={() => {
+                                    props.deleteItem(i.id)
+                                }}
+                            ></Button>
 
-                    <Tooltip id="delete-button" text={'Delete'} />
+                            <Tooltip id="delete-button" text={'Delete'} />
+                        </>
+                    )}
                 </TitleContainer>
 
                 <AttributeContainer>
@@ -275,6 +294,24 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         />
                     </AttributeValue>
                 </AttributeContainer>
+                {i.deleted && (
+                    <AttributeContainer>
+                        <AttributeKey>
+                            <Paragraph>Deleted date: </Paragraph>
+                        </AttributeKey>
+                        <AttributeValue>{formatRelativeDate(parseISO(i.deletedAt))}</AttributeValue>
+                    </AttributeContainer>
+                )}
+                {i.completed && (
+                    <AttributeContainer>
+                        <AttributeKey>
+                            <Paragraph>Completed date: </Paragraph>
+                        </AttributeKey>
+                        <AttributeValue>
+                            {formatRelativeDate(parseISO(i.completedAt))}
+                        </AttributeValue>
+                    </AttributeContainer>
+                )}
                 {i.parentId == null && i.type == 'TODO' && (
                     <>
                         <SubtaskContainer>
@@ -360,6 +397,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     deleteItem: (id: Uuid) => {
         dispatch(deleteItem(id))
+    },
+    undeleteItem: (id: Uuid) => {
+        dispatch(undeleteItem(id))
     },
 })
 

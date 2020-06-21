@@ -582,4 +582,13 @@ export const migrations = {
             },
         }
     },
+    // Bump to align to version numbers
+    36: (state) => {
+        return {
+            ...state,
+            features: {
+                projectDates: true,
+            },
+        }
+    },
 }

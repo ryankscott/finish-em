@@ -12,6 +12,8 @@ const initialState: Projects = {
             lastUpdatedAt: new Date().toISOString(),
             deletedAt: null,
             createdAt: new Date().toISOString(),
+            startAt: null,
+            endAt: null,
         },
     },
     order: ['0'],
@@ -31,6 +33,8 @@ export const projectReducer = produce(
                     deletedAt: null,
                     createdAt: new Date().toISOString(),
                     lastUpdatedAt: new Date().toISOString(),
+                    startAt: null,
+                    endAt: null,
                 }
                 if (draftState.order) {
                     draftState.order = [...draftState.order, action.id]
@@ -66,6 +70,16 @@ export const projectReducer = produce(
                 const startOfArray = newOrder.slice(0, destinationIndex)
                 const endOfArray = newOrder.slice(destinationIndex, newOrder.length)
                 draftState.order = [...startOfArray, action.id, ...endOfArray]
+                break
+
+            case project.SET_PROJECT_START_DATE:
+                p.startAt = action.date
+                p.lastUpdatedAt = new Date().toISOString()
+                break
+
+            case project.SET_PROJECT_END_DATE:
+                p.endAt = action.date
+                p.lastUpdatedAt = new Date().toISOString()
                 break
 
             default:
