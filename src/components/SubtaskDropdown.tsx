@@ -10,8 +10,9 @@ import { Item, Items, Projects } from '../interfaces'
 import Button from './Button'
 import { removeItemTypeFromString } from '../utils'
 import { Container } from './styled/SubtaskDropdown'
+import marked from 'marked'
 
-type OptionType = { value: string; label: string }
+type OptionType = { value: string; label: JSX.Element | string }
 
 const generateOptions = (
     options: Item,
@@ -35,9 +36,17 @@ const generateOptions = (
                 !m.parentId,
         )
         .map((m) => {
+            console.log(marked(getItemText(m.text, m.projectId, projects)))
+            // Ensure we keep markdown formatting of items
             return {
                 value: m.id,
-                label: getItemText(m.text, m.projectId, projects),
+                label: (
+                    <span
+                        dangerouslySetInnerHTML={{
+                            __html: marked(getItemText(m.text, m.projectId, projects)),
+                        }}
+                    />
+                ),
             }
         })
 
@@ -114,8 +123,17 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                         e.stopPropagation()
                     }}
                     text={
-                        removeItemTypeFromString(props.items.items[props.parentId]?.text) ||
-                        'Add to item'
+                        (
+                            <span
+                                dangerouslySetInnerHTML={{
+                                    __html: marked(
+                                        removeItemTypeFromString(
+                                            props.items.items[props.parentId]?.text,
+                                        ),
+                                    ),
+                                }}
+                            />
+                        ) || 'Add to item'
                     }
                     iconColour={!props.text ? themes[props.theme].colours.altIconColour : null}
                     icon={'subtask'}
