@@ -85,6 +85,8 @@ export interface ThemeType {
         warningColour: CSS.Color
         iconColour: CSS.Color
         altIconColour: CSS.Color
+        disabledButtonBackgroundColour: CSS.Color
+        disabledButtonColour: CSS.Color
     }
 }
 

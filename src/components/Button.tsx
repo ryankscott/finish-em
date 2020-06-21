@@ -14,6 +14,7 @@ interface OwnProps {
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
     spacing?: 'compact' | 'default'
     type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
+    isDisabled?: boolean
     text?: string | JSX.Element
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
     iconSize?: string
@@ -33,7 +34,7 @@ type ButtonProps = OwnProps & StateProps
 
 // TODO: Add tooltips to the button?
 const Button = (props: ButtonProps): ReactElement => {
-    const theme = themes[props.theme].button[props.type]
+    const theme = themes[props.theme]
     return (
         <ThemeProvider theme={theme}>
             <StyledButton
@@ -42,6 +43,8 @@ const Button = (props: ButtonProps): ReactElement => {
                 height={props.height}
                 width={props.width}
                 onClick={props.onClick}
+                buttonType={props.type}
+                disabled={props.isDisabled}
                 data-tip
                 data-for={props.dataFor}
                 tabIndex={props.tabIndex != undefined ? props.tabIndex : -1}

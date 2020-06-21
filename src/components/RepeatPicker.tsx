@@ -57,6 +57,7 @@ interface OwnProps {
     showSelect?: boolean
     placeholder: string
     completed: boolean
+    deleted?: boolean
     style?: 'default' | 'subtle' | 'subtleInvert'
 }
 
@@ -104,6 +105,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                     position="center"
                     style={props.style}
                     text={repeatText}
+                    deleted={props.deleted}
                     onClick={(e) => {
                         e.stopPropagation()
                         if (props.completed) return

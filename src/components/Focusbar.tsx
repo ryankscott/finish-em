@@ -84,9 +84,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     const scheduledDate = i.scheduledDate
         ? formatRelativeDate(parseISO(i.scheduledDate))
         : 'Schedule'
-    const parentText = i.parentId
-        ? removeItemTypeFromString(props.items.items[i.parentId].text)
-        : 'Convert to subtask'
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
@@ -199,6 +196,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     </AttributeKey>
                     <AttributeValue>
                         <ProjectDropdown
+                            deleted={i.deleted}
                             projectId={i.projectId}
                             completed={i.completed}
                             onSubmit={(projectId) => {
@@ -221,6 +219,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                     icon="scheduled"
                                     text={scheduledDate}
                                     completed={i.completed}
+                                    deleted={i.deleted}
                                 />
                             </AttributeValue>
                         </AttributeContainer>
@@ -236,6 +235,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                     icon="due"
                                     text={dueDate}
                                     completed={i.completed}
+                                    deleted={i.deleted}
                                 />
                             </AttributeValue>
                         </AttributeContainer>
@@ -248,6 +248,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                     id={i.id}
                                     repeat={i.repeat ? RRule.fromString(i.repeat) : null}
                                     completed={i.completed}
+                                    deleted={i.deleted}
                                     key={'rp' + i.id}
                                     placeholder={'Repeat: '}
                                     onSubmit={(r) => props.setRepeatRule(i.id, r)}
@@ -263,9 +264,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     <AttributeValue>
                         <SubtaskDropdown
                             itemId={i.id}
-                            text={parentText}
                             parentId={i.parentId}
                             completed={i.completed}
+                            deleted={i.deleted}
                             onSubmit={(parentId) => {
                                 if (parentId) {
                                     props.changeParentItem(i.id, parentId)
@@ -283,6 +284,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     <AttributeValue>
                         <LabelDropdown
                             completed={i.completed}
+                            deleted={i.deleted}
                             labelId={i.labelId}
                             onSubmit={(labelId) => {
                                 if (labelId) {

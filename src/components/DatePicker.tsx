@@ -17,6 +17,7 @@ interface OwnProps {
     showSelect?: boolean
     placeholder: string
     completed: boolean
+    deleted?: boolean
     text: string
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
     icon?: IconType
@@ -48,6 +49,7 @@ function DatePicker(props: DatePickerProps): ReactElement {
                 <DateRenderer
                     style={props.style}
                     completed={props.completed}
+                    deleted={props.deleted}
                     textSize={props.textSize}
                     icon={props.icon}
                     position="center"

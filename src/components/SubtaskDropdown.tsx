@@ -75,12 +75,12 @@ interface StateProps {
 }
 interface OwnProps {
     itemId: Uuid
-    text: string
     parentId: Uuid | undefined
     onSubmit: (value: Uuid) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     completed: boolean
+    deleted?: boolean
     showSelect?: boolean
 }
 
@@ -95,6 +95,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
         return
     }
     const node = useRef<HTMLDivElement>()
+    const parentText = props.items.items[props.parentId]?.text
 
     const handleClick = (e): null => {
         if (node.current.contains(e.target)) {
@@ -115,6 +116,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
         <ThemeProvider theme={themes[props.theme]}>
             <div ref={node}>
                 <Button
+                    isDisabled={props.deleted}
                     spacing="compact"
                     type={props.style || 'default'}
                     onClick={(e) => {
@@ -123,7 +125,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                         e.stopPropagation()
                     }}
                     text={
-                        (
+                        parentText ? (
                             <span
                                 dangerouslySetInnerHTML={{
                                     __html: marked(
@@ -133,9 +135,10 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                                     ),
                                 }}
                             />
-                        ) || 'Add to item'
+                        ) : (
+                            'Add parent'
+                        )
                     }
-                    iconColour={!props.text ? themes[props.theme].colours.altIconColour : null}
                     icon={'subtask'}
                 />
                 {(showSelect || props.showSelect) && (

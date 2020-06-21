@@ -170,6 +170,8 @@ export const themes: { [key: string]: ThemeType } = {
             warningColour: '#f9df77',
             iconColour: '#333333',
             altIconColour: '#404040',
+            disabledButtonBackgroundColour: '#e0e0e0',
+            disabledButtonColour: darken(0.4, '#e0e0e0'),
         },
     },
     dark: {
@@ -259,6 +261,8 @@ export const themes: { [key: string]: ThemeType } = {
             warningColour: '#f9df77',
             iconColour: '#333333',
             altIconColour: '#CCCCCC',
+            disabledButtonBackgroundColour: lighten(0.1, '#404040'),
+            disabledButtonColour: lighten(0.4, '#404040'),
         },
     },
 }

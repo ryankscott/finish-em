@@ -37,6 +37,7 @@ interface OwnProps {
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     completed: boolean
+    deleted?: boolean
     showSelect?: boolean
 }
 
@@ -82,6 +83,7 @@ function LabelDropdown(props: LabelProps): ReactElement {
                     text={text || 'Add label'}
                     iconColour={text ? colour : null}
                     icon={'label'}
+                    isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (
                     <Container visible={Object.keys(props.items).length > 1}>

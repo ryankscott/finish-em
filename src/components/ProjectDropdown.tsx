@@ -36,6 +36,7 @@ interface OwnProps {
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     projectId: Uuid | '0'
     completed: boolean
+    deleted: boolean
     showSelect?: boolean
 }
 
@@ -82,6 +83,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                         e.stopPropagation()
                     }}
                     text={props.projects.projects[props.projectId].name}
+                    isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (
                     <Container visible={props.projects.order.length > 1}>

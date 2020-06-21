@@ -1,11 +1,14 @@
 /* eslint-disable no-nested-ternary */
 import styled from 'styled-components'
+import { darken } from 'polished'
 
 interface StyledProps {
     width: string
     height: string
     spacing: 'compact' | 'default'
+    buttonType: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
     iconOnly: boolean
+    disabled?: boolean
 }
 
 // TODO: Fix the font-family here
@@ -15,33 +18,44 @@ export const StyledButton = styled.button<StyledProps>`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    background-color: ${(props) => props.theme.backgroundColour};
-    color: ${(props) => props.theme.colour};
+    background-color: ${(props) =>
+        props.disabled
+            ? props.theme.colours.disabledButtonBackgroundColour
+            : props.theme.button[props.buttonType].backgroundColour};
+    color: ${(props) =>
+        props.disabled
+            ? props.theme.colours.disabledButtonColour
+            : props.theme.button[props.buttonType].colour};
     padding: ${(props) =>
-        props.iconOnly
-            ? '2px'
-            : props.spacing === 'compact'
-            ? '5px 8px'
-            : '8px 10px'};
+        props.iconOnly ? '2px' : props.spacing === 'compact' ? '5px 8px' : '8px 10px'};
     width: ${(props) => (props.width ? props.width : 'auto')};
     height: ${(props) => (props.height ? props.height : 'auto')};
     margin: 2px;
+    cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
     border-radius: 5px;
     border: none;
     border-color: ${(props) => props.theme.borderColour};
     text-align: center;
     &:hover {
-        background-color: ${(props) => props.theme.hoverBackgroundColour};
-        border-color: ${(props) => props.theme.hoverBackgroundColour};
-        cursor: pointer;
+        background-color: ${(props) =>
+            props.disabled
+                ? props.theme.colours.disabledButtonBackgroundColour
+                : props.theme.button[props.buttonType].hoverBackgroundColour};
+        border-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
     }
     &:active {
-        background-color: ${(props) => props.theme.hoverBackgroundColour};
-        border-color: ${(props) => props.theme.hoverBackgroundColour};
+        background-color: ${(props) =>
+            props.disabled
+                ? props.theme.colours.disabledButtonBackgroundColour
+                : props.theme.button[props.buttonType].hoverBackgroundColour};
+        border-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
     }
     &:focus {
-        background-color: ${(props) => props.theme.hoverBackgroundColour};
-        border-color: ${(props) => props.theme.hoverBackgroundColour};
+        background-color: ${(props) =>
+            props.disabled
+                ? props.theme.colours.disabledButtonBackgroundColour
+                : props.theme.button[props.buttonType].hoverBackgroundColour};
+        border-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
     }
 `
 export const Contents = styled.div`
@@ -62,17 +76,12 @@ export const Icon = styled.div<IconProps>`
     transition: all 0.1s ease-out;
     transform: ${(props) => (props.rotate ? `rotate(90deg)` : '')};
     transform: ${(props) =>
-        props.translateY
-            ? 'rotateY(180deg)'
-            : props.translateZ
-            ? 'rotateZ(180deg)'
-            : ''};
+        props.translateY ? 'rotateY(180deg)' : props.translateZ ? 'rotateZ(180deg)' : ''};
     flex-direction: row;
     justify-content: center;
     align-items: center;
     padding-left: ${(props) => (props.iconPosition == 'after' ? '5px' : '0px')};
-    padding-right: ${(props) =>
-        props.iconPosition == 'before' ? '5px' : '0px'};
+    padding-right: ${(props) => (props.iconPosition == 'before' ? '5px' : '0px')};
 `
 
 interface TextProps {
@@ -84,9 +93,7 @@ export const Text = styled.div<TextProps>`
     flex-direction: column;
     justify-content: center;
     font-size: ${(props) =>
-        props.textSize
-            ? props.theme.fontSizes[props.textSize]
-            : props.theme.fontSizes.xsmall};
+        props.textSize ? props.theme.fontSizes[props.textSize] : props.theme.fontSizes.xsmall};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     margin-left: ${(props) => (props.hasIcon ? '4px' : '0px')};
 `

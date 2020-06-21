@@ -12,6 +12,7 @@ interface StateProps {
 }
 interface OwnProps {
     completed: boolean
+    deleted: boolean
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
     style?: 'subtle' | 'subtleInvert' | 'default'
     position: 'center' | 'flex-end' | 'flex-start'
@@ -34,6 +35,7 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
                         onClick={props.onClick}
                         icon={props.icon}
                         text={props.text}
+                        isDisabled={props.deleted}
                         textSize={props.textSize}
                         iconColour={!props.text ? themes[props.theme].colours.altIconColour : null}
                     ></Button>
