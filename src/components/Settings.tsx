@@ -5,7 +5,12 @@ import Switch from 'react-switch'
 import { connect } from 'react-redux'
 import { toggleDarkMode, setLabelColour, renameLabel } from '../actions'
 import { FeatureType, LabelType } from '../interfaces'
-import { enableDragAndDrop, disableDragAndDrop, toggleDragAndDrop } from '../actions/feature'
+import {
+    enableDragAndDrop,
+    disableDragAndDrop,
+    toggleDragAndDrop,
+    toggleProjectDates,
+} from '../actions/feature'
 import {
     Container,
     Setting,
@@ -38,6 +43,7 @@ interface DispatchProps {
     toggleDarkMode: () => void
     setLabelColour: (id: Uuid, colour: string) => void
     renameLabel: (id: Uuid, text: string) => void
+    toggleProjectDates: () => void
 }
 
 type SettingsPickerProps = StateProps & DispatchProps & OwnProps
@@ -60,6 +66,18 @@ function Settings(props: SettingsPickerProps): ReactElement {
                             <Switch
                                 onChange={() => props.toggleDragAndDrop()}
                                 checked={props.features.dragAndDrop}
+                                onColor={theme.colours.primaryColour}
+                                checkedIcon={false}
+                                uncheckedIcon={false}
+                                width={24}
+                                height={14}
+                            />
+                        </Setting>
+                        <Setting>
+                            <SettingLabel>Project dates</SettingLabel>
+                            <Switch
+                                onChange={() => props.toggleProjectDates()}
+                                checked={props.features?.projectDates}
                                 onColor={theme.colours.primaryColour}
                                 checkedIcon={false}
                                 uncheckedIcon={false}
@@ -171,6 +189,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     toggleDragAndDrop: () => {
         dispatch(toggleDragAndDrop())
+    },
+    toggleProjectDates: () => {
+        dispatch(toggleProjectDates())
     },
     setLabelColour: (id: Uuid, colour: string) => {
         dispatch(setLabelColour(id, colour))

@@ -3,6 +3,7 @@ import { FeatureType } from '../interfaces'
 
 const initialState: FeatureType = {
     dragAndDrop: false,
+    projectDates: false,
 }
 
 export const featureReducer = (
@@ -24,6 +25,21 @@ export const featureReducer = (
             return {
                 ...state,
                 dragAndDrop: !state.dragAndDrop,
+            }
+        case feature.ENABLE_PROJECT_DATES:
+            return {
+                ...state,
+                projectDates: true,
+            }
+        case feature.DISABLE_PROJECT_DATES:
+            return {
+                ...state,
+                projectDates: false,
+            }
+        case feature.TOGGLE_PROJECT_DATES:
+            return {
+                ...state,
+                projectDates: !state.projectDates,
             }
 
         default:

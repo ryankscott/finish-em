@@ -6,6 +6,8 @@ export interface ProjectType {
     lastUpdatedAt: string
     deletedAt: string
     createdAt: string
+    startAt: string
+    endAt: string
 }
 
 export interface Project {

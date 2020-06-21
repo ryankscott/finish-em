@@ -467,11 +467,11 @@ export const uiReducer = produce(
                 break
 
             case ui.RENAME_LABEL:
-                state.labels[action.id].name = action.text
+                state.labels.labels[action.id].name = action.text
                 break
 
             case ui.SET_LABEL_COLOUR:
-                state.labels[action.id].colour = action.colour
+                state.labels.labels[action.id].colour = action.colour
                 break
 
             case ui.SHOW_SUBTASKS:

@@ -4,6 +4,8 @@ export const DELETE_PROJECT = 'DELETE_PROJECT'
 export const UPDATE_PROJECT_DESCRIPTION = 'UPDATE_PROJECT_DESCRIPTION'
 export const UPDATE_PROJECT_NAME = 'UPDATE_PROJECT_NAME'
 export const REORDER_PROJECT = 'REORDER_PROJECT'
+export const SET_PROJECT_START_DATE = 'SET_PROJECT_START_DATE'
+export const SET_PROJECT_END_DATE = 'SET_PROJECT_END_DATE'
 
 export interface CreateProjectAction {
     type: typeof CREATE_PROJECT
@@ -71,9 +73,36 @@ export function reorderProject(id: Uuid, destinationId: Uuid): ReorderProjectAct
     }
 }
 
+export interface SetProjectStartDateAction {
+    type: typeof SET_PROJECT_START_DATE
+    id: Uuid
+    date: string
+}
+export function setProjectStartDate(id: Uuid, date: string): SetProjectStartDateAction {
+    return {
+        type: SET_PROJECT_START_DATE,
+        id: id,
+        date: date,
+    }
+}
+export interface SetProjectEndDateAction {
+    type: typeof SET_PROJECT_END_DATE
+    id: Uuid
+    date: string
+}
+export function setProjectEndDate(id: Uuid, date: string): SetProjectEndDateAction {
+    return {
+        type: SET_PROJECT_END_DATE,
+        id: id,
+        date: date,
+    }
+}
+
 export type ProjectActions =
     | CreateProjectAction
     | DeleteProjectAction
     | UpdateProjectDescriptionAction
     | UpdateProjectNameAction
     | ReorderProjectAction
+    | SetProjectStartDateAction
+    | SetProjectEndDateAction
