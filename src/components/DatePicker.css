@@ -166,7 +166,7 @@
     background-color: transparent;
     background-image: none;
     box-shadow: none;
-    color: #4a90e2;
+    color: #45b9ef;
     font-size: 0.875em;
     cursor: pointer;
 }
@@ -176,7 +176,7 @@
 
 .DayPicker-Day--selected:not(.DayPicker-Day--disabled):not(.DayPicker-Day--outside) {
     position: relative;
-    background-color: #4a90e2;
+    background-color: #45b9ef;
     color: #f0f8ff;
 }
 /* Default modifiers */
@@ -221,11 +221,34 @@
 /* DayPickerInput */
 
 .DayPickerInput {
+    position: relative;
     display: inline-block;
 }
+
 .DayPickerInput:focus {
+    border: 1px solid #ccc;
+    background-color: #fbfbfb;
+}
+
+.DayPickerInput input:active {
+    border: 1px solid #ccc;
+    background-color: #fbfbfb;
+}
+
+.DayPickerInput input:hover {
+    border: 1px solid #ccc;
+    background-color: #ebebeb;
 }
 
 .DayPickerInput input {
-    width: 160px;
+    font-size: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+    font-weight: 300;
+    border: none;
+    background-color: inherit;
+    z-index: 2;
+    border-radius: 5px;
+    padding: 5px 5px;
+    margin: 5px;
+    width: 100px;
 }
