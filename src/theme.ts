@@ -2,6 +2,86 @@ import { lighten, darken, readableColor } from 'polished'
 import CSS from 'csstype'
 import { ThemeType, fontSizeType } from './interfaces'
 import { StylesConfig } from 'react-select'
+import { createGlobalStyle } from 'styled-components'
+
+export const GlobalStyle = createGlobalStyle`
+* {
+    box-sizing: border-box;
+}
+  html {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: ${(props) => props.theme.font.sansSerif};
+    color: ${(props) => props.theme.colours.textColour};
+    font-weight: ${(props) => props.theme.fontWeights.regular};
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    background-color: ${(props) => props.theme.colours.backgroundColour};
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
+  }
+  h1 {
+    font-size: ${(props) => props.theme.fontSizes.xlarge};
+    font-weight: ${(props) => props.theme.fontWeights.regular};
+    color: ${(props) => props.theme.colours.primaryColour};
+    padding-top: 20px;
+  }
+  h1 p {
+    font-size: ${(props) => props.theme.fontSizes.xlarge};
+    font-weight: ${(props) => props.theme.fontWeights.regular};
+    color: ${(props) => props.theme.colours.primaryColour};
+    padding-top: 20px;
+  }
+  h2 {
+    font-size: ${(props) => props.theme.fontSizes.large};
+    font-weight: ${(props) => props.theme.fontWeights.regular};
+    color: ${(props) => props.theme.colours.textColour};
+    padding-top: 15px;
+    margin: 10px 0px;
+  }
+  h3 {
+    font-size: ${(props) => props.theme.fontSizes.small};
+    font-weight: ${(props) => props.theme.fontWeights.regular};
+    color: ${(props) => props.theme.colours.textColour};
+    padding-top: 0px;
+    margin: 0px 5px 5px 5px;
+  }
+p {
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    font-family: ${(props) => props.theme.font.sansSerif};
+    color: ${(props) => props.theme.colours.textColour};
+    margin: 2px 5px;
+    margin: 2px 2px;
+}
+li {
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    font-family: ${(props) => props.theme.font.sansSerif};
+
+}
+table {
+    padding: 5px;
+}
+td {
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    font-family: ${(props) => props.theme.font.sansSerif};
+    color: ${(props) => props.theme.colours.textColour};
+}
+th {
+    font-weight: ${(props) => props.theme.fontWeights.bold}
+    font-size: ${(props) => props.theme.fontSizes.small};
+    font-family: ${(props) => props.theme.font.sansSerif};
+    color: ${(props) => props.theme.colours.textColour};
+    border-bottom: 1px solid;
+    padding: 2px;
+    border-color: ${(props) => props.theme.colours.borderColour}
+
+}
+  *:focus {outline:0;}
+  a {
+      color: ${(props) => props.theme.colours.textColour};
+  }
+`
 
 export const themes: { [key: string]: ThemeType } = {
     light: {

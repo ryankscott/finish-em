@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { ThemeProvider, createGlobalStyle } from 'styled-components'
+import { ThemeProvider } from 'styled-components'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
 import { GlobalHotKeys, configure } from 'react-hotkeys'
 import DailyAgenda from './DailyAgenda'
@@ -13,8 +13,9 @@ import Inbox from './Inbox'
 import Project from './Project'
 import View from './View'
 import Labels from './Labels'
+import Help from './Help'
 import { app as appKeymap } from '../keymap'
-import { themes } from '../theme'
+import { themes, GlobalStyle } from '../theme'
 import {
     toggleShortcutDialog,
     showSidebar,
@@ -43,28 +44,6 @@ configure({
     logLevel: 'warning',
 })
 
-// TODO: Fix props for global styles
-const GlobalStyle = createGlobalStyle`
-* {
-    box-sizing: border-box;
-}
-  html {
-    box-sizing: border-box;
-  }
-  body {
-    font-family: ${(props) => props.theme.font.sansSerif};
-    color: ${(props) => props.theme.colours.textColour};
-    font-weight: ${(props) => props.theme.fontWeights.regular};
-    background-color: ${(props) => props.theme.colours.backgroundColour};
-    box-sizing: border-box;
-    padding: 0px;
-    margin: 0px;
-  }
-  *:focus {outline:0;}
-  a {
-      color: ${(props) => props.theme.colours.textColour};
-  }
-`
 interface ProjectWrapperProps {
     projects: Projects
 }
@@ -218,6 +197,9 @@ const App = (props: AppProps): ReactElement => {
                         </Route>
                         <Route path="/inbox">
                             <Inbox />
+                        </Route>
+                        <Route path="/help">
+                            <Help />
                         </Route>
                         {Object.values(props.views.order).map((v) => {
                             const view = props.views.views[v]
