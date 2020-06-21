@@ -28,6 +28,8 @@ describe('project reducer', () => {
                     lastUpdatedAt: new Date().toISOString(),
                     deletedAt: null,
                     createdAt: new Date().toISOString(),
+                    endAt: null,
+                    startAt: null,
                 },
             },
             order: [id],
