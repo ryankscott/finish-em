@@ -14,7 +14,7 @@ interface OwnProps {
     onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
     spacing?: 'compact' | 'default'
     type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
-    text?: string
+    text?: string | JSX.Element
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
     iconSize?: string
     iconColour?: string
