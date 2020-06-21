@@ -15,7 +15,7 @@ interface StateProps {
 type LabelProps = StateProps
 const Labels = (props: LabelProps): ReactElement => (
     <ThemeProvider theme={themes[props.theme]}>
-        <Container>
+        <Container style={{ paddingTop: '50px' }}>
             <ViewHeader name={'Labels'} icon={'label'} />
             {Object.values(props.labels.labels).map((l: LabelType) => (
                 <FilteredItemList

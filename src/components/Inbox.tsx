@@ -17,12 +17,12 @@ interface StateProps {
 type InboxProps = StateProps
 const Inbox = (props: InboxProps): ReactElement => (
     <ThemeProvider theme={themes[props.theme]}>
-        <Container>
+        <Container style={{ paddingTop: '50px' }}>
             <ViewHeader name={'Inbox'} icon={'inbox'} />
             <ItemCreator
                 type="item"
                 buttonText="Add Item"
-                initiallyExpanded={false}
+                initiallyExpanded={true}
                 projectId={'0'}
             />
             <FilteredItemList
