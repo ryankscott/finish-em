@@ -29,9 +29,8 @@ const View = (props: ViewProps): ReactElement => {
                     <Button
                         type={'primary'}
                         spacing={'compact'}
-                        icon={'edit'}
-                        width={'80px'}
-                        text={'Edit lists'}
+                        width={'60px'}
+                        text={'Edit'}
                         onClick={() => {
                             setShowEdit(!showEdit)
                         }}
