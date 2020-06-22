@@ -22,6 +22,7 @@ import { Uuid } from '@typed/uuid'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import uuidv4 from 'uuid/v4'
 import * as CSS from 'csstype'
+import { Icons } from '../assets/icons'
 
 interface StateProps {
     projects: Projects
@@ -35,13 +36,38 @@ interface DispatchProps {
     reorderProject: (id: Uuid, destinationId: Uuid) => void
 }
 
+const generateSidebarContents = (
+    sidebarVisible: boolean,
+    iconName: string,
+    text: string,
+): React.ReactElement => {
+    if (sidebarVisible) {
+        return (
+            <>
+                {Icons[iconName](16, 16)}
+                {text}
+            </>
+        )
+    }
+    return (
+        <>
+            {Icons[iconName](20, 20)}
+            {''}
+        </>
+    )
+}
+
 type SidebarProps = StateProps & DispatchProps
 const Sidebar = (props: SidebarProps): ReactElement => {
     const theme = themes[props.theme]
     const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
         background: isDraggingOver ? 'inherit' : 'inherit',
-        padding: '5px',
         width: '100%',
+        margin: '0px',
+        padding: '0px',
     })
 
     const getProjectStyle = (isDragging: boolean, draggableStyle): CSS.Properties => ({
@@ -65,68 +91,48 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         {props.sidebarVisible && <Header> Views </Header>}
                     </SectionHeader>
                     <StyledNavLink
+                        sidebarVisible={props.sidebarVisible}
                         to="/inbox"
                         activeStyle={{
                             backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
-                        <Button
-                            icon="inbox"
-                            text={props.sidebarVisible ? 'Inbox' : ''}
-                            spacing="compact"
-                            type="subtle"
-                            textSize="small"
-                            iconSize={props.sidebarVisible ? '16px' : '20px'}
-                        />
+                        {generateSidebarContents(props.sidebarVisible, 'inbox', 'Inbox')}
                     </StyledNavLink>
                     <StyledNavLink
+                        sidebarVisible={props.sidebarVisible}
                         to="/dailyAgenda"
                         activeStyle={{
                             backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
-                        <Button
-                            icon="calendar"
-                            text={props.sidebarVisible ? 'Daily Agenda' : ''}
-                            spacing="compact"
-                            type="subtle"
-                            textSize="small"
-                            iconSize={props.sidebarVisible ? '16px' : '20px'}
-                        />
+                        {generateSidebarContents(props.sidebarVisible, 'calendar', 'Daily Agenda')}
                     </StyledNavLink>
                     <StyledNavLink
+                        sidebarVisible={props.sidebarVisible}
                         to="/labels"
                         activeStyle={{
                             backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                         }}
                     >
-                        <Button
-                            icon="label"
-                            text={props.sidebarVisible ? 'Labels' : ''}
-                            spacing="compact"
-                            type="subtle"
-                            textSize="small"
-                            iconSize={props.sidebarVisible ? '16px' : '20px'}
-                        />
+                        {generateSidebarContents(props.sidebarVisible, 'label', 'Labels')}
                     </StyledNavLink>
                     {Object.values(props.views.order).map((v) => {
                         const view = props.views.views[v]
                         return (
                             <StyledNavLink
+                                sidebarVisible={props.sidebarVisible}
                                 key={view.id}
                                 to={`/${view.name}`}
                                 activeStyle={{
                                     backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                                 }}
                             >
-                                <Button
-                                    icon={view.icon}
-                                    text={props.sidebarVisible ? view.name : ''}
-                                    spacing="compact"
-                                    type="subtle"
-                                    textSize="small"
-                                    iconSize={props.sidebarVisible ? '16px' : '20px'}
-                                />
+                                {generateSidebarContents(
+                                    props.sidebarVisible,
+                                    view.icon,
+                                    view.name,
+                                )}
                             </StyledNavLink>
                         )
                     })}
@@ -169,6 +175,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                         )}
                                                     >
                                                         <StyledNavLink
+                                                            sidebarVisible={props.sidebarVisible}
                                                             key={p}
                                                             to={pathName}
                                                             activeStyle={{
@@ -177,19 +184,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                                         .focusAltDialogBackgroundColour,
                                                             }}
                                                         >
-                                                            <Button
-                                                                text={
-                                                                    props.sidebarVisible
-                                                                        ? project.name
-                                                                        : createShortProjectName(
-                                                                              project.name,
-                                                                          )
-                                                                }
-                                                                spacing="compact"
-                                                                type="subtle"
-                                                                textSize="small"
-                                                                iconSize="16px"
-                                                            />
+                                                            {props.sidebarVisible
+                                                                ? project.name
+                                                                : createShortProjectName(
+                                                                      project.name,
+                                                                  )}
                                                         </StyledNavLink>
                                                     </div>
                                                 )}
@@ -203,21 +202,14 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 </BodyContainer>
                 <Footer visible={props.sidebarVisible}>
                     <StyledNavLink
+                        sidebarVisible={props.sidebarVisible}
                         to="/settings"
                         activeStyle={{
                             backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                             borderRadius: '5px',
                         }}
                     >
-                        <Button
-                            icon="settings"
-                            text={props.sidebarVisible ? 'Settings' : ''}
-                            spacing={props.sidebarVisible ? 'compact' : 'default'}
-                            type="subtle"
-                            textSize="small"
-                            iconSize={props.sidebarVisible ? '16px' : '20px'}
-                            translateY={props.sidebarVisible == true ? 1 : 0}
-                        />
+                        {generateSidebarContents(props.sidebarVisible, 'settings', 'Settings')}
                     </StyledNavLink>
                     <CollapseContainer>
                         <Button

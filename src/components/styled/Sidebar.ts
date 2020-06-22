@@ -20,15 +20,20 @@ export const BodyContainer = styled.div`
     flex-direction: column;
     width: 100%;
 `
-
-export const StyledNavLink = styled(NavLink)`
+interface LinkProps {
+    sidebarVisible: boolean
+}
+export const StyledNavLink = styled(NavLink)<LinkProps>`
+    display: flex;
+    align-items: center;
+    justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
     width: 100%;
-    font-size: ${(props) => props.theme.fontSizes.regular};
+    font-size: ${(props) => props.theme.fontSizes.small};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};
     text-decoration: none;
     margin: 1px 2px;
-    padding: 0px 5px;
+    padding: 8px 5px;
     outline: none;
     &:active {
         outline: none;
@@ -38,6 +43,9 @@ export const StyledNavLink = styled(NavLink)`
     }
     &:hover {
         background-color: ${(props) => props.theme.colours.focusAltDialogBackgroundColour};
+    }
+    svg {
+        margin-right: 5px;
     }
 `
 
