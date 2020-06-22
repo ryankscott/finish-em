@@ -79,9 +79,8 @@ export const StyledToastContainer = styled(ToastContainer).attrs((props) => ({
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     /* .toast is passed to toastClassName */
     .toast {
-        padding: 2px 5px;
-        background-color: ${(props) =>
-            props.theme.colours.darkDialogBackgroundColour};
+        padding: 5px 5px;
+        background-color: ${(props) => props.theme.colours.darkDialogBackgroundColour};
         color: ${(props) => props.theme.colours.altTextColour};
         border: 0px;
         border-radius: 5px;
