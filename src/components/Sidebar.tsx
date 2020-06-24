@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from 'styled-components'
+import styled, { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 
 import { themes } from '../theme'
@@ -10,7 +10,6 @@ import { Projects, Views } from '../interfaces'
 import {
     Container,
     SectionHeader,
-    StyledNavLink,
     Footer,
     StyledHorizontalRule,
     BodyContainer,
@@ -23,6 +22,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import uuidv4 from 'uuid/v4'
 import * as CSS from 'csstype'
 import { Icons } from '../assets/icons'
+import { NavLink } from 'react-router-dom'
 
 interface StateProps {
     projects: Projects
@@ -35,7 +35,30 @@ interface DispatchProps {
     toggleSidebar: () => void
     reorderProject: (id: Uuid, destinationId: Uuid) => void
 }
-
+const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />)`
+    display: flex;
+    width: 100%;
+    justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
+    font-size: ${(props) => props.theme.fontSizes.small};
+    font-weight: ${(props) => props.theme.fontWeights.regular};
+    color: ${(props) => props.theme.colours.altTextColour};
+    text-decoration: none;
+    margin: 1px 2px;
+    padding: 8px 5px;
+    outline: none;
+    :active {
+        outline: none;
+    }
+    :focus {
+        outline: none;
+    }
+    :hover {
+        background-color: ${(props) => props.theme.colours.focusAltDialogBackgroundColour};
+    }
+    svg {
+        margin-right: 5px;
+    }
+`
 const generateSidebarContents = (
     sidebarVisible: boolean,
     iconName: string,
@@ -43,17 +66,14 @@ const generateSidebarContents = (
 ): React.ReactElement => {
     if (sidebarVisible) {
         return (
-            <>
+            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 {Icons[iconName](16, 16)}
                 {text}
-            </>
+            </div>
         )
     }
     return (
-        <>
-            {Icons[iconName](20, 20)}
-            {''}
-        </>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>{Icons[iconName](20, 20)}</div>
     )
 }
 
@@ -90,7 +110,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <SectionHeader>
                         {props.sidebarVisible && <Header> Views </Header>}
                     </SectionHeader>
-                    <StyledNavLink
+                    <StyledLink
                         sidebarVisible={props.sidebarVisible}
                         to="/inbox"
                         activeStyle={{
@@ -98,8 +118,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         }}
                     >
                         {generateSidebarContents(props.sidebarVisible, 'inbox', 'Inbox')}
-                    </StyledNavLink>
-                    <StyledNavLink
+                    </StyledLink>
+                    <StyledLink
                         sidebarVisible={props.sidebarVisible}
                         to="/dailyAgenda"
                         activeStyle={{
@@ -107,8 +127,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         }}
                     >
                         {generateSidebarContents(props.sidebarVisible, 'calendar', 'Daily Agenda')}
-                    </StyledNavLink>
-                    <StyledNavLink
+                    </StyledLink>
+                    <StyledLink
                         sidebarVisible={props.sidebarVisible}
                         to="/labels"
                         activeStyle={{
@@ -116,11 +136,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         }}
                     >
                         {generateSidebarContents(props.sidebarVisible, 'label', 'Labels')}
-                    </StyledNavLink>
+                    </StyledLink>
                     {Object.values(props.views.order).map((v) => {
                         const view = props.views.views[v]
                         return (
-                            <StyledNavLink
+                            <StyledLink
                                 sidebarVisible={props.sidebarVisible}
                                 key={view.id}
                                 to={`/${view.name}`}
@@ -133,7 +153,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                     view.icon,
                                     view.name,
                                 )}
-                            </StyledNavLink>
+                            </StyledLink>
                         )
                     })}
                     {!props.sidebarVisible && <StyledHorizontalRule />}
@@ -174,7 +194,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                             provided.draggableProps.style,
                                                         )}
                                                     >
-                                                        <StyledNavLink
+                                                        <StyledLink
                                                             sidebarVisible={props.sidebarVisible}
                                                             key={p}
                                                             to={pathName}
@@ -189,7 +209,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                                 : createShortProjectName(
                                                                       project.name,
                                                                   )}
-                                                        </StyledNavLink>
+                                                        </StyledLink>
                                                     </div>
                                                 )}
                                             </Draggable>
@@ -201,7 +221,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     </DragDropContext>
                 </BodyContainer>
                 <Footer visible={props.sidebarVisible}>
-                    <StyledNavLink
+                    <StyledLink
                         sidebarVisible={props.sidebarVisible}
                         to="/settings"
                         activeStyle={{
@@ -210,7 +230,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         }}
                     >
                         {generateSidebarContents(props.sidebarVisible, 'settings', 'Settings')}
-                    </StyledNavLink>
+                    </StyledLink>
                     <CollapseContainer>
                         <Button
                             spacing="compact"
