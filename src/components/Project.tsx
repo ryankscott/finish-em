@@ -136,14 +136,14 @@ const Project = (props: ProjectProps): ReactElement => {
                 </AddProjectContainer>
                 <FilteredItemList
                     listName="Notes"
-                    filter={`projectId == "${props.project.id}" and type == "NOTE"`}
+                    filter={`projectId == "${props.project.id}" and type == "NOTE" and not completed and not deleted`}
                     isFilterable={false}
                     hideIcons={[ItemIcons.Project]}
                     readOnly={!showEdit}
                 />
                 <FilteredItemList
                     listName="Todos"
-                    filter={`projectId == "${props.project.id}" and type == "TODO"`}
+                    filter={`projectId == "${props.project.id}" and type == "TODO" and not completed and not deleted`}
                     isFilterable={true}
                     hideIcons={[ItemIcons.Project]}
                     readOnly={!showEdit}
