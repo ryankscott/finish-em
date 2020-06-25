@@ -1,4 +1,6 @@
 import { Uuid } from '@typed/uuid'
+import { ComponentType, Component } from '../interfaces'
+import { stringify } from 'css'
 
 export const SHOW_SIDEBAR = 'SHOW_SIDEBAR'
 export const TOGGLE_SIDEBAR = 'TOGGLE_SIDEBAR'
@@ -27,6 +29,7 @@ export const TOGGLE_SUBTASKS = 'TOGGLE_SUBTASKS'
 export const SET_FILTEREDITEMLIST_NAME = 'SET_FILTEREDITEMLIST_NAME'
 export const SET_FILTEREDITEMLIST_FILTER = 'SET_FILTEREDITEMLIST_FILTER'
 export const SET_FILTEREDITEMLIST_FILTERABLE = 'SET_FILTEREDITEMLIST_FILTERABLE'
+export const ADD_COMPONENT = 'ADD_COMPONENT'
 
 interface ShowShortcutDialogAction {
     type: typeof SHOW_SHORTCUT_DIALOG
@@ -263,20 +266,23 @@ export function toggleSubtasks(id: Uuid, componentId: Uuid): ToggleSubtasksActio
     }
 }
 
-export interface SetFilteredItemListName {
+export interface SetFilteredItemListNameAction {
     type: typeof SET_FILTEREDITEMLIST_NAME
     componentId: Uuid
     name: string
 }
 
-export function setFilteredItemListName(componentId: Uuid, name: string): SetFilteredItemListName {
+export function setFilteredItemListName(
+    componentId: Uuid,
+    name: string,
+): SetFilteredItemListNameAction {
     return {
         type: SET_FILTEREDITEMLIST_NAME,
         componentId: componentId,
         name: name,
     }
 }
-export interface SetFilteredItemListFilter {
+export interface SetFilteredItemListFilterAction {
     type: typeof SET_FILTEREDITEMLIST_FILTER
     componentId: Uuid
     filter: string
@@ -285,14 +291,14 @@ export interface SetFilteredItemListFilter {
 export function setFilteredItemListFilter(
     componentId: Uuid,
     filter: string,
-): SetFilteredItemListFilter {
+): SetFilteredItemListFilterAction {
     return {
         type: SET_FILTEREDITEMLIST_FILTER,
         componentId: componentId,
         filter: filter,
     }
 }
-export interface SetFilteredItemListFilterable {
+export interface SetFilteredItemListFilterableAction {
     type: typeof SET_FILTEREDITEMLIST_FILTERABLE
     componentId: Uuid
     filterable: boolean
@@ -301,11 +307,34 @@ export interface SetFilteredItemListFilterable {
 export function setFilteredItemListFilterable(
     componentId: Uuid,
     filterable: boolean,
-): SetFilteredItemListFilterable {
+): SetFilteredItemListFilterableAction {
     return {
         type: SET_FILTEREDITEMLIST_FILTERABLE,
         componentId: componentId,
         filterable: filterable,
+    }
+}
+
+export interface AddComponentAction {
+    type: typeof ADD_COMPONENT
+    id: string
+    viewId: Uuid
+    location: 'main' | 'sideBar' | 'focusBar'
+    component: Component
+}
+
+export function addComponent(
+    id: string,
+    viewId: Uuid,
+    location: 'main' | 'sideBar' | 'focusBar',
+    component: Component,
+): AddComponentAction {
+    return {
+        type: ADD_COMPONENT,
+        id: id,
+        viewId: viewId,
+        location: location,
+        component: component,
     }
 }
 
@@ -334,6 +363,7 @@ export type UIActions =
     | ShowSubtasksAction
     | HideSubtasksAction
     | ToggleSubtasksAction
-    | SetFilteredItemListName
-    | SetFilteredItemListFilter
-    | SetFilteredItemListFilterable
+    | SetFilteredItemListNameAction
+    | SetFilteredItemListFilterAction
+    | SetFilteredItemListFilterableAction
+    | AddComponentAction

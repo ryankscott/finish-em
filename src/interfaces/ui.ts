@@ -38,6 +38,7 @@ export interface ViewType {
     id: Uuid | string
     name: string
     icon: IconType
+    type: 'default' | 'custom' | 'project' | 'area'
 }
 
 export interface View {

@@ -139,6 +139,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     </StyledLink>
                     {Object.values(props.views.order).map((v) => {
                         const view = props.views.views[v]
+                        if (view.type != 'custom') return
                         return (
                             <StyledLink
                                 sidebarVisible={props.sidebarVisible}
@@ -176,9 +177,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                     ref={provided.innerRef}
                                     style={getListStyle(snapshot.isDraggingOver)}
                                 >
-                                    {props.projects.order?.map((p: Uuid, index) => {
+                                    {Object.values(props.views.order).map((p: Uuid, index) => {
+                                        const view = props.views.views[p]
+                                        if (view.type != 'project') return
                                         // Don't render the inbox here
-                                        if (p == '0') return
+                                        if (p == 'ab4b890e-9b90-45b1-8404-df70711a68dd') return
                                         const pathName = '/projects/' + p
                                         const project = props.projects.projects[p]
                                         return (

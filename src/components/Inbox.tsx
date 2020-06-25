@@ -15,6 +15,7 @@ interface StateProps {
     labels: Label
 }
 type InboxProps = StateProps
+const viewId = 'ab4b890e-9b90-45b1-8404-df70711a68dd'
 const Inbox = (props: InboxProps): ReactElement => (
     <ThemeProvider theme={themes[props.theme]}>
         <Container style={{ paddingTop: '50px' }}>

@@ -45,24 +45,42 @@ const initialState: UIType = {
                 id: '186943b1-b15e-4a24-93d0-2e37eb9af103',
                 name: 'Unscheduled',
                 icon: 'due',
+                type: 'custom',
             },
             '4514f106-896f-4f39-9227-ad9c99ebd468': {
                 id: '4514f106-896f-4f39-9227-ad9c99ebd468',
                 name: 'Trash',
                 icon: 'trash',
+                type: 'custom',
             },
             'ec9600f5-462b-4d9b-a1ca-db3a88473400': {
                 id: 'ec9600f5-462b-4d9b-a1ca-db3a88473400',
                 name: 'Completed',
                 icon: 'todoChecked',
+                type: 'custom',
             },
             '0524ccae-1005-4b75-80ca-f04691ad6431': {
                 id: '0524ccae-1005-4b75-80ca-f04691ad6431',
                 name: 'Stale',
                 icon: 'stale',
+                type: 'custom',
+            },
+            'ab4b890e-9b90-45b1-8404-df70711a68dd': {
+                id: 'ab4b890e-9b90-45b1-8404-df70711a68dd',
+                name: 'Inbox',
+                icon: 'inbox',
+                type: 'default',
+            },
+            'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134': {
+                id: 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134',
+                name: 'Daily Agenda',
+                icon: 'calendar',
+                type: 'default',
             },
         },
         order: [
+            'ab4b890e-9b90-45b1-8404-df70711a68dd',
+            'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134',
             '186943b1-b15e-4a24-93d0-2e37eb9af103',
             '4514f106-896f-4f39-9227-ad9c99ebd468',
             'ec9600f5-462b-4d9b-a1ca-db3a88473400',
@@ -71,6 +89,23 @@ const initialState: UIType = {
     },
     components: {
         components: {
+            // Daily Agenda:
+            'a4e1c649-378f-4d14-9aac-2d2720270dd8': {
+                id: 'a4e1c649-378f-4d14-9aac-2d2720270dd8',
+                viewId: 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134',
+                location: 'main',
+                component: {
+                    name: 'FilteredItemList',
+                    props: {
+                        id: 'a4e1c649-378f-4d14-9aac-2d2720270dd8',
+                        filter:
+                            '(overdue(dueDate) or overdue(scheduledDate)) and not (completed or deleted)',
+                        hideIcons: [],
+                        listName: 'Overdue',
+                        isFilterable: true,
+                    },
+                },
+            },
             // Unscheduled
             '1168fa83-c1de-4ba7-8de6-40fb11f1bcbc': {
                 id: '1168fa83-c1de-4ba7-8de6-40fb11f1bcbc',
@@ -345,6 +380,7 @@ const initialState: UIType = {
             },
         },
         order: [
+            'a4e1c649-378f-4d14-9aac-2d2720270dd8',
             '1168fa83-c1de-4ba7-8de6-40fb11f1bcbc',
             'bb1d3c3d-4d44-49c7-9350-a0ab49c1ec7a',
             '5356660e-a3e1-4307-a29f-f7a052d83cae',
@@ -541,6 +577,10 @@ export const uiReducer = produce(
                     state.components.components[action.componentId].component.props.isFilterable =
                         action.filterable
                 }
+                break
+
+            // TODO
+            case ui.ADD_COMPONENT:
                 break
 
             default:

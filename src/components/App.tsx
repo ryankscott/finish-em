@@ -203,6 +203,7 @@ const App = (props: AppProps): ReactElement => {
                         </Route>
                         {Object.values(props.views.order).map((v) => {
                             const view = props.views.views[v]
+                            if (view.type == 'default') return
                             return (
                                 <Route key={view.id} path={`/${view.name}`}>
                                     <View
