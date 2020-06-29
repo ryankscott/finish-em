@@ -26,7 +26,7 @@ const viewId = 'ab4b890e-9b90-45b1-8404-df70711a68dd'
 const Inbox = (props: InboxProps): ReactElement => {
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <Container>
+            <Container style={{ paddingTop: '60px' }}>
                 <ViewHeader name={'Inbox'} icon={'inbox'} />
                 <ItemCreator
                     type="item"
