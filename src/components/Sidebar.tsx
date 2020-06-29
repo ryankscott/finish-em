@@ -45,7 +45,6 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};
     text-decoration: none;
-    margin: 1px 2px;
     padding: 8px 15px;
     outline: none;
     :active {
