@@ -78,6 +78,6 @@ export const ViewContainer = styled.div<ViewContainerProps>`
     display: flex;
     flex-direction: column;
     width: auto;
-    margin: ${(props) => (props.collapsed ? '0px' : '0px 5px')};
+    margin: 0px;
     padding: 0px;
 `

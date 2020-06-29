@@ -46,7 +46,7 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
     color: ${(props) => props.theme.colours.altTextColour};
     text-decoration: none;
     margin: 1px 2px;
-    padding: 8px 5px;
+    padding: 8px 15px;
     outline: none;
     :active {
         outline: none;
@@ -88,7 +88,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         flexDirection: 'column',
         justifyContent: 'center',
         background: isDraggingOver ? 'inherit' : 'inherit',
-        margin: props.sidebarVisible ? '0px 5px' : '0px',
+        margin: '0px',
         padding: '0px',
     })
 
