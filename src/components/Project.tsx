@@ -49,7 +49,6 @@ const Project = (props: ProjectProps): ReactElement => {
     const history = useHistory()
     const name = React.useRef<HTMLInputElement>()
     const description = React.useRef<HTMLInputElement>()
-    const [showEdit, setShowEdit] = useState(false)
 
     function deleteProject(): void {
         props.deleteProject(props.project.id)
@@ -75,15 +74,6 @@ const Project = (props: ProjectProps): ReactElement => {
                         shouldClearOnSubmit={false}
                     />
                     <DeleteProjectDialog onDelete={() => deleteProject()} />
-                    <Button
-                        type={'primary'}
-                        spacing={'compact'}
-                        width={'60px'}
-                        text={'Edit'}
-                        onClick={() => {
-                            setShowEdit(!showEdit)
-                        }}
-                    />
                 </HeaderContainer>
                 {props?.projectDates && (
                     <div style={{ paddingLeft: '10px' }}>
