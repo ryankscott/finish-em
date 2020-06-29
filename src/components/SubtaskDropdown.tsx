@@ -36,7 +36,6 @@ const generateOptions = (
                 !m.parentId,
         )
         .map((m) => {
-            console.log(marked(getItemText(m.text, m.projectId, projects)))
             // Ensure we keep markdown formatting of items
             return {
                 value: m.id,

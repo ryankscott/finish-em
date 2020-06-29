@@ -77,6 +77,12 @@ const initialState: UIType = {
                 icon: 'calendar',
                 type: 'default',
             },
+            'a6770550-ecc5-48a3-89eb-6b6a6aaea05d': {
+                id: 'a6770550-ecc5-48a3-89eb-6b6a6aaea05d',
+                name: 'Labels',
+                icon: 'label',
+                type: 'custom',
+            },
         },
         order: [
             'ab4b890e-9b90-45b1-8404-df70711a68dd',
@@ -85,6 +91,7 @@ const initialState: UIType = {
             '4514f106-896f-4f39-9227-ad9c99ebd468',
             'ec9600f5-462b-4d9b-a1ca-db3a88473400',
             '0524ccae-1005-4b75-80ca-f04691ad6431',
+            'a6770550-ecc5-48a3-89eb-6b6a6aaea05d',
         ],
     },
     components: {
@@ -378,8 +385,34 @@ const initialState: UIType = {
                     },
                 },
             },
+            'e62c66d4-0933-4198-bce6-47d6093259d6': {
+                id: 'e62c66d4-0933-4198-bce6-47d6093259d6',
+                viewId: 'ab4b890e-9b90-45b1-8404-df70711a68dd',
+                location: 'main',
+                component: {
+                    name: 'FilteredItemList',
+                    props: {
+                        id: 'e62c66d4-0933-4198-bce6-47d6093259d6',
+                        filter: 'projectId == "0" and not (deleted or completed)',
+                        hideIcons: [],
+                        listName: 'Items',
+                        isFilterable: true,
+                    },
+                },
+            },
+            // Labels
+            '6d6d2ff6-61ad-4d47-aee3-3a9ca909f4da': {
+                id: '6d6d2ff6-61ad-4d47-aee3-3a9ca909f4da',
+                viewId: 'a6770550-ecc5-48a3-89eb-6b6a6aaea05d',
+                location: 'main',
+                component: {
+                    name: 'ViewHeader',
+                    props: { name: 'Labels', icon: 'label' },
+                },
+            },
         },
         order: [
+            'e62c66d4-0933-4198-bce6-47d6093259d6',
             'a4e1c649-378f-4d14-9aac-2d2720270dd8',
             '1168fa83-c1de-4ba7-8de6-40fb11f1bcbc',
             'bb1d3c3d-4d44-49c7-9350-a0ab49c1ec7a',
@@ -399,6 +432,7 @@ const initialState: UIType = {
             'e82c588c-f9b4-4429-8f88-d9372ceab190',
             '2e30abeb-5df5-49f0-90ad-5dad9a18afaa',
             'cd464833-1b54-4a52-8474-9632be6e3d4f',
+            '6d6d2ff6-61ad-4d47-aee3-3a9ca909f4da',
         ],
     },
 }
@@ -581,6 +615,55 @@ export const uiReducer = produce(
 
             // TODO
             case ui.ADD_COMPONENT:
+                state.components.components[action.id] = {
+                    id: action.id,
+                    viewId: action.viewId,
+                    location: action.location,
+                    component: action.component,
+                }
+                state.components.order = [...state.components.order, action.id]
+                break
+
+            case ui.DELETE_COMPONENT:
+                delete state.components.components[action.id]
+                state.components.order = state.components.order.filter((c) => c != action.id)
+                break
+
+            case ui.REORDER_COMPONENT:
+                // Initialise where everything is
+                let sourceIndex = state.components.order.indexOf(action.id)
+                let destinationIndex = state.components.order.indexOf(action.destinationId)
+                let newOrder = state.components.order
+                newOrder.splice(sourceIndex, 1)
+                let startOfArray = newOrder.slice(0, destinationIndex)
+                let endOfArray = newOrder.slice(destinationIndex, newOrder.length)
+                state.components.order = [...startOfArray, action.id, ...endOfArray]
+                break
+
+            case ui.ADD_VIEW:
+                state.views.views[action.id] = {
+                    id: action.id,
+                    name: action.name,
+                    icon: action.icon,
+                    type: action.viewType,
+                }
+                state.views.order = [...state.views.order, action.id]
+                break
+
+            case ui.DELETE_VIEW:
+                delete state.views.views[action.id]
+                state.views.order = state.views.order.filter((v) => v != action.id)
+                break
+
+            case ui.REORDER_VIEW:
+                // Initialise where everything is
+                sourceIndex = state.views.order.indexOf(action.id)
+                destinationIndex = state.views.order.indexOf(action.destinationId)
+                newOrder = state.views.order
+                newOrder.splice(sourceIndex, 1)
+                startOfArray = newOrder.slice(0, destinationIndex)
+                endOfArray = newOrder.slice(destinationIndex, newOrder.length)
+                state.views.order = [...startOfArray, action.id, ...endOfArray]
                 break
 
             default:

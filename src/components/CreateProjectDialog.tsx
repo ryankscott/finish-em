@@ -6,7 +6,13 @@ import { Uuid } from '@typed/uuid'
 
 import { Header3 } from './Typography'
 import { themes } from '../theme'
-import { createProject, toggleCreateProjectDialog, hideCreateProjectDialog } from '../actions'
+import {
+    createProject,
+    toggleCreateProjectDialog,
+    hideCreateProjectDialog,
+    addView,
+    addComponent,
+} from '../actions'
 import Button from './Button'
 import InlineDialog from './InlineDialog'
 import {
@@ -15,6 +21,7 @@ import {
     BodyContainer,
     StyledInput,
 } from './styled/CreateProjectDialog'
+import { ItemIcons } from './Item'
 
 interface StateProps {
     theme: string
@@ -66,7 +73,7 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
                             <Header3>Create Project</Header3>
                             <Button
                                 spacing="default"
-                                type="subtleInvert"
+                                type="subtle"
                                 onClick={() => {
                                     props.closeCreateProjectDialog()
                                 }}
@@ -123,7 +130,34 @@ const mapStateToProps = (state): StateProps => ({
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     createProject: (id: Uuid, name: string, description: string) => {
         dispatch(createProject(id, name, description))
+        dispatch(addView(id, name, 'project'))
         dispatch(hideCreateProjectDialog())
+        const component1Id = uuidv4()
+        const component2Id = uuidv4()
+        dispatch(
+            addComponent(component1Id, id, 'main', {
+                name: 'FilteredItemList',
+                props: {
+                    id: component1Id,
+                    listName: 'Notes',
+                    filter: `projectId == "${id}" and type == "NOTE" and not completed and not deleted`,
+                    isFilterable: false,
+                    hideIcons: [ItemIcons.Project],
+                },
+            }),
+        )
+        dispatch(
+            addComponent(component2Id, id, 'main', {
+                name: 'FilteredItemList',
+                props: {
+                    id: component2Id,
+                    listName: 'Todos',
+                    filter: `projectId == "${id}" and type == "TODO" and not completed and not deleted`,
+                    isFilterable: false,
+                    hideIcons: [ItemIcons.Project],
+                },
+            }),
+        )
     },
     closeCreateProjectDialog: () => {
         dispatch(hideCreateProjectDialog())

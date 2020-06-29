@@ -6,7 +6,11 @@ import {
     Label,
     Labels,
     RenderingStrategy,
+    Views,
+    Project,
+    MainComponents,
 } from '../interfaces'
+import uuidv4 from 'uuid'
 // Remove flagged item and introduces label
 export const migratev7tov8Items = (its: Items): Items => {
     const iTemp = Object.entries(its.items).map(([id, value]) => {
@@ -66,6 +70,138 @@ export const migratev2tov3Items = (its: ItemType[]): Items => {
 
 export const migratev11tov12Labels = (ls: Label): Labels => {
     return { labels: ls, order: Object.keys(ls) }
+}
+
+export const migratev36tov37Views = (vs: Views, ps: Project): Views => {
+    const newViews = vs.views
+    const newOrder = vs.order
+    const viewEntries = Object.entries(newViews).map(([id, value]) => {
+        if (
+            id == 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134' ||
+            id == 'ab4b890e-9b90-45b1-8404-df70711a68dd'
+        ) {
+            return [id, { ...value, type: 'default' }]
+        }
+        return [id, { ...value, type: 'custom' }]
+    })
+    let viewValues = Object.fromEntries(viewEntries)
+    const projectViews = Object.values(ps).map((p) => {
+        {
+            newOrder.push(p.id)
+            if (p.id == 0) {
+                viewValues = {
+                    ...viewValues,
+                    'ab4b890e-9b90-45b1-8404-df70711a68dd': {
+                        id: 'ab4b890e-9b90-45b1-8404-df70711a68dd',
+                        name: p.name,
+                        type: 'project',
+                    },
+                }
+            }
+            viewValues = {
+                ...viewValues,
+                [p.id]: {
+                    id: p.id,
+                    name: p.name,
+                    type: 'project',
+                },
+            }
+        }
+    })
+
+    return {
+        views: {
+            ...viewValues,
+            'a6770550-ecc5-48a3-89eb-6b6a6aaea05d': {
+                id: 'a6770550-ecc5-48a3-89eb-6b6a6aaea05d',
+                name: 'Labels',
+                icon: 'label',
+                type: 'custom',
+            },
+        },
+        order: [...newOrder, 'a6770550-ecc5-48a3-89eb-6b6a6aaea05d'],
+    }
+}
+
+export const migratev36tov37Components = (cs: MainComponents, ps: Project): MainComponents => {
+    let newComponents = cs.components
+    const newOrder = cs.order
+    const projectViews = Object.values(ps).map((p) => {
+        {
+            const comp1Id = uuidv4()
+            const comp2Id = uuidv4()
+            newOrder.push(comp1Id)
+            newOrder.push(comp2Id)
+            newComponents = {
+                ...newComponents,
+                [comp1Id]: {
+                    id: comp1Id,
+                    viewId: p.id,
+                    location: 'main',
+                    component: {
+                        name: 'FilteredItemList',
+                        props: {
+                            id: comp1Id,
+                            filter: `projectId == "${p.id}" and not (deleted or completed) and type == "TODO"`,
+                            hideIcons: [],
+                            listName: 'Items',
+                            isFilterable: true,
+                        },
+                    },
+                },
+                [comp2Id]: {
+                    id: comp2Id,
+                    viewId: p.id,
+                    location: 'main',
+                    component: {
+                        name: 'FilteredItemList',
+                        props: {
+                            id: comp2Id,
+                            filter: `projectId == "${p.id}" and not (deleted or completed) and type == "NOTE"`,
+                            hideIcons: [],
+                            listName: 'Notes',
+                            isFilterable: true,
+                        },
+                    },
+                },
+            }
+        }
+    })
+
+    return {
+        components: {
+            ...newComponents,
+            'e62c66d4-0933-4198-bce6-47d6093259d6': {
+                id: 'e62c66d4-0933-4198-bce6-47d6093259d6',
+                viewId: 'ab4b890e-9b90-45b1-8404-df70711a68dd',
+                location: 'main',
+                component: {
+                    name: 'FilteredItemList',
+                    props: {
+                        id: 'e62c66d4-0933-4198-bce6-47d6093259d6',
+                        filter: 'projectId == "0" and not (deleted or completed)',
+                        hideIcons: [],
+                        listName: 'Items',
+                        isFilterable: true,
+                    },
+                },
+            },
+            '6d6d2ff6-61ad-4d47-aee3-3a9ca909f4da': {
+                id: '6d6d2ff6-61ad-4d47-aee3-3a9ca909f4da',
+                viewId: 'a6770550-ecc5-48a3-89eb-6b6a6aaea05d',
+                location: 'main',
+                component: {
+                    name: 'ViewHeader',
+                    props: { name: 'Labels', icon: 'label' },
+                },
+            },
+        },
+        order: [
+            ...newOrder,
+            'e62c66d4-0933-4198-bce6-47d6093259d6',
+            '6d6d2ff6-61ad-4d47-aee3-3a9ca909f4da',
+        ],
+    }
 }
 
 // Note: The number here denotes the version you want to migrate to
@@ -588,6 +724,21 @@ export const migrations = {
             ...state,
             features: {
                 projectDates: true,
+            },
+        }
+    },
+    37: (state) => {
+        console.log(state.ui.views)
+        return {
+            ...state,
+            ui: {
+                ...state.ui,
+                components: {
+                    ...migratev36tov37Components(state.ui.components, state.projects.projects),
+                },
+                views: {
+                    ...migratev36tov37Views(state.ui.views, state.projects.projects),
+                },
             },
         }
     },

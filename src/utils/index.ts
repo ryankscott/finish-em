@@ -277,30 +277,37 @@ export const capitaliseFirstLetter = (input: string): string => {
     return input.charAt(0).toUpperCase() + input.slice(1)
 }
 // Filtrex options
+export const generateFiltrexOptions = (state, props) => {
+    return {
+        extraFunctions: {
+            getLabelId: (labelName: string) => {
+                const labels = state.ui.labels.labels
+                const label = Object.values(labels).find((l) => l.name == labelName)
+                return `${label.id}`
+            },
 
-const overdue = (dueDate: string): boolean => {
-    return isPast(endOfDay(parseISO(dueDate)))
-}
-const today = (d: string): boolean => {
-    return isToday(parseISO(d))
-}
+            overdue: (dueDate: string): boolean => {
+                return isPast(endOfDay(parseISO(dueDate)))
+            },
+            today: (d: string): boolean => {
+                return isToday(parseISO(d))
+            },
 
-const sameDay = (d: string, d1: string): boolean => {
-    return isSameDay(parseISO(d), parseISO(d1))
-}
+            sameDay: (d: string, d1: string): boolean => {
+                return isSameDay(parseISO(d), parseISO(d1))
+            },
 
-const thisWeek = (d: string): boolean => {
-    return isThisWeek(parseISO(d))
-}
+            thisWeek: (d: string): boolean => {
+                return isThisWeek(parseISO(d))
+            },
 
-const thisMonth = (d: string): boolean => {
-    return isThisMonth(parseISO(d))
-}
+            thisMonth: (d: string): boolean => {
+                return isThisMonth(parseISO(d))
+            },
 
-const daysFromToday = (a: string): number => {
-    return differenceInDays(parseISO(a), new Date())
-}
-
-export const filtrexOptions = {
-    extraFunctions: { overdue, today, thisWeek, thisMonth, daysFromToday, sameDay },
+            daysFromToday: (a: string): number => {
+                return differenceInDays(parseISO(a), new Date())
+            },
+        },
+    }
 }

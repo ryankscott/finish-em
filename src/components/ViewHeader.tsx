@@ -13,7 +13,7 @@ interface StateProps {
 
 export interface OwnProps {
     name: string
-    icon: IconType
+    icon?: IconType
 }
 
 type ViewHeaderProps = StateProps & OwnProps

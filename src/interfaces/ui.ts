@@ -125,3 +125,4 @@ export type IconType =
     | 'expandAll'
     | 'collapseAll'
     | 'restore'
+    | 'save'

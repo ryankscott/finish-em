@@ -51,7 +51,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
             <div ref={node}>
                 <Button
                     dataFor={'more'}
-                    type={'subtleInvert'}
+                    type={'subtle'}
                     spacing={'default'}
                     icon={'more'}
                     width={'18px'}

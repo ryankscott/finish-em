@@ -14,6 +14,7 @@ import {
     StyledHorizontalRule,
     BodyContainer,
     CollapseContainer,
+    ViewContainer,
 } from './styled/Sidebar'
 import Button from './Button'
 import { createShortProjectName } from '../utils'
@@ -35,8 +36,10 @@ interface DispatchProps {
     toggleSidebar: () => void
     reorderProject: (id: Uuid, destinationId: Uuid) => void
 }
+
 const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />)`
     display: flex;
+    box-sizing: border-box;
     width: 100%;
     justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
     font-size: ${(props) => props.theme.fontSizes.small};
@@ -56,9 +59,10 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
         background-color: ${(props) => props.theme.colours.focusAltDialogBackgroundColour};
     }
     svg {
-        margin-right: 5px;
+        margin-right: ${(props) => (props.sidebarVisible ? '5px' : '0px')};
     }
 `
+
 const generateSidebarContents = (
     sidebarVisible: boolean,
     iconName: string,
@@ -110,54 +114,52 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <SectionHeader>
                         {props.sidebarVisible && <Header> Views </Header>}
                     </SectionHeader>
-                    <StyledLink
-                        sidebarVisible={props.sidebarVisible}
-                        to="/inbox"
-                        activeStyle={{
-                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                        }}
-                    >
-                        {generateSidebarContents(props.sidebarVisible, 'inbox', 'Inbox')}
-                    </StyledLink>
-                    <StyledLink
-                        sidebarVisible={props.sidebarVisible}
-                        to="/dailyAgenda"
-                        activeStyle={{
-                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                        }}
-                    >
-                        {generateSidebarContents(props.sidebarVisible, 'calendar', 'Daily Agenda')}
-                    </StyledLink>
-                    <StyledLink
-                        sidebarVisible={props.sidebarVisible}
-                        to="/labels"
-                        activeStyle={{
-                            backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                        }}
-                    >
-                        {generateSidebarContents(props.sidebarVisible, 'label', 'Labels')}
-                    </StyledLink>
-                    {Object.values(props.views.order).map((v) => {
-                        const view = props.views.views[v]
-                        if (view.type != 'custom') return
-                        return (
-                            <StyledLink
-                                sidebarVisible={props.sidebarVisible}
-                                key={view.id}
-                                to={`/${view.name}`}
-                                activeStyle={{
-                                    backgroundColor: theme.colours.focusAltDialogBackgroundColour,
-                                }}
-                            >
-                                {generateSidebarContents(
-                                    props.sidebarVisible,
-                                    view.icon,
-                                    view.name,
-                                )}
-                            </StyledLink>
-                        )
-                    })}
-                    {!props.sidebarVisible && <StyledHorizontalRule />}
+                    <ViewContainer>
+                        <StyledLink
+                            sidebarVisible={props.sidebarVisible}
+                            to="/inbox"
+                            activeStyle={{
+                                backgroundColor: theme.colours.focusAltDialogBackgroundColour,
+                            }}
+                        >
+                            {generateSidebarContents(props.sidebarVisible, 'inbox', 'Inbox')}
+                        </StyledLink>
+                        <StyledLink
+                            sidebarVisible={props.sidebarVisible}
+                            to="/dailyAgenda"
+                            activeStyle={{
+                                backgroundColor: theme.colours.focusAltDialogBackgroundColour,
+                            }}
+                        >
+                            {generateSidebarContents(
+                                props.sidebarVisible,
+                                'calendar',
+                                'Daily Agenda',
+                            )}
+                        </StyledLink>
+                        {Object.values(props.views.order).map((v) => {
+                            const view = props.views.views[v]
+                            if (view.type != 'custom') return
+                            return (
+                                <StyledLink
+                                    sidebarVisible={props.sidebarVisible}
+                                    key={view.id}
+                                    to={`/${view.name}`}
+                                    activeStyle={{
+                                        backgroundColor:
+                                            theme.colours.focusAltDialogBackgroundColour,
+                                    }}
+                                >
+                                    {generateSidebarContents(
+                                        props.sidebarVisible,
+                                        view.icon,
+                                        view.name,
+                                    )}
+                                </StyledLink>
+                            )
+                        })}
+                        {!props.sidebarVisible && <StyledHorizontalRule />}
+                    </ViewContainer>
                     <SectionHeader>
                         {props.sidebarVisible && <Header>Projects</Header>}
                         {props.sidebarVisible && <CreateProjectDialog />}

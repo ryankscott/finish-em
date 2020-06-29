@@ -12,7 +12,6 @@ import Settings from './Settings'
 import Inbox from './Inbox'
 import Project from './Project'
 import View from './View'
-import Labels from './Labels'
 import Help from './Help'
 import { app as appKeymap } from '../keymap'
 import { themes, GlobalStyle } from '../theme'
@@ -189,18 +188,16 @@ const App = (props: AppProps): ReactElement => {
                 <MainContainer visible={sidebarVisible}>
                     <ShortcutDialog />
                     <Switch>
+                        <Route path="/help">
+                            <Help />
+                        </Route>
                         <Route path="/dailyAgenda">
                             <DailyAgenda />
-                        </Route>
-                        <Route path="/labels">
-                            <Labels />
                         </Route>
                         <Route path="/inbox">
                             <Inbox />
                         </Route>
-                        <Route path="/help">
-                            <Help />
-                        </Route>
+
                         {Object.values(props.views.order).map((v) => {
                             const view = props.views.views[v]
                             if (view.type == 'default') return
@@ -215,6 +212,7 @@ const App = (props: AppProps): ReactElement => {
                                 </Route>
                             )
                         })}
+
                         <Route path="/Settings">
                             <Settings />
                         </Route>
@@ -234,7 +232,7 @@ const App = (props: AppProps): ReactElement => {
                     <Button
                         dataFor="shortcut-button"
                         id="shortcut-button"
-                        type="subtleInvert"
+                        type="subtle"
                         icon="help"
                         iconColour={themes[props.theme].colours.altIconColour}
                         onClick={toggleShortcutDialog}

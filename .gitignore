@@ -12,6 +12,7 @@ lerna-debug.log*
 build/Release
 build/*
 dist/*
+coverage/*
 
 # Dependency directories
 node_modules/

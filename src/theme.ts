@@ -133,13 +133,13 @@ export const themes: { [key: string]: ThemeType } = {
             },
             subtle: {
                 backgroundColour: 'rgba(255,255,255, 0)',
-                colour: '#EEEEEE',
+                colour: '#333333',
                 borderColour: '#e0e0e0',
                 hoverBackgroundColour: 'rgba(255,255,255, 0.01)',
             },
             subtleInvert: {
                 backgroundColour: 'rgba(0,0,0,0)',
-                colour: '#333333',
+                colour: '#EEEEEE',
                 borderColour: 'none',
                 hoverBackgroundColour: 'rgba(0,0,0, 0.05)',
             },

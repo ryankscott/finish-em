@@ -1,6 +1,5 @@
 import { Uuid } from '@typed/uuid'
-import { ComponentType, Component } from '../interfaces'
-import { stringify } from 'css'
+import { Component, IconType } from '../interfaces'
 
 export const SHOW_SIDEBAR = 'SHOW_SIDEBAR'
 export const TOGGLE_SIDEBAR = 'TOGGLE_SIDEBAR'
@@ -30,6 +29,11 @@ export const SET_FILTEREDITEMLIST_NAME = 'SET_FILTEREDITEMLIST_NAME'
 export const SET_FILTEREDITEMLIST_FILTER = 'SET_FILTEREDITEMLIST_FILTER'
 export const SET_FILTEREDITEMLIST_FILTERABLE = 'SET_FILTEREDITEMLIST_FILTERABLE'
 export const ADD_COMPONENT = 'ADD_COMPONENT'
+export const DELETE_COMPONENT = 'DELETE_COMPONENT'
+export const REORDER_COMPONENT = 'REORDER_COMPONENT'
+export const ADD_VIEW = 'ADD_VIEW'
+export const DELETE_VIEW = 'DELETE_VIEW'
+export const REORDER_VIEW = 'REORDER_VIEW'
 
 interface ShowShortcutDialogAction {
     type: typeof SHOW_SHORTCUT_DIALOG
@@ -337,6 +341,75 @@ export function addComponent(
         component: component,
     }
 }
+export interface DeleteComponentAction {
+    type: typeof DELETE_COMPONENT
+    id: string
+}
+
+export function deleteComponent(id: string): DeleteComponentAction {
+    return {
+        type: DELETE_COMPONENT,
+        id: id,
+    }
+}
+export interface ReorderComponentAction {
+    type: typeof REORDER_COMPONENT
+    id: Uuid
+    destinationId: Uuid
+}
+export function reorderComponent(id: Uuid, destinationId: Uuid): ReorderComponentAction {
+    return {
+        type: REORDER_COMPONENT,
+        id: id,
+        destinationId: destinationId,
+    }
+}
+
+export interface AddViewAction {
+    type: typeof ADD_VIEW
+    id: string
+    name: string
+    icon: IconType
+    viewType: 'default' | 'custom' | 'project' | 'area'
+}
+
+export function addView(
+    id: string,
+    name: string,
+    viewType: 'default' | 'custom' | 'project' | 'area',
+    icon?: IconType,
+): AddViewAction {
+    return {
+        type: ADD_VIEW,
+        id: id,
+        name: name,
+        icon: icon,
+        viewType: viewType,
+    }
+}
+export interface DeleteViewAction {
+    type: typeof DELETE_VIEW
+    id: string
+}
+
+export function deleteView(id: string): DeleteViewAction {
+    return {
+        type: DELETE_VIEW,
+        id: id,
+    }
+}
+export interface ReorderViewAction {
+    type: typeof REORDER_VIEW
+    id: Uuid
+    destinationId: Uuid
+}
+export function reorderView(id: Uuid, destinationId: Uuid): ReorderViewAction {
+    return {
+        type: REORDER_VIEW,
+        id: id,
+        destinationId: destinationId,
+    }
+}
 
 export type UIActions =
     | ShowShortcutDialogAction
@@ -367,3 +440,8 @@ export type UIActions =
     | SetFilteredItemListFilterAction
     | SetFilteredItemListFilterableAction
     | AddComponentAction
+    | DeleteComponentAction
+    | ReorderComponentAction
+    | AddViewAction
+    | DeleteViewAction
+    | ReorderViewAction

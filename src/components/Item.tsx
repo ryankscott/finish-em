@@ -168,7 +168,7 @@ function Item(props: ItemProps): ReactElement {
                     {props.children?.length > 0 && (
                         <ExpandContainer>
                             <Button
-                                type="subtleInvert"
+                                type="subtle"
                                 onClick={handleExpand}
                                 icon={'expand'}
                                 rotate={subtasksVisible == false ? 0 : 1}
@@ -184,7 +184,7 @@ function Item(props: ItemProps): ReactElement {
                     {labelId && <Tooltip id={'label-' + props.id} text={labelName}></Tooltip>}
                     <TypeContainer>
                         <Button
-                            type="subtleInvert"
+                            type="subtle"
                             spacing="compact"
                             onClick={handleIconClick}
                             icon={

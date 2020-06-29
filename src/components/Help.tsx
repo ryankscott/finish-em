@@ -22,9 +22,6 @@ type HelpProps = OwnProps & StateProps
 
 export const Help = (props: HelpProps): ReactElement => {
     const history = useHistory()
-    useEffect(() => {
-        console.log(history)
-    }, [])
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container

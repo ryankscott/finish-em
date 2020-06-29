@@ -76,7 +76,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                         <DialogHeader>
                             <DialogName>{'Update List'}</DialogName>
                             <Button
-                                type="subtleInvert"
+                                type="subtle"
                                 spacing="compact"
                                 icon="close"
                                 onClick={() => {

@@ -1,6 +1,5 @@
 import Select from 'react-select'
 import styled from 'styled-components'
-import Button from '../Button'
 import { Header1, Paragraph } from '../Typography'
 
 export const HeaderBar = styled.div`
@@ -86,9 +85,9 @@ export const ExpandContainer = styled.div`
 export const ListName = styled.div`
     display: grid;
     grid-template-rows: auto;
-    grid-template-columns: 30px repeat(9, 1fr);
+    grid-template-columns: 30px 120px 30px 30px repeat(6, 1fr);
     grid-template-areas:
-        'hide header header header edit . . . . .'
+        'hide header edit delete . . . . . .'
         'hide count  . . . . . . . .';
     width: 100%;
 `
@@ -96,8 +95,17 @@ export const EditButtonContainer = styled.div`
     position: relative;
     grid-area: edit !important;
     display: flex;
-    justify-content: flex-start;
+    justify-content: flex-end;
+    align-items: flex-start;
 `
+export const DeleteButtonContainer = styled.div`
+    position: relative;
+    grid-area: delete;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+`
+
 export const HideButtonContainer = styled.div`
     grid-area: hide !important;
 `

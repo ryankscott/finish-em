@@ -233,7 +233,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                             >
                                 {props.items.order.map((o, index) => {
                                     // Get each item
-                                    const item = props.inputItems.filter((i) => i.id == o)[0]
+                                    const item = props.inputItems.find((i) => i.id == o)
                                     if (item == undefined) return
                                     switch (props.renderingStrategy) {
                                         case RenderingStrategy.All:

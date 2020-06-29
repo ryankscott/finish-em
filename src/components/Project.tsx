@@ -11,20 +11,20 @@ import {
     toggleDeleteProjectDialog,
     setProjectStartDate,
     setProjectEndDate,
+    deleteView,
 } from '../actions'
 import { Title } from './Typography'
 import EditableText from './EditableText'
-import FilteredItemList from '../containers/FilteredItemList'
 import DeleteProjectDialog from './DeleteProjectDialog'
 import { Uuid } from '@typed/uuid'
 import { ProjectType } from '../interfaces'
 import { ProjectContainer, HeaderContainer, AddProjectContainer } from './styled/Project'
 import ItemCreator from './ItemCreator'
-import { ItemIcons } from './Item'
 import Button from './Button'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { formatRelativeDate } from '../utils'
 import { parseISO } from 'date-fns'
+import ReorderableComponentList from './ReorderableComponentList'
 
 interface StateProps {
     theme: string
@@ -134,20 +134,7 @@ const Project = (props: ProjectProps): ReactElement => {
                         initiallyExpanded={false}
                     />
                 </AddProjectContainer>
-                <FilteredItemList
-                    listName="Notes"
-                    filter={`projectId == "${props.project.id}" and type == "NOTE" and not completed and not deleted`}
-                    isFilterable={false}
-                    hideIcons={[ItemIcons.Project]}
-                    readOnly={!showEdit}
-                />
-                <FilteredItemList
-                    listName="Todos"
-                    filter={`projectId == "${props.project.id}" and type == "TODO" and not completed and not deleted`}
-                    isFilterable={true}
-                    hideIcons={[ItemIcons.Project]}
-                    readOnly={!showEdit}
-                />
+                <ReorderableComponentList id={props.project.id} />
             </ProjectContainer>
         </ThemeProvider>
     )
@@ -166,6 +153,7 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     deleteProject: (id: Uuid) => {
         dispatch(deleteProject(id))
+        dispatch(deleteView(id))
         dispatch(hideDeleteProjectDialog())
     },
     toggleDeleteProjectDialog: () => {

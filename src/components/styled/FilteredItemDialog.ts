@@ -14,7 +14,7 @@ export const DialogContainer = styled.div`
     padding: 5px 5px;
     padding-bottom: 20px;
     z-index: 2;
-    right: 45px;
+    left: 0px;
     top: 23px;
 `
 export const DialogHeader = styled.div`

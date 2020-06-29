@@ -19,6 +19,7 @@ import {
     ListHeader,
     EditButtonContainer,
     ListCount,
+    DeleteButtonContainer,
 } from '../components/styled/FilteredItemList'
 import { connect } from 'react-redux'
 import Button from '../components/Button'
@@ -29,7 +30,7 @@ import { components } from 'react-select'
 import ReorderableItemList from '../components/ReorderableItemList'
 import { convertItemToItemType } from '../utils'
 import { ItemIcons } from '../components/Item'
-import { hideSubtasks, showSubtasks } from '../actions'
+import { hideSubtasks, showSubtasks, deleteComponent } from '../actions'
 import { Uuid } from '@typed/uuid'
 import { Icons } from '../assets/icons'
 import { ThemeProvider } from 'styled-components'
@@ -132,6 +133,7 @@ interface DispatchProps {
     deleteCompletedItems: (completedItems: ItemType[]) => void
     hideAllSubtasks: (parentItems: ItemType[], componentId: Uuid) => void
     showAllSubtasks: (parentItems: ItemType[], componentId: Uuid) => void
+    deleteComponent: (componentId: string) => void
 }
 
 export interface OwnProps {
@@ -205,6 +207,19 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                 />
                             )}
                         </EditButtonContainer>
+                        <DeleteButtonContainer>
+                            {!props.readOnly && (
+                                <Button
+                                    height="22px"
+                                    width="22px"
+                                    iconSize="14px"
+                                    type="default"
+                                    spacing="compact"
+                                    icon="trash"
+                                    onClick={() => props.deleteComponent(props.id)}
+                                />
+                            )}
+                        </DeleteButtonContainer>
                     </ListName>
                     {visibility.showFilterBar && (
                         <FilterBar>
@@ -365,6 +380,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
                 dispatch(deleteItem(c.id))
             }
         })
+    },
+    deleteComponent: (componentId: string) => {
+        dispatch(deleteComponent(componentId))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(FilteredItemList)

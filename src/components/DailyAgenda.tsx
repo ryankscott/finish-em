@@ -2,12 +2,13 @@ import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { format, sub, add } from 'date-fns'
 import { connect } from 'react-redux'
+import uuidv4 from 'uuid'
 import { themes } from '../theme'
 import FilteredItemList from '../containers/FilteredItemList'
 import { Paragraph, Header1 } from './Typography'
 import EditableText from './EditableText'
-import { setDailyGoal } from '../actions'
-import { ItemType, RenderingStrategy } from '../interfaces'
+import { setDailyGoal, addComponent } from '../actions'
+import { ItemType, RenderingStrategy, MainComponents, Component } from '../interfaces'
 import {
     AgendaContainer,
     DateContainer,
@@ -17,7 +18,7 @@ import {
     DailyTitle,
 } from './styled/DailyAgenda'
 import Button from './Button'
-import ViewHeader from './ViewHeader'
+import ReorderableComponentList from './ReorderableComponentList'
 
 interface StateProps {
     dailyGoal: any[]
@@ -27,28 +28,17 @@ interface StateProps {
 }
 interface DispatchProps {
     setDailyGoal: (day: string, input: string) => void
+    addList: (id: string, viewId: Uuid) => void
 }
 type DailyAgendaProps = StateProps & DispatchProps
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     const viewId = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
     const [currentDate, setDate] = useState(new Date())
-    const [showEdit, setShowEdit] = useState(false)
     const editor = React.useRef<HTMLInputElement>()
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <AgendaContainer>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                        type={'primary'}
-                        spacing={'compact'}
-                        width={'60px'}
-                        text={'Edit'}
-                        onClick={() => {
-                            setShowEdit(!showEdit)
-                        }}
-                    />
-                </div>
                 <DateContainer>
                     <BackContainer>
                         <Button
@@ -97,37 +87,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     shouldSubmitOnBlur={true}
                     shouldClearOnSubmit={false}
                 />
-                {Object.values(props.components.order).map((c) => {
-                    // Load custom components
-                    const comp = props.components.components[c]
-                    if (comp.location == 'main' && comp.viewId == viewId) {
-                        switch (comp.component.name) {
-                            case 'FilteredItemList':
-                                return (
-                                    <FilteredItemList
-                                        id={c}
-                                        key={c}
-                                        {...comp.component.props}
-                                        readOnly={!showEdit}
-                                    />
-                                )
-                            case 'ViewHeader':
-                                return <ViewHeader key={c} {...comp.component.props} />
-                        }
-                    }
-                })}
-                {showEdit && (
-                    <Button
-                        iconSize="14px"
-                        spacing="compact"
-                        icon="add"
-                        type="subtleInvert"
-                        text="Add list"
-                        onClick={() => {
-                            props.addComponent()
-                        }}
-                    />
-                )}
+                <ReorderableComponentList id={viewId} />
                 <Section>
                     <FilteredItemList
                         id="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
@@ -162,6 +122,20 @@ const mapStateToProps = (state): StateProps => ({
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     setDailyGoal: (day, text) => {
         dispatch(setDailyGoal(day, text))
+    },
+    addList: (viewId, location) => {
+        const id = uuidv4()
+        const component: Component = {
+            name: 'FilteredItemList',
+            props: {
+                id: id,
+                filter: 'not deleted',
+                hideIcons: [],
+                listName: 'New list',
+                isFilterable: true,
+            },
+        }
+        dispatch(addComponent(id, viewId, location, component))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(DailyAgenda)

@@ -1,59 +1,25 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement } from 'react'
 import { ThemeProvider } from 'styled-components'
 
 import { themes } from '../theme'
-import { Container } from './styled/View'
 import { connect } from 'react-redux'
-import ViewHeader from './ViewHeader'
-import { IconType, MainComponents } from '../interfaces'
-import FilteredItemList from '../containers/FilteredItemList'
-import Button from './Button'
+import ReorderableComponentList from './ReorderableComponentList'
+import { Container } from './styled/View'
 
 interface OwnProps {
     id: string
-    name: string
-    icon: IconType
 }
+interface DispatchProps {}
 
 interface StateProps {
     theme: string
-    components: MainComponents
 }
-type ViewProps = StateProps & OwnProps
+type ViewProps = StateProps & OwnProps & DispatchProps
 const View = (props: ViewProps): ReactElement => {
-    const [showEdit, setShowEdit] = useState(false)
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container>
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <Button
-                        type={'primary'}
-                        spacing={'compact'}
-                        width={'60px'}
-                        text={'Edit'}
-                        onClick={() => {
-                            setShowEdit(!showEdit)
-                        }}
-                    />
-                </div>
-                {Object.values(props.components.order).map((c) => {
-                    const comp = props.components.components[c]
-                    if (comp.location == 'main' && comp.viewId == props.id) {
-                        switch (comp.component.name) {
-                            case 'FilteredItemList':
-                                return (
-                                    <FilteredItemList
-                                        id={c}
-                                        key={c}
-                                        {...comp.component.props}
-                                        readOnly={!showEdit}
-                                    />
-                                )
-                            case 'ViewHeader':
-                                return <ViewHeader key={c} {...comp.component.props} />
-                        }
-                    }
-                })}
+                <ReorderableComponentList id={props.id} />
             </Container>
         </ThemeProvider>
     )
@@ -61,8 +27,7 @@ const View = (props: ViewProps): ReactElement => {
 
 const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
-    components: state.ui.components,
 })
-const mapDispatchToProps = (dispatch) => ({})
+const mapDispatchToProps = (dispatch): DispatchProps => ({})
 
 export default connect(mapStateToProps, mapDispatchToProps)(View)

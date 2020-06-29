@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { Item, ItemType } from '../interfaces'
-import { filterItems, filtrexOptions } from '../utils'
+import { filterItems, generateFiltrexOptions } from '../utils'
 import { compileExpression } from 'filtrex'
 
 export const getRenderingStrategy = (state, props) => {
@@ -9,7 +9,7 @@ export const getRenderingStrategy = (state, props) => {
 
 export const getFilteredItems = (state, props): Item => {
     const items = state.items.items
-    const ff = compileExpression(props.filter, filtrexOptions)
+    const ff = compileExpression(props.filter, generateFiltrexOptions(state, props))
     return filterItems(items, ff, props.renderingStrategy)
 }
 
