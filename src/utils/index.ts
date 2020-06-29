@@ -306,7 +306,7 @@ export const generateFiltrexOptions = (state, props) => {
             },
 
             daysFromToday: (a: string): number => {
-                return differenceInDays(parseISO(a), new Date())
+                return differenceInDays(new Date(), parseISO(a))
             },
         },
     }
