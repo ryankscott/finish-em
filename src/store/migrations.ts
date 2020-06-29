@@ -728,7 +728,6 @@ export const migrations = {
         }
     },
     37: (state) => {
-        console.log(state.ui.views)
         return {
             ...state,
             ui: {

@@ -28,7 +28,6 @@ type ReorderableComponentListProps = StateProps & OwnProps & DispatchProps
 const ReorderableComponentList = (props: ReorderableComponentListProps): ReactElement => {
     const [showEdit, setShowEdit] = useState(false)
     const theme = themes[props.theme]
-    console.log(props.components)
 
     const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
         display: 'flex',
@@ -91,7 +90,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                             style={getListStyle(snapshot.isDraggingOver)}
                         >
                             {Object.values(props.components.order).map((c, index) => {
-                                console.log(c)
                                 const comp = props.components.components[c]
                                 if (comp.location == 'main' && comp.viewId == props.id) {
                                     switch (comp.component.name) {
