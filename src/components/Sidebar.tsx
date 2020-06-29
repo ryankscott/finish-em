@@ -179,11 +179,9 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                     ref={provided.innerRef}
                                     style={getListStyle(snapshot.isDraggingOver)}
                                 >
-                                    {Object.values(props.views.order).map((p: Uuid, index) => {
-                                        const view = props.views.views[p]
-                                        if (view.type != 'project') return
+                                    {Object.values(props.projects.order).map((p: Uuid, index) => {
                                         // Don't render the inbox here
-                                        if (p == 'ab4b890e-9b90-45b1-8404-df70711a68dd') return
+                                        if (p == '0') return
                                         const pathName = '/projects/' + p
                                         const project = props.projects.projects[p]
                                         return (
