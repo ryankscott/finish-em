@@ -69,11 +69,15 @@ export const SettingsContainer = styled.div<SettingsContainerProps>`
     display: flex;
     justify-content: ${(props) => (props.collapsed ? 'center' : 'flex-start')};
 `
-export const ViewContainer = styled.div`
+
+interface ViewContainerProps {
+    collapsed: boolean
+}
+export const ViewContainer = styled.div<ViewContainerProps>`
     overflow: hidden;
     display: flex;
-    flex-direction: column
+    flex-direction: column;
     width: auto;
-    margin: 0px;
+    margin: ${(props) => (props.collapsed ? '0px' : '0px 5px')};
     padding: 0px;
 `

@@ -40,7 +40,6 @@ interface DispatchProps {
 const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />)`
     display: flex;
     box-sizing: border-box;
-    width: 100%;
     justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
     font-size: ${(props) => props.theme.fontSizes.small};
     font-weight: ${(props) => props.theme.fontWeights.regular};
@@ -89,8 +88,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         flexDirection: 'column',
         justifyContent: 'center',
         background: isDraggingOver ? 'inherit' : 'inherit',
-        width: '100%',
-        margin: '0px',
+        margin: props.sidebarVisible ? '0px 5px' : '0px',
         padding: '0px',
     })
 
@@ -114,7 +112,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     <SectionHeader>
                         {props.sidebarVisible && <Header> Views </Header>}
                     </SectionHeader>
-                    <ViewContainer>
+                    <ViewContainer collapsed={!props.sidebarVisible}>
                         <StyledLink
                             sidebarVisible={props.sidebarVisible}
                             to="/inbox"
@@ -198,6 +196,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                         )}
                                                     >
                                                         <StyledLink
+                                                            style={{ width: '100%' }}
                                                             sidebarVisible={props.sidebarVisible}
                                                             key={p}
                                                             to={pathName}
