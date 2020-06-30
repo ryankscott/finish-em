@@ -11,6 +11,7 @@ import {
     MainComponents,
 } from '../interfaces'
 import uuidv4 from 'uuid'
+import { ItemIcons } from '../components/Item'
 // Remove flagged item and introduces label
 export const migratev7tov8Items = (its: Items): Items => {
     const iTemp = Object.entries(its.items).map(([id, value]) => {
@@ -158,7 +159,7 @@ export const migratev36tov37Components = (cs: MainComponents, ps: Project): Main
                         props: {
                             id: comp2Id,
                             filter: `projectId == "${p.id}" and not (deleted or completed) and type == "NOTE"`,
-                            hideIcons: [],
+                            hideIcons: [ItemIcons.Project],
                             listName: 'Notes',
                             isFilterable: true,
                         },
@@ -180,7 +181,7 @@ export const migratev36tov37Components = (cs: MainComponents, ps: Project): Main
                     props: {
                         id: 'e62c66d4-0933-4198-bce6-47d6093259d6',
                         filter: 'projectId == "0" and not (deleted or completed)',
-                        hideIcons: [],
+                        hideIcons: [ItemIcons.Project],
                         listName: 'Items',
                         isFilterable: true,
                     },
