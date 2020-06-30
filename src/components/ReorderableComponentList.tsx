@@ -180,7 +180,7 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
                 props: {
                     listName: 'New list',
                     isFilterable: true,
-                    filter: 'not completed and not deleted',
+                    filter: 'not (completed or deleted)',
                 },
             }),
         )

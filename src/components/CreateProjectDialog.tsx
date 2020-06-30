@@ -140,7 +140,7 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
                 props: {
                     id: component1Id,
                     listName: 'Notes',
-                    filter: `projectId == "${id}" and type == "NOTE" and not completed and not deleted`,
+                    filter: `projectId == "${id}" and type == "NOTE" and not (completed or deleted)`,
                     isFilterable: false,
                     hideIcons: [ItemIcons.Project],
                 },
@@ -152,7 +152,7 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
                 props: {
                     id: component2Id,
                     listName: 'Todos',
-                    filter: `projectId == "${id}" and type == "TODO" and not completed and not deleted`,
+                    filter: `projectId == "${id}" and type == "TODO" and not (completed or deleted)`,
                     isFilterable: false,
                     hideIcons: [ItemIcons.Project],
                 },

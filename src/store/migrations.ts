@@ -409,7 +409,7 @@ export const migrations = {
                                 props: {
                                     id: 'bb1d3c3d-4d44-49c7-9350-a0ab49c1ec7a',
                                     filter:
-                                        'scheduledDate == null and not deleted and not completed and type == "TODO" and overdue(dueDate)',
+                                        'scheduledDate == null and not (deleted or completed) and type == "TODO" and overdue(dueDate)',
                                     hideIcons: [],
                                     listName: 'Overdue',
                                     isFilterable: true,
@@ -425,7 +425,7 @@ export const migrations = {
                                 props: {
                                     id: '5356660e-a3e1-4307-a29f-f7a052d83cae',
                                     filter:
-                                        'not deleted and not completed and scheduledDate == null and type == "TODO" and today(createdAt)',
+                                        'not (deleted or completed) and scheduledDate == null and type == "TODO" and today(createdAt)',
                                     hideIcons: [],
                                     listName: 'Created today',
                                     isFilterable: true,
@@ -441,7 +441,7 @@ export const migrations = {
                                 props: {
                                     id: 'cce51919-f98f-4fd2-be2d-2c21ccee4049',
                                     filter:
-                                        'not deleted and not completed and scheduledDate == null and type == "TODO" and not today(createdAt) and thisWeek(createdAt) and not thisMonth(createdAt)',
+                                        'not (deleted or completed) and scheduledDate == null and type == "TODO" and not today(createdAt) and thisWeek(createdAt) and not thisMonth(createdAt)',
                                     hideIcons: [],
                                     listName: 'Created this week',
                                     isFilterable: true,
@@ -457,7 +457,7 @@ export const migrations = {
                                 props: {
                                     id: '4e50ccc3-f70c-4df9-a808-a3c2cdb7e8b1',
                                     filter:
-                                        'not deleted and not completed and scheduledDate == null and type == "TODO" and not today(createdAt) and not thisWeek(createdAt) and thisMonth(createdAt)',
+                                        'not (deleted or completed) and scheduledDate == null and type == "TODO" and not today(createdAt) and not thisWeek(createdAt) and thisMonth(createdAt)',
                                     hideIcons: [],
                                     listName: 'Created this month',
                                     isFilterable: true,
@@ -637,7 +637,7 @@ export const migrations = {
                                 props: {
                                     id: '2e30abeb-5df5-49f0-90ad-5dad9a18afaa',
                                     filter:
-                                        'not deleted and not completed and daysFromToday(lastUpdatedAt) > 7 and daysFromToday(lastUpdatedAt) < 31',
+                                        'not (deleted or completed) and daysFromToday(lastUpdatedAt) > 7 and daysFromToday(lastUpdatedAt) < 31',
                                     hideIcons: [],
                                     listName: 'Last update more than a week ago',
                                     renderingStrategy: RenderingStrategy.All,
@@ -654,7 +654,7 @@ export const migrations = {
                                 props: {
                                     id: '2e30abeb-5df5-49f0-90ad-5dad9a18afaa',
                                     filter:
-                                        'not deleted and not completed and daysFromToday(i.lastUpdatedAt) > 31',
+                                        'not (deleted or completed) and daysFromToday(lastUpdatedAt) > 31',
                                     hideIcons: [],
                                     listName: 'Last update more than a month ago',
                                     renderingStrategy: RenderingStrategy.All,
@@ -705,7 +705,7 @@ export const migrations = {
                                 props: {
                                     id: 'cd464833-1b54-4a52-8474-9632be6e3d4f',
                                     filter:
-                                        'not deleted and not completed and daysFromToday(i.lastUpdatedAt) > 31',
+                                        'not (deleted or completed) and daysFromToday(lastUpdatedAt) > 31',
                                     hideIcons: [],
                                     listName: 'Last update more than a month ago',
                                     renderingStrategy: RenderingStrategy.All,
