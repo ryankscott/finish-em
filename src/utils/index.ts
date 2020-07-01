@@ -285,7 +285,7 @@ export const generateFiltrexOptions = (options: FiltrexOptions) => {
     return {
         extraFunctions: {
             getLabelId: (labelName: string) => {
-                const labels = options.labels
+                const labels = options.labels.labels
                 const label = Object.values(labels).find((l) => l.name == labelName)
                 return `${label.id}`
             },
