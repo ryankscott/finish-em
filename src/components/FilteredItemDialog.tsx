@@ -8,17 +8,27 @@ import {
     Setting,
     SettingLabel,
 } from './styled/FilteredItemDialog'
-import { themes } from '../theme'
+import { themes, selectStyles } from '../theme'
 import Button from './Button'
 import Switch from 'react-switch'
 import EditableText from '../components/EditableText'
 import { compileExpression } from 'filtrex'
-import { filtrexOptions } from '../utils'
 import {
     setFilteredItemListName,
     setFilteredItemListFilterable,
     setFilteredItemListFilter,
 } from '../actions'
+import Select from 'react-select'
+import { generateFiltrexOptions } from '../utils'
+import { ItemIcons } from './Item'
+
+const options: { value: string; label: string }[] = [
+    { value: ItemIcons.Project, label: 'Project' },
+    { value: ItemIcons.Due, label: 'Due' },
+    { value: ItemIcons.Scheduled, label: 'Scheduled' },
+    { value: ItemIcons.Repeat, label: 'Repeat' },
+    { value: ItemIcons.Subtask, label: 'Subtask' },
+]
 
 interface DispatchProps {
     setFilteredItemListName: (componentId: string, name: string) => void
@@ -35,6 +45,7 @@ interface OwnProps {
 
 interface StateProps {
     theme: string
+    labels: Labels
 }
 
 type FilteredItemDialogProps = OwnProps & DispatchProps & StateProps
@@ -115,8 +126,12 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                                     validate: true,
                                     rule: (input) => {
                                         try {
-                                            compileExpression(input, filtrexOptions)
+                                            compileExpression(
+                                                input,
+                                                generateFiltrexOptions({ labels: props.labels }),
+                                            )
                                         } catch (e) {
+                                            console.log(e)
                                             return false
                                         }
                                         return true
@@ -143,6 +158,21 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                                 height={14}
                             />
                         </Setting>
+                        <Setting>
+                            <SettingLabel>Hide Icons:</SettingLabel>
+                            <Select
+                                isMulti={true}
+                                onChange={(e) => {
+                                    console.log(e)
+                                }}
+                                options={options}
+                                styles={selectStyles({
+                                    fontSize: 'xxsmall',
+                                    theme: theme,
+                                })}
+                                escapeClearsValue={true}
+                            />
+                        </Setting>
                     </DialogContainer>
                 )}
             </div>
@@ -153,6 +183,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
 const mapStateToProps = (state): StateProps => {
     return {
         theme: state.ui.theme,
+        labels: state.ui.labels,
     }
 }
 

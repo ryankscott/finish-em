@@ -9,7 +9,7 @@ export const getRenderingStrategy = (state, props) => {
 
 export const getFilteredItems = (state, props): Item => {
     const items = state.items.items
-    const ff = compileExpression(props.filter, generateFiltrexOptions(state, props))
+    const ff = compileExpression(props.filter, generateFiltrexOptions({ labels: state.ui.labels }))
     return filterItems(items, ff, props.renderingStrategy)
 }
 

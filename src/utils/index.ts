@@ -1,5 +1,5 @@
 import chrono from 'chrono-node'
-import { ItemType, Item, RenderingStrategy } from '../interfaces'
+import { ItemType, Item, RenderingStrategy, Labels } from '../interfaces'
 import RRule from 'rrule'
 
 export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
@@ -277,11 +277,15 @@ export const capitaliseFirstLetter = (input: string): string => {
     return input.charAt(0).toUpperCase() + input.slice(1)
 }
 // Filtrex options
-export const generateFiltrexOptions = (state, props) => {
+export interface FiltrexOptions {
+    labels: Labels
+}
+
+export const generateFiltrexOptions = (options: FiltrexOptions) => {
     return {
         extraFunctions: {
             getLabelId: (labelName: string) => {
-                const labels = state.ui.labels.labels
+                const labels = options.labels
                 const label = Object.values(labels).find((l) => l.name == labelName)
                 return `${label.id}`
             },

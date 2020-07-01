@@ -10,7 +10,7 @@ export const DialogContainer = styled.div`
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
     border-radius: 5px;
-    min-width: 280px;
+    min-width: 320px;
     padding: 5px 5px;
     padding-bottom: 20px;
     z-index: 2;
