@@ -54,6 +54,7 @@
         "@typescript-eslint/parser": "^2.34.0",
         "autoprefixer": "^9.8.0",
         "babel-jest": "^25.5.1",
+        "babel-plugin-styled-components": "^1.10.7",
         "cypress": "^4.8.0",
         "electron": "7.3.0",
         "electron-builder": "^21.2.0",

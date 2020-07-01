@@ -1,5 +1,6 @@
 import React, { ReactElement } from 'react'
-import Item, { ItemIcons } from './Item'
+import Item from './Item'
+import { ItemIcons } from '../interfaces/item'
 import { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'

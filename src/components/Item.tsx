@@ -3,7 +3,7 @@ import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 import { RRule } from 'rrule'
 import { Uuid } from '@typed/uuid'
-import { ItemType, Projects, Item, Label } from '../interfaces'
+import { ItemType, Projects, Label } from '../interfaces'
 import {
     Body,
     Container,
@@ -43,15 +43,6 @@ import MoreDropdown from './MoreDropdown'
 import Tooltip from './Tooltip'
 import { getItemParentId } from '../selectors/item'
 import { ItemAttribute } from './ItemAttribute'
-//import { useHotkeys } from 'react-hotkeys-hook'
-
-export enum ItemIcons {
-    Due = 'due',
-    Scheduled = 'scheduled',
-    Repeat = 'repeat',
-    Project = 'project',
-    Subtask = 'subtask',
-}
 
 interface DispatchProps {
     updateItemDescription: (id: Uuid, text: string) => void

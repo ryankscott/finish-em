@@ -11,7 +11,7 @@ import {
     MainComponents,
 } from '../interfaces'
 import uuidv4 from 'uuid'
-import { ItemIcons } from '../components/Item'
+import { ItemIcons } from '../interfaces/item'
 // Remove flagged item and introduces label
 export const migratev7tov8Items = (its: Items): Items => {
     const iTemp = Object.entries(its.items).map(([id, value]) => {

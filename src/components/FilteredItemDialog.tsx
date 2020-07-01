@@ -20,7 +20,8 @@ import {
 } from '../actions'
 import Select from 'react-select'
 import { generateFiltrexOptions } from '../utils'
-import { ItemIcons } from './Item'
+import { ItemIcons } from '../interfaces/item'
+import { Labels } from '../interfaces'
 
 const options: { value: string; label: string }[] = [
     { value: ItemIcons.Project, label: 'Project' },

@@ -26,3 +26,10 @@ export type Items = {
     items: Item
     order: Uuid[]
 }
+export enum ItemIcons {
+    Due = 'due',
+    Scheduled = 'scheduled',
+    Repeat = 'repeat',
+    Project = 'project',
+    Subtask = 'subtask',
+}

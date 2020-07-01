@@ -29,7 +29,7 @@ import { getFilteredItems, getCompletedItems, getUncompletedItems } from '../sel
 import { components } from 'react-select'
 import ReorderableItemList from '../components/ReorderableItemList'
 import { convertItemToItemType } from '../utils'
-import { ItemIcons } from '../components/Item'
+import { ItemIcons } from '../interfaces/item'
 import { hideSubtasks, showSubtasks, deleteComponent } from '../actions'
 import { Uuid } from '@typed/uuid'
 import { Icons } from '../assets/icons'

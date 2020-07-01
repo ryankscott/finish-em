@@ -21,7 +21,7 @@ import {
     BodyContainer,
     StyledInput,
 } from './styled/CreateProjectDialog'
-import { ItemIcons } from './Item'
+import { ItemIcons } from '../interfaces/item'
 
 interface StateProps {
     theme: string

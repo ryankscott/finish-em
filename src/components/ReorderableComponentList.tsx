@@ -11,6 +11,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import uuidv4 from 'uuid'
 import { reorderComponent, addComponent } from '../actions'
 import { Uuid } from '@typed/uuid'
+import CSS from 'csstype'
 
 interface OwnProps {
     id: string

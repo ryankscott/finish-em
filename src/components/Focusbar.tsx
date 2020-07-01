@@ -10,7 +10,8 @@ import { removeItemTypeFromString, formatRelativeDate } from '../utils'
 import RRule from 'rrule'
 import { parseISO } from 'date-fns'
 import Button from './Button'
-import Item, { ItemIcons } from './Item'
+import Item from './Item'
+import { ItemIcons } from '../interfaces/item'
 import { hideFocusbar, setActiveItem, undoSetActiveItem } from '../actions/ui'
 import {
     updateItemDescription,
