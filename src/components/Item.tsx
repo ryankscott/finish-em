@@ -3,7 +3,7 @@ import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
 import { RRule } from 'rrule'
 import { Uuid } from '@typed/uuid'
-import { ItemType, Projects, Label } from '../interfaces'
+import { ItemType, Projects, Label, ItemIcons } from '../interfaces'
 import {
     Body,
     Container,
