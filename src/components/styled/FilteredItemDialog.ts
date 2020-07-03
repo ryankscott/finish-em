@@ -33,14 +33,24 @@ export const Setting = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    align-items: center;
-    padding: 2px 5px;
+    padding: 2px 10px;
     width: 100%;
     min-height: 30px;
     align-items: bottom;
 `
-export const SettingLabel = styled(Paragraph)`
+export const SettingLabel = styled.div`
+    display: flex;
+    align-self: center;
     color: ${(props) => props.theme.colours.textColour};
     font-size: ${(props) => props.theme.fontSizes.xsmall};
-    width: 100px;
+    width: 120px;
+`
+export const SettingValue = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 2px 5px;
+    width: 100%;
+    min-height: 30px;
+    align-items: center;
 `

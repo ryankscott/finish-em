@@ -7,6 +7,7 @@ import {
     DialogName,
     Setting,
     SettingLabel,
+    SettingValue,
 } from './styled/FilteredItemDialog'
 import { themes, selectStyles } from '../theme'
 import Button from './Button'
@@ -17,11 +18,13 @@ import {
     setFilteredItemListName,
     setFilteredItemListFilterable,
     setFilteredItemListFilter,
+    setFilteredItemListHiddenIcons,
+    setFilteredItemListShowAllTasks,
 } from '../actions'
 import Select from 'react-select'
 import { generateFiltrexOptions } from '../utils'
 import { ItemIcons } from '../interfaces/item'
-import { Labels } from '../interfaces'
+import { Labels, IconType } from '../interfaces'
 
 const options: { value: string; label: string }[] = [
     { value: ItemIcons.Project, label: 'Project' },
@@ -35,6 +38,8 @@ interface DispatchProps {
     setFilteredItemListName: (componentId: string, name: string) => void
     setFilteredItemListFilter: (componentId: string, filter: string) => void
     setFilteredItemListFilterable: (componentId: string, filterable: boolean) => void
+    setFilteredItemListHiddenIcons: (componentId: string, hiddenIcons: IconType[]) => void
+    setFilteredItemListShowAllTasks: (componentId: string, showAllTasks: boolean) => void
 }
 
 interface OwnProps {
@@ -42,6 +47,7 @@ interface OwnProps {
     filter: string
     componentId: string
     isFilterable: boolean
+    showSubtasks: boolean
 }
 
 interface StateProps {
@@ -99,80 +105,117 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
 
                         <Setting>
                             <SettingLabel>Name:</SettingLabel>
-                            <EditableText
-                                innerRef={nameRef}
-                                key={'ed-name'}
-                                input={props.listName}
-                                fontSize={'xsmall'}
-                                shouldSubmitOnBlur={true}
-                                onEscape={() => {}}
-                                validation={false}
-                                singleline={true}
-                                shouldClearOnSubmit={false}
-                                onUpdate={(input) => {
-                                    props.setFilteredItemListName(props.componentId, input)
-                                }}
-                            />
+                            <SettingValue>
+                                <EditableText
+                                    innerRef={nameRef}
+                                    key={'ed-name'}
+                                    input={props.listName}
+                                    fontSize={'xsmall'}
+                                    shouldSubmitOnBlur={true}
+                                    onEscape={() => {}}
+                                    validation={false}
+                                    singleline={true}
+                                    shouldClearOnSubmit={false}
+                                    onUpdate={(input) => {
+                                        props.setFilteredItemListName(props.componentId, input)
+                                    }}
+                                />
+                            </SettingValue>
                         </Setting>
                         <Setting>
                             <SettingLabel>Filter:</SettingLabel>
-                            <EditableText
-                                innerRef={filterRef}
-                                key={'ed-name'}
-                                input={props.filter}
-                                fontSize={'xsmall'}
-                                shouldSubmitOnBlur={true}
-                                onEscape={() => {}}
-                                validation={{
-                                    validate: true,
-                                    rule: (input) => {
-                                        try {
-                                            compileExpression(
-                                                input,
-                                                generateFiltrexOptions({ labels: props.labels }),
-                                            )
-                                        } catch (e) {
-                                            console.log(e)
-                                            return false
-                                        }
-                                        return true
-                                    },
-                                }}
-                                singleline={false}
-                                shouldClearOnSubmit={false}
-                                onUpdate={(input) => {
-                                    props.setFilteredItemListFilter(props.componentId, input)
-                                }}
-                            />
+                            <SettingValue>
+                                <EditableText
+                                    innerRef={filterRef}
+                                    key={'ed-name'}
+                                    input={props.filter}
+                                    fontSize={'xsmall'}
+                                    shouldSubmitOnBlur={true}
+                                    onEscape={() => {}}
+                                    validation={{
+                                        validate: true,
+                                        rule: (input) => {
+                                            try {
+                                                compileExpression(
+                                                    input,
+                                                    generateFiltrexOptions({
+                                                        labels: props.labels,
+                                                    }),
+                                                )
+                                            } catch (e) {
+                                                console.log(e)
+                                                return false
+                                            }
+                                            return true
+                                        },
+                                    }}
+                                    singleline={true}
+                                    shouldClearOnSubmit={false}
+                                    onUpdate={(input) => {
+                                        props.setFilteredItemListFilter(props.componentId, input)
+                                    }}
+                                />
+                            </SettingValue>
                         </Setting>
                         <Setting>
                             <SettingLabel>Filterable:</SettingLabel>
-                            <Switch
-                                checked={props.isFilterable}
-                                onChange={(input) =>
-                                    props.setFilteredItemListFilterable(props.componentId, input)
-                                }
-                                onColor={theme.colours.primaryColour}
-                                checkedIcon={false}
-                                uncheckedIcon={false}
-                                width={24}
-                                height={14}
-                            />
+                            <SettingValue style={{ paddingLeft: '20px' }}>
+                                <Switch
+                                    checked={props.isFilterable}
+                                    onChange={(input) =>
+                                        props.setFilteredItemListFilterable(
+                                            props.componentId,
+                                            input,
+                                        )
+                                    }
+                                    onColor={theme.colours.primaryColour}
+                                    checkedIcon={false}
+                                    uncheckedIcon={false}
+                                    width={24}
+                                    height={14}
+                                />
+                            </SettingValue>
+                        </Setting>
+                        <Setting>
+                            <SettingLabel>Show subtasks:</SettingLabel>
+                            <SettingValue style={{ paddingLeft: '20px' }}>
+                                <Switch
+                                    checked={props.showSubtasks}
+                                    onChange={(input) => {
+                                        props.setFilteredItemListShowAllTasks(
+                                            props.componentId,
+                                            input,
+                                        )
+                                    }}
+                                    onColor={theme.colours.primaryColour}
+                                    checkedIcon={false}
+                                    uncheckedIcon={false}
+                                    width={24}
+                                    height={14}
+                                />
+                            </SettingValue>
                         </Setting>
                         <Setting>
                             <SettingLabel>Hide Icons:</SettingLabel>
-                            <Select
-                                isMulti={true}
-                                onChange={(e) => {
-                                    console.log(e)
-                                }}
-                                options={options}
-                                styles={selectStyles({
-                                    fontSize: 'xxsmall',
-                                    theme: theme,
-                                })}
-                                escapeClearsValue={true}
-                            />
+                            <SettingValue>
+                                <Select
+                                    isMulti={true}
+                                    onChange={(values) => {
+                                        const hiddenIcons = values.map((v) => v.value)
+                                        props.setFilteredItemListHiddenIcons(
+                                            props.componentId,
+                                            hiddenIcons,
+                                        )
+                                    }}
+                                    options={options}
+                                    styles={selectStyles({
+                                        fontSize: 'xsmall',
+                                        theme: theme,
+                                        width: '200px',
+                                    })}
+                                    escapeClearsValue={true}
+                                />
+                            </SettingValue>
                         </Setting>
                     </DialogContainer>
                 )}
@@ -197,6 +240,12 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     setFilteredItemListFilterable: (componentId: string, filterable: boolean) => {
         dispatch(setFilteredItemListFilterable(componentId, filterable))
+    },
+    setFilteredItemListHiddenIcons: (componentId: string, hiddenIcons: IconType[]) => {
+        dispatch(setFilteredItemListHiddenIcons(componentId, hiddenIcons))
+    },
+    setFilteredItemListShowAllTasks: (componentId: string, showAllTasks: boolean) => {
+        dispatch(setFilteredItemListShowAllTasks(componentId, showAllTasks))
     },
 })
 

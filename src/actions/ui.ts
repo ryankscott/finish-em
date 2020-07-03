@@ -28,6 +28,8 @@ export const TOGGLE_SUBTASKS = 'TOGGLE_SUBTASKS'
 export const SET_FILTEREDITEMLIST_NAME = 'SET_FILTEREDITEMLIST_NAME'
 export const SET_FILTEREDITEMLIST_FILTER = 'SET_FILTEREDITEMLIST_FILTER'
 export const SET_FILTEREDITEMLIST_FILTERABLE = 'SET_FILTEREDITEMLIST_FILTERABLE'
+export const SET_FILTEREDITEMLIST_HIDDEN_ICONS = 'SET_FILTEREDITEMLIST_HIDDEN_ICONS'
+export const SET_FILTEREDITEMLIST_SHOW_ALL_TASKS = 'SET_FILTEREDITEMLIST_SHOW_ALL_TASKS'
 export const ADD_COMPONENT = 'ADD_COMPONENT'
 export const DELETE_COMPONENT = 'DELETE_COMPONENT'
 export const REORDER_COMPONENT = 'REORDER_COMPONENT'
@@ -319,6 +321,40 @@ export function setFilteredItemListFilterable(
     }
 }
 
+export interface SetFilteredItemListHiddenIconsAction {
+    type: typeof SET_FILTEREDITEMLIST_HIDDEN_ICONS
+    componentId: Uuid
+    hiddenIcons: IconType[]
+}
+
+export function setFilteredItemListHiddenIcons(
+    componentId: Uuid,
+    hiddenIcons: IconType[],
+): SetFilteredItemListHiddenIconsAction {
+    return {
+        type: SET_FILTEREDITEMLIST_HIDDEN_ICONS,
+        componentId: componentId,
+        hiddenIcons: hiddenIcons,
+    }
+}
+
+export interface SetFilteredItemListShowAllTasksAction {
+    type: typeof SET_FILTEREDITEMLIST_SHOW_ALL_TASKS
+    componentId: Uuid
+    showAllTasks: boolean
+}
+
+export function setFilteredItemListShowAllTasks(
+    componentId: Uuid,
+    showAllTasks: boolean,
+): SetFilteredItemListShowAllTasksAction {
+    return {
+        type: SET_FILTEREDITEMLIST_SHOW_ALL_TASKS,
+        componentId: componentId,
+        showAllTasks: showAllTasks,
+    }
+}
+
 export interface AddComponentAction {
     type: typeof ADD_COMPONENT
     id: string
@@ -439,6 +475,8 @@ export type UIActions =
     | SetFilteredItemListNameAction
     | SetFilteredItemListFilterAction
     | SetFilteredItemListFilterableAction
+    | SetFilteredItemListHiddenIconsAction
+    | SetFilteredItemListShowAllTasksAction
     | AddComponentAction
     | DeleteComponentAction
     | ReorderComponentAction

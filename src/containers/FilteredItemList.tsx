@@ -204,6 +204,11 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     listName={props.listName}
                                     filter={props.filter}
                                     isFilterable={props.isFilterable}
+                                    showSubtasks={
+                                        props.renderingStrategy == RenderingStrategy.All
+                                            ? true
+                                            : false
+                                    }
                                 />
                             )}
                         </EditButtonContainer>

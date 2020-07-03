@@ -356,12 +356,52 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
                 backgroundColor: props.theme.button.default.hoverBackgroundColour,
             },
         }),
-        indicatorsContainer: () => ({
+        indicatorsContainer: (style) => ({
+            ...style,
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            paddingRight: '2px',
+            padding: '0px',
         }),
+        multiValue: (styles) => ({
+            ...styles,
+            margin: '0px 2px',
+        }),
+        multiValueLabel: (styles) => ({
+            ...styles,
+            border: 'none',
+            backgroundColor: darken(0.1, props.theme.colours.focusBackgroundColour),
+        }),
+        multiValueRemove: (styles) => ({
+            ...styles,
+            color: props.theme.colours.textColour,
+            backgroundColor: darken(0.1, props.theme.colours.focusBackgroundColour),
+            border: 'none',
+            '&:hover': {
+                color: props.theme.colours.textColour,
+                backgroundColor: darken(0.15, props.theme.colours.focusBackgroundColour),
+                cursor: 'pointer',
+            },
+            '> svg': {
+                height: '12px',
+                width: '12px',
+            },
+        }),
+        clearIndicator: (styles) => ({
+            ...styles,
+            color: props.theme.colours.textColour,
+            backgroundColor: 'inherit',
+            '&:hover': {
+                color: props.theme.colours.textColour,
+                backgroundColor: 'inherit',
+                cursor: 'pointer',
+            },
+            '> svg': {
+                height: '16px',
+                width: '16px',
+            },
+        }),
+
         indicatorSeparator: () => ({
             display: 'none',
         }),

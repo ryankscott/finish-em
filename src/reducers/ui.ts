@@ -612,6 +612,28 @@ export const uiReducer = produce(
                 }
                 break
 
+            case ui.SET_FILTEREDITEMLIST_HIDDEN_ICONS:
+                if (
+                    (state.components.components[action.componentId].component.name =
+                        'FilteredItemList')
+                ) {
+                    state.components.components[action.componentId].component.props.hideIcons =
+                        action.hiddenIcons
+                }
+                break
+
+            case ui.SET_FILTEREDITEMLIST_SHOW_ALL_TASKS:
+                if (
+                    (state.components.components[action.componentId].component.name =
+                        'FilteredItemList')
+                ) {
+                    state.components.components[
+                        action.componentId
+                    ].component.props.renderingStrategy = action.showAllTasks
+                        ? RenderingStrategy.All
+                        : RenderingStrategy.Default
+                }
+                break
             // TODO
             case ui.ADD_COMPONENT:
                 state.components.components[action.id] = {
