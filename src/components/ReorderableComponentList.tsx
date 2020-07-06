@@ -47,7 +47,8 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
         height: 'auto',
         userSelect: 'none',
         margin: '0px',
-        padding: '0px',
+        padding: '5px',
+        borderRadius: '5px',
         // change background colour if dragging
         background: isDragging
             ? theme.colours.focusDialogBackgroundColour
@@ -61,7 +62,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                     display: 'flex',
                     justifyContent: 'flex-end',
                     width: '100%',
-                    margin: '5px 0px',
+                    margin: '20px 0px 5px 0px',
                 }}
             >
                 <Button
@@ -96,7 +97,12 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                     switch (comp.component.name) {
                                         case 'FilteredItemList':
                                             return (
-                                                <Draggable key={c} draggableId={c} index={index}>
+                                                <Draggable
+                                                    key={c}
+                                                    draggableId={c}
+                                                    index={index}
+                                                    isDragDisabled={!showEdit}
+                                                >
                                                     {(provided, snapshot) => (
                                                         <div
                                                             ref={provided.innerRef}
