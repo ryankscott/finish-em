@@ -6,20 +6,16 @@ import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
 import {
     Container,
     HeaderBar,
-    ListName,
-    FilterBar,
     CompletedContainer,
     SortContainer,
     SortSelect,
-    DeleteContainer,
     ItemListContainer,
-    ExpandContainer,
-    CollapseContainer,
-    HideButtonContainer,
     ListHeader,
-    EditButtonContainer,
-    ListCount,
-    DeleteButtonContainer,
+    EditComponentContainer,
+    DeleteComponentContainer,
+    ListItemCount,
+    HideButtonContainer,
+    FilterBar,
 } from '../components/styled/FilteredItemList'
 import { connect } from 'react-redux'
 import Button from '../components/Button'
@@ -112,7 +108,7 @@ const determineVisibilityRules = (
     const showDeleteButton = completedItems.length > 0 && !hideItemList
     // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
     const showSortButton =
-        Object.keys(sortedItems).length > 1 && !hideItemList && !dragAndDropEnabled
+        Object.keys(sortedItems).length >= 1 && !hideItemList && !dragAndDropEnabled
     return {
         showCompletedToggle,
         showFilterBar,
@@ -182,152 +178,159 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         <ThemeProvider theme={theme}>
             <Container>
                 <HeaderBar>
-                    <ListName>
-                        <HideButtonContainer>
-                            <Button
-                                key={`btn-${props.id}`}
-                                type="default"
-                                icon={'expand'}
-                                rotate={hideItemList == true ? 0 : 1}
-                                onClick={() => setHideItemList(!hideItemList)}
+                    <HideButtonContainer>
+                        <Button
+                            key={`btn-${props.id}`}
+                            type="default"
+                            icon="expand"
+                            rotate={hideItemList == true ? 0 : 1}
+                            onClick={() => {
+                                setHideItemList(!hideItemList)
+                            }}
+                        />
+                    </HideButtonContainer>
+                    <ListHeader>
+                        {props.listName}
+                        <ListItemCount>
+                            {sortedItemsLength == 1 ? '1 item' : sortedItemsLength + ' items'}
+                        </ListItemCount>
+                    </ListHeader>
+                    <FilterBar>
+                        {!props.readOnly && (
+                            <FilteredItemDialog
+                                key={`dlg-${props.id}`}
+                                componentId={props.id}
+                                listName={props.listName}
+                                filter={props.filter}
+                                isFilterable={props.isFilterable}
+                                showSubtasks={
+                                    props.renderingStrategy == RenderingStrategy.All ? true : false
+                                }
                             />
-                        </HideButtonContainer>
-                        <ListHeader>{props.listName}</ListHeader>
-                        <ListCount>
-                            {sortedItemsLength + (sortedItemsLength == 1 ? ' item' : ' items')}
-                        </ListCount>
-                        <EditButtonContainer>
-                            {!props.readOnly && (
-                                <FilteredItemDialog
-                                    key={`dlg-${props.id}`}
-                                    componentId={props.id}
-                                    listName={props.listName}
-                                    filter={props.filter}
-                                    isFilterable={props.isFilterable}
-                                    showSubtasks={
-                                        props.renderingStrategy == RenderingStrategy.All
-                                            ? true
-                                            : false
-                                    }
-                                />
-                            )}
-                        </EditButtonContainer>
-                        <DeleteButtonContainer>
-                            {!props.readOnly && (
-                                <Button
-                                    height="22px"
-                                    width="22px"
-                                    iconSize="14px"
-                                    type="default"
-                                    spacing="compact"
-                                    icon="trash"
-                                    onClick={() => props.deleteComponent(props.id)}
-                                />
-                            )}
-                        </DeleteButtonContainer>
-                    </ListName>
-                    {visibility.showFilterBar && (
-                        <FilterBar>
-                            <CompletedContainer visible={visibility.showCompletedToggle}>
-                                <Button
-                                    dataFor="complete-button"
-                                    iconSize="18px"
-                                    type="default"
-                                    spacing="compact"
-                                    icon={hideCompleted ? 'show' : 'hide'}
-                                    onClick={() => {
-                                        setHideCompleted(!hideCompleted)
-                                    }}
-                                ></Button>
-                                <Tooltip
-                                    id="complete-button"
-                                    text={
-                                        hideCompleted
-                                            ? 'Show completed items'
-                                            : 'Hide completed items'
-                                    }
-                                />
-                            </CompletedContainer>
-                            {visibility.showDeleteButton && (
-                                <DeleteContainer>
-                                    <Button
-                                        dataFor="trash-button"
-                                        spacing="compact"
-                                        iconSize="18px"
-                                        type="default"
-                                        icon="trashSweep"
-                                        onClick={() => {
-                                            props.deleteCompletedItems(
-                                                convertItemToItemType(props.completedItems),
-                                            )
-                                        }}
-                                    ></Button>
-                                    <Tooltip id="trash-button" text={'Delete completed items'} />
-                                </DeleteContainer>
-                            )}
-                            <ExpandContainer>
+                        )}
+                        {!props.readOnly && (
+                            <Button
+                                height="22px"
+                                width="22px"
+                                iconSize="14px"
+                                type="default"
+                                spacing="compact"
+                                icon="trash"
+                                onClick={() => props.deleteComponent(props.id)}
+                            />
+                        )}
+                        {visibility.showFilterBar && (
+                            <>
+                                {visibility.showCompletedToggle && (
+                                    <>
+                                        <Button
+                                            dataFor="complete-button"
+                                            height="22px"
+                                            width="22px"
+                                            iconSize="14px"
+                                            type="default"
+                                            spacing="compact"
+                                            icon={hideCompleted ? 'show' : 'hide'}
+                                            onClick={() => {
+                                                setHideCompleted(!hideCompleted)
+                                            }}
+                                        ></Button>
+                                        <Tooltip
+                                            id="complete-button"
+                                            text={
+                                                hideCompleted
+                                                    ? 'Show completed items'
+                                                    : 'Hide completed items'
+                                            }
+                                        />
+                                    </>
+                                )}
+                                {visibility.showDeleteButton && (
+                                    <>
+                                        <Button
+                                            dataFor="trash-button"
+                                            spacing="compact"
+                                            height="22px"
+                                            width="22px"
+                                            iconSize="14px"
+                                            type="default"
+                                            icon="trashSweep"
+                                            onClick={() => {
+                                                props.deleteCompletedItems(
+                                                    convertItemToItemType(props.completedItems),
+                                                )
+                                            }}
+                                        ></Button>
+                                        <Tooltip
+                                            id="trash-button"
+                                            text={'Delete completed items'}
+                                        />
+                                    </>
+                                )}
                                 <Button
                                     dataFor={'expand-all-button'}
                                     type="default"
                                     spacing="compact"
                                     icon="expandAll"
-                                    iconSize={'18px'}
+                                    height="22px"
+                                    width="22px"
+                                    iconSize="14px"
                                     onClick={() => props.showAllSubtasks(sortedItems, props.id)}
                                 />
                                 <Tooltip id="expand-all-button" text={'Expand all subtaks'} />
-                            </ExpandContainer>
-                            <CollapseContainer>
                                 <Button
                                     dataFor={'collapse-all-button'}
                                     type="default"
                                     spacing="compact"
                                     icon="collapseAll"
-                                    iconSize={'18px'}
+                                    height="22px"
+                                    width="22px"
+                                    iconSize="14px"
                                     onClick={() => props.hideAllSubtasks(sortedItems, props.id)}
                                 />
                                 <Tooltip id="collapse-all-button" text={'Collapse all subtaks'} />
-                            </CollapseContainer>
-                            {visibility.showSortButton && (
-                                <SortContainer>
-                                    <SortSelect
-                                        options={sortOptions}
-                                        defaultValue={sortOptions[0]}
-                                        autoFocus={false}
-                                        placeholder="Sort by:"
-                                        components={{ DropdownIndicator }}
-                                        defaultIsOpen={true}
-                                        styles={selectStyles({
-                                            fontSize: 'xxsmall',
-                                            theme: themes[props.theme],
-                                            showDropdownIndicator: true,
-                                            minWidth: '100px',
-                                        })}
-                                        onChange={(e) => {
-                                            setSortCriteria(e.value)
-                                        }}
-                                    />
-                                    <Button
-                                        dataFor={'sort-direction-button'}
-                                        type="default"
-                                        spacing="compact"
-                                        translateZ={
-                                            sortDirection == SortDirectionEnum.Ascending ? 1 : 0
-                                        }
-                                        icon={'sort'}
-                                        onClick={() => {
-                                            sortDirection == SortDirectionEnum.Ascending
-                                                ? setSortDirection(SortDirectionEnum.Descending)
-                                                : setSortDirection(SortDirectionEnum.Ascending)
-                                        }}
-                                    />
-                                    <Tooltip
-                                        id="sort-direction-button"
-                                        text={'Toggle sort direction'}
-                                    />
-                                </SortContainer>
-                            )}
-                        </FilterBar>
-                    )}
+                                {visibility.showSortButton && (
+                                    <SortContainer>
+                                        <SortSelect
+                                            options={sortOptions}
+                                            defaultValue={sortOptions[0]}
+                                            autoFocus={false}
+                                            placeholder="Sort by:"
+                                            components={{ DropdownIndicator }}
+                                            defaultIsOpen={true}
+                                            styles={selectStyles({
+                                                fontSize: 'xxsmall',
+                                                theme: themes[props.theme],
+                                                showDropdownIndicator: true,
+                                                minWidth: '100px',
+                                            })}
+                                            onChange={(e) => {
+                                                setSortCriteria(e.value)
+                                            }}
+                                        />
+                                        <Button
+                                            dataFor={'sort-direction-button'}
+                                            type="default"
+                                            spacing="compact"
+                                            translateZ={
+                                                sortDirection == SortDirectionEnum.Ascending ? 1 : 0
+                                            }
+                                            icon={'sort'}
+                                            onClick={() => {
+                                                sortDirection == SortDirectionEnum.Ascending
+                                                    ? setSortDirection(SortDirectionEnum.Descending)
+                                                    : setSortDirection(SortDirectionEnum.Ascending)
+                                            }}
+                                        />
+                                        <Tooltip
+                                            id="sort-direction-button"
+                                            text={'Toggle sort direction'}
+                                        />
+                                    </SortContainer>
+                                )}
+                            </>
+                        )}
+                    </FilterBar>
                 </HeaderBar>
                 {!hideItemList && (
                     <ItemListContainer>

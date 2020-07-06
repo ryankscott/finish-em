@@ -1,6 +1,5 @@
 /* eslint-disable no-nested-ternary */
 import styled from 'styled-components'
-import { darken } from 'polished'
 
 interface StyledProps {
     width: string
@@ -27,7 +26,7 @@ export const StyledButton = styled.button<StyledProps>`
             ? props.theme.colours.disabledButtonColour
             : props.theme.button[props.buttonType].colour};
     padding: ${(props) =>
-        props.iconOnly ? '2px' : props.spacing === 'compact' ? '5px 8px' : '8px 10px'};
+        props.iconOnly ? '4px' : props.spacing === 'compact' ? '5px 8px' : '8px 10px'};
     width: ${(props) => (props.width ? props.width : 'auto')};
     height: ${(props) => (props.height ? props.height : 'auto')};
     margin: 2px;
@@ -36,6 +35,10 @@ export const StyledButton = styled.button<StyledProps>`
     border: none;
     border-color: ${(props) => props.theme.borderColour};
     text-align: center;
+    box-shadow: ${(props) =>
+        props.buttonType == 'primary' && !props.iconOnly
+            ? '0px 1px 4px rgba(0, 0, 0, 0.1)'
+            : '0px'};
     &:hover {
         background-color: ${(props) =>
             props.disabled

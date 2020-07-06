@@ -44,6 +44,8 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
     font-size: ${(props) => props.theme.fontSizes.small};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};
+    border-radius: 5px;
+    margin: 1px 0px;
     text-decoration: none;
     padding: 8px 15px;
     outline: none;

@@ -83,6 +83,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                         props.components.order[e.destination.index],
                     )
                 }}
+                style={{ width: '100%' }}
             >
                 <Droppable droppableId={uuidv4()} type="COMPONENT">
                     {(provided, snapshot) => (

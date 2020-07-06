@@ -1,38 +1,42 @@
 import Select from 'react-select'
 import styled from 'styled-components'
-import { Header1, Paragraph } from '../Typography'
+import { Paragraph } from '../Typography'
+import { lighten } from 'polished'
 
 export const HeaderBar = styled.div`
+    display: grid;
+    align-items: center;
+    width: 100%;
+    padding: 5px;
+    border-radius: 5px;
+    grid-template-rows: 40px;
+    grid-template-columns: 30px 160px auto;
+    grid-template-areas: 'hide header filterBar';
+`
+
+export const FilterBar = styled.div`
+    position: relative;
+    grid-area: filterBar;
     display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
+    flex-direction: row;
+    justify-content: flex-end;
+`
+
+export const HideButtonContainer = styled.div`
+    grid-area: hide;
 `
 
 export const ItemListContainer = styled.div`
     width: 100%;
     display: flex;
     transition: 0.2s ease-in-out;
-`
-
-export const FilterBar = styled.div`
-    display: grid;
-    align-content: flex-end;
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-areas: 'delete hide hide . . . . . . . . . . . . sort sort sort sort sort collapse expand';
-    width: 100%;
-    height: 40px;
-    transition: 0.2s ease-in-out;
-`
-export const SortIcon = styled.div`
-    padding-right: 35px;
+    padding: 0px 15px;
 `
 
 export const SortContainer = styled.div`
     display: flex;
     justify-content: flex-end;
-    grid-area: sort;
     position: relative;
-    width: 100%;
     transition: 0.2s ease-in-out;
 `
 
@@ -40,88 +44,30 @@ export const SortSelect = styled(Select)`
     width: 125px;
     caret-color: transparent;
     padding: 0px 2px;
-    position: absolute;
     display: flex;
     flex-direction: column;
     top: 1px;
     right: 30px;
 `
 
-export const DeleteContainer = styled.div`
-    grid-area: delete;
-    height: 100%;
+export const ListHeader = styled.div`
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-content: flex-end;
-    align-self: flex-end;
-    align-items: flex-end;
-`
-
-// NOTE: This is here due to the fact that the sort select is absolutely positions
-// If I remove this element from the DOM it position goes whack
-interface CompletedContainerProps {
-    visible: boolean
-}
-export const CompletedContainer = styled.div<CompletedContainerProps>`
-    grid-area: hide;
-    display: flex;
-    height: 100%;
-    opacity: ${(props) => (props.visible ? 1 : 0)};
     flex-direction: row;
-    justify-content: flex-start;
-    margin: 0px 2px;
-    align-items: flex-end;
-`
-
-export const CollapseContainer = styled.div`
-    grid-area: collapse;
-`
-
-export const ExpandContainer = styled.div`
-    grid-area: expand;
-`
-
-export const ListName = styled.div`
-    display: grid;
-    grid-template-rows: auto;
-    grid-template-columns: 30px 120px 30px 30px repeat(6, 1fr);
-    grid-template-areas:
-        'hide header edit delete . . . . . .'
-        'hide count  . . . . . . . .';
-    width: 100%;
-`
-export const EditButtonContainer = styled.div`
-    position: relative;
-    grid-area: edit !important;
-    display: flex;
-    justify-content: flex-end;
-    align-items: flex-start;
-`
-export const DeleteButtonContainer = styled.div`
-    position: relative;
-    grid-area: delete;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-`
-
-export const HideButtonContainer = styled.div`
-    grid-area: hide !important;
-`
-export const ListHeader = styled(Header1)`
+    font-size: ${(props) => props.theme.fontSizes.regular};
     grid-area: header;
     padding: 2px 0px;
     margin: 0px;
+    align-self: center;
 `
-export const ListCount = styled(Paragraph)`
-    grid-area: count;
-    padding: 2px 0px;
-    margin: 0px;
+export const ListItemCount = styled(Paragraph)`
+    padding: 0px 5px;
+    color: ${(props) => lighten(0.2, props.theme.colours.textColour)};
 `
 
 export const Container = styled.div`
-    position: relative;
     margin: 10px 0px;
+    padding: 10px 0px;
     width: 100%;
+    border-radius: 5px;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
 `

@@ -16,6 +16,7 @@ export const DialogContainer = styled.div`
     z-index: 2;
     left: 0px;
     top: 23px;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
 `
 export const DialogHeader = styled.div`
     display: flex;

@@ -25,6 +25,7 @@ export const Container = styled.div<ContainerProps>`
     padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
     align-items: center;
     cursor: pointer;
+    border-radius: 5px;
     color: ${(props) => props.theme.colours.textColour};
     background-color: ${(props) =>
         props.labelColour != null

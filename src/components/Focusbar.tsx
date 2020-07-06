@@ -133,8 +133,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     <Button
                         type={'default'}
                         spacing="compact"
-                        height="24px"
-                        width="24px"
+                        height="26px"
+                        width="26px"
                         onClick={() => {
                             if (i.type == 'TODO') {
                                 i.completed ? props.uncompleteItem(i.id) : props.completeItem(i.id)
@@ -167,6 +167,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                 dataFor="restore-button"
                                 type={'default'}
                                 icon="restore"
+                                height="26px"
+                                width="26px"
                                 spacing="compact"
                                 onClick={() => {
                                     props.undeleteItem(i.id)
@@ -181,6 +183,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                 type={'default'}
                                 icon="trash"
                                 spacing="compact"
+                                height="26px"
+                                width="26px"
                                 onClick={() => {
                                     props.deleteItem(i.id)
                                 }}
@@ -302,7 +306,11 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         <AttributeKey>
                             <Paragraph>Deleted date: </Paragraph>
                         </AttributeKey>
-                        <AttributeValue>{formatRelativeDate(parseISO(i.deletedAt))}</AttributeValue>
+                        <AttributeValue>
+                            <div style={{ margin: '2px', padding: '5px 8px' }}>
+                                {formatRelativeDate(parseISO(i.deletedAt))}
+                            </div>
+                        </AttributeValue>
                     </AttributeContainer>
                 )}
                 {i.completed && (
@@ -311,7 +319,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             <Paragraph>Completed date: </Paragraph>
                         </AttributeKey>
                         <AttributeValue>
-                            {formatRelativeDate(parseISO(i.completedAt))}
+                            <div style={{ margin: '2px', padding: '5px 8px' }}>
+                                {formatRelativeDate(parseISO(i.completedAt))}
+                            </div>
                         </AttributeValue>
                     </AttributeContainer>
                 )}

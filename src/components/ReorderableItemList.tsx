@@ -224,6 +224,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                     onDragEnd={(e) => {
                         props.reorderItem(e.draggableId, props.items.order[e.destination.index])
                     }}
+                    style={{ width: '100%' }}
                 >
                     <Droppable droppableId={uuidv4()} type="ITEM">
                         {(provided, snapshot) => (

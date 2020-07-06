@@ -361,7 +361,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            padding: '0px',
+            padding: '0px 2px',
         }),
         multiValue: (styles) => ({
             ...styles,
