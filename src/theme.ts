@@ -160,8 +160,8 @@ export const themes: { [key: string]: ThemeType } = {
             focusDialogBackgroundColour: darken(0.05, '#F5F5F5'),
             altDialogBackgroundColour: '#404040',
             focusAltDialogBackgroundColour: lighten(0.05, '#404040'),
-            focusBackgroundColour: darken(0.05, '#FEFEFE'), // TODO: How to get it to refer to backgroundColour
-            focusBorderColour: lighten(0.05, '#e0e0e0'), // TODO: How to get it to refer to backgroundColour
+            focusBackgroundColour: darken(0.08, '#FEFEFE'), // TODO: How to get it to refer to backgroundColour
+            focusBorderColour: lighten(0.08, '#e0e0e0'), // TODO: How to get it to refer to backgroundColour
             okColour: '#59cd90',
             neutralColour: '#45b9ef',
             errorColour: '#fe5e41',
