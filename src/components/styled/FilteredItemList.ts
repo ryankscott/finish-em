@@ -10,7 +10,7 @@ export const HeaderBar = styled.div`
     padding: 5px;
     border-radius: 5px;
     grid-template-rows: 40px;
-    grid-template-columns: 30px 160px auto;
+    grid-template-columns: 30px 200px auto;
     grid-template-areas: 'hide header filterBar';
 `
 
