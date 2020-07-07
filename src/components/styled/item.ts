@@ -18,10 +18,9 @@ export const Container = styled.div<ContainerProps>`
     grid-template-columns: 5px 30px 30px repeat(20, 1fr);
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
-        'LABEL EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
-        'LABEL . PARENT PARENT PARENT . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
-    border: ${(props) => (props.hidden ? '0px' : '1px solid')};
-    border-color: ${(props) => props.theme.colours.borderColour};
+        '. EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
+        '. . PARENT PARENT PARENT . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
+    border: 0px;
     padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
     align-items: center;
     cursor: pointer;
@@ -133,19 +132,15 @@ export const MoreContainer = styled.div<MoreContainerProps>`
     justify-content: flex-end;
 `
 
-interface LabelContainerProps {
-    stale: boolean
-    labelColour: CSS.Color
+interface HorizontalRuleProps {
+    visible: boolean
 }
-
-export const LabelContainer = styled.div<LabelContainerProps>`
-    grid-area: LABEL;
-    background: ${(props) =>
-        props.labelColour
-            ? props.labelColour
-            : props.stale
-            ? `repeating-linear-gradient(-45deg, ${props.theme.colours.backgroundColour}, ${props.theme.colours.backgroundColour} 0px, ${props.theme.colours.borderColour} 3px, ${props.theme.colours.borderColour} 6px)`
-            : props.theme.colours.borderColour};
-    height: calc(100% + 10px);
-    width: 100%;
+export const HorizontalRule = styled.hr<HorizontalRuleProps>`
+    margin: auto;
+    padding: 0px;
+    display: ${(props) => (props.visible ? 'inherit' : 'none')};
+    height: 1px;
+    width: 90%;
+    border: none;
+    background-color: ${(props) => props.theme.colours.borderColour};
 `

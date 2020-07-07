@@ -6,7 +6,6 @@ import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
 import {
     Container,
     HeaderBar,
-    CompletedContainer,
     SortContainer,
     SortSelect,
     ItemListContainer,

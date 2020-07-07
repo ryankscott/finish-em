@@ -15,7 +15,7 @@ import {
     ProjectContainer,
     ParentItemContainer,
     MoreContainer,
-    LabelContainer,
+    HorizontalRule,
     ProjectName,
 } from './styled/Item'
 
@@ -37,10 +37,9 @@ import {
     capitaliseFirstLetter,
     rruleToText,
 } from '../utils'
-import { parseISO, differenceInDays } from 'date-fns'
+import { parseISO } from 'date-fns'
 import Button from './Button'
 import MoreDropdown from './MoreDropdown'
-import Tooltip from './Tooltip'
 import { getItemParentId } from '../selectors/item'
 import { ItemAttribute } from './ItemAttribute'
 
@@ -111,8 +110,6 @@ function Item(props: ItemProps): ReactElement {
 
     const parentTaskText = props.parentId ? removeItemTypeFromString(props.parentItem.text) : ''
 
-    const labelName = props.labelId ? props.labels[props.labelId].name : null
-    const labelId = props.labelId ? props.labels[props.labelId].id : null
     const labelColour = props.labelId ? props.labels[props.labelId].colour : null
 
     // Make it invisible if it has a parent which is hiding subtasks
@@ -130,6 +127,8 @@ function Item(props: ItemProps): ReactElement {
         }
         return true
     })()
+
+    // TODO: WTF is this?!?
     const subtasksVisible = (() => {
         const itemVisibility = props.subtasksVisible[props.id]
         if (itemVisibility != undefined) {
@@ -137,7 +136,7 @@ function Item(props: ItemProps): ReactElement {
             if (componentVisibility) return componentVisibility
             return false
         }
-        return false
+        return true
     })()
     return (
         <ThemeProvider theme={themes[props.theme]}>
@@ -156,7 +155,7 @@ function Item(props: ItemProps): ReactElement {
                     itemType={props.type}
                     labelColour={labelColour}
                 >
-                    {props.children?.length > 0 && (
+                    {props.children.length > 0 && (
                         <ExpandContainer>
                             <Button
                                 type="subtle"
@@ -166,13 +165,6 @@ function Item(props: ItemProps): ReactElement {
                             ></Button>
                         </ExpandContainer>
                     )}
-                    <LabelContainer
-                        data-tip
-                        data-for={'label-' + props.id}
-                        stale={differenceInDays(parseISO(props.lastUpdatedAt), new Date()) > 7}
-                        labelColour={labelColour}
-                    />
-                    {labelId && <Tooltip id={'label-' + props.id} text={labelName}></Tooltip>}
                     <TypeContainer>
                         <Button
                             type="subtle"
@@ -254,6 +246,7 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </RepeatContainer>
                 </Container>
+                <HorizontalRule visible={isVisible} />
             </div>
         </ThemeProvider>
     )

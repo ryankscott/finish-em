@@ -38,16 +38,17 @@ export const SortContainer = styled.div`
     justify-content: flex-end;
     position: relative;
     transition: 0.2s ease-in-out;
+    width: 140px;
 `
 
 export const SortSelect = styled(Select)`
-    width: 125px;
     caret-color: transparent;
     padding: 0px 2px;
     display: flex;
     flex-direction: column;
     top: 1px;
     right: 30px;
+    position: absolute;
 `
 
 export const ListHeader = styled.div`
