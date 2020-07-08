@@ -30,6 +30,8 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                 isOpen={props.visible}
                 onOpen={() => {}}
                 hideCloseButton={true}
+                btnText="Delete"
+                btnType="primary"
                 content={
                     <Container>
                         <HeaderContainer>
@@ -62,14 +64,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                         </ActionContainer>
                     </Container>
                 }
-            >
-                <Button
-                    type="primary"
-                    onClick={() => props.toggleDeleteProjectDialog()}
-                    spacing="compact"
-                    text="Delete"
-                ></Button>
-            </InlineDialog>
+            />
         </ThemeProvider>
     )
 }

@@ -76,7 +76,6 @@
     "dependencies": {
         "@babel/runtime": "^7.10.4",
         "@m93a/filtrex": "^2.1.0-beta3",
-        "@popperjs/core": "^2.4.4",
         "@types/marked": "^0.7.4",
         "applescript": "^1.0.0",
         "chrono-node": "^1.4.6",
@@ -103,7 +102,6 @@
         "react-day-picker": "^7.4.8",
         "react-dom": "^16.13.1",
         "react-hotkeys": "^2.0.0",
-        "react-popper": "^2.2.3",
         "react-redux": "^7.2.0",
         "react-router": "^5.2.0",
         "react-router-dom": "^5.2.0",

@@ -35,7 +35,6 @@ export const Container = styled.div<ContainerProps>`
             props.labelColour != null
                 ? transparentize(0.8, props.labelColour)
                 : props.theme.colours.focusBackgroundColour};
-        border-color: ${(props) => props.theme.colours.focusBorderColour};
     }
 `
 interface QuickAddProps {
@@ -134,7 +133,9 @@ export const MoreContainer = styled.div<MoreContainerProps>`
 
 interface HorizontalRuleProps {
     visible: boolean
+    labelColour: CSS.Color
 }
+
 export const HorizontalRule = styled.hr<HorizontalRuleProps>`
     margin: auto;
     padding: 0px;
@@ -142,5 +143,8 @@ export const HorizontalRule = styled.hr<HorizontalRuleProps>`
     height: 1px;
     width: 90%;
     border: none;
-    background-color: ${(props) => props.theme.colours.borderColour};
+    background-color: ${(props) =>
+        props.labelColour
+            ? transparentize(0.9, props.labelColour)
+            : props.theme.colours.focusBackgroundColour};
 `

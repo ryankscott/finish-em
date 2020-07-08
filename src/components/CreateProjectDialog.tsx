@@ -40,7 +40,6 @@ type CreateProjectDialogProps = OwnProps & DispatchProps & StateProps
 function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
     const [projectName, setProjectName] = useState('')
     const [projectDescription, setProjectDescription] = useState('')
-    const createProjectInput = React.useRef<HTMLInputElement>()
 
     const handleChange = (e): void => {
         e.target.id == 'createProjectName'
@@ -65,8 +64,10 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
                 onClose={() => props.closeCreateProjectDialog()}
                 placement="bottom-start"
                 isOpen={props.visible}
-                onOpen={() => createProjectInput.current.focus()}
+                onOpen={() => {}}
                 hideCloseButton={true}
+                btnText="Add Project"
+                btnType="primary"
                 content={
                     <Container>
                         <HeaderContainer>
@@ -90,7 +91,6 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
                                 required
                                 placeholder="Project name"
                                 tabIndex={0}
-                                ref={createProjectInput}
                             />
                             <StyledInput
                                 id="createProjectDescription"
@@ -110,14 +110,7 @@ function CreateProjectDialog(props: CreateProjectDialogProps): ReactElement {
                         ></Button>
                     </Container>
                 }
-            >
-                <Button
-                    spacing="default"
-                    type="primary"
-                    onClick={() => props.toggleCreateProjectDialog()}
-                    text="Add Project"
-                ></Button>
-            </InlineDialog>
+            />
         </ThemeProvider>
     )
 }

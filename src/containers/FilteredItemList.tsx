@@ -10,8 +10,6 @@ import {
     SortSelect,
     ItemListContainer,
     ListHeader,
-    EditComponentContainer,
-    DeleteComponentContainer,
     ListItemCount,
     HideButtonContainer,
     FilterBar,

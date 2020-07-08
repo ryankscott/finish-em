@@ -246,7 +246,7 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </RepeatContainer>
                 </Container>
-                <HorizontalRule visible={isVisible} />
+                <HorizontalRule labelColour={labelColour} visible={isVisible} />
             </div>
         </ThemeProvider>
     )

@@ -1,24 +1,25 @@
-import React, { ReactElement, useEffect } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import { ThemeProvider } from 'styled-components'
-import { Manager, Reference, Popper } from 'react-popper'
+import uuidv4 from 'uuid'
 
 import { themes } from '../theme'
 import Button from './Button'
-import { HeaderContainer, Container, BodyContainer } from './styled/InlineDialog'
+import { HeaderContainer, Dialog, BodyContainer, Container } from './styled/InlineDialog'
 import { connect } from 'react-redux'
+import { IconType } from '../interfaces'
 
 interface StateProps {
     theme: string
 }
 interface OwnProps {
+    btnType: 'error' | 'default' | 'primary' | 'invert' | 'subtle' | 'subtleInvert'
+    btnIcon?: IconType
+    btnText?: string
     isOpen: boolean
     onOpen?: () => void
     onClose?: () => void
     hideCloseButton: boolean
     placement:
-        | 'auto'
-        | 'auto-start'
-        | 'auto-end'
         | 'top'
         | 'top-start'
         | 'top-end'
@@ -32,25 +33,24 @@ interface OwnProps {
         | 'left-start'
         | 'left-end'
     content: ReactElement
-    children: ReactElement
 }
+
 type InlineDialogProps = OwnProps & StateProps
 
 function InlineDialog(props: InlineDialogProps): ReactElement {
     const node = React.useRef<HTMLDivElement>()
+    const [dialogOpen, setDialogOpen] = useState(false)
+    const [buttonPosition, setButtonPosition] = useState(null)
 
     const handleClick = (e): void => {
-        // Don't close if we're clicking on the dialog
-        if (e && node.current && node.current.contains(e.target)) {
-            return
-        }
         // Only close if it's currently open
-        if (props.isOpen) {
+        if (dialogOpen) {
+            setDialogOpen(false)
             props.onClose()
         }
-
         return
     }
+
     useEffect(() => {
         document.addEventListener('mousedown', handleClick, false)
         return () => {
@@ -58,36 +58,44 @@ function InlineDialog(props: InlineDialogProps): ReactElement {
         }
     })
 
+    const btnUuid = uuidv4()
+
     return (
-        <Manager>
-            <Reference>{({ ref }) => <div ref={ref}>{props.children}</div>}</Reference>
-            <Popper placement={props.placement}>
-                {({ ref, style, arrowProps }) => (
-                    <div
-                        ref={ref}
-                        style={{ zIndex: 100, ...style }}
-                        data-placement={props.placement}
+        <ThemeProvider theme={themes[props.theme]}>
+            <Container ref={node}>
+                <Button
+                    id={btnUuid}
+                    type={props.btnType}
+                    text={props.btnText}
+                    icon={props.btnIcon}
+                    onClick={() => {
+                        setDialogOpen(!dialogOpen)
+                        setButtonPosition(document.getElementById(btnUuid)?.getBoundingClientRect())
+                        props.onOpen()
+                    }}
+                />
+                {dialogOpen && (
+                    <Dialog
+                        buttonPosition={buttonPosition ? buttonPosition : null}
+                        placement={props.placement}
                     >
-                        <ThemeProvider theme={themes[props.theme]}>
-                            <Container ref={node} visible={props.isOpen}>
-                                {!props.hideCloseButton && (
-                                    <HeaderContainer>
-                                        <Button
-                                            spacing="default"
-                                            type="default"
-                                            onClick={props.onClose}
-                                            icon="close"
-                                        />
-                                    </HeaderContainer>
-                                )}
-                                <BodyContainer>{props.content}</BodyContainer>
-                            </Container>
-                        </ThemeProvider>
-                        <div ref={arrowProps.ref} style={arrowProps.style} />
-                    </div>
+                        {!props.hideCloseButton && (
+                            <HeaderContainer>
+                                <Button
+                                    spacing="default"
+                                    type="default"
+                                    onClick={() => {
+                                        setDialogOpen(false)
+                                    }}
+                                    icon="close"
+                                />
+                            </HeaderContainer>
+                        )}
+                        <BodyContainer>{props.content}</BodyContainer>
+                    </Dialog>
                 )}
-            </Popper>
-        </Manager>
+            </Container>
+        </ThemeProvider>
     )
 }
 

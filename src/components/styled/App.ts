@@ -27,12 +27,12 @@ export const SidebarContainer = styled.div<SidebarContainerProps>`
     display: flex;
     flex-direction: column;
     transition: all 0.2s ease-in-out;
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
     padding: ${(props) => (props.visible ? '2px' : '0px')};
     width: ${(props) => (props.visible ? '300px' : '50px')};
     min-width: ${(props) => (props.visible ? '300px' : '50px')};
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
-    overflow: scroll;
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
 `

@@ -1,12 +1,14 @@
 import styled from 'styled-components'
 
-interface ContainerProps {
-    visible: boolean
+interface DialogProps {
+    placement: string
+    buttonPosition: DOMRect
 }
-export const Container = styled.div<ContainerProps>`
-    position: absolute;
+
+export const Dialog = styled.div<DialogProps>`
+    position: fixed;
     box-sizing: border-box;
-    display: ${(props) => (props.visible ? 'flex' : 'none')};
+    display: flex;
     flex-direction: column;
     background-color: ${(props) => props.theme.colours.dialogBackgroundColour};
     padding: 2px;
@@ -18,6 +20,15 @@ export const Container = styled.div<ContainerProps>`
     z-index: 100;
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
+    top: ${(props) =>
+        props.buttonPosition ? props.buttonPosition.y + props.buttonPosition.height + 'px' : '0px'};
+`
+
+export const Container = styled.div`
+    position: relative;
+    display: flex;
+    z-index: 100;
+    box-shadow: ${(props) => '0px 1px 4px ' + props.theme.borderColour};
 `
 
 export const HeaderContainer = styled.div`

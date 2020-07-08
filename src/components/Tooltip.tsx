@@ -17,13 +17,7 @@ type TooltipProps = StateProps & OwnProps
 const Tooltip = (props: TooltipProps): ReactElement => {
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <StyledTooltip
-                id={props.id}
-                type="dark"
-                effect="float"
-                place="top"
-                delayShow={500}
-            >
+            <StyledTooltip id={props.id} type="dark" effect="float" place="top" delayShow={500}>
                 <StyledParagraph invert>{props.text}</StyledParagraph>
             </StyledTooltip>
         </ThemeProvider>
