@@ -28,7 +28,7 @@ export const getItemParentId = (state, props): ItemType => state.items.items[pro
 export const getUncompletedItems = createSelector(
     [getFilteredItems, getAllItems, getRenderingStrategy],
     (items, allItems, renderingStrategy) => {
-        const ff = compileExpression(`(not completed and parentId == null)`)
+        const ff = compileExpression(`not completed`)
         return filterItems(items, ff, renderingStrategy)
     },
 )
