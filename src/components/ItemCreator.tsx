@@ -43,7 +43,6 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         setShowItemCreator(false)
     }
     useEffect(() => {
-        showItemCreator ? textRef.current.focus() : textRef.current.blur()
         document.addEventListener('mousedown', handleClick)
         return () => {
             document.removeEventListener('mousedown', handleClick)
@@ -70,6 +69,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     text={showItemCreator ? '' : props.buttonText}
                     onClick={() => {
                         setShowItemCreator(!showItemCreator)
+                        showItemCreator ? textRef.current.blur() : textRef.current.focus()
                     }}
                 />
             )}
