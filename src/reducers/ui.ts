@@ -164,7 +164,7 @@ const initialState: UIType = {
                     props: {
                         id: 'cce51919-f98f-4fd2-be2d-2c21ccee4049',
                         filter:
-                            'not (deleted or completed) and scheduledDate == null and type == "TODO" and not today(createdAt) and thisWeek(createdAt) and not thisMonth(createdAt)',
+                            'not (deleted or completed) and scheduledDate == null and type == "TODO" and not today(createdAt) and thisWeek(createdAt)',
                         hideIcons: [],
                         listName: 'Created this week',
                         isFilterable: true,
