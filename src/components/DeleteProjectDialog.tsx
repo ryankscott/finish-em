@@ -1,47 +1,75 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
-import InlineDialog from './InlineDialog'
 
 import { Paragraph, Header3 } from './Typography'
 import { themes } from '../theme'
 import Button from './Button'
-import { toggleDeleteProjectDialog, hideDeleteProjectDialog } from '../actions'
 import {
     BodyContainer,
     ActionContainer,
     Container,
+    CloseButton,
+    Dialog,
     HeaderContainer,
 } from './styled/DeleteProjectDialog'
 
-export interface DeleteProjectDialogProps {
-    visible?: boolean
-    onDelete: () => void
-    closeDeleteProjectDialog?: () => void
-    toggleDeleteProjectDialog?: () => void
+interface StateProps {
+    theme: string
 }
 
+interface DispatchProps {
+    onDelete: () => void
+}
+
+type DeleteProjectDialogProps = StateProps & DispatchProps
+
 const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
+    const [dialogOpen, setDialogOpen] = useState(false)
+    const node = React.useRef<HTMLDivElement>()
+    const handleClick = (e): void => {
+        if (e && node.current && node.current.contains(e.target)) {
+            return
+        }
+        // Only close if it's currently open
+        if (dialogOpen) {
+            setDialogOpen(false)
+        }
+        return
+    }
+
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClick, false)
+        return () => {
+            document.removeEventListener('mousedown', handleClick, false)
+        }
+    })
+
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <InlineDialog
-                onClose={() => props.closeDeleteProjectDialog()}
-                placement={'bottom-start'}
-                isOpen={props.visible}
-                onOpen={() => {}}
-                hideCloseButton={true}
-                btnText="Delete"
-                btnType="primary"
-                content={
-                    <Container>
+            <Container ref={node} onClick={handleClick}>
+                <Button
+                    type="primary"
+                    text="Delete"
+                    icon="trash"
+                    width="80px"
+                    onClick={() => {
+                        setDialogOpen(!dialogOpen)
+                    }}
+                />
+                {dialogOpen && (
+                    <Dialog>
                         <HeaderContainer>
                             <Header3>Delete Project</Header3>
-                            <Button
-                                spacing="default"
-                                type="subtle"
-                                onClick={() => props.closeDeleteProjectDialog()}
-                                icon="close"
-                            />
+                            <CloseButton>
+                                <Button
+                                    type="subtle"
+                                    icon="close"
+                                    onClick={() => {
+                                        setDialogOpen(false)
+                                    }}
+                                />
+                            </CloseButton>
                         </HeaderContainer>
                         <BodyContainer>
                             <Paragraph>Are you sure you want to delete this project?</Paragraph>
@@ -50,37 +78,33 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                             <Button
                                 type="error"
                                 spacing="default"
-                                onClick={props.onDelete}
+                                onClick={() => {
+                                    props.onDelete()
+                                }}
                                 text="Yes"
                                 width={'80px'}
                             ></Button>
                             <Button
                                 type="primary"
                                 spacing="default"
-                                onClick={() => props.closeDeleteProjectDialog()}
+                                onClick={() => {
+                                    setDialogOpen(false)
+                                }}
                                 text="No"
                                 width={'80px'}
                             ></Button>
                         </ActionContainer>
-                    </Container>
-                }
-            />
+                    </Dialog>
+                )}
+            </Container>
         </ThemeProvider>
     )
 }
 
-const mapStateToProps = (state) => ({
-    visible: state.ui.deleteProjectDialogVisible,
+const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
 })
 
-const mapDispatchToProps = (dispatch) => ({
-    closeDeleteProjectDialog: () => {
-        dispatch(hideDeleteProjectDialog())
-    },
-    toggleDeleteProjectDialog: () => {
-        dispatch(toggleDeleteProjectDialog())
-    },
-})
+const mapDispatchToProps = (dispatch): DispatchProps => ({})
 
 export default connect(mapStateToProps, mapDispatchToProps)(DeleteProjectDialog)
