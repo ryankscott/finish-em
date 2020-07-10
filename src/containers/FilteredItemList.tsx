@@ -177,6 +177,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 <HeaderBar>
                     <HideButtonContainer>
                         <Button
+                            dataFor="hide-itemlist-button"
                             key={`btn-${props.id}`}
                             type="default"
                             icon="expand"
@@ -185,6 +186,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                 setHideItemList(!hideItemList)
                             }}
                         />
+                        <Tooltip id="hide-itemlist-button" text={'Hide items'} />
                     </HideButtonContainer>
                     <ListHeader>
                         {props.listName}
@@ -206,15 +208,19 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                             />
                         )}
                         {!props.readOnly && (
-                            <Button
-                                height="22px"
-                                width="22px"
-                                iconSize="14px"
-                                type="default"
-                                spacing="compact"
-                                icon="trash"
-                                onClick={() => props.deleteComponent(props.id)}
-                            />
+                            <>
+                                <Button
+                                    dataFor="delete-compoenent-button"
+                                    height="22px"
+                                    width="22px"
+                                    iconSize="14px"
+                                    type="default"
+                                    spacing="compact"
+                                    icon="trash"
+                                    onClick={() => props.deleteComponent(props.id)}
+                                />
+                                <Tooltip id="delete-component-button" text={'Delete'} />
+                            </>
                         )}
                         {visibility.showFilterBar && (
                             <>

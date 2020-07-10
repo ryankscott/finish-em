@@ -19,7 +19,7 @@ export const Container = styled.div<ContainerProps>`
     grid-auto-rows: minmax(20px, auto);
     grid-template-areas:
         '. EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
-        '. . PARENT PARENT PARENT . SCHEDULED SCHEDULED SCHEDULED SCHEDULED . . DUE DUE DUE DUE . . REPEAT REPEAT REPEAT REPEAT REPEAT';
+        '. . PARENT PARENT PARENT PARENT SCHEDULED SCHEDULED SCHEDULED SCHEDULED SCHEDULED . DUE DUE DUE DUE DUE . REPEAT REPEAT REPEAT REPEAT REPEAT';
     border: 0px;
     padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
     align-items: center;

@@ -315,3 +315,10 @@ export const generateFiltrexOptions = (options: FiltrexOptions) => {
         },
     }
 }
+
+export const truncateString = (input: string, length: number): string => {
+    if (input.length <= length) {
+        return input
+    }
+    return input.slice(0, length - 1) + '...'
+}

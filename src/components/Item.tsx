@@ -36,12 +36,14 @@ import {
     formatRelativeDate,
     capitaliseFirstLetter,
     rruleToText,
+    truncateString,
 } from '../utils'
 import { parseISO } from 'date-fns'
 import Button from './Button'
 import MoreDropdown from './MoreDropdown'
 import { getItemParentId } from '../selectors/item'
 import { ItemAttribute } from './ItemAttribute'
+import Tooltip from './Tooltip'
 
 interface DispatchProps {
     updateItemDescription: (id: Uuid, text: string) => void
@@ -99,16 +101,39 @@ function Item(props: ItemProps): ReactElement {
         return
     }
 
-    const dueDateText = props.dueDate ? formatRelativeDate(parseISO(props.dueDate)) : ''
+    const dueDateText = props.dueDate
+        ? {
+              short: formatRelativeDate(parseISO(props.dueDate)),
+              long: parseISO(props.dueDate).toString(),
+          }
+        : { short: '', long: '' }
     const scheduledDateText = props.scheduledDate
-        ? formatRelativeDate(parseISO(props.scheduledDate))
-        : ''
+        ? {
+              short: formatRelativeDate(parseISO(props.scheduledDate)),
+              long: parseISO(props.scheduledDate).toString(),
+          }
+        : { short: '', long: '' }
 
     const repeatText = props.repeat
-        ? capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat)))
-        : 'Repeat'
+        ? {
+              short: capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat))),
+              long: capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat))),
+          }
+        : { short: 'Repeat', long: 'Repeat' }
 
-    const parentTaskText = props.parentId ? removeItemTypeFromString(props.parentItem.text) : ''
+    const parentTaskText = props.parentId
+        ? {
+              short: truncateString(removeItemTypeFromString(props.parentItem.text), 12),
+              long: removeItemTypeFromString(props.parentItem.text),
+          }
+        : { short: '', long: '' }
+    const projectText =
+        props.projectId != '0'
+            ? {
+                  short: truncateString(props.projects.projects[props.projectId].name, 12),
+                  long: props.projects.projects[props.projectId].name,
+              }
+            : { short: 'Inbox', long: 'Inbox' }
 
     const labelColour = props.labelId ? props.labels[props.labelId].colour : null
 
@@ -196,26 +221,31 @@ function Item(props: ItemProps): ReactElement {
                         />
                     </Body>
                     <ProjectContainer visible={!hiddenIcons?.includes(ItemIcons.Project)}>
-                        <ProjectName>
-                            {props.projectId != '0'
-                                ? props.projects.projects[props.projectId].name
-                                : 'Inbox'}
+                        <ProjectName data-tip data-for={'project-name-' + props.id}>
+                            {projectText.short}
                         </ProjectName>
+                        <Tooltip id={'project-name-' + props.id} text={projectText.long} />
                     </ProjectContainer>
 
-                    <MoreContainer visible={true}>
+                    <MoreContainer visible={true} data-tip data-for={'more-container-' + props.id}>
                         <MoreDropdown itemId={props.id} deleted={props.deleted}></MoreDropdown>
+                        <Tooltip id={'more-container-' + props.id} text="More actions" />
                     </MoreContainer>
                     <ParentItemContainer
+                        data-tip
+                        data-for={'parent-item-' + props.id}
                         visible={!hiddenIcons.includes(ItemIcons.Subtask) && props.parentId != null}
                     >
                         <ItemAttribute
                             completed={props.completed}
                             type={'subtask'}
-                            text={parentTaskText}
+                            text={parentTaskText.short}
                         />
+                        <Tooltip id={'parent-item-' + props.id} text={parentTaskText.long} />
                     </ParentItemContainer>
                     <ScheduledContainer
+                        data-tip
+                        data-for={'scheduled-date-' + props.id}
                         visible={
                             props.scheduledDate != null &&
                             !hiddenIcons?.includes(ItemIcons.Scheduled)
@@ -224,17 +254,21 @@ function Item(props: ItemProps): ReactElement {
                         <ItemAttribute
                             completed={props.completed}
                             type={'scheduled'}
-                            text={scheduledDateText}
+                            text={scheduledDateText.short}
                         />
+                        <Tooltip id={'scheduled-date-' + props.id} text={scheduledDateText.long} />
                     </ScheduledContainer>
                     <DueContainer
+                        data-tip
+                        data-for={'due-date-' + props.id}
                         visible={props.dueDate != null && !hiddenIcons.includes(ItemIcons.Due)}
                     >
                         <ItemAttribute
                             completed={props.completed}
                             type={'due'}
-                            text={dueDateText}
+                            text={dueDateText.short}
                         />
+                        <Tooltip id={'due-date-' + props.id} text={dueDateText.long} />
                     </DueContainer>
                     <RepeatContainer
                         visible={props.repeat != null && !hiddenIcons.includes(ItemIcons.Repeat)}
@@ -242,7 +276,7 @@ function Item(props: ItemProps): ReactElement {
                         <ItemAttribute
                             completed={props.completed}
                             type={'repeat'}
-                            text={repeatText}
+                            text={repeatText.short}
                         />
                     </RepeatContainer>
                 </Container>
