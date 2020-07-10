@@ -12,7 +12,6 @@ export const DialogContainer = styled.div`
     border-radius: 5px;
     min-width: 320px;
     padding: 5px 5px;
-    padding-bottom: 20px;
     z-index: 2;
     left: 0px;
     top: 23px;
@@ -22,6 +21,7 @@ export const DialogHeader = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    padding: 5px;
     padding-bottom: 10px;
 `
 export const DialogName = styled(Paragraph)`
@@ -32,6 +32,7 @@ export const DialogName = styled(Paragraph)`
 
 export const Setting = styled.div`
     display: flex;
+    position: relative;
     flex-direction: row;
     justify-content: flex-start;
     padding: 2px 10px;
@@ -54,4 +55,17 @@ export const SettingValue = styled.div`
     width: 100%;
     min-height: 30px;
     align-items: center;
+`
+
+export const SelectContainer = styled.div`
+    position: absolute;
+    left: 120px;
+    top: 0px;
+`
+export const SaveContainer = styled.div`
+    padding: 10px 10px;
+    padding-top: 20px;
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
 `

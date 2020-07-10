@@ -8,6 +8,8 @@ import {
     Setting,
     SettingLabel,
     SettingValue,
+    SelectContainer,
+    SaveContainer,
 } from './styled/FilteredItemDialog'
 import { themes, selectStyles } from '../theme'
 import Button from './Button'
@@ -198,25 +200,38 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                         <Setting>
                             <SettingLabel>Hide Icons:</SettingLabel>
                             <SettingValue>
-                                <Select
-                                    isMulti={true}
-                                    onChange={(values) => {
-                                        const hiddenIcons = values.map((v) => v.value)
-                                        props.setFilteredItemListHiddenIcons(
-                                            props.componentId,
-                                            hiddenIcons,
-                                        )
-                                    }}
-                                    options={options}
-                                    styles={selectStyles({
-                                        fontSize: 'xsmall',
-                                        theme: theme,
-                                        width: '200px',
-                                    })}
-                                    escapeClearsValue={true}
-                                />
+                                <SelectContainer>
+                                    <Select
+                                        isMulti={true}
+                                        onChange={(values) => {
+                                            const hiddenIcons = values.map((v) => v.value)
+                                            props.setFilteredItemListHiddenIcons(
+                                                props.componentId,
+                                                hiddenIcons,
+                                            )
+                                        }}
+                                        options={options}
+                                        styles={selectStyles({
+                                            fontSize: 'xsmall',
+                                            theme: theme,
+                                            width: '200px',
+                                        })}
+                                        escapeClearsValue={true}
+                                    />
+                                </SelectContainer>
                             </SettingValue>
                         </Setting>
+                        <SaveContainer>
+                            <Button
+                                width="80px"
+                                type="primary"
+                                icon="save"
+                                text="Save"
+                                onClick={() => {
+                                    setShowDialog(false)
+                                }}
+                            />
+                        </SaveContainer>
                     </DialogContainer>
                 )}
             </div>
