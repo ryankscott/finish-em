@@ -80,3 +80,9 @@ export const ViewContainer = styled.div<ViewContainerProps>`
     margin: 0px;
     padding: 0px;
 `
+export const AddProjectContainer = styled.div`
+    padding-top: 10px;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+`

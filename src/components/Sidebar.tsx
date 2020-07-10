@@ -1,12 +1,12 @@
 import React, { ReactElement } from 'react'
 import styled, { ThemeProvider } from 'styled-components'
 import { connect } from 'react-redux'
+import { useHistory } from 'react-router-dom'
 
 import { themes } from '../theme'
-import CreateProjectDialog from './CreateProjectDialog'
 import { Header } from './Typography'
-import { showCreateProjectDialog, toggleSidebar, reorderProject } from '../actions'
-import { Projects, Views } from '../interfaces'
+import { createProject, addComponent, toggleSidebar, reorderProject, addView } from '../actions'
+import { Projects, Views, ItemIcons } from '../interfaces'
 import {
     Container,
     SectionHeader,
@@ -15,6 +15,7 @@ import {
     BodyContainer,
     CollapseContainer,
     ViewContainer,
+    AddProjectContainer,
 } from './styled/Sidebar'
 import Button from './Button'
 import { createShortProjectName } from '../utils'
@@ -32,8 +33,8 @@ interface StateProps {
     views: Views
 }
 interface DispatchProps {
-    showCreateProjectDialog: () => void
     toggleSidebar: () => void
+    createProject: (id: Uuid, name: string, description: string) => void
     reorderProject: (id: Uuid, destinationId: Uuid) => void
 }
 
@@ -84,6 +85,7 @@ const generateSidebarContents = (
 type SidebarProps = StateProps & DispatchProps
 const Sidebar = (props: SidebarProps): ReactElement => {
     const theme = themes[props.theme]
+    const history = useHistory()
     const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
         display: 'flex',
         flexDirection: 'column',
@@ -161,7 +163,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     </ViewContainer>
                     <SectionHeader>
                         {props.sidebarVisible && <Header>Projects</Header>}
-                        {props.sidebarVisible && <CreateProjectDialog />}
                     </SectionHeader>
                     <DragDropContext
                         onDragEnd={(e) => {
@@ -222,6 +223,22 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             )}
                         </Droppable>
                     </DragDropContext>
+                    {props.sidebarVisible && (
+                        <AddProjectContainer>
+                            <Button
+                                width="110px"
+                                type="invert"
+                                text={props.sidebarVisible ? 'Add Project' : ''}
+                                iconSize="12px"
+                                icon="add"
+                                onClick={() => {
+                                    const projectId = uuidv4()
+                                    props.createProject(projectId, 'New Project', '')
+                                    history.push('/projects/' + projectId)
+                                }}
+                            />
+                        </AddProjectContainer>
+                    )}
                 </BodyContainer>
                 <Footer visible={props.sidebarVisible}>
                     <StyledLink
@@ -258,8 +275,35 @@ const mapStateToProps = (state): StateProps => ({
     views: state.ui.views,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    showCreateProjectDialog: () => {
-        dispatch(showCreateProjectDialog())
+    createProject: (id: Uuid, name: string, description: string) => {
+        dispatch(createProject(id, name, description))
+        dispatch(addView(id, name, 'project'))
+        const component1Id = uuidv4()
+        const component2Id = uuidv4()
+        dispatch(
+            addComponent(component1Id, id, 'main', {
+                name: 'FilteredItemList',
+                props: {
+                    id: component1Id,
+                    listName: 'Notes',
+                    filter: `projectId == "${id}" and type == "NOTE" and not (completed or deleted)`,
+                    isFilterable: false,
+                    hideIcons: [ItemIcons.Project],
+                },
+            }),
+        )
+        dispatch(
+            addComponent(component2Id, id, 'main', {
+                name: 'FilteredItemList',
+                props: {
+                    id: component2Id,
+                    listName: 'Todos',
+                    filter: `projectId == "${id}" and type == "TODO" and not (completed or deleted)`,
+                    isFilterable: false,
+                    hideIcons: [ItemIcons.Project],
+                },
+            }),
+        )
     },
     toggleSidebar: () => {
         dispatch(toggleSidebar())
