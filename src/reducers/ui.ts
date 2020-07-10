@@ -1,5 +1,5 @@
 import * as ui from '../actions/ui'
-import { UIType, RenderingStrategy } from '../interfaces'
+import { UIType, RenderingStrategy, ItemIcons } from '../interfaces'
 import produce from 'immer'
 
 const initialState: UIType = {
@@ -393,7 +393,7 @@ const initialState: UIType = {
                     props: {
                         id: 'e62c66d4-0933-4198-bce6-47d6093259d6',
                         filter: 'projectId == "0" and not (deleted or completed)',
-                        hideIcons: [],
+                        hideIcons: [ItemIcons.Project],
                         listName: 'Items',
                         isFilterable: true,
                     },
