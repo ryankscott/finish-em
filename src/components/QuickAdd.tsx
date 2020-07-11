@@ -1,22 +1,22 @@
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { createItem } from '../actions'
-import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
 import { validateItemString } from '../utils'
 import EditableText from './EditableText'
-import styled from 'styled-components'
+import styled, { ThemeProvider } from 'styled-components'
+import { themes } from '../theme'
+const electron = window.require('electron')
 
 interface QuickAddProps {
     projectId?: Uuid | '0'
-    onSubmit: (text: string, projectId: Uuid | '0') => void
+    theme: string
 }
 
 const QuickAddContainer = styled.div`
-    padding: 0px;
+    box-sizing: border-box;
+    padding: 5px;
     margin: 0px;
     width: 100%;
-    height: 30px;
     outline: 0px;
     *:active {
         outline: 0;
@@ -31,37 +31,40 @@ function QuickAdd(props: QuickAddProps): ReactElement {
     })
 
     const handleEscape = (): void => {
-        window.ipcRenderer.send('close-quickadd')
+        electron.ipcRenderer.send('close-quickadd')
     }
 
     return (
-        <QuickAddContainer>
-            <EditableText
-                width="550px"
-                height="10px"
-                innerRef={ref}
-                onUpdate={(text) => {
-                    props.onSubmit(text, '0')
-                    window.ipcRenderer.send('close-quickadd')
-                }}
-                readOnly={false}
-                validation={{ validate: true, rule: validateItemString }}
-                input=""
-                singleline={true}
-                shouldClearOnSubmit={true}
-                shouldSubmitOnBlur={false}
-                onEscape={handleEscape}
-            />
-        </QuickAddContainer>
+        <ThemeProvider theme={themes[props.theme]}>
+            <QuickAddContainer>
+                <EditableText
+                    fontSize="regular"
+                    width="550px"
+                    innerRef={ref}
+                    onUpdate={(text) => {
+                        electron.ipcRenderer.send('create-task', {
+                            text: text,
+                            projectId: props.projectId,
+                        })
+                        electron.ipcRenderer.send('close-quickadd')
+                    }}
+                    readOnly={false}
+                    validation={{ validate: true, rule: validateItemString }}
+                    input=""
+                    singleline={true}
+                    shouldClearOnSubmit={true}
+                    shouldSubmitOnBlur={false}
+                    onEscape={() => handleEscape()}
+                />
+            </QuickAddContainer>
+        </ThemeProvider>
     )
 }
 
-const mapStateToProps = () => ({})
-
-const mapDispatchToProps = (dispatch) => ({
-    onSubmit: (text: string, projectId: Uuid | '0') => {
-        dispatch(createItem(uuidv4(), text, projectId, null))
-    },
+const mapStateToProps = (state) => ({
+    theme: state.ui.theme,
 })
+
+const mapDispatchToProps = (dispatch) => ({})
 
 export default connect(mapStateToProps, mapDispatchToProps)(QuickAdd)

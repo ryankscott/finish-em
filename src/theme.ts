@@ -16,7 +16,6 @@ export const GlobalStyle = createGlobalStyle`
     color: ${(props) => props.theme.colours.textColour};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     font-size: ${(props) => props.theme.fontSizes.xsmall};
-    background-color: ${(props) => props.theme.colours.backgroundColour};
     box-sizing: border-box;
     padding: 0px;
     margin: 0px;

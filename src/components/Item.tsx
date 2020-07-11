@@ -38,7 +38,7 @@ import {
     rruleToText,
     truncateString,
 } from '../utils'
-import { parseISO } from 'date-fns'
+import { parseISO, format } from 'date-fns'
 import Button from './Button'
 import MoreDropdown from './MoreDropdown'
 import { getItemParentId } from '../selectors/item'
@@ -104,20 +104,20 @@ function Item(props: ItemProps): ReactElement {
     const dueDateText = props.dueDate
         ? {
               short: formatRelativeDate(parseISO(props.dueDate)),
-              long: parseISO(props.dueDate).toString(),
+              long: format(parseISO(props.dueDate), 'EEEE do MMM yyyy'),
           }
         : { short: '', long: '' }
     const scheduledDateText = props.scheduledDate
         ? {
               short: formatRelativeDate(parseISO(props.scheduledDate)),
-              long: parseISO(props.scheduledDate).toString(),
+              long: format(parseISO(props.scheduledDate), 'EEEE do MMM yyyy'),
           }
         : { short: '', long: '' }
 
     const repeatText = props.repeat
         ? {
               short: capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat))),
-              long: capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat))),
+              long: capitaliseFirstLetter(RRule.fromString(props.repeat).toText()),
           }
         : { short: 'Repeat', long: 'Repeat' }
 
@@ -271,6 +271,8 @@ function Item(props: ItemProps): ReactElement {
                         <Tooltip id={'due-date-' + props.id} text={dueDateText.long} />
                     </DueContainer>
                     <RepeatContainer
+                        data-tip
+                        data-for={'repeat-' + props.id}
                         visible={props.repeat != null && !hiddenIcons.includes(ItemIcons.Repeat)}
                     >
                         <ItemAttribute
@@ -278,6 +280,7 @@ function Item(props: ItemProps): ReactElement {
                             type={'repeat'}
                             text={repeatText.short}
                         />
+                        <Tooltip id={'repeat-' + props.id} text={repeatText.long} />
                     </RepeatContainer>
                 </Container>
                 <HorizontalRule labelColour={labelColour} visible={isVisible} />

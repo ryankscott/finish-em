@@ -29,10 +29,9 @@ export const SidebarContainer = styled.div<SidebarContainerProps>`
     transition: all 0.2s ease-in-out;
     overflow-y: scroll;
     overflow-x: hidden;
-    padding: ${(props) => (props.visible ? '2px' : '0px')};
+    padding: 0px;
     width: ${(props) => (props.visible ? '300px' : '50px')};
     min-width: ${(props) => (props.visible ? '300px' : '50px')};
-    background-color: ${(props) => props.theme.colours.altBackgroundColour};
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
 `
@@ -49,6 +48,7 @@ export const MainContainer = styled.div<MainContainerProps>`
     align-items: center;
     overflow: scroll;
     min-width: 600px;
+    background-color: ${(props) => props.theme.colours.backgroundColour};
 `
 
 interface FocusContainerProps {
@@ -63,6 +63,7 @@ export const FocusContainer = styled.div<FocusContainerProps>`
     transition: all 0.2s ease-in-out;
     align-items: center;
     border: 1px solid;
+    background-color: ${(props) => props.theme.colours.backgroundColour};
     border-color: ${(props) => props.theme.colours.borderColour};
     overflow: scroll;
 `

@@ -4,7 +4,6 @@ interface ContainerProps {
     visible: boolean
 }
 export const Container = styled.div<ContainerProps>`
-    background-color: ${(props) => props.theme.colours.altBackgroundColour};
     align-items: ${(props) => (props.visible ? 'none' : 'center')};
     display: flex;
     flex-direction: column;
@@ -13,6 +12,7 @@ export const Container = styled.div<ContainerProps>`
     width: 100%;
     height: 100vh;
     padding: 2px;
+    background: ${(props) => props.theme.colours.altBackgroundColour};
 `
 export const BodyContainer = styled.div`
     display: flex;

@@ -28,8 +28,7 @@ const getMailLink = () => {
 function createQuickAddWindow() {
     quickAddWindow = new BrowserWindow({
         width: 580,
-        height: 55,
-        transparent: false,
+        transparent: true,
         frame: false,
         focused: true,
         resizable: false,
@@ -41,9 +40,7 @@ function createQuickAddWindow() {
     })
 
     quickAddWindow.loadURL(
-        isDev
-            ? 'http://localhost:1234?quickAdd'
-            : `file://${__dirname}/build/index.html?quickAdd`,
+        isDev ? 'http://localhost:1234?quickAdd' : `file://${__dirname}/build/index.html?quickAdd`,
     )
     // Open dev tools
     // quickAddWindow.webContents.openDevTools()
@@ -67,9 +64,7 @@ function createMainWindow() {
 
     // Load the index.html of the app.
     mainWindow.loadURL(
-        isDev
-            ? 'http://localhost:1234?main'
-            : `file://${__dirname}/build/index.html?main`,
+        isDev ? 'http://localhost:1234?main' : `file://${__dirname}/build/index.html?main`,
     )
 
     // Open dev tools
@@ -117,7 +112,14 @@ app.on('activate', () => {
 })
 
 ipcMain.on('close-quickadd', (event, arg) => {
+    console.log('closing quickadd')
     if (quickAddWindow) {
         quickAddWindow.close()
     }
+})
+
+// This is to send events between quick add and main window
+ipcMain.on('create-task', (event, arg) => {
+    console.log('create-task on main, going to pong back')
+    mainWindow.webContents.send('create-task', arg)
 })

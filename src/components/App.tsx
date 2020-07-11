@@ -23,6 +23,7 @@ import {
     hideShortcutDialog,
     hideCreateProjectDialog,
     hideDeleteProjectDialog,
+    createItem,
 } from '../actions/index'
 import {
     Container,
@@ -36,6 +37,9 @@ import Button from './Button'
 import Tooltip from './Tooltip'
 import { Projects, Views } from '../interfaces'
 import { Slide } from 'react-toastify'
+import isElectron from 'is-electron'
+import uuidv4 from 'uuid'
+const electron = window.require('electron')
 
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
@@ -64,12 +68,19 @@ interface DispatchProps {
     hideSidebar: () => void
     hideDialogs: () => void
     showCreateProjectDialog: () => void
+    createItem: (text: string, projectId: Uuid | '0') => void
 }
 
 type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
+    if (isElectron()) {
+        electron.ipcRenderer.on('create-task', (event, arg) => {
+            console.log('create task in renderer')
+            props.createItem(arg.text, arg?.projectId)
+        })
+    }
 
     useEffect(() => {
         window.addEventListener('resize', () => {
@@ -281,6 +292,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
         dispatch(hideShortcutDialog())
         dispatch(hideCreateProjectDialog())
         dispatch(hideDeleteProjectDialog())
+    },
+    createItem: (text: string, projectId: Uuid | '0') => {
+        dispatch(createItem(uuidv4(), text, projectId))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(App)

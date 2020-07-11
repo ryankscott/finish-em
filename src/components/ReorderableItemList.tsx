@@ -63,7 +63,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         userSelect: 'none',
         margin: '0 0 0 0',
         borderRadius: '5px',
-        padding: '5px',
+        padding: '0px 5px',
         // change background colour if dragging
         background: isDragging ? theme.colours.borderColour : 'inherit',
         ...draggableStyle,
