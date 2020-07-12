@@ -90,6 +90,7 @@ export const Icon = styled.div<IconProps>`
 interface TextProps {
     hasIcon: boolean
     textSize?: 'xsmall' | 'small' | 'regular' | 'large'
+    textWeight?: string
 }
 export const Text = styled.div<TextProps>`
     display: flex;
@@ -97,6 +98,7 @@ export const Text = styled.div<TextProps>`
     justify-content: center;
     font-size: ${(props) =>
         props.textSize ? props.theme.fontSizes[props.textSize] : props.theme.fontSizes.xsmall};
-    font-weight: ${(props) => props.theme.fontWeights.regular};
+    font-weight: ${(props) =>
+        props.textWeight ? props.textWeight : props.theme.fontWeights.regular};
     margin-left: ${(props) => (props.hasIcon ? '4px' : '0px')};
 `

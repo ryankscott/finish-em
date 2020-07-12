@@ -17,6 +17,7 @@ interface OwnProps {
     isDisabled?: boolean
     text?: string | JSX.Element
     textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
+    textWeight?: string
     iconSize?: string
     iconColour?: string
     tabIndex?: number
@@ -66,7 +67,11 @@ const Button = (props: ButtonProps): ReactElement => {
                         </Icon>
                     )}
                     {props.text && (
-                        <Text textSize={props.textSize} hasIcon={props.icon != undefined}>
+                        <Text
+                            textWeight={props.textWeight}
+                            textSize={props.textSize}
+                            hasIcon={props.icon != undefined}
+                        >
                             {props.text}
                         </Text>
                     )}
