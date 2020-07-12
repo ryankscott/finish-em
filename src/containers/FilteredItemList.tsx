@@ -29,6 +29,8 @@ import { Icons } from '../assets/icons'
 import { ThemeProvider } from 'styled-components'
 import FilteredItemDialog from '../components/FilteredItemDialog'
 
+const PAGE_SIZE = 25
+
 const DropdownIndicator = (props): ReactElement => {
     return (
         <components.DropdownIndicator {...props}>
@@ -157,6 +159,13 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         ? sortItems(convertItemToItemType(props.uncompletedItems), sortCriteria, sortDirection)
         : sortItems(convertItemToItemType(allItems), sortCriteria, sortDirection)
 
+    const [currentPage, setCurrentPage] = useState(1)
+    const totalPages = Math.ceil(sortedItems.length / PAGE_SIZE)
+    console.log(currentPage)
+    console.log(totalPages)
+    console.log((currentPage - 1) * PAGE_SIZE)
+    console.log(currentPage * PAGE_SIZE)
+
     useEffect(() => {
         setHideItemList(Object.keys(props.items).length == 0)
     }, [props.items])
@@ -170,7 +179,66 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         props.features.dragAndDrop,
         props.hideCompletedToggle,
     )
+
     const sortedItemsLength = Object.keys(sortedItems).length
+    const generatePagination = (pageSize: number, sortedItemsLength: number): ReactElement => {
+        if (sortedItemsLength < pageSize) return null
+        return (
+            <div
+                style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    width: '100%',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}
+            >
+                <Button
+                    type="default"
+                    icon="slideLeft"
+                    onClick={() => setCurrentPage(currentPage == 1 ? currentPage : currentPage - 1)}
+                />
+                {currentPage != 1 && (
+                    <Button type="default" text={'1'} onClick={() => setCurrentPage(1)} />
+                )}
+                {currentPage >= 4 && '...'}
+                {currentPage >= 3 && (
+                    <Button
+                        type="default"
+                        text={(currentPage - 1).toString()}
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                    />
+                )}
+
+                <Button textWeight="700" type="default" text={currentPage.toString()} />
+                {currentPage <= totalPages - 2 && (
+                    <Button
+                        type="default"
+                        text={(currentPage + 1).toString()}
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                    />
+                )}
+                {currentPage <= totalPages - 2 && '...'}
+                {currentPage != totalPages && (
+                    <Button
+                        type="default"
+                        text={totalPages.toString()}
+                        onClick={() => {
+                            setCurrentPage(totalPages)
+                        }}
+                    />
+                )}
+                <Button
+                    type="default"
+                    icon="slideRight"
+                    onClick={() =>
+                        setCurrentPage(currentPage == totalPages ? totalPages : currentPage + 1)
+                    }
+                />
+            </div>
+        )
+    }
+
     return (
         <ThemeProvider theme={theme}>
             <Container>
@@ -348,12 +416,16 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                             <ItemList
                                 componentId={props.id}
                                 hideIcons={props.hideIcons}
-                                inputItems={sortedItems}
+                                inputItems={sortedItems.slice(
+                                    (currentPage - 1) * PAGE_SIZE,
+                                    currentPage * PAGE_SIZE,
+                                )}
                                 renderingStrategy={props.renderingStrategy}
                             />
                         )}
                     </ItemListContainer>
                 )}
+                {generatePagination(PAGE_SIZE, sortedItemsLength)}
             </Container>
         </ThemeProvider>
     )
