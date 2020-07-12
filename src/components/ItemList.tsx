@@ -42,8 +42,6 @@ interface OwnProps {
     hideIcons: ItemIcons[]
     theme: string
 }
-
-type ItemListProps = OwnProps & StateProps & DispatchProps
 /* We need two strategies for rendering items:
 
 1.  Default 
@@ -54,6 +52,84 @@ type ItemListProps = OwnProps & StateProps & DispatchProps
   - If an item has a parent and the parent is in the list, don't render it
   - If an item has a parent and the parent isn't in the list, render it
 */
+
+const getItem = (
+    item: ItemType,
+    inputItems: ItemType[],
+    strategy: RenderingStrategy,
+    componentId: Uuid,
+    hideIcons: ItemIcons[],
+    items: Items,
+): ReactElement => {
+    switch (strategy) {
+        case RenderingStrategy.All:
+            if (item.parentId != null) {
+                const parentExists = inputItems.find((i) => i.id == item.parentId)
+                // If it exists it will get rendered later, so don't render it
+                if (parentExists) {
+                    return
+                }
+            }
+            return (
+                <div key={'container-' + item.id}>
+                    <Item
+                        {...item}
+                        key={item.id}
+                        componentId={componentId}
+                        shouldIndent={false}
+                        hideIcons={hideIcons}
+                    />
+                    {item.children?.map((c) => {
+                        const childItem = items.items[c]
+                        return (
+                            <Item
+                                key={c}
+                                {...childItem}
+                                componentId={componentId}
+                                hideIcons={
+                                    hideIcons
+                                        ? [...hideIcons, ItemIcons.Subtask]
+                                        : [ItemIcons.Subtask]
+                                }
+                                shouldIndent={true}
+                            />
+                        )
+                    })}
+                </div>
+            )
+
+        default:
+            return (
+                <div key={'container-' + item.id}>
+                    <Item
+                        {...item}
+                        key={item.id}
+                        componentId={componentId}
+                        hideIcons={hideIcons}
+                        shouldIndent={false}
+                    />
+                    {item.children?.map((c) => {
+                        const childItem = items.items[c]
+                        return (
+                            <Item
+                                key={c}
+                                {...childItem}
+                                shouldIndent={true}
+                                componentId={componentId}
+                                hideIcons={
+                                    hideIcons
+                                        ? [...hideIcons, ItemIcons.Subtask]
+                                        : [ItemIcons.Subtask]
+                                }
+                            />
+                        )
+                    })}
+                </div>
+            )
+    }
+}
+
+type ItemListProps = OwnProps & StateProps & DispatchProps
 
 configure({ logLevel: 'debug' })
 function ItemList(props: ItemListProps): ReactElement {
@@ -207,82 +283,16 @@ function ItemList(props: ItemListProps): ReactElement {
         <ThemeProvider theme={themes[props.theme]}>
             <Container>
                 <HotKeys keyMap={itemKeymap} handlers={handlers}>
-                    {props.inputItems.map((o) => {
-                        switch (props.renderingStrategy) {
-                            case RenderingStrategy.All:
-                                // If the item has a parent, we need to find if that parent exists in the list we've been provided
-                                if (o.parentId != null) {
-                                    const parentExists = props.inputItems.find(
-                                        (i) => i.id == o.parentId,
-                                    )
-                                    // If it exists it will get rendered later, so don't render it
-                                    if (parentExists) {
-                                        return
-                                    }
-                                }
-                                return (
-                                    <div key={'container-' + o.id}>
-                                        <Item
-                                            {...o}
-                                            key={o.id}
-                                            componentId={props.componentId}
-                                            shouldIndent={false}
-                                            hideIcons={props.hideIcons}
-                                        />
-                                        {o.children?.map((c) => {
-                                            const childItem = props.items.items[c]
-                                            return (
-                                                <Item
-                                                    key={c}
-                                                    {...childItem}
-                                                    componentId={props.componentId}
-                                                    hideIcons={
-                                                        props.hideIcons
-                                                            ? [
-                                                                  ...props.hideIcons,
-                                                                  ItemIcons.Subtask,
-                                                              ]
-                                                            : [ItemIcons.Subtask]
-                                                    }
-                                                    shouldIndent={true}
-                                                />
-                                            )
-                                        })}
-                                    </div>
-                                )
-
-                            default:
-                                return (
-                                    <div key={'container-' + o.id}>
-                                        <Item
-                                            {...o}
-                                            key={o.id}
-                                            componentId={props.componentId}
-                                            hideIcons={props.hideIcons}
-                                            shouldIndent={false}
-                                        />
-                                        {o.children?.map((c) => {
-                                            const childItem = props.items.items[c]
-                                            return (
-                                                <Item
-                                                    key={c}
-                                                    {...childItem}
-                                                    shouldIndent={true}
-                                                    componentId={props.componentId}
-                                                    hideIcons={
-                                                        props.hideIcons
-                                                            ? [
-                                                                  ...props.hideIcons,
-                                                                  ItemIcons.Subtask,
-                                                              ]
-                                                            : [ItemIcons.Subtask]
-                                                    }
-                                                />
-                                            )
-                                        })}
-                                    </div>
-                                )
-                        }
+                    {props.inputItems.map((i) => {
+                        if (i == undefined) return null
+                        return getItem(
+                            i,
+                            props.inputItems,
+                            props.renderingStrategy,
+                            props.componentId,
+                            props.hideIcons,
+                            props.items,
+                        )
                     })}
 
                     {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}

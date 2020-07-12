@@ -5,7 +5,11 @@ import { validateItemString } from '../utils'
 import EditableText from './EditableText'
 import styled, { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
-const electron = window.require('electron')
+import isElectron from 'is-electron'
+
+if (isElectron()) {
+    const electron = window.require('electron')
+}
 
 interface QuickAddProps {
     projectId?: Uuid | '0'

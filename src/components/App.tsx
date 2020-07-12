@@ -39,8 +39,9 @@ import { Projects, Views } from '../interfaces'
 import { Slide } from 'react-toastify'
 import isElectron from 'is-electron'
 import uuidv4 from 'uuid'
-const electron = window.require('electron')
-
+if (isElectron()) {
+    const electron = window.require('electron')
+}
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
 configure({
