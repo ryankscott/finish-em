@@ -112,7 +112,6 @@ app.on('activate', () => {
 })
 
 ipcMain.on('close-quickadd', (event, arg) => {
-    console.log('closing quickadd')
     if (quickAddWindow) {
         quickAddWindow.close()
     }
@@ -120,6 +119,5 @@ ipcMain.on('close-quickadd', (event, arg) => {
 
 // This is to send events between quick add and main window
 ipcMain.on('create-task', (event, arg) => {
-    console.log('create-task on main, going to pong back')
     mainWindow.webContents.send('create-task', arg)
 })

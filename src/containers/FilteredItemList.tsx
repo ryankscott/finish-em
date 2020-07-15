@@ -161,10 +161,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
 
     const [currentPage, setCurrentPage] = useState(1)
     const totalPages = Math.ceil(sortedItems.length / PAGE_SIZE)
-    console.log(currentPage)
-    console.log(totalPages)
-    console.log((currentPage - 1) * PAGE_SIZE)
-    console.log(currentPage * PAGE_SIZE)
 
     useEffect(() => {
         setHideItemList(Object.keys(props.items).length == 0)
@@ -383,6 +379,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                             dataFor={'sort-direction-button'}
                                             type="default"
                                             spacing="compact"
+                                            iconSize="18px"
                                             translateZ={
                                                 sortDirection == SortDirectionEnum.Ascending ? 1 : 0
                                             }
