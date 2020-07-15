@@ -8,6 +8,11 @@ import { Container } from './styled/EditableText'
 import { connect } from 'react-redux'
 import CSS from 'csstype'
 import { fontSizeType } from '../interfaces'
+import isElectron from 'is-electron'
+
+if (isElectron()) {
+    const electron = window.require('electron')
+}
 
 type validation =
     | false
@@ -64,6 +69,12 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     const handleClick = (e): void => {
         // Handle links normally
         if (e.target.nodeName == 'A') {
+            if (e.target.href.startsWith('outlook')) {
+                electron.ipcRenderer.send('open-outlook-link', {
+                    url: e.target.href,
+                })
+                e.preventDefault()
+            }
             return
         }
         if (props.readOnly) {
@@ -169,6 +180,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             return
         }
         if (e.target.nodeName == 'A') {
+            console.log(e.target)
             return
         }
         if (!editable) {

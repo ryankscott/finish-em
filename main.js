@@ -25,6 +25,43 @@ const getMailLink = () => {
     })
 }
 
+// TODO: Also need to implement a handler for Outlook to open the URIs
+const getOutlookLink = () => {
+    const script = `
+    tell application "Microsoft Outlook"    
+    set theSelection to selection
+    set theMessage to item 1 of theSelection
+    set theSubject to subject of theMessage
+    set theSender to sender of theMessage
+    set theID to message id of theMessage
+    set theLink to "outlook://" & theID
+    set theItem to "TODO [" & theSubject & " - " & theSender & " ](" & theLink & ")"
+    set the clipboard to theItem
+    return theItem
+end tell
+`
+    applescript.execString(script, (err, rtn) => {
+        if (err) {
+            console.log(err)
+        }
+    })
+}
+
+const openOutlookLink = (url) => {
+    const script = `
+	set the messageId to text 11 thru -1 of ${url}
+	tell application "Microsoft Outlook"	
+        open message id messageId
+        activate
+	end tell
+`
+    applescript.execString(script, (err, rtn) => {
+        if (err) {
+            console.log(err)
+        }
+    })
+}
+
 function createQuickAddWindow() {
     quickAddWindow = new BrowserWindow({
         width: 580,
@@ -91,6 +128,7 @@ app.on('ready', () => {
     createMainWindow()
     globalShortcut.register('Command+Shift+N', createQuickAddWindow)
     globalShortcut.register('Command+Shift+M', getMailLink)
+    globalShortcut.register('Command+Shift+O', getOutlookLink)
 })
 
 // Quit when all windows are closed.
@@ -115,6 +153,10 @@ ipcMain.on('close-quickadd', (event, arg) => {
     if (quickAddWindow) {
         quickAddWindow.close()
     }
+})
+
+ipcMain.on('open-outlook-link', (event, arg) => {
+    openOutlookLink(arg.url)
 })
 
 // This is to send events between quick add and main window

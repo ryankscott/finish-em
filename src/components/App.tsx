@@ -76,12 +76,11 @@ type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
-    if (isElectron()) {
-        electron.ipcRenderer.on('create-task', (event, arg) => {
-            console.log('create task in renderer')
-            props.createItem(arg.text, arg?.projectId)
-        })
-    }
+    ipcMain.on('close-quickadd', (event, arg) => {
+        if (quickAddWindow) {
+            quickAddWindow.close()
+        }
+    })
 
     useEffect(() => {
         window.addEventListener('resize', () => {
