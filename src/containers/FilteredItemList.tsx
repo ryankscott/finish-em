@@ -18,10 +18,9 @@ import { connect } from 'react-redux'
 import Button from '../components/Button'
 import Tooltip from '../components/Tooltip'
 import { deleteItem } from '../actions/item'
-import { getFilteredItems, getCompletedItems, getUncompletedItems } from '../selectors/item'
+import { getFilteredItems } from '../selectors/item'
 import { components } from 'react-select'
 import ReorderableItemList from '../components/ReorderableItemList'
-import { convertItemToItemType } from '../utils'
 import { ItemIcons } from '../interfaces/item'
 import { hideSubtasks, showSubtasks, deleteComponent } from '../actions'
 import { Uuid } from '@typed/uuid'
@@ -88,9 +87,9 @@ export enum SortDirectionEnum {
 const determineVisibilityRules = (
     isFilterable: boolean,
     hideItemList: boolean,
-    items: ItemType[],
-    sortedItems: ItemType[],
-    completedItems: ItemType[],
+    itemsLength: number,
+    sortedItemsLength: number,
+    completedItemsLength: number,
     dragAndDropEnabled: boolean,
     hideCompletedToggle: boolean,
 ): {
@@ -100,14 +99,13 @@ const determineVisibilityRules = (
     showSortButton: boolean
 } => {
     // Show completed toggle if we have a completed item and it hasn't been disabled
-    const showCompletedToggle = completedItems.length > 0 && !hideCompletedToggle
+    const showCompletedToggle = completedItemsLength > 0 && !hideCompletedToggle
     // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
-    const showFilterBar = isFilterable && Object.keys(items).length > 0 && !hideItemList
+    const showFilterBar = isFilterable && itemsLength > 0 && !hideItemList
     // Show delete button if we have at least one deleted item
-    const showDeleteButton = completedItems.length > 0 && !hideItemList
+    const showDeleteButton = completedItemsLength > 0 && !hideItemList
     // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
-    const showSortButton =
-        Object.keys(sortedItems).length >= 1 && !hideItemList && !dragAndDropEnabled
+    const showSortButton = sortedItemsLength >= 1 && !hideItemList && !dragAndDropEnabled
     return {
         showCompletedToggle,
         showFilterBar,
@@ -118,8 +116,6 @@ const determineVisibilityRules = (
 
 interface StateProps {
     items: Item
-    completedItems: Item
-    uncompletedItems: Item
     features: FeatureType
     theme: string
 }
@@ -153,11 +149,12 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
 
     const theme = themes[props.theme]
     // TODO: Unsure if this should be done in state
-    const allItems = props.items
-    const completedItems = props.completedItems
+    const allItems = Object.values(props.items)
+    const uncompletedItems = Object.values(props.items).filter((m) => m.completed == false)
+    const completedItems = Object.values(props.items).filter((m) => m.completed == true)
     const sortedItems = hideCompleted
-        ? sortItems(convertItemToItemType(props.uncompletedItems), sortCriteria, sortDirection)
-        : sortItems(convertItemToItemType(allItems), sortCriteria, sortDirection)
+        ? sortItems(uncompletedItems, sortCriteria, sortDirection)
+        : sortItems(allItems, sortCriteria, sortDirection)
 
     const [currentPage, setCurrentPage] = useState(1)
     const totalPages = Math.ceil(sortedItems.length / PAGE_SIZE)
@@ -169,14 +166,13 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const visibility = determineVisibilityRules(
         props.isFilterable,
         hideItemList,
-        Object.values(props.items),
-        sortedItems,
-        Object.values(completedItems),
+        allItems.length,
+        sortedItems.length,
+        completedItems.length,
         props.features.dragAndDrop,
         props.hideCompletedToggle,
     )
 
-    const sortedItemsLength = Object.keys(sortedItems).length
     const generatePagination = (pageSize: number, sortedItemsLength: number): ReactElement => {
         if (sortedItemsLength < pageSize) return null
         return (
@@ -255,7 +251,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     <ListHeader>
                         {props.listName}
                         <ListItemCount>
-                            {sortedItemsLength == 1 ? '1 item' : sortedItemsLength + ' items'}
+                            {sortedItems.length == 1 ? '1 item' : sortedItems.length + ' items'}
                         </ListItemCount>
                     </ListHeader>
                     <FilterBar>
@@ -323,9 +319,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                             type="default"
                                             icon="trashSweep"
                                             onClick={() => {
-                                                props.deleteCompletedItems(
-                                                    convertItemToItemType(props.completedItems),
-                                                )
+                                                props.deleteCompletedItems(completedItems)
                                             }}
                                         ></Button>
                                         <Tooltip
@@ -355,7 +349,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     iconSize="14px"
                                     onClick={() => props.hideAllSubtasks(sortedItems, props.id)}
                                 />
-                                <Tooltip id="collapse-all-button" text={'Collapse all subtaks'} />
+                                <Tooltip id="collapse-all-button" text={'Collapse all subtasks'} />
                                 {visibility.showSortButton && (
                                     <SortContainer>
                                         <SortSelect
@@ -422,7 +416,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                         )}
                     </ItemListContainer>
                 )}
-                {generatePagination(PAGE_SIZE, sortedItemsLength)}
+                {generatePagination(PAGE_SIZE, sortedItems.length)}
             </Container>
         </ThemeProvider>
     )
@@ -431,8 +425,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
 const mapStateToProps = (state, props): StateProps => {
     return {
         items: getFilteredItems(state, props),
-        completedItems: getCompletedItems(state, props),
-        uncompletedItems: getUncompletedItems(state, props),
         features: state.features,
         theme: state.ui.theme,
     }
