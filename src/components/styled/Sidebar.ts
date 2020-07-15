@@ -46,6 +46,7 @@ export const Footer = styled.div<FooterProps>`
 'collapse'`};
     flex-direction: row;
     justify-content: space-between;
+    background-color: ${(props) => props.theme.colours.altBackgroundColour};
 `
 export const StyledHorizontalRule = styled.hr`
     box-sizing: border-box;
@@ -57,6 +58,7 @@ export const CollapseContainer = styled.div`
     grid-area: collapse;
     display: flex;
     justify-content: center;
+    background-color: ${(props) => props.theme.colours.altBackgroundColour};
 `
 
 interface SettingsContainerProps {
@@ -85,4 +87,5 @@ export const AddProjectContainer = styled.div`
     display: flex;
     width: 100%;
     justify-content: center;
+    background-color: ${(props) => props.theme.colours.altBackgroundColour};
 `
