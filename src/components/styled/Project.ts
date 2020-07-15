@@ -15,12 +15,13 @@ export const HeaderContainer = styled.div`
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+    padding: 5px 0px;
 `
 export const AddProjectContainer = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
-    padding: 2px 0px;
+    padding: 5px 0px;
 `
 
 export const StaleContainer = styled.div`

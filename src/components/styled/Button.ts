@@ -13,7 +13,8 @@ interface StyledProps {
 // TODO: Fix the font-family here
 export const StyledButton = styled.button<StyledProps>`
     display: flex;
-    font-family: -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+    position: relative;
+    font-family: ${(props) => props.theme.font.sansSerif};
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -32,8 +33,8 @@ export const StyledButton = styled.button<StyledProps>`
     margin: 2px;
     cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
     border-radius: 5px;
-    border: none;
-    border-color: ${(props) => props.theme.borderColour};
+    border: 1px solid;
+    border-color: ${(props) => props.theme.button[props.buttonType].borderColour};
     text-align: center;
     box-shadow: ${(props) =>
         props.buttonType == 'primary' && !props.iconOnly
@@ -62,6 +63,7 @@ export const StyledButton = styled.button<StyledProps>`
     }
 `
 export const Contents = styled.div`
+    position: relative;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

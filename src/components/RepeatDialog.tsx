@@ -9,14 +9,13 @@ import { parseISO } from 'date-fns'
 import {
     OptionContainer,
     Label,
-    StyledSelect,
     Value,
     Container,
     Input,
     ButtonContainer,
 } from './styled/RepeatDialog'
 import { connect } from 'react-redux'
-
+import Select from 'react-select'
 const frequencyOptions: { value: Frequency; label: string }[] = [
     {
         value: RRule.DAILY,
@@ -102,6 +101,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                     <Label>Starts: </Label>
                     <Value>
                         <DatePicker
+                            style={'default'}
                             text={startDateText}
                             textSize="xxxsmall"
                             placeholder="Start date"
@@ -123,15 +123,15 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                             name="repeats-every"
                             onChange={(e) => setRepeatInterval(parseInt(e.target.value, 10))}
                         ></Input>
-                        <StyledSelect
+                        <Select
                             key="freq"
                             placeholder="Interval"
                             options={frequencyOptions}
                             styles={selectStyles({
                                 fontSize: 'xxxsmall',
-                                minWidth: '50px',
-                                width: '65px',
                                 theme: themes[props.theme],
+                                minWidth: '70px',
+                                width: '70px',
                             })}
                             onChange={(newValue, actionMeta) => {
                                 if (actionMeta.action == 'select-option') {
@@ -144,7 +144,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                 <OptionContainer>
                     <Label>Ends: </Label>
                     <Value>
-                        <StyledSelect
+                        <Select
                             key="end"
                             placeholder="Never"
                             options={endOptions}
@@ -159,7 +159,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                                     setEndType(newValue.value)
                                 }
                             }}
-                        ></StyledSelect>
+                        />
                     </Value>
                 </OptionContainer>
                 {endType == 'number_of_times' && (
@@ -201,7 +201,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                         text="Set Repeat"
                         textSize="xxxsmall"
                         width={'80px'}
-                        onClick={(e) => {
+                        onClick={() => {
                             handleSubmit()
                         }}
                     ></Button>

@@ -5,7 +5,7 @@ export const Container = styled.div`
     display: flex;
     background-color: ${(props) => props.theme.colours.dialogBackgroundColour};
     flex-direction: column;
-    padding: 10px 5px;
+    padding: 10px 10px;
     z-index: 99;
     position: absolute;
     top: 30px;
@@ -13,7 +13,8 @@ export const Container = styled.div`
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
     border-radius: 5px;
-    width: 230px;
+    width: 240px;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
 `
 
 export const ButtonContainer = styled.div`
@@ -53,7 +54,8 @@ export const OptionContainer = styled.div`
 `
 
 export const Input = styled.input`
-    padding: 5px;
+    padding: 6px;
+    margin: 0px 2px;
     border-radius: 5px;
     border: 1px solid;
     width: 40px;
@@ -61,10 +63,4 @@ export const Input = styled.input`
     font-size: ${(props) => props.theme.fontSizes.xxsmall};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     border-color: ${(props) => props.theme.colours.borderColour};
-`
-
-export const StyledSelect = styled(Select)`
-    position: absolute;
-    right: 4px;
-    top: 2px;
 `

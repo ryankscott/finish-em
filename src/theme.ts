@@ -109,13 +109,13 @@ export const themes: { [key: string]: ThemeType } = {
             default: {
                 backgroundColour: '#F5f5f5',
                 colour: '#333333',
-                borderColour: '#e0e0e0',
+                borderColour: 'transparent',
                 hoverBackgroundColour: darken(0.05, '#F5f5f5'),
             },
             invert: {
                 backgroundColour: '#404040',
                 colour: '#F5f5f5',
-                borderColour: '#e0e0e0',
+                borderColour: 'transparent',
                 hoverBackgroundColour: lighten(0.1, '#404040'),
             },
             primary: {
@@ -133,13 +133,13 @@ export const themes: { [key: string]: ThemeType } = {
             subtle: {
                 backgroundColour: 'rgba(255,255,255, 0)',
                 colour: '#333333',
-                borderColour: '#e0e0e0',
+                borderColour: 'transparent',
                 hoverBackgroundColour: 'rgba(255,255,255, 0.01)',
             },
             subtleInvert: {
                 backgroundColour: 'rgba(0,0,0,0)',
                 colour: '#EEEEEE',
-                borderColour: 'none',
+                borderColour: 'transparent',
                 hoverBackgroundColour: 'rgba(0,0,0, 0.05)',
             },
         },
@@ -276,25 +276,35 @@ interface SelectStylesProps {
 }
 export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     return {
-        container: () => ({
+        container: (styles) => ({
+            ...styles,
             padding: '0px 0px',
             width: props.width || 'auto',
             minWidth: props.minWidth || '120px',
             maxHeight: props.maxHeight || '180px',
-            zIndex: 1,
+            borderColor: `${props.theme.colours.borderColour} !important`,
+            '&:active': {
+                borderColor: `${props.theme.colours.borderColour} !important`,
+            },
+            '&:focus': {
+                borderColor: `${props.theme.colours.borderColour} !important`,
+            },
         }),
-        input: () => ({
+        input: (styles) => ({
+            ...styles,
             padding: '5px 2px',
             fontFamily: props.theme.font.sansSerif,
             color: props.theme.colours.textColour,
             fontSize: props.theme.fontSizes[props.fontSize],
         }),
-        valueContainer: (base) => ({
-            ...base,
+        valueContainer: (styles) => ({
+            ...styles,
+            padding: '0px 5px',
             color: props.theme.colours.textColour,
         }),
-        menu: () => {
+        menu: (styles) => {
             return {
+                ...styles,
                 margin: '0px 0px',
                 padding: '5px 0px',
                 border: '1px solid',
@@ -314,6 +324,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             return {
                 ...styles,
                 tabIndex: 0,
+                position: 'relative',
                 color: readableColor(backgroundColour),
                 backgroundColor: backgroundColour,
                 padding: '5px 10px',
@@ -333,12 +344,14 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             color: props.theme.colours.textColour,
             fontSize: props.theme.fontSizes[props.fontSize],
         }),
-        singleValue: (base) => ({
-            ...base,
+        singleValue: (styles) => ({
+            ...styles,
             color: props.theme.colours.textColour,
         }),
-        control: (base) => ({
+        control: (styles) => ({
+            ...styles,
             display: 'flex',
+            minHeight: 'none',
             flexDirection: 'row',
             width: '100%',
             margin: 0,
@@ -348,15 +361,26 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             fontSize: props.theme.fontSizes[props.fontSize],
             backgroundColor: props.theme.colours.backgroundColour,
             border: '1px solid',
-            borderColor: props.theme.colours.borderColour,
+            boxShadow: 'none !important',
+            borderColor: `${props.theme.colours.borderColour} !important`,
             borderRadius: '5px',
-            zIndex: 0,
             '&:hover': {
                 backgroundColor: props.theme.button.default.hoverBackgroundColour,
+                borderColor: `${props.theme.colours.borderColour} !important`,
+            },
+            '&:active': {
+                backgroundColor: props.theme.button.default.hoverBackgroundColour,
+                borderColor: `${props.theme.colours.borderColour} !important`,
+                boxShadow: 'none !important',
+            },
+            '&:focus': {
+                backgroundColor: props.theme.button.default.hoverBackgroundColour,
+                borderColor: `${props.theme.colours.borderColour} !important`,
+                boxShadow: 'none !important',
             },
         }),
-        indicatorsContainer: (style) => ({
-            ...style,
+        indicatorsContainer: (styles) => ({
+            ...styles,
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
@@ -410,7 +434,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             fontFamily: props.theme.font.sansSerif,
             fontSize: props.theme.fontSizes[props.fontSize],
             fontWeight: props.theme.fontWeights.thin,
-            padding: '2px 5px',
+            padding: '0px 5px',
         }),
     }
 }

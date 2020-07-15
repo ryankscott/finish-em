@@ -12,7 +12,7 @@ export const HeaderBar = styled.div`
     border-radius: 5px 5px 0px 0px;
     box-shadow: ${(props) => '0px 1px 4px ' + props.theme.colours.borderColour};
     grid-template-rows: 40px;
-    grid-template-columns: 30px 200px auto;
+    grid-template-columns: 30px 240px auto;
     grid-template-areas: 'hide header filterBar';
 `
 
@@ -22,6 +22,7 @@ export const FilterBar = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+    align-items: center;
 `
 
 export const HideButtonContainer = styled.div`
@@ -44,13 +45,7 @@ export const SortContainer = styled.div`
 `
 
 export const SortSelect = styled(Select)`
-    caret-color: transparent;
-    padding: 0px 2px;
-    display: flex;
-    flex-direction: column;
-    top: 1px;
-    right: 30px;
-    position: absolute;
+    margin: 2px 0px;
 `
 
 export const ListHeader = styled.div`
@@ -59,7 +54,7 @@ export const ListHeader = styled.div`
     font-size: ${(props) => props.theme.fontSizes.regular};
     grid-area: header;
     padding: 2px 0px;
-    margin: 0px;
+    margin: 0px 5px;
     align-self: center;
 `
 export const ListItemCount = styled(Paragraph)`
