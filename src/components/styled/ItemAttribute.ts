@@ -10,8 +10,7 @@ export const AttributeContainer = styled.div<AttributeContainerProps>`
     align-items: center;
     padding: 0px 5px;
     margin: 0px 2px;
-    text-decoration: ${(props) =>
-        props.completed ? 'strike-through' : 'none'};
+    text-decoration: ${(props) => (props.completed ? 'strike-through' : 'none')};
 `
 
 export const AttributeIcon = styled.div`

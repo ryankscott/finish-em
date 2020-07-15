@@ -160,7 +160,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                     <Button
                         type={'default'}
                         iconSize="14px"
-                        width="80px"
+                        width="90px"
                         icon={'add'}
                         text={'Add list'}
                         onClick={() => {

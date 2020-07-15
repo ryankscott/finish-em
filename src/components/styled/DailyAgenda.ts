@@ -15,7 +15,8 @@ export const DateContainer = styled.div`
 export const Section = styled.div`
     display: flex;
     flex-direction: column;
-    margin: 10px 0px;
+    margin: 0px 5px;
+    padding: 0px 5px;
     width: 100%;
 `
 
