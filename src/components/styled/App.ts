@@ -34,6 +34,7 @@ export const SidebarContainer = styled.div<SidebarContainerProps>`
     min-width: ${(props) => (props.visible ? '300px' : '50px')};
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
+    background-color: ${(props) => props.theme.colours.altBackgroundColour};
 `
 
 interface MainContainerProps {
