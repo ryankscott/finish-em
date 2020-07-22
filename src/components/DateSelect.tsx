@@ -1,22 +1,30 @@
 import React, { ReactElement, useState } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import Select from 'react-select'
 import { themes, selectStyles } from '../theme'
-import { add, lastDayOfWeek } from 'date-fns'
+import { add, sub, lastDayOfWeek } from 'date-fns'
 import './DatePicker.css'
 import DayPicker from 'react-day-picker/DayPicker'
 import { connect } from 'react-redux'
 
 const options: { value: string; label: string }[] = [
-    { value: new Date().toISOString(), label: 'Today' },
+    { value: (() => new Date().toISOString())(), label: 'Today' },
     {
-        value: add(new Date(), { days: 1 }).toISOString(),
+        value: (() => add(new Date(), { days: 1 }).toISOString())(),
         label: 'Tomorrow',
     },
     {
-        value: add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
-            days: 1,
-        }).toISOString(),
+        value: (() =>
+            sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+                days: 2,
+            }).toISOString())(),
+        label: 'End of Week',
+    },
+    {
+        value: (() =>
+            add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+                days: 1,
+            }).toISOString())(),
         label: 'Next Week',
     },
     {
