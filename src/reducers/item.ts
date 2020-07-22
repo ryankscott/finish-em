@@ -79,7 +79,15 @@ export const itemReducer = produce(
                     i.completedAt = new Date().toISOString()
                     // We should set the due date if there's a repeat to the next occurrence
                 } else {
-                    i.dueDate = rrulestr(i.repeat).after(new Date()).toISOString()
+                    // Check if there's another repeat
+                    const nextDate = rrulestr(i.repeat).after(new Date())
+                    if (!nextDate) {
+                        i.dueDate == null
+                        i.completed = true
+                        i.completedAt = new Date().toISOString()
+                    } else {
+                        i.dueDate = nextDate.toISOString()
+                    }
                 }
                 i.lastUpdatedAt = new Date().toISOString()
                 break
@@ -143,7 +151,8 @@ export const itemReducer = produce(
                 i.lastUpdatedAt = new Date().toISOString()
                 // If we don't have the due date we should set this to the next instance of the repeat after today
                 if (i.dueDate == null) {
-                    i.dueDate = action.rule.after(startOfDay(new Date()), true).toISOString()
+                    const nextDueDate = action.rule.after(startOfDay(new Date()), true)
+                    i.dueDate = nextDueDate == null ? null : nextDueDate.toISOString()
                 }
                 break
 
