@@ -75,6 +75,7 @@ li {
 }
 table {
     padding: 5px;
+    padding-bottom: 20px;
     max-width: 600px;
     width: 100%;
 }
@@ -83,7 +84,7 @@ thead {
 tbody {
     tr:first-child {
         td {
-            padding-top: 8px;
+            padding-top: 5px;
         }
     }
 }

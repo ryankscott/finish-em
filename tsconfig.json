@@ -13,7 +13,8 @@
         "src/**/*.tsx",
         "src/**/*.jsx",
         "src/**/*.js",
-        "scripts.ts"
+        "scripts.ts",
+        "StyledComponents.ts"
     ],
     "exclude": ["node_modules", "**/*.js", "dist", "build", "cypress"]
 }

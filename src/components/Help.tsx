@@ -4,6 +4,7 @@ import marked from 'marked'
 import styled, { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import helpText from '../assets/help.md'
+import shortcutsText from '../assets/shortcuts.md'
 
 const Container = styled.div`
     width: 100%;
@@ -23,9 +24,12 @@ type HelpProps = OwnProps & StateProps
 export const Help = (props: HelpProps): ReactElement => {
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <Container
-                dangerouslySetInnerHTML={{ __html: marked(helpText, { breaks: true }) }}
-            ></Container>
+            <Container>
+                <div dangerouslySetInnerHTML={{ __html: marked(helpText, { breaks: true }) }}></div>
+                <div
+                    dangerouslySetInnerHTML={{ __html: marked(shortcutsText, { breaks: true }) }}
+                ></div>
+            </Container>
         </ThemeProvider>
     )
 }

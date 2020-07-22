@@ -1,73 +1,35 @@
-import styled from 'styled-components'
-import { Paragraph } from '../Typography'
+import styled from '../../StyledComponents'
 
 interface ShortcutContainerProps {
     isOpen: boolean
 }
-export const ShortcutContainer = styled.div<ShortcutContainerProps>`
-    display: ${(props) => (props.isOpen ? 'block' : 'none')};
+export const Container = styled.div<ShortcutContainerProps>`
+    display: ${(props) => (props.isOpen ? 'flex' : 'none')};
     position: fixed;
-    background-color: ${(props) => props.theme.colours.altBackgroundColour};
+    background-color: ${(props) => props.theme.colours.dialogBackgroundColour};
     color: ${(props) => props.theme.colours.altTextColour};
-    opacity: 0.85;
     width: 650px;
+    height: 600px;
+    overflow: auto;
     top: 50%;
     left: calc(50%);
     transform: translate(-50%, -50%);
-    padding: 2px;
+    padding: 0px 20px;
     z-index: 99;
-    height: 700px;
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
+    box-shadow: 0px 1px 4px ${(props) => props.theme.colours.borderColour};
     border-radius: 5px;
 `
-
-export const Header = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: baseline;
-    margin: 5px 0px;
+export const CloseButtonContainer = styled.div`
+    position: absolute;
+    top: 5px;
+    right: 5px;
 `
-
-export const Controls = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    padding: 2px;
-`
-
-export const Body = styled.div`
+export const ShortcutsContainer = styled.div`
+    width: 100%;
     display: flex;
     flex-direction: column;
-    width: 100%;
     align-items: center;
-`
-
-export const Row = styled.div`
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-`
-
-export const Data = styled.div`
-    display: flex;
-    width: 50%;
-    justify-content: center;
-`
-
-export const ShortcutTable = styled.div`
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-`
-
-export const ShortcutName = styled(Paragraph)`
-    width: 180px;
-    color: ${(props) => props.theme.colours.altTextColour};
-`
-
-export const ShortcutKeys = styled(Paragraph)`
-    width: 40px;
-    color: ${(props) => props.theme.colours.primaryColour};
+    padding: 20px 50px;
 `
