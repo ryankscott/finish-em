@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import styled, { ThemeProvider } from 'styled-components'
+import styled, { ThemeProvider } from '../StyledComponents'
 import { connect } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
@@ -42,7 +42,8 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
     display: flex;
     box-sizing: border-box;
     justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
-    font-size: ${(props) => props.theme.fontSizes.small};
+    font-size: ${(props) =>
+        props.sidebarVisible ? props.theme.fontSizes.small : props.theme.fontSizes.xlarge};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};
     border-radius: 5px;
