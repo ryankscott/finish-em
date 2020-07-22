@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react'
 import Button from './Button'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { Container, SubTextContainer } from './styled/DateRenderer'
 import { IconType } from '../interfaces'

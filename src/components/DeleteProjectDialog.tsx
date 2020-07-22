@@ -1,5 +1,5 @@
 import React, { ReactElement, useState, useEffect } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { connect } from 'react-redux'
 
 import { Paragraph, Header3 } from './Typography'

@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { themes } from '../theme'

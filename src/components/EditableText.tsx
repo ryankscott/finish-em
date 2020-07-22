@@ -1,14 +1,21 @@
 import React, { ReactElement, useState, useEffect } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import marked from 'marked'
-import { setEndOfContenteditable } from '../utils'
-import { Paragraph, Title, Header } from './Typography'
+import {
+    setEndOfContenteditable,
+    dueTextRegex,
+    scheduledTextRegex,
+    projectTextRegex,
+    repeatTextRegex,
+} from '../utils'
+import { Paragraph, Title, Header, Code } from './Typography'
 import { Container } from './styled/EditableText'
 import { connect } from 'react-redux'
 import CSS from 'csstype'
 import { fontSizeType } from '../interfaces'
 import isElectron from 'is-electron'
+import uuidv4 from 'uuid'
 
 if (isElectron()) {
     const electron = window.require('electron')
@@ -38,7 +45,8 @@ interface OwnProps {
     width?: string
     height?: string
     singleline?: boolean
-    style?: typeof Title | typeof Paragraph | typeof Header
+    plainText?: boolean
+    style?: typeof Title | typeof Paragraph | typeof Header | typeof Code
     onKeyDown?: (input: string) => void
     onEditingChange?: (isEditing: boolean) => void
     onEscape?: () => void
@@ -121,6 +129,15 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     }
 
     const handleKeyUp = (e): void => {
+        // debugger
+        let currentVal = props.innerRef.current.innerText
+        currentVal = currentVal.replace(dueTextRegex, '<span>$&</span>')
+        currentVal = currentVal.replace(scheduledTextRegex, '<span>$&</span>')
+        currentVal = currentVal.replace(projectTextRegex, '<span>$&</span>')
+        currentVal = currentVal.replace(repeatTextRegex, '<span>$&</span>')
+        props.innerRef.current.innerHTML = currentVal
+        setEndOfContenteditable(props.innerRef.current)
+
         if (e.key == 'Escape') {
             if (props.onEditingChange) {
                 props.onEditingChange(false)
@@ -132,11 +149,10 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
     const handleKeyPress = (e): void => {
         const currentVal = props.innerRef.current.innerText
-
         if (props.onKeyDown) {
             props.onKeyDown(currentVal)
         }
-
+        // Validation logic
         if (props.validation != false) {
             setValid(props.validation.rule(currentVal))
         }
@@ -209,10 +225,12 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             }),
         }
     }
+    const id = uuidv4()
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container
+                id={id}
                 fontSize={props.fontSize}
                 backgroundColour={props.backgroundColour}
                 valid={props.validation != false ? valid : true}
@@ -229,7 +247,15 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 tabIndex={-1}
                 onKeyPress={handleKeyPress}
                 onKeyUp={handleKeyUp}
-                dangerouslySetInnerHTML={editable ? getRawText() : getMarkdownText()}
+                dangerouslySetInnerHTML={
+                    props.plainText
+                        ? {
+                              __html: props.input,
+                          }
+                        : editable
+                        ? getRawText()
+                        : getMarkdownText()
+                }
             />
         </ThemeProvider>
     )

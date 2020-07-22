@@ -17,6 +17,18 @@ export const Header = styled.h2`
     margin: 10px 0px;
 `
 
+export const Code = styled.code`
+    font-size: ${(props) => props.theme.fontSizes.xxsmall};
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    color: ${(props) => props.theme.colours.textColour};
+    background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+    border: 1px solid;
+    border-color: ${(props) => props.theme.colours.borderColour};
+    border-radius: 5px;
+    padding: 2px 5px;
+    margin: 2px 5px;
+`
+
 interface Header1Props {
     invert?: boolean
 }

@@ -1,5 +1,5 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import CreatableSelect from 'react-select/creatable'
 import { themes, selectStyles } from '../theme'
 import { Uuid } from '@typed/uuid'

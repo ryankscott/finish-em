@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { connect } from 'react-redux'
 import { Items, ProjectType } from '../interfaces'

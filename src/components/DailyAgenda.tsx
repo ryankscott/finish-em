@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { format, sub, add } from 'date-fns'
 import { connect } from 'react-redux'
 import uuidv4 from 'uuid'

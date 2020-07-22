@@ -1,6 +1,6 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import {
     DialogContainer,
     DialogHeader,
@@ -10,6 +10,8 @@ import {
     SettingValue,
     SelectContainer,
     SaveContainer,
+    HelpButtonContainer,
+    CloseButtonContainer,
 } from './styled/FilteredItemDialog'
 import { themes, selectStyles } from '../theme'
 import Button from './Button'
@@ -27,6 +29,9 @@ import Select from 'react-select'
 import { generateFiltrexOptions } from '../utils'
 import { ItemIcons } from '../interfaces/item'
 import { Labels, IconType } from '../interfaces'
+import { Icons } from '../assets/icons'
+import Tooltip from './Tooltip'
+import { Code } from './Typography'
 
 const options: { value: string; label: string }[] = [
     { value: ItemIcons.Project, label: 'Project' },
@@ -94,14 +99,39 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 {showDialog && (
                     <DialogContainer>
                         <DialogHeader>
+                            <HelpButtonContainer
+                                data-for={'help-icon' + props.componentId}
+                                data-tip
+                                data-html={true}
+                            >
+                                {Icons.help(18, 18, themes[props.theme].colours.disabledTextColour)}
+                            </HelpButtonContainer>
                             <DialogName>{'Update List'}</DialogName>
-                            <Button
-                                type="subtle"
-                                spacing="compact"
-                                icon="close"
-                                onClick={() => {
-                                    setShowDialog(false)
-                                }}
+
+                            <CloseButtonContainer>
+                                <Button
+                                    type="default"
+                                    spacing="compact"
+                                    icon="close"
+                                    onClick={() => {
+                                        setShowDialog(false)
+                                    }}
+                                />
+                            </CloseButtonContainer>
+                            <Tooltip
+                                id={'help-icon' + props.componentId}
+                                multiline={true}
+                                html={true}
+                                text={`
+                                <h3 style="color:#e0e0e0;padding-top:10px">Options:</h3>
+                                <ul>
+                                <li> Name - the name displayed for the list </li>
+                                <li> Filter - the query to determine the items shown (See help for syntax) </li>
+                                <li> Filterable - shows or hides the filter bar </li>
+                                <li> Show subtasks - will show subtasks when the parent isn't included in the list </li>
+                                <li> Hide icons - select the icons to hide each item </li>
+                                </ul>
+                                `}
                             />
                         </DialogHeader>
 
@@ -134,6 +164,8 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                                     fontSize={'xsmall'}
                                     shouldSubmitOnBlur={true}
                                     onEscape={() => {}}
+                                    style={Code}
+                                    plainText={true}
                                     validation={{
                                         validate: true,
                                         rule: (input) => {

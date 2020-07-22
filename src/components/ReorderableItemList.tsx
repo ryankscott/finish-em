@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import Item from './Item'
 import { ItemIcons } from '../interfaces/item'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType, RenderingStrategy, Items } from '../interfaces'

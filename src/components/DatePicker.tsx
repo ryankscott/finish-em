@@ -1,5 +1,5 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { Container, SelectContainer } from './styled/DatePicker'
 import DateRenderer from './DateRenderer'

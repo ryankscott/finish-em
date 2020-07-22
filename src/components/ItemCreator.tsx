@@ -7,7 +7,14 @@ import Button from './Button'
 import Tooltip from './Tooltip'
 import EditableText from './EditableText'
 import { validateItemString } from '../utils'
-import { Container, ItemCreatorContainer } from './styled/ItemCreator'
+import { Container, ItemCreatorContainer, HelpButtonContainer } from './styled/ItemCreator'
+import { Icons } from '../assets/icons'
+import { themes } from '../theme'
+import { ThemeProvider } from '../StyledComponents'
+
+interface StateProps {
+    theme: string
+}
 
 interface DispatchProps {
     createSubTask: (parentId: Uuid, text: string, projectId: Uuid | '0') => void
@@ -28,7 +35,7 @@ interface OwnProps {
     onEscape?: () => void
 }
 
-type ItemCreatorProps = OwnProps & DispatchProps
+type ItemCreatorProps = OwnProps & DispatchProps & StateProps
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     const textRef: React.RefObject<HTMLInputElement> = props.innerRef
         ? props.innerRef
@@ -50,63 +57,92 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     }, [])
 
     return (
-        <Container
-            ref={node}
-            onKeyDown={(e) => {
-                if (e.key == 'Escape') {
-                    setShowItemCreator(false)
-                }
-            }}
-        >
-            {!props.hideButton && (
-                <Button
-                    dataFor={'add-item' + props.parentId + props.projectId + props.type}
-                    type="primary"
-                    spacing="compact"
-                    icon="add"
-                    height={props.buttonText ? 'auto' : '26px'}
-                    width={props.buttonText ? 'auto' : '26px'}
-                    text={showItemCreator ? '' : props.buttonText}
-                    onClick={() => {
-                        setShowItemCreator(!showItemCreator)
-                        showItemCreator ? textRef.current.blur() : textRef.current.focus()
-                    }}
-                />
-            )}
-            <Tooltip
-                id={'add-item' + props.parentId + props.projectId + props.type}
-                text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
-            ></Tooltip>
-            <ItemCreatorContainer width={props.width} visible={showItemCreator}>
-                <EditableText
-                    innerRef={textRef}
-                    onUpdate={(text) => {
-                        props.type == 'item'
-                            ? props.createItem(text, props.projectId)
-                            : props.createSubTask(props.parentId, text, null)
-                        if (props.shouldCloseOnSubmit) {
-                            setShowItemCreator(false)
-                        } else {
-                            textRef.current.focus()
-                        }
-                        if (props.onCreate) {
-                            props.onCreate()
-                        }
-                    }}
-                    readOnly={false}
-                    validation={{ validate: true, rule: validateItemString }}
-                    input=""
-                    singleline={true}
-                    shouldClearOnSubmit={true}
-                    shouldSubmitOnBlur={false}
-                    onEscape={props.onEscape}
-                />
-            </ItemCreatorContainer>
-        </Container>
+        <ThemeProvider theme={themes[props.theme]}>
+            <Container
+                ref={node}
+                onKeyDown={(e) => {
+                    if (e.key == 'Escape') {
+                        setShowItemCreator(false)
+                    }
+                }}
+            >
+                {!props.hideButton && (
+                    <Button
+                        dataFor={'add-item' + props.parentId + props.projectId + props.type}
+                        type="primary"
+                        spacing="compact"
+                        icon="add"
+                        height={props.buttonText ? 'auto' : '26px'}
+                        width={props.buttonText ? 'auto' : '26px'}
+                        text={showItemCreator ? '' : props.buttonText}
+                        onClick={() => {
+                            setShowItemCreator(!showItemCreator)
+                            showItemCreator ? textRef.current.blur() : textRef.current.focus()
+                        }}
+                    />
+                )}
+                <Tooltip
+                    id={'add-item' + props.parentId + props.projectId + props.type}
+                    text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
+                ></Tooltip>
+                <ItemCreatorContainer width={props.width} visible={showItemCreator}>
+                    <EditableText
+                        innerRef={textRef}
+                        onUpdate={(text) => {
+                            props.type == 'item'
+                                ? props.createItem(text, props.projectId)
+                                : props.createSubTask(props.parentId, text, null)
+                            if (props.shouldCloseOnSubmit) {
+                                setShowItemCreator(false)
+                            } else {
+                                textRef.current.focus()
+                            }
+                            if (props.onCreate) {
+                                props.onCreate()
+                            }
+                        }}
+                        readOnly={false}
+                        validation={{ validate: true, rule: validateItemString }}
+                        input=""
+                        singleline={true}
+                        shouldClearOnSubmit={true}
+                        shouldSubmitOnBlur={false}
+                        onEscape={props.onEscape}
+                    />
+                    <HelpButtonContainer
+                        data-for={'help-icon' + props.parentId + props.projectId + props.type}
+                        data-tip
+                        data-html={true}
+                    >
+                        {Icons.help(18, 18, themes[props.theme].colours.disabledTextColour)}
+                    </HelpButtonContainer>
+                    <Tooltip
+                        id={'help-icon' + props.parentId + props.projectId + props.type}
+                        multiline={true}
+                        html={true}
+                        text={`To add an item first start with the type of item you want  <br>
+                        <ul>
+                        <li> <code>TODO</code> for todos </li>
+                        <li> <code>NOTE</code> for notes </li> 
+                        </ul>
+                        You can also add different attributes: <br>
+                        <ul>
+                        <li> <code>due:today</code> or <code>due:"7th January"</code> </li>
+                        <li> <code>scheduled:monday</code> or <code>scheduled:"next monday"</code> </li>
+                        <li> <code>project:Inbox</code> or <code>project:"Important secret project"</code> </li>
+                        </ul>
+                         Note that multi word inputs need to be surrounded in quotation marks ""
+                         `}
+                    ></Tooltip>
+                </ItemCreatorContainer>
+            </Container>
+        </ThemeProvider>
     )
 }
 
-const mapStateToProps = (state): {} => ({})
+const mapStateToProps = (state): StateProps => ({
+    theme: state.ui.theme,
+})
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     createItem: (text: string, projectId: Uuid | '0') => {

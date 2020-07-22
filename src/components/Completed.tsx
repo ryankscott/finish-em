@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 
 import { themes } from '../theme'
 import FilteredItemList from '../containers/FilteredItemList'

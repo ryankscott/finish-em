@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Switch from 'react-switch'
 import { connect } from 'react-redux'

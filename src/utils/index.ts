@@ -3,6 +3,11 @@ import { ItemType, Item, RenderingStrategy, Labels } from '../interfaces'
 import RRule from 'rrule'
 
 export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
+export const dueTextRegex = /due:("[\s\S]*")|due:(\S+)/g
+export const scheduledTextRegex = /scheduled:(".*")|scheduled:(\S+)/g
+export const projectTextRegex = /project:(".*")|project:(\S+)/g
+export const repeatTextRegex = /repeat:(".*")|repeat:(\S+)/g
+
 import emojiRegex from 'emoji-regex/text.js'
 import {
     parseISO,
@@ -67,62 +72,7 @@ export const removeDateFromString = (text: string): string => {
     return (startString + endString).trim()
 }
 
-// Thanks https://stackoverflow.com/questions/1125292/how-to-move-cursor-to-end-of-contenteditable-entity
-//
-
-//From: http://www.w3.org/TR/html-markup/syntax.html#syntax-elements
-const voidNodeTags = [
-    'AREA',
-    'BASE',
-    'BR',
-    'COL',
-    'EMBED',
-    'HR',
-    'IMG',
-    'INPUT',
-    'KEYGEN',
-    'LINK',
-    'MENUITEM',
-    'META',
-    'PARAM',
-    'SOURCE',
-    'TRACK',
-    'WBR',
-    'BASEFONT',
-    'BGSOUND',
-    'FRAME',
-    'ISINDEX',
-]
-
-//Basic idea from: https://stackoverflow.com/questions/19790442/test-if-an-element-can-contain-text
-const canContainText = (node: Node): boolean => {
-    if (node.nodeType == 1) {
-        //is an element node
-        return !voidNodeTags.includes(node.nodeName)
-    } else {
-        //is not an element node
-        return false
-    }
-}
-
-const getLastChildElement = (el: Node): ChildNode => {
-    let lc = el.lastChild
-    while (lc && lc.nodeType != 1) {
-        if (lc.previousSibling) lc = lc.previousSibling
-        else break
-    }
-    return lc
-}
-
-// Based on Nico Burns's answer
 export const setEndOfContenteditable = (contentEditableElement): void => {
-    while (
-        getLastChildElement(contentEditableElement) &&
-        canContainText(getLastChildElement(contentEditableElement))
-    ) {
-        contentEditableElement = getLastChildElement(contentEditableElement)
-    }
-
     let range, selection
     if (document.createRange) {
         //Firefox, Chrome, Opera, Safari, IE 9+

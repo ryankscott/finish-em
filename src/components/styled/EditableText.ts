@@ -60,4 +60,10 @@ export const Container = styled.div<ContainerProps>`
     :active {
         outline: 0;
     }
+    & > span {
+        background-color: ${(props) => props.theme.colours.penternaryColour};
+        color: ${(props) => props.theme.colours.altTextColour};
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
 `

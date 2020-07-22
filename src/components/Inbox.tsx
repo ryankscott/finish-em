@@ -1,9 +1,9 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 
 import { themes } from '../theme'
 import { Container } from './styled/View'
-import { Label, MainComponents } from '../interfaces'
+import { Label, MainComponents, Component } from '../interfaces'
 import { connect } from 'react-redux'
 import ViewHeader from './ViewHeader'
 import ItemCreator from './ItemCreator'

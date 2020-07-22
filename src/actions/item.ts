@@ -1,5 +1,6 @@
 import { Uuid } from '@typed/uuid'
 import { toast } from 'react-toastify'
+import chrono from 'chrono-node'
 
 export const CREATE_ITEM = 'CREATE_ITEM'
 export const DELETE_ITEM = 'DELETE_ITEM'
@@ -21,7 +22,12 @@ export const DELETE_PERMANENT_ITEM = 'DELETE_PERMANENT_ITEM'
 export const ADD_LABEL = 'ADD_LABEL'
 export const DELETE_LABEL = 'DELETE_LABEL'
 
-import { getItemTypeFromString, capitaliseItemTypeFromString } from '../utils'
+import {
+    getItemTypeFromString,
+    capitaliseItemTypeFromString,
+    dueTextRegex,
+    extractDateFromString,
+} from '../utils'
 import RRule from 'rrule'
 
 export interface CreateItemAction {
@@ -41,7 +47,12 @@ export function createItem(
 ): CreateItemAction {
     const itemType = getItemTypeFromString(text)
 
-    // const dueDate = extractDateFromString(text);
+    const dueDateText = text.match(dueTextRegex)
+    const dd = dueDateText ? dueDateText[0].split(':')[1] : ''
+    console.log(dd)
+    const dueDate = chrono.parse(text)
+    console.log(dueDate[0].date())
+
     const newText = capitaliseItemTypeFromString(text)
 
     return {
@@ -115,10 +126,7 @@ export interface SetScheduledDateAction {
     id: Uuid
     date: string
 }
-export function setScheduledDate(
-    id: Uuid,
-    date: string,
-): SetScheduledDateAction {
+export function setScheduledDate(id: Uuid, date: string): SetScheduledDateAction {
     return {
         type: SET_SCHEDULED_DATE,
         id: id,
@@ -156,10 +164,7 @@ export interface UpdateItemDescriptionAction {
     id: Uuid
     text: string
 }
-export function updateItemDescription(
-    id: Uuid,
-    text: string,
-): UpdateItemDescriptionAction {
+export function updateItemDescription(id: Uuid, text: string): UpdateItemDescriptionAction {
     return {
         type: UPDATE_ITEM_DESCRIPTION,
         id: id,
@@ -210,10 +215,7 @@ export interface ChangeParentItemAction {
     parentId: Uuid
 }
 
-export function changeParentItem(
-    id: Uuid,
-    parentId: Uuid,
-): ChangeParentItemAction {
+export function changeParentItem(id: Uuid, parentId: Uuid): ChangeParentItemAction {
     return {
         type: CHANGE_PARENT_ITEM,
         id: id,

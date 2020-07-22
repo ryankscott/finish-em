@@ -19,5 +19,8 @@ export const AttributeIcon = styled.div`
     align-items: center;
 `
 export const AttributeText = styled(Paragraph)`
-    font-size: ${(props) => props.theme.fontSizes.xxsmall};
+    > p {
+        color: ${(props) => props.theme.colours.disabledTextColour};
+        font-size: ${(props) => props.theme.fontSizes.xxsmall};
+    }
 `

@@ -1,9 +1,8 @@
 // @ts-nocheck
+import { ThemeProvider } from '../StyledComponents'
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { ThemeProvider } from 'styled-components'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
-import { GlobalHotKeys, configure } from 'react-hotkeys'
 import DailyAgenda from './DailyAgenda'
 import Sidebar from './Sidebar'
 import Focusbar from './Focusbar'
@@ -13,7 +12,6 @@ import Inbox from './Inbox'
 import Project from './Project'
 import View from './View'
 import Help from './Help'
-import { app as appKeymap } from '../keymap'
 import { themes, GlobalStyle } from '../theme'
 import {
     toggleShortcutDialog,
@@ -35,18 +33,15 @@ import {
 } from './styled/App'
 import Button from './Button'
 import Tooltip from './Tooltip'
-import { Projects, Views } from '../interfaces'
+import { Projects, Views, ThemeType } from '../interfaces'
 import { Slide } from 'react-toastify'
 import isElectron from 'is-electron'
 import uuidv4 from 'uuid'
+
 if (isElectron()) {
     const electron = window.require('electron')
 }
 const MIN_WIDTH_FOR_SIDEBAR = 700
-
-configure({
-    logLevel: 'warning',
-})
 
 interface ProjectWrapperProps {
     projects: Projects
@@ -76,12 +71,13 @@ type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
-    ipcMain.on('close-quickadd', (event, arg) => {
-        if (quickAddWindow) {
-            quickAddWindow.close()
-        }
-    })
-
+    if (isElectron()) {
+        ipcMain.on('close-quickadd', (event, arg) => {
+            if (quickAddWindow) {
+                quickAddWindow.close()
+            }
+        })
+    }
     useEffect(() => {
         window.addEventListener('resize', () => {
             if ((window.innerWidth < MIN_WIDTH_FOR_SIDEBAR) & (props.sidebarVisible == true)) {
@@ -190,7 +186,6 @@ const App = (props: AppProps): ReactElement => {
     const { sidebarVisible, focusbarVisible, toggleShortcutDialog } = props
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <GlobalHotKeys keyMap={appKeymap} handlers={handlers} />
             <GlobalStyle theme={themes[props.theme]} />
             <Container>
                 <SidebarContainer visible={sidebarVisible}>

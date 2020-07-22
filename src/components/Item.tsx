@@ -1,5 +1,5 @@
 import React, { ReactElement, useState, useEffect } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { connect } from 'react-redux'
 import { RRule } from 'rrule'
 import { Uuid } from '@typed/uuid'
@@ -42,7 +42,7 @@ import { parseISO, format } from 'date-fns'
 import Button from './Button'
 import MoreDropdown from './MoreDropdown'
 import { getItemParentId } from '../selectors/item'
-import { ItemAttribute } from './ItemAttribute'
+import ItemAttribute from './ItemAttribute'
 import Tooltip from './Tooltip'
 
 interface DispatchProps {
@@ -107,6 +107,7 @@ function Item(props: ItemProps): ReactElement {
               long: format(parseISO(props.dueDate), 'EEEE do MMM yyyy'),
           }
         : { short: '', long: '' }
+
     const scheduledDateText = props.scheduledDate
         ? {
               short: formatRelativeDate(parseISO(props.scheduledDate)),
@@ -127,6 +128,7 @@ function Item(props: ItemProps): ReactElement {
               long: removeItemTypeFromString(props.parentItem.text),
           }
         : { short: '', long: '' }
+
     const projectText =
         props.projectId != '0'
             ? {

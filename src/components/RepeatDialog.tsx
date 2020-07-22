@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
 import RRule, { Frequency } from 'rrule'
 import Button from './Button'

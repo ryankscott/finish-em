@@ -38,6 +38,7 @@ export const AttributeValue = styled.div`
     justify-content: flex-start;
     align-items: center;
     min-width: 120px;
+    text-overflow: ellipsis;
 `
 
 export const TitleContainer = styled.div`

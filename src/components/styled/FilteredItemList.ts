@@ -12,7 +12,7 @@ export const HeaderBar = styled.div`
     border-radius: 5px 5px 0px 0px;
     box-shadow: ${(props) => '0px 1px 4px ' + props.theme.colours.borderColour};
     grid-template-rows: 40px;
-    grid-template-columns: 30px 240px auto;
+    grid-template-columns: 30px 260px auto;
     grid-template-areas: 'hide header filterBar';
 `
 
@@ -59,6 +59,7 @@ export const ListHeader = styled.div`
 `
 export const ListItemCount = styled(Paragraph)`
     padding: 0px 5px;
+    min-width: 80px;
     color: ${(props) => lighten(0.2, props.theme.colours.textColour)};
 `
 
@@ -68,5 +69,6 @@ export const Container = styled.div`
     padding: 0px;
     width: 100%;
     border-radius: 5px;
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid;
+    border-color: ${(props) => props.theme.colours.borderColour};
 `

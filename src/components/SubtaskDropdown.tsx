@@ -1,5 +1,5 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { OptionsType } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import { themes, selectStyles } from '../theme'
@@ -8,7 +8,7 @@ import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { Item, Items, Projects } from '../interfaces'
 import Button from './Button'
-import { removeItemTypeFromString } from '../utils'
+import { removeItemTypeFromString, truncateString } from '../utils'
 import { Container } from './styled/SubtaskDropdown'
 import marked from 'marked'
 
@@ -16,12 +16,11 @@ type OptionType = { value: string; label: JSX.Element | string }
 
 const generateOptions = (
     options: Item,
-    projects: Projects,
     parentId: Uuid,
     itemId: Uuid,
 ): { label: string; options: OptionsType<OptionType> }[] => {
-    const getItemText = (text: string, projectId: Uuid | '0', projects: Projects): string => {
-        const longText = `[${projects.projects[projectId].name}] ${removeItemTypeFromString(text)}`
+    const getItemText = (text: string): string => {
+        const longText = `${removeItemTypeFromString(text)}`
         return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
     }
 
@@ -42,7 +41,7 @@ const generateOptions = (
                 label: (
                     <span
                         dangerouslySetInnerHTML={{
-                            __html: marked(getItemText(m.text, m.projectId, projects)),
+                            __html: marked(getItemText(m.text)),
                         }}
                     />
                 ),
@@ -128,8 +127,11 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                             <span
                                 dangerouslySetInnerHTML={{
                                     __html: marked(
-                                        removeItemTypeFromString(
-                                            props.items.items[props.parentId]?.text,
+                                        truncateString(
+                                            removeItemTypeFromString(
+                                                props.items.items[props.parentId]?.text,
+                                            ),
+                                            15,
                                         ),
                                     ),
                                 }}
@@ -149,7 +151,6 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                             onChange={handleChange}
                             options={generateOptions(
                                 props.items.items,
-                                props.projects,
                                 props.parentId,
                                 props.itemId,
                             )}

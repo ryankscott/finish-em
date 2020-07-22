@@ -25,7 +25,7 @@ import { ItemIcons } from '../interfaces/item'
 import { hideSubtasks, showSubtasks, deleteComponent } from '../actions'
 import { Uuid } from '@typed/uuid'
 import { Icons } from '../assets/icons'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import FilteredItemDialog from '../components/FilteredItemDialog'
 
 const PAGE_SIZE = 25
@@ -338,7 +338,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                                     iconSize="14px"
                                     onClick={() => props.showAllSubtasks(sortedItems, props.id)}
                                 />
-                                <Tooltip id="expand-all-button" text={'Expand all subtaks'} />
+                                <Tooltip id="expand-all-button" text={'Expand all subtasks'} />
                                 <Button
                                     dataFor={'collapse-all-button'}
                                     type="default"

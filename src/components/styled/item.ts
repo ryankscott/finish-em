@@ -14,18 +14,19 @@ export const Container = styled.div<ContainerProps>`
     font-size: ${(props) => props.theme.fontSizes.medium};
     display: ${(props) => (props.visible ? 'grid' : 'none')};
     opacity: ${(props) => (props.hidden ? '0' : '1')};
+    margin: 1px 0px;
     margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
     grid-template-columns: 5px 30px 30px repeat(20, 1fr);
-    grid-auto-rows: minmax(20px, auto);
+    grid-auto-rows: 30px 15px;
     grid-template-areas:
         '. EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
-        '. . PARENT PARENT PARENT PARENT SCHEDULED SCHEDULED SCHEDULED SCHEDULED SCHEDULED . DUE DUE DUE DUE DUE . REPEAT REPEAT REPEAT REPEAT REPEAT';
+        '. . PARENT PARENT PARENT PARENT PARENT SCHEDULED SCHEDULED SCHEDULED SCHEDULED SCHEDULED DUE DUE DUE DUE DUE REPEAT REPEAT REPEAT REPEAT REPEAT REPEAT';
     border: 0px;
-    padding: ${(props) => (props.hidden ? '0px' : '5px 5px 5px 0px')};
+    padding: ${(props) => (props.hidden ? '0px' : '5px')};
     align-items: center;
     cursor: pointer;
     border-radius: 5px;
-    color: ${(props) => props.theme.colours.textColour};
+    color: ${(props) => props.theme.colours.disabledTextColour};
     background-color: ${(props) =>
         props.labelColour != null
             ? transparentize(0.8, props.labelColour)
@@ -51,7 +52,7 @@ interface BodyProps {
     completed: boolean
 }
 export const Body = styled.div<BodyProps>`
-    margin: 5px 10px;
+    margin: 0px 5px;
     grid-area: DESC;
     font-size: ${(props) => props.theme.fontSizes.regular};
     text-decoration: ${(props) => (props.completed === true ? 'line-through' : null)};

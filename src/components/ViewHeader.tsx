@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 
 import { HeaderContainer, IconContainer, HeaderTitle } from './styled/ViewHeader'
 import { themes } from '../theme'

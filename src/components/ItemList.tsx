@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import Item from './Item'
 import { ItemIcons } from '../interfaces/item'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType, RenderingStrategy, Items } from '../interfaces'
@@ -17,7 +17,7 @@ import {
     toggleSubtasks,
 } from '../actions'
 import { Uuid } from '@typed/uuid'
-import { HotKeys, configure } from 'react-hotkeys'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 interface DispatchProps {
     showFocusbar: () => void
@@ -26,7 +26,7 @@ interface DispatchProps {
     uncompleteItem: (id: Uuid) => void
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
-    toggleSubtasks: (id: Uuid) => void
+    toggleSubtasks: (id: Uuid, componentId: Uuid) => void
 }
 
 interface StateProps {
@@ -131,14 +131,14 @@ const getItem = (
 
 type ItemListProps = OwnProps & StateProps & DispatchProps
 
-configure({ logLevel: 'debug' })
 function ItemList(props: ItemListProps): ReactElement {
     const handlers = {
         TOGGLE_CHILDREN: (event) => {
-            props.toggleSubtasks(event.target.id)
+            props.toggleSubtasks(event.target.id, props.componentId)
         },
         NEXT_ITEM: (event) => {
             const item = props.items.items[event.target.id]
+            console.log('next item')
             // If it's a parent element we need to get the first child
             if (item.children.length > 0) {
                 const nextItem = event.target.parentNode.nextSibling
@@ -172,6 +172,7 @@ function ItemList(props: ItemListProps): ReactElement {
             }
         },
         PREV_ITEM: (event) => {
+            console.log('prev item')
             const item = props.items.items[event.target.id]
             if (item.children.length > 0) {
                 const prevItem = event.target.parentNode.previousSibling
@@ -208,49 +209,6 @@ function ItemList(props: ItemListProps): ReactElement {
             props.setActiveItem(event.target.id)
             return
         },
-        SET_SCHEDULED_DATE: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.type == 'NOTE') return
-            if (item.deleted || item.completed) return
-            console.log('scheduled')
-            event.preventDefault()
-        },
-        SET_DUE_DATE: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.type == 'NOTE') return
-            if (item.deleted || item.completed) return
-            console.log('due date')
-            event.preventDefault()
-        },
-        CREATE_SUBTASK: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.deleted || item.completed || item.parentId != null) return
-            console.log('create sub task')
-            event.preventDefault()
-        },
-        CONVERT_TO_SUBTASK: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.type == 'NOTE') return
-            if (item.deleted || item.completed) return
-            console.log('convert to sub task')
-            event.preventDefault()
-        },
-        REPEAT_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.type == 'NOTE') return
-            if (item.deleted || item.completed) return
-            console.log('repeat')
-            event.preventDefault()
-        },
-        MOVE_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.deleted || item.completed) return
-            console.log('move item')
-            event.preventDefault()
-        },
-        ESCAPE: () => {
-            console.log('escape')
-        },
         COMPLETE_ITEM: (event) => {
             const item = props.items.items[event.target.id]
             if (item.type == 'NOTE') return
@@ -273,30 +231,77 @@ function ItemList(props: ItemListProps): ReactElement {
             const item = props.items.items[event.target.id]
             props.undeleteItem(item.id)
         },
+        SET_SCHEDULED_DATE: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('scheduled')
+            event.preventDefault()
+        },
+        SET_DUE_DATE: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('due date')
+            event.preventDefault()
+        },
+        CREATE_SUBTASK: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.deleted || item.completed || item.parentId != null) return
+            console.log('create sub task')
+            event.preventDefault()
+        },
+        CONVERT_TO_SUBTASK: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('convert to sub task')
+            event.preventDefault()
+        },
+        REPEAT_ITEM: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('repeat')
+            event.preventDefault()
+        },
+        MOVE_ITEM: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.deleted || item.completed) return
+            console.log('move item')
+            event.preventDefault()
+        },
         EDIT_ITEM_DESC: (event) => {
+            // TODO:Implement me
             const item = props.items.items[event.target.id]
             event.preventDefault()
         },
     }
+    Object.entries(itemKeymap).map(([k, v]) => {
+        useHotkeys(v, handlers[k])
+    })
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container>
-                <HotKeys keyMap={itemKeymap} handlers={handlers}>
-                    {props.inputItems.map((i) => {
-                        if (i == undefined) return null
-                        return getItem(
-                            i,
-                            props.inputItems,
-                            props.renderingStrategy,
-                            props.componentId,
-                            props.hideIcons,
-                            props.items,
-                        )
-                    })}
-
-                    {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
-                </HotKeys>
+                {props.inputItems.map((i) => {
+                    if (i == undefined) return null
+                    return getItem(
+                        i,
+                        props.inputItems,
+                        props.renderingStrategy,
+                        props.componentId,
+                        props.hideIcons,
+                        props.items,
+                    )
+                })}
+                {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
             </Container>
         </ThemeProvider>
     )
@@ -326,8 +331,8 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     uncompleteItem: (id: Uuid) => {
         dispatch(uncompleteItem(id))
     },
-    toggleSubtasks: (id: Uuid) => {
-        dispatch(toggleSubtasks(id))
+    toggleSubtasks: (id: Uuid, componentId: Uuid) => {
+        dispatch(toggleSubtasks(id, componentId))
     },
 })
 

@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
-import { StyledTooltip, StyledParagraph } from './styled/Tooltip'
+import { StyledTooltip } from './styled/Tooltip'
 import { connect } from 'react-redux'
 
 interface StateProps {
@@ -10,6 +10,8 @@ interface StateProps {
 interface OwnProps {
     id: string
     text: string
+    multiline?: boolean
+    html?: boolean
 }
 
 type TooltipProps = StateProps & OwnProps
@@ -17,8 +19,16 @@ type TooltipProps = StateProps & OwnProps
 const Tooltip = (props: TooltipProps): ReactElement => {
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <StyledTooltip id={props.id} type="dark" effect="float" place="top" delayShow={500}>
-                <StyledParagraph invert>{props.text}</StyledParagraph>
+            <StyledTooltip
+                id={props.id}
+                type="dark"
+                effect="float"
+                place="top"
+                delayShow={500}
+                multiline={props.multiline}
+                html={props.html}
+            >
+                {props.text}
             </StyledTooltip>
         </ThemeProvider>
     )

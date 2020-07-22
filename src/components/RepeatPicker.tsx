@@ -1,5 +1,5 @@
 import React, { ReactElement, useState, useRef, useEffect } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import Select from 'react-select'
 import { themes, selectStyles } from '../theme'
 import { format } from 'date-fns'

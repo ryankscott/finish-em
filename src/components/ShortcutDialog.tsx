@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react'
-import { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { Title, Header1 } from './Typography'
 import { hideShortcutDialog } from '../actions'

@@ -1,5 +1,5 @@
+/* eslint-disable react/display-name */
 import React from 'react'
-
 import * as CSS from 'csstype'
 
 export const Icons = {

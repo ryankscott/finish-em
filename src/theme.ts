@@ -1,4 +1,4 @@
-import { lighten, darken, readableColor } from 'polished'
+import { lighten, darken } from 'polished'
 import CSS from 'csstype'
 import { ThemeType, fontSizeType } from './interfaces'
 import { StylesConfig } from 'react-select'
@@ -51,30 +51,60 @@ p {
     font-family: ${(props) => props.theme.font.sansSerif};
     color: ${(props) => props.theme.colours.textColour};
     margin: 2px 5px;
-    margin: 2px 2px;
 }
+code {
+    font-size: ${(props) => props.theme.fontSizes.xxsmall};
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    color: ${(props) => props.theme.colours.textColour};
+    background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+    border: 1px solid;
+    border-color: ${(props) => props.theme.colours.borderColour};
+    border-radius: 5px;
+    padding: 2px 5px;
+    margin: 2px 5px;
+}
+ul {
+    margin: 2px;
+}
+
 li {
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     font-family: ${(props) => props.theme.font.sansSerif};
-
+    margin: 2px;
+    padding: 2px;
 }
 table {
     padding: 5px;
+    max-width: 600px;
+    width: 100%;
 }
+thead {
+}
+tbody {
+    tr:first-child {
+        td {
+            padding-top: 8px;
+        }
+    }
+}
+
 td {
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     font-family: ${(props) => props.theme.font.sansSerif};
     color: ${(props) => props.theme.colours.textColour};
+    padding: 2px 5px;
 }
+
+
 th {
     font-weight: ${(props) => props.theme.fontWeights.bold}
     font-size: ${(props) => props.theme.fontSizes.small};
     font-family: ${(props) => props.theme.font.sansSerif};
     color: ${(props) => props.theme.colours.textColour};
     border-bottom: 1px solid;
-    padding: 2px;
-    border-color: ${(props) => props.theme.colours.borderColour}
-
+    padding: 5px 2px;
+    margin: 5px 2px;
+    border-color: ${(props) => props.theme.colours.borderColour};
 }
   *:focus {outline:0;}
   a {
@@ -199,13 +229,13 @@ export const themes: { [key: string]: ThemeType } = {
             default: {
                 backgroundColour: '#404040',
                 colour: '#EEEEEE',
-                borderColour: '#e0e0e0',
+                borderColour: 'transparent',
                 hoverBackgroundColour: darken(0.1, '#404040'),
             },
             invert: {
                 backgroundColour: '#404040',
                 colour: '#EEEEEE',
-                borderColour: '#e0e0e0',
+                borderColour: 'transparent',
                 hoverBackgroundColour: darken(0.1, '#404040'),
             },
 
@@ -224,20 +254,20 @@ export const themes: { [key: string]: ThemeType } = {
             subtle: {
                 backgroundColour: 'rgba(0,0,0,0)',
                 colour: '#EEEEEE',
-                borderColour: 'none',
+                borderColour: 'transparent',
                 hoverBackgroundColour: 'rgba(0,0,0, 0.1)',
             },
             subtleInvert: {
                 backgroundColour: 'rgba(0,0,0,0)',
                 colour: '#EEEEEE',
-                borderColour: '#e0e0e0',
+                borderColour: 'transparent',
                 hoverBackgroundColour: 'rgba(0,0,0, 0.1)',
             },
         },
         colours: {
             textColour: '#EEEEEE',
             altTextColour: '#EEEEEE',
-            disabledTextColour: darken(0.35, '#EEEEEE'),
+            disabledTextColour: darken(0.25, '#EEEEEE'),
             primaryColour: '#45b9ef',
             secondaryColour: '#59cd90',
             tertiaryColour: '#fe5e41',
@@ -325,7 +355,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
                 ...styles,
                 tabIndex: 0,
                 position: 'relative',
-                color: readableColor(backgroundColour),
+                color: props.theme.colours.textColour,
                 backgroundColor: backgroundColour,
                 padding: '5px 10px',
                 margin: '0px',
