@@ -1,69 +1,75 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
-import { OptionsType } from 'react-select'
-import CreatableSelect from 'react-select/creatable'
+import { OptionsType, GroupType } from 'react-select'
+import Select from 'react-select'
 import { themes, selectStyles } from '../theme'
 import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
-import { Item, Items, Projects } from '../interfaces'
+import { Item, Items, Projects, Project, ItemType } from '../interfaces'
 import Button from './Button'
-import { removeItemTypeFromString, truncateString } from '../utils'
+import { removeItemTypeFromString, truncateString, groupBy } from '../utils'
 import { Container } from './styled/SubtaskDropdown'
 import marked from 'marked'
 
 type OptionType = { value: string; label: JSX.Element | string }
 
 const generateOptions = (
-    options: Item,
-    parentId: Uuid,
-    itemId: Uuid,
-): { label: string; options: OptionsType<OptionType> }[] => {
+    projects: Project,
+    items: Item,
+    item: ItemType,
+): GroupType<OptionType>[] => {
     const getItemText = (text: string): string => {
         const longText = `${removeItemTypeFromString(text)}`
         return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
     }
 
-    const filteredValues = Object.values(options)
-        .filter(
-            (m) =>
-                m.id != null &&
-                m.id != itemId &&
-                m.id != parentId &&
-                m.deleted == false &&
-                m.completed == false &&
-                !m.parentId,
-        )
-        .map((m) => {
-            // Ensure we keep markdown formatting of items
+    // Remove items that can't be a parent
+    const filteredValues = Object.values(items).filter(
+        (i) =>
+            i.id != null &&
+            i.id != item.id &&
+            i.id != item.parentId &&
+            i.deleted == false &&
+            i.completed == false &&
+            !i.parentId,
+    )
+
+    // Group them by project
+    const groupedItems = groupBy(filteredValues, 'projectId')
+    // Show the items from the project the item is in first
+
+    // Update the label to be the project name, and the items to be the right format
+    const allGroups = Object.keys(groupedItems).map((i) => {
+        const group: GroupType<OptionType> = { label: '', options: [] }
+        group['label'] = projects[i].name
+        group['options'] = groupedItems[i].map((i) => {
             return {
-                value: m.id,
-                label: (
-                    <span
-                        dangerouslySetInnerHTML={{
-                            __html: marked(getItemText(m.text)),
-                        }}
-                    />
-                ),
+                value: i.id,
+                label: getItemText(i.text),
             }
         })
+        return group
+    })
+    // Sort to ensure that the current project is at the front
+    allGroups.sort((a, b) =>
+        a.label == projects[item.projectId].name
+            ? -1
+            : b.label == projects[item.projectId].name
+            ? 1
+            : 0,
+    )
 
-    const createOptions = (
-        options: OptionsType<OptionType>,
-        isSubtask: boolean,
-    ): { label: string; options: OptionsType<OptionType> }[] => {
-        return isSubtask
-            ? [
-                  {
-                      label: 'Options',
-                      options: [{ value: '', label: 'Convert to task' }],
-                  },
-                  { label: 'Items', options: options },
-              ]
-            : [{ label: 'Items', options: options }]
-    }
-
-    return createOptions(filteredValues, parentId != null)
+    // If it's already a subtask add an option to create it to a task
+    return item.parentId != null
+        ? [
+              {
+                  label: 'Options',
+                  options: [{ value: '', label: 'Convert to task' }],
+              },
+              ...allGroups,
+          ]
+        : allGroups
 }
 
 interface StateProps {
@@ -144,15 +150,15 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                 />
                 {(showSelect || props.showSelect) && (
                     <Container visible={Object.keys(props.items).length > 1}>
-                        <CreatableSelect
+                        <Select
                             autoFocus={true}
                             placeholder={'Select parent:'}
                             isSearchable
                             onChange={handleChange}
                             options={generateOptions(
+                                props.projects.projects,
                                 props.items.items,
-                                props.parentId,
-                                props.itemId,
+                                props.items.items[props.itemId],
                             )}
                             styles={selectStyles({
                                 fontSize: 'xxsmall',
