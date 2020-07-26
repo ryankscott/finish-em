@@ -19,11 +19,6 @@ const generateOptions = (
     items: Item,
     item: ItemType,
 ): GroupType<OptionType>[] => {
-    const getItemText = (text: string): string => {
-        const longText = `${removeItemTypeFromString(text)}`
-        return longText.length > 35 ? longText.slice(0, 32) + '...' : longText
-    }
-
     // Remove items that can't be a parent
     const filteredValues = Object.values(items).filter(
         (i) =>
@@ -46,7 +41,7 @@ const generateOptions = (
         group['options'] = groupedItems[i].map((i) => {
             return {
                 value: i.id,
-                label: getItemText(i.text),
+                label: removeItemTypeFromString(i.text),
             }
         })
         return group
