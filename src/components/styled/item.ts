@@ -16,11 +16,11 @@ export const Container = styled.div<ContainerProps>`
     opacity: ${(props) => (props.hidden ? '0' : '1')};
     margin: 1px 0px;
     margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
-    grid-template-columns: 5px 30px 30px repeat(20, 1fr);
+    grid-template-columns: 5px 30px 30px auto auto auto auto 30px;
     grid-auto-rows: 30px 15px;
     grid-template-areas:
-        '. EXPAND TYPE DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC DESC PROJECT PROJECT PROJECT PROJECT MORE'
-        '. . PARENT PARENT PARENT PARENT PARENT SCHEDULED SCHEDULED SCHEDULED SCHEDULED SCHEDULED DUE DUE DUE DUE DUE REPEAT REPEAT REPEAT REPEAT REPEAT REPEAT';
+        '.  EXPAND   TYPE    DESC         DESC         DESC        PROJECT     MORE'
+        '.  .        .       PARENT       SCHEDULED    DUE         REPEAT      .   ';
     border: 0px;
     padding: ${(props) => (props.hidden ? '0px' : '5px')};
     align-items: center;

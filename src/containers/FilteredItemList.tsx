@@ -368,20 +368,23 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                             </>
                         )}
                     </FilterBar>
-                    <MoreDropdown
-                        options={[
-                            {
-                                icon: 'trash',
-                                label: 'Delete Component',
-                                onClick: (e: React.MouseEvent) => props.deleteComponent(props.id),
-                            },
-                            {
-                                icon: 'edit',
-                                label: 'Edit Component',
-                                onClick: (e: React.MouseEvent) => setShowEditDialog(true),
-                            },
-                        ]}
-                    />
+                    <div style={{ gridArea: 'more' }}>
+                        <MoreDropdown
+                            options={[
+                                {
+                                    icon: 'trash',
+                                    label: 'Delete Component',
+                                    onClick: (e: React.MouseEvent) =>
+                                        props.deleteComponent(props.id),
+                                },
+                                {
+                                    icon: 'edit',
+                                    label: 'Edit Component',
+                                    onClick: (e: React.MouseEvent) => setShowEditDialog(true),
+                                },
+                            ]}
+                        />
+                    </div>
                     {showEditDialog && (
                         <FilteredItemDialog
                             key={`dlg-${props.id}`}

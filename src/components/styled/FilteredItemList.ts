@@ -7,13 +7,13 @@ export const HeaderBar = styled.div`
     position: relative;
     display: grid;
     align-items: center;
-    width: 100%;
+    width: auto;
     padding: 12px 5px;
     margin-top: 0px;
     border-radius: 5px 5px 0px 0px;
     box-shadow: ${(props) => '0px 1px 4px ' + props.theme.colours.borderColour};
     grid-template-rows: 40px;
-    grid-template-columns: 30px 260px auto 30px;
+    grid-template-columns: 30px auto auto 20px;
     grid-template-areas: 'hide header filterBar more';
 `
 

@@ -252,7 +252,6 @@ function Item(props: ItemProps): ReactElement {
                     </TypeContainer>
                     <Body id="body" completed={props.completed}>
                         <EditableText
-                            validation={false}
                             shouldSubmitOnBlur={true}
                             innerRef={editor}
                             readOnly={isDescriptionReadOnly}
