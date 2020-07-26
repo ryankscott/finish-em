@@ -2,13 +2,7 @@ import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import marked from 'marked'
-import {
-    setEndOfContenteditable,
-    dueTextRegex,
-    scheduledTextRegex,
-    projectTextRegex,
-    repeatTextRegex,
-} from '../utils'
+import { setEndOfContenteditable } from '../utils'
 import { Paragraph, Title, Header, Code } from './Typography'
 import { Container } from './styled/EditableText'
 import { connect } from 'react-redux'
@@ -21,13 +15,6 @@ if (isElectron()) {
     const electron = window.require('electron')
 }
 
-type validation =
-    | false
-    | {
-          validate: true
-          rule: (input: string) => boolean
-      }
-
 interface StateProps {
     theme: string
 }
@@ -38,7 +25,6 @@ interface OwnProps {
     onUpdate: (input: string) => void
     shouldSubmitOnBlur: boolean
     shouldClearOnSubmit: boolean
-    validation: validation
     backgroundColour?: CSS.Color
     fontSize?: fontSizeType
     readOnly?: boolean
@@ -46,18 +32,19 @@ interface OwnProps {
     height?: string
     singleline?: boolean
     plainText?: boolean
+    valid?: boolean
     style?: typeof Title | typeof Paragraph | typeof Header | typeof Code
     onKeyDown?: (input: string) => void
+    onKeyPress?: (input: string) => void
     onEditingChange?: (isEditing: boolean) => void
     onEscape?: () => void
 }
 
-type EditableTextProps = OwnProps & StateProps
+export type EditableTextProps = OwnProps & StateProps
 
 function InternalEditableText(props: EditableTextProps): ReactElement {
     const [editable, setEditable] = useState(false)
     const [input, setInput] = useState(props.input)
-    const [valid, setValid] = useState(true)
 
     useEffect(() => {
         setInput(props.input)
@@ -109,35 +96,16 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         if (props.onEditingChange) {
             props.onEditingChange(false)
         }
-        // Validate input
         if (props.shouldSubmitOnBlur) {
-            if (props.validation != false) {
-                if (props.validation.rule(props.innerRef.current.innerText)) {
-                    props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
-                    if (props.shouldClearOnSubmit) {
-                        clearInput()
-                    }
-                }
-            } else {
-                props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
-                if (props.shouldClearOnSubmit) {
-                    clearInput()
-                }
+            props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
+            if (props.shouldClearOnSubmit) {
+                clearInput()
             }
             return
         }
     }
 
     const handleKeyUp = (e): void => {
-        // debugger
-        let currentVal = props.innerRef.current.innerText
-        currentVal = currentVal.replace(dueTextRegex, '<span>$&</span>')
-        currentVal = currentVal.replace(scheduledTextRegex, '<span>$&</span>')
-        currentVal = currentVal.replace(projectTextRegex, '<span>$&</span>')
-        currentVal = currentVal.replace(repeatTextRegex, '<span>$&</span>')
-        props.innerRef.current.innerHTML = currentVal
-        setEndOfContenteditable(props.innerRef.current)
-
         if (e.key == 'Escape') {
             if (props.onEditingChange) {
                 props.onEditingChange(false)
@@ -149,46 +117,29 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
     const handleKeyPress = (e): void => {
         const currentVal = props.innerRef.current.innerText
+        if (props.onKeyPress) {
+            props.onKeyPress(currentVal)
+        }
+
         if (props.onKeyDown) {
             props.onKeyDown(currentVal)
         }
-        // Validation logic
-        if (props.validation != false) {
-            setValid(props.validation.rule(currentVal))
-        }
 
         if (e.key == 'Enter' && props.singleline) {
-            // Validate input
-            if (props.validation != false) {
-                if (props.validation.rule(currentVal)) {
-                    props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
-
-                    // If we're clearing on submission we should clear the input and continue allowing editing
-                    if (props.shouldClearOnSubmit) {
-                        e.preventDefault()
-                        clearInput()
-                    } else {
-                        setEditable(false)
-                    }
-                }
-                return
-            } else {
-                props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
-                // If we're clearing on submission we should clear the input and continue allowing editing
-                if (props.shouldClearOnSubmit) {
-                    e.preventDefault()
-                    clearInput()
-                } else {
-                    setEditable(false)
-                }
-
-                return
+            props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
+            // If we're clearing on submission we should clear the input and continue allowing editing
+            if (props.shouldClearOnSubmit) {
+                e.preventDefault()
+                clearInput()
             }
+
+            return
         }
-        return
     }
 
     const handleFocus = (e): void => {
+        // Ignore clicks if it's already editable
+        if (editable) return
         // NOTE: Weirdly Chrome sometimes fires a focus event before a click
         if (props.readOnly) {
             e.preventDefault()
@@ -196,7 +147,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             return
         }
         if (e.target.nodeName == 'A') {
-            console.log(e.target)
             return
         }
         if (!editable) {
@@ -233,7 +183,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 id={id}
                 fontSize={props.fontSize}
                 backgroundColour={props.backgroundColour}
-                valid={props.validation != false ? valid : true}
+                valid={props.valid}
                 as={props.style || Paragraph}
                 readOnly={props.readOnly}
                 ref={props.innerRef}

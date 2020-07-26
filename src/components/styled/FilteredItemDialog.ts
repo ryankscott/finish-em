@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from '../../StyledComponents'
 import { Paragraph } from '../Typography'
 
 export const DialogContainer = styled.div`
@@ -13,8 +13,8 @@ export const DialogContainer = styled.div`
     min-width: 360px;
     padding: 5px 5px;
     z-index: 2;
-    right: 25px;
-    top: 23px;
+    top: 45px;
+    right: 165px;
     box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
 `
 export const DialogHeader = styled.div`
@@ -49,12 +49,12 @@ export const SettingLabel = styled.div`
 `
 export const SettingValue = styled.div`
     display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
+    flex-direction: column;
+    justify-content: center;
     padding: 2px 5px;
     width: 100%;
     min-height: 30px;
-    align-items: center;
+    align-items: flex-start;
 `
 
 export const SelectContainer = styled.div`

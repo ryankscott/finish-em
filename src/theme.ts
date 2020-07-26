@@ -2,7 +2,7 @@ import { lighten, darken } from 'polished'
 import CSS from 'csstype'
 import { ThemeType, fontSizeType } from './interfaces'
 import { StylesConfig } from 'react-select'
-import { createGlobalStyle } from 'styled-components'
+import { createGlobalStyle } from './StyledComponents'
 
 export const GlobalStyle = createGlobalStyle`
 * {

@@ -6,7 +6,7 @@ import { transparentize } from 'polished'
 export const Container = styled.div`
     z-index: 2;
     position: absolute;
-    top: 0px;
+    top: 30px;
     min-width: 180px;
     right: 158px;
     color: ${(props) => props.theme.colours.textColour};

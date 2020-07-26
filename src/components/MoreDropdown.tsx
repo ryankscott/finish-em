@@ -2,23 +2,36 @@ import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Button from './Button'
-import { Uuid } from '@typed/uuid'
 import { connect } from 'react-redux'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
 import Tooltip from './Tooltip'
-import LabelDialog from './LabelDialog'
-import { deletePermanently } from '../actions/item'
+import { IconType } from '../interfaces'
 import { Icons } from '../assets/icons'
 
-interface DispatchProps {
-    deletePermanently: (id: Uuid) => void
+const DropdownOption = (
+    key: number,
+    onClick: (e: React.MouseEvent) => void,
+    icon: IconType,
+    label: string,
+): ReactElement => {
+    return (
+        <Option key={key} onClick={onClick}>
+            <Icon>{Icons[icon](14, 14)}</Icon>
+            {label}
+        </Option>
+    )
 }
 
+export type MoreDropdownOptions = {
+    label: string
+    icon: IconType
+    onClick: (e: React.MouseEvent) => void
+}[]
+
 interface OwnProps {
-    itemId: Uuid
-    deleted: boolean
     showDialog?: boolean
     disableClick?: boolean
+    options: MoreDropdownOptions
 }
 
 interface StateProps {
@@ -29,7 +42,7 @@ type MoreDropdownProps = DispatchProps & OwnProps & StateProps
 
 function MoreDropdown(props: MoreDropdownProps): ReactElement {
     const [showDialog, setShowDialog] = useState(false)
-    const [showLabelDialog, setShowLabelDialog] = useState(false)
+
     const node = useRef<HTMLDivElement>()
 
     const handleClick = (e): null => {
@@ -48,13 +61,13 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div ref={node}>
+            <div style={{ position: 'relative' }} ref={node}>
                 <Button
-                    dataFor={'more'}
-                    type={'subtle'}
-                    spacing={'default'}
-                    icon={'more'}
-                    width={'18px'}
+                    dataFor="more"
+                    type="default"
+                    spacing="default"
+                    icon="more"
+                    width="18px"
                     onClick={(e) => {
                         setShowDialog(!showDialog)
                         e.stopPropagation()
@@ -64,41 +77,8 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                 {(showDialog || props.showDialog) && (
                     <>
                         <DialogContainer>
-                            {!props.deleted && (
-                                <Option
-                                    key={0}
-                                    onClick={(e) => {
-                                        e.stopPropagation()
-                                        e.preventDefault()
-                                        setShowLabelDialog(!showLabelDialog)
-                                    }}
-                                >
-                                    <Icon>{Icons['flag'](12, 12)}</Icon>
-                                    {'Add Label'}
-                                </Option>
-                            )}
-                            {props.deleted && (
-                                <Option
-                                    key={1}
-                                    onClick={(e) => {
-                                        props.deletePermanently(props.itemId)
-                                        e.stopPropagation()
-                                        e.preventDefault()
-                                        setShowDialog(false)
-                                    }}
-                                >
-                                    <Icon>{Icons['trashPermanent'](14, 14)}</Icon>
-                                    {'Delete Permanently'}
-                                </Option>
-                            )}
-                            {showLabelDialog && (
-                                <LabelDialog
-                                    itemId={props.itemId}
-                                    onClose={() => {
-                                        setShowDialog(false)
-                                        setShowLabelDialog(false)
-                                    }}
-                                />
+                            {props.options.map((v, i) =>
+                                DropdownOption(i, v.onClick, v.icon, v.label),
                             )}
                         </DialogContainer>
                     </>
@@ -112,9 +92,5 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
 const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
 })
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-    deletePermanently: (id: Uuid) => {
-        dispatch(deletePermanently(id))
-    },
-})
+const mapDispatchToProps = (dispatch) => ({})
 export default connect(mapStateToProps, mapDispatchToProps)(MoreDropdown)

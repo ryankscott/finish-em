@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { ThemeProvider } from '../StyledComponents'
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
@@ -13,6 +12,7 @@ import Project from './Project'
 import View from './View'
 import Help from './Help'
 import { themes, GlobalStyle } from '../theme'
+import { app as appKeymap } from '../keymap'
 import {
     toggleShortcutDialog,
     showSidebar,
@@ -33,10 +33,12 @@ import {
 } from './styled/App'
 import Button from './Button'
 import Tooltip from './Tooltip'
-import { Projects, Views, ThemeType } from '../interfaces'
+import { Projects, Views } from '../interfaces'
 import { Slide } from 'react-toastify'
 import isElectron from 'is-electron'
 import uuidv4 from 'uuid'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { Uuid } from '@typed/uuid'
 
 if (isElectron()) {
     const electron = window.require('electron')
@@ -55,6 +57,7 @@ const ProjectWrapper = (props: ProjectWrapperProps): ReactElement => {
 interface StateProps {
     sidebarVisible: boolean
     focusbarVisible: boolean
+    theme: string
     projects: Projects
     views: Views
 }
@@ -80,7 +83,7 @@ const App = (props: AppProps): ReactElement => {
     }
     useEffect(() => {
         window.addEventListener('resize', () => {
-            if ((window.innerWidth < MIN_WIDTH_FOR_SIDEBAR) & (props.sidebarVisible == true)) {
+            if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && props.sidebarVisible == true) {
                 props.hideSidebar()
             }
         })
@@ -175,13 +178,19 @@ const App = (props: AppProps): ReactElement => {
         GO_TO_UNSCHEDULED: () => goToUnscheduled(),
         SHOW_SIDEBAR: () => props.showSidebar(),
         HIDE_SIDEBAR: () => props.hideSidebar(),
-        TOGGLE_SHORTCUT_DIALOG: () => props.toggleShortcutDialog(),
+        TOGGLE_SHORTCUT_DIALOG: () => {
+            props.toggleShortcutDialog()
+        },
         ESCAPE: () => props.hideDialogs(),
         SHOW_CREATE_PROJECT_DIALOG: (e) => {
             props.showCreateProjectDialog()
             e.preventDefault()
         },
     }
+
+    Object.entries(appKeymap).map(([k, v]) => {
+        useHotkeys(v, handlers[k])
+    })
 
     const { sidebarVisible, focusbarVisible, toggleShortcutDialog } = props
     return (

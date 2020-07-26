@@ -4,6 +4,7 @@ import { Paragraph } from '../Typography'
 import { lighten } from 'polished'
 
 export const HeaderBar = styled.div`
+    position: relative;
     display: grid;
     align-items: center;
     width: 100%;
@@ -12,8 +13,8 @@ export const HeaderBar = styled.div`
     border-radius: 5px 5px 0px 0px;
     box-shadow: ${(props) => '0px 1px 4px ' + props.theme.colours.borderColour};
     grid-template-rows: 40px;
-    grid-template-columns: 30px 260px auto;
-    grid-template-areas: 'hide header filterBar';
+    grid-template-columns: 30px 260px auto 30px;
+    grid-template-areas: 'hide header filterBar more';
 `
 
 export const FilterBar = styled.div`

@@ -32,6 +32,7 @@ import { Labels, IconType } from '../interfaces'
 import { Icons } from '../assets/icons'
 import Tooltip from './Tooltip'
 import { Code } from './Typography'
+import { toast } from 'react-toastify'
 
 const options: { value: string; label: string }[] = [
     { value: ItemIcons.Project, label: 'Project' },
@@ -55,6 +56,7 @@ interface OwnProps {
     componentId: string
     isFilterable: boolean
     showSubtasks: boolean
+    onClose: () => void
 }
 
 interface StateProps {
@@ -68,12 +70,13 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
     const node = useRef<HTMLDivElement>()
     const filterRef = useRef<HTMLInputElement>()
     const nameRef = useRef<HTMLInputElement>()
-    const [showDialog, setShowDialog] = useState(false)
+
+    const [errorMessage, setErrorMessage] = useState('')
     const handleClick = (e): null => {
-        if (node.current.contains(e.target)) {
+        if (node.current?.contains(e.target)) {
             return
         }
-        setShowDialog(false)
+        props.onClose()
     }
     useEffect(() => {
         document.addEventListener('mousedown', handleClick)
@@ -84,45 +87,32 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
 
     return (
         <ThemeProvider theme={theme}>
-            <div ref={node}>
-                <div>
-                    <Button
-                        height="22px"
-                        width="22px"
-                        iconSize="14px"
-                        type={'default'}
-                        spacing={'compact'}
-                        onClick={() => setShowDialog(!showDialog)}
-                        icon="edit"
-                    />
-                </div>
-                {showDialog && (
-                    <DialogContainer>
-                        <DialogHeader>
-                            <HelpButtonContainer
-                                data-for={'help-icon' + props.componentId}
-                                data-tip
-                                data-html={true}
-                            >
-                                {Icons.help(18, 18, themes[props.theme].colours.disabledTextColour)}
-                            </HelpButtonContainer>
-                            <DialogName>{'Update List'}</DialogName>
+            <DialogContainer ref={node}>
+                <DialogHeader>
+                    <HelpButtonContainer
+                        data-for={'help-icon' + props.componentId}
+                        data-tip
+                        data-html={true}
+                    >
+                        {Icons.help(18, 18, themes[props.theme].colours.disabledTextColour)}
+                    </HelpButtonContainer>
+                    <DialogName>{'Update List'}</DialogName>
 
-                            <CloseButtonContainer>
-                                <Button
-                                    type="default"
-                                    spacing="compact"
-                                    icon="close"
-                                    onClick={() => {
-                                        setShowDialog(false)
-                                    }}
-                                />
-                            </CloseButtonContainer>
-                            <Tooltip
-                                id={'help-icon' + props.componentId}
-                                multiline={true}
-                                html={true}
-                                text={`
+                    <CloseButtonContainer>
+                        <Button
+                            type="default"
+                            spacing="compact"
+                            icon="close"
+                            onClick={() => {
+                                props.onClose()
+                            }}
+                        />
+                    </CloseButtonContainer>
+                    <Tooltip
+                        id={'help-icon' + props.componentId}
+                        multiline={true}
+                        html={true}
+                        text={`
                                 <h3 style="color:#e0e0e0;padding-top:10px">Options:</h3>
                                 <ul>
                                 <li> Name - the name displayed for the list </li>
@@ -132,141 +122,155 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                                 <li> Hide icons - select the icons to hide each item </li>
                                 </ul>
                                 `}
-                            />
-                        </DialogHeader>
+                    />
+                </DialogHeader>
 
-                        <Setting>
-                            <SettingLabel>Name:</SettingLabel>
-                            <SettingValue>
-                                <EditableText
-                                    innerRef={nameRef}
-                                    key={'ed-name'}
-                                    input={props.listName}
-                                    fontSize={'xsmall'}
-                                    shouldSubmitOnBlur={true}
-                                    onEscape={() => {}}
-                                    validation={false}
-                                    singleline={true}
-                                    shouldClearOnSubmit={false}
-                                    onUpdate={(input) => {
-                                        props.setFilteredItemListName(props.componentId, input)
-                                    }}
-                                />
-                            </SettingValue>
-                        </Setting>
-                        <Setting>
-                            <SettingLabel>Filter:</SettingLabel>
-                            <SettingValue>
-                                <EditableText
-                                    innerRef={filterRef}
-                                    key={'ed-name'}
-                                    input={props.filter}
-                                    fontSize={'xsmall'}
-                                    shouldSubmitOnBlur={true}
-                                    onEscape={() => {}}
-                                    style={Code}
-                                    plainText={true}
-                                    validation={{
-                                        validate: true,
-                                        rule: (input) => {
-                                            try {
-                                                compileExpression(
-                                                    input,
-                                                    generateFiltrexOptions({
-                                                        labels: props.labels,
-                                                    }),
-                                                )
-                                            } catch (e) {
-                                                console.log(e)
-                                                return false
-                                            }
-                                            return true
-                                        },
-                                    }}
-                                    singleline={true}
-                                    shouldClearOnSubmit={false}
-                                    onUpdate={(input) => {
-                                        props.setFilteredItemListFilter(props.componentId, input)
-                                    }}
-                                />
-                            </SettingValue>
-                        </Setting>
-                        <Setting>
-                            <SettingLabel>Filterable:</SettingLabel>
-                            <SettingValue style={{ paddingLeft: '20px' }}>
-                                <Switch
-                                    checked={props.isFilterable}
-                                    onChange={(input) =>
-                                        props.setFilteredItemListFilterable(
-                                            props.componentId,
+                <Setting>
+                    <SettingLabel>Name:</SettingLabel>
+                    <SettingValue>
+                        <EditableText
+                            innerRef={nameRef}
+                            key={'ed-name'}
+                            input={props.listName}
+                            fontSize={'xsmall'}
+                            shouldSubmitOnBlur={true}
+                            onEscape={() => {}}
+                            validation={false}
+                            singleline={true}
+                            shouldClearOnSubmit={false}
+                            onUpdate={(input) => {
+                                props.setFilteredItemListName(props.componentId, input)
+                            }}
+                        />
+                    </SettingValue>
+                </Setting>
+                <Setting>
+                    <SettingLabel>Filter:</SettingLabel>
+                    <SettingValue data-for={'filter' + props.componentId} data-tip>
+                        <EditableText
+                            innerRef={filterRef}
+                            key={'ed-name'}
+                            input={props.filter}
+                            fontSize={'xsmall'}
+                            shouldSubmitOnBlur={true}
+                            onEscape={() => {}}
+                            style={Code}
+                            plainText={true}
+                            validation={{
+                                validate: true,
+                                rule: (input) => {
+                                    try {
+                                        compileExpression(
                                             input,
+                                            generateFiltrexOptions({
+                                                labels: props.labels,
+                                            }),
                                         )
+                                        setErrorMessage('')
+                                    } catch (e) {
+                                        const error = e.message.split('\n')
+                                        error.shift()
+                                        setErrorMessage(
+                                            '   <strong>Error parsing filter:</strong></br>' +
+                                                error.join('<br>'),
+                                        )
+                                        return false
                                     }
-                                    onColor={theme.colours.primaryColour}
-                                    checkedIcon={false}
-                                    uncheckedIcon={false}
-                                    width={24}
-                                    height={14}
-                                />
-                            </SettingValue>
-                        </Setting>
-                        <Setting>
-                            <SettingLabel>Show subtasks:</SettingLabel>
-                            <SettingValue style={{ paddingLeft: '20px' }}>
-                                <Switch
-                                    checked={props.showSubtasks}
-                                    onChange={(input) => {
-                                        props.setFilteredItemListShowAllTasks(
-                                            props.componentId,
-                                            input,
-                                        )
-                                    }}
-                                    onColor={theme.colours.primaryColour}
-                                    checkedIcon={false}
-                                    uncheckedIcon={false}
-                                    width={24}
-                                    height={14}
-                                />
-                            </SettingValue>
-                        </Setting>
-                        <Setting>
-                            <SettingLabel>Hide Icons:</SettingLabel>
-                            <SettingValue>
-                                <SelectContainer>
-                                    <Select
-                                        isMulti={true}
-                                        onChange={(values) => {
-                                            const hiddenIcons = values.map((v) => v.value)
-                                            props.setFilteredItemListHiddenIcons(
-                                                props.componentId,
-                                                hiddenIcons,
-                                            )
-                                        }}
-                                        options={options}
-                                        styles={selectStyles({
-                                            fontSize: 'xsmall',
-                                            theme: theme,
-                                            width: '200px',
-                                        })}
-                                        escapeClearsValue={true}
-                                    />
-                                </SelectContainer>
-                            </SettingValue>
-                        </Setting>
-                        <SaveContainer>
-                            <Button
-                                width="80px"
-                                type="primary"
-                                icon="save"
-                                text="Save"
-                                onClick={() => {
-                                    setShowDialog(false)
+
+                                    return true
+                                },
+                            }}
+                            singleline={true}
+                            shouldClearOnSubmit={false}
+                            onUpdate={(input) => {
+                                props.setFilteredItemListFilter(props.componentId, input)
+                            }}
+                        />
+                    </SettingValue>
+                </Setting>
+
+                <Setting>
+                    <SettingLabel>Filterable:</SettingLabel>
+                    <SettingValue style={{ paddingLeft: '20px' }}>
+                        <Switch
+                            checked={props.isFilterable}
+                            onChange={(input) =>
+                                props.setFilteredItemListFilterable(props.componentId, input)
+                            }
+                            onColor={theme.colours.primaryColour}
+                            checkedIcon={false}
+                            uncheckedIcon={false}
+                            width={24}
+                            height={14}
+                        />
+                    </SettingValue>
+                </Setting>
+                <Setting>
+                    <SettingLabel>Show subtasks:</SettingLabel>
+                    <SettingValue style={{ paddingLeft: '20px' }}>
+                        <Switch
+                            checked={props.showSubtasks}
+                            onChange={(input) => {
+                                props.setFilteredItemListShowAllTasks(props.componentId, input)
+                            }}
+                            onColor={theme.colours.primaryColour}
+                            checkedIcon={false}
+                            uncheckedIcon={false}
+                            width={24}
+                            height={14}
+                        />
+                    </SettingValue>
+                </Setting>
+                <Setting>
+                    <SettingLabel>Hide Icons:</SettingLabel>
+                    <SettingValue>
+                        <SelectContainer>
+                            <Select
+                                isMulti={true}
+                                onChange={(values) => {
+                                    const hiddenIcons = values.map((v) => v.value)
+                                    props.setFilteredItemListHiddenIcons(
+                                        props.componentId,
+                                        hiddenIcons,
+                                    )
                                 }}
+                                options={options}
+                                styles={selectStyles({
+                                    fontSize: 'xsmall',
+                                    theme: theme,
+                                    width: '200px',
+                                })}
+                                escapeClearsValue={true}
                             />
-                        </SaveContainer>
-                    </DialogContainer>
-                )}
-            </div>
+                        </SelectContainer>
+                    </SettingValue>
+                </Setting>
+                <SaveContainer>
+                    <Button
+                        width="80px"
+                        type="primary"
+                        icon="save"
+                        text="Save"
+                        onClick={() => {
+                            if (errorMessage != '') {
+                                toast.error(
+                                    <div
+                                        style={{
+                                            padding: '10px 5px',
+                                            color: '#FFFFFF',
+                                            fontFamily: "'SFMono-Regular',Consolas, monospace",
+                                        }}
+                                        dangerouslySetInnerHTML={{ __html: errorMessage }}
+                                    ></div>,
+                                )
+                            } else {
+                                props.onClose()
+                                toast.dark('Component updated')
+                            }
+                        }}
+                    />
+                </SaveContainer>
+            </DialogContainer>
         </ThemeProvider>
     )
 }

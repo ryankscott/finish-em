@@ -127,6 +127,7 @@ interface MoreContainerProps {
 }
 export const MoreContainer = styled.div<MoreContainerProps>`
     grid-area: MORE;
+    transition: all 0.2s ease-in-out;
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-end;

@@ -5,12 +5,11 @@ import uuidv4 from 'uuid/v4'
 import { Uuid } from '@typed/uuid'
 import Button from './Button'
 import Tooltip from './Tooltip'
-import EditableText from './EditableText'
-import { validateItemString } from '../utils'
 import { Container, ItemCreatorContainer, HelpButtonContainer } from './styled/ItemCreator'
 import { Icons } from '../assets/icons'
 import { themes } from '../theme'
 import { ThemeProvider } from '../StyledComponents'
+import { ValidatingEditableText } from './ValidatingEditableText'
 
 interface StateProps {
     theme: string
@@ -86,7 +85,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
                 ></Tooltip>
                 <ItemCreatorContainer width={props.width} visible={showItemCreator}>
-                    <EditableText
+                    <ValidatingEditableText
                         innerRef={textRef}
                         onUpdate={(text) => {
                             props.type == 'item'
@@ -102,13 +101,13 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                             }
                         }}
                         readOnly={false}
-                        validation={{ validate: true, rule: validateItemString }}
                         input=""
                         singleline={true}
                         shouldClearOnSubmit={true}
                         shouldSubmitOnBlur={false}
                         onEscape={props.onEscape}
                     />
+
                     <HelpButtonContainer
                         data-for={'help-icon' + props.parentId + props.projectId + props.type}
                         data-tip

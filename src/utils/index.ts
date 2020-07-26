@@ -3,10 +3,10 @@ import { ItemType, Item, RenderingStrategy, Labels } from '../interfaces'
 import RRule from 'rrule'
 
 export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
-export const dueTextRegex = /due:("[\s\S]*")|due:(\S+)/g
-export const scheduledTextRegex = /scheduled:(".*")|scheduled:(\S+)/g
-export const projectTextRegex = /project:(".*")|project:(\S+)/g
-export const repeatTextRegex = /repeat:(".*")|repeat:(\S+)/g
+export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/g
+export const scheduledTextRegex = /scheduled:(\s*"[\s\S]*")|scheduled:(\s*\S+)/g
+export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/g
+export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/g
 
 import emojiRegex from 'emoji-regex/text.js'
 import {
@@ -271,4 +271,14 @@ export const truncateString = (input: string, length: number): string => {
         return input
     }
     return input.slice(0, length - 1) + '...'
+}
+// TODO: Use a reduce
+export const groupBy = (inputArray: {}[], groupingKey: string): {} => {
+    const output = {}
+    inputArray.map((i) => {
+        return output.hasOwnProperty(i[groupingKey])
+            ? output[i[groupingKey]].push(i)
+            : (output[i[groupingKey]] = [i])
+    })
+    return output
 }

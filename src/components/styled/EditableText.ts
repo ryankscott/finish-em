@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from '../../StyledComponents'
 import CSS from 'csstype'
 import { darken } from 'polished'
 import { fontSizeType } from '../../interfaces'
@@ -60,10 +60,17 @@ export const Container = styled.div<ContainerProps>`
     :active {
         outline: 0;
     }
-    & > span {
+    & > span.valid {
         background-color: ${(props) => props.theme.colours.penternaryColour};
         color: ${(props) => props.theme.colours.altTextColour};
         padding: 2px 5px;
         border-radius: 3px;
+    }
+    & > span.invalid {
+        color: ${(props) => props.theme.colours.errorColour};
+        padding: 2px 5px;
+        border-radius: 3px;
+        border: 1px solid;
+        border-color: ${(props) => props.theme.colours.errorColour};
     }
 `

@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from '../../StyledComponents'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -59,7 +59,7 @@ export const FocusContainer = styled.div<FocusContainerProps>`
     display: flex;
     flex-direction: column;
     padding: ${(props) => (props.visible ? '5px' : '0px')};
-    width: ${(props) => (props.visible ? '650px' : '0px')};
+    width: ${(props) => (props.visible ? '700px' : '0px')};
     min-width: ${(props) => (props.visible ? '80px' : '0px')};
     transition: all 0.2s ease-in-out;
     align-items: center;
@@ -78,12 +78,11 @@ export const StyledToastContainer = styled(ToastContainer).attrs((props) => ({
     /* .toast-container */
     border-radius: 5px;
     font-family: ${(props) => props.theme.font.sansSerif};
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    font-size: ${(props) => props.theme.fontSizes.small};
+    font-weight: ${(props) => props.theme.fontWeights.bold};
     /* .toast is passed to toastClassName */
     .toast {
         padding: 5px 5px;
-        background-color: ${(props) => props.theme.colours.darkDialogBackgroundColour};
-        color: ${(props) => props.theme.colours.altTextColour};
         border: 0px;
         border-radius: 5px;
     }
@@ -93,9 +92,8 @@ export const StyledToastContainer = styled(ToastContainer).attrs((props) => ({
     }
 
     /* 
-    TODO: Update this to theme colours
     .progress is passed to progressClassName */
-    .progress {
+    .Toastify__progress-bar--dark {
         background: linear-gradient(
             to right,
             ${(props) => props.theme.colours.primaryColour},

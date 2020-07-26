@@ -14,6 +14,7 @@ export const DialogContainer = styled.div`
     padding: 5px 0px;
     z-index: 2;
     right: 0px;
+    box-shadow: 0px 1px 4px ${(props) => props.theme.colours.borderColour};
 `
 export const Icon = styled.div`
     display: flex;

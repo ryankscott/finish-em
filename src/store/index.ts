@@ -1,9 +1,23 @@
-import { createStore, compose } from 'redux'
+import { createStore, compose, applyMiddleware } from 'redux'
 import rootReducer from '../reducers'
 import { createMigrate, persistStore, persistReducer } from 'redux-persist'
 import isElectron from 'is-electron'
 import storage from 'redux-persist/lib/storage'
 import { migrations } from './migrations'
+import * as itemActions from '../actions/item'
+
+const logger = (store) => (next) => (action) => {
+    // Get the action names for items
+    const actions = Object.values(itemActions).filter((x) => typeof x == 'string')
+    if (actions.includes(action.action.type)) {
+        console.group(action.action.type)
+        console.info(action.action)
+        console.log(action.action.type)
+        console.groupEnd()
+    }
+    const result = next(action)
+    return result
+}
 
 let createElectronStorage
 if (isElectron()) {
@@ -34,6 +48,9 @@ const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 export const store = createStore(
     persistedReducer,
-    compose(window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()),
+    compose(
+        window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+        applyMiddleware(logger),
+    ),
 )
 export const persistor = persistStore(store)

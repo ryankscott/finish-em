@@ -22,12 +22,7 @@ export const DELETE_PERMANENT_ITEM = 'DELETE_PERMANENT_ITEM'
 export const ADD_LABEL = 'ADD_LABEL'
 export const DELETE_LABEL = 'DELETE_LABEL'
 
-import {
-    getItemTypeFromString,
-    capitaliseItemTypeFromString,
-    dueTextRegex,
-    extractDateFromString,
-} from '../utils'
+import { getItemTypeFromString, capitaliseItemTypeFromString, dueTextRegex } from '../utils'
 import RRule from 'rrule'
 
 export interface CreateItemAction {
@@ -49,9 +44,7 @@ export function createItem(
 
     const dueDateText = text.match(dueTextRegex)
     const dd = dueDateText ? dueDateText[0].split(':')[1] : ''
-    console.log(dd)
     const dueDate = chrono.parse(text)
-    console.log(dueDate[0].date())
 
     const newText = capitaliseItemTypeFromString(text)
 

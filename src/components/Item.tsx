@@ -1,4 +1,5 @@
 import React, { ReactElement, useState, useEffect } from 'react'
+
 import { ThemeProvider } from '../StyledComponents'
 import { connect } from 'react-redux'
 import { RRule } from 'rrule'
@@ -28,6 +29,7 @@ import {
     setActiveItem,
     showFocusbar,
     toggleSubtasks,
+    deletePermanently,
 } from '../actions'
 import { themes } from '../theme'
 import EditableText from './EditableText'
@@ -40,10 +42,11 @@ import {
 } from '../utils'
 import { parseISO, format } from 'date-fns'
 import Button from './Button'
-import MoreDropdown from './MoreDropdown'
+import MoreDropdown, { MoreDropdownOptions } from './MoreDropdown'
 import { getItemParentId } from '../selectors/item'
 import ItemAttribute from './ItemAttribute'
 import Tooltip from './Tooltip'
+import LabelDialog from './LabelDialog'
 
 interface DispatchProps {
     updateItemDescription: (id: Uuid, text: string) => void
@@ -54,6 +57,7 @@ interface DispatchProps {
     setActiveItem: (id: Uuid) => void
     showFocusbar: () => void
     toggleSubtasks: (id: Uuid, componentId: Uuid) => void
+    deletePermanently: (id: Uuid) => void
 }
 interface StateProps {
     projects: Projects
@@ -75,12 +79,40 @@ type ItemProps = OwnProps & StateProps & DispatchProps
 function Item(props: ItemProps): ReactElement {
     const [isEditingDescription, setIsEditingDescription] = useState(false)
     const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
+    const [moreButtonVisible, setMoreButtonVisible] = useState(false)
+    const [showLabelDialog, setShowLabelDialog] = useState(false)
+    let interval = 0
 
     const editor = React.useRef<HTMLInputElement>()
     const container = React.useRef<HTMLInputElement>()
 
-    const hiddenIcons = props.hideIcons || []
+    const dropdownOptions: MoreDropdownOptions = props.deleted
+        ? [
+              {
+                  label: 'Delete permanently',
+                  onClick: (e: React.MouseEvent) => {
+                      props.deletePermanently(props.id)
+                      e.stopPropagation()
+                      e.preventDefault()
+                      return
+                  },
+                  icon: 'trashPermanent',
+              },
+          ]
+        : [
+              {
+                  label: 'Add Label',
+                  onClick: (e: React.MouseEvent) => {
+                      e.stopPropagation()
+                      e.preventDefault()
+                      setShowLabelDialog(!showLabelDialog)
+                      return
+                  },
+                  icon: 'flag',
+              },
+          ]
 
+    const hiddenIcons = props.hideIcons || []
     useEffect(() => {
         if (!isDescriptionReadOnly) {
             editor.current.focus()
@@ -167,7 +199,19 @@ function Item(props: ItemProps): ReactElement {
     })()
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div key={props.id} id={props.id}>
+            <div
+                key={props.id}
+                id={props.id}
+                onMouseEnter={(e) => {
+                    clearTimeout(interval)
+                    setMoreButtonVisible(true)
+                    e.stopPropagation()
+                }}
+                onMouseLeave={(e) => {
+                    interval = setTimeout(() => setMoreButtonVisible(false), 1000)
+                    e.stopPropagation()
+                }}
+            >
                 <Container
                     key={props.id}
                     ref={container}
@@ -229,10 +273,18 @@ function Item(props: ItemProps): ReactElement {
                         <Tooltip id={'project-name-' + props.id} text={projectText.long} />
                     </ProjectContainer>
 
-                    <MoreContainer visible={true} data-tip data-for={'more-container-' + props.id}>
-                        <MoreDropdown itemId={props.id} deleted={props.deleted}></MoreDropdown>
-                        <Tooltip id={'more-container-' + props.id} text="More actions" />
+                    <MoreContainer visible={moreButtonVisible}>
+                        <MoreDropdown options={dropdownOptions}></MoreDropdown>
+                        {showLabelDialog && (
+                            <LabelDialog
+                                itemId={props.id}
+                                onClose={() => {
+                                    setShowLabelDialog(false)
+                                }}
+                            />
+                        )}
                     </MoreContainer>
+
                     <ParentItemContainer
                         data-tip
                         data-for={'parent-item-' + props.id}
@@ -322,6 +374,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     toggleSubtasks: (id: Uuid, componentId: Uuid) => {
         dispatch(toggleSubtasks(id, componentId))
+    },
+    deletePermanently: (id: Uuid) => {
+        dispatch(deletePermanently(id))
     },
 })
 

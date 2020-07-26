@@ -27,6 +27,7 @@ import { Uuid } from '@typed/uuid'
 import { Icons } from '../assets/icons'
 import { ThemeProvider } from '../StyledComponents'
 import FilteredItemDialog from '../components/FilteredItemDialog'
+import MoreDropdown from '../components/MoreDropdown'
 
 const PAGE_SIZE = 25
 
@@ -146,6 +147,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
     const [hideCompleted, setHideCompleted] = useState(false)
     const [hideItemList, setHideItemList] = useState(Object.keys(props.items).length == 0)
+    const [showEditDialog, setShowEditDialog] = useState(false)
 
     const theme = themes[props.theme]
     // TODO: Unsure if this should be done in state
@@ -255,33 +257,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                         </ListItemCount>
                     </ListHeader>
                     <FilterBar>
-                        {!props.readOnly && (
-                            <FilteredItemDialog
-                                key={`dlg-${props.id}`}
-                                componentId={props.id}
-                                listName={props.listName}
-                                filter={props.filter}
-                                isFilterable={props.isFilterable}
-                                showSubtasks={
-                                    props.renderingStrategy == RenderingStrategy.All ? true : false
-                                }
-                            />
-                        )}
-                        {!props.readOnly && (
-                            <>
-                                <Button
-                                    dataFor="delete-compoenent-button"
-                                    height="22px"
-                                    width="22px"
-                                    iconSize="14px"
-                                    type="default"
-                                    spacing="compact"
-                                    icon="trash"
-                                    onClick={() => props.deleteComponent(props.id)}
-                                />
-                                <Tooltip id="delete-component-button" text={'Delete'} />
-                            </>
-                        )}
                         {visibility.showFilterBar && (
                             <>
                                 {visibility.showCompletedToggle && (
@@ -393,6 +368,33 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                             </>
                         )}
                     </FilterBar>
+                    <MoreDropdown
+                        options={[
+                            {
+                                icon: 'trash',
+                                label: 'Delete Component',
+                                onClick: (e: React.MouseEvent) => props.deleteComponent(props.id),
+                            },
+                            {
+                                icon: 'edit',
+                                label: 'Edit Component',
+                                onClick: (e: React.MouseEvent) => setShowEditDialog(true),
+                            },
+                        ]}
+                    />
+                    {showEditDialog && (
+                        <FilteredItemDialog
+                            key={`dlg-${props.id}`}
+                            componentId={props.id}
+                            listName={props.listName}
+                            filter={props.filter}
+                            isFilterable={props.isFilterable}
+                            onClose={() => setShowEditDialog(false)}
+                            showSubtasks={
+                                props.renderingStrategy == RenderingStrategy.All ? true : false
+                            }
+                        />
+                    )}
                 </HeaderBar>
                 {!hideItemList && (
                     <ItemListContainer>

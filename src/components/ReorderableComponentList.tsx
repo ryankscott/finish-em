@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 
 import { themes } from '../theme'
@@ -27,7 +27,6 @@ interface StateProps {
 }
 type ReorderableComponentListProps = StateProps & OwnProps & DispatchProps
 const ReorderableComponentList = (props: ReorderableComponentListProps): ReactElement => {
-    const [showEdit, setShowEdit] = useState(false)
     const theme = themes[props.theme]
 
     const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
@@ -64,18 +63,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                     width: '100%',
                     margin: '20px 0px 5px 0px',
                 }}
-            >
-                <Button
-                    type={'primary'}
-                    spacing={'compact'}
-                    width={'60px'}
-                    icon={showEdit ? 'save' : 'edit'}
-                    text={showEdit ? 'Save' : 'Edit'}
-                    onClick={() => {
-                        setShowEdit(!showEdit)
-                    }}
-                />
-            </div>
+            ></div>
             <DragDropContext
                 onDragEnd={(e) => {
                     props.reorderComponent(
@@ -102,7 +90,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                                     key={c}
                                                     draggableId={c}
                                                     index={index}
-                                                    isDragDisabled={!showEdit}
+                                                    isDragDisabled={false}
                                                 >
                                                     {(provided, snapshot) => (
                                                         <div
@@ -119,7 +107,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                                                 id={c}
                                                                 key={c}
                                                                 {...comp.component.props}
-                                                                readOnly={!showEdit}
                                                             />
                                                         </div>
                                                     )}
@@ -155,20 +142,18 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                     )}
                 </Droppable>
             </DragDropContext>
-            {showEdit && (
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <Button
-                        type={'default'}
-                        iconSize="14px"
-                        width="90px"
-                        icon={'add'}
-                        text={'Add list'}
-                        onClick={() => {
-                            props.addComponent(props.id)
-                        }}
-                    />
-                </div>
-            )}
+            <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '10px' }}>
+                <Button
+                    type={'default'}
+                    iconSize="14px"
+                    width="90px"
+                    icon={'add'}
+                    text={'Add list'}
+                    onClick={() => {
+                        props.addComponent(props.id)
+                    }}
+                />
+            </div>
         </ThemeProvider>
     )
 }

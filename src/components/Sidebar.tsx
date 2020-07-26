@@ -43,7 +43,7 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
     box-sizing: border-box;
     justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
     font-size: ${(props) =>
-        props.sidebarVisible ? props.theme.fontSizes.small : props.theme.fontSizes.xlarge};
+        props.sidebarVisible ? props.theme.fontSizes.small : props.theme.fontSizes.large};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};
     border-radius: 5px;
