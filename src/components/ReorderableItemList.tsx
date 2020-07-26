@@ -19,9 +19,11 @@ import {
     undeleteItem,
     deleteItem,
     toggleSubtasks,
+    showSubtasks,
 } from '../actions'
 import { Uuid } from '@typed/uuid'
 import { HotKeys } from 'react-hotkeys'
+import { useHotkeys } from 'react-hotkeys-hook'
 
 /* We need two strategies for rendering items:
 
@@ -43,6 +45,7 @@ interface DispatchProps {
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
     toggleSubtasks: (id: Uuid, componentId: Uuid) => void
+    showSubtasks: (id: Uuid, componentId: Uuid) => void
 }
 interface StateProps {
     theme: string
@@ -75,12 +78,14 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     })
     const handlers = {
         TOGGLE_CHILDREN: (event) => {
-            props.toggleSubtasks(event.target.id)
+            props.toggleSubtasks(event.target.id, props.componentId)
         },
         NEXT_ITEM: (event) => {
             const item = props.items.items[event.target.id]
             // If it's a parent element we need to get the first child
             if (item.children.length > 0) {
+                // Show subtasks so we can iterate over them
+                props.showSubtasks(event.target.id, props.componentId)
                 const nextItem = event.target.parentNode.nextSibling
                 if (nextItem) {
                     nextItem.firstChild.focus()
@@ -112,6 +117,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
             }
         },
         PREV_ITEM: (event) => {
+            console.log('prev item')
             const item = props.items.items[event.target.id]
             if (item.children.length > 0) {
                 const prevItem = event.target.parentNode.previousSibling
@@ -148,49 +154,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
             props.setActiveItem(event.target.id)
             return
         },
-        SET_SCHEDULED_DATE: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.type == 'NOTE') return
-            if (item.deleted || item.completed) return
-            console.log('scheduled')
-            event.preventDefault()
-        },
-        SET_DUE_DATE: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.type == 'NOTE') return
-            if (item.deleted || item.completed) return
-            console.log('due date')
-            event.preventDefault()
-        },
-        CREATE_SUBTASK: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.deleted || item.completed || item.parentId != null) return
-            console.log('create sub task')
-            event.preventDefault()
-        },
-        CONVERT_TO_SUBTASK: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.type == 'NOTE') return
-            if (item.deleted || item.completed) return
-            console.log('convert to sub task')
-            event.preventDefault()
-        },
-        REPEAT_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.type == 'NOTE') return
-            if (item.deleted || item.completed) return
-            console.log('repeat')
-            event.preventDefault()
-        },
-        MOVE_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
-            if (item.deleted || item.completed) return
-            console.log('move item')
-            event.preventDefault()
-        },
-        ESCAPE: () => {
-            console.log('escape')
-        },
         COMPLETE_ITEM: (event) => {
             const item = props.items.items[event.target.id]
             if (item.type == 'NOTE') return
@@ -213,11 +176,61 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
             const item = props.items.items[event.target.id]
             props.undeleteItem(item.id)
         },
+        SET_SCHEDULED_DATE: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('scheduled')
+            event.preventDefault()
+        },
+        SET_DUE_DATE: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('due date')
+            event.preventDefault()
+        },
+        CREATE_SUBTASK: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.deleted || item.completed || item.parentId != null) return
+            console.log('create sub task')
+            event.preventDefault()
+        },
+        CONVERT_TO_SUBTASK: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('convert to sub task')
+            event.preventDefault()
+        },
+        REPEAT_ITEM: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.type == 'NOTE') return
+            if (item.deleted || item.completed) return
+            console.log('repeat')
+            event.preventDefault()
+        },
+        MOVE_ITEM: (event) => {
+            // TODO: Implement me
+            const item = props.items.items[event.target.id]
+            if (item.deleted || item.completed) return
+            console.log('move item')
+            event.preventDefault()
+        },
         EDIT_ITEM_DESC: (event) => {
+            // TODO:Implement me
             const item = props.items.items[event.target.id]
             event.preventDefault()
         },
     }
+    Object.entries(itemKeymap).map(([k, v]) => {
+        useHotkeys(v, handlers[k])
+    })}
 
     return (
         <ThemeProvider theme={theme}>
@@ -405,6 +418,10 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleSubtasks: (id: Uuid, componentId: Uuid) => {
         dispatch(toggleSubtasks(id, componentId))
     },
+    showSubtasks: (id: Uuid, componentId: Uuid) => {
+        dispatch(showSubtasks(id, componentId))
+    },
+
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(ReorderableItemList)
