@@ -17,7 +17,7 @@ export const Container = styled.div<ContainerProps>`
     margin: 1px 0px;
     margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
     grid-template-columns: 5px 30px 30px auto auto auto auto 30px;
-    grid-auto-rows: 30px 15px;
+    grid-auto-rows: auto auto;
     grid-template-areas:
         '.  EXPAND   TYPE    DESC         DESC         DESC        PROJECT     MORE'
         '.  .        .       PARENT       SCHEDULED    DUE         REPEAT      .   ';
