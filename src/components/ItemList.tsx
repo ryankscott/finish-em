@@ -15,6 +15,7 @@ import {
     undeleteItem,
     deleteItem,
     toggleSubtasks,
+    showSubtasks,
 } from '../actions'
 import { Uuid } from '@typed/uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -27,6 +28,7 @@ interface DispatchProps {
     deleteItem: (id: Uuid) => void
     undeleteItem: (id: Uuid) => void
     toggleSubtasks: (id: Uuid, componentId: Uuid) => void
+    showSubtasks: (id: Uuid, componentId: Uuid) => void
 }
 
 interface StateProps {
@@ -138,9 +140,10 @@ function ItemList(props: ItemListProps): ReactElement {
         },
         NEXT_ITEM: (event) => {
             const item = props.items.items[event.target.id]
-            console.log('next item')
             // If it's a parent element we need to get the first child
             if (item.children.length > 0) {
+                // Show subtasks so we can iterate over them
+                props.showSubtasks(event.target.id, props.componentId)
                 const nextItem = event.target.parentNode.nextSibling
                 if (nextItem) {
                     nextItem.firstChild.focus()
@@ -333,6 +336,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     toggleSubtasks: (id: Uuid, componentId: Uuid) => {
         dispatch(toggleSubtasks(id, componentId))
+    },
+    showSubtasks: (id: Uuid, componentId: Uuid) => {
+        dispatch(showSubtasks(id, componentId))
     },
 })
 
