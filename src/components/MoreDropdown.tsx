@@ -65,7 +65,6 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
                 <Button
                     dataFor="more"
                     type="subtle"
-                    spacing="default"
                     icon="more"
                     width="18px"
                     onClick={(e) => {

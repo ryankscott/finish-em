@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from '../../StyledComponents'
 import CSS from 'csstype'
 import { transparentize } from 'polished'
 
@@ -6,12 +6,14 @@ interface ContainerProps {
     labelColour: CSS.Color
     visible: boolean
     shouldIndent: boolean
+    deleted: boolean
 }
 export const Container = styled.div<ContainerProps>`
+    position: relative;
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
     max-height: 200px;
     font-family: ${(props) => props.theme.font.sansSerif};
-    font-size: ${(props) => props.theme.fontSizes.medium};
+    font-size: ${(props) => props.theme.fontSizes.regular};
     display: ${(props) => (props.visible ? 'grid' : 'none')};
     opacity: ${(props) => (props.hidden ? '0' : '1')};
     margin: 1px 0px;
@@ -21,7 +23,7 @@ export const Container = styled.div<ContainerProps>`
     grid-template-areas:
         '.  EXPAND   TYPE    DESC         DESC         DESC        PROJECT     MORE'
         '.  .        .       PARENT       SCHEDULED    DUE         REPEAT      .   ';
-    border: 0px;
+
     padding: ${(props) => (props.hidden ? '0px' : '5px')};
     align-items: center;
     cursor: pointer;
@@ -33,6 +35,28 @@ export const Container = styled.div<ContainerProps>`
             : props.theme.colours.backgroundColour};
     :focus {
         background-color: ${(props) =>
+            props.labelColour != null
+                ? transparentize(0.8, props.labelColour)
+                : props.theme.colours.focusBackgroundColour};
+    }
+    :active {
+        background-color: ${(props) =>
+            props.labelColour != null
+                ? transparentize(0.8, props.labelColour)
+                : props.theme.colours.focusBackgroundColour};
+    }
+
+    &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        margin: 0px auto;
+        height: 1px;
+        width: calc(100% - 10px);
+        border-bottom: 1px solid;
+        border-color: ${(props) =>
             props.labelColour != null
                 ? transparentize(0.8, props.labelColour)
                 : props.theme.colours.focusBackgroundColour};
@@ -50,10 +74,13 @@ export const QuickAdd = styled.div<QuickAddProps>`
 
 interface BodyProps {
     completed: boolean
+    deleted: boolean
 }
 export const Body = styled.div<BodyProps>`
     margin: 0px 5px;
     grid-area: DESC;
+    color: ${(props) =>
+        props.deleted ? props.theme.colours.disabledTextColour : props.theme.colours.textColour};
     font-size: ${(props) => props.theme.fontSizes.regular};
     text-decoration: ${(props) => (props.completed === true ? 'line-through' : null)};
 `
@@ -135,18 +162,15 @@ export const MoreContainer = styled.div<MoreContainerProps>`
 
 interface HorizontalRuleProps {
     visible: boolean
-    labelColour: CSS.Color
 }
 
 export const HorizontalRule = styled.hr<HorizontalRuleProps>`
-    margin: auto;
+    margin: -1px auto;
     padding: 0px;
     display: ${(props) => (props.visible ? 'inherit' : 'none')};
     height: 1px;
     width: 90%;
     border: none;
-    background-color: ${(props) =>
-        props.labelColour
-            ? transparentize(0.9, props.labelColour)
-            : props.theme.colours.focusBackgroundColour};
+    color: ${(props) => props.theme.colours.focusBackgroundColour};
+    background-color: ${(props) => props.theme.colours.focusBackgroundColour};
 `

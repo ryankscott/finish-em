@@ -205,20 +205,20 @@ function Item(props: ItemProps): ReactElement {
                 onMouseEnter={(e) => {
                     clearTimeout(interval)
                     setMoreButtonVisible(true)
-                    e.stopPropagation()
                 }}
                 onMouseLeave={(e) => {
                     interval = setTimeout(() => setMoreButtonVisible(false), 1000)
-                    e.stopPropagation()
                 }}
+                tabIndex={0}
             >
                 <Container
+                    deleted={props.deleted}
                     key={props.id}
                     ref={container}
                     shouldIndent={props.shouldIndent}
                     visible={isVisible || props.alwaysVisible}
                     id={props.id}
-                    tabIndex={0}
+                    tabIndex={1}
                     onClick={() => {
                         props.showFocusbar()
                         props.setActiveItem(props.id)
@@ -250,7 +250,7 @@ function Item(props: ItemProps): ReactElement {
                             }
                         />
                     </TypeContainer>
-                    <Body id="body" completed={props.completed}>
+                    <Body id="body" completed={props.completed} deleted={props.deleted}>
                         <EditableText
                             shouldSubmitOnBlur={true}
                             innerRef={editor}
@@ -336,7 +336,6 @@ function Item(props: ItemProps): ReactElement {
                         <Tooltip id={'repeat-' + props.id} text={repeatText.long} />
                     </RepeatContainer>
                 </Container>
-                <HorizontalRule labelColour={labelColour} visible={isVisible} />
             </div>
         </ThemeProvider>
     )
