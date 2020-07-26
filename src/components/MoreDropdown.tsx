@@ -64,7 +64,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
             <div style={{ position: 'relative' }} ref={node}>
                 <Button
                     dataFor="more"
-                    type="default"
+                    type="subtle"
                     spacing="default"
                     icon="more"
                     width="18px"
