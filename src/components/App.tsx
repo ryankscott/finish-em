@@ -35,14 +35,10 @@ import Button from './Button'
 import Tooltip from './Tooltip'
 import { Projects, Views } from '../interfaces'
 import { Slide } from 'react-toastify'
-import isElectron from 'is-electron'
 import uuidv4 from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Uuid } from '@typed/uuid'
 
-if (isElectron()) {
-    const electron = window.require('electron')
-}
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
 interface ProjectWrapperProps {
@@ -74,13 +70,7 @@ type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
-    if (isElectron()) {
-        ipcMain.on('close-quickadd', (event, arg) => {
-            if (quickAddWindow) {
-                quickAddWindow.close()
-            }
-        })
-    }
+
     useEffect(() => {
         window.addEventListener('resize', () => {
             if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && props.sidebarVisible == true) {
