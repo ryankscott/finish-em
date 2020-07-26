@@ -230,7 +230,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     }
     Object.entries(itemKeymap).map(([k, v]) => {
         useHotkeys(v, handlers[k])
-    })}
+    })
 
     return (
         <ThemeProvider theme={theme}>
@@ -421,7 +421,6 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     showSubtasks: (id: Uuid, componentId: Uuid) => {
         dispatch(showSubtasks(id, componentId))
     },
-
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(ReorderableItemList)
