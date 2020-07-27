@@ -82,6 +82,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     innerRef={editor}
                     onUpdate={(input) => {
                         props.setDailyGoal(format(currentDate, 'yyyy-MM-dd'), input)
+                        return true
                     }}
                     validation={false}
                     shouldSubmitOnBlur={true}

@@ -9,7 +9,16 @@ import { Container, ItemCreatorContainer, HelpButtonContainer } from './styled/I
 import { Icons } from '../assets/icons'
 import { themes } from '../theme'
 import { ThemeProvider } from '../StyledComponents'
-import { ValidatingEditableText } from './ValidatingEditableText'
+import chrono from 'chrono-node'
+import {
+    setEndOfContenteditable,
+    dueTextRegex,
+    scheduledTextRegex,
+    projectTextRegex,
+    repeatTextRegex,
+    itemRegex,
+} from '../utils'
+import EditableText from './EditableText'
 
 interface StateProps {
     theme: string
@@ -85,8 +94,82 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
                 ></Tooltip>
                 <ItemCreatorContainer width={props.width} visible={showItemCreator}>
-                    <ValidatingEditableText
+                    <EditableText
                         innerRef={textRef}
+                        validation={(input) => {
+                            let currentVal = input
+                            // Check for prefix with TODO or NOTE
+                            const itemMatches = currentVal.match(itemRegex)
+                            if (itemMatches) {
+                                currentVal = currentVal.replace(
+                                    itemRegex,
+                                    '<span class="valid">$&</span>',
+                                )
+                            } else {
+                                currentVal = currentVal.replace(
+                                    itemRegex,
+                                    '<span class="invalid">$&</span>',
+                                )
+                                textRef.current.innerHTML = currentVal
+                                setEndOfContenteditable(textRef.current)
+                                return false
+                            }
+
+                            // Check for due date references
+                            const dueTextMatches = currentVal.match(dueTextRegex)
+                            if (dueTextMatches) {
+                                const dueDateText = dueTextMatches[0].split(':')[1]
+
+                                const dueDate = chrono.parse(dueDateText)
+                                if (dueDate.length) {
+                                    currentVal = currentVal.replace(
+                                        dueTextRegex,
+                                        '<span class="valid">$&</span>',
+                                    )
+                                } else {
+                                    currentVal = currentVal.replace(
+                                        dueTextRegex,
+                                        '<span class="invalid">$&</span>',
+                                    )
+                                    textRef.current.innerHTML = currentVal
+                                    setEndOfContenteditable(textRef.current)
+                                    return false
+                                }
+                            }
+                            // Check for scheduled date references
+                            const scheduledTextMatches = currentVal.match(scheduledTextRegex)
+                            if (scheduledTextMatches) {
+                                const scheduledDateText = scheduledTextMatches[0].split(':')[1]
+
+                                const scheduledDate = chrono.parse(scheduledDateText)
+                                if (scheduledDate.length) {
+                                    currentVal = currentVal.replace(
+                                        scheduledTextRegex,
+                                        '<span class="valid">$&</span>',
+                                    )
+                                } else {
+                                    currentVal = currentVal.replace(
+                                        scheduledTextRegex,
+                                        '<span class="invalid">$&</span>',
+                                    )
+                                    textRef.current.innerHTML = currentVal
+                                    setEndOfContenteditable(textRef.current)
+                                    return false
+                                }
+                            }
+                            // TODO: Decide how I want to handle project stuff
+                            currentVal = currentVal.replace(
+                                projectTextRegex,
+                                '<span class="valid">$&</span >',
+                            )
+                            currentVal = currentVal.replace(
+                                repeatTextRegex,
+                                '<span class="valid">$&</span >',
+                            )
+                            textRef.current.innerHTML = currentVal
+                            setEndOfContenteditable(textRef.current)
+                            return true
+                        }}
                         onUpdate={(text) => {
                             props.type == 'item'
                                 ? props.createItem(text, props.projectId)

@@ -135,11 +135,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                             fontSize={'xsmall'}
                             shouldSubmitOnBlur={true}
                             onEscape={() => {}}
-                            validation={false}
                             singleline={true}
                             shouldClearOnSubmit={false}
                             onUpdate={(input) => {
                                 props.setFilteredItemListName(props.componentId, input)
+                                return true
                             }}
                         />
                     </SettingValue>
@@ -156,29 +156,26 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                             onEscape={() => {}}
                             style={Code}
                             plainText={true}
-                            validation={{
-                                validate: true,
-                                rule: (input) => {
-                                    try {
-                                        compileExpression(
-                                            input,
-                                            generateFiltrexOptions({
-                                                labels: props.labels,
-                                            }),
-                                        )
-                                        setErrorMessage('')
-                                    } catch (e) {
-                                        const error = e.message.split('\n')
-                                        error.shift()
-                                        setErrorMessage(
-                                            '   <strong>Error parsing filter:</strong></br>' +
-                                                error.join('<br>'),
-                                        )
-                                        return false
-                                    }
+                            validation={(input) => {
+                                try {
+                                    compileExpression(
+                                        input,
+                                        generateFiltrexOptions({
+                                            labels: props.labels,
+                                        }),
+                                    )
+                                    setErrorMessage('')
+                                } catch (e) {
+                                    const error = e.message.split('\n')
+                                    error.shift()
+                                    setErrorMessage(
+                                        '   <strong>Error parsing filter:</strong></br>' +
+                                            error.join('<br>'),
+                                    )
+                                    return false
+                                }
 
-                                    return true
-                                },
+                                return true
                             }}
                             singleline={true}
                             shouldClearOnSubmit={false}

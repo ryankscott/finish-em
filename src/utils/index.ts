@@ -34,7 +34,7 @@ export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
 }
 
 export const capitaliseItemTypeFromString = (text: string): string => {
-    const words = text.split(' ')
+    const words = text.split(/\s+/)
     const t = words.shift().toUpperCase()
     words.unshift(t)
     return words.join(' ')
@@ -49,10 +49,7 @@ export const removeItemTypeFromString = (text: string): string => {
     if (!text) {
         return ''
     }
-    if (!validateItemString(text)) {
-        return null
-    }
-    const words = text.split(' ')
+    const words = text.split(/\s+/)
     words.shift()
     return words.join(' ').trim()
 }

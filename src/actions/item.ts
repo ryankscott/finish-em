@@ -46,12 +46,10 @@ export function createItem(
     const dd = dueDateText ? dueDateText[0].split(':')[1] : ''
     const dueDate = chrono.parse(text)
 
-    const newText = capitaliseItemTypeFromString(text)
-
     return {
         type: CREATE_ITEM,
         id: id,
-        text: newText,
+        text: text,
         itemType: itemType,
         projectId: projectId,
         parentId: parentId,

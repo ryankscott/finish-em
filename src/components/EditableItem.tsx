@@ -25,11 +25,12 @@ interface OwnProps {
 
 type EditableItemProps = StateProps & OwnProps
 function InternalEditableItem(props: EditableItemProps): ReactElement {
-    const handleUpdate = (value): void => {
+    const handleUpdate = (value): boolean => {
         props.onSubmit(value)
         if (isElectron()) {
             electron.ipcRenderer.send('close-quickadd')
         }
+        return true
     }
 
     return (

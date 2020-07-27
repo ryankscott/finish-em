@@ -32,8 +32,8 @@ interface OwnProps {
     height?: string
     singleline?: boolean
     plainText?: boolean
-    valid?: boolean
     style?: typeof Title | typeof Paragraph | typeof Header | typeof Code
+    validation?: (input: string) => boolean
     onKeyDown?: (input: string) => void
     onKeyPress?: (input: string) => void
     onEditingChange?: (isEditing: boolean) => void
@@ -45,6 +45,7 @@ export type EditableTextProps = OwnProps & StateProps
 function InternalEditableText(props: EditableTextProps): ReactElement {
     const [editable, setEditable] = useState(false)
     const [input, setInput] = useState(props.input)
+    const [valid, setValid] = useState(true)
 
     useEffect(() => {
         setInput(props.input)
@@ -98,6 +99,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
         if (props.shouldSubmitOnBlur) {
             props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
+
             if (props.shouldClearOnSubmit) {
                 clearInput()
             }
@@ -117,6 +119,12 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
     const handleKeyPress = (e): void => {
         const currentVal = props.innerRef.current.innerText
+
+        // Validation
+        if (props.validation) {
+            setValid(props.validation(currentVal))
+        }
+
         if (props.onKeyPress) {
             props.onKeyPress(currentVal)
         }
@@ -126,7 +134,14 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
 
         if (e.key == 'Enter' && props.singleline) {
+            // If it's not valid then don't submit
+            if (!valid) {
+                e.preventDefault()
+                return
+            }
+
             props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
+
             // If we're clearing on submission we should clear the input and continue allowing editing
             if (props.shouldClearOnSubmit) {
                 e.preventDefault()
@@ -183,7 +198,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 id={id}
                 fontSize={props.fontSize}
                 backgroundColour={props.backgroundColour}
-                valid={props.valid}
+                valid={valid}
                 as={props.style || Paragraph}
                 readOnly={props.readOnly}
                 ref={props.innerRef}
