@@ -16,7 +16,6 @@ import {
     ProjectContainer,
     ParentItemContainer,
     MoreContainer,
-    HorizontalRule,
     ProjectName,
 } from './styled/Item'
 
@@ -171,32 +170,14 @@ function Item(props: ItemProps): ReactElement {
 
     const labelColour = props.labelId ? props.labels[props.labelId].colour : null
 
-    // Make it invisible if it has a parent which is hiding subtasks
-    const isVisible = (() => {
-        if (props.parentId != null) {
-            const parentVisibility = props.subtasksVisible[props.parentId]
-            if (parentVisibility != undefined) {
-                const componentVisibility = parentVisibility[props.componentId]
-                if (componentVisibility != undefined) {
-                    return componentVisibility
-                }
-                return true
-            }
-            return true
-        }
-        return true
-    })()
+    // Check if the item should be visible, based on a parent hiding subtasks (default should be true)
+    const parentVisibility = props.subtasksVisible?.[props.parentId]?.[props.componentId]
+    const isVisible = parentVisibility != undefined ? parentVisibility : true
 
-    // TODO: WTF is this?!?
-    const subtasksVisible = (() => {
-        const itemVisibility = props.subtasksVisible[props.id]
-        if (itemVisibility != undefined) {
-            const componentVisibility = itemVisibility[props.componentId]
-            if (componentVisibility) return componentVisibility
-            return false
-        }
-        return true
-    })()
+    // Check if the item's subtasks should be visible (default should be true)
+    const itemVisibility = props.subtasksVisible?.[props.id]?.[props.componentId]
+    const subtasksVisible = itemVisibility != undefined ? itemVisibility : true
+
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div
@@ -232,7 +213,7 @@ function Item(props: ItemProps): ReactElement {
                                 type="subtle"
                                 onClick={handleExpand}
                                 icon={'expand'}
-                                rotate={subtasksVisible == false ? 0 : 1}
+                                rotate={subtasksVisible ? 1 : 0}
                             ></Button>
                         </ExpandContainer>
                     )}
