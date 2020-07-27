@@ -147,6 +147,8 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                                         scheduledTextRegex,
                                         '<span class="valid">$&</span>',
                                     )
+                                    textRef.current.innerHTML = currentVal
+                                    setEndOfContenteditable(textRef.current)
                                 } else {
                                     currentVal = currentVal.replace(
                                         scheduledTextRegex,
@@ -166,6 +168,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                                 repeatTextRegex,
                                 '<span class="valid">$&</span >',
                             )
+
                             textRef.current.innerHTML = currentVal
                             setEndOfContenteditable(textRef.current)
                             return true
@@ -182,6 +185,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                             if (props.onCreate) {
                                 props.onCreate()
                             }
+                            textRef.current.innerHTML = ''
                         }}
                         readOnly={false}
                         input=""

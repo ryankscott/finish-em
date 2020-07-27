@@ -59,6 +59,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
     const clearInput = (): void => {
         props.innerRef.current.innerText = ''
+        props.innerRef.current.innerHTML = ''
         setInput('')
     }
 
@@ -98,6 +99,9 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             props.onEditingChange(false)
         }
         if (props.shouldSubmitOnBlur) {
+            if (!valid) {
+                return
+            }
             props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'))
 
             if (props.shouldClearOnSubmit) {
@@ -136,6 +140,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         if (e.key == 'Enter' && props.singleline) {
             // If it's not valid then don't submit
             if (!valid) {
+                // This stops an actual enter being sent
                 e.preventDefault()
                 return
             }
@@ -144,10 +149,10 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
             // If we're clearing on submission we should clear the input and continue allowing editing
             if (props.shouldClearOnSubmit) {
-                e.preventDefault()
                 clearInput()
             }
-
+            // This stops an actual enter being sent
+            e.preventDefault()
             return
         }
     }
