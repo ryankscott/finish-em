@@ -49,6 +49,9 @@ export const removeItemTypeFromString = (text: string): string => {
     if (!text) {
         return ''
     }
+    if (!validateItemString(text)) {
+        return null
+    }
     const words = text.split(/\s+/)
     words.shift()
     return words.join(' ').trim()
