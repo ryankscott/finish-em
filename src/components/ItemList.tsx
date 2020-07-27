@@ -83,6 +83,8 @@ const getItem = (
                     />
                     {item.children?.map((c) => {
                         const childItem = items.items[c]
+                        const childItemExistsInInput = inputItems.find((i) => i.id == c)
+                        if (!childItemExistsInInput) return
                         return (
                             <Item
                                 key={c}
@@ -175,7 +177,6 @@ function ItemList(props: ItemListProps): ReactElement {
             }
         },
         PREV_ITEM: (event) => {
-            console.log('prev item')
             const item = props.items.items[event.target.id]
             if (item.children.length > 0) {
                 const prevItem = event.target.parentNode.previousSibling
