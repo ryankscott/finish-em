@@ -21,7 +21,6 @@ import {
     ItemCreatorContainer,
     SelectContainer,
     FeedbackIcon,
-    Container,
 } from './styled/Headerbar'
 
 type OptionType = { label: string; value: () => void }
@@ -65,7 +64,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
     }
 
     return (
-        <Container>
+        <>
             <ThemeProvider theme={themes[props.theme]}>
                 <IconContainer>{Icons['todoChecked'](32, 32, 'white')}</IconContainer>
                 <NameContainer>{'Finish Em'}</NameContainer>
@@ -112,9 +111,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
                         icon="feedback"
                         iconSize="20px"
                         iconColour={themes[props.theme].colours.altTextColour}
-                        onClick={() =>
-                            window.open('https://github.com/ryankscott/finish-em/issues/new/choose')
-                        }
+                        onClick={}
                     ></Button>
                     <Tooltip id="feedback-button" text={'Give feedback'}></Tooltip>
                 </FeedbackIcon>
@@ -131,7 +128,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
                     <Tooltip id="shortcut-button" text={'Show shortcuts'}></Tooltip>
                 </ShortcutIcon>
             </ThemeProvider>
-        </Container>
+        </>
     )
 }
 

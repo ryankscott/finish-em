@@ -37,7 +37,7 @@ import uuidv4 from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Uuid } from '@typed/uuid'
 
-import Headerbar from './HeaderBar'
+import Headerbar from './Headerbar'
 
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
