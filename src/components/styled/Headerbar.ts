@@ -12,6 +12,13 @@ export const ShortcutIcon = styled.div`
         cursor: pointer;
     }
 `
+export const FeedbackIcon = styled.div`
+    grid-area: feedback;
+    :hover {
+        cursor: pointer;
+    }
+`
+
 export const NameContainer = styled.div`
     grid-area: name;
     font-size: ${(props) => props.theme.fontSizes.xlarge};
