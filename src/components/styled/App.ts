@@ -10,15 +10,6 @@ export const Container = styled.div`
     height: 100%;
 `
 
-export const ShortcutIcon = styled.div`
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    :hover {
-        cursor: pointer;
-    }
-`
-
 interface SidebarContainerProps {
     visible: boolean
 }
