@@ -70,6 +70,7 @@ export interface ThemeType {
         penternaryColour: CSS.Color
         backgroundColour: CSS.Color
         borderColour: CSS.Color
+        altBorderColour: CSS.Color
         altBackgroundColour: CSS.Color
         dialogBackgroundColour: CSS.Color
         focusDialogBackgroundColour: CSS.Color

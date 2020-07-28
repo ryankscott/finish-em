@@ -1,19 +1,46 @@
 import styled from '../../StyledComponents'
 import { transparentize } from 'polished'
 
+export const Container = styled.div`
+    width: 100%;
+    display: grid;
+    align-items: center;
+    grid-template-areas: 'logo name add . search feedback help';
+    grid-template-columns: 45px 100px minmax(auto, 400px) auto minmax(200px, auto) 30px 30px;
+    grid-template-rows: auto;
+    grid-area: header;
+    color: ${(props) => props.theme.colours.headerTextColour};
+    z-index: 2;
+    background-color: ${(props) => props.theme.colours.headerBackgroundColour};
+`
+
 export const IconContainer = styled.div`
     grid-area: logo;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     padding: 5px 10px;
 `
 
 export const ShortcutIcon = styled.div`
     grid-area: help;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
     :hover {
         cursor: pointer;
     }
 `
 export const FeedbackIcon = styled.div`
     grid-area: feedback;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 5px;
     :hover {
         cursor: pointer;
     }

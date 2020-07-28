@@ -21,8 +21,8 @@ export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
     width: ${(props) => (props.visible ? (props.width ? props.width : '100%') : '0px')};
     opacity: ${(props) => (props.visible ? '1' : '0')};
     transition: width 0.2s ease-in-out;
-    border: none;
-    border-color: ${(props) => transparentize(0.8, props.theme.colours.borderColour)};
+    border: 1px solid;
+    border-color: ${(props) => transparentize(0.4, props.theme.colours.borderColour)};
     border-radius: 5px;
 
     :hover {

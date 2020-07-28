@@ -186,6 +186,7 @@ export const themes: { [key: string]: ThemeType } = {
             penternaryColour: '#9B5DE5',
             backgroundColour: '#F5f5f5',
             borderColour: '#e0e0e0',
+            altBorderColour: '#404040',
             altBackgroundColour: '#404040',
             dialogBackgroundColour: '#F5F5F5',
             focusDialogBackgroundColour: darken(0.05, '#F5F5F5'),
@@ -279,6 +280,7 @@ export const themes: { [key: string]: ThemeType } = {
             penternaryColour: '#9B5DE5',
             backgroundColour: '#404040',
             borderColour: '#909090',
+            altBorderColour:'#EEEEEE' 
             altBackgroundColour: '#404040',
             dialogBackgroundColour: '#404040',
             focusDialogBackgroundColour: darken(0.05, '#404040'),

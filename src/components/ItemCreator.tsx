@@ -19,7 +19,7 @@ import {
     itemRegex,
 } from '../utils'
 import EditableText from './EditableText'
-import { grayscale, lighten } from 'polished'
+import { lighten } from 'polished'
 
 interface StateProps {
     theme: string

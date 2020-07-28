@@ -15,17 +15,10 @@ export const Container = styled.div`
     height: 100%;
 `
 export const HeaderContainer = styled.div`
-    width: 100%;
-    display: grid;
-    align-items: center;
-    grid-template-areas: 'logo name add . search help';
-    grid-template-columns: 45px 100px minmax(auto, 400px) auto minmax(200px, auto) 40px;
-    grid-template-rows: auto;
     grid-area: header;
-    height: 100%;
-    color: ${(props) => props.theme.colours.headerTextColour};
+    display: flex;
+    width: 100%;
     z-index: 2;
-    background-color: ${(props) => props.theme.colours.headerBackgroundColour};
     box-shadow: 0px 1px 2px ${(props) => darken(0.2, props.theme.colours.headerBackgroundColour)};
 `
 
