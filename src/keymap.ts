@@ -20,6 +20,7 @@ export const app = {
     HIDE_SIDEBAR: 's h',
     TOGGLE_SHORTCUT_DIALOG: 'shift+/',
     SHOW_CREATE_PROJECT_DIALOG: 'p s',
+    GO_TO_SEARCH: '/',
 }
 export const item = {
     EDIT_ITEM_DESC: 'e',

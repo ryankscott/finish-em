@@ -1,6 +1,6 @@
 import styled from '../../StyledComponents'
 import CSS from 'csstype'
-import { darken } from 'polished'
+import { darken, readableColor } from 'polished'
 import { fontSizeType } from '../../interfaces'
 interface ContainerProps {
     width: number
@@ -35,7 +35,17 @@ export const Container = styled.div<ContainerProps>`
                 : props.theme.colours.borderColour
             : 'transparent'};
     cursor: ${(props) => (props.readOnly ? 'default' : 'text')};
-    color: ${(props) => (props.valid ? 'auto' : props.theme.colours.errorColour)};
+    color: ${(props) =>
+        props.valid
+            ? props.backgroundColour
+                ? readableColor(
+                      props.backgroundColour,
+                      props.theme.colours.altTextColour,
+                      props.theme.colours.textColour,
+                      true,
+                  )
+                : 'inherit'
+            : props.theme.colours.errorColour};
     background-color: ${(props) => (props.backgroundColour ? props.backgroundColour : 'inherit')};
     &:hover {
         background-color: ${(props) =>

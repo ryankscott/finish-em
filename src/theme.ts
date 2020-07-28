@@ -1,4 +1,4 @@
-import { lighten, darken } from 'polished'
+import { lighten, darken, readableColor } from 'polished'
 import CSS from 'csstype'
 import { ThemeType, fontSizeType } from './interfaces'
 import { StylesConfig } from 'react-select'
@@ -14,6 +14,7 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: ${(props) => props.theme.font.sansSerif};
     color: ${(props) => props.theme.colours.textColour};
+    background-color: ${(props) => props.theme.colours.backgroundColour}
     font-weight: ${(props) => props.theme.fontWeights.regular};
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     box-sizing: border-box;
@@ -202,6 +203,8 @@ export const themes: { [key: string]: ThemeType } = {
             altIconColour: '#404040',
             disabledButtonBackgroundColour: '#e0e0e0',
             disabledButtonColour: darken(0.4, '#e0e0e0'),
+            headerBackgroundColour: '#404040',
+            headerTextColour: '#F5f5f5',
         },
     },
     dark: {
@@ -293,6 +296,8 @@ export const themes: { [key: string]: ThemeType } = {
             altIconColour: '#CCCCCC',
             disabledButtonBackgroundColour: lighten(0.1, '#404040'),
             disabledButtonColour: lighten(0.4, '#404040'),
+            headerBackgroundColour: '#CCCCCC',
+            headerTextColour: '#F5f5f5',
         },
     },
 }
@@ -300,10 +305,12 @@ export const themes: { [key: string]: ThemeType } = {
 interface SelectStylesProps {
     fontSize: fontSizeType
     theme: ThemeType
-    minWidth?: CSS.MinWidthProperty<number>
-    maxHeight?: CSS.MaxHeightProperty<number>
-    width?: CSS.WidthProperty<number>
+    height?: string
+    minWidth?: string
+    maxHeight?: string
+    width?: string
     showDropdownIndicator?: boolean
+    backgroundColour?: CSS.Color
 }
 export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     return {
@@ -313,25 +320,41 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
             width: props.width || 'auto',
             minWidth: props.minWidth || '120px',
             maxHeight: props.maxHeight || '180px',
-            borderColor: `${props.theme.colours.borderColour} !important`,
+            borderColor: `${lighten(0.1, props.theme.colours.borderColour)} !important`,
             '&:active': {
-                borderColor: `${props.theme.colours.borderColour} !important`,
+                borderColor: `${lighten(0.1, props.theme.colours.borderColour)} !important`,
             },
             '&:focus': {
-                borderColor: `${props.theme.colours.borderColour} !important`,
+                borderColor: `${lighten(0.1, props.theme.colours.borderColour)} !important`,
             },
         }),
         input: (styles) => ({
             ...styles,
+            height: props.height ? props.height : 'auto',
             padding: '5px 2px',
             fontFamily: props.theme.font.sansSerif,
-            color: props.theme.colours.textColour,
+            color: props.backgroundColour
+                ? readableColor(
+                      props.backgroundColour,
+                      props.theme.colours.textColour,
+                      props.theme.colours.altTextColour,
+                      true,
+                  )
+                : props.theme.colours.textColour,
             fontSize: props.theme.fontSizes[props.fontSize],
+            borderColor: `${lighten(0.1, props.theme.colours.borderColour)} !important`,
         }),
         valueContainer: (styles) => ({
             ...styles,
             padding: '0px 5px',
-            color: props.theme.colours.textColour,
+            color: props.backgroundColour
+                ? readableColor(
+                      props.backgroundColour,
+                      props.theme.colours.textColour,
+                      props.theme.colours.altTextColour,
+                      true,
+                  )
+                : props.theme.colours.textColour,
         }),
         menu: (styles) => {
             return {
@@ -340,24 +363,22 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
                 padding: '5px 0px',
                 border: '1px solid',
                 backgroundColor: props.theme.colours.backgroundColour,
-                borderColor: props.theme.colours.borderColour,
+                borderColor: lighten(0.1, props.theme.colours.borderColour),
                 borderRadius: '5px',
                 tabIndex: 0,
                 zIndex: 999,
             }
         },
         option: (styles, { data, isFocused }) => {
-            const backgroundColour = data.color
-                ? data.color
-                : isFocused
-                ? props.theme.colours.focusBackgroundColour
-                : props.theme.colours.backgroundColour
             return {
                 ...styles,
+
                 tabIndex: 0,
                 position: 'relative',
                 color: props.theme.colours.textColour,
-                backgroundColor: backgroundColour,
+                backgroundColor: isFocused
+                    ? darken(0.1, props.theme.colours.backgroundColour)
+                    : props.theme.colours.backgroundColour,
                 padding: '5px 10px',
                 margin: '0px',
                 fontFamily: props.theme.font.sansSerif,
@@ -367,46 +388,92 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
                     ? props.theme.fontWeights.bold
                     : props.theme.fontWeights.regular,
                 '&:active': {
-                    backgroundColor: props.theme.button.default.hoverBackgroundColour,
+                    backgroundColor: darken(0.1, props.theme.colours.backgroundColour),
+                },
+                '&:hover': {
+                    backgroundColor: darken(0.1, props.theme.colours.backgroundColour),
+                },
+                '&:focus': {
+                    backgroundColor: darken(0.1, props.theme.colours.backgroundColour),
                 },
             }
         },
         placeholder: () => ({
-            color: props.theme.colours.textColour,
+            color: props.backgroundColour
+                ? readableColor(
+                      props.backgroundColour,
+                      props.theme.colours.textColour,
+                      props.theme.colours.altTextColour,
+                      true,
+                  )
+                : props.theme.colours.textColour,
             fontSize: props.theme.fontSizes[props.fontSize],
         }),
         singleValue: (styles) => ({
             ...styles,
-            color: props.theme.colours.textColour,
+            color: props.backgroundColour
+                ? readableColor(
+                      props.backgroundColour,
+                      props.theme.colours.textColour,
+                      props.theme.colours.altTextColour,
+                      true,
+                  )
+                : props.theme.colours.textColour,
         }),
         control: (styles) => ({
             ...styles,
             display: 'flex',
             minHeight: 'none',
             flexDirection: 'row',
-            width: '100%',
             margin: 0,
             padding: 0,
-            color: props.theme.colours.textColour,
+            width: props.width ? props.width : 'auto',
+            color: props.backgroundColour
+                ? readableColor(
+                      props.backgroundColour,
+                      props.theme.colours.textColour,
+                      props.theme.colours.altTextColour,
+                      true,
+                  )
+                : props.theme.colours.textColour,
             fontFamily: props.theme.font.sansSerif,
             fontSize: props.theme.fontSizes[props.fontSize],
-            backgroundColor: props.theme.colours.backgroundColour,
+            backgroundColor: props.backgroundColour
+                ? props.backgroundColour
+                : props.theme.colours.backgroundColour,
             border: '1px solid',
             boxShadow: 'none !important',
-            borderColor: `${props.theme.colours.borderColour} !important`,
+            borderColor: `${
+                props.backgroundColour
+                    ? darken(0.1, props.backgroundColour)
+                    : props.theme.colours.borderColour
+            } !important`,
             borderRadius: '5px',
             '&:hover': {
-                backgroundColor: props.theme.button.default.hoverBackgroundColour,
-                borderColor: `${props.theme.colours.borderColour} !important`,
+                backgroundColor: props.backgroundColour
+                    ? darken(0.1, props.backgroundColour)
+                    : darken(0.1, props.theme.colours.backgroundColour),
+
+                borderColor: props.backgroundColour
+                    ? darken(0.1, props.backgroundColour)
+                    : lighten(0.1, props.theme.colours.borderColour),
             },
             '&:active': {
-                backgroundColor: props.theme.button.default.hoverBackgroundColour,
-                borderColor: `${props.theme.colours.borderColour} !important`,
+                backgroundColor: props.backgroundColour
+                    ? darken(0.1, props.backgroundColour)
+                    : darken(0.1, props.theme.colours.backgroundColour),
+                borderColor: props.backgroundColour
+                    ? darken(0.1, props.backgroundColour)
+                    : lighten(0.1, props.theme.colours.borderColour),
                 boxShadow: 'none !important',
             },
             '&:focus': {
-                backgroundColor: props.theme.button.default.hoverBackgroundColour,
-                borderColor: `${props.theme.colours.borderColour} !important`,
+                backgroundColor: props.backgroundColour
+                    ? darken(0.1, props.backgroundColour)
+                    : darken(0.1, props.theme.colours.backgroundColour),
+                borderColor: props.backgroundColour
+                    ? darken(0.1, props.backgroundColour)
+                    : lighten(0.1, props.theme.colours.borderColour),
                 boxShadow: 'none !important',
             },
         }),
@@ -443,10 +510,24 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
         }),
         clearIndicator: (styles) => ({
             ...styles,
-            color: props.theme.colours.textColour,
+            color: props.backgroundColour
+                ? readableColor(
+                      props.backgroundColour,
+                      props.theme.colours.textColour,
+                      props.theme.colours.altTextColour,
+                      true,
+                  )
+                : props.theme.colours.textColour,
             backgroundColor: 'inherit',
             '&:hover': {
-                color: props.theme.colours.textColour,
+                color: props.backgroundColour
+                    ? readableColor(
+                          props.backgroundColour,
+                          props.theme.colours.textColour,
+                          props.theme.colours.altTextColour,
+                          true,
+                      )
+                    : props.theme.colours.textColour,
                 backgroundColor: 'inherit',
                 cursor: 'pointer',
             },

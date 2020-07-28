@@ -61,7 +61,6 @@ const Project = (props: ProjectProps): ReactElement => {
                 <HeaderContainer>
                     <EditableText
                         shouldSubmitOnBlur={true}
-                        validation={false}
                         key={props.project.id + 'name'}
                         input={props.project.name}
                         style={Title}
