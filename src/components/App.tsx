@@ -1,5 +1,5 @@
 import { ThemeProvider } from '../StyledComponents'
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
 import DailyAgenda from './DailyAgenda'
@@ -9,44 +9,35 @@ import ShortcutDialog from './ShortcutDialog'
 import Settings from './Settings'
 import Inbox from './Inbox'
 import Project from './Project'
-import { Project as ProjectType } from '../interfaces/project'
 import View from './View'
 import Help from './Help'
-import { themes, GlobalStyle, selectStyles } from '../theme'
+import { themes, GlobalStyle } from '../theme'
 import { app as appKeymap } from '../keymap'
 import {
-    toggleShortcutDialog,
     showSidebar,
     hideSidebar,
     showCreateProjectDialog,
     hideShortcutDialog,
+    toggleShortcutDialog,
     hideCreateProjectDialog,
     hideDeleteProjectDialog,
     createItem,
-    setActiveItem,
-    showFocusbar,
 } from '../actions/index'
 import {
     Container,
     MainContainer,
-    ShortcutIcon,
     FocusContainer,
     SidebarContainer,
     StyledToastContainer,
     HeaderContainer,
 } from './styled/App'
-import Button from './Button'
-import Tooltip from './Tooltip'
-import { Projects, Views, Item, Items } from '../interfaces'
+import { Projects, Views, Items } from '../interfaces'
 import { Slide } from 'react-toastify'
 import uuidv4 from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Uuid } from '@typed/uuid'
-import { Icons } from '../assets/icons'
-import ItemCreator from './ItemCreator'
-import { transparentize, lighten } from 'polished'
-import Select, { GroupType } from 'react-select'
-import { removeItemTypeFromString } from '../utils'
+
+import Headerbar from './HeaderBar'
 
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
@@ -68,40 +59,19 @@ interface StateProps {
     views: Views
 }
 interface DispatchProps {
-    toggleShortcutDialog: () => void
     showSidebar: () => void
     hideSidebar: () => void
     hideDialogs: () => void
     showCreateProjectDialog: () => void
+    toggleShortcutDialog: () => void
     createItem: (text: string, projectId: Uuid | '0') => void
-    setActiveItem: (id: Uuid) => void
 }
 
 type AppProps = StateProps & DispatchProps
-type OptionType = { label: string; value: () => void }
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
     const searchRef = React.useRef<HTMLSelectElement>()
-    const generateOptions = (projects: ProjectType, items: Item): GroupType<OptionType>[] => {
-        const itemOptions = Object.values(items).map((i) => {
-            return {
-                label: removeItemTypeFromString(i.text),
-                value: () => props.setActiveItem(i.id),
-            }
-        })
-        const projectOptions = Object.values(projects).map((p) => {
-            return {
-                label: p.name,
-                value: () => history.push(`/projects/${p.id}`),
-            }
-        })
-
-        return [
-            { label: 'Items', options: itemOptions },
-            { label: 'Projects', options: projectOptions },
-        ]
-    }
 
     useEffect(() => {
         window.addEventListener('resize', () => {
@@ -217,80 +187,13 @@ const App = (props: AppProps): ReactElement => {
     Object.entries(appKeymap).map(([k, v]) => {
         useHotkeys(v, handlers[k])
     })
-
-    const { sidebarVisible, focusbarVisible, toggleShortcutDialog } = props
+    const { sidebarVisible, focusbarVisible } = props
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <GlobalStyle theme={themes[props.theme]} />
             <Container>
                 <HeaderContainer>
-                    <div style={{ gridArea: 'logo', padding: '5px 10px' }}>
-                        {Icons['todoChecked'](32, 32, 'white')}
-                    </div>
-                    <div style={{ gridArea: 'name', fontSize: '18px' }}>{'Finish Em'}</div>
-                    <div
-                        style={{
-                            borderRadius: '5px',
-                            gridArea: 'add',
-                            backgroundColor: transparentize(
-                                0.4,
-                                themes[props.theme].colours.headerBackgroundColour,
-                            ),
-                        }}
-                    >
-                        <ItemCreator
-                            backgroundColour={lighten(
-                                0.2,
-                                themes[props.theme].colours.headerBackgroundColour,
-                            )}
-                            hideButton={true}
-                            type="item"
-                            initiallyExpanded={true}
-                            shouldCloseOnSubmit={false}
-                        />
-                    </div>
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                            gridArea: 'search',
-                            padding: '0px 10px',
-                        }}
-                    >
-                        <Select
-                            controlShouldRenderValue={false}
-                            escapeClearsValue={true}
-                            ref={searchRef}
-                            width="400px"
-                            height="25px"
-                            placeholder="Search for items..."
-                            onChange={(selected) => {
-                                selected.value()
-                            }}
-                            options={generateOptions(props.projects.projects, props.items.items)}
-                            styles={selectStyles({
-                                fontSize: 'xsmall',
-                                theme: themes[props.theme],
-                                width: '400px',
-                                backgroundColour: lighten(
-                                    0.2,
-                                    themes[props.theme].colours.headerBackgroundColour,
-                                ),
-                            })}
-                        />
-                    </div>
-                    <ShortcutIcon id="shortcut-icon">
-                        <Button
-                            dataFor="shortcut-button"
-                            id="shortcut-button"
-                            type="subtle"
-                            icon="help"
-                            iconSize="20px"
-                            iconColour={themes[props.theme].colours.altTextColour}
-                            onClick={toggleShortcutDialog}
-                        ></Button>
-                        <Tooltip id="shortcut-button" text={'Show shortcuts'}></Tooltip>
-                    </ShortcutIcon>
+                    <Headerbar searchRef={searchRef} />
                 </HeaderContainer>
                 <SidebarContainer visible={sidebarVisible}>
                     <Sidebar />
@@ -313,12 +216,7 @@ const App = (props: AppProps): ReactElement => {
                             if (view.type == 'default') return
                             return (
                                 <Route key={view.id} path={`/${view.name}`}>
-                                    <View
-                                        key={view.id}
-                                        id={view.id}
-                                        name={view.name}
-                                        icon={view.icon}
-                                    />
+                                    <View key={view.id} id={view.id} />
                                 </Route>
                             )
                         })}
@@ -384,10 +282,6 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     createItem: (text: string, projectId: Uuid | '0') => {
         dispatch(createItem(uuidv4(), text, projectId))
-    },
-    setActiveItem: (id: Uuid) => {
-        dispatch(showFocusbar())
-        dispatch(setActiveItem(id))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(App)

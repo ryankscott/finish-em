@@ -29,13 +29,6 @@ export const HeaderContainer = styled.div`
     box-shadow: 0px 1px 2px ${(props) => darken(0.2, props.theme.colours.headerBackgroundColour)};
 `
 
-export const ShortcutIcon = styled.div`
-    grid-area: help;
-    :hover {
-        cursor: pointer;
-    }
-`
-
 interface SidebarContainerProps {
     visible: boolean
 }
