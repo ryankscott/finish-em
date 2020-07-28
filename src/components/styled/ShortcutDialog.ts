@@ -20,6 +20,7 @@ export const Container = styled.div<ShortcutContainerProps>`
     border-color: ${(props) => props.theme.colours.borderColour};
     box-shadow: 0px 1px 4px ${(props) => props.theme.colours.borderColour};
     border-radius: 5px;
+    scrollbar-width: thin;
 `
 export const CloseButtonContainer = styled.div`
     position: absolute;

@@ -269,7 +269,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 </SaveContainer>
             </DialogContainer>
         </ThemeProvider>
-    )
+        
 }
 
 const mapStateToProps = (state): StateProps => {

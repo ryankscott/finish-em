@@ -14,11 +14,11 @@ import Help from './Help'
 import { themes, GlobalStyle } from '../theme'
 import { app as appKeymap } from '../keymap'
 import {
-    toggleShortcutDialog,
     showSidebar,
     hideSidebar,
     showCreateProjectDialog,
     hideShortcutDialog,
+    toggleShortcutDialog,
     hideCreateProjectDialog,
     hideDeleteProjectDialog,
     createItem,
@@ -26,18 +26,18 @@ import {
 import {
     Container,
     MainContainer,
-    ShortcutIcon,
     FocusContainer,
     SidebarContainer,
     StyledToastContainer,
+    HeaderContainer,
 } from './styled/App'
-import Button from './Button'
-import Tooltip from './Tooltip'
-import { Projects, Views } from '../interfaces'
+import { Projects, Views, Items } from '../interfaces'
 import { Slide } from 'react-toastify'
 import uuidv4 from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Uuid } from '@typed/uuid'
+
+import Headerbar from './HeaderBar'
 
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
@@ -55,14 +55,15 @@ interface StateProps {
     focusbarVisible: boolean
     theme: string
     projects: Projects
+    items: Items
     views: Views
 }
 interface DispatchProps {
-    toggleShortcutDialog: () => void
     showSidebar: () => void
     hideSidebar: () => void
     hideDialogs: () => void
     showCreateProjectDialog: () => void
+    toggleShortcutDialog: () => void
     createItem: (text: string, projectId: Uuid | '0') => void
 }
 
@@ -70,6 +71,7 @@ type AppProps = StateProps & DispatchProps
 
 const App = (props: AppProps): ReactElement => {
     const history = useHistory()
+    const searchRef = React.useRef<HTMLSelectElement>()
 
     useEffect(() => {
         window.addEventListener('resize', () => {
@@ -149,6 +151,10 @@ const App = (props: AppProps): ReactElement => {
     }
 
     const handlers = {
+        GO_TO_SEARCH: (e) => {
+            searchRef.current.focus()
+            e.preventDefault()
+        },
         GO_TO_PROJECT_1: () => goToProject(1),
         GO_TO_PROJECT_2: () => goToProject(2),
         GO_TO_PROJECT_3: () => goToProject(3),
@@ -181,12 +187,14 @@ const App = (props: AppProps): ReactElement => {
     Object.entries(appKeymap).map(([k, v]) => {
         useHotkeys(v, handlers[k])
     })
-
-    const { sidebarVisible, focusbarVisible, toggleShortcutDialog } = props
+    const { sidebarVisible, focusbarVisible } = props
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <GlobalStyle theme={themes[props.theme]} />
             <Container>
+                <HeaderContainer>
+                    <Headerbar searchRef={searchRef} />
+                </HeaderContainer>
                 <SidebarContainer visible={sidebarVisible}>
                     <Sidebar />
                 </SidebarContainer>
@@ -208,12 +216,7 @@ const App = (props: AppProps): ReactElement => {
                             if (view.type == 'default') return
                             return (
                                 <Route key={view.id} path={`/${view.name}`}>
-                                    <View
-                                        key={view.id}
-                                        id={view.id}
-                                        name={view.name}
-                                        icon={view.icon}
-                                    />
+                                    <View key={view.id} id={view.id} />
                                 </Route>
                             )
                         })}
@@ -233,17 +236,6 @@ const App = (props: AppProps): ReactElement => {
                 <FocusContainer visible={focusbarVisible}>
                     <Focusbar />
                 </FocusContainer>
-                <ShortcutIcon id="shortcut-icon">
-                    <Button
-                        dataFor="shortcut-button"
-                        id="shortcut-button"
-                        type="subtle"
-                        icon="help"
-                        iconColour={themes[props.theme].colours.altIconColour}
-                        onClick={toggleShortcutDialog}
-                    ></Button>
-                    <Tooltip id="shortcut-button" text={'Show shortcuts'}></Tooltip>
-                </ShortcutIcon>
             </Container>
             <StyledToastContainer
                 position="bottom-center"
@@ -263,6 +255,7 @@ const App = (props: AppProps): ReactElement => {
 
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
+    items: state.items,
     sidebarVisible: state.ui.sidebarVisible,
     focusbarVisible: state.ui.focusbarVisible,
     theme: state.ui.theme,

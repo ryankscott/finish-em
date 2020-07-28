@@ -25,7 +25,6 @@ export const Container = styled.div`
     flex-direction: column;
     justify-content: flex-end;
     padding: 0px 5px;
-    z-index: 99;
 `
 export const Dialog = styled.div`
     position: absolute;
@@ -36,6 +35,7 @@ export const Dialog = styled.div`
     padding: 20px 10px;
     background-color: ${(props) => props.theme.colours.focusBackgroundColour};
     box-shadow: 0px 1px 4px ${(props) => props.theme.colours.borderColour};
+    z-index: 99;
 `
 
 export const CloseButton = styled.div`

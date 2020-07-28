@@ -19,6 +19,7 @@ import {
     itemRegex,
 } from '../utils'
 import EditableText from './EditableText'
+import { grayscale, lighten } from 'polished'
 
 interface StateProps {
     theme: string
@@ -30,14 +31,17 @@ interface DispatchProps {
 }
 
 interface OwnProps {
+    style?: 'subtle' | 'default'
     type: 'item' | 'subtask'
     initiallyExpanded: boolean
     shouldCloseOnSubmit?: boolean
+    shouldCloseOnBlur?: boolean
     parentId?: Uuid
     projectId?: Uuid | '0'
     buttonText?: string
     width?: string
     hideButton?: boolean
+    backgroundColour?: string
     innerRef?: React.RefObject<HTMLInputElement>
     onCreate?: () => void
     onEscape?: () => void
@@ -55,7 +59,9 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         if (node.current.contains(e.target)) {
             return
         }
-        setShowItemCreator(false)
+        if (props.shouldCloseOnBlur) {
+            setShowItemCreator(false)
+        }
     }
     useEffect(() => {
         document.addEventListener('mousedown', handleClick)
@@ -93,8 +99,13 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     id={'add-item' + props.parentId + props.projectId + props.type}
                     text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
                 ></Tooltip>
-                <ItemCreatorContainer width={props.width} visible={showItemCreator}>
+                <ItemCreatorContainer
+                    backgroundColour={props.backgroundColour}
+                    width={props.width}
+                    visible={showItemCreator}
+                >
                     <EditableText
+                        backgroundColour={props.backgroundColour}
                         innerRef={textRef}
                         validation={(input) => {
                             let currentVal = input
@@ -200,7 +211,13 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         data-tip
                         data-html={true}
                     >
-                        {Icons.help(18, 18, themes[props.theme].colours.disabledTextColour)}
+                        {Icons.help(
+                            18,
+                            18,
+                            props.backgroundColour
+                                ? lighten(0.2, props.backgroundColour)
+                                : themes[props.theme].colours.disabledTextColour,
+                        )}
                     </HelpButtonContainer>
                     <Tooltip
                         id={'help-icon' + props.parentId + props.projectId + props.type}

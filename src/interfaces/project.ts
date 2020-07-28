@@ -1,3 +1,5 @@
+import { Uuid } from '@typed/uuid'
+
 export interface ProjectType {
     id: Uuid | '0'
     name: string

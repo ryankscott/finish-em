@@ -84,7 +84,6 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         props.setDailyGoal(format(currentDate, 'yyyy-MM-dd'), input)
                         return true
                     }}
-                    validation={false}
                     shouldSubmitOnBlur={true}
                     shouldClearOnSubmit={false}
                 />
