@@ -18,7 +18,7 @@ import {
     ShortcutIcon,
     IconContainer,
     NameContainer,
-    HeaderContainer,
+    ItemCreatorContainer,
     SelectContainer,
 } from './styled/Headerbar'
 
@@ -67,7 +67,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             <ThemeProvider theme={themes[props.theme]}>
                 <IconContainer>{Icons['todoChecked'](32, 32, 'white')}</IconContainer>
                 <NameContainer>{'Finish Em'}</NameContainer>
-                <HeaderContainer>
+                <ItemCreatorContainer>
                     <ItemCreator
                         backgroundColour={lighten(
                             0.2,
@@ -78,7 +78,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
                         initiallyExpanded={true}
                         shouldCloseOnSubmit={false}
                     />
-                </HeaderContainer>
+                </ItemCreatorContainer>
 
                 <SelectContainer>
                     <Select
