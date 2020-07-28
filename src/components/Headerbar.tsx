@@ -20,6 +20,7 @@ import {
     NameContainer,
     ItemCreatorContainer,
     SelectContainer,
+    FeedbackIcon,
 } from './styled/Headerbar'
 
 type OptionType = { label: string; value: () => void }
@@ -103,6 +104,17 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
                         })}
                     />
                 </SelectContainer>
+                <FeedbackIcon>
+                    <Button
+                        dataFor="feedback-button"
+                        type="subtle"
+                        icon="feedback"
+                        iconSize="20px"
+                        iconColour={themes[props.theme].colours.altTextColour}
+                        onClick={}
+                    ></Button>
+                    <Tooltip id="feedback-button" text={'Give feedback'}></Tooltip>
+                </FeedbackIcon>
                 <ShortcutIcon id="shortcut-icon">
                     <Button
                         dataFor="shortcut-button"
