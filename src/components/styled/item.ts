@@ -12,13 +12,14 @@ export const Container = styled.div<ContainerProps>`
     position: relative;
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
     max-height: 200px;
+    max-width: 650px;
     font-family: ${(props) => props.theme.font.sansSerif};
     font-size: ${(props) => props.theme.fontSizes.regular};
     display: ${(props) => (props.visible ? 'grid' : 'none')};
     opacity: ${(props) => (props.hidden ? '0' : '1')};
     margin: 1px 0px;
     margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
-    grid-template-columns: 5px 30px 30px minmax(60px, 300px) auto auto auto 30px;
+    grid-template-columns: 5px 30px 30px auto auto auto auto 30px;
     grid-auto-rows: auto auto;
     grid-template-areas:
         '.  EXPAND   TYPE    DESC         DESC         DESC        PROJECT     MORE'
@@ -33,13 +34,13 @@ export const Container = styled.div<ContainerProps>`
         props.labelColour != null
             ? transparentize(0.8, props.labelColour)
             : props.theme.colours.backgroundColour};
-    &:focus {
+    :focus {
         background-color: ${(props) =>
             props.labelColour != null
                 ? transparentize(0.8, props.labelColour)
                 : props.theme.colours.focusBackgroundColour};
     }
-    &:active {
+    :active {
         background-color: ${(props) =>
             props.labelColour != null
                 ? transparentize(0.8, props.labelColour)
