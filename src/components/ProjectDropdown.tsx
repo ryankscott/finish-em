@@ -121,7 +121,7 @@ const mapStateToProps = (state): StateProps => ({
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     createProject: (id: Uuid, name: string) => {
-        dispatch(createProject(id, name, ''))
+        dispatch(createProject(id, name, '', 0))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectDropdown)

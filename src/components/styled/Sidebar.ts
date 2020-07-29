@@ -1,4 +1,5 @@
-import styled from 'styled-components'
+import styled from '../../StyledComponents'
+import { Header1, Header } from '../Typography'
 
 interface ContainerProps {
     visible: boolean
@@ -23,10 +24,22 @@ export const BodyContainer = styled.div`
 export const SectionHeader = styled.div`
     display: flex;
     flex-direction: row;
-    align-items: first baseline;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: flex-start;
     margin: 5px 5px;
-    padding: 5px;
+    padding: 10px 5px;
+    padding-top: 20px;
+`
+export const HeaderName = styled(Header)`
+    padding: 2px 5px;
+    margin: 2px;
+`
+
+export const AreaName = styled(Header1)`
+    color: ${(props) => props.theme.colours.altTextColour};
+    margin: 0px;
+    padding: 5px 0px;
+    padding-left: 15px;
 `
 
 interface FooterProps {
@@ -51,7 +64,7 @@ export const Footer = styled.div<FooterProps>`
 export const StyledHorizontalRule = styled.hr`
     box-sizing: border-box;
     width: 80%;
-    color: ${(props) => props.theme.altTextColour};
+    color: ${(props) => props.theme.colours.altTextColour};
 `
 
 export const CollapseContainer = styled.div`
@@ -82,8 +95,8 @@ export const ViewContainer = styled.div<ViewContainerProps>`
     margin: 0px;
     padding: 0px;
 `
-export const AddProjectContainer = styled.div`
-    padding-top: 5px;
+export const AddAreaContainer = styled.div`
+    margin-top: 10px;
     display: flex;
     width: 100%;
     justify-content: center;

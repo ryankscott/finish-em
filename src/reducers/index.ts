@@ -3,6 +3,7 @@ import { uiReducer } from './ui'
 import { itemReducer } from './item'
 import { projectReducer } from './project'
 import { featureReducer } from './feature'
+import { areaReducer } from './area'
 import { SET_WEEKLY_GOAL, SET_DAILY_GOAL } from '../actions'
 
 // TODO: Create a state interface
@@ -43,6 +44,7 @@ const rootReducer = combineReducers({
     weeklyGoal: weeklyGoalReducer,
     dailyGoal: dailyGoalReducer,
     features: featureReducer,
+    areas: areaReducer,
 })
 
 export default rootReducer

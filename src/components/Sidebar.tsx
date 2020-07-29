@@ -4,10 +4,18 @@ import { connect } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 
 import { themes } from '../theme'
-import { Header } from './Typography'
-import { createProject, addComponent, toggleSidebar, reorderProject, addView } from '../actions'
-import { Projects, Views, ItemIcons } from '../interfaces'
 import {
+    createProject,
+    addComponent,
+    toggleSidebar,
+    reorderProject,
+    addView,
+    setProjectArea,
+} from '../actions'
+import { Projects, Views, ItemIcons, Areas } from '../interfaces'
+import {
+    AreaName,
+    HeaderName,
     Container,
     SectionHeader,
     Footer,
@@ -15,7 +23,7 @@ import {
     BodyContainer,
     CollapseContainer,
     ViewContainer,
-    AddProjectContainer,
+    AddAreaContainer,
 } from './styled/Sidebar'
 import Button from './Button'
 import { createShortProjectName } from '../utils'
@@ -25,17 +33,22 @@ import uuidv4 from 'uuid/v4'
 import * as CSS from 'csstype'
 import { Icons } from '../assets/icons'
 import { NavLink } from 'react-router-dom'
+import { lighten } from 'polished'
+import { createArea } from '../actions/areas'
 
 interface StateProps {
     projects: Projects
+    areas: Areas
     sidebarVisible: boolean
     theme: string
     views: Views
 }
 interface DispatchProps {
     toggleSidebar: () => void
-    createProject: (id: Uuid, name: string, description: string) => void
+    createProject: (id: Uuid, name: string, description: string, areaId: string) => void
     reorderProject: (id: Uuid, destinationId: Uuid) => void
+    setProjectArea: (id: Uuid, areaId: string) => void
+    createArea: (id: Uuid, name: string, description: string) => void
 }
 
 const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />)`
@@ -43,13 +56,13 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
     box-sizing: border-box;
     justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
     font-size: ${(props) =>
-        props.sidebarVisible ? props.theme.fontSizes.small : props.theme.fontSizes.large};
+        props.sidebarVisible ? props.theme.fontSizes.xsmall : props.theme.fontSizes.large};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};
     border-radius: 5px;
     margin: 1px 0px;
     text-decoration: none;
-    padding: 8px 15px;
+    padding: 5px 15px;
     outline: none;
     :active {
         outline: none;
@@ -63,6 +76,11 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
     svg {
         margin-right: ${(props) => (props.sidebarVisible ? '5px' : '0px')};
     }
+`
+
+const ProjectLink = styled(StyledLink)`
+    width: 100%;
+    padding-left: ${(props) => (props.sidebarVisible ? '25px' : '15px')};
 `
 
 const generateSidebarContents = (
@@ -91,9 +109,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        background: isDraggingOver ? 'inherit' : 'inherit',
+        background: isDraggingOver ? lighten(0.1, theme.colours.altBackgroundColour) : 'inherit',
         margin: '0px',
-        padding: '0px',
+        padding: '5px 0px 10px 0px',
+        borderRadius: '5px',
+        minHeight: '40px',
     })
 
     const getProjectStyle = (isDragging: boolean, draggableStyle): CSS.Properties => ({
@@ -103,7 +123,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         height: 'auto',
         userSelect: 'none',
         margin: '0px',
-        padding: '0px',
+        padding: '0px 5px',
+        borderRadius: '5px',
         // change background colour if dragging
         background: isDragging
             ? theme.colours.focusAltDialogBackgroundColour
@@ -114,7 +135,12 @@ const Sidebar = (props: SidebarProps): ReactElement => {
             <Container visible={props.sidebarVisible}>
                 <BodyContainer>
                     <SectionHeader>
-                        {props.sidebarVisible && <Header> Views </Header>}
+                        {props.sidebarVisible && (
+                            <>
+                                {Icons['view'](22, 22, themes[props.theme].colours.primaryColour)}
+                                <HeaderName>Views</HeaderName>
+                            </>
+                        )}
                     </SectionHeader>
                     <ViewContainer collapsed={!props.sidebarVisible}>
                         <StyledLink
@@ -163,82 +189,137 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         {!props.sidebarVisible && <StyledHorizontalRule />}
                     </ViewContainer>
                     <SectionHeader>
-                        {props.sidebarVisible && <Header>Projects</Header>}
+                        {props.sidebarVisible && (
+                            <>
+                                {Icons['area'](22, 22, themes[props.theme].colours.primaryColour)}
+                                <HeaderName>Areas</HeaderName>
+                            </>
+                        )}
                     </SectionHeader>
+
                     <DragDropContext
                         onDragEnd={(e) => {
+                            props.setProjectArea(e.draggableId, e.destination.droppableId)
                             props.reorderProject(
                                 e.draggableId,
                                 props.projects.order[e.destination.index],
                             )
                         }}
                     >
-                        <Droppable droppableId={uuidv4()} type="PROJECT">
-                            {(provided, snapshot) => (
-                                <div
-                                    {...provided.droppableProps}
-                                    ref={provided.innerRef}
-                                    style={getListStyle(snapshot.isDraggingOver)}
-                                >
-                                    {Object.values(props.projects.order).map((p: Uuid, index) => {
-                                        // Don't render the inbox here
-                                        if (p == '0') return
-                                        const pathName = '/projects/' + p
-                                        const project = props.projects.projects[p]
-                                        return (
-                                            <Draggable key={p} draggableId={p} index={index}>
-                                                {(provided, snapshot) => (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        key={'container-' + p}
-                                                        style={getProjectStyle(
-                                                            snapshot.isDragging,
-                                                            provided.draggableProps.style,
-                                                        )}
-                                                    >
-                                                        <StyledLink
-                                                            style={{ width: '100%' }}
-                                                            sidebarVisible={props.sidebarVisible}
-                                                            key={p}
-                                                            to={pathName}
-                                                            activeStyle={{
-                                                                backgroundColor:
-                                                                    theme.colours
-                                                                        .focusAltDialogBackgroundColour,
-                                                            }}
-                                                        >
-                                                            {props.sidebarVisible
-                                                                ? project.name
-                                                                : createShortProjectName(
-                                                                      project.name,
-                                                                  )}
-                                                        </StyledLink>
-                                                    </div>
+                        {Object.values(props.areas.order).map((a: Uuid, index) => {
+                            const area = props.areas.areas[a]
+                            return (
+                                <div key={a}>
+                                    {props.sidebarVisible && (
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                flexDirection: 'row',
+                                                justifyContent: 'space-between',
+                                                padding: '0px 5px',
+                                                paddingLeft: '10px',
+                                            }}
+                                        >
+                                            <AreaName invert key={index}>
+                                                {area.name}
+                                            </AreaName>
+                                            <Button
+                                                type="subtle"
+                                                icon="add"
+                                                iconColour={'white'}
+                                                onClick={() => {
+                                                    const projectId = uuidv4()
+                                                    props.createProject(
+                                                        projectId,
+                                                        'New Project',
+                                                        '',
+                                                        a,
+                                                    )
+                                                    history.push('/projects/' + projectId)
+                                                }}
+                                            />
+                                        </div>
+                                    )}
+                                    <Droppable droppableId={a} type="PROJECT">
+                                        {(provided, snapshot) => (
+                                            <div
+                                                {...provided.droppableProps}
+                                                ref={provided.innerRef}
+                                                style={getListStyle(snapshot.isDraggingOver)}
+                                            >
+                                                {Object.values(props.projects.order).map(
+                                                    (p: Uuid, index) => {
+                                                        // Don't render the inbox here
+                                                        if (p == '0') return
+                                                        const project = props.projects.projects[p]
+                                                        // Only render those in that area
+                                                        if (project.areaId != a) return
+                                                        const pathName = '/projects/' + p
+                                                        //
+                                                        return (
+                                                            <Draggable
+                                                                key={p}
+                                                                draggableId={p}
+                                                                index={index}
+                                                            >
+                                                                {(provided, snapshot) => (
+                                                                    <div
+                                                                        ref={provided.innerRef}
+                                                                        {...provided.draggableProps}
+                                                                        {...provided.dragHandleProps}
+                                                                        key={'container-' + p}
+                                                                        style={getProjectStyle(
+                                                                            snapshot.isDragging,
+                                                                            provided.draggableProps
+                                                                                .style,
+                                                                        )}
+                                                                    >
+                                                                        <ProjectLink
+                                                                            sidebarVisible={
+                                                                                props.sidebarVisible
+                                                                            }
+                                                                            key={p}
+                                                                            to={pathName}
+                                                                            activeStyle={{
+                                                                                backgroundColor:
+                                                                                    theme.colours
+                                                                                        .focusAltDialogBackgroundColour,
+                                                                            }}
+                                                                        >
+                                                                            {props.sidebarVisible
+                                                                                ? project.name
+                                                                                : createShortProjectName(
+                                                                                      project.name,
+                                                                                  )}
+                                                                        </ProjectLink>
+                                                                    </div>
+                                                                )}
+                                                            </Draggable>
+                                                        )
+                                                    },
                                                 )}
-                                            </Draggable>
-                                        )
-                                    })}
+                                            </div>
+                                        )}
+                                    </Droppable>
                                 </div>
-                            )}
-                        </Droppable>
+                            )
+                        })}
                     </DragDropContext>
                     {props.sidebarVisible && (
-                        <AddProjectContainer>
+                        <AddAreaContainer>
                             <Button
                                 width="110px"
                                 type="invert"
-                                text={props.sidebarVisible ? 'Add Project' : ''}
+                                spacing="compact"
+                                text={props.sidebarVisible ? 'Add Area' : ''}
                                 iconSize="12px"
                                 icon="add"
                                 onClick={() => {
-                                    const projectId = uuidv4()
-                                    props.createProject(projectId, 'New Project', '')
-                                    history.push('/projects/' + projectId)
+                                    const areaId = uuidv4()
+                                    props.createArea(areaId, 'New Area', '')
                                 }}
                             />
-                        </AddProjectContainer>
+                        </AddAreaContainer>
                     )}
                 </BodyContainer>
                 <Footer visible={props.sidebarVisible}>
@@ -271,13 +352,14 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
+    areas: state.areas,
     sidebarVisible: state.ui.sidebarVisible,
     theme: state.ui.theme,
     views: state.ui.views,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    createProject: (id: Uuid, name: string, description: string) => {
-        dispatch(createProject(id, name, description))
+    createProject: (id: Uuid, name: string, description: string, areaId: string) => {
+        dispatch(createProject(id, name, description, areaId))
         dispatch(addView(id, name, 'project'))
         const component1Id = uuidv4()
         const component2Id = uuidv4()
@@ -311,6 +393,12 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     reorderProject: (id: Uuid, destinationId: Uuid) => {
         dispatch(reorderProject(id, destinationId))
+    },
+    setProjectArea: (id: Uuid, areaId: string) => {
+        dispatch(setProjectArea(id, areaId))
+    },
+    createArea: (id: Uuid, name: string, description: string) => {
+        dispatch(createArea(id, name, description))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar)

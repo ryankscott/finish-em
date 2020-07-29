@@ -1,6 +1,6 @@
 import { Uuid } from '@typed/uuid'
 
-export interface ProjectType {
+export interface AreaType {
     id: Uuid | '0'
     name: string
     deleted: boolean
@@ -8,16 +8,13 @@ export interface ProjectType {
     lastUpdatedAt: string
     deletedAt: string
     createdAt: string
-    startAt: string
-    endAt: string
-    areaId: string
 }
 
-export interface Project {
-    [key: string]: ProjectType
+export interface Area {
+    [key: string]: AreaType
 }
 
-export interface Projects {
-    projects: Project
+export interface Areas {
+    areas: Area
     order: (Uuid | string)[]
 }

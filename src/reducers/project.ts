@@ -14,6 +14,7 @@ const initialState: Projects = {
             createdAt: new Date().toISOString(),
             startAt: null,
             endAt: null,
+            areaId: '0',
         },
     },
     order: ['0'],
@@ -35,6 +36,7 @@ export const projectReducer = produce(
                     lastUpdatedAt: new Date().toISOString(),
                     startAt: null,
                     endAt: null,
+                    areaId: action.areaId,
                 }
                 if (draftState.order) {
                     draftState.order = [...draftState.order, action.id]
@@ -79,6 +81,11 @@ export const projectReducer = produce(
 
             case project.SET_PROJECT_END_DATE:
                 p.endAt = action.date
+                p.lastUpdatedAt = new Date().toISOString()
+                break
+
+            case project.SET_PROJECT_AREA:
+                p.areaId = action.areaId
                 p.lastUpdatedAt = new Date().toISOString()
                 break
 

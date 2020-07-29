@@ -6,19 +6,27 @@ export const UPDATE_PROJECT_NAME = 'UPDATE_PROJECT_NAME'
 export const REORDER_PROJECT = 'REORDER_PROJECT'
 export const SET_PROJECT_START_DATE = 'SET_PROJECT_START_DATE'
 export const SET_PROJECT_END_DATE = 'SET_PROJECT_END_DATE'
+export const SET_PROJECT_AREA = 'SET_PROJECT_AREA'
 
 export interface CreateProjectAction {
     type: typeof CREATE_PROJECT
     id: Uuid
     name: string
     description: string
+    areaId: string
 }
-export function createProject(id: Uuid, name: string, description: string): CreateProjectAction {
+export function createProject(
+    id: Uuid,
+    name: string,
+    description: string,
+    areaId: string,
+): CreateProjectAction {
     return {
         type: CREATE_PROJECT,
         id: id,
         name: name,
         description: description,
+        areaId: areaId,
     }
 }
 
@@ -98,6 +106,20 @@ export function setProjectEndDate(id: Uuid, date: string): SetProjectEndDateActi
     }
 }
 
+export interface SetProjectAreaAction {
+    type: typeof SET_PROJECT_AREA
+    id: string
+    areaId: string
+}
+
+export function setProjectArea(id: Uuid, areaId: string): SetProjectAreaAction {
+    return {
+        type: SET_PROJECT_AREA,
+        id: id,
+        areaId: areaId,
+    }
+}
+
 export type ProjectActions =
     | CreateProjectAction
     | DeleteProjectAction
@@ -106,3 +128,4 @@ export type ProjectActions =
     | ReorderProjectAction
     | SetProjectStartDateAction
     | SetProjectEndDateAction
+    | SetProjectAreaAction

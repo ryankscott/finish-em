@@ -843,4 +843,48 @@ export const Icons = {
             <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17l-.59.59-.58.58V4h16v12zm-9-4h2v2h-2zm0-6h2v4h-2z" />
         </svg>
     ),
+    view: (
+        width?: CSS.WidthProperty<number>,
+        height?: CSS.HeightProperty<number>,
+        colour?: CSS.Color,
+    ): React.SVGProps<SVGSVGElement> => (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={width ? width : '16'}
+            height={height ? height : '16'}
+            viewBox="0 0 24 24"
+            fill={colour ? colour : 'currentColor'}
+            fillOpacity="0"
+            stroke={colour ? colour : 'currentColor'}
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+    ),
+    area: (
+        width?: CSS.WidthProperty<number>,
+        height?: CSS.HeightProperty<number>,
+        colour?: CSS.Color,
+    ): React.SVGProps<SVGSVGElement> => (
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width={width ? width : '16'}
+            height={height ? height : '16'}
+            viewBox="0 0 24 24"
+            fill={colour ? colour : 'currentColor'}
+            fillOpacity="0"
+            stroke={colour ? colour : 'currentColor'}
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+        </svg>
+    ),
 }
