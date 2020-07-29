@@ -56,7 +56,7 @@ const StyledLink = styled(({ sidebarVisible, ...rest }) => <NavLink {...rest} />
     box-sizing: border-box;
     justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
     font-size: ${(props) =>
-        props.sidebarVisible ? props.theme.fontSizes.xsmall : props.theme.fontSizes.large};
+        props.sidebarVisible ? props.theme.fontSizes.xsmall : props.theme.fontSizes.regular};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.altTextColour};
     border-radius: 5px;
@@ -110,10 +110,9 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         flexDirection: 'column',
         justifyContent: 'center',
         background: isDraggingOver ? lighten(0.1, theme.colours.altBackgroundColour) : 'inherit',
-        margin: '0px',
-        padding: '5px 0px 10px 0px',
+        padding: isDraggingOver ? '10px 0px' : '5px 0px',
+        paddingBottom: isDraggingOver ? '45px' : '5px',
         borderRadius: '5px',
-        minHeight: '40px',
     })
 
     const getProjectStyle = (isDragging: boolean, draggableStyle): CSS.Properties => ({
@@ -135,12 +134,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
             <Container visible={props.sidebarVisible}>
                 <BodyContainer>
                     <SectionHeader>
-                        {props.sidebarVisible && (
-                            <>
-                                {Icons['view'](22, 22, themes[props.theme].colours.primaryColour)}
-                                <HeaderName>Views</HeaderName>
-                            </>
-                        )}
+                        {Icons['view'](22, 22, themes[props.theme].colours.primaryColour)}
+                        {props.sidebarVisible && <HeaderName>Views</HeaderName>}
                     </SectionHeader>
                     <ViewContainer collapsed={!props.sidebarVisible}>
                         <StyledLink
@@ -189,12 +184,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         {!props.sidebarVisible && <StyledHorizontalRule />}
                     </ViewContainer>
                     <SectionHeader>
-                        {props.sidebarVisible && (
-                            <>
-                                {Icons['area'](22, 22, themes[props.theme].colours.primaryColour)}
-                                <HeaderName>Areas</HeaderName>
-                            </>
-                        )}
+                        {Icons['area'](22, 22, themes[props.theme].colours.primaryColour)}
+                        {props.sidebarVisible && <HeaderName>Areas</HeaderName>}
                     </SectionHeader>
 
                     <DragDropContext
