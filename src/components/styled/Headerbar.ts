@@ -48,7 +48,7 @@ export const FeedbackIcon = styled.div`
 
 export const NameContainer = styled.div`
     grid-area: name;
-    font-size: ${(props) => props.theme.fontSizes.xlarge};
+    font-size: ${(props) => props.theme.fontSizes.large};
 `
 export const ItemCreatorContainer = styled.div`
     border-radius: 5px;
