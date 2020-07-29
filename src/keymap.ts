@@ -38,5 +38,5 @@ export const item = {
     PREV_ITEM: 'k',
     ESCAPE: 'Escape',
     CONVERT_TO_SUBTASK: 'v',
-    SET_ACTIVE_ITEM: 'h',
+    SET_ACTIVE_ITEM: 'f',
 }

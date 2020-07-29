@@ -33,13 +33,13 @@ export const Container = styled.div<ContainerProps>`
         props.labelColour != null
             ? transparentize(0.8, props.labelColour)
             : props.theme.colours.backgroundColour};
-    :focus {
+    &:focus {
         background-color: ${(props) =>
             props.labelColour != null
                 ? transparentize(0.8, props.labelColour)
                 : props.theme.colours.focusBackgroundColour};
     }
-    :active {
+    &:active {
         background-color: ${(props) =>
             props.labelColour != null
                 ? transparentize(0.8, props.labelColour)
@@ -90,7 +90,7 @@ export const ExpandContainer = styled.div`
 `
 export const TypeContainer = styled.div`
     grid-area: TYPE;
-    display: 'flex';
+    display: flex;
 `
 interface ProjectContainerProps {
     visible: boolean
@@ -158,19 +158,4 @@ export const MoreContainer = styled.div<MoreContainerProps>`
     position: relative;
     display: ${(props) => (props.visible ? 'flex' : 'none')};
     justify-content: flex-end;
-`
-
-interface HorizontalRuleProps {
-    visible: boolean
-}
-
-export const HorizontalRule = styled.hr<HorizontalRuleProps>`
-    margin: -1px auto;
-    padding: 0px;
-    display: ${(props) => (props.visible ? 'inherit' : 'none')};
-    height: 1px;
-    width: 90%;
-    border: none;
-    color: ${(props) => props.theme.colours.focusBackgroundColour};
-    background-color: ${(props) => props.theme.colours.focusBackgroundColour};
 `

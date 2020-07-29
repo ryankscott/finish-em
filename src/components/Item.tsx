@@ -180,8 +180,7 @@ function Item(props: ItemProps): ReactElement {
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div
-                key={props.id}
+            <Container
                 id={props.id}
                 onMouseEnter={(e) => {
                     clearTimeout(interval)
@@ -190,134 +189,128 @@ function Item(props: ItemProps): ReactElement {
                 onMouseLeave={(e) => {
                     interval = setTimeout(() => setMoreButtonVisible(false), 1000)
                 }}
+                onClick={() => {
+                    props.showFocusbar()
+                    props.setActiveItem(props.id)
+                }}
                 tabIndex={0}
+                deleted={props.deleted}
+                key={props.id}
+                ref={container}
+                shouldIndent={props.shouldIndent}
+                visible={isVisible || props.alwaysVisible}
+                itemType={props.type}
+                labelColour={labelColour}
             >
-                <Container
-                    deleted={props.deleted}
-                    key={props.id}
-                    ref={container}
-                    shouldIndent={props.shouldIndent}
-                    visible={isVisible || props.alwaysVisible}
-                    id={props.id}
-                    tabIndex={1}
-                    onClick={() => {
-                        props.showFocusbar()
-                        props.setActiveItem(props.id)
-                    }}
-                    itemType={props.type}
-                    labelColour={labelColour}
-                >
-                    {props.children.length > 0 && (
-                        <ExpandContainer>
-                            <Button
-                                type="subtle"
-                                onClick={handleExpand}
-                                icon={'expand'}
-                                rotate={subtasksVisible ? 1 : 0}
-                            ></Button>
-                        </ExpandContainer>
-                    )}
-                    <TypeContainer>
+                {props.children.length > 0 && (
+                    <ExpandContainer>
                         <Button
                             type="subtle"
-                            spacing="compact"
-                            onClick={handleIconClick}
-                            icon={
-                                props.type == 'NOTE'
-                                    ? 'note'
-                                    : props.completed
-                                    ? 'todoChecked'
-                                    : 'todoUnchecked'
-                            }
-                        />
-                    </TypeContainer>
-                    <Body id="body" completed={props.completed} deleted={props.deleted}>
-                        <EditableText
-                            shouldSubmitOnBlur={true}
-                            innerRef={editor}
-                            readOnly={isDescriptionReadOnly}
-                            onEditingChange={(editing) => setIsEditingDescription(editing)}
-                            input={removeItemTypeFromString(props.text)}
-                            onUpdate={(text) => {
-                                setIsDescriptionReadOnly(true)
-                                props.updateItemDescription(props.id, props.type.concat(' ', text))
-                            }}
-                            singleline={props.type == 'NOTE' ? false : true}
-                            shouldClearOnSubmit={false}
-                        />
-                    </Body>
-                    <ProjectContainer visible={!hiddenIcons?.includes(ItemIcons.Project)}>
-                        <ProjectName data-tip data-for={'project-name-' + props.id}>
-                            {projectText.short}
-                        </ProjectName>
-                        <Tooltip id={'project-name-' + props.id} text={projectText.long} />
-                    </ProjectContainer>
-
-                    <MoreContainer visible={moreButtonVisible}>
-                        <MoreDropdown options={dropdownOptions}></MoreDropdown>
-                        {showLabelDialog && (
-                            <LabelDialog
-                                itemId={props.id}
-                                onClose={() => {
-                                    setShowLabelDialog(false)
-                                }}
-                            />
-                        )}
-                    </MoreContainer>
-
-                    <ParentItemContainer
-                        data-tip
-                        data-for={'parent-item-' + props.id}
-                        visible={!hiddenIcons.includes(ItemIcons.Subtask) && props.parentId != null}
-                    >
-                        <ItemAttribute
-                            completed={props.completed}
-                            type={'subtask'}
-                            text={parentTaskText.short}
-                        />
-                        <Tooltip id={'parent-item-' + props.id} text={parentTaskText.long} />
-                    </ParentItemContainer>
-                    <ScheduledContainer
-                        data-tip
-                        data-for={'scheduled-date-' + props.id}
-                        visible={
-                            props.scheduledDate != null &&
-                            !hiddenIcons?.includes(ItemIcons.Scheduled)
+                            onClick={handleExpand}
+                            icon={'expand'}
+                            rotate={subtasksVisible ? 1 : 0}
+                        ></Button>
+                    </ExpandContainer>
+                )}
+                <TypeContainer>
+                    <Button
+                        type="subtle"
+                        spacing="compact"
+                        onClick={handleIconClick}
+                        icon={
+                            props.type == 'NOTE'
+                                ? 'note'
+                                : props.completed
+                                ? 'todoChecked'
+                                : 'todoUnchecked'
                         }
-                    >
-                        <ItemAttribute
-                            completed={props.completed}
-                            type={'scheduled'}
-                            text={scheduledDateText.short}
+                    />
+                </TypeContainer>
+                <Body id="body" completed={props.completed} deleted={props.deleted}>
+                    <EditableText
+                        shouldSubmitOnBlur={true}
+                        innerRef={editor}
+                        readOnly={isDescriptionReadOnly}
+                        onEditingChange={(editing) => setIsEditingDescription(editing)}
+                        input={removeItemTypeFromString(props.text)}
+                        onUpdate={(text) => {
+                            setIsDescriptionReadOnly(true)
+                            props.updateItemDescription(props.id, props.type.concat(' ', text))
+                        }}
+                        singleline={props.type == 'NOTE' ? false : true}
+                        shouldClearOnSubmit={false}
+                    />
+                </Body>
+                <ProjectContainer visible={!hiddenIcons?.includes(ItemIcons.Project)}>
+                    <ProjectName data-tip data-for={'project-name-' + props.id}>
+                        {projectText.short}
+                    </ProjectName>
+                    <Tooltip id={'project-name-' + props.id} text={projectText.long} />
+                </ProjectContainer>
+
+                <MoreContainer visible={moreButtonVisible}>
+                    <MoreDropdown options={dropdownOptions}></MoreDropdown>
+                    {showLabelDialog && (
+                        <LabelDialog
+                            itemId={props.id}
+                            onClose={() => {
+                                setShowLabelDialog(false)
+                            }}
                         />
-                        <Tooltip id={'scheduled-date-' + props.id} text={scheduledDateText.long} />
-                    </ScheduledContainer>
-                    <DueContainer
-                        data-tip
-                        data-for={'due-date-' + props.id}
-                        visible={props.dueDate != null && !hiddenIcons.includes(ItemIcons.Due)}
-                    >
-                        <ItemAttribute
-                            completed={props.completed}
-                            type={'due'}
-                            text={dueDateText.short}
-                        />
-                        <Tooltip id={'due-date-' + props.id} text={dueDateText.long} />
-                    </DueContainer>
-                    <RepeatContainer
-                        data-tip
-                        data-for={'repeat-' + props.id}
-                        visible={props.repeat != null && !hiddenIcons.includes(ItemIcons.Repeat)}
-                    >
-                        <ItemAttribute
-                            completed={props.completed}
-                            type={'repeat'}
-                            text={repeatText.short}
-                        />
-                        <Tooltip id={'repeat-' + props.id} text={repeatText.long} />
-                    </RepeatContainer>
-                </Container>
-            </div>
+                    )}
+                </MoreContainer>
+
+                <ParentItemContainer
+                    data-tip
+                    data-for={'parent-item-' + props.id}
+                    visible={!hiddenIcons.includes(ItemIcons.Subtask) && props.parentId != null}
+                >
+                    <ItemAttribute
+                        completed={props.completed}
+                        type={'subtask'}
+                        text={parentTaskText.short}
+                    />
+                    <Tooltip id={'parent-item-' + props.id} text={parentTaskText.long} />
+                </ParentItemContainer>
+                <ScheduledContainer
+                    data-tip
+                    data-for={'scheduled-date-' + props.id}
+                    visible={
+                        props.scheduledDate != null && !hiddenIcons?.includes(ItemIcons.Scheduled)
+                    }
+                >
+                    <ItemAttribute
+                        completed={props.completed}
+                        type={'scheduled'}
+                        text={scheduledDateText.short}
+                    />
+                    <Tooltip id={'scheduled-date-' + props.id} text={scheduledDateText.long} />
+                </ScheduledContainer>
+                <DueContainer
+                    data-tip
+                    data-for={'due-date-' + props.id}
+                    visible={props.dueDate != null && !hiddenIcons.includes(ItemIcons.Due)}
+                >
+                    <ItemAttribute
+                        completed={props.completed}
+                        type={'due'}
+                        text={dueDateText.short}
+                    />
+                    <Tooltip id={'due-date-' + props.id} text={dueDateText.long} />
+                </DueContainer>
+                <RepeatContainer
+                    data-tip
+                    data-for={'repeat-' + props.id}
+                    visible={props.repeat != null && !hiddenIcons.includes(ItemIcons.Repeat)}
+                >
+                    <ItemAttribute
+                        completed={props.completed}
+                        type={'repeat'}
+                        text={repeatText.short}
+                    />
+                    <Tooltip id={'repeat-' + props.id} text={repeatText.long} />
+                </RepeatContainer>
+            </Container>
         </ThemeProvider>
     )
 }

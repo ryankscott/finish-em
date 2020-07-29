@@ -73,7 +73,7 @@ const getItem = (
                 }
             }
             return (
-                <div key={'container-' + item.id}>
+                <div tabIndex={0} key={'container-' + item.id}>
                     <Item
                         {...item}
                         key={item.id}
@@ -143,36 +143,36 @@ function ItemList(props: ItemListProps): ReactElement {
         NEXT_ITEM: (event) => {
             const item = props.items.items[event.target.id]
             // If it's a parent element we need to get the first child
-            if (item.children.length > 0) {
+            if (item.children?.length > 0) {
                 // Show subtasks so we can iterate over them
                 props.showSubtasks(event.target.id, props.componentId)
-                const nextItem = event.target.parentNode.nextSibling
+                const nextItem = event.target.nextSibling
                 if (nextItem) {
-                    nextItem.firstChild.focus()
+                    nextItem.focus()
                     return
                 }
             }
             // If it's a child
             if (item.parentId != null) {
-                const nextItem = event.target.parentNode.nextSibling
+                const nextItem = event.target.nextElementSibling
                 if (nextItem) {
-                    nextItem.firstChild.focus()
+                    nextItem.focus()
                     return
                 }
-                // If it's the last child
+                // If it's the last child (i.e. no next)
                 else {
-                    const nextItem = event.target.parentNode.parentNode.nextSibling.firstChild
+                    const nextItem = event.target.parentNode.nextSibling.firstChild
                     if (nextItem) {
-                        nextItem.firstChild.focus()
+                        nextItem.focus()
                         return
                     }
                 }
             }
 
-            const parent = event.target.parentNode.parentNode
-            const nextItem = parent.nextSibling
+            // You have to go up to the parent to get the next sibling
+            const nextItem = event.target.parentNode?.nextSibling
             if (nextItem) {
-                nextItem.firstChild.firstChild.focus()
+                nextItem.firstChild.focus()
                 return
             }
         },
@@ -187,24 +187,26 @@ function ItemList(props: ItemListProps): ReactElement {
             }
             // If it's a child
             if (item.parentId != null) {
-                const nextItem = event.target.parentNode.previousSibling
-                if (nextItem) {
-                    nextItem.firstChild.focus()
+                const prevItem = event.target.previousSibling
+                console.log(prevItem)
+                if (prevItem) {
+                    prevItem.focus()
                     return
                 }
-                // If it's the last child
+                // If there is no previous item (i.e. the first)
                 else {
-                    const prevItem = event.target.parentNode.parentNode.previousSibling.firstChild
+                    console.log('here')
+                    const prevItem = event.target.parentNode
                     if (prevItem) {
-                        prevItem.firstChild.focus()
+                        prevItem.focus()
                         return
                     }
                 }
             }
-            const parent = event.target.parentNode.parentNode
+            const parent = event.target.parentNode
             const prevItem = parent.previousSibling?.firstChild
             if (prevItem) {
-                prevItem.firstChild.focus()
+                prevItem.focus()
                 return
             }
         },

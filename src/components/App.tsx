@@ -13,7 +13,7 @@ import View from './View'
 import Help from './Help'
 import { themes, GlobalStyle } from '../theme'
 import { app as appKeymap } from '../keymap'
-const electron = window.require('electron')
+)
 import {
     showSidebar,
     hideSidebar,
@@ -40,6 +40,9 @@ import { Uuid } from '@typed/uuid'
 
 import Headerbar from './Headerbar'
 import isElectron from 'is-electron'
+if (isElectron()) {
+    const electron = window.require('electron')
+}
 
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
@@ -80,7 +83,7 @@ const App = (props: AppProps): ReactElement => {
             if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && props.sidebarVisible == true) {
                 props.hideSidebar()
             }
-        })
+        })  
         if (isElectron()) {
             electron.ipcRenderer.on('create-task', (event, arg) => {
                 console.log('create task in renderer')
