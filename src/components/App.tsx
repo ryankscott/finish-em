@@ -13,6 +13,7 @@ import View from './View'
 import Help from './Help'
 import { themes, GlobalStyle } from '../theme'
 import { app as appKeymap } from '../keymap'
+const electron = window.require('electron')
 import {
     showSidebar,
     hideSidebar,
@@ -32,12 +33,13 @@ import {
     HeaderContainer,
 } from './styled/App'
 import { Projects, Views, Items } from '../interfaces'
-import { Slide } from 'react-toastify'
+import { Slide, toast } from 'react-toastify'
 import uuidv4 from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Uuid } from '@typed/uuid'
 
 import Headerbar from './Headerbar'
+import isElectron from 'is-electron'
 
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
@@ -79,6 +81,27 @@ const App = (props: AppProps): ReactElement => {
                 props.hideSidebar()
             }
         })
+        if (isElectron()) {
+            electron.ipcRenderer.on('create-task', (event, arg) => {
+                console.log('create task in renderer')
+                props.createItem(arg.text, arg?.projectId)
+            })
+            electron.ipcRenderer.on('new-version', (event, arg) => {
+                toast(
+                    <div>
+                        <p>
+                            <strong>New version available 🎉</strong>
+                            <br />
+                            Download the new version <a href={arg.downloadUrl}>here </a>
+                            <br />
+                            Or checkout the release <a href={arg.releaseURL}> notes</a> for what's
+                            changed
+                        </p>
+                    </div>,
+                    { autoClose: false },
+                )
+            })
+        }
     })
 
     function goToDailyAgenda(): void {

@@ -53,7 +53,7 @@ function QuickAdd(props: QuickAddProps): ReactElement {
                         electron.ipcRenderer.send('close-quickadd')
                     }}
                     readOnly={false}
-                    validation={{ validate: true, rule: validateItemString }}
+                    validation={validateItemString}
                     input=""
                     singleline={true}
                     shouldClearOnSubmit={true}

@@ -1,7 +1,8 @@
-const { ipcMain, app, BrowserWindow, globalShortcut } = require('electron')
+const { ipcMain, app, net, BrowserWindow, globalShortcut } = require('electron')
 const isDev = require('electron-is-dev')
 const path = require('path')
 const applescript = require('applescript')
+const semver = require('semver')
 
 let mainWindow, quickAddWindow
 const getMailLink = () => {
@@ -60,6 +61,44 @@ const openOutlookLink = (url) => {
             console.log(err)
         }
     })
+}
+
+const checkForNewVersion = () => {
+    const releasesURL = ' https://api.github.com/repos/ryankscott/finish-em/releases'
+
+    const request = net.request(releasesURL)
+    request.on('response', (response) => {
+        let rawData = ''
+        response.on('data', (chunk) => {
+            rawData += chunk
+        })
+        response.on('end', () => {
+            try {
+                const response = JSON.parse(rawData)
+                // Get rid of draft versions and get the last published
+                const sortedReleases = response
+                    .filter((r) => r.draft == false)
+                    .sort((a, b) => b.published_at - a.published_at)
+                // Get the semver of the release
+                const latestRelease = sortedReleases[0]
+                // If there's a new version
+                if (semver.gt(latestRelease.name, app.getVersion())) {
+                    const macRelease = latestRelease.assets.find((a) => a.name.endsWith('.dmg'))
+                    // Send an event to the front-end to push a notification
+                    mainWindow.webContents.send('new-version', {
+                        version: latestRelease.name,
+                        publishedAt: latestRelease.published_at,
+                        downloadUrl: macRelease.browser_download_url,
+                        releaseURL: latestRelease.html_url,
+                        releaseNotes: latestRelease.body,
+                    })
+                }
+            } catch (e) {
+                console.error(e.message)
+            }
+        })
+    })
+    request.end()
 }
 
 function createQuickAddWindow() {
@@ -129,6 +168,8 @@ app.on('ready', () => {
     globalShortcut.register('Command+Shift+N', createQuickAddWindow)
     globalShortcut.register('Command+Shift+M', getMailLink)
     globalShortcut.register('Command+Shift+O', getOutlookLink)
+    checkForNewVersion()
+    setInterval(checkForNewVersion, 1000 * 60 * 60 * 24)
 })
 
 // Quit when all windows are closed.

@@ -115,6 +115,7 @@
         "redux-persist-electron-storage": "^2.1.0",
         "reselect": "^4.0.0",
         "rrule": "^2.6.4",
+        "semver": "^7.3.2",
         "styled-components": "^4.4.1",
         "uuid": "^3.4.0"
     }
