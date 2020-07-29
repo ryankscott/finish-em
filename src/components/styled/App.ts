@@ -5,13 +5,12 @@ import { darken } from 'polished'
 
 export const Container = styled.div`
     display: grid;
-    grid-template-columns: minmax(50px, 300px) minmax(600px, auto) minmax(0px, 400px);
+    grid-template-columns: minmax(50px, auto) auto max(400px);
     grid-template-rows: 50px auto;
     grid-template-areas:
         'header header header'
         'sidebar main focusbar';
     margin: 0px;
-    width: 100%;
     height: 100%;
 `
 export const HeaderContainer = styled.div`
@@ -29,8 +28,8 @@ interface SidebarContainerProps {
 export const SidebarContainer = styled.div<SidebarContainerProps>`
     grid-area: sidebar;
     display: flex;
-    width: ${(props) => (props.visible ? '300px' : '50px')};
-    min-width: ${(props) => (props.visible ? '300px' : '50px')};
+    width: ${(props) => (props.visible ? '250px' : '50px')};
+    min-width: ${(props) => (props.visible ? '250px' : '50px')};
     flex-direction: column;
     transition: all 0.2s ease-in-out;
     overflow-y: scroll;
@@ -61,9 +60,9 @@ export const FocusContainer = styled.div<FocusContainerProps>`
     grid-area: focusbar;
     display: flex;
     flex-direction: column;
-    padding: ${(props) => (props.visible ? '5px' : '0px')};
-    width: ${(props) => (props.visible ? '400px' : '0px')};
-    min-width: ${(props) => (props.visible ? '80px' : '0px')};
+    padding: ${(props) => (props.visible ? '5px 10px' : '0px')};
+    width: ${(props) => (props.visible ? 'auto' : '0px')};
+    min-width: ${(props) => (props.visible ? '200px' : '0px')};
     transition: all 0.2s ease-in-out;
     align-items: center;
     border: ${(props) => (props.visible ? '1px solid' : 'none')};
