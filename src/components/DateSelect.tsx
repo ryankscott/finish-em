@@ -7,24 +7,24 @@ import './DatePicker.css'
 import DayPicker from 'react-day-picker/DayPicker'
 import { connect } from 'react-redux'
 
-const options: { value: string; label: string }[] = [
-    { value: (() => new Date().toISOString())(), label: 'Today' },
+const options: { value: () => string; label: string }[] = [
+    { value: () => new Date().toISOString(), label: 'Today' },
     {
-        value: (() => add(new Date(), { days: 1 }).toISOString())(),
+        value: () => add(new Date(), { days: 1 }).toISOString(),
         label: 'Tomorrow',
     },
     {
-        value: (() =>
+        value: () =>
             sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
                 days: 2,
-            }).toISOString())(),
+            }).toISOString(),
         label: 'End of Week',
     },
     {
-        value: (() =>
+        value: () =>
             add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
                 days: 1,
-            }).toISOString())(),
+            }).toISOString(),
         label: 'Next Week',
     },
     {
@@ -62,7 +62,7 @@ function DateSelect(props: DateSelectProps): ReactElement {
                 setDayPickerVisible(true)
                 return
             }
-            props.onSubmit(newValue.value)
+            props.onSubmit(newValue.value())
         }
         return
     }
