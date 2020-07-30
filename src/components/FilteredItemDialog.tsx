@@ -130,6 +130,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                     <SettingValue>
                         <EditableText
                             innerRef={nameRef}
+                            width={"300px"}
                             key={'ed-name'}
                             input={props.listName}
                             fontSize={'xsmall'}

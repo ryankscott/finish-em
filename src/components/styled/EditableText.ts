@@ -13,7 +13,6 @@ interface ContainerProps {
 }
 
 export const Container = styled.div<ContainerProps>`
-    white-space: ${(props) => (props.readOnly || !props.editing ? 'inherit' : 'pre')};
     box-sizing: border-box;
     overflow: hidden;
     overflow-y: scroll;

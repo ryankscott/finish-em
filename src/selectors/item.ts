@@ -7,6 +7,13 @@ export const getRenderingStrategy = (state, props) => {
     return props.renderingStrategy
 }
 
+export const getItemsFromProject = (state, props): Item => {
+    const items = state.items.items
+    const filter = `projectId == "${props.project.id}"`
+    const ff = compileExpression(filter, generateFiltrexOptions({ labels: state.ui.labels }))
+    return filterItems(items, ff, props.renderingStrategy)
+}
+
 export const getFilteredItems = (state, props): Item => {
     const items = state.items.items
     const ff = compileExpression(props.filter, generateFiltrexOptions({ labels: state.ui.labels }))

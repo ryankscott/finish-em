@@ -20,15 +20,16 @@ export const BodyContainer = styled.div`
     flex-direction: column;
     width: 100%;
 `
-
-export const SectionHeader = styled.div`
+interface SectionHeaderProps {
+    visible: boolean
+}
+export const SectionHeader = styled.div<SectionHeaderProps>`
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
     margin: 5px 5px;
-    padding: 10px 5px;
-    padding-top: 20px;
+    padding: ${(props) => (props.visible ? '20px 5px 5px 5px' : '5px')};
 `
 export const HeaderName = styled(Header)`
     padding: 2px 5px;

@@ -133,7 +133,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         <ThemeProvider theme={theme}>
             <Container visible={props.sidebarVisible}>
                 <BodyContainer>
-                    <SectionHeader>
+                    <SectionHeader visible={props.sidebarVisible}>
                         {Icons['view'](22, 22, themes[props.theme].colours.primaryColour)}
                         {props.sidebarVisible && <HeaderName>Views</HeaderName>}
                     </SectionHeader>
@@ -183,7 +183,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                         })}
                         {!props.sidebarVisible && <StyledHorizontalRule />}
                     </ViewContainer>
-                    <SectionHeader>
+                    <SectionHeader visible={props.sidebarVisible}>
                         {Icons['area'](22, 22, themes[props.theme].colours.primaryColour)}
                         {props.sidebarVisible && <HeaderName>Areas</HeaderName>}
                     </SectionHeader>
@@ -360,7 +360,7 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
                 props: {
                     id: component1Id,
                     listName: 'Notes',
-                    filter: `projectId == "${id}" and type == "NOTE" and not (completed or deleted)`,
+                    filter: `projectId == "${id}" and type == "NOTE" and not deleted`,
                     isFilterable: false,
                     hideIcons: [ItemIcons.Project],
                 },
