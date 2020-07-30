@@ -4,7 +4,7 @@ import { themes } from '../theme'
 import marked from 'marked'
 import { setEndOfContenteditable } from '../utils'
 import { Paragraph, Title, Header, Code } from './Typography'
-import { Container } from './styled/EditableText'
+import { Container, Placeholder } from './styled/EditableText'
 import { connect } from 'react-redux'
 import CSS from 'csstype'
 import { fontSizeType } from '../interfaces'
@@ -25,11 +25,13 @@ interface OwnProps {
     onUpdate: (input: string) => void
     shouldSubmitOnBlur: boolean
     shouldClearOnSubmit: boolean
+    shouldShowBorderWhenReadOnly?: boolean
     backgroundColour?: CSS.Color
     fontSize?: fontSizeType
     readOnly?: boolean
     width?: string
     height?: string
+    placeholder?: string
     singleline?: boolean
     plainText?: boolean
     style?: typeof Title | typeof Paragraph | typeof Header | typeof Code
@@ -199,34 +201,38 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <Container
-                id={id}
-                fontSize={props.fontSize}
-                backgroundColour={props.backgroundColour}
-                valid={valid}
-                as={props.style || Paragraph}
-                readOnly={props.readOnly}
-                ref={props.innerRef}
-                width={props.width}
-                height={props.height}
-                editing={editable}
-                contentEditable={editable}
-                onClick={handleClick}
-                onFocus={handleFocus}
-                onBlur={handleBlur}
-                tabIndex={-1}
-                onKeyPress={handleKeyPress}
-                onKeyUp={handleKeyUp}
-                dangerouslySetInnerHTML={
-                    props.plainText
-                        ? {
-                              __html: props.input,
-                          }
-                        : editable
-                        ? getRawText()
-                        : getMarkdownText()
-                }
-            />
+            <div style={{ position: 'relative', width: '100%' }}>
+                <Container
+                    id={id}
+                    fontSize={props.fontSize}
+                    backgroundColour={props.backgroundColour}
+                    shouldShowBorderWhenReadOnly={props.shouldShowBorderWhenReadOnly}
+                    valid={valid}
+                    as={props.style || Paragraph}
+                    readOnly={props.readOnly}
+                    ref={props.innerRef}
+                    width={props.width}
+                    height={props.height}
+                    editing={editable}
+                    contentEditable={editable}
+                    onClick={handleClick}
+                    onFocus={handleFocus}
+                    onBlur={handleBlur}
+                    tabIndex={-1}
+                    onKeyPress={handleKeyPress}
+                    onKeyUp={handleKeyUp}
+                    dangerouslySetInnerHTML={
+                        props.plainText
+                            ? {
+                                  __html: props.input,
+                              }
+                            : editable
+                            ? getRawText()
+                            : getMarkdownText()
+                    }
+                />
+                {!editable && input.length == 0 && <Placeholder>{props.placeholder}</Placeholder>}
+            </div>
         </ThemeProvider>
     )
 }

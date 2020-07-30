@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -17,16 +17,21 @@ import { Title } from './Typography'
 import EditableText from './EditableText'
 import DeleteProjectDialog from './DeleteProjectDialog'
 import { Uuid } from '@typed/uuid'
-import { ProjectType } from '../interfaces'
+import { ProjectType, Item } from '../interfaces'
 import { ProjectContainer, HeaderContainer, AddProjectContainer } from './styled/Project'
 import ItemCreator from './ItemCreator'
 import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { formatRelativeDate } from '../utils'
 import { parseISO } from 'date-fns'
 import ReorderableComponentList from './ReorderableComponentList'
+import { Donut } from './Donut'
+import { darken } from 'polished'
+import { getItemsFromProject } from '../selectors/item'
+import Tooltip from './Tooltip'
 
 interface StateProps {
     theme: string
+    items: Item
     projectDates: boolean
 }
 
@@ -55,10 +60,32 @@ const Project = (props: ProjectProps): ReactElement => {
         return
     }
 
+    const allItems = Object.values(props.items)
+    const completedItems = allItems.filter((i) => i.completed == true)
+
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <ProjectContainer>
                 <HeaderContainer>
+                    <div data-for="donut" data-tip>
+                        <Donut
+                            size={40}
+                            progress={
+                                allItems.length != 0
+                                    ? (100 * completedItems.length) / allItems.length
+                                    : 0
+                            }
+                            activeColour={themes[props.theme].colours.primaryColour}
+                            inactiveColour={darken(
+                                0.2,
+                                themes[props.theme].colours.backgroundColour,
+                            )}
+                        />
+                    </div>
+                    <Tooltip
+                        id="donut"
+                        text={`${completedItems.length}/${allItems.length} completed`}
+                    />
                     <EditableText
                         shouldSubmitOnBlur={true}
                         key={props.project.id + 'name'}
@@ -102,8 +129,8 @@ const Project = (props: ProjectProps): ReactElement => {
                     </div>
                 )}
                 <EditableText
+                    placeholder="Add a description for your project..."
                     shouldSubmitOnBlur={true}
-                    validation={false}
                     key={props.project.id + 'description'}
                     onUpdate={(input) => {
                         props.updateDescription(props.project.id, input)
@@ -128,8 +155,9 @@ const Project = (props: ProjectProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state): StateProps => ({
+const mapStateToProps = (state, props): StateProps => ({
     theme: state.ui.theme,
+    items: getItemsFromProject(state, props),
     projectDates: state.features.projectDates,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({

@@ -127,3 +127,5 @@ export type IconType =
     | 'restore'
     | 'save'
     | 'feedback'
+    | 'area'
+    | 'view'

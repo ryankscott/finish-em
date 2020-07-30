@@ -1,4 +1,7 @@
-import styled from 'styled-components'
+import styled from '../../StyledComponents'
+import { Header1, Header } from '../Typography'
+import CSS from 'csstype'
+import { lighten } from 'polished'
 
 interface ContainerProps {
     visible: boolean
@@ -19,14 +22,32 @@ export const BodyContainer = styled.div`
     flex-direction: column;
     width: 100%;
 `
-
-export const SectionHeader = styled.div`
+interface SectionHeaderProps {
+    visible: boolean
+}
+export const SectionHeader = styled.div<SectionHeaderProps>`
     display: flex;
     flex-direction: row;
-    align-items: first baseline;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: ${(props) => (props.visible ? 'flex-start' : 'center')};
     margin: 5px 5px;
-    padding: 5px;
+    padding: ${(props) => (props.visible ? '20px 5px 5px 5px' : '5px')};
+`
+
+interface SubsectionHeaderProps {
+    visible: boolean
+}
+export const SubsectionHeader = styled.div<SubsectionHeaderProps>`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: '0px 5px';
+    padding-left: 10px;
+`
+
+export const HeaderName = styled(Header)`
+    padding: 2px 5px;
+    margin: 2px;
 `
 
 interface FooterProps {
@@ -51,7 +72,7 @@ export const Footer = styled.div<FooterProps>`
 export const StyledHorizontalRule = styled.hr`
     box-sizing: border-box;
     width: 80%;
-    color: ${(props) => props.theme.altTextColour};
+    color: ${(props) => props.theme.colours.altTextColour};
 `
 
 export const CollapseContainer = styled.div`
@@ -82,10 +103,43 @@ export const ViewContainer = styled.div<ViewContainerProps>`
     margin: 0px;
     padding: 0px;
 `
-export const AddProjectContainer = styled.div`
-    padding-top: 5px;
+export const AddAreaContainer = styled.div`
+    margin-top: 10px;
     display: flex;
     width: 100%;
     justify-content: center;
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
 `
+
+interface DroppableListProps {
+    isDragging: boolean
+    draggableStyle: CSS.Properties
+}
+export const DroppableList = styled.div``
+
+export const DroppableListStyle = (isDraggingOver: boolean, theme): CSS.Properties => ({
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    background: isDraggingOver ? lighten(0.1, theme.colours.altBackgroundColour) : 'inherit',
+    padding: isDraggingOver ? '10px 5px' : '5px 5px',
+    paddingBottom: isDraggingOver ? '45px' : '5px',
+    borderRadius: '5px',
+})
+
+export const DraggableItem = styled.div``
+
+export const DraggableItemStyle = (isDragging: boolean, draggableStyle, theme): CSS.Properties => ({
+    ...draggableStyle,
+    display: 'flex',
+    flexDirection: 'row',
+    height: 'auto',
+    userSelect: 'none',
+    margin: '0px',
+    padding: '0px 5px',
+    borderRadius: '5px',
+    // change background colour if dragging
+    background: isDragging
+        ? theme.colours.focusAltDialogBackgroundColour
+        : theme.colours.altBackgroundColour,
+})

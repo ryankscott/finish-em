@@ -6,13 +6,15 @@ describe('ProjectActions', () => {
         const id = uuidv4()
         const name = 'Project'
         const description = 'Desc'
+        const areaId = '2'
         const expectedAction: project.CreateProjectAction = {
             type: project.CREATE_PROJECT,
             id: id,
             name: name,
             description: description,
+            areaId: areaId,
         }
-        expect(project.createProject(id, name, description)).toEqual(expectedAction)
+        expect(project.createProject(id, name, description, areaId)).toEqual(expectedAction)
     })
 
     it('should create an action to delete a project', () => {

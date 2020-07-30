@@ -280,7 +280,7 @@ export const themes: { [key: string]: ThemeType } = {
             penternaryColour: '#9B5DE5',
             backgroundColour: '#404040',
             borderColour: '#909090',
-            altBorderColour:'#EEEEEE' 
+            altBorderColour: '#EEEEEE',
             altBackgroundColour: '#404040',
             dialogBackgroundColour: '#404040',
             focusDialogBackgroundColour: darken(0.05, '#404040'),

@@ -205,6 +205,17 @@ export const migratev36tov37Components = (cs: MainComponents, ps: Project): Main
     }
 }
 
+export const migratev37tov47Projects = (ps: Project): Project => {
+    const projects = ps.projects
+
+    const order = ps.order
+    const projectEntries = Object.entries(projects)
+    for (const [key, value] of projectEntries) {
+        value['areaId'] = '0'
+    }
+    return { projects: Object.fromEntries(projectEntries), order: order }
+}
+
 // Note: The number here denotes the version you want to migrate to
 export const migrations = {
     3: (state) => {
@@ -739,6 +750,29 @@ export const migrations = {
                 views: {
                     ...migratev36tov37Views(state.ui.views, state.projects.projects),
                 },
+            },
+        }
+    },
+    47: (state) => {
+        return {
+            ...state,
+            projects: {
+                ...migratev37tov47Projects(state.projects),
+            },
+
+            areas: {
+                areas: {
+                    '0': {
+                        id: '0',
+                        name: 'Other',
+                        deleted: false,
+                        description: 'Default landing space for projects',
+                        lastUpdatedAt: new Date().toISOString(),
+                        deletedAt: null,
+                        createdAt: new Date().toISOString(),
+                    },
+                },
+                order: ['0'],
             },
         }
     },

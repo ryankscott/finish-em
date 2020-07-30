@@ -1,4 +1,5 @@
 import * as project from '../actions/project'
+import { DELETE_AREA } from '../actions/area'
 import { Projects } from '../interfaces'
 import produce from 'immer'
 
@@ -14,6 +15,7 @@ const initialState: Projects = {
             createdAt: new Date().toISOString(),
             startAt: null,
             endAt: null,
+            areaId: '0',
         },
     },
     order: ['0'],
@@ -35,6 +37,7 @@ export const projectReducer = produce(
                     lastUpdatedAt: new Date().toISOString(),
                     startAt: null,
                     endAt: null,
+                    areaId: action.areaId,
                 }
                 if (draftState.order) {
                     draftState.order = [...draftState.order, action.id]
@@ -81,6 +84,16 @@ export const projectReducer = produce(
                 p.endAt = action.date
                 p.lastUpdatedAt = new Date().toISOString()
                 break
+
+            case project.SET_PROJECT_AREA:
+                p.areaId = action.areaId
+                p.lastUpdatedAt = new Date().toISOString()
+                break
+
+            case DELETE_AREA:
+                Object.values(draftState.projects).map((p) => {
+                    if (p.areaId == action.id) p.areaId = '0'
+                })
 
             default:
                 return draftState

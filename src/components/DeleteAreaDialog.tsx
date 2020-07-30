@@ -12,7 +12,7 @@ import {
     CloseButton,
     Dialog,
     HeaderContainer,
-} from './styled/DeleteProjectDialog'
+} from './styled/DeleteAreaDialog'
 
 interface OwnProps {
     onDelete: () => void
@@ -23,9 +23,9 @@ interface StateProps {
 
 interface DispatchProps {}
 
-type DeleteProjectDialogProps = StateProps & DispatchProps & OwnProps
+type DeleteAreaDialogProps = StateProps & DispatchProps & OwnProps
 
-const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
+const DeleteAreaDialog = (props: DeleteAreaDialogProps): ReactElement => {
     const [dialogOpen, setDialogOpen] = useState(false)
     const node = React.useRef<HTMLDivElement>()
     const handleClick = (e): void => {
@@ -61,7 +61,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                 {dialogOpen && (
                     <Dialog>
                         <HeaderContainer>
-                            <Header3>Delete Project</Header3>
+                            <Header3>Delete Area</Header3>
                             <CloseButton>
                                 <Button
                                     type="subtle"
@@ -73,7 +73,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                             </CloseButton>
                         </HeaderContainer>
                         <BodyContainer>
-                            <Paragraph>Are you sure you want to delete this project?</Paragraph>
+                            <Paragraph>Are you sure you want to delete this area?</Paragraph>
                         </BodyContainer>
                         <ActionContainer>
                             <Button
@@ -108,4 +108,4 @@ const mapStateToProps = (state): StateProps => ({
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({})
 
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteProjectDialog)
+export default connect(mapStateToProps, mapDispatchToProps)(DeleteAreaDialog)
