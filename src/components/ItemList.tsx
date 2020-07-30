@@ -81,7 +81,9 @@ const getItem = (
                         shouldIndent={false}
                         hideIcons={hideIcons}
                     />
+
                     {item.children?.map((c) => {
+                        // We need to check if the child exists in the original input list
                         const childItem = items.items[c]
                         const childItemExistsInInput = inputItems.find((i) => i.id == c)
                         if (!childItemExistsInInput) return
@@ -113,7 +115,10 @@ const getItem = (
                         shouldIndent={false}
                     />
                     {item.children?.map((c) => {
+                        // We need to check if the child exists in the original input list
                         const childItem = items.items[c]
+                        const childItemExistsInInput = inputItems.find((i) => i.id == c)
+                        if (!childItemExistsInInput) return
                         return (
                             <Item
                                 key={c}
