@@ -25,18 +25,17 @@ import { parseISO } from 'date-fns'
 
 interface StateProps {
     theme: string
+    projects: Projects
 }
 
 interface DispatchProps {
     deleteArea: (id: Uuid | '0') => void
     updateDescription: (id: Uuid | '0', input: string) => void
     updateName: (id: Uuid | '0', input: string) => void
-    toggleDeleteAreaDialog: () => void
 }
 
 interface OwnProps {
     area: AreaType
-    projects: Projects
 }
 
 type AreaProps = DispatchProps & OwnProps & StateProps
@@ -72,7 +71,7 @@ const Area = (props: AreaProps): ReactElement => {
                 </HeaderContainer>
 
                 <EditableText
-                    placeholder="Add a description for your Area..."
+                    placeholder="Add a description for your area..."
                     shouldSubmitOnBlur={true}
                     key={props.area.id + 'description'}
                     onUpdate={(input) => {
@@ -95,7 +94,7 @@ const Area = (props: AreaProps): ReactElement => {
                         >
                             <Donut
                                 style={{ gridArea: 'donut' }}
-                                size={30}
+                                size={24}
                                 progress={40}
                                 activeColour={themes[props.theme].colours.primaryColour}
                                 inactiveColour={darken(
@@ -132,9 +131,6 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     deleteArea: (id: Uuid) => {
         dispatch(deleteArea(id))
-    },
-    toggleDeleteAreaDialog: () => {
-        dispatch(toggleDeleteAreaDialog())
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Area)

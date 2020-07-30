@@ -33,7 +33,7 @@ export const ProjectContainer = styled.div`
     font-size: ${(props) => props.theme.fontSizes.regular};
     display: grid;
     margin: 1px 0px;
-    grid-template-columns: 40px minmax(120px, 200px) auto;
+    grid-template-columns: 30px min(160px) minmax(auto, 100%);
     grid-auto-rows: auto auto;
     grid-template-areas:
         'donut name description'
