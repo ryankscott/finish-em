@@ -9,6 +9,7 @@ import EditableText from './EditableText'
 import { Uuid } from '@typed/uuid'
 import { AreaType } from '../interfaces'
 import { AreaContainer, HeaderContainer } from './styled/Area'
+import DeleteAreaDialog from './DeleteAreaDialog'
 
 interface StateProps {
     theme: string
@@ -54,10 +55,11 @@ const Area = (props: AreaProps): ReactElement => {
                         }}
                         shouldClearOnSubmit={false}
                     />
-                    {/* <DeleteAreaDialog onDelete={() => deleteArea()} /> */}
+                    <DeleteAreaDialog onDelete={() => deleteArea()} />
                 </HeaderContainer>
 
                 <EditableText
+                    placeholder="Add a description for your Area..."
                     shouldSubmitOnBlur={true}
                     key={props.area.id + 'description'}
                     onUpdate={(input) => {
@@ -85,8 +87,6 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     deleteArea: (id: Uuid) => {
         dispatch(deleteArea(id))
-        dispatch(deleteView(id))
-        dispatch(hideDeleteAreaDialog())
     },
     toggleDeleteAreaDialog: () => {
         dispatch(toggleDeleteAreaDialog())
