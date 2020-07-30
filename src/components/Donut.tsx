@@ -36,6 +36,7 @@ export const Donut = (props: DonutProps): React.ReactElement => {
                 strokeWidth={3}
                 strokeDasharray={`${props.progress} ${100 - props.progress}`}
                 strokeDashoffset="50"
+                style={{ transition: 'all 0.2s ease-in-out' }}
             ></circle>
         </svg>
     )
