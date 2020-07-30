@@ -86,6 +86,7 @@ export const setEndOfContenteditable = (contentEditableElement): void => {
 }
 
 export const formatRelativeDate = (date: Date): string => {
+    if (!date) return ''
     if (isToday(date)) {
         return 'Today'
     } else if (isTomorrow(date)) {
@@ -95,7 +96,7 @@ export const formatRelativeDate = (date: Date): string => {
     } else if (differenceInDays(date, new Date()) < 7 && isAfter(date, new Date())) {
         return format(date, 'EEEE')
     } else {
-        return format(date, 'd/M/yyyy')
+        return format(date, 'do MMM y')
     }
 }
 

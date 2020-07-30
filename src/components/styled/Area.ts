@@ -33,7 +33,7 @@ export const ProjectContainer = styled.div`
     font-size: ${(props) => props.theme.fontSizes.regular};
     display: grid;
     margin: 1px 0px;
-    grid-template-columns: 40px min(120px) auto;
+    grid-template-columns: 40px minmax(120px, 200px) auto;
     grid-auto-rows: auto auto;
     grid-template-areas:
         'donut name description'
@@ -75,9 +75,11 @@ export const ProjectDescription = styled.div`
 `
 export const ProjectStartAt = styled.div`
     grid-area: startAt;
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
     color: ${(props) => props.theme.colours.disabledTextColour};
 `
 export const ProjectEndAt = styled.div`
     grid-area: endAt;
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
     color: ${(props) => props.theme.colours.disabledTextColour};
 `

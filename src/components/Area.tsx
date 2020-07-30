@@ -20,6 +20,8 @@ import {
     ProjectStartAt,
 } from './styled/Area'
 import DeleteAreaDialog from './DeleteAreaDialog'
+import { formatRelativeDate } from '../utils'
+import { parseISO } from 'date-fns'
 
 interface StateProps {
     theme: string
@@ -103,8 +105,13 @@ const Area = (props: AreaProps): ReactElement => {
                             />
                             <ProjectName>{a.name}</ProjectName>
                             <ProjectDescription>{a.description}</ProjectDescription>
-                            <ProjectStartAt>{a.startAt}</ProjectStartAt>
-                            <ProjectEndAt>{a.endAt}</ProjectEndAt>
+                            <ProjectStartAt>
+                                {a.startAt &&
+                                    `Starting: ${formatRelativeDate(parseISO(a.startAt))}`}
+                            </ProjectStartAt>
+                            <ProjectEndAt>
+                                {a.endAt && `Ending: ${formatRelativeDate(parseISO(a.endAt))}`}
+                            </ProjectEndAt>
                         </ProjectContainer>
                     ))}
             </AreaContainer>
