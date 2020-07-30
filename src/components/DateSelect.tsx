@@ -62,7 +62,7 @@ function DateSelect(props: DateSelectProps): ReactElement {
                 setDayPickerVisible(true)
                 return
             }
-            props.onSubmit(newValue.value())
+            props.onSubmit(newValue.value ? newValue.value() : null)
         }
         return
     }
