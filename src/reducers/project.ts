@@ -1,4 +1,5 @@
 import * as project from '../actions/project'
+import { DELETE_AREA } from '../actions/area'
 import { Projects } from '../interfaces'
 import produce from 'immer'
 
@@ -88,6 +89,11 @@ export const projectReducer = produce(
                 p.areaId = action.areaId
                 p.lastUpdatedAt = new Date().toISOString()
                 break
+
+            case DELETE_AREA:
+                Object.values(draftState.projects).map((p) => {
+                    if (p.areaId == action.id) p.areaId = '0'
+                })
 
             default:
                 return draftState

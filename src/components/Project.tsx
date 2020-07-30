@@ -129,6 +129,7 @@ const Project = (props: ProjectProps): ReactElement => {
                     </div>
                 )}
                 <EditableText
+                    placeholder="Add a description for your project..."
                     shouldSubmitOnBlur={true}
                     key={props.project.id + 'description'}
                     onUpdate={(input) => {

@@ -29,7 +29,7 @@ export const SectionHeader = styled.div<SectionHeaderProps>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: ${(props) => (props.visible ? 'flex-start' : 'center')};
     margin: 5px 5px;
     padding: ${(props) => (props.visible ? '20px 5px 5px 5px' : '5px')};
 `

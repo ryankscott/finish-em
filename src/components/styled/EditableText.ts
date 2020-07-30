@@ -10,9 +10,11 @@ interface ContainerProps {
     valid: boolean
     backgroundColour: CSS.Color
     fontSize: fontSizeType
+    shouldShowBorderWhenReadOnly: boolean
 }
 
 export const Container = styled.div<ContainerProps>`
+    position: relative;
     box-sizing: border-box;
     overflow: hidden;
     overflow-y: scroll;
@@ -23,16 +25,15 @@ export const Container = styled.div<ContainerProps>`
     padding: 5px 5px;
     padding-left: 10px;
     border-radius: 5px;
-    border: 1px solid;
+    border: ${(props) =>
+        props.editing ? '1px solid' : props.shouldShowBorderWhenReadOnly ? '1px solid' : 'none'};
     font-size: ${(props) => (props.fontSize ? props.theme.fontSizes[props.fontSize] : 'auto')};
     border-color: ${(props) =>
         props.backgroundColour
             ? darken(0.1, props.backgroundColour)
-            : props.editing
+            : props.backgroundColour
             ? props.backgroundColour
-                ? props.backgroundColour
-                : props.theme.colours.borderColour
-            : 'transparent'};
+            : props.theme.colours.borderColour}
     cursor: ${(props) => (props.readOnly ? 'default' : 'text')};
     color: ${(props) =>
         props.valid
@@ -83,4 +84,16 @@ export const Container = styled.div<ContainerProps>`
         border: 1px solid;
         border-color: ${(props) => props.theme.colours.errorColour};
     }
+`
+
+interface ContainerProps {
+    backgroundColour: CSS.Color
+}
+
+export const Placeholder = styled.div`
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    color: ${(props) => props.theme.colours.disabledTextColour};
 `

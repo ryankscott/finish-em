@@ -49,6 +49,7 @@ export const StyledLink = styled(({ sidebarVisible, ...rest }: StyledLinkProps) 
     display: flex;
     box-sizing: border-box;
     justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
+    align-items: center;
     font-size: ${(props) =>
         props.sidebarVisible ? props.theme.fontSizes.xsmall : props.theme.fontSizes.regular};
     font-weight: ${(props) => props.theme.fontWeights.regular};
@@ -83,6 +84,7 @@ interface AreaLinkProps {
 }
 export const AreaLink = styled(StyledLink)<AreaLinkProps>`
     width: 100%;
+    font-size: ${(props) => props.theme.fontSizes.small};
 `
 
 interface StateProps {
@@ -306,6 +308,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 onClick={() => {
                                     const areaId = uuidv4()
                                     props.createArea(areaId, 'New Area', '')
+                                    history.push(`/areas/${areaId}`)
                                 }}
                             />
                         </AddAreaContainer>

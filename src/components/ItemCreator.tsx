@@ -58,7 +58,10 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     const handleClick = (e): null => {
         if (node.current.contains(e.target)) {
             return
+        } else {
+            setShowItemCreator(false)
         }
+
         if (props.shouldCloseOnBlur) {
             setShowItemCreator(false)
         }
@@ -86,8 +89,8 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         type="primary"
                         spacing="compact"
                         icon="add"
-                        height={props.buttonText ? 'auto' : '26px'}
-                        width={props.buttonText ? 'auto' : '26px'}
+                        height={props.buttonText ? 'auto' : '24px'}
+                        width={props.buttonText ? 'auto' : '24px'}
                         text={showItemCreator ? '' : props.buttonText}
                         onClick={() => {
                             setShowItemCreator(!showItemCreator)
@@ -107,6 +110,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     <EditableText
                         backgroundColour={props.backgroundColour}
                         innerRef={textRef}
+                        placeholder="Add a new task..."
                         validation={(input) => {
                             let currentVal = input
                             // Check for prefix with TODO or NOTE
@@ -206,24 +210,28 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         onEscape={props.onEscape}
                     />
 
-                    <HelpButtonContainer
-                        data-for={'help-icon' + props.parentId + props.projectId + props.type}
-                        data-tip
-                        data-html={true}
-                    >
-                        {Icons.help(
-                            18,
-                            18,
-                            props.backgroundColour
-                                ? lighten(0.2, props.backgroundColour)
-                                : themes[props.theme].colours.disabledTextColour,
-                        )}
-                    </HelpButtonContainer>
-                    <Tooltip
-                        id={'help-icon' + props.parentId + props.projectId + props.type}
-                        multiline={true}
-                        html={true}
-                        text={`To add an item first start with the type of item you want  <br>
+                    {showItemCreator && (
+                        <>
+                            <HelpButtonContainer
+                                data-for={
+                                    'help-icon' + props.parentId + props.projectId + props.type
+                                }
+                                data-tip
+                                data-html={true}
+                            >
+                                {Icons.help(
+                                    18,
+                                    18,
+                                    props.backgroundColour
+                                        ? lighten(0.2, props.backgroundColour)
+                                        : themes[props.theme].colours.disabledTextColour,
+                                )}
+                            </HelpButtonContainer>
+                            <Tooltip
+                                id={'help-icon' + props.parentId + props.projectId + props.type}
+                                multiline={true}
+                                html={true}
+                                text={`To add an item first start with the type of item you want  <br>
                         <ul>
                         <li> <code>TODO</code> for todos </li>
                         <li> <code>NOTE</code> for notes </li> 
@@ -236,7 +244,9 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         </ul>
                          Note that multi word inputs need to be surrounded in quotation marks ""
                          `}
-                    ></Tooltip>
+                            ></Tooltip>
+                        </>
+                    )}
                 </ItemCreatorContainer>
             </Container>
         </ThemeProvider>
