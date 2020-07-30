@@ -1,4 +1,4 @@
-import * as area from '../actions/areas'
+import * as area from '../actions/area'
 import { Areas } from '../interfaces'
 import produce from 'immer'
 

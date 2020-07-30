@@ -11,9 +11,9 @@ import Inbox from './Inbox'
 import Project from './Project'
 import View from './View'
 import Help from './Help'
+import Area from './Area'
 import { themes, GlobalStyle } from '../theme'
 import { app as appKeymap } from '../keymap'
-)
 import {
     showSidebar,
     hideSidebar,
@@ -46,15 +46,6 @@ if (isElectron()) {
 
 const MIN_WIDTH_FOR_SIDEBAR = 700
 
-interface ProjectWrapperProps {
-    projects: Projects
-}
-const ProjectWrapper = (props: ProjectWrapperProps): ReactElement => {
-    const { id } = useParams()
-    const project = props.projects.projects[id]
-    return <Project project={project} />
-}
-
 interface StateProps {
     sidebarVisible: boolean
     focusbarVisible: boolean
@@ -62,6 +53,7 @@ interface StateProps {
     projects: Projects
     items: Items
     views: Views
+    areas: Areas
 }
 interface DispatchProps {
     showSidebar: () => void
@@ -78,12 +70,27 @@ const App = (props: AppProps): ReactElement => {
     const history = useHistory()
     const searchRef = React.useRef<HTMLSelectElement>()
 
+    const ProjectWrapper = (): ReactElement => {
+        const { id } = useParams()
+        const project = props.projects.projects[id]
+        return <Project project={project} />
+    }
+    const ViewWrapper = (): ReactElement => {
+        const { id } = useParams()
+        const view = props.views.views[id]
+        return <View view={view} />
+    }
+    const AreaWrapper = (): ReactElement => {
+        const { id } = useParams()
+        const area = props.areas.areas[id]
+        return <Area area={area} />
+    }
     useEffect(() => {
         window.addEventListener('resize', () => {
             if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && props.sidebarVisible == true) {
                 props.hideSidebar()
             }
-        })  
+        })
         if (isElectron()) {
             electron.ipcRenderer.on('create-task', (event, arg) => {
                 console.log('create task in renderer')
@@ -237,23 +244,20 @@ const App = (props: AppProps): ReactElement => {
                             <Inbox />
                         </Route>
 
-                        {Object.values(props.views.order).map((v) => {
-                            const view = props.views.views[v]
-                            if (view.type == 'default') return
-                            return (
-                                <Route key={view.id} path={`/${view.name}`}>
-                                    <View key={view.id} id={view.id} />
-                                </Route>
-                            )
-                        })}
+                        <Route path="/views/:id">
+                            <ViewWrapper />
+                        </Route>
 
+                        <Route path="/areas/:id">
+                            <AreaWrapper />
+                        </Route>
+
+                        <Route path="/projects/:id">
+                            <ProjectWrapper />
+                        </Route>
                         <Route path="/Settings">
                             <Settings />
                         </Route>
-                        <Route path="/projects/:id">
-                            <ProjectWrapper projects={props.projects} />
-                        </Route>
-
                         <Route path="/">
                             <Inbox />
                         </Route>
@@ -282,6 +286,7 @@ const App = (props: AppProps): ReactElement => {
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     items: state.items,
+    areas: state.areas,
     sidebarVisible: state.ui.sidebarVisible,
     focusbarVisible: state.ui.focusbarVisible,
     theme: state.ui.theme,

@@ -14,15 +14,16 @@ import {
     HeaderContainer,
 } from './styled/DeleteProjectDialog'
 
+interface OwnProps {
+    onDelete: () => void
+}
 interface StateProps {
     theme: string
 }
 
-interface DispatchProps {
-    onDelete: () => void
-}
+interface DispatchProps {}
 
-type DeleteProjectDialogProps = StateProps & DispatchProps
+type DeleteProjectDialogProps = StateProps & DispatchProps & OwnProps
 
 const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
     const [dialogOpen, setDialogOpen] = useState(false)

@@ -69,8 +69,12 @@ const Project = (props: ProjectProps): ReactElement => {
                 <HeaderContainer>
                     <div data-for="donut" data-tip>
                         <Donut
-                            size={50}
-                            progress={(100 * completedItems.length) / allItems.length}
+                            size={40}
+                            progress={
+                                allItems.length != 0
+                                    ? (100 * completedItems.length) / allItems.length
+                                    : 0
+                            }
                             activeColour={themes[props.theme].colours.primaryColour}
                             inactiveColour={darken(
                                 0.2,
@@ -126,7 +130,6 @@ const Project = (props: ProjectProps): ReactElement => {
                 )}
                 <EditableText
                     shouldSubmitOnBlur={true}
-                    validation={false}
                     key={props.project.id + 'description'}
                     onUpdate={(input) => {
                         props.updateDescription(props.project.id, input)

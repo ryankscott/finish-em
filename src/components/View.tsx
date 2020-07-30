@@ -5,9 +5,10 @@ import { themes } from '../theme'
 import { connect } from 'react-redux'
 import ReorderableComponentList from './ReorderableComponentList'
 import { Container } from './styled/View'
+import { ViewType } from '../interfaces'
 
 interface OwnProps {
-    id: string
+    view: ViewType
 }
 interface DispatchProps {}
 
@@ -19,7 +20,7 @@ const View = (props: ViewProps): ReactElement => {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container>
-                <ReorderableComponentList id={props.id} />
+                <ReorderableComponentList id={props.view.id} />
             </Container>
         </ThemeProvider>
     )

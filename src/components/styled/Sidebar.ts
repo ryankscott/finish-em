@@ -50,13 +50,6 @@ export const HeaderName = styled(Header)`
     margin: 2px;
 `
 
-export const AreaName = styled(Header1)`
-    color: ${(props) => props.theme.colours.altTextColour};
-    margin: 0px;
-    padding: 5px 0px;
-    padding-left: 15px;
-`
-
 interface FooterProps {
     visible: boolean
 }

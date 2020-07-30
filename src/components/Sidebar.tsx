@@ -14,7 +14,6 @@ import {
 } from '../actions'
 import { Projects, Views, ItemIcons, Areas } from '../interfaces'
 import {
-    AreaName,
     HeaderName,
     Container,
     SectionHeader,
@@ -38,7 +37,7 @@ import uuidv4 from 'uuid/v4'
 
 import { Icons } from '../assets/icons'
 
-import { createArea } from '../actions/areas'
+import { createArea } from '../actions/area'
 
 interface StyledLinkProps extends NavLinkProps {
     sidebarVisible: boolean
@@ -78,6 +77,12 @@ interface ProjectLinkProps {
 export const ProjectLink = styled(StyledLink)<ProjectLinkProps>`
     width: 100%;
     padding-left: ${(props) => (props.sidebarVisible ? '25px' : '15px')};
+`
+interface AreaLinkProps {
+    sidebarVisible: boolean
+}
+export const AreaLink = styled(StyledLink)<AreaLinkProps>`
+    width: 100%;
 `
 
 interface StateProps {
@@ -156,7 +161,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 <StyledLink
                                     sidebarVisible={props.sidebarVisible}
                                     key={view.id}
-                                    to={`/${view.name}`}
+                                    to={`/views/${view.id}`}
                                     activeStyle={{
                                         backgroundColor:
                                             theme.colours.focusAltDialogBackgroundColour,
@@ -192,7 +197,17 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 <div key={a}>
                                     {props.sidebarVisible && (
                                         <SubsectionHeader visible={props.sidebarVisible}>
-                                            <AreaName key={index}>{area.name}</AreaName>
+                                            <AreaLink
+                                                sidebarVisible={props.sidebarVisible}
+                                                to={`/areas/${area.id}`}
+                                                activeStyle={{
+                                                    backgroundColor:
+                                                        theme.colours
+                                                            .focusAltDialogBackgroundColour,
+                                                }}
+                                            >
+                                                {area.name}
+                                            </AreaLink>
                                             <Button
                                                 type="subtle"
                                                 icon="add"
