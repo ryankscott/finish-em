@@ -22,6 +22,7 @@ import {
 import DeleteAreaDialog from './DeleteAreaDialog'
 import { formatRelativeDate } from '../utils'
 import { parseISO } from 'date-fns'
+import marked from 'marked'
 
 interface StateProps {
     theme: string
@@ -92,7 +93,7 @@ const Area = (props: AreaProps): ReactElement => {
                                 history.push(`/projects/${a.id}`)
                             }}
                         >
-                            <Donut
+                            {/* <Donut
                                 style={{ gridArea: 'donut' }}
                                 size={24}
                                 progress={40}
@@ -101,9 +102,13 @@ const Area = (props: AreaProps): ReactElement => {
                                     0.2,
                                     themes[props.theme].colours.backgroundColour,
                                 )}
-                            />
+                            /> */}
                             <ProjectName>{a.name}</ProjectName>
-                            <ProjectDescription>{a.description}</ProjectDescription>
+                            <ProjectDescription
+                                dangerouslySetInnerHTML={{
+                                    __html: marked(a.description, { breaks: true }),
+                                }}
+                            />
                             <ProjectStartAt>
                                 {a.startAt &&
                                     `Starting: ${formatRelativeDate(parseISO(a.startAt))}`}

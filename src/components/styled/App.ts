@@ -5,7 +5,7 @@ import { darken } from 'polished'
 
 export const Container = styled.div`
     display: grid;
-    grid-template-columns: minmax(50px, 250px) auto max(350px);
+    grid-template-columns: minmax(50px, 250px) minmax(700px, auto) max(350px);
     grid-template-rows: 50px auto;
     grid-template-areas:
         'header header header'

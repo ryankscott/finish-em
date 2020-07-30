@@ -33,8 +33,8 @@ export const ProjectContainer = styled.div`
     font-size: ${(props) => props.theme.fontSizes.regular};
     display: grid;
     margin: 1px 0px;
-    grid-template-columns: 30px min(160px) minmax(auto, 100%);
-    grid-auto-rows: auto auto;
+    grid-template-columns: 30px minmax(auto, 180px) auto;
+    grid-auto-rows: minmax(20px, auto) minmax(20px, auto);
     grid-template-areas:
         'donut name description'
         'donut startAt endAt';
@@ -47,6 +47,9 @@ export const ProjectContainer = styled.div`
         background-color: ${(props) => props.theme.colours.focusBackgroundColour};
     }
     :active {
+        background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+    }
+    :hover {
         background-color: ${(props) => props.theme.colours.focusBackgroundColour};
     }
 
@@ -65,9 +68,12 @@ export const ProjectContainer = styled.div`
 `
 
 export const ProjectName = styled.div`
+    display: flex;
+    justify-content: flex-start;
     grid-area: name;
     color: ${(props) => props.theme.colours.textColour};
     font-weight: ${(props) => props.theme.fontWeights.bold};
+    font-size: ${(props) => props.theme.fontSizes.small};
 `
 export const ProjectDescription = styled.div`
     grid-area: description;

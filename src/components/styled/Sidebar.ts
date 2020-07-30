@@ -122,7 +122,7 @@ export const DroppableListStyle = (isDraggingOver: boolean, theme): CSS.Properti
     flexDirection: 'column',
     justifyContent: 'center',
     background: isDraggingOver ? lighten(0.1, theme.colours.altBackgroundColour) : 'inherit',
-    padding: isDraggingOver ? '10px 0px' : '5px 0px',
+    padding: isDraggingOver ? '10px 5px' : '5px 5px',
     paddingBottom: isDraggingOver ? '45px' : '5px',
     borderRadius: '5px',
 })
