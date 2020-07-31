@@ -28,7 +28,6 @@ import RRule from 'rrule'
 export interface CreateItemAction {
     type: typeof CREATE_ITEM
     id: Uuid
-    itemType: 'TODO' | 'NOTE'
     text: string
     projectId?: Uuid | '0'
     parentId?: Uuid
@@ -50,7 +49,6 @@ export function createItem(
         type: CREATE_ITEM,
         id: id,
         text: text,
-        itemType: itemType,
         projectId: projectId,
         parentId: parentId,
     }

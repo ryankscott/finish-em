@@ -5,7 +5,7 @@ import { darken } from 'polished'
 
 export const Container = styled.div`
     display: grid;
-    grid-template-columns: minmax(50px, 250px) minmax(700px, auto) max(350px);
+    grid-template-columns: minmax(50px, 250px) auto minmax(0px, 350px);
     grid-template-rows: 50px auto;
     grid-template-areas:
         'header header header'
@@ -29,7 +29,6 @@ export const SidebarContainer = styled.div<SidebarContainerProps>`
     grid-area: sidebar;
     display: flex;
     width: ${(props) => (props.visible ? '250px' : '50px')};
-    min-width: ${(props) => (props.visible ? '250px' : '50px')};
     flex-direction: column;
     transition: all 0.2s ease-in-out;
     overflow-y: scroll;
@@ -61,8 +60,7 @@ export const FocusContainer = styled.div<FocusContainerProps>`
     display: flex;
     flex-direction: column;
     padding: ${(props) => (props.visible ? '5px 10px' : '0px')};
-    width: ${(props) => (props.visible ? 'auto' : '0px')};
-    min-width: ${(props) => (props.visible ? '200px' : '0px')};
+    width: ${(props) => (props.visible ? '100%' : '0px')};
     transition: all 0.2s ease-in-out;
     align-items: center;
     border: ${(props) => (props.visible ? '1px solid' : 'none')};

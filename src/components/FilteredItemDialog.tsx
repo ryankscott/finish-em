@@ -130,7 +130,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                     <SettingValue>
                         <EditableText
                             innerRef={nameRef}
-                            width={"300px"}
                             key={'ed-name'}
                             input={props.listName}
                             fontSize={'xsmall'}
@@ -178,7 +177,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
 
                                 return true
                             }}
-                            singleline={true}
+                            singleline={false}
                             shouldClearOnSubmit={false}
                             onUpdate={(input) => {
                                 props.setFilteredItemListFilter(props.componentId, input)
@@ -189,7 +188,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
 
                 <Setting>
                     <SettingLabel>Filterable:</SettingLabel>
-                    <SettingValue style={{ paddingLeft: '20px' }}>
+                    <SettingValue style={{paddingTop: '7px'}}>
                         <Switch
                             checked={props.isFilterable}
                             onChange={(input) =>
@@ -205,7 +204,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 </Setting>
                 <Setting>
                     <SettingLabel>Show subtasks:</SettingLabel>
-                    <SettingValue style={{ paddingLeft: '20px' }}>
+                    <SettingValue style={{paddingTop: '7px'}}>
                         <Switch
                             checked={props.showSubtasks}
                             onChange={(input) => {
@@ -254,7 +253,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                                 toast.error(
                                     <div
                                         style={{
-                                            padding: '10px 5px',
+                                            padding: '7px 5px',
                                             color: '#FFFFFF',
                                             fontFamily: "'SFMono-Regular',Consolas, monospace",
                                         }}

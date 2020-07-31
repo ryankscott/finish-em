@@ -10,7 +10,7 @@ export const DialogContainer = styled.div`
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
     border-radius: 5px;
-    min-width: 360px;
+    width: 360px;
     padding: 5px 5px;
     z-index: 2;
     top: 45px;
@@ -35,22 +35,24 @@ export const Setting = styled.div`
     position: relative;
     flex-direction: row;
     justify-content: flex-start;
-    padding: 2px 10px;
+    padding: 5px 10px;
     width: 100%;
-    min-height: 30px;
+    min-height: 35px;
     align-items: bottom;
 `
 export const SettingLabel = styled.div`
     display: flex;
-    align-self: center;
+    align-self: flex-start;
     color: ${(props) => props.theme.colours.textColour};
     font-size: ${(props) => props.theme.fontSizes.xsmall};
-    width: 140px;
+    padding: 7px 5px;
+    width: 110px;
+    min-width: 110px;
 `
 export const SettingValue = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     padding: 2px 5px;
     width: 100%;
     min-height: 30px;
@@ -58,9 +60,7 @@ export const SettingValue = styled.div`
 `
 
 export const SelectContainer = styled.div`
-    position: absolute;
-    left: 120px;
-    top: 0px;
+    position: relative;
 `
 export const SaveContainer = styled.div`
     padding: 10px 10px;

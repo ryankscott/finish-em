@@ -17,7 +17,7 @@ export const Header = styled.h2`
     margin: 10px 0px;
 `
 
-export const Code = styled.code`
+export const Code = styled.div`
     font-size: ${(props) => props.theme.fontSizes.xxsmall};
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
     color: ${(props) => props.theme.colours.textColour};

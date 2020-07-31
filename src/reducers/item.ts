@@ -6,6 +6,7 @@ import { rrulestr } from 'rrule'
 import uuidv4 from 'uuid/v4'
 import { ItemActions } from '../actions'
 import produce from 'immer'
+import { getItemTypeFromString, dueTextRegex } from '../utils'
 
 const uuid = uuidv4()
 export const initialState: Items = {
@@ -18,9 +19,14 @@ export const itemReducer = produce(
         const i = draftState?.items[action.id]
         switch (action.type) {
             case item.CREATE_ITEM:
+                const itemType = getItemTypeFromString(action.text)
+                const dueDateText = action.text.match(dueTextRegex)
+                const dd = dueDateText ? dueDateText[0].split(':')[1] : ''
+                const dueDate = chrono.parse(action.text)
+
                 draftState.items[action.id.toString()] = {
                     id: action.id,
-                    type: action.itemType,
+                    type: itemType,
                     text: action.text,
                     scheduledDate: null,
                     dueDate: null,
