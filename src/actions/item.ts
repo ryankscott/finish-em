@@ -1,6 +1,5 @@
 import { Uuid } from '@typed/uuid'
 import { toast } from 'react-toastify'
-import chrono from 'chrono-node'
 
 export const CREATE_ITEM = 'CREATE_ITEM'
 export const DELETE_ITEM = 'DELETE_ITEM'
@@ -39,12 +38,6 @@ export function createItem(
     projectId?: Uuid | '0',
     parentId?: Uuid,
 ): CreateItemAction {
-    const itemType = getItemTypeFromString(text)
-
-    const dueDateText = text.match(dueTextRegex)
-    const dd = dueDateText ? dueDateText[0].split(':')[1] : ''
-    const dueDate = chrono.parse(text)
-
     return {
         type: CREATE_ITEM,
         id: id,

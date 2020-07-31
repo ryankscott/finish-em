@@ -21,7 +21,7 @@ describe('ItemActions', () => {
         expect(item.undeleteItem(id)).toEqual(expectedAction)
     })
 
-    it("should create an action update an item's decription", () => {
+    it("should create an action update an item's description", () => {
         const id = uuidv4()
         const text = 'add tests'
         const expectedAction: item.UpdateItemDescriptionAction = {
@@ -32,7 +32,7 @@ describe('ItemActions', () => {
         expect(item.updateItemDescription(id, text)).toEqual(expectedAction)
     })
 
-    it('should create an action to create a TODO item when prefixed with TODO', () => {
+    it('should create an action to create an item ', () => {
         const id = uuidv4()
         const text = 'TODO add tests'
         const projectId = uuidv4()
@@ -40,35 +40,6 @@ describe('ItemActions', () => {
             type: item.CREATE_ITEM,
             id: id,
             text: text,
-            itemType: 'TODO',
-            projectId: projectId,
-        }
-        expect(item.createItem(id, text, projectId)).toEqual(expectedAction)
-    })
-
-    it('should create an action to create a NOTE item when prefixed with NOTE', () => {
-        const id = uuidv4()
-        const text = 'NOTE add tests'
-        const projectId = uuidv4()
-        const expectedAction: item.CreateItemAction = {
-            type: item.CREATE_ITEM,
-            id: id,
-            text: text,
-            itemType: 'NOTE',
-            projectId: projectId,
-        }
-        expect(item.createItem(id, text, projectId)).toEqual(expectedAction)
-    })
-
-    it("should create an action to create a TODO item if the prefix isn't NOTE or TODO", () => {
-        const id = uuidv4()
-        const text = 'CAT add tests'
-        const projectId = uuidv4()
-        const expectedAction: item.CreateItemAction = {
-            type: item.CREATE_ITEM,
-            id: id,
-            text: text,
-            itemType: 'TODO',
             projectId: projectId,
         }
         expect(item.createItem(id, text, projectId)).toEqual(expectedAction)

@@ -7,6 +7,7 @@ import uuidv4 from 'uuid/v4'
 import { ItemActions } from '../actions'
 import produce from 'immer'
 import { getItemTypeFromString, dueTextRegex } from '../utils'
+import chrono from 'chrono-node'
 
 const uuid = uuidv4()
 export const initialState: Items = {
