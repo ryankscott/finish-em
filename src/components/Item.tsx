@@ -3,7 +3,6 @@ import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { connect } from 'react-redux'
 import { RRule } from 'rrule'
-import { Uuid } from '@typed/uuid'
 import { ItemType, Projects, Label, ItemIcons } from '../interfaces'
 import {
     Body,
@@ -48,15 +47,15 @@ import Tooltip from './Tooltip'
 import LabelDialog from './LabelDialog'
 
 interface DispatchProps {
-    updateItemDescription: (id: Uuid, text: string) => void
-    completeItem: (id: Uuid) => void
-    uncompleteItem: (id: Uuid) => void
-    deleteItem: (id: Uuid) => void
-    undeleteItem: (id: Uuid) => void
-    setActiveItem: (id: Uuid) => void
+    updateItemDescription: (id: string, text: string) => void
+    completeItem: (id: string) => void
+    uncompleteItem: (id: string) => void
+    deleteItem: (id: string) => void
+    undeleteItem: (id: string) => void
+    setActiveItem: (id: string) => void
     showFocusbar: () => void
-    toggleSubtasks: (id: Uuid, componentId: Uuid) => void
-    deletePermanently: (id: Uuid) => void
+    toggleSubtasks: (id: string, componentId: string) => void
+    deletePermanently: (id: string) => void
 }
 interface StateProps {
     projects: Projects
@@ -67,7 +66,7 @@ interface StateProps {
 }
 
 interface OwnProps extends ItemType {
-    componentId: Uuid
+    componentId: string
     hideIcons: ItemIcons[]
     shouldIndent: boolean
     alwaysVisible?: boolean
@@ -120,10 +119,14 @@ function Item(props: ItemProps): ReactElement {
 
     const handleIconClick = (e): void => {
         e.stopPropagation()
+        if (props.deleted) {
+            props.undeleteItem(props.id)
+            return
+        }
         if (props.type == 'TODO') {
             props.completed ? props.uncompleteItem(props.id) : props.completeItem(props.id)
+            return
         }
-        return
     }
 
     const handleExpand = (e): void => {
@@ -182,11 +185,11 @@ function Item(props: ItemProps): ReactElement {
         <ThemeProvider theme={themes[props.theme]}>
             <Container
                 id={props.id}
-                onMouseEnter={(e) => {
+                onMouseEnter={() => {
                     clearTimeout(interval)
                     setMoreButtonVisible(true)
                 }}
-                onMouseLeave={(e) => {
+                onMouseLeave={() => {
                     interval = setTimeout(() => setMoreButtonVisible(false), 1000)
                 }}
                 onClick={() => {
@@ -214,17 +217,33 @@ function Item(props: ItemProps): ReactElement {
                 )}
                 <TypeContainer>
                     <Button
+                        dataFor={`type-button-${props.id}`}
                         type="subtle"
                         spacing="compact"
                         onClick={handleIconClick}
                         icon={
-                            props.type == 'NOTE'
+                            props.deleted
+                                ? 'restore'
+                                : props.type == 'NOTE'
                                 ? 'note'
                                 : props.completed
                                 ? 'todoChecked'
                                 : 'todoUnchecked'
                         }
+                        iconSize={'16px'}
                     />
+                    {props.type == 'TODO' && (
+                        <Tooltip
+                            id={`type-button-${props.id}`}
+                            text={
+                                props.deleted
+                                    ? 'Restore'
+                                    : props.completed
+                                    ? 'Uncomplete'
+                                    : 'Complete'
+                            }
+                        />
+                    )}
                 </TypeContainer>
                 <Body id="body" completed={props.completed} deleted={props.deleted}>
                     <EditableText
@@ -323,31 +342,31 @@ const mapStateToProps = (state, props): StateProps => ({
     parentItem: getItemParentId(state, props),
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    updateItemDescription: (id: Uuid, text: string) => {
+    updateItemDescription: (id: string, text: string) => {
         dispatch(updateItemDescription(id, text))
     },
-    uncompleteItem: (id: Uuid) => {
+    uncompleteItem: (id: string) => {
         dispatch(uncompleteItem(id))
     },
-    completeItem: (id: Uuid) => {
+    completeItem: (id: string) => {
         dispatch(completeItem(id))
     },
-    undeleteItem: (id: Uuid) => {
+    undeleteItem: (id: string) => {
         dispatch(undeleteItem(id))
     },
-    deleteItem: (id: Uuid) => {
+    deleteItem: (id: string) => {
         dispatch(deleteItem(id))
     },
-    setActiveItem: (id: Uuid) => {
+    setActiveItem: (id: string) => {
         dispatch(setActiveItem(id))
     },
     showFocusbar: () => {
         dispatch(showFocusbar())
     },
-    toggleSubtasks: (id: Uuid, componentId: Uuid) => {
+    toggleSubtasks: (id: string, componentId: string) => {
         dispatch(toggleSubtasks(id, componentId))
     },
-    deletePermanently: (id: Uuid) => {
+    deletePermanently: (id: string) => {
         dispatch(deletePermanently(id))
     },
 })

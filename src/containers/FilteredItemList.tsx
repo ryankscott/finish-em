@@ -23,7 +23,6 @@ import { components } from 'react-select'
 import ReorderableItemList from '../components/ReorderableItemList'
 import { ItemIcons } from '../interfaces/item'
 import { hideSubtasks, showSubtasks, deleteComponent } from '../actions'
-import { Uuid } from '@typed/uuid'
 import { Icons } from '../assets/icons'
 import { ThemeProvider } from '../StyledComponents'
 import FilteredItemDialog from '../components/FilteredItemDialog'
@@ -123,8 +122,8 @@ interface StateProps {
 
 interface DispatchProps {
     deleteCompletedItems: (completedItems: ItemType[]) => void
-    hideAllSubtasks: (parentItems: ItemType[], componentId: Uuid) => void
-    showAllSubtasks: (parentItems: ItemType[], componentId: Uuid) => void
+    hideAllSubtasks: (parentItems: ItemType[], componentId: string) => void
+    showAllSubtasks: (parentItems: ItemType[], componentId: string) => void
     deleteComponent: (componentId: string) => void
 }
 
@@ -435,14 +434,14 @@ const mapStateToProps = (state, props): StateProps => {
     }
 }
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    hideAllSubtasks: (allItems: ItemType[], componentId: Uuid) => {
+    hideAllSubtasks: (allItems: ItemType[], componentId: string) => {
         allItems.forEach((a) => {
             if (a.children.length > 0) {
                 dispatch(hideSubtasks(a.id, componentId))
             }
         })
     },
-    showAllSubtasks: (allItems: ItemType[], componentId: Uuid) => {
+    showAllSubtasks: (allItems: ItemType[], componentId: string) => {
         allItems.forEach((a) => {
             if (a.children.length > 0) {
                 dispatch(showSubtasks(a.id, componentId))

@@ -32,11 +32,10 @@ import {
     StyledToastContainer,
     HeaderContainer,
 } from './styled/App'
-import { Projects, Views, Items } from '../interfaces'
+import { Projects, Views, Items, Areas } from '../interfaces'
 import { Slide, toast } from 'react-toastify'
 import uuidv4 from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { Uuid } from '@typed/uuid'
 
 import Headerbar from './Headerbar'
 import isElectron from 'is-electron'
@@ -61,7 +60,7 @@ interface DispatchProps {
     hideDialogs: () => void
     showCreateProjectDialog: () => void
     toggleShortcutDialog: () => void
-    createItem: (text: string, projectId: Uuid | '0') => void
+    createItem: (text: string, projectId: string | '0') => void
 }
 
 type AppProps = StateProps & DispatchProps
@@ -311,7 +310,7 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
         dispatch(hideCreateProjectDialog())
         dispatch(hideDeleteProjectDialog())
     },
-    createItem: (text: string, projectId: Uuid | '0') => {
+    createItem: (text: string, projectId: string | '0') => {
         dispatch(createItem(uuidv4(), text, projectId))
     },
 })

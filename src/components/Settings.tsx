@@ -4,7 +4,7 @@ import { themes } from '../theme'
 import Switch from 'react-switch'
 import { connect } from 'react-redux'
 import { toggleDarkMode, setLabelColour, renameLabel } from '../actions'
-import { FeatureType, LabelType } from '../interfaces'
+import { FeatureType, LabelType, Labels } from '../interfaces'
 import {
     enableDragAndDrop,
     disableDragAndDrop,
@@ -24,7 +24,6 @@ import {
 } from './styled/Settings'
 import EditableText from './EditableText'
 import { transparentize } from 'polished'
-import { Uuid } from '@typed/uuid'
 import Button from './Button'
 import ViewHeader from './ViewHeader'
 
@@ -41,8 +40,8 @@ interface DispatchProps {
     disableDragAndDrop: () => void
     toggleDragAndDrop: () => void
     toggleDarkMode: () => void
-    setLabelColour: (id: Uuid, colour: string) => void
-    renameLabel: (id: Uuid, text: string) => void
+    setLabelColour: (id: string, colour: string) => void
+    renameLabel: (id: string, text: string) => void
     toggleProjectDates: () => void
 }
 
@@ -115,7 +114,6 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                             onEscape={() => {
                                                 labelText.current.blur()
                                             }}
-                                            validation={false}
                                             singleline={true}
                                             shouldClearOnSubmit={false}
                                             onUpdate={(e) => {
@@ -193,10 +191,10 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleProjectDates: () => {
         dispatch(toggleProjectDates())
     },
-    setLabelColour: (id: Uuid, colour: string) => {
+    setLabelColour: (id: string, colour: string) => {
         dispatch(setLabelColour(id, colour))
     },
-    renameLabel: (id: Uuid, text: string) => {
+    renameLabel: (id: string, text: string) => {
         dispatch(renameLabel(id, text))
     },
 })

@@ -1,4 +1,4 @@
-export interface FeatureType {
+export type FeatureType = {
     dragAndDrop: boolean
     projectDates: boolean
 }

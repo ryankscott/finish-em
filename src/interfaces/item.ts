@@ -1,13 +1,12 @@
-import { Uuid } from '@typed/uuid'
-export interface ItemType {
-    id: Uuid
+export type ItemType = {
+    id: string
     type: 'NOTE' | 'TODO'
     text: string
     deleted: boolean
     completed: boolean
-    parentId: Uuid
-    children: Uuid[]
-    projectId: Uuid | '0'
+    parentId: string
+    children: string[]
+    projectId: string | '0'
     dueDate: string
     scheduledDate: string
     lastUpdatedAt: string
@@ -15,16 +14,16 @@ export interface ItemType {
     createdAt: string
     deletedAt: string
     repeat: string
-    labelId: Uuid | null
+    labelId: string | null
 }
 
-export interface Item {
+export type Item = {
     [key: string]: ItemType
 }
 
 export type Items = {
     items: Item
-    order: Uuid[]
+    order: string[]
 }
 export enum ItemIcons {
     Due = 'due',

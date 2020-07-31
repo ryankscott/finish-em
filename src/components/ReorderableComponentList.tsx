@@ -10,14 +10,13 @@ import Button from './Button'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import uuidv4 from 'uuid'
 import { reorderComponent, addComponent } from '../actions'
-import { Uuid } from '@typed/uuid'
 import CSS from 'csstype'
 
 interface OwnProps {
     id: string
 }
 interface DispatchProps {
-    reorderComponent: (id: Uuid, destinationId: Uuid) => void
+    reorderComponent: (id: string, destinationId: string) => void
     addComponent: (viewId: string) => void
 }
 
@@ -163,17 +162,20 @@ const mapStateToProps = (state): StateProps => ({
     components: state.ui.components,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    reorderComponent: (id: Uuid, destinationId: Uuid) => {
+    reorderComponent: (id: string, destinationId: string) => {
         dispatch(reorderComponent(id, destinationId))
     },
     addComponent: (viewId: string) => {
+        const id = uuidv4()
         dispatch(
-            addComponent(uuidv4(), viewId, 'main', {
+            addComponent(id, viewId, 'main', {
                 name: 'FilteredItemList',
                 props: {
+                    id: id,
                     listName: 'New list',
                     isFilterable: true,
                     filter: 'not (completed or deleted)',
+                    hideIcons: [],
                 },
             }),
         )

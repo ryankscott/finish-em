@@ -3,7 +3,6 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { connect } from 'react-redux'
 import { Items, ProjectType } from '../interfaces'
-import { Uuid } from '@typed/uuid'
 import EditableText from './EditableText'
 import { Header1, Paragraph, Header3 } from './Typography'
 import { removeItemTypeFromString, formatRelativeDate } from '../utils'
@@ -47,29 +46,29 @@ import LabelDropdown from './LabelDropdown'
 
 interface DispatchProps {
     closeFocusbar: () => void
-    setActiveItem: (id: Uuid) => void
-    updateItemDescription: (id: Uuid, text: string) => void
+    setActiveItem: (id: string) => void
+    updateItemDescription: (id: string, text: string) => void
     undoSetActiveItem: () => void
-    moveItem: (id: Uuid, projectId: Uuid | '0') => void
-    completeItem: (id: Uuid) => void
-    uncompleteItem: (id: Uuid) => void
-    setScheduledDate: (id: Uuid, date: string) => void
-    setDueDate: (id: Uuid, date: string) => void
-    setRepeatRule: (id: Uuid, rule: RRule) => void
-    convertSubtask: (id: Uuid) => void
-    changeParentItem: (id: Uuid, parentId: Uuid) => void
-    addLabel: (id: Uuid, labelId: Uuid | string) => void
-    deleteItem: (id: Uuid) => void
-    undeleteItem: (id: Uuid) => void
-    deleteLabel: (id: Uuid) => void
+    moveItem: (id: string, projectId: string | '0') => void
+    completeItem: (id: string) => void
+    uncompleteItem: (id: string) => void
+    setScheduledDate: (id: string, date: string) => void
+    setDueDate: (id: string, date: string) => void
+    setRepeatRule: (id: string, rule: RRule) => void
+    convertSubtask: (id: string) => void
+    changeParentItem: (id: string, parentId: string) => void
+    addLabel: (id: string, labelId: string | string) => void
+    deleteItem: (id: string) => void
+    undeleteItem: (id: string) => void
+    deleteLabel: (id: string) => void
 }
 interface StateProps {
     items: Items
     projects: ProjectType[]
     activeItem: {
-        past: Uuid[]
-        present: Uuid
-        future: Uuid[]
+        past: string[]
+        present: string
+        future: string[]
     }
     focusbarVisible: boolean
     theme: string
@@ -249,7 +248,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             </AttributeKey>
                             <AttributeValue>
                                 <RepeatPicker
-                                    id={i.id}
                                     repeat={i.repeat ? RRule.fromString(i.repeat) : null}
                                     completed={i.completed}
                                     deleted={i.deleted}
@@ -365,52 +363,52 @@ const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    moveItem: (id: Uuid, projectId: Uuid | '0') => {
+    moveItem: (id: string, projectId: string | '0') => {
         dispatch(moveItem(id, projectId))
     },
-    completeItem: (id: Uuid) => {
+    completeItem: (id: string) => {
         dispatch(completeItem(id))
     },
-    uncompleteItem: (id: Uuid) => {
+    uncompleteItem: (id: string) => {
         dispatch(uncompleteItem(id))
     },
-    updateItemDescription: (id: Uuid, text: string) => {
+    updateItemDescription: (id: string, text: string) => {
         dispatch(updateItemDescription(id, text))
     },
     closeFocusbar: () => {
         dispatch(hideFocusbar())
     },
-    setActiveItem: (id: Uuid) => {
+    setActiveItem: (id: string) => {
         dispatch(setActiveItem(id))
     },
     undoSetActiveItem: () => {
         dispatch(undoSetActiveItem())
     },
-    setScheduledDate: (id: Uuid, date: string) => {
+    setScheduledDate: (id: string, date: string) => {
         dispatch(setScheduledDate(id, date))
     },
-    setDueDate: (id: Uuid, date: string) => {
+    setDueDate: (id: string, date: string) => {
         dispatch(setDueDate(id, date))
     },
-    setRepeatRule: (id: Uuid, rule: RRule) => {
+    setRepeatRule: (id: string, rule: RRule) => {
         dispatch(setRepeatRule(id, rule))
     },
-    convertSubtask: (id: Uuid) => {
+    convertSubtask: (id: string) => {
         dispatch(convertSubtask(id))
     },
-    changeParentItem: (id: Uuid, parentId: Uuid) => {
+    changeParentItem: (id: string, parentId: string) => {
         dispatch(changeParentItem(id, parentId))
     },
-    addLabel: (id: Uuid, labelId: Uuid | string) => {
+    addLabel: (id: string, labelId: string | string) => {
         dispatch(addLabel(id, labelId))
     },
-    deleteLabel: (id: Uuid) => {
+    deleteLabel: (id: string) => {
         dispatch(deleteLabel(id))
     },
-    deleteItem: (id: Uuid) => {
+    deleteItem: (id: string) => {
         dispatch(deleteItem(id))
     },
-    undeleteItem: (id: Uuid) => {
+    undeleteItem: (id: string) => {
         dispatch(undeleteItem(id))
     },
 })

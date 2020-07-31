@@ -1,9 +1,8 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
-import { OptionsType, GroupType } from 'react-select'
+import { GroupType } from 'react-select'
 import Select from 'react-select'
 import { themes, selectStyles } from '../theme'
-import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
 import { Item, Items, Projects, Project, ItemType } from '../interfaces'
@@ -73,9 +72,9 @@ interface StateProps {
     theme: string
 }
 interface OwnProps {
-    itemId: Uuid
-    parentId: Uuid | undefined
-    onSubmit: (value: Uuid) => void
+    itemId: string
+    parentId: string | undefined
+    onSubmit: (value: string) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     completed: boolean

@@ -1,7 +1,5 @@
-import { Uuid } from '@typed/uuid'
-
-export interface AreaType {
-    id: Uuid | '0'
+export type AreaType = {
+    id: string | '0'
     name: string
     deleted: boolean
     description: string
@@ -10,11 +8,11 @@ export interface AreaType {
     createdAt: string
 }
 
-export interface Area {
+export type Area = {
     [key: string]: AreaType
 }
 
-export interface Areas {
+export type Areas = {
     areas: Area
-    order: (Uuid | string)[]
+    order: string[]
 }

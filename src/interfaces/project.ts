@@ -1,7 +1,5 @@
-import { Uuid } from '@typed/uuid'
-
-export interface ProjectType {
-    id: Uuid | '0'
+export type ProjectType = {
+    id: string | '0'
     name: string
     deleted: boolean
     description: string
@@ -13,11 +11,11 @@ export interface ProjectType {
     areaId: string
 }
 
-export interface Project {
+export type Project = {
     [key: string]: ProjectType
 }
 
-export interface Projects {
+export type Projects = {
     projects: Project
-    order: (Uuid | string)[]
+    order: string[]
 }

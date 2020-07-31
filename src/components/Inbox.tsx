@@ -18,7 +18,7 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    addList: (id: string, viewId: Uuid) => void
+    addList: (id: string, viewId: string) => void
 }
 
 type InboxProps = StateProps & DispatchProps

@@ -16,7 +16,6 @@ import {
 import { Title } from './Typography'
 import EditableText from './EditableText'
 import DeleteProjectDialog from './DeleteProjectDialog'
-import { Uuid } from '@typed/uuid'
 import { ProjectType, Item } from '../interfaces'
 import { ProjectContainer, HeaderContainer, AddProjectContainer } from './styled/Project'
 import ItemCreator from './ItemCreator'
@@ -36,12 +35,12 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    deleteProject: (id: Uuid | '0') => void
-    updateDescription: (id: Uuid | '0', input: string) => void
-    updateName: (id: Uuid | '0', input: string) => void
+    deleteProject: (id: string | '0') => void
+    updateDescription: (id: string | '0', input: string) => void
+    updateName: (id: string | '0', input: string) => void
     toggleDeleteProjectDialog: () => void
-    setProjectEndDate: (id: Uuid, date: string) => void
-    setProjectStartDate: (id: Uuid, date: string) => void
+    setProjectEndDate: (id: string, date: string) => void
+    setProjectStartDate: (id: string, date: string) => void
 }
 
 interface OwnProps {
@@ -157,17 +156,17 @@ const Project = (props: ProjectProps): ReactElement => {
 
 const mapStateToProps = (state, props): StateProps => ({
     theme: state.ui.theme,
-    items: getItemsFromProject(state, props),
+    items: getItemsFromProject(state, props.project.id),
     projectDates: state.features.projectDates,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    updateDescription: (id: Uuid, text: string) => {
+    updateDescription: (id: string, text: string) => {
         dispatch(updateProjectDescription(id, text))
     },
-    updateName: (id: Uuid, text: string) => {
+    updateName: (id: string, text: string) => {
         dispatch(updateProjectName(id, text))
     },
-    deleteProject: (id: Uuid) => {
+    deleteProject: (id: string) => {
         dispatch(deleteProject(id))
         dispatch(deleteView(id))
         dispatch(hideDeleteProjectDialog())
@@ -175,10 +174,10 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleDeleteProjectDialog: () => {
         dispatch(toggleDeleteProjectDialog())
     },
-    setProjectStartDate: (id: Uuid, date: string) => {
+    setProjectStartDate: (id: string, date: string) => {
         dispatch(setProjectStartDate(id, date))
     },
-    setProjectEndDate: (id: Uuid, date: string) => {
+    setProjectEndDate: (id: string, date: string) => {
         dispatch(setProjectEndDate(id, date))
     },
 })

@@ -1,7 +1,6 @@
 import React, { ReactElement } from 'react'
 import { connect } from 'react-redux'
 import { ThemeProvider } from '../StyledComponents'
-import { Uuid } from 'uuid'
 import { themes, selectStyles } from '../theme'
 import { setActiveItem, showFocusbar, toggleShortcutDialog } from '../actions/index'
 import Button from './Button'
@@ -37,7 +36,7 @@ interface StateProps {
 
 interface DispatchProps {
     toggleShortcutDialog: () => void
-    setActiveItem: (id: Uuid) => void
+    setActiveItem: (id: string) => void
 }
 
 type HeaderbarProps = DispatchProps & StateProps & OwnProps
@@ -145,7 +144,7 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleShortcutDialog: () => {
         dispatch(toggleShortcutDialog())
     },
-    setActiveItem: (id: Uuid) => {
+    setActiveItem: (id: string) => {
         dispatch(showFocusbar())
         dispatch(setActiveItem(id))
     },

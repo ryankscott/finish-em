@@ -33,7 +33,7 @@ export const Container = styled.div<ContainerProps>`
             ? darken(0.1, props.backgroundColour)
             : props.backgroundColour
             ? props.backgroundColour
-            : props.theme.colours.borderColour}
+            : props.theme.colours.borderColour};
     cursor: ${(props) => (props.readOnly ? 'default' : 'text')};
     color: ${(props) =>
         props.valid

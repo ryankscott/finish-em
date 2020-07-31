@@ -1,4 +1,3 @@
-import { Uuid } from '@typed/uuid'
 import { Component, IconType } from '../interfaces'
 
 export const SHOW_SIDEBAR = 'SHOW_SIDEBAR'
@@ -172,9 +171,9 @@ export function toggleFocusbar(): ToggleFocusbarAction {
 }
 interface SetActiveItemAction {
     type: typeof SET_ACTIVE_ITEM
-    id: Uuid
+    id: string
 }
-export function setActiveItem(id: Uuid): SetActiveItemAction {
+export function setActiveItem(id: string): SetActiveItemAction {
     return {
         type: SET_ACTIVE_ITEM,
         id: id,
@@ -206,11 +205,11 @@ export function toggleDarkMode(): ToggleDarkModeAction {
 }
 export interface RenameLabelAction {
     type: typeof RENAME_LABEL
-    id: Uuid
+    id: string
     text: string
 }
 
-export function renameLabel(id: Uuid, text: string): RenameLabelAction {
+export function renameLabel(id: string, text: string): RenameLabelAction {
     return {
         type: RENAME_LABEL,
         id: id,
@@ -219,11 +218,11 @@ export function renameLabel(id: Uuid, text: string): RenameLabelAction {
 }
 export interface SetLabelColourAction {
     type: typeof SET_LABEL_COLOUR
-    id: Uuid
+    id: string
     colour: string
 }
 
-export function setLabelColour(id: Uuid, colour: string): SetLabelColourAction {
+export function setLabelColour(id: string, colour: string): SetLabelColourAction {
     return {
         type: SET_LABEL_COLOUR,
         id: id,
@@ -233,11 +232,11 @@ export function setLabelColour(id: Uuid, colour: string): SetLabelColourAction {
 
 export interface ShowSubtasksAction {
     type: typeof SHOW_SUBTASKS
-    id: Uuid
-    componentId: Uuid
+    id: string
+    componentId: string
 }
 
-export function showSubtasks(id: Uuid, componentId: Uuid): ShowSubtasksAction {
+export function showSubtasks(id: string, componentId: string): ShowSubtasksAction {
     return {
         type: SHOW_SUBTASKS,
         id: id,
@@ -246,11 +245,11 @@ export function showSubtasks(id: Uuid, componentId: Uuid): ShowSubtasksAction {
 }
 export interface HideSubtasksAction {
     type: typeof HIDE_SUBTASKS
-    id: Uuid
-    componentId: Uuid
+    id: string
+    componentId: string
 }
 
-export function hideSubtasks(id: Uuid, componentId: Uuid): HideSubtasksAction {
+export function hideSubtasks(id: string, componentId: string): HideSubtasksAction {
     return {
         type: HIDE_SUBTASKS,
         id: id,
@@ -260,11 +259,11 @@ export function hideSubtasks(id: Uuid, componentId: Uuid): HideSubtasksAction {
 
 export interface ToggleSubtasksAction {
     type: typeof TOGGLE_SUBTASKS
-    id: Uuid
-    componentId: Uuid
+    id: string
+    componentId: string
 }
 
-export function toggleSubtasks(id: Uuid, componentId: Uuid): ToggleSubtasksAction {
+export function toggleSubtasks(id: string, componentId: string): ToggleSubtasksAction {
     return {
         type: TOGGLE_SUBTASKS,
         id: id,
@@ -274,12 +273,12 @@ export function toggleSubtasks(id: Uuid, componentId: Uuid): ToggleSubtasksActio
 
 export interface SetFilteredItemListNameAction {
     type: typeof SET_FILTEREDITEMLIST_NAME
-    componentId: Uuid
+    componentId: string
     name: string
 }
 
 export function setFilteredItemListName(
-    componentId: Uuid,
+    componentId: string,
     name: string,
 ): SetFilteredItemListNameAction {
     return {
@@ -290,12 +289,12 @@ export function setFilteredItemListName(
 }
 export interface SetFilteredItemListFilterAction {
     type: typeof SET_FILTEREDITEMLIST_FILTER
-    componentId: Uuid
+    componentId: string
     filter: string
 }
 
 export function setFilteredItemListFilter(
-    componentId: Uuid,
+    componentId: string,
     filter: string,
 ): SetFilteredItemListFilterAction {
     return {
@@ -306,12 +305,12 @@ export function setFilteredItemListFilter(
 }
 export interface SetFilteredItemListFilterableAction {
     type: typeof SET_FILTEREDITEMLIST_FILTERABLE
-    componentId: Uuid
+    componentId: string
     filterable: boolean
 }
 
 export function setFilteredItemListFilterable(
-    componentId: Uuid,
+    componentId: string,
     filterable: boolean,
 ): SetFilteredItemListFilterableAction {
     return {
@@ -323,12 +322,12 @@ export function setFilteredItemListFilterable(
 
 export interface SetFilteredItemListHiddenIconsAction {
     type: typeof SET_FILTEREDITEMLIST_HIDDEN_ICONS
-    componentId: Uuid
+    componentId: string
     hiddenIcons: IconType[]
 }
 
 export function setFilteredItemListHiddenIcons(
-    componentId: Uuid,
+    componentId: string,
     hiddenIcons: IconType[],
 ): SetFilteredItemListHiddenIconsAction {
     return {
@@ -340,12 +339,12 @@ export function setFilteredItemListHiddenIcons(
 
 export interface SetFilteredItemListShowAllTasksAction {
     type: typeof SET_FILTEREDITEMLIST_SHOW_ALL_TASKS
-    componentId: Uuid
+    componentId: string
     showAllTasks: boolean
 }
 
 export function setFilteredItemListShowAllTasks(
-    componentId: Uuid,
+    componentId: string,
     showAllTasks: boolean,
 ): SetFilteredItemListShowAllTasksAction {
     return {
@@ -358,14 +357,14 @@ export function setFilteredItemListShowAllTasks(
 export interface AddComponentAction {
     type: typeof ADD_COMPONENT
     id: string
-    viewId: Uuid
+    viewId: string
     location: 'main' | 'sideBar' | 'focusBar'
     component: Component
 }
 
 export function addComponent(
     id: string,
-    viewId: Uuid,
+    viewId: string,
     location: 'main' | 'sideBar' | 'focusBar',
     component: Component,
 ): AddComponentAction {
@@ -390,10 +389,10 @@ export function deleteComponent(id: string): DeleteComponentAction {
 }
 export interface ReorderComponentAction {
     type: typeof REORDER_COMPONENT
-    id: Uuid
-    destinationId: Uuid
+    id: string
+    destinationId: string
 }
-export function reorderComponent(id: Uuid, destinationId: Uuid): ReorderComponentAction {
+export function reorderComponent(id: string, destinationId: string): ReorderComponentAction {
     return {
         type: REORDER_COMPONENT,
         id: id,
@@ -436,10 +435,10 @@ export function deleteView(id: string): DeleteViewAction {
 }
 export interface ReorderViewAction {
     type: typeof REORDER_VIEW
-    id: Uuid
-    destinationId: Uuid
+    id: string
+    destinationId: string
 }
-export function reorderView(id: Uuid, destinationId: Uuid): ReorderViewAction {
+export function reorderView(id: string, destinationId: string): ReorderViewAction {
     return {
         type: REORDER_VIEW,
         id: id,

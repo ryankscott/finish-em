@@ -30,6 +30,10 @@ export const Container = styled.div<ContainerProps>`
     cursor: pointer;
     border-radius: 5px;
     color: ${(props) => props.theme.colours.disabledTextColour};
+    background: ${(props) =>
+        props.deleted
+            ? `repeating-linear-gradient(45deg, #e9e9e9, #e9e9e9 10px, #eee 10px, #eee 20px)`
+            : 'auto'};
     background-color: ${(props) =>
         props.labelColour != null
             ? transparentize(0.8, props.labelColour)

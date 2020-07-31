@@ -17,18 +17,17 @@ import {
     toggleSubtasks,
     showSubtasks,
 } from '../actions'
-import { Uuid } from '@typed/uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 interface DispatchProps {
     showFocusbar: () => void
-    setActiveItem: (id: Uuid) => void
-    completeItem: (id: Uuid) => void
-    uncompleteItem: (id: Uuid) => void
-    deleteItem: (id: Uuid) => void
-    undeleteItem: (id: Uuid) => void
-    toggleSubtasks: (id: Uuid, componentId: Uuid) => void
-    showSubtasks: (id: Uuid, componentId: Uuid) => void
+    setActiveItem: (id: string) => void
+    completeItem: (id: string) => void
+    uncompleteItem: (id: string) => void
+    deleteItem: (id: string) => void
+    undeleteItem: (id: string) => void
+    toggleSubtasks: (id: string, componentId: string) => void
+    showSubtasks: (id: string, componentId: string) => void
 }
 
 interface StateProps {
@@ -38,7 +37,7 @@ interface StateProps {
 
 // TODO: inputItems should just be an array of IDs
 interface OwnProps {
-    componentId: Uuid
+    componentId: string
     inputItems: ItemType[]
     renderingStrategy?: RenderingStrategy
     hideIcons: ItemIcons[]
@@ -59,7 +58,7 @@ const getItem = (
     item: ItemType,
     inputItems: ItemType[],
     strategy: RenderingStrategy,
-    componentId: Uuid,
+    componentId: string,
     hideIcons: ItemIcons[],
     items: Items,
 ): ReactElement => {
@@ -232,13 +231,13 @@ function ItemList(props: ItemListProps): ReactElement {
             if (item.deleted) return
             props.uncompleteItem(item.id)
         },
-        DELETE_ITEM: () => {
+        DELETE_ITEM: (event) => {
             console.log('deleting')
             const item = props.items.items[event.target.id]
             if (item.deleted) return
             props.deleteItem(item.id)
         },
-        UNDELETE_ITEM: () => {
+        UNDELETE_ITEM: (event) => {
             const item = props.items.items[event.target.id]
             props.undeleteItem(item.id)
         },
@@ -290,7 +289,7 @@ function ItemList(props: ItemListProps): ReactElement {
         },
         EDIT_ITEM_DESC: (event) => {
             // TODO:Implement me
-            const item = props.items.items[event.target.id]
+            // const item = props.items.items[event.target.id]
             event.preventDefault()
         },
     }
@@ -327,25 +326,25 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     showFocusbar: () => {
         dispatch(showFocusbar())
     },
-    setActiveItem: (id: Uuid) => {
+    setActiveItem: (id: string) => {
         dispatch(setActiveItem(id))
     },
-    deleteItem: (id: Uuid) => {
+    deleteItem: (id: string) => {
         dispatch(deleteItem(id))
     },
-    undeleteItem: (id: Uuid) => {
+    undeleteItem: (id: string) => {
         dispatch(undeleteItem(id))
     },
-    completeItem: (id: Uuid) => {
+    completeItem: (id: string) => {
         dispatch(completeItem(id))
     },
-    uncompleteItem: (id: Uuid) => {
+    uncompleteItem: (id: string) => {
         dispatch(uncompleteItem(id))
     },
-    toggleSubtasks: (id: Uuid, componentId: Uuid) => {
+    toggleSubtasks: (id: string, componentId: string) => {
         dispatch(toggleSubtasks(id, componentId))
     },
-    showSubtasks: (id: Uuid, componentId: Uuid) => {
+    showSubtasks: (id: string, componentId: string) => {
         dispatch(showSubtasks(id, componentId))
     },
 })

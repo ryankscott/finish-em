@@ -1,3 +1,1 @@
-import { createSelector } from 'reselect'
-
-const theme = (state) => state.ui.theme
+export const theme = (state): string => state.ui.theme

@@ -2,7 +2,6 @@ import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 import { createItem, addChildItem } from '../actions'
 import uuidv4 from 'uuid/v4'
-import { Uuid } from '@typed/uuid'
 import Button from './Button'
 import Tooltip from './Tooltip'
 import { Container, ItemCreatorContainer, HelpButtonContainer } from './styled/ItemCreator'
@@ -26,8 +25,8 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    createSubTask: (parentId: Uuid, text: string, projectId: Uuid | '0') => void
-    createItem: (text: string, projectId: Uuid | '0') => void
+    createSubTask: (parentId: string, text: string, projectId: string | '0') => void
+    createItem: (text: string, projectId: string | '0') => void
 }
 
 interface OwnProps {
@@ -36,8 +35,8 @@ interface OwnProps {
     initiallyExpanded: boolean
     shouldCloseOnSubmit?: boolean
     shouldCloseOnBlur?: boolean
-    parentId?: Uuid
-    projectId?: Uuid | '0'
+    parentId?: string
+    projectId?: string | '0'
     buttonText?: string
     width?: string
     hideButton?: boolean
@@ -258,10 +257,10 @@ const mapStateToProps = (state): StateProps => ({
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    createItem: (text: string, projectId: Uuid | '0') => {
+    createItem: (text: string, projectId: string | '0') => {
         dispatch(createItem(uuidv4(), text, projectId))
     },
-    createSubTask: (parentId: Uuid, text: string, projectId: Uuid | '0') => {
+    createSubTask: (parentId: string, text: string, projectId: string | '0') => {
         const childId = uuidv4()
         dispatch(createItem(childId, text, projectId))
         dispatch(addChildItem(childId, parentId))

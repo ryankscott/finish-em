@@ -28,7 +28,7 @@ interface StateProps {
 }
 interface DispatchProps {
     setDailyGoal: (day: string, input: string) => void
-    addList: (id: string, viewId: Uuid) => void
+    addList: (id: string, viewId: string) => void
 }
 type DailyAgendaProps = StateProps & DispatchProps
 

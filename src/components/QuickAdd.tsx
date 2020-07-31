@@ -1,6 +1,5 @@
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { Uuid } from '@typed/uuid'
 import { validateItemString } from '../utils'
 import EditableText from './EditableText'
 import styled, { ThemeProvider } from 'styled-components'
@@ -11,10 +10,15 @@ if (isElectron()) {
     const electron = window.require('electron')
 }
 
-interface QuickAddProps {
-    projectId?: Uuid | '0'
+type StateProps = {
     theme: string
 }
+
+type OwnProps = {
+    projectId?: string | '0'
+}
+
+type QuickAddProps = StateProps & OwnProps
 
 const QuickAddContainer = styled.div`
     box-sizing: border-box;
@@ -65,10 +69,10 @@ function QuickAdd(props: QuickAddProps): ReactElement {
     )
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
 })
 
-const mapDispatchToProps = (dispatch) => ({})
+const mapDispatchToProps = (dispatch): {} => ({})
 
 export default connect(mapStateToProps, mapDispatchToProps)(QuickAdd)

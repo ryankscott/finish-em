@@ -1,4 +1,3 @@
-import { Uuid } from '@typed/uuid'
 import { toast } from 'react-toastify'
 
 export const CREATE_ITEM = 'CREATE_ITEM'
@@ -21,22 +20,21 @@ export const DELETE_PERMANENT_ITEM = 'DELETE_PERMANENT_ITEM'
 export const ADD_LABEL = 'ADD_LABEL'
 export const DELETE_LABEL = 'DELETE_LABEL'
 
-import { getItemTypeFromString, capitaliseItemTypeFromString, dueTextRegex } from '../utils'
 import RRule from 'rrule'
 
 export interface CreateItemAction {
     type: typeof CREATE_ITEM
-    id: Uuid
+    id: string
     text: string
-    projectId?: Uuid | '0'
-    parentId?: Uuid
+    projectId?: string | '0'
+    parentId?: string
 }
 
 export function createItem(
-    id: Uuid,
+    id: string,
     text: string,
-    projectId?: Uuid | '0',
-    parentId?: Uuid,
+    projectId?: string | '0',
+    parentId?: string,
 ): CreateItemAction {
     return {
         type: CREATE_ITEM,
@@ -48,9 +46,9 @@ export function createItem(
 }
 export interface DeleteItemAction {
     type: typeof DELETE_ITEM
-    id: Uuid
+    id: string
 }
-export function deleteItem(id: Uuid): DeleteItemAction {
+export function deleteItem(id: string): DeleteItemAction {
     toast.dark('Item deleted')
     return {
         type: DELETE_ITEM,
@@ -60,9 +58,9 @@ export function deleteItem(id: Uuid): DeleteItemAction {
 
 export interface UndeleteItemAction {
     type: typeof UNDELETE_ITEM
-    id: Uuid
+    id: string
 }
-export function undeleteItem(id: Uuid): UndeleteItemAction {
+export function undeleteItem(id: string): UndeleteItemAction {
     return {
         type: UNDELETE_ITEM,
         id: id,
@@ -70,9 +68,9 @@ export function undeleteItem(id: Uuid): UndeleteItemAction {
 }
 export interface CompleteItemAction {
     type: typeof COMPLETE_ITEM
-    id: Uuid
+    id: string
 }
-export function completeItem(id: Uuid): CompleteItemAction {
+export function completeItem(id: string): CompleteItemAction {
     return {
         type: COMPLETE_ITEM,
         id: id,
@@ -81,9 +79,9 @@ export function completeItem(id: Uuid): CompleteItemAction {
 
 export interface UncompleteItemAction {
     type: typeof UNCOMPLETE_ITEM
-    id: Uuid
+    id: string
 }
-export function uncompleteItem(id: Uuid): UncompleteItemAction {
+export function uncompleteItem(id: string): UncompleteItemAction {
     return {
         type: UNCOMPLETE_ITEM,
         id: id,
@@ -92,10 +90,10 @@ export function uncompleteItem(id: Uuid): UncompleteItemAction {
 
 export interface MoveItemAction {
     type: typeof MOVE_ITEM
-    id: Uuid
-    projectId: Uuid | '0'
+    id: string
+    projectId: string | '0'
 }
-export function moveItem(id: Uuid, projectId: Uuid | '0'): MoveItemAction {
+export function moveItem(id: string, projectId: string | '0'): MoveItemAction {
     return {
         type: MOVE_ITEM,
         id: id,
@@ -105,10 +103,10 @@ export function moveItem(id: Uuid, projectId: Uuid | '0'): MoveItemAction {
 
 export interface SetScheduledDateAction {
     type: typeof SET_SCHEDULED_DATE
-    id: Uuid
+    id: string
     date: string
 }
-export function setScheduledDate(id: Uuid, date: string): SetScheduledDateAction {
+export function setScheduledDate(id: string, date: string): SetScheduledDateAction {
     return {
         type: SET_SCHEDULED_DATE,
         id: id,
@@ -118,10 +116,10 @@ export function setScheduledDate(id: Uuid, date: string): SetScheduledDateAction
 
 export interface SetDueDateAction {
     type: typeof SET_DUE_DATE
-    id: Uuid
+    id: string
     date: string
 }
-export function setDueDate(id: Uuid, date: string): SetDueDateAction {
+export function setDueDate(id: string, date: string): SetDueDateAction {
     return {
         type: SET_DUE_DATE,
         id: id,
@@ -131,10 +129,10 @@ export function setDueDate(id: Uuid, date: string): SetDueDateAction {
 
 export interface SetRepeatRuleAction {
     type: typeof SET_REPEAT_RULE
-    id: Uuid
+    id: string
     rule: RRule
 }
-export function setRepeatRule(id: Uuid, rule: RRule): SetRepeatRuleAction {
+export function setRepeatRule(id: string, rule: RRule): SetRepeatRuleAction {
     return {
         type: SET_REPEAT_RULE,
         id: id,
@@ -143,10 +141,10 @@ export function setRepeatRule(id: Uuid, rule: RRule): SetRepeatRuleAction {
 }
 export interface UpdateItemDescriptionAction {
     type: typeof UPDATE_ITEM_DESCRIPTION
-    id: Uuid
+    id: string
     text: string
 }
-export function updateItemDescription(id: Uuid, text: string): UpdateItemDescriptionAction {
+export function updateItemDescription(id: string, text: string): UpdateItemDescriptionAction {
     return {
         type: UPDATE_ITEM_DESCRIPTION,
         id: id,
@@ -156,10 +154,10 @@ export function updateItemDescription(id: Uuid, text: string): UpdateItemDescrip
 
 export interface AddChildItemAction {
     type: typeof ADD_CHILD_ITEM
-    id: Uuid
-    parentId: Uuid
+    id: string
+    parentId: string
 }
-export function addChildItem(id: Uuid, parentId: Uuid): AddChildItemAction {
+export function addChildItem(id: string, parentId: string): AddChildItemAction {
     return {
         type: ADD_CHILD_ITEM,
         id: id,
@@ -168,10 +166,10 @@ export function addChildItem(id: Uuid, parentId: Uuid): AddChildItemAction {
 }
 export interface ReorderItemAction {
     type: typeof REORDER_ITEM
-    id: Uuid
-    destinationId: Uuid
+    id: string
+    destinationId: string
 }
-export function reorderItem(id: Uuid, destinationId: Uuid): ReorderItemAction {
+export function reorderItem(id: string, destinationId: string): ReorderItemAction {
     return {
         type: REORDER_ITEM,
         id: id,
@@ -181,10 +179,10 @@ export function reorderItem(id: Uuid, destinationId: Uuid): ReorderItemAction {
 
 export interface ConvertSubtaskAction {
     type: typeof CONVERT_SUBTASK
-    id: Uuid
+    id: string
 }
 
-export function convertSubtask(id: Uuid): ConvertSubtaskAction {
+export function convertSubtask(id: string): ConvertSubtaskAction {
     return {
         type: CONVERT_SUBTASK,
         id: id,
@@ -193,11 +191,11 @@ export function convertSubtask(id: Uuid): ConvertSubtaskAction {
 
 export interface ChangeParentItemAction {
     type: typeof CHANGE_PARENT_ITEM
-    id: Uuid
-    parentId: Uuid
+    id: string
+    parentId: string
 }
 
-export function changeParentItem(id: Uuid, parentId: Uuid): ChangeParentItemAction {
+export function changeParentItem(id: string, parentId: string): ChangeParentItemAction {
     return {
         type: CHANGE_PARENT_ITEM,
         id: id,
@@ -207,10 +205,10 @@ export function changeParentItem(id: Uuid, parentId: Uuid): ChangeParentItemActi
 
 export interface DeletePermanentlyAction {
     type: typeof DELETE_PERMANENT_ITEM
-    id: Uuid
+    id: string
 }
 
-export function deletePermanently(id: Uuid): DeletePermanentlyAction {
+export function deletePermanently(id: string): DeletePermanentlyAction {
     return {
         type: DELETE_PERMANENT_ITEM,
         id: id,
@@ -219,20 +217,20 @@ export function deletePermanently(id: Uuid): DeletePermanentlyAction {
 
 export interface AddLabelAction {
     type: typeof ADD_LABEL
-    id: Uuid
-    labelId: Uuid
+    id: string
+    labelId: string
 }
 
-export function addLabel(id: Uuid, labelId: Uuid): AddLabelAction {
+export function addLabel(id: string, labelId: string): AddLabelAction {
     return { type: ADD_LABEL, id: id, labelId: labelId }
 }
 
 export interface DeleteLabelAction {
     type: typeof DELETE_LABEL
-    id: Uuid
+    id: string
 }
 
-export function deleteLabel(id: Uuid): DeleteLabelAction {
+export function deleteLabel(id: string): DeleteLabelAction {
     return {
         type: DELETE_LABEL,
         id: id,

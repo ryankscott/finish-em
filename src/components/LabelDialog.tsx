@@ -12,7 +12,6 @@ import {
 } from './styled/LabelDialog'
 import Button from './Button'
 import { Label, LabelType } from '../interfaces'
-import { Uuid } from '@typed/uuid'
 import { addLabel, deleteLabel } from '../actions/item'
 
 interface StateProps {
@@ -21,11 +20,11 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    addLabel: (id: Uuid, labelId: Uuid | string) => void
-    deleteLabel: (id: Uuid) => void
+    addLabel: (id: string, labelId: string | string) => void
+    deleteLabel: (id: string) => void
 }
 interface OwnProps {
-    itemId: Uuid
+    itemId: string
     onClose: () => void
 }
 
@@ -89,10 +88,10 @@ const mapStateToProps = (state): StateProps => ({
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    addLabel: (id: Uuid, labelId: Uuid | string) => {
+    addLabel: (id: string, labelId: string | string) => {
         dispatch(addLabel(id, labelId))
     },
-    deleteLabel: (id: Uuid) => {
+    deleteLabel: (id: string) => {
         dispatch(deleteLabel(id))
     },
 })

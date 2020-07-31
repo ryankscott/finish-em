@@ -2,7 +2,6 @@ import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import CreatableSelect from 'react-select/creatable'
 import { themes, selectStyles } from '../theme'
-import { Uuid } from '@typed/uuid'
 import CSS from 'csstype'
 
 import { connect } from 'react-redux'
@@ -32,8 +31,8 @@ interface StateProps {
     theme: string
 }
 interface OwnProps {
-    labelId: Uuid
-    onSubmit: (value: Uuid) => void
+    labelId: string
+    onSubmit: (value: string) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
     completed: boolean

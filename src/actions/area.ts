@@ -1,4 +1,3 @@
-import { Uuid } from '@typed/uuid'
 export const CREATE_AREA = 'CREATE_area'
 export const DELETE_AREA = 'DELETE_area'
 export const UPDATE_AREA_DESCRIPTION = 'UPDATE_AREA_DESCRIPTION'
@@ -7,11 +6,11 @@ export const REORDER_AREA = 'REORDER_AREA'
 
 export interface CreateAreaAction {
     type: typeof CREATE_AREA
-    id: Uuid
+    id: string
     name: string
     description: string
 }
-export function createArea(id: Uuid, name: string, description: string): CreateAreaAction {
+export function createArea(id: string, name: string, description: string): CreateAreaAction {
     return {
         type: CREATE_AREA,
         id: id,
@@ -22,9 +21,9 @@ export function createArea(id: Uuid, name: string, description: string): CreateA
 
 export interface DeleteAreaAction {
     type: typeof DELETE_AREA
-    id: Uuid
+    id: string
 }
-export function deleteArea(id: Uuid): DeleteAreaAction {
+export function deleteArea(id: string): DeleteAreaAction {
     return {
         type: DELETE_AREA,
         id: id,
@@ -32,10 +31,13 @@ export function deleteArea(id: Uuid): DeleteAreaAction {
 }
 export interface UpdateAreaDescriptionAction {
     type: typeof UPDATE_AREA_DESCRIPTION
-    id: Uuid
+    id: string
     description: string
 }
-export function updateAreaDescription(id: Uuid, description: string): UpdateAreaDescriptionAction {
+export function updateAreaDescription(
+    id: string,
+    description: string,
+): UpdateAreaDescriptionAction {
     return {
         type: UPDATE_AREA_DESCRIPTION,
         id: id,
@@ -44,10 +46,10 @@ export function updateAreaDescription(id: Uuid, description: string): UpdateArea
 }
 export interface UpdateAreaNameAction {
     type: typeof UPDATE_AREA_NAME
-    id: Uuid
+    id: string
     name: string
 }
-export function updateAreaName(id: Uuid, name: string): UpdateAreaNameAction {
+export function updateAreaName(id: string, name: string): UpdateAreaNameAction {
     return {
         type: UPDATE_AREA_NAME,
         id: id,
@@ -57,10 +59,10 @@ export function updateAreaName(id: Uuid, name: string): UpdateAreaNameAction {
 
 export interface ReorderAreaAction {
     type: typeof REORDER_AREA
-    id: Uuid
-    destinationId: Uuid
+    id: string
+    destinationId: string
 }
-export function reorderArea(id: Uuid, destinationId: Uuid): ReorderAreaAction {
+export function reorderArea(id: string, destinationId: string): ReorderAreaAction {
     return {
         type: REORDER_AREA,
         id: id,

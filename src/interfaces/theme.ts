@@ -1,5 +1,5 @@
 import CSS from 'csstype'
-export interface ThemeType {
+export type ThemeType = {
     name: string
     font: {
         sansSerif: CSS.FontFamilyProperty

@@ -2,9 +2,8 @@ import { OwnProps as FilteredItemListProps } from '../containers/FilteredItemLis
 import { OwnProps as ViewHeaderProps } from '../components/ViewHeader'
 
 import CSS from 'csstype'
-import { Uuid } from '@typed/uuid'
 
-export interface TaskVisibility {
+export type TaskVisibility = {
     [key: string]: boolean
 }
 
@@ -18,59 +17,59 @@ export type Component =
           props: ViewHeaderProps
       }
 
-export interface ComponentType {
+export type ComponentType = {
     id: string
     viewId: string
     location: 'main' | 'focusBar' | 'sideBar'
     component: Component
 }
 
-export interface MainComponent {
+export type MainComponent = {
     [key: string]: ComponentType
 }
 
-export interface MainComponents {
+export type MainComponents = {
     components: MainComponent
     order: string[]
 }
 
-export interface ViewType {
-    id: Uuid | string
+export type ViewType = {
+    id: string | string
     name: string
     icon: IconType
     type: 'default' | 'custom' | 'project' | 'area'
 }
 
-export interface View {
+export type View = {
     [key: string]: ViewType
 }
 
-export interface Views {
+export type Views = {
     views: View
     order: string[]
 }
 
-export interface LabelType {
-    id: Uuid | string
+export type LabelType = {
+    id: string | string
     name: string
     colour: CSS.Color
 }
 
-export interface Label {
+export type Label = {
     [key: string]: LabelType
 }
 
-export interface Labels {
+export type Labels = {
     labels: Label
     order: string[]
 }
 
-export interface UIType {
+export type UIType = {
     theme: string
     activeItem: {
-        past: Uuid[]
-        present: Uuid
-        future: Uuid[]
+        past: string[]
+        present: string
+        future: string[]
     }
     sidebarVisible: boolean
     focusbarVisible: boolean

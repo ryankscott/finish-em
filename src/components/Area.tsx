@@ -6,9 +6,6 @@ import { themes } from '../theme'
 import { updateAreaDescription, updateAreaName, deleteArea } from '../actions'
 import { Title, Header } from './Typography'
 import EditableText from './EditableText'
-import { Donut } from './Donut'
-import { darken } from 'polished'
-import { Uuid } from '@typed/uuid'
 import { AreaType, ProjectType, Projects } from '../interfaces'
 import {
     AreaContainer,
@@ -30,9 +27,9 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    deleteArea: (id: Uuid | '0') => void
-    updateDescription: (id: Uuid | '0', input: string) => void
-    updateName: (id: Uuid | '0', input: string) => void
+    deleteArea: (id: string | '0') => void
+    updateDescription: (id: string | '0', input: string) => void
+    updateName: (id: string | '0', input: string) => void
 }
 
 interface OwnProps {
@@ -123,18 +120,18 @@ const Area = (props: AreaProps): ReactElement => {
     )
 }
 
-const mapStateToProps = (state, props): StateProps => ({
+const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
     projects: state.projects,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    updateDescription: (id: Uuid, text: string) => {
+    updateDescription: (id: string, text: string) => {
         dispatch(updateAreaDescription(id, text))
     },
-    updateName: (id: Uuid, text: string) => {
+    updateName: (id: string, text: string) => {
         dispatch(updateAreaName(id, text))
     },
-    deleteArea: (id: Uuid) => {
+    deleteArea: (id: string) => {
         dispatch(deleteArea(id))
     },
 })

@@ -107,6 +107,6 @@ const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
 })
 
-const mapDispatchToProps = (dispatch) => ({})
+const mapDispatchToProps = (dispatch): {} => ({})
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateSelect)

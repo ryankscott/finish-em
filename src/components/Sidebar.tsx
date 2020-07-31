@@ -31,7 +31,6 @@ import {
 } from './styled/Sidebar'
 import Button from './Button'
 import { createShortProjectName } from '../utils'
-import { Uuid } from '@typed/uuid'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import uuidv4 from 'uuid/v4'
 
@@ -96,27 +95,29 @@ interface StateProps {
 }
 interface DispatchProps {
     toggleSidebar: () => void
-    createProject: (id: Uuid, name: string, description: string, areaId: string) => void
-    reorderProject: (id: Uuid, destinationId: Uuid) => void
-    setProjectArea: (id: Uuid, areaId: string) => void
-    createArea: (id: Uuid, name: string, description: string) => void
+    createProject: (id: string, name: string, description: string, areaId: string) => void
+    reorderProject: (id: string, destinationId: string) => void
+    setProjectArea: (id: string, areaId: string) => void
+    createArea: (id: string, name: string, description: string) => void
 }
 
-const generateSidebarContents = (
-    sidebarVisible: boolean,
-    iconName: string,
-    text: string,
-): React.ReactElement => {
-    if (sidebarVisible) {
+const SidebarItem = (props: {
+    sidebarVisible: boolean
+    iconName: string
+    text: string
+}): React.ReactElement => {
+    if (props.sidebarVisible) {
         return (
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                {Icons[iconName](16, 16)}
-                {text}
+                {Icons[props.iconName](16, 16)}
+                {props.text}
             </div>
         )
     }
     return (
-        <div style={{ display: 'flex', justifyContent: 'center' }}>{Icons[iconName](20, 20)}</div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+            {Icons[props.iconName](20, 20)}
+        </div>
     )
 }
 
@@ -141,7 +142,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                             }}
                         >
-                            {generateSidebarContents(props.sidebarVisible, 'inbox', 'Inbox')}
+                            <SidebarItem
+                                sidebarVisible={props.sidebarVisible}
+                                iconName={'inbox'}
+                                text={'Inbox'}
+                            />
                         </StyledLink>
                         <StyledLink
                             sidebarVisible={props.sidebarVisible}
@@ -150,11 +155,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                             }}
                         >
-                            {generateSidebarContents(
-                                props.sidebarVisible,
-                                'calendar',
-                                'Daily Agenda',
-                            )}
+                            <SidebarItem
+                                sidebarVisible={props.sidebarVisible}
+                                iconName={'calendar'}
+                                text={'Daily Agenda'}
+                            />
                         </StyledLink>
                         {Object.values(props.views.order).map((v) => {
                             const view = props.views.views[v]
@@ -169,11 +174,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                             theme.colours.focusAltDialogBackgroundColour,
                                     }}
                                 >
-                                    {generateSidebarContents(
-                                        props.sidebarVisible,
-                                        view.icon,
-                                        view.name,
-                                    )}
+                                    <SidebarItem
+                                        sidebarVisible={props.sidebarVisible}
+                                        iconName={view.icon}
+                                        text={view.name}
+                                    />
                                 </StyledLink>
                             )
                         })}
@@ -193,7 +198,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             )
                         }}
                     >
-                        {Object.values(props.areas.order).map((a: Uuid, index) => {
+                        {Object.values(props.areas.order).map((a: string, index) => {
                             const area = props.areas.areas[a]
                             return (
                                 <div key={a}>
@@ -238,7 +243,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                 )}
                                             >
                                                 {Object.values(props.projects.order).map(
-                                                    (p: Uuid, index) => {
+                                                    (p: string, index) => {
                                                         // Don't render the inbox here
                                                         if (p == '0') return
                                                         const project = props.projects.projects[p]
@@ -323,7 +328,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             borderRadius: '5px',
                         }}
                     >
-                        {generateSidebarContents(props.sidebarVisible, 'settings', 'Settings')}
+                        <SidebarItem
+                            sidebarVisible={props.sidebarVisible}
+                            iconName={'settings'}
+                            text={'Settings'}
+                        />
                     </StyledLink>
                     <CollapseContainer>
                         <Button
@@ -350,7 +359,7 @@ const mapStateToProps = (state): StateProps => ({
     views: state.ui.views,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    createProject: (id: Uuid, name: string, description: string, areaId: string) => {
+    createProject: (id: string, name: string, description: string, areaId: string) => {
         dispatch(createProject(id, name, description, areaId))
         dispatch(addView(id, name, 'project'))
         const component1Id = uuidv4()
@@ -383,13 +392,13 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     toggleSidebar: () => {
         dispatch(toggleSidebar())
     },
-    reorderProject: (id: Uuid, destinationId: Uuid) => {
+    reorderProject: (id: string, destinationId: string) => {
         dispatch(reorderProject(id, destinationId))
     },
-    setProjectArea: (id: Uuid, areaId: string) => {
+    setProjectArea: (id: string, areaId: string) => {
         dispatch(setProjectArea(id, areaId))
     },
-    createArea: (id: Uuid, name: string, description: string) => {
+    createArea: (id: string, name: string, description: string) => {
         dispatch(createArea(id, name, description))
     },
 })

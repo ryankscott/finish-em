@@ -3,7 +3,6 @@ import { ThemeProvider } from '../StyledComponents'
 import CreatableSelect from 'react-select/creatable'
 import uuidv4 from 'uuid/v4'
 import { themes, selectStyles } from '../theme'
-import { Uuid } from '@typed/uuid'
 
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
@@ -12,9 +11,9 @@ import { Container } from './styled/ProjectDropdown'
 import Button from './Button'
 
 const generateOptions = (
-    projectId: Uuid | '0',
+    projectId: string | '0',
     options: Project,
-): { value: Uuid | '0'; label: string }[] => {
+): { value: string | '0'; label: string }[] => {
     const p: ProjectType[] = Object.values(options)
     return p
         .filter((p) => p.id != '0')
@@ -24,17 +23,17 @@ const generateOptions = (
 }
 
 interface DispatchProps {
-    createProject: (id: Uuid, value: Uuid | '0') => void
+    createProject: (id: string, value: string | '0') => void
 }
 interface StateProps {
     projects: Projects
     theme: string
 }
 interface OwnProps {
-    onSubmit: (value: Uuid | '0') => void
+    onSubmit: (value: string | '0') => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
-    projectId: Uuid | '0'
+    projectId: string | '0'
     completed: boolean
     deleted: boolean
     showSelect?: boolean
@@ -120,7 +119,7 @@ const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    createProject: (id: Uuid, name: string) => {
+    createProject: (id: string, name: string) => {
         dispatch(createProject(id, name, '', '0'))
     },
 })
