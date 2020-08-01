@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react'
 import { connect } from 'react-redux'
 import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
-import { setActiveItem, showFocusbar, toggleShortcutDialog } from '../actions/index'
+import { setActiveItem, showFocusbar } from '../actions/index'
 import Button from './Button'
 import Tooltip from './Tooltip'
 import { Icons } from '../assets/icons'
@@ -35,7 +35,6 @@ interface StateProps {
 }
 
 interface DispatchProps {
-    toggleShortcutDialog: () => void
     setActiveItem: (id: string) => void
 }
 
@@ -125,7 +124,9 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
                         icon="help"
                         iconSize="20px"
                         iconColour={themes[props.theme].colours.altTextColour}
-                        onClick={props.toggleShortcutDialog}
+                        onClick={() => {
+                            history.push('/help/')
+                        }}
                     ></Button>
                     <Tooltip id="shortcut-button" text={'Show shortcuts'}></Tooltip>
                 </ShortcutIcon>
@@ -141,9 +142,6 @@ const mapStateToProps = (state): StateProps => ({
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    toggleShortcutDialog: () => {
-        dispatch(toggleShortcutDialog())
-    },
     setActiveItem: (id: string) => {
         dispatch(showFocusbar())
         dispatch(setActiveItem(id))

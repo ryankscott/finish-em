@@ -26,13 +26,13 @@ import {
     setFilteredItemListShowAllTasks,
 } from '../actions'
 import Select from 'react-select'
-import { generateFiltrexOptions } from '../utils'
 import { ItemIcons } from '../interfaces/item'
 import { Labels, IconType } from '../interfaces'
 import { Icons } from '../assets/icons'
 import Tooltip from './Tooltip'
 import { Code } from './Typography'
 import { toast } from 'react-toastify'
+import { getFilterFunctions } from '../selectors/item'
 
 const options: { value: string; label: string }[] = [
     { value: ItemIcons.Project, label: 'Project' },
@@ -62,6 +62,7 @@ interface OwnProps {
 interface StateProps {
     theme: string
     labels: Labels
+    filterFunctions: filterFunctions 
 }
 
 type FilteredItemDialogProps = OwnProps & DispatchProps & StateProps
@@ -160,9 +161,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                                 try {
                                     compileExpression(
                                         input,
-                                        generateFiltrexOptions({
-                                            labels: props.labels,
-                                        }),
+                                       props.filterFunctions 
                                     )
                                     setErrorMessage('')
                                 } catch (e) {
@@ -276,6 +275,7 @@ const mapStateToProps = (state): StateProps => {
     return {
         theme: state.ui.theme,
         labels: state.ui.labels,
+        filterFunctions: getFilterFunctions(state)
     }
 }
 

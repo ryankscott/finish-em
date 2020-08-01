@@ -164,7 +164,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         // Ignore clicks if it's already editable
         if (editable) return
         // NOTE: Weirdly Chrome sometimes fires a focus event before a click
-        console.log('click in an editable text')
         if (props.readOnly) {
             e.preventDefault()
             e.stopPropagation()

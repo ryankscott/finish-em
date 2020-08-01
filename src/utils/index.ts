@@ -1,5 +1,5 @@
 import chrono from 'chrono-node'
-import { ItemType, Item, RenderingStrategy, Labels } from '../interfaces'
+import { ItemType, Item, RenderingStrategy } from '../interfaces'
 import RRule from 'rrule'
 
 export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
@@ -9,20 +9,7 @@ export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/g
 export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/g
 
 import emojiRegex from 'emoji-regex/text.js'
-import {
-    parseISO,
-    isToday,
-    isThisWeek,
-    isThisMonth,
-    isPast,
-    endOfDay,
-    differenceInDays,
-    isTomorrow,
-    isYesterday,
-    format,
-    isAfter,
-    isSameDay,
-} from 'date-fns'
+import { isToday, differenceInDays, isTomorrow, isYesterday, format, isAfter } from 'date-fns'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
     const words = text.split(' ')
@@ -203,6 +190,7 @@ export const rruleToText = (input: RRule): string => {
     }
 }
 
+// TODO refactor me
 export const filterItems = (
     input: Item,
     filterFunc: (i: ItemType) => boolean,
@@ -226,45 +214,6 @@ export const convertItemToItemType = (input: Item): ItemType[] => {
 }
 export const capitaliseFirstLetter = (input: string): string => {
     return input.charAt(0).toUpperCase() + input.slice(1)
-}
-// Filtrex options
-export interface FiltrexOptions {
-    labels: Labels
-}
-
-export const generateFiltrexOptions = (options: FiltrexOptions) => {
-    return {
-        extraFunctions: {
-            getLabelId: (labelName: string) => {
-                const labels = options.labels.labels
-                const label = Object.values(labels).find((l) => l.name == labelName)
-                return `${label.id}`
-            },
-
-            overdue: (dueDate: string): boolean => {
-                return isPast(endOfDay(parseISO(dueDate)))
-            },
-            today: (d: string): boolean => {
-                return isToday(parseISO(d))
-            },
-
-            sameDay: (d: string, d1: string): boolean => {
-                return isSameDay(parseISO(d), parseISO(d1))
-            },
-
-            thisWeek: (d: string): boolean => {
-                return isThisWeek(parseISO(d))
-            },
-
-            thisMonth: (d: string): boolean => {
-                return isThisMonth(parseISO(d))
-            },
-
-            daysFromToday: (a: string): number => {
-                return differenceInDays(new Date(), parseISO(a))
-            },
-        },
-    }
 }
 
 export const truncateString = (input: string, length: number): string => {

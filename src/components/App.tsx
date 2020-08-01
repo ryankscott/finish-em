@@ -92,7 +92,6 @@ const App = (props: AppProps): ReactElement => {
         })
         if (isElectron()) {
             electron.ipcRenderer.on('create-task', (event, arg) => {
-                console.log('create task in renderer')
                 props.createItem(arg.text, arg?.projectId)
             })
             electron.ipcRenderer.on('new-version', (event, arg) => {

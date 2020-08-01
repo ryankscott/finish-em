@@ -12,7 +12,7 @@ Attributes:
 *   `dueDate` - due date of an item
 *   `scheduledDate` - scheduled date of an item
 *   `createdAt` - date an item was created
-*   `deleted` - is the item deleted
+*   `deleted` - is the item deletee
 *   `completed` - is the item completed
 *   `type` - "TODO" or "NOTE" depending on the item type
 
@@ -24,6 +24,7 @@ Functions:
 *   `thisMonth(date)` - determines if the input date is this month
 *   `daysFromToday(date)` - determines the number of days the date is from today
 *   `getLabelId(name)` - gets the ID of a label by name
+*   `getProjectId(name)` - gets the ID of a project by name
 
 More syntax info [here](https://github.com/joewalnes/filtrex#expressions)
 
