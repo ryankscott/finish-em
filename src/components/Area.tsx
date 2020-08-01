@@ -6,7 +6,7 @@ import { themes } from '../theme'
 import { updateAreaDescription, updateAreaName, deleteArea } from '../actions'
 import { Title, Header } from './Typography'
 import EditableText from './EditableText'
-import { AreaType, ProjectType, Projects } from '../interfaces'
+import { AreaType, ProjectType, Projects, Items } from '../interfaces'
 import {
     AreaContainer,
     HeaderContainer,
@@ -20,10 +20,13 @@ import DeleteAreaDialog from './DeleteAreaDialog'
 import { formatRelativeDate } from '../utils'
 import { parseISO } from 'date-fns'
 import marked from 'marked'
+import { Donut } from './Donut'
+import { darken } from 'polished'
 
 interface StateProps {
     theme: string
     projects: Projects
+    items: Items
 }
 
 interface DispatchProps {
@@ -83,38 +86,52 @@ const Area = (props: AreaProps): ReactElement => {
                 <Header>Projects</Header>
                 {Object.values(props.projects.projects)
                     .filter((p: ProjectType) => p.areaId == props.area.id)
-                    .map((a: ProjectType) => (
-                        <ProjectContainer
-                            key={a.id}
-                            onClick={() => {
-                                history.push(`/projects/${a.id}`)
-                            }}
-                        >
-                            {/* <Donut
-                                style={{ gridArea: 'donut' }}
-                                size={24}
-                                progress={40}
-                                activeColour={themes[props.theme].colours.primaryColour}
-                                inactiveColour={darken(
-                                    0.2,
-                                    themes[props.theme].colours.backgroundColour,
-                                )}
-                            /> */}
-                            <ProjectName>{a.name}</ProjectName>
-                            <ProjectDescription
-                                dangerouslySetInnerHTML={{
-                                    __html: marked(a.description, { breaks: true }),
+                    .map((a: ProjectType) => {
+                        const itemsForProject = Object.values(props.items.items).filter(
+                            (i) => i.projectId == a.id,
+                        )
+                        const completedItemsForProject = itemsForProject.map(
+                            (i) => i.completed == true,
+                        )
+                        const progress =
+                            itemsForProject.length == 0
+                                ? 0
+                                : completedItemsForProject.length == 0
+                                ? 0
+                                : itemsForProject.length / completedItemsForProject.length
+                        return (
+                            <ProjectContainer
+                                key={a.id}
+                                onClick={() => {
+                                    history.push(`/projects/${a.id}`)
                                 }}
-                            />
-                            <ProjectStartAt>
-                                {a.startAt &&
-                                    `Starting: ${formatRelativeDate(parseISO(a.startAt))}`}
-                            </ProjectStartAt>
-                            <ProjectEndAt>
-                                {a.endAt && `Ending: ${formatRelativeDate(parseISO(a.endAt))}`}
-                            </ProjectEndAt>
-                        </ProjectContainer>
-                    ))}
+                            >
+                                <Donut
+                                    style={{ gridArea: 'donut' }}
+                                    size={24}
+                                    progress={progress}
+                                    activeColour={themes[props.theme].colours.primaryColour}
+                                    inactiveColour={darken(
+                                        0.2,
+                                        themes[props.theme].colours.backgroundColour,
+                                    )}
+                                />
+                                <ProjectName>{a.name}</ProjectName>
+                                <ProjectDescription
+                                    dangerouslySetInnerHTML={{
+                                        __html: marked(a.description, { breaks: true }),
+                                    }}
+                                />
+                                <ProjectStartAt>
+                                    {a.startAt &&
+                                        `Starting: ${formatRelativeDate(parseISO(a.startAt))}`}
+                                </ProjectStartAt>
+                                <ProjectEndAt>
+                                    {a.endAt && `Ending: ${formatRelativeDate(parseISO(a.endAt))}`}
+                                </ProjectEndAt>
+                            </ProjectContainer>
+                        )
+                    })}
             </AreaContainer>
         </ThemeProvider>
     )
@@ -123,6 +140,7 @@ const Area = (props: AreaProps): ReactElement => {
 const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
     projects: state.projects,
+    items: state.items,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     updateDescription: (id: string, text: string) => {
