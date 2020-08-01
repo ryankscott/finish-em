@@ -1,6 +1,7 @@
 import * as ui from '../actions/ui'
 import { UIType, RenderingStrategy, ItemIcons } from '../interfaces'
 import produce from 'immer'
+import uuidv4 from 'uuid'
 
 const initialState: UIType = {
     activeItem: {
@@ -533,6 +534,22 @@ export const uiReducer = produce(
 
             case ui.TOGGLE_DARK_MODE:
                 state.theme = state.theme == 'light' ? 'dark' : 'light'
+                break
+
+            case ui.CREATE_LABEL:
+                const id = uuidv4()
+                state.labels.labels[id] = {
+                    id: id,
+                    name: action.name,
+                    colour: action.colour,
+                }
+
+                state.labels.order = [...state.labels.order, id]
+                break
+
+            case ui.DELETE_LABEL:
+                delete state.labels.labels[action.id]
+                state.labels.order = state.labels.order.filter((c) => c != action.id)
                 break
 
             case ui.RENAME_LABEL:

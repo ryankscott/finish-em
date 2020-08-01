@@ -127,12 +127,12 @@ describe('ItemActions', () => {
         }
         expect(item.addLabel(id, labelId)).toEqual(expectedAction)
     })
-    it('should creat`e an action to delete the label from an item', () => {
+    it('should create an action to remove the label from an item', () => {
         const id = uuidv4()
-        const expectedAction: item.DeleteLabelAction = {
-            type: item.DELETE_LABEL,
+        const expectedAction: item.RemoveLabelAction = {
+            type: item.REMOVE_LABEL,
             id: id,
         }
-        expect(item.deleteLabel(id)).toEqual(expectedAction)
+        expect(item.removeLabel(id)).toEqual(expectedAction)
     })
 })

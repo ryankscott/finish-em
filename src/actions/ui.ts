@@ -19,6 +19,8 @@ export const SET_ACTIVE_ITEM = 'SET_ACTIVE_ITEM'
 export const UNDO_SET_ACTIVE_ITEM = 'UNDO_SET_ACTIVE_ITEM'
 export const REDO_SET_ACTIVE_ITEM = 'REDO_SET_ACTIVE_ITEM'
 export const TOGGLE_DARK_MODE = 'TOGGLE_DARK_MODE'
+export const DELETE_LABEL = 'DELETE_LABEL'
+export const CREATE_LABEL = 'CREATE_LABEL'
 export const RENAME_LABEL = 'RENAME_LABEL'
 export const SET_LABEL_COLOUR = 'SET_LABEL_COLOUR'
 export const SHOW_SUBTASKS = 'SHOW_SUBTASKS'
@@ -216,6 +218,32 @@ export function renameLabel(id: string, text: string): RenameLabelAction {
         text: text,
     }
 }
+export interface CreateLabelAction {
+    type: typeof CREATE_LABEL
+    name: string
+    colour: string
+}
+
+export function createLabel(name: string, colour: string): CreateLabelAction {
+    return {
+        type: CREATE_LABEL,
+        name: name,
+        colour: colour,
+    }
+}
+
+export interface DeleteLabelAction {
+    type: typeof DELETE_LABEL
+    id: string
+}
+
+export function deleteLabel(id: string): DeleteLabelAction {
+    return {
+        type: DELETE_LABEL,
+        id: id,
+    }
+}
+
 export interface SetLabelColourAction {
     type: typeof SET_LABEL_COLOUR
     id: string
@@ -482,3 +510,5 @@ export type UIActions =
     | AddViewAction
     | DeleteViewAction
     | ReorderViewAction
+    | CreateLabelAction
+    | DeleteLabelAction

@@ -18,7 +18,7 @@ export const CONVERT_SUBTASK = 'CONVERT_SUBTASK'
 export const CHANGE_PARENT_ITEM = 'CHANGE_PARENT_ITEM'
 export const DELETE_PERMANENT_ITEM = 'DELETE_PERMANENT_ITEM'
 export const ADD_LABEL = 'ADD_LABEL'
-export const DELETE_LABEL = 'DELETE_LABEL'
+export const REMOVE_LABEL = 'REMOVE_LABEL'
 
 import RRule from 'rrule'
 
@@ -225,14 +225,14 @@ export function addLabel(id: string, labelId: string): AddLabelAction {
     return { type: ADD_LABEL, id: id, labelId: labelId }
 }
 
-export interface DeleteLabelAction {
-    type: typeof DELETE_LABEL
+export interface RemoveLabelAction {
+    type: typeof REMOVE_LABEL
     id: string
 }
 
-export function deleteLabel(id: string): DeleteLabelAction {
+export function removeLabel(id: string): RemoveLabelAction {
     return {
-        type: DELETE_LABEL,
+        type: REMOVE_LABEL,
         id: id,
     }
 }
@@ -254,4 +254,4 @@ export type ItemActions =
     | ChangeParentItemAction
     | DeletePermanentlyAction
     | AddLabelAction
-    | DeleteLabelAction
+    | RemoveLabelAction

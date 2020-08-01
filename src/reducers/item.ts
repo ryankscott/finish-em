@@ -1,5 +1,6 @@
 import * as item from '../actions/item'
 import { DELETE_PROJECT, DeleteProjectAction } from '../actions/project'
+import { DELETE_LABEL, DeleteLabelAction } from '../actions/ui'
 import { Items } from '../interfaces'
 import { startOfDay } from 'date-fns'
 import { rrulestr } from 'rrule'
@@ -16,7 +17,10 @@ export const initialState: Items = {
 }
 
 export const itemReducer = produce(
-    (draftState: Items = initialState, action: ItemActions | DeleteProjectAction): Items => {
+    (
+        draftState: Items = initialState,
+        action: ItemActions | DeleteProjectAction | DeleteLabelAction,
+    ): Items => {
         const i = draftState?.items[action.id]
         switch (action.type) {
             case item.CREATE_ITEM:
@@ -254,7 +258,7 @@ export const itemReducer = produce(
                 i.lastUpdatedAt = new Date().toISOString()
                 break
 
-            case item.DELETE_LABEL:
+            case item.REMOVE_LABEL:
                 if (i.deleted == true) {
                     return
                 }
@@ -264,6 +268,19 @@ export const itemReducer = produce(
                 i.labelId = null
                 i.lastUpdatedAt = new Date().toISOString()
                 break
+
+            // When a label is deleted completly
+            case DELETE_LABEL: {
+                const x = Object.entries(draftState.items).map(([k, v]) => {
+                    if (v.labelId == action.id) {
+                        v.labelId = null
+                        v.lastUpdatedAt = new Date().toISOString()
+                    }
+                    return [k, v]
+                })
+                draftState.items = Object.fromEntries(x)
+                break
+            }
 
             default:
                 return draftState

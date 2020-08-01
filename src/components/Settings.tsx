@@ -3,7 +3,7 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Switch from 'react-switch'
 import { connect } from 'react-redux'
-import { toggleDarkMode, setLabelColour, renameLabel } from '../actions'
+import { toggleDarkMode, setLabelColour, renameLabel, createLabel } from '../actions'
 import { FeatureType, LabelType, Labels } from '../interfaces'
 import {
     enableDragAndDrop,
@@ -23,9 +23,11 @@ import {
     LabelContainer,
 } from './styled/Settings'
 import EditableText from './EditableText'
-import { transparentize } from 'polished'
+import { transparentize, parseToHsl } from 'polished'
 import Button from './Button'
 import ViewHeader from './ViewHeader'
+import { deleteLabel } from '../actions/ui'
+import randomColor from 'randomcolor'
 
 interface StateProps {
     features: FeatureType
@@ -43,6 +45,8 @@ interface DispatchProps {
     setLabelColour: (id: string, colour: string) => void
     renameLabel: (id: string, text: string) => void
     toggleProjectDates: () => void
+    createLabel: (colour: string) => void
+    deleteLabel: (id: string) => void
 }
 
 type SettingsPickerProps = StateProps & DispatchProps & OwnProps
@@ -51,13 +55,26 @@ function Settings(props: SettingsPickerProps): ReactElement {
     const theme = themes[props.theme]
     const [showColourPicker, setShowColourPicker] = useState(false)
     const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
-
-    let labelText = null
+    const labelColours = [
+        '#D9E3F0',
+        '#F47373',
+        '#697689',
+        '#37D67A',
+        '#2CCCE4',
+        '#555555',
+        '#dce775',
+        '#ff8a65',
+        '#ba68c8',
+    ]
     return (
         <ThemeProvider theme={theme}>
             <Container>
                 <ViewHeader name={'Settings'} icon="settings" />
-                <SettingsContainer>
+                <SettingsContainer
+                    onClick={() => {
+                        setShowColourPicker(false)
+                    }}
+                >
                     <SettingsCategory>
                         <SettingsCategoryHeader>General User interface</SettingsCategoryHeader>
                         <Setting>
@@ -100,30 +117,26 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     <SettingsCategory>
                         <SettingsCategoryHeader>Labels</SettingsCategoryHeader>
                         {Object.values(props.labels.labels).map((m: LabelType) => {
-                            labelText = React.useRef<HTMLInputElement>()
                             return (
                                 <div id={m.id} key={'f-' + m.id}>
                                     <LabelContainer key={'lc-' + m.id}>
                                         <EditableText
                                             key={'et-' + m.id}
                                             input={m.name}
-                                            backgroundColour={transparentize(0.9, m.colour)}
+                                            backgroundColour={transparentize(0.8, m.colour)}
                                             fontSize={'xxsmall'}
-                                            innerRef={labelText}
+                                            innerRef={React.createRef()}
                                             shouldSubmitOnBlur={true}
-                                            onEscape={() => {
-                                                labelText.current.blur()
-                                            }}
+                                            onEscape={() => {}}
                                             singleline={true}
                                             shouldClearOnSubmit={false}
                                             onUpdate={(e) => {
                                                 props.renameLabel(m.id, e)
-                                                labelText.current.blur()
                                             }}
                                         ></EditableText>
                                         <Button
-                                            id={m.id}
-                                            key={'col-' + m.id}
+                                            id={`${m.id}`}
+                                            key={`edit-colour-${m.id}`}
                                             icon="colour"
                                             iconSize={'18px'}
                                             spacing="compact"
@@ -132,6 +145,17 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                                 setShowColourPicker(!showColourPicker)
                                                 setColourPickerTriggeredBy(m.id)
                                                 e.stopPropagation()
+                                            }}
+                                        />
+                                        <Button
+                                            id={`${m.id}`}
+                                            key={`delete-label-${m.id}`}
+                                            icon="trash"
+                                            iconSize={'18px'}
+                                            spacing="compact"
+                                            type="default"
+                                            onClick={(e) => {
+                                                props.deleteLabel(m.id)
                                             }}
                                         />
                                     </LabelContainer>
@@ -146,16 +170,9 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                 left={document.getElementById(colourPickerTriggeredBy).offsetLeft}
                             >
                                 <StyledTwitterPicker
-                                    key={'tp-'}
-                                    width={'210px'}
+                                    key={'tp'}
                                     triangle={'hide'}
-                                    colors={[
-                                        theme.colours.primaryColour,
-                                        theme.colours.secondaryColour,
-                                        theme.colours.tertiaryColour,
-                                        theme.colours.quarternaryColour,
-                                        theme.colours.penternaryColour,
-                                    ]}
+                                    colors={labelColours}
                                     onChange={(colour, e) => {
                                         props.setLabelColour(colourPickerTriggeredBy, colour.hex)
                                         setShowColourPicker(false)
@@ -164,6 +181,20 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                 />
                             </Popover>
                         )}
+                        <Button
+                            type="default"
+                            spacing="compact"
+                            icon="add"
+                            text="Add label"
+                            onClick={() => {
+                                props.createLabel(
+                                    labelColours[
+                                        Math.ceil(Math.random() * labelColours.length) - 1
+                                    ],
+                                )
+                            }}
+                            iconSize="14px"
+                        />
                     </SettingsCategory>
                 </SettingsContainer>
             </Container>
@@ -196,6 +227,12 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     renameLabel: (id: string, text: string) => {
         dispatch(renameLabel(id, text))
+    },
+    createLabel: (colour: string) => {
+        dispatch(createLabel('New label', colour))
+    },
+    deleteLabel: (id: string) => {
+        dispatch(deleteLabel(id))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Settings)

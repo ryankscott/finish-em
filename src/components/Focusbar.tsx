@@ -23,7 +23,7 @@ import {
     convertSubtask,
     changeParentItem,
     addLabel,
-    deleteLabel,
+    removeLabel,
     deleteItem,
     undeleteItem,
 } from '../actions'
@@ -60,7 +60,7 @@ interface DispatchProps {
     addLabel: (id: string, labelId: string | string) => void
     deleteItem: (id: string) => void
     undeleteItem: (id: string) => void
-    deleteLabel: (id: string) => void
+    removeLabel: (id: string) => void
 }
 interface StateProps {
     items: Items
@@ -292,7 +292,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                                 if (labelId) {
                                     props.addLabel(i.id, labelId)
                                 } else {
-                                    props.deleteLabel(i.id)
+                                    props.removeLabel(i.id)
                                 }
                             }}
                         />
@@ -402,8 +402,8 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     addLabel: (id: string, labelId: string | string) => {
         dispatch(addLabel(id, labelId))
     },
-    deleteLabel: (id: string) => {
-        dispatch(deleteLabel(id))
+    removeLabel: (id: string) => {
+        dispatch(removeLabel(id))
     },
     deleteItem: (id: string) => {
         dispatch(deleteItem(id))

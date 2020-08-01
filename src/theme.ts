@@ -374,11 +374,12 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
         option: (styles, { data, isFocused }) => {
             return {
                 ...styles,
-
                 tabIndex: 0,
                 position: 'relative',
                 color: props.theme.colours.textColour,
-                backgroundColor: isFocused
+                backgroundColor: data
+                    ? data.color
+                    : isFocused
                     ? darken(0.1, props.theme.colours.backgroundColour)
                     : props.theme.colours.backgroundColour,
                 padding: '5px 10px',

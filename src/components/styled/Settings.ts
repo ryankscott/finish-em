@@ -48,6 +48,7 @@ interface PopoverProps {
     left?: number
 }
 export const Popover = styled.div<PopoverProps>`
+    z-index: 99;
     position: absolute;
     top: ${(props) => {
         return Math.round(props.top) + 'px'
@@ -56,8 +57,7 @@ export const Popover = styled.div<PopoverProps>`
         return Math.round(props.left) + 'px'
     }};
 `
-interface LabelNameProps {}
-export const LabelName = styled.div<LabelNameProps>`
+export const LabelName = styled.div`
     font-size: ${(props) => props.theme.fontSizes.xxsmall};
     padding: 2px;
     padding-left: 10px;
@@ -66,9 +66,8 @@ export const LabelName = styled.div<LabelNameProps>`
         cursor: pointer;
     }
 `
-interface LabelContainerProps {}
 
-export const LabelContainer = styled.div<LabelContainerProps>`
+export const LabelContainer = styled.div`
     display: flex;
     width: 250px;
     justify-content: space-between;

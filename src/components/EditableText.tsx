@@ -154,6 +154,8 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             }
             // This stops an actual enter being sent
             e.preventDefault()
+            setEditable(false)
+            props.innerRef.current.blur()
             return
         }
     }

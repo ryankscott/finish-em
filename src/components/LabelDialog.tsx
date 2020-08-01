@@ -12,7 +12,7 @@ import {
 } from './styled/LabelDialog'
 import Button from './Button'
 import { Label, LabelType } from '../interfaces'
-import { addLabel, deleteLabel } from '../actions/item'
+import { addLabel, removeLabel } from '../actions/item'
 
 interface StateProps {
     theme: string
@@ -21,7 +21,7 @@ interface StateProps {
 
 interface DispatchProps {
     addLabel: (id: string, labelId: string | string) => void
-    deleteLabel: (id: string) => void
+    removeLabel: (id: string) => void
 }
 interface OwnProps {
     itemId: string
@@ -68,7 +68,7 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
                         <LabelName
                             colour={''}
                             onClick={(e) => {
-                                props.deleteLabel(props.itemId)
+                                props.removeLabel(props.itemId)
                                 e.stopPropagation()
                                 props.onClose()
                             }}
@@ -91,8 +91,8 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     addLabel: (id: string, labelId: string | string) => {
         dispatch(addLabel(id, labelId))
     },
-    deleteLabel: (id: string) => {
-        dispatch(deleteLabel(id))
+    removeLabel: (id: string) => {
+        dispatch(removeLabel(id))
     },
 })
 

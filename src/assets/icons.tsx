@@ -138,8 +138,8 @@ export const Icons = {
     ): React.SVGProps<SVGSVGElement> => (
         <svg
             xmlns="http://www.w3.org/2000/svg"
-            width={width ? width : '18'}
-            height={height ? height : '18'}
+            width={width ? width : '14'}
+            height={height ? height : '14'}
             viewBox="0 0 24 24"
             fill="none"
             stroke={colour ? colour : 'currentColor'}
