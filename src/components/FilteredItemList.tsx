@@ -1,5 +1,5 @@
 import React, { ReactElement, useState, useEffect } from 'react'
-import ItemList from '../components/ItemList'
+import ItemList from './ItemList'
 import { orderBy } from 'lodash'
 import { themes, selectStyles } from '../theme'
 import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
@@ -13,20 +13,20 @@ import {
     ListItemCount,
     HideButtonContainer,
     FilterBar,
-} from '../components/styled/FilteredItemList'
+} from './styled/FilteredItemList'
 import { connect } from 'react-redux'
-import Button from '../components/Button'
-import Tooltip from '../components/Tooltip'
+import Button from './Button'
+import Tooltip from './Tooltip'
 import { deleteItem } from '../actions/item'
 import { getFilteredItems } from '../selectors/item'
 import { components } from 'react-select'
-import ReorderableItemList from '../components/ReorderableItemList'
+import ReorderableItemList from './ReorderableItemList'
 import { ItemIcons } from '../interfaces/item'
 import { hideSubtasks, showSubtasks, deleteComponent } from '../actions'
 import { Icons } from '../assets/icons'
 import { ThemeProvider } from '../StyledComponents'
-import FilteredItemDialog from '../components/FilteredItemDialog'
-import MoreDropdown from '../components/MoreDropdown'
+import FilteredItemDialog from './FilteredItemDialog'
+import MoreDropdown from './MoreDropdown'
 
 const PAGE_SIZE = 25
 

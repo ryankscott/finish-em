@@ -1,4 +1,4 @@
-import { OwnProps as FilteredItemListProps } from '../containers/FilteredItemList'
+import { OwnProps as FilteredItemListProps } from '../components/FilteredItemList'
 import { OwnProps as ViewHeaderProps } from '../components/ViewHeader'
 
 import CSS from 'csstype'

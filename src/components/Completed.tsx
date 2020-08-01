@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 
 import { themes } from '../theme'
-import FilteredItemList from '../containers/FilteredItemList'
+import FilteredItemList from './FilteredItemList'
 import { Container } from './styled/Completed'
 import { isToday, parseISO, isThisMonth, isThisWeek } from 'date-fns'
 import { ItemType } from '../interfaces'
