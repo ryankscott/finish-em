@@ -2,22 +2,22 @@
 
 ## App
 
-| Name                   | Keys   |
-| :--------------------- | :----- |
-| Go to Project 1        | `g 1`  |
-| Go to Project 2        | `g 2`  |
-| Go to Project N        | `g n`  |
-| Go to next Project     | `g ]`  |
-| Go to previous Project | `g [`  |
-| Go to Daily Agenda     | `g d`  |
-| Go to Inbox            | `g i`  |
-| Go to Trash            | `g t`  |
-| Go to Stale            | `g s`  |
-| Go to Unscheduled      | `g u`  |
-| Go to Completed        | `g c`  |
-| Show Sidebar           | `s s ` |
-| Hide Sidebar           | `s h ` |
-| Show shortcuts         | `?`    |
+| Name                   | Keys  |
+| :--------------------- | :---- |
+| Go to Project 1        | `g 1` |
+| Go to Project 2        | `g 2` |
+| Go to Project N        | `g n` |
+| Go to next Project     | `g ]` |
+| Go to previous Project | `g [` |
+| Go to Daily Agenda     | `g d` |
+| Go to Inbox            | `g i` |
+| Go to Trash            | `g t` |
+| Go to Stale            | `g s` |
+| Go to Unscheduled      | `g u` |
+| Go to Completed        | `g c` |
+| Show Sidebar           | `]`   |
+| Hide Sidebar           | `[`   |
+| Show shortcuts         | `?`   |
 
 
 ## Item
