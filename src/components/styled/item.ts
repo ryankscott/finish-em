@@ -19,12 +19,7 @@ export const Container = styled.div<ContainerProps>`
     opacity: ${(props) => (props.hidden ? '0' : '1')};
     margin: 1px 0px;
     margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
-    grid-template-columns:
-        5px 30px 30px minmax(120px, auto) minmax(120px, auto) minmax(120px, auto) minmax(
-            120px,
-            auto
-        )
-        30px;
+    grid-template-columns: 5px 30px 30px repeat(4, 1fr) 30px;
     grid-auto-rows: auto auto;
     grid-template-areas:
         '.  EXPAND   TYPE    DESC         DESC         DESC        PROJECT     MORE'

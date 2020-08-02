@@ -1,5 +1,5 @@
 import styled from '../../StyledComponents'
-import { Header1, Header } from '../Typography'
+import { Header } from '../Typography'
 import CSS from 'csstype'
 import { lighten } from 'polished'
 
@@ -117,26 +117,35 @@ interface DroppableListProps {
 }
 export const DroppableList = styled.div``
 
-export const DroppableListStyle = (isDraggingOver: boolean, theme): CSS.Properties => ({
+export const DroppableListStyle = (
+    isDraggingOver: boolean,
+    theme,
+    sidebarVisible,
+): CSS.Properties => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     background: isDraggingOver ? lighten(0.1, theme.colours.altBackgroundColour) : 'inherit',
-    padding: isDraggingOver ? '10px 5px' : '5px 5px',
+    padding: !sidebarVisible ? '0px' : isDraggingOver ? '10px 5px' : '5px 5px',
     paddingBottom: isDraggingOver ? '45px' : '5px',
     borderRadius: '5px',
 })
 
 export const DraggableItem = styled.div``
 
-export const DraggableItemStyle = (isDragging: boolean, draggableStyle, theme): CSS.Properties => ({
+export const DraggableItemStyle = (
+    isDragging: boolean,
+    draggableStyle,
+    theme,
+    sidebarVisible,
+): CSS.Properties => ({
     ...draggableStyle,
     display: 'flex',
     flexDirection: 'column',
     height: 'auto',
     userSelect: 'none',
     margin: '0px',
-    padding: '0px 5px',
+    padding: !sidebarVisible ? '0px' : '0px 5px',
     borderRadius: '5px',
     // change background colour if dragging
     background: isDragging

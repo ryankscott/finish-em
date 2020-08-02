@@ -217,7 +217,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 <DroppableList
                                     {...provided.droppableProps}
                                     ref={provided.innerRef}
-                                    style={DroppableListStyle(snapshot.isDraggingOver, theme)}
+                                    style={DroppableListStyle(
+                                        snapshot.isDraggingOver,
+                                        theme,
+                                        props.sidebarVisible,
+                                    )}
                                 >
                                     {Object.values(props.areas.order).map((a: string, index) => {
                                         const area = props.areas.areas[a]
@@ -233,6 +237,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                             snapshot.isDragging,
                                                             provided.draggableProps.style,
                                                             theme,
+                                                            props.sidebarVisible,
                                                         )}
                                                     >
                                                         {props.sidebarVisible && (
