@@ -1,7 +1,7 @@
 import * as ui from '../actions/ui'
 import { UIType, RenderingStrategy, ItemIcons } from '../interfaces'
 import produce from 'immer'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 const initialState: UIType = {
     activeItem: {

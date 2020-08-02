@@ -4,11 +4,11 @@ import { DELETE_LABEL, DeleteLabelAction } from '../actions/ui'
 import { Items } from '../interfaces'
 import { startOfDay } from 'date-fns'
 import { rrulestr } from 'rrule'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import { ItemActions } from '../actions'
 import produce from 'immer'
-import { getItemTypeFromString, dueTextRegex } from '../utils'
-import chrono from 'chrono-node'
+import { getItemTypeFromString, dueTextRegex, scheduledTextRegex } from '../utils'
+import { Date as sugarDate } from 'sugar-date'
 
 const uuid = uuidv4()
 export const initialState: Items = {
@@ -25,16 +25,30 @@ export const itemReducer = produce(
         switch (action.type) {
             case item.CREATE_ITEM:
                 const itemType = getItemTypeFromString(action.text)
+
+                // Due date parsing
                 const dueDateText = action.text.match(dueTextRegex)
-                const dd = dueDateText ? dueDateText[0].split(':')[1] : ''
-                const dueDate = chrono.parse(action.text)
+                let dd = dueDateText ? dueDateText[0].split(':')[1] : ''
+
+                // Removing surrounding "" marks
+                dd = dd.replace(/^"(.+(?="$))"$/, '$1')
+                const dueDate = dd ? sugarDate.create(dd) : ''
+
+                let itemText = action.text.replace(dueTextRegex, '')
+
+                // Scheduled parsing
+                const scheduledDateText = action.text.match(scheduledTextRegex)
+                let sd = scheduledDateText ? scheduledDateText[0].split(':')[1] : ''
+                sd = sd.replace(/^"(.+(?="$))"$/, '$1')
+                const scheduledDate = sd ? sugarDate.create(sd) : ''
+                itemText = itemText.replace(scheduledTextRegex, '')
 
                 draftState.items[action.id.toString()] = {
                     id: action.id,
                     type: itemType,
-                    text: action.text,
-                    scheduledDate: null,
-                    dueDate: null,
+                    text: itemText,
+                    scheduledDate: scheduledDate ? scheduledDate.toISOString() : null,
+                    dueDate: dueDate ? dueDate.toISOString() : null,
                     projectId: action.projectId ? action.projectId : '0',
                     completed: false,
                     deleted: false,

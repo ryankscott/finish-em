@@ -8,7 +8,7 @@ import { MainComponents } from '../interfaces'
 import FilteredItemList from './FilteredItemList'
 import Button from './Button'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { reorderComponent, addComponent } from '../actions'
 import CSS from 'csstype'
 

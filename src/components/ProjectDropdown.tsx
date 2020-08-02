@@ -1,7 +1,7 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import CreatableSelect from 'react-select/creatable'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import { themes, selectStyles } from '../theme'
 
 import { connect } from 'react-redux'

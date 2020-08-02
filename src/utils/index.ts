@@ -1,4 +1,4 @@
-import chrono from 'chrono-node'
+import * as chrono from 'chrono-node'
 import { ItemType, Item, RenderingStrategy } from '../interfaces'
 import RRule from 'rrule'
 

@@ -7,7 +7,7 @@ import { Label, MainComponents, Component } from '../interfaces'
 import { connect } from 'react-redux'
 import ViewHeader from './ViewHeader'
 import ItemCreator from './ItemCreator'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { addComponent } from '../actions'
 import ReorderableComponentList from './ReorderableComponentList'
 

@@ -33,7 +33,7 @@ import {
 import Button from './Button'
 import { createShortProjectName } from '../utils'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 
 import { Icons } from '../assets/icons'
 
@@ -205,7 +205,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 )
                             }
                             if (e.type == 'AREA') {
-                                console.log('area')
                                 props.reorderArea(
                                     e.draggableId,
                                     props.areas.order[e.destination.index],

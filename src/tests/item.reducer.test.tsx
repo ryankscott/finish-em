@@ -1,6 +1,6 @@
 import Mockdate from 'mockdate'
 import RRule from 'rrule'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import * as item from '../actions/item'
 import { Items } from '../interfaces'
 import { itemReducer } from '../reducers/item'
@@ -16,7 +16,6 @@ describe('item reducer', () => {
             itemReducer(blankState, {
                 id: id,
                 type: item.CREATE_ITEM,
-                itemType: 'TODO',
                 text: 'TODO Run the tests',
             }),
         ).toEqual({
@@ -45,6 +44,39 @@ describe('item reducer', () => {
         Mockdate.reset()
     })
 
+    it('should handle create an item with due date text - multi-line', () => {
+        const id = uuidv4()
+        expect(
+            itemReducer(blankState, {
+                id: id,
+                type: item.CREATE_ITEM,
+                text: 'TODO Run the tests due:"7th January"',
+            }),
+        ).toEqual({
+            items: {
+                [id]: {
+                    id: id,
+                    type: 'TODO',
+                    text: 'TODO Run the tests',
+                    scheduledDate: null,
+                    dueDate: new Date(Date.UTC(2020, 0, 7, 0, 0, 0)).toISOString(),
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: new Date().toISOString(),
+                    lastUpdatedAt: new Date().toISOString(),
+                    repeat: null,
+                    parentId: null,
+                    projectId: '0',
+                    children: [],
+                    labelId: null,
+                },
+            },
+            order: [id],
+        })
+    })
+
     it('should handle create an item with projectID', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
@@ -53,7 +85,6 @@ describe('item reducer', () => {
             itemReducer(blankState, {
                 id: id,
                 type: item.CREATE_ITEM,
-                itemType: 'TODO',
                 text: 'TODO Run the tests',
                 projectId: projectId,
             }),

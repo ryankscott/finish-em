@@ -1,14 +1,14 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 import { createItem, addChildItem } from '../actions'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
 import Tooltip from './Tooltip'
 import { Container, ItemCreatorContainer, HelpButtonContainer } from './styled/ItemCreator'
 import { Icons } from '../assets/icons'
 import { themes } from '../theme'
 import { ThemeProvider } from '../StyledComponents'
-import chrono from 'chrono-node'
+import { Date as sugarDate } from 'sugar-date'
 import {
     setEndOfContenteditable,
     dueTextRegex,
@@ -19,6 +19,7 @@ import {
 } from '../utils'
 import EditableText from './EditableText'
 import { lighten } from 'polished'
+import { isValid } from 'date-fns'
 
 interface StateProps {
     theme: string
@@ -132,10 +133,10 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                             // Check for due date references
                             const dueTextMatches = currentVal.match(dueTextRegex)
                             if (dueTextMatches) {
-                                const dueDateText = dueTextMatches[0].split(':')[1]
-
-                                const dueDate = chrono.parse(dueDateText)
-                                if (dueDate.length) {
+                                let dueDateText = dueTextMatches[0].split(':')[1]
+                                dueDateText = dueDateText.replace(/^"(.+(?="$))"$/, '$1')
+                                const dueDate = sugarDate.create(dueDateText)
+                                if (isValid(dueDate)) {
                                     currentVal = currentVal.replace(
                                         dueTextRegex,
                                         '<span class="valid">$&</span>',
@@ -153,10 +154,13 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                             // Check for scheduled date references
                             const scheduledTextMatches = currentVal.match(scheduledTextRegex)
                             if (scheduledTextMatches) {
-                                const scheduledDateText = scheduledTextMatches[0].split(':')[1]
-
-                                const scheduledDate = chrono.parse(scheduledDateText)
-                                if (scheduledDate.length) {
+                                let scheduledDateText = scheduledTextMatches[0].split(':')[1]
+                                scheduledDateText = scheduledDateText.replace(
+                                    /^"(.+(?="$))"$/,
+                                    '$1',
+                                )
+                                const scheduledDate = sugarDate.create(scheduledDateText)
+                                if (isValid(scheduledDate)) {
                                     currentVal = currentVal.replace(
                                         scheduledTextRegex,
                                         '<span class="valid">$&</span>',

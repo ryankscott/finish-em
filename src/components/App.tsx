@@ -34,7 +34,7 @@ import {
 } from './styled/App'
 import { Projects, Views, Items, Areas } from '../interfaces'
 import { Slide, toast } from 'react-toastify'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import Headerbar from './Headerbar'

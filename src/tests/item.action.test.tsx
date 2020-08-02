@@ -1,5 +1,5 @@
 import * as item from '../actions/item'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import RRule from 'rrule'
 
 describe('ItemActions', () => {

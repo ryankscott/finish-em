@@ -7,7 +7,7 @@ import { item as itemKeymap } from '../keymap'
 import { ItemType, RenderingStrategy, Items } from '../interfaces'
 import { Container, NoItemText } from './styled/ItemList'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import uuidv4 from 'uuid/v4'
+import { v4 as uuidv4 } from 'uuid'
 import * as CSS from 'csstype'
 import { connect } from 'react-redux'
 import {

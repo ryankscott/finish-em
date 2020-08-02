@@ -14,7 +14,7 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: ${(props) => props.theme.font.sansSerif};
     color: ${(props) => props.theme.colours.textColour};
-    background-color: ${(props) => props.theme.colours.backgroundColour}
+    background-color: ${(props) => props.theme.colours.backgroundColour};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     font-size: ${(props) => props.theme.fontSizes.xsmall};
     box-sizing: border-box;
@@ -99,7 +99,7 @@ td {
 
 
 th {
-    font-weight: ${(props) => props.theme.fontWeights.bold}
+    font-weight: ${(props) => props.theme.fontWeights.bold};
     font-size: ${(props) => props.theme.fontSizes.small};
     font-family: ${(props) => props.theme.font.sansSerif};
     color: ${(props) => props.theme.colours.textColour};

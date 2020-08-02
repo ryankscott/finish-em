@@ -1,5 +1,5 @@
 import * as project from '../actions/project'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 describe('ProjectActions', () => {
     it('should create an action to create a project', () => {

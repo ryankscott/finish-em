@@ -10,7 +10,7 @@ import {
     Project,
     MainComponents,
 } from '../interfaces'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 import { ItemIcons } from '../interfaces/item'
 // Remove flagged item and introduces label
 export const migratev7tov8Items = (its: Items): Items => {

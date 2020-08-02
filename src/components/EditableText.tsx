@@ -9,7 +9,7 @@ import { connect } from 'react-redux'
 import CSS from 'csstype'
 import { fontSizeType } from '../interfaces'
 import isElectron from 'is-electron'
-import uuidv4 from 'uuid'
+import { v4 as uuidv4 } from 'uuid'
 
 if (isElectron()) {
     const electron = window.require('electron')
@@ -232,7 +232,9 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                             : getMarkdownText()
                     }
                 />
-                {!editable && input.length == 0 && <Placeholder>{props.placeholder}</Placeholder>}
+                {!editable && input.length == 0 && (
+                    <Placeholder onClick={handleClick}>{props.placeholder}</Placeholder>
+                )}
             </div>
         </ThemeProvider>
     )
