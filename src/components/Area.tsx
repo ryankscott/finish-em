@@ -85,7 +85,7 @@ const Area = (props: AreaProps): ReactElement => {
                 />
                 <Header>Projects</Header>
                 {Object.values(props.projects.projects)
-                    .filter((p: ProjectType) => p.areaId == props.area.id)
+                    .filter((p: ProjectType) => p.areaId == props.area.id && p.id != '0')
                     .map((a: ProjectType) => {
                         const itemsForProject = Object.values(props.items.items).filter(
                             (i) => i.projectId == a.id,
