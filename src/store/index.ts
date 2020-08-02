@@ -1,12 +1,13 @@
-import { createStore, compose, applyMiddleware } from 'redux'
+import { createStore, compose } from 'redux'
 import rootReducer from '../reducers'
 import { createMigrate, persistStore, persistReducer } from 'redux-persist'
 import isElectron from 'is-electron'
 import storage from 'redux-persist/lib/storage'
 import { migrations } from './migrations'
-import * as itemActions from '../actions/item'
 
-/*const logger = (store) => (next) => (action) => {
+/*import * as itemActions from '../actions/item'
+
+const logger = (store) => (next) => (action) => {
     // Get the action names for items
     const actions = Object.values(itemActions).filter((x) => typeof x == 'string')
     if (actions.includes(action.action.type)) {

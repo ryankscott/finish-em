@@ -11,6 +11,7 @@ import {
     reorderProject,
     addView,
     setProjectArea,
+    reorderArea,
 } from '../actions'
 import { Projects, Views, ItemIcons, Areas } from '../interfaces'
 import {
@@ -99,6 +100,7 @@ interface DispatchProps {
     reorderProject: (id: string, destinationId: string) => void
     setProjectArea: (id: string, areaId: string) => void
     createArea: (id: string, name: string, description: string) => void
+    reorderArea: (id: string, destinationId: string) => void
 }
 
 const SidebarItem = (props: {
@@ -191,115 +193,176 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 
                     <DragDropContext
                         onDragEnd={(e) => {
-                            props.setProjectArea(e.draggableId, e.destination.droppableId)
-                            props.reorderProject(
-                                e.draggableId,
-                                props.projects.order[e.destination.index],
-                            )
+                            if (e.type == 'PROJECT') {
+                                // TODO: Trying to detect drops in non-valid areas
+                                if (!e.destination) {
+                                    return
+                                }
+                                props.setProjectArea(e.draggableId, e.destination.droppableId)
+                                props.reorderProject(
+                                    e.draggableId,
+                                    props.projects.order[e.destination.index],
+                                )
+                            }
+                            if (e.type == 'AREA') {
+                                console.log('area')
+                                props.reorderArea(
+                                    e.draggableId,
+                                    props.areas.order[e.destination.index],
+                                )
+                            }
                         }}
                     >
-                        {Object.values(props.areas.order).map((a: string, index) => {
-                            const area = props.areas.areas[a]
-                            return (
-                                <div key={a}>
-                                    {props.sidebarVisible && (
-                                        <SubsectionHeader visible={props.sidebarVisible}>
-                                            <AreaLink
-                                                sidebarVisible={props.sidebarVisible}
-                                                to={`/areas/${area.id}`}
-                                                activeStyle={{
-                                                    backgroundColor:
-                                                        theme.colours
-                                                            .focusAltDialogBackgroundColour,
-                                                }}
-                                            >
-                                                {area.name}
-                                            </AreaLink>
-                                            <Button
-                                                type="subtle"
-                                                icon="add"
-                                                iconColour={'white'}
-                                                onClick={() => {
-                                                    const projectId = uuidv4()
-                                                    props.createProject(
-                                                        projectId,
-                                                        'New Project',
-                                                        '',
-                                                        a,
-                                                    )
-                                                    history.push('/projects/' + projectId)
-                                                }}
-                                            />
-                                        </SubsectionHeader>
-                                    )}
-                                    <Droppable droppableId={a} type="PROJECT">
-                                        {(provided, snapshot) => (
-                                            <DroppableList
-                                                {...provided.droppableProps}
-                                                ref={provided.innerRef}
-                                                style={DroppableListStyle(
-                                                    snapshot.isDraggingOver,
-                                                    theme,
-                                                )}
-                                            >
-                                                {Object.values(props.projects.order).map(
-                                                    (p: string, index) => {
-                                                        // Don't render the inbox here
-                                                        if (p == '0') return
-                                                        const project = props.projects.projects[p]
-                                                        // Only render those in that area
-                                                        if (project.areaId != a) return
-                                                        const pathName = '/projects/' + p
-                                                        //
-                                                        return (
-                                                            <Draggable
-                                                                key={p}
-                                                                draggableId={p}
-                                                                index={index}
+                        <Droppable droppableId={uuidv4()} type="AREA">
+                            {(provided, snapshot) => (
+                                <DroppableList
+                                    {...provided.droppableProps}
+                                    ref={provided.innerRef}
+                                    style={DroppableListStyle(snapshot.isDraggingOver, theme)}
+                                >
+                                    {Object.values(props.areas.order).map((a: string, index) => {
+                                        const area = props.areas.areas[a]
+                                        return (
+                                            <Draggable key={a} draggableId={a} index={index}>
+                                                {(provided, snapshot) => (
+                                                    <DraggableItem
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        key={'container-area-' + a}
+                                                        style={DraggableItemStyle(
+                                                            snapshot.isDragging,
+                                                            provided.draggableProps.style,
+                                                            theme,
+                                                        )}
+                                                    >
+                                                        {props.sidebarVisible && (
+                                                            <SubsectionHeader
+                                                                visible={props.sidebarVisible}
                                                             >
-                                                                {(provided, snapshot) => (
-                                                                    <DraggableItem
-                                                                        ref={provided.innerRef}
-                                                                        {...provided.draggableProps}
-                                                                        {...provided.dragHandleProps}
-                                                                        key={'container-' + p}
-                                                                        style={DraggableItemStyle(
-                                                                            snapshot.isDragging,
-                                                                            provided.draggableProps
-                                                                                .style,
-                                                                            theme,
-                                                                        )}
-                                                                    >
-                                                                        <ProjectLink
-                                                                            sidebarVisible={
-                                                                                props.sidebarVisible
-                                                                            }
-                                                                            key={p}
-                                                                            to={pathName}
-                                                                            activeStyle={{
-                                                                                backgroundColor:
-                                                                                    theme.colours
-                                                                                        .focusAltDialogBackgroundColour,
-                                                                            }}
-                                                                        >
-                                                                            {props.sidebarVisible
-                                                                                ? project.name
-                                                                                : createShortProjectName(
-                                                                                      project.name,
-                                                                                  )}
-                                                                        </ProjectLink>
-                                                                    </DraggableItem>
-                                                                )}
-                                                            </Draggable>
-                                                        )
-                                                    },
+                                                                <AreaLink
+                                                                    sidebarVisible={
+                                                                        props.sidebarVisible
+                                                                    }
+                                                                    to={`/areas/${area.id}`}
+                                                                    activeStyle={{
+                                                                        backgroundColor:
+                                                                            theme.colours
+                                                                                .focusAltDialogBackgroundColour,
+                                                                    }}
+                                                                >
+                                                                    {area.name}
+                                                                </AreaLink>
+                                                                <Button
+                                                                    type="subtle"
+                                                                    icon="add"
+                                                                    iconColour={'white'}
+                                                                    onClick={() => {
+                                                                        const projectId = uuidv4()
+                                                                        props.createProject(
+                                                                            projectId,
+                                                                            'New Project',
+                                                                            '',
+                                                                            a,
+                                                                        )
+                                                                        history.push(
+                                                                            '/projects/' +
+                                                                                projectId,
+                                                                        )
+                                                                    }}
+                                                                />
+                                                            </SubsectionHeader>
+                                                        )}
+                                                        <Droppable droppableId={a} type="PROJECT">
+                                                            {(provided, snapshot) => (
+                                                                <DroppableList
+                                                                    {...provided.droppableProps}
+                                                                    ref={provided.innerRef}
+                                                                    style={DroppableListStyle(
+                                                                        snapshot.isDraggingOver,
+                                                                        theme,
+                                                                    )}
+                                                                >
+                                                                    {Object.values(
+                                                                        props.projects.order,
+                                                                    ).map((p: string, index) => {
+                                                                        // Don't render the inbox here
+                                                                        if (p == '0') return
+                                                                        const project =
+                                                                            props.projects.projects[
+                                                                                p
+                                                                            ]
+                                                                        // Only render those in that area
+                                                                        if (project.areaId != a)
+                                                                            return
+                                                                        const pathName =
+                                                                            '/projects/' + p
+                                                                        //
+                                                                        return (
+                                                                            <Draggable
+                                                                                key={p}
+                                                                                draggableId={p}
+                                                                                index={index}
+                                                                            >
+                                                                                {(
+                                                                                    provided,
+                                                                                    snapshot,
+                                                                                ) => (
+                                                                                    <DraggableItem
+                                                                                        ref={
+                                                                                            provided.innerRef
+                                                                                        }
+                                                                                        {...provided.draggableProps}
+                                                                                        {...provided.dragHandleProps}
+                                                                                        key={
+                                                                                            'container-' +
+                                                                                            p
+                                                                                        }
+                                                                                        style={DraggableItemStyle(
+                                                                                            snapshot.isDragging,
+                                                                                            provided
+                                                                                                .draggableProps
+                                                                                                .style,
+                                                                                            theme,
+                                                                                        )}
+                                                                                    >
+                                                                                        <ProjectLink
+                                                                                            sidebarVisible={
+                                                                                                props.sidebarVisible
+                                                                                            }
+                                                                                            key={p}
+                                                                                            to={
+                                                                                                pathName
+                                                                                            }
+                                                                                            activeStyle={{
+                                                                                                backgroundColor:
+                                                                                                    theme
+                                                                                                        .colours
+                                                                                                        .focusAltDialogBackgroundColour,
+                                                                                            }}
+                                                                                        >
+                                                                                            {props.sidebarVisible
+                                                                                                ? project.name
+                                                                                                : createShortProjectName(
+                                                                                                      project.name,
+                                                                                                  )}
+                                                                                        </ProjectLink>
+                                                                                    </DraggableItem>
+                                                                                )}
+                                                                            </Draggable>
+                                                                        )
+                                                                    })}
+                                                                </DroppableList>
+                                                            )}
+                                                        </Droppable>
+                                                    </DraggableItem>
                                                 )}
-                                            </DroppableList>
-                                        )}
-                                    </Droppable>
-                                </div>
-                            )
-                        })}
+                                            </Draggable>
+                                        )
+                                    })}
+                                </DroppableList>
+                            )}
+                        </Droppable>
                     </DragDropContext>
                     {props.sidebarVisible && (
                         <AddAreaContainer>
@@ -400,6 +463,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     createArea: (id: string, name: string, description: string) => {
         dispatch(createArea(id, name, description))
+    },
+    reorderArea: (id: string, destinationId: string) => {
+        dispatch(reorderArea(id, destinationId))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Sidebar)

@@ -41,7 +41,7 @@ export const SubsectionHeader = styled.div<SubsectionHeaderProps>`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: '0px 5px';
+    padding: 0px 5px;
     padding-left: 10px;
 `
 
@@ -132,7 +132,7 @@ export const DraggableItem = styled.div``
 export const DraggableItemStyle = (isDragging: boolean, draggableStyle, theme): CSS.Properties => ({
     ...draggableStyle,
     display: 'flex',
-    flexDirection: 'row',
+    flexDirection: 'column',
     height: 'auto',
     userSelect: 'none',
     margin: '0px',
