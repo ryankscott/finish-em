@@ -77,13 +77,15 @@ interface ProjectLinkProps {
 }
 export const ProjectLink = styled(StyledLink)<ProjectLinkProps>`
     width: 100%;
-    padding-left: ${(props) => (props.sidebarVisible ? '25px' : '15px')};
+    padding: 5px 2px;
+    padding-left: ${(props) => (props.sidebarVisible ? '25px' : '0px')};
 `
 interface AreaLinkProps {
     sidebarVisible: boolean
 }
 export const AreaLink = styled(StyledLink)<AreaLinkProps>`
     width: 100%;
+    padding: 7px 5px;
     font-size: ${(props) => props.theme.fontSizes.small};
 `
 

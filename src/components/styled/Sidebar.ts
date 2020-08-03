@@ -41,8 +41,7 @@ export const SubsectionHeader = styled.div<SubsectionHeaderProps>`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 0px 5px;
-    padding-left: 10px;
+    padding: 5px 0px;
 `
 
 export const HeaderName = styled(Header)`
@@ -64,7 +63,7 @@ export const Footer = styled.div<FooterProps>`
         props.visible
             ? `'settings settings settings settings settings collapse'`
             : `'settings'
-'collapse'`};
+               'collapse'`};
     flex-direction: row;
     justify-content: space-between;
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
