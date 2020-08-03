@@ -91,10 +91,10 @@ const Area = (props: AreaProps): ReactElement => {
                     )
                     .map((a: ProjectType) => {
                         const itemsForProject = Object.values(props.items.items).filter(
-                            (i) => i.projectId == a.id,
+                            (i) => i.projectId == a.id && i.deleted == false,
                         )
                         const completedItemsForProject = itemsForProject.map(
-                            (i) => i.completed == true,
+                            (i) => i.completed == true && i.deleted == false,
                         )
                         const progress =
                             itemsForProject.length == 0
