@@ -6,20 +6,44 @@ import { themes, selectStyles } from '../theme'
 
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
-import { Projects, Project, ProjectType } from '../interfaces'
+import { Project, ProjectType, Area, Projects, Areas } from '../interfaces'
 import { Container } from './styled/ProjectDropdown'
 import Button from './Button'
+import { GroupType } from 'react-select'
+import { groupBy } from '../utils'
+
+type OptionType = { value: string; label: JSX.Element | string }
 
 const generateOptions = (
-    projectId: string | '0',
-    options: Project,
-): { value: string | '0'; label: string }[] => {
-    const p: ProjectType[] = Object.values(options)
-    return p
+    project: ProjectType,
+    areas: Area,
+    projects: Project,
+): GroupType<OptionType>[] => {
+    const p = Object.values(projects)
+    const filteredProjects = p
         .filter((p) => p.id != '0')
-        .filter((p) => p.id != projectId)
+        .filter((p) => p.id != project.id)
         .filter((p) => p.deleted == false)
-        .map((p) => ({ value: p.id, label: p.name }))
+
+    const groupedProjects = groupBy(filteredProjects, 'areaId')
+    const allGroups = Object.keys(groupedProjects).map((i) => {
+        const group: GroupType<OptionType> = { label: '', options: [] }
+        group['label'] = areas[i].name
+        group['options'] = groupedProjects[i].map((p) => {
+            return {
+                value: p.id,
+                label: p.name,
+            }
+        })
+        return group
+    })
+
+    // Sort to ensure that the current project is at the front
+    allGroups.sort((a, b) =>
+        a.label == areas[project.areaId].name ? -1 : b.label == areas[project.areaId].name ? 1 : 0,
+    )
+
+    return allGroups
 }
 
 interface DispatchProps {
@@ -28,6 +52,7 @@ interface DispatchProps {
 interface StateProps {
     projects: Projects
     theme: string
+    areas: Areas
 }
 interface OwnProps {
     onSubmit: (value: string | '0') => void
@@ -42,6 +67,7 @@ interface OwnProps {
 type ProjectDropdownProps = DispatchProps & StateProps & OwnProps
 function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
+    const project = props.projects.projects[props.projectId]
     const handleChange = (newValue, actionMeta): void => {
         if (actionMeta.action == 'select-option') {
             props.onSubmit(newValue.value)
@@ -81,7 +107,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                         setShowSelect(!showSelect)
                         e.stopPropagation()
                     }}
-                    text={props.projects.projects[props.projectId].name}
+                    text={project.name}
                     isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (
@@ -91,7 +117,11 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                             placeholder={'Project:'}
                             isSearchable
                             onChange={handleChange}
-                            options={generateOptions(props.projectId, props.projects.projects)}
+                            options={generateOptions(
+                                project,
+                                props.areas.areas,
+                                props.projects.projects,
+                            )}
                             styles={selectStyles({
                                 fontSize: 'xxsmall',
                                 theme: themes[props.theme],
@@ -117,6 +147,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
 const mapStateToProps = (state): StateProps => ({
     projects: state.projects,
     theme: state.ui.theme,
+    areas: state.areas,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     createProject: (id: string, name: string) => {
