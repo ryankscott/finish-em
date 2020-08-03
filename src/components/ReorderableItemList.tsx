@@ -293,11 +293,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                         // We need to check if the child exists in the original input list
                                                                         const childItem =
                                                                             props.items.items[c]
-                                                                        const childItemExistsInInput = props.inputItems.find(
-                                                                            (i) => i.id == c,
-                                                                        )
-                                                                        if (!childItemExistsInInput)
-                                                                            return
+
                                                                         return (
                                                                             <Item
                                                                                 key={c}
@@ -354,11 +350,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                     // We need to check if the child exists in the original input list
                                                                     const childItem =
                                                                         props.items.items[c]
-                                                                    const childItemExistsInInput = props.inputItems.find(
-                                                                        (i) => i.id == c,
-                                                                    )
-                                                                    if (!childItemExistsInInput)
-                                                                        return
+
                                                                     return (
                                                                         <Item
                                                                             key={c}

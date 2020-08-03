@@ -84,8 +84,6 @@ const getItem = (
                     {item.children?.map((c) => {
                         // We need to check if the child exists in the original input list
                         const childItem = items.items[c]
-                        const childItemExistsInInput = inputItems.find((i) => i.id == c)
-                        if (!childItemExistsInInput) return
                         return (
                             <Item
                                 key={c}
@@ -116,8 +114,6 @@ const getItem = (
                     {item.children?.map((c) => {
                         // We need to check if the child exists in the original input list
                         const childItem = items.items[c]
-                        const childItemExistsInInput = inputItems.find((i) => i.id == c)
-                        if (!childItemExistsInInput) return
                         return (
                             <Item
                                 key={c}
