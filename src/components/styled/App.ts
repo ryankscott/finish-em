@@ -28,7 +28,7 @@ interface SidebarContainerProps {
 export const SidebarContainer = styled.div<SidebarContainerProps>`
     grid-area: sidebar;
     display: flex;
-    width: ${(props) => (props.visible ? '250px' : '50px')};
+    width: ${(props) => (props.visible ? '100%' : '50px')};
     flex-direction: column;
     transition: all 0.2s ease-in-out;
     overflow-y: scroll;
