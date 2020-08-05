@@ -42,7 +42,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
     const generateOptions = (projects: Project, items: Item): GroupType<OptionType>[] => {
         const itemOptions = Object.values(items).map((i) => {
             return {
-                label: removeItemTypeFromString(i.text),
+                label: removeItemTypeFromString(i.text).replace(/(\[.*\])(.*)/, '$1'),
                 value: () => props.setActiveItem(i.id),
             }
         })
