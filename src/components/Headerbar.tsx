@@ -5,7 +5,6 @@ import { themes, selectStyles } from '../theme'
 import { setActiveItem, showFocusbar } from '../actions/index'
 import Button from './Button'
 import Tooltip from './Tooltip'
-import { Icons } from '../assets/icons'
 import ItemCreator from './ItemCreator'
 import { lighten } from 'polished'
 import Select, { GroupType } from 'react-select'
@@ -15,8 +14,6 @@ import { Project, Projects } from '../interfaces/project'
 import { Items, Item } from '../interfaces'
 import {
     ShortcutIcon,
-    IconContainer,
-    NameContainer,
     ItemCreatorContainer,
     SelectContainer,
     FeedbackIcon,
@@ -65,21 +62,6 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
     return (
         <Container>
             <ThemeProvider theme={themes[props.theme]}>
-                <IconContainer>{Icons['todoChecked'](32, 32, 'white')}</IconContainer>
-                <NameContainer>{'Finish Em'}</NameContainer>
-                <ItemCreatorContainer>
-                    <ItemCreator
-                        backgroundColour={lighten(
-                            0.2,
-                            themes[props.theme].colours.headerBackgroundColour,
-                        )}
-                        hideButton={true}
-                        type="item"
-                        initiallyExpanded={true}
-                        shouldCloseOnSubmit={false}
-                    />
-                </ItemCreatorContainer>
-
                 <SelectContainer>
                     <Select
                         controlShouldRenderValue={false}
