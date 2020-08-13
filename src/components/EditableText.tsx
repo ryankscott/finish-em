@@ -50,9 +50,14 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     const [input, setInput] = useState(props.input)
     const [valid, setValid] = useState(true)
 
+    const handlePaste = (e): void => {
+        e.preventDefault()
+        document.execCommand('inserttext', false, e.clipboardData.getData('text/plain'))
+    }
+
     useEffect(() => {
         setInput(props.input)
-    })
+    }, [])
 
     useEffect(() => {
         if (editable) {
@@ -247,6 +252,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                     onClick={handleClick}
                     onFocus={handleFocus}
                     onBlur={handleBlur}
+                    onPaste={handlePaste}
                     tabIndex={-1}
                     onKeyPress={handleKeyPress}
                     onKeyUp={handleKeyUp}
