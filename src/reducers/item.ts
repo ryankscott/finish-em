@@ -113,6 +113,7 @@ export const itemReducer = produce(
                     } else {
                         i.dueDate = nextDate.toISOString()
                     }
+                    i.scheduledDate = null
                 }
                 i.lastUpdatedAt = new Date().toISOString()
                 break
