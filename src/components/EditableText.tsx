@@ -26,7 +26,7 @@ interface OwnProps {
     shouldSubmitOnBlur: boolean
     shouldClearOnSubmit: boolean
     shouldShowBorderWhenReadOnly?: boolean
-    backgroundColour?: CSS.Color
+    backgroundColour?: CSS.Property.BackgroundColor
     fontSize?: fontSizeType
     readOnly?: boolean
     width?: string
@@ -34,6 +34,7 @@ interface OwnProps {
     placeholder?: string
     singleline?: boolean
     plainText?: boolean
+    keywords?: { matcher: string | RegExp; validation: (input: string) => boolean }[]
     style?: typeof Title | typeof Paragraph | typeof Header | typeof Code
     validation?: (input: string) => boolean
     onKeyDown?: (input: string) => void
@@ -86,6 +87,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         if (props.onEditingChange) {
             props.onEditingChange(true)
         }
+        console.log('click')
         return
     }
 
@@ -123,19 +125,45 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     }
 
     const handleKeyPress = (e): void => {
-        const currentVal = props.innerRef.current.innerText
+        const currentText = props.innerRef.current.innerText
 
         // Validation
         if (props.validation) {
-            setValid(props.validation(currentVal))
+            setValid(props.validation(currentText))
+        }
+
+        // Keywords
+        if (props.keywords.length) {
+            const words = currentText.split(/\s+/)
+            // TODO: Refactor to only look at the last word
+            props.keywords.map((keyword) => {
+                words.map((word, index) => {
+                    const matches = word.match(keyword.matcher)
+                    if (!matches) return
+                    const valid = matches.some(keyword.validation)
+                    if (valid) {
+                        words[index] = word.replace(
+                            keyword.matcher,
+                            '<span class="valid">$&</span>',
+                        )
+                    } else {
+                        words[index] = word.replace(
+                            keyword.matcher,
+                            '<span class="invalid">$&</span>',
+                        )
+                    }
+                })
+            })
+            props.innerRef.current.innerHTML = words.join('&nbsp')
+            setEndOfContenteditable(props.innerRef.current)
         }
 
         if (props.onKeyPress) {
-            props.onKeyPress(currentVal)
+            props.onKeyPress(currentText)
         }
 
         if (props.onKeyDown) {
-            props.onKeyDown(currentVal)
+            props.onKeyDown(currentText)
         }
 
         if (e.key == 'Enter' && props.singleline) {
@@ -232,7 +260,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                             : getMarkdownText()
                     }
                 />
-                {!editable && input.length == 0 && (
+                {!editable && input.length >= 0 && (
                     <Placeholder onClick={handleClick}>{props.placeholder}</Placeholder>
                 )}
             </div>

@@ -2,17 +2,17 @@ import * as chrono from 'chrono-node'
 import { ItemType, Item, RenderingStrategy } from '../interfaces'
 import RRule from 'rrule'
 
-export const itemRegex = new RegExp('^((TODO)|(NOTE))', 'gi')
-export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/g
-export const scheduledTextRegex = /scheduled:(\s*"[\s\S]*")|scheduled:(\s*\S+)/g
-export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/g
-export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/g
+export const itemRegex = /^(TODO)|(NOTE)\s+/gi
+export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/gi
+export const scheduledTextRegex = /scheduled:(\s*"[\s\S]*")|scheduled:(\s*\S+)/gi
+export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/gi
+export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/gi
 
 import emojiRegex from 'emoji-regex/text.js'
 import { isToday, differenceInDays, isTomorrow, isYesterday, format, isAfter } from 'date-fns'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
-    const words = text.split(' ')
+    const words = text.split(/\s+/)
     const itemType = words[0]
     const upperItemType = itemType.toUpperCase()
     if (upperItemType == 'NOTE') return 'NOTE'

@@ -111,21 +111,34 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         backgroundColour={props.backgroundColour}
                         innerRef={textRef}
                         placeholder="Add a new task..."
+                        keywords={[
+                            {
+                                matcher: itemRegex,
+                                validation: (input) => {
+                                    return true
+                                },
+                            },
+                            {
+                                matcher: dueTextRegex,
+                                validation: (input) => {
+                                    const dueDateText = input.split(':')[1]
+                                    if (dueDateText == undefined) return false
+                                    return isValid(sugarDate.create(dueDateText))
+                                },
+                            },
+                            {
+                                matcher: scheduledTextRegex,
+                                validation: (input) => {
+                                    const scheduledDateText = input.split(':')[1]
+                                    return isValid(sugarDate.create(scheduledDateText))
+                                },
+                            },
+                        ]}
                         validation={(input) => {
                             let currentVal = input
                             // Check for prefix with TODO or NOTE
                             const itemMatches = currentVal.match(itemRegex)
-                            if (itemMatches) {
-                                currentVal = currentVal.replace(
-                                    itemRegex,
-                                    '<span class="valid">$&</span>',
-                                )
-                            } else {
-                                currentVal = currentVal.replace(
-                                    itemRegex,
-                                    '<span class="invalid">$&</span>',
-                                )
-                                textRef.current.innerHTML = currentVal
+                            if (!itemMatches) {
                                 setEndOfContenteditable(textRef.current)
                                 return false
                             }
@@ -136,17 +149,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                                 let dueDateText = dueTextMatches[0].split(':')[1]
                                 dueDateText = dueDateText.replace(/^"(.+(?="$))"$/, '$1')
                                 const dueDate = sugarDate.create(dueDateText)
-                                if (isValid(dueDate)) {
-                                    currentVal = currentVal.replace(
-                                        dueTextRegex,
-                                        '<span class="valid">$&</span>',
-                                    )
-                                } else {
-                                    currentVal = currentVal.replace(
-                                        dueTextRegex,
-                                        '<span class="invalid">$&</span>',
-                                    )
-                                    textRef.current.innerHTML = currentVal
+                                if (!isValid(dueDate)) {
                                     setEndOfContenteditable(textRef.current)
                                     return false
                                 }
@@ -160,19 +163,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                                     '$1',
                                 )
                                 const scheduledDate = sugarDate.create(scheduledDateText)
-                                if (isValid(scheduledDate)) {
-                                    currentVal = currentVal.replace(
-                                        scheduledTextRegex,
-                                        '<span class="valid">$&</span>',
-                                    )
-                                    textRef.current.innerHTML = currentVal
-                                    setEndOfContenteditable(textRef.current)
-                                } else {
-                                    currentVal = currentVal.replace(
-                                        scheduledTextRegex,
-                                        '<span class="invalid">$&</span>',
-                                    )
-                                    textRef.current.innerHTML = currentVal
+                                if (!isValid(scheduledDate)) {
                                     setEndOfContenteditable(textRef.current)
                                     return false
                                 }
