@@ -46,6 +46,7 @@ describe('item reducer', () => {
 
     it('should handle create an item with due date text - multi-line', () => {
         const id = uuidv4()
+        Mockdate.set('2020-02-20')
         expect(
             itemReducer(blankState, {
                 id: id,
@@ -57,9 +58,9 @@ describe('item reducer', () => {
                 [id]: {
                     id: id,
                     type: 'TODO',
-                    text: 'TODO Run the tests',
+                    text: 'TODO Run the tests ',
                     scheduledDate: null,
-                    dueDate: new Date(Date.UTC(2020, 0, 7, 0, 0, 0)).toISOString(),
+                    dueDate: new Date(2020, 0, 7, 0, 0, 0).toISOString(),
                     completed: false,
                     deleted: false,
                     deletedAt: null,
@@ -75,6 +76,7 @@ describe('item reducer', () => {
             },
             order: [id],
         })
+        Mockdate.reset()
     })
 
     it('should handle create an item with projectID', () => {
@@ -621,7 +623,7 @@ describe('item reducer', () => {
                     id: id,
                     type: 'TODO',
                     text: 'TODO Run the tests',
-                    scheduledDate: scheduledDate,
+                    scheduledDate: null,
                     projectId: '0',
                     dueDate: new Date(Date.UTC(1990, 1, 4)).toISOString(),
                     completed: false,
