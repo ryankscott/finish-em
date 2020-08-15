@@ -41,7 +41,7 @@ export const Setting = styled.div`
 export const SettingLabel = styled(Paragraph)`
     color: ${(props) => props.theme.colours.textColour};
     font-size: ${(props) => props.theme.fontSizes.xsmall};
-    width: 100px;
+    width: 180px;
 `
 interface PopoverProps {
     top: number

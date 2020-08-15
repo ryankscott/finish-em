@@ -32,7 +32,7 @@ import {
     StyledToastContainer,
     HeaderContainer,
 } from './styled/App'
-import { Projects, Views, Items, Areas } from '../interfaces'
+import { Projects, Views, Items, Areas, FeatureType } from '../interfaces'
 import { Slide, toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -53,6 +53,7 @@ interface StateProps {
     items: Items
     views: Views
     areas: Areas
+    features: FeatureType
 }
 interface DispatchProps {
     showSidebar: () => void
@@ -90,6 +91,7 @@ const App = (props: AppProps): ReactElement => {
                 props.hideSidebar()
             }
         })
+        // Handle Electron events
         if (isElectron()) {
             electron.ipcRenderer.on('create-task', (event, arg) => {
                 props.createItem(arg.text, arg?.projectId)
@@ -108,6 +110,12 @@ const App = (props: AppProps): ReactElement => {
                     </div>,
                     { autoClose: false },
                 )
+            })
+            electron.ipcRenderer.on('events', (event, calEvents) => {
+                console.log(calEvents)
+            })
+            electron.ipcRenderer.on('get-features', (event) => {
+                event.sender.send('get-features-reply', props.features)
             })
         }
     })
@@ -289,6 +297,7 @@ const mapStateToProps = (state): StateProps => ({
     focusbarVisible: state.ui.focusbarVisible,
     theme: state.ui.theme,
     views: state.ui.views,
+    features: state.features,
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({

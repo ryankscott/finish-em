@@ -25,8 +25,51 @@ const getMailLink = () => {
         }
     })
 }
+const getCalendarEvents = (calendarName) => {
+    const script = `
+    set theStartDate to current date
+	set hours of theStartDate to 0
+	set minutes of theStartDate to 0
+	set seconds of theStartDate to 0
+	set theEndDate to theStartDate + (1 * days) - 1
+	set output to {}
+	tell application "Calendar"
+		repeat with c in (every calendar whose (name) is "${calendarName}")
+			repeat with e in ((every event in c) whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
+				set startDate to (start date of e)
+				set endDate to (end date of e)
+				set output to output & ((uid of e) & "," & (short date string of startDate) & "," & (time string of startDate) & "," & (short date string of endDate) & "," & (time string of endDate) & "," & (summary of e) & "," & (description of e) & "," & (status of e))
+			end repeat
+		end repeat
+	end tell
+	set AppleScript's text item delimiters to return
+	return output
+`
+    applescript.execString(script, (err, rtn) => {
+        if (err) {
+            console.log(err)
+        }
+        const headers = [
+            'id',
+            'startDate',
+            'startTime',
+            'endDate',
+            'endTime',
+            'summary',
+            'description',
+            'status',
+        ]
+        const events = rtn.map((r) => {
+            const items = r.split(',')
+            return items.reduce((acc, cur, index) => {
+                acc[headers[index]] = cur
+                return acc
+            }, {})
+        })
+        mainWindow.webContents.send('events', events)
+    })
+}
 
-// TODO: Also need to implement a handler for Outlook to open the URIs
 const getOutlookLink = () => {
     const script = `
     tell application "Microsoft Outlook"    
@@ -98,6 +141,9 @@ const checkForNewVersion = () => {
             }
         })
     })
+    request.on('error', (error) => {
+        setTimeout(checkForNewVersion, 60 * 60 * 1000)
+    })
     request.end()
 }
 
@@ -166,10 +212,24 @@ function createMainWindow() {
 app.on('ready', () => {
     createMainWindow()
     globalShortcut.register('Command+Shift+N', createQuickAddWindow)
-    globalShortcut.register('Command+Shift+M', getMailLink)
+    globalShortcut.register('Command+Shift+E', getMailLink)
     globalShortcut.register('Command+Shift+O', getOutlookLink)
-    checkForNewVersion()
-    setInterval(checkForNewVersion, 1000 * 60 * 60 * 24)
+    try {
+        checkForNewVersion()
+    } catch (e) {
+        console.error(`Failed to get new version, trying again in 1hr: ${e}`)
+        setTimeout(checkForNewVersion, 1000 * 60 * 60 * 24)
+    }
+
+    // Get the features enabled in the UI and do any conditional stuff
+    setTimeout(() => {
+        mainWindow.webContents.send('get-features')
+        ipcMain.once('get-features-reply', (event, features) => {
+            if (features.calendarIntegration) {
+                getCalendarEvents('Personal')
+            }
+        })
+    }, 1000 * 5)
 })
 
 // Quit when all windows are closed.

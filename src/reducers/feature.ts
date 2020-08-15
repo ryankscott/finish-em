@@ -4,6 +4,7 @@ import { FeatureType } from '../interfaces'
 const initialState: FeatureType = {
     dragAndDrop: false,
     projectDates: false,
+    calendarIntegration: false,
 }
 
 export const featureReducer = (
@@ -40,6 +41,11 @@ export const featureReducer = (
             return {
                 ...state,
                 projectDates: !state.projectDates,
+            }
+        case feature.TOGGLE_CALENDAR_INTEGRATION:
+            return {
+                ...state,
+                calendarIntegration: !state.calendarIntegration,
             }
 
         default:

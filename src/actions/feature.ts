@@ -4,6 +4,7 @@ export const TOGGLE_DRAG_AND_DROP = 'TOGGLE_DRAG_AND_DROP'
 export const ENABLE_PROJECT_DATES = 'ENABLE_PROJECT_DATES'
 export const DISABLE_PROJECT_DATES = 'DISABLE_PROJECT_DATES'
 export const TOGGLE_PROJECT_DATES = 'TOGGLE_PROJECT_DATES'
+export const TOGGLE_CALENDAR_INTEGRATION = 'TOGGLE_CALENDAR_INTEGRATION'
 
 export interface EnableDragAndDropAction {
     type: typeof ENABLE_DRAG_AND_DROP
@@ -54,6 +55,15 @@ export function toggleProjectDates(): ToggleProjectDatesAction {
     }
 }
 
+export interface ToggleCalendarIntegration {
+    type: typeof TOGGLE_CALENDAR_INTEGRATION
+}
+export function toggleCalendarIntegration(): ToggleCalendarIntegration {
+    return {
+        type: TOGGLE_CALENDAR_INTEGRATION,
+    }
+}
+
 export type FeatureActions =
     | EnableDragAndDropAction
     | DisableDragAndDropAction
@@ -61,3 +71,4 @@ export type FeatureActions =
     | EnableProjectDatesAction
     | DisableProjectDatesAction
     | ToggleProjectDatesAction
+    | ToggleCalendarIntegration

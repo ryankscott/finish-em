@@ -10,6 +10,7 @@ import {
     disableDragAndDrop,
     toggleDragAndDrop,
     toggleProjectDates,
+    toggleCalendarIntegration,
 } from '../actions/feature'
 import {
     Container,
@@ -23,11 +24,10 @@ import {
     LabelContainer,
 } from './styled/Settings'
 import EditableText from './EditableText'
-import { transparentize, parseToHsl } from 'polished'
+import { transparentize } from 'polished'
 import Button from './Button'
 import ViewHeader from './ViewHeader'
 import { deleteLabel } from '../actions/ui'
-import randomColor from 'randomcolor'
 
 interface StateProps {
     features: FeatureType
@@ -45,6 +45,7 @@ interface DispatchProps {
     setLabelColour: (id: string, colour: string) => void
     renameLabel: (id: string, text: string) => void
     toggleProjectDates: () => void
+    toggleCalendarIntegration: () => void
     createLabel: (colour: string) => void
     deleteLabel: (id: string) => void
 }
@@ -76,7 +77,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     }}
                 >
                     <SettingsCategory>
-                        <SettingsCategoryHeader>General User interface</SettingsCategoryHeader>
+                        <SettingsCategoryHeader>General User Interface</SettingsCategoryHeader>
                         <Setting>
                             <SettingLabel>Drag and drop</SettingLabel>
                             <Switch
@@ -94,6 +95,22 @@ function Settings(props: SettingsPickerProps): ReactElement {
                             <Switch
                                 onChange={() => props.toggleProjectDates()}
                                 checked={props.features?.projectDates}
+                                onColor={theme.colours.primaryColour}
+                                checkedIcon={false}
+                                uncheckedIcon={false}
+                                width={24}
+                                height={14}
+                            />
+                        </Setting>
+                        <Setting>
+                            <SettingLabel>Calendar Integration</SettingLabel>
+                            <Switch
+                                onChange={() => props.toggleCalendarIntegration()}
+                                checked={
+                                    props.features?.calendarIntegration
+                                        ? props.features.calendarIntegration
+                                        : false
+                                }
                                 onColor={theme.colours.primaryColour}
                                 checkedIcon={false}
                                 uncheckedIcon={false}
@@ -207,6 +224,9 @@ const mapStateToProps = (state): StateProps => ({
     labels: state.ui.labels,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
+    toggleCalendarIntegration: () => {
+        dispatch(toggleCalendarIntegration())
+    },
     toggleDarkMode: () => {
         dispatch(toggleDarkMode())
     },
