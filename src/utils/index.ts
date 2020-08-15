@@ -27,8 +27,7 @@ export const capitaliseItemTypeFromString = (text: string): string => {
     return words.join(' ')
 }
 export const validateItemString = (text: string): boolean => {
-    const matches = text.match(itemRegex)
-    return (matches && matches.length) > 0
+    return text.toLowerCase().startsWith('todo ') || text.toLowerCase().startsWith('note ')
 }
 
 // TODO This should return some sort of error if the first word isn't NOTE or TODO

@@ -75,18 +75,18 @@ describe('Validation of items', () => {
         expect(validateItemString('note Foo Bar')).toEqual(true)
     })
     it('should handle a note item in upper case', () => {
-        expect(validateItemString('note Foo Bar')).toEqual(true)
+        expect(validateItemString('NOTE Foo Bar')).toEqual(true)
     })
-    it('should not work on a combined note/todo', () => {
-        expect(validateItemString('notetodo fjdakslfdajsl')).toEqual(true)
+    it('should fail on a combined note/todo', () => {
+        expect(validateItemString('notetodo fjdakslfdajsl')).toEqual(false)
     })
-    it('should not work on a combined todo/note', () => {
-        expect(validateItemString('todonote fjdakslfdajsl')).toEqual(true)
+    it('should fail on a combined todo/note', () => {
+        expect(validateItemString('todonote fjdakslfdajsl')).toEqual(false)
     })
-    it('should not work on a todo stretched across two words', () => {
+    it('should fail on a todo stretched across two words', () => {
         expect(validateItemString('tod o bar')).toEqual(false)
     })
-    it('should not work on a note stretched across two words', () => {
+    it('should fail on a note stretched across two words', () => {
         expect(validateItemString('not e bar')).toEqual(false)
     })
     it('should fail on a random item', () => {
