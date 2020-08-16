@@ -31,6 +31,7 @@ interface OwnProps {
     readOnly?: boolean
     width?: string
     height?: string
+    padding?: CSS.Property.Padding
     placeholder?: string
     singleline?: boolean
     plainText?: boolean
@@ -92,7 +93,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         if (props.onEditingChange) {
             props.onEditingChange(true)
         }
-        console.log('click')
         return
     }
 
@@ -138,7 +138,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
 
         // Keywords
-        if (props.keywords.length) {
+        if (props.keywords) {
             const words = currentText.split(/\s+/)
             // TODO: Refactor to only look at the last word
             props.keywords.map((keyword) => {
@@ -232,7 +232,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         }
     }
     const id = uuidv4()
-
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <div style={{ position: 'relative', width: '100%' }}>
@@ -241,6 +240,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                     fontSize={props.fontSize}
                     backgroundColour={props.backgroundColour}
                     shouldShowBorderWhenReadOnly={props.shouldShowBorderWhenReadOnly}
+                    padding={props.padding}
                     valid={valid}
                     as={props.style || Paragraph}
                     readOnly={props.readOnly}
@@ -266,9 +266,15 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                             : getMarkdownText()
                     }
                 />
-                {!editable && input.length >= 0 && (
-                    <Placeholder onClick={handleClick}>{props.placeholder}</Placeholder>
-                )}
+
+                {input.length == 0 &&
+                    !(
+                        props.innerRef?.current?.innerText != undefined &&
+                        props.innerRef?.current?.innerText != ''
+                    ) &&
+                    !editable && (
+                        <Placeholder onClick={handleClick}>{props.placeholder}</Placeholder>
+                    )}
             </div>
         </ThemeProvider>
     )
