@@ -73,10 +73,11 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     style={Paragraph}
                     readOnly={false}
                     input={
-                        props.dailyGoal[format(currentDate, 'yyyy-MM-dd')]
+                        props.dailyGoal?.[format(currentDate, 'yyyy-MM-dd')]
                             ? props.dailyGoal[format(currentDate, 'yyyy-MM-dd')].text
-                            : 'No daily goal set'
+                            : ''
                     }
+                    placeholder={'Add a daily goal'}
                     height={'150px'}
                     singleline={false}
                     innerRef={editor}
