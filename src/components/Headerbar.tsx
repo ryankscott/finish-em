@@ -5,20 +5,13 @@ import { themes, selectStyles } from '../theme'
 import { setActiveItem, showFocusbar } from '../actions/index'
 import Button from './Button'
 import Tooltip from './Tooltip'
-import ItemCreator from './ItemCreator'
 import { lighten } from 'polished'
 import Select, { GroupType } from 'react-select'
 import { removeItemTypeFromString } from '../utils'
 import { useHistory } from 'react-router'
 import { Project, Projects } from '../interfaces/project'
 import { Items, Item } from '../interfaces'
-import {
-    ShortcutIcon,
-    ItemCreatorContainer,
-    SelectContainer,
-    FeedbackIcon,
-    Container,
-} from './styled/Headerbar'
+import { ShortcutIcon, SelectContainer, FeedbackIcon, Container } from './styled/Headerbar'
 
 type OptionType = { label: string; value: () => void }
 
