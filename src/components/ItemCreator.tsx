@@ -111,6 +111,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         backgroundColour={props.backgroundColour}
                         innerRef={textRef}
                         placeholder="Add a new task..."
+                        padding={'5px 25px 5px 10px'}
                         keywords={[
                             {
                                 matcher: itemRegex,
