@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { transparentize } from 'polished'
+import { darken, transparentize } from 'polished'
 
 export const Container = styled.div`
     display: flex;
@@ -24,11 +24,6 @@ export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
     border: 1px solid;
     border-color: ${(props) => transparentize(0.4, props.theme.colours.borderColour)};
     border-radius: 5px;
-
-    :hover {
-        background-color: ${(props) =>
-            props.backgroundColour ? props.backgroundColour : 'inherit'};
-    }
 `
 
 export const HelpButtonContainer = styled.div`
