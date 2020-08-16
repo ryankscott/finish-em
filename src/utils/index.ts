@@ -2,7 +2,7 @@ import * as chrono from 'chrono-node'
 import { ItemType, Item, RenderingStrategy } from '../interfaces'
 import RRule from 'rrule'
 
-export const itemRegex = /^(TODO)|(NOTE)\s+/gi
+export const itemRegex = /^(TODO|NOTE)\s*/gi
 export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/gi
 export const scheduledTextRegex = /scheduled:(\s*"[\s\S]*")|scheduled:(\s*\S+)/gi
 export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/gi
@@ -27,7 +27,9 @@ export const capitaliseItemTypeFromString = (text: string): string => {
     return words.join(' ')
 }
 export const validateItemString = (text: string): boolean => {
-    return text.toLowerCase().startsWith('todo ') || text.toLowerCase().startsWith('note ')
+    const matches = text.match(itemRegex)
+    if (!matches) return false
+    return true
 }
 
 // TODO This should return some sort of error if the first word isn't NOTE or TODO

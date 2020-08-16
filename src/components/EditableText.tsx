@@ -2,7 +2,7 @@ import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import marked from 'marked'
-import { setEndOfContenteditable } from '../utils'
+import { itemRegex, setEndOfContenteditable } from '../utils'
 import { Paragraph, Title, Header, Code } from './Typography'
 import { Container, Placeholder } from './styled/EditableText'
 import { connect } from 'react-redux'
@@ -143,6 +143,8 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             // TODO: Refactor to only look at the last word
             props.keywords.map((keyword) => {
                 words.map((word, index) => {
+                    // Because we're only testing for the itemRegex on the first word ignore if it's a later word
+                    if (index > 0 && keyword.matcher == itemRegex) return
                     const matches = word.match(keyword.matcher)
                     if (!matches) return
                     const valid = matches.some(keyword.validation)
