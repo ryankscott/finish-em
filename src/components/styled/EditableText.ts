@@ -8,9 +8,10 @@ interface ContainerProps {
     readOnly: boolean
     editing: boolean
     valid: boolean
-    backgroundColour: CSS.Color
+    backgroundColour: CSS.Property.BackgroundColor
     fontSize: fontSizeType
     shouldShowBorderWhenReadOnly: boolean
+    padding: CSS.Property.Padding
 }
 
 export const Container = styled.div<ContainerProps>`
@@ -22,8 +23,7 @@ export const Container = styled.div<ContainerProps>`
     width: ${(props) => props.width || '100%'};
     margin: 0px;
     min-height: 25px;
-    padding: 5px 5px;
-    padding-left: 10px;
+    padding: ${(props) => (props.padding ? props.padding : '5px 5px 5px 10px')};
     border-radius: 5px;
     border: ${(props) =>
         props.editing ? '1px solid' : props.shouldShowBorderWhenReadOnly ? '1px solid' : 'none'};
