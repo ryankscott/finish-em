@@ -31,6 +31,7 @@ import {
     SidebarContainer,
     StyledToastContainer,
     HeaderContainer,
+    BodyContainer,
 } from './styled/App'
 import { Projects, Views, Items, Areas, FeatureType } from '../interfaces'
 import { Slide, toast } from 'react-toastify'
@@ -234,44 +235,46 @@ const App = (props: AppProps): ReactElement => {
                 <HeaderContainer>
                     <Headerbar searchRef={searchRef} />
                 </HeaderContainer>
-                <SidebarContainer visible={sidebarVisible}>
-                    <Sidebar />
-                </SidebarContainer>
-                <MainContainer visible={sidebarVisible}>
-                    <ShortcutDialog />
-                    <Switch>
-                        <Route path="/help">
-                            <Help />
-                        </Route>
-                        <Route path="/dailyAgenda">
-                            <DailyAgenda />
-                        </Route>
-                        <Route path="/inbox">
-                            <Inbox />
-                        </Route>
+                <BodyContainer>
+                    <SidebarContainer visible={sidebarVisible}>
+                        <Sidebar />
+                    </SidebarContainer>
+                    <MainContainer visible={sidebarVisible}>
+                        <ShortcutDialog />
+                        <Switch>
+                            <Route path="/help">
+                                <Help />
+                            </Route>
+                            <Route path="/dailyAgenda">
+                                <DailyAgenda />
+                            </Route>
+                            <Route path="/inbox">
+                                <Inbox />
+                            </Route>
 
-                        <Route path="/views/:id">
-                            <ViewWrapper />
-                        </Route>
+                            <Route path="/views/:id">
+                                <ViewWrapper />
+                            </Route>
 
-                        <Route path="/areas/:id">
-                            <AreaWrapper />
-                        </Route>
+                            <Route path="/areas/:id">
+                                <AreaWrapper />
+                            </Route>
 
-                        <Route path="/projects/:id">
-                            <ProjectWrapper />
-                        </Route>
-                        <Route path="/Settings">
-                            <Settings />
-                        </Route>
-                        <Route path="/">
-                            <Inbox />
-                        </Route>
-                    </Switch>
-                </MainContainer>
-                <FocusContainer visible={focusbarVisible}>
-                    <Focusbar />
-                </FocusContainer>
+                            <Route path="/projects/:id">
+                                <ProjectWrapper />
+                            </Route>
+                            <Route path="/Settings">
+                                <Settings />
+                            </Route>
+                            <Route path="/">
+                                <Inbox />
+                            </Route>
+                        </Switch>
+                    </MainContainer>
+                    <FocusContainer visible={focusbarVisible}>
+                        <Focusbar />
+                    </FocusContainer>
+                </BodyContainer>
             </Container>
             <StyledToastContainer
                 position="bottom-center"

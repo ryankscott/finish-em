@@ -5,13 +5,14 @@ import { darken } from 'polished'
 
 export const Container = styled.div`
     display: grid;
-    grid-template-columns: minmax(50px, 250px) auto minmax(0px, 350px);
+    grid-template-columns: 100%;
     grid-template-rows: 50px auto;
     grid-template-areas:
-        'header header header'
-        'sidebar main focusbar';
+        'header'
+        'body';
     margin: 0px;
     height: 100%;
+    width: 100%;
 `
 export const HeaderContainer = styled.div`
     grid-area: header;
@@ -21,14 +22,21 @@ export const HeaderContainer = styled.div`
     box-shadow: 0px 1px 2px ${(props) => darken(0.2, props.theme.colours.headerBackgroundColour)};
 `
 
+export const BodyContainer = styled.div`
+grid-area: body;
+display: flex;
+flex-direction row;
+width: 100%;
+`
+
 interface SidebarContainerProps {
     visible: boolean
 }
 
 export const SidebarContainer = styled.div<SidebarContainerProps>`
-    grid-area: sidebar;
     display: flex;
-    width: ${(props) => (props.visible ? '100%' : '50px')};
+    width: ${(props) => (props.visible ? '250px' : '50px')};
+    min-width: ${(props) => (props.visible ? '250px' : '50px')};
     flex-direction: column;
     transition: all 0.2s ease-in-out;
     overflow-y: scroll;
@@ -41,7 +49,6 @@ interface MainContainerProps {
     visible: boolean
 }
 export const MainContainer = styled.div<MainContainerProps>`
-    grid-area: main;
     display: flex;
     flex-direction: column;
     padding: 10px 20px;
@@ -56,11 +63,11 @@ interface FocusContainerProps {
     visible: boolean
 }
 export const FocusContainer = styled.div<FocusContainerProps>`
-    grid-area: focusbar;
     display: flex;
     flex-direction: column;
     padding: ${(props) => (props.visible ? '5px 10px' : '0px')};
-    width: ${(props) => (props.visible ? '100%' : '0px')};
+    min-width: ${(props) => (props.visible ? '350px' : '0px')};
+    width: ${(props) => (props.visible ? '350px' : '0px')};
     transition: all 0.2s ease-in-out;
     align-items: center;
     border: ${(props) => (props.visible ? '1px solid' : 'none')};
