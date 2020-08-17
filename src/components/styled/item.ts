@@ -3,7 +3,7 @@ import CSS from 'csstype'
 import { transparentize } from 'polished'
 
 interface ContainerProps {
-    labelColour: CSS.Color
+    labelColour: CSS.Property.Color
     visible: boolean
     shouldIndent: boolean
     deleted: boolean
@@ -33,18 +33,18 @@ export const Container = styled.div<ContainerProps>`
     background: ${(props) =>
         props.deleted
             ? `repeating-linear-gradient(45deg, #e9e9e9, #e9e9e9 10px, #eee 10px, #eee 20px)`
-            : 'auto'};
+            : 'none'};
     background-color: ${(props) =>
         props.labelColour != null
             ? transparentize(0.8, props.labelColour)
             : props.theme.colours.backgroundColour};
-    :focus {
+    &:focus {
         background-color: ${(props) =>
             props.labelColour != null
                 ? transparentize(0.8, props.labelColour)
                 : props.theme.colours.focusBackgroundColour};
     }
-    :active {
+    &:active {
         background-color: ${(props) =>
             props.labelColour != null
                 ? transparentize(0.8, props.labelColour)
