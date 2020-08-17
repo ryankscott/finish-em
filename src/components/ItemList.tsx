@@ -5,7 +5,8 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType, RenderingStrategy, Items } from '../interfaces'
-import { Container, NoItemText } from './styled/ItemList'
+import { Container, NoItemText, ItemContainer } from './styled/ItemList'
+import { TransitionGroup, Transition } from 'react-transition-group'
 import { connect } from 'react-redux'
 import {
     showFocusbar,
@@ -72,67 +73,92 @@ const getItem = (
                 }
             }
             return (
-                <div tabIndex={0} key={'container-' + item.id}>
-                    <Item
-                        {...item}
-                        key={item.id}
-                        componentId={componentId}
-                        shouldIndent={false}
-                        hideIcons={hideIcons}
-                    />
-
-                    {item.children?.map((c) => {
-                        // We need to check if the child exists in the original input list
-                        const childItem = items.items[c]
+                <Transition
+                    key={'t-container-' + item.id}
+                    timeout={{
+                        appear: 200,
+                        enter: 200,
+                        exit: 500,
+                    }}
+                >
+                    {(state) => {
                         return (
-                            <Item
-                                key={c}
-                                {...childItem}
-                                componentId={componentId}
-                                hideIcons={
-                                    hideIcons
-                                        ? [...hideIcons, ItemIcons.Subtask]
-                                        : [ItemIcons.Subtask]
-                                }
-                                shouldIndent={true}
-                            />
+                            <ItemContainer state={state} tabIndex={0} key={'container-' + item.id}>
+                                <Item
+                                    {...item}
+                                    key={item.id}
+                                    componentId={componentId}
+                                    shouldIndent={false}
+                                    hideIcons={hideIcons}
+                                />
+
+                                {item.children?.map((c) => {
+                                    // We need to check if the child exists in the original input list
+                                    const childItem = items.items[c]
+                                    return (
+                                        <Item
+                                            key={c}
+                                            {...childItem}
+                                            componentId={componentId}
+                                            hideIcons={
+                                                hideIcons
+                                                    ? [...hideIcons, ItemIcons.Subtask]
+                                                    : [ItemIcons.Subtask]
+                                            }
+                                            shouldIndent={true}
+                                        />
+                                    )
+                                })}
+                            </ItemContainer>
                         )
-                    })}
-                </div>
+                    }}
+                </Transition>
             )
 
         default:
             return (
-                <div key={'container-' + item.id}>
-                    <Item
-                        {...item}
-                        key={item.id}
-                        componentId={componentId}
-                        hideIcons={hideIcons}
-                        shouldIndent={false}
-                    />
-                    {item.children?.map((c) => {
-                        // We need to check if the child exists in the original input list
-                        const childItem = items.items[c]
+                <Transition
+                    key={'t-container-' + item.id}
+                    timeout={{
+                        appear: 200,
+                        enter: 200,
+                        exit: 500,
+                    }}
+                >
+                    {(state) => {
                         return (
-                            <Item
-                                key={c}
-                                {...childItem}
-                                shouldIndent={true}
-                                componentId={componentId}
-                                hideIcons={
-                                    hideIcons
-                                        ? [...hideIcons, ItemIcons.Subtask]
-                                        : [ItemIcons.Subtask]
-                                }
-                            />
+                            <ItemContainer state={state} tabIndex={0} key={'container-' + item.id}>
+                                <Item
+                                    {...item}
+                                    key={item.id}
+                                    componentId={componentId}
+                                    hideIcons={hideIcons}
+                                    shouldIndent={false}
+                                />
+                                {item.children?.map((c) => {
+                                    // We need to check if the child exists in the original input list
+                                    const childItem = items.items[c]
+                                    return (
+                                        <Item
+                                            key={c}
+                                            {...childItem}
+                                            shouldIndent={true}
+                                            componentId={componentId}
+                                            hideIcons={
+                                                hideIcons
+                                                    ? [...hideIcons, ItemIcons.Subtask]
+                                                    : [ItemIcons.Subtask]
+                                            }
+                                        />
+                                    )
+                                })}
+                            </ItemContainer>
                         )
-                    })}
-                </div>
+                    }}
+                </Transition>
             )
     }
 }
-
 type ItemListProps = OwnProps & StateProps & DispatchProps
 
 function ItemList(props: ItemListProps): ReactElement {
@@ -296,18 +322,20 @@ function ItemList(props: ItemListProps): ReactElement {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container>
-                {props.inputItems.map((i) => {
-                    if (i == undefined) return null
-                    return getItem(
-                        i,
-                        props.inputItems,
-                        props.renderingStrategy,
-                        props.componentId,
-                        props.hideIcons,
-                        props.items,
-                    )
-                })}
-                {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
+                <TransitionGroup component={null}>
+                    {props.inputItems.map((i) => {
+                        if (i == undefined) return null
+                        return getItem(
+                            i,
+                            props.inputItems,
+                            props.renderingStrategy,
+                            props.componentId,
+                            props.hideIcons,
+                            props.items,
+                        )
+                    })}
+                    {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
+                </TransitionGroup>
             </Container>
         </ThemeProvider>
     )

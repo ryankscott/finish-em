@@ -5,10 +5,15 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ItemType, RenderingStrategy, Items } from '../interfaces'
-import { Container, NoItemText } from './styled/ItemList'
+import { TransitionGroup, Transition } from 'react-transition-group'
+import {
+    Container,
+    NoItemText,
+    DraggableList,
+    DraggableContainer,
+} from './styled/ReorderableItemList'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
-import * as CSS from 'csstype'
 import { connect } from 'react-redux'
 import {
     reorderItem,
@@ -61,20 +66,6 @@ type ReorderableItemListProps = OwnProps & StateProps & DispatchProps
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     const theme = themes[props.theme]
-    const getItemStyle = (isDragging: boolean, draggableStyle): CSS.Properties => ({
-        userSelect: 'none',
-        margin: '0 0 0 0',
-        borderRadius: '5px',
-        padding: '0px 5px',
-        // change background colour if dragging
-        background: isDragging ? theme.colours.borderColour : 'inherit',
-        ...draggableStyle,
-    })
-    const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
-        background: isDraggingOver ? theme.colours.focusBackgroundColour : 'inherit',
-        padding: '20px',
-        width: '100%',
-    })
     const handlers = {
         TOGGLE_CHILDREN: (event) => {
             props.toggleSubtasks(event.target.id, props.componentId)
@@ -242,146 +233,226 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                     >
                         <Droppable droppableId={uuidv4()} type="ITEM">
                             {(provided, snapshot) => (
-                                <div
+                                <DraggableList
                                     {...provided.droppableProps}
                                     ref={provided.innerRef}
-                                    style={getListStyle(snapshot.isDraggingOver)}
+                                    isDraggingOver={snapshot.isDraggingOver}
                                 >
-                                    {props.items.order.map((o, index) => {
-                                        // Get each item
-                                        const item = props.inputItems.find((i) => i.id == o)
-                                        if (item == undefined) return
-                                        switch (props.renderingStrategy) {
-                                            case RenderingStrategy.All:
-                                                // If the item has a parent find out if it exists in the list we've been provided
-                                                if (item.parentId != null) {
-                                                    const parentExists = props.inputItems.find(
-                                                        (i) => i.id == item.parentId,
-                                                    )
-                                                    if (parentExists) {
-                                                        return
-                                                    }
-                                                    return (
-                                                        <Draggable
-                                                            key={item.id}
-                                                            draggableId={item.id}
-                                                            index={index}
-                                                        >
-                                                            {(provided, snapshot) => (
-                                                                <div
-                                                                    ref={provided.innerRef}
-                                                                    {...provided.draggableProps}
-                                                                    {...provided.dragHandleProps}
-                                                                    style={getItemStyle(
-                                                                        snapshot.isDragging,
-                                                                        provided.draggableProps
-                                                                            .style,
-                                                                    )}
-                                                                    key={'container-' + item.id}
-                                                                >
-                                                                    <Item
-                                                                        {...item}
-                                                                        key={item.id}
-                                                                        componentId={
-                                                                            props.componentId
-                                                                        }
-                                                                        shouldIndent={false}
-                                                                        hideIcons={props.hideIcons}
-                                                                    />
-
-                                                                    {item.children?.map((c) => {
-                                                                        // We need to check if the child exists in the original input list
-                                                                        const childItem =
-                                                                            props.items.items[c]
-
-                                                                        return (
-                                                                            <Item
-                                                                                key={c}
-                                                                                {...childItem}
-                                                                                componentId={
-                                                                                    props.componentId
-                                                                                }
-                                                                                shouldIndent={true}
-                                                                                hideIcons={
-                                                                                    props.hideIcons
-                                                                                        ? [
-                                                                                              ...props.hideIcons,
-                                                                                              ItemIcons.Subtask,
-                                                                                          ]
-                                                                                        : [
-                                                                                              ItemIcons.Subtask,
-                                                                                          ]
-                                                                                }
-                                                                            />
-                                                                        )
-                                                                    })}
-                                                                </div>
-                                                            )}
-                                                        </Draggable>
-                                                    )
-                                                }
-
-                                            default:
-                                                return (
-                                                    <Draggable
-                                                        key={item.id}
-                                                        draggableId={item.id}
-                                                        index={index}
-                                                    >
-                                                        {(provided, snapshot) => (
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                style={getItemStyle(
-                                                                    snapshot.isDragging,
-                                                                    provided.draggableProps.style,
-                                                                )}
-                                                                key={'container-' + item.id}
+                                    <TransitionGroup component={null}>
+                                        {props.items.order.map((o, index) => {
+                                            // Get each item
+                                            const item = props.inputItems.find((i) => i.id == o)
+                                            if (item == undefined) return
+                                            switch (props.renderingStrategy) {
+                                                case RenderingStrategy.All:
+                                                    // If the item has a parent find out if it exists in the list we've been provided
+                                                    if (item.parentId != null) {
+                                                        const parentExists = props.inputItems.find(
+                                                            (i) => i.id == item.parentId,
+                                                        )
+                                                        if (parentExists) {
+                                                            return
+                                                        }
+                                                        return (
+                                                            <Transition
+                                                                key={'t-container-' + item.id}
+                                                                timeout={{
+                                                                    appear: 200,
+                                                                    enter: 200,
+                                                                    exit: 500,
+                                                                }}
                                                             >
-                                                                <Item
-                                                                    {...item}
-                                                                    key={item.id}
-                                                                    componentId={props.componentId}
-                                                                    shouldIndent={false}
-                                                                    hideIcons={props.hideIcons}
-                                                                />
-                                                                {item.children?.map((c) => {
-                                                                    // We need to check if the child exists in the original input list
-                                                                    const childItem =
-                                                                        props.items.items[c]
-
+                                                                {(state) => {
+                                                                    console.log(state)
                                                                     return (
-                                                                        <Item
-                                                                            key={c}
-                                                                            {...childItem}
-                                                                            shouldIndent={true}
-                                                                            componentId={
-                                                                                props.componentId
-                                                                            }
-                                                                            hideIcons={
-                                                                                props.hideIcons
-                                                                                    ? [
-                                                                                          ...props.hideIcons,
-                                                                                          ItemIcons.Subtask,
-                                                                                      ]
-                                                                                    : [
-                                                                                          ItemIcons.Subtask,
-                                                                                      ]
-                                                                            }
-                                                                        />
+                                                                        <Draggable
+                                                                            key={item.id}
+                                                                            draggableId={item.id}
+                                                                            index={index}
+                                                                        >
+                                                                            {(
+                                                                                provided,
+                                                                                snapshot,
+                                                                            ) => (
+                                                                                <DraggableContainer
+                                                                                    ref={
+                                                                                        provided.innerRef
+                                                                                    }
+                                                                                    {...provided.draggableProps}
+                                                                                    {...provided.dragHandleProps}
+                                                                                    key={
+                                                                                        'container-' +
+                                                                                        item.id
+                                                                                    }
+                                                                                    isDragging={
+                                                                                        snapshot.isDragging
+                                                                                    }
+                                                                                    draggableStyle={...provided
+                                                                                        .draggableProps
+                                                                                        .style}
+                                                                                    state={state}
+                                                                                >
+                                                                                    <Item
+                                                                                        {...item}
+                                                                                        key={
+                                                                                            item.id
+                                                                                        }
+                                                                                        componentId={
+                                                                                            props.componentId
+                                                                                        }
+                                                                                        shouldIndent={
+                                                                                            false
+                                                                                        }
+                                                                                        hideIcons={
+                                                                                            props.hideIcons
+                                                                                        }
+                                                                                    />
+
+                                                                                    {item.children?.map(
+                                                                                        (c) => {
+                                                                                            // We need to check if the child exists in the original input list
+                                                                                            const childItem =
+                                                                                                props
+                                                                                                    .items
+                                                                                                    .items[
+                                                                                                    c
+                                                                                                ]
+
+                                                                                            return (
+                                                                                                <Item
+                                                                                                    key={
+                                                                                                        c
+                                                                                                    }
+                                                                                                    {...childItem}
+                                                                                                    componentId={
+                                                                                                        props.componentId
+                                                                                                    }
+                                                                                                    shouldIndent={
+                                                                                                        true
+                                                                                                    }
+                                                                                                    hideIcons={
+                                                                                                        props.hideIcons
+                                                                                                            ? [
+                                                                                                                  ...props.hideIcons,
+                                                                                                                  ItemIcons.Subtask,
+                                                                                                              ]
+                                                                                                            : [
+                                                                                                                  ItemIcons.Subtask,
+                                                                                                              ]
+                                                                                                    }
+                                                                                                />
+                                                                                            )
+                                                                                        },
+                                                                                    )}
+                                                                                </DraggableContainer>
+                                                                            )}
+                                                                        </Draggable>
                                                                     )
-                                                                })}
-                                                            </div>
-                                                        )}
-                                                    </Draggable>
-                                                )
-                                        }
-                                    })}
-                                    {props.inputItems.length == 0 && (
-                                        <NoItemText>No items</NoItemText>
-                                    )}
-                                </div>
+                                                                }}
+                                                            </Transition>
+                                                        )
+                                                    }
+
+                                                default:
+                                                    return (
+                                                        <Transition
+                                                            key={'t-container-' + item.id}
+                                                            timeout={{
+                                                                appear: 200,
+                                                                enter: 200,
+                                                                exit: 500,
+                                                            }}
+                                                        >
+                                                            {(state) => {
+                                                                console.log(state)
+                                                                return (
+                                                                    <Draggable
+                                                                        key={item.id}
+                                                                        draggableId={item.id}
+                                                                        index={index}
+                                                                    >
+                                                                        {(provided, snapshot) => (
+                                                                            <DraggableContainer
+                                                                                ref={
+                                                                                    provided.innerRef
+                                                                                }
+                                                                                {...provided.draggableProps}
+                                                                                {...provided.dragHandleProps}
+                                                                                key={
+                                                                                    'container-' +
+                                                                                    item.id
+                                                                                }
+                                                                                isDragging={
+                                                                                    snapshot.isDragging
+                                                                                }
+                                                                                draggableStyle={...provided
+                                                                                    .draggableProps
+                                                                                    .style}
+                                                                                state={state}
+                                                                            >
+                                                                                <Item
+                                                                                    {...item}
+                                                                                    key={item.id}
+                                                                                    componentId={
+                                                                                        props.componentId
+                                                                                    }
+                                                                                    shouldIndent={
+                                                                                        false
+                                                                                    }
+                                                                                    hideIcons={
+                                                                                        props.hideIcons
+                                                                                    }
+                                                                                />
+                                                                                {item.children?.map(
+                                                                                    (c) => {
+                                                                                        // We need to check if the child exists in the original input list
+                                                                                        const childItem =
+                                                                                            props
+                                                                                                .items
+                                                                                                .items[
+                                                                                                c
+                                                                                            ]
+
+                                                                                        return (
+                                                                                            <Item
+                                                                                                key={
+                                                                                                    c
+                                                                                                }
+                                                                                                {...childItem}
+                                                                                                shouldIndent={
+                                                                                                    true
+                                                                                                }
+                                                                                                componentId={
+                                                                                                    props.componentId
+                                                                                                }
+                                                                                                hideIcons={
+                                                                                                    props.hideIcons
+                                                                                                        ? [
+                                                                                                              ...props.hideIcons,
+                                                                                                              ItemIcons.Subtask,
+                                                                                                          ]
+                                                                                                        : [
+                                                                                                              ItemIcons.Subtask,
+                                                                                                          ]
+                                                                                                }
+                                                                                            />
+                                                                                        )
+                                                                                    },
+                                                                                )}
+                                                                            </DraggableContainer>
+                                                                        )}
+                                                                    </Draggable>
+                                                                )
+                                                            }}
+                                                        </Transition>
+                                                    )
+                                            }
+                                        })}
+                                        {props.inputItems.length == 0 && (
+                                            <NoItemText>No items</NoItemText>
+                                        )}
+                                    </TransitionGroup>
+                                </DraggableList>
                             )}
                         </Droppable>
                     </DragDropContext>

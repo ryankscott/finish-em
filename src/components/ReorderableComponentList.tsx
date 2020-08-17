@@ -65,7 +65,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                                             }}
                                                         >
                                                             {(state) => {
-                                                                console.log(state)
                                                                 return (
                                                                     <Draggable
                                                                         key={c}
@@ -116,7 +115,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                                             }}
                                                         >
                                                             {(state) => {
-                                                                console.log(state)
                                                                 return (
                                                                     <Draggable
                                                                         key={c}

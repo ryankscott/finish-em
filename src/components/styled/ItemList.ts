@@ -1,4 +1,28 @@
-import styled from 'styled-components'
+import styled, { keyframes, css } from '../../StyledComponents'
+import { fadeInLeft, fadeOutRight } from 'react-animations'
+
+const fadeInAnimation = keyframes`${fadeInLeft}`
+const fadeOutAnimation = keyframes`${fadeOutRight}`
+const entryAnimation = (props) =>
+    css`
+        ${fadeInAnimation} 0.2s
+    `
+const exitAnimation = (props) =>
+    css`
+        ${fadeOutAnimation} 0.5s
+    `
+
+type ItemContainerProps = {
+    state: string
+}
+export const ItemContainer = styled.div<ItemContainerProps>`
+    animation: ${(props) =>
+        props.state == 'entering'
+            ? entryAnimation
+            : props.state == 'exiting'
+            ? exitAnimation
+            : 'none'};
+`
 
 export const NoItemText = styled.p`
     color: ${(props) => props.theme.colours.disabledTextColour};

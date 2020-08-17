@@ -11,6 +11,7 @@ interface ContainerProps {
 export const Container = styled.div<ContainerProps>`
     position: relative;
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
+    width: 100%;
     max-height: 200px;
     max-width: 650px;
     font-family: ${(props) => props.theme.font.sansSerif};

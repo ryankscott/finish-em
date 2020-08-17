@@ -88,7 +88,7 @@ export const Container = styled.div<ContainerProps>`
 `
 
 interface ContainerProps {
-    backgroundColour: CSS.Color
+    backgroundColour: CSS.Property.BackgroundColor
 }
 
 export const Placeholder = styled.div`

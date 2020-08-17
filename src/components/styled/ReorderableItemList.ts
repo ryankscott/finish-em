@@ -1,13 +1,18 @@
 import styled, { keyframes, css } from '../../StyledComponents'
+import { fadeInLeft, fadeOutRight } from 'react-animations'
+import { darken } from 'polished'
 import CSS from 'csstype'
-import { fadeInUp, fadeOutDown } from 'react-animations'
+
+export const NoItemText = styled.p`
+    color: ${(props) => props.theme.colours.disabledTextColour};
+    font-family: ${(props) => props.theme.font.sansSerif};
+    font-size: ${(props) => props.theme.fontSizes.small};
+    padding-left: 10px;
+`
 
 export const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
     width: 100%;
-    margin: 20px 0px 5px 0px;
+    margin: 10px 0px;
 `
 
 type DraggableListProps = {
@@ -17,14 +22,14 @@ export const DraggableList = styled.div<DraggableListProps>`
     display: flex;
     flex-direction: column;
     justify-content: center;
+    border-radius: 5px;
     background: ${(props) => (props.isDraggingOver ? 'inherit' : 'inherit')};
     width: 100%;
-    margin: 0px;
     padding: ${(props) => (props.isDraggingOver ? '40px 5px' : '5px')};
 `
 
-const fadeInAnimation = keyframes`${fadeInUp}`
-const fadeOutAnimation = keyframes`${fadeOutDown}`
+const fadeInAnimation = keyframes`${fadeInLeft}`
+const fadeOutAnimation = keyframes`${fadeOutRight}`
 const entryAnimation = (props) =>
     css`
         ${fadeInAnimation} 0.2s
@@ -36,7 +41,7 @@ const exitAnimation = (props) =>
 
 type DraggableContainerProps = {
     isDragging: boolean
-    draggableStyle: CSS.Property
+    draggableStyle: CSS.Properties
     state: string
 }
 export const DraggableContainer = styled.div<DraggableContainerProps>`
@@ -45,8 +50,8 @@ display: flex;
 flex-direction: row;
 height: auto;
 user-select: none;
+padding: 0px;
 margin: 0px;
-padding: 5px;
 border-radius: 5px;
 background: ${(props) =>
     props.isDragging
