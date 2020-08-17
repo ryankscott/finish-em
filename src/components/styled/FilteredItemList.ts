@@ -1,5 +1,6 @@
 import Select from 'react-select'
-import styled from 'styled-components'
+import styled, { css, keyframes } from 'styled-components'
+import { fadeInUp, fadeOutDown } from 'react-animations'
 import { Paragraph } from '../Typography'
 import { lighten } from 'polished'
 

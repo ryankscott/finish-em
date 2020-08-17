@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from '../StyledComponents'
+import { ThemeProvider, keyframes, css } from '../StyledComponents'
 
 import { themes } from '../theme'
 import { connect } from 'react-redux'
@@ -7,9 +7,11 @@ import ViewHeader from './ViewHeader'
 import { MainComponents } from '../interfaces'
 import FilteredItemList from './FilteredItemList'
 import Button from './Button'
+import { Container, DraggableList, DraggableContainer } from './styled/ReorderableComponentList'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { reorderComponent, addComponent } from '../actions'
+import { TransitionGroup, Transition } from 'react-transition-group'
 import CSS from 'csstype'
 
 interface OwnProps {
@@ -28,131 +30,152 @@ type ReorderableComponentListProps = StateProps & OwnProps & DispatchProps
 const ReorderableComponentList = (props: ReorderableComponentListProps): ReactElement => {
     const theme = themes[props.theme]
 
-    const getListStyle = (isDraggingOver: boolean): CSS.Properties => ({
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        background: isDraggingOver ? 'inherit' : 'inherit',
-        width: '100%',
-        margin: '0px',
-        padding: '0px',
-    })
-
-    const getComponentStyle = (isDragging: boolean, draggableStyle): CSS.Properties => ({
-        ...draggableStyle,
-        display: 'flex',
-        flexDirection: 'row',
-        height: 'auto',
-        userSelect: 'none',
-        margin: '0px',
-        padding: '5px',
-        borderRadius: '5px',
-        // change background colour if dragging
-        background: isDragging
-            ? theme.colours.focusDialogBackgroundColour
-            : theme.colours.backgroundColour,
-    })
-
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    width: '100%',
-                    margin: '20px 0px 5px 0px',
-                }}
-            ></div>
-            <DragDropContext
-                onDragEnd={(e) => {
-                    props.reorderComponent(
-                        e.draggableId,
-                        props.components.order[e.destination.index],
-                    )
-                }}
-                style={{ width: '100%' }}
-            >
-                <Droppable droppableId={uuidv4()} type="COMPONENT">
-                    {(provided, snapshot) => (
-                        <div
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                            style={getListStyle(snapshot.isDraggingOver)}
-                        >
-                            {Object.values(props.components.order).map((c, index) => {
-                                const comp = props.components.components[c]
-                                if (comp.location == 'main' && comp.viewId == props.id) {
-                                    switch (comp.component.name) {
-                                        case 'FilteredItemList':
-                                            return (
-                                                <Draggable
-                                                    key={c}
-                                                    draggableId={c}
-                                                    index={index}
-                                                    isDragDisabled={false}
-                                                >
-                                                    {(provided, snapshot) => (
-                                                        <div
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                            key={'container-' + c}
-                                                            style={getComponentStyle(
-                                                                snapshot.isDragging,
-                                                                provided.draggableProps.style,
-                                                            )}
-                                                        >
-                                                            <FilteredItemList
-                                                                id={c}
-                                                                key={c}
-                                                                {...comp.component.props}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            )
-                                        case 'ViewHeader':
-                                            return (
-                                                <Draggable key={c} draggableId={c} index={index}>
-                                                    {(provided, snapshot) => (
-                                                        <div
-                                                            ref={provided.innerRef}
-                                                            {...provided.draggableProps}
-                                                            {...provided.dragHandleProps}
-                                                            key={'container-' + c}
-                                                            style={getComponentStyle(
-                                                                snapshot.isDragging,
-                                                                provided.draggableProps.style,
-                                                            )}
-                                                        >
-                                                            <ViewHeader
-                                                                key={c}
-                                                                id={c}
-                                                                {...comp.component.props}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </Draggable>
-                                            )
-                                    }
-                                }
-                            })}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
-            <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '10px' }}>
-                <Button
-                    type={'default'}
-                    iconSize="14px"
-                    width="90px"
-                    icon={'add'}
-                    text={'Add list'}
-                    onClick={() => {
-                        props.addComponent(props.id)
+            <Container>
+                <DragDropContext
+                    onDragEnd={(e) => {
+                        props.reorderComponent(
+                            e.draggableId,
+                            props.components.order[e.destination.index],
+                        )
                     }}
-                />
-            </div>
+                    style={{ width: '100%' }}
+                >
+                    <Droppable droppableId={uuidv4()} type="COMPONENT">
+                        {(provided, snapshot) => (
+                            <DraggableList
+                                {...provided.droppableProps}
+                                ref={provided.innerRef}
+                                isDraggingOver={snapshot.isDraggingOver}
+                            >
+                                <TransitionGroup component={null}>
+                                    {Object.values(props.components.order).map((c, index) => {
+                                        const comp = props.components.components[c]
+                                        if (comp.location == 'main' && comp.viewId == props.id) {
+                                            switch (comp.component.name) {
+                                                case 'FilteredItemList':
+                                                    return (
+                                                        <Transition
+                                                            key={c}
+                                                            timeout={{
+                                                                appear: 200,
+                                                                enter: 200,
+                                                                exit: 500,
+                                                            }}
+                                                        >
+                                                            {(state) => {
+                                                                console.log(state)
+                                                                return (
+                                                                    <Draggable
+                                                                        key={c}
+                                                                        draggableId={c}
+                                                                        index={index}
+                                                                        isDragDisabled={false}
+                                                                    >
+                                                                        {(provided, snapshot) => (
+                                                                            <DraggableContainer
+                                                                                ref={
+                                                                                    provided.innerRef
+                                                                                }
+                                                                                {...provided.draggableProps}
+                                                                                {...provided.dragHandleProps}
+                                                                                key={
+                                                                                    'container-' + c
+                                                                                }
+                                                                                isDragging={
+                                                                                    snapshot.isDragging
+                                                                                }
+                                                                                draggableStyle={...provided
+                                                                                    .draggableProps
+                                                                                    .style}
+                                                                                state={state}
+                                                                            >
+                                                                                <FilteredItemList
+                                                                                    id={c}
+                                                                                    key={c}
+                                                                                    {...comp
+                                                                                        .component
+                                                                                        .props}
+                                                                                />
+                                                                            </DraggableContainer>
+                                                                        )}
+                                                                    </Draggable>
+                                                                )
+                                                            }}
+                                                        </Transition>
+                                                    )
+                                                case 'ViewHeader':
+                                                    return (
+                                                        <Transition
+                                                            key={c}
+                                                            timeout={{
+                                                                appear: 200,
+                                                                enter: 200,
+                                                                exit: 500,
+                                                            }}
+                                                        >
+                                                            {(state) => {
+                                                                console.log(state)
+                                                                return (
+                                                                    <Draggable
+                                                                        key={c}
+                                                                        draggableId={c}
+                                                                        index={index}
+                                                                    >
+                                                                        {(provided, snapshot) => (
+                                                                            <DraggableContainer>
+                                                                                ref=
+                                                                                {provided.innerRef}
+                                                                                {...provided.draggableProps}
+                                                                                {...provided.dragHandleProps}
+                                                                                key=
+                                                                                {'container-' + c}
+                                                                                isDragging=
+                                                                                {
+                                                                                    snapshot.isDragging
+                                                                                }
+                                                                                draggableStyle=
+                                                                                {...provided
+                                                                                    .draggableProps
+                                                                                    .style}
+                                                                                state={state}
+                                                                                >
+                                                                                <ViewHeader
+                                                                                    key={c}
+                                                                                    id={c}
+                                                                                    {...comp
+                                                                                        .component
+                                                                                        .props}
+                                                                                />
+                                                                            </DraggableContainer>
+                                                                        )}
+                                                                    </Draggable>
+                                                                )
+                                                            }}
+                                                        </Transition>
+                                                    )
+                                            }
+                                        }
+                                    })}
+                                </TransitionGroup>
+                            </DraggableList>
+                        )}
+                    </Droppable>
+                </DragDropContext>
+                <div style={{ display: 'flex', justifyContent: 'center', paddingBottom: '10px' }}>
+                    <Button
+                        type={'default'}
+                        iconSize="14px"
+                        width="90px"
+                        icon={'add'}
+                        text={'Add list'}
+                        onClick={() => {
+                            props.addComponent(props.id)
+                        }}
+                    />
+                </div>
+            </Container>
         </ThemeProvider>
     )
 }

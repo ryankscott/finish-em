@@ -15,6 +15,7 @@ import {
     FilterBar,
 } from './styled/FilteredItemList'
 import { connect } from 'react-redux'
+
 import Button from './Button'
 import Tooltip from './Tooltip'
 import { deleteItem } from '../actions/item'
