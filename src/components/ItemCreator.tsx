@@ -53,6 +53,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         ? props.innerRef
         : React.useRef<HTMLInputElement>()
     const [showItemCreator, setShowItemCreator] = useState(props.initiallyExpanded)
+    const [animate, setAnimate] = useState(false)
 
     const node = useRef<HTMLDivElement>()
     const handleClick = (e): null => {
@@ -103,15 +104,19 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
                 ></Tooltip>
                 <ItemCreatorContainer
+                    animate={animate}
                     backgroundColour={props.backgroundColour}
                     width={props.width}
                     visible={showItemCreator}
                 >
                     <EditableText
+                        onInvalidSubmit={() => {
+                            setAnimate(true)
+                            setTimeout(() => setAnimate(false), 1000)
+                        }}
                         backgroundColour={props.backgroundColour}
                         innerRef={textRef}
                         placeholder="Add a new task..."
-                        padding={'5px 25px 5px 10px'}
                         keywords={[
                             {
                                 matcher: itemRegex,

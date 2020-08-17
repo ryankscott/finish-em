@@ -42,6 +42,7 @@ interface OwnProps {
     onKeyPress?: (input: string) => void
     onEditingChange?: (isEditing: boolean) => void
     onEscape?: () => void
+    onInvalidSubmit?: () => void
 }
 
 export type EditableTextProps = OwnProps & StateProps
@@ -177,6 +178,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
             // If it's not valid then don't submit
             if (!valid) {
                 // This stops an actual enter being sent
+                props?.onInvalidSubmit()
                 e.preventDefault()
                 return
             }

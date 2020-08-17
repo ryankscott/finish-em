@@ -1,5 +1,6 @@
-import styled from 'styled-components'
-import { darken, transparentize } from 'polished'
+import styled, { css, keyframes } from 'styled-components'
+import { transparentize } from 'polished'
+import { headShake } from 'react-animations'
 
 export const Container = styled.div`
     display: flex;
@@ -11,8 +12,15 @@ export interface ItemCreatorContainer {
     visible: boolean
     width: string
     backgroundColour: string
+    animate: boolean
 }
+const headShakeAnimation = keyframes`${headShake}`
+const animation = (props) =>
+    css`
+        ${headShakeAnimation} 1s
+    `
 export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
+    animation: ${(props) => (props.animate ? animation : 'none')};
     position: relative;
     display: flex;
     flex-direction: row;
