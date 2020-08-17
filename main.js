@@ -212,7 +212,7 @@ function createMainWindow() {
 app.on('ready', () => {
     createMainWindow()
     globalShortcut.register('Command+Shift+N', createQuickAddWindow)
-    globalShortcut.register('Command+Shift+E', getMailLink)
+    globalShortcut.register('Command+Shift+A', getMailLink)
     globalShortcut.register('Command+Shift+O', getOutlookLink)
     try {
         checkForNewVersion()
