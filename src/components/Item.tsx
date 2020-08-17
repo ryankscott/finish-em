@@ -184,7 +184,7 @@ function Item(props: ItemProps): ReactElement {
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container
-                id={props.id}
+                id={props.componentId + '-' + props.id}
                 onMouseEnter={() => {
                     clearTimeout(interval)
                     setMoreButtonVisible(true)
@@ -192,7 +192,9 @@ function Item(props: ItemProps): ReactElement {
                 onMouseLeave={() => {
                     interval = setTimeout(() => setMoreButtonVisible(false), 1000)
                 }}
-                onClick={() => {
+                onClick={(e) => {
+                    // This is a weird gross hack for if you click on a child element
+                    document.getElementById(props.componentId + '-' + props.id).focus()
                     props.showFocusbar()
                     props.setActiveItem(props.id)
                 }}
