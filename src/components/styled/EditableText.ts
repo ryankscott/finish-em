@@ -17,6 +17,7 @@ interface ContainerProps {
 export const Container = styled.div<ContainerProps>`
     position: relative;
     box-sizing: border-box;
+    pointer-events: ${(props) => (props.readOnly ? 'none' : 'inherit')};
     overflow: hidden;
     overflow-y: scroll;
     height: ${(props) => props.height || 'auto'};
