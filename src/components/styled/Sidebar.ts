@@ -110,44 +110,41 @@ export const AddAreaContainer = styled.div`
     background-color: ${(props) => props.theme.colours.altBackgroundColour};
 `
 
-interface DroppableListProps {
+type DroppableListProps = {
+    isDraggingOver: boolean
+    draggableStyle: CSS.Properties
+    sidebarVisible: boolean
+}
+export const DroppableList = styled.div<DroppableListProps>`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: ${(props) =>
+        props.isDraggingOver ? lighten(0.1, props.theme.colours.altBackgroundColour) : 'inherit'};
+    padding: ${(props) =>
+        !props.sidebarVisible ? '0px' : props.isDraggingOver ? '10px 5px 45px 5px' : '5px 5px'};
+    border-radius: 5px;
+`
+
+type DraggableItemStyle = {
     isDragging: boolean
     draggableStyle: CSS.Properties
+    sidebarVisible: boolean
 }
-export const DroppableList = styled.div``
 
-export const DroppableListStyle = (
-    isDraggingOver: boolean,
-    theme,
-    sidebarVisible,
-): CSS.Properties => ({
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    background: isDraggingOver ? lighten(0.1, theme.colours.altBackgroundColour) : 'inherit',
-    padding: !sidebarVisible ? '0px' : isDraggingOver ? '10px 5px' : '5px 5px',
-    paddingBottom: isDraggingOver ? '45px' : '5px',
-    borderRadius: '5px',
+export const DraggableItem = styled.div<DraggableItemStyle>`
+    ...draggableStyle;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    user-select: none;
+    margin: 0px;
+    padding: ${(props) => (!props.sidebarVisible ? '0px' : '0px 5px')};
+    border-radius: 5px;
+    background: ${(props) =>
+        props.isDragging
+            ? props.theme.colours.focusAltDialogBackgroundColour
+            : props.theme.colours.altBackgroundColour};
 })
 
-export const DraggableItem = styled.div``
-
-export const DraggableItemStyle = (
-    isDragging: boolean,
-    draggableStyle,
-    theme,
-    sidebarVisible,
-): CSS.Properties => ({
-    ...draggableStyle,
-    display: 'flex',
-    flexDirection: 'column',
-    height: 'auto',
-    userSelect: 'none',
-    margin: '0px',
-    padding: !sidebarVisible ? '0px' : '0px 5px',
-    borderRadius: '5px',
-    // change background colour if dragging
-    background: isDragging
-        ? theme.colours.focusAltDialogBackgroundColour
-        : theme.colours.altBackgroundColour,
-})
+`

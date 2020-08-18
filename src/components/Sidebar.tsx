@@ -77,8 +77,7 @@ interface ProjectLinkProps {
 }
 export const ProjectLink = styled(StyledLink)<ProjectLinkProps>`
     width: 100%;
-    padding: 5px 2px;
-    padding-left: ${(props) => (props.sidebarVisible ? '25px' : '0px')};
+    padding: ${(props) => (props.sidebarVisible ? '5px 2px 5px 25px' : '5px 2px 5px 2px')};
 `
 interface AreaLinkProps {
     sidebarVisible: boolean
@@ -219,11 +218,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 <DroppableList
                                     {...provided.droppableProps}
                                     ref={provided.innerRef}
-                                    style={DroppableListStyle(
-                                        snapshot.isDraggingOver,
-                                        theme,
-                                        props.sidebarVisible,
-                                    )}
+                                    isDraggingOver={snapshot.isDraggingOver}
+                                    sidebarVisible={props.sidebarVisible}
                                 >
                                     {Object.values(props.areas.order).map((a: string, index) => {
                                         const area = props.areas.areas[a]
@@ -234,13 +230,12 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                         ref={provided.innerRef}
                                                         {...provided.draggableProps}
                                                         {...provided.dragHandleProps}
-                                                        key={'container-area-' + a}
-                                                        style={DraggableItemStyle(
-                                                            snapshot.isDragging,
-                                                            provided.draggableProps.style,
-                                                            theme,
-                                                            props.sidebarVisible,
-                                                        )}
+                                                        key={'container-' + a}
+                                                        isDragging={snapshot.isDragging}
+                                                        draggableStyle={
+                                                            provided.draggableProps.style
+                                                        }
+                                                        siebarVisible={props.sidebarVisible}
                                                     >
                                                         {props.sidebarVisible && (
                                                             <SubsectionHeader
@@ -284,10 +279,12 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                                 <DroppableList
                                                                     {...provided.droppableProps}
                                                                     ref={provided.innerRef}
-                                                                    style={DroppableListStyle(
-                                                                        snapshot.isDraggingOver,
-                                                                        theme,
-                                                                    )}
+                                                                    isDraggingOver={
+                                                                        snapshot.isDraggingOver
+                                                                    }
+                                                                    sidebarVisible={
+                                                                        props.sidebarVisible
+                                                                    }
                                                                 >
                                                                     {Object.values(
                                                                         props.projects.order,
@@ -324,13 +321,17 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                                                             'container-' +
                                                                                             p
                                                                                         }
-                                                                                        style={DraggableItemStyle(
-                                                                                            snapshot.isDragging,
+                                                                                        isDragging={
+                                                                                            snapshot.isDragging
+                                                                                        }
+                                                                                        draggableStyle={
                                                                                             provided
                                                                                                 .draggableProps
-                                                                                                .style,
-                                                                                            theme,
-                                                                                        )}
+                                                                                                .style
+                                                                                        }
+                                                                                        siebarVisible={
+                                                                                            props.sidebarVisible
+                                                                                        }
                                                                                     >
                                                                                         <ProjectLink
                                                                                             sidebarVisible={
