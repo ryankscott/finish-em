@@ -19,24 +19,22 @@
 | Hide Sidebar           | `[`   |
 | Show shortcuts         | `?`   |
 
-
 ## Item
 
-| Name               | Keys  |
-| :----------------- | :---- |
-| Edit item          | `e`   |
-| Set Scheduled date | `s`   |
-| Set Due date       | `d`   |
-| Create subtask     | `a`   |
-| Complete item      | `c`   |
-| Uncomplete item    | `u+c` |
-| Repeat item        | `r`   |
-| Delete item        | `x`   |
-| Undelete item      | `u+x` |
-| Move item          | `m`   |
-| Toggle children    | `t`   |
-| Next item          | `j`   |
-| Previous item      | `k`   |
-| Convert to subtask | `v`   |
-| Set active item    | `f`   |
-
+| Name                | Keys  |
+| :------------------ | :---- |
+| Edit item           | `e`   |
+| Set Scheduled date  | `s`   |
+| Set Due date        | `d`   |
+| Create subtask      | `a`   |
+| Complete item       | `c`   |
+| Uncomplete item     | `u+c` |
+| Repeat item         | `r`   |
+| Delete item         | `x`   |
+| Undelete item       | `u+x` |
+| Add item to Project | `p`   |
+| Toggle children     | `t`   |
+| Next item           | `j`   |
+| Previous item       | `k`   |
+| Convert to subtask  | `v`   |
+| Set active item     | `f`   |

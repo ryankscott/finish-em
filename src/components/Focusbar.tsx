@@ -19,13 +19,14 @@ import {
     setScheduledDate,
     setDueDate,
     setRepeatRule,
-    moveItem,
+    addProject,
     convertSubtask,
     changeParentItem,
     addLabel,
     removeLabel,
     deleteItem,
     undeleteItem,
+    addArea,
 } from '../actions'
 import Tooltip from './Tooltip'
 import {
@@ -40,6 +41,7 @@ import {
 import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
 import ProjectDropdown from './ProjectDropdown'
+import AreaDropdown from './AreaDropdown'
 import ItemCreator from './ItemCreator'
 import SubtaskDropdown from './SubtaskDropdown'
 import LabelDropdown from './LabelDropdown'
@@ -49,7 +51,8 @@ interface DispatchProps {
     setActiveItem: (id: string) => void
     updateItemDescription: (id: string, text: string) => void
     undoSetActiveItem: () => void
-    moveItem: (id: string, projectId: string | '0') => void
+    addProject: (id: string, projectId: string | '0') => void
+    addArea: (id: string, areaId: string | '0') => void
     completeItem: (id: string) => void
     uncompleteItem: (id: string) => void
     setScheduledDate: (id: string, date: string) => void
@@ -203,7 +206,22 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             projectId={i.projectId}
                             completed={i.completed}
                             onSubmit={(projectId) => {
-                                props.moveItem(i.id, projectId)
+                                props.addProject(i.id, projectId)
+                            }}
+                        />
+                    </AttributeValue>
+                </AttributeContainer>
+                <AttributeContainer>
+                    <AttributeKey>
+                        <Paragraph>Area: </Paragraph>
+                    </AttributeKey>
+                    <AttributeValue>
+                        <AreaDropdown
+                            deleted={i.deleted}
+                            areaId={i.areaId}
+                            completed={i.completed}
+                            onSubmit={(projectId) => {
+                                props.addArea(i.id, projectId)
                             }}
                         />
                     </AttributeValue>
@@ -363,8 +381,13 @@ const mapStateToProps = (state): StateProps => ({
     theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    moveItem: (id: string, projectId: string | '0') => {
-        dispatch(moveItem(id, projectId))
+    addProject: (id: string, projectId: string | '0') => {
+        dispatch(addProject(id, projectId))
+    },
+    addArea: (id: string, areaId: string | '0') => {
+        console.log(id)
+        console.log(areaId)
+        dispatch(addArea(id, areaId))
     },
     completeItem: (id: string) => {
         dispatch(completeItem(id))

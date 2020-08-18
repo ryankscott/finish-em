@@ -207,13 +207,22 @@ export const migratev36tov37Components = (cs: MainComponents, ps: Project): Main
 
 export const migratev37tov47Projects = (ps: Project): Project => {
     const projects = ps.projects
-
     const order = ps.order
     const projectEntries = Object.entries(projects)
     for (const [key, value] of projectEntries) {
         value['areaId'] = '0'
     }
     return { projects: Object.fromEntries(projectEntries), order: order }
+}
+
+export const migratev47to48Items = (its: Items): Items => {
+    const items = its.items
+    const order = its.order
+    const itemEntries = Object.entries(items)
+    for (const [key, value] of itemEntries) {
+        value['areaId'] = '0'
+    }
+    return { items: Object.fromEntries(itemEntries), order: order }
 }
 
 // Note: The number here denotes the version you want to migrate to
@@ -773,6 +782,15 @@ export const migrations = {
                     },
                 },
                 order: ['0'],
+            },
+        }
+    },
+    // Just going to do incremental updates now
+    48: (state) => {
+        return {
+            ...state,
+            items: {
+                ...migratev47to48Items(state.items),
             },
         }
     },

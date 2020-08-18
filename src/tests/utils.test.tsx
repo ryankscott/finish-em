@@ -1,5 +1,5 @@
 import {
-    createShortProjectName,
+    createShortSidebarItem,
     getItemTypeFromString,
     removeItemTypeFromString,
     validateItemString,
@@ -7,24 +7,25 @@ import {
 
 describe('Creating a short project name testing', () => {
     it('should handle making a project name short with two words, no emoji', () => {
-        expect(createShortProjectName('Foo Bar')).toEqual('FB')
+        expect(createShortSidebarItem('Foo Bar')).toEqual('FB')
     })
     it('should handle making a project name short with two words, and an emoji', () => {
-        expect(createShortProjectName('Foo Bar📊')).toEqual('📊')
+        expect(createShortSidebarItem('Foo Bar📊')).toEqual('📊')
     })
     it('should handle making a project name short with one words', () => {
-        expect(createShortProjectName('Foo')).toEqual('Fo')
+        expect(createShortSidebarItem('Foo')).toEqual('Fo')
     })
     it('should handle one word and an emoji', () => {
-        expect(createShortProjectName('🗄 Work')).toEqual('🗄')
+        expect(createShortSidebarItem('🗄 Work')).toEqual('🗄')
     })
     it('should handle just an emoji', () => {
-        expect(createShortProjectName('🗄')).toEqual('🗄')
+        expect(createShortSidebarItem('🗄')).toEqual('🗄')
     })
     it('should handle lots of words', () => {
-        expect(createShortProjectName('this is a long project name with stuff')).toEqual('TI')
+        expect(createShortSidebarItem('this is a long project name with stuff')).toEqual('TI')
     })
 })
+
 describe('Getting an item type from string', () => {
     it('should handle a regular todo item in upper case', () => {
         expect(getItemTypeFromString('TODO Foo Bar')).toEqual('TODO')

@@ -1,5 +1,5 @@
-export const CREATE_AREA = 'CREATE_area'
-export const DELETE_AREA = 'DELETE_area'
+export const CREATE_AREA = 'CREATE_AREA'
+export const DELETE_AREA = 'DELETE_AREA'
 export const UPDATE_AREA_DESCRIPTION = 'UPDATE_AREA_DESCRIPTION'
 export const UPDATE_AREA_NAME = 'UPDATE_AREA_NAME'
 export const REORDER_AREA = 'REORDER_AREA'

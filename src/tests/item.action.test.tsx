@@ -62,15 +62,15 @@ describe('ItemActions', () => {
         expect(item.uncompleteItem(id)).toEqual(expectedAction)
     })
 
-    it('should create an action to move an item with a project', () => {
+    it('should create an action to add a project to an item', () => {
         const id = uuidv4()
         const projectId = uuidv4()
-        const expectedAction: item.MoveItemAction = {
-            type: item.MOVE_ITEM,
+        const expectedAction: item.AddProjectAction = {
+            type: item.ADD_PROJECT,
             id: id,
             projectId: projectId,
         }
-        expect(item.moveItem(id, projectId)).toEqual(expectedAction)
+        expect(item.addProject(id, projectId)).toEqual(expectedAction)
     })
 
     it('should create an action to set the due date of an item', () => {

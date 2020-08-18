@@ -205,7 +205,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
             console.log('repeat')
             event.preventDefault()
         },
-        MOVE_ITEM: (event) => {
+        ADD_PROJECT: (event) => {
             // TODO: Implement me
             const item = props.items.items[event.target.id]
             if (item.deleted || item.completed) return
@@ -448,10 +448,10 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                     )
                                             }
                                         })}
-                                        {props.inputItems.length == 0 && (
-                                            <NoItemText>No items</NoItemText>
-                                        )}
                                     </TransitionGroup>
+                                    {props.inputItems.length == 0 && (
+                                        <NoItemText>No items</NoItemText>
+                                    )}
                                 </DraggableList>
                             )}
                         </Droppable>
