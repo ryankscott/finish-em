@@ -122,23 +122,23 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                                                         index={index}
                                                                     >
                                                                         {(provided, snapshot) => (
-                                                                            <DraggableContainer>
-                                                                                ref=
-                                                                                {provided.innerRef}
+                                                                            <DraggableContainer
+                                                                                ref={
+                                                                                    provided.innerRef
+                                                                                }
                                                                                 {...provided.draggableProps}
                                                                                 {...provided.dragHandleProps}
-                                                                                key=
-                                                                                {'container-' + c}
-                                                                                isDragging=
-                                                                                {
+                                                                                key={
+                                                                                    'container-' + c
+                                                                                }
+                                                                                isDragging={
                                                                                     snapshot.isDragging
                                                                                 }
-                                                                                draggableStyle=
-                                                                                {...provided
+                                                                                draggableStyle={...provided
                                                                                     .draggableProps
                                                                                     .style}
                                                                                 state={state}
-                                                                                >
+                                                                            >
                                                                                 <ViewHeader
                                                                                     key={c}
                                                                                     id={c}
