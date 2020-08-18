@@ -23,10 +23,11 @@ export const HeaderContainer = styled.div`
 `
 
 export const BodyContainer = styled.div`
-grid-area: body;
-display: flex;
-flex-direction row;
-width: 100%;
+    grid-area: body;
+    display: flex;
+    flex-direction row;
+    width: 100%;
+    overflow: scroll;
 `
 
 interface SidebarContainerProps {
@@ -73,7 +74,8 @@ export const FocusContainer = styled.div<FocusContainerProps>`
     border: ${(props) => (props.visible ? '1px solid' : 'none')};
     background-color: ${(props) => props.theme.colours.backgroundColour};
     border-color: ${(props) => props.theme.colours.borderColour};
-    overflow: scroll;
+    overflow-y: scroll;
+    overflow-x: hidden;
 `
 
 export const StyledToastContainer = styled(ToastContainer).attrs((props) => ({
