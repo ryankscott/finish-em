@@ -1,5 +1,5 @@
 import {
-    createShortProjectName,
+    createShortName,
     getItemTypeFromString,
     removeItemTypeFromString,
     validateItemString,
@@ -7,22 +7,22 @@ import {
 
 describe('Creating a short project name testing', () => {
     it('should handle making a project name short with two words, no emoji', () => {
-        expect(createShortProjectName('Foo Bar')).toEqual('FB')
+        expect(createShortName('Foo Bar')).toEqual('FB')
     })
     it('should handle making a project name short with two words, and an emoji', () => {
-        expect(createShortProjectName('Foo Bar📊')).toEqual('📊')
+        expect(createShortName('Foo Bar📊')).toEqual('📊')
     })
     it('should handle making a project name short with one words', () => {
-        expect(createShortProjectName('Foo')).toEqual('Fo')
+        expect(createShortName('Foo')).toEqual('Fo')
     })
     it('should handle one word and an emoji', () => {
-        expect(createShortProjectName('🗄 Work')).toEqual('🗄')
+        expect(createShortName('🗄 Work')).toEqual('🗄')
     })
     it('should handle just an emoji', () => {
-        expect(createShortProjectName('🗄')).toEqual('🗄')
+        expect(createShortName('🗄')).toEqual('🗄')
     })
     it('should handle lots of words', () => {
-        expect(createShortProjectName('this is a long project name with stuff')).toEqual('TI')
+        expect(createShortName('this is a long project name with stuff')).toEqual('TI')
     })
 })
 describe('Getting an item type from string', () => {
