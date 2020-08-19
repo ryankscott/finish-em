@@ -25,13 +25,11 @@ import {
     ViewContainer,
     AddAreaContainer,
     DroppableList,
-    DroppableListStyle,
     DraggableItem,
-    DraggableItemStyle,
     SubsectionHeader,
 } from './styled/Sidebar'
 import Button from './Button'
-import { createShortProjectName } from '../utils'
+import { createShortName } from '../utils'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -77,14 +75,16 @@ interface ProjectLinkProps {
 }
 export const ProjectLink = styled(StyledLink)<ProjectLinkProps>`
     width: 100%;
-    padding: ${(props) => (props.sidebarVisible ? '5px 2px 5px 25px' : '5px 2px 5px 2px')};
+    padding: ${(props) => (props.sidebarVisible ? '4px 2px 4px 20px' : '4px 2px 4px 2px')};
+    font-size: ${(props) =>
+        props.sidebarVisible ? props.theme.fontSizes.xsmall : props.theme.fontSizes.xxsmall};
 `
 interface AreaLinkProps {
     sidebarVisible: boolean
 }
 export const AreaLink = styled(StyledLink)<AreaLinkProps>`
     width: 100%;
-    padding: 7px 5px;
+    padding: '5px 5px 5px 5px';
     font-size: ${(props) => props.theme.fontSizes.small};
 `
 
@@ -185,7 +185,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 </StyledLink>
                             )
                         })}
-                        {!props.sidebarVisible && <StyledHorizontalRule />}
                     </ViewContainer>
                     <SectionHeader visible={props.sidebarVisible}>
                         {Icons['area'](22, 22, themes[props.theme].colours.primaryColour)}
@@ -237,43 +236,45 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                         }
                                                         siebarVisible={props.sidebarVisible}
                                                     >
-                                                        {props.sidebarVisible && (
-                                                            <SubsectionHeader
-                                                                visible={props.sidebarVisible}
-                                                            >
-                                                                <AreaLink
-                                                                    sidebarVisible={
-                                                                        props.sidebarVisible
-                                                                    }
-                                                                    to={`/areas/${area.id}`}
-                                                                    activeStyle={{
-                                                                        backgroundColor:
-                                                                            theme.colours
-                                                                                .focusAltDialogBackgroundColour,
-                                                                    }}
-                                                                >
-                                                                    {area.name}
-                                                                </AreaLink>
-                                                                <Button
-                                                                    type="subtle"
-                                                                    icon="add"
-                                                                    iconColour={'white'}
-                                                                    onClick={() => {
-                                                                        const projectId = uuidv4()
-                                                                        props.createProject(
-                                                                            projectId,
-                                                                            'New Project',
-                                                                            '',
-                                                                            a,
-                                                                        )
-                                                                        history.push(
-                                                                            '/projects/' +
-                                                                                projectId,
-                                                                        )
-                                                                    }}
-                                                                />
-                                                            </SubsectionHeader>
+                                                        {!props.sidebarVisible && (
+                                                            <StyledHorizontalRule />
                                                         )}
+                                                        <SubsectionHeader
+                                                            visible={props.sidebarVisible}
+                                                        >
+                                                            <AreaLink
+                                                                sidebarVisible={
+                                                                    props.sidebarVisible
+                                                                }
+                                                                to={`/areas/${area.id}`}
+                                                                activeStyle={{
+                                                                    backgroundColor:
+                                                                        theme.colours
+                                                                            .focusAltDialogBackgroundColour,
+                                                                }}
+                                                            >
+                                                                {props.sidebarVisible
+                                                                    ? area.name
+                                                                    : createShortName(area.name)}
+                                                            </AreaLink>
+                                                            <Button
+                                                                type="subtle"
+                                                                icon="add"
+                                                                iconColour={'white'}
+                                                                onClick={() => {
+                                                                    const projectId = uuidv4()
+                                                                    props.createProject(
+                                                                        projectId,
+                                                                        'New Project',
+                                                                        '',
+                                                                        a,
+                                                                    )
+                                                                    history.push(
+                                                                        '/projects/' + projectId,
+                                                                    )
+                                                                }}
+                                                            />
+                                                        </SubsectionHeader>
                                                         <Droppable droppableId={a} type="PROJECT">
                                                             {(provided, snapshot) => (
                                                                 <DroppableList
@@ -350,7 +351,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                                                         >
                                                                                             {props.sidebarVisible
                                                                                                 ? project.name
-                                                                                                : createShortProjectName(
+                                                                                                : createShortName(
                                                                                                       project.name,
                                                                                                   )}
                                                                                         </ProjectLink>

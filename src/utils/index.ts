@@ -103,7 +103,7 @@ export const getEmoji = (input: string): string => {
     return found ? found[0] : null
 }
 
-export const createShortProjectName = (input: string): string => {
+export const createShortName = (input: string): string => {
     // If there's an emoji anywhere return the first one
     const emoji = getEmoji(input)
     if (emoji) return emoji
