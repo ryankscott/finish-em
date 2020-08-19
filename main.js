@@ -118,9 +118,10 @@ const checkForNewVersion = () => {
         response.on('end', () => {
             try {
                 const response = JSON.parse(rawData)
-                // Get rid of draft versions and get the last published
+                // Get rid of draft versions and prereleases and get the last published
                 const sortedReleases = response
                     .filter((r) => r.draft == false)
+                    .filter((r) => r.prerelease == false)
                     .sort((a, b) => b.published_at - a.published_at)
                 // Get the semver of the release
                 const latestRelease = sortedReleases[0]
