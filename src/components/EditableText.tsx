@@ -59,7 +59,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
     useEffect(() => {
         setInput(props.input)
-    }, [])
+    })
 
     useEffect(() => {
         if (editable) {
