@@ -164,10 +164,12 @@ function Item(props: ItemProps): ReactElement {
         : { short: '', long: '' }
 
     const projectText =
-        props.projectId != '0'
+        props.projectId == null
+            ? { short: 'None', long: 'None' }
+            : props.projectId != '0'
             ? {
-                  short: truncateString(props.projects.projects[props.projectId].name, 12),
-                  long: props.projects.projects[props.projectId].name,
+                  short: truncateString(props.projects.projects?.[props.projectId].name, 12),
+                  long: props.projects.projects?.[props.projectId].name,
               }
             : { short: 'Inbox', long: 'Inbox' }
 

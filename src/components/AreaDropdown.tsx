@@ -1,5 +1,6 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
+import { OptionsType } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 import { v4 as uuidv4 } from 'uuid'
 import { themes, selectStyles } from '../theme'
@@ -12,19 +13,22 @@ import Button from './Button'
 
 type OptionType = { value: string; label: JSX.Element | string }
 
-const generateOptions = (area: AreaType, areas: Area) => {
+const generateOptions = (area: AreaType, areas: Area): OptionsType => {
     const a = Object.values(areas)
     const filteredAreas = a
         .filter((a) => a.id != '0')
-        .filter((a) => a.id != area.id)
+        .filter((a) => a.id != area?.id)
         .filter((a) => a.deleted == false)
 
-    return filteredAreas.map((a) => {
-        return {
-            value: a.id,
-            label: a.name,
-        }
-    })
+    return [
+        ...filteredAreas.map((a) => {
+            return {
+                value: a.id,
+                label: a.name,
+            }
+        }),
+        { value: null, label: 'None' },
+    ]
 }
 
 interface DispatchProps {
@@ -47,7 +51,7 @@ interface OwnProps {
 type AreaDropdownProps = DispatchProps & StateProps & OwnProps
 function AreaDropdown(props: AreaDropdownProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
-    const area = props.areas.areas[props.areaId]
+    const area = props.areas.areas?.[props.areaId]
     const handleChange = (newValue, actionMeta): void => {
         if (actionMeta.action == 'select-option') {
             props.onSubmit(newValue.value)
@@ -86,7 +90,7 @@ function AreaDropdown(props: AreaDropdownProps): ReactElement {
                         setShowSelect(!showSelect)
                         e.stopPropagation()
                     }}
-                    text={area.name}
+                    text={area ? area.name : 'None'}
                     isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (

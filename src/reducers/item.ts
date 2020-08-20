@@ -171,6 +171,8 @@ export const itemReducer = produce(
                 // You can't add an area to an item if it has a project
                 if (!(i.projectId == 0 || i.projectId == null)) return
                 i.areaId = action.areaId
+                // Remove the project
+                i.projectId = null
                 i.lastUpdatedAt = new Date().toISOString()
                 // Update childrens area also
                 i.children &&

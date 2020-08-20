@@ -22,7 +22,8 @@ const generateOptions = (
     const p = Object.values(projects)
     const filteredProjects = p
         .filter((p) => p.id != '0')
-        .filter((p) => p.id != project.id)
+        .filter((p) => p.id != null)
+        .filter((p) => p.id != project?.id)
         .filter((p) => p.deleted == false)
 
     const groupedProjects = groupBy(filteredProjects, 'areaId')
@@ -39,11 +40,24 @@ const generateOptions = (
     })
 
     // Sort to ensure that the current project is at the front
-    allGroups.sort((a, b) =>
-        a.label == areas[project.areaId].name ? -1 : b.label == areas[project.areaId].name ? 1 : 0,
-    )
-
-    return allGroups
+    // Only if it has a project
+    if (project != null) {
+        allGroups.sort((a, b) =>
+            a.label == areas[project.areaId].name
+                ? -1
+                : b.label == areas[project.areaId].name
+                ? 1
+                : 0,
+        )
+    }
+    //
+    return [
+        ...allGroups,
+        {
+            label: 'Remove Project',
+            options: [{ value: null, label: 'None' }],
+        },
+    ]
 }
 
 interface DispatchProps {
@@ -107,7 +121,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                         setShowSelect(!showSelect)
                         e.stopPropagation()
                     }}
-                    text={project.name}
+                    text={project ? project.name : 'None'}
                     isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (

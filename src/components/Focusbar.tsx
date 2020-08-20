@@ -211,21 +211,23 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         />
                     </AttributeValue>
                 </AttributeContainer>
-                <AttributeContainer>
-                    <AttributeKey>
-                        <Paragraph>Area: </Paragraph>
-                    </AttributeKey>
-                    <AttributeValue>
-                        <AreaDropdown
-                            deleted={i.deleted}
-                            areaId={i.areaId}
-                            completed={i.completed}
-                            onSubmit={(projectId) => {
-                                props.addArea(i.id, projectId)
-                            }}
-                        />
-                    </AttributeValue>
-                </AttributeContainer>
+                {(i.projectId == null || i.projectId == 0) && (
+                    <AttributeContainer>
+                        <AttributeKey>
+                            <Paragraph>Area: </Paragraph>
+                        </AttributeKey>
+                        <AttributeValue>
+                            <AreaDropdown
+                                deleted={i.deleted}
+                                areaId={i.areaId}
+                                completed={i.completed}
+                                onSubmit={(projectId) => {
+                                    props.addArea(i.id, projectId)
+                                }}
+                            />
+                        </AttributeValue>
+                    </AttributeContainer>
+                )}
                 {i.type == 'TODO' && (
                     <>
                         <AttributeContainer>
