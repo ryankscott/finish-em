@@ -82,7 +82,7 @@ export const formatRelativeDate = (date: Date): string => {
     } else if (differenceInDays(date, new Date()) < 7 && isAfter(date, new Date())) {
         return format(date, 'EEEE')
     } else {
-        return format(date, 'do MMM y')
+        return format(date, 'do MMMM')
     }
 }
 
