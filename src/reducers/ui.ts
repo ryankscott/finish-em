@@ -2,6 +2,7 @@ import * as ui from '../actions/ui'
 import { UIType, RenderingStrategy, ItemIcons } from '../interfaces'
 import produce from 'immer'
 import { v4 as uuidv4 } from 'uuid'
+import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from '../Components/App.tsx'
 
 const initialState: UIType = {
     activeItem: {

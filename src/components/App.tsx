@@ -17,6 +17,7 @@ import { app as appKeymap } from '../keymap'
 import {
     showSidebar,
     hideSidebar,
+    hideFocusbar,
     showCreateProjectDialog,
     hideShortcutDialog,
     toggleShortcutDialog,
@@ -44,9 +45,10 @@ if (isElectron()) {
     const electron = window.require('electron')
 }
 
-const MIN_WIDTH_FOR_SIDEBAR = 700
+export const MIN_WIDTH_FOR_SIDEBAR = 1050
+export const MIN_WIDTH_FOR_FOCUSBAR = 925
 
-interface StateProps {
+type StateProps = {
     sidebarVisible: boolean
     focusbarVisible: boolean
     theme: string
@@ -56,7 +58,7 @@ interface StateProps {
     areas: Areas
     features: FeatureType
 }
-interface DispatchProps {
+type DispatchProps = {
     showSidebar: () => void
     hideSidebar: () => void
     hideDialogs: () => void
@@ -86,12 +88,31 @@ const App = (props: AppProps): ReactElement => {
         const area = props.areas.areas[id]
         return <Area area={area} />
     }
+
+    // TODO: Work out the best way to expand the width here
+    useEffect(() => {
+        if (window.innerWidth <= MIN_WIDTH_FOR_FOCUSBAR && focusbarVisible) {
+            // window.resizeBy(400, 0)
+        }
+    }, [props.focusbarVisible])
+
     useEffect(() => {
         window.addEventListener('resize', () => {
-            if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && props.sidebarVisible == true) {
-                props.hideSidebar()
+            clearTimeout(window.resizedFinished)
+            window.resizedFinished = setTimeout(() => {
+                if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && props.sidebarVisible) {
+                    props.hideSidebar()
+                }
+                if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && props.focusbarVisible) {
+                    props.hideFocusbar()
+                }
+            }, 250)
+            return () => {
+                window.removeEventListener('resize')
             }
         })
+    })
+    useEffect(() => {
         // Handle Electron events
         if (isElectron()) {
             electron.ipcRenderer.on('create-task', (event, arg) => {
@@ -312,6 +333,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     hideSidebar: () => {
         dispatch(hideSidebar())
+    },
+    hideFocusbar: () => {
+        dispatch(hideFocusbar())
     },
     showSidebar: () => {
         dispatch(showSidebar())
