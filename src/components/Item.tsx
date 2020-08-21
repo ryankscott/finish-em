@@ -79,7 +79,8 @@ function Item(props: ItemProps): ReactElement {
     const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
     const [moreButtonVisible, setMoreButtonVisible] = useState(false)
     const [showLabelDialog, setShowLabelDialog] = useState(false)
-    let interval = 0
+    let enterInterval,
+        exitInterval = 0
 
     const editor = React.useRef<HTMLInputElement>()
     const container = React.useRef<HTMLInputElement>()
@@ -188,15 +189,18 @@ function Item(props: ItemProps): ReactElement {
             <Container
                 id={props.componentId + '-' + props.id}
                 onMouseEnter={() => {
-                    clearTimeout(interval)
-                    setMoreButtonVisible(true)
+                    enterInterval = setTimeout(() => setMoreButtonVisible(true), 250)
+                    clearTimeout(exitInterval)
                 }}
                 onMouseLeave={() => {
-                    interval = setTimeout(() => setMoreButtonVisible(false), 1000)
+                    clearTimeout(enterInterval)
+                    exitInterval = setTimeout(() => setMoreButtonVisible(false), 200)
                 }}
                 onClick={(e) => {
+                    // TODO: This causes it being impossible to click on links
                     // This is a weird gross hack for if you click on a child element
-                    document.getElementById(props.componentId + '-' + props.id).focus()
+                    const el = document.getElementById(props.componentId + '-' + props.id)
+                    el.focus()
                     props.showFocusbar()
                     props.setActiveItem(props.id)
                 }}
