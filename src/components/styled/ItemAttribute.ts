@@ -8,7 +8,7 @@ export const AttributeContainer = styled.div<AttributeContainerProps>`
     display: flex;
     flex-direction: row;
     align-items: center;
-    padding: 0px 5px;
+    padding: 0px 2px;
     margin: 0px 2px;
     text-decoration: ${(props) => (props.completed ? 'strike-through' : 'none')};
 `
@@ -23,4 +23,5 @@ export const AttributeText = styled(Paragraph)`
         color: ${(props) => props.theme.colours.disabledTextColour};
         font-size: ${(props) => props.theme.fontSizes.xxsmall};
     }
+    margin: 0px 1px;
 `
