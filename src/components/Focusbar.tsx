@@ -387,8 +387,6 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
         dispatch(addProject(id, projectId))
     },
     addArea: (id: string, areaId: string | '0') => {
-        console.log(id)
-        console.log(areaId)
         dispatch(addArea(id, areaId))
     },
     completeItem: (id: string) => {
