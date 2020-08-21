@@ -185,7 +185,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 </StyledLink>
                             )
                         })}
-                        {!props.sidebarVisible && <StyledHorizontalRule />}
                     </ViewContainer>
                     <SectionHeader visible={props.sidebarVisible}>
                         {Icons['area'](22, 22, themes[props.theme].colours.primaryColour)}
@@ -237,6 +236,9 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                         }
                                                         sidebarVisible={props.sidebarVisible}
                                                     >
+                                                        {!props.sidebarVisible && (
+                                                            <StyledHorizontalRule />
+                                                        )}
                                                         <SubsectionHeader
                                                             visible={props.sidebarVisible}
                                                         >

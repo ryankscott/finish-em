@@ -38,7 +38,7 @@ export const SubsectionHeader = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 5px 0px;
+    padding: 2px 0px;
 `
 
 export const HeaderName = styled(Header)`
@@ -119,7 +119,7 @@ export const DroppableList = styled.div<DroppableListProps>`
     background: ${(props) =>
         props.isDraggingOver ? lighten(0.1, props.theme.colours.altBackgroundColour) : 'inherit'};
     padding: ${(props) =>
-        !props.sidebarVisible ? '0px' : props.isDraggingOver ? '10px 5px 45px 5px' : '5px 5px'};
+        !props.sidebarVisible ? '0px' : props.isDraggingOver ? '10px 5px 45px 5px' : '2px 2px'};
     border-radius: 5px;
 `
 

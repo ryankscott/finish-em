@@ -103,7 +103,11 @@ export const getEmoji = (input: string): string => {
     return found ? found[0] : null
 }
 
+<<<<<<< HEAD
 export const createShortSidebarItem = (input: string): string => {
+=======
+export const createShortName = (input: string): string => {
+>>>>>>> master
     // If there's an emoji anywhere return the first one
     const emoji = getEmoji(input)
     if (emoji) return emoji
