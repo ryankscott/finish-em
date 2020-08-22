@@ -68,10 +68,12 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     const theme = themes[props.theme]
     const handlers = {
         TOGGLE_CHILDREN: (event) => {
-            props.toggleSubtasks(event.target.id, props.componentId)
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            props.toggleSubtasks(itemId, props.componentId)
         },
         NEXT_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             // If it's a parent element we need to get the first child
             if (item.children.length > 0) {
                 // Show subtasks so we can iterate over them
@@ -108,7 +110,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         },
         PREV_ITEM: (event) => {
             console.log('prev item')
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.children.length > 0) {
                 const prevItem = event.target.parentNode.previousSibling
                 if (prevItem) {
@@ -140,35 +143,41 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
             }
         },
         SET_ACTIVE_ITEM: (event) => {
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
             props.showFocusbar()
-            props.setActiveItem(event.target.id)
+            props.setActiveItem(itemId)
             return
         },
         COMPLETE_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             props.completeItem(item.id)
         },
         UNCOMPLETE_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted) return
             props.uncompleteItem(item.id)
         },
         DELETE_ITEM: (event) => {
             console.log('deleting')
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.deleted) return
             props.deleteItem(item.id)
         },
         UNDELETE_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             props.undeleteItem(item.id)
         },
         SET_SCHEDULED_DATE: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             console.log('scheduled')
@@ -176,7 +185,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         },
         SET_DUE_DATE: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             console.log('due date')
@@ -184,14 +194,16 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         },
         CREATE_SUBTASK: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.deleted || item.completed || item.parentId != null) return
             console.log('create sub task')
             event.preventDefault()
         },
         CONVERT_TO_SUBTASK: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             console.log('convert to sub task')
@@ -199,7 +211,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         },
         REPEAT_ITEM: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             console.log('repeat')
@@ -207,7 +220,8 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         },
         ADD_PROJECT: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.deleted || item.completed) return
             console.log('move item')
             event.preventDefault()
