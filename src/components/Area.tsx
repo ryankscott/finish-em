@@ -89,8 +89,8 @@ const Area = (props: AreaProps): ReactElement => {
                 <FilteredItemList
                     id={uuidv4()}
                     showProject={false}
-                    isFilterable={true}
-                    filter={`areaId == "${props.area.id}"`}
+                    isFilterable={false}
+                    filter={`areaId == "${props.area.id}" and not (completed or deleted) and not projectId`}
                     renderingStrategy={RenderingStrategy.All}
                     readOnly={true}
                 />
