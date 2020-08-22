@@ -15,10 +15,7 @@ type OptionType = { value: string; label: JSX.Element | string }
 
 const generateOptions = (area: AreaType, areas: Area): OptionsType => {
     const a = Object.values(areas)
-    const filteredAreas = a
-        .filter((a) => a.id != '0')
-        .filter((a) => a.id != area?.id)
-        .filter((a) => a.deleted == false)
+    const filteredAreas = a.filter((a) => a.id != area?.id).filter((a) => a.deleted == false)
 
     return [
         ...filteredAreas.map((a) => {
