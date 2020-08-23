@@ -164,10 +164,13 @@ type ItemListProps = OwnProps & StateProps & DispatchProps
 function ItemList(props: ItemListProps): ReactElement {
     const handlers = {
         TOGGLE_CHILDREN: (event) => {
-            props.toggleSubtasks(event.target.id, props.componentId)
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            props.toggleSubtasks(itemId, props.componentId)
         },
         NEXT_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            // We concatenate the itemId and componentId so we need to split it to get the itemId
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             // If it's a parent element we need to get the first child
             if (item.children?.length > 0) {
                 // Show subtasks so we can iterate over them
@@ -203,7 +206,8 @@ function ItemList(props: ItemListProps): ReactElement {
             }
         },
         PREV_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.children.length > 0) {
                 const prevItem = event.target.parentNode.previousSibling
                 if (prevItem) {
@@ -214,7 +218,6 @@ function ItemList(props: ItemListProps): ReactElement {
             // If it's a child
             if (item.parentId != null) {
                 const prevItem = event.target.previousSibling
-                console.log(prevItem)
                 if (prevItem) {
                     prevItem.focus()
                     return
@@ -237,35 +240,41 @@ function ItemList(props: ItemListProps): ReactElement {
             }
         },
         SET_ACTIVE_ITEM: (event) => {
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
             props.showFocusbar()
-            props.setActiveItem(event.target.id)
+            props.setActiveItem(itemId)
             return
         },
         COMPLETE_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             props.completeItem(item.id)
         },
         UNCOMPLETE_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted) return
             props.uncompleteItem(item.id)
         },
         DELETE_ITEM: (event) => {
             console.log('deleting')
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.deleted) return
             props.deleteItem(item.id)
         },
         UNDELETE_ITEM: (event) => {
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             props.undeleteItem(item.id)
         },
         SET_SCHEDULED_DATE: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             console.log('scheduled')
@@ -273,7 +282,8 @@ function ItemList(props: ItemListProps): ReactElement {
         },
         SET_DUE_DATE: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             console.log('due date')
@@ -281,14 +291,16 @@ function ItemList(props: ItemListProps): ReactElement {
         },
         CREATE_SUBTASK: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.deleted || item.completed || item.parentId != null) return
             console.log('create sub task')
             event.preventDefault()
         },
         CONVERT_TO_SUBTASK: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             console.log('convert to sub task')
@@ -296,15 +308,17 @@ function ItemList(props: ItemListProps): ReactElement {
         },
         REPEAT_ITEM: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
             console.log('repeat')
             event.preventDefault()
         },
-        MOVE_ITEM: (event) => {
+        ADD_PROJECT: (event) => {
             // TODO: Implement me
-            const item = props.items.items[event.target.id]
+            const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
+            const item = props.items.items[itemId]
             if (item.deleted || item.completed) return
             console.log('move item')
             event.preventDefault()
@@ -334,8 +348,8 @@ function ItemList(props: ItemListProps): ReactElement {
                             props.items,
                         )
                     })}
-                    {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
                 </TransitionGroup>
+                {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
             </Container>
         </ThemeProvider>
     )

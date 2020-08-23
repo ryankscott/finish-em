@@ -32,7 +32,7 @@ export const item = {
     REPEAT_ITEM: 'r',
     DELETE_ITEM: 'x',
     UNDELETE_ITEM: 'u+x',
-    MOVE_ITEM: 'm',
+    ADD_PROJECT: 'p',
     TOGGLE_CHILDREN: 't',
     NEXT_ITEM: 'j',
     PREV_ITEM: 'k',

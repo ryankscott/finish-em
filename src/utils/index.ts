@@ -82,7 +82,7 @@ export const formatRelativeDate = (date: Date): string => {
     } else if (differenceInDays(date, new Date()) < 7 && isAfter(date, new Date())) {
         return format(date, 'EEEE')
     } else {
-        return format(date, 'do MMM y')
+        return format(date, 'do MMMM')
     }
 }
 
@@ -103,7 +103,7 @@ export const getEmoji = (input: string): string => {
     return found ? found[0] : null
 }
 
-export const createShortName = (input: string): string => {
+export const createShortSidebarItem = (input: string): string => {
     // If there's an emoji anywhere return the first one
     const emoji = getEmoji(input)
     if (emoji) return emoji
@@ -142,26 +142,18 @@ const dayToString = (i: number): string => {
     switch (i) {
         case 0:
             return 'Monday'
-            break
         case 1:
             return 'Tuesday'
-            break
         case 2:
             return 'Wednesday'
-            break
         case 3:
             return 'Thursday'
-            break
         case 4:
             return 'Friday'
-            break
         case 5:
             return 'Saturday'
-            break
         case 6:
             return 'Sunday'
-            break
-
         default:
             break
     }
@@ -173,7 +165,6 @@ export const rruleToText = (input: RRule): string => {
             const date = input.options.bymonthday[0]
             const dateString = getNumberAndSuffix(date)
             return dateString + ' of the month'
-            break
         case RRule.WEEKLY:
             const day = input.options.byweekday[0]
             return 'every ' + dayToString(day)
@@ -185,7 +176,6 @@ export const rruleToText = (input: RRule): string => {
             return 'daily'
         default:
             return input.toText()
-            break
     }
 }
 

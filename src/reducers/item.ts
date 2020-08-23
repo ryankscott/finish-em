@@ -1,5 +1,6 @@
 import * as item from '../actions/item'
 import { DELETE_PROJECT, DeleteProjectAction } from '../actions/project'
+import { DELETE_AREA, DeleteAreaAction } from '../actions/area'
 import { DELETE_LABEL, DeleteLabelAction } from '../actions/ui'
 import { Items } from '../interfaces'
 import { startOfDay } from 'date-fns'
@@ -19,7 +20,7 @@ export const initialState: Items = {
 export const itemReducer = produce(
     (
         draftState: Items = initialState,
-        action: ItemActions | DeleteProjectAction | DeleteLabelAction,
+        action: ItemActions | DeleteProjectAction | DeleteLabelAction | DeleteAreaAction,
     ): Items => {
         const i = draftState?.items[action.id]
         switch (action.type) {
@@ -60,6 +61,7 @@ export const itemReducer = produce(
                     parentId: null,
                     children: [],
                     labelId: null,
+                    areaId: null,
                 }
                 if (draftState.order) {
                     draftState.order = [...draftState.order, action.id]
@@ -151,14 +153,32 @@ export const itemReducer = produce(
                 i.lastUpdatedAt = new Date().toISOString()
                 break
 
-            case item.MOVE_ITEM:
+            case item.ADD_PROJECT:
                 i.projectId = action.projectId
                 i.lastUpdatedAt = new Date().toISOString()
+                // Remove an areaID if it exists
+                i.areaId = null
+
                 // Update childrens project also
                 i.children &&
                     i.children.map((c) => {
                         const child = draftState.items[c]
                         return (child.projectId = action.projectId)
+                    })
+                break
+
+            case item.ADD_AREA:
+                // You can't add an area to an item if it has a project
+                if (!(i.projectId == 0 || i.projectId == null)) return
+                i.areaId = action.areaId
+                // Remove the project
+                i.projectId = null
+                i.lastUpdatedAt = new Date().toISOString()
+                // Update childrens area also
+                i.children &&
+                    i.children.map((c) => {
+                        const child = draftState.items[c]
+                        return (child.areaId = action.areaId)
                     })
                 break
 
@@ -225,7 +245,7 @@ export const itemReducer = produce(
                 break
 
             case DELETE_PROJECT:
-                const x = Object.entries(draftState.items).map(([k, v]) => {
+                const dp_items = Object.entries(draftState.items).map(([k, v]) => {
                     if (v.projectId == action.id) {
                         v.deleted = true
                         v.projectId = '0'
@@ -233,7 +253,19 @@ export const itemReducer = produce(
                     }
                     return [k, v]
                 })
-                draftState.items = Object.fromEntries(x)
+                draftState.items = Object.fromEntries(dp_items)
+                break
+
+            case DELETE_AREA:
+                const da_areas = Object.entries(draftState.items).map(([k, v]) => {
+                    if (v.areaId == action.id) {
+                        v.deleted = true
+                        v.areaId = '0'
+                        v.lastUpdatedAt = new Date().toISOString()
+                    }
+                    return [k, v]
+                })
+                draftState.items = Object.fromEntries(da_areas)
                 break
 
             case item.DELETE_PERMANENT_ITEM:

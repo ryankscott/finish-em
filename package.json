@@ -76,6 +76,7 @@
     "dependencies": {
         "@babel/runtime": "^7.11.0",
         "@types/marked": "^1.1.0",
+        "@types/react-big-calendar": "^0.24.6",
         "applescript": "^1.0.0",
         "chrono-node": "^2.1.5",
         "csstype": "^3.0.2",
@@ -98,6 +99,7 @@
         "react": "^16.13.1",
         "react-animations": "^1.0.0",
         "react-beautiful-dnd": "^13.0.0",
+        "react-big-calendar": "^0.26.1",
         "react-color": "^2.18.1",
         "react-day-picker": "^7.4.8",
         "react-dom": "^16.13.1",

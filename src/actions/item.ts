@@ -4,7 +4,7 @@ export const CREATE_ITEM = 'CREATE_ITEM'
 export const DELETE_ITEM = 'DELETE_ITEM'
 export const UNDELETE_ITEM = 'UNDELETE_ITEM'
 export const UPDATE_ITEM_DESCRIPTION = 'UPDATE_ITEM_DESCRIPTION'
-export const MOVE_ITEM = 'MOVE_ITEM'
+export const ADD_PROJECT = 'ADD_PROJECT'
 export const COMPLETE_ITEM = 'COMPLETE_ITEM'
 export const UNCOMPLETE_ITEM = 'UNCOMPLETE_ITEM'
 export const SET_SCHEDULED_DATE = 'SET_SCHEDULED_DATE'
@@ -19,6 +19,8 @@ export const CHANGE_PARENT_ITEM = 'CHANGE_PARENT_ITEM'
 export const DELETE_PERMANENT_ITEM = 'DELETE_PERMANENT_ITEM'
 export const ADD_LABEL = 'ADD_LABEL'
 export const REMOVE_LABEL = 'REMOVE_LABEL'
+export const ADD_AREA = 'ADD_AREA'
+export const REMOVE_AREA = 'REMOVE_AREA'
 
 import RRule from 'rrule'
 
@@ -88,14 +90,14 @@ export function uncompleteItem(id: string): UncompleteItemAction {
     }
 }
 
-export interface MoveItemAction {
-    type: typeof MOVE_ITEM
+export interface AddProjectAction {
+    type: typeof ADD_PROJECT
     id: string
     projectId: string | '0'
 }
-export function moveItem(id: string, projectId: string | '0'): MoveItemAction {
+export function addProject(id: string, projectId: string | '0'): AddProjectAction {
     return {
-        type: MOVE_ITEM,
+        type: ADD_PROJECT,
         id: id,
         projectId: projectId,
     }
@@ -237,13 +239,35 @@ export function removeLabel(id: string): RemoveLabelAction {
     }
 }
 
+export interface AddAreaAction {
+    type: typeof ADD_AREA
+    id: string
+    areaId: string
+}
+
+export function addArea(id: string, areaId: string): AddAreaAction {
+    return { type: ADD_AREA, id: id, areaId: areaId }
+}
+
+export interface RemoveAreaAction {
+    type: typeof REMOVE_AREA
+    id: string
+}
+
+export function removeArea(id: string): RemoveAreaAction {
+    return {
+        type: REMOVE_AREA,
+        id: id,
+    }
+}
+
 export type ItemActions =
     | AddChildItemAction
     | UpdateItemDescriptionAction
     | SetRepeatRuleAction
     | SetDueDateAction
     | SetScheduledDateAction
-    | MoveItemAction
+    | AddProjectAction
     | UncompleteItemAction
     | CompleteItemAction
     | UndeleteItemAction
@@ -255,3 +279,5 @@ export type ItemActions =
     | DeletePermanentlyAction
     | AddLabelAction
     | RemoveLabelAction
+    | AddAreaAction
+    | RemoveAreaAction

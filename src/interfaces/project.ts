@@ -1,5 +1,5 @@
 export type ProjectType = {
-    id: string | '0'
+    id: string | null
     name: string
     deleted: boolean
     description: string
