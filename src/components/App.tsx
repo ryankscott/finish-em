@@ -2,6 +2,8 @@ import { ThemeProvider } from '../StyledComponents'
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
+import { Event } from '../interfaces/event'
+import { parse } from 'date-fns'
 import DailyAgenda from './DailyAgenda'
 import Sidebar from './Sidebar'
 import Focusbar from './Focusbar'
@@ -134,7 +136,20 @@ const App = (props: AppProps): ReactElement => {
                 )
             })
             electron.ipcRenderer.on('events', (event, calEvents) => {
-                console.log(calEvents)
+                const parsedEvents = calEvents.map((c) => {
+                    const ev: Event = {
+                        id: c.id,
+                        start: parse(
+                            `${c.startDate} ${c.startTime}`,
+                            'dd/MM/yyyy h:m:s a',
+                            new Date(),
+                        ),
+                        end: parse(`${c.endDate} ${c.endTime}`, 'dd/MM/yyyy h:m:s a', new Date()),
+                        title: c.summary,
+                        description: c.description,
+                    }
+                    return ev
+                })
             })
             electron.ipcRenderer.on('get-features', (event) => {
                 event.sender.send('get-features-reply', props.features)
