@@ -245,7 +245,7 @@ export const itemReducer = produce(
                 break
 
             case DELETE_PROJECT:
-                const x = Object.entries(draftState.items).map(([k, v]) => {
+                const dp_items = Object.entries(draftState.items).map(([k, v]) => {
                     if (v.projectId == action.id) {
                         v.deleted = true
                         v.projectId = '0'
@@ -253,11 +253,11 @@ export const itemReducer = produce(
                     }
                     return [k, v]
                 })
-                draftState.items = Object.fromEntries(x)
+                draftState.items = Object.fromEntries(dp_items)
                 break
 
             case DELETE_AREA:
-                const x = Object.entries(draftState.items).map(([k, v]) => {
+                const da_areas = Object.entries(draftState.items).map(([k, v]) => {
                     if (v.areaId == action.id) {
                         v.deleted = true
                         v.areaId = '0'
@@ -265,7 +265,7 @@ export const itemReducer = produce(
                     }
                     return [k, v]
                 })
-                draftState.items = Object.fromEntries(x)
+                draftState.items = Object.fromEntries(da_areas)
                 break
 
             case item.DELETE_PERMANENT_ITEM:
