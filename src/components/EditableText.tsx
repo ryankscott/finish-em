@@ -50,7 +50,7 @@ export type EditableTextProps = OwnProps & StateProps
 function InternalEditableText(props: EditableTextProps): ReactElement {
     const [editable, setEditable] = useState(false)
     const [input, setInput] = useState(props.input)
-    const [valid, setValid] = useState(true)
+    const [valid, setValid] = useState(false)
 
     const handlePaste = (e): void => {
         e.preventDefault()
@@ -200,13 +200,13 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     const handleFocus = (e): void => {
         // Ignore clicks if it's already editable
         if (editable) return
+        if (e.target.nodeName == 'A') {
+            return
+        }
         // NOTE: Weirdly Chrome sometimes fires a focus event before a click
         if (props.readOnly) {
             e.preventDefault()
             e.stopPropagation()
-            return
-        }
-        if (e.target.nodeName == 'A') {
             return
         }
         if (!editable) {

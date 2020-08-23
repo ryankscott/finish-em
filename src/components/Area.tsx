@@ -4,9 +4,11 @@ import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { themes } from '../theme'
 import { updateAreaDescription, updateAreaName, deleteArea } from '../actions'
+import { v4 as uuidv4 } from 'uuid'
 import { Title, Header } from './Typography'
 import EditableText from './EditableText'
-import { AreaType, ProjectType, Projects, Items } from '../interfaces'
+import FilteredItemList from './FilteredItemList'
+import { AreaType, ProjectType, Projects, Items, RenderingStrategy } from '../interfaces'
 import {
     AreaContainer,
     HeaderContainer,
@@ -82,6 +84,15 @@ const Area = (props: AreaProps): ReactElement => {
                     input={props.area.description}
                     height="150px"
                     shouldClearOnSubmit={false}
+                />
+                <Header>Items</Header>
+                <FilteredItemList
+                    id={uuidv4()}
+                    showProject={false}
+                    isFilterable={false}
+                    filter={`areaId == "${props.area.id}" and not (completed or deleted) and not projectId`}
+                    renderingStrategy={RenderingStrategy.All}
+                    readOnly={true}
                 />
                 <Header>Projects</Header>
                 {Object.values(props.projects.projects)

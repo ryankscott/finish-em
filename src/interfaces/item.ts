@@ -15,6 +15,7 @@ export type ItemType = {
     deletedAt: string
     repeat: string
     labelId: string | null
+    areaId: string | null
 }
 
 export type Item = {

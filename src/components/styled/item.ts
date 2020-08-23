@@ -11,7 +11,6 @@ interface ContainerProps {
 export const Container = styled.div<ContainerProps>`
     position: relative;
     transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
-    width: 100%;
     max-height: 200px;
     max-width: 650px;
     font-family: ${(props) => props.theme.font.sansSerif};
@@ -20,11 +19,11 @@ export const Container = styled.div<ContainerProps>`
     opacity: ${(props) => (props.hidden ? '0' : '1')};
     margin: 1px 0px;
     margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
-    grid-template-columns: 5px 30px 30px repeat(4, 1fr) 30px;
+    grid-template-columns: 30px 30px repeat(4, 1fr) 25px;
     grid-auto-rows: auto auto;
     grid-template-areas:
-        '.  EXPAND   TYPE    DESC         DESC         DESC        PROJECT     MORE'
-        '.  .        .       PARENT       SCHEDULED    DUE         REPEAT      .   ';
+        '  EXPAND   TYPE    DESC         DESC         DESC        PROJECT     MORE'
+        '  .        .       PARENT       SCHEDULED    DUE         REPEAT      .   ';
 
     padding: ${(props) => (props.hidden ? '0px' : '5px')};
     align-items: center;

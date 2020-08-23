@@ -94,7 +94,7 @@ end tell
 const openOutlookLink = (url) => {
     const script = `
 	set the messageId to text 11 thru -1 of ${url}
-	tell application "Microsoft Outlook"	
+	tell application "Microsoft Outlook"
         open message id messageId
         activate
 	end tell
@@ -179,6 +179,7 @@ function createMainWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
         height: 850,
+        minWidth: 550,
         webPreferences: {
             nodeIntegration: true,
             preload: path.join(__dirname + '/preload.js'),

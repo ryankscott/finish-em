@@ -12,7 +12,8 @@ export const Container = styled.div`
         'body';
     margin: 0px;
     height: 100%;
-    width: 100%;
+    min-width: 500px;
+    transition: all 0.2s ease-in-out;
 `
 export const HeaderContainer = styled.div`
     grid-area: header;
@@ -27,7 +28,9 @@ export const BodyContainer = styled.div`
     display: flex;
     flex-direction row;
     width: 100%;
-    overflow: scroll;
+    overflow-y: scroll;
+    min-width: 500px;
+    transition: all 0.2s ease-in-out;
 `
 
 interface SidebarContainerProps {
@@ -56,8 +59,9 @@ export const MainContainer = styled.div<MainContainerProps>`
     transition: all 0.2s ease-in-out;
     width: 100%;
     align-items: center;
-    overflow: scroll;
+    overflow-y: scroll;
     background-color: ${(props) => props.theme.colours.backgroundColour};
+    min-width: 500px;
 `
 
 interface FocusContainerProps {

@@ -34,10 +34,7 @@ export const SectionHeader = styled.div<SectionHeaderProps>`
     padding: ${(props) => (props.visible ? '20px 5px 5px 5px' : '5px')};
 `
 
-interface SubsectionHeaderProps {
-    visible: boolean
-}
-export const SubsectionHeader = styled.div<SubsectionHeaderProps>`
+export const SubsectionHeader = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
