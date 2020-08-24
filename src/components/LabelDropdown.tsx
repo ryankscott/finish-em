@@ -7,7 +7,7 @@ import CSS from 'csstype'
 import { connect } from 'react-redux'
 import { Items, Label } from '../interfaces'
 import Button from './Button'
-import { Container } from './styled/LabelDropdown'
+import { Container, SelectContainer } from './styled/LabelDropdown'
 import { transparentize } from 'polished'
 
 type OptionType = { value: string; label: string; color: CSS.Color }
@@ -70,7 +70,7 @@ function LabelDropdown(props: LabelProps): ReactElement {
     const colour = props.labels[props?.labelId]?.colour
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div ref={node}>
+            <Container completed={props.completed} ref={node}>
                 <Button
                     spacing="compact"
                     type={props.style || 'default'}
@@ -85,7 +85,7 @@ function LabelDropdown(props: LabelProps): ReactElement {
                     isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (
-                    <Container visible={Object.keys(props.items).length > 1}>
+                    <SelectContainer visible={Object.keys(props.items).length > 1}>
                         <CreatableSelect
                             autoFocus={true}
                             placeholder={'Select label:'}
@@ -108,9 +108,9 @@ function LabelDropdown(props: LabelProps): ReactElement {
                                 e.stopPropagation()
                             }}
                         />
-                    </Container>
+                    </SelectContainer>
                 )}
-            </div>
+            </Container>
         </ThemeProvider>
     )
 }

@@ -112,7 +112,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
     // Only render if it's not just the Inbox project that exists
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div ref={node}>
+            <Container completed={props.completed} ref={node}>
                 <Button
                     isDisabled={props.deleted}
                     spacing="compact"
@@ -143,7 +143,7 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                     icon={'subtask'}
                 />
                 {(showSelect || props.showSelect) && (
-                    <Container visible={Object.keys(props.items).length > 1}>
+                    <SelectContainer visible={Object.keys(props.items).length > 1}>
                         <Select
                             autoFocus={true}
                             placeholder={'Select parent:'}
@@ -170,9 +170,9 @@ function SubtaskDropdown(props: SubtaskProps): ReactElement {
                                 e.stopPropagation()
                             }}
                         />
-                    </Container>
+                    </SelectContainer>
                 )}
-            </div>
+            </Container>
         </ThemeProvider>
     )
 }
