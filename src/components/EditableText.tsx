@@ -25,7 +25,6 @@ interface OwnProps {
     onUpdate: (input: string) => void
     shouldSubmitOnBlur: boolean
     shouldClearOnSubmit: boolean
-    shouldShowBorderWhenReadOnly?: boolean
     backgroundColour?: CSS.Property.BackgroundColor
     fontSize?: fontSizeType
     readOnly?: boolean
@@ -243,7 +242,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                     id={id}
                     fontSize={props.fontSize}
                     backgroundColour={props.backgroundColour}
-                    shouldShowBorderWhenReadOnly={props.shouldShowBorderWhenReadOnly}
                     padding={props.padding}
                     valid={valid}
                     as={props.style || Paragraph}

@@ -10,7 +10,6 @@ interface ContainerProps {
     valid: boolean
     backgroundColour: CSS.Property.BackgroundColor
     fontSize: fontSizeType
-    shouldShowBorderWhenReadOnly: boolean
     padding: CSS.Property.Padding
 }
 
@@ -26,8 +25,7 @@ export const Container = styled.div<ContainerProps>`
     min-height: 25px;
     padding: ${(props) => (props.padding ? props.padding : '5px 5px 5px 10px')};
     border-radius: 5px;
-    border: ${(props) =>
-        props.editing ? '1px solid' : props.shouldShowBorderWhenReadOnly ? '1px solid' : 'none'};
+    border: ${(props) => (props.editing ? '1px solid' : 'none')};
     font-size: ${(props) => (props.fontSize ? props.theme.fontSizes[props.fontSize] : 'auto')};
     border-color: ${(props) =>
         props.backgroundColour
