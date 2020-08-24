@@ -149,6 +149,7 @@ const checkForNewVersion = () => {
 }
 
 function createQuickAddWindow() {
+    if (quickAddWindow) return
     quickAddWindow = new BrowserWindow({
         width: 580,
         transparent: true,
