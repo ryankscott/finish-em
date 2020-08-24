@@ -8,7 +8,7 @@ import { themes, selectStyles } from '../theme'
 import { connect } from 'react-redux'
 import { createArea } from '../actions'
 import { Area, AreaType, Area, Areas } from '../interfaces'
-import { Container } from './styled/AreaDropdown'
+import { Container, SelectContainer } from './styled/AreaDropdown'
 import Button from './Button'
 
 type OptionType = { value: string; label: JSX.Element | string }
@@ -76,9 +76,10 @@ function AreaDropdown(props: AreaDropdownProps): ReactElement {
         }
     }, [])
 
+    console.log(props.completed)
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div ref={node}>
+            <Container completed={props.completed} ref={node}>
                 <Button
                     spacing="compact"
                     type={props.style || 'default'}
@@ -91,7 +92,7 @@ function AreaDropdown(props: AreaDropdownProps): ReactElement {
                     isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (
-                    <Container visible={props.areas.order.length > 1}>
+                    <SelectContainer visible={props.areas.order.length > 1}>
                         <CreatableSelect
                             autoFocus={true}
                             placeholder={'Area:'}
@@ -113,9 +114,9 @@ function AreaDropdown(props: AreaDropdownProps): ReactElement {
                                 }
                             }}
                         />
-                    </Container>
+                    </SelectContainer>
                 )}
-            </div>
+            </Container>
         </ThemeProvider>
     )
 }

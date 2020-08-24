@@ -7,7 +7,7 @@ import { themes, selectStyles } from '../theme'
 import { connect } from 'react-redux'
 import { createProject } from '../actions'
 import { Project, ProjectType, Area, Projects, Areas } from '../interfaces'
-import { Container } from './styled/ProjectDropdown'
+import { Container, SelectContainer } from './styled/ProjectDropdown'
 import Button from './Button'
 import { GroupType } from 'react-select'
 import { groupBy } from '../utils'
@@ -112,7 +112,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
     // Only render if it's not just the Inbox project that exists
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <div ref={node}>
+            <Container completed={props.completed} ref={node}>
                 <Button
                     spacing="compact"
                     type={props.style || 'default'}
@@ -125,7 +125,7 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                     isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (
-                    <Container visible={props.projects.order.length > 1}>
+                    <SelectContainer visible={props.projects.order.length > 1}>
                         <CreatableSelect
                             autoFocus={true}
                             placeholder={'Project:'}
@@ -151,9 +151,9 @@ function ProjectDropdown(props: ProjectDropdownProps): ReactElement {
                                 }
                             }}
                         />
-                    </Container>
+                    </SelectContainer>
                 )}
-            </div>
+            </Container>
         </ThemeProvider>
     )
 }
