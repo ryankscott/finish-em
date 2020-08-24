@@ -155,7 +155,7 @@ const App = (props: AppProps): ReactElement => {
                 event.sender.send('get-features-reply', props.features)
             })
         }
-    })
+    }, [])
 
     function goToDailyAgenda(): void {
         history.push('/dailyAgenda')
