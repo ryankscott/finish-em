@@ -32,6 +32,7 @@ const Inbox = (props: InboxProps): ReactElement => {
                     type="item"
                     buttonText="Add Item"
                     initiallyExpanded={true}
+                    shouldCloseOnSubmit={false}
                     projectId={'0'}
                 />
                 <ReorderableComponentList id={viewId} />
