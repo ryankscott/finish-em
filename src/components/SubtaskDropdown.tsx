@@ -8,7 +8,7 @@ import { connect } from 'react-redux'
 import { Item, Items, Projects, Project, ItemType } from '../interfaces'
 import Button from './Button'
 import { removeItemTypeFromString, truncateString, groupBy } from '../utils'
-import { Container } from './styled/SubtaskDropdown'
+import { Container, SelectContainer } from './styled/SubtaskDropdown'
 import marked from 'marked'
 
 type OptionType = { value: string; label: JSX.Element | string }
