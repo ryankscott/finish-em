@@ -243,7 +243,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                     fontSize={props.fontSize}
                     backgroundColour={props.backgroundColour}
                     padding={props.padding}
-                    valid={valid}
+                    valid={props.validation ? valid : true}
                     as={props.style || Paragraph}
                     readOnly={props.readOnly}
                     ref={props.innerRef}
