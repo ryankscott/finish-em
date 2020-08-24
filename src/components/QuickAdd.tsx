@@ -1,10 +1,17 @@
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
-import { validateItemString } from '../utils'
 import EditableText from './EditableText'
 import styled, { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import isElectron from 'is-electron'
+import {
+    setEndOfContenteditable,
+    dueTextRegex,
+    scheduledTextRegex,
+    projectTextRegex,
+    repeatTextRegex,
+    itemRegex,
+} from '../utils'
 
 if (isElectron()) {
     const electron = window.require('electron')
@@ -22,9 +29,10 @@ type QuickAddProps = StateProps & OwnProps
 
 const QuickAddContainer = styled.div`
     box-sizing: border-box;
-    padding: 5px;
+    padding: 10px;
     margin: 0px;
     width: 100%;
+    border: none;
     outline: 0px;
     *:active {
         outline: 0;
@@ -39,6 +47,7 @@ function QuickAdd(props: QuickAddProps): ReactElement {
     })
 
     const handleEscape = (): void => {
+        console.log('escape')
         electron.ipcRenderer.send('close-quickadd')
     }
 
@@ -46,7 +55,8 @@ function QuickAdd(props: QuickAddProps): ReactElement {
         <ThemeProvider theme={themes[props.theme]}>
             <QuickAddContainer>
                 <EditableText
-                    fontSize="regular"
+                    padding={'10px 10px'}
+                    fontSize="large"
                     width="550px"
                     innerRef={ref}
                     onUpdate={(text) => {
@@ -57,12 +67,79 @@ function QuickAdd(props: QuickAddProps): ReactElement {
                         electron.ipcRenderer.send('close-quickadd')
                     }}
                     readOnly={false}
-                    validation={validateItemString}
+                    keywords={[
+                        {
+                            matcher: itemRegex,
+                            validation: (input) => {
+                                return true
+                            },
+                        },
+                        {
+                            matcher: dueTextRegex,
+                            validation: (input) => {
+                                const dueDateText = input.split(':')[1]
+                                if (dueDateText == undefined) return false
+                                return isValid(sugarDate.create(dueDateText))
+                            },
+                        },
+                        {
+                            matcher: scheduledTextRegex,
+                            validation: (input) => {
+                                const scheduledDateText = input.split(':')[1]
+                                return isValid(sugarDate.create(scheduledDateText))
+                            },
+                        },
+                    ]}
+                    validation={(input) => {
+                        let currentVal = input
+                        // Check for prefix with TODO or NOTE
+                        const itemMatches = currentVal.match(itemRegex)
+                        if (!itemMatches) {
+                            setEndOfContenteditable(ref.current)
+                            return false
+                        }
+
+                        // Check for due date references
+                        const dueTextMatches = currentVal.match(dueTextRegex)
+                        if (dueTextMatches) {
+                            let dueDateText = dueTextMatches[0].split(':')[1]
+                            dueDateText = dueDateText.replace(/^"(.+(?="$))"$/, '$1')
+                            const dueDate = sugarDate.create(dueDateText)
+                            if (!isValid(dueDate)) {
+                                setEndOfContenteditable(ref.current)
+                                return false
+                            }
+                        }
+                        // Check for scheduled date references
+                        const scheduledTextMatches = currentVal.match(scheduledTextRegex)
+                        if (scheduledTextMatches) {
+                            let scheduledDateText = scheduledTextMatches[0].split(':')[1]
+                            scheduledDateText = scheduledDateText.replace(/^"(.+(?="$))"$/, '$1')
+                            const scheduledDate = sugarDate.create(scheduledDateText)
+                            if (!isValid(scheduledDate)) {
+                                setEndOfContenteditable(ref.current)
+                                return false
+                            }
+                        }
+                        // TODO: Decide how I want to handle project stuff
+                        currentVal = currentVal.replace(
+                            projectTextRegex,
+                            '<span class="valid">$&</span >',
+                        )
+                        currentVal = currentVal.replace(
+                            repeatTextRegex,
+                            '<span class="valid">$&</span >',
+                        )
+
+                        ref.current.innerHTML = currentVal
+                        setEndOfContenteditable(ref.current)
+                        return true
+                    }}
                     input=""
                     singleline={true}
                     shouldClearOnSubmit={true}
                     shouldSubmitOnBlur={false}
-                    onEscape={() => handleEscape()}
+                    onEscape={handleEscape}
                 />
             </QuickAddContainer>
         </ThemeProvider>
