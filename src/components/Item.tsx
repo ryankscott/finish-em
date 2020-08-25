@@ -268,7 +268,9 @@ function Item(props: ItemProps): ReactElement {
                         shouldClearOnSubmit={false}
                     />
                 </Body>
-                <ProjectContainer visible={!hiddenIcons?.includes(ItemIcons.Project)}>
+                <ProjectContainer
+                    visible={!(hiddenIcons?.includes(ItemIcons.Project) || props.projectId == null)}
+                >
                     <ProjectName data-tip data-for={'project-name-' + props.id}>
                         {projectText.short}
                     </ProjectName>
