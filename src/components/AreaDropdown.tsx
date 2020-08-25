@@ -76,7 +76,6 @@ function AreaDropdown(props: AreaDropdownProps): ReactElement {
         }
     }, [])
 
-    console.log(props.completed)
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container completed={props.completed} ref={node}>
