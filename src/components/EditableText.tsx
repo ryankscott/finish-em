@@ -162,6 +162,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
                 })
             })
             props.innerRef.current.innerHTML = words.join('&nbsp')
+            // TODO: Find a way to detect changes and only change the cursor then
             setEndOfContenteditable(props.innerRef.current)
         }
 
@@ -175,9 +176,11 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
         if (e.key == 'Enter' && props.singleline) {
             // If it's not valid then don't submit
-            if (!valid) {
+            if (props.validation && !valid) {
                 // This stops an actual enter being sent
-                props?.onInvalidSubmit()
+                if (props.onInvalidSubmit) {
+                    props.onInvalidSubmit()
+                }
                 e.preventDefault()
                 return
             }
