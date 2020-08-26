@@ -8,6 +8,7 @@ export const eventReducer = produce(
     (draftState: Events = initialState, action: event.EventActions): Events => {
         switch (action.type) {
             case event.CREATE_EVENT:
+                console.log(action)
                 break
 
             default:

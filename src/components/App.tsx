@@ -26,6 +26,7 @@ import {
     hideCreateProjectDialog,
     hideDeleteProjectDialog,
     createItem,
+    createEvent,
 } from '../actions/index'
 import {
     Container,
@@ -61,6 +62,7 @@ type StateProps = {
     features: FeatureType
 }
 type DispatchProps = {
+    createEvent: (e: Event) => void
     showSidebar: () => void
     hideSidebar: () => void
     hideDialogs: () => void
@@ -114,6 +116,7 @@ const App = (props: AppProps): ReactElement => {
             }
         })
     })
+
     useEffect(() => {
         // Handle Electron events
         if (isElectron()) {
@@ -128,7 +131,7 @@ const App = (props: AppProps): ReactElement => {
                             <br />
                             Download the new version <a href={arg.downloadUrl}>here </a>
                             <br />
-                            Or checkout the release <a href={arg.releaseURL}> notes</a> for what's
+                            Or checkout the release <a href={arg.releaseURL}> notes</a> `for what's`
                             changed
                         </p>
                     </div>,
@@ -150,6 +153,9 @@ const App = (props: AppProps): ReactElement => {
                     }
                     return ev
                 })
+            })
+            parsedEvents.map((e) => {
+                props.createEvent(e)
             })
             electron.ipcRenderer.on('get-features', (event) => {
                 event.sender.send('get-features-reply', props.features)
@@ -340,6 +346,9 @@ const mapStateToProps = (state): StateProps => ({
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
+    createEvent: (e: Event) => {
+        dispatch(createEvent(e))
+    },
     toggleShortcutDialog: () => {
         dispatch(toggleShortcutDialog())
     },
