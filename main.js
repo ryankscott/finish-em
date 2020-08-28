@@ -28,9 +28,9 @@ const getMailLink = () => {
 }
 const getCalendars = () => {
     const script = `
-tell application "Calendar"
-	return name of calendars
-end tell
+	    tell application "Calendar"
+	        return name of calendars
+        end tell
 `
     applescript.execString(script, (err, cals) => {
         if (err) {

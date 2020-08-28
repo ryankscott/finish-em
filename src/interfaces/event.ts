@@ -8,4 +8,6 @@ export type Event = {
     resource?: any
 }
 
-export type Events = Event[]
+export type Events = {
+    [calendar: string]: Event[]
+}

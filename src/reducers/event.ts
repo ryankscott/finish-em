@@ -2,7 +2,7 @@ import * as event from '../actions/event'
 import { Events } from '../interfaces/event'
 import produce from 'immer'
 
-const initialState: Events = []
+const initialState: Events = {}
 
 export const eventReducer = produce(
     (draftState: Events = initialState, action: event.EventActions): Events => {

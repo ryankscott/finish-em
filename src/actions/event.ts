@@ -1,4 +1,5 @@
 export const CREATE_EVENT = 'CREATE_EVENT'
+export const SET_CALENDAR = 'SET_CALENDAR'
 
 export interface CreateEventAction {
     type: typeof CREATE_EVENT
@@ -31,4 +32,16 @@ export function createEvent(
     }
 }
 
-export type EventActions = CreateEventAction
+export interface SetCalendarAction {
+    type: typeof SET_CALENDAR
+    name: string
+}
+
+export function setCalendar(name: string): SetCalendarAction {
+    return {
+        type: SET_CALENDAR,
+        name: name,
+    }
+}
+
+export type EventActions = CreateEventAction | SetCalendarAction
