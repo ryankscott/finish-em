@@ -65,6 +65,7 @@ type DispatchProps = {
     createEvent: (e: Event) => void
     showSidebar: () => void
     hideSidebar: () => void
+    hideFocusbar: () => void
     hideDialogs: () => void
     showCreateProjectDialog: () => void
     toggleShortcutDialog: () => void
@@ -138,6 +139,7 @@ const App = (props: AppProps): ReactElement => {
                     { autoClose: false },
                 )
             })
+
             electron.ipcRenderer.on('events', (event, calEvents) => {
                 const parsedEvents = calEvents.map((c) => {
                     const ev: Event = {
@@ -153,9 +155,12 @@ const App = (props: AppProps): ReactElement => {
                     }
                     return ev
                 })
-            })
-            parsedEvents.map((e) => {
-                props.createEvent(e)
+
+                parsedEvents.map((e) => {
+                    console.log('Events in the front end')
+                    console.log(e)
+                    props.createEvent(e)
+                })
             })
             electron.ipcRenderer.on('get-features', (event) => {
                 event.sender.send('get-features-reply', props.features)

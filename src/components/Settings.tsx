@@ -1,7 +1,8 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
+import { themes, selectStyles } from '../theme'
 import Switch from 'react-switch'
+import Select from 'react-select'
 import { connect } from 'react-redux'
 import { toggleDarkMode, setLabelColour, renameLabel, createLabel } from '../actions'
 import { FeatureType, LabelType, Labels } from '../interfaces'
@@ -28,6 +29,10 @@ import { transparentize } from 'polished'
 import Button from './Button'
 import ViewHeader from './ViewHeader'
 import { deleteLabel } from '../actions/ui'
+import isElectron from 'is-electron'
+if (isElectron()) {
+    const electron = window.require('electron')
+}
 
 interface StateProps {
     features: FeatureType
@@ -52,10 +57,20 @@ interface DispatchProps {
 
 type SettingsPickerProps = StateProps & DispatchProps & OwnProps
 
+const generateOptions = (cals) => {
+    return cals?.map((c) => {
+        return {
+            value: c,
+            label: c,
+        }
+    })
+}
+
 function Settings(props: SettingsPickerProps): ReactElement {
     const theme = themes[props.theme]
     const [showColourPicker, setShowColourPicker] = useState(false)
     const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
+    const [calendars, setCalendars] = useState([])
     const labelColours = [
         '#D9E3F0',
         '#F47373',
@@ -67,6 +82,22 @@ function Settings(props: SettingsPickerProps): ReactElement {
         '#ff8a65',
         '#ba68c8',
     ]
+
+    useEffect(() => {
+        // Handle Electron events
+        if (isElectron()) {
+            electron.ipcRenderer.on('calendars', (event, calendars) => {
+                setCalendars(calendars)
+            })
+        }
+    })
+    useEffect(() => {
+        // Handle Electron events
+        if (isElectron()) {
+            electron.ipcRenderer.send('get-calendars')
+        }
+    }, [])
+
     return (
         <ThemeProvider theme={theme}>
             <Container>
@@ -102,22 +133,51 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                 height={14}
                             />
                         </Setting>
-                        <Setting>
-                            <SettingLabel>Calendar Integration</SettingLabel>
-                            <Switch
-                                onChange={() => props.toggleCalendarIntegration()}
-                                checked={
-                                    props.features?.calendarIntegration
-                                        ? props.features.calendarIntegration
-                                        : false
-                                }
-                                onColor={theme.colours.primaryColour}
-                                checkedIcon={false}
-                                uncheckedIcon={false}
-                                width={24}
-                                height={14}
-                            />
-                        </Setting>
+                        {isElectron() && (
+                            <Setting>
+                                <SettingLabel>Calendar Integration</SettingLabel>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        width: '150px',
+                                    }}
+                                >
+                                    <Switch
+                                        onChange={() => {
+                                            props.toggleCalendarIntegration()
+                                        }}
+                                        checked={
+                                            props.features?.calendarIntegration
+                                                ? props.features.calendarIntegration
+                                                : false
+                                        }
+                                        onColor={theme.colours.primaryColour}
+                                        checkedIcon={false}
+                                        uncheckedIcon={false}
+                                        width={24}
+                                        height={14}
+                                    />
+                                    <Select
+                                        autoFocus={true}
+                                        placeholder={'Select calendar'}
+                                        isSearchable
+                                        isDisabled={!props.features?.calendarIntegration}
+                                        onChange={(e) => {
+                                            electron.ipcRenderer.send('set-calendar', e.value)
+                                        }}
+                                        options={generateOptions(calendars)}
+                                        styles={selectStyles({
+                                            fontSize: 'xxsmall',
+                                            theme: themes[props.theme],
+                                        })}
+                                        escapeClearsValue={true}
+                                        defaultMenuIsOpen={false}
+                                    />
+                                </div>
+                            </Setting>
+                        )}
                         <Setting>
                             <SettingLabel>Dark mode</SettingLabel>
                             <Switch
