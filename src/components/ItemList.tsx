@@ -224,7 +224,6 @@ function ItemList(props: ItemListProps): ReactElement {
                 }
                 // If there is no previous item (i.e. the first)
                 else {
-                    console.log('here')
                     const prevItem = event.target.parentNode
                     if (prevItem) {
                         prevItem.focus()
@@ -260,7 +259,6 @@ function ItemList(props: ItemListProps): ReactElement {
             props.uncompleteItem(item.id)
         },
         DELETE_ITEM: (event) => {
-            console.log('deleting')
             const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
             const item = props.items.items[itemId]
             if (item.deleted) return
@@ -277,7 +275,6 @@ function ItemList(props: ItemListProps): ReactElement {
             const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
-            console.log('scheduled')
             event.preventDefault()
         },
         SET_DUE_DATE: (event) => {
@@ -286,7 +283,6 @@ function ItemList(props: ItemListProps): ReactElement {
             const item = props.items.items[itemId]
             if (item.type == 'NOTE') return
             if (item.deleted || item.completed) return
-            console.log('due date')
             event.preventDefault()
         },
         CREATE_SUBTASK: (event) => {
