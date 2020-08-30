@@ -2,7 +2,7 @@ import { ThemeProvider } from '../StyledComponents'
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
-import { Event } from '../interfaces/event'
+import { EventType } from '../interfaces/event'
 import { parse } from 'date-fns'
 import DailyAgenda from './DailyAgenda'
 import Sidebar from './Sidebar'
@@ -37,7 +37,7 @@ import {
     HeaderContainer,
     BodyContainer,
 } from './styled/App'
-import { Projects, Views, Items, Areas, FeatureType } from '../interfaces'
+import { Projects, Views, Items, Areas, FeatureType, EventType } from '../interfaces'
 import { Slide, toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -62,7 +62,7 @@ type StateProps = {
     features: FeatureType
 }
 type DispatchProps = {
-    createEvent: (e: Event) => void
+    createEvent: (e: EventType) => void
     showSidebar: () => void
     hideSidebar: () => void
     hideFocusbar: () => void
@@ -142,14 +142,15 @@ const App = (props: AppProps): ReactElement => {
 
             electron.ipcRenderer.on('events', (event, calEvents) => {
                 const parsedEvents = calEvents.map((c) => {
-                    const ev: Event = {
+                    console.log(c)
+                    const ev: EventType = {
                         id: c.id,
                         start: parse(
                             `${c.startDate} ${c.startTime}`,
-                            'dd/MM/yyyy h:m:s a',
+                            'dd/MM/yy h:m:s a',
                             new Date(),
                         ),
-                        end: parse(`${c.endDate} ${c.endTime}`, 'dd/MM/yyyy h:m:s a', new Date()),
+                        end: parse(`${c.endDate} ${c.endTime}`, 'dd/MM/yy h:m:s a', new Date()),
                         title: c.summary,
                         description: c.description,
                     }
@@ -157,8 +158,6 @@ const App = (props: AppProps): ReactElement => {
                 })
 
                 parsedEvents.map((e) => {
-                    console.log('Events in the front end')
-                    console.log(e)
                     props.createEvent(e)
                 })
             })
@@ -351,7 +350,9 @@ const mapStateToProps = (state): StateProps => ({
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
-    createEvent: (e: Event) => {
+    createEvent: (e: EventType) => {
+        console.log('dispatch creating event')
+        console.log(e)
         dispatch(createEvent(e))
     },
     toggleShortcutDialog: () => {

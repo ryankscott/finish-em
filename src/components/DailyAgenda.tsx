@@ -1,11 +1,23 @@
 import React, { ReactElement, useState } from 'react'
 import { ThemeProvider } from '../StyledComponents'
-import { format, sub, add } from 'date-fns'
 import { connect } from 'react-redux'
 import { v4 as uuidv4 } from 'uuid'
 import { themes } from '../theme'
 import FilteredItemList from './FilteredItemList'
 import { Paragraph, Header1 } from './Typography'
+import { dateFnsLocalizer } from 'react-big-calendar'
+import { format, sub, add, parse, startOfWeek, getDay } from 'date-fns'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+const locales = {
+    'en-US': require('date-fns/locale/en-US'),
+}
+const localizer = dateFnsLocalizer({
+    format,
+    parse,
+    startOfWeek,
+    getDay,
+    locales,
+})
 import EditableText from './EditableText'
 import { setDailyGoal, addComponent } from '../actions'
 import { ItemType, RenderingStrategy, MainComponents, Component } from '../interfaces'
@@ -16,6 +28,7 @@ import {
     BackContainer,
     ForwardContainer,
     DailyTitle,
+    StyledCalendar,
 } from './styled/DailyAgenda'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
@@ -25,6 +38,8 @@ interface StateProps {
     items: ItemType[]
     theme: string
     components: MainComponents
+    events: Events
+    features: FeatureType
 }
 interface DispatchProps {
     setDailyGoal: (day: string, input: string) => void
@@ -88,6 +103,25 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     shouldSubmitOnBlur={true}
                     shouldClearOnSubmit={false}
                 />
+                {props.features.calendarIntegration && (
+                    <>
+                        <Header1>Events today: </Header1>
+                        <StyledCalendar
+                            defaultDate={currentDate}
+                            localizer={localizer}
+                            events={
+                                props.events
+                                    ? props.events.events[props.events.currentCalendar]
+                                    : []
+                            }
+                            startAccessor="start"
+                            endAccessor="end"
+                            defaultView="agenda"
+                            views={['agenda', 'day']}
+                            toolbar={false}
+                        />
+                    </>
+                )}
                 <ReorderableComponentList id={viewId} />
                 <Section>
                     <FilteredItemList
@@ -119,6 +153,8 @@ const mapStateToProps = (state): StateProps => ({
     dailyGoal: state.dailyGoal,
     theme: state.ui.theme,
     components: state.ui.components,
+    events: state.events,
+    features: state.features,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     setDailyGoal: (day, text) => {

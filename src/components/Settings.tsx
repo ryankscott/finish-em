@@ -2,10 +2,9 @@ import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
 import Switch from 'react-switch'
-import Select from 'react-select'
+import Select, { OptionsType } from 'react-select'
 import { connect } from 'react-redux'
-import { toggleDarkMode, setLabelColour, renameLabel, createLabel } from '../actions'
-import { FeatureType, LabelType, Labels } from '../interfaces'
+import { FeatureType, LabelType, Labels, Events } from '../interfaces'
 import {
     enableDragAndDrop,
     disableDragAndDrop,
@@ -13,6 +12,14 @@ import {
     toggleProjectDates,
     toggleCalendarIntegration,
 } from '../actions/feature'
+import {
+    deleteLabel,
+    toggleDarkMode,
+    setLabelColour,
+    renameLabel,
+    createLabel,
+} from '../actions/ui'
+import { setCalendar } from '../actions/event'
 import {
     Container,
     Setting,
@@ -28,7 +35,6 @@ import EditableText from './EditableText'
 import { transparentize } from 'polished'
 import Button from './Button'
 import ViewHeader from './ViewHeader'
-import { deleteLabel } from '../actions/ui'
 import isElectron from 'is-electron'
 if (isElectron()) {
     const electron = window.require('electron')
@@ -38,6 +44,7 @@ interface StateProps {
     features: FeatureType
     theme: string
     labels: Labels
+    events: Events
 }
 
 interface OwnProps {}
@@ -53,11 +60,12 @@ interface DispatchProps {
     toggleCalendarIntegration: () => void
     createLabel: (colour: string) => void
     deleteLabel: (id: string) => void
+    setCalendar: (id: string) => void
 }
 
 type SettingsPickerProps = StateProps & DispatchProps & OwnProps
 
-const generateOptions = (cals) => {
+const generateOptions = (cals): OptionsType => {
     return cals?.map((c) => {
         return {
             value: c,
@@ -71,6 +79,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
     const [showColourPicker, setShowColourPicker] = useState(false)
     const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
     const [calendars, setCalendars] = useState([])
+    const calendarOptions = generateOptions(calendars)
     const labelColours = [
         '#D9E3F0',
         '#F47373',
@@ -161,11 +170,14 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                     />
                                     <Select
                                         autoFocus={true}
-                                        placeholder={'Select calendar'}
+                                        value={calendarOptions?.find(
+                                            (c) => c.value == props.events.currentCalendar,
+                                        )}
                                         isSearchable
                                         isDisabled={!props.features?.calendarIntegration}
                                         onChange={(e) => {
                                             electron.ipcRenderer.send('set-calendar', e.value)
+                                            props.setCalendar(e.value)
                                         }}
                                         options={generateOptions(calendars)}
                                         styles={selectStyles({
@@ -281,6 +293,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
 const mapStateToProps = (state): StateProps => ({
     features: state.features,
     theme: state.ui.theme,
+    events: state.events,
     labels: state.ui.labels,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
@@ -313,6 +326,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     deleteLabel: (id: string) => {
         dispatch(deleteLabel(id))
+    },
+    setCalendar: (id: string) => {
+        dispatch(setCalendar(id))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Settings)
