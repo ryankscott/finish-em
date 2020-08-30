@@ -277,7 +277,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                 }}
                                                             >
                                                                 {(state) => {
-                                                                    console.log(state)
                                                                     return (
                                                                         <Draggable
                                                                             key={item.id}
@@ -378,7 +377,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             }}
                                                         >
                                                             {(state) => {
-                                                                console.log(state)
                                                                 return (
                                                                     <Draggable
                                                                         key={item.id}

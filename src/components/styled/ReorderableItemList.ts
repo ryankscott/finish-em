@@ -47,7 +47,7 @@ type DraggableContainerProps = {
 export const DraggableContainer = styled.div<DraggableContainerProps>`
 ...props.draggableStyle;
 display: flex;
-flex-direction: row;
+flex-direction: column;
 height: auto;
 user-select: none;
 padding: 0px;
