@@ -1,10 +1,10 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useState, useEffect } from 'react'
 import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
+import { themes, selectStyles } from '../theme'
 import Switch from 'react-switch'
+import Select, { OptionsType } from 'react-select'
 import { connect } from 'react-redux'
-import { toggleDarkMode, setLabelColour, renameLabel, createLabel } from '../actions'
-import { FeatureType, LabelType, Labels } from '../interfaces'
+import { FeatureType, LabelType, Labels, Events } from '../interfaces'
 import {
     enableDragAndDrop,
     disableDragAndDrop,
@@ -12,6 +12,14 @@ import {
     toggleProjectDates,
     toggleCalendarIntegration,
 } from '../actions/feature'
+import {
+    deleteLabel,
+    toggleDarkMode,
+    setLabelColour,
+    renameLabel,
+    createLabel,
+} from '../actions/ui'
+import { setCalendar } from '../actions/event'
 import {
     Container,
     Setting,
@@ -27,12 +35,16 @@ import EditableText from './EditableText'
 import { transparentize } from 'polished'
 import Button from './Button'
 import ViewHeader from './ViewHeader'
-import { deleteLabel } from '../actions/ui'
+import isElectron from 'is-electron'
+if (isElectron()) {
+    const electron = window.require('electron')
+}
 
 interface StateProps {
     features: FeatureType
     theme: string
     labels: Labels
+    events: Events
 }
 
 interface OwnProps {}
@@ -48,14 +60,26 @@ interface DispatchProps {
     toggleCalendarIntegration: () => void
     createLabel: (colour: string) => void
     deleteLabel: (id: string) => void
+    setCalendar: (id: string) => void
 }
 
 type SettingsPickerProps = StateProps & DispatchProps & OwnProps
+
+const generateOptions = (cals): OptionsType => {
+    return cals?.map((c) => {
+        return {
+            value: c,
+            label: c,
+        }
+    })
+}
 
 function Settings(props: SettingsPickerProps): ReactElement {
     const theme = themes[props.theme]
     const [showColourPicker, setShowColourPicker] = useState(false)
     const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
+    const [calendars, setCalendars] = useState([])
+    const calendarOptions = generateOptions(calendars)
     const labelColours = [
         '#D9E3F0',
         '#F47373',
@@ -67,6 +91,22 @@ function Settings(props: SettingsPickerProps): ReactElement {
         '#ff8a65',
         '#ba68c8',
     ]
+
+    useEffect(() => {
+        // Handle Electron events
+        if (isElectron()) {
+            electron.ipcRenderer.on('calendars', (event, calendars) => {
+                setCalendars(calendars)
+            })
+        }
+    })
+    useEffect(() => {
+        // Handle Electron events
+        if (isElectron()) {
+            electron.ipcRenderer.send('get-calendars')
+        }
+    }, [])
+
     return (
         <ThemeProvider theme={theme}>
             <Container>
@@ -102,22 +142,54 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                 height={14}
                             />
                         </Setting>
-                        <Setting>
-                            <SettingLabel>Calendar Integration</SettingLabel>
-                            <Switch
-                                onChange={() => props.toggleCalendarIntegration()}
-                                checked={
-                                    props.features?.calendarIntegration
-                                        ? props.features.calendarIntegration
-                                        : false
-                                }
-                                onColor={theme.colours.primaryColour}
-                                checkedIcon={false}
-                                uncheckedIcon={false}
-                                width={24}
-                                height={14}
-                            />
-                        </Setting>
+                        {isElectron() && (
+                            <Setting>
+                                <SettingLabel>Calendar Integration</SettingLabel>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        width: '150px',
+                                    }}
+                                >
+                                    <Switch
+                                        onChange={() => {
+                                            props.toggleCalendarIntegration()
+                                        }}
+                                        checked={
+                                            props.features?.calendarIntegration
+                                                ? props.features.calendarIntegration
+                                                : false
+                                        }
+                                        onColor={theme.colours.primaryColour}
+                                        checkedIcon={false}
+                                        uncheckedIcon={false}
+                                        width={24}
+                                        height={14}
+                                    />
+                                    <Select
+                                        autoFocus={true}
+                                        value={calendarOptions?.find(
+                                            (c) => c.value == props.events.currentCalendar,
+                                        )}
+                                        isSearchable
+                                        isDisabled={!props.features?.calendarIntegration}
+                                        onChange={(e) => {
+                                            electron.ipcRenderer.send('set-calendar', e.value)
+                                            props.setCalendar(e.value)
+                                        }}
+                                        options={generateOptions(calendars)}
+                                        styles={selectStyles({
+                                            fontSize: 'xxsmall',
+                                            theme: themes[props.theme],
+                                        })}
+                                        escapeClearsValue={true}
+                                        defaultMenuIsOpen={false}
+                                    />
+                                </div>
+                            </Setting>
+                        )}
                         <Setting>
                             <SettingLabel>Dark mode</SettingLabel>
                             <Switch
@@ -221,6 +293,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
 const mapStateToProps = (state): StateProps => ({
     features: state.features,
     theme: state.ui.theme,
+    events: state.events,
     labels: state.ui.labels,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
@@ -253,6 +326,9 @@ const mapDispatchToProps = (dispatch): DispatchProps => ({
     },
     deleteLabel: (id: string) => {
         dispatch(deleteLabel(id))
+    },
+    setCalendar: (id: string) => {
+        dispatch(setCalendar(id))
     },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(Settings)

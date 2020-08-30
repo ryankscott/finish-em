@@ -5,6 +5,7 @@ const applescript = require('applescript')
 const semver = require('semver')
 
 let mainWindow, quickAddWindow
+let calendar = ''
 const getMailLink = () => {
     const script = `
     tell application "Mail"
@@ -25,26 +26,44 @@ const getMailLink = () => {
         }
     })
 }
+const getCalendars = () => {
+    const script = `
+	    tell application "Calendar"
+	        return name of calendars
+        end tell
+`
+    applescript.execString(script, (err, cals) => {
+        if (err) {
+            console.log(err)
+        }
+        mainWindow.webContents.send('calendars', cals)
+    })
+}
+
 const getCalendarEvents = (calendarName) => {
     const script = `
-    set theStartDate to current date
-	set hours of theStartDate to 0
-	set minutes of theStartDate to 0
-	set seconds of theStartDate to 0
-	set theEndDate to theStartDate + (1 * days) - 1
-	set output to {}
-	tell application "Calendar"
-		repeat with c in (every calendar whose (name) is "${calendarName}")
-			repeat with e in ((every event in c) whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
-				set startDate to (start date of e)
-				set endDate to (end date of e)
-				set output to output & ((uid of e) & "," & (short date string of startDate) & "," & (time string of startDate) & "," & (short date string of endDate) & "," & (time string of endDate) & "," & (summary of e) & "," & (description of e) & "," & (status of e))
+set theStartDate to current date
+set hours of theStartDate to 0
+set minutes of theStartDate to 0
+set seconds of theStartDate to 0
+set theEndDate to theStartDate + (7 * days) - 1
+set output to {}
+tell application "Calendar"
+	repeat with c in (every calendar whose (name) is "Personal")
+
+		repeat with e in ((every event in c) whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
+			set att to {}
+			repeat with a in (attendees of e)
+				set att to att & (display name of a) & "," & (email of a)
 			end repeat
+			set startDate to (start date of e)
+			set endDate to (end date of e)
+			set output to output & ((uid of e) & "," & (short date string of startDate) & "," & (time string of startDate) & "," & (short date string of endDate) & "," & (time string of endDate) & "," & (summary of e) & "," & (description of e) & "," & (status of e))
 		end repeat
-	end tell
-	set AppleScript's text item delimiters to return
-	return output
-`
+	end repeat
+end tell
+set AppleScript's text item delimiters to return
+return output`
     applescript.execString(script, (err, rtn) => {
         if (err) {
             console.log(err)
@@ -66,6 +85,8 @@ const getCalendarEvents = (calendarName) => {
                 return acc
             }, {})
         })
+        console.log(`Sending events back to FE`)
+        console.log(events)
         mainWindow.webContents.send('events', events)
     })
 }
@@ -229,7 +250,10 @@ app.on('ready', () => {
         mainWindow.webContents.send('get-features')
         ipcMain.once('get-features-reply', (event, features) => {
             if (features.calendarIntegration) {
-                getCalendarEvents('Personal')
+                if (calendar) {
+                    console.log(`Getting calendar events for ${calendar}`)
+                    getCalendarEvents(calendar)
+                }
             }
         })
     }, 1000 * 5)
@@ -259,6 +283,11 @@ ipcMain.on('close-quickadd', (event, arg) => {
     }
 })
 
+ipcMain.on('get-calendars', (event, arg) => {
+    const allCalendars = getCalendars()
+    mainWindow.webContents.send('calendars', allCalendars)
+})
+
 ipcMain.on('open-outlook-link', (event, arg) => {
     openOutlookLink(arg.url)
 })
@@ -266,4 +295,10 @@ ipcMain.on('open-outlook-link', (event, arg) => {
 // This is to send events between quick add and main window
 ipcMain.on('create-task', (event, arg) => {
     mainWindow.webContents.send('create-task', arg)
+})
+
+ipcMain.on('set-calendar', (event, cal) => {
+    console.log(`Setting calendar to: ${cal}`)
+    calendar = cal
+    getCalendarEvents(calendar)
 })

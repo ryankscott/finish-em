@@ -2,7 +2,7 @@ import { ThemeProvider } from '../StyledComponents'
 import React, { ReactElement, useEffect } from 'react'
 import { connect } from 'react-redux'
 import { useHistory, Route, Switch, useParams } from 'react-router-dom'
-import { Event } from '../interfaces/event'
+import { EventType } from '../interfaces/event'
 import { parse } from 'date-fns'
 import DailyAgenda from './DailyAgenda'
 import Sidebar from './Sidebar'
@@ -26,6 +26,7 @@ import {
     hideCreateProjectDialog,
     hideDeleteProjectDialog,
     createItem,
+    createEvent,
 } from '../actions/index'
 import {
     Container,
@@ -36,7 +37,7 @@ import {
     HeaderContainer,
     BodyContainer,
 } from './styled/App'
-import { Projects, Views, Items, Areas, FeatureType } from '../interfaces'
+import { Projects, Views, Items, Areas, FeatureType, EventType } from '../interfaces'
 import { Slide, toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
@@ -61,8 +62,10 @@ type StateProps = {
     features: FeatureType
 }
 type DispatchProps = {
+    createEvent: (e: EventType) => void
     showSidebar: () => void
     hideSidebar: () => void
+    hideFocusbar: () => void
     hideDialogs: () => void
     showCreateProjectDialog: () => void
     toggleShortcutDialog: () => void
@@ -114,6 +117,7 @@ const App = (props: AppProps): ReactElement => {
             }
         })
     })
+
     useEffect(() => {
         // Handle Electron events
         if (isElectron()) {
@@ -128,27 +132,33 @@ const App = (props: AppProps): ReactElement => {
                             <br />
                             Download the new version <a href={arg.downloadUrl}>here </a>
                             <br />
-                            Or checkout the release <a href={arg.releaseURL}> notes</a> for what's
+                            Or checkout the release <a href={arg.releaseURL}> notes</a> `for what's`
                             changed
                         </p>
                     </div>,
                     { autoClose: false },
                 )
             })
+
             electron.ipcRenderer.on('events', (event, calEvents) => {
                 const parsedEvents = calEvents.map((c) => {
-                    const ev: Event = {
+                    console.log(c)
+                    const ev: EventType = {
                         id: c.id,
                         start: parse(
                             `${c.startDate} ${c.startTime}`,
-                            'dd/MM/yyyy h:m:s a',
+                            'dd/MM/yy h:m:s a',
                             new Date(),
                         ),
-                        end: parse(`${c.endDate} ${c.endTime}`, 'dd/MM/yyyy h:m:s a', new Date()),
+                        end: parse(`${c.endDate} ${c.endTime}`, 'dd/MM/yy h:m:s a', new Date()),
                         title: c.summary,
                         description: c.description,
                     }
                     return ev
+                })
+
+                parsedEvents.map((e) => {
+                    props.createEvent(e)
                 })
             })
             electron.ipcRenderer.on('get-features', (event) => {
@@ -340,6 +350,11 @@ const mapStateToProps = (state): StateProps => ({
 })
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
+    createEvent: (e: EventType) => {
+        console.log('dispatch creating event')
+        console.log(e)
+        dispatch(createEvent(e))
+    },
     toggleShortcutDialog: () => {
         dispatch(toggleShortcutDialog())
     },

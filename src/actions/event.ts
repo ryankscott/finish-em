@@ -1,34 +1,29 @@
 export const CREATE_EVENT = 'CREATE_EVENT'
+export const SET_CALENDAR = 'SET_CALENDAR'
+import { EventType } from '../interfaces/event'
 
-export interface CreateEventAction {
+export type CreateEventAction = {
     type: typeof CREATE_EVENT
-    id: string
-    title: string
-    endAt: Date
-    startAt: Date
-    description?: string
-    allDay?: boolean
-    resource?: any
+    event: EventType
 }
-export function createEvent(
-    id: string,
-    title: string,
-    endAt: Date,
-    startAt: Date,
-    description: string,
-    allDay: boolean,
-    resource: any,
-): CreateEventAction {
+export function createEvent(e: EventType): CreateEventAction {
+    console.log('Creating action')
     return {
         type: CREATE_EVENT,
-        id: id,
-        title: title,
-        description: description,
-        endAt: endAt,
-        startAt: startAt,
-        allDay: allDay,
-        resource: resource,
+        event: e,
     }
 }
 
-export type EventActions = CreateEventAction
+export type SetCalendarAction = {
+    type: typeof SET_CALENDAR
+    name: string
+}
+
+export function setCalendar(name: string): SetCalendarAction {
+    return {
+        type: SET_CALENDAR,
+        name: name,
+    }
+}
+
+export type EventActions = CreateEventAction | SetCalendarAction

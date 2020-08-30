@@ -34,9 +34,8 @@ export const Setting = styled.div`
     justify-content: flex-start;
     padding: 5px 10px;
     width: 100%;
-    height: 25px;
-    align-items: bottom;
-    justify-content: flex-start;
+    height: 30px;
+    align-items: center;
 `
 export const SettingLabel = styled(Paragraph)`
     color: ${(props) => props.theme.colours.textColour};

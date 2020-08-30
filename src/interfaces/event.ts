@@ -1,4 +1,4 @@
-export type Event = {
+export type EventType = {
     id: string
     title: string
     start: Date
@@ -8,4 +8,11 @@ export type Event = {
     resource?: any
 }
 
-export type Events = Event[]
+export type Event = {
+    [calendar: string]: EventType[]
+}
+
+export type Events = {
+    events: Event
+    currentCalendar: string
+}
