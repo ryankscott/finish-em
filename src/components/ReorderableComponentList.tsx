@@ -70,7 +70,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                                                         key={c}
                                                                         draggableId={c}
                                                                         index={index}
-                                                                        isDragDisabled={false}
+                                                                        isDragDisabled={true}
                                                                     >
                                                                         {(provided, snapshot) => (
                                                                             <DraggableContainer
