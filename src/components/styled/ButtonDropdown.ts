@@ -1,14 +1,11 @@
 import styled from 'styled-components'
 
-interface SelectContainerProps {
-    visible: boolean
-}
-export const SelectContainer = styled.div<SelectContainerProps>`
+export const SelectContainer = styled.div`
     position: absolute;
     flex-direction: column;
     padding: 0px;
     margin: 0px;
-    display: ${(props) => (!props.visible ? 'none' : 'flex')};
+    display: flex;
     top: 0px;
 `
 

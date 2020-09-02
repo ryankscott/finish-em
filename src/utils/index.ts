@@ -7,6 +7,7 @@ export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/gi
 export const scheduledTextRegex = /scheduled:(\s*"[\s\S]*")|scheduled:(\s*\S+)/gi
 export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/gi
 export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/gi
+export const markdownLinkRegex = /\[([\w\s\d]+)\]\(((?:\/|https?:\/\/)[\w\d./?=#]+)\)/
 
 import emojiRegex from 'emoji-regex/text.js'
 import { isToday, differenceInDays, isTomorrow, isYesterday, format, isAfter } from 'date-fns'
@@ -211,13 +212,12 @@ export const truncateString = (input: string, length: number): string => {
     }
     return input.slice(0, length - 1) + '...'
 }
-// TODO: Use a reduce
+
 export const groupBy = (inputArray: {}[], groupingKey: string): {} => {
-    const output = {}
-    inputArray.map((i) => {
-        return output.hasOwnProperty(i[groupingKey])
-            ? output[i[groupingKey]].push(i)
-            : (output[i[groupingKey]] = [i])
-    })
-    return output
+    return inputArray.reduce((acc, i, index) => {
+        acc.hasOwnProperty(i[groupingKey])
+            ? acc[i[groupingKey]].push(i)
+            : (acc[i[groupingKey]] = [i])
+        return acc
+    }, {})
 }

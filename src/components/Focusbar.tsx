@@ -1,11 +1,13 @@
 import React, { ReactElement } from 'react'
+import { transparentize } from 'polished'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { connect } from 'react-redux'
-import { Items, ProjectType } from '../interfaces'
+import { Items, ProjectType, Areas, Projects } from '../interfaces'
 import EditableText from './EditableText'
 import { Header1, Paragraph, Header3 } from './Typography'
-import { removeItemTypeFromString, formatRelativeDate } from '../utils'
+import { groupBy, truncateString, removeItemTypeFromString, formatRelativeDate } from '../utils'
+import marked from 'marked'
 import RRule from 'rrule'
 import { parseISO } from 'date-fns'
 import Button from './Button'
@@ -40,11 +42,132 @@ import {
 } from './styled/Focusbar'
 import DatePicker from './DatePicker'
 import RepeatPicker from './RepeatPicker'
-import ProjectDropdown from './ProjectDropdown'
-import AreaDropdown from './AreaDropdown'
 import ItemCreator from './ItemCreator'
-import SubtaskDropdown from './SubtaskDropdown'
-import LabelDropdown from './LabelDropdown'
+import ButtonDropdown from './ButtonDropdown'
+
+type OptionType = { value: string; label: JSX.Element | string; color?: CSS.Color }
+const generateLabelOptions = (labels: Label): OptionType[] => {
+    return [
+        ...Object.values(labels).map((l) => {
+            return {
+                value: l.id,
+                label: l.name,
+                color: transparentize(0.8, l.colour),
+            }
+        }),
+        { value: '', label: 'No label', color: '' },
+    ]
+}
+const generateSubtaskOptions = (
+    projects: Project,
+    items: Item,
+    currentItem: ItemType,
+): GroupType<OptionType>[] => {
+    const filteredValues = Object.values(items).filter(
+        (i) =>
+            i.id != null &&
+            i.id != currentItem.id &&
+            i.id != currentItem.parentId &&
+            i.deleted == false &&
+            i.completed == false &&
+            !i.parentId,
+    )
+
+    // Group them by project
+    const groupedItems = groupBy(filteredValues, 'projectId')
+    // Show the items from the project the item is in first
+
+    // Update the label to be the project name, and the items to be the right format
+    const allGroups = Object.keys(groupedItems).map((i) => {
+        const group: GroupType<OptionType> = { label: '', options: [] }
+        group['label'] = projects[i].name
+        group['options'] = groupedItems[i].map((i) => {
+            return {
+                value: i.id,
+                label: removeItemTypeFromString(i.text),
+            }
+        })
+        return group
+    })
+    // Sort to ensure that the current project is at the front
+    allGroups.sort((a, b) =>
+        a.label == projects[currentItem.projectId].name
+            ? -1
+            : b.label == projects[currentItem.projectId].name
+            ? 1
+            : 0,
+    )
+
+    // If it's already a subtask add an option to create it to a task
+    return currentItem.parentId != null
+        ? [
+              {
+                  label: 'Options',
+                  options: [{ value: '', label: 'Convert to task' }],
+              },
+              ...allGroups,
+          ]
+        : allGroups
+}
+const generateProjectOptions = (
+    project: ProjectType,
+    areas: Area,
+    projects: Project,
+): GroupType<OptionType>[] => {
+    const p = Object.values(projects)
+    const filteredProjects = p
+        .filter((p) => p.id != '0')
+        .filter((p) => p.id != null)
+        .filter((p) => p.id != project?.id)
+        .filter((p) => p.deleted == false)
+
+    const groupedProjects = groupBy(filteredProjects, 'areaId')
+    const allGroups = Object.keys(groupedProjects).map((i) => {
+        const group: GroupType<OptionType> = { label: '', options: [] }
+        group['label'] = areas[i].name
+        group['options'] = groupedProjects[i].map((p) => {
+            return {
+                value: p.id,
+                label: p.name,
+            }
+        })
+        return group
+    })
+
+    // Sort to ensure that the current project is at the front
+    // Only if it has a project
+    if (project != null) {
+        allGroups.sort((a, b) =>
+            a.label == areas[project.areaId].name
+                ? -1
+                : b.label == areas[project.areaId].name
+                ? 1
+                : 0,
+        )
+    }
+    //
+    return [
+        ...allGroups,
+        {
+            label: 'Remove Project',
+            options: [{ value: null, label: 'None' }],
+        },
+    ]
+}
+const generateAreaOptions = (area: AreaType, areas: Area): OptionsType => {
+    const a = Object.values(areas)
+    const filteredAreas = a.filter((a) => a.id != area?.id).filter((a) => a.deleted == false)
+
+    return [
+        ...filteredAreas.map((a) => {
+            return {
+                value: a.id,
+                label: a.name,
+            }
+        }),
+        { value: null, label: 'None' },
+    ]
+}
 
 interface DispatchProps {
     closeFocusbar: () => void
@@ -66,7 +189,9 @@ interface DispatchProps {
     removeLabel: (id: string) => void
 }
 interface StateProps {
+    areas: Areas
     items: Items
+    labels: Labels
     projects: ProjectType[]
     activeItem: {
         past: string[]
@@ -201,7 +326,15 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         <Paragraph>Project: </Paragraph>
                     </AttributeKey>
                     <AttributeValue>
-                        <ProjectDropdown
+                        <ButtonDropdown
+                            buttonText={props.projects.projects[i.projectId]?.name}
+                            defaultButtonText={'Add Project'}
+                            selectPlaceholder={'Search for project'}
+                            options={generateProjectOptions(
+                                props.projects.projects[i.projectId],
+                                props.areas.areas,
+                                props.projects.projects,
+                            )}
                             deleted={i.deleted}
                             projectId={i.projectId}
                             completed={i.completed}
@@ -217,7 +350,15 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                             <Paragraph>Area: </Paragraph>
                         </AttributeKey>
                         <AttributeValue>
-                            <AreaDropdown
+                            <ButtonDropdown
+                                buttonText={i.areaId ? props.areas.areas[i.areaId].name : null}
+                                defaultButtonIcon={'area'}
+                                defaultButtonText={'Add Area'}
+                                selectPlaceholder={'Search for area'}
+                                options={generateAreaOptions(
+                                    props.areas.areas[i.areaId],
+                                    props.areas.areas,
+                                )}
                                 deleted={i.deleted}
                                 areaId={i.areaId}
                                 completed={i.completed}
@@ -284,9 +425,31 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         <Paragraph>Parent:</Paragraph>
                     </AttributeKey>
                     <AttributeValue>
-                        <SubtaskDropdown
-                            itemId={i.id}
-                            parentId={i.parentId}
+                        <ButtonDropdown
+                            buttonText={
+                                props.items.items[i.parentId] ? (
+                                    <span
+                                        dangerouslySetInnerHTML={{
+                                            __html: marked(
+                                                truncateString(
+                                                    removeItemTypeFromString(
+                                                        props.items.items[i.parentId]?.text,
+                                                    ),
+                                                    15,
+                                                ),
+                                            ),
+                                        }}
+                                    />
+                                ) : null
+                            }
+                            defaultButtonIcon={'subtask'}
+                            defaultButtonText={'Add Parent'}
+                            selectPlaceholder={'Select parent'}
+                            options={generateSubtaskOptions(
+                                props.projects.projects,
+                                props.items.items,
+                                i,
+                            )}
                             completed={i.completed}
                             deleted={i.deleted}
                             onSubmit={(parentId) => {
@@ -304,10 +467,15 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                         <Paragraph>Label:</Paragraph>
                     </AttributeKey>
                     <AttributeValue>
-                        <LabelDropdown
+                        <ButtonDropdown
+                            buttonText={props.labels.labels[i.labelId]?.name}
+                            buttonIconColour={props.labels.labels[i.labelId]?.colour}
+                            defaultButtonIcon={'label'}
+                            defaultButtonText={'Add Label'}
+                            selectPlaceholder={'Search for label'}
+                            options={generateLabelOptions(props.labels.labels)}
                             completed={i.completed}
                             deleted={i.deleted}
-                            labelId={i.labelId}
                             onSubmit={(labelId) => {
                                 if (labelId) {
                                     props.addLabel(i.id, labelId)
@@ -377,6 +545,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
 
 const mapStateToProps = (state): StateProps => ({
     items: state.items,
+    areas: state.areas,
+    labels: state.ui.labels,
     activeItem: state.ui.activeItem,
     projects: state.projects,
     focusbarVisible: state.ui.focusbarVisible,

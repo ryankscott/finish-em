@@ -1,37 +1,26 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
-import CreatableSelect from 'react-select/creatable'
+import Select from 'react-select'
+import Creatable from 'react-select/creatable'
 import { themes, selectStyles } from '../theme'
 import CSS from 'csstype'
-
 import { connect } from 'react-redux'
-import { Items, Label } from '../interfaces'
 import Button from './Button'
-import { Container, SelectContainer } from './styled/LabelDropdown'
-import { transparentize } from 'polished'
-
-type OptionType = { value: string; label: string; color: CSS.Color }
-
-const generateOptions = (labels: Label): OptionType[] => {
-    return [
-        ...Object.values(labels).map((l) => {
-            return {
-                value: l.id,
-                label: l.name,
-                color: transparentize(0.8, l.colour),
-            }
-        }),
-        { value: '', label: 'No label', color: '' },
-    ]
-}
+import { Container, SelectContainer } from './styled/ButtonDropdown'
 
 interface StateProps {
-    items: Items
-    labels: Label
     theme: string
 }
 interface OwnProps {
-    labelId: string
+    defaultButtonText: string
+    defaultButtonIcon: string
+    defaultButtonIconColour: string
+    buttonText: string
+    buttonIcon?: IconType
+    buttonIconColour?: CSS.Color
+    selectPlaceholder?: string
+    createable?: boolean
+    options: OptionType[]
     onSubmit: (value: string) => void
     onEscape?: () => void
     style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
@@ -40,8 +29,8 @@ interface OwnProps {
     showSelect?: boolean
 }
 
-type LabelProps = StateProps & OwnProps
-function LabelDropdown(props: LabelProps): ReactElement {
+type ButtonDropdownProps = StateProps & OwnProps
+function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
     const [showSelect, setShowSelect] = useState(false)
     const handleChange = (newValue, actionMeta): void => {
         if (actionMeta.action == 'select-option') {
@@ -66,8 +55,6 @@ function LabelDropdown(props: LabelProps): ReactElement {
         }
     }, [])
 
-    const text = props.labels[props?.labelId]?.name
-    const colour = props.labels[props?.labelId]?.colour
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <Container completed={props.completed} ref={node}>
@@ -79,19 +66,23 @@ function LabelDropdown(props: LabelProps): ReactElement {
                         setShowSelect(!showSelect)
                         e.stopPropagation()
                     }}
-                    text={text || 'Add label'}
-                    iconColour={text ? colour : null}
-                    icon={'label'}
+                    text={props.buttonText ? props.buttonText : props.defaultButtonText}
+                    iconColour={
+                        props.buttonIconColour
+                            ? props.buttonIconColour
+                            : props.defaultButtonIconColour
+                    }
+                    icon={props.buttonIcon ? props.buttonIcon : props.defaultButtonIcon}
                     isDisabled={props.deleted}
                 />
                 {(showSelect || props.showSelect) && (
-                    <SelectContainer visible={Object.keys(props.items).length > 1}>
-                        <CreatableSelect
+                    <SelectContainer>
+                        <Creatable
                             autoFocus={true}
-                            placeholder={'Select label:'}
+                            placeholder={props.selectPlaceholder}
                             isSearchable
                             onChange={handleChange}
-                            options={generateOptions(props.labels)}
+                            options={props.options}
                             styles={selectStyles({
                                 fontSize: 'xxsmall',
                                 theme: themes[props.theme],
@@ -116,9 +107,7 @@ function LabelDropdown(props: LabelProps): ReactElement {
 }
 
 const mapStateToProps = (state): StateProps => ({
-    items: state.items,
-    labels: state.ui.labels.labels,
     theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): {} => ({})
-export default connect(mapStateToProps, mapDispatchToProps)(LabelDropdown)
+export default connect(mapStateToProps, mapDispatchToProps)(ButtonDropdown)
