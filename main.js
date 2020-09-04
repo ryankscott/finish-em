@@ -26,6 +26,7 @@ const getMailLink = () => {
         }
     })
 }
+
 const getCalendars = () => {
     const script = `
 	    tell application "Calendar"

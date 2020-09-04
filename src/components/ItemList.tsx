@@ -331,7 +331,7 @@ function ItemList(props: ItemListProps): ReactElement {
 
     return (
         <ThemeProvider theme={themes[props.theme]}>
-            <Container>
+            <Container data-cy="item-list">
                 <TransitionGroup component={null}>
                     {props.inputItems.map((i) => {
                         if (i == undefined) return null

@@ -31,7 +31,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
     const theme = themes[props.theme]
 
     return (
-        <ThemeProvider theme={themes[props.theme]}>
+        <ThemeProvider theme={theme}>
             <Container>
                 <DragDropContext
                     onDragEnd={(e) => {

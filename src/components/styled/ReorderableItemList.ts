@@ -45,19 +45,23 @@ type DraggableContainerProps = {
     state: string
 }
 export const DraggableContainer = styled.div<DraggableContainerProps>`
-...props.draggableStyle;
-display: flex;
-flex-direction: column;
-height: auto;
-user-select: none;
-padding: 0px;
-margin: 0px;
-border-radius: 5px;
-background: ${(props) =>
-    props.isDragging
-        ? props.theme.colours.focusDialogBackgroundColour
-        : props.theme.colours.backgroundColour};
-animation: ${(props) =>
-    props.state == 'entering' ? entryAnimation : props.state == 'exiting' ? exitAnimation : 'none'}
-
+    ...props.draggableStyle;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    user-select: none;
+    padding: 0px;
+    margin: 0px;
+    border-radius: 5px;
+    background: ${(props) =>
+        props.isDragging
+            ? props.theme.colours.focusDialogBackgroundColour
+            : props.theme.colours.backgroundColour};
+    animation: ${(props) =>
+        props.state == 'entering'
+            ? entryAnimation
+            : props.state == 'exiting'
+            ? exitAnimation
+            : 'none'}
 `

@@ -1,52 +1,59 @@
-import React, { ReactElement } from 'react'
-import { transparentize } from 'polished'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
-import { connect } from 'react-redux'
-import { Items, ProjectType, Areas, Projects } from '../interfaces'
-import EditableText from './EditableText'
-import { Header1, Paragraph, Header3 } from './Typography'
-import { groupBy, truncateString, removeItemTypeFromString, formatRelativeDate } from '../utils'
-import marked from 'marked'
-import RRule from 'rrule'
 import { parseISO } from 'date-fns'
-import Button from './Button'
-import Item from './Item'
-import { ItemIcons } from '../interfaces/item'
-import { hideFocusbar, setActiveItem, undoSetActiveItem } from '../actions/ui'
-interface DispatchProps {
-    updateItemDescription,
+import marked from 'marked'
+import { transparentize } from 'polished'
+import React, { ReactElement } from 'react'
+import { connect } from 'react-redux'
+import RRule from 'rrule'
+import {
+    addArea,
+    addLabel,
+    addProject,
+    changeParentItem,
     completeItem,
-    uncompleteItem,
-    setScheduledDate,
+    convertSubtask,
+    deleteItem,
+    removeLabel,
     setDueDate,
     setRepeatRule,
-    addProject,
-    convertSubtask,
-    changeParentItem,
-    addLabel,
-    removeLabel,
-    deleteItem,
+    setScheduledDate,
+    uncompleteItem,
     undeleteItem,
-    addArea,
-  closeFocusbar: () => void
-  setActiveItem: (id: string) => void
-  updateItemDescription: (id: string, text: string) => void
+    updateItemDescription,
+} from '../actions'
+import { hideFocusbar, setActiveItem, undoSetActiveItem } from '../actions/ui'
+import { Areas, Items, ProjectType } from '../interfaces'
+import { ItemIcons } from '../interfaces/item'
+import { ThemeProvider } from '../StyledComponents'
+import { themes } from '../theme'
+import {
+    formatRelativeDate,
+    groupBy,
+    removeItemTypeFromString,
+    truncateString,
+    markdownLinkRegex,
+    markdownBasicRegex,
+} from '../utils'
+import Button from './Button'
+import ButtonDropdown from './ButtonDropdown'
+import DatePicker from './DatePicker'
+import EditableText from './EditableText'
+import Item from './Item'
+import ItemCreator from './ItemCreator'
+import RepeatPicker from './RepeatPicker'
+import {
+    AttributeContainer,
+    AttributeKey,
+    AttributeValue,
     Container,
     HeaderContainer,
-    TitleContainer,
-    AttributeContainer,
     SubtaskContainer,
-    AttributeValue,
-    AttributeKey,
-  setRepeatRule: (id: string, rule: RRule) => void
-  convertSubtask: (id: string) => void
-  changeParentItem: (id: string, parentId: string) => void
-  addLabel: (id: string, labelId: string | string) => void
-  deleteItem: (id: string) => void
-  undeleteItem: (id: string) => void
-  removeLabel: (id: string) => void
-}
+    TitleContainer,
+} from './styled/Focusbar'
+import Tooltip from './Tooltip'
+import { Header1, Header3, Paragraph } from './Typography'
+
+type OptionType = { value: string; label: JSX.Element | string; color?: CSS.Color }
+const generateLabelOptions = (labels: Label): OptionType[] => {
     return [
         ...Object.values(labels).map((l) => {
             return {
@@ -57,12 +64,12 @@ interface DispatchProps {
         }),
         { value: '', label: 'No label', color: '' },
     ]
-  focusbarVisible: boolean
-  theme: string
+}
+const generateSubtaskOptions = (
     projects: Project,
     items: Item,
     currentItem: ItemType,
-  const ref = React.useRef<HTMLInputElement>()
+): GroupType<OptionType>[] => {
     const filteredValues = Object.values(items).filter(
         (i) =>
             i.id != null &&
@@ -84,11 +91,13 @@ interface DispatchProps {
         group['options'] = groupedItems[i].map((i) => {
             return {
                 value: i.id,
-                label: removeItemTypeFromString(i.text),
+                label: removeItemTypeFromString(i.text)
+                    .replace(markdownLinkRegex, '$1')
+                    .replace(markdownBasicRegex, '$1'),
             }
         })
         return group
-            </div>
+    })
     // Sort to ensure that the current project is at the front
     allGroups.sort((a, b) =>
         a.label == projects[currentItem.projectId].name
@@ -108,12 +117,12 @@ interface DispatchProps {
               ...allGroups,
           ]
         : allGroups
-              type="default"
-              spacing="compact"
+}
+const generateProjectOptions = (
     project: ProjectType,
     areas: Area,
     projects: Project,
-          </div>
+): GroupType<OptionType>[] => {
     const p = Object.values(projects)
     const filteredProjects = p
         .filter((p) => p.id != '0')
@@ -132,8 +141,8 @@ interface DispatchProps {
             }
         })
         return group
-                  ? 'todoChecked'
-          />
+    })
+
     // Sort to ensure that the current project is at the front
     // Only if it has a project
     if (project != null) {
@@ -153,11 +162,11 @@ interface DispatchProps {
             options: [{ value: null, label: 'None' }],
         },
     ]
-                width="26px"
-                spacing="compact"
+}
+const generateAreaOptions = (area: AreaType, areas: Area): OptionsType => {
     const a = Object.values(areas)
     const filteredAreas = a.filter((a) => a.id != area?.id).filter((a) => a.deleted == false)
-                }}
+
     return [
         ...filteredAreas.map((a) => {
             return {
@@ -167,9 +176,9 @@ interface DispatchProps {
         }),
         { value: null, label: 'None' },
     ]
-                  spacing="compact"
-                  height="26px"
-                  width="26px"
+}
+
+interface DispatchProps {
     closeFocusbar: () => void
     setActiveItem: (id: string) => void
     updateItemDescription: (id: string, text: string) => void
@@ -187,8 +196,8 @@ interface DispatchProps {
     deleteItem: (id: string) => void
     undeleteItem: (id: string) => void
     removeLabel: (id: string) => void
-              defaultButtonText={'Add Project'}
-              selectPlaceholder={'Search for project'}
+}
+interface StateProps {
     areas: Areas
     items: Items
     labels: Labels
@@ -200,9 +209,9 @@ interface DispatchProps {
     }
     focusbarVisible: boolean
     theme: string
-            />
-          </AttributeValue>
-        </AttributeContainer>
+}
+type FocusbarProps = DispatchProps & StateProps
+const Focusbar = (props: FocusbarProps): ReactElement => {
     const ref = React.useRef<HTMLInputElement>()
     const i = props?.items?.items[props?.activeItem.present]
     if (!i) return null
@@ -328,6 +337,7 @@ interface DispatchProps {
                     <AttributeValue>
                         <ButtonDropdown
                             buttonText={props.projects.projects[i.projectId]?.name}
+                            defaultButtonIcon={'project'}
                             defaultButtonText={'Add Project'}
                             selectPlaceholder={'Search for project'}
                             options={generateProjectOptions(
@@ -509,7 +519,7 @@ interface DispatchProps {
                             </div>
                         </AttributeValue>
                     </AttributeContainer>
-          <AttributeContainer>
+                )}
                 {i.parentId == null && i.type == 'TODO' && (
                     <>
                         <SubtaskContainer>
@@ -541,3 +551,69 @@ interface DispatchProps {
             </Container>
         </ThemeProvider>
     )
+}
+
+const mapStateToProps = (state): StateProps => ({
+    items: state.items,
+    areas: state.areas,
+    labels: state.ui.labels,
+    activeItem: state.ui.activeItem,
+    projects: state.projects,
+    focusbarVisible: state.ui.focusbarVisible,
+    theme: state.ui.theme,
+})
+const mapDispatchToProps = (dispatch): DispatchProps => ({
+    addProject: (id: string, projectId: string | '0') => {
+        dispatch(addProject(id, projectId))
+    },
+    addArea: (id: string, areaId: string | '0') => {
+        dispatch(addArea(id, areaId))
+    },
+    completeItem: (id: string) => {
+        dispatch(completeItem(id))
+    },
+    uncompleteItem: (id: string) => {
+        dispatch(uncompleteItem(id))
+    },
+    updateItemDescription: (id: string, text: string) => {
+        dispatch(updateItemDescription(id, text))
+    },
+    closeFocusbar: () => {
+        dispatch(hideFocusbar())
+    },
+    setActiveItem: (id: string) => {
+        dispatch(setActiveItem(id))
+    },
+    undoSetActiveItem: () => {
+        dispatch(undoSetActiveItem())
+    },
+    setScheduledDate: (id: string, date: string) => {
+        dispatch(setScheduledDate(id, date))
+    },
+    setDueDate: (id: string, date: string) => {
+        dispatch(setDueDate(id, date))
+    },
+    setRepeatRule: (id: string, rule: RRule) => {
+        dispatch(setRepeatRule(id, rule))
+    },
+    convertSubtask: (id: string) => {
+        dispatch(convertSubtask(id))
+    },
+    changeParentItem: (id: string, parentId: string) => {
+        dispatch(changeParentItem(id, parentId))
+    },
+    addLabel: (id: string, labelId: string | string) => {
+        dispatch(addLabel(id, labelId))
+    },
+    removeLabel: (id: string) => {
+        dispatch(removeLabel(id))
+    },
+    deleteItem: (id: string) => {
+        dispatch(deleteItem(id))
+    },
+    undeleteItem: (id: string) => {
+        dispatch(undeleteItem(id))
+    },
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Focusbar)

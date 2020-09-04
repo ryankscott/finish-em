@@ -104,6 +104,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
                 ></Tooltip>
                 <ItemCreatorContainer
+                    data-cy="item-creator"
                     animate={animate}
                     backgroundColour={props.backgroundColour}
                     width={props.width}

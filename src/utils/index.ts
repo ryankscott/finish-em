@@ -8,6 +8,7 @@ export const scheduledTextRegex = /scheduled:(\s*"[\s\S]*")|scheduled:(\s*\S+)/g
 export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/gi
 export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/gi
 export const markdownLinkRegex = /\[([\w\s\d]+)\]\(((?:\/|https?:\/\/)[\w\d./?=#]+)\)/
+export const markdownBasicRegex = /[*_]{1,2}(\w*)[*_]{1,2}/
 
 import emojiRegex from 'emoji-regex/text.js'
 import { isToday, differenceInDays, isTomorrow, isYesterday, format, isAfter } from 'date-fns'

@@ -128,3 +128,4 @@ export type IconType =
     | 'feedback'
     | 'area'
     | 'view'
+    | 'project'

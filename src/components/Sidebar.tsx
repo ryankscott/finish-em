@@ -131,7 +131,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 
     return (
         <ThemeProvider theme={theme}>
-            <Container visible={props.sidebarVisible}>
+            <Container visible={props.sidebarVisible} data-cy="sidebar-container">
                 <BodyContainer>
                     <SectionHeader visible={props.sidebarVisible}>
                         {Icons['view'](22, 22, themes[props.theme].colours.primaryColour)}
@@ -410,7 +410,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             text={'Settings'}
                         />
                     </StyledLink>
-                    <CollapseContainer>
+                    <CollapseContainer data-cy="sidebar-btn-container">
                         <Button
                             spacing="compact"
                             icon={props.sidebarVisible ? 'slideLeft' : 'slideRight'}

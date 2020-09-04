@@ -7,7 +7,7 @@ import Button from './Button'
 import Tooltip from './Tooltip'
 import { lighten } from 'polished'
 import Select, { GroupType } from 'react-select'
-import { removeItemTypeFromString } from '../utils'
+import { removeItemTypeFromString, markdownLinkRegex, markdownBasicRegex } from '../utils'
 import { useHistory } from 'react-router'
 import { Project, Projects } from '../interfaces/project'
 import { Items, Item } from '../interfaces'
@@ -35,7 +35,9 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
     const generateOptions = (projects: Project, items: Item): GroupType<OptionType>[] => {
         const itemOptions = Object.values(items).map((i) => {
             return {
-                label: removeItemTypeFromString(i.text).replace(/(\[.*\])(.*)/, '$1'),
+                label: removeItemTypeFromString(i.text)
+                    .replace(markdownLinkRegex, '$1')
+                    .replace(markdownBasicRegex, '$1'),
                 value: () => props.setActiveItem(i.id),
             }
         })
