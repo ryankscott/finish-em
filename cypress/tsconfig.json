@@ -1,4 +1,8 @@
 {
-    "extends": "../tsconfig.json",
-    "include": ["../node_modules/cypress", "./*/*.ts"]
+    "compilerOptions": {
+        "target": "es2019",
+        "lib": ["es2019", "dom"],
+        "types": ["cypress"]
+    },
+    "include": ["**/*.ts"]
 }
