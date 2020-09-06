@@ -110,7 +110,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                             defaultDate={currentDate}
                             localizer={localizer}
                             events={
-                                props.events
+                                Object.keys(props.events).length > 0
                                     ? props.events.events[props.events.currentCalendar]
                                     : []
                             }
