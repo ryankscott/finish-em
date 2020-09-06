@@ -79,15 +79,16 @@ const generateSubtaskOptions = (
             i.completed == false &&
             !i.parentId,
     )
-
+    // Return if we've filtered all items
+    if (!filteredValues.length) return
     // Group them by project
     const groupedItems = groupBy(filteredValues, 'projectId')
     // Show the items from the project the item is in first
-
     // Update the label to be the project name, and the items to be the right format
     const allGroups = Object.keys(groupedItems).map((i) => {
         const group: GroupType<OptionType> = { label: '', options: [] }
-        group['label'] = projects[i].name
+        // It's possible to not have a project
+        group['label'] = i == 'null' ? 'No Project' : projects[i].name
         group['options'] = groupedItems[i].map((i) => {
             return {
                 value: i.id,
