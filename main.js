@@ -50,21 +50,18 @@ set seconds of theStartDate to 0
 set theEndDate to theStartDate + (7 * days) - 1
 set output to {}
 tell application "Calendar"
-	repeat with c in (every calendar whose (name) is "Personal")
-
-		repeat with e in ((every event in c) whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
-			set att to {}
-			repeat with a in (attendees of e)
-				set att to att & (display name of a) & "," & (email of a)
-			end repeat
+	tell calendar "${calendarName}"
+		set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
+		repeat with e in allEvents
 			set startDate to (start date of e)
 			set endDate to (end date of e)
-			set output to output & ((uid of e) & "," & (short date string of startDate) & "," & (time string of startDate) & "," & (short date string of endDate) & "," & (time string of endDate) & "," & (summary of e) & "," & (description of e) & "," & (status of e))
+			copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (description of e), (status of e)} to end of output
 		end repeat
-	end repeat
+	end tell
 end tell
-set AppleScript's text item delimiters to return
-return output`
+return output
+`
+
     applescript.execString(script, (err, rtn) => {
         if (err) {
             console.log(err)
@@ -79,15 +76,13 @@ return output`
             'description',
             'status',
         ]
-        const events = rtn.map((r) => {
-            const items = r.split(',')
-            return items.reduce((acc, cur, index) => {
+        const events = Object.values(rtn).map((r) => {
+            return r.reduce((acc, cur, index) => {
                 acc[headers[index]] = cur
                 return acc
             }, {})
         })
         console.log(`Sending events back to FE`)
-        console.log(events)
         mainWindow.webContents.send('events', events)
     })
 }
