@@ -1,8 +1,8 @@
 export type EventType = {
     id: string
     title: string
-    start: Date
-    end: Date
+    start: string
+    end: string
     description: string
     allDay?: boolean
     resource?: any

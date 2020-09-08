@@ -222,3 +222,33 @@ export const groupBy = (inputArray: {}[], groupingKey: string): {} => {
         return acc
     }, {})
 }
+
+// TODO: Refactor me
+export const convertToProperTzOffset = (inputTz: string): string => {
+    const n = Number.parseFloat(inputTz)
+    if (Number.isNaN(n)) return '0'
+
+    const fraction = Math.abs(n % 1)
+    const isNegative = n < 0
+    const intPart = Math.abs(Math.trunc(n))
+    const fractionString = fraction == 0 ? '' : fraction * 60
+
+    /* Example conversions
+     *  2 -> +02
+     *  2.5 -> +0230
+     *  -2 -> -02
+     *  -2.5 -> -0230
+     */
+    if (intPart > 14 || intPart < -12) {
+        throw 'Invalid timezone'
+    }
+
+    if (intPart < 10) {
+        return isNegative
+            ? `-0${intPart.toString()}${fractionString}`
+            : `+0${intPart.toString()}${fractionString}`
+    }
+    return isNegative
+        ? `-${intPart.toString()}${fractionString}`
+        : `+${intPart.toString()}${fractionString}`
+}

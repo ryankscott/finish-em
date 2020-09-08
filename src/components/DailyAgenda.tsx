@@ -6,10 +6,10 @@ import { themes } from '../theme'
 import FilteredItemList from './FilteredItemList'
 import { Paragraph, Header1 } from './Typography'
 import { dateFnsLocalizer } from 'react-big-calendar'
-import { format, sub, add, parse, startOfWeek, getDay } from 'date-fns'
+import { parseISO, format, sub, add, parse, startOfWeek, startOfDay, getDay } from 'date-fns'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 const locales = {
-    'en-US': require('date-fns/locale/en-US'),
+    de: require('date-fns/locale/de'),
 }
 const localizer = dateFnsLocalizer({
     format,
@@ -51,6 +51,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     const viewId = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
     const [currentDate, setDate] = useState(new Date())
     const editor = React.useRef<HTMLInputElement>()
+    console.log(props.events.events)
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <AgendaContainer>
@@ -107,16 +108,26 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     <>
                         <Header1>Events today: </Header1>
                         <StyledCalendar
-                            defaultDate={currentDate}
                             localizer={localizer}
                             events={
                                 Object.keys(props.events).length > 0
-                                    ? props.events.events[props.events.currentCalendar]
+                                    ? props.events.events[props.events.currentCalendar].map((e) => {
+                                          return {
+                                              id: e.id,
+                                              title: e.title,
+                                              start: parseISO(e.start),
+                                              end: parseISO(e.end),
+                                              description: e.description,
+                                              allDay: e?.allDay,
+                                              resource: e?.resource,
+                                          }
+                                      })
                                     : []
                             }
-                            startAccessor="start"
-                            endAccessor="end"
+                            date={startOfDay(currentDate)}
+                            onNavigate={() => {}}
                             defaultView="agenda"
+                            length={0}
                             views={['agenda', 'day']}
                             toolbar={false}
                         />

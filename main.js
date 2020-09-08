@@ -55,7 +55,7 @@ tell application "Calendar"
 		repeat with e in allEvents
 			set startDate to (start date of e)
 			set endDate to (end date of e)
-			copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (description of e), (status of e)} to end of output
+			copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (description of e), (status of e), (time to GMT)/hours} to end of output
 		end repeat
 	end tell
 end tell
@@ -75,6 +75,7 @@ return output
             'summary',
             'description',
             'status',
+            'tzOffset',
         ]
         const events = Object.values(rtn).map((r) => {
             return r.reduce((acc, cur, index) => {

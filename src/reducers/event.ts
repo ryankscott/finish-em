@@ -13,14 +13,23 @@ export const eventReducer = produce(
             case event.SET_CALENDAR:
                 draftState.currentCalendar = action.name
                 break
+
             case event.CREATE_EVENT:
-                if (!draftState.events[draftState?.currentCalendar]) {
+                if (!draftState.events.hasOwnProperty(draftState?.currentCalendar)) {
                     draftState.events[draftState.currentCalendar] = [action.event]
                 } else {
-                    draftState.events[draftState.currentCalendar] = [
-                        ...draftState.events[draftState.currentCalendar],
-                        action.event,
-                    ]
+                    const idx = draftState.events[draftState.currentCalendar].findIndex(
+                        (f) => f.id == action.event.id,
+                    )
+                    // If the item exists, then replace it
+                    if (idx >= 0) {
+                        draftState.events[draftState.currentCalendar][idx] = action.event
+                    } else {
+                        draftState.events[draftState.currentCalendar] = [
+                            ...draftState.events[draftState.currentCalendar],
+                            action.event,
+                        ]
+                    }
                 }
                 break
 

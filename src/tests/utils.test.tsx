@@ -3,6 +3,7 @@ import {
     getItemTypeFromString,
     removeItemTypeFromString,
     validateItemString,
+    convertToProperTzOffset,
 } from '../utils'
 
 describe('Creating a short project name testing', () => {
@@ -92,5 +93,39 @@ describe('Validation of items', () => {
     })
     it('should fail on a random item', () => {
         expect(validateItemString('cat Foo Bar')).toEqual(false)
+    })
+})
+
+describe('TZ conversion', () => {
+    it('should handle a positive int timezone', () => {
+        expect(convertToProperTzOffset('2')).toEqual('+02')
+    })
+    it('should handle a positive fractional timezone', () => {
+        expect(convertToProperTzOffset('2.5')).toEqual('+0230')
+    })
+    it('should handle a negative fractional timezone', () => {
+        expect(convertToProperTzOffset('-2.5')).toEqual('-0230')
+    })
+    it('should handle a negative int timezone', () => {
+        expect(convertToProperTzOffset('-2')).toEqual('-02')
+    })
+    it('should handle a 0', () => {
+        expect(convertToProperTzOffset('0')).toEqual('+00')
+    })
+    it('should handle a positive 0', () => {
+        expect(convertToProperTzOffset('+0')).toEqual('+00')
+    })
+    it('should handle a negative 0', () => {
+        expect(convertToProperTzOffset('-0')).toEqual('+00')
+    })
+    it('should throw on a ridiculous high int', () => {
+        expect(() => {
+            convertToProperTzOffset('23423543543')
+        }).toThrow()
+    })
+    it('should throw on a ridiculous small int', () => {
+        expect(() => {
+            convertToProperTzOffset('-23423543543')
+        }).toThrow()
     })
 })

@@ -37,6 +37,8 @@ import {
     HeaderContainer,
     BodyContainer,
 } from './styled/App'
+
+import { convertToProperTzOffset } from '../utils'
 import { Projects, Views, Items, Areas, FeatureType, EventType } from '../interfaces'
 import { Slide, toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
@@ -143,14 +145,21 @@ const App = (props: AppProps): ReactElement => {
             electron.ipcRenderer.on('events', (event, calEvents) => {
                 const parsedEvents = calEvents.map((c) => {
                     console.log(c)
+
+                    const tz = convertToProperTzOffset(c.tzOffset)
+
                     const ev: EventType = {
                         id: c.id,
                         start: parse(
-                            `${c.startDate} ${c.startTime}`,
-                            'dd/MM/yy h:m:s a',
+                            `${c.startDate} ${c.startTime} ${tz}`,
+                            'dd/MM/yy h:m:s a x',
                             new Date(),
-                        ),
-                        end: parse(`${c.endDate} ${c.endTime}`, 'dd/MM/yy h:m:s a', new Date()),
+                        ).toISOString(),
+                        end: parse(
+                            `${c.endDate} ${c.endTime} ${tz}`,
+                            'dd/MM/yy h:m:s a x',
+                            new Date(),
+                        ).toISOString(),
                         title: c.summary,
                         description: c.description,
                     }
@@ -351,8 +360,6 @@ const mapStateToProps = (state): StateProps => ({
 
 const mapDispatchToProps = (dispatch): DispatchProps => ({
     createEvent: (e: EventType) => {
-        console.log('dispatch creating event')
-        console.log(e)
         dispatch(createEvent(e))
     },
     toggleShortcutDialog: () => {
