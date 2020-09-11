@@ -100,13 +100,14 @@ const generateSubtaskOptions = (
         return group
     })
     // Sort to ensure that the current project is at the front
-    allGroups.sort((a, b) =>
-        a.label == projects[currentItem.projectId].name
+    allGroups.sort((a, b) => {
+        if (!currentItem.projectId) return 0
+        return a.label == projects[currentItem.projectId].name
             ? -1
             : b.label == projects[currentItem.projectId].name
             ? 1
-            : 0,
-    )
+            : 0
+    })
 
     // If it's already a subtask add an option to create it to a task
     return currentItem.parentId != null
