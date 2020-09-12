@@ -125,6 +125,11 @@ const App = (props: AppProps): ReactElement => {
         if (isElectron()) {
             electron.ipcRenderer.on('create-task', (event, arg) => {
                 props.createItem(arg.text, arg?.projectId)
+                if (arg.source) {
+                    toast.dark(`Task added from ${arg.source}`)
+                } else {
+                    toast.dark(`Task added`)
+                }
             })
             electron.ipcRenderer.on('new-version', (event, arg) => {
                 toast(
@@ -144,8 +149,6 @@ const App = (props: AppProps): ReactElement => {
 
             electron.ipcRenderer.on('events', (event, calEvents) => {
                 const parsedEvents = calEvents.map((c) => {
-                    console.log(c)
-
                     const tz = convertToProperTzOffset(c.tzOffset)
 
                     const ev: EventType = {
@@ -170,6 +173,7 @@ const App = (props: AppProps): ReactElement => {
                     props.createEvent(e)
                 })
             })
+
             electron.ipcRenderer.on('get-features', (event) => {
                 event.sender.send('get-features-reply', props.features)
             })

@@ -24,6 +24,7 @@ const getMailLink = () => {
         if (err) {
             console.log(err)
         }
+        mainWindow.webContents.send('create-task', { text: rtn, source: 'Apple Mail' })
     })
 }
 
@@ -43,24 +44,24 @@ const getCalendars = () => {
 
 const getCalendarEvents = (calendarName) => {
     const script = `
-set theStartDate to current date
-set hours of theStartDate to 0
-set minutes of theStartDate to 0
-set seconds of theStartDate to 0
-set theEndDate to theStartDate + (7 * days) - 1
-set output to {}
-tell application "Calendar"
-	tell calendar "${calendarName}"
-		set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
-		repeat with e in allEvents
-			set startDate to (start date of e)
-			set endDate to (end date of e)
-			copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (description of e), (status of e), (time to GMT)/hours} to end of output
-		end repeat
-	end tell
-end tell
-return output
-`
+        set theStartDate to current date
+        set hours of theStartDate to 0
+        set minutes of theStartDate to 0
+        set seconds of theStartDate to 0
+        set theEndDate to theStartDate + (7 * days) - 1
+        set output to {}
+        tell application "Calendar"
+            tell calendar "${calendarName}"
+                set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
+                repeat with e in allEvents
+                    set startDate to (start date of e)
+                    set endDate to (end date of e)
+                    copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (description of e), (status of e), (time to GMT)/hours} to end of output
+                end repeat
+            end tell
+        end tell
+        return output
+        `
 
     applescript.execString(script, (err, rtn) => {
         if (err) {
