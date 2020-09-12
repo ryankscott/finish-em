@@ -112,7 +112,9 @@ function Settings(props: SettingsPickerProps): ReactElement {
             <Container>
                 <ViewHeader name={'Settings'} icon="settings" />
                 <SettingsContainer
-                    onClick={() => {
+                    onClick={(e) => {
+                        // If it's a click on the colour input then do nothing
+                        if (e.target.nodeName == 'INPUT') return
                         setShowColourPicker(false)
                     }}
                 >
@@ -263,9 +265,10 @@ function Settings(props: SettingsPickerProps): ReactElement {
                                     triangle={'hide'}
                                     colors={labelColours}
                                     onChange={(colour, e) => {
+                                        if (e.nativeEvent.target.value.length == 3) return
                                         props.setLabelColour(colourPickerTriggeredBy, colour.hex)
-                                        setShowColourPicker(false)
                                         e.stopPropagation()
+                                        setShowColourPicker(false)
                                     }}
                                 />
                             </Popover>
