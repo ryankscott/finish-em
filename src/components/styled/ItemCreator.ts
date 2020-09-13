@@ -6,7 +6,9 @@ export const Container = styled.div`
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    padding: 0px 10px;
     width: 100%;
+    overflow: scroll;
 `
 export interface ItemCreatorContainer {
     visible: boolean
@@ -24,9 +26,9 @@ export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
     position: relative;
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
-    width: ${(props) => (props.visible ? (props.width ? props.width : '100%') : '0px')};
+    width: ${(props) => (props.visible ? (props.width ? props.width : '10000px') : '0px')};
     opacity: ${(props) => (props.visible ? '1' : '0')};
     transition: width 0.2s ease-in-out;
     border: 1px solid;

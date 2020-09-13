@@ -129,3 +129,4 @@ export type IconType =
     | 'area'
     | 'view'
     | 'project'
+    | 'copy'

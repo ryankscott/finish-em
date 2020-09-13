@@ -70,6 +70,18 @@ export const itemReducer = produce(
                 }
                 break
 
+            case item.CLONE_ITEM:
+                const newId = uuidv4()
+                draftState.items[newId.toString()] = {
+                    ...i,
+                    id: newId,
+                    createdAt: new Date().toISOString(),
+                    lastUpdatedAt: null,
+                }
+                draftState.order = [...draftState.order, newId]
+
+                break
+
             case item.DELETE_ITEM:
                 i.deleted = true
                 i.deletedAt = new Date().toISOString()

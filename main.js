@@ -1,4 +1,4 @@
-const { ipcMain, app, net, BrowserWindow, globalShortcut } = require('electron')
+const { ipcMain, app, net, BrowserWindow, globalShortcut, Notification } = require('electron')
 const isDev = require('electron-is-dev')
 const path = require('path')
 const applescript = require('applescript')
@@ -242,6 +242,13 @@ app.on('ready', () => {
         console.error(`Failed to get new version, trying again in 1hr: ${e}`)
         setTimeout(checkForNewVersion, 1000 * 60 * 60 * 24)
     }
+
+    // setTimeout(() => {
+    //     const myNotification = new Notification('Foo', {
+    //         body: 'Lorem Ipsum Dolor Sit Amet',
+    //     })
+    //     myNotification.show()
+    // }, 1000 * 5)
 
     // Get the features enabled in the UI and do any conditional stuff
     setTimeout(() => {

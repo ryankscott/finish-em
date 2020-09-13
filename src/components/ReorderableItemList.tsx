@@ -281,6 +281,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                         <Draggable
                                                                             key={item.id}
                                                                             draggableId={item.id}
+                                                                            zIndex={0}
                                                                             index={index}
                                                                         >
                                                                             {(
@@ -379,6 +380,9 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             {(state) => {
                                                                 return (
                                                                     <Draggable
+                                                                        style={{
+                                                                            position: 'relative',
+                                                                        }}
                                                                         key={item.id}
                                                                         draggableId={item.id}
                                                                         index={index}

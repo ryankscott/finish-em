@@ -2,6 +2,7 @@ import { toast } from 'react-toastify'
 
 export const CREATE_ITEM = 'CREATE_ITEM'
 export const DELETE_ITEM = 'DELETE_ITEM'
+export const CLONE_ITEM = 'CLONE_ITEM'
 export const UNDELETE_ITEM = 'UNDELETE_ITEM'
 export const UPDATE_ITEM_DESCRIPTION = 'UPDATE_ITEM_DESCRIPTION'
 export const ADD_PROJECT = 'ADD_PROJECT'
@@ -75,6 +76,16 @@ export interface CompleteItemAction {
 export function completeItem(id: string): CompleteItemAction {
     return {
         type: COMPLETE_ITEM,
+        id: id,
+    }
+}
+export interface CloneItemAction {
+    type: typeof CLONE_ITEM
+    id: string
+}
+export function cloneItem(id: string): CloneItemAction {
+    return {
+        type: CLONE_ITEM,
         id: id,
     }
 }
@@ -272,6 +283,7 @@ export type ItemActions =
     | CompleteItemAction
     | UndeleteItemAction
     | DeleteItemAction
+    | CloneItemAction
     | CreateItemAction
     | ReorderItemAction
     | ConvertSubtaskAction

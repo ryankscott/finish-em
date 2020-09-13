@@ -242,6 +242,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
         <ThemeProvider theme={themes[props.theme]}>
             <div style={{ position: 'relative', width: '100%' }}>
                 <Container
+                    singleline={props.singleline}
                     id={id}
                     fontSize={props.fontSize}
                     backgroundColour={props.backgroundColour}

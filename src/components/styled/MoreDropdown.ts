@@ -12,7 +12,7 @@ export const DialogContainer = styled.div`
     border-radius: 5px;
     min-width: 160px;
     padding: 5px 0px;
-    z-index: 2;
+    z-index: 9;
     right: 0px;
     box-shadow: 0px 1px 4px ${(props) => props.theme.colours.borderColour};
 `
@@ -37,5 +37,5 @@ export const Option = styled.div`
     font-size: ${(props) => props.theme.fontSizes.xxsmall};
     font-family: ${(props) => props.theme.font.sansSerif};
     color: ${(props) => props.theme.colours.textColour};
-    z-index: 3;
+    z-index: 10;
 `

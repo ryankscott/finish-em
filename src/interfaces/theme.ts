@@ -2,7 +2,7 @@ import CSS from 'csstype'
 export type ThemeType = {
     name: string
     font: {
-        sansSerif: CSS.FontFamilyProperty
+        sansSerif: CSS.Properties['fontFamily']
     }
     fontSizes: {
         xxxsmall: CSS.Properties['fontSize']
@@ -23,73 +23,73 @@ export type ThemeType = {
     }
     button: {
         default: {
-            backgroundColour: CSS.Color
-            colour: CSS.Color
-            borderColour: CSS.Color
-            hoverBackgroundColour: CSS.Color
+            backgroundColour: CSS.Properties['color']
+            colour: CSS.Properties['color']
+            borderColour: CSS.Properties['color']
+            hoverBackgroundColour: CSS.Properties['color']
         }
         invert: {
-            backgroundColour: CSS.Color
-            colour: CSS.Color
-            borderColour: CSS.Color
-            hoverBackgroundColour: CSS.Color
+            backgroundColour: CSS.Properties['color']
+            colour: CSS.Properties['color']
+            borderColour: CSS.Properties['color']
+            hoverBackgroundColour: CSS.Properties['color']
         }
         primary: {
-            backgroundColour: CSS.Color
-            colour: CSS.Color
-            borderColour: CSS.Color
-            hoverBackgroundColour: CSS.Color
+            backgroundColour: CSS.Properties['color']
+            colour: CSS.Properties['color']
+            borderColour: CSS.Properties['color']
+            hoverBackgroundColour: CSS.Properties['color']
         }
         error: {
-            backgroundColour: CSS.Color
-            colour: CSS.Color
-            borderColour: CSS.Color
-            hoverBackgroundColour: CSS.Color
+            backgroundColour: CSS.Properties['color']
+            colour: CSS.Properties['color']
+            borderColour: CSS.Properties['color']
+            hoverBackgroundColour: CSS.Properties['color']
         }
         subtle: {
-            backgroundColour: CSS.Color
-            colour: CSS.Color
-            borderColour: CSS.Color
-            hoverBackgroundColour: CSS.Color
+            backgroundColour: CSS.Properties['color']
+            colour: CSS.Properties['color']
+            borderColour: CSS.Properties['color']
+            hoverBackgroundColour: CSS.Properties['color']
         }
         subtleInvert: {
-            backgroundColour: CSS.Color
-            colour: CSS.Color
-            borderColour: CSS.Color
-            hoverBackgroundColour: CSS.Color
+            backgroundColour: CSS.Properties['color']
+            colour: CSS.Properties['color']
+            borderColour: CSS.Properties['color']
+            hoverBackgroundColour: CSS.Properties['color']
         }
     }
     colours: {
-        textColour: CSS.Color
-        disabledTextColour: CSS.Color
-        altTextColour: CSS.Color
-        primaryColour: CSS.Color
-        secondaryColour: CSS.Color
-        tertiaryColour: CSS.Color
-        quarternaryColour: CSS.Color
-        penternaryColour: CSS.Color
-        backgroundColour: CSS.Color
-        borderColour: CSS.Color
-        altBorderColour: CSS.Color
-        altBackgroundColour: CSS.Color
-        dialogBackgroundColour: CSS.Color
-        focusDialogBackgroundColour: CSS.Color
-        altDialogBackgroundColour: CSS.Color
-        focusAltDialogBackgroundColour: CSS.Color
-        focusBackgroundColour: CSS.Color
-        focusBorderColour: CSS.Color
-        okColour: CSS.Color
-        neutralColour: CSS.Color
-        errorColour: CSS.Color
-        errorBackgroundColour: CSS.Color
-        staleBackgroundColour: CSS.Color
-        warningColour: CSS.Color
-        iconColour: CSS.Color
-        altIconColour: CSS.Color
-        disabledButtonBackgroundColour: CSS.Color
-        disabledButtonColour: CSS.Color
-        headerBackgroundColour: CSS.Color
-        headerTextColour: CSS.Color
+        textColour: CSS.Properties['color']
+        disabledTextColour: CSS.Properties['color']
+        altTextColour: CSS.Properties['color']
+        primaryColour: CSS.Properties['color']
+        secondaryColour: CSS.Properties['color']
+        tertiaryColour: CSS.Properties['color']
+        quarternaryColour: CSS.Properties['color']
+        penternaryColour: CSS.Properties['color']
+        backgroundColour: CSS.Properties['color']
+        borderColour: CSS.Properties['color']
+        altBorderColour: CSS.Properties['color']
+        altBackgroundColour: CSS.Properties['color']
+        dialogBackgroundColour: CSS.Properties['color']
+        focusDialogBackgroundColour: CSS.Properties['color']
+        altDialogBackgroundColour: CSS.Properties['color']
+        focusAltDialogBackgroundColour: CSS.Properties['color']
+        focusBackgroundColour: CSS.Properties['color']
+        focusBorderColour: CSS.Properties['color']
+        okColour: CSS.Properties['color']
+        neutralColour: CSS.Properties['color']
+        errorColour: CSS.Properties['color']
+        errorBackgroundColour: CSS.Properties['color']
+        staleBackgroundColour: CSS.Properties['color']
+        warningColour: CSS.Properties['color']
+        iconColour: CSS.Properties['color']
+        altIconColour: CSS.Properties['color']
+        disabledButtonBackgroundColour: CSS.Properties['color']
+        disabledButtonColour: CSS.Properties['color']
+        headerBackgroundColour: CSS.Properties['color']
+        headerTextColour: CSS.Properties['color']
     }
 }
 

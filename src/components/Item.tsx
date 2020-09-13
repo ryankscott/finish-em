@@ -28,6 +28,7 @@ import {
     showFocusbar,
     toggleSubtasks,
     deletePermanently,
+    cloneItem,
 } from '../actions'
 import { themes } from '../theme'
 import EditableText from './EditableText'
@@ -97,10 +98,20 @@ function Item(props: ItemProps): ReactElement {
                   },
                   icon: 'trashPermanent',
               },
+              {
+                  label: 'Restore item',
+                  onClick: (e: React.MouseEvent) => {
+                      props.undeleteItem(props.id)
+                      e.stopPropagation()
+                      e.preventDefault()
+                      return
+                  },
+                  icon: 'undelete',
+              },
           ]
         : [
               {
-                  label: 'Add Label',
+                  label: 'Add label',
                   onClick: (e: React.MouseEvent) => {
                       e.stopPropagation()
                       e.preventDefault()
@@ -108,6 +119,26 @@ function Item(props: ItemProps): ReactElement {
                       return
                   },
                   icon: 'flag',
+              },
+              {
+                  label: 'Delete item',
+                  onClick: (e: React.MouseEvent) => {
+                      props.deleteItem(props.id)
+                      e.stopPropagation()
+                      e.preventDefault()
+                      return
+                  },
+                  icon: 'trash',
+              },
+              {
+                  label: 'Clone item',
+                  onClick: (e: React.MouseEvent) => {
+                      props.cloneItem(props.id)
+                      e.stopPropagation()
+                      e.preventDefault()
+                      return
+                  },
+                  icon: 'copy',
               },
           ]
 
@@ -277,7 +308,7 @@ function Item(props: ItemProps): ReactElement {
                     <Tooltip id={'project-name-' + props.id} text={projectText.long} />
                 </ProjectContainer>
 
-                <MoreContainer visible={moreButtonVisible}>
+                <MoreContainer visible={true}>
                     <MoreDropdown options={dropdownOptions}></MoreDropdown>
                     {showLabelDialog && (
                         <LabelDialog
@@ -352,6 +383,9 @@ const mapStateToProps = (state, props): StateProps => ({
     parentItem: getItemParentId(state, props),
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
+    cloneItem: (itemId: string) => {
+        dispatch(cloneItem(itemId))
+    },
     updateItemDescription: (id: string, text: string) => {
         dispatch(updateItemDescription(id, text))
     },

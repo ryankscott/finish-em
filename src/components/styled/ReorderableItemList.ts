@@ -19,6 +19,7 @@ type DraggableListProps = {
     isDraggingOver: boolean
 }
 export const DraggableList = styled.div<DraggableListProps>`
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -46,7 +47,7 @@ type DraggableContainerProps = {
 }
 export const DraggableContainer = styled.div<DraggableContainerProps>`
     ...props.draggableStyle;
-    z-index: 1;
+    position: relative;
     display: flex;
     flex-direction: column;
     height: auto;

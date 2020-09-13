@@ -117,6 +117,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         }}
                         backgroundColour={props.backgroundColour}
                         innerRef={textRef}
+                        padding={'5px 30px 5px 5px'}
                         placeholder="Add a new task..."
                         keywords={[
                             {

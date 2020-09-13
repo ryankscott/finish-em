@@ -8,6 +8,14 @@ import { itemReducer } from '../reducers/item'
 const blankState: Items = { items: {}, order: [] }
 // Set the date to a random date
 
+jest.mock('uuid')
+
+describe('mock uuid', () => {
+    it('should return testid }', () => {
+        uuidv4.mockImplementation(() => 'testId')
+    })
+})
+
 describe('item reducer', () => {
     it('should handle create an item with no projectID', () => {
         Mockdate.set('2020-02-20')
@@ -186,8 +194,8 @@ describe('item reducer', () => {
     it('should delete all subtasks when a parent is deleted', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
-        const childId1 = uuidv4()
-        const childId2 = uuidv4()
+        const childId1 = 'childId1'
+        const childId2 = 'childId2'
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
         expect(
@@ -321,8 +329,8 @@ describe('item reducer', () => {
     it('should remove the parentId from the child and the childId from the parent, when the child is deleted', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
-        const childId1 = uuidv4()
-        const childId2 = uuidv4()
+        const childId1 = 'childId1'
+        const childId2 = 'childId2'
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
         expect(
@@ -781,7 +789,7 @@ describe('item reducer', () => {
     it('should handle adding a child to an item', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
-        const childId = uuidv4()
+        const childId = 'childId'
         const projectId = uuidv4()
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
@@ -881,9 +889,9 @@ describe('item reducer', () => {
     it('should fail to add a child to a parent that has a parent (i.e. one level of children)', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
-        const id1 = uuidv4()
-        const childId = uuidv4()
-        const projectId = uuidv4()
+        const id1 = 'id1'
+        const childId = 'childId'
+        const projectId = 'projectId'
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
         expect(
@@ -1535,8 +1543,8 @@ describe('item reducer', () => {
     it('should fail the permanent delete of an item when it has undeleted subtasks', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
-        const childId1 = uuidv4()
-        const childId2 = uuidv4()
+        const childId1 = 'childId1'
+        const childId2 = 'childId2'
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
         const deletedAt = new Date(1990, 1, 2).toISOString()
@@ -1671,8 +1679,8 @@ describe('item reducer', () => {
     it('should permanently delete all children of a parent when the parent is permanently deleted', () => {
         Mockdate.set('2020-02-20')
         const id = uuidv4()
-        const childId1 = uuidv4()
-        const childId2 = uuidv4()
+        const childId1 = 'childId1'
+        const childId2 = 'childId2'
         const createdAt = new Date(1990, 1, 1).toISOString()
         const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
         const deletedAt = new Date(1990, 1, 2).toISOString()
@@ -1747,5 +1755,87 @@ describe('item reducer', () => {
             order: [],
         }),
             Mockdate.reset()
+    })
+
+    it('should handle cloning an item', () => {
+        Mockdate.set('2020-02-20')
+        const id = uuidv4()
+        const createdAt = new Date(1990, 1, 1).toISOString()
+        const lastUpdatedAt = new Date(1990, 1, 2).toISOString()
+        expect(
+            itemReducer(
+                {
+                    items: {
+                        [id]: {
+                            id: id,
+                            type: 'TODO',
+                            text: 'TODO Run the tests',
+                            scheduledDate: null,
+                            dueDate: null,
+                            completed: false,
+                            deleted: false,
+                            deletedAt: null,
+                            completedAt: null,
+                            createdAt: createdAt,
+                            lastUpdatedAt: lastUpdatedAt,
+                            repeat: null,
+                            parentId: null,
+                            children: [],
+                            projectId: '0',
+                            labelId: null,
+                            areaId: null,
+                        },
+                    },
+                    order: [id],
+                },
+                {
+                    id: id,
+                    type: item.CLONE_ITEM,
+                },
+            ),
+        ).toEqual({
+            items: {
+                ['testId']: {
+                    id: 'testId',
+                    type: 'TODO',
+                    text: 'TODO Run the tests',
+                    scheduledDate: null,
+                    dueDate: null,
+                    projectId: '0',
+                    parentId: null,
+                    areaId: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: createdAt,
+                    lastUpdatedAt: lastUpdatedAt,
+                    repeat: null,
+                    children: [],
+                    labelId: null,
+                },
+                ['testId']: {
+                    id: 'testId',
+                    type: 'TODO',
+                    text: 'TODO Run the tests',
+                    scheduledDate: null,
+                    dueDate: null,
+                    projectId: '0',
+                    parentId: null,
+                    areaId: null,
+                    completed: false,
+                    deleted: false,
+                    deletedAt: null,
+                    completedAt: null,
+                    createdAt: new Date().toISOString(),
+                    lastUpdatedAt: null,
+                    repeat: null,
+                    children: [],
+                    labelId: null,
+                },
+            },
+            order: [id, expect.any(String)],
+        })
+        Mockdate.reset()
     })
 })

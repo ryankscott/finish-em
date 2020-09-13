@@ -8,6 +8,7 @@ interface ContainerProps {
     readOnly: boolean
     editing: boolean
     valid: boolean
+    singleline?: boolean
     backgroundColour: CSS.Property.BackgroundColor
     fontSize: fontSizeType
     padding: CSS.Property.Padding
