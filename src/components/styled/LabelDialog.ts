@@ -8,7 +8,7 @@ export const Container = styled.div`
     position: absolute;
     top: 30px;
     min-width: 180px;
-    right: 158px;
+    right: 138px;
     color: ${(props) => props.theme.colours.textColour};
     background-color: ${(props) => props.theme.colours.backgroundColour};
     border: 1px solid;

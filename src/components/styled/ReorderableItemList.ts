@@ -24,7 +24,8 @@ export const DraggableList = styled.div<DraggableListProps>`
     flex-direction: column;
     justify-content: center;
     border-radius: 5px;
-    background: ${(props) => (props.isDraggingOver ? 'inherit' : 'inherit')};
+    background: ${(props) =>
+        props.isDraggingOver ? darken(0.1, props.theme.colours.backgroundColour) : 'inherit'};
     width: 100%;
     padding: ${(props) => (props.isDraggingOver ? '40px 5px' : '5px')};
 `
@@ -57,7 +58,7 @@ export const DraggableContainer = styled.div<DraggableContainerProps>`
     border-radius: 5px;
     background: ${(props) =>
         props.isDragging
-            ? props.theme.colours.focusDialogBackgroundColour
+            ? props.theme.colours.dialogBackgroundColour
             : props.theme.colours.backgroundColour};
     animation: ${(props) =>
         props.state == 'entering'

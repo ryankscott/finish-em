@@ -308,7 +308,7 @@ function Item(props: ItemProps): ReactElement {
                     <Tooltip id={'project-name-' + props.id} text={projectText.long} />
                 </ProjectContainer>
 
-                <MoreContainer visible={true}>
+                <MoreContainer visible={moreButtonVisible}>
                     <MoreDropdown options={dropdownOptions}></MoreDropdown>
                     {showLabelDialog && (
                         <LabelDialog

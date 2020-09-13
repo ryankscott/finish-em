@@ -47,6 +47,7 @@ export const TitleContainer = styled.div`
     margin: 10px 0px;
     margin-bottom: 20px;
     align-items: center;
+    width: 100%;
 `
 interface HeaderContainerProps {
     visible: boolean

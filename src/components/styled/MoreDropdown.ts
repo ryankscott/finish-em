@@ -10,7 +10,7 @@ export const DialogContainer = styled.div`
     border: 1px solid;
     border-color: ${(props) => props.theme.colours.borderColour};
     border-radius: 5px;
-    min-width: 160px;
+    min-width: 140px;
     padding: 5px 0px;
     z-index: 9;
     right: 0px;
@@ -21,7 +21,7 @@ export const Icon = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    padding: 0px 5px;
+    padding: 0px 8px;
 `
 
 export const Option = styled.div`
