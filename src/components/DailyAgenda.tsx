@@ -51,7 +51,8 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     const viewId = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
     const [currentDate, setDate] = useState(new Date())
     const editor = React.useRef<HTMLInputElement>()
-    console.log(props.events.events)
+    const { currentCalendar, events } = props.events
+    const hasEvents = events?.[currentCalendar]
     return (
         <ThemeProvider theme={themes[props.theme]}>
             <AgendaContainer>
@@ -110,8 +111,8 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                         <StyledCalendar
                             localizer={localizer}
                             events={
-                                Object.keys(props.events).length > 0
-                                    ? props.events.events[props.events.currentCalendar].map((e) => {
+                                hasEvents
+                                    ? events[currentCalendar].map((e) => {
                                           return {
                                               id: e.id,
                                               title: e.title,
