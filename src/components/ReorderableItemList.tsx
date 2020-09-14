@@ -66,6 +66,7 @@ type ReorderableItemListProps = OwnProps & StateProps & DispatchProps
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     const theme = themes[props.theme]
+    const { items, order } = props.items
     const handlers = {
         TOGGLE_CHILDREN: (event) => {
             const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
@@ -235,6 +236,9 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     Object.entries(itemKeymap).map(([k, v]) => {
         useHotkeys(v, handlers[k])
     })
+    const orderedIndex = props.items.order.filter((p) => {
+        return props.inputItems.find((i) => i.id == p)
+    })
 
     return (
         <ThemeProvider theme={theme}>
@@ -242,7 +246,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                 <HotKeys keyMap={itemKeymap} handlers={handlers}>
                     <DragDropContext
                         onDragEnd={(e) => {
-                            props.reorderItem(e.draggableId, props.items.order[e.destination.index])
+                            props.reorderItem(e.draggableId, orderedIndex[e.destination.index])
                         }}
                     >
                         <Droppable droppableId={uuidv4()} type="ITEM">
@@ -253,13 +257,12 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                     isDraggingOver={snapshot.isDraggingOver}
                                 >
                                     <TransitionGroup component={null}>
-                                        {props.items.order.map((o, index) => {
-                                            // Get each item
-                                            const item = props.inputItems.find((i) => i.id == o)
-                                            if (item == undefined) return
+                                        {orderedIndex.map((o, index) => {
+                                            const item = items[o]
                                             switch (props.renderingStrategy) {
                                                 case RenderingStrategy.All:
                                                     // If the item has a parent find out if it exists in the list we've been provided
+
                                                     if (item.parentId != null) {
                                                         const parentExists = props.inputItems.find(
                                                             (i) => i.id == item.parentId,
@@ -326,9 +329,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                                         (c) => {
                                                                                             // We need to check if the child exists in the original input list
                                                                                             const childItem =
-                                                                                                props
-                                                                                                    .items
-                                                                                                    .items[
+                                                                                                items[
                                                                                                     c
                                                                                                 ]
 
@@ -366,6 +367,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             </Transition>
                                                         )
                                                     }
+                                                    break
 
                                                 default:
                                                     return (
@@ -423,11 +425,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                                                     (c) => {
                                                                                         // We need to check if the child exists in the original input list
                                                                                         const childItem =
-                                                                                            props
-                                                                                                .items
-                                                                                                .items[
-                                                                                                c
-                                                                                            ]
+                                                                                            items[c]
 
                                                                                         return (
                                                                                             <Item
@@ -462,12 +460,14 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                                             }}
                                                         </Transition>
                                                     )
+                                                    break
                                             }
                                         })}
                                     </TransitionGroup>
                                     {props.inputItems.length == 0 && (
                                         <NoItemText>No items</NoItemText>
                                     )}
+                                    {provided.placeholder}
                                 </DraggableList>
                             )}
                         </Droppable>
