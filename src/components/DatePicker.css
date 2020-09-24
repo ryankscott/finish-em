@@ -223,6 +223,9 @@
 .DayPickerInput {
   position: relative;
   display: inline-block;
+  padding: 5px 5px;
+  margin: 5px;
+  border: 1px transparent;
 }
 
 .DayPickerInput:focus {
@@ -250,4 +253,5 @@
   background-color: #ebebeb;
   border: 1px solid;
   border-color: #e0e0e0;
+  padding: 5px 5px;
 }
