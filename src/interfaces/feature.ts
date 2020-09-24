@@ -1,5 +1,6 @@
 export type FeatureType = {
-    dragAndDrop: boolean
-    projectDates: boolean
-    calendarIntegration: boolean
+  dragAndDrop: boolean
+  projectDates: boolean
+  calendarIntegration: boolean
+  dailyGoals: boolean
 }
