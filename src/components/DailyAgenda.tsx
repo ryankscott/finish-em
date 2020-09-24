@@ -85,7 +85,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             Week of quarter: {parseInt(format(currentDate, 'w')) % 13} / 13
           </Paragraph>
         </DateContainer>
-        {props.features.dailyGoals && (
+        {props.features?.dailyGoals && (
           <>
             <Header1> Daily Goal </Header1>
             <EditableText
