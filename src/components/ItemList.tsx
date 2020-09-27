@@ -48,6 +48,7 @@ interface OwnProps {
 type ItemListProps = OwnProps & StateProps & DispatchProps
 
 function ItemList(props: ItemListProps): ReactElement {
+  const { items, order } = props.items
   const handlers = {
     TOGGLE_CHILDREN: (event) => {
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
@@ -56,7 +57,7 @@ function ItemList(props: ItemListProps): ReactElement {
     NEXT_ITEM: (event) => {
       // We concatenate the itemId and componentId so we need to split it to get the itemId
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       // If it's a parent element we need to get the first child
       if (item.children?.length > 0) {
         // Show subtasks so we can iterate over them
@@ -93,7 +94,7 @@ function ItemList(props: ItemListProps): ReactElement {
     },
     PREV_ITEM: (event) => {
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.children.length > 0) {
         const prevItem = event.target.parentNode.previousSibling
         if (prevItem) {
@@ -132,33 +133,33 @@ function ItemList(props: ItemListProps): ReactElement {
     },
     COMPLETE_ITEM: (event) => {
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.type == 'NOTE') return
       if (item.deleted || item.completed) return
       props.completeItem(item.id)
     },
     UNCOMPLETE_ITEM: (event) => {
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.type == 'NOTE') return
       if (item.deleted) return
       props.uncompleteItem(item.id)
     },
     DELETE_ITEM: (event) => {
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.deleted) return
       props.deleteItem(item.id)
     },
     UNDELETE_ITEM: (event) => {
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       props.undeleteItem(item.id)
     },
     SET_SCHEDULED_DATE: (event) => {
       // TODO: Implement me
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.type == 'NOTE') return
       if (item.deleted || item.completed) return
       event.preventDefault()
@@ -166,7 +167,7 @@ function ItemList(props: ItemListProps): ReactElement {
     SET_DUE_DATE: (event) => {
       // TODO: Implement me
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.type == 'NOTE') return
       if (item.deleted || item.completed) return
       event.preventDefault()
@@ -174,7 +175,7 @@ function ItemList(props: ItemListProps): ReactElement {
     CREATE_SUBTASK: (event) => {
       // TODO: Implement me
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.deleted || item.completed || item.parentId != null) return
       console.log('create sub task')
       event.preventDefault()
@@ -182,7 +183,7 @@ function ItemList(props: ItemListProps): ReactElement {
     CONVERT_TO_SUBTASK: (event) => {
       // TODO: Implement me
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.type == 'NOTE') return
       if (item.deleted || item.completed) return
       console.log('convert to sub task')
@@ -191,7 +192,7 @@ function ItemList(props: ItemListProps): ReactElement {
     REPEAT_ITEM: (event) => {
       // TODO: Implement me
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.type == 'NOTE') return
       if (item.deleted || item.completed) return
       console.log('repeat')
@@ -200,14 +201,14 @@ function ItemList(props: ItemListProps): ReactElement {
     ADD_PROJECT: (event) => {
       // TODO: Implement me
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-      const item = props.items.items[itemId]
+      const item = items[itemId]
       if (item.deleted || item.completed) return
       console.log('move item')
       event.preventDefault()
     },
     EDIT_ITEM_DESC: (event) => {
       // TODO:Implement me
-      // const item = props.items.items[event.target.id]
+      // const item = items[event.target.id]
       event.preventDefault()
     },
   }
@@ -228,7 +229,7 @@ function ItemList(props: ItemListProps): ReactElement {
                     - If an item has a parent, don't render it
                     - For each item, render the item and it's children  (In the Item component)
             */
-            if (strategy == RenderingStrategy.All) {
+            if (props.renderingStrategy == RenderingStrategy.All) {
               if (item.parentId != null) {
                 const parentExists = inputItems.find((i) => i.id == item.parentId)
                 // If it exists it will get rendered later, so don't render it
@@ -239,7 +240,7 @@ function ItemList(props: ItemListProps): ReactElement {
             }
             return (
               <Transition
-                key={'t-container-' + item.id}
+                key={'t-container-' + i.id}
                 timeout={{
                   appear: 200,
                   enter: 200,
@@ -248,25 +249,27 @@ function ItemList(props: ItemListProps): ReactElement {
               >
                 {(state) => {
                   return (
-                    <ItemContainer state={state} tabIndex={0} key={'container-' + item.id}>
+                    <ItemContainer state={state} tabIndex={0} key={'container-' + i.id}>
                       <Item
-                        {...item}
-                        key={item.id}
-                        componentId={componentId}
+                        {...i}
+                        key={i.id}
+                        componentId={props.componentId}
                         shouldIndent={false}
-                        hideIcons={hideIcons}
+                        hideIcons={props.hideIcons}
                       />
 
-                      {item.children?.map((c) => {
+                      {i.children?.map((c) => {
                         // We need to check if the child exists in the original input list
-                        const childItem = items.items[c]
+                        const childItem = items[c]
                         return (
                           <Item
                             key={c}
                             {...childItem}
-                            componentId={componentId}
+                            componentId={props.componentId}
                             hideIcons={
-                              hideIcons ? [...hideIcons, ItemIcons.Subtask] : [ItemIcons.Subtask]
+                              props.hideIcons
+                                ? [...props.hideIcons, ItemIcons.Subtask]
+                                : [ItemIcons.Subtask]
                             }
                             shouldIndent={true}
                           />
