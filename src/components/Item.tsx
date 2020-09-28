@@ -154,7 +154,7 @@ function Item(props: ItemProps): ReactElement {
           icon: 'reminder',
         },
       ]
-  const reminder = props.reminders.find(
+  const reminder = props?.reminders.find(
     (r) => r.itemId == props.id && r.deleted == false && !isPast(parseISO(r.remindAt)),
   )
 
@@ -383,10 +383,12 @@ function Item(props: ItemProps): ReactElement {
           visible={reminder != undefined}
         >
           {Icons['reminder']()}
-          <Tooltip
-            id={'reminder-' + props.id}
-            text={`Reminder at: ${format(parseISO(reminder.remindAt), 'h:mm aaaa EEEE')}`}
-          />
+          {reminder && (
+            <Tooltip
+              id={'reminder-' + props.id}
+              text={`Reminder at: ${format(parseISO(reminder?.remindAt), 'h:mm aaaa EEEE')}`}
+            />
+          )}
         </ReminderContainer>
       </Container>
     </ThemeProvider>
