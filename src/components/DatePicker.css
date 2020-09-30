@@ -94,7 +94,7 @@
   border: 1px solid #aeaeae;
   border-radius: 0.3rem;
   display: inline-block;
-  position: absolute;
+  position: relative;
   z-index: 99;
   right: 0px;
 }
@@ -675,6 +675,11 @@
   position: relative;
   display: inline-block;
   width: 100%;
+  padding: 2px;
+  margin: 2px;
+}
+
+.react-datepicker__input-container input {
 }
 
 .react-datepicker__year-read-view,

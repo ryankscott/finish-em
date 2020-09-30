@@ -19,8 +19,10 @@ import DeleteProjectDialog from './DeleteProjectDialog'
 import { ProjectType, Item } from '../interfaces'
 import { ProjectContainer, HeaderContainer, AddProjectContainer } from './styled/Project'
 import ItemCreator from './ItemCreator'
-import DayPickerInput from 'react-day-picker/DayPickerInput'
 import { formatRelativeDate } from '../utils'
+import DatePicker from 'react-datepicker'
+// TODO: Use the original CSS and use styled components to style this
+import './DatePicker.css'
 import { parseISO } from 'date-fns'
 import ReorderableComponentList from './ReorderableComponentList'
 import { Donut } from './Donut'
@@ -90,22 +92,27 @@ const Project = (props: ProjectProps): ReactElement => {
           <DeleteProjectDialog onDelete={() => deleteProject()} />
         </HeaderContainer>
         {props?.projectDates && (
-          <div style={{ paddingLeft: '10px' }}>
+          <div
+            style={{
+              paddingLeft: '6px',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
             {'Start: '}
-            <DayPickerInput
+            <DatePicker
               value={
                 props.project.startAt ? formatRelativeDate(parseISO(props.project.startAt)) : ''
               }
-              key={'start'}
-              onDayChange={(e) => {
+              onChange={(e) => {
                 props.setProjectStartDate(props.project.id, e.toISOString())
               }}
             />
             {'End: '}
-            <DayPickerInput
-              key={'end'}
+            <DatePicker
               value={props.project.endAt ? formatRelativeDate(parseISO(props.project.endAt)) : ''}
-              onDayChange={(e) => {
+              onChange={(e) => {
                 props.setProjectEndDate(props.project.id, e.toISOString())
               }}
             />
