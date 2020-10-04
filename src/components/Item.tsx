@@ -89,6 +89,7 @@ function Item(props: ItemProps): ReactElement {
   const editor = React.useRef<HTMLInputElement>()
   const container = React.useRef<HTMLInputElement>()
 
+  // TODO: Move this to the MoreDropdown component
   const dropdownOptions: MoreDropdownOptions = props.deleted
     ? [
         {
@@ -158,8 +159,6 @@ function Item(props: ItemProps): ReactElement {
     (r) => r.itemId == props.id && r.deleted == false && !isPast(parseISO(r.remindAt)),
   )
 
-  const hiddenIcons = props.hideIcons || []
-
   useEffect(() => {
     if (!isDescriptionReadOnly) {
       editor.current.focus()
@@ -184,46 +183,16 @@ function Item(props: ItemProps): ReactElement {
     return
   }
 
-  // TODO: There must be a nicer way to do this...
-  const dueDateText = props.dueDate
-    ? {
-        short: formatRelativeDate(parseISO(props.dueDate)),
-        long: format(parseISO(props.dueDate), 'EEEE do MMM yyyy'),
+  const getProjectText = (projectId: string): { short: string; long: string } => {
+    if (projectId == null) return { short: 'None', long: 'None' }
+    if (projectId != '0') {
+      return {
+        short: truncateString(props.projects.projects?.[projectId].name, 12),
+        long: props.projects.projects?.[projectId].name,
       }
-    : { short: '', long: '' }
-
-  const scheduledDateText = props.scheduledDate
-    ? {
-        short: formatRelativeDate(parseISO(props.scheduledDate)),
-        long: format(parseISO(props.scheduledDate), 'EEEE do MMM yyyy'),
-      }
-    : { short: '', long: '' }
-
-  const repeatText = props.repeat
-    ? {
-        short: capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat))),
-        long: capitaliseFirstLetter(RRule.fromString(props.repeat).toText()),
-      }
-    : { short: 'Repeat', long: 'Repeat' }
-
-  const parentTaskText = props.parentId
-    ? {
-        short: truncateString(removeItemTypeFromString(props.parentItem.text), 12),
-        long: removeItemTypeFromString(props.parentItem.text),
-      }
-    : { short: '', long: '' }
-
-  const projectText =
-    props.projectId == null
-      ? { short: 'None', long: 'None' }
-      : props.projectId != '0'
-      ? {
-          short: truncateString(props.projects.projects?.[props.projectId].name, 12),
-          long: props.projects.projects?.[props.projectId].name,
-        }
-      : { short: 'Inbox', long: 'Inbox' }
-
-  const labelColour = props.labelId ? props.labels[props.labelId].colour : null
+    }
+    return { short: 'Inbox', long: 'Inbox' }
+  }
 
   // Check if the item should be visible, based on a parent hiding subtasks (default should be true)
   const parentVisibility = props.subtasksVisible?.[props.parentId]?.[props.componentId]
@@ -260,7 +229,7 @@ function Item(props: ItemProps): ReactElement {
         shouldIndent={props.shouldIndent}
         visible={isVisible || props.alwaysVisible}
         itemType={props.type}
-        labelColour={labelColour}
+        labelColour={props.labelId ? props.labels[props.labelId].colour : null}
       >
         {props.children.length > 0 && (
           <ExpandContainer>
@@ -312,12 +281,12 @@ function Item(props: ItemProps): ReactElement {
           />
         </Body>
         <ProjectContainer
-          visible={!(hiddenIcons?.includes(ItemIcons.Project) || props.projectId == null)}
+          visible={!(props.hideIcons?.includes(ItemIcons.Project) || props.projectId == null)}
         >
           <ProjectName data-tip data-for={'project-name-' + props.id}>
-            {projectText.short}
+            {getProjectText(props.projectId).short}
           </ProjectName>
-          <Tooltip id={'project-name-' + props.id} text={projectText.long} />
+          <Tooltip id={'project-name-' + props.id} text={getProjectText(props.projectId).long} />
         </ProjectContainer>
 
         <MoreContainer visible={moreButtonVisible}>
@@ -344,38 +313,71 @@ function Item(props: ItemProps): ReactElement {
         <ParentItemContainer
           data-tip
           data-for={'parent-item-' + props.id}
-          visible={!hiddenIcons.includes(ItemIcons.Subtask) && props.parentId != null}
+          visible={!props.hideIcons.includes(ItemIcons.Subtask) && props.parentId != null}
         >
-          <ItemAttribute completed={props.completed} type={'subtask'} text={parentTaskText.short} />
-          <Tooltip id={'parent-item-' + props.id} text={parentTaskText.long} />
+          <ItemAttribute
+            completed={props.completed}
+            type={'subtask'}
+            text={
+              props.parentId
+                ? truncateString(removeItemTypeFromString(props.parentItem.text), 12)
+                : ''
+            }
+          />
+          <Tooltip
+            id={'parent-item-' + props.id}
+            text={props.parentId ? removeItemTypeFromString(props.parentItem.text) : ''}
+          />
         </ParentItemContainer>
         <ScheduledContainer
           data-tip
           data-for={'scheduled-date-' + props.id}
-          visible={props.scheduledDate != null && !hiddenIcons?.includes(ItemIcons.Scheduled)}
+          visible={props.scheduledDate != null && !props.hideIcons?.includes(ItemIcons.Scheduled)}
         >
           <ItemAttribute
             completed={props.completed}
             type={'scheduled'}
-            text={scheduledDateText.short}
+            text={props.scheduledDate ? format(parseISO(scheduledDate), 'EEEE do MMM yyyy') : ''}
           />
           <Tooltip id={'scheduled-date-' + props.id} text={scheduledDateText.long} />
         </ScheduledContainer>
         <DueContainer
           data-tip
           data-for={'due-date-' + props.id}
-          visible={props.dueDate != null && !hiddenIcons.includes(ItemIcons.Due)}
+          visible={props.dueDate != null && !props.hideIcons.includes(ItemIcons.Due)}
         >
-          <ItemAttribute completed={props.completed} type={'due'} text={dueDateText.short} />
-          <Tooltip id={'due-date-' + props.id} text={dueDateText.long} />
+          <ItemAttribute
+            completed={props.completed}
+            type={'due'}
+            text={props.dueDate ? formatRelativeDate(parseISO(props.dueDate)) : ''}
+          />
+          <Tooltip
+            id={'due-date-' + props.id}
+            text={props.dueDate ? format(parseISO(props.dueDate), 'EEEE do MMM yyyy') : ''}
+          />
         </DueContainer>
         <RepeatContainer
           data-tip
           data-for={'repeat-' + props.id}
-          visible={props.repeat != null && !hiddenIcons.includes(ItemIcons.Repeat)}
+          visible={props.repeat != null && !props.hideIcons.includes(ItemIcons.Repeat)}
         >
-          <ItemAttribute completed={props.completed} type={'repeat'} text={repeatText.short} />
-          <Tooltip id={'repeat-' + props.id} text={repeatText.long} />
+          <ItemAttribute
+            completed={props.completed}
+            type={'repeat'}
+            text={
+              props.repeat
+                ? capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat)))
+                : 'Repeat'
+            }
+          />
+          <Tooltip
+            id={'repeat-' + props.id}
+            text={
+              props.repeat
+                ? capitaliseFirstLetter(RRule.fromString(props.repeat).toText())
+                : 'Repeat'
+            }
+          />
         </RepeatContainer>
         <ReminderContainer
           data-tip
