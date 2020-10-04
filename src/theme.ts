@@ -111,13 +111,20 @@ th {
 
 input {
   background-color: ${(props) => props.theme.colours.backgroundColour}; 
-  border: 1px solid ${(props) => props.theme.colours.borderColour};
-  padding: 4px;
-  border-radius: 2px;
+  border: 1px solid transparent;
+  padding: 5px 8px;
+  border-radius: 5px;
   font-family: ${(props) => props.theme.font.sansSerif};
   font-weight: ${(props) => props.theme.fontWeights.regular};
   font-size: ${(props) => props.theme.fontSizes.xsmall};
   color: ${(props) => props.theme.colours.textColour};
+}
+input:hover {
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+}
+
+input:focus {
+  border: 1px solid ${(props) => props.theme.colours.borderColour};
 }
 
   *:focus {outline:0;}

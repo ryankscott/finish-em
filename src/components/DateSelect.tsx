@@ -4,8 +4,7 @@ import Select from 'react-select'
 import { themes, selectStyles } from '../theme'
 import { add, sub, lastDayOfWeek } from 'date-fns'
 import DatePicker from 'react-datepicker'
-// TODO: Use the original CSS and use styled components to style this
-import './DatePicker.css'
+import { Wrapper } from './styled/ReactDatePicker'
 import { connect } from 'react-redux'
 
 const options: { value: () => string; label: string }[] = [
@@ -95,11 +94,13 @@ function DateSelect(props: DateSelectProps): ReactElement {
           }
         }}
       />
-      {dayPickerVisible && (
-        <div>
-          <DatePicker inline tabIndex={0} onChange={handleDayClick} />
-        </div>
-      )}
+      <div style={{ position: 'absolute', top: '29px', right: '0px' }}>
+        {dayPickerVisible && (
+          <Wrapper>
+            <DatePicker inline tabIndex={0} onChange={handleDayClick} />
+          </Wrapper>
+        )}
+      </div>
     </ThemeProvider>
   )
 }

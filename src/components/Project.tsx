@@ -21,8 +21,7 @@ import { ProjectContainer, HeaderContainer, AddProjectContainer } from './styled
 import ItemCreator from './ItemCreator'
 import { formatRelativeDate } from '../utils'
 import DatePicker from 'react-datepicker'
-// TODO: Use the original CSS and use styled components to style this
-import './DatePicker.css'
+import { Wrapper } from './styled/ReactDatepicker'
 import { parseISO } from 'date-fns'
 import ReorderableComponentList from './ReorderableComponentList'
 import { Donut } from './Donut'
@@ -101,21 +100,25 @@ const Project = (props: ProjectProps): ReactElement => {
             }}
           >
             {'Start: '}
-            <DatePicker
-              value={
-                props.project.startAt ? formatRelativeDate(parseISO(props.project.startAt)) : ''
-              }
-              onChange={(e) => {
-                props.setProjectStartDate(props.project.id, e.toISOString())
-              }}
-            />
+            <Wrapper>
+              <DatePicker
+                value={
+                  props.project.startAt ? formatRelativeDate(parseISO(props.project.startAt)) : ''
+                }
+                onChange={(e) => {
+                  props.setProjectStartDate(props.project.id, e.toISOString())
+                }}
+              />
+            </Wrapper>
             {'End: '}
-            <DatePicker
-              value={props.project.endAt ? formatRelativeDate(parseISO(props.project.endAt)) : ''}
-              onChange={(e) => {
-                props.setProjectEndDate(props.project.id, e.toISOString())
-              }}
-            />
+            <Wrapper>
+              <DatePicker
+                value={props.project.endAt ? formatRelativeDate(parseISO(props.project.endAt)) : ''}
+                onChange={(e) => {
+                  props.setProjectEndDate(props.project.id, e.toISOString())
+                }}
+              />
+            </Wrapper>
           </div>
         )}
         <EditableText
