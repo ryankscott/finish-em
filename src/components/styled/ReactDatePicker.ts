@@ -192,7 +192,7 @@ export const Wrapper = styled.div`
   .react-datepicker-time__header,
   .react-datepicker-year-header {
     margin-top: 0;
-    color: #000;
+    color: ${(props) => props.theme.colours.textColour}
     font-weight: 500;
     font-size: 0.85rem;
   }
