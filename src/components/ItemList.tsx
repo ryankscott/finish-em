@@ -230,7 +230,7 @@ function ItemList(props: ItemListProps): ReactElement {
                     - For each item, render the item and it's children  (In the Item component)
             */
             if (props.renderingStrategy == RenderingStrategy.All) {
-              if (item.parentId != null) {
+              if (i.parentId != null) {
                 const parentExists = inputItems.find((i) => i.id == item.parentId)
                 // If it exists it will get rendered later, so don't render it
                 if (parentExists) {

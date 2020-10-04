@@ -317,7 +317,7 @@ export const themes: { [key: string]: ThemeType } = {
       altIconColour: '#CCCCCC',
       disabledButtonBackgroundColour: lighten(0.1, '#404040'),
       disabledButtonColour: lighten(0.4, '#404040'),
-      headerBackgroundColour: '#CCCCCC',
+      headerBackgroundColour: darken(0.1, '#404040'),
       headerTextColour: '#F5f5f5',
     },
   },

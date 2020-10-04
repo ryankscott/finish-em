@@ -337,9 +337,14 @@ function Item(props: ItemProps): ReactElement {
           <ItemAttribute
             completed={props.completed}
             type={'scheduled'}
-            text={props.scheduledDate ? format(parseISO(scheduledDate), 'EEEE do MMM yyyy') : ''}
+            text={props.scheduledDate ? formatRelativeDate(parseISO(props.scheduledDate)) : ''}
           />
-          <Tooltip id={'scheduled-date-' + props.id} text={scheduledDateText.long} />
+          <Tooltip
+            id={'scheduled-date-' + props.id}
+            text={
+              props.scheduledDate ? format(parseISO(props.scheduledDate), 'EEEE do MMM yyyy') : ''
+            }
+          />
         </ScheduledContainer>
         <DueContainer
           data-tip
