@@ -26,7 +26,6 @@ import {
   toggleSubtasks,
   showSubtasks,
 } from '../actions'
-import { HotKeys } from 'react-hotkeys'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 interface DispatchProps {
@@ -231,105 +230,98 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   return (
     <ThemeProvider theme={theme}>
       <Container>
-        <HotKeys keyMap={itemKeymap} handlers={handlers}>
-          <DragDropContext
-            onDragEnd={(e) => {
-              props.reorderItem(e.draggableId, orderedIndex[e.destination.index])
-            }}
-          >
-            <Droppable droppableId={uuidv4()} type="ITEM">
-              {(provided, snapshot) => (
-                <DraggableList
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                  isDraggingOver={snapshot.isDraggingOver}
-                >
-                  <TransitionGroup component={null}>
-                    {orderedIndex.map((o, index) => {
-                      const item = items[o]
-                      /* We need two strategies for rendering items:
+        <DragDropContext
+          onDragEnd={(e) => {
+            props.reorderItem(e.draggableId, orderedIndex[e.destination.index])
+          }}
+        >
+          <Droppable droppableId={uuidv4()} type="ITEM">
+            {(provided, snapshot) => (
+              <DraggableList
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                isDraggingOver={snapshot.isDraggingOver}
+              >
+                <TransitionGroup component={null}>
+                  {orderedIndex.map((o, index) => {
+                    const item = items[o]
+                    /* We need two strategies for rendering items:
                         1. All rendering
                           - If an item has a parent and the parent is in the list, don't render it
                         2.  Default
                           - If an item has a parent, don't render it
                           - For each item, render the item and it's children  (In the Item component)
                         */
-                      if (props.renderingStrategy == RenderingStrategy.All) {
-                        // If the item has a parent find out if it exists in the list we've been provided
-                        if (item.parentId != null) {
-                          const parentExists = props.inputItems.find((i) => i.id == item.parentId)
-                          if (parentExists) {
-                            return
-                          }
+                    if (props.renderingStrategy == RenderingStrategy.All) {
+                      // If the item has a parent find out if it exists in the list we've been provided
+                      if (item.parentId != null) {
+                        const parentExists = props.inputItems.find((i) => i.id == item.parentId)
+                        if (parentExists) {
+                          return
                         }
                       }
-                      return (
-                        <Transition
-                          key={'t-container-' + item.id}
-                          timeout={{
-                            appear: 200,
-                            enter: 200,
-                            exit: 500,
-                          }}
-                        >
-                          {(state) => {
-                            return (
-                              <Draggable
-                                key={item.id}
-                                draggableId={item.id}
-                                zIndex={0}
-                                index={index}
-                              >
-                                {(provided, snapshot) => (
-                                  <DraggableContainer
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    key={'container-' + item.id}
-                                    isDragging={snapshot.isDragging}
-                                    draggableStyle={...provided.draggableProps.style}
-                                    state={state}
-                                  >
-                                    <Item
-                                      {...item}
-                                      key={item.id}
-                                      componentId={props.componentId}
-                                      shouldIndent={false}
-                                      hideIcons={props.hideIcons}
-                                    />
-                                    {item.children?.map((c) => {
-                                      // We need to check if the child exists in the original input list
-                                      const childItem = items[c]
-                                      return (
-                                        <Item
-                                          key={c}
-                                          {...childItem}
-                                          componentId={props.componentId}
-                                          shouldIndent={true}
-                                          hideIcons={
-                                            props.hideIcons
-                                              ? [...props.hideIcons, ItemIcons.Subtask]
-                                              : [ItemIcons.Subtask]
-                                          }
-                                        />
-                                      )
-                                    })}
-                                  </DraggableContainer>
-                                )}
-                              </Draggable>
-                            )
-                          }}
-                        </Transition>
-                      )
-                    })}
-                  </TransitionGroup>
-                  {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
-                  {provided.placeholder}
-                </DraggableList>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </HotKeys>
+                    }
+                    return (
+                      <Transition
+                        key={'t-container-' + item.id}
+                        timeout={{
+                          appear: 200,
+                          enter: 200,
+                          exit: 500,
+                        }}
+                      >
+                        {(state) => {
+                          return (
+                            <Draggable key={item.id} draggableId={item.id} zIndex={0} index={index}>
+                              {(provided, snapshot) => (
+                                <DraggableContainer
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  key={'container-' + item.id}
+                                  isDragging={snapshot.isDragging}
+                                  draggableStyle={...provided.draggableProps.style}
+                                  state={state}
+                                >
+                                  <Item
+                                    {...item}
+                                    key={item.id}
+                                    componentId={props.componentId}
+                                    shouldIndent={false}
+                                    hideIcons={props.hideIcons}
+                                  />
+                                  {item.children?.map((c) => {
+                                    // We need to check if the child exists in the original input list
+                                    const childItem = items[c]
+                                    return (
+                                      <Item
+                                        key={c}
+                                        {...childItem}
+                                        componentId={props.componentId}
+                                        shouldIndent={true}
+                                        hideIcons={
+                                          props.hideIcons
+                                            ? [...props.hideIcons, ItemIcons.Subtask]
+                                            : [ItemIcons.Subtask]
+                                        }
+                                      />
+                                    )
+                                  })}
+                                </DraggableContainer>
+                              )}
+                            </Draggable>
+                          )
+                        }}
+                      </Transition>
+                    )
+                  })}
+                </TransitionGroup>
+                {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
+                {provided.placeholder}
+              </DraggableList>
+            )}
+          </Droppable>
+        </DragDropContext>
       </Container>
     </ThemeProvider>
   )
