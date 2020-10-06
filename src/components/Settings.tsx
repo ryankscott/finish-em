@@ -126,7 +126,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
               <SettingLabel>Drag and drop</SettingLabel>
               <Switch
                 onChange={() => props.toggleDragAndDrop()}
-                checked={props.features.dragAndDrop}
+                checked={props.features?.dragAndDrop ? props.features.dragAndDrop : false}
                 onColor={theme.colours.primaryColour}
                 checkedIcon={false}
                 uncheckedIcon={false}
@@ -138,7 +138,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
               <SettingLabel>Project dates</SettingLabel>
               <Switch
                 onChange={() => props.toggleProjectDates()}
-                checked={props.features?.projectDates}
+                checked={props.features?.projectDates ? props.features.projectDates : false}
                 onColor={theme.colours.primaryColour}
                 checkedIcon={false}
                 uncheckedIcon={false}
@@ -208,7 +208,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
               <SettingLabel>Daily goals</SettingLabel>
               <Switch
                 onChange={() => props.toggleDailyGoals()}
-                checked={props.features.dailyGoals}
+                checked={props.features?.dailyGoals ? props.features.dailyGoals : false}
                 onColor={theme.colours.primaryColour}
                 checkedIcon={false}
                 uncheckedIcon={false}
