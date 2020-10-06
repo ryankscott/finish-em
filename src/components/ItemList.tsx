@@ -48,7 +48,7 @@ interface OwnProps {
 type ItemListProps = OwnProps & StateProps & DispatchProps
 
 function ItemList(props: ItemListProps): ReactElement {
-  const { items, order } = props.items
+  const { items } = props.items
   const handlers = {
     TOGGLE_CHILDREN: (event) => {
       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
@@ -231,8 +231,8 @@ function ItemList(props: ItemListProps): ReactElement {
             */
             if (props.renderingStrategy == RenderingStrategy.All) {
               if (i.parentId != null) {
-                const parentExists = inputItems.find((i) => i.id == item.parentId)
-                // If it exists it will get rendered later, so don't render it
+                const parentExists = props.inputItems.find((z) => z.id == i.parentId)
+                // It exists it will get rendered later, so don't render it
                 if (parentExists) {
                   return
                 }
