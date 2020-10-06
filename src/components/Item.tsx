@@ -313,7 +313,7 @@ function Item(props: ItemProps): ReactElement {
         <ParentItemContainer
           data-tip
           data-for={'parent-item-' + props.id}
-          visible={!props.hideIcons.includes(ItemIcons.Subtask) && props.parentId != null}
+          visible={!props.hideIcons?.includes(ItemIcons.Subtask) && props.parentId != null}
         >
           <ItemAttribute
             completed={props.completed}
@@ -349,7 +349,7 @@ function Item(props: ItemProps): ReactElement {
         <DueContainer
           data-tip
           data-for={'due-date-' + props.id}
-          visible={props.dueDate != null && !props.hideIcons.includes(ItemIcons.Due)}
+          visible={props.dueDate != null && !props.hideIcons?.includes(ItemIcons.Due)}
         >
           <ItemAttribute
             completed={props.completed}
@@ -364,7 +364,7 @@ function Item(props: ItemProps): ReactElement {
         <RepeatContainer
           data-tip
           data-for={'repeat-' + props.id}
-          visible={props.repeat != null && !props.hideIcons.includes(ItemIcons.Repeat)}
+          visible={props.repeat != null && !props.hideIcons?.includes(ItemIcons.Repeat)}
         >
           <ItemAttribute
             completed={props.completed}
