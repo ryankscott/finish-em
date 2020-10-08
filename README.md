@@ -6,7 +6,7 @@
   width="64"
   height=64"
   style="float:left;">
-    Finish-em
+    Finish-em </h1>
 
 An org-mode inspired personal organiser
 
