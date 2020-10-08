@@ -1,7 +1,12 @@
 ![CI](https://github.com/ryankscott/finish-em/workflows/CI/badge.svg)
 ![CodeQL](https://github.com/ryankscott/finish-em/workflows/CodeQL/badge.svg)
 
-# Finish-em
+    
+<h1> <img src="/src/assets/finish_em.svg"
+  width="64"
+  height=64"
+  style="float:left;">
+    Finish-em
 
 An org-mode inspired personal organiser
 
