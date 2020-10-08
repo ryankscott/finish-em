@@ -1,4 +1,5 @@
 ![CI](https://github.com/ryankscott/finish-em/workflows/CI/badge.svg)
+![CodeQL](https://github.com/ryankscott/finish-em/workflows/CodeQL/badge.svg)
 
 # Finish-em
 
