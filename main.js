@@ -1,4 +1,4 @@
-const { ipcMain, app, net, BrowserWindow, globalShortcut, Notification } = require('electron')
+const { ipcMain, app, net, BrowserWindow, globalShortcut } = require('electron')
 const isDev = require('electron-is-dev')
 const path = require('path')
 const applescript = require('applescript')
@@ -179,6 +179,7 @@ function createQuickAddWindow() {
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname + '/preload.js'),
+      enableRemoteModule: true,
     },
   })
 
@@ -203,6 +204,7 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname + '/preload.js'),
+      enableRemoteModule: true,
     },
   })
 
