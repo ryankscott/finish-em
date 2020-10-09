@@ -1,6 +1,5 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
-import Select from 'react-select'
 import Creatable from 'react-select/creatable'
 import { themes, selectStyles } from '../theme'
 import CSS from 'csstype'
