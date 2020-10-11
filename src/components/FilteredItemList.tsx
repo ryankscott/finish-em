@@ -10,7 +10,6 @@ import {
   ListItemCount,
   HideButtonContainer,
   FilterBar,
-  PaginationContainer,
 } from './styled/FilteredItemList'
 import { connect } from 'react-redux'
 
@@ -26,6 +25,7 @@ import { ThemeProvider } from '../StyledComponents'
 import { PAGE_SIZE } from '../consts'
 import FilteredItemDialog from './FilteredItemDialog'
 import MoreDropdown from './MoreDropdown'
+import Pagination from './Pagination'
 
 const determineVisibilityRules = (
   isFilterable: boolean,
@@ -90,6 +90,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [hideCompleted, setHideCompleted] = useState(false)
   const [hideItemList, setHideItemList] = useState(Object.keys(props.items).length == 0)
   const [showEditDialog, setShowEditDialog] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
 
   const theme = themes[props.theme]
   // TODO: Unsure if this should be done in state
@@ -99,9 +100,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const sortedItems = hideCompleted
     ? sortType.sort(uncompletedItems, sortDirection)
     : sortType.sort(allItems, sortDirection)
-
-  const [currentPage, setCurrentPage] = useState(1)
-  const totalPages = Math.ceil(sortedItems.length / PAGE_SIZE)
 
   useEffect(() => {
     setHideItemList(Object.keys(props.items).length == 0)
@@ -116,53 +114,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     props.features.dragAndDrop,
     props.hideCompletedToggle,
   )
-
-  // TODO: Extract this to own component
-  const generatePagination = (pageSize: number, sortedItemsLength: number): ReactElement => {
-    if (sortedItemsLength < pageSize) return null
-    return (
-      <PaginationContainer>
-        <Button
-          type="default"
-          icon="slideLeft"
-          onClick={() => setCurrentPage(currentPage == 1 ? currentPage : currentPage - 1)}
-        />
-        {currentPage != 1 && <Button type="default" text={'1'} onClick={() => setCurrentPage(1)} />}
-        {currentPage >= 4 && '...'}
-        {currentPage >= 3 && (
-          <Button
-            type="default"
-            text={(currentPage - 1).toString()}
-            onClick={() => setCurrentPage(currentPage - 1)}
-          />
-        )}
-
-        <Button textWeight="700" type="default" text={currentPage.toString()} />
-        {currentPage <= totalPages - 2 && (
-          <Button
-            type="default"
-            text={(currentPage + 1).toString()}
-            onClick={() => setCurrentPage(currentPage + 1)}
-          />
-        )}
-        {currentPage <= totalPages - 2 && '...'}
-        {currentPage != totalPages && (
-          <Button
-            type="default"
-            text={totalPages.toString()}
-            onClick={() => {
-              setCurrentPage(totalPages)
-            }}
-          />
-        )}
-        <Button
-          type="default"
-          icon="slideRight"
-          onClick={() => setCurrentPage(currentPage == totalPages ? totalPages : currentPage + 1)}
-        />
-      </PaginationContainer>
-    )
-  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -268,12 +219,12 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                   {
                     icon: 'trash',
                     label: 'Delete Component',
-                    onClick: (e: React.MouseEvent) => props.deleteComponent(props.id),
+                    onClick: () => props.deleteComponent(props.id),
                   },
                   {
                     icon: 'edit',
                     label: 'Edit Component',
-                    onClick: (e: React.MouseEvent) => setShowEditDialog(true),
+                    onClick: () => setShowEditDialog(true),
                   },
                 ]}
               />
@@ -297,7 +248,10 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
               <ReorderableItemList
                 componentId={props.id}
                 hideIcons={props.hideIcons}
-                inputItems={sortedItems}
+                inputItems={sortedItems.slice(
+                  (currentPage - 1) * PAGE_SIZE,
+                  currentPage * PAGE_SIZE,
+                )}
                 renderingStrategy={props.renderingStrategy}
               />
             ) : (
@@ -313,7 +267,11 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             )}
           </ItemListContainer>
         )}
-        {generatePagination(PAGE_SIZE, sortedItems.length)}
+        <Pagination
+          itemsLength={sortedItems.length}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+        />
       </Container>
     </ThemeProvider>
   )

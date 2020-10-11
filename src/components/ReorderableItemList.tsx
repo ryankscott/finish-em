@@ -226,6 +226,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   const orderedIndex = order.filter((p) => {
     return props.inputItems.find((i) => i.id == p)
   })
+  console.log(props.inputItems.length)
 
   return (
     <ThemeProvider theme={theme}>
@@ -265,9 +266,9 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                       <Transition
                         key={'t-container-' + item.id}
                         timeout={{
-                          appear: 200,
-                          enter: 200,
-                          exit: 500,
+                          appear: 100,
+                          enter: 100,
+                          exit: 100,
                         }}
                       >
                         {(state) => {

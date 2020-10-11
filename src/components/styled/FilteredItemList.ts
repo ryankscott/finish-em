@@ -73,11 +73,3 @@ export const Container = styled.div`
   border: 1px solid;
   border-color: ${(props) => props.theme.colours.borderColour};
 `
-
-export const PaginationContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-`

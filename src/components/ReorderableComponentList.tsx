@@ -56,9 +56,9 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                             <Transition
                               key={c}
                               timeout={{
-                                appear: 200,
-                                enter: 200,
-                                exit: 500,
+                                appear: 100,
+                                enter: 100,
+                                exit: 100,
                               }}
                             >
                               {(state) => {
@@ -96,9 +96,9 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                             <Transition
                               key={c}
                               timeout={{
-                                appear: 200,
-                                enter: 200,
-                                exit: 500,
+                                appear: 100,
+                                enter: 100,
+                                exit: 100,
                               }}
                             >
                               {(state) => {

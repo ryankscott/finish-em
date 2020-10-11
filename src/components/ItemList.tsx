@@ -242,9 +242,9 @@ function ItemList(props: ItemListProps): ReactElement {
               <Transition
                 key={'t-container-' + i.id}
                 timeout={{
-                  appear: 200,
-                  enter: 200,
-                  exit: 500,
+                  appear: 100,
+                  enter: 100,
+                  exit: 100,
                 }}
               >
                 {(state) => {
