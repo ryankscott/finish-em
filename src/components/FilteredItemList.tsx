@@ -1,77 +1,31 @@
 import React, { ReactElement, useState, useEffect } from 'react'
 import ItemList from './ItemList'
-import { orderBy } from 'lodash'
-import { themes, selectStyles } from '../theme'
+import { themes } from '../theme'
 import { ItemType, FeatureType, Item, RenderingStrategy } from '../interfaces'
 import {
   Container,
   HeaderBar,
-  SortContainer,
-  SortSelect,
   ItemListContainer,
   ListHeader,
   ListItemCount,
   HideButtonContainer,
   FilterBar,
+  PaginationContainer,
 } from './styled/FilteredItemList'
 import { connect } from 'react-redux'
 
+import SortDropdown, { SortDirectionEnum, sortOptions } from './SortDropdown'
 import Button from './Button'
 import Tooltip from './Tooltip'
 import { deleteItem } from '../actions/item'
 import { getFilteredItems } from '../selectors/item'
-import { components } from 'react-select'
 import ReorderableItemList from './ReorderableItemList'
 import { ItemIcons } from '../interfaces/item'
 import { hideSubtasks, showSubtasks, deleteComponent } from '../actions'
-import { Icons } from '../assets/icons'
 import { ThemeProvider } from '../StyledComponents'
 import { PAGE_SIZE } from '../consts'
 import FilteredItemDialog from './FilteredItemDialog'
 import MoreDropdown from './MoreDropdown'
-
-const DropdownIndicator = (props): ReactElement => {
-  return (
-    <components.DropdownIndicator {...props}>{Icons['collapse']()}</components.DropdownIndicator>
-  )
-}
-enum SortDirectionEnum {
-  Ascending = 'asc',
-  Descending = 'desc',
-}
-
-type SortOption = {
-  label: string
-  sort: (items: ItemType[], direction: SortDirectionEnum) => ItemType[]
-}
-type SortOptions = { [key: string]: SortOption }
-
-const sortOptions: SortOptions = {
-  STATUS: {
-    label: 'Status',
-    sort: (items, direction) => orderBy(items, [(i) => i.completed], direction),
-  },
-  DUE: {
-    label: 'Due',
-    sort: (items, direction) => orderBy(items, [(i) => new Date(i.dueDate)], direction),
-  },
-  SCHEDULED: {
-    label: 'Scheduled',
-    sort: (items, direction) => orderBy(items, [(i) => new Date(i.scheduledDate)], direction),
-  },
-  LABEL: {
-    label: 'Label',
-    sort: (items, direction) => orderBy(items, [(i) => i.labelId], direction),
-  },
-  CREATED: {
-    label: 'Created',
-    sort: (items, direction) => orderBy(items, [(i) => new Date(i.createdAt)], direction),
-  },
-  UPDATED: {
-    label: 'Updated',
-    sort: (items, direction) => orderBy(items, [(i) => new Date(i.lastUpdatedAt)], direction),
-  },
-}
 
 const determineVisibilityRules = (
   isFilterable: boolean,
@@ -131,7 +85,7 @@ export interface OwnProps {
 export type FilteredItemListProps = StateProps & DispatchProps & OwnProps
 
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
-  const [sortType, setSortType] = useState('DUE')
+  const [sortType, setSortType] = useState(sortOptions.DUE)
   const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
   const [hideCompleted, setHideCompleted] = useState(false)
   const [hideItemList, setHideItemList] = useState(Object.keys(props.items).length == 0)
@@ -143,8 +97,8 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const uncompletedItems = Object.values(props.items).filter((m) => m.completed == false)
   const completedItems = Object.values(props.items).filter((m) => m.completed == true)
   const sortedItems = hideCompleted
-    ? sortOptions[sortType].sort(uncompletedItems, sortDirection)
-    : sortOptions[sortType].sort(allItems, sortDirection)
+    ? sortType.sort(uncompletedItems, sortDirection)
+    : sortType.sort(allItems, sortDirection)
 
   const [currentPage, setCurrentPage] = useState(1)
   const totalPages = Math.ceil(sortedItems.length / PAGE_SIZE)
@@ -163,18 +117,11 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     props.hideCompletedToggle,
   )
 
+  // TODO: Extract this to own component
   const generatePagination = (pageSize: number, sortedItemsLength: number): ReactElement => {
     if (sortedItemsLength < pageSize) return null
     return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'row',
-          width: '100%',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
+      <PaginationContainer>
         <Button
           type="default"
           icon="slideLeft"
@@ -213,7 +160,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
           icon="slideRight"
           onClick={() => setCurrentPage(currentPage == totalPages ? totalPages : currentPage + 1)}
         />
-      </div>
+      </PaginationContainer>
     )
   }
 
@@ -303,42 +250,13 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 />
                 <Tooltip id="collapse-all-button" text={'Collapse all subtasks'} />
                 {visibility.showSortButton && (
-                  <SortContainer>
-                    <SortSelect
-                      options={Object.keys(sortOptions).map((s) => ({
-                        label: sortOptions[s].label,
-                        value: s,
-                      }))}
-                      defaultValue={sortOptions.DUE}
-                      autoFocus={false}
-                      placeholder="Sort by:"
-                      components={{ DropdownIndicator }}
-                      defaultIsOpen={true}
-                      styles={selectStyles({
-                        fontSize: 'xxsmall',
-                        theme: themes[props.theme],
-                        showDropdownIndicator: true,
-                        minWidth: '100px',
-                      })}
-                      onChange={(e) => {
-                        setSortType(e.value)
-                      }}
-                    />
-                    <Button
-                      dataFor={'sort-direction-button'}
-                      type="default"
-                      spacing="compact"
-                      iconSize="18px"
-                      translateZ={sortDirection == SortDirectionEnum.Ascending ? 1 : 0}
-                      icon={'sort'}
-                      onClick={() => {
-                        sortDirection == SortDirectionEnum.Ascending
-                          ? setSortDirection(SortDirectionEnum.Descending)
-                          : setSortDirection(SortDirectionEnum.Ascending)
-                      }}
-                    />
-                    <Tooltip id="sort-direction-button" text={'Toggle sort direction'} />
-                  </SortContainer>
+                  <SortDropdown
+                    sortDirection={sortDirection}
+                    onSetSortDirection={(d) => setSortDirection(d)}
+                    onSetSortType={(t) => {
+                      setSortType(t)
+                    }}
+                  ></SortDropdown>
                 )}
               </>
             )}
