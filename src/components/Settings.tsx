@@ -31,6 +31,7 @@ import {
   Popover,
   StyledTwitterPicker,
   LabelContainer,
+  ButtonContainer,
 } from './styled/Settings'
 import EditableText from './EditableText'
 import { transparentize } from 'polished'
@@ -283,16 +284,20 @@ function Settings(props: SettingsPickerProps): ReactElement {
                 />
               </Popover>
             )}
-            <Button
-              type="default"
-              spacing="compact"
-              icon="add"
-              text="Add label"
-              onClick={() => {
-                props.createLabel(labelColours[Math.ceil(Math.random() * labelColours.length) - 1])
-              }}
-              iconSize="14px"
-            />
+            <ButtonContainer>
+              <Button
+                type="default"
+                spacing="compact"
+                icon="add"
+                text="Add label"
+                onClick={() => {
+                  props.createLabel(
+                    labelColours[Math.ceil(Math.random() * labelColours.length) - 1],
+                  )
+                }}
+                iconSize="14px"
+              />
+            </ButtonContainer>
           </SettingsCategory>
         </SettingsContainer>
       </Container>
