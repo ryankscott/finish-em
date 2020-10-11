@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { connect } from 'react-redux'
 import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
@@ -39,6 +39,7 @@ type HeaderbarProps = DispatchProps & StateProps & OwnProps
 
 const Headerbar = (props: HeaderbarProps): ReactElement => {
   const history = useHistory()
+  const [showTRex, setShowTRex] = useState(false)
   const generateOptions = (projects: Project, items: Item): GroupType<OptionType>[] => {
     const itemOptions = Object.values(items).map((i) => {
       return {
@@ -64,7 +65,9 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
   return (
     <Container>
       <ThemeProvider theme={themes[props.theme]}>
-        <IconContainer>{Icons['finish_em'](36, 36)}</IconContainer>
+        <IconContainer onClick={() => setShowTRex(!showTRex)}>
+          {showTRex ? <span style={{ fontSize: '36px' }}>🦖</span> : Icons['finish_em'](36, 36)}
+        </IconContainer>
         <SelectContainer>
           <Select
             controlShouldRenderValue={false}
