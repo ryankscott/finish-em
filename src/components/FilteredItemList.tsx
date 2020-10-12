@@ -34,15 +34,15 @@ const determineVisibilityRules = (
   sortedItemsLength: number,
   completedItemsLength: number,
   dragAndDropEnabled: boolean,
-  hideCompletedToggle: boolean,
+  showCompletedToggle: boolean,
 ): {
   showCompletedToggle: boolean
   showFilterBar: boolean
   showDeleteButton: boolean
   showSortButton: boolean
 } => {
-  // Show completed toggle if we have a completed item and it hasn't been disabled
-  const showCompletedToggle = completedItemsLength > 0 && !hideCompletedToggle
+  // Show completed toggle if we have a completed item and we want to show the toggle
+  const showCompletedToggle = completedItemsLength > 0 && showCompletedToggle
   // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
   const showFilterBar = isFilterable && itemsLength > 0 && showItemList
   // Show delete button if we have at least one deleted item
@@ -77,8 +77,7 @@ export interface OwnProps {
   isFilterable?: boolean
   listName?: string
   renderingStrategy?: RenderingStrategy
-  noIndentOnSubtasks?: boolean
-  hideCompletedToggle?: boolean
+  showCompletedToggle?: boolean
   initiallyExpanded?: boolean
   readOnly?: boolean
 }
@@ -89,7 +88,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
   const [showCompleted, setShowCompleted] = useState(false)
   const [showItemList, setShowItemList] = useState(
-    props.initiallyExpanded ? props.initiallyExpanded : Object.keys(props.items).length == 0,
+    props.initiallyExpanded ? props.initiallyExpanded : Object.keys(props.items).length > 0,
   )
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
@@ -104,7 +103,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     : sortType.sort(allItems, sortDirection)
 
   useEffect(() => {
-    setShowItemList(Object.keys(props.items).length == 0)
+    setShowItemList(
+      props.initiallyExpanded ? props.initiallyExpanded : Object.keys(props.items).length > 0,
+    )
   }, [props.items])
 
   const visibility = determineVisibilityRules(
@@ -114,7 +115,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     sortedItems.length,
     completedItems.length,
     props.features.dragAndDrop,
-    props.hideCompletedToggle,
+    props.showCompletedToggle,
   )
 
   return (
@@ -244,7 +245,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             />
           )}
         </HeaderBar>
-        {!showItemList && (
+        {showItemList && (
           <ItemListContainer>
             {props.features.dragAndDrop ? (
               <ReorderableItemList

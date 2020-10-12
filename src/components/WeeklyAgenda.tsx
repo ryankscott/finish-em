@@ -77,7 +77,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
                   filter={`sameDay(dueDate, "${add(firstDayOfWeek, { days: idx }).toISOString()}")`}
                   renderingStrategy={RenderingStrategy.All}
                   readOnly={true}
-                  hideIcons={[ItemIcons.Due, ItemIcons.Scheduled]}
+                  hideIcons={[ItemIcons.Due, ItemIcons.Scheduled, ItemIcons.Project]}
                   initiallyExpanded={true}
                 />
               </div>

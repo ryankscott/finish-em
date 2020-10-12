@@ -18,8 +18,8 @@ export const Container = styled.div<ContainerProps>`
   display: ${(props) => (props.visible ? 'grid' : 'none')};
   opacity: ${(props) => (props.hidden ? '0' : '1')};
   margin: 1px 0px;
-  margin-left: ${(props) => (props.shouldIndent ? '20px' : '0px')};
-  grid-template-columns: 30px 30px repeat(4, 1fr) 25px 25px;
+  margin-left: ${(props) => (props.shouldIndent ? '15px' : '0px')};
+  grid-template-columns: 25px 25px repeat(4, 1fr) 25px 25px;
   grid-auto-rows: auto auto;
   grid-template-areas:
     '  EXPAND   TYPE    DESC         DESC         DESC        PROJECT    REMINDER     MORE'
@@ -41,7 +41,7 @@ export const Container = styled.div<ContainerProps>`
   &:focus {
     background-color: ${(props) =>
       props.labelColour != null
-        ? transparentize(0.8, props.labelColour)
+        ? transparentize(0.6, props.labelColour)
         : props.theme.colours.focusBackgroundColour};
   }
   &:active {

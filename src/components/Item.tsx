@@ -238,6 +238,7 @@ function Item(props: ItemProps): ReactElement {
               onClick={handleExpand}
               icon={'expand'}
               rotate={subtasksVisible ? 1 : 0}
+              iconSize={'16px'}
             ></Button>
           </ExpandContainer>
         )}
