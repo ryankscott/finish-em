@@ -29,7 +29,7 @@ import Pagination from './Pagination'
 
 const determineVisibilityRules = (
   isFilterable: boolean,
-  hideItemList: boolean,
+  showItemList: boolean,
   itemsLength: number,
   sortedItemsLength: number,
   completedItemsLength: number,
@@ -44,11 +44,11 @@ const determineVisibilityRules = (
   // Show completed toggle if we have a completed item and it hasn't been disabled
   const showCompletedToggle = completedItemsLength > 0 && !hideCompletedToggle
   // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
-  const showFilterBar = isFilterable && itemsLength > 0 && !hideItemList
+  const showFilterBar = isFilterable && itemsLength > 0 && showItemList
   // Show delete button if we have at least one deleted item
-  const showDeleteButton = completedItemsLength > 0 && !hideItemList
+  const showDeleteButton = completedItemsLength > 0 && showItemList
   // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
-  const showSortButton = sortedItemsLength >= 1 && !hideItemList && !dragAndDropEnabled
+  const showSortButton = sortedItemsLength >= 1 && showItemList && !dragAndDropEnabled
   return {
     showCompletedToggle,
     showFilterBar,
@@ -77,9 +77,9 @@ export interface OwnProps {
   isFilterable?: boolean
   listName?: string
   renderingStrategy?: RenderingStrategy
-  defaultSortOrder?: SortCriteriaEnum
   noIndentOnSubtasks?: boolean
   hideCompletedToggle?: boolean
+  initiallyExpanded?: boolean
   readOnly?: boolean
 }
 export type FilteredItemListProps = StateProps & DispatchProps & OwnProps
@@ -87,8 +87,10 @@ export type FilteredItemListProps = StateProps & DispatchProps & OwnProps
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [sortType, setSortType] = useState(sortOptions.DUE)
   const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
-  const [hideCompleted, setHideCompleted] = useState(false)
-  const [hideItemList, setHideItemList] = useState(Object.keys(props.items).length == 0)
+  const [showCompleted, setShowCompleted] = useState(false)
+  const [showItemList, setShowItemList] = useState(
+    props.initiallyExpanded ? props.initiallyExpanded : Object.keys(props.items).length == 0,
+  )
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -97,17 +99,17 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const allItems = Object.values(props.items)
   const uncompletedItems = Object.values(props.items).filter((m) => m.completed == false)
   const completedItems = Object.values(props.items).filter((m) => m.completed == true)
-  const sortedItems = hideCompleted
+  const sortedItems = showCompleted
     ? sortType.sort(uncompletedItems, sortDirection)
     : sortType.sort(allItems, sortDirection)
 
   useEffect(() => {
-    setHideItemList(Object.keys(props.items).length == 0)
+    setShowItemList(Object.keys(props.items).length == 0)
   }, [props.items])
 
   const visibility = determineVisibilityRules(
     props.isFilterable,
-    hideItemList,
+    showItemList,
     allItems.length,
     sortedItems.length,
     completedItems.length,
@@ -125,9 +127,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
               key={`btn-${props.id}`}
               type="default"
               icon="expand"
-              rotate={hideItemList == true ? 0 : 1}
+              rotate={showItemList == true ? 1 : 0}
               onClick={() => {
-                setHideItemList(!hideItemList)
+                setShowItemList(!showItemList)
               }}
             />
             <Tooltip id="hide-itemlist-button" text={'Hide items'} />
@@ -150,14 +152,14 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                       iconSize="14px"
                       type="default"
                       spacing="compact"
-                      icon={hideCompleted ? 'show' : 'hide'}
+                      icon={showCompleted ? 'hide' : 'show'}
                       onClick={() => {
-                        setHideCompleted(!hideCompleted)
+                        setShowCompleted(!showCompleted)
                       }}
                     ></Button>
                     <Tooltip
                       id="complete-button"
-                      text={hideCompleted ? 'Show completed items' : 'Hide completed items'}
+                      text={showCompleted ? 'Hide completed items' : 'Show completed items'}
                     />
                   </>
                 )}
@@ -242,7 +244,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             />
           )}
         </HeaderBar>
-        {!hideItemList && (
+        {!showItemList && (
           <ItemListContainer>
             {props.features.dragAndDrop ? (
               <ReorderableItemList
