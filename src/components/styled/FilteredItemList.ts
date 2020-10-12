@@ -34,7 +34,7 @@ export const ItemListContainer = styled.div`
   width: 100%;
   display: flex;
   transition: 0.2s ease-in-out;
-  padding: 0px 15px;
+  padding: 0px 8px;
 `
 
 export const SortContainer = styled.div`
