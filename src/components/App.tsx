@@ -5,6 +5,7 @@ import { useHistory, Route, Switch, useParams } from 'react-router-dom'
 import { EventType } from '../interfaces/event'
 import { parseISO, parse, isSameMinute } from 'date-fns'
 import DailyAgenda from './DailyAgenda'
+import WeeklyAgenda from './WeeklyAgenda'
 import Sidebar from './Sidebar'
 import Focusbar from './Focusbar'
 import ShortcutDialog from './ShortcutDialog'
@@ -343,6 +344,9 @@ const App = (props: AppProps): ReactElement => {
               </Route>
               <Route path="/Settings">
                 <Settings />
+              </Route>
+              <Route path="/weeklyAgenda">
+                <WeeklyAgenda />
               </Route>
               <Route path="/">
                 <Inbox />
