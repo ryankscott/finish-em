@@ -26,7 +26,7 @@
     "start-dev": "ELECTRON_START_URL=http://localhost:1234 electron .",
     "start": "electron .",
     "clean": "rm -rf build/ .cache dist/",
-    "build": "parcel build ./src/index.html --no-minify -d build/ --public-url ./",
+    "build": "parcel build ./src/index.html --no-minify -d build/ --public-url ./ && cp ./src/assets/finish_em.png ./build/icon.png",
     "pack": "electron-builder --dir",
     "dist": "electron-builder -m -p onTag",
     "postinstall": "electron-builder install-app-deps",
