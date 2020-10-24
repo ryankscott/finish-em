@@ -1,0 +1,41 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.package-lock.json
+
+
+# Compiled binary addons (https://nodejs.org/api/addons.html)
+build/Release
+build/*
+dist/*
+coverage/*
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+.DS_Store
+
+# Optional eslint cache
+.eslintcache
+
+# dotenv environment variables file
+.env
+.env.test
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+.vscode/settings.json
+package-lock.json
+
+# electron-builder
+electron-builder.yml

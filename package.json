@@ -1,0 +1,152 @@
+{
+  "name": "Finish-em"
+  "version": "0.4.34"
+  "author": "Ryan Scott (ryan@ryankennethscott.com)"
+  "description": "An org-mode inspired personal organiser"
+  "repository": {
+    "type": "git"
+    "url": "git://github.com/ryankscott/finish-em/"
+  }
+  "main": "app/main/.parcel/main.js"
+  "scripts": {
+    "start": "run-s main:build electron:watch"
+    "test": "run-s parcel:build \"test:jest {@}\" --"
+    "lint": "tslint app/**/*.ts{x}",
+    "release": "run-s parcel:build \"electron:build {@}\" --"
+    "electron:watch": "run-p -r parcel:watch electron:start"
+    "electron:start": "nodemon --watch app/main/.parcel --exec \"electron .\""
+    "electron:build": "electron-builder --x64 --publish=never"
+    "parcel:watch": "run-p -r main:watch renderer:watch"
+    "main:watch": "parcel watch app/main/main.ts --out-dir app/main/.parcel --out-file main --target electron"
+    "renderer:watch": "parcel app/renderer/index.html --port 1124 --out-dir app/renderer/.parcel/development"
+    "parcel:build": "run-s main:build renderer:build"
+    "main:build": "parcel build app/main/main.ts --out-dir app/main/.parcel --out-file main --target electron"
+    "renderer:build": "parcel build app/renderer/index.html --public-url ./ --out-dir app/renderer/.parcel/production"
+    "dist": "electron-builder -m -p onTag"
+      "deploy": "electron-builder build --mac --publish always"
+      "test:jest": "jest"
+  }
+  "license": "MIT"
+  "build": {
+    "productName": "Finish-em"
+    "appId": "com.ryankscott.finish-em"
+    "files": [
+      "app/**"
+      "!app/main/main.ts"
+      "!app/main/tests/**"
+      "!app/renderer/**"
+      "app/renderer/.parcel/production/**"
+      "!app/**/*.map"
+    ]
+    "mac": {
+      "target": [
+        "dmg"
+      ]
+      "artifactName": "${productName}.${ext}"
+    }
+    "publish": {
+      "provider": "github"
+    }
+    "directories": {
+      "output": "release"
+    }
+  }
+  "jest": {
+    "verbose": true
+    "collectCoverageFrom": [
+      "app/renderer/**"
+      "!app/renderer/index.tsx"
+      "!app/renderer/tests/**"
+      "!app/renderer/.parcel/**"
+    ]
+    "transform": {
+      "^.+\\.tsx?$": "babel-jest"
+    }
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$"
+    "moduleFileExtensions": [
+      "ts"
+      "tsx"
+      "js"
+      "jsx"
+      "json"
+      "node"
+    ]
+  }
+  "devDependencies": {
+    "@babel/core": "^7.9.0"
+    "@babel/preset-env": "^7.9.5"
+    "@babel/preset-react": "^7.9.4"
+    "@babel/preset-typescript": "^7.9.0"
+    "@types/jest": "^25.2.1"
+    "@types/react": "^16.9.34"
+    "@types/react-dom": "^16.9.6"
+    "babel-jest": "^25.4.0"
+    "electron": "^8.2.4"
+    "electron-builder": "^22.5.1"
+    "jest": "^25.4.0"
+    "nodemon": "^2.0.3"
+    "mockdate": "^3.0.2"
+    "npm-run-all": "^4.1.5"
+    "parcel-bundler": "^1.12.4"
+    "react-test-renderer": "^16.13.1"
+    "spectron": "^10.0.1"
+    "tslint": "^6.1.1"
+    "tslint-react": "^5.0.0"
+    "typescript": "^3.8.3"
+  }
+  "dependencies": {
+    "app-root-path": "^3.0.0"
+    "electron-is-dev": "^1.2.0"
+    "@apollo/client": "^3.2.4"
+    "@babel/runtime": "^7.11.0"
+    "@electron/typescript-definitions": "^8.7.7"
+    "applescript": "^1.0.0"
+    "chrono-node": "^2.1.5"
+    "csstype": "^3.0.2"
+    "date-fns": "^2.15.0"
+    "electron-store": "^6.0.0"
+    "emoji-regex": "^9.0.0"
+    "eslint-config-prettier": "^6.11.0"
+    "eslint-plugin-prettier": "^3.1.4"
+    "express": "^4.17.1"
+    "express-graphql": "^0.11.0"
+    "filtrex": "^2.0.0"
+    "graphql": "^15.3.0"
+    "immer": "^7.0.7"
+    "is-electron": "^2.2.0"
+    "lodash": "^4.17.19"
+    "marked": "^1.1.1"
+    "node": "^14.11.0"
+    "node-cron": "^2.0.3"
+    "parcel-plugin-markdown": "^0.4.2"
+    "polished": "^3.6.5"
+    "prettier": "^2.0.5"
+    "react": "^16.13.1"
+    "react-animations": "^1.0.0"
+    "react-beautiful-dnd": "^13.0.0"
+    "react-big-calendar": "^0.26.1"
+    "react-color": "^2.18.1"
+    "react-datepicker": "^3.2.2"
+    "react-dom": "^16.13.1"
+    "react-hotkeys-hook": "^2.2.2"
+    "react-redux": "^7.2.1"
+    "react-router": "^5.2.0"
+    "react-router-dom": "^5.2.0"
+    "react-select": "^3.1.0"
+    "react-switch": "^5.0.1"
+    "react-toastify": "^6.0.8"
+    "react-tooltip": "^4.2.7"
+    "react-transition-group": "^4.4.1"
+    "redux": "^4.0.5"
+    "redux-persist": "^6.0.0"
+    "redux-persist-electron-storage": "^2.1.0"
+    "reselect": "^4.0.0"
+    "rrule": "2.6.4"
+    "semver": "^7.3.2"
+    "sqlite": "^4.0.15"
+    "sqlite3": "^5.0.0"
+    "styled-components": "^5.1.1"
+    "sugar-date": "^2.0.6"
+    "uuid": "^8.3.0"
+  }
+}
