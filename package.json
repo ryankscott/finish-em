@@ -23,8 +23,8 @@
     "main:build": "parcel build app/main/main.ts --out-dir app/main/.parcel --out-file main --target electron",
     "renderer:build": "parcel build app/renderer/index.html --public-url ./ --out-dir app/renderer/.parcel/production",
     "dist": "electron-builder -m -p onTag",
-      "deploy": "electron-builder build --mac --publish always",
-      "test:jest": "jest"
+    "deploy": "electron-builder build --mac --publish always",
+    "test:jest": "jest"
   },
   "license": "MIT",
   "build": {
@@ -69,7 +69,7 @@
       "js",
       "jsx",
       "json",
-        "node"
+      "node"
     ]
   },
   "devDependencies": {
