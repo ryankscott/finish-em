@@ -2,7 +2,7 @@
 ![CodeQL](https://github.com/ryankscott/finish-em/workflows/CodeQL/badge.svg)
 
     
-<h1> <img src="/src/assets/finish_em.svg"
+<h1> <img src="/app/renderer/assets/finish_em.svg"
   width="64"
   height=64"
   style="float:left;">
