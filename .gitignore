@@ -32,6 +32,11 @@ jspm_packages/
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
+# parcel build artefacts
+/app/renderer/.parcel
+/app/main/.parcel
+*.map
+
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 .vscode/settings.json
