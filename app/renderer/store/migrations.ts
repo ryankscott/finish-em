@@ -13,10 +13,11 @@ import {
 } from '../interfaces'
 import { v4 as uuidv4 } from 'uuid'
 import { ItemIcons } from '../interfaces/item'
-import { gql, ApolloClient, InMemoryCache } from '@apollo/client'
+import { gql, ApolloClient, InMemoryCache, HttpLink } from '@apollo/client'
+import fetch from 'cross-fetch'
 
 const client = new ApolloClient({
-  uri: 'http://localhost:8080/graphql',
+  link: new HttpLink({ uri: 'http://localhost:8080/graphql', fetch }),
   cache: new InMemoryCache(),
 })
 

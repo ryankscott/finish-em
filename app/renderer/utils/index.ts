@@ -10,7 +10,8 @@ export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/gi
 export const markdownLinkRegex = /\[([\w\s\d]+)\]\(((?:\/|https?:\/\/)[\w\d./?=#]+)\)/
 export const markdownBasicRegex = /[*_]{1,2}(\w*)[*_]{1,2}/
 
-import emojiRegex from 'emoji-regex/text.js'
+import er from 'emoji-regex'
+
 import { isToday, differenceInDays, isTomorrow, isYesterday, format, isAfter } from 'date-fns'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
@@ -101,11 +102,11 @@ export const camelCaseToInitialCaps = (text: string): string => {
 }
 
 export const hasEmoji = (input: string): boolean => {
-  return emojiRegex.test(input)
+  return er().test(input)
 }
 
 export const getEmoji = (input: string): string => {
-  const found = input.match(emojiRegex)
+  const found = input.match(er())
   return found ? found[0] : null
 }
 
