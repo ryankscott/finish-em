@@ -1,13 +1,13 @@
-import Project from "../classes/project";
+import Project from '../classes/project'
 
 export const getProjects = (obj, ctx) => {
   return ctx.db
     .all(
-      "SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaId FROM project"
+      'SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaId FROM project',
     )
-    .then(result =>
+    .then((result) =>
       result.map(
-        r =>
+        (r) =>
           new Project(
             r.key,
             r.name,
@@ -18,21 +18,21 @@ export const getProjects = (obj, ctx) => {
             r.createdAt,
             r.startAt,
             r.endAt,
-            r.areaId
-          )
-      )
-    );
-};
+            r.areaId,
+          ),
+      ),
+    )
+}
 
 //TODO: Not sure why this is an object for key
-export const getProject = (key, ctx) => {
+export const getProject = (key: { key: string }, ctx) => {
   return ctx.db
     .get(
-      "SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaId FROM project WHERE key = $key",
-      { $key: key.key }
+      'SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaId FROM project WHERE key = $key',
+      { $key: key.key },
     )
     .then(
-      result =>
+      (result) =>
         new Project(
           result.key,
           result.name,
@@ -43,15 +43,29 @@ export const getProject = (key, ctx) => {
           result.createdAt,
           result.startAt,
           result.endAt,
-          result.areaId
-        )
-    );
-};
+          result.areaId,
+        ),
+    )
+}
 
-export const createProject = (project, ctx) => {
+export const createProject = (
+  project: {
+    key: string
+    name: string
+    deleted: boolean
+    description: string
+    lastUpdatedAt: string
+    deletedAt: string
+    createdAt: string
+    startAt: string
+    endAt: string
+    areaId: string
+  },
+  ctx,
+) => {
   return ctx.db
     .run(
-      "INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      'INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
       project.key,
       project.name,
       project.deleted,
@@ -61,63 +75,84 @@ export const createProject = (project, ctx) => {
       project.createdAt,
       project.startAt,
       project.endAt,
-      project.areaId
+      project.areaId,
     )
-    .then(result => {
+    .then((result) => {
       return result.changes
         ? getProject({ key: project.key }, ctx)
-        : new Error("Unable to create project");
-    });
-};
-export const deleteProject = (project, ctx) => {
+        : new Error('Unable to create project')
+    })
+}
+
+export const deleteProject = (project: { key: string; name: string }, ctx) => {
   return ctx.db
     .run(
       `UPDATE project SET deleted = true, lastUpdatedAt = current_timestamp, deletedAt = current_timestamp WHERE key = $key`,
       {
         $key: project.key,
-        $name: project.name
-      }
+      },
     )
-    .then(result => {
+    .then((result) => {
       return result.changes
         ? getProject({ key: project.key }, ctx)
-        : new Error("Unable to rename project");
-    });
-};
+        : new Error('Unable to rename project')
+    })
+}
 
-export const renameProject = (project, ctx) => {
+export const renameProject = (project: { key: string; name: string }, ctx) => {
   return ctx.db
-    .run(
-      `UPDATE project SET name = $name, lastUpdatedAt = current_timestamp WHERE key = $key`,
-      {
-        $key: project.key,
-        $name: project.name
-      }
-    )
-    .then(result => {
+    .run(`UPDATE project SET name = $name, lastUpdatedAt = current_timestamp WHERE key = $key`, {
+      $key: project.key,
+      $name: project.name,
+    })
+    .then((result) => {
       return result.changes
         ? getProject({ key: project.key }, ctx)
-        : new Error("Unable to rename project");
-    });
-};
+        : new Error('Unable to rename project')
+    })
+}
 
-export const changeDescriptionProject = (project, ctx) => {
+export const changeDescriptionProject = (project: { key: string; description: string }, ctx) => {
   return ctx.db
     .run(
       `UPDATE project SET description = $description, lastUpdatedAt = current_timestamp WHERE key = $key`,
       {
         $key: project.key,
-        $description: project.description
-      }
+        $description: project.description,
+      },
     )
-    .then(result => {
+    .then((result) => {
       return result.changes
         ? getProject({ key: project.key }, ctx)
-        : new Error("Unable to change description of project");
-    });
-};
+        : new Error('Unable to change description of project')
+    })
+}
 
-// export const deleteProject = (input, ctx) => {
-//   return ctx.db.run('DELETE FROM project WHERE key = $key', { $key: input.key }).then((result) => {
-//     return result.changes ? input.key : new Error(`Unable to delete project with key ${input.key}`)
-//   })
+export const setEndDateOfProject = (project: { key: string; endAt: string }, ctx) => {
+  return ctx.db
+    .run(`UPDATE project SET endAt = $endAt, lastUpdatedAt = current_timestamp WHERE key = $key`, {
+      $key: project.key,
+      $endAt: project.endAt,
+    })
+    .then((result) => {
+      return result.changes
+        ? getProject({ key: project.key }, ctx)
+        : new Error('Unable to set end date of project')
+    })
+}
+
+export const setStartDateOfProject = (project: { key: string; startAt: string }, ctx) => {
+  return ctx.db
+    .run(
+      `UPDATE project SET startAt = $startAt, lastUpdatedAt = current_timestamp WHERE key = $key`,
+      {
+        $key: project.key,
+        $startAt: project.startAt,
+      },
+    )
+    .then((result) => {
+      return result.changes
+        ? getProject({ key: project.key }, ctx)
+        : new Error('Unable to set start date of project')
+    })
+}

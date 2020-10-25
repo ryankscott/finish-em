@@ -27,6 +27,7 @@
     "test:jest": "jest"
   },
   "license": "MIT",
+ "browserslist": [ "last 2 Chrome versions" ],
   "build": {
     "productName": "Finish-em",
     "appId": "com.ryankscott.finish-em",

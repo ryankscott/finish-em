@@ -6,21 +6,21 @@ CREATE TABLE label (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT,
   colour TEXT,
-  key TEXT UNIQUE
+  key TEXT NOT NULL UNIQUE
 );
 
 
 CREATE TABLE calendar (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT,
-  key TEXT UNIQUE
+  key TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE feature (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT,
   enabled BOOLEAN,
-  key TEXT UNIQUE
+  key TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE reminder (
@@ -32,7 +32,7 @@ CREATE TABLE reminder (
   lastUpdatedAt TEXT,
   deletedAt TEXT,
   createdAt TEXT,
-  key TEXT UNIQUE,
+  key TEXT NOT NULL UNIQUE,
   FOREIGN KEY(itemId) REFERENCES item(id) ON DELETE CASCADE
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE event (
   description TEXT,
   allDay BOOLEAN,
   calendarId INTEGER,
-  key TEXT UNIQUE,
+  key TEXT NOT NULL UNIQUE,
   FOREIGN KEY(calendarId) REFERENCES calendar(id) ON DELETE CASCADE
 );
 
@@ -56,7 +56,7 @@ CREATE TABLE area (
   lastUpdatedAt TEXT,
   deletedAt TEXT,
   createdAt TEXT,
-  key TEXT UNIQUE
+  key TEXT NOT NULL UNIQUE
 );
 
 
@@ -71,7 +71,7 @@ CREATE TABLE project (
   startAt TEXT,
   endAt TEXT,
   areaId INTEGER,
-  key TEXT UNIQUE,
+  key TEXT NOT NULL UNIQUE,
   FOREIGN KEY(areaId) REFERENCES area(id) ON DELETE CASCADE
 );
 
@@ -93,7 +93,7 @@ CREATE TABLE item(
   repeat TEXT,
   labelId INTEGER, 
   areaId INTEGER,
-  key TEXT UNIQUE,
+  key TEXT NOT NULL UNIQUE,
   FOREIGN KEY(parentId) REFERENCES item(id) ON DELETE CASCADE,
   FOREIGN KEY(projectId) REFERENCES project(id) ON DELETE CASCADE,
   FOREIGN KEY(areaId) REFERENCES area(id) ON DELETE CASCADE,
@@ -101,7 +101,13 @@ CREATE TABLE item(
 );
 
 
--- INSERTS 
+-- INSERTS
+INSERT INTO label (key, name, colour)
+VALUES
+    ('4702c2d3-bcda-40a2-bd34-e0db07578076', 'Blocked', '#fe5e41'),
+    ('5bd4d5ce-447f-45d5-a557-c8942bbfbae4', 'High Priority', '#f9df77'),
+    ('a342c159-9691-4684-a109-156ba46c1ea4', 'Pending', '#59cd90');
+
 INSERT INTO feature (key, name, enabled) 
 VALUES
     ('d6831b6f-6d48-4c1c-981b-5dd2816ce8c4', 'dragAndDrop', false ),

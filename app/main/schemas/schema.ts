@@ -1,18 +1,14 @@
-import { buildSchema } from "graphql";
+import { buildSchema } from 'graphql'
 import {
   getLabels,
   getLabel,
   createLabel,
   deleteLabel,
   renameLabel,
-  recolourLabel
-} from "../api/label";
-import {
-  createFeature,
-  getFeature,
-  getFeatures,
-  setFeature
-} from "../api/feature";
+  recolourLabel,
+} from '../api/label'
+import { createFeature, getFeature, getFeatures, setFeature } from '../api/feature'
+import CSS from 'csstype'
 
 // TODO: Work out where / how to store ordering
 export const schema = buildSchema(`
@@ -96,7 +92,6 @@ export const schema = buildSchema(`
     area: Area,
   }
 
-
   input LabelInput {
     key: String!,
     name: String!,
@@ -121,16 +116,82 @@ export const schema = buildSchema(`
     name: String!,
     enabled: Boolean!
   }
+
   input SetFeatureInput{
     key: String!,
     enabled: Boolean!
   }
+
+input ProjectInput {
+    key: String!
+    name: String!
+    deleted: Boolean!
+    description: String
+    lastUpdatedAt: String
+    deletedAt: String
+    createdAt: String
+    startAt: String
+    endAt: String
+    areaId: String
+}
+
+input DeleteProjectInput {
+  key: String!
+}
+
+input RenameProjectInput {
+  key: String!
+  name: String!
+}
+
+input ChangeDescriptionProjectInput {
+  key: String!
+  description: String!
+}
+
+input SetEndDateOfProjectInput {
+  key: String!
+  endAt: String!
+}
+
+input SetStartDateOfProjectInput {
+  key: String!
+  startAt: String!
+}
+
+input AreaInput {
+    key: String!
+    name: String!
+    deleted: Boolean!
+    description: String
+    lastUpdatedAt: String
+    deletedAt: String
+    createdAt: String
+}
+
+input DeleteAreaInput {
+  key: String!
+}
+
+input RenameAreaInput {
+  key: String!
+  name: String!
+}
+
+input ChangeDescriptionAreaInput {
+  key: String!
+  description: String!
+}
 
 type Query {
     labels: [Label],
     label(key: String!): Label,
     features: [Feature],
     feature(key: String!): Feature
+    projects: [Project],
+    project(key: String!): Project
+    areas: [Area],
+    area(key: String!): Area
   }
 
 type Mutation {
@@ -140,39 +201,49 @@ type Mutation {
     deleteLabel(input: DeleteLabelInput!): String,
     createFeature(input: FeatureInput!) : Feature,
     setFeature(input: SetFeatureInput!) : Feature,
+    createProject(input: ProjectInput!): Project,
+    deleteProject(input: DeleteProjectInput!): String,
+    renameProject(input: RenameProjectInput!): Project,
+    changeDescriptionProject(input: ChangeDescriptionProjectInput!): Project,
+    setEndDateOfProject(input: SetEndDateOfProjectInput!): Project,
+    setStartDateOfProject(input: SetStartDateOfProjectInput!): Project,
+    createArea(input: AreaInput!): Area,
+    deleteArea(input: DeleteAreaInput!): String,
+    renameArea(input: RenameAreaInput!): Area,
+    changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area,
 }
 
-`);
+`)
 
 export const rootValue = {
   labels: (obj, ctx) => {
-    return getLabels(obj, ctx);
+    return getLabels(obj, ctx)
   },
-  label: (key, ctx) => {
-    return getLabel(key, ctx);
+  label: (key: string, ctx) => {
+    return getLabel(key, ctx)
   },
   createLabel: ({ input }, ctx) => {
-    return createLabel(input, ctx);
+    return createLabel(input, ctx)
   },
   renameLabel: ({ input }, ctx) => {
-    return renameLabel(input, ctx);
+    return renameLabel(input, ctx)
   },
   recolourLabel: ({ input }, ctx) => {
-    return recolourLabel(input, ctx);
+    return recolourLabel(input, ctx)
   },
-  deleteLabel: ({ input }, ctx) => {
-    return deleteLabel(input, ctx);
+  deleteLabel: (key: string, ctx) => {
+    return deleteLabel(key, ctx)
   },
-  feature: (key, ctx) => {
-    return getFeature(key, ctx);
+  feature: (key: string, ctx) => {
+    return getFeature(key, ctx)
   },
   features: (obj, ctx) => {
-    return getFeatures(obj, ctx);
+    return getFeatures(obj, ctx)
   },
   createFeature: ({ input }, ctx) => {
-    return createFeature(input, ctx);
+    return createFeature(input, ctx)
   },
-  setFeature: ({ input }, ctx) => {
-    return setFeature(input, ctx);
-  }
-};
+  setFeature: (input: { key: string; enabled: boolean }, ctx) => {
+    return setFeature(input, ctx)
+  },
+}

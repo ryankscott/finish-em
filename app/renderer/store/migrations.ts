@@ -282,7 +282,51 @@ export const migrateLabelsToGraphQL = (ls: Labels): void => {
       })
       .then((result) => console.log(result))
   })
+  return
+}
 
+export const migrateProjecsToGraphQL = (ps: Projects): void => {
+  const createProjectQuery = (
+    key: string,
+    name: string,
+    deleted: boolean,
+    description: string,
+    lastUpdatedAt: string,
+    deletedAt: string,
+    createdAt: string,
+    startAt: string,
+    endAt: string,
+    areaId: string,
+  ) => {
+    return `
+        mutation {
+            createProject(input: { key: "${key}", name: "${name}", deleted: "${deleted}", description: "${description}", lastUpdatedAt: "${lastUpdatedAt}", deletedAt: "${deletedAt}", createdAt: "${createdAt}", startAt: "${startAt}", endAt: "${endAt}", areaId: "${areaId}"})
+            {
+              key
+            }
+        }
+    `
+  }
+  Object.values(ps.projects).map((p) => {
+    client
+      .mutate({
+        mutation: gql`
+          ${createProjectQuery(
+            p.id,
+            p.name,
+            p.deleted,
+            p.description,
+            p.lastUpdatedAt,
+            p.deletedAt,
+            p.createdAt,
+            p.startAt,
+            p.endAt,
+            p.areaId,
+          )}
+        `,
+      })
+      .then((result) => console.log(result))
+  })
   return
 }
 
