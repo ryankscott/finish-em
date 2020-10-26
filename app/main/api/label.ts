@@ -9,6 +9,7 @@ export const getLabels = (obj, ctx) => {
 
 // TODO: Not sure why this is an object for key
 export const getLabel = (input: { key: string }, ctx) => {
+  console.log(input)
   return ctx.db
     .get('SELECT key, name, colour FROM label WHERE key = $key', {
       $key: input.key,

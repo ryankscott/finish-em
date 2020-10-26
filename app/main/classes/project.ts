@@ -1,3 +1,4 @@
+import { getArea } from '../api'
 export default class Project {
   constructor(
     key: string,
@@ -9,7 +10,7 @@ export default class Project {
     createdAt: string,
     startAt: string,
     endAt: string,
-    areaId: string,
+    areaKey: string,
   ) {
     this.key = key
     this.name = name
@@ -20,6 +21,10 @@ export default class Project {
     this.createdAt = createdAt
     this.startAt = startAt
     this.endAt = endAt
-    this.areaId = areaId
+    this.areaKey = areaKey
+  }
+
+  area(obj, ctx) {
+    return getArea({ key: this.areaKey }, ctx)
   }
 }

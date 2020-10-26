@@ -6,9 +6,20 @@ import {
   deleteLabel,
   renameLabel,
   recolourLabel,
-} from '../api/label'
-import { createFeature, getFeature, getFeatures, setFeature } from '../api/feature'
-import CSS from 'csstype'
+  createFeature,
+  getFeature,
+  getFeatures,
+  setFeature,
+  getProject,
+  getProjects,
+  createProject,
+  deleteProject,
+  renameProject,
+  changeDescriptionProject,
+  setStartDateOfProject,
+  setEndDateOfProject,
+  getProjectsByArea,
+} from '../api/'
 
 // TODO: Work out where / how to store ordering
 export const schema = buildSchema(`
@@ -132,7 +143,7 @@ input ProjectInput {
     createdAt: String
     startAt: String
     endAt: String
-    areaId: String
+    areaKey: String
 }
 
 input DeleteProjectInput {
@@ -190,6 +201,7 @@ type Query {
     feature(key: String!): Feature
     projects: [Project],
     project(key: String!): Project
+    projectsByArea(areaKey: String!): Project
     areas: [Area],
     area(key: String!): Area
   }
@@ -199,14 +211,17 @@ type Mutation {
     renameLabel(input: RenameLabelInput!) : Label,
     recolourLabel(input: RecolourLabelInput!) : Label,
     deleteLabel(input: DeleteLabelInput!): String,
+
     createFeature(input: FeatureInput!) : Feature,
     setFeature(input: SetFeatureInput!) : Feature,
+
     createProject(input: ProjectInput!): Project,
     deleteProject(input: DeleteProjectInput!): String,
     renameProject(input: RenameProjectInput!): Project,
     changeDescriptionProject(input: ChangeDescriptionProjectInput!): Project,
     setEndDateOfProject(input: SetEndDateOfProjectInput!): Project,
     setStartDateOfProject(input: SetStartDateOfProjectInput!): Project,
+
     createArea(input: AreaInput!): Area,
     deleteArea(input: DeleteAreaInput!): String,
     renameArea(input: RenameAreaInput!): Area,
@@ -219,8 +234,8 @@ export const rootValue = {
   labels: (obj, ctx) => {
     return getLabels(obj, ctx)
   },
-  label: ({ input }, ctx) => {
-    return getLabel(input, ctx)
+  label: (key, ctx) => {
+    return getLabel(key, ctx)
   },
   createLabel: ({ input }, ctx) => {
     return createLabel(input, ctx)
@@ -234,8 +249,8 @@ export const rootValue = {
   deleteLabel: ({ input }, ctx) => {
     return deleteLabel(input, ctx)
   },
-  feature: ({ input }, ctx) => {
-    return getFeature(input, ctx)
+  feature: (key, ctx) => {
+    return getFeature(key, ctx)
   },
   features: (obj, ctx) => {
     return getFeatures(obj, ctx)
@@ -245,5 +260,32 @@ export const rootValue = {
   },
   setFeature: ({ input }, ctx) => {
     return setFeature(input, ctx)
+  },
+  projects: (obj, ctx) => {
+    return getProjects(obj, ctx)
+  },
+  projectsByArea: (key, ctx) => {
+    return getProjectsByArea(key, ctx)
+  },
+  project: (key, ctx) => {
+    return getProject(key, ctx)
+  },
+  createProject: ({ input }, ctx) => {
+    return createProject(input, ctx)
+  },
+  deleteProject: ({ input }, ctx) => {
+    return deleteProject(input, ctx)
+  },
+  renameProject: ({ input }, ctx) => {
+    return renameProject(input, ctx)
+  },
+  changeDescriptionProject: ({ input }, ctx) => {
+    return changeDescriptionProject(input, ctx)
+  },
+  setStartDateOfProject: ({ input }, ctx) => {
+    return setStartDateOfProject(input, ctx)
+  },
+  setEndDateOfProject: ({ input }, ctx) => {
+    return setEndDateOfProject(input, ctx)
   },
 }

@@ -28,12 +28,12 @@ CREATE TABLE reminder (
   text TEXT,
   deleted BOOLEAN,
   remindAt TEXT,
-  itemId INTEGER,
+  itemKey INTEGER,
   lastUpdatedAt TEXT,
   deletedAt TEXT,
   createdAt TEXT,
   key TEXT NOT NULL UNIQUE,
-  FOREIGN KEY(itemId) REFERENCES item(id) ON DELETE CASCADE
+  FOREIGN KEY(itemKey) REFERENCES item(key) ON DELETE CASCADE
 );
 
 CREATE TABLE event (
@@ -43,9 +43,9 @@ CREATE TABLE event (
   end TEXT,
   description TEXT,
   allDay BOOLEAN,
-  calendarId INTEGER,
+  calendarKey INTEGER,
   key TEXT NOT NULL UNIQUE,
-  FOREIGN KEY(calendarId) REFERENCES calendar(id) ON DELETE CASCADE
+  FOREIGN KEY(calendarKey) REFERENCES calendar(key) ON DELETE CASCADE
 );
 
 CREATE TABLE area (
@@ -70,9 +70,9 @@ CREATE TABLE project (
   createdAt TEXT,
   startAt TEXT,
   endAt TEXT,
-  areaId INTEGER,
+  areaKey INTEGER,
   key TEXT NOT NULL UNIQUE,
-  FOREIGN KEY(areaId) REFERENCES area(id) ON DELETE CASCADE
+  FOREIGN KEY(areaKey) REFERENCES area(key) ON DELETE CASCADE
 );
 
 
@@ -82,8 +82,8 @@ CREATE TABLE item(
   text TEXT,
   deleted BOOLEAN,
   completed BOOLEAN,
-  parentId INTEGER, 
-  projectId INTEGER, 
+  parentKey INTEGER, 
+  projectKey INTEGER, 
   dueDate TEXT,
   scheduledDate TEXT,
   lastUpdatedAt TEXT,
@@ -91,13 +91,13 @@ CREATE TABLE item(
   createdAt TEXT,
   deletedAt TEXT,
   repeat TEXT,
-  labelId INTEGER, 
-  areaId INTEGER,
+  labelKey INTEGER, 
+  areaKey INTEGER,
   key TEXT NOT NULL UNIQUE,
-  FOREIGN KEY(parentId) REFERENCES item(id) ON DELETE CASCADE,
-  FOREIGN KEY(projectId) REFERENCES project(id) ON DELETE CASCADE,
-  FOREIGN KEY(areaId) REFERENCES area(id) ON DELETE CASCADE,
-  FOREIGN KEY(labelId) REFERENCES label(id) ON DELETE SET NULL
+  FOREIGN KEY(parentKey) REFERENCES item(key) ON DELETE CASCADE,
+  FOREIGN KEY(projectKey) REFERENCES project(key) ON DELETE CASCADE,
+  FOREIGN KEY(areaKey) REFERENCES area(key) ON DELETE CASCADE,
+  FOREIGN KEY(labelKey) REFERENCES label(key) ON DELETE SET NULL
 );
 
 
@@ -114,6 +114,15 @@ VALUES
     ('debd2eec-1486-4a3b-8030-e22387a63feb', 'projectDates', false ),
     ('6e468413-d926-416e-a616-67cf1e4ee065', 'calendarIntegration', false ),
     ('b48f0b19-9a28-4275-a6a8-f92a0cec9e5f', 'dailyGoals', false );
+
+INSERT INTO area (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt) 
+VALUES
+('0', 'Other', false, 'Default landing space for projects', '1970-01-01 00:00:00', null, '1970-01-01 00:00:00'),
+('1', 'Work', false, 'Default landing space for projects', '1970-01-01 00:00:00', null, '1970-01-01 00:00:00');
+
+INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey)
+VALUES
+('0', 'Inbox', false, 'Default landing space for all items', '1970-01-01 00:00:00', null, '1970-01-01 00:00:00', null, null, '0');
 
 
 
