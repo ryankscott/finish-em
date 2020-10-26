@@ -8,11 +8,10 @@ export const getLabels = (obj, ctx) => {
 }
 
 // TODO: Not sure why this is an object for key
-export const getLabel = (key: string, ctx) => {
-  console.log(key)
+export const getLabel = (input: { key: string }, ctx) => {
   return ctx.db
     .get('SELECT key, name, colour FROM label WHERE key = $key', {
-      $key: key,
+      $key: input.key,
     })
     .then((result) => {
       return new Label(result.key, result.name, result.colour)
@@ -31,7 +30,9 @@ export const createLabel = (
       input.colour,
     )
     .then((result) => {
-      return result.changes ? getLabel(input.key, ctx) : new Error('Unable to create label')
+      return result.changes
+        ? getLabel({ key: input.key }, ctx)
+        : new Error('Unable to create label')
     })
 }
 
@@ -55,12 +56,14 @@ export const recolourLabel = (label: { key: string; colour: CSS.Property.Color }
       $colour: label.colour,
     })
     .then((result) => {
-      return result.changes ? getLabel(label.key, ctx) : new Error('Unable to recolour label')
+      return result.changes
+        ? getLabel({ key: label.key }, ctx)
+        : new Error('Unable to recolour label')
     })
 }
 
-export const deleteLabel = (key: string, ctx) => {
-  return ctx.db.run('DELETE FROM label WHERE key = $key', { $key: key }).then((result) => {
-    return result.changes ? key : new Error(`Unable to delete label with key ${key}`)
+export const deleteLabel = (input: { key: string }, ctx) => {
+  return ctx.db.run('DELETE FROM label WHERE key = $key', { $key: input.key }).then((result) => {
+    return result.changes ? input.key : new Error(`Unable to delete label with key ${input.key}`)
   })
 }

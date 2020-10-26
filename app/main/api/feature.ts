@@ -6,36 +6,40 @@ export const getFeatures = (obj, ctx) => {
     .then((result) => result.map((r) => new Feature(r.key, r.name, r.enabled)))
 }
 
-export const getFeature = (key: string, ctx) => {
+export const getFeature = (input: { key: string }, ctx) => {
   return ctx.db
     .get('SELECT key, name, enabled FROM feature WHERE key = $key', {
-      $key: key,
+      $key: input.key,
     })
     .then((result) => {
       return new Feature(result.key, result.name, result.enabled)
     })
 }
 
-export const setFeature = (data: { key: string; enabled: boolean }, ctx) => {
+export const setFeature = (input: { key: string; enabled: boolean }, ctx) => {
   return ctx.db
     .run('UPDATE feature SET enabled = $enabled WHERE key = $key', {
-      $enabled: data.enabled,
-      $key: data.key,
+      $enabled: input.enabled,
+      $key: input.key,
     })
     .then((result) => {
-      return result.changes ? getFeature(data.key, ctx) : new Error('Unable to create feature')
+      return result.changes
+        ? getFeature({ key: input.key }, ctx)
+        : new Error('Unable to create feature')
     })
 }
 
-export const createFeature = (feature: { key: string; name: string; enabled: boolean }, ctx) => {
+export const createFeature = (input: { key: string; name: string; enabled: boolean }, ctx) => {
   return ctx.db
     .run(
       'INSERT INTO feature (key, name, enabled) VALUES (?, ?, ?)',
-      feature.key,
-      feature.name,
-      feature.enabled,
+      input.key,
+      input.name,
+      input.enabled,
     )
     .then((result) => {
-      return result.changes ? getFeature(feature.key, ctx) : new Error('Unable to create feature')
+      return result.changes
+        ? getFeature({ key: input.key }, ctx)
+        : new Error('Unable to create feature')
     })
 }

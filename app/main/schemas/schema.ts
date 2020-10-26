@@ -219,8 +219,8 @@ export const rootValue = {
   labels: (obj, ctx) => {
     return getLabels(obj, ctx)
   },
-  label: (key: string, ctx) => {
-    return getLabel(key, ctx)
+  label: ({ input }, ctx) => {
+    return getLabel(input, ctx)
   },
   createLabel: ({ input }, ctx) => {
     return createLabel(input, ctx)
@@ -231,11 +231,11 @@ export const rootValue = {
   recolourLabel: ({ input }, ctx) => {
     return recolourLabel(input, ctx)
   },
-  deleteLabel: (key: string, ctx) => {
-    return deleteLabel(key, ctx)
+  deleteLabel: ({ input }, ctx) => {
+    return deleteLabel(input, ctx)
   },
-  feature: (key: string, ctx) => {
-    return getFeature(key, ctx)
+  feature: ({ input }, ctx) => {
+    return getFeature(input, ctx)
   },
   features: (obj, ctx) => {
     return getFeatures(obj, ctx)
@@ -243,7 +243,7 @@ export const rootValue = {
   createFeature: ({ input }, ctx) => {
     return createFeature(input, ctx)
   },
-  setFeature: (input: { key: string; enabled: boolean }, ctx) => {
+  setFeature: ({ input }, ctx) => {
     return setFeature(input, ctx)
   },
 }
