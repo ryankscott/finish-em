@@ -19,6 +19,20 @@ import {
   setStartDateOfProject,
   setEndDateOfProject,
   getProjectsByArea,
+  getArea,
+  getAreas,
+  getAreaOrder,
+  getAreaOrders,
+  createAreaOrder,
+  createArea,
+  deleteArea,
+  renameArea,
+  changeDescriptionArea,
+  getReminder,
+  getReminders,
+  createReminder,
+  deleteReminder,
+  setAreaOrder,
 } from '../api/'
 
 // TODO: Work out where / how to store ordering
@@ -69,6 +83,11 @@ export const schema = buildSchema(`
     lastUpdatedAt: String,
     deletedAt: String,
     createdAt: String,
+  }
+
+  type AreaOrder {
+    areaKey: String!
+    sortOrder: Int!
   }
 
   type Project {
@@ -180,6 +199,7 @@ input AreaInput {
     createdAt: String
 }
 
+
 input DeleteAreaInput {
   key: String!
 }
@@ -194,6 +214,32 @@ input ChangeDescriptionAreaInput {
   description: String!
 }
 
+
+input ReminderInput {
+    key: String!
+    name: String!
+    deleted: Boolean!
+    remindAt: String
+    lastUpdatedAt: String
+    deletedAt: String
+    createdAt: String
+    itemKey: String
+}
+
+input DeleteReminderInput {
+  key: String!
+}
+
+input SetAreaOrderInput {
+  areaKey: String!
+  newOrder: Int!
+}
+
+input CreateAreaOrderInput {
+  areaKey: String!
+}
+
+
 type Query {
     labels: [Label],
     label(key: String!): Label,
@@ -204,6 +250,10 @@ type Query {
     projectsByArea(areaKey: String!): Project
     areas: [Area],
     area(key: String!): Area
+    areaOrders: [AreaOrder]
+    areaOrder(areaKey: String!): AreaOrder
+    reminders: [Reminder],
+    reminder(key: String!): Reminder
   }
 
 type Mutation {
@@ -226,6 +276,13 @@ type Mutation {
     deleteArea(input: DeleteAreaInput!): String,
     renameArea(input: RenameAreaInput!): Area,
     changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area,
+
+
+    createReminder(input: ReminderInput!): Reminder,
+    deleteReminder(input: DeleteReminderInput!): String,
+
+    setAreaOrder(input: SetAreaOrderInput!): AreaOrder
+    createAreaOrder(input: CreateAreaOrderInput!): AreaOrder
 }
 
 `)
@@ -287,5 +344,47 @@ export const rootValue = {
   },
   setEndDateOfProject: ({ input }, ctx) => {
     return setEndDateOfProject(input, ctx)
+  },
+  areas: (obj, ctx) => {
+    return getAreas(obj, ctx)
+  },
+  area: (key, ctx) => {
+    return getArea(key, ctx)
+  },
+  areaOrders: (obj, ctx) => {
+    return getAreaOrders(obj, ctx)
+  },
+  areaOrder: (key, ctx) => {
+    return getAreaOrder(key, ctx)
+  },
+  setAreaOrder: ({ input }, ctx) => {
+    return setAreaOrder(input, ctx)
+  },
+  createAreaOrder: ({ input }, ctx) => {
+    return createAreaOrder(input, ctx)
+  },
+  createArea: ({ input }, ctx) => {
+    return createArea(input, ctx)
+  },
+  deleteArea: ({ input }, ctx) => {
+    return deleteArea(input, ctx)
+  },
+  renameArea: ({ input }, ctx) => {
+    return renameArea(input, ctx)
+  },
+  changeDescriptionArea: ({ input }, ctx) => {
+    return changeDescriptionArea(input, ctx)
+  },
+  reminders: (obj, ctx) => {
+    return getReminders(obj, ctx)
+  },
+  reminder: (key, ctx) => {
+    return getReminder(key, ctx)
+  },
+  createReminder: ({ input }, ctx) => {
+    return createReminder(input, ctx)
+  },
+  deleteReminder: ({ input }, ctx) => {
+    return deleteReminder(input, ctx)
   },
 }

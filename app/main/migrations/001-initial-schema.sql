@@ -28,7 +28,7 @@ CREATE TABLE reminder (
   text TEXT,
   deleted BOOLEAN,
   remindAt TEXT,
-  itemKey INTEGER,
+  itemKey TEXT,
   lastUpdatedAt TEXT,
   deletedAt TEXT,
   createdAt TEXT,
@@ -39,11 +39,11 @@ CREATE TABLE reminder (
 CREATE TABLE event (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT,
-  start TEXT,
-  end TEXT,
+  startAt TEXT,
+  endAt TEXT,
   description TEXT,
   allDay BOOLEAN,
-  calendarKey INTEGER,
+  calendarKey TEXT,
   key TEXT NOT NULL UNIQUE,
   FOREIGN KEY(calendarKey) REFERENCES calendar(key) ON DELETE CASCADE
 );
@@ -60,6 +60,14 @@ CREATE TABLE area (
 );
 
 
+CREATE TABLE areaOrder (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  areaKey TEXT NOT NULL UNIQUE,
+  sortOrder INTEGER NOT NULL,
+  FOREIGN KEY(areaKey) REFERENCES area(key) ON DELETE CASCADE
+);
+
+
 CREATE TABLE project (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT,
@@ -70,9 +78,16 @@ CREATE TABLE project (
   createdAt TEXT,
   startAt TEXT,
   endAt TEXT,
-  areaKey INTEGER,
+  areaKey TEXT,
   key TEXT NOT NULL UNIQUE,
   FOREIGN KEY(areaKey) REFERENCES area(key) ON DELETE CASCADE
+);
+
+CREATE TABLE projectOrder (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  projectKey TEXT NOT NULL UNIQUE,
+  sortOrder INTEGER NOT NULL,
+  FOREIGN KEY(projectKey) REFERENCES project(key) ON DELETE CASCADE
 );
 
 
@@ -82,8 +97,8 @@ CREATE TABLE item(
   text TEXT,
   deleted BOOLEAN,
   completed BOOLEAN,
-  parentKey INTEGER, 
-  projectKey INTEGER, 
+  parentKey TEXT, 
+  projectKey TEXT, 
   dueDate TEXT,
   scheduledDate TEXT,
   lastUpdatedAt TEXT,
@@ -91,8 +106,8 @@ CREATE TABLE item(
   createdAt TEXT,
   deletedAt TEXT,
   repeat TEXT,
-  labelKey INTEGER, 
-  areaKey INTEGER,
+  labelKey TEXT, 
+  areaKey TEXT,
   key TEXT NOT NULL UNIQUE,
   FOREIGN KEY(parentKey) REFERENCES item(key) ON DELETE CASCADE,
   FOREIGN KEY(projectKey) REFERENCES project(key) ON DELETE CASCADE,
@@ -120,10 +135,18 @@ VALUES
 ('0', 'Other', false, 'Default landing space for projects', '1970-01-01 00:00:00', null, '1970-01-01 00:00:00'),
 ('1', 'Work', false, 'Default landing space for projects', '1970-01-01 00:00:00', null, '1970-01-01 00:00:00');
 
+INSERT INTO areaOrder (areaKey, sortOrder) 
+VALUES
+('0', 0), 
+('1', 1);
+
 INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey)
 VALUES
 ('0', 'Inbox', false, 'Default landing space for all items', '1970-01-01 00:00:00', null, '1970-01-01 00:00:00', null, null, '0');
 
+INSERT INTO projectOrder (projectKey, sortOrder) 
+VALUES
+('0', 0); 
 
 
 -- --------------------------------------------------------------------------------
@@ -135,7 +158,8 @@ DROP TABLE feature;
 DROP TABLE reminder;
 DROP TABLE event;
 DROP TABLE area;
+DROP TABLE areaOrder;
 DROP TABLE project;
+DROP TABLE projectOrder;
 DROP TABLE item;
-
 

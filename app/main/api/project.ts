@@ -182,3 +182,19 @@ export const setStartDateOfProject = (input: { key: string; startAt: string }, c
         : new Error('Unable to set start date of project')
     })
 }
+
+export const setAreaOfProject = (input: { key: string; areaKey: string }, ctx) => {
+  return ctx.db
+    .run(
+      `UPDATE project SET areaKey = $areaKey, lastUpdatedAt = current_timestamp WHERE key = $key`,
+      {
+        $key: input.key,
+        $areaKey: input.areaKey,
+      },
+    )
+    .then((result) => {
+      return result.changes
+        ? getProject({ key: input.key }, ctx)
+        : new Error('Unable to set area of project')
+    })
+}
