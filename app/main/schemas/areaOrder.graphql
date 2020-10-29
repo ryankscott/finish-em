@@ -1,0 +1,23 @@
+type AreaOrder {
+  areaKey: String!
+  sortOrder: Int!
+}
+
+input SetAreaOrderInput {
+  areaKey: String!
+  newOrder: Int!
+}
+
+input CreateAreaOrderInput {
+  areaKey: String!
+}
+
+type Query {
+  areaOrders: [AreaOrder]
+  areaOrder(areaKey: String!): AreaOrder
+}
+
+type Mutation {
+  setAreaOrder(input: SetAreaOrderInput!): AreaOrder
+  createAreaOrder(input: CreateAreaOrderInput!): AreaOrder
+}

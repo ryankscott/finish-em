@@ -234,7 +234,7 @@ export const migratev47to48Items = (its: Items): Items => {
   return { items: Object.fromEntries(itemEntries), order: order }
 }
 
-export const migrateFeaturestoGraphQL = (fs: FeatureType): void => {
+export const migrateFeaturesToGraphQL = (fs: FeatureType): void => {
   const createFeatureQuery = (key: string, name: string, enabled: boolean) => {
     return `
         mutation {
@@ -285,7 +285,7 @@ export const migrateLabelsToGraphQL = (ls: Labels): void => {
   return
 }
 
-export const migrateProjecsToGraphQL = (ps: Projects): void => {
+export const migrateProjectsToGraphQL = (ps: Projects): void => {
   const createProjectQuery = (
     key: string,
     name: string,
@@ -296,11 +296,21 @@ export const migrateProjecsToGraphQL = (ps: Projects): void => {
     createdAt: string,
     startAt: string,
     endAt: string,
-    areaId: string,
+    areaKey: string,
   ) => {
     return `
         mutation {
-            createProject(input: { key: "${key}", name: "${name}", deleted: "${deleted}", description: "${description}", lastUpdatedAt: "${lastUpdatedAt}", deletedAt: "${deletedAt}", createdAt: "${createdAt}", startAt: "${startAt}", endAt: "${endAt}", areaId: "${areaId}"})
+            createProject(input: {
+            key: "${key}",
+            name: "${name}",
+            deleted: "${deleted}",
+            description: "${description}",
+            lastUpdatedAt: "${lastUpdatedAt}",
+            deletedAt: "${deletedAt}",
+            createdAt: "${createdAt}",
+            startAt: "${startAt}",
+            endAt: "${endAt}",
+            areaKey: "${areaKey}"})
             {
               key
             }
@@ -321,7 +331,53 @@ export const migrateProjecsToGraphQL = (ps: Projects): void => {
             p.createdAt,
             p.startAt,
             p.endAt,
-            p.areaId,
+            p.areaKey,
+          )}
+        `,
+      })
+      .then((result) => console.log(result))
+  })
+  return
+}
+
+export const migrateAreasToGraphQL = (ps: Areas): void => {
+  const createAreaQuery = (
+    key: string,
+    name: string,
+    deleted: boolean,
+    description: string,
+    lastUpdatedAt: string,
+    deletedAt: string,
+    createdAt: string,
+  ) => {
+    return `
+        mutation {
+            createArea(input: {
+            key: "${key}",
+            name: "${name}",
+            deleted: "${deleted}",
+            description: "${description}",
+            lastUpdatedAt: "${lastUpdatedAt}",
+            deletedAt: "${deletedAt}",
+            createdAt: "${createdAt}",
+            {
+              key
+            }
+        }
+    `
+  }
+  Object.values(ps.areas).map((p) => {
+    client
+      .mutate({
+        mutation: gql`
+          ${createAreaQuery(
+            p.id,
+            p.name,
+            p.deleted,
+            p.description,
+            p.lastUpdatedAt,
+            p.deletedAt,
+            p.createdAt,
           )}
         `,
       })
@@ -899,7 +955,8 @@ export const migrations = {
   },
   49: (state) => {
     migrateLabelsToGraphQL(state.ui.labels)
-    migrateFeaturestoGraphQL(state.features)
+    migrateFeaturesToGraphQL(state.features)
+    migrateProjectsToGraphQL(state.features)
     return {
       ...state,
     }

@@ -1,0 +1,35 @@
+type Reminder {
+  key: String!
+  text: String
+  deleted: Boolean
+  remindAt: String
+  item: Item
+  lastUpdatedAt: String
+  deletedAt: String
+  createdAt: String
+}
+
+input ReminderInput {
+  key: String!
+  name: String!
+  deleted: Boolean!
+  remindAt: String
+  lastUpdatedAt: String
+  deletedAt: String
+  createdAt: String
+  itemKey: String
+}
+
+input DeleteReminderInput {
+  key: String!
+}
+
+type Query {
+  reminders: [Reminder]
+  reminder(key: String!): Reminder
+}
+
+type Mutation {
+  createReminder(input: ReminderInput!): Reminder
+  deleteReminder(input: DeleteReminderInput!): String
+}

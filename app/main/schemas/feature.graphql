@@ -1,0 +1,26 @@
+type Feature {
+  key: String!
+  name: String!
+  enabled: Boolean
+}
+
+input FeatureInput {
+  key: String!
+  name: String!
+  enabled: Boolean!
+}
+
+input SetFeatureInput {
+  key: String!
+  enabled: Boolean!
+}
+
+type Query {
+  features: [Feature]
+  feature(key: String!): Feature
+}
+
+type Mutation {
+  createFeature(input: FeatureInput!): Feature
+  setFeature(input: SetFeatureInput!): Feature
+}

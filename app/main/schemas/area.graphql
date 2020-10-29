@@ -1,0 +1,45 @@
+type Area {
+  key: String!
+  name: String
+  deleted: Boolean
+  description: String
+  lastUpdatedAt: String
+  deletedAt: String
+  createdAt: String
+}
+
+input AreaInput {
+  key: String!
+  name: String!
+  deleted: Boolean!
+  description: String
+  lastUpdatedAt: String
+  deletedAt: String
+  createdAt: String
+}
+
+input DeleteAreaInput {
+  key: String!
+}
+
+input RenameAreaInput {
+  key: String!
+  name: String!
+}
+
+input ChangeDescriptionAreaInput {
+  key: String!
+  description: String!
+}
+
+type Query {
+  areas: [Area]
+  area(key: String!): Area
+}
+
+type Mutation {
+  createArea(input: AreaInput!): Area
+  deleteArea(input: DeleteAreaInput!): String
+  renameArea(input: RenameAreaInput!): Area
+  changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area
+}

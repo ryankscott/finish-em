@@ -1,0 +1,36 @@
+type Label {
+  key: String!
+  name: String
+  colour: String
+}
+
+input LabelInput {
+  key: String!
+  name: String!
+  colour: String!
+}
+
+input RenameLabelInput {
+  key: String!
+  name: String!
+}
+input RecolourLabelInput {
+  key: String!
+  colour: String!
+}
+
+input DeleteLabelInput {
+  key: String!
+}
+
+type Query {
+  labels: [Label]
+  label(key: String!): Label
+}
+
+type Mutation {
+  createLabel(input: LabelInput!): Label
+  renameLabel(input: RenameLabelInput!): Label
+  recolourLabel(input: RecolourLabelInput!): Label
+  deleteLabel(input: DeleteLabelInput!): String
+}

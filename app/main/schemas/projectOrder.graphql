@@ -1,0 +1,14 @@
+type ProjectOrder {
+  projectKey: String!
+  sortOrder: Int!
+}
+
+type Query {
+  projectOrders: [ProjectOrder]
+  projectOrder(projectKey: String!): ProjectOrder
+}
+
+type Mutation {
+  setProjectOrder(input: SetProjectOrderInput!): ProjectOrder
+  createProjectOrder(input: CreateProjectOrderInput!): ProjectOrder
+}

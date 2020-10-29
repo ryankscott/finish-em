@@ -1,0 +1,31 @@
+type Calendar {
+  key: String!
+  name: String!
+  active: Boolean
+}
+
+type CalendarInput {
+  key: String!
+  name: String!
+  active: Boolean!
+}
+
+type DeleteCalendarInput {
+  key: String!
+}
+
+type ActiveCalendarInput {
+  key: String!
+  active: Boolean
+}
+
+type Query {
+  calendars: [Calendar]
+  calendar(key: String!): Calendar
+}
+
+type Mutation {
+  createCalendar(input: CalendarInput!): Calendar
+  deleteCalendar(input: DeleteCalendarInput!): String
+  setActiveCalendar(input: ActiveCalendarInput!): Calendar
+}
