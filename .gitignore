@@ -46,3 +46,6 @@ package-lock.json
 
 # electron-builder
 electron-builder.yml
+
+# Databases
+*.db
