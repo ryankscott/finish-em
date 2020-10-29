@@ -33,10 +33,10 @@ jspm_packages/
 .cache
 
 # parcel build artefacts
-/app/renderer/.parcel/*
-/app/renderer/.parcel/**/*
-/app/main/.parcel/*
-/app/main/.parcel/**/*
+app/renderer/.parcel/*
+app/renderer/.parcel/**/*
+app/main/.parcel/*
+app/main/.parcel/**/*
 *.map
 
 # Stores VSCode versions used for testing VSCode extensions
