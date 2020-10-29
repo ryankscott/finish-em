@@ -1,4 +1,5 @@
 export * from './area'
+export * from './projectOrder'
 export * from './feature'
 export * from './label'
 export * from './project'

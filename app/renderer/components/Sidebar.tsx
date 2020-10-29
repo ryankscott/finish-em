@@ -1,4 +1,5 @@
 import React, { ReactElement } from 'react'
+import { gql, useMutation, useQuery } from '@apollo/client'
 import styled, { ThemeProvider } from '../StyledComponents'
 import { connect } from 'react-redux'
 import { useHistory, NavLink, NavLinkProps } from 'react-router-dom'
@@ -122,10 +123,39 @@ const SidebarItem = (props: {
   )
 }
 
+const GET_PROJECTS_AND_AREAS = gql`
+  query {
+    projects {
+      key
+      name
+    }
+    areas {
+      key
+      name
+    }
+    projectOrders {
+      projectKey
+      sortOrder
+    }
+    areaOrders {
+      areaKey
+      sortOrder
+    }
+  }
+`
+
 type SidebarProps = StateProps & DispatchProps
 const Sidebar = (props: SidebarProps): ReactElement => {
   const theme = themes[props.theme]
   const history = useHistory()
+  const { loading, error, data } = useQuery(GET_PROJECTS_AND_AREAS)
+
+  // TODO: Loading and error states
+  if (loading) return null
+  if (error) return null
+  else {
+    console.log(data)
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -211,16 +241,16 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                   isDraggingOver={snapshot.isDraggingOver}
                   sidebarVisible={props.sidebarVisible}
                 >
-                  {Object.values(props.areas.order).map((a: string, index) => {
-                    const area = props.areas.areas[a]
+                  {data.areaOrders.map((ao: { areaKey: string; sortOrder: Int }, index) => {
+                    const area = data.areas.find((a) => a.key == ao.areaKey)
                     return (
-                      <Draggable key={a} draggableId={a} index={index}>
+                      <Draggable key={ao.areaKey} draggableId={ao.areaKey} index={index}>
                         {(provided, snapshot) => (
                           <DraggableItem
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            key={'container-' + a}
+                            key={'container-' + ao.areaKey}
                             isDragging={snapshot.isDragging}
                             draggableStyle={provided.draggableProps.style}
                             sidebarVisible={props.sidebarVisible}
@@ -245,13 +275,13 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                   iconColour={'white'}
                                   onClick={() => {
                                     const projectId = uuidv4()
-                                    props.createProject(projectId, 'New Project', '', a)
+                                    props.createProject(projectId, 'New Project', '', ao.areaKey)
                                     history.push('/projects/' + projectId)
                                   }}
                                 />
                               )}
                             </SubsectionHeader>
-                            <Droppable droppableId={a} type="PROJECT">
+                            <Droppable droppableId={ao.areaKey} type="PROJECT">
                               {(provided, snapshot) => (
                                 <DroppableList
                                   {...provided.droppableProps}
@@ -264,7 +294,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                     if (p == '0') return
                                     const project = props.projects.projects[p]
                                     // Only render those in that area
-                                    if (project.areaId != a) return
+                                    if (project.areaId != ao.areaKey) return
                                     const pathName = '/projects/' + p
                                     //
                                     return (

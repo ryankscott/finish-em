@@ -23,6 +23,7 @@ import {
   getAreas,
   getAreaOrder,
   getAreaOrders,
+  setAreaOrder,
   createAreaOrder,
   createArea,
   deleteArea,
@@ -32,261 +33,20 @@ import {
   getReminders,
   createReminder,
   deleteReminder,
-  setAreaOrder,
+  getProjectOrder,
+  getProjectOrders,
+  setProjectOrder,
+  createProjectOrder,
 } from '../api/'
+import { loadSchemaSync } from '@graphql-tools/load'
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader'
+import * as path from 'path'
 
-// TODO: Work out where / how to store ordering
-export const schema = buildSchema(`
-  type Label {
-    key: String!,
-    name: String,
-    colour: String,
-  }
+export const schema = loadSchemaSync(path.join(process.cwd(), '/app/main/schemas/schema.graphql'), {
+  loaders: [new GraphQLFileLoader()],
+})
 
-  type Calendar {
-    key: String!,
-    name: String,
-  }
-
-  type Feature {
-    key: String!,
-    name: String!,
-    enabled: Boolean,
-  }
-
-  type Reminder {
-    key: String!,
-    text: String,
-    deleted: Boolean,
-    remindAt: String,
-    item: Item 
-    lastUpdatedAt: String,
-    deletedAt: String,
-    createdAt: String,
-  }
-
-  type Event {
-    key: String!,
-    title: String,
-    start: String,
-    end: String,
-    description: String,
-    allDay: Boolean,
-    calendar: Calendar,
-  }
-
-  type Area {
-    key: String!,
-    name: String,
-    deleted: Boolean,
-    description: String,
-    lastUpdatedAt: String,
-    deletedAt: String,
-    createdAt: String,
-  }
-
-  type AreaOrder {
-    areaKey: String!
-    sortOrder: Int!
-  }
-
-  type Project {
-    key: String!,
-    name: String,
-    deleted:  Boolean,
-    description: String,
-    lastUpdatedAt: String,
-    deletedAt: String,
-    createdAt: String,
-    startAt: String,
-    endAt: String,
-    area: Area,
-  }
-
-  type Item {
-    key: String!,
-    type: String, 
-    text: String,
-    deleted: Boolean,
-    completed: Boolean
-    parent: Item,
-    project: Project, 
-    dueDate: String,
-    scheduledDate: String,
-    lastUpdatedAt: String,
-    completedAt: String,
-    createdAt: String,
-    deletedAt: String,
-    repeat: String,
-    label: Label, 
-    area: Area,
-  }
-
-  input LabelInput {
-    key: String!,
-    name: String!,
-    colour: String!
-  }
-
-  input RenameLabelInput {
-   key: String!,
-   name: String!
- }
-  input RecolourLabelInput {
-   key: String!,
-   colour: String!
-}
-
-  input DeleteLabelInput {
-   key: String!
-  }
-
-  input FeatureInput{
-    key: String!,
-    name: String!,
-    enabled: Boolean!
-  }
-
-  input SetFeatureInput{
-    key: String!,
-    enabled: Boolean!
-  }
-
-input ProjectInput {
-    key: String!
-    name: String!
-    deleted: Boolean!
-    description: String
-    lastUpdatedAt: String
-    deletedAt: String
-    createdAt: String
-    startAt: String
-    endAt: String
-    areaKey: String
-}
-
-input DeleteProjectInput {
-  key: String!
-}
-
-input RenameProjectInput {
-  key: String!
-  name: String!
-}
-
-input ChangeDescriptionProjectInput {
-  key: String!
-  description: String!
-}
-
-input SetEndDateOfProjectInput {
-  key: String!
-  endAt: String!
-}
-
-input SetStartDateOfProjectInput {
-  key: String!
-  startAt: String!
-}
-
-input AreaInput {
-    key: String!
-    name: String!
-    deleted: Boolean!
-    description: String
-    lastUpdatedAt: String
-    deletedAt: String
-    createdAt: String
-}
-
-
-input DeleteAreaInput {
-  key: String!
-}
-
-input RenameAreaInput {
-  key: String!
-  name: String!
-}
-
-input ChangeDescriptionAreaInput {
-  key: String!
-  description: String!
-}
-
-
-input ReminderInput {
-    key: String!
-    name: String!
-    deleted: Boolean!
-    remindAt: String
-    lastUpdatedAt: String
-    deletedAt: String
-    createdAt: String
-    itemKey: String
-}
-
-input DeleteReminderInput {
-  key: String!
-}
-
-input SetAreaOrderInput {
-  areaKey: String!
-  newOrder: Int!
-}
-
-input CreateAreaOrderInput {
-  areaKey: String!
-}
-
-
-type Query {
-    labels: [Label],
-    label(key: String!): Label,
-    features: [Feature],
-    feature(key: String!): Feature
-    projects: [Project],
-    project(key: String!): Project
-    projectsByArea(areaKey: String!): Project
-    areas: [Area],
-    area(key: String!): Area
-    areaOrders: [AreaOrder]
-    areaOrder(areaKey: String!): AreaOrder
-    reminders: [Reminder],
-    reminder(key: String!): Reminder
-  }
-
-type Mutation {
-    createLabel(input: LabelInput!) : Label,
-    renameLabel(input: RenameLabelInput!) : Label,
-    recolourLabel(input: RecolourLabelInput!) : Label,
-    deleteLabel(input: DeleteLabelInput!): String,
-
-    createFeature(input: FeatureInput!) : Feature,
-    setFeature(input: SetFeatureInput!) : Feature,
-
-    createProject(input: ProjectInput!): Project,
-    deleteProject(input: DeleteProjectInput!): String,
-    renameProject(input: RenameProjectInput!): Project,
-    changeDescriptionProject(input: ChangeDescriptionProjectInput!): Project,
-    setEndDateOfProject(input: SetEndDateOfProjectInput!): Project,
-    setStartDateOfProject(input: SetStartDateOfProjectInput!): Project,
-
-    createArea(input: AreaInput!): Area,
-    deleteArea(input: DeleteAreaInput!): String,
-    renameArea(input: RenameAreaInput!): Area,
-    changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area,
-
-
-    createReminder(input: ReminderInput!): Reminder,
-    deleteReminder(input: DeleteReminderInput!): String,
-
-    setAreaOrder(input: SetAreaOrderInput!): AreaOrder
-    createAreaOrder(input: CreateAreaOrderInput!): AreaOrder
-}
-
-`)
-
+// TODO: Look at removing this
 export const rootValue = {
   labels: (obj, ctx) => {
     return getLabels(obj, ctx)
@@ -344,6 +104,18 @@ export const rootValue = {
   },
   setEndDateOfProject: ({ input }, ctx) => {
     return setEndDateOfProject(input, ctx)
+  },
+  projectOrders: (obj, ctx) => {
+    return getProjectOrders(obj, ctx)
+  },
+  projectOrder: (key, ctx) => {
+    return getProjectOrder(key, ctx)
+  },
+  setProjectOrder: ({ input }, ctx) => {
+    return setProjectOrder(input, ctx)
+  },
+  createProjectOrder: ({ input }, ctx) => {
+    return createProjectOrder(input, ctx)
   },
   areas: (obj, ctx) => {
     return getAreas(obj, ctx)

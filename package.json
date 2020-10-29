@@ -27,7 +27,9 @@
     "test:jest": "jest"
   },
   "license": "MIT",
- "browserslist": [ "last 2 Chrome versions" ],
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
   "build": {
     "productName": "Finish-em",
     "appId": "com.ryankscott.finish-em",
@@ -115,6 +117,7 @@
     "express-graphql": "^0.11.0",
     "filtrex": "^2.0.0",
     "graphql": "^15.3.0",
+    "graphql-tools": "^7.0.1",
     "immer": "^7.0.7",
     "is-electron": "^2.2.0",
     "lodash": "^4.17.19",
