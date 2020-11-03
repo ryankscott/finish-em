@@ -8,7 +8,7 @@ export const getAreaOrders = (obj, ctx) => {
 
 export const getAreaOrder = (input: { areaKey: string }, ctx) => {
   return ctx.db
-    .get(`SELECT areaKey, sortOrder FROM areaOrder WHERE areaKey = ${input.areaKey}`)
+    .get(`SELECT areaKey, sortOrder FROM areaOrder WHERE areaKey = '${input.areaKey}'`)
     .then((result) => new AreaOrder(result.areaKey, result.sortOrder))
 }
 
@@ -35,14 +35,6 @@ export const setAreaOrder = async (input: { areaKey: string; newOrder: number },
          WHERE areaKey = ${input.areaKey};`,
     )
 
-    // Re-order by row id
-    // const reOrder = await ctx.db.run(
-    //   `UPDATE areaOrder
-    //      SET sortOrder = new.sortOrder
-    //      FROM (SELECT areaKey, rowId as sortOrder FROM areaOrder ORDER BY sortOrder ASC) as new
-    //      WHERE areaOrder.areaKey = new.areaKey;`,
-    // )
-    //
     return await getAreaOrder({ areaKey: input.areaKey }, ctx)
   } catch (e) {
     return new Error('Unable to set order of areas')
@@ -63,5 +55,21 @@ export const createAreaOrder = (
       return result.changes
         ? getAreaOrder({ areaKey: input.areaKey }, ctx)
         : new Error('Unable to create area order')
+    })
+}
+
+export const migrateAreaOrder = (
+  input: {
+    areaKey: string
+    sortOrder: number
+  },
+  ctx,
+) => {
+  return ctx.db
+    .run(`REPLACE INTO AreaOrder (areaKey, sortOrder) VALUES (${input.areaKey},${input.sortOrder})`)
+    .then((result) => {
+      return result.changes
+        ? getAreaOrder({ areaKey: input.areaKey }, ctx)
+        : new Error('Unable to migrate area order')
     })
 }

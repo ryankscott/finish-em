@@ -8,7 +8,7 @@ export const getProjectOrders = (obj, ctx) => {
 
 export const getProjectOrder = (input: { projectKey: string }, ctx) => {
   return ctx.db
-    .get(`SELECT projectKey, sortOrder FROM projectOrder WHERE projectKey = ${input.projectKey}`)
+    .get(`SELECT projectKey, sortOrder FROM projectOrder WHERE projectKey = '${input.projectKey}'`)
     .then((result) => new ProjectOrder(result.projectKey, result.sortOrder))
 }
 
@@ -35,14 +35,6 @@ export const setProjectOrder = async (input: { projectKey: string; newOrder: num
          WHERE projectKey = ${input.projectKey};`,
     )
 
-    // Re-order by row id
-    // const reOrder = await ctx.db.run(
-    //   `UPDATE projectOrder
-    //      SET sortOrder = new.sortOrder
-    //      FROM (SELECT projectKey, rowId as sortOrder FROM projectOrder ORDER BY sortOrder ASC) as new
-    //      WHERE projectOrder.projectKey = new.projectKey;`,
-    // )
-    //
     return await getProjectOrder({ projectKey: input.projectKey }, ctx)
   } catch (e) {
     return new Error('Unable to set order of projects')
@@ -58,6 +50,27 @@ export const createProjectOrder = (
   return ctx.db
     .run(
       `INSERT INTO ProjectOrder (projectKey, sortOrder) VALUES (${input.projectKey},(SELECT MAX(sortOrder) + 1 from ProjectOrder)) `,
+    )
+    .then((result) => {
+      return result.changes
+        ? getProjectOrder({ projectKey: input.projectKey }, ctx)
+        : new Error('Unable to create project order')
+    })
+}
+
+export const migrateProjectOrder = (
+  input: {
+    projectKey: string
+    sortOrder: number
+  },
+  ctx,
+) => {
+  console.log(
+    `REPLACE INTO ProjectOrder (projectKey, sortOrder) VALUES ('${input.projectKey}', ${input.sortOrder})`,
+  )
+  return ctx.db
+    .run(
+      `REPLACE INTO ProjectOrder (projectKey, sortOrder) VALUES ('${input.projectKey}', ${input.sortOrder})`,
     )
     .then((result) => {
       return result.changes

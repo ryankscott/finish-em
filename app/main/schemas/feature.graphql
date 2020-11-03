@@ -4,7 +4,7 @@ type Feature {
   enabled: Boolean
 }
 
-input FeatureInput {
+input CreateFeatureInput {
   key: String!
   name: String!
   enabled: Boolean!
@@ -21,6 +21,6 @@ type Query {
 }
 
 type Mutation {
-  createFeature(input: FeatureInput!): Feature
+  createFeature(input: CreateFeatureInput!): Feature
   setFeature(input: SetFeatureInput!): Feature
 }

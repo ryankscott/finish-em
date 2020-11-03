@@ -19,11 +19,10 @@ export const getCalendars = (obj, ctx) => {
     )
 }
 
-//TODO: Not sure why this is an object for key
 export const getCalendar = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      'SELECT key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt FROM calendar WHERE key = ${input.key}',
+      `SELECT key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt FROM calendar WHERE key = ${input.key}`,
     )
     .then(
       (result) =>
@@ -44,23 +43,12 @@ export const createCalendar = (
     key: string
     name: string
     active: boolean
-    deleted: boolean
-    lastUpdatedAt: string
-    deletedAt: string
-    createdAt: string
   },
   ctx,
 ) => {
   return ctx.db
     .run(
-      'INSERT INTO calendar (key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt ) VALUES (?, ?, ?)',
-      input.key,
-      input.name,
-      input.active,
-      input.deleted,
-      input.lastUpdatedAt,
-      input.deletedAt,
-      input.createdAt,
+      `INSERT INTO calendar (key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt ) VALUES (${input.key},${input.key}, ${input.active}, false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
     )
     .then((result) => {
       return result.changes
@@ -71,23 +59,23 @@ export const createCalendar = (
 export const deleteCalendar = (input: { key: string }, ctx) => {
   return ctx.db
     .run(
-      `UPDATE calendar SET deleted = true, lastUpdatedAt = current_timestamp, deletedAt = current_timestamp WHERE key = ${input.key}`,
+      `UPDATE calendar SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`,
     )
     .then((result) => {
       return result.changes
         ? getCalendar({ key: input.key }, ctx)
-        : new Error('Unable to rename calendar')
+        : new Error('Unable to delete calendar')
     })
 }
 
-export const changeActiveCalendar = (input: { key: string; active: boolean }, ctx) => {
+export const setActiveCalendar = (input: { key: string; active: boolean }, ctx) => {
   return ctx.db
     .run(
-      `UPDATE calendar SET active = ${input.active}, lastUpdatedAt = current_timestamp WHERE key = ${input.key}`,
+      `UPDATE calendar SET active = ${input.active}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`,
     )
     .then((result) => {
       return result.changes
         ? getCalendar({ key: input.key }, ctx)
-        : new Error('Unable to rename calendar')
+        : new Error('Unable to set active calendar')
     })
 }

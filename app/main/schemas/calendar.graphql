@@ -1,28 +1,26 @@
+scalar DateTime
+
 type Calendar {
   key: String!
   name: String!
   active: Boolean
   deleted: Boolean
-  lastUpdatedAt: String
-  deletedAt: String
-  createdAt: String
+  lastUpdatedAt: DateTime
+  deletedAt: DateTime
+  createdAt: DateTime
 }
 
-type CalendarInput {
+input CreateCalendarInput {
   key: String!
   name: String!
   active: Boolean!
-  deleted: Boolean
-  lastUpdatedAt: String
-  deletedAt: String
-  createdAt: String
 }
 
-type DeleteCalendarInput {
+input DeleteCalendarInput {
   key: String!
 }
 
-type ActiveCalendarInput {
+input ActiveCalendarInput {
   key: String!
   active: Boolean
 }
@@ -33,7 +31,7 @@ type Query {
 }
 
 type Mutation {
-  createCalendar(input: CalendarInput!): Calendar
-  deleteCalendar(input: DeleteCalendarInput!): String
+  createCalendar(input: CreateCalendarInput!): Calendar
+  deleteCalendar(input: DeleteCalendarInput!): Calendar
   setActiveCalendar(input: ActiveCalendarInput!): Calendar
 }

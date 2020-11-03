@@ -1,22 +1,20 @@
+scalar DateTime
+
 type Reminder {
   key: String!
   text: String
   deleted: Boolean
-  remindAt: String
+  remindAt: DateTime
   item: Item
-  lastUpdatedAt: String
-  deletedAt: String
-  createdAt: String
+  lastUpdatedAt: DateTime
+  deletedAt: DateTime
+  createdAt: DateTime
 }
 
-input ReminderInput {
+input CreateReminderInput {
   key: String!
   name: String!
-  deleted: Boolean!
-  remindAt: String
-  lastUpdatedAt: String
-  deletedAt: String
-  createdAt: String
+  remindAt: DateTime
   itemKey: String
 }
 
@@ -30,6 +28,6 @@ type Query {
 }
 
 type Mutation {
-  createReminder(input: ReminderInput!): Reminder
-  deleteReminder(input: DeleteReminderInput!): String
+  createReminder(input: CreateReminderInput!): Reminder
+  deleteReminder(input: DeleteReminderInput!): Reminder
 }

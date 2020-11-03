@@ -40,11 +40,14 @@ CREATE TABLE reminder (
 CREATE TABLE event (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT,
+  description TEXT,
+  deleted BOOLEAN,
   startAt TEXT,
   endAt TEXT,
-  description TEXT,
   allDay BOOLEAN,
   calendarKey TEXT,
+  createdAt TEXT,
+  deletedAt TEXT,
   key TEXT NOT NULL UNIQUE,
   FOREIGN KEY(calendarKey) REFERENCES calendar(key) ON DELETE CASCADE
 );
@@ -100,8 +103,8 @@ CREATE TABLE item(
   completed BOOLEAN,
   parentKey TEXT, 
   projectKey TEXT, 
-  dueDate TEXT,
-  scheduledDate TEXT,
+  dueAt TEXT,
+  scheduledAt TEXT,
   lastUpdatedAt TEXT,
   completedAt TEXT,
   createdAt TEXT,
@@ -110,10 +113,16 @@ CREATE TABLE item(
   labelKey TEXT, 
   areaKey TEXT,
   key TEXT NOT NULL UNIQUE,
-  FOREIGN KEY(parentKey) REFERENCES item(key) ON DELETE CASCADE,
   FOREIGN KEY(projectKey) REFERENCES project(key) ON DELETE CASCADE,
   FOREIGN KEY(areaKey) REFERENCES area(key) ON DELETE CASCADE,
   FOREIGN KEY(labelKey) REFERENCES label(key) ON DELETE SET NULL
+);
+
+CREATE TABLE itemOrder (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  itemKey TEXT NOT NULL UNIQUE,
+  sortOrder INTEGER NOT NULL,
+  FOREIGN KEY(itemKey) REFERENCES item(key) ON DELETE CASCADE
 );
 
 

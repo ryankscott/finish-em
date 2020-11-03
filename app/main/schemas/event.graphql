@@ -1,0 +1,35 @@
+scalar DateTime
+
+type Event {
+  key: String!
+  title: String!
+  startAt: DateTime
+  endAt: DateTime
+  description: String
+  allDay: Boolean
+  calendar: Calendar
+}
+
+input CreateEventInput {
+  key: String!
+  title: String!
+  startAt: DateTime
+  endAt: DateTime
+  description: String
+  allDay: Boolean
+  calendarKey: String
+}
+
+input DeleteEventInput {
+  key: String!
+}
+
+type Query {
+  events: [Event]
+  event(key: String!): Event
+}
+
+type Mutation {
+  createEvent(input: CreateEventInput!): Event
+  deleteEvent(input: DeleteEventInput!): Event
+}

@@ -19,12 +19,10 @@ export const getAreas = (obj, ctx) => {
     )
 }
 
-//TODO: Not sure why this is an object for key
 export const getArea = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      'SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt FROM area WHERE key = $key',
-      { $key: input.key },
+      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt FROM area WHERE key = '${input.key}'`,
     )
     .then(
       (result) =>
@@ -44,36 +42,49 @@ export const createArea = (
   input: {
     key: string
     name: string
-    deleted: boolean
     description: string
-    lastUpdatedAt: string
-    deletedAt: string
-    createdAt: string
   },
   ctx,
 ) => {
   return ctx.db
     .run(
-      'INSERT INTO area (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt ) VALUES (?, ?, ?, ?, ?, ?, ? )',
-      input.key,
-      input.name,
-      input.deleted,
-      input.description,
-      input.lastUpdatedAt,
-      input.deletedAt,
-      input.createdAt,
+      `INSERT INTO area (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt )
+       VALUES ('${input.key}', '${input.name}', false, '${input.description}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
     )
     .then((result) => {
       return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to create area')
     })
 }
+
+export const migrateArea = (
+  input: {
+    key: string
+    name: string
+    deleted: boolean
+    description: string
+    lastUpdatedAt: Date
+    deletedAt: Date
+    createdAt: Date
+  },
+  ctx,
+) => {
+  const lastUpdatedText = input.lastUpdatedAt ? input.lastUpdatedAt.toISOString() : ''
+  const deletedText = input.deletedAt ? input.deletedAt.toISOString() : ''
+  const createdText = input.createdAt ? input.createdAt.toISOString() : ''
+  return ctx.db
+    .run(
+      `REPLACE INTO area (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt )
+       VALUES ('${input.key}', '${input.name}', ${input.deleted}, '${input.description}', '${lastUpdatedText}', '${deletedText}', '${createdText}')`,
+    )
+    .then((result) => {
+      return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to migrate area')
+    })
+}
+
 export const deleteArea = (input: { key: string }, ctx) => {
   return ctx.db
     .run(
-      `UPDATE area SET deleted = true, lastUpdatedAt = current_timestamp, deletedAt = current_timestamp WHERE key = $key`,
-      {
-        $key: input.key,
-      },
+      `UPDATE area SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`,
     )
     .then((result) => {
       return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to rename area')
@@ -82,10 +93,9 @@ export const deleteArea = (input: { key: string }, ctx) => {
 
 export const renameArea = (input: { key: string; name: string }, ctx) => {
   return ctx.db
-    .run(`UPDATE area SET name = $name, lastUpdatedAt = current_timestamp WHERE key = $key`, {
-      $key: input.key,
-      $name: input.name,
-    })
+    .run(
+      `UPDATE area SET name = ${input.name}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`,
+    )
     .then((result) => {
       return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to rename area')
     })
@@ -94,11 +104,7 @@ export const renameArea = (input: { key: string; name: string }, ctx) => {
 export const changeDescriptionArea = (input: { key: string; description: string }, ctx) => {
   return ctx.db
     .run(
-      `UPDATE area SET description = $description, lastUpdatedAt = current_timestamp WHERE key = $key`,
-      {
-        $key: input.key,
-        $description: input.description,
-      },
+      `UPDATE area SET description = ${input.description}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`,
     )
     .then((result) => {
       return result.changes

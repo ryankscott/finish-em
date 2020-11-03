@@ -11,6 +11,10 @@ input SetAreaOrderInput {
 input CreateAreaOrderInput {
   areaKey: String!
 }
+input MigrateAreaOrderInput {
+  areaKey: String!
+  sortOrder: Int!
+}
 
 type Query {
   areaOrders: [AreaOrder]
@@ -20,4 +24,6 @@ type Query {
 type Mutation {
   setAreaOrder(input: SetAreaOrderInput!): AreaOrder
   createAreaOrder(input: CreateAreaOrderInput!): AreaOrder
+  createAreaOrder(input: CreateAreaOrderInput!): AreaOrder
+  migrateAreaOrder(input: MigrateAreaOrderInput!): AreaOrder
 }

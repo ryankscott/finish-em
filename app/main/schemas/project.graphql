@@ -1,26 +1,37 @@
+scalar DateTime
+
 type Project {
   key: String!
   name: String
   deleted: Boolean
   description: String
-  lastUpdatedAt: String
-  deletedAt: String
-  createdAt: String
-  startAt: String
-  endAt: String
+  lastUpdatedAt: DateTime
+  deletedAt: DateTime
+  createdAt: DateTime
+  startAt: DateTime
+  endAt: DateTime
   area: Area
 }
 
-input ProjectInput {
+input CreateProjectInput {
   key: String!
   name: String!
-  deleted: Boolean!
   description: String
-  lastUpdatedAt: String
-  deletedAt: String
-  createdAt: String
-  startAt: String
-  endAt: String
+  startAt: DateTime
+  endAt: DateTime
+  areaKey: String
+}
+
+input MigrateProjectInput {
+  key: String!
+  name: String
+  deleted: Boolean
+  description: String
+  lastUpdatedAt: DateTime
+  deletedAt: DateTime
+  createdAt: DateTime
+  startAt: DateTime
+  endAt: DateTime
   areaKey: String
 }
 
@@ -48,15 +59,6 @@ input SetStartDateOfProjectInput {
   startAt: String!
 }
 
-input SetProjectOrderInput {
-  projectKey: String!
-  newOrder: Int!
-}
-
-input CreateProjectOrderInput {
-  projectKey: String!
-}
-
 type Query {
   projects: [Project]
   project(key: String!): Project
@@ -64,8 +66,9 @@ type Query {
 }
 
 type Mutation {
-  createProject(input: ProjectInput!): Project
-  deleteProject(input: DeleteProjectInput!): String
+  createProject(input: CreateProjectInput!): Project
+  migrateProject(input: MigrateProjectInput!): Project
+  deleteProject(input: DeleteProjectInput!): Project
   renameProject(input: RenameProjectInput!): Project
   changeDescriptionProject(input: ChangeDescriptionProjectInput!): Project
   setEndDateOfProject(input: SetEndDateOfProjectInput!): Project

@@ -25,8 +25,7 @@ export const getReminders = (obj, ctx) => {
 export const getReminder = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      'SELECT key, name, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder WHERE key = $key',
-      { $key: input.key },
+      `SELECT key, name, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder WHERE key = '${input.key}'`,
     )
     .then(
       (result) =>
@@ -47,25 +46,15 @@ export const createReminder = (
   input: {
     key: string
     name: string
-    deleted: boolean
     remindAt: string
-    lastUpdatedAt: string
-    deletedAt: string
-    createdAt: string
     itemKey: string
   },
   ctx,
 ) => {
   return ctx.db
     .run(
-      'INSERT INTO reminder (key, name, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey) VALUES (?, ?, ?, ?, ?, ?, ?, ? )',
-      input.key,
-      input.name,
-      input.deleted,
-      input.remindAt,
-      input.lastUpdatedAt,
-      input.deletedAt,
-      input.createdAt,
+      `INSERT INTO reminder (key, name, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey)
+       VALUES (${input.key}, ${input.name}, false, ${input.remindAt}, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ${input.itemKey})`,
     )
     .then((result) => {
       return result.changes
@@ -76,10 +65,7 @@ export const createReminder = (
 export const deleteReminder = (input: { key: string }, ctx) => {
   return ctx.db
     .run(
-      `UPDATE reminder SET deleted = true, lastUpdatedAt = current_timestamp, deletedAt = current_timestamp WHERE key = $key`,
-      {
-        $key: input.key,
-      },
+      `UPDATE reminder SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = current_timestamp WHERE key = '${input.key}'`,
     )
     .then((result) => {
       return result.changes

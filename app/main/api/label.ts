@@ -11,9 +11,7 @@ export const getLabels = (obj, ctx) => {
 export const getLabel = (input: { key: string }, ctx) => {
   console.log(input)
   return ctx.db
-    .get('SELECT key, name, colour FROM label WHERE key = $key', {
-      $key: input.key,
-    })
+    .get(`SELECT key, name, colour FROM label WHERE key = '${input.key}'`)
     .then((result) => {
       return new Label(result.key, result.name, result.colour)
     })
@@ -25,10 +23,7 @@ export const createLabel = (
 ) => {
   return ctx.db
     .run(
-      'INSERT INTO label(key, name, colour ) VALUES (?, ?, ?)',
-      input.key,
-      input.name,
-      input.colour,
+      `INSERT INTO label(key, name, colour ) VALUES (${input.key}, ${input.name}, ${input.colour})`,
     )
     .then((result) => {
       return result.changes
@@ -37,34 +32,28 @@ export const createLabel = (
     })
 }
 
-export const renameLabel = (label: { key: string; name: string }, ctx) => {
+export const renameLabel = (input: { key: string; name: string }, ctx) => {
   return ctx.db
-    .run(`UPDATE label SET name = $name WHERE key = $key`, {
-      $key: label.key,
-      $name: label.name,
-    })
+    .run(`UPDATE label SET name = ${input.name} WHERE key = '${input.key}'`)
     .then((result) => {
       return result.changes
-        ? getLabel({ key: label.key }, ctx)
+        ? getLabel({ key: input.key }, ctx)
         : new Error('Unable to rename label')
     })
 }
 
-export const recolourLabel = (label: { key: string; colour: CSS.Property.Color }, ctx) => {
+export const setColourOfLabel = (input: { key: string; colour: CSS.Property.Color }, ctx) => {
   return ctx.db
-    .run('UPDATE label SET colour = $colour WHERE key = $key', {
-      $key: label.key,
-      $colour: label.colour,
-    })
+    .run(`UPDATE label SET colour = ${input.colour} WHERE key = '${input.key}'`)
     .then((result) => {
       return result.changes
-        ? getLabel({ key: label.key }, ctx)
+        ? getLabel({ key: input.key }, ctx)
         : new Error('Unable to recolour label')
     })
 }
 
 export const deleteLabel = (input: { key: string }, ctx) => {
-  return ctx.db.run('DELETE FROM label WHERE key = $key', { $key: input.key }).then((result) => {
+  return ctx.db.run(`DELETE FROM label WHERE key = '${input.key}'`).then((result) => {
     return result.changes ? input.key : new Error(`Unable to delete label with key ${input.key}`)
   })
 }

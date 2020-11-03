@@ -148,14 +148,15 @@ type SidebarProps = StateProps & DispatchProps
 const Sidebar = (props: SidebarProps): ReactElement => {
   const theme = themes[props.theme]
   const history = useHistory()
-  const { loading, error, data } = useQuery(GET_PROJECTS_AND_AREAS)
+  //j  const { loading, error, data } = useQuery(GET_PROJECTS_AND_AREAS)
 
   // TODO: Loading and error states
-  if (loading) return null
-  if (error) return null
-  else {
-    console.log(data)
-  }
+  // if (loading) return null
+  // if (error) return null
+  // else {
+  //   console.log(data)
+  // }
+  const data = { areas: [], projects: [], projectOrders: [], areaOrders: [] }
 
   return (
     <ThemeProvider theme={theme}>

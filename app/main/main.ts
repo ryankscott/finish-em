@@ -19,9 +19,9 @@ const GRAPHQL_PORT = 8080
   await db.migrate({
     migrationsPath: path.join(process.cwd(), '/app/main/migrations'),
   })
-  // await db.on('trace', (data) => {
-  //   console.log(data)
-  // })
+  await db.on('trace', (data) => {
+    console.log(data)
+  })
 
   const graphQLApp = await express()
   // Enable cors

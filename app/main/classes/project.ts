@@ -5,11 +5,11 @@ export default class Project {
     name: string,
     deleted: boolean,
     description: string,
-    lastUpdatedAt: string,
-    deletedAt: string,
-    createdAt: string,
-    startAt: string,
-    endAt: string,
+    lastUpdatedAt: Date,
+    deletedAt: Date,
+    createdAt: Date,
+    startAt: Date,
+    endAt: Date,
     areaKey: string,
   ) {
     this.key = key

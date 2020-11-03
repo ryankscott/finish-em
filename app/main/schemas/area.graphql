@@ -1,21 +1,29 @@
+scalar DateTime
+
 type Area {
   key: String!
   name: String
   deleted: Boolean
   description: String
-  lastUpdatedAt: String
-  deletedAt: String
-  createdAt: String
+  lastUpdatedAt: DateTime
+  deletedAt: DateTime
+  createdAt: DateTime
 }
 
-input AreaInput {
+input MigrateAreaInput {
+  key: String!
+  name: String
+  deleted: Boolean
+  description: String
+  lastUpdatedAt: DateTime
+  deletedAt: DateTime
+  createdAt: DateTime
+}
+
+input CreateAreaInput {
   key: String!
   name: String!
-  deleted: Boolean!
   description: String
-  lastUpdatedAt: String
-  deletedAt: String
-  createdAt: String
 }
 
 input DeleteAreaInput {
@@ -38,8 +46,9 @@ type Query {
 }
 
 type Mutation {
-  createArea(input: AreaInput!): Area
-  deleteArea(input: DeleteAreaInput!): String
+  createArea(input: CreateAreaInput!): Area
+  migrateArea(input: MigrateAreaInput!): Area
+  deleteArea(input: DeleteAreaInput!): Area
   renameArea(input: RenameAreaInput!): Area
   changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area
 }

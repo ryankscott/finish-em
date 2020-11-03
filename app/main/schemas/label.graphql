@@ -4,7 +4,7 @@ type Label {
   colour: String
 }
 
-input LabelInput {
+input CreateLabelInput {
   key: String!
   name: String!
   colour: String!
@@ -14,7 +14,7 @@ input RenameLabelInput {
   key: String!
   name: String!
 }
-input RecolourLabelInput {
+input SetColourOfLabelInput {
   key: String!
   colour: String!
 }
@@ -29,8 +29,8 @@ type Query {
 }
 
 type Mutation {
-  createLabel(input: LabelInput!): Label
+  createLabel(input: CreateLabelInput!): Label
   renameLabel(input: RenameLabelInput!): Label
-  recolourLabel(input: RecolourLabelInput!): Label
+  setColourOfLabel(input: SetColourOfLabelInput!): Label
   deleteLabel(input: DeleteLabelInput!): String
 }

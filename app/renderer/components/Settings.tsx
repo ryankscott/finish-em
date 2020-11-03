@@ -84,8 +84,8 @@ const RENAME_LABEL = gql`
 `
 
 const RECOLOUR_LABEL = gql`
-  mutation RecolourLabel($key: String!, $colour: String!) {
-    recolourLabel(input: { key: $key, colour: $colour }) {
+  mutation SetColourOfLabel($key: String!, $colour: String!) {
+    setColourOfLabel(input: { key: $key, colour: $colour }) {
       key
       colour
     }
@@ -115,7 +115,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
   const { loading, error, data } = useQuery(GET_FEATURES_AND_LABELS)
   const [setFeature] = useMutation(SET_FEATURE)
   const [renameLabel] = useMutation(RENAME_LABEL)
-  const [recolourLabel] = useMutation(RECOLOUR_LABEL)
+  const [setColourOfLabel] = useMutation(RECOLOUR_LABEL)
   const [deleteLabel] = useMutation(DELETE_LABEL, {
     update(cache, { data: { deleteLabel } }) {
       cache.evict({ key: deleteLabel })
@@ -313,7 +313,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                   triangle={'hide'}
                   colors={labelColours}
                   onChangeComplete={(colour, e) => {
-                    recolourLabel({
+                    setColourOfLabel({
                       variables: {
                         key: colourPickerTriggeredBy,
                         colour: colour.hex,
