@@ -41,21 +41,23 @@ export const setItemOrder = async (input: { itemKey: string; newOrder: number },
   }
 }
 
+export const createCreateItemOrderQuery = (input: { itemKey: string }) => {
+  return `
+      INSERT INTO ItemOrder (itemKey, sortOrder) VALUES ('${input.itemKey}',(SELECT MAX(sortOrder) + 1 from ItemOrder)) 
+`
+}
+
 export const createItemOrder = (
   input: {
     itemKey: string
   },
   ctx,
 ) => {
-  return ctx.db
-    .run(
-      `INSERT INTO ItemOrder (itemKey, sortOrder) VALUES ('${input.itemKey}',(SELECT MAX(sortOrder) + 1 from ItemOrder)) `,
-    )
-    .then((result) => {
-      return result.changes
-        ? getItemOrder({ itemKey: input.itemKey }, ctx)
-        : new Error('Unable to create item order')
-    })
+  return ctx.db.run(createCreateItemOrderQuery(input)).then((result) => {
+    return result.changes
+      ? getItemOrder({ itemKey: input.itemKey }, ctx)
+      : new Error('Unable to create item order')
+  })
 }
 
 export const migrateItemOrder = (
