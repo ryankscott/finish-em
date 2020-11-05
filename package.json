@@ -10,8 +10,7 @@
   "main": "app/main/.parcel/main.js",
   "scripts": {
     "start": "run-s main:build electron:watch",
-    "test": "run-s parcel:build \"test:jest {@}\" --",
-    "lint": "tslint app/**/*.ts{x}",
+    "test": "jest",
     "release": "run-s parcel:build \"electron:build {@}\" --",
     "electron:watch": "run-p -r parcel:watch electron:start",
     "electron:start": "nodemon --watch app/main/.parcel --exec \"electron .\"",
@@ -23,13 +22,10 @@
     "main:build": "parcel build app/main/main.ts --out-dir app/main/.parcel --out-file main --target electron",
     "renderer:build": "parcel build app/renderer/index.html --public-url ./ --out-dir app/renderer/.parcel/production",
     "dist": "electron-builder -m -p onTag",
-    "deploy": "electron-builder build --mac --publish always",
-    "test:jest": "jest"
+    "deploy": "electron-builder build --mac --publish always"
   },
   "license": "MIT",
-  "browserslist": [
-    "last 2 Chrome versions"
-  ],
+  "browserslist": ["last 2 Chrome versions"],
   "build": {
     "productName": "Finish-em",
     "appId": "com.ryankscott.finish-em",
@@ -42,9 +38,7 @@
       "!app/**/*.map"
     ],
     "mac": {
-      "target": [
-        "dmg"
-      ],
+      "target": ["dmg"],
       "artifactName": "${productName}.${ext}"
     },
     "publish": {
@@ -66,14 +60,7 @@
       "^.+\\.tsx?$": "babel-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ]
+    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
