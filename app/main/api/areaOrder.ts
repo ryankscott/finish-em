@@ -73,3 +73,21 @@ export const migrateAreaOrder = (
         : new Error('Unable to migrate area order')
     })
 }
+
+export const areaOrderRootValues = {
+  areaOrders: (obj, ctx) => {
+    return getAreaOrders(obj, ctx)
+  },
+  areaOrder: (key, ctx) => {
+    return getAreaOrder(key, ctx)
+  },
+  setAreaOrder: ({ input }, ctx) => {
+    return setAreaOrder(input, ctx)
+  },
+  createAreaOrder: ({ input }, ctx) => {
+    return createAreaOrder(input, ctx)
+  },
+  migrateAreaOrder: ({ input }, ctx) => {
+    return migrateAreaOrder(input, ctx)
+  },
+}

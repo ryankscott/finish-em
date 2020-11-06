@@ -70,3 +70,9 @@ export const createEvent = (
         : new Error('Unable to create event')
     })
 }
+
+export const eventRootValues = {
+  createEvent: ({ input }, ctx) => {
+    return createEvent(input, ctx)
+  },
+}

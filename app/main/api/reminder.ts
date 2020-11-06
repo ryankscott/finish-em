@@ -73,3 +73,18 @@ export const deleteReminder = (input: { key: string }, ctx) => {
         : new Error('Unable to rename reminder')
     })
 }
+
+export const reminderRootValues = {
+  reminders: (obj, ctx) => {
+    return getReminders(obj, ctx)
+  },
+  reminder: (key, ctx) => {
+    return getReminder(key, ctx)
+  },
+  createReminder: ({ input }, ctx) => {
+    return createReminder(input, ctx)
+  },
+  deleteReminder: ({ input }, ctx) => {
+    return deleteReminder(input, ctx)
+  },
+}

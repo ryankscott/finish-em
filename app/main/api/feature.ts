@@ -35,3 +35,18 @@ export const createFeature = (input: { key: string; name: string; enabled: boole
         : new Error('Unable to create feature')
     })
 }
+
+export const featureRootValues = {
+  feature: (key, ctx) => {
+    return getFeature(key, ctx)
+  },
+  features: (obj, ctx) => {
+    return getFeatures(obj, ctx)
+  },
+  createFeature: ({ input }, ctx) => {
+    return createFeature(input, ctx)
+  },
+  setFeature: ({ input }, ctx) => {
+    return setFeature(input, ctx)
+  },
+}

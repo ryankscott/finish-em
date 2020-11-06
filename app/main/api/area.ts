@@ -129,3 +129,27 @@ export const changeDescriptionArea = (input: { key: string; description: string 
       : new Error('Unable to change description of area')
   })
 }
+
+export const areaRootValues = {
+  areas: (obj, ctx) => {
+    return getAreas(obj, ctx)
+  },
+  area: (key, ctx) => {
+    return getArea(key, ctx)
+  },
+  createArea: ({ input }, ctx) => {
+    return createArea(input, ctx)
+  },
+  migrateArea: ({ input }, ctx) => {
+    return migrateArea(input, ctx)
+  },
+  deleteArea: ({ input }, ctx) => {
+    return deleteArea(input, ctx)
+  },
+  renameArea: ({ input }, ctx) => {
+    return renameArea(input, ctx)
+  },
+  changeDescriptionArea: ({ input }, ctx) => {
+    return changeDescriptionArea(input, ctx)
+  },
+}

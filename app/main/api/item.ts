@@ -327,3 +327,58 @@ export const setLabelOfItem = (input: { key: string; labelKey: string }, ctx) =>
       : new Error('Unable to set label of item')
   })
 }
+
+/*   Root Values     */
+export const itemRootValues = {
+  items: (obj, ctx) => {
+    return getItems(obj, ctx)
+  },
+  item: (key, ctx) => {
+    return getItem(key, ctx)
+  },
+  createItem: ({ input }, ctx) => {
+    return createItem(input, ctx)
+  },
+  deleteItem: ({ input }, ctx) => {
+    return deleteItem(input, ctx)
+  },
+  renameItem: ({ input }, ctx) => {
+    return renameItem(input, ctx)
+  },
+  setTypeOfItem: ({ input }, ctx) => {
+    return setTypeOfItem(input, ctx)
+  },
+  completeItem: ({ input }, ctx) => {
+    return completeItem(input, ctx)
+  },
+  uncompleteItem: ({ input }, ctx) => {
+    return unCompleteItem(input, ctx)
+  },
+  setRepeatOfItem: ({ input }, ctx) => {
+    return setRepeatOfItem(input, ctx)
+  },
+  cloneItem: ({ input }, ctx) => {
+    return cloneItem(input, ctx)
+  },
+  setProjectOfItem: ({ input }, ctx) => {
+    return setProjectOfItem(input, ctx)
+  },
+  setScheduledDateOfItem: ({ input }, ctx) => {
+    return setScheduledDateOfItem(input, ctx)
+  },
+  setDueDateOfItem: ({ input }, ctx) => {
+    return setDueDateOfItem(input, ctx)
+  },
+  setParentOfItem: ({ input }, ctx) => {
+    return setParentOfItem(input, ctx)
+  },
+  permanentDeleteItem: ({ input }, ctx) => {
+    return permanentDeleteItem(input, ctx)
+  },
+  setLabelOfItem: ({ input }, ctx) => {
+    return setLabelOfItem(input, ctx)
+  },
+  migrateItem: ({ input }, ctx) => {
+    return migrateItem(input, ctx)
+  },
+}

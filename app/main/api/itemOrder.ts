@@ -77,3 +77,21 @@ export const migrateItemOrder = (
         : new Error('Unable to migrate item order')
     })
 }
+
+export const itemOrderRootValues = {
+  itemOrders: (obj, ctx) => {
+    return getItemOrders(obj, ctx)
+  },
+  itemOrder: (key, ctx) => {
+    return getItemOrder(key, ctx)
+  },
+  setItemOrder: ({ input }, ctx) => {
+    return setItemOrder(input, ctx)
+  },
+  createItemOrder: ({ input }, ctx) => {
+    return createItemOrder(input, ctx)
+  },
+  migrateItemOrder: ({ input }, ctx) => {
+    return migrateItemOrder(input, ctx)
+  },
+}

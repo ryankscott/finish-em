@@ -41,23 +41,25 @@ export const setProjectOrder = async (input: { projectKey: string; newOrder: num
   }
 }
 
+export const createCreateProjectOrderQuery = (input: { projectKey: string }) => {
+  return `INSERT INTO ProjectOrder (projectKey, sortOrder) VALUES (${input.projectKey},(SELECT MAX(sortOrder) + 1 from ProjectOrder));`
+}
 export const createProjectOrder = (
   input: {
     projectKey: string
   },
   ctx,
 ) => {
-  return ctx.db
-    .run(
-      `INSERT INTO ProjectOrder (projectKey, sortOrder) VALUES (${input.projectKey},(SELECT MAX(sortOrder) + 1 from ProjectOrder)) `,
-    )
-    .then((result) => {
-      return result.changes
-        ? getProjectOrder({ projectKey: input.projectKey }, ctx)
-        : new Error('Unable to create project order')
-    })
+  return ctx.db.run(createCreateProjectOrderQuery(input)).then((result) => {
+    return result.changes
+      ? getProjectOrder({ projectKey: input.projectKey }, ctx)
+      : new Error('Unable to create project order')
+  })
 }
 
+export const createMigrateProjectOrder = (input: { projectKey: string; sortOrder: number }) => {
+  return `REPLACE INTO ProjectOrder (projectKey, sortOrder) VALUES ('${input.projectKey}', ${input.sortOrder})`
+}
 export const migrateProjectOrder = (
   input: {
     projectKey: string
@@ -65,16 +67,27 @@ export const migrateProjectOrder = (
   },
   ctx,
 ) => {
-  console.log(
-    `REPLACE INTO ProjectOrder (projectKey, sortOrder) VALUES ('${input.projectKey}', ${input.sortOrder})`,
-  )
-  return ctx.db
-    .run(
-      `REPLACE INTO ProjectOrder (projectKey, sortOrder) VALUES ('${input.projectKey}', ${input.sortOrder})`,
-    )
-    .then((result) => {
-      return result.changes
-        ? getProjectOrder({ projectKey: input.projectKey }, ctx)
-        : new Error('Unable to create project order')
-    })
+  return ctx.db.run(createMigrateProjectOrder(input)).then((result) => {
+    return result.changes
+      ? getProjectOrder({ projectKey: input.projectKey }, ctx)
+      : new Error('Unable to create project order')
+  })
+}
+
+export const projectRootValues = {
+  projectOrders: (obj, ctx) => {
+    return getProjectOrders(obj, ctx)
+  },
+  projectOrder: (key, ctx) => {
+    return getProjectOrder(key, ctx)
+  },
+  setProjectOrder: ({ input }, ctx) => {
+    return setProjectOrder(input, ctx)
+  },
+  createProjectOrder: ({ input }, ctx) => {
+    return createProjectOrder(input, ctx)
+  },
+  migrateProjectOrder: ({ input }, ctx) => {
+    return migrateProjectOrder(input, ctx)
+  },
 }

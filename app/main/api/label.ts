@@ -57,3 +57,24 @@ export const deleteLabel = (input: { key: string }, ctx) => {
     return result.changes ? input.key : new Error(`Unable to delete label with key ${input.key}`)
   })
 }
+
+export const labelRootValues = {
+  labels: (obj, ctx) => {
+    return getLabels(obj, ctx)
+  },
+  label: (key, ctx) => {
+    return getLabel(key, ctx)
+  },
+  createLabel: ({ input }, ctx) => {
+    return createLabel(input, ctx)
+  },
+  renameLabel: ({ input }, ctx) => {
+    return renameLabel(input, ctx)
+  },
+  setColourOfLabel: ({ input }, ctx) => {
+    return setColourOfLabel(input, ctx)
+  },
+  deleteLabel: ({ input }, ctx) => {
+    return deleteLabel(input, ctx)
+  },
+}

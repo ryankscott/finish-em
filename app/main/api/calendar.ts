@@ -79,3 +79,15 @@ export const setActiveCalendar = (input: { key: string; active: boolean }, ctx) 
         : new Error('Unable to set active calendar')
     })
 }
+
+export const calendarRootValues = {
+  createCalendar: ({ input }, ctx) => {
+    return createCalendar(input, ctx)
+  },
+  deleteCalendar: ({ input }, ctx) => {
+    return deleteCalendar(input, ctx)
+  },
+  setActiveCalendar: ({ input }, ctx) => {
+    return setActiveCalendar(input, ctx)
+  },
+}
