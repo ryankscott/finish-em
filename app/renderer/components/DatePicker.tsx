@@ -4,13 +4,16 @@ import { themes } from '../theme'
 import { Container, SelectContainer } from './styled/DatePicker'
 import DateRenderer from './DateRenderer'
 import DateSelect from './DateSelect'
-import { IconType } from '../interfaces'
-import { connect } from 'react-redux'
+import { IconType, ThemeType } from '../interfaces'
+import { gql, useQuery } from '@apollo/client'
 
-interface StateProps {
-  theme: string
-}
-interface OwnProps {
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+
+type DatePickerProps = {
   onSubmit: (d: string) => void
   onEscape?: () => void
   style?: 'default' | 'subtle' | 'subtleInvert'
@@ -23,19 +26,15 @@ interface OwnProps {
   icon?: IconType
 }
 
-type DatePickerProps = StateProps & OwnProps
-
 function DatePicker(props: DatePickerProps): ReactElement {
   const [showSelect, setShowSelect] = useState(false)
   const node = useRef<HTMLDivElement>()
-
   const handleClick = (e): null => {
     if (node.current.contains(e.target)) {
       return
     }
     setShowSelect(false)
   }
-
   useEffect(() => {
     document.addEventListener('mousedown', handleClick)
     return () => {
@@ -43,8 +42,16 @@ function DatePicker(props: DatePickerProps): ReactElement {
     }
   }, [])
 
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
+
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Container ref={node}>
         <DateRenderer
           style={props.style}
@@ -83,10 +90,4 @@ function DatePicker(props: DatePickerProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-
-const mapDispatchToProps = (dispatch) => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(DatePicker)
+export default DatePicker

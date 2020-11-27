@@ -1,13 +1,10 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { transparentize } from 'polished'
 import React, { ReactElement, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
 import Select, { OptionsType } from 'react-select'
 import Switch from 'react-switch'
 import { v4 as uuidv4 } from 'uuid'
-import { setCalendar } from '../actions/event'
-import { toggleCalendarIntegration } from '../actions/feature'
-import { Events, LabelType } from '../interfaces'
+import { Events } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { selectStyles, themes } from '../theme'
 import Button from './Button'
@@ -26,22 +23,11 @@ import {
 } from './styled/Settings'
 import ViewHeader from './ViewHeader'
 import { camelCaseToInitialCaps } from '../utils'
+import { activeCalendarVar, themeVar } from '..'
+import { Label } from '../../main/generated/typescript-helpers'
 const electron = window.require('electron')
 
-interface StateProps {
-  theme: string
-  events: Events
-}
-
-interface OwnProps {}
-
-interface DispatchProps {
-  toggleCalendarIntegration: () => void
-  setCalendar: (id: string) => void
-}
-
-type SettingsPickerProps = StateProps & DispatchProps & OwnProps
-
+type SettingsPickerProps = {}
 const generateOptions = (cals): OptionsType => {
   return cals?.map((c) => {
     return {
@@ -63,6 +49,8 @@ const GET_FEATURES_AND_LABELS = gql`
       name
       colour
     }
+    theme @client
+    activeCalendar @client
   }
 `
 const SET_FEATURE = gql`
@@ -108,7 +96,6 @@ const CREATE_LABEL = gql`
 `
 
 function Settings(props: SettingsPickerProps): ReactElement {
-  const theme = themes[props.theme]
   const [showColourPicker, setShowColourPicker] = useState(false)
   const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
   const [calendars, setCalendars] = useState([])
@@ -145,7 +132,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
   })
   const calendarOptions = generateOptions(calendars)
   const labelColours = [
-    '#D9E3F0',
+    '#d9e3f0',
     '#F47373',
     '#697689',
     '#37D67A',
@@ -170,10 +157,8 @@ function Settings(props: SettingsPickerProps): ReactElement {
   // TODO: Loading and error states
   if (loading) return null
   if (error) return null
-  else {
-    console.log(data)
-  }
-
+  console.log(data)
+  const theme = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
       <Container>
@@ -189,28 +174,63 @@ function Settings(props: SettingsPickerProps): ReactElement {
             <SettingsCategoryHeader>General User Interface</SettingsCategoryHeader>
             {data.features.map((f) => {
               return (
-                <Setting key={f.key}>
-                  <SettingLabel>{camelCaseToInitialCaps(f.name)}</SettingLabel>
-                  <Switch
-                    onChange={(checked) => {
-                      console.log(checked)
-                      setFeature({
-                        variables: {
-                          key: f.key,
-                          enabled: checked,
-                        },
-                      })
-                    }}
-                    checked={data.features.find((df) => df.key == f.key).enabled}
-                    onColor={theme.colours.primaryColour}
-                    checkedIcon={false}
-                    uncheckedIcon={false}
-                    width={24}
-                    height={14}
-                  />
-                </Setting>
+                <>
+                  <Setting key={f.key}>
+                    <SettingLabel>{camelCaseToInitialCaps(f.name)}</SettingLabel>
+                    <Switch
+                      onChange={(checked) => {
+                        setFeature({
+                          variables: {
+                            key: f.key,
+                            enabled: checked,
+                          },
+                        })
+                      }}
+                      checked={data.features.find((df) => df.key == f.key).enabled}
+                      onColor={theme.colours.primaryColour}
+                      checkedIcon={false}
+                      uncheckedIcon={false}
+                      width={24}
+                      height={14}
+                    />
+                    {f.name == 'calendarIntegration' && (
+                      <Select
+                        autoFocus={true}
+                        value={data.activeCalendar}
+                        isSearchable
+                        isDisabled={!f.enabled}
+                        onChange={(e) => {
+                          electron.ipcRenderer.send('set-calendar', e.value)
+                          activeCalendarVar(e.value)
+                        }}
+                        options={generateOptions(calendars)}
+                        styles={selectStyles({
+                          fontSize: 'xxsmall',
+                          theme: theme,
+                        })}
+                        escapeClearsValue={true}
+                        defaultMenuIsOpen={false}
+                      />
+                    )}
+                  </Setting>
+                </>
               )
             })}
+
+            <Setting key={'dark-mode'}>
+              <SettingLabel>Dark Mode</SettingLabel>
+              <Switch
+                onChange={(checked) => {
+                  checked ? themeVar('dark') : themeVar('light')
+                }}
+                checked={data.theme == 'dark'}
+                onColor={theme.colours.primaryColour}
+                checkedIcon={false}
+                uncheckedIcon={false}
+                width={24}
+                height={14}
+              />
+            </Setting>
 
             <Setting>
               <SettingLabel>Calendar Integration</SettingLabel>
@@ -223,8 +243,13 @@ function Settings(props: SettingsPickerProps): ReactElement {
                 }}
               >
                 <Switch
-                  onChange={() => {
-                    props.toggleCalendarIntegration()
+                  onChange={(checked) => {
+                    setFeature({
+                      variables: {
+                        key: '6e468413-d926-416e-a616-67cf1e4ee065',
+                        enabled: checked,
+                      },
+                    })
                   }}
                   checked={
                     data.features?.calendarIntegration ? data.features.calendarIntegration : false
@@ -235,29 +260,12 @@ function Settings(props: SettingsPickerProps): ReactElement {
                   width={24}
                   height={14}
                 />
-                <Select
-                  autoFocus={true}
-                  value={calendarOptions?.find((c) => c.value == props.events.currentCalendar)}
-                  isSearchable
-                  isDisabled={!data.features?.calendarIntegration}
-                  onChange={(e) => {
-                    electron.ipcRenderer.send('set-calendar', e.value)
-                    props.setCalendar(e.value)
-                  }}
-                  options={generateOptions(calendars)}
-                  styles={selectStyles({
-                    fontSize: 'xxsmall',
-                    theme: themes[props.theme],
-                  })}
-                  escapeClearsValue={true}
-                  defaultMenuIsOpen={false}
-                />
               </div>
             </Setting>
           </SettingsCategory>
           <SettingsCategory>
             <SettingsCategoryHeader>Labels</SettingsCategoryHeader>
-            {Object.values(data.labels).map((m: LabelType) => {
+            {Object.values(data.labels).map((m: Label) => {
               return (
                 <div id={m.key} key={'f-' + m.key}>
                   <LabelContainer key={'lc-' + m.key}>
@@ -348,16 +356,4 @@ function Settings(props: SettingsPickerProps): ReactElement {
     </ThemeProvider>
   )
 }
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-  events: state.events,
-})
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  toggleCalendarIntegration: () => {
-    dispatch(toggleCalendarIntegration())
-  },
-  setCalendar: (id: string) => {
-    dispatch(setCalendar(id))
-  },
-})
-export default connect(mapStateToProps, mapDispatchToProps)(Settings)
+export default Settings

@@ -8,6 +8,9 @@ type Area {
   lastUpdatedAt: DateTime
   deletedAt: DateTime
   createdAt: DateTime
+  projects: [Project]
+  items: [Item]
+  sortOrder: AreaOrder
 }
 
 input MigrateAreaInput {

@@ -2,11 +2,17 @@ import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Button from './Button'
-import { connect } from 'react-redux'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
 import Tooltip from './Tooltip'
-import { IconType } from '../interfaces'
+import { IconType, ThemeType } from '../interfaces'
 import { Icons } from '../assets/icons'
+import { gql, useQuery } from '@apollo/client'
+
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
 const DropdownOption = (
   key: number,
@@ -28,17 +34,12 @@ export type MoreDropdownOptions = {
   onClick: (e: React.MouseEvent) => void
 }[]
 
-interface OwnProps {
+type MoreDropdownProps = {
   showDialog?: boolean
   disableClick?: boolean
   options: MoreDropdownOptions
+  subtle?: boolean
 }
-
-interface StateProps {
-  theme: string
-}
-
-type MoreDropdownProps = OwnProps & StateProps
 
 function MoreDropdown(props: MoreDropdownProps): ReactElement {
   const [showDialog, setShowDialog] = useState(false)
@@ -59,12 +60,20 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
     }
   }, [])
 
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
+
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <div style={{ position: 'relative' }} ref={node}>
         <Button
           dataFor="more"
-          type="subtle"
+          type={props.subtle ? 'subtle' : 'default'}
           icon="more"
           width="18px"
           onClick={(e) => {
@@ -75,7 +84,11 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
 
         {(showDialog || props.showDialog) && (
           <>
-            <DialogContainer>
+            <DialogContainer
+              onClick={() => {
+                setShowDialog(false)
+              }}
+            >
               {props.options.map((v, i) => DropdownOption(i, v.onClick, v.icon, v.label))}
             </DialogContainer>
           </>
@@ -86,8 +99,4 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-const mapDispatchToProps = (dispatch) => ({})
-export default connect(mapStateToProps, mapDispatchToProps)(MoreDropdown)
+export default MoreDropdown

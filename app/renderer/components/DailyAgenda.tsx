@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react'
+import { gql, useQuery } from '@apollo/client'
 import { ThemeProvider } from '../StyledComponents'
 import { connect } from 'react-redux'
-import { v4 as uuidv4 } from 'uuid'
 import { themes } from '../theme'
 import FilteredItemList from './FilteredItemList'
 import { Paragraph, Header1 } from './Typography'
@@ -19,8 +19,8 @@ const localizer = dateFnsLocalizer({
   locales,
 })
 import EditableText from './EditableText'
-import { setDailyGoal, addComponent } from '../actions'
-import { ItemType, RenderingStrategy, MainComponents, Component } from '../interfaces'
+import { setDailyGoal } from '../actions'
+import { RenderingStrategy, FeatureType, ThemeType } from '../interfaces'
 import {
   AgendaContainer,
   DateContainer,
@@ -35,26 +35,57 @@ import ReorderableComponentList from './ReorderableComponentList'
 
 interface StateProps {
   dailyGoal: any[]
-  items: ItemType[]
-  theme: string
-  components: MainComponents
-  events: Events
-  features: FeatureType
 }
 interface DispatchProps {
   setDailyGoal: (day: string, input: string) => void
-  addList: (id: string, viewId: string) => void
 }
 type DailyAgendaProps = StateProps & DispatchProps
 
+const GET_DATA = gql`
+  query {
+    dailyGoals: featureByName(name: "dailyGoals") {
+      key
+      enabled
+    }
+    calendarIntegration: featureByName(name: "calendarIntegration") {
+      key
+      enabled
+    }
+    getActiveCalendar {
+      deleted
+      lastUpdatedAt
+      deletedAt
+      createdAt
+      events {
+        startAt
+        endAt
+        createdAt
+        description
+        allDay
+      }
+    }
+    theme @client
+  }
+`
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   const viewId = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
   const [currentDate, setDate] = useState(new Date())
   const editor = React.useRef<HTMLInputElement>()
-  const { currentCalendar, events } = props.events
-  const hasEvents = events?.[currentCalendar]
+
+  const { loading, error, data } = useQuery(GET_DATA)
+
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const currentCalendar = data.getActiveCalendar
+  const hasEvents = currentCalendar?.events
+
+  const theme: ThemeType = themes[data.theme]
+
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <AgendaContainer>
         <DateContainer>
           <BackContainer>
@@ -85,7 +116,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             Week of quarter: {parseInt(format(currentDate, 'w')) % 13} / 13
           </Paragraph>
         </DateContainer>
-        {props.features?.dailyGoals && (
+        {data.dailyGoals.enabled && (
           <>
             <Header1> Daily Goal </Header1>
             <EditableText
@@ -109,14 +140,14 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             />
           </>
         )}
-        {props.features.calendarIntegration && (
+        {data.calendarIntegration.enabled && (
           <>
             <Header1>Events today: </Header1>
             <StyledCalendar
               localizer={localizer}
               events={
                 hasEvents
-                  ? events[currentCalendar].map((e) => {
+                  ? currentCalendar.events.map((e) => {
                       return {
                         id: e.id,
                         title: e.title,
@@ -141,21 +172,27 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
         <ReorderableComponentList id={viewId} />
         <Section>
           <FilteredItemList
-            id="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
-            showProject={true}
+            componentKey="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
             isFilterable={true}
             listName="Due Today"
-            filter={`sameDay(dueDate, "${currentDate.toISOString()}")`}
-            renderingStrategy={RenderingStrategy.All}
+            legacyFilter={`sameDay(dueDate, "${currentDate.toISOString()}")`}
+            filter={JSON.stringify({
+              text: 'dueAt is today ',
+              value: [{ category: 'dueAt', operator: 'is', value: 'today' }],
+            })}
+            flattenSubtasks={true}
             readOnly={true}
           />
           <FilteredItemList
-            id="a4e1c649-378f-4d14-9aac-2d2720270dd8"
-            showProject={true}
+            componentKey="a4e1c649-378f-4d14-9aac-2d2720270dd8"
             isFilterable={true}
             listName="Scheduled Today"
-            filter={`sameDay(scheduledDate, "${currentDate.toISOString()}")`}
-            renderingStrategy={RenderingStrategy.All}
+            legacyFilter={`sameDay(scheduledDate, "${currentDate.toISOString()}")`}
+            filter={JSON.stringify({
+              text: 'scheduledAt is today ',
+              value: [{ category: 'scheduledAt', operator: 'is', value: 'today' }],
+            })}
+            flattenSubtasks={true}
             readOnly={true}
           />
         </Section>
@@ -165,30 +202,12 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
 }
 
 const mapStateToProps = (state): StateProps => ({
-  items: state.items,
   dailyGoal: state.dailyGoal,
   theme: state.ui.theme,
-  components: state.ui.components,
-  events: state.events,
-  features: state.features,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
   setDailyGoal: (day, text) => {
     dispatch(setDailyGoal(day, text))
-  },
-  addList: (viewId, location) => {
-    const id = uuidv4()
-    const component: Component = {
-      name: 'FilteredItemList',
-      props: {
-        id: id,
-        filter: 'not deleted',
-        hideIcons: [],
-        listName: 'New list',
-        isFilterable: true,
-      },
-    }
-    dispatch(addComponent(id, viewId, location, component))
   },
 })
 export default connect(mapStateToProps, mapDispatchToProps)(DailyAgenda)

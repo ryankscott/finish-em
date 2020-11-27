@@ -5,21 +5,28 @@ import { ThemeProvider } from '../StyledComponents'
 import { PAGE_SIZE } from '../consts'
 import Button from './Button'
 import { PaginationContainer } from './styled/Pagination'
+import { gql, useQuery } from '@apollo/client'
+import { ThemeType } from '../interfaces'
 
-interface StateProps {
-  theme: string
-}
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
-interface DispatchProps {}
-
-export interface OwnProps {
+export type PaginationProps = {
   currentPage: number
   itemsLength: number
   setCurrentPage: (page: number) => void
 }
-export type FilteredItemListProps = StateProps & DispatchProps & OwnProps
 function Pagination(props: PaginationProps): ReactElement {
-  const theme = themes[props.theme]
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
 
   const totalPages = Math.ceil(props.itemsLength / PAGE_SIZE)
   if (props.itemsLength < PAGE_SIZE) return null
@@ -78,10 +85,4 @@ function Pagination(props: PaginationProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state, ownProps): StateProps => ({
-  theme: state.ui.theme,
-})
-
-const mapDispatchToProps = (dispatch, ownProps) => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(Pagination)
+export default Pagination

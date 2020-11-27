@@ -2,17 +2,20 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { StyledButton, Contents, Icon, Text } from './styled/Button'
-import { IconType } from '../interfaces'
-import { connect } from 'react-redux'
+import { IconType, ThemeType } from '../interfaces'
 import { Icons } from '../assets/icons'
+import { gql, useQuery } from '@apollo/client'
 
-interface StateProps {
-  theme: string
-}
-interface OwnProps {
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+
+type ButtonProps = {
   id?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
-  spacing?: 'compact' | 'default'
+  spacing?: 'compactIcon' | 'compact' | 'default'
   type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
   isDisabled?: boolean
   text?: string | JSX.Element
@@ -31,11 +34,15 @@ interface OwnProps {
   translateZ?: number
 }
 
-type ButtonProps = OwnProps & StateProps
-
 // TODO: Add tooltips to the button?
 const Button = (props: ButtonProps): ReactElement => {
-  const theme = themes[props.theme]
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
       <StyledButton
@@ -89,10 +96,5 @@ const Button = (props: ButtonProps): ReactElement => {
     </ThemeProvider>
   )
 }
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
 
-const mapDispatchToProps = (dispatch) => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(Button)
+export default Button

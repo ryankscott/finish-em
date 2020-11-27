@@ -1,8 +1,7 @@
-import { gql, useQuery } from '@apollo/client'
+import { gql, useMutation, useQuery } from '@apollo/client'
 import React, { ReactElement } from 'react'
-import { connect } from 'react-redux'
-import { addLabel, removeLabel } from '../actions/item'
-import { LabelType } from '../interfaces'
+import { Label } from '../../main/generated/typescript-helpers'
+import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Button from './Button'
@@ -15,33 +14,41 @@ import {
   LabelName,
 } from './styled/LabelDialog'
 
-interface StateProps {
-  theme: string
-}
-
-interface DispatchProps {
-  addLabel: (id: string, labelId: string | string) => void
-  removeLabel: (id: string) => void
-}
-interface OwnProps {
-  itemId: string
-  onClose: () => void
-}
 const GET_LABELS = gql`
   query {
     labels {
-      id
+      key
       name
       colour
+    }
+    theme @client
+  }
+`
+
+const SET_LABEL = gql`
+  mutation SetLabelOfItem($key: String!, $labelKey: String) {
+    setLabelOfItem(input: { key: $key, labelKey: $labelKey }) {
       key
+      label {
+        key
+      }
     }
   }
 `
 
-type LabelDialogProps = OwnProps & StateProps & DispatchProps
+type LabelDialogProps = {
+  itemKey: string
+  onClose: () => void
+}
 function LabelDialog(props: LabelDialogProps): ReactElement {
-  const theme = themes[props.theme]
   const { loading, error, data } = useQuery(GET_LABELS)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const [setLabel] = useMutation(SET_LABEL)
+  const theme: ThemeType = themes[data.theme]
 
   return (
     <ThemeProvider theme={theme}>
@@ -59,14 +66,14 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
           />
         </HeaderContainer>
         <BodyContainer>
-          {data.labels.map((m: LabelType) => {
+          {data.labels.map((m: Label) => {
             return (
-              <div id={m.id} key={'f-' + m.id}>
+              <div key={m.key}>
                 <LabelContainer
-                  key={'lc-' + m.id}
+                  key={'lc-' + m.key}
                   colour={m.colour}
                   onClick={() => {
-                    props.addLabel(props.itemId, m.id)
+                    setLabel({ variables: { key: props.itemKey, labelKey: m.key } })
                     props.onClose()
                   }}
                 >
@@ -79,7 +86,7 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
             <LabelName
               colour={''}
               onClick={(e) => {
-                props.removeLabel(props.itemId)
+                setLabel({ variables: { key: props.itemKey, labelKey: null } })
                 e.stopPropagation()
                 props.onClose()
               }}
@@ -93,17 +100,4 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  addLabel: (id: string, labelId: string | string) => {
-    dispatch(addLabel(id, labelId))
-  },
-  removeLabel: (id: string) => {
-    dispatch(removeLabel(id))
-  },
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(LabelDialog)
+export default LabelDialog

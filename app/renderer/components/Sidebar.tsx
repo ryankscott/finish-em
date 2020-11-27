@@ -1,42 +1,31 @@
-import React, { ReactElement } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { orderBy } from 'lodash'
+import React, { ReactElement } from 'react'
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import { NavLink, NavLinkProps, useHistory } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
+import { Area, View } from '../../main/generated/typescript-helpers'
+import { Icons } from '../assets/icons'
+import { sidebarVisibleVar } from '../index'
+import { ThemeType } from '../interfaces'
 import styled, { ThemeProvider } from '../StyledComponents'
-import { connect } from 'react-redux'
-import { useHistory, NavLink, NavLinkProps } from 'react-router-dom'
-
 import { themes } from '../theme'
+import { createShortSidebarItem } from '../utils'
+import Button from './Button'
 import {
-  createProject,
-  addComponent,
-  toggleSidebar,
-  reorderProject,
-  addView,
-  setProjectArea,
-  reorderArea,
-} from '../actions'
-import { Projects, Views, ItemIcons, Areas } from '../interfaces'
-import {
-  HeaderName,
-  Container,
-  SectionHeader,
-  Footer,
-  StyledHorizontalRule,
+  AddAreaContainer,
   BodyContainer,
   CollapseContainer,
-  ViewContainer,
-  AddAreaContainer,
-  DroppableList,
+  Container,
   DraggableItem,
+  DroppableList,
+  Footer,
+  HeaderName,
+  SectionHeader,
+  StyledHorizontalRule,
   SubsectionHeader,
+  ViewContainer,
 } from './styled/Sidebar'
-import Button from './Button'
-import { createShortSidebarItem } from '../utils'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import { v4 as uuidv4 } from 'uuid'
-
-import { Icons } from '../assets/icons'
-
-import { createArea } from '../actions/area'
 
 interface StyledLinkProps extends NavLinkProps {
   sidebarVisible: boolean
@@ -89,22 +78,6 @@ export const AreaLink = styled(StyledLink)<AreaLinkProps>`
   padding: 7px 5px;
 `
 
-interface StateProps {
-  projects: Projects
-  areas: Areas
-  sidebarVisible: boolean
-  theme: string
-  views: Views
-}
-interface DispatchProps {
-  toggleSidebar: () => void
-  createProject: (id: string, name: string, description: string, areaId: string) => void
-  reorderProject: (id: string, destinationId: string) => void
-  setProjectArea: (id: string, areaId: string) => void
-  createArea: (id: string, name: string, description: string) => void
-  reorderArea: (id: string, destinationId: string) => void
-}
-
 const SidebarItem = (props: {
   sidebarVisible: boolean
   iconName: string
@@ -113,7 +86,7 @@ const SidebarItem = (props: {
   if (props.sidebarVisible) {
     return (
       <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-        {Icons[props.iconName](16, 16)}
+        {props.iconName && Icons[props.iconName](16, 16)}
         {props.text}
       </div>
     )
@@ -123,90 +96,161 @@ const SidebarItem = (props: {
   )
 }
 
-const GET_PROJECTS_AND_AREAS = gql`
+const GET_AREAS = gql`
   query {
-    projects {
-      key
-      name
-    }
     areas {
+      name
+      key
+      sortOrder {
+        sortOrder
+      }
+      projects {
+        key
+        name
+        sortOrder {
+          sortOrder
+        }
+      }
+    }
+    views {
       key
       name
+      icon
+      type
+      sortOrder {
+        sortOrder
+      }
     }
-    projectOrders {
+    sidebarVisible @client
+    theme @client
+  }
+`
+
+const SET_PROJECT_ORDER = gql`
+  mutation SetProjectOrder($projectKey: String!, $sortOrder: Int!) {
+    setProjectOrder(input: { projectKey: $projectKey, sortOrder: $sortOrder }) {
       projectKey
-      sortOrder
-    }
-    areaOrders {
-      areaKey
       sortOrder
     }
   }
 `
 
-type SidebarProps = StateProps & DispatchProps
+const SET_AREA_OF_PROJECT = gql`
+  mutation SetAreaOfProject($key: String!, $areaKey: String!) {
+    setAreaOfProject(input: { key: $key, areaKey: $areaKey }) {
+      key
+      area {
+        key
+      }
+    }
+  }
+`
+
+const SET_AREA_ORDER = gql`
+  mutation SetAreaOrder($areaKey: String!, $sortOrder: Int!) {
+    setAreaOrder(input: { areaKey: $areaKey, sortOrder: $sortOrder }) {
+      areaKey
+      sortOrder
+    }
+  }
+`
+const CREATE_PROJECT = gql`
+  mutation CreateProject(
+    $key: String!
+    $name: String!
+    $description: String!
+    $startAt: DateTime
+    $endAt: DateTime
+    $areaKey: String!
+  ) {
+    createProject(
+      input: {
+        key: $key
+        name: $name
+        description: $description
+        startAt: $startAt
+        endAt: $endAt
+        areaKey: $areaKey
+      }
+    ) {
+      key
+      name
+    }
+  }
+`
+const CREATE_AREA = gql`
+  mutation CreateArea($key: String!, $name: String!, $description: String) {
+    createArea(input: { key: $key, name: $name, description: $description }) {
+      key
+      name
+    }
+  }
+`
+type SidebarProps = {}
 const Sidebar = (props: SidebarProps): ReactElement => {
-  const theme = themes[props.theme]
   const history = useHistory()
-  //j  const { loading, error, data } = useQuery(GET_PROJECTS_AND_AREAS)
+  const { loading, error, data, refetch } = useQuery(GET_AREAS)
+  const [setProjectOrder] = useMutation(SET_PROJECT_ORDER)
+  const [setAreaOrder] = useMutation(SET_AREA_ORDER)
+  const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT)
+  const [createProject] = useMutation(CREATE_PROJECT)
+  const [createArea] = useMutation(CREATE_AREA)
 
   // TODO: Loading and error states
-  // if (loading) return null
-  // if (error) return null
-  // else {
-  //   console.log(data)
-  // }
-  const data = { areas: [], projects: [], projectOrders: [], areaOrders: [] }
+  if (loading) return null
+  if (error) return null
+
+  const theme: ThemeType = themes[data.theme]
+
+  const sortedAreas: Area[] = orderBy(data.areas, ['sortOrder.sortOrder'], ['asc'])
+  const sortedViews: View[] = orderBy(data.views, ['sortOrder.sortOrder'], ['asc']).filter(
+    (v) => v.type != 'default',
+  )
 
   return (
     <ThemeProvider theme={theme}>
-      <Container visible={props.sidebarVisible} data-cy="sidebar-container">
+      <Container visible={data.sidebarVisible} data-cy="sidebar-container">
         <BodyContainer>
-          <SectionHeader visible={props.sidebarVisible}>
-            {Icons['view'](22, 22, themes[props.theme].colours.primaryColour)}
-            {props.sidebarVisible && <HeaderName>Views</HeaderName>}
+          <SectionHeader visible={data.sidebarVisible}>
+            {Icons['view'](22, 22, theme.colours.primaryColour)}
+            {data.sidebarVisible && <HeaderName>Views</HeaderName>}
           </SectionHeader>
-          <ViewContainer collapsed={!props.sidebarVisible}>
+          <ViewContainer collapsed={!data.sidebarVisible}>
             <StyledLink
-              sidebarVisible={props.sidebarVisible}
+              sidebarVisible={data.sidebarVisible}
               to="/inbox"
               activeStyle={{
                 backgroundColor: theme.colours.focusAltDialogBackgroundColour,
               }}
             >
-              <SidebarItem
-                sidebarVisible={props.sidebarVisible}
-                iconName={'inbox'}
-                text={'Inbox'}
-              />
+              <SidebarItem sidebarVisible={data.sidebarVisible} iconName={'inbox'} text={'Inbox'} />
             </StyledLink>
             <StyledLink
-              sidebarVisible={props.sidebarVisible}
+              sidebarVisible={data.sidebarVisible}
               to="/dailyAgenda"
               activeStyle={{
                 backgroundColor: theme.colours.focusAltDialogBackgroundColour,
               }}
             >
               <SidebarItem
-                sidebarVisible={props.sidebarVisible}
+                sidebarVisible={data.sidebarVisible}
                 iconName={'calendar'}
                 text={'Daily Agenda'}
               />
             </StyledLink>
-            {Object.values(props.views.order).map((v) => {
-              const view = props.views?.views?.[v]
-              if (view?.type != 'custom') return
+            {sortedViews.map((view) => {
+              if (view.type == 'project') return null
               return (
                 <StyledLink
-                  sidebarVisible={props.sidebarVisible}
-                  key={view.id}
-                  to={`/views/${view.id}`}
+                  sidebarVisible={data.sidebarVisible}
+                  key={view.key}
+                  to={`/views/${view.key}`}
                   activeStyle={{
                     backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                   }}
                 >
                   <SidebarItem
-                    sidebarVisible={props.sidebarVisible}
+                    sidebarVisible={data.sidebarVisible}
                     iconName={view.icon}
                     text={view.name}
                   />
@@ -214,23 +258,31 @@ const Sidebar = (props: SidebarProps): ReactElement => {
               )
             })}
           </ViewContainer>
-          <SectionHeader visible={props.sidebarVisible}>
-            {Icons['area'](22, 22, themes[props.theme].colours.primaryColour)}
-            {props.sidebarVisible && <HeaderName>Areas</HeaderName>}
+          <SectionHeader visible={data.sidebarVisible}>
+            {Icons['area'](22, 22, theme.colours.primaryColour)}
+            {data.sidebarVisible && <HeaderName>Areas</HeaderName>}
           </SectionHeader>
 
           <DragDropContext
             onDragEnd={(e) => {
               if (e.type == 'PROJECT') {
-                // TODO: Trying to detect drops in non-valid areas
+                //  Trying to detect drops in non-valid areas
                 if (!e.destination) {
                   return
                 }
-                props.setProjectArea(e.draggableId, e.destination.droppableId)
-                props.reorderProject(e.draggableId, props.projects.order[e.destination.index])
+                setAreaOfProject({
+                  variables: { key: e.draggableId, areaKey: e.destination.droppableId },
+                })
+                setProjectOrder({
+                  variables: { projectKey: e.draggableId, sortOrder: e.destination.index },
+                })
+                refetch()
               }
               if (e.type == 'AREA') {
-                props.reorderArea(e.draggableId, props.areas.order[e.destination.index])
+                setAreaOrder({
+                  variables: { areaKey: e.draggableId, sortOrder: e.destination.index },
+                })
+                refetch()
               }
             }}
           >
@@ -240,94 +292,100 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                   isDraggingOver={snapshot.isDraggingOver}
-                  sidebarVisible={props.sidebarVisible}
+                  sidebarVisible={data.sidebarVisible}
                 >
-                  {data.areaOrders.map((ao: { areaKey: string; sortOrder: Int }, index) => {
-                    const area = data.areas.find((a) => a.key == ao.areaKey)
+                  {sortedAreas.map((a, index) => {
                     return (
-                      <Draggable key={ao.areaKey} draggableId={ao.areaKey} index={index}>
+                      <Draggable key={a.key} draggableId={a.key} index={index}>
                         {(provided, snapshot) => (
                           <DraggableItem
                             ref={provided.innerRef}
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
-                            key={'container-' + ao.areaKey}
+                            key={'container-' + a.key}
                             isDragging={snapshot.isDragging}
                             draggableStyle={provided.draggableProps.style}
-                            sidebarVisible={props.sidebarVisible}
+                            sidebarVisible={data.sidebarVisible}
                           >
-                            {!props.sidebarVisible && <StyledHorizontalRule />}
-                            <SubsectionHeader visible={props.sidebarVisible}>
+                            {!data.sidebarVisible && <StyledHorizontalRule />}
+                            <SubsectionHeader visible={data.sidebarVisible}>
                               <AreaLink
-                                sidebarVisible={props.sidebarVisible}
-                                to={`/areas/${area.id}`}
+                                sidebarVisible={data.sidebarVisible}
+                                to={`/areas/${a.key}`}
                                 activeStyle={{
                                   backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                                 }}
                               >
-                                {props.sidebarVisible
-                                  ? area.name
-                                  : createShortSidebarItem(area.name)}
+                                {data.sidebarVisible ? a.name : createShortSidebarItem(a.name)}
                               </AreaLink>
-                              {props.sidebarVisible && (
+                              {data.sidebarVisible && (
                                 <Button
                                   type="subtle"
                                   icon="add"
                                   iconColour={'white'}
                                   onClick={() => {
                                     const projectId = uuidv4()
-                                    props.createProject(projectId, 'New Project', '', ao.areaKey)
-                                    history.push('/projects/' + projectId)
+                                    createProject({
+                                      variables: {
+                                        key: projectId,
+                                        name: 'New Project',
+                                        description: '',
+                                        startAt: null,
+                                        endAt: null,
+                                        areaKey: a.key,
+                                      },
+                                    })
+                                    refetch()
+                                    // history.push('/projects/' + projectId)
                                   }}
                                 />
                               )}
                             </SubsectionHeader>
-                            <Droppable droppableId={ao.areaKey} type="PROJECT">
+                            <Droppable droppableId={a.key} type="PROJECT">
                               {(provided, snapshot) => (
                                 <DroppableList
                                   {...provided.droppableProps}
                                   ref={provided.innerRef}
                                   isDraggingOver={snapshot.isDraggingOver}
-                                  sidebarVisible={props.sidebarVisible}
+                                  sidebarVisible={data.sidebarVisible}
                                 >
-                                  {Object.values(props.projects.order).map((p: string, index) => {
-                                    // Don't render the inbox here
-                                    if (p == '0') return
-                                    const project = props.projects.projects[p]
-                                    // Only render those in that area
-                                    if (project.areaId != ao.areaKey) return
-                                    const pathName = '/projects/' + p
-                                    //
-                                    return (
-                                      <Draggable key={p} draggableId={p} index={index}>
-                                        {(provided, snapshot) => (
-                                          <DraggableItem
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            key={'container-' + p}
-                                            isDragging={snapshot.isDragging}
-                                            draggableStyle={provided.draggableProps.style}
-                                            siebarVisible={props.sidebarVisible}
-                                          >
-                                            <ProjectLink
-                                              sidebarVisible={props.sidebarVisible}
-                                              key={p}
-                                              to={pathName}
-                                              activeStyle={{
-                                                backgroundColor:
-                                                  theme.colours.focusAltDialogBackgroundColour,
-                                              }}
+                                  {orderBy(a.projects, ['sortOrder.sortOrder'], ['asc']).map(
+                                    (p, index) => {
+                                      // Don't render the inbox here
+                                      if (p.key == '0') return
+                                      const pathName = '/projects/' + p.key
+                                      //
+                                      return (
+                                        <Draggable key={p.key} draggableId={p.key} index={index}>
+                                          {(provided, snapshot) => (
+                                            <DraggableItem
+                                              ref={provided.innerRef}
+                                              {...provided.draggableProps}
+                                              {...provided.dragHandleProps}
+                                              key={'container-' + p.key}
+                                              isDragging={snapshot.isDragging}
+                                              draggableStyle={provided.draggableProps.style}
+                                              siebarVisible={data.sidebarVisible}
                                             >
-                                              {props.sidebarVisible
-                                                ? project.name
-                                                : createShortSidebarItem(project.name)}
-                                            </ProjectLink>
-                                          </DraggableItem>
-                                        )}
-                                      </Draggable>
-                                    )
-                                  })}
+                                              <ProjectLink
+                                                sidebarVisible={data.sidebarVisible}
+                                                key={p.key}
+                                                to={pathName}
+                                                activeStyle={{
+                                                  backgroundColor:
+                                                    theme.colours.focusAltDialogBackgroundColour,
+                                                }}
+                                              >
+                                                {data.sidebarVisible
+                                                  ? p.name
+                                                  : createShortSidebarItem(p.name)}
+                                              </ProjectLink>
+                                            </DraggableItem>
+                                          )}
+                                        </Draggable>
+                                      )
+                                    },
+                                  )}
                                 </DroppableList>
                               )}
                             </Droppable>
@@ -340,27 +398,27 @@ const Sidebar = (props: SidebarProps): ReactElement => {
               )}
             </Droppable>
           </DragDropContext>
-          {props.sidebarVisible && (
+          {data.sidebarVisible && (
             <AddAreaContainer>
               <Button
                 width="110px"
                 type="invert"
                 spacing="compact"
-                text={props.sidebarVisible ? 'Add Area' : ''}
+                text={data.sidebarVisible ? 'Add Area' : ''}
                 iconSize="12px"
                 icon="add"
                 onClick={() => {
                   const areaId = uuidv4()
-                  props.createArea(areaId, 'New Area', '')
-                  history.push(`/areas/${areaId}`)
+                  createArea({ variables: { key: areaId, name: 'New Area', description: '' } })
+                  refetch()
                 }}
               />
             </AddAreaContainer>
           )}
         </BodyContainer>
-        <Footer visible={props.sidebarVisible}>
+        <Footer visible={data.sidebarVisible}>
           <StyledLink
-            sidebarVisible={props.sidebarVisible}
+            sidebarVisible={data.sidebarVisible}
             to="/settings"
             activeStyle={{
               backgroundColor: theme.colours.focusAltDialogBackgroundColour,
@@ -368,7 +426,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
             }}
           >
             <SidebarItem
-              sidebarVisible={props.sidebarVisible}
+              sidebarVisible={data.sidebarVisible}
               iconName={'settings'}
               text={'Settings'}
             />
@@ -376,10 +434,10 @@ const Sidebar = (props: SidebarProps): ReactElement => {
           <CollapseContainer data-cy="sidebar-btn-container">
             <Button
               spacing="compact"
-              icon={props.sidebarVisible ? 'slideLeft' : 'slideRight'}
+              icon={data.sidebarVisible ? 'slideLeft' : 'slideRight'}
               type="invert"
               onClick={() => {
-                props.toggleSidebar()
+                sidebarVisibleVar(!data.sidebarVisible)
               }}
               iconSize="18px"
             />
@@ -390,58 +448,4 @@ const Sidebar = (props: SidebarProps): ReactElement => {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  projects: state.projects,
-  areas: state.areas,
-  sidebarVisible: state.ui.sidebarVisible,
-  theme: state.ui.theme,
-  views: state.ui.views,
-})
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  createProject: (id: string, name: string, description: string, areaId: string) => {
-    dispatch(createProject(id, name, description, areaId))
-    dispatch(addView(id, name, 'project'))
-    const component1Id = uuidv4()
-    const component2Id = uuidv4()
-    dispatch(
-      addComponent(component1Id, id, 'main', {
-        name: 'FilteredItemList',
-        props: {
-          id: component1Id,
-          listName: 'Notes',
-          filter: `projectId == "${id}" and type == "NOTE" and not deleted`,
-          isFilterable: false,
-          hideIcons: [ItemIcons.Project],
-        },
-      }),
-    )
-    dispatch(
-      addComponent(component2Id, id, 'main', {
-        name: 'FilteredItemList',
-        props: {
-          id: component2Id,
-          listName: 'Todos',
-          filter: `projectId == "${id}" and type == "TODO" and not (completed or deleted)`,
-          isFilterable: false,
-          hideIcons: [ItemIcons.Project],
-        },
-      }),
-    )
-  },
-  toggleSidebar: () => {
-    dispatch(toggleSidebar())
-  },
-  reorderProject: (id: string, destinationId: string) => {
-    dispatch(reorderProject(id, destinationId))
-  },
-  setProjectArea: (id: string, areaId: string) => {
-    dispatch(setProjectArea(id, areaId))
-  },
-  createArea: (id: string, name: string, description: string) => {
-    dispatch(createArea(id, name, description))
-  },
-  reorderArea: (id: string, destinationId: string) => {
-    dispatch(reorderArea(id, destinationId))
-  },
-})
-export default connect(mapStateToProps, mapDispatchToProps)(Sidebar)
+export default Sidebar

@@ -14,12 +14,27 @@ import {
 } from '../interfaces'
 import { v4 as uuidv4 } from 'uuid'
 import { ItemIcons } from '../interfaces/item'
-import { gql, ApolloClient, InMemoryCache, HttpLink } from '@apollo/client'
+import { gql, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client'
+import { RetryLink } from 'apollo-link-retry'
 import fetch from 'cross-fetch'
-import { stringify } from 'querystring'
 
+const httpLink = createHttpLink({
+  uri: 'http://localhost:8080/graphql',
+  fetch,
+})
+const retryLink = new RetryLink({
+  delay: {
+    initial: 100,
+    max: Infinity,
+    jitter: true,
+  },
+  attempts: {
+    max: 5,
+    retryIf: (error, _operation) => !!error,
+  },
+})
 const client = new ApolloClient({
-  link: new HttpLink({ uri: 'http://localhost:8080/graphql', fetch }),
+  link: retryLink.concat(httpLink),
   cache: new InMemoryCache(),
 })
 
@@ -247,6 +262,7 @@ mutation {
 }
 
 export const migrateFeaturesToGraphQL = (fs: FeatureType): void => {
+  console.log('Migrating features')
   // First create them (just in case)
   // Just going to hulk smash them all to false
   const defaultFlags = [
@@ -256,17 +272,16 @@ export const migrateFeaturesToGraphQL = (fs: FeatureType): void => {
     { key: 'b48f0b19-9a28-4275-a6a8-f92a0cec9e5f', name: 'dailyGoals', enabled: false },
   ]
   defaultFlags.map((f) => {
-    return client
-      .mutate({
-        mutation: gql`
-          ${createFeatureQuery(f.key, f.name, f.enabled)}
-        `,
-      })
-      .then((result) => console.log(result))
+    return client.mutate({
+      mutation: gql`
+        ${createFeatureQuery(f.key, f.name, f.enabled)}
+      `,
+    })
   })
 }
 
 export const createLabelQuery = (key: string, name: string, colour: string) => {
+  console.log('Migrating labels')
   return `
 mutation {
   createLabel(input: { key: "${key}", name: "${name}", colour: "${colour}" }) {
@@ -278,13 +293,11 @@ mutation {
 
 export const migrateLabelsToGraphQL = (ls: Labels): void => {
   Object.values(ls.labels).map((l) => {
-    client
-      .mutate({
-        mutation: gql`
-          ${createLabelQuery(l.id, l.name, l.colour)}
-        `,
-      })
-      .then((result) => console.log(result))
+    client.mutate({
+      mutation: gql`
+        ${createLabelQuery(l.id, l.name, l.colour)}
+      `,
+    })
   })
   return
 }
@@ -333,6 +346,7 @@ mutation {
 `
 }
 export const migrateProjectsToGraphQL = (ps: Projects): void => {
+  console.log('Migrating projects')
   Object.values(ps.projects).map((p: ProjectType) => {
     return client
       .mutate({
@@ -361,7 +375,6 @@ export const migrateProjectsToGraphQL = (ps: Projects): void => {
           ${migrateProjectOrderQuery(o, idx)}
         `,
       })
-      .then((result) => console.log(result))
       .catch((e) => {
         console.log(
           `
@@ -412,6 +425,7 @@ mutation {
 }
 
 export const migrateAreasToGraphQL = (ar: Areas): void => {
+  console.log('Migrating areas')
   Object.values(ar.areas).map((a) => {
     client
       .mutate({
@@ -427,7 +441,6 @@ export const migrateAreasToGraphQL = (ar: Areas): void => {
           )}
         `,
       })
-      .then((result) => console.log(result))
       .catch((e) => {
         console.log(
           `
@@ -447,17 +460,174 @@ export const migrateAreasToGraphQL = (ar: Areas): void => {
   })
 
   Object.values(ar.order).map((o, idx) => {
+    console.log(`
+          ${migrateAreaOrderQuery(o, idx)}
+
+`)
     client
       .mutate({
         mutation: gql`
           ${migrateAreaOrderQuery(o, idx)}
         `,
       })
-      .then((result) => console.log(result))
       .catch((e) => {
         console.log(
           `
           ${migrateAreaOrderQuery(o, idx)}
+        `,
+        )
+        console.log(e)
+      })
+  })
+
+  return
+}
+
+export const migrateViewQuery = (key: string, name: string, icon: string, type: string) => {
+  return `
+mutation {
+  migrateView(input: {
+    key: "${key}",
+    name: "${name}",
+    icon: ${icon},
+    type: "${type}",
+    }) {
+      key
+    }
+}
+`
+}
+export const migrateViewOrderQuery = (viewKey: string, sortOrder: number) => {
+  return `
+mutation {
+  migrateViewOrder(input: {viewKey: "${viewKey}", sortOrder: ${sortOrder}}) {
+    viewKey
+  }
+}
+`
+}
+
+export const migrateViewsToGraphQL = (vi: Views): void => {
+  console.log('Migrating views')
+  Object.values(vi.views).map((v) => {
+    if (v.id == 'ab4b890e-9b90-45b1-8404-df70711a68dd') return null
+    client
+      .mutate({
+        mutation: gql`
+          ${migrateViewQuery(v.id, v.name, v.icon ? `"${v.icon}"` : null, v.type)}
+        `,
+      })
+      .catch((e) => {
+        console.log(
+          `
+          ${migrateViewQuery(v.id, v.name, v.icon, v.type)}
+        `,
+        )
+        console.log(e)
+      })
+  })
+
+  Object.values(vi.order).map((o, idx) => {
+    if (o == 'ab4b890e-9b90-45b1-8404-df70711a68dd') return null
+    client
+      .mutate({
+        mutation: gql`
+          ${migrateViewOrderQuery(o, idx)}
+        `,
+      })
+      .catch((e) => {
+        console.log(
+          `
+          ${migrateViewOrderQuery(o, idx)}
+        `,
+        )
+        console.log(e)
+      })
+  })
+
+  return
+}
+
+export const migrateComponentQuery = (
+  key: string,
+  viewKey: string,
+  location: string,
+  type: string,
+  params: string,
+) => {
+  return `
+mutation {
+  migrateComponent(input: {
+    componentKey: "${key}",
+    viewKey: "${viewKey}",
+    location: "${location}",
+    type: "${type}",
+    parameters: ${JSON.stringify(params)},
+    }) {
+      key
+    }
+}
+`
+}
+export const migrateComponentOrderQuery = (componentKey: string, sortOrder: number) => {
+  return `
+mutation {
+  migrateComponentOrder(input: {componentKey: "${componentKey}", sortOrder: ${sortOrder}}) {
+    componentKey
+  }
+}
+`
+}
+
+const clone = (obj) => Object.assign({}, obj)
+const renameKey = (object, key, newKey) => {
+  const clonedObj = clone(object)
+  const targetKey = clonedObj[key]
+  delete clonedObj[key]
+  clonedObj[newKey] = targetKey
+  return clonedObj
+}
+
+export const migrateComponentsToGraphQL = (co: MainComponents): void => {
+  console.log('Migrating components')
+  Object.values(co.components).map((c) => {
+    const p = c.component.props
+    const p1 = renameKey(p, 'filter', 'legacyFilter')
+    const p2 = renameKey(p1, 'hideIcons', 'hiddenIcons')
+    const p3 = renameKey(p2, 'renderingStrategy', 'flattenSubtasks')
+    p3.flattenSubtasks = true
+    p3.filter = JSON.stringify({
+      text: 'createdAt is today ',
+      value: [{ category: 'createdAt', operator: 'is', value: 'today' }],
+    })
+
+    client
+      .mutate({
+        mutation: gql`
+          ${migrateComponentQuery(c.id, c.viewId, c.location, c.component.name, JSON.stringify(p3))}
+        `,
+      })
+      .catch((e) => {
+        console.log(
+          `
+          ${migrateComponentQuery(c.id, c.viewId, c.location, c.component.name, c.component.props)}
+        `,
+        )
+        console.log(e)
+      })
+  })
+
+  Object.values(co.order).map((o, idx) => {
+    client
+      .mutate({
+        mutation: gql`
+          ${migrateComponentOrderQuery(o, idx)}
+        `,
+      })
+      .catch((e) => {
+        console.log(
+          `
+          ${migrateComponentOrderQuery(o, idx)}
         `,
         )
         console.log(e)
@@ -524,42 +694,39 @@ mutation {
 `
 }
 
-export const migrateItemsToGraphQL = (ar: Items): void => {
-  Object.values(ar.items).map((a) => {
-    client
-      .mutate({
-        mutation: gql`
-          ${migrateItemQuery(
-            a.id,
-            a.type,
-            a.text,
-            a.deleted,
-            a.completed,
-            a?.parentId ? `"${a.parentId}"` : null,
-            a?.projectId ? `"${a.projectId}"` : null,
-            a?.dueDate ? `"${a.dueDate}"` : null,
-            a?.scheduledDate ? `"${a.scheduledDate}"` : null,
-            a?.lastUpdatedAt ? `"${a.lastUpdatedAt}"` : null,
-            a?.completedAt ? `"${a.completedAt}"` : null,
-            a?.createdAt ? `"${a.createdAt}"` : null,
-            a?.deletedAt ? `"${a.deletedAt}"` : null,
-            a?.repeat ? `"${a.repeat}"` : null,
-            a?.labelId ? `"${a.labelId}"` : null,
-            a?.areaId ? `"${a.areaId}"` : null,
-          )}
-        `,
-      })
-      .then((result) => console.log(result))
+export const migrateItemsToGraphQL = (it: Items): void => {
+  console.log('Migrating items')
+  Object.values(it.items).map((i) => {
+    client.mutate({
+      mutation: gql`
+        ${migrateItemQuery(
+          i.id,
+          i.type,
+          i.text,
+          i.deleted,
+          i.completed,
+          i?.parentId ? `"${i.parentId}"` : null,
+          i?.projectId ? `"${i.projectId}"` : null,
+          i?.dueDate ? `"${i.dueDate}"` : null,
+          i?.scheduledDate ? `"${i.scheduledDate}"` : null,
+          i?.lastUpdatedAt ? `"${i.lastUpdatedAt}"` : null,
+          i?.completedAt ? `"${i.completedAt}"` : null,
+          i?.createdAt ? `"${i.createdAt}"` : null,
+          i?.deletedAt ? `"${i.deletedAt}"` : null,
+          i?.repeat ? `"${i.repeat}"` : null,
+          i?.labelId ? `"${i.labelId}"` : null,
+          i?.areaId ? `"${i.areaId}"` : null,
+        )}
+      `,
+    })
   })
 
-  Object.values(ar.order).map((o, idx) => {
-    client
-      .mutate({
-        mutation: gql`
-          ${migrateItemOrderQuery(o, idx)}
-        `,
-      })
-      .then((result) => console.log(result))
+  Object.values(it.order).map((o, idx) => {
+    client.mutate({
+      mutation: gql`
+        ${migrateItemOrderQuery(o, idx)}
+      `,
+    })
   })
 
   return
@@ -1138,6 +1305,8 @@ export const migrations = {
     migrateAreasToGraphQL(state.areas)
     migrateProjectsToGraphQL(state.projects)
     migrateItemsToGraphQL(state.items)
+    migrateViewsToGraphQL(state.ui.views)
+    migrateComponentsToGraphQL(state.ui.components)
     return {
       ...state,
     }

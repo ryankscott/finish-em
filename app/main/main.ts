@@ -8,7 +8,7 @@ import { graphqlHTTP } from 'express-graphql'
 import { schema, rootValue } from './schemas/schema'
 import * as sqlite from 'sqlite'
 import * as sqlite3 from 'sqlite3'
-
+import morgan from 'morgan'
 const GRAPHQL_PORT = 8080
 ;(async () => {
   const db = await sqlite.open({
@@ -19,11 +19,24 @@ const GRAPHQL_PORT = 8080
   await db.migrate({
     migrationsPath: path.join(process.cwd(), '/app/main/migrations'),
   })
-  await db.on('trace', (data) => {
-    console.log(data)
-  })
+  // await db.on('trace', (data) => {
+  //   console.log(data)
+  // })
 
   const graphQLApp = await express()
+
+  // Logging
+  morgan.token('body', (req, res) => {
+    return JSON.stringify(req.body)
+  })
+  graphQLApp.use(
+    morgan(':date[iso] :status :res[content-length] :url :body - :response-time ms', {
+      skip: function (req, res) {
+        return res.statusCode < 400
+      },
+    }),
+  )
+
   // Enable cors
   graphQLApp.use('/graphql', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*')
@@ -260,7 +273,6 @@ function createQuickAddWindow() {
 
 function createMainWindow() {
   // Create the browser window.
-  console.log(path.join(process.cwd() + '/app/main/preload.ts'))
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 850,
@@ -278,10 +290,9 @@ function createMainWindow() {
   )
 
   // Open dev tools
-  // mainWindow.webContents.openDevTools();
+  mainWindow.webContents.openDevTools()
 
   // On closing derefernce
-  // TODO: Change to an array for multi-window support
   mainWindow.on('closed', () => {
     mainWindow = null
   })

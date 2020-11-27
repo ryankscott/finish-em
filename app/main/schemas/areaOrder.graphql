@@ -5,7 +5,7 @@ type AreaOrder {
 
 input SetAreaOrderInput {
   areaKey: String!
-  newOrder: Int!
+  sortOrder: Int!
 }
 
 input CreateAreaOrderInput {

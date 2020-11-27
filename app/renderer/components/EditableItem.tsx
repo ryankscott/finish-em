@@ -1,51 +1,59 @@
-import React, { ReactElement } from "react";
-import electron from "electron";
+import { gql, useQuery } from '@apollo/client'
+import electron from 'electron'
+import React, { ReactElement } from 'react'
+import { Icons } from '../assets/icons'
+import { ThemeType } from '../interfaces'
+import { ThemeProvider } from '../StyledComponents'
+import { themes } from '../theme'
+import { validateItemString } from '../utils'
+import EditableText from './EditableText'
+import { Container, Icon } from './styled/EditableItem'
 
-import { validateItemString } from "../utils";
-import { themes } from "../theme";
-import { Icons } from "../assets/icons";
-import { ThemeProvider } from "../StyledComponents";
-import { Container, Icon } from "./styled/EditableItem";
-import EditableText from "./EditableText";
-import { connect } from "react-redux";
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
-interface StateProps {
-  theme: string;
+type EditableItemProps = {
+  hideIcon?: boolean
+  text: string
+  readOnly: boolean
+  innerRef?: React.RefObject<HTMLInputElement>
+  onSubmit: (t: string) => void
+  onEscape?: () => void
 }
 
-interface OwnProps {
-  hideIcon?: boolean;
-  text: string;
-  readOnly: boolean;
-  innerRef?: React.RefObject<HTMLInputElement>;
-  onSubmit: (t: string) => void;
-  onEscape?: () => void;
-}
-
-type EditableItemProps = StateProps & OwnProps;
 function InternalEditableItem(props: EditableItemProps): ReactElement {
   const handleUpdate = (value): boolean => {
-    props.onSubmit(value);
-    electron.ipcRenderer.send("close-quickadd");
-    return true;
-  };
+    props.onSubmit(value)
+    electron.ipcRenderer.send('close-quickadd')
+    return true
+  }
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
 
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Container
         onKeyUp={(e) => {
-          if (e.key == "Escape") {
-            props.onEscape ? props.onEscape() : null;
+          if (e.key == 'Escape') {
+            props.onEscape ? props.onEscape() : null
           }
         }}
         hideIcon={props.hideIcon}
       >
-        {props.hideIcon ? null : <Icon>{Icons["add"]()}</Icon>}
+        {props.hideIcon ? null : <Icon>{Icons['add']()}</Icon>}
         <EditableText
           innerRef={props.innerRef}
           onUpdate={handleUpdate}
           singleline={true}
-          input={""}
+          input={''}
           validation={{
             validate: true,
             rule: validateItemString,
@@ -55,20 +63,15 @@ function InternalEditableItem(props: EditableItemProps): ReactElement {
         />
       </Container>
     </ThemeProvider>
-  );
+  )
 }
 
 const EditableItem = React.forwardRef(
   (props: EditableItemProps, ref: React.RefObject<HTMLInputElement>) => (
     <InternalEditableItem innerRef={ref} {...props} />
-  )
-);
+  ),
+)
 
-EditableItem.displayName = "EditableItem";
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-});
+EditableItem.displayName = 'EditableItem'
 
-const mapDispatchToProps = (dispatch) => ({});
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditableItem);
+export default EditableItem

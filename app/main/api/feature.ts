@@ -10,7 +10,14 @@ export const getFeature = (input: { key: string }, ctx) => {
   return ctx.db
     .get(`SELECT key, name, enabled FROM feature WHERE key = '${input.key}'`)
     .then((result) => {
-      return new Feature(result.key, result.name, result.enabled)
+      return result ? new Feature(result.key, result.name, result.enabled) : null
+    })
+}
+export const getFeatureByName = (input: { name: string }, ctx) => {
+  return ctx.db
+    .get(`SELECT key, name, enabled FROM feature WHERE name = '${input.name}'`)
+    .then((result) => {
+      return result ? new Feature(result.key, result.name, result.enabled) : null
     })
 }
 
@@ -39,6 +46,9 @@ export const createFeature = (input: { key: string; name: string; enabled: boole
 export const featureRootValues = {
   feature: (key, ctx) => {
     return getFeature(key, ctx)
+  },
+  featureByName: (name, ctx) => {
+    return getFeatureByName(name, ctx)
   },
   features: (obj, ctx) => {
     return getFeatures(obj, ctx)

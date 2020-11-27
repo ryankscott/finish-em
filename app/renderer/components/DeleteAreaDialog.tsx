@@ -1,29 +1,27 @@
-import React, { ReactElement, useState, useEffect } from 'react'
+import { gql, useQuery } from '@apollo/client'
+import React, { ReactElement, useEffect, useState } from 'react'
+import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
-import { connect } from 'react-redux'
-
-import { Paragraph, Header3 } from './Typography'
 import { themes } from '../theme'
 import Button from './Button'
 import {
-  BodyContainer,
   ActionContainer,
-  Container,
+  BodyContainer,
   CloseButton,
+  Container,
   Dialog,
   HeaderContainer,
 } from './styled/DeleteAreaDialog'
+import { Header3, Paragraph } from './Typography'
 
-interface OwnProps {
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+type DeleteAreaDialogProps = {
   onDelete: () => void
 }
-interface StateProps {
-  theme: string
-}
-
-interface DispatchProps {}
-
-type DeleteAreaDialogProps = StateProps & DispatchProps & OwnProps
 
 const DeleteAreaDialog = (props: DeleteAreaDialogProps): ReactElement => {
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -46,8 +44,16 @@ const DeleteAreaDialog = (props: DeleteAreaDialogProps): ReactElement => {
     }
   })
 
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
+
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Container ref={node} onClick={handleClick}>
         <Button
           type="primary"
@@ -102,10 +108,4 @@ const DeleteAreaDialog = (props: DeleteAreaDialogProps): ReactElement => {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-
-const mapDispatchToProps = (dispatch): DispatchProps => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(DeleteAreaDialog)
+export default DeleteAreaDialog

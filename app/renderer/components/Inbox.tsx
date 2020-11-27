@@ -1,31 +1,29 @@
+import { gql, useQuery } from '@apollo/client'
 import React, { ReactElement } from 'react'
+import { RenderingStrategy, ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
-
 import { themes } from '../theme'
-import { Container } from './styled/View'
-import { Label, MainComponents, Component } from '../interfaces'
-import { connect } from 'react-redux'
-import ViewHeader from './ViewHeader'
+import FilteredItemList from './FilteredItemList'
 import ItemCreator from './ItemCreator'
-import { v4 as uuidv4 } from 'uuid'
-import { addComponent } from '../actions'
-import ReorderableComponentList from './ReorderableComponentList'
+import { Container } from './styled/View'
+import ViewHeader from './ViewHeader'
 
-interface StateProps {
-  theme: string
-  labels: Label
-  components: MainComponents
-}
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+const Inbox = (): ReactElement => {
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
 
-interface DispatchProps {
-  addList: (id: string, viewId: string) => void
-}
-
-type InboxProps = StateProps & DispatchProps
-const viewId = 'ab4b890e-9b90-45b1-8404-df70711a68dd'
-const Inbox = (props: InboxProps): ReactElement => {
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Container style={{ paddingTop: '60px' }}>
         <ViewHeader name={'Inbox'} icon={'inbox'} />
         <ItemCreator
@@ -33,34 +31,27 @@ const Inbox = (props: InboxProps): ReactElement => {
           buttonText="Add Item"
           initiallyExpanded={true}
           shouldCloseOnSubmit={false}
-          projectId={'0'}
+          projectKey={'0'}
         />
-        <ReorderableComponentList id={viewId} />
+        <div style={{ padding: '20px 10px 10px 10px' }}>
+          <FilteredItemList
+            componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4497"
+            isFilterable={true}
+            listName="Inbox"
+            filter={JSON.stringify({
+              text: 'project = "Inbox"',
+              value: [
+                { category: 'projectKey', operator: '=', value: '0' },
+                { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
+              ],
+            })}
+            flattenSubtasks={true}
+            readOnly={true}
+          />
+        </div>
       </Container>
     </ThemeProvider>
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-  labels: state.ui.labels,
-  components: state.ui.components,
-})
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  addList: (viewId, location) => {
-    const id = uuidv4()
-    const component: Component = {
-      name: 'FilteredItemList',
-      props: {
-        id: id,
-        filter: 'not deleted',
-        hideIcons: [],
-        listName: 'New list',
-        isFilterable: true,
-      },
-    }
-    dispatch(addComponent(id, viewId, location, component))
-  },
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(Inbox)
+export default Inbox

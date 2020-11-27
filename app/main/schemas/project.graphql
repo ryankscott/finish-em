@@ -11,6 +11,8 @@ type Project {
   startAt: DateTime
   endAt: DateTime
   area: Area
+  items: [Item]
+  sortOrder: ProjectOrder
 }
 
 input CreateProjectInput {
@@ -59,10 +61,23 @@ input SetStartDateOfProjectInput {
   startAt: String!
 }
 
+input ProjectsInput {
+  deleted: Boolean
+}
+
+input ProjectsByAreaInput {
+  areaKey: String!
+}
+
+input SetAreaOfProjectInput {
+  key: String!
+  areaKey: String!
+}
+
 type Query {
-  projects: [Project]
+  projects(input: ProjectsInput): [Project]
   project(key: String!): Project
-  projectsByArea(areaKey: String!): Project
+  projectsByArea(input: ProjectsByAreaInput!): [Project]
 }
 
 type Mutation {
@@ -73,4 +88,5 @@ type Mutation {
   changeDescriptionProject(input: ChangeDescriptionProjectInput!): Project
   setEndDateOfProject(input: SetEndDateOfProjectInput!): Project
   setStartDateOfProject(input: SetStartDateOfProjectInput!): Project
+  setAreaOfProject(input: SetAreaOfProjectInput!): Project
 }

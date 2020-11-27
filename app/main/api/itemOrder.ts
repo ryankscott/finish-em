@@ -12,26 +12,26 @@ export const getItemOrder = (input: { itemKey: string }, ctx) => {
     .then((result) => new ItemOrder(result.itemKey, result.sortOrder))
 }
 
-export const setItemOrder = async (input: { itemKey: string; newOrder: number }, ctx) => {
+export const setItemOrder = async (input: { itemKey: string; sortOrder: number }, ctx) => {
   try {
     const currentItemOrder = await getItemOrder({ itemKey: input.itemKey }, ctx)
     const currentOrder = currentItemOrder.sortOrder
     // Moving down in sort numbers
-    if (input.newOrder < currentOrder) {
+    if (input.sortOrder < currentOrder) {
       const moveDown = await ctx.db.run(
         `UPDATE itemOrder SET sortOrder = sortOrder + 1
-         WHERE sortOrder BETWEEN ${input.newOrder} AND ${currentOrder} - 1;
+         WHERE sortOrder BETWEEN ${input.sortOrder} AND ${currentOrder} - 1;
         `,
       )
     } else {
       const moveUp = await ctx.db.run(
         `UPDATE itemOrder SET sortOrder = sortOrder - 1
-         WHERE sortOrder BETWEEN ${currentOrder} + 1 AND ${input.newOrder};`,
+         WHERE sortOrder BETWEEN ${currentOrder} + 1 AND ${input.sortOrder};`,
       )
     }
 
     const setItem = await ctx.db.run(
-      `UPDATE itemOrder SET sortOrder = ${input.newOrder} 
+      `UPDATE itemOrder SET sortOrder = ${input.sortOrder} 
          WHERE itemKey = '${input.itemKey}';`,
     )
 
@@ -43,21 +43,21 @@ export const setItemOrder = async (input: { itemKey: string; newOrder: number },
 
 export const createCreateItemOrderQuery = (input: { itemKey: string }) => {
   return `
-      INSERT INTO ItemOrder (itemKey, sortOrder) VALUES ('${input.itemKey}',(SELECT MAX(sortOrder) + 1 from ItemOrder)) 
+      INSERT INTO itemOrder (itemKey, sortOrder) VALUES ('${input.itemKey}',(SELECT MAX(sortOrder) + 1 from itemOrder)) 
 `
 }
 
-export const createItemOrder = (
+export const createItemOrder = async (
   input: {
     itemKey: string
   },
   ctx,
 ) => {
-  return ctx.db.run(createCreateItemOrderQuery(input)).then((result) => {
-    return result.changes
-      ? getItemOrder({ itemKey: input.itemKey }, ctx)
-      : new Error('Unable to create item order')
-  })
+  const result = await ctx.db.run(createCreateItemOrderQuery(input))
+  if (result.changes) {
+    return getItemOrder({ itemKey: input.itemKey }, ctx)
+  }
+  return new Error('Unable to create item order')
 }
 
 export const migrateItemOrder = (
@@ -69,7 +69,7 @@ export const migrateItemOrder = (
 ) => {
   return ctx.db
     .run(
-      `INSERT INTO ItemOrder (itemKey, sortOrder) VALUES ('${input.itemKey}',${input.sortOrder})`,
+      `INSERT INTO itemOrder (itemKey, sortOrder) VALUES ('${input.itemKey}',${input.sortOrder})`,
     )
     .then((result) => {
       return result.changes

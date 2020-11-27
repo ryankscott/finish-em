@@ -1,16 +1,12 @@
 import React, { ReactElement, useState } from 'react'
-import { connect } from 'react-redux'
 import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
-import { setActiveItem, showFocusbar } from '../actions/index'
 import Button from './Button'
 import Tooltip from './Tooltip'
 import { lighten } from 'polished'
 import Select, { GroupType } from 'react-select'
 import { removeItemTypeFromString, markdownLinkRegex, markdownBasicRegex } from '../utils'
 import { useHistory } from 'react-router'
-import { Project, Projects } from '../interfaces/project'
-import { Items, Item } from '../interfaces'
 import {
   ShortcutIcon,
   IconContainer,
@@ -19,40 +15,68 @@ import {
   Container,
 } from './styled/Headerbar'
 import { Icons } from '../assets/icons'
+import { gql, useQuery } from '@apollo/client'
+import { activeItemVar, focusbarVisibleVar } from '..'
+import { Item, Project } from '../../main/generated/typescript-helpers'
+import { ThemeType } from '../interfaces'
+import { sortBy } from 'lodash'
 
 type OptionType = { label: string; value: () => void }
 
-interface OwnProps {
+const GET_DATA = gql`
+  query {
+    projects(input: { deleted: false }) {
+      key
+      name
+    }
+    areas {
+      key
+      name
+    }
+    items {
+      key
+      text
+      deleted
+      lastUpdatedAt
+    }
+    theme @client
+  }
+`
+
+type HeaderbarProps = {
   searchRef: React.RefObject<HTMLSelectElement>
 }
-interface StateProps {
-  theme: string
-  projects: Projects
-  items: Items
-}
-
-interface DispatchProps {
-  setActiveItem: (id: string) => void
-}
-
-type HeaderbarProps = DispatchProps & StateProps & OwnProps
 
 const Headerbar = (props: HeaderbarProps): ReactElement => {
   const history = useHistory()
   const [showTRex, setShowTRex] = useState(false)
-  const generateOptions = (projects: Project, items: Item): GroupType<OptionType>[] => {
-    const itemOptions = Object.values(items).map((i) => {
-      return {
-        label: removeItemTypeFromString(i.text)
-          .replace(markdownLinkRegex, '$1')
-          .replace(markdownBasicRegex, '$1'),
-        value: () => props.setActiveItem(i.id),
-      }
-    })
-    const projectOptions = Object.values(projects).map((p) => {
+  const { loading, error, data } = useQuery(GET_DATA)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+
+  const generateOptions = (projects: Project[], items: Item[]): GroupType<OptionType>[] => {
+    const sortedItems = sortBy(items, ['lastUpdatedAt'], ['desc'])
+    const itemOptions = sortedItems
+      .filter((i) => i.deleted == false)
+      .map((i) => {
+        return {
+          label: removeItemTypeFromString(i.text)
+            .replace(markdownLinkRegex, '$1')
+            .replace(markdownBasicRegex, '$1'),
+          value: () => {
+            focusbarVisibleVar(true)
+            activeItemVar(i.key)
+          },
+        }
+      })
+
+    const projectOptions = projects.map((p) => {
       return {
         label: p.name,
-        value: () => history.push(`/projects/${p.id}`),
+        value: () => history.push(`/projects/${p.key}`),
       }
     })
 
@@ -62,9 +86,10 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
     ]
   }
 
+  const theme: ThemeType = themes[data.theme]
   return (
     <Container>
-      <ThemeProvider theme={themes[props.theme]}>
+      <ThemeProvider theme={theme}>
         <IconContainer onClick={() => setShowTRex(!showTRex)}>
           {showTRex ? <span style={{ fontSize: '36px' }}>🦖</span> : Icons['finish_em'](36, 36)}
         </IconContainer>
@@ -79,12 +104,12 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             onChange={(selected) => {
               selected.value()
             }}
-            options={generateOptions(props.projects.projects, props.items.items)}
+            options={generateOptions(data.projects, data.items)}
             styles={selectStyles({
               fontSize: 'xsmall',
-              theme: themes[props.theme],
+              theme: theme,
               width: '400px',
-              backgroundColour: lighten(0.2, themes[props.theme].colours.headerBackgroundColour),
+              backgroundColour: lighten(0.2, theme.colours.headerBackgroundColour),
             })}
           />
         </SelectContainer>
@@ -94,7 +119,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             type="subtle"
             icon="feedback"
             iconSize="20px"
-            iconColour={themes[props.theme].colours.altTextColour}
+            iconColour={theme.colours.altTextColour}
             onClick={() => window.open('https://github.com/ryankscott/finish-em/issues/new/')}
           ></Button>
           <Tooltip id="feedback-button" text={'Give feedback'}></Tooltip>
@@ -106,7 +131,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             type="subtle"
             icon="help"
             iconSize="20px"
-            iconColour={themes[props.theme].colours.altTextColour}
+            iconColour={theme.colours.altTextColour}
             onClick={() => {
               history.push('/help/')
             }}
@@ -118,17 +143,4 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  projects: state.projects,
-  items: state.items,
-  theme: state.ui.theme,
-})
-
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  setActiveItem: (id: string) => {
-    dispatch(showFocusbar())
-    dispatch(setActiveItem(id))
-  },
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(Headerbar)
+export default Headerbar

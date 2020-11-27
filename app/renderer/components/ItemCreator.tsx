@@ -1,6 +1,4 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
-import { connect } from 'react-redux'
-import { createItem, addChildItem } from '../actions'
 import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
 import Tooltip from './Tooltip'
@@ -20,24 +18,39 @@ import {
 import EditableText from './EditableText'
 import { lighten } from 'polished'
 import { isValid } from 'date-fns'
+import { gql, useMutation, useQuery } from '@apollo/client'
+import { ThemeType } from '../interfaces'
 
-interface StateProps {
-  theme: string
-}
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
-interface DispatchProps {
-  createSubTask: (parentId: string, text: string, projectId: string | '0') => void
-  createItem: (text: string, projectId: string | '0') => void
-}
+const CREATE_ITEM = gql`
+  mutation CreateItem(
+    $key: String!
+    $type: String!
+    $text: String!
+    $parentKey: String
+    $projectKey: String
+  ) {
+    createItem(
+      input: { key: $key, type: $type, text: $text, parentKey: $parentKey, projectKey: $projectKey }
+    ) {
+      key
+    }
+  }
+`
 
-interface OwnProps {
+type ItemCreatorProps = {
   style?: 'subtle' | 'default'
   type: 'item' | 'subtask'
   initiallyExpanded: boolean
   shouldCloseOnSubmit?: boolean
   shouldCloseOnBlur?: boolean
-  parentId?: string
-  projectId?: string | '0'
+  parentKey?: string
+  projectKey?: string | '0'
   buttonText?: string
   width?: string
   hideButton?: boolean
@@ -47,8 +60,16 @@ interface OwnProps {
   onEscape?: () => void
 }
 
-type ItemCreatorProps = OwnProps & DispatchProps & StateProps
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
+  const [createItem] = useMutation(CREATE_ITEM)
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
+
   const textRef: React.RefObject<HTMLInputElement> = props.innerRef
     ? props.innerRef
     : React.useRef<HTMLInputElement>()
@@ -75,7 +96,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   }, [])
 
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Container
         ref={node}
         onKeyDown={(e) => {
@@ -86,7 +107,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
       >
         {!props.hideButton && (
           <Button
-            dataFor={'add-item' + props.parentId + props.projectId + props.type}
+            dataFor={'add-item' + props.parentKey + '-' + props.projectKey + '-' + props.type}
             type="primary"
             spacing="compact"
             icon="add"
@@ -100,7 +121,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
           />
         )}
         <Tooltip
-          id={'add-item' + props.parentId + props.projectId + props.type}
+          id={'add-item' + props.parentKey + '-' + props.projectKey + '-' + props.type}
           text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
         ></Tooltip>
         <ItemCreatorContainer
@@ -182,9 +203,15 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               return true
             }}
             onUpdate={(text) => {
-              props.type == 'item'
-                ? props.createItem(text, props.projectId)
-                : props.createSubTask(props.parentId, text, null)
+              createItem({
+                variables: {
+                  key: uuidv4(),
+                  type: 'TODO',
+                  text: text,
+                  projectKey: props.projectKey,
+                  parentKey: props.parentKey,
+                },
+              })
               if (props.onCreate) {
                 props.onCreate()
               }
@@ -209,20 +236,20 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
           {showItemCreator && (
             <>
               <HelpButtonContainer
-                data-for={'help-icon' + props.parentId + props.projectId + props.type}
+                data-for={'help-icon' + props.parentKey + '-' + props.projectKey + '-' + props.type}
                 data-tip
                 data-html={true}
               >
-                {Icons.help(
+                {Icons['help'](
                   18,
                   18,
                   props.backgroundColour
                     ? lighten(0.2, props.backgroundColour)
-                    : themes[props.theme].colours.disabledTextColour,
+                    : theme.colours.disabledTextColour,
                 )}
               </HelpButtonContainer>
               <Tooltip
-                id={'help-icon' + props.parentId + props.projectId + props.type}
+                id={'help-icon' + props.parentKey + '-' + props.projectKey + '-' + props.type}
                 multiline={true}
                 html={true}
                 text={`To add an item first start with the type of item you want  <br>
@@ -247,19 +274,4 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  createItem: (text: string, projectId: string | '0') => {
-    dispatch(createItem(uuidv4(), text, projectId))
-  },
-  createSubTask: (parentId: string, text: string, projectId: string | '0') => {
-    const childId = uuidv4()
-    dispatch(createItem(childId, text, projectId))
-    dispatch(addChildItem(childId, parentId))
-  },
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(ItemCreator)
+export default ItemCreator

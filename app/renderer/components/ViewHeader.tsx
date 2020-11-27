@@ -3,33 +3,37 @@ import { ThemeProvider } from '../StyledComponents'
 
 import { HeaderContainer, IconContainer, HeaderTitle } from './styled/ViewHeader'
 import { themes } from '../theme'
-import { IconType } from '../interfaces'
-import { connect } from 'react-redux'
+import { IconType, ThemeType } from '../interfaces'
 import { Icons } from '../assets/icons'
+import { gql, useQuery } from '@apollo/client'
 
-interface StateProps {
-    theme: string
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+
+type ViewHeaderProps = {
+  name: string
+  icon?: IconType
 }
 
-export interface OwnProps {
-    name: string
-    icon?: IconType
-}
+const ViewHeader = (props: ViewHeaderProps): ReactElement => {
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
 
-type ViewHeaderProps = StateProps & OwnProps
-const ViewHeader = (props: ViewHeaderProps): ReactElement => (
-    <ThemeProvider theme={themes[props.theme]}>
-        <HeaderContainer>
-            <IconContainer>
-                {Icons[props.icon](24, 24, themes[props.theme].colours.primaryColour)}
-            </IconContainer>
-            <HeaderTitle> {props.name} </HeaderTitle>
-        </HeaderContainer>
+  return (
+    <ThemeProvider theme={theme}>
+      <HeaderContainer>
+        <IconContainer>{Icons[props.icon](24, 24, theme.colours.primaryColour)}</IconContainer>
+        <HeaderTitle> {props.name} </HeaderTitle>
+      </HeaderContainer>
     </ThemeProvider>
-)
-const mapStateToProps = (state): StateProps => ({
-    theme: state.ui.theme,
-})
-const mapDispatchToProps = (dispatch) => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(ViewHeader)
+  )
+}
+export default ViewHeader

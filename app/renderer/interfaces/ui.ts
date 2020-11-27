@@ -130,4 +130,4 @@ export type IconType =
   | 'view'
   | 'project'
   | 'copy'
-  | 'remind'
+  | 'reminder'

@@ -12,26 +12,26 @@ export const getAreaOrder = (input: { areaKey: string }, ctx) => {
     .then((result) => new AreaOrder(result.areaKey, result.sortOrder))
 }
 
-export const setAreaOrder = async (input: { areaKey: string; newOrder: number }, ctx) => {
+export const setAreaOrder = async (input: { areaKey: string; sortOrder: number }, ctx) => {
   try {
     const currentAreaOrder = await getAreaOrder({ areaKey: input.areaKey }, ctx)
     const currentOrder = currentAreaOrder.sortOrder
     // Moving down in sort numbers
-    if (input.newOrder < currentOrder) {
+    if (input.sortOrder < currentOrder) {
       const moveDown = await ctx.db.run(
         `UPDATE areaOrder SET sortOrder = sortOrder + 1
-         WHERE sortOrder BETWEEN ${input.newOrder} AND ${currentOrder} - 1;
+         WHERE sortOrder BETWEEN ${input.sortOrder} AND ${currentOrder} - 1;
         `,
       )
     } else {
       const moveUp = await ctx.db.run(
         `UPDATE areaOrder SET sortOrder = sortOrder - 1
-         WHERE sortOrder BETWEEN ${currentOrder} + 1 AND ${input.newOrder};`,
+         WHERE sortOrder BETWEEN ${currentOrder} + 1 AND ${input.sortOrder};`,
       )
     }
 
     const setArea = await ctx.db.run(
-      `UPDATE areaOrder SET sortOrder = ${input.newOrder} 
+      `UPDATE areaOrder SET sortOrder = ${input.sortOrder} 
          WHERE areaKey = ${input.areaKey};`,
     )
 
@@ -49,7 +49,7 @@ export const createAreaOrder = (
 ) => {
   return ctx.db
     .run(
-      `INSERT INTO AreaOrder (areaKey, sortOrder) VALUES (${input.areaKey},(SELECT MAX(sortOrder) + 1 from AreaOrder)) `,
+      `INSERT INTO areaOrder (areaKey, sortOrder) VALUES ('${input.areaKey}', (SELECT MAX(sortOrder) + 1 from areaOrder)) `,
     )
     .then((result) => {
       return result.changes
@@ -66,7 +66,9 @@ export const migrateAreaOrder = (
   ctx,
 ) => {
   return ctx.db
-    .run(`REPLACE INTO AreaOrder (areaKey, sortOrder) VALUES (${input.areaKey},${input.sortOrder})`)
+    .run(
+      `REPLACE INTO areaOrder (areaKey, sortOrder) VALUES ('${input.areaKey}',${input.sortOrder})`,
+    )
     .then((result) => {
       return result.changes
         ? getAreaOrder({ areaKey: input.areaKey }, ctx)

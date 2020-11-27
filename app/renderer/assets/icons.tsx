@@ -1,12 +1,19 @@
 /* eslint-disable react/display-name */
 import React from 'react'
 import * as CSS from 'csstype'
+import { IconType } from '../interfaces'
 
-export const Icons = {
+export const Icons: {
+  [key: IconType]: (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
+  ) => React.SVGProps<SVGSVGElement>
+} = {
   repeat: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       key="repeat"
@@ -27,9 +34,9 @@ export const Icons = {
     </svg>
   ),
   due: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       key="due"
@@ -47,9 +54,9 @@ export const Icons = {
     </svg>
   ),
   scheduled: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -67,9 +74,9 @@ export const Icons = {
   ),
 
   note: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -91,9 +98,9 @@ export const Icons = {
   ),
 
   todoChecked: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -112,9 +119,9 @@ export const Icons = {
   ),
 
   todoUnchecked: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -132,9 +139,9 @@ export const Icons = {
   ),
 
   add: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -153,9 +160,9 @@ export const Icons = {
   ),
 
   collapse: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -172,9 +179,9 @@ export const Icons = {
     </svg>
   ),
   expand: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -192,9 +199,9 @@ export const Icons = {
   ),
 
   help: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       id="help"
@@ -215,9 +222,9 @@ export const Icons = {
   ),
 
   close: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -236,9 +243,9 @@ export const Icons = {
   ),
 
   trash: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -259,9 +266,9 @@ export const Icons = {
   ),
 
   show: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -280,9 +287,9 @@ export const Icons = {
   ),
 
   hide: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -301,9 +308,9 @@ export const Icons = {
   ),
 
   sort: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -319,9 +326,9 @@ export const Icons = {
   ),
 
   trashSweep: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -352,9 +359,9 @@ export const Icons = {
   ),
 
   inbox: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -373,9 +380,9 @@ export const Icons = {
   ),
 
   calendar: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -393,9 +400,9 @@ export const Icons = {
   ),
 
   slideLeft: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -414,9 +421,9 @@ export const Icons = {
   ),
 
   slideRight: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -435,9 +442,9 @@ export const Icons = {
   ),
 
   upLevel: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -456,9 +463,9 @@ export const Icons = {
   ),
 
   back: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -476,9 +483,9 @@ export const Icons = {
     </svg>
   ),
   forward: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -497,9 +504,9 @@ export const Icons = {
   ),
 
   settings: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -518,9 +525,9 @@ export const Icons = {
   ),
 
   subtask: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -539,9 +546,9 @@ export const Icons = {
   ),
 
   more: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -561,9 +568,9 @@ export const Icons = {
   ),
 
   flag: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -582,9 +589,9 @@ export const Icons = {
   ),
 
   trashPermanent: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -610,9 +617,9 @@ export const Icons = {
   ),
 
   stale: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -632,9 +639,9 @@ export const Icons = {
   ),
 
   darkMode: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -652,9 +659,9 @@ export const Icons = {
   ),
 
   label: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -673,9 +680,9 @@ export const Icons = {
   ),
 
   sortDirection: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -692,9 +699,9 @@ export const Icons = {
     </svg>
   ),
   edit: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -713,9 +720,9 @@ export const Icons = {
   ),
 
   colour: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -736,9 +743,9 @@ export const Icons = {
     </svg>
   ),
   expandAll: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -756,9 +763,9 @@ export const Icons = {
   ),
 
   collapseAll: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -775,9 +782,9 @@ export const Icons = {
     </svg>
   ),
   restore: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -799,9 +806,9 @@ export const Icons = {
     </svg>
   ),
   save: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -821,9 +828,9 @@ export const Icons = {
     </svg>
   ),
   feedback: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -841,9 +848,9 @@ export const Icons = {
     </svg>
   ),
   view: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -863,9 +870,9 @@ export const Icons = {
     </svg>
   ),
   area: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -885,9 +892,9 @@ export const Icons = {
     </svg>
   ),
   project: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -905,9 +912,9 @@ export const Icons = {
     </svg>
   ),
   copy: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -926,9 +933,9 @@ export const Icons = {
     </svg>
   ),
   reminder: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
-    colour?: CSS.Color,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -947,8 +954,8 @@ export const Icons = {
     </svg>
   ),
   finish_em: (
-    width?: CSS.WidthProperty<number>,
-    height?: CSS.HeightProperty<number>,
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       version="1.1"

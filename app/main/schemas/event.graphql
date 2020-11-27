@@ -5,6 +5,7 @@ type Event {
   title: String!
   startAt: DateTime
   endAt: DateTime
+  createdAt: DateTime
   description: String
   allDay: Boolean
   calendar: Calendar
@@ -27,9 +28,10 @@ input DeleteEventInput {
 type Query {
   events: [Event]
   event(key: String!): Event
+  eventsByCalendar(calendarKey: String!): [Event]
 }
 
 type Mutation {
   createEvent(input: CreateEventInput!): Event
-  deleteEvent(input: DeleteEventInput!): Event
+  deleteEvent(input: DeleteEventInput!): String
 }

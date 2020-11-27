@@ -8,6 +8,7 @@ type Calendar {
   lastUpdatedAt: DateTime
   deletedAt: DateTime
   createdAt: DateTime
+  events: [Event]
 }
 
 input CreateCalendarInput {
@@ -28,6 +29,7 @@ input ActiveCalendarInput {
 type Query {
   calendars: [Calendar]
   calendar(key: String!): Calendar
+  getActiveCalendar: Calendar
 }
 
 type Mutation {

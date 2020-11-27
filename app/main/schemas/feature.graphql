@@ -18,6 +18,7 @@ input SetFeatureInput {
 type Query {
   features: [Feature]
   feature(key: String!): Feature
+  featureByName(name: String!): Feature
 }
 
 type Mutation {

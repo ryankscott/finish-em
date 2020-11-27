@@ -1,170 +1,209 @@
-import React, { ReactElement } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { useHistory } from 'react-router-dom'
-import { connect } from 'react-redux'
-import { themes } from '../theme'
-import { updateAreaDescription, updateAreaName, deleteArea } from '../actions'
-import { v4 as uuidv4 } from 'uuid'
-import { Title, Header } from './Typography'
-import EditableText from './EditableText'
-import FilteredItemList from './FilteredItemList'
-import { AreaType, ProjectType, Projects, Items, RenderingStrategy } from '../interfaces'
-import {
-    AreaContainer,
-    HeaderContainer,
-    ProjectContainer,
-    ProjectName,
-    ProjectDescription,
-    ProjectEndAt,
-    ProjectStartAt,
-} from './styled/Area'
-import DeleteAreaDialog from './DeleteAreaDialog'
-import { formatRelativeDate } from '../utils'
+import { gql, useMutation, useQuery } from '@apollo/client'
 import { parseISO } from 'date-fns'
 import marked from 'marked'
-import { Donut } from './Donut'
 import { darken } from 'polished'
+import React, { ReactElement } from 'react'
+import { useHistory } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
+import { Project } from '../../main/generated/typescript-helpers'
+import { RenderingStrategy, ThemeType } from '../interfaces'
+import { ThemeProvider } from '../StyledComponents'
+import { themes } from '../theme'
+import { formatRelativeDate } from '../utils'
+import DeleteAreaDialog from './DeleteAreaDialog'
+import { Donut } from './Donut'
+import EditableText from './EditableText'
+import FilteredItemList from './FilteredItemList'
+import {
+  AreaContainer,
+  HeaderContainer,
+  ProjectContainer,
+  ProjectDescription,
+  ProjectEndAt,
+  ProjectName,
+  ProjectStartAt,
+} from './styled/Area'
+import { Header, Title } from './Typography'
 
-interface StateProps {
-    theme: string
-    projects: Projects
-    items: Items
-}
-
-interface DispatchProps {
-    deleteArea: (id: string | '0') => void
-    updateDescription: (id: string | '0', input: string) => void
-    updateName: (id: string | '0', input: string) => void
-}
-
-interface OwnProps {
-    area: AreaType
-}
-
-type AreaProps = DispatchProps & OwnProps & StateProps
-const Area = (props: AreaProps): ReactElement => {
-    const history = useHistory()
-
-    const name = React.useRef<HTMLInputElement>()
-    const description = React.useRef<HTMLInputElement>()
-
-    function deleteArea(): void {
-        props.deleteArea(props.area.id)
-        history.push('/inbox')
-        return
+const GET_AREA_BY_KEY = gql`
+  query AreaByKey($key: String!) {
+    area(key: $key) {
+      key
+      name
+      deleted
+      description
+      lastUpdatedAt
+      deletedAt
+      createdAt
+      projects {
+        key
+        name
+        description
+        items {
+          type
+          key
+          text
+        }
+      }
+      items {
+        key
+        type
+        text
+        deleted
+        completed
+        dueAt
+        scheduledAt
+        repeat
+      }
     }
+    theme @client
+  }
+`
 
-    return (
-        <ThemeProvider theme={themes[props.theme]}>
-            <AreaContainer>
-                <HeaderContainer>
-                    <EditableText
-                        shouldSubmitOnBlur={true}
-                        key={props.area.id + 'name'}
-                        input={props.area.name}
-                        style={Title}
-                        singleline={true}
-                        innerRef={name}
-                        onUpdate={(input) => {
-                            props.updateName(props.area.id, input)
-                        }}
-                        shouldClearOnSubmit={false}
-                    />
-                    <DeleteAreaDialog onDelete={() => deleteArea()} />
-                </HeaderContainer>
+const DELETE_AREA = gql`
+  mutation DeleteArea($key: String!) {
+    deleteArea(input: { key: $key }) {
+      key
+    }
+  }
+`
 
-                <EditableText
-                    placeholder="Add a description for your area..."
-                    shouldSubmitOnBlur={true}
-                    key={props.area.id + 'description'}
-                    onUpdate={(input) => {
-                        props.updateDescription(props.area.id, input)
-                    }}
-                    innerRef={description}
-                    input={props.area.description}
-                    height="150px"
-                    shouldClearOnSubmit={false}
+const CHANGE_DESCRIPTION_AREA = gql`
+  mutation ChangeDescriptionArea($key: String!, $description: String!) {
+    changeDescriptionArea(input: { key: $key, description: $description }) {
+      key
+      description
+    }
+  }
+`
+
+const RENAME_AREA = gql`
+  mutation RenameArea($key: String!, $name: String!) {
+    renameArea(input: { key: $key, name: $name }) {
+      key
+      name
+    }
+  }
+`
+
+type AreaProps = {
+  areaKey: string
+}
+const Area = (props: AreaProps): ReactElement => {
+  const history = useHistory()
+
+  const name = React.useRef<HTMLInputElement>()
+  const description = React.useRef<HTMLInputElement>()
+
+  const [deleteArea] = useMutation(DELETE_AREA, {
+    update(cache, { data: { deleteArea } }) {
+      cache.evict({ key: deleteArea })
+    },
+  })
+  const [changeDescriptionArea] = useMutation(CHANGE_DESCRIPTION_AREA)
+  const [renameArea] = useMutation(RENAME_AREA)
+  const { loading, error, data } = useQuery(GET_AREA_BY_KEY, {
+    variables: { key: props.areaKey },
+  })
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const area = data.area
+  const theme: ThemeType = themes[data.theme]
+
+  return (
+    <ThemeProvider theme={theme}>
+      <AreaContainer>
+        <HeaderContainer>
+          <EditableText
+            shouldSubmitOnBlur={true}
+            key={area.key + 'name'}
+            input={area.name}
+            style={Title}
+            singleline={true}
+            innerRef={name}
+            onUpdate={(input) => {
+              renameArea({ variables: { key: area.key, name: input } })
+            }}
+            shouldClearOnSubmit={false}
+          />
+          <DeleteAreaDialog onDelete={() => deleteArea({ variables: { key: area.key } })} />
+        </HeaderContainer>
+
+        <EditableText
+          placeholder="Add a description for your area..."
+          shouldSubmitOnBlur={true}
+          key={area.key + 'description'}
+          onUpdate={(input) => {
+            changeDescriptionArea({ variables: { key: area.key, description: input } })
+          }}
+          innerRef={description}
+          input={area.description}
+          height="150px"
+          shouldClearOnSubmit={false}
+        />
+        <Header>Items</Header>
+        <FilteredItemList
+          componentKey={uuidv4()}
+          isFilterable={false}
+          filter={JSON.stringify({
+            text: `area = "${area.name}" and type = "TODO" and deleted = "false"`,
+            value: [
+              { category: 'areaKey', operator: '=', value: area.key },
+              { conditionType: 'AND', category: 'type', operator: '=', value: 'TODO' },
+              { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
+            ],
+          })}
+          flattenSubtasks={true}
+          readOnly={true}
+        />
+        <Header>Projects</Header>
+        {area.projects.map((p: Project) => {
+          const totalItemsCount = p.items.length
+          const completedItemsCount = p.items.filter(
+            (i) => i.completed == true && i.deleted == false,
+          ).length
+          const progress =
+            totalItemsCount == 0
+              ? 0
+              : completedItemsCount == 0
+              ? 0
+              : totalItemsCount / completedItemsCount
+          return (
+            <ProjectContainer
+              key={p.key}
+              onClick={() => {
+                history.push(`/projects/${p.key}`)
+              }}
+            >
+              <div style={{ gridArea: 'donut' }}>
+                <Donut
+                  size={24}
+                  progress={progress}
+                  activeColour={theme.colours.primaryColour}
+                  inactiveColour={darken(0.2, theme.colours.backgroundColour)}
                 />
-                <Header>Items</Header>
-                <FilteredItemList
-                    id={uuidv4()}
-                    showProject={false}
-                    isFilterable={false}
-                    filter={`areaId == "${props.area.id}" and not (completed or deleted) and not projectId`}
-                    renderingStrategy={RenderingStrategy.All}
-                    readOnly={true}
-                />
-                <Header>Projects</Header>
-                {Object.values(props.projects.projects)
-                    .filter(
-                        (p: ProjectType) =>
-                            p.areaId == props.area.id && p.id != '0' && p.deleted == false,
-                    )
-                    .map((a: ProjectType) => {
-                        const itemsForProject = Object.values(props.items.items).filter(
-                            (i) => i.projectId == a.id && i.deleted == false,
-                        )
-                        const completedItemsForProject = itemsForProject.map(
-                            (i) => i.completed == true && i.deleted == false,
-                        )
-                        const progress =
-                            itemsForProject.length == 0
-                                ? 0
-                                : completedItemsForProject.length == 0
-                                ? 0
-                                : itemsForProject.length / completedItemsForProject.length
-                        return (
-                            <ProjectContainer
-                                key={a.id}
-                                onClick={() => {
-                                    history.push(`/projects/${a.id}`)
-                                }}
-                            >
-                                <Donut
-                                    style={{ gridArea: 'donut' }}
-                                    size={24}
-                                    progress={progress}
-                                    activeColour={themes[props.theme].colours.primaryColour}
-                                    inactiveColour={darken(
-                                        0.2,
-                                        themes[props.theme].colours.backgroundColour,
-                                    )}
-                                />
-                                <ProjectName>{a.name}</ProjectName>
-                                <ProjectDescription
-                                    dangerouslySetInnerHTML={{
-                                        __html: marked(a.description, { breaks: true }),
-                                    }}
-                                />
-                                <ProjectStartAt>
-                                    {a.startAt &&
-                                        `Starting: ${formatRelativeDate(parseISO(a.startAt))}`}
-                                </ProjectStartAt>
-                                <ProjectEndAt>
-                                    {a.endAt && `Ending: ${formatRelativeDate(parseISO(a.endAt))}`}
-                                </ProjectEndAt>
-                            </ProjectContainer>
-                        )
-                    })}
-            </AreaContainer>
-        </ThemeProvider>
-    )
+              </div>
+              <ProjectName>{p.name}</ProjectName>
+              <ProjectDescription
+                dangerouslySetInnerHTML={{
+                  __html: marked(p.description, { breaks: true }),
+                }}
+              />
+              <ProjectStartAt>
+                {p.startAt && `Starting: ${formatRelativeDate(parseISO(p.startAt))}`}
+              </ProjectStartAt>
+              <ProjectEndAt>
+                {p.endAt && `Ending: ${formatRelativeDate(parseISO(p.endAt))}`}
+              </ProjectEndAt>
+            </ProjectContainer>
+          )
+        })}
+      </AreaContainer>
+    </ThemeProvider>
+  )
 }
 
-const mapStateToProps = (state): StateProps => ({
-    theme: state.ui.theme,
-    projects: state.projects,
-    items: state.items,
-})
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-    updateDescription: (id: string, text: string) => {
-        dispatch(updateAreaDescription(id, text))
-    },
-    updateName: (id: string, text: string) => {
-        dispatch(updateAreaName(id, text))
-    },
-    deleteArea: (id: string) => {
-        dispatch(deleteArea(id))
-    },
-})
-export default connect(mapStateToProps, mapDispatchToProps)(Area)
+export default Area

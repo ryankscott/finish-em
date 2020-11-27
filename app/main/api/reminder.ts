@@ -3,14 +3,14 @@ import Reminder from '../classes/reminder'
 export const getReminders = (obj, ctx) => {
   return ctx.db
     .all(
-      'SELECT key, name, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder',
+      'SELECT key, text, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder',
     )
     .then((result) =>
       result.map(
         (r) =>
           new Reminder(
             r.key,
-            r.name,
+            r.text,
             r.deleted,
             r.remindAt,
             r.lastUpdatedAt,
@@ -21,31 +21,55 @@ export const getReminders = (obj, ctx) => {
       ),
     )
 }
+export const getRemindersByItem = (input: { itemKey: string }, ctx) => {
+  return ctx.db
+    .all(
+      `SELECT key, text, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder WHERE itemKey = '${input.itemKey}'`,
+    )
+    .then((result) =>
+      result
+        ? result.map(
+            (r) =>
+              new Reminder(
+                r.key,
+                r.text,
+                r.deleted,
+                r.remindAt,
+                r.lastUpdatedAt,
+                r.deletedAt,
+                r.createdAt,
+                r.itemKey,
+              ),
+          )
+        : null,
+    )
+}
 
 export const getReminder = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      `SELECT key, name, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder WHERE key = '${input.key}'`,
+      `SELECT key, text, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder WHERE key = '${input.key}'`,
     )
-    .then(
-      (result) =>
-        new Reminder(
-          result.key,
-          result.name,
-          result.deleted,
-          result.remindAt,
-          result.lastUpdatedAt,
-          result.deletedAt,
-          result.createdAt,
-          result.itemKey,
-        ),
+    .then((result) =>
+      result
+        ? new Reminder(
+            result.key,
+            result.text,
+            result.deleted,
+            result.remindAt,
+            result.lastUpdatedAt,
+            result.deletedAt,
+            result.createdAt,
+            result.itemKey,
+          )
+        : null,
     )
 }
 
 export const createReminder = (
   input: {
     key: string
-    name: string
+    text: string
     remindAt: string
     itemKey: string
   },
@@ -53,8 +77,8 @@ export const createReminder = (
 ) => {
   return ctx.db
     .run(
-      `INSERT INTO reminder (key, name, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey)
-       VALUES (${input.key}, ${input.name}, false, ${input.remindAt}, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ${input.itemKey})`,
+      `INSERT INTO reminder (key, text, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey)
+       VALUES ('${input.key}', '${input.text}', false, '${input.remindAt}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), '${input.itemKey}')`,
     )
     .then((result) => {
       return result.changes
@@ -70,7 +94,19 @@ export const deleteReminder = (input: { key: string }, ctx) => {
     .then((result) => {
       return result.changes
         ? getReminder({ key: input.key }, ctx)
-        : new Error('Unable to rename reminder')
+        : new Error('Unable to delete reminder')
+    })
+}
+
+export const deleteReminderFromItem = (input: { itemKey: string }, ctx) => {
+  return ctx.db
+    .run(
+      `UPDATE reminder SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = current_timestamp WHERE itemKey = '${input.itemKey}'`,
+    )
+    .then((result) => {
+      return result.changes
+        ? getRemindersByItem({ itemKey: input.itemKey }, ctx)
+        : new Error('Unable to delete reminder')
     })
 }
 
@@ -81,10 +117,16 @@ export const reminderRootValues = {
   reminder: (key, ctx) => {
     return getReminder(key, ctx)
   },
+  remindersByItem: (itemKey, ctx) => {
+    return getRemindersByItem(itemKey, ctx)
+  },
   createReminder: ({ input }, ctx) => {
     return createReminder(input, ctx)
   },
   deleteReminder: ({ input }, ctx) => {
     return deleteReminder(input, ctx)
+  },
+  deleteReminderFromItem: ({ input }, ctx) => {
+    return deleteReminderFromItem(input, ctx)
   },
 }

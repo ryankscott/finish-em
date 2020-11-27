@@ -119,7 +119,7 @@ export const DroppableList = styled.div<DroppableListProps>`
   background: inherit;
   padding: ${(props) =>
     !props.sidebarVisible ? '0px' : props.isDraggingOver ? '10px 5px 45px 5px' : '2px 2px'};
-  margin: ${(props) => (props.isDraggingOver ? '20px 0px' : '0px')};
+  margin: ${(props) => (props.isDraggingOver ? '5px 0px' : '0px')};
   border-radius: 5px;
 `
 

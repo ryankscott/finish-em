@@ -2,13 +2,20 @@ import React, { ReactElement, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
 import Button from './Button'
-import { connect } from 'react-redux'
 import Tooltip from './Tooltip'
 import { SortContainer, SortSelect } from './styled/SortDropdown'
 import { components } from 'react-select'
 import { Icons } from '../assets/icons'
 import { orderBy } from 'lodash'
+import { gql, useQuery } from '@apollo/client'
+import { ThemeType } from '../interfaces'
+import { Item as ItemType } from '../../main/generated/typescript-helpers'
 
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 const DropdownIndicator = (props): ReactElement => {
   return (
     <components.DropdownIndicator {...props}>{Icons['collapse']()}</components.DropdownIndicator>
@@ -35,17 +42,17 @@ export const sortOptions: SortOptions = {
   DUE: {
     label: 'Due',
     sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => new Date(i.dueDate)], direction),
+      orderBy(items, [(i) => new Date(i.dueAt)], direction),
   },
   SCHEDULED: {
     label: 'Scheduled',
     sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => new Date(i.scheduledDate)], direction),
+      orderBy(items, [(i) => new Date(i.scheduledAt)], direction),
   },
   LABEL: {
     label: 'Label',
     sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => i.labelId], direction),
+      orderBy(items, [(i) => i.label?.key], direction),
   },
   CREATED: {
     label: 'Created',
@@ -59,21 +66,22 @@ export const sortOptions: SortOptions = {
   },
 }
 
-interface OwnProps {
+type SortDropdownProps = {
   sortDirection: SortDirectionEnum
   onSetSortType: (type: SortOption) => void
   onSetSortDirection: (direction: SortDirectionEnum) => void
 }
 
-interface StateProps {
-  theme: string
-}
-
-type SortDropdownProps = OwnProps & StateProps
-
 function SortDropdown(props: SortDropdownProps): ReactElement {
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <SortContainer>
         <SortSelect
           options={Object.keys(sortOptions).map((s) => ({
@@ -87,7 +95,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           defaultIsOpen={true}
           styles={selectStyles({
             fontSize: 'xxsmall',
-            theme: themes[props.theme],
+            theme: theme,
             showDropdownIndicator: true,
             minWidth: '100px',
           })}
@@ -114,8 +122,4 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-const mapDispatchToProps = (dispatch) => ({})
-export default connect(mapStateToProps, mapDispatchToProps)(SortDropdown)
+export default SortDropdown

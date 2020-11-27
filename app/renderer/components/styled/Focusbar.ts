@@ -1,74 +1,74 @@
 import styled from 'styled-components'
 
 export const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 10px;
-    height: 100vh;
-    z-index: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  height: 100vh;
+  z-index: 0;
 `
 export const SubtaskContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin: 15px 0px;
-    margin-top: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 15px 0px;
+  margin-top: 30px;
 `
 export const AttributeContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    margin: 2px 20px;
-    min-height: 30px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 2px 20px;
+  min-height: 30px;
 `
 export const AttributeKey = styled.div`
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin-left: 0px;
-    min-width: 100px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-left: 0px;
+  min-width: 100px;
 `
 export const AttributeValue = styled.div`
-    position: relative;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    min-width: 120px;
-    text-overflow: ellipsis;
+  position: relative;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-width: 120px;
+  text-overflow: ellipsis;
 `
 
 export const TitleContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    margin: 10px 0px;
-    margin-bottom: 20px;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  flex-direction: row;
+  margin: 10px 0px;
+  margin-bottom: 20px;
+  align-items: center;
+  width: 100%;
 `
 interface HeaderContainerProps {
-    visible: boolean
+  visible: boolean
 }
 export const HeaderContainer = styled.div<HeaderContainerProps>`
-    display: ${(props) => (props.visible ? 'grid' : 'none')};
-    grid-template-areas: 'BACK UP . . CLOSE';
-    grid-template-columns: repeat(5, 1fr);
-    flex-direction: row;
-    width: 100%;
-    margin-bottom: 10px;
+  display: ${(props) => (props.visible ? 'grid' : 'none')};
+  grid-template-areas: 'UP . . . CLOSE';
+  grid-template-columns: repeat(5, 1fr);
+  flex-direction: row;
+  width: 100%;
+  margin-bottom: 10px;
 `
 
 export const Project = styled.div`
-    display: flex;
-    justify-content: center;
-    text-align: center;
-    margin: 2px;
-    padding: 4px 8px;
-    font-size: ${(props) => props.theme.fontSizes.xsmall};
-    color: ${(props) => props.theme.colours.altTextColour};
-    background-color: ${(props) => props.theme.colours.primaryColour};
-    border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  margin: 2px;
+  padding: 4px 8px;
+  font-size: ${(props) => props.theme.fontSizes.xsmall};
+  color: ${(props) => props.theme.colours.altTextColour};
+  background-color: ${(props) => props.theme.colours.primaryColour};
+  border-radius: 5px;
 `

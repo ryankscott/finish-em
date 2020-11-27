@@ -1,43 +1,42 @@
 import React, { ReactElement } from 'react'
-import { connect } from 'react-redux'
 import marked from 'marked'
 import styled, { ThemeProvider } from 'styled-components'
 import { themes } from '../theme'
 import helpText from '../assets/help.md'
 import shortcutsText from '../assets/shortcuts.md'
+import { gql, useQuery } from '@apollo/client'
+import { ThemeType } from '../interfaces'
 
-const Container = styled.div`
-    width: 100%;
-    max-width: 700px;
-    display: flex;
-    flex-direction: column;
-    padding: 20px 10px;
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
 `
 
-interface StateProps {
-    theme: string
+const Container = styled.div`
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 10px;
+`
+
+export const Help = (): ReactElement => {
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
+  return (
+    <ThemeProvider theme={theme}>
+      <Container>
+        <div dangerouslySetInnerHTML={{ __html: marked(helpText, { breaks: true }) }}></div>
+        <div dangerouslySetInnerHTML={{ __html: marked(shortcutsText, { breaks: true }) }}></div>
+      </Container>
+    </ThemeProvider>
+  )
 }
-interface OwnProps {}
 
-type HelpProps = OwnProps & StateProps
-
-export const Help = (props: HelpProps): ReactElement => {
-    return (
-        <ThemeProvider theme={themes[props.theme]}>
-            <Container>
-                <div dangerouslySetInnerHTML={{ __html: marked(helpText, { breaks: true }) }}></div>
-                <div
-                    dangerouslySetInnerHTML={{ __html: marked(shortcutsText, { breaks: true }) }}
-                ></div>
-            </Container>
-        </ThemeProvider>
-    )
-}
-
-const mapStateToProps = (state): StateProps => ({
-    theme: state.ui.theme,
-})
-
-const mapDispatchToProps = {}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Help)
+export default Help

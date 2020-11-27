@@ -1,4 +1,5 @@
 import Area from '../classes/area'
+import { createAreaOrder } from './areaOrder'
 
 export const getAreas = (obj, ctx) => {
   return ctx.db
@@ -44,7 +45,7 @@ export const createCreateAreaQuery = (input: {
   description: string
 }) => {
   return `
-INSERT INTO area (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt )
+INSERT INTO area (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt)
 VALUES ('${input.key}', '${input.name}', false, '${input.description}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 `
 }
@@ -58,7 +59,11 @@ export const createArea = (
   ctx,
 ) => {
   return ctx.db.run(createCreateAreaQuery(input)).then((result) => {
-    return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to create area')
+    if (result.changes) {
+      createAreaOrder({ areaKey: input.key }, ctx)
+      return getArea({ key: input.key }, ctx)
+    }
+    return new Error('Unable to create area')
   })
 }
 
@@ -102,13 +107,13 @@ export const createDeleteAreaInput = (input: { key: string }) => {
 }
 export const deleteArea = (input: { key: string }, ctx) => {
   return ctx.db.run(createDeleteAreaInput(input)).then((result) => {
-    return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to rename area')
+    return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to delete area')
   })
 }
 
-export const createRenameAreaQuery = (input: { name: string }) => {
+export const createRenameAreaQuery = (input: { key: string; name: string }) => {
   return `
-UPDATE area SET name = ${input.name}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+UPDATE area SET name = '${input.name}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
 export const renameArea = (input: { key: string; name: string }, ctx) => {
@@ -117,9 +122,9 @@ export const renameArea = (input: { key: string; name: string }, ctx) => {
   })
 }
 
-export const createChangeDescriptionAreaQuery = (input: { description: string }) => {
+export const createChangeDescriptionAreaQuery = (input: { key: string; description: string }) => {
   return `
-UPDATE area SET description = ${input.description}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+UPDATE area SET description = '${input.description}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
 export const changeDescriptionArea = (input: { key: string; description: string }, ctx) => {

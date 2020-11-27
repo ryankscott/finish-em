@@ -11,26 +11,48 @@ import {
   ReminderContainer,
   BodyContainer,
 } from './styled/ReminderDialog'
-import { createReminder, deleteReminderFromItem } from '../actions/reminders'
 import Button from './Button'
+import { gql, useMutation, useQuery } from '@apollo/client'
+import { ThemeType } from '../interfaces'
 
-interface StateProps {
-  theme: string
-}
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
-interface DispatchProps {
-  createReminder: (itemId: string, text: string, time: string) => void
-  deleteReminderFromItem: (itemId: string) => void
-}
-interface OwnProps {
-  itemId: string
+const CREATE_REMINDER = gql`
+  mutation CreateReminder($key: String!, $text: String!, $remindAt: DateTime, $itemKey: String) {
+    createReminder(input: { key: $key, text: $text, remindAt: $remindAt, itemKey: $itemKey }) {
+      key
+    }
+  }
+`
+const DELETE_REMINDER_FROM_ITEM = gql`
+  mutation DeleteReminderFromItem($itemKey: String!) {
+    deleteReminderFromItem(input: { itemKey: $itemKey }) {
+      key
+    }
+  }
+`
+
+type ReminderDialogProps = {
+  itemKey: string
   reminderText: string
   onClose: () => void
 }
 
-type ReminderDialogProps = OwnProps & StateProps & DispatchProps
 function ReminderDialog(props: ReminderDialogProps): ReactElement {
-  const theme = themes[props.theme]
+  const { loading, error, data } = useQuery(GET_THEME)
+  const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM)
+  const [createReminder] = useMutation(CREATE_REMINDER)
+
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
 
   return (
     <ThemeProvider theme={theme}>
@@ -50,11 +72,14 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
         <BodyContainer>
           <ReminderContainer
             onClick={(e) => {
-              props.createReminder(
-                props.itemId,
-                props.reminderText,
-                add(new Date(), { minutes: 20 }).toISOString(),
-              )
+              createReminder({
+                variables: {
+                  key: uuidv4(),
+                  itemKey: props.itemKey,
+                  text: props.reminderText,
+                  remindAt: add(new Date(), { minutes: 20 }).toISOString(),
+                },
+              })
               e.stopPropagation()
               props.onClose()
             }}
@@ -63,11 +88,14 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
           </ReminderContainer>
           <ReminderContainer
             onClick={(e) => {
-              props.createReminder(
-                props.itemId,
-                props.reminderText,
-                add(new Date(), { hours: 1 }).toISOString(),
-              )
+              createReminder({
+                variables: {
+                  key: uuidv4(),
+                  itemKey: props.itemKey,
+                  text: props.reminderText,
+                  remindAt: add(new Date(), { hours: 1 }).toISOString(),
+                },
+              })
               e.stopPropagation()
               props.onClose()
             }}
@@ -76,11 +104,14 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
           </ReminderContainer>
           <ReminderContainer
             onClick={(e) => {
-              props.createReminder(
-                props.itemId,
-                props.reminderText,
-                add(new Date(), { hours: 3 }).toISOString(),
-              )
+              createReminder({
+                variables: {
+                  key: uuidv4(),
+                  itemKey: props.itemKey,
+                  text: props.reminderText,
+                  remindAt: add(new Date(), { hours: 3 }).toISOString(),
+                },
+              })
               e.stopPropagation()
               props.onClose()
             }}
@@ -89,11 +120,15 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
           </ReminderContainer>
           <ReminderContainer
             onClick={(e) => {
-              props.createReminder(
-                props.itemId,
-                props.reminderText,
-                add(startOfTomorrow(), { hours: 9 }).toISOString(),
-              )
+              createReminder({
+                variables: {
+                  key: uuidv4(),
+                  itemKey: props.itemKey,
+                  text: props.reminderText,
+                  remindAt: add(startOfTomorrow(), { hours: 9 }).toISOString(),
+                },
+              })
+
               e.stopPropagation()
               props.onClose()
             }}
@@ -102,13 +137,17 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
           </ReminderContainer>
           <ReminderContainer
             onClick={(e) => {
-              props.createReminder(
-                props.itemId,
-                add(startOfWeek(new Date(), { weekStartsOn: 1 }), {
-                  hours: 9,
-                }).toISOString(),
-                props.reminderText,
-              )
+              createReminder({
+                variables: {
+                  key: uuidv4(),
+                  itemKey: props.itemKey,
+                  text: props.reminderText,
+                  remindAt: add(startOfWeek(new Date(), { weekStartsOn: 1 }), {
+                    hours: 9,
+                  }).toISOString(),
+                },
+              })
+
               e.stopPropagation()
               props.onClose()
             }}
@@ -117,7 +156,7 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
           </ReminderContainer>
           <ReminderContainer
             onClick={(e) => {
-              props.deleteReminderFromItem(props.itemId)
+              deleteReminderFromItem({ variables: { itemKey: props.itemKey } })
               e.stopPropagation()
               props.onClose()
             }}
@@ -130,17 +169,4 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  createReminder: (itemId: string, text: string, time: string) => {
-    dispatch(createReminder(uuidv4(), text, time, itemId))
-  },
-  deleteReminderFromItem: (itemId: string) => {
-    dispatch(deleteReminderFromItem(itemId))
-  },
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(ReminderDialog)
+export default ReminderDialog

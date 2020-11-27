@@ -3,7 +3,6 @@ import { darken } from 'polished'
 
 export const Wrapper = styled.div`
 
-
   .react-datepicker-popper[data-placement^='bottom'] .react-datepicker__triangle,
   .react-datepicker-popper[data-placement^='top'] .react-datepicker__triangle,
   .react-datepicker__year-read-view--down-arrow,
@@ -192,8 +191,8 @@ export const Wrapper = styled.div`
   .react-datepicker-time__header,
   .react-datepicker-year-header {
     margin-top: 0;
-    color: ${(props) => props.theme.colours.textColour}
-    font-weight: 500;
+    color: ${(props) => props.theme.colours.textColour};
+    font-weight: 700;
     font-size: 0.85rem;
   }
 
@@ -371,13 +370,14 @@ export const Wrapper = styled.div`
 
   .react-datepicker__time-container {
     float: right;
-    border-left: 1px solid {(props) => props.theme.colours.borderColour};
+    border-left: 1px solid ${(props) => props.theme.colours.borderColour};
+    background-color: ${(props) => props.theme.colours.backgroundColour};
     width: 85px;
   }
 
   .react-datepicker__time-container--with-today-button {
     display: inline;
-    border: 1px solid {(props) => props.theme.colours.borderColour};
+    border: 1px solid ${(props) => props.theme.colours.borderColour};
     border-radius: 0.3rem;
     position: absolute;
     right: -72px;
@@ -386,7 +386,7 @@ export const Wrapper = styled.div`
 
   .react-datepicker__time-container .react-datepicker__time {
     position: relative;
-    background: white;
+    background-color: ${(props) => props.theme.colours.backgroundColour};
     border-bottom-right-radius: 0.3rem;
   }
 
@@ -427,7 +427,7 @@ export const Wrapper = styled.div`
     ul.react-datepicker__time-list
     li.react-datepicker__time-list-item:hover {
     cursor: pointer;
-    background-color: ${(props) => props.theme.colours.dialogBackgroundColour};
+    background-color: ${(props) => props.theme.colours.focusDialogBackgroundColour};
   }
 
   .react-datepicker__time-container

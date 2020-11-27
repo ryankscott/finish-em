@@ -13,7 +13,7 @@ type Reminder {
 
 input CreateReminderInput {
   key: String!
-  name: String!
+  text: String!
   remindAt: DateTime
   itemKey: String
 }
@@ -22,12 +22,18 @@ input DeleteReminderInput {
   key: String!
 }
 
+input DeleteReminderFromItemInput {
+  itemKey: String!
+}
+
 type Query {
   reminders: [Reminder]
   reminder(key: String!): Reminder
+  remindersByItem(itemKey: String!): [Reminder]
 }
 
 type Mutation {
   createReminder(input: CreateReminderInput!): Reminder
   deleteReminder(input: DeleteReminderInput!): Reminder
+  deleteReminderFromItem(input: DeleteReminderFromItemInput!): Reminder
 }

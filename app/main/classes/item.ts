@@ -1,4 +1,12 @@
-import { getArea, getLabel, getItem, getProject } from '../api'
+import {
+  getArea,
+  getLabel,
+  getItem,
+  getProject,
+  getItemOrder,
+  getItemsByParent,
+  getRemindersByItem,
+} from '../api'
 export default class Item {
   constructor(
     key: string,
@@ -9,7 +17,7 @@ export default class Item {
     parentKey: string,
     projectKey: string,
     dueAt: string,
-    scheuledAt: string,
+    scheduledAt: string,
     lastUpdatedAt: string,
     completedAt: string,
     createdAt: string,
@@ -25,12 +33,12 @@ export default class Item {
     this.completed = completed
     this.parentKey = parentKey
     this.projectKey = projectKey
-    this.dueAt = dueAt
-    this.scheuledAt = scheuledAt
-    this.lastUpdatedAt = lastUpdatedAt
-    this.completedAt = completedAt
-    this.createdAt = createdAt
-    this.deletedAt = deletedAt
+    this.dueAt = dueAt ? dueAt : null
+    this.scheduledAt = scheduledAt ? scheduledAt : null
+    this.lastUpdatedAt = lastUpdatedAt ? lastUpdatedAt : null
+    this.deletedAt = deletedAt ? deletedAt : null
+    this.createdAt = createdAt ? createdAt : null
+    this.completedAt = completedAt ? completedAt : null
     this.repeat = repeat
     this.labelKey = labelKey
     this.areaKey = areaKey
@@ -47,5 +55,17 @@ export default class Item {
   }
   parent(obj, ctx) {
     return getItem({ key: this.parentKey }, ctx)
+  }
+
+  children(obj, ctx) {
+    return getItemsByParent({ parentKey: this.key }, ctx)
+  }
+
+  reminders(obj, ctx) {
+    return getRemindersByItem({ itemKey: this.key }, ctx)
+  }
+
+  sortOrder(obj, ctx) {
+    return getItemOrder({ itemKey: this.key }, ctx)
   }
 }

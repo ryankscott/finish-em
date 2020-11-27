@@ -1,3 +1,4 @@
+import { getEventsByCalendar } from '../api'
 export default class Calendar {
   constructor(
     key: string,
@@ -15,5 +16,9 @@ export default class Calendar {
     this.lastUpdatedAt = lastUpdatedAt
     this.deletedAt = deletedAt
     this.createdAt = createdAt
+  }
+
+  events(obj, ctx) {
+    return getEventsByCalendar({ calendarKey: this.key }, ctx)
   }
 }

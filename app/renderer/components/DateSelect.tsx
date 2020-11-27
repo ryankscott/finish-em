@@ -1,11 +1,12 @@
+import { gql, useQuery } from '@apollo/client'
+import { add, lastDayOfWeek, sub } from 'date-fns'
 import React, { ReactElement, useState } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import Select from 'react-select'
-import { themes, selectStyles } from '../theme'
-import { add, sub, lastDayOfWeek } from 'date-fns'
 import DatePicker from 'react-datepicker'
+import Select from 'react-select'
+import { ThemeType } from '../interfaces'
+import { ThemeProvider } from '../StyledComponents'
+import { selectStyles, themes } from '../theme'
 import { Wrapper } from './styled/ReactDatePicker'
-import { connect } from 'react-redux'
 
 const options: { value: () => string; label: string }[] = [
   { value: () => new Date().toISOString(), label: 'Today' },
@@ -34,11 +35,12 @@ const options: { value: () => string; label: string }[] = [
   { value: null, label: 'No date' },
 ]
 
-interface StateProps {
-  theme: string
-}
-
-interface OwnProps {
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+type DateSelectProps = {
   autoFocus?: boolean
   defaultOpen?: boolean
   disabled?: boolean
@@ -49,10 +51,15 @@ interface OwnProps {
   textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
 }
 
-type DateSelectProps = OwnProps & StateProps
-
 function DateSelect(props: DateSelectProps): ReactElement {
   const [dayPickerVisible, setDayPickerVisible] = useState(false)
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
 
   const handleChange = (newValue, actionMeta): void => {
     setDayPickerVisible(false)
@@ -69,12 +76,12 @@ function DateSelect(props: DateSelectProps): ReactElement {
 
   const handleDayClick = (day): void => {
     setDayPickerVisible(false)
-    props.onSubmit(day.toISOString())
+    props.onSubmit(day)
     return
   }
 
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Select
         isDisabled={props.disabled != undefined ? props.disabled : false}
         autoFocus={props.autoFocus != undefined ? props.autoFocus : true}
@@ -83,7 +90,7 @@ function DateSelect(props: DateSelectProps): ReactElement {
         options={options}
         styles={selectStyles({
           fontSize: props.textSize || 'xxsmall',
-          theme: themes[props.theme],
+          theme: theme,
         })}
         defaultMenuIsOpen={props.defaultOpen != undefined ? props.defaultOpen : true}
         escapeClearsValue={true}
@@ -105,10 +112,4 @@ function DateSelect(props: DateSelectProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-
-const mapDispatchToProps = (dispatch): {} => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(DateSelect)
+export default DateSelect

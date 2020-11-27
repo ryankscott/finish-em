@@ -1,49 +1,59 @@
 import Project from '../classes/project'
+import { createProjectOrder } from './projectOrder'
 
-export const getProjects = (obj, ctx) => {
-  return ctx.db
-    .all(
-      'SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project',
-    )
-    .then((result) =>
-      result.map(
-        (r) =>
-          new Project(
-            r.key,
-            r.name,
-            r.deleted,
-            r.description,
-            r.lastUpdatedAt,
-            r.deletedAt,
-            r.createdAt,
-            r.startAt,
-            r.endAt,
-            r.areaKey,
-          ),
-      ),
-    )
+export const createGetProjectsQuery = (input: { deleted: boolean }) => {
+  const deletedText = input.deleted != undefined ? `AND deleted = ${input.deleted}` : ''
+  return `
+SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey
+FROM project
+WHERE 1 = 1
+${deletedText}
+;`
+}
+
+export const getProjects = (input: { deleted: boolean }, ctx) => {
+  return ctx.db.all(createGetProjectsQuery(input)).then((result) => {
+    return result.map((r) => {
+      return new Project(
+        r.key,
+        r.name,
+        r.deleted,
+        r.description,
+        r.lastUpdatedAt,
+        r.deletedAt,
+        r.createdAt,
+        r.startAt,
+        r.endAt,
+        r.areaKey,
+      )
+    })
+  })
 }
 
 export const getProjectsByArea = (input: { areaKey: string }, ctx) => {
   return ctx.db
     .all(
-      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project WHERE areakey = '${input.areaKey}'`,
+      `
+SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project
+WHERE areaKey = '${input.areaKey}'
+AND deleted = false`,
     )
     .then((result) =>
-      result.map(
-        (r) =>
-          new Project(
-            r.key,
-            r.name,
-            r.deleted,
-            r.description,
-            r.lastUpdatedAt,
-            r.deletedAt,
-            r.createdAt,
-            r.startAt,
-            r.endAt,
-            r.areaKey,
-          ),
+      result.map((r) =>
+        r
+          ? new Project(
+              r.key,
+              r.name,
+              r.deleted,
+              r.description,
+              r.lastUpdatedAt,
+              r.deletedAt,
+              r.createdAt,
+              r.startAt,
+              r.endAt,
+              r.areaKey,
+            )
+          : null,
       ),
     )
 }
@@ -53,21 +63,45 @@ export const getProject = (input: { key: string }, ctx) => {
     .get(
       `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project WHERE key = '${input.key}'`,
     )
-    .then(
-      (result) =>
-        new Project(
-          result.key,
-          result.name,
-          result.deleted,
-          result.description,
-          result.lastUpdatedAt,
-          result.deletedAt,
-          result.createdAt,
-          result.startAt,
-          result.endAt,
-          result.areaKey,
-        ),
+    .then((result) => {
+      return result
+        ? new Project(
+            result.key,
+            result.name,
+            result.deleted,
+            result.description,
+            result.lastUpdatedAt,
+            result.deletedAt,
+            result.createdAt,
+            result.startAt,
+            result.endAt,
+            result.areaKey,
+          )
+        : null
+    })
+}
+
+export const getProjectByName = (input: { name: string }, ctx) => {
+  return ctx.db
+    .get(
+      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project WHERE name = '${input.name}'`,
     )
+    .then((result) => {
+      return result
+        ? new Project(
+            result.key,
+            result.name,
+            result.deleted,
+            result.description,
+            result.lastUpdatedAt,
+            result.deletedAt,
+            result.createdAt,
+            result.startAt,
+            result.endAt,
+            result.areaKey,
+          )
+        : null
+    })
 }
 
 export const createMigrateProjectQuery = (input: {
@@ -89,7 +123,7 @@ export const createMigrateProjectQuery = (input: {
   const endText = input.endAt ? input.endAt.toISOString() : ''
   return `
 REPLACE INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey)
-VALUES ('${input.key}', '${input.name}', ${input.deleted}, '${input.description}', '${lastUpdatedText}', '${deletedText}', '${createdText}', '${startText}', '${endText}', '${input.areaKey}'
+VALUES ('${input.key}', '${input.name}', ${input.deleted}, '${input.description}', '${lastUpdatedText}', '${deletedText}', '${createdText}', '${startText}', '${endText}', '${input.areaKey}')
 `
 }
 export const migrateProject = (
@@ -136,20 +170,22 @@ export const createProject = (
   ctx,
 ) => {
   return ctx.db.run(createCreateProjectQuery(input)).then((result) => {
-    return result.changes
-      ? getProject({ key: input.key }, ctx)
-      : new Error('Unable to create project')
+    if (result.changes) {
+      createProjectOrder({ projectKey: input.key }, ctx)
+      return getProject({ key: input.key }, ctx)
+    }
+    return new Error('Unable to create project')
   })
 }
 
-export const createDeleteProjectQuery = (input: { key: string; name: string }) => {
+export const createDeleteProjectQuery = (input: { key: string }) => {
   return `UPDATE project SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
 export const deleteProject = (input: { key: string; name: string }, ctx) => {
   return ctx.db.run(createDeleteProjectQuery(input)).then((result) => {
     return result.changes
       ? getProject({ key: input.key }, ctx)
-      : new Error('Unable to rename project')
+      : new Error('Unable to delete project')
   })
 }
 
@@ -176,7 +212,7 @@ export const changeDescriptionProject = (input: { key: string; description: stri
 }
 
 export const createSetEndDateOfProject = (input: { key: string; endAt: string }) => {
-  return `UPDATE project SET endAt = ${input.endAt}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
+  return `UPDATE project SET endAt = '${input.endAt}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
 export const setEndDateOfProject = (input: { key: string; endAt: string }, ctx) => {
   return ctx.db.run(createSetEndDateOfProject(input)).then((result) => {
@@ -187,7 +223,7 @@ export const setEndDateOfProject = (input: { key: string; endAt: string }, ctx) 
 }
 
 export const createSetStartDateOfProject = (input: { key: string; startAt: string }) => {
-  return `UPDATE project SET startAt = ${input.startAt}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
+  return `UPDATE project SET startAt = '${input.startAt}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
 export const setStartDateOfProject = (input: { key: string; startAt: string }, ctx) => {
   return ctx.db.run(createSetStartDateOfProject(input)).then((result) => {
@@ -209,11 +245,11 @@ export const setAreaOfProject = (input: { key: string; areaKey: string }, ctx) =
 }
 
 export const projectRootValues = {
-  projects: (obj, ctx) => {
-    return getProjects(obj, ctx)
+  projects: ({ input }, ctx) => {
+    return getProjects(input, ctx)
   },
-  projectsByArea: (key, ctx) => {
-    return getProjectsByArea(key, ctx)
+  projectsByArea: ({ input }, ctx) => {
+    return getProjectsByArea(input, ctx)
   },
   project: (key, ctx) => {
     return getProject(key, ctx)
@@ -238,5 +274,8 @@ export const projectRootValues = {
   },
   setEndDateOfProject: ({ input }, ctx) => {
     return setEndDateOfProject(input, ctx)
+  },
+  setAreaOfProject: ({ input }, ctx) => {
+    return setAreaOfProject(input, ctx)
   },
 }

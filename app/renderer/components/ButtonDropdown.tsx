@@ -3,23 +3,28 @@ import { ThemeProvider } from '../StyledComponents'
 import Creatable from 'react-select/creatable'
 import { themes, selectStyles } from '../theme'
 import CSS from 'csstype'
-import { connect } from 'react-redux'
 import Button from './Button'
 import { Container, SelectContainer } from './styled/ButtonDropdown'
+import { IconType, ThemeType } from '../interfaces'
+import { gql, useQuery } from '@apollo/client'
+import { OptionsType } from 'react-select'
 
-interface StateProps {
-  theme: string
-}
-interface OwnProps {
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+
+type ButtonDropdownProps = {
   defaultButtonText: string
-  defaultButtonIcon: string
-  defaultButtonIconColour: string
-  buttonText: string
+  defaultButtonIcon?: IconType
+  defaultButtonIconColour?: string
+  buttonText: string | JSX.Element
   buttonIcon?: IconType
-  buttonIconColour?: CSS.Color
+  buttonIconColour?: CSS.Property.Color
   selectPlaceholder?: string
   createable?: boolean
-  options: OptionType[]
+  options: OptionsType<any>
   onSubmit: (value: string) => void
   onEscape?: () => void
   style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
@@ -28,9 +33,17 @@ interface OwnProps {
   showSelect?: boolean
 }
 
-type ButtonDropdownProps = StateProps & OwnProps
 function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
   const [showSelect, setShowSelect] = useState(false)
+
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
+
   const handleChange = (newValue, actionMeta): void => {
     if (actionMeta.action == 'select-option') {
       props.onSubmit(newValue.value)
@@ -55,7 +68,7 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
   }, [])
 
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Container completed={props.completed} ref={node}>
         <Button
           spacing="compact"
@@ -82,7 +95,7 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
               options={props.options}
               styles={selectStyles({
                 fontSize: 'xxsmall',
-                theme: themes[props.theme],
+                theme: theme,
               })}
               escapeClearsValue={true}
               defaultMenuIsOpen={true}
@@ -103,8 +116,5 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-const mapDispatchToProps = (dispatch): {} => ({})
-export default connect(mapStateToProps, mapDispatchToProps)(ButtonDropdown)
+export default ButtonDropdown
+ 

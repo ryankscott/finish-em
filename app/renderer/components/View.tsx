@@ -1,34 +1,35 @@
 import React, { ReactElement } from 'react'
 import { ThemeProvider } from '../StyledComponents'
-
 import { themes } from '../theme'
-import { connect } from 'react-redux'
 import ReorderableComponentList from './ReorderableComponentList'
 import { Container } from './styled/View'
-import { ViewType } from '../interfaces'
+import { gql, useQuery } from '@apollo/client'
+import { ThemeType } from '../interfaces'
 
-interface OwnProps {
-    view: ViewType
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+type ViewProps = {
+  viewKey: string
 }
-interface DispatchProps {}
 
-interface StateProps {
-    theme: string
-}
-type ViewProps = StateProps & OwnProps & DispatchProps
 const View = (props: ViewProps): ReactElement => {
-    return (
-        <ThemeProvider theme={themes[props.theme]}>
-            <Container>
-                <ReorderableComponentList id={props.view.id} />
-            </Container>
-        </ThemeProvider>
-    )
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
+  return (
+    <ThemeProvider theme={theme}>
+      <Container>
+        <ReorderableComponentList id={props.viewKey} />
+      </Container>
+    </ThemeProvider>
+  )
 }
 
-const mapStateToProps = (state): StateProps => ({
-    theme: state.ui.theme,
-})
-const mapDispatchToProps = (dispatch): DispatchProps => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(View)
+export default View

@@ -1,3 +1,5 @@
+import { getItemsByArea, getProjectsByArea, getAreaOrder } from '../api'
+
 export default class Area {
   constructor(
     key: string,
@@ -12,8 +14,20 @@ export default class Area {
     this.name = name
     this.deleted = deleted
     this.description = description
-    this.lastUpdatedAt = lastUpdatedAt
-    this.deletedAt = deletedAt
-    this.createdAt = createdAt
+    this.lastUpdatedAt = lastUpdatedAt ? lastUpdatedAt : null
+    this.deletedAt = deletedAt ? deletedAt : null
+    this.createdAt = createdAt ? createdAt : null
+  }
+
+  projects(obj, ctx) {
+    return getProjectsByArea({ areaKey: this.key }, ctx)
+  }
+
+  items(obj, ctx) {
+    return getItemsByArea({ areaKey: this.key }, ctx)
+  }
+
+  sortOrder(obj, ctx) {
+    return getAreaOrder({ areaKey: this.key }, ctx)
   }
 }

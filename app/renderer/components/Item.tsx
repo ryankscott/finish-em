@@ -1,23 +1,10 @@
 import { format, isPast, parseISO } from 'date-fns'
 import React, { ReactElement, useEffect, useState } from 'react'
-import { connect } from 'react-redux'
 import { RRule } from 'rrule'
-import {
-  cloneItem,
-  completeItem,
-  deleteItem,
-  deletePermanently,
-  setActiveItem,
-  showFocusbar,
-  toggleSubtasks,
-  uncompleteItem,
-  undeleteItem,
-  updateItemDescription,
-} from '../actions'
 import { Icons } from '../assets/icons'
-import { ItemIcons, ItemType, Label, Projects } from '../interfaces'
-import { getItemParentId } from '../selectors/item'
+import { ItemIcons, ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
+import { cloneDeep, get, set as setKey } from 'lodash'
 import { themes } from '../theme'
 import {
   capitaliseFirstLetter,
@@ -47,35 +34,123 @@ import {
   TypeContainer,
 } from './styled/Item'
 import Tooltip from './Tooltip'
+import { gql, useMutation, useQuery } from '@apollo/client'
+import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
+import { Item as ItemType } from '../../main/generated/typescript-helpers'
 
-interface DispatchProps {
-  updateItemDescription: (id: string, text: string) => void
-  completeItem: (id: string) => void
-  uncompleteItem: (id: string) => void
-  deleteItem: (id: string) => void
-  undeleteItem: (id: string) => void
-  setActiveItem: (id: string) => void
-  showFocusbar: () => void
-  toggleSubtasks: (id: string, componentId: string) => void
-  deletePermanently: (id: string) => void
-}
-interface StateProps {
-  reminders: Reminders
-  projects: Projects
-  theme: string
-  labels: Label
-  subtasksVisible: boolean
-  parentItem: ItemType
-}
-
-interface OwnProps extends ItemType {
-  componentId: string
-  hideIcons: ItemIcons[]
+type ItemProps = {
+  itemKey: string
+  componentKey: string
+  hiddenIcons: ItemIcons[]
   shouldIndent: boolean
   alwaysVisible?: boolean
 }
 
-type ItemProps = OwnProps & StateProps & DispatchProps
+const GET_DATA = gql`
+  query itemByKey($key: String!) {
+    item: item(key: $key) {
+      key
+      type
+      text
+      deleted
+      completed
+      dueAt
+      scheduledAt
+      lastUpdatedAt
+      completedAt
+      createdAt
+      deletedAt
+      repeat
+      reminders {
+        remindAt
+      }
+      label {
+        key
+        name
+        colour
+      }
+      project {
+        key
+        name
+      }
+
+      parent {
+        key
+        text
+      }
+      children {
+        key
+      }
+      sortOrder {
+        sortOrder
+      }
+    }
+    theme @client
+    subtasksVisible @client
+  }
+`
+
+const RENAME_ITEM = gql`
+  mutation RenameItem($key: String!, $text: String!) {
+    renameItem(input: { key: $key, text: $text }) {
+      key
+      text
+    }
+  }
+`
+
+const COMPLETE_ITEM = gql`
+  mutation CompleteItem($key: String!) {
+    completeItem(input: { key: $key }) {
+      key
+      completed
+    }
+  }
+`
+
+const UNCOMPLETE_ITEM = gql`
+  mutation UnCompleteItem($key: String!) {
+    unCompleteItem(input: { key: $key }) {
+      key
+      completed
+    }
+  }
+`
+
+const DELETE_ITEM = gql`
+  mutation DeleteItem($key: String!) {
+    deleteItem(input: { key: $key }) {
+      key
+      deleted
+    }
+  }
+`
+
+const PERMANENT_DELETE_ITEM = gql`
+  mutation PermanentDeleteItem($key: String!) {
+    permanentDeleteItem(input: { key: $key }) {
+      key
+      deleted
+    }
+  }
+`
+
+const RESTORE_ITEM = gql`
+  mutation RestoreItem($key: String!) {
+    restoreItem(input: { key: $key }) {
+      key
+      deleted
+    }
+  }
+`
+
+const CLONE_ITEM = gql`
+  mutation CloneItem($key: String!) {
+    cloneItem(input: { key: $key }) {
+      key
+    }
+  }
+`
 
 function Item(props: ItemProps): ReactElement {
   const [isEditingDescription, setIsEditingDescription] = useState(false)
@@ -83,19 +158,40 @@ function Item(props: ItemProps): ReactElement {
   const [moreButtonVisible, setMoreButtonVisible] = useState(false)
   const [showLabelDialog, setShowLabelDialog] = useState(false)
   const [showReminderDialog, setShowReminderDialog] = useState(false)
-  let enterInterval,
-    exitInterval = 0
-
+  let enterInterval, exitInterval
   const editor = React.useRef<HTMLInputElement>()
   const container = React.useRef<HTMLInputElement>()
 
+  useEffect(() => {
+    if (!isDescriptionReadOnly) {
+      editor.current.focus()
+    }
+  }, [isDescriptionReadOnly])
+
+  const { loading, error, data } = useQuery(GET_DATA, {
+    variables: { key: props.itemKey ? props.itemKey : null },
+  })
+
+  const [completeItem] = useMutation(COMPLETE_ITEM)
+  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
+  const [renameItem] = useMutation(RENAME_ITEM)
+  const [deleteItem] = useMutation(DELETE_ITEM)
+  const [cloneItem] = useMutation(CLONE_ITEM)
+  const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM)
+  const [restoreItem] = useMutation(RESTORE_ITEM)
+
+  if (loading) return null
+  if (error) return null
+
+  const theme: ThemeType = themes[data.theme]
+  const item: ItemType = data.item
   // TODO: Move this to the MoreDropdown component
-  const dropdownOptions: MoreDropdownOptions = props.deleted
+  const dropdownOptions: MoreDropdownOptions = item.deleted
     ? [
         {
           label: 'Delete permanently',
           onClick: (e: React.MouseEvent) => {
-            props.deletePermanently(props.id)
+            permanentDeleteItem({ variables: { key: item.key } })
             e.stopPropagation()
             e.preventDefault()
             return
@@ -105,12 +201,12 @@ function Item(props: ItemProps): ReactElement {
         {
           label: 'Restore item',
           onClick: (e: React.MouseEvent) => {
-            props.undeleteItem(props.id)
+            restoreItem({ variables: { key: item.key } })
             e.stopPropagation()
             e.preventDefault()
             return
           },
-          icon: 'undelete',
+          icon: 'restore',
         },
       ]
     : [
@@ -127,7 +223,7 @@ function Item(props: ItemProps): ReactElement {
         {
           label: 'Delete item',
           onClick: (e: React.MouseEvent) => {
-            props.deleteItem(props.id)
+            deleteItem({ variables: { key: item.key } })
             e.stopPropagation()
             e.preventDefault()
             return
@@ -137,7 +233,7 @@ function Item(props: ItemProps): ReactElement {
         {
           label: 'Clone item',
           onClick: (e: React.MouseEvent) => {
-            props.cloneItem(props.id)
+            cloneItem({ variables: { key: item.key } })
             e.stopPropagation()
             e.preventDefault()
             return
@@ -155,57 +251,59 @@ function Item(props: ItemProps): ReactElement {
           icon: 'reminder',
         },
       ]
-  const reminder = props?.reminders.find(
-    (r) => r.itemId == props.id && r.deleted == false && !isPast(parseISO(r.remindAt)),
-  )
-
-  useEffect(() => {
-    if (!isDescriptionReadOnly) {
-      editor.current.focus()
-    }
-  }, [isDescriptionReadOnly])
 
   const handleIconClick = (e): void => {
     e.stopPropagation()
-    if (props.deleted) {
-      props.undeleteItem(props.id)
+    if (item.deleted) {
+      restoreItem({ variables: { key: item.key } })
       return
     }
-    if (props.type == 'TODO') {
-      props.completed ? props.uncompleteItem(props.id) : props.completeItem(props.id)
+    if (item.type == 'TODO') {
+      item.completed
+        ? unCompleteItem({ variables: { key: item.key } })
+        : completeItem({ variables: { key: item.key } })
       return
     }
   }
 
   const handleExpand = (e): void => {
     e.stopPropagation()
-    props.toggleSubtasks(props.id, props.componentId)
+    let newState = cloneDeep(data.subtasksVisible)
+    const newValue = get(newState, `${item.key}.${props.componentKey}`, true)
+    if (newState[item.key]) {
+      newState[item.key][props.componentKey] = !newValue
+    } else {
+      newState[item.key] = {
+        [props.componentKey]: true,
+      }
+    }
+    subtasksVisibleVar(newState)
     return
   }
 
-  const getProjectText = (projectId: string): { short: string; long: string } => {
-    if (projectId == null) return { short: 'None', long: 'None' }
-    if (projectId != '0') {
+  const getProjectText = (projectName: string): { short: string; long: string } => {
+    if (projectName == null) return { short: 'None', long: 'None' }
+    if (projectName != 'Inbox') {
       return {
-        short: truncateString(props.projects.projects?.[projectId].name, 12),
-        long: props.projects.projects?.[projectId].name,
+        short: truncateString(projectName, 12),
+        long: projectName,
       }
     }
     return { short: 'Inbox', long: 'Inbox' }
   }
 
   // Check if the item should be visible, based on a parent hiding subtasks (default should be true)
-  const parentVisibility = props.subtasksVisible?.[props.parentId]?.[props.componentId]
+  const parentVisibility = data.subtasksVisible?.[item.parent?.key]?.[props.componentKey]
   const isVisible = parentVisibility != undefined ? parentVisibility : true
 
   // Check if the item's subtasks should be visible (default should be true)
-  const itemVisibility = props.subtasksVisible?.[props.id]?.[props.componentId]
+  const itemVisibility = data.subtasksVisible?.[item.key]?.[props.componentKey]
   const subtasksVisible = itemVisibility != undefined ? itemVisibility : true
 
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Container
-        id={props.componentId + '-' + props.id}
+        id={props.componentKey + '-' + item.key}
         onMouseEnter={() => {
           enterInterval = setTimeout(() => setMoreButtonVisible(true), 250)
           clearTimeout(exitInterval)
@@ -217,25 +315,27 @@ function Item(props: ItemProps): ReactElement {
         onClick={(e) => {
           // TODO: This causes it being impossible to click on links
           // This is a weird gross hack for if you click on a child element
-          const el = document.getElementById(props.componentId + '-' + props.id)
+          const el = document.getElementById(props.componentKey + '-' + item.key)
           el.focus()
-          props.showFocusbar()
-          props.setActiveItem(props.id)
+          focusbarVisibleVar(true)
+          activeItemVar(item.key)
         }}
         tabIndex={0}
-        deleted={props.deleted}
-        key={props.id}
+        deleted={item.deleted}
+        key={item.key}
         ref={container}
         shouldIndent={props.shouldIndent}
         visible={isVisible || props.alwaysVisible}
-        itemType={props.type}
-        labelColour={props.labelId ? props.labels[props.labelId].colour : null}
+        itemType={item.type}
+        labelColour={item.label ? item.label.colour : null}
       >
-        {props.children.length > 0 && (
+        {item.children?.length > 0 && (
           <ExpandContainer>
             <Button
               type="subtle"
-              onClick={handleExpand}
+              onClick={(e) => {
+                handleExpand(e)
+              }}
               icon={'expand'}
               rotate={subtasksVisible ? 1 : 0}
               iconSize={'16px'}
@@ -244,57 +344,57 @@ function Item(props: ItemProps): ReactElement {
         )}
         <TypeContainer>
           <Button
-            dataFor={`type-button-${props.id}`}
+            dataFor={`type-button-${item.key}`}
             type="subtle"
             spacing="compact"
             onClick={handleIconClick}
             icon={
-              props.deleted
+              item.deleted
                 ? 'restore'
-                : props.type == 'NOTE'
+                : item.type == 'NOTE'
                 ? 'note'
-                : props.completed
+                : item.completed
                 ? 'todoChecked'
                 : 'todoUnchecked'
             }
             iconSize={'16px'}
           />
-          {props.type == 'TODO' && (
+          {item.type == 'TODO' && (
             <Tooltip
-              id={`type-button-${props.id}`}
-              text={props.deleted ? 'Restore' : props.completed ? 'Uncomplete' : 'Complete'}
+              id={`type-button-${item.key}`}
+              text={item.deleted ? 'Restore' : item.completed ? 'Uncomplete' : 'Complete'}
             />
           )}
         </TypeContainer>
-        <Body id="body" completed={props.completed} deleted={props.deleted}>
+        <Body id="body" completed={item.completed} deleted={item.deleted}>
           <EditableText
             shouldSubmitOnBlur={true}
             innerRef={editor}
             readOnly={isDescriptionReadOnly}
             onEditingChange={(editing) => setIsEditingDescription(editing)}
-            input={removeItemTypeFromString(props.text)}
+            input={removeItemTypeFromString(item.text)}
             onUpdate={(text) => {
               setIsDescriptionReadOnly(true)
-              props.updateItemDescription(props.id, props.type.concat(' ', text))
+              renameItem({ variables: { key: item.key, text: item.type.concat(' ', text) } })
             }}
-            singleline={props.type == 'NOTE' ? false : true}
+            singleline={item.type == 'NOTE' ? false : true}
             shouldClearOnSubmit={false}
           />
         </Body>
         <ProjectContainer
-          visible={!(props.hideIcons?.includes(ItemIcons.Project) || props.projectId == null)}
+          visible={!(props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null)}
         >
-          <ProjectName data-tip data-for={'project-name-' + props.id}>
-            {getProjectText(props.projectId).short}
+          <ProjectName data-tip data-for={'project-name-' + item.key}>
+            {getProjectText(item.project?.name).short}
           </ProjectName>
-          <Tooltip id={'project-name-' + props.id} text={getProjectText(props.projectId).long} />
+          <Tooltip id={'project-name-' + item.key} text={getProjectText(item.project?.name).long} />
         </ProjectContainer>
 
         <MoreContainer visible={moreButtonVisible}>
-          <MoreDropdown options={dropdownOptions}></MoreDropdown>
+          <MoreDropdown subtle={true} options={dropdownOptions}></MoreDropdown>
           {showLabelDialog && (
             <LabelDialog
-              itemId={props.id}
+              itemKey={item.key}
               onClose={() => {
                 setShowLabelDialog(false)
               }}
@@ -302,8 +402,8 @@ function Item(props: ItemProps): ReactElement {
           )}
           {showReminderDialog && (
             <ReminderDialog
-              itemId={props.id}
-              reminderText={removeItemTypeFromString(props.text)}
+              itemKey={item.key}
+              reminderText={removeItemTypeFromString(item.text)}
               onClose={() => {
                 setShowReminderDialog(false)
               }}
@@ -313,88 +413,85 @@ function Item(props: ItemProps): ReactElement {
 
         <ParentItemContainer
           data-tip
-          data-for={'parent-item-' + props.id}
-          visible={!props.hideIcons?.includes(ItemIcons.Subtask) && props.parentId != null}
+          data-for={'parent-item-' + item.key}
+          visible={!props.hiddenIcons?.includes(ItemIcons.Subtask) && item.parent != null}
         >
           <ItemAttribute
-            completed={props.completed}
+            completed={item.completed}
             type={'subtask'}
-            text={
-              props.parentId
-                ? truncateString(removeItemTypeFromString(props.parentItem.text), 12)
-                : ''
-            }
+            text={item.parent ? truncateString(removeItemTypeFromString(item.parent.text), 12) : ''}
           />
           <Tooltip
-            id={'parent-item-' + props.id}
-            text={props.parentId ? removeItemTypeFromString(props.parentItem.text) : ''}
+            id={'parent-item-' + item.key}
+            text={item.parent ? removeItemTypeFromString(item.parent.text) : ''}
           />
         </ParentItemContainer>
         <ScheduledContainer
           data-tip
-          data-for={'scheduled-date-' + props.id}
-          visible={props.scheduledDate != null && !props.hideIcons?.includes(ItemIcons.Scheduled)}
+          data-for={'scheduled-date-' + item.key}
+          visible={item.scheduledAt != null && !props.hiddenIcons?.includes(ItemIcons.Scheduled)}
         >
           <ItemAttribute
-            completed={props.completed}
+            completed={item.completed}
             type={'scheduled'}
-            text={props.scheduledDate ? formatRelativeDate(parseISO(props.scheduledDate)) : ''}
+            text={item.scheduledAt ? formatRelativeDate(parseISO(item.scheduledAt)) : ''}
           />
           <Tooltip
-            id={'scheduled-date-' + props.id}
-            text={
-              props.scheduledDate ? format(parseISO(props.scheduledDate), 'EEEE do MMM yyyy') : ''
-            }
+            id={'scheduled-date-' + item.key}
+            text={item.scheduledAt ? format(parseISO(item.scheduledAt), 'EEEE do MMM yyyy') : ''}
           />
         </ScheduledContainer>
         <DueContainer
           data-tip
-          data-for={'due-date-' + props.id}
-          visible={props.dueDate != null && !props.hideIcons?.includes(ItemIcons.Due)}
+          data-for={'due-date-' + item.key}
+          visible={item.dueAt != null && !props.hiddenIcons?.includes(ItemIcons.Due)}
         >
           <ItemAttribute
-            completed={props.completed}
+            completed={item.completed}
             type={'due'}
-            text={props.dueDate ? formatRelativeDate(parseISO(props.dueDate)) : ''}
+            text={item.dueAt ? formatRelativeDate(parseISO(item.dueAt)) : ''}
           />
           <Tooltip
-            id={'due-date-' + props.id}
-            text={props.dueDate ? format(parseISO(props.dueDate), 'EEEE do MMM yyyy') : ''}
+            id={'due-date-' + item.key}
+            text={item.dueAt ? format(parseISO(item.dueAt), 'EEEE do MMM yyyy') : ''}
           />
         </DueContainer>
         <RepeatContainer
           data-tip
-          data-for={'repeat-' + props.id}
-          visible={props.repeat != null && !props.hideIcons?.includes(ItemIcons.Repeat)}
+          data-for={'repeat-' + item.key}
+          visible={item.repeat != null && !props.hiddenIcons?.includes(ItemIcons.Repeat)}
         >
           <ItemAttribute
-            completed={props.completed}
+            completed={item.completed}
             type={'repeat'}
             text={
-              props.repeat
-                ? capitaliseFirstLetter(rruleToText(RRule.fromString(props.repeat)))
+              item.repeat && item.repeat != 'undefined'
+                ? capitaliseFirstLetter(rruleToText(RRule.fromString(item?.repeat)))
                 : 'Repeat'
             }
           />
           <Tooltip
-            id={'repeat-' + props.id}
+            id={'repeat-' + item.key}
             text={
-              props.repeat
-                ? capitaliseFirstLetter(RRule.fromString(props.repeat).toText())
+              item.repeat && item.repeat != 'undefined'
+                ? capitaliseFirstLetter(RRule.fromString(item.repeat).toText())
                 : 'Repeat'
             }
           />
         </RepeatContainer>
         <ReminderContainer
           data-tip
-          data-for={'reminder-' + props.id}
-          visible={reminder != undefined}
+          data-for={'reminder-' + item.key}
+          visible={item.reminders.length}
         >
           {Icons['reminder']()}
-          {reminder && (
+          {item.reminders.length && (
             <Tooltip
-              id={'reminder-' + props.id}
-              text={`Reminder at: ${format(parseISO(reminder?.remindAt), 'h:mm aaaa EEEE')}`}
+              id={'reminder-' + item.key}
+              text={`Reminder at: ${format(
+                parseISO(item?.reminders?.[0]?.remindAt),
+                'h:mm aaaa EEEE',
+              )}`}
             />
           )}
         </ReminderContainer>
@@ -403,45 +500,4 @@ function Item(props: ItemProps): ReactElement {
   )
 }
 
-const mapStateToProps = (state, props): StateProps => ({
-  projects: state.projects,
-  reminders: state.reminders,
-  theme: state.ui.theme,
-  labels: state.ui.labels.labels,
-  subtasksVisible: state.ui.subtasksVisible,
-  parentItem: getItemParentId(state, props),
-})
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  cloneItem: (itemId: string) => {
-    dispatch(cloneItem(itemId))
-  },
-  updateItemDescription: (id: string, text: string) => {
-    dispatch(updateItemDescription(id, text))
-  },
-  uncompleteItem: (id: string) => {
-    dispatch(uncompleteItem(id))
-  },
-  completeItem: (id: string) => {
-    dispatch(completeItem(id))
-  },
-  undeleteItem: (id: string) => {
-    dispatch(undeleteItem(id))
-  },
-  deleteItem: (id: string) => {
-    dispatch(deleteItem(id))
-  },
-  setActiveItem: (id: string) => {
-    dispatch(setActiveItem(id))
-  },
-  showFocusbar: () => {
-    dispatch(showFocusbar())
-  },
-  toggleSubtasks: (id: string, componentId: string) => {
-    dispatch(toggleSubtasks(id, componentId))
-  },
-  deletePermanently: (id: string) => {
-    dispatch(deletePermanently(id))
-  },
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(Item)
+export default Item

@@ -1,38 +1,30 @@
-import React, { ReactElement, useState, useEffect, useRef } from 'react'
-import { connect } from 'react-redux'
+import { gql, useMutation, useQuery } from '@apollo/client'
+import React, { ReactElement, useRef, useState } from 'react'
+import Select from 'react-select'
+import Switch from 'react-switch'
+import { FilteredItemListPropsInput } from '../../main/generated/typescript-helpers'
+import { Icons } from '../assets/icons'
+import EditableText from '../components/EditableText'
+import { ThemeType } from '../interfaces'
+import { ItemIcons } from '../interfaces/item'
 import { ThemeProvider } from '../StyledComponents'
+import { selectStyles, themes } from '../theme'
+import Button from './Button'
+import Expression from './filter-box/Expression'
+import ItemFilterBox from './ItemFilterBox'
 import {
+  CloseButtonContainer,
   DialogContainer,
   DialogHeader,
   DialogName,
+  HelpButtonContainer,
+  SelectContainer,
   Setting,
   SettingLabel,
   SettingValue,
-  SelectContainer,
-  SaveContainer,
-  HelpButtonContainer,
-  CloseButtonContainer,
 } from './styled/FilteredItemDialog'
-import { themes, selectStyles } from '../theme'
-import Button from './Button'
-import Switch from 'react-switch'
-import EditableText from '../components/EditableText'
-import { compileExpression } from 'filtrex'
-import {
-  setFilteredItemListName,
-  setFilteredItemListFilterable,
-  setFilteredItemListFilter,
-  setFilteredItemListHiddenIcons,
-  setFilteredItemListShowAllTasks,
-} from '../actions'
-import Select from 'react-select'
-import { ItemIcons } from '../interfaces/item'
-import { Labels, IconType } from '../interfaces'
-import { Icons } from '../assets/icons'
 import Tooltip from './Tooltip'
 import { Code } from './Typography'
-import { toast } from 'react-toastify'
-import { getFilterFunctions } from '../selectors/item'
 
 const options: { value: string; label: string }[] = [
   { value: ItemIcons.Project, label: 'Project' },
@@ -42,63 +34,79 @@ const options: { value: string; label: string }[] = [
   { value: ItemIcons.Subtask, label: 'Subtask' },
 ]
 
-interface DispatchProps {
-  setFilteredItemListName: (componentId: string, name: string) => void
-  setFilteredItemListFilter: (componentId: string, filter: string) => void
-  setFilteredItemListFilterable: (componentId: string, filterable: boolean) => void
-  setFilteredItemListHiddenIcons: (componentId: string, hiddenIcons: IconType[]) => void
-  setFilteredItemListShowAllTasks: (componentId: string, showAllTasks: boolean) => void
-}
+const GET_COMPONENT_BY_KEY = gql`
+  query ComponentByKey($key: String!) {
+    component(key: $key) {
+      key
+      parameters
+    }
+    theme @client
+  }
+`
 
-interface OwnProps {
-  listName: string
-  filter: string
-  componentId: string
-  isFilterable: boolean
-  showSubtasks: boolean
+const UPDATE_COMPONENT = gql`
+  mutation SetParametersOfFilteredItemListComponent(
+    $key: String!
+    $parameters: FilteredItemListPropsInput!
+  ) {
+    setParametersOfFilteredItemListComponent(input: { key: $key, parameters: $parameters }) {
+      key
+      parameters
+    }
+  }
+`
+
+type FilteredItemDialogProps = {
+  componentKey: string
   onClose: () => void
 }
 
-interface StateProps {
-  theme: string
-  labels: Labels
-  filterFunctions: filterFunctions
-}
-
-type FilteredItemDialogProps = OwnProps & DispatchProps & StateProps
 const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
-  const theme = themes[props.theme]
   const node = useRef<HTMLDivElement>()
   const filterRef = useRef<HTMLInputElement>()
   const nameRef = useRef<HTMLInputElement>()
 
-  const [errorMessage, setErrorMessage] = useState('')
-  const handleClick = (e): null => {
-    if (node.current?.contains(e.target)) {
-      return
-    }
-    props.onClose()
-  }
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClick)
-    return () => {
-      document.removeEventListener('mousedown', handleClick)
-    }
-  }, [])
+  const [updateComponent] = useMutation(UPDATE_COMPONENT)
+  const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
+    variables: { key: props.componentKey },
+  })
 
+  const [errorMessage, setErrorMessage] = useState('')
+
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  let params: FilteredItemListPropsInput = {}
+  try {
+    params = JSON.parse(data.component.parameters)
+  } catch (error) {
+    console.log(error)
+    console.log(data.component.parameters)
+    return null
+  }
+
+  const theme: ThemeType = themes[data.theme]
+
+  // TODO: Create individual update queries instead of this big one
   return (
     <ThemeProvider theme={theme}>
       <DialogContainer ref={node}>
         <DialogHeader>
-          <HelpButtonContainer data-for={'help-icon' + props.componentId} data-tip data-html={true}>
-            {Icons.help(18, 18, themes[props.theme].colours.disabledTextColour)}
+          <HelpButtonContainer
+            data-for={'help-icon' + props.componentKey}
+            data-tip
+            data-html={true}
+          >
+            {Icons.help(18, 18, theme.colours.disabledTextColour)}
           </HelpButtonContainer>
           <DialogName>{'Update List'}</DialogName>
 
           <CloseButtonContainer>
             <Button
               type="default"
-              spacing="compact"
+              iconSize="14"
               icon="close"
               onClick={() => {
                 props.onClose()
@@ -106,19 +114,19 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             />
           </CloseButtonContainer>
           <Tooltip
-            id={'help-icon' + props.componentId}
+            id={'help-icon' + props.componentKey}
             multiline={true}
             html={true}
             text={`
-                                <h3 style="color:#e0e0e0;padding-top:10px">Options:</h3>
-                                <ul>
-                                <li> Name - the name displayed for the list </li>
-                                <li> Filter - the query to determine the items shown (See help for syntax) </li>
-                                <li> Filterable - shows or hides the filter bar </li>
-                                <li> Show subtasks - will show subtasks when the parent isn't included in the list </li>
-                                <li> Hide icons - select the icons to hide each item </li>
-                                </ul>
-                                `}
+                <h3 style="color:#e0e0e0;padding-top:10px">Options:</h3>
+                <ul>
+                <li> Name - the name displayed for the list </li>
+                <li> Filter - the query to determine the items shown (See help for syntax) </li>
+                <li> Filterable - shows or hides the filter bar </li>
+                <li> Show subtasks - will show subtasks when the parent isn't included in the list </li>
+                <li> Hide icons - select the icons to hide each item </li>
+                </ul>
+                  `}
           />
         </DialogHeader>
 
@@ -128,14 +136,30 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             <EditableText
               innerRef={nameRef}
               key={'ed-name'}
-              input={props.listName}
+              input={params?.listName}
               fontSize={'xsmall'}
               shouldSubmitOnBlur={true}
               onEscape={() => {}}
               singleline={true}
               shouldClearOnSubmit={false}
               onUpdate={(input) => {
-                props.setFilteredItemListName(props.componentId, input)
+                updateComponent({
+                  variables: {
+                    key: props.componentKey,
+                    parameters: {
+                      filter: params.filter,
+                      legacyFilter: params.legacyFilter ? params.legacyFilter : null,
+                      hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
+                      listName: input,
+                      showCompletedToggle: params.showCompletedToggle
+                        ? params.showCompletedToggle
+                        : true,
+                      initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
+                      flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
+                      isFilterable: params.isFilterable ? params.isFilterable : true,
+                    },
+                  },
+                })
                 return true
               }}
             />
@@ -143,46 +167,72 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         </Setting>
         <Setting>
           <SettingLabel>Filter:</SettingLabel>
-          <SettingValue data-for={'filter' + props.componentId} data-tip>
+          <SettingValue data-for={'filter' + props.componentKey} data-tip>
             <EditableText
               innerRef={filterRef}
               key={'ed-name'}
-              input={props.filter}
+              input={params?.legacyFilter || ''}
               fontSize={'xsmall'}
               shouldSubmitOnBlur={true}
               onEscape={() => {}}
+              readOnly={true}
               style={Code}
               plainText={true}
-              validation={(input) => {
-                try {
-                  compileExpression(input, props.filterFunctions)
-                  setErrorMessage('')
-                } catch (e) {
-                  const error = e.message.split('\n')
-                  error.shift()
-                  setErrorMessage(
-                    '   <strong>Error parsing filter:</strong></br>' + error.join('<br>'),
-                  )
-                  return false
-                }
-
-                return true
-              }}
+              validation={() => {}}
               singleline={false}
               shouldClearOnSubmit={false}
-              onUpdate={(input) => {
-                props.setFilteredItemListFilter(props.componentId, input)
-              }}
+              onUpdate={(input) => {}}
             />
           </SettingValue>
         </Setting>
-
+        <Setting>
+          <ItemFilterBox
+            filter={params.filter ? JSON.parse(params.filter).text : ''}
+            onSubmit={(query: string, filter: Expression[]) => {
+              updateComponent({
+                variables: {
+                  key: props.componentKey,
+                  parameters: {
+                    filter: JSON.stringify({ text: query, value: filter }),
+                    legacyFilter: params.legacyFilter ? params.legacyFilter : null,
+                    hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
+                    listName: params.listName ? params.listName : 'New List',
+                    showCompletedToggle: params.showCompletedToggle
+                      ? params.showCompletedToggle
+                      : true,
+                    initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
+                    flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
+                    isFilterable: params.isFilterable ? params.isFilterable : true,
+                  },
+                },
+              })
+            }}
+          />
+        </Setting>
         <Setting>
           <SettingLabel>Filterable:</SettingLabel>
           <SettingValue style={{ paddingTop: '7px' }}>
             <Switch
-              checked={props.isFilterable}
-              onChange={(input) => props.setFilteredItemListFilterable(props.componentId, input)}
+              checked={params.isFilterable}
+              onChange={(input) => {
+                updateComponent({
+                  variables: {
+                    key: props.componentKey,
+                    parameters: {
+                      filter: params.filter,
+                      legacyFilter: params.legacyFilter ? params.legacyFilter : null,
+                      hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
+                      listName: params.listName ? params.listName : '',
+                      showCompletedToggle: params.showCompletedToggle
+                        ? params.showCompletedToggle
+                        : true,
+                      initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
+                      flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
+                      isFilterable: input,
+                    },
+                  },
+                })
+              }}
               onColor={theme.colours.primaryColour}
               checkedIcon={false}
               uncheckedIcon={false}
@@ -192,12 +242,28 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           </SettingValue>
         </Setting>
         <Setting>
-          <SettingLabel>Show subtasks:</SettingLabel>
+          <SettingLabel>Flatten subtasks:</SettingLabel>
           <SettingValue style={{ paddingTop: '7px' }}>
             <Switch
-              checked={props.showSubtasks}
+              checked={params.flattenSubtasks}
               onChange={(input) => {
-                props.setFilteredItemListShowAllTasks(props.componentId, input)
+                updateComponent({
+                  variables: {
+                    key: props.componentKey,
+                    parameters: {
+                      filter: params.filter,
+                      legacyFilter: params.legacyFilter ? params.legacyFilter : null,
+                      hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
+                      listName: params.listName ? params.listName : '',
+                      showCompletedToggle: params.showCompletedToggle
+                        ? params.showCompletedToggle
+                        : true,
+                      initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
+                      flattenSubtasks: input,
+                      isFilterable: params.isFilterable ? params.isFilterable : true,
+                    },
+                  },
+                })
               }}
               onColor={theme.colours.primaryColour}
               checkedIcon={false}
@@ -215,7 +281,25 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 isMulti={true}
                 onChange={(values) => {
                   const hiddenIcons = values.map((v) => v.value)
-                  props.setFilteredItemListHiddenIcons(props.componentId, hiddenIcons)
+                  updateComponent({
+                    variables: {
+                      key: props.componentKey,
+                      parameters: {
+                        filter: params.filter,
+                        legacyFilter: params.legacyFilter ? params.legacyFilter : null,
+                        hiddenIcons: hiddenIcons,
+                        listName: params.listName ? params.listName : '',
+                        showCompletedToggle: params.showCompletedToggle
+                          ? params.showCompletedToggle
+                          : true,
+                        initiallyExpanded: params.initiallyExpanded
+                          ? params.initiallyExpanded
+                          : true,
+                        flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
+                        isFilterable: params.isFilterable ? params.isFilterable : true,
+                      },
+                    },
+                  })
                 }}
                 options={options}
                 styles={selectStyles({
@@ -228,60 +312,9 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             </SelectContainer>
           </SettingValue>
         </Setting>
-        <SaveContainer>
-          <Button
-            width="80px"
-            type="primary"
-            icon="save"
-            text="Save"
-            onClick={() => {
-              if (errorMessage != '') {
-                toast.error(
-                  <div
-                    style={{
-                      padding: '7px 5px',
-                      color: '#FFFFFF',
-                      fontFamily: "'SFMono-Regular',Consolas, monospace",
-                    }}
-                    dangerouslySetInnerHTML={{ __html: errorMessage }}
-                  ></div>,
-                )
-              } else {
-                props.onClose()
-                toast.dark('Component updated')
-              }
-            }}
-          />
-        </SaveContainer>
       </DialogContainer>
     </ThemeProvider>
   )
 }
 
-const mapStateToProps = (state): StateProps => {
-  return {
-    theme: state.ui.theme,
-    labels: state.ui.labels,
-    filterFunctions: getFilterFunctions(state),
-  }
-}
-
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  setFilteredItemListName: (componentId: string, name: string) => {
-    dispatch(setFilteredItemListName(componentId, name))
-  },
-  setFilteredItemListFilter: (componentId: string, filter: string) => {
-    dispatch(setFilteredItemListFilter(componentId, filter))
-  },
-  setFilteredItemListFilterable: (componentId: string, filterable: boolean) => {
-    dispatch(setFilteredItemListFilterable(componentId, filterable))
-  },
-  setFilteredItemListHiddenIcons: (componentId: string, hiddenIcons: IconType[]) => {
-    dispatch(setFilteredItemListHiddenIcons(componentId, hiddenIcons))
-  },
-  setFilteredItemListShowAllTasks: (componentId: string, showAllTasks: boolean) => {
-    dispatch(setFilteredItemListShowAllTasks(componentId, showAllTasks))
-  },
-})
-
-export default connect(mapStateToProps, mapDispatchToProps)(FilteredItemDialog)
+export default FilteredItemDialog

@@ -1,52 +1,78 @@
-import React, { ReactElement } from "react";
-import { ThemeProvider, keyframes, css } from "../StyledComponents";
+import { gql, useMutation, useQuery } from '@apollo/client'
+import { orderBy } from 'lodash'
+import React, { ReactElement } from 'react'
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import { Transition, TransitionGroup } from 'react-transition-group'
+import { v4 as uuidv4 } from 'uuid'
+import { Component } from '../../main/generated/typescript-helpers'
+import { ThemeType } from '../interfaces'
+import { ThemeProvider } from '../StyledComponents'
+import { themes } from '../theme'
+import Button from './Button'
+import FilteredItemList from './FilteredItemList'
+import { Container, DraggableContainer, DraggableList } from './styled/ReorderableComponentList'
+import ViewHeader from './ViewHeader'
 
-import { themes } from "../theme";
-import { connect } from "react-redux";
-import ViewHeader from "./ViewHeader";
-import { MainComponents } from "../interfaces";
-import FilteredItemList from "./FilteredItemList";
-import Button from "./Button";
-import {
-  Container,
-  DraggableList,
-  DraggableContainer,
-} from "./styled/ReorderableComponentList";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { v4 as uuidv4 } from "uuid";
-import { reorderComponent, addComponent } from "../actions";
-import { TransitionGroup, Transition } from "react-transition-group";
-import CSS from "csstype";
+const GET_COMPONENTS_BY_VIEW = gql`
+  query ComponentsByView($viewKey: String!) {
+    componentsByView(viewKey: $viewKey) {
+      key
+      type
+      location
+      parameters
+      sortOrder {
+        sortOrder
+      }
+    }
+    theme @client
+  }
+`
+const ADD_COMPONENT = gql`
+  mutation CreateFilteredItemListComponent($input: CreateFilteredItemListComponentInput!) {
+    createFilteredItemListComponent(input: $input) {
+      key
+    }
+  }
+`
 
-interface OwnProps {
-  id: string;
+const SET_COMPONENT_ORDER = gql`
+  mutation SetComponentOrder($componentKey: String!, $sortOrder: Int!) {
+    setComponentOrder(componentKey: $componentKey, sortOrder: $sortOrder) {
+      componentKey
+    }
+  }
+`
+
+type ReorderableComponentListProps = {
+  id: string
 }
-interface DispatchProps {
-  reorderComponent: (id: string, destinationId: string) => void;
-  addComponent: (viewId: string) => void;
-}
 
-interface StateProps {
-  theme: string;
-  components: MainComponents;
-}
-type ReorderableComponentListProps = StateProps & OwnProps & DispatchProps;
-const ReorderableComponentList = (
-  props: ReorderableComponentListProps
-): ReactElement => {
-  const theme = themes[props.theme];
+const ReorderableComponentList = (props: ReorderableComponentListProps): ReactElement => {
+  const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
+    variables: { viewKey: props.id },
+  })
 
+  const [addComponent] = useMutation(ADD_COMPONENT)
+  const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER)
+  if (loading) return null
+  if (error) return null
+
+  const sortedComponents: Component[] = orderBy(
+    data.componentsByView,
+    ['sortOrder.sortOrder'],
+    ['asc'],
+  )
+  const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
       <Container>
         <DragDropContext
           onDragEnd={(e) => {
-            props.reorderComponent(
-              e.draggableId,
-              props.components.order[e.destination.index]
-            );
+            setComponentOrder({
+              variables: { componentKey: e.draggableId, sortOrder: e.destination.index },
+            })
           }}
-          style={{ width: "100%" }}
+          style={{ width: '100%' }}
         >
           <Droppable droppableId={uuidv4()} type="COMPONENT">
             {(provided, snapshot) => (
@@ -56,14 +82,13 @@ const ReorderableComponentList = (
                 isDraggingOver={snapshot.isDraggingOver}
               >
                 <TransitionGroup component={null}>
-                  {Object.values(props.components.order).map((c, index) => {
-                    const comp = props.components.components[c];
-                    if (comp.location == "main" && comp.viewId == props.id) {
-                      switch (comp.component.name) {
-                        case "FilteredItemList":
+                  {sortedComponents.map((comp, index) => {
+                    if (comp.location == 'main') {
+                      switch (comp.type) {
+                        case 'FilteredItemList':
                           return (
                             <Transition
-                              key={c}
+                              key={comp.key}
                               timeout={{
                                 appear: 100,
                                 enter: 100,
@@ -73,8 +98,8 @@ const ReorderableComponentList = (
                               {(state) => {
                                 return (
                                   <Draggable
-                                    key={c}
-                                    draggableId={c}
+                                    key={comp.key}
+                                    draggableId={comp.key}
                                     index={index}
                                     isDragDisabled={true}
                                   >
@@ -83,29 +108,27 @@ const ReorderableComponentList = (
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
-                                        key={"container-" + c}
+                                        key={'container-' + comp.key}
                                         isDragging={snapshot.isDragging}
-                                        draggableStyle={
-                                          provided.draggableProps.style
-                                        }
+                                        draggableStyle={provided.draggableProps.style}
                                         state={state}
                                       >
                                         <FilteredItemList
-                                          id={c}
-                                          key={c}
-                                          {...comp.component.props}
+                                          componentKey={comp.key}
+                                          key={comp.key}
+                                          {...JSON.parse(comp.parameters)}
                                         />
                                       </DraggableContainer>
                                     )}
                                   </Draggable>
-                                );
+                                )
                               }}
                             </Transition>
-                          );
-                        case "ViewHeader":
+                          )
+                        case 'ViewHeader':
                           return (
                             <Transition
-                              key={c}
+                              key={comp.key}
                               timeout={{
                                 appear: 100,
                                 enter: 100,
@@ -114,35 +137,29 @@ const ReorderableComponentList = (
                             >
                               {(state) => {
                                 return (
-                                  <Draggable
-                                    key={c}
-                                    draggableId={c}
-                                    index={index}
-                                  >
+                                  <Draggable key={comp.key} draggableId={comp.key} index={index}>
                                     {(provided, snapshot) => (
                                       <DraggableContainer
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
                                         {...provided.dragHandleProps}
-                                        key={"container-" + c}
+                                        key={'container-' + comp.key}
                                         isDragging={snapshot.isDragging}
-                                        draggableStyle={
-                                          provided.draggableProps.style
-                                        }
+                                        draggableStyle={provided.draggableProps.style}
                                         state={state}
                                       >
                                         <ViewHeader
-                                          key={c}
-                                          id={c}
-                                          {...comp.component.props}
+                                          key={comp.key}
+                                          id={comp.key}
+                                          {...JSON.parse(comp.parameters)}
                                         />
                                       </DraggableContainer>
                                     )}
                                   </Draggable>
-                                );
+                                )
                               }}
                             </Transition>
-                          );
+                          )
                       }
                     }
                   })}
@@ -153,53 +170,49 @@ const ReorderableComponentList = (
         </DragDropContext>
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            paddingBottom: "10px",
+            display: 'flex',
+            justifyContent: 'center',
+            paddingBottom: '10px',
           }}
         >
           <Button
-            type={"default"}
+            type={'default'}
             iconSize="14px"
             width="90px"
-            icon={"add"}
-            text={"Add list"}
+            icon={'add'}
+            text={'Add list'}
             onClick={() => {
-              props.addComponent(props.id);
+              console.log('adding component')
+              addComponent({
+                variables: {
+                  input: {
+                    key: uuidv4(),
+                    viewKey: props.id,
+                    type: 'FilteredItemList',
+                    location: 'main',
+                    parameters: {
+                      filter: JSON.stringify({
+                        text: 'createdAt is today ',
+                        value: [{ category: 'createdAt', operator: 'is', value: 'today' }],
+                      }),
+                      hiddenIcons: [],
+                      isFilterable: true,
+                      listName: 'Created today',
+                      flattenSubtasks: true,
+                      showCompletedToggle: true,
+                      initiallyExpanded: true,
+                    },
+                  },
+                },
+              })
+              console.log('fetching')
+              refetch()
             }}
           />
         </div>
       </Container>
     </ThemeProvider>
-  );
-};
+  )
+}
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-  components: state.ui.components,
-});
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  reorderComponent: (id: string, destinationId: string) => {
-    dispatch(reorderComponent(id, destinationId));
-  },
-  addComponent: (viewId: string) => {
-    const id = uuidv4();
-    dispatch(
-      addComponent(id, viewId, "main", {
-        name: "FilteredItemList",
-        props: {
-          id: id,
-          listName: "New list",
-          isFilterable: true,
-          filter: "not (completed or deleted)",
-          hideIcons: [],
-        },
-      })
-    );
-  },
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(ReorderableComponentList);
+export default ReorderableComponentList

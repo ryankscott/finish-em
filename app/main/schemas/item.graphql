@@ -1,4 +1,3 @@
-scalar Date
 scalar DateTime
 
 type Item {
@@ -9,8 +8,8 @@ type Item {
   completed: Boolean
   parent: Item
   project: Project
-  dueAt: Date
-  scheduledAt: Date
+  dueAt: DateTime
+  scheduledAt: DateTime
   lastUpdatedAt: DateTime
   completedAt: DateTime
   createdAt: DateTime
@@ -18,6 +17,9 @@ type Item {
   repeat: String
   label: Label
   area: Area
+  children: [Item]
+  sortOrder: ItemOrder!
+  reminders: [Reminder]
 }
 
 input CreateItemInput {
@@ -27,8 +29,8 @@ input CreateItemInput {
   description: String
   parentKey: String
   projectKey: String
-  dueAt: Date
-  scheduledAt: Date
+  dueAt: DateTime
+  scheduledAt: DateTime
   repeat: String
   labelKey: String
 }
@@ -41,8 +43,8 @@ input MigrateItemInput {
   completed: Boolean
   parentKey: String
   projectKey: String
-  dueAt: Date
-  scheduledAt: Date
+  dueAt: DateTime
+  scheduledAt: DateTime
   lastUpdatedAt: DateTime
   completedAt: DateTime
   createdAt: DateTime
@@ -60,10 +62,13 @@ input SetTypeOfItemInput {
 input DeleteItemInput {
   key: String!
 }
+input RestoreItemInput {
+  key: String!
+}
 
 input RenameItemInput {
   key: String!
-  name: String!
+  text: String!
 }
 
 input CompleteItemInput {
@@ -74,9 +79,9 @@ input UnCompleteItemInput {
   key: String!
 }
 
-input SetRepeatItemInput {
+input SetRepeatOfItemInput {
   key: String!
-  repeat: String!
+  repeat: String
 }
 
 input CloneItemInput {
@@ -85,22 +90,27 @@ input CloneItemInput {
 
 input SetProjectOfItemInput {
   key: String!
-  projectKey: String!
+  projectKey: String
 }
 
-input SetScheduledDateOfItemInput {
+input SetAreaOfItemInput {
   key: String!
-  scheduledDate: Date!
+  areaKey: String
 }
 
-input SetDueDateOfItemInput {
+input SetScheduledAtOfItemInput {
   key: String!
-  dueDate: Date!
+  scheduledAt: DateTime
+}
+
+input SetDueAtOfItemInput {
+  key: String!
+  dueAt: DateTime
 }
 
 input SetParentOfItemInput {
   key: String!
-  parentKey: String!
+  parentKey: String
 }
 
 input PermanentDeleteInput {
@@ -109,28 +119,34 @@ input PermanentDeleteInput {
 
 input SetLabelOfInput {
   key: String!
-  labelKey: String!
+  labelKey: String
 }
 
 type Query {
-  items: [Project]
-  item(key: String!): Project
+  items: [Item]
+  item(key: String!): Item
+  itemsByProject(projectKey: String!): [Item]
+  itemsByArea(areaKey: String!): [Item]
+  itemsByFilter(filter: String!): [Item]
+  itemsByParent(parentKey: String!): [Item]
 }
 
 type Mutation {
   createItem(input: CreateItemInput!): Item
   migrateItem(input: MigrateItemInput!): Item
   deleteItem(input: DeleteItemInput!): Item
+  restoreItem(input: RestoreItemInput!): Item
   renameItem(input: RenameItemInput!): Item
   setTypeOfItem(input: SetTypeOfItemInput!): Item
   completeItem(input: CompleteItemInput!): Item
   unCompleteItem(input: UnCompleteItemInput!): Item
-  setRepeatOfItem(input: SetRepeatItemInput!): Item
+  setRepeatOfItem(input: SetRepeatOfItemInput!): Item
   cloneItem(input: CloneItemInput!): Item
-  setProjectOfItem(input: SetProjectOfItemInput): Item
-  setScheduledDateOfItem(input: SetScheduledDateOfItemInput): Item
-  setDueDateOfItem(input: SetDueDateOfItemInput): Item
-  setParentOfItem(input: SetParentOfItemInput): Item
-  permanentDeleteItem(input: PermanentDeleteInput): Item
-  setLabelOfItem(input: SetLabelOfInput): Item
+  setProjectOfItem(input: SetProjectOfItemInput!): Item
+  setAreaOfItem(input: SetAreaOfItemInput!): Item
+  setScheduledAtOfItem(input: SetScheduledAtOfItemInput!): Item
+  setDueAtOfItem(input: SetDueAtOfItemInput!): Item
+  setParentOfItem(input: SetParentOfItemInput!): Item
+  permanentDeleteItem(input: PermanentDeleteInput!): Item
+  setLabelOfItem(input: SetLabelOfInput!): Item
 }
