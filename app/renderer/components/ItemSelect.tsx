@@ -32,7 +32,6 @@ const generateItemOptions = (currentItem: Item, items: Item[]): GroupType<Option
   if (!filteredValues.length) return
   // Group them by project
   const groupedItems = groupBy(filteredValues, 'project.name')
-  console.log(groupedItems)
   // Show the items from the project the item is in first
   // Update the label to be the project name, and the items to be the right format
   const allGroups = Object.keys(groupedItems).map((i) => {
@@ -105,7 +104,6 @@ export default function ItemSelect(props: ItemSelectProps): ReactElement {
     console.log(error)
     return null
   }
-  console.log(data)
   const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>

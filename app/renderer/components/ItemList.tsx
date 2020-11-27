@@ -56,6 +56,7 @@ type ItemListProps = {
   componentKey: string
   inputItems: {
     key: string
+    text: string
     parent: { key: string; name: string }
     children: { key: string }[]
     sortOrder: { sortOrder: number }

@@ -7,7 +7,7 @@ export const NoItemText = styled.p`
   color: ${(props) => props.theme.colours.disabledTextColour};
   font-family: ${(props) => props.theme.font.sansSerif};
   font-size: ${(props) => props.theme.fontSizes.small};
-  padding: 11px 0px;
+  padding: 10px 0px;
   padding-left: 10px;
 `
 
@@ -26,7 +26,7 @@ export const DraggableList = styled.div<DraggableListProps>`
   justify-content: center;
   border-radius: 5px;
   width: 100%;
-  padding: ${(props) => (props.isDraggingOver ? '40px 5px' : '5px')};
+  padding: ${(props) => (props.isDraggingOver ? '20px 5px' : '5px')};
 `
 
 const fadeInAnimation = keyframes`${fadeInLeft}`

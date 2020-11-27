@@ -51,7 +51,7 @@ VALUES ('${input.key}', '${input.viewKey}', '${input.location}', '${
 `
 }
 
-export const createComponent = (
+export const createComponent = async (
   input: {
     key: string
     viewKey: string
@@ -61,13 +61,16 @@ export const createComponent = (
   },
   ctx,
 ) => {
-  return ctx.db.run(createCreateComponentQuery(input)).then((result) => {
-    if (result.changes) {
-      createComponentOrder({ componentKey: input.key }, ctx)
+  const result = await ctx.db.run(createCreateComponentQuery(input))
+  console.log(result)
+  if (result) {
+    const order = await createComponentOrder({ componentKey: input.key }, ctx)
+    console.log(order)
+    if (order) {
       return getComponent({ key: input.key }, ctx)
     }
-    return new Error('Unable to create component')
-  })
+  }
+  return new Error('Unable to create component')
 }
 
 export const createMigrateComponentQuery = (input: {

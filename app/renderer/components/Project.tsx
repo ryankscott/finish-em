@@ -199,13 +199,13 @@ const Project = (props: ProjectProps): ReactElement => {
           }}
           innerRef={description}
           input={project.description}
-          height="150px"
+          height="100px"
           shouldClearOnSubmit={false}
         />
         <AddProjectContainer>
           <ItemCreator
             type="item"
-            projectId={project.key}
+            projectKey={project.key}
             buttonText="Add to project"
             width="100%"
             initiallyExpanded={false}

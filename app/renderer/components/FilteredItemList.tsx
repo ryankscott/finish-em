@@ -2,7 +2,7 @@ import React, { ReactElement, useState, useEffect } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import ItemList from './ItemList'
 import { themes } from '../theme'
-import { ItemIcons, ItemType } from '../interfaces'
+import { ItemIcons } from '../interfaces'
 import {
   Container,
   HeaderBar,
@@ -55,6 +55,7 @@ const GET_DATA = gql`
   query itemsByFilter($filter: String!) {
     items: itemsByFilter(filter: $filter) {
       key
+      text
       completed
       deleted
       parent {
@@ -94,15 +95,15 @@ const DELETE_ITEM = gql`
 
 export type FilteredItemListProps = {
   componentKey: string
-  isFilterable: boolean
-  hiddenIcons: ItemIcons[]
-  listName: string
+  isFilterable?: boolean
+  hiddenIcons?: ItemIcons[]
+  listName?: string
   filter: string
-  legacyFilter: string
-  flattenSubtasks: boolean
-  showCompletedToggle: boolean
-  initiallyExpanded: boolean
-  readOnly: boolean
+  legacyFilter?: string
+  flattenSubtasks?: boolean
+  showCompletedToggle?: boolean
+  initiallyExpanded?: boolean
+  readOnly?: boolean
 }
 
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
@@ -118,10 +119,12 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
       cache.evict({ key: deleteComponent })
     },
   })
+  // TODO: I shouldn't really use polling here, but can't work out how else to refetch the data
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
     },
+    pollInterval: 5000000,
   })
 
   // TODO: Work out how to do this with apollo

@@ -32,7 +32,7 @@ const generateProjectOptions = (project: Project, projects: Project[]): GroupTyp
   // Only if it has a project
   if (project != null) {
     allGroups.sort((a, b) =>
-      a.label == project.area.name ? -1 : b.label == project.area.name ? 1 : 0,
+      a.label == project.area?.name ? -1 : b.label == project.area?.name ? 1 : 0,
     )
   }
 

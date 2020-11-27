@@ -195,6 +195,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     />
                     {f.name == 'calendarIntegration' && (
                       <Select
+                        key={f.key + '-select'}
                         autoFocus={true}
                         value={data.activeCalendar}
                         isSearchable

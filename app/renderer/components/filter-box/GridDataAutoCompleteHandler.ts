@@ -64,7 +64,6 @@ export default class GridDataAutoCompleteHandler extends BaseAutoCompleteHandler
           .uniq()
           .value()
       }
-      console.log(this.cache[parsedCategory])
       return this.cache[parsedCategory]
     }
 

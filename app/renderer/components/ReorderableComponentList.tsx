@@ -182,7 +182,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
             icon={'add'}
             text={'Add list'}
             onClick={() => {
-              console.log('adding component')
               addComponent({
                 variables: {
                   input: {
@@ -197,7 +196,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                       }),
                       hiddenIcons: [],
                       isFilterable: true,
-                      listName: 'Created today',
+                      listName: 'New list',
                       flattenSubtasks: true,
                       showCompletedToggle: true,
                       initiallyExpanded: true,
@@ -205,7 +204,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                   },
                 },
               })
-              console.log('fetching')
               refetch()
             }}
           />

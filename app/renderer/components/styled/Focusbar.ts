@@ -5,7 +5,7 @@ export const Container = styled.div`
   flex-direction: column;
   box-sizing: border-box;
   width: 100%;
-  padding: 10px;
+  padding: 10px 5px;
   height: 100vh;
   z-index: 0;
 `
@@ -15,6 +15,7 @@ export const SubtaskContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   margin: 15px 0px;
+  padding: 5px;
   margin-top: 30px;
 `
 export const AttributeContainer = styled.div`
@@ -44,7 +45,7 @@ export const AttributeValue = styled.div`
 export const TitleContainer = styled.div`
   display: flex;
   flex-direction: row;
-  margin: 10px 0px;
+  margin: 0px 5px;
   margin-bottom: 20px;
   align-items: center;
   width: 100%;
@@ -58,7 +59,8 @@ export const HeaderContainer = styled.div<HeaderContainerProps>`
   grid-template-columns: repeat(5, 1fr);
   flex-direction: row;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
+  padding: 2px;
 `
 
 export const Project = styled.div`

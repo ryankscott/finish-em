@@ -24,13 +24,13 @@ export const HeaderContainer = styled.div`
 `
 
 export const BodyContainer = styled.div`
-    grid-area: body;
-    display: flex;
-    flex-direction row;
-    width: 100%;
-    overflow-y: scroll;
-    min-width: 500px;
-    transition: all 0.2s ease-in-out;
+  grid-area: body;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  overflow-y: scroll;
+  min-width: 500px;
+  transition: all 0.2s ease-in-out;
 `
 
 interface SidebarContainerProps {
@@ -71,7 +71,7 @@ interface FocusContainerProps {
 export const FocusContainer = styled.div<FocusContainerProps>`
   display: flex;
   flex-direction: column;
-  padding: ${(props) => (props.visible ? '5px 10px' : '0px')};
+  padding: ${(props) => (props.visible ? '5px' : '0px')};
   min-width: ${(props) => (props.visible ? '350px' : '0px')};
   width: ${(props) => (props.visible ? '350px' : '0px')};
   transition: all 0.2s ease-in-out;
@@ -81,6 +81,7 @@ export const FocusContainer = styled.div<FocusContainerProps>`
   border-color: ${(props) => props.theme.colours.borderColour};
   overflow-y: scroll;
   overflow-x: hidden;
+  box-shadow: 0px 1px 4px ${(props) => props.theme.colours.borderColour};
 `
 
 export const StyledToastContainer = styled(ToastContainer).attrs((props) => ({

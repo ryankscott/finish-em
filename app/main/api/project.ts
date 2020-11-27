@@ -1,5 +1,6 @@
 import Project from '../classes/project'
 import { createProjectOrder } from './projectOrder'
+import { createView, deleteView } from './view'
 
 export const createGetProjectsQuery = (input: { deleted: boolean }) => {
   const deletedText = input.deleted != undefined ? `AND deleted = ${input.deleted}` : ''
@@ -172,6 +173,7 @@ export const createProject = (
   return ctx.db.run(createCreateProjectQuery(input)).then((result) => {
     if (result.changes) {
       createProjectOrder({ projectKey: input.key }, ctx)
+      createView({ key: input.key, name: input.name, icon: '', type: 'project' }, ctx)
       return getProject({ key: input.key }, ctx)
     }
     return new Error('Unable to create project')
@@ -183,9 +185,11 @@ export const createDeleteProjectQuery = (input: { key: string }) => {
 }
 export const deleteProject = (input: { key: string; name: string }, ctx) => {
   return ctx.db.run(createDeleteProjectQuery(input)).then((result) => {
-    return result.changes
-      ? getProject({ key: input.key }, ctx)
-      : new Error('Unable to delete project')
+    if (result.changes) {
+      deleteView({ key: input.key }, ctx)
+      return getProject({ key: input.key }, ctx)
+    }
+    return new Error('Unable to delete project')
   })
 }
 

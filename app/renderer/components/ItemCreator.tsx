@@ -39,6 +39,11 @@ const CREATE_ITEM = gql`
       input: { key: $key, type: $type, text: $text, parentKey: $parentKey, projectKey: $projectKey }
     ) {
       key
+      type
+      text
+      project {
+        key
+      }
     }
   }
 `
@@ -61,7 +66,27 @@ type ItemCreatorProps = {
 }
 
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
-  const [createItem] = useMutation(CREATE_ITEM)
+  // TODO: #287 Cache invalidation doesn't seem to be working here
+  const [createItem] = useMutation(CREATE_ITEM, {
+    update(cache, { data: { createItem } }) {
+      cache.modify({
+        fields: {
+          items(existingItems = []) {
+            const newItemRef = cache.writeFragment({
+              data: createItem,
+              fragment: gql`
+                fragment NewItem on Item {
+                  key
+                  type
+                }
+              `,
+            })
+            return [...existingItems, newItemRef]
+          },
+        },
+      })
+    },
+  })
   const { loading, error, data } = useQuery(GET_THEME)
   if (loading) return null
   if (error) {
@@ -137,6 +162,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               setTimeout(() => setAnimate(false), 1000)
             }}
             backgroundColour={props.backgroundColour}
+            alwaysShowBorder={true}
             innerRef={textRef}
             padding={'5px 30px 5px 5px'}
             placeholder="Add a new task..."

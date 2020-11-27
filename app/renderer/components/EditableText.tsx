@@ -32,6 +32,7 @@ export type EditableTextProps = {
   placeholder?: string
   singleline?: boolean
   plainText?: boolean
+  alwaysShowBorder?: boolean
   keywords?: {
     matcher: string | RegExp
     validation: (input: string) => boolean
@@ -263,6 +264,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
           tabIndex={-1}
           onKeyPress={handleKeyPress}
           onKeyUp={handleKeyUp}
+          alwaysShowBorder={props.alwaysShowBorder}
           dangerouslySetInnerHTML={
             props.plainText
               ? {

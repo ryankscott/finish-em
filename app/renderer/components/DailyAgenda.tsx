@@ -203,7 +203,6 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
 
 const mapStateToProps = (state): StateProps => ({
   dailyGoal: state.dailyGoal,
-  theme: state.ui.theme,
 })
 const mapDispatchToProps = (dispatch): DispatchProps => ({
   setDailyGoal: (day, text) => {

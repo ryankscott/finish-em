@@ -31,7 +31,6 @@ export const GlobalStyle = createGlobalStyle`
     font-size: ${(props) => props.theme.fontSizes.xlarge};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     color: ${(props) => props.theme.colours.primaryColour};
-    padding-top: 20px;
   }
   h2 {
     font-size: ${(props) => props.theme.fontSizes.large};

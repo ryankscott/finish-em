@@ -71,6 +71,7 @@ const SET_ITEM_ORDER = gql`
 type ReorderableItemListProps = {
   componentKey: string
   inputItems: {
+    text: string
     key: string
     parent: { key: string; name: string }
     children: { key: string }[]
@@ -259,13 +260,17 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   // })
 
   const sortedItems: ItemType[] = orderBy(props.inputItems, ['sortOrder.sortOrder'], ['asc'])
-
   return (
     <ThemeProvider theme={theme}>
       <Container>
         <DragDropContext
           onDragEnd={(e) => {
-            setItemOrder({ variables: { itemKey: e.draggableId, sortOrder: e.destination.index } })
+            setItemOrder({
+              variables: {
+                itemKey: e.draggableId,
+                sortOrder: sortedItems[e.destination.index].sortOrder.sortOrder,
+              },
+            })
           }}
         >
           <Droppable droppableId={uuidv4()} type="ITEM">

@@ -123,7 +123,6 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
 
   const queryString = `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item
   ${filterString}`
-  console.log(queryString)
 
   return ctx.db
     .all(queryString)
@@ -565,7 +564,6 @@ export const setDueAtOfItem = (input: { key: string; dueAt: Date }, ctx) => {
 
 export const createSetParentOfItemQuery = (input: { key: string; parentKey: string }) => {
   const inputText = input.parentKey ? `'${input.parentKey}'` : null
-  console.log(inputText)
   return `
       UPDATE item SET parentKey = ${inputText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `

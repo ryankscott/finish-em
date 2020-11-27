@@ -3,6 +3,7 @@ import { orderBy } from 'lodash'
 import React, { ReactElement } from 'react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { NavLink, NavLinkProps, useHistory } from 'react-router-dom'
+import faker from 'faker'
 import { v4 as uuidv4 } from 'uuid'
 import { Area, View } from '../../main/generated/typescript-helpers'
 import { Icons } from '../assets/icons'
@@ -324,19 +325,19 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                   icon="add"
                                   iconColour={'white'}
                                   onClick={() => {
-                                    const projectId = uuidv4()
+                                    const projectKey = uuidv4()
                                     createProject({
                                       variables: {
-                                        key: projectId,
-                                        name: 'New Project',
-                                        description: '',
+                                        key: projectKey,
+                                        name: faker.commerce.productName(),
+                                        description: faker.commerce.productDescription(),
                                         startAt: null,
                                         endAt: null,
                                         areaKey: a.key,
                                       },
                                     })
                                     refetch()
-                                    // history.push('/projects/' + projectId)
+                                    history.push('/projects/' + projectKey)
                                   }}
                                 />
                               )}
@@ -408,8 +409,10 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 iconSize="12px"
                 icon="add"
                 onClick={() => {
-                  const areaId = uuidv4()
-                  createArea({ variables: { key: areaId, name: 'New Area', description: '' } })
+                  const areaKey = uuidv4()
+                  createArea({
+                    variables: { key: areaKey, name: faker.commerce.department(), description: '' },
+                  })
                   refetch()
                 }}
               />
