@@ -225,7 +225,7 @@ export const Wrapper = styled.div`
   }
 
   .react-datepicker__navigation--previous:hover {
-    border-right-color: ${(props) => darken(0.1, props.theme.colours.borderColour)};
+    border-right-color: ${(props) => darken(0.05, props.theme.colours.borderColour)};
   }
 
   .react-datepicker__navigation--previous--disabled,
@@ -244,7 +244,7 @@ export const Wrapper = styled.div`
   }
 
   .react-datepicker__navigation--next:hover {
-    border-left-color: ${(props) => darken(0.1, props.theme.colours.borderColour)};
+    border-left-color: ${(props) => darken(0.05, props.theme.colours.borderColour)};
   }
 
   .react-datepicker__navigation--next--disabled,
@@ -267,7 +267,7 @@ export const Wrapper = styled.div`
   }
 
   .react-datepicker__navigation--years-previous:hover {
-    border-top-color: ${(props) => darken(0.1, props.theme.colours.borderColour)};
+    border-top-color: ${(props) => darken(0.05, props.theme.colours.borderColour)};
   }
 
   .react-datepicker__navigation--years-upcoming {
@@ -276,7 +276,7 @@ export const Wrapper = styled.div`
   }
 
   .react-datepicker__navigation--years-upcoming:hover {
-    border-bottom-color: ${(props) => darken(0.1, props.theme.colours.borderColour)};
+    border-bottom-color: ${(props) => darken(0.05, props.theme.colours.borderColour)};
   }
 
   .react-datepicker__month-container {
@@ -516,7 +516,7 @@ export const Wrapper = styled.div`
   .react-datepicker__quarter--selected:hover,
   .react-datepicker__quarter--in-selecting-range:hover,
   .react-datepicker__quarter--in-range:hover {
-    background-color: ${(props) => darken(0.1, props.theme.colours.primaryColour)};
+    background-color: ${(props) => darken(0.05, props.theme.colours.primaryColour)};
     color: ${(props) => props.theme.colours.altTextColour};
   }
 
@@ -613,7 +613,7 @@ export const Wrapper = styled.div`
   .react-datepicker__year-text--selected:hover,
   .react-datepicker__year-text--in-selecting-range:hover,
   .react-datepicker__year-text--in-range:hover {
-    background-color: ${(props) => darken(0.1, props.theme.colours.primaryColour)}
+    background-color: ${(props) => darken(0.05, props.theme.colours.primaryColour)}
   }
 
   .react-datepicker__day--keyboard-selected,
@@ -629,7 +629,7 @@ export const Wrapper = styled.div`
   .react-datepicker__month-text--keyboard-selected:hover,
   .react-datepicker__quarter-text--keyboard-selected:hover,
   .react-datepicker__year-text--keyboard-selected:hover {
-    background-color: ${(props) => darken(0.1, props.theme.colours.primaryColour)}
+    background-color: ${(props) => darken(0.05, props.theme.colours.primaryColour)}
   }
 
   .react-datepicker__day--in-selecting-range,

@@ -8,7 +8,7 @@ export const Container = styled.div`
   padding: 2px;
   overflow-x: hidden;
   margin: 2px 10px;
-  width: 1000px;
+  overflow: scroll;
 `
 export interface ItemCreatorContainer {
   visible: boolean
@@ -17,10 +17,11 @@ export interface ItemCreatorContainer {
   animate: boolean
 }
 const headShakeAnimation = keyframes`${headShake}`
-const animation = (props) =>
+const animation = (props) => {
   css`
     ${headShakeAnimation} 1s
   `
+}
 export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
   animation: ${(props) => (props.animate ? animation : 'none')};
   position: relative;

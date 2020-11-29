@@ -61,7 +61,6 @@ code {
     border-color: ${(props) => props.theme.colours.borderColour};
     border-radius: 5px;
     padding: 2px 5px;
-    margin: 2px 5px;
 }
 ul {
     margin: 2px;
@@ -665,13 +664,13 @@ export const themes: { [key: string]: ThemeType } = {
         backgroundColour: '#404040',
         colour: '#EEEEEE',
         borderColour: 'transparent',
-        hoverBackgroundColour: darken(0.1, '#404040'),
+        hoverBackgroundColour: darken(0.05, '#404040'),
       },
       invert: {
         backgroundColour: '#404040',
         colour: '#EEEEEE',
         borderColour: 'transparent',
-        hoverBackgroundColour: darken(0.1, '#404040'),
+        hoverBackgroundColour: darken(0.05, '#404040'),
       },
 
       primary: {
@@ -728,7 +727,7 @@ export const themes: { [key: string]: ThemeType } = {
       altIconColour: '#CCCCCC',
       disabledButtonBackgroundColour: lighten(0.1, '#404040'),
       disabledButtonColour: lighten(0.4, '#404040'),
-      headerBackgroundColour: darken(0.1, '#404040'),
+      headerBackgroundColour: darken(0.05, '#404040'),
       headerTextColour: '#F5f5f5',
     },
   },
@@ -742,7 +741,7 @@ interface SelectStylesProps {
   maxHeight?: string
   width?: string
   showDropdownIndicator?: boolean
-  backgroundColour?: CSS.Color
+  backgroundColour?: CSS.Property.BackgroundColor
 }
 export const selectStyles = (props: SelectStylesProps): StylesConfig => {
   return {
@@ -778,7 +777,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     }),
     valueContainer: (styles) => ({
       ...styles,
-      padding: '0px 5px',
+      padding: '2px 5px',
       color: props.backgroundColour
         ? readableColor(
             props.backgroundColour,
@@ -810,7 +809,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
         backgroundColor: data
           ? data.color
           : isFocused
-          ? darken(0.1, props.theme.colours.backgroundColour)
+          ? darken(0.05, props.theme.colours.backgroundColour)
           : props.theme.colours.backgroundColour,
         padding: '5px 10px',
         margin: '0px',
@@ -819,13 +818,13 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
         zIndex: 999,
         fontWeight: isFocused ? props.theme.fontWeights.bold : props.theme.fontWeights.regular,
         '&:active': {
-          backgroundColor: darken(0.1, props.theme.colours.backgroundColour),
+          backgroundColor: darken(0.05, props.theme.colours.backgroundColour),
         },
         '&:hover': {
-          backgroundColor: darken(0.1, props.theme.colours.backgroundColour),
+          backgroundColor: darken(0.05, props.theme.colours.backgroundColour),
         },
         '&:focus': {
-          backgroundColor: darken(0.1, props.theme.colours.backgroundColour),
+          backgroundColor: darken(0.05, props.theme.colours.backgroundColour),
         },
       }
     },
@@ -876,34 +875,34 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
       boxShadow: 'none !important',
       borderColor: `${
         props.backgroundColour
-          ? darken(0.1, props.backgroundColour)
+          ? darken(0.05, props.backgroundColour)
           : props.theme.colours.borderColour
       } !important`,
       borderRadius: '5px',
       '&:hover': {
         backgroundColor: props.backgroundColour
-          ? darken(0.1, props.backgroundColour)
-          : darken(0.1, props.theme.colours.backgroundColour),
+          ? darken(0.05, props.backgroundColour)
+          : darken(0.05, props.theme.colours.backgroundColour),
 
         borderColor: props.backgroundColour
-          ? darken(0.1, props.backgroundColour)
+          ? darken(0.05, props.backgroundColour)
           : lighten(0.1, props.theme.colours.borderColour),
       },
       '&:active': {
         backgroundColor: props.backgroundColour
-          ? darken(0.1, props.backgroundColour)
-          : darken(0.1, props.theme.colours.backgroundColour),
+          ? darken(0.05, props.backgroundColour)
+          : darken(0.05, props.theme.colours.backgroundColour),
         borderColor: props.backgroundColour
-          ? darken(0.1, props.backgroundColour)
+          ? darken(0.05, props.backgroundColour)
           : lighten(0.1, props.theme.colours.borderColour),
         boxShadow: 'none !important',
       },
       '&:focus': {
         backgroundColor: props.backgroundColour
-          ? darken(0.1, props.backgroundColour)
-          : darken(0.1, props.theme.colours.backgroundColour),
+          ? darken(0.05, props.backgroundColour)
+          : darken(0.05, props.theme.colours.backgroundColour),
         borderColor: props.backgroundColour
-          ? darken(0.1, props.backgroundColour)
+          ? darken(0.05, props.backgroundColour)
           : lighten(0.1, props.theme.colours.borderColour),
         boxShadow: 'none !important',
       },
@@ -917,21 +916,21 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     }),
     multiValue: (styles) => ({
       ...styles,
-      margin: '0px 2px',
+      margin: '2px',
     }),
     multiValueLabel: (styles) => ({
       ...styles,
       border: 'none',
-      backgroundColor: darken(0.1, props.theme.colours.focusBackgroundColour),
+      backgroundColor: darken(0.05, props.theme.colours.focusBackgroundColour),
     }),
     multiValueRemove: (styles) => ({
       ...styles,
       color: props.theme.colours.textColour,
-      backgroundColor: darken(0.1, props.theme.colours.focusBackgroundColour),
+      backgroundColor: darken(0.05, props.theme.colours.focusBackgroundColour),
       border: 'none',
       '&:hover': {
         color: props.theme.colours.textColour,
-        backgroundColor: darken(0.15, props.theme.colours.focusBackgroundColour),
+        backgroundColor: darken(0.05, props.theme.colours.focusBackgroundColour),
         cursor: 'pointer',
       },
       '> svg': {

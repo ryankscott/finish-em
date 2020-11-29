@@ -62,10 +62,8 @@ export const createComponent = async (
   ctx,
 ) => {
   const result = await ctx.db.run(createCreateComponentQuery(input))
-  console.log(result)
   if (result) {
     const order = await createComponentOrder({ componentKey: input.key }, ctx)
-    console.log(order)
     if (order) {
       return getComponent({ key: input.key }, ctx)
     }

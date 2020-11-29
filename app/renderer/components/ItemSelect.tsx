@@ -122,7 +122,7 @@ export default function ItemSelect(props: ItemSelectProps): ReactElement {
           }
           defaultButtonIcon={'subtask'}
           defaultButtonText={'Add Parent'}
-          selectPlaceholder={'Search parent'}
+          selectPlaceholder={'Parent: '}
           options={generateItemOptions(props.item, data.items)}
           deleted={props.deleted}
           completed={props.completed}

@@ -86,7 +86,7 @@ export default function ProjectSelect(props: ProjectSelectProps): ReactElement {
           buttonText={props.project?.name}
           defaultButtonIcon={'project'}
           defaultButtonText={'Add Project'}
-          selectPlaceholder={'Search for project'}
+          selectPlaceholder={'Project:'}
           options={generateProjectOptions(props.project, data.projects)}
           deleted={props.deleted}
           completed={props.completed}

@@ -57,7 +57,7 @@ export default function LabelSelect(props: LabelSelectProps): ReactElement {
           buttonIconColour={props.label?.colour}
           defaultButtonIcon={'label'}
           defaultButtonText={'Add Label'}
-          selectPlaceholder={'Search for label'}
+          selectPlaceholder={'Label: '}
           options={generateLabelOptions(data.labels)}
           deleted={props.deleted}
           completed={props.completed}

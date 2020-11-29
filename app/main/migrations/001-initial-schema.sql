@@ -56,7 +56,7 @@ CREATE TABLE event (
 
 CREATE TABLE area (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,
+  name TEXT UNIQUE,
   deleted BOOLEAN,
   description TEXT,
   lastUpdatedAt TEXT,
@@ -76,7 +76,7 @@ CREATE TABLE areaOrder (
 
 CREATE TABLE project (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,
+  name TEXT UNIQUE,
   deleted BOOLEAN,
   description TEXT,
   lastUpdatedAt TEXT,

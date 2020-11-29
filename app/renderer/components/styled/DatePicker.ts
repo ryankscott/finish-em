@@ -11,4 +11,6 @@ export const SelectContainer = styled.div`
   position: absolute;
   top: 0px;
   left: 0px;
+  margin: 2px;
+  width: 100%;
 `

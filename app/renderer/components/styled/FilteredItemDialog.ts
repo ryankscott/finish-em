@@ -62,6 +62,7 @@ export const SettingValue = styled.div`
 
 export const SelectContainer = styled.div`
   position: relative;
+  min-width: 120px;
 `
 
 export const HelpButtonContainer = styled.div`

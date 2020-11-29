@@ -26,7 +26,6 @@ export const Code = styled.div`
   border-color: ${(props) => props.theme.colours.borderColour};
   border-radius: 5px;
   padding: 2px 5px;
-  margin: 2px 5px;
 `
 
 interface Header1Props {

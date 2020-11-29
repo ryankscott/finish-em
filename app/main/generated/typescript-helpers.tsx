@@ -689,7 +689,7 @@ export type ActiveCalendarInput = {
 export type Component = {
   __typename?: 'Component';
   key: Scalars['String'];
-  view: View;
+  viewKey: View;
   location: Scalars['String'];
   type: Scalars['String'];
   parameters?: Maybe<Scalars['String']>;
@@ -718,7 +718,7 @@ export type FilteredItemListPropsInput = {
   hiddenIcons?: Maybe<Array<Maybe<Scalars['String']>>>;
   isFilterable?: Maybe<Scalars['Boolean']>;
   listName?: Maybe<Scalars['String']>;
-  showSubtasks?: Maybe<Scalars['Boolean']>;
+  flattenSubtasks?: Maybe<Scalars['Boolean']>;
   showCompletedToggle?: Maybe<Scalars['Boolean']>;
   initiallyExpanded?: Maybe<Scalars['Boolean']>;
 };
@@ -984,7 +984,7 @@ export type DeleteLabelInput = {
 export type Project = {
   __typename?: 'Project';
   key: Scalars['String'];
-  name?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
   deleted?: Maybe<Scalars['Boolean']>;
   description?: Maybe<Scalars['String']>;
   lastUpdatedAt?: Maybe<Scalars['DateTime']>;
@@ -1581,7 +1581,7 @@ export type CalendarResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type ComponentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Component'] = ResolversParentTypes['Component']> = {
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  view?: Resolver<ResolversTypes['View'], ParentType, ContextType>;
+  viewKey?: Resolver<ResolversTypes['View'], ParentType, ContextType>;
   location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   parameters?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1652,7 +1652,7 @@ export type LabelResolvers<ContextType = any, ParentType extends ResolversParent
 
 export type ProjectResolvers<ContextType = any, ParentType extends ResolversParentTypes['Project'] = ResolversParentTypes['Project']> = {
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   deleted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   lastUpdatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;

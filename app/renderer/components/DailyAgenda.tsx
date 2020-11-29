@@ -20,7 +20,7 @@ const localizer = dateFnsLocalizer({
 })
 import EditableText from './EditableText'
 import { setDailyGoal } from '../actions'
-import { RenderingStrategy, FeatureType, ThemeType } from '../interfaces'
+import { ThemeType } from '../interfaces'
 import {
   AgendaContainer,
   DateContainer,
@@ -178,7 +178,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             legacyFilter={`sameDay(dueDate, "${currentDate.toISOString()}")`}
             filter={JSON.stringify({
               text: 'dueAt is today ',
-              value: [{ category: 'dueAt', operator: 'is', value: 'today' }],
+              value: [{ category: 'dueAt', operator: '=', value: currentDate.toISOString() }],
             })}
             flattenSubtasks={true}
             readOnly={true}
@@ -189,8 +189,8 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             listName="Scheduled Today"
             legacyFilter={`sameDay(scheduledDate, "${currentDate.toISOString()}")`}
             filter={JSON.stringify({
-              text: 'scheduledAt is today ',
-              value: [{ category: 'scheduledAt', operator: 'is', value: 'today' }],
+              text: 'scheduledAt = today ',
+              value: [{ category: 'scheduledAt', operator: '=', value: currentDate.toISOString() }],
             })}
             flattenSubtasks={true}
             readOnly={true}

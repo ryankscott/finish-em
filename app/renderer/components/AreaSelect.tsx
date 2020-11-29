@@ -10,7 +10,6 @@ import CSS from 'csstype'
 type OptionType = { value: string; label: JSX.Element | string; color?: CSS.Property.Color }
 const generateAreaOptions = (area: Area, areas: Area[]): OptionType[] => {
   const filteredAreas = areas.filter((a) => a.key != area?.key).filter((a) => a.deleted == false)
-
   return [
     ...filteredAreas.map((a) => {
       return {
@@ -27,6 +26,7 @@ const GET_DATA = gql`
     areas {
       key
       name
+      deleted
     }
     theme @client
   }
@@ -53,7 +53,7 @@ export default function AreaSelect(props: AreaSelectProps): ReactElement {
           buttonText={props.area?.name}
           defaultButtonIcon={'area'}
           defaultButtonText={'No area'}
-          selectPlaceholder={'Search for area'}
+          selectPlaceholder={'Area: '}
           options={generateAreaOptions(props.area, data.areas)}
           deleted={props.deleted}
           completed={props.completed}

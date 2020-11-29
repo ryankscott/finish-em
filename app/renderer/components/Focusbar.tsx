@@ -52,6 +52,10 @@ const GET_DATA = gql`
       createdAt
       deletedAt
       repeat
+      area {
+        key
+        name
+      }
       reminders {
         remindAt
       }
@@ -75,33 +79,6 @@ const GET_DATA = gql`
         sortOrder
       }
     }
-    projects(input: { deleted: false }) {
-      key
-      name
-    }
-    areas {
-      key
-      name
-    }
-    items {
-      key
-      text
-      deleted
-      completed
-      project {
-        key
-        name
-      }
-      parent {
-        key
-        text
-      }
-    }
-    labels {
-      key
-      name
-      colour
-    }
     theme @client
     focusbarVisible @client
   }
@@ -121,6 +98,7 @@ const COMPLETE_ITEM = gql`
     completeItem(input: { key: $key }) {
       key
       completed
+      completedAt
     }
   }
 `
@@ -129,6 +107,7 @@ const UNCOMPLETE_ITEM = gql`
     unCompleteItem(input: { key: $key }) {
       key
       completed
+      completedAt
     }
   }
 `
@@ -138,6 +117,12 @@ const DELETE_ITEM = gql`
     deleteItem(input: { key: $key }) {
       key
       deleted
+      deletedAt
+      children {
+        key
+        deleted
+        deletedAt
+      }
     }
   }
 `
@@ -146,6 +131,7 @@ const RESTORE_ITEM = gql`
     restoreItem(input: { key: $key }) {
       key
       deleted
+      deletedAt
     }
   }
 `
@@ -167,6 +153,7 @@ const SET_AREA = gql`
       key
       area {
         key
+        name
       }
     }
   }
@@ -224,6 +211,13 @@ type FocusbarProps = DispatchProps & StateProps
 const Focusbar = (props: FocusbarProps): ReactElement => {
   const ref = React.useRef<HTMLInputElement>()
   const { loading: activeLoading, error: activeError, data: activeData } = useQuery(GET_ACTIVE_ITEM)
+  if (activeLoading) {
+    return null
+  }
+  if (activeError) {
+    console.log(activeError)
+    return null
+  }
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       key: activeData.activeItem,
@@ -257,7 +251,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   const dueDate = item?.dueAt ? formatRelativeDate(parseISO(item?.dueAt)) : 'Add due date'
   const scheduledDate = item?.scheduledAt
     ? formatRelativeDate(parseISO(item?.scheduledAt))
-    : 'Schedule'
+    : 'Add scheduled date'
 
   return (
     <ThemeProvider theme={theme}>
@@ -352,20 +346,21 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             </>
           )}
         </TitleContainer>
-
-        <AttributeContainer>
-          <AttributeKey>
-            <Paragraph>Area: </Paragraph>
-          </AttributeKey>
-          <AttributeValue>
-            <AreaSelect
-              area={item.area}
-              completed={item.deleted}
-              deleted={item.deleted}
-              onSubmit={(areaKey) => setArea({ variables: { key: item.key, areaKey: areaKey } })}
-            />
-          </AttributeValue>
-        </AttributeContainer>
+        {item.project?.key == '0' && (
+          <AttributeContainer>
+            <AttributeKey>
+              <Paragraph>Area: </Paragraph>
+            </AttributeKey>
+            <AttributeValue>
+              <AreaSelect
+                area={item.area}
+                completed={item.deleted}
+                deleted={item.deleted}
+                onSubmit={(areaKey) => setArea({ variables: { key: item.key, areaKey: areaKey } })}
+              />
+            </AttributeValue>
+          </AttributeContainer>
+        )}
         <AttributeContainer>
           <AttributeKey>
             <Paragraph>Project: </Paragraph>
@@ -396,7 +391,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               <AttributeValue>
                 <DatePicker
                   key={'sd' + item.key}
-                  placeholder={'Scheduled on: '}
+                  searchPlaceholder={'Scheduled at: '}
                   onSubmit={(d: string) => {
                     setScheduledAt({ variables: { key: item.key, scheduledAt: d } })
                   }}
@@ -414,7 +409,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               <AttributeValue>
                 <DatePicker
                   key={'dd' + item.key}
-                  placeholder={'Due on: '}
+                  searchPlaceholder={'Due at: '}
                   onSubmit={(d: string) => setDueAt({ variables: { key: item.key, dueAt: d } })}
                   icon="due"
                   text={dueDate}
@@ -435,7 +430,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                   completed={item.completed}
                   deleted={item.deleted}
                   key={'rp' + item.key}
-                  placeholder={'Add repeat: '}
+                  searchPlaceholder={'Repeat: '}
                   onSubmit={(r: RRule) =>
                     setRepeat({ variables: { key: item.key, repeat: r?.toString() } })
                   }
@@ -444,21 +439,23 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             </AttributeContainer>
           </>
         )}
-        <AttributeContainer>
-          <AttributeKey>
-            <Paragraph>Parent:</Paragraph>
-          </AttributeKey>
-          <AttributeValue>
-            <ItemSelect
-              completed={item.completed}
-              deleted={item.deleted}
-              item={item}
-              onSubmit={(itemKey: string) =>
-                setParent({ variables: { key: item.key, parentKey: itemKey } })
-              }
-            />
-          </AttributeValue>
-        </AttributeContainer>
+        {item.children.length == 0 && (
+          <AttributeContainer>
+            <AttributeKey>
+              <Paragraph>Parent:</Paragraph>
+            </AttributeKey>
+            <AttributeValue>
+              <ItemSelect
+                completed={item.completed}
+                deleted={item.deleted}
+                item={item}
+                onSubmit={(itemKey: string) =>
+                  setParent({ variables: { key: item.key, parentKey: itemKey } })
+                }
+              />
+            </AttributeValue>
+          </AttributeContainer>
+        )}
         <AttributeContainer>
           <AttributeKey>
             <Paragraph>Label:</Paragraph>
@@ -515,13 +512,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               itemKey={childItem.key}
               shouldIndent={false}
               alwaysVisible={true}
-              hiddenIcons={[
-                ItemIcons.Due,
-                ItemIcons.Scheduled,
-                ItemIcons.Repeat,
-                ItemIcons.Project,
-                ItemIcons.Subtask,
-              ]}
+              hiddenIcons={[ItemIcons.Project, ItemIcons.Subtask]}
             />
           )
         })}

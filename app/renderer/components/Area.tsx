@@ -6,7 +6,7 @@ import React, { ReactElement } from 'react'
 import { useHistory } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { Project } from '../../main/generated/typescript-helpers'
-import { RenderingStrategy, ThemeType } from '../interfaces'
+import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { formatRelativeDate } from '../utils'
@@ -24,6 +24,8 @@ import {
   ProjectStartAt,
 } from './styled/Area'
 import { Header, Title } from './Typography'
+import { Area as AreaType } from '../../main/generated/typescript-helpers'
+import { toast } from 'react-toastify'
 
 const GET_AREA_BY_KEY = gql`
   query AreaByKey($key: String!) {
@@ -55,6 +57,10 @@ const GET_AREA_BY_KEY = gql`
         scheduledAt
         repeat
       }
+    }
+    areas {
+      key
+      name
     }
     theme @client
   }
@@ -97,7 +103,7 @@ const Area = (props: AreaProps): ReactElement => {
 
   const [deleteArea] = useMutation(DELETE_AREA, {
     update(cache, { data: { deleteArea } }) {
-      cache.evict({ key: deleteArea })
+      cache.evict({ id: deleteArea })
     },
   })
   const [changeDescriptionArea] = useMutation(CHANGE_DESCRIPTION_AREA)
@@ -110,7 +116,8 @@ const Area = (props: AreaProps): ReactElement => {
     console.log(error)
     return null
   }
-  const area = data.area
+  const area: AreaType = data.area
+  const areas: AreaType[] = data.areas
   const theme: ThemeType = themes[data.theme]
 
   return (
@@ -125,11 +132,21 @@ const Area = (props: AreaProps): ReactElement => {
             singleline={true}
             innerRef={name}
             onUpdate={(input) => {
-              renameArea({ variables: { key: area.key, name: input } })
+              const exists = areas.map((a) => a.name == input).includes(true)
+              if (exists) {
+                toast.error('Cannot rename area, an area with that name already exists')
+              } else {
+                renameArea({ variables: { key: area.key, name: input } })
+              }
             }}
             shouldClearOnSubmit={false}
           />
-          <DeleteAreaDialog onDelete={() => deleteArea({ variables: { key: area.key } })} />
+          <DeleteAreaDialog
+            onDelete={() => {
+              deleteArea({ variables: { key: area.key } })
+              history.push('/inbox')
+            }}
+          />
         </HeaderContainer>
 
         <EditableText

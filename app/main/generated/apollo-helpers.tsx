@@ -143,10 +143,10 @@ export type CalendarFieldPolicy = {
 	createdAt?: FieldPolicy<any> | FieldReadFunction<any>,
 	events?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type ComponentKeySpecifier = ('key' | 'view' | 'location' | 'type' | 'parameters' | 'sortOrder' | ComponentKeySpecifier)[];
+export type ComponentKeySpecifier = ('key' | 'viewKey' | 'location' | 'type' | 'parameters' | 'sortOrder' | ComponentKeySpecifier)[];
 export type ComponentFieldPolicy = {
 	key?: FieldPolicy<any> | FieldReadFunction<any>,
-	view?: FieldPolicy<any> | FieldReadFunction<any>,
+	viewKey?: FieldPolicy<any> | FieldReadFunction<any>,
 	location?: FieldPolicy<any> | FieldReadFunction<any>,
 	type?: FieldPolicy<any> | FieldReadFunction<any>,
 	parameters?: FieldPolicy<any> | FieldReadFunction<any>,

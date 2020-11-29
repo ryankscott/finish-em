@@ -143,7 +143,9 @@ export const DraggableItem = styled.div<DraggableItemStyle>`
         ? lighten(0.1, props.theme.colours.altBackgroundColour)
         : props.theme.colours.altBackgroundColour};
     box-shadow: ${(props) =>
-      props.isDragging ? '1px 2px 6px ' + darken(0.1, props.theme.colours.altBorderColour) : '0px'};
+      props.isDragging
+        ? '1px 2px 6px ' + darken(0.05, props.theme.colours.altBorderColour)
+        : '0px'};
 })
 
 `

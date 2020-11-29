@@ -1,4 +1,5 @@
 import Project from '../classes/project'
+import { getItemsByProject, setProjectOfItem } from './item'
 import { createProjectOrder } from './projectOrder'
 import { createView, deleteView } from './view'
 
@@ -159,7 +160,7 @@ export const createCreateProjectQuery = (input: {
 }) => {
   return `INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey) VALUES ('${input.key}', '${input.name}', false, '${input.description}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ${input.startAt}, ${input.endAt}, '${input.areaKey}')`
 }
-export const createProject = (
+export const createProject = async (
   input: {
     key: string
     name: string
@@ -170,6 +171,12 @@ export const createProject = (
   },
   ctx,
 ) => {
+  const projects = await getProjects({ deleted: false }, ctx)
+  const exists = projects.map((p) => p.name == input.name).includes(true)
+  if (exists) {
+    return new Error('Unable to create project - name already in use')
+  }
+
   return ctx.db.run(createCreateProjectQuery(input)).then((result) => {
     if (result.changes) {
       createProjectOrder({ projectKey: input.key }, ctx)
@@ -183,9 +190,14 @@ export const createProject = (
 export const createDeleteProjectQuery = (input: { key: string }) => {
   return `UPDATE project SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
-export const deleteProject = (input: { key: string; name: string }, ctx) => {
-  return ctx.db.run(createDeleteProjectQuery(input)).then((result) => {
+export const deleteProject = async (input: { key: string; name: string }, ctx) => {
+  return ctx.db.run(createDeleteProjectQuery(input)).then(async (result) => {
     if (result.changes) {
+      // Remove project from all items in that project
+      const items = await getItemsByProject({ projectKey: input.key }, ctx)
+      items.map((i) => {
+        return setProjectOfItem({ key: i.key, projectKey: '0' }, ctx)
+      })
       deleteView({ key: input.key }, ctx)
       return getProject({ key: input.key }, ctx)
     }
@@ -196,7 +208,12 @@ export const deleteProject = (input: { key: string; name: string }, ctx) => {
 export const createRenameProjectQuery = (input: { key: string; name: string }) => {
   return `UPDATE project SET name = '${input.name}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
-export const renameProject = (input: { key: string; name: string }, ctx) => {
+export const renameProject = async (input: { key: string; name: string }, ctx) => {
+  const projects = await getProjects({ deleted: false }, ctx)
+  const exists = projects.map((p) => p.name == input.name).includes(true)
+  if (exists) {
+    return new Error('Unable to create project - name already in use')
+  }
   return ctx.db.run(createRenameProjectQuery(input)).then((result) => {
     return result.changes
       ? getProject({ key: input.key }, ctx)

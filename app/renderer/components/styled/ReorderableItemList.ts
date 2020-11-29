@@ -57,7 +57,7 @@ export const DraggableContainer = styled.div<DraggableContainerProps>`
     border-radius: 5px;
   background: ${(props) => props.theme.colours.backgroundColour};
     box-shadow: ${(props) =>
-      props.isDragging ? '1px 2px 6px ' + darken(0.1, props.theme.colours.borderColour) : '0px'};
+      props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.borderColour) : '0px'};
     animation: ${(props) =>
       props.state == 'entering'
         ? entryAnimation

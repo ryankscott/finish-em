@@ -1,5 +1,7 @@
 import Area from '../classes/area'
 import { createAreaOrder } from './areaOrder'
+import { getItemsByArea, setAreaOfItem } from './item'
+import { getProjectsByArea, setAreaOfProject } from './project'
 
 export const getAreas = (obj, ctx) => {
   return ctx.db
@@ -25,18 +27,19 @@ export const getArea = (input: { key: string }, ctx) => {
     .get(
       `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt FROM area WHERE key = '${input.key}'`,
     )
-    .then(
-      (result) =>
-        new Area(
-          result.key,
-          result.name,
-          result.deleted,
-          result.description,
-          result.lastUpdatedAt,
-          result.deletedAt,
-          result.createdAt,
-        ),
-    )
+    .then((result) => {
+      return result
+        ? new Area(
+            result.key,
+            result.name,
+            result.deleted,
+            result.description,
+            result.lastUpdatedAt,
+            result.deletedAt,
+            result.createdAt,
+          )
+        : null
+    })
 }
 
 export const createCreateAreaQuery = (input: {
@@ -50,7 +53,7 @@ VALUES ('${input.key}', '${input.name}', false, '${input.description}', strftime
 `
 }
 
-export const createArea = (
+export const createArea = async (
   input: {
     key: string
     name: string
@@ -58,6 +61,11 @@ export const createArea = (
   },
   ctx,
 ) => {
+  const areas = await getAreas({}, ctx)
+  const exists = areas.map((a) => a.name == input.name).includes(true)
+  if (exists) {
+    return new Error('Unable to create area - name already in use')
+  }
   return ctx.db.run(createCreateAreaQuery(input)).then((result) => {
     if (result.changes) {
       createAreaOrder({ areaKey: input.key }, ctx)
@@ -106,8 +114,21 @@ export const createDeleteAreaInput = (input: { key: string }) => {
   return `UPDATE area SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
 export const deleteArea = (input: { key: string }, ctx) => {
-  return ctx.db.run(createDeleteAreaInput(input)).then((result) => {
-    return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to delete area')
+  return ctx.db.run(createDeleteAreaInput(input)).then(async (result) => {
+    if (result.changes) {
+      // TODO: Remove area from all items
+      const items = await getItemsByArea({ areaKey: input.key }, ctx)
+      items.map((i) => {
+        return setAreaOfItem({ key: i.key, areaKey: '0' }, ctx)
+      })
+      // TODO: Remove area from all projects
+      const projects = await getProjectsByArea({ areaKey: input.key }, ctx)
+      projects.map((p) => {
+        return setAreaOfProject({ key: p.key, areaKey: '0' }, ctx)
+      })
+      return getArea({ key: input.key }, ctx)
+    }
+    return new Error('Unable to delete area')
   })
 }
 
@@ -116,7 +137,13 @@ export const createRenameAreaQuery = (input: { key: string; name: string }) => {
 UPDATE area SET name = '${input.name}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
-export const renameArea = (input: { key: string; name: string }, ctx) => {
+export const renameArea = async (input: { key: string; name: string }, ctx) => {
+  const areas = await getAreas({}, ctx)
+  const exists = areas.map((a) => a.name == input.name).includes(true)
+  if (exists) {
+    return new Error('Unable to create area - name already in use')
+  }
+
   return ctx.db.run(createRenameAreaQuery(input)).then((result) => {
     return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to rename area')
   })

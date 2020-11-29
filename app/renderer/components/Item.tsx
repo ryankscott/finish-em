@@ -104,6 +104,9 @@ const COMPLETE_ITEM = gql`
     completeItem(input: { key: $key }) {
       key
       completed
+      completedAt
+      scheduledAt
+      dueAt
     }
   }
 `

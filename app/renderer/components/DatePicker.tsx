@@ -18,7 +18,7 @@ type DatePickerProps = {
   onEscape?: () => void
   style?: 'default' | 'subtle' | 'subtleInvert'
   showSelect?: boolean
-  placeholder: string
+  searchPlaceholder: string
   completed: boolean
   deleted?: boolean
   text: string
@@ -70,7 +70,7 @@ function DatePicker(props: DatePickerProps): ReactElement {
         {(props.showSelect || showSelect) && (
           <SelectContainer>
             <DateSelect
-              placeholder={props.placeholder}
+              placeholder={props.searchPlaceholder}
               onEscape={() => {
                 setShowSelect(false)
                 if (props.onEscape) {

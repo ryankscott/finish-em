@@ -2,7 +2,7 @@ scalar DateTime
 
 type Project {
   key: String!
-  name: String
+  name: String!
   deleted: Boolean
   description: String
   lastUpdatedAt: DateTime

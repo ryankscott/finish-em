@@ -3,6 +3,9 @@ import { v4 as uuidv4 } from 'uuid'
 import SqlString from 'sqlstring-sqlite'
 import Expression from '../../renderer/components/filter-box/Expression'
 import { createItemOrder } from './itemOrder'
+import { Item as ItemType } from '../generated/typescript-helpers'
+import { rrulestr } from 'rrule'
+import { keyBy } from 'lodash'
 
 export const getItems = (obj, ctx) => {
   return ctx.db
@@ -70,8 +73,44 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
       }
       const valueText = valueResolver(value)
       const categoryText = category
-
+      const isDateCategory = [
+        'dueAt',
+        'scheduledAt',
+        'completedAt',
+        'lastUpdatedAt',
+        'deletedAt',
+        'createdAt',
+      ].includes(categoryText)
       switch (operator) {
+        // TODO: For date type filters we need to not do an exact comparison, instead compare they are the same day
+        case '=':
+          if (isDateCategory) {
+            return `${conditionText} DATE(${categoryText}) = DATE(${valueText})`
+          }
+          return `${conditionText} ${categoryText} ${operator} ${valueText}`
+
+        case '!=':
+          if (isDateCategory) {
+            return `${conditionText} DATE(${categoryText}) != DATE(${valueText})`
+          }
+          return `${conditionText} ${categoryText} ${operator} ${valueText}`
+        case '<':
+          if (isDateCategory) {
+            return `${conditionText} DATE(${categoryText}) < DATE(${valueText})`
+          }
+          return `${conditionText} ${categoryText} ${operator} ${valueText}`
+        case '>':
+          if (isDateCategory) {
+            return `${conditionText} DATE(${categoryText}) > DATE(${valueText})`
+          }
+          return `${conditionText} ${categoryText} ${operator} ${valueText}`
+
+        case '!=':
+          if (isDateCategory) {
+            return `${conditionText} DATE(${categoryText}) != DATE(${valueText})`
+          }
+          return `${conditionText} ${categoryText} ${operator} ${valueText}`
+
         case '!is':
           if (value == 'null') return `${conditionText} ${categoryText} IS NOT null`
           if (value == 'this week')
@@ -117,7 +156,6 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
     })
     return filterTextArray.flat().join('\n')
   }
-
   const filters = parseFilters(input.filter)
   const filterString = generateQueryString(filters.value)
 
@@ -396,9 +434,19 @@ UPDATE item SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', '
 `
 }
 
-export const deleteItem = (input: { key: string }, ctx) => {
+export const deleteItem = async (input: { key: string }, ctx) => {
+  const children = await getItemsByParent({ parentKey: input.key }, ctx)
+  if (children.length) {
+    children.map((c) => {
+      return deleteItem({ key: c.key }, ctx)
+    })
+  }
+
   return ctx.db.run(createDeleteItemQuery(input)).then((result) => {
-    return result.changes ? getItem({ key: input.key }, ctx) : new Error('Unable to delete item')
+    if (result.changes) {
+      return getItem({ key: input.key }, ctx)
+    }
+    return new Error('Unable to delete item')
   })
 }
 export const createRestoreItemQuery = (input: { key: string }) => {
@@ -407,7 +455,13 @@ UPDATE item SET deleted = false, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 
 `
 }
 
-export const restoreItem = (input: { key: string }, ctx) => {
+export const restoreItem = async (input: { key: string }, ctx) => {
+  const children = await getItemsByParent({ parentKey: input.key }, ctx)
+  if (children.length) {
+    children.map((c) => {
+      return restoreItem({ key: c.key }, ctx)
+    })
+  }
   return ctx.db.run(createRestoreItemQuery(input)).then((result) => {
     return result.changes ? getItem({ key: input.key }, ctx) : new Error('Unable to restore item')
   })
@@ -445,8 +499,26 @@ UPDATE item SET completed = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ',
 `
 }
 
+// TODO: Don't complete a repeating item
 export const completeItem = async (input: { key: string }, ctx) => {
-  const result = await ctx.db.run(createCompleteItemQuery(input))
+  const item: ItemType = await getItem({ key: input.key }, ctx)
+  // If we've got a repeat
+  let query = ''
+  if (item.repeat) {
+    // Check if there's another repeat
+    const nextDate = rrulestr(item.repeat).after(new Date())
+    if (!nextDate) {
+      query = `UPDATE item SET dueAt = null, scheduledAt = null, completed = true, completedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')  WHERE key = '${input.key}'`
+    } else {
+      query = `UPDATE item SET dueAt = '${nextDate.toISOString()}', scheduledAt = null,  lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now')  WHERE key = '${
+        input.key
+      }'`
+    }
+  } else {
+    query = createCompleteItemQuery(input)
+  }
+
+  const result = await ctx.db.run(query)
   if (result.changes) {
     return getItem({ key: input.key }, ctx)
   }
@@ -473,6 +545,7 @@ UPDATE item SET repeat = '${input.repeat}', lastUpdatedAt = strftime('%Y-%m-%dT%
 `
 }
 
+// TODO: Set dueAt to next occurence of repeat
 export const setRepeatOfItem = (input: { key: string; repeat: string }, ctx) => {
   return ctx.db.run(createSetRepeatOfItemQuery(input)).then((result) => {
     return result.changes
@@ -507,11 +580,26 @@ UPDATE item SET projectKey = ${inputText}, lastUpdatedAt = strftime('%Y-%m-%dT%H
 `
 }
 
-export const setProjectOfItem = (input: { key: string; projectKey: string }, ctx) => {
-  return ctx.db.run(createSetProjectOfItemQuery(input)).then((result) => {
-    return result.changes
-      ? getItem({ key: input.key }, ctx)
-      : new Error('Unable to set project of item')
+export const setProjectOfItem = async (input: { key: string; projectKey: string }, ctx) => {
+  return ctx.db.run(createSetProjectOfItemQuery(input)).then(async (result) => {
+    if (result.changes) {
+      //  Update children
+      const children = await getItemsByParent({ parentKey: input.key }, ctx)
+      if (children.length > 0) {
+        children.map(async (i) => {
+          console.log(i)
+          const childrenResult = await ctx.db.run(
+            createSetProjectOfItemQuery({ key: i.key, projectKey: input.projectKey }),
+          )
+          if (!childrenResult) {
+            return new Error("Unable to set project of item's children")
+          }
+        })
+      }
+
+      return getItem({ key: input.key }, ctx)
+    }
+    return new Error('Unable to set project of item')
   })
 }
 
@@ -569,7 +657,13 @@ export const createSetParentOfItemQuery = (input: { key: string; parentKey: stri
 `
 }
 
-export const setParentOfItem = (input: { key: string; parentKey: string }, ctx) => {
+export const setParentOfItem = async (input: { key: string; parentKey: string }, ctx) => {
+  // Check if this is already a parent
+  const children = await getItemsByParent({ parentKey: input.key }, ctx)
+  if (children.length > 0) {
+    return new Error("Unable to set parent of item as it's already a parent")
+  }
+
   return ctx.db.run(createSetParentOfItemQuery(input)).then((result) => {
     return result.changes
       ? getItem({ key: input.key }, ctx)

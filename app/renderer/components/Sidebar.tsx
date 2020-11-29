@@ -102,6 +102,7 @@ const GET_AREAS = gql`
     areas {
       name
       key
+      deleted
       sortOrder {
         sortOrder
       }
@@ -203,7 +204,9 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 
   const theme: ThemeType = themes[data.theme]
 
-  const sortedAreas: Area[] = orderBy(data.areas, ['sortOrder.sortOrder'], ['asc'])
+  const sortedAreas: Area[] = orderBy(data.areas, ['sortOrder.sortOrder'], ['asc']).filter(
+    (a) => a.deleted == false,
+  )
   const sortedViews: View[] = orderBy(data.views, ['sortOrder.sortOrder'], ['asc']).filter(
     (v) => v.type != 'default',
   )

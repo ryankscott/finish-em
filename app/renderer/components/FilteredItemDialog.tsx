@@ -82,6 +82,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   try {
     params = JSON.parse(data.component.parameters)
   } catch (error) {
+    console.log('Failed to parse parameters')
     console.log(error)
     console.log(data.component.parameters)
     return null
@@ -99,7 +100,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             data-tip
             data-html={true}
           >
-            {Icons.help(18, 18, theme.colours.disabledTextColour)}
+            {Icons['help'](18, 18, theme.colours.disabledTextColour)}
           </HelpButtonContainer>
           <DialogName>{'Update List'}</DialogName>
 
@@ -167,47 +168,55 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         </Setting>
         <Setting>
           <SettingLabel>Filter:</SettingLabel>
-          <SettingValue data-for={'filter' + props.componentKey} data-tip>
-            <EditableText
-              innerRef={filterRef}
-              key={'ed-name'}
-              input={params?.legacyFilter || ''}
-              fontSize={'xsmall'}
-              shouldSubmitOnBlur={true}
-              onEscape={() => {}}
-              readOnly={true}
-              style={Code}
-              plainText={true}
-              validation={() => {}}
-              singleline={false}
-              shouldClearOnSubmit={false}
-              onUpdate={(input) => {}}
-            />
-          </SettingValue>
-        </Setting>
-        <Setting>
-          <ItemFilterBox
-            filter={params.filter ? JSON.parse(params.filter).text : ''}
-            onSubmit={(query: string, filter: Expression[]) => {
-              updateComponent({
-                variables: {
-                  key: props.componentKey,
-                  parameters: {
-                    filter: JSON.stringify({ text: query, value: filter }),
-                    legacyFilter: params.legacyFilter ? params.legacyFilter : null,
-                    hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
-                    listName: params.listName ? params.listName : 'New List',
-                    showCompletedToggle: params.showCompletedToggle
-                      ? params.showCompletedToggle
-                      : true,
-                    initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
-                    flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
-                    isFilterable: params.isFilterable ? params.isFilterable : true,
-                  },
-                },
-              })
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              minHeight: '90px',
+              justifyContent: 'space-between',
             }}
-          />
+          >
+            {params.legacyFilter && (
+              <EditableText
+                innerRef={filterRef}
+                key={'ed-name'}
+                input={params?.legacyFilter || ''}
+                fontSize={'xsmall'}
+                shouldSubmitOnBlur={true}
+                onEscape={() => {}}
+                readOnly={true}
+                style={Code}
+                plainText={true}
+                validation={(input) => true}
+                singleline={false}
+                shouldClearOnSubmit={false}
+                onUpdate={(input) => {}}
+              />
+            )}
+            <ItemFilterBox
+              filter={params.filter ? JSON.parse(params.filter).text : ''}
+              onSubmit={(query: string, filter: Expression[]) => {
+                updateComponent({
+                  variables: {
+                    key: props.componentKey,
+                    parameters: {
+                      filter: JSON.stringify({ text: query, value: filter }),
+                      legacyFilter: params.legacyFilter ? params.legacyFilter : null,
+                      hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
+                      listName: params.listName ? params.listName : 'New List',
+                      showCompletedToggle: params.showCompletedToggle
+                        ? params.showCompletedToggle
+                        : true,
+                      initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
+                      flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
+                      isFilterable: params.isFilterable ? params.isFilterable : true,
+                    },
+                  },
+                })
+              }}
+            />
+          </div>
         </Setting>
         <Setting>
           <SettingLabel>Filterable:</SettingLabel>
@@ -278,8 +287,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           <SettingValue>
             <SelectContainer>
               <Select
+                value={params.hiddenIcons.map((i) => {
+                  return options.find((o) => o.value == i)
+                })}
                 isMulti={true}
-                onChange={(values) => {
+                onChange={(values: { value: string; label: string }[]) => {
                   const hiddenIcons = values.map((v) => v.value)
                   updateComponent({
                     variables: {
@@ -305,7 +317,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 styles={selectStyles({
                   fontSize: 'xsmall',
                   theme: theme,
-                  width: '200px',
+                  minWidth: '120px',
                 })}
                 escapeClearsValue={true}
               />

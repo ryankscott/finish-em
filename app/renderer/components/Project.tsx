@@ -17,6 +17,8 @@ import { Donut } from './Donut'
 import { darken } from 'polished'
 import Tooltip from './Tooltip'
 import { ThemeType } from '../interfaces'
+import { Project as ProjectType, Item as ItemType } from '../../main/generated/typescript-helpers'
+import { toast } from 'react-toastify'
 
 const GET_PROJECT_BY_KEY = gql`
   query ProjectByKey($key: String!) {
@@ -41,6 +43,10 @@ const GET_PROJECT_BY_KEY = gql`
         repeat
       }
     }
+    projects(input: { deleted: false }) {
+      key
+      name
+    }
     projectDates: featureByName(name: "projectDates") {
       key
       enabled
@@ -57,8 +63,8 @@ const DELETE_PROJECT = gql`
   }
 `
 const CHANGE_DESCRIPTION = gql`
-  mutation ChangeDescription($key: String!, $description: String!) {
-    changeDescription(input: { key: $key, description: $description }) {
+  mutation ChangeDescriptionProject($key: String!, $description: String!) {
+    changeDescriptionProject(input: { key: $key, description: $description }) {
       key
       description
     }
@@ -115,7 +121,7 @@ const Project = (props: ProjectProps): ReactElement => {
   const [setStartDate] = useMutation(SET_START_DATE)
   const [deleteView] = useMutation(DELETE_VIEW, {
     update(cache, { data: { deleteView } }) {
-      cache.evict({ key: deleteView })
+      cache.evict({ id: deleteView })
     },
   })
 
@@ -124,8 +130,9 @@ const Project = (props: ProjectProps): ReactElement => {
     console.log(error)
     return null
   }
-  const project = data.project
-  const allItems = project?.items
+  const project: ProjectType = data.project
+  const projects: ProjectType[] = data.projects
+  const allItems: ItemType[] = project?.items
   const completedItems = allItems.filter((i) => i.completed == true)
   const theme: ThemeType = themes[data.theme]
   return (
@@ -149,7 +156,12 @@ const Project = (props: ProjectProps): ReactElement => {
             singleline={true}
             innerRef={name}
             onUpdate={(input) => {
-              renameProject({ variables: { key: project.key, name: input } })
+              const exists = projects.map((p) => p.name == input).includes(true)
+              if (exists) {
+                toast.error('Cannot rename project, a project with that name already exists')
+              } else {
+                renameProject({ variables: { key: project.key, name: input } })
+              }
             }}
             shouldClearOnSubmit={false}
           />

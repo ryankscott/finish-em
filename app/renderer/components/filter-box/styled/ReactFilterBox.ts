@@ -9,7 +9,7 @@ export const StyledFilterBox = styled.div<StyledFilterBoxProps>`
   overflow-y: hidden;
   height: 28px;
   padding: 0px 4px;
-  margin-bottom: 10px;
+  margin-bottom: 0px;
   font-size: ${(props) => props.theme.fontSizes.xsmall};
   line-height: 20px;
   color: ${(props) => props.theme.colours.textColour};

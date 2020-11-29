@@ -24,7 +24,7 @@ export const Container = styled.div<ContainerProps>`
   height: ${(props) => props.height || 'auto'};
   width: ${(props) => props.width || '100%'};
   margin: 0px;
-  min-height: 25px;
+  min-height: 28px;
   padding: ${(props) => (props.padding ? props.padding : '5px !important')};
   border-radius: 5px;
   border: ${(props) =>
@@ -32,7 +32,7 @@ export const Container = styled.div<ContainerProps>`
   font-size: ${(props) => (props.fontSize ? props.theme.fontSizes[props.fontSize] : 'auto')};
   border-color: ${(props) =>
     props.backgroundColour
-      ? darken(0.1, props.backgroundColour)
+      ? darken(0.05, props.backgroundColour)
       : props.backgroundColour
       ? props.backgroundColour
       : props.theme.colours.borderColour};
@@ -52,7 +52,7 @@ export const Container = styled.div<ContainerProps>`
   &:hover {
     background-color: ${(props) =>
       props.backgroundColour
-        ? darken(0.1, props.backgroundColour)
+        ? darken(0.05, props.backgroundColour)
         : props.readOnly
         ? 'inherit'
         : props.theme.colours.focusBackgroundColour};
@@ -60,7 +60,7 @@ export const Container = styled.div<ContainerProps>`
   &:focus {
     background-color: ${(props) =>
       props.backgroundColour
-        ? darken(0.1, props.backgroundColour)
+        ? darken(0.05, props.backgroundColour)
         : props.readOnly
         ? 'inherit'
         : props.theme.colours.focusBackgroundColour};
@@ -71,6 +71,8 @@ export const Container = styled.div<ContainerProps>`
   }
   & > * {
     padding: 2px;
+    margin: 0px;
+    width: auto;
   }
   & > span.valid {
     background-color: ${(props) => props.theme.colours.penternaryColour};
@@ -91,8 +93,8 @@ interface ContainerProps {
 
 export const Placeholder = styled.div`
   position: absolute;
-  left: 5px;
-  top: 5px;
+  left: 8px;
+  top: 8px;
   font-size: ${(props) => props.theme.fontSizes.xsmall};
   color: ${(props) => props.theme.colours.disabledTextColour};
 `

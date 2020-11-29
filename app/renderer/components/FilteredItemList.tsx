@@ -22,7 +22,7 @@ import { PAGE_SIZE } from '../consts'
 import FilteredItemDialog from './FilteredItemDialog'
 import MoreDropdown from './MoreDropdown'
 import Pagination from './Pagination'
-import { cloneDeep, get, set } from 'lodash'
+import { cloneDeep } from 'lodash'
 import { subtasksVisibleVar } from '..'
 
 const determineVisibilityRules = (
@@ -58,11 +58,22 @@ const GET_DATA = gql`
       text
       completed
       deleted
+      dueAt
+      scheduledAt
+      lastUpdatedAt
+      createdAt
+      project {
+        key
+      }
       parent {
         key
       }
       children {
         key
+        project {
+          key
+          name
+        }
       }
       sortOrder {
         sortOrder
@@ -109,14 +120,14 @@ export type FilteredItemListProps = {
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [sortType, setSortType] = useState(sortOptions.DUE)
   const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
-  const [showCompleted, setShowCompleted] = useState(false)
+  const [showCompleted, setShowCompleted] = useState(true)
   const [showItemList, setShowItemList] = useState(true)
   const [showEditDialog, setShowEditDialog] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [deleteComponent] = useMutation(DELETE_COMPONENT, {
     update(cache, { data: { deleteComponent } }) {
-      cache.evict({ key: deleteComponent })
+      cache.evict({ id: deleteComponent })
     },
   })
   // TODO: I shouldn't really use polling here, but can't work out how else to refetch the data
@@ -124,7 +135,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     variables: {
       filter: props.filter ? props.filter : '',
     },
-    pollInterval: 5000000,
+    pollInterval: 2000,
   })
 
   // TODO: Work out how to do this with apollo
@@ -154,7 +165,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     data.dragAndDrop.enabled,
     props.showCompletedToggle,
   )
-
   return (
     <ThemeProvider theme={theme}>
       <Container>
@@ -197,7 +207,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     ></Button>
                     <Tooltip
                       id="complete-button"
-                      text={showCompleted ? 'Hide completed items' : 'Show completed items'}
+                      text={showCompleted ? 'Show completed items' : 'Hide completed items'}
                     />
                   </>
                 )}

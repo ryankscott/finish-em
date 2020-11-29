@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client'
 import React, { ReactElement } from 'react'
-import { RenderingStrategy, ThemeType } from '../interfaces'
+import { ItemIcons, RenderingStrategy, ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import FilteredItemList from './FilteredItemList'
@@ -47,6 +47,7 @@ const Inbox = (): ReactElement => {
             })}
             flattenSubtasks={true}
             readOnly={true}
+            hiddenIcons={[ItemIcons.Project]}
           />
         </div>
       </Container>
