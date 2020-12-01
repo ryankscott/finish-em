@@ -5,22 +5,25 @@ import { darken } from 'polished'
 
 export const Container = styled.div`
   display: grid;
-  grid-template-columns: 100%;
   grid-template-rows: 50px auto;
+  grid-template-columns: minmax(50px, 250px) auto;
   grid-template-areas:
-    'header'
-    'body';
+    'header header'
+    'sidebar body';
   margin: 0px;
   height: 100%;
   min-width: 500px;
   transition: all 0.2s ease-in-out;
+  -webkit-app-region: drag;
 `
 export const HeaderContainer = styled.div`
   grid-area: header;
   display: flex;
+  height: 100%;
   width: 100%;
   z-index: 2;
   box-shadow: 0px 1px 2px ${(props) => darken(0.2, props.theme.colours.headerBackgroundColour)};
+  -webkit-app-region: drag;
 `
 
 export const BodyContainer = styled.div`
@@ -38,6 +41,7 @@ interface SidebarContainerProps {
 }
 
 export const SidebarContainer = styled.div<SidebarContainerProps>`
+  grid-area: sidebar;
   display: flex;
   width: ${(props) => (props.visible ? '250px' : '50px')};
   min-width: ${(props) => (props.visible ? '250px' : '50px')};
@@ -47,7 +51,6 @@ export const SidebarContainer = styled.div<SidebarContainerProps>`
   overflow-x: hidden;
   padding: 0px;
   background-color: ${(props) => props.theme.colours.altBackgroundColour};
-  border-right: 1px solid ${(props) => props.theme.colours.borderColour};
 `
 
 interface MainContainerProps {

@@ -90,16 +90,11 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
   return (
     <Container>
       <ThemeProvider theme={theme}>
-        <IconContainer onClick={() => setShowTRex(!showTRex)}>
-          {showTRex ? <span style={{ fontSize: '36px' }}>🦖</span> : Icons['finish_em'](36, 36)}
-        </IconContainer>
         <SelectContainer>
           <Select
             controlShouldRenderValue={false}
             escapeClearsValue={true}
             ref={props.searchRef}
-            width="400px"
-            height="25px"
             placeholder="Search for items..."
             onChange={(selected) => {
               selected.value()

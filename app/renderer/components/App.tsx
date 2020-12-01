@@ -1,260 +1,203 @@
-import { gql, useQuery } from '@apollo/client'
-import { ThemeProvider } from '../StyledComponents'
+import { gql, useMutation, useQuery } from '@apollo/client'
+import { isSameMinute, parse, parseISO } from 'date-fns'
+import cron from 'node-cron'
 import React, { ReactElement, useEffect } from 'react'
-import { connect } from 'react-redux'
-import { useHistory, Route, Switch, useParams } from 'react-router-dom'
-import { parseISO, parse, isSameMinute } from 'date-fns'
-import DailyAgenda from './DailyAgenda'
-import WeeklyAgenda from './WeeklyAgenda'
-import Sidebar from './Sidebar'
-import Focusbar from './Focusbar'
-import ShortcutDialog from './ShortcutDialog'
-import Settings from './Settings'
-import Inbox from './Inbox'
-import Project from './Project'
-import View from './View'
-import Help from './Help'
-import Area from './Area'
-import { themes, GlobalStyle } from '../theme'
-import { app as appKeymap } from '../keymap'
-import { sidebarVisibleVar, focusbarVisibleVar } from '../index'
-import {
-  showCreateProjectDialog,
-  hideShortcutDialog,
-  toggleShortcutDialog,
-  hideCreateProjectDialog,
-  createItem,
-  createEvent,
-  setActiveItem,
-} from '../actions/index'
-import {
-  Container,
-  MainContainer,
-  FocusContainer,
-  SidebarContainer,
-  StyledToastContainer,
-  HeaderContainer,
-  BodyContainer,
-} from './styled/App'
-
-import { convertToProperTzOffset } from '../utils'
-import { Projects, Views, Areas, FeatureType, EventType, Reminders, ThemeType } from '../interfaces'
+import { useHotkeys } from 'react-hotkeys-hook'
+import { Route, Switch, useHistory, useParams } from 'react-router-dom'
 import { Slide, toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
-import { useHotkeys } from 'react-hotkeys-hook'
-import cron from 'node-cron'
-
+import { Event as EventType } from '../../main/generated/typescript-helpers'
+import { focusbarVisibleVar, shortcutDialogVisibleVar, sidebarVisibleVar } from '../index'
+import { ThemeType } from '../interfaces'
+import { app as appKeymap } from '../keymap'
+import { ThemeProvider } from '../StyledComponents'
+import { GlobalStyle, themes } from '../theme'
+import { convertToProperTzOffset } from '../utils'
+import Area from './Area'
+import DailyAgenda from './DailyAgenda'
+import Focusbar from './Focusbar'
 import Headerbar from './Headerbar'
+import Help from './Help'
+import Inbox from './Inbox'
+import Project from './Project'
+import Settings from './Settings'
+import ShortcutDialog from './ShortcutDialog'
+import Sidebar from './Sidebar'
+import {
+  BodyContainer,
+  Container,
+  FocusContainer,
+  HeaderContainer,
+  MainContainer,
+  SidebarContainer,
+  StyledToastContainer,
+} from './styled/App'
+import View from './View'
+import WeeklyAgenda from './WeeklyAgenda'
+
 const electron = window.require('electron')
 
 export const MIN_WIDTH_FOR_SIDEBAR = 1050
 export const MIN_WIDTH_FOR_FOCUSBAR = 925
 
-const GET_SIDEBAR = gql`
+const GET_DATA = gql`
   query {
+    projects(input: { deleted: false }) {
+      key
+      sortOrder {
+        sortOrder
+      }
+    }
+
+    reminders {
+      key
+      text
+      remindAt
+    }
+    features {
+      key
+      enabled
+    }
+
     sidebarVisible @client
     focusbarVisible @client
     theme @client
+    activeItem @client
+    shortcutDialogVisible @client
   }
 `
 
-type StateProps = {
-  projects: Projects
-  views: Views
-  areas: Areas
-  reminders: Reminders
-  features: FeatureType
-}
-type DispatchProps = {
-  createEvent: (e: EventType) => void
-  hideDialogs: () => void
-  showCreateProjectDialog: () => void
-  toggleShortcutDialog: () => void
-  setActiveItem: (id: string) => void
-  createItem: (text: string, projectId: string | '0') => void
+const CREATE_EVENT = gql`
+  mutation CreateEvent(
+    $key: String!
+    $title: String!
+    $startAt: DateTime
+    $endAt: DateTime
+    $description: String
+    $allDay: Boolean
+    $calendarKey: String
+  ) {
+    createEvent(
+      input: {
+        key: $key
+        title: $title
+        startAt: $startAt
+        endAt: $endAt
+        description: $description
+        allDay: $allDay
+        calendarKey: $calendarKey
+      }
+    ) {
+      key
+    }
+  }
+`
+
+const CREATE_ITEM = gql`
+  mutation CreateItem(
+    $key: String!
+    $type: String!
+    $text: String!
+    $parentKey: String
+    $projectKey: String
+  ) {
+    createItem(
+      input: { key: $key, type: $type, text: $text, parentKey: $parentKey, projectKey: $projectKey }
+    ) {
+      key
+      type
+      text
+      project {
+        key
+      }
+    }
+  }
+`
+
+const ProjectWrapper = (): ReactElement => {
+  const { id } = useParams()
+  return <Project projectKey={id} />
 }
 
-type AppProps = StateProps & DispatchProps
+const ViewWrapper = (): ReactElement => {
+  const { id } = useParams()
+  return <View viewKey={id} />
+}
+const AreaWrapper = (): ReactElement => {
+  const { id } = useParams()
+  return <Area areaKey={id} />
+}
+
+type AppProps = {}
 
 const App = (props: AppProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_SIDEBAR)
-  if (loading) return null
-  if (error) return null
-
-  const theme: ThemeType = themes[data.theme]
   const history = useHistory()
   const searchRef = React.useRef<HTMLSelectElement>()
 
-  const ProjectWrapper = (): ReactElement => {
-    const { id } = useParams()
-    return <Project projectKey={id} />
-  }
-
-  const ViewWrapper = (): ReactElement => {
-    const { id } = useParams()
-    return <View viewKey={id} />
-  }
-  const AreaWrapper = (): ReactElement => {
-    const { id } = useParams()
-    return <Area areaKey={id} />
-  }
-
-  // TODO: Work out the best way to expand the width here
-  useEffect(() => {
-    if (window.innerWidth <= MIN_WIDTH_FOR_FOCUSBAR && data.focusbarVisible) {
-      // window.resizeBy(400, 0)
-    }
-  }, [data.focusbarVisible])
-
-  useEffect(() => {
-    window.addEventListener('resize', () => {
-      clearTimeout(window.resizeFinished)
-      window.resizedFinished = setTimeout(() => {
-        if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && data.sidebarVisible) {
-          sidebarVisibleVar(false)
-        }
-        if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && data.focusbarVisible) {
-          focusbarVisibleVar(false)
-        }
-      }, 250)
-      return () => {
-        window.removeEventListener('resize')
-      }
-    })
-  })
-
-  useEffect(() => {
-    // Handle Electron events
-    electron.ipcRenderer.on('create-task', (event, arg) => {
-      props.createItem(arg.text, arg?.projectId)
-      if (arg.source) {
-        toast.dark(`Task added from ${arg.source}`)
-      } else {
-        toast.dark(`Task added`)
-      }
-    })
-    electron.ipcRenderer.on('new-version', (event, arg) => {
-      toast(
-        <div>
-          <p>
-            <strong>New version available 🎉</strong>
-            <br />
-            Download the new version <a href={arg.downloadUrl}>here </a>
-            <br />
-            Or checkout the release <a href={arg.releaseURL}> notes</a> `for what's` changed
-          </p>
-        </div>,
-        { autoClose: false },
-      )
-    })
-
-    electron.ipcRenderer.on('events', (event, calEvents) => {
-      const parsedEvents = calEvents.map((c) => {
-        const tz = convertToProperTzOffset(c.tzOffset)
-        const ev: EventType = {
-          id: c.id,
-          start: parse(
-            `${c.startDate} ${c.startTime} ${tz}`,
-            'dd/MM/yy HH:mm:ss x',
-            new Date(),
-          ).toISOString(),
-          end: parse(
-            `${c.endDate} ${c.endTime} ${tz}`,
-            'dd/MM/yy HH:mm:ss x',
-            new Date(),
-          ).toISOString(),
-          title: c.summary,
-          description: c.description,
-        }
-        return ev
-      })
-
-      parsedEvents.map((e) => {
-        props.createEvent(e)
-      })
-    })
-
-    electron.ipcRenderer.on('get-features', (event) => {
-      event.sender.send('get-features-reply', props.features)
-    })
-  }, [])
-
-  useEffect(() => {
-    cron.schedule('* * * * * ', () => {
-      props.reminders.map((r) => {
-        if (isSameMinute(parseISO(r.remindAt), new Date())) {
-          const myNotification = new Notification('Reminder', {
-            body: r.text,
-          })
-        }
-      })
-    })
-  }, [])
-
-  function goToDailyAgenda(): void {
+  const goToDailyAgenda = (): void => {
     history.push('/dailyAgenda')
     return
   }
 
-  function goToTrash(): void {
+  const goToTrash = (): void => {
     history.push('/trash')
     return
   }
 
-  function goToInbox(): void {
+  const goToInbox = (): void => {
     history.push('/inbox')
     return
   }
 
-  function goToUnscheduled(): void {
+  const goToUnscheduled = (): void => {
     history.push('/unscheduled')
     return
   }
 
-  function goToCompleted(): void {
+  const goToCompleted = (): void => {
     history.push('/completed')
     return
   }
 
-  function goToStale(): void {
+  const goToStale = (): void => {
     history.push('/stale')
     return
   }
 
-  function goToSettings(): void {
+  const goToSettings = (): void => {
     history.push('/settings')
   }
 
-  function goToProject(number: number): void {
-    const id = props.projects.order[number]
-    history.push(`/projects/${id}`)
+  const goToProject = (number: number): void => {
+    const key = data.projects[number]
+    history.push(`/projects/${key}`)
   }
 
-  function goToNextProject(): void {
+  const goToNextProject = (): void => {
     const path = history.location.pathname
     if (!path.includes('projects')) {
       goToProject(1)
       return
     }
-    const projectId = path.split('/')[2]
-    const projectIndex = props.projects.order.indexOf(projectId)
-    if (projectIndex == props.projects.order.length - 1) {
+    const projectKey = path.split('/')[2]
+    const projectIndex = data.projects.findIndex((p) => p.key == projectKey)
+    if (projectIndex == data.projects.length - 1) {
       goToProject(1)
     } else {
       goToProject(projectIndex + 1)
     }
   }
 
-  function goToPreviousProject(): void {
+  const goToPreviousProject = (): void => {
     const path = history.location.pathname
     if (!path.includes('projects')) {
-      goToProject(props.projects.order.length - 1)
+      goToProject(data.projects.length - 1)
       return
     }
-    const projectId = path.split('/')[2]
-    const projectIndex = props.projects.order.indexOf(projectId)
+    const projectKey = path.split('/')[2]
+    const projectIndex = data.projects.findIndex((p) => p.key == projectKey)
     if (projectIndex == 1) {
-      goToProject(props.projects.order.length - 1)
+      goToProject(data.projects.length - 1)
     } else {
       goToProject(projectIndex - 1)
     }
@@ -285,11 +228,11 @@ const App = (props: AppProps): ReactElement => {
     SHOW_SIDEBAR: () => sidebarVisibleVar(true),
     HIDE_SIDEBAR: () => sidebarVisibleVar(false),
     TOGGLE_SHORTCUT_DIALOG: () => {
-      props.toggleShortcutDialog()
+      shortcutDialogVisibleVar(!data.shortcutDialogVisible)
     },
-    ESCAPE: () => props.hideDialogs(),
+    ESCAPE: () => {} /*props.hideDialogs()*/,
     SHOW_CREATE_PROJECT_DIALOG: (e) => {
-      props.showCreateProjectDialog()
+      //props.showCreateProjectDialog()
       e.preventDefault()
     },
   }
@@ -297,6 +240,104 @@ const App = (props: AppProps): ReactElement => {
   Object.entries(appKeymap).map(([k, v]) => {
     useHotkeys(v, handlers[k])
   })
+
+  useEffect(() => {
+    // Handle Electron events
+    electron.ipcRenderer.on('create-task', (event, arg) => {
+      createItem({
+        variables: {
+          key: uuidv4(),
+          type: 'TODO',
+          text: arg.text,
+          projectKey: arg?.projectId,
+        },
+      })
+      if (arg.source) {
+        toast.dark(`Task added from ${arg.source}`)
+      } else {
+        toast.dark(`Task added`)
+      }
+    })
+    electron.ipcRenderer.on('new-version', (event, arg) => {
+      toast(
+        <div>
+          <p>
+            <strong>New version available 🎉</strong>
+            <br />
+            Download the new version <a href={arg.downloadUrl}>here </a>
+            <br />
+            Or checkout the release <a href={arg.releaseURL}> notes</a> `for what's` changed
+          </p>
+        </div>,
+        { autoClose: false },
+      )
+    })
+
+    electron.ipcRenderer.on('events', (event, calEvents) => {
+      const parsedEvents = calEvents.map((c) => {
+        const tz = convertToProperTzOffset(c.tzOffset)
+        const ev: EventType = {
+          key: c.id,
+          startAt: parse(
+            `${c.startDate} ${c.startTime} ${tz}`,
+            'dd/MM/yy HH:mm:ss x',
+            new Date(),
+          ).toISOString(),
+          endAt: parse(
+            `${c.endDate} ${c.endTime} ${tz}`,
+            'dd/MM/yy HH:mm:ss x',
+            new Date(),
+          ).toISOString(),
+          title: c.summary,
+          description: c.description,
+        }
+        return ev
+      })
+
+      parsedEvents.map((e: EventType) => {
+        createEvent({ variables: { ...e } })
+      })
+    })
+
+    electron.ipcRenderer.on('get-features', (event) => {
+      event.sender.send('get-features-reply', data.features)
+    })
+  }, [])
+  const [createEvent] = useMutation(CREATE_EVENT)
+  const [createItem] = useMutation(CREATE_ITEM)
+  const { loading, error, data } = useQuery(GET_DATA)
+  if (loading) return null
+  if (error) return null
+
+  const theme: ThemeType = themes[data.theme]
+
+  // TODO: Work out the best way to expand the width here
+  const handleResize = () => {
+    if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && data.sidebarVisible) {
+      sidebarVisibleVar(false)
+    }
+    if (data.focusbarVisible) {
+      if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && data.focusbarVisible) {
+        focusbarVisibleVar(false)
+      }
+    }
+  }
+  window.addEventListener('resize', () => {
+    setTimeout(handleResize, 250)
+  })
+
+  if (data?.reminders) {
+    cron.schedule('* * * * * ', () => {
+      data.reminders.map((r) => {
+        if (isSameMinute(parseISO(r.remindAt), new Date())) {
+          const _ = new Notification('Reminder', {
+            body: r.text,
+          })
+        }
+      })
+    })
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle theme={theme} />
@@ -304,10 +345,10 @@ const App = (props: AppProps): ReactElement => {
         <HeaderContainer>
           <Headerbar searchRef={searchRef} />
         </HeaderContainer>
+        <SidebarContainer visible={data.sidebarVisible}>
+          <Sidebar />
+        </SidebarContainer>
         <BodyContainer>
-          <SidebarContainer visible={data.sidebarVisible}>
-            <Sidebar />
-          </SidebarContainer>
           <MainContainer visible={data.sidebarVisible}>
             <ShortcutDialog />
             <Switch>
@@ -361,34 +402,4 @@ const App = (props: AppProps): ReactElement => {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  projects: state.projects,
-  items: state.items,
-  areas: state.areas,
-  reminders: state.reminders,
-  views: state.ui.views,
-  features: state.features,
-})
-
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  setActiveItem: (id: string) => {
-    dispatch(setActiveItem(id))
-  },
-  createEvent: (e: EventType) => {
-    dispatch(createEvent(e))
-  },
-  toggleShortcutDialog: () => {
-    dispatch(toggleShortcutDialog())
-  },
-  showCreateProjectDialog: () => {
-    dispatch(showCreateProjectDialog())
-  },
-  hideDialogs: () => {
-    dispatch(hideShortcutDialog())
-    dispatch(hideCreateProjectDialog())
-  },
-  createItem: (text: string, projectId: string | '0') => {
-    dispatch(createItem(uuidv4(), text, projectId))
-  },
-})
-export default connect(mapStateToProps, mapDispatchToProps)(App)
+export default App

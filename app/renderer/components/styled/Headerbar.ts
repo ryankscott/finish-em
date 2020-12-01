@@ -11,7 +11,7 @@ export const Container = styled.div`
   color: ${(props) => props.theme.colours.headerTextColour};
   z-index: 2;
   background-color: ${(props) => props.theme.colours.headerBackgroundColour};
-  padding: 2px 2px;
+  padding: 2px 20px;
 `
 
 export const ShortcutIcon = styled.div`
@@ -41,7 +41,7 @@ export const SelectContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   grid-area: search;
-  padding: 0px 10px;
+  padding: 0px 5px;
 `
 
 export const IconContainer = styled.div`

@@ -277,6 +277,7 @@ function createMainWindow() {
     width: 1200,
     height: 850,
     minWidth: 550,
+    titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(process.cwd() + '/app/main/preload.ts'),
