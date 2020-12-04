@@ -72,4 +72,5 @@ export const Container = styled.div`
   border-radius: 5px;
   border: 1px solid;
   border-color: ${(props) => props.theme.colours.borderColour};
+  min-width: 666px;
 `

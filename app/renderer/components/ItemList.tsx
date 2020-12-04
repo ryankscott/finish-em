@@ -61,8 +61,9 @@ type ItemListProps = {
     children: { key: string }[]
     sortOrder: { sortOrder: number }
   }[]
-  flattenSubtasks?: Boolean
+  flattenSubtasks?: boolean
   hiddenIcons: ItemIcons[]
+  compact?: boolean
 }
 
 function ItemList(props: ItemListProps): ReactElement {
@@ -281,6 +282,7 @@ function ItemList(props: ItemListProps): ReactElement {
                   return (
                     <ItemContainer state={state} tabIndex={0} key={'container-' + i.key}>
                       <Item
+                        compact={props.compact}
                         key={i.key}
                         itemKey={i.key}
                         componentKey={props.componentKey}
@@ -292,6 +294,7 @@ function ItemList(props: ItemListProps): ReactElement {
                         // We need to check if the child exists in the original input list
                         return (
                           <Item
+                            compact={props.compact}
                             key={childItem.key}
                             itemKey={childItem.key}
                             componentKey={props.componentKey}

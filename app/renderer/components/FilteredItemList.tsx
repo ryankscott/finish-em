@@ -62,8 +62,13 @@ const GET_DATA = gql`
       scheduledAt
       lastUpdatedAt
       createdAt
+      area {
+        key
+        name
+      }
       project {
         key
+        name
       }
       parent {
         key

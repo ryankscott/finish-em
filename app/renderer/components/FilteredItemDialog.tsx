@@ -17,6 +17,7 @@ import {
   DialogContainer,
   DialogHeader,
   DialogName,
+  FilterContainer,
   HelpButtonContainer,
   SelectContainer,
   Setting,
@@ -168,15 +169,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         </Setting>
         <Setting>
           <SettingLabel>Filter:</SettingLabel>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              width: '100%',
-              minHeight: '90px',
-              justifyContent: 'space-between',
-            }}
-          >
+          <FilterContainer>
             {params.legacyFilter && (
               <EditableText
                 innerRef={filterRef}
@@ -216,7 +209,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 })
               }}
             />
-          </div>
+          </FilterContainer>
         </Setting>
         <Setting>
           <SettingLabel>Filterable:</SettingLabel>

@@ -74,6 +74,11 @@ export const Container = styled.div<ContainerProps>`
     margin: 0px;
     width: auto;
   }
+  & > ol {
+    padding: 0px 10px;
+    margin: 0px;
+    width: auto;
+  }
   & > span.valid {
     background-color: ${(props) => props.theme.colours.penternaryColour};
     color: ${(props) => props.theme.colours.altTextColour};

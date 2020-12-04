@@ -1,9 +1,10 @@
 import styled from 'styled-components'
-import { Title } from '../Typography'
-
+import { Header2, Title } from '../Typography'
+import CSS from 'csstype'
+import { darken } from 'polished'
 export const WeekContainer = styled.div`
   display: grid;
-  grid-template-rows: 6fr 1fr;
+  grid-template-rows: 2fr 1fr;
   grid-template-areas:
     'back day day day day forward'
     'week_of_year . . . . week_of_quarter';
@@ -16,8 +17,8 @@ export const Section = styled.div`
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   flex-direction: row;
-  margin: 0px 5px;
-  padding: 0px 5px;
+  margin: 0px;
+  padding: 0px;
   width: 100%;
 `
 
@@ -28,6 +29,16 @@ export const AgendaContainer = styled.div`
   padding: 20px 20px;
   width: 100%;
   align-items: center;
+`
+export const GoalContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 10px;
+  padding-left: 20px;
+  border: 1px solid ${(props) => props.theme.colours.borderColour};
+  border-radius: 5px;
+  margin: 30px 5px;
 `
 
 export const BackContainer = styled.div`
@@ -51,10 +62,30 @@ export const WeeklyTitle = styled(Title)`
   display: flex;
   justify-content: center;
 `
+export const ColumnHeader = styled(Header2)`
+  padding: 5px 5px;
+  padding-bottom: 15px;
+  text-align: center;
+  border-bottom: 1px solid;
+  border-color: ${(props) => props.theme.colours.borderColour};
+`
 
 export const BacklogContainer = styled.div`
   display: flex;
   flex-direction: row;
+  width: 100;
+  justify-content: center;
+  padding: 20px 5px;
+`
+
+type DayContainerProps = {
+  past: boolean
+}
+export const DayContainer = styled.div<DayContainerProps>`
+  padding: 10px 5px;
+  border: 1px solid ${(props) => props.theme.colours.borderColour};
+  border-radius: 5px;
+  background-color: ${(props) => (props.past ? '#efefef' : 'inherit')};
 `
 
 type DraggableListProps = {
@@ -76,22 +107,17 @@ type DraggableContainerProps = {
   state: string
 }
 export const DraggableContainer = styled.div<DraggableContainerProps>`
-    ...props.draggableStyle;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    user-select: none;
-    padding: 0px;
-    margin: 0px;
-    border-radius: 5px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  user-select: none;
+  padding: 0px;
+  margin: 0px;
+  border-radius: 5px;
   background: ${(props) => props.theme.colours.backgroundColour};
-    box-shadow: ${(props) =>
-      props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.borderColour) : '0px'};
-    animation: ${(props) =>
-      props.state == 'entering'
-        ? entryAnimation
-        : props.state == 'exiting'
-        ? exitAnimation
-        : 'none'}
+  box-shadow: ${(props) =>
+    props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.borderColour) : '0px'};
+  animation: ${(props) =>
+    props.state == 'entering' ? entryAnimation : props.state == 'exiting' ? exitAnimation : 'none'};
 `

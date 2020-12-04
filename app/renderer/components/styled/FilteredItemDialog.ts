@@ -77,3 +77,10 @@ export const CloseButtonContainer = styled.div`
   top: 5px;
   right: 5px;
 `
+
+export const FilterContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: space-between;
+`

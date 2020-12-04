@@ -37,8 +37,8 @@ import WeeklyAgenda from './WeeklyAgenda'
 
 const electron = window.require('electron')
 
-export const MIN_WIDTH_FOR_SIDEBAR = 1050
-export const MIN_WIDTH_FOR_FOCUSBAR = 925
+export const MIN_WIDTH_FOR_SIDEBAR = 1125
+export const MIN_WIDTH_FOR_FOCUSBAR = 1125
 
 const GET_DATA = gql`
   query {
@@ -300,7 +300,7 @@ const App = (props: AppProps): ReactElement => {
     })
 
     electron.ipcRenderer.on('get-features', (event) => {
-      event.sender.send('get-features-reply', data.features)
+      event.sender.send('get-features-reply', data?.features)
     })
   }, [])
   const [createEvent] = useMutation(CREATE_EVENT)
@@ -345,10 +345,10 @@ const App = (props: AppProps): ReactElement => {
         <HeaderContainer>
           <Headerbar searchRef={searchRef} />
         </HeaderContainer>
-        <SidebarContainer visible={data.sidebarVisible}>
-          <Sidebar />
-        </SidebarContainer>
         <BodyContainer>
+          <SidebarContainer visible={data.sidebarVisible}>
+            <Sidebar />
+          </SidebarContainer>
           <MainContainer visible={data.sidebarVisible}>
             <ShortcutDialog />
             <Switch>

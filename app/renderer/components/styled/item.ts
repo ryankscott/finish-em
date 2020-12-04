@@ -1,6 +1,7 @@
 import styled from '../../StyledComponents'
 import CSS from 'csstype'
 import { transparentize } from 'polished'
+import { repeat } from 'lodash'
 
 interface ContainerProps {
   labelColour: CSS.Property.Color
@@ -19,12 +20,15 @@ export const Container = styled.div<ContainerProps>`
   opacity: ${(props) => (props.hidden ? '0' : '1')};
   margin: 1px 0px;
   margin-left: ${(props) => (props.shouldIndent ? '15px' : '0px')};
-  grid-template-columns: 25px 25px repeat(4, 1fr) 25px 25px;
+  grid-template-columns: ${(props) =>
+    props.compact ? 'repeat(8, 1fr)' : '25px 25px repeat(4, 1fr) 25px 25px'};
   grid-auto-rows: auto auto;
-  grid-template-areas:
-    '  EXPAND   TYPE    DESC         DESC         DESC        PROJECT    REMINDER     MORE'
-    '  .        .       PARENT       SCHEDULED    DUE         REPEAT       .        .   ';
-
+  grid-template-areas: ${(props) =>
+    props.compact
+      ? `"DESC   DESC  DESC   DESC      DESC   DESC    DESC     PROJECT"
+         "DUE    DUE   DUE    DUE       REPEAT  REPEAT   REPEAT";`
+      : `"EXPAND TYPE  DESC   DESC      DESC   PROJECT REMINDER MORE"
+         ".      .     PARENT SCHEDULED DUE    REPEAT  .        .";`};
   padding: ${(props) => (props.hidden ? '0px' : '5px')};
   align-items: center;
   cursor: pointer;

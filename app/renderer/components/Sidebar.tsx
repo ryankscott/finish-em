@@ -242,6 +242,19 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 text={'Daily Agenda'}
               />
             </StyledLink>
+            <StyledLink
+              sidebarVisible={data.sidebarVisible}
+              to="/weeklyAgenda"
+              activeStyle={{
+                backgroundColor: theme.colours.focusAltDialogBackgroundColour,
+              }}
+            >
+              <SidebarItem
+                sidebarVisible={data.sidebarVisible}
+                iconName={'weekly'}
+                text={'Weekly Agenda'}
+              />
+            </StyledLink>
             {sortedViews.map((view) => {
               if (view.type == 'project') return null
               return (

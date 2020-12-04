@@ -28,6 +28,13 @@ CREATE TABLE feature (
   key TEXT NOT NULL UNIQUE
 );
 
+CREATE TABLE weeklyGoal (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  week TEXT,
+  goal TEXT,
+  key TEXT NOT NULL UNIQUE
+);
+
 CREATE TABLE reminder (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   text TEXT,
@@ -203,6 +210,7 @@ INSERT INTO `view` (key, name, icon, type) VALUES
 ('0524ccae-1005-4b75-80ca-f04691ad6431', 'Stale', 'stale', 'custom'),
 ('0', 'Inbox', 'inbox', 'default'),
 ('ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134', 'Daily Agenda', 'calendar', 'default'),
+('6c40814f-8fad-40dc-9a96-0454149a9408', 'Weekly Agenda', 'weekly', 'default'),
 ('a6770550-ecc5-48a3-89eb-6b6a6aaea05d', 'Labels', 'label', 'custom');
 
 INSERT INTO viewOrder (viewKey, sortOrder) 
@@ -213,7 +221,8 @@ VALUES
 ('0524ccae-1005-4b75-80ca-f04691ad6431', 3), 
 ('0', 4), 
 ('ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134', 5),
-('a6770550-ecc5-48a3-89eb-6b6a6aaea05d', 6); 
+('6c40814f-8fad-40dc-9a96-0454149a9408', 6),
+('a6770550-ecc5-48a3-89eb-6b6a6aaea05d', 7); 
 
 
 -- --------------------------------------------------------------------------------
@@ -222,6 +231,7 @@ VALUES
 DROP TABLE label;
 DROP TABLE calendar;
 DROP TABLE feature;
+DROP TABLE weeklyGoal;
 DROP TABLE reminder;
 DROP TABLE event;
 DROP TABLE area;

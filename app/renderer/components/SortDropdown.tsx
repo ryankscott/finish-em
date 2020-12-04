@@ -64,6 +64,11 @@ export const sortOptions: SortOptions = {
     sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
       orderBy(items, [(i) => new Date(i.lastUpdatedAt)], direction),
   },
+  PROJECT: {
+    label: 'Project',
+    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+      orderBy(items, [(i) => i.project?.name], direction),
+  },
 }
 
 type SortDropdownProps = {

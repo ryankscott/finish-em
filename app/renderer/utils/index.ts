@@ -111,6 +111,8 @@ export const getEmoji = (input: string): string => {
 }
 
 export const createShortSidebarItem = (input: string): string => {
+  if (!input) return input
+
   // If there's an emoji anywhere return the first one
   const emoji = getEmoji(input)
   if (emoji) return emoji

@@ -6,10 +6,9 @@ import { darken } from 'polished'
 export const Container = styled.div`
   display: grid;
   grid-template-rows: 50px auto;
-  grid-template-columns: minmax(50px, 250px) auto;
   grid-template-areas:
-    'header header'
-    'sidebar body';
+    'header'
+    'body';
   margin: 0px;
   height: 100%;
   min-width: 500px;
@@ -41,7 +40,6 @@ interface SidebarContainerProps {
 }
 
 export const SidebarContainer = styled.div<SidebarContainerProps>`
-  grid-area: sidebar;
   display: flex;
   width: ${(props) => (props.visible ? '250px' : '50px')};
   min-width: ${(props) => (props.visible ? '250px' : '50px')};

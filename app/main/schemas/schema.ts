@@ -30,4 +30,5 @@ export const rootValue = {
   ...api.viewOrderRootValues,
   ...api.componentRootValues,
   ...api.componentOrderRootValues,
+  ...api.weeklyGoalRootValues,
 }

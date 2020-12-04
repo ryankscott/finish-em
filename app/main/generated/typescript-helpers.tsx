@@ -100,6 +100,9 @@ export type Query = {
   view?: Maybe<View>;
   viewOrders?: Maybe<Array<Maybe<ViewOrder>>>;
   viewOrder?: Maybe<ViewOrder>;
+  weeklyGoals?: Maybe<Array<Maybe<WeeklyGoal>>>;
+  weeklyGoal?: Maybe<WeeklyGoal>;
+  weeklyGoalByName?: Maybe<WeeklyGoal>;
 };
 
 
@@ -227,6 +230,16 @@ export type QueryViewOrderArgs = {
   viewKey: Scalars['String'];
 };
 
+
+export type QueryWeeklyGoalArgs = {
+  key: Scalars['String'];
+};
+
+
+export type QueryWeeklyGoalByNameArgs = {
+  name: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   createArea?: Maybe<Area>;
@@ -297,6 +310,7 @@ export type Mutation = {
   setViewOrder?: Maybe<ViewOrder>;
   createViewOrder?: Maybe<ViewOrder>;
   migrateViewOrder?: Maybe<ViewOrder>;
+  createWeeklyGoal?: Maybe<WeeklyGoal>;
 };
 
 
@@ -637,6 +651,11 @@ export type MutationCreateViewOrderArgs = {
 
 export type MutationMigrateViewOrderArgs = {
   input: MigrateViewOrderInput;
+};
+
+
+export type MutationCreateWeeklyGoalArgs = {
+  input: CreateWeeklyGoalInput;
 };
 
 export type AreaOrder = {
@@ -1159,6 +1178,19 @@ export type MigrateViewOrderInput = {
   sortOrder: Scalars['Int'];
 };
 
+export type WeeklyGoal = {
+  __typename?: 'WeeklyGoal';
+  key: Scalars['String'];
+  week: Scalars['String'];
+  goal?: Maybe<Scalars['String']>;
+};
+
+export type CreateWeeklyGoalInput = {
+  key: Scalars['String'];
+  week: Scalars['String'];
+  goal?: Maybe<Scalars['String']>;
+};
+
 
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
@@ -1330,6 +1362,8 @@ export type ResolversTypes = {
   SetViewOrderInput: SetViewOrderInput;
   CreateViewOrderInput: CreateViewOrderInput;
   MigrateViewOrderInput: MigrateViewOrderInput;
+  WeeklyGoal: ResolverTypeWrapper<WeeklyGoal>;
+  CreateWeeklyGoalInput: CreateWeeklyGoalInput;
 };
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -1427,6 +1461,8 @@ export type ResolversParentTypes = {
   SetViewOrderInput: SetViewOrderInput;
   CreateViewOrderInput: CreateViewOrderInput;
   MigrateViewOrderInput: MigrateViewOrderInput;
+  WeeklyGoal: WeeklyGoal;
+  CreateWeeklyGoalInput: CreateWeeklyGoalInput;
 };
 
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
@@ -1488,6 +1524,9 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   view?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<QueryViewArgs, 'key'>>;
   viewOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ViewOrder']>>>, ParentType, ContextType>;
   viewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<QueryViewOrderArgs, 'viewKey'>>;
+  weeklyGoals?: Resolver<Maybe<Array<Maybe<ResolversTypes['WeeklyGoal']>>>, ParentType, ContextType>;
+  weeklyGoal?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<QueryWeeklyGoalArgs, 'key'>>;
+  weeklyGoalByName?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<QueryWeeklyGoalByNameArgs, 'name'>>;
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
@@ -1559,6 +1598,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   setViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationSetViewOrderArgs, 'input'>>;
   createViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationCreateViewOrderArgs, 'input'>>;
   migrateViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationMigrateViewOrderArgs, 'input'>>;
+  createWeeklyGoal?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<MutationCreateWeeklyGoalArgs, 'input'>>;
 };
 
 export type AreaOrderResolvers<ContextType = any, ParentType extends ResolversParentTypes['AreaOrder'] = ResolversParentTypes['AreaOrder']> = {
@@ -1702,6 +1742,13 @@ export type ViewOrderResolvers<ContextType = any, ParentType extends ResolversPa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type WeeklyGoalResolvers<ContextType = any, ParentType extends ResolversParentTypes['WeeklyGoal'] = ResolversParentTypes['WeeklyGoal']> = {
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  week?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  goal?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type Resolvers<ContextType = any> = {
   DateTime?: GraphQLScalarType;
   Area?: AreaResolvers<ContextType>;
@@ -1721,6 +1768,7 @@ export type Resolvers<ContextType = any> = {
   Reminder?: ReminderResolvers<ContextType>;
   View?: ViewResolvers<ContextType>;
   ViewOrder?: ViewOrderResolvers<ContextType>;
+  WeeklyGoal?: WeeklyGoalResolvers<ContextType>;
 };
 
 

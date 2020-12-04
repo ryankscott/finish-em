@@ -8,6 +8,7 @@ import { cloneDeep, get, set as setKey } from 'lodash'
 import { themes } from '../theme'
 import {
   capitaliseFirstLetter,
+  createShortSidebarItem,
   formatRelativeDate,
   removeItemTypeFromString,
   rruleToText,
@@ -39,6 +40,7 @@ import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
 
 type ItemProps = {
+  compact: boolean
   itemKey: string
   componentKey: string
   hiddenIcons: ItemIcons[]
@@ -307,6 +309,7 @@ function Item(props: ItemProps): ReactElement {
     <ThemeProvider theme={theme}>
       <Container
         id={props.componentKey + '-' + item.key}
+        compact={props.compact}
         onMouseEnter={() => {
           enterInterval = setTimeout(() => setMoreButtonVisible(true), 250)
           clearTimeout(exitInterval)
@@ -332,7 +335,7 @@ function Item(props: ItemProps): ReactElement {
         itemType={item.type}
         labelColour={item.label ? item.label.colour : null}
       >
-        {item.children?.length > 0 && (
+        {item.children?.length > 0 && !props.compact && (
           <ExpandContainer>
             <Button
               type="subtle"
@@ -345,30 +348,33 @@ function Item(props: ItemProps): ReactElement {
             ></Button>
           </ExpandContainer>
         )}
-        <TypeContainer>
-          <Button
-            dataFor={`type-button-${item.key}`}
-            type="subtle"
-            spacing="compact"
-            onClick={handleIconClick}
-            icon={
-              item.deleted
-                ? 'restore'
-                : item.type == 'NOTE'
-                ? 'note'
-                : item.completed
-                ? 'todoChecked'
-                : 'todoUnchecked'
-            }
-            iconSize={'16px'}
-          />
-          {item.type == 'TODO' && (
-            <Tooltip
-              id={`type-button-${item.key}`}
-              text={item.deleted ? 'Restore' : item.completed ? 'Uncomplete' : 'Complete'}
+        {!props.compact && (
+          <TypeContainer>
+            <Button
+              dataFor={`type-button-${item.key}`}
+              type="subtle"
+              spacing="compact"
+              onClick={handleIconClick}
+              icon={
+                item.deleted
+                  ? 'restore'
+                  : item.type == 'NOTE'
+                  ? 'note'
+                  : item.completed
+                  ? 'todoChecked'
+                  : 'todoUnchecked'
+              }
+              iconSize={'16px'}
             />
-          )}
-        </TypeContainer>
+
+            {item.type == 'TODO' && (
+              <Tooltip
+                id={`type-button-${item.key}`}
+                text={item.deleted ? 'Restore' : item.completed ? 'Uncomplete' : 'Complete'}
+              />
+            )}
+          </TypeContainer>
+        )}
         <Body id="body" completed={item.completed} deleted={item.deleted}>
           <EditableText
             shouldSubmitOnBlur={true}
@@ -388,47 +394,53 @@ function Item(props: ItemProps): ReactElement {
           visible={!(props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null)}
         >
           <ProjectName data-tip data-for={'project-name-' + item.key}>
-            {getProjectText(item.project?.name).short}
+            {props.compact
+              ? createShortSidebarItem(item.project?.name)
+              : getProjectText(item.project?.name).short}
           </ProjectName>
           <Tooltip id={'project-name-' + item.key} text={getProjectText(item.project?.name).long} />
         </ProjectContainer>
-
-        <MoreContainer visible={moreButtonVisible}>
-          <MoreDropdown subtle={true} options={dropdownOptions}></MoreDropdown>
-          {showLabelDialog && (
-            <LabelDialog
-              itemKey={item.key}
-              onClose={() => {
-                setShowLabelDialog(false)
-              }}
+        {!props.compact && (
+          <MoreContainer visible={moreButtonVisible}>
+            <MoreDropdown subtle={true} options={dropdownOptions}></MoreDropdown>
+            {showLabelDialog && (
+              <LabelDialog
+                itemKey={item.key}
+                onClose={() => {
+                  setShowLabelDialog(false)
+                }}
+              />
+            )}
+            {showReminderDialog && (
+              <ReminderDialog
+                itemKey={item.key}
+                reminderText={removeItemTypeFromString(item.text)}
+                onClose={() => {
+                  setShowReminderDialog(false)
+                }}
+              />
+            )}
+          </MoreContainer>
+        )}
+        {!props.compact && (
+          <ParentItemContainer
+            data-tip
+            data-for={'parent-item-' + item.key}
+            visible={!props.hiddenIcons?.includes(ItemIcons.Subtask) && item.parent != null}
+          >
+            <ItemAttribute
+              completed={item.completed}
+              type={'subtask'}
+              text={
+                item.parent ? truncateString(removeItemTypeFromString(item.parent.text), 12) : ''
+              }
             />
-          )}
-          {showReminderDialog && (
-            <ReminderDialog
-              itemKey={item.key}
-              reminderText={removeItemTypeFromString(item.text)}
-              onClose={() => {
-                setShowReminderDialog(false)
-              }}
+            <Tooltip
+              id={'parent-item-' + item.key}
+              text={item.parent ? removeItemTypeFromString(item.parent.text) : ''}
             />
-          )}
-        </MoreContainer>
-
-        <ParentItemContainer
-          data-tip
-          data-for={'parent-item-' + item.key}
-          visible={!props.hiddenIcons?.includes(ItemIcons.Subtask) && item.parent != null}
-        >
-          <ItemAttribute
-            completed={item.completed}
-            type={'subtask'}
-            text={item.parent ? truncateString(removeItemTypeFromString(item.parent.text), 12) : ''}
-          />
-          <Tooltip
-            id={'parent-item-' + item.key}
-            text={item.parent ? removeItemTypeFromString(item.parent.text) : ''}
-          />
-        </ParentItemContainer>
+          </ParentItemContainer>
+        )}
         <ScheduledContainer
           data-tip
           data-for={'scheduled-date-' + item.key}
