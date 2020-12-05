@@ -4,7 +4,7 @@ import Select from 'react-select'
 import Switch from 'react-switch'
 import { FilteredItemListPropsInput } from '../../main/generated/typescript-helpers'
 import { Icons } from '../assets/icons'
-import EditableText from '../components/EditableText'
+import EditableText from './EditableText'
 import { ThemeType } from '../interfaces'
 import { ItemIcons } from '../interfaces/item'
 import { ThemeProvider } from '../StyledComponents'
@@ -16,14 +16,13 @@ import {
   CloseButtonContainer,
   DialogContainer,
   DialogHeader,
-  DialogName,
   FilterContainer,
   HelpButtonContainer,
   SelectContainer,
   Setting,
   SettingLabel,
   SettingValue,
-} from './styled/FilteredItemDialog'
+} from './styled/EditFilteredItemList'
 import Tooltip from './Tooltip'
 import { Code } from './Typography'
 
@@ -72,8 +71,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
     variables: { key: props.componentKey },
   })
 
-  const [errorMessage, setErrorMessage] = useState('')
-
   if (loading) return null
   if (error) {
     console.log(error)
@@ -85,7 +82,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   } catch (error) {
     console.log('Failed to parse parameters')
     console.log(error)
-    console.log(data.component.parameters)
     return null
   }
 
@@ -103,8 +99,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           >
             {Icons['help'](18, 18, theme.colours.disabledTextColour)}
           </HelpButtonContainer>
-          <DialogName>{'Update List'}</DialogName>
-
           <CloseButtonContainer>
             <Button
               type="default"
@@ -125,8 +119,8 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 <li> Name - the name displayed for the list </li>
                 <li> Filter - the query to determine the items shown (See help for syntax) </li>
                 <li> Filterable - shows or hides the filter bar </li>
-                <li> Show subtasks - will show subtasks when the parent isn't included in the list </li>
-                <li> Hide icons - select the icons to hide each item </li>
+                <li> Flatten subtasks - will show subtasks when the parent isn't included in the list </li>
+                <li> Hidden icons - select the icons to hide on each item </li>
                 </ul>
                   `}
           />
@@ -280,7 +274,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           <SettingValue>
             <SelectContainer>
               <Select
-                value={params.hiddenIcons.map((i) => {
+                value={params.hiddenIcons?.map((i) => {
                   return options.find((o) => o.value == i)
                 })}
                 isMulti={true}

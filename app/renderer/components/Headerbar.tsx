@@ -110,28 +110,26 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
         </SelectContainer>
         <FeedbackIcon>
           <Button
-            dataFor="feedback-button"
             type="subtle"
             icon="feedback"
             iconSize="20px"
             iconColour={theme.colours.altTextColour}
+            tooltipText={'Give feedback'}
             onClick={() => window.open('https://github.com/ryankscott/finish-em/issues/new/')}
           ></Button>
-          <Tooltip id="feedback-button" text={'Give feedback'}></Tooltip>
         </FeedbackIcon>
         <ShortcutIcon id="shortcut-icon">
           <Button
-            dataFor="shortcut-button"
             id="shortcut-button"
             type="subtle"
             icon="help"
             iconSize="20px"
             iconColour={theme.colours.altTextColour}
+            tooltipText="Show shortcuts"
             onClick={() => {
               history.push('/help/')
             }}
           ></Button>
-          <Tooltip id="shortcut-button" text={'Show shortcuts'}></Tooltip>
         </ShortcutIcon>
       </ThemeProvider>
     </Container>

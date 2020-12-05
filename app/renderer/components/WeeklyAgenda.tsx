@@ -24,7 +24,6 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { ItemIcons, ThemeType } from '../interfaces'
 import ItemList from './ItemList'
 import { groupBy } from 'lodash'
-import FilteredItemList from './FilteredItemList'
 import EditableText from './EditableText'
 import ReorderableComponentList from './ReorderableComponentList'
 const GET_DATA = gql`
@@ -38,6 +37,10 @@ const GET_DATA = gql`
       scheduledAt
       lastUpdatedAt
       createdAt
+      reminders {
+        key
+        remindAt
+      }
       project {
         key
       }

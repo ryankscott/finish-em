@@ -35,14 +35,6 @@ export const createCreateComponentQuery = (input: {
   type: string
   parameters: Object
 }) => {
-  console.log(
-    `
-    INSERT INTO component (key, viewKey, location, type, parameters)
-    VALUES ('${input.key}', '${input.viewKey}', '${input.location}', '${
-      input.type
-    }', json('${JSON.stringify(input.parameters)}')); 
-    `,
-  )
   return `
 INSERT INTO component (key, viewKey, location, type, parameters)
 VALUES ('${input.key}', '${input.viewKey}', '${input.location}', '${

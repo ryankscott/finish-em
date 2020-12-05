@@ -4,7 +4,6 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { Container, SubTextContainer } from './styled/DateRenderer'
 import { IconType, ThemeType } from '../interfaces'
-import Tooltip from './Tooltip'
 import { gql, useQuery } from '@apollo/client'
 
 const GET_THEME = gql`
@@ -38,7 +37,6 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
       <Container completed={props.completed} type={props.icon}>
         <SubTextContainer key={props.icon} position={props.position}>
           <Button
-            dataFor={'data-renderer-' + props.icon + '-' + props.text}
             type={props.style || 'default'}
             spacing="compact"
             onClick={props.onClick}
@@ -47,11 +45,9 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
             isDisabled={props.deleted}
             textSize={props.textSize}
             iconColour={!props.text ? theme.colours.altIconColour : null}
+            tooltipText={props.tooltipText}
           ></Button>
         </SubTextContainer>
-        {props.tooltipText && (
-          <Tooltip id={'data-renderer-' + props.icon + '-' + props.text} text={props.tooltipText} />
-        )}
       </Container>
     </ThemeProvider>
   )

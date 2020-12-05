@@ -332,7 +332,7 @@ app.on('ready', () => {
   setTimeout(() => {
     mainWindow.webContents.send('get-features')
     ipcMain.once('get-features-reply', (event, features) => {
-      if (features.calendarIntegration) {
+      if (features && features.calendarIntegration) {
         if (calendar) {
           console.log(`Getting calendar events for ${calendar}`)
           setInterval(getCalendarEvents(calendar), 1000 * 60 * 30)

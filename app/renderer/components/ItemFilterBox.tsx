@@ -221,36 +221,42 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
 
   const customAutoComplete = new CustomAutoComplete(inputData, filterOptions)
 
+  const transformExpression = (e: Expression): Expression => {
+    switch (e.category) {
+      case 'project':
+        return {
+          ...e,
+          category: 'projectKey',
+          value: data.projects.find((p) => p.name == e.value).key,
+        }
+        break
+      case 'area':
+        return {
+          ...e,
+          category: 'areaKey',
+          value: data.areas.find((p) => p.name == e.value).key,
+        }
+        break
+      case 'label':
+        return {
+          ...e,
+          category: 'labelKey',
+          value: data.labels.find((p) => p.name == e.value).key,
+        }
+        break
+
+      default:
+        return e
+        break
+    }
+  }
   const onParseOk = (query: string, expressions: Expression[]) => {
     setErrorMessage('')
     const transformedExpressions = expressions.map((e) => {
-      switch (e.category) {
-        case 'project':
-          return {
-            ...e,
-            category: 'projectKey',
-            value: data.projects.find((p) => p.name == e.value).key,
-          }
-          break
-        case 'area':
-          return {
-            ...e,
-            category: 'areaKey',
-            value: data.areas.find((p) => p.name == e.value).key,
-          }
-          break
-        case 'label':
-          return {
-            ...e,
-            category: 'labelKey',
-            value: data.labels.find((p) => p.name == e.value).key,
-          }
-          break
-
-        default:
-          return e
-          break
+      if (e.expressions) {
+        e.expressions = e.expressions.map((es) => transformExpression(es))
       }
+      return transformExpression(e)
     })
     props.onSubmit(query, transformedExpressions)
   }

@@ -260,15 +260,14 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           {item?.parent != null && (
             <div style={{ gridArea: 'UP' }}>
               <Button
-                dataFor="up-button"
                 type="default"
                 spacing="compact"
+                tooltipText={'Up level'}
                 onClick={() => {
                   activeItemVar(item.parent.key)
                 }}
                 icon={'upLevel'}
               ></Button>
-              <Tooltip id="up-button" text={'Up level'} />
             </div>
           )}
           <div
@@ -316,33 +315,30 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           {item.deleted ? (
             <>
               <Button
-                dataFor="restore-button"
                 type={'default'}
                 icon="restore"
                 height="26px"
                 width="26px"
                 spacing="compact"
+                tooltipText="Restore"
                 onClick={() => {
                   restoreItem({ variables: { key: item.key } })
                 }}
               ></Button>
-              <Tooltip id="restore-button" text={'Restore'} />{' '}
             </>
           ) : (
             <>
               <Button
-                dataFor="delete-button"
                 type={'default'}
                 icon="trash"
                 spacing="compact"
                 height="26px"
                 width="26px"
+                tooltipText="Delete"
                 onClick={() => {
                   deleteItem({ variables: { key: item.key } })
                 }}
               ></Button>
-
-              <Tooltip id="delete-button" text={'Delete'} />
             </>
           )}
         </TitleContainer>

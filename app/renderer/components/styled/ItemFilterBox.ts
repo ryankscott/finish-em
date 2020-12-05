@@ -24,5 +24,5 @@ export const Error = styled.code`
 `
 
 export const FilterContainer = styled.div`
-  width: 100%;
+  width: 500px;
 `

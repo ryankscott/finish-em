@@ -157,7 +157,6 @@ function Settings(props: SettingsPickerProps): ReactElement {
   // TODO: Loading and error states
   if (loading) return null
   if (error) return null
-  console.log(data)
   const theme = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>

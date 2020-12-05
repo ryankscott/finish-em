@@ -2,7 +2,6 @@ import React, { ReactElement, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
 import Button from './Button'
-import Tooltip from './Tooltip'
 import { SortContainer, SortSelect } from './styled/SortDropdown'
 import { components } from 'react-select'
 import { Icons } from '../assets/icons'
@@ -109,7 +108,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           }}
         />
         <Button
-          dataFor={'sort-direction-button'}
           type="default"
           spacing="compact"
           iconSize="18px"
@@ -120,8 +118,8 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
               ? props.onSetSortDirection(SortDirectionEnum.Descending)
               : props.onSetSortDirection(SortDirectionEnum.Ascending)
           }}
+          tooltipText="Toggle sort direction"
         />
-        <Tooltip id="sort-direction-button" text={'Toggle sort direction'} />
       </SortContainer>
     </ThemeProvider>
   )

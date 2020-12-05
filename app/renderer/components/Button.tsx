@@ -5,6 +5,8 @@ import { StyledButton, Contents, Icon, Text } from './styled/Button'
 import { IconType, ThemeType } from '../interfaces'
 import { Icons } from '../assets/icons'
 import { gql, useQuery } from '@apollo/client'
+import Tooltip from './Tooltip'
+import { v4 as uuidv4 } from 'uuid'
 
 const GET_THEME = gql`
   query {
@@ -24,7 +26,6 @@ type ButtonProps = {
   iconSize?: string
   iconColour?: string
   tabIndex?: number
-  dataFor?: string
   width?: string
   height?: string
   iconPosition?: 'before' | 'after'
@@ -32,6 +33,7 @@ type ButtonProps = {
   rotate?: number // Note: This lovely little hack is because of a StyledComponents bug https://github.com/styled-components/styled-components/issues/1198
   translateY?: number
   translateZ?: number
+  tooltipText?: string
 }
 
 // TODO: Add tooltips to the button?
@@ -43,6 +45,7 @@ const Button = (props: ButtonProps): ReactElement => {
     return null
   }
   const theme: ThemeType = themes[data.theme]
+  const id = uuidv4()
   return (
     <ThemeProvider theme={theme}>
       <StyledButton
@@ -54,7 +57,7 @@ const Button = (props: ButtonProps): ReactElement => {
         buttonType={props.type}
         disabled={props.isDisabled}
         data-tip
-        data-for={props.dataFor}
+        data-for={id}
         tabIndex={props.tabIndex != undefined ? props.tabIndex : -1}
         iconOnly={props.icon && !props.text}
       >
@@ -93,6 +96,7 @@ const Button = (props: ButtonProps): ReactElement => {
           )}
         </Contents>
       </StyledButton>
+      {props.tooltipText && <Tooltip id={id} text={props.tooltipText} />}
     </ThemeProvider>
   )
 }

@@ -25,6 +25,7 @@ const CREATE_REMINDER = gql`
   mutation CreateReminder($key: String!, $text: String!, $remindAt: DateTime, $itemKey: String) {
     createReminder(input: { key: $key, text: $text, remindAt: $remindAt, itemKey: $itemKey }) {
       key
+      remindAt
     }
   }
 `

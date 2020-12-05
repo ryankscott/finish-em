@@ -90,6 +90,9 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     return null
   }
   const theme: ThemeType = themes[data.theme]
+
+  // TODO: Reintroduce shortcuts
+
   // const handlers = {
   //   TOGGLE_CHILDREN: (event) => {
   //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
@@ -282,13 +285,13 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
               >
                 <TransitionGroup component={null}>
                   {sortedItems.map((item, index) => {
-                    /* We need two strategies for rendering items:
-                        1. All rendering
-                          - If an item has a parent and the parent is in the list, don't render it
-                        2.  Default
-                          - If an item has a parent, don't render it
-                          - For each item, render the item and it's children  (In the Item component)
-                        */
+                    /* We want to allow flattening of subtasks which means:
+                      1. If we should flatten
+                        - If an item has a parent and the parent is in the list, don't render the parent 
+                      2.  Default
+                        - If an item has a parent, don't render it (as it will get rendered later)
+                        - For each item, render the item and it's children  (In the Item component)
+                    */
                     if (props.flattenSubtasks == true) {
                       if (item.parent != null) {
                         const parentExistsInList = props.inputItems.find(
@@ -339,6 +342,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                     // We need to check if the child exists in the original input list
                                     return (
                                       <Item
+                                        compact={false}
                                         itemKey={childItem.key}
                                         key={childItem.key}
                                         {...childItem}

@@ -79,6 +79,8 @@ function ItemList(props: ItemListProps): ReactElement {
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [restoreItem] = useMutation(RESTORE_ITEM)
 
+  // TODO: Reintroduce shortcuts
+
   //   /*  const handlers = {
   //     TOGGLE_CHILDREN: (event) => {
   //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
