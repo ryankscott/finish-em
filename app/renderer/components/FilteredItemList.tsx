@@ -169,7 +169,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   )
   return (
     <ThemeProvider theme={theme}>
-      return (
       <Container>
         <HeaderBar>
           <HideButtonContainer>
@@ -360,7 +359,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
           )
         ) : null}
       </Container>
-      )
     </ThemeProvider>
   )
 }
