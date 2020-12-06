@@ -8,7 +8,6 @@ import {
   migratev7tov8Items,
   migratev11tov12Labels,
   migrateAreaQuery,
-  migrateAreaOrderQuery,
 } from '../store/migrations'
 
 describe('migration tests', () => {
@@ -500,41 +499,5 @@ describe('migration tests', () => {
         'a342c159-9691-4684-a109-156ba46c1ea4',
       ],
     })
-  })
-  it('should handle creating a query for migrating an area', () => {
-    expect(
-      migrateAreaQuery(
-        '5bd4d5ce-447f-45d5-a557-c8942bbfbae4',
-        'Work',
-        false,
-        'For work items',
-        new Date().toString(),
-        null,
-        null,
-      ),
-    ).toContain(`
-mutation {
-  migrateArea(input: {
-    key: "5bd4d5ce-447f-45d5-a557-c8942bbfbae4",
-    name: "Work",
-    deleted: false,
-    description: "For work items",
-    lastUpdatedAt: ${new Date()},
-    deletedAt: null,
-    createdAt: null,
-    }) {
-      key
-    }
-}
-`)
-  })
-  it('should handle creating a query for migrating an areaOrder', () => {
-    expect(migrateAreaOrderQuery('5bd4d5ce-447f-45d5-a557-c8942bbfbae4', 99)).toContain(`
-mutation {
-  migrateAreaOrder(input: {areaKey: "5bd4d5ce-447f-45d5-a557-c8942bbfbae4", sortOrder: 99}) {
-    areaKey
-  }
-}
-`)
   })
 })
