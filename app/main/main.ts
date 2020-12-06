@@ -300,7 +300,7 @@ function createMainWindow() {
   )
 
   // Open dev tools
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   // On closing derefernce
   mainWindow.on('closed', () => {
