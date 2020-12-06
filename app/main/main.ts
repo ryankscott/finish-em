@@ -9,6 +9,8 @@ import { schema, rootValue } from './schemas/schema'
 import * as sqlite from 'sqlite'
 import * as sqlite3 from 'sqlite3'
 import morgan from 'morgan'
+import jwt from 'express-jwt'
+
 const GRAPHQL_PORT = 8080
 ;(async () => {
   const db = await sqlite.open({
@@ -38,7 +40,11 @@ const GRAPHQL_PORT = 8080
   )
 
   // Enable cors
-  graphQLApp.use('/graphql', function (req, res, next) {
+  graphQLApp.use('/graphql', jwt({ secret: 'super_secret', algorithms: ['HS256'] }), function (
+    req,
+    res,
+    next,
+  ) {
     res.header('Access-Control-Allow-Origin', '*')
     res.header(
       'Access-Control-Allow-Headers',
@@ -47,6 +53,9 @@ const GRAPHQL_PORT = 8080
     if (req.method === 'OPTIONS') {
       res.sendStatus(200)
     } else {
+      if (req.user.user != 'app') {
+        res.sendStatus(401)
+      }
       next()
     }
   })
