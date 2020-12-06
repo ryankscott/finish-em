@@ -16,8 +16,9 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
-import { orderBy } from 'lodash'
+import { cloneDeep, get, orderBy } from 'lodash'
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { subtasksVisibleVar, focusbarVisibleVar, activeItemVar } from '..'
 
 const GET_THEME = gql`
   query {
@@ -83,6 +84,10 @@ type ReorderableItemListProps = {
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   const [setItemOrder] = useMutation(SET_ITEM_ORDER)
+  const [completeItem] = useMutation(COMPLETE_ITEM)
+  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
+  const [deleteItem] = useMutation(DELETE_ITEM)
+  const [restoreItem] = useMutation(RESTORE_ITEM)
   const { loading, error, data } = useQuery(GET_THEME)
   if (loading) return null
   if (error) {
@@ -90,174 +95,90 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     return null
   }
   const theme: ThemeType = themes[data.theme]
-  // const handlers = {
-  //   TOGGLE_CHILDREN: (event) => {
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     props.toggleSubtasks(itemId, props.componentId)
-  //   },
-  //   NEXT_ITEM: (event) => {
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     // If it's a parent element we need to get the first child
-  //     if (item.children.length > 0) {
-  //       // Show subtasks so we can iterate over them
-  //       props.showSubtasks(event.target.id, props.componentId)
-  //       const nextItem = event.target.parentNode.nextSibling
-  //       if (nextItem) {
-  //         nextItem.firstChild.focus()
-  //         return
-  //       }
-  //     }
-  //     // If it's a child
-  //     if (item.parentId != null) {
-  //       const nextItem = event.target.parentNode.nextSibling
-  //       if (nextItem) {
-  //         nextItem.firstChild.focus()
-  //         return
-  //       }
-  //       // If it's the last child
-  //       else {
-  //         const nextItem = event.target.parentNode.parentNode.nextSibling.firstChild
-  //         if (nextItem) {
-  //           nextItem.firstChild.focus()
-  //           return
-  //         }
-  //       }
-  //     }
-  //     const parent = event.target.parentNode.parentNode
-  //     const nextItem = parent.nextSibling
-  //     if (nextItem) {
-  //       nextItem.firstChild.firstChild.focus()
-  //       return
-  //     }
-  //   },
-  //   PREV_ITEM: (event) => {
-  //     console.log('prev item')
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.children.length > 0) {
-  //       const prevItem = event.target.parentNode.previousSibling
-  //       if (prevItem) {
-  //         prevItem.firstChild.focus()
-  //         return
-  //       }
-  //     }
-  //     // If it's a child
-  //     if (item.parentId != null) {
-  //       const nextItem = event.target.parentNode.previousSibling
-  //       if (nextItem) {
-  //         nextItem.firstChild.focus()
-  //         return
-  //       }
-  //       // If it's the last child
-  //       else {
-  //         const prevItem = event.target.parentNode.parentNode.previousSibling.firstChild
-  //         if (prevItem) {
-  //           prevItem.firstChild.focus()
-  //           return
-  //         }
-  //       }
-  //     }
-  //     const parent = event.target.parentNode.parentNode
-  //     const prevItem = parent.previousSibling?.firstChild
-  //     if (prevItem) {
-  //       prevItem.firstChild.focus()
-  //       return
-  //     }
-  //   },
-  //   SET_ACTIVE_ITEM: (event) => {
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     props.showFocusbar()
-  //     props.setActiveItem(itemId)
-  //     return
-  //   },
-  //   COMPLETE_ITEM: (event) => {
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.type == 'NOTE') return
-  //     if (item.deleted || item.completed) return
-  //     props.completeItem(item.id)
-  //   },
-  //   UNCOMPLETE_ITEM: (event) => {
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.type == 'NOTE') return
-  //     if (item.deleted) return
-  //     props.uncompleteItem(item.id)
-  //   },
-  //   DELETE_ITEM: (event) => {
-  //     console.log('deleting')
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.deleted) return
-  //     props.deleteItem(item.id)
-  //   },
-  //   UNDELETE_ITEM: (event) => {
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     props.undeleteItem(item.id)
-  //   },
-  //   SET_SCHEDULED_DATE: (event) => {
-  //     // TODO: Implement me
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.type == 'NOTE') return
-  //     if (item.deleted || item.completed) return
-  //     console.log('scheduled')
-  //     event.preventDefault()
-  //   },
-  //   SET_DUE_DATE: (event) => {
-  //     // TODO: Implement me
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.type == 'NOTE') return
-  //     if (item.deleted || item.completed) return
-  //     console.log('due date')
-  //     event.preventDefault()
-  //   },
-  //   CREATE_SUBTASK: (event) => {
-  //     // TODO: Implement me
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.deleted || item.completed || item.parentId != null) return
-  //     console.log('create sub task')
-  //     event.preventDefault()
-  //   },
-  //   CONVERT_TO_SUBTASK: (event) => {
-  //     // TODO: Implement me
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.type == 'NOTE') return
-  //     if (item.deleted || item.completed) return
-  //     console.log('convert to sub task')
-  //     event.preventDefault()
-  //   },
-  //   REPEAT_ITEM: (event) => {
-  //     // TODO: Implement me
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.type == 'NOTE') return
-  //     if (item.deleted || item.completed) return
-  //     console.log('repeat')
-  //     event.preventDefault()
-  //   },
-  //   ADD_PROJECT: (event) => {
-  //     // TODO: Implement me
-  //     const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //     const item = items[itemId]
-  //     if (item.deleted || item.completed) return
-  //     console.log('move item')
-  //     event.preventDefault()
-  //   },
-  //   EDIT_ITEM_DESC: (event) => {
-  //     // TODO:Implement me
-  //     //const item = items[event.target.id]
-  //     event.preventDefault()
-  //   },
-  // }
-  // Object.entries(itemKeymap).map(([k, v]) => {
-  //   useHotkeys(v, handlers[k])
-  // })
+
+  /* TODO: Introduce the following shortcuts:
+  - Scheduled At
+  - Due At
+  - Create subtask
+  - Convert to subtask
+  - Repeat
+  - Add Project
+  - Add Area
+  - Edit description
+ */
+  const handlers = {
+    TOGGLE_CHILDREN: (event) => {
+      const itemKey = event.target.id
+      let newState = cloneDeep(data.subtasksVisible)
+      const newValue = get(newState, [`${itemKey}`, `${props.componentKey}`], false)
+      console.log(newValue)
+      if (newState[itemKey]) {
+        newState[itemKey][props.componentKey] = !newValue
+      } else {
+        newState[itemKey] = {
+          [props.componentKey]: true,
+        }
+      }
+      subtasksVisibleVar(newState)
+    },
+    NEXT_ITEM: (event) => {
+      // Check if there are siblings (subtasks)
+      const hasSibling = event.target.nextSibling
+      if (hasSibling) {
+        hasSibling.focus()
+        return
+      }
+
+      // Otherwise we have to go up a node
+      const parent = event.target.parentNode
+      const nextItem = parent?.nextSibling?.firstChild
+      if (nextItem) {
+        nextItem.focus()
+        return
+      }
+    },
+    PREV_ITEM: (event) => {
+      // Check if there are siblings (subtasks)
+      const hasSibling = event.target.previousSibling
+      if (hasSibling) {
+        hasSibling.focus()
+        return
+      }
+
+      // Otherwise we have to go up a node
+      const parent = event.target.parentNode
+      const prevItem = parent?.previousSibling?.lastChild
+      if (prevItem) {
+        prevItem.focus()
+        return
+      }
+    },
+    SET_ACTIVE_ITEM: (event) => {
+      const itemKey = event.target.id
+      focusbarVisibleVar(true)
+      activeItemVar(itemKey)
+      return
+    },
+    COMPLETE_ITEM: (event) => {
+      const itemKey = event.target.id
+      completeItem({ variables: { key: itemKey } })
+    },
+    UNCOMPLETE_ITEM: (event) => {
+      const itemKey = event.target.id
+      unCompleteItem({ variables: { key: itemKey } })
+    },
+    DELETE_ITEM: (event) => {
+      const itemKey = event.target.id
+      deleteItem({ variables: { key: itemKey } })
+    },
+    UNDELETE_ITEM: (event) => {
+      const itemKey = event.target.id
+      restoreItem({ variables: { key: itemKey } })
+    },
+  }
+  Object.entries(itemKeymap).map(([k, v]) => {
+    useHotkeys(v, handlers[k])
+  })
 
   const sortedItems: ItemType[] = orderBy(props.inputItems, ['sortOrder.sortOrder'], ['asc'])
   return (
@@ -282,13 +203,13 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
               >
                 <TransitionGroup component={null}>
                   {sortedItems.map((item, index) => {
-                    /* We need two strategies for rendering items:
-                        1. All rendering
-                          - If an item has a parent and the parent is in the list, don't render it
-                        2.  Default
-                          - If an item has a parent, don't render it
-                          - For each item, render the item and it's children  (In the Item component)
-                        */
+                    /* We want to allow flattening of subtasks which means:
+                      1. If we should flatten
+                        - If an item has a parent and the parent is in the list, don't render the parent 
+                      2.  Default
+                        - If an item has a parent, don't render it (as it will get rendered later)
+                        - For each item, render the item and it's children  (In the Item component)
+                    */
                     if (props.flattenSubtasks == true) {
                       if (item.parent != null) {
                         const parentExistsInList = props.inputItems.find(
@@ -339,6 +260,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                     // We need to check if the child exists in the original input list
                                     return (
                                       <Item
+                                        compact={false}
                                         itemKey={childItem.key}
                                         key={childItem.key}
                                         {...childItem}

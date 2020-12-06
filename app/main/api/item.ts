@@ -5,7 +5,6 @@ import Expression from '../../renderer/components/filter-box/Expression'
 import { createItemOrder } from './itemOrder'
 import { Item as ItemType } from '../generated/typescript-helpers'
 import { rrulestr } from 'rrule'
-import { keyBy } from 'lodash'
 
 export const getItems = (obj, ctx) => {
   return ctx.db
@@ -56,9 +55,7 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
       operator: string,
       value: string,
     ) => {
-      // TODO handle brackets
-
-      const conditionText = conditionType ? conditionType : 'WHERE'
+      const conditionText = conditionType ? conditionType : ''
       const valueResolver = (value: string) => {
         switch (value) {
           case 'true':
@@ -136,32 +133,35 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
       }
     }
 
-    const filterTextArray = exps.map((f: Expression) => {
+    const filterTextArray = exps.map((f: Expression, idx: number) => {
       if (f.expressions) {
-        return f.expressions.map(async (fs, idx) => {
-          const prefix = idx == 0 ? '' : fs.conditionType
-          const filterString = transformExpressionToString(
-            f.conditionType,
-            fs.category,
-            fs.operator,
-            fs.value,
-          )
-          return prefix + filterString
-        })
+        return (
+          '(' +
+          f.expressions
+            .map((fs, idx) => {
+              const filterString = transformExpressionToString(
+                fs.conditionType,
+                fs.category,
+                fs.operator,
+                fs.value,
+              )
+              return filterString
+            })
+            .join(' ') +
+          ')'
+        )
       } else {
         return f
           ? transformExpressionToString(f.conditionType, f.category, f.operator, f.value)
           : ''
       }
     })
-    return filterTextArray.flat().join('\n')
+    return filterTextArray.flat().join(' ')
   }
   const filters = parseFilters(input.filter)
   const filterString = generateQueryString(filters.value)
-
   const queryString = `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item
-  ${filterString}`
-
+ WHERE ${filterString}`
   return ctx.db
     .all(queryString)
     .then((result) =>
@@ -587,7 +587,6 @@ export const setProjectOfItem = async (input: { key: string; projectKey: string 
       const children = await getItemsByParent({ parentKey: input.key }, ctx)
       if (children.length > 0) {
         children.map(async (i) => {
-          console.log(i)
           const childrenResult = await ctx.db.run(
             createSetProjectOfItemQuery({ key: i.key, projectKey: input.projectKey }),
           )

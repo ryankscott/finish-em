@@ -38,7 +38,6 @@ export default class FilterQueryParser {
     query = grammarUtils.stripEndWithNonSeparatorCharacters(query)
     try {
       this.parseQuery(query)
-      console.log(this.parseTrace)
       if (!query || grammarUtils.isLastCharacterWhiteSpace(query)) {
         return _.map(['AND', 'OR'], (f) => {
           return { value: f, type: 'literal' }

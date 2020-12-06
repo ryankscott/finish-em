@@ -26,8 +26,8 @@ export const getRemindersByItem = (input: { itemKey: string }, ctx) => {
     .all(
       `SELECT key, text, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder WHERE itemKey = '${input.itemKey}'`,
     )
-    .then((result) =>
-      result
+    .then((result) => {
+      return result
         ? result.map(
             (r) =>
               new Reminder(
@@ -41,8 +41,8 @@ export const getRemindersByItem = (input: { itemKey: string }, ctx) => {
                 r.itemKey,
               ),
           )
-        : null,
-    )
+        : null
+    })
 }
 
 export const getReminder = (input: { key: string }, ctx) => {
@@ -70,7 +70,7 @@ export const createReminder = (
   input: {
     key: string
     text: string
-    remindAt: string
+    remindAt: Date
     itemKey: string
   },
   ctx,
@@ -78,7 +78,11 @@ export const createReminder = (
   return ctx.db
     .run(
       `INSERT INTO reminder (key, text, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey)
-       VALUES ('${input.key}', '${input.text}', false, '${input.remindAt}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), '${input.itemKey}')`,
+       VALUES ('${input.key}', '${
+        input.text
+      }', false, '${input.remindAt.toISOString()}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), '${
+        input.itemKey
+      }')`,
     )
     .then((result) => {
       return result.changes

@@ -223,7 +223,7 @@ const Project = (props: ProjectProps): ReactElement => {
             initiallyExpanded={false}
           />
         </AddProjectContainer>
-        <ReorderableComponentList id={project.key} />
+        <ReorderableComponentList viewKey={project.key} />
       </ProjectContainer>
     </ThemeProvider>
   )

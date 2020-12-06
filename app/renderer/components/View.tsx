@@ -26,7 +26,7 @@ const View = (props: ViewProps): ReactElement => {
   return (
     <ThemeProvider theme={theme}>
       <Container>
-        <ReorderableComponentList id={props.viewKey} />
+        <ReorderableComponentList viewKey={props.viewKey} />
       </Container>
     </ThemeProvider>
   )

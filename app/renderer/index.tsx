@@ -5,7 +5,9 @@ import { Provider } from 'react-redux'
 import { store, persistor } from './store'
 import { PersistGate } from 'redux-persist/integration/react'
 import { ApolloProvider, ApolloClient, InMemoryCache, ReactiveVar, makeVar } from '@apollo/client'
+import jwt from 'jsonwebtoken'
 
+const token = jwt.sign({ user: 'app' }, 'super_secret', { algorithm: 'HS256' })
 const mainRoot = document.getElementById('mainRoot')
 
 const client = new ApolloClient({
@@ -74,6 +76,9 @@ const client = new ApolloClient({
       },
     },
   }),
+  headers: {
+    authorization: `Bearer ${token}`,
+  },
 })
 
 // export type ActiveItem = {

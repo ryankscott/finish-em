@@ -157,7 +157,6 @@ function Settings(props: SettingsPickerProps): ReactElement {
   // TODO: Loading and error states
   if (loading) return null
   if (error) return null
-  console.log(data)
   const theme = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
@@ -174,9 +173,11 @@ function Settings(props: SettingsPickerProps): ReactElement {
             <SettingsCategoryHeader>General User Interface</SettingsCategoryHeader>
             {data.features.map((f) => {
               return (
-                <>
+                <span key={`${f.key}-container`}>
                   <Setting key={f.key}>
-                    <SettingLabel>{camelCaseToInitialCaps(f.name)}</SettingLabel>
+                    <SettingLabel key={`${f.key}-label`}>
+                      {camelCaseToInitialCaps(f.name)}
+                    </SettingLabel>
                     <Switch
                       onChange={(checked) => {
                         setFeature({
@@ -214,7 +215,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                       />
                     )}
                   </Setting>
-                </>
+                </span>
               )
             })}
 
@@ -233,7 +234,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
               />
             </Setting>
 
-            <Setting>
+            <Setting key={'calendar-integration'}>
               <SettingLabel>Calendar Integration</SettingLabel>
               <div
                 style={{
@@ -285,7 +286,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                       }}
                     ></EditableText>
                     <Button
-                      id={`${m.key}`}
+                      id={`${m.key}-edit`}
                       key={`edit-colour-${m.key}`}
                       icon="colour"
                       iconSize={'18px'}
@@ -298,7 +299,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                       }}
                     />
                     <Button
-                      id={`${m.key}`}
+                      id={`${m.key}-delete`}
                       key={`delete-label-${m.key}`}
                       icon="trash"
                       iconSize={'18px'}

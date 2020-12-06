@@ -3,7 +3,6 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Button from './Button'
 import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
-import Tooltip from './Tooltip'
 import { IconType, ThemeType } from '../interfaces'
 import { Icons } from '../assets/icons'
 import { gql, useQuery } from '@apollo/client'
@@ -72,10 +71,10 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
     <ThemeProvider theme={theme}>
       <div style={{ position: 'relative' }} ref={node}>
         <Button
-          dataFor="more"
           type={props.subtle ? 'subtle' : 'default'}
           icon="more"
           width="18px"
+          tooltipText="More actions"
           onClick={(e) => {
             setShowDialog(!showDialog)
             e.stopPropagation()
@@ -94,7 +93,6 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
           </>
         )}
       </div>
-      <Tooltip id="more" text={'More actions'} />
     </ThemeProvider>
   )
 }

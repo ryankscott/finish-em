@@ -1,4 +1,4 @@
-import { format, isPast, parseISO } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import React, { ReactElement, useEffect, useState } from 'react'
 import { RRule } from 'rrule'
 import { Icons } from '../assets/icons'
@@ -64,6 +64,8 @@ const GET_DATA = gql`
       deletedAt
       repeat
       reminders {
+        key
+        deleted
         remindAt
       }
       label {
@@ -75,7 +77,6 @@ const GET_DATA = gql`
         key
         name
       }
-
       parent {
         key
         text
@@ -308,7 +309,7 @@ function Item(props: ItemProps): ReactElement {
   return (
     <ThemeProvider theme={theme}>
       <Container
-        id={props.componentKey + '-' + item.key}
+        id={item.key}
         compact={props.compact}
         onMouseEnter={() => {
           enterInterval = setTimeout(() => setMoreButtonVisible(true), 250)
@@ -321,7 +322,7 @@ function Item(props: ItemProps): ReactElement {
         onClick={(e) => {
           // TODO: This causes it being impossible to click on links
           // This is a weird gross hack for if you click on a child element
-          const el = document.getElementById(props.componentKey + '-' + item.key)
+          const el = document.getElementById(item.key)
           el.focus()
           focusbarVisibleVar(true)
           activeItemVar(item.key)
@@ -351,9 +352,9 @@ function Item(props: ItemProps): ReactElement {
         {!props.compact && (
           <TypeContainer>
             <Button
-              dataFor={`type-button-${item.key}`}
               type="subtle"
               spacing="compact"
+              tooltipText={item.deleted ? 'Restore' : item.completed ? 'Uncomplete' : 'Complete'}
               onClick={handleIconClick}
               icon={
                 item.deleted
@@ -366,13 +367,6 @@ function Item(props: ItemProps): ReactElement {
               }
               iconSize={'16px'}
             />
-
-            {item.type == 'TODO' && (
-              <Tooltip
-                id={`type-button-${item.key}`}
-                text={item.deleted ? 'Restore' : item.completed ? 'Uncomplete' : 'Complete'}
-              />
-            )}
           </TypeContainer>
         )}
         <Body id="body" completed={item.completed} deleted={item.deleted}>
@@ -497,10 +491,10 @@ function Item(props: ItemProps): ReactElement {
         <ReminderContainer
           data-tip
           data-for={'reminder-' + item.key}
-          visible={item.reminders.length}
+          visible={item.reminders.filter((r) => r.deleted == false).length}
         >
           {Icons['reminder']()}
-          {item.reminders.length && (
+          {item.reminders.filter((r) => r.deleted == false).length && (
             <Tooltip
               id={'reminder-' + item.key}
               text={`Reminder at: ${format(

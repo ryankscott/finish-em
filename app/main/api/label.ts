@@ -21,7 +21,7 @@ export const createLabel = (
 ) => {
   return ctx.db
     .run(
-      `INSERT INTO label(key, name, colour ) VALUES (${input.key}, ${input.name}, ${input.colour})`,
+      `INSERT INTO label(key, name, colour ) VALUES ('${input.key}', '${input.name}', '${input.colour}')`,
     )
     .then((result) => {
       return result.changes
@@ -32,7 +32,7 @@ export const createLabel = (
 
 export const renameLabel = (input: { key: string; name: string }, ctx) => {
   return ctx.db
-    .run(`UPDATE label SET name = ${input.name} WHERE key = '${input.key}'`)
+    .run(`UPDATE label SET name = '${input.name}' WHERE key = '${input.key}'`)
     .then((result) => {
       return result.changes
         ? getLabel({ key: input.key }, ctx)
@@ -42,7 +42,7 @@ export const renameLabel = (input: { key: string; name: string }, ctx) => {
 
 export const setColourOfLabel = (input: { key: string; colour: CSS.Property.Color }, ctx) => {
   return ctx.db
-    .run(`UPDATE label SET colour = ${input.colour} WHERE key = '${input.key}'`)
+    .run(`UPDATE label SET colour = '${input.colour}' WHERE key = '${input.key}'`)
     .then((result) => {
       return result.changes
         ? getLabel({ key: input.key }, ctx)

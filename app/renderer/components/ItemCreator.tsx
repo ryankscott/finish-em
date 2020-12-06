@@ -132,23 +132,19 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
       >
         {!props.hideButton && (
           <Button
-            dataFor={'add-item' + props.parentKey + '-' + props.projectKey + '-' + props.type}
             type="primary"
             spacing="compact"
             icon="add"
             height={props.buttonText ? 'auto' : '24px'}
             width={props.buttonText ? 'auto' : '24px'}
             text={showItemCreator ? '' : props.buttonText}
+            tooltipText={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
             onClick={() => {
               setShowItemCreator(!showItemCreator)
               showItemCreator ? textRef.current.blur() : textRef.current.focus()
             }}
           />
         )}
-        <Tooltip
-          id={'add-item' + props.parentKey + '-' + props.projectKey + '-' + props.type}
-          text={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
-        ></Tooltip>
         <ItemCreatorContainer
           data-cy="item-creator"
           animate={animate}

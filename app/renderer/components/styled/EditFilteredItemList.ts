@@ -1,36 +1,18 @@
 import styled from '../../StyledComponents'
-import { Paragraph } from '../Typography'
 
 export const DialogContainer = styled.div`
-  position: absolute;
   display: flex;
   flex-direction: column;
-  margin: 2px;
   background-color: ${(props) => props.theme.colours.backgroundColour};
-  border: 1px solid;
-  border-color: ${(props) => props.theme.colours.borderColour};
-  border-radius: 5px;
-  width: 510px;
-  padding: 5px 5px;
-  padding-bottom: 10px;
-  z-index: 2;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
-  top: 120px;
-  right: 3px;
+  padding-bottom: 20px;
+  width: 100%;
 `
 export const DialogHeader = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: space-between;
   padding: 5px;
-  padding-bottom: 10px;
 `
-export const DialogName = styled(Paragraph)`
-  font-size: ${(props) => props.theme.fontSizes['regular']};
-  font-weight: ${(props) => props.theme.fontWeights['regular']};
-  padding: 5px 5px;
-`
-
 export const Setting = styled.div`
   display: flex;
   position: relative;
@@ -72,11 +54,7 @@ export const HelpButtonContainer = styled.div`
   align-items: center;
   padding: 5px;
 `
-export const CloseButtonContainer = styled.div`
-  position: absolute;
-  top: 5px;
-  right: 5px;
-`
+export const CloseButtonContainer = styled.div``
 
 export const FilterContainer = styled.div`
   display: flex;

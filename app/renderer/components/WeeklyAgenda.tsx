@@ -24,7 +24,6 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { ItemIcons, ThemeType } from '../interfaces'
 import ItemList from './ItemList'
 import { groupBy } from 'lodash'
-import FilteredItemList from './FilteredItemList'
 import EditableText from './EditableText'
 import ReorderableComponentList from './ReorderableComponentList'
 const GET_DATA = gql`
@@ -38,6 +37,10 @@ const GET_DATA = gql`
       scheduledAt
       lastUpdatedAt
       createdAt
+      reminders {
+        key
+        remindAt
+      }
       project {
         key
       }
@@ -189,7 +192,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           </DragDropContext>
         </Section>
         <BacklogContainer>
-          <ReorderableComponentList id={'6c40814f-8fad-40dc-9a96-0454149a9408'} />
+          <ReorderableComponentList viewKey={'6c40814f-8fad-40dc-9a96-0454149a9408'} />
         </BacklogContainer>
       </AgendaContainer>
     </ThemeProvider>

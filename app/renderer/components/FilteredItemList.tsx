@@ -1,4 +1,4 @@
-import React, { ReactElement, useState, useEffect } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import ItemList from './ItemList'
 import { themes } from '../theme'
@@ -10,17 +10,16 @@ import {
   ListHeader,
   ListItemCount,
   HideButtonContainer,
+  EditableContainer,
   FilterBar,
 } from './styled/FilteredItemList'
 
 import SortDropdown, { SortDirectionEnum, sortOptions } from './SortDropdown'
 import Button from './Button'
-import Tooltip from './Tooltip'
 import ReorderableItemList from './ReorderableItemList'
 import { ThemeProvider } from '../StyledComponents'
 import { PAGE_SIZE } from '../consts'
-import FilteredItemDialog from './FilteredItemDialog'
-import MoreDropdown from './MoreDropdown'
+import EditFilteredItemList from './EditFilteredItemList'
 import Pagination from './Pagination'
 import { cloneDeep } from 'lodash'
 import { subtasksVisibleVar } from '..'
@@ -62,6 +61,10 @@ const GET_DATA = gql`
       scheduledAt
       lastUpdatedAt
       createdAt
+      reminders {
+        key
+        remindAt
+      }
       area {
         key
         name
@@ -100,6 +103,7 @@ const DELETE_COMPONENT = gql`
     }
   }
 `
+
 const DELETE_ITEM = gql`
   mutation DeleteItem($key: String!) {
     deleteItem(input: { key: $key }) {
@@ -127,8 +131,8 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
   const [showCompleted, setShowCompleted] = useState(true)
   const [showItemList, setShowItemList] = useState(true)
-  const [showEditDialog, setShowEditDialog] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
+  const [isEditing, setIsEditing] = useState(false)
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [deleteComponent] = useMutation(DELETE_COMPONENT, {
     update(cache, { data: { deleteComponent } }) {
@@ -143,17 +147,11 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     pollInterval: 2000,
   })
 
-  // TODO: Work out how to do this with apollo
-  //  useEffect(() => {
-  //    setShowItemList(props.initiallyExpanded ? props.initiallyExpanded : data?.items.length > 0)
-  //  }, [data?.items])
-
   if (loading) return null
   if (error) return null
 
   const theme = themes[data.theme]
 
-  // TODO: Unsure if this should be done in state
   const allItems = data.items
   const uncompletedItems = data.items.filter((m) => m.completed == false)
   const completedItems = data.items.filter((m) => m.completed == true)
@@ -176,7 +174,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         <HeaderBar>
           <HideButtonContainer>
             <Button
-              dataFor="hide-itemlist-button"
               key={`btn-${props.componentKey}`}
               type="default"
               icon="expand"
@@ -184,8 +181,8 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
               onClick={() => {
                 setShowItemList(!showItemList)
               }}
+              tooltipText="Hide items"
             />
-            <Tooltip id="hide-itemlist-button" text={'Hide items'} />
           </HideButtonContainer>
           <ListHeader>
             {props.listName}
@@ -199,7 +196,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 {visibility.showCompletedToggle && (
                   <>
                     <Button
-                      dataFor="complete-button"
                       height="22px"
                       width="22px"
                       iconSize="14px"
@@ -209,23 +205,20 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                       onClick={() => {
                         setShowCompleted(!showCompleted)
                       }}
+                      tooltipText={showCompleted ? 'Show completed items' : 'Hide completed items'}
                     ></Button>
-                    <Tooltip
-                      id="complete-button"
-                      text={showCompleted ? 'Show completed items' : 'Hide completed items'}
-                    />
                   </>
                 )}
                 {visibility.showDeleteButton && (
                   <>
                     <Button
-                      dataFor="trash-button"
                       spacing="compact"
                       height="22px"
                       width="22px"
                       iconSize="14px"
                       type="default"
                       icon="trashSweep"
+                      tooltipText="Delete completed items"
                       onClick={() => {
                         completedItems.forEach((c) => {
                           if (c.parent?.key == null) {
@@ -234,17 +227,16 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                         })
                       }}
                     ></Button>
-                    <Tooltip id="trash-button" text={'Delete completed items'} />
                   </>
                 )}
                 <Button
-                  dataFor={'expand-all-button'}
                   type="default"
                   spacing="compact"
                   icon="expandAll"
                   height="22px"
                   width="22px"
                   iconSize="14px"
+                  tooltipText={'Expand all subtasks'}
                   onClick={() => {
                     sortedItems.forEach((a) => {
                       if (a.children.length > 0) {
@@ -261,15 +253,14 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     })
                   }}
                 />
-                <Tooltip id="expand-all-button" text={'Expand all subtasks'} />
                 <Button
-                  dataFor={'collapse-all-button'}
                   type="default"
                   spacing="compact"
                   icon="collapseAll"
                   height="22px"
                   width="22px"
                   iconSize="14px"
+                  tooltipText={'Collapse all subtasks'}
                   onClick={() => {
                     sortedItems.forEach((a) => {
                       if (a.children.length > 0) {
@@ -286,7 +277,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     })
                   }}
                 />
-                <Tooltip id="collapse-all-button" text={'Collapse all subtasks'} />
                 {visibility.showSortButton && (
                   <SortDropdown
                     sortDirection={sortDirection}
@@ -298,65 +288,79 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 )}
               </>
             )}
-          </FilterBar>
-          <div style={{ gridArea: 'more' }}>
             {!props.readOnly && (
-              <MoreDropdown
-                options={[
-                  {
-                    icon: 'trash',
-                    label: 'Delete Component',
-                    onClick: () => deleteComponent({ variables: { key: props.componentKey } }),
-                  },
-                  {
-                    icon: 'edit',
-                    label: 'Edit Component',
-                    onClick: () => setShowEditDialog(true),
-                  },
-                ]}
-              />
+              <>
+                <Button
+                  type="default"
+                  icon="edit"
+                  tooltipText="Edit component"
+                  onClick={() => {
+                    setIsEditing(true)
+                  }}
+                ></Button>
+                <Button
+                  type="default"
+                  icon="trash"
+                  tooltipText="Delete component"
+                  onClick={() => deleteComponent({ variables: { key: props.componentKey } })}
+                ></Button>
+              </>
             )}
-          </div>
-          {showEditDialog && (
-            <FilteredItemDialog
+          </FilterBar>
+        </HeaderBar>
+        {isEditing ? (
+          <EditableContainer>
+            <EditFilteredItemList
               key={`dlg-${props.componentKey}`}
               componentKey={props.componentKey}
               onClose={() => {
-                setShowEditDialog(false)
+                setIsEditing(false)
               }}
             />
-          )}
-        </HeaderBar>
-        {showItemList && (
-          <ItemListContainer>
-            {data.dragAndDrop.enabled ? (
-              <ReorderableItemList
-                componentKey={props.componentKey}
-                hiddenIcons={props.hiddenIcons}
-                inputItems={sortedItems.slice(
-                  (currentPage - 1) * PAGE_SIZE,
-                  currentPage * PAGE_SIZE,
-                )}
-                flattenSubtasks={props.flattenSubtasks}
+          </EditableContainer>
+        ) : showItemList ? (
+          data.dragAndDropEnabled ? (
+            <>
+              <ItemListContainer>
+                <ReorderableItemList
+                  key={props.componentKey}
+                  componentKey={props.componentKey}
+                  hiddenIcons={props.hiddenIcons}
+                  inputItems={sortedItems.slice(
+                    (currentPage - 1) * PAGE_SIZE,
+                    currentPage * PAGE_SIZE,
+                  )}
+                  flattenSubtasks={props.flattenSubtasks}
+                />
+              </ItemListContainer>
+              <Pagination
+                itemsLength={sortedItems.length}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
               />
-            ) : (
-              <ItemList
-                componentKey={props.componentKey}
-                hiddenIcons={props.hiddenIcons}
-                inputItems={sortedItems.slice(
-                  (currentPage - 1) * PAGE_SIZE,
-                  currentPage * PAGE_SIZE,
-                )}
-                flattenSubtasks={props.flattenSubtasks}
+            </>
+          ) : (
+            <>
+              <ItemListContainer>
+                <ItemList
+                  key={props.componentKey}
+                  componentKey={props.componentKey}
+                  hiddenIcons={props.hiddenIcons}
+                  inputItems={sortedItems.slice(
+                    (currentPage - 1) * PAGE_SIZE,
+                    currentPage * PAGE_SIZE,
+                  )}
+                  flattenSubtasks={props.flattenSubtasks}
+                />
+              </ItemListContainer>
+              <Pagination
+                itemsLength={sortedItems.length}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
               />
-            )}
-          </ItemListContainer>
-        )}
-        <Pagination
-          itemsLength={sortedItems.length}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-        />
+            </>
+          )
+        ) : null}
       </Container>
     </ThemeProvider>
   )
