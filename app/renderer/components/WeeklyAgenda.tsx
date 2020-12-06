@@ -192,7 +192,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           </DragDropContext>
         </Section>
         <BacklogContainer>
-          <ReorderableComponentList id={'6c40814f-8fad-40dc-9a96-0454149a9408'} />
+          <ReorderableComponentList viewKey={'6c40814f-8fad-40dc-9a96-0454149a9408'} />
         </BacklogContainer>
       </AgendaContainer>
     </ThemeProvider>

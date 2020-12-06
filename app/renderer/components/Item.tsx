@@ -1,4 +1,4 @@
-import { format, isPast, parseISO } from 'date-fns'
+import { format, parseISO } from 'date-fns'
 import React, { ReactElement, useEffect, useState } from 'react'
 import { RRule } from 'rrule'
 import { Icons } from '../assets/icons'
@@ -309,7 +309,7 @@ function Item(props: ItemProps): ReactElement {
   return (
     <ThemeProvider theme={theme}>
       <Container
-        id={props.componentKey + '-' + item.key}
+        id={item.key}
         compact={props.compact}
         onMouseEnter={() => {
           enterInterval = setTimeout(() => setMoreButtonVisible(true), 250)
@@ -322,7 +322,7 @@ function Item(props: ItemProps): ReactElement {
         onClick={(e) => {
           // TODO: This causes it being impossible to click on links
           // This is a weird gross hack for if you click on a child element
-          const el = document.getElementById(props.componentKey + '-' + item.key)
+          const el = document.getElementById(item.key)
           el.focus()
           focusbarVisibleVar(true)
           activeItemVar(item.key)

@@ -68,7 +68,7 @@ const GET_DATA = gql`
   }
 `
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
-  const viewId = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
+  const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
   const [currentDate, setDate] = useState(new Date())
   const editor = React.useRef<HTMLInputElement>()
 
@@ -169,9 +169,10 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             />
           </>
         )}
-        <ReorderableComponentList id={viewId} />
+        <ReorderableComponentList viewKey={viewKey} />
         <Section>
           <FilteredItemList
+            key="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
             componentKey="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
             isFilterable={true}
             listName="Due Today"
@@ -184,6 +185,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             readOnly={true}
           />
           <FilteredItemList
+            key="a4e1c649-378f-4d14-9aac-2d2720270dd8"
             componentKey="a4e1c649-378f-4d14-9aac-2d2720270dd8"
             isFilterable={true}
             listName="Scheduled Today"

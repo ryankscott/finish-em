@@ -9,10 +9,14 @@ import { Container, NoItemText, ItemContainer } from './styled/ItemList'
 import { TransitionGroup, Transition } from 'react-transition-group'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { cloneDeep } from '@apollo/client/utilities'
+import { get } from 'lodash'
+import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 
 const GET_THEME = gql`
   query {
     theme @client
+    subtasksVisible @client
   }
 `
 
@@ -21,6 +25,7 @@ const COMPLETE_ITEM = gql`
     completeItem(input: { key: $key }) {
       key
       completed
+      completedAt
     }
   }
 `
@@ -30,6 +35,7 @@ const UNCOMPLETE_ITEM = gql`
     unCompleteItem(input: { key: $key }) {
       key
       completed
+      completedAt
     }
   }
 `
@@ -39,6 +45,7 @@ const DELETE_ITEM = gql`
     deleteItem(input: { key: $key }) {
       key
       deleted
+      deletedAt
     }
   }
 `
@@ -48,6 +55,7 @@ const RESTORE_ITEM = gql`
     restoreItem(input: { key: $key }) {
       key
       deleted
+      deletedAt
     }
   }
 `
@@ -79,175 +87,90 @@ function ItemList(props: ItemListProps): ReactElement {
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [restoreItem] = useMutation(RESTORE_ITEM)
 
-  // TODO: Reintroduce shortcuts
+  /* TODO: Introduce the following shortcuts:
+  - Scheduled At
+  - Due At
+  - Create subtask
+  - Convert to subtask
+  - Repeat
+  - Add Project
+  - Add Area
+  - Edit description
+ */
 
-  //   /*  const handlers = {
-  //     TOGGLE_CHILDREN: (event) => {
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       props.toggleSubtasks(itemId, props.componentId)
-  //     },
-  //     NEXT_ITEM: (event) => {
-  //       // We concatenate the itemId and componentId so we need to split it to get the itemId
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       // If it's a parent element we need to get the first child
-  //       if (item.children?.length > 0) {
-  //         // Show subtasks so we can iterate over them
-  //         props.showSubtasks(event.target.id, props.componentId)
-  //         const nextItem = event.target.nextSibling
-  //         if (nextItem) {
-  //           nextItem.focus()
-  //           return
-  //         }
-  //       }
-  //       // If it's a child
-  //       if (item.parentId != null) {
-  //         const nextItem = event.target.nextElementSibling
-  //         if (nextItem) {
-  //           nextItem.focus()
-  //           return
-  //         }
-  //         // If it's the last child (i.e. no next)
-  //         else {
-  //           const nextItem = event.target.parentNode.nextSibling.firstChild
-  //           if (nextItem) {
-  //             nextItem.focus()
-  //             return
-  //           }
-  //         }
-  //       }
+  const handlers = {
+    TOGGLE_CHILDREN: (event) => {
+      const itemKey = event.target.id
+      let newState = cloneDeep(data.subtasksVisible)
+      const newValue = get(newState, [`${itemKey}`, `${props.componentKey}`], false)
+      console.log(newValue)
+      if (newState[itemKey]) {
+        newState[itemKey][props.componentKey] = !newValue
+      } else {
+        newState[itemKey] = {
+          [props.componentKey]: true,
+        }
+      }
+      subtasksVisibleVar(newState)
+    },
+    NEXT_ITEM: (event) => {
+      // Check if there are siblings (subtasks)
+      const hasSibling = event.target.nextSibling
+      if (hasSibling) {
+        hasSibling.focus()
+        return
+      }
 
-  //       // You have to go up to the parent to get the next sibling
-  //       const nextItem = event.target.parentNode?.nextSibling
-  //       if (nextItem) {
-  //         nextItem.firstChild.focus()
-  //         return
-  //       }
-  //     },
-  //     PREV_ITEM: (event) => {
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.children.length > 0) {
-  //         const prevItem = event.target.parentNode.previousSibling
-  //         if (prevItem) {
-  //           prevItem.firstChild.focus()
-  //           return
-  //         }
-  //       }
-  //       // If it's a child
-  //       if (item.parentId != null) {
-  //         const prevItem = event.target.previousSibling
-  //         if (prevItem) {
-  //           prevItem.focus()
-  //           return
-  //         }
-  //         // If there is no previous item (i.e. the first)
-  //         else {
-  //           const prevItem = event.target.parentNode
-  //           if (prevItem) {
-  //             prevItem.focus()
-  //             return
-  //           }
-  //         }
-  //       }
-  //       const parent = event.target.parentNode
-  //       const prevItem = parent.previousSibling?.firstChild
-  //       if (prevItem) {
-  //         prevItem.focus()
-  //         return
-  //       }
-  //     },
-  //     SET_ACTIVE_ITEM: (event) => {
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       props.showFocusbar()
-  //       props.setActiveItem(itemId)
-  //       return
-  //     },
-  //     COMPLETE_ITEM: (event) => {
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.type == 'NOTE') return
-  //       if (item.deleted || item.completed) return
-  //       props.completeItem(item.id)
-  //     },
-  //     UNCOMPLETE_ITEM: (event) => {
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.type == 'NOTE') return
-  //       if (item.deleted) return
-  //       props.uncompleteItem(item.id)
-  //     },
-  //     DELETE_ITEM: (event) => {
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.deleted) return
-  //       props.deleteItem(item.id)
-  //     },
-  //     UNDELETE_ITEM: (event) => {
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       props.undeleteItem(item.id)
-  //     },
-  //     SET_SCHEDULED_DATE: (event) => {
-  //       // TODO: Implement me
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.type == 'NOTE') return
-  //       if (item.deleted || item.completed) return
-  //       event.preventDefault()
-  //     },
-  //     SET_DUE_DATE: (event) => {
-  //       // TODO: Implement me
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.type == 'NOTE') return
-  //       if (item.deleted || item.completed) return
-  //       event.preventDefault()
-  //     },
-  //     CREATE_SUBTASK: (event) => {
-  //       // TODO: Implement me
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.deleted || item.completed || item.parentId != null) return
-  //       console.log('create sub task')
-  //       event.preventDefault()
-  //     },
-  //     CONVERT_TO_SUBTASK: (event) => {
-  //       // TODO: Implement me
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.type == 'NOTE') return
-  //       if (item.deleted || item.completed) return
-  //       console.log('convert to sub task')
-  //       event.preventDefault()
-  //     },
-  //     REPEAT_ITEM: (event) => {
-  //       // TODO: Implement me
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.type == 'NOTE') return
-  //       if (item.deleted || item.completed) return
-  //       console.log('repeat')
-  //       event.preventDefault()
-  //     },
-  //     ADD_PROJECT: (event) => {
-  //       // TODO: Implement me
-  //       const itemId = event.target.id.split(`${props.componentId}`)[1].substring(1)
-  //       const item = items[itemId]
-  //       if (item.deleted || item.completed) return
-  //       console.log('move item')
-  //       event.preventDefault()
-  //     },
-  //     EDIT_ITEM_DESC: (event) => {
-  //       // TODO:Implement me
-  //       // const item = items[event.target.id]
-  //       event.preventDefault()
-  //     },
-  //   }
-  //   Object.entries(itemKeymap).map(([k, v]) => {
-  //     useHotkeys(v, handlers[k])
-  //   })
-  // */
+      // Otherwise we have to go up a node
+      const parent = event.target.parentNode
+      const nextItem = parent?.nextSibling?.firstChild
+      if (nextItem) {
+        nextItem.focus()
+        return
+      }
+    },
+    PREV_ITEM: (event) => {
+      // Check if there are siblings (subtasks)
+      const hasSibling = event.target.previousSibling
+      if (hasSibling) {
+        hasSibling.focus()
+        return
+      }
+
+      // Otherwise we have to go up a node
+      const parent = event.target.parentNode
+      const prevItem = parent?.previousSibling?.lastChild
+      if (prevItem) {
+        prevItem.focus()
+        return
+      }
+    },
+    SET_ACTIVE_ITEM: (event) => {
+      const itemKey = event.target.id
+      focusbarVisibleVar(true)
+      activeItemVar(itemKey)
+      return
+    },
+    COMPLETE_ITEM: (event) => {
+      const itemKey = event.target.id
+      completeItem({ variables: { key: itemKey } })
+    },
+    UNCOMPLETE_ITEM: (event) => {
+      const itemKey = event.target.id
+      unCompleteItem({ variables: { key: itemKey } })
+    },
+    DELETE_ITEM: (event) => {
+      const itemKey = event.target.id
+      deleteItem({ variables: { key: itemKey } })
+    },
+    UNDELETE_ITEM: (event) => {
+      const itemKey = event.target.id
+      restoreItem({ variables: { key: itemKey } })
+    },
+  }
+  Object.entries(itemKeymap).map(([k, v]) => {
+    useHotkeys(v, handlers[k])
+  })
 
   return (
     <ThemeProvider theme={theme}>

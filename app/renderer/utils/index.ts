@@ -12,7 +12,15 @@ export const markdownBasicRegex = /[*_]{1,2}(\w*)[*_]{1,2}/
 
 import er from 'emoji-regex'
 
-import { isToday, differenceInDays, isTomorrow, isYesterday, format, isAfter } from 'date-fns'
+import {
+  isToday,
+  differenceInDays,
+  isTomorrow,
+  isYesterday,
+  format,
+  isAfter,
+  isValid,
+} from 'date-fns'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
   const words = text.split(/\s+/)
@@ -75,7 +83,7 @@ export const setEndOfContenteditable = (contentEditableElement): void => {
 }
 
 export const formatRelativeDate = (date: Date): string => {
-  if (!date) return ''
+  if (!isValid(date)) return ''
   if (isToday(date)) {
     return 'Today'
   } else if (isTomorrow(date)) {

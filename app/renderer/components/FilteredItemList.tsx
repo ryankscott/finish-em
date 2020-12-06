@@ -103,6 +103,7 @@ const DELETE_COMPONENT = gql`
     }
   }
 `
+
 const DELETE_ITEM = gql`
   mutation DeleteItem($key: String!) {
     deleteItem(input: { key: $key }) {
@@ -322,6 +323,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             <>
               <ItemListContainer>
                 <ReorderableItemList
+                  key={props.componentKey}
                   componentKey={props.componentKey}
                   hiddenIcons={props.hiddenIcons}
                   inputItems={sortedItems.slice(
@@ -341,6 +343,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             <>
               <ItemListContainer>
                 <ItemList
+                  key={props.componentKey}
                   componentKey={props.componentKey}
                   hiddenIcons={props.hiddenIcons}
                   inputItems={sortedItems.slice(

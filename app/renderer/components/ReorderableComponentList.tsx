@@ -44,12 +44,12 @@ const SET_COMPONENT_ORDER = gql`
 `
 
 type ReorderableComponentListProps = {
-  id: string
+  viewKey: string
 }
 
 const ReorderableComponentList = (props: ReorderableComponentListProps): ReactElement => {
   const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
-    variables: { viewKey: props.id },
+    variables: { viewKey: props.viewKey },
   })
 
   const [addComponent] = useMutation(ADD_COMPONENT)
@@ -86,6 +86,10 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                     if (comp.location == 'main') {
                       switch (comp.type) {
                         case 'FilteredItemList':
+                          const params = JSON.parse(comp.parameters)
+                          console.log(
+                            `Component key in ReorderableComponentList: ${comp.key} for index: ${index}`,
+                          )
                           return (
                             <Transition
                               key={comp.key}
@@ -114,9 +118,9 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                         state={state}
                                       >
                                         <FilteredItemList
+                                          {...params}
                                           componentKey={comp.key}
                                           key={comp.key}
-                                          {...JSON.parse(comp.parameters)}
                                         />
                                       </DraggableContainer>
                                     )}
@@ -148,11 +152,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                         draggableStyle={provided.draggableProps.style}
                                         state={state}
                                       >
-                                        <ViewHeader
-                                          key={comp.key}
-                                          id={comp.key}
-                                          {...JSON.parse(comp.parameters)}
-                                        />
+                                        <ViewHeader key={comp.key} id={comp.key} {...params} />
                                       </DraggableContainer>
                                     )}
                                   </Draggable>
@@ -186,7 +186,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                 variables: {
                   input: {
                     key: uuidv4(),
-                    viewKey: props.id,
+                    viewKey: props.viewKey,
                     type: 'FilteredItemList',
                     location: 'main',
                     parameters: {
