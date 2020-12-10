@@ -13,6 +13,7 @@ build/Release
 build/*
 dist/*
 coverage/*
+release/*
 
 # Dependency directories
 node_modules/
