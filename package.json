@@ -1,26 +1,30 @@
 {
   "name": "Finish-em",
-  "version": "0.5.00",
+  "version": "0.5.0",
   "author": "Ryan Scott (ryan@ryankennethscott.com)",
   "description": "An org-mode inspired personal organiser",
   "repository": {
     "type": "git",
     "url": "git://github.com/ryankscott/finish-em/"
   },
-  "main": "app/main/.parcel/main.js",
+  "main": "build/main/main.js",
   "scripts": {
+    "postinstall": "electron-builder install-app-deps",
     "start": "run-s main:build electron:watch",
     "test": "jest",
+    "clean": "rm -rf build/",
+    "build": "run-s clean parcel:build copyicon electron:build",
+    "copyicon": "cp app/renderer/assets/finish_em.png build/icon.png",
     "release": "run-s parcel:build \"electron:build {@}\" --",
     "electron:watch": "run-p -r parcel:watch electron:start",
-    "electron:start": "nodemon --watch app/main/.parcel --exec \"electron .\"",
+    "electron:start": "APP_DEV=true nodemon --watch  /build/app/main --exec \"electron .\"",
     "electron:build": "electron-builder --x64 --publish=never",
     "parcel:watch": "run-p -r main:watch renderer:watch",
-    "main:watch": "parcel watch app/main/main.ts --out-dir app/main/.parcel --out-file main --target electron",
-    "renderer:watch": "parcel app/renderer/index.html --port 1124 --out-dir app/renderer/.parcel/development",
+    "main:watch": "parcel watch app/main/main.ts --out-dir build/main/ --out-file main --target electron",
+    "renderer:watch": "parcel app/renderer/index.html --port 1124 --out-dir build/renderer/development",
     "parcel:build": "run-s main:build renderer:build",
-    "main:build": "parcel build app/main/main.ts --out-dir app/main/.parcel --out-file main --target electron",
-    "renderer:build": "parcel build app/renderer/index.html --public-url ./ --out-dir app/renderer/.parcel/production",
+    "main:build": "parcel build app/main/main.ts --out-dir build/main/ --out-file main --target electron",
+    "renderer:build": "parcel build app/renderer/index.html --public-url ./ --out-dir build/renderer/production",
     "dist": "electron-builder -m -p onTag",
     "deploy": "electron-builder build --mac --publish always",
     "generate": "graphql-codegen --config codegen.yml"
@@ -33,12 +37,8 @@
     "productName": "Finish-em",
     "appId": "com.ryankscott.finish-em",
     "files": [
-      "app/**",
-      "!app/main/main.ts",
-      "!app/main/tests/**",
-      "!app/renderer/**",
-      "app/renderer/.parcel/production/**",
-      "!app/**/*.map"
+      "build/main/**",
+      "build/renderer/production/**"
     ],
     "mac": {
       "target": [
@@ -51,7 +51,16 @@
     },
     "directories": {
       "output": "release"
-    }
+    },
+    "extraResources": [
+      {
+        "from": "./app/main/migrations/",
+        "to": "./resources/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
   },
   "jest": {
     "verbose": true,
@@ -110,6 +119,7 @@
     "@apollo/client": "^3.2.4",
     "@babel/runtime": "^7.11.0",
     "@electron/typescript-definitions": "^8.7.7",
+    "@parcel/transformer-graphql": "^2.0.0-alpha.3",
     "@types/emoji-regex": "^8.0.0",
     "@types/faker": "^5.1.4",
     "@types/lodash": "^4.14.165",
@@ -120,11 +130,11 @@
     "app-root-path": "^3.0.0",
     "applescript": "^1.0.0",
     "chrono-node": "^2.1.5",
-    "codemirror": "^5.58.2",
+    "codemirror": "^5.58.3",
     "cross-fetch": "^3.0.6",
     "csstype": "^3.0.2",
     "date-fns": "^2.15.0",
-    "electron-is-dev": "^1.2.0",
+    "electron-log": "^4.3.0",
     "electron-store": "^6.0.0",
     "emoji-regex": "^9.0.0",
     "eslint-config-prettier": "^6.11.0",
@@ -139,25 +149,23 @@
     "graphql-scalars": "^1.4.1",
     "graphql-tools": "^7.0.1",
     "immer": "^7.0.7",
-    "is-electron": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.19",
     "marked": "^1.1.1",
     "morgan": "^1.10.0",
     "node": "^14.11.0",
     "node-cron": "^2.0.3",
-    "node-sql-parser": "^3.1.0",
     "parcel-plugin-markdown": "^0.4.2",
     "polished": "^3.6.5",
     "prettier": "^2.0.5",
-    "react": "^16.13.1",
+    "react": "^16.14.0",
     "react-animations": "^1.0.0",
     "react-beautiful-dnd": "^13.0.0",
     "react-big-calendar": "^0.26.1",
+    "react-codemirror2": "^7.2.1",
     "react-color": "^2.18.1",
     "react-datepicker": "^3.2.2",
     "react-dom": "^16.13.1",
-    "react-filter-box": "^3.4.1",
     "react-hotkeys-hook": "^2.2.2",
     "react-redux": "^7.2.1",
     "react-router": "^5.2.0",

@@ -1,3 +1,4 @@
+export const view = `
 scalar DateTime
 
 type View {
@@ -45,3 +46,4 @@ type Mutation {
   deleteView(input: DeleteViewInput!): View
   renameView(input: RenameViewInput!): View
 }
+`

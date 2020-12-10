@@ -1,5 +1,4 @@
 import { ipcMain, app, net, BrowserWindow, globalShortcut } from 'electron'
-import * as isDev from 'electron-is-dev'
 import * as path from 'path'
 import applescript from 'applescript'
 import * as semver from 'semver'
@@ -10,21 +9,43 @@ import * as sqlite from 'sqlite'
 import * as sqlite3 from 'sqlite3'
 import morgan from 'morgan'
 import jwt from 'express-jwt'
+const log = require('electron-log')
 
-const GRAPHQL_PORT = 8080
+const isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == 'true' : false
+
+if (isDev) {
+  log.info('Running in development')
+} else {
+  log.info('Running in production')
+}
+
+console.log(process.resourcesPath)
 ;(async () => {
+  const databasePath = isDev ? './database.db' : path.join(app.getAppPath(), '../database.db')
+
+  path.resolve(__dirname, '/database.db')
+  log.info(`Loading database at: ${databasePath}`)
+
   const db = await sqlite.open({
-    filename: './database.db',
+    filename: databasePath,
     driver: sqlite3.Database,
   })
   await db.run('PRAGMA foreign_keys=on')
-  await db.migrate({
-    migrationsPath: path.join(process.cwd(), '/app/main/migrations'),
+  log.info(`Database info: ${db}`)
+  const migrationsPath = isDev
+    ? path.join(__dirname, '../../app/main/migrations')
+    : path.join(process.resourcesPath, '/resources/')
+
+  log.info(`Loading migrations at: ${migrationsPath}`)
+  const migrations = await db.migrate({
+    migrationsPath: migrationsPath,
   })
+  log.info(`Migration result: ${migrations}`)
   // await db.on('trace', (data) => {
   //   console.log(data)
   // })
 
+  const GRAPHQL_PORT = 8089
   const graphQLApp = await express()
 
   // Logging
@@ -38,7 +59,7 @@ const GRAPHQL_PORT = 8080
       },
     }),
   )
-
+  log.info(`Enabling CORS`)
   // Enable cors
   graphQLApp.use('/graphql', jwt({ secret: 'super_secret', algorithms: ['HS256'] }), function (
     req,
@@ -84,6 +105,7 @@ const GRAPHQL_PORT = 8080
   )
 
   const graphQLServer = await graphQLApp.listen(GRAPHQL_PORT, () => {
+    log.info(`GraphQL server is now running on http://localhost:${GRAPHQL_PORT}`)
     console.log(`GraphQL server is now running on http://localhost:${GRAPHQL_PORT}`)
   })
 })()
@@ -170,7 +192,7 @@ const getCalendarEvents = (calendarName: string) => {
         return acc
       }, {})
     })
-    console.log(`Sending events back to FE`)
+    log.info(`Sending events back to FE`)
     mainWindow.webContents.send('events', events)
   })
 }
@@ -263,13 +285,14 @@ function createQuickAddWindow() {
     movable: true,
     webPreferences: {
       nodeIntegration: true,
-      preload: path.join(process.cwd() + '/app/main/preload.ts'),
       enableRemoteModule: true,
     },
   })
 
   quickAddWindow.loadURL(
-    isDev ? 'http://localhost:1234?quickAdd' : `file://${__dirname}/build/index.html?quickAdd`,
+    isDev
+      ? 'http://localhost:1234?quickAdd'
+      : `file://${path.join(__dirname, '../renderer/production/index.html?quickAdd')}`,
   )
   // Open dev tools
   // quickAddWindow.webContents.openDevTools()
@@ -289,14 +312,15 @@ function createMainWindow() {
     titleBarStyle: 'hidden',
     webPreferences: {
       nodeIntegration: true,
-      preload: path.join(process.cwd() + '/app/main/preload.ts'),
       enableRemoteModule: true,
     },
   })
 
   // Load the index.html of the app.
   mainWindow.loadURL(
-    isDev ? 'http://localhost:1124?main' : `file://${__dirname}/build/index.html?main`,
+    isDev
+      ? 'http://localhost:1124?main'
+      : `file://${path.join(__dirname, '../renderer/production/index.html?main')}`,
   )
 
   // Open dev tools
@@ -326,7 +350,7 @@ app.on('ready', () => {
   try {
     checkForNewVersion()
   } catch (e) {
-    console.error(`Failed to get new version, trying again in 1hr: ${e}`)
+    log.error(`Failed to get new version, trying again in 1hr: ${e}`)
     setTimeout(checkForNewVersion, 1000 * 60 * 60 * 24)
   }
 
@@ -343,7 +367,7 @@ app.on('ready', () => {
     ipcMain.once('get-features-reply', (event, features) => {
       if (features && features.calendarIntegration) {
         if (calendar) {
-          console.log(`Getting calendar events for ${calendar}`)
+          log.info(`Getting calendar events for ${calendar}`)
           setInterval(getCalendarEvents(calendar), 1000 * 60 * 30)
         }
       }
@@ -390,7 +414,7 @@ ipcMain.on('create-task', (event, arg) => {
 })
 
 ipcMain.on('set-calendar', (event, cal) => {
-  console.log(`Setting calendar to: ${cal}`)
+  log.info(`Setting calendar to: ${cal}`)
   calendar = cal
   getCalendarEvents(calendar)
 })

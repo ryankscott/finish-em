@@ -1,3 +1,4 @@
+export const projectOrder = `
 type ProjectOrder {
   projectKey: String!
   sortOrder: Int!
@@ -28,3 +29,4 @@ type Mutation {
   createProjectOrder(input: CreateProjectOrderInput!): ProjectOrder
   migrateProjectOrder(input: MigrateProjectOrderInput!): ProjectOrder
 }
+`

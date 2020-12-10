@@ -1,3 +1,4 @@
+export const areaOrder = `
 type AreaOrder {
   areaKey: String!
   sortOrder: Int!
@@ -27,3 +28,4 @@ type Mutation {
   createAreaOrder(input: CreateAreaOrderInput!): AreaOrder
   migrateAreaOrder(input: MigrateAreaOrderInput!): AreaOrder
 }
+`

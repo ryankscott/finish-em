@@ -1,3 +1,4 @@
+export const area = `
 scalar DateTime
 
 type Area {
@@ -55,3 +56,4 @@ type Mutation {
   renameArea(input: RenameAreaInput!): Area
   changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area
 }
+`

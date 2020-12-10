@@ -1,3 +1,4 @@
+export const weeklyGoal = `
 type WeeklyGoal {
   key: String!
   week: String!
@@ -19,3 +20,4 @@ type Query {
 type Mutation {
   createWeeklyGoal(input: CreateWeeklyGoalInput!): WeeklyGoal
 }
+`

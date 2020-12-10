@@ -1,3 +1,4 @@
+export const label = `
 type Label {
   key: String!
   name: String
@@ -34,3 +35,4 @@ type Mutation {
   setColourOfLabel(input: SetColourOfLabelInput!): Label
   deleteLabel(input: DeleteLabelInput!): String
 }
+`

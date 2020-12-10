@@ -30,7 +30,7 @@ const ViewHeader = (props: ViewHeaderProps): ReactElement => {
   return (
     <ThemeProvider theme={theme}>
       <HeaderContainer>
-        <IconContainer>{Icons[props.icon](24, 24, theme.colours.primaryColour)}</IconContainer>
+        <IconContainer>{Icons[props?.icon](24, 24, theme.colours.primaryColour)}</IconContainer>
         <HeaderTitle> {props.name} </HeaderTitle>
       </HeaderContainer>
     </ThemeProvider>

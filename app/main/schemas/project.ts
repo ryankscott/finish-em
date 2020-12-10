@@ -1,3 +1,4 @@
+export const project = `
 scalar DateTime
 
 type Project {
@@ -90,3 +91,4 @@ type Mutation {
   setStartDateOfProject(input: SetStartDateOfProjectInput!): Project
   setAreaOfProject(input: SetAreaOfProjectInput!): Project
 }
+`

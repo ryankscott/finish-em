@@ -1,3 +1,4 @@
+export const viewOrder = `
 type ViewOrder {
   viewKey: String!
   sortOrder: Int!
@@ -27,3 +28,4 @@ type Mutation {
   createViewOrder(input: CreateViewOrderInput!): ViewOrder
   migrateViewOrder(input: MigrateViewOrderInput!): ViewOrder
 }
+`

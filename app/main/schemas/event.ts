@@ -1,3 +1,4 @@
+export const event = `
 scalar DateTime
 
 type Event {
@@ -35,3 +36,4 @@ type Mutation {
   createEvent(input: CreateEventInput!): Event
   deleteEvent(input: DeleteEventInput!): String
 }
+`

@@ -1,14 +1,14 @@
 overwrite: true
-schema: "http://localhost:8080/graphql"
+schema: 'http://localhost:8089/graphql'
 generates:
   app/main/generated/typescript-helpers.tsx:
     plugins:
-      - "typescript"
-      - "typescript-operations"
-      - "typescript-resolvers"
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-resolvers'
   app/main/generated/apollo-helpers.tsx:
     plugins:
-      - "typescript-react-apollo"
+      - 'typescript-react-apollo'
       - typescript-apollo-client-helpers
     config:
-        withComponent: true
+      withComponent: true

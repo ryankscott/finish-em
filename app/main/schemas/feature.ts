@@ -1,3 +1,4 @@
+export const feature = `
 type Feature {
   key: String!
   name: String!
@@ -25,3 +26,4 @@ type Mutation {
   createFeature(input: CreateFeatureInput!): Feature
   setFeature(input: SetFeatureInput!): Feature
 }
+`

@@ -11,7 +11,7 @@ const token = jwt.sign({ user: 'app' }, 'super_secret', { algorithm: 'HS256' })
 const mainRoot = document.getElementById('mainRoot')
 
 const client = new ApolloClient({
-  uri: 'http://localhost:8080/graphql',
+  uri: 'http://localhost:8089/graphql',
   cache: new InMemoryCache({
     typePolicies: {
       Label: {

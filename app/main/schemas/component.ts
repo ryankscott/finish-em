@@ -1,3 +1,4 @@
+export const component = `
 type Component {
   key: String!
   viewKey: View!
@@ -70,3 +71,4 @@ type Mutation {
   migrateComponent(input: MigrateComponentInput!): Component
   deleteComponent(input: DeleteComponentInput!): Component
 }
+`

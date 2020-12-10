@@ -1,3 +1,4 @@
+export const reminder = `
 scalar DateTime
 
 type Reminder {
@@ -37,3 +38,4 @@ type Mutation {
   deleteReminder(input: DeleteReminderInput!): Reminder
   deleteReminderFromItem(input: DeleteReminderFromItemInput!): Reminder
 }
+`

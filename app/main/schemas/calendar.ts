@@ -1,3 +1,4 @@
+export const calendar = `
 scalar DateTime
 
 type Calendar {
@@ -37,3 +38,4 @@ type Mutation {
   deleteCalendar(input: DeleteCalendarInput!): Calendar
   setActiveCalendar(input: ActiveCalendarInput!): Calendar
 }
+`

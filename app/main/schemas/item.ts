@@ -1,3 +1,4 @@
+export const item = `
 scalar DateTime
 
 type Item {
@@ -150,3 +151,4 @@ type Mutation {
   permanentDeleteItem(input: PermanentDeleteInput!): Item
   setLabelOfItem(input: SetLabelOfInput!): Item
 }
+`

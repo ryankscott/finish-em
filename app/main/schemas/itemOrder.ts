@@ -1,3 +1,4 @@
+export const itemOrder = `
 type ItemOrder {
   itemKey: String!
   sortOrder: Int!
@@ -27,3 +28,4 @@ type Mutation {
   createItemOrder(input: CreateItemOrderInput!): ItemOrder
   migrateItemOrder(input: MigrateItemOrderInput!): ItemOrder
 }
+`

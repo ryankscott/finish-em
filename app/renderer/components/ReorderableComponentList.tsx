@@ -84,12 +84,9 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                 <TransitionGroup component={null}>
                   {sortedComponents.map((comp, index) => {
                     if (comp.location == 'main') {
+                      const params = JSON.parse(comp.parameters)
                       switch (comp.type) {
                         case 'FilteredItemList':
-                          const params = JSON.parse(comp.parameters)
-                          console.log(
-                            `Component key in ReorderableComponentList: ${comp.key} for index: ${index}`,
-                          )
                           return (
                             <Transition
                               key={comp.key}

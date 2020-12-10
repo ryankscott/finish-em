@@ -20,7 +20,7 @@ import { RetryLink } from 'apollo-link-retry'
 import fetch from 'cross-fetch'
 
 const httpLink = createHttpLink({
-  uri: 'http://localhost:8080/graphql',
+  uri: 'http://localhost:8089/graphql',
   fetch,
 })
 const retryLink = new RetryLink({

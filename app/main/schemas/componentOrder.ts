@@ -1,3 +1,4 @@
+export const componentOrder = `
 type ComponentOrder {
   componentKey: String!
   sortOrder: Int!
@@ -26,3 +27,4 @@ type Mutation {
   createComponentOrder(input: CreateComponentOrderInput!): ComponentOrder
   migrateComponentOrder(input: MigrateComponentOrderInput!): ComponentOrder
 }
+`
