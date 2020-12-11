@@ -3,7 +3,6 @@ import { orderBy } from 'lodash'
 import React, { ReactElement } from 'react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { NavLink, NavLinkProps, useHistory } from 'react-router-dom'
-import faker from 'faker'
 import { v4 as uuidv4 } from 'uuid'
 import { Area, View } from '../../main/generated/typescript-helpers'
 import { Icons } from '../assets/icons'
@@ -11,7 +10,7 @@ import { sidebarVisibleVar } from '../index'
 import { ThemeType } from '../interfaces'
 import styled, { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
-import { createShortSidebarItem } from '../utils'
+import { createShortSidebarItem, getProductDescription, getProductName } from '../utils'
 import Button from './Button'
 import {
   AddAreaContainer,
@@ -345,8 +344,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                     createProject({
                                       variables: {
                                         key: projectKey,
-                                        name: faker.commerce.productName(),
-                                        description: faker.commerce.productDescription(),
+                                        name: getProductName(),
+                                        description: getProductDescription(),
                                         startAt: null,
                                         endAt: null,
                                         areaKey: a.key,

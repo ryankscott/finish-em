@@ -17,7 +17,7 @@ import { reminder } from './reminder'
 import { view } from './view'
 import { viewOrder } from './viewOrder'
 import { weeklyGoal } from './weeklyGoal'
-import { makeExecutableSchema } from 'graphql-tools'
+import { makeExecutableSchema } from '@graphql-tools/schema'
 
 const typeDefs = mergeTypeDefs([
   area,
