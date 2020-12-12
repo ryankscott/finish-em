@@ -79,7 +79,6 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
         'createdAt',
       ].includes(categoryText)
       switch (operator) {
-        // TODO: For date type filters we need to not do an exact comparison, instead compare they are the same day
         case '=':
           if (isDateCategory) {
             return `${conditionText} DATE(${categoryText}) = DATE(${valueText})`
@@ -499,7 +498,6 @@ UPDATE item SET completed = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ',
 `
 }
 
-// TODO: Don't complete a repeating item
 export const completeItem = async (input: { key: string }, ctx) => {
   const item: ItemType = await getItem({ key: input.key }, ctx)
   // If we've got a repeat
@@ -545,12 +543,15 @@ UPDATE item SET repeat = '${input.repeat}', lastUpdatedAt = strftime('%Y-%m-%dT%
 `
 }
 
-// TODO: Set dueAt to next occurence of repeat
 export const setRepeatOfItem = (input: { key: string; repeat: string }, ctx) => {
   return ctx.db.run(createSetRepeatOfItemQuery(input)).then((result) => {
-    return result.changes
-      ? getItem({ key: input.key }, ctx)
-      : new Error('Unable to set repeat of item')
+    if (result.changes) {
+      const repeatRule = rrulestr(input.repeat)
+      const nextRepeat = repeatRule.after(new Date(), true)
+      setDueAtOfItem({ key: input.key, dueAt: nextRepeat }, ctx)
+      return getItem({ key: input.key }, ctx)
+    }
+    new Error('Unable to set repeat of item')
   })
 }
 

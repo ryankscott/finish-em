@@ -180,6 +180,7 @@ const SET_REPEAT = gql`
     setRepeatOfItem(input: { key: $key, repeat: $repeat }) {
       key
       repeat
+      dueAt
     }
   }
 `
