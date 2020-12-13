@@ -26,14 +26,15 @@ import {
   SubsectionHeader,
   ViewContainer,
 } from './styled/Sidebar'
+import Tooltip from './Tooltip'
 
 interface StyledLinkProps extends NavLinkProps {
   sidebarVisible: boolean
 }
 
-export const StyledLink = styled(({ sidebarVisible, ...rest }: StyledLinkProps) => (
-  <NavLink {...rest} />
-))`
+export const StyledLink = styled(({ sidebarVisible, ...rest }: StyledLinkProps) => {
+  return <NavLink {...rest} />
+})`
   display: flex;
   box-sizing: border-box;
   justify-content: ${(props) => (props.sidebarVisible ? 'flex-start' : 'center')};
@@ -83,16 +84,26 @@ const SidebarItem = (props: {
   iconName: string
   text: string
 }): React.ReactElement => {
+  const id = uuidv4()
   if (props.sidebarVisible) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-        {props.iconName && Icons[props.iconName](16, 16)}
-        {props.text}
-      </div>
+      <>
+        <div data-tip data-for={id} style={{ display: 'flex', justifyContent: 'flex-start' }}>
+          {props.iconName && Icons[props.iconName](16, 16)}
+          {props.text}
+        </div>
+        <Tooltip id={id} text={props.text} />
+      </>
     )
   }
   return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>{Icons[props.iconName](20, 20)}</div>
+    <>
+      <div data-tip data-for={id} style={{ display: 'flex', justifyContent: 'center' }}>
+        {Icons[props.iconName](20, 20)}
+      </div>
+
+      <Tooltip id={id} text={props.text} />
+    </>
   )
 }
 
@@ -326,6 +337,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             {!data.sidebarVisible && <StyledHorizontalRule />}
                             <SubsectionHeader visible={data.sidebarVisible}>
                               <AreaLink
+                                data-tip
+                                data-for={a.key}
                                 sidebarVisible={data.sidebarVisible}
                                 to={`/areas/${a.key}`}
                                 activeStyle={{
@@ -334,6 +347,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                               >
                                 {data.sidebarVisible ? a.name : createShortSidebarItem(a.name)}
                               </AreaLink>
+                              <Tooltip id={a.key} text={a.name} />
                               {data.sidebarVisible && (
                                 <Button
                                   type="subtle"
@@ -384,6 +398,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                               siebarVisible={data.sidebarVisible}
                                             >
                                               <ProjectLink
+                                                data-tip
+                                                data-for={p.key}
                                                 sidebarVisible={data.sidebarVisible}
                                                 key={p.key}
                                                 to={pathName}
@@ -396,6 +412,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                   ? p.name
                                                   : createShortSidebarItem(p.name)}
                                               </ProjectLink>
+                                              <Tooltip id={p.key} text={p.name} />
                                             </DraggableItem>
                                           )}
                                         </Draggable>
@@ -426,7 +443,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 onClick={() => {
                   const areaKey = uuidv4()
                   createArea({
-                    variables: { key: areaKey, name: faker.commerce.department(), description: '' },
+                    variables: { key: areaKey, name: 'New Area', description: '' },
                   })
                   refetch()
                 }}
