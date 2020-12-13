@@ -1,5 +1,4 @@
-import { Header1, Header2, Paragraph } from '../Typography'
-import { TwitterPicker } from 'react-color'
+import { Header1, Paragraph } from '../Typography'
 import styled from '../../StyledComponents'
 import { darken } from 'polished'
 
@@ -34,6 +33,7 @@ export const SettingsCategoryHeader = styled.div<SettingsCategoryHeaderProps>`
   color: ${(props) => props.theme.colours.textColour};
   font-size: ${(props) => props.theme.fontSizes.medium};
   font-weight: ${(props) => props.theme.fontWeights.regular};
+  border-radius: 5px;
   background-color: ${(props) =>
     props.active
       ? props.theme.colours.focusBackgroundColour
