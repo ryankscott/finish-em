@@ -1,15 +1,4 @@
 import { Item, ItemType, Labels, Projects, Areas } from '../interfaces'
-import { filterItems } from '../utils'
-import {
-  parseISO,
-  isToday,
-  isThisWeek,
-  isThisMonth,
-  isPast,
-  endOfDay,
-  differenceInDays,
-  isSameDay,
-} from 'date-fns'
 
 export const getAllItems = (state): Item => state.items.items
 

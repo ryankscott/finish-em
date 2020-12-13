@@ -115,7 +115,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
       props.onEditingChange(false)
     }
     if (props.shouldSubmitOnBlur) {
-      // TODO: Find a better way here
       if (props.validation && !valid) {
         return
       }

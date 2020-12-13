@@ -158,7 +158,7 @@
     "react-beautiful-dnd": "^13.0.0",
     "react-big-calendar": "^0.26.1",
     "react-codemirror2": "^7.2.1",
-    "react-color": "^2.18.1",
+    "react-colorful": "^4.4.3",
     "react-datepicker": "^3.2.2",
     "react-dom": "^16.13.1",
     "react-hotkeys-hook": "^2.2.2",

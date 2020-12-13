@@ -132,13 +132,10 @@ export const itemReducer = produce(
         i.lastUpdatedAt = new Date().toISOString()
         break
 
-      // TODO: This is incorrectly named it should be ADD_PARENT
-      // TODO: Make sure you can't add a child to a parent that's a subtask
       case item.ADD_CHILD_ITEM:
         const parent = draftState.items[action.parentId.toString()]
         const child = draftState.items[action.id.toString()]
 
-        // TODO: This breaks immer?
         // If the child has children already then return
         //if (child.children != []) {
         //    break
@@ -238,7 +235,6 @@ export const itemReducer = produce(
         i.lastUpdatedAt = new Date().toISOString()
         break
 
-      // TODO: Make sure you can't add a child to a parent that's a subtask
       case item.CHANGE_PARENT_ITEM:
         // Also need to remove the reference from the old parent
         if (i.parentId) {

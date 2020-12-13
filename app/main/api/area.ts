@@ -116,12 +116,10 @@ export const createDeleteAreaInput = (input: { key: string }) => {
 export const deleteArea = (input: { key: string }, ctx) => {
   return ctx.db.run(createDeleteAreaInput(input)).then(async (result) => {
     if (result.changes) {
-      // TODO: Remove area from all items
       const items = await getItemsByArea({ areaKey: input.key }, ctx)
       items.map((i) => {
         return setAreaOfItem({ key: i.key, areaKey: '0' }, ctx)
       })
-      // TODO: Remove area from all projects
       const projects = await getProjectsByArea({ areaKey: input.key }, ctx)
       projects.map((p) => {
         return setAreaOfProject({ key: p.key, areaKey: '0' }, ctx)

@@ -16,6 +16,7 @@ export const Container = styled.div<ContainerProps>`
   height: 100vh;
   padding: 2px;
   background: ${(props) => props.theme.colours.altBackgroundColour};
+  box-shadow: 0px 0px 4px ${(props) => darken(0.2, props.theme.colours.borderColour)};
 `
 export const BodyContainer = styled.div`
   display: flex;

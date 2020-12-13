@@ -36,7 +36,6 @@ type ButtonProps = {
   tooltipText?: string
 }
 
-// TODO: Add tooltips to the button?
 const Button = (props: ButtonProps): ReactElement => {
   const { loading, error, data } = useQuery(GET_THEME)
   if (loading) return null

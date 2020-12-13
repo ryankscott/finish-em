@@ -1,14 +1,50 @@
-import styled from 'styled-components'
-import { Paragraph } from '../Typography'
+import { Header1, Header2, Paragraph } from '../Typography'
 import { TwitterPicker } from 'react-color'
+import styled from '../../StyledComponents'
+import { darken } from 'polished'
 
 export const Container = styled.div`
   display: flex;
-  flex-direction: column;
-  margin: 20px 20px;
-  padding: 20px 20px;
+  flex-direction: row;
   width: 100%;
+  height: 100%;
 `
+
+export const SettingsSidebar = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 280px;
+  background-color: ${(props) => props.theme.colours.backgroundColour};
+  padding: 20px 0px;
+  height: 100%;
+  box-shadow: 0px 0px 4px ${(props) => darken(0.2, props.theme.colours.borderColour)};
+`
+
+export const SettingsSidebarHeader = styled(Header1)`
+  padding: 10px 10px;
+  font-size: ${(props) => props.theme.fontSizes.large};
+  font-weight: ${(props) => props.theme.fontWeights.bold};
+`
+
+type SettingsCategoryHeaderProps = {
+  active: boolean
+}
+
+export const SettingsCategoryHeader = styled.div<SettingsCategoryHeaderProps>`
+  color: ${(props) => props.theme.colours.textColour};
+  font-size: ${(props) => props.theme.fontSizes.medium};
+  font-weight: ${(props) => props.theme.fontWeights.regular};
+  background-color: ${(props) =>
+    props.active
+      ? props.theme.colours.focusBackgroundColour
+      : props.theme.colours.backgroundColour};
+  padding: 5px 15px;
+  &:hover {
+    background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+    cursor: pointer;
+  }
+`
+
 export const SettingsContainer = styled.div`
   position: relative;
   display: flex;
@@ -18,14 +54,14 @@ export const SettingsContainer = styled.div`
 `
 
 export const SettingsCategory = styled.div`
-  padding: 5px;
+  padding: 10px;
+  margin: 20px 10px 20px 10px;
 `
 
-export const SettingsCategoryHeader = styled(Paragraph)`
-  color: ${(props) => props.theme.colours.textColour};
+export const SettingsBodyHeader = styled(Header1)`
+  padding: 10px 5px;
   font-size: ${(props) => props.theme.fontSizes.large};
   font-weight: ${(props) => props.theme.fontWeights.bold};
-  padding: 10px 5px;
 `
 
 export const Setting = styled.div`
@@ -71,19 +107,8 @@ export const LabelContainer = styled.div`
   width: 250px;
   justify-content: space-between;
   align-items: center;
-  height: 25px;
+  height: auto;
   background-color: ${(props) => props.theme.colours.backgroundColour};
-`
-export const StyledTwitterPicker = styled(TwitterPicker)`
-  background-color: ${(props) => props.theme.colours.backgroundColour + ' !important'};
-  border: 1px solid !important;
-  border-radius: 5px !important;
-  border-color: ${(props) => props.theme.colours.borderColour + ' !important'};
-
-  & > div {
-    border-color: ${(props) =>
-      `transparent transparent ${props.theme.colours.backgroundColour} !important`};
-  }
 `
 
 export const ButtonContainer = styled.div`

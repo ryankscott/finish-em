@@ -20,7 +20,7 @@ export const HeaderContainer = styled.div`
   display: flex;
   height: 100%;
   width: 100%;
-  z-index: 2;
+  z-index: 3;
   box-shadow: 0px 1px 2px ${(props) => darken(0.2, props.theme.colours.headerBackgroundColour)};
   -webkit-app-region: drag;
 `
@@ -33,6 +33,8 @@ export const BodyContainer = styled.div`
   overflow-y: scroll;
   min-width: 500px;
   transition: all 0.2s ease-in-out;
+  margin: 0px;
+  padding: 0px;
 `
 
 interface SidebarContainerProps {
@@ -49,6 +51,8 @@ export const SidebarContainer = styled.div<SidebarContainerProps>`
   overflow-x: hidden;
   padding: 0px;
   background-color: ${(props) => props.theme.colours.altBackgroundColour};
+  z-index: 2;
+  box-shadow: 0px 0px 4px #adadad;
 `
 
 interface MainContainerProps {
@@ -57,7 +61,8 @@ interface MainContainerProps {
 export const MainContainer = styled.div<MainContainerProps>`
   display: flex;
   flex-direction: column;
-  padding: 10px 20px;
+  padding: 0px;
+  margin: 0px;
   transition: all 0.2s ease-in-out;
   width: 100%;
   align-items: center;

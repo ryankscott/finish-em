@@ -23,7 +23,7 @@ import { WeeklyGoal } from '../../main/generated/typescript-helpers'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { ItemIcons, ThemeType } from '../interfaces'
 import ItemList from './ItemList'
-import { groupBy } from 'lodash'
+import groupBy from 'lodash/groupBy'
 import EditableText from './EditableText'
 import ReorderableComponentList from './ReorderableComponentList'
 const GET_DATA = gql`

@@ -14,7 +14,7 @@ const initialState: UIType = {
   focusbarVisible: true,
   shortcutDialogVisible: false,
   createProjectDialogVisible: false,
-  deleteProjectDialogVisible: false, // TODO: Remove me
+  deleteProjectDialogVisible: false,
   labels: {
     labels: {
       '4702c2d3-bcda-40a2-bd34-e0db07578076': {
@@ -548,7 +548,6 @@ export const uiReducer = produce(
         break
 
       case ui.SHOW_SUBTASKS:
-        // TODO:
         const itemV = state.subtasksVisible[action.id]
         if (itemV != undefined) {
           state.subtasksVisible[action.id][action.componentId] = true
@@ -623,7 +622,6 @@ export const uiReducer = produce(
             : RenderingStrategy.Default
         }
         break
-      // TODO
       case ui.ADD_COMPONENT:
         state.components.components[action.id] = {
           id: action.id,

@@ -1,5 +1,14 @@
 import * as chrono from 'chrono-node'
-import { ItemType, Item, RenderingStrategy } from '../interfaces'
+import {
+  differenceInDays,
+  format,
+  isAfter,
+  isToday,
+  isTomorrow,
+  isValid,
+  isYesterday,
+} from 'date-fns'
+import er from 'emoji-regex'
 import RRule from 'rrule'
 
 export const itemRegex = /^(TODO|NOTE)\b/i
@@ -9,18 +18,6 @@ export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/gi
 export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/gi
 export const markdownLinkRegex = /\[([\w\s\d]+)\]\(((?:\/|https?:\/\/)[\w\d./?=#]+)\)/
 export const markdownBasicRegex = /[*_]{1,2}(\w*)[*_]{1,2}/
-
-import er from 'emoji-regex'
-
-import {
-  isToday,
-  differenceInDays,
-  isTomorrow,
-  isYesterday,
-  format,
-  isAfter,
-  isValid,
-} from 'date-fns'
 
 export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
   const words = text.split(/\s+/)
@@ -196,28 +193,6 @@ export const rruleToText = (input: RRule): string => {
   }
 }
 
-// TODO refactor me
-export const filterItems = (
-  input: Item,
-  filterFunc: (i: ItemType) => boolean,
-  rs: RenderingStrategy,
-): Item => {
-  if (rs == RenderingStrategy.All) {
-    const f = Object.entries(input).filter((e) => {
-      return filterFunc(e[1])
-    })
-    return Object.fromEntries(f)
-  } else {
-    const f1 = Object.entries(input).filter((e) => {
-      return filterFunc(e[1]) && e[1].parentId == null
-    })
-    return Object.fromEntries(f1)
-  }
-}
-
-export const convertItemToItemType = (input: Item): ItemType[] => {
-  return Object.values(input)
-}
 export const capitaliseFirstLetter = (input: string): string => {
   return input.charAt(0).toUpperCase() + input.slice(1)
 }
@@ -227,13 +202,6 @@ export const truncateString = (input: string, length: number): string => {
     return input
   }
   return input.slice(0, length - 1) + '...'
-}
-
-export const groupBy = (inputArray: {}[], groupingKey: string): {} => {
-  return inputArray.reduce((acc, i, index) => {
-    acc.hasOwnProperty(i[groupingKey]) ? acc[i[groupingKey]].push(i) : (acc[i[groupingKey]] = [i])
-    return acc
-  }, {})
 }
 
 // TODO: Refactor me

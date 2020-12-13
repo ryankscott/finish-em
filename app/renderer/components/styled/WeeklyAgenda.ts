@@ -85,7 +85,8 @@ export const DayContainer = styled.div<DayContainerProps>`
   padding: 10px 5px;
   border: 1px solid ${(props) => props.theme.colours.borderColour};
   border-radius: 5px;
-  background-color: ${(props) => (props.past ? '#efefef' : 'inherit')};
+  background-color: ${(props) =>
+    props.past ? props.theme.colours.focusBackgroundColour : 'inherit'};
 `
 
 type DraggableListProps = {
