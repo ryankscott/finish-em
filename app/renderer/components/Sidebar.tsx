@@ -350,6 +350,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                               <Tooltip id={a.key} text={a.name} />
                               {data.sidebarVisible && (
                                 <Button
+                                  tooltipText="Add Project"
                                   type="subtle"
                                   icon="add"
                                   iconColour={'white'}
@@ -434,6 +435,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
           {data.sidebarVisible && (
             <AddAreaContainer>
               <Button
+                tooltipText="Add Area"
                 width="110px"
                 type="invert"
                 spacing="compact"
@@ -468,6 +470,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
           </StyledLink>
           <CollapseContainer data-cy="sidebar-btn-container">
             <Button
+              tooltipText="Toggle sidebar"
               spacing="compact"
               icon={data.sidebarVisible ? 'slideLeft' : 'slideRight'}
               type="invert"
