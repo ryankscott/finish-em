@@ -31,7 +31,7 @@ import { debounce } from 'lodash'
 const electron = window.require('electron')
 
 type SettingsPickerProps = {}
-const generateOptions = (cals): OptionsType => {
+const generateOptions = (cals): { value: string; label: string }[] => {
   return cals?.map((c) => {
     return {
       value: c,
@@ -214,16 +214,17 @@ function Settings(props: SettingsPickerProps): ReactElement {
                           <Select
                             key={f.key + '-select'}
                             autoFocus={true}
-                            value={data.activeCalendar}
+                            value={calendarOptions?.find((c) => c.value == data.activeCalendar)}
                             isSearchable
                             isDisabled={!f.enabled}
                             onChange={(e) => {
                               electron.ipcRenderer.send('set-calendar', e.value)
                               activeCalendarVar(e.value)
                             }}
-                            options={generateOptions(calendars)}
+                            options={calendarOptions}
                             styles={selectStyles({
                               fontSize: 'xxsmall',
+                              minWidth: '160px',
                               theme: theme,
                             })}
                             escapeClearsValue={true}
