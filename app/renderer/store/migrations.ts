@@ -18,10 +18,15 @@ import { ItemIcons } from '../interfaces/item'
 import { gql, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client'
 import { RetryLink } from 'apollo-link-retry'
 import fetch from 'cross-fetch'
+import jwt from 'jsonwebtoken'
 
+const token = jwt.sign({ user: 'app' }, 'super_secret', { algorithm: 'HS256' })
 const httpLink = createHttpLink({
   uri: 'http://localhost:8089/graphql',
   fetch,
+  headers: {
+    authorization: `Bearer ${token}`,
+  },
 })
 const retryLink = new RetryLink({
   delay: {
