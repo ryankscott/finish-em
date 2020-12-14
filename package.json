@@ -1,6 +1,6 @@
 {
   "name": "Finish-em",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "author": "Ryan Scott (ryan@ryankennethscott.com)",
   "description": "An org-mode inspired personal organiser",
   "repository": {
@@ -120,6 +120,7 @@
   "dependencies": {
     "@apollo/client": "^3.2.4",
     "@babel/runtime": "^7.11.0",
+    "@graphql-tools/merge": "^6.2.6",
     "@graphql-tools/schema": "^7.1.2",
     "@parcel/transformer-graphql": "^2.0.0-alpha.3",
     "@types/emoji-regex": "^8.0.0",
