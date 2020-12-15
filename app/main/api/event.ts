@@ -85,7 +85,7 @@ export const createEvent = (
   return ctx.db
     .run(
       `INSERT INTO event (key, title, description, startAt, endAt,  allDay, calendarKey, createdAt )
-       VALUES (${input.key}, ${input.title}, ${input.description},  ${input.startAt}, ${input.endAt}, , ${input.allDay}, ${input.calendarKey}, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null)`,
+       VALUES ('${input.key}', '${input.title}', '${input.description}',  '${input.startAt}', '${input.endAt}', '${input.allDay}', '${input.calendarKey}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null)`,
     )
     .then((result) => {
       return result.changes
