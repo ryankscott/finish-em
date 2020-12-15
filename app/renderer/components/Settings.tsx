@@ -250,37 +250,6 @@ function Settings(props: SettingsPickerProps): ReactElement {
                   height={14}
                 />
               </Setting>
-
-              <Setting key={'calendar-integration'}>
-                <SettingLabel>Calendar Integration</SettingLabel>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    width: '150px',
-                  }}
-                >
-                  <Switch
-                    onChange={(checked) => {
-                      setFeature({
-                        variables: {
-                          key: '6e468413-d926-416e-a616-67cf1e4ee065',
-                          enabled: checked,
-                        },
-                      })
-                    }}
-                    checked={
-                      data.features?.calendarIntegration ? data.features.calendarIntegration : false
-                    }
-                    onColor={theme.colours.primaryColour}
-                    checkedIcon={false}
-                    uncheckedIcon={false}
-                    width={24}
-                    height={14}
-                  />
-                </div>
-              </Setting>
             </SettingsCategory>
           )}
           {activeCategory == 'LABELS' && (
