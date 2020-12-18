@@ -7,7 +7,6 @@ import {
   getItemsByParent,
   getRemindersByItem,
 } from '../api'
-import ItemOrder from './itemOrder'
 export default class Item {
   constructor(
     key: string,
@@ -45,28 +44,28 @@ export default class Item {
     this.areaKey = areaKey
   }
 
-  area(obj, ctx) {
+  area(ctx) {
     return getArea({ key: this.areaKey }, ctx)
   }
-  label(obj, ctx) {
+  label(ctx) {
     return getLabel({ key: this.labelKey }, ctx)
   }
-  project(obj, ctx) {
+  project(ctx) {
     return getProject({ key: this.projectKey }, ctx)
   }
-  parent(obj, ctx) {
+  parent(ctx) {
     return getItem({ key: this.parentKey }, ctx)
   }
 
-  children(obj, ctx) {
+  children(ctx) {
     return getItemsByParent({ parentKey: this.key }, ctx)
   }
 
-  reminders(obj, ctx) {
+  reminders(ctx) {
     return getRemindersByItem({ itemKey: this.key }, ctx)
   }
 
-  async sortOrder(obj, ctx) {
+  async sortOrder(ctx) {
     return getItemOrder({ itemKey: this.key }, ctx)
   }
 }
