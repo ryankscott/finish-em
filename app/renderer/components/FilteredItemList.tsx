@@ -12,6 +12,7 @@ import {
   HideButtonContainer,
   EditableContainer,
   FilterBar,
+  ErrorContainer,
 } from './styled/FilteredItemList'
 
 import SortDropdown, { SortDirectionEnum, sortOptions } from './SortDropdown'
@@ -21,8 +22,9 @@ import { ThemeProvider } from '../StyledComponents'
 import { PAGE_SIZE } from '../consts'
 import EditFilteredItemList from './EditFilteredItemList'
 import Pagination from './Pagination'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, transform } from 'lodash'
 import { subtasksVisibleVar } from '..'
+import { toast } from 'react-toastify'
 
 const determineVisibilityRules = (
   isFilterable: boolean,
@@ -91,8 +93,13 @@ const GET_DATA = gql`
       key
       enabled
     }
-    theme @client
     subtasksVisible @client
+  }
+`
+
+const GET_THEME = gql`
+  query {
+    theme @client
   }
 `
 
@@ -139,18 +146,42 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
       cache.evict({ id: deleteComponent })
     },
   })
+
+  const { loading: loadingTheme, error: errorTheme, data: dataTheme } = useQuery(GET_THEME)
+  if (loadingTheme) return null
+  if (errorTheme) return null
+  const theme = themes[dataTheme.theme]
+
   // TODO: I shouldn't really use polling here, but can't work out how else to refetch the data
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
     },
-    pollInterval: 2000,
+    //pollInterval: 2000,
   })
 
   if (loading) return null
-  if (error) return null
-
-  const theme = themes[data.theme]
+  if (error) {
+    console.log(error)
+    toast.error('Component failed to load - please reconfigure', {
+      autoClose: 5000,
+    })
+    return (
+      <ThemeProvider theme={theme}>
+        <ErrorContainer>
+          <EditableContainer>
+            <EditFilteredItemList
+              key={`dlg-${props.componentKey}`}
+              componentKey={props.componentKey}
+              onClose={() => {
+                setIsEditing(false)
+              }}
+            />
+          </EditableContainer>
+        </ErrorContainer>
+      </ThemeProvider>
+    )
+  }
 
   const allItems = data.items
   const uncompletedItems = data.items.filter((m) => m.completed == false)

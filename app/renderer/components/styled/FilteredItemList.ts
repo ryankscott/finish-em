@@ -1,7 +1,7 @@
 import Select from 'react-select'
 import styled from 'styled-components'
 import { Paragraph } from '../Typography'
-import { lighten } from 'polished'
+import { lighten, transparentize } from 'polished'
 import { fadeInLeft, fadeOutRight } from 'react-animations'
 import { css, keyframes } from '../../StyledComponents'
 
@@ -98,4 +98,14 @@ export const EditableContainer = styled.div<EditableContainerProps>`
   display: flex;
   animation: ${(props) =>
     props.state == 'entering' ? entryAnimation : props.state == 'exiting' ? exitAnimation : 'none'};
+`
+
+export const ErrorContainer = styled.div`
+  display: flex;
+  padding: 5px;
+  justify-content: center;
+  border-radius: 5px;
+  border: 1px solid;
+  border-color: ${(props) => transparentize(0.4, props.theme.colours.errorColour)};
+  box-shadow: ${(props) => '0px 1px 4px ' + props.theme.colours.errorColour};
 `

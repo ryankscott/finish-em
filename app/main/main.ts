@@ -19,7 +19,6 @@ if (isDev) {
   log.info('Running in production')
 }
 
-console.log(process.resourcesPath)
 ;(async () => {
   const databasePath = isDev ? './database.db' : path.join(app.getAppPath(), '../database.db')
 
@@ -31,7 +30,6 @@ console.log(process.resourcesPath)
     driver: sqlite3.Database,
   })
   await db.run('PRAGMA foreign_keys=on')
-  log.info(`Database info: ${db}`)
   const migrationsPath = isDev
     ? path.join(__dirname, '../../app/main/migrations')
     : path.join(process.resourcesPath, '/resources/')
@@ -40,11 +38,11 @@ console.log(process.resourcesPath)
   const migrations = await db.migrate({
     migrationsPath: migrationsPath,
   })
-  log.info(`Migration result: ${migrations}`)
   // await db.on('trace', (data) => {
   //   console.log(data)
   // })
 
+  log.info('Migrations  complete')
   const GRAPHQL_PORT = 8089
   const graphQLApp = await express()
 
@@ -61,25 +59,25 @@ console.log(process.resourcesPath)
   )
   log.info(`Enabling CORS`)
   // Enable cors
-  graphQLApp.use('/graphql', jwt({ secret: 'super_secret', algorithms: ['HS256'] }), function (
-    req,
-    res,
-    next,
-  ) {
-    res.header('Access-Control-Allow-Origin', '*')
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, Content-Length, X-Requested-With',
-    )
-    if (req.method === 'OPTIONS') {
-      res.sendStatus(200)
-    } else {
-      if (req.user.user != 'app') {
-        res.sendStatus(401)
+  graphQLApp.use(
+    '/graphql',
+    jwt({ secret: 'super_secret', algorithms: ['HS256'] }),
+    function (req, res, next) {
+      res.header('Access-Control-Allow-Origin', '*')
+      res.header(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization, Content-Length, X-Requested-With',
+      )
+      if (req.method === 'OPTIONS') {
+        res.sendStatus(200)
+      } else {
+        if (req.user.user != 'app') {
+          res.sendStatus(401)
+        }
+        next()
       }
-      next()
-    }
-  })
+    },
+  )
 
   graphQLApp.use(
     '/graphql',

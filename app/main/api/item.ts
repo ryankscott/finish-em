@@ -114,7 +114,7 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
           if (value == 'this month')
             return `${conditionText} strftime('%m', ${categoryText}) != strftime('%m',date());`
           if (value == 'today') return `${conditionText} DATE(${categoryText}) != DATE(date())`
-          if (value == 'past') return `${conditionText} ${categoryText} >= date()`
+          if (value == 'past') return `${conditionText} DATE(${categoryText}) >= DATE(date())`
           break
 
         case 'is':
@@ -124,7 +124,7 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
           if (value == 'this month')
             return `${conditionText} strftime('%m', ${categoryText}) = strftime('%m',date());`
           if (value == 'today') return `${conditionText} DATE(${categoryText}) = DATE(date())`
-          if (value == 'past') return `${conditionText} ${categoryText} < date()`
+          if (value == 'past') return `${conditionText} DATE(${categoryText}) < DATE(date())`
           break
 
         default:
@@ -134,21 +134,17 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
 
     const filterTextArray = exps.map((f: Expression, idx: number) => {
       if (f.expressions) {
-        return (
-          '(' +
-          f.expressions
-            .map((fs, idx) => {
-              const filterString = transformExpressionToString(
-                fs.conditionType,
-                fs.category,
-                fs.operator,
-                fs.value,
-              )
-              return filterString
-            })
-            .join(' ') +
-          ')'
-        )
+        return `(${f.expressions
+          .map((fs, idx) => {
+            const filterString = transformExpressionToString(
+              fs.conditionType,
+              fs.category,
+              fs.operator,
+              fs.value,
+            )
+            return filterString
+          })
+          .join(' ')})`
       } else {
         return f
           ? transformExpressionToString(f.conditionType, f.category, f.operator, f.value)
@@ -161,31 +157,30 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
   const filterString = generateQueryString(filters.value)
   const queryString = `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item
  WHERE ${filterString}`
-  return ctx.db
-    .all(queryString)
-    .then((result) =>
-      result.map(
-        (r) =>
-          new Item(
-            r.key,
-            r.type,
-            r.text,
-            r.deleted,
-            r.completed,
-            r.parentKey,
-            r.projectKey,
-            r.dueAt,
-            r.scheduledAt,
-            r.lastUpdatedAt,
-            r.completedAt,
-            r.createdAt,
-            r.deletedAt,
-            r.repeat,
-            r.labelKey,
-            r.areaKey,
-          ),
-      ),
+  const results = await ctx.db.all(queryString)
+  if (results) {
+    return results.map(
+      (r) =>
+        new Item(
+          r.key,
+          r.type,
+          r.text,
+          r.deleted,
+          r.completed,
+          r.parentKey,
+          r.projectKey,
+          r.dueAt,
+          r.scheduledAt,
+          r.lastUpdatedAt,
+          r.completedAt,
+          r.createdAt,
+          r.deletedAt,
+          r.repeat,
+          r.labelKey,
+          r.areaKey,
+        ),
     )
+  } else return null
 }
 
 export const getItem = (input: { key: string }, ctx) => {

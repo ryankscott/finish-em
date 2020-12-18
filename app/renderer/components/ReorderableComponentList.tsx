@@ -62,6 +62,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
     ['sortOrder.sortOrder'],
     ['asc'],
   )
+  console.log(sortedComponents)
   const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>

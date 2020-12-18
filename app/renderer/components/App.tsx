@@ -276,20 +276,14 @@ const App = (props: AppProps): ReactElement => {
     electron.ipcRenderer.on('events', (event, calEvents) => {
       const parsedEvents = calEvents.map((c) => {
         const tz = convertToProperTzOffset(c.tzOffset)
+
         const ev: EventType = {
           key: c.id,
-          startAt: parse(
-            `${c.startDate} ${c.startTime} ${tz}`,
-            'dd/MM/yy HH:mm:ss x',
-            new Date(),
-          ).toISOString(),
-          endAt: parse(
-            `${c.endDate} ${c.endTime} ${tz}`,
-            'dd/MM/yy HH:mm:ss x',
-            new Date(),
-          ).toISOString(),
           title: c.summary,
           description: c.description,
+          startAt: parse(`${c.startDate} ${c.startTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date()),
+          endAt: parse(`${c.endDate} ${c.endTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date()),
+          allDay: false,
         }
         return ev
       })

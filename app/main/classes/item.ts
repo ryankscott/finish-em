@@ -7,6 +7,7 @@ import {
   getItemsByParent,
   getRemindersByItem,
 } from '../api'
+import ItemOrder from './itemOrder'
 export default class Item {
   constructor(
     key: string,
@@ -65,7 +66,7 @@ export default class Item {
     return getRemindersByItem({ itemKey: this.key }, ctx)
   }
 
-  sortOrder(obj, ctx) {
+  async sortOrder(obj, ctx) {
     return getItemOrder({ itemKey: this.key }, ctx)
   }
 }
