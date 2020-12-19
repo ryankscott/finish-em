@@ -15,7 +15,8 @@ export const Container = styled.div<ContainerProps>`
   max-height: 200px;
   max-width: 650px;
   font-family: ${(props) => props.theme.font.sansSerif};
-  font-size: ${(props) => props.theme.fontSizes.regular};
+  font-size: ${(props) =>
+    props.compact ? props.theme.fontSizes.small : props.theme.fontSizes.regular};
   display: ${(props) => (props.visible ? 'grid' : 'none')};
   opacity: ${(props) => (props.hidden ? '0' : '1')};
   margin: 1px 0px;
@@ -26,10 +27,10 @@ export const Container = styled.div<ContainerProps>`
   grid-template-areas: ${(props) =>
     props.compact
       ? `"DESC   DESC  DESC   DESC      DESC   DESC    DESC     PROJECT"
-         "DUE    DUE   DUE    DUE       REPEAT  REPEAT   REPEAT";`
+         "DUE    DUE   DUE    DUE       REPEAT REPEAT  REPEAT   REPEAT";`
       : `"EXPAND TYPE  DESC   DESC      DESC   PROJECT REMINDER MORE"
          ".      .     PARENT SCHEDULED DUE    REPEAT  .        .";`};
-  padding: ${(props) => (props.hidden ? '0px' : '5px')};
+  padding: ${(props) => (props.hidden ? '0px' : props.compact ? '0px 4px' : '5px')};
   align-items: center;
   cursor: pointer;
   border-radius: 5px;
@@ -78,9 +79,10 @@ export const QuickAdd = styled.div<QuickAddProps>`
 interface BodyProps {
   completed: boolean
   deleted: boolean
+  compact: boolean
 }
 export const Body = styled.div<BodyProps>`
-  margin: 0px 5px;
+  margin: ${(props) => (props.compact ? '0px' : '0px 5px')};
   grid-area: DESC;
   color: ${(props) =>
     props.deleted ? props.theme.colours.disabledTextColour : props.theme.colours.textColour};

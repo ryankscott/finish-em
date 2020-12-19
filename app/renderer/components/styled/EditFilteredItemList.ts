@@ -10,7 +10,7 @@ export const DialogContainer = styled.div`
 export const DialogHeader = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: 5px;
 `
 export const Setting = styled.div`

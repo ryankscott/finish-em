@@ -33,7 +33,7 @@ const Inbox = (): ReactElement => {
           shouldCloseOnSubmit={false}
           projectKey={'0'}
         />
-        <div style={{ padding: '20px 10px 10px 10px' }}>
+        <div style={{ padding: '20px 5px' }}>
           <FilteredItemList
             componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4497"
             isFilterable={true}

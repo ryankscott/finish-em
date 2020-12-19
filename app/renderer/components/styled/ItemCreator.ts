@@ -7,7 +7,7 @@ export const Container = styled.div`
   justify-content: flex-end;
   padding: 2px;
   overflow-x: hidden;
-  margin: 2px 10px;
+  margin: 2px;
   overflow: scroll;
 `
 export interface ItemCreatorContainer {

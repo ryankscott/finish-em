@@ -369,7 +369,7 @@ function Item(props: ItemProps): ReactElement {
             />
           </TypeContainer>
         )}
-        <Body id="body" completed={item.completed} deleted={item.deleted}>
+        <Body id="body" compact={props.compact} completed={item.completed} deleted={item.deleted}>
           <EditableText
             shouldSubmitOnBlur={true}
             innerRef={editor}

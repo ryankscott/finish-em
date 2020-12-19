@@ -93,13 +93,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
     <ThemeProvider theme={theme}>
       <DialogContainer ref={node}>
         <DialogHeader>
-          <HelpButtonContainer
-            data-for={'help-icon' + props.componentKey}
-            data-tip
-            data-html={true}
-          >
-            {Icons['help'](18, 18, theme.colours.disabledTextColour)}
-          </HelpButtonContainer>
           <CloseButtonContainer>
             <Button
               type="default"

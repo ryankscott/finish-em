@@ -87,7 +87,6 @@ export const Container = styled.div<ContainerProps>`
   border-radius: 5px;
   border: 1px solid;
   border-color: ${(props) => props.theme.colours.borderColour};
-  min-width: 666px;
   animation: ${(props) =>
     props.state == 'entering' ? entryAnimation : props.state == 'exiting' ? exitAnimation : 'none'};
 `
