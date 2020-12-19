@@ -62,3 +62,12 @@ export const FilterContainer = styled.div`
   width: 100%;
   justify-content: space-between;
 `
+
+export const SaveButtonContainer = styled.div`
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 0px 20px;
+  width: 100%;
+`

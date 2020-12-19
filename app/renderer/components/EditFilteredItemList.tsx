@@ -18,6 +18,7 @@ import {
   DialogHeader,
   FilterContainer,
   HelpButtonContainer,
+  SaveButtonContainer,
   SelectContainer,
   Setting,
   SettingLabel,
@@ -311,6 +312,16 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             </SelectContainer>
           </SettingValue>
         </Setting>
+        <SaveButtonContainer>
+          <Button
+            text="Save"
+            type="primary"
+            icon="save"
+            onClick={() => {
+              props.onClose()
+            }}
+          />
+        </SaveButtonContainer>
       </DialogContainer>
     </ThemeProvider>
   )
