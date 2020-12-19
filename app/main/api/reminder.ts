@@ -21,28 +21,25 @@ export const getReminders = (obj, ctx) => {
       ),
     )
 }
-export const getRemindersByItem = (input: { itemKey: string }, ctx) => {
-  return ctx.db
-    .all(
-      `SELECT key, text, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder WHERE itemKey = '${input.itemKey}'`,
+export const getRemindersByItem = async (input: { itemKey: string }, ctx) => {
+  const result = await ctx.db.all(
+    `SELECT key, text, deleted, remindAt, lastUpdatedAt, deletedAt, createdAt, itemKey FROM reminder WHERE itemKey = '${input.itemKey}'`,
+  )
+  if (result) {
+    return result.map(
+      (r) =>
+        new Reminder(
+          r.key,
+          r.text,
+          r.deleted,
+          r.remindAt,
+          r.lastUpdatedAt,
+          r.deletedAt,
+          r.createdAt,
+          r.itemKey,
+        ),
     )
-    .then((result) => {
-      return result
-        ? result.map(
-            (r) =>
-              new Reminder(
-                r.key,
-                r.text,
-                r.deleted,
-                r.remindAt,
-                r.lastUpdatedAt,
-                r.deletedAt,
-                r.createdAt,
-                r.itemKey,
-              ),
-          )
-        : null
-    })
+  } else return null
 }
 
 export const getReminder = (input: { key: string }, ctx) => {
