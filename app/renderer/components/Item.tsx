@@ -423,6 +423,7 @@ function Item(props: ItemProps): ReactElement {
             visible={!props.hiddenIcons?.includes(ItemIcons.Subtask) && item.parent != null}
           >
             <ItemAttribute
+              compact={props.compact}
               completed={item.completed}
               type={'subtask'}
               text={
@@ -441,9 +442,12 @@ function Item(props: ItemProps): ReactElement {
           visible={item.scheduledAt != null && !props.hiddenIcons?.includes(ItemIcons.Scheduled)}
         >
           <ItemAttribute
+            compact={props.compact}
             completed={item.completed}
             type={'scheduled'}
-            text={item.scheduledAt ? formatRelativeDate(parseISO(item.scheduledAt)) : ''}
+            text={
+              item.scheduledAt ? formatRelativeDate(parseISO(item.scheduledAt), props.compact) : ''
+            }
           />
           <Tooltip
             id={'scheduled-date-' + item.key}
@@ -456,9 +460,10 @@ function Item(props: ItemProps): ReactElement {
           visible={item.dueAt != null && !props.hiddenIcons?.includes(ItemIcons.Due)}
         >
           <ItemAttribute
+            compact={props.compact}
             completed={item.completed}
             type={'due'}
-            text={item.dueAt ? formatRelativeDate(parseISO(item.dueAt)) : ''}
+            text={item.dueAt ? formatRelativeDate(parseISO(item.dueAt), props.compact) : ''}
           />
           <Tooltip
             id={'due-date-' + item.key}
@@ -471,6 +476,7 @@ function Item(props: ItemProps): ReactElement {
           visible={item.repeat != null && !props.hiddenIcons?.includes(ItemIcons.Repeat)}
         >
           <ItemAttribute
+            compact={props.compact}
             completed={item.completed}
             type={'repeat'}
             text={

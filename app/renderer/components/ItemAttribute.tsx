@@ -16,6 +16,7 @@ type ItemAttributeProps = {
   type: 'repeat' | 'due' | 'scheduled' | 'subtask'
   text: string
   completed: boolean
+  compact: boolean
 }
 
 const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
@@ -25,12 +26,18 @@ const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
     console.log(error)
     return null
   }
+  const iconSize = props.compact ? 12 : 14
   const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
-      <AttributeContainer completed={props.completed}>
-        <AttributeIcon> {Icons[props.type](14, 14)}</AttributeIcon>
-        <AttributeText dangerouslySetInnerHTML={{ __html: marked(props.text) }}></AttributeText>
+      <AttributeContainer compact={props.compact} completed={props.completed}>
+        <AttributeIcon compact={props.compact}>
+          {Icons[props.type](iconSize, iconSize)}
+        </AttributeIcon>
+        <AttributeText
+          compact={props.compact}
+          dangerouslySetInnerHTML={{ __html: marked(props.text) }}
+        ></AttributeText>
       </AttributeContainer>
     </ThemeProvider>
   )

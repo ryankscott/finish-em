@@ -3,6 +3,7 @@ import { Paragraph } from '../Typography'
 
 interface AttributeContainerProps {
   completed: boolean
+  compact: boolean
 }
 export const AttributeContainer = styled.div<AttributeContainerProps>`
   display: flex;
@@ -12,17 +13,25 @@ export const AttributeContainer = styled.div<AttributeContainerProps>`
   margin: 0px 2px;
   text-decoration: ${(props) => (props.completed ? 'strike-through' : 'none')};
 `
-
-export const AttributeIcon = styled.div`
+interface AttributeIconProps {
+  completed: boolean
+  compact: boolean
+}
+export const AttributeIcon = styled.div<AttributeContainerProps>`
   display: flex;
   padding-right: 2px;
   align-items: center;
 `
-export const AttributeText = styled(Paragraph)`
+interface AttributeTextProps {
+  completed: boolean
+  compact: boolean
+}
+export const AttributeText = styled(Paragraph)<AttributeTextProps>`
   > p {
-    margin: 2px;
+    margin: ${(props) => (props.compact ? '2px 0px' : '2px')};
     color: ${(props) => props.theme.colours.disabledTextColour};
-    font-size: ${(props) => props.theme.fontSizes.xxsmall};
+    font-size: ${(props) =>
+      props.compact ? props.theme.fontSizes.xxxsmall : props.theme.fontSizes.xxsmall};
   }
   margin: 0px 1px;
 `

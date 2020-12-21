@@ -30,7 +30,7 @@ export const Container = styled.div<ContainerProps>`
          "DUE    DUE   DUE    DUE       REPEAT REPEAT  REPEAT   REPEAT";`
       : `"EXPAND TYPE  DESC   DESC      DESC   PROJECT REMINDER MORE"
          ".      .     PARENT SCHEDULED DUE    REPEAT  .        .";`};
-  padding: ${(props) => (props.hidden ? '0px' : props.compact ? '0px 4px' : '5px')};
+  padding: ${(props) => (props.hidden ? '0px' : props.compact ? '2px 4px' : '5px')};
   align-items: center;
   cursor: pointer;
   border-radius: 5px;

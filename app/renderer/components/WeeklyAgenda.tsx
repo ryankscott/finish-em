@@ -91,7 +91,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
     variables: {
       filter: filter,
     },
-    pollInterval: 500,
+    // pollInterval: 500,
   })
   if (loading) return null
   if (error) {

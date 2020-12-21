@@ -79,18 +79,18 @@ export const setEndOfContenteditable = (contentEditableElement): void => {
   }
 }
 
-export const formatRelativeDate = (date: Date): string => {
+export const formatRelativeDate = (date: Date, compact?: boolean): string => {
   if (!isValid(date)) return ''
   if (isToday(date)) {
-    return 'Today'
+    return compact ? 'TDA' : 'Today'
   } else if (isTomorrow(date)) {
-    return 'Tomorrow'
+    return compact ? 'TMR' : 'Tomorrow'
   } else if (isYesterday(date)) {
-    return 'Yesterday'
+    return compact ? 'YDA' : 'Yesterday'
   } else if (differenceInDays(date, new Date()) < 7 && isAfter(date, new Date())) {
-    return format(date, 'EEEE')
+    return compact ? format(date, 'E') : format(date, 'EEEE')
   } else {
-    return format(date, 'do MMMM')
+    return compact ? format(date, 'do MMM') : format(date, 'do MMMM')
   }
 }
 
