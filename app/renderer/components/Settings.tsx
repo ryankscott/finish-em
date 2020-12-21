@@ -109,7 +109,11 @@ function Settings(props: SettingsPickerProps): ReactElement {
   const [setColourOfLabel] = useMutation(RECOLOUR_LABEL)
   const [deleteLabel] = useMutation(DELETE_LABEL, {
     update(cache, { data: { deleteLabel } }) {
-      cache.evict({ key: deleteLabel })
+      const cacheId = cache.identify({
+        __typename: 'Label',
+        key: deleteLabel,
+      })
+      cache.evict({ id: cacheId })
     },
   })
 

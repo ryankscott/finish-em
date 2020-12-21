@@ -119,9 +119,14 @@ const Project = (props: ProjectProps): ReactElement => {
   const [renameProject] = useMutation(RENAME_PROJECT)
   const [setEndDate] = useMutation(SET_END_DATE)
   const [setStartDate] = useMutation(SET_START_DATE)
+
   const [deleteView] = useMutation(DELETE_VIEW, {
     update(cache, { data: { deleteView } }) {
-      cache.evict({ id: deleteView })
+      const cacheId = cache.identify({
+        __typename: 'View',
+        key: props.projectKey,
+      })
+      cache.evict({ id: cacheId })
     },
   })
 

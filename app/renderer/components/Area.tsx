@@ -103,7 +103,12 @@ const Area = (props: AreaProps): ReactElement => {
 
   const [deleteArea] = useMutation(DELETE_AREA, {
     update(cache, { data: { deleteArea } }) {
-      cache.evict({ id: deleteArea })
+      const cacheId = cache.identify({
+        __typename: 'Area',
+        key: props.areaKey,
+      })
+
+      cache.evict({ id: cacheId })
     },
   })
   const [changeDescriptionArea] = useMutation(CHANGE_DESCRIPTION_AREA)

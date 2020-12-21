@@ -136,7 +136,11 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [deleteComponent] = useMutation(DELETE_COMPONENT, {
     update(cache, { data: { deleteComponent } }) {
-      cache.evict({ id: deleteComponent })
+      const cacheId = cache.identify({
+        __typename: 'Component',
+        key: props.componentKey,
+      })
+      cache.evict({ id: cacheId })
     },
   })
   // TODO: I shouldn't really use polling here, but can't work out how else to refetch the data
@@ -144,7 +148,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     variables: {
       filter: props.filter ? props.filter : '',
     },
-    pollInterval: 2000,
+    // pollInterval: 2000,
   })
 
   if (loading) return null
