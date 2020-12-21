@@ -66,26 +66,8 @@ type ItemCreatorProps = {
 }
 
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
-  // TODO: #287 Cache invalidation doesn't seem to be working here
   const [createItem] = useMutation(CREATE_ITEM, {
-    update(cache, { data: { createItem } }) {
-      cache.modify({
-        fields: {
-          items(existingItems = []) {
-            const newItemRef = cache.writeFragment({
-              data: createItem,
-              fragment: gql`
-                fragment NewItem on Item {
-                  key
-                  type
-                }
-              `,
-            })
-            return [...existingItems, newItemRef]
-          },
-        },
-      })
-    },
+    refetchQueries: ['itemsByFilter'],
   })
   const { loading, error, data } = useQuery(GET_THEME)
   if (loading) return null
