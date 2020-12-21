@@ -187,7 +187,8 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
 }
 
 export const getItem = (input: { key: string }, ctx) => {
-  log.info(`Getting item by key: ${input.key}`)
+  // log.info(`Getting item by key: ${input.key}`)
+
   return ctx.db
     .get(
       `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE key = '${input.key}'`,
