@@ -131,7 +131,7 @@ type DraggableItemStyle = {
 }
 
 export const DraggableItem = styled.div<DraggableItemStyle>`
-    ...draggableStyle;
+    ...props.draggableStyle;
     display: flex;
     flex-direction: column;
     height: auto;

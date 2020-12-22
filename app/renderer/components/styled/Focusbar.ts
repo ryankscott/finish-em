@@ -45,8 +45,8 @@ export const AttributeValue = styled.div`
 export const TitleContainer = styled.div`
   display: flex;
   flex-direction: row;
-  margin: 0px 5px;
-  margin-bottom: 20px;
+  margin: 0px;
+  padding: 20px 5px 15px 5px;
   align-items: center;
   width: 100%;
 `
@@ -59,8 +59,8 @@ export const HeaderContainer = styled.div<HeaderContainerProps>`
   grid-template-columns: repeat(5, 1fr);
   flex-direction: row;
   width: 100%;
-  margin-bottom: 0px;
-  padding: 2px;
+  margin: 0px;
+  padding: 0px;
 `
 
 export const Project = styled.div`

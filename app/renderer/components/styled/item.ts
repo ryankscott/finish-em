@@ -1,6 +1,6 @@
 import styled from '../../StyledComponents'
 import CSS from 'csstype'
-import { transparentize } from 'polished'
+import { darken, transparentize } from 'polished'
 import { repeat } from 'lodash'
 
 interface ContainerProps {
@@ -37,7 +37,13 @@ export const Container = styled.div<ContainerProps>`
   color: ${(props) => props.theme.colours.disabledTextColour};
   background: ${(props) =>
     props.deleted
-      ? `repeating-linear-gradient(45deg, #e9e9e9, #e9e9e9 10px, #eee 10px, #eee 20px)`
+      ? `repeating-linear-gradient(45deg, ${darken(
+          0.05,
+          props.theme.colours.backgroundColour,
+        )}, ${darken(0.05, props.theme.colours.backgroundColour)} 10px, ${darken(
+          0.1,
+          props.theme.colours.backgroundColour,
+        )} 10px, ${darken(0.1, props.theme.colours.backgroundColour)} 20px)`
       : 'none'};
   background-color: ${(props) =>
     props.labelColour != null

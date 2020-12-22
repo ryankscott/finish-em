@@ -2,6 +2,8 @@ import styled from 'styled-components'
 import { Header2, Title } from '../Typography'
 import CSS from 'csstype'
 import { darken } from 'polished'
+import { css, keyframes } from '../../StyledComponents'
+import { fadeInUp, fadeOutDown } from 'react-animations
 export const WeekContainer = styled.div`
   display: grid;
   grid-template-rows: 2fr 1fr;
@@ -101,6 +103,17 @@ export const DraggableList = styled.div<DraggableListProps>`
   width: 100%;
   padding: ${(props) => (props.isDraggingOver ? '40px 5px' : '5px')};
 `
+
+const fadeInAnimation = keyframes`${fadeInUp}`
+const fadeOutAnimation = keyframes`${fadeOutDown}`
+const entryAnimation = (props) =>
+  css`
+    ${fadeInAnimation} 0.2s
+  `
+const exitAnimation = (props) =>
+  css`
+    ${fadeOutAnimation} 0.5s
+  `
 
 type DraggableContainerProps = {
   isDragging: boolean

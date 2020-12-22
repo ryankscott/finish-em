@@ -13,7 +13,6 @@ export const Container = styled.div`
   height: 100%;
   min-width: 500px;
   transition: all 0.2s ease-in-out;
-  -webkit-app-region: drag;
 `
 export const HeaderContainer = styled.div`
   grid-area: header;
