@@ -3,7 +3,8 @@ import { Header2, Title } from '../Typography'
 import CSS from 'csstype'
 import { darken } from 'polished'
 import { css, keyframes } from '../../StyledComponents'
-import { fadeInUp, fadeOutDown } from 'react-animations
+import { fadeInUp, fadeOutDown } from 'react-animations'
+
 export const WeekContainer = styled.div`
   display: grid;
   grid-template-rows: 2fr 1fr;
