@@ -131,22 +131,17 @@ type DraggableItemStyle = {
 }
 
 export const DraggableItem = styled.div<DraggableItemStyle>`
-    ...props.draggableStyle;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    user-select: none;
-    margin: 0px;
-    padding: ${(props) => (!props.sidebarVisible ? '0px' : '0px 5px')};
-    border-radius: 5px;
-    background: ${(props) =>
-      props.isDragging
-        ? lighten(0.1, props.theme.colours.altBackgroundColour)
-        : props.theme.colours.altBackgroundColour};
-    box-shadow: ${(props) =>
-      props.isDragging
-        ? '1px 2px 6px ' + darken(0.05, props.theme.colours.altBorderColour)
-        : '0px'};
-})
-
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  user-select: none;
+  margin: 0px;
+  padding: ${(props) => (!props.sidebarVisible ? '0px' : '0px 5px')};
+  border-radius: 5px;
+  background: ${(props) =>
+    props.isDragging
+      ? lighten(0.1, props.theme.colours.altBackgroundColour)
+      : props.theme.colours.altBackgroundColour};
+  box-shadow: ${(props) =>
+    props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.altBorderColour) : '0px'};
 `
