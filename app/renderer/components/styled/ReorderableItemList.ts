@@ -16,11 +16,10 @@ export const Container = styled.div`
   margin: 10px 0px;
 `
 
-type DraggableListProps = {
+type DroppableListProps = {
   isDraggingOver: boolean
 }
-export const DraggableList = styled.div<DraggableListProps>`
-  position: relative;
+export const DroppableList = styled.div<DroppableListProps>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -46,22 +45,15 @@ type DraggableContainerProps = {
   state: string
 }
 export const DraggableContainer = styled.div<DraggableContainerProps>`
-    ...props.draggableStyle;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    user-select: none;
-    padding: 0px;
-    margin: 0px;
-    border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  user-select: none;
+  padding: 0px;
+  z-index: 10;
+  margin: 0px;
+  border-radius: 5px;
   background: ${(props) => props.theme.colours.backgroundColour};
-    box-shadow: ${(props) =>
-      props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.borderColour) : '0px'};
-    animation: ${(props) =>
-      props.state == 'entering'
-        ? entryAnimation
-        : props.state == 'exiting'
-        ? exitAnimation
-        : 'none'}
+  box-shadow: ${(props) =>
+    props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.borderColour) : '0px'};
 `

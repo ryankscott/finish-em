@@ -9,7 +9,7 @@ import { TransitionGroup, Transition } from 'react-transition-group'
 import {
   Container,
   NoItemText,
-  DraggableList,
+  DroppableList,
   DraggableContainer,
 } from './styled/ReorderableItemList'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
@@ -84,7 +84,9 @@ type ReorderableItemListProps = {
 }
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
-  const [setItemOrder] = useMutation(SET_ITEM_ORDER)
+  const [setItemOrder] = useMutation(SET_ITEM_ORDER, {
+    refetchQueries: ['itemsByFilter'],
+  })
   const [completeItem] = useMutation(COMPLETE_ITEM)
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
   const [deleteItem] = useMutation(DELETE_ITEM)
@@ -197,7 +199,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         >
           <Droppable droppableId={uuidv4()} type="ITEM">
             {(provided, snapshot) => (
-              <DraggableList
+              <DroppableList
                 {...provided.droppableProps}
                 ref={provided.innerRef}
                 isDraggingOver={snapshot.isDraggingOver}
@@ -233,12 +235,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                       >
                         {(state) => {
                           return (
-                            <Draggable
-                              key={item.key}
-                              draggableId={item.key}
-                              zIndex={0}
-                              index={index}
-                            >
+                            <Draggable key={item.key} draggableId={item.key} index={index}>
                               {(provided, snapshot) => (
                                 <DraggableContainer
                                   ref={provided.innerRef}
@@ -250,6 +247,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                   state={state}
                                 >
                                   <Item
+                                    compact={false}
                                     itemKey={item.key}
                                     {...item}
                                     key={item.key}
@@ -286,7 +284,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                 </TransitionGroup>
                 {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
                 {provided.placeholder}
-              </DraggableList>
+              </DroppableList>
             )}
           </Droppable>
         </DragDropContext>
