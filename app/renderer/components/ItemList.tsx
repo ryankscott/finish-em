@@ -12,6 +12,7 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { cloneDeep } from '@apollo/client/utilities'
 import { get } from 'lodash'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
+import { Spinner } from './Spinner'
 
 const GET_THEME = gql`
   query {
@@ -76,7 +77,7 @@ type ItemListProps = {
 
 function ItemList(props: ItemListProps): ReactElement {
   const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
+  if (loading) return <Spinner loading={true}></Spinner>
   if (error) {
     console.log(error)
     return null

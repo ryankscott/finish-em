@@ -19,6 +19,7 @@ import { Item as ItemType } from '../../main/generated/typescript-helpers'
 import { cloneDeep, get, orderBy } from 'lodash'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { subtasksVisibleVar, focusbarVisibleVar, activeItemVar } from '..'
+import { Spinner } from './Spinner'
 
 const GET_THEME = gql`
   query {
@@ -89,7 +90,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [restoreItem] = useMutation(RESTORE_ITEM)
   const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
+  if (loading) return <Spinner loading={true}></Spinner>
   if (error) {
     console.log(error)
     return null

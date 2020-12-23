@@ -38,6 +38,7 @@ import Tooltip from './Tooltip'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
+import { Spinner } from './Spinner'
 
 type ItemProps = {
   compact: boolean
@@ -186,7 +187,7 @@ function Item(props: ItemProps): ReactElement {
   const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM)
   const [restoreItem] = useMutation(RESTORE_ITEM)
 
-  if (loading) return null
+  if (loading) return <Spinner loading={true}></Spinner>
   if (error) return null
 
   const theme: ThemeType = themes[data.theme]

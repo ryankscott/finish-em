@@ -10,6 +10,7 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Button from './Button'
 import FilteredItemList from './FilteredItemList'
+import { Spinner } from './Spinner'
 import { Container, DraggableContainer, DraggableList } from './styled/ReorderableComponentList'
 import ViewHeader from './ViewHeader'
 
@@ -54,7 +55,20 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
 
   const [addComponent] = useMutation(ADD_COMPONENT)
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER)
-  if (loading) return null
+  if (loading)
+    return (
+      <div
+        style={{
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignContent: 'center',
+        }}
+      >
+        <Spinner loading={true}></Spinner>
+      </div>
+    )
   if (error) return null
 
   const sortedComponents: Component[] = orderBy(

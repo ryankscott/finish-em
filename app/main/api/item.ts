@@ -214,7 +214,9 @@ export const getItem = (input: { key: string }, ctx) => {
           result.areaKey,
         )
       }
-      log.error(`Failed to get item with key - ${input.key}`)
+      if (input.key != null) {
+        log.error(`Failed to get item with key - ${input.key}`)
+      }
       return null
     })
 }
