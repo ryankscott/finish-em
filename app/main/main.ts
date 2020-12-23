@@ -20,7 +20,7 @@ if (isDev) {
 }
 
 ;(async () => {
-  const databasePath = isDev ? './database.db' : path.join(app.getAppPath(), '../database.db')
+  const databasePath = isDev ? './database.db' : path.join(app.getPath('appData'), './database.db')
 
   path.resolve(__dirname, '/database.db')
   log.info(`Loading database at: ${databasePath}`)
