@@ -143,12 +143,10 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
       cache.evict({ id: cacheId })
     },
   })
-  // TODO: I shouldn't really use polling here, but can't work out how else to refetch the data
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
     },
-    // pollInterval: 2000,
   })
 
   if (loading) return null
@@ -323,7 +321,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             />
           </EditableContainer>
         ) : showItemList ? (
-          data.dragAndDropEnabled ? (
+          data.dragAndDrop.enabled ? (
             <>
               <ItemListContainer>
                 <ReorderableItemList
