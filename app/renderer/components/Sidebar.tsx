@@ -309,7 +309,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 
                 // Project Order is harder as the index is based on the area
                 const projectAtDestination = sortedProjects[e.destination.index]
-
+                // If there's no projects in the area
+                if (!projectAtDestination) {
+                  refetch()
+                  return
+                }
                 setProjectOrder({
                   variables: {
                     projectKey: e.draggableId,
