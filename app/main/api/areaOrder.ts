@@ -32,7 +32,7 @@ export const setAreaOrder = async (input: { areaKey: string; sortOrder: number }
 
     const setArea = await ctx.db.run(
       `UPDATE areaOrder SET sortOrder = ${input.sortOrder} 
-         WHERE areaKey = ${input.areaKey};`,
+         WHERE areaKey = '${input.areaKey}';`,
     )
 
     return await getAreaOrder({ areaKey: input.areaKey }, ctx)

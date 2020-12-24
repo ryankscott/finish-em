@@ -4,6 +4,7 @@ import React, { ReactElement } from 'react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { NavLink, NavLinkProps, useHistory } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
+import { areaRootValues } from '../../main/api'
 import { Area, View } from '../../main/generated/typescript-helpers'
 import { Icons } from '../assets/icons'
 import { sidebarVisibleVar } from '../index'
@@ -292,22 +293,37 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 
           <DragDropContext
             onDragEnd={(e) => {
+              console.log(e)
+
               if (e.type == 'PROJECT') {
+                const areaKey = e.destination.droppableId
+                const area = sortedAreas.find((a) => a.key == areaKey)
+                const sortedProjects = orderBy(area.projects, ['sortOrder.sortOrder'], ['asc'])
                 //  Trying to detect drops in non-valid areas
                 if (!e.destination) {
                   return
                 }
                 setAreaOfProject({
-                  variables: { key: e.draggableId, areaKey: e.destination.droppableId },
+                  variables: { key: e.draggableId, areaKey: areaKey },
                 })
+
+                // Project Order is harder as the index is based on the area
+                const projectAtDestination = sortedProjects[e.destination.index]
+
                 setProjectOrder({
-                  variables: { projectKey: e.draggableId, sortOrder: e.destination.index },
+                  variables: {
+                    projectKey: e.draggableId,
+                    sortOrder: projectAtDestination.sortOrder.sortOrder,
+                  },
                 })
                 refetch()
               }
               if (e.type == 'AREA') {
                 setAreaOrder({
-                  variables: { areaKey: e.draggableId, sortOrder: e.destination.index },
+                  variables: {
+                    areaKey: e.draggableId,
+                    sortOrder: sortedAreas[e.destination.index].sortOrder.sortOrder,
+                  },
                 })
                 refetch()
               }

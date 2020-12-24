@@ -255,7 +255,7 @@ export const setStartDateOfProject = (input: { key: string; startAt: string }, c
 }
 
 export const createSetAreaOfProject = (input: { key: string; areaKey: string }) => {
-  return `UPDATE project SET areaKey = ${input.areaKey}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
+  return `UPDATE project SET areaKey = '${input.areaKey}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
 export const setAreaOfProject = (input: { key: string; areaKey: string }, ctx) => {
   return ctx.db.run(createSetAreaOfProject(input)).then((result) => {
