@@ -1,7 +1,8 @@
+import { mergeSchemasAsync } from '@graphql-tools/merge'
 import Project from '../classes/project'
 import { getItemsByProject, setProjectOfItem } from './item'
 import { createProjectOrder } from './projectOrder'
-import { createView, deleteView } from './view'
+import { createView, deleteView, renameView } from './view'
 
 export const createGetProjectsQuery = (input: { deleted: boolean }) => {
   const deletedText = input.deleted != undefined ? `AND deleted = ${input.deleted}` : ''
@@ -215,9 +216,11 @@ export const renameProject = async (input: { key: string; name: string }, ctx) =
     return new Error('Unable to create project - name already in use')
   }
   return ctx.db.run(createRenameProjectQuery(input)).then((result) => {
-    return result.changes
-      ? getProject({ key: input.key }, ctx)
-      : new Error('Unable to rename project')
+    if (result.changes) {
+      renameView({ key: input.key, name: input.name }, ctx)
+      return getProject({ key: input.key }, ctx)
+    }
+    return new Error('Unable to rename project')
   })
 }
 
