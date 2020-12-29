@@ -93,7 +93,7 @@ export const shortcutDialogVisibleVar: ReactiveVar<Boolean> = makeVar<Boolean>(f
 export const activeItemVar: ReactiveVar<String> = makeVar<String>('')
 export const themeVar: ReactiveVar<String> = makeVar<String>('light')
 export const subtasksVisibleVar: ReactiveVar<Object> = makeVar<Object>({})
-export const activeCalendarVar: ReactiveVar<String> = makeVar<String>('')
+export const activeCalendarVar: ReactiveVar<Object> = makeVar<String>({})
 
 ReactDOM.render(
   <ApolloProvider client={client}>

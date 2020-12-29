@@ -12,7 +12,7 @@ CREATE TABLE label (
 
 CREATE TABLE calendar (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT,
+  name TEXT NOT NULL UNIQUE,
   active BOOLEAN,
   deleted BOOLEAN,
   lastUpdatedAt TEXT,

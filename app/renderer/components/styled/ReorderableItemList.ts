@@ -14,12 +14,14 @@ export const NoItemText = styled.p`
 export const Container = styled.div`
   width: 100%;
   margin: 10px 0px;
+  z-index: 0;
 `
 
 type DroppableListProps = {
   isDraggingOver: boolean
 }
 export const DroppableList = styled.div<DroppableListProps>`
+  z-index: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -45,12 +47,12 @@ type DraggableContainerProps = {
   state: string
 }
 export const DraggableContainer = styled.div<DraggableContainerProps>`
+  position: relative;
   display: flex;
   flex-direction: column;
   height: auto;
   user-select: none;
   padding: 0px;
-  z-index: 10;
   margin: 0px;
   border-radius: 5px;
   background: ${(props) => props.theme.colours.backgroundColour};

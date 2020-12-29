@@ -22,20 +22,18 @@ import {
   SettingsSidebar,
 } from './styled/Settings'
 import { camelCaseToInitialCaps } from '../utils'
-import { activeCalendarVar, themeVar } from '..'
+import { themeVar } from '..'
 import { Label } from '../../main/generated/typescript-helpers'
 import { HexColorPicker } from 'react-colorful'
 import 'react-colorful/dist/index.css'
 import { debounce } from 'lodash'
 
-const electron = window.require('electron')
-
 type SettingsPickerProps = {}
 const generateOptions = (cals): { value: string; label: string }[] => {
   return cals?.map((c) => {
     return {
-      value: c,
-      label: c,
+      value: c.key,
+      label: c.name,
     }
   })
 }
@@ -52,10 +50,26 @@ const GET_FEATURES_AND_LABELS = gql`
       name
       colour
     }
+    calendars {
+      key
+      name
+    }
+    activeCalendar: getActiveCalendar {
+      key
+      name
+    }
     theme @client
-    activeCalendar @client
   }
 `
+const SET_ACTIVE_CALENDAR = gql`
+  mutation SetActiveCalendar($key: String!) {
+    setActiveCalendar(input: { key: $key }) {
+      key
+      name
+    }
+  }
+`
+
 const SET_FEATURE = gql`
   mutation SetFeature($key: String!, $enabled: Boolean!) {
     setFeature(input: { key: $key, enabled: $enabled }) {
@@ -101,9 +115,9 @@ const CREATE_LABEL = gql`
 function Settings(props: SettingsPickerProps): ReactElement {
   const [showColourPicker, setShowColourPicker] = useState(false)
   const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
-  const [calendars, setCalendars] = useState([])
   const [activeCategory, setActiveCategory] = useState('UI')
   const { loading, error, data } = useQuery(GET_FEATURES_AND_LABELS)
+  const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR)
   const [setFeature] = useMutation(SET_FEATURE)
   const [renameLabel] = useMutation(RENAME_LABEL)
   const [setColourOfLabel] = useMutation(RECOLOUR_LABEL)
@@ -138,22 +152,11 @@ function Settings(props: SettingsPickerProps): ReactElement {
       })
     },
   })
-  const calendarOptions = generateOptions(calendars)
-
-  useEffect(() => {
-    // Handle Electron events
-    electron.ipcRenderer.on('calendars', (event, calendars) => {
-      setCalendars(calendars)
-    })
-  })
-  useEffect(() => {
-    // Handle Electron events
-    electron.ipcRenderer.send('get-calendars')
-  }, [])
 
   // TODO: Loading and error states
   if (loading) return null
   if (error) return null
+  const calendarOptions = generateOptions(data.calendars)
   const theme = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
@@ -218,12 +221,17 @@ function Settings(props: SettingsPickerProps): ReactElement {
                           <Select
                             key={f.key + '-select'}
                             autoFocus={true}
-                            value={calendarOptions?.find((c) => c.value == data.activeCalendar)}
+                            value={calendarOptions?.find(
+                              (c) => c.value == data?.activeCalendar?.key,
+                            )}
                             isSearchable
                             isDisabled={!f.enabled}
                             onChange={(e) => {
-                              electron.ipcRenderer.send('set-calendar', e.value)
-                              activeCalendarVar(e.value)
+                              setActiveCalendar({
+                                variables: {
+                                  key: e.value,
+                                },
+                              })
                             }}
                             options={calendarOptions}
                             styles={selectStyles({

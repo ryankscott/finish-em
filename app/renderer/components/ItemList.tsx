@@ -104,7 +104,6 @@ function ItemList(props: ItemListProps): ReactElement {
       const itemKey = event.target.id
       let newState = cloneDeep(data.subtasksVisible)
       const newValue = get(newState, [`${itemKey}`, `${props.componentKey}`], false)
-      console.log(newValue)
       if (newState[itemKey]) {
         newState[itemKey][props.componentKey] = !newValue
       } else {

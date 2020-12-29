@@ -1,5 +1,6 @@
 import { ipcMain, app, net, BrowserWindow, globalShortcut } from 'electron'
 import * as path from 'path'
+import { v4 as uuidv4 } from 'uuid'
 import applescript from 'applescript'
 import * as semver from 'semver'
 import express from 'express'
@@ -8,8 +9,23 @@ import { schema, rootValue } from './schemas/schema'
 import * as sqlite from 'sqlite'
 import * as sqlite3 from 'sqlite3'
 import morgan from 'morgan'
+import fetch from 'cross-fetch'
+import * as jwtSign from 'jsonwebtoken'
 import jwt from 'express-jwt'
+import {
+  ApolloClient,
+  createHttpLink,
+  gql,
+  InMemoryCache,
+  NormalizedCacheObject,
+} from '@apollo/client'
+import { convertToProperTzOffset } from '../renderer/utils'
+import { parse } from 'date-fns'
+import { Event } from './generated/typescript-helpers'
+import { createEvent } from './api'
+import { isEmpty } from 'lodash'
 const log = require('electron-log')
+const GRAPHQL_PORT = 8089
 
 const isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == 'true' : false
 
@@ -19,9 +35,8 @@ if (isDev) {
   log.info('Running in production')
 }
 
-;(async () => {
+const setUpDatabase = async () => {
   const databasePath = isDev ? './database.db' : path.join(app.getPath('userData'), './database.db')
-
   path.resolve(__dirname, '/database.db')
   log.info(`Loading database at: ${databasePath}`)
 
@@ -35,7 +50,7 @@ if (isDev) {
     : path.join(process.resourcesPath, '/resources/')
 
   log.info(`Loading migrations at: ${migrationsPath}`)
-  const migrations = await db.migrate({
+  await db.migrate({
     migrationsPath: migrationsPath,
   })
   // await db.on('trace', (data) => {
@@ -43,15 +58,14 @@ if (isDev) {
   // })
 
   log.info('Migrations  complete')
-  const GRAPHQL_PORT = 8089
+  return db
+}
+
+const startGraphQL = async () => {
   const graphQLApp = await express()
 
-  // Logging
-  morgan.token('body', (req, res) => {
-    return JSON.stringify(req.body)
-  })
   graphQLApp.use(
-    morgan(':date[iso] :status :res[content-length] :url :body - :response-time ms', {
+    morgan(':date[iso] :status  - :response-time ms', {
       skip: function (req, res) {
         return res.statusCode < 400
       },
@@ -59,25 +73,24 @@ if (isDev) {
   )
   log.info(`Enabling CORS`)
   // Enable cors
-  graphQLApp.use(
-    '/graphql',
-    jwt({ secret: 'super_secret', algorithms: ['HS256'] }),
-    function (req, res, next) {
-      res.header('Access-Control-Allow-Origin', '*')
-      res.header(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, Content-Length, X-Requested-With',
-      )
-      if (req.method === 'OPTIONS') {
-        res.sendStatus(200)
-      } else {
-        if (req.user.user != 'app') {
-          res.sendStatus(401)
-        }
-        next()
+  graphQLApp.use('/graphql', function (req, res, next) {
+    if (!isDev) {
+      jwt({ secret: 'super_secret', algorithms: ['HS256'] })
+    }
+    res.header('Access-Control-Allow-Origin', '*')
+    res.header(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, Content-Length, X-Requested-With',
+    )
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200)
+    } else {
+      if (!isDev && req.user.user != 'app') {
+        res.sendStatus(401)
       }
-    },
-  )
+      next()
+    }
+  })
 
   graphQLApp.use(
     '/graphql',
@@ -86,12 +99,6 @@ if (isDev) {
       graphiql: true,
       pretty: true,
       schema: schema,
-      customFormatErrorFn: (error) => ({
-        message: error.message,
-        locations: error.locations,
-        stack: error.stack ? error.stack.split('\n') : [],
-        path: error.path,
-      }),
       context: {
         db: {
           get: (...args) => db.get(...args),
@@ -102,13 +109,82 @@ if (isDev) {
     }),
   )
 
-  const graphQLServer = await graphQLApp.listen(GRAPHQL_PORT, () => {
+  await graphQLApp.listen(GRAPHQL_PORT, () => {
     log.info(`GraphQL server is now running on http://localhost:${GRAPHQL_PORT}`)
-    console.log(`GraphQL server is now running on http://localhost:${GRAPHQL_PORT}`)
   })
-})()
-let mainWindow, quickAddWindow
-let calendar = ''
+
+  return graphQLApp
+}
+
+const createApolloClient = () => {
+  // Creating a client for use in the backend
+  const token = jwtSign.sign({ user: 'app' }, 'super_secret', { algorithm: 'HS256' })
+  const httpLink = createHttpLink({
+    uri: 'http://localhost:8089/graphql',
+    fetch,
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  })
+  const client = new ApolloClient({
+    cache: new InMemoryCache(),
+    link: httpLink,
+  })
+  return client
+}
+
+const createCalendar = async (
+  client: ApolloClient<NormalizedCacheObject>,
+  key: string,
+  name: string,
+  active: boolean,
+) => {
+  const result = await client.mutate({
+    mutation: gql`
+      mutation CreateCalendar($key: String!, $name: String!, $active: Boolean!) {
+        createCalendar(input: { key: $key, name: $name, active: $active }) {
+          key
+        }
+      }
+    `,
+    variables: {
+      key: key,
+      name: name,
+      active: active,
+    },
+  })
+  return await result.data
+}
+
+const getFeatures = async (client: ApolloClient<NormalizedCacheObject>) => {
+  const result = await client.query({
+    query: gql`
+      query {
+        features {
+          key
+          name
+          enabled
+        }
+      }
+    `,
+  })
+  return await result.data
+}
+
+const getCalendars = async (client: ApolloClient<NormalizedCacheObject>) => {
+  const result = await client.query({
+    query: gql`
+      query {
+        calendars {
+          key
+          name
+        }
+      }
+    `,
+  })
+  return await result.data
+}
+
 const getMailLink = () => {
   const script = `
     tell application "Mail"
@@ -134,7 +210,7 @@ const getMailLink = () => {
   })
 }
 
-const getCalendars = () => {
+const saveCalendars = (client: ApolloClient<NormalizedCacheObject>) => {
   const script = `
 	    tell application "Calendar"
 	        return name of calendars
@@ -144,11 +220,27 @@ const getCalendars = () => {
     if (err) {
       console.log(err)
     }
-    mainWindow.webContents.send('calendars', cals)
+    cals.map((c) => {
+      createCalendar(client, uuidv4(), c, false)
+    })
   })
 }
 
-const getCalendarEvents = (calendarName: string) => {
+const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObject>) => {
+  const data = await client.query({
+    query: gql`
+      query {
+        activeCalendar: getActiveCalendar {
+          key
+          name
+        }
+      }
+    `,
+  })
+  // TODO: Fix me
+  const activeCalendar = data.data.activeCalendar
+  if (isEmpty(activeCalendar)) return
+
   const script = `
         set theStartDate to current date
         set hours of theStartDate to 0
@@ -157,7 +249,7 @@ const getCalendarEvents = (calendarName: string) => {
         set theEndDate to theStartDate + (7 * days) - 1
         set output to {}
         tell application "Calendar"
-            tell calendar "${calendarName}"
+            tell calendar "${activeCalendar.name}"
                 set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
                 repeat with e in allEvents
                     set startDate to (start date of e)
@@ -190,8 +282,56 @@ const getCalendarEvents = (calendarName: string) => {
         return acc
       }, {})
     })
-    log.info(`Sending events back to FE`)
-    mainWindow.webContents.send('events', events)
+
+    log.info(`Saving ${events.length} events to the database`)
+    events.map((c) => {
+      const tz = convertToProperTzOffset(c.tzOffset)
+
+      const ev: Event = {
+        key: c.id,
+        title: c.summary,
+        description: c.description,
+        startAt: parse(`${c.startDate} ${c.startTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date()),
+        endAt: parse(`${c.endDate} ${c.endTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date()),
+        allDay: false,
+      }
+      const result = client.mutate({
+        mutation: gql`
+          mutation CreateEvent(
+            $key: String!
+            $title: String!
+            $startAt: DateTime
+            $endAt: DateTime
+            $description: String
+            $allDay: Boolean
+            $calendarKey: String
+          ) {
+            createEvent(
+              input: {
+                key: $key
+                title: $title
+                startAt: $startAt
+                endAt: $endAt
+                description: $description
+                allDay: $allDay
+                calendarKey: $calendarKey
+              }
+            ) {
+              key
+            }
+          }
+        `,
+        variables: {
+          key: ev.key,
+          title: ev.title,
+          description: ev.description,
+          startAt: ev.startAt.toISOString(),
+          endAt: ev.endAt.toISOString(),
+          allDay: ev.allDay,
+          calendarKey: activeCalendar.key,
+        },
+      })
+    })
   })
 }
 
@@ -340,6 +480,25 @@ function createMainWindow() {
   mainWindow.webContents.on('new-window', handleRedirect)
 }
 
+let mainWindow, quickAddWindow, db
+const startApp = async () => {
+  db = await setUpDatabase()
+  await startGraphQL()
+  const client = createApolloClient()
+  const features = await getFeatures(client)
+  const cals = await getCalendars(client)
+  if (isEmpty(cals)) {
+    saveCalendars(client)
+  }
+  getActiveCalendarEvents(client)
+  setInterval(() => {
+    log.info(`Getting active calendar events `)
+    getActiveCalendarEvents(client)
+  }, 1000 * 60)
+}
+
+startApp()
+
 app.on('ready', () => {
   createMainWindow()
   globalShortcut.register('Command+Shift+N', createQuickAddWindow)
@@ -351,29 +510,9 @@ app.on('ready', () => {
     log.error(`Failed to get new version, trying again in 1hr: ${e}`)
     setTimeout(checkForNewVersion, 1000 * 60 * 60 * 24)
   }
-
-  // setTimeout(() => {
-  //     const myNotification = new Notification('Foo', {
-  //         body: 'Lorem Ipsum Dolor Sit Amet',
-  //     })
-  //     myNotification.show()
-  // }, 1000 * 5)
-
-  // Get the features enabled in the UI and do any conditional stuff
-  setTimeout(() => {
-    mainWindow.webContents.send('get-features')
-    ipcMain.once('get-features-reply', (event, features) => {
-      if (features && features.calendarIntegration) {
-        if (calendar) {
-          log.info(`Getting calendar events for ${calendar}`)
-          setInterval(getCalendarEvents(calendar), 1000 * 60 * 30)
-        }
-      }
-    })
-  }, 1000 * 5)
 })
 
-// Quit when all windows are closed.
+// Quit when a  ll windows are closed.
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
@@ -397,11 +536,6 @@ ipcMain.on('close-quickadd', (event, arg) => {
   }
 })
 
-ipcMain.on('get-calendars', (event, arg) => {
-  const allCalendars = getCalendars()
-  mainWindow.webContents.send('calendars', allCalendars)
-})
-
 ipcMain.on('open-outlook-link', (event, arg) => {
   openOutlookLink(arg.url)
 })
@@ -409,10 +543,4 @@ ipcMain.on('open-outlook-link', (event, arg) => {
 // This is to send events between quick add and main window
 ipcMain.on('create-task', (event, arg) => {
   mainWindow.webContents.send('create-task', arg)
-})
-
-ipcMain.on('set-calendar', (event, cal) => {
-  log.info(`Setting calendar to: ${cal}`)
-  calendar = cal
-  getCalendarEvents(calendar)
 })

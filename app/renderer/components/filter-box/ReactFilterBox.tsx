@@ -1,147 +1,127 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 import FilterInput from './FilterInput'
-import SimpleResultProcessing from './SimpleResultProcessing'
-import { connect } from 'react-redux'
 import { ThemeProvider } from '../../StyledComponents'
-
 import { themes } from '../../theme'
 import GridDataAutoCompleteHandler, { Option } from './GridDataAutoCompleteHandler'
 import Expression from './Expression'
 import FilterQueryParser from './FilterQueryParser'
-import BaseResultProcessing from './BaseResultProcessing'
-import BaseAutoCompleteHandler from './BaseAutoCompleteHandler'
 import ParsedError from './ParsedError'
 import validateQuery, { ValidationResult } from './validateQuery'
 import { StyledFilterBox } from './styled/ReactFilterBox'
+import { gql, useQuery } from '@apollo/client'
+import { useState } from 'react'
+import { Completion, HintResult } from './models/ExtendedCodeMirror'
+import BaseAutoCompleteHandler from './BaseAutoCompleteHandler'
 
-type StateProps = {
-  theme: string
-}
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
-type OwnProps = {
-  onParseOk: (query: string, result: Expression[] | ParsedError) => {}
-  onParseError: (query: string, result: Expression[] | ParsedError, error: ValidationResult) => {}
+type ReactFilterBoxProps = {
+  onParseOk: (query: string, result: Expression[] | ParsedError) => void
+  onParseError: (
+    query: string,
+    result: Expression[] | ParsedError,
+    error?: ValidationResult,
+  ) => void
   onChange: (
     query: string,
     result: Expression[] | ParsedError,
     validationResult: ValidationResult,
-  ) => {}
+  ) => void
   onDataFiltered: () => {}
-  autoCompleteHandler: any
+  customRenderCompletionItem: (
+    self: HintResult,
+    data: Completion,
+    registerAndGetPickFunc: Function,
+  ) => ReactElement
+  autoCompleteHandler: BaseAutoCompleteHandler
   onBlur: () => {}
   onFocus: () => {}
   editorConfig: {}
-  strictMode: false
+  strictMode: boolean
   query: string
-  data: []
-  options: []
+  data: any[]
+  options: Option[]
 }
 
-type ReactFilterBoxState = {
-  isFocus: boolean
-  isError: boolean
-}
+const ReactFilterBox = (props: ReactFilterBoxProps): ReactElement => {
+  const [isFocus, setIsFocus] = useState(false)
+  const [isError, setIsError] = useState(false)
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme = themes[data.theme]
 
-type ReactFilterBoxProps = StateProps & OwnProps
+  const parser = new FilterQueryParser()
+  const autoCompleteHandler =
+    props.autoCompleteHandler || new GridDataAutoCompleteHandler(props.data, props.options)
 
-export class ReactFilterBox extends React.Component<ReactFilterBoxProps, ReactFilterBoxState> {
-  parser = new FilterQueryParser()
+  parser.setAutoCompleteHandler(autoCompleteHandler)
 
-  constructor(props: any) {
-    super(props)
-
-    var autoCompleteHandler =
-      this.props.autoCompleteHandler ||
-      new GridDataAutoCompleteHandler(this.props.data, this.props.options)
-
-    this.parser.setAutoCompleteHandler(autoCompleteHandler)
-
-    this.state = {
-      isFocus: false,
-      isError: false,
-    }
+  const needAutoCompleteValues = (codeMirror: any, text: string) => {
+    return parser.getSuggestions(text)
   }
 
-  needAutoCompleteValues(codeMirror: any, text: string) {
-    return this.parser.getSuggestions(text)
-  }
-
-  onSubmit(query: string) {
-    var result = this.parser.parse(query)
+  const onSubmit = (query: string) => {
+    var result = parser.parse(query)
     if ((result as ParsedError).isError) {
-      return this.props.onParseError(result, { isValid: true })
-    } else if (this.props.strictMode) {
-      const validationResult = validateQuery(
-        result as Expression[],
-        this.parser.autoCompleteHandler,
-      )
+      return props.onParseError(query, result, { isValid: true })
+    } else if (props.strictMode) {
+      const validationResult = validateQuery(result as Expression[], parser.autoCompleteHandler)
       if (!validationResult.isValid) {
-        return this.props.onParseError(result, validationResult)
+        return props.onParseError(query, result, validationResult)
       }
     }
 
-    return this.props.onParseOk(query, result)
+    return props.onParseOk(query, result)
   }
 
-  onChange(query: string) {
+  const onChange = (query: string) => {
     var validationResult = { isValid: true }
-    var result = this.parser.parse(query)
+    var result = parser.parse(query)
     if ((result as ParsedError).isError) {
-      this.setState({ isError: true })
-    } else if (this.props.strictMode) {
-      validationResult = validateQuery(result as Expression[], this.parser.autoCompleteHandler)
-      this.setState({ isError: !validationResult.isValid })
+      setIsError(true)
+    } else if (props.strictMode) {
+      validationResult = validateQuery(result as Expression[], parser.autoCompleteHandler)
+      setIsError(!validationResult.isValid)
     } else {
-      this.setState({ isError: false })
+      setIsError(false)
     }
 
-    this.props.onChange(query, result, validationResult)
+    props.onChange(query, result, validationResult)
   }
 
-  onBlur() {
-    this.setState({ isFocus: false })
+  const onBlur = () => {
+    setIsFocus(false)
   }
 
-  onFocus() {
-    this.setState({ isFocus: true })
+  const onFocus = () => {
+    setIsFocus(true)
   }
 
-  render() {
-    return (
-      <ThemeProvider theme={themes[this.props.theme]}>
-        <StyledFilterBox focus={this.state.isFocus} error={this.state.isError}>
-          <FilterInput
-            autoCompletePick={this.props.autoCompletePick}
-            customRenderCompletionItem={this.props.customRenderCompletionItem}
-            onBlur={this.onBlur.bind(this)}
-            onFocus={this.onFocus.bind(this)}
-            value={this.props.query}
-            needAutoCompleteValues={this.needAutoCompleteValues.bind(this)}
-            onSubmit={this.onSubmit.bind(this)}
-            onChange={this.onChange.bind(this)}
-            editorConfig={this.props.editorConfig}
-          />
-        </StyledFilterBox>
-      </ThemeProvider>
-    )
-  }
+  return (
+    <ThemeProvider theme={theme}>
+      <StyledFilterBox focus={isFocus} error={isError}>
+        <FilterInput
+          autoCompletePick={props.autoCompletePick}
+          customRenderCompletionItem={props.customRenderCompletionItem}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          value={props.query}
+          needAutoCompleteValues={needAutoCompleteValues}
+          onSubmit={onSubmit}
+          onChange={onChange}
+          editorConfig={props.editorConfig}
+        />
+      </StyledFilterBox>
+    </ThemeProvider>
+  )
 }
 
-export {
-  SimpleResultProcessing,
-  BaseResultProcessing,
-  GridDataAutoCompleteHandler,
-  BaseAutoCompleteHandler,
-  Option as AutoCompleteOption,
-  Expression,
-}
-
-const mapStateToProps = (state): StateProps => {
-  return {
-    theme: state.ui.theme,
-  }
-}
-
-const mapDispatchToProps = (dispatch): DispatchProps => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(ReactFilterBox)
+export default ReactFilterBox

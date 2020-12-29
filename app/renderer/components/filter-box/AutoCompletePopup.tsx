@@ -126,14 +126,12 @@ export default class AutoCompletePopup {
 
   private createHintOption() {
     var hintOptions = new HintOptions()
-
     hintOptions.hint = (() => {
       var { hintValues } = hintOptions
       var doc = this.cm.getDoc()
       var cursor = doc.getCursor()
       var lastSeparatorPos = this.findLastSeparatorPositionWithEditor()
       var text = doc.getRange(lastSeparatorPos, cursor)
-
       var values = hintValues
       if (text) {
         values = _.filter(hintValues, (f) => {

@@ -76,7 +76,7 @@ export const ColumnHeader = styled(Header2)`
 export const BacklogContainer = styled.div`
   display: flex;
   flex-direction: row;
-  width: 100;
+  width: 100%;
   justify-content: center;
   padding: 20px 5px;
 `

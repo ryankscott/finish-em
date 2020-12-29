@@ -16,6 +16,11 @@ import ViewHeader from './ViewHeader'
 
 const GET_COMPONENTS_BY_VIEW = gql`
   query ComponentsByView($viewKey: String!) {
+    view(key: $viewKey) {
+      key
+      name
+      type
+    }
     componentsByView(viewKey: $viewKey) {
       key
       type
@@ -70,7 +75,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
       </div>
     )
   if (error) return null
-
+  console.log(data)
   const sortedComponents: Component[] = orderBy(
     data.componentsByView,
     ['sortOrder.sortOrder'],
@@ -202,8 +207,14 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                     location: 'main',
                     parameters: {
                       filter: JSON.stringify({
-                        text: 'createdAt is today ',
-                        value: [{ category: 'createdAt', operator: 'is', value: 'today' }],
+                        text:
+                          data.view.type == 'project'
+                            ? `project = "${data.view.name}"`
+                            : 'createdAt is today ',
+                        value:
+                          data.view.type == 'project'
+                            ? [{ category: 'projectKey', operator: '=', value: data.view.key }]
+                            : [{ category: 'createdAt', operator: 'is', value: 'today' }],
                       }),
                       hiddenIcons: [],
                       isFilterable: true,

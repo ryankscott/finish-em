@@ -13,7 +13,7 @@ export type AreaFieldPolicy = {
 	items?: FieldPolicy<any> | FieldReadFunction<any>,
 	sortOrder?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type QueryKeySpecifier = ('areas' | 'area' | 'areaOrders' | 'areaOrder' | 'calendars' | 'calendar' | 'getActiveCalendar' | 'components' | 'component' | 'componentsByView' | 'componentOrders' | 'componentOrder' | 'events' | 'event' | 'eventsByCalendar' | 'features' | 'feature' | 'featureByName' | 'items' | 'item' | 'itemsByProject' | 'itemsByArea' | 'itemsByFilter' | 'itemsByParent' | 'itemOrders' | 'itemOrder' | 'labels' | 'label' | 'projects' | 'project' | 'projectsByArea' | 'projectOrders' | 'projectOrder' | 'reminders' | 'reminder' | 'remindersByItem' | 'views' | 'view' | 'viewOrders' | 'viewOrder' | 'weeklyGoals' | 'weeklyGoal' | 'weeklyGoalByName' | QueryKeySpecifier)[];
+export type QueryKeySpecifier = ('areas' | 'area' | 'areaOrders' | 'areaOrder' | 'calendars' | 'calendar' | 'getActiveCalendar' | 'components' | 'component' | 'componentsByView' | 'componentOrders' | 'componentOrder' | 'events' | 'event' | 'eventsByCalendar' | 'eventsForActiveCalendar' | 'features' | 'feature' | 'featureByName' | 'items' | 'item' | 'itemsByProject' | 'itemsByArea' | 'itemsByFilter' | 'itemsByParent' | 'itemOrders' | 'itemOrder' | 'labels' | 'label' | 'projects' | 'project' | 'projectsByArea' | 'projectOrders' | 'projectOrder' | 'reminders' | 'reminder' | 'remindersByItem' | 'views' | 'view' | 'viewOrders' | 'viewOrder' | 'weeklyGoals' | 'weeklyGoal' | 'weeklyGoalByName' | QueryKeySpecifier)[];
 export type QueryFieldPolicy = {
 	areas?: FieldPolicy<any> | FieldReadFunction<any>,
 	area?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -30,6 +30,7 @@ export type QueryFieldPolicy = {
 	events?: FieldPolicy<any> | FieldReadFunction<any>,
 	event?: FieldPolicy<any> | FieldReadFunction<any>,
 	eventsByCalendar?: FieldPolicy<any> | FieldReadFunction<any>,
+	eventsForActiveCalendar?: FieldPolicy<any> | FieldReadFunction<any>,
 	features?: FieldPolicy<any> | FieldReadFunction<any>,
 	feature?: FieldPolicy<any> | FieldReadFunction<any>,
 	featureByName?: FieldPolicy<any> | FieldReadFunction<any>,

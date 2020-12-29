@@ -6,13 +6,11 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { Route, Switch, useHistory, useParams } from 'react-router-dom'
 import { Slide, toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
-import { Event as EventType } from '../../main/generated/typescript-helpers'
 import { focusbarVisibleVar, shortcutDialogVisibleVar, sidebarVisibleVar } from '../index'
 import { ThemeType } from '../interfaces'
 import { app as appKeymap } from '../keymap'
 import { ThemeProvider } from '../StyledComponents'
 import { GlobalStyle, themes } from '../theme'
-import { convertToProperTzOffset } from '../utils'
 import Area from './Area'
 import DailyAgenda from './DailyAgenda'
 import Focusbar from './Focusbar'
@@ -242,6 +240,7 @@ const App = (props: AppProps): ReactElement => {
   })
 
   useEffect(() => {
+    // TODO: #297 Move creating task to GQL
     // Handle Electron events
     electron.ipcRenderer.on('create-task', (event, arg) => {
       createItem({
@@ -271,30 +270,6 @@ const App = (props: AppProps): ReactElement => {
         </div>,
         { autoClose: false },
       )
-    })
-
-    electron.ipcRenderer.on('events', (event, calEvents) => {
-      const parsedEvents = calEvents.map((c) => {
-        const tz = convertToProperTzOffset(c.tzOffset)
-
-        const ev: EventType = {
-          key: c.id,
-          title: c.summary,
-          description: c.description,
-          startAt: parse(`${c.startDate} ${c.startTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date()),
-          endAt: parse(`${c.endDate} ${c.endTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date()),
-          allDay: false,
-        }
-        return ev
-      })
-
-      parsedEvents.map((e: EventType) => {
-        createEvent({ variables: { ...e } })
-      })
-    })
-
-    electron.ipcRenderer.on('get-features', (event) => {
-      event.sender.send('get-features-reply', data?.features)
     })
   }, [])
   const [createEvent] = useMutation(CREATE_EVENT)

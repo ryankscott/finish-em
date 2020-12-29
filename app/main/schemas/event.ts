@@ -30,6 +30,7 @@ type Query {
   events: [Event]
   event(key: String!): Event
   eventsByCalendar(calendarKey: String!): [Event]
+  eventsForActiveCalendar: [Event]
 }
 
 type Mutation {

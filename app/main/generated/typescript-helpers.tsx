@@ -1,6 +1,8 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -75,6 +77,7 @@ export type Query = {
   events?: Maybe<Array<Maybe<Event>>>;
   event?: Maybe<Event>;
   eventsByCalendar?: Maybe<Array<Maybe<Event>>>;
+  eventsForActiveCalendar?: Maybe<Array<Maybe<Event>>>;
   features?: Maybe<Array<Maybe<Feature>>>;
   feature?: Maybe<Feature>;
   featureByName?: Maybe<Feature>;
@@ -1499,6 +1502,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   events?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType>;
   event?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<QueryEventArgs, 'key'>>;
   eventsByCalendar?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType, RequireFields<QueryEventsByCalendarArgs, 'calendarKey'>>;
+  eventsForActiveCalendar?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType>;
   features?: Resolver<Maybe<Array<Maybe<ResolversTypes['Feature']>>>, ParentType, ContextType>;
   feature?: Resolver<Maybe<ResolversTypes['Feature']>, ParentType, ContextType, RequireFields<QueryFeatureArgs, 'key'>>;
   featureByName?: Resolver<Maybe<ResolversTypes['Feature']>, ParentType, ContextType, RequireFields<QueryFeatureByNameArgs, 'name'>>;

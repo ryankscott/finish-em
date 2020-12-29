@@ -1,6 +1,6 @@
 import Calendar from '../classes/calendar'
 
-export const getCalendars = (obj, ctx) => {
+export const getCalendars = (obj, ctx): Calendar[] => {
   return ctx.db
     .all('SELECT key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt FROM calendar')
     .then((result) =>
@@ -19,10 +19,10 @@ export const getCalendars = (obj, ctx) => {
     )
 }
 
-export const getCalendar = (input: { key: string }, ctx) => {
+export const getCalendar = (input: { key: string }, ctx): Calendar | null => {
   return ctx.db
     .get(
-      `SELECT key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt FROM calendar WHERE key = ${input.key}`,
+      `SELECT key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt FROM calendar WHERE key = '${input.key}'`,
     )
     .then((result) => {
       return result
@@ -38,7 +38,7 @@ export const getCalendar = (input: { key: string }, ctx) => {
         : null
     })
 }
-export const getActiveCalendar = (obj, ctx) => {
+export const getActiveCalendar = (obj, ctx): Calendar | null => {
   return ctx.db
     .get(
       `SELECT key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt FROM calendar WHERE active = true`,
@@ -65,10 +65,10 @@ export const createCalendar = (
     active: boolean
   },
   ctx,
-) => {
+): Calendar | null | Error => {
   return ctx.db
     .run(
-      `INSERT INTO calendar (key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt ) VALUES (${input.key},${input.key}, ${input.active}, false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
+      `REPLACE INTO calendar (key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt ) VALUES ('${input.key}','${input.name}', ${input.active}, false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
     )
     .then((result) => {
       return result.changes
@@ -76,7 +76,7 @@ export const createCalendar = (
         : new Error('Unable to create calendar')
     })
 }
-export const deleteCalendar = (input: { key: string }, ctx) => {
+export const deleteCalendar = (input: { key: string }, ctx): Calendar | null | Error => {
   return ctx.db
     .run(
       `UPDATE calendar SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`,
@@ -88,17 +88,21 @@ export const deleteCalendar = (input: { key: string }, ctx) => {
     })
 }
 
-export const setActiveCalendar = (input: { key: string; active: boolean }, ctx) => {
-  return ctx.db
-    .run(
-      `UPDATE calender SET active = false;
-       UPDATE calendar SET active = ${input.active}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`,
-    )
-    .then((result) => {
-      return result.changes
-        ? getCalendar({ key: input.key }, ctx)
-        : new Error('Unable to set active calendar')
-    })
+export const setActiveCalendar = async (
+  input: { key: string },
+  ctx,
+): Promise<Calendar | null | Error> => {
+  const setFalse = await ctx.db.run(`UPDATE calendar SET active = false`)
+  if (!setFalse.changes) {
+    return new Error('Unable to set all calendars inactive')
+  }
+  const setTrue = await ctx.db.run(`
+       UPDATE calendar SET active = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}';`)
+  if (setTrue.result) {
+    return setTrue.result.changes
+      ? getCalendar({ key: input.key }, ctx)
+      : new Error('Unable to set active calendar')
+  }
 }
 
 export const calendarRootValues = {

@@ -24,7 +24,6 @@ input DeleteCalendarInput {
 
 input ActiveCalendarInput {
   key: String!
-  active: Boolean
 }
 
 type Query {

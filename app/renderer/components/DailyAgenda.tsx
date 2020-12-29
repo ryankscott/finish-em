@@ -5,19 +5,7 @@ import { connect } from 'react-redux'
 import { themes } from '../theme'
 import FilteredItemList from './FilteredItemList'
 import { Paragraph, Header1 } from './Typography'
-import { dateFnsLocalizer } from 'react-big-calendar'
-import { parseISO, format, sub, add, parse, startOfWeek, startOfDay, getDay } from 'date-fns'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-const locales = {
-  de: require('date-fns/locale/de'),
-}
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-})
+import { parseISO, format, sub, add, isSameDay } from 'date-fns'
 import EditableText from './EditableText'
 import { setDailyGoal } from '../actions'
 import { ThemeType } from '../interfaces'
@@ -28,7 +16,11 @@ import {
   BackContainer,
   ForwardContainer,
   DailyTitle,
-  StyledCalendar,
+  EventsContainer,
+  EventContainer,
+  EventTime,
+  EventTitle,
+  EventDescription,
 } from './styled/DailyAgenda'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
@@ -43,6 +35,14 @@ type DailyAgendaProps = StateProps & DispatchProps
 
 const GET_DATA = gql`
   query {
+    eventsForActiveCalendar {
+      key
+      title
+      startAt
+      endAt
+      description
+      allDay
+    }
     dailyGoals: featureByName(name: "dailyGoals") {
       key
       enabled
@@ -51,39 +51,27 @@ const GET_DATA = gql`
       key
       enabled
     }
-    getActiveCalendar {
-      deleted
-      lastUpdatedAt
-      deletedAt
-      createdAt
-      events {
-        startAt
-        endAt
-        createdAt
-        description
-        allDay
-      }
-    }
     theme @client
   }
 `
+
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
-  const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
-  const [currentDate, setDate] = useState(new Date())
-  const editor = React.useRef<HTMLInputElement>()
-
   const { loading, error, data } = useQuery(GET_DATA)
-
+  // TODO: Gross
+  const theme: ThemeType = themes[data?.theme]
+  const editor = React.useRef<HTMLInputElement>()
+  const [currentDate, setDate] = useState(new Date())
+  const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
   if (loading) return null
   if (error) {
     console.log(error)
     return null
   }
-  const currentCalendar = data.getActiveCalendar
-  const hasEvents = currentCalendar?.events
-
-  const theme: ThemeType = themes[data.theme]
-
+  console.log(data)
+  const hasEvents = data?.eventsForActiveCalendar?.length > 0
+  const eventsToday = data?.eventsForActiveCalendar?.filter((e) =>
+    isSameDay(parseISO(e.startAt), currentDate),
+  )
   return (
     <ThemeProvider theme={theme}>
       <AgendaContainer>
@@ -141,33 +129,27 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
           </>
         )}
         {data.calendarIntegration.enabled && (
-          <>
-            <Header1>Events today: </Header1>
-            <StyledCalendar
-              localizer={localizer}
-              events={
-                hasEvents
-                  ? currentCalendar.events.map((e) => {
-                      return {
-                        id: e.id,
-                        title: e.title,
-                        start: parseISO(e.start),
-                        end: parseISO(e.end),
-                        description: e.description,
-                        allDay: e?.allDay,
-                        resource: e?.resource,
-                      }
-                    })
-                  : []
-              }
-              date={startOfDay(currentDate)}
-              onNavigate={() => {}}
-              defaultView="agenda"
-              length={0}
-              views={['agenda', 'day']}
-              toolbar={false}
-            />
-          </>
+          <EventsContainer>
+            {eventsToday ? (
+              eventsToday
+                .filter((e) => isSameDay(parseISO(e.startAt), currentDate))
+                .map((e) => {
+                  return (
+                    <EventContainer key={e.key}>
+                      <EventTime key={`time-${e.key}`}>
+                        {`${format(parseISO(e.startAt), 'h:mm aa')} - ${format(
+                          parseISO(e.endAt),
+                          'h:mm aa',
+                        )}`}
+                      </EventTime>
+                      <EventTitle key={`title-${e.title}`}> {e.title} </EventTitle>
+                    </EventContainer>
+                  )
+                })
+            ) : (
+              <p>No events on this day</p>
+            )}
+          </EventsContainer>
         )}
         <ReorderableComponentList viewKey={viewKey} />
         <Section>

@@ -2,7 +2,7 @@ import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Button from './Button'
-import { DialogContainer, Icon, Option } from './styled/MoreDropdown'
+import { Container, DialogContainer, Icon, Option } from './styled/MoreDropdown'
 import { IconType, ThemeType } from '../interfaces'
 import { Icons } from '../assets/icons'
 import { gql, useQuery } from '@apollo/client'
@@ -69,7 +69,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
 
   return (
     <ThemeProvider theme={theme}>
-      <div style={{ position: 'relative' }} ref={node}>
+      <Container ref={node}>
         <Button
           type={props.subtle ? 'subtle' : 'default'}
           icon="more"
@@ -92,7 +92,7 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
             </DialogContainer>
           </>
         )}
-      </div>
+      </Container>
     </ThemeProvider>
   )
 }

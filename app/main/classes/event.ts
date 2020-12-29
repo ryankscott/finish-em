@@ -5,11 +5,11 @@ export default class Event {
     key: string,
     title: string,
     description: string,
-    startAt: string,
-    endAt: string,
+    startAt: Date,
+    endAt: Date,
     allDay: boolean,
     calendarKey: string,
-    createdAt: string,
+    createdAt: Date,
   ) {
     this.key = key
     this.title = title

@@ -1,7 +1,6 @@
 import styled from '../../StyledComponents'
 import CSS from 'csstype'
 import { darken, transparentize } from 'polished'
-import { repeat } from 'lodash'
 
 interface ContainerProps {
   labelColour: CSS.Property.Color

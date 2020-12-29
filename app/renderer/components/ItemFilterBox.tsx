@@ -6,12 +6,13 @@ import { themes } from '../theme'
 import { Wrapper } from './styled/ReactDatePicker'
 import { FilterContainer, Suggestion, Error } from './styled/ItemFilterBox'
 
-import ReactFilterBox, {
-  Expression,
-  GridDataAutoCompleteHandler,
-} from './filter-box/ReactFilterBox'
+import ReactFilterBox from './filter-box/ReactFilterBox'
 import { Completion, HintResult } from './filter-box/models/ExtendedCodeMirror'
 import { Area, Label, Project } from '../../main/generated/typescript-helpers'
+import Expression from './filter-box/Expression'
+import GridDataAutoCompleteHandler, { Option } from './filter-box/GridDataAutoCompleteHandler'
+import ParsedError from './filter-box/ParsedError'
+import { ValidationResult } from './filter-box/validateQuery'
 
 const GET_DATA = gql`
   query {
@@ -31,7 +32,7 @@ const GET_DATA = gql`
   }
 `
 
-const filterOptions = [
+const filterOptions: Option[] = [
   {
     columnField: 'key',
     type: 'text',
@@ -250,6 +251,7 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
         break
     }
   }
+
   const onParseOk = (query: string, expressions: Expression[]) => {
     setErrorMessage('')
     const transformedExpressions = expressions.map((e) => {
@@ -261,12 +263,18 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
     props.onSubmit(query, transformedExpressions)
   }
 
-  const onParseError = (error: Error, validationResult: { isValid: boolean; message?: string }) => {
-    if (validationResult.isValid != true) {
-      setErrorMessage(validationResult.message)
+  const onParseError = (
+    query: string,
+    result: Expression[] | ParsedError,
+    error?: ValidationResult,
+  ) => {
+    // This library has two different validations, this first one is the "simple" one
+    if (error.isValid != true) {
+      setErrorMessage(error.message)
     } else {
+      // This second one is a parser error, types are fucked
       setErrorMessage(
-        `${error.message} at ${error?.location?.start.line}:${error?.location?.start.column}`,
+        `${result.message} at ${result?.location?.start.line}:${result?.location?.start.column}`,
       )
     }
   }

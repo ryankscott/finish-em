@@ -1,46 +1,55 @@
-import * as React from 'react'
-import { connect } from 'react-redux'
+import React, { ReactElement } from 'react'
 import * as CodeMirror from 'codemirror'
 import 'codemirror/addon/hint/show-hint'
 import 'codemirror/addon/display/placeholder'
 import './FilterMode'
-import { UnControlled as ReactCodeMirror, IInstance } from 'react-codemirror2'
-import { themes } from '../../theme'
+import { UnControlled as ReactCodeMirror } from 'react-codemirror2'
 import { ThemeProvider } from '../../StyledComponents'
 
+import { gql, useQuery } from '@apollo/client'
 import grammarUtils from './GrammarUtils'
 import { ExtendedCodeMirror } from './models/ExtendedCodeMirror'
 import AutoCompletePopup from './AutoCompletePopup'
+import { themes } from '../../theme'
+import { HintInfo } from './ExtendedCodeMirror'
 
-type StateProps = {
-  theme: string
-}
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
-type OwnProps = {
+type FilterInputProps = {
   value: string
-  onSubmit: (string) => {}
-  onBlur: () => {}
-  onFocus: () => {}
+  customRenderCompletionItem: any
+  needAutoCompleteValues: (codemirror: ExtendedCodeMirror, text: String) => HintInfo[]
+  onSubmit: (string) => void
+  onChange: (string) => void
+  onBlur: () => void
+  onFocus: () => void
   editorConfig: {}
 }
 
-type FilterInputProps = StateProps & OwnProps
-export class FilterInput extends React.Component<FilterInputProps, any> {
-  options: CodeMirror.EditorConfiguration
-  codeMirror: ExtendedCodeMirror
-  doc: CodeMirror.Doc
-  autoCompletePopup: AutoCompletePopup
+const FilterInput = (props: FilterInputProps) => {
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme = themes[data.theme]
 
-  constructor(props: any) {
-    super(props)
+  let options: CodeMirror.EditorConfiguration
+  let codeMirror: ExtendedCodeMirror
+  let doc: CodeMirror.Doc
+  let autoCompletePopup: AutoCompletePopup
 
-    if (props.editorConfig) {
-      this.options = { ...props.editorConfig, mode: 'filter-mode' }
-    }
+  if (props.editorConfig) {
+    options = { ...props.editorConfig, mode: 'filter-mode' }
   }
 
-  findLastSeparatorPositionWithEditor() {
-    var doc = this.codeMirror.getDoc()
+  const findLastSeparatorPositionWithEditor = () => {
+    var doc = codeMirror.getDoc()
     var currentCursor = doc.getCursor()
     var text = doc.getRange({ line: 0, ch: 0 }, currentCursor)
     var index = grammarUtils.findLastSeparatorIndex(text)
@@ -50,34 +59,32 @@ export class FilterInput extends React.Component<FilterInputProps, any> {
     }
   }
 
-  private handlePressingAnyCharacter() {
-    if (this.autoCompletePopup.completionShow) {
+  const handlePressingAnyCharacter = () => {
+    if (autoCompletePopup.completionShow) {
       return
     }
-
-    this.autoCompletePopup.show()
+    autoCompletePopup.show()
   }
 
-  private onSubmit(text: string) {
-    if (this.props.onSubmit) {
-      this.props.onSubmit(text)
+  const onSubmit = (text: string) => {
+    if (props.onSubmit) {
+      props.onSubmit(text)
     }
   }
 
-  private codeMirrorRef(ref: { editor: ExtendedCodeMirror }) {
+  const codeMirrorRef = (ref: { editor: ExtendedCodeMirror }) => {
     if (ref == null) return
-    if (this.codeMirror == ref.editor) {
+    if (codeMirror == ref.editor) {
       return
     }
+    codeMirror = ref.editor
+    doc = ref.editor.getDoc()
+    autoCompletePopup = new AutoCompletePopup(codeMirror, (text) =>
+      props.needAutoCompleteValues(codeMirror, text),
+    )
 
-    this.codeMirror = ref.editor
-    this.doc = ref.editor.getDoc()
-    this.autoCompletePopup = new AutoCompletePopup(this.codeMirror, (text) => {
-      return this.props.needAutoCompleteValues(this.codeMirror, text)
-    })
-
-    this.autoCompletePopup.customRenderCompletionItem = this.props.customRenderCompletionItem
-    this.autoCompletePopup.pick = this.props.autoCompletePick
+    autoCompletePopup.customRenderCompletionItem = props.customRenderCompletionItem
+    autoCompletePopup.pick = props.autoCompletePick
 
     ref.editor.on('beforeChange', function (instance, change) {
       var newtext = change.text.join('').replace(/\n/g, '') // remove ALL \n !
@@ -86,17 +93,17 @@ export class FilterInput extends React.Component<FilterInputProps, any> {
     })
 
     ref.editor.on('changes', () => {
-      this.handlePressingAnyCharacter()
+      handlePressingAnyCharacter()
     })
 
     ref.editor.on('focus', (cm, e?) => {
-      this.handlePressingAnyCharacter()
-      this.props.onFocus(e)
+      handlePressingAnyCharacter()
+      props.onFocus(e)
     })
 
     ref.editor.on('blur', (cm, e?) => {
-      this.onSubmit(this.doc.getValue())
-      this.props.onBlur(e)
+      onSubmit(doc.getValue())
+      props.onBlur(e)
     })
 
     ref.editor.on('keyup', (cm: ExtendedCodeMirror, e?: KeyboardEvent) => {
@@ -106,29 +113,24 @@ export class FilterInput extends React.Component<FilterInputProps, any> {
     })
   }
 
-  private handleEditorChange(_editor: IInstance, _data: CodeMirror.EditorChange, value: string) {
-    this.props.onChange(value)
+  const handleEditorChange = (
+    _editor: IInstance,
+    _data: CodeMirror.EditorChange,
+    value: string,
+  ) => {
+    props.onChange(value)
   }
 
-  render() {
-    return (
-      <ThemeProvider theme={themes[this.props.theme]}>
-        <ReactCodeMirror
-          ref={this.codeMirrorRef.bind(this)}
-          onChange={this.handleEditorChange.bind(this)}
-          options={this.options}
-          value={this.props.value}
-        />
-      </ThemeProvider>
-    )
-  }
-}
-const mapStateToProps = (state): StateProps => {
-  return {
-    theme: state.ui.theme,
-  }
+  return (
+    <ThemeProvider theme={theme}>
+      <ReactCodeMirror
+        ref={codeMirrorRef}
+        onChange={handleEditorChange}
+        options={options}
+        value={props.value}
+      />
+    </ThemeProvider>
+  )
 }
 
-const mapDispatchToProps = (dispatch): DispatchProps => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(FilterInput)
+export default FilterInput
