@@ -81,12 +81,12 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
       </div>
     )
   if (error) return null
-  console.log(data)
   const sortedComponents: Component[] = orderBy(
     data.componentsByView,
     ['sortOrder.sortOrder'],
     ['asc'],
   )
+
   const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
