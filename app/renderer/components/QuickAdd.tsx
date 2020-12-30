@@ -1,7 +1,6 @@
 import React, { ReactElement, useEffect } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import EditableText from './EditableText'
-import styled, { ThemeProvider } from 'styled-components'
+import { ThemeProvider } from 'styled-components'
 import { QuickAddContainer } from './styled/QuickAdd'
 import { themes } from '../theme'
 import {
@@ -12,34 +11,14 @@ import {
   repeatTextRegex,
   itemRegex,
 } from '../utils'
-import { gql, useMutation, useQuery } from '@apollo/client'
+import { gql, useQuery } from '@apollo/client'
 import { isValid } from 'date-fns'
 import { ThemeType } from '../interfaces'
+import * as sugarDate from 'sugar-date'
 
 const GET_THEME = gql`
   query {
     theme @client
-  }
-`
-
-const CREATE_ITEM = gql`
-  mutation CreateItem(
-    $key: String!
-    $type: String!
-    $text: String!
-    $parentKey: String
-    $projectKey: String
-  ) {
-    createItem(
-      input: { key: $key, type: $type, text: $text, parentKey: $parentKey, projectKey: $projectKey }
-    ) {
-      key
-      type
-      text
-      project {
-        key
-      }
-    }
   }
 `
 

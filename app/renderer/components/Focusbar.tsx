@@ -504,6 +504,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         {item.children?.map((childItem) => {
           return (
             <Item
+              compact={false}
               key={childItem.key}
               componentKey={null}
               itemKey={childItem.key}

@@ -239,7 +239,6 @@ const App = (props: AppProps): ReactElement => {
   })
 
   useEffect(() => {
-    // TODO: #297 Move creating task to GQL
     // Handle Electron events
     electron.ipcRenderer.on('create-item', (event, arg) => {
       createItem({

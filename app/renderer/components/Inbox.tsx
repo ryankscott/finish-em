@@ -1,6 +1,6 @@
 import { gql, useQuery } from '@apollo/client'
 import React, { ReactElement } from 'react'
-import { ItemIcons, RenderingStrategy, ThemeType } from '../interfaces'
+import { ItemIcons, ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import FilteredItemList from './FilteredItemList'
