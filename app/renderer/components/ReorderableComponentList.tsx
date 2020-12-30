@@ -5,13 +5,19 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { Transition, TransitionGroup } from 'react-transition-group'
 import { v4 as uuidv4 } from 'uuid'
 import { Component } from '../../main/generated/typescript-helpers'
+import { Icons } from '../assets/icons'
 import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Button from './Button'
 import FilteredItemList from './FilteredItemList'
 import { Spinner } from './Spinner'
-import { Container, DraggableContainer, DraggableList } from './styled/ReorderableComponentList'
+import {
+  Container,
+  DraggableContainer,
+  DraggableList,
+  DragHandle,
+} from './styled/ReorderableComponentList'
 import ViewHeader from './ViewHeader'
 
 const GET_COMPONENTS_BY_VIEW = gql`
@@ -43,7 +49,7 @@ const ADD_COMPONENT = gql`
 
 const SET_COMPONENT_ORDER = gql`
   mutation SetComponentOrder($componentKey: String!, $sortOrder: Int!) {
-    setComponentOrder(componentKey: $componentKey, sortOrder: $sortOrder) {
+    setComponentOrder(input: { componentKey: $componentKey, sortOrder: $sortOrder }) {
       componentKey
     }
   }
@@ -90,6 +96,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
             setComponentOrder({
               variables: { componentKey: e.draggableId, sortOrder: e.destination.index },
             })
+            refetch()
           }}
           style={{ width: '100%' }}
         >
@@ -121,18 +128,20 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                     key={comp.key}
                                     draggableId={comp.key}
                                     index={index}
-                                    isDragDisabled={true}
+                                    isDragDisabled={false}
                                   >
                                     {(provided, snapshot) => (
                                       <DraggableContainer
                                         ref={provided.innerRef}
                                         {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
                                         key={'container-' + comp.key}
                                         isDragging={snapshot.isDragging}
                                         draggableStyle={provided.draggableProps.style}
                                         state={state}
                                       >
+                                        <DragHandle {...provided.dragHandleProps}>
+                                          {Icons['dragHandle']()}
+                                        </DragHandle>
                                         <FilteredItemList
                                           {...params}
                                           componentKey={comp.key}

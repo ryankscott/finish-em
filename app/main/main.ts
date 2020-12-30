@@ -243,8 +243,11 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
   })
   // TODO: Fix me
   const activeCalendar = data.data.activeCalendar
-  if (isEmpty(activeCalendar)) return
-
+  if (isEmpty(activeCalendar)) {
+    log.info('No active calendar')
+    return
+  }
+  log.info(`Getting events for calendar - ${data.data.activeCalendar.name}`)
   const script = `
         set theStartDate to current date
         set hours of theStartDate to 0

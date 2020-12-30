@@ -81,7 +81,7 @@ type ContainerProps = {
 }
 export const Container = styled.div<ContainerProps>`
   margin: 0px;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   padding: 0px;
   width: 100%;
   border-radius: 5px;

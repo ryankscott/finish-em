@@ -1,7 +1,6 @@
 import styled, { keyframes, css } from '../../StyledComponents'
-import CSS from 'csstype'
 import { fadeInUp, fadeOutDown } from 'react-animations'
-import { darken } from 'polished'
+import { darken, transparentize } from 'polished'
 
 export const Container = styled.div`
   display: flex;
@@ -37,26 +36,43 @@ const exitAnimation = (props) =>
 
 type DraggableContainerProps = {
   isDragging: boolean
-  draggableStyle: CSS.Properties
   state: string
 }
 export const DraggableContainer = styled.div<DraggableContainerProps>`
-    ...props.draggableStyle;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    height: auto;
-    user-select: none;
-    padding: 0px;
-    margin: 0px;
-    border-radius: 5px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  user-select: none;
+  padding: 0px;
+  margin: 0px;
+  border-radius: 5px;
   background: ${(props) => props.theme.colours.backgroundColour};
-    box-shadow: ${(props) =>
-      props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.borderColour) : '0px'};
-    animation: ${(props) =>
-      props.state == 'entering'
-        ? entryAnimation
-        : props.state == 'exiting'
-        ? exitAnimation
-        : 'none'}
+  box-shadow: ${(props) =>
+    props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.borderColour) : '0px'};
+  animation: ${(props) =>
+    props.state == 'entering' ? entryAnimation : props.state == 'exiting' ? exitAnimation : 'none'};
+`
+
+export const DragHandle = styled.div`
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  height: 20px;
+  top: 0px;
+  width: 100%;
+  z-index: 100;
+  opacity: 0;
+  transition: all 0.1s ease-in-out;
+  border-radius: 5px;
+  :active {
+    opacity: 1;
+    background-color: ${(props) => transparentize(0.6, props.theme.colours.focusBackgroundColour)};
+  }
+  :hover {
+    opacity: 1;
+    background-color: ${(props) => transparentize(0.6, props.theme.colours.focusBackgroundColour)};
+  }
 `

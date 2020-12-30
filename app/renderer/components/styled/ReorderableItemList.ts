@@ -30,17 +30,6 @@ export const DroppableList = styled.div<DroppableListProps>`
   padding: ${(props) => (props.isDraggingOver ? '20px 5px' : '5px')};
 `
 
-const fadeInAnimation = keyframes`${fadeInLeft}`
-const fadeOutAnimation = keyframes`${fadeOutRight}`
-const entryAnimation = (props) =>
-  css`
-    ${fadeInAnimation} 0.2s
-  `
-const exitAnimation = (props) =>
-  css`
-    ${fadeOutAnimation} 0.5s
-  `
-
 type DraggableContainerProps = {
   isDragging: boolean
   draggableStyle: CSS.Properties

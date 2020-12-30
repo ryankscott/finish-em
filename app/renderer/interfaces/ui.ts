@@ -1,6 +1,3 @@
-import { OwnProps as FilteredItemListProps } from '../components/FilteredItemList'
-import { OwnProps as ViewHeaderProps } from '../components/ViewHeader'
-
 import CSS from 'csstype'
 
 export type TaskVisibility = {
@@ -131,3 +128,4 @@ export type IconType =
   | 'project'
   | 'copy'
   | 'reminder'
+  | 'drag'
