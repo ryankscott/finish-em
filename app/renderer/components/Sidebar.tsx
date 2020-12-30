@@ -115,12 +115,14 @@ const GET_AREAS = gql`
       key
       deleted
       sortOrder {
+        areaKey
         sortOrder
       }
       projects {
         key
         name
         sortOrder {
+          projectKey
           sortOrder
         }
       }
@@ -131,6 +133,7 @@ const GET_AREAS = gql`
       icon
       type
       sortOrder {
+        viewKey
         sortOrder
       }
     }
@@ -320,7 +323,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     sortOrder: projectAtDestination.sortOrder.sortOrder,
                   },
                 })
-                refetch()
               }
               if (e.type == 'AREA') {
                 setAreaOrder({
@@ -329,8 +331,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                     sortOrder: sortedAreas[e.destination.index].sortOrder.sortOrder,
                   },
                 })
-                refetch()
               }
+              refetch()
             }}
           >
             <Droppable droppableId={uuidv4()} type="AREA">
