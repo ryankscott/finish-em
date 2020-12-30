@@ -20,7 +20,6 @@ import {
   EventContainer,
   EventTime,
   EventTitle,
-  EventDescription,
 } from './styled/DailyAgenda'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
@@ -56,7 +55,7 @@ const GET_DATA = gql`
 `
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_DATA)
+  const { loading, error, data } = useQuery(GET_DATA, { pollInterval: 1000 * 60 * 5 })
   // TODO: Gross
   const theme: ThemeType = themes[data?.theme]
   const editor = React.useRef<HTMLInputElement>()
@@ -128,7 +127,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
         )}
         {data.calendarIntegration.enabled && (
           <EventsContainer>
-            {eventsToday ? (
+            {eventsToday.length ? (
               eventsToday
                 .filter((e) => isSameDay(parseISO(e.startAt), currentDate))
                 .map((e) => {
