@@ -493,8 +493,8 @@ const startApp = async () => {
   await startGraphQL()
   client = createApolloClient()
   const features = await getFeatures(client)
-  const cals = await getCalendars(client)
-  if (isEmpty(cals)) {
+  const data = await getCalendars(client)
+  if (data.calendars.length == 0) {
     saveCalendars(client)
   }
   getActiveCalendarEvents(client)
