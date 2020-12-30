@@ -22,7 +22,6 @@ import {
 import { convertToProperTzOffset } from '../renderer/utils'
 import { parse } from 'date-fns'
 import { Event } from './generated/typescript-helpers'
-import { createEvent } from './api'
 import { isEmpty } from 'lodash'
 const log = require('electron-log')
 const GRAPHQL_PORT = 8089
@@ -203,9 +202,14 @@ const getMailLink = () => {
     if (err) {
       console.log(err)
     }
-    mainWindow.webContents.send('create-task', {
+    mainWindow.webContents.send('create-item', {
+      key: uuidv4(),
+      type: 'TODO',
       text: rtn,
-      source: 'Apple Mail',
+    })
+    mainWindow.webContents.send('send-notification', {
+      text: `Task added from Apple Mail`,
+      type: 'info',
     })
   })
 }
@@ -429,7 +433,7 @@ function createQuickAddWindow() {
 
   quickAddWindow.loadURL(
     isDev
-      ? 'http://localhost:1234?quickAdd'
+      ? 'http://localhost:1124?quickAdd'
       : `file://${path.join(__dirname, '../renderer/production/index.html?quickAdd')}`,
   )
   // Open dev tools
@@ -480,11 +484,11 @@ function createMainWindow() {
   mainWindow.webContents.on('new-window', handleRedirect)
 }
 
-let mainWindow, quickAddWindow, db
+let mainWindow, quickAddWindow, db, client
 const startApp = async () => {
   db = await setUpDatabase()
   await startGraphQL()
-  const client = createApolloClient()
+  client = createApolloClient()
   const features = await getFeatures(client)
   const cals = await getCalendars(client)
   if (isEmpty(cals)) {
@@ -541,6 +545,16 @@ ipcMain.on('open-outlook-link', (event, arg) => {
 })
 
 // This is to send events between quick add and main window
+// Don't try to do this in the backend because invalidating the cache won't work
 ipcMain.on('create-task', (event, arg) => {
-  mainWindow.webContents.send('create-task', arg)
+  mainWindow.webContents.send('create-item', {
+    key: uuidv4(),
+    type: 'TODO',
+    text: arg.text,
+    projectKey: arg?.projectId,
+  })
+  mainWindow.webContents.send('send-notification', {
+    text: `Task added from Quick Add`,
+    type: 'info',
+  })
 })

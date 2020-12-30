@@ -5,7 +5,6 @@ import React, { ReactElement, useEffect } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Route, Switch, useHistory, useParams } from 'react-router-dom'
 import { Slide, toast } from 'react-toastify'
-import { v4 as uuidv4 } from 'uuid'
 import { focusbarVisibleVar, shortcutDialogVisibleVar, sidebarVisibleVar } from '../index'
 import { ThemeType } from '../interfaces'
 import { app as appKeymap } from '../keymap'
@@ -242,20 +241,19 @@ const App = (props: AppProps): ReactElement => {
   useEffect(() => {
     // TODO: #297 Move creating task to GQL
     // Handle Electron events
-    electron.ipcRenderer.on('create-task', (event, arg) => {
+    electron.ipcRenderer.on('create-item', (event, arg) => {
       createItem({
         variables: {
-          key: uuidv4(),
-          type: 'TODO',
+          key: arg.key,
+          type: arg.type,
           text: arg.text,
-          projectKey: arg?.projectId,
+          projectKey: arg?.projectKey,
         },
       })
-      if (arg.source) {
-        toast.dark(`Task added from ${arg.source}`)
-      } else {
-        toast.dark(`Task added`)
-      }
+    })
+    electron.ipcRenderer.on('send-notification', (event, arg) => {
+      // TODO: Implement multiple notification types
+      toast.dark(`${arg.text}`)
     })
     electron.ipcRenderer.on('new-version', (event, arg) => {
       toast(
@@ -272,8 +270,9 @@ const App = (props: AppProps): ReactElement => {
       )
     })
   }, [])
-  const [createEvent] = useMutation(CREATE_EVENT)
-  const [createItem] = useMutation(CREATE_ITEM)
+  const [createItem] = useMutation(CREATE_ITEM, {
+    refetchQueries: ['itemsByFilter'],
+  })
   const { loading, error, data } = useQuery(GET_DATA)
   if (loading) return null
   if (error) return null

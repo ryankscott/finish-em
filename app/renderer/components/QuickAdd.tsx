@@ -1,5 +1,5 @@
 import React, { ReactElement, useEffect } from 'react'
-import { connect } from 'react-redux'
+import { v4 as uuidv4 } from 'uuid'
 import EditableText from './EditableText'
 import styled, { ThemeProvider } from 'styled-components'
 import { QuickAddContainer } from './styled/QuickAdd'
@@ -12,7 +12,7 @@ import {
   repeatTextRegex,
   itemRegex,
 } from '../utils'
-import { gql, useQuery } from '@apollo/client'
+import { gql, useMutation, useQuery } from '@apollo/client'
 import { isValid } from 'date-fns'
 import { ThemeType } from '../interfaces'
 
@@ -21,6 +21,28 @@ const GET_THEME = gql`
     theme @client
   }
 `
+
+const CREATE_ITEM = gql`
+  mutation CreateItem(
+    $key: String!
+    $type: String!
+    $text: String!
+    $parentKey: String
+    $projectKey: String
+  ) {
+    createItem(
+      input: { key: $key, type: $type, text: $text, parentKey: $parentKey, projectKey: $projectKey }
+    ) {
+      key
+      type
+      text
+      project {
+        key
+      }
+    }
+  }
+`
+
 const electron = window.require('electron')
 
 type QuickAddProps = {
@@ -29,7 +51,6 @@ type QuickAddProps = {
 
 function QuickAdd(props: QuickAddProps): ReactElement {
   const ref = React.useRef<HTMLInputElement>()
-
   useEffect(() => {
     ref.current.focus()
   })
@@ -44,7 +65,6 @@ function QuickAdd(props: QuickAddProps): ReactElement {
     return null
   }
   const theme: ThemeType = themes[data.theme]
-
   return (
     <ThemeProvider theme={theme}>
       <QuickAddContainer>
@@ -54,10 +74,7 @@ function QuickAdd(props: QuickAddProps): ReactElement {
           width="550px"
           innerRef={ref}
           onUpdate={(text) => {
-            electron.ipcRenderer.send('create-task', {
-              text: text,
-              projectId: props.projectKey,
-            })
+            electron.ipcRenderer.send('create-task', { text: text })
             electron.ipcRenderer.send('close-quickadd')
           }}
           readOnly={false}
