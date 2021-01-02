@@ -4,7 +4,8 @@ export const DialogContainer = styled.div`
   display: flex;
   flex-direction: column;
   background-color: ${(props) => props.theme.colours.backgroundColour};
-  padding-bottom: 20px;
+  padding: 5px 10px;
+  padding-bottom: 15px;
   width: 100%;
 `
 export const DialogHeader = styled.div`

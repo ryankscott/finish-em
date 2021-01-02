@@ -770,7 +770,8 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     input: (styles) => ({
       ...styles,
       height: props.height ? props.height : 'auto',
-      padding: '5px 2px',
+      lineHeight: props.height ? props.height : 'auto',
+      padding: '0px 2px',
       fontFamily: props.theme.font.sansSerif,
       color: props.backgroundColour
         ? readableColor(
@@ -785,7 +786,9 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     }),
     valueContainer: (styles) => ({
       ...styles,
-      padding: '2px 5px',
+      padding: '0px 5px',
+      alignContent: 'center',
+      height: props.height ? props.height : 'auto',
       color: props.backgroundColour
         ? readableColor(
             props.backgroundColour,
@@ -866,6 +869,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
       margin: 0,
       padding: 0,
       width: props.width ? props.width : 'auto',
+      height: props.height ? props.height : 'auto',
       color: props.backgroundColour
         ? readableColor(
             props.backgroundColour,

@@ -231,6 +231,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                   fontSize: 'xsmall',
                   theme: theme,
                   minWidth: '120px',
+                  height: '28px',
                 })}
                 escapeClearsValue={true}
               />
