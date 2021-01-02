@@ -1,9 +1,8 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import React, { ReactElement, useRef, useState } from 'react'
+import React, { ReactElement, useEffect, useRef, useState } from 'react'
 import Select from 'react-select'
 import Switch from 'react-switch'
 import { FilteredItemListPropsInput } from '../../main/generated/typescript-helpers'
-import { Icons } from '../assets/icons'
 import EditableText from './EditableText'
 import { ThemeType } from '../interfaces'
 import { ItemIcons } from '../interfaces/item'
@@ -65,11 +64,26 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   const node = useRef<HTMLDivElement>()
   const filterRef = useRef<HTMLInputElement>()
   const nameRef = useRef<HTMLInputElement>()
+  const [isValid, setIsValid] = useState(true)
+  const [listName, setListName] = useState('')
+  const [isFilterable, setIsFilterable] = useState(true)
+  const [filter, setFilter] = useState('')
+  const [flattenSubtasks, setFlattenSubtasks] = useState(true)
+  const [hiddenIcons, setHiddenIcons] = useState([])
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT)
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: props.componentKey },
   })
+  useEffect(() => {
+    if (loading === false && data) {
+      setListName(params.listName)
+      setIsFilterable(params.isFilterable)
+      setFilter(params.filter)
+      setFlattenSubtasks(params.flattenSubtasks)
+      setHiddenIcons(params.hiddenIcons)
+    }
+  }, [loading, data])
 
   if (loading) return null
   if (error) {
@@ -84,7 +98,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
     console.log(error)
     return null
   }
-
   const theme: ThemeType = themes[data.theme]
 
   // TODO: Create individual update queries instead of this big one
@@ -125,30 +138,14 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             <EditableText
               innerRef={nameRef}
               key={'ed-name'}
-              input={params?.listName}
+              input={listName}
               fontSize={'xsmall'}
               shouldSubmitOnBlur={true}
               onEscape={() => {}}
               singleline={true}
               shouldClearOnSubmit={false}
               onUpdate={(input) => {
-                updateComponent({
-                  variables: {
-                    key: props.componentKey,
-                    parameters: {
-                      filter: params.filter,
-                      legacyFilter: params.legacyFilter ? params.legacyFilter : null,
-                      hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
-                      listName: input,
-                      showCompletedToggle: params.showCompletedToggle
-                        ? params.showCompletedToggle
-                        : true,
-                      initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
-                      flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
-                      isFilterable: params.isFilterable ? params.isFilterable : true,
-                    },
-                  },
-                })
+                setListName(input)
                 return true
               }}
             />
@@ -175,26 +172,12 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
               />
             )}
             <ItemFilterBox
-              filter={params.filter ? JSON.parse(params.filter).text : ''}
+              filter={filter ? JSON.parse(filter).text : ''}
               onSubmit={(query: string, filter: Expression[]) => {
-                updateComponent({
-                  variables: {
-                    key: props.componentKey,
-                    parameters: {
-                      filter: JSON.stringify({ text: query, value: filter }),
-                      legacyFilter: params.legacyFilter ? params.legacyFilter : null,
-                      hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
-                      listName: params.listName ? params.listName : 'New List',
-                      showCompletedToggle: params.showCompletedToggle
-                        ? params.showCompletedToggle
-                        : true,
-                      initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
-                      flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
-                      isFilterable: params.isFilterable ? params.isFilterable : true,
-                    },
-                  },
-                })
+                setFilter(JSON.stringify({ text: query, value: filter }))
+                setIsValid(true)
               }}
+              onError={() => setIsValid(false)}
             />
           </FilterContainer>
         </Setting>
@@ -202,25 +185,9 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           <SettingLabel>Filterable:</SettingLabel>
           <SettingValue style={{ paddingTop: '7px' }}>
             <Switch
-              checked={params.isFilterable}
+              checked={isFilterable}
               onChange={(input) => {
-                updateComponent({
-                  variables: {
-                    key: props.componentKey,
-                    parameters: {
-                      filter: params.filter,
-                      legacyFilter: params.legacyFilter ? params.legacyFilter : null,
-                      hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
-                      listName: params.listName ? params.listName : '',
-                      showCompletedToggle: params.showCompletedToggle
-                        ? params.showCompletedToggle
-                        : true,
-                      initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
-                      flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
-                      isFilterable: input,
-                    },
-                  },
-                })
+                setIsFilterable(input)
               }}
               onColor={theme.colours.primaryColour}
               checkedIcon={false}
@@ -234,25 +201,9 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           <SettingLabel>Flatten subtasks:</SettingLabel>
           <SettingValue style={{ paddingTop: '7px' }}>
             <Switch
-              checked={params.flattenSubtasks}
+              checked={flattenSubtasks}
               onChange={(input) => {
-                updateComponent({
-                  variables: {
-                    key: props.componentKey,
-                    parameters: {
-                      filter: params.filter,
-                      legacyFilter: params.legacyFilter ? params.legacyFilter : null,
-                      hiddenIcons: params.hiddenIcons ? params.hiddenIcons : null,
-                      listName: params.listName ? params.listName : '',
-                      showCompletedToggle: params.showCompletedToggle
-                        ? params.showCompletedToggle
-                        : true,
-                      initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
-                      flattenSubtasks: input,
-                      isFilterable: params.isFilterable ? params.isFilterable : true,
-                    },
-                  },
-                })
+                setFlattenSubtasks(input)
               }}
               onColor={theme.colours.primaryColour}
               checkedIcon={false}
@@ -267,31 +218,13 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           <SettingValue>
             <SelectContainer>
               <Select
-                value={params.hiddenIcons?.map((i) => {
+                value={hiddenIcons?.map((i) => {
                   return options.find((o) => o.value == i)
                 })}
                 isMulti={true}
                 onChange={(values: { value: string; label: string }[]) => {
                   const hiddenIcons = values.map((v) => v.value)
-                  updateComponent({
-                    variables: {
-                      key: props.componentKey,
-                      parameters: {
-                        filter: params.filter,
-                        legacyFilter: params.legacyFilter ? params.legacyFilter : null,
-                        hiddenIcons: hiddenIcons,
-                        listName: params.listName ? params.listName : '',
-                        showCompletedToggle: params.showCompletedToggle
-                          ? params.showCompletedToggle
-                          : true,
-                        initiallyExpanded: params.initiallyExpanded
-                          ? params.initiallyExpanded
-                          : true,
-                        flattenSubtasks: params.flattenSubtasks ? params.flattenSubtasks : true,
-                        isFilterable: params.isFilterable ? params.isFilterable : true,
-                      },
-                    },
-                  })
+                  setHiddenIcons(hiddenIcons)
                 }}
                 options={options}
                 styles={selectStyles({
@@ -307,9 +240,26 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <SaveButtonContainer>
           <Button
             text="Save"
-            type="primary"
+            type={isValid ? 'primary' : 'disabled'}
             icon="save"
             onClick={() => {
+              updateComponent({
+                variables: {
+                  key: props.componentKey,
+                  parameters: {
+                    filter: filter,
+                    legacyFilter: params.legacyFilter ? params.legacyFilter : null,
+                    hiddenIcons: hiddenIcons ? hiddenIcons : null,
+                    listName: listName,
+                    showCompletedToggle: params.showCompletedToggle
+                      ? params.showCompletedToggle
+                      : true,
+                    initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
+                    flattenSubtasks: flattenSubtasks ? flattenSubtasks : true,
+                    isFilterable: isFilterable ? isFilterable : true,
+                  },
+                },
+              })
               props.onClose()
             }}
           />

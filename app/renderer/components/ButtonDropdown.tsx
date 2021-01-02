@@ -72,7 +72,7 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
       <Container completed={props.completed} ref={node}>
         <Button
           spacing="compact"
-          type={props.style || 'default'}
+          type={props.deleted ? 'disabled' : props.style}
           onClick={(e) => {
             if (props.completed) return
             setShowSelect(!showSelect)
@@ -83,7 +83,6 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
             props.buttonIconColour ? props.buttonIconColour : props.defaultButtonIconColour
           }
           icon={props.buttonIcon ? props.buttonIcon : props.defaultButtonIcon}
-          isDisabled={props.deleted}
         />
         {(showSelect || props.showSelect) && (
           <SelectContainer>
@@ -117,4 +116,3 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
 }
 
 export default ButtonDropdown
- 

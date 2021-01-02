@@ -176,6 +176,7 @@ const generateInputData = (data: any): any[] => {
 type ItemFilterBoxProps = {
   filter: string
   onSubmit: (query: string, filter: Expression[]) => void
+  onError?: () => void
 }
 
 const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
@@ -276,6 +277,9 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
       setErrorMessage(
         `${result.message} at ${result?.location?.start.line}:${result?.location?.start.column}`,
       )
+    }
+    if (props.onError) {
+      props.onError()
     }
   }
 

@@ -18,8 +18,7 @@ type ButtonProps = {
   id?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   spacing?: 'compactIcon' | 'compact' | 'default'
-  type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
-  isDisabled?: boolean
+  type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert' | 'disabled'
   text?: string | JSX.Element
   textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
   textWeight?: string
@@ -54,7 +53,6 @@ const Button = (props: ButtonProps): ReactElement => {
         width={props.width}
         onClick={props.onClick}
         buttonType={props.type}
-        disabled={props.isDisabled}
         data-tip
         data-for={id}
         tabIndex={props.tabIndex != undefined ? props.tabIndex : -1}

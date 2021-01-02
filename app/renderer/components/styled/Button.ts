@@ -1,13 +1,12 @@
 /* eslint-disable no-nested-ternary */
-import styled from 'styled-components'
+import styled from '../../StyledComponents'
 
 interface StyledProps {
   width: string
   height: string
   spacing: 'compact' | 'default' | 'compactIcon'
-  buttonType: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
+  buttonType: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert' | 'disabled'
   iconOnly: boolean
-  disabled?: boolean
 }
 
 // TODO: Fix the font-family here
@@ -18,14 +17,8 @@ export const StyledButton = styled.button<StyledProps>`
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  background-color: ${(props) =>
-    props.disabled
-      ? props.theme.colours.disabledButtonBackgroundColour
-      : props.theme.button[props.buttonType].backgroundColour};
-  color: ${(props) =>
-    props.disabled
-      ? props.theme.colours.disabledButtonColour
-      : props.theme.button[props.buttonType].colour};
+  background-color: ${(props) => props.theme.button[props.buttonType].backgroundColour};
+  color: ${(props) => props.theme.button[props.buttonType].colour};
   padding: ${(props) =>
     props.spacing == 'compactIcon'
       ? '1px'
@@ -37,7 +30,7 @@ export const StyledButton = styled.button<StyledProps>`
   width: ${(props) => (props.width ? props.width : 'auto')};
   height: ${(props) => (props.height ? props.height : 'auto')};
   margin: 2px;
-  cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
+  cursor: ${(props) => (props.buttonType == 'disabled' ? 'not-allowed' : 'pointer')};
   border-radius: 5px;
   border: 1px solid;
   border-color: ${(props) => props.theme.button[props.buttonType].borderColour};
@@ -45,24 +38,15 @@ export const StyledButton = styled.button<StyledProps>`
   box-shadow: ${(props) =>
     props.buttonType == 'primary' && !props.iconOnly ? '0px 1px 4px rgba(0, 0, 0, 0.1)' : '0px'};
   &:hover {
-    background-color: ${(props) =>
-      props.disabled
-        ? props.theme.colours.disabledButtonBackgroundColour
-        : props.theme.button[props.buttonType].hoverBackgroundColour};
+    background-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
     border-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
   }
   &:active {
-    background-color: ${(props) =>
-      props.disabled
-        ? props.theme.colours.disabledButtonBackgroundColour
-        : props.theme.button[props.buttonType].hoverBackgroundColour};
+    background-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
     border-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
   }
   &:focus {
-    background-color: ${(props) =>
-      props.disabled
-        ? props.theme.colours.disabledButtonBackgroundColour
-        : props.theme.button[props.buttonType].hoverBackgroundColour};
+    background-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
     border-color: ${(props) => props.theme.button[props.buttonType].hoverBackgroundColour};
   }
 `

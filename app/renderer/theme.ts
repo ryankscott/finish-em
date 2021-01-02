@@ -603,6 +603,12 @@ export const themes: { [key: string]: ThemeType } = {
         borderColour: 'transparent',
         hoverBackgroundColour: 'rgba(0,0,0, 0.05)',
       },
+      disabled: {
+        backgroundColour: '#e0e0e0',
+        colour: darken(0.4, '#e0e0e0'),
+        borderColour: 'transparent',
+        hoverBackgroundColour: '#e0e0e0',
+      },
     },
     colours: {
       textColour: '#333333',
@@ -631,8 +637,6 @@ export const themes: { [key: string]: ThemeType } = {
       warningColour: '#f9df77',
       iconColour: '#333333',
       altIconColour: '#404040',
-      disabledButtonBackgroundColour: '#e0e0e0',
-      disabledButtonColour: darken(0.4, '#e0e0e0'),
       headerBackgroundColour: '#404040',
       headerTextColour: '#F5f5f5',
     },
@@ -697,6 +701,12 @@ export const themes: { [key: string]: ThemeType } = {
         borderColour: 'transparent',
         hoverBackgroundColour: 'rgba(0,0,0, 0.1)',
       },
+      disabled: {
+        backgroundColour: lighten(0.1, '#404040'),
+        colour: lighten(0.4, '#404040'),
+        borderColour: 'transparent',
+        hoverBackgroundColour: lighten(0.1, '#404040'),
+      },
     },
     colours: {
       textColour: '#EEEEEE',
@@ -725,8 +735,6 @@ export const themes: { [key: string]: ThemeType } = {
       warningColour: '#f9df77',
       iconColour: '#333333',
       altIconColour: '#CCCCCC',
-      disabledButtonBackgroundColour: lighten(0.1, '#404040'),
-      disabledButtonColour: lighten(0.4, '#404040'),
       headerBackgroundColour: darken(0.05, '#404040'),
       headerTextColour: '#F5f5f5',
     },

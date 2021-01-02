@@ -31,20 +31,19 @@ type ReactFilterBoxProps = {
     result: Expression[] | ParsedError,
     validationResult: ValidationResult,
   ) => void
-  onDataFiltered: () => {}
   customRenderCompletionItem: (
     self: HintResult,
     data: Completion,
     registerAndGetPickFunc: Function,
   ) => ReactElement
   autoCompleteHandler: BaseAutoCompleteHandler
-  onBlur: () => {}
-  onFocus: () => {}
-  editorConfig: {}
+  onBlur?: () => {}
+  onFocus?: () => {}
+  editorConfig?: {}
   strictMode: boolean
   query: string
-  data: any[]
-  options: Option[]
+  data?: any[]
+  options?: Option[]
 }
 
 const ReactFilterBox = (props: ReactFilterBoxProps): ReactElement => {
@@ -109,7 +108,6 @@ const ReactFilterBox = (props: ReactFilterBoxProps): ReactElement => {
     <ThemeProvider theme={theme}>
       <StyledFilterBox focus={isFocus} error={isError}>
         <FilterInput
-          autoCompletePick={props.autoCompletePick}
           customRenderCompletionItem={props.customRenderCompletionItem}
           onBlur={onBlur}
           onFocus={onFocus}
