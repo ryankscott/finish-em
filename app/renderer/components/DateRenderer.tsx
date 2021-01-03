@@ -37,7 +37,7 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
       <Container completed={props.completed} type={props.icon}>
         <SubTextContainer key={props.icon} position={props.position}>
           <Button
-            type={props.deleted ? 'disabled' : props.style}
+            type={props.deleted ? 'disabled' : props.style ? props.style : 'default'}
             spacing="compact"
             onClick={props.onClick}
             icon={props.icon}

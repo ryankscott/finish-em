@@ -288,7 +288,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         </HeaderContainer>
         <TitleContainer>
           <Button
-            type={'default'}
+            type="default"
             spacing="compact"
             height="26px"
             width="26px"
@@ -316,7 +316,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           {item.deleted ? (
             <>
               <Button
-                type={'default'}
+                type="default"
                 icon="restore"
                 height="26px"
                 width="26px"
@@ -330,7 +330,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           ) : (
             <>
               <Button
-                type={'default'}
+                type="default"
                 icon="trash"
                 spacing="compact"
                 height="26px"
