@@ -769,8 +769,11 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
     }),
     input: (styles) => ({
       ...styles,
+      display: 'flex',
+      alignItems: 'center',
       height: props.height ? props.height : 'auto',
       lineHeight: props.height ? props.height : 'auto',
+      minHeight: '28px',
       padding: '0px 2px',
       fontFamily: props.theme.font.sansSerif,
       color: props.backgroundColour
@@ -789,6 +792,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
       padding: '0px 5px',
       alignContent: 'center',
       height: props.height ? props.height : 'auto',
+      minHeight: '28px',
       color: props.backgroundColour
         ? readableColor(
             props.backgroundColour,
@@ -866,6 +870,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
       display: 'flex',
       minHeight: 'none',
       flexDirection: 'row',
+      alignContent: 'center',
       margin: 0,
       padding: 0,
       width: props.width ? props.width : 'auto',
