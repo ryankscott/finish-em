@@ -389,7 +389,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                 <DatePicker
                   key={'sd' + item.key}
                   searchPlaceholder={'Scheduled at: '}
-                  onSubmit={(d: string) => {
+                  onSubmit={(d: Date) => {
                     setScheduledAt({ variables: { key: item.key, scheduledAt: d } })
                   }}
                   icon="scheduled"
@@ -407,7 +407,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                 <DatePicker
                   key={'dd' + item.key}
                   searchPlaceholder={'Due at: '}
-                  onSubmit={(d: string) => setDueAt({ variables: { key: item.key, dueAt: d } })}
+                  onSubmit={(d: Date) => setDueAt({ variables: { key: item.key, dueAt: d } })}
                   icon="due"
                   text={dueDate}
                   completed={item.completed}
