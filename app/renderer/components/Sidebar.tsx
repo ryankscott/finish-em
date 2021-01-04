@@ -381,7 +381,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                       variables: {
                                         key: projectKey,
                                         name: getProductName(),
-                                        description: getProductDescription(),
+                                        description: '',
                                         startAt: null,
                                         endAt: null,
                                         areaKey: a.key,
