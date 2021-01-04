@@ -14,7 +14,7 @@ const GET_THEME = gql`
 `
 
 type DatePickerProps = {
-  onSubmit: (d: string) => void
+  onSubmit: (d: Date) => void
   onEscape?: () => void
   style?: 'default' | 'subtle' | 'subtleInvert'
   showSelect?: boolean
@@ -30,7 +30,7 @@ function DatePicker(props: DatePickerProps): ReactElement {
   const [showSelect, setShowSelect] = useState(false)
   const node = useRef<HTMLDivElement>()
   const handleClick = (e): null => {
-    if (node.current.contains(e.target)) {
+    if (node?.current?.contains(e.target)) {
       return
     }
     setShowSelect(false)

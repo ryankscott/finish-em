@@ -8,24 +8,24 @@ import { ThemeProvider } from '../StyledComponents'
 import { selectStyles, themes } from '../theme'
 import { Wrapper } from './styled/ReactDatePicker'
 
-const options: { value: () => string; label: string }[] = [
-  { value: () => new Date().toISOString(), label: 'Today' },
+const options: { value: () => Date; label: string }[] = [
+  { value: () => new Date(), label: 'Today' },
   {
-    value: () => add(new Date(), { days: 1 }).toISOString(),
+    value: () => add(new Date(), { days: 1 }),
     label: 'Tomorrow',
   },
   {
     value: () =>
       sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
         days: 2,
-      }).toISOString(),
+      }),
     label: 'End of Week',
   },
   {
     value: () =>
       add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
         days: 1,
-      }).toISOString(),
+      }),
     label: 'Next Week',
   },
   {
@@ -45,7 +45,7 @@ type DateSelectProps = {
   defaultOpen?: boolean
   disabled?: boolean
   icon?: 'due' | 'scheduled'
-  onSubmit: (d: string) => void
+  onSubmit: (d: Date) => void
   onEscape?: () => void
   placeholder: string
   textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
@@ -74,8 +74,9 @@ function DateSelect(props: DateSelectProps): ReactElement {
     return
   }
 
-  const handleDayClick = (day): void => {
+  const handleDayClick = (day: Date): void => {
     setDayPickerVisible(false)
+    console.log(typeof day)
     props.onSubmit(day)
     return
   }

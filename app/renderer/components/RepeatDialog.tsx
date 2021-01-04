@@ -5,7 +5,7 @@ import RRule, { Frequency } from 'rrule'
 import Button from './Button'
 import DatePicker from './DatePicker'
 import { formatRelativeDate } from '../utils'
-import { parseISO } from 'date-fns'
+import { gql, useQuery } from '@apollo/client'
 import {
   OptionContainer,
   Label,
@@ -14,8 +14,8 @@ import {
   Input,
   ButtonContainer,
 } from './styled/RepeatDialog'
-import { connect } from 'react-redux'
 import Select from 'react-select'
+import { ThemeType } from '../interfaces'
 const frequencyOptions: { value: Frequency; label: string }[] = [
   {
     value: RRule.DAILY,
@@ -50,38 +50,47 @@ const endOptions: {}[] = [
   },
 ]
 
-interface StateProps {
-  theme: string
-}
-interface OwnProps {
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
+
+type RepeatDialogProps = {
   onSubmit: (RRule) => void
 }
-type RepeatDialogProps = OwnProps & StateProps
 const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
-  const [startDate, setStartDate] = useState(new Date().toISOString())
-  const [endDate, setEndDate] = useState(new Date().toISOString())
+  const [startDate, setStartDate] = useState(new Date())
+  const [endDate, setEndDate] = useState(new Date())
   const [repeatInterval, setRepeatInterval] = useState(1)
   const [repeatIntervalType, setRepeatIntervalType] = useState(RRule.WEEKLY)
   const [endType, setEndType] = useState('never')
   const [repeatNumber, setRepeatNumber] = useState(1)
 
-  const startDateText = startDate ? formatRelativeDate(parseISO(startDate)) : 'Start date'
-  const endDateText = endDate ? formatRelativeDate(parseISO(endDate)) : 'End date'
+  const startDateText = startDate ? formatRelativeDate(startDate) : 'Start date'
+  const endDateText = endDate ? formatRelativeDate(endDate) : 'End date'
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
 
   const handleSubmit = (): void => {
     if (endType == 'date') {
       const r = new RRule({
         freq: repeatIntervalType,
         interval: repeatInterval,
-        dtstart: parseISO(startDate),
-        until: parseISO(endDate),
+        dtstart: startDate,
+        until: endDate,
       })
       props.onSubmit(r)
     } else if (endType == 'number_of_times') {
       const r = new RRule({
         freq: repeatIntervalType,
         interval: repeatInterval,
-        dtstart: parseISO(startDate),
+        dtstart: startDate,
         count: repeatNumber,
       })
       props.onSubmit(r)
@@ -89,13 +98,13 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
       const r = new RRule({
         freq: repeatIntervalType,
         interval: repeatInterval,
-        dtstart: parseISO(startDate),
+        dtstart: startDate,
       })
       props.onSubmit(r)
     }
   }
   return (
-    <ThemeProvider theme={themes[props.theme]}>
+    <ThemeProvider theme={theme}>
       <Container onClick={(e) => e.stopPropagation()}>
         <OptionContainer>
           <Label>Starts: </Label>
@@ -104,8 +113,9 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
               style={'default'}
               text={startDateText}
               textSize="xxxsmall"
-              placeholder="Start date"
+              searchPlaceholder="Start date"
               onSubmit={(val) => {
+                console.log(val)
                 setStartDate(val)
               }}
               completed={false}
@@ -129,7 +139,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
               options={frequencyOptions}
               styles={selectStyles({
                 fontSize: 'xxxsmall',
-                theme: themes[props.theme],
+                theme: theme,
                 minWidth: '70px',
                 width: '70px',
               })}
@@ -152,7 +162,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                 fontSize: 'xxxsmall',
                 minWidth: '100px',
                 width: '110px',
-                theme: themes[props.theme],
+                theme: theme,
               })}
               onChange={(newValue, actionMeta) => {
                 if (actionMeta.action == 'select-option') {
@@ -185,7 +195,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                 completed={false}
                 text={endDateText}
                 textSize="xxxsmall"
-                placeholder="End date"
+                searchPlaceholder="End date"
                 onSubmit={(val) => {
                   setEndDate(val)
                 }}
@@ -211,9 +221,4 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  theme: state.ui.theme,
-})
-const mapDispatchToProps = (dispatch) => ({})
-
-export default connect(mapStateToProps, mapDispatchToProps)(RepeatDialog)
+export default RepeatDialog
