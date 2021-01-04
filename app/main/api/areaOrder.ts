@@ -49,7 +49,7 @@ export const createAreaOrder = (
 ) => {
   return ctx.db
     .run(
-      `INSERT INTO areaOrder (areaKey, sortOrder) VALUES ('${input.areaKey}', (SELECT MAX(sortOrder) + 1 from areaOrder)) `,
+      `INSERT INTO areaOrder (areaKey, sortOrder) VALUES ('${input.areaKey}', (SELECT COALESCE(MAX(sortOrder),0) + 1 from areaOrder)) `,
     )
     .then((result) => {
       return result.changes

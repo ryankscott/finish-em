@@ -49,7 +49,7 @@ export const createViewOrder = (
 ) => {
   return ctx.db
     .run(
-      `INSERT INTO viewOrder (viewKey, sortOrder) VALUES ('${input.viewKey}',(SELECT MAX(sortOrder) + 1 from viewOrder)) `,
+      `INSERT INTO viewOrder (viewKey, sortOrder) VALUES ('${input.viewKey}',(SELECT COALESCE(MAX(sortOrder),0) + 1 from viewOrder)) `,
     )
     .then((result) => {
       return result.changes

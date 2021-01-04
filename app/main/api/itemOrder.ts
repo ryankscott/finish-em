@@ -43,7 +43,7 @@ export const setItemOrder = async (input: { itemKey: string; sortOrder: number }
 
 export const createCreateItemOrderQuery = (input: { itemKey: string }) => {
   return `
-      INSERT INTO itemOrder (itemKey, sortOrder) VALUES ('${input.itemKey}',(SELECT MAX(sortOrder) + 1 from itemOrder)) 
+      INSERT INTO itemOrder (itemKey, sortOrder) VALUES ('${input.itemKey}',(SELECT COALESCE(MAX(sortOrder),0) + 1 from itemOrder)) 
 `
 }
 

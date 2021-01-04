@@ -57,7 +57,7 @@ export const createComponentOrder = (
 ) => {
   return ctx.db
     .run(
-      `INSERT INTO componentOrder (componentKey, sortOrder) VALUES ('${input.componentKey}',(SELECT MAX(sortOrder) + 1 from componentOrder)) `,
+      `INSERT INTO componentOrder (componentKey, sortOrder) VALUES ('${input.componentKey}',(SELECT COALESCE(MAX(sortOrder),0) + 1 from componentOrder)) `,
     )
     .then((result) => {
       return result.changes

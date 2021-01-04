@@ -42,7 +42,7 @@ export const setProjectOrder = async (input: { projectKey: string; sortOrder: nu
 }
 
 export const createCreateProjectOrderQuery = (input: { projectKey: string }) => {
-  return `INSERT INTO projectOrder (projectKey, sortOrder) VALUES ('${input.projectKey}',(SELECT MAX(sortOrder) + 1 from projectOrder));`
+  return `INSERT INTO projectOrder (projectKey, sortOrder) VALUES ('${input.projectKey}',(SELECT COALESCE(MAX(sortOrder),0) + 1 from projectOrder));`
 }
 export const createProjectOrder = (
   input: {
