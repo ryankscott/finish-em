@@ -27,7 +27,7 @@ import groupBy from 'lodash/groupBy'
 import EditableText from './EditableText'
 import ReorderableComponentList from './ReorderableComponentList'
 const GET_DATA = gql`
-  query itemsByFilter($filter: String!) {
+  query weeklyItems($filter: String!) {
     items: itemsByFilter(filter: $filter) {
       key
       text
@@ -86,7 +86,7 @@ const filter = JSON.stringify({
 const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   const goalRef = React.useRef<HTMLInputElement>()
   const [currentDate, setDate] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
-  const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL)
+  const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL, { refetchQueries: ['weeklyItems'] })
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       filter: filter,
