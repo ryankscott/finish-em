@@ -12,7 +12,6 @@ export const Container = styled.div<ContainerProps>`
   position: relative;
   transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;
   max-height: 200px;
-  max-width: 650px;
   font-family: ${(props) => props.theme.font.sansSerif};
   font-size: ${(props) =>
     props.compact ? props.theme.fontSizes.small : props.theme.fontSizes.regular};
