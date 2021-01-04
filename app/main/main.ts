@@ -72,10 +72,12 @@ const startGraphQL = async () => {
   )
   log.info(`Enabling CORS`)
   // Enable cors
+
+  if (!isDev) {
+    graphQLApp.use(jwt({ secret: 'super_secret', algorithms: ['HS256'] }))
+  }
+
   graphQLApp.use('/graphql', function (req, res, next) {
-    if (!isDev) {
-      jwt({ secret: 'super_secret', algorithms: ['HS256'] })
-    }
     res.header('Access-Control-Allow-Origin', '*')
     res.header(
       'Access-Control-Allow-Headers',
@@ -84,8 +86,10 @@ const startGraphQL = async () => {
     if (req.method === 'OPTIONS') {
       res.sendStatus(200)
     } else {
-      if (!isDev && req.user.user != 'app') {
-        res.sendStatus(401)
+      if (!isDev) {
+        if (req.user.user != 'app') {
+          res.sendStatus(401)
+        }
       }
       next()
     }
