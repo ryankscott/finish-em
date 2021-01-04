@@ -296,16 +296,36 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
 
     log.info(`Saving ${events.length} events to the database`)
     events.map((c) => {
+      let eventStartAt, eventEndAt
       const tz = convertToProperTzOffset(c.tzOffset)
+      try {
+        eventStartAt = parse(
+          `${c.startDate} ${c.startTime} ${tz}`,
+          'dd/MM/yy h:mm:ss a x',
+          new Date(),
+        )
+      } catch (e) {
+        log.error(
+          `Failed to event start date with error: ${e}  when parsing ${c.startDate} : ${c.startTime}`,
+        )
+      }
+      try {
+        eventEndAt = parse(`${c.endDate} ${c.endTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date())
+      } catch (e) {
+        log.error(
+          `Failed to event end date with error: ${e}  when parsing ${c.startDate} : ${c.startTime}`,
+        )
+      }
 
       const ev: Event = {
         key: c.id,
         title: c.summary,
         description: c.description,
-        startAt: parse(`${c.startDate} ${c.startTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date()),
-        endAt: parse(`${c.endDate} ${c.endTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date()),
+        startAt: null,
+        endAt: null,
         allDay: false,
       }
+
       const result = client.mutate({
         mutation: gql`
           mutation CreateEvent(
@@ -336,8 +356,8 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
           key: ev.key,
           title: ev.title,
           description: ev.description,
-          startAt: ev.startAt.toISOString(),
-          endAt: ev.endAt.toISOString(),
+          startAt: ev.startAt ? ev.startAt.toISOString() : new Date(1970, 1, 1),
+          endAt: ev.endAt ? ev.endAt.toISOString() : new Date(1970, 1, 1),
           allDay: ev.allDay,
           calendarKey: activeCalendar.key,
         },
