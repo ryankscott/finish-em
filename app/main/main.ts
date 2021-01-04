@@ -263,10 +263,13 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
             tell calendar "${activeCalendar.name}"
                 set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
                 repeat with e in allEvents
-                    set startDate to (start date of e)
-                    set endDate to (end date of e)
-                    copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (description of e), (status of e), (time to GMT)/hours} to end of output
-                end repeat
+                  set startDate to (start date of e)
+                  set endDate to (end date of e)
+                  if eventDescription is missing value then
+                    set eventDescription to ""
+                  end if
+                  copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (eventDescription), (status of e), (time to GMT) / hours} to end of output
+              end repeat
             end tell
         end tell
         return output
