@@ -183,7 +183,7 @@ function Item(props: ItemProps): ReactElement {
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
   const [renameItem] = useMutation(RENAME_ITEM)
   const [deleteItem] = useMutation(DELETE_ITEM)
-  const [cloneItem] = useMutation(CLONE_ITEM)
+  const [cloneItem] = useMutation(CLONE_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM)
   const [restoreItem] = useMutation(RESTORE_ITEM)
 
