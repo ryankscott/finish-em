@@ -4,7 +4,6 @@ import React, { ReactElement } from 'react'
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
 import { NavLink, NavLinkProps, useHistory } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { areaRootValues } from '../../main/api'
 import { Area, View } from '../../main/generated/typescript-helpers'
 import { Icons } from '../assets/icons'
 import { sidebarVisibleVar } from '../index'
@@ -373,7 +372,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                               {data.sidebarVisible && (
                                 <Button
                                   tooltipText="Add Project"
-                                  type="subtle"
+                                  type="invert"
                                   icon="add"
                                   iconColour={'white'}
                                   onClick={() => {
