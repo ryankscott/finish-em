@@ -66,6 +66,7 @@ const SET_ACTIVE_CALENDAR = gql`
     setActiveCalendar(input: { key: $key }) {
       key
       name
+      active
     }
   }
 `
@@ -118,7 +119,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
   const [activeCategory, setActiveCategory] = useState('UI')
   const { loading, error, data } = useQuery(GET_FEATURES_AND_LABELS)
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR)
-  const [setFeature] = useMutation(SET_FEATURE)
+  const [setFeature] = useMutation(SET_FEATURE, {refetchQueries: ['getActiveCalendar']})
   const [renameLabel] = useMutation(RENAME_LABEL)
   const [setColourOfLabel] = useMutation(RECOLOUR_LABEL)
   const [deleteLabel] = useMutation(DELETE_LABEL, {

@@ -248,10 +248,10 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
   // TODO: Fix me
   const activeCalendar = data.data.activeCalendar
   if (isEmpty(activeCalendar)) {
-    log.info('No active calendar')
+    log.info(`No active calendar - ${activeCalendar}`)
     return
   }
-  log.info(`Getting events for calendar - ${data.data.activeCalendar.name}`)
+  log.info(`Getting events for calendar - ${activeCalendar.name}`)
   const script = `
         set theStartDate to current date
         set hours of theStartDate to 0
@@ -265,6 +265,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
                 repeat with e in allEvents
                   set startDate to (start date of e)
                   set endDate to (end date of e)
+                  set eventDescription to (description of e)
                   if eventDescription is missing value then
                     set eventDescription to ""
                   end if
@@ -279,6 +280,8 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
     if (err) {
       console.log(err)
     }
+
+    log.info(`Received ${rtn.length} calendar events from Apple Calendar`)
     const headers = [
       'id',
       'startDate',
@@ -298,13 +301,13 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
     })
 
     log.info(`Saving ${events.length} events to the database`)
-    events.map((c) => {
+    events.map((c, idx) => {
       let eventStartAt, eventEndAt
       const tz = convertToProperTzOffset(c.tzOffset)
       try {
         eventStartAt = parse(
           `${c.startDate} ${c.startTime} ${tz}`,
-          'dd/MM/yy h:mm:ss a x',
+          'dd/MM/yy HH:mm:ss x',
           new Date(),
         )
       } catch (e) {
@@ -313,19 +316,20 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
         )
       }
       try {
-        eventEndAt = parse(`${c.endDate} ${c.endTime} ${tz}`, 'dd/MM/yy h:mm:ss a x', new Date())
+        eventEndAt = parse(`${c.endDate} ${c.endTime} ${tz}`, 'dd/MM/yy HH:mm:ss x', new Date())
       } catch (e) {
         log.error(
           `Failed to event end date with error: ${e}  when parsing ${c.startDate} : ${c.startTime}`,
         )
       }
 
+      log.info(`Saving event ${idx + 1} of ${events.length}`)
       const ev: Event = {
         key: c.id,
         title: c.summary,
         description: c.description,
-        startAt: null,
-        endAt: null,
+        startAt: eventStartAt,
+        endAt: eventEndAt,
         allDay: false,
       }
 
@@ -365,7 +369,9 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
           calendarKey: activeCalendar.key,
         },
       })
+      
     })
+    log.info(`All events saved`)
   })
 }
 
@@ -528,7 +534,7 @@ const startApp = async () => {
   setInterval(() => {
     log.info(`Getting active calendar events `)
     getActiveCalendarEvents(client)
-  }, 1000 * 60)
+  }, 1000 * 60 * 5)
 }
 
 startApp()
