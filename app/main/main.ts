@@ -20,10 +20,12 @@ import {
   NormalizedCacheObject,
 } from '@apollo/client'
 import { convertToProperTzOffset } from '../renderer/utils'
-import { parse } from 'date-fns'
 import { Event } from './generated/typescript-helpers'
 import { isEmpty } from 'lodash'
+import { Date as sugarDate } from 'sugar-date'
+import 'sugar-date/locales'
 const log = require('electron-log')
+
 const GRAPHQL_PORT = 8089
 
 const isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == 'true' : false
@@ -303,26 +305,20 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
     log.info(`Saving ${events.length} events to the database`)
     events.map((c, idx) => {
       let eventStartAt, eventEndAt
-      const tz = convertToProperTzOffset(c.tzOffset)
       try {
-        eventStartAt = parse(
-          `${c.startDate} ${c.startTime} ${tz}`,
-          'dd/MM/yy HH:mm:ss x',
-          new Date(),
-        )
+        eventStartAt = sugarDate.create(`${c.startDate} ${c.startTime}`, 'en-GB')
       } catch (e) {
         log.error(
-          `Failed to event start date with error: ${e}  when parsing ${c.startDate} : ${c.startTime}`,
+          `Failed to event start date with error: ${e} when parsing ${c.startDate}  ${c.startTime}`,
         )
       }
       try {
-        eventEndAt = parse(`${c.endDate} ${c.endTime} ${tz}`, 'dd/MM/yy HH:mm:ss x', new Date())
+        eventEndAt = sugarDate.create(`${c.endDate} ${c.endTime}`, 'en-GB')
       } catch (e) {
         log.error(
-          `Failed to event end date with error: ${e}  when parsing ${c.startDate} : ${c.startTime}`,
+          `Failed to event end date with error: ${e} when parsing ${c.startDate} : ${c.startTime}`,
         )
       }
-
       log.info(`Saving event ${idx + 1} of ${events.length}`)
       const ev: Event = {
         key: c.id,
@@ -369,7 +365,6 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
           calendarKey: activeCalendar.key,
         },
       })
-      
     })
     log.info(`All events saved`)
   })
