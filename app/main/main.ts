@@ -280,10 +280,11 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
 
   applescript.execString(script, (err, rtn) => {
     if (err) {
-      console.log(err)
+      log.error(`Failed to get events from Apple Calendar - ${err}`)
+      return
     }
 
-    log.info(`Received ${rtn.length} calendar events from Apple Calendar`)
+    log.info(`Received ${rtn?.length} calendar events from Apple Calendar`)
     const headers = [
       'id',
       'startDate',
@@ -302,7 +303,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
       }, {})
     })
 
-    log.info(`Saving ${events.length} events to the database`)
+    log.info(`Saving ${events ? events.length : 0} events to the database`)
     events.map((c, idx) => {
       let eventStartAt, eventEndAt
       try {
@@ -319,7 +320,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
           `Failed to event end date with error: ${e} when parsing ${c.startDate} : ${c.startTime}`,
         )
       }
-      log.info(`Saving event ${idx + 1} of ${events.length}`)
+      log.info(`Saving event ${idx + 1} of ${events?.length}`)
       const ev: Event = {
         key: c.id,
         title: c.summary,
