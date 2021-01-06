@@ -41,7 +41,7 @@ const generateProjectOptions = (project: Project, projects: Project[]): GroupTyp
     ...allGroups,
     {
       label: 'Remove Project',
-      options: [{ value: null, label: 'None' }],
+      options: [{ value: '0', label: 'None' }],
     },
   ]
 }
