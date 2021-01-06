@@ -226,17 +226,17 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   })
 
   const [renameItem] = useMutation(RENAME_ITEM)
-  const [completeItem] = useMutation(COMPLETE_ITEM)
-  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
-  const [setProject] = useMutation(SET_PROJECT)
-  const [setArea] = useMutation(SET_AREA)
-  const [setScheduledAt] = useMutation(SET_SCHEDULED_AT)
-  const [setDueAt] = useMutation(SET_DUE_AT)
-  const [setRepeat] = useMutation(SET_REPEAT)
-  const [setParent] = useMutation(SET_PARENT)
-  const [setLabel] = useMutation(SET_LABEL)
-  const [deleteItem] = useMutation(DELETE_ITEM)
-  const [restoreItem] = useMutation(RESTORE_ITEM)
+  const [completeItem] = useMutation(COMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [setProject] = useMutation(SET_PROJECT, { refetchQueries: ['itemsByFilter'] })
+  const [setArea] = useMutation(SET_AREA, { refetchQueries: ['itemsByFilter'] })
+  const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, { refetchQueries: ['itemsByFilter'] })
+  const [setDueAt] = useMutation(SET_DUE_AT, { refetchQueries: ['itemsByFilter'] })
+  const [setRepeat] = useMutation(SET_REPEAT, { refetchQueries: ['itemsByFilter'] })
+  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter'] })
+  const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByFilter'] })
+  const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [restoreItem] = useMutation(RESTORE_ITEM, { refetchQueries: ['itemsByFilter'] })
 
   if (loading) return null
   if (error) {
