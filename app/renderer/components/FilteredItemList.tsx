@@ -49,6 +49,11 @@ const determineVisibilityRules = (
     showSortButton: sortedItemsLength >= 1 && showItemList && !dragAndDropEnabled,
   }
 }
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
 const GET_DATA = gql`
   query itemsByFilter($filter: String!) {
@@ -91,7 +96,7 @@ const GET_DATA = gql`
       key
       enabled
     }
-    theme @client
+
     subtasksVisible @client
   }
 `
@@ -143,31 +148,32 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
       cache.evict({ id: cacheId })
     },
   })
+  const { loading: l, error: e, data: themeData } = useQuery(GET_THEME)
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
     },
   })
+  const theme = themes[themeData.theme]
 
-  if (loading) return null
   if (error) return null
 
-  const theme = themes[data.theme]
-
-  const allItems = data.items
-  const uncompletedItems = data.items.filter((m) => m.completed == false)
-  const completedItems = data.items.filter((m) => m.completed == true)
+  const allItems = data?.items
+  const uncompletedItems = data?.items.filter((m) => m.completed == false)
+  const completedItems = data?.items.filter((m) => m.completed == true)
   const sortedItems = showCompleted
     ? sortType.sort(uncompletedItems, sortDirection)
     : sortType.sort(allItems, sortDirection)
+  const dragAndDropEnabled = data?.dragAndDrop ? data.dragAndDrop.enabled : false
+  const subtasksVisible = data?.subtasksVisible ? data.subtasksVisible : false
 
   const visibility = determineVisibilityRules(
     props.isFilterable,
     showItemList,
-    allItems.length,
-    sortedItems.length,
-    completedItems.length,
-    data.dragAndDrop.enabled,
+    allItems?.length,
+    sortedItems?.length,
+    completedItems?.length,
+    dragAndDropEnabled,
     props.showCompletedToggle,
   )
   return (
@@ -242,7 +248,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                   onClick={() => {
                     sortedItems.forEach((a) => {
                       if (a.children.length > 0) {
-                        let newState = cloneDeep(data.subtasksVisible)
+                        let newState = cloneDeep(subtasksVisible)
                         if (newState[a.key]) {
                           newState[a.key][props.componentKey] = true
                         } else {
@@ -266,7 +272,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                   onClick={() => {
                     sortedItems.forEach((a) => {
                       if (a.children.length > 0) {
-                        let newState = cloneDeep(data.subtasksVisible)
+                        let newState = cloneDeep(subtasksVisible)
                         if (newState[a.key]) {
                           newState[a.key][props.componentKey] = false
                         } else {
@@ -321,7 +327,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             />
           </EditableContainer>
         ) : showItemList ? (
-          data.dragAndDrop.enabled ? (
+          dragAndDropEnabled ? (
             <>
               <ItemListContainer>
                 <ReorderableItemList
