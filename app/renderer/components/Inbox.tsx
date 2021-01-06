@@ -42,6 +42,7 @@ const Inbox = (): ReactElement => {
               text: 'project = "Inbox"',
               value: [
                 { category: 'projectKey', operator: '=', value: '0' },
+                { conditionType: 'AND', category: 'areaKey', operator: 'is', value: 'null' },
                 { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
               ],
             })}

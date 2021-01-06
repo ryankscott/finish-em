@@ -224,26 +224,29 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
   const customAutoComplete = new CustomAutoComplete(inputData, filterOptions)
 
   const transformExpression = (e: Expression): Expression => {
+    console.log(e)
+    console.log(e.value)
+
     switch (e.category) {
       case 'project':
         return {
           ...e,
           category: 'projectKey',
-          value: data.projects.find((p) => p.name == e.value).key,
+          value: e.value == 'null' ? 'null' : data.projects.find((p) => p.name == e.value)?.key,
         }
         break
       case 'area':
         return {
           ...e,
           category: 'areaKey',
-          value: data.areas.find((p) => p.name == e.value).key,
+          value: e.value == 'null' ? 'null' : data.areas.find((p) => p.name == e.value)?.key,
         }
         break
       case 'label':
         return {
           ...e,
           category: 'labelKey',
-          value: data.labels.find((p) => p.name == e.value).key,
+          value: e.value == 'null' ? 'null' : data.labels.find((p) => p.name == e.value)?.key,
         }
         break
 
