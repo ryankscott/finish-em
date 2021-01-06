@@ -230,7 +230,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [setProject] = useMutation(SET_PROJECT, { refetchQueries: ['itemsByFilter'] })
   const [setArea] = useMutation(SET_AREA, { refetchQueries: ['itemsByFilter'] })
-  const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, { refetchQueries: ['itemsByFilter'] })
+  const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
+    refetchQueries: ['itemsByFilter', 'weeklyItems'],
+  })
   const [setDueAt] = useMutation(SET_DUE_AT, { refetchQueries: ['itemsByFilter'] })
   const [setRepeat] = useMutation(SET_REPEAT, { refetchQueries: ['itemsByFilter'] })
   const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter'] })

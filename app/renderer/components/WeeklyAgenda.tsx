@@ -79,7 +79,7 @@ const CREATE_WEEKLY_GOAL = gql`
 type WeeklyAgendaProps = {}
 
 const filter = JSON.stringify({
-  text: 'project = "Inbox"',
+  text: 'scheduledAt is "this week"',
   value: [{ category: 'scheduledAt', operator: 'is', value: 'this week' }],
 })
 
@@ -91,7 +91,6 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
     variables: {
       filter: filter,
     },
-    // pollInterval: 500,
   })
   if (loading) return null
   if (error) {
@@ -101,6 +100,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   const itemsByDate = groupBy(data.items, (i) => {
     return format(parseISO(i.scheduledAt), 'yyyy-MM-dd')
   })
+  console.log(itemsByDate)
   const theme: ThemeType = themes[data.theme]
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
     (w) => w.week == format(currentDate, 'yyyy-MM-dd'),
