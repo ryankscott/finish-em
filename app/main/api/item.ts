@@ -81,32 +81,33 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
         'deletedAt',
         'createdAt',
       ].includes(categoryText)
+
       switch (operator) {
         case '=':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}) = DATE(${valueText})`
+            return `${conditionText} DATE(${categoryText}, 'localtime') = DATE(${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
 
         case '!=':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}) != DATE(${valueText})`
+            return `${conditionText} DATE(${categoryText}, 'localtime') != DATE(${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
         case '<':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}) < DATE(${valueText})`
+            return `${conditionText} DATE(${categoryText}, 'localtime') < DATE(${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
         case '>':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}) > DATE(${valueText})`
+            return `${conditionText} DATE(${categoryText}, 'localtime') > DATE(${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
 
         case '!=':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}) != DATE(${valueText})`
+            return `${conditionText} DATE(${categoryText}, 'localtime') != DATE(${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
 
@@ -121,7 +122,7 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
           break
 
         case 'is':
-          if (value == 'null') return `${conditionText} ${categoryText} IS  null`
+          if (value == 'null') return `${conditionText} ${categoryText} IS null`
           if (value == 'this week')
             return `${conditionText} strftime('%W', ${categoryText}) = strftime('%W',date());`
           if (value == 'this month')
@@ -160,6 +161,7 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
   const filterString = generateQueryString(filters.value)
   const queryString = `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item
  WHERE ${filterString}`
+  console.log(queryString)
   const results = await ctx.db.all(queryString)
   if (results) {
     return results.map(
