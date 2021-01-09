@@ -66,9 +66,12 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     console.log(error)
     return null
   }
-  const eventsToday = data?.eventsForActiveCalendar?.filter((e) =>
-    isSameDay(parseISO(e.startAt), currentDate),
-  )
+  console.log(currentDate)
+  console.log(currentDate.toISOString())
+  const eventsToday = data?.eventsForActiveCalendar?.filter((e) => {
+    return isSameDay(parseISO(e.startAt), currentDate)
+  })
+
   return (
     <ThemeProvider theme={theme}>
       <AgendaContainer>

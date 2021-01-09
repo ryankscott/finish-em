@@ -25,7 +25,12 @@ const Inbox = (): ReactElement => {
   return (
     <ThemeProvider theme={theme}>
       <Container style={{ paddingTop: '60px' }}>
-        <ViewHeader name={'Inbox'} icon={'inbox'} />
+        <ViewHeader
+          componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4497"
+          name={'Inbox'}
+          icon={'inbox'}
+          readOnly={true}
+        />
         <ItemCreator
           type="item"
           buttonText="Add Item"

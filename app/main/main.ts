@@ -19,7 +19,6 @@ import {
   InMemoryCache,
   NormalizedCacheObject,
 } from '@apollo/client'
-import { convertToProperTzOffset } from '../renderer/utils'
 import { Event } from './generated/typescript-helpers'
 import { isEmpty } from 'lodash'
 import { Date as sugarDate } from 'sugar-date'
@@ -269,11 +268,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
                   try
                     set startDate to (start date of e)
                     set endDate to (end date of e)
-                    set eventDescription to (description of e)
-                    if eventDescription is missing value then
-                      set eventDescription to ""
-                    end if
-                    copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (eventDescription), (status of e), (time to GMT) / hours} to end of output
+                    copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (status of e), (time to GMT) / hours} to end of output
                   end try
                 end repeat
             end tell
@@ -295,7 +290,6 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
       'endDate',
       'endTime',
       'summary',
-      'description',
       'status',
       'tzOffset',
     ]
@@ -327,12 +321,12 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
       const ev: Event = {
         key: c.id,
         title: c.summary,
-        description: c.description,
+        description: '',
         startAt: eventStartAt,
         endAt: eventEndAt,
         allDay: false,
       }
-
+      // TODO: Drop description from events
       const result = client.mutate({
         mutation: gql`
           mutation CreateEvent(

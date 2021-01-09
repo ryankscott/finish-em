@@ -16,6 +16,7 @@ export const getComponent = (input: { key: string }, ctx) => {
     )
     .then((r) => (r ? new Component(r.key, r.viewKey, r.location, r.type, r.parameters) : null))
 }
+
 export const getComponentsByView = (input: { viewKey: string }, ctx) => {
   return ctx.db
     .all(
@@ -146,6 +147,9 @@ export const componentRootValues = {
     return createComponent(input, ctx)
   },
   setParametersOfFilteredItemListComponent: ({ input }, ctx) => {
+    return updateParametersOfComponent(input, ctx)
+  },
+  setParametersOfViewHeaderComponent: ({ input }, ctx) => {
     return updateParametersOfComponent(input, ctx)
   },
   migrateComponent: ({ input }, ctx) => {

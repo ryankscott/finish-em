@@ -2,17 +2,28 @@ import styled from 'styled-components'
 import { Title } from '../Typography'
 
 export const IconContainer = styled.div`
-    padding: 5px;
+  padding: 5px;
+  grid-area: icon;
 `
 
 export const HeaderContainer = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    padding-bottom: 20px;
+  justify-content: flex-start;
+  padding: 20px 5px;
+  position: relative;
+  display: grid;
+  align-items: center;
+  width: 100%;
+  grid-template-columns: 36px 1fr 60px;
+  grid-template-areas: 'icon title buttons';
 `
 
 export const HeaderTitle = styled(Title)`
-    padding: 5px;
-    margin: 0px;
+  grid-area: title;
+  padding: 5px;
+  margin: 0px;
+`
+
+export const ButtonContainer = styled.div`
+  display: flex;
+  grid-area: buttons;
 `

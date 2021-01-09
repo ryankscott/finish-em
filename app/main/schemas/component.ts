@@ -44,6 +44,11 @@ input ViewHeaderPropsInput {
   icon: String
 }
 
+input SetParametersOfViewHeaderComponentInput {
+  key: String!
+  parameters: ViewHeaderPropsInput!
+}
+
 input DeleteComponentInput {
   key: String!
 }
@@ -67,6 +72,9 @@ type Mutation {
   createViewHeaderComponent(input: CreateViewHeaderComponentInput!): Component
   setParametersOfFilteredItemListComponent(
     input: SetParametersOfFilteredItemListComponentInput!
+  ): Component
+  setParametersOfViewHeaderComponent(
+    input: SetParametersOfViewHeaderComponentInput!
   ): Component
   migrateComponent(input: MigrateComponentInput!): Component
   deleteComponent(input: DeleteComponentInput!): Component

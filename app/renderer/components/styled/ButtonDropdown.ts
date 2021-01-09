@@ -7,7 +7,6 @@ export const SelectContainer = styled.div`
   margin: 2px;
   display: flex;
   top: 0px;
-  width: 100%;
   min-width: 120px;
 `
 
@@ -17,6 +16,9 @@ interface ContainerProps {
 export const Container = styled.div<ContainerProps>`
   text-decoration: ${(props) => (props.completed == true ? 'line-through' : null)};
   width: 100%;
+  display: flex;
+  position: relative;
+  justify-content: center;
   padding: 0px;
   margin: 0px;
 `

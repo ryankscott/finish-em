@@ -9,7 +9,7 @@ import { Icons } from '../assets/icons'
 import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
-import Button from './Button'
+import ButtonDropdown from './ButtonDropdown'
 import FilteredItemList from './FilteredItemList'
 import { Spinner } from './Spinner'
 import {
@@ -39,9 +39,17 @@ const GET_COMPONENTS_BY_VIEW = gql`
     theme @client
   }
 `
-const ADD_COMPONENT = gql`
+const ADD_FILTERED_LIST = gql`
   mutation CreateFilteredItemListComponent($input: CreateFilteredItemListComponentInput!) {
     createFilteredItemListComponent(input: $input) {
+      key
+    }
+  }
+`
+
+const ADD_HEADER = gql`
+  mutation CreateViewHeaderComponent($input: CreateViewHeaderComponentInput!) {
+    createViewHeaderComponent(input: $input) {
       key
     }
   }
@@ -64,7 +72,8 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
     variables: { viewKey: props.viewKey },
   })
 
-  const [addComponent] = useMutation(ADD_COMPONENT)
+  const [addFilteredList] = useMutation(ADD_FILTERED_LIST)
+  const [addHeader] = useMutation(ADD_HEADER)
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER)
   if (loading)
     return (
@@ -177,7 +186,15 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                         draggableStyle={provided.draggableProps.style}
                                         state={state}
                                       >
-                                        <ViewHeader key={comp.key} id={comp.key} {...params} />
+                                        <DragHandle {...provided.dragHandleProps}>
+                                          {Icons['dragHandle']()}
+                                        </DragHandle>
+                                        <ViewHeader
+                                          key={comp.key}
+                                          componentKey={comp.key}
+                                          id={comp.key}
+                                          {...params}
+                                        />
                                       </DraggableContainer>
                                     )}
                                   </Draggable>
@@ -195,49 +212,87 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
         </DragDropContext>
         <div
           style={{
+            position: 'relative',
             display: 'flex',
             justifyContent: 'center',
             paddingBottom: '10px',
+            width: '100%',
           }}
         >
-          <Button
-            type={'default'}
-            iconSize="14px"
-            width="90px"
-            icon={'add'}
-            text={'Add list'}
-            onClick={() => {
-              addComponent({
-                variables: {
-                  input: {
-                    key: uuidv4(),
-                    viewKey: props.viewKey,
-                    type: 'FilteredItemList',
-                    location: 'main',
-                    parameters: {
-                      filter: JSON.stringify({
-                        text:
-                          data.view.type == 'project'
-                            ? `project = "${data.view.name}"`
-                            : 'createdAt is today ',
-                        value:
-                          data.view.type == 'project'
-                            ? [{ category: 'projectKey', operator: '=', value: data.view.key }]
-                            : [{ category: 'createdAt', operator: 'is', value: 'today' }],
-                      }),
-                      hiddenIcons: [],
-                      isFilterable: true,
-                      listName: 'New list',
-                      flattenSubtasks: true,
-                      showCompletedToggle: true,
-                      initiallyExpanded: true,
-                    },
+          <div style={{ width: '250px' }}>
+            <ButtonDropdown
+              defaultButtonText={'Add component'}
+              defaultButtonIcon={'collapse'}
+              createable={false}
+              buttonText={'Add component'}
+              onSubmit={(e) => {
+                e()
+              }}
+              completed={false}
+              options={[
+                {
+                  label: 'FilteredItemList',
+                  value: () => {
+                    addFilteredList({
+                      variables: {
+                        input: {
+                          key: uuidv4(),
+                          viewKey: props.viewKey,
+                          type: 'FilteredItemList',
+                          location: 'main',
+                          parameters: {
+                            filter: JSON.stringify({
+                              text:
+                                data.view.type == 'project'
+                                  ? `project = "${data.view.name}"`
+                                  : 'createdAt is today ',
+                              value:
+                                data.view.type == 'project'
+                                  ? [
+                                      {
+                                        category: 'projectKey',
+                                        operator: '=',
+                                        value: data.view.key,
+                                      },
+                                    ]
+                                  : [{ category: 'createdAt', operator: 'is', value: 'today' }],
+                            }),
+                            hiddenIcons: [],
+                            isFilterable: true,
+                            listName: 'New list',
+                            flattenSubtasks: true,
+                            showCompletedToggle: true,
+                            initiallyExpanded: true,
+                          },
+                        },
+                      },
+                    })
+                    refetch()
                   },
                 },
-              })
-              refetch()
-            }}
-          />
+                {
+                  label: 'Header',
+                  value: () => {
+                    addHeader({
+                      variables: {
+                        input: {
+                          key: uuidv4(),
+                          viewKey: props.viewKey,
+                          type: 'ViewHeader',
+                          location: 'main',
+                          parameters: {
+                            name: data.view.name,
+                            icon: 'view',
+                          },
+                        },
+                      },
+                    })
+                    refetch()
+                  },
+                },
+              ]}
+            />
+          </div>
         </div>
       </Container>
     </ThemeProvider>

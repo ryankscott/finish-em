@@ -76,7 +76,6 @@ function DateSelect(props: DateSelectProps): ReactElement {
 
   const handleDayClick = (day: Date): void => {
     setDayPickerVisible(false)
-    console.log(typeof day)
     props.onSubmit(day)
     return
   }
