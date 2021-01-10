@@ -32,7 +32,6 @@ export const setComponentOrder = async (
     } else {
       const moveUp = await ctx.db.run(
         `UPDATE componentOrder SET sortOrder = sortOrder - 1
-const log = require('electron-log')
          WHERE sortOrder BETWEEN ${currentOrder} + 1 AND ${input.sortOrder};`,
       )
     }
@@ -44,7 +43,7 @@ const log = require('electron-log')
 
     return await getComponentOrder({ componentKey: input.componentKey }, ctx)
   } catch (e) {
-    log.error(`Failed to sert order of campaigns - ${e}`)
+    log.error(`Failed to set order of components - ${e} with inputs - ${input.componentKey}`)
     return new Error('Unable to set order of components')
   }
 }
