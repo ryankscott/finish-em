@@ -66,8 +66,6 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     console.log(error)
     return null
   }
-  console.log(currentDate)
-  console.log(currentDate.toISOString())
   const eventsToday = data?.eventsForActiveCalendar?.filter((e) => {
     return isSameDay(parseISO(e.startAt), currentDate)
   })

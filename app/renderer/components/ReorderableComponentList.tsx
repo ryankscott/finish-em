@@ -10,6 +10,7 @@ import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import ButtonDropdown from './ButtonDropdown'
+import ComponentActions from './ComponentActions'
 import FilteredItemList from './FilteredItemList'
 import { Spinner } from './Spinner'
 import {

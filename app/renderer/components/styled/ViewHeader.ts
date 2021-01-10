@@ -22,8 +22,3 @@ export const HeaderTitle = styled(Title)`
   padding: 5px;
   margin: 0px;
 `
-
-export const ButtonContainer = styled.div`
-  display: flex;
-  grid-area: buttons;
-`

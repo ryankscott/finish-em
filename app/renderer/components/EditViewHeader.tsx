@@ -52,7 +52,7 @@ const generateIconOptions = (): { value: string; label: string | JSX.Element }[]
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span style={{ paddingRight: '5px', alignItems: 'center', display: 'flex' }}>
             {Icons[i](12, 12)}
-          </span>{' '}
+          </span>
           {startCase(i)}
         </div>
       ),
@@ -92,8 +92,6 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
   }
 
   const theme: ThemeType = themes[data.theme]
-  console.log(data)
-  console.log(params)
   const options = generateIconOptions()
 
   return (

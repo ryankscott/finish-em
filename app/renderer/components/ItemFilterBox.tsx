@@ -224,9 +224,6 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
   const customAutoComplete = new CustomAutoComplete(inputData, filterOptions)
 
   const transformExpression = (e: Expression): Expression => {
-    console.log(e)
-    console.log(e.value)
-
     switch (e.category) {
       case 'project':
         return {

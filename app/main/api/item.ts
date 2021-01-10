@@ -45,7 +45,6 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
     try {
       return JSON.parse(filter)
     } catch (e) {
-      console.log(e)
       log.error(`Failed to parse filters - ${e}`)
       return { text: '', value: [] }
     }
@@ -161,7 +160,6 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
   const filterString = generateQueryString(filters.value)
   const queryString = `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item
  WHERE ${filterString}`
-  console.log(queryString)
   const results = await ctx.db.all(queryString)
   if (results) {
     return results.map(

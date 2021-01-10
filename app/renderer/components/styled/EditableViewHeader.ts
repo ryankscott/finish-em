@@ -9,7 +9,6 @@ export const DialogContainer = styled.div`
   width: 100%;
   border: 1px solid ${(props) => props.theme.colours.borderColour};
   border-radius: 5px;
-  margin-bottom: 15px;
 `
 export const DialogHeader = styled.div`
   display: flex;
