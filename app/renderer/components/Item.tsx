@@ -25,6 +25,7 @@ import {
   Container,
   DueContainer,
   ExpandContainer,
+  LoadingContainer,
   MoreContainer,
   ParentItemContainer,
   ProjectContainer,
@@ -48,6 +49,12 @@ type ItemProps = {
   shouldIndent: boolean
   alwaysVisible?: boolean
 }
+
+const GET_THEME = gql`
+  query {
+    theme @client
+  }
+`
 
 const GET_DATA = gql`
   query itemByKey($key: String!) {
@@ -89,7 +96,6 @@ const GET_DATA = gql`
         sortOrder
       }
     }
-    theme @client
     subtasksVisible @client
   }
 `
@@ -165,6 +171,14 @@ function Item(props: ItemProps): ReactElement {
   const [moreButtonVisible, setMoreButtonVisible] = useState(false)
   const [showLabelDialog, setShowLabelDialog] = useState(false)
   const [showReminderDialog, setShowReminderDialog] = useState(false)
+  const [completeItem] = useMutation(COMPLETE_ITEM)
+  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
+  const [renameItem] = useMutation(RENAME_ITEM)
+  const [deleteItem] = useMutation(DELETE_ITEM)
+  const [cloneItem] = useMutation(CLONE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM)
+  const [restoreItem] = useMutation(RESTORE_ITEM)
+
   let enterInterval, exitInterval
   const editor = React.useRef<HTMLInputElement>()
   const container = React.useRef<HTMLInputElement>()
@@ -175,22 +189,16 @@ function Item(props: ItemProps): ReactElement {
     }
   }, [isDescriptionReadOnly])
 
+  const { loading: l, error: e, data: d } = useQuery(GET_THEME)
+
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: { key: props.itemKey ? props.itemKey : null },
   })
+  const theme: ThemeType = themes[d.theme]
+  if (loading) return <LoadingContainer />
 
-  const [completeItem] = useMutation(COMPLETE_ITEM)
-  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
-  const [renameItem] = useMutation(RENAME_ITEM)
-  const [deleteItem] = useMutation(DELETE_ITEM)
-  const [cloneItem] = useMutation(CLONE_ITEM, { refetchQueries: ['itemsByFilter'] })
-  const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM)
-  const [restoreItem] = useMutation(RESTORE_ITEM)
-
-  if (loading) return <Spinner loading={true}></Spinner>
   if (error) return null
 
-  const theme: ThemeType = themes[data.theme]
   const item: ItemType = data.item
   // TODO: Move this to the MoreDropdown component
   const dropdownOptions: MoreDropdownOptions = item.deleted

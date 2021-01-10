@@ -1,6 +1,36 @@
-import styled from '../../StyledComponents'
+import styled, { keyframes } from '../../StyledComponents'
 import CSS from 'csstype'
-import { darken, transparentize } from 'polished'
+import { darken, lighten, transparentize } from 'polished'
+
+const shimmer = keyframes`
+ 0% {
+     background-position: -250px;
+  }
+  100% {
+      background-position: calc(100% + 250px);
+  }
+`
+
+export const LoadingContainer = styled.div`
+  margin: 1px 0px;
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    ${(props) => props.theme.colours.backgroundColour} 0px,
+    ${(props) => darken(0.025, props.theme.colours.backgroundColour)} calc(50% - 25px),
+    ${(props) => darken(0.025, props.theme.colours.backgroundColour)} calc(50% + 25px),
+    ${(props) => props.theme.colours.backgroundColour} 100%
+  );
+  background-size: 35%;
+  background-position: 0%;
+  background-repeat: no-repeat;
+  animation: ${shimmer} 1.2s ease-out infinite;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  position: relative;
+  height: 50px;
+  width: 100%;
+`
 
 interface ContainerProps {
   labelColour: CSS.Property.Color

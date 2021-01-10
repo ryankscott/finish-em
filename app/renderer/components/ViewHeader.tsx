@@ -18,8 +18,6 @@ export type ViewHeaderProps = {
   name: string
   icon?: IconType
   readOnly?: boolean
-  isEditing: boolean
-  onEditingComplete: () => {}
   componentKey: string
 }
 

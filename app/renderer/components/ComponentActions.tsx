@@ -46,7 +46,8 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
   const theme: ThemeType = themes[data.theme]
   let enterInterval, exitInterval
 
-  if (props.readOnly) return null
+  if (props.readOnly) return <div>{props.children}</div>
+
   return (
     <ThemeProvider theme={theme}>
       <Container
