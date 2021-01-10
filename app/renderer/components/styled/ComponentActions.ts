@@ -1,14 +1,8 @@
+import { transparentize } from 'polished'
 import styled from '../../StyledComponents'
 
 export const Container = styled.div`
   position: relative;
-  border: 1px solid transparent;
-  border-radius: 5px;
-  &:hover {
-    border-color: ${(props) => props.theme.colours.borderColour};
-    box-shadow: 0px 1px 2px ${(props) => props.theme.colours.borderColour};
-  }
-  margin-bottom: 20px;
 `
 
 export const ButtonContainer = styled.div`

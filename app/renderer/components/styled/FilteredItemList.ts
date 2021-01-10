@@ -88,6 +88,9 @@ export const Container = styled.div<ContainerProps>`
   border-color: ${(props) => props.theme.colours.borderColour};
   animation: ${(props) =>
     props.state == 'entering' ? entryAnimation : props.state == 'exiting' ? exitAnimation : 'none'};
+  &:hover {
+    border-color: transparent;
+  }
 `
 type EditableContainerProps = {
   state: string

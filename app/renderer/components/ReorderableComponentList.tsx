@@ -156,6 +156,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                           {...params}
                                           componentKey={comp.key}
                                           key={comp.key}
+                                          dragHandle={provided.dragHandleProps}
                                         />
                                       </DraggableContainer>
                                     )}
@@ -191,6 +192,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                           {Icons['dragHandle']()}
                                         </DragHandle>
                                         <ViewHeader
+                                          dragHandle={provided.dragHandleProps}
                                           key={comp.key}
                                           componentKey={comp.key}
                                           id={comp.key}

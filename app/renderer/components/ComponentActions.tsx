@@ -61,20 +61,24 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
         }}
       >
         {showActions && (
-          <ButtonContainer>
-            <Button
-              icon={'edit'}
-              type={'default'}
-              onClick={() => {
-                props.onEdit()
-              }}
-            />
-            <Button
-              icon={'trash'}
-              type={'default'}
-              onClick={() => deleteComponent({ variables: { key: props.componentKey } })}
-            />
-          </ButtonContainer>
+          <>
+            <ButtonContainer>
+              <Button
+                icon={'edit'}
+                type={'default'}
+                tooltipText={'Edit component'}
+                onClick={() => {
+                  props.onEdit()
+                }}
+              />
+              <Button
+                icon={'trash'}
+                type={'default'}
+                tooltipText={'Delete component'}
+                onClick={() => deleteComponent({ variables: { key: props.componentKey } })}
+              />
+            </ButtonContainer>
+          </>
         )}
         {props.children}
       </Container>

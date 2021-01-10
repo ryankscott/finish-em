@@ -47,11 +47,19 @@ export const DraggableContainer = styled.div<DraggableContainerProps>`
   padding: 0px;
   margin: 0px;
   border-radius: 5px;
+  margin-bottom: 20px;
+  transition: all 0.1s ease-in-out;
+  border: 1px solid;
+  border-color: ${(props) => (props.isDragging ? props.theme.colours.borderColour : 'transparent')};
   background: ${(props) => props.theme.colours.backgroundColour};
   box-shadow: ${(props) =>
     props.isDragging ? '1px 2px 6px ' + darken(0.05, props.theme.colours.borderColour) : '0px'};
   animation: ${(props) =>
     props.state == 'entering' ? entryAnimation : props.state == 'exiting' ? exitAnimation : 'none'};
+  &:hover {
+    border-color: ${(props) => props.theme.colours.borderColour};
+    box-shadow: 0px 1px 2px ${(props) => props.theme.colours.borderColour};
+  }
 `
 
 export const DragHandle = styled.div`
