@@ -1,4 +1,4 @@
-import { mergeSchemasAsync } from '@graphql-tools/merge'
+import SqlString from 'sqlstring-sqlite'
 import Project from '../classes/project'
 import { getItemsByProject, setProjectOfItem } from './item'
 import { createProjectOrder } from './projectOrder'
@@ -126,7 +126,14 @@ export const createMigrateProjectQuery = (input: {
   const endText = input.endAt ? input.endAt.toISOString() : ''
   return `
 REPLACE INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey)
-VALUES ('${input.key}', '${input.name}', ${input.deleted}, '${input.description}', '${lastUpdatedText}', '${deletedText}', '${createdText}', '${startText}', '${endText}', '${input.areaKey}')
+VALUES ('${input.key}', 
+
+
+'${SqlString.escape(input.name)}', ${input.deleted}, '${SqlString.escape(
+    input.description,
+  )}', '${lastUpdatedText}', '${deletedText}', '${createdText}', '${startText}', '${endText}', '${
+    input.areaKey
+  }')
 `
 }
 export const migrateProject = (
@@ -159,7 +166,13 @@ export const createCreateProjectQuery = (input: {
   endAt: string
   areaKey: string
 }) => {
-  return `INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey) VALUES ('${input.key}', '${input.name}', false, '${input.description}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ${input.startAt}, ${input.endAt}, '${input.areaKey}')`
+  return `INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey) VALUES ('${
+    input.key
+  }', '${SqlString.escape(input.name)}', false, '${SqlString.escape(
+    input.description,
+  )}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ${
+    input.startAt
+  }, ${input.endAt}, '${input.areaKey}')`
 }
 export const createProject = async (
   input: {
@@ -207,7 +220,10 @@ export const deleteProject = async (input: { key: string; name: string }, ctx) =
 }
 
 export const createRenameProjectQuery = (input: { key: string; name: string }) => {
-  return `UPDATE project SET name = '${input.name}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
+  return `UPDATE project SET name = 
+  '${SqlString.escape(
+    input.name,
+  )}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
 export const renameProject = async (input: { key: string; name: string }, ctx) => {
   const projects = await getProjects({ deleted: false }, ctx)
@@ -225,7 +241,9 @@ export const renameProject = async (input: { key: string; name: string }, ctx) =
 }
 
 export const createChangeDescriptionQuery = (input: { key: string; description: string }) => {
-  return `UPDATE project SET description = '${input.description}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
+  return `UPDATE project SET description = '${SqlString.escape(
+    input.description,
+  )}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
 export const changeDescriptionProject = (input: { key: string; description: string }, ctx) => {
   return ctx.db.run(createChangeDescriptionQuery(input)).then((result) => {

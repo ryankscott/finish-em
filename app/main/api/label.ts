@@ -1,5 +1,6 @@
 import Label from '../classes/label'
 import CSS from 'csstype'
+import SqlString from 'sqlstring-sqlite'
 
 export const getLabels = (obj, ctx) => {
   return ctx.db.all('SELECT key, name, colour FROM label').then((result) => {
@@ -21,7 +22,9 @@ export const createLabel = (
 ) => {
   return ctx.db
     .run(
-      `INSERT INTO label(key, name, colour ) VALUES ('${input.key}', '${input.name}', '${input.colour}')`,
+      `INSERT INTO label(key, name, colour ) VALUES ('${input.key}', '${SqlString.escape(
+        input.name,
+      )}', '${input.colour}')`,
     )
     .then((result) => {
       return result.changes
@@ -32,7 +35,7 @@ export const createLabel = (
 
 export const renameLabel = (input: { key: string; name: string }, ctx) => {
   return ctx.db
-    .run(`UPDATE label SET name = '${input.name}' WHERE key = '${input.key}'`)
+    .run(`UPDATE label SET name = '${SqlString.escape(input.name)}' WHERE key = '${input.key}'`)
     .then((result) => {
       return result.changes
         ? getLabel({ key: input.key }, ctx)

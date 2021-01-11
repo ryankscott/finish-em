@@ -485,7 +485,9 @@ export const restoreItem = async (input: { key: string }, ctx) => {
 
 export const createRenameItemQuery = (input: { key: string; text: string }) => {
   return `
-UPDATE item SET text = '${input.text}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+UPDATE item SET text = '${SqlString.escape(
+    input.text,
+  )}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
 
