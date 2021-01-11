@@ -67,6 +67,7 @@ const FilterInput = (props: FilterInputProps) => {
   }
 
   const onSubmit = (text: string) => {
+    autoCompletePopup.completionShow = false
     if (props.onSubmit) {
       props.onSubmit(text)
     }
@@ -102,13 +103,14 @@ const FilterInput = (props: FilterInputProps) => {
     })
 
     ref.editor.on('blur', (cm, e?) => {
+      autoCompletePopup.completionShow = false
       onSubmit(doc.getValue())
       props.onBlur(e)
     })
 
     ref.editor.on('keyup', (cm: ExtendedCodeMirror, e?: KeyboardEvent) => {
-      if (e.keyCode == 13) {
-        // this.onSubmit(this.doc.getValue())
+      if (e.key == 'enter' || e.key == 'escape') {
+        autoCompletePopup.completionShow = false
       }
     })
   }
