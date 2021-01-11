@@ -1,4 +1,3 @@
-import { transparentize } from 'polished'
 import styled from '../../StyledComponents'
 
 export const Container = styled.div`

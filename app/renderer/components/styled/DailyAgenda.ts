@@ -67,7 +67,7 @@ export const EventsContainer = styled.div`
 export const EventContainer = styled.div`
   display: flex;
   flex-direction: row;
-  padding: 2px; 
+  padding: 2px;
   width: 100%;
 `
 

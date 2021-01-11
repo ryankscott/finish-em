@@ -164,6 +164,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             flattenSubtasks={true}
             readOnly={true}
           />
+          <div style={{ height: '20px' }}></div>
           <FilteredItemList
             key="a4e1c649-378f-4d14-9aac-2d2720270dd8"
             componentKey="a4e1c649-378f-4d14-9aac-2d2720270dd8"
