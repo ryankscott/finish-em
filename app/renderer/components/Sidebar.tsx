@@ -10,7 +10,7 @@ import { sidebarVisibleVar } from '../index'
 import { ThemeType } from '../interfaces'
 import styled, { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
-import { createShortSidebarItem, getProductDescription, getProductName } from '../utils'
+import { createShortSidebarItem, getProductName } from '../utils'
 import Button from './Button'
 import {
   AddAreaContainer,
@@ -466,7 +466,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 onClick={() => {
                   const areaKey = uuidv4()
                   createArea({
-                    variables: { key: areaKey, name: 'New Area', description: '' },
+                    variables: { key: areaKey, name: getProductName(), description: '' },
                   })
                   refetch()
                 }}
