@@ -50,10 +50,10 @@ export const createCreateAreaQuery = (input: {
 }) => {
   return `
 INSERT INTO area (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt)
-VALUES ('${input.key}', '${SqlString.escape(input.name)}', false, 
-'${SqlString.escape(
-    input.description,
-  )}', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+VALUES ('${input.key}', ${SqlString.escape(input.name)}, false, 
+${SqlString.escape(
+  input.description,
+)}, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 `
 }
 
@@ -93,9 +93,9 @@ export const createMigrateAreaQuery = (input: {
   const createdText = input.createdAt ? input.createdAt.toISOString() : ''
   return `
 REPLACE INTO area (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt )
-VALUES ('${input.key}', '${SqlString.escape(input.name)}', ${input.deleted}, '${SqlString.escape(
+VALUES ('${input.key}', ${SqlString.escape(input.name)}, ${input.deleted}, ${SqlString.escape(
     input.description,
-  )}', '${lastUpdatedText}', '${deletedText}', '${createdText}')
+  )}, '${lastUpdatedText}', '${deletedText}', '${createdText}')
 `
 }
 
@@ -138,9 +138,9 @@ export const deleteArea = (input: { key: string }, ctx) => {
 
 export const createRenameAreaQuery = (input: { key: string; name: string }) => {
   return `
-UPDATE area SET name = '${SqlString.escape(
+UPDATE area SET name = ${SqlString.escape(
     input.name,
-  )}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+  )}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
 export const renameArea = async (input: { key: string; name: string }, ctx) => {
@@ -157,9 +157,9 @@ export const renameArea = async (input: { key: string; name: string }, ctx) => {
 
 export const createChangeDescriptionAreaQuery = (input: { key: string; description: string }) => {
   return `
-UPDATE area SET description = '${SqlString.escape(
+UPDATE area SET description = ${SqlString.escape(
     input.description,
-  )}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+  )}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
 export const changeDescriptionArea = (input: { key: string; description: string }, ctx) => {

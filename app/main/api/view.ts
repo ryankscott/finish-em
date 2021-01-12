@@ -50,7 +50,7 @@ export const createCreateViewQuery = (input: {
 }) => {
   return `
 INSERT INTO view (key, name, icon, type, deleted, deletedAt, lastUpdatedAt,  createdAt)
-VALUES ('${input.key}', '${SqlString.escape(input.name)}', '${input.icon}', '${
+VALUES ('${input.key}', ${SqlString.escape(input.name)}, '${input.icon}', '${
     input.type
   }', false, null,  strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
 `
@@ -112,9 +112,9 @@ export const deleteView = (input: { key: string }, ctx) => {
 
 export const createRenameViewQuery = (input: { key: string; name: string }) => {
   return `
-UPDATE view SET name = '${SqlString.escape(
+UPDATE view SET name = ${SqlString.escape(
     input.name,
-  )}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+  )}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
 export const renameView = (input: { key: string; name: string }, ctx) => {
