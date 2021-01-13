@@ -87,7 +87,9 @@ export const getProject = (input: { key: string }, ctx) => {
 export const getProjectByName = (input: { name: string }, ctx) => {
   return ctx.db
     .get(
-      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project WHERE name = '${input.name}'`,
+      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project WHERE name = ${SqlString.escape(
+        input.name,
+      )}`,
     )
     .then((result) => {
       return result
@@ -207,6 +209,7 @@ export const deleteProject = async (input: { key: string; name: string }, ctx) =
       items.map((i) => {
         return setProjectOfItem({ key: i.key, projectKey: '0' }, ctx)
       })
+
       deleteView({ key: input.key }, ctx)
       return getProject({ key: input.key }, ctx)
     }
