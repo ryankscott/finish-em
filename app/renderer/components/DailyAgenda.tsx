@@ -23,6 +23,7 @@ import {
 } from './styled/DailyAgenda'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
+import { sortBy } from 'lodash'
 
 interface StateProps {
   dailyGoal: any[]
@@ -69,6 +70,8 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   const eventsToday = data?.eventsForActiveCalendar?.filter((e) => {
     return isSameDay(parseISO(e.startAt), currentDate)
   })
+
+  const sortedEventsForToday = sortBy(eventsToday, ['startAt'], ['desc'])
 
   return (
     <ThemeProvider theme={theme}>
@@ -129,21 +132,19 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
         {data.calendarIntegration.enabled && (
           <EventsContainer>
             {eventsToday.length ? (
-              eventsToday
-                .filter((e) => isSameDay(parseISO(e.startAt), currentDate))
-                .map((e) => {
-                  return (
-                    <EventContainer key={e.key}>
-                      <EventTime key={`time-${e.key}`}>
-                        {`${format(parseISO(e.startAt), 'h:mm aa')} - ${format(
-                          parseISO(e.endAt),
-                          'h:mm aa',
-                        )}`}
-                      </EventTime>
-                      <EventTitle key={`title-${e.title}`}> {e.title} </EventTitle>
-                    </EventContainer>
-                  )
-                })
+              sortedEventsForToday.map((e) => {
+                return (
+                  <EventContainer key={e.key}>
+                    <EventTime key={`time-${e.key}`}>
+                      {`${format(parseISO(e.startAt), 'h:mm aa')} - ${format(
+                        parseISO(e.endAt),
+                        'h:mm aa',
+                      )}`}
+                    </EventTime>
+                    <EventTitle key={`title-${e.title}`}> {e.title} </EventTitle>
+                  </EventContainer>
+                )
+              })
             ) : (
               <p>No events on this day</p>
             )}
