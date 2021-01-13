@@ -106,7 +106,7 @@ export const createDeleteViewInput = (input: { key: string }) => {
 }
 export const deleteView = (input: { key: string }, ctx) => {
   return ctx.db.run(createDeleteViewInput(input)).then((result) => {
-    return result.changes ? getView({ key: input.key }, ctx) : new Error('Unable to rename view')
+    return result.changes ? getView({ key: input.key }, ctx) : new Error('Unable to delete view')
   })
 }
 
