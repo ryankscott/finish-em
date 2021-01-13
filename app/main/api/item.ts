@@ -654,8 +654,21 @@ UPDATE item SET areaKey = ${inputText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M
 }
 
 export const setAreaOfItem = (input: { key: string; areaKey: string }, ctx) => {
-  return ctx.db.run(createSetAreaOfItemQuery(input)).then((result) => {
+  return ctx.db.run(createSetAreaOfItemQuery(input)).then(async (result) => {
     if (result.changes) {
+      //  Update children
+      const children = await getItemsByParent({ parentKey: input.key }, ctx)
+      if (children.length > 0) {
+        children.map(async (i) => {
+          const childrenResult = await ctx.db.run(
+            createSetAreaOfItemQuery({ key: i.key, areaKey: input.areaKey }),
+          )
+          if (!childrenResult) {
+            return new Error("Unable to set area of item's children")
+          }
+        })
+      }
+
       return getItem({ key: input.key }, ctx)
     }
     log.error(`Unable to set area of item, key - ${input.key}`)
