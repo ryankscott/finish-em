@@ -114,21 +114,13 @@ const Project = (props: ProjectProps): ReactElement => {
   const { loading, error, data } = useQuery(GET_PROJECT_BY_KEY, {
     variables: { key: props.projectKey },
   })
-  const [deleteProject] = useMutation(DELETE_PROJECT)
+  const [deleteProject] = useMutation(DELETE_PROJECT, { refetchQueries: ['GetSidebarData'] })
   const [changeDescription] = useMutation(CHANGE_DESCRIPTION)
   const [renameProject] = useMutation(RENAME_PROJECT)
   const [setEndDate] = useMutation(SET_END_DATE)
   const [setStartDate] = useMutation(SET_START_DATE)
 
-  const [deleteView] = useMutation(DELETE_VIEW, {
-    update(cache, { data: { deleteView } }) {
-      const cacheId = cache.identify({
-        __typename: 'View',
-        key: props.projectKey,
-      })
-      cache.evict({ id: cacheId })
-    },
-  })
+  const [deleteView] = useMutation(DELETE_VIEW)
 
   if (loading) return null
   if (error) {

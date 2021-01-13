@@ -108,7 +108,7 @@ const SidebarItem = (props: {
 }
 
 const GET_AREAS = gql`
-  query {
+  query GetSidebarData {
     areas {
       name
       key
