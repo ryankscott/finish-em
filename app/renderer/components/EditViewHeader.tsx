@@ -31,8 +31,8 @@ const GET_COMPONENT_BY_KEY = gql`
 `
 
 const UPDATE_COMPONENT = gql`
-  mutation SetParametersOfViewHeaderComponent($key: String!, $parameters: ViewHeaderPropsInput!) {
-    setParametersOfViewHeaderComponent(input: { key: $key, parameters: $parameters }) {
+  mutation SetParametersOfComponent($key: String!, $parameters: JSON!) {
+    setParametersOfComponent(input: { key: $key, parameters: $parameters }) {
       key
       parameters
     }

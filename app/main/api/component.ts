@@ -140,16 +140,10 @@ export const componentRootValues = {
   componentsByView: (key, ctx) => {
     return getComponentsByView(key, ctx)
   },
-  createFilteredItemListComponent: ({ input }, ctx) => {
+  createComponent: ({ input }, ctx) => {
     return createComponent(input, ctx)
   },
-  createViewHeaderComponent: ({ input }, ctx) => {
-    return createComponent(input, ctx)
-  },
-  setParametersOfFilteredItemListComponent: ({ input }, ctx) => {
-    return updateParametersOfComponent(input, ctx)
-  },
-  setParametersOfViewHeaderComponent: ({ input }, ctx) => {
+  setParametersOfComponent: ({ input }, ctx) => {
     return updateParametersOfComponent(input, ctx)
   },
   migrateComponent: ({ input }, ctx) => {

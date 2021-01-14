@@ -13,6 +13,8 @@ export type Scalars = {
   Float: number;
   /** A date-time string at UTC, such as 2007-12-03T10:15:30Z, compliant with the `date-time` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar. */
   DateTime: any;
+  /** The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf). */
+  JSON: any;
 };
 
 
@@ -258,7 +260,9 @@ export type Mutation = {
   setActiveCalendar?: Maybe<Calendar>;
   createFilteredItemListComponent?: Maybe<Component>;
   createViewHeaderComponent?: Maybe<Component>;
+  createComponent?: Maybe<Component>;
   setParametersOfFilteredItemListComponent?: Maybe<Component>;
+  setParametersOfViewHeaderComponent?: Maybe<Component>;
   migrateComponent?: Maybe<Component>;
   deleteComponent?: Maybe<Component>;
   setComponentOrder?: Maybe<ComponentOrder>;
@@ -382,8 +386,18 @@ export type MutationCreateViewHeaderComponentArgs = {
 };
 
 
+export type MutationCreateComponentArgs = {
+  input: CreateComponentInput;
+};
+
+
 export type MutationSetParametersOfFilteredItemListComponentArgs = {
   input: SetParametersOfFilteredItemListComponentInput;
+};
+
+
+export type MutationSetParametersOfViewHeaderComponentArgs = {
+  input: SetParametersOfViewHeaderComponentInput;
 };
 
 
@@ -705,8 +719,8 @@ export type DeleteCalendarInput = {
 
 export type ActiveCalendarInput = {
   key: Scalars['String'];
-  active?: Maybe<Scalars['Boolean']>;
 };
+
 
 export type Component = {
   __typename?: 'Component';
@@ -724,6 +738,14 @@ export type CreateFilteredItemListComponentInput = {
   location: Scalars['String'];
   type: Scalars['String'];
   parameters?: Maybe<FilteredItemListPropsInput>;
+};
+
+export type CreateComponentInput = {
+  key: Scalars['String'];
+  viewKey: Scalars['String'];
+  location: Scalars['String'];
+  type: Scalars['String'];
+  parameters: Scalars['JSON'];
 };
 
 export type CreateViewHeaderComponentInput = {
@@ -753,6 +775,11 @@ export type SetParametersOfFilteredItemListComponentInput = {
 export type ViewHeaderPropsInput = {
   name: Scalars['String'];
   icon?: Maybe<Scalars['String']>;
+};
+
+export type SetParametersOfViewHeaderComponentInput = {
+  key: Scalars['String'];
+  parameters: ViewHeaderPropsInput;
 };
 
 export type DeleteComponentInput = {
@@ -1292,12 +1319,15 @@ export type ResolversTypes = {
   CreateCalendarInput: CreateCalendarInput;
   DeleteCalendarInput: DeleteCalendarInput;
   ActiveCalendarInput: ActiveCalendarInput;
+  JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Component: ResolverTypeWrapper<Component>;
   CreateFilteredItemListComponentInput: CreateFilteredItemListComponentInput;
+  CreateComponentInput: CreateComponentInput;
   CreateViewHeaderComponentInput: CreateViewHeaderComponentInput;
   FilteredItemListPropsInput: FilteredItemListPropsInput;
   SetParametersOfFilteredItemListComponentInput: SetParametersOfFilteredItemListComponentInput;
   ViewHeaderPropsInput: ViewHeaderPropsInput;
+  SetParametersOfViewHeaderComponentInput: SetParametersOfViewHeaderComponentInput;
   DeleteComponentInput: DeleteComponentInput;
   MigrateComponentInput: MigrateComponentInput;
   ComponentOrder: ResolverTypeWrapper<ComponentOrder>;
@@ -1391,12 +1421,15 @@ export type ResolversParentTypes = {
   CreateCalendarInput: CreateCalendarInput;
   DeleteCalendarInput: DeleteCalendarInput;
   ActiveCalendarInput: ActiveCalendarInput;
+  JSON: Scalars['JSON'];
   Component: Component;
   CreateFilteredItemListComponentInput: CreateFilteredItemListComponentInput;
+  CreateComponentInput: CreateComponentInput;
   CreateViewHeaderComponentInput: CreateViewHeaderComponentInput;
   FilteredItemListPropsInput: FilteredItemListPropsInput;
   SetParametersOfFilteredItemListComponentInput: SetParametersOfFilteredItemListComponentInput;
   ViewHeaderPropsInput: ViewHeaderPropsInput;
+  SetParametersOfViewHeaderComponentInput: SetParametersOfViewHeaderComponentInput;
   DeleteComponentInput: DeleteComponentInput;
   MigrateComponentInput: MigrateComponentInput;
   ComponentOrder: ComponentOrder;
@@ -1547,7 +1580,9 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   setActiveCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationSetActiveCalendarArgs, 'input'>>;
   createFilteredItemListComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateFilteredItemListComponentArgs, 'input'>>;
   createViewHeaderComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateViewHeaderComponentArgs, 'input'>>;
+  createComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateComponentArgs, 'input'>>;
   setParametersOfFilteredItemListComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationSetParametersOfFilteredItemListComponentArgs, 'input'>>;
+  setParametersOfViewHeaderComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationSetParametersOfViewHeaderComponentArgs, 'input'>>;
   migrateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationMigrateComponentArgs, 'input'>>;
   deleteComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
   setComponentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<MutationSetComponentOrderArgs, 'input'>>;
@@ -1622,6 +1657,10 @@ export type CalendarResolvers<ContextType = any, ParentType extends ResolversPar
   events?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
+
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
 
 export type ComponentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Component'] = ResolversParentTypes['Component']> = {
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1760,6 +1799,7 @@ export type Resolvers<ContextType = any> = {
   Mutation?: MutationResolvers<ContextType>;
   AreaOrder?: AreaOrderResolvers<ContextType>;
   Calendar?: CalendarResolvers<ContextType>;
+  JSON?: GraphQLScalarType;
   Component?: ComponentResolvers<ContextType>;
   ComponentOrder?: ComponentOrderResolvers<ContextType>;
   Event?: EventResolvers<ContextType>;

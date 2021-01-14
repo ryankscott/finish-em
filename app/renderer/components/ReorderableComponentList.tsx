@@ -39,17 +39,9 @@ const GET_COMPONENTS_BY_VIEW = gql`
     theme @client
   }
 `
-const ADD_FILTERED_LIST = gql`
-  mutation CreateFilteredItemListComponent($input: CreateFilteredItemListComponentInput!) {
-    createFilteredItemListComponent(input: $input) {
-      key
-    }
-  }
-`
-
-const ADD_HEADER = gql`
-  mutation CreateViewHeaderComponent($input: CreateViewHeaderComponentInput!) {
-    createViewHeaderComponent(input: $input) {
+const ADD_COMPONENT = gql`
+  mutation CreateComponent($input: CreateComponentInput!) {
+    createComponent(input: $input) {
       key
     }
   }
@@ -72,8 +64,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
     variables: { viewKey: props.viewKey },
   })
 
-  const [addFilteredList] = useMutation(ADD_FILTERED_LIST)
-  const [addHeader] = useMutation(ADD_HEADER)
+  const [addComponent] = useMutation(ADD_COMPONENT)
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER)
   if (loading)
     return (
@@ -204,7 +195,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                 {
                   label: 'FilteredItemList',
                   value: () => {
-                    addFilteredList({
+                    addComponent({
                       variables: {
                         input: {
                           key: uuidv4(),
@@ -244,7 +235,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                 {
                   label: 'Header',
                   value: () => {
-                    addHeader({
+                    addComponent({
                       variables: {
                         input: {
                           key: uuidv4(),

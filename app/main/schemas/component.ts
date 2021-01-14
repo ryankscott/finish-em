@@ -1,4 +1,6 @@
 export const component = `
+scalar JSON
+
 type Component {
   key: String!
   viewKey: View!
@@ -8,45 +10,17 @@ type Component {
   sortOrder: ComponentOrder!
 }
 
-input CreateFilteredItemListComponentInput {
+input CreateComponentInput {
   key: String!
   viewKey: String!
   location: String!
   type: String!
-  parameters: FilteredItemListPropsInput
+  parameters: JSON! 
 }
 
-input CreateViewHeaderComponentInput {
+input SetParametersOfComponentInput {
   key: String!
-  viewKey: String!
-  location: String!
-  type: String!
-  parameters: ViewHeaderPropsInput
-}
-
-input FilteredItemListPropsInput {
-  legacyFilter: String
-  filter: String
-  hiddenIcons: [String]
-  isFilterable: Boolean
-  listName: String
-  flattenSubtasks: Boolean
-  showCompletedToggle: Boolean
-  initiallyExpanded: Boolean
-}
-input SetParametersOfFilteredItemListComponentInput {
-  key: String!
-  parameters: FilteredItemListPropsInput!
-}
-
-input ViewHeaderPropsInput {
-  name: String!
-  icon: String
-}
-
-input SetParametersOfViewHeaderComponentInput {
-  key: String!
-  parameters: ViewHeaderPropsInput!
+  parameters: JSON!
 }
 
 input DeleteComponentInput {
@@ -68,14 +42,8 @@ type Query {
 }
 
 type Mutation {
-  createFilteredItemListComponent(input: CreateFilteredItemListComponentInput!): Component
-  createViewHeaderComponent(input: CreateViewHeaderComponentInput!): Component
-  setParametersOfFilteredItemListComponent(
-    input: SetParametersOfFilteredItemListComponentInput!
-  ): Component
-  setParametersOfViewHeaderComponent(
-    input: SetParametersOfViewHeaderComponentInput!
-  ): Component
+  createComponent(input: CreateComponentInput!): Component
+  setParametersOfComponent(input: SetParametersOfComponentInput!): Component
   migrateComponent(input: MigrateComponentInput!): Component
   deleteComponent(input: DeleteComponentInput!): Component
 }
