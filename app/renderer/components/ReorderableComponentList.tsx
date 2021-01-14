@@ -10,7 +10,6 @@ import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import ButtonDropdown from './ButtonDropdown'
-import ComponentActions from './ComponentActions'
 import FilteredItemList from './FilteredItemList'
 import { Spinner } from './Spinner'
 import {
@@ -97,6 +96,23 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
     ['asc'],
   )
 
+  const componentSwitch = (params, comp, provided) => {
+    switch (comp.type) {
+      case 'FilteredItemList':
+        return <FilteredItemList {...params} componentKey={comp.key} key={comp.key} />
+      case 'ViewHeader':
+        return (
+          <ViewHeader
+            dragHandle={provided.dragHandleProps}
+            key={comp.key}
+            componentKey={comp.key}
+            id={comp.key}
+            {...params}
+          />
+        )
+    }
+  }
+
   const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
@@ -121,91 +137,43 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                   {sortedComponents.map((comp, index) => {
                     if (comp.location == 'main') {
                       const params = JSON.parse(comp.parameters)
-                      switch (comp.type) {
-                        case 'FilteredItemList':
-                          return (
-                            <Transition
-                              key={comp.key}
-                              timeout={{
-                                appear: 100,
-                                enter: 100,
-                                exit: 100,
-                              }}
-                            >
-                              {(state) => {
-                                return (
-                                  <Draggable
-                                    key={comp.key}
-                                    draggableId={comp.key}
-                                    index={index}
-                                    isDragDisabled={false}
+                      return (
+                        <Transition
+                          key={comp.key}
+                          timeout={{
+                            appear: 100,
+                            enter: 100,
+                            exit: 100,
+                          }}
+                        >
+                          {(state) => {
+                            return (
+                              <Draggable
+                                key={comp.key}
+                                draggableId={comp.key}
+                                index={index}
+                                isDragDisabled={false}
+                              >
+                                {(provided, snapshot) => (
+                                  <DraggableContainer
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    key={'container-' + comp.key}
+                                    isDragging={snapshot.isDragging}
+                                    draggableStyle={provided.draggableProps.style}
+                                    state={state}
                                   >
-                                    {(provided, snapshot) => (
-                                      <DraggableContainer
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        key={'container-' + comp.key}
-                                        isDragging={snapshot.isDragging}
-                                        draggableStyle={provided.draggableProps.style}
-                                        state={state}
-                                      >
-                                        <DragHandle {...provided.dragHandleProps}>
-                                          {Icons['dragHandle']()}
-                                        </DragHandle>
-                                        <FilteredItemList
-                                          {...params}
-                                          componentKey={comp.key}
-                                          key={comp.key}
-                                          dragHandle={provided.dragHandleProps}
-                                        />
-                                      </DraggableContainer>
-                                    )}
-                                  </Draggable>
-                                )
-                              }}
-                            </Transition>
-                          )
-                        case 'ViewHeader':
-                          return (
-                            <Transition
-                              key={comp.key}
-                              timeout={{
-                                appear: 100,
-                                enter: 100,
-                                exit: 100,
-                              }}
-                            >
-                              {(state) => {
-                                return (
-                                  <Draggable key={comp.key} draggableId={comp.key} index={index}>
-                                    {(provided, snapshot) => (
-                                      <DraggableContainer
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        key={'container-' + comp.key}
-                                        isDragging={snapshot.isDragging}
-                                        draggableStyle={provided.draggableProps.style}
-                                        state={state}
-                                      >
-                                        <DragHandle {...provided.dragHandleProps}>
-                                          {Icons['dragHandle']()}
-                                        </DragHandle>
-                                        <ViewHeader
-                                          dragHandle={provided.dragHandleProps}
-                                          key={comp.key}
-                                          componentKey={comp.key}
-                                          id={comp.key}
-                                          {...params}
-                                        />
-                                      </DraggableContainer>
-                                    )}
-                                  </Draggable>
-                                )
-                              }}
-                            </Transition>
-                          )
-                      }
+                                    <DragHandle {...provided.dragHandleProps}>
+                                      {Icons['dragHandle']()}
+                                    </DragHandle>
+                                    {componentSwitch(params, comp, provided)}
+                                  </DraggableContainer>
+                                )}
+                              </Draggable>
+                            )
+                          }}
+                        </Transition>
+                      )
                     }
                   })}
                 </TransitionGroup>

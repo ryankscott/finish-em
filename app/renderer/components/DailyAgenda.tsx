@@ -24,6 +24,7 @@ import {
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
 import { sortBy } from 'lodash'
+import ItemCreator from './ItemCreator'
 
 interface StateProps {
   dailyGoal: any[]
@@ -166,6 +167,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             readOnly={true}
           />
           <div style={{ height: '20px' }}></div>
+          <ItemCreator initiallyExpanded={false} dueAt={new Date()} />
           <FilteredItemList
             key="a4e1c649-378f-4d14-9aac-2d2720270dd8"
             componentKey="a4e1c649-378f-4d14-9aac-2d2720270dd8"

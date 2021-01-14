@@ -327,17 +327,18 @@ export const createCreateItemQuery = (input: {
   key: string
   type: string
   text: string
-  description: string
+  deleted: boolean
+  completed: boolean
   parentKey: string
   projectKey: string
-  dueAt: string
-  scheduledAt: string
+  dueAt: Date
+  scheduledAt: Date
   repeat: string
   labelKey: string
   areaKey: string
 }): string => {
-  const scheduledText = input.scheduledAt ? `'${input.scheduledAt}'` : null
-  const dueText = input.dueAt ? `'${input.dueAt}'` : null
+  const scheduledText = input.scheduledAt ? `'${input.scheduledAt.toISOString()}'` : null
+  const dueText = input.dueAt ? `'${input.dueAt.toISOString()}'` : null
   const repeatText = input.repeat ? `'${input.repeat}'` : null
   const labelText = input.labelKey ? `'${input.labelKey}'` : null
   const areaText = input.areaKey ? `'${input.areaKey}'` : null
@@ -355,11 +356,12 @@ export const createItem = (
     key: string
     type: string
     text: string
-    description: string
+    deleted: boolean
+    completed: boolean
     parentKey: string
     projectKey: string
-    dueAt: string
-    scheduledAt: string
+    dueAt: Date
+    scheduledAt: Date
     repeat: string
     labelKey: string
     areaKey: string

@@ -256,6 +256,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     ? formatRelativeDate(parseISO(item?.scheduledAt))
     : 'Add scheduled date'
 
+  console.log('re-rendering')
   return (
     <ThemeProvider theme={theme}>
       <Container>

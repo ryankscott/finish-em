@@ -209,7 +209,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
   const [setAreaOrder] = useMutation(SET_AREA_ORDER)
   const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT)
   const [createProject] = useMutation(CREATE_PROJECT)
-  const [createArea] = useMutation(CREATE_AREA)
+  const [createArea] = useMutation(CREATE_AREA, { refetchQueries: ['GetSidebarData'] })
 
   // TODO: Loading and error states
   if (loading) return null

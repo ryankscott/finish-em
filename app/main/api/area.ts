@@ -3,6 +3,7 @@ import SqlString from 'sqlstring-sqlite'
 import { createAreaOrder } from './areaOrder'
 import { getItemsByArea, setAreaOfItem } from './item'
 import { getProjectsByArea, setAreaOfProject } from './project'
+import log from 'electron-log'
 
 export const getAreas = (obj, ctx) => {
   return ctx.db
@@ -68,6 +69,7 @@ export const createArea = async (
   const areas = await getAreas({}, ctx)
   const exists = areas.map((a) => a.name == input.name).includes(true)
   if (exists) {
+    log.error(`Unable to create area - name already in use`)
     return new Error('Unable to create area - name already in use')
   }
   return ctx.db.run(createCreateAreaQuery(input)).then((result) => {
@@ -75,6 +77,7 @@ export const createArea = async (
       createAreaOrder({ areaKey: input.key }, ctx)
       return getArea({ key: input.key }, ctx)
     }
+    log.error(`Unable to create area`)
     return new Error('Unable to create area')
   })
 }
@@ -112,7 +115,11 @@ export const migrateArea = (
   ctx,
 ) => {
   return ctx.db.run(createMigrateAreaQuery(input)).then((result) => {
-    return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to migrate area')
+    if (result.changes) {
+      return getArea({ key: input.key }, ctx)
+    }
+    log.error('Unable to migrate area')
+    return new Error('Unable to migrate area')
   })
 }
 
@@ -132,6 +139,7 @@ export const deleteArea = (input: { key: string }, ctx) => {
       })
       return getArea({ key: input.key }, ctx)
     }
+    log.error('Unable to delete area')
     return new Error('Unable to delete area')
   })
 }
@@ -147,11 +155,15 @@ export const renameArea = async (input: { key: string; name: string }, ctx) => {
   const areas = await getAreas({}, ctx)
   const exists = areas.map((a) => a.name == input.name).includes(true)
   if (exists) {
+    log.error(`Unable to create area - name already in use`)
     return new Error('Unable to create area - name already in use')
   }
-
   return ctx.db.run(createRenameAreaQuery(input)).then((result) => {
-    return result.changes ? getArea({ key: input.key }, ctx) : new Error('Unable to rename area')
+    if (result.changes) {
+      return getArea({ key: input.key }, ctx)
+    }
+    log.error(`Unable to rename area`)
+    return new Error('Unable to rename area')
   })
 }
 
@@ -164,9 +176,11 @@ UPDATE area SET description = ${SqlString.escape(
 }
 export const changeDescriptionArea = (input: { key: string; description: string }, ctx) => {
   return ctx.db.run(createChangeDescriptionAreaQuery(input)).then((result) => {
-    return result.changes
-      ? getArea({ key: input.key }, ctx)
-      : new Error('Unable to change description of area')
+    if (result.changes) {
+      return getArea({ key: input.key }, ctx)
+    }
+    log.error('Unable to change description of area')
+    return new Error('Unable to change description of area')
   })
 }
 

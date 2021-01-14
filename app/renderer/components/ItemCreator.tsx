@@ -34,9 +34,23 @@ const CREATE_ITEM = gql`
     $text: String!
     $parentKey: String
     $projectKey: String
+    $dueAt: DateTime
+    $scheduledAt: DateTime
+    $repeat: String
+    $labelKey: String
   ) {
     createItem(
-      input: { key: $key, type: $type, text: $text, parentKey: $parentKey, projectKey: $projectKey }
+      input: {
+        key: $key
+        type: $type
+        text: $text
+        parentKey: $parentKey
+        projectKey: $projectKey
+        dueAt: $dueAt
+        scheduledAt: $scheduledAt
+        repeat: $repeat
+        labelKey: $labelKey
+      }
     ) {
       key
       type
@@ -48,14 +62,17 @@ const CREATE_ITEM = gql`
   }
 `
 
-type ItemCreatorProps = {
+export type ItemCreatorProps = {
   style?: 'subtle' | 'default'
-  type: 'item' | 'subtask'
   initiallyExpanded: boolean
   shouldCloseOnSubmit?: boolean
   shouldCloseOnBlur?: boolean
   parentKey?: string
   projectKey?: string | '0'
+  dueAt?: Date
+  scheduledAt?: Date
+  repeat?: string
+  labelKey?: string
   buttonText?: string
   width?: string
   hideButton?: boolean
@@ -120,7 +137,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
             height={props.buttonText ? 'auto' : '24px'}
             width={props.buttonText ? 'auto' : '24px'}
             text={showItemCreator ? '' : props.buttonText}
-            tooltipText={props.type == 'item' ? 'Create Item' : 'Create Subtask'}
+            tooltipText={props.parentKey ? 'Create subtask' : 'Create item'}
             onClick={() => {
               setShowItemCreator(!showItemCreator)
               showItemCreator ? textRef.current.blur() : textRef.current.focus()
@@ -176,7 +193,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                 return false
               }
 
-              // Check for due date references
+              /* Check for due date references
               const dueTextMatches = currentVal.match(dueTextRegex)
               if (dueTextMatches) {
                 let dueDateText = dueTextMatches[0].split(':')[1]
@@ -201,7 +218,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               // TODO: Decide how I want to handle project stuff
               currentVal = currentVal.replace(projectTextRegex, '<span class="valid">$&</span >')
               currentVal = currentVal.replace(repeatTextRegex, '<span class="valid">$&</span >')
-
+              */
               textRef.current.innerHTML = currentVal
               setEndOfContenteditable(textRef.current)
               return true
@@ -214,6 +231,10 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                   text: text,
                   projectKey: props.projectKey,
                   parentKey: props.parentKey,
+                  dueAt: props.dueAt,
+                  scheduledAt: props.scheduledAt,
+                  repeat: props.repeat,
+                  labelKey: props.labelKey,
                 },
               })
               if (props.onCreate) {

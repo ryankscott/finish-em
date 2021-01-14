@@ -35,7 +35,7 @@ if (isDev) {
   log.info('Running in production')
 }
 
-const setUpDatabase = async () => {
+const setUpDatabase = async (): Promise<sqlite.Database<sqlite3.Database, sqlite3.Statement>> => {
   const databasePath = isDev ? './database.db' : path.join(app.getPath('userData'), './database.db')
   path.resolve(__dirname, '/database.db')
   log.info(`Loading database at: ${databasePath}`)

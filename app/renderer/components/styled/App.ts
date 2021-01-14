@@ -79,7 +79,7 @@ export const FocusContainer = styled.div<FocusContainerProps>`
   padding: ${(props) => (props.visible ? '5px' : '0px')};
   min-width: ${(props) => (props.visible ? '350px' : '0px')};
   width: ${(props) => (props.visible ? '350px' : '0px')};
-  transition: all 0.2s ease-out;
+  transition: all 0.2s ease-in-out;
   align-items: center;
   border: ${(props) => (props.visible ? '1px solid' : 'none')};
   background-color: ${(props) => props.theme.colours.backgroundColour};
