@@ -22,12 +22,11 @@ type ComponentActionProps = {
   children: JSX.Element
   componentKey: string
   readOnly?: boolean
-  onEdit: () => void
-  onDelete?: () => void
 }
 
 const ComponentActions = (props: ComponentActionProps): ReactElement => {
   const [showActions, setShowActions] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const { loading, error, data } = useQuery(GET_THEME)
   const [deleteComponent] = useMutation(DELETE_COMPONENT, {
     update(cache, { data: { deleteComponent } }) {
@@ -57,7 +56,7 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
         }}
         onMouseLeave={() => {
           clearTimeout(enterInterval)
-          exitInterval = setTimeout(() => setShowActions(false), 200)
+          exitInterval = setTimeout(() => setShowActions(false), 400)
         }}
       >
         {showActions && (
@@ -68,7 +67,7 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
                 type={'default'}
                 tooltipText={'Edit component'}
                 onClick={() => {
-                  props.onEdit()
+                  setIsEditing(true)
                 }}
               />
               <Button
@@ -80,7 +79,12 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
             </ButtonContainer>
           </>
         )}
-        {props.children}
+        {React.Children.map(props.children, (c) => {
+          return React.cloneElement(props.children, {
+            editing: isEditing,
+            setEditing: setIsEditing,
+          })
+        })}
       </Container>
     </ThemeProvider>
   )

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React from 'react'
 import * as CodeMirror from 'codemirror'
 import 'codemirror/addon/hint/show-hint'
 import 'codemirror/addon/display/placeholder'
@@ -103,9 +103,9 @@ const FilterInput = (props: FilterInputProps) => {
     })
 
     ref.editor.on('blur', (cm, e?) => {
-      autoCompletePopup.completionShow = false
       onSubmit(doc.getValue())
       props.onBlur(e)
+      autoCompletePopup.completionShow = false
     })
 
     ref.editor.on('keyup', (cm: ExtendedCodeMirror, e?: KeyboardEvent) => {

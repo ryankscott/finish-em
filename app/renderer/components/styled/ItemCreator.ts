@@ -5,7 +5,7 @@ export const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 2px;
+  padding: 15px 2px;
   overflow-x: hidden;
   margin: 2px;
   overflow: scroll;

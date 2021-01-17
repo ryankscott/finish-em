@@ -18,11 +18,12 @@ export type ViewHeaderProps = {
   name: string
   icon?: IconType
   readOnly?: boolean
+  editing?: boolean
+  setEditing?: (editing: boolean) => void
   componentKey: string
 }
 
 const ViewHeader = (props: ViewHeaderProps): ReactElement => {
-  const [isEditing, setIsEditing] = useState(false)
   const { loading, error, data } = useQuery(GET_THEME)
   if (loading) return null
   if (error) {
@@ -32,32 +33,26 @@ const ViewHeader = (props: ViewHeaderProps): ReactElement => {
   const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>
-      <ComponentActions
-        readOnly={props.readOnly}
-        componentKey={props.componentKey}
-        onEdit={() => setIsEditing(true)}
-      >
-        {isEditing ? (
-          <>
-            <EditViewHeader
-              key={`dlg-${props.componentKey}`}
-              componentKey={props.componentKey}
-              onClose={() => {
-                setIsEditing(false)
-              }}
-            />
-          </>
-        ) : (
-          <>
-            <HeaderContainer>
-              <IconContainer>
-                {Icons[props?.icon](24, 24, theme.colours.primaryColour)}
-              </IconContainer>
-              <HeaderTitle> {props.name} </HeaderTitle>
-            </HeaderContainer>
-          </>
-        )}
-      </ComponentActions>
+      {props.editing ? (
+        <>
+          <EditViewHeader
+            key={`dlg-${props.componentKey}`}
+            componentKey={props.componentKey}
+            onClose={() => {
+              if (props?.setEditing) {
+                props.setEditing(false)
+              }
+            }}
+          />
+        </>
+      ) : (
+        <>
+          <HeaderContainer>
+            <IconContainer>{Icons[props?.icon](24, 24, theme.colours.primaryColour)}</IconContainer>
+            <HeaderTitle> {props.name} </HeaderTitle>
+          </HeaderContainer>
+        </>
+      )}
     </ThemeProvider>
   )
 }

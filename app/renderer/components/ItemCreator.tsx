@@ -20,6 +20,7 @@ import { lighten } from 'polished'
 import { isValid } from 'date-fns'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { ThemeType } from '../interfaces'
+import EditItemCreator from './EditItemCreator'
 
 const GET_THEME = gql`
   query {
@@ -65,9 +66,12 @@ const CREATE_ITEM = gql`
 export type ItemCreatorProps = {
   style?: 'subtle' | 'default'
   initiallyExpanded: boolean
+  readOnly?: boolean
+  componentKey?: string
   shouldCloseOnSubmit?: boolean
   shouldCloseOnBlur?: boolean
   parentKey?: string
+  areaKey?: string
   projectKey?: string | '0'
   dueAt?: Date
   scheduledAt?: Date
@@ -80,6 +84,8 @@ export type ItemCreatorProps = {
   innerRef?: React.RefObject<HTMLInputElement>
   onCreate?: () => void
   onEscape?: () => void
+  editing?: boolean
+  setEditing?: (editing: boolean) => void
 }
 
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
@@ -97,7 +103,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   const textRef: React.RefObject<HTMLInputElement> = props.innerRef
     ? props.innerRef
     : React.useRef<HTMLInputElement>()
-  const [showItemCreator, setShowItemCreator] = useState(props.initiallyExpanded)
+  const [showItemCreator, setShowItemCreator] = useState(false)
   const [animate, setAnimate] = useState(false)
 
   const node = useRef<HTMLDivElement>()
@@ -119,81 +125,91 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     }
   }, [])
 
+  useEffect(() => {
+    setShowItemCreator(props.initiallyExpanded)
+  }, [props.initiallyExpanded])
+
   return (
     <ThemeProvider theme={theme}>
-      <Container
-        ref={node}
-        onKeyDown={(e) => {
-          if (e.key == 'Escape') {
-            setShowItemCreator(false)
-          }
-        }}
-      >
-        {!props.hideButton && (
-          <Button
-            type="primary"
-            spacing="compact"
-            icon="add"
-            height={props.buttonText ? 'auto' : '24px'}
-            width={props.buttonText ? 'auto' : '24px'}
-            text={showItemCreator ? '' : props.buttonText}
-            tooltipText={props.parentKey ? 'Create subtask' : 'Create item'}
-            onClick={() => {
-              setShowItemCreator(!showItemCreator)
-              showItemCreator ? textRef.current.blur() : textRef.current.focus()
-            }}
-          />
-        )}
-        <ItemCreatorContainer
-          data-cy="item-creator"
-          animate={animate}
-          backgroundColour={props.backgroundColour}
-          width={props.width}
-          visible={showItemCreator}
+      {props.editing ? (
+        <EditItemCreator
+          componentKey={props.componentKey}
+          onClose={() => props.setEditing(false)}
+        />
+      ) : (
+        <Container
+          ref={node}
+          onKeyDown={(e) => {
+            if (e.key == 'Escape') {
+              setShowItemCreator(false)
+            }
+          }}
         >
-          <EditableText
-            onInvalidSubmit={() => {
-              setAnimate(true)
-              setTimeout(() => setAnimate(false), 1000)
-            }}
+          {!props.hideButton && (
+            <Button
+              type="primary"
+              spacing="compact"
+              icon="add"
+              height={props.buttonText ? 'auto' : '24px'}
+              width={props.buttonText ? 'auto' : '24px'}
+              text={showItemCreator ? '' : props.buttonText}
+              tooltipText={props.parentKey ? 'Create subtask' : 'Create item'}
+              onClick={() => {
+                setShowItemCreator(!showItemCreator)
+                showItemCreator ? textRef.current.blur() : textRef.current.focus()
+              }}
+            />
+          )}
+          <ItemCreatorContainer
+            data-cy="item-creator"
+            animate={animate}
             backgroundColour={props.backgroundColour}
-            alwaysShowBorder={true}
-            innerRef={textRef}
-            padding={'5px 30px 5px 5px'}
-            placeholder="Add a new task..."
-            keywords={[
-              {
-                matcher: itemRegex,
-                validation: (input) => {
-                  return true
+            width={props.width}
+            visible={showItemCreator}
+          >
+            <EditableText
+              onInvalidSubmit={() => {
+                setAnimate(true)
+                setTimeout(() => setAnimate(false), 1000)
+              }}
+              backgroundColour={props.backgroundColour}
+              alwaysShowBorder={true}
+              innerRef={textRef}
+              padding={'5px 30px 5px 5px'}
+              placeholder="Add a new task..."
+              keywords={[
+                {
+                  matcher: itemRegex,
+                  validation: (input) => {
+                    return true
+                  },
                 },
-              },
-              {
-                matcher: dueTextRegex,
-                validation: (input) => {
-                  const dueDateText = input.split(':')[1]
-                  if (dueDateText == undefined) return false
-                  return isValid(sugarDate.create(dueDateText))
+                {
+                  matcher: dueTextRegex,
+                  validation: (input) => {
+                    const dueDateText = input.split(':')[1]
+                    if (dueDateText == undefined) return false
+                    return isValid(sugarDate.create(dueDateText))
+                  },
                 },
-              },
-              {
-                matcher: scheduledTextRegex,
-                validation: (input) => {
-                  const scheduledDateText = input.split(':')[1]
-                  return isValid(sugarDate.create(scheduledDateText))
+                {
+                  matcher: scheduledTextRegex,
+                  validation: (input) => {
+                    const scheduledDateText = input.split(':')[1]
+                    return isValid(sugarDate.create(scheduledDateText))
+                  },
                 },
-              },
-            ]}
-            validation={(input) => {
-              let currentVal = input
-              // Check for prefix with TODO or NOTE
-              const itemMatches = currentVal.match(itemRegex)
-              if (!itemMatches) {
-                setEndOfContenteditable(textRef.current)
-                return false
-              }
+              ]}
+              validation={(input) => {
+                let currentVal = input
+                // Check for prefix with TODO or NOTE
+                const itemMatches = currentVal.match(itemRegex)
+                if (!itemMatches) {
+                  setEndOfContenteditable(textRef.current)
+                  return false
+                }
 
-              /* Check for due date references
+                /* Check for due date references
               const dueTextMatches = currentVal.match(dueTextRegex)
               if (dueTextMatches) {
                 let dueDateText = dueTextMatches[0].split(':')[1]
@@ -219,65 +235,67 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               currentVal = currentVal.replace(projectTextRegex, '<span class="valid">$&</span >')
               currentVal = currentVal.replace(repeatTextRegex, '<span class="valid">$&</span >')
               */
-              textRef.current.innerHTML = currentVal
-              setEndOfContenteditable(textRef.current)
-              return true
-            }}
-            onUpdate={(text) => {
-              createItem({
-                variables: {
-                  key: uuidv4(),
-                  type: 'TODO',
-                  text: text,
-                  projectKey: props.projectKey,
-                  parentKey: props.parentKey,
-                  dueAt: props.dueAt,
-                  scheduledAt: props.scheduledAt,
-                  repeat: props.repeat,
-                  labelKey: props.labelKey,
-                },
-              })
-              if (props.onCreate) {
-                props.onCreate()
-              }
-              textRef.current.innerHTML = ''
-              if (props.shouldCloseOnSubmit) {
-                setShowItemCreator(false)
-              } else {
-                // Have to wait for blur to finish before focussing
-                setTimeout(() => {
-                  textRef.current.focus()
-                }, 200)
-              }
-            }}
-            readOnly={false}
-            input=""
-            singleline={true}
-            shouldClearOnSubmit={true}
-            shouldSubmitOnBlur={false}
-            onEscape={props.onEscape}
-          />
+                textRef.current.innerHTML = currentVal
+                setEndOfContenteditable(textRef.current)
+                return true
+              }}
+              onUpdate={(text) => {
+                createItem({
+                  variables: {
+                    key: uuidv4(),
+                    type: 'TODO',
+                    text: text,
+                    projectKey: props.projectKey,
+                    parentKey: props.parentKey,
+                    dueAt: props.dueAt,
+                    scheduledAt: props.scheduledAt,
+                    repeat: props.repeat,
+                    labelKey: props.labelKey,
+                  },
+                })
+                if (props.onCreate) {
+                  props.onCreate()
+                }
+                textRef.current.innerHTML = ''
+                if (props.shouldCloseOnSubmit) {
+                  setShowItemCreator(false)
+                } else {
+                  // Have to wait for blur to finish before focussing
+                  setTimeout(() => {
+                    textRef.current.focus()
+                  }, 200)
+                }
+              }}
+              readOnly={false}
+              input=""
+              singleline={true}
+              shouldClearOnSubmit={true}
+              shouldSubmitOnBlur={false}
+              onEscape={props.onEscape}
+            />
 
-          {showItemCreator && (
-            <>
-              <HelpButtonContainer
-                data-for={'help-icon' + props.parentKey + '-' + props.projectKey + '-' + props.type}
-                data-tip
-                data-html={true}
-              >
-                {Icons['help'](
-                  18,
-                  18,
-                  props.backgroundColour
-                    ? lighten(0.2, props.backgroundColour)
-                    : theme.colours.disabledTextColour,
-                )}
-              </HelpButtonContainer>
-              <Tooltip
-                id={'help-icon' + props.parentKey + '-' + props.projectKey + '-' + props.type}
-                multiline={true}
-                html={true}
-                text={`To add an item first start with the type of item you want  <br>
+            {showItemCreator && (
+              <>
+                <HelpButtonContainer
+                  data-for={
+                    'help-icon' + props.parentKey + '-' + props.projectKey + '-' + props.type
+                  }
+                  data-tip
+                  data-html={true}
+                >
+                  {Icons['help'](
+                    18,
+                    18,
+                    props.backgroundColour
+                      ? lighten(0.2, props.backgroundColour)
+                      : theme.colours.disabledTextColour,
+                  )}
+                </HelpButtonContainer>
+                <Tooltip
+                  id={'help-icon' + props.parentKey + '-' + props.projectKey + '-' + props.type}
+                  multiline={true}
+                  html={true}
+                  text={`To add an item first start with the type of item you want  <br>
                         <ul>
                         <li> <code>TODO</code> for todos </li>
                         <li> <code>NOTE</code> for notes </li> 
@@ -290,11 +308,12 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                         </ul>
                          Note that multi word inputs need to be surrounded in quotation marks ""
                          `}
-              ></Tooltip>
-            </>
-          )}
-        </ItemCreatorContainer>
-      </Container>
+                ></Tooltip>
+              </>
+            )}
+          </ItemCreatorContainer>
+        </Container>
+      )}
     </ThemeProvider>
   )
 }

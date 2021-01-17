@@ -10,7 +10,9 @@ import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import ButtonDropdown from './ButtonDropdown'
+import ComponentActions from './ComponentActions'
 import FilteredItemList from './FilteredItemList'
+import ItemCreator from './ItemCreator'
 import { Spinner } from './Spinner'
 import {
   Container,
@@ -101,6 +103,8 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
             {...params}
           />
         )
+      case 'ItemCreator':
+        return <ItemCreator componentKey={comp.key} key={comp.key} {...params} />
     }
   }
 
@@ -157,7 +161,9 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                     <DragHandle {...provided.dragHandleProps}>
                                       {Icons['dragHandle']()}
                                     </DragHandle>
-                                    {componentSwitch(params, comp, provided)}
+                                    <ComponentActions readOnly={false} componentKey={comp.key}>
+                                      {componentSwitch(params, comp, provided)}
+                                    </ComponentActions>
                                   </DraggableContainer>
                                 )}
                               </Draggable>
@@ -193,7 +199,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
               completed={false}
               options={[
                 {
-                  label: 'FilteredItemList',
+                  label: 'Item list',
                   value: () => {
                     addComponent({
                       variables: {
@@ -245,6 +251,25 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                           parameters: {
                             name: data.view.name,
                             icon: 'view',
+                          },
+                        },
+                      },
+                    })
+                    refetch()
+                  },
+                },
+                {
+                  label: 'Item creator',
+                  value: () => {
+                    addComponent({
+                      variables: {
+                        input: {
+                          key: uuidv4(),
+                          viewKey: props.viewKey,
+                          type: 'ItemCreator',
+                          location: 'main',
+                          parameters: {
+                            initiallyExpanded: false,
                           },
                         },
                       },

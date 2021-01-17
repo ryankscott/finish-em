@@ -499,7 +499,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <>
             <SubtaskContainer>
               <Header3>Subtasks: </Header3>
-              <ItemCreator type="subtask" parentKey={item.key} initiallyExpanded={false} />
+              <ItemCreator parentKey={item.key} initiallyExpanded={false} />
             </SubtaskContainer>
             <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
           </>

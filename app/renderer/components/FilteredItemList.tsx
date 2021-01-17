@@ -23,7 +23,6 @@ import EditFilteredItemList from './EditFilteredItemList'
 import Pagination from './Pagination'
 import { cloneDeep } from 'lodash'
 import { subtasksVisibleVar } from '..'
-import ComponentActions from './ComponentActions'
 
 const determineVisibilityRules = (
   isFilterable: boolean,
@@ -122,6 +121,8 @@ export type FilteredItemListProps = {
   showCompletedToggle?: boolean
   initiallyExpanded?: boolean
   readOnly?: boolean
+  editing?: boolean
+  setEditing?: (editing: boolean) => void
 }
 
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
@@ -130,7 +131,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [showCompleted, setShowCompleted] = useState(true)
   const [showItemList, setShowItemList] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
-  const [isEditing, setIsEditing] = useState(false)
   const [deleteItem] = useMutation(DELETE_ITEM)
 
   const { loading: l, error: e, data: themeData } = useQuery(GET_THEME)
@@ -163,188 +163,180 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   )
   return (
     <ThemeProvider theme={theme}>
-      <ComponentActions
-        readOnly={props.readOnly}
-        componentKey={props.componentKey}
-        onEdit={() => setIsEditing(true)}
-      >
-        <Container>
-          <HeaderBar>
-            <HideButtonContainer>
-              <Button
-                key={`btn-${props.componentKey}`}
-                type="default"
-                icon="expand"
-                rotate={showItemList == true ? 1 : 0}
-                onClick={() => {
-                  setShowItemList(!showItemList)
-                }}
-                tooltipText="Hide items"
-              />
-            </HideButtonContainer>
-            <ListHeader>
-              {props.listName}
-              <ListItemCount>
-                {sortedItems.length == 1 ? '1 item' : sortedItems.length + ' items'}
-              </ListItemCount>
-            </ListHeader>
-            <FilterBar>
-              {visibility.showFilterBar && (
-                <>
-                  {visibility.showCompletedToggle && (
-                    <>
-                      <Button
-                        height="22px"
-                        width="22px"
-                        iconSize="14px"
-                        type="default"
-                        spacing="compact"
-                        icon={showCompleted ? 'hide' : 'show'}
-                        onClick={() => {
-                          setShowCompleted(!showCompleted)
-                        }}
-                        tooltipText={
-                          showCompleted ? 'Show completed items' : 'Hide completed items'
-                        }
-                      ></Button>
-                    </>
-                  )}
-                  {visibility.showDeleteButton && (
-                    <>
-                      <Button
-                        spacing="compact"
-                        height="22px"
-                        width="22px"
-                        iconSize="14px"
-                        type="default"
-                        icon="trashSweep"
-                        tooltipText="Delete completed items"
-                        onClick={() => {
-                          completedItems.forEach((c) => {
-                            if (c.parent?.key == null) {
-                              deleteItem({ variables: { key: c.key } })
-                            }
-                          })
-                        }}
-                      ></Button>
-                    </>
-                  )}
-                  <Button
-                    type="default"
-                    spacing="compact"
-                    icon="expandAll"
-                    height="22px"
-                    width="22px"
-                    iconSize="14px"
-                    tooltipText={'Expand all subtasks'}
-                    onClick={() => {
-                      sortedItems.forEach((a) => {
-                        if (a.children.length > 0) {
-                          let newState = cloneDeep(subtasksVisible)
-                          if (newState[a.key]) {
-                            newState[a.key][props.componentKey] = true
-                          } else {
-                            newState[a.key] = {
-                              [props.componentKey]: true,
-                            }
-                          }
-                          subtasksVisibleVar(newState)
-                        }
-                      })
-                    }}
-                  />
-                  <Button
-                    type="default"
-                    spacing="compact"
-                    icon="collapseAll"
-                    height="22px"
-                    width="22px"
-                    iconSize="14px"
-                    tooltipText={'Collapse all subtasks'}
-                    onClick={() => {
-                      sortedItems.forEach((a) => {
-                        if (a.children.length > 0) {
-                          let newState = cloneDeep(subtasksVisible)
-                          if (newState[a.key]) {
-                            newState[a.key][props.componentKey] = false
-                          } else {
-                            newState[a.key] = {
-                              [props.componentKey]: false,
-                            }
-                          }
-                          subtasksVisibleVar(newState)
-                        }
-                      })
-                    }}
-                  />
-                  {visibility.showSortButton && (
-                    <SortDropdown
-                      sortDirection={sortDirection}
-                      onSetSortDirection={(d) => setSortDirection(d)}
-                      onSetSortType={(t) => {
-                        setSortType(t)
+      <Container>
+        <HeaderBar>
+          <HideButtonContainer>
+            <Button
+              key={`btn-${props.componentKey}`}
+              type="default"
+              icon="expand"
+              rotate={showItemList == true ? 1 : 0}
+              onClick={() => {
+                setShowItemList(!showItemList)
+              }}
+              tooltipText="Hide items"
+            />
+          </HideButtonContainer>
+          <ListHeader>
+            {props.listName}
+            <ListItemCount>
+              {sortedItems.length == 1 ? '1 item' : sortedItems.length + ' items'}
+            </ListItemCount>
+          </ListHeader>
+          <FilterBar>
+            {visibility.showFilterBar && (
+              <>
+                {visibility.showCompletedToggle && (
+                  <>
+                    <Button
+                      height="22px"
+                      width="22px"
+                      iconSize="14px"
+                      type="default"
+                      spacing="compact"
+                      icon={showCompleted ? 'hide' : 'show'}
+                      onClick={() => {
+                        setShowCompleted(!showCompleted)
                       }}
-                    ></SortDropdown>
+                      tooltipText={showCompleted ? 'Show completed items' : 'Hide completed items'}
+                    ></Button>
+                  </>
+                )}
+                {visibility.showDeleteButton && (
+                  <>
+                    <Button
+                      spacing="compact"
+                      height="22px"
+                      width="22px"
+                      iconSize="14px"
+                      type="default"
+                      icon="trashSweep"
+                      tooltipText="Delete completed items"
+                      onClick={() => {
+                        completedItems.forEach((c) => {
+                          if (c.parent?.key == null) {
+                            deleteItem({ variables: { key: c.key } })
+                          }
+                        })
+                      }}
+                    ></Button>
+                  </>
+                )}
+                <Button
+                  type="default"
+                  spacing="compact"
+                  icon="expandAll"
+                  height="22px"
+                  width="22px"
+                  iconSize="14px"
+                  tooltipText={'Expand all subtasks'}
+                  onClick={() => {
+                    sortedItems.forEach((a) => {
+                      if (a.children.length > 0) {
+                        let newState = cloneDeep(subtasksVisible)
+                        if (newState[a.key]) {
+                          newState[a.key][props.componentKey] = true
+                        } else {
+                          newState[a.key] = {
+                            [props.componentKey]: true,
+                          }
+                        }
+                        subtasksVisibleVar(newState)
+                      }
+                    })
+                  }}
+                />
+                <Button
+                  type="default"
+                  spacing="compact"
+                  icon="collapseAll"
+                  height="22px"
+                  width="22px"
+                  iconSize="14px"
+                  tooltipText={'Collapse all subtasks'}
+                  onClick={() => {
+                    sortedItems.forEach((a) => {
+                      if (a.children.length > 0) {
+                        let newState = cloneDeep(subtasksVisible)
+                        if (newState[a.key]) {
+                          newState[a.key][props.componentKey] = false
+                        } else {
+                          newState[a.key] = {
+                            [props.componentKey]: false,
+                          }
+                        }
+                        subtasksVisibleVar(newState)
+                      }
+                    })
+                  }}
+                />
+                {visibility.showSortButton && (
+                  <SortDropdown
+                    sortDirection={sortDirection}
+                    onSetSortDirection={(d) => setSortDirection(d)}
+                    onSetSortType={(t) => {
+                      setSortType(t)
+                    }}
+                  ></SortDropdown>
+                )}
+              </>
+            )}
+          </FilterBar>
+        </HeaderBar>
+        {props.editing ? (
+          <EditableContainer>
+            <EditFilteredItemList
+              key={`dlg-${props.componentKey}`}
+              componentKey={props.componentKey}
+              onClose={() => {
+                props.setEditing(false)
+              }}
+            />
+          </EditableContainer>
+        ) : showItemList ? (
+          dragAndDropEnabled ? (
+            <>
+              <ItemListContainer>
+                <ReorderableItemList
+                  key={props.componentKey}
+                  componentKey={props.componentKey}
+                  hiddenIcons={props.hiddenIcons}
+                  inputItems={sortedItems.slice(
+                    (currentPage - 1) * PAGE_SIZE,
+                    currentPage * PAGE_SIZE,
                   )}
-                </>
-              )}
-            </FilterBar>
-          </HeaderBar>
-          {isEditing ? (
-            <EditableContainer>
-              <EditFilteredItemList
-                key={`dlg-${props.componentKey}`}
-                componentKey={props.componentKey}
-                onClose={() => {
-                  setIsEditing(false)
-                }}
+                  flattenSubtasks={props.flattenSubtasks}
+                />
+              </ItemListContainer>
+              <Pagination
+                itemsLength={sortedItems.length}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
               />
-            </EditableContainer>
-          ) : showItemList ? (
-            dragAndDropEnabled ? (
-              <>
-                <ItemListContainer>
-                  <ReorderableItemList
-                    key={props.componentKey}
-                    componentKey={props.componentKey}
-                    hiddenIcons={props.hiddenIcons}
-                    inputItems={sortedItems.slice(
-                      (currentPage - 1) * PAGE_SIZE,
-                      currentPage * PAGE_SIZE,
-                    )}
-                    flattenSubtasks={props.flattenSubtasks}
-                  />
-                </ItemListContainer>
-                <Pagination
-                  itemsLength={sortedItems.length}
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
+            </>
+          ) : (
+            <>
+              <ItemListContainer>
+                <ItemList
+                  key={props.componentKey}
+                  componentKey={props.componentKey}
+                  hiddenIcons={props.hiddenIcons}
+                  inputItems={sortedItems.slice(
+                    (currentPage - 1) * PAGE_SIZE,
+                    currentPage * PAGE_SIZE,
+                  )}
+                  flattenSubtasks={props.flattenSubtasks}
                 />
-              </>
-            ) : (
-              <>
-                <ItemListContainer>
-                  <ItemList
-                    key={props.componentKey}
-                    componentKey={props.componentKey}
-                    hiddenIcons={props.hiddenIcons}
-                    inputItems={sortedItems.slice(
-                      (currentPage - 1) * PAGE_SIZE,
-                      currentPage * PAGE_SIZE,
-                    )}
-                    flattenSubtasks={props.flattenSubtasks}
-                  />
-                </ItemListContainer>
-                <Pagination
-                  itemsLength={sortedItems.length}
-                  currentPage={currentPage}
-                  setCurrentPage={setCurrentPage}
-                />
-              </>
-            )
-          ) : null}
-        </Container>
-      </ComponentActions>
+              </ItemListContainer>
+              <Pagination
+                itemsLength={sortedItems.length}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+              />
+            </>
+          )
+        ) : null}
+      </Container>
     </ThemeProvider>
   )
 }

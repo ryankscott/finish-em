@@ -1,7 +1,7 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { selectStyles, themes } from '../theme'
-import { IconType, ThemeType } from '../interfaces'
+import { ThemeType } from '../interfaces'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import Button from './Button'
 import {
@@ -13,7 +13,7 @@ import {
   Setting,
   SettingLabel,
   SettingValue,
-} from './styled/EditableViewHeader'
+} from './styled/EditViewHeader'
 import EditableText from './EditableText'
 import Select from 'react-select'
 import { startCase, upperFirst } from 'lodash'
