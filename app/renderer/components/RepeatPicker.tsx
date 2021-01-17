@@ -37,7 +37,7 @@ const options = [
     value: new RRule({
       freq: RRule.WEEKLY,
       interval: 1,
-      byweekday: new Date().getDay() - 1,
+      byweekday: new Date().getDay() == 0 ? 6 : new Date().getDay() - 1,
     }),
     label: 'Weekly on ' + format(new Date(), 'EEE'),
   },
@@ -103,7 +103,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
 
   const repeatText = props.repeat ? capitaliseFirstLetter(rruleToText(props.repeat)) : 'Add repeat'
   const tooltipText = props.repeat ? capitaliseFirstLetter(props.repeat.toText()) : 'Repeat'
-
   return (
     <ThemeProvider theme={theme}>
       <div ref={node}>
@@ -150,6 +149,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
               {repeatDialogVisible && (
                 <RepeatDialog
                   onSubmit={(r) => {
+                    console.log(r)
                     props.onSubmit(r)
                     setRepeatDialogVisible(false)
                     setShowSelect(false)

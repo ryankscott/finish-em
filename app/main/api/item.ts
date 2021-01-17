@@ -5,6 +5,7 @@ import Expression from '../../renderer/components/filter-box/Expression'
 import { createItemOrder } from './itemOrder'
 import { Item as ItemType } from '../generated/typescript-helpers'
 import { rrulestr } from 'rrule'
+import { startOfDay } from 'date-fns'
 const log = require('electron-log')
 export const getItems = (obj, ctx) => {
   log.info(`Getting all items `)
@@ -581,7 +582,8 @@ export const setRepeatOfItem = (input: { key: string; repeat: string }, ctx) => 
   return ctx.db.run(createSetRepeatOfItemQuery(input)).then((result) => {
     if (result.changes) {
       const repeatRule = rrulestr(input.repeat)
-      const nextRepeat = repeatRule.after(new Date(), true)
+      const nextRepeat = repeatRule.after(startOfDay(new Date()), true)
+      console.log(nextRepeat)
       setDueAtOfItem({ key: input.key, dueAt: nextRepeat }, ctx)
       return getItem({ key: input.key }, ctx)
     }

@@ -75,8 +75,10 @@ function DateSelect(props: DateSelectProps): ReactElement {
   }
 
   const handleDayClick = (day: Date): void => {
+    // I _think_ this gross hack will move everything to be UTC times
+    const d = sub(day, { minutes: new Date().getTimezoneOffset() })
     setDayPickerVisible(false)
-    props.onSubmit(day)
+    props.onSubmit(d)
     return
   }
 
@@ -104,7 +106,12 @@ function DateSelect(props: DateSelectProps): ReactElement {
       <div style={{ position: 'absolute', top: '29px', right: '0px' }}>
         {dayPickerVisible && (
           <Wrapper>
-            <DatePicker inline tabIndex={0} onChange={handleDayClick} />
+            <DatePicker
+              utcOffset={new Date().getTimezoneOffset()}
+              inline
+              tabIndex={0}
+              onChange={handleDayClick}
+            />
           </Wrapper>
         )}
       </div>
