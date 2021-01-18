@@ -161,7 +161,10 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             legacyFilter={`sameDay(dueDate, "${currentDate.toISOString()}")`}
             filter={JSON.stringify({
               text: 'dueAt is today ',
-              value: [{ category: 'dueAt', operator: '=', value: currentDate.toISOString() }],
+              value: [
+                { category: 'dueAt', operator: '=', value: currentDate.toISOString() },
+                { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
+              ],
             })}
             flattenSubtasks={true}
             readOnly={true}
@@ -176,7 +179,10 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             legacyFilter={`sameDay(scheduledDate, "${currentDate.toISOString()}")`}
             filter={JSON.stringify({
               text: 'scheduledAt = today ',
-              value: [{ category: 'scheduledAt', operator: '=', value: currentDate.toISOString() }],
+              value: [
+                { category: 'scheduledAt', operator: '=', value: currentDate.toISOString() },
+                { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
+              ],
             })}
             flattenSubtasks={true}
             readOnly={true}
