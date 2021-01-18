@@ -2,34 +2,40 @@ import styled, { keyframes } from '../../StyledComponents'
 import CSS from 'csstype'
 import { darken, lighten, transparentize } from 'polished'
 
-const shimmer = keyframes`
- 0% {
-     background-position: -250px;
+const load = keyframes`
+  from {
+      left: -150px;
   }
-  100% {
-      background-position: calc(100% + 250px);
+  to   {
+      left: 100%;
   }
 `
 
 export const LoadingContainer = styled.div`
   margin: 1px 0px;
   border-radius: 5px;
-  background: linear-gradient(
-    90deg,
-    ${(props) => props.theme.colours.backgroundColour} 0px,
-    ${(props) => darken(0.025, props.theme.colours.backgroundColour)} calc(50% - 25px),
-    ${(props) => darken(0.025, props.theme.colours.backgroundColour)} calc(50% + 25px),
-    ${(props) => props.theme.colours.backgroundColour} 100%
-  );
-  background-size: 35%;
-  background-position: 0%;
-  background-repeat: no-repeat;
-  animation: ${shimmer} 1.2s ease-out infinite;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
-  position: relative;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
   height: 50px;
   width: 100%;
+  position: relative;
+  overflow: hidden;
+
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -150px;
+    top: 0;
+    height: 100%;
+    width: 150px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      ${(props) => darken(0.025, props.theme.colours.focusBackgroundColour)} 50%,
+      transparent 100%
+    );
+    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
 `
 
 const generateBackgroundColour = (props) => {
