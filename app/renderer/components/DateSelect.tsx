@@ -69,7 +69,10 @@ function DateSelect(props: DateSelectProps): ReactElement {
         setDayPickerVisible(true)
         return
       }
-      props.onSubmit(newValue.value ? newValue.value() : null)
+      // I _think_ this gross hack will move everything to be UTC times
+      props.onSubmit(
+        newValue.value ? sub(newValue.value(), { minutes: new Date().getTimezoneOffset() }) : null,
+      )
     }
     return
   }
