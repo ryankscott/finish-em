@@ -331,7 +331,7 @@ function Item(props: ItemProps): ReactElement {
         }}
         onClick={(e) => {
           // TODO: This causes it being impossible to click on links
-          setIsFocused(true)
+          setIsFocused(!isFocused)
           focusbarVisibleVar(true)
           activeItemVar(item.key)
         }}
