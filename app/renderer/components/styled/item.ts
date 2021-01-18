@@ -32,8 +32,32 @@ export const LoadingContainer = styled.div`
   width: 100%;
 `
 
+const generateBackgroundColour = (props) => {
+  if (props.deleted) {
+    return `repeating-linear-gradient(45deg, ${darken(
+      0.05,
+      props.theme.colours.backgroundColour,
+    )}, ${darken(0.05, props.theme.colours.backgroundColour)} 10px, ${darken(
+      0.1,
+      props.theme.colours.backgroundColour,
+    )} 10px, ${darken(0.1, props.theme.colours.backgroundColour)} 20px)`
+  }
+
+  if (props.focused) {
+    if (props.labelColour != null) {
+      return transparentize(0.6, props.labelColour)
+    }
+    return props.theme.colours.focusBackgroundColour
+  }
+  if (props.labelColour != null) {
+    return transparentize(0.8, props.labelColour)
+  }
+  return 'none'
+}
+
 interface ContainerProps {
   labelColour: CSS.Property.Color
+  focused: boolean
   visible: boolean
   shouldIndent: boolean
   deleted: boolean
@@ -63,26 +87,7 @@ export const Container = styled.div<ContainerProps>`
   cursor: pointer;
   border-radius: 5px;
   color: ${(props) => props.theme.colours.disabledTextColour};
-  background: ${(props) =>
-    props.deleted
-      ? `repeating-linear-gradient(45deg, ${darken(
-          0.05,
-          props.theme.colours.backgroundColour,
-        )}, ${darken(0.05, props.theme.colours.backgroundColour)} 10px, ${darken(
-          0.1,
-          props.theme.colours.backgroundColour,
-        )} 10px, ${darken(0.1, props.theme.colours.backgroundColour)} 20px)`
-      : 'none'};
-  background-color: ${(props) =>
-    props.labelColour != null
-      ? transparentize(0.8, props.labelColour)
-      : props.theme.colours.backgroundColour};
-  &:focus {
-    background-color: ${(props) =>
-      props.labelColour != null
-        ? transparentize(0.6, props.labelColour)
-        : props.theme.colours.focusBackgroundColour};
-  }
+  background: ${(props) => generateBackgroundColour(props)};
 
   &:after {
     content: '';

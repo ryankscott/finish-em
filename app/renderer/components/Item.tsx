@@ -39,7 +39,6 @@ import Tooltip from './Tooltip'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
-import { Spinner } from './Spinner'
 
 type ItemProps = {
   compact: boolean
@@ -167,6 +166,7 @@ const CLONE_ITEM = gql`
 
 function Item(props: ItemProps): ReactElement {
   const [isEditingDescription, setIsEditingDescription] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
   const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
   const [moreButtonVisible, setMoreButtonVisible] = useState(false)
   const [showLabelDialog, setShowLabelDialog] = useState(false)
@@ -318,6 +318,7 @@ function Item(props: ItemProps): ReactElement {
   return (
     <ThemeProvider theme={theme}>
       <Container
+        focused={isFocused}
         id={item.key}
         compact={props.compact}
         onMouseEnter={() => {
@@ -330,11 +331,12 @@ function Item(props: ItemProps): ReactElement {
         }}
         onClick={(e) => {
           // TODO: This causes it being impossible to click on links
-          // This is a weird gross hack for if you click on a child element
-          const el = document.getElementById(item.key)
-          el.focus()
+          setIsFocused(true)
           focusbarVisibleVar(true)
           activeItemVar(item.key)
+        }}
+        onBlur={() => {
+          setIsFocused(false)
         }}
         tabIndex={0}
         deleted={item.deleted}
