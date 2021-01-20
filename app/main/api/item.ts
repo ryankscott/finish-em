@@ -573,18 +573,20 @@ export const unCompleteItem = (input: { key: string }, ctx) => {
 }
 
 export const createSetRepeatOfItemQuery = (input: { key: string; repeat: string }) => {
+  const repeatText = input.repeat ? `'${input.repeat}'` : null
   return `
-UPDATE item SET repeat = '${input.repeat}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+UPDATE item SET repeat = ${repeatText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
 
 export const setRepeatOfItem = (input: { key: string; repeat: string }, ctx) => {
   return ctx.db.run(createSetRepeatOfItemQuery(input)).then((result) => {
     if (result.changes) {
-      const repeatRule = rrulestr(input.repeat)
-      const nextRepeat = repeatRule.after(startOfDay(new Date()), true)
-      console.log(nextRepeat)
-      setDueAtOfItem({ key: input.key, dueAt: nextRepeat }, ctx)
+      if (input.repeat) {
+        const repeatRule = rrulestr(input.repeat)
+        const nextRepeat = repeatRule.after(startOfDay(new Date()), true)
+        setDueAtOfItem({ key: input.key, dueAt: nextRepeat }, ctx)
+      }
       return getItem({ key: input.key }, ctx)
     }
     log.error(`Unable to set repeat, key - ${input.key}`)
@@ -642,14 +644,6 @@ export const setProjectOfItem = async (input: { key: string; projectKey: string 
   })
 }
 
-export const createSetScheduledAtOfItem = (input: { key: string; scheduledAt: Date }) => {
-  return `
-UPDATE item SET scheduledAt = '${input.scheduledAt.toISOString()}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${
-    input.key
-  }'
-`
-}
-
 export const createSetAreaOfItemQuery = (input: { key: string; areaKey: string }) => {
   const inputText = input.areaKey ? `'${input.areaKey}'` : null
   return `
@@ -680,6 +674,13 @@ export const setAreaOfItem = (input: { key: string; areaKey: string }, ctx) => {
   })
 }
 
+export const createSetScheduledAtOfItem = (input: { key: string; scheduledAt: Date }) => {
+  const scheduledText = input.scheduledAt ? `'${input.scheduledAt.toISOString()}'` : null
+  return `
+UPDATE item SET scheduledAt = ${scheduledText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+`
+}
+
 export const setScheduledAtOfItem = (input: { key: string; scheduledAt: Date }, ctx) => {
   return ctx.db.run(createSetScheduledAtOfItem(input)).then((result) => {
     if (result.changes) {
@@ -691,10 +692,9 @@ export const setScheduledAtOfItem = (input: { key: string; scheduledAt: Date }, 
 }
 
 export const createSetDueAtOfItem = (input: { key: string; dueAt: Date }) => {
+  const dueText = input.dueAt ? `'${input.dueAt.toISOString()}'` : null
   return `
-UPDATE item SET dueAt = '${input.dueAt.toISOString()}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${
-    input.key
-  }'
+UPDATE item SET dueAt = ${dueText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
 `
 }
 

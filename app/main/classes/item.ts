@@ -39,7 +39,7 @@ export default class Item {
     this.deletedAt = deletedAt ? deletedAt : null
     this.createdAt = createdAt ? createdAt : null
     this.completedAt = completedAt ? completedAt : null
-    this.repeat = repeat
+    this.repeat = repeat ? repeat : ''
     this.labelKey = labelKey
     this.areaKey = areaKey
   }

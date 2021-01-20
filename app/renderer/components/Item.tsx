@@ -484,7 +484,7 @@ function Item(props: ItemProps): ReactElement {
         <RepeatContainer
           data-tip
           data-for={'repeat-' + item.key}
-          visible={item.repeat != null && !props.hiddenIcons?.includes(ItemIcons.Repeat)}
+          visible={item.repeat && !props.hiddenIcons?.includes(ItemIcons.Repeat)}
         >
           <ItemAttribute
             compact={props.compact}
