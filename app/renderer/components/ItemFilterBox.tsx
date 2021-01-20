@@ -127,14 +127,6 @@ class CustomAutoComplete extends GridDataAutoCompleteHandler {
       'createdAt',
     ].includes(parsedCategory)
 
-    if (
-      parsedOperator == '>' ||
-      parsedOperator == '<' ||
-      (parsedOperator == '=' && isDateCategory)
-    ) {
-      return [{ customType: 'date' }]
-    }
-
     if (parsedOperator == 'is' || parsedOperator == '!is') {
       if (isDateCategory) {
         return ['null', 'past', 'today', 'this week', 'this month']
@@ -195,23 +187,6 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
     data: Completion,
     registerAndGetPickFunc: Function,
   ) => {
-    if (data.value?.customType == 'date') {
-      const pick = registerAndGetPickFunc()
-      return (
-        <ThemeProvider theme={theme}>
-          <Wrapper>
-            <DatePicker
-              inline
-              showTimeSelect
-              onChange={(day) => {
-                return pick(day.toISOString())
-              }}
-            />
-          </Wrapper>
-        </ThemeProvider>
-      )
-    }
-
     return (
       <ThemeProvider theme={theme}>
         <Suggestion>

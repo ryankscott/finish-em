@@ -85,29 +85,29 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
       switch (operator) {
         case '=':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') = DATE(${valueText}, 'localtime')`
+            return `${conditionText} DATE(${categoryText}, 'localtime') = DATE('now', ${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
 
         case '!=':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') != DATE(${valueText}, 'localtime')`
+            return `${conditionText} DATE(${categoryText}, 'localtime') != DATE('now', ${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
         case '<':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') < DATE(${valueText}, 'localtime')`
+            return `${conditionText} DATE(${categoryText}, 'localtime') < DATE('now', ${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
         case '>':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') > DATE(${valueText}, 'localtime')`
+            return `${conditionText} DATE(${categoryText}, 'localtime') > DATE('now', ${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
 
         case '!=':
           if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') != DATE(${valueText}, 'localtime')`
+            return `${conditionText} DATE(${categoryText}, 'localtime') != DATE('now', ${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
 
@@ -161,6 +161,7 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
   const filterString = generateQueryString(filters.value)
   const queryString = `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item
  WHERE ${filterString}`
+  console.log(queryString)
   const results = await ctx.db.all(queryString)
   if (results) {
     return results.map(
