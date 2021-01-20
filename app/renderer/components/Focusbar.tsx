@@ -221,7 +221,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   }
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
-      key: activeData.activeItem,
+      key: activeData.activeItem.length ? activeData.activeItem[0] : '',
     },
   })
 
@@ -267,7 +267,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                 spacing="compact"
                 tooltipText={'Up level'}
                 onClick={() => {
-                  activeItemVar(item.parent.key)
+                  activeItemVar([item.parent.key])
                 }}
                 icon={'upLevel'}
               ></Button>

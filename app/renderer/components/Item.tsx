@@ -95,6 +95,7 @@ const GET_DATA = gql`
         sortOrder
       }
     }
+    activeItem @client
     subtasksVisible @client
   }
 `
@@ -331,9 +332,14 @@ function Item(props: ItemProps): ReactElement {
         }}
         onClick={(e) => {
           // TODO: This causes it being impossible to click on links
+          /* if (isFocused) {
+            activeItemVar(data.activeItem.filter((i) => i != item.key))
+          } else {
+            activeItemVar([...data.activeItem, item.key])
+          }*/
+          activeItemVar([item.key])
           setIsFocused(!isFocused)
           focusbarVisibleVar(true)
-          activeItemVar(item.key)
         }}
         onBlur={() => {
           setIsFocused(false)

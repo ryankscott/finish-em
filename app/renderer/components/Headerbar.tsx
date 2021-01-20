@@ -68,7 +68,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             .replace(markdownBasicRegex, '$1'),
           value: () => {
             focusbarVisibleVar(true)
-            activeItemVar(i.key)
+            activeItemVar([i.key])
           },
         }
       })

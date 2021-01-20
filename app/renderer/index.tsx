@@ -90,10 +90,10 @@ const client = new ApolloClient({
 export const sidebarVisibleVar: ReactiveVar<Boolean> = makeVar<Boolean>(true)
 export const focusbarVisibleVar: ReactiveVar<Boolean> = makeVar<Boolean>(false)
 export const shortcutDialogVisibleVar: ReactiveVar<Boolean> = makeVar<Boolean>(false)
-export const activeItemVar: ReactiveVar<String> = makeVar<String>('')
+export const activeItemVar: ReactiveVar<Array<String>> = makeVar<Array<String>>([])
 export const themeVar: ReactiveVar<String> = makeVar<String>('light')
 export const subtasksVisibleVar: ReactiveVar<Object> = makeVar<Object>({})
-export const activeCalendarVar: ReactiveVar<Object> = makeVar<String>({})
+export const activeCalendarVar: ReactiveVar<Object> = makeVar<String>('')
 
 ReactDOM.render(
   <ApolloProvider client={client}>

@@ -148,7 +148,7 @@ function ItemList(props: ItemListProps): ReactElement {
     SET_ACTIVE_ITEM: (event) => {
       const itemKey = event.target.id
       focusbarVisibleVar(true)
-      activeItemVar(itemKey)
+      activeItemVar([itemKey])
       return
     },
     COMPLETE_ITEM: (event) => {
