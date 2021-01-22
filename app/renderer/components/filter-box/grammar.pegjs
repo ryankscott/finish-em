@@ -32,18 +32,16 @@ Condition
 ThreeFactorCondition
   = category:ValidName ws operator:Operator ws value:ValidValue 
   			{ 
-            	
             	return {
                 	category : category,
-                    operator: operator,
-                    value: value
+                  operator: operator,
+                  value: value
                 }; 
             } 
   
 Operator "operator"
   = ValidToken+  { parseTrace.pushOperator(text()); return text(); }
   
-
 ValidValue "value"
   = ValidToken+ { parseTrace.pushValue(text() ); return text(); }  
   /"\"" name:[^\"]* "\"" {
@@ -51,6 +49,7 @@ ValidValue "value"
         parseTrace.pushValue(value);
         return value;
       }
+
 ValidName  "category"
   = ValidToken+ { parseTrace.pushCategory(text() ); return text(); }  
   /"\"" name:[^\"]* "\"" {
@@ -58,6 +57,7 @@ ValidName  "category"
         parseTrace.pushCategory(value);
         return value;
       }
+
 ValidToken
   = [^ \(\)\"\t\n\r]
 
