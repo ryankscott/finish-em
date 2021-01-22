@@ -24,14 +24,14 @@ export const LoadingContainer = styled.div`
     content: '';
     display: block;
     position: absolute;
-    left: -150px;
+    left: -200px;
     top: 0;
     height: 100%;
-    width: 150px;
+    width: 200px;
     background: linear-gradient(
       to right,
       transparent 0%,
-      ${(props) => darken(0.025, props.theme.colours.focusBackgroundColour)} 50%,
+      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
       transparent 100%
     );
     animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
