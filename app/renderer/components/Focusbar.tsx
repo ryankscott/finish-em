@@ -9,15 +9,12 @@ import { ItemIcons } from '../interfaces/item'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { formatRelativeDate, removeItemTypeFromString } from '../utils'
-import AreaSelect from './AreaSelect'
+import AttributeSelect from './AttributeSelect'
 import Button from './Button'
 import DatePicker from './DatePicker'
 import EditableText from './EditableText'
 import Item from './Item'
 import ItemCreator from './ItemCreator'
-import ItemSelect from './ItemSelect'
-import LabelSelect from './LabelSelect'
-import ProjectSelect from './ProjectSelect'
 import RepeatPicker from './RepeatPicker'
 import {
   AttributeContainer,
@@ -351,9 +348,10 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               <Paragraph>Area: </Paragraph>
             </AttributeKey>
             <AttributeValue>
-              <AreaSelect
-                area={item.area}
-                completed={item.deleted}
+              <AttributeSelect
+                attribute="area"
+                currentAttribute={item.area}
+                completed={item.completed}
                 deleted={item.deleted}
                 onSubmit={(areaKey) => setArea({ variables: { key: item.key, areaKey: areaKey } })}
               />
@@ -365,10 +363,11 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             <Paragraph>Project: </Paragraph>
           </AttributeKey>
           <AttributeValue>
-            <ProjectSelect
+            <AttributeSelect
+              attribute={'project'}
+              currentAttribute={item.project}
               deleted={item.deleted}
               completed={item.completed}
-              project={item.project}
               onSubmit={(projectKey) => {
                 setProject({
                   variables: {
@@ -444,10 +443,11 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               <Paragraph>Parent:</Paragraph>
             </AttributeKey>
             <AttributeValue>
-              <ItemSelect
+              <AttributeSelect
+                attribute={'item'}
+                currentAttribute={item}
                 completed={item.completed}
                 deleted={item.deleted}
-                item={item}
                 onSubmit={(itemKey: string) =>
                   setParent({ variables: { key: item.key, parentKey: itemKey } })
                 }
@@ -460,13 +460,12 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             <Paragraph>Label:</Paragraph>
           </AttributeKey>
           <AttributeValue>
-            <LabelSelect
-              label={item.label}
+            <AttributeSelect
+              attribute={'label'}
+              currentAttribute={item.label}
               completed={item.completed}
               deleted={item.deleted}
-              onSubmit={(labelKey: string) =>
-                setLabel({ variables: { key: item.key, labelKey: labelKey } })
-              }
+              onSubmit={(key: string) => setLabel({ variables: { key: item.key, labelKey: key } })}
             />
           </AttributeValue>
         </AttributeContainer>

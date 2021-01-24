@@ -98,7 +98,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           components={{ DropdownIndicator }}
           defaultIsOpen={true}
           styles={selectStyles({
-            fontSize: 'xxsmall',
+            fontSize: 'xsmall',
             theme: theme,
             showDropdownIndicator: true,
             minWidth: '100px',

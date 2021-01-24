@@ -2,7 +2,7 @@ import React, { ReactElement } from 'react'
 import Button from './Button'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
-import { Container, SubTextContainer } from './styled/DateRenderer'
+import { Container } from './styled/DateRenderer'
 import { IconType, ThemeType } from '../interfaces'
 import { gql, useQuery } from '@apollo/client'
 
@@ -15,7 +15,7 @@ type DateRendererProps = {
   completed: boolean
   deleted: boolean
   textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
-  style?: 'subtle' | 'subtleInvert' | 'default'
+  style?: 'subtle' | 'subtleInvert' | 'default' | 'invert'
   position: 'center' | 'flex-end' | 'flex-start'
   icon?: IconType
   tooltipText?: string
@@ -31,22 +31,21 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
     return null
   }
   const theme: ThemeType = themes[data.theme]
-
   return (
     <ThemeProvider theme={theme}>
       <Container completed={props.completed} type={props.icon}>
-        <SubTextContainer key={props.icon} position={props.position}>
-          <Button
-            type={props.deleted ? 'disabled' : props.style ? props.style : 'default'}
-            spacing="compact"
-            onClick={props.onClick}
-            icon={props.icon}
-            text={props.text}
-            textSize={props.textSize}
-            iconColour={!props.text ? theme.colours.altIconColour : null}
-            tooltipText={props.tooltipText}
-          ></Button>
-        </SubTextContainer>
+        <Button
+          position={props.position}
+          type={props.deleted ? 'disabled' : props.style ? props.style : 'default'}
+          spacing="compact"
+          onClick={props.onClick}
+          icon={props.icon}
+          text={props.text}
+          textSize={props.textSize}
+          iconColour={!props.text ? theme.colours.altIconColour : null}
+          tooltipText={props.tooltipText}
+          width={'100%'}
+        />
       </Container>
     </ThemeProvider>
   )

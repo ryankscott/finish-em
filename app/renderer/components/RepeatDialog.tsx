@@ -142,6 +142,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
                 theme: theme,
                 minWidth: '70px',
                 width: '70px',
+                height: '28px',
               })}
               onChange={(newValue, actionMeta) => {
                 if (actionMeta.action == 'select-option') {

@@ -48,6 +48,8 @@ type DateSelectProps = {
   onSubmit: (d: Date) => void
   onEscape?: () => void
   placeholder: string
+  selectPlacement?: 'auto' | 'bottom' | 'top'
+  style?: 'default' | 'subtle' | 'subtleInvert' | 'invert'
   textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
 }
 
@@ -88,14 +90,17 @@ function DateSelect(props: DateSelectProps): ReactElement {
   return (
     <ThemeProvider theme={theme}>
       <Select
+        menuPlacement={props.selectPlacement != undefined ? props.selectPlacement : 'auto'}
         isDisabled={props.disabled != undefined ? props.disabled : false}
         autoFocus={props.autoFocus != undefined ? props.autoFocus : true}
         placeholder={props.placeholder}
         onChange={handleChange}
         options={options}
         styles={selectStyles({
+          height: '28px',
           fontSize: props.textSize || 'xxsmall',
           theme: theme,
+          invert: props.style == 'subtleInvert' || props.style == 'invert',
         })}
         defaultMenuIsOpen={props.defaultOpen != undefined ? props.defaultOpen : true}
         escapeClearsValue={true}

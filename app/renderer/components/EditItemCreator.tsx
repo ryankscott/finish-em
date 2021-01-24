@@ -152,7 +152,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
                 }}
                 options={projectOptions}
                 styles={selectStyles({
-                  fontSize: 'xxsmall',
+                  fontSize: 'xsmall',
                   theme: theme,
                   minWidth: '180px',
                 })}
@@ -172,7 +172,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
                 }}
                 options={labelOptions}
                 styles={selectStyles({
-                  fontSize: 'xxsmall',
+                  fontSize: 'xsmall',
                   theme: theme,
                   minWidth: '180px',
                 })}

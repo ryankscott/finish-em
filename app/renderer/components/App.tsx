@@ -10,6 +10,7 @@ import { ThemeType } from '../interfaces'
 import { app as appKeymap } from '../keymap'
 import { ThemeProvider } from '../StyledComponents'
 import { GlobalStyle, themes } from '../theme'
+import { ActionBar } from './ActionBar'
 import Area from './Area'
 import DailyAgenda from './DailyAgenda'
 import Focusbar from './Focusbar'
@@ -61,32 +62,6 @@ const GET_DATA = gql`
     theme @client
     activeItem @client
     shortcutDialogVisible @client
-  }
-`
-
-const CREATE_EVENT = gql`
-  mutation CreateEvent(
-    $key: String!
-    $title: String!
-    $startAt: DateTime
-    $endAt: DateTime
-    $description: String
-    $allDay: Boolean
-    $calendarKey: String
-  ) {
-    createEvent(
-      input: {
-        key: $key
-        title: $title
-        startAt: $startAt
-        endAt: $endAt
-        description: $description
-        allDay: $allDay
-        calendarKey: $calendarKey
-      }
-    ) {
-      key
-    }
   }
 `
 
@@ -277,7 +252,6 @@ const App = (props: AppProps): ReactElement => {
   if (error) return null
 
   const theme: ThemeType = themes[data.theme]
-
   // TODO: Work out the best way to expand the width here
   const handleResize = () => {
     if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && data.sidebarVisible) {
@@ -351,6 +325,7 @@ const App = (props: AppProps): ReactElement => {
           <FocusContainer visible={data.focusbarVisible}>
             <Focusbar />
           </FocusContainer>
+          {data.activeItem.length > 1 && <ActionBar />}
         </BodyContainer>
       </Container>
       <StyledToastContainer

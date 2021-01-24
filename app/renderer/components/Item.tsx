@@ -167,7 +167,6 @@ const CLONE_ITEM = gql`
 
 function Item(props: ItemProps): ReactElement {
   const [isEditingDescription, setIsEditingDescription] = useState(false)
-  const [isFocused, setIsFocused] = useState(false)
   const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
   const [moreButtonVisible, setMoreButtonVisible] = useState(false)
   const [showLabelDialog, setShowLabelDialog] = useState(false)
@@ -316,6 +315,8 @@ function Item(props: ItemProps): ReactElement {
   const itemVisibility = data.subtasksVisible?.[item.key]?.[props.componentKey]
   const subtasksVisible = itemVisibility != undefined ? itemVisibility : true
 
+  const isFocused = data.activeItem.findIndex((i) => i == item.key) >= 0
+
   return (
     <ThemeProvider theme={theme}>
       <Container
@@ -331,18 +332,20 @@ function Item(props: ItemProps): ReactElement {
           exitInterval = setTimeout(() => setMoreButtonVisible(false), 200)
         }}
         onClick={(e) => {
-          // TODO: This causes it being impossible to click on links
-          /* if (isFocused) {
-            activeItemVar(data.activeItem.filter((i) => i != item.key))
+          if (isFocused) {
+            const activeItems = data.activeItem.filter((i) => i != item.key)
+            activeItemVar(activeItems)
+            if (activeItems.length == 0) {
+              focusbarVisibleVar(false)
+            }
           } else {
             activeItemVar([...data.activeItem, item.key])
-          }*/
-          activeItemVar([item.key])
-          setIsFocused(!isFocused)
-          focusbarVisibleVar(true)
+            focusbarVisibleVar(true)
+          }
         }}
         onBlur={() => {
-          setIsFocused(false)
+          const activeItems = data.activeItem.filter((i) => i != item.key)
+          activeItemVar(activeItems)
         }}
         tabIndex={0}
         deleted={item.deleted}

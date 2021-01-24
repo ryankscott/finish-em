@@ -23,11 +23,13 @@ type ButtonDropdownProps = {
   buttonIcon?: IconType
   buttonIconColour?: CSS.Property.Color
   selectPlaceholder?: string
+  selectPlacement?: 'auto' | 'bottom' | 'top'
   createable?: boolean
   options: OptionsType<any>
+  selectPosition?: 'auto' | 'top' | 'bottom'
   onSubmit: (value: string) => void
   onEscape?: () => void
-  style?: 'primary' | 'subtle' | 'subtleInvert' | 'default'
+  style?: 'primary' | 'subtle' | 'subtleInvert' | 'default' | 'invert'
   completed: boolean
   deleted?: boolean
   showSelect?: boolean
@@ -71,6 +73,8 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
     <ThemeProvider theme={theme}>
       <Container completed={props.completed} ref={node}>
         <Button
+          width="100%"
+          position="flex-start"
           spacing="compact"
           type={props.deleted ? 'disabled' : props.style ? props.style : 'default'}
           onClick={(e) => {
@@ -88,6 +92,7 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
           <SelectContainer>
             <Creatable
               autoFocus={true}
+              menuPlacement={props.selectPlacement != undefined ? props.selectPlacement : 'auto'}
               placeholder={props.selectPlaceholder}
               isSearchable
               onChange={handleChange}
@@ -95,6 +100,8 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
               styles={selectStyles({
                 fontSize: 'xxsmall',
                 theme: theme,
+                height: '28px',
+                invert: props.style == 'subtleInvert' || props.style == 'invert',
               })}
               escapeClearsValue={true}
               defaultMenuIsOpen={true}

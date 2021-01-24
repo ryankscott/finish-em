@@ -16,12 +16,14 @@ const GET_THEME = gql`
 type DatePickerProps = {
   onSubmit: (d: Date) => void
   onEscape?: () => void
-  style?: 'default' | 'subtle' | 'subtleInvert'
+  style?: 'default' | 'subtle' | 'subtleInvert' | 'invert'
   showSelect?: boolean
+  selectPosition?: 'auto' | 'top' | 'bottom'
   searchPlaceholder: string
   completed: boolean
   deleted?: boolean
-  text: string
+  text?: string
+  tooltipText?: string
   textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
   icon?: IconType
 }
@@ -59,8 +61,9 @@ function DatePicker(props: DatePickerProps): ReactElement {
           deleted={props.deleted}
           textSize={props.textSize}
           icon={props.icon}
-          position="center"
+          position="flex-start"
           text={props.text}
+          tooltipText={props.tooltipText}
           onClick={(e) => {
             e.stopPropagation()
             if (props.completed) return
@@ -70,6 +73,8 @@ function DatePicker(props: DatePickerProps): ReactElement {
         {(props.showSelect || showSelect) && (
           <SelectContainer>
             <DateSelect
+              selectPlacement={props.selectPosition}
+              style={props.style}
               placeholder={props.searchPlaceholder}
               onEscape={() => {
                 setShowSelect(false)

@@ -4,10 +4,10 @@ export const SelectContainer = styled.div`
   position: absolute;
   flex-direction: column;
   padding: 0px;
-  margin: 2px;
   display: flex;
   top: 0px;
-  min-width: 120px;
+  margin: 2px;
+  width: 100%;
 `
 
 interface ContainerProps {

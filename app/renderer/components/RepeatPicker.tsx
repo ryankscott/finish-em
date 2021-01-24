@@ -88,7 +88,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
   const node = useRef<HTMLDivElement>()
 
   const handleClick = (e): null => {
-    if (node.current.contains(e.target)) {
+    if (node?.current?.contains(e.target)) {
       return
     }
     setShowSelect(false)
@@ -105,12 +105,12 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
   const tooltipText = props.repeat ? capitaliseFirstLetter(props.repeat.toText()) : 'Repeat'
   return (
     <ThemeProvider theme={theme}>
-      <div ref={node}>
+      <div style={{ width: '100%' }}>
         <DateRenderer
           tooltipText={tooltipText}
           completed={props.completed}
           icon="repeat"
-          position="center"
+          position="flex-start"
           style={props.style}
           text={repeatText}
           deleted={props.deleted}
@@ -144,12 +144,12 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                   fontSize: 'xxsmall',
                   minWidth: '140px',
                   theme: theme,
+                  height: '28px',
                 })}
               />
               {repeatDialogVisible && (
                 <RepeatDialog
                   onSubmit={(r) => {
-                    console.log(r)
                     props.onSubmit(r)
                     setRepeatDialogVisible(false)
                     setShowSelect(false)

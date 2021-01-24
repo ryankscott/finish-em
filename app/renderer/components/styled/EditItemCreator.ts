@@ -31,7 +31,7 @@ export const SettingLabel = styled.div`
   font-size: ${(props) => props.theme.fontSizes.xsmall};
   padding: 7px 5px;
   width: 120px;
-  min-width: 120px;
+  min-width: 180px;
 `
 export const SettingValue = styled.div`
   display: flex;
@@ -45,7 +45,7 @@ export const SettingValue = styled.div`
 
 export const SelectContainer = styled.div`
   position: relative;
-  min-width: 120px;
+  min-width: 180px;
 `
 
 export const HelpButtonContainer = styled.div`

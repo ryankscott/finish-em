@@ -1,4 +1,4 @@
-import React, { Component, ReactElement, useEffect, useState } from 'react'
+import React, { ReactElement } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 
 import { HeaderContainer, IconContainer, HeaderTitle } from './styled/ViewHeader'
@@ -7,7 +7,6 @@ import { IconType, ThemeType } from '../interfaces'
 import { Icons } from '../assets/icons'
 import { gql, useQuery } from '@apollo/client'
 import EditViewHeader from './EditViewHeader'
-import ComponentActions from './ComponentActions'
 
 const GET_THEME = gql`
   query {

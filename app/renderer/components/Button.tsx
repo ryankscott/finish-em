@@ -21,6 +21,7 @@ type ButtonProps = {
   type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert' | 'disabled'
   text?: string | JSX.Element
   textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
+  position?: 'center' | 'flex-end' | 'flex-start'
   textWeight?: string
   iconSize?: string
   iconColour?: string
@@ -51,6 +52,7 @@ const Button = (props: ButtonProps): ReactElement => {
         spacing={props.spacing}
         height={props.height}
         width={props.width}
+        position={props.position}
         onClick={props.onClick}
         buttonType={props.type}
         data-tip

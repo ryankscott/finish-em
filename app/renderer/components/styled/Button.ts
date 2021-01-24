@@ -6,6 +6,7 @@ interface StyledProps {
   height: string
   spacing: 'compact' | 'default' | 'compactIcon'
   buttonType: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert' | 'disabled'
+  position: 'flex-end' | 'flex-start' | 'center'
   iconOnly: boolean
 }
 
@@ -15,7 +16,7 @@ export const StyledButton = styled.button<StyledProps>`
   position: relative;
   font-family: ${(props) => props.theme.font.sansSerif};
   flex-direction: row;
-  justify-content: center;
+  justify-content: ${(props) => (props.position ? props.position : 'center')};
   align-items: center;
   background-color: ${(props) => props.theme.button[props.buttonType].backgroundColour};
   color: ${(props) => props.theme.button[props.buttonType].colour};
