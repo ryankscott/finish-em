@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import React from 'react'
-import { activeItemVar } from '..'
+import { activeItemVar, focusbarVisibleVar } from '..'
 import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
@@ -89,6 +89,7 @@ export const ActionBar = (props: Props) => {
             iconSize={'12px'}
             onClick={() => {
               activeItemVar([])
+              focusbarVisibleVar(false)
             }}
           />
         </div>
