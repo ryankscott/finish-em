@@ -82,7 +82,7 @@ export const ActionBar = (props: Props) => {
   return (
     <ThemeProvider theme={theme}>
       <Container>
-        <div style={{ gridArea: 'CLOSE', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ display: 'flex', position: 'absolute', top: '2px', right: '2px' }}>
           <Button
             type={'invert'}
             icon={'close'}
@@ -93,7 +93,7 @@ export const ActionBar = (props: Props) => {
           />
         </div>
         <div
-          style={{ gridArea: 'ITEMS', padding: '0px 10px' }}
+          style={{ gridArea: 'ITEMS', padding: '10px 10px 0px 10px' }}
         >{`${data.activeItem.length} items selected`}</div>
         <div style={{ gridArea: 'DUE' }}>
           <DatePicker
@@ -147,6 +147,7 @@ export const ActionBar = (props: Props) => {
         </div>
         <div style={{ gridArea: 'COMPLETE' }}>
           <Button
+            text="Complete items"
             tooltipText={'Complete items'}
             type={'invert'}
             icon={'todoChecked'}
@@ -159,6 +160,7 @@ export const ActionBar = (props: Props) => {
         </div>
         <div style={{ gridArea: 'DELETE' }}>
           <Button
+            text="Delete items"
             tooltipText={'Delete items'}
             type={'invert'}
             icon={'trash'}
