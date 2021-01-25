@@ -343,10 +343,7 @@ function Item(props: ItemProps): ReactElement {
             focusbarVisibleVar(true)
           }
         }}
-        onBlur={() => {
-          const activeItems = data.activeItem.filter((i) => i != item.key)
-          activeItemVar(activeItems)
-        }}
+        onBlur={() => {}}
         tabIndex={0}
         deleted={item.deleted}
         key={item.key}
