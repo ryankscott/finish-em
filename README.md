@@ -31,18 +31,10 @@ npm install
 
 ## Developing
 
-### Running the web app (development)
-
-To run the web version of Finish-em run the following:
-
-```
-npm run dev
-```
-
 ### Running the Electron version (development)
 
 ```
-npm run dev start-dev
+npm run dev start
 ```
 
 ## Building
