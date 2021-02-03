@@ -369,6 +369,7 @@ export const migrateProjectsToGraphQL = (ps: Projects): void => {
     })
     return
   })
+  // TODO add orders for all projects that don't already have one
 }
 
 export const migrateAreaQuery = (
@@ -458,6 +459,7 @@ export const migrateAreasToGraphQL = (ar: Areas): void => {
         console.log(e)
       })
   })
+  // TODO add orders for all projects that don't already have one
 
   return
 }
@@ -508,6 +510,7 @@ export const migrateViewsToGraphQL = (vi: Views): void => {
       })
   })
 
+  // TODO add orders for all projects that don't already have one
   return
 }
 

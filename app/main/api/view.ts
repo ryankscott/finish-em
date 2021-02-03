@@ -83,7 +83,9 @@ export const createMigrateViewQuery = (input: {
   const iconText = input.icon ? input.icon : ''
   return `
 REPLACE INTO view (key, name, icon, type, deleted, deletedAt,lastUpdatedAt, createdAt )
-VALUES ('${input.key}', '${input.name}', '${iconText}', '${input.type}', false, '', '', '')
+VALUES ('${input.key}', ${SqlString.escape(input.name)}, '${iconText}', '${
+    input.type
+  }', false, '', '', '')
 `
 }
 
