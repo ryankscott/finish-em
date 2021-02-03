@@ -19,6 +19,7 @@ import { gql, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client
 import { RetryLink } from 'apollo-link-retry'
 import fetch from 'cross-fetch'
 import jwt from 'jsonwebtoken'
+import { difference } from 'lodash'
 
 const token = jwt.sign({ user: 'app' }, 'super_secret', { algorithm: 'HS256' })
 const httpLink = createHttpLink({
@@ -370,6 +371,26 @@ export const migrateProjectsToGraphQL = (ps: Projects): void => {
     return
   })
   // TODO add orders for all projects that don't already have one
+  const p = Object.values(ps.projects).map((p) => p.id)
+  const po = Object.values(ps.order)
+  const diff = difference(p, po)
+  console.log(diff)
+  diff.map((p, idx) => {
+    client
+      .mutate({
+        mutation: gql`
+          mutation CreateProjectOrder($projectKey: String!) {
+            createProjectOrder(input: { projectKey: $projectKey }) {
+              projectKey
+            }
+          }
+        `,
+        variables: { projectKey: p },
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+  })
 }
 
 export const migrateAreaQuery = (
@@ -459,7 +480,25 @@ export const migrateAreasToGraphQL = (ar: Areas): void => {
         console.log(e)
       })
   })
-  // TODO add orders for all projects that don't already have one
+  const a = Object.values(ar.areas).map((a) => a.id)
+  const ao = Object.values(ar.order)
+  const diff = difference(a, ao)
+  diff.map((o, idx) => {
+    client
+      .mutate({
+        mutation: gql`
+          mutation CreateAreaOrder($areaKey: String!) {
+            createAreaOrder(input: { areaKey: $areaKey }) {
+              areaKey
+            }
+          }
+        `,
+        variables: { areaKey: o },
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+  })
 
   return
 }
@@ -510,7 +549,26 @@ export const migrateViewsToGraphQL = (vi: Views): void => {
       })
   })
 
-  // TODO add orders for all projects that don't already have one
+  const v = Object.values(vi.views).map((v) => v.id)
+  const vo = Object.values(vi.order)
+  const diff = difference(v, vo)
+  diff.map((p, idx) => {
+    client
+      .mutate({
+        mutation: gql`
+          mutation CreateViewOrder($viewKey: String!) {
+            createViewOrder(input: { viewKey: $viewKey }) {
+              viewKey
+            }
+          }
+        `,
+        variables: { viewKey: p },
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+  })
+
   return
 }
 

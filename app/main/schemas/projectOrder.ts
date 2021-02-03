@@ -6,7 +6,6 @@ type ProjectOrder {
 
 input CreateProjectOrderInput {
   projectKey: String!
-  sortOrder: Int!
 }
 
 input SetProjectOrderInput {
