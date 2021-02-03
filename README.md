@@ -1,13 +1,13 @@
 ![CI](https://github.com/ryankscott/finish-em/workflows/CI/badge.svg)
 ![CodeQL](https://github.com/ryankscott/finish-em/workflows/CodeQL/badge.svg)
 
-<div style="display:flex;flex-direction:row;height:100px;align-items:center;">
 <img src="https://github.com/ryankscott/finish-em/raw/master/app/renderer/assets/finish_em.svg"
+  align="left"
   width="64"
   height=64"
   >
-  <h1>Finish-em </h1>
-</div>
+
+# Finish-em
 
 An org-mode inspired personal organiser
 
@@ -34,7 +34,7 @@ npm install
 ### Running the Electron version (development)
 
 ```
-npm run dev start
+npm run start
 ```
 
 ## Building
