@@ -1,25 +1,24 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
 import Button from './Button'
-import Tooltip from './Tooltip'
 import { lighten } from 'polished'
 import Select, { GroupType } from 'react-select'
 import { removeItemTypeFromString, markdownLinkRegex, markdownBasicRegex } from '../utils'
 import { useHistory } from 'react-router'
 import {
   ShortcutIcon,
-  IconContainer,
   SelectContainer,
   FeedbackIcon,
   Container,
+  CommandIcon,
 } from './styled/Headerbar'
-import { Icons } from '../assets/icons'
 import { gql, useQuery } from '@apollo/client'
 import { activeItemVar, focusbarVisibleVar } from '..'
 import { Item, Project } from '../../main/generated/typescript-helpers'
 import { ThemeType } from '../interfaces'
 import { sortBy } from 'lodash'
+import { CommandBar } from './CommandBar'
 
 type OptionType = { label: string; value: () => void }
 
@@ -49,7 +48,6 @@ type HeaderbarProps = {
 
 const Headerbar = (props: HeaderbarProps): ReactElement => {
   const history = useHistory()
-  const [showTRex, setShowTRex] = useState(false)
   const { loading, error, data } = useQuery(GET_DATA)
   if (loading) return null
   if (error) {
@@ -108,9 +106,13 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             })}
           />
         </SelectContainer>
+
+        <CommandIcon>
+          <CommandBar />
+        </CommandIcon>
         <FeedbackIcon>
           <Button
-            type="subtle"
+            type="invert"
             icon="feedback"
             iconSize="20px"
             iconColour={theme.colours.altTextColour}
@@ -121,7 +123,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
         <ShortcutIcon id="shortcut-icon">
           <Button
             id="shortcut-button"
-            type="subtle"
+            type="invert"
             icon="help"
             iconSize="20px"
             iconColour={theme.colours.altTextColour}

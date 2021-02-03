@@ -332,14 +332,19 @@ function Item(props: ItemProps): ReactElement {
           exitInterval = setTimeout(() => setMoreButtonVisible(false), 200)
         }}
         onClick={(e) => {
-          if (isFocused) {
-            const activeItems = data.activeItem.filter((i) => i != item.key)
-            activeItemVar(activeItems)
-            if (activeItems.length == 0) {
-              focusbarVisibleVar(false)
+          if (e.shiftKey) {
+            if (isFocused) {
+              const activeItems = data.activeItem.filter((i) => i != item.key)
+              activeItemVar(activeItems)
+              if (activeItems.length == 0) {
+                focusbarVisibleVar(false)
+              }
+            } else {
+              activeItemVar([item.key, ...data.activeItem])
+              focusbarVisibleVar(true)
             }
           } else {
-            activeItemVar([...data.activeItem, item.key])
+            activeItemVar([item.key])
             focusbarVisibleVar(true)
           }
         }}

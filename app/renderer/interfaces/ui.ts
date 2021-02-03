@@ -129,3 +129,4 @@ export type IconType =
   | 'copy'
   | 'reminder'
   | 'drag'
+  | 'terminal'

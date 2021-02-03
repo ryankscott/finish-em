@@ -78,6 +78,10 @@ const GET_DATA = gql`
         key
         name
       }
+      label {
+        key
+        name
+      }
       parent {
         key
       }

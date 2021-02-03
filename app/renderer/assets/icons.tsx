@@ -989,6 +989,26 @@ export const Icons: {
       <path d="M20,9H4v2h16V9z M4,15h16v-2H4V15z" />
     </svg>
   ),
+  terminal: (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
+  ): React.SVGProps<SVGSVGElement> => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={width ? width : '16'}
+      height={height ? height : '16'}
+      viewBox="0 0 24 24"
+      fill={'none'}
+      stroke={colour ? colour : 'currentColor'}
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="4 17 10 11 4 5"></polyline>
+      <line x1="12" y1="19" x2="20" y2="19"></line>
+    </svg>
+  ),
   finish_em: (
     width?: CSS.Property.Width,
     height?: CSS.Property.Height,

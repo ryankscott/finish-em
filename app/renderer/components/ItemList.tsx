@@ -10,7 +10,7 @@ import { TransitionGroup, Transition } from 'react-transition-group'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { cloneDeep } from '@apollo/client/utilities'
-import { get } from 'lodash'
+import { get, groupBy } from 'lodash'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Spinner } from './Spinner'
 
@@ -66,10 +66,13 @@ type ItemListProps = {
   inputItems: {
     key: string
     text: string
+    label: { key: string; name: string }
+    project: { key: string; name: string }
     parent: { key: string; name: string }
     children: { key: string }[]
     sortOrder: { sortOrder: number }
   }[]
+  grouping?: 'project' | 'label'
   flattenSubtasks?: boolean
   hiddenIcons: ItemIcons[]
   compact?: boolean
@@ -172,72 +175,86 @@ function ItemList(props: ItemListProps): ReactElement {
     useHotkeys(v, handlers[k])
   })
 
+  const renderItem = (i): JSX.Element => {
+    if (i == undefined) return null
+    /* We want to allow flattening of subtasks which means:
+  1. If we should flatten
+      - If an item has a parent and the parent is in the list, don't render the parent 
+  2.  Default
+      - If an item has a parent, don't render it (as it will get rendered later)
+      - For each item, render the item and it's children  (In the Item component)
+*/
+    if (props.flattenSubtasks == true) {
+      if (i.parent != null) {
+        const parentExistsInList = props.inputItems.find((z) => z.key == i.parent.key)
+        // It exists it will get rendered later, so don't render it
+        if (parentExistsInList) {
+          return
+        }
+      }
+    }
+    return (
+      <Transition
+        key={'t-container-' + i.key}
+        timeout={{
+          appear: 100,
+          enter: 100,
+          exit: 100,
+        }}
+      >
+        {(state) => {
+          return (
+            <ItemContainer state={state} tabIndex={0} key={'container-' + i.key}>
+              <Item
+                compact={props.compact}
+                key={i.key}
+                itemKey={i.key}
+                componentKey={props.componentKey}
+                shouldIndent={false}
+                hiddenIcons={props.hiddenIcons}
+              />
+
+              {i.children?.map((childItem) => {
+                // We need to check if the child exists in the original input list
+                return (
+                  <Item
+                    compact={props.compact}
+                    key={childItem.key}
+                    itemKey={childItem.key}
+                    componentKey={props.componentKey}
+                    hiddenIcons={
+                      props.hiddenIcons
+                        ? [...props.hiddenIcons, ItemIcons.Subtask]
+                        : [ItemIcons.Subtask]
+                    }
+                    shouldIndent={true}
+                  />
+                )
+              })}
+            </ItemContainer>
+          )
+        }}
+      </Transition>
+    )
+  }
+
+  const groupedItems = groupBy(props.inputItems, (i) => (i.label ? i.label.name : 'None'))
   return (
     <ThemeProvider theme={theme}>
       <Container data-cy="item-list">
         <TransitionGroup component={null}>
-          {props.inputItems.map((i) => {
-            if (i == undefined) return null
-            /* We want to allow flattening of subtasks which means:
-                1. If we should flatten
-                    - If an item has a parent and the parent is in the list, don't render the parent 
-                2.  Default
-                    - If an item has a parent, don't render it (as it will get rendered later)
-                    - For each item, render the item and it's children  (In the Item component)
-            */
-            if (props.flattenSubtasks == true) {
-              if (i.parent != null) {
-                const parentExistsInList = props.inputItems.find((z) => z.key == i.parent.key)
-                // It exists it will get rendered later, so don't render it
-                if (parentExistsInList) {
-                  return
-                }
-              }
-            }
-            return (
-              <Transition
-                key={'t-container-' + i.key}
-                timeout={{
-                  appear: 100,
-                  enter: 100,
-                  exit: 100,
-                }}
-              >
-                {(state) => {
-                  return (
-                    <ItemContainer state={state} tabIndex={0} key={'container-' + i.key}>
-                      <Item
-                        compact={props.compact}
-                        key={i.key}
-                        itemKey={i.key}
-                        componentKey={props.componentKey}
-                        shouldIndent={false}
-                        hiddenIcons={props.hiddenIcons}
-                      />
-
-                      {i.children?.map((childItem) => {
-                        // We need to check if the child exists in the original input list
-                        return (
-                          <Item
-                            compact={props.compact}
-                            key={childItem.key}
-                            itemKey={childItem.key}
-                            componentKey={props.componentKey}
-                            hiddenIcons={
-                              props.hiddenIcons
-                                ? [...props.hiddenIcons, ItemIcons.Subtask]
-                                : [ItemIcons.Subtask]
-                            }
-                            shouldIndent={true}
-                          />
-                        )
-                      })}
-                    </ItemContainer>
-                  )
-                }}
-              </Transition>
-            )
-          })}
+          {props.grouping
+            ? Object.keys(groupedItems).map((o) => {
+                return (
+                  <>
+                    <h2 key={o}>{o}</h2>
+                    {groupedItems[o].map((i) => renderItem(i))}
+                  </>
+                )
+              })
+            : props.inputItems.map((i) => {
+                return renderItem(i)
+              })}
         </TransitionGroup>
         {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
       </Container>
