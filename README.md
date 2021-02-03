@@ -1,7 +1,7 @@
 ![CI](https://github.com/ryankscott/finish-em/workflows/CI/badge.svg)
 ![CodeQL](https://github.com/ryankscott/finish-em/workflows/CodeQL/badge.svg)
 
-<div style="display:flex;flex-direction:row;height:80px;align-items:center;">
+<div style="display:flex;flex-direction:row;height:100px;align-items:center;">
 <img src="https://github.com/ryankscott/finish-em/raw/master/app/renderer/assets/finish_em.svg"
   width="64"
   height=64"
