@@ -4,7 +4,7 @@
 <img src="https://github.com/ryankscott/finish-em/raw/master/app/renderer/assets/finish_em.svg"
   align="left"
   width="64"
-  height=64"
+  height="64"
   >
 
 # Finish-em
