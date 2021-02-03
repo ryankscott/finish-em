@@ -4,10 +4,9 @@
 <img src="https://github.com/ryankscott/finish-em/raw/master/app/renderer/assets/finish_em.svg"
   align="left"
   width="64"
-  height="64"
+  height=64"
   >
-
-# Finish-em
+  <h1>Finish-em </h1>
 
 An org-mode inspired personal organiser
 
@@ -34,7 +33,7 @@ npm install
 ### Running the Electron version (development)
 
 ```
-npm run start
+npm run dev start
 ```
 
 ## Building
