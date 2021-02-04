@@ -9,7 +9,7 @@
 >
   <h1>Finish-em </h1>
 </html>
-An org-mode inspired personal organiser
+Who doesn't need a 400MB todo list?
 
 ## Getting Started
 
