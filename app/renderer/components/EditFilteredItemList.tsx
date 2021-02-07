@@ -3,12 +3,12 @@ import React, { ReactElement, useEffect, useRef, useState } from 'react'
 import Select from 'react-select'
 import Switch from 'react-switch'
 import { FilteredItemListPropsInput } from '../../main/generated/typescript-helpers'
-import EditableText from './EditableText'
 import { ThemeType } from '../interfaces'
 import { ItemIcons } from '../interfaces/item'
 import { ThemeProvider } from '../StyledComponents'
 import { selectStyles, themes } from '../theme'
 import Button from './Button'
+import EditableText from './EditableText'
 import Expression from './filter-box/Expression'
 import ItemFilterBox from './ItemFilterBox'
 import {
@@ -128,7 +128,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                   `}
           />
         </DialogHeader>
-
         <Setting>
           <SettingLabel>Name:</SettingLabel>
           <SettingValue>

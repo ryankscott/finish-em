@@ -100,7 +100,6 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
             return `${conditionText} DATE(${categoryText}, 'localtime') < DATE('now', ${valueText}, 'localtime')`
           }
           return `${conditionText} ${categoryText} ${operator} ${valueText}`
-
         case '>':
           if (isDateCategory) {
             return `${conditionText} DATE(${categoryText}, 'localtime') > DATE('now', ${valueText}, 'localtime')`

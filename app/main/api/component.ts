@@ -77,17 +77,6 @@ VALUES ('${input.key}', '${input.viewKey}', '${input.location}', '${input.type}'
 `
 }
 
-export const createUpdateParametersOfComponentQuery = (input: {
-  key: string
-  parameters: Object
-}) => {
-  return `
-UPDATE component SET parameters = json('${JSON.stringify(input.parameters)}') WHERE key = '${
-    input.key
-  }'; 
-`
-}
-
 export const updateParametersOfComponent = (
   input: {
     key: string
@@ -95,11 +84,17 @@ export const updateParametersOfComponent = (
   },
   ctx,
 ) => {
-  return ctx.db.run(createUpdateParametersOfComponentQuery(input)).then((result) => {
-    return result.changes
-      ? getComponent({ key: input.key }, ctx)
-      : new Error('Unable to create component')
-  })
+  return ctx.db
+    .run(
+      'UPDATE component set parameters = ? WHERE key = ?',
+      JSON.stringify(input.parameters),
+      input.key,
+    )
+    .then((result) => {
+      return result.changes
+        ? getComponent({ key: input.key }, ctx)
+        : new Error('Unable to create component')
+    })
 }
 
 export const migrateComponent = (

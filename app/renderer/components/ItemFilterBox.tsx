@@ -1,11 +1,8 @@
 import React, { ReactElement, useState } from 'react'
-import DatePicker from 'react-datepicker'
 import { gql, useQuery } from '@apollo/client'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
-import { Wrapper } from './styled/ReactDatePicker'
 import { FilterContainer, Suggestion, Error } from './styled/ItemFilterBox'
-
 import ReactFilterBox from './filter-box/ReactFilterBox'
 import { Completion, HintResult } from './filter-box/models/ExtendedCodeMirror'
 import { Area, Label, Project } from '../../main/generated/typescript-helpers'
