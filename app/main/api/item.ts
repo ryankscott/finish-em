@@ -319,35 +319,7 @@ export const getItemsByArea = (input: { areaKey: string }, ctx) => {
     })
 }
 
-export const createCreateItemQuery = (input: {
-  key: string
-  type: string
-  text: string
-  deleted: boolean
-  completed: boolean
-  parentKey: string
-  projectKey: string
-  dueAt: Date
-  scheduledAt: Date
-  repeat: string
-  labelKey: string
-  areaKey: string
-}): string => {
-  const scheduledText = input.scheduledAt ? `'${input.scheduledAt.toISOString()}'` : null
-  const dueText = input.dueAt ? `'${input.dueAt.toISOString()}'` : null
-  const repeatText = input.repeat ? `'${input.repeat}'` : null
-  const labelText = input.labelKey ? `'${input.labelKey}'` : null
-  const areaText = input.areaKey ? `'${input.areaKey}'` : null
-  const parentText = input.parentKey ? `'${input.parentKey}'` : null
-  const projectText = input.projectKey ? `'${input.projectKey}'` : '0'
-  return `
-INSERT INTO item (key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey)
-VALUES ('${input.key}', '${input.type}', ${SqlString.escape(
-    input.text,
-  )}, false, false, ${parentText}, ${projectText} , ${dueText}, ${scheduledText}, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), '', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), '', ${repeatText}, ${labelText}, ${areaText})`
-}
-
-export const createItem = (
+export const createItem = async (
   input: {
     key: string
     type: string
@@ -365,13 +337,41 @@ export const createItem = (
   ctx,
 ) => {
   log.info(`Creating item by key - ${input.key} `)
-  return ctx.db.run(createCreateItemQuery(input)).then((result) => {
+  const scheduledText = input.scheduledAt ? input.scheduledAt.toISOString() : null
+  const dueText = input.dueAt ? input.dueAt.toISOString() : null
+  const repeatText = input.repeat ? input.repeat : null
+  const labelText = input.labelKey ? input.labelKey : null
+  const areaText = input.areaKey ? input.areaKey : null
+  const parentText = input.parentKey ? input.parentKey : null
+  const projectText = input.projectKey ? input.projectKey : '0'
+
+  if (input.parentKey) {
+    const parent = await getItem({ key: input.parentKey }, ctx)
+  }
+  const result = await ctx.db.run(
+    'INSERT INTO item (key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey) VALUES (?,?,?,?,?,?,?,?,?,strftime("%Y-%m-%dT%H:%M:%fZ", "now"), ?, strftime("%Y-%m-%dT%H:%M:%fZ", "now"),?,?,?,?)',
+    input.key,
+    input.type,
+    input.text,
+    false,
+    false,
+    parentText,
+    projectText,
+    dueText,
+    scheduledText,
+    '',
+    '',
+    repeatText,
+    labelText,
+    areaText,
+  )
+  if (await result.changes) {
     if (result.changes) {
       createItemOrder({ itemKey: input.key }, ctx)
       return getItem({ key: input.key }, ctx)
     }
     return new Error('Unable to create item')
-  })
+  }
 }
 export const createMigrateItemQuery = (input: {
   key: string
