@@ -105,7 +105,11 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
   }
   return (
     <ThemeProvider theme={theme}>
-      <Container onClick={(e) => e.stopPropagation()}>
+      <Container
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
+      >
         <OptionContainer>
           <Label>Starts: </Label>
           <Value>
@@ -115,7 +119,6 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
               textSize="xxxsmall"
               searchPlaceholder="Start date"
               onSubmit={(val) => {
-                console.log(val)
                 setStartDate(val)
               }}
               completed={false}

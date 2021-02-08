@@ -82,9 +82,12 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
       }
       props.onSubmit(newValue.value)
     }
+    console.log('here')
     setShowSelect(false)
+    setRepeatDialogVisible(false)
     return
   }
+
   const node = useRef<HTMLDivElement>()
 
   const handleClick = (e): null => {
@@ -105,7 +108,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
   const tooltipText = props.repeat ? capitaliseFirstLetter(props.repeat.toText()) : 'Repeat'
   return (
     <ThemeProvider theme={theme}>
-      <div style={{ width: '100%' }}>
+      <div ref={node} style={{ width: '100%' }}>
         <DateRenderer
           tooltipText={tooltipText}
           completed={props.completed}
@@ -115,9 +118,10 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           text={repeatText}
           deleted={props.deleted}
           onClick={(e) => {
+            setShowSelect(!showSelect)
+            setRepeatDialogVisible(false)
             e.stopPropagation()
             if (props.completed) return
-            setShowSelect(!showSelect)
           }}
         />
 
@@ -127,6 +131,9 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
               <Select
                 autoFocus={true}
                 placeholder={props.searchPlaceholder}
+                onMenuOpen={() => {
+                  setRepeatDialogVisible(false)
+                }}
                 onChange={handleChange}
                 options={options}
                 tabIndex="0"
@@ -135,6 +142,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                 onKeyDown={(e) => {
                   if (e.key == 'Escape') {
                     setShowSelect(false)
+                    setRepeatDialogVisible(false)
                     if (props.onEscape) {
                       props.onEscape()
                     }
@@ -154,7 +162,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
                     setRepeatDialogVisible(false)
                     setShowSelect(false)
                   }}
-                ></RepeatDialog>
+                />
               )}
             </SelectContainer>
           </>
