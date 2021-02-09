@@ -157,6 +157,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             key="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
             componentKey="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
             isFilterable={true}
+            showCompletedToggle={true}
             listName="Due Today"
             legacyFilter={`sameDay(dueDate, "${currentDate.toISOString()}")`}
             filter={JSON.stringify({
@@ -169,12 +170,12 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             flattenSubtasks={true}
             readOnly={true}
           />
-          <div style={{ height: '20px' }}></div>
-          <ItemCreator initiallyExpanded={false} dueAt={new Date()} />
+          <div style={{ height: '20px' }} />
           <FilteredItemList
             key="a4e1c649-378f-4d14-9aac-2d2720270dd8"
             componentKey="a4e1c649-378f-4d14-9aac-2d2720270dd8"
             isFilterable={true}
+            showCompletedToggle={true}
             listName="Scheduled Today"
             legacyFilter={`sameDay(scheduledDate, "${currentDate.toISOString()}")`}
             filter={JSON.stringify({
