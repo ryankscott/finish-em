@@ -232,7 +232,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   })
   const [setDueAt] = useMutation(SET_DUE_AT, { refetchQueries: ['itemsByFilter'] })
   const [setRepeat] = useMutation(SET_REPEAT, { refetchQueries: ['itemsByFilter'] })
-  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter'] })
+  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
   const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByFilter'] })
   const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [restoreItem] = useMutation(RESTORE_ITEM, { refetchQueries: ['itemsByFilter'] })

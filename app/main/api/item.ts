@@ -345,8 +345,12 @@ export const createItem = async (
   const parentText = input.parentKey ? input.parentKey : null
   const projectText = input.projectKey ? input.projectKey : '0'
 
-  if (input.parentKey) {
-    const parent = await getItem({ key: input.parentKey }, ctx)
+  // TODO refactor me
+  const hasParent = input.parentKey != null
+  let parent
+  if (hasParent) {
+    parent = await getItem({ key: input.parentKey }, ctx)
+    log.info('Inheiriting properties from parent')
   }
   const result = await ctx.db.run(
     'INSERT INTO item (key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey) VALUES (?,?,?,?,?,?,?,?,?,strftime("%Y-%m-%dT%H:%M:%fZ", "now"), ?, strftime("%Y-%m-%dT%H:%M:%fZ", "now"),?,?,?,?)',
@@ -356,14 +360,14 @@ export const createItem = async (
     false,
     false,
     parentText,
-    projectText,
+    hasParent ? parent.projectKey : projectText,
     dueText,
     scheduledText,
     '',
     '',
     repeatText,
     labelText,
-    areaText,
+    hasParent ? parent.areaKey : areaText,
   )
   if (await result.changes) {
     if (result.changes) {
