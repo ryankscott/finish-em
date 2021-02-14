@@ -26,9 +26,10 @@ import ItemList from './ItemList'
 import groupBy from 'lodash/groupBy'
 import EditableText from './EditableText'
 import ReorderableComponentList from './ReorderableComponentList'
+import { component } from '../../main/schemas/component'
 const GET_DATA = gql`
-  query weeklyItems($filter: String!) {
-    items: itemsByFilter(filter: $filter) {
+  query weeklyItems($filter: String!, $componentKey: String!) {
+    items: itemsByFilter(filter: $filter, componentKey: $componentKey) {
       key
       text
       completed
@@ -53,9 +54,6 @@ const GET_DATA = gql`
           key
           name
         }
-      }
-      sortOrder {
-        sortOrder
       }
     }
     weeklyGoals {
@@ -84,12 +82,14 @@ const filter = JSON.stringify({
 })
 
 const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
+  const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342'
   const goalRef = React.useRef<HTMLInputElement>()
   const [currentDate, setDate] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL, { refetchQueries: ['weeklyItems'] })
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       filter: filter,
+      componentKey: componentKey,
     },
   })
   if (loading) return null
@@ -100,7 +100,6 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   const itemsByDate = groupBy(data.items, (i) => {
     return format(parseISO(i.scheduledAt), 'yyyy-MM-dd')
   })
-  console.log(itemsByDate)
   const theme: ThemeType = themes[data.theme]
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
     (w) => w.week == format(currentDate, 'yyyy-MM-dd'),

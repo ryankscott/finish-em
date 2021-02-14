@@ -19,7 +19,7 @@ type Item {
   label: Label
   area: Area
   children: [Item]
-  sortOrder: ItemOrder!
+  sortOrders: [ItemOrder]
   reminders: [Reminder]
 }
 
@@ -128,7 +128,7 @@ type Query {
   item(key: String!): Item
   itemsByProject(projectKey: String!): [Item]
   itemsByArea(areaKey: String!): [Item]
-  itemsByFilter(filter: String!): [Item]
+  itemsByFilter(filter: String!, componentKey: String!): [Item]
   itemsByParent(parentKey: String!): [Item]
 }
 

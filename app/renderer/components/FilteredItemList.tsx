@@ -21,7 +21,7 @@ import { ThemeProvider } from '../StyledComponents'
 import { PAGE_SIZE } from '../consts'
 import EditFilteredItemList from './EditFilteredItemList'
 import Pagination from './Pagination'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, orderBy } from 'lodash'
 import { subtasksVisibleVar } from '..'
 
 const determineVisibilityRules = (
@@ -30,7 +30,6 @@ const determineVisibilityRules = (
   itemsLength: number,
   sortedItemsLength: number,
   completedItemsLength: number,
-  dragAndDropEnabled: boolean,
   showCompletedToggle: boolean,
 ): {
   showCompletedToggle: boolean
@@ -46,7 +45,7 @@ const determineVisibilityRules = (
     // Show delete button if we have at least one deleted item
     showDeleteButton: completedItemsLength > 0 && showItemList,
     // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
-    showSortButton: sortedItemsLength >= 1 && showItemList && !dragAndDropEnabled,
+    showSortButton: sortedItemsLength >= 1 && showItemList,
   }
 }
 const GET_THEME = gql`
@@ -56,51 +55,21 @@ const GET_THEME = gql`
 `
 
 const GET_DATA = gql`
-  query itemsByFilter($filter: String!) {
-    items: itemsByFilter(filter: $filter) {
+  query itemsByFilter($filter: String!, $componentKey: String!) {
+    items: itemsByFilter(filter: $filter, componentKey: $componentKey) {
       key
-      text
-      completed
-      deleted
-      dueAt
-      scheduledAt
-      lastUpdatedAt
-      createdAt
-      reminders {
-        key
-        remindAt
-      }
-      area {
-        key
-        name
-      }
-      project {
-        key
-        name
-      }
-      label {
-        key
-        name
-      }
       parent {
         key
       }
       children {
         key
-        project {
-          key
-          name
-        }
       }
-      sortOrder {
+      completed
+      sortOrders {
+        componentKey
         sortOrder
       }
     }
-    dragAndDrop: featureByName(name: "dragAndDrop") {
-      key
-      enabled
-    }
-
     subtasksVisible @client
   }
 `
@@ -141,19 +110,28 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
+      componentKey: props.componentKey,
     },
   })
   const theme = themes[themeData.theme]
-
   if (error) return null
-
   const allItems = data?.items
+
   const uncompletedItems = data?.items.filter((m) => m.completed == false)
   const completedItems = data?.items.filter((m) => m.completed == true)
-  const sortedItems = showCompleted
-    ? sortType.sort(uncompletedItems, sortDirection)
-    : sortType.sort(allItems, sortDirection)
-  const dragAndDropEnabled = data?.dragAndDrop ? data.dragAndDrop.enabled : false
+
+  // Todo fix this to use sorting by other metrics
+  const sI = data?.items.map((i) => {
+    const sortOrder = i.sortOrders.find((s) => s.componentKey == props.componentKey)
+    return {
+      key: i.key,
+      parentKey: i?.parent ? i.parent.key : null,
+      children: i?.children.map((c) => c.key),
+      sortOrder: sortOrder ? sortOrder.sortOrder : null,
+    }
+  })
+  const sortedItems = orderBy(sI, 'sortOrder', 'asc')
+
   const subtasksVisible = data?.subtasksVisible ? data.subtasksVisible : false
 
   const visibility = determineVisibilityRules(
@@ -162,9 +140,10 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     allItems?.length,
     sortedItems?.length,
     completedItems?.length,
-    dragAndDropEnabled,
     props.showCompletedToggle,
   )
+
+  // TODO: #338 Handle when items returned is null
   return (
     <ThemeProvider theme={theme}>
       <Container>
@@ -184,7 +163,11 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
           <ListHeader>
             {props.listName}
             <ListItemCount>
-              {sortedItems.length == 1 ? '1 item' : sortedItems.length + ' items'}
+              {sortedItems
+                ? sortedItems.length == 1
+                  ? '1 item'
+                  : sortedItems.length + ' items'
+                : '0 items'}
             </ListItemCount>
           </ListHeader>
           <FilterBar>
@@ -274,7 +257,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     })
                   }}
                 />
-                {visibility.showSortButton && (
+                {false && (
                   <SortDropdown
                     sortDirection={sortDirection}
                     onSetSortDirection={(d) => setSortDirection(d)}
@@ -298,47 +281,25 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             />
           </EditableContainer>
         ) : showItemList ? (
-          dragAndDropEnabled ? (
-            <>
-              <ItemListContainer>
-                <ReorderableItemList
-                  key={props.componentKey}
-                  componentKey={props.componentKey}
-                  hiddenIcons={props.hiddenIcons}
-                  inputItems={sortedItems.slice(
-                    (currentPage - 1) * PAGE_SIZE,
-                    currentPage * PAGE_SIZE,
-                  )}
-                  flattenSubtasks={props.flattenSubtasks}
-                />
-              </ItemListContainer>
-              <Pagination
-                itemsLength={sortedItems.length}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
+          <>
+            <ItemListContainer>
+              <ReorderableItemList
+                key={props.componentKey}
+                componentKey={props.componentKey}
+                hiddenIcons={props.hiddenIcons}
+                inputItems={sortedItems.slice(
+                  (currentPage - 1) * PAGE_SIZE,
+                  currentPage * PAGE_SIZE,
+                )}
+                flattenSubtasks={props.flattenSubtasks}
               />
-            </>
-          ) : (
-            <>
-              <ItemListContainer>
-                <ItemList
-                  key={props.componentKey}
-                  componentKey={props.componentKey}
-                  hiddenIcons={props.hiddenIcons}
-                  inputItems={sortedItems.slice(
-                    (currentPage - 1) * PAGE_SIZE,
-                    currentPage * PAGE_SIZE,
-                  )}
-                  flattenSubtasks={props.flattenSubtasks}
-                />
-              </ItemListContainer>
-              <Pagination
-                itemsLength={sortedItems.length}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-              />
-            </>
-          )
+            </ItemListContainer>
+            <Pagination
+              itemsLength={sortedItems.length}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
+          </>
         ) : null}
       </Container>
     </ThemeProvider>

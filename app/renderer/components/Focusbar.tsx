@@ -72,9 +72,6 @@ const GET_DATA = gql`
       children {
         key
       }
-      sortOrder {
-        sortOrder
-      }
     }
     theme @client
     focusbarVisible @client

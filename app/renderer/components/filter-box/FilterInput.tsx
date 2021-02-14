@@ -7,7 +7,6 @@ import { UnControlled as ReactCodeMirror } from 'react-codemirror2'
 import { ThemeProvider } from '../../StyledComponents'
 
 import { gql, useQuery } from '@apollo/client'
-import grammarUtils from './GrammarUtils'
 import { ExtendedCodeMirror } from './models/ExtendedCodeMirror'
 import AutoCompletePopup from './AutoCompletePopup'
 import { themes } from '../../theme'
@@ -48,24 +47,6 @@ const FilterInput = (props: FilterInputProps) => {
     options = { ...props.editorConfig, mode: 'filter-mode' }
   }
 
-  const findLastSeparatorPositionWithEditor = () => {
-    var doc = codeMirror.getDoc()
-    var currentCursor = doc.getCursor()
-    var text = doc.getRange({ line: 0, ch: 0 }, currentCursor)
-    var index = grammarUtils.findLastSeparatorIndex(text)
-    return {
-      line: currentCursor.line,
-      ch: currentCursor.ch - (text.length - index) + 1,
-    }
-  }
-
-  const handlePressingAnyCharacter = () => {
-    if (autoCompletePopup.completionShow) {
-      return
-    }
-    autoCompletePopup.show()
-  }
-
   const onSubmit = (text: string) => {
     autoCompletePopup.completionShow = false
     if (props.onSubmit) {
@@ -93,19 +74,26 @@ const FilterInput = (props: FilterInputProps) => {
       return true
     })
 
-    ref.editor.on('changes', () => {
-      handlePressingAnyCharacter()
+    ref.editor.on('changes', (e, v) => {
+      const changeType = v[0].origin
+      if (changeType == '+input' || changeType == 'complete') {
+        autoCompletePopup.show()
+      }
+      autoCompletePopup.completionShow = false
     })
 
     ref.editor.on('focus', (cm, e?) => {
-      handlePressingAnyCharacter()
-      props.onFocus(e)
+      props.onFocus()
     })
 
     ref.editor.on('blur', (cm, e?) => {
       onSubmit(doc.getValue())
       props.onBlur(e)
       autoCompletePopup.completionShow = false
+    })
+
+    ref.editor.on('keypress', (cm: ExtendedCodeMirror, e?: KeyboardEvent) => {
+      autoCompletePopup.completionShow = true
     })
 
     ref.editor.on('keyup', (cm: ExtendedCodeMirror, e?: KeyboardEvent) => {

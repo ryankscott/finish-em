@@ -2,10 +2,11 @@ import Item from '../classes/item'
 import { v4 as uuidv4 } from 'uuid'
 import SqlString from 'sqlstring-sqlite'
 import Expression from '../../renderer/components/filter-box/Expression'
-import { createItemOrder } from './itemOrder'
+import { createItemOrder, deleteItemOrder, getItemOrdersByComponent } from './itemOrder'
 import { Item as ItemType } from '../generated/typescript-helpers'
 import { rrulestr } from 'rrule'
 import { startOfDay } from 'date-fns'
+import { filter, without } from 'lodash'
 const log = require('electron-log')
 export const getItems = (obj, ctx) => {
   log.info(`Getting all items `)
@@ -37,7 +38,7 @@ export const getItems = (obj, ctx) => {
       ),
     )
 }
-export const getFilteredItems = async (input: { filter: string }, ctx) => {
+export const getFilteredItems = async (input: { filter: string; componentKey: string }, ctx) => {
   log.info(`Executing with filter: ${input.filter}`)
   // Parse string into object
   const parseFilters = (filter: string): { text: string; value: Expression[] } => {
@@ -133,7 +134,7 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
 
     const filterTextArray = exps.map((f: Expression, idx: number) => {
       if (f.expressions) {
-        return `(${f.expressions
+        return `${f.conditionType} ( ${f.expressions
           .map((fs, idx) => {
             const filterString = transformExpressionToString(
               fs.conditionType,
@@ -154,10 +155,30 @@ export const getFilteredItems = async (input: { filter: string }, ctx) => {
   }
   const filters = parseFilters(input.filter)
   const filterString = generateQueryString(filters.value)
-  const queryString = `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item
- WHERE ${filterString}`
-  const results = await ctx.db.all(queryString)
-  if (results) {
+  log.debug(filterString)
+  const results = await ctx.db.all(
+    `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE ${filterString}`,
+  )
+
+  if ((await results.length) >= 0) {
+    // Get all itemOrders for that component
+    const orders = await getItemOrdersByComponent({ componentKey: input.componentKey }, ctx)
+
+    // Remove all ones that aren't in the filtered list
+    const orderKeys = orders.map((o) => o.itemKey)
+    const resultKeys = results.map((r) => r.key)
+
+    const inOrderButNotResult = without(orderKeys, ...resultKeys)
+    inOrderButNotResult.forEach(
+      async (i) => await deleteItemOrder({ itemKey: i, componentKey: input.componentKey }, ctx),
+    )
+
+    // Add new ones
+    const inResultButNotOrder = without(resultKeys, ...orderKeys)
+    inResultButNotOrder.forEach(
+      async (i) => await createItemOrder({ itemKey: i, componentKey: input.componentKey }, ctx),
+    )
+
     return results.map(
       (r) =>
         new Item(
@@ -219,7 +240,8 @@ export const getItemsByProject = (input: { projectKey: string }, ctx) => {
   log.info(`Getting items for project - ${input.projectKey}`)
   return ctx.db
     .all(
-      `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE projectKey = '${input.projectKey}'`,
+      'SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE projectKey = ?',
+      input.projectKey,
     )
     .then((result) => {
       if (result) {
@@ -253,7 +275,8 @@ export const getItemsByProject = (input: { projectKey: string }, ctx) => {
 export const getItemsByParent = (input: { parentKey: string }, ctx) => {
   return ctx.db
     .all(
-      `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE parentKey = '${input.parentKey}'`,
+      'SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE parentKey = ?',
+      input.parentKey,
     )
     .then((result) => {
       if (result) {
@@ -288,7 +311,8 @@ export const getItemsByArea = (input: { areaKey: string }, ctx) => {
   log.info(`Getting items by area - ${input.areaKey} `)
   return ctx.db
     .all(
-      `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE areaKey = '${input.areaKey}' and deleted = false`,
+      'SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE areaKey = ? and deleted = false',
+      input.areaKey,
     )
     .then((result) => {
       if (result) {
@@ -370,13 +394,11 @@ export const createItem = async (
     hasParent ? parent.areaKey : areaText,
   )
   if (await result.changes) {
-    if (result.changes) {
-      createItemOrder({ itemKey: input.key }, ctx)
-      return getItem({ key: input.key }, ctx)
-    }
-    return new Error('Unable to create item')
+    return getItem({ key: input.key }, ctx)
   }
+  return new Error('Unable to create item')
 }
+
 export const createMigrateItemQuery = (input: {
   key: string
   type: string
@@ -413,6 +435,7 @@ export const createMigrateItemQuery = (input: {
     input.completed
   }, ${parentText}, ${projectText}, ${dueText}, ${scheduledText}, ${lastUpdatedText}, ${completedText}, ${createdText}, ${deletedText}, ${repeatText}, ${labelText}, ${areaText})`
 }
+
 export const migrateItem = (
   input: {
     key: string
@@ -463,6 +486,7 @@ export const deleteItem = async (input: { key: string }, ctx) => {
     return new Error('Unable to delete item')
   })
 }
+
 export const createRestoreItemQuery = (input: { key: string }) => {
   return `
 UPDATE item SET deleted = false, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = null WHERE key = '${input.key}'
@@ -604,10 +628,7 @@ export const cloneItem = async (input: { key: string }, ctx) => {
   const newKey = uuidv4()
   const result = await ctx.db.run(createCloneItemQuery({ key: input.key, newKey: newKey }))
   if (result.changes) {
-    const itemOrder = await createItemOrder({ itemKey: newKey }, ctx)
-    if (itemOrder) {
-      return getItem({ key: newKey }, ctx)
-    }
+    return getItem({ key: newKey }, ctx)
   }
   log.error(`Unable to clone item, key - ${input.key}`)
   return new Error('Unable to clone item')
@@ -731,14 +752,8 @@ export const setParentOfItem = async (input: { key: string; parentKey: string },
   })
 }
 
-export const createPermanentDeleteQuery = (input: { key: string }) => {
-  return `
-DELETE FROM item WHERE key = '${input.key}'
-`
-}
-
 export const permanentDeleteItem = (input: { key: string }, ctx) => {
-  return ctx.db.run(createPermanentDeleteQuery(input)).then((result) => {
+  return ctx.db.run('DELETE from item WHERE key = ?', input.key).then((result) => {
     if (result.changes) {
       return input.key
     }

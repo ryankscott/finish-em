@@ -91,9 +91,6 @@ const GET_DATA = gql`
       children {
         key
       }
-      sortOrder {
-        sortOrder
-      }
     }
     activeItem @client
     subtasksVisible @client
@@ -116,6 +113,8 @@ const COMPLETE_ITEM = gql`
       completed
       completedAt
       scheduledAt
+      repeat
+      repeatAt
       dueAt
     }
   }

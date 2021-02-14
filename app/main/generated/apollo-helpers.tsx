@@ -13,7 +13,7 @@ export type AreaFieldPolicy = {
 	items?: FieldPolicy<any> | FieldReadFunction<any>,
 	sortOrder?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type QueryKeySpecifier = ('areas' | 'area' | 'areaOrders' | 'areaOrder' | 'calendars' | 'calendar' | 'getActiveCalendar' | 'components' | 'component' | 'componentsByView' | 'componentOrders' | 'componentOrder' | 'events' | 'event' | 'eventsByCalendar' | 'eventsForActiveCalendar' | 'features' | 'feature' | 'featureByName' | 'items' | 'item' | 'itemsByProject' | 'itemsByArea' | 'itemsByFilter' | 'itemsByParent' | 'itemOrders' | 'itemOrder' | 'labels' | 'label' | 'projects' | 'project' | 'projectsByArea' | 'projectOrders' | 'projectOrder' | 'reminders' | 'reminder' | 'remindersByItem' | 'views' | 'view' | 'viewOrders' | 'viewOrder' | 'weeklyGoals' | 'weeklyGoal' | 'weeklyGoalByName' | QueryKeySpecifier)[];
+export type QueryKeySpecifier = ('areas' | 'area' | 'areaOrders' | 'areaOrder' | 'calendars' | 'calendar' | 'getActiveCalendar' | 'components' | 'component' | 'componentsByView' | 'componentOrders' | 'componentOrder' | 'events' | 'event' | 'eventsByCalendar' | 'eventsForActiveCalendar' | 'features' | 'feature' | 'featureByName' | 'items' | 'item' | 'itemsByProject' | 'itemsByArea' | 'itemsByFilter' | 'itemsByParent' | 'itemOrders' | 'itemOrder' | 'itemOrdersByComponent' | 'labels' | 'label' | 'projects' | 'project' | 'projectsByArea' | 'projectOrders' | 'projectOrder' | 'reminders' | 'reminder' | 'remindersByItem' | 'views' | 'view' | 'viewOrders' | 'viewOrder' | 'weeklyGoals' | 'weeklyGoal' | 'weeklyGoalByName' | QueryKeySpecifier)[];
 export type QueryFieldPolicy = {
 	areas?: FieldPolicy<any> | FieldReadFunction<any>,
 	area?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -42,6 +42,7 @@ export type QueryFieldPolicy = {
 	itemsByParent?: FieldPolicy<any> | FieldReadFunction<any>,
 	itemOrders?: FieldPolicy<any> | FieldReadFunction<any>,
 	itemOrder?: FieldPolicy<any> | FieldReadFunction<any>,
+	itemOrdersByComponent?: FieldPolicy<any> | FieldReadFunction<any>,
 	labels?: FieldPolicy<any> | FieldReadFunction<any>,
 	label?: FieldPolicy<any> | FieldReadFunction<any>,
 	projects?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -60,7 +61,7 @@ export type QueryFieldPolicy = {
 	weeklyGoal?: FieldPolicy<any> | FieldReadFunction<any>,
 	weeklyGoalByName?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type MutationKeySpecifier = ('createArea' | 'migrateArea' | 'deleteArea' | 'renameArea' | 'changeDescriptionArea' | 'setAreaOrder' | 'createAreaOrder' | 'migrateAreaOrder' | 'createCalendar' | 'deleteCalendar' | 'setActiveCalendar' | 'createFilteredItemListComponent' | 'createViewHeaderComponent' | 'createComponent' | 'setParametersOfFilteredItemListComponent' | 'setParametersOfViewHeaderComponent' | 'migrateComponent' | 'deleteComponent' | 'setComponentOrder' | 'createComponentOrder' | 'migrateComponentOrder' | 'createEvent' | 'deleteEvent' | 'createFeature' | 'setFeature' | 'createItem' | 'migrateItem' | 'deleteItem' | 'restoreItem' | 'renameItem' | 'setTypeOfItem' | 'completeItem' | 'unCompleteItem' | 'setRepeatOfItem' | 'cloneItem' | 'setProjectOfItem' | 'setAreaOfItem' | 'setScheduledAtOfItem' | 'setDueAtOfItem' | 'setParentOfItem' | 'permanentDeleteItem' | 'setLabelOfItem' | 'setItemOrder' | 'createItemOrder' | 'migrateItemOrder' | 'createLabel' | 'renameLabel' | 'setColourOfLabel' | 'deleteLabel' | 'createProject' | 'migrateProject' | 'deleteProject' | 'renameProject' | 'changeDescriptionProject' | 'setEndDateOfProject' | 'setStartDateOfProject' | 'setAreaOfProject' | 'setProjectOrder' | 'createProjectOrder' | 'migrateProjectOrder' | 'createReminder' | 'deleteReminder' | 'deleteReminderFromItem' | 'createView' | 'migrateView' | 'deleteView' | 'renameView' | 'setViewOrder' | 'createViewOrder' | 'migrateViewOrder' | 'createWeeklyGoal' | MutationKeySpecifier)[];
+export type MutationKeySpecifier = ('createArea' | 'migrateArea' | 'deleteArea' | 'renameArea' | 'changeDescriptionArea' | 'setAreaOrder' | 'createAreaOrder' | 'migrateAreaOrder' | 'createCalendar' | 'deleteCalendar' | 'setActiveCalendar' | 'createComponent' | 'setParametersOfComponent' | 'migrateComponent' | 'deleteComponent' | 'setComponentOrder' | 'createComponentOrder' | 'migrateComponentOrder' | 'createEvent' | 'deleteEvent' | 'createFeature' | 'setFeature' | 'createItem' | 'migrateItem' | 'deleteItem' | 'restoreItem' | 'renameItem' | 'setTypeOfItem' | 'completeItem' | 'unCompleteItem' | 'setRepeatOfItem' | 'cloneItem' | 'setProjectOfItem' | 'setAreaOfItem' | 'setScheduledAtOfItem' | 'setDueAtOfItem' | 'setParentOfItem' | 'permanentDeleteItem' | 'setLabelOfItem' | 'setItemOrder' | 'createItemOrder' | 'migrateItemOrder' | 'createLabel' | 'renameLabel' | 'setColourOfLabel' | 'deleteLabel' | 'createProject' | 'migrateProject' | 'deleteProject' | 'renameProject' | 'changeDescriptionProject' | 'setEndDateOfProject' | 'setStartDateOfProject' | 'setAreaOfProject' | 'setProjectOrder' | 'createProjectOrder' | 'migrateProjectOrder' | 'createReminder' | 'deleteReminder' | 'deleteReminderFromItem' | 'createView' | 'migrateView' | 'deleteView' | 'renameView' | 'setViewOrder' | 'createViewOrder' | 'migrateViewOrder' | 'createWeeklyGoal' | MutationKeySpecifier)[];
 export type MutationFieldPolicy = {
 	createArea?: FieldPolicy<any> | FieldReadFunction<any>,
 	migrateArea?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -73,11 +74,8 @@ export type MutationFieldPolicy = {
 	createCalendar?: FieldPolicy<any> | FieldReadFunction<any>,
 	deleteCalendar?: FieldPolicy<any> | FieldReadFunction<any>,
 	setActiveCalendar?: FieldPolicy<any> | FieldReadFunction<any>,
-	createFilteredItemListComponent?: FieldPolicy<any> | FieldReadFunction<any>,
-	createViewHeaderComponent?: FieldPolicy<any> | FieldReadFunction<any>,
 	createComponent?: FieldPolicy<any> | FieldReadFunction<any>,
-	setParametersOfFilteredItemListComponent?: FieldPolicy<any> | FieldReadFunction<any>,
-	setParametersOfViewHeaderComponent?: FieldPolicy<any> | FieldReadFunction<any>,
+	setParametersOfComponent?: FieldPolicy<any> | FieldReadFunction<any>,
 	migrateComponent?: FieldPolicy<any> | FieldReadFunction<any>,
 	deleteComponent?: FieldPolicy<any> | FieldReadFunction<any>,
 	setComponentOrder?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -203,10 +201,11 @@ export type ItemFieldPolicy = {
 	sortOrder?: FieldPolicy<any> | FieldReadFunction<any>,
 	reminders?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type ItemOrderKeySpecifier = ('itemKey' | 'sortOrder' | ItemOrderKeySpecifier)[];
+export type ItemOrderKeySpecifier = ('item' | 'sortOrder' | 'componentKey' | ItemOrderKeySpecifier)[];
 export type ItemOrderFieldPolicy = {
-	itemKey?: FieldPolicy<any> | FieldReadFunction<any>,
-	sortOrder?: FieldPolicy<any> | FieldReadFunction<any>
+	item?: FieldPolicy<any> | FieldReadFunction<any>,
+	sortOrder?: FieldPolicy<any> | FieldReadFunction<any>,
+	componentKey?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type LabelKeySpecifier = ('key' | 'name' | 'colour' | LabelKeySpecifier)[];
 export type LabelFieldPolicy = {

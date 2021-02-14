@@ -32,3 +32,10 @@ export const Container = styled.div`
   width: 100%;
   margin: 11px 0px;
 `
+export const GroupHeader = styled.div`
+  font-size: ${(props) => props.theme.fontSizes.regular};
+  font-weight: ${(props) => props.theme.fontWeights.bold};
+  color: ${(props) => props.theme.colours.textColour};
+  padding: 8px 8px;
+  border-bottom: 1px solid ${(props) => props.theme.colours.borderColour};
+`

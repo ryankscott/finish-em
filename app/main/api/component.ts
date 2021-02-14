@@ -113,7 +113,7 @@ export const migrateComponent = (
       : new Error('Unable to migrate component')
   })
 }
-
+// TODO: #339 Remove all item orders when deleting a component
 export const createDeleteComponentInput = (input: { key: string }) => {
   return `DELETE FROM component WHERE key = '${input.key}'`
 }

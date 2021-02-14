@@ -3,7 +3,6 @@ import * as CSS from 'csstype'
 import { ThemeType, fontSizeType } from './interfaces'
 import { StylesConfig } from 'react-select'
 import { createGlobalStyle } from './StyledComponents'
-import { defaultProps } from 'react-select/src/Select'
 
 export const GlobalStyle = createGlobalStyle`
 * {

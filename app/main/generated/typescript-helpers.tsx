@@ -91,6 +91,7 @@ export type Query = {
   itemsByParent?: Maybe<Array<Maybe<Item>>>;
   itemOrders?: Maybe<Array<Maybe<ItemOrder>>>;
   itemOrder?: Maybe<ItemOrder>;
+  itemOrdersByComponent?: Maybe<Array<Maybe<ItemOrder>>>;
   labels?: Maybe<Array<Maybe<Label>>>;
   label?: Maybe<Label>;
   projects?: Maybe<Array<Maybe<Project>>>;
@@ -178,6 +179,7 @@ export type QueryItemsByAreaArgs = {
 
 export type QueryItemsByFilterArgs = {
   filter: Scalars['String'];
+  componentKey: Scalars['String'];
 };
 
 
@@ -188,6 +190,11 @@ export type QueryItemsByParentArgs = {
 
 export type QueryItemOrderArgs = {
   itemKey: Scalars['String'];
+};
+
+
+export type QueryItemOrdersByComponentArgs = {
+  componentKey: Scalars['String'];
 };
 
 
@@ -258,11 +265,8 @@ export type Mutation = {
   createCalendar?: Maybe<Calendar>;
   deleteCalendar?: Maybe<Calendar>;
   setActiveCalendar?: Maybe<Calendar>;
-  createFilteredItemListComponent?: Maybe<Component>;
-  createViewHeaderComponent?: Maybe<Component>;
   createComponent?: Maybe<Component>;
-  setParametersOfFilteredItemListComponent?: Maybe<Component>;
-  setParametersOfViewHeaderComponent?: Maybe<Component>;
+  setParametersOfComponent?: Maybe<Component>;
   migrateComponent?: Maybe<Component>;
   deleteComponent?: Maybe<Component>;
   setComponentOrder?: Maybe<ComponentOrder>;
@@ -376,28 +380,13 @@ export type MutationSetActiveCalendarArgs = {
 };
 
 
-export type MutationCreateFilteredItemListComponentArgs = {
-  input: CreateFilteredItemListComponentInput;
-};
-
-
-export type MutationCreateViewHeaderComponentArgs = {
-  input: CreateViewHeaderComponentInput;
-};
-
-
 export type MutationCreateComponentArgs = {
   input: CreateComponentInput;
 };
 
 
-export type MutationSetParametersOfFilteredItemListComponentArgs = {
-  input: SetParametersOfFilteredItemListComponentInput;
-};
-
-
-export type MutationSetParametersOfViewHeaderComponentArgs = {
-  input: SetParametersOfViewHeaderComponentInput;
+export type MutationSetParametersOfComponentArgs = {
+  input: SetParametersOfComponentInput;
 };
 
 
@@ -732,14 +721,6 @@ export type Component = {
   sortOrder: ComponentOrder;
 };
 
-export type CreateFilteredItemListComponentInput = {
-  key: Scalars['String'];
-  viewKey: Scalars['String'];
-  location: Scalars['String'];
-  type: Scalars['String'];
-  parameters?: Maybe<FilteredItemListPropsInput>;
-};
-
 export type CreateComponentInput = {
   key: Scalars['String'];
   viewKey: Scalars['String'];
@@ -748,38 +729,9 @@ export type CreateComponentInput = {
   parameters: Scalars['JSON'];
 };
 
-export type CreateViewHeaderComponentInput = {
+export type SetParametersOfComponentInput = {
   key: Scalars['String'];
-  viewKey: Scalars['String'];
-  location: Scalars['String'];
-  type: Scalars['String'];
-  parameters?: Maybe<ViewHeaderPropsInput>;
-};
-
-export type FilteredItemListPropsInput = {
-  legacyFilter?: Maybe<Scalars['String']>;
-  filter?: Maybe<Scalars['String']>;
-  hiddenIcons?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isFilterable?: Maybe<Scalars['Boolean']>;
-  listName?: Maybe<Scalars['String']>;
-  flattenSubtasks?: Maybe<Scalars['Boolean']>;
-  showCompletedToggle?: Maybe<Scalars['Boolean']>;
-  initiallyExpanded?: Maybe<Scalars['Boolean']>;
-};
-
-export type SetParametersOfFilteredItemListComponentInput = {
-  key: Scalars['String'];
-  parameters: FilteredItemListPropsInput;
-};
-
-export type ViewHeaderPropsInput = {
-  name: Scalars['String'];
-  icon?: Maybe<Scalars['String']>;
-};
-
-export type SetParametersOfViewHeaderComponentInput = {
-  key: Scalars['String'];
-  parameters: ViewHeaderPropsInput;
+  parameters: Scalars['JSON'];
 };
 
 export type DeleteComponentInput = {
@@ -984,23 +936,27 @@ export type SetLabelOfInput = {
 
 export type ItemOrder = {
   __typename?: 'ItemOrder';
-  itemKey: Scalars['String'];
+  item: Item;
   sortOrder: Scalars['Int'];
+  componentKey: Scalars['String'];
 };
 
 export type CreateItemOrderInput = {
   itemKey: Scalars['String'];
   sortOrder: Scalars['Int'];
+  componentKey: Scalars['String'];
 };
 
 export type SetItemOrderInput = {
   itemKey: Scalars['String'];
   sortOrder: Scalars['Int'];
+  componentKey: Scalars['String'];
 };
 
 export type MigrateItemOrderInput = {
   itemKey: Scalars['String'];
   sortOrder: Scalars['Int'];
+  componentKey: Scalars['String'];
 };
 
 export type Label = {
@@ -1113,7 +1069,6 @@ export type ProjectOrder = {
 
 export type CreateProjectOrderInput = {
   projectKey: Scalars['String'];
-  sortOrder: Scalars['Int'];
 };
 
 export type SetProjectOrderInput = {
@@ -1321,13 +1276,8 @@ export type ResolversTypes = {
   ActiveCalendarInput: ActiveCalendarInput;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Component: ResolverTypeWrapper<Component>;
-  CreateFilteredItemListComponentInput: CreateFilteredItemListComponentInput;
   CreateComponentInput: CreateComponentInput;
-  CreateViewHeaderComponentInput: CreateViewHeaderComponentInput;
-  FilteredItemListPropsInput: FilteredItemListPropsInput;
-  SetParametersOfFilteredItemListComponentInput: SetParametersOfFilteredItemListComponentInput;
-  ViewHeaderPropsInput: ViewHeaderPropsInput;
-  SetParametersOfViewHeaderComponentInput: SetParametersOfViewHeaderComponentInput;
+  SetParametersOfComponentInput: SetParametersOfComponentInput;
   DeleteComponentInput: DeleteComponentInput;
   MigrateComponentInput: MigrateComponentInput;
   ComponentOrder: ResolverTypeWrapper<ComponentOrder>;
@@ -1423,13 +1373,8 @@ export type ResolversParentTypes = {
   ActiveCalendarInput: ActiveCalendarInput;
   JSON: Scalars['JSON'];
   Component: Component;
-  CreateFilteredItemListComponentInput: CreateFilteredItemListComponentInput;
   CreateComponentInput: CreateComponentInput;
-  CreateViewHeaderComponentInput: CreateViewHeaderComponentInput;
-  FilteredItemListPropsInput: FilteredItemListPropsInput;
-  SetParametersOfFilteredItemListComponentInput: SetParametersOfFilteredItemListComponentInput;
-  ViewHeaderPropsInput: ViewHeaderPropsInput;
-  SetParametersOfViewHeaderComponentInput: SetParametersOfViewHeaderComponentInput;
+  SetParametersOfComponentInput: SetParametersOfComponentInput;
   DeleteComponentInput: DeleteComponentInput;
   MigrateComponentInput: MigrateComponentInput;
   ComponentOrder: ComponentOrder;
@@ -1543,10 +1488,11 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   item?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<QueryItemArgs, 'key'>>;
   itemsByProject?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType, RequireFields<QueryItemsByProjectArgs, 'projectKey'>>;
   itemsByArea?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType, RequireFields<QueryItemsByAreaArgs, 'areaKey'>>;
-  itemsByFilter?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType, RequireFields<QueryItemsByFilterArgs, 'filter'>>;
+  itemsByFilter?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType, RequireFields<QueryItemsByFilterArgs, 'filter' | 'componentKey'>>;
   itemsByParent?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType, RequireFields<QueryItemsByParentArgs, 'parentKey'>>;
   itemOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType>;
   itemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<QueryItemOrderArgs, 'itemKey'>>;
+  itemOrdersByComponent?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType, RequireFields<QueryItemOrdersByComponentArgs, 'componentKey'>>;
   labels?: Resolver<Maybe<Array<Maybe<ResolversTypes['Label']>>>, ParentType, ContextType>;
   label?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType, RequireFields<QueryLabelArgs, 'key'>>;
   projects?: Resolver<Maybe<Array<Maybe<ResolversTypes['Project']>>>, ParentType, ContextType, RequireFields<QueryProjectsArgs, never>>;
@@ -1578,11 +1524,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationCreateCalendarArgs, 'input'>>;
   deleteCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationDeleteCalendarArgs, 'input'>>;
   setActiveCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationSetActiveCalendarArgs, 'input'>>;
-  createFilteredItemListComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateFilteredItemListComponentArgs, 'input'>>;
-  createViewHeaderComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateViewHeaderComponentArgs, 'input'>>;
   createComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateComponentArgs, 'input'>>;
-  setParametersOfFilteredItemListComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationSetParametersOfFilteredItemListComponentArgs, 'input'>>;
-  setParametersOfViewHeaderComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationSetParametersOfViewHeaderComponentArgs, 'input'>>;
+  setParametersOfComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationSetParametersOfComponentArgs, 'input'>>;
   migrateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationMigrateComponentArgs, 'input'>>;
   deleteComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
   setComponentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<MutationSetComponentOrderArgs, 'input'>>;
@@ -1721,8 +1664,9 @@ export type ItemResolvers<ContextType = any, ParentType extends ResolversParentT
 };
 
 export type ItemOrderResolvers<ContextType = any, ParentType extends ResolversParentTypes['ItemOrder'] = ResolversParentTypes['ItemOrder']> = {
-  itemKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  item?: Resolver<ResolversTypes['Item'], ParentType, ContextType>;
   sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  componentKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

@@ -5,7 +5,7 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
 import { ThemeType } from '../interfaces'
-import { Container, NoItemText, ItemContainer } from './styled/ItemList'
+import { Container, NoItemText, ItemContainer, GroupHeader } from './styled/ItemList'
 import { TransitionGroup, Transition } from 'react-transition-group'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { gql, useMutation, useQuery } from '@apollo/client'
@@ -238,23 +238,13 @@ function ItemList(props: ItemListProps): ReactElement {
     )
   }
 
-  const groupedItems = groupBy(props.inputItems, (i) => (i.label ? i.label.name : 'None'))
   return (
     <ThemeProvider theme={theme}>
       <Container data-cy="item-list">
         <TransitionGroup component={null}>
-          {props.grouping
-            ? Object.keys(groupedItems).map((o) => {
-                return (
-                  <>
-                    <h2 key={o}>{o}</h2>
-                    {groupedItems[o].map((i) => renderItem(i))}
-                  </>
-                )
-              })
-            : props.inputItems.map((i) => {
-                return renderItem(i)
-              })}
+          {props.inputItems.map((i) => {
+            return renderItem(i)
+          })}
         </TransitionGroup>
         {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
       </Container>

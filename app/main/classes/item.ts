@@ -3,9 +3,9 @@ import {
   getLabel,
   getItem,
   getProject,
-  getItemOrder,
   getItemsByParent,
   getRemindersByItem,
+  getItemOrdersByItem,
 } from '../api'
 export default class Item {
   constructor(
@@ -56,16 +56,13 @@ export default class Item {
   parent(obj, ctx) {
     return getItem({ key: this.parentKey }, ctx)
   }
-
   children(obj, ctx) {
     return getItemsByParent({ parentKey: this.key }, ctx)
   }
-
   reminders(obj, ctx) {
     return getRemindersByItem({ itemKey: this.key }, ctx)
   }
-
-  sortOrder(obj, ctx) {
-    return getItemOrder({ itemKey: this.key }, ctx)
+  sortOrders(obj, ctx) {
+    return getItemOrdersByItem({ itemKey: this.key }, ctx)
   }
 }

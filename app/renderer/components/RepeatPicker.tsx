@@ -82,7 +82,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
       }
       props.onSubmit(newValue.value)
     }
-    console.log('here')
     setShowSelect(false)
     setRepeatDialogVisible(false)
     return

@@ -15,13 +15,13 @@ import {
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { Item as ItemType } from '../../main/generated/typescript-helpers'
 import { cloneDeep, get, orderBy } from 'lodash'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { subtasksVisibleVar, focusbarVisibleVar, activeItemVar } from '..'
 import { Spinner } from './Spinner'
+import { itemReducer } from '../reducers/item'
 
-const GET_THEME = gql`
+const GET_DATA = gql`
   query {
     theme @client
   }
@@ -63,9 +63,12 @@ const RESTORE_ITEM = gql`
   }
 `
 const SET_ITEM_ORDER = gql`
-  mutation SetItemOrder($itemKey: String!, $sortOrder: Int!) {
-    setItemOrder(input: { itemKey: $itemKey, sortOrder: $sortOrder }) {
-      itemKey
+  mutation SetItemOrder($itemKey: String!, $componentKey: String!, $sortOrder: Int!) {
+    setItemOrder(input: { itemKey: $itemKey, componentKey: $componentKey, sortOrder: $sortOrder }) {
+      item {
+        key
+      }
+      sortOrder
     }
   }
 `
@@ -73,11 +76,10 @@ const SET_ITEM_ORDER = gql`
 type ReorderableItemListProps = {
   componentKey: string
   inputItems: {
-    text: string
     key: string
-    parent: { key: string; name: string }
-    children: { key: string }[]
-    sortOrder: { sortOrder: number }
+    parentKey: string
+    children: string[]
+    sortOrder: number
   }[]
   flattenSubtasks?: Boolean
   hiddenIcons: ItemIcons[]
@@ -91,23 +93,16 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [restoreItem] = useMutation(RESTORE_ITEM)
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return <Spinner loading={true}></Spinner>
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
 
   /* TODO: Introduce the following shortcuts:
-  - Scheduled At
-  - Due At
-  - Create subtask
-  - Convert to subtask
-  - Repeat
-  - Add Project
-  - Add Area
-  - Edit description
+	- Scheduled At
+	- Due At
+	- Create subtask
+	- Convert to subtask
+	- Repeat
+	- Add Project
+	- Add Area
+	- Edit description
  */
   const handlers = {
     TOGGLE_CHILDREN: (event) => {
@@ -182,16 +177,29 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     useHotkeys(v, handlers[k])
   })
 
-  const sortedItems: ItemType[] = orderBy(props.inputItems, ['sortOrder.sortOrder'], ['asc'])
+  const { loading, error, data } = useQuery(GET_DATA)
+  if (loading) return <Spinner loading={true}></Spinner>
+  if (error) {
+    console.log(error)
+    return null
+  }
+
+  const theme: ThemeType = themes[data.theme]
+  const sortedItemOrders = props.inputItems
+
   return (
     <ThemeProvider theme={theme}>
       <Container>
         <DragDropContext
           onDragEnd={(e) => {
+            console.log(props.inputItems)
+            console.log(e.destination.index)
+            console.log(props.inputItems[e.destination.index])
             setItemOrder({
               variables: {
                 itemKey: e.draggableId,
-                sortOrder: sortedItems[e.destination.index].sortOrder.sortOrder,
+                componentKey: props.componentKey,
+                sortOrder: props.inputItems[e.destination.index].sortOrder,
               },
             })
           }}
@@ -204,18 +212,18 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                 isDraggingOver={snapshot.isDraggingOver}
               >
                 <TransitionGroup component={null}>
-                  {sortedItems.map((item, index) => {
+                  {sortedItemOrders.map((item, index) => {
                     /* We want to allow flattening of subtasks which means:
-                      1. If we should flatten
-                        - If an item has a parent and the parent is in the list, don't render the parent 
-                      2.  Default
-                        - If an item has a parent, don't render it (as it will get rendered later)
-                        - For each item, render the item and it's children  (In the Item component)
-                    */
+											1. If we should flatten
+												- If an item has a parent and the parent is in the list, don't render the parent 
+											2.  Default
+												- If an item has a parent, don't render it (as it will get rendered later)
+												- For each item, render the item and it's children  (In the Item component)
+										*/
                     if (props.flattenSubtasks == true) {
-                      if (item.parent != null) {
+                      if (item.parentKey != null) {
                         const parentExistsInList = props.inputItems.find(
-                          (z) => z.key == item.parent.key,
+                          (z) => z.key == item.parentKey,
                         )
                         // It exists it will get rendered later, so don't render it
                         if (parentExistsInList) {
@@ -248,20 +256,18 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                   <Item
                                     compact={false}
                                     itemKey={item.key}
-                                    {...item}
                                     key={item.key}
                                     componentKey={props.componentKey}
                                     shouldIndent={false}
                                     hiddenIcons={props.hiddenIcons}
                                   />
-                                  {item.children?.map((childItem) => {
+                                  {item.children?.map((childKey) => {
                                     // We need to check if the child exists in the original input list
                                     return (
                                       <Item
                                         compact={false}
-                                        itemKey={childItem.key}
-                                        key={childItem.key}
-                                        {...childItem}
+                                        itemKey={childKey}
+                                        key={childKey}
                                         componentKey={props.componentKey}
                                         shouldIndent={true}
                                         hiddenIcons={
