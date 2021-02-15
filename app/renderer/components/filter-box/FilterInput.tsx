@@ -26,7 +26,6 @@ type FilterInputProps = {
   onChange: (string) => void
   onBlur: () => void
   onFocus: () => void
-  editorConfig: {}
 }
 
 const FilterInput = (props: FilterInputProps) => {
@@ -42,10 +41,6 @@ const FilterInput = (props: FilterInputProps) => {
   let codeMirror: ExtendedCodeMirror
   let doc: CodeMirror.Doc
   let autoCompletePopup: AutoCompletePopup
-
-  if (props.editorConfig) {
-    options = { ...props.editorConfig, mode: 'filter-mode' }
-  }
 
   const onSubmit = (text: string) => {
     autoCompletePopup.completionShow = false
@@ -66,7 +61,6 @@ const FilterInput = (props: FilterInputProps) => {
     )
 
     autoCompletePopup.customRenderCompletionItem = props.customRenderCompletionItem
-    autoCompletePopup.pick = props.autoCompletePick
 
     ref.editor.on('beforeChange', function (instance, change) {
       var newtext = change.text.join('').replace(/\n/g, '') // remove ALL \n !
@@ -88,7 +82,7 @@ const FilterInput = (props: FilterInputProps) => {
 
     ref.editor.on('blur', (cm, e?) => {
       onSubmit(doc.getValue())
-      props.onBlur(e)
+      props.onBlur()
       autoCompletePopup.completionShow = false
     })
 

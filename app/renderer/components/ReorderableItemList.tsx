@@ -192,9 +192,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
       <Container>
         <DragDropContext
           onDragEnd={(e) => {
-            console.log(props.inputItems)
-            console.log(e.destination.index)
-            console.log(props.inputItems[e.destination.index])
             setItemOrder({
               variables: {
                 itemKey: e.draggableId,

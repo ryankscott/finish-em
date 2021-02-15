@@ -569,8 +569,9 @@ export const completeItem = async (input: { key: string }, ctx) => {
   } else {
     query = createCompleteItemQuery(input)
   }
-
+  console.log(query)
   const result = await ctx.db.run(query)
+  console.log(await result)
   if (result.changes) {
     return getItem({ key: input.key }, ctx)
   }

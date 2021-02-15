@@ -169,13 +169,15 @@ function Item(props: ItemProps): ReactElement {
   const [moreButtonVisible, setMoreButtonVisible] = useState(false)
   const [showLabelDialog, setShowLabelDialog] = useState(false)
   const [showReminderDialog, setShowReminderDialog] = useState(false)
-  const [completeItem] = useMutation(COMPLETE_ITEM)
-  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
-  const [renameItem] = useMutation(RENAME_ITEM)
-  const [deleteItem] = useMutation(DELETE_ITEM)
+  const [completeItem] = useMutation(COMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [renameItem] = useMutation(RENAME_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [cloneItem] = useMutation(CLONE_ITEM, { refetchQueries: ['itemsByFilter'] })
-  const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM)
-  const [restoreItem] = useMutation(RESTORE_ITEM)
+  const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM, {
+    refetchQueries: ['itemsByFilter'],
+  })
+  const [restoreItem] = useMutation(RESTORE_ITEM, { refetchQueries: ['itemsByFilter'] })
 
   let enterInterval, exitInterval
   const editor = React.useRef<HTMLInputElement>()
@@ -314,7 +316,6 @@ function Item(props: ItemProps): ReactElement {
   const subtasksVisible = itemVisibility != undefined ? itemVisibility : true
 
   const isFocused = data.activeItem.findIndex((i) => i == item.key) >= 0
-
   return (
     <ThemeProvider theme={theme}>
       <Container
