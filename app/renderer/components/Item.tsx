@@ -114,7 +114,6 @@ const COMPLETE_ITEM = gql`
       completedAt
       scheduledAt
       repeat
-      repeatAt
       dueAt
     }
   }
