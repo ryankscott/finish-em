@@ -28,6 +28,19 @@ export const deleteItemOrder = async (input: { itemKey: string; componentKey: st
   }
 }
 
+export const deleteItemOrdersByComponent = async (input: { componentKey: string }, ctx) => {
+  console.log(input.componentKey)
+  const deleteItem = await ctx.db.run(
+    'DELETE from itemOrder WHERE componentKey = ?',
+    input.componentKey,
+  )
+  if (deleteItem) {
+    return input.componentKey
+  } else {
+    return new Error(`Failed to delete itemOrders with componentKey ${input.componentKey}`)
+  }
+}
+
 export const getItemOrdersByComponent = async (input: { componentKey: string }, ctx) => {
   const result = await ctx.db.all(
     'SELECT itemKey, sortOrder, componentKey FROM itemOrder WHERE componentKey = ? ORDER BY sortOrder ASC',
@@ -102,6 +115,29 @@ export const createItemOrder = async (
   return new Error('Unable to create item order')
 }
 
+// TODO: See if we can do this faster
+export const bulkCreateItemOrders = async (
+  input: {
+    itemKeys: string[]
+    componentKey: string
+  },
+  ctx,
+) => {
+  // TODO: Get the max sortOrder
+
+  const insertQueries = input.itemKeys.map((i, idx) => {
+    return `('${i}','${input.componentKey}',${idx + 1})`
+  })
+  const query = `
+  INSERT INTO itemOrder (itemKey, componentKey, sortOrder) VALUES 
+  ${insertQueries.join(',')};`
+  const result = await ctx.db.run(query)
+  if (result.changes) {
+    return null
+  }
+  return new Error('Unable to bulk create item order')
+}
+
 export const migrateItemOrder = (
   input: {
     itemKey: string
@@ -132,11 +168,17 @@ export const itemOrderRootValues = {
   deleteItemOrder: ({ input }, ctx) => {
     return deleteItemOrder(input, ctx)
   },
+  deleteItemOrdersByComponent: ({ input }, ctx) => {
+    return deleteItemOrdersByComponent(input, ctx)
+  },
   setItemOrder: ({ input }, ctx) => {
     return setItemOrder(input, ctx)
   },
   createItemOrder: ({ input }, ctx) => {
     return createItemOrder(input, ctx)
+  },
+  bulkCreateItemOrders: ({ input }, ctx) => {
+    return bulkCreateItemOrders(input, ctx)
   },
   migrateItemOrder: ({ input }, ctx) => {
     return migrateItemOrder(input, ctx)

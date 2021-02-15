@@ -1,6 +1,5 @@
 import React, { ReactElement, useState } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
-import ItemList from './ItemList'
 import { themes } from '../theme'
 import { ItemIcons } from '../interfaces'
 import {
@@ -14,7 +13,7 @@ import {
   FilterBar,
 } from './styled/FilteredItemList'
 
-import SortDropdown, { SortDirectionEnum, sortOptions } from './SortDropdown'
+import SortDropdown, { SortDirectionEnum, SortOption, sortOptions } from './SortDropdown'
 import Button from './Button'
 import ReorderableItemList from './ReorderableItemList'
 import { ThemeProvider } from '../StyledComponents'
@@ -58,6 +57,15 @@ const GET_DATA = gql`
   query itemsByFilter($filter: String!, $componentKey: String!) {
     items: itemsByFilter(filter: $filter, componentKey: $componentKey) {
       key
+      completed
+      dueAt
+      label {
+        key
+      }
+      lastUpdatedAt
+      project {
+        key
+      }
       parent {
         key
       }
@@ -71,6 +79,17 @@ const GET_DATA = gql`
       }
     }
     subtasksVisible @client
+  }
+`
+
+const DELETE_ITEMORDERS_BY_COMPONENT = gql`
+  mutation DeleteItemOrdersByComponent($componentKey: String!) {
+    deleteItemOrdersByComponent(input: { componentKey: $componentKey })
+  }
+`
+const BULK_CREATE_ITEMORDERS = gql`
+  mutation BulkCreateItemOrders($itemKeys: [String]!, $componentKey: String!) {
+    bulkCreateItemOrders(input: { itemKeys: $itemKeys, componentKey: $componentKey })
   }
 `
 
@@ -105,9 +124,11 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [showItemList, setShowItemList] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [deleteItem] = useMutation(DELETE_ITEM)
+  const [bulkCreateItemOrders] = useMutation(BULK_CREATE_ITEMORDERS)
+  const [deleteItemOrdersByComponent] = useMutation(DELETE_ITEMORDERS_BY_COMPONENT)
 
   const { loading: l, error: e, data: themeData } = useQuery(GET_THEME)
-  const { loading, error, data } = useQuery(GET_DATA, {
+  const { loading, error, data, refetch } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
       componentKey: props.componentKey,
@@ -142,6 +163,20 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     completedItems?.length,
     props.showCompletedToggle,
   )
+
+  const updateSort = (type: SortOption, direction: SortDirectionEnum) => {
+    const sortedItems = showCompleted
+      ? type.sort(uncompletedItems, direction)
+      : type.sort(allItems, direction)
+    deleteItemOrdersByComponent({
+      variables: { componentKey: props.componentKey },
+    })
+    const sortedItemKeys = sortedItems.map((s) => s.key)
+    bulkCreateItemOrders({
+      variables: { itemKeys: sortedItemKeys, componentKey: props.componentKey },
+    })
+    refetch()
+  }
 
   // TODO: #338 Handle when items returned is null
   return (
@@ -257,15 +292,17 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     })
                   }}
                 />
-                {false && (
-                  <SortDropdown
-                    sortDirection={sortDirection}
-                    onSetSortDirection={(d) => setSortDirection(d)}
-                    onSetSortType={(t) => {
-                      setSortType(t)
-                    }}
-                  ></SortDropdown>
-                )}
+                <SortDropdown
+                  sortDirection={sortDirection}
+                  onSetSortDirection={(d) => {
+                    setSortDirection(d)
+                    updateSort(sortType, d)
+                  }}
+                  onSetSortType={(t) => {
+                    setSortType(t)
+                    updateSort(t, sortDirection)
+                  }}
+                />
               </>
             )}
           </FilterBar>

@@ -8,7 +8,6 @@ type ItemOrder {
 input CreateItemOrderInput {
   itemKey: String!
   componentKey: String!
-  sortOrder: Int!
 }
 
 input SetItemOrderInput {
@@ -21,17 +20,28 @@ input MigrateItemOrderInput {
   componentKey: String!
   sortOrder: Int!
 }
+input DeleteItemOrdersByComponentInput {
+  componentKey: String!
+}
+
+input BulkCreateItemOrdersInput {
+  itemKeys: [String]!
+  componentKey: String!
+}
+
 
 type Query {
   itemOrders: [ItemOrder]
-  itemOrder(itemKey: String!): ItemOrder
+  itemOrder(itemKey: String!, componentKey: String!): ItemOrder
   itemOrdersByComponent(componentKey: String!): [ItemOrder]
   itemOrdersByItem(itemKey: String!): [ItemOrder]
 }
 
 type Mutation {
   setItemOrder(input: SetItemOrderInput!): ItemOrder
+  deleteItemOrdersByComponent(input: DeleteItemOrdersByComponentInput!): String
   createItemOrder(input: CreateItemOrderInput!): ItemOrder
+  bulkCreateItemOrders(input: BulkCreateItemOrdersInput!): String 
   migrateItemOrder(input: MigrateItemOrderInput!): ItemOrder
 }
 `
