@@ -34,7 +34,7 @@ npm install
 ### Running the Electron version (development)
 
 ```
-npm run dev start
+npm run start
 ```
 
 ## Building
