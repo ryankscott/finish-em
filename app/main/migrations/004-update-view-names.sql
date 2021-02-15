@@ -4,6 +4,8 @@
 --------------------------------------------------------------------------------
 
 UPDATE view SET name = (SELECT name from project WHERE key = view.key )
+WHERE EXISTS (SELECT name FROM project WHERE key = view.key)
+
 
 
 -- --------------------------------------------------------------------------------
