@@ -213,7 +213,6 @@ const Project = (props: ProjectProps): ReactElement => {
         />
         <AddProjectContainer>
           <ItemCreator
-            type="item"
             projectKey={project.key}
             buttonText="Add to project"
             width="100%"
