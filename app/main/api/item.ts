@@ -7,7 +7,6 @@ import { Item as ItemType } from '../generated/typescript-helpers'
 import { rrulestr } from 'rrule'
 import { startOfDay } from 'date-fns'
 import { without } from 'lodash'
-
 import { SQL } from 'sql-template-strings'
 
 const log = require('electron-log')
@@ -670,14 +669,6 @@ WHERE key = ${input.key}`,
     })
 }
 
-export const createRenameItemQuery = (input: { key: string; text: string }) => {
-  return `
-UPDATE item SET text = ${SqlString.escape(
-    input.text,
-  )}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
-}
-
 export const renameItem = (input: { key: string; text: string }, ctx) => {
   log.info(`Renaming item with key - ${input.key} to ${input.text} `)
   return ctx.db
@@ -794,10 +785,6 @@ export const setRepeatOfItem = (input: { key: string; repeat: string }, ctx) => 
       log.error(`Unable to set repeat, key - ${input.key}`)
       return new Error('Unable to set repeat of item')
     })
-}
-
-export const createCloneItemQuery = (input: { key: string; newKey: string }) => {
-  return
 }
 
 export const cloneItem = async (input: { key: string }, ctx) => {
@@ -952,7 +939,7 @@ export const setDueAtOfItem = (input: { key: string; dueAt: Date }, ctx) => {
   SET 
     dueAt = ${input.dueAt ? input.dueAt.toISOString() : null}, 
     lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
-  WHERE key = '${input.key}'
+  WHERE key = ${input.key}
   `,
     )
     .then((result) => {
@@ -979,7 +966,7 @@ export const setParentOfItem = async (input: { key: string; parentKey: string },
   SET 
     parentKey = ${input.parentKey ? input.parentKey : null}, 
     lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
-  WHERE key = '${input.key}'
+  WHERE key = ${input.key}
 `,
     )
     .then((result) => {
