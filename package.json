@@ -178,6 +178,7 @@
     "redux-persist-electron-storage": "^2.1.0",
     "rrule": "2.6.6",
     "semver": "^7.3.4",
+    "sql-template-strings": "^2.2.2",
     "sqlite": "^4.0.18",
     "sqlite3": "^5.0.0",
     "sqlstring-sqlite": "^0.1.1",
