@@ -1,6 +1,6 @@
 import styled, { keyframes } from '../../StyledComponents'
 import CSS from 'csstype'
-import { darken, lighten, transparentize } from 'polished'
+import { darken, transparentize } from 'polished'
 
 const load = keyframes`
   from {
@@ -12,22 +12,154 @@ const load = keyframes`
 `
 
 export const LoadingContainer = styled.div`
-  margin: 1px 0px;
+  margin: 5px 0px;
   border-radius: 5px;
-  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
-  height: 50px;
+  background-color: ${(props) => props.theme.colours.backgroundColour};
+  height: 60px;
   width: 100%;
   position: relative;
   overflow: hidden;
+  display: grid;
+  grid-template-columns: 25px 25px repeat(3, 1fr);
+  grid-auto-rows: auto auto;
+  grid-template-areas:
+    '. LTYPE  LDESC  LDESC  LDESC '
+    '. .      LDUE  LSCHEDULED  LREPEAT ';
+  &:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    margin: 0px auto;
+    height: 1px;
+    width: calc(100% - 10px);
+    border-bottom: 1px solid;
+    border-color: ${(props) => props.theme.colours.focusBackgroundColour};
+  }
+`
 
+export const LoadingDue = styled.div`
+  grid-area: LDUE;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 2px 10px;
+  height: 20px;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
   &:before {
     content: '';
     display: block;
     position: absolute;
-    left: -200px;
+    left: -50px;
     top: 0;
     height: 100%;
-    width: 200px;
+    width: 50px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
+      transparent 100%
+    );
+    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+`
+
+export const LoadingScheduled = styled.div`
+  grid-area: LSCHEDULED;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 2px 10px;
+  height: 20px;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -50px;
+    top: 0;
+    height: 100%;
+    width: 50px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
+      transparent 100%
+    );
+    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+`
+
+export const LoadingRepeat = styled.div`
+  grid-area: LREPEAT;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 2px 10px;
+  height: 20px;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -50px;
+    top: 0;
+    height: 100%;
+    width: 50px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
+      transparent 100%
+    );
+    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+`
+
+export const LoadingDesc = styled.div`
+  grid-area: LDESC;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 2px 10px;
+  height: 25px;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -50px;
+    top: 0;
+    height: 100%;
+    width: 50px;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
+      transparent 100%
+    );
+    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+`
+
+export const LoadingType = styled.div`
+  grid-area: LTYPE;
+  position: relative;
+  overflow: hidden;
+  padding: 2px;
+  margin: 2px 0px;
+  border-radius: 50%;
+  height: 25px;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: -50px;
+    top: 0;
+    height: 100%;
+    width: 50px;
     background: linear-gradient(
       to right,
       transparent 0%,

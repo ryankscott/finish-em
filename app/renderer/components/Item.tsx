@@ -26,6 +26,11 @@ import {
   DueContainer,
   ExpandContainer,
   LoadingContainer,
+  LoadingDesc,
+  LoadingDue,
+  LoadingRepeat,
+  LoadingScheduled,
+  LoadingType,
   MoreContainer,
   ParentItemContainer,
   ProjectContainer,
@@ -195,7 +200,16 @@ function Item(props: ItemProps): ReactElement {
     variables: { key: props.itemKey ? props.itemKey : null },
   })
   const theme: ThemeType = themes[d.theme]
-  if (loading) return <LoadingContainer />
+  if (loading)
+    return (
+      <LoadingContainer>
+        <LoadingType />
+        <LoadingDesc />
+        <LoadingDue />
+        <LoadingScheduled />
+        <LoadingRepeat />
+      </LoadingContainer>
+    )
 
   if (error) return null
 
