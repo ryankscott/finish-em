@@ -213,15 +213,19 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     console.log(activeError)
     return null
   }
-  const { loading, error, data } = useQuery(GET_DATA, {
+  const { loading, error, data, refetch } = useQuery(GET_DATA, {
     variables: {
       key: activeData.activeItem.length ? activeData.activeItem[0] : '',
     },
   })
 
   const [renameItem] = useMutation(RENAME_ITEM)
-  const [completeItem] = useMutation(COMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
-  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [completeItem] = useMutation(COMPLETE_ITEM, {
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
+  })
+  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
+  })
   const [setProject] = useMutation(SET_PROJECT, { refetchQueries: ['itemsByFilter'] })
   const [setArea] = useMutation(SET_AREA, { refetchQueries: ['itemsByFilter'] })
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
@@ -229,19 +233,18 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   })
   const [setDueAt] = useMutation(SET_DUE_AT, { refetchQueries: ['itemsByFilter'] })
   const [setRepeat] = useMutation(SET_REPEAT, { refetchQueries: ['itemsByFilter'] })
-  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
+  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter'] })
   const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByFilter'] })
   const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [restoreItem] = useMutation(RESTORE_ITEM, { refetchQueries: ['itemsByFilter'] })
 
-  if (loading) return null
   if (error) {
     console.log(error)
     return null
   }
 
-  const theme: ThemeType = themes[data.theme]
-  const item: ItemType = data.item
+  const theme: ThemeType = themes[data?.theme]
+  const item: ItemType = data?.item
   if (!item) return null
 
   // TODO: Do I need these? Or can I move to the component
