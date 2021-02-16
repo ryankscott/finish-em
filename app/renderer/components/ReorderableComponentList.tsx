@@ -187,7 +187,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
             width: '100%',
           }}
         >
-          <div style={{ width: '250px' }}>
+          <div style={{ width: '150px' }}>
             <ButtonDropdown
               defaultButtonText={'Add component'}
               defaultButtonIcon={'collapse'}
