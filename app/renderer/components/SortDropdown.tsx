@@ -9,6 +9,7 @@ import { orderBy } from 'lodash'
 import { gql, useQuery } from '@apollo/client'
 import { ThemeType } from '../interfaces'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
+import RRule from 'rrule'
 
 const GET_THEME = gql`
   query {
@@ -67,6 +68,11 @@ export const sortOptions: SortOptions = {
     label: 'Project',
     sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
       orderBy(items, [(i) => i.project?.name], direction),
+  },
+  REPEAT: {
+    label: 'Repeat',
+    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+      orderBy(items, [(i) => (i.repeat ? RRule.fromString(i.repeat).options.freq : -1)], direction),
   },
 }
 

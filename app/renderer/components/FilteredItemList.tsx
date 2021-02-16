@@ -59,6 +59,7 @@ const GET_DATA = gql`
       key
       completed
       dueAt
+      repeat
       label {
         key
       }
