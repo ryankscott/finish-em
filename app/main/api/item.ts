@@ -6,13 +6,33 @@ import { createItemOrder, deleteItemOrder, getItemOrdersByComponent } from './it
 import { Item as ItemType } from '../generated/typescript-helpers'
 import { rrulestr } from 'rrule'
 import { startOfDay } from 'date-fns'
-import { filter, without } from 'lodash'
+import { without } from 'lodash'
+
+import { SQL } from 'sql-template-strings'
+
 const log = require('electron-log')
 export const getItems = (obj, ctx) => {
   log.info(`Getting all items `)
   return ctx.db
     .all(
-      'SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item',
+      `SELECT 
+        key, 
+        type, 
+        text, 
+        deleted, 
+        completed, 
+        parentKey, 
+        projectKey, 
+        dueAt, 
+        scheduledAt, 
+        lastUpdatedAt, 
+        completedAt, 
+        createdAt, 
+        deletedAt, 
+        repeat, 
+        labelKey, 
+        areaKey 
+      FROM item`,
     )
     .then((result) =>
       result.map(
@@ -157,7 +177,25 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
   const filterString = generateQueryString(filters.value)
   log.debug(filterString)
   const results = await ctx.db.all(
-    `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE ${filterString}`,
+    `SELECT 
+        key, 
+        type, 
+        text, 
+        deleted, 
+        completed, 
+        parentKey, 
+        projectKey, 
+        dueAt, 
+        scheduledAt, 
+        lastUpdatedAt, 
+        completedAt, 
+        createdAt, 
+        deletedAt, 
+        repeat, 
+        labelKey, 
+        areaKey 
+    FROM item 
+    WHERE ${filterString}`,
   )
 
   if ((await results.length) >= 0) {
@@ -206,7 +244,24 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
 export const getItem = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      `SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE key = '${input.key}'`,
+      SQL`SELECT 
+            key, 
+            type, 
+            text, deleted, 
+            completed, 
+            parentKey, 
+            projectKey, 
+            dueAt, 
+            scheduledAt, 
+            lastUpdatedAt, 
+            completedAt, 
+            createdAt, 
+            deletedAt, 
+            repeat, 
+            labelKey, 
+            areaKey 
+      FROM item 
+      WHERE key = ${input.key}`,
     )
     .then((result) => {
       if (result) {
@@ -240,8 +295,23 @@ export const getItemsByProject = (input: { projectKey: string }, ctx) => {
   log.info(`Getting items for project - ${input.projectKey}`)
   return ctx.db
     .all(
-      'SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE projectKey = ?',
-      input.projectKey,
+      SQL`SELECT 
+            key, 
+            type, 
+            text, deleted, 
+            completed, 
+            parentKey, 
+            projectKey, 
+            dueAt, 
+            scheduledAt, 
+            lastUpdatedAt, 
+            completedAt, 
+            createdAt, 
+            deletedAt, 
+            repeat, 
+            labelKey, 
+            areaKey 
+            FROM item WHERE projectKey = ${input.projectKey}`,
     )
     .then((result) => {
       if (result) {
@@ -275,8 +345,23 @@ export const getItemsByProject = (input: { projectKey: string }, ctx) => {
 export const getItemsByParent = (input: { parentKey: string }, ctx) => {
   return ctx.db
     .all(
-      'SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE parentKey = ?',
-      input.parentKey,
+      SQL`SELECT 
+          key, 
+          type, 
+          text, deleted, 
+          completed, 
+          parentKey, 
+          projectKey, 
+          dueAt, 
+          scheduledAt, 
+          lastUpdatedAt, 
+          completedAt, 
+          createdAt, 
+          deletedAt, 
+          repeat, 
+          labelKey, 
+          areaKey 
+          FROM item WHERE parentKey = ${input.parentKey}`,
     )
     .then((result) => {
       if (result) {
@@ -311,8 +396,23 @@ export const getItemsByArea = (input: { areaKey: string }, ctx) => {
   log.info(`Getting items by area - ${input.areaKey} `)
   return ctx.db
     .all(
-      'SELECT key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey FROM item WHERE areaKey = ? and deleted = false',
-      input.areaKey,
+      SQL`SELECT 
+        key, 
+        type, 
+        text, deleted, 
+        completed, 
+        parentKey, 
+        projectKey, 
+        dueAt, 
+        scheduledAt, 
+        lastUpdatedAt, 
+        completedAt, 
+        createdAt, 
+        deletedAt, 
+        repeat, 
+        labelKey, 
+        areaKey 
+        FROM item WHERE areaKey = ${input.areaKey}`,
     )
     .then((result) => {
       if (result) {
@@ -377,21 +477,43 @@ export const createItem = async (
     log.info('Inheiriting properties from parent')
   }
   const result = await ctx.db.run(
-    'INSERT INTO item (key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey) VALUES (?,?,?,?,?,?,?,?,?,strftime("%Y-%m-%dT%H:%M:%fZ", "now"), ?, strftime("%Y-%m-%dT%H:%M:%fZ", "now"),?,?,?,?)',
-    input.key,
-    input.type,
-    input.text,
-    false,
-    false,
-    parentText,
-    hasParent ? parent.projectKey : projectText,
-    dueText,
-    scheduledText,
-    '',
-    '',
-    repeatText,
-    labelText,
-    hasParent ? parent.areaKey : areaText,
+    SQL`
+INSERT INTO item 
+  (
+    key, 
+    type, 
+    text, 
+    deleted, 
+    completed, 
+    parentKey, 
+    projectKey, 
+    dueAt, 
+    scheduledAt, 
+    lastUpdatedAt, 
+    completedAt, 
+    createdAt, 
+    deletedAt, 
+    repeat,
+    labelKey, 
+    areaKey
+    ) 
+VALUES (
+  ${input.key},
+  ${input.type}, 
+  ${input.text},
+  false, 
+  false,
+  ${input.parentKey},
+  ${hasParent ? parent.projectKey : projectText},
+  ${dueText},
+  ${scheduledText},
+  strftime("%Y-%m-%dT%H:%M:%fZ", "now"),
+  '', 
+  strftime("%Y-%m-%dT%H:%M:%fZ", "now"),
+  '',
+  ${repeatText},
+  ${labelText},
+  ${hasParent ? parent.areaKey : areaText})`,
   )
   if (await result.changes) {
     return getItem({ key: input.key }, ctx)
@@ -428,12 +550,43 @@ export const createMigrateItemQuery = (input: {
   const areaText = input.areaKey ? `'${input.areaKey}'` : null
   const parentText = input.parentKey ? `'${input.parentKey}'` : null
   const projectText = input.projectKey ? `'${input.projectKey}'` : null
-  return `REPLACE INTO item (key, type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey)
-        VALUES ('${input.key}', '${input.type}', ${SqlString.escape(input.text)}, ${
-    input.deleted
-  }, ${
-    input.completed
-  }, ${parentText}, ${projectText}, ${dueText}, ${scheduledText}, ${lastUpdatedText}, ${completedText}, ${createdText}, ${deletedText}, ${repeatText}, ${labelText}, ${areaText})`
+  return `
+  REPLACE INTO item 
+  (
+    key, 
+    type, 
+    text, 
+    deleted, 
+    completed, 
+    parentKey, 
+    projectKey, 
+    dueAt, 
+    scheduledAt, 
+    lastUpdatedAt, 
+    completedAt, 
+    createdAt, 
+    deletedAt, 
+    repeat, 
+    labelKey, 
+    areaKey)
+  VALUES 
+  ( 
+    '${input.key}', 
+    '${input.type}', 
+    ${SqlString.escape(input.text)}, 
+    ${input.deleted}, 
+    ${input.completed}, 
+    ${parentText}, 
+    ${projectText}, 
+    ${dueText}, 
+    ${scheduledText}, 
+    ${lastUpdatedText}, 
+    ${completedText}, 
+    ${createdText}, 
+    ${deletedText}, 
+    ${repeatText}, 
+    ${labelText}, 
+    ${areaText})`
 }
 
 export const migrateItem = (
@@ -463,12 +616,6 @@ export const migrateItem = (
   })
 }
 
-export const createDeleteItemQuery = (input: { key: string }) => {
-  return `
-UPDATE item SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
-}
-
 export const deleteItem = async (input: { key: string }, ctx) => {
   log.info(`Deleting item by key - ${input.key} `)
   const children = await getItemsByParent({ parentKey: input.key }, ctx)
@@ -478,19 +625,23 @@ export const deleteItem = async (input: { key: string }, ctx) => {
     })
   }
 
-  return ctx.db.run(createDeleteItemQuery(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Failed to delete item, key - ${input.key}`)
-    return new Error('Unable to delete item')
-  })
-}
-
-export const createRestoreItemQuery = (input: { key: string }) => {
-  return `
-UPDATE item SET deleted = false, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = null WHERE key = '${input.key}'
-`
+  return ctx.db
+    .run(
+      SQL`
+UPDATE item 
+SET 
+  deleted = true, 
+  lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), 
+  deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+WHERE key = ${input.key};`,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Failed to delete item, key - ${input.key}`)
+      return new Error('Unable to delete item')
+    })
 }
 
 export const restoreItem = async (input: { key: string }, ctx) => {
@@ -500,13 +651,23 @@ export const restoreItem = async (input: { key: string }, ctx) => {
       return restoreItem({ key: c.key }, ctx)
     })
   }
-  return ctx.db.run(createRestoreItemQuery(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to restore item, key - ${input.key}`)
-    return new Error('Unable to restore item')
-  })
+  return ctx.db
+    .run(
+      SQL`
+UPDATE item 
+SET 
+  deleted = false, 
+  lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), 
+  deletedAt = null 
+WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Unable to restore item, key - ${input.key}`)
+      return new Error('Unable to restore item')
+    })
 }
 
 export const createRenameItemQuery = (input: { key: string; text: string }) => {
@@ -519,36 +680,43 @@ UPDATE item SET text = ${SqlString.escape(
 
 export const renameItem = (input: { key: string; text: string }, ctx) => {
   log.info(`Renaming item with key - ${input.key} to ${input.text} `)
-  return ctx.db.run(createRenameItemQuery(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Failed to rename item, key - ${input.key}`)
-    return new Error('Unable to rename item')
-  })
-}
-
-export const createSetTypeOfItemQuery = (input: { key: string; type: string }) => {
-  return `
-UPDATE item SET type = '${input.type}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+  SET 
+    text = ${input.text}, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+  WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Failed to rename item, key - ${input.key}`)
+      return new Error('Unable to rename item')
+    })
 }
 
 export const setTypeOfItem = (input: { key: string; type: string }, ctx) => {
   log.info(`Setting type of item with key - ${input.key} to ${input.type} `)
-  return ctx.db.run(createSetTypeOfItemQuery(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to set type of item, key - ${input.key}`)
-    return new Error('Unable to set type of item')
-  })
-}
-
-export const createCompleteItemQuery = (input: { key: string }) => {
-  return `
-UPDATE item SET completed = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), completedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
+  return ctx.db
+    .run(
+      SQL`
+UPDATE item 
+SET 
+  type = ${input.type}, 
+  lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+WHERE key = ${input.key}
+ `,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Unable to set type of item, key - ${input.key}`)
+      return new Error('Unable to set type of item')
+    })
 }
 
 export const completeItem = async (input: { key: string }, ctx) => {
@@ -567,7 +735,9 @@ export const completeItem = async (input: { key: string }, ctx) => {
       }'`
     }
   } else {
-    query = createCompleteItemQuery(input)
+    query = `
+    UPDATE item SET completed = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), completedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
+    `
   }
   const result = await ctx.db.run(query)
   if (result.changes) {
@@ -578,54 +748,98 @@ export const completeItem = async (input: { key: string }, ctx) => {
 }
 
 export const createUnCompleteItemQuery = (input: { key: string }) => {
-  return `
-UPDATE item SET completed = false, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), completedAt = null WHERE key = '${input.key}'
-`
+  return
 }
 
 export const unCompleteItem = (input: { key: string }, ctx) => {
   log.info(`Uncompleting item with key - ${input.key}`)
-  return ctx.db.run(createUnCompleteItemQuery(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to uncomplete item, key = ${input.key}`)
-    return new Error('Unable to uncomplete item')
-  })
-}
-
-export const createSetRepeatOfItemQuery = (input: { key: string; repeat: string }) => {
-  const repeatText = input.repeat ? `'${input.repeat}'` : null
-  return `
-UPDATE item SET repeat = ${repeatText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+  SET 
+    completed = false, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), 
+    completedAt = null 
+  WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Unable to uncomplete item, key = ${input.key}`)
+      return new Error('Unable to uncomplete item')
+    })
 }
 
 export const setRepeatOfItem = (input: { key: string; repeat: string }, ctx) => {
-  return ctx.db.run(createSetRepeatOfItemQuery(input)).then((result) => {
-    if (result.changes) {
-      if (input.repeat) {
-        const repeatRule = rrulestr(input.repeat)
-        const nextRepeat = repeatRule.after(startOfDay(new Date()), true)
-        setDueAtOfItem({ key: input.key, dueAt: nextRepeat }, ctx)
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+  SET 
+    repeat = ${input.repeat ? input.repeat : null}, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+  WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      if (result.changes) {
+        if (input.repeat) {
+          const repeatRule = rrulestr(input.repeat)
+          const nextRepeat = repeatRule.after(startOfDay(new Date()), true)
+          setDueAtOfItem({ key: input.key, dueAt: nextRepeat }, ctx)
+        }
+        return getItem({ key: input.key }, ctx)
       }
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to set repeat, key - ${input.key}`)
-    return new Error('Unable to set repeat of item')
-  })
+      log.error(`Unable to set repeat, key - ${input.key}`)
+      return new Error('Unable to set repeat of item')
+    })
 }
 
 export const createCloneItemQuery = (input: { key: string; newKey: string }) => {
-  return `
-INSERT INTO item (type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, createdAt, deletedAt, repeat, labelKey, areaKey, key) 
-SELECT type, text, deleted, completed, parentKey, projectKey, dueAt, scheduledAt, lastUpdatedAt, completedAt, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt, repeat, labelKey, areaKey, '${input.newKey}' FROM item WHERE key = '${input.key}'
-`
+  return
 }
 
 export const cloneItem = async (input: { key: string }, ctx) => {
   const newKey = uuidv4()
-  const result = await ctx.db.run(createCloneItemQuery({ key: input.key, newKey: newKey }))
+  const result = await ctx.db.run(SQL`
+INSERT INTO item 
+(
+  type, 
+  text, 
+  deleted, 
+  completed, 
+  parentKey, 
+  projectKey, 
+  dueAt, 
+  scheduledAt, 
+  lastUpdatedAt, 
+  completedAt, 
+  createdAt, 
+  deletedAt, 
+  repeat, 
+  labelKey, 
+  areaKey, 
+  key) 
+SELECT 
+  type, 
+  text, 
+  deleted, 
+  completed, 
+  parentKey, 
+  projectKey, 
+  dueAt, 
+  scheduledAt, 
+  lastUpdatedAt, 
+  completedAt, 
+  strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), 
+  deletedAt, 
+  repeat, 
+  labelKey, 
+  areaKey, 
+  ${newKey} 
+FROM item 
+WHERE key = ${input.key}`)
   if (result.changes) {
     return getItem({ key: newKey }, ctx)
   }
@@ -633,105 +847,121 @@ export const cloneItem = async (input: { key: string }, ctx) => {
   return new Error('Unable to clone item')
 }
 
-export const createSetProjectOfItemQuery = (input: { key: string; projectKey: string }) => {
-  const inputText = input.projectKey ? `'${input.projectKey}'` : null
-  return `
-UPDATE item SET projectKey = ${inputText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
-}
-
 export const setProjectOfItem = async (input: { key: string; projectKey: string }, ctx) => {
-  return ctx.db.run(createSetProjectOfItemQuery(input)).then(async (result) => {
-    if (result.changes) {
-      //  Update children
-      const children = await getItemsByParent({ parentKey: input.key }, ctx)
-      if (children.length > 0) {
-        children.map(async (i) => {
-          const childrenResult = await ctx.db.run(
-            createSetProjectOfItemQuery({ key: i.key, projectKey: input.projectKey }),
-          )
-          if (!childrenResult) {
-            return new Error("Unable to set project of item's children")
-          }
-        })
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+  SET 
+    projectKey = ${input.projectKey ? input.projectKey : null}, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+  WHERE key = ${input.key}
+  `,
+    )
+    .then(async (result) => {
+      if (result.changes) {
+        //  Update children
+        const children = await getItemsByParent({ parentKey: input.key }, ctx)
+        if (children.length > 0) {
+          children.map(async (i) => {
+            const childrenResult = await ctx.db.run(
+              SQL`
+              UPDATE item 
+              SET 
+                projectKey = ${input.projectKey ? input.projectKey : null}, 
+                lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+              WHERE key = ${i.key}
+              `,
+            )
+            if (!childrenResult) {
+              return new Error("Unable to set project of item's children")
+            }
+          })
+        }
+
+        return getItem({ key: input.key }, ctx)
       }
-
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to set project of item, key - ${input.key}`)
-    return new Error('Unable to set project of item')
-  })
-}
-
-export const createSetAreaOfItemQuery = (input: { key: string; areaKey: string }) => {
-  const inputText = input.areaKey ? `'${input.areaKey}'` : null
-  return `
-UPDATE item SET areaKey = ${inputText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
+      log.error(`Unable to set project of item, key - ${input.key}`)
+      return new Error('Unable to set project of item')
+    })
 }
 
 export const setAreaOfItem = (input: { key: string; areaKey: string }, ctx) => {
-  return ctx.db.run(createSetAreaOfItemQuery(input)).then(async (result) => {
-    if (result.changes) {
-      //  Update children
-      const children = await getItemsByParent({ parentKey: input.key }, ctx)
-      if (children.length > 0) {
-        children.map(async (i) => {
-          const childrenResult = await ctx.db.run(
-            createSetAreaOfItemQuery({ key: i.key, areaKey: input.areaKey }),
-          )
-          if (!childrenResult) {
-            return new Error("Unable to set area of item's children")
-          }
-        })
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+  SET 
+    areaKey = ${input.areaKey ? input.areaKey : null}, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+  WHERE key = ${input.key}
+  `,
+    )
+    .then(async (result) => {
+      if (result.changes) {
+        //  Update children
+        const children = await getItemsByParent({ parentKey: input.key }, ctx)
+        if (children.length > 0) {
+          children.map(async (i) => {
+            const childrenResult = await ctx.db.run(
+              SQL`
+              UPDATE item 
+              SET 
+                areaKey = ${input.areaKey ? input.areaKey : null}, 
+                lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+              WHERE key = ${i.key}
+              `,
+            )
+            if (!childrenResult) {
+              return new Error("Unable to set area of item's children")
+            }
+          })
+        }
+
+        return getItem({ key: input.key }, ctx)
       }
-
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to set area of item, key - ${input.key}`)
-    return new Error('Unable to set area of item')
-  })
-}
-
-export const createSetScheduledAtOfItem = (input: { key: string; scheduledAt: Date }) => {
-  const scheduledText = input.scheduledAt ? `'${input.scheduledAt.toISOString()}'` : null
-  return `
-UPDATE item SET scheduledAt = ${scheduledText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
+      log.error(`Unable to set area of item, key - ${input.key}`)
+      return new Error('Unable to set area of item')
+    })
 }
 
 export const setScheduledAtOfItem = (input: { key: string; scheduledAt: Date }, ctx) => {
-  return ctx.db.run(createSetScheduledAtOfItem(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to set scheduled date of item, key - ${input.key}`)
-    return new Error('Unable to set scheduled date of item')
-  })
-}
-
-export const createSetDueAtOfItem = (input: { key: string; dueAt: Date }) => {
-  const dueText = input.dueAt ? `'${input.dueAt.toISOString()}'` : null
-  return `
-UPDATE item SET dueAt = ${dueText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+    SET scheduledAt = ${input.scheduledAt ? input.scheduledAt.toISOString() : null}, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+  WHERE key = ${input.key}
+  `,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Unable to set scheduled date of item, key - ${input.key}`)
+      return new Error('Unable to set scheduled date of item')
+    })
 }
 
 export const setDueAtOfItem = (input: { key: string; dueAt: Date }, ctx) => {
-  return ctx.db.run(createSetDueAtOfItem(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to set due date of item, key - ${input.key}`)
-    return new Error('Unable to set due date of item')
-  })
-}
-
-export const createSetParentOfItemQuery = (input: { key: string; parentKey: string }) => {
-  const inputText = input.parentKey ? `'${input.parentKey}'` : null
-  return `
-      UPDATE item SET parentKey = ${inputText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+  SET 
+    dueAt = ${input.dueAt ? input.dueAt.toISOString() : null}, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+  WHERE key = '${input.key}'
+  `,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Unable to set due date of item, key - ${input.key}`)
+      return new Error('Unable to set due date of item')
+    })
 }
 
 export const setParentOfItem = async (input: { key: string; parentKey: string }, ctx) => {
@@ -742,17 +972,27 @@ export const setParentOfItem = async (input: { key: string; parentKey: string },
     return new Error("Unable to set parent of item as it's already a parent")
   }
 
-  return ctx.db.run(createSetParentOfItemQuery(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to set parent of item, key - ${input.key}`)
-    return new Error('Unable to set parent of item')
-  })
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+  SET 
+    parentKey = ${input.parentKey ? input.parentKey : null}, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+  WHERE key = '${input.key}'
+`,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Unable to set parent of item, key - ${input.key}`)
+      return new Error('Unable to set parent of item')
+    })
 }
 
 export const permanentDeleteItem = (input: { key: string }, ctx) => {
-  return ctx.db.run('DELETE from item WHERE key = ?', input.key).then((result) => {
+  return ctx.db.run(SQL`DELETE from item WHERE key = ${input.key}`).then((result) => {
     if (result.changes) {
       return input.key
     }
@@ -761,20 +1001,24 @@ export const permanentDeleteItem = (input: { key: string }, ctx) => {
   })
 }
 
-export const createSetLabelOfItemQuery = (input: { key: string; labelKey: string }) => {
-  const inputText = input.labelKey ? `'${input.labelKey}'` : null
-  return `
-UPDATE item SET labelKey = ${inputText}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'
-`
-}
 export const setLabelOfItem = (input: { key: string; labelKey: string }, ctx) => {
-  return ctx.db.run(createSetLabelOfItemQuery(input)).then((result) => {
-    if (result.changes) {
-      return getItem({ key: input.key }, ctx)
-    }
-    log.error(`Unable to set label of item, key - ${input.key}`)
-    return new Error('Unable to set label of item')
-  })
+  return ctx.db
+    .run(
+      SQL`
+  UPDATE item 
+  SET 
+    labelKey = ${input.labelKey ? input.labelKey : null}, 
+    lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+  WHERE key = ${input.key}
+  `,
+    )
+    .then((result) => {
+      if (result.changes) {
+        return getItem({ key: input.key }, ctx)
+      }
+      log.error(`Unable to set label of item, key - ${input.key}`)
+      return new Error('Unable to set label of item')
+    })
 }
 
 /*   Root Values     */
