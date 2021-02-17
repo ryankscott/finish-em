@@ -10,6 +10,15 @@ const load = keyframes`
       left: 100%;
   }
 `
+const flicker = keyframes`
+ from {
+    opacity: 0.40;
+  }
+
+  to {
+    opacity: 1.0;
+  }
+`
 
 export const LoadingContainer = styled.div`
   margin: 5px 0px;
@@ -19,12 +28,8 @@ export const LoadingContainer = styled.div`
   width: 100%;
   position: relative;
   overflow: hidden;
-  display: grid;
-  grid-template-columns: 25px 25px repeat(3, 1fr);
-  grid-auto-rows: auto auto;
-  grid-template-areas:
-    '. LTYPE  LDESC  LDESC  LDESC '
-    '. .      LDUE  LSCHEDULED  LREPEAT ';
+  animation: ${flicker} 1.2s infinite;
+
   &:after {
     content: '';
     position: absolute;
@@ -39,135 +44,63 @@ export const LoadingContainer = styled.div`
   }
 `
 
-export const LoadingDue = styled.div`
-  grid-area: LDUE;
-  position: relative;
-  overflow: hidden;
-  border-radius: 5px;
-  margin: 2px 10px;
-  height: 20px;
-  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
-  &:before {
-    content: '';
-    display: block;
-    position: absolute;
-    left: -50px;
-    top: 0;
-    height: 100%;
-    width: 50px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
-      transparent 100%
-    );
-    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
-`
-
-export const LoadingScheduled = styled.div`
-  grid-area: LSCHEDULED;
-  position: relative;
-  overflow: hidden;
-  border-radius: 5px;
-  margin: 2px 10px;
-  height: 20px;
-  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
-  &:before {
-    content: '';
-    display: block;
-    position: absolute;
-    left: -50px;
-    top: 0;
-    height: 100%;
-    width: 50px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
-      transparent 100%
-    );
-    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
-`
-
-export const LoadingRepeat = styled.div`
-  grid-area: LREPEAT;
-  position: relative;
-  overflow: hidden;
-  border-radius: 5px;
-  margin: 2px 10px;
-  height: 20px;
-  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
-  &:before {
-    content: '';
-    display: block;
-    position: absolute;
-    left: -50px;
-    top: 0;
-    height: 100%;
-    width: 50px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
-      transparent 100%
-    );
-    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
-`
-
 export const LoadingDesc = styled.div`
-  grid-area: LDESC;
-  position: relative;
+  position: absolute;
   overflow: hidden;
   border-radius: 5px;
   margin: 2px 10px;
   height: 25px;
+  width: 100%;
+  left: 25px;
+  top: 0px;
   background-color: ${(props) => props.theme.colours.focusBackgroundColour};
-  &:before {
-    content: '';
-    display: block;
-    position: absolute;
-    left: -50px;
-    top: 0;
-    height: 100%;
-    width: 50px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
-      transparent 100%
-    );
-    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
 `
 
 export const LoadingType = styled.div`
-  grid-area: LTYPE;
-  position: relative;
+  position: absolute;
   overflow: hidden;
   padding: 2px;
   margin: 2px 0px;
   border-radius: 50%;
   height: 25px;
+  width: 25px;
   background-color: ${(props) => props.theme.colours.focusBackgroundColour};
-  &:before {
-    content: '';
-    display: block;
-    position: absolute;
-    left: -50px;
-    top: 0;
-    height: 100%;
-    width: 50px;
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      ${(props) => darken(0.05, props.theme.colours.focusBackgroundColour)} 50%,
-      transparent 100%
-    );
-    animation: ${load} 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
+`
+
+export const LoadingDue = styled.div`
+  position: absolute;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 2px 10px;
+  height: 20px;
+  bottom: 5px;
+  width: 120px;
+  left: 15%;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+`
+
+export const LoadingScheduled = styled.div`
+  position: absolute;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 2px 10px;
+  height: 20px;
+  bottom: 5px;
+  width: 120px;
+  left: 40%;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+`
+
+export const LoadingRepeat = styled.div`
+  position: absolute;
+  overflow: hidden;
+  border-radius: 5px;
+  margin: 2px 10px;
+  height: 20px;
+  bottom: 5px;
+  width: 120px;
+  left: 65%;
+  background-color: ${(props) => props.theme.colours.focusBackgroundColour};
 `
 
 const generateBackgroundColour = (props) => {
