@@ -1009,6 +1009,87 @@ export const Icons: {
       <line x1="12" y1="19" x2="20" y2="19"></line>
     </svg>
   ),
+  link: (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
+  ): React.SVGProps<SVGSVGElement> => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={width ? width : '16'}
+      height={height ? height : '16'}
+      viewBox="0 0 24 24"
+      fill={'none'}
+      stroke={colour ? colour : 'currentColor'}
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+    </svg>
+  ),
+  bold: (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
+  ): React.SVGProps<SVGSVGElement> => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={width ? width : '16'}
+      height={height ? height : '16'}
+      viewBox="0 0 24 24"
+      fill={'none'}
+      stroke={colour ? colour : 'currentColor'}
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
+      <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
+    </svg>
+  ),
+  italic: (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
+  ): React.SVGProps<SVGSVGElement> => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={width ? width : '16'}
+      height={height ? height : '16'}
+      viewBox="0 0 24 24"
+      fill={'none'}
+      stroke={colour ? colour : 'currentColor'}
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <line x1="19" y1="4" x2="10" y2="4"></line>
+      <line x1="14" y1="20" x2="5" y2="20"></line>
+      <line x1="15" y1="4" x2="9" y2="20"></line>
+    </svg>
+  ),
+  underline: (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
+  ): React.SVGProps<SVGSVGElement> => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={width ? width : '16'}
+      height={height ? height : '16'}
+      viewBox="0 0 24 24"
+      fill={'none'}
+      stroke={colour ? colour : 'currentColor'}
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path>
+      <line x1="4" y1="21" x2="20" y2="21"></line>
+    </svg>
+  ),
   finish_em: (
     width?: CSS.Property.Width,
     height?: CSS.Property.Height,
@@ -1016,52 +1097,50 @@ export const Icons: {
     <svg
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 752 688"
+      viewBox="0 0 1200 1200"
       width={width ? width : '16'}
       height={height ? height : '16'}
     >
       <g filter="url(#filter0_d)">
-        <path
-          d="M328.821 639.56C318.021 652.431 312.622 658.866 305.992 661.681C300.16 664.156 293.694 664.722 287.521 663.297C280.503 661.676 274.068 656.276 261.197 645.477L181.529 578.627C168.658 567.827 162.223 562.427 159.408 555.797C156.933 549.965 156.367 543.5 157.792 537.327C159.413 530.309 164.813 523.874 175.612 511.003L563.856 48.312C574.656 35.4412 580.056 29.0058 586.686 26.1917C592.517 23.7162 598.983 23.1505 605.156 24.5757C612.174 26.1959 618.609 31.5958 631.48 42.3956L711.149 109.246C724.019 120.045 730.455 125.445 733.269 132.075C735.744 137.907 736.31 144.373 734.885 150.546C733.265 157.563 727.865 163.999 717.065 176.869L328.821 639.56Z"
-          fill="#995DE5"
-          fillOpacity="0.6"
-        />
+        <rect x="100" y="100" width="1000" height="1000" rx="200" fill="#DBDBDB" />
+        <rect x="100" y="100" width="1000" height="1000" rx="200" fill="url(#paint0_linear)" />
       </g>
       <g filter="url(#filter1_d)">
         <path
-          d="M28.7431 449.095C15.8818 438.284 9.45115 432.878 6.64058 426.244C4.16834 420.409 3.60525 413.94 5.03202 407.765C6.65404 400.745 12.054 394.31 22.8538 381.439L89.7037 301.77C100.504 288.899 105.903 282.464 112.531 279.652C118.362 277.179 124.825 276.616 130.995 278.045C138.009 279.669 144.439 285.075 157.301 295.886L390.007 491.497C402.868 502.309 409.299 507.714 412.109 514.348C414.582 520.184 415.145 526.653 413.718 532.828C412.096 539.847 406.696 546.283 395.896 559.154L329.046 638.822C318.246 651.693 312.846 658.128 306.218 660.94C300.388 663.414 293.925 663.976 287.755 662.548C280.741 660.923 274.311 655.517 261.449 644.706L28.7431 449.095Z"
-          fill="#45B9EF"
-          fillOpacity="0.6"
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M548.666 938.23L548.666 938.23L994.584 406.806C1005.38 393.935 1010.78 387.5 1012.4 380.482C1013.83 374.309 1013.26 367.843 1010.79 362.011C1007.97 355.382 1001.54 349.982 988.667 339.182L889.361 255.854C876.49 245.054 870.055 239.654 863.037 238.034C856.864 236.609 850.398 237.174 844.566 239.65C837.937 242.464 832.537 248.899 821.737 261.77L490.643 656.353L354.405 541.832C341.544 531.021 335.113 525.615 328.099 523.991C321.929 522.562 315.466 523.125 309.636 525.598C303.008 528.41 297.608 534.845 286.808 547.716L203.48 647.023C192.68 659.894 187.281 666.329 185.658 673.349C184.232 679.524 184.795 685.993 187.267 691.828C190.078 698.462 196.508 703.868 209.37 714.679L363.707 844.414C367.4 848.789 373.128 853.596 381.734 860.817L381.735 860.817L381.735 860.818L481.042 944.146L481.043 944.147C493.913 954.946 500.348 960.346 507.366 961.966C513.539 963.391 520.005 962.826 525.836 960.35C532.466 957.536 537.866 951.101 548.666 938.23Z"
+          fill="url(#paint1_linear)"
         />
       </g>
       <defs>
         <filter
           id="filter0_d"
-          x="140.759"
-          y="11.5418"
-          width="611.16"
-          height="672.789"
+          x="92"
+          y="100"
+          width="1016"
+          height="1018"
           filterUnits="userSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >
-          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feFlood flood-opacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
             values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
           />
-          <feOffset dy="4" />
-          <feGaussianBlur stdDeviation="2" />
+          <feOffset dy="10" />
+          <feGaussianBlur stdDeviation="4" />
           <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
         <filter
           id="filter1_d"
-          x="0.260986"
-          y="277.272"
-          width="418.228"
-          height="394.048"
+          x="180.887"
+          y="237.265"
+          width="836.285"
+          height="733.47"
           filterUnits="userSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >
@@ -1077,6 +1156,28 @@ export const Icons: {
           <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
           <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
+        <linearGradient
+          id="paint0_linear"
+          x1="600"
+          y1="100"
+          x2="600"
+          y2="1100"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0.589017" stop-color="white" />
+          <stop offset="1" stop-color="white" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient
+          id="paint1_linear"
+          x1="945.5"
+          y1="277.5"
+          x2="405.5"
+          y2="876"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stop-color="#FF0000" />
+          <stop offset="1" stop-color="#6720FF" />
+        </linearGradient>
       </defs>
     </svg>
   ),
