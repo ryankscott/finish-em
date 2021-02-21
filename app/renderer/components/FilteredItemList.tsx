@@ -59,12 +59,15 @@ const GET_DATA = gql`
       key
       completed
       dueAt
+      scheduledAt
+      createdAt
       repeat
       label {
         key
       }
       lastUpdatedAt
       project {
+        name
         key
       }
       parent {
@@ -134,6 +137,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
       filter: props.filter ? props.filter : '',
       componentKey: props.componentKey,
     },
+    fetchPolicy: 'cache-and-network',
   })
   const theme = themes[themeData.theme]
   if (error) return null
