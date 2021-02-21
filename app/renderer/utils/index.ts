@@ -63,7 +63,6 @@ export const setEndOfContenteditable = (
   contentEditableElement: Element,
   offset: number = 0,
 ): void => {
-  console.log('setting to end')
   let range, selection
   if (document.createRange) {
     range = document.createRange() //Create a range (a range is a like the selection but invisible)
