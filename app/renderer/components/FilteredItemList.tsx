@@ -119,8 +119,8 @@ export type FilteredItemListProps = {
 }
 
 function FilteredItemList(props: FilteredItemListProps): ReactElement {
-  const [sortType, setSortType] = useState(sortOptions.DUE)
-  const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
+  const [sortType, setSortType] = useState(null)
+  const [sortDirection, setSortDirection] = useState(null)
   const [showCompleted, setShowCompleted] = useState(true)
   const [showItemList, setShowItemList] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
@@ -142,7 +142,6 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const uncompletedItems = data?.items.filter((m) => m.completed == false)
   const completedItems = data?.items.filter((m) => m.completed == true)
 
-  // Todo fix this to use sorting by other metrics
   const sI = data?.items.map((i) => {
     const sortOrder = i.sortOrders.find((s) => s.componentKey == props.componentKey)
     return {
