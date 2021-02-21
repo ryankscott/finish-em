@@ -1,13 +1,10 @@
 import React, { ReactElement, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import { ThemeProvider } from '../StyledComponents'
-import { connect } from 'react-redux'
 import { themes } from '../theme'
 import FilteredItemList from './FilteredItemList'
-import { Paragraph, Header1 } from './Typography'
+import { Paragraph } from './Typography'
 import { parseISO, format, sub, add, isSameDay } from 'date-fns'
-import EditableText from './EditableText'
-import { setDailyGoal } from '../actions'
 import { ThemeType } from '../interfaces'
 import {
   AgendaContainer,
@@ -24,16 +21,8 @@ import {
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
 import { sortBy } from 'lodash'
-import ItemCreator from './ItemCreator'
 
-interface StateProps {
-  dailyGoal: any[]
-}
-interface DispatchProps {
-  setDailyGoal: (day: string, input: string) => void
-}
-type DailyAgendaProps = StateProps & DispatchProps
-
+type DailyAgendaProps = {}
 const GET_DATA = gql`
   query {
     eventsForActiveCalendar {
@@ -60,7 +49,6 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   const { loading, error, data } = useQuery(GET_DATA, { pollInterval: 1000 * 60 * 5 })
   // TODO: Gross
   const theme: ThemeType = themes[data?.theme]
-  const editor = React.useRef<HTMLInputElement>()
   const [currentDate, setDate] = useState(new Date())
   const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
   if (loading) return null
@@ -106,30 +94,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             Week of quarter: {parseInt(format(currentDate, 'w')) % 13} / 13
           </Paragraph>
         </DateContainer>
-        {data.dailyGoals.enabled && (
-          <>
-            <Header1> Daily Goal </Header1>
-            <EditableText
-              style={Paragraph}
-              readOnly={false}
-              input={
-                props.dailyGoal?.[format(currentDate, 'yyyy-MM-dd')]
-                  ? props.dailyGoal[format(currentDate, 'yyyy-MM-dd')].text
-                  : ''
-              }
-              placeholder={'Add a daily goal'}
-              height={'150px'}
-              singleline={false}
-              innerRef={editor}
-              onUpdate={(input) => {
-                props.setDailyGoal(format(currentDate, 'yyyy-MM-dd'), input)
-                return true
-              }}
-              shouldSubmitOnBlur={true}
-              shouldClearOnSubmit={false}
-            />
-          </>
-        )}
+
         {data.calendarIntegration.enabled && (
           <EventsContainer>
             {eventsToday.length ? (
@@ -194,12 +159,4 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   )
 }
 
-const mapStateToProps = (state): StateProps => ({
-  dailyGoal: state.dailyGoal,
-})
-const mapDispatchToProps = (dispatch): DispatchProps => ({
-  setDailyGoal: (day, text) => {
-    dispatch(setDailyGoal(day, text))
-  },
-})
-export default connect(mapStateToProps, mapDispatchToProps)(DailyAgenda)
+export default DailyAgenda
