@@ -1,9 +1,6 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom'
 import ViewManager from './components/ViewManager'
-import { Provider } from 'react-redux'
-import { store, persistor } from './store'
-import { PersistGate } from 'redux-persist/integration/react'
 import { ApolloProvider, ApolloClient, InMemoryCache, ReactiveVar, makeVar } from '@apollo/client'
 import jwt from 'jsonwebtoken'
 
@@ -97,11 +94,7 @@ export const activeCalendarVar: ReactiveVar<Object> = makeVar<String>('')
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
-        <ViewManager />
-      </PersistGate>
-    </Provider>
+    <ViewManager />
   </ApolloProvider>,
   mainRoot,
 )
