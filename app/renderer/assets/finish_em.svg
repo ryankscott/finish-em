@@ -11,7 +11,7 @@
     <defs>
         <filter id="filter0_d" x="92" y="100" width="1016" height="1018" filterUnits="userSpaceOnUse"
             color-interpolation-filters="sRGB">
-            <feFlood floodOpacity="0" result="BackgroundImageFix" />
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
             <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
             <feOffset dy="10" />
             <feGaussianBlur stdDeviation="4" />
@@ -21,7 +21,7 @@
         </filter>
         <filter id="filter1_d" x="180.887" y="237.265" width="836.285" height="733.47" filterUnits="userSpaceOnUse"
             color-interpolation-filters="sRGB">
-            <feFlood floodOpacity="0" result="BackgroundImageFix" />
+            <feFlood flood-opacity="0" result="BackgroundImageFix" />
             <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
             <feOffset dy="4" />
             <feGaussianBlur stdDeviation="2" />
@@ -30,12 +30,12 @@
             <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
         </filter>
         <linearGradient id="paint0_linear" x1="600" y1="100" x2="600" y2="1100" gradientUnits="userSpaceOnUse">
-            <stop offset="0.589017" stopColor="white" />
-            <stop offset="1" stopColor="white" stopOpacity="0" />
+            <stop offset="0.589017" stop-color="white" />
+            <stop offset="1" stop-color="white" stop-opacity="0" />
         </linearGradient>
         <linearGradient id="paint1_linear" x1="945.5" y1="277.5" x2="405.5" y2="876" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#FF0000" />
-            <stop offset="1" stopColor="#6720FF" />
+            <stop stop-color="#FF0000" />
+            <stop offset="1" stop-color="#6720FF" />
         </linearGradient>
     </defs>
 </svg>
