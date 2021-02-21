@@ -15,11 +15,10 @@ import {
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { cloneDeep, get, orderBy } from 'lodash'
+import { cloneDeep, get } from 'lodash'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { subtasksVisibleVar, focusbarVisibleVar, activeItemVar } from '..'
 import { Spinner } from './Spinner'
-import { itemReducer } from '../reducers/item'
 
 const GET_DATA = gql`
   query {
@@ -78,9 +77,15 @@ type ReorderableItemListProps = {
   inputItems: {
     key: string
     parentKey: string
-    children: string[]
+    children: {
+      key: string
+      deleted: boolean
+      completed: boolean
+    }[]
     sortOrder: number
   }[]
+  hideCompletedSubtasks?: Boolean
+  hideDeletedSubtasks?: Boolean
   flattenSubtasks?: Boolean
   hiddenIcons: ItemIcons[]
 }
@@ -186,7 +191,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 
   const theme: ThemeType = themes[data.theme]
   const sortedItemOrders = props.inputItems
-
   return (
     <ThemeProvider theme={theme}>
       <Container>
@@ -258,21 +262,26 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                     shouldIndent={false}
                                     hiddenIcons={props.hiddenIcons}
                                   />
-                                  {item.children?.map((childKey) => {
+                                  {item.children?.map((child) => {
                                     // We need to check if the child exists in the original input list
+                                    const shouldHide =
+                                      (props.hideCompletedSubtasks && child.completed) ||
+                                      (props.hideDeletedSubtasks && child.deleted)
                                     return (
-                                      <Item
-                                        compact={false}
-                                        itemKey={childKey}
-                                        key={childKey}
-                                        componentKey={props.componentKey}
-                                        shouldIndent={true}
-                                        hiddenIcons={
-                                          props.hiddenIcons
-                                            ? [...props.hiddenIcons, ItemIcons.Subtask]
-                                            : [ItemIcons.Subtask]
-                                        }
-                                      />
+                                      !shouldHide && (
+                                        <Item
+                                          compact={false}
+                                          itemKey={child.key}
+                                          key={child.key}
+                                          componentKey={props.componentKey}
+                                          shouldIndent={true}
+                                          hiddenIcons={
+                                            props.hiddenIcons
+                                              ? [...props.hiddenIcons, ItemIcons.Subtask]
+                                              : [ItemIcons.Subtask]
+                                          }
+                                        />
+                                      )
                                     )
                                   })}
                                 </DraggableContainer>

@@ -75,6 +75,8 @@ const GET_DATA = gql`
       }
       children {
         key
+        deleted
+        completed
       }
       completed
       sortOrders {
@@ -116,6 +118,8 @@ export type FilteredItemListProps = {
   flattenSubtasks?: boolean
   showCompletedToggle?: boolean
   initiallyExpanded?: boolean
+  hideDeletedSubtasks?: boolean
+  hideCompletedSubtasks?: boolean
   readOnly?: boolean
   editing?: boolean
   setEditing?: (editing: boolean) => void
@@ -151,7 +155,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     return {
       key: i.key,
       parentKey: i?.parent ? i.parent.key : null,
-      children: i?.children.map((c) => c.key),
+      children: i?.children,
       sortOrder: sortOrder ? sortOrder.sortOrder : null,
     }
   })
@@ -326,6 +330,8 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
             <ItemListContainer>
               <ReorderableItemList
                 key={props.componentKey}
+                hideDeletedSubtasks={props.hideDeletedSubtasks}
+                hideCompletedSubtasks={props.hideCompletedSubtasks}
                 componentKey={props.componentKey}
                 hiddenIcons={props.hiddenIcons}
                 inputItems={sortedItems.slice(

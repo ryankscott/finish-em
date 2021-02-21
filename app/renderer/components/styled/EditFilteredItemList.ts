@@ -36,7 +36,7 @@ export const SettingLabel = styled.div`
 export const SettingValue = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 2px 5px;
   width: 100%;
   min-height: 30px;

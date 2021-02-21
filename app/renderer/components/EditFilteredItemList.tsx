@@ -66,6 +66,8 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   const [isFilterable, setIsFilterable] = useState(true)
   const [filter, setFilter] = useState('')
   const [flattenSubtasks, setFlattenSubtasks] = useState(true)
+  const [hideCompletedSubtasks, setHideCompletedSubtasks] = useState(false)
+  const [hideDeletedSubtasks, setHideDeletedSubtasks] = useState(false)
   const [hiddenIcons, setHiddenIcons] = useState([])
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT)
@@ -79,6 +81,8 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
       setFilter(params.filter)
       setFlattenSubtasks(params.flattenSubtasks)
       setHiddenIcons(params.hiddenIcons)
+      setHideCompletedSubtasks(params?.hideCompletedSubtasks ? params.hideCompletedSubtasks : false)
+      setHideDeletedSubtasks(params?.hideDeletedSubtasks ? params.hideCompletedSubtasks : false)
     }
   }, [loading, data])
 
@@ -209,6 +213,39 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             />
           </SettingValue>
         </Setting>
+
+        <Setting>
+          <SettingLabel>Hide Completed Subtasks</SettingLabel>
+          <SettingValue>
+            <Switch
+              checked={hideCompletedSubtasks}
+              onChange={(input) => {
+                setHideCompletedSubtasks(input)
+              }}
+              onColor={theme.colours.primaryColour}
+              checkedIcon={false}
+              uncheckedIcon={false}
+              width={24}
+              height={14}
+            />
+          </SettingValue>
+        </Setting>
+        <Setting>
+          <SettingLabel>Hide Deleted Subtasks:</SettingLabel>
+          <SettingValue>
+            <Switch
+              checked={hideDeletedSubtasks}
+              onChange={(input) => {
+                setHideDeletedSubtasks(input)
+              }}
+              onColor={theme.colours.primaryColour}
+              checkedIcon={false}
+              uncheckedIcon={false}
+              width={24}
+              height={14}
+            />
+          </SettingValue>
+        </Setting>
         <Setting>
           <SettingLabel>Hide Icons:</SettingLabel>
           <SettingValue>
@@ -253,6 +290,8 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                     initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
                     flattenSubtasks: flattenSubtasks ? flattenSubtasks : true,
                     isFilterable: isFilterable ? isFilterable : true,
+                    hideCompletedSubtasks: hideCompletedSubtasks ? hideCompletedSubtasks : false,
+                    hideDeletedSubtasks: hideDeletedSubtasks ? hideDeletedSubtasks : false,
                   },
                 },
               })
