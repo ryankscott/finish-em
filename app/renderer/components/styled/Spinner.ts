@@ -15,7 +15,7 @@ export const SecondRectangle = styled.div`
   height: 40px;
   position: relative;
   transform: rotateZ(-45deg);
-  background-color: #45b9ef;
+  background-color: #007cf0;
   opacity: 0.6;
 `
 

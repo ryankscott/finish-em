@@ -796,17 +796,17 @@ export const migrations = {
           '4702c2d3-bcda-40a2-bd34-e0db07578076': {
             id: '4702c2d3-bcda-40a2-bd34-e0db07578076',
             name: 'Blocked',
-            colour: '#fe5e41',
+            colour: '#FF0080',
           },
           '5bd4d5ce-447f-45d5-a557-c8942bbfbae4': {
             id: '5bd4d5ce-447f-45d5-a557-c8942bbfbae4',
             name: 'High Priority',
-            colour: '#f9df77',
+            colour: '#EFB343',
           },
           'a342c159-9691-4684-a109-156ba46c1ea4': {
             id: 'a342c159-9691-4684-a109-156ba46c1ea4',
             name: 'Pending',
-            colour: '#59cd90',
+            colour: '#43EFB3',
           },
         },
       },

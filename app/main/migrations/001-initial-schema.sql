@@ -174,9 +174,9 @@ CREATE TABLE componentOrder (
 -- INSERTS
 INSERT INTO label (key, name, colour)
 VALUES
-    ('4702c2d3-bcda-40a2-bd34-e0db07578076', 'Blocked', '#fe5e41'),
-    ('5bd4d5ce-447f-45d5-a557-c8942bbfbae4', 'High Priority', '#f9df77'),
-    ('a342c159-9691-4684-a109-156ba46c1ea4', 'Pending', '#59cd90');
+    ('4702c2d3-bcda-40a2-bd34-e0db07578076', 'Blocked', '#FF0080'),
+    ('5bd4d5ce-447f-45d5-a557-c8942bbfbae4', 'High Priority', '#EFB343'),
+    ('a342c159-9691-4684-a109-156ba46c1ea4', 'Pending', '#43EFB3');
 
 INSERT INTO feature (key, name, enabled) 
 VALUES
