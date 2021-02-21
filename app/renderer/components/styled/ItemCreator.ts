@@ -3,12 +3,11 @@ import { headShake } from 'react-animations'
 
 export const Container = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-end;
   padding: 15px 2px;
-  overflow-x: hidden;
+  overflow-x: visible;
   margin: 2px;
-  overflow: scroll;
 `
 export interface ItemCreatorContainer {
   visible: boolean
@@ -26,7 +25,7 @@ export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
   animation: ${(props) => (props.animate ? animation : 'none')};
   position: relative;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: flex-end;
   align-items: center;
   width: ${(props) => (props.visible ? (props.width ? props.width : '10000px') : '0px')};
@@ -36,6 +35,7 @@ export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
 
 export const HelpButtonContainer = styled.div`
   position: absolute;
+  top: 5px;
   right: 2px;
   display: flex;
   flex-direction: row;

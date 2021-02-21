@@ -1123,7 +1123,7 @@ export const Icons: {
           filterUnits="userSpaceOnUse"
           colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"
@@ -1164,8 +1164,8 @@ export const Icons: {
           y2="1100"
           gradientUnits="userSpaceOnUse"
         >
-          <stop offset="0.589017" stop-color="white" />
-          <stop offset="1" stop-color="white" stop-opacity="0" />
+          <stop offset="0.589017" stopColor="white" />
+          <stop offset="1" stopColor="white" stopOpacity="0" />
         </linearGradient>
         <linearGradient
           id="paint1_linear"
@@ -1175,8 +1175,8 @@ export const Icons: {
           y2="876"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#FF0000" />
-          <stop offset="1" stop-color="#6720FF" />
+          <stop stopColor="#FF0000" />
+          <stop offset="1" stopColor="#6720FF" />
         </linearGradient>
       </defs>
     </svg>

@@ -307,7 +307,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             input={removeItemTypeFromString(item.text)}
             singleline={true}
             onUpdate={(text) => {
-              renameItem({ variables: { key: item.key, text: item.type.concat(' ', text) } })
+              renameItem({ variables: { key: item.key, text: text } })
             }}
             shouldSubmitOnBlur={true}
             shouldClearOnSubmit={false}

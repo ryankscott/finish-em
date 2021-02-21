@@ -250,7 +250,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
   // TODO: Fix me
   const activeCalendar = data.data.activeCalendar
   if (isEmpty(activeCalendar)) {
-    log.info(`No active calendar - ${activeCalendar}`)
+    log.info(`No active calendar`)
     return
   }
   log.info(`Getting events for calendar - ${activeCalendar.name}`)

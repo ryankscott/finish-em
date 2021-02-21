@@ -50,6 +50,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
   const [editable, setEditable] = useState(false)
   const [input, setInput] = useState(props.input)
   const [valid, setValid] = useState(false)
+  const id = uuidv4()
 
   const handlePaste = (e): void => {
     e.preventDefault()
@@ -238,10 +239,12 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
       }),
     }
   }
-  const id = uuidv4()
+
   return (
     <ThemeProvider theme={theme}>
-      <div style={{ position: 'relative', width: '100%' }}>
+      <div
+        style={{ display: 'flex', flexDirection: 'column', position: 'relative', width: '100%' }}
+      >
         <Container
           singleline={props.singleline}
           id={id}
@@ -249,7 +252,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
           backgroundColour={props.backgroundColour}
           padding={props.padding}
           valid={props.validation ? valid : true}
-          as={props.style || Paragraph}
           readOnly={props.readOnly}
           ref={props.innerRef}
           width={props.width}
@@ -274,7 +276,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
               : getMarkdownText()
           }
         />
-
         {input.length == 0 &&
           !(
             props.innerRef?.current?.innerText != undefined &&

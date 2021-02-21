@@ -169,7 +169,6 @@ const CLONE_ITEM = gql`
 `
 
 function Item(props: ItemProps): ReactElement {
-  const [isEditingDescription, setIsEditingDescription] = useState(false)
   const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
   const [moreButtonVisible, setMoreButtonVisible] = useState(false)
   const [showLabelDialog, setShowLabelDialog] = useState(false)
@@ -187,7 +186,6 @@ function Item(props: ItemProps): ReactElement {
   let enterInterval, exitInterval
   const editor = React.useRef<HTMLInputElement>()
   const container = React.useRef<HTMLInputElement>()
-
   useEffect(() => {
     if (!isDescriptionReadOnly) {
       editor.current.focus()
@@ -330,6 +328,7 @@ function Item(props: ItemProps): ReactElement {
   const subtasksVisible = itemVisibility != undefined ? itemVisibility : true
 
   const isFocused = data.activeItem.findIndex((i) => i == item.key) >= 0
+
   return (
     <ThemeProvider theme={theme}>
       <Container
@@ -405,19 +404,7 @@ function Item(props: ItemProps): ReactElement {
           </TypeContainer>
         )}
         <Body id="body" compact={props.compact} completed={item.completed} deleted={item.deleted}>
-          <EditableText
-            shouldSubmitOnBlur={true}
-            innerRef={editor}
-            readOnly={isDescriptionReadOnly}
-            onEditingChange={(editing) => setIsEditingDescription(editing)}
-            input={removeItemTypeFromString(item.text)}
-            onUpdate={(text) => {
-              setIsDescriptionReadOnly(true)
-              renameItem({ variables: { key: item.key, text: item.type.concat(' ', text) } })
-            }}
-            singleline={item.type == 'NOTE' ? false : true}
-            shouldClearOnSubmit={false}
-          />
+          <p>{removeItemTypeFromString(item.text)}</p>
         </Body>
         <ProjectContainer
           visible={!(props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null)}

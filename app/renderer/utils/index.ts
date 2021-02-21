@@ -10,6 +10,7 @@ import {
 } from 'date-fns'
 import er from 'emoji-regex'
 import RRule from 'rrule'
+import VanillaCaret from 'vanilla-caret-js'
 
 export const itemRegex = /^(TODO|NOTE)\b/i
 export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/gi
@@ -18,15 +19,6 @@ export const projectTextRegex = /project:(\s*"[\s\S]*")|project:(\s*\S+)/gi
 export const repeatTextRegex = /repeat:(\s*"[\s\S]*")|repeat:(\s*\S+)/gi
 export const markdownLinkRegex = /\[([\w\s\d]+)\]\(((?:\/|https?:\/\/)[\w\d./?=#]+)\)/
 export const markdownBasicRegex = /[*_]{1,2}(\w*)[*_]{1,2}/
-
-export const getItemTypeFromString = (text: string): 'TODO' | 'NOTE' => {
-  const words = text.split(/\s+/)
-  const itemType = words[0]
-  const upperItemType = itemType.toUpperCase()
-  if (upperItemType == 'NOTE') return 'NOTE'
-  if (upperItemType == 'TODO') return 'TODO'
-  return 'TODO'
-}
 
 export const capitaliseItemTypeFromString = (text: string): string => {
   const words = text.split(/\s+/)
@@ -44,8 +36,9 @@ export const removeItemTypeFromString = (text: string): string => {
     return ''
   }
   if (!validateItemString(text)) {
-    return null
+    return text
   }
+
   const words = text.split(/\s+/)
   words.shift()
   return words.join(' ').trim()
@@ -66,16 +59,23 @@ export const removeDateFromString = (text: string): string => {
   return (startString + endString).trim()
 }
 
-export const setEndOfContenteditable = (contentEditableElement): void => {
+export const setEndOfContenteditable = (
+  contentEditableElement: Element,
+  offset: number = 0,
+): void => {
+  console.log('setting to end')
   let range, selection
   if (document.createRange) {
-    //Firefox, Chrome, Opera, Safari, IE 9+
     range = document.createRange() //Create a range (a range is a like the selection but invisible)
     range.selectNodeContents(contentEditableElement) //Select the entire contents of the element with the range
     range.collapse(false) //collapse the range to the end point. false means collapse to end rather than the start
     selection = window.getSelection() //get the selection object (allows you to change selection)
     selection.removeAllRanges() //remove any selections already made
-    selection.addRange(range) //make the range you have just created the visible selection
+    selection.addRange(range) //make the range you have just created the visible selection*/
+
+    const caret = new VanillaCaret(contentEditableElement) // Initialize
+    const currentPos = caret.getPos()
+    caret.setPos(currentPos - offset)
   }
 }
 
