@@ -10,7 +10,6 @@ import {
 } from 'date-fns'
 import er from 'emoji-regex'
 import RRule from 'rrule'
-import VanillaCaret from 'vanilla-caret-js'
 
 export const itemRegex = /^(TODO|NOTE)\b/i
 export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/gi
@@ -59,10 +58,7 @@ export const removeDateFromString = (text: string): string => {
   return (startString + endString).trim()
 }
 
-export const setEndOfContenteditable = (
-  contentEditableElement: Element,
-  offset: number = 0,
-): void => {
+export const setEndOfContenteditable = (contentEditableElement: Element): void => {
   let range, selection
   if (document.createRange) {
     range = document.createRange() //Create a range (a range is a like the selection but invisible)
@@ -71,10 +67,6 @@ export const setEndOfContenteditable = (
     selection = window.getSelection() //get the selection object (allows you to change selection)
     selection.removeAllRanges() //remove any selections already made
     selection.addRange(range) //make the range you have just created the visible selection*/
-
-    const caret = new VanillaCaret(contentEditableElement) // Initialize
-    const currentPos = caret.getPos()
-    caret.setPos(currentPos - offset)
   }
 }
 
