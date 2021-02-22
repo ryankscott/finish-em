@@ -1,5 +1,4 @@
-import React, { ReactElement, useState } from 'react'
-import hljs from 'highlight.js'
+import React, { ReactElement, useEffect, useState } from 'react'
 import ReactQuill from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import { Wrapper } from './styled/EditableText2'
@@ -22,6 +21,7 @@ type EditableText2Props = {
   shouldClearOnSubmit: boolean
   showToolbar?: boolean
   onUpdate: (input: string) => void
+  onEscape: () => void
 }
 
 const modules = {
@@ -37,9 +37,6 @@ const modules = {
     // toggle to add extra line breaks when pasting HTML:
     matchVisual: false,
   },
-  syntax: {
-    highlight: (text) => hljs.highlightAuto(text).value,
-  },
 }
 const formats = ['bold', 'italic', 'underline', 'strike', 'link']
 
@@ -52,29 +49,62 @@ function EditableText2(props: EditableText2Props): ReactElement {
     return null
   }
   const theme: ThemeType = themes[data.theme]
+  let reactQuillRef = null
+  let quillRef = null
+
+  useEffect(() => {
+    quillRef = reactQuillRef?.getEditor()
+  })
 
   const handleChange = (content, delta, source, editor) => {
     setEditorHtml(content)
   }
 
-  const handleKeyDown = (e) => {
-    if (e.key == 'Enter') {
-      console.log('enter')
+  const handleBlur = () => {
+    if (props.shouldClearOnSubmit) {
+      props.onUpdate(editorHtml)
     }
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key == 'Enter' && props.singleLine) {
+      props.onUpdate(editorHtml)
+      if (props.shouldClearOnSubmit) {
+        setEditorHtml('')
+      }
+      // This stops an actual enter being sent
+      e.preventDefault()
+
+      // Need to blur
+      quillRef.blur()
+    }
+  }
+
+  const handleKeyUp = (e) => {
+    if (e.key == 'Escape') {
+      props.onEscape ? props.onEscape() : null
+    }
+
+    return
   }
 
   return (
     <ThemeProvider theme={theme}>
       <Wrapper>
         <ReactQuill
+          ref={(el) => {
+            reactQuillRef = el
+          }}
           theme={'snow'}
           onChange={handleChange}
           value={editorHtml}
           modules={modules}
           formats={formats}
           onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
           readOnly={props.readOnly}
           placeholder={props.placeholder}
+          onBlur={handleBlur}
         />
       </Wrapper>
     </ThemeProvider>

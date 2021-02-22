@@ -8,6 +8,8 @@ export const Wrapper = styled.div<WrapperProps>`
 
   .ql-editor {
     padding: 6px 8px;
+    border-radius: 5px;
+    border: 1px solid ${(props) => props.theme.colours.borderColour};
   }
 
   .ql-container {

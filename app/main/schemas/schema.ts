@@ -1,13 +1,13 @@
 import * as api from '../api/'
 import { mergeTypeDefs } from '@graphql-tools/merge'
-import { DateTimeResolver, JSONResolver  } from 'graphql-scalars'
+import { DateTimeResolver, JSONResolver } from 'graphql-scalars'
 import { area } from './area'
 import { areaOrder } from './areaOrder'
 import { calendar } from './calendar'
 import { component } from './component'
 import { componentOrder } from './componentOrder'
 import { event } from './event'
-import { feature } from './feature',
+import { feature } from './feature'
 import { item } from './item'
 import { itemOrder } from './itemOrder'
 import { label } from './label'
@@ -42,7 +42,7 @@ export const schema = makeExecutableSchema({
   typeDefs: typeDefs,
   resolvers: {
     DateTime: DateTimeResolver,
-    JSON: JSONResolver
+    JSON: JSONResolver,
   },
 })
 

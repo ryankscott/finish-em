@@ -1,16 +1,10 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
-import Tooltip from './Tooltip'
 import { Container, ItemCreatorContainer, HelpButtonContainer } from './styled/ItemCreator'
-import { Icons } from '../assets/icons'
 import { themes } from '../theme'
 import { ThemeProvider } from '../StyledComponents'
-import { Date as sugarDate } from 'sugar-date'
-import { setEndOfContenteditable, dueTextRegex, scheduledTextRegex, itemRegex } from '../utils'
 import EditableText from './EditableText'
-import { lighten } from 'polished'
-import { isValid } from 'date-fns'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { ThemeType } from '../interfaces'
 import EditItemCreator from './EditItemCreator'
@@ -18,6 +12,10 @@ import EditableText2 from './EditableText2'
 
 const GET_THEME = gql`
   query {
+    newEditor: featureByName(name: "newEditor") {
+      key
+      enabled
+    }
     theme @client
   }
 `
@@ -83,22 +81,12 @@ export type ItemCreatorProps = {
 }
 
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
-  const [createItem] = useMutation(CREATE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
-  })
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
+  const [showItemCreator, setShowItemCreator] = useState(false)
+  const [animate, setAnimate] = useState(false)
 
   const textRef: React.RefObject<HTMLInputElement> = props.innerRef
     ? props.innerRef
     : React.useRef<HTMLInputElement>()
-  const [showItemCreator, setShowItemCreator] = useState(false)
-  const [animate, setAnimate] = useState(false)
 
   const node = useRef<HTMLDivElement>()
   const handleClick = (e): null => {
@@ -122,7 +110,17 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   useEffect(() => {
     setShowItemCreator(props.initiallyExpanded)
   }, [props.initiallyExpanded])
-
+  const [createItem] = useMutation(CREATE_ITEM, {
+    refetchQueries: ['itemsByFilter'],
+  })
+  const { loading, error, data } = useQuery(GET_THEME)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+  const theme: ThemeType = themes[data.theme]
+  console.log(data)
   return (
     <ThemeProvider theme={theme}>
       {props.editing ? (
@@ -161,51 +159,75 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
             width={props.width}
             visible={showItemCreator}
           >
-            <EditableText
-              onInvalidSubmit={() => {
-                setAnimate(true)
-                setTimeout(() => setAnimate(false), 1000)
-              }}
-              backgroundColour={props.backgroundColour}
-              alwaysShowBorder={true}
-              innerRef={textRef}
-              padding={'5px 30px 5px 5px'}
-              placeholder="Add a new task..."
-              onUpdate={(text) => {
-                createItem({
-                  variables: {
-                    key: uuidv4(),
-                    type: 'TODO',
-                    text: text,
-                    projectKey: props.projectKey,
-                    parentKey: props.parentKey,
-                    dueAt: props.dueAt,
-                    scheduledAt: props.scheduledAt,
-                    repeat: props.repeat,
-                    labelKey: props.labelKey,
-                  },
-                })
-                if (props.onCreate) {
-                  props.onCreate()
-                }
-                textRef.current.innerHTML = ''
-                if (props.shouldCloseOnSubmit) {
-                  setShowItemCreator(false)
-                } else {
-                  // Have to wait for blur to finish before focussing
-                  setTimeout(() => {
-                    textRef.current.focus()
-                  }, 200)
-                }
-              }}
-              readOnly={false}
-              input=""
-              singleline={true}
-              shouldClearOnSubmit={true}
-              shouldSubmitOnBlur={false}
-              onEscape={props.onEscape}
-            />
-            {/* <EditableText2 placeholder={'foobar'} /> */}
+            {data.newEditor.enabled ? (
+              <EditableText2
+                singleLine={true}
+                onEscape={props.onEscape}
+                placeholder={'Add an item...'}
+                shouldClearOnSubmit={true}
+                shouldSubmitOnBlur={false}
+                onUpdate={(text) => {
+                  createItem({
+                    variables: {
+                      key: uuidv4(),
+                      type: 'TODO',
+                      text: text,
+                      projectKey: props.projectKey,
+                      parentKey: props.parentKey,
+                      dueAt: props.dueAt,
+                      scheduledAt: props.scheduledAt,
+                      repeat: props.repeat,
+                      labelKey: props.labelKey,
+                    },
+                  })
+                }}
+              />
+            ) : (
+              <EditableText
+                onInvalidSubmit={() => {
+                  setAnimate(true)
+                  setTimeout(() => setAnimate(false), 1000)
+                }}
+                backgroundColour={props.backgroundColour}
+                alwaysShowBorder={true}
+                innerRef={textRef}
+                padding={'5px 30px 5px 5px'}
+                placeholder="Add a new task..."
+                onUpdate={(text) => {
+                  createItem({
+                    variables: {
+                      key: uuidv4(),
+                      type: 'TODO',
+                      text: text,
+                      projectKey: props.projectKey,
+                      parentKey: props.parentKey,
+                      dueAt: props.dueAt,
+                      scheduledAt: props.scheduledAt,
+                      repeat: props.repeat,
+                      labelKey: props.labelKey,
+                    },
+                  })
+                  if (props.onCreate) {
+                    props.onCreate()
+                  }
+                  textRef.current.innerHTML = ''
+                  if (props.shouldCloseOnSubmit) {
+                    setShowItemCreator(false)
+                  } else {
+                    // Have to wait for blur to finish before focussing
+                    setTimeout(() => {
+                      textRef.current.focus()
+                    }, 200)
+                  }
+                }}
+                readOnly={false}
+                input=""
+                singleline={true}
+                shouldClearOnSubmit={true}
+                shouldSubmitOnBlur={false}
+                onEscape={props.onEscape}
+              />
+            )}
           </ItemCreatorContainer>
         </Container>
       )}
