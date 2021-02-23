@@ -6,6 +6,7 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { gql, useQuery } from '@apollo/client'
 import { ThemeType } from '../interfaces'
+import { delimiter } from 'path'
 
 const GET_THEME = gql`
   query {
@@ -57,28 +58,26 @@ function EditableText2(props: EditableText2Props): ReactElement {
   })
 
   const handleChange = (content, delta, source, editor) => {
-    setEditorHtml(content)
-  }
-
-  const handleBlur = () => {
-    if (props.shouldClearOnSubmit) {
-      props.onUpdate(editorHtml)
-    }
-  }
-
-  const handleKeyDown = (e) => {
-    if (e.key == 'Enter' && props.singleLine) {
+    const lastChar = delta.ops[delta.ops.length - 1]?.insert?.charCodeAt(0)
+    if (lastChar == 10 && props.singleLine) {
       props.onUpdate(editorHtml)
       if (props.shouldClearOnSubmit) {
         setEditorHtml('')
       }
-      // This stops an actual enter being sent
-      e.preventDefault()
-
       // Need to blur
       quillRef.blur()
+    } else {
+      setEditorHtml(content)
     }
   }
+
+  const handleBlur = () => {
+    if (props.shouldSubmitOnBlur) {
+      props.onUpdate(editorHtml)
+    }
+  }
+
+  const handleKeyDown = (e) => {}
 
   const handleKeyUp = (e) => {
     if (e.key == 'Escape') {

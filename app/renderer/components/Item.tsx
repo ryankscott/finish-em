@@ -15,7 +15,6 @@ import {
   truncateString,
 } from '../utils'
 import Button from './Button'
-import EditableText from './EditableText'
 import ItemAttribute from './ItemAttribute'
 import LabelDialog from './LabelDialog'
 import MoreDropdown, { MoreDropdownOptions } from './MoreDropdown'
@@ -404,7 +403,13 @@ function Item(props: ItemProps): ReactElement {
           </TypeContainer>
         )}
         <Body id="body" compact={props.compact} completed={item.completed} deleted={item.deleted}>
-          <p>{removeItemTypeFromString(item.text)}</p>
+          <div
+            dangerouslySetInnerHTML={{
+              __html: item.text.startsWith('<p>')
+                ? removeItemTypeFromString(item.text)
+                : `<p>${removeItemTypeFromString(item.text)}</p>`,
+            }}
+          ></div>
         </Body>
         <ProjectContainer
           visible={!(props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null)}

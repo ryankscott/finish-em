@@ -120,7 +120,6 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     return null
   }
   const theme: ThemeType = themes[data.theme]
-  console.log(data)
   return (
     <ThemeProvider theme={theme}>
       {props.editing ? (
