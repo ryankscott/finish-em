@@ -4,7 +4,12 @@ import { themes, selectStyles } from '../theme'
 import Button from './Button'
 import { lighten } from 'polished'
 import Select, { GroupType } from 'react-select'
-import { removeItemTypeFromString, markdownLinkRegex, markdownBasicRegex } from '../utils'
+import {
+  removeItemTypeFromString,
+  markdownLinkRegex,
+  markdownBasicRegex,
+  HTMLToPlainText,
+} from '../utils'
 import { useHistory } from 'react-router'
 import {
   ShortcutIcon,
@@ -61,7 +66,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
       .filter((i) => i.deleted == false)
       .map((i) => {
         return {
-          label: removeItemTypeFromString(i.text)
+          label: HTMLToPlainText(removeItemTypeFromString(i.text))
             .replace(markdownLinkRegex, '$1')
             .replace(markdownBasicRegex, '$1'),
           value: () => {

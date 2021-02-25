@@ -13,6 +13,7 @@ import AttributeSelect from './AttributeSelect'
 import Button from './Button'
 import DatePicker from './DatePicker'
 import EditableText from './EditableText'
+import EditableText2 from './EditableText2'
 import Item from './Item'
 import ItemCreator from './ItemCreator'
 import RepeatPicker from './RepeatPicker'
@@ -72,6 +73,10 @@ const GET_DATA = gql`
       children {
         key
       }
+    }
+    newEditor: featureByName(name: "newEditor") {
+      key
+      enabled
     }
     theme @client
     focusbarVisible @client
@@ -219,7 +224,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     },
   })
 
-  const [renameItem] = useMutation(RENAME_ITEM)
+  const [renameItem] = useMutation(RENAME_ITEM, { refetchQueries: ['itemByKey'] })
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: ['itemsByFilter', 'itemByKey'],
   })
@@ -300,18 +305,32 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             }}
             icon={item.type == 'NOTE' ? 'note' : item.completed ? 'todoChecked' : 'todoUnchecked'}
           />
-          <EditableText
-            key={item.key}
-            innerRef={ref}
-            style={Header1}
-            input={removeItemTypeFromString(item.text)}
-            singleline={true}
-            onUpdate={(text) => {
-              renameItem({ variables: { key: item.key, text: text } })
-            }}
-            shouldSubmitOnBlur={true}
-            shouldClearOnSubmit={false}
-          />
+          {data.newEditor.enabled ? (
+            <EditableText2
+              input={item.text}
+              singleLine={true}
+              shouldClearOnSubmit={false}
+              shouldSubmitOnBlur={true}
+              hideToolbar={false}
+              hideBorder={true}
+              onUpdate={(text) => {
+                renameItem({ variables: { key: item.key, text: text } })
+              }}
+            />
+          ) : (
+            <EditableText
+              key={item.key}
+              innerRef={ref}
+              style={Header1}
+              input={removeItemTypeFromString(item.text)}
+              singleline={true}
+              onUpdate={(text) => {
+                renameItem({ variables: { key: item.key, text: text } })
+              }}
+              shouldSubmitOnBlur={true}
+              shouldClearOnSubmit={false}
+            />
+          )}
           {item.deleted ? (
             <>
               <Button

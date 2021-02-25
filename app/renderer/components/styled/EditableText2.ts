@@ -1,20 +1,46 @@
 import { darken, lighten } from 'polished'
 import styled from '../../StyledComponents'
 
-export interface WrapperProps {}
+export interface WrapperProps {
+  hideBorder: boolean
+  isEditing: boolean
+}
 export const Wrapper = styled.div<WrapperProps>`
   position: relative;
   width: 100%;
 
+  .ql-preview {
+    text-decoration: underline;
+    color: ${(props) => props.theme.colours.altTextColour};
+  }
+
+  .ql-editor.ql-blank::before {
+    font-weight: ${(props) => props.theme.fontWeights.regular};
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
+    font-style: normal;
+    opacity: 0.7;
+    left: 10px;
+  }
+
+  .ql-remove {
+    color: ${(props) => props.theme.colours.errorColour};
+  }
+
   .ql-editor {
     padding: 6px 8px;
     border-radius: 5px;
-    border: 1px solid ${(props) => props.theme.colours.borderColour};
+    border: ${(props) => (props.hideBorder ? 'none' : '1px solid')};
+    border-color: ${(props) => props.theme.colours.borderColour};
+    &:hover {
+      background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+    }
+    &:focus {
+      background-color: ${(props) => props.theme.colours.focusBackgroundColour};
+    }
   }
 
   .ql-container {
-    border-radius: 5px;
-    border: 1px solid ${(props) => props.theme.colours.borderColour};
+    border: none;
   }
 
   .ql-snow .ql-editor a {
@@ -41,6 +67,7 @@ export const Wrapper = styled.div<WrapperProps>`
   /* Toolbar styling */
 
   .ql-toolbar {
+    display: ${(props) => (props.isEditing ? 'flex' : 'none')};
     padding: 2px;
     border-radius: 5px;
     background-color: ${(props) => props.theme.colours.focusDialogBackgroundColour};
@@ -49,6 +76,7 @@ export const Wrapper = styled.div<WrapperProps>`
     bottom: 0;
     width: 100%;
     transform: translateY(100%);
+    transition: all 0.2s ease-in-out;
   }
 
   .ql-toolbar.ql-snow .ql-formats {

@@ -162,8 +162,9 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               <EditableText2
                 singleLine={true}
                 onEscape={props.onEscape}
-                placeholder={'Add an item...'}
+                placeholder={'Add an item'}
                 shouldClearOnSubmit={true}
+                hideToolbar={false}
                 shouldSubmitOnBlur={false}
                 onUpdate={(text) => {
                   createItem({

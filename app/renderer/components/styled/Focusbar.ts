@@ -10,6 +10,7 @@ export const Container = styled.div`
   z-index: 0;
 `
 export const SubtaskContainer = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -49,6 +50,7 @@ export const TitleContainer = styled.div`
   padding: 20px 5px 15px 5px;
   align-items: center;
   width: 100%;
+  height: 100px;
 `
 interface HeaderContainerProps {
   visible: boolean

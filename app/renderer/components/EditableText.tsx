@@ -177,7 +177,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
       props.onKeyDown(currentText)
     }
 
-    if (e.key == 'Enter' && props.singleline) {
+    if (e.key == 'Enter') {
       // If it's not valid then don't submit
       if (props.validation && !valid) {
         // This stops an actual enter being sent

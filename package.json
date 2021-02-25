@@ -155,6 +155,7 @@
     "node-cron": "^2.0.3",
     "parcel-plugin-markdown": "^0.4.2",
     "polished": "^4.1.1",
+    "quill-markdown-shortcuts": "0.0.10",
     "react": "^17.0.1",
     "react-animations": "^1.0.0",
     "react-beautiful-dnd": "^13.0.0",

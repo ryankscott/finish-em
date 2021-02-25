@@ -2,12 +2,14 @@ import styled, { css, keyframes } from 'styled-components'
 import { headShake } from 'react-animations'
 
 export const Container = styled.div`
+  width: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
   padding: 15px 2px;
   overflow-x: visible;
   margin: 2px;
+  height: 75px;
 `
 export interface ItemCreatorContainer {
   visible: boolean
@@ -26,9 +28,9 @@ export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
-  width: ${(props) => (props.visible ? (props.width ? props.width : '10000px') : '0px')};
+  width: ${(props) => (props.visible ? (props.width ? props.width : '100%') : '0px')};
   opacity: ${(props) => (props.visible ? '1' : '0')};
   transition: width 0.2s ease-in-out;
 `

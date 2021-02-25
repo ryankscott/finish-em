@@ -1053,6 +1053,7 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
         : props.theme.colours.textColour,
       fontSize: props.theme.fontSizes[props.fontSize],
       paddingLeft: '5px',
+      opacity: 0.7,
     }),
     singleValue: (styles) => ({
       ...styles,
