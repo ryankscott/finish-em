@@ -11,6 +11,24 @@ import CSS from 'csstype'
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts)
 
+const Link = Quill.import('formats/link')
+Link.sanitize = function (url) {
+  // Protocols which we don't append http to
+  const protocolIgnoreList = ['mailto', 'message']
+  let protocol = url.slice(0, url.indexOf(':'))
+
+  // Add http to the start of the link (to open in browser)
+  if (!protocolIgnoreList.includes(protocol)) {
+    url = 'http://' + url
+  }
+  // Reconsruct the link
+  let anchor = document.createElement('a')
+  anchor.href = url
+  protocol = anchor.href.slice(0, anchor.href.indexOf(':'))
+  return url
+}
+Quill.register(Link, true)
+
 const GET_THEME = gql`
   query {
     theme @client
