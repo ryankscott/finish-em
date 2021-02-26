@@ -7,6 +7,7 @@ import { themes } from '../theme'
 import { gql, useQuery } from '@apollo/client'
 import { ThemeType } from '../interfaces'
 import MarkdownShortcuts from 'quill-markdown-shortcuts'
+import CSS from 'csstype'
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts)
 
@@ -18,6 +19,7 @@ const GET_THEME = gql`
 
 type EditableText2Props = {
   placeholder?: string
+  height?: CSS.Property.Height
   input?: string
   readOnly?: boolean
   singleLine?: boolean
@@ -98,7 +100,7 @@ function EditableText2(props: EditableText2Props): ReactElement {
 
   return (
     <ThemeProvider theme={theme}>
-      <Wrapper hideBorder={props.hideBorder} isEditing={isEditing}>
+      <Wrapper hideBorder={props.hideBorder} isEditing={isEditing} height={props.height}>
         <ReactQuill
           ref={reactQuillRef}
           theme={'snow'}

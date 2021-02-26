@@ -43,6 +43,8 @@ function QuickAdd(props: QuickAddProps): ReactElement {
     console.log(error)
     return null
   }
+
+  // TODO: #357 Replace with new editable text
   const theme: ThemeType = themes[data.theme]
   return (
     <ThemeProvider theme={theme}>

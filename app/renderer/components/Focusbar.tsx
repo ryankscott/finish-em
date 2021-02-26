@@ -307,6 +307,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           />
           {data.newEditor.enabled ? (
             <EditableText2
+              height={'45px'}
               input={item.text}
               singleLine={true}
               shouldClearOnSubmit={false}

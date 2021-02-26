@@ -1,9 +1,11 @@
-import { darken, lighten } from 'polished'
+import { darken } from 'polished'
 import styled from '../../StyledComponents'
+import CSS from 'csstype'
 
 export interface WrapperProps {
   hideBorder: boolean
   isEditing: boolean
+  height: CSS.Property.Height
 }
 export const Wrapper = styled.div<WrapperProps>`
   position: relative;
@@ -27,6 +29,8 @@ export const Wrapper = styled.div<WrapperProps>`
   }
 
   .ql-editor {
+    max-height: ${(props) => (props.height ? props.height : 'auto')};
+    overflow: auto;
     padding: 6px 8px;
     border-radius: 5px;
     border: ${(props) => (props.hideBorder ? 'none' : '1px solid')};

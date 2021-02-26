@@ -47,10 +47,10 @@ export const TitleContainer = styled.div`
   display: flex;
   flex-direction: row;
   margin: 0px;
-  padding: 20px 5px 15px 5px;
-  align-items: center;
+  padding: 20px 5px 0px 5px;
+  align-items: flex-start;
   width: 100%;
-  height: 100px;
+  min-height: 100px;
 `
 interface HeaderContainerProps {
   visible: boolean
