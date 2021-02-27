@@ -402,15 +402,20 @@ function Item(props: ItemProps): ReactElement {
             />
           </TypeContainer>
         )}
-        <Body id="body" compact={props.compact} completed={item.completed} deleted={item.deleted}>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: item.text.startsWith('<p>')
-                ? removeItemTypeFromString(item.text)
-                : `<p>${removeItemTypeFromString(item.text)}</p>`,
-            }}
-          ></div>
-        </Body>
+        <Body
+          id="body"
+          data-tip
+          data-for={'item-name-' + item.key}
+          compact={props.compact}
+          completed={item.completed}
+          deleted={item.deleted}
+          dangerouslySetInnerHTML={{
+            __html: item.text.startsWith('<p>')
+              ? removeItemTypeFromString(item.text)
+              : `<p>${removeItemTypeFromString(item.text)}</p>`,
+          }}
+        />
+        <Tooltip id={'item-name-' + item.key} text={item.text} html={true} />
         <ProjectContainer
           visible={!(props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null)}
         >

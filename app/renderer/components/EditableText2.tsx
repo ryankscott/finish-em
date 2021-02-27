@@ -49,17 +49,20 @@ type EditableText2Props = {
   onEscape?: () => void
 }
 
-const generateModules = (hideToolbar: boolean) => {
+const generateModules = (hideToolbar: boolean, singleLine: boolean) => {
   return {
     toolbar: hideToolbar
       ? false
+      : singleLine
+      ? [['bold', 'italic', 'underline', 'strike'], ['link']]
       : [
-          //[{ header: '1' }, { header: '2' }],
-          //[{ size: [] }],
+          [{ header: '1' }, { header: '2' }],
           ['bold', 'italic', 'underline', 'strike'],
-          // [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+          [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
           ['link'],
-          //['clean'],
+          ['code'],
+          ['blockquote'],
+          ['clean'],
         ],
     clipboard: {
       // toggle to add extra line breaks when pasting HTML:
@@ -68,7 +71,21 @@ const generateModules = (hideToolbar: boolean) => {
     markdownShortcuts: {},
   }
 }
-const formats = ['bold', 'italic', 'underline', 'strike', 'link']
+const formats = [
+  'font',
+  'header',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'link',
+  'list',
+  'indent',
+  'clean',
+  'size',
+  'code',
+  'blockquote',
+]
 
 function EditableText2(props: EditableText2Props): ReactElement {
   const [editorHtml, setEditorHtml] = useState(props.input ? props.input : '')

@@ -1,10 +1,18 @@
+import { gql, useMutation, useQuery } from '@apollo/client'
 import { add, format, getWeek, isBefore, parseISO, startOfDay, startOfWeek, sub } from 'date-fns'
+import groupBy from 'lodash/groupBy'
 import React, { ReactElement, useState } from 'react'
 import { DragDropContext } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
+import { WeeklyGoal } from '../../main/generated/typescript-helpers'
+import { ItemIcons, ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import Button from './Button'
+import EditableText from './EditableText'
+import EditableText2 from './EditableText2'
+import ItemList from './ItemList'
+import ReorderableComponentList from './ReorderableComponentList'
 import {
   AgendaContainer,
   BackContainer,
@@ -18,15 +26,7 @@ import {
   WeeklyTitle,
 } from './styled/WeeklyAgenda'
 import { Header1, Paragraph } from './Typography'
-import { WeeklyGoal } from '../../main/generated/typescript-helpers'
 
-import { gql, useMutation, useQuery } from '@apollo/client'
-import { ItemIcons, ThemeType } from '../interfaces'
-import ItemList from './ItemList'
-import groupBy from 'lodash/groupBy'
-import EditableText from './EditableText'
-import ReorderableComponentList from './ReorderableComponentList'
-import { component } from '../../main/schemas/component'
 const GET_DATA = gql`
   query weeklyItems($filter: String!, $componentKey: String!) {
     items: itemsByFilter(filter: $filter, componentKey: $componentKey) {
@@ -60,6 +60,10 @@ const GET_DATA = gql`
       key
       week
       goal
+    }
+    newEditor: featureByName(name: "newEditor") {
+      key
+      enabled
     }
     theme @client
   }
@@ -141,26 +145,46 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
         </WeekContainer>
         <GoalContainer>
           <Header1>Weekly goals</Header1>
-          <EditableText
-            input={weeklyGoal.goal}
-            width={'100%'}
-            height={'150px'}
-            style={Paragraph}
-            singleline={false}
-            placeholder="Add a weekly goal"
-            onUpdate={(input) =>
-              createWeeklyGoal({
-                variables: {
-                  key: weeklyGoal?.key,
-                  week: weeklyGoal.week,
-                  goal: input,
-                },
-              })
-            }
-            shouldSubmitOnBlur={true}
-            shouldClearOnSubmit={true}
-            innerRef={goalRef}
-          />
+          {data.newEditor.enabled ? (
+            <EditableText2
+              input={weeklyGoal.goal}
+              placeholder="Add a weekly goal..."
+              shouldClearOnSubmit={false}
+              hideToolbar={false}
+              shouldSubmitOnBlur={true}
+              height="150px"
+              onUpdate={(input) => {
+                createWeeklyGoal({
+                  variables: {
+                    key: weeklyGoal?.key,
+                    week: weeklyGoal.week,
+                    goal: input,
+                  },
+                })
+              }}
+            />
+          ) : (
+            <EditableText
+              input={weeklyGoal.goal}
+              width={'100%'}
+              height={'150px'}
+              style={Paragraph}
+              singleline={false}
+              placeholder="Add a weekly goal"
+              onUpdate={(input) =>
+                createWeeklyGoal({
+                  variables: {
+                    key: weeklyGoal?.key,
+                    week: weeklyGoal.week,
+                    goal: input,
+                  },
+                })
+              }
+              shouldSubmitOnBlur={true}
+              shouldClearOnSubmit={true}
+              innerRef={goalRef}
+            />
+          )}
         </GoalContainer>
         <Section>
           <DragDropContext

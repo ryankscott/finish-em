@@ -10,6 +10,14 @@ export interface WrapperProps {
 export const Wrapper = styled.div<WrapperProps>`
   position: relative;
   width: 100%;
+  height: ${(props) => (props.height ? `calc(${props.height} + 30px)}` : 'auto')};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  .quill {
+    position: relative;
+  }
 
   .ql-preview {
     text-decoration: underline;
@@ -29,7 +37,7 @@ export const Wrapper = styled.div<WrapperProps>`
   }
 
   .ql-editor {
-    max-height: ${(props) => (props.height ? props.height : 'auto')};
+    height: ${(props) => (props.height ? props.height : 'auto')};
     overflow: auto;
     padding: 6px 8px;
     border-radius: 5px;

@@ -19,6 +19,7 @@ import Tooltip from './Tooltip'
 import { ThemeType } from '../interfaces'
 import { Project as ProjectType, Item as ItemType } from '../../main/generated/typescript-helpers'
 import { toast } from 'react-toastify'
+import EditableText2 from './EditableText2'
 
 const GET_PROJECT_BY_KEY = gql`
   query ProjectByKey($key: String!) {
@@ -48,6 +49,10 @@ const GET_PROJECT_BY_KEY = gql`
       name
     }
     projectDates: featureByName(name: "projectDates") {
+      key
+      enabled
+    }
+    newEditor: featureByName(name: "newEditor") {
       key
       enabled
     }
@@ -199,18 +204,31 @@ const Project = (props: ProjectProps): ReactElement => {
             </Wrapper>
           </div>
         )}
-        <EditableText
-          placeholder="Add a description for your project..."
-          shouldSubmitOnBlur={true}
-          key={project.key + 'description'}
-          onUpdate={(input) => {
-            changeDescription({ variables: { key: project.key, description: input } })
-          }}
-          innerRef={description}
-          input={project.description}
-          height="100px"
-          shouldClearOnSubmit={false}
-        />
+        {data.newEditor.enabled ? (
+          <EditableText2
+            placeholder="Add a description for your project..."
+            shouldClearOnSubmit={false}
+            hideToolbar={false}
+            shouldSubmitOnBlur={true}
+            height="100px"
+            onUpdate={(input) => {
+              changeDescription({ variables: { key: project.key, description: input } })
+            }}
+          />
+        ) : (
+          <EditableText
+            placeholder="Add a description for your project..."
+            shouldSubmitOnBlur={true}
+            key={project.key + 'description'}
+            onUpdate={(input) => {
+              changeDescription({ variables: { key: project.key, description: input } })
+            }}
+            innerRef={description}
+            input={project.description}
+            height="100px"
+            shouldClearOnSubmit={false}
+          />
+        )}
         <AddProjectContainer>
           <ItemCreator
             projectKey={project.key}

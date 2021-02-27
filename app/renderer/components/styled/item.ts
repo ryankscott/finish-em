@@ -2,14 +2,6 @@ import styled, { keyframes } from '../../StyledComponents'
 import CSS from 'csstype'
 import { darken, transparentize } from 'polished'
 
-const load = keyframes`
-  from {
-      left: -150px;
-  }
-  to   {
-      left: 100%;
-  }
-`
 const flicker = keyframes`
  from {
     opacity: 0.40;
@@ -198,6 +190,11 @@ export const Body = styled.div<BodyProps>`
     props.deleted ? props.theme.colours.disabledTextColour : props.theme.colours.textColour};
   font-size: ${(props) => props.theme.fontSizes.regular};
   text-decoration: ${(props) => (props.completed === true ? 'line-through' : null)};
+  p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 `
 export const ExpandContainer = styled.div`
   grid-area: EXPAND;
