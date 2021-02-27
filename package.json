@@ -174,8 +174,6 @@
     "react-toastify": "^6.2.0",
     "react-tooltip": "^4.2.14",
     "react-transition-group": "^4.4.1",
-    "redux": "^4.0.5",
-    "redux-persist": "^6.0.0",
     "rrule": "2.6.6",
     "semver": "^7.3.4",
     "sql-template-strings": "^2.2.2",
@@ -184,7 +182,6 @@
     "sqlstring-sqlite": "^0.1.1",
     "styled-components": "^5.2.1",
     "sugar-date": "^2.0.6",
-    "uuid": "^8.3.2",
-    "vanilla-caret-js": "^1.0.1"
+    "uuid": "^8.3.2"
   }
 }

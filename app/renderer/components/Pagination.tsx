@@ -1,4 +1,3 @@
-import { connect } from 'react-redux'
 import React, { ReactElement } from 'react'
 import { themes } from '../theme'
 import { ThemeProvider } from '../StyledComponents'

@@ -1,5 +1,4 @@
 import React, { ReactElement } from 'react'
-import { connect } from 'react-redux'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { add, startOfWeek, startOfTomorrow } from 'date-fns'
