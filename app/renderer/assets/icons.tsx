@@ -1009,7 +1009,7 @@ export const Icons: {
       <line x1="12" y1="19" x2="20" y2="19"></line>
     </svg>
   ),
-  link: (
+  move: (
     width?: CSS.Property.Width,
     height?: CSS.Property.Height,
     colour?: CSS.Property.Color,
@@ -1025,69 +1025,9 @@ export const Icons: {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
-    </svg>
-  ),
-  bold: (
-    width?: CSS.Property.Width,
-    height?: CSS.Property.Height,
-    colour?: CSS.Property.Color,
-  ): React.SVGProps<SVGSVGElement> => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
-      viewBox="0 0 24 24"
-      fill={'none'}
-      stroke={colour ? colour : 'currentColor'}
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
-      <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
-    </svg>
-  ),
-  italic: (
-    width?: CSS.Property.Width,
-    height?: CSS.Property.Height,
-    colour?: CSS.Property.Color,
-  ): React.SVGProps<SVGSVGElement> => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
-      viewBox="0 0 24 24"
-      fill={'none'}
-      stroke={colour ? colour : 'currentColor'}
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="19" y1="4" x2="10" y2="4"></line>
-      <line x1="14" y1="20" x2="5" y2="20"></line>
-      <line x1="15" y1="4" x2="9" y2="20"></line>
-    </svg>
-  ),
-  underline: (
-    width?: CSS.Property.Width,
-    height?: CSS.Property.Height,
-    colour?: CSS.Property.Color,
-  ): React.SVGProps<SVGSVGElement> => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
-      viewBox="0 0 24 24"
-      fill={'none'}
-      stroke={colour ? colour : 'currentColor'}
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"></path>
-      <line x1="4" y1="21" x2="20" y2="21"></line>
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 16 16 12 12 8"></polyline>
+      <line x1="8" y1="12" x2="16" y2="12"></line>
     </svg>
   ),
   finish_em: (

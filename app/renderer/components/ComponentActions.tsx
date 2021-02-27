@@ -17,6 +17,13 @@ const DELETE_COMPONENT = gql`
     }
   }
 `
+const CLONE_COMPONENT = gql`
+  mutation CloneComponent($key: String!) {
+    cloneComponent(input: { key: $key }) {
+      key
+    }
+  }
+`
 
 type ComponentActionProps = {
   children: JSX.Element
@@ -28,6 +35,7 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
   const [showActions, setShowActions] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const { loading, error, data } = useQuery(GET_THEME)
+  const [cloneComponent] = useMutation(CLONE_COMPONENT, { refetchQueries: ['ComponentsByView'] })
   const [deleteComponent] = useMutation(DELETE_COMPONENT, {
     update(cache, { data: { deleteComponent } }) {
       const cacheId = cache.identify({
@@ -68,6 +76,22 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
                 tooltipText={'Edit component'}
                 onClick={() => {
                   setIsEditing(true)
+                }}
+              />
+              <Button
+                icon={'copy'}
+                type={'default'}
+                tooltipText={'Clone component'}
+                onClick={() => {
+                  cloneComponent({ variables: { key: props.componentKey } })
+                }}
+              />
+              <Button
+                icon={'move'}
+                type={'default'}
+                tooltipText={'Move component'}
+                onClick={() => {
+                  console.log('move')
                 }}
               />
               <Button

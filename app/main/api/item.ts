@@ -1,22 +1,22 @@
-import Item from '../classes/item'
-import { v4 as uuidv4 } from 'uuid'
-import SqlString from 'sqlstring-sqlite'
-import Expression from '../../renderer/components/filter-box/Expression'
-import { createItemOrder, deleteItemOrder, getItemOrdersByComponent } from './itemOrder'
-import { Item as ItemType } from '../generated/typescript-helpers'
-import { rrulestr } from 'rrule'
 import { startOfDay } from 'date-fns'
+import log from 'electron-log'
 import { without } from 'lodash'
+import { rrulestr } from 'rrule'
 import { SQL } from 'sql-template-strings'
+import SqlString from 'sqlstring-sqlite'
+import { v4 as uuidv4 } from 'uuid'
+import Expression from '../../renderer/components/filter-box/Expression'
+import Item from '../classes/item'
+import { Item as ItemType } from '../generated/typescript-helpers'
+import { createItemOrder, deleteItemOrder, getItemOrdersByComponent } from './itemOrder'
 
-const log = require('electron-log')
 export const getItems = (obj, ctx) => {
   log.info(`Getting all items `)
   return ctx.db
     .all(
       `SELECT 
         key, 
-        type, 
+        type,  
         text, 
         deleted, 
         completed, 

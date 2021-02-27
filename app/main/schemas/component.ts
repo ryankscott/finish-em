@@ -18,6 +18,10 @@ input CreateComponentInput {
   parameters: JSON! 
 }
 
+input CloneComponentInput {
+  key: String!
+}
+
 input SetParametersOfComponentInput {
   key: String!
   parameters: JSON!
@@ -43,6 +47,7 @@ type Query {
 
 type Mutation {
   createComponent(input: CreateComponentInput!): Component
+  cloneComponent(input: CloneComponentInput!): Component
   setParametersOfComponent(input: SetParametersOfComponentInput!): Component
   migrateComponent(input: MigrateComponentInput!): Component
   deleteComponent(input: DeleteComponentInput!): Component

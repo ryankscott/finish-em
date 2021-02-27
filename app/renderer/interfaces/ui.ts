@@ -130,7 +130,4 @@ export type IconType =
   | 'reminder'
   | 'drag'
   | 'terminal'
-  | 'link'
-  | 'bold'
-  | 'italic'
-  | 'underline'
+  | 'move'
