@@ -98,6 +98,9 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
               isSearchable
               onChange={handleChange}
               options={props.options}
+              formatOptionLabel={function (data) {
+                return <span dangerouslySetInnerHTML={{ __html: data.label }} />
+              }}
               styles={selectStyles({
                 fontSize: 'xxsmall',
                 theme: theme,
