@@ -41,13 +41,13 @@ type LabelDialogProps = {
   onClose: () => void
 }
 function LabelDialog(props: LabelDialogProps): ReactElement {
+  const [setLabel] = useMutation(SET_LABEL)
   const { loading, error, data } = useQuery(GET_LABELS)
   if (loading) return null
   if (error) {
     console.log(error)
     return null
   }
-  const [setLabel] = useMutation(SET_LABEL)
   const theme: ThemeType = themes[data.theme]
 
   return (

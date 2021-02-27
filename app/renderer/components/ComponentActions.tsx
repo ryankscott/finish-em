@@ -7,6 +7,10 @@ import Button from './Button'
 import { Container, ButtonContainer } from './styled/ComponentActions'
 const GET_THEME = gql`
   query {
+    views {
+      key
+      name
+    }
     theme @client
   }
 `

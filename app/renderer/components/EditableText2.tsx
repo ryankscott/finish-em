@@ -40,7 +40,7 @@ type EditableText2Props = {
   height?: CSS.Property.Height
   input?: string
   readOnly?: boolean
-  singleLine?: boolean
+  singleLine: boolean
   shouldSubmitOnBlur: boolean
   shouldClearOnSubmit: boolean
   hideBorder?: boolean
@@ -117,7 +117,6 @@ function EditableText2(props: EditableText2Props): ReactElement {
     if (props.shouldSubmitOnBlur) {
       props.onUpdate(editorHtml)
     }
-
     setIsEditing(false)
   }
 
