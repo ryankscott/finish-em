@@ -118,4 +118,14 @@ export const Wrapper = styled.div<WrapperProps>`
     color: ${(props) => props.theme.colours.textColour};
     background-color: ${(props) => darken(0.05, props.theme.colours.focusDialogBackgroundColour)};
   }
+
+  .ql-snow.ql-toolbar button.ql-active {
+    color: ${(props) => props.theme.colours.textColour};
+    background-color: ${(props) => darken(0.05, props.theme.colours.focusDialogBackgroundColour)};
+  }
+
+  .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+    stroke: ${(props) => darken(0.05, props.theme.colours.textColour)};
+    stroke-width: 1.25;
+  }
 `

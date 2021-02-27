@@ -111,6 +111,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
     defaultButtonText: string
     buttonIcon: IconType
     selectPlaceholder: string
+    buttonIconColour?: CSS.Property.Color
   } => {
     switch (attr) {
       case 'area':
@@ -126,6 +127,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
           defaultButtonText: 'Add Label',
           buttonIcon: 'label',
           selectPlaceholder: 'Label: ',
+          buttonIconColour: props.currentAttribute?.colour,
         }
       case 'project':
         return {
@@ -293,6 +295,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
           defaultButtonIcon={defaultValues.buttonIcon}
           defaultButtonText={defaultValues.defaultButtonText}
           selectPlaceholder={defaultValues.selectPlaceholder}
+          defaultButtonIconColour={defaultValues?.buttonIconColour}
           options={generateOptions(props.attribute, props.currentAttribute)}
           deleted={props.deleted}
           completed={props.completed}

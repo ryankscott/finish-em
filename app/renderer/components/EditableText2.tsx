@@ -141,7 +141,7 @@ function EditableText2(props: EditableText2Props): ReactElement {
           theme={'snow'}
           onChange={handleChange}
           value={editorHtml}
-          modules={generateModules(props.hideToolbar)}
+          modules={generateModules(props.hideToolbar, props.singleLine)}
           formats={formats}
           onKeyUp={handleKeyUp}
           readOnly={props.readOnly}

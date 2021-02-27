@@ -44,6 +44,7 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
     console.log(error)
     return null
   }
+
   const theme: ThemeType = themes[data.theme]
 
   const handleChange = (newValue, actionMeta): void => {
