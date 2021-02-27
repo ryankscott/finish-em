@@ -66,7 +66,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
       .filter((i) => i.deleted == false)
       .map((i) => {
         return {
-          label: HTMLToPlainText(removeItemTypeFromString(i.text))
+          label: removeItemTypeFromString(i.text)
             .replace(markdownLinkRegex, '$1')
             .replace(markdownBasicRegex, '$1'),
           value: () => {
@@ -101,6 +101,9 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             placeholder="Search for items..."
             onChange={(selected) => {
               selected.value()
+            }}
+            formatOptionLabel={function (data) {
+              return <span dangerouslySetInnerHTML={{ __html: data.label }} />
             }}
             options={generateOptions(data.projects, data.items)}
             styles={selectStyles({
