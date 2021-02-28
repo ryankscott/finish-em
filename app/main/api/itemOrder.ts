@@ -1,4 +1,5 @@
 const log = require('electron-log')
+import SQL from 'sql-template-strings'
 import ItemOrder from '../classes/itemOrder'
 
 export const getItemOrders = (obj, ctx) => {
@@ -9,15 +10,34 @@ export const getItemOrders = (obj, ctx) => {
 
 export const getItemOrder = (input: { itemKey: string; componentKey: string }, ctx) => {
   return ctx.db
-    .get('SELECT itemKey, sortOrder, componentKey FROM itemOrder WHERE itemKey = ?', input.itemKey)
+    .get(
+      SQL`SELECT itemKey, sortOrder, componentKey FROM itemOrder WHERE itemKey = ${input.itemKey}`,
+    )
     .then((result) => new ItemOrder(result.itemKey, result.sortOrder, result.componentKey))
+}
+
+export const deleteItemOrders = async (
+  input: { itemKeys: string[]; componentKey: string },
+  ctx,
+) => {
+  if (!input.itemKeys.length) {
+    return null
+  }
+  const deleteItems = await ctx.db.run(
+    SQL`DELETE from itemOrder WHERE itemKey IN (${input.itemKeys
+      .map((i) => `'${i}'`)
+      .join(', ')}) AND componentKey = ${input.componentKey}`,
+  )
+  if (deleteItems) {
+    return null
+  } else {
+    return new Error(`Failed to delete itemOrders and componentKey ${input.componentKey}`)
+  }
 }
 
 export const deleteItemOrder = async (input: { itemKey: string; componentKey: string }, ctx) => {
   const deleteItem = await ctx.db.run(
-    'DELETE from itemOrder WHERE itemKey = ? AND componentKey = ?',
-    input.itemKey,
-    input.componentKey,
+    SQL`DELETE from itemOrder WHERE itemKey = ${input.itemKey} AND componentKey = ${input.componentKey}`,
   )
   if (deleteItem) {
     return input.itemKey
@@ -29,10 +49,8 @@ export const deleteItemOrder = async (input: { itemKey: string; componentKey: st
 }
 
 export const deleteItemOrdersByComponent = async (input: { componentKey: string }, ctx) => {
-  console.log(input.componentKey)
   const deleteItem = await ctx.db.run(
-    'DELETE from itemOrder WHERE componentKey = ?',
-    input.componentKey,
+    SQL`DELETE from itemOrder WHERE componentKey = ${input.componentKey}`,
   )
   if (deleteItem) {
     return input.componentKey
@@ -43,8 +61,7 @@ export const deleteItemOrdersByComponent = async (input: { componentKey: string 
 
 export const getItemOrdersByComponent = async (input: { componentKey: string }, ctx) => {
   const result = await ctx.db.all(
-    'SELECT itemKey, sortOrder, componentKey FROM itemOrder WHERE componentKey = ? ORDER BY sortOrder ASC',
-    input.componentKey,
+    SQL`SELECT itemKey, sortOrder, componentKey FROM itemOrder WHERE componentKey = ${input.componentKey} ORDER BY sortOrder ASC`,
   )
   if (result) {
     return result.map((r) => new ItemOrder(r.itemKey, r.sortOrder, r.componentKey))
@@ -53,8 +70,7 @@ export const getItemOrdersByComponent = async (input: { componentKey: string }, 
 
 export const getItemOrdersByItem = async (input: { itemKey: string }, ctx) => {
   const result = await ctx.db.all(
-    'SELECT componentKey, sortOrder  FROM itemOrder WHERE itemKey = ? ORDER BY componentKey ASC',
-    input.itemKey,
+    SQL`SELECT componentKey, sortOrder  FROM itemOrder WHERE itemKey = ${input.itemKey} ORDER BY componentKey ASC`,
   )
   if (result) {
     return result.map((r) => new ItemOrder(r.itemKey, r.sortOrder, r.componentKey))
@@ -73,24 +89,19 @@ export const setItemOrder = async (
   // Moving down in sort numbers
   if (input.sortOrder < currentOrder) {
     const moveDown = await ctx.db.run(
-      'UPDATE itemOrder SET sortOrder = sortOrder + 1 WHERE sortOrder BETWEEN ? AND ? AND componentKey = ?;',
-      input.sortOrder,
-      currentOrder - 1,
-      input.componentKey,
+      SQL`UPDATE itemOrder SET sortOrder = sortOrder + 1 WHERE sortOrder BETWEEN ${
+        input.sortOrder
+      } AND ${currentOrder - 1} AND componentKey = ${input.componentKey};`,
     )
   } else {
     const moveUp = await ctx.db.run(
-      'UPDATE itemOrder SET sortOrder = sortOrder - 1 WHERE sortOrder BETWEEN ? AND ? AND componentKey = ?;',
-      currentOrder + 1,
-      input.sortOrder,
-      input.componentKey,
+      SQL`UPDATE itemOrder SET sortOrder = sortOrder - 1 WHERE sortOrder BETWEEN ${
+        currentOrder + 1
+      } AND ${input.sortOrder} AND componentKey = ${input.componentKey};`,
     )
   }
   const setItem = await ctx.db.run(
-    'UPDATE itemOrder SET sortOrder = ? WHERE itemKey = ? and componentKey = ?;',
-    input.sortOrder,
-    input.itemKey,
-    input.componentKey,
+    SQL`UPDATE itemOrder SET sortOrder = ${input.sortOrder} WHERE itemKey = ${input.itemKey} and componentKey = ${input.componentKey};`,
   )
 
   return await getItemOrder({ itemKey: input.itemKey, componentKey: input.componentKey }, ctx)
@@ -104,10 +115,7 @@ export const createItemOrder = async (
   ctx,
 ) => {
   const result = await ctx.db.run(
-    'INSERT INTO itemOrder (itemKey, componentKey, sortOrder) VALUES (?,?,(SELECT COALESCE(MAX(sortOrder),0) + 1 FROM itemOrder WHERE componentKey = ?));',
-    input.itemKey,
-    input.componentKey,
-    input.componentKey,
+    SQL`INSERT INTO itemOrder (itemKey, componentKey, sortOrder) VALUES (${input.itemKey},${input.componentKey},(SELECT COALESCE(MAX(sortOrder),0) + 1 FROM itemOrder WHERE componentKey = ${input.componentKey}));`,
   )
   if (result.changes) {
     return getItemOrder({ itemKey: input.itemKey, componentKey: input.componentKey }, ctx)
@@ -123,15 +131,22 @@ export const bulkCreateItemOrders = async (
   },
   ctx,
 ) => {
-  // TODO: Get the max sortOrder
-
+  if (!input.itemKeys.length) {
+    return null
+  }
+  const maxOrder = await ctx.db.get(
+    `SELECT COALESCE(MAX(sortOrder),0) + 1 as maxOrder FROM itemOrder`,
+  )
+  // TODO: Look at changing this to a SQL append
   const insertQueries = input.itemKeys.map((i, idx) => {
-    return `('${i}','${input.componentKey}',${idx + 1})`
+    return `('${i}','${input.componentKey}',${maxOrder.maxOrder + idx + 1})`
   })
-  const query = `
-  INSERT INTO itemOrder (itemKey, componentKey, sortOrder) VALUES 
-  ${insertQueries.join(',')};`
-  const result = await ctx.db.run(query)
+
+  const result = await ctx.db.run(
+    SQL`INSERT INTO itemOrder (itemKey, componentKey, sortOrder) VALUES ${insertQueries.join(
+      ',',
+    )};`,
+  )
   if (result.changes) {
     return null
   }
@@ -146,7 +161,9 @@ export const migrateItemOrder = (
   ctx,
 ) => {
   return ctx.db
-    .run('INSERT INTO itemOrder (itemKey, sortOrder) VALUES (?,?)', input.itemKey, input.sortOrder)
+    .run(
+      SQL`INSERT INTO itemOrder (itemKey, sortOrder) VALUES (${input.itemKey},${input.sortOrder})`,
+    )
     .then((result) => {
       return result.changes ? null : new Error('Unable to migrate item order')
     })
