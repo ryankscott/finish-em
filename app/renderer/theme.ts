@@ -704,7 +704,7 @@ export const themes: { [key: string]: ThemeType } = {
   light: {
     name: 'Light',
     font: {
-      sansSerif: '-apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
+      sansSerif: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`;
     },
     fontSizes: {
       xxxsmall: '10px',
@@ -801,7 +801,7 @@ export const themes: { [key: string]: ThemeType } = {
   dark: {
     name: 'Dark',
     font: {
-      sansSerif: '-apple-system, BlinkMacSystemFont, Helvetica, sans-serif',
+      sansSerif: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`;
     },
     fontSizes: {
       xxxsmall: '10px',
