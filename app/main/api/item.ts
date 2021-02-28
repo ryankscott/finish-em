@@ -8,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid'
 import Expression from '../../renderer/components/filter-box/Expression'
 import Item from '../classes/item'
 import { Item as ItemType } from '../generated/typescript-helpers'
-import { createItemOrder, deleteItemOrder, getItemOrdersByComponent } from './itemOrder'
+import { bulkCreateItemOrders, deleteItemOrders, getItemOrdersByComponent } from './itemOrder'
 
 export const getItems = (obj, ctx) => {
   log.info(`Getting all items `)
@@ -129,9 +129,9 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
         case '!is':
           if (value == 'null') return `${conditionText} ${categoryText} IS NOT null`
           if (value == 'this week')
-            return `${conditionText} strftime('%W', ${categoryText}) != strftime('%W',date());`
+            return `${conditionText} strftime('%W', ${categoryText}) != strftime('%W',date())`
           if (value == 'this month')
-            return `${conditionText} strftime('%m', ${categoryText}) != strftime('%m',date());`
+            return `${conditionText} strftime('%m', ${categoryText}) != strftime('%m',date())`
           if (value == 'today') return `${conditionText} DATE(${categoryText}) != DATE(date())`
           if (value == 'past') return `${conditionText} DATE(${categoryText}) >= DATE(date())`
           break
@@ -139,9 +139,9 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
         case 'is':
           if (value == 'null') return `${conditionText} ${categoryText} IS null`
           if (value == 'this week')
-            return `${conditionText} strftime('%W', ${categoryText}) = strftime('%W',date());`
+            return `${conditionText} strftime('%W', ${categoryText}) = strftime('%W',date())`
           if (value == 'this month')
-            return `${conditionText} strftime('%m', ${categoryText}) = strftime('%m',date());`
+            return `${conditionText} strftime('%m', ${categoryText}) = strftime('%m',date())`
           if (value == 'today') return `${conditionText} DATE(${categoryText}) = DATE(date())`
           if (value == 'past') return `${conditionText} DATE(${categoryText}) < DATE(date())`
           break
@@ -153,10 +153,10 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
 
     const filterTextArray = exps.map((f: Expression, idx: number) => {
       if (f.expressions) {
-        return `${f.conditionType} ( ${f.expressions
+        return `${f.conditionType ? f.conditionType : ''} ( ${f.expressions
           .map((fs, idx) => {
             const filterString = transformExpressionToString(
-              fs.conditionType,
+              fs?.conditionType,
               fs.category,
               fs.operator,
               fs.value,
@@ -166,7 +166,7 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
           .join(' ')})`
       } else {
         return f
-          ? transformExpressionToString(f.conditionType, f.category, f.operator, f.value)
+          ? transformExpressionToString(f?.conditionType, f.category, f.operator, f.value)
           : ''
       }
     })
@@ -194,7 +194,7 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
         labelKey, 
         areaKey 
     FROM item 
-    WHERE ${filterString}`,
+    WHERE ${filterString};`,
   )
 
   if ((await results.length) >= 0) {
@@ -206,37 +206,35 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
     const resultKeys = results.map((r) => r.key)
 
     const inOrderButNotResult = without(orderKeys, ...resultKeys)
-    inOrderButNotResult.forEach(
-      async (i) => await deleteItemOrder({ itemKey: i, componentKey: input.componentKey }, ctx),
-    )
+    await deleteItemOrders({ itemKeys: inOrderButNotResult, componentKey: input.componentKey }, ctx)
 
     // Add new ones
     const inResultButNotOrder = without(resultKeys, ...orderKeys)
-    inResultButNotOrder.forEach(
-      async (i) => await createItemOrder({ itemKey: i, componentKey: input.componentKey }, ctx),
+    await bulkCreateItemOrders(
+      { itemKeys: inResultButNotOrder, componentKey: input.componentKey },
+      ctx,
     )
 
-    return results.map(
-      (r) =>
-        new Item(
-          r.key,
-          r.type,
-          r.text,
-          r.deleted,
-          r.completed,
-          r.parentKey,
-          r.projectKey,
-          r.dueAt,
-          r.scheduledAt,
-          r.lastUpdatedAt,
-          r.completedAt,
-          r.createdAt,
-          r.deletedAt,
-          r.repeat,
-          r.labelKey,
-          r.areaKey,
-        ),
-    )
+    return results.map((r) => {
+      return new Item(
+        r.key,
+        r.type,
+        r.text,
+        r.deleted,
+        r.completed,
+        r.parentKey,
+        r.projectKey,
+        r.dueAt,
+        r.scheduledAt,
+        r.lastUpdatedAt,
+        r.completedAt,
+        r.createdAt,
+        r.deletedAt,
+        r.repeat,
+        r.labelKey,
+        r.areaKey,
+      )
+    })
   } else return null
 }
 
