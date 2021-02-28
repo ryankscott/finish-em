@@ -307,6 +307,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           />
           {data.newEditor.enabled ? (
             <EditableText2
+              key={item.key}
               height={'45px'}
               input={item.text}
               singleLine={true}
@@ -517,7 +518,11 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <>
             <SubtaskContainer>
               <Header3>Subtasks: </Header3>
-              <ItemCreator parentKey={item.key} initiallyExpanded={false} />
+              <ItemCreator
+                key={`${item.key}-subtask`}
+                parentKey={item.key}
+                initiallyExpanded={false}
+              />
             </SubtaskContainer>
             <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
           </>

@@ -8,6 +8,7 @@ import { gql, useQuery } from '@apollo/client'
 import { ThemeType } from '../interfaces'
 import MarkdownShortcuts from 'quill-markdown-shortcuts'
 import CSS from 'csstype'
+import { useTraceUpdate } from '../utils'
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts)
 
@@ -71,6 +72,7 @@ const generateModules = (hideToolbar: boolean, singleLine: boolean) => {
     markdownShortcuts: {},
   }
 }
+
 const formats = [
   'font',
   'header',
@@ -87,7 +89,7 @@ const formats = [
   'blockquote',
 ]
 
-function EditableText2(props: EditableText2Props): ReactElement {
+const EditableText2 = (props: EditableText2Props): ReactElement => {
   const [editorHtml, setEditorHtml] = useState(props.input ? props.input : '')
   const [isEditing, setIsEditing] = useState(false)
   const { loading, error, data } = useQuery(GET_THEME)
@@ -96,9 +98,9 @@ function EditableText2(props: EditableText2Props): ReactElement {
     console.log(error)
     return null
   }
+
   const theme: ThemeType = themes[data.theme]
   let reactQuillRef = React.useRef<ReactQuill>()
-
   const handleChange = (content, delta, source, editor) => {
     const lastChar = delta.ops[delta.ops.length - 1]?.insert?.charCodeAt(0)
     if (lastChar == 10 && props.singleLine) {
