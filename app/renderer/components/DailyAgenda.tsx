@@ -4,8 +4,9 @@ import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import FilteredItemList from './FilteredItemList'
 import { Paragraph } from './Typography'
-import { parseISO, format, sub, add, isSameDay } from 'date-fns'
+import { parseISO, format, sub, add, isSameDay, startOfDay } from 'date-fns'
 import { ThemeType } from '../interfaces'
+import { v5 as uuidv5, stringify } from 'uuid'
 import {
   AgendaContainer,
   DateContainer,
@@ -50,6 +51,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   // TODO: Gross
   const theme: ThemeType = themes[data?.theme]
   const [currentDate, setDate] = useState(new Date())
+
   const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
   if (loading) return null
   if (error) {
@@ -119,12 +121,11 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
         <ReorderableComponentList viewKey={viewKey} />
         <Section>
           <FilteredItemList
-            key="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
-            componentKey="d94b620e-e298-4a39-a04f-7f0ff47cfdb3"
+            key={uuidv5(startOfDay(currentDate).toISOString() + 'due', viewKey)}
+            componentKey={uuidv5(startOfDay(currentDate).toISOString() + 'due', viewKey)}
             isFilterable={true}
             showCompletedToggle={true}
             listName="Due Today"
-            legacyFilter={`sameDay(dueDate, "${currentDate.toISOString()}")`}
             filter={JSON.stringify({
               text: 'dueAt is today ',
               value: [
@@ -137,12 +138,11 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
           />
           <div style={{ height: '20px' }} />
           <FilteredItemList
-            key="a4e1c649-378f-4d14-9aac-2d2720270dd8"
-            componentKey="a4e1c649-378f-4d14-9aac-2d2720270dd8"
+            key={uuidv5(startOfDay(currentDate).toISOString() + 'scheduled', viewKey)}
+            componentKey={uuidv5(startOfDay(currentDate).toISOString() + 'scheduled', viewKey)}
             isFilterable={true}
             showCompletedToggle={true}
             listName="Scheduled Today"
-            legacyFilter={`sameDay(scheduledDate, "${currentDate.toISOString()}")`}
             filter={JSON.stringify({
               text: 'scheduledAt = today ',
               value: [
