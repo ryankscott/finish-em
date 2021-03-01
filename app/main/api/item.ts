@@ -200,7 +200,6 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
   if ((await results.length) >= 0) {
     // Get all itemOrders for that component
     const orders = await getItemOrdersByComponent({ componentKey: input.componentKey }, ctx)
-
     // Remove all ones that aren't in the filtered list
     const orderKeys = orders.map((o) => o.itemKey)
     const resultKeys = results.map((r) => r.key)

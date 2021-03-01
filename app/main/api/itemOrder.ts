@@ -142,11 +142,10 @@ export const bulkCreateItemOrders = async (
     return `('${i}','${input.componentKey}',${maxOrder.maxOrder + idx + 1})`
   })
 
-  const result = await ctx.db.run(
-    SQL`INSERT INTO itemOrder (itemKey, componentKey, sortOrder) VALUES ${insertQueries.join(
-      ',',
-    )};`,
-  )
+  // TODO: For some reason this doesn't work with the es6 templates
+  const query = `INSERT INTO itemOrder (itemKey, componentKey, sortOrder) 
+  VALUES ${insertQueries.join(',')};`
+  const result = await ctx.db.run(query)
   if (result.changes) {
     return null
   }
