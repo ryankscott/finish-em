@@ -149,8 +149,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
 
   const uncompletedItems = data?.items.filter((m) => m.completed == false)
   const completedItems = data?.items.filter((m) => m.completed == true)
+  const filteredItems = showCompleted ? uncompletedItems : allItems
 
-  const sI = data?.items.map((i) => {
+  const sI = filteredItems?.map((i) => {
     const sortOrder = i.sortOrders.find((s) => s.componentKey == props.componentKey)
     return {
       key: i.key,
@@ -176,9 +177,11 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     const sortedItems = showCompleted
       ? type.sort(uncompletedItems, direction)
       : type.sort(allItems, direction)
+
     deleteItemOrdersByComponent({
       variables: { componentKey: props.componentKey },
     })
+
     const sortedItemKeys = sortedItems.map((s) => s.key)
     bulkCreateItemOrders({
       variables: { itemKeys: sortedItemKeys, componentKey: props.componentKey },
