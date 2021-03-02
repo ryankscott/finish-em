@@ -8,7 +8,6 @@ import { gql, useQuery } from '@apollo/client'
 import { ThemeType } from '../interfaces'
 import MarkdownShortcuts from 'quill-markdown-shortcuts'
 import CSS from 'csstype'
-import { useTraceUpdate } from '../utils'
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts)
 
