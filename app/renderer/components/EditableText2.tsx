@@ -15,7 +15,7 @@ Quill.register('modules/markdownShortcuts', MarkdownShortcuts)
 const Link = Quill.import('formats/link')
 Link.sanitize = function (url) {
   // Protocols which we don't append http to
-  const protocolIgnoreList = ['mailto', 'message']
+  const protocolIgnoreList = ['mailto', 'message', 'http', 'https']
   let protocol = url.slice(0, url.indexOf(':'))
 
   // Add http to the start of the link (to open in browser)
