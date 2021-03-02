@@ -309,6 +309,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             <EditableText2
               key={item.key}
               height={'45px'}
+              width={'260px'}
               input={item.text}
               singleLine={true}
               shouldClearOnSubmit={false}

@@ -39,6 +39,7 @@ const GET_THEME = gql`
 type EditableText2Props = {
   placeholder?: string
   height?: CSS.Property.Height
+  width?: CSS.Property.Width
   input?: string
   readOnly?: boolean
   singleLine: boolean
@@ -136,7 +137,12 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Wrapper hideBorder={props.hideBorder} isEditing={isEditing} height={props.height}>
+      <Wrapper
+        hideBorder={props.hideBorder}
+        isEditing={isEditing}
+        height={props.height}
+        width={props.width}
+      >
         <ReactQuill
           ref={reactQuillRef}
           theme={'snow'}

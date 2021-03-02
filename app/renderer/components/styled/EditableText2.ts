@@ -6,16 +6,18 @@ export interface WrapperProps {
   hideBorder: boolean
   isEditing: boolean
   height: CSS.Property.Height
+  width?: CSS.Property.Width
 }
 export const Wrapper = styled.div<WrapperProps>`
   position: relative;
-  width: 100%;
   height: ${(props) => (props.height ? `calc(${props.height} + 30px)}` : 'auto')};
-  overflow: hidden;
+  width: ${(props) => (props.width ? props.width : '100%')};
+  overflow: visible;
   text-overflow: ellipsis;
   white-space: nowrap;
 
   .quill {
+    width: 100%;
     position: relative;
   }
 
@@ -37,8 +39,8 @@ export const Wrapper = styled.div<WrapperProps>`
   }
 
   .ql-editor {
-    height: ${(props) => (props.height ? props.height : 'auto')};
     overflow: auto;
+    height: ${(props) => (props.height ? props.height : 'auto')};
     padding: 6px 8px;
     border-radius: 5px;
     border: ${(props) => (props.hideBorder ? 'none' : '1px solid')};
@@ -61,7 +63,8 @@ export const Wrapper = styled.div<WrapperProps>`
 
   /* Tooltip styling */
   .ql-tooltip {
-    left: 0px;
+    z-index: 100 !important;
+    left: -10px !important;
     border-radius: 5px;
     color: ${(props) => props.theme.colours.altTextColour};
     background-color: ${(props) => props.theme.colours.altBackgroundColour};

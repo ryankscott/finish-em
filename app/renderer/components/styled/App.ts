@@ -85,7 +85,6 @@ export const FocusContainer = styled.div<FocusContainerProps>`
   background-color: ${(props) => props.theme.colours.backgroundColour};
   border-color: ${(props) => props.theme.colours.borderColour};
   overflow-y: scroll;
-  overflow-x: hidden;
   box-shadow: 0px 1px 4px ${(props) => props.theme.colours.borderColour};
 `
 

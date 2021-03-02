@@ -49,7 +49,7 @@ export const TitleContainer = styled.div`
   margin: 0px;
   padding: 20px 5px 0px 5px;
   align-items: flex-start;
-  width: 100%;
+  width: 320px;
   min-height: 100px;
 `
 interface HeaderContainerProps {
