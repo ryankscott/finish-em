@@ -45,9 +45,11 @@ type ReminderDialogProps = {
 function ReminderDialog(props: ReminderDialogProps): ReactElement {
   const { loading, error, data } = useQuery(GET_THEME)
   const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
-    refetchQueries: ['itemByKey'],
+    refetchQueries: ['itemByKey', 'getAppData'],
   })
-  const [createReminder] = useMutation(CREATE_REMINDER, { refetchQueries: ['itemByKey'] })
+  const [createReminder] = useMutation(CREATE_REMINDER, {
+    refetchQueries: ['itemByKey', 'getAppData'],
+  })
 
   if (loading) return null
   if (error) {

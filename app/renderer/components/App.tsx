@@ -12,7 +12,6 @@ import { ThemeProvider } from '../StyledComponents'
 import { GlobalStyle, themes } from '../theme'
 import { ActionBar } from './ActionBar'
 import Area from './Area'
-import { CommandBar } from './CommandBar'
 import DailyAgenda from './DailyAgenda'
 import Focusbar from './Focusbar'
 import Headerbar from './Headerbar'
@@ -40,7 +39,7 @@ export const MIN_WIDTH_FOR_SIDEBAR = 1125
 export const MIN_WIDTH_FOR_FOCUSBAR = 1125
 
 const GET_DATA = gql`
-  query {
+  query getAppData {
     projects(input: { deleted: false }) {
       key
       sortOrder {
@@ -271,6 +270,7 @@ const App = (props: AppProps): ReactElement => {
   if (data?.reminders) {
     cron.schedule('* * * * * ', () => {
       data.reminders.map((r) => {
+        if (r.deleted) return
         if (isSameMinute(parseISO(r.remindAt), new Date())) {
           const _ = new Notification('Reminder', {
             body: r.text,
