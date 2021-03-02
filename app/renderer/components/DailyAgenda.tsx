@@ -6,7 +6,7 @@ import FilteredItemList from './FilteredItemList'
 import { Paragraph } from './Typography'
 import { parseISO, format, sub, add, isSameDay, startOfDay } from 'date-fns'
 import { ThemeType } from '../interfaces'
-import { v5 as uuidv5, stringify } from 'uuid'
+import { v5 as uuidv5 } from 'uuid'
 import {
   AgendaContainer,
   DateContainer,
@@ -34,10 +34,7 @@ const GET_DATA = gql`
       description
       allDay
     }
-    dailyGoals: featureByName(name: "dailyGoals") {
-      key
-      enabled
-    }
+
     calendarIntegration: featureByName(name: "calendarIntegration") {
       key
       enabled
