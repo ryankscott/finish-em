@@ -1,4 +1,5 @@
 import Reminder from '../classes/reminder'
+import { getItem } from './item'
 
 export const getReminders = (obj, ctx) => {
   return ctx.db
@@ -106,7 +107,7 @@ export const deleteReminderFromItem = (input: { itemKey: string }, ctx) => {
     )
     .then((result) => {
       return result.changes
-        ? getRemindersByItem({ itemKey: input.itemKey }, ctx)
+        ? getItem({ key: input.itemKey }, ctx)
         : new Error('Unable to delete reminder')
     })
 }
