@@ -27,7 +27,7 @@ type EditableItemProps = {
 function InternalEditableItem(props: EditableItemProps): ReactElement {
   const handleUpdate = (value): boolean => {
     props.onSubmit(value)
-    electron.ipcRenderer.send('close-quickadd')
+    window.electron.sendMessage('close-quickadd')
     return true
   }
   const { loading, error, data } = useQuery(GET_THEME)

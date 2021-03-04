@@ -37,7 +37,6 @@ if (isDev) {
 
 const setUpDatabase = async (): Promise<sqlite.Database<sqlite3.Database, sqlite3.Statement>> => {
   const databasePath = isDev ? './database.db' : path.join(app.getPath('userData'), './database.db')
-  path.resolve(__dirname, '/database.db')
   log.info(`Loading database at: ${databasePath}`)
 
   const db = await sqlite.open({
@@ -455,8 +454,9 @@ function createQuickAddWindow() {
     resizable: false,
     movable: true,
     webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
+      nodeIntegration: false,
+      enableRemoteModule: false,
+      preload: path.join(app.getAppPath(), 'preload.ts'),
     },
   })
 
@@ -482,8 +482,9 @@ function createMainWindow() {
     minWidth: 550,
     titleBarStyle: 'hidden',
     webPreferences: {
-      nodeIntegration: true,
-      enableRemoteModule: true,
+      nodeIntegration: false,
+      enableRemoteModule: false,
+      preload: path.join(app.getAppPath(), 'preload.ts'),
     },
   })
 

@@ -1,6 +1,6 @@
 {
   "name": "Finish-em",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "author": "Ryan Scott (ryan@ryankennethscott.com)",
   "description": "An org-mode inspired personal organiser",
   "repository": {
@@ -23,8 +23,8 @@
     "main:watch": "parcel watch app/main/main.ts --out-dir build/main/ --out-file main --target electron",
     "renderer:watch": "parcel app/renderer/index.html --port 1124 --out-dir build/renderer/development",
     "parcel:build": "run-s main:build renderer:build",
-    "main:build": "parcel build --no-source-maps app/main/main.ts --out-dir build/main/ --out-file main --target electron",
-    "renderer:build": "parcel build --no-source-maps app/renderer/index.html --public-url ./ --out-dir build/renderer/production",
+    "main:build": "parcel build app/main/main.ts --out-dir build/main/ --out-file main --target electron",
+    "renderer:build": "parcel build app/renderer/index.html --public-url ./ --out-dir build/renderer/production",
     "dist": "electron-builder -m -p onTag",
     "deploy": "electron-builder build --mac --publish always",
     "generate": "graphql-codegen --config codegen.yml"
@@ -106,7 +106,7 @@
     "mockdate": "^3.0.2",
     "nodemon": "^2.0.7",
     "npm-run-all": "^4.1.5",
-    "parcel-bundler": "^1.12.4",
+    "parcel-bundler": "=1.12.3",
     "parcel-plugin-pegjs": "0.0.2",
     "parcel-plugin-text": "^0.9.7",
     "pegjs": "^0.11.0-master.b7b87ea",

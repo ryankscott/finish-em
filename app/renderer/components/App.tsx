@@ -33,8 +33,6 @@ import {
 import View from './View'
 import WeeklyAgenda from './WeeklyAgenda'
 
-const electron = window.require('electron')
-
 export const MIN_WIDTH_FOR_SIDEBAR = 1125
 export const MIN_WIDTH_FOR_FOCUSBAR = 1125
 
@@ -86,6 +84,7 @@ const CREATE_ITEM = gql`
   }
 `
 
+console.log(window)
 const ProjectWrapper = (): ReactElement => {
   const { id } = useParams()
   return <Project projectKey={id} />
@@ -215,7 +214,7 @@ const App = (props: AppProps): ReactElement => {
 
   useEffect(() => {
     // Handle Electron events
-    electron.ipcRenderer.on('create-item', (event, arg) => {
+    window.electron.onReceiveMessage('create-item', (event, arg) => {
       createItem({
         variables: {
           key: arg.key,
@@ -225,11 +224,11 @@ const App = (props: AppProps): ReactElement => {
         },
       })
     })
-    electron.ipcRenderer.on('send-notification', (event, arg) => {
+    window.electron.onReceiveMessage('send-notification', (event, arg) => {
       // TODO: Implement multiple notification types
       toast.dark(`${arg.text}`)
     })
-    electron.ipcRenderer.on('new-version', (event, arg) => {
+    window.electron.onReceiveMessage('new-version', (event, arg) => {
       toast(
         <div>
           <p>

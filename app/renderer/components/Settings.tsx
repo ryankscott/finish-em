@@ -25,7 +25,6 @@ import { camelCaseToInitialCaps } from '../utils'
 import { themeVar } from '..'
 import { Label } from '../../main/generated/typescript-helpers'
 import { HexColorPicker } from 'react-colorful'
-import 'react-colorful/dist/index.css'
 import { debounce } from 'lodash'
 
 type SettingsPickerProps = {}

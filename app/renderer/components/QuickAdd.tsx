@@ -22,8 +22,6 @@ const GET_THEME = gql`
   }
 `
 
-const electron = window.require('electron')
-
 type QuickAddProps = {
   projectKey?: string | '0'
 }
@@ -35,7 +33,7 @@ function QuickAdd(props: QuickAddProps): ReactElement {
   })
 
   const handleEscape = (): void => {
-    electron.ipcRenderer.send('close-quickadd')
+    window.electron.sendMessage('close-quickadd')
   }
   const { loading, error, data } = useQuery(GET_THEME)
   if (loading) return null
@@ -55,8 +53,8 @@ function QuickAdd(props: QuickAddProps): ReactElement {
           width="550px"
           innerRef={ref}
           onUpdate={(text) => {
-            electron.ipcRenderer.send('create-task', { text: text })
-            electron.ipcRenderer.send('close-quickadd')
+            window.electron.sendMessage('create-task', { text: text })
+            window.electron.sendMessage('close-quickadd')
           }}
           readOnly={false}
           keywords={[

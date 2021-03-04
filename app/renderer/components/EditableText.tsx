@@ -10,8 +10,6 @@ import { itemRegex, setEndOfContenteditable } from '../utils'
 import { Container, Placeholder } from './styled/EditableText'
 import { Code, Header, Paragraph, Title } from './Typography'
 
-const electron = window.require('electron')
-
 const GET_THEME = gql`
   query {
     theme @client
@@ -85,7 +83,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     // Handle links normally
     if (e.target.nodeName == 'A') {
       if (e.target.href.startsWith('outlook')) {
-        electron.ipcRenderer.send('open-outlook-link', {
+        window.ipcRenderer.send('open-outlook-link', {
           url: e.target.href,
         })
         e.preventDefault()
