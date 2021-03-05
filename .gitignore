@@ -42,7 +42,6 @@ app/main/.parcel/**/*
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 .vscode/settings.json
-package-lock.json
 
 # electron-builder
 electron-builder.yml
