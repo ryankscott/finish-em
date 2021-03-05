@@ -84,7 +84,6 @@ const CREATE_ITEM = gql`
   }
 `
 
-console.log(window)
 const ProjectWrapper = (): ReactElement => {
   const { id } = useParams()
   return <Project projectKey={id} />
