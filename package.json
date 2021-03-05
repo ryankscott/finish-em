@@ -60,6 +60,9 @@
           "**/*"
         ]
       }
+    ],
+    "npmArgs": [
+      "--network-timeout 100000"
     ]
   },
   "jest": {
