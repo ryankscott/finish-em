@@ -46,7 +46,7 @@ const setUpDatabase = async (): Promise<sqlite.Database<sqlite3.Database, sqlite
   await db.run('PRAGMA foreign_keys=on')
   const migrationsPath = isDev
     ? path.join(__dirname, '../../app/main/migrations')
-    : path.join(process.resourcesPath, '/resources/')
+    : path.join(process.resourcesPath, '/migrations/')
 
   log.info(`Loading migrations at: ${migrationsPath}`)
   await db.migrate({
@@ -456,7 +456,9 @@ function createQuickAddWindow() {
     webPreferences: {
       nodeIntegration: false,
       enableRemoteModule: false,
-      preload: path.join(app.getAppPath(), 'preload.ts'),
+      preload: isDev
+        ? path.join(__dirname + '../../../preload.js')
+        : path.join(process.resourcesPath, '/preload.js'),
     },
   })
 
@@ -484,7 +486,9 @@ function createMainWindow() {
     webPreferences: {
       nodeIntegration: false,
       enableRemoteModule: false,
-      preload: path.join(app.getAppPath(), 'preload.ts'),
+      preload: isDev
+        ? path.join(__dirname + '../../../preload.js')
+        : path.join(process.resourcesPath, '/preload.js'),
     },
   })
 

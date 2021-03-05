@@ -55,11 +55,12 @@
     "extraResources": [
       {
         "from": "./app/main/migrations/",
-        "to": "./resources/",
+        "to": "./migrations/",
         "filter": [
           "**/*"
         ]
-      }
+      },
+      "./preload.js"
     ]
   },
   "jest": {
