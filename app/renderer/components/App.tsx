@@ -84,11 +84,6 @@ const CREATE_ITEM = gql`
   }
 `
 
-const ProjectWrapper = (): ReactElement => {
-  const { id } = useParams()
-  return <Project projectKey={id} />
-}
-
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams()
   return <View viewKey={id} />
@@ -306,9 +301,6 @@ const App = (props: AppProps): ReactElement => {
               </Route>
               <Route path="/areas/:id">
                 <AreaWrapper />
-              </Route>
-              <Route path="/projects/:id">
-                <ProjectWrapper />
               </Route>
               <Route path="/Settings">
                 <Settings />
