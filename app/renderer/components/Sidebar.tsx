@@ -432,11 +432,13 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                               >
                                                 {data.sidebarVisible ? (
                                                   <>
-                                                    <Emoji
-                                                      emoji={p.emoji ? p.emoji : ''}
-                                                      size={12}
-                                                      native={true}
-                                                    />
+                                                    <div style={{ paddingRight: '5px' }}>
+                                                      <Emoji
+                                                        emoji={p.emoji ? p.emoji : ''}
+                                                        size={12}
+                                                        native={true}
+                                                      />
+                                                    </div>
                                                     {p.name}
                                                   </>
                                                 ) : p.emoji ? (
