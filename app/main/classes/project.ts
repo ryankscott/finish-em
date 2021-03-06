@@ -11,6 +11,7 @@ export default class Project {
     startAt: Date,
     endAt: Date,
     areaKey: string,
+    emoji: string,
   ) {
     this.key = key
     this.name = name
@@ -22,6 +23,7 @@ export default class Project {
     this.startAt = startAt ? startAt : null
     this.endAt = endAt ? endAt : null
     this.areaKey = areaKey
+    this.emoji = emoji
   }
 
   area(obj, ctx) {

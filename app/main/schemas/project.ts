@@ -12,6 +12,7 @@ type Project {
   startAt: DateTime
   endAt: DateTime
   area: Area
+  emoji: String
   items: [Item]
   sortOrder: ProjectOrder
 }
@@ -23,6 +24,7 @@ input CreateProjectInput {
   startAt: DateTime
   endAt: DateTime
   areaKey: String
+  emoji: String
 }
 
 input MigrateProjectInput {
@@ -62,6 +64,11 @@ input SetStartDateOfProjectInput {
   startAt: String!
 }
 
+input setEmojiOfProjectInput {
+  key: String!
+  emoji: String!
+}
+
 input ProjectsInput {
   deleted: Boolean
 }
@@ -89,6 +96,7 @@ type Mutation {
   changeDescriptionProject(input: ChangeDescriptionProjectInput!): Project
   setEndDateOfProject(input: SetEndDateOfProjectInput!): Project
   setStartDateOfProject(input: SetStartDateOfProjectInput!): Project
+  setEmojiOfProject(input: setEmojiOfProjectInput!): Project
   setAreaOfProject(input: SetAreaOfProjectInput!): Project
 }
 `

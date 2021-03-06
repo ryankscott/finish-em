@@ -11,6 +11,7 @@ import { ThemeType } from '../interfaces'
 import styled, { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
 import { createShortSidebarItem, getProductName } from '../utils'
+import { Emoji } from 'emoji-mart'
 import Button from './Button'
 import {
   AddAreaContainer,
@@ -120,6 +121,7 @@ const GET_AREAS = gql`
       projects {
         key
         name
+        emoji
         sortOrder {
           projectKey
           sortOrder
@@ -295,8 +297,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 
           <DragDropContext
             onDragEnd={(e) => {
-              console.log(e)
-
               if (e.type == 'PROJECT') {
                 const areaKey = e.destination.droppableId
                 const area = sortedAreas.find((a) => a.key == areaKey)
@@ -388,7 +388,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                       },
                                     })
                                     refetch()
-                                    history.push('/projects/' + projectKey)
+                                    history.push('/views/' + projectKey)
                                   }}
                                 />
                               )}
@@ -405,7 +405,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                     (p, index) => {
                                       // Don't render the inbox here
                                       if (p.key == '0') return
-                                      const pathName = '/projects/' + p.key
+                                      const pathName = '/views/' + p.key
                                       //
                                       return (
                                         <Draggable key={p.key} draggableId={p.key} index={index}>
@@ -430,9 +430,24 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                     theme.colours.focusAltDialogBackgroundColour,
                                                 }}
                                               >
-                                                {data.sidebarVisible
-                                                  ? p.name
-                                                  : createShortSidebarItem(p.name)}
+                                                {data.sidebarVisible ? (
+                                                  <>
+                                                    <Emoji
+                                                      emoji={p.emoji ? p.emoji : ''}
+                                                      size={12}
+                                                      native={true}
+                                                    />
+                                                    {p.name}
+                                                  </>
+                                                ) : p.emoji ? (
+                                                  <Emoji
+                                                    emoji={p.emoji ? p.emoji : ''}
+                                                    size={16}
+                                                    native={true}
+                                                  />
+                                                ) : (
+                                                  createShortSidebarItem(p.name)
+                                                )}
                                               </ProjectLink>
                                               <Tooltip id={p.key} text={p.name} />
                                             </DraggableItem>

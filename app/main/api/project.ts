@@ -1,3 +1,4 @@
+import SQL from 'sql-template-strings'
 import SqlString from 'sqlstring-sqlite'
 import Project from '../classes/project'
 import { getItemsByProject, setProjectOfItem } from './item'
@@ -28,6 +29,7 @@ export const getProjects = (input: { deleted: boolean }, ctx) => {
         r.startAt,
         r.endAt,
         r.areaKey,
+        r.emoji,
       )
     })
   })
@@ -37,7 +39,7 @@ export const getProjectsByArea = (input: { areaKey: string }, ctx) => {
   return ctx.db
     .all(
       `
-SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project
+SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji FROM project
 WHERE areaKey = '${input.areaKey}'
 AND deleted = false`,
     )
@@ -55,6 +57,7 @@ AND deleted = false`,
               r.startAt,
               r.endAt,
               r.areaKey,
+              r.emoji,
             )
           : null,
       ),
@@ -64,7 +67,7 @@ AND deleted = false`,
 export const getProject = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project WHERE key = '${input.key}'`,
+      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji FROM project WHERE key = '${input.key}'`,
     )
     .then((result) => {
       return result
@@ -79,6 +82,7 @@ export const getProject = (input: { key: string }, ctx) => {
             result.startAt,
             result.endAt,
             result.areaKey,
+            result.emoji,
           )
         : null
     })
@@ -87,7 +91,7 @@ export const getProject = (input: { key: string }, ctx) => {
 export const getProjectByName = (input: { name: string }, ctx) => {
   return ctx.db
     .get(
-      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey FROM project WHERE name = ${SqlString.escape(
+      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji FROM project WHERE name = ${SqlString.escape(
         input.name,
       )}`,
     )
@@ -104,6 +108,7 @@ export const getProjectByName = (input: { name: string }, ctx) => {
             result.startAt,
             result.endAt,
             result.areaKey,
+            result.emoji,
           )
         : null
     })
@@ -164,12 +169,13 @@ export const createCreateProjectQuery = (input: {
   startAt: string
   endAt: string
   areaKey: string
+  emoji: string
 }) => {
-  return `INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey) VALUES 
+  return `INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji) VALUES 
   ('${input.key}', ${SqlString.escape(input.name)}, false, 
   ${SqlString.escape(input.description)}, 
   strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), 
-  ${input.startAt}, ${input.endAt}, '${input.areaKey}')`
+  ${input.startAt}, ${input.endAt}, '${input.areaKey}', '${input.emoji})`
 }
 export const createProject = async (
   input: {
@@ -179,6 +185,7 @@ export const createProject = async (
     startAt: string
     endAt: string
     areaKey: string
+    emoji: string
   },
   ctx,
 ) => {
@@ -263,6 +270,19 @@ export const setEndDateOfProject = (input: { key: string; endAt: string }, ctx) 
 export const createSetStartDateOfProject = (input: { key: string; startAt: string }) => {
   return `UPDATE project SET startAt = '${input.startAt}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
 }
+export const setEmojiOfProject = (input: { key: string; emoji: string }, ctx) => {
+  return ctx.db
+    .run(
+      SQL`UPDATE project SET emoji = ${input.emoji}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      console.log(result)
+      return result.changes
+        ? getProject({ key: input.key }, ctx)
+        : new Error('Unable to set emoji of project')
+    })
+}
+
 export const setStartDateOfProject = (input: { key: string; startAt: string }, ctx) => {
   return ctx.db.run(createSetStartDateOfProject(input)).then((result) => {
     return result.changes
@@ -306,6 +326,9 @@ export const projectRootValues = {
   },
   changeDescriptionProject: ({ input }, ctx) => {
     return changeDescriptionProject(input, ctx)
+  },
+  setEmojiOfProject: ({ input }, ctx) => {
+    return setEmojiOfProject(input, ctx)
   },
   setStartDateOfProject: ({ input }, ctx) => {
     return setStartDateOfProject(input, ctx)

@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { ThemeProvider } from '../StyledComponents'
 import { useHistory } from 'react-router-dom'
@@ -6,13 +6,20 @@ import { themes } from '../theme'
 import { Title } from './Typography'
 import EditableText from './EditableText'
 import DeleteProjectDialog from './DeleteProjectDialog'
-import { ProjectContainer, HeaderContainer, AddProjectContainer } from './styled/Project'
+import {
+  ProjectContainer,
+  HeaderContainer,
+  AddProjectContainer,
+  EmojiContainer,
+  ProgressContainer,
+  DescriptionContainer,
+  EmojiPickerWrapper,
+} from './styled/Project'
 import ItemCreator from './ItemCreator'
-import { formatRelativeDate } from '../utils'
+import { formatRelativeDate, getEmoji } from '../utils'
 import DatePicker from 'react-datepicker'
 import { Wrapper } from './styled/ReactDatepicker'
 import { parseISO } from 'date-fns'
-import ReorderableComponentList from './ReorderableComponentList'
 import { Donut } from './Donut'
 import { darken } from 'polished'
 import Tooltip from './Tooltip'
@@ -20,6 +27,8 @@ import { ThemeType } from '../interfaces'
 import { Project as ProjectType, Item as ItemType } from '../../main/generated/typescript-helpers'
 import { toast } from 'react-toastify'
 import EditableText2 from './EditableText2'
+import 'emoji-mart/css/emoji-mart.css'
+import { Picker, Emoji } from 'emoji-mart'
 
 const GET_PROJECT_BY_KEY = gql`
   query ProjectByKey($key: String!) {
@@ -33,6 +42,7 @@ const GET_PROJECT_BY_KEY = gql`
       createdAt
       startAt
       endAt
+      emoji
       items {
         key
         type
@@ -100,6 +110,15 @@ const SET_START_DATE = gql`
     }
   }
 `
+const SET_EMOJI = gql`
+  mutation SetEmojiOfProject($key: String!, $emoji: String!) {
+    setEmojiOfProject(input: { key: $key, emoji: $emoji }) {
+      key
+      emoji
+    }
+  }
+`
+
 const DELETE_VIEW = gql`
   mutation DeleteView($key: String!) {
     deleteView(input: { key: $key }) {
@@ -116,16 +135,18 @@ const Project = (props: ProjectProps): ReactElement => {
   const history = useHistory()
   const name = React.useRef<HTMLInputElement>()
   const description = React.useRef<HTMLInputElement>()
-  const { loading, error, data } = useQuery(GET_PROJECT_BY_KEY, {
-    variables: { key: props.projectKey },
-  })
   const [deleteProject] = useMutation(DELETE_PROJECT, { refetchQueries: ['GetSidebarData'] })
   const [changeDescription] = useMutation(CHANGE_DESCRIPTION)
   const [renameProject] = useMutation(RENAME_PROJECT)
   const [setEndDate] = useMutation(SET_END_DATE)
   const [setStartDate] = useMutation(SET_START_DATE)
-
+  const [setEmoji] = useMutation(SET_EMOJI)
   const [deleteView] = useMutation(DELETE_VIEW)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+
+  const { loading, error, data } = useQuery(GET_PROJECT_BY_KEY, {
+    variables: { key: props.projectKey },
+  })
 
   if (loading) return null
   if (error) {
@@ -141,39 +162,65 @@ const Project = (props: ProjectProps): ReactElement => {
     <ThemeProvider theme={theme}>
       <ProjectContainer>
         <HeaderContainer>
-          <div data-for="donut" data-tip>
+          <DescriptionContainer>
+            <EditableText
+              shouldSubmitOnBlur={true}
+              key={project.key + 'name'}
+              input={project.name}
+              style={Title}
+              singleline={true}
+              innerRef={name}
+              onUpdate={(input) => {
+                const exists = projects.map((p) => p.name == input).includes(true)
+                if (exists) {
+                  toast.error('Cannot rename project, a project with that name already exists')
+                } else {
+                  renameProject({ variables: { key: project.key, name: input } })
+                }
+              }}
+              shouldClearOnSubmit={false}
+            />
+            <DeleteProjectDialog
+              onDelete={() => {
+                deleteProject({ variables: { key: project.key } })
+                deleteView({ variables: { key: project.key } })
+                history.push('/inbox')
+              }}
+            />
+          </DescriptionContainer>
+
+          <ProgressContainer>
             <Donut
-              size={40}
+              size={30}
               progress={allItems.length != 0 ? (100 * completedItems.length) / allItems.length : 0}
               activeColour={theme.colours.primaryColour}
               inactiveColour={darken(0.2, theme.colours.backgroundColour)}
             />
-          </div>
+            {`${completedItems.length} of ${allItems.length} items completed`}
+          </ProgressContainer>
           <Tooltip id="donut" text={`${completedItems.length}/${allItems.length} completed`} />
-          <EditableText
-            shouldSubmitOnBlur={true}
-            key={project.key + 'name'}
-            input={project.name}
-            style={Title}
-            singleline={true}
-            innerRef={name}
-            onUpdate={(input) => {
-              const exists = projects.map((p) => p.name == input).includes(true)
-              if (exists) {
-                toast.error('Cannot rename project, a project with that name already exists')
-              } else {
-                renameProject({ variables: { key: project.key, name: input } })
-              }
+          <EmojiContainer
+            onClick={() => {
+              setShowEmojiPicker(!showEmojiPicker)
             }}
-            shouldClearOnSubmit={false}
-          />
-          <DeleteProjectDialog
-            onDelete={() => {
-              deleteProject({ variables: { key: project.key } })
-              deleteView({ variables: { key: project.key } })
-              history.push('/inbox')
-            }}
-          />
+          >
+            <Emoji emoji={project.emoji ? project.emoji : ''} size={68} native={true} />
+          </EmojiContainer>
+          {showEmojiPicker && (
+            <EmojiPickerWrapper>
+              <Picker
+                native={true}
+                set="apple"
+                title=""
+                emoji=""
+                color={theme.colours.primaryColour}
+                onSelect={(emoji) => {
+                  setEmoji({ variables: { key: project.key, emoji: emoji.id } })
+                  setShowEmojiPicker(false)
+                }}
+              />
+            </EmojiPickerWrapper>
+          )}
         </HeaderContainer>
         {data.projectDates.enabled && (
           <div
@@ -206,6 +253,7 @@ const Project = (props: ProjectProps): ReactElement => {
         )}
         {data.newEditor.enabled ? (
           <EditableText2
+            singleLine={false}
             placeholder="Add a description for your project..."
             shouldClearOnSubmit={false}
             hideToolbar={false}
@@ -237,7 +285,6 @@ const Project = (props: ProjectProps): ReactElement => {
             initiallyExpanded={false}
           />
         </AddProjectContainer>
-        <ReorderableComponentList viewKey={project.key} />
       </ProjectContainer>
     </ThemeProvider>
   )

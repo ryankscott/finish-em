@@ -56,7 +56,7 @@ const setUpDatabase = async (): Promise<sqlite.Database<sqlite3.Database, sqlite
   //   console.log(data)
   // })
 
-  log.info('Migrations  complete')
+  log.info('Migrations complete')
   return db
 }
 
@@ -70,9 +70,6 @@ const startGraphQL = async () => {
       },
     }),
   )
-  log.info(`Enabling CORS`)
-  // Enable cors
-
   if (!isDev) {
     graphQLApp.use(jwt({ secret: 'super_secret', algorithms: ['HS256'] }))
   }
@@ -204,7 +201,7 @@ const getMailLink = () => {
 `
   applescript.execString(script, (err, rtn) => {
     if (err) {
-      console.log(err)
+      log.error(`Failed to get mail link - ${err}`)
     }
     mainWindow.webContents.send('create-item', {
       key: uuidv4(),
@@ -226,7 +223,7 @@ const saveCalendars = (client: ApolloClient<NormalizedCacheObject>) => {
 `
   applescript.execString(script, (err, cals) => {
     if (err) {
-      console.log(err)
+      log.error(`Failed to get calendars from Apple Mail - ${err}`)
     }
     cals.map((c) => {
       createCalendar(client, uuidv4(), c, false)
@@ -249,7 +246,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
   // TODO: Fix me
   const activeCalendar = data.data.activeCalendar
   if (isEmpty(activeCalendar)) {
-    log.info(`No active calendar`)
+    log.info(`Not getting events - no active calendar`)
     return
   }
   log.info(`Getting events for calendar - ${activeCalendar.name}`)
@@ -383,7 +380,7 @@ end tell
 `
   applescript.execString(script, (err, rtn) => {
     if (err) {
-      console.log(err)
+      log.error(`Failed to get Outlook link - ${err}`)
     }
   })
 }
@@ -398,7 +395,7 @@ const openOutlookLink = (url: string) => {
 `
   applescript.execString(script, (err, rtn) => {
     if (err) {
-      console.log(err)
+      log.error(`Failed to open Outlook link - ${err}`)
     }
   })
 }
@@ -422,6 +419,10 @@ const checkForNewVersion = () => {
           .sort((a, b) => b.published_at - a.published_at)
         // Get the semver of the release
         const latestRelease = sortedReleases[0]
+        if (!latestRelease) {
+          log.info('Not updating - no new releases')
+          return
+        }
         // If there's a new version
         if (semver.gt(latestRelease.name, app.getVersion())) {
           const macRelease = latestRelease.assets.find((a) => a.name.endsWith('.dmg'))
@@ -435,7 +436,7 @@ const checkForNewVersion = () => {
           })
         }
       } catch (e) {
-        console.error(e.message)
+        log.error(`Failed to check for new version - ${e.message}`)
       }
     })
   })

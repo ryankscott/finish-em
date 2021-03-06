@@ -92,6 +92,7 @@ export type Query = {
   itemOrders?: Maybe<Array<Maybe<ItemOrder>>>;
   itemOrder?: Maybe<ItemOrder>;
   itemOrdersByComponent?: Maybe<Array<Maybe<ItemOrder>>>;
+  itemOrdersByItem?: Maybe<Array<Maybe<ItemOrder>>>;
   labels?: Maybe<Array<Maybe<Label>>>;
   label?: Maybe<Label>;
   projects?: Maybe<Array<Maybe<Project>>>;
@@ -190,11 +191,17 @@ export type QueryItemsByParentArgs = {
 
 export type QueryItemOrderArgs = {
   itemKey: Scalars['String'];
+  componentKey: Scalars['String'];
 };
 
 
 export type QueryItemOrdersByComponentArgs = {
   componentKey: Scalars['String'];
+};
+
+
+export type QueryItemOrdersByItemArgs = {
+  itemKey: Scalars['String'];
 };
 
 
@@ -266,6 +273,7 @@ export type Mutation = {
   deleteCalendar?: Maybe<Calendar>;
   setActiveCalendar?: Maybe<Calendar>;
   createComponent?: Maybe<Component>;
+  cloneComponent?: Maybe<Component>;
   setParametersOfComponent?: Maybe<Component>;
   migrateComponent?: Maybe<Component>;
   deleteComponent?: Maybe<Component>;
@@ -294,7 +302,9 @@ export type Mutation = {
   permanentDeleteItem?: Maybe<Item>;
   setLabelOfItem?: Maybe<Item>;
   setItemOrder?: Maybe<ItemOrder>;
+  deleteItemOrdersByComponent?: Maybe<Scalars['String']>;
   createItemOrder?: Maybe<ItemOrder>;
+  bulkCreateItemOrders?: Maybe<Scalars['String']>;
   migrateItemOrder?: Maybe<ItemOrder>;
   createLabel?: Maybe<Label>;
   renameLabel?: Maybe<Label>;
@@ -307,6 +317,7 @@ export type Mutation = {
   changeDescriptionProject?: Maybe<Project>;
   setEndDateOfProject?: Maybe<Project>;
   setStartDateOfProject?: Maybe<Project>;
+  setEmojiOfProject?: Maybe<Project>;
   setAreaOfProject?: Maybe<Project>;
   setProjectOrder?: Maybe<ProjectOrder>;
   createProjectOrder?: Maybe<ProjectOrder>;
@@ -382,6 +393,11 @@ export type MutationSetActiveCalendarArgs = {
 
 export type MutationCreateComponentArgs = {
   input: CreateComponentInput;
+};
+
+
+export type MutationCloneComponentArgs = {
+  input: CloneComponentInput;
 };
 
 
@@ -525,8 +541,18 @@ export type MutationSetItemOrderArgs = {
 };
 
 
+export type MutationDeleteItemOrdersByComponentArgs = {
+  input: DeleteItemOrdersByComponentInput;
+};
+
+
 export type MutationCreateItemOrderArgs = {
   input: CreateItemOrderInput;
+};
+
+
+export type MutationBulkCreateItemOrdersArgs = {
+  input: BulkCreateItemOrdersInput;
 };
 
 
@@ -587,6 +613,11 @@ export type MutationSetEndDateOfProjectArgs = {
 
 export type MutationSetStartDateOfProjectArgs = {
   input: SetStartDateOfProjectInput;
+};
+
+
+export type MutationSetEmojiOfProjectArgs = {
+  input: SetEmojiOfProjectInput;
 };
 
 
@@ -729,6 +760,10 @@ export type CreateComponentInput = {
   parameters: Scalars['JSON'];
 };
 
+export type CloneComponentInput = {
+  key: Scalars['String'];
+};
+
 export type SetParametersOfComponentInput = {
   key: Scalars['String'];
   parameters: Scalars['JSON'];
@@ -829,7 +864,7 @@ export type Item = {
   label?: Maybe<Label>;
   area?: Maybe<Area>;
   children?: Maybe<Array<Maybe<Item>>>;
-  sortOrder: ItemOrder;
+  sortOrders?: Maybe<Array<Maybe<ItemOrder>>>;
   reminders?: Maybe<Array<Maybe<Reminder>>>;
 };
 
@@ -937,25 +972,33 @@ export type SetLabelOfInput = {
 export type ItemOrder = {
   __typename?: 'ItemOrder';
   item: Item;
-  sortOrder: Scalars['Int'];
   componentKey: Scalars['String'];
+  sortOrder: Scalars['Int'];
 };
 
 export type CreateItemOrderInput = {
   itemKey: Scalars['String'];
-  sortOrder: Scalars['Int'];
   componentKey: Scalars['String'];
 };
 
 export type SetItemOrderInput = {
   itemKey: Scalars['String'];
-  sortOrder: Scalars['Int'];
   componentKey: Scalars['String'];
+  sortOrder: Scalars['Int'];
 };
 
 export type MigrateItemOrderInput = {
   itemKey: Scalars['String'];
+  componentKey: Scalars['String'];
   sortOrder: Scalars['Int'];
+};
+
+export type DeleteItemOrdersByComponentInput = {
+  componentKey: Scalars['String'];
+};
+
+export type BulkCreateItemOrdersInput = {
+  itemKeys: Array<Maybe<Scalars['String']>>;
   componentKey: Scalars['String'];
 };
 
@@ -998,6 +1041,7 @@ export type Project = {
   startAt?: Maybe<Scalars['DateTime']>;
   endAt?: Maybe<Scalars['DateTime']>;
   area?: Maybe<Area>;
+  emoji?: Maybe<Scalars['String']>;
   items?: Maybe<Array<Maybe<Item>>>;
   sortOrder?: Maybe<ProjectOrder>;
 };
@@ -1009,6 +1053,7 @@ export type CreateProjectInput = {
   startAt?: Maybe<Scalars['DateTime']>;
   endAt?: Maybe<Scalars['DateTime']>;
   areaKey?: Maybe<Scalars['String']>;
+  emoji?: Maybe<Scalars['String']>;
 };
 
 export type MigrateProjectInput = {
@@ -1046,6 +1091,11 @@ export type SetEndDateOfProjectInput = {
 export type SetStartDateOfProjectInput = {
   key: Scalars['String'];
   startAt: Scalars['String'];
+};
+
+export type SetEmojiOfProjectInput = {
+  key: Scalars['String'];
+  emoji: Scalars['String'];
 };
 
 export type ProjectsInput = {
@@ -1277,6 +1327,7 @@ export type ResolversTypes = {
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Component: ResolverTypeWrapper<Component>;
   CreateComponentInput: CreateComponentInput;
+  CloneComponentInput: CloneComponentInput;
   SetParametersOfComponentInput: SetParametersOfComponentInput;
   DeleteComponentInput: DeleteComponentInput;
   MigrateComponentInput: MigrateComponentInput;
@@ -1312,6 +1363,8 @@ export type ResolversTypes = {
   CreateItemOrderInput: CreateItemOrderInput;
   SetItemOrderInput: SetItemOrderInput;
   MigrateItemOrderInput: MigrateItemOrderInput;
+  DeleteItemOrdersByComponentInput: DeleteItemOrdersByComponentInput;
+  BulkCreateItemOrdersInput: BulkCreateItemOrdersInput;
   Label: ResolverTypeWrapper<Label>;
   CreateLabelInput: CreateLabelInput;
   RenameLabelInput: RenameLabelInput;
@@ -1325,6 +1378,7 @@ export type ResolversTypes = {
   ChangeDescriptionProjectInput: ChangeDescriptionProjectInput;
   SetEndDateOfProjectInput: SetEndDateOfProjectInput;
   SetStartDateOfProjectInput: SetStartDateOfProjectInput;
+  setEmojiOfProjectInput: SetEmojiOfProjectInput;
   ProjectsInput: ProjectsInput;
   ProjectsByAreaInput: ProjectsByAreaInput;
   SetAreaOfProjectInput: SetAreaOfProjectInput;
@@ -1374,6 +1428,7 @@ export type ResolversParentTypes = {
   JSON: Scalars['JSON'];
   Component: Component;
   CreateComponentInput: CreateComponentInput;
+  CloneComponentInput: CloneComponentInput;
   SetParametersOfComponentInput: SetParametersOfComponentInput;
   DeleteComponentInput: DeleteComponentInput;
   MigrateComponentInput: MigrateComponentInput;
@@ -1409,6 +1464,8 @@ export type ResolversParentTypes = {
   CreateItemOrderInput: CreateItemOrderInput;
   SetItemOrderInput: SetItemOrderInput;
   MigrateItemOrderInput: MigrateItemOrderInput;
+  DeleteItemOrdersByComponentInput: DeleteItemOrdersByComponentInput;
+  BulkCreateItemOrdersInput: BulkCreateItemOrdersInput;
   Label: Label;
   CreateLabelInput: CreateLabelInput;
   RenameLabelInput: RenameLabelInput;
@@ -1422,6 +1479,7 @@ export type ResolversParentTypes = {
   ChangeDescriptionProjectInput: ChangeDescriptionProjectInput;
   SetEndDateOfProjectInput: SetEndDateOfProjectInput;
   SetStartDateOfProjectInput: SetStartDateOfProjectInput;
+  setEmojiOfProjectInput: SetEmojiOfProjectInput;
   ProjectsInput: ProjectsInput;
   ProjectsByAreaInput: ProjectsByAreaInput;
   SetAreaOfProjectInput: SetAreaOfProjectInput;
@@ -1491,8 +1549,9 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   itemsByFilter?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType, RequireFields<QueryItemsByFilterArgs, 'filter' | 'componentKey'>>;
   itemsByParent?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType, RequireFields<QueryItemsByParentArgs, 'parentKey'>>;
   itemOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType>;
-  itemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<QueryItemOrderArgs, 'itemKey'>>;
+  itemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<QueryItemOrderArgs, 'itemKey' | 'componentKey'>>;
   itemOrdersByComponent?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType, RequireFields<QueryItemOrdersByComponentArgs, 'componentKey'>>;
+  itemOrdersByItem?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType, RequireFields<QueryItemOrdersByItemArgs, 'itemKey'>>;
   labels?: Resolver<Maybe<Array<Maybe<ResolversTypes['Label']>>>, ParentType, ContextType>;
   label?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType, RequireFields<QueryLabelArgs, 'key'>>;
   projects?: Resolver<Maybe<Array<Maybe<ResolversTypes['Project']>>>, ParentType, ContextType, RequireFields<QueryProjectsArgs, never>>;
@@ -1525,6 +1584,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   deleteCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationDeleteCalendarArgs, 'input'>>;
   setActiveCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationSetActiveCalendarArgs, 'input'>>;
   createComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateComponentArgs, 'input'>>;
+  cloneComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCloneComponentArgs, 'input'>>;
   setParametersOfComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationSetParametersOfComponentArgs, 'input'>>;
   migrateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationMigrateComponentArgs, 'input'>>;
   deleteComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
@@ -1553,7 +1613,9 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   permanentDeleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationPermanentDeleteItemArgs, 'input'>>;
   setLabelOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetLabelOfItemArgs, 'input'>>;
   setItemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<MutationSetItemOrderArgs, 'input'>>;
+  deleteItemOrdersByComponent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteItemOrdersByComponentArgs, 'input'>>;
   createItemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<MutationCreateItemOrderArgs, 'input'>>;
+  bulkCreateItemOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationBulkCreateItemOrdersArgs, 'input'>>;
   migrateItemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<MutationMigrateItemOrderArgs, 'input'>>;
   createLabel?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
   renameLabel?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType, RequireFields<MutationRenameLabelArgs, 'input'>>;
@@ -1566,6 +1628,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   changeDescriptionProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationChangeDescriptionProjectArgs, 'input'>>;
   setEndDateOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetEndDateOfProjectArgs, 'input'>>;
   setStartDateOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetStartDateOfProjectArgs, 'input'>>;
+  setEmojiOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetEmojiOfProjectArgs, 'input'>>;
   setAreaOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetAreaOfProjectArgs, 'input'>>;
   setProjectOrder?: Resolver<Maybe<ResolversTypes['ProjectOrder']>, ParentType, ContextType, RequireFields<MutationSetProjectOrderArgs, 'input'>>;
   createProjectOrder?: Resolver<Maybe<ResolversTypes['ProjectOrder']>, ParentType, ContextType, RequireFields<MutationCreateProjectOrderArgs, 'input'>>;
@@ -1658,15 +1721,15 @@ export type ItemResolvers<ContextType = any, ParentType extends ResolversParentT
   label?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType>;
   area?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType>;
   children?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType>;
-  sortOrder?: Resolver<ResolversTypes['ItemOrder'], ParentType, ContextType>;
+  sortOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType>;
   reminders?: Resolver<Maybe<Array<Maybe<ResolversTypes['Reminder']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type ItemOrderResolvers<ContextType = any, ParentType extends ResolversParentTypes['ItemOrder'] = ResolversParentTypes['ItemOrder']> = {
   item?: Resolver<ResolversTypes['Item'], ParentType, ContextType>;
-  sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   componentKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1688,6 +1751,7 @@ export type ProjectResolvers<ContextType = any, ParentType extends ResolversPare
   startAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   endAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   area?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType>;
+  emoji?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   items?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType>;
   sortOrder?: Resolver<Maybe<ResolversTypes['ProjectOrder']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

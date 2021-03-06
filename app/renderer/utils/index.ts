@@ -8,7 +8,7 @@ import {
   isValid,
   isYesterday,
 } from 'date-fns'
-import er from 'emoji-regex'
+import emojiRegexText from 'emoji-regex/es2015/text.js'
 import { useEffect, useRef } from 'react'
 import RRule from 'rrule'
 
@@ -99,20 +99,17 @@ export const camelCaseToInitialCaps = (text: string): string => {
 }
 
 export const hasEmoji = (input: string): boolean => {
-  return er().test(input)
+  return emojiRegexText().test(input)
 }
 
 export const getEmoji = (input: string): string => {
-  const found = input.match(er())
+  if (!input) return null
+  const found = input.match(emojiRegexText())
   return found ? found[0] : null
 }
 
 export const createShortSidebarItem = (input: string): string => {
   if (!input) return input
-
-  // If there's an emoji anywhere return the first one
-  const emoji = getEmoji(input)
-  if (emoji) return emoji
 
   const words = input.split(' ')
   // If there's only one word
