@@ -1,5 +1,4 @@
 import SQL from 'sql-template-strings'
-import SqlString from 'sqlstring-sqlite'
 import Project from '../classes/project'
 import { getItemsByProject, setProjectOfItem } from './item'
 import { createProjectOrder } from './projectOrder'
@@ -38,9 +37,9 @@ export const getProjects = (input: { deleted: boolean }, ctx) => {
 export const getProjectsByArea = (input: { areaKey: string }, ctx) => {
   return ctx.db
     .all(
-      `
+      SQL`
 SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji FROM project
-WHERE areaKey = '${input.areaKey}'
+WHERE areaKey = ${input.areaKey}
 AND deleted = false`,
     )
     .then((result) =>
@@ -67,7 +66,7 @@ AND deleted = false`,
 export const getProject = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji FROM project WHERE key = '${input.key}'`,
+      SQL`SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji FROM project WHERE key = ${input.key}`,
     )
     .then((result) => {
       return result
@@ -91,9 +90,7 @@ export const getProject = (input: { key: string }, ctx) => {
 export const getProjectByName = (input: { name: string }, ctx) => {
   return ctx.db
     .get(
-      `SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji FROM project WHERE name = ${SqlString.escape(
-        input.name,
-      )}`,
+      SQL`SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji FROM project WHERE name = ${input.name}`,
     )
     .then((result) => {
       return result
@@ -131,13 +128,9 @@ export const createMigrateProjectQuery = (input: {
   const createdText = input.createdAt ? input.createdAt.toISOString() : ''
   const startText = input.startAt ? input.startAt.toISOString() : ''
   const endText = input.endAt ? input.endAt.toISOString() : ''
-  return `
+  return SQL`
 REPLACE INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey)
-VALUES ('${input.key}', ${SqlString.escape(input.name)}, ${input.deleted}, ${SqlString.escape(
-    input.description,
-  )}, '${lastUpdatedText}', '${deletedText}', '${createdText}', '${startText}', '${endText}', '${
-    input.areaKey
-  }')
+VALUES (${input.key}, ${input.name}, ${input.deleted}, ${input.description}, ${lastUpdatedText}, ${deletedText}, ${createdText}, ${startText}, ${endText}, ${input.areaKey})
 `
 }
 export const migrateProject = (
@@ -162,21 +155,6 @@ export const migrateProject = (
   })
 }
 
-export const createCreateProjectQuery = (input: {
-  key: string
-  name: string
-  description: string
-  startAt: string
-  endAt: string
-  areaKey: string
-  emoji: string
-}) => {
-  return `INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji) VALUES 
-  ('${input.key}', ${SqlString.escape(input.name)}, false, 
-  ${SqlString.escape(input.description)}, 
-  strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), 
-  ${input.startAt}, ${input.endAt}, '${input.areaKey}', '${input.emoji})`
-}
 export const createProject = async (
   input: {
     key: string
@@ -195,81 +173,88 @@ export const createProject = async (
     return new Error('Unable to create project - name already in use')
   }
 
-  return ctx.db.run(createCreateProjectQuery(input)).then((result) => {
-    if (result.changes) {
-      createProjectOrder({ projectKey: input.key }, ctx)
-      createView({ key: input.key, name: input.name, icon: '', type: 'project' }, ctx)
-      return getProject({ key: input.key }, ctx)
-    }
-    return new Error('Unable to create project')
-  })
+  return ctx.db
+    .run(
+      SQL`INSERT INTO project (key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji) VALUES 
+  (${input.key}, ${input.name}, false, 
+  ${input.description}, 
+  strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), 
+  ${input.startAt}, ${input.endAt}, ${input.areaKey}, ${input.emoji})`,
+    )
+    .then((result) => {
+      if (result.changes) {
+        createProjectOrder({ projectKey: input.key }, ctx)
+        createView({ key: input.key, name: input.name, icon: '', type: 'project' }, ctx)
+        return getProject({ key: input.key }, ctx)
+      }
+      return new Error('Unable to create project')
+    })
 }
 
-export const createDeleteProjectQuery = (input: { key: string }) => {
-  return `UPDATE project SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
-}
 export const deleteProject = async (input: { key: string; name: string }, ctx) => {
-  return ctx.db.run(createDeleteProjectQuery(input)).then(async (result) => {
-    if (result.changes) {
-      // Remove project from all items in that project
-      const items = await getItemsByProject({ projectKey: input.key }, ctx)
-      items.map((i) => {
-        return setProjectOfItem({ key: i.key, projectKey: '0' }, ctx)
-      })
+  return ctx.db
+    .run(
+      SQL`UPDATE project SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = ${input.key}`,
+    )
+    .then(async (result) => {
+      if (result.changes) {
+        // Remove project from all items in that project
+        const items = await getItemsByProject({ projectKey: input.key }, ctx)
+        items.map((i) => {
+          return setProjectOfItem({ key: i.key, projectKey: '0' }, ctx)
+        })
 
-      deleteView({ key: input.key }, ctx)
-      return getProject({ key: input.key }, ctx)
-    }
-    return new Error('Unable to delete project')
-  })
+        deleteView({ key: input.key }, ctx)
+        return getProject({ key: input.key }, ctx)
+      }
+      return new Error('Unable to delete project')
+    })
 }
 
-export const createRenameProjectQuery = (input: { key: string; name: string }) => {
-  return `UPDATE project SET name = ${SqlString.escape(input.name)}, 
-  lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
-}
 export const renameProject = async (input: { key: string; name: string }, ctx) => {
   const projects = await getProjects({ deleted: false }, ctx)
   const exists = projects.map((p) => p.name == input.name).includes(true)
   if (exists) {
     return new Error('Unable to create project - name already in use')
   }
-  return ctx.db.run(createRenameProjectQuery(input)).then((result) => {
-    if (result.changes) {
-      renameView({ key: input.key, name: input.name }, ctx)
-      return getProject({ key: input.key }, ctx)
-    }
-    return new Error('Unable to rename project')
-  })
+  return ctx.db
+    .run(
+      SQL`UPDATE project SET name = ${input.name}, 
+  lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      if (result.changes) {
+        renameView({ key: input.key, name: input.name }, ctx)
+        return getProject({ key: input.key }, ctx)
+      }
+      return new Error('Unable to rename project')
+    })
 }
 
-export const createChangeDescriptionQuery = (input: { key: string; description: string }) => {
-  return `UPDATE project SET description = ${SqlString.escape(
-    input.description,
-  )}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
-}
 export const changeDescriptionProject = (input: { key: string; description: string }, ctx) => {
-  return ctx.db.run(createChangeDescriptionQuery(input)).then((result) => {
-    return result.changes
-      ? getProject({ key: input.key }, ctx)
-      : new Error('Unable to change description of project')
-  })
+  return ctx.db
+    .run(
+      SQL`UPDATE project SET description = ${input.description}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      return result.changes
+        ? getProject({ key: input.key }, ctx)
+        : new Error('Unable to change description of project')
+    })
 }
 
-export const createSetEndDateOfProject = (input: { key: string; endAt: string }) => {
-  return `UPDATE project SET endAt = '${input.endAt}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
-}
 export const setEndDateOfProject = (input: { key: string; endAt: string }, ctx) => {
-  return ctx.db.run(createSetEndDateOfProject(input)).then((result) => {
-    return result.changes
-      ? getProject({ key: input.key }, ctx)
-      : new Error('Unable to set end date of project')
-  })
+  return ctx.db
+    .run(
+      SQL`UPDATE project SET endAt = ${input.endAt}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      return result.changes
+        ? getProject({ key: input.key }, ctx)
+        : new Error('Unable to set end date of project')
+    })
 }
 
-export const createSetStartDateOfProject = (input: { key: string; startAt: string }) => {
-  return `UPDATE project SET startAt = '${input.startAt}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
-}
 export const setEmojiOfProject = (input: { key: string; emoji: string }, ctx) => {
   return ctx.db
     .run(
@@ -284,22 +269,27 @@ export const setEmojiOfProject = (input: { key: string; emoji: string }, ctx) =>
 }
 
 export const setStartDateOfProject = (input: { key: string; startAt: string }, ctx) => {
-  return ctx.db.run(createSetStartDateOfProject(input)).then((result) => {
-    return result.changes
-      ? getProject({ key: input.key }, ctx)
-      : new Error('Unable to set start date of project')
-  })
+  return ctx.db
+    .run(
+      SQL`UPDATE project SET startAt = ${input.startAt}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      return result.changes
+        ? getProject({ key: input.key }, ctx)
+        : new Error('Unable to set start date of project')
+    })
 }
 
-export const createSetAreaOfProject = (input: { key: string; areaKey: string }) => {
-  return `UPDATE project SET areaKey = '${input.areaKey}', lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`
-}
 export const setAreaOfProject = (input: { key: string; areaKey: string }, ctx) => {
-  return ctx.db.run(createSetAreaOfProject(input)).then((result) => {
-    return result.changes
-      ? getProject({ key: input.key }, ctx)
-      : new Error('Unable to set area of project')
-  })
+  return ctx.db
+    .run(
+      SQL`UPDATE project SET areaKey = ${input.areaKey}, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = ${input.key}`,
+    )
+    .then((result) => {
+      return result.changes
+        ? getProject({ key: input.key }, ctx)
+        : new Error('Unable to set area of project')
+    })
 }
 
 export const projectRootValues = {
