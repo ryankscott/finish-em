@@ -62,9 +62,12 @@ export const DescriptionContainer = styled.div`
 
 export const EmojiPickerWrapper = styled.div`
   display: flex;
-  z-index: 9999;
+  position: relative;
+  z-index: 9;
 
   .emoji-mart {
+    z-index: 10;
+    position: absolute;
     font-family: ${(props) => props.theme.font.sansSerif};
     background-color: ${(props) => props.theme.colours.backgroundColour};
     border-color: ${(props) => props.theme.colours.borderColour};
@@ -88,5 +91,9 @@ export const EmojiPickerWrapper = styled.div`
     font-size: ${(props) => props.theme.fontSizes.small};
     font-weight: ${(props) => props.theme.fontWeights.regular};
     background-color: ${(props) => props.theme.colours.backgroundColour};
+  }
+
+  .emoji-mart-preview-name {
+    font-size: ${(props) => props.theme.fontSizes.xsmall};
   }
 `

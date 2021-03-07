@@ -210,7 +210,6 @@ const Project = (props: ProjectProps): ReactElement => {
             <EmojiPickerWrapper>
               <Picker
                 native={true}
-                set="apple"
                 title=""
                 emoji=""
                 color={theme.colours.primaryColour}

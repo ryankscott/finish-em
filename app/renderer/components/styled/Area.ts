@@ -54,9 +54,12 @@ export const DescriptionContainer = styled.div`
 
 export const EmojiPickerWrapper = styled.div`
   display: flex;
-  z-index: 9999;
+  position: relative;
+  z-index: 9;
 
   .emoji-mart {
+    position: absolute;
+    z-index: 10;
     font-family: ${(props) => props.theme.font.sansSerif};
     background-color: ${(props) => props.theme.colours.backgroundColour};
     border-color: ${(props) => props.theme.colours.borderColour};
