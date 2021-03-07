@@ -147,6 +147,8 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           <Header1>Weekly goals</Header1>
           {data.newEditor.enabled ? (
             <EditableText2
+              key={weeklyGoal.key}
+              singleLine={false}
               input={weeklyGoal.goal}
               placeholder="Add a weekly goal..."
               shouldClearOnSubmit={false}
