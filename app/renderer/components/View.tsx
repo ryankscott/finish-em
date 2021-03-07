@@ -6,6 +6,7 @@ import { Container } from './styled/View'
 import { gql, useQuery } from '@apollo/client'
 import { ThemeType } from '../interfaces'
 import Project from './Project'
+import Area from './Area'
 
 const GET_DATA = gql`
   query ViewByKey($key: String!) {
@@ -27,7 +28,8 @@ const headerComponent = (type: string, viewKey: string) => {
   switch (type) {
     case 'project':
       return <Project projectKey={viewKey} />
-
+    case 'area':
+      return <Area areaKey={viewKey} />
     default:
       break
   }

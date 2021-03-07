@@ -8,16 +8,6 @@ export const ProjectContainer = styled.div`
   margin: 20px 0px 5px 0px;
 `
 
-export const HeaderContainer = styled.div`
-  display: grid;
-  grid-auto-rows: 60px 40px;
-  grid-template-columns: 120px 1fr;
-  grid-template-areas:
-    'EMOJI  DESC  '
-    'EMOJI PROGRESS ';
-  align-items: center;
-  padding: 5px 0px;
-`
 export const AddProjectContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -30,6 +20,17 @@ export const StaleContainer = styled.div`
   display: flex;
   flex-direction: row;
   height: 100%;
+`
+
+export const HeaderContainer = styled.div`
+  display: grid;
+  grid-auto-rows: 60px 40px;
+  grid-template-columns: 120px 1fr;
+  grid-template-areas:
+    'EMOJI  DESC  '
+    'EMOJI PROGRESS ';
+  align-items: center;
+  padding: 5px 0px;
 `
 
 export const EmojiContainer = styled.div`

@@ -27,6 +27,7 @@ export type Area = {
   lastUpdatedAt?: Maybe<Scalars['DateTime']>;
   deletedAt?: Maybe<Scalars['DateTime']>;
   createdAt?: Maybe<Scalars['DateTime']>;
+  emoji?: Maybe<Scalars['String']>;
   projects?: Maybe<Array<Maybe<Project>>>;
   items?: Maybe<Array<Maybe<Item>>>;
   sortOrder?: Maybe<AreaOrder>;
@@ -60,6 +61,11 @@ export type RenameAreaInput = {
 export type ChangeDescriptionAreaInput = {
   key: Scalars['String'];
   description: Scalars['String'];
+};
+
+export type SetEmojiOfAreaInput = {
+  key: Scalars['String'];
+  emoji: Scalars['String'];
 };
 
 export type Query = {
@@ -266,6 +272,7 @@ export type Mutation = {
   deleteArea?: Maybe<Area>;
   renameArea?: Maybe<Area>;
   changeDescriptionArea?: Maybe<Area>;
+  setEmojiOfArea?: Maybe<Area>;
   setAreaOrder?: Maybe<AreaOrder>;
   createAreaOrder?: Maybe<AreaOrder>;
   migrateAreaOrder?: Maybe<AreaOrder>;
@@ -358,6 +365,11 @@ export type MutationRenameAreaArgs = {
 
 export type MutationChangeDescriptionAreaArgs = {
   input: ChangeDescriptionAreaInput;
+};
+
+
+export type MutationSetEmojiOfAreaArgs = {
+  input: SetEmojiOfAreaInput;
 };
 
 
@@ -1313,6 +1325,7 @@ export type ResolversTypes = {
   DeleteAreaInput: DeleteAreaInput;
   RenameAreaInput: RenameAreaInput;
   ChangeDescriptionAreaInput: ChangeDescriptionAreaInput;
+  SetEmojiOfAreaInput: SetEmojiOfAreaInput;
   Query: ResolverTypeWrapper<{}>;
   Mutation: ResolverTypeWrapper<{}>;
   AreaOrder: ResolverTypeWrapper<AreaOrder>;
@@ -1414,6 +1427,7 @@ export type ResolversParentTypes = {
   DeleteAreaInput: DeleteAreaInput;
   RenameAreaInput: RenameAreaInput;
   ChangeDescriptionAreaInput: ChangeDescriptionAreaInput;
+  SetEmojiOfAreaInput: SetEmojiOfAreaInput;
   Query: {};
   Mutation: {};
   AreaOrder: AreaOrder;
@@ -1516,6 +1530,7 @@ export type AreaResolvers<ContextType = any, ParentType extends ResolversParentT
   lastUpdatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  emoji?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   projects?: Resolver<Maybe<Array<Maybe<ResolversTypes['Project']>>>, ParentType, ContextType>;
   items?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType>;
   sortOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType>;
@@ -1577,6 +1592,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   deleteArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationDeleteAreaArgs, 'input'>>;
   renameArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationRenameAreaArgs, 'input'>>;
   changeDescriptionArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationChangeDescriptionAreaArgs, 'input'>>;
+  setEmojiOfArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationSetEmojiOfAreaArgs, 'input'>>;
   setAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationSetAreaOrderArgs, 'input'>>;
   createAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationCreateAreaOrderArgs, 'input'>>;
   migrateAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationMigrateAreaOrderArgs, 'input'>>;

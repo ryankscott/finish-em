@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 import { FieldPolicy, FieldReadFunction, TypePolicies, TypePolicy } from '@apollo/client/cache';
-export type AreaKeySpecifier = ('key' | 'name' | 'deleted' | 'description' | 'lastUpdatedAt' | 'deletedAt' | 'createdAt' | 'projects' | 'items' | 'sortOrder' | AreaKeySpecifier)[];
+export type AreaKeySpecifier = ('key' | 'name' | 'deleted' | 'description' | 'lastUpdatedAt' | 'deletedAt' | 'createdAt' | 'emoji' | 'projects' | 'items' | 'sortOrder' | AreaKeySpecifier)[];
 export type AreaFieldPolicy = {
 	key?: FieldPolicy<any> | FieldReadFunction<any>,
 	name?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -9,6 +9,7 @@ export type AreaFieldPolicy = {
 	lastUpdatedAt?: FieldPolicy<any> | FieldReadFunction<any>,
 	deletedAt?: FieldPolicy<any> | FieldReadFunction<any>,
 	createdAt?: FieldPolicy<any> | FieldReadFunction<any>,
+	emoji?: FieldPolicy<any> | FieldReadFunction<any>,
 	projects?: FieldPolicy<any> | FieldReadFunction<any>,
 	items?: FieldPolicy<any> | FieldReadFunction<any>,
 	sortOrder?: FieldPolicy<any> | FieldReadFunction<any>
@@ -62,13 +63,14 @@ export type QueryFieldPolicy = {
 	weeklyGoal?: FieldPolicy<any> | FieldReadFunction<any>,
 	weeklyGoalByName?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type MutationKeySpecifier = ('createArea' | 'migrateArea' | 'deleteArea' | 'renameArea' | 'changeDescriptionArea' | 'setAreaOrder' | 'createAreaOrder' | 'migrateAreaOrder' | 'createCalendar' | 'deleteCalendar' | 'setActiveCalendar' | 'createComponent' | 'cloneComponent' | 'setParametersOfComponent' | 'migrateComponent' | 'deleteComponent' | 'setComponentOrder' | 'createComponentOrder' | 'migrateComponentOrder' | 'createEvent' | 'deleteEvent' | 'createFeature' | 'setFeature' | 'createItem' | 'migrateItem' | 'deleteItem' | 'restoreItem' | 'renameItem' | 'setTypeOfItem' | 'completeItem' | 'unCompleteItem' | 'setRepeatOfItem' | 'cloneItem' | 'setProjectOfItem' | 'setAreaOfItem' | 'setScheduledAtOfItem' | 'setDueAtOfItem' | 'setParentOfItem' | 'permanentDeleteItem' | 'setLabelOfItem' | 'setItemOrder' | 'deleteItemOrdersByComponent' | 'createItemOrder' | 'bulkCreateItemOrders' | 'migrateItemOrder' | 'createLabel' | 'renameLabel' | 'setColourOfLabel' | 'deleteLabel' | 'createProject' | 'migrateProject' | 'deleteProject' | 'renameProject' | 'changeDescriptionProject' | 'setEndDateOfProject' | 'setStartDateOfProject' | 'setEmojiOfProject' | 'setAreaOfProject' | 'setProjectOrder' | 'createProjectOrder' | 'migrateProjectOrder' | 'createReminder' | 'deleteReminder' | 'deleteReminderFromItem' | 'createView' | 'migrateView' | 'deleteView' | 'renameView' | 'setViewOrder' | 'createViewOrder' | 'migrateViewOrder' | 'createWeeklyGoal' | MutationKeySpecifier)[];
+export type MutationKeySpecifier = ('createArea' | 'migrateArea' | 'deleteArea' | 'renameArea' | 'changeDescriptionArea' | 'setEmojiOfArea' | 'setAreaOrder' | 'createAreaOrder' | 'migrateAreaOrder' | 'createCalendar' | 'deleteCalendar' | 'setActiveCalendar' | 'createComponent' | 'cloneComponent' | 'setParametersOfComponent' | 'migrateComponent' | 'deleteComponent' | 'setComponentOrder' | 'createComponentOrder' | 'migrateComponentOrder' | 'createEvent' | 'deleteEvent' | 'createFeature' | 'setFeature' | 'createItem' | 'migrateItem' | 'deleteItem' | 'restoreItem' | 'renameItem' | 'setTypeOfItem' | 'completeItem' | 'unCompleteItem' | 'setRepeatOfItem' | 'cloneItem' | 'setProjectOfItem' | 'setAreaOfItem' | 'setScheduledAtOfItem' | 'setDueAtOfItem' | 'setParentOfItem' | 'permanentDeleteItem' | 'setLabelOfItem' | 'setItemOrder' | 'deleteItemOrdersByComponent' | 'createItemOrder' | 'bulkCreateItemOrders' | 'migrateItemOrder' | 'createLabel' | 'renameLabel' | 'setColourOfLabel' | 'deleteLabel' | 'createProject' | 'migrateProject' | 'deleteProject' | 'renameProject' | 'changeDescriptionProject' | 'setEndDateOfProject' | 'setStartDateOfProject' | 'setEmojiOfProject' | 'setAreaOfProject' | 'setProjectOrder' | 'createProjectOrder' | 'migrateProjectOrder' | 'createReminder' | 'deleteReminder' | 'deleteReminderFromItem' | 'createView' | 'migrateView' | 'deleteView' | 'renameView' | 'setViewOrder' | 'createViewOrder' | 'migrateViewOrder' | 'createWeeklyGoal' | MutationKeySpecifier)[];
 export type MutationFieldPolicy = {
 	createArea?: FieldPolicy<any> | FieldReadFunction<any>,
 	migrateArea?: FieldPolicy<any> | FieldReadFunction<any>,
 	deleteArea?: FieldPolicy<any> | FieldReadFunction<any>,
 	renameArea?: FieldPolicy<any> | FieldReadFunction<any>,
 	changeDescriptionArea?: FieldPolicy<any> | FieldReadFunction<any>,
+	setEmojiOfArea?: FieldPolicy<any> | FieldReadFunction<any>,
 	setAreaOrder?: FieldPolicy<any> | FieldReadFunction<any>,
 	createAreaOrder?: FieldPolicy<any> | FieldReadFunction<any>,
 	migrateAreaOrder?: FieldPolicy<any> | FieldReadFunction<any>,

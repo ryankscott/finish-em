@@ -2,7 +2,7 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { parseISO } from 'date-fns'
 import marked from 'marked'
 import { darken } from 'polished'
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 import { Project } from '../../main/generated/typescript-helpers'
@@ -16,6 +16,9 @@ import EditableText from './EditableText'
 import FilteredItemList from './FilteredItemList'
 import {
   AreaContainer,
+  DescriptionContainer,
+  EmojiContainer,
+  EmojiPickerWrapper,
   HeaderContainer,
   ProjectContainer,
   ProjectDescription,
@@ -26,6 +29,8 @@ import {
 import { Header, Title } from './Typography'
 import { Area as AreaType } from '../../main/generated/typescript-helpers'
 import { toast } from 'react-toastify'
+import 'emoji-mart/css/emoji-mart.css'
+import { Picker, Emoji } from 'emoji-mart'
 
 const GET_AREA_BY_KEY = gql`
   query AreaByKey($key: String!) {
@@ -37,6 +42,7 @@ const GET_AREA_BY_KEY = gql`
       lastUpdatedAt
       deletedAt
       createdAt
+      emoji
       projects {
         key
         name
@@ -61,6 +67,7 @@ const GET_AREA_BY_KEY = gql`
     areas {
       key
       name
+      emoji
     }
     theme @client
   }
@@ -91,6 +98,14 @@ const RENAME_AREA = gql`
     }
   }
 `
+const SET_EMOJI = gql`
+  mutation SetEmojiOfArea($key: String!, $emoji: String!) {
+    setEmojiOfArea(input: { key: $key, emoji: $emoji }) {
+      key
+      emoji
+    }
+  }
+`
 
 type AreaProps = {
   areaKey: string
@@ -100,7 +115,8 @@ const Area = (props: AreaProps): ReactElement => {
 
   const name = React.useRef<HTMLInputElement>()
   const description = React.useRef<HTMLInputElement>()
-
+  const [setEmoji] = useMutation(SET_EMOJI)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [deleteArea] = useMutation(DELETE_AREA, {
     update(cache, { data: { deleteArea } }) {
       const cacheId = cache.identify({
@@ -129,29 +145,53 @@ const Area = (props: AreaProps): ReactElement => {
     <ThemeProvider theme={theme}>
       <AreaContainer>
         <HeaderContainer>
-          <EditableText
-            shouldSubmitOnBlur={true}
-            key={area.key + 'name'}
-            input={area.name}
-            style={Title}
-            singleline={true}
-            innerRef={name}
-            onUpdate={(input) => {
-              const exists = areas.map((a) => a.name == input).includes(true)
-              if (exists) {
-                toast.error('Cannot rename area, an area with that name already exists')
-              } else {
-                renameArea({ variables: { key: area.key, name: input } })
-              }
+          <DescriptionContainer>
+            <EditableText
+              shouldSubmitOnBlur={true}
+              key={area.key + 'name'}
+              input={area.name}
+              style={Title}
+              singleline={true}
+              innerRef={name}
+              onUpdate={(input) => {
+                const exists = areas.map((a) => a.name == input).includes(true)
+                if (exists) {
+                  toast.error('Cannot rename area, an area with that name already exists')
+                } else {
+                  renameArea({ variables: { key: area.key, name: input } })
+                }
+              }}
+              shouldClearOnSubmit={false}
+            />
+            <DeleteAreaDialog
+              onDelete={() => {
+                deleteArea({ variables: { key: area.key } })
+                history.push('/inbox')
+              }}
+            />
+          </DescriptionContainer>
+          <EmojiContainer
+            onClick={() => {
+              setShowEmojiPicker(!showEmojiPicker)
             }}
-            shouldClearOnSubmit={false}
-          />
-          <DeleteAreaDialog
-            onDelete={() => {
-              deleteArea({ variables: { key: area.key } })
-              history.push('/inbox')
-            }}
-          />
+          >
+            <Emoji emoji={area.emoji ? area.emoji : ''} size={68} native={true} />
+          </EmojiContainer>
+          {showEmojiPicker && (
+            <EmojiPickerWrapper>
+              <Picker
+                native={true}
+                set="apple"
+                title=""
+                emoji=""
+                color={theme.colours.primaryColour}
+                onSelect={(emoji) => {
+                  setEmoji({ variables: { key: area.key, emoji: emoji.id } })
+                  setShowEmojiPicker(false)
+                }}
+              />
+            </EmojiPickerWrapper>
+          )}
         </HeaderContainer>
 
         <EditableText
@@ -197,7 +237,7 @@ const Area = (props: AreaProps): ReactElement => {
             <ProjectContainer
               key={p.key}
               onClick={() => {
-                history.push(`/projects/${p.key}`)
+                history.push(`/views/${p.key}`)
               }}
             >
               <div style={{ gridArea: 'donut' }}>

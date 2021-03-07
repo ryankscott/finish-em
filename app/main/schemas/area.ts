@@ -9,6 +9,7 @@ type Area {
   lastUpdatedAt: DateTime
   deletedAt: DateTime
   createdAt: DateTime
+  emoji: String
   projects: [Project]
   items: [Item]
   sortOrder: AreaOrder
@@ -44,6 +45,11 @@ input ChangeDescriptionAreaInput {
   description: String!
 }
 
+input SetEmojiOfAreaInput {
+  key: String!
+  emoji: String!
+}
+
 type Query {
   areas: [Area]
   area(key: String!): Area
@@ -55,5 +61,6 @@ type Mutation {
   deleteArea(input: DeleteAreaInput!): Area
   renameArea(input: RenameAreaInput!): Area
   changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area
+  setEmojiOfArea(input: SetEmojiOfAreaInput!): Area
 }
 `

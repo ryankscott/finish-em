@@ -80,7 +80,20 @@ type ItemListProps = {
 
 function ItemList(props: ItemListProps): ReactElement {
   const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return <Spinner loading={true}></Spinner>
+  if (loading)
+    return (
+      <div
+        style={{
+          height: '100%',
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignContent: 'center',
+        }}
+      >
+        <Spinner loading={true}></Spinner>
+      </div>
+    )
   if (error) {
     console.log(error)
     return null

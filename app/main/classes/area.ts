@@ -9,6 +9,7 @@ export default class Area {
     lastUpdatedAt: string,
     deletedAt: string,
     createdAt: string,
+    emoji: string,
   ) {
     this.key = key
     this.name = name
@@ -17,6 +18,7 @@ export default class Area {
     this.lastUpdatedAt = lastUpdatedAt ? lastUpdatedAt : null
     this.deletedAt = deletedAt ? deletedAt : null
     this.createdAt = createdAt ? createdAt : null
+    this.emoji = emoji
   }
 
   projects(obj, ctx) {

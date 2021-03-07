@@ -114,6 +114,7 @@ const GET_AREAS = gql`
       name
       key
       deleted
+      emoji
       sortOrder {
         areaKey
         sortOrder
@@ -271,7 +272,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
               />
             </StyledLink>
             {sortedViews.map((view) => {
-              if (view.type == 'project') return null
+              if (view.type == 'project' || view.type == 'area') return null
               return (
                 <StyledLink
                   sidebarVisible={data.sidebarVisible}
@@ -361,12 +362,27 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 data-tip
                                 data-for={a.key}
                                 sidebarVisible={data.sidebarVisible}
-                                to={`/areas/${a.key}`}
+                                to={`/views/${a.key}`}
                                 activeStyle={{
                                   backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                                 }}
                               >
-                                {data.sidebarVisible ? a.name : createShortSidebarItem(a.name)}
+                                {data.sidebarVisible ? (
+                                  <>
+                                    <div style={{ paddingRight: '5px' }}>
+                                      <Emoji
+                                        emoji={a.emoji ? a.emoji : ''}
+                                        size={12}
+                                        native={true}
+                                      />
+                                    </div>
+                                    {a.name}
+                                  </>
+                                ) : a.emoji ? (
+                                  <Emoji emoji={a.emoji ? a.emoji : ''} size={16} native={true} />
+                                ) : (
+                                  createShortSidebarItem(a.name)
+                                )}
                               </AreaLink>
                               <Tooltip id={a.key} text={a.name} />
                               {data.sidebarVisible && (
