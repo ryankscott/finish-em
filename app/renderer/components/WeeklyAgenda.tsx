@@ -151,9 +151,9 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
               singleLine={false}
               input={weeklyGoal.goal}
               placeholder="Add a weekly goal..."
+              shouldSubmitOnBlur={true}
               shouldClearOnSubmit={false}
               hideToolbar={false}
-              shouldSubmitOnBlur={true}
               height="150px"
               onUpdate={(input) => {
                 createWeeklyGoal({
@@ -183,7 +183,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
                 })
               }
               shouldSubmitOnBlur={true}
-              shouldClearOnSubmit={true}
+              shouldClearOnSubmit={false}
               innerRef={goalRef}
             />
           )}
