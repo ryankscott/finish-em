@@ -10,7 +10,7 @@ export const WeekContainer = styled.div`
   grid-template-rows: 2fr 1fr;
   grid-template-areas:
     'back day day day day forward'
-    'week_of_year . . . . week_of_quarter';
+    'week_of_year week_of_year week_of_year week_of_quarter week_of_quarter week_of_quarter';
   margin-bottom: 10px;
   width: 100%;
   align-items: baseline;
