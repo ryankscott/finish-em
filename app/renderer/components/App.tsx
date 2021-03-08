@@ -2,7 +2,6 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { isSameMinute, parseISO } from 'date-fns'
 import cron from 'node-cron'
 import React, { ReactElement, useEffect, useState } from 'react'
-import { useHotkeys } from 'react-hotkeys-hook'
 import { Route, Switch, useHistory, useParams } from 'react-router-dom'
 import { Slide, toast } from 'react-toastify'
 import { focusbarVisibleVar, shortcutDialogVisibleVar, sidebarVisibleVar } from '../index'
@@ -17,7 +16,6 @@ import Focusbar from './Focusbar'
 import Headerbar from './Headerbar'
 import Help from './Help'
 import Inbox from './Inbox'
-import Project from './Project'
 import Settings from './Settings'
 import ShortcutDialog from './ShortcutDialog'
 import Sidebar from './Sidebar'
@@ -98,113 +96,6 @@ type AppProps = {}
 const App = (props: AppProps): ReactElement => {
   const history = useHistory()
   const searchRef = React.useRef<HTMLSelectElement>()
-
-  const goToDailyAgenda = (): void => {
-    history.push('/dailyAgenda')
-    return
-  }
-
-  const goToTrash = (): void => {
-    history.push('/trash')
-    return
-  }
-
-  const goToInbox = (): void => {
-    history.push('/inbox')
-    return
-  }
-
-  const goToUnscheduled = (): void => {
-    history.push('/unscheduled')
-    return
-  }
-
-  const goToCompleted = (): void => {
-    history.push('/completed')
-    return
-  }
-
-  const goToStale = (): void => {
-    history.push('/stale')
-    return
-  }
-
-  const goToSettings = (): void => {
-    history.push('/settings')
-  }
-
-  const goToProject = (number: number): void => {
-    const key = data.projects[number]
-    history.push(`/projects/${key}`)
-  }
-
-  const goToNextProject = (): void => {
-    const path = history.location.pathname
-    if (!path.includes('projects')) {
-      goToProject(1)
-      return
-    }
-    const projectKey = path.split('/')[2]
-    const projectIndex = data.projects.findIndex((p) => p.key == projectKey)
-    if (projectIndex == data.projects.length - 1) {
-      goToProject(1)
-    } else {
-      goToProject(projectIndex + 1)
-    }
-  }
-
-  const goToPreviousProject = (): void => {
-    const path = history.location.pathname
-    if (!path.includes('projects')) {
-      goToProject(data.projects.length - 1)
-      return
-    }
-    const projectKey = path.split('/')[2]
-    const projectIndex = data.projects.findIndex((p) => p.key == projectKey)
-    if (projectIndex == 1) {
-      goToProject(data.projects.length - 1)
-    } else {
-      goToProject(projectIndex - 1)
-    }
-  }
-
-  const handlers = {
-    GO_TO_SEARCH: (e) => {
-      searchRef.current.focus()
-      e.preventDefault()
-    },
-    GO_TO_PROJECT_1: () => goToProject(1),
-    GO_TO_PROJECT_2: () => goToProject(2),
-    GO_TO_PROJECT_3: () => goToProject(3),
-    GO_TO_PROJECT_4: () => goToProject(4),
-    GO_TO_PROJECT_5: () => goToProject(5),
-    GO_TO_PROJECT_6: () => goToProject(6),
-    GO_TO_PROJECT_7: () => goToProject(7),
-    GO_TO_PROJECT_8: () => goToProject(8),
-    GO_TO_PROJECT_9: () => goToProject(9),
-    GO_TO_DAILY_AGENDA: () => goToDailyAgenda(),
-    GO_TO_NEXT_PROJECT: () => goToNextProject(),
-    GO_TO_PREV_PROJECT: () => goToPreviousProject(),
-    GO_TO_INBOX: () => goToInbox(),
-    GO_TO_TRASH: () => goToTrash(),
-    GO_TO_STALE: () => goToStale(),
-    GO_TO_COMPLETED: () => goToCompleted(),
-    GO_TO_UNSCHEDULED: () => goToUnscheduled(),
-    SHOW_SIDEBAR: () => sidebarVisibleVar(true),
-    HIDE_SIDEBAR: () => sidebarVisibleVar(false),
-    TOGGLE_SHORTCUT_DIALOG: () => {
-      shortcutDialogVisibleVar(!data.shortcutDialogVisible)
-    },
-    ESCAPE: () => {} /*props.hideDialogs()*/,
-    SHOW_CREATE_PROJECT_DIALOG: (e) => {
-      //props.showCreateProjectDialog()
-      e.preventDefault()
-    },
-  }
-
-  Object.entries(appKeymap).map(([k, v]) => {
-    useHotkeys(v, handlers[k])
-  })
 
   useEffect(() => {
     // Handle Electron events
