@@ -2,7 +2,11 @@
 -- Up
 --------------------------------------------------------------------------------
 
-INSERT INTO view (name, icon, type, deleted, createdAt, key) SELECT name, '', 'area', false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), key from area;
+INSERT INTO view (name, icon, type, deleted, createdAt, key) 
+SELECT a.name, '', 'area', false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), a.key 
+FROM area a
+INNER JOIN view v on a.key = v.key
+WHERE v.key IS NULL;
 
 INSERT INTO viewOrder (viewKey, sortOrder) 
 SELECT key, 
