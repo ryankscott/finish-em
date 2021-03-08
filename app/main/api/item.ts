@@ -113,7 +113,7 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
           if (isDateCategory) {
             return `${conditionText} DATE(${categoryText}, 'localtime') != DATE(${valueText}, 'localtime')`
           }
-          return `${conditionText} ${categoryText} ${operator} ${valueText}`
+          return `${conditionText} (${categoryText} ${operator} ${valueText} OR ${categoryText} IS NULL)`
 
         case '<':
           if (isDateCategory) {
@@ -196,7 +196,6 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
     FROM item 
     WHERE ${filterString};`,
   )
-
   if ((await results.length) >= 0) {
     // Get all itemOrders for that component
     const orders = await getItemOrdersByComponent({ componentKey: input.componentKey }, ctx)
