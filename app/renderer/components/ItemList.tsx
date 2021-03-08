@@ -10,7 +10,7 @@ import { TransitionGroup, Transition } from 'react-transition-group'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { cloneDeep } from '@apollo/client/utilities'
-import { get, groupBy } from 'lodash'
+import { get } from 'lodash'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Spinner } from './Spinner'
 
@@ -185,7 +185,19 @@ function ItemList(props: ItemListProps): ReactElement {
     },
   }
   Object.entries(itemKeymap).map(([k, v]) => {
-    useHotkeys(v, handlers[k])
+    useHotkeys(v, handlers[k], {
+      filter: (event) => {
+        const target = event.target
+        var tagName = (event.target || event.srcElement).tagName
+        return !(
+          target.contentEditable ||
+          tagName == 'INPUT' ||
+          tagName == 'SELECT' ||
+          tagName == 'TEXTAREA'
+        )
+      },
+      filterPreventDefault: false,
+    })
   })
 
   const renderItem = (i): JSX.Element => {

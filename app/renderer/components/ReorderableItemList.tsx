@@ -179,7 +179,19 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     },
   }
   Object.entries(itemKeymap).map(([k, v]) => {
-    useHotkeys(v, handlers[k])
+    useHotkeys(v, handlers[k], {
+      filter: (event) => {
+        const target = event.target
+        var tagName = (event.target || event.srcElement).tagName
+        return !(
+          target.contentEditable ||
+          tagName == 'INPUT' ||
+          tagName == 'SELECT' ||
+          tagName == 'TEXTAREA'
+        )
+      },
+      filterPreventDefault: false,
+    })
   })
 
   const { loading, error, data } = useQuery(GET_DATA)
