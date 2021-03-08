@@ -11,6 +11,7 @@ import {
   HideButtonContainer,
   EditableContainer,
   FilterBar,
+  ErrorBanner,
 } from './styled/FilteredItemList'
 
 import SortDropdown, { SortDirectionEnum, SortOption, sortOptions } from './SortDropdown'
@@ -50,6 +51,7 @@ const determineVisibilityRules = (
 const GET_THEME = gql`
   query {
     theme @client
+    subtasksVisible @client
   }
 `
 
@@ -84,7 +86,6 @@ const GET_DATA = gql`
         sortOrder
       }
     }
-    subtasksVisible @client
   }
 `
 
@@ -135,7 +136,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [bulkCreateItemOrders] = useMutation(BULK_CREATE_ITEMORDERS)
   const [deleteItemOrdersByComponent] = useMutation(DELETE_ITEMORDERS_BY_COMPONENT)
 
-  const { loading: l, error: e, data: themeData } = useQuery(GET_THEME)
+  const { loading: l, error: e, data: localData } = useQuery(GET_THEME)
   const { loading, error, data, refetch } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
@@ -143,8 +144,27 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     },
     fetchPolicy: 'cache-and-network',
   })
-  const theme = themes[themeData.theme]
-  if (error) return null
+  const theme = themes[localData.theme]
+  if (error) {
+    console.log(error)
+
+    return (
+      <ThemeProvider theme={theme}>
+        <Container>
+          <ErrorBanner>{'Failed to load component - please reconfigure'}</ErrorBanner>
+          <EditableContainer>
+            <EditFilteredItemList
+              key={`dlg-${props.componentKey}`}
+              componentKey={props.componentKey}
+              onClose={() => {
+                props.setEditing(false)
+              }}
+            />
+          </EditableContainer>
+        </Container>
+      </ThemeProvider>
+    )
+  }
   const allItems = data?.items
 
   const uncompletedItems = data?.items.filter((m) => m.completed == false)
@@ -162,7 +182,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   })
   const sortedItems = orderBy(sI, 'sortOrder', 'asc')
 
-  const subtasksVisible = data?.subtasksVisible ? data.subtasksVisible : false
+  const subtasksVisible = localData?.subtasksVisible ? localData.subtasksVisible : false
 
   const visibility = determineVisibilityRules(
     props.isFilterable,

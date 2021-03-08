@@ -1,9 +1,8 @@
 import Select from 'react-select'
-import styled from 'styled-components'
 import { Paragraph } from '../Typography'
 import { lighten } from 'polished'
 import { fadeInLeft, fadeOutRight } from 'react-animations'
-import { css, keyframes } from '../../StyledComponents'
+import styled, { css, keyframes } from '../../StyledComponents'
 
 const fadeInAnimation = keyframes`${fadeInLeft}`
 const fadeOutAnimation = keyframes`${fadeOutRight}`
@@ -98,4 +97,22 @@ export const EditableContainer = styled.div<EditableContainerProps>`
   display: flex;
   animation: ${(props) =>
     props.state == 'entering' ? entryAnimation : props.state == 'exiting' ? exitAnimation : 'none'};
+`
+
+export const ErrorBanner = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0px;
+  padding: 10px 5px;
+  width: 100%;
+  min-height: 50px;
+  border-radius: 5px;
+  border: 1px solid;
+  border-color: ${(props) => props.theme.colours.errorColour};
+  background-color: ${(props) => props.theme.colours.errorColour};
+  color: ${(props) => props.theme.colours.altTextColour};
+  font-weight: ${(props) => props.theme.fontWeights.bold};
+  font-size: ${(props) => props.theme.fontSizes.small};
 `
