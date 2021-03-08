@@ -30,7 +30,7 @@ export const LoadingContainer = styled.div`
     left: 0;
     margin: 0px auto;
     height: 1px;
-    width: calc(100% - 10px);
+    width: 100%;
     border-bottom: 1px solid;
     border-color: ${(props) => props.theme.colours.focusBackgroundColour};
   }
@@ -108,12 +108,12 @@ const generateBackgroundColour = (props) => {
 
   if (props.focused) {
     if (props.labelColour != null) {
-      return transparentize(0.6, props.labelColour)
+      return transparentize(0.1, props.labelColour)
     }
     return props.theme.colours.focusBackgroundColour
   }
   if (props.labelColour != null) {
-    return transparentize(0.8, props.labelColour)
+    return transparentize(0.2, props.labelColour)
   }
   return 'none'
 }
@@ -150,7 +150,8 @@ export const Container = styled.div<ContainerProps>`
   cursor: pointer;
   border-radius: 5px;
   color: ${(props) => props.theme.colours.disabledTextColour};
-  background: ${(props) => generateBackgroundColour(props)};
+  //border-left: 12px solid ${(props) => generateBackgroundColour(props)};
+  // background: ${(props) => generateBackgroundColour(props)};
 
   &:after {
     content: '';
@@ -160,12 +161,9 @@ export const Container = styled.div<ContainerProps>`
     left: 0;
     margin: 0px auto;
     height: 1px;
-    width: calc(100% - 10px);
+    width: 100%;
     border-bottom: 1px solid;
-    border-color: ${(props) =>
-      props.labelColour != null
-        ? transparentize(0.8, props.labelColour)
-        : props.theme.colours.focusBackgroundColour};
+    border-color: ${(props) => props.theme.colours.focusBackgroundColour};
   }
 `
 interface QuickAddProps {

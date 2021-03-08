@@ -56,6 +56,8 @@ type ItemProps = {
 const GET_THEME = gql`
   query {
     theme @client
+    activeItem @client
+    subtasksVisible @client
   }
 `
 
@@ -96,8 +98,6 @@ const GET_DATA = gql`
         key
       }
     }
-    activeItem @client
-    subtasksVisible @client
   }
 `
 
@@ -191,7 +191,7 @@ function Item(props: ItemProps): ReactElement {
     }
   }, [isDescriptionReadOnly])
 
-  const { loading: l, error: e, data: d } = useQuery(GET_THEME)
+  const { loading: l, error: e, data: d, refetch } = useQuery(GET_THEME)
 
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: { key: props.itemKey ? props.itemKey : null },
@@ -293,9 +293,12 @@ function Item(props: ItemProps): ReactElement {
   }
 
   const handleExpand = (e): void => {
+    console.log('handleExpand')
     e.stopPropagation()
-    let newState = cloneDeep(data.subtasksVisible)
-    const newValue = get(newState, `${item.key}.${props.componentKey}`, true)
+    let newState = cloneDeep(d.subtasksVisible)
+    console.log(newState)
+    const newValue = get(newState, `${item.key}.${props.componentKey}`, false)
+    console.log(newValue)
     if (newState[item.key]) {
       newState[item.key][props.componentKey] = !newValue
     } else {
@@ -304,6 +307,7 @@ function Item(props: ItemProps): ReactElement {
       }
     }
     subtasksVisibleVar(newState)
+    refetch()
     return
   }
 
@@ -319,14 +323,14 @@ function Item(props: ItemProps): ReactElement {
   }
 
   // Check if the item should be visible, based on a parent hiding subtasks (default should be true)
-  const parentVisibility = data.subtasksVisible?.[item.parent?.key]?.[props.componentKey]
+  const parentVisibility = d.subtasksVisible?.[item.parent?.key]?.[props.componentKey]
   const isVisible = parentVisibility != undefined ? parentVisibility : true
 
   // Check if the item's subtasks should be visible (default should be true)
-  const itemVisibility = data.subtasksVisible?.[item.key]?.[props.componentKey]
+  const itemVisibility = d.subtasksVisible?.[item.key]?.[props.componentKey]
   const subtasksVisible = itemVisibility != undefined ? itemVisibility : true
 
-  const isFocused = data.activeItem.findIndex((i) => i == item.key) >= 0
+  const isFocused = d.activeItem.findIndex((i) => i == item.key) >= 0
 
   return (
     <ThemeProvider theme={theme}>
@@ -343,6 +347,7 @@ function Item(props: ItemProps): ReactElement {
           exitInterval = setTimeout(() => setMoreButtonVisible(false), 200)
         }}
         onClick={(e) => {
+          console.log('click')
           if (e.shiftKey) {
             if (isFocused) {
               const activeItems = data.activeItem.filter((i) => i != item.key)
@@ -389,16 +394,9 @@ function Item(props: ItemProps): ReactElement {
               spacing="compact"
               tooltipText={item.deleted ? 'Restore' : item.completed ? 'Uncomplete' : 'Complete'}
               onClick={handleIconClick}
-              icon={
-                item.deleted
-                  ? 'restore'
-                  : item.type == 'NOTE'
-                  ? 'note'
-                  : item.completed
-                  ? 'todoChecked'
-                  : 'todoUnchecked'
-              }
+              icon={item.deleted ? 'restore' : item.completed ? 'todoChecked' : 'todoUnchecked'}
               iconSize={'16px'}
+              iconColour={item.label ? item.label.colour : null}
             />
           </TypeContainer>
         )}

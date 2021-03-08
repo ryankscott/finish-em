@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { transparentize } from 'polished'
+import { math, transparentize } from 'polished'
 import React, { ReactElement, useEffect, useState } from 'react'
 import Select, { OptionsType } from 'react-select'
 import Switch from 'react-switch'
@@ -8,6 +8,7 @@ import { ThemeProvider } from '../StyledComponents'
 import { selectStyles, themes } from '../theme'
 import Button from './Button'
 import EditableText from './EditableText'
+import colormap from 'colormap'
 import {
   ButtonContainer,
   Container,
@@ -26,6 +27,8 @@ import { themeVar } from '..'
 import { Label } from '../../main/generated/typescript-helpers'
 import { HexColorPicker } from 'react-colorful'
 import { debounce } from 'lodash'
+
+const NUMBER_OF_COLOURS = 12
 
 type SettingsPickerProps = {}
 const generateOptions = (cals): { value: string; label: string }[] => {
@@ -129,6 +132,13 @@ function Settings(props: SettingsPickerProps): ReactElement {
       })
       cache.evict({ id: cacheId })
     },
+  })
+
+  const colours = colormap({
+    colormap: 'jet',
+    nshades: NUMBER_OF_COLOURS,
+    format: 'hex',
+    alpha: 1,
   })
 
   // We have to update the cache on add / removes
@@ -274,7 +284,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                       <EditableText
                         key={'et-' + m.key}
                         input={m.name}
-                        backgroundColour={transparentize(0.8, m.colour)}
+                        backgroundColour={transparentize(0.4, m.colour)}
                         fontSize={'xxsmall'}
                         innerRef={React.createRef()}
                         shouldSubmitOnBlur={true}
@@ -337,7 +347,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                       variables: {
                         key: uuidv4(),
                         name: 'New Label',
-                        colour: '#000000',
+                        colour: colours[Math.floor(Math.random() * NUMBER_OF_COLOURS)],
                       },
                     })
                   }}

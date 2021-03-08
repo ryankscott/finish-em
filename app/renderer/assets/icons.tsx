@@ -2,6 +2,7 @@
 import React from 'react'
 import * as CSS from 'csstype'
 import { IconType } from '../interfaces'
+import { lighten, tint } from 'polished'
 
 export const Icons: {
   [key: IconType]: (
@@ -130,7 +131,7 @@ export const Icons: {
       width={width ? width : '16'}
       height={height ? height : '16'}
       viewBox="0 0 24 24"
-      fill="none"
+      fill={colour ? tint(0.4, colour) : 'none'}
       stroke={colour ? colour : 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"

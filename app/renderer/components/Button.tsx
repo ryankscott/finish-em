@@ -69,9 +69,9 @@ const Button = (props: ButtonProps): ReactElement => {
               translateZ={props.translateZ != undefined ? props.translateZ : 0}
             >
               {Icons[props.icon](
-                props.iconSize || null,
-                props.iconSize || null,
-                props.iconColour || null,
+                props.iconSize ? props.iconSize : null,
+                props.iconSize ? props.iconSize : null,
+                props.iconColour ? props.iconColour : null,
               )}
             </Icon>
           )}

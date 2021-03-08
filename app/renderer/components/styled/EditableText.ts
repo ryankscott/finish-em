@@ -42,9 +42,9 @@ export const Container = styled.div<ContainerProps>`
       ? props.backgroundColour
         ? readableColor(
             props.backgroundColour,
-            props.theme.colours.altTextColour,
             props.theme.colours.textColour,
-            true,
+            props.theme.colours.altTextColour,
+            false,
           )
         : 'inherit'
       : props.theme.colours.errorColour};
@@ -73,6 +73,17 @@ export const Container = styled.div<ContainerProps>`
     padding: 2px;
     margin: 0px;
     width: auto;
+    color: ${(props) =>
+      props.valid
+        ? props.backgroundColour
+          ? readableColor(
+              props.backgroundColour,
+              props.theme.colours.textColour,
+              props.theme.colours.altTextColour,
+              false,
+            )
+          : 'inherit'
+        : props.theme.colours.errorColour};
   }
   & > ol {
     padding: 0px 10px;
