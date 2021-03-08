@@ -14,7 +14,7 @@ export const SubtaskContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   margin: 15px 0px;
   padding: 5px;
   margin-top: 30px;
