@@ -1,6 +1,16 @@
 export const event = `
 scalar DateTime
 
+type Attendee {
+   name: String
+   email: String!
+}
+
+input AttendeeInput {
+   name: String
+   email: String!
+}
+
 type Event {
   key: String!
   title: String!
@@ -10,6 +20,8 @@ type Event {
   description: String
   allDay: Boolean
   calendar: Calendar
+  location: String
+  attendees: [Attendee]
 }
 
 input CreateEventInput {
@@ -20,6 +32,8 @@ input CreateEventInput {
   description: String
   allDay: Boolean
   calendarKey: String
+  location: String
+  attendees: [AttendeeInput]
 }
 
 input DeleteEventInput {

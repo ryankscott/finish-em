@@ -1,10 +1,11 @@
+import SQL from 'sql-template-strings'
 import Event from '../classes/event'
 import { getActiveCalendar } from './calendar'
 
 export const getEvents = (obj, ctx) => {
   return ctx.db
     .all(
-      'SELECT key, title, description, startAt, endAt, allDay, calendarKey, createdAt FROM event',
+      'SELECT key, title, description, startAt, endAt, allDay, calendarKey, location, attendees, createdAt FROM event',
     )
     .then((result) =>
       result.map(
@@ -18,6 +19,8 @@ export const getEvents = (obj, ctx) => {
             r.allDay,
             r.calendarKey,
             r.createdAt,
+            r.location,
+            r.attendees,
           ),
       ),
     )
@@ -26,7 +29,7 @@ export const getEvents = (obj, ctx) => {
 export const getEvent = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      `SELECT key, title, description, startAt, endAt, allDay, calendarKey, createdAt FROM event WHERE key = '${input.key}'`,
+      `SELECT key, title, description, startAt, endAt, allDay, calendarKey, createdAt, location, attendees FROM event WHERE key = '${input.key}'`,
     )
     .then(
       (result) =>
@@ -39,6 +42,8 @@ export const getEvent = (input: { key: string }, ctx) => {
           result.allDay,
           result.calendarKey,
           result.createdAt,
+          result.location,
+          result.attendees,
         ),
     )
 }
@@ -67,6 +72,8 @@ export const getEventsByCalendar = (input: { calendarKey: string }, ctx) => {
                 r.allDay,
                 r.calendarKey,
                 r.createdAt,
+                r.location,
+                r.attendees,
               ),
           )
         : null,
@@ -93,6 +100,8 @@ export const getEventsForActiveCalendar = async (input, ctx) => {
                 r.allDay,
                 r.calendarKey,
                 r.createdAt,
+                r.location,
+                r.attendees,
               ),
           )
         : null,
@@ -108,17 +117,20 @@ export const createEvent = (
     endAt: Date
     allDay: boolean
     calendarKey: string
+    location: string
+    attendees: { name: string; email: string }[]
   },
   ctx,
 ) => {
   return ctx.db
     .run(
-      `REPLACE INTO event (key, title, description, startAt, endAt,  allDay, calendarKey, createdAt )
-       VALUES ('${input.key}', '${input.title}', '${
+      SQL`REPLACE INTO event (key, title, description, startAt, endAt,  allDay, calendarKey, createdAt, location, attendees )
+       VALUES (${input.key}, ${input.title}, ${
         input.description
-      }',  '${input.startAt.toISOString()}', '${input.endAt.toISOString()}', ${input.allDay}, '${
-        input.calendarKey
-      }', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`,
+      }, ${input.startAt.toISOString()}, ${input.endAt.toISOString()}, ${input.allDay}, 
+       ${input.calendarKey}, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), ${
+        input.location
+      }, json(${JSON.stringify(input.attendees)}))`,
     )
     .then((result) => {
       return result.changes

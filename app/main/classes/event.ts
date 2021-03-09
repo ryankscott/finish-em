@@ -9,6 +9,8 @@ export default class Event {
     endAt: Date,
     allDay: boolean,
     calendarKey: string,
+    location: string,
+    attendees: { name: string; email: string }[],
     createdAt: Date,
   ) {
     this.key = key
@@ -19,6 +21,8 @@ export default class Event {
     this.allDay = allDay
     this.calendarKey = calendarKey
     this.createdAt = createdAt
+    this.location = location
+    this.attendees = attendees
   }
 
   calendar(obj, ctx) {

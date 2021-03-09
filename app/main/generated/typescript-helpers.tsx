@@ -813,6 +813,17 @@ export type MigrateComponentOrderInput = {
   sortOrder: Scalars['Int'];
 };
 
+export type Attendee = {
+  __typename?: 'Attendee';
+  name?: Maybe<Scalars['String']>;
+  email: Scalars['String'];
+};
+
+export type AttendeeInput = {
+  name?: Maybe<Scalars['String']>;
+  email: Scalars['String'];
+};
+
 export type Event = {
   __typename?: 'Event';
   key: Scalars['String'];
@@ -823,6 +834,8 @@ export type Event = {
   description?: Maybe<Scalars['String']>;
   allDay?: Maybe<Scalars['Boolean']>;
   calendar?: Maybe<Calendar>;
+  location?: Maybe<Scalars['String']>;
+  attendees?: Maybe<Array<Maybe<Attendee>>>;
 };
 
 export type CreateEventInput = {
@@ -833,6 +846,8 @@ export type CreateEventInput = {
   description?: Maybe<Scalars['String']>;
   allDay?: Maybe<Scalars['Boolean']>;
   calendarKey?: Maybe<Scalars['String']>;
+  location?: Maybe<Scalars['String']>;
+  attendees?: Maybe<Array<Maybe<AttendeeInput>>>;
 };
 
 export type DeleteEventInput = {
@@ -1348,6 +1363,8 @@ export type ResolversTypes = {
   SetComponentOrderInput: SetComponentOrderInput;
   CreateComponentOrderInput: CreateComponentOrderInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
+  Attendee: ResolverTypeWrapper<Attendee>;
+  AttendeeInput: AttendeeInput;
   Event: ResolverTypeWrapper<Event>;
   CreateEventInput: CreateEventInput;
   DeleteEventInput: DeleteEventInput;
@@ -1450,6 +1467,8 @@ export type ResolversParentTypes = {
   SetComponentOrderInput: SetComponentOrderInput;
   CreateComponentOrderInput: CreateComponentOrderInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
+  Attendee: Attendee;
+  AttendeeInput: AttendeeInput;
   Event: Event;
   CreateEventInput: CreateEventInput;
   DeleteEventInput: DeleteEventInput;
@@ -1700,6 +1719,12 @@ export type ComponentOrderResolvers<ContextType = any, ParentType extends Resolv
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
+export type AttendeeResolvers<ContextType = any, ParentType extends ResolversParentTypes['Attendee'] = ResolversParentTypes['Attendee']> = {
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = {
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1709,6 +1734,8 @@ export type EventResolvers<ContextType = any, ParentType extends ResolversParent
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   allDay?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   calendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  attendees?: Resolver<Maybe<Array<Maybe<ResolversTypes['Attendee']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -1826,6 +1853,7 @@ export type Resolvers<ContextType = any> = {
   JSON?: GraphQLScalarType;
   Component?: ComponentResolvers<ContextType>;
   ComponentOrder?: ComponentOrderResolvers<ContextType>;
+  Attendee?: AttendeeResolvers<ContextType>;
   Event?: EventResolvers<ContextType>;
   Feature?: FeatureResolvers<ContextType>;
   Item?: ItemResolvers<ContextType>;

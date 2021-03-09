@@ -169,7 +169,12 @@ export type ComponentOrderFieldPolicy = {
 	componentKey?: FieldPolicy<any> | FieldReadFunction<any>,
 	sortOrder?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type EventKeySpecifier = ('key' | 'title' | 'startAt' | 'endAt' | 'createdAt' | 'description' | 'allDay' | 'calendar' | EventKeySpecifier)[];
+export type AttendeeKeySpecifier = ('name' | 'email' | AttendeeKeySpecifier)[];
+export type AttendeeFieldPolicy = {
+	name?: FieldPolicy<any> | FieldReadFunction<any>,
+	email?: FieldPolicy<any> | FieldReadFunction<any>
+};
+export type EventKeySpecifier = ('key' | 'title' | 'startAt' | 'endAt' | 'createdAt' | 'description' | 'allDay' | 'calendar' | 'location' | 'attendees' | EventKeySpecifier)[];
 export type EventFieldPolicy = {
 	key?: FieldPolicy<any> | FieldReadFunction<any>,
 	title?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -178,7 +183,9 @@ export type EventFieldPolicy = {
 	createdAt?: FieldPolicy<any> | FieldReadFunction<any>,
 	description?: FieldPolicy<any> | FieldReadFunction<any>,
 	allDay?: FieldPolicy<any> | FieldReadFunction<any>,
-	calendar?: FieldPolicy<any> | FieldReadFunction<any>
+	calendar?: FieldPolicy<any> | FieldReadFunction<any>,
+	location?: FieldPolicy<any> | FieldReadFunction<any>,
+	attendees?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type FeatureKeySpecifier = ('key' | 'name' | 'enabled' | FeatureKeySpecifier)[];
 export type FeatureFieldPolicy = {
@@ -302,6 +309,10 @@ export type TypedTypePolicies = TypePolicies & {
 	ComponentOrder?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | ComponentOrderKeySpecifier | (() => undefined | ComponentOrderKeySpecifier),
 		fields?: ComponentOrderFieldPolicy,
+	},
+	Attendee?: Omit<TypePolicy, "fields" | "keyFields"> & {
+		keyFields?: false | AttendeeKeySpecifier | (() => undefined | AttendeeKeySpecifier),
+		fields?: AttendeeFieldPolicy,
 	},
 	Event?: Omit<TypePolicy, "fields" | "keyFields"> & {
 		keyFields?: false | EventKeySpecifier | (() => undefined | EventKeySpecifier),

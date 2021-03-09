@@ -258,16 +258,20 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
         set theEndDate to theStartDate + (7 * days) - 1
         set output to {}
         tell application "Calendar"
-            tell calendar "${activeCalendar.name}"
-                set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
-                repeat with e in allEvents
-                  try
-                    set startDate to (start date of e)
-                    set endDate to (end date of e)
-                    copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (status of e), (time to GMT) / hours} to end of output
-                  end try
+          tell calendar "${activeCalendar.name}"
+            set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
+            repeat with e in allEvents
+              try
+                set startDate to (start date of e)
+                set endDate to (end date of e)
+                set attendeesOutput to {}
+                repeat with a in (attendees of e)
+                  copy {(display name of a), (email of a)} to end of attendeesOutput
                 end repeat
-            end tell
+                copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (status of e), (allday event of e), (location of e), (time to GMT) / hours, attendeesOutput} to end of output
+              end try
+            end repeat
+          end tell
         end tell
         return output
         `
@@ -287,7 +291,10 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
       'endTime',
       'summary',
       'status',
+      'allDayEvent',
+      'location',
       'tzOffset',
+      'attendees',
     ]
     const events = Object.values(rtn).map((r) => {
       return r.reduce((acc, cur, index) => {
@@ -320,7 +327,11 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
         description: '',
         startAt: eventStartAt,
         endAt: eventEndAt,
-        allDay: false,
+        allDay: c.allDayEvent,
+        location: c.location,
+        attendees: c.attendees.map((a) => {
+          return { name: a[0], email: a[1] }
+        }),
       }
       // TODO: Drop description from events
       const result = client.mutate({
@@ -333,6 +344,8 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
             $description: String
             $allDay: Boolean
             $calendarKey: String
+            $location: String
+            $attendees: [AttendeeInput]
           ) {
             createEvent(
               input: {
@@ -343,6 +356,8 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
                 description: $description
                 allDay: $allDay
                 calendarKey: $calendarKey
+                location: $location
+                attendees: $attendees
               }
             ) {
               key
@@ -357,6 +372,8 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
           endAt: ev.endAt ? ev.endAt.toISOString() : new Date(1970, 1, 1),
           allDay: ev.allDay,
           calendarKey: activeCalendar.key,
+          location: ev.location,
+          attendees: ev.attendees,
         },
       })
     })
