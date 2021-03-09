@@ -89,6 +89,10 @@ const filterOptions: Option[] = [
     columnText: 'area',
     type: 'selection',
   },
+  {
+    columnField: 'repeat',
+    type: 'selection',
+  },
 ]
 
 class CustomAutoComplete extends GridDataAutoCompleteHandler {
@@ -109,6 +113,8 @@ class CustomAutoComplete extends GridDataAutoCompleteHandler {
       case 'label':
       case 'project':
         return ['=', '!=', 'is', '!is']
+      case 'repeat':
+        return ['is', '!is']
       default:
         return ['=', '!=']
     }
