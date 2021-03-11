@@ -113,6 +113,7 @@ const App = (props: AppProps): ReactElement => {
       // TODO: Implement multiple notification types
       toast.dark(`${arg.text}`)
     })
+
     window.electron.onReceiveMessage('new-version', (event, arg) => {
       toast(
         <div>

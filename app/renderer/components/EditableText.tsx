@@ -83,7 +83,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     // Handle links normally
     if (e.target.nodeName == 'A') {
       if (e.target.href.startsWith('outlook')) {
-        window.ipcRenderer.send('open-outlook-link', {
+        window.electron.sendMessage('open-outlook-link', {
           url: e.target.href,
         })
         e.preventDefault()

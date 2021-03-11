@@ -54,6 +54,7 @@ export const DailyTitle = styled(Title)`
 `
 
 export const EventsContainer = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -82,4 +83,12 @@ export const EventTitle = styled.div`
 `
 export const EventDescription = styled.div`
   padding: 2px 5px;
+`
+
+export const RefreshContainer = styled.div`
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  right: 5px;
+  top: 5px;
 `

@@ -120,7 +120,9 @@ function Settings(props: SettingsPickerProps): ReactElement {
   const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
   const [activeCategory, setActiveCategory] = useState('UI')
   const { loading, error, data } = useQuery(GET_FEATURES_AND_LABELS)
-  const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR)
+  const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
+    refetchQueries: ['getActiveCalendar'],
+  })
   const [setFeature] = useMutation(SET_FEATURE, { refetchQueries: ['getActiveCalendar'] })
   const [renameLabel] = useMutation(RENAME_LABEL)
   const [setColourOfLabel] = useMutation(RECOLOUR_LABEL)

@@ -174,7 +174,7 @@ export type AttendeeFieldPolicy = {
 	name?: FieldPolicy<any> | FieldReadFunction<any>,
 	email?: FieldPolicy<any> | FieldReadFunction<any>
 };
-export type EventKeySpecifier = ('key' | 'title' | 'startAt' | 'endAt' | 'createdAt' | 'description' | 'allDay' | 'calendar' | 'location' | 'attendees' | EventKeySpecifier)[];
+export type EventKeySpecifier = ('key' | 'title' | 'startAt' | 'endAt' | 'createdAt' | 'description' | 'allDay' | 'calendar' | 'location' | 'attendees' | 'recurrence' | EventKeySpecifier)[];
 export type EventFieldPolicy = {
 	key?: FieldPolicy<any> | FieldReadFunction<any>,
 	title?: FieldPolicy<any> | FieldReadFunction<any>,
@@ -185,7 +185,8 @@ export type EventFieldPolicy = {
 	allDay?: FieldPolicy<any> | FieldReadFunction<any>,
 	calendar?: FieldPolicy<any> | FieldReadFunction<any>,
 	location?: FieldPolicy<any> | FieldReadFunction<any>,
-	attendees?: FieldPolicy<any> | FieldReadFunction<any>
+	attendees?: FieldPolicy<any> | FieldReadFunction<any>,
+	recurrence?: FieldPolicy<any> | FieldReadFunction<any>
 };
 export type FeatureKeySpecifier = ('key' | 'name' | 'enabled' | FeatureKeySpecifier)[];
 export type FeatureFieldPolicy = {

@@ -836,6 +836,7 @@ export type Event = {
   calendar?: Maybe<Calendar>;
   location?: Maybe<Scalars['String']>;
   attendees?: Maybe<Array<Maybe<Attendee>>>;
+  recurrence?: Maybe<Scalars['String']>;
 };
 
 export type CreateEventInput = {
@@ -848,6 +849,7 @@ export type CreateEventInput = {
   calendarKey?: Maybe<Scalars['String']>;
   location?: Maybe<Scalars['String']>;
   attendees?: Maybe<Array<Maybe<AttendeeInput>>>;
+  recurrence?: Maybe<Scalars['String']>;
 };
 
 export type DeleteEventInput = {
@@ -1736,6 +1738,7 @@ export type EventResolvers<ContextType = any, ParentType extends ResolversParent
   calendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType>;
   location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   attendees?: Resolver<Maybe<Array<Maybe<ResolversTypes['Attendee']>>>, ParentType, ContextType>;
+  recurrence?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

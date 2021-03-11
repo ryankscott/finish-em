@@ -22,6 +22,7 @@ type Event {
   calendar: Calendar
   location: String
   attendees: [Attendee]
+  recurrence: String
 }
 
 input CreateEventInput {
@@ -34,6 +35,7 @@ input CreateEventInput {
   calendarKey: String
   location: String
   attendees: [AttendeeInput]
+  recurrence: String
 }
 
 input DeleteEventInput {

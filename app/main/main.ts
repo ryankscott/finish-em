@@ -14,6 +14,7 @@ import * as jwtSign from 'jsonwebtoken'
 import jwt from 'express-jwt'
 import {
   ApolloClient,
+  ApolloError,
   createHttpLink,
   gql,
   InMemoryCache,
@@ -223,15 +224,22 @@ const saveCalendars = (client: ApolloClient<NormalizedCacheObject>) => {
 `
   applescript.execString(script, (err, cals) => {
     if (err) {
-      log.error(`Failed to get calendars from Apple Mail - ${err}`)
+      log.error(`Failed to get calendars from Apple Calendar - ${err}`)
     }
+
+    // TODO: We shouldn't smash over calendars every time, we should diff
+    log.info(`Found ${cals.length} calendars from Apple Calendar`)
     cals.map((c) => {
+      log.info(`Saving calendar - "${c}"`)
       createCalendar(client, uuidv4(), c, false)
     })
   })
 }
 
-const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObject>) => {
+const getActiveCalendarEvents = async (
+  client: ApolloClient<NormalizedCacheObject>,
+  days?: number,
+) => {
   const data = await client.query({
     query: gql`
       query {
@@ -250,12 +258,15 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
     return
   }
   log.info(`Getting events for calendar - ${activeCalendar.name}`)
+
+  // TODO: Get all recurring events
+
   const script = `
         set theStartDate to current date
         set hours of theStartDate to 0
         set minutes of theStartDate to 0
         set seconds of theStartDate to 0
-        set theEndDate to theStartDate + (7 * days) - 1
+        set theEndDate to theStartDate + (${days ? days : 7} * days) - 1 
         set output to {}
         tell application "Calendar"
           tell calendar "${activeCalendar.name}"
@@ -268,7 +279,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
                 repeat with a in (attendees of e)
                   copy {(display name of a), (email of a)} to end of attendeesOutput
                 end repeat
-                copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (status of e), (allday event of e), (location of e), (time to GMT) / hours, attendeesOutput} to end of output
+                copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (status of e), (allday event of e), (location of e), (time to GMT) / hours, attendeesOutput, (recurrence of e)} to end of output
               end try
             end repeat
           end tell
@@ -295,6 +306,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
       'location',
       'tzOffset',
       'attendees',
+      'recurrence',
     ]
     const events = Object.values(rtn).map((r) => {
       return r.reduce((acc, cur, index) => {
@@ -304,7 +316,7 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
     })
 
     log.info(`Saving ${events ? events.length : 0} events to the database`)
-    events.map((c, idx) => {
+    events.map(async (c, idx) => {
       let eventStartAt, eventEndAt
       try {
         eventStartAt = sugarDate.create(`${c.startDate} ${c.startTime}`, 'en-GB')
@@ -327,57 +339,67 @@ const getActiveCalendarEvents = async (client: ApolloClient<NormalizedCacheObjec
         description: '',
         startAt: eventStartAt,
         endAt: eventEndAt,
-        allDay: c.allDayEvent,
-        location: c.location,
+        allDay: c.allDayEvent == 'true',
+        location: c.location == 'missing value' ? '' : c.location,
         attendees: c.attendees.map((a) => {
           return { name: a[0], email: a[1] }
         }),
+        recurrence: c.recurrence == 'missing value' ? '' : c.recurrence,
       }
       // TODO: Drop description from events
-      const result = client.mutate({
-        mutation: gql`
-          mutation CreateEvent(
-            $key: String!
-            $title: String!
-            $startAt: DateTime
-            $endAt: DateTime
-            $description: String
-            $allDay: Boolean
-            $calendarKey: String
-            $location: String
-            $attendees: [AttendeeInput]
-          ) {
-            createEvent(
-              input: {
-                key: $key
-                title: $title
-                startAt: $startAt
-                endAt: $endAt
-                description: $description
-                allDay: $allDay
-                calendarKey: $calendarKey
-                location: $location
-                attendees: $attendees
-              }
+      client
+        .mutate({
+          mutation: gql`
+            mutation CreateEvent(
+              $key: String!
+              $title: String!
+              $startAt: DateTime
+              $endAt: DateTime
+              $description: String
+              $allDay: Boolean
+              $calendarKey: String
+              $location: String
+              $attendees: [AttendeeInput]
+              $recurrence: String
             ) {
-              key
+              createEvent(
+                input: {
+                  key: $key
+                  title: $title
+                  startAt: $startAt
+                  endAt: $endAt
+                  description: $description
+                  allDay: $allDay
+                  calendarKey: $calendarKey
+                  location: $location
+                  attendees: $attendees
+                  recurrence: $recurrence
+                }
+              ) {
+                key
+              }
             }
-          }
-        `,
-        variables: {
-          key: ev.key,
-          title: ev.title,
-          description: ev.description,
-          startAt: ev.startAt ? ev.startAt.toISOString() : new Date(1970, 1, 1),
-          endAt: ev.endAt ? ev.endAt.toISOString() : new Date(1970, 1, 1),
-          allDay: ev.allDay,
-          calendarKey: activeCalendar.key,
-          location: ev.location,
-          attendees: ev.attendees,
-        },
-      })
+          `,
+          variables: {
+            key: ev.key,
+            title: ev.title,
+            description: ev.description,
+            startAt: ev.startAt ? ev.startAt.toISOString() : new Date(1970, 1, 1),
+            endAt: ev.endAt ? ev.endAt.toISOString() : new Date(1970, 1, 1),
+            allDay: ev.allDay,
+            calendarKey: activeCalendar.key,
+            location: ev.location,
+            attendees: ev.attendees,
+            recurrence: ev.recurrence,
+          },
+        })
+        .catch((e: ApolloError) => {
+          log.error(`Failed to insert event with error - ${e}`)
+        })
     })
+
     log.info(`All events saved`)
+    mainWindow.webContents.send('events-refreshed')
   })
 }
 
@@ -542,10 +564,7 @@ const startApp = async () => {
   await startGraphQL()
   client = createApolloClient()
   const features = await getFeatures(client)
-  const data = await getCalendars(client)
-  if (data.calendars.length == 0) {
-    saveCalendars(client)
-  }
+  const cals = await saveCalendars(client)
   getActiveCalendarEvents(client)
   setInterval(() => {
     log.info(`Getting active calendar events `)
@@ -609,4 +628,8 @@ ipcMain.on('create-task', (event, arg) => {
     text: `Task added from Quick Add`,
     type: 'info',
   })
+})
+
+ipcMain.on('get-todays-events', (event, arg) => {
+  getActiveCalendarEvents(client, 1)
 })

@@ -23,7 +23,9 @@ export const getCalendars = (obj, ctx): Calendar[] => {
 export const getCalendar = (input: { key: string }, ctx): Calendar | null => {
   return ctx.db
     .get(
-      `SELECT key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt FROM calendar WHERE key = '${input.key}'`,
+      SQL`SELECT key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt 
+      FROM calendar 
+      WHERE key = ${input.key}`,
     )
     .then((result) => {
       return result
@@ -69,7 +71,8 @@ export const createCalendar = (
 ): Calendar | null | Error => {
   return ctx.db
     .run(
-      `INSERT OR IGNORE INTO calendar (key, name, deleted, lastUpdatedAt, deletedAt, createdAt ) VALUES ('${input.key}','${input.name}', false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
+      SQL`INSERT OR IGNORE INTO calendar (key, name, deleted, lastUpdatedAt, deletedAt, createdAt ) 
+      VALUES (${input.key},${input.name}, false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
     )
     .then((result) => {
       return getCalendar({ key: input.key }, ctx)
@@ -78,7 +81,9 @@ export const createCalendar = (
 export const deleteCalendar = (input: { key: string }, ctx): Calendar | null | Error => {
   return ctx.db
     .run(
-      `UPDATE calendar SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}'`,
+      SQL`UPDATE calendar 
+      SET deleted = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), deletedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+      WHERE key = ${input.key}`,
     )
     .then((result) => {
       return result.changes

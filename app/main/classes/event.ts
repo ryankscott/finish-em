@@ -12,6 +12,7 @@ export default class Event {
     location: string,
     attendees: { name: string; email: string }[],
     createdAt: Date,
+    recurrence: string,
   ) {
     this.key = key
     this.title = title
@@ -23,6 +24,7 @@ export default class Event {
     this.createdAt = createdAt
     this.location = location
     this.attendees = attendees
+    this.recurrence = recurrence
   }
 
   calendar(obj, ctx) {

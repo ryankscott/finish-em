@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import { ThemeProvider } from '../StyledComponents'
 import { themes } from '../theme'
@@ -18,6 +18,7 @@ import {
   EventContainer,
   EventTime,
   EventTitle,
+  RefreshContainer,
 } from './styled/DailyAgenda'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
@@ -25,7 +26,7 @@ import { sortBy } from 'lodash'
 
 type DailyAgendaProps = {}
 const GET_DATA = gql`
-  query {
+  query dailyEvents {
     eventsForActiveCalendar {
       key
       title
@@ -44,10 +45,16 @@ const GET_DATA = gql`
 `
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_DATA, { pollInterval: 1000 * 60 * 5 })
+  const { loading, error, data, refetch } = useQuery(GET_DATA, { pollInterval: 1000 * 60 * 5 })
   // TODO: Gross
   const theme: ThemeType = themes[data?.theme]
   const [currentDate, setDate] = useState(new Date())
+
+  useEffect(() => {
+    window.electron.onReceiveMessage('events-refreshed', (event, arg) => {
+      console.log('refreshed events')
+    })
+  }, [])
 
   const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134'
   if (loading) return null
@@ -58,7 +65,6 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   const eventsToday = data?.eventsForActiveCalendar?.filter((e) => {
     return isSameDay(parseISO(e.startAt), currentDate)
   })
-
   const sortedEventsForToday = sortBy(eventsToday, ['startAt'], ['desc'])
 
   return (
@@ -96,7 +102,17 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
 
         {data.calendarIntegration.enabled && (
           <EventsContainer>
-            {eventsToday.length ? (
+            <RefreshContainer>
+              <Button
+                iconSize="14px"
+                type="subtle"
+                icon="refresh"
+                onClick={() => {
+                  window.electron.sendMessage('get-todays-events')
+                }}
+              />
+            </RefreshContainer>
+            {eventsToday?.length ? (
               sortedEventsForToday.map((e) => {
                 return (
                   <EventContainer key={e.key}>
