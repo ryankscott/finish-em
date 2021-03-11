@@ -1031,6 +1031,27 @@ export const Icons: {
       <line x1="8" y1="12" x2="16" y2="12"></line>
     </svg>
   ),
+  refresh: (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+    colour?: CSS.Property.Color,
+  ): React.SVGProps<SVGSVGElement> => (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={width ? width : '16'}
+      height={height ? height : '16'}
+      viewBox="0 0 24 24"
+      fill={'none'}
+      stroke={colour ? colour : 'currentColor'}
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="23 4 23 10 17 10"></polyline>
+      <polyline points="1 20 1 14 7 14"></polyline>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+    </svg>
+  ),
   finish_em: (
     width?: CSS.Property.Width,
     height?: CSS.Property.Height,

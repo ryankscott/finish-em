@@ -131,3 +131,4 @@ export type IconType =
   | 'drag'
   | 'terminal'
   | 'move'
+  | 'refresh'
