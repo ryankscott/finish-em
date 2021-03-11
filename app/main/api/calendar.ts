@@ -1,3 +1,4 @@
+import SQL from 'sql-template-strings'
 import Calendar from '../classes/calendar'
 
 export const getCalendars = (obj, ctx): Calendar[] => {
@@ -68,12 +69,10 @@ export const createCalendar = (
 ): Calendar | null | Error => {
   return ctx.db
     .run(
-      `REPLACE INTO calendar (key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt ) VALUES ('${input.key}','${input.name}', ${input.active}, false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
+      `INSERT OR IGNORE INTO calendar (key, name, deleted, lastUpdatedAt, deletedAt, createdAt ) VALUES ('${input.key}','${input.name}', false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
     )
     .then((result) => {
-      return result.changes
-        ? getCalendar({ key: input.key }, ctx)
-        : new Error('Unable to create calendar')
+      return getCalendar({ key: input.key }, ctx)
     })
 }
 export const deleteCalendar = (input: { key: string }, ctx): Calendar | null | Error => {
@@ -92,12 +91,14 @@ export const setActiveCalendar = async (
   input: { key: string },
   ctx,
 ): Promise<Calendar | null | Error> => {
-  const setFalse = await ctx.db.run(`UPDATE calendar SET active = false`)
+  const setFalse = await ctx.db.run(SQL`UPDATE calendar SET active = false`)
   if (!setFalse.changes) {
     return new Error('Unable to set all calendars inactive')
   }
-  const setTrue = await ctx.db.run(`
-       UPDATE calendar SET active = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') WHERE key = '${input.key}';`)
+  const setTrue = await ctx.db.run(SQL`
+       UPDATE calendar 
+       SET active = true, lastUpdatedAt = strftime('%Y-%m-%dT%H:%M:%fZ', 'now') 
+       WHERE key = ${input.key};`)
   if (setTrue.result) {
     return setTrue.result.changes
       ? getCalendar({ key: input.key }, ctx)
