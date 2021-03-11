@@ -174,7 +174,6 @@ export const getFilteredItems = async (input: { filter: string; componentKey: st
   }
   const filters = parseFilters(input.filter)
   const filterString = generateQueryString(filters.value)
-  log.debug(filterString)
   const results = await ctx.db.all(
     `SELECT 
         key, 
