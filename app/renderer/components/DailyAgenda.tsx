@@ -23,6 +23,9 @@ import {
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
 import { sortBy } from 'lodash'
+import { Event } from '../../main/generated/typescript-helpers'
+import RRule from 'rrule'
+import { Modal } from './Modal'
 
 type DailyAgendaProps = {}
 const GET_DATA = gql`
@@ -62,9 +65,12 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     console.log(error)
     return null
   }
-  const eventsToday = data?.eventsForActiveCalendar?.filter((e) => {
-    return isSameDay(parseISO(e.startAt), currentDate)
+  const eventsToday = data?.eventsForActiveCalendar?.filter((e: Event) => {
+    const recurrence = e.recurrence ? RRule.fromString(e?.recurrence) : null
+    const nextOccurrence = recurrence ? recurrence.after(new Date()) : null
+    return isSameDay(parseISO(e.startAt), currentDate) || isSameDay(nextOccurrence, currentDate)
   })
+
   const sortedEventsForToday = sortBy(eventsToday, ['startAt'], ['desc'])
 
   return (
@@ -102,16 +108,6 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
 
         {data.calendarIntegration.enabled && (
           <EventsContainer>
-            <RefreshContainer>
-              <Button
-                iconSize="14px"
-                type="subtle"
-                icon="refresh"
-                onClick={() => {
-                  window.electron.sendMessage('get-todays-events')
-                }}
-              />
-            </RefreshContainer>
             {eventsToday?.length ? (
               sortedEventsForToday.map((e) => {
                 return (

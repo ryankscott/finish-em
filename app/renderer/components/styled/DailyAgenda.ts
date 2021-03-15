@@ -69,7 +69,12 @@ export const EventContainer = styled.div`
   display: flex;
   flex-direction: row;
   padding: 2px;
+  border-radius: 2px;
   width: 100%;
+  cursor: pointer;
+  :hover {
+    background-color: ${(props) => props.theme.colours.focusDialogBackgroundColour};
+  }
 `
 
 export const EventTime = styled.div`
