@@ -88,6 +88,8 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
             props.buttonIconColour ? props.buttonIconColour : props.defaultButtonIconColour
           }
           icon={props.buttonIcon ? props.buttonIcon : props.defaultButtonIcon}
+          iconPosition={'after'}
+          iconSize={'12px'}
         />
         {(showSelect || props.showSelect) && (
           <SelectContainer>
