@@ -11,7 +11,7 @@ import { Item as ItemType } from '../generated/typescript-helpers'
 import { bulkCreateItemOrders, deleteItemOrders, getItemOrdersByComponent } from './itemOrder'
 
 export const getItems = (obj, ctx) => {
-  log.info(`Getting all items `)
+  log.info(`Getting all items from database`)
   return ctx.db
     .all(
       `SELECT 

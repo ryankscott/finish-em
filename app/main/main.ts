@@ -24,11 +24,27 @@ import { Event } from './generated/typescript-helpers'
 import { isEmpty } from 'lodash'
 import { Date as sugarDate } from 'sugar-date'
 import 'sugar-date/locales'
+import util from 'util'
 const log = require('electron-log')
-
+log.transports.console.level = 'info'
 const GRAPHQL_PORT = 8089
-
+const executeAppleScript = util.promisify(applescript.execString)
 const isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == 'true' : false
+
+type AppleCalendarEvent = {
+  id: string
+  startDate: string
+  startTime: string
+  endDate: string
+  endTime: string
+  summary: string
+  status: string
+  allDayEvent: string
+  location: string
+  tzOffset: string
+  attendees: { name: string; email: string }[]
+  recurrence: string
+}
 
 if (isDev) {
   log.info('Running in development')
@@ -186,7 +202,7 @@ const getCalendars = async (client: ApolloClient<NormalizedCacheObject>) => {
   return await result.data
 }
 
-const getMailLink = () => {
+const getMailLink = async () => {
   const script = `
     tell application "Mail"
 		set theSelection to selection
@@ -200,40 +216,180 @@ const getMailLink = () => {
 		return theItem
 	end tell
 `
-  applescript.execString(script, (err, rtn) => {
-    if (err) {
-      log.error(`Failed to get mail link - ${err}`)
-    }
+  const mailLink = await executeAppleScript(script)
+  if (mailLink) {
     mainWindow.webContents.send('create-item', {
       key: uuidv4(),
       type: 'TODO',
-      text: rtn,
+      text: mailLink,
     })
     mainWindow.webContents.send('send-notification', {
       text: `Task added from Apple Mail`,
       type: 'info',
     })
-  })
+  } else {
+    log.error(`Failed to get mail link`)
+  }
 }
 
-const saveCalendars = (client: ApolloClient<NormalizedCacheObject>) => {
-  const script = `
+const saveCalendars = async (client: ApolloClient<NormalizedCacheObject>) => {
+  const getAllCalendars = `
 	    tell application "Calendar"
 	        return name of calendars
         end tell
 `
-  applescript.execString(script, (err, cals) => {
-    if (err) {
-      log.error(`Failed to get calendars from Apple Calendar - ${err}`)
-    }
-
+  try {
+    log.info(`Getting calendars from Apple Calendar`)
+    const cals = await executeAppleScript(getAllCalendars)
     // TODO: We shouldn't smash over calendars every time, we should diff
     log.info(`Found ${cals.length} calendars from Apple Calendar`)
     cals.map((c) => {
       log.info(`Saving calendar - "${c}"`)
       createCalendar(client, uuidv4(), c, false)
     })
+  } catch (err) {
+    log.error(`Failed to get calendars from Apple Calendar - ${err}`)
+  }
+}
+
+const saveEventToDB = (evt: AppleCalendarEvent, calendarKey: string) => {
+  let eventStartAt, eventEndAt
+  try {
+    eventStartAt = sugarDate.create(`${evt.startDate} ${evt.startTime}`, 'en-GB')
+  } catch (err) {
+    log.error(
+      `Failed to event start date with error: ${err} when parsing ${evt.startDate}  ${evt.startTime}`,
+    )
+  }
+  try {
+    eventEndAt = sugarDate.create(`${evt.endDate} ${evt.endTime}`, 'en-GB')
+  } catch (err) {
+    log.error(
+      `Failed to event end date with error: ${err} when parsing ${evt.startDate} : ${evt.startTime}`,
+    )
+  }
+
+  const ev: Event = {
+    key: evt.id,
+    title: evt.summary,
+    description: '',
+    startAt: eventStartAt,
+    endAt: eventEndAt,
+    allDay: evt.allDayEvent == 'true',
+    location: evt.location == 'missing value' ? '' : evt.location,
+    attendees: evt.attendees
+      ? evt.attendees.map((a) => {
+          return { name: a[0] == 'missing value' ? '' : a[0], email: a[1] }
+        })
+      : null,
+    recurrence: evt.recurrence == 'missing value' ? '' : evt.recurrence,
+  }
+  client
+    .mutate({
+      mutation: gql`
+        mutation CreateEvent(
+          $key: String!
+          $title: String!
+          $startAt: DateTime
+          $endAt: DateTime
+          $description: String
+          $allDay: Boolean
+          $calendarKey: String
+          $location: String
+          $attendees: [AttendeeInput]
+          $recurrence: String
+        ) {
+          createEvent(
+            input: {
+              key: $key
+              title: $title
+              startAt: $startAt
+              endAt: $endAt
+              description: $description
+              allDay: $allDay
+              calendarKey: $calendarKey
+              location: $location
+              attendees: $attendees
+              recurrence: $recurrence
+            }
+          ) {
+            key
+          }
+        }
+      `,
+      variables: {
+        key: ev.key,
+        title: ev.title,
+        description: ev.description,
+        startAt: ev.startAt ? ev.startAt.toISOString() : new Date(1970, 1, 1),
+        endAt: ev.endAt ? ev.endAt.toISOString() : new Date(1970, 1, 1),
+        allDay: ev.allDay,
+        calendarKey: calendarKey,
+        location: ev.location,
+        attendees: ev.attendees,
+        recurrence: ev.recurrence,
+      },
+    })
+    .catch((e: ApolloError) => {
+      log.error(`Failed to insert event with error - ${e}`)
+    })
+  log.debug(`Saved event with uid - ${evt.id}`)
+}
+
+const getActiveCalendarRecurringEvents = async (client: ApolloClient<NormalizedCacheObject>) => {
+  const data = await client.query({
+    query: gql`
+      query {
+        activeCalendar: getActiveCalendar {
+          key
+          name
+          active
+        }
+      }
+    `,
   })
+  const activeCalendar = data.data.activeCalendar
+  if (isEmpty(activeCalendar)) {
+    log.info(`Not getting events - no active calendar`)
+    return
+  }
+
+  log.info(`Getting recurring events from the last 180 days from calendar - ${activeCalendar.name}`)
+  const getRecurringEventsQuery = `
+     set theStartDate to (current date) - (180 * days)
+     set theEndDate to (current date)
+     set output to {}
+     tell application "Calendar"
+     tell calendar "${activeCalendar.name}"
+         set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than or equal to theEndDate and recurrence is not equal to "")
+         repeat with e in allEvents
+        set startDate to (start date of e)
+        set endDate to (end date of e)
+        set attendeesOutput to {}
+        repeat with a in (attendees of e)
+          copy {(display name of a), (email of a)} to end of attendeesOutput
+        end repeat
+        copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (status of e), (allday event of e), (location of e), (time to GMT) / hours, attendeesOutput, (recurrence of e)} to end of output
+         end repeat
+       end tell
+     end tell
+     return output
+   `
+
+  try {
+    const recurringEvents = await executeAppleScript(getRecurringEventsQuery)
+    log.info(`Received ${recurringEvents?.length} recurring  events from Apple Calendar`)
+
+    const events = translateAppleScriptToEvent(recurringEvents)
+    events.forEach((e, i) => {
+      log.debug(`Saving event ${i + 1} / ${events.length} to DB`)
+      saveEventToDB(e, activeCalendar.key)
+    })
+  } catch (err) {
+    setTimeout(() => getActiveCalendarRecurringEvents(client), 1000 * 60 * 60 * 4)
+    log.error(`Failed to get recurring events from Apple Calendar - ${err}`)
+    return
+  }
 }
 
 const getActiveCalendarEvents = async (
@@ -251,17 +407,14 @@ const getActiveCalendarEvents = async (
       }
     `,
   })
-  // TODO: Fix me
   const activeCalendar = data.data.activeCalendar
   if (isEmpty(activeCalendar)) {
     log.info(`Not getting events - no active calendar`)
     return
   }
-  log.info(`Getting events for calendar - ${activeCalendar.name}`)
 
-  // TODO: Get all recurring events
-
-  const script = `
+  log.info(`Getting events for the next week for calendar - ${activeCalendar.name}`)
+  const getEventsForWeek = `
         set theStartDate to current date
         set hours of theStartDate to 0
         set minutes of theStartDate to 0
@@ -270,140 +423,65 @@ const getActiveCalendarEvents = async (
         set output to {}
         tell application "Calendar"
           tell calendar "${activeCalendar.name}"
-            set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
-            repeat with e in allEvents
-              try
-                set startDate to (start date of e)
-                set endDate to (end date of e)
-                set attendeesOutput to {}
-                repeat with a in (attendees of e)
-                  copy {(display name of a), (email of a)} to end of attendeesOutput
-                end repeat
-                copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (status of e), (allday event of e), (location of e), (time to GMT) / hours, attendeesOutput, (recurrence of e)} to end of output
-              end try
-            end repeat
-          end tell
-        end tell
-        return output
-        `
+		set allEvents to (every event whose (start date) is greater than or equal to theStartDate and (start date) is less than theEndDate)
+		repeat with e in allEvents
+			set startDate to (start date of e)
+			set endDate to (end date of e)
+			set attendeesOutput to {}
+			repeat with a in (attendees of e)
+				copy {(display name of a), (email of a)} to end of attendeesOutput
+			end repeat
+			copy {(uid of e), (short date string of startDate), (time string of startDate), (short date string of endDate), (time string of endDate), (summary of e), (status of e), (allday event of e), (location of e), (time to GMT) / hours, attendeesOutput, (recurrence of e)} to end of output
+		end repeat
+	end tell
+end tell
+return output`
 
-  applescript.execString(script, (err, rtn) => {
-    if (err) {
-      log.error(`Failed to get events from Apple Calendar - ${err}`)
-      return
-    }
+  try {
+    const allEvents = await executeAppleScript(getEventsForWeek)
+    log.info(`Received ${allEvents?.length} calendar events from Apple Calendar`)
 
-    log.info(`Received ${rtn?.length} calendar events from Apple Calendar`)
-    const headers = [
-      'id',
-      'startDate',
-      'startTime',
-      'endDate',
-      'endTime',
-      'summary',
-      'status',
-      'allDayEvent',
-      'location',
-      'tzOffset',
-      'attendees',
-      'recurrence',
-    ]
-    const events = Object.values(rtn).map((r) => {
-      return r.reduce((acc, cur, index) => {
-        acc[headers[index]] = cur
-        return acc
-      }, {})
+    const events = translateAppleScriptToEvent(allEvents)
+
+    events.forEach((e, i) => {
+      log.debug(`Saving event ${i + 1} / ${events.length} to DB`)
+      saveEventToDB(e, activeCalendar.key)
     })
+  } catch (err) {
+    log.error(`Failed to get events from Apple Calendar - ${err}`)
+    return
+  }
 
-    log.info(`Saving ${events ? events.length : 0} events to the database`)
-    events.map(async (c, idx) => {
-      let eventStartAt, eventEndAt
-      try {
-        eventStartAt = sugarDate.create(`${c.startDate} ${c.startTime}`, 'en-GB')
-      } catch (e) {
-        log.error(
-          `Failed to event start date with error: ${e} when parsing ${c.startDate}  ${c.startTime}`,
-        )
-      }
-      try {
-        eventEndAt = sugarDate.create(`${c.endDate} ${c.endTime}`, 'en-GB')
-      } catch (e) {
-        log.error(
-          `Failed to event end date with error: ${e} when parsing ${c.startDate} : ${c.startTime}`,
-        )
-      }
-      log.info(`Saving event ${idx + 1} of ${events?.length}`)
-      const ev: Event = {
-        key: c.id,
-        title: c.summary,
-        description: '',
-        startAt: eventStartAt,
-        endAt: eventEndAt,
-        allDay: c.allDayEvent == 'true',
-        location: c.location == 'missing value' ? '' : c.location,
-        attendees: c.attendees.map((a) => {
-          return { name: a[0], email: a[1] }
-        }),
-        recurrence: c.recurrence == 'missing value' ? '' : c.recurrence,
-      }
-      // TODO: Drop description from events
-      client
-        .mutate({
-          mutation: gql`
-            mutation CreateEvent(
-              $key: String!
-              $title: String!
-              $startAt: DateTime
-              $endAt: DateTime
-              $description: String
-              $allDay: Boolean
-              $calendarKey: String
-              $location: String
-              $attendees: [AttendeeInput]
-              $recurrence: String
-            ) {
-              createEvent(
-                input: {
-                  key: $key
-                  title: $title
-                  startAt: $startAt
-                  endAt: $endAt
-                  description: $description
-                  allDay: $allDay
-                  calendarKey: $calendarKey
-                  location: $location
-                  attendees: $attendees
-                  recurrence: $recurrence
-                }
-              ) {
-                key
-              }
-            }
-          `,
-          variables: {
-            key: ev.key,
-            title: ev.title,
-            description: ev.description,
-            startAt: ev.startAt ? ev.startAt.toISOString() : new Date(1970, 1, 1),
-            endAt: ev.endAt ? ev.endAt.toISOString() : new Date(1970, 1, 1),
-            allDay: ev.allDay,
-            calendarKey: activeCalendar.key,
-            location: ev.location,
-            attendees: ev.attendees,
-            recurrence: ev.recurrence,
-          },
-        })
-        .catch((e: ApolloError) => {
-          log.error(`Failed to insert event with error - ${e}`)
-        })
-    })
-
-    log.info(`All events saved`)
-    mainWindow.webContents.send('events-refreshed')
-  })
+  log.info(`All events saved`)
+  mainWindow.webContents.send('events-refreshed')
 }
 
-const getOutlookLink = () => {
+const translateAppleScriptToEvent = (appleScriptOutput: string): AppleCalendarEvent[] => {
+  const headers = [
+    'id',
+    'startDate',
+    'startTime',
+    'endDate',
+    'endTime',
+    'summary',
+    'status',
+    'allDayEvent',
+    'location',
+    'tzOffset',
+    'attendees',
+    'recurrence',
+  ]
+  const events = Object.values(appleScriptOutput).map((r) => {
+    return r.reduce((acc, cur, index) => {
+      acc[headers[index]] = cur
+      return acc
+    }, {})
+  })
+
+  return events
+}
+
+const getOutlookLink = async () => {
   const script = `
     tell application "Microsoft Outlook"
     set theSelection to selection
@@ -417,14 +495,13 @@ const getOutlookLink = () => {
     return theItem
 end tell
 `
-  applescript.execString(script, (err, rtn) => {
-    if (err) {
-      log.error(`Failed to get Outlook link - ${err}`)
-    }
-  })
+  const link = await executeAppleScript(script)
+  if (!link) {
+    log.error(`Failed to get Outlook link`)
+  }
 }
 
-const openOutlookLink = (url: string) => {
+const openOutlookLink = async (url: string) => {
   const script = `
 	set the messageId to text 11 thru -1 of ${url}
 	tell application "Microsoft Outlook"
@@ -432,11 +509,10 @@ const openOutlookLink = (url: string) => {
         activate
 	end tell
 `
-  applescript.execString(script, (err, rtn) => {
-    if (err) {
-      log.error(`Failed to open Outlook link - ${err}`)
-    }
-  })
+  const link = await executeAppleScript(script)
+  if (!link) {
+    log.error(`Failed to open Outlook link`)
+  }
 }
 
 const checkForNewVersion = () => {
@@ -563,13 +639,14 @@ const startApp = async () => {
   db = await setUpDatabase()
   await startGraphQL()
   client = createApolloClient()
-  const features = await getFeatures(client)
-  const cals = await saveCalendars(client)
-  getActiveCalendarEvents(client)
+  await getFeatures(client)
+  await saveCalendars(client)
+  await getActiveCalendarEvents(client)
+  await getActiveCalendarRecurringEvents(client)
   setInterval(() => {
     log.info(`Getting active calendar events `)
     getActiveCalendarEvents(client)
-  }, 1000 * 60 * 5)
+  }, 1000 * 60 * 10)
 }
 
 startApp()
