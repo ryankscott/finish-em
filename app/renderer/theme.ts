@@ -3,6 +3,7 @@ import * as CSS from 'csstype'
 import { ThemeType, fontSizeType } from './interfaces'
 import { StylesConfig } from 'react-select'
 import { createGlobalStyle } from './StyledComponents'
+import { extendTheme } from "@chakra-ui/react"
 
 export const GlobalStyle = createGlobalStyle`
 * {
@@ -679,7 +680,7 @@ div.CodeMirror-dragcursors {
 }
 
 /* See issue #2901 */
-.cm-tab-wrap-hack:after { content: ''; }
+.cm-tab-wrap-hack:after { content: '', }
 
 /* Help users use markselection to safely style text background */
 span.CodeMirror-selectedtext { background: none; }
@@ -694,13 +695,157 @@ color: ${(props) => props.theme.colours.textColour}
 .cm-value {
 color: ${(props) => props.theme.colours.penternaryColour}
 }
-
-
-
-
 `
 
-export const themes: { [key: string]: ThemeType } = {
+const CTheme = extendTheme({
+fontSizes: {
+  xs: '10px',
+    sm: '11px',
+    md: '12px',
+    lg: '13px',
+    xl: '14px',
+    "2xl": '16px',
+    "3xl": '20px',
+    "4xl": '26px',
+    "5xl": '32px',
+    "6xl": '38px',
+    "7xl": '48px',
+    "8xl": '60px',
+    "9xl": '72px',
+}, 
+fonts: {
+  heading: `-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
+  body: `-apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
+  mono: `SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace`,
+},
+colours: {
+  transparent: "transparent",
+  "black": '#333333',
+  "white": '#EEEEEE',
+  "gray": {
+    "50": "#F2F2F2",
+    "100": "#DBDBDB",
+    "200": "#C4C4C4",
+    "300": "#ADADAD",
+    "400": "#969696",
+    "500": "#808080",
+    "600": "#666666",
+    "700": "#4D4D4D",
+    "800": "#333333",
+    "900": "#1A1A1A"
+  },
+"blue": {
+  "50": "#E8F6FD",
+  "100": "#BDE6F9",
+  "200": "#93D7F6",
+  "300": "#69C7F2",
+  "400": "#3FB7EE",
+  "500": "#14A7EB",
+  "600": "#1086BC",
+  "700": "#0C648D",
+  "800": "#08435E",
+  "900": "#04212F"
+},
+"green": {
+  "50": "#E8FDF5",
+  "100": "#BDF9E4",
+  "200": "#93F6D3",
+  "300": "#69F2C2",
+  "400": "#3EEFB1",
+  "500": "#14EBA0",
+  "600": "#10BC80",
+  "700": "#0C8D60",
+  "800": "#085E40",
+  "900": "#042F20"
+},
+"red": {
+  "50": "#FFE6E9",
+  "100": "#FEB8C1",
+  "200": "#FE8B99",
+  "300": "#FD5D71",
+  "400": "#FD3049",
+  "500": "#FD0221",
+  "600": "#CA021A",
+  "700": "#980114",
+  "800": "#65010D",
+  "900": "#330007"
+},
+"orange": {
+  "50": "#FFF5E5",
+  "100": "#FFE4B8",
+  "200": "#FFD38A",
+  "300": "#FFC25C",
+  "400": "#FFB12E",
+  "500": "#FFA000",
+  "600": "#CC8000",
+  "700": "#996000",
+  "800": "#664000",
+  "900": "#332000"
+},
+"purple": {
+  "50": "#F2E8FD",
+  "100": "#DBBDF9",
+  "200": "#C393F6",
+  "300": "#AC69F2",
+  "400": "#943EEF",
+  "500": "#7D14EB",
+  "600": "#6410BC",
+  "700": "#4B0C8D",
+  "800": "#32085E",
+  "900": "#19042F"
+},
+"yellow": {
+  "50": "#FEFCE6",
+  "100": "#FDF8BA",
+  "200": "#FBF38D",
+  "300": "#FAEE61",
+  "400": "#F9EA34",
+  "500": "#F7E508",
+  "600": "#C6B706",
+  "700": "#948905",
+  "800": "#635C03",
+  "900": "#312E02"
+},
+"pink": {
+  "50": "#FFE5F2",
+  "100": "#FFB8DC",
+  "200": "#FF8AC5",
+  "300": "#FF5CAE",
+  "400": "#FF2E98",
+  "500": "#FF0081",
+  "600": "#CC0067",
+  "700": "#99004D",
+  "800": "#660034",
+  "900": "#33001A"
+},
+"teal": {
+  "50": "#EBF9F9",
+  "100": "#C8EFEE",
+  "200": "#A4E5E3",
+  "300": "#81DAD9",
+  "400": "#5DD0CE",
+  "500": "#39C6C3",
+  "600": "#2E9E9C",
+  "700": "#227775",
+  "800": "#174F4E",
+  "900": "#0B2827"
+},
+"cyan": {
+  "50": "#E5FBFF",
+  "100": "#B8F4FF",
+  "200": "#8AEDFF",
+  "300": "#5CE5FF",
+  "400": "#2EDEFF",
+  "500": "#00D7FF",
+  "600": "#00ACCC",
+  "700": "#008199",
+  "800": "#005666",
+  "900": "#002B33"
+}
+}
+})
+
+export const themes: { [key: string]: ThemeType} = {
   light: {
     name: 'Light',
     font: {

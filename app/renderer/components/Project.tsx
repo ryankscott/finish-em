@@ -16,7 +16,7 @@ import {
   EmojiPickerWrapper,
 } from './styled/Project'
 import ItemCreator from './ItemCreator'
-import { formatRelativeDate, getEmoji } from '../utils'
+import { formatRelativeDate } from '../utils'
 import DatePicker from 'react-datepicker'
 import { Wrapper } from './styled/ReactDatepicker'
 import { parseISO } from 'date-fns'

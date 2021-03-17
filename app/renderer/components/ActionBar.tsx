@@ -1,18 +1,16 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import React from 'react'
 import { activeItemVar, focusbarVisibleVar } from '..'
-import { ThemeType } from '../interfaces'
 import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
 import AttributeSelect from './AttributeSelect'
 import Button from './Button'
 import DatePicker from './DatePicker'
 import { Container } from './styled/ActionBar'
+import { useTheme } from '@chakra-ui/react'
 
 interface Props {}
-const GET_THEME = gql`
+const GET_DATA = gql`
   query {
-    theme @client
     activeItem @client
   }
 `
@@ -72,13 +70,13 @@ export const ActionBar = (props: Props) => {
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
     refetchQueries: ['itemsByFilter', 'weeklyItems'],
   })
-  const { loading, error, data } = useQuery(GET_THEME)
+  const { loading, error, data } = useQuery(GET_DATA)
   if (loading) return null
   if (error) {
     console.log(error)
     return null
   }
-  const theme: ThemeType = themes[data.theme]
+  const theme = useTheme()
   return (
     <ThemeProvider theme={theme}>
       <Container>

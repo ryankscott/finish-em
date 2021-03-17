@@ -18,14 +18,13 @@ import {
   EventContainer,
   EventTime,
   EventTitle,
-  RefreshContainer,
 } from './styled/DailyAgenda'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
 import { sortBy } from 'lodash'
 import { Event } from '../../main/generated/typescript-helpers'
 import RRule from 'rrule'
-import { Modal } from './Modal'
+import { EventModal } from './EventModal'
 
 type DailyAgendaProps = {}
 const GET_DATA = gql`
@@ -37,6 +36,11 @@ const GET_DATA = gql`
       endAt
       description
       allDay
+      attendees {
+        name
+        email
+      }
+      location
     }
 
     calendarIntegration: featureByName(name: "calendarIntegration") {
@@ -52,6 +56,8 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   // TODO: Gross
   const theme: ThemeType = themes[data?.theme]
   const [currentDate, setDate] = useState(new Date())
+  const [showModal, setShowModal] = useState(false)
+  const [activeEvent, setActiveEvent] = useState(null)
 
   useEffect(() => {
     window.electron.onReceiveMessage('events-refreshed', (event, arg) => {
@@ -109,9 +115,15 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
         {data.calendarIntegration.enabled && (
           <EventsContainer>
             {eventsToday?.length ? (
-              sortedEventsForToday.map((e) => {
+              sortedEventsForToday.map((e: Event) => {
                 return (
-                  <EventContainer key={e.key}>
+                  <EventContainer
+                    key={e.key}
+                    onClick={() => {
+                      setActiveEvent(e)
+                      setShowModal(!showModal)
+                    }}
+                  >
                     <EventTime key={`time-${e.key}`}>
                       {`${format(parseISO(e.startAt), 'h:mm aa')} - ${format(
                         parseISO(e.endAt),
@@ -125,6 +137,11 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             ) : (
               <p>No events on this day</p>
             )}
+            <EventModal
+              event={activeEvent}
+              isOpen={showModal}
+              onClose={() => setShowModal(false)}
+            />
           </EventsContainer>
         )}
         <ReorderableComponentList viewKey={viewKey} />

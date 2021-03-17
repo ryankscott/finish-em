@@ -5,14 +5,9 @@ import { StyledButton, Contents, Icon, Text } from './styled/Button'
 import { IconType, ThemeType } from '../interfaces'
 import { Icons } from '../assets/icons'
 import { gql, useQuery } from '@apollo/client'
+import { useTheme } from '@chakra-ui/react'
 import Tooltip from './Tooltip'
 import { v4 as uuidv4 } from 'uuid'
-
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
 
 type ButtonProps = {
   id?: string
@@ -37,13 +32,7 @@ type ButtonProps = {
 }
 
 const Button = (props: ButtonProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
+  const theme = useTheme()
   const id = uuidv4()
   return (
     <ThemeProvider theme={theme}>
