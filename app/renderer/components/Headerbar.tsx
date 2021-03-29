@@ -2,8 +2,7 @@ import React, { ReactElement } from 'react'
 import { ThemeProvider } from '../StyledComponents'
 import { themes, selectStyles } from '../theme'
 import Button from './Button'
-import { lighten } from 'polished'
-import Select, { GroupType } from 'react-select'
+import Select from './Select'
 import {
   removeItemTypeFromString,
   markdownLinkRegex,
@@ -95,43 +94,36 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
       <ThemeProvider theme={theme}>
         <SelectContainer>
           <Select
-            controlShouldRenderValue={false}
-            escapeClearsValue={true}
-            ref={props.searchRef}
+            size="md"
+            isMulti={false}
             placeholder="Search for items..."
             onChange={(selected) => {
               selected.value()
             }}
-            formatOptionLabel={function (data) {
-              return <span dangerouslySetInnerHTML={{ __html: data.label }} />
-            }}
             options={generateOptions(data.projects, data.items)}
-            styles={selectStyles({
-              fontSize: 'xsmall',
-              theme: theme,
-              width: '400px',
-              backgroundColour: lighten(0.2, theme.colours.headerBackgroundColour),
-            })}
+            invertColours={true}
+            fullWidth={true}
           />
         </SelectContainer>
-
         <CommandIcon>
           <CommandBar />
         </CommandIcon>
         <FeedbackIcon>
           <Button
-            type="invert"
+            size="sm"
+            variant="invert"
             icon="feedback"
             iconSize="20px"
             iconColour={theme.colours.altTextColour}
             tooltipText={'Give feedback'}
             onClick={() => window.open('https://github.com/ryankscott/finish-em/issues/new/')}
-          ></Button>
+          />
         </FeedbackIcon>
         <ShortcutIcon id="shortcut-icon">
           <Button
+            size="sm"
             id="shortcut-button"
-            type="invert"
+            variant="invert"
             icon="help"
             iconSize="20px"
             iconColour={theme.colours.altTextColour}
@@ -139,7 +131,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             onClick={() => {
               history.push('/help/')
             }}
-          ></Button>
+          />
         </ShortcutIcon>
       </ThemeProvider>
     </Container>

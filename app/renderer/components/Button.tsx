@@ -1,91 +1,72 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
-import { StyledButton, Contents, Icon, Text } from './styled/Button'
-import { IconType, ThemeType } from '../interfaces'
-import { Icons } from '../assets/icons'
-import { gql, useQuery } from '@apollo/client'
-import { useTheme } from '@chakra-ui/react'
+import { IconType } from '../interfaces'
 import Tooltip from './Tooltip'
 import { v4 as uuidv4 } from 'uuid'
+import { Button as CButton, IconButton } from '@chakra-ui/react'
+import { Icons } from '../assets/icons'
+import * as CSS from 'csstype'
 
 type ButtonProps = {
   id?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
-  spacing?: 'compactIcon' | 'compact' | 'default'
-  type: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert' | 'disabled'
+  variant: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
   text?: string | JSX.Element
-  textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
-  position?: 'center' | 'flex-end' | 'flex-start'
-  textWeight?: string
-  iconSize?: string
-  iconColour?: string
-  tabIndex?: number
-  width?: string
-  height?: string
-  iconPosition?: 'before' | 'after'
+  size: 'xs' | 'sm' | 'md' | 'lg'
   icon?: IconType
-  rotate?: number // Note: This lovely little hack is because of a StyledComponents bug https://github.com/styled-components/styled-components/issues/1198
-  translateY?: number
-  translateZ?: number
+  iconPosition?: 'left' | 'right'
+  iconSize?: CSS.Property.Width
+  iconColour?: CSS.Property.Color
   tooltipText?: string
+  disabled?: boolean
+  visible?: boolean
+  fullWidth?: boolean
 }
-
 const Button = (props: ButtonProps): ReactElement => {
-  const theme = useTheme()
   const id = uuidv4()
+
   return (
-    <ThemeProvider theme={theme}>
-      <StyledButton
-        id={props.id}
-        spacing={props.spacing}
-        height={props.height}
-        width={props.width}
-        position={props.position}
-        onClick={props.onClick}
-        buttonType={props.type}
-        data-tip
-        data-for={id}
-        tabIndex={props.tabIndex != undefined ? props.tabIndex : -1}
-        iconOnly={props.icon && !props.text}
-      >
-        <Contents>
-          {props.icon && !(props.iconPosition == 'after') && (
-            <Icon
-              iconPosition={props.iconPosition}
-              rotate={props.rotate != undefined ? props.rotate : 0}
-              translateY={props.translateY != undefined ? props.translateY : 0}
-              translateZ={props.translateZ != undefined ? props.translateZ : 0}
-            >
-              {Icons[props.icon](
-                props.iconSize ? props.iconSize : null,
-                props.iconSize ? props.iconSize : null,
-                props.iconColour ? props.iconColour : null,
-              )}
-            </Icon>
-          )}
-          {props.text && (
-            <Text
-              textWeight={props.textWeight}
-              textSize={props.textSize}
-              hasIcon={props.icon != undefined}
-            >
-              {props.text}
-            </Text>
-          )}
-          {props.icon && props.iconPosition == 'after' && (
-            <Icon iconPosition={props.iconPosition}>
-              {Icons[props.icon](
-                props.iconSize || null,
-                props.iconSize || null,
-                props.iconColour || null,
-              )}
-            </Icon>
-          )}
-        </Contents>
-      </StyledButton>
+    <>
+      {!props.text ? (
+        <IconButton
+          aria-label={props.icon}
+          variant={props.variant}
+          data-tip
+          data-for={id}
+          isDisabled={props.disabled}
+          color={'gray.700'}
+          icon={Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)}
+          size={props.size}
+          onClick={(e) => props.onClick(e)}
+          visible={props.visible?.toString()}
+          transition="all 0.2s"
+        />
+      ) : (
+        <CButton
+          transition="all 0.2s"
+          variant={props.variant}
+          data-tip
+          data-for={id}
+          visible={props.visible?.toString()}
+          isDisabled={props.disabled}
+          isFullWidth={props.fullWidth}
+          onClick={(e) => props.onClick(e)}
+          leftIcon={
+            props.iconPosition == 'left'
+              ? Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)
+              : null
+          }
+          rightIcon={
+            props.iconPosition == 'right'
+              ? Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)
+              : null
+          }
+          size={props.size}
+        >
+          {props.text}
+        </CButton>
+      )}
       {props.tooltipText && <Tooltip id={id} text={props.tooltipText} />}
-    </ThemeProvider>
+    </>
   )
 }
 

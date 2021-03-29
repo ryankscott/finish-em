@@ -125,6 +125,7 @@ interface ContainerProps {
   shouldIndent: boolean
   deleted: boolean
 }
+
 export const Container = styled.div<ContainerProps>`
   position: relative;
   transition: max-height 0.2s ease-in-out, opacity 0.05s ease-in-out;

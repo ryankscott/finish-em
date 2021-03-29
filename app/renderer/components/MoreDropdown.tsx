@@ -71,9 +71,9 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
     <ThemeProvider theme={theme}>
       <Container ref={node}>
         <Button
-          type={props.subtle ? 'subtle' : 'default'}
+          variant={props.subtle ? 'subtle' : 'default'}
           icon="more"
-          width="18px"
+          size="sm"
           tooltipText="More actions"
           onClick={(e) => {
             setShowDialog(!showDialog)

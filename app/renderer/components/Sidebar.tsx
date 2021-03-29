@@ -388,7 +388,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                               {data.sidebarVisible && (
                                 <Button
                                   tooltipText="Add Project"
-                                  type="invert"
+                                  variant="invert"
                                   icon="add"
                                   iconColour={'white'}
                                   onClick={() => {
@@ -491,8 +491,8 @@ const Sidebar = (props: SidebarProps): ReactElement => {
               <Button
                 tooltipText="Add Area"
                 width="110px"
-                type="invert"
-                spacing="compact"
+                variant="invert"
+                size="sm"
                 text={data.sidebarVisible ? 'Add Area' : ''}
                 iconSize="12px"
                 icon="add"
@@ -525,9 +525,9 @@ const Sidebar = (props: SidebarProps): ReactElement => {
           <CollapseContainer data-cy="sidebar-btn-container">
             <Button
               tooltipText="Toggle sidebar"
-              spacing="compact"
+              size="sm"
               icon={data.sidebarVisible ? 'slideLeft' : 'slideRight'}
-              type="invert"
+              variant="invert"
               onClick={() => {
                 sidebarVisibleVar(!data.sidebarVisible)
               }}

@@ -56,8 +56,8 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
         <HeaderContainer>
           <LabelHeader>Labels</LabelHeader>
           <Button
-            type="default"
-            spacing="compact"
+            variant="default"
+            size="sm"
             iconSize="12px"
             onClick={() => {
               props.onClose()

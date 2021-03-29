@@ -117,8 +117,8 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
         <WeekContainer>
           <BackContainer>
             <Button
-              spacing="compact"
-              type="default"
+              size="sm"
+              variant="default"
               icon="back"
               onClick={() => {
                 setDate(sub(currentDate, { days: 7 }))
@@ -128,8 +128,8 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           <WeeklyTitle>Week starting {format(currentDate, 'EEEE do MMMM yyyy')}</WeeklyTitle>
           <ForwardContainer>
             <Button
-              spacing="compact"
-              type="default"
+              size="sm"
+              variant="default"
               icon="forward"
               onClick={() => {
                 setDate(add(currentDate, { days: 7 }))

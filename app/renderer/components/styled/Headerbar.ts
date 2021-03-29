@@ -51,6 +51,7 @@ export const FeedbackIcon = styled.div`
 `
 
 export const SelectContainer = styled.div`
+  width: 100%;
   display: flex;
   justify-content: flex-end;
   grid-area: search;

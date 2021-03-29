@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { math, transparentize } from 'polished'
+import { transparentize } from 'polished'
 import React, { ReactElement, useEffect, useState } from 'react'
 import Select, { OptionsType } from 'react-select'
 import Switch from 'react-switch'
@@ -247,9 +247,11 @@ function Settings(props: SettingsPickerProps): ReactElement {
                             }}
                             options={calendarOptions}
                             styles={selectStyles({
-                              fontSize: 'xsmall',
-                              minWidth: '160px',
-                              theme: theme,
+                              fontSize: '10px',
+                              textColour: '#333',
+                              altTextColour: '#FFF',
+                              backgroundColour: '#F2F2F2',
+                              altBackgroundColour: '#333',
                             })}
                             escapeClearsValue={true}
                             defaultMenuIsOpen={false}
@@ -302,8 +304,8 @@ function Settings(props: SettingsPickerProps): ReactElement {
                         key={`edit-colour-${m.key}`}
                         icon="colour"
                         iconSize={'18px'}
-                        spacing="compact"
-                        type="default"
+                        size="sm"
+                        variant="default"
                         onClick={(e) => {
                           setShowColourPicker(!showColourPicker)
                           setColourPickerTriggeredBy(m.key)
@@ -315,8 +317,8 @@ function Settings(props: SettingsPickerProps): ReactElement {
                         key={`delete-label-${m.key}`}
                         icon="trash"
                         iconSize={'18px'}
-                        spacing="compact"
-                        type="default"
+                        size="sm"
+                        variant="default"
                         onClick={() => {
                           deleteLabel({ variables: { key: m.key } })
                         }}
@@ -340,8 +342,8 @@ function Settings(props: SettingsPickerProps): ReactElement {
               )}
               <ButtonContainer>
                 <Button
-                  type="default"
-                  spacing="compact"
+                  variant="default"
+                  size="sm"
                   icon="add"
                   text="Add label"
                   onClick={() => {

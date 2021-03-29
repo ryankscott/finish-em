@@ -116,7 +116,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
         <DialogHeader>
           <CloseButtonContainer>
             <Button
-              type="default"
+              variant="default"
               iconSize="14"
               icon="close"
               onClick={() => {
@@ -152,9 +152,11 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
                 }}
                 options={projectOptions}
                 styles={selectStyles({
-                  fontSize: 'xsmall',
-                  theme: theme,
-                  minWidth: '180px',
+                  fontSize: '10px',
+                  textColour: '#333',
+                  altTextColour: '#FFF',
+                  backgroundColour: '#F2F2F2',
+                  altBackgroundColour: '#333',
                 })}
                 escapeClearsValue={true}
               />
@@ -172,9 +174,11 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
                 }}
                 options={labelOptions}
                 styles={selectStyles({
-                  fontSize: 'xsmall',
-                  theme: theme,
-                  minWidth: '180px',
+                  fontSize: '10px',
+                  textColour: '#333',
+                  altTextColour: '#FFF',
+                  backgroundColour: '#F2F2F2',
+                  altBackgroundColour: '#333',
                 })}
                 escapeClearsValue={true}
               />
@@ -184,7 +188,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
         <SaveButtonContainer>
           <Button
             text="Save"
-            type={'primary'}
+            variant={'primary'}
             icon="save"
             onClick={() => {
               updateComponent({

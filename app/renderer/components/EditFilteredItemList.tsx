@@ -108,7 +108,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <DialogHeader>
           <CloseButtonContainer>
             <Button
-              type="default"
+              variant="default"
               iconSize="14"
               icon="close"
               onClick={() => {
@@ -261,9 +261,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 }}
                 options={options}
                 styles={selectStyles({
-                  fontSize: 'xsmall',
-                  theme: theme,
-                  minWidth: '120px',
+                  fontSize: '10px',
+                  textColour: '#333',
+                  altTextColour: '#FFF',
+                  backgroundColour: '#F2F2F2',
+                  altBackgroundColour: '#333',
                 })}
                 escapeClearsValue={true}
               />
@@ -273,7 +275,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <SaveButtonContainer>
           <Button
             text="Save"
-            type={isValid ? 'primary' : 'disabled'}
+            variant={isValid ? 'primary' : 'disabled'}
             icon="save"
             onClick={() => {
               updateComponent({

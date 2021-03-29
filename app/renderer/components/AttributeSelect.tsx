@@ -1,29 +1,16 @@
-import React, { ReactElement } from 'react'
-import ButtonDropdown from './ButtonDropdown'
-import { Area, Item, Label, Project } from '../../main/generated/typescript-helpers'
 import { DocumentNode, gql, useQuery } from '@apollo/client'
-import { IconType, ThemeType } from '../interfaces'
-import { themes } from '../theme'
-import { GroupedOptionsType, GroupType, OptionsType } from 'react-select'
-import { ThemeProvider } from '../StyledComponents'
+import { Box } from '@chakra-ui/react'
 import CSS from 'csstype'
-import { transparentize } from 'polished'
 import { groupBy } from 'lodash'
-import {
-  markdownBasicRegex,
-  markdownLinkRegex,
-  removeItemTypeFromString,
-  truncateString,
-} from '../utils'
-import marked from 'marked'
+import { transparentize } from 'polished'
+import React, { ReactElement } from 'react'
+import { GroupedOptionsType, OptionsType } from 'react-select'
+import { Area, Item, Label, Project } from '../../main/generated/typescript-helpers'
+import { markdownBasicRegex, markdownLinkRegex, removeItemTypeFromString } from '../utils'
+import Select from './Select'
 
 type OptionType = { value: string; label: JSX.Element | string; color?: CSS.Property.Color }
 type Attribute = 'area' | 'item' | 'label' | 'project'
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
 
 const getData = (attr: Attribute): DocumentNode => {
   switch (attr) {
@@ -90,13 +77,11 @@ interface AttributeSelectProps {
   currentAttribute: Area | Item | Label | Project
   completed: boolean
   deleted: boolean
-  style?: 'primary' | 'subtle' | 'subtleInvert' | 'default' | 'invert'
+  invert?: boolean
   onSubmit: (key: string) => void
 }
 
 export default function AttributeSelect(props: AttributeSelectProps): ReactElement {
-  const { loading: l, error: e, data: d } = useQuery(GET_THEME)
-
   const { loading, error, data } = useQuery(getData(props.attribute))
   if (loading) return null
   if (error) {
@@ -107,57 +92,37 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
   const generateDefaultValues = (
     attr: Attribute,
   ): {
-    buttonText: string | JSX.Element
-    defaultButtonText: string
-    buttonIcon: IconType
-    selectPlaceholder: string
-    buttonIconColour?: CSS.Property.Color
+    currentValue: string
+    noValueText: string
+    backgroundColour?: CSS.Property.Color
   } => {
     switch (attr) {
       case 'area':
         return {
-          buttonText: props?.currentAttribute?.name,
-          defaultButtonText: 'Add area',
-          buttonIcon: 'area',
-          selectPlaceholder: 'Area: ',
+          currentValue: props?.currentAttribute?.key,
+          noValueText: 'Add area',
         }
       case 'label':
         return {
-          buttonText: props?.currentAttribute?.name,
-          defaultButtonText: 'Add Label',
-          buttonIcon: 'label',
-          selectPlaceholder: 'Label: ',
-          buttonIconColour: props.currentAttribute?.colour,
+          currentValue: props?.currentAttribute?.key,
+          noValueText: 'Add label',
+          backgroundColour: props.currentAttribute?.colour,
         }
       case 'project':
         return {
-          buttonText: props?.currentAttribute?.name,
-          defaultButtonText: 'Add Project',
-          buttonIcon: 'project',
-          selectPlaceholder: 'Project: ',
+          currentValue: props?.currentAttribute?.key,
+          noValueText: 'Add project',
         }
       case 'item':
         return {
-          buttonText: props?.currentAttribute.parent ? (
-            <span
-              dangerouslySetInnerHTML={{
-                __html: marked(
-                  truncateString(removeItemTypeFromString(props.currentAttribute.parent.text), 15),
-                ),
-              }}
-            />
-          ) : null,
-          defaultButtonText: 'Add Parent',
-          buttonIcon: 'subtask',
-          selectPlaceholder: 'Parent: ',
+          currentValue: props?.currentAttribute.parent ? props.currentAttribute.parent.key : null,
+          noValueText: 'Add parent',
         }
 
       default:
         return {
-          buttonText: '',
-          defaultButtonText: 'Add',
-          buttonIcon: 'close',
-          selectPlaceholder: 'Search: ',
+          currentValue: '',
+          noValueText: 'Add',
         }
     }
   }
@@ -187,7 +152,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
             return {
               value: l.key,
               label: l.name,
-              color: transparentize(0.8, l.colour),
+              color: transparentize(0.7, l.colour),
             }
           }),
           { value: '', label: 'No label', color: '' },
@@ -230,12 +195,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
       case 'item':
         const filteredValues = data.items.filter(
           (i) =>
-            i.key != null &&
-            i.key != currentAttr.key &&
-            i.key != currentAttr.parent?.key &&
-            i.deleted == false &&
-            i.completed == false &&
-            !i.parent,
+            i.key != null && i.key != currentAttr.key && i.deleted == false && i.completed == false,
         )
         // Return if we've filtered all items
         if (!filteredValues.length) return
@@ -284,26 +244,27 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
     }
   }
 
-  const theme: ThemeType = themes[d.theme]
   const defaultValues = generateDefaultValues(props.attribute)
+  const options = generateOptions(props.attribute, props.currentAttribute)
+  const allOptions = options
+    .map((o) => {
+      return o.options ? o.options : o
+    })
+    .flat()
+  const defaultValue = allOptions.filter((o) => o.value == defaultValues.currentValue)
+
   return (
-    <ThemeProvider theme={theme}>
-      <div style={{ width: '100%' }}>
-        <ButtonDropdown
-          style={props.style}
-          buttonText={defaultValues.buttonText}
-          defaultButtonIcon={defaultValues.buttonIcon}
-          defaultButtonText={defaultValues.defaultButtonText}
-          selectPlaceholder={defaultValues.selectPlaceholder}
-          defaultButtonIconColour={defaultValues?.buttonIconColour}
-          options={generateOptions(props.attribute, props.currentAttribute)}
-          deleted={props.deleted}
-          completed={props.completed}
-          onSubmit={(key) => {
-            props.onSubmit(key)
-          }}
-        />
-      </div>
-    </ThemeProvider>
+    <Box w={'100%'}>
+      <Select
+        size="sm"
+        isMulti={false}
+        onChange={props.onSubmit}
+        options={options}
+        escapeClearsValue={true}
+        placeholder={defaultValues.noValueText}
+        defaultValue={defaultValue}
+        invertColours={props.invert}
+      />
+    </Box>
   )
 }

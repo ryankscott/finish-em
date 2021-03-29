@@ -188,6 +188,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
           }}
         >
           <div style={{ width: '135px' }}>
+            {/*  TODO REPLACE WITH MENU */}
             <ButtonDropdown
               defaultButtonText={'Add component'}
               defaultButtonIcon={'collapse'}

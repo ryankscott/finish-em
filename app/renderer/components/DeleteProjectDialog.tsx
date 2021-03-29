@@ -59,7 +59,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
     <ThemeProvider theme={theme}>
       <Container ref={node} onClick={handleClick}>
         <Button
-          type="primary"
+          variant="primary"
           text="Delete"
           icon="trash"
           width="80px"
@@ -74,7 +74,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
               <CloseButton>
                 <Button
                   iconSize="14"
-                  type="default"
+                  variant="default"
                   icon="close"
                   onClick={() => {
                     setDialogOpen(false)
@@ -87,7 +87,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
             </BodyContainer>
             <ActionContainer>
               <Button
-                type="error"
+                variant="error"
                 spacing="default"
                 onClick={() => {
                   props.onDelete()
@@ -96,7 +96,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
                 width={'80px'}
               ></Button>
               <Button
-                type="primary"
+                variant="primary"
                 spacing="default"
                 onClick={() => {
                   setDialogOpen(false)

@@ -457,11 +457,9 @@ export const Icons: {
       fill="none"
       stroke={colour ? colour : 'currentColor'}
       strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
     >
-      <polyline points="9 14 4 9 9 4"></polyline>
-      <path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
+      <polyline points="14 9 9 4 4 9"></polyline>
+      <path d="M20 20h-7a4 4 0 0 1-4-4V4"></path>
     </svg>
   ),
 

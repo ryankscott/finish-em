@@ -64,8 +64,8 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
         <HeaderContainer>
           <ReminderHeader>Remind me: </ReminderHeader>
           <Button
-            type="default"
-            spacing="compact"
+            variant="default"
+            size="sm"
             iconSize="12px"
             onClick={() => {
               props.onClose()

@@ -34,28 +34,28 @@ function Pagination(props: PaginationProps): ReactElement {
     <ThemeProvider theme={theme}>
       <PaginationContainer>
         <Button
-          type="default"
+          variant="default"
           icon="slideLeft"
           onClick={() =>
             props.setCurrentPage(props.currentPage == 1 ? props.currentPage : props.currentPage - 1)
           }
         />
         {props.currentPage != 1 && (
-          <Button type="default" text={'1'} onClick={() => props.setCurrentPage(1)} />
+          <Button variant="default" text={'1'} onClick={() => props.setCurrentPage(1)} />
         )}
         {props.currentPage >= 4 && '...'}
         {props.currentPage >= 3 && (
           <Button
-            type="default"
+            variant="default"
             text={(props.currentPage - 1).toString()}
             onClick={() => props.setCurrentPage(props.currentPage - 1)}
           />
         )}
 
-        <Button textWeight="700" type="default" text={props.currentPage.toString()} />
+        <Button textWeight="700" variant="default" text={props.currentPage.toString()} />
         {props.currentPage <= totalPages - 2 && (
           <Button
-            type="default"
+            variant="default"
             text={(props.currentPage + 1).toString()}
             onClick={() => props.setCurrentPage(props.currentPage + 1)}
           />
@@ -63,7 +63,7 @@ function Pagination(props: PaginationProps): ReactElement {
         {props.currentPage <= totalPages - 2 && '...'}
         {props.currentPage != totalPages && (
           <Button
-            type="default"
+            variant="default"
             text={totalPages.toString()}
             onClick={() => {
               props.setCurrentPage(totalPages)
@@ -71,7 +71,7 @@ function Pagination(props: PaginationProps): ReactElement {
           />
         )}
         <Button
-          type="default"
+          variant="default"
           icon="slideRight"
           onClick={() =>
             props.setCurrentPage(

@@ -152,7 +152,8 @@ export const CommandBar = () => {
         }}
         trigger={
           <Button
-            type="invert"
+            size="sm"
+            variant="invert"
             icon="terminal"
             iconSize="20px"
             iconColour={theme.colours.altTextColour}

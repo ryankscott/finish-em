@@ -6,7 +6,7 @@ export const Container = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: flex-end;
-  padding: 15px 2px;
+  padding: 10px 2px;
   overflow-x: visible;
   margin: 2px;
   height: 75px;
@@ -27,6 +27,7 @@ export const ItemCreatorContainer = styled.div<ItemCreatorContainer>`
   animation: ${(props) => (props.animate ? animation : 'none')};
   position: relative;
   display: flex;
+  margin: 0px 2px;
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;

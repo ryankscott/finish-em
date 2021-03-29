@@ -99,7 +99,7 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
       <DialogContainer>
         <DialogHeader>
           <CloseButtonContainer>
-            <Button type="default" iconSize="14" icon="close" onClick={props.onClose} />
+            <Button variant="default" iconSize="14" icon="close" onClick={props.onClose} />
           </CloseButtonContainer>
         </DialogHeader>
         <Setting>
@@ -131,9 +131,11 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
                 }}
                 options={generateIconOptions()}
                 styles={selectStyles({
-                  fontSize: 'xsmall',
-                  theme: theme,
-                  minWidth: '140px',
+                  fontSize: '10px',
+                  textColour: '#333',
+                  altTextColour: '#FFF',
+                  backgroundColour: '#F2F2F2',
+                  altBackgroundColour: '#333',
                 })}
                 escapeClearsValue={true}
               />
@@ -143,7 +145,7 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
         <SaveButtonContainer>
           <Button
             text="Save"
-            type={'primary'}
+            variant={'primary'}
             icon="save"
             onClick={() => {
               updateComponent({

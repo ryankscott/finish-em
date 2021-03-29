@@ -56,7 +56,7 @@ const DeleteAreaDialog = (props: DeleteAreaDialogProps): ReactElement => {
     <ThemeProvider theme={theme}>
       <Container ref={node} onClick={handleClick}>
         <Button
-          type="primary"
+          variant="primary"
           text="Delete"
           icon="trash"
           width="80px"
@@ -70,7 +70,7 @@ const DeleteAreaDialog = (props: DeleteAreaDialogProps): ReactElement => {
               <Header3>Delete Area</Header3>
               <CloseButton>
                 <Button
-                  type="subtle"
+                  variant="subtle"
                   icon="close"
                   onClick={() => {
                     setDialogOpen(false)
@@ -83,7 +83,7 @@ const DeleteAreaDialog = (props: DeleteAreaDialogProps): ReactElement => {
             </BodyContainer>
             <ActionContainer>
               <Button
-                type="error"
+                variant="error"
                 spacing="default"
                 onClick={() => {
                   props.onDelete()
@@ -92,7 +92,7 @@ const DeleteAreaDialog = (props: DeleteAreaDialogProps): ReactElement => {
                 width={'80px'}
               ></Button>
               <Button
-                type="primary"
+                variant="primary"
                 spacing="default"
                 onClick={() => {
                   setDialogOpen(false)

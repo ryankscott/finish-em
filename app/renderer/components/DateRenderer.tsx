@@ -14,9 +14,7 @@ const GET_THEME = gql`
 type DateRendererProps = {
   completed: boolean
   deleted: boolean
-  textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
   style?: 'subtle' | 'subtleInvert' | 'default' | 'invert'
-  position: 'center' | 'flex-end' | 'flex-start'
   icon?: IconType
   tooltipText?: string
   text: string
@@ -35,16 +33,14 @@ const DateRenderer = (props: DateRendererProps): ReactElement => {
     <ThemeProvider theme={theme}>
       <Container completed={props.completed} type={props.icon}>
         <Button
-          position={props.position}
-          type={props.deleted ? 'disabled' : props.style ? props.style : 'default'}
-          spacing="compact"
+          disabled={props.deleted}
+          variant={props.style ? props.style : 'default'}
+          size="sm"
           onClick={props.onClick}
           icon={props.icon}
           text={props.text}
-          textSize={props.textSize}
           iconColour={!props.text ? theme.colours.altIconColour : null}
           tooltipText={props.tooltipText}
-          width={'100%'}
         />
       </Container>
     </ThemeProvider>

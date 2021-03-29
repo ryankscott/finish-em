@@ -138,11 +138,12 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         >
           {!props.hideButton && (
             <Button
-              type="primary"
-              spacing="compact"
+              size="md"
+              variant="primary"
               icon="add"
-              height={props.buttonText ? 'auto' : '24px'}
-              width={props.buttonText ? 'auto' : '24px'}
+              iconPosition="left"
+              iconColour="#FFF"
+              iconSize="14px"
               text={showItemCreator ? '' : props.buttonText}
               tooltipText={props.parentKey ? 'Create subtask' : 'Create item'}
               onClick={() => {

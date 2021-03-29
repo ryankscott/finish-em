@@ -65,7 +65,7 @@ function ShortcutDialog(props: ShortcutDialogProps): ReactElement {
         onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => handleKeyDown(e)}
       >
         <CloseButtonContainer>
-          <Button type="default" onClick={() => shortcutDialogVisibleVar(false)} icon="close" />
+          <Button variant="default" onClick={() => shortcutDialogVisibleVar(false)} icon="close" />
         </CloseButtonContainer>
         <ShortcutsContainer
           dangerouslySetInnerHTML={{ __html: marked(shortcutsText, { breaks: true }) }}

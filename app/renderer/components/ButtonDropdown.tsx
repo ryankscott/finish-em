@@ -36,8 +36,6 @@ type ButtonDropdownProps = {
 }
 
 function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
-  const [showSelect, setShowSelect] = useState(false)
-
   const { loading, error, data } = useQuery(GET_THEME)
   if (loading) return null
   if (error) {
@@ -51,78 +49,40 @@ function ButtonDropdown(props: ButtonDropdownProps): ReactElement {
     if (actionMeta.action == 'select-option') {
       props.onSubmit(newValue.value)
     }
-    setShowSelect(false)
     return
   }
-  const node = useRef<HTMLDivElement>()
-
-  const handleClick = (e): null => {
-    if (node.current.contains(e.target)) {
-      return
-    }
-    setShowSelect(false)
-  }
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClick)
-    return () => {
-      document.removeEventListener('mousedown', handleClick)
-    }
-  }, [])
 
   return (
     <ThemeProvider theme={theme}>
-      <Container completed={props.completed} ref={node}>
-        <Button
-          width="100%"
-          position="flex-start"
-          spacing="compact"
-          type={props.deleted ? 'disabled' : props.style ? props.style : 'default'}
-          onClick={(e) => {
-            if (props.completed) return
-            setShowSelect(!showSelect)
-            e.stopPropagation()
-          }}
-          text={props.buttonText ? props.buttonText : props.defaultButtonText}
-          iconColour={
-            props.buttonIconColour ? props.buttonIconColour : props.defaultButtonIconColour
-          }
-          icon={props.buttonIcon ? props.buttonIcon : props.defaultButtonIcon}
-          iconPosition={'after'}
-          iconSize={'12px'}
-        />
-        {(showSelect || props.showSelect) && (
-          <SelectContainer>
-            <Creatable
-              autoFocus={true}
-              menuPlacement={props.selectPlacement != undefined ? props.selectPlacement : 'auto'}
-              placeholder={props.selectPlaceholder}
-              isSearchable
-              onChange={handleChange}
-              options={props.options}
-              formatOptionLabel={function (data) {
-                return <span dangerouslySetInnerHTML={{ __html: data.label }} />
-              }}
-              styles={selectStyles({
-                fontSize: 'xxsmall',
-                theme: theme,
-                height: '28px',
-                invert: props.style == 'subtleInvert' || props.style == 'invert',
-              })}
-              escapeClearsValue={true}
-              defaultMenuIsOpen={true}
-              onKeyDown={(e) => {
-                if (e.key == 'Escape') {
-                  setShowSelect(false)
-                  if (props.onEscape) {
-                    props.onEscape()
-                  }
+      <Container completed={props.completed}>
+        <SelectContainer>
+          <Creatable
+            menuPlacement={props.selectPlacement != undefined ? props.selectPlacement : 'auto'}
+            placeholder={props.selectPlaceholder}
+            isSearchable
+            onChange={handleChange}
+            options={props.options}
+            formatOptionLabel={function (data) {
+              return <span dangerouslySetInnerHTML={{ __html: data.label }} />
+            }}
+            styles={selectStyles({
+              fontSize: '10px',
+              textColour: '#333',
+              altTextColour: '#FFF',
+              backgroundColour: '#F2F2F2',
+              altBackgroundColour: '#333',
+            })}
+            escapeClearsValue={true}
+            onKeyDown={(e) => {
+              if (e.key == 'Escape') {
+                if (props.onEscape) {
+                  props.onEscape()
                 }
-                e.stopPropagation()
-              }}
-            />
-          </SelectContainer>
-        )}
+              }
+              e.stopPropagation()
+            }}
+          />
+        </SelectContainer>
       </Container>
     </ThemeProvider>
   )

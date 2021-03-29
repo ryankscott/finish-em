@@ -14,7 +14,7 @@ import {
   ErrorBanner,
 } from './styled/FilteredItemList'
 
-import SortDropdown, { SortDirectionEnum, SortOption, sortOptions } from './SortDropdown'
+import SortDropdown, { SortDirectionEnum, SortOption } from './SortDropdown'
 import Button from './Button'
 import ReorderableItemList from './ReorderableItemList'
 import { ThemeProvider } from '../StyledComponents'
@@ -23,7 +23,7 @@ import EditFilteredItemList from './EditFilteredItemList'
 import Pagination from './Pagination'
 import { cloneDeep, orderBy } from 'lodash'
 import { subtasksVisibleVar } from '..'
-
+import { Box } from '@chakra-ui/react'
 const determineVisibilityRules = (
   isFilterable: boolean,
   showItemList: boolean,
@@ -217,9 +217,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
           <HideButtonContainer>
             <Button
               key={`btn-${props.componentKey}`}
-              type="default"
-              icon="expand"
-              rotate={showItemList == true ? 1 : 0}
+              variant="default"
+              size="sm"
+              icon={showItemList == true ? 'collapse' : 'expand'}
               onClick={() => {
                 setShowItemList(!showItemList)
               }}
@@ -242,11 +242,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 {visibility.showCompletedToggle && (
                   <>
                     <Button
-                      height="22px"
-                      width="22px"
+                      size="sm"
                       iconSize="14px"
-                      type="default"
-                      spacing="compact"
+                      variant="default"
                       icon={showCompleted ? 'hide' : 'show'}
                       onClick={() => {
                         setShowCompleted(!showCompleted)
@@ -258,11 +256,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 {visibility.showDeleteButton && (
                   <>
                     <Button
-                      spacing="compact"
-                      height="22px"
-                      width="22px"
+                      size="sm"
                       iconSize="14px"
-                      type="default"
+                      variant="default"
                       icon="trashSweep"
                       tooltipText="Delete completed items"
                       onClick={() => {
@@ -276,11 +272,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                   </>
                 )}
                 <Button
-                  type="default"
-                  spacing="compact"
+                  variant="default"
+                  size="sm"
                   icon="expandAll"
-                  height="22px"
-                  width="22px"
                   iconSize="14px"
                   tooltipText={'Expand all subtasks'}
                   onClick={() => {
@@ -300,11 +294,9 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                   }}
                 />
                 <Button
-                  type="default"
-                  spacing="compact"
+                  size="sm"
+                  variant="default"
                   icon="collapseAll"
-                  height="22px"
-                  width="22px"
                   iconSize="14px"
                   tooltipText={'Collapse all subtasks'}
                   onClick={() => {
@@ -323,17 +315,21 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                     })
                   }}
                 />
-                <SortDropdown
-                  sortDirection={sortDirection}
-                  onSetSortDirection={(d) => {
-                    setSortDirection(d)
-                    updateSort(sortType, d)
-                  }}
-                  onSetSortType={(t) => {
-                    setSortType(t)
-                    updateSort(t, sortDirection)
-                  }}
-                />
+                <Box w={'145px'}>
+                  <SortDropdown
+                    defaultText="Due"
+                    sortType={sortType}
+                    sortDirection={sortDirection}
+                    onSetSortDirection={(d) => {
+                      setSortDirection(d)
+                      updateSort(sortType, d)
+                    }}
+                    onSetSortType={(t) => {
+                      setSortType(t)
+                      updateSort(t, sortDirection)
+                    }}
+                  />
+                </Box>
               </>
             )}
           </FilterBar>

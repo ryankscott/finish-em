@@ -1,12 +1,10 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import React from 'react'
 import { activeItemVar, focusbarVisibleVar } from '..'
-import { ThemeProvider } from '../StyledComponents'
 import AttributeSelect from './AttributeSelect'
 import Button from './Button'
 import DatePicker from './DatePicker'
-import { Container } from './styled/ActionBar'
-import { useTheme } from '@chakra-ui/react'
+import { Grid, GridItem, Flex, Text } from '@chakra-ui/react'
 
 interface Props {}
 const GET_DATA = gql`
@@ -76,101 +74,113 @@ export const ActionBar = (props: Props) => {
     console.log(error)
     return null
   }
-  const theme = useTheme()
   return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <div style={{ display: 'flex', position: 'absolute', top: '2px', right: '2px' }}>
-          <Button
-            type={'invert'}
-            icon={'close'}
-            iconSize={'12px'}
-            onClick={() => {
-              activeItemVar([])
-              focusbarVisibleVar(false)
-            }}
-          />
-        </div>
-        <div
-          style={{ gridArea: 'ITEMS', padding: '10px 10px 0px 10px' }}
-        >{`${data.activeItem.length} items selected`}</div>
-        <div style={{ gridArea: 'DUE' }}>
-          <DatePicker
-            key={'dd'}
-            style={'invert'}
-            selectPosition={'top'}
-            text={'Set due date'}
-            tooltipText={'Set due date'}
-            searchPlaceholder={'Due at: '}
-            onSubmit={(d: Date) => {
-              data.activeItem.map((i) => {
-                setDueAt({ variables: { key: i, dueAt: d } })
-              })
-            }}
-            icon="due"
-            completed={false}
-            deleted={false}
-          />
-        </div>
-        <div style={{ gridArea: 'SCHEDULED' }}>
-          <DatePicker
-            key={'sd'}
-            style={'invert'}
-            selectPosition={'top'}
-            text={'Set scheduled date'}
-            searchPlaceholder={'Scheduled at: '}
-            tooltipText={'Set scheduled date'}
-            onSubmit={(d: Date) => {
-              data.activeItem.map((i) => {
-                setScheduledAt({ variables: { key: i, scheduledAt: d } })
-              })
-            }}
-            icon="scheduled"
-            completed={false}
-            deleted={false}
-          />
-        </div>
-        <div style={{ gridArea: 'PROJECT' }}>
-          <AttributeSelect
-            attribute="project"
-            currentAttribute={null}
-            style={'invert'}
-            completed={false}
-            deleted={false}
-            onSubmit={(projectKey) => {
-              data.activeItem.map((i) => {
-                setProject({ variables: { key: i, projectKey: projectKey } })
-              })
-            }}
-          />
-        </div>
-        <div style={{ gridArea: 'COMPLETE' }}>
-          <Button
-            text="Complete items"
-            tooltipText={'Complete items'}
-            type={'invert'}
-            icon={'todoChecked'}
-            onClick={() => {
-              data.activeItem.map((i) => {
-                completeItem({ variables: { key: i } })
-              })
-            }}
-          />
-        </div>
-        <div style={{ gridArea: 'DELETE' }}>
-          <Button
-            text="Delete items"
-            tooltipText={'Delete items'}
-            type={'invert'}
-            icon={'trash'}
-            onClick={() => {
-              data.activeItem.map((i) => {
-                deleteItem({ variables: { key: i } })
-              })
-            }}
-          />
-        </div>
-      </Container>
-    </ThemeProvider>
+    <Grid
+      maxW="650px"
+      position="absolute"
+      zIndex="tooltip"
+      alignItems="center"
+      padding="2"
+      bg="black"
+      color="white"
+      bottom="0"
+      left="0"
+      right="0"
+      marginLeft="auto"
+      marginRight="auto"
+      width="100%"
+      boxShadow="sm"
+      borderRadius="4"
+    >
+      <Flex position="absolute" top={'2px'} right={'2px'}>
+        <Button
+          size="xs"
+          variant={'invert'}
+          icon={'close'}
+          iconSize={'12px'}
+          onClick={() => {
+            activeItemVar([])
+            focusbarVisibleVar(false)
+          }}
+        />
+      </Flex>
+      <GridItem colSpan={5} rowSpan={1}>
+        <Text paddingLeft="5" fontSize="sm">{`${data.activeItem.length} items selected`}</Text>
+      </GridItem>
+      <GridItem colSpan={1}>
+        <DatePicker
+          key={'dd'}
+          text={'Set due date'}
+          tooltipText={'Set due date'}
+          searchPlaceholder={'Due at: '}
+          onSubmit={(d: Date) => {
+            data.activeItem.map((i) => {
+              setDueAt({ variables: { key: i, dueAt: d } })
+            })
+          }}
+          icon="due"
+          completed={false}
+          deleted={false}
+        />
+      </GridItem>
+      <GridItem colSpan={1}>
+        <DatePicker
+          key={'sd'}
+          text={'Set scheduled date'}
+          searchPlaceholder={'Scheduled at: '}
+          tooltipText={'Set scheduled date'}
+          onSubmit={(d: Date) => {
+            data.activeItem.map((i) => {
+              setScheduledAt({ variables: { key: i, scheduledAt: d } })
+            })
+          }}
+          icon="scheduled"
+          completed={false}
+          deleted={false}
+        />
+      </GridItem>
+      <GridItem colSpan={1}>
+        <AttributeSelect
+          attribute="project"
+          currentAttribute={null}
+          invert={true}
+          completed={false}
+          deleted={false}
+          onSubmit={(projectKey) => {
+            data.activeItem.map((i) => {
+              setProject({ variables: { key: i, projectKey: projectKey } })
+            })
+          }}
+        />
+      </GridItem>
+      <GridItem colSpan={1}>
+        <Button
+          size="sm"
+          text="Complete items"
+          tooltipText={'Complete items'}
+          variant={'invert'}
+          icon={'todoChecked'}
+          onClick={() => {
+            data.activeItem.map((i) => {
+              completeItem({ variables: { key: i } })
+            })
+          }}
+        />
+      </GridItem>
+      <GridItem colSpan={1}>
+        <Button
+          size="sm"
+          text="Delete items"
+          tooltipText={'Delete items'}
+          variant={'invert'}
+          icon={'trash'}
+          onClick={() => {
+            data.activeItem.map((i) => {
+              deleteItem({ variables: { key: i } })
+            })
+          }}
+        />
+      </GridItem>
+    </Grid>
   )
 }

@@ -75,32 +75,36 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
           <>
             <ButtonContainer>
               <Button
+                size="sm"
                 icon={'edit'}
-                type={'default'}
+                variant={'default'}
                 tooltipText={'Edit component'}
                 onClick={() => {
                   setIsEditing(true)
                 }}
               />
               <Button
+                size="sm"
                 icon={'copy'}
-                type={'default'}
+                variant={'default'}
                 tooltipText={'Clone component'}
                 onClick={() => {
                   cloneComponent({ variables: { key: props.componentKey } })
                 }}
               />
               <Button
+                size="sm"
                 icon={'move'}
-                type={'default'}
+                variant={'default'}
                 tooltipText={'Move component'}
                 onClick={() => {
                   console.log('move')
                 }}
               />
               <Button
+                size="sm"
                 icon={'trash'}
-                type={'default'}
+                variant={'default'}
                 tooltipText={'Delete component'}
                 onClick={() => deleteComponent({ variables: { key: props.componentKey } })}
               />
