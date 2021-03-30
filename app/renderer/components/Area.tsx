@@ -1,36 +1,21 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { Flex, Grid, GridItem, Text } from '@chakra-ui/react'
+import { useTheme } from '@chakra-ui/system'
 import { parseISO } from 'date-fns'
+import { Emoji, Picker } from 'emoji-mart'
+import 'emoji-mart/css/emoji-mart.css'
 import marked from 'marked'
-import { darken } from 'polished'
 import React, { ReactElement, useState } from 'react'
 import { useHistory } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { v4 as uuidv4 } from 'uuid'
-import { Project } from '../../main/generated/typescript-helpers'
-import { ThemeType } from '../interfaces'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
+import { Area as AreaType, Project } from '../../main/generated/typescript-helpers'
 import { formatRelativeDate } from '../utils'
 import DeleteAreaDialog from './DeleteAreaDialog'
 import { Donut } from './Donut'
 import EditableText from './EditableText'
 import FilteredItemList from './FilteredItemList'
-import {
-  AreaContainer,
-  DescriptionContainer,
-  EmojiContainer,
-  EmojiPickerWrapper,
-  HeaderContainer,
-  ProjectContainer,
-  ProjectDescription,
-  ProjectEndAt,
-  ProjectName,
-  ProjectStartAt,
-} from './styled/Area'
-import { Header, Title } from './Typography'
-import { Area as AreaType } from '../../main/generated/typescript-helpers'
-import { toast } from 'react-toastify'
-import 'emoji-mart/css/emoji-mart.css'
-import { Picker, Emoji } from 'emoji-mart'
+import { Title } from './Typography'
 
 const GET_AREA_BY_KEY = gql`
   query AreaByKey($key: String!) {
@@ -69,7 +54,6 @@ const GET_AREA_BY_KEY = gql`
       name
       emoji
     }
-    theme @client
   }
 `
 
@@ -112,7 +96,7 @@ type AreaProps = {
 }
 const Area = (props: AreaProps): ReactElement => {
   const history = useHistory()
-
+  const theme = useTheme()
   const name = React.useRef<HTMLInputElement>()
   const description = React.useRef<HTMLInputElement>()
   const [setEmoji] = useMutation(SET_EMOJI)
@@ -129,6 +113,7 @@ const Area = (props: AreaProps): ReactElement => {
   })
   const [changeDescriptionArea] = useMutation(CHANGE_DESCRIPTION_AREA)
   const [renameArea] = useMutation(RENAME_AREA)
+
   const { loading, error, data } = useQuery(GET_AREA_BY_KEY, {
     variables: { key: props.areaKey },
   })
@@ -139,13 +124,17 @@ const Area = (props: AreaProps): ReactElement => {
   }
   const area: AreaType = data.area
   const areas: AreaType[] = data.areas
-  const theme: ThemeType = themes[data.theme]
-
   return (
-    <ThemeProvider theme={theme}>
-      <AreaContainer>
-        <HeaderContainer>
-          <DescriptionContainer>
+    <Flex direction={'column'} width={'100%'} maxW={'700px'} mx={0} mt={14} mb={2}>
+      <Grid
+        autoRows={'60px 40px'}
+        templateColumns={'120px 1fr'}
+        alignItems={'center'}
+        paddingY={2}
+        paddingX={0}
+      >
+        <GridItem colStart={2} colSpan={1}>
+          <Flex alignItems={'flex-start'}>
             <EditableText
               shouldSubmitOnBlur={true}
               key={area.key + 'name'}
@@ -169,101 +158,148 @@ const Area = (props: AreaProps): ReactElement => {
                 history.push('/inbox')
               }}
             />
-          </DescriptionContainer>
-          <EmojiContainer
+          </Flex>
+        </GridItem>
+        <GridItem
+          rowStart={1}
+          rowSpan={2}
+          colSpan={1}
+          colStart={1}
+          bg={'gray.100'}
+          my={0}
+          w={'100px'}
+          h={'100px'}
+          borderRadius={'50%'}
+          cursor={'pointer'}
+          onClick={() => {
+            setShowEmojiPicker(!showEmojiPicker)
+          }}
+          _hover={{
+            bg: 'gray.200',
+          }}
+        >
+          <Flex justifyContent={'center'} alignItems={'center'}>
+            <Emoji emoji={area.emoji ? area.emoji : ''} size={68} native={true} />
+          </Flex>
+        </GridItem>
+        {showEmojiPicker && (
+          <Picker
+            native={true}
+            title=""
+            emoji=""
+            color={theme.colors.blue[500]}
+            onSelect={(emoji) => {
+              setEmoji({ variables: { key: area.key, emoji: emoji.id } })
+              setShowEmojiPicker(false)
+            }}
+          />
+        )}
+      </Grid>
+
+      <EditableText
+        placeholder="Add a description for your area..."
+        shouldSubmitOnBlur={true}
+        key={area.key + 'description'}
+        onUpdate={(input) => {
+          changeDescriptionArea({ variables: { key: area.key, description: input } })
+        }}
+        innerRef={description}
+        input={area.description}
+        height="150px"
+        shouldClearOnSubmit={false}
+      />
+      <Text my={3} fontSize={'lg'} color="blue.500">
+        Items
+      </Text>
+      <FilteredItemList
+        componentKey={uuidv4()}
+        isFilterable={false}
+        filter={JSON.stringify({
+          text: `area = "${area.name}" and type = "TODO" and deleted = "false"`,
+          value: [
+            { category: 'areaKey', operator: '=', value: area.key },
+            { conditionType: 'AND', category: 'type', operator: '=', value: 'TODO' },
+            { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
+          ],
+        })}
+        flattenSubtasks={true}
+        readOnly={true}
+      />
+      <Text my={3} mt={6} fontSize={'lg'} color="blue.500">
+        Projects
+      </Text>
+      {area.projects.map((p: Project) => {
+        const totalItemsCount = p.items.length
+        const completedItemsCount = p.items.filter((i) => i.completed == true && i.deleted == false)
+          .length
+        const progress =
+          totalItemsCount == 0
+            ? 0
+            : completedItemsCount == 0
+            ? 0
+            : totalItemsCount / completedItemsCount
+        return (
+          <Grid
+            position={'relative'}
+            transition={'max-height 0.2s ease-in-out, opacity 0.05s ease-in-out'}
+            maxH={'200px'}
+            maxW={'650px'}
+            my={1}
+            mx={0}
+            templateColumns={'35px minmax(180px, auto) auto'}
+            templateRows={'minmax(20px, auto) minmax(20px, auto)'}
+            padding={1}
+            alignItems={'center'}
+            cursor={'pointer'}
+            borderRadius={3}
+            _hover={{
+              bg: 'gray.100',
+            }}
+            _after={{
+              content: "''",
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
+              left: 0,
+              margin: '0px auto',
+              height: 1,
+              width: 'calc(100% - 10px)',
+              borderBottom: '1px solid',
+              borderColor: 'gray.100',
+            }}
+            key={p.key}
             onClick={() => {
-              setShowEmojiPicker(!showEmojiPicker)
+              history.push(`/views/${p.key}`)
             }}
           >
-            <Emoji emoji={area.emoji ? area.emoji : ''} size={68} native={true} />
-          </EmojiContainer>
-          {showEmojiPicker && (
-            <EmojiPickerWrapper>
-              <Picker
-                native={true}
-                title=""
-                emoji=""
-                color={theme.colours.primaryColour}
-                onSelect={(emoji) => {
-                  setEmoji({ variables: { key: area.key, emoji: emoji.id } })
-                  setShowEmojiPicker(false)
-                }}
+            <GridItem colSpan={1} rowSpan={2} colStart={1} rowStart={1}>
+              <Donut
+                size={24}
+                progress={progress}
+                activeColour={theme.colors.blue[500]}
+                inactiveColour={theme.colors.gray[100]}
               />
-            </EmojiPickerWrapper>
-          )}
-        </HeaderContainer>
-
-        <EditableText
-          placeholder="Add a description for your area..."
-          shouldSubmitOnBlur={true}
-          key={area.key + 'description'}
-          onUpdate={(input) => {
-            changeDescriptionArea({ variables: { key: area.key, description: input } })
-          }}
-          innerRef={description}
-          input={area.description}
-          height="150px"
-          shouldClearOnSubmit={false}
-        />
-        <Header>Items</Header>
-        <FilteredItemList
-          componentKey={uuidv4()}
-          isFilterable={false}
-          filter={JSON.stringify({
-            text: `area = "${area.name}" and type = "TODO" and deleted = "false"`,
-            value: [
-              { category: 'areaKey', operator: '=', value: area.key },
-              { conditionType: 'AND', category: 'type', operator: '=', value: 'TODO' },
-              { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
-            ],
-          })}
-          flattenSubtasks={true}
-          readOnly={true}
-        />
-        <Header>Projects</Header>
-        {area.projects.map((p: Project) => {
-          const totalItemsCount = p.items.length
-          const completedItemsCount = p.items.filter(
-            (i) => i.completed == true && i.deleted == false,
-          ).length
-          const progress =
-            totalItemsCount == 0
-              ? 0
-              : completedItemsCount == 0
-              ? 0
-              : totalItemsCount / completedItemsCount
-          return (
-            <ProjectContainer
-              key={p.key}
-              onClick={() => {
-                history.push(`/views/${p.key}`)
-              }}
-            >
-              <div style={{ gridArea: 'donut' }}>
-                <Donut
-                  size={24}
-                  progress={progress}
-                  activeColour={theme.colours.primaryColour}
-                  inactiveColour={darken(0.2, theme.colours.backgroundColour)}
-                />
-              </div>
-              <ProjectName>{p.name}</ProjectName>
-              <ProjectDescription
+            </GridItem>
+            <GridItem colSpan={1} colStart={2}>
+              <Text fontWeight={'semibold'}>{p.name}</Text>
+            </GridItem>
+            <GridItem colSpan={1} colStart={3}>
+              <Text
                 dangerouslySetInnerHTML={{
                   __html: marked(p.description, { breaks: true }),
                 }}
-              />
-              <ProjectStartAt>
-                {p.startAt && `Starting: ${formatRelativeDate(parseISO(p.startAt))}`}
-              </ProjectStartAt>
-              <ProjectEndAt>
-                {p.endAt && `Ending: ${formatRelativeDate(parseISO(p.endAt))}`}
-              </ProjectEndAt>
-            </ProjectContainer>
-          )
-        })}
-      </AreaContainer>
-    </ThemeProvider>
+              ></Text>
+            </GridItem>
+            <GridItem rowStart={2} colStart={2} colSpan={1}>
+              <Text>{p.startAt && `Starting: ${formatRelativeDate(parseISO(p.startAt))}`}</Text>
+            </GridItem>
+            <GridItem rowStart={2} colStart={3} colSpan={1}>
+              <Text>{p.endAt && `Ending: ${formatRelativeDate(parseISO(p.endAt))}`}</Text>
+            </GridItem>
+          </Grid>
+        )
+      })}
+    </Flex>
   )
 }
 
