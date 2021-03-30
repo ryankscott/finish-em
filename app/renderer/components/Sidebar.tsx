@@ -362,7 +362,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 data-tip
                                 data-for={a.key}
                                 sidebarVisible={data.sidebarVisible}
-                                to={`/views/${a.key}`}
+                                to={`/areas/${a.key}`}
                                 activeStyle={{
                                   backgroundColor: theme.colours.focusAltDialogBackgroundColour,
                                 }}
