@@ -157,7 +157,6 @@ function Item(props: ItemProps): ReactElement {
 
   let enterInterval, exitInterval
   const editor = React.useRef<HTMLInputElement>()
-  const container = React.useRef<HTMLInputElement>()
   useEffect(() => {
     if (!isDescriptionReadOnly) {
       editor.current.focus()
@@ -360,28 +359,37 @@ function Item(props: ItemProps): ReactElement {
       <GridItem colStart={props.compact ? 8 : 6} colSpan={1}>
         {(!props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null) && (
           <Flex justifyContent={'flex-end'}>
-            <Tag color={'white'} bg={'blue.500'} data-tip data-for={'project-name-' + item.key}>
-              <TagLabel>{item.project?.name}</TagLabel>
+            <Tag
+              size={props.compact ? 'sm' : 'md'}
+              color={'white'}
+              bg={'blue.500'}
+              data-tip
+              data-for={'project-name-' + item.key}
+            >
+              <TagLabel>
+                {props.compact ? truncateString(item.project?.name, 8) : item.project?.name}
+              </TagLabel>
             </Tag>
             <Tooltip id={'project-name-' + item.key} text={item.project?.name} />
           </Flex>
         )}
       </GridItem>
-      {!props.compact && (
+      {props.compact != true && (
         <>
-          <GridItem rowStart={1} colStart={1} colSpan={1}>
-            <Button
-              visible={item.children?.length > 0}
-              size="sm"
-              variant="subtle"
-              onClick={(e) => {
-                handleExpand(e)
-              }}
-              icon={subtasksVisible ? 'collapse' : 'expand'}
-              iconSize={'16px'}
-              iconColour={'gray.800'}
-            ></Button>
-          </GridItem>
+          {item.children?.length > 0 && (
+            <GridItem rowStart={1} colStart={1} colSpan={1}>
+              <Button
+                size="sm"
+                variant="subtle"
+                onClick={(e) => {
+                  handleExpand(e)
+                }}
+                icon={subtasksVisible ? 'collapse' : 'expand'}
+                iconSize={'16px'}
+                iconColour={'gray.800'}
+              ></Button>
+            </GridItem>
+          )}
 
           <GridItem rowStart={1} colStart={2} colSpan={1}>
             <Button

@@ -110,7 +110,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
         </CommandIcon>
         <FeedbackIcon>
           <Button
-            size="sm"
+            size="md"
             variant="invert"
             icon="feedback"
             iconSize="20px"
@@ -121,7 +121,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
         </FeedbackIcon>
         <ShortcutIcon id="shortcut-icon">
           <Button
-            size="sm"
+            size="md"
             id="shortcut-button"
             variant="invert"
             icon="help"

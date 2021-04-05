@@ -12,7 +12,6 @@ export const LoadingItem = () => {
       borderRadius={3}
       position="relative"
       _after={{
-        contnet: '',
         width: '100%',
         borderBottom: '1px solid',
         borderColor: 'gray.400',
@@ -24,8 +23,18 @@ export const LoadingItem = () => {
         margin: '0px auto',
       }}
     >
-      <SkeletonCircle my={1} left="0px" position="absolute" top="0px" size={'6'} />
+      <SkeletonCircle
+        startColor="gray.50"
+        endColor="gray.200"
+        my={1}
+        left="0px"
+        position="absolute"
+        top="0px"
+        size={'6'}
+      />
       <Skeleton
+        startColor="gray.50"
+        endColor="gray.200"
         my={1}
         mx={2}
         position="absolute"
@@ -35,6 +44,8 @@ export const LoadingItem = () => {
         top="0px"
       />
       <Skeleton
+        startColor="gray.50"
+        endColor="gray.200"
         my={1}
         mx={2}
         position="absolute"
@@ -44,6 +55,8 @@ export const LoadingItem = () => {
         bottom="0px"
       />
       <Skeleton
+        startColor="gray.50"
+        endColor="gray.200"
         my={1}
         mx={2}
         position="absolute"
@@ -53,6 +66,8 @@ export const LoadingItem = () => {
         bottom="0px"
       />
       <Skeleton
+        startColor="gray.50"
+        endColor="gray.200"
         my={1}
         mx={2}
         position="absolute"

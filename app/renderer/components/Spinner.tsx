@@ -1,41 +1,18 @@
 import React, { ReactElement } from 'react'
 import BeatLoader from 'react-spinners/BeatLoader'
-import styled, { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
-import { gql, useQuery } from '@apollo/client'
-import { ThemeType } from '../interfaces'
-
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
-
-const SpinnerContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-content: center;
-  padding: 20px 0px;
-`
+import { Flex } from '@chakra-ui/layout'
+import { useTheme } from '@chakra-ui/system'
 
 type SpinnerProps = {
   loading: boolean
 }
 
 export const Spinner = (props: SpinnerProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
+  const theme = useTheme()
+
   return (
-    <ThemeProvider theme={theme}>
-      <SpinnerContainer>
-        <BeatLoader size={10} color={theme.colours.primaryColour} loading={props.loading} />
-      </SpinnerContainer>
-    </ThemeProvider>
+    <Flex direction="row" justifyContent={'center'} alignContent={'center'} py={8} px={0}>
+      <BeatLoader size={10} color={theme.colors.blue[500]} loading={props.loading} />
+    </Flex>
   )
 }

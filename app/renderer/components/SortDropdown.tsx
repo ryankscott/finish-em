@@ -34,17 +34,6 @@ type SortDropdownProps = {
 }
 
 function SortDropdown(props: SortDropdownProps): ReactElement {
-  const menuItemStyle = {
-    px: 2,
-    py: 1,
-    borderRadius: 4,
-    fontSize: 'sm',
-    bg: 'white',
-    fontWeight: 300,
-    _hover: {
-      fontWeight: 400,
-    },
-  }
   const generateIconSize = (size: string) => {
     switch (size) {
       case 'md':
@@ -93,7 +82,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           <MenuDivider />
           <MenuOptionGroup type="radio" title="Property"></MenuOptionGroup>
           <MenuItemOption
-            {...menuItemStyle}
             onClick={() =>
               props.onSetSortType({
                 label: 'Status',
@@ -105,7 +93,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
             Status
           </MenuItemOption>
           <MenuItemOption
-            {...menuItemStyle}
             onClick={() =>
               props.onSetSortType({
                 label: 'Due',
@@ -117,7 +104,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
             Due
           </MenuItemOption>
           <MenuItemOption
-            {...menuItemStyle}
             onClick={() =>
               props.onSetSortType({
                 label: 'Scheduled',
@@ -129,7 +115,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
             Scheduled
           </MenuItemOption>
           <MenuItemOption
-            {...menuItemStyle}
             onClick={() =>
               props.onSetSortType({
                 label: 'Label',
@@ -141,7 +126,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
             Label
           </MenuItemOption>
           <MenuItemOption
-            {...menuItemStyle}
             onClick={() =>
               props.onSetSortType({
                 label: 'Created',
@@ -153,7 +137,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
             Created
           </MenuItemOption>
           <MenuItemOption
-            {...menuItemStyle}
             onClick={() =>
               props.onSetSortType({
                 label: 'Updated',
@@ -165,7 +148,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
             Updated
           </MenuItemOption>
           <MenuItemOption
-            {...menuItemStyle}
             onClick={() =>
               props.onSetSortType({
                 label: 'Project',
@@ -177,7 +159,6 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
             Project
           </MenuItemOption>
           <MenuItemOption
-            {...menuItemStyle}
             onClick={() =>
               props.onSetSortType({
                 label: 'Repeat',

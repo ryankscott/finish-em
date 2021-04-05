@@ -93,13 +93,6 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
     templateColumns: 'repeat(5, 1fr)',
     alignItems: 'center',
   }
-  const menuItemStyle = {
-    px: 2,
-    py: 1,
-    borderRadius: 4,
-    fontSize: 'sm',
-    bg: 'white',
-  }
 
   return (
     <VStack
@@ -159,18 +152,10 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
               {repeatIntervalType ? translateFrequencyToString(repeatIntervalType) : 'Interval'}
             </MenuButton>
             <MenuList bg={'white'}>
-              <MenuItem {...menuItemStyle} onClick={() => setRepeatIntervalType(RRule.DAILY)}>
-                Days
-              </MenuItem>
-              <MenuItem {...menuItemStyle} onClick={() => setRepeatIntervalType(RRule.WEEKLY)}>
-                Weeks
-              </MenuItem>
-              <MenuItem {...menuItemStyle} onClick={() => setRepeatIntervalType(RRule.MONTHLY)}>
-                Months
-              </MenuItem>
-              <MenuItem {...menuItemStyle} onClick={() => setRepeatIntervalType(RRule.YEARLY)}>
-                Years
-              </MenuItem>
+              <MenuItem onClick={() => setRepeatIntervalType(RRule.DAILY)}>Days</MenuItem>
+              <MenuItem onClick={() => setRepeatIntervalType(RRule.WEEKLY)}>Weeks</MenuItem>
+              <MenuItem onClick={() => setRepeatIntervalType(RRule.MONTHLY)}>Months</MenuItem>
+              <MenuItem onClick={() => setRepeatIntervalType(RRule.YEARLY)}>Years</MenuItem>
             </MenuList>
           </Menu>
         </GridItem>
@@ -192,15 +177,9 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
               {endType ? upperFirst(lowerCase(endType)) : 'Never'}
             </MenuButton>
             <MenuList bg={'white'}>
-              <MenuItem {...menuItemStyle} onClick={() => setEndType('on_a_date')}>
-                On a date
-              </MenuItem>
-              <MenuItem {...menuItemStyle} onClick={() => setEndType('after_x_times')}>
-                After X times
-              </MenuItem>
-              <MenuItem {...menuItemStyle} onClick={() => setEndType('never')}>
-                Never
-              </MenuItem>
+              <MenuItem onClick={() => setEndType('on_a_date')}>On a date</MenuItem>
+              <MenuItem onClick={() => setEndType('after_x_times')}>After X times</MenuItem>
+              <MenuItem onClick={() => setEndType('never')}>Never</MenuItem>
             </MenuList>
           </Menu>
         </GridItem>

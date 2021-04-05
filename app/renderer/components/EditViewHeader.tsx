@@ -1,24 +1,12 @@
 import React, { ReactElement, useEffect, useRef, useState } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { selectStyles, themes } from '../theme'
-import { ThemeType } from '../interfaces'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import Button from './Button'
-import {
-  CloseButtonContainer,
-  DialogContainer,
-  DialogHeader,
-  SaveButtonContainer,
-  SelectContainer,
-  Setting,
-  SettingLabel,
-  SettingValue,
-} from './styled/EditViewHeader'
+
 import EditableText from './EditableText'
-import Select from 'react-select'
-import { startCase, upperFirst } from 'lodash'
+import Select from './Select'
+import { startCase } from 'lodash'
 import { Icons } from '../assets/icons'
-import { ViewHeaderPropsInput } from '../../main/generated/typescript-helpers'
+import { Box, Flex } from '@chakra-ui/react'
 
 const GET_COMPONENT_BY_KEY = gql`
   query ComponentByKey($key: String!) {
@@ -26,7 +14,6 @@ const GET_COMPONENT_BY_KEY = gql`
       key
       parameters
     }
-    theme @client
   }
 `
 
@@ -60,6 +47,37 @@ const generateIconOptions = (): { value: string; label: string | JSX.Element }[]
   })
 }
 
+const settingStyles = {
+  justifyContent: 'flex-start',
+  py: 1,
+  px: 2,
+  w: '100%',
+  minH: '35px',
+  alignItems: 'bottom',
+}
+
+const settingLabelStyles = {
+  display: 'flex',
+  alignSelf: 'flex-start',
+  color: 'gray.800',
+  fontSize: 'md',
+  py: 1,
+  px: 3,
+  mr: 3,
+  w: '160px',
+  minW: '160px',
+}
+
+const settingValueStyles = {
+  display: 'flex',
+  justifyContent: 'center',
+  py: 0,
+  px: 2,
+  width: '100%',
+  minH: '30px',
+  alignItems: 'flex-start',
+}
+
 const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
   const nameRef = useRef<HTMLInputElement>()
   const [updateComponent] = useMutation(UPDATE_COMPONENT)
@@ -82,7 +100,7 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
     return null
   }
 
-  let params: ViewHeaderPropsInput = { name: '' }
+  let params = { name: '' }
   try {
     params = JSON.parse(data.component.parameters)
   } catch (error) {
@@ -91,75 +109,94 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
     return null
   }
 
-  const theme: ThemeType = themes[data.theme]
   const options = generateIconOptions()
 
   return (
-    <ThemeProvider theme={theme}>
-      <DialogContainer>
-        <DialogHeader>
-          <CloseButtonContainer>
-            <Button variant="default" iconSize="14" icon="close" onClick={props.onClose} />
-          </CloseButtonContainer>
-        </DialogHeader>
-        <Setting>
-          <SettingLabel>Name:</SettingLabel>
-          <SettingValue>
-            <EditableText
-              innerRef={nameRef}
-              key={'ed-name'}
-              input={headerName}
-              fontSize={'xsmall'}
-              shouldSubmitOnBlur={true}
-              onEscape={() => {}}
-              singleline={true}
-              shouldClearOnSubmit={false}
-              onUpdate={(input) => {
-                setHeaderName(input)
-              }}
-            />
-          </SettingValue>
-        </Setting>
-        <Setting>
-          <SettingLabel>Icon:</SettingLabel>
-          <SettingValue>
-            <SelectContainer>
-              <Select
-                value={options.find((o) => o.value == icon)}
-                onChange={(i) => {
-                  setIcon(i.value)
-                }}
-                options={generateIconOptions()}
-                styles={selectStyles({
-                  fontSize: '10px',
-                  textColour: '#333',
-                  altTextColour: '#FFF',
-                  backgroundColour: '#F2F2F2',
-                  altBackgroundColour: '#333',
-                })}
-                escapeClearsValue={true}
-              />
-            </SelectContainer>
-          </SettingValue>
-        </Setting>
-        <SaveButtonContainer>
+    <Flex
+      border="1px solid"
+      borderColor={'gray.200'}
+      borderRadius={3}
+      direction={'column'}
+      bg={'gray.50'}
+      py={2}
+      px={2}
+      pb={4}
+      w={'100%'}
+    >
+      <Flex direction={'row'} justifyContent={'flex-end'} p={2}>
+        <Box>
           <Button
-            text="Save"
-            variant={'primary'}
-            icon="save"
+            size="sm"
+            variant="default"
+            iconSize="14"
+            icon="close"
             onClick={() => {
-              updateComponent({
-                variables: {
-                  key: props.componentKey,
-                  parameters: { name: headerName, icon: icon },
-                },
-              })
               props.onClose()
             }}
           />
-        </SaveButtonContainer>
-      </DialogContainer>
-    </ThemeProvider>
+        </Box>
+      </Flex>
+      <Flex direction={'row'} {...settingStyles}>
+        <Flex {...settingLabelStyles}>Name:</Flex>
+        <Flex direction={'column'} {...settingValueStyles}>
+          <EditableText
+            innerRef={nameRef}
+            key={'ed-name'}
+            input={headerName}
+            fontSize={'xsmall'}
+            shouldSubmitOnBlur={true}
+            onEscape={() => {}}
+            singleline={true}
+            shouldClearOnSubmit={false}
+            onUpdate={(input) => {
+              setHeaderName(input)
+            }}
+          />
+        </Flex>
+      </Flex>
+      <Flex direction={'row'} {...settingStyles}>
+        <Flex {...settingLabelStyles}>Icon:</Flex>
+        <Flex direction={'column'} {...settingValueStyles}>
+          <Box position={'relative'} width={'180px'}>
+            <Select
+              size="md"
+              placeholder="Select icon"
+              defaultValue={options.find((o) => o.value == icon)}
+              onChange={(i) => {
+                setIcon(i.value)
+              }}
+              options={options}
+              escapeClearsValue={true}
+              renderLabelAsElement={true}
+            />
+          </Box>
+        </Flex>
+      </Flex>
+      <Flex
+        position={'relative'}
+        direction={'row'}
+        justifyContent={'flex-end'}
+        py={0}
+        px={8}
+        width={'100%'}
+      >
+        <Button
+          size="md"
+          text="Save"
+          variant={'primary'}
+          icon="save"
+          onClick={() => {
+            updateComponent({
+              variables: {
+                key: props.componentKey,
+                parameters: { name: headerName, icon: icon },
+              },
+            })
+            props.onClose()
+          }}
+        />
+      </Flex>
+    </Flex>
   )
 }
 export default EditViewHeader

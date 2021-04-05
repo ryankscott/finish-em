@@ -4,19 +4,11 @@ import 'codemirror/addon/hint/show-hint'
 import 'codemirror/addon/display/placeholder'
 import './FilterMode'
 import { UnControlled as ReactCodeMirror } from 'react-codemirror2'
-import { ThemeProvider } from '../../StyledComponents'
 
-import { gql, useQuery } from '@apollo/client'
 import { ExtendedCodeMirror } from './models/ExtendedCodeMirror'
 import AutoCompletePopup from './AutoCompletePopup'
-import { themes } from '../../theme'
 import { HintInfo } from './ExtendedCodeMirror'
-
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
+import { Box } from '@chakra-ui/react'
 
 type FilterInputProps = {
   value: string
@@ -29,14 +21,6 @@ type FilterInputProps = {
 }
 
 const FilterInput = (props: FilterInputProps) => {
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme = themes[data.theme]
-
   let options: CodeMirror.EditorConfiguration
   let codeMirror: ExtendedCodeMirror
   let doc: CodeMirror.Doc
@@ -106,14 +90,14 @@ const FilterInput = (props: FilterInputProps) => {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <Box w={'450px'} overflow={'auto !important'}>
       <ReactCodeMirror
         ref={codeMirrorRef}
         onChange={handleEditorChange}
         options={options}
         value={props.value}
       />
-    </ThemeProvider>
+    </Box>
   )
 }
 

@@ -7,7 +7,7 @@ import { Flex } from '@chakra-ui/react'
 
 const Inbox = (): ReactElement => {
   return (
-    <Flex marginTop="14" margin="5" padding="5" width="100%" direction="column" maxW="800">
+    <Flex margin={5} marginTop={12} padding={5} width="100%" direction="column" maxW="800px">
       <ViewHeader
         componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4496"
         name={'Inbox'}

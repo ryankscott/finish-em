@@ -840,12 +840,13 @@ export const selectStyles = (props: SelectStylesProps): StylesConfig => {
       ...styles,
       width: props.fullWidth ? '100%' : 'auto',
       padding: '0px 0px',
-      border: `none !important`,
+      border: props.invert ? `1px solid ${lighten(0.2, props.altBackgroundColour)}` : 'none !important',
+        borderRadius: '5px',
       '&:active': {
-      border: `none !important`,
+      border: props.invert ? `1px solid ${lighten(0.2, props.altBackgroundColour)}` : 'none !important',
       },
       '&:focus': {
-      border: `none !important`,
+      border: props.invert ? `1px solid ${lighten(0.2, props.altBackgroundColour)}` : 'none !important',
       },
     }),
     input: (styles, {data, isFocused}) => ({

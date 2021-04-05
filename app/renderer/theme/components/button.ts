@@ -25,6 +25,9 @@ const Button = {
       _hover: {
         bg: 'blue.500',
       },
+      _disabled: {
+        bg: 'blue.300',
+      },
     },
     error: {
       bg: 'red.400',
@@ -43,6 +46,7 @@ const Button = {
     subtle: {
       bg: 'transparent',
       color: 'gray.800',
+      shadow: 'none',
       _hover: {
         bg: 'transparent',
       },

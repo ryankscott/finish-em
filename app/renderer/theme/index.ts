@@ -5,10 +5,11 @@ import styles from './styles'
 // Foundational style overrides
 import typography from './foundations/typography'
 import colors from './foundations/colors'
-import space from './foundations/colors'
+import space from './foundations/space'
 
 // Component style overrides
 import Button from './components/button'
+import MenuItem from './components/menuItem'
 const theme = extendTheme({
   ...typography,
   space,
@@ -17,6 +18,7 @@ const theme = extendTheme({
   // Other foundational style overrides go here
   components: {
     Button,
+    MenuItem,
     // Other components go here
   },
 })

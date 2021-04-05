@@ -32,18 +32,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
   const repeatText = props.repeat ? capitaliseFirstLetter(rruleToText(props.repeat)) : 'Add repeat'
   const tooltipText = props.repeat ? capitaliseFirstLetter(props.repeat.toText()) : 'Repeat'
 
-  const menuItemStyle = {
-    px: 2,
-    py: 1,
-    borderRadius: 4,
-    fontSize: 'sm',
-    bg: 'gray.50',
-    fontWeight: 300,
-    _hover: {
-      fontWeight: 400,
-    },
-  }
-
   const generateIconSize = (size: string) => {
     switch (size) {
       case 'md':
@@ -75,7 +63,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
         </MenuButton>
         <MenuList bg={'gray.50'}>
           <MenuItem
-            {...menuItemStyle}
             onClick={() =>
               handleRepeatChange(
                 new RRule({
@@ -88,7 +75,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
             Daily
           </MenuItem>
           <MenuItem
-            {...menuItemStyle}
             onClick={() =>
               handleRepeatChange(
                 new RRule({
@@ -102,7 +88,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
             Weekdays
           </MenuItem>
           <MenuItem
-            {...menuItemStyle}
             onClick={() =>
               handleRepeatChange(
                 new RRule({
@@ -116,7 +101,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
             {'Weekly on ' + format(new Date(), 'EEE')}
           </MenuItem>
           <MenuItem
-            {...menuItemStyle}
             onClick={() =>
               handleRepeatChange(
                 new RRule({
@@ -129,9 +113,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           >
             {'Monthly on the ' + format(new Date(), 'do')}
           </MenuItem>
-          <MenuItem {...menuItemStyle} onClick={() => handleRepeatChange(null)}>
-            Custom repeat
-          </MenuItem>
+          <MenuItem onClick={() => handleRepeatChange(null)}>Custom repeat</MenuItem>
         </MenuList>
       </Menu>
 

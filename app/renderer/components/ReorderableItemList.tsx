@@ -1,30 +1,15 @@
 import React, { ReactElement } from 'react'
 import Item from './Item'
 import { ItemIcons } from '../interfaces/item'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
-import { ThemeType } from '../interfaces'
-import { TransitionGroup, Transition } from 'react-transition-group'
-import {
-  Container,
-  NoItemText,
-  DroppableList,
-  DraggableContainer,
-} from './styled/ReorderableItemList'
+
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { cloneDeep, get } from 'lodash'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { subtasksVisibleVar, focusbarVisibleVar, activeItemVar } from '..'
-import { Spinner } from './Spinner'
-
-const GET_DATA = gql`
-  query {
-    theme @client
-  }
-`
+import { Box, Flex, Text } from '@chakra-ui/layout'
 
 const COMPLETE_ITEM = gql`
   mutation CompleteItem($key: String!) {
@@ -194,125 +179,113 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     })
   })
 
-  const { loading, error, data } = useQuery(GET_DATA)
-  if (loading) return <Spinner loading={true}></Spinner>
-  if (error) {
-    console.log(error)
-    return null
-  }
-
-  const theme: ThemeType = themes[data.theme]
   const sortedItemOrders = props.inputItems
   return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <DragDropContext
-          onDragEnd={(e) => {
-            setItemOrder({
-              variables: {
-                itemKey: e.draggableId,
-                componentKey: props.componentKey,
-                sortOrder: props.inputItems[e.destination.index].sortOrder,
-              },
-            })
-          }}
-        >
-          <Droppable droppableId={uuidv4()} type="ITEM">
-            {(provided, snapshot) => (
-              <DroppableList
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-                isDraggingOver={snapshot.isDraggingOver}
-              >
-                <TransitionGroup component={null}>
-                  {sortedItemOrders.map((item, index) => {
-                    /* We want to allow flattening of subtasks which means:
+    <Box w={'100%'} my={4} mx={0} zIndex={0}>
+      <DragDropContext
+        onDragEnd={(e) => {
+          setItemOrder({
+            variables: {
+              itemKey: e.draggableId,
+              componentKey: props.componentKey,
+              sortOrder: props.inputItems[e.destination.index].sortOrder,
+            },
+          })
+        }}
+      >
+        <Droppable droppableId={uuidv4()} type="ITEM">
+          {(provided, snapshot) => (
+            <Flex
+              zIndex={0}
+              direction={'column'}
+              justifyContent={'center'}
+              borderRadius={3}
+              w={'100%'}
+              padding={snapshot.isDraggingOver ? '20px 5px' : '5px'}
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {sortedItemOrders.map((item, index) => {
+                /* We want to allow flattening of subtasks which means:
 											1. If we should flatten
 												- If an item has a parent and the parent is in the list, don't render the parent 
 											2.  Default
 												- If an item has a parent, don't render it (as it will get rendered later)
 												- For each item, render the item and it's children  (In the Item component)
 										*/
-                    if (props.flattenSubtasks == true) {
-                      if (item.parentKey != null) {
-                        const parentExistsInList = props.inputItems.find(
-                          (z) => z.key == item.parentKey,
-                        )
-                        // It exists it will get rendered later, so don't render it
-                        if (parentExistsInList) {
-                          return
-                        }
-                      }
+                if (props.flattenSubtasks == true) {
+                  if (item.parentKey != null) {
+                    const parentExistsInList = props.inputItems.find((z) => z.key == item.parentKey)
+                    // It exists it will get rendered later, so don't render it
+                    if (parentExistsInList) {
+                      return
                     }
-                    return (
-                      <Transition
-                        key={'t-container-' + item.key}
-                        timeout={{
-                          appear: 100,
-                          enter: 100,
-                          exit: 100,
-                        }}
+                  }
+                }
+                return (
+                  <Draggable key={item.key} draggableId={item.key} index={index}>
+                    {(provided, snapshot) => (
+                      <Flex
+                        position={'relative'}
+                        flexDirection={'column'}
+                        height={'auto'}
+                        userSelect={'none'}
+                        p={0}
+                        m={0}
+                        border={'none'}
+                        borderRadius={4}
+                        shadow={snapshot.isDragging ? 'md' : null}
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        key={'container-' + item.key}
                       >
-                        {(state) => {
+                        <Item
+                          compact={false}
+                          itemKey={item.key}
+                          key={item.key}
+                          componentKey={props.componentKey}
+                          shouldIndent={false}
+                          hiddenIcons={props.hiddenIcons}
+                        />
+                        {item.children?.map((child) => {
+                          // We need to check if the child exists in the original input list
+                          const shouldHide =
+                            (props.hideCompletedSubtasks && child.completed) ||
+                            (props.hideDeletedSubtasks && child.deleted)
                           return (
-                            <Draggable key={item.key} draggableId={item.key} index={index}>
-                              {(provided, snapshot) => (
-                                <DraggableContainer
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  {...provided.dragHandleProps}
-                                  key={'container-' + item.key}
-                                  isDragging={snapshot.isDragging}
-                                  draggableStyle={provided.draggableProps.style}
-                                  state={state}
-                                >
-                                  <Item
-                                    compact={false}
-                                    itemKey={item.key}
-                                    key={item.key}
-                                    componentKey={props.componentKey}
-                                    shouldIndent={false}
-                                    hiddenIcons={props.hiddenIcons}
-                                  />
-                                  {item.children?.map((child) => {
-                                    // We need to check if the child exists in the original input list
-                                    const shouldHide =
-                                      (props.hideCompletedSubtasks && child.completed) ||
-                                      (props.hideDeletedSubtasks && child.deleted)
-                                    return (
-                                      !shouldHide && (
-                                        <Item
-                                          compact={false}
-                                          itemKey={child.key}
-                                          key={child.key}
-                                          componentKey={props.componentKey}
-                                          shouldIndent={true}
-                                          hiddenIcons={
-                                            props.hiddenIcons
-                                              ? [...props.hiddenIcons, ItemIcons.Subtask]
-                                              : [ItemIcons.Subtask]
-                                          }
-                                        />
-                                      )
-                                    )
-                                  })}
-                                </DraggableContainer>
-                              )}
-                            </Draggable>
+                            !shouldHide && (
+                              <Item
+                                compact={false}
+                                itemKey={child.key}
+                                key={child.key}
+                                componentKey={props.componentKey}
+                                shouldIndent={true}
+                                hiddenIcons={
+                                  props.hiddenIcons
+                                    ? [...props.hiddenIcons, ItemIcons.Subtask]
+                                    : [ItemIcons.Subtask]
+                                }
+                              />
+                            )
                           )
-                        }}
-                      </Transition>
-                    )
-                  })}
-                </TransitionGroup>
-                {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
-                {provided.placeholder}
-              </DroppableList>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </Container>
-    </ThemeProvider>
+                        })}
+                      </Flex>
+                    )}
+                  </Draggable>
+                )
+              })}
+              {props.inputItems.length == 0 && (
+                <Text color={'gray.400'} fontSize={'sm'} py={4} px={0} pl={4}>
+                  No items
+                </Text>
+              )}
+              {provided.placeholder}
+            </Flex>
+          )}
+        </Droppable>
+      </DragDropContext>
+    </Box>
   )
 }
 

@@ -1,8 +1,5 @@
 import React, { ReactElement, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
-import { FilterContainer, Suggestion, Error } from './styled/ItemFilterBox'
 import ReactFilterBox from './filter-box/ReactFilterBox'
 import { Completion, HintResult } from './filter-box/models/ExtendedCodeMirror'
 import { Area, Label, Project } from '../../main/generated/typescript-helpers'
@@ -10,6 +7,7 @@ import Expression from './filter-box/Expression'
 import GridDataAutoCompleteHandler, { Option } from './filter-box/GridDataAutoCompleteHandler'
 import ParsedError from './filter-box/ParsedError'
 import { ValidationResult } from './filter-box/validateQuery'
+import { Box, Text, ListItem } from '@chakra-ui/layout'
 
 const GET_DATA = gql`
   query {
@@ -25,7 +23,6 @@ const GET_DATA = gql`
       key
       name
     }
-    theme @client
   }
 `
 
@@ -183,7 +180,6 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
     return null
   }
   const inputData = generateInputData(data)
-  const theme = themes[data.theme]
 
   const customRenderCompletionItem = (
     self: HintResult,
@@ -191,11 +187,16 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
     registerAndGetPickFunc: Function,
   ) => {
     return (
-      <ThemeProvider theme={theme}>
-        <Suggestion>
-          <span>{data.value}</span>
-        </Suggestion>
-      </ThemeProvider>
+      <Box
+        my={2}
+        mx={0}
+        p={3}
+        bg={'transparent'}
+        _hover={{ bg: 'gray.200' }}
+        _active={{ bg: 'gray.200' }}
+      >
+        <span>{data.value}</span>
+      </Box>
     )
   }
 
@@ -209,21 +210,20 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
           category: 'projectKey',
           value: e.value == 'null' ? 'null' : data.projects.find((p) => p.name == e.value)?.key,
         }
-        break
+
       case 'area':
         return {
           ...e,
           category: 'areaKey',
           value: e.value == 'null' ? 'null' : data.areas.find((p) => p.name == e.value)?.key,
         }
-        break
+
       case 'label':
         return {
           ...e,
           category: 'labelKey',
           value: e.value == 'null' ? 'null' : data.labels.find((p) => p.name == e.value)?.key,
         }
-        break
 
       default:
         return e
@@ -262,22 +262,22 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <FilterContainer>
-        <ReactFilterBox
-          data={inputData}
-          autoCompleteHandler={customAutoComplete}
-          customRenderCompletionItem={customRenderCompletionItem}
-          options={filterOptions}
-          query={props.filter}
-          onParseOk={onParseOk}
-          onChange={() => {}}
-          onParseError={onParseError}
-          strictMode={true}
-        />
-        <Error>{errorMessage}</Error>
-      </FilterContainer>
-    </ThemeProvider>
+    <Box w={'100%'} my={0} mx={2} pr={6}>
+      <ReactFilterBox
+        data={inputData}
+        autoCompleteHandler={customAutoComplete}
+        customRenderCompletionItem={customRenderCompletionItem}
+        options={filterOptions}
+        query={props.filter}
+        onParseOk={onParseOk}
+        onChange={() => {}}
+        onParseError={onParseError}
+        strictMode={true}
+      />
+      <Text w={'100%'} m={0} mt={2} color={'red.500'} pl={1}>
+        {errorMessage}
+      </Text>
+    </Box>
   )
 }
 

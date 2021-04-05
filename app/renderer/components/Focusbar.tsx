@@ -292,7 +292,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           </Flex>
         </GridItem>
       </Grid>
-      <Flex direction="row" m={0} px={2} pt={6} pb={0}>
+      <Flex w={'100%'} direction="row" m={0} px={2} py={4}>
         <Button
           variant="default"
           size="sm"
@@ -305,35 +305,37 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           }}
           icon={item.type == 'NOTE' ? 'note' : item.completed ? 'todoChecked' : 'todoUnchecked'}
         />
-        {data.newEditor.enabled ? (
-          <EditableText2
-            key={item.key}
-            height={'45px'}
-            width={'260px'}
-            input={item.text}
-            singleLine={true}
-            shouldClearOnSubmit={false}
-            shouldSubmitOnBlur={true}
-            hideToolbar={false}
-            hideBorder={true}
-            onUpdate={(text) => {
-              renameItem({ variables: { key: item.key, text: text } })
-            }}
-          />
-        ) : (
-          <EditableText
-            key={item.key}
-            innerRef={ref}
-            style={Header1}
-            input={removeItemTypeFromString(item.text)}
-            singleline={true}
-            onUpdate={(text) => {
-              renameItem({ variables: { key: item.key, text: text } })
-            }}
-            shouldSubmitOnBlur={true}
-            shouldClearOnSubmit={false}
-          />
-        )}
+        <Box w={'100%'}>
+          {data.newEditor.enabled ? (
+            <EditableText2
+              key={item.key}
+              height={'45px'}
+              width={'260px'}
+              input={item.text}
+              singleLine={true}
+              shouldClearOnSubmit={false}
+              shouldSubmitOnBlur={true}
+              hideToolbar={false}
+              hideBorder={true}
+              onUpdate={(text) => {
+                renameItem({ variables: { key: item.key, text: text } })
+              }}
+            />
+          ) : (
+            <EditableText
+              key={item.key}
+              innerRef={ref}
+              style={Header1}
+              input={removeItemTypeFromString(item.text)}
+              singleline={true}
+              onUpdate={(text) => {
+                renameItem({ variables: { key: item.key, text: text } })
+              }}
+              shouldSubmitOnBlur={true}
+              shouldClearOnSubmit={false}
+            />
+          )}
+        </Box>
         {item.deleted ? (
           <>
             <Button

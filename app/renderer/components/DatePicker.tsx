@@ -14,19 +14,6 @@ type DatePickerProps = {
   tooltipText?: string
   completed: boolean
   deleted?: boolean
-  invertColours?: boolean
-}
-
-const menuItemStyle = {
-  px: 2,
-  py: 1,
-  borderRadius: 4,
-  fontSize: 'sm',
-  bg: 'gray.50',
-  fontWeight: 300,
-  _hover: {
-    fontWeight: 400,
-  },
 }
 
 const DatePicker = (props: DatePickerProps): ReactElement => {
@@ -66,17 +53,11 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
           {props.text ? props.text : props.defaultText}
         </MenuButton>
         <MenuList width={'235px'} bg={'gray.50'}>
-          <MenuItem {...menuItemStyle} onClick={() => handleDayChange(new Date())}>
-            Today
-          </MenuItem>
-          <MenuItem
-            {...menuItemStyle}
-            onClick={() => handleDayChange(add(new Date(), { days: 1 }))}
-          >
+          <MenuItem onClick={() => handleDayChange(new Date())}>Today</MenuItem>
+          <MenuItem onClick={() => handleDayChange(add(new Date(), { days: 1 }))}>
             Tomorrow
           </MenuItem>
           <MenuItem
-            {...menuItemStyle}
             onClick={() =>
               handleDayChange(
                 sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
@@ -88,7 +69,6 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
             End of week
           </MenuItem>
           <MenuItem
-            {...menuItemStyle}
             onClick={() =>
               handleDayChange(
                 add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
@@ -100,7 +80,6 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
             Next week
           </MenuItem>
           <MenuItem
-            {...menuItemStyle}
             onClick={(e) => {
               e.preventDefault()
               setDayPickerVisible(true)

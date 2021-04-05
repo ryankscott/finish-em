@@ -112,7 +112,7 @@ export const ActionBar = (props: Props) => {
           key={'dd'}
           text={'Set due date'}
           tooltipText={'Set due date'}
-          searchPlaceholder={'Due at: '}
+          defaultText={'Due at: '}
           onSubmit={(d: Date) => {
             data.activeItem.map((i) => {
               setDueAt({ variables: { key: i, dueAt: d } })
@@ -127,7 +127,7 @@ export const ActionBar = (props: Props) => {
         <DatePicker
           key={'sd'}
           text={'Set scheduled date'}
-          searchPlaceholder={'Scheduled at: '}
+          defaultText={'Scheduled at: '}
           tooltipText={'Set scheduled date'}
           onSubmit={(d: Date) => {
             data.activeItem.map((i) => {

@@ -63,9 +63,9 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   const sortedEventsForToday = sortBy(eventsToday, ['startAt'], ['desc'])
 
   return (
-    <Flex marginTop="14" margin="5" padding="5" width="100%" direction="column" maxW="800">
-      <Grid templateColumns="repeat(5, 1fr)" width="100%" marginTop="10" margin="5">
-        <GridItem colSpan={1}>
+    <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
+      <Grid templateColumns="repeat(5, 1fr)" width="100%" my={5} mx={1}>
+        <GridItem colSpan={1} textAlign={'start'}>
           <Button
             size="md"
             variant="default"
@@ -76,7 +76,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
           />
         </GridItem>
         <GridItem colSpan={3} textAlign="center">
-          <Text color="blue.400" fontSize="xl">
+          <Text fontWeight={'normal'} color="blue.400" fontSize="xl">
             {format(currentDate, 'EEEE do MMMM yyyy')}
           </Text>
         </GridItem>

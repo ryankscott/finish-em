@@ -15,9 +15,10 @@ interface Props {
   options: OptionsType<OptionTypeBase>
   placeholder: string
   defaultValue?: OptionTypeBase
-  isMulti: boolean
+  isMulti?: boolean
   invertColours?: boolean
   fullWidth?: boolean
+  renderLabelAsElement?: boolean
 }
 
 const DropdownIndicator = (props: ElementConfig<typeof components.DropdownIndicator>) => {
@@ -36,7 +37,16 @@ const Select = (props: Props) => {
       autoFocus={props.autoFocus}
       isDisabled={props.isDisabled}
       onChange={(newValue, actionMeta) => {
+        if (
+          actionMeta.action == 'select-option' ||
+          actionMeta.action == 'remove-value' ||
+          actionMeta.action == 'clear'
+        ) {
+          props.onChange(newValue)
+          return
+        }
         props.onChange(newValue.value)
+        return
       }}
       isMulti={props.isMulti}
       options={props.options}
@@ -54,8 +64,12 @@ const Select = (props: Props) => {
       isSearchable={true}
       defaultValue={props.defaultValue}
       placeholder={props.placeholder}
-      formatOptionLabel={function (data) {
-        return <span dangerouslySetInnerHTML={{ __html: data.label }} />
+      formatOptionLabel={(data) => {
+        return props.renderLabelAsElement ? (
+          <span>{data.label}</span>
+        ) : (
+          <span dangerouslySetInnerHTML={{ __html: data.label }} />
+        )
       }}
       components={{ DropdownIndicator }}
     />

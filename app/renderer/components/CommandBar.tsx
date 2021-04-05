@@ -1,13 +1,10 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { Flex, useTheme } from '@chakra-ui/react'
 import React from 'react'
 import CommandPalette from 'react-command-palette'
-import { ThemeType } from '../interfaces'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
 import Button from './Button'
-const GET_THEME = gql`
+const GET_ACTIVE_ITEM = gql`
   query {
-    theme @client
     activeItem @client
   }
 `
@@ -20,7 +17,6 @@ const COMPLETE_ITEM = gql`
     }
   }
 `
-
 const UNCOMPLETE_ITEM = gql`
   mutation UnCompleteItem($key: String!) {
     unCompleteItem(input: { key: $key }) {
@@ -30,7 +26,6 @@ const UNCOMPLETE_ITEM = gql`
     }
   }
 `
-
 const DELETE_ITEM = gql`
   mutation DeleteItem($key: String!) {
     deleteItem(input: { key: $key }) {
@@ -56,7 +51,8 @@ const RESTORE_ITEM = gql`
 `
 
 export const CommandBar = () => {
-  const { loading, error, data } = useQuery(GET_THEME)
+  const theme = useTheme()
+  const { loading, error, data } = useQuery(GET_ACTIVE_ITEM)
 
   if (loading) return null
   if (error) {
@@ -123,57 +119,54 @@ export const CommandBar = () => {
   ]
   let commands = allCommands
 
-  const theme: ThemeType = themes[data.theme]
   return (
-    <ThemeProvider theme={theme}>
-      <CommandPalette
-        commands={commands}
-        closeOnSelect={true}
-        resetInputOnClose={true}
-        alwaysRenderCommands={true}
-        theme={{
-          container: 'command-container',
-          containerOpen: 'command-containerOpen',
-          content: 'command-content',
-          header: 'command-header',
-          input: 'command-input',
-          inputFocused: 'command-inputFocused',
-          inputOpen: 'command-inputOpen',
-          modal: 'command-modal',
-          overlay: 'command-overlay',
-          spinner: 'command-spinner',
-          shortcut: 'command-shortcut',
-          suggestion: 'command-suggestion',
-          suggestionFirst: 'command-suggestionFirst',
-          suggestionHighlighted: 'command-suggestionHighlighted',
-          suggestionsContainer: 'command-suggestionsContainer',
-          suggestionsContainerOpen: 'command-suggestionsContainerOpen',
-          suggestionsList: 'command-suggestionsList',
-        }}
-        trigger={
-          <Button
-            size="sm"
-            variant="invert"
-            icon="terminal"
-            iconSize="20px"
-            iconColour={theme.colours.altTextColour}
-            tooltipText="Show command bar"
-          />
-        }
-        renderCommand={(suggestion) => {
-          return (
-            <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-              {suggestion.highlight ? (
-                <span dangerouslySetInnerHTML={{ __html: suggestion.highlight }} />
-              ) : (
-                <span>{suggestion.name}</span>
-              )}
-              <span className={'command-shortcut'}>{suggestion.shortcut}</span>
-            </div>
-          )
-        }}
-        onSelect={() => {}}
-      />
-    </ThemeProvider>
+    <CommandPalette
+      commands={commands}
+      closeOnSelect={true}
+      resetInputOnClose={true}
+      alwaysRenderCommands={true}
+      theme={{
+        container: 'command-container',
+        containerOpen: 'command-containerOpen',
+        content: 'command-content',
+        header: 'command-header',
+        input: 'command-input',
+        inputFocused: 'command-inputFocused',
+        inputOpen: 'command-inputOpen',
+        modal: 'command-modal',
+        overlay: 'command-overlay',
+        spinner: 'command-spinner',
+        shortcut: 'command-shortcut',
+        suggestion: 'command-suggestion',
+        suggestionFirst: 'command-suggestionFirst',
+        suggestionHighlighted: 'command-suggestionHighlighted',
+        suggestionsContainer: 'command-suggestionsContainer',
+        suggestionsContainerOpen: 'command-suggestionsContainerOpen',
+        suggestionsList: 'command-suggestionsList',
+      }}
+      trigger={
+        <Button
+          size="md"
+          variant="invert"
+          icon="terminal"
+          iconSize="20px"
+          tooltipText="Show command bar"
+          iconColour={theme.colors.gray[100]}
+        />
+      }
+      renderCommand={(suggestion) => {
+        return (
+          <Flex width={'100%'} justifyContent={'space-between'}>
+            {suggestion.highlight ? (
+              <span dangerouslySetInnerHTML={{ __html: suggestion.highlight }} />
+            ) : (
+              <span>{suggestion.name}</span>
+            )}
+            <span className={'command-shortcut'}>{suggestion.shortcut}</span>
+          </Flex>
+        )
+      }}
+      onSelect={() => {}}
+    />
   )
 }

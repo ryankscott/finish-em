@@ -2,30 +2,17 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { add, format, getWeek, isBefore, parseISO, startOfDay, startOfWeek, sub } from 'date-fns'
 import groupBy from 'lodash/groupBy'
 import React, { ReactElement, useState } from 'react'
-import { DragDropContext } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { WeeklyGoal } from '../../main/generated/typescript-helpers'
-import { ItemIcons, ThemeType } from '../interfaces'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
+import { ItemIcons } from '../interfaces'
 import Button from './Button'
 import EditableText from './EditableText'
 import EditableText2 from './EditableText2'
 import ItemList from './ItemList'
 import ReorderableComponentList from './ReorderableComponentList'
-import {
-  AgendaContainer,
-  BackContainer,
-  BacklogContainer,
-  ColumnHeader,
-  DayContainer,
-  ForwardContainer,
-  GoalContainer,
-  Section,
-  WeekContainer,
-  WeeklyTitle,
-} from './styled/WeeklyAgenda'
-import { Header1, Paragraph } from './Typography'
+
+import { Paragraph } from './Typography'
+import { Grid, GridItem, Box, Flex, Text } from '@chakra-ui/react'
 
 const GET_DATA = gql`
   query weeklyItems($filter: String!, $componentKey: String!) {
@@ -65,7 +52,6 @@ const GET_DATA = gql`
       key
       enabled
     }
-    theme @client
   }
 `
 const CREATE_WEEKLY_GOAL = gql`
@@ -104,7 +90,6 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   const itemsByDate = groupBy(data.items, (i) => {
     return format(parseISO(i.scheduledAt), 'yyyy-MM-dd')
   })
-  const theme: ThemeType = themes[data.theme]
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
     (w) => w.week == format(currentDate, 'yyyy-MM-dd'),
   )
@@ -112,115 +97,131 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
     weeklyGoal = { key: uuidv4(), week: format(currentDate, 'yyyy-MM-dd'), goal: '' }
   }
   return (
-    <ThemeProvider theme={theme}>
-      <AgendaContainer>
-        <WeekContainer>
-          <BackContainer>
-            <Button
-              size="sm"
-              variant="default"
-              icon="back"
-              onClick={() => {
-                setDate(sub(currentDate, { days: 7 }))
-              }}
-            />
-          </BackContainer>
-          <WeeklyTitle>Week starting {format(currentDate, 'EEEE do MMMM yyyy')}</WeeklyTitle>
-          <ForwardContainer>
-            <Button
-              size="sm"
-              variant="default"
-              icon="forward"
-              onClick={() => {
-                setDate(add(currentDate, { days: 7 }))
-              }}
-            />
-          </ForwardContainer>
-          <Paragraph style={{ gridArea: 'week_of_year' }}>
-            Week of year: {getWeek(currentDate)} / 52
-          </Paragraph>
-          <Paragraph style={{ gridArea: 'week_of_quarter', textAlign: 'end' }}>
-            Week of quarter: {getWeek(currentDate) % 13} / 13
-          </Paragraph>
-        </WeekContainer>
-        <GoalContainer>
-          <Header1>Weekly goals</Header1>
-          {data.newEditor.enabled ? (
-            <EditableText2
-              key={weeklyGoal.key}
-              singleLine={false}
-              input={weeklyGoal.goal}
-              placeholder="Add a weekly goal..."
-              shouldSubmitOnBlur={true}
-              shouldClearOnSubmit={false}
-              hideToolbar={false}
-              height="150px"
-              onUpdate={(input) => {
-                createWeeklyGoal({
-                  variables: {
-                    key: weeklyGoal?.key,
-                    week: weeklyGoal.week,
-                    goal: input,
-                  },
-                })
-              }}
-            />
-          ) : (
-            <EditableText
-              input={weeklyGoal.goal}
-              width={'100%'}
-              height={'150px'}
-              style={Paragraph}
-              singleline={false}
-              placeholder="Add a weekly goal"
-              onUpdate={(input) =>
-                createWeeklyGoal({
-                  variables: {
-                    key: weeklyGoal?.key,
-                    week: weeklyGoal.week,
-                    goal: input,
-                  },
-                })
-              }
-              shouldSubmitOnBlur={true}
-              shouldClearOnSubmit={false}
-              innerRef={goalRef}
-            />
-          )}
-        </GoalContainer>
-        <Section>
-          <DragDropContext
-            onDragEnd={() => {
-              console.log('awwwww shit')
+    <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
+      <Grid templateColumns="repeat(5, 1fr)" width="100%" my={5} mx={1}>
+        <GridItem colSpan={1} textAlign={'start'}>
+          <Button
+            size="md"
+            variant="default"
+            icon="back"
+            onClick={() => {
+              setDate(sub(currentDate, { days: 7 }))
             }}
-          >
-            {Array.from({ length: 5 }, (val, idx) => {
-              const listDate = add(currentDate, { days: idx })
-
-              return (
-                <DayContainer
-                  key={`${idx}-container`}
-                  past={isBefore(listDate, startOfDay(new Date()))}
-                >
-                  <ColumnHeader key={`${idx}-title`}>{format(listDate, 'EEEE')}</ColumnHeader>
-                  <ItemList
-                    key={idx}
-                    compact={true}
-                    componentKey={uuidv4()}
-                    inputItems={itemsByDate?.[format(listDate, 'yyyy-MM-dd')] || []}
-                    flattenSubtasks={false}
-                    hiddenIcons={[ItemIcons.Scheduled]}
-                  />
-                </DayContainer>
-              )
-            })}
-          </DragDropContext>
-        </Section>
-        <BacklogContainer>
-          <ReorderableComponentList viewKey={'6c40814f-8fad-40dc-9a96-0454149a9408'} />
-        </BacklogContainer>
-      </AgendaContainer>
-    </ThemeProvider>
+          />
+        </GridItem>
+        <GridItem colSpan={3} textAlign="center">
+          <Text fontWeight={'normal'} fontSize="xl" color="blue.500" textAlign="center">
+            Week starting {format(currentDate, 'EEEE do MMMM yyyy')}
+          </Text>
+        </GridItem>
+        <GridItem colSpan={1} textAlign="end">
+          <Button
+            size="md"
+            variant="default"
+            icon="forward"
+            onClick={() => {
+              setDate(add(currentDate, { days: 7 }))
+            }}
+          />
+        </GridItem>
+      </Grid>
+      <Flex justify="space-between" width="100%" marginBottom="5">
+        <Text fontSize="md" style={{ gridArea: 'week_of_year' }}>
+          Week of year: {format(currentDate, 'w')} / 52
+        </Text>
+        <Text fontSize="md" textAlign="end" style={{ gridArea: 'week_of_quarter' }}>
+          Week of quarter: {parseInt(format(currentDate, 'w')) % 13} / 13
+        </Text>
+      </Flex>
+      <Flex
+        direction={'column'}
+        w={'100%'}
+        padding={4}
+        padding-left={12}
+        border={'1px solid'}
+        borderRadius={4}
+        borderColor={'gray.100'}
+        my={6}
+        mx={3}
+      >
+        <Text fontSize="lg" mb={3}>
+          Weekly goals
+        </Text>
+        {data.newEditor.enabled ? (
+          <EditableText2
+            key={weeklyGoal.key}
+            singleLine={false}
+            input={weeklyGoal.goal}
+            placeholder="Add a weekly goal..."
+            shouldSubmitOnBlur={true}
+            shouldClearOnSubmit={false}
+            hideToolbar={false}
+            height="120px"
+            onUpdate={(input) => {
+              createWeeklyGoal({
+                variables: {
+                  key: weeklyGoal?.key,
+                  week: weeklyGoal.week,
+                  goal: input,
+                },
+              })
+            }}
+          />
+        ) : (
+          <EditableText
+            input={weeklyGoal.goal}
+            width={'100%'}
+            height={'120px'}
+            style={Paragraph}
+            singleline={false}
+            placeholder="Add a weekly goal"
+            onUpdate={(input) =>
+              createWeeklyGoal({
+                variables: {
+                  key: weeklyGoal?.key,
+                  week: weeklyGoal.week,
+                  goal: input,
+                },
+              })
+            }
+            shouldSubmitOnBlur={true}
+            shouldClearOnSubmit={false}
+            innerRef={goalRef}
+          />
+        )}
+      </Flex>
+      <Grid templateColumns={'repeat(5, minmax(0, 1fr))'} m={0} p={0} w={'100%'}>
+        {Array.from({ length: 5 }, (val, idx) => {
+          const listDate = add(currentDate, { days: idx })
+          return (
+            <Box
+              py={2}
+              px={3}
+              border={'1px solid'}
+              borderColor={'gray.200'}
+              borderRadius={4}
+              bg={isBefore(listDate, startOfDay(new Date())) ? 'gray.100' : 'gray.50'}
+              key={`${idx}-container`}
+            >
+              <Text p={2} textAlign={'center'} fontSize="lg" key={`${idx}-title`}>
+                {format(listDate, 'EEEE')}
+              </Text>
+              <ItemList
+                key={idx}
+                compact={true}
+                componentKey={uuidv4()}
+                inputItems={itemsByDate?.[format(listDate, 'yyyy-MM-dd')] || []}
+                flattenSubtasks={false}
+                hiddenIcons={[ItemIcons.Scheduled]}
+              />
+            </Box>
+          )
+        })}
+      </Grid>
+      <Flex direction={'row'} w={'650px'} justifyContent={'center'} py={6} px={2}>
+        <ReorderableComponentList viewKey={'6c40814f-8fad-40dc-9a96-0454149a9408'} />
+      </Flex>
+    </Flex>
   )
 }
 
