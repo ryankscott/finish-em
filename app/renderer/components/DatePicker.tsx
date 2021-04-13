@@ -1,8 +1,7 @@
 import React, { ReactElement, useState } from 'react'
-import { Menu, MenuButton, MenuList, MenuItem, Button } from '@chakra-ui/react'
+import { Menu, MenuButton, MenuList, MenuItem, Button, Box } from '@chakra-ui/react'
 import { add, sub, lastDayOfWeek } from 'date-fns'
 import RDatePicker from 'react-datepicker'
-import { Wrapper } from './styled/ReactDatePicker'
 import { Icons } from '../assets/icons'
 
 type DatePickerProps = {
@@ -89,18 +88,16 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
           </MenuItem>
         </MenuList>
       </Menu>
-      <div style={{ position: 'absolute', top: '36px', right: '-18px', width: '222px' }}>
+      <Box position={'absolute'}>
         {dayPickerVisible && (
-          <Wrapper>
-            <RDatePicker
-              utcOffset={new Date().getTimezoneOffset()}
-              inline
-              tabIndex={0}
-              onChange={handleDayChange}
-            />
-          </Wrapper>
+          <RDatePicker
+            utcOffset={new Date().getTimezoneOffset()}
+            inline
+            tabIndex={0}
+            onChange={handleDayChange}
+          />
         )}
-      </div>
+      </Box>
     </>
   )
 }

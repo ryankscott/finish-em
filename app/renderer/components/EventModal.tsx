@@ -7,8 +7,8 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-} from '@chakra-ui/modal'
-import { AttributeContainer, AttributeKey, AttributeValue } from './styled/EventModal'
+  Flex,
+} from '@chakra-ui/react'
 import { Paragraph } from './Typography'
 import { Event } from '../../main/generated/typescript-helpers'
 import { format, parseISO } from 'date-fns'
@@ -18,6 +18,29 @@ interface Props {
   isOpen: boolean
   footer?: JSX.Element
   onClose: () => void
+}
+
+const AttributeContainerStyles = {
+  alignItems: 'flex-start',
+  justifyContent: 'flex-start',
+  my: 1,
+  mx: 6,
+  minH: 6,
+}
+
+const AttributeKeyStyles = {
+  justifyContent: 'flex-start',
+  fontWeight: 'semi-bold',
+  alignItems: 'center',
+  ml: 0,
+  minW: 12,
+}
+
+const AttributeValueStyles = {
+  justifyContent: 'flex-start',
+  alignItems: 'flex-start',
+  minW: '180px',
+  textOverflow: 'ellipsis',
 }
 
 export const EventModal = (props: Props) => {
@@ -55,24 +78,30 @@ export const EventModal = (props: Props) => {
           <ModalHeader>{props.event?.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <AttributeContainer>
-              <AttributeKey>
+            <Flex direction={'row'} {...AttributeContainerStyles}>
+              <Flex {...AttributeKeyStyles}>
                 <Paragraph>Time: </Paragraph>
-              </AttributeKey>
-              <AttributeValue>{generateDuration()}</AttributeValue>
-            </AttributeContainer>
-            <AttributeContainer>
-              <AttributeKey>
+              </Flex>
+              <Flex postion={'relative'} direction={'column'} {...AttributeValueStyles}>
+                {generateDuration()}
+              </Flex>
+            </Flex>
+            <Flex direction={'row'} {...AttributeContainerStyles}>
+              <Flex {...AttributeKeyStyles}>
                 <Paragraph>Location: </Paragraph>
-              </AttributeKey>
-              <AttributeValue>{generateLocation()}</AttributeValue>
-            </AttributeContainer>
-            <AttributeContainer>
-              <AttributeKey>
+              </Flex>
+              <Flex postion={'relative'} direction={'column'} {...AttributeValueStyles}>
+                {generateLocation()}
+              </Flex>
+            </Flex>
+            <Flex direction={'row'} {...AttributeContainerStyles}>
+              <Flex {...AttributeKeyStyles}>
                 <Paragraph>Attendees: </Paragraph>
-              </AttributeKey>
-              <AttributeValue>{generateAttendees()}</AttributeValue>
-            </AttributeContainer>
+              </Flex>
+              <Flex postion={'relative'} direction={'column'} {...AttributeValueStyles}>
+                {generateAttendees()}
+              </Flex>
+            </Flex>
           </ModalBody>
           <ModalFooter>{props?.footer}</ModalFooter>
         </ModalContent>

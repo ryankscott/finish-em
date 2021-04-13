@@ -192,6 +192,7 @@
     "sqlstring-sqlite": "^0.1.1",
     "styled-components": "^5.2.1",
     "sugar-date": "^2.0.6",
+    "theme-ui": "^0.6.2",
     "uuid": "^8.3.2"
   }
 }

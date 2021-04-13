@@ -142,6 +142,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                           _hover={{
                             border: '1px solid',
                             borderColor: 'gray.200',
+                            shadow: 'sm',
                           }}
                           ref={provided.innerRef}
                           {...provided.draggableProps}

@@ -1,17 +1,8 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
 import Button from './Button'
-import { Container, DialogContainer, Icon, Option } from './styled/MoreDropdown'
-import { IconType, ThemeType } from '../interfaces'
+import { IconType } from '../interfaces'
 import { Icons } from '../assets/icons'
-import { gql, useQuery } from '@apollo/client'
-
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
+import { Box, Flex } from '@chakra-ui/react'
 
 const DropdownOption = (
   key: number,
@@ -20,10 +11,25 @@ const DropdownOption = (
   label: string,
 ): ReactElement => {
   return (
-    <Option key={key} onClick={onClick}>
-      <Icon>{Icons[icon](14, 14)}</Icon>
+    <Flex
+      direction={'row'}
+      justifyContent={'flex-start'}
+      p={1}
+      bg={'gray.50'}
+      borderRadius={4}
+      fontSize={'sm'}
+      zIndex={101}
+      _hover={{
+        bg: 'gray.100',
+      }}
+      key={key}
+      onClick={onClick}
+    >
+      <Flex direction={'row'} justifyContent={'center'} alignItems={'center'} py={0} px={2}>
+        {Icons[icon](14, 14)}
+      </Flex>
       {label}
-    </Option>
+    </Flex>
   )
 }
 
@@ -37,7 +43,6 @@ type MoreDropdownProps = {
   showDialog?: boolean
   disableClick?: boolean
   options: MoreDropdownOptions
-  subtle?: boolean
 }
 
 function MoreDropdown(props: MoreDropdownProps): ReactElement {
@@ -59,41 +64,44 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
     }
   }, [])
 
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
-
   return (
-    <ThemeProvider theme={theme}>
-      <Container ref={node}>
-        <Button
-          variant={props.subtle ? 'subtle' : 'default'}
-          icon="more"
-          size="sm"
-          tooltipText="More actions"
-          onClick={(e) => {
-            setShowDialog(!showDialog)
-            e.stopPropagation()
-          }}
-        />
+    <Box py={2} position={'relative'} zIndex={100} ref={node}>
+      <Button
+        variant={'subtle'}
+        icon="more"
+        size="sm"
+        tooltipText="More actions"
+        onClick={(e) => {
+          setShowDialog(!showDialog)
+          e.stopPropagation()
+        }}
+      />
 
-        {(showDialog || props.showDialog) && (
-          <>
-            <DialogContainer
-              onClick={() => {
-                setShowDialog(false)
-              }}
-            >
-              {props.options.map((v, i) => DropdownOption(i, v.onClick, v.icon, v.label))}
-            </DialogContainer>
-          </>
-        )}
-      </Container>
-    </ThemeProvider>
+      {(showDialog || props.showDialog) && (
+        <>
+          <Flex
+            bg={'gray.50'}
+            position={'absolute'}
+            direction={'column'}
+            py={1}
+            px={0}
+            m={0}
+            border={'1px solid'}
+            borderColor={'gray.200'}
+            borderRadius={4}
+            minW={'140px'}
+            zIndex={100}
+            right={0}
+            shadow="sm"
+            onClick={() => {
+              setShowDialog(false)
+            }}
+          >
+            {props.options.map((v, i) => DropdownOption(i, v.onClick, v.icon, v.label))}
+          </Flex>
+        </>
+      )}
+    </Box>
   )
 }
 

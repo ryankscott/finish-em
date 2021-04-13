@@ -1,5 +1,3 @@
-## Shortcuts
-
 ## App
 
 | Name                   | Keys  |

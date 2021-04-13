@@ -1,34 +1,22 @@
-import React, { ReactElement, useEffect, useState } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { ThemeProvider } from '../StyledComponents'
-import { useHistory } from 'react-router-dom'
-import { themes } from '../theme'
-import { Title } from './Typography'
-import EditableText from './EditableText'
-import DeleteProjectDialog from './DeleteProjectDialog'
-import {
-  ProjectContainer,
-  HeaderContainer,
-  AddProjectContainer,
-  EmojiContainer,
-  ProgressContainer,
-  DescriptionContainer,
-  EmojiPickerWrapper,
-} from './styled/Project'
-import ItemCreator from './ItemCreator'
-import { formatRelativeDate } from '../utils'
-import DatePicker from 'react-datepicker'
-import { Wrapper } from './styled/ReactDatepicker'
+import { Flex, Grid, GridItem, useTheme, Box, Text } from '@chakra-ui/react'
 import { parseISO } from 'date-fns'
-import { Donut } from './Donut'
-import { darken } from 'polished'
-import Tooltip from './Tooltip'
-import { ThemeType } from '../interfaces'
-import { Project as ProjectType, Item as ItemType } from '../../main/generated/typescript-helpers'
-import { toast } from 'react-toastify'
-import EditableText2 from './EditableText2'
+import { Emoji, Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
-import { Picker, Emoji } from 'emoji-mart'
+import React, { ReactElement, useState } from 'react'
+import DatePicker from 'react-datepicker'
+import { toast } from 'react-toastify'
+import { Item as ItemType, Project as ProjectType } from '../../main/generated/typescript-helpers'
+import { formatRelativeDate } from '../utils'
+import DeleteProjectDialog from './DeleteProjectDialog'
+import { Donut } from './Donut'
+import EditableText from './EditableText'
+import EditableText2 from './EditableText2'
+import ItemCreator from './ItemCreator'
+import Tooltip from './Tooltip'
+import { Title } from './Typography'
+import { useHistory } from 'react-router-dom'
+import './styled/ReactDatePicker.css'
 
 const GET_PROJECT_BY_KEY = gql`
   query ProjectByKey($key: String!) {
@@ -66,7 +54,6 @@ const GET_PROJECT_BY_KEY = gql`
       key
       enabled
     }
-    theme @client
   }
 `
 
@@ -132,6 +119,7 @@ type ProjectProps = {
 }
 
 const Project = (props: ProjectProps): ReactElement => {
+  const theme = useTheme()
   const history = useHistory()
   const name = React.useRef<HTMLInputElement>()
   const description = React.useRef<HTMLInputElement>()
@@ -157,29 +145,58 @@ const Project = (props: ProjectProps): ReactElement => {
   const projects: ProjectType[] = data.projects
   const allItems: ItemType[] = project?.items
   const completedItems = allItems.filter((i) => i.completed == true)
-  const theme: ThemeType = themes[data.theme]
   return (
-    <ThemeProvider theme={theme}>
-      <ProjectContainer>
-        <HeaderContainer>
-          <DescriptionContainer>
-            <EditableText
-              shouldSubmitOnBlur={true}
-              key={project.key + 'name'}
-              input={project.name}
-              style={Title}
-              singleline={true}
-              innerRef={name}
-              onUpdate={(input) => {
-                const exists = projects.map((p) => p.name == input).includes(true)
-                if (exists) {
-                  toast.error('Cannot rename project, a project with that name already exists')
-                } else {
-                  renameProject({ variables: { key: project.key, name: input } })
-                }
-              }}
-              shouldClearOnSubmit={false}
-            />
+    <Flex direction={'column'} w={'100%'} maxW={'700px'} my={3} mx={0} mt={8}>
+      <Grid
+        gridAutoRows={'60px 40px'}
+        gridTemplateColumns={'120px 1fr'}
+        alignItems={'center'}
+        py={3}
+        px={0}
+        columnGap={2}
+      >
+        <GridItem colStart={1} colSpan={1} rowStart={1} rowSpan={2}>
+          <Flex
+            w={'100px'}
+            h={'100px'}
+            borderRadius={'50%'}
+            justifyContent={'center'}
+            fontSize={'xl'}
+            bg={'gray.100'}
+            my={0}
+            mx={4}
+            _hover={{
+              bg: 'gray.200',
+            }}
+            cursor={'pointer'}
+            onClick={() => {
+              setShowEmojiPicker(!showEmojiPicker)
+            }}
+          >
+            <Emoji emoji={project.emoji ? project.emoji : ''} size={68} native={true} />
+          </Flex>
+        </GridItem>
+        <GridItem rowStart={1} colStart={2} colSpan={1}>
+          <Flex w={'100%'} justifyContent={'flex-start'} alignItems={'flex-start'}>
+            <Box w={'100%'} px={2}>
+              <EditableText
+                shouldSubmitOnBlur={true}
+                key={project.key + 'name'}
+                input={project.name}
+                style={Title}
+                singleline={true}
+                innerRef={name}
+                onUpdate={(input) => {
+                  const exists = projects.map((p) => p.name == input).includes(true)
+                  if (exists) {
+                    toast.error('Cannot rename project, a project with that name already exists')
+                  } else {
+                    renameProject({ variables: { key: project.key, name: input } })
+                  }
+                }}
+                shouldClearOnSubmit={false}
+              />
+            </Box>
             <DeleteProjectDialog
               onDelete={() => {
                 deleteProject({ variables: { key: project.key } })
@@ -187,105 +204,93 @@ const Project = (props: ProjectProps): ReactElement => {
                 history.push('/inbox')
               }}
             />
-          </DescriptionContainer>
-
-          <ProgressContainer>
+          </Flex>
+        </GridItem>
+        <GridItem rowStart={2} colstart={2} colSpan={1}>
+          <Flex justifyContent={'flex-start'} alignItems={'center'}>
             <Donut
               size={30}
               progress={allItems.length != 0 ? (100 * completedItems.length) / allItems.length : 0}
-              activeColour={theme.colours.primaryColour}
-              inactiveColour={darken(0.2, theme.colours.backgroundColour)}
+              activeColour={theme.colors.blue[500]}
+              inactiveColour={theme.colors.gray[300]}
             />
             {`${completedItems.length} of ${allItems.length} items completed`}
-          </ProgressContainer>
-          <Tooltip id="donut" text={`${completedItems.length}/${allItems.length} completed`} />
-          <EmojiContainer
-            onClick={() => {
-              setShowEmojiPicker(!showEmojiPicker)
-            }}
-          >
-            <Emoji emoji={project.emoji ? project.emoji : ''} size={68} native={true} />
-          </EmojiContainer>
-          {showEmojiPicker && (
-            <EmojiPickerWrapper>
-              <Picker
-                native={true}
-                title=""
-                emoji=""
-                color={theme.colours.primaryColour}
-                onSelect={(emoji) => {
-                  setEmoji({ variables: { key: project.key, emoji: emoji.id } })
-                  setShowEmojiPicker(false)
-                }}
-              />
-            </EmojiPickerWrapper>
-          )}
-        </HeaderContainer>
-        {data.projectDates.enabled && (
-          <div
-            style={{
-              paddingLeft: '6px',
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-            }}
-          >
-            {'Start: '}
-            <Wrapper>
-              <DatePicker
-                value={project.startAt ? formatRelativeDate(parseISO(project.startAt)) : ''}
-                onChange={(e) => {
-                  setStartDate({ variables: { key: project.key, startAt: e.toISOString() } })
-                }}
-              />
-            </Wrapper>
-            {'End: '}
-            <Wrapper>
-              <DatePicker
-                value={project.endAt ? formatRelativeDate(parseISO(project.endAt)) : ''}
-                onChange={(e) => {
-                  setEndDate({ variables: { key: project.key, endAt: e.toISOString() } })
-                }}
-              />
-            </Wrapper>
-          </div>
+          </Flex>
+        </GridItem>
+        <Tooltip id="donut" text={`${completedItems.length}/${allItems.length} completed`} />
+
+        {showEmojiPicker && (
+          <Flex position={'relative'} zIndex={9}>
+            <Picker
+              native={true}
+              title=""
+              emoji=""
+              color={theme.colors.blue[500]}
+              onSelect={(emoji) => {
+                setEmoji({ variables: { key: project.key, emoji: emoji.id } })
+                setShowEmojiPicker(false)
+              }}
+            />
+          </Flex>
         )}
-        {data.newEditor.enabled ? (
-          <EditableText2
-            singleLine={false}
-            placeholder="Add a description for your project..."
-            shouldClearOnSubmit={false}
-            hideToolbar={false}
-            shouldSubmitOnBlur={true}
-            height="100px"
-            onUpdate={(input) => {
-              changeDescription({ variables: { key: project.key, description: input } })
-            }}
-          />
-        ) : (
-          <EditableText
-            placeholder="Add a description for your project..."
-            shouldSubmitOnBlur={true}
-            key={project.key + 'description'}
-            onUpdate={(input) => {
-              changeDescription({ variables: { key: project.key, description: input } })
-            }}
-            innerRef={description}
-            input={project.description}
-            height="100px"
-            shouldClearOnSubmit={false}
-          />
-        )}
-        <AddProjectContainer>
-          <ItemCreator
-            projectKey={project.key}
-            buttonText="Add to project"
-            width="100%"
-            initiallyExpanded={false}
-          />
-        </AddProjectContainer>
-      </ProjectContainer>
-    </ThemeProvider>
+      </Grid>
+      {data.projectDates.enabled && (
+        <Flex pl={4} direction={'row'} alignItems={'center'}>
+          <Text>Start: </Text>
+          <Box>
+            <DatePicker
+              value={project.startAt ? formatRelativeDate(parseISO(project.startAt)) : ''}
+              onChange={(e) => {
+                setStartDate({ variables: { key: project.key, startAt: e.toISOString() } })
+              }}
+            />
+          </Box>
+          <Text>End: </Text>
+          <Box>
+            <DatePicker
+              value={project.endAt ? formatRelativeDate(parseISO(project.endAt)) : ''}
+              onChange={(e) => {
+                setEndDate({ variables: { key: project.key, endAt: e.toISOString() } })
+              }}
+            />
+          </Box>
+        </Flex>
+      )}
+      {data.newEditor.enabled ? (
+        <EditableText2
+          singleLine={false}
+          placeholder="Add a description for your project..."
+          shouldClearOnSubmit={false}
+          hideToolbar={false}
+          shouldSubmitOnBlur={true}
+          height="100px"
+          onUpdate={(input) => {
+            changeDescription({ variables: { key: project.key, description: input } })
+          }}
+        />
+      ) : (
+        <EditableText
+          placeholder="Add a description for your project..."
+          shouldSubmitOnBlur={true}
+          key={project.key + 'description'}
+          onUpdate={(input) => {
+            changeDescription({ variables: { key: project.key, description: input } })
+          }}
+          innerRef={description}
+          input={project.description}
+          height="100px"
+          shouldClearOnSubmit={false}
+        />
+      )}
+      <Flex direction={'column'} justifyContent={'flex-end'} py={2} px={0} w={'100%'}>
+        <ItemCreator
+          projectKey={project.key}
+          buttonText="Add to project"
+          width="100%"
+          initiallyExpanded={false}
+        />
+      </Flex>
+    </Flex>
   )
 }
 

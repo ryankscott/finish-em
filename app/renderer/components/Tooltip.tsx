@@ -1,13 +1,15 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
-import { StyledTooltip } from './styled/Tooltip'
-import { gql, useQuery } from '@apollo/client'
-import { ThemeType } from '../interfaces'
+import ReactTooltip from 'react-tooltip'
+import styled from '@emotion/styled'
 
-const GET_THEME = gql`
-  query {
-    theme @client
+const StyledTooltip = styled(ReactTooltip)`
+  padding: 5px 8px !important;
+  margin: 0px !important;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
+  font-size: 10px !important;
+  color: #eee !important;
+  p {
+    color: #eee !important;
   }
 `
 
@@ -19,27 +21,18 @@ type TooltipProps = {
 }
 
 const Tooltip = (props: TooltipProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
   return (
-    <ThemeProvider theme={theme}>
-      <StyledTooltip
-        id={props.id}
-        type="dark"
-        effect="float"
-        place="top"
-        delayShow={500}
-        multiline={props.multiline}
-        html={props.html}
-      >
-        {props.text}
-      </StyledTooltip>
-    </ThemeProvider>
+    <StyledTooltip
+      id={props.id}
+      type="dark"
+      effect="float"
+      place="top"
+      delayShow={500}
+      multiline={props.multiline}
+      html={props.html}
+    >
+      {props.text}
+    </StyledTooltip>
   )
 }
 export default Tooltip

@@ -1,29 +1,16 @@
-import React, { ReactElement, useState } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { themes } from '../theme'
-import { ItemIcons } from '../interfaces'
-import {
-  Container,
-  HeaderBar,
-  ItemListContainer,
-  ListHeader,
-  ListItemCount,
-  HideButtonContainer,
-  EditableContainer,
-  FilterBar,
-  ErrorBanner,
-} from './styled/FilteredItemList'
-
-import SortDropdown, { SortDirectionEnum, SortOption } from './SortDropdown'
-import Button from './Button'
-import ReorderableItemList from './ReorderableItemList'
-import { ThemeProvider } from '../StyledComponents'
+import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react'
+import { cloneDeep, orderBy } from 'lodash'
+import React, { ReactElement, useState } from 'react'
+import { subtasksVisibleVar } from '..'
 import { PAGE_SIZE } from '../consts'
+import { ItemIcons } from '../interfaces'
+import Button from './Button'
 import EditFilteredItemList from './EditFilteredItemList'
 import Pagination from './Pagination'
-import { cloneDeep, orderBy } from 'lodash'
-import { subtasksVisibleVar } from '..'
-import { Box } from '@chakra-ui/react'
+import ReorderableItemList from './ReorderableItemList'
+import SortDropdown, { SortDirectionEnum, SortOption } from './SortDropdown'
+
 const determineVisibilityRules = (
   isFilterable: boolean,
   showItemList: boolean,
@@ -48,9 +35,8 @@ const determineVisibilityRules = (
     showSortButton: sortedItemsLength >= 1 && showItemList,
   }
 }
-const GET_THEME = gql`
+const GET_ATTRIBUTES = gql`
   query {
-    theme @client
     subtasksVisible @client
   }
 `
@@ -136,7 +122,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [bulkCreateItemOrders] = useMutation(BULK_CREATE_ITEMORDERS)
   const [deleteItemOrdersByComponent] = useMutation(DELETE_ITEMORDERS_BY_COMPONENT)
 
-  const { loading: l, error: e, data: localData } = useQuery(GET_THEME)
+  const { loading: l, error: e, data: localData } = useQuery(GET_ATTRIBUTES)
   const { loading, error, data, refetch } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
@@ -144,27 +130,43 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     },
     fetchPolicy: 'cache-and-network',
   })
-  const theme = themes[localData.theme]
   if (error) {
     console.log(error)
 
     return (
-      <ThemeProvider theme={theme}>
-        <Container>
-          <ErrorBanner>{'Failed to load component - please reconfigure'}</ErrorBanner>
-          <EditableContainer>
-            <EditFilteredItemList
-              key={`dlg-${props.componentKey}`}
-              componentKey={props.componentKey}
-              onClose={() => {
-                props.setEditing(false)
-              }}
-            />
-          </EditableContainer>
-        </Container>
-      </ThemeProvider>
+      <Box m={0} p={0} w={'100%'} borderRadius={5} border="1px solid" borderColor="gray.200">
+        <Flex
+          direction={'row'}
+          justifyContent={'center'}
+          alignItems={'center'}
+          m={0}
+          py={3}
+          px={2}
+          w={'100%'}
+          minH={'50px'}
+          borderRadius={5}
+          border={'1px solid'}
+          borderColor={'red.500'}
+          bg={'red.500'}
+          color={'gray.50'}
+          fontSize={'md'}
+          fontWeight={'semibold'}
+        >
+          {'Failed to load component - please reconfigure'}
+        </Flex>
+        <Box>
+          <EditFilteredItemList
+            key={`dlg-${props.componentKey}`}
+            componentKey={props.componentKey}
+            onClose={() => {
+              props.setEditing(false)
+            }}
+          />
+        </Box>
+      </Box>
     )
   }
+
   const allItems = data?.items
 
   const uncompletedItems = data?.items.filter((m) => m.completed == false)
@@ -211,32 +213,51 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
 
   // TODO: #338 Handle when items returned is null
   return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <HeaderBar>
-          <HideButtonContainer>
-            <Button
-              key={`btn-${props.componentKey}`}
-              variant="default"
-              size="sm"
-              icon={showItemList == true ? 'collapse' : 'expand'}
-              onClick={() => {
-                setShowItemList(!showItemList)
-              }}
-              tooltipText="Hide items"
-            />
-          </HideButtonContainer>
-          <ListHeader>
-            {props.listName}
-            <ListItemCount>
+    <Box m={0} p={0} w={'100%'} borderRadius={5} border="1px solid" borderColor="gray.200">
+      <Grid
+        position={'relative'}
+        alignItems={'center'}
+        py={4}
+        px={2}
+        mt={0}
+        borderRadius={0}
+        borderTopRadius={5}
+        gridTemplateRows={'40px'}
+        gridTemplateColumns={'30px auto auto'}
+        borderBottom={'1px solid'}
+        borderColor={'gray.200'}
+      >
+        <GridItem colSpan={1}>
+          <Button
+            key={`btn-${props.componentKey}`}
+            variant="default"
+            size="sm"
+            icon={showItemList == true ? 'collapse' : 'expand'}
+            onClick={() => {
+              setShowItemList(!showItemList)
+            }}
+            tooltipText="Hide items"
+          />
+        </GridItem>
+        <GridItem colSpan={1}>
+          <Flex direction={'row'} py={1} px={0} my={0} mx={2} alignItems={'baseline'}>
+            <Text fontSize="lg">{props.listName}</Text>
+            <Text py={0} px={2} minW={'80px'} color={'gray.500'}>
               {sortedItems
                 ? sortedItems.length == 1
                   ? '1 item'
                   : sortedItems.length + ' items'
                 : '0 items'}
-            </ListItemCount>
-          </ListHeader>
-          <FilterBar>
+            </Text>
+          </Flex>
+        </GridItem>
+        <GridItem colSpan={1}>
+          <Flex
+            position={'relative'}
+            direction={'row'}
+            justifyContent={'flex-end'}
+            alignItems={'center'}
+          >
             {visibility.showFilterBar && (
               <>
                 {visibility.showCompletedToggle && (
@@ -332,43 +353,40 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
                 </Box>
               </>
             )}
-          </FilterBar>
-        </HeaderBar>
-        {props.editing ? (
-          <EditableContainer>
-            <EditFilteredItemList
-              key={`dlg-${props.componentKey}`}
+          </Flex>
+        </GridItem>
+      </Grid>
+      {props.editing ? (
+        <Box>
+          <EditFilteredItemList
+            key={`dlg-${props.componentKey}`}
+            componentKey={props.componentKey}
+            onClose={() => {
+              props.setEditing(false)
+            }}
+          />
+        </Box>
+      ) : showItemList ? (
+        <>
+          <Flex w={'100%'} transition={'0.2s ease-in-out'} py={0} px={3}>
+            <ReorderableItemList
+              key={props.componentKey}
+              hideDeletedSubtasks={props.hideDeletedSubtasks}
+              hideCompletedSubtasks={props.hideCompletedSubtasks}
               componentKey={props.componentKey}
-              onClose={() => {
-                props.setEditing(false)
-              }}
+              hiddenIcons={props.hiddenIcons}
+              inputItems={sortedItems.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)}
+              flattenSubtasks={props.flattenSubtasks}
             />
-          </EditableContainer>
-        ) : showItemList ? (
-          <>
-            <ItemListContainer>
-              <ReorderableItemList
-                key={props.componentKey}
-                hideDeletedSubtasks={props.hideDeletedSubtasks}
-                hideCompletedSubtasks={props.hideCompletedSubtasks}
-                componentKey={props.componentKey}
-                hiddenIcons={props.hiddenIcons}
-                inputItems={sortedItems.slice(
-                  (currentPage - 1) * PAGE_SIZE,
-                  currentPage * PAGE_SIZE,
-                )}
-                flattenSubtasks={props.flattenSubtasks}
-              />
-            </ItemListContainer>
-            <Pagination
-              itemsLength={sortedItems.length}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-            />
-          </>
-        ) : null}
-      </Container>
-    </ThemeProvider>
+          </Flex>
+          <Pagination
+            itemsLength={sortedItems.length}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
+        </>
+      ) : null}
+    </Box>
   )
 }
 

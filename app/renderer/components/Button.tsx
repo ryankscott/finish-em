@@ -36,7 +36,7 @@ const Button = (props: ButtonProps): ReactElement => {
           color={'gray.700'}
           icon={Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)}
           size={props.size}
-          onClick={(e) => props.onClick(e)}
+          onClick={(e) => props?.onClick(e)}
           visible={props.visible?.toString()}
           transition="all 0.2s"
         />

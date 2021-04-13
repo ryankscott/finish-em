@@ -1,7 +1,4 @@
-import { autoUpdater } from 'electron'
-
 const styles = {
-  // styles for the `a`
   a: {
     color: 'teal.500',
     _hover: {
@@ -118,8 +115,7 @@ const styles = {
         mr: 3,
       },
       '.ql-toolbar.ql-snow + .ql-container.ql-snow': {
-        border: '1px solid',
-        borderColor: 'gray.100',
+        border: 'none',
         _focus: {
           border: '1px solid',
           borderColor: 'gray.200',

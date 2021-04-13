@@ -161,6 +161,9 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
             direction="column"
             justifyContent="flex-start"
             alignItems="center"
+            border={'1px solid'}
+            borderColor={'gray.200'}
+            borderRadius={4}
             width={showItemCreator ? (props.width ? props.width : '100%') : '0px'}
             opacity={showItemCreator ? '1' : 0}
             transition={'width 0.2s ease-in-out'}

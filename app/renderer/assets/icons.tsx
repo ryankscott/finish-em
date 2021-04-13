@@ -2,11 +2,11 @@
 import React from 'react'
 import * as CSS from 'csstype'
 import { IconType } from '../interfaces'
-import { lighten, tint } from 'polished'
+import { tint } from 'polished'
 
 export const Icons: {
   [key: IconType]: (
-    width?: CSS.Property.Width,
+    width?: CSS.Propert y.Width,
     height?: CSS.Property.Height,
     colour?: CSS.Property.Color,
   ) => React.SVGProps<SVGSVGElement>

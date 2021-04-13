@@ -36,12 +36,12 @@ const generateIconOptions = (): { value: string; label: string | JSX.Element }[]
     return {
       value: i,
       label: (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span style={{ paddingRight: '5px', alignItems: 'center', display: 'flex' }}>
+        <Flex alignItems={'center'}>
+          <Flex pr{3} alignItems={'center'}>
             {Icons[i](12, 12)}
-          </span>
+          </Flex>
           {startCase(i)}
-        </div>
+        </Flex>
       ),
     }
   })

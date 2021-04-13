@@ -132,3 +132,4 @@ export type IconType =
   | 'terminal'
   | 'move'
   | 'refresh'
+  | 'weekly'

@@ -1,28 +1,15 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { themes, selectStyles } from '../theme'
 import Button from './Button'
 import Select from './Select'
-import {
-  removeItemTypeFromString,
-  markdownLinkRegex,
-  markdownBasicRegex,
-  HTMLToPlainText,
-} from '../utils'
+import { removeItemTypeFromString, markdownLinkRegex, markdownBasicRegex } from '../utils'
 import { useHistory } from 'react-router'
-import {
-  ShortcutIcon,
-  SelectContainer,
-  FeedbackIcon,
-  Container,
-  CommandIcon,
-} from './styled/Headerbar'
+
 import { gql, useQuery } from '@apollo/client'
 import { activeItemVar, focusbarVisibleVar } from '..'
 import { Item, Project } from '../../main/generated/typescript-helpers'
-import { ThemeType } from '../interfaces'
 import { sortBy } from 'lodash'
 import { CommandBar } from './CommandBar'
+import { Flex, Grid, GridItem, useTheme } from '@chakra-ui/react'
 
 type OptionType = { label: string; value: () => void }
 
@@ -42,7 +29,6 @@ const GET_DATA = gql`
       deleted
       lastUpdatedAt
     }
-    theme @client
   }
 `
 
@@ -51,6 +37,7 @@ type HeaderbarProps = {
 }
 
 const Headerbar = (props: HeaderbarProps): ReactElement => {
+  const theme = useTheme()
   const history = useHistory()
   const { loading, error, data } = useQuery(GET_DATA)
   if (loading) return null
@@ -88,11 +75,20 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
     ]
   }
 
-  const theme: ThemeType = themes[data.theme]
   return (
-    <Container>
-      <ThemeProvider theme={theme}>
-        <SelectContainer>
+    <Grid
+      w={'100%'}
+      alignItems="center"
+      gridTemplateColumns={'1fr repeat(3, 30px)'}
+      gridTemplateRows={'50px'}
+      zIndex={2}
+      color={'gray.50'}
+      bg={'gray.800'}
+      py={1}
+      px={2}
+    >
+      <GridItem as={Flex} justifyContent="flex-end" colSpan={1}>
+        <Flex w={'350px'} py={0} px={2}>
           <Select
             size="md"
             isMulti={false}
@@ -104,37 +100,61 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             invertColours={true}
             fullWidth={true}
           />
-        </SelectContainer>
-        <CommandIcon>
+        </Flex>
+      </GridItem>
+      <GridItem>
+        <Flex
+          direction="row"
+          justifyContent={'center'}
+          alignItems={'center'}
+          p={3}
+          _hover={{ cursor: 'pointer' }}
+        >
           <CommandBar />
-        </CommandIcon>
-        <FeedbackIcon>
+        </Flex>
+      </GridItem>
+      <GridItem>
+        <Flex
+          direction="row"
+          justifyContent={'center'}
+          alignItems={'center'}
+          p={3}
+          _hover={{ cursor: 'pointer' }}
+        >
           <Button
             size="md"
             variant="invert"
             icon="feedback"
             iconSize="20px"
-            iconColour={theme.colours.altTextColour}
+            iconColour={theme.colors.gray[100]}
             tooltipText={'Give feedback'}
             onClick={() => window.open('https://github.com/ryankscott/finish-em/issues/new/')}
           />
-        </FeedbackIcon>
-        <ShortcutIcon id="shortcut-icon">
+        </Flex>
+      </GridItem>
+      <GridItem>
+        <Flex
+          direction="row"
+          justifyContent={'center'}
+          alignItems={'center'}
+          p={3}
+          _hover={{ cursor: 'pointer' }}
+        >
           <Button
             size="md"
             id="shortcut-button"
             variant="invert"
             icon="help"
             iconSize="20px"
-            iconColour={theme.colours.altTextColour}
+            iconColour={theme.colors.gray[100]}
             tooltipText="Show shortcuts"
             onClick={() => {
               history.push('/help/')
             }}
           />
-        </ShortcutIcon>
-      </ThemeProvider>
-    </Container>
+        </Flex>
+      </GridItem>
+    </Grid>
   )
 }
 

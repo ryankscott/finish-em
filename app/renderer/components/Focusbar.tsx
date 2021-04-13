@@ -292,7 +292,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           </Flex>
         </GridItem>
       </Grid>
-      <Flex w={'100%'} direction="row" m={0} px={2} py={4}>
+      <Flex alignItems={'baseline'} w={'100%'} direction="row" m={0} px={2} py={4}>
         <Button
           variant="default"
           size="sm"
@@ -476,7 +476,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           currentAttribute={item.label}
           completed={item.completed}
           deleted={item.deleted}
-          onSubmit={(key: string) => setLabel({ variables: { key: item.key, labelKey: key } })}
+          onSubmit={(label) => {
+            setLabel({ variables: { key: item.key, labelKey: label.value } })
+          }}
         />
       </Flex>
       {item.deleted && (

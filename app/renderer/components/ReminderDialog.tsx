@@ -1,24 +1,38 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
 import { add, startOfWeek, startOfTomorrow } from 'date-fns'
 import { v4 as uuidv4 } from 'uuid'
-import {
-  Container,
-  HeaderContainer,
-  ReminderHeader,
-  ReminderContainer,
-  BodyContainer,
-} from './styled/ReminderDialog'
+import { ReminderContainer } from './styled/ReminderDialog'
 import Button from './Button'
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { ThemeType } from '../interfaces'
+import { Flex, Box, Text } from '@chakra-ui/react'
 
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
+const reminders: {
+  label: string
+  value: string
+}[] = [
+  {
+    label: 'In 20 minutes',
+    value: add(new Date(), { minutes: 20 }).toISOString(),
+  },
+  {
+    label: 'In an hour',
+    value: add(new Date(), { hours: 1 }).toISOString(),
+  },
+  {
+    label: 'In three hours',
+    value: add(new Date(), { hours: 3 }).toISOString(),
+  },
+  {
+    label: 'Tomorrow',
+    value: add(startOfTomorrow(), { hours: 9 }).toISOString(),
+  },
+  {
+    label: 'Next week',
+    value: add(startOfWeek(new Date(), { weekStartsOn: 1 }), {
+      hours: 9,
+    }).toISOString(),
+  },
+]
 
 const CREATE_REMINDER = gql`
   mutation CreateReminder($key: String!, $text: String!, $remindAt: DateTime, $itemKey: String) {
@@ -43,7 +57,6 @@ type ReminderDialogProps = {
 }
 
 function ReminderDialog(props: ReminderDialogProps): ReactElement {
-  const { loading, error, data } = useQuery(GET_THEME)
   const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
     refetchQueries: ['itemByKey', 'getAppData'],
   })
@@ -51,125 +64,105 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
     refetchQueries: ['itemByKey', 'getAppData'],
   })
 
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
-
   return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <HeaderContainer>
-          <ReminderHeader>Remind me: </ReminderHeader>
-          <Button
-            variant="default"
-            size="sm"
-            iconSize="12px"
-            onClick={() => {
-              props.onClose()
-            }}
-            icon={'close'}
-          />
-        </HeaderContainer>
-        <BodyContainer>
-          <ReminderContainer
-            onClick={(e) => {
-              createReminder({
-                variables: {
-                  key: uuidv4(),
-                  itemKey: props.itemKey,
-                  text: props.reminderText,
-                  remindAt: add(new Date(), { minutes: 20 }).toISOString(),
-                },
-              })
-              e.stopPropagation()
-              props.onClose()
-            }}
-          >
-            {'In 20 minutes'}
-          </ReminderContainer>
-          <ReminderContainer
-            onClick={(e) => {
-              createReminder({
-                variables: {
-                  key: uuidv4(),
-                  itemKey: props.itemKey,
-                  text: props.reminderText,
-                  remindAt: add(new Date(), { hours: 1 }).toISOString(),
-                },
-              })
-              e.stopPropagation()
-              props.onClose()
-            }}
-          >
-            {'In an hour'}
-          </ReminderContainer>
-          <ReminderContainer
-            onClick={(e) => {
-              createReminder({
-                variables: {
-                  key: uuidv4(),
-                  itemKey: props.itemKey,
-                  text: props.reminderText,
-                  remindAt: add(new Date(), { hours: 3 }).toISOString(),
-                },
-              })
-              e.stopPropagation()
-              props.onClose()
-            }}
-          >
-            {'In three hours'}
-          </ReminderContainer>
-          <ReminderContainer
-            onClick={(e) => {
-              createReminder({
-                variables: {
-                  key: uuidv4(),
-                  itemKey: props.itemKey,
-                  text: props.reminderText,
-                  remindAt: add(startOfTomorrow(), { hours: 9 }).toISOString(),
-                },
-              })
-
-              e.stopPropagation()
-              props.onClose()
-            }}
-          >
-            {'Tomorrow'}
-          </ReminderContainer>
-          <ReminderContainer
-            onClick={(e) => {
-              createReminder({
-                variables: {
-                  key: uuidv4(),
-                  itemKey: props.itemKey,
-                  text: props.reminderText,
-                  remindAt: add(startOfWeek(new Date(), { weekStartsOn: 1 }), {
-                    hours: 9,
-                  }).toISOString(),
-                },
-              })
-
-              e.stopPropagation()
-              props.onClose()
-            }}
-          >
-            {'Next week'}
-          </ReminderContainer>
-          <ReminderContainer
-            onClick={(e) => {
-              deleteReminderFromItem({ variables: { itemKey: props.itemKey } })
-              e.stopPropagation()
-              props.onClose()
+    <Box
+      zIndex={2}
+      position={'absolute'}
+      minW={'180px'}
+      right={'144px'}
+      top={'36px'}
+      border={'1px solid'}
+      borderColor={'gray.200'}
+      borderRadius={4}
+      padding={1}
+      bg={'gray.50'}
+    >
+      <Flex direction={'row'} alignItems={'baseline'} justifyContent={'space-between'}>
+        <Text pl={2} p={1}>
+          Remind at:
+        </Text>
+        <Button
+          variant="default"
+          size="sm"
+          iconSize="12px"
+          onClick={() => {
+            props.onClose()
+          }}
+          icon={'close'}
+        />
+      </Flex>
+      <Flex direction={'column'} py={2} px={1}>
+        {reminders.map((r) => {
+          return (
+            <div key={r.label}>
+              <Flex
+                key={'lc-' + r.label}
+                justifyContent={'space-between'}
+                alignItems={'center'}
+                height={'25px'}
+                borderRadius={4}
+                _hover={{
+                  bg: 'gray.100',
+                  fontWeight: 'semibold',
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  createReminder({
+                    variables: {
+                      key: uuidv4(),
+                      itemKey: props.itemKey,
+                      text: props.reminderText,
+                      remindAt: r.value,
+                    },
+                  })
+                }}
+              >
+                <Text
+                  fontSize="xs"
+                  p={1}
+                  pl={4}
+                  _hover={{
+                    fontWeight: 'semibold',
+                    cursor: 'pointer',
+                  }}
+                >
+                  {r.label}
+                </Text>
+              </Flex>
+            </div>
+          )
+        })}
+        <Flex
+          key={'lc'}
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          height={'25px'}
+          borderRadius={4}
+          _hover={{
+            bg: 'gray.100',
+            fontWeight: 'semibold',
+            cursor: 'pointer',
+          }}
+          onClick={(e) => {
+            deleteReminderFromItem({ variables: { itemKey: props.itemKey } })
+            e.stopPropagation()
+            props.onClose()
+          }}
+        >
+          <Text
+            fontSize="xs"
+            p={1}
+            pl={4}
+            _hover={{
+              fontWeight: 'semibold',
+              cursor: 'pointer',
             }}
           >
             {"Don't remind"}
-          </ReminderContainer>
-        </BodyContainer>
-      </Container>
-    </ThemeProvider>
+          </Text>
+        </Flex>
+      </Flex>
+    </Box>
   )
 }
 
