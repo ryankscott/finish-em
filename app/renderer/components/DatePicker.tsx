@@ -1,97 +1,104 @@
-import React, { ReactElement, useState, useEffect, useRef } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
-import { Container, SelectContainer } from './styled/DatePicker'
-import DateRenderer from './DateRenderer'
-import DateSelect from './DateSelect'
-import { IconType, ThemeType } from '../interfaces'
-import { gql, useQuery } from '@apollo/client'
-
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
+import React, { ReactElement, useState } from 'react'
+import { Menu, MenuButton, MenuList, MenuItem, Button, Box } from '@chakra-ui/react'
+import { add, sub, lastDayOfWeek } from 'date-fns'
+import RDatePicker from 'react-datepicker'
+import { Icons } from '../assets/icons'
 
 type DatePickerProps = {
+  text?: string
+  size?: 'xs' | 'sm' | 'md' | 'lg'
+  defaultText?: string
   onSubmit: (d: Date) => void
   onEscape?: () => void
-  style?: 'default' | 'subtle' | 'subtleInvert' | 'invert'
-  showSelect?: boolean
-  selectPosition?: 'auto' | 'top' | 'bottom'
-  searchPlaceholder: string
+  tooltipText?: string
   completed: boolean
   deleted?: boolean
-  text?: string
-  tooltipText?: string
-  textSize?: 'xxxsmall' | 'xxsmall' | 'xsmall' | 'small' | 'regular' | 'large'
-  icon?: IconType
 }
 
-function DatePicker(props: DatePickerProps): ReactElement {
-  const [showSelect, setShowSelect] = useState(false)
-  const node = useRef<HTMLDivElement>()
-  const handleClick = (e): null => {
-    if (node?.current?.contains(e.target)) {
-      return
-    }
-    setShowSelect(false)
-  }
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClick)
-    return () => {
-      document.removeEventListener('mousedown', handleClick)
-    }
-  }, [])
+const DatePicker = (props: DatePickerProps): ReactElement => {
+  const [dayPickerVisible, setDayPickerVisible] = useState(false)
 
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
+  const handleDayChange = (input: Date) => {
+    props.onSubmit(input)
+    setDayPickerVisible(false)
+    return
   }
-  const theme: ThemeType = themes[data.theme]
-
+  const generateIconSize = (size: string) => {
+    switch (size) {
+      case 'md':
+        return '12px'
+      case 'sm':
+        return '10px'
+      case 'xs':
+        return '8px'
+      default:
+        return '12px'
+    }
+  }
+  const iconSize = generateIconSize(props.size)
   return (
-    <ThemeProvider theme={theme}>
-      <Container ref={node}>
-        <DateRenderer
-          style={props.style}
-          completed={props.completed}
-          deleted={props.deleted}
-          textSize={props.textSize}
-          icon={props.icon}
-          position="flex-start"
-          text={props.text}
-          tooltipText={props.tooltipText}
-          onClick={(e) => {
-            e.stopPropagation()
-            if (props.completed) return
-            setShowSelect(!showSelect)
-          }}
-        />
-        {(props.showSelect || showSelect) && (
-          <SelectContainer>
-            <DateSelect
-              selectPlacement={props.selectPosition}
-              style={props.style}
-              placeholder={props.searchPlaceholder}
-              onEscape={() => {
-                setShowSelect(false)
-                if (props.onEscape) {
-                  props.onEscape()
-                }
-              }}
-              onSubmit={(d) => {
-                setShowSelect(false)
-                props.onSubmit(d)
-              }}
-              textSize={props.textSize}
-            ></DateSelect>
-          </SelectContainer>
+    <>
+      <Menu placement="bottom" gutter={0} arrowPadding={0} closeOnSelect={true} closeOnBlur={true}>
+        <MenuButton
+          size={props.size ? props.size : 'md'}
+          as={Button}
+          rightIcon={Icons['collapse'](iconSize, iconSize)}
+          fontWeight={'normal'}
+          borderRadius={5}
+          variant={'default'}
+          width={'100%'}
+          textAlign={'start'}
+        >
+          {props.text ? props.text : props.defaultText}
+        </MenuButton>
+        <MenuList width={'235px'} bg={'gray.50'}>
+          <MenuItem onClick={() => handleDayChange(new Date())}>Today</MenuItem>
+          <MenuItem onClick={() => handleDayChange(add(new Date(), { days: 1 }))}>
+            Tomorrow
+          </MenuItem>
+          <MenuItem
+            onClick={() =>
+              handleDayChange(
+                sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+                  days: 2,
+                }),
+              )
+            }
+          >
+            End of week
+          </MenuItem>
+          <MenuItem
+            onClick={() =>
+              handleDayChange(
+                add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+                  days: 1,
+                }),
+              )
+            }
+          >
+            Next week
+          </MenuItem>
+          <MenuItem
+            onClick={(e) => {
+              e.preventDefault()
+              setDayPickerVisible(true)
+            }}
+          >
+            Custom Date
+          </MenuItem>
+        </MenuList>
+      </Menu>
+      <Box position={'absolute'}>
+        {dayPickerVisible && (
+          <RDatePicker
+            utcOffset={new Date().getTimezoneOffset()}
+            inline
+            tabIndex={0}
+            onChange={handleDayChange}
+          />
         )}
-      </Container>
-    </ThemeProvider>
+      </Box>
+    </>
   )
 }
 

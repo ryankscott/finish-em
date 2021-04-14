@@ -1,18 +1,11 @@
 import React, { ReactElement } from 'react'
-import { ThemeProvider } from '../StyledComponents'
 
-import { HeaderContainer, IconContainer, HeaderTitle } from './styled/ViewHeader'
-import { themes } from '../theme'
-import { IconType, ThemeType } from '../interfaces'
+import { IconType } from '../interfaces'
 import { Icons } from '../assets/icons'
-import { gql, useQuery } from '@apollo/client'
 import EditViewHeader from './EditViewHeader'
+import { Text, Grid, GridItem } from '@chakra-ui/layout'
+import { useTheme } from '@chakra-ui/system'
 
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
 export type ViewHeaderProps = {
   name: string
   icon?: IconType
@@ -23,36 +16,39 @@ export type ViewHeaderProps = {
 }
 
 const ViewHeader = (props: ViewHeaderProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
+  const theme = useTheme()
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {props.editing ? (
-        <>
-          <EditViewHeader
-            key={`dlg-${props.componentKey}`}
-            componentKey={props.componentKey}
-            onClose={() => {
-              if (props?.setEditing) {
-                props.setEditing(false)
-              }
-            }}
-          />
-        </>
+        <EditViewHeader
+          key={`dlg-${props.componentKey}`}
+          componentKey={props.componentKey}
+          onClose={() => {
+            if (props?.setEditing) {
+              props.setEditing(false)
+            }
+          }}
+        />
       ) : (
-        <>
-          <HeaderContainer>
-            <IconContainer>{Icons[props?.icon](36, 36, theme.colours.primaryColour)}</IconContainer>
-            <HeaderTitle> {props.name} </HeaderTitle>
-          </HeaderContainer>
-        </>
+        <Grid
+          justifyContent={'flex-start'}
+          py={4}
+          px={1}
+          alignItems={'center'}
+          w={'100%'}
+          templateColumns={'40px 1fr 60px'}
+        >
+          <GridItem colSpan={1} p={0}>
+            {Icons[props?.icon](36, 36, theme.colors.blue[500])}
+          </GridItem>
+          <GridItem colSpan={1}>
+            <Text fontSize="xl" fontWeight="normal" color={'blue.500'} p={2} m={0}>
+              {props.name}
+            </Text>
+          </GridItem>
+        </Grid>
       )}
-    </ThemeProvider>
+    </>
   )
 }
 export default ViewHeader

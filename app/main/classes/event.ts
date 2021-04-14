@@ -9,9 +9,9 @@ export default class Event {
     endAt: Date,
     allDay: boolean,
     calendarKey: string,
+    createdAt: Date,
     location: string,
     attendees: { name: string; email: string }[],
-    createdAt: Date,
     recurrence: string,
   ) {
     this.key = key

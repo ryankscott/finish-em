@@ -1,33 +1,18 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { math, transparentize } from 'polished'
+import { transparentize } from 'polished'
 import React, { ReactElement, useEffect, useState } from 'react'
-import Select, { OptionsType } from 'react-select'
 import Switch from 'react-switch'
 import { v4 as uuidv4 } from 'uuid'
-import { ThemeProvider } from '../StyledComponents'
-import { selectStyles, themes } from '../theme'
 import Button from './Button'
 import EditableText from './EditableText'
 import colormap from 'colormap'
-import {
-  ButtonContainer,
-  Container,
-  LabelContainer,
-  Setting,
-  SettingLabel,
-  SettingsBodyHeader,
-  SettingsCategory,
-  SettingsCategoryHeader,
-  SettingsContainer,
-  SettingsSidebarHeader,
-  SettingsSidebar,
-} from './styled/Settings'
 import { camelCaseToInitialCaps } from '../utils'
 import { themeVar } from '..'
 import { Label } from '../../main/generated/typescript-helpers'
 import { HexColorPicker } from 'react-colorful'
 import { debounce } from 'lodash'
-
+import { Box, Flex, Text, useTheme } from '@chakra-ui/react'
+import Select from './Select'
 const NUMBER_OF_COLOURS = 12
 
 type SettingsPickerProps = {}
@@ -60,9 +45,9 @@ const GET_FEATURES_AND_LABELS = gql`
       key
       name
     }
-    theme @client
   }
 `
+
 const SET_ACTIVE_CALENDAR = gql`
   mutation SetActiveCalendar($key: String!) {
     setActiveCalendar(input: { key: $key }) {
@@ -116,6 +101,7 @@ const CREATE_LABEL = gql`
 `
 
 function Settings(props: SettingsPickerProps): ReactElement {
+  const theme = useTheme()
   const [showColourPicker, setShowColourPicker] = useState(false)
   const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
   const [activeCategory, setActiveCategory] = useState('UI')
@@ -142,6 +128,24 @@ function Settings(props: SettingsPickerProps): ReactElement {
     format: 'hex',
     alpha: 1,
   })
+  const settingHeaderStyles = {
+    py: 4,
+    px: 0,
+    fontSize: 'lg',
+    fontWeight: 'semibold',
+  }
+  const settingSidebarHeaderStyles = {
+    fontSize: 'md',
+    fontWeight: 'regular',
+    borderRadius: 3,
+    py: 2,
+    px: 6,
+    m: 0,
+    _hover: {
+      bg: 'gray.100',
+      cursor: 'pointer',
+    },
+  }
 
   // We have to update the cache on add / removes
   const [createLabel] = useMutation(CREATE_LABEL, {
@@ -169,120 +173,159 @@ function Settings(props: SettingsPickerProps): ReactElement {
   if (loading) return null
   if (error) return null
   const calendarOptions = generateOptions(data.calendars)
-  const theme = themes[data.theme]
   return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <SettingsSidebar>
-          <SettingsSidebarHeader>Settings</SettingsSidebarHeader>
-          <SettingsCategoryHeader
-            active={activeCategory == 'UI'}
-            onClick={() => setActiveCategory('UI')}
-          >
-            User Interface
-          </SettingsCategoryHeader>
-          <SettingsCategoryHeader
-            active={activeCategory == 'LABELS'}
-            onClick={() => setActiveCategory('LABELS')}
-          >
-            Labels
-          </SettingsCategoryHeader>
-        </SettingsSidebar>
-        <SettingsContainer
-          onClick={(e) => {
-            const ariaLabel = e.target.attributes.getNamedItem('aria-label')?.value
-            const className = e.target.className
-            if (
-              ariaLabel == 'Color' ||
-              ariaLabel == 'Hue' ||
-              className == 'react-colorful__pointer react-colorful__saturation-pointer' ||
-              className == 'react-colorful__pointer react-colorful__hue-pointer'
-            )
-              return
-            setShowColourPicker(false)
-          }}
+    <Flex direction={'row'} w={'100%'} h={'100vh'}>
+      <Flex
+        borderRight={'1px solid'}
+        borderColor={'gray.200'}
+        direction={'column'}
+        w={'280px'}
+        bg={'gray.50'}
+        py={2}
+        px={0}
+        h={'100%'}
+        shadow={'md'}
+      >
+        <Text p={4} fontSize={'lg'} fontWeight={'semibold'}>
+          Settings
+        </Text>
+        <Text
+          {...settingSidebarHeaderStyles}
+          bg={activeCategory == 'UI' ? 'gray.200' : 'gray.50'}
+          onClick={() => setActiveCategory('UI')}
         >
-          {activeCategory == 'UI' && (
-            <SettingsCategory>
-              <SettingsBodyHeader>User Interface</SettingsBodyHeader>
-              {data.features.map((f) => {
-                return (
-                  <span key={`${f.key}-container`}>
-                    <Setting key={f.key}>
-                      <SettingLabel key={`${f.key}-label`}>
-                        {camelCaseToInitialCaps(f.name)}
-                      </SettingLabel>
-                      <Switch
-                        onChange={(checked) => {
-                          setFeature({
-                            variables: {
-                              key: f.key,
-                              enabled: checked,
-                            },
-                          })
-                        }}
-                        checked={data.features.find((df) => df.key == f.key).enabled}
-                        onColor={theme.colours.primaryColour}
-                        checkedIcon={false}
-                        uncheckedIcon={false}
-                        width={24}
-                        height={14}
-                      />
-                      {f.name == 'calendarIntegration' && (
-                        <div style={{ paddingLeft: '5px' }}>
-                          <Select
-                            key={f.key + '-select'}
-                            autoFocus={true}
-                            value={calendarOptions?.find(
-                              (c) => c.value == data?.activeCalendar?.key,
-                            )}
-                            isSearchable
-                            isDisabled={!f.enabled}
-                            onChange={(e) => {
-                              setActiveCalendar({
-                                variables: {
-                                  key: e.value,
-                                },
-                              })
-                            }}
-                            options={calendarOptions}
-                            styles={selectStyles({
-                              fontSize: 'xsmall',
-                              minWidth: '160px',
-                              theme: theme,
-                            })}
-                            escapeClearsValue={true}
-                            defaultMenuIsOpen={false}
-                          />
-                        </div>
-                      )}
-                    </Setting>
-                  </span>
-                )
-              })}
-              <Setting key={'dark-mode'}>
-                <SettingLabel>Dark Mode</SettingLabel>
-                <Switch
-                  onChange={(checked) => {
-                    checked ? themeVar('dark') : themeVar('light')
-                  }}
-                  checked={data.theme == 'dark'}
-                  onColor={theme.colours.primaryColour}
-                  checkedIcon={false}
-                  uncheckedIcon={false}
-                  width={24}
-                  height={14}
-                />
-              </Setting>
-            </SettingsCategory>
-          )}
-          {activeCategory == 'LABELS' && (
-            <SettingsCategory>
-              <SettingsBodyHeader>Labels</SettingsBodyHeader>
-              {Object.values(data.labels).map((m: Label) => {
-                return (
-                  <div id={m.key} key={'f-' + m.key}>
-                    <LabelContainer key={'lc-' + m.key}>
+          User Interface
+        </Text>
+        <Text
+          {...settingSidebarHeaderStyles}
+          bg={activeCategory == 'LABELS' ? 'gray.200' : 'gray.50'}
+          onClick={() => setActiveCategory('LABELS')}
+        >
+          Labels
+        </Text>
+      </Flex>
+      <Flex
+        position={'relative'}
+        direction={'column'}
+        p={2}
+        w={'100%'}
+        onClick={(e) => {
+          const ariaLabel = e.target.attributes.getNamedItem('aria-label')?.value
+          const className = e.target.className
+          if (
+            ariaLabel == 'Color' ||
+            ariaLabel == 'Hue' ||
+            className == 'react-colorful__pointer react-colorful__saturation-pointer' ||
+            className == 'react-colorful__pointer react-colorful__hue-pointer'
+          )
+            return
+          setShowColourPicker(false)
+        }}
+      >
+        {activeCategory == 'UI' && (
+          <Box p={3} my={6} px={3}>
+            <Text {...settingHeaderStyles}>User Interface</Text>
+            {data.features.map((f) => {
+              return (
+                <span key={`${f.key}-container`}>
+                  <Flex
+                    direction={'row'}
+                    justifyContent={'flex-start'}
+                    py={3}
+                    px={0}
+                    w={'100%'}
+                    h={'30px'}
+                    alignItems={'center'}
+                    key={f.key}
+                  >
+                    <Text fontSize="sm" w={'180px'} key={`${f.key}-label`}>
+                      {camelCaseToInitialCaps(f.name)}
+                    </Text>
+                    <Switch
+                      onChange={(checked) => {
+                        setFeature({
+                          variables: {
+                            key: f.key,
+                            enabled: checked,
+                          },
+                        })
+                      }}
+                      checked={data.features.find((df) => df.key == f.key).enabled}
+                      onColor={theme.colors.blue[500]}
+                      checkedIcon={false}
+                      uncheckedIcon={false}
+                      width={24}
+                      height={14}
+                    />
+                    {f.name == 'calendarIntegration' && (
+                      <Box pl={3} w={'180px'}>
+                        <Select
+                          size="md"
+                          placeholder=""
+                          key={f.key + '-select'}
+                          autoFocus={true}
+                          defaultValue={calendarOptions?.find(
+                            (c) => c.value == data?.activeCalendar?.key,
+                          )}
+                          isDisabled={!f.enabled}
+                          onChange={(e) => {
+                            setActiveCalendar({
+                              variables: {
+                                key: e.value,
+                              },
+                            })
+                          }}
+                          options={calendarOptions}
+                          escapeClearsValue={true}
+                        />
+                      </Box>
+                    )}
+                  </Flex>
+                </span>
+              )
+            })}
+            <Flex
+              direction={'row'}
+              justifyContent={'flex-start'}
+              py={3}
+              px={0}
+              w={'100%'}
+              h={'30px'}
+              alignItems={'center'}
+              key={'dark-mode'}
+            >
+              <Text fontSize="sm" w={'180px'} key={`dark-mode`}>
+                Dark Mode
+              </Text>
+              <Switch
+                onChange={(checked) => {
+                  checked ? themeVar('dark') : themeVar('light')
+                }}
+                checked={data.theme == 'dark'}
+                onColor={theme.colors.blue[500]}
+                checkedIcon={false}
+                uncheckedIcon={false}
+                width={24}
+                height={14}
+              />
+            </Flex>
+          </Box>
+        )}
+        {activeCategory == 'LABELS' && (
+          <Box p={3} my={6} px={3}>
+            <Text {...settingHeaderStyles}>Labels</Text>
+            {Object.values(data.labels).map((m: Label) => {
+              return (
+                <div id={m.key} key={'f-' + m.key}>
+                  <Flex
+                    w={'250px'}
+                    justifyContent={'space-between'}
+                    alignItems={'center'}
+                    height={'auto'}
+                    bg={'gray.50'}
+                    key={'lc-' + m.key}
+                  >
+                    <Box w={'100%'} mr={1}>
                       <EditableText
                         key={'et-' + m.key}
                         input={m.name}
@@ -296,71 +339,71 @@ function Settings(props: SettingsPickerProps): ReactElement {
                         onUpdate={(e) => {
                           renameLabel({ variables: { key: m.key, name: e } })
                         }}
-                      ></EditableText>
-                      <Button
-                        id={`${m.key}-edit`}
-                        key={`edit-colour-${m.key}`}
-                        icon="colour"
-                        iconSize={'18px'}
-                        spacing="compact"
-                        type="default"
-                        onClick={(e) => {
-                          setShowColourPicker(!showColourPicker)
-                          setColourPickerTriggeredBy(m.key)
-                          e.stopPropagation()
-                        }}
                       />
-                      <Button
-                        id={`${m.key}-delete`}
-                        key={`delete-label-${m.key}`}
-                        icon="trash"
-                        iconSize={'18px'}
-                        spacing="compact"
-                        type="default"
-                        onClick={() => {
-                          deleteLabel({ variables: { key: m.key } })
-                        }}
-                      />
-                    </LabelContainer>
-                  </div>
-                )
-              })}
-              {showColourPicker && (
-                <HexColorPicker
-                  color={data.labels.find((l) => l.key == colourPickerTriggeredBy).colour}
-                  onChange={debounce((colour) => {
-                    setColourOfLabel({
-                      variables: {
-                        key: colourPickerTriggeredBy,
-                        colour: colour,
-                      },
-                    })
-                  }, 200)}
-                />
-              )}
-              <ButtonContainer>
-                <Button
-                  type="default"
-                  spacing="compact"
-                  icon="add"
-                  text="Add label"
-                  onClick={() => {
-                    createLabel({
-                      variables: {
-                        key: uuidv4(),
-                        name: 'New Label',
-                        colour: colours[Math.floor(Math.random() * NUMBER_OF_COLOURS)],
-                      },
-                    })
-                  }}
-                  iconSize="14px"
-                />
-              </ButtonContainer>
-            </SettingsCategory>
-          )}
-        </SettingsContainer>
-      </Container>
-    </ThemeProvider>
+                    </Box>
+                    <Button
+                      id={`${m.key}-edit`}
+                      key={`edit-colour-${m.key}`}
+                      icon="colour"
+                      iconSize={'18px'}
+                      size="sm"
+                      variant="default"
+                      onClick={(e) => {
+                        setShowColourPicker(!showColourPicker)
+                        setColourPickerTriggeredBy(m.key)
+                        e.stopPropagation()
+                      }}
+                    />
+                    <Button
+                      id={`${m.key}-delete`}
+                      key={`delete-label-${m.key}`}
+                      icon="trash"
+                      iconSize={'18px'}
+                      size="sm"
+                      variant="default"
+                      onClick={() => {
+                        deleteLabel({ variables: { key: m.key } })
+                      }}
+                    />
+                  </Flex>
+                </div>
+              )
+            })}
+            {showColourPicker && (
+              <HexColorPicker
+                color={data.labels.find((l) => l.key == colourPickerTriggeredBy).colour}
+                onChange={debounce((colour) => {
+                  setColourOfLabel({
+                    variables: {
+                      key: colourPickerTriggeredBy,
+                      colour: colour,
+                    },
+                  })
+                }, 200)}
+              />
+            )}
+            <Flex w={'185px'} justifyContent={'center'} pt={3}>
+              <Button
+                variant="default"
+                size="sm"
+                icon="add"
+                text="Add label"
+                onClick={() => {
+                  createLabel({
+                    variables: {
+                      key: uuidv4(),
+                      name: 'New Label',
+                      colour: colours[Math.floor(Math.random() * NUMBER_OF_COLOURS)],
+                    },
+                  })
+                }}
+                iconSize="14px"
+              />
+            </Flex>
+          </Box>
+        )}
+      </Flex>
+    </Flex>
   )
 }
 export default Settings

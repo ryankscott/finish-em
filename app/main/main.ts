@@ -27,9 +27,10 @@ import 'sugar-date/locales'
 import util from 'util'
 const log = require('electron-log')
 log.transports.console.level = 'info'
-const GRAPHQL_PORT = 8089
 const executeAppleScript = util.promisify(applescript.execString)
 const isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == 'true' : false
+
+const GRAPHQL_PORT = 8089
 
 type AppleCalendarEvent = {
   id: string

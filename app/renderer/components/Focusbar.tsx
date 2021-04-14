@@ -4,10 +4,7 @@ import React, { ReactElement } from 'react'
 import RRule from 'rrule'
 import { activeItemVar, focusbarVisibleVar } from '..'
 import { Item as ItemType, Label } from '../../main/generated/typescript-helpers'
-import { ThemeType } from '../interfaces'
 import { ItemIcons } from '../interfaces/item'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
 import { formatRelativeDate, removeItemTypeFromString } from '../utils'
 import AttributeSelect from './AttributeSelect'
 import Button from './Button'
@@ -17,17 +14,10 @@ import EditableText2 from './EditableText2'
 import Item from './Item'
 import ItemCreator from './ItemCreator'
 import RepeatPicker from './RepeatPicker'
-import {
-  AttributeContainer,
-  AttributeKey,
-  AttributeValue,
-  Container,
-  HeaderContainer,
-  SubtaskContainer,
-  TitleContainer,
-} from './styled/Focusbar'
 import Tooltip from './Tooltip'
-import { Header1, Header3, Paragraph } from './Typography'
+import { Header1 } from './Typography'
+import { Grid, Box, GridItem, Flex, Text, VStack } from '@chakra-ui/react'
+import { Icons } from '../assets/icons'
 
 const GET_ACTIVE_ITEM = gql`
   query {
@@ -248,9 +238,20 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     return null
   }
 
-  const theme: ThemeType = themes[data?.theme]
   const item: ItemType = data?.item
   if (!item) return null
+
+  const attributeContainerStyles = {
+    justifyContent: 'space-between',
+    width: '100%',
+    minW: '180px',
+    px: 4,
+  }
+
+  const attributeValueStyles = {
+    minW: '100px',
+    alignItems: 'center',
+  }
 
   // TODO: Do I need these? Or can I move to the component
   const dueDate = item?.dueAt ? formatRelativeDate(parseISO(item?.dueAt)) : 'Add due date'
@@ -259,52 +260,52 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     : 'Add scheduled date'
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <HeaderContainer visible={data.focusbarVisible}>
-          {item?.parent != null && (
-            <div style={{ gridArea: 'UP' }}>
-              <Button
-                type="default"
-                spacing="compact"
-                tooltipText={'Up level'}
-                onClick={() => {
-                  activeItemVar([item.parent.key])
-                }}
-                icon={'upLevel'}
-              ></Button>
-            </div>
-          )}
-          <div
-            style={{
-              gridArea: 'CLOSE',
-              display: 'flex',
-              justifyContent: 'flex-end',
-            }}
-          >
+    <VStack width={'100%'} px={2} py={3} h={'100vh'} bg={'gray.50'}>
+      <Grid
+        templateColumns={'repeat(5, 1fr)'}
+        width={'100%'}
+        m={0}
+        p={0}
+        visibility={data.focusbarVisible ? 'visible' : 'hidden'}
+      >
+        {item?.parent != null && (
+          <GridItem colSpan={1}>
             <Button
-              type="default"
-              spacing="compact"
+              variant="default"
+              size="sm"
+              tooltipText={'Up level'}
+              onClick={() => {
+                activeItemVar([item.parent.key])
+              }}
+              icon={'upLevel'}
+            ></Button>
+          </GridItem>
+        )}
+        <GridItem colStart={5} colSpan={1}>
+          <Flex justifyContent={'flex-end'}>
+            <Button
+              variant="default"
+              size="sm"
               onClick={() => focusbarVisibleVar(false)}
               icon={'close'}
             />
-          </div>
-        </HeaderContainer>
-        <TitleContainer>
-          <Button
-            type="default"
-            spacing="compact"
-            height="26px"
-            width="26px"
-            onClick={() => {
-              if (item.type == 'TODO') {
-                item.completed
-                  ? unCompleteItem({ variables: { key: item.key } })
-                  : completeItem({ variables: { key: item.key } })
-              }
-            }}
-            icon={item.type == 'NOTE' ? 'note' : item.completed ? 'todoChecked' : 'todoUnchecked'}
-          />
+          </Flex>
+        </GridItem>
+      </Grid>
+      <Flex alignItems={'baseline'} w={'100%'} direction="row" m={0} px={2} py={4}>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => {
+            if (item.type == 'TODO') {
+              item.completed
+                ? unCompleteItem({ variables: { key: item.key } })
+                : completeItem({ variables: { key: item.key } })
+            }
+          }}
+          icon={item.type == 'NOTE' ? 'note' : item.completed ? 'todoChecked' : 'todoUnchecked'}
+        />
+        <Box w={'100%'}>
           {data.newEditor.enabled ? (
             <EditableText2
               key={item.key}
@@ -334,215 +335,204 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               shouldClearOnSubmit={false}
             />
           )}
-          {item.deleted ? (
-            <>
-              <Button
-                type="default"
-                icon="restore"
-                height="26px"
-                width="26px"
-                spacing="compact"
-                tooltipText="Restore"
-                onClick={() => {
-                  restoreItem({ variables: { key: item.key } })
-                }}
-              ></Button>
-            </>
-          ) : (
-            <>
-              <Button
-                type="default"
-                icon="trash"
-                spacing="compact"
-                height="26px"
-                width="26px"
-                tooltipText="Delete"
-                onClick={() => {
-                  deleteItem({ variables: { key: item.key } })
-                }}
-              ></Button>
-            </>
-          )}
-        </TitleContainer>
-        {item.project?.key == '0' && (
-          <AttributeContainer>
-            <AttributeKey>
-              <Paragraph>Area: </Paragraph>
-            </AttributeKey>
-            <AttributeValue>
-              <AttributeSelect
-                attribute="area"
-                currentAttribute={item.area}
-                completed={item.completed}
-                deleted={item.deleted}
-                onSubmit={(areaKey) => setArea({ variables: { key: item.key, areaKey: areaKey } })}
-              />
-            </AttributeValue>
-          </AttributeContainer>
-        )}
-        <AttributeContainer>
-          <AttributeKey>
-            <Paragraph>Project: </Paragraph>
-          </AttributeKey>
-          <AttributeValue>
-            <AttributeSelect
-              attribute={'project'}
-              currentAttribute={item.project}
-              deleted={item.deleted}
-              completed={item.completed}
-              onSubmit={(projectKey) => {
-                setProject({
-                  variables: {
-                    key: item.key,
-                    projectKey: projectKey,
-                  },
-                })
+        </Box>
+        {item.deleted ? (
+          <>
+            <Button
+              variant="default"
+              icon="restore"
+              size="sm"
+              tooltipText="Restore"
+              onClick={() => {
+                restoreItem({ variables: { key: item.key } })
               }}
-            />
-          </AttributeValue>
-        </AttributeContainer>
-
-        {item.type == 'TODO' && (
+            ></Button>
+          </>
+        ) : (
           <>
-            <AttributeContainer>
-              <AttributeKey>
-                <Paragraph>Scheduled: </Paragraph>
-              </AttributeKey>
-              <AttributeValue>
-                <DatePicker
-                  key={'sd' + item.key}
-                  searchPlaceholder={'Scheduled at: '}
-                  onSubmit={(d: Date) => {
-                    setScheduledAt({ variables: { key: item.key, scheduledAt: d } })
-                  }}
-                  icon="scheduled"
-                  text={scheduledDate}
-                  completed={item.completed}
-                  deleted={item.deleted}
-                />
-              </AttributeValue>
-            </AttributeContainer>
-            <AttributeContainer>
-              <AttributeKey>
-                <Paragraph>Due: </Paragraph>
-              </AttributeKey>
-              <AttributeValue>
-                <DatePicker
-                  key={'dd' + item.key}
-                  searchPlaceholder={'Due at: '}
-                  onSubmit={(d: Date) => setDueAt({ variables: { key: item.key, dueAt: d } })}
-                  icon="due"
-                  text={dueDate}
-                  completed={item.completed}
-                  deleted={item.deleted}
-                />
-              </AttributeValue>
-            </AttributeContainer>
-            <AttributeContainer>
-              <AttributeKey>
-                <Paragraph>Repeating: </Paragraph>
-              </AttributeKey>
-              <AttributeValue>
-                <RepeatPicker
-                  repeat={
-                    item.repeat && item.repeat != 'undefined' ? RRule.fromString(item.repeat) : null
-                  }
-                  completed={item.completed}
-                  deleted={item.deleted}
-                  key={'rp' + item.key}
-                  searchPlaceholder={'Repeat: '}
-                  onSubmit={(r: RRule) =>
-                    setRepeat({ variables: { key: item.key, repeat: r?.toString() } })
-                  }
-                />
-              </AttributeValue>
-            </AttributeContainer>
+            <Button
+              variant="default"
+              icon="trash"
+              size="sm"
+              tooltipText="Delete"
+              onClick={() => {
+                deleteItem({ variables: { key: item.key } })
+              }}
+            ></Button>
           </>
         )}
-        {item.children.length == 0 && (
-          <AttributeContainer>
-            <AttributeKey>
-              <Paragraph>Parent:</Paragraph>
-            </AttributeKey>
-            <AttributeValue>
-              <AttributeSelect
-                attribute={'item'}
-                currentAttribute={item}
-                completed={item.completed}
-                deleted={item.deleted}
-                onSubmit={(itemKey: string) =>
-                  setParent({ variables: { key: item.key, parentKey: itemKey } })
-                }
-              />
-            </AttributeValue>
-          </AttributeContainer>
-        )}
-        <AttributeContainer>
-          <AttributeKey>
-            <Paragraph>Label:</Paragraph>
-          </AttributeKey>
-          <AttributeValue>
-            <AttributeSelect
-              attribute={'label'}
-              currentAttribute={item.label}
+      </Flex>
+      {item.project?.key == '0' && (
+        <Flex {...attributeContainerStyles}>
+          <Flex {...attributeValueStyles}>
+            {Icons['area']()}
+            <Text>Area: </Text>
+          </Flex>
+          <AttributeSelect
+            attribute="area"
+            currentAttribute={item.area}
+            completed={item.completed}
+            deleted={item.deleted}
+            onSubmit={(areaKey) => setArea({ variables: { key: item.key, areaKey: areaKey } })}
+          />
+        </Flex>
+      )}
+      <Flex {...attributeContainerStyles}>
+        <Flex {...attributeValueStyles}>
+          {Icons['project']()}
+          <Text>Project: </Text>
+        </Flex>
+        <AttributeSelect
+          attribute={'project'}
+          currentAttribute={item.project}
+          deleted={item.deleted}
+          completed={item.completed}
+          onSubmit={(projectKey) => {
+            setProject({
+              variables: {
+                key: item.key,
+                projectKey: projectKey,
+              },
+            })
+          }}
+        />
+      </Flex>
+
+      {item.type == 'TODO' && (
+        <>
+          <Flex {...attributeContainerStyles}>
+            <Flex {...attributeValueStyles}>
+              {Icons['scheduled']()}
+              <Text>Scheduled: </Text>
+            </Flex>
+            <DatePicker
+              key={'sd' + item.key}
+              defaultText={'Scheduled at: '}
+              onSubmit={(d: Date) => {
+                setScheduledAt({ variables: { key: item.key, scheduledAt: d } })
+              }}
+              text={scheduledDate}
               completed={item.completed}
               deleted={item.deleted}
-              onSubmit={(key: string) => setLabel({ variables: { key: item.key, labelKey: key } })}
             />
-          </AttributeValue>
-        </AttributeContainer>
-        {item.deleted && (
-          <AttributeContainer>
-            <AttributeKey>
-              <Paragraph>Deleted date: </Paragraph>
-            </AttributeKey>
-            <AttributeValue>
-              <div style={{ margin: '2px', padding: '5px 8px' }}>
-                {formatRelativeDate(parseISO(item?.deletedAt))}
-              </div>
-            </AttributeValue>
-          </AttributeContainer>
-        )}
-        {item.completed && (
-          <AttributeContainer>
-            <AttributeKey>
-              <Paragraph>Completed date: </Paragraph>
-            </AttributeKey>
-            <AttributeValue>
-              <div style={{ margin: '2px', padding: '5px 8px' }}>
-                {formatRelativeDate(parseISO(item?.completedAt))}
-              </div>
-            </AttributeValue>
-          </AttributeContainer>
-        )}
-        {item.parent?.key == null && item.type == 'TODO' && (
-          <>
-            <SubtaskContainer>
-              <Header3>Subtasks: </Header3>
-              <ItemCreator
-                key={`${item.key}-subtask`}
-                parentKey={item.key}
-                initiallyExpanded={false}
-              />
-            </SubtaskContainer>
-            <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
-          </>
-        )}
-        {item.children?.map((childItem) => {
-          return (
-            <Item
-              compact={false}
-              key={childItem.key}
-              componentKey={null}
-              itemKey={childItem.key}
-              shouldIndent={false}
-              alwaysVisible={true}
-              hiddenIcons={[ItemIcons.Project, ItemIcons.Subtask]}
+          </Flex>
+          <Flex {...attributeContainerStyles}>
+            <Flex {...attributeValueStyles}>
+              {Icons['due']()}
+              <Text>Due: </Text>
+            </Flex>
+            <DatePicker
+              key={'dd' + item.key}
+              defaultText={'Due at: '}
+              onSubmit={(d: Date) => setDueAt({ variables: { key: item.key, dueAt: d } })}
+              text={dueDate}
+              completed={item.completed}
+              deleted={item.deleted}
             />
-          )
-        })}
-      </Container>
-    </ThemeProvider>
+          </Flex>
+          <Flex {...attributeContainerStyles}>
+            <Flex {...attributeValueStyles}>
+              {Icons['repeat']()}
+              <Text>Repeating: </Text>
+            </Flex>
+            <RepeatPicker
+              repeat={
+                item.repeat && item.repeat != 'undefined' ? RRule.fromString(item.repeat) : null
+              }
+              completed={item.completed}
+              deleted={item.deleted}
+              key={'rp' + item.key}
+              onSubmit={(r: RRule) =>
+                setRepeat({ variables: { key: item.key, repeat: r?.toString() } })
+              }
+            />
+          </Flex>
+        </>
+      )}
+      {item.children.length == 0 && (
+        <Flex {...attributeContainerStyles}>
+          <Flex {...attributeValueStyles}>
+            {Icons['subtask']()}
+            <Text>Parent: </Text>
+          </Flex>
+          <AttributeSelect
+            attribute={'item'}
+            currentAttribute={item}
+            completed={item.completed}
+            deleted={item.deleted}
+            onSubmit={(itemKey: string) =>
+              setParent({ variables: { key: item.key, parentKey: itemKey } })
+            }
+          />
+        </Flex>
+      )}
+      <Flex {...attributeContainerStyles}>
+        <Flex {...attributeValueStyles}>
+          {Icons['label']()}
+          <Text>Label: </Text>
+        </Flex>
+        <AttributeSelect
+          attribute={'label'}
+          currentAttribute={item.label}
+          completed={item.completed}
+          deleted={item.deleted}
+          onSubmit={(label) => {
+            setLabel({ variables: { key: item.key, labelKey: label.value } })
+          }}
+        />
+      </Flex>
+      {item.deleted && (
+        <Flex {...attributeContainerStyles}>
+          <Flex {...attributeValueStyles}>
+            {Icons['trash']()}
+            <Text>Deleted at: </Text>
+          </Flex>
+          <div style={{ margin: '2px', padding: '5px 8px' }}>
+            {formatRelativeDate(parseISO(item?.deletedAt))}
+          </div>
+        </Flex>
+      )}
+      {item.completed && (
+        <Flex {...attributeContainerStyles}>
+          <Flex {...attributeValueStyles}>
+            {Icons['todoChecked']()}
+            <Text>Completed at: </Text>
+          </Flex>
+          <div style={{ margin: '2px', padding: '5px 8px' }}>
+            {formatRelativeDate(parseISO(item?.completedAt))}
+          </div>
+        </Flex>
+      )}
+      {item.parent?.key == null && item.type == 'TODO' && (
+        <>
+          <Text w="100%" mx={0} px={2} pt={6} pb={0}>
+            Subtasks:
+          </Text>
+          <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
+
+          {item.children.length ? (
+            <Box py={0} px={2} w={'100%'} key={`box-${item.key}`}>
+              {item.children?.map((childItem) => {
+                return (
+                  <Item
+                    compact={false}
+                    key={childItem.key}
+                    componentKey={null}
+                    itemKey={childItem.key}
+                    shouldIndent={false}
+                    alwaysVisible={true}
+                    hiddenIcons={[ItemIcons.Project, ItemIcons.Subtask]}
+                  />
+                )
+              })}
+            </Box>
+          ) : (
+            <Text> No subtasks </Text>
+          )}
+          <ItemCreator key={`${item.key}-subtask`} parentKey={item.key} initiallyExpanded={false} />
+        </>
+      )}
+    </VStack>
   )
 }
 

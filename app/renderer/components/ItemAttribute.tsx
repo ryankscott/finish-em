@@ -1,17 +1,8 @@
 import React, { ReactElement } from 'react'
-import { AttributeContainer, AttributeIcon, AttributeText } from './styled/ItemAttribute'
 import { Icons } from '../assets/icons'
 import marked from 'marked'
-import { themes } from '../theme'
-import { ThemeProvider } from '../StyledComponents'
-import { gql, useQuery } from '@apollo/client'
-import { ThemeType } from '../interfaces'
+import { Flex, Text } from '@chakra-ui/layout'
 
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
 type ItemAttributeProps = {
   type: 'repeat' | 'due' | 'scheduled' | 'subtask'
   text: string
@@ -20,26 +11,22 @@ type ItemAttributeProps = {
 }
 
 const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
   const iconSize = props.compact ? 12 : 14
-  const theme: ThemeType = themes[data.theme]
   return (
-    <ThemeProvider theme={theme}>
-      <AttributeContainer compact={props.compact} completed={props.completed}>
-        <AttributeIcon compact={props.compact}>
-          {Icons[props.type](iconSize, iconSize)}
-        </AttributeIcon>
-        <AttributeText
-          compact={props.compact}
-          dangerouslySetInnerHTML={{ __html: marked(props.text) }}
-        ></AttributeText>
-      </AttributeContainer>
-    </ThemeProvider>
+    <Flex
+      direction="row"
+      alignItems="center"
+      py={0}
+      px={1}
+      my={0}
+      mx={1}
+      textDecoration={props.completed ? 'strike-through' : 'none'}
+    >
+      <Flex p={0} m={0} alignItems="center">
+        {Icons[props.type](iconSize, iconSize)}
+      </Flex>
+      <Text fontSize="xs" dangerouslySetInnerHTML={{ __html: marked(props.text) }}></Text>
+    </Flex>
   )
 }
 export default ItemAttribute

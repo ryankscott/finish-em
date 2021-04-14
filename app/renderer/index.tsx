@@ -4,6 +4,7 @@ import ViewManager from './components/ViewManager'
 import { ApolloProvider, ApolloClient, InMemoryCache, ReactiveVar, makeVar } from '@apollo/client'
 import jwt from 'jsonwebtoken'
 import { ChakraProvider } from '@chakra-ui/react'
+import theme from './theme/index'
 
 const token = jwt.sign({ user: 'app' }, 'super_secret', { algorithm: 'HS256' })
 const mainRoot = document.getElementById('mainRoot')
@@ -94,7 +95,7 @@ export const subtasksVisibleVar: ReactiveVar<Object> = makeVar<Object>({})
 export const activeCalendarVar: ReactiveVar<Object> = makeVar<String>('')
 
 ReactDOM.render(
-  <ChakraProvider>
+  <ChakraProvider theme={theme}>
     <ApolloProvider client={client}>
       <ViewManager />
     </ApolloProvider>

@@ -1,13 +1,9 @@
 import React, { ReactElement, useState } from 'react'
 import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { Wrapper } from './styled/EditableText2'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
-import { gql, useQuery } from '@apollo/client'
-import { ThemeType } from '../interfaces'
 import MarkdownShortcuts from 'quill-markdown-shortcuts'
 import CSS from 'csstype'
+import { Box } from '@chakra-ui/layout'
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts)
 
@@ -28,12 +24,6 @@ Link.sanitize = function (url) {
   return url
 }
 Quill.register(Link, true)
-
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
 
 type EditableText2Props = {
   placeholder?: string
@@ -92,14 +82,7 @@ const formats = [
 const EditableText2 = (props: EditableText2Props): ReactElement => {
   const [editorHtml, setEditorHtml] = useState(props.input ? props.input : '')
   const [isEditing, setIsEditing] = useState(false)
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
 
-  const theme: ThemeType = themes[data.theme]
   let reactQuillRef = React.useRef<ReactQuill>()
   const handleChange = (content, delta, source, editor) => {
     const lastChar = delta.ops[delta.ops.length - 1]?.insert?.charCodeAt(0)
@@ -130,33 +113,33 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
     if (e.key == 'Escape') {
       props.onEscape ? props.onEscape() : null
     }
-
     return
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <Wrapper
-        hideBorder={props.hideBorder}
-        isEditing={isEditing}
-        height={props.height}
-        width={props.width}
-      >
-        <ReactQuill
-          ref={reactQuillRef}
-          theme={'snow'}
-          onChange={handleChange}
-          value={editorHtml}
-          modules={generateModules(props.hideToolbar, props.singleLine)}
-          formats={formats}
-          onKeyUp={handleKeyUp}
-          readOnly={props.readOnly}
-          placeholder={props.placeholder}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-        />
-      </Wrapper>
-    </ThemeProvider>
+    <Box
+      position={'relative'}
+      height={props.height ? `calc(${props.height} + 30px)}` : 'auto'}
+      width={props.width ? props.width : '100%'}
+      overflow={'visible'}
+      textOverflow={'ellipsis'}
+      whiteSpace={'nowrap'}
+    >
+      <ReactQuill
+        className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}
+        ref={reactQuillRef}
+        theme={'snow'}
+        onChange={handleChange}
+        value={editorHtml}
+        modules={generateModules(props.hideToolbar, props.singleLine)}
+        formats={formats}
+        onKeyUp={handleKeyUp}
+        readOnly={props.readOnly}
+        placeholder={props.placeholder}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
+    </Box>
   )
 }
 

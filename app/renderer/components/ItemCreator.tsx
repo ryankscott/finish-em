@@ -1,22 +1,18 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
-import { Container, ItemCreatorContainer, HelpButtonContainer } from './styled/ItemCreator'
-import { themes } from '../theme'
-import { ThemeProvider } from '../StyledComponents'
 import EditableText from './EditableText'
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { ThemeType } from '../interfaces'
 import EditItemCreator from './EditItemCreator'
 import EditableText2 from './EditableText2'
+import { Flex } from '@chakra-ui/react'
 
-const GET_THEME = gql`
+const GET_FEATURE = gql`
   query {
     newEditor: featureByName(name: "newEditor") {
       key
       enabled
     }
-    theme @client
   }
 `
 
@@ -82,7 +78,6 @@ export type ItemCreatorProps = {
 
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   const [showItemCreator, setShowItemCreator] = useState(false)
-  const [animate, setAnimate] = useState(false)
 
   const textRef: React.RefObject<HTMLInputElement> = props.innerRef
     ? props.innerRef
@@ -113,22 +108,29 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   const [createItem] = useMutation(CREATE_ITEM, {
     refetchQueries: ['itemsByFilter'],
   })
-  const { loading, error, data } = useQuery(GET_THEME)
+  const { loading, error, data } = useQuery(GET_FEATURE)
   if (loading) return null
   if (error) {
     console.log(error)
     return null
   }
-  const theme: ThemeType = themes[data.theme]
   return (
-    <ThemeProvider theme={theme}>
+    <>
       {props.editing ? (
         <EditItemCreator
           componentKey={props.componentKey}
           onClose={() => props.setEditing(false)}
         />
       ) : (
-        <Container
+        <Flex
+          w={'100%'}
+          alignItems="flex-start"
+          justifyContent="flex-end"
+          py={0}
+          px={1}
+          overflowX="visible"
+          m={1}
+          h={'75px'}
           ref={node}
           onKeyDown={(e) => {
             if (e.key == 'Escape') {
@@ -138,11 +140,12 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         >
           {!props.hideButton && (
             <Button
-              type="primary"
-              spacing="compact"
+              size="md"
+              variant="primary"
               icon="add"
-              height={props.buttonText ? 'auto' : '24px'}
-              width={props.buttonText ? 'auto' : '24px'}
+              iconPosition="left"
+              iconColour="#FFF"
+              iconSize="14px"
               text={showItemCreator ? '' : props.buttonText}
               tooltipText={props.parentKey ? 'Create subtask' : 'Create item'}
               onClick={() => {
@@ -151,12 +154,20 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               }}
             />
           )}
-          <ItemCreatorContainer
+          <Flex
+            position="relative"
+            my={0}
+            mx={1}
+            direction="column"
+            justifyContent="flex-start"
+            alignItems="center"
+            border={'1px solid'}
+            borderColor={'gray.200'}
+            borderRadius={4}
+            width={showItemCreator ? (props.width ? props.width : '100%') : '0px'}
+            opacity={showItemCreator ? '1' : 0}
+            transition={'width 0.2s ease-in-out'}
             data-cy="item-creator"
-            animate={animate}
-            backgroundColour={props.backgroundColour}
-            width={props.width}
-            visible={showItemCreator}
           >
             {data.newEditor.enabled ? (
               <EditableText2
@@ -184,10 +195,6 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               />
             ) : (
               <EditableText
-                onInvalidSubmit={() => {
-                  setAnimate(true)
-                  setTimeout(() => setAnimate(false), 1000)
-                }}
                 backgroundColour={props.backgroundColour}
                 alwaysShowBorder={true}
                 innerRef={textRef}
@@ -228,10 +235,10 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                 onEscape={props.onEscape}
               />
             )}
-          </ItemCreatorContainer>
-        </Container>
+          </Flex>
+        </Flex>
       )}
-    </ThemeProvider>
+    </>
   )
 }
 

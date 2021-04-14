@@ -1,22 +1,17 @@
 import React, { ReactElement } from 'react'
 import Item from './Item'
 import { ItemIcons } from '../interfaces/item'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
 import { item as itemKeymap } from '../keymap'
-import { ThemeType } from '../interfaces'
-import { Container, NoItemText, ItemContainer, GroupHeader } from './styled/ItemList'
-import { TransitionGroup, Transition } from 'react-transition-group'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { cloneDeep } from '@apollo/client/utilities'
 import { get } from 'lodash'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Spinner } from './Spinner'
+import { Box, Flex, Text } from '@chakra-ui/react'
 
-const GET_THEME = gql`
+const GET_DATA = gql`
   query {
-    theme @client
     subtasksVisible @client
   }
 `
@@ -79,26 +74,17 @@ type ItemListProps = {
 }
 
 function ItemList(props: ItemListProps): ReactElement {
-  const { loading, error, data } = useQuery(GET_THEME)
+  const { loading, error, data } = useQuery(GET_DATA)
   if (loading)
     return (
-      <div
-        style={{
-          height: '100%',
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignContent: 'center',
-        }}
-      >
+      <Flex h={'100%'} w={'100%'} justifyContent={'center'} alignContent={'center'}>
         <Spinner loading={true}></Spinner>
-      </div>
+      </Flex>
     )
   if (error) {
     console.log(error)
     return null
   }
-  const theme: ThemeType = themes[data.theme]
   const [completeItem] = useMutation(COMPLETE_ITEM)
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
   const [deleteItem] = useMutation(DELETE_ITEM)
@@ -219,61 +205,46 @@ function ItemList(props: ItemListProps): ReactElement {
       }
     }
     return (
-      <Transition
-        key={'t-container-' + i.key}
-        timeout={{
-          appear: 100,
-          enter: 100,
-          exit: 100,
-        }}
-      >
-        {(state) => {
-          return (
-            <ItemContainer state={state} tabIndex={0} key={'container-' + i.key}>
-              <Item
-                compact={props.compact}
-                key={i.key}
-                itemKey={i.key}
-                componentKey={props.componentKey}
-                shouldIndent={false}
-                hiddenIcons={props.hiddenIcons}
-              />
+      <Box tabIndex={0} key={'container-' + i.key}>
+        <Item
+          compact={props.compact}
+          key={i.key}
+          itemKey={i.key}
+          componentKey={props.componentKey}
+          shouldIndent={false}
+          hiddenIcons={props.hiddenIcons}
+        />
 
-              {i.children?.map((childItem) => {
-                // We need to check if the child exists in the original input list
-                return (
-                  <Item
-                    compact={props.compact}
-                    key={childItem.key}
-                    itemKey={childItem.key}
-                    componentKey={props.componentKey}
-                    hiddenIcons={
-                      props.hiddenIcons
-                        ? [...props.hiddenIcons, ItemIcons.Subtask]
-                        : [ItemIcons.Subtask]
-                    }
-                    shouldIndent={true}
-                  />
-                )
-              })}
-            </ItemContainer>
+        {i.children?.map((childItem) => {
+          // We need to check if the child exists in the original input list
+          return (
+            <Item
+              compact={props.compact}
+              key={childItem.key}
+              itemKey={childItem.key}
+              componentKey={props.componentKey}
+              hiddenIcons={
+                props.hiddenIcons ? [...props.hiddenIcons, ItemIcons.Subtask] : [ItemIcons.Subtask]
+              }
+              shouldIndent={true}
+            />
           )
-        }}
-      </Transition>
+        })}
+      </Box>
     )
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container data-cy="item-list">
-        <TransitionGroup component={null}>
-          {props.inputItems.map((i) => {
-            return renderItem(i)
-          })}
-        </TransitionGroup>
-        {props.inputItems.length == 0 && <NoItemText>No items</NoItemText>}
-      </Container>
-    </ThemeProvider>
+    <Box w={'100%'} my={4} mx={0} data-cy="item-list">
+      {props.inputItems.map((i) => {
+        return renderItem(i)
+      })}
+      {props.inputItems.length == 0 && (
+        <Text color={'gray.400'} fontSize="sm" py={4} px={0} pl={4}>
+          No items
+        </Text>
+      )}
+    </Box>
   )
 }
 

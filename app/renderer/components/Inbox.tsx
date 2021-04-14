@@ -1,63 +1,45 @@
-import { gql, useQuery } from '@apollo/client'
 import React, { ReactElement } from 'react'
-import { ItemIcons, ThemeType } from '../interfaces'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
+import { ItemIcons } from '../interfaces'
 import FilteredItemList from './FilteredItemList'
 import ItemCreator from './ItemCreator'
-import { Container } from './styled/View'
 import ViewHeader from './ViewHeader'
+import { Flex } from '@chakra-ui/react'
 
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
 const Inbox = (): ReactElement => {
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme: ThemeType = themes[data.theme]
-
   return (
-    <ThemeProvider theme={theme}>
-      <Container style={{ paddingTop: '60px' }}>
-        <ViewHeader
-          componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4496"
-          name={'Inbox'}
-          icon={'inbox'}
+    <Flex margin={5} marginTop={12} padding={5} width="100%" direction="column" maxW="800px">
+      <ViewHeader
+        componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4496"
+        name={'Inbox'}
+        icon={'inbox'}
+        readOnly={true}
+      />
+      <ItemCreator
+        buttonText="Add Item"
+        initiallyExpanded={true}
+        shouldCloseOnSubmit={false}
+        projectKey={'0'}
+      />
+      <Flex marginTop="2">
+        <FilteredItemList
+          componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4497"
+          isFilterable={true}
+          listName="Inbox"
+          filter={JSON.stringify({
+            text: 'project = "Inbox"',
+            value: [
+              { category: 'projectKey', operator: '=', value: '0' },
+              { conditionType: 'AND', category: 'areaKey', operator: 'is', value: 'null' },
+              { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
+              { conditionType: 'AND', category: 'completed', operator: '=', value: 'false' },
+            ],
+          })}
+          flattenSubtasks={true}
           readOnly={true}
+          hiddenIcons={[ItemIcons.Project]}
         />
-        <ItemCreator
-          buttonText="Add Item"
-          initiallyExpanded={true}
-          shouldCloseOnSubmit={false}
-          projectKey={'0'}
-        />
-        <div style={{ padding: '20px 5px' }}>
-          <FilteredItemList
-            componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4497"
-            isFilterable={true}
-            listName="Inbox"
-            filter={JSON.stringify({
-              text: 'project = "Inbox"',
-              value: [
-                { category: 'projectKey', operator: '=', value: '0' },
-                { conditionType: 'AND', category: 'areaKey', operator: 'is', value: 'null' },
-                { conditionType: 'AND', category: 'deleted', operator: '=', value: 'false' },
-                { conditionType: 'AND', category: 'completed', operator: '=', value: 'false' },
-              ],
-            })}
-            flattenSubtasks={true}
-            readOnly={true}
-            hiddenIcons={[ItemIcons.Project]}
-          />
-        </div>
-      </Container>
-    </ThemeProvider>
+      </Flex>
+    </Flex>
   )
 }
 

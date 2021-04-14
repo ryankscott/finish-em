@@ -1,26 +1,18 @@
-import React, { ReactElement, useEffect, useRef } from 'react'
-import { ThemeProvider } from '../StyledComponents'
-import { themes, selectStyles } from '../theme'
-import Button from './Button'
-import { SortContainer, SortSelect } from './styled/SortDropdown'
-import { components } from 'react-select'
+import React, { ReactElement } from 'react'
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  Button as CButton,
+  Flex,
+  MenuOptionGroup,
+  MenuItemOption,
+  MenuDivider,
+} from '@chakra-ui/react'
 import { Icons } from '../assets/icons'
 import { orderBy } from 'lodash'
-import { gql, useQuery } from '@apollo/client'
-import { ThemeType } from '../interfaces'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
 import RRule from 'rrule'
-
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
-const DropdownIndicator = (props): ReactElement => {
-  return (
-    <components.DropdownIndicator {...props}>{Icons['collapse']()}</components.DropdownIndicator>
-  )
-}
 
 export enum SortDirectionEnum {
   Ascending = 'asc',
@@ -31,103 +23,159 @@ export type SortOption = {
   label: string
   sort: (items: ItemType[], direction: SortDirectionEnum) => ItemType[]
 }
-type SortOptions = { [key: string]: SortOption }
-
-export const sortOptions: SortOptions = {
-  STATUS: {
-    label: 'Status',
-    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => i.completed], direction),
-  },
-  DUE: {
-    label: 'Due',
-    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => new Date(i.dueAt)], direction),
-  },
-  SCHEDULED: {
-    label: 'Scheduled',
-    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => new Date(i.scheduledAt)], direction),
-  },
-  LABEL: {
-    label: 'Label',
-    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => i.label?.key], direction),
-  },
-  CREATED: {
-    label: 'Created',
-    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => new Date(i.createdAt)], direction),
-  },
-  UPDATED: {
-    label: 'Updated',
-    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => new Date(i.lastUpdatedAt)], direction),
-  },
-  PROJECT: {
-    label: 'Project',
-    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => i.project?.name], direction),
-  },
-  REPEAT: {
-    label: 'Repeat',
-    sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
-      orderBy(items, [(i) => (i.repeat ? RRule.fromString(i.repeat).options.freq : -1)], direction),
-  },
-}
 
 type SortDropdownProps = {
+  size?: 'xs' | 'sm' | 'md' | 'lg'
+  defaultText?: string
+  sortType: SortOption
   sortDirection: SortDirectionEnum
   onSetSortType: (type: SortOption) => void
   onSetSortDirection: (direction: SortDirectionEnum) => void
 }
 
 function SortDropdown(props: SortDropdownProps): ReactElement {
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
+  const generateIconSize = (size: string) => {
+    switch (size) {
+      case 'md':
+        return '12px'
+      case 'sm':
+        return '10px'
+      case 'xs':
+        return '8px'
+      default:
+        return '12px'
+    }
   }
-  const theme: ThemeType = themes[data.theme]
+  const iconSize = generateIconSize(props.size)
   return (
-    <ThemeProvider theme={theme}>
-      <SortContainer>
-        <SortSelect
-          options={Object.keys(sortOptions).map((s) => ({
-            label: sortOptions[s].label,
-            value: sortOptions[s],
-          }))}
-          defaultValue={sortOptions.DUE}
-          autoFocus={false}
-          placeholder="Sort by:"
-          components={{ DropdownIndicator }}
-          defaultIsOpen={true}
-          styles={selectStyles({
-            fontSize: 'xsmall',
-            theme: theme,
-            showDropdownIndicator: true,
-            minWidth: '100px',
-          })}
-          onChange={(e) => {
-            props.onSetSortType(e.value)
-          }}
-        />
-        <Button
-          type="default"
-          spacing="compact"
-          iconSize="18px"
-          translateZ={props.sortDirection == SortDirectionEnum.Ascending ? 1 : 0}
-          icon={'sort'}
-          onClick={() => {
-            props.sortDirection == SortDirectionEnum.Ascending
-              ? props.onSetSortDirection(SortDirectionEnum.Descending)
-              : props.onSetSortDirection(SortDirectionEnum.Ascending)
-          }}
-          tooltipText="Toggle sort direction"
-        />
-      </SortContainer>
-    </ThemeProvider>
+    <Flex alignItems={'center'}>
+      <Menu placement="bottom" gutter={0} arrowPadding={0} closeOnSelect={true} closeOnBlur={true}>
+        <MenuButton
+          mx={1}
+          size={props.size ? props.size : 'md'}
+          as={CButton}
+          rightIcon={Icons['collapse'](iconSize, iconSize)}
+          fontWeight={'normal'}
+          borderRadius={5}
+          variant={'default'}
+          width={'100%'}
+          textAlign={'start'}
+        >
+          {props.sortType ? props.sortType.label : props.defaultText}
+        </MenuButton>
+
+        <MenuList bg={'gray.50'}>
+          <MenuOptionGroup defaultValue="asc" title="Order" type="radio">
+            <MenuItemOption
+              value="asc"
+              onClick={() => props.onSetSortDirection(SortDirectionEnum.Ascending)}
+            >
+              Ascending
+            </MenuItemOption>
+            <MenuItemOption
+              value="desc"
+              onClick={() => props.onSetSortDirection(SortDirectionEnum.Descending)}
+            >
+              Descending
+            </MenuItemOption>
+          </MenuOptionGroup>
+          <MenuDivider />
+          <MenuOptionGroup type="radio" title="Property"></MenuOptionGroup>
+          <MenuItemOption
+            onClick={() =>
+              props.onSetSortType({
+                label: 'Status',
+                sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+                  orderBy(items, [(i) => i.completed], direction),
+              })
+            }
+          >
+            Status
+          </MenuItemOption>
+          <MenuItemOption
+            onClick={() =>
+              props.onSetSortType({
+                label: 'Due',
+                sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+                  orderBy(items, [(i) => new Date(i.dueAt)], direction),
+              })
+            }
+          >
+            Due
+          </MenuItemOption>
+          <MenuItemOption
+            onClick={() =>
+              props.onSetSortType({
+                label: 'Scheduled',
+                sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+                  orderBy(items, [(i) => new Date(i.scheduledAt)], direction),
+              })
+            }
+          >
+            Scheduled
+          </MenuItemOption>
+          <MenuItemOption
+            onClick={() =>
+              props.onSetSortType({
+                label: 'Label',
+                sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+                  orderBy(items, [(i) => i.label?.key], direction),
+              })
+            }
+          >
+            Label
+          </MenuItemOption>
+          <MenuItemOption
+            onClick={() =>
+              props.onSetSortType({
+                label: 'Created',
+                sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+                  orderBy(items, [(i) => new Date(i.createdAt)], direction),
+              })
+            }
+          >
+            Created
+          </MenuItemOption>
+          <MenuItemOption
+            onClick={() =>
+              props.onSetSortType({
+                label: 'Updated',
+                sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+                  orderBy(items, [(i) => new Date(i.lastUpdatedAt)], direction),
+              })
+            }
+          >
+            Updated
+          </MenuItemOption>
+          <MenuItemOption
+            onClick={() =>
+              props.onSetSortType({
+                label: 'Project',
+                sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+                  orderBy(items, [(i) => i.project?.name], direction),
+              })
+            }
+          >
+            Project
+          </MenuItemOption>
+          <MenuItemOption
+            onClick={() =>
+              props.onSetSortType({
+                label: 'Repeat',
+                sort: (items: ItemType[], direction: SortDirectionEnum): ItemType[] =>
+                  orderBy(
+                    items,
+                    [(i) => (i.repeat ? RRule.fromString(i.repeat).options.freq : -1)],
+                    direction,
+                  ),
+              })
+            }
+          >
+            Repeat
+          </MenuItemOption>
+        </MenuList>
+      </Menu>
+    </Flex>
   )
 }
 

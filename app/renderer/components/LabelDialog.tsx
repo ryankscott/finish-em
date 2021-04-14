@@ -1,18 +1,9 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { Box, Flex, Text } from '@chakra-ui/layout'
+import { transparentize } from 'polished'
 import React, { ReactElement } from 'react'
 import { Label } from '../../main/generated/typescript-helpers'
-import { ThemeType } from '../interfaces'
-import { ThemeProvider } from '../StyledComponents'
-import { themes } from '../theme'
 import Button from './Button'
-import {
-  BodyContainer,
-  Container,
-  HeaderContainer,
-  LabelContainer,
-  LabelHeader,
-  LabelName,
-} from './styled/LabelDialog'
 
 const GET_LABELS = gql`
   query {
@@ -21,7 +12,6 @@ const GET_LABELS = gql`
       name
       colour
     }
-    theme @client
   }
 `
 
@@ -48,55 +38,98 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
     console.log(error)
     return null
   }
-  const theme: ThemeType = themes[data.theme]
 
   return (
-    <ThemeProvider theme={theme}>
-      <Container>
-        <HeaderContainer>
-          <LabelHeader>Labels</LabelHeader>
-          <Button
-            type="default"
-            spacing="compact"
-            iconSize="12px"
-            onClick={() => {
-              props.onClose()
-            }}
-            icon={'close'}
-          />
-        </HeaderContainer>
-        <BodyContainer>
-          {data.labels.map((m: Label) => {
-            return (
-              <div key={m.key}>
-                <LabelContainer
-                  key={'lc-' + m.key}
+    <Box
+      zIndex={2}
+      position={'absolute'}
+      minW={'180px'}
+      right={'144px'}
+      top={'36px'}
+      border={'1px solid'}
+      borderColor={'gray.200'}
+      borderRadius={4}
+      padding={1}
+      bg={'gray.50'}
+    >
+      <Flex direction={'row'} alignItems={'baseline'} justifyContent={'space-between'} pb={1}>
+        <Text pl={2}>Labels</Text>
+        <Button
+          variant="default"
+          size="sm"
+          iconSize="12px"
+          onClick={() => {
+            props.onClose()
+          }}
+          icon={'close'}
+        />
+      </Flex>
+      <Flex direction={'column'} py={2} px={1}>
+        {data.labels.map((m: Label) => {
+          return (
+            <div key={m.key}>
+              <Flex
+                key={'lc-' + m.key}
+                justifyContent={'space-between'}
+                alignItems={'center'}
+                height={'25px'}
+                bg={m.colour ? transparentize(0.8, m.colour) : 'gray.50'}
+                _hover={{
+                  fontWeight: 'semibold',
+                  cursor: 'pointer',
+                }}
+                onClick={() => {
+                  setLabel({ variables: { key: props.itemKey, labelKey: m.key } })
+                  props.onClose()
+                }}
+              >
+                <Text
+                  fontSize="xs"
                   colour={m.colour}
-                  onClick={() => {
-                    setLabel({ variables: { key: props.itemKey, labelKey: m.key } })
-                    props.onClose()
+                  p={1}
+                  pl={4}
+                  _hover={{
+                    fontWeight: 'semibold',
+                    cursor: 'pointer',
                   }}
                 >
-                  <LabelName colour={m.colour}>{m.name}</LabelName>
-                </LabelContainer>
-              </div>
-            )
-          })}
-          <LabelContainer key={''} colour={''}>
-            <LabelName
-              colour={''}
-              onClick={(e) => {
-                setLabel({ variables: { key: props.itemKey, labelKey: null } })
-                e.stopPropagation()
-                props.onClose()
-              }}
-            >
-              {'No label'}
-            </LabelName>
-          </LabelContainer>
-        </BodyContainer>
-      </Container>
-    </ThemeProvider>
+                  {m.name}
+                </Text>
+              </Flex>
+            </div>
+          )
+        })}
+        <Flex
+          justifyContent={'space-between'}
+          alignItems={'center'}
+          height={'25px'}
+          bg={'gray.50'}
+          _hover={{
+            fontWeight: 'semibold',
+            cursor: 'pointer',
+          }}
+        >
+          <Text
+            fontSize="xs"
+            w={'100%'}
+            bg={'gray.100'}
+            p={1}
+            pl={4}
+            _hover={{
+              fontWeight: 'semibold',
+              cursor: 'pointer',
+            }}
+            onClick={(e) => {
+              setLabel({ variables: { key: props.itemKey, labelKey: null } })
+              e.stopPropagation()
+              props.onClose()
+            }}
+          >
+            {'No label'}
+          </Text>
+        </Flex>
+      </Flex>
+    </Box>
   )
 }
 

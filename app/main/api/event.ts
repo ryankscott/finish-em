@@ -5,7 +5,7 @@ import { getActiveCalendar } from './calendar'
 export const getEvents = (obj, ctx) => {
   return ctx.db
     .all(
-      'SELECT key, title, description, startAt, endAt, allDay, calendarKey, location, attendees, createdAt, recurrence FROM event',
+      'SELECT key, title, description, startAt, endAt, allDay, calendarKey, createdAt, location, attendees, recurrence FROM event',
     )
     .then((result) =>
       result.map(
@@ -99,26 +99,25 @@ export const getEventsForActiveCalendar = async (input, ctx) => {
       FROM event 
       WHERE calendarKey = ${activeCalendar.key}`,
     )
-    .then((result) =>
-      result
-        ? result.map(
-            (r) =>
-              new Event(
-                r.key,
-                r.title,
-                r.description,
-                r.startAt,
-                r.endAt,
-                r.allDay,
-                r.calendarKey,
-                r.createdAt,
-                r.location,
-                r.attendees,
-                r.recurrence,
-              ),
-          )
-        : null,
-    )
+    .then((result) => {
+      return result
+        ? result.map((r) => {
+            return new Event(
+              r.key,
+              r.title,
+              r.description,
+              r.startAt,
+              r.endAt,
+              r.allDay,
+              r.calendarKey,
+              r.createdAt,
+              r.location,
+              JSON.parse(r.attendees),
+              r.recurrence,
+            )
+          })
+        : null
+    })
 }
 
 export const createEvent = (
