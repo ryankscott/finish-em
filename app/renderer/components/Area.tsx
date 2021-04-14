@@ -15,6 +15,7 @@ import DeleteAreaDialog from './DeleteAreaDialog'
 import { Donut } from './Donut'
 import EditableText from './EditableText'
 import FilteredItemList from './FilteredItemList'
+import { Page } from './Page'
 import { Title } from './Typography'
 
 const GET_AREA_BY_KEY = gql`
@@ -125,7 +126,7 @@ const Area = (props: AreaProps): ReactElement => {
   const area: AreaType = data.area
   const areas: AreaType[] = data.areas
   return (
-    <Flex direction={'column'} width={'100%'} maxW={'700px'} mx={0} mt={14} mb={2}>
+    <Page>
       <Grid
         autoRows={'60px 40px'}
         templateColumns={'120px 1fr'}
@@ -299,7 +300,7 @@ const Area = (props: AreaProps): ReactElement => {
           </Grid>
         )
       })}
-    </Flex>
+    </Page>
   )
 }
 

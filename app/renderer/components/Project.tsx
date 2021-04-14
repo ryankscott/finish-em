@@ -17,6 +17,7 @@ import Tooltip from './Tooltip'
 import { Title } from './Typography'
 import { useHistory } from 'react-router-dom'
 import './styled/ReactDatePicker.css'
+import { Page } from './Page'
 
 const GET_PROJECT_BY_KEY = gql`
   query ProjectByKey($key: String!) {
@@ -146,7 +147,7 @@ const Project = (props: ProjectProps): ReactElement => {
   const allItems: ItemType[] = project?.items
   const completedItems = allItems.filter((i) => i.completed == true)
   return (
-    <Flex direction={'column'} w={'100%'} maxW={'700px'} my={3} mx={0} mt={8}>
+    <Page>
       <Grid
         gridAutoRows={'60px 40px'}
         gridTemplateColumns={'120px 1fr'}
@@ -290,7 +291,7 @@ const Project = (props: ProjectProps): ReactElement => {
           initiallyExpanded={false}
         />
       </Flex>
-    </Flex>
+    </Page>
   )
 }
 

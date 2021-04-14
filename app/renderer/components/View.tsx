@@ -4,6 +4,7 @@ import { gql, useQuery } from '@apollo/client'
 import Project from './Project'
 import Area from './Area'
 import { Flex } from '@chakra-ui/react'
+import { Page } from './Page'
 
 const GET_DATA = gql`
   query ViewByKey($key: String!) {
@@ -43,10 +44,10 @@ const View = (props: ViewProps): ReactElement => {
     return null
   }
   return (
-    <Flex marginTop="14" margin="5" padding="5" width="100%" direction="column" maxW="800">
+    <Page>
       {headerComponent(data.view.type, props.viewKey)}
       <ReorderableComponentList viewKey={props.viewKey} />
-    </Flex>
+    </Page>
   )
 }
 
