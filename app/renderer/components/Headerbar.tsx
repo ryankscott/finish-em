@@ -79,12 +79,11 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
     <Grid
       w={'100%'}
       alignItems="center"
-      gridTemplateColumns={'1fr repeat(3, 30px)'}
+      gridTemplateColumns={'1fr repeat(3, 35px)'}
       gridTemplateRows={'50px'}
       zIndex={2}
       color={'gray.50'}
       bg={'gray.800'}
-      py={1}
       px={2}
     >
       <GridItem as={Flex} justifyContent="flex-end" colSpan={1}>

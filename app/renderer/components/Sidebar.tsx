@@ -349,7 +349,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                       size={14}
                                       native={true}
                                     />
-                                    <Text key={uuidv4()} fontSize="md" color={'gray.100'}>
+                                    <Text pl={1} key={uuidv4()} fontSize="md" color={'gray.100'}>
                                       {a.name}
                                     </Text>
                                   </Flex>
@@ -439,6 +439,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                       key={uuidv4()}
                                                       fontSize="md"
                                                       color={'gray.100'}
+                                                      pl={1}
                                                     >
                                                       {p.name}
                                                     </Text>

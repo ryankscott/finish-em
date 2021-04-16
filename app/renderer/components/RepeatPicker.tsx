@@ -61,8 +61,9 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
         >
           {repeatText}
         </MenuButton>
-        <MenuList bg={'gray.50'}>
+        <MenuList width={'235px'} bg={'gray.50'}>
           <MenuItem
+            fontSize={'md'}
             onClick={() =>
               handleRepeatChange(
                 new RRule({
@@ -75,6 +76,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
             Daily
           </MenuItem>
           <MenuItem
+            fontSize={'md'}
             onClick={() =>
               handleRepeatChange(
                 new RRule({
@@ -88,6 +90,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
             Weekdays
           </MenuItem>
           <MenuItem
+            fontSize={'md'}
             onClick={() =>
               handleRepeatChange(
                 new RRule({
@@ -101,6 +104,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
             {'Weekly on ' + format(new Date(), 'EEE')}
           </MenuItem>
           <MenuItem
+            fontSize={'md'}
             onClick={() =>
               handleRepeatChange(
                 new RRule({
@@ -113,7 +117,9 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           >
             {'Monthly on the ' + format(new Date(), 'do')}
           </MenuItem>
-          <MenuItem onClick={() => handleRepeatChange(null)}>Custom repeat</MenuItem>
+          <MenuItem fontSize={'md'} onClick={() => handleRepeatChange(null)}>
+            Custom repeat
+          </MenuItem>
         </MenuList>
       </Menu>
 

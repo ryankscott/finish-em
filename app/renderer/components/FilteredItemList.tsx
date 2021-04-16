@@ -242,7 +242,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         <GridItem colSpan={1}>
           <Flex direction={'row'} py={1} px={0} my={0} mx={2} alignItems={'baseline'}>
             <Text fontSize="lg">{props.listName}</Text>
-            <Text py={0} px={2} minW={'80px'} color={'gray.500'}>
+            <Text fontSize="sm" py={0} px={2} minW={'80px'} color={'gray.500'}>
               {sortedItems
                 ? sortedItems.length == 1
                   ? '1 item'

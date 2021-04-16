@@ -292,6 +292,7 @@ function Item(props: ItemProps): ReactElement {
       cursor={'pointer'}
       borderRadius={5}
       gridTemplateColumns={props.compact ? 'repeat(8, 1fr)' : '25px 25px repeat(4, 1fr) 25px 25px'}
+      gridTemplateRows={'40px auto'}
       _after={{
         content: "''",
         position: 'absolute',

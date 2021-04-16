@@ -9,7 +9,7 @@ import space from './foundations/space'
 
 // Component style overrides
 import Button from './components/button'
-import MenuItem from './components/menuItem'
+import Menu from './components/menu'
 const theme = extendTheme({
   ...typography,
   space,
@@ -18,7 +18,7 @@ const theme = extendTheme({
   // Other foundational style overrides go here
   components: {
     Button,
-    MenuItem,
+    Menu,
     // Other components go here
   },
 })

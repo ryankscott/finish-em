@@ -25,7 +25,7 @@ const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
       <Flex p={0} m={0} alignItems="center">
         {Icons[props.type](iconSize, iconSize)}
       </Flex>
-      <Text fontSize="xs" dangerouslySetInnerHTML={{ __html: marked(props.text) }}></Text>
+      <Text fontSize="xs" px={1} dangerouslySetInnerHTML={{ __html: marked(props.text) }}></Text>
     </Flex>
   )
 }

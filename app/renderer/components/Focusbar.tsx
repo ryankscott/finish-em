@@ -366,7 +366,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         <Flex {...attributeContainerStyles}>
           <Flex {...attributeValueStyles}>
             {Icons['area']()}
-            <Text>Area: </Text>
+            <Text fontSize="md" pl={1}>
+              Area:{' '}
+            </Text>
           </Flex>
           <AttributeSelect
             attribute="area"
@@ -380,7 +382,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       <Flex {...attributeContainerStyles}>
         <Flex {...attributeValueStyles}>
           {Icons['project']()}
-          <Text>Project: </Text>
+          <Text fontSize="md" pl={1}>
+            Project:{' '}
+          </Text>
         </Flex>
         <AttributeSelect
           attribute={'project'}
@@ -403,7 +407,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <Flex {...attributeContainerStyles}>
             <Flex {...attributeValueStyles}>
               {Icons['scheduled']()}
-              <Text>Scheduled: </Text>
+              <Text fontSize="md" pl={1}>
+                Scheduled:
+              </Text>
             </Flex>
             <DatePicker
               key={'sd' + item.key}
@@ -419,7 +425,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <Flex {...attributeContainerStyles}>
             <Flex {...attributeValueStyles}>
               {Icons['due']()}
-              <Text>Due: </Text>
+              <Text fontSize="md" pl={1}>
+                Due:{' '}
+              </Text>
             </Flex>
             <DatePicker
               key={'dd' + item.key}
@@ -433,7 +441,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <Flex {...attributeContainerStyles}>
             <Flex {...attributeValueStyles}>
               {Icons['repeat']()}
-              <Text>Repeating: </Text>
+              <Text fontSize="md" pl={1}>
+                Repeating:{' '}
+              </Text>
             </Flex>
             <RepeatPicker
               repeat={
@@ -453,7 +463,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         <Flex {...attributeContainerStyles}>
           <Flex {...attributeValueStyles}>
             {Icons['subtask']()}
-            <Text>Parent: </Text>
+            <Text fontSize="md" pl={1}>
+              Parent:{' '}
+            </Text>
           </Flex>
           <AttributeSelect
             attribute={'item'}
@@ -469,7 +481,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       <Flex {...attributeContainerStyles}>
         <Flex {...attributeValueStyles}>
           {Icons['label']()}
-          <Text>Label: </Text>
+          <Text fontSize="md" pl={1}>
+            Label:{' '}
+          </Text>
         </Flex>
         <AttributeSelect
           attribute={'label'}
@@ -485,7 +499,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         <Flex {...attributeContainerStyles}>
           <Flex {...attributeValueStyles}>
             {Icons['trash']()}
-            <Text>Deleted at: </Text>
+            <Text fontSize="md" pl={1}>
+              Deleted at:{' '}
+            </Text>
           </Flex>
           <div style={{ margin: '2px', padding: '5px 8px' }}>
             {formatRelativeDate(parseISO(item?.deletedAt))}
@@ -496,7 +512,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         <Flex {...attributeContainerStyles}>
           <Flex {...attributeValueStyles}>
             {Icons['todoChecked']()}
-            <Text>Completed at: </Text>
+            <Text fontSize="md" pl={1}>
+              Completed at:{' '}
+            </Text>
           </Flex>
           <div style={{ margin: '2px', padding: '5px 8px' }}>
             {formatRelativeDate(parseISO(item?.completedAt))}
@@ -505,7 +523,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       )}
       {item.parent?.key == null && item.type == 'TODO' && (
         <>
-          <Text w="100%" mx={0} px={2} pt={6} pb={0}>
+          <Text fontSize="md" w="100%" mx={0} px={2} pt={6} pb={0}>
             Subtasks:
           </Text>
           <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
@@ -527,7 +545,10 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               })}
             </Box>
           ) : (
-            <Text> No subtasks </Text>
+            <Text fontSize="md" pl={1}>
+              {' '}
+              No subtasks{' '}
+            </Text>
           )}
           <ItemCreator key={`${item.key}-subtask`} parentKey={item.key} initiallyExpanded={false} />
         </>

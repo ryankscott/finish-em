@@ -8,8 +8,9 @@ import {
   ModalBody,
   ModalCloseButton,
   Flex,
+  Text,
+  Link,
 } from '@chakra-ui/react'
-import { Paragraph } from './Typography'
 import { Event } from '../../main/generated/typescript-helpers'
 import { format, parseISO } from 'date-fns'
 
@@ -24,7 +25,7 @@ const AttributeContainerStyles = {
   alignItems: 'flex-start',
   justifyContent: 'flex-start',
   my: 1,
-  mx: 6,
+  mx: 3,
   minH: 6,
 }
 
@@ -33,7 +34,7 @@ const AttributeKeyStyles = {
   fontWeight: 'semi-bold',
   alignItems: 'center',
   ml: 0,
-  minW: 12,
+  minW: '70px',
 }
 
 const AttributeValueStyles = {
@@ -46,30 +47,40 @@ const AttributeValueStyles = {
 export const EventModal = (props: Props) => {
   const generateDuration = () => {
     if (!props?.event?.startAt || !props?.event?.endAt) {
-      return ''
+      return <Text fontSize="md"></Text>
     }
-    return `${format(parseISO(props.event?.startAt), 'h:mm a')} - ${format(
-      parseISO(props.event?.endAt),
-      'h:mm a',
-    )} `
+    return (
+      <Text fontSize="md">
+        {format(parseISO(props.event?.startAt), 'h:mm a')} -
+        {format(parseISO(props.event?.endAt), 'h:mm a')}
+      </Text>
+    )
   }
 
   const generateLocation = () => {
     if (!props?.event?.location) {
-      return '-'
+      return <Text fontSize="md">-</Text>
     }
     if (props?.event?.location?.startsWith('http')) {
-      return <a href={props.event.location}>{props.event.location}</a>
+      return (
+        <Link fontSize="md" href={props.event.location}>
+          {props.event.location}
+        </Link>
+      )
     }
-    return <p>{props.event.location} </p>
+    return <Text fontSize="md">{props.event.location} </Text>
   }
 
   const generateAttendees = () => {
     if (!props?.event?.attendees) {
-      return '-'
+      return <Text fontSize="md">-</Text>
     }
 
-    return props.event?.attendees?.map((a) => <Paragraph key={a.name}>{a.name}</Paragraph>)
+    return props.event?.attendees?.map((a) => (
+      <Text fontSize="md" key={a.name}>
+        {a.name}
+      </Text>
+    ))
   }
   return (
     <Modal isOpen={props.isOpen} onClose={props.onClose}>
@@ -80,25 +91,25 @@ export const EventModal = (props: Props) => {
           <ModalBody>
             <Flex direction={'row'} {...AttributeContainerStyles}>
               <Flex {...AttributeKeyStyles}>
-                <Paragraph>Time: </Paragraph>
+                <Text fontSize="md">Time: </Text>
               </Flex>
-              <Flex postion={'relative'} direction={'column'} {...AttributeValueStyles}>
-                {generateDuration()}
+              <Flex pl={3} postion={'relative'} direction={'column'} {...AttributeValueStyles}>
+                <Text fontSize="md">{generateDuration()}</Text>
               </Flex>
             </Flex>
             <Flex direction={'row'} {...AttributeContainerStyles}>
               <Flex {...AttributeKeyStyles}>
-                <Paragraph>Location: </Paragraph>
+                <Text fontSize="md">Location: </Text>
               </Flex>
-              <Flex postion={'relative'} direction={'column'} {...AttributeValueStyles}>
+              <Flex pl={3} postion={'relative'} direction={'column'} {...AttributeValueStyles}>
                 {generateLocation()}
               </Flex>
             </Flex>
             <Flex direction={'row'} {...AttributeContainerStyles}>
               <Flex {...AttributeKeyStyles}>
-                <Paragraph>Attendees: </Paragraph>
+                <Text fontSize="md">Attendees: </Text>
               </Flex>
-              <Flex postion={'relative'} direction={'column'} {...AttributeValueStyles}>
+              <Flex pl={3} postion={'relative'} direction={'column'} {...AttributeValueStyles}>
                 {generateAttendees()}
               </Flex>
             </Flex>

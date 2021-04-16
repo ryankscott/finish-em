@@ -38,7 +38,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
   const iconSize = generateIconSize(props.size)
   return (
     <>
-      <Menu placement="bottom" gutter={0} arrowPadding={0} closeOnSelect={true} closeOnBlur={true}>
+      <Menu gutter={0} arrowPadding={0} closeOnSelect={true} closeOnBlur={true}>
         <MenuButton
           size={props.size ? props.size : 'md'}
           as={Button}
@@ -52,11 +52,14 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
           {props.text ? props.text : props.defaultText}
         </MenuButton>
         <MenuList width={'235px'} bg={'gray.50'}>
-          <MenuItem onClick={() => handleDayChange(new Date())}>Today</MenuItem>
-          <MenuItem onClick={() => handleDayChange(add(new Date(), { days: 1 }))}>
+          <MenuItem fontSize={'md'} onClick={() => handleDayChange(new Date())}>
+            Today
+          </MenuItem>
+          <MenuItem fontSize={'md'} onClick={() => handleDayChange(add(new Date(), { days: 1 }))}>
             Tomorrow
           </MenuItem>
           <MenuItem
+            fontSize={'md'}
             onClick={() =>
               handleDayChange(
                 sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
@@ -68,6 +71,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
             End of week
           </MenuItem>
           <MenuItem
+            fontSize={'md'}
             onClick={() =>
               handleDayChange(
                 add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
@@ -79,6 +83,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
             Next week
           </MenuItem>
           <MenuItem
+            fontSize={'md'}
             onClick={(e) => {
               e.preventDefault()
               setDayPickerVisible(true)
