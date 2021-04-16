@@ -1,4 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { Flex, Grid, GridItem } from '@chakra-ui/react'
 import { isSameMinute, parseISO } from 'date-fns'
 import cron from 'node-cron'
 import React, { ReactElement, useEffect, useState } from 'react'
@@ -6,8 +7,6 @@ import { Route, Switch, useHistory, useParams } from 'react-router-dom'
 import { Slide, toast } from 'react-toastify'
 import { focusbarVisibleVar, shortcutDialogVisibleVar, sidebarVisibleVar } from '../index'
 import { ThemeType } from '../interfaces'
-import { ThemeProvider } from '../StyledComponents'
-import { GlobalStyle, themes } from '../theme'
 import { ActionBar } from './ActionBar'
 import Area from './Area'
 import DailyAgenda from './DailyAgenda'
@@ -54,7 +53,6 @@ const GET_DATA = gql`
 
     sidebarVisible @client
     focusbarVisible @client
-    theme @client
     activeItem @client
     shortcutDialogVisible @client
   }
@@ -135,7 +133,6 @@ const App = (props: AppProps): ReactElement => {
   if (loading) return null
   if (error) return null
 
-  const theme: ThemeType = themes[data.theme]
   // TODO: Work out the best way to expand the width here
   const handleResize = () => {
     if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && data.sidebarVisible) {
@@ -165,51 +162,78 @@ const App = (props: AppProps): ReactElement => {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyle theme={theme} />
-      <Container>
-        <HeaderContainer>
-          <Headerbar searchRef={searchRef} />
-        </HeaderContainer>
-        <BodyContainer>
-          <SidebarContainer visible={data.sidebarVisible}>
+    <>
+      <Grid
+        gridTemplateRows={'50px auto'}
+        m={0}
+        h={'100%'}
+        minW={'500px'}
+        transition={'all 0.2s ease-in-out'}
+      >
+        <GridItem rowStart={1} colStart={1} colSpan={1}>
+          <Flex h={'100%'} w={'100%'} shadow="md">
+            <Headerbar searchRef={searchRef} />
+          </Flex>
+        </GridItem>
+        <GridItem rowStart={2} colStart={1} colSpan={1}>
+          <Flex
+            w={data.sidebarVisible ? '250px' : '50px'}
+            minW={data.sidebarVisible ? '250px' : '50px'}
+            direction={'column'}
+            transition={'all 0.2s ease-in-out'}
+            overflowY={'scroll'}
+            overflowX={'hidden'}
+            p={0}
+            bg={'gray.800'}
+            zIndex={2}
+            shadow={'md'}
+          >
             <Sidebar />
-          </SidebarContainer>
-          <MainContainer visible={data.sidebarVisible}>
-            <ShortcutDialog />
-            <Switch>
-              <Route path="/help">
-                <Help />
-              </Route>
-              <Route path="/dailyAgenda">
-                <DailyAgenda />
-              </Route>
-              <Route path="/inbox">
-                <Inbox />
-              </Route>
-              <Route path="/views/:id">
-                <ViewWrapper />
-              </Route>
-              <Route path="/areas/:id">
-                <AreaWrapper />
-              </Route>
-              <Route path="/Settings">
-                <Settings />
-              </Route>
-              <Route path="/weeklyAgenda">
-                <WeeklyAgenda />
-              </Route>
-              <Route path="/">
-                <Inbox />
-              </Route>
-            </Switch>
-          </MainContainer>
-          <FocusContainer visible={data.focusbarVisible}>
-            <Focusbar />
-          </FocusContainer>
-          {data.activeItem.length > 1 && <ActionBar />}
-        </BodyContainer>
-      </Container>
+          </Flex>
+        </GridItem>
+        <Flex
+          direction={'column'}
+          p={0}
+          m={0}
+          transition={'all 0.2s ease-in-out'}
+          w={'100%'}
+          alignItems={'center'}
+          bg={'gray.50'}
+          minW={'500px'}
+        >
+          <ShortcutDialog />
+          <Switch>
+            <Route path="/help">
+              <Help />
+            </Route>
+            <Route path="/dailyAgenda">
+              <DailyAgenda />
+            </Route>
+            <Route path="/inbox">
+              <Inbox />
+            </Route>
+            <Route path="/views/:id">
+              <ViewWrapper />
+            </Route>
+            <Route path="/areas/:id">
+              <AreaWrapper />
+            </Route>
+            <Route path="/Settings">
+              <Settings />
+            </Route>
+            <Route path="/weeklyAgenda">
+              <WeeklyAgenda />
+            </Route>
+            <Route path="/">
+              <Inbox />
+            </Route>
+          </Switch>
+        </Flex>
+        <FocusContainer visible={data.focusbarVisible}>
+          <Focusbar />
+        </FocusContainer>
+        {data.activeItem.length > 1 && <ActionBar />}
+      </Grid>
       <StyledToastContainer
         position="bottom-center"
         autoClose={3000}
@@ -222,7 +246,7 @@ const App = (props: AppProps): ReactElement => {
         pauseOnHover
         transition={Slide}
       />
-    </ThemeProvider>
+    </>
   )
 }
 
