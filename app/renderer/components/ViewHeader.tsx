@@ -42,7 +42,7 @@ const ViewHeader = (props: ViewHeaderProps): ReactElement => {
             {Icons[props?.icon](36, 36, theme.colors.blue[500])}
           </GridItem>
           <GridItem colSpan={1}>
-            <Text fontSize="xl" fontWeight="normal" color={'blue.500'} p={2} m={0}>
+            <Text fontSize="2xl" fontWeight="medium" color={'blue.500'} p={2} m={0}>
               {props.name}
             </Text>
           </GridItem>

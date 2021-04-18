@@ -76,7 +76,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
           />
         </GridItem>
         <GridItem colSpan={3} textAlign="center">
-          <Text fontWeight={'normal'} color="blue.400" fontSize="xl">
+          <Text fontWeight={'medium'} color="blue.500" fontSize="2xl" textAlign={'center'}>
             {format(currentDate, 'EEEE do MMMM yyyy')}
           </Text>
         </GridItem>

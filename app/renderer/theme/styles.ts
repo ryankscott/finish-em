@@ -1,8 +1,9 @@
-import { grayscale, transparentize } from 'polished'
+import { transparentize } from 'polished'
 
 const styles = {
   html: {
     boxSizing: 'border-box',
+    fontWeight: 'normal',
   },
   body: {
     fontFamily: 'body',
@@ -15,14 +16,15 @@ const styles = {
     margin: 0,
   },
   a: {
-    color: 'teal.500',
+    color: 'blue.500',
     _hover: {
       textDecoration: 'underline',
     },
   },
   p: {
-    fontSize: 'xsmall',
-    fontFamily: 'font.body',
+    fontSize: 'sm',
+    fontWeight: 'normal',
+    fontFamily: 'body',
     color: 'gray.800',
     my: 1,
     mx: 2,
@@ -73,6 +75,7 @@ const styles = {
         left: 2,
       },
       '.ql-editor': {
+        fontFamily: 'body',
         overflow: 'auto',
         height: 'auto',
         py: 2,
@@ -89,6 +92,7 @@ const styles = {
       '.ql-container': {
         border: 'none',
         borderRadius: 4,
+        fontFamily: 'body',
       },
       '.ql-snow .ql-editor a': {
         color: 'gray.800',
@@ -213,7 +217,7 @@ const styles = {
         minW: '600px',
       },
       '.command-container': {
-        fontFamily: 'fonts.body',
+        fontFamily: 'body',
         fontWeight: 'light',
         fontSize: 'sm',
       },
@@ -257,6 +261,7 @@ const styles = {
         borderRadius: 5,
         display: 'flex',
         justifyContent: 'space-between',
+        fontWeight: 'medium',
         color: 'gray.200',
         borderTop: 0,
         bg: 'gray.800',

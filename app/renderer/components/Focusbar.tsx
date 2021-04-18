@@ -260,14 +260,20 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     : 'Add scheduled date'
 
   return (
-    <VStack width={'100%'} px={2} py={3} h={'100vh'} bg={'gray.50'}>
-      <Grid
-        templateColumns={'repeat(5, 1fr)'}
-        width={'100%'}
-        m={0}
-        p={0}
-        visibility={data.focusbarVisible ? 'visible' : 'hidden'}
-      >
+    <VStack
+      border={'1px solid'}
+      borderColor={'gray.200'}
+      shadow={'md'}
+      width={data.focusbarVisible ? '100%' : 0}
+      maxWidth={'350px'}
+      opacity={data.focusbarVisible ? 1 : 0}
+      px={3}
+      py={3}
+      h={'100%'}
+      bg={'gray.50'}
+      transition={'all 0.2s ease-in-out'}
+    >
+      <Grid templateColumns={'repeat(5, 1fr)'} width={'100%'} m={0} p={0}>
         {item?.parent != null && (
           <GridItem colSpan={1}>
             <Button

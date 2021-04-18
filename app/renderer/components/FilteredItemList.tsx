@@ -220,6 +220,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
         py={4}
         px={2}
         mt={0}
+        gridGap={1}
         borderRadius={0}
         borderTopRadius={5}
         gridTemplateRows={'40px'}

@@ -124,7 +124,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
       ) : (
         <Flex
           w={'100%'}
-          alignItems="flex-start"
+          alignItems="baseline"
           justifyContent="flex-end"
           py={0}
           px={1}
@@ -140,6 +140,8 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         >
           {!props.hideButton && (
             <Button
+              mx={1}
+              my={1}
               size="md"
               variant="primary"
               icon="add"
@@ -161,8 +163,6 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
             direction="column"
             justifyContent="flex-start"
             alignItems="center"
-            border={'1px solid'}
-            borderColor={'gray.200'}
             borderRadius={4}
             width={showItemCreator ? (props.width ? props.width : '100%') : '0px'}
             opacity={showItemCreator ? '1' : 0}
@@ -177,6 +177,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                 shouldClearOnSubmit={true}
                 hideToolbar={false}
                 shouldSubmitOnBlur={false}
+                showBorder={true}
                 onUpdate={(text) => {
                   createItem({
                     variables: {

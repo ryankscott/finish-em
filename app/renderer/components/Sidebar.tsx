@@ -28,6 +28,7 @@ const SidebarItem = (props: {
     return (
       <>
         <Flex
+          key={uuidv4()}
           m={0}
           px={2}
           py={0}
@@ -37,20 +38,20 @@ const SidebarItem = (props: {
           alignItems={'center'}
         >
           {props.iconName && Icons[props.iconName](16, 16)}
-          <Text p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
+          <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
             {props.text}
           </Text>
         </Flex>
-        <Tooltip id={id} text={props.text} />
+        <Tooltip key={uuidv4()} id={id} text={props.text} />
       </>
     )
   }
   return (
     <>
-      <Flex m={0} px={2} py={0} data-tip data-for={id} justifyContent="center">
+      <Flex key={uuidv4()} m={0} px={2} py={0} data-tip data-for={id} justifyContent="center">
         {Icons[props.iconName](20, 20)}
       </Flex>
-      <Tooltip id={id} text={props.text} />
+      <Tooltip key={uuidv4()} id={id} text={props.text} />
     </>
   )
 }
@@ -195,9 +196,10 @@ const Sidebar = (props: SidebarProps): ReactElement => {
     color: 'gray.100',
     w: '100%',
     borderRadius: 4,
-    py: 1,
-    px: data.sidebarVisible ? 2 : 0,
+    py: 1.25,
     m: 0,
+    my: 0.25,
+    px: data.sidebarVisible ? 2 : 0,
     _hover: {
       bg: 'gray.900',
     },
@@ -212,16 +214,25 @@ const Sidebar = (props: SidebarProps): ReactElement => {
       direction={'column'}
       justifyContent={'space-between'}
       transition={'all 0.2s ease-in-out'}
-      width={'100%'}
-      height={'100vh'}
+      w={data.sidebarVisible ? '250px' : '50px'}
+      minW={data.sidebarVisible ? '250px' : '50px'}
+      height={'100%'}
       p={2}
       bg={'gray.800'}
       shadow={'md'}
       data-cy="sidebar-container"
+      key={uuidv4()}
+      m={0}
+      overflowY={'scroll'}
     >
-      <VStack spacing={0} w={'100%'}>
-        <SidebarSection name="Views" iconName="view" sidebarVisible={data.sidebarVisible} />
-        <VStack spacing={0} w={'100%'}>
+      <VStack key={uuidv4()} spacing={0} w={'100%'}>
+        <SidebarSection
+          key={uuidv4()}
+          name="Views"
+          iconName="view"
+          sidebarVisible={data.sidebarVisible}
+        />
+        <VStack key={uuidv4()} spacing={0} w={'100%'}>
           {defaultViews.map((d) => {
             return (
               <StyledLink
@@ -230,7 +241,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 }}
                 {...linkStyles}
                 to={d.path}
-                key={d.path}
+                key={'link-' + d.path}
               >
                 <SidebarItem
                   key={d.path}
@@ -262,8 +273,14 @@ const Sidebar = (props: SidebarProps): ReactElement => {
             )
           })}
         </VStack>
-        <SidebarSection name="Areas" iconName="area" sidebarVisible={data.sidebarVisible} />
+        <SidebarSection
+          key={uuidv4()}
+          name="Areas"
+          iconName="area"
+          sidebarVisible={data.sidebarVisible}
+        />
         <DragDropContext
+          key={uuidv4()}
           onDragEnd={(e) => {
             if (e.type == 'PROJECT') {
               const areaKey = e.destination.droppableId
@@ -302,7 +319,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
             refetch()
           }}
         >
-          <Droppable droppableId={uuidv4()} type="AREA">
+          <Droppable key={uuidv4()} droppableId={uuidv4()} type="AREA">
             {(provided, snapshot) => (
               <SidebarDroppableList
                 key={uuidv4()}
@@ -331,6 +348,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                               alignItems={'center'}
                             >
                               <StyledLink
+                                key={uuidv4()}
                                 activeStyle={{
                                   backgroundColor: theme.colors.gray[900],
                                 }}
@@ -339,7 +357,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 data-tip
                                 data-for={a.key}
                                 to={`/areas/${a.key}`}
-                                key={uuidv4()}
                               >
                                 {data.sidebarVisible ? (
                                   <Flex p={0} alignItems="baseline" key={uuidv4()}>
@@ -394,7 +411,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                 />
                               )}
                             </Flex>
-                            <Droppable droppableId={a.key} type="PROJECT">
+                            <Droppable key={uuidv4()} droppableId={a.key} type="PROJECT">
                               {(provided, snapshot) => (
                                 <SidebarDroppableList
                                   key={uuidv4()}
@@ -418,13 +435,13 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                               provided={provided}
                                             >
                                               <StyledLink
+                                                key={uuidv4()}
                                                 activeStyle={{
                                                   backgroundColor: theme.colors.gray[900],
                                                 }}
                                                 {...linkStyles}
                                                 data-tip
                                                 data-for={p.key}
-                                                key={p.key}
                                                 to={pathName}
                                               >
                                                 {data.sidebarVisible ? (
@@ -453,6 +470,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                   />
                                                 ) : (
                                                   <Text
+                                                    textAlign={'center'}
                                                     key={uuidv4()}
                                                     fontSize="md"
                                                     color={'gray.100'}
@@ -482,8 +500,9 @@ const Sidebar = (props: SidebarProps): ReactElement => {
           </Droppable>
         </DragDropContext>
         {data.sidebarVisible && (
-          <Flex mt={4} w={'100%'} justifyContent={'center'} bg={'gray.800'}>
+          <Flex key={uuidv4()} mt={4} w={'100%'} justifyContent={'center'} bg={'gray.800'}>
             <Button
+              key={uuidv4()}
               tooltipText="Add Area"
               variant="invert"
               size="md"
@@ -503,14 +522,16 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         )}
       </VStack>
       <Stack
+        key={uuidv4()}
         justifyContent={'space-between'}
         w={'100%'}
         my={2}
         direction={data.sidebarVisible ? 'row' : 'column'}
       >
         {!data.sidebarVisible && <Divider />}
-        <Flex alignItems={'center'}>
+        <Flex key={uuidv4()} alignItems={'center'}>
           <StyledLink
+            key={uuidv4()}
             activeStyle={{
               backgroundColor: theme.colors.gray[900],
             }}
@@ -518,14 +539,16 @@ const Sidebar = (props: SidebarProps): ReactElement => {
             to="/settings"
           >
             <SidebarItem
+              key={uuidv4()}
               sidebarVisible={data.sidebarVisible}
               iconName={'settings'}
               text={'Settings'}
             />
           </StyledLink>
         </Flex>
-        <Flex justifyContent={'center'} alignItems={'center'}>
+        <Flex key={uuidv4()} justifyContent={'center'} alignItems={'center'}>
           <Button
+            key={uuidv4()}
             tooltipText="Toggle sidebar"
             size="sm"
             icon={data.sidebarVisible ? 'slideLeft' : 'slideRight'}

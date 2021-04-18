@@ -323,7 +323,6 @@ function Item(props: ItemProps): ReactElement {
               focusbarVisibleVar(false)
             }
           } else {
-            console.log(data.activeItem)
             activeItemVar([item.key, ...data.activeItem])
             focusbarVisibleVar(true)
           }
@@ -339,11 +338,12 @@ function Item(props: ItemProps): ReactElement {
           id="body"
           data-tip
           data-for={'item-name-' + item.key}
-          fontStyle={item.completed ? 'line-through' : 'normal'}
+          textDecoration={item.completed ? 'line-through' : 'normal'}
           mx={0}
           my={2}
           fontSize="md"
           isTruncated={true}
+          color={item.deleted ? 'gray.500' : 'gray.800'}
           sx={{
             p: {
               overflow: 'hidden',
@@ -445,7 +445,7 @@ function Item(props: ItemProps): ReactElement {
           <GridItem rowStart={1} colStart={8} colSpan={1}>
             {moreButtonVisible && (
               <>
-                <MoreDropdown subtle={true} options={dropdownOptions}></MoreDropdown>
+                <MoreDropdown options={dropdownOptions}></MoreDropdown>
                 {showLabelDialog && (
                   <LabelDialog
                     itemKey={item.key}

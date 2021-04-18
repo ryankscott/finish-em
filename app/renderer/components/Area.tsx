@@ -209,7 +209,7 @@ const Area = (props: AreaProps): ReactElement => {
         height="150px"
         shouldClearOnSubmit={false}
       />
-      <Text my={3} fontSize={'lg'} color="blue.500">
+      <Text my={3} fontSize={'xl'} color="blue.500">
         Items
       </Text>
       <FilteredItemList
@@ -226,7 +226,7 @@ const Area = (props: AreaProps): ReactElement => {
         flattenSubtasks={true}
         readOnly={true}
       />
-      <Text my={3} mt={6} fontSize={'lg'} color="blue.500">
+      <Text my={3} mt={6} fontSize={'xl'} color="blue.500">
         Projects
       </Text>
       {area.projects.map((p: Project) => {
@@ -282,7 +282,7 @@ const Area = (props: AreaProps): ReactElement => {
               />
             </GridItem>
             <GridItem colSpan={1} colStart={2}>
-              <Text fontWeight={'semibold'}>{p.name}</Text>
+              <Text fontSize="lg">{p.name}</Text>
             </GridItem>
             <GridItem colSpan={1} colStart={3}>
               <Text

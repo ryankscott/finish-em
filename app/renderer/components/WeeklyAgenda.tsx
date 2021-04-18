@@ -110,7 +110,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           />
         </GridItem>
         <GridItem colSpan={3} textAlign="center">
-          <Text fontWeight={'normal'} fontSize="xl" color="blue.500" textAlign="center">
+          <Text fontWeight={'medium'} color="blue.500" fontSize="2xl" textAlign={'center'}>
             Week starting {format(currentDate, 'EEEE do MMMM yyyy')}
           </Text>
         </GridItem>
@@ -190,7 +190,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           />
         )}
       </Flex>
-      <Grid templateColumns={'repeat(5, minmax(0, 1fr))'} m={0} p={0} w={'100%'}>
+      <Grid templateColumns={'repeat(5, minmax(0, 1fr))'} m={0} mx={3} p={0} w={'100%'}>
         {Array.from({ length: 5 }, (val, idx) => {
           const listDate = add(currentDate, { days: idx })
           return (
@@ -218,7 +218,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           )
         })}
       </Grid>
-      <Flex direction={'row'} w={'650px'} justifyContent={'center'} py={6} px={2}>
+      <Flex direction={'row'} w={'100%'} justifyContent={'center'} py={6} px={2}>
         <ReorderableComponentList viewKey={'6c40814f-8fad-40dc-9a96-0454149a9408'} />
       </Flex>
     </Flex>

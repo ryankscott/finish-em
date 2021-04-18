@@ -215,7 +215,9 @@ const Project = (props: ProjectProps): ReactElement => {
               activeColour={theme.colors.blue[500]}
               inactiveColour={theme.colors.gray[300]}
             />
-            {`${completedItems.length} of ${allItems.length} items completed`}
+            <Text fontSize="md">
+              {completedItems.length} of {allItems.length} items completed
+            </Text>
           </Flex>
         </GridItem>
         <Tooltip id="donut" text={`${completedItems.length}/${allItems.length} completed`} />

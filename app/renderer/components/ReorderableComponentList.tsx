@@ -197,7 +197,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
             size={'md'}
             as={Button}
             rightIcon={Icons['collapse'](12, 12)}
-            fontWeight={'normal'}
             borderRadius={5}
             variant={'default'}
             textAlign={'start'}

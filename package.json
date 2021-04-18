@@ -16,6 +16,8 @@
     "build": "run-s clean parcel:build copyicon electron:build",
     "copyicon": "cp app/renderer/assets/finish_em.png build/icon.png",
     "release": "run-s parcel:build \"electron:build {@}\" --",
+    "dev": "run-s renderer:watch electron:dev",
+    "electron:dev": "APP_DEV=true electron .",
     "electron:watch": "run-p -r parcel:watch electron:start",
     "electron:start": "APP_DEV=true nodemon --watch  /build/app/main --exec \"electron .\"",
     "electron:build": "electron-builder --x64 --publish=never",

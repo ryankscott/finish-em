@@ -53,7 +53,7 @@ const Select = (props: Props) => {
       escapeClearsValue={true}
       defaultMenuIsOpen={false}
       styles={selectStyles({
-        fontSize: theme.fontSizes.sm,
+        fontSize: theme.fontSizes.md,
         textColour: theme.colors.gray[800],
         altTextColour: theme.colors.white,
         backgroundColour: theme.colors.gray[50],

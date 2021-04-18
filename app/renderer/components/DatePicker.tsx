@@ -40,10 +40,9 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
     <>
       <Menu gutter={0} arrowPadding={0} closeOnSelect={true} closeOnBlur={true}>
         <MenuButton
-          size={props.size ? props.size : 'md'}
+          fontSize={props.size ? props.size : 'md'}
           as={Button}
           rightIcon={Icons['collapse'](iconSize, iconSize)}
-          fontWeight={'normal'}
           borderRadius={5}
           variant={'default'}
           width={'100%'}

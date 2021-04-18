@@ -34,7 +34,7 @@ type EditableText2Props = {
   singleLine: boolean
   shouldSubmitOnBlur: boolean
   shouldClearOnSubmit: boolean
-  hideBorder?: boolean
+  showBorder?: boolean
   hideToolbar?: boolean
   onUpdate: (input: string) => void
   onEscape?: () => void
@@ -119,11 +119,15 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
   return (
     <Box
       position={'relative'}
-      height={props.height ? `calc(${props.height} + 30px)}` : 'auto'}
+      height={props.height ? props.height : 'auto'}
+      mb={'30px'}
       width={props.width ? props.width : '100%'}
       overflow={'visible'}
       textOverflow={'ellipsis'}
       whiteSpace={'nowrap'}
+      border={props.showBorder ? '1px solid' : 'none'}
+      borderColor={'gray.200'}
+      borderRadius={5}
     >
       <ReactQuill
         className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}

@@ -5,7 +5,7 @@ const Button = {
     color: 'gray.800',
     border: '1px solid',
     borderColor: 'transparent',
-    fontWeight: 'normal',
+    fontWeight: 'medium',
     _hover: {
       bg: 'gray.100',
     },

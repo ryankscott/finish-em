@@ -81,7 +81,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
       alignItems="center"
       gridTemplateColumns={'1fr repeat(3, 35px)'}
       gridTemplateRows={'50px'}
-      zIndex={2}
+      zIndex={3}
       color={'gray.50'}
       bg={'gray.800'}
       px={2}

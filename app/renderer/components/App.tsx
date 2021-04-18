@@ -1,12 +1,11 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { Flex, Grid, GridItem } from '@chakra-ui/react'
+import { Box, Flex, Grid, GridItem } from '@chakra-ui/react'
 import { isSameMinute, parseISO } from 'date-fns'
 import cron from 'node-cron'
 import React, { ReactElement, useEffect, useState } from 'react'
 import { Route, Switch, useHistory, useParams } from 'react-router-dom'
 import { Slide, toast } from 'react-toastify'
 import { focusbarVisibleVar, shortcutDialogVisibleVar, sidebarVisibleVar } from '../index'
-import { ThemeType } from '../interfaces'
 import { ActionBar } from './ActionBar'
 import Area from './Area'
 import DailyAgenda from './DailyAgenda'
@@ -17,15 +16,8 @@ import Inbox from './Inbox'
 import Settings from './Settings'
 import ShortcutDialog from './ShortcutDialog'
 import Sidebar from './Sidebar'
-import {
-  BodyContainer,
-  Container,
-  FocusContainer,
-  HeaderContainer,
-  MainContainer,
-  SidebarContainer,
-  StyledToastContainer,
-} from './styled/App'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import View from './View'
 import WeeklyAgenda from './WeeklyAgenda'
 
@@ -93,7 +85,6 @@ type AppProps = {}
 const App = (props: AppProps): ReactElement => {
   const history = useHistory()
   const searchRef = React.useRef<HTMLSelectElement>()
-
   useEffect(() => {
     // Handle Electron events
     window.electron.onReceiveMessage('create-item', (event, arg) => {
@@ -162,45 +153,13 @@ const App = (props: AppProps): ReactElement => {
   }
 
   return (
-    <>
-      <Grid
-        gridTemplateRows={'50px auto'}
-        m={0}
-        h={'100%'}
-        minW={'500px'}
-        transition={'all 0.2s ease-in-out'}
-      >
-        <GridItem rowStart={1} colStart={1} colSpan={1}>
-          <Flex h={'100%'} w={'100%'} shadow="md">
-            <Headerbar searchRef={searchRef} />
-          </Flex>
-        </GridItem>
-        <GridItem rowStart={2} colStart={1} colSpan={1}>
-          <Flex
-            w={data.sidebarVisible ? '250px' : '50px'}
-            minW={data.sidebarVisible ? '250px' : '50px'}
-            direction={'column'}
-            transition={'all 0.2s ease-in-out'}
-            overflowY={'scroll'}
-            overflowX={'hidden'}
-            p={0}
-            bg={'gray.800'}
-            zIndex={2}
-            shadow={'md'}
-          >
-            <Sidebar />
-          </Flex>
-        </GridItem>
-        <Flex
-          direction={'column'}
-          p={0}
-          m={0}
-          transition={'all 0.2s ease-in-out'}
-          w={'100%'}
-          alignItems={'center'}
-          bg={'gray.50'}
-          minW={'500px'}
-        >
+    <Flex direction={'column'} h={'100%'} w={'100%'}>
+      <Flex position={'fixed'} h={'50px'} w={'100%'} shadow="md">
+        <Headerbar searchRef={searchRef} />
+      </Flex>
+      <Flex pt={'50px'} overflowY={'scroll'} h={'100%'} direction={'row'}>
+        <Sidebar />
+        <Flex overflowY={'scroll'} w={'100%'} justifyContent={'center'}>
           <ShortcutDialog />
           <Switch>
             <Route path="/help">
@@ -229,12 +188,10 @@ const App = (props: AppProps): ReactElement => {
             </Route>
           </Switch>
         </Flex>
-        <FocusContainer visible={data.focusbarVisible}>
-          <Focusbar />
-        </FocusContainer>
-        {data.activeItem.length > 1 && <ActionBar />}
-      </Grid>
-      <StyledToastContainer
+        <Focusbar />
+      </Flex>
+      {data.activeItem.length > 1 && <ActionBar />}
+      <ToastContainer
         position="bottom-center"
         autoClose={3000}
         hideProgressBar={false}
@@ -246,7 +203,7 @@ const App = (props: AppProps): ReactElement => {
         pauseOnHover
         transition={Slide}
       />
-    </>
+    </Flex>
   )
 }
 

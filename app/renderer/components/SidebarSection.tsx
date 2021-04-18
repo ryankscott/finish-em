@@ -2,6 +2,7 @@ import React from 'react'
 import { IconType } from '../interfaces'
 import { Icons } from '../assets/icons'
 import { Flex, Text, useTheme } from '@chakra-ui/react'
+import { v4 as uuidv4 } from 'uuid'
 
 interface Props {
   name: string
@@ -25,10 +26,10 @@ export const SidebarSection = (props: Props) => {
   }
 
   return (
-    <Flex direction={'row'} {...sectionStyles}>
+    <Flex key={uuidv4()} direction={'row'} {...sectionStyles}>
       {Icons[props.iconName](22, 22, theme.colors.blue[500])}
       {props.sidebarVisible && (
-        <Text fontSize="lg" my={1} mx={2} color={'blue.500'}>
+        <Text key={uuidv4()} fontSize="lg" my={1} mx={2} color={'blue.500'}>
           {props.name}
         </Text>
       )}
