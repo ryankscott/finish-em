@@ -488,7 +488,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         <Flex {...attributeValueStyles}>
           {Icons['label']()}
           <Text fontSize="md" pl={1}>
-            Label:{' '}
+            Label:
           </Text>
         </Flex>
         <AttributeSelect
@@ -506,12 +506,12 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <Flex {...attributeValueStyles}>
             {Icons['trash']()}
             <Text fontSize="md" pl={1}>
-              Deleted at:{' '}
+              Deleted at:
             </Text>
           </Flex>
-          <div style={{ margin: '2px', padding: '5px 8px' }}>
+          <Text fontSize="md" m={1} py={2} px={3}>
             {formatRelativeDate(parseISO(item?.deletedAt))}
-          </div>
+          </Text>
         </Flex>
       )}
       {item.completed && (
@@ -519,12 +519,12 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <Flex {...attributeValueStyles}>
             {Icons['todoChecked']()}
             <Text fontSize="md" pl={1}>
-              Completed at:{' '}
+              Completed at:
             </Text>
           </Flex>
-          <div style={{ margin: '2px', padding: '5px 8px' }}>
+          <Text fontSize="md" m={1} py={2} px={3}>
             {formatRelativeDate(parseISO(item?.completedAt))}
-          </div>
+          </Text>
         </Flex>
       )}
       {item.parent?.key == null && item.type == 'TODO' && (

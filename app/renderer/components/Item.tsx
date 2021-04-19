@@ -338,17 +338,20 @@ function Item(props: ItemProps): ReactElement {
           id="body"
           data-tip
           data-for={'item-name-' + item.key}
-          textDecoration={item.completed ? 'line-through' : 'normal'}
           mx={0}
           my={2}
           fontSize="md"
           isTruncated={true}
+          textDecoration={item.completed ? 'line-through' : null}
           color={item.deleted ? 'gray.500' : 'gray.800'}
           sx={{
             p: {
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
+            },
+            a: {
+              textDecoration: 'underline',
             },
           }}
           dangerouslySetInnerHTML={{

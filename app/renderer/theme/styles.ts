@@ -1,3 +1,4 @@
+import { NonEmptyString } from 'graphql-scalars/mocks'
 import { transparentize } from 'polished'
 
 const styles = {
@@ -63,9 +64,14 @@ const styles = {
         width: '100%',
         position: 'relative',
       },
-      '.ql-preview': {
+      '.ql-snow .ql-tooltip a.ql-preview': {
         textDecoration: 'underline',
-        color: 'gray.200',
+        color: 'gray.100',
+        px: 3,
+        borderRadius: 5,
+        _hover: {
+          bg: 'gray.900',
+        },
       },
       '.ql-editor.ql-blank::before': {
         fontWeight: 'normal',
@@ -97,17 +103,57 @@ const styles = {
       '.ql-snow .ql-editor a': {
         color: 'gray.800',
       },
-      '.ql-tooltip': {
+      '.ql-snow .ql-tooltip': {
         zIndex: 100,
         left: -6,
         borderRadius: 6,
-        color: 'gray.300',
+        color: 'gray.100',
         bg: 'gray.800',
       },
       '.ql-action': {
         borderRadius: 6,
-        padding: 4,
+        padding: 1,
         color: 'gray.300',
+      },
+      '.ql-snow .ql-tooltip.ql-editing a.ql-action::after': {
+        px: 2,
+        ml: 2,
+      },
+      '.ql-snow .ql-tooltip.ql-editing input[type=text]': {
+        borderColor: 'gray.700',
+      },
+      '.ql-snow .ql-tooltip a.ql-action::after': {
+        borderRadius: 5,
+        px: 2,
+        py: 1,
+        m: 0,
+        bg: 'blue.500',
+        color: 'gray.100',
+        border: 'none',
+        fontSize: 'md',
+        _hover: {
+          bg: 'blue.300',
+        },
+      },
+      '.ql-snow .ql-tooltip a.ql-remove::before': {
+        borderRadius: 5,
+        px: 2,
+        py: 1,
+        m: 0,
+        bg: 'red.500',
+        color: 'gray.100',
+        border: 'none',
+        fontSize: 'md',
+        _hover: {
+          bg: 'red.300',
+        },
+      },
+      '.ql-snow .ql-tooltip input[type=text]': {
+        borderRadius: 5,
+        outlineColor: 'blue.400',
+        bg: 'gray.800',
+        border: '1px solid',
+        borderColor: 'gray.700',
       },
       '.ql-toolbar': {
         display: 'flex',
@@ -122,6 +168,7 @@ const styles = {
         transform: 'translateY(100%)',
         transition: 'all 0.2s ease-in-out',
       },
+
       '.ql-toolbar.ql-snow': {
         padding: 1,
       },
