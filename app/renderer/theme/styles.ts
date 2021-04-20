@@ -67,7 +67,8 @@ const styles = {
       '.ql-snow .ql-tooltip a.ql-preview': {
         textDecoration: 'underline',
         color: 'gray.100',
-        px: 3,
+        px: 2,
+        mr: 2,
         borderRadius: 5,
         _hover: {
           bg: 'gray.900',

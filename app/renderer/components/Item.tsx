@@ -255,7 +255,7 @@ function Item(props: ItemProps): ReactElement {
 
   const handleExpand = (e): void => {
     e.stopPropagation()
-    let newState = cloneDeep(d.subtasksVisible)
+    let newState = cloneDeep(data.subtasksVisible)
     const newValue = get(newState, `${item.key}.${props.componentKey}`, false)
     if (newState[item.key]) {
       newState[item.key][props.componentKey] = !newValue
@@ -279,12 +279,14 @@ function Item(props: ItemProps): ReactElement {
   const isFocused = data.activeItem.findIndex((i) => i == item.key) >= 0
   return (
     <Grid
+      opacity={isVisible ? 1 : 0}
+      height={isVisible ? 'auto' : '0px'}
+      transition={'all 0.2s ease-in-out'}
       position={'relative'}
       maxHeight={'200px'}
-      opacity={1}
-      display={'grid'}
       py={1}
       px={1}
+      pl={props.shouldIndent ? 5 : 1}
       mx={0}
       my={1}
       gap={0.5}
@@ -383,14 +385,13 @@ function Item(props: ItemProps): ReactElement {
           {item.children?.length > 0 && (
             <GridItem rowStart={1} colStart={1} colSpan={1}>
               <Button
+                variant="default"
                 size="sm"
-                variant="subtle"
                 onClick={(e) => {
                   handleExpand(e)
                 }}
                 icon={subtasksVisible ? 'collapse' : 'expand'}
                 iconSize={'16px'}
-                iconColour={'gray.800'}
               ></Button>
             </GridItem>
           )}
