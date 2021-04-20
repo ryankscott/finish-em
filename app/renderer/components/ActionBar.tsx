@@ -118,7 +118,6 @@ export const ActionBar = (props: Props) => {
               setDueAt({ variables: { key: i, dueAt: d } })
             })
           }}
-          icon="due"
           completed={false}
           deleted={false}
         />
@@ -134,7 +133,6 @@ export const ActionBar = (props: Props) => {
               setScheduledAt({ variables: { key: i, scheduledAt: d } })
             })
           }}
-          icon="scheduled"
           completed={false}
           deleted={false}
         />

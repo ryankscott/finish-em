@@ -3,10 +3,10 @@ import ReactTooltip from 'react-tooltip'
 import styled from '@emotion/styled'
 
 const StyledTooltip = styled(ReactTooltip)`
-  padding: 5px 8px !important;
+  padding: 6px 9px !important;
   margin: 0px !important;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
-  font-size: 10px !important;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.4);
+  font-size: 12px !important;
   color: #eee !important;
   p {
     color: #eee !important;

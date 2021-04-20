@@ -254,10 +254,11 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
   const defaultValue = allOptions.filter((o) => o.value == defaultValues.currentValue)
 
   return (
-    <Box w={'100%'}>
+    <Box w={'100%'} cursor={props.completed || props.deleted ? 'not-allowed' : 'inherit'}>
       <Select
         size="sm"
         isMulti={false}
+        isDisabled={props.completed || props.deleted}
         onChange={props.onSubmit}
         options={options}
         escapeClearsValue={true}

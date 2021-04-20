@@ -154,7 +154,7 @@ const App = (props: AppProps): ReactElement => {
 
   return (
     <Flex direction={'column'} h={'100%'} w={'100%'}>
-      <Flex position={'fixed'} h={'50px'} w={'100%'} shadow="md">
+      <Flex zIndex={999} position={'fixed'} h={'50px'} w={'100%'} shadow="md">
         <Headerbar searchRef={searchRef} />
       </Flex>
       <Flex pt={'50px'} overflowY={'scroll'} h={'100%'} direction={'row'}>

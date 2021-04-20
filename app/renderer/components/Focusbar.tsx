@@ -300,6 +300,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       </Grid>
       <Flex alignItems={'baseline'} w={'100%'} direction="row" m={0} px={2} py={4}>
         <Button
+          disabled={item.deleted}
           variant="default"
           size="sm"
           onClick={() => {
@@ -311,7 +312,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           }}
           icon={item.type == 'NOTE' ? 'note' : item.completed ? 'todoChecked' : 'todoUnchecked'}
         />
-        <Box w={'100%'}>
+        <Box w={'100%'} textDecoration={item.completed ? 'line-through' : 'inherit'}>
           {data.newEditor.enabled ? (
             <EditableText2
               key={item.key}
@@ -322,7 +323,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               shouldClearOnSubmit={false}
               shouldSubmitOnBlur={true}
               hideToolbar={false}
-              hideBorder={true}
               onUpdate={(text) => {
                 renameItem({ variables: { key: item.key, text: text } })
               }}

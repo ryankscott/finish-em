@@ -196,7 +196,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           return (
             <Box
               py={2}
-              px={3}
+              px={2}
               border={'1px solid'}
               borderColor={'gray.200'}
               borderRadius={4}
