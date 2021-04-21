@@ -127,7 +127,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             iconSize="20px"
             iconColour={theme.colors.gray[100]}
             tooltipText={'Give feedback'}
-            onClick={() => window.open('https://github.com/ryankscott/finish-em/issues/new/')}
+            onClick={() => window.open('https://github.com/ryankscott/finish-em/issues/new/choose')}
           />
         </Flex>
       </GridItem>
