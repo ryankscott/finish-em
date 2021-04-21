@@ -116,10 +116,7 @@ const DELETE_ITEM = gql`
 
 const PERMANENT_DELETE_ITEM = gql`
   mutation PermanentDeleteItem($key: String!) {
-    permanentDeleteItem(input: { key: $key }) {
-      key
-      deleted
-    }
+    permanentDeleteItem(input: { key: $key })
   }
 `
 
@@ -279,7 +276,7 @@ function Item(props: ItemProps): ReactElement {
   const isFocused = data.activeItem.findIndex((i) => i == item.key) >= 0
   return (
     <Grid
-      opacity={isVisible ? 1 : 0}
+      display={isVisible ? 'grid' : 'none'}
       height={isVisible ? 'auto' : '0px'}
       transition={'all 0.2s ease-in-out'}
       position={'relative'}

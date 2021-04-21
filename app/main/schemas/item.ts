@@ -148,7 +148,7 @@ type Mutation {
   setScheduledAtOfItem(input: SetScheduledAtOfItemInput!): Item
   setDueAtOfItem(input: SetDueAtOfItemInput!): Item
   setParentOfItem(input: SetParentOfItemInput!): Item
-  permanentDeleteItem(input: PermanentDeleteInput!): Item
+  permanentDeleteItem(input: PermanentDeleteInput!): String! 
   setLabelOfItem(input: SetLabelOfInput!): Item
 }
 `
