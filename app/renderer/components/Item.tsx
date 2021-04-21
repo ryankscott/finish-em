@@ -309,7 +309,7 @@ function Item(props: ItemProps): ReactElement {
       _after={{
         content: "''",
         position: 'absolute',
-        battom: -1,
+        bottom: -1,
         right: '0px',
         left: '0px',
         margin: 'auto',
