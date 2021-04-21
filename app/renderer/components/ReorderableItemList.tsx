@@ -248,28 +248,32 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                           shouldIndent={false}
                           hiddenIcons={props.hiddenIcons}
                         />
-                        {item.children?.map((child) => {
-                          // We need to check if the child exists in the original input list
-                          const shouldHide =
-                            (props.hideCompletedSubtasks && child.completed) ||
-                            (props.hideDeletedSubtasks && child.deleted)
-                          return (
-                            !shouldHide && (
-                              <Item
-                                compact={false}
-                                itemKey={child.key}
-                                key={child.key}
-                                componentKey={props.componentKey}
-                                shouldIndent={true}
-                                hiddenIcons={
-                                  props.hiddenIcons
-                                    ? [...props.hiddenIcons, ItemIcons.Subtask]
-                                    : [ItemIcons.Subtask]
-                                }
-                              />
-                            )
-                          )
-                        })}
+                        {item?.children.length > 0 && (
+                          <Box>
+                            {item.children.map((child) => {
+                              // We need to check if the child exists in the original input list
+                              const shouldHide =
+                                (props.hideCompletedSubtasks && child.completed) ||
+                                (props.hideDeletedSubtasks && child.deleted)
+                              return (
+                                !shouldHide && (
+                                  <Item
+                                    compact={false}
+                                    itemKey={child.key}
+                                    key={child.key}
+                                    componentKey={props.componentKey}
+                                    shouldIndent={true}
+                                    hiddenIcons={
+                                      props.hiddenIcons
+                                        ? [...props.hiddenIcons, ItemIcons.Subtask]
+                                        : [ItemIcons.Subtask]
+                                    }
+                                  />
+                                )
+                              )
+                            })}
+                          </Box>
+                        )}
                       </Flex>
                     )}
                   </Draggable>

@@ -295,13 +295,25 @@ function Item(props: ItemProps): ReactElement {
       borderRadius={5}
       gridTemplateColumns={props.compact ? 'repeat(8, 1fr)' : '25px 25px repeat(4, 1fr) 25px 25px'}
       gridTemplateRows={'40px auto'}
+      _before={{
+        content: "''",
+        position: 'absolute',
+        top: '-16px',
+        left: '16px',
+        height: props.shouldIndent ? 'calc(100% + 10px)' : '0px',
+        transition: 'all 0.1s ease-in-out',
+        background: 'gray.400',
+        width: '1px',
+        zIndex: 9,
+      }}
       _after={{
         content: "''",
         position: 'absolute',
-        bottom: -1,
-        right: 0,
-        left: 0,
-        width: '100%',
+        battom: -1,
+        right: '0px',
+        left: '0px',
+        margin: 'auto',
+        width: props.shouldIndent || subtasksVisible ? '90%' : '100%',
         borderBottom: '1px',
         borderColor: 'gray.100',
         opacity: 0.8,
@@ -494,7 +506,7 @@ function Item(props: ItemProps): ReactElement {
             {item.reminders.filter((r) => r.deleted == false).length > 0 && (
               <>
                 {Icons['reminder']()}
-                {item.reminders.filter((r) => r.deleted == false).length && (
+                {item.reminders.filter((r) => r.deleted == false).length > 0 && (
                   <Tooltip
                     id={'reminder-' + item.key}
                     text={`Reminder at: ${format(
