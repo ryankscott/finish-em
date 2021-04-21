@@ -234,7 +234,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                         m={0}
                         border={'none'}
                         borderRadius={4}
-                        shadow={snapshot.isDragging ? 'md' : null}
+                        shadow={snapshot.isDragging ? 'base' : null}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
