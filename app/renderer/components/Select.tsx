@@ -13,13 +13,9 @@ const generateOptionBackgroundColour = (
   altBackgroundColour: CSS.Property.BackgroundColor,
   backgroundColour: CSS.Property.BackgroundColor,
   invert: boolean,
-  isDisabled: boolean,
 ): string => {
   if (data?.color) {
     return data.color
-  }
-  if (isDisabled) {
-    return invert ? altBackgroundColour : backgroundColour
   }
   if (isFocused) {
     return invert ? darken(0.05, altBackgroundColour) : darken(0.05, backgroundColour)
@@ -29,10 +25,6 @@ const generateOptionBackgroundColour = (
 
 interface SelectStylesProps {
   fontSize: CSS.Property.FontSize
-  textColour: CSS.Property.Color
-  altTextColour: CSS.Property.Color
-  altBackgroundColour: CSS.Property.BackgroundColor
-  backgroundColour: CSS.Property.BackgroundColor
   hideDropdownIndicator?: boolean
   invert?: boolean
   fullWidth?: boolean
@@ -64,7 +56,7 @@ const DropdownIndicator = (props: ElementConfig<typeof components.DropdownIndica
 const Select = (props: Props) => {
   const theme = useTheme()
 
-  const selectStyles = (props: SelectStylesProps): StylesConfig => {
+  const selectStyles = (props: SelectStylesProps) => {
     return {
       container: (styles, { isDisabled }) => ({
         ...styles,
@@ -89,11 +81,7 @@ const Select = (props: Props) => {
         height: 'auto',
         lineHeight: 'auto',
         padding: '0px 2px',
-        color: props.backgroundColour
-          ? readableColor(props.backgroundColour, props.textColour, props.altTextColour, true)
-          : props.invert
-          ? props.altTextColour
-          : props.textColour,
+        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
         fontSize: props.fontSize,
         border: `none !important`,
       }),
@@ -104,18 +92,14 @@ const Select = (props: Props) => {
         height: 'auto',
         minHeight: '28px',
         fontWeight: 400,
-        color: props.backgroundColour
-          ? readableColor(props.backgroundColour, props.textColour, props.altTextColour, true)
-          : props.invert
-          ? props.altTextColour
-          : props.textColour,
+        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
       }),
       menu: (styles) => {
         return {
           ...styles,
           margin: '0px 0px',
           padding: '5px 0px',
-          backgroundColor: props.invert ? props.altBackgroundColour : props.backgroundColour,
+          backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[50],
           border: 'none',
           borderRadius: '5px',
           tabIndex: 0,
@@ -133,14 +117,13 @@ const Select = (props: Props) => {
           ...styles,
           tabIndex: 0,
           position: 'relative',
-          color: props.invert ? props.altTextColour : props.textColour,
+          color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
           backgroundColor: generateOptionBackgroundColour(
             data,
             isFocused,
-            props.altBackgroundColour,
-            props.backgroundColour,
+            theme.colors.gray[800],
+            theme.colors.gray[50],
             props.invert,
-            isDisabled,
           ),
           padding: '5px 10px',
           margin: '0px',
@@ -154,10 +137,9 @@ const Select = (props: Props) => {
               generateOptionBackgroundColour(
                 data,
                 isFocused,
-                props.altBackgroundColour,
-                props.backgroundColour,
+                theme.colors.gray[800],
+                theme.colors.gray[50],
                 props.invert,
-                isDisabled,
               ),
             ),
           },
@@ -168,18 +150,14 @@ const Select = (props: Props) => {
       },
       placeholder: (styles, { isDisabled }) => ({
         backgroundColor: 'transparent',
-        color: props.invert ? theme.colors.gray[100] : theme.colors.gray[800],
+        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
         opacity: isDisabled ? 0.4 : 1,
         fontSize: props.fontSize,
         fontWeight: 400,
       }),
       singleValue: (styles) => ({
         ...styles,
-        color: props.backgroundColour
-          ? readableColor(props.backgroundColour, props.textColour, props.altTextColour, true)
-          : props.invert
-          ? props.altTextColour
-          : props.textColour,
+        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
       }),
       control: (styles, { isDisabled }) => ({
         ...styles,
@@ -196,12 +174,11 @@ const Select = (props: Props) => {
         backgroundColor: generateOptionBackgroundColour(
           null,
           false,
-          props.altBackgroundColour,
-          props.backgroundColour,
+          theme.colors.gray[800],
+          theme.colors.gray[50],
           props.invert,
-          isDisabled,
         ),
-        color: props.invert ? props.altTextColour : props.textColour,
+        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
         border: 'none',
         boxShadow: 'none !important',
         borderRadius: '5px',
@@ -211,10 +188,9 @@ const Select = (props: Props) => {
             generateOptionBackgroundColour(
               null,
               false,
-              props.altBackgroundColour,
-              props.backgroundColour,
+              theme.colors.gray[800],
+              theme.colors.gray[50],
               props.invert,
-              isDisabled,
             ),
           ),
         },
@@ -224,10 +200,9 @@ const Select = (props: Props) => {
             generateOptionBackgroundColour(
               null,
               false,
-              props.altBackgroundColour,
-              props.backgroundColour,
+              theme.colors.gray[800],
+              theme.colors.gray[50],
               props.invert,
-              isDisabled,
             ),
           ),
           boxShadow: 'none !important',
@@ -238,10 +213,9 @@ const Select = (props: Props) => {
             generateOptionBackgroundColour(
               null,
               false,
-              props.altBackgroundColour,
-              props.backgroundColour,
+              theme.colors.gray[800],
+              theme.colors.gray[50],
               props.invert,
-              isDisabled,
             ),
           ),
           boxShadow: 'none !important',
@@ -261,22 +235,16 @@ const Select = (props: Props) => {
       multiValueLabel: (styles) => ({
         ...styles,
         border: 'none',
-        backgroundColor: props.invert
-          ? darken(0.05, props.altBackgroundColour)
-          : darken(0.05, props.backgroundColour),
+        backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[50],
       }),
       multiValueRemove: (styles) => ({
         ...styles,
-        color: props.textColour,
-        backgroundColor: props.invert
-          ? darken(0.05, props.altBackgroundColour)
-          : darken(0.05, props.backgroundColour),
+        color: theme.colors.gray[800],
+        backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[50],
         border: 'none',
         '&:hover': {
-          color: props.textColour,
-          backgroundColor: props.invert
-            ? darken(0.05, props.altBackgroundColour)
-            : darken(0.05, props.backgroundColour),
+          color: theme.colors.gray[800],
+          backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[50],
           cursor: 'pointer',
         },
         '> svg': {
@@ -286,18 +254,10 @@ const Select = (props: Props) => {
       }),
       clearIndicator: (styles) => ({
         ...styles,
-        color: props.backgroundColour
-          ? readableColor(props.backgroundColour, props.textColour, props.altTextColour, true)
-          : props.invert
-          ? props.altTextColour
-          : props.textColour,
+        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
         backgroundColor: 'inherit',
         '&:hover': {
-          color: props.backgroundColour
-            ? readableColor(props.backgroundColour, props.textColour, props.altTextColour, true)
-            : props.invert
-            ? props.altTextColour
-            : props.textColour,
+          color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
           backgroundColor: 'inherit',
           cursor: 'pointer',
         },
@@ -346,10 +306,6 @@ const Select = (props: Props) => {
       defaultMenuIsOpen={false}
       styles={selectStyles({
         fontSize: theme.fontSizes.md,
-        textColour: theme.colors.gray[800],
-        altTextColour: theme.colors.white,
-        backgroundColour: theme.colors.gray[50],
-        altBackgroundColour: theme.colors.gray[800],
         invert: props.invertColours,
         fullWidth: props.fullWidth,
       })}

@@ -137,7 +137,7 @@ const SET_PROJECT = gql`
 `
 
 const SET_AREA = gql`
-  mutation SetAreaOfItem($key: String!, $areaKey: String!) {
+  mutation SetAreaOfItem($key: String!, $areaKey: String) {
     setAreaOfItem(input: { key: $key, areaKey: $areaKey }) {
       key
       area {
@@ -221,17 +221,19 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
     refetchQueries: ['itemsByFilter', 'itemByKey'],
   })
-  const [setProject] = useMutation(SET_PROJECT, { refetchQueries: ['itemsByFilter'] })
-  const [setArea] = useMutation(SET_AREA, { refetchQueries: ['itemsByFilter'] })
+  const [setProject] = useMutation(SET_PROJECT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
+  const [setArea] = useMutation(SET_AREA, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
     refetchQueries: ['itemsByFilter', 'weeklyItems'],
   })
-  const [setDueAt] = useMutation(SET_DUE_AT, { refetchQueries: ['itemsByFilter'] })
-  const [setRepeat] = useMutation(SET_REPEAT, { refetchQueries: ['itemsByFilter'] })
-  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter'] })
-  const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByFilter'] })
-  const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter'] })
-  const [restoreItem] = useMutation(RESTORE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [setDueAt] = useMutation(SET_DUE_AT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
+  const [setRepeat] = useMutation(SET_REPEAT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
+  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
+  const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
+  const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
+  const [restoreItem] = useMutation(RESTORE_ITEM, {
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
+  })
 
   if (error) {
     console.log(error)
@@ -373,7 +375,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <Flex {...attributeValueStyles}>
             {Icons['area']()}
             <Text fontSize="md" pl={1}>
-              Area:{' '}
+              Area:
             </Text>
           </Flex>
           <AttributeSelect
@@ -389,7 +391,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         <Flex {...attributeValueStyles}>
           {Icons['project']()}
           <Text fontSize="md" pl={1}>
-            Project:{' '}
+            Project:
           </Text>
         </Flex>
         <AttributeSelect
@@ -432,7 +434,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             <Flex {...attributeValueStyles}>
               {Icons['due']()}
               <Text fontSize="md" pl={1}>
-                Due:{' '}
+                Due:
               </Text>
             </Flex>
             <DatePicker
@@ -448,7 +450,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             <Flex {...attributeValueStyles}>
               {Icons['repeat']()}
               <Text fontSize="md" pl={1}>
-                Repeating:{' '}
+                Repeating:
               </Text>
             </Flex>
             <RepeatPicker
@@ -470,7 +472,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <Flex {...attributeValueStyles}>
             {Icons['subtask']()}
             <Text fontSize="md" pl={1}>
-              Parent:{' '}
+              Parent:
             </Text>
           </Flex>
           <AttributeSelect
@@ -496,8 +498,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           currentAttribute={item.label}
           completed={item.completed}
           deleted={item.deleted}
-          onSubmit={(label) => {
-            setLabel({ variables: { key: item.key, labelKey: label.value } })
+          onSubmit={(labelKey) => {
+            setLabel({ variables: { key: item.key, labelKey: labelKey } })
           }}
         />
       </Flex>
@@ -552,8 +554,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             </Box>
           ) : (
             <Text fontSize="md" pl={1}>
-              {' '}
-              No subtasks{' '}
+              No subtasks
             </Text>
           )}
           <ItemCreator key={`${item.key}-subtask`} parentKey={item.key} initiallyExpanded={false} />

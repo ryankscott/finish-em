@@ -133,9 +133,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
   ): OptionsType<any> | GroupedOptionsType<any> => {
     switch (attr) {
       case 'area':
-        const filteredAreas = data.areas
-          .filter((a) => a.key != currentAttr?.key)
-          .filter((a) => a.deleted == false)
+        const filteredAreas = data.areas.filter((a) => a.deleted == false)
         return [
           ...filteredAreas.map((a) => {
             return {
@@ -162,7 +160,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
         const filteredProjects = data.projects
           .filter((p) => p.key != '0')
           .filter((p) => p.key != null)
-          .filter((p) => p.key != currentAttr?.key)
+
         const groupedProjects = groupBy(filteredProjects, 'area.name')
         const aGroups = Object.keys(groupedProjects).map((i) => {
           const group: GroupType<OptionType> = { label: '', options: [] }
@@ -259,7 +257,9 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
         size="sm"
         isMulti={false}
         isDisabled={props.completed || props.deleted}
-        onChange={props.onSubmit}
+        onChange={(p) => {
+          props.onSubmit(p.value)
+        }}
         options={options}
         escapeClearsValue={true}
         placeholder={defaultValues.noValueText}

@@ -1,17 +1,5 @@
 import React, { ReactElement } from 'react'
 import ReactTooltip from 'react-tooltip'
-import styled from '@emotion/styled'
-
-const StyledTooltip = styled(ReactTooltip)`
-  padding: 6px 9px !important;
-  margin: 0px !important;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.4);
-  font-size: 12px !important;
-  color: #eee !important;
-  p {
-    color: #eee !important;
-  }
-`
 
 type TooltipProps = {
   id: string
@@ -22,7 +10,7 @@ type TooltipProps = {
 
 const Tooltip = (props: TooltipProps): ReactElement => {
   return (
-    <StyledTooltip
+    <ReactTooltip
       id={props.id}
       type="dark"
       effect="float"
@@ -32,7 +20,7 @@ const Tooltip = (props: TooltipProps): ReactElement => {
       html={props.html}
     >
       {props.text}
-    </StyledTooltip>
+    </ReactTooltip>
   )
 }
 export default Tooltip
