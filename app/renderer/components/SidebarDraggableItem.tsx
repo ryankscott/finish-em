@@ -21,6 +21,7 @@ export const SidebarDraggableItem = (props: Props) => {
       pl={props.sidebarVisible ? 1 : 0}
       bg={props.snapshot.isDragging ? 'gray.900' : 'gray.800'}
       shadow={props.snapshot.isDragging ? 'md' : 'none'}
+      borderRadius={5}
       {...props.provided.draggableProps}
       {...props.provided.dragHandleProps}
       ref={props.provided.innerRef}
