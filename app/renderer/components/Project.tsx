@@ -266,7 +266,6 @@ const Project = (props: ProjectProps): ReactElement => {
           shouldClearOnSubmit={false}
           hideToolbar={false}
           shouldSubmitOnBlur={true}
-          height="100px"
           onUpdate={(input) => {
             changeDescription({ variables: { key: project.key, description: input } })
           }}

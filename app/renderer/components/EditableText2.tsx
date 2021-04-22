@@ -119,7 +119,8 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
   return (
     <Box
       position={'relative'}
-      height={props.height ? props.height : 'auto'}
+      height={'auto'}
+      minH={props.height ? props.height : 'auto'}
       mb={'30px'}
       width={props.width ? props.width : '100%'}
       overflow={'visible'}
