@@ -169,6 +169,7 @@ const Select = (props: Props) => {
         padding: '0px 12px',
         height: '30px',
         width: 'auto',
+        opacity: isDisabled ? 0.4 : 1,
         fontSize: props.fontSize,
         cursor: isDisabled ? 'not-allowed' : 'inherit',
         backgroundColor: generateOptionBackgroundColour(

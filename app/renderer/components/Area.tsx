@@ -204,7 +204,7 @@ const Area = (props: AreaProps): ReactElement => {
       {data.newEditor.enabled ? (
         <EditableText2
           singleLine={false}
-          placeholder="Add a description for your area..."
+          placeholder="Add a description for your ..."
           shouldClearOnSubmit={false}
           hideToolbar={false}
           shouldSubmitOnBlur={true}
