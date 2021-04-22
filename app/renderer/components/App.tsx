@@ -1,11 +1,12 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { Box, Flex, Grid, GridItem } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import { isSameMinute, parseISO } from 'date-fns'
 import cron from 'node-cron'
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, { ReactElement, useEffect } from 'react'
 import { Route, Switch, useHistory, useParams } from 'react-router-dom'
-import { Slide, toast } from 'react-toastify'
-import { focusbarVisibleVar, shortcutDialogVisibleVar, sidebarVisibleVar } from '../index'
+import { Slide, toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { focusbarVisibleVar, sidebarVisibleVar } from '../index'
 import { ActionBar } from './ActionBar'
 import Area from './Area'
 import DailyAgenda from './DailyAgenda'
@@ -16,8 +17,6 @@ import Inbox from './Inbox'
 import Settings from './Settings'
 import ShortcutDialog from './ShortcutDialog'
 import Sidebar from './Sidebar'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 import View from './View'
 import WeeklyAgenda from './WeeklyAgenda'
 
@@ -155,7 +154,9 @@ const App = (props: AppProps): ReactElement => {
   return (
     <Flex direction={'column'} h={'100%'} w={'100%'}>
       <Flex
-        sx={{ '-webkit-app-region': 'drag' }}
+        sx={{
+          '-webkit-app-region': 'drag',
+        }}
         zIndex={999}
         position={'fixed'}
         h={'50px'}
