@@ -1,5 +1,7 @@
 import { DocumentNode, gql, useQuery } from '@apollo/client'
-import { Box } from '@chakra-ui/react'
+import { Box, Flex, Text } from '@chakra-ui/react'
+import { Emoji } from 'emoji-mart'
+import 'emoji-mart/css/emoji-mart.css'
 import CSS from 'csstype'
 import { groupBy } from 'lodash'
 import { transparentize } from 'polished'
@@ -19,6 +21,7 @@ const getData = (attr: Attribute): DocumentNode => {
         query {
           areas {
             key
+            emoji
             name
             deleted
           }
@@ -39,6 +42,7 @@ const getData = (attr: Attribute): DocumentNode => {
         query {
           projects(input: { deleted: false }) {
             key
+            emoji
             name
             area {
               key
@@ -138,7 +142,12 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
           ...filteredAreas.map((a) => {
             return {
               value: a.key,
-              label: a.name,
+              label: (
+                <Flex>
+                  {a.emoji && <Emoji emoji={a.emoji} size={12} native={true} />}
+                  <Text pl={2}>{a.name}</Text>
+                </Flex>
+              ),
             }
           }),
           { value: null, label: 'None' },
@@ -168,7 +177,12 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
           group['options'] = groupedProjects[i].map((p: Project) => {
             return {
               value: p.key,
-              label: p.name,
+              label: (
+                <Flex>
+                  {p.emoji && <Emoji emoji={p.emoji} size={12} native={true} />}
+                  <Text pl={2}>{p.name}</Text>
+                </Flex>
+              ),
             }
           })
           return group
@@ -265,6 +279,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
         placeholder={defaultValues.noValueText}
         defaultValue={defaultValue}
         invertColours={props.invert}
+        renderLabelAsElement={true}
       />
     </Box>
   )
