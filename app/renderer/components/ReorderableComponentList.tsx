@@ -111,7 +111,8 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
               bg={'inherit'}
               w={'100%'}
               m={0}
-              p={snapshot.isDraggingOver ? '40px 5px' : '5px'}
+              py={snapshot.isDraggingOver ? 18 : 3}
+              px={3}
               {...provided.droppableProps}
               ref={provided.innerRef}
             >

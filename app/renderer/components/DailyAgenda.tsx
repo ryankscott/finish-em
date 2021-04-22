@@ -2,7 +2,7 @@ import React, { ReactElement, useEffect, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import FilteredItemList from './FilteredItemList'
 import { parseISO, format, sub, add, isSameDay, startOfDay } from 'date-fns'
-import { Grid, GridItem, Flex, VStack, Text } from '@chakra-ui/react'
+import { Grid, GridItem, Flex, VStack, Text, Spacer, Box } from '@chakra-ui/react'
 import { v5 as uuidv5 } from 'uuid'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
@@ -146,7 +146,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
         </VStack>
       )}
       <ReorderableComponentList viewKey={viewKey} />
-      <Flex margin="5" padding="5" width="100%" direction="column">
+      <Flex p={3} direction="column">
         <FilteredItemList
           key={uuidv5(startOfDay(currentDate).toISOString() + 'due', viewKey)}
           componentKey={uuidv5(startOfDay(currentDate).toISOString() + 'due', viewKey)}
@@ -163,7 +163,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
           flattenSubtasks={true}
           readOnly={true}
         />
-        <div style={{ height: '20px' }} />
+        <Box h={5} />
         <FilteredItemList
           key={uuidv5(startOfDay(currentDate).toISOString() + 'scheduled', viewKey)}
           componentKey={uuidv5(startOfDay(currentDate).toISOString() + 'scheduled', viewKey)}
