@@ -14,6 +14,7 @@ import { formatRelativeDate } from '../utils'
 import DeleteAreaDialog from './DeleteAreaDialog'
 import { Donut } from './Donut'
 import EditableText from './EditableText'
+import EditableText2 from './EditableText2'
 import FilteredItemList from './FilteredItemList'
 import { Page } from './Page'
 import { Title } from './Typography'
@@ -54,6 +55,10 @@ const GET_AREA_BY_KEY = gql`
       key
       name
       emoji
+    }
+    newEditor: featureByName(name: "newEditor") {
+      key
+      enabled
     }
   }
 `
@@ -196,19 +201,31 @@ const Area = (props: AreaProps): ReactElement => {
           />
         )}
       </Grid>
-
-      <EditableText
-        placeholder="Add a description for your area..."
-        shouldSubmitOnBlur={true}
-        key={area.key + 'description'}
-        onUpdate={(input) => {
-          changeDescriptionArea({ variables: { key: area.key, description: input } })
-        }}
-        innerRef={description}
-        input={area.description}
-        height="150px"
-        shouldClearOnSubmit={false}
-      />
+      {data.newEditor.enabled ? (
+        <EditableText2
+          singleLine={false}
+          placeholder="Add a description for your area..."
+          shouldClearOnSubmit={false}
+          hideToolbar={false}
+          shouldSubmitOnBlur={true}
+          onUpdate={(input) => {
+            changeDescriptionArea({ variables: { key: area.key, description: input } })
+          }}
+        />
+      ) : (
+        <EditableText
+          placeholder="Add a description for your area..."
+          shouldSubmitOnBlur={true}
+          key={area.key + 'description'}
+          onUpdate={(input) => {
+            changeDescriptionArea({ variables: { key: area.key, description: input } })
+          }}
+          innerRef={description}
+          input={area.description}
+          height="150px"
+          shouldClearOnSubmit={false}
+        />
+      )}
       <Text my={3} fontSize={'xl'} color="blue.500">
         Items
       </Text>
