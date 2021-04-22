@@ -155,7 +155,7 @@ const App = (props: AppProps): ReactElement => {
     <Flex direction={'column'} h={'100%'} w={'100%'}>
       <Flex
         sx={{
-          '-webkit-app-region': 'drag',
+          WebkitAppRegion: 'drag',
         }}
         zIndex={999}
         position={'fixed'}
