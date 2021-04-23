@@ -1,9 +1,8 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { orderBy } from 'lodash'
-import React, { ReactElement } from 'react'
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import React, { ReactElement, useEffect, useState } from 'react'
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
-import { Component } from '../../main/generated/typescript-helpers'
 import { Icons } from '../assets/icons'
 import { Menu, MenuButton, MenuList, MenuItem, Button, Flex, useTheme } from '@chakra-ui/react'
 import ComponentActions from './ComponentActions'
@@ -57,9 +56,16 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
   const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey: props.viewKey },
   })
-
   const [addComponent] = useMutation(ADD_COMPONENT)
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER)
+  const [sortedComponents, setSortedComponents] = useState([])
+
+  useEffect(() => {
+    if (loading === false && data) {
+      setSortedComponents(orderBy(data.componentsByView, ['sortOrder.sortOrder'], ['asc']))
+    }
+  }, [loading, data])
+
   if (loading)
     return (
       <Flex h={'100%'} w={'100%'} justifyContent={'center'} alignContent={'center'}>
@@ -67,11 +73,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
       </Flex>
     )
   if (error) return null
-  const sortedComponents: Component[] = orderBy(
-    data.componentsByView,
-    ['sortOrder.sortOrder'],
-    ['asc'],
-  )
 
   const componentSwitch = (params, comp, provided) => {
     switch (comp.type) {
@@ -95,11 +96,26 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
   return (
     <Flex direction={'column'} justifyContent={'flex-end'} w={'100%'} my={3} mx={0} mt={6}>
       <DragDropContext
-        onDragEnd={(e) => {
+        onDragEnd={(result: DropResult) => {
+          const { destination, source, draggableId, type } = result
+
+          //  Trying to detect drops in non-valid areas
+          if (!destination) {
+            return
+          }
+          const componentAtDestination = sortedComponents[destination.index]
+          const componentAtSource = sortedComponents[source.index]
+
+          // Sync update
+          const newSortedComponents = sortedComponents
+          newSortedComponents.splice(source.index, 1)
+          newSortedComponents.splice(destination.index, 0, componentAtSource)
+          setSortedComponents(newSortedComponents)
+
+          // Async update
           setComponentOrder({
-            variables: { componentKey: e.draggableId, sortOrder: e.destination.index },
+            variables: { componentKey: draggableId, sortOrder: destination.index },
           })
-          refetch()
         }}
         style={{ width: '100%' }}
       >
@@ -185,6 +201,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
           )}
         </Droppable>
       </DragDropContext>
+
       {/* TODO extract to a component */}
       <Flex w={'100%'} position={'relative'} justifyContent={'center'} pb={6}>
         <Menu
