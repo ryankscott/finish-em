@@ -303,6 +303,7 @@ const Area = (props: AreaProps): ReactElement => {
             </GridItem>
             <GridItem colSpan={1} colStart={3}>
               <Text
+                fontSize="md"
                 dangerouslySetInnerHTML={{
                   __html: marked(p.description, { breaks: true }),
                 }}
