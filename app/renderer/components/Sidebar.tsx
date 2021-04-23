@@ -300,7 +300,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                   return
                 }
                 // Project Order is harder as the index is based on the area
-                console.log(sortedProjects)
                 const projectAtDestination = sortedProjects[destination.index]
                 const projectAtSource = sortedProjects[source.index]
                 // If there's no projects in the area
@@ -327,10 +326,21 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 })
               }
               if (type == 'AREA') {
+                // Project Order is harder as the index is based on the area
+                const areaAtDestination = sortedAreas[destination.index]
+                const areaAtSource = sortedAreas[source.index]
+
+                // Sync update
+                const newSortedAreas = sortedAreas
+                newSortedAreas.splice(source.index, 1)
+                newSortedAreas.splice(destination.index, 0, areaAtSource)
+                setSortedAreas(newSortedAreas)
+
+                // async update
                 setAreaOrder({
                   variables: {
                     areaKey: draggableId,
-                    sortOrder: sortedAreas[destination.index].sortOrder.sortOrder,
+                    sortOrder: areaAtDestination.sortOrder.sortOrder,
                   },
                 })
               }
