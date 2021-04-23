@@ -1,10 +1,9 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { orderBy } from 'lodash'
-import React, { ReactElement } from 'react'
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd'
+import React, { ReactElement, useEffect, useState } from 'react'
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 import { NavLink, useHistory } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { Area, View } from '../../main/generated/typescript-helpers'
 import { Icons } from '../assets/icons'
 import { sidebarVisibleVar } from '../index'
 import { IconType } from '../interfaces'
@@ -12,10 +11,8 @@ import { createShortSidebarItem, getProductName } from '../utils'
 import { Emoji } from 'emoji-mart'
 import Button from './Button'
 
-import Tooltip from './Tooltip'
-import { chakra, Flex, Text, VStack, Divider, Stack, useTheme } from '@chakra-ui/react'
+import { chakra, Flex, Text, VStack, Divider, Stack, Tooltip, useTheme } from '@chakra-ui/react'
 import { SidebarSection } from './SidebarSection'
-import { SidebarDroppableList } from './SidebarDroppableList'
 import { SidebarDraggableItem } from './SidebarDraggableItem'
 
 const SidebarItem = (props: {
@@ -27,31 +24,33 @@ const SidebarItem = (props: {
   if (props.sidebarVisible) {
     return (
       <>
-        <Flex
-          key={uuidv4()}
-          m={0}
-          px={2}
-          py={0}
-          data-tip
-          data-for={id}
-          justifyContent="flex-start"
-          alignItems={'center'}
-        >
-          {props.iconName && Icons[props.iconName](16, 16)}
-          <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
-            {props.text}
-          </Text>
-        </Flex>
-        <Tooltip key={uuidv4()} id={id} text={props.text} />
+        <Tooltip key={uuidv4()} label={props.text}>
+          <Flex
+            key={uuidv4()}
+            m={0}
+            px={2}
+            py={0}
+            data-tip
+            data-for={id}
+            justifyContent="flex-start"
+            alignItems={'center'}
+          >
+            {props.iconName && Icons[props.iconName](16, 16)}
+            <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
+              {props.text}
+            </Text>
+          </Flex>
+        </Tooltip>
       </>
     )
   }
   return (
     <>
-      <Flex key={uuidv4()} m={0} px={2} py={0} data-tip data-for={id} justifyContent="center">
-        {Icons[props.iconName](20, 20)}
-      </Flex>
-      <Tooltip key={uuidv4()} id={id} text={props.text} />
+      <Tooltip key={uuidv4()} label={props.text}>
+        <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="center">
+          {Icons[props.iconName](20, 20)}
+        </Flex>
+      </Tooltip>
     </>
   )
 }
@@ -67,15 +66,6 @@ const GET_AREAS = gql`
         areaKey
         sortOrder
       }
-      projects {
-        key
-        name
-        emoji
-        sortOrder {
-          projectKey
-          sortOrder
-        }
-      }
     }
     views {
       key
@@ -84,6 +74,18 @@ const GET_AREAS = gql`
       type
       sortOrder {
         viewKey
+        sortOrder
+      }
+    }
+    projects(input: { deleted: false }) {
+      key
+      name
+      emoji
+      area {
+        key
+      }
+      sortOrder {
+        projectKey
         sortOrder
       }
     }
@@ -155,23 +157,32 @@ type SidebarProps = {}
 const Sidebar = (props: SidebarProps): ReactElement => {
   const history = useHistory()
   const theme = useTheme()
-  const { loading, error, data, refetch } = useQuery(GET_AREAS)
+  const { loading, error, data } = useQuery(GET_AREAS)
   const [setProjectOrder] = useMutation(SET_PROJECT_ORDER)
   const [setAreaOrder] = useMutation(SET_AREA_ORDER)
   const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT)
   const [createProject] = useMutation(CREATE_PROJECT)
   const [createArea] = useMutation(CREATE_AREA, { refetchQueries: ['GetSidebarData'] })
+  const [sortedAreas, setSortedAreas] = useState([])
+  const [sortedProjects, setSortedProjects] = useState([])
+  const [sortedViews, setSortedViews] = useState([])
+
+  useEffect(() => {
+    if (loading === false && data) {
+      setSortedAreas(
+        orderBy(data.areas, ['sortOrder.sortOrder'], ['asc']).filter((a) => a.deleted == false),
+      )
+      setSortedProjects(orderBy(data.projects, ['sortOrder.sortOrder'], ['asc']))
+
+      setSortedViews(
+        orderBy(data.views, ['sortOrder.sortOrder'], ['asc']).filter((v) => v.type != 'default'),
+      )
+    }
+  }, [loading, data])
 
   // TODO: Loading and error states
   if (loading) return null
   if (error) return null
-
-  const sortedAreas: Area[] = orderBy(data.areas, ['sortOrder.sortOrder'], ['asc']).filter(
-    (a) => a.deleted == false,
-  )
-  const sortedViews: View[] = orderBy(data.views, ['sortOrder.sortOrder'], ['asc']).filter(
-    (v) => v.type != 'default',
-  )
 
   const defaultViews: { path: string; iconName: IconType; text: string }[] = [
     {
@@ -208,139 +219,147 @@ const Sidebar = (props: SidebarProps): ReactElement => {
     },
   }
 
-  return (
-    <Flex
-      alignItems={data.sidebarVisible ? 'none' : 'center'}
-      direction={'column'}
-      justifyContent={'space-between'}
-      transition={'all 0.2s ease-in-out'}
-      w={data.sidebarVisible ? '250px' : '50px'}
-      minW={data.sidebarVisible ? '250px' : '50px'}
-      height={'100%'}
-      p={2}
-      bg={'gray.800'}
-      shadow={'md'}
-      data-cy="sidebar-container"
-      key={uuidv4()}
-      m={0}
-      overflowY={'scroll'}
-    >
-      <VStack key={uuidv4()} spacing={0} w={'100%'}>
-        <SidebarSection
-          key={uuidv4()}
-          name="Views"
-          iconName="view"
-          sidebarVisible={data.sidebarVisible}
-        />
-        <VStack key={uuidv4()} spacing={0} w={'100%'}>
-          {defaultViews.map((d) => {
-            return (
-              <StyledLink
-                activeStyle={{
-                  backgroundColor: theme.colors.gray[900],
-                }}
-                {...linkStyles}
-                to={d.path}
-                key={'link-' + d.path}
-              >
-                <SidebarItem
-                  key={d.path}
-                  sidebarVisible={data.sidebarVisible}
-                  iconName={d.iconName}
-                  text={d.text}
-                />
-              </StyledLink>
-            )
-          })}
-          {sortedViews.map((view) => {
-            if (view.type == 'project' || view.type == 'area') return null
-            return (
-              <StyledLink
-                activeStyle={{
-                  backgroundColor: theme.colors.gray[900],
-                }}
-                {...linkStyles}
-                key={view.key}
-                to={`/views/${view.key}`}
-              >
-                <SidebarItem
-                  key={'sidebarItem-' + view.key}
-                  sidebarVisible={data.sidebarVisible}
-                  iconName={view.icon}
-                  text={view.name}
-                />
-              </StyledLink>
-            )
-          })}
-        </VStack>
-        <SidebarSection
-          key={uuidv4()}
-          name="Areas"
-          iconName="area"
-          sidebarVisible={data.sidebarVisible}
-        />
-        <DragDropContext
-          key={uuidv4()}
-          onDragEnd={(e) => {
-            if (e.type == 'PROJECT') {
-              const areaKey = e.destination.droppableId
-              const area = sortedAreas.find((a) => a.key == areaKey)
-              const sortedProjects = orderBy(area.projects, ['sortOrder.sortOrder'], ['asc'])
-              //  Trying to detect drops in non-valid areas
-              if (!e.destination) {
-                return
-              }
-              setAreaOfProject({
-                variables: { key: e.draggableId, areaKey: areaKey },
-              })
+  const droppableStyles = {
+    direction: 'column',
+    justifyContent: 'center',
+    w: '100%',
+    m: 0,
+    p: 0,
+    borderRadius: 5,
+  }
 
-              // Project Order is harder as the index is based on the area
-              const projectAtDestination = sortedProjects[e.destination.index]
-              // If there's no projects in the area
-              if (!projectAtDestination) {
-                refetch()
-                return
+  return (
+    <>
+      <Flex
+        alignItems={data.sidebarVisible ? 'none' : 'center'}
+        direction={'column'}
+        justifyContent={'space-between'}
+        transition={'all 0.2s ease-in-out'}
+        w={data.sidebarVisible ? '250px' : '50px'}
+        minW={data.sidebarVisible ? '250px' : '50px'}
+        height={'100%'}
+        p={2}
+        bg={'gray.800'}
+        shadow={'md'}
+        data-cy="sidebar-container"
+        m={0}
+        overflowY={'scroll'}
+      >
+        <VStack spacing={0} w={'100%'}>
+          <SidebarSection name="Views" iconName="view" sidebarVisible={data.sidebarVisible} />
+          <VStack spacing={0} w={'100%'}>
+            {defaultViews.map((d) => {
+              return (
+                <StyledLink
+                  activeStyle={{
+                    backgroundColor: theme.colors.gray[900],
+                  }}
+                  {...linkStyles}
+                  to={d.path}
+                  key={'link-' + d.path}
+                >
+                  <SidebarItem
+                    key={d.path}
+                    sidebarVisible={data.sidebarVisible}
+                    iconName={d.iconName}
+                    text={d.text}
+                  />
+                </StyledLink>
+              )
+            })}
+            {sortedViews.map((view) => {
+              if (view.type == 'project' || view.type == 'area') return null
+              return (
+                <StyledLink
+                  activeStyle={{
+                    backgroundColor: theme.colors.gray[900],
+                  }}
+                  {...linkStyles}
+                  key={view.key}
+                  to={`/views/${view.key}`}
+                >
+                  <SidebarItem
+                    key={'sidebarItem-' + view.key}
+                    sidebarVisible={data.sidebarVisible}
+                    iconName={view.icon}
+                    text={view.name}
+                  />
+                </StyledLink>
+              )
+            })}
+          </VStack>
+          <SidebarSection name="Areas" iconName="area" sidebarVisible={data.sidebarVisible} />
+          <DragDropContext
+            onDragEnd={(result: DropResult) => {
+              const { destination, source, draggableId, type } = result
+
+              if (type == 'PROJECT') {
+                const areaKey = destination.droppableId
+                //  Trying to detect drops in non-valid areas
+                if (!destination) {
+                  return
+                }
+                // Project Order is harder as the index is based on the area
+                console.log(sortedProjects)
+                const projectAtDestination = sortedProjects[destination.index]
+                const projectAtSource = sortedProjects[source.index]
+                // If there's no projects in the area
+                if (!projectAtDestination) {
+                  return
+                }
+
+                // Sync update
+                const newSortedProjects = sortedProjects
+                newSortedProjects.splice(source.index, 1)
+                newSortedProjects.splice(destination.index, 0, projectAtSource)
+                setSortedProjects(newSortedProjects)
+
+                // Async update
+                setAreaOfProject({
+                  variables: { key: draggableId, areaKey: areaKey },
+                })
+
+                setProjectOrder({
+                  variables: {
+                    projectKey: draggableId,
+                    sortOrder: projectAtDestination.sortOrder.sortOrder,
+                  },
+                })
               }
-              setProjectOrder({
-                variables: {
-                  projectKey: e.draggableId,
-                  sortOrder: projectAtDestination.sortOrder.sortOrder,
-                },
-              })
-            }
-            if (e.type == 'AREA') {
-              setAreaOrder({
-                variables: {
-                  areaKey: e.draggableId,
-                  sortOrder: sortedAreas[e.destination.index].sortOrder.sortOrder,
-                },
-              })
-            }
-            refetch()
-          }}
-        >
-          <Droppable key={uuidv4()} droppableId={uuidv4()} type="AREA">
-            {(provided, snapshot) => (
-              <SidebarDroppableList
-                key={uuidv4()}
-                sidebarVisible={data.sidebarVisible}
-                snapshot={snapshot}
-                provided={provided}
-              >
-                {sortedAreas.map((a, index) => {
-                  return (
-                    <>
-                      <Draggable key={a.key} draggableId={a.key} index={index}>
+              if (type == 'AREA') {
+                setAreaOrder({
+                  variables: {
+                    areaKey: draggableId,
+                    sortOrder: sortedAreas[destination.index].sortOrder.sortOrder,
+                  },
+                })
+              }
+            }}
+          >
+            <Droppable droppableId={uuidv4()} type="AREA">
+              {(provided, snapshot) => (
+                <Flex
+                  {...droppableStyles}
+                  bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
+                  shadow={snapshot.isDragging ? 'base' : 'none'}
+                  {...provided.draggableProps}
+                  {...provided.dragHandleProps}
+                  ref={provided.innerRef}
+                >
+                  {sortedAreas.map((a, index) => {
+                    return (
+                      <Draggable key={'draggable-' + a.key} draggableId={a.key} index={index}>
                         {(provided, snapshot) => (
-                          <SidebarDraggableItem
-                            key={'draggable-' + a.key}
-                            sidebarVisible={data.sidebarVisible}
-                            snapshot={snapshot}
-                            provided={provided}
+                          <Flex
+                            {...droppableStyles}
+                            bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
+                            shadow={snapshot.isDragging ? 'base' : 'none'}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            ref={provided.innerRef}
                           >
                             {!data.sidebarVisible && <Divider />}
                             <Flex
-                              key={uuidv4()}
                               direction={'row'}
                               justifyContent={'space-between'}
                               py={1}
@@ -348,46 +367,30 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                               alignItems={'center'}
                             >
                               <StyledLink
-                                key={uuidv4()}
                                 activeStyle={{
                                   backgroundColor: theme.colors.gray[900],
                                 }}
                                 {...linkStyles}
                                 textAlign={'center'}
-                                data-tip
-                                data-for={a.key}
                                 to={`/areas/${a.key}`}
                               >
                                 {data.sidebarVisible ? (
-                                  <Flex p={0} alignItems="baseline" key={uuidv4()}>
-                                    <Emoji
-                                      key={uuidv4()}
-                                      emoji={a.emoji ? a.emoji : ''}
-                                      size={14}
-                                      native={true}
-                                    />
-                                    <Text pl={1} key={uuidv4()} fontSize="md" color={'gray.100'}>
+                                  <Flex p={0} alignItems="baseline">
+                                    <Emoji emoji={a.emoji ? a.emoji : ''} size={14} native={true} />
+                                    <Text pl={1} fontSize="md" color={'gray.100'}>
                                       {a.name}
                                     </Text>
                                   </Flex>
                                 ) : a.emoji ? (
-                                  <Emoji
-                                    key={uuidv4()}
-                                    emoji={a.emoji ? a.emoji : ''}
-                                    size={16}
-                                    native={true}
-                                  />
+                                  <Emoji emoji={a.emoji ? a.emoji : ''} size={16} native={true} />
                                 ) : (
-                                  <Text key={uuidv4()} fontSize="md" color={'gray.100'}>
+                                  <Text fontSize="md" color={'gray.100'}>
                                     {createShortSidebarItem(a.name)}
                                   </Text>
                                 )}
                               </StyledLink>
-
-                              <Tooltip key={uuidv4()} id={a.key} text={a.name} />
                               {data.sidebarVisible && (
                                 <Button
-                                  key={uuidv4()}
                                   size="md"
                                   tooltipText="Add Project"
                                   variant="invert"
@@ -405,163 +408,154 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                         areaKey: a.key,
                                       },
                                     })
-                                    refetch()
                                     history.push('/views/' + projectKey)
                                   }}
                                 />
                               )}
                             </Flex>
-                            <Droppable key={uuidv4()} droppableId={a.key} type="PROJECT">
+
+                            <Droppable key={a.key} droppableId={a.key} type="PROJECT">
                               {(provided, snapshot) => (
-                                <SidebarDroppableList
-                                  key={uuidv4()}
-                                  sidebarVisible={data.sidebarVisible}
-                                  snapshot={snapshot}
-                                  provided={provided}
+                                <Flex
+                                  {...droppableStyles}
+                                  pl={data.sidebarVisible ? 1 : 0}
+                                  bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
+                                  shadow={snapshot.isDragging ? 'base' : 'none'}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
+                                  ref={provided.innerRef}
                                 >
-                                  {orderBy(a.projects, ['sortOrder.sortOrder'], ['asc']).map(
-                                    (p, index) => {
-                                      // Don't render the inbox here
-                                      if (p.key == '0') return
-                                      const pathName = '/views/' + p.key
-                                      //
-                                      return (
-                                        <Draggable key={p.key} draggableId={p.key} index={index}>
-                                          {(provided, snapshot) => (
-                                            <SidebarDraggableItem
-                                              key={'draggable-' + p.key}
-                                              sidebarVisible={data.sidebarVisible}
-                                              snapshot={snapshot}
-                                              provided={provided}
+                                  {sortedProjects.map((p, index) => {
+                                    // Don't render the inbox here
+                                    if (p.key == '0') return
+                                    const pathName = '/views/' + p.key
+                                    // Don't render projects not part of this area
+                                    if (p.area.key != a.key) return
+                                    return (
+                                      <Draggable key={p.key} draggableId={p.key} index={index}>
+                                        {(provided, snapshot) => (
+                                          <SidebarDraggableItem
+                                            key={'draggable-' + p.key}
+                                            sidebarVisible={data.sidebarVisible}
+                                            snapshot={snapshot}
+                                            provided={provided}
+                                          >
+                                            <StyledLink
+                                              activeStyle={{
+                                                backgroundColor: theme.colors.gray[900],
+                                              }}
+                                              {...linkStyles}
+                                              to={pathName}
                                             >
-                                              <StyledLink
-                                                key={uuidv4()}
-                                                activeStyle={{
-                                                  backgroundColor: theme.colors.gray[900],
-                                                }}
-                                                {...linkStyles}
-                                                data-tip
-                                                data-for={p.key}
-                                                to={pathName}
-                                              >
-                                                {data.sidebarVisible ? (
-                                                  <Flex alignItems="baseline" key={uuidv4()}>
-                                                    <Emoji
-                                                      key={uuidv4()}
-                                                      emoji={p.emoji ? p.emoji : ''}
-                                                      size={14}
-                                                      native={true}
-                                                    />
-                                                    <Text
-                                                      key={uuidv4()}
-                                                      fontSize="md"
-                                                      color={'gray.100'}
-                                                      pl={1}
-                                                    >
-                                                      {p.name}
-                                                    </Text>
-                                                  </Flex>
-                                                ) : p.emoji ? (
+                                              {data.sidebarVisible ? (
+                                                <Flex alignItems="baseline">
                                                   <Emoji
-                                                    key={uuidv4()}
                                                     emoji={p.emoji ? p.emoji : ''}
-                                                    size={16}
+                                                    size={14}
                                                     native={true}
                                                   />
-                                                ) : (
-                                                  <Text
-                                                    textAlign={'center'}
-                                                    key={uuidv4()}
-                                                    fontSize="md"
-                                                    color={'gray.100'}
-                                                  >
-                                                    {createShortSidebarItem(p.name)}
+                                                  <Text fontSize="md" color={'gray.100'} pl={1}>
+                                                    {p.name}
                                                   </Text>
-                                                )}
-                                              </StyledLink>
-                                              <Tooltip key={uuidv4()} id={p.key} text={p.name} />
-                                            </SidebarDraggableItem>
-                                          )}
-                                        </Draggable>
-                                      )
-                                    },
-                                  )}
-                                </SidebarDroppableList>
+                                                </Flex>
+                                              ) : p.emoji ? (
+                                                <Emoji
+                                                  emoji={p.emoji ? p.emoji : ''}
+                                                  size={16}
+                                                  native={true}
+                                                />
+                                              ) : (
+                                                <Text
+                                                  textAlign={'center'}
+                                                  fontSize="md"
+                                                  color={'gray.100'}
+                                                >
+                                                  {createShortSidebarItem(p.name)}
+                                                </Text>
+                                              )}
+                                            </StyledLink>
+                                          </SidebarDraggableItem>
+                                        )}
+                                      </Draggable>
+                                    )
+                                  })}
+
+                                  {provided.placeholder}
+                                </Flex>
                               )}
                             </Droppable>
-                          </SidebarDraggableItem>
+                          </Flex>
                         )}
                       </Draggable>
-                    </>
-                  )
-                })}
-              </SidebarDroppableList>
-            )}
-          </Droppable>
-        </DragDropContext>
-        {data.sidebarVisible && (
-          <Flex key={uuidv4()} mt={4} w={'100%'} justifyContent={'center'} bg={'gray.800'}>
+                    )
+                  })}
+                </Flex>
+              )}
+            </Droppable>
+          </DragDropContext>
+          {data.sidebarVisible && (
+            <Flex key={uuidv4()} mt={4} w={'100%'} justifyContent={'center'} bg={'gray.800'}>
+              <Button
+                key={uuidv4()}
+                tooltipText="Add Area"
+                variant="invert"
+                size="md"
+                text={data.sidebarVisible ? 'Add Area' : ''}
+                iconSize="12px"
+                icon="add"
+                iconPosition="right"
+                onClick={() => {
+                  const areaKey = uuidv4()
+                  createArea({
+                    variables: { key: areaKey, name: getProductName(), description: '' },
+                  })
+                }}
+              />
+            </Flex>
+          )}
+        </VStack>
+        <Stack
+          key={uuidv4()}
+          justifyContent={'space-between'}
+          w={'100%'}
+          my={2}
+          direction={data.sidebarVisible ? 'row' : 'column'}
+        >
+          {!data.sidebarVisible && <Divider />}
+          <Flex key={uuidv4()} alignItems={'center'}>
+            <StyledLink
+              key={uuidv4()}
+              activeStyle={{
+                backgroundColor: theme.colors.gray[900],
+              }}
+              {...linkStyles}
+              to="/settings"
+            >
+              <SidebarItem
+                key={uuidv4()}
+                sidebarVisible={data.sidebarVisible}
+                iconName={'settings'}
+                text={'Settings'}
+              />
+            </StyledLink>
+          </Flex>
+          <Flex key={uuidv4()} justifyContent={'center'} alignItems={'center'}>
             <Button
               key={uuidv4()}
-              tooltipText="Add Area"
+              tooltipText="Toggle sidebar"
+              size="sm"
+              icon={data.sidebarVisible ? 'slideLeft' : 'slideRight'}
               variant="invert"
-              size="md"
-              text={data.sidebarVisible ? 'Add Area' : ''}
-              iconSize="12px"
-              icon="add"
-              iconPosition="right"
+              iconColour="white"
               onClick={() => {
-                const areaKey = uuidv4()
-                createArea({
-                  variables: { key: areaKey, name: getProductName(), description: '' },
-                })
-                refetch()
+                sidebarVisibleVar(!data.sidebarVisible)
               }}
+              iconSize="18px"
             />
           </Flex>
-        )}
-      </VStack>
-      <Stack
-        key={uuidv4()}
-        justifyContent={'space-between'}
-        w={'100%'}
-        my={2}
-        direction={data.sidebarVisible ? 'row' : 'column'}
-      >
-        {!data.sidebarVisible && <Divider />}
-        <Flex key={uuidv4()} alignItems={'center'}>
-          <StyledLink
-            key={uuidv4()}
-            activeStyle={{
-              backgroundColor: theme.colors.gray[900],
-            }}
-            {...linkStyles}
-            to="/settings"
-          >
-            <SidebarItem
-              key={uuidv4()}
-              sidebarVisible={data.sidebarVisible}
-              iconName={'settings'}
-              text={'Settings'}
-            />
-          </StyledLink>
-        </Flex>
-        <Flex key={uuidv4()} justifyContent={'center'} alignItems={'center'}>
-          <Button
-            key={uuidv4()}
-            tooltipText="Toggle sidebar"
-            size="sm"
-            icon={data.sidebarVisible ? 'slideLeft' : 'slideRight'}
-            variant="invert"
-            iconColour="white"
-            onClick={() => {
-              sidebarVisibleVar(!data.sidebarVisible)
-            }}
-            iconSize="18px"
-          />
-        </Flex>
-      </Stack>
-    </Flex>
+        </Stack>
+      </Flex>
+    </>
   )
 }
 
