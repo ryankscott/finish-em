@@ -1,4 +1,3 @@
-import { NonEmptyString } from 'graphql-scalars/mocks'
 import { transparentize } from 'polished'
 
 const styles = {

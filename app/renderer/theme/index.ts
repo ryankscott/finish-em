@@ -10,6 +10,8 @@ import space from './foundations/space'
 // Component style overrides
 import Button from './components/button'
 import Menu from './components/menu'
+import Tooltip from './components/tooltip'
+
 const theme = extendTheme({
   ...typography,
   space,
@@ -19,6 +21,7 @@ const theme = extendTheme({
   components: {
     Button,
     Menu,
+    Tooltip,
     // Other components go here
   },
 })
