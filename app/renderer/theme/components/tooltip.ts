@@ -2,12 +2,9 @@ const Tooltip = {
   baseStyle: {
     borderRadius: 5,
     bg: 'gray.900',
-    px: 2,
-    py: 1,
+    px: 3,
+    py: 2,
   },
-  defaultProps: {
-    arrowSize: 5,
-    openDelay: 500,
-  },
+  defaultProps: {},
 }
 export default Tooltip
