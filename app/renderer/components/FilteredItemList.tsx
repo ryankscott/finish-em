@@ -5,6 +5,7 @@ import React, { ReactElement, useState } from 'react'
 import { subtasksVisibleVar } from '..'
 import { PAGE_SIZE } from '../consts'
 import { ItemIcons } from '../interfaces'
+import { useTraceUpdate } from '../utils'
 import Button from './Button'
 import EditFilteredItemList from './EditFilteredItemList'
 import Pagination from './Pagination'
@@ -35,11 +36,6 @@ const determineVisibilityRules = (
     showSortButton: sortedItemsLength >= 1 && showItemList,
   }
 }
-const GET_ATTRIBUTES = gql`
-  query {
-    subtasksVisible @client
-  }
-`
 
 const GET_DATA = gql`
   query itemsByFilter($filter: String!, $componentKey: String!) {
@@ -72,6 +68,8 @@ const GET_DATA = gql`
         sortOrder
       }
     }
+
+    subtasksVisible @client
   }
 `
 
@@ -112,7 +110,7 @@ export type FilteredItemListProps = {
   setEditing?: (editing: boolean) => void
 }
 
-function FilteredItemList(props: FilteredItemListProps): ReactElement {
+const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
   const [sortType, setSortType] = useState(null)
   const [sortDirection, setSortDirection] = useState(null)
   const [showCompleted, setShowCompleted] = useState(true)
@@ -121,15 +119,15 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [bulkCreateItemOrders] = useMutation(BULK_CREATE_ITEMORDERS)
   const [deleteItemOrdersByComponent] = useMutation(DELETE_ITEMORDERS_BY_COMPONENT)
+  useTraceUpdate(props)
 
-  const { loading: l, error: e, data: localData } = useQuery(GET_ATTRIBUTES)
   const { loading, error, data, refetch } = useQuery(GET_DATA, {
     variables: {
       filter: props.filter ? props.filter : '',
       componentKey: props.componentKey,
     },
-    fetchPolicy: 'cache-and-network',
   })
+
   if (error) {
     console.log(error)
 
@@ -184,7 +182,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
   })
   const sortedItems = orderBy(sI, 'sortOrder', 'asc')
 
-  const subtasksVisible = localData?.subtasksVisible ? localData.subtasksVisible : false
+  const subtasksVisible = data?.subtasksVisible ? data.subtasksVisible : false
 
   const visibility = determineVisibilityRules(
     props.isFilterable,
@@ -211,6 +209,7 @@ function FilteredItemList(props: FilteredItemListProps): ReactElement {
     refetch()
   }
 
+  console.log('re-rendering filtered itemlist')
   // TODO: #338 Handle when items returned is null
   return (
     <Box m={0} p={0} w={'100%'} borderRadius={5} border="1px solid" borderColor="gray.200">

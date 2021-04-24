@@ -1,4 +1,4 @@
-import React, { ReactElement } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import Item from './Item'
 import { ItemIcons } from '../interfaces/item'
 import { item as itemKeymap } from '../keymap'
@@ -6,8 +6,8 @@ import { item as itemKeymap } from '../keymap'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { cloneDeep, get } from 'lodash'
-import { gql, useMutation, useQuery } from '@apollo/client'
+import { cloneDeep, get, orderBy } from 'lodash'
+import { gql, useMutation } from '@apollo/client'
 import { subtasksVisibleVar, focusbarVisibleVar, activeItemVar } from '..'
 import { Box, Flex, Text } from '@chakra-ui/layout'
 
@@ -48,12 +48,7 @@ const RESTORE_ITEM = gql`
 `
 const SET_ITEM_ORDER = gql`
   mutation SetItemOrder($itemKey: String!, $componentKey: String!, $sortOrder: Int!) {
-    setItemOrder(input: { itemKey: $itemKey, componentKey: $componentKey, sortOrder: $sortOrder }) {
-      item {
-        key
-      }
-      sortOrder
-    }
+    setItemOrder(input: { itemKey: $itemKey, componentKey: $componentKey, sortOrder: $sortOrder })
   }
 `
 
@@ -76,13 +71,18 @@ type ReorderableItemListProps = {
 }
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
-  const [setItemOrder] = useMutation(SET_ITEM_ORDER, {
-    refetchQueries: ['itemsByFilter'],
-  })
+  const [setItemOrder] = useMutation(SET_ITEM_ORDER)
   const [completeItem] = useMutation(COMPLETE_ITEM)
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
   const [deleteItem] = useMutation(DELETE_ITEM)
   const [restoreItem] = useMutation(RESTORE_ITEM)
+  const [sortedItems, setSortedItems] = useState([])
+
+  console.log('re-rendering reorderable itemlist')
+
+  useEffect(() => {
+    setSortedItems(props.inputItems)
+  }, [props.inputItems])
 
   /* TODO: Introduce the following shortcuts:
 	- Scheduled At
@@ -179,16 +179,31 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     })
   })
 
-  const sortedItemOrders = props.inputItems
   return (
     <Box w={'100%'} my={4} mx={0} zIndex={0}>
       <DragDropContext
-        onDragEnd={(e) => {
+        onDragEnd={(result) => {
+          const { destination, source, draggableId, type } = result
+          //  Trying to detect drops in non-valid areas
+          if (!destination) {
+            return
+          }
+
+          const itemAtDestination = sortedItems[destination.index]
+          const itemAtSource = sortedItems[source.index]
+
+          // Sync update
+          const newSortedItems = sortedItems
+          newSortedItems.splice(source.index, 1)
+          newSortedItems.splice(destination.index, 0, itemAtSource)
+          setSortedItems(newSortedItems)
+
+          // Async update
           setItemOrder({
             variables: {
-              itemKey: e.draggableId,
+              itemKey: draggableId,
               componentKey: props.componentKey,
-              sortOrder: props.inputItems[e.destination.index].sortOrder,
+              sortOrder: itemAtDestination.sortOrder,
             },
           })
         }}
@@ -205,7 +220,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
-              {sortedItemOrders.map((item, index) => {
+              {sortedItems.map((item, index) => {
                 /* We want to allow flattening of subtasks which means:
 											1. If we should flatten
 												- If an item has a parent and the parent is in the list, don't render the parent 

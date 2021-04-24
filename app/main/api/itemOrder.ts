@@ -104,7 +104,7 @@ export const setItemOrder = async (
     SQL`UPDATE itemOrder SET sortOrder = ${input.sortOrder} WHERE itemKey = ${input.itemKey} and componentKey = ${input.componentKey};`,
   )
 
-  return await getItemOrder({ itemKey: input.itemKey, componentKey: input.componentKey }, ctx)
+  return input.itemKey
 }
 
 export const createItemOrder = async (

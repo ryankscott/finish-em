@@ -11,6 +11,7 @@ import ItemCreator from './ItemCreator'
 import { Spinner } from './Spinner'
 import ViewHeader from './ViewHeader'
 import { transparentize } from 'polished'
+import { useTraceUpdate } from '../utils'
 
 const GET_COMPONENTS_BY_VIEW = gql`
   query ComponentsByView($viewKey: String!) {

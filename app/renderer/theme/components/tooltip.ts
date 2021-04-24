@@ -7,7 +7,7 @@ const Tooltip = {
   },
   defaultProps: {
     arrowSize: 5,
-    openDelay: 200,
+    openDelay: 500,
   },
 }
 export default Tooltip
