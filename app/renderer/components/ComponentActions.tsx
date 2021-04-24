@@ -69,9 +69,10 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
       {showActions && (
         <>
           <Flex
+            bg="gray.50"
             direction={'column'}
             position={'absolute'}
-            right={'-34px'}
+            right={'-38px'}
             zIndex={9}
             border={'1px solid'}
             borderColor={'gray.200'}
