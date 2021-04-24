@@ -29,8 +29,6 @@ const Button = (props: ButtonProps): ReactElement => {
         <IconButton
           aria-label={props.icon}
           variant={props.variant}
-          data-tip
-          data-for={id}
           isDisabled={props.disabled}
           color={'gray.700'}
           icon={Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)}
@@ -43,8 +41,6 @@ const Button = (props: ButtonProps): ReactElement => {
         <CButton
           transition="all 0.2s"
           variant={props.variant}
-          data-tip
-          data-for={id}
           visible={props.visible?.toString()}
           isDisabled={props.disabled}
           isFullWidth={props.fullWidth}
