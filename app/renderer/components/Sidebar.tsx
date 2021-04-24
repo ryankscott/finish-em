@@ -24,7 +24,7 @@ const SidebarItem = (props: {
   if (props.sidebarVisible) {
     return (
       <>
-        <Tooltip key={uuidv4()} label={props.text}>
+        <Tooltip key={uuidv4()} label={props.text} arrowSize={5} openDelay={500}>
           <Flex
             key={uuidv4()}
             m={0}
@@ -46,7 +46,7 @@ const SidebarItem = (props: {
   }
   return (
     <>
-      <Tooltip key={uuidv4()} label={props.text}>
+      <Tooltip key={uuidv4()} label={props.text} arrowSize={5} openDelay={500}>
         <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="center">
           {Icons[props.iconName](20, 20)}
         </Flex>
