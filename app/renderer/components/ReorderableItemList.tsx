@@ -3,7 +3,7 @@ import Item from './Item'
 import { ItemIcons } from '../interfaces/item'
 import { item as itemKeymap } from '../keymap'
 
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { useHotkeys } from 'react-hotkeys-hook'
 import { cloneDeep, get, orderBy } from 'lodash'
@@ -83,6 +83,32 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   useEffect(() => {
     setSortedItems(props.inputItems)
   }, [props.inputItems])
+
+  const reorderItems = (result: DropResult): void => {
+    const { destination, source, draggableId, type } = result
+    //  Trying to detect drops in non-valid areas
+    if (!destination) {
+      return
+    }
+
+    const itemAtDestination = sortedItems[destination.index]
+    const itemAtSource = sortedItems[source.index]
+
+    // Sync update
+    const newSortedItems = sortedItems
+    newSortedItems.splice(source.index, 1)
+    newSortedItems.splice(destination.index, 0, itemAtSource)
+    setSortedItems(newSortedItems)
+
+    // Async update
+    setItemOrder({
+      variables: {
+        itemKey: draggableId,
+        componentKey: props.componentKey,
+        sortOrder: itemAtDestination.sortOrder,
+      },
+    })
+  }
 
   /* TODO: Introduce the following shortcuts:
 	- Scheduled At
@@ -181,33 +207,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 
   return (
     <Box w={'100%'} my={4} mx={0} zIndex={0}>
-      <DragDropContext
-        onDragEnd={(result) => {
-          const { destination, source, draggableId, type } = result
-          //  Trying to detect drops in non-valid areas
-          if (!destination) {
-            return
-          }
-
-          const itemAtDestination = sortedItems[destination.index]
-          const itemAtSource = sortedItems[source.index]
-
-          // Sync update
-          const newSortedItems = sortedItems
-          newSortedItems.splice(source.index, 1)
-          newSortedItems.splice(destination.index, 0, itemAtSource)
-          setSortedItems(newSortedItems)
-
-          // Async update
-          setItemOrder({
-            variables: {
-              itemKey: draggableId,
-              componentKey: props.componentKey,
-              sortOrder: itemAtDestination.sortOrder,
-            },
-          })
-        }}
-      >
+      <DragDropContext onDragEnd={(result) => reorderItems(result)}>
         <Droppable droppableId={uuidv4()} type="ITEM">
           {(provided, snapshot) => (
             <Flex
@@ -221,12 +221,13 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
               ref={provided.innerRef}
             >
               {sortedItems.map((item, index) => {
-                /* We want to allow flattening of subtasks which means:
-											1. If we should flatten
-												- If an item has a parent and the parent is in the list, don't render the parent 
-											2.  Default
-												- If an item has a parent, don't render it (as it will get rendered later)
-												- For each item, render the item and it's children  (In the Item component)
+                /* 
+                We want to allow flattening of subtasks which means:
+								  1. If we should flatten
+									  - If an item has a parent and the parent is in the list, don't render the parent 
+									2.  Default
+									  - If an item has a parent, don't render it (as it will get rendered later)
+									  - For each item, render the item and it's children  (In the Item component)
 										*/
                 if (props.flattenSubtasks == true) {
                   if (item.parentKey != null) {

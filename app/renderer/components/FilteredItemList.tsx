@@ -3,39 +3,16 @@ import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react'
 import { cloneDeep, orderBy } from 'lodash'
 import React, { ReactElement, useState } from 'react'
 import { subtasksVisibleVar } from '..'
+import { Item } from '../../main/generated/typescript-helpers'
 import { PAGE_SIZE } from '../consts'
 import { ItemIcons } from '../interfaces'
 import { useTraceUpdate } from '../utils'
 import Button from './Button'
 import EditFilteredItemList from './EditFilteredItemList'
+import { FailedFilteredItemList } from './FailedFilteredItemList'
 import Pagination from './Pagination'
 import ReorderableItemList from './ReorderableItemList'
 import SortDropdown, { SortDirectionEnum, SortOption } from './SortDropdown'
-
-const determineVisibilityRules = (
-  isFilterable: boolean,
-  showItemList: boolean,
-  itemsLength: number,
-  sortedItemsLength: number,
-  completedItemsLength: number,
-  showCompletedToggle: boolean,
-): {
-  showCompletedToggle: boolean
-  showFilterBar: boolean
-  showDeleteButton: boolean
-  showSortButton: boolean
-} => {
-  return {
-    // Show completed toggle if we have a completed item and we want to show the toggle
-    showCompletedToggle: completedItemsLength > 0 && showCompletedToggle,
-    // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
-    showFilterBar: isFilterable && itemsLength > 0 && showItemList,
-    // Show delete button if we have at least one deleted item
-    showDeleteButton: completedItemsLength > 0 && showItemList,
-    // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
-    showSortButton: sortedItemsLength >= 1 && showItemList,
-  }
-}
 
 const GET_DATA = gql`
   query itemsByFilter($filter: String!, $componentKey: String!) {
@@ -93,6 +70,53 @@ const DELETE_ITEM = gql`
   }
 `
 
+const determineVisibilityRules = (
+  isFilterable: boolean,
+  showItemList: boolean,
+  itemsLength: number,
+  completedItemsLength: number,
+  showCompletedToggle: boolean,
+): {
+  showCompletedToggle: boolean
+  showFilterBar: boolean
+  showDeleteButton: boolean
+} => {
+  return {
+    // Show completed toggle if we have a completed item and we want to show the toggle
+    showCompletedToggle: completedItemsLength > 0 && showCompletedToggle,
+    // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
+    showFilterBar: isFilterable && itemsLength > 0 && showItemList,
+    // Show delete button if we have at least one deleted item
+    showDeleteButton: completedItemsLength > 0 && showItemList,
+  }
+}
+
+const generateItems = (
+  allItems: Item[],
+  showCompleted: boolean,
+  componentKey: string,
+): { sortedItems: Item[]; completedItems: Item[] } => {
+  if (!allItems?.length)
+    return {
+      sortedItems: [],
+      completedItems: [],
+    }
+  const uncompletedItems = allItems.filter((m) => m.completed == false)
+  const completedItems = allItems.filter((m) => m.completed == true)
+  const filteredItems = showCompleted ? uncompletedItems : allItems
+  const sI = filteredItems?.map((i) => {
+    // Items have different sort orders per component
+    const sortOrder = i.sortOrders.find((s) => s.componentKey == componentKey)
+    return {
+      key: i.key,
+      parentKey: i?.parent ? i.parent.key : null,
+      children: i?.children,
+      sortOrder: sortOrder ? sortOrder.sortOrder : null,
+    }
+  })
+  return { sortedItems: orderBy(sI, 'sortOrder', 'asc'), completedItems: completedItems }
+}
+
 export type FilteredItemListProps = {
   componentKey: string
   isFilterable?: boolean
@@ -130,79 +154,34 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
 
   if (error) {
     console.log(error)
-
     return (
-      <Box m={0} p={0} w={'100%'} borderRadius={5} border="1px solid" borderColor="gray.200">
-        <Flex
-          direction={'row'}
-          justifyContent={'center'}
-          alignItems={'center'}
-          m={0}
-          py={3}
-          px={2}
-          w={'100%'}
-          minH={'50px'}
-          borderRadius={5}
-          border={'1px solid'}
-          borderColor={'red.500'}
-          bg={'red.500'}
-          color={'gray.50'}
-          fontSize={'md'}
-          fontWeight={'semibold'}
-        >
-          {'Failed to load component - please reconfigure'}
-        </Flex>
-        <Box>
-          <EditFilteredItemList
-            key={`dlg-${props.componentKey}`}
-            componentKey={props.componentKey}
-            onClose={() => {
-              props.setEditing(false)
-            }}
-          />
-        </Box>
-      </Box>
+      <FailedFilteredItemList componentKey={props.componentKey} setEditing={props.setEditing} />
     )
   }
 
-  const allItems = data?.items
+  const { sortedItems, completedItems } = generateItems(
+    data?.items,
+    showCompleted,
+    props.componentKey,
+  )
 
-  const uncompletedItems = data?.items.filter((m) => m.completed == false)
-  const completedItems = data?.items.filter((m) => m.completed == true)
-  const filteredItems = showCompleted ? uncompletedItems : allItems
-
-  const sI = filteredItems?.map((i) => {
-    const sortOrder = i.sortOrders.find((s) => s.componentKey == props.componentKey)
-    return {
-      key: i.key,
-      parentKey: i?.parent ? i.parent.key : null,
-      children: i?.children,
-      sortOrder: sortOrder ? sortOrder.sortOrder : null,
-    }
-  })
-  const sortedItems = orderBy(sI, 'sortOrder', 'asc')
-
-  const subtasksVisible = data?.subtasksVisible ? data.subtasksVisible : false
-
-  const visibility = determineVisibilityRules(
+  const { showCompletedToggle, showFilterBar, showDeleteButton } = determineVisibilityRules(
     props.isFilterable,
     showItemList,
-    allItems?.length,
-    sortedItems?.length,
+    data?.items?.length,
     completedItems?.length,
     props.showCompletedToggle,
   )
 
   const updateSort = (type: SortOption, direction: SortDirectionEnum) => {
-    const sortedItems = showCompleted
-      ? type.sort(uncompletedItems, direction)
-      : type.sort(allItems, direction)
+    const sorted = type.sort(sortedItems, direction)
 
+    // Bulk update the sort in the backend, by deleting it all and then inserting it
     deleteItemOrdersByComponent({
       variables: { componentKey: props.componentKey },
     })
 
-    const sortedItemKeys = sortedItems.map((s) => s.key)
+    const sortedItemKeys = sorted.map((s) => s.key)
     bulkCreateItemOrders({
       variables: { itemKeys: sortedItemKeys, componentKey: props.componentKey },
     })
@@ -258,9 +237,9 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
             justifyContent={'flex-end'}
             alignItems={'center'}
           >
-            {visibility.showFilterBar && (
+            {showFilterBar && (
               <>
-                {visibility.showCompletedToggle && (
+                {showCompletedToggle && (
                   <>
                     <Button
                       size="sm"
@@ -274,7 +253,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                     ></Button>
                   </>
                 )}
-                {visibility.showDeleteButton && (
+                {showDeleteButton && (
                   <>
                     <Button
                       size="sm"
@@ -301,7 +280,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                   onClick={() => {
                     sortedItems.forEach((a) => {
                       if (a.children.length > 0) {
-                        let newState = cloneDeep(subtasksVisible)
+                        let newState = cloneDeep(data?.subtasksVisible)
                         if (newState[a.key]) {
                           newState[a.key][props.componentKey] = true
                         } else {
@@ -323,7 +302,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                   onClick={() => {
                     sortedItems.forEach((a) => {
                       if (a.children.length > 0) {
-                        let newState = cloneDeep(subtasksVisible)
+                        let newState = cloneDeep(data?.subtasksVisible)
                         if (newState[a.key]) {
                           newState[a.key][props.componentKey] = false
                         } else {
