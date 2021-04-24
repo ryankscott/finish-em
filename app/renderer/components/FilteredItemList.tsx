@@ -238,7 +238,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
             alignItems={'center'}
           >
             {showFilterBar && (
-              <>
+              <Flex justifyContent={'space-around'} alignItems={'baseline'}>
                 {showCompletedToggle && (
                   <Button
                     size="sm"
@@ -249,7 +249,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                       setShowCompleted(!showCompleted)
                     }}
                     tooltipText={showCompleted ? 'Show completed items' : 'Hide completed items'}
-                  ></Button>
+                  />
                 )}
                 {showDeleteButton && (
                   <Button
@@ -326,7 +326,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                     }}
                   />
                 </Box>
-              </>
+              </Flex>
             )}
           </Flex>
         </GridItem>
