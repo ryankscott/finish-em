@@ -1,51 +1,11 @@
-import React, { ReactElement, useEffect, useState } from 'react'
-import Item from './Item'
-import { ItemIcons } from '../interfaces/item'
-import { item as itemKeymap } from '../keymap'
-
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd'
-import { v4 as uuidv4 } from 'uuid'
-import { useHotkeys } from 'react-hotkeys-hook'
-import { cloneDeep, get, orderBy } from 'lodash'
 import { gql, useMutation } from '@apollo/client'
-import { subtasksVisibleVar, focusbarVisibleVar, activeItemVar } from '..'
 import { Box, Flex, Text } from '@chakra-ui/layout'
+import React, { ReactElement, useEffect, useState } from 'react'
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
+import { v4 as uuidv4 } from 'uuid'
+import { ItemIcons } from '../interfaces/item'
+import Item from './Item'
 
-const COMPLETE_ITEM = gql`
-  mutation CompleteItem($key: String!) {
-    completeItem(input: { key: $key }) {
-      key
-      completed
-    }
-  }
-`
-
-const UNCOMPLETE_ITEM = gql`
-  mutation UnCompleteItem($key: String!) {
-    unCompleteItem(input: { key: $key }) {
-      key
-      completed
-    }
-  }
-`
-
-const DELETE_ITEM = gql`
-  mutation DeleteItem($key: String!) {
-    deleteItem(input: { key: $key }) {
-      key
-      deleted
-    }
-  }
-`
-
-const RESTORE_ITEM = gql`
-  mutation RestoreItem($key: String!) {
-    restoreItem(input: { key: $key }) {
-      key
-      deleted
-    }
-  }
-`
 const SET_ITEM_ORDER = gql`
   mutation SetItemOrder($itemKey: String!, $componentKey: String!, $sortOrder: Int!) {
     setItemOrder(input: { itemKey: $itemKey, componentKey: $componentKey, sortOrder: $sortOrder })
@@ -72,10 +32,6 @@ type ReorderableItemListProps = {
 
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   const [setItemOrder] = useMutation(SET_ITEM_ORDER)
-  const [completeItem] = useMutation(COMPLETE_ITEM)
-  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM)
-  const [deleteItem] = useMutation(DELETE_ITEM)
-  const [restoreItem] = useMutation(RESTORE_ITEM)
   const [sortedItems, setSortedItems] = useState([])
 
   console.log('re-rendering reorderable itemlist')
@@ -87,9 +43,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   const reorderItems = (result: DropResult): void => {
     const { destination, source, draggableId, type } = result
     //  Trying to detect drops in non-valid areas
-    if (!destination) {
-      return
-    }
+    if (!destination) return
 
     const itemAtDestination = sortedItems[destination.index]
     const itemAtSource = sortedItems[source.index]
@@ -120,90 +74,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 	- Add Area
 	- Edit description
  */
-  const handlers = {
-    TOGGLE_CHILDREN: (event) => {
-      const itemKey = event.target.id
-      let newState = cloneDeep(data.subtasksVisible)
-      const newValue = get(newState, [`${itemKey}`, `${props.componentKey}`], false)
-      if (newState[itemKey]) {
-        newState[itemKey][props.componentKey] = !newValue
-      } else {
-        newState[itemKey] = {
-          [props.componentKey]: true,
-        }
-      }
-      subtasksVisibleVar(newState)
-    },
-    NEXT_ITEM: (event) => {
-      // Check if there are siblings (subtasks)
-      const hasSibling = event.target.nextSibling
-      if (hasSibling) {
-        hasSibling.focus()
-        return
-      }
-
-      // Otherwise we have to go up a node
-      const parent = event.target.parentNode
-      const nextItem = parent?.nextSibling?.firstChild
-      if (nextItem) {
-        nextItem.focus()
-        return
-      }
-    },
-    PREV_ITEM: (event) => {
-      // Check if there are siblings (subtasks)
-      const hasSibling = event.target.previousSibling
-      if (hasSibling) {
-        hasSibling.focus()
-        return
-      }
-
-      // Otherwise we have to go up a node
-      const parent = event.target.parentNode
-      const prevItem = parent?.previousSibling?.lastChild
-      if (prevItem) {
-        prevItem.focus()
-        return
-      }
-    },
-    SET_ACTIVE_ITEM: (event) => {
-      const itemKey = event.target.id
-      focusbarVisibleVar(true)
-      activeItemVar([itemKey])
-      return
-    },
-    COMPLETE_ITEM: (event) => {
-      const itemKey = event.target.id
-      completeItem({ variables: { key: itemKey } })
-    },
-    UNCOMPLETE_ITEM: (event) => {
-      const itemKey = event.target.id
-      unCompleteItem({ variables: { key: itemKey } })
-    },
-    DELETE_ITEM: (event) => {
-      const itemKey = event.target.id
-      deleteItem({ variables: { key: itemKey } })
-    },
-    UNDELETE_ITEM: (event) => {
-      const itemKey = event.target.id
-      restoreItem({ variables: { key: itemKey } })
-    },
-  }
-  Object.entries(itemKeymap).map(([k, v]) => {
-    useHotkeys(v, handlers[k], {
-      filter: (event) => {
-        const target = event.target
-        var tagName = (event.target || event.srcElement).tagName
-        return !(
-          target.contentEditable ||
-          tagName == 'INPUT' ||
-          tagName == 'SELECT' ||
-          tagName == 'TEXTAREA'
-        )
-      },
-      filterPreventDefault: false,
-    })
-  })
 
   return (
     <Box w={'100%'} my={4} mx={0} zIndex={0}>
@@ -268,11 +138,11 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                           <Box>
                             {item.children.map((child) => {
                               // We need to check if the child exists in the original input list
-                              const shouldHide =
+                              const shouldHideItem =
                                 (props.hideCompletedSubtasks && child.completed) ||
                                 (props.hideDeletedSubtasks && child.deleted)
                               return (
-                                !shouldHide && (
+                                !shouldHideItem && (
                                   <Item
                                     compact={false}
                                     itemKey={child.key}
