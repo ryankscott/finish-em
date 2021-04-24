@@ -1,9 +1,12 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { Box, Flex, Grid, GridItem, Text, VStack } from '@chakra-ui/react'
 import { parseISO } from 'date-fns'
 import React, { ReactElement } from 'react'
 import RRule from 'rrule'
 import { activeItemVar, focusbarVisibleVar } from '..'
-import { Item as ItemType, Label } from '../../main/generated/typescript-helpers'
+import { Item as ItemType } from '../../main/generated/typescript-helpers'
+import { Icons } from '../assets/icons'
+import { IconType } from '../interfaces'
 import { ItemIcons } from '../interfaces/item'
 import { formatRelativeDate, removeItemTypeFromString } from '../utils'
 import AttributeSelect from './AttributeSelect'
@@ -14,10 +17,7 @@ import EditableText2 from './EditableText2'
 import Item from './Item'
 import ItemCreator from './ItemCreator'
 import RepeatPicker from './RepeatPicker'
-import Tooltip from './Tooltip'
 import { Header1 } from './Typography'
-import { Grid, Box, GridItem, Flex, Text, VStack } from '@chakra-ui/react'
-import { Icons } from '../assets/icons'
 
 const GET_ACTIVE_ITEM = gql`
   query {
@@ -250,9 +250,15 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     px: 4,
   }
 
-  const attributeValueStyles = {
-    minW: '100px',
-    alignItems: 'center',
+  const generateSidebarTitle = (icon: IconType, text: string) => {
+    return (
+      <Flex minW={'100px'} alignItems={'center'}>
+        {Icons[icon]()}
+        <Text fontSize="md" pl={1}>
+          {text}
+        </Text>
+      </Flex>
+    )
   }
 
   // TODO: Do I need these? Or can I move to the component
@@ -286,7 +292,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                 activeItemVar([item.parent.key])
               }}
               icon={'upLevel'}
-            ></Button>
+            />
           </GridItem>
         )}
         <GridItem colStart={5} colSpan={1}>
@@ -345,39 +351,30 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           )}
         </Box>
         {item.deleted ? (
-          <>
-            <Button
-              variant="default"
-              icon="restore"
-              size="sm"
-              tooltipText="Restore"
-              onClick={() => {
-                restoreItem({ variables: { key: item.key } })
-              }}
-            ></Button>
-          </>
+          <Button
+            variant="default"
+            icon="restore"
+            size="sm"
+            tooltipText="Restore"
+            onClick={() => {
+              restoreItem({ variables: { key: item.key } })
+            }}
+          />
         ) : (
-          <>
-            <Button
-              variant="default"
-              icon="trash"
-              size="sm"
-              tooltipText="Delete"
-              onClick={() => {
-                deleteItem({ variables: { key: item.key } })
-              }}
-            ></Button>
-          </>
+          <Button
+            variant="default"
+            icon="trash"
+            size="sm"
+            tooltipText="Delete"
+            onClick={() => {
+              deleteItem({ variables: { key: item.key } })
+            }}
+          />
         )}
       </Flex>
       {item.project?.key == '0' && (
         <Flex {...attributeContainerStyles}>
-          <Flex {...attributeValueStyles}>
-            {Icons['area']()}
-            <Text fontSize="md" pl={1}>
-              Area:
-            </Text>
-          </Flex>
+          {generateSidebarTitle('area', 'Area: ')}
           <AttributeSelect
             attribute="area"
             currentAttribute={item.area}
@@ -388,12 +385,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         </Flex>
       )}
       <Flex {...attributeContainerStyles}>
-        <Flex {...attributeValueStyles}>
-          {Icons['project']()}
-          <Text fontSize="md" pl={1}>
-            Project:
-          </Text>
-        </Flex>
+        {generateSidebarTitle('project', 'Project: ')}
         <AttributeSelect
           attribute={'project'}
           currentAttribute={item.project}
@@ -409,16 +401,10 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           }}
         />
       </Flex>
-
       {item.type == 'TODO' && (
         <>
           <Flex {...attributeContainerStyles}>
-            <Flex {...attributeValueStyles}>
-              {Icons['scheduled']()}
-              <Text fontSize="md" pl={1}>
-                Scheduled:
-              </Text>
-            </Flex>
+            {generateSidebarTitle('scheduled', 'Scheduled: ')}
             <DatePicker
               key={'sd' + item.key}
               defaultText={'Scheduled at: '}
@@ -431,12 +417,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             />
           </Flex>
           <Flex {...attributeContainerStyles}>
-            <Flex {...attributeValueStyles}>
-              {Icons['due']()}
-              <Text fontSize="md" pl={1}>
-                Due:
-              </Text>
-            </Flex>
+            {generateSidebarTitle('due', 'Due: ')}
             <DatePicker
               key={'dd' + item.key}
               defaultText={'Due at: '}
@@ -447,12 +428,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             />
           </Flex>
           <Flex {...attributeContainerStyles}>
-            <Flex {...attributeValueStyles}>
-              {Icons['repeat']()}
-              <Text fontSize="md" pl={1}>
-                Repeating:
-              </Text>
-            </Flex>
+            {generateSidebarTitle('repeat', 'Repeating: ')}
             <RepeatPicker
               repeat={
                 item.repeat && item.repeat != 'undefined' ? RRule.fromString(item.repeat) : null
@@ -469,12 +445,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       )}
       {item.children.length == 0 && (
         <Flex {...attributeContainerStyles}>
-          <Flex {...attributeValueStyles}>
-            {Icons['subtask']()}
-            <Text fontSize="md" pl={1}>
-              Parent:
-            </Text>
-          </Flex>
+          {generateSidebarTitle('subtask', 'Parent: ')}
           <AttributeSelect
             attribute={'item'}
             currentAttribute={item}
@@ -487,12 +458,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         </Flex>
       )}
       <Flex {...attributeContainerStyles}>
-        <Flex {...attributeValueStyles}>
-          {Icons['label']()}
-          <Text fontSize="md" pl={1}>
-            Label:
-          </Text>
-        </Flex>
+        {generateSidebarTitle('label', 'Label: ')}
         <AttributeSelect
           attribute={'label'}
           currentAttribute={item.label}
@@ -505,12 +471,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       </Flex>
       {item.deleted && (
         <Flex {...attributeContainerStyles}>
-          <Flex {...attributeValueStyles}>
-            {Icons['trash']()}
-            <Text fontSize="md" pl={1}>
-              Deleted at:
-            </Text>
-          </Flex>
+          {generateSidebarTitle('trash', 'Deleted at: ')}
           <Text fontSize="md" m={1} py={2} px={3}>
             {formatRelativeDate(parseISO(item?.deletedAt))}
           </Text>
@@ -518,12 +479,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       )}
       {item.completed && (
         <Flex {...attributeContainerStyles}>
-          <Flex {...attributeValueStyles}>
-            {Icons['todoChecked']()}
-            <Text fontSize="md" pl={1}>
-              Completed at:
-            </Text>
-          </Flex>
+          {generateSidebarTitle('todoChecked', 'Completed at: ')}
           <Text fontSize="md" m={1} py={2} px={3}>
             {formatRelativeDate(parseISO(item?.completedAt))}
           </Text>
@@ -534,8 +490,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <Text fontSize="md" w="100%" mx={0} px={2} pt={6} pb={0}>
             Subtasks:
           </Text>
-          <Tooltip id="add-subtask" text="Add subtask"></Tooltip>
-
           {item.children.length ? (
             <Box py={0} px={2} w={'100%'} key={`box-${item.key}`}>
               {item.children?.map((childItem) => {
