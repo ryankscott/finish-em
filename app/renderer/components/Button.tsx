@@ -1,8 +1,7 @@
 import React, { ReactElement } from 'react'
 import { IconType } from '../interfaces'
-import Tooltip from './Tooltip'
 import { v4 as uuidv4 } from 'uuid'
-import { Button as CButton, IconButton } from '@chakra-ui/react'
+import { Button as CButton, IconButton, Tooltip } from '@chakra-ui/react'
 import { Icons } from '../assets/icons'
 import * as CSS from 'csstype'
 
@@ -25,7 +24,7 @@ const Button = (props: ButtonProps): ReactElement => {
   const id = uuidv4()
 
   return (
-    <>
+    <Tooltip arrowSize={5} openDelay={500} label={props.tooltipText}>
       {!props.text ? (
         <IconButton
           aria-label={props.icon}
@@ -65,8 +64,7 @@ const Button = (props: ButtonProps): ReactElement => {
           {props.text}
         </CButton>
       )}
-      {props.tooltipText && <Tooltip id={id} text={props.tooltipText} />}
-    </>
+    </Tooltip>
   )
 }
 
