@@ -1,6 +1,7 @@
 const Button = {
   baseStyle: {
     size: 'md',
+    m: 0.5,
     bg: 'gray.50',
     color: 'gray.800',
     border: '1px solid',
