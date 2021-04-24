@@ -240,36 +240,32 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
             {showFilterBar && (
               <>
                 {showCompletedToggle && (
-                  <>
-                    <Button
-                      size="sm"
-                      iconSize="14px"
-                      variant="default"
-                      icon={showCompleted ? 'hide' : 'show'}
-                      onClick={() => {
-                        setShowCompleted(!showCompleted)
-                      }}
-                      tooltipText={showCompleted ? 'Show completed items' : 'Hide completed items'}
-                    ></Button>
-                  </>
+                  <Button
+                    size="sm"
+                    iconSize="14px"
+                    variant="default"
+                    icon={showCompleted ? 'hide' : 'show'}
+                    onClick={() => {
+                      setShowCompleted(!showCompleted)
+                    }}
+                    tooltipText={showCompleted ? 'Show completed items' : 'Hide completed items'}
+                  ></Button>
                 )}
                 {showDeleteButton && (
-                  <>
-                    <Button
-                      size="sm"
-                      iconSize="14px"
-                      variant="default"
-                      icon="trashSweep"
-                      tooltipText="Delete completed items"
-                      onClick={() => {
-                        completedItems.forEach((c) => {
-                          if (c.parent?.key == null) {
-                            deleteItem({ variables: { key: c.key } })
-                          }
-                        })
-                      }}
-                    ></Button>
-                  </>
+                  <Button
+                    size="sm"
+                    iconSize="14px"
+                    variant="default"
+                    icon="trashSweep"
+                    tooltipText="Delete completed items"
+                    onClick={() => {
+                      completedItems.forEach((c) => {
+                        if (c.parent?.key == null) {
+                          deleteItem({ variables: { key: c.key } })
+                        }
+                      })
+                    }}
+                  />
                 )}
                 <Button
                   variant="default"
