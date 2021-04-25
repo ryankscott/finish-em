@@ -1,14 +1,12 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { Box, Flex, useTheme } from '@chakra-ui/react'
+import { Box, Flex, useTheme, Switch } from '@chakra-ui/react'
 import React, { ReactElement, useEffect, useRef, useState } from 'react'
 import Select from './Select'
-import Switch from 'react-switch'
 import { ItemIcons } from '../interfaces/item'
 import Button from './Button'
 import EditableText from './EditableText'
 import Expression from './filter-box/Expression'
 import ItemFilterBox from './ItemFilterBox'
-import Tooltip from './Tooltip'
 import { Code } from './Typography'
 
 const options: { value: string; label: string }[] = [
@@ -112,7 +110,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
     py: 0,
     px: 2,
     width: '100%',
-    minH: '30px',
     alignItems: 'flex-start',
   }
 
@@ -131,23 +128,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             }}
           />
         </Box>
-        <Tooltip
-          id={'help-icon' + props.componentKey}
-          multiline={true}
-          html={true}
-          text={`
-                <h3 style="color:#e0e0e0;padding-top:10px">Options:</h3>
-                <ul>
-                <li> Name - the name displayed for the list </li>
-                <li> Filter - the query to determine the items shown (See help for syntax) </li>
-                <li> Filterable - shows or hides the filter bar </li>
-                <li> Flatten subtasks - will show subtasks when the parent isn't included in the list </li>
-                <li> Hidden completed subtasks - hides any completed subtasks </li>
-                <li> Hidden deleted subtasks - hides any deleted subtasks </li>
-                <li> Hidden icons - select the icons to hide on each item </li>
-                </ul>
-                  `}
-        />
       </Flex>
       <Flex direction={'row'} {...settingStyles}>
         <Flex {...settingLabelStyles}>Name:</Flex>
@@ -204,15 +184,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex {...settingLabelStyles}>Filterable:</Flex>
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
+            size="sm"
             checked={isFilterable}
-            onChange={(input) => {
-              setIsFilterable(input)
+            onChange={() => {
+              setIsFilterable(!isFilterable)
             }}
-            onColor={theme.colors.blue[500]}
-            checkedIcon={false}
-            uncheckedIcon={false}
-            width={24}
-            height={14}
           />
         </Flex>
       </Flex>
@@ -220,15 +196,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex {...settingLabelStyles}>Flatten subtasks:</Flex>
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
+            size="sm"
             checked={flattenSubtasks}
-            onChange={(input) => {
-              setFlattenSubtasks(input)
+            onChange={() => {
+              setFlattenSubtasks(!flattenSubtasks)
             }}
-            onColor={theme.colors.blue[500]}
-            checkedIcon={false}
-            uncheckedIcon={false}
-            width={24}
-            height={14}
           />
         </Flex>
       </Flex>
@@ -237,15 +209,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex {...settingLabelStyles}>Hide completed subtasks:</Flex>
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
+            size="sm"
             checked={hideCompletedSubtasks}
             onChange={(input) => {
-              setHideCompletedSubtasks(input)
+              setFlattenSubtasks(!hideCompletedSubtasks)
             }}
-            onColor={theme.colors.blue[500]}
-            checkedIcon={false}
-            uncheckedIcon={false}
-            width={24}
-            height={14}
           />
         </Flex>
       </Flex>
@@ -253,15 +221,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex {...settingLabelStyles}>Hide deleted subtasks:</Flex>
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
+            size="sm"
             checked={hideDeletedSubtasks}
             onChange={(input) => {
-              setHideDeletedSubtasks(input)
+              setFlattenSubtasks(!hideDeletedSubtasks)
             }}
-            onColor={theme.colors.blue[500]}
-            checkedIcon={false}
-            uncheckedIcon={false}
-            width={24}
-            height={14}
           />
         </Flex>
       </Flex>

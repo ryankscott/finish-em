@@ -16,8 +16,7 @@ import ItemAttribute from './ItemAttribute'
 import LabelDialog from './LabelDialog'
 import MoreDropdown, { MoreDropdownOptions } from './MoreDropdown'
 import ReminderDialog from './ReminderDialog'
-import { Grid, GridItem, Tag, TagLabel, Flex, Text } from '@chakra-ui/react'
-import Tooltip from './Tooltip'
+import { Grid, GridItem, Tag, TagLabel, Flex, Text, Tooltip } from '@chakra-ui/react'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
@@ -345,47 +344,43 @@ function Item(props: ItemProps): ReactElement {
       tabIndex={0}
     >
       <GridItem colStart={props.compact ? 1 : 3} colSpan={props.compact ? 7 : 3}>
-        <Text
-          id="body"
-          data-tip
-          data-for={'item-name-' + item.key}
-          mx={0}
-          my={2}
-          fontSize="md"
-          isTruncated={true}
-          textDecoration={item.completed ? 'line-through' : null}
-          color={item.deleted ? 'gray.500' : 'gray.800'}
-          sx={{
-            p: {
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-            },
-            a: {
-              textDecoration: 'underline',
-            },
-          }}
-          dangerouslySetInnerHTML={{
-            __html: removeItemTypeFromString(item.text),
-          }}
-        />
-        <Tooltip id={'item-name-' + item.key} text={item.text} html={true} />
+        <Tooltip openDelay={500} arrowSize={5} label={item.text}>
+          <Text
+            id="body"
+            data-tip
+            data-for={'item-name-' + item.key}
+            mx={0}
+            my={2}
+            fontSize="md"
+            isTruncated={true}
+            textDecoration={item.completed ? 'line-through' : null}
+            color={item.deleted ? 'gray.500' : 'gray.800'}
+            sx={{
+              p: {
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              },
+              a: {
+                textDecoration: 'underline',
+              },
+            }}
+            dangerouslySetInnerHTML={{
+              __html: removeItemTypeFromString(item.text),
+            }}
+          />
+        </Tooltip>
       </GridItem>
       <GridItem colStart={props.compact ? 8 : 6} colSpan={1}>
         {(!props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null) && (
           <Flex justifyContent={'flex-end'}>
-            <Tag
-              size={props.compact ? 'sm' : 'md'}
-              color={'white'}
-              bg={'blue.500'}
-              data-tip
-              data-for={'project-name-' + item.key}
-            >
-              <TagLabel>
-                {props.compact ? truncateString(item.project?.name, 8) : item.project?.name}
-              </TagLabel>
-            </Tag>
-            <Tooltip id={'project-name-' + item.key} text={item.project?.name} />
+            <Tooltip openDelay={500} arrowSize={5} label={item.project?.name}>
+              <Tag size={props.compact ? 'sm' : 'md'} color={'white'} bg={'blue.500'}>
+                <TagLabel>
+                  {props.compact ? truncateString(item.project?.name, 8) : item.project?.name}
+                </TagLabel>
+              </Tag>
+            </Tooltip>
           </Flex>
         )}
       </GridItem>
@@ -417,30 +412,17 @@ function Item(props: ItemProps): ReactElement {
             />
           </GridItem>
 
-          <GridItem
-            rowStart={2}
-            colStart={3}
-            colSpan={1}
-            data-tip
-            data-for={'parent-item-' + item.key}
-          >
+          <GridItem rowStart={2} colStart={3} colSpan={1}>
             {!props.hiddenIcons?.includes(ItemIcons.Subtask) && item.parent != null && (
-              <>
-                <ItemAttribute
-                  compact={props.compact}
-                  completed={item.completed}
-                  type={'subtask'}
-                  text={
-                    item.parent
-                      ? truncateString(removeItemTypeFromString(item.parent.text), 12)
-                      : ''
-                  }
-                />
-                <Tooltip
-                  id={'parent-item-' + item.key}
-                  text={item.parent ? removeItemTypeFromString(item.parent.text) : ''}
-                />
-              </>
+              <ItemAttribute
+                compact={props.compact}
+                completed={item.completed}
+                type={'subtask'}
+                tooltipText={item.parent.text}
+                text={
+                  item.parent ? truncateString(removeItemTypeFromString(item.parent.text), 12) : ''
+                }
+              />
             )}
           </GridItem>
 
@@ -479,40 +461,27 @@ function Item(props: ItemProps): ReactElement {
             data-for={'scheduled-date-' + item.key}
           >
             {item.scheduledAt != null && !props.hiddenIcons?.includes(ItemIcons.Scheduled) && (
-              <>
-                <ItemAttribute
-                  compact={props.compact}
-                  completed={item.completed}
-                  type={'scheduled'}
-                  text={
-                    item.scheduledAt
-                      ? formatRelativeDate(parseISO(item.scheduledAt), props.compact)
-                      : ''
-                  }
-                />
-                <Tooltip
-                  id={'scheduled-date-' + item.key}
-                  text={
-                    item.scheduledAt ? format(parseISO(item.scheduledAt), 'EEEE do MMM yyyy') : ''
-                  }
-                />
-              </>
+              <ItemAttribute
+                compact={props.compact}
+                completed={item.completed}
+                type={'scheduled'}
+                tooltipText={formatRelativeDate(parseISO(item.scheduledAt), props.compact)}
+                text={formatRelativeDate(parseISO(item.scheduledAt), props.compact)}
+              />
             )}
           </GridItem>
           <GridItem colStart={7} colSpan={1} data-tip data-for={'reminder-' + item.key}>
             {item.reminders.filter((r) => r.deleted == false).length > 0 && (
-              <>
+              <Tooltip
+                openDelay={500}
+                arrowSize={5}
+                label={`Reminder at: ${format(
+                  parseISO(item?.reminders?.[0]?.remindAt),
+                  'h:mm aaaa EEEE',
+                )}`}
+              >
                 {Icons['reminder']()}
-                {item.reminders.filter((r) => r.deleted == false).length > 0 && (
-                  <Tooltip
-                    id={'reminder-' + item.key}
-                    text={`Reminder at: ${format(
-                      parseISO(item?.reminders?.[0]?.remindAt),
-                      'h:mm aaaa EEEE',
-                    )}`}
-                  />
-                )}
-              </>
+              </Tooltip>
             )}
           </GridItem>
         </>
@@ -525,18 +494,13 @@ function Item(props: ItemProps): ReactElement {
         data-for={'due-date-' + item.key}
       >
         {item.dueAt != null && !props.hiddenIcons?.includes(ItemIcons.Due) && (
-          <>
-            <ItemAttribute
-              compact={props.compact}
-              completed={item.completed}
-              type={'due'}
-              text={item.dueAt ? formatRelativeDate(parseISO(item.dueAt), props.compact) : ''}
-            />
-            <Tooltip
-              id={'due-date-' + item.key}
-              text={item.dueAt ? format(parseISO(item.dueAt), 'EEEE do MMM yyyy') : ''}
-            />
-          </>
+          <ItemAttribute
+            compact={props.compact}
+            completed={item.completed}
+            type={'due'}
+            tooltipText={formatRelativeDate(parseISO(item.dueAt), props.compact)}
+            text={formatRelativeDate(parseISO(item.dueAt), props.compact)}
+          />
         )}
       </GridItem>
       <GridItem
@@ -547,26 +511,13 @@ function Item(props: ItemProps): ReactElement {
         data-for={'repeat-' + item.key}
       >
         {item.repeat && !props.hiddenIcons?.includes(ItemIcons.Repeat) && (
-          <>
-            <ItemAttribute
-              compact={props.compact}
-              completed={item.completed}
-              type={'repeat'}
-              text={
-                item.repeat && item.repeat != 'undefined'
-                  ? capitaliseFirstLetter(rruleToText(RRule.fromString(item?.repeat)))
-                  : 'Repeat'
-              }
-            />
-            <Tooltip
-              id={'repeat-' + item.key}
-              text={
-                item.repeat && item.repeat != 'undefined'
-                  ? capitaliseFirstLetter(RRule.fromString(item.repeat).toText())
-                  : 'Repeat'
-              }
-            />
-          </>
+          <ItemAttribute
+            compact={props.compact}
+            completed={item.completed}
+            type={'repeat'}
+            tooltipText={capitaliseFirstLetter(rruleToText(RRule.fromString(item?.repeat)))}
+            text={capitaliseFirstLetter(rruleToText(RRule.fromString(item?.repeat)))}
+          />
         )}
       </GridItem>
     </Grid>

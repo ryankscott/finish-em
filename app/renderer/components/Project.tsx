@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { Box, Flex, Grid, GridItem, Text, useTheme } from '@chakra-ui/react'
+import { Box, Flex, Grid, GridItem, Text, useTheme, Tooltip } from '@chakra-ui/react'
 import { parseISO } from 'date-fns'
 import { Emoji, Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
@@ -16,7 +16,6 @@ import EditableText2 from './EditableText2'
 import ItemCreator from './ItemCreator'
 import { Page } from './Page'
 import './styled/ReactDatePicker.css'
-import Tooltip from './Tooltip'
 import { Title } from './Typography'
 
 const GET_PROJECT_BY_KEY = gql`
@@ -208,19 +207,22 @@ const Project = (props: ProjectProps): ReactElement => {
           </Flex>
         </GridItem>
         <GridItem rowStart={2} colstart={2} colSpan={1}>
-          <Flex justifyContent={'flex-start'} alignItems={'center'}>
-            <Donut
-              size={30}
-              progress={allItems.length != 0 ? (100 * completedItems.length) / allItems.length : 0}
-              activeColour={theme.colors.blue[500]}
-              inactiveColour={theme.colors.gray[300]}
-            />
-            <Text fontSize="md">
-              {completedItems.length} of {allItems.length} items completed
-            </Text>
-          </Flex>
+          <Tooltip label={`${completedItems.length}/${allItems.length} completed`}>
+            <Flex justifyContent={'flex-start'} alignItems={'center'}>
+              <Donut
+                size={30}
+                progress={
+                  allItems.length != 0 ? (100 * completedItems.length) / allItems.length : 0
+                }
+                activeColour={theme.colors.blue[500]}
+                inactiveColour={theme.colors.gray[300]}
+              />
+              <Text fontSize="md">
+                {completedItems.length} of {allItems.length} items completed
+              </Text>
+            </Flex>
+          </Tooltip>
         </GridItem>
-        <Tooltip id="donut" text={`${completedItems.length}/${allItems.length} completed`} />
 
         {showEmojiPicker && (
           <Flex position={'relative'} zIndex={9}>

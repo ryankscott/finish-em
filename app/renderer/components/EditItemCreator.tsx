@@ -1,14 +1,11 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import React, { ReactElement, useEffect, useState } from 'react'
 import Select from './Select'
-import Switch from 'react-switch'
 import { Label, Project } from '../../main/generated/typescript-helpers'
-import { ThemeType } from '../interfaces'
-import { selectStyles, themes } from '../theme'
 import Button from './Button'
 
 import { ItemCreatorProps } from './ItemCreator'
-import { Box, Flex } from '@chakra-ui/react'
+import { Box, Flex, Switch } from '@chakra-ui/react'
 
 const GET_COMPONENT_BY_KEY = gql`
   query ComponentByKey($key: String!) {
@@ -130,7 +127,6 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
     ]
   }
 
-  const theme: ThemeType = themes[data.theme]
   const projectOptions = generateProjectOptions(data.projects)
   const labelOptions = generateLabelOptions(data.labels)
   return (
@@ -162,15 +158,11 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
         <Flex {...settingLabelStyles}>Initially expanded:</Flex>
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
+            size="sm"
             checked={initiallyExpanded}
-            onChange={(input) => {
-              setInitiallyExpanded(input)
+            onChange={() => {
+              setInitiallyExpanded(!initiallyExpanded)
             }}
-            onColor={theme.colours.primaryColour}
-            checkedIcon={false}
-            uncheckedIcon={false}
-            width={24}
-            height={14}
           />
         </Flex>
       </Flex>

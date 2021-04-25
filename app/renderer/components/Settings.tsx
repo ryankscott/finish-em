@@ -1,7 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { transparentize } from 'polished'
 import React, { ReactElement, useEffect, useState } from 'react'
-import Switch from 'react-switch'
 import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
 import EditableText from './EditableText'
@@ -11,7 +10,7 @@ import { themeVar } from '..'
 import { Label } from '../../main/generated/typescript-helpers'
 import { HexColorPicker } from 'react-colorful'
 import { debounce } from 'lodash'
-import { Box, Flex, Text, useTheme } from '@chakra-ui/react'
+import { Box, Flex, Text, useTheme, Switch } from '@chakra-ui/react'
 import Select from './Select'
 const NUMBER_OF_COLOURS = 12
 
@@ -242,20 +241,16 @@ function Settings(props: SettingsPickerProps): ReactElement {
                       {camelCaseToInitialCaps(f.name)}
                     </Text>
                     <Switch
-                      onChange={(checked) => {
+                      size="sm"
+                      onChange={() => {
                         setFeature({
                           variables: {
                             key: f.key,
-                            enabled: checked,
+                            enabled: !data.features.find((df) => df.key == f.key).enabled,
                           },
                         })
                       }}
                       checked={data.features.find((df) => df.key == f.key).enabled}
-                      onColor={theme.colors.blue[500]}
-                      checkedIcon={false}
-                      uncheckedIcon={false}
-                      width={24}
-                      height={14}
                     />
                     {f.name == 'calendarIntegration' && (
                       <Box pl={3} w={'180px'}>
@@ -298,15 +293,11 @@ function Settings(props: SettingsPickerProps): ReactElement {
                 Dark Mode
               </Text>
               <Switch
-                onChange={(checked) => {
-                  checked ? themeVar('dark') : themeVar('light')
+                size="sm"
+                onChange={() => {
+                  data.theme == 'light' ? themeVar('dark') : themeVar('light')
                 }}
                 checked={data.theme == 'dark'}
-                onColor={theme.colors.blue[500]}
-                checkedIcon={false}
-                uncheckedIcon={false}
-                width={24}
-                height={14}
               />
             </Flex>
           </Box>
@@ -385,7 +376,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
             <Flex w={'185px'} justifyContent={'center'} pt={3}>
               <Button
                 variant="default"
-                size="sm"
+                size="md"
                 icon="add"
                 text="Add label"
                 onClick={() => {
@@ -397,7 +388,8 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     },
                   })
                 }}
-                iconSize="14px"
+                iconPosition="right"
+                iconSize="12px"
               />
             </Flex>
           </Box>
