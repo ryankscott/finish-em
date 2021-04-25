@@ -170,23 +170,25 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
       </Flex>
       <Flex direction={'row'} {...settingStyles}>
         <Flex {...settingLabelStyles}>Filter:</Flex>
-        <Flex direction={'column'} w={'100%'} justifyContent={'space-between'}>
+        <Flex overflowX={'scroll'} direction={'column'} w={'100%'} justifyContent={'space-between'}>
           {params.legacyFilter && (
-            <EditableText
-              innerRef={filterRef}
-              key={'ed-name'}
-              input={params?.legacyFilter || ''}
-              fontSize={'xsmall'}
-              shouldSubmitOnBlur={true}
-              onEscape={() => {}}
-              readOnly={true}
-              style={Code}
-              plainText={true}
-              validation={(input) => true}
-              singleline={false}
-              shouldClearOnSubmit={false}
-              onUpdate={(input) => {}}
-            />
+            <Box my={2} mx={2}>
+              <EditableText
+                innerRef={filterRef}
+                key={'ed-name'}
+                input={params?.legacyFilter || ''}
+                fontSize={'xsmall'}
+                shouldSubmitOnBlur={true}
+                onEscape={() => {}}
+                readOnly={true}
+                style={Code}
+                plainText={true}
+                validation={(input) => true}
+                singleline={false}
+                shouldClearOnSubmit={false}
+                onUpdate={(input) => {}}
+              />
+            </Box>
           )}
           <ItemFilterBox
             filter={filter ? JSON.parse(filter).text : ''}

@@ -12,6 +12,7 @@ import { gql, useQuery } from '@apollo/client'
 import { useState } from 'react'
 import { Completion, HintResult } from './models/ExtendedCodeMirror'
 import BaseAutoCompleteHandler from './BaseAutoCompleteHandler'
+import { Flex } from '@chakra-ui/react'
 
 const GET_THEME = gql`
   query {
@@ -104,22 +105,36 @@ const ReactFilterBox = (props: ReactFilterBoxProps): ReactElement => {
   const onFocus = () => {
     setIsFocus(true)
   }
-
   return (
-    <ThemeProvider theme={theme}>
-      <StyledFilterBox focus={isFocus} error={isError}>
-        <FilterInput
-          customRenderCompletionItem={props.customRenderCompletionItem}
-          onBlur={onBlur}
-          onFocus={onFocus}
-          value={props.query}
-          needAutoCompleteValues={needAutoCompleteValues}
-          onSubmit={onSubmit}
-          onChange={onChange}
-          editorConfig={props.editorConfig}
-        />
-      </StyledFilterBox>
-    </ThemeProvider>
+    <Flex
+      alignItems={'center'}
+      overflowY={'scroll'}
+      h={'auto'}
+      p={0}
+      m={0}
+      fontSize={'sm'}
+      color={'gray.800'}
+      verticalAlign={'middle'}
+      borderRadius={5}
+      bg="gray.50"
+      border={'1px solid'}
+      borderColor={isError ? 'red.400' : 'gray.200'}
+      transition={'border linear 0.2s, box-shadow linear 0.2s'}
+      _hover={{
+        bg: 'gray.100',
+      }}
+    >
+      <FilterInput
+        customRenderCompletionItem={props.customRenderCompletionItem}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        value={props.query}
+        needAutoCompleteValues={needAutoCompleteValues}
+        onSubmit={onSubmit}
+        onChange={onChange}
+        editorConfig={props.editorConfig}
+      />
+    </Flex>
   )
 }
 

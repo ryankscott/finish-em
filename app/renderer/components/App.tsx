@@ -19,6 +19,7 @@ import ShortcutDialog from './ShortcutDialog'
 import Sidebar from './Sidebar'
 import View from './View'
 import WeeklyAgenda from './WeeklyAgenda'
+import '../filterBoxStyles.css'
 
 export const MIN_WIDTH_FOR_SIDEBAR = 1125
 export const MIN_WIDTH_FOR_FOCUSBAR = 1125

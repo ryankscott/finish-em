@@ -90,7 +90,7 @@ const FilterInput = (props: FilterInputProps) => {
   }
 
   return (
-    <Box w={'450px'} overflow={'auto !important'}>
+    <Box w={'100%'} overflow={'auto !important'}>
       <ReactCodeMirror
         ref={codeMirrorRef}
         onChange={handleEditorChange}

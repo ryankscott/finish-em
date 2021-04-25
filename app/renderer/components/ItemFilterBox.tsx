@@ -262,7 +262,7 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
   }
 
   return (
-    <Box w={'100%'} my={0} mx={2} pr={6}>
+    <Box w={'auto'} my={0} mx={2} overflowX={'scroll'}>
       <ReactFilterBox
         data={inputData}
         autoCompleteHandler={customAutoComplete}
@@ -274,7 +274,7 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
         onParseError={onParseError}
         strictMode={true}
       />
-      <Text w={'100%'} m={0} mt={2} color={'red.500'} pl={1}>
+      <Text fontSize="sm" fontFamily="mono" w={'100%'} m={0} mt={1} color={'red.500'} pl={1}>
         {errorMessage}
       </Text>
     </Box>
