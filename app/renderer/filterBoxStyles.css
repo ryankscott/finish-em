@@ -11,7 +11,7 @@ TODO: This is a terrifying mess of CSS, it's hard to tell what breaks
   margin: 0;
   padding: 0;
   box-shadow: var(--chakra-shadows-md);
-  border-radius: var(--chakra-space-5);
+  border-radius: 5px;
   border: 1px solid var(--chakra-colors-gray-200);
   background-color: var(--chakra-colors-gray-50);
   font-family: var(--chakra-fonts-mono);
@@ -21,7 +21,7 @@ TODO: This is a terrifying mess of CSS, it's hard to tell what breaks
 .CodeMirror-hint {
   margin: 0;
   padding: 0;
-  border-radius: var(--chakra-space-2);
+  border-radius: 5px;
   white-space: pre;
   cursor: pointer;
   color: var(--chakra-colors-gray-800);
