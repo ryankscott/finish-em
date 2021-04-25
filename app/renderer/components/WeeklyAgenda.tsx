@@ -110,7 +110,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           />
         </GridItem>
         <GridItem colSpan={3} textAlign="center">
-          <Text fontWeight={'medium'} color="blue.500" fontSize="2xl" textAlign={'center'}>
+          <Text fontWeight={'normal'} color="blue.500" fontSize="3xl" textAlign={'center'}>
             Week starting {format(currentDate, 'EEEE do MMMM yyyy')}
           </Text>
         </GridItem>
