@@ -30,8 +30,6 @@ const SidebarItem = (props: {
             m={0}
             px={2}
             py={0}
-            data-tip
-            data-for={id}
             justifyContent="flex-start"
             alignItems={'center'}
           >
