@@ -3,7 +3,6 @@ import ReorderableComponentList from './ReorderableComponentList'
 import { gql, useQuery } from '@apollo/client'
 import Project from './Project'
 import Area from './Area'
-import { Flex } from '@chakra-ui/react'
 import { Page } from './Page'
 
 const GET_DATA = gql`

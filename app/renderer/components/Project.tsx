@@ -25,7 +25,6 @@ import { Donut } from './Donut'
 import EditableText from './EditableText'
 import EditableText2 from './EditableText2'
 import ItemCreator from './ItemCreator'
-import { Page } from './Page'
 import './styled/ReactDatePicker.css'
 
 const GET_PROJECT_BY_KEY = gql`
@@ -156,14 +155,13 @@ const Project = (props: ProjectProps): ReactElement => {
   const allItems: ItemType[] = project?.items
   const completedItems = allItems.filter((i) => i.completed == true)
   return (
-    <Page>
+    <>
       <Grid
         gridAutoRows={'60px 40px'}
-        gridTemplateColumns={'120px 1fr'}
+        gridTemplateColumns={'110px 1fr'}
         alignItems={'center'}
-        py={3}
+        py={2}
         px={0}
-        columnGap={2}
       >
         <GridItem colStart={1} colSpan={1} rowStart={1} rowSpan={2}>
           <Flex
@@ -174,7 +172,6 @@ const Project = (props: ProjectProps): ReactElement => {
             fontSize={'xl'}
             bg={'gray.100'}
             my={0}
-            mx={4}
             _hover={{
               bg: 'gray.200',
             }}
@@ -304,7 +301,7 @@ const Project = (props: ProjectProps): ReactElement => {
           initiallyExpanded={false}
         />
       </Flex>
-    </Page>
+    </>
   )
 }
 

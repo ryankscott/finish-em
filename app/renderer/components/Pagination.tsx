@@ -9,8 +9,8 @@ export type PaginationProps = {
   setCurrentPage: (page: number) => void
 }
 function Pagination(props: PaginationProps): ReactElement {
-  const totalPages = Math.ceil(props.itemsLength / PAGE_SIZE)
   if (props.itemsLength < PAGE_SIZE) return null
+  const totalPages = Math.ceil(props.itemsLength / PAGE_SIZE)
 
   return (
     <Flex direction={'row'} w={'100%'} justifyContent={'center'} alignItems={'center'} py={2}>

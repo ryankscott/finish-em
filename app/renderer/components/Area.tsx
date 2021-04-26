@@ -134,13 +134,13 @@ const Area = (props: AreaProps): ReactElement => {
     <Page>
       <Grid
         autoRows={'60px 40px'}
-        templateColumns={'120px 1fr'}
+        templateColumns={'110px 1fr'}
         alignItems={'center'}
-        paddingY={2}
-        paddingX={0}
+        py={2}
+        px={0}
       >
         <GridItem colStart={2} colSpan={1}>
-          <Flex alignItems={'flex-start'}>
+          <Flex w={'100%'} alignItems={'flex-start'}>
             <Editable
               defaultValue={area.name}
               fontSize="3xl"
