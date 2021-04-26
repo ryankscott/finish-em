@@ -111,6 +111,8 @@ export const getEmoji = (input: string): string => {
 export const createShortSidebarItem = (input: string): string => {
   if (!input) return input
 
+  if (hasEmoji(input)) return getEmoji(input)
+
   const words = input.split(' ')
   // If there's only one word
   if (words.length == 1) {
