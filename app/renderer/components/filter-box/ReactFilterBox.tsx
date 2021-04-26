@@ -1,24 +1,14 @@
 import React, { ReactElement } from 'react'
 import FilterInput from './FilterInput'
-import { ThemeProvider } from '../../StyledComponents'
-import { themes } from '../../theme'
 import GridDataAutoCompleteHandler, { Option } from './GridDataAutoCompleteHandler'
 import Expression from './Expression'
 import FilterQueryParser from './FilterQueryParser'
 import ParsedError from './ParsedError'
 import validateQuery, { ValidationResult } from './validateQuery'
-import { StyledFilterBox } from './styled/ReactFilterBox'
-import { gql, useQuery } from '@apollo/client'
 import { useState } from 'react'
 import { Completion, HintResult } from './models/ExtendedCodeMirror'
 import BaseAutoCompleteHandler from './BaseAutoCompleteHandler'
 import { Flex } from '@chakra-ui/react'
-
-const GET_THEME = gql`
-  query {
-    theme @client
-  }
-`
 
 type ReactFilterBoxProps = {
   onParseOk: (query: string, result: Expression[] | ParsedError) => void
@@ -50,13 +40,6 @@ type ReactFilterBoxProps = {
 const ReactFilterBox = (props: ReactFilterBoxProps): ReactElement => {
   const [isFocus, setIsFocus] = useState(false)
   const [isError, setIsError] = useState(false)
-  const { loading, error, data } = useQuery(GET_THEME)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  const theme = themes[data.theme]
 
   const parser = new FilterQueryParser()
   const autoCompleteHandler =
