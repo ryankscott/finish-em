@@ -25,7 +25,7 @@ const Button = (props: ButtonProps): ReactElement => {
   const id = uuidv4()
 
   return (
-    <Tooltip arrowSize={5} openDelay={500} label={props.tooltipText}>
+    <Tooltip arrowSize={5} hasArrow={true} openDelay={500} label={props.tooltipText}>
       {!props.text ? (
         <IconButton
           aria-label={props.icon}
