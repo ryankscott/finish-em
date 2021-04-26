@@ -81,8 +81,6 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
     props.showCompletedToggle,
   )
 
-  console.log('re-rendering filtered itemlist')
-  // TODO: #338 Handle when items returned is null
   return (
     <Box m={0} p={0} w={'100%'} borderRadius={5} border="1px solid" borderColor="gray.200">
       <Grid
@@ -209,26 +207,24 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
           />
         </Box>
       ) : showItemList ? (
-        <>
-          <Flex w={'100%'} transition={'0.2s ease-in-out'} py={0} px={3}>
-            <ReorderableItemList
-              expandSubtasks={expandSubtasks}
-              onItemsFetched={(itemLengths) => {
-                setItemsLength(itemLengths)
-              }}
-              filter={props.filter}
-              key={props.componentKey}
-              hideDeletedSubtasks={props.hideDeletedSubtasks}
-              hideCompletedSubtasks={props.hideCompletedSubtasks}
-              componentKey={props.componentKey}
-              hiddenIcons={props.hiddenIcons}
-              sortDirection={sortDirection}
-              sortType={sortType}
-              flattenSubtasks={props.flattenSubtasks}
-              showCompleted={showCompleted}
-            />
-          </Flex>
-        </>
+        <Flex w={'100%'} transition={'0.2s ease-in-out'} py={0} px={3}>
+          <ReorderableItemList
+            expandSubtasks={expandSubtasks}
+            onItemsFetched={(itemLengths) => {
+              setItemsLength(itemLengths)
+            }}
+            filter={props.filter}
+            key={props.componentKey}
+            hideDeletedSubtasks={props.hideDeletedSubtasks}
+            hideCompletedSubtasks={props.hideCompletedSubtasks}
+            componentKey={props.componentKey}
+            hiddenIcons={props.hiddenIcons}
+            sortDirection={sortDirection}
+            sortType={sortType}
+            flattenSubtasks={props.flattenSubtasks}
+            showCompleted={showCompleted}
+          />
+        </Flex>
       ) : null}
     </Box>
   )

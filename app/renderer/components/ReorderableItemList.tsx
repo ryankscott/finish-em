@@ -5,6 +5,7 @@ import React, { ReactElement, useEffect, useState } from 'react'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { subtasksVisibleVar } from '..'
+import { Item } from '../../main/generated/typescript-helpers'
 import { PAGE_SIZE } from '../consts'
 import { ItemIcons } from '../interfaces/item'
 import { FailedFilteredItemList } from './FailedFilteredItemList'
@@ -69,10 +70,10 @@ type ReorderableItemListProps = {
   sortDirection: SortDirectionEnum
   sortType: SortOption
   showCompleted: boolean
-  hideCompletedSubtasks?: Boolean
-  hideDeletedSubtasks?: Boolean
-  expandSubtasks: Boolean
-  flattenSubtasks?: Boolean
+  hideCompletedSubtasks?: boolean
+  hideDeletedSubtasks?: boolean
+  expandSubtasks: boolean
+  flattenSubtasks?: boolean
   hiddenIcons: ItemIcons[]
   onItemsFetched: ([]) => void
 }
@@ -101,8 +102,12 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         const sortOrder = i.sortOrders.find((s) => s.componentKey == props.componentKey)
         return { ...i, sortOrder }
       })
-      setSortedItems(orderBy(sI, 'sortOrder.sortOrder', 'asc'))
+      const sorted = orderBy(sI, 'sortOrder.sortOrder', 'asc')
+      const uncompletedItems = sorted.filter((m) => m.completed == false)
+      const filteredItems = props.showCompleted ? uncompletedItems : sorted
+      setSortedItems(filteredItems)
 
+      // Update listeners
       if (props?.onItemsFetched) {
         props.onItemsFetched([
           data?.items.length,
@@ -110,11 +115,11 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         ])
       }
     }
-  }, [loading, data])
+  }, [loading, data, props.showCompleted])
 
   useEffect(() => {
+    if (!sortedItems.length) return
     const sorted = props.sortType.sort(sortedItems, props.sortDirection)
-
     // Async update
     deleteItemOrdersByComponent({
       variables: { componentKey: props.componentKey },
@@ -129,13 +134,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     setSortedItems(sorted)
   }, [props.sortDirection, props.sortType])
 
-  useEffect(() => {
-    const uncompletedItems = sortedItems.filter((m) => m.completed == false)
-    const filteredItems = props.showCompleted ? uncompletedItems : sortedItems
-    setSortedItems(filteredItems)
-  }, [props.showCompleted])
-
-  // TODO: fix me
   useEffect(() => {
     sortedItems.forEach((a) => {
       if (a.children.length > 0) {
@@ -169,12 +167,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     newSortedItems.splice(destination.index, 0, itemAtSource)
     setSortedItems(newSortedItems)
 
-    console.log(itemAtDestination)
-    console.log({
-      itemKey: draggableId,
-      componentKey: props.componentKey,
-      sortOrder: itemAtDestination.sortOrder.sortOrder,
-    })
     // Async update
     setItemOrder({
       variables: {
@@ -185,7 +177,11 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     })
   }
 
-  const pagedItems = sortedItems?.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const pagedItems: Item[] = sortedItems?.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE,
+  )
+
   /* TODO: Introduce the following shortcuts:
 	- Scheduled At
 	- Due At
@@ -196,7 +192,6 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 	- Add Area
 	- Edit description
  */
-
   return (
     <Box w={'100%'} my={4} mx={0} zIndex={0}>
       <DragDropContext onDragEnd={(result) => reorderItems(result)}>
@@ -212,22 +207,13 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
-              {pagedItems?.map((item, index) => {
-                /* 
-                We want to allow flattening of subtasks which means:
-								  1. If we should flatten
-									  - If an item has a parent and the parent is in the list, don't render the parent 
-									2.  Default
-									  - If an item has a parent, don't render it (as it will get rendered later)
-									  - For each item, render the item and it's children  (In the Item component)
-										*/
-                if (props.flattenSubtasks == true) {
-                  if (item.parentKey != null) {
-                    const parentExistsInList = pagedItems?.find((z) => z.key == item.parentKey)
-                    // It exists it will get rendered later, so don't render it
-                    if (parentExistsInList) {
-                      return
-                    }
+              {pagedItems?.map((item: Item, index) => {
+                if (item.parent?.key != null) {
+                  // Find if the parent already exists in this list
+                  const parentExistsInList = sortedItems?.find((z) => z.key == item.parent.key)
+                  // If it does and we don't want to flattenSubtasks then return
+                  if (parentExistsInList && !props.flattenSubtasks) {
+                    return
                   }
                 }
                 return (
@@ -255,6 +241,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                           componentKey={props.componentKey}
                           shouldIndent={false}
                           hiddenIcons={props.hiddenIcons}
+                          hideCollapseIcon={props.flattenSubtasks}
                         />
                         {item?.children.length > 0 && (
                           <Box>
@@ -264,6 +251,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                 (props.hideCompletedSubtasks && child.completed) ||
                                 (props.hideDeletedSubtasks && child.deleted) ||
                                 props.flattenSubtasks
+
                               return (
                                 !shouldHideItem && (
                                   <ItemComponent
@@ -272,6 +260,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                     key={child.key}
                                     componentKey={props.componentKey}
                                     shouldIndent={true}
+                                    hideCollapseIcon={props.flattenSubtasks}
                                     hiddenIcons={
                                       props.hiddenIcons
                                         ? [...props.hiddenIcons, ItemIcons.Subtask]
