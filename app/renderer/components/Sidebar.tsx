@@ -299,6 +299,10 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 if (!destination) {
                   return
                 }
+
+                // Do nothing if it was a drop to the same place
+                if (destination.index == source.index) return
+
                 // Project Order is harder as the index is based on the area
                 const projectAtDestination = sortedProjects[destination.index]
                 const projectAtSource = sortedProjects[source.index]

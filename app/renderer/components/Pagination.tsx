@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import { PAGE_SIZE } from '../consts'
 import Button from './Button'
-import { Flex } from '@chakra-ui/layout'
+import { Flex, Text } from '@chakra-ui/layout'
 
 export type PaginationProps = {
   currentPage: number
@@ -14,6 +14,7 @@ function Pagination(props: PaginationProps): ReactElement {
 
   return (
     <Flex direction={'row'} w={'100%'} justifyContent={'center'} alignItems={'center'} py={2}>
+      {/* Start page button  */}
       <Button
         size="sm"
         variant="default"
@@ -22,10 +23,15 @@ function Pagination(props: PaginationProps): ReactElement {
           props.setCurrentPage(props.currentPage == 1 ? props.currentPage : props.currentPage - 1)
         }
       />
+
+      {/* First page button  */}
       {props.currentPage != 1 && (
         <Button size="sm" variant="default" text={'1'} onClick={() => props.setCurrentPage(1)} />
       )}
+      {/* More pages indicator (small no. of pages) */}
       {props.currentPage >= 4 && '...'}
+
+      {/* Next page button (if we're not at the end) */}
       {props.currentPage >= 3 && (
         <Button
           size="sm"
@@ -35,7 +41,10 @@ function Pagination(props: PaginationProps): ReactElement {
         />
       )}
 
-      <Button size="sm" variant="default" text={props.currentPage.toString()} />
+      {/* Current page button */}
+      <Button size="sm" isActive={true} variant="default" text={props.currentPage.toString()} />
+
+      {/* Next page button (if we're not at the end) */}
       {props.currentPage <= totalPages - 2 && (
         <Button
           size="sm"
@@ -44,7 +53,13 @@ function Pagination(props: PaginationProps): ReactElement {
           onClick={() => props.setCurrentPage(props.currentPage + 1)}
         />
       )}
-      {props.currentPage <= totalPages - 2 && '...'}
+      {/* More pages indicator */}
+      {props.currentPage <= totalPages - 2 && (
+        <Text px={1} fontSize="md">
+          ...
+        </Text>
+      )}
+      {/* Last page button */}
       {props.currentPage != totalPages && (
         <Button
           size="sm"
@@ -55,6 +70,7 @@ function Pagination(props: PaginationProps): ReactElement {
           }}
         />
       )}
+      {/* End button */}
       <Button
         size="sm"
         variant="default"

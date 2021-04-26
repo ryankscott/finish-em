@@ -10,6 +10,9 @@ const Button = {
     _hover: {
       bg: 'gray.100',
     },
+    _active: {
+      bg: 'gray.100',
+    },
   },
   variants: {
     default: {
