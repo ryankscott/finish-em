@@ -1,6 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { Flex, Grid, GridItem, Text } from '@chakra-ui/react'
 import { useTheme } from '@chakra-ui/system'
+import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react'
 import { parseISO } from 'date-fns'
 import { Emoji, Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
@@ -17,7 +18,6 @@ import EditableText from './EditableText'
 import EditableText2 from './EditableText2'
 import FilteredItemList from './FilteredItemList'
 import { Page } from './Page'
-import { Title } from './Typography'
 
 const GET_AREA_BY_KEY = gql`
   query AreaByKey($key: String!) {
@@ -141,14 +141,14 @@ const Area = (props: AreaProps): ReactElement => {
       >
         <GridItem colStart={2} colSpan={1}>
           <Flex alignItems={'flex-start'}>
-            <EditableText
-              shouldSubmitOnBlur={true}
-              key={area.key + 'name'}
-              input={area.name}
-              style={Title}
-              singleline={true}
-              innerRef={name}
-              onUpdate={(input) => {
+            <Editable
+              defaultValue={area.name}
+              fontSize="3xl"
+              mx={2}
+              w={'100%'}
+              color="blue.500"
+              fontWeight="light"
+              onChange={(input) => {
                 const exists = areas.map((a) => a.name == input).includes(true)
                 if (exists) {
                   toast.error('Cannot rename area, an area with that name already exists')
@@ -156,8 +156,11 @@ const Area = (props: AreaProps): ReactElement => {
                   renameArea({ variables: { key: area.key, name: input } })
                 }
               }}
-              shouldClearOnSubmit={false}
-            />
+            >
+              <EditablePreview />
+              <EditableInput />
+            </Editable>
+
             <DeleteAreaDialog
               onDelete={() => {
                 deleteArea({ variables: { key: area.key } })

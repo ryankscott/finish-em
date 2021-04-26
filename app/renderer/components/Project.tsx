@@ -1,5 +1,16 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { Box, Flex, Grid, GridItem, Text, useTheme, Tooltip } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Grid,
+  GridItem,
+  Text,
+  useTheme,
+  Tooltip,
+  Editable,
+  EditableInput,
+  EditablePreview,
+} from '@chakra-ui/react'
 import { parseISO } from 'date-fns'
 import { Emoji, Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
@@ -16,7 +27,6 @@ import EditableText2 from './EditableText2'
 import ItemCreator from './ItemCreator'
 import { Page } from './Page'
 import './styled/ReactDatePicker.css'
-import { Title } from './Typography'
 
 const GET_PROJECT_BY_KEY = gql`
   query ProjectByKey($key: String!) {
@@ -178,25 +188,25 @@ const Project = (props: ProjectProps): ReactElement => {
         </GridItem>
         <GridItem rowStart={1} colStart={2} colSpan={1}>
           <Flex w={'100%'} justifyContent={'flex-start'} alignItems={'flex-start'}>
-            <Box w={'100%'} px={2}>
-              <EditableText
-                shouldSubmitOnBlur={true}
-                key={project.key + 'name'}
-                input={project.name}
-                style={Title}
-                singleline={true}
-                innerRef={name}
-                onUpdate={(input) => {
-                  const exists = projects.map((p) => p.name == input).includes(true)
-                  if (exists) {
-                    toast.error('Cannot rename project, a project with that name already exists')
-                  } else {
-                    renameProject({ variables: { key: project.key, name: input } })
-                  }
-                }}
-                shouldClearOnSubmit={false}
-              />
-            </Box>
+            <Editable
+              defaultValue={project.name}
+              fontSize="3xl"
+              mx={2}
+              w={'100%'}
+              color="blue.500"
+              fontWeight="light"
+              onChange={(input) => {
+                const exists = projects.map((p) => p.name == input).includes(true)
+                if (exists) {
+                  toast.error('Cannot rename project, a project with that name already exists')
+                } else {
+                  renameProject({ variables: { key: project.key, name: input } })
+                }
+              }}
+            >
+              <EditablePreview />
+              <EditableInput />
+            </Editable>
             <DeleteProjectDialog
               onDelete={() => {
                 deleteProject({ variables: { key: project.key } })

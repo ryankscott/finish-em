@@ -1,5 +1,13 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { Box, Flex, useTheme, Switch } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  useTheme,
+  Switch,
+  Editable,
+  EditableInput,
+  EditablePreview,
+} from '@chakra-ui/react'
 import React, { ReactElement, useEffect, useRef, useState } from 'react'
 import Select from './Select'
 import { ItemIcons } from '../interfaces/item'
@@ -132,20 +140,19 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
       <Flex direction={'row'} {...settingStyles}>
         <Flex {...settingLabelStyles}>Name:</Flex>
         <Flex direction={'column'} {...settingValueStyles}>
-          <EditableText
-            innerRef={nameRef}
-            key={'ed-name'}
-            input={listName}
-            fontSize={'xsmall'}
-            shouldSubmitOnBlur={true}
-            onEscape={() => {}}
-            singleline={true}
-            shouldClearOnSubmit={false}
-            onUpdate={(input) => {
+          <Editable
+            value={listName}
+            color="gray.800"
+            fontSize="md"
+            w={'100%'}
+            onChange={(input) => {
               setListName(input)
               return true
             }}
-          />
+          >
+            <EditablePreview />
+            <EditableInput />
+          </Editable>
         </Flex>
       </Flex>
       <Flex direction={'row'} {...settingStyles}>
@@ -241,7 +248,6 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
               })}
               isMulti={true}
               onChange={(values: { value: string; label: string }[]) => {
-                console.log(values)
                 const hiddenIcons = values.map((v) => v.value)
                 setHiddenIcons(hiddenIcons)
               }}

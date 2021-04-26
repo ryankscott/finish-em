@@ -11,6 +11,7 @@ import space from './foundations/space'
 import Button from './components/button'
 import Menu from './components/menu'
 import Tooltip from './components/tooltip'
+import Editable from './components/editable'
 
 const theme = extendTheme({
   ...typography,
@@ -22,6 +23,7 @@ const theme = extendTheme({
     Button,
     Menu,
     Tooltip,
+    Editable,
     // Other components go here
   },
 })

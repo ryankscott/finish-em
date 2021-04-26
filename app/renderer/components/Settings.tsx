@@ -3,14 +3,22 @@ import { transparentize } from 'polished'
 import React, { ReactElement, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
-import EditableText from './EditableText'
 import colormap from 'colormap'
 import { camelCaseToInitialCaps } from '../utils'
 import { themeVar } from '..'
 import { Label } from '../../main/generated/typescript-helpers'
 import { HexColorPicker } from 'react-colorful'
 import { debounce } from 'lodash'
-import { Box, Flex, Text, useTheme, Switch } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Text,
+  useTheme,
+  Switch,
+  Editable,
+  EditableInput,
+  EditablePreview,
+} from '@chakra-ui/react'
 import Select from './Select'
 const NUMBER_OF_COLOURS = 12
 
@@ -317,20 +325,26 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     key={'lc-' + m.key}
                   >
                     <Box w={'100%'} mr={1}>
-                      <EditableText
-                        key={'et-' + m.key}
-                        input={m.name}
-                        backgroundColour={transparentize(0.4, m.colour)}
-                        fontSize={'xxsmall'}
-                        innerRef={React.createRef()}
-                        shouldSubmitOnBlur={true}
-                        onEscape={() => {}}
-                        singleline={true}
-                        shouldClearOnSubmit={false}
-                        onUpdate={(e) => {
-                          renameLabel({ variables: { key: m.key, name: e } })
+                      <Editable
+                        borderRadius={5}
+                        value={m.name}
+                        bg={transparentize(0.7, m.colour)}
+                        color="gray.800"
+                        fontSize="xs"
+                        w={'100%'}
+                        onChange={(input) => {
+                          renameLabel({ variables: { key: m.key, name: input } })
                         }}
-                      />
+                        submitOnBlur={false}
+                      >
+                        <EditablePreview
+                          bg={transparentize(0.7, m.colour)}
+                          _hover={{
+                            bg: transparentize(0.9, m.colour),
+                          }}
+                        />
+                        <EditableInput />
+                      </Editable>
                     </Box>
                     <Button
                       id={`${m.key}-edit`}
