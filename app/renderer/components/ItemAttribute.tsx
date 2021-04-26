@@ -16,7 +16,7 @@ const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
   const iconSize = props.compact ? 12 : 14
   return (
     <>
-      <Tooltip openDelay={500} arrowSize={5} label={props.tooltipText}>
+      <Tooltip openDelay={500} arrowSize={5} hasArrow={true} label={props.tooltipText}>
         <Flex
           direction="row"
           alignItems="center"
