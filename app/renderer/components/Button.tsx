@@ -19,15 +19,17 @@ type ButtonProps = {
   disabled?: boolean
   visible?: boolean
   fullWidth?: boolean
+  isActive?: boolean
 }
 const Button = (props: ButtonProps): ReactElement => {
   const id = uuidv4()
 
   return (
-    <Tooltip arrowSize={5} openDelay={500} label={props.tooltipText}>
+    <Tooltip arrowSize={5} hasArrow={true} openDelay={500} label={props.tooltipText}>
       {!props.text ? (
         <IconButton
           aria-label={props.icon}
+          isActive={props.isActive}
           variant={props.variant}
           isDisabled={props.disabled}
           color={'gray.700'}
@@ -39,6 +41,7 @@ const Button = (props: ButtonProps): ReactElement => {
         />
       ) : (
         <CButton
+          isActive={props.isActive}
           transition="all 0.2s"
           variant={props.variant}
           visible={props.visible?.toString()}

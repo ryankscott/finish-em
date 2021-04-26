@@ -104,6 +104,9 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
           if (!destination) {
             return
           }
+          // Do nothing if it was a drop to the same place
+          if (destination.index == source.index) return
+
           const componentAtDestination = sortedComponents[destination.index]
           const componentAtSource = sortedComponents[source.index]
 

@@ -23,35 +23,22 @@ const SidebarItem = (props: {
   const id = uuidv4()
   if (props.sidebarVisible) {
     return (
-      <>
-        <Tooltip key={uuidv4()} label={props.text} arrowSize={5} openDelay={500}>
-          <Flex
-            key={uuidv4()}
-            m={0}
-            px={2}
-            py={0}
-            data-tip
-            data-for={id}
-            justifyContent="flex-start"
-            alignItems={'center'}
-          >
-            {props.iconName && Icons[props.iconName](16, 16)}
-            <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
-              {props.text}
-            </Text>
-          </Flex>
-        </Tooltip>
-      </>
+      <Tooltip key={uuidv4()} label={props.text} arrowSize={5} hasArrow={true} openDelay={500}>
+        <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="flex-start" alignItems={'center'}>
+          {props.iconName && Icons[props.iconName](16, 16)}
+          <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
+            {props.text}
+          </Text>
+        </Flex>
+      </Tooltip>
     )
   }
   return (
-    <>
-      <Tooltip key={uuidv4()} label={props.text} arrowSize={5} openDelay={500}>
-        <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="center">
-          {Icons[props.iconName](20, 20)}
-        </Flex>
-      </Tooltip>
-    </>
+    <Tooltip key={uuidv4()} label={props.text} arrowSize={5} hasArrow={true} openDelay={500}>
+      <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="center">
+        {Icons[props.iconName](20, 20)}
+      </Flex>
+    </Tooltip>
   )
 }
 
@@ -299,6 +286,10 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                 if (!destination) {
                   return
                 }
+
+                // Do nothing if it was a drop to the same place
+                if (destination.index == source.index) return
+
                 // Project Order is harder as the index is based on the area
                 const projectAtDestination = sortedProjects[destination.index]
                 const projectAtSource = sortedProjects[source.index]
@@ -376,29 +367,41 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                               px={0}
                               alignItems={'center'}
                             >
-                              <StyledLink
-                                activeStyle={{
-                                  backgroundColor: theme.colors.gray[900],
-                                }}
-                                {...linkStyles}
-                                textAlign={'center'}
-                                to={`/areas/${a.key}`}
+                              <Tooltip
+                                key={uuidv4()}
+                                label={a.name}
+                                arrowSize={5}
+                                hasArrow={true}
+                                openDelay={500}
                               >
-                                {data.sidebarVisible ? (
-                                  <Flex p={0} alignItems="baseline">
-                                    <Emoji emoji={a.emoji ? a.emoji : ''} size={14} native={true} />
-                                    <Text pl={1} fontSize="md" color={'gray.100'}>
-                                      {a.name}
+                                <StyledLink
+                                  activeStyle={{
+                                    backgroundColor: theme.colors.gray[900],
+                                  }}
+                                  {...linkStyles}
+                                  textAlign={'center'}
+                                  to={`/areas/${a.key}`}
+                                >
+                                  {data.sidebarVisible ? (
+                                    <Flex p={0} alignItems="baseline">
+                                      <Emoji
+                                        emoji={a.emoji ? a.emoji : ''}
+                                        size={14}
+                                        native={true}
+                                      />
+                                      <Text pl={1} fontSize="md" color={'gray.100'}>
+                                        {a.name}
+                                      </Text>
+                                    </Flex>
+                                  ) : a.emoji ? (
+                                    <Emoji emoji={a.emoji ? a.emoji : ''} size={16} native={true} />
+                                  ) : (
+                                    <Text fontSize="md" color={'gray.100'}>
+                                      {createShortSidebarItem(a.name)}
                                     </Text>
-                                  </Flex>
-                                ) : a.emoji ? (
-                                  <Emoji emoji={a.emoji ? a.emoji : ''} size={16} native={true} />
-                                ) : (
-                                  <Text fontSize="md" color={'gray.100'}>
-                                    {createShortSidebarItem(a.name)}
-                                  </Text>
-                                )}
-                              </StyledLink>
+                                  )}
+                                </StyledLink>
+                              </Tooltip>
                               {data.sidebarVisible && (
                                 <Button
                                   size="md"
@@ -450,40 +453,48 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                             snapshot={snapshot}
                                             provided={provided}
                                           >
-                                            <StyledLink
-                                              activeStyle={{
-                                                backgroundColor: theme.colors.gray[900],
-                                              }}
-                                              {...linkStyles}
-                                              to={pathName}
+                                            <Tooltip
+                                              key={uuidv4()}
+                                              label={p.name}
+                                              arrowSize={5}
+                                              hasArrow={true}
+                                              openDelay={500}
                                             >
-                                              {data.sidebarVisible ? (
-                                                <Flex alignItems="baseline">
+                                              <StyledLink
+                                                activeStyle={{
+                                                  backgroundColor: theme.colors.gray[900],
+                                                }}
+                                                {...linkStyles}
+                                                to={pathName}
+                                              >
+                                                {data.sidebarVisible ? (
+                                                  <Flex alignItems="baseline">
+                                                    <Emoji
+                                                      emoji={p.emoji ? p.emoji : ''}
+                                                      size={14}
+                                                      native={true}
+                                                    />
+                                                    <Text fontSize="md" color={'gray.100'} pl={1}>
+                                                      {p.name}
+                                                    </Text>
+                                                  </Flex>
+                                                ) : p.emoji ? (
                                                   <Emoji
                                                     emoji={p.emoji ? p.emoji : ''}
-                                                    size={14}
+                                                    size={16}
                                                     native={true}
                                                   />
-                                                  <Text fontSize="md" color={'gray.100'} pl={1}>
-                                                    {p.name}
+                                                ) : (
+                                                  <Text
+                                                    textAlign={'center'}
+                                                    fontSize="md"
+                                                    color={'gray.100'}
+                                                  >
+                                                    {createShortSidebarItem(p.name)}
                                                   </Text>
-                                                </Flex>
-                                              ) : p.emoji ? (
-                                                <Emoji
-                                                  emoji={p.emoji ? p.emoji : ''}
-                                                  size={16}
-                                                  native={true}
-                                                />
-                                              ) : (
-                                                <Text
-                                                  textAlign={'center'}
-                                                  fontSize="md"
-                                                  color={'gray.100'}
-                                                >
-                                                  {createShortSidebarItem(p.name)}
-                                                </Text>
-                                              )}
-                                            </StyledLink>
+                                                )}
+                                              </StyledLink>
+                                            </Tooltip>
                                           </SidebarDraggableItem>
                                         )}
                                       </Draggable>

@@ -34,7 +34,7 @@ const Inbox = (): ReactElement => {
               { conditionType: 'AND', category: 'completed', operator: '=', value: 'false' },
             ],
           })}
-          flattenSubtasks={true}
+          flattenSubtasks={false}
           readOnly={true}
           hiddenIcons={[ItemIcons.Project]}
         />

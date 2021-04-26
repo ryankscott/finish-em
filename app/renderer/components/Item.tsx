@@ -3,10 +3,11 @@ import React, { ReactElement, useEffect, useState } from 'react'
 import { RRule } from 'rrule'
 import { Icons } from '../assets/icons'
 import { ItemIcons } from '../interfaces'
-import { cloneDeep, get } from 'lodash'
+import { cloneDeep, get, isEmpty, set } from 'lodash'
 import {
   capitaliseFirstLetter,
   formatRelativeDate,
+  HTMLToPlainText,
   removeItemTypeFromString,
   rruleToText,
   truncateString,
@@ -28,7 +29,7 @@ type ItemProps = {
   componentKey: string
   hiddenIcons: ItemIcons[]
   shouldIndent: boolean
-  alwaysVisible?: boolean
+  hideCollapseIcon?: boolean
 }
 
 const GET_DATA = gql`
@@ -70,15 +71,6 @@ const GET_DATA = gql`
     }
     activeItem @client
     subtasksVisible @client
-  }
-`
-
-const RENAME_ITEM = gql`
-  mutation RenameItem($key: String!, $text: String!) {
-    renameItem(input: { key: $key, text: $text }) {
-      key
-      text
-    }
   }
 `
 
@@ -137,13 +129,13 @@ const CLONE_ITEM = gql`
 `
 
 function Item(props: ItemProps): ReactElement {
-  const [isDescriptionReadOnly, setIsDescriptionReadOnly] = useState(true)
   const [moreButtonVisible, setMoreButtonVisible] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [subtasksVisible, setSubtasksVisible] = useState(true)
   const [showLabelDialog, setShowLabelDialog] = useState(false)
   const [showReminderDialog, setShowReminderDialog] = useState(false)
   const [completeItem] = useMutation(COMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, { refetchQueries: ['itemsByFilter'] })
-  const [renameItem] = useMutation(RENAME_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [cloneItem] = useMutation(CLONE_ITEM, { refetchQueries: ['itemsByFilter'] })
   const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM, {
@@ -151,17 +143,45 @@ function Item(props: ItemProps): ReactElement {
   })
   const [restoreItem] = useMutation(RESTORE_ITEM, { refetchQueries: ['itemsByFilter'] })
 
-  let enterInterval, exitInterval
-  const editor = React.useRef<HTMLInputElement>()
-  useEffect(() => {
-    if (!isDescriptionReadOnly) {
-      editor.current.focus()
+  // Check if the item should be visible, based on a parent hiding subtasks
+  const determineItemVisiblility = (parentKey: string, componentKey: string): boolean => {
+    if (!parentKey || !componentKey || isEmpty(data.subtasksVisible)) return true
+    // If the item has a parent, then check if the parent is hidden
+    if (parentKey) {
+      const parentVisibility = data.subtasksVisible?.[parentKey]?.[componentKey]
+      // If the parent doesn't have visibility then set it to true
+      if (parentVisibility == undefined) {
+        set(data.subtasksVisible, `[${parentKey}][${componentKey}]`, true)
+        return true
+      } else if (parentVisibility == false) {
+        // If the parent visibility is false, all subtasks should be hidden
+        return false
+      }
     }
-  }, [isDescriptionReadOnly])
+    return true
+  }
+  // Determine if any subtasks of the item should be visible
+  const determineSubtasksVisibility = (itemKey: string, componentKey: string): boolean => {
+    if (!itemKey || !componentKey || isEmpty(data.subtasksVisible)) return true
 
+    const subtaskVisibility = data?.subtasksVisible?.[itemKey]?.[componentKey]
+    if (subtaskVisibility == undefined) {
+      // Default to visible
+      set(data.subtasksVisible, `[${itemKey}][${componentKey}]`, true)
+      return true
+    }
+    return subtaskVisibility
+  }
+
+  let enterInterval, exitInterval
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: { key: props.itemKey ? props.itemKey : null },
   })
+
+  useEffect(() => {
+    setIsVisible(determineItemVisiblility(data?.item?.parent?.key, props.componentKey))
+    setSubtasksVisible(determineSubtasksVisibility(data?.item?.key, props.componentKey))
+  }, [data, props.itemKey, props.componentKey])
 
   if (loading) return <LoadingItem />
 
@@ -252,25 +272,17 @@ function Item(props: ItemProps): ReactElement {
   const handleExpand = (e): void => {
     e.stopPropagation()
     let newState = cloneDeep(data.subtasksVisible)
-    const newValue = get(newState, `${item.key}.${props.componentKey}`, false)
+    const newValue = get(newState, `${item.key}.${props.componentKey}`, true)
     if (newState[item.key]) {
       newState[item.key][props.componentKey] = !newValue
     } else {
       newState[item.key] = {
-        [props.componentKey]: true,
+        [props.componentKey]: false,
       }
     }
     subtasksVisibleVar(newState)
     return
   }
-
-  // Check if the item should be visible, based on a parent hiding subtasks (default should be true)
-  const parentVisibility = data.subtasksVisible?.[item.parent?.key]?.[props.componentKey]
-  const isVisible = parentVisibility != undefined ? parentVisibility : true
-
-  // Check if the item's subtasks should be visible (default should be true)
-  const itemVisibility = data.subtasksVisible?.[item.key]?.[props.componentKey]
-  const subtasksVisible = itemVisibility != undefined ? itemVisibility : true
 
   const isFocused = data.activeItem.findIndex((i) => i == item.key) >= 0
   return (
@@ -344,11 +356,15 @@ function Item(props: ItemProps): ReactElement {
       tabIndex={0}
     >
       <GridItem colStart={props.compact ? 1 : 3} colSpan={props.compact ? 7 : 3}>
-        <Tooltip openDelay={500} arrowSize={5} label={item.text}>
+        <Tooltip
+          openDelay={500}
+          arrowSize={5}
+          hasArrow={true}
+          placement={'bottom-start'}
+          label={HTMLToPlainText(item.text)}
+        >
           <Text
             id="body"
-            data-tip
-            data-for={'item-name-' + item.key}
             mx={0}
             my={2}
             fontSize="md"
@@ -374,7 +390,7 @@ function Item(props: ItemProps): ReactElement {
       <GridItem colStart={props.compact ? 8 : 6} colSpan={1}>
         {(!props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null) && (
           <Flex justifyContent={'flex-end'}>
-            <Tooltip openDelay={500} arrowSize={5} label={item.project?.name}>
+            <Tooltip openDelay={500} arrowSize={5} hasArrow={true} label={item.project?.name}>
               <Tag size={props.compact ? 'sm' : 'md'} color={'white'} bg={'blue.500'}>
                 <TagLabel>
                   {props.compact ? truncateString(item.project?.name, 8) : item.project?.name}
@@ -386,7 +402,7 @@ function Item(props: ItemProps): ReactElement {
       </GridItem>
       {props.compact != true && (
         <>
-          {item.children?.length > 0 && (
+          {item.children?.length > 0 && !props.hideCollapseIcon && (
             <GridItem rowStart={1} colStart={1} colSpan={1}>
               <Button
                 variant="default"
@@ -453,13 +469,7 @@ function Item(props: ItemProps): ReactElement {
             )}
           </GridItem>
 
-          <GridItem
-            rowStart={2}
-            colStart={4}
-            colSpan={1}
-            data-tip
-            data-for={'scheduled-date-' + item.key}
-          >
+          <GridItem rowStart={2} colStart={4} colSpan={1}>
             {item.scheduledAt != null && !props.hiddenIcons?.includes(ItemIcons.Scheduled) && (
               <ItemAttribute
                 compact={props.compact}
@@ -470,11 +480,12 @@ function Item(props: ItemProps): ReactElement {
               />
             )}
           </GridItem>
-          <GridItem colStart={7} colSpan={1} data-tip data-for={'reminder-' + item.key}>
+          <GridItem colStart={7} colSpan={1}>
             {item.reminders.filter((r) => r.deleted == false).length > 0 && (
               <Tooltip
                 openDelay={500}
                 arrowSize={5}
+                hasArrow={true}
                 label={`Reminder at: ${format(
                   parseISO(item?.reminders?.[0]?.remindAt),
                   'h:mm aaaa EEEE',
@@ -486,13 +497,7 @@ function Item(props: ItemProps): ReactElement {
           </GridItem>
         </>
       )}
-      <GridItem
-        rowStart={2}
-        colStart={props.compact ? 1 : 5}
-        colSpan={props.compact ? 4 : 1}
-        data-tip
-        data-for={'due-date-' + item.key}
-      >
+      <GridItem rowStart={2} colStart={props.compact ? 1 : 5} colSpan={props.compact ? 4 : 1}>
         {item.dueAt != null && !props.hiddenIcons?.includes(ItemIcons.Due) && (
           <ItemAttribute
             compact={props.compact}
@@ -503,13 +508,7 @@ function Item(props: ItemProps): ReactElement {
           />
         )}
       </GridItem>
-      <GridItem
-        rowStart={2}
-        colStart={props.compact ? 5 : 6}
-        colSpan={props.compact ? 4 : 1}
-        data-tip
-        data-for={'repeat-' + item.key}
-      >
+      <GridItem rowStart={2} colStart={props.compact ? 5 : 6} colSpan={props.compact ? 4 : 1}>
         {item.repeat && !props.hiddenIcons?.includes(ItemIcons.Repeat) && (
           <ItemAttribute
             compact={props.compact}
