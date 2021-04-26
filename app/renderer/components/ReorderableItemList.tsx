@@ -135,9 +135,10 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   }, [props.sortDirection, props.sortType])
 
   useEffect(() => {
+    if (!sortedItems.length) return
+    let newState = cloneDeep(data?.subtasksVisible)
     sortedItems.forEach((a) => {
       if (a.children.length > 0) {
-        let newState = cloneDeep(data?.subtasksVisible)
         if (newState[a.key]) {
           newState[a.key][props.componentKey] = props.expandSubtasks
         } else {
@@ -145,9 +146,9 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
             [props.componentKey]: props.expandSubtasks,
           }
         }
-        subtasksVisibleVar(newState)
       }
     })
+    subtasksVisibleVar(newState)
   }, [props.expandSubtasks])
 
   const reorderItems = (result: DropResult): void => {
