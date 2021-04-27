@@ -11,7 +11,7 @@ import ItemCreator from './ItemCreator'
 import { Spinner } from './Spinner'
 import ViewHeader from './ViewHeader'
 import { transparentize } from 'polished'
-import { useTraceUpdate } from '../utils'
+import { Component } from '../../main/generated/typescript-helpers'
 
 const GET_COMPONENTS_BY_VIEW = gql`
   query ComponentsByView($viewKey: String!) {
@@ -59,7 +59,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
   })
   const [addComponent] = useMutation(ADD_COMPONENT)
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER)
-  const [sortedComponents, setSortedComponents] = useState([])
+  const [sortedComponents, setSortedComponents] = useState<Component[] | []>([])
 
   useEffect(() => {
     if (loading === false && data) {
@@ -118,7 +118,10 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
 
           // Async update
           setComponentOrder({
-            variables: { componentKey: draggableId, sortOrder: destination.index },
+            variables: {
+              componentKey: draggableId,
+              sortOrder: componentAtDestination.sortOrder.sortOrder,
+            },
           })
         }}
         style={{ width: '100%' }}
