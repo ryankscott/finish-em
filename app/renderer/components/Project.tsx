@@ -22,7 +22,6 @@ import { Item as ItemType, Project as ProjectType } from '../../main/generated/t
 import { formatRelativeDate } from '../utils'
 import DeleteProjectDialog from './DeleteProjectDialog'
 import { Donut } from './Donut'
-import EditableText from './EditableText'
 import EditableText2 from './EditableText2'
 import ItemCreator from './ItemCreator'
 import './styled/ReactDatePicker.css'
@@ -192,7 +191,7 @@ const Project = (props: ProjectProps): ReactElement => {
               w={'100%'}
               color="blue.500"
               fontWeight="light"
-              onChange={(input) => {
+              onSubmit={(input) => {
                 const exists = projects.map((p) => p.name == input).includes(true)
                 if (exists) {
                   toast.error('Cannot rename project, a project with that name already exists')
@@ -268,31 +267,17 @@ const Project = (props: ProjectProps): ReactElement => {
           </Box>
         </Flex>
       )}
-      {data.newEditor.enabled ? (
-        <EditableText2
-          singleLine={false}
-          placeholder="Add a description for your project..."
-          shouldClearOnSubmit={false}
-          hideToolbar={false}
-          shouldSubmitOnBlur={true}
-          onUpdate={(input) => {
-            changeDescription({ variables: { key: project.key, description: input } })
-          }}
-        />
-      ) : (
-        <EditableText
-          placeholder="Add a description for your project..."
-          shouldSubmitOnBlur={true}
-          key={project.key + 'description'}
-          onUpdate={(input) => {
-            changeDescription({ variables: { key: project.key, description: input } })
-          }}
-          innerRef={description}
-          input={project.description}
-          height="100px"
-          shouldClearOnSubmit={false}
-        />
-      )}
+      <EditableText2
+        singleLine={false}
+        placeholder="Add a description for your project..."
+        shouldClearOnSubmit={false}
+        hideToolbar={false}
+        shouldSubmitOnBlur={true}
+        onUpdate={(input) => {
+          changeDescription({ variables: { key: project.key, description: input } })
+        }}
+      />
+
       <Flex direction={'column'} justifyContent={'flex-end'} py={2} px={0} w={'100%'}>
         <ItemCreator
           projectKey={project.key}

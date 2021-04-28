@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid'
 import { WeeklyGoal } from '../../main/generated/typescript-helpers'
 import { ItemIcons } from '../interfaces'
 import Button from './Button'
-import EditableText from './EditableText'
 import EditableText2 from './EditableText2'
 import ItemList from './ItemList'
 import ReorderableComponentList from './ReorderableComponentList'
@@ -147,48 +146,25 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
         <Text fontSize="lg" mb={3}>
           Weekly goals
         </Text>
-        {data.newEditor.enabled ? (
-          <EditableText2
-            key={weeklyGoal.key}
-            singleLine={false}
-            input={weeklyGoal.goal}
-            placeholder="Add a weekly goal..."
-            shouldSubmitOnBlur={true}
-            shouldClearOnSubmit={false}
-            hideToolbar={false}
-            height="120px"
-            onUpdate={(input) => {
-              createWeeklyGoal({
-                variables: {
-                  key: weeklyGoal?.key,
-                  week: weeklyGoal.week,
-                  goal: input,
-                },
-              })
-            }}
-          />
-        ) : (
-          <EditableText
-            input={weeklyGoal.goal}
-            width={'100%'}
-            height={'120px'}
-            style={Paragraph}
-            singleline={false}
-            placeholder="Add a weekly goal"
-            onUpdate={(input) =>
-              createWeeklyGoal({
-                variables: {
-                  key: weeklyGoal?.key,
-                  week: weeklyGoal.week,
-                  goal: input,
-                },
-              })
-            }
-            shouldSubmitOnBlur={true}
-            shouldClearOnSubmit={false}
-            innerRef={goalRef}
-          />
-        )}
+        <EditableText2
+          key={weeklyGoal.key}
+          singleLine={false}
+          input={weeklyGoal.goal}
+          placeholder="Add a weekly goal..."
+          shouldSubmitOnBlur={true}
+          shouldClearOnSubmit={false}
+          hideToolbar={false}
+          height="120px"
+          onUpdate={(input) => {
+            createWeeklyGoal({
+              variables: {
+                key: weeklyGoal?.key,
+                week: weeklyGoal.week,
+                goal: input,
+              },
+            })
+          }}
+        />
       </Flex>
       <Grid templateColumns={'repeat(5, minmax(0, 1fr))'} m={0} mx={3} p={0} w={'100%'}>
         {Array.from({ length: 5 }, (val, idx) => {

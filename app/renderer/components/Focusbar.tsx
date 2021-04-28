@@ -12,12 +12,10 @@ import { formatRelativeDate, removeItemTypeFromString } from '../utils'
 import AttributeSelect from './AttributeSelect'
 import Button from './Button'
 import DatePicker from './DatePicker'
-import EditableText from './EditableText'
 import EditableText2 from './EditableText2'
 import Item from './Item'
 import ItemCreator from './ItemCreator'
 import RepeatPicker from './RepeatPicker'
-import { Header1 } from './Typography'
 
 const GET_ACTIVE_ITEM = gql`
   query {
@@ -321,34 +319,19 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           icon={item.type == 'NOTE' ? 'note' : item.completed ? 'todoChecked' : 'todoUnchecked'}
         />
         <Box w={'100%'} textDecoration={item.completed ? 'line-through' : 'inherit'}>
-          {data.newEditor.enabled ? (
-            <EditableText2
-              key={item.key}
-              height={'45px'}
-              width={'260px'}
-              input={item.text}
-              singleLine={true}
-              shouldClearOnSubmit={false}
-              shouldSubmitOnBlur={true}
-              hideToolbar={false}
-              onUpdate={(text) => {
-                renameItem({ variables: { key: item.key, text: text } })
-              }}
-            />
-          ) : (
-            <EditableText
-              key={item.key}
-              innerRef={ref}
-              style={Header1}
-              input={removeItemTypeFromString(item.text)}
-              singleline={true}
-              onUpdate={(text) => {
-                renameItem({ variables: { key: item.key, text: text } })
-              }}
-              shouldSubmitOnBlur={true}
-              shouldClearOnSubmit={false}
-            />
-          )}
+          <EditableText2
+            key={item.key}
+            height={'45px'}
+            width={'260px'}
+            input={item.text}
+            singleLine={true}
+            shouldClearOnSubmit={false}
+            shouldSubmitOnBlur={true}
+            hideToolbar={false}
+            onUpdate={(text) => {
+              renameItem({ variables: { key: item.key, text: text } })
+            }}
+          />
         </Box>
         {item.deleted ? (
           <Button

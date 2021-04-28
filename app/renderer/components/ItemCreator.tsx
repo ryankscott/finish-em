@@ -1,7 +1,6 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
-import EditableText from './EditableText'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import EditItemCreator from './EditItemCreator'
 import EditableText2 from './EditableText2'
@@ -169,73 +168,30 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
             transition={'width 0.2s ease-in-out'}
             data-cy="item-creator"
           >
-            {data.newEditor.enabled ? (
-              <EditableText2
-                singleLine={true}
-                onEscape={props.onEscape}
-                placeholder={'Add an item'}
-                shouldClearOnSubmit={true}
-                hideToolbar={false}
-                shouldSubmitOnBlur={false}
-                showBorder={true}
-                onUpdate={(text) => {
-                  createItem({
-                    variables: {
-                      key: uuidv4(),
-                      type: 'TODO',
-                      text: text,
-                      projectKey: props.projectKey,
-                      parentKey: props.parentKey,
-                      dueAt: props.dueAt,
-                      scheduledAt: props.scheduledAt,
-                      repeat: props.repeat,
-                      labelKey: props.labelKey,
-                    },
-                  })
-                }}
-              />
-            ) : (
-              <EditableText
-                backgroundColour={props.backgroundColour}
-                alwaysShowBorder={true}
-                innerRef={textRef}
-                padding={'5px 30px 5px 5px'}
-                placeholder="Add a new task..."
-                onUpdate={(text) => {
-                  createItem({
-                    variables: {
-                      key: uuidv4(),
-                      type: 'TODO',
-                      text: text,
-                      projectKey: props.projectKey,
-                      parentKey: props.parentKey,
-                      dueAt: props.dueAt,
-                      scheduledAt: props.scheduledAt,
-                      repeat: props.repeat,
-                      labelKey: props.labelKey,
-                    },
-                  })
-                  if (props.onCreate) {
-                    props.onCreate()
-                  }
-                  textRef.current.innerHTML = ''
-                  if (props.shouldCloseOnSubmit) {
-                    setShowItemCreator(false)
-                  } else {
-                    // Have to wait for blur to finish before focussing
-                    setTimeout(() => {
-                      textRef.current.focus()
-                    }, 200)
-                  }
-                }}
-                readOnly={false}
-                input=""
-                singleline={true}
-                shouldClearOnSubmit={true}
-                shouldSubmitOnBlur={false}
-                onEscape={props.onEscape}
-              />
-            )}
+            <EditableText2
+              singleLine={true}
+              onEscape={props.onEscape}
+              placeholder={'Add an item'}
+              shouldClearOnSubmit={true}
+              hideToolbar={false}
+              shouldSubmitOnBlur={false}
+              showBorder={true}
+              onUpdate={(text) => {
+                createItem({
+                  variables: {
+                    key: uuidv4(),
+                    type: 'TODO',
+                    text: text,
+                    projectKey: props.projectKey,
+                    parentKey: props.parentKey,
+                    dueAt: props.dueAt,
+                    scheduledAt: props.scheduledAt,
+                    repeat: props.repeat,
+                    labelKey: props.labelKey,
+                  },
+                })
+              }}
+            />
           </Flex>
         </Flex>
       )}

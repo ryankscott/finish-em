@@ -1141,4 +1141,88 @@ export const Icons: {
       </defs>
     </svg>
   ),
+  notes: (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+  ): React.SVGProps<SVGSVGElement> => (
+<svg
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 28 32"
+      width={width ? width : '16'}
+      height={height ? height : '16'}
+    >
+    <g filter="url(#filter0_d)">
+        <path d="M9 16.7768H19V19.1735H9V16.7768Z" fill="url(#paint0_linear)" />
+        <path d="M9 11.9835H19V14.3801H9V11.9835Z" fill="url(#paint1_linear)" />
+        <path fillRule="evenodd" clipRule="evenodd"
+            d="M16.5 0H6.5C5.125 0 4 1.07851 4 2.39669V21.5702C4 22.8884 5.1125 23.9669 6.4875 23.9669H21.5C22.875 23.9669 24 22.8884 24 21.5702V7.19007L16.5 0ZM21.5 21.5702H6.5V2.39669H15.25V8.38842H21.5V21.5702Z"
+            fill="url(#paint2_linear)" />
+    </g>
+    <defs>
+        <filter id="filter0_d" x="0" y="0" width="28" height="31.9669" filterUnits="userSpaceOnUse"
+            colorInterpolationFilters="sRGB">
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
+            <feOffset dy="4" />
+            <feGaussianBlur stdDeviation="2" />
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
+        </filter>
+        <linearGradient id="paint0_linear" x1="25.0075" y1="4.39617" x2="5.0326" y2="26.1273"
+            gradientUnits="userSpaceOnUse">
+            <stop stopColor="#4AAFE9" />
+            <stop offset="1" stopColor="#6720FF" />
+        </linearGradient>
+        <linearGradient id="paint1_linear" x1="25.0075" y1="4.39617" x2="5.0326" y2="26.1273"
+            gradientUnits="userSpaceOnUse">
+            <stop stopColor="#4AAFE9" />
+            <stop offset="1" stopColor="#6720FF" />
+        </linearGradient>
+        <linearGradient id="paint2_linear" x1="25.0075" y1="4.39617" x2="5.0326" y2="26.1273"
+            gradientUnits="userSpaceOnUse">
+            <stop stopColor="#4AAFE9" />
+            <stop offset="1" stopColor="#6720FF" />
+        </linearGradient>
+    </defs>
+</svg>
+  ),
+  todos:  (
+    width?: CSS.Property.Width,
+    height?: CSS.Property.Height,
+  ): React.SVGProps<SVGSVGElement> => (
+<svg
+      version="1.1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 35 32"
+      width={width ? width : '16'}
+      height={height ? height : '16'}
+    >
+
+    <g filter="url(#filter0_d)">
+        <path fillRule="evenodd" clipRule="evenodd"
+            d="M14.9104 23.1387C15.1225 23.0487 15.2953 22.8427 15.6409 22.4309L29.9103 5.42531C30.2559 5.01345 30.4287 4.80751 30.4805 4.58295C30.5261 4.38541 30.508 4.17851 30.4288 3.99189C30.3388 3.77974 30.1328 3.60694 29.721 3.26135L26.5431 0.594843C26.1313 0.249248 25.9253 0.0764509 25.7008 0.0246052C25.5032 -0.0209996 25.2963 -0.00289791 25.1097 0.0763158C24.8976 0.16637 24.7248 0.372302 24.3792 0.784167L13.7842 13.4108L9.42457 9.74615C9.01301 9.40019 8.80723 9.22721 8.58278 9.17523C8.38534 9.1295 8.17852 9.14751 7.99196 9.22666C7.77986 9.31664 7.60707 9.52257 7.26147 9.93444L4.59497 13.1123C4.24938 13.5241 4.07658 13.73 4.02467 13.9547C3.97902 14.1523 3.99704 14.3593 4.07615 14.546C4.16609 14.7583 4.37187 14.9313 4.78343 15.2772L9.72223 19.4288C9.8404 19.5688 10.0237 19.7226 10.2991 19.9537L10.2991 19.9537L13.4769 22.6202C13.8888 22.9658 14.0947 23.1386 14.3193 23.1904C14.5168 23.236 14.7238 23.2179 14.9104 23.1387Z"
+            fill="url(#paint0_linear)" />
+    </g>
+    <defs>
+        <filter id="filter0_d" x="0" y="0" width="34.5051" height="31.215" filterUnits="userSpaceOnUse"
+            colorInterpolationFilters="sRGB">
+            <feFlood floodOpacity="0" result="BackgroundImageFix" />
+            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" />
+            <feOffset dy="4" />
+            <feGaussianBlur stdDeviation="2" />
+            <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0" />
+            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow" />
+            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape" />
+        </filter>
+        <linearGradient id="paint0_linear" x1="28.3396" y1="1.28752" x2="11.0596" y2="20.4395"
+            gradientUnits="userSpaceOnUse">
+            <stop stopColor="#FF0000" />
+            <stop offset="1" stopColor="#6720FF" />
+        </linearGradient>
+    </defs>
+</svg>
+  ),
+
 }

@@ -2,11 +2,10 @@ import React, { ReactElement, useEffect, useRef, useState } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import Button from './Button'
 
-import EditableText from './EditableText'
 import Select from './Select'
 import { startCase } from 'lodash'
 import { Icons } from '../assets/icons'
-import { Box, Flex } from '@chakra-ui/react'
+import { Box, Flex, Editable, EditableInput, EditablePreview } from '@chakra-ui/react'
 
 const GET_COMPONENT_BY_KEY = gql`
   query ComponentByKey($key: String!) {
@@ -37,7 +36,7 @@ const generateIconOptions = (): { value: string; label: string | JSX.Element }[]
       value: i,
       label: (
         <Flex alignItems={'center'}>
-          <Flex pr{3} alignItems={'center'}>
+          <Flex pr={1} alignItems={'center'}>
             {Icons[i](12, 12)}
           </Flex>
           {startCase(i)}
@@ -139,19 +138,20 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
       <Flex direction={'row'} {...settingStyles}>
         <Flex {...settingLabelStyles}>Name:</Flex>
         <Flex direction={'column'} {...settingValueStyles}>
-          <EditableText
-            innerRef={nameRef}
-            key={'ed-name'}
-            input={headerName}
-            fontSize={'xsmall'}
-            shouldSubmitOnBlur={true}
-            onEscape={() => {}}
-            singleline={true}
-            shouldClearOnSubmit={false}
-            onUpdate={(input) => {
+          <Editable
+            width={'180px'}
+            value={headerName}
+            fontSize="md"
+            mx={2}
+            w={'100%'}
+            color="gray.700"
+            onSubmit={(input) => {
               setHeaderName(input)
             }}
-          />
+          >
+            <EditablePreview />
+            <EditableInput />
+          </Editable>
         </Flex>
       </Flex>
       <Flex direction={'row'} {...settingStyles}>

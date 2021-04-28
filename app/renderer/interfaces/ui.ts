@@ -133,3 +133,5 @@ export type IconType =
   | 'move'
   | 'refresh'
   | 'weekly'
+  | 'notes'
+  | 'todos'

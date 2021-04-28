@@ -332,7 +332,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                         color="gray.800"
                         fontSize="xs"
                         w={'100%'}
-                        onChange={(input) => {
+                        onSubmit={(input) => {
                           renameLabel({ variables: { key: m.key, name: input } })
                         }}
                         submitOnBlur={false}

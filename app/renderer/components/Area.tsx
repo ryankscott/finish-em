@@ -14,7 +14,6 @@ import { Area as AreaType, Project } from '../../main/generated/typescript-helpe
 import { formatRelativeDate } from '../utils'
 import DeleteAreaDialog from './DeleteAreaDialog'
 import { Donut } from './Donut'
-import EditableText from './EditableText'
 import EditableText2 from './EditableText2'
 import FilteredItemList from './FilteredItemList'
 import { Page } from './Page'
@@ -148,7 +147,7 @@ const Area = (props: AreaProps): ReactElement => {
               w={'100%'}
               color="blue.500"
               fontWeight="light"
-              onChange={(input) => {
+              onSubmit={(input) => {
                 const exists = areas.map((a) => a.name == input).includes(true)
                 if (exists) {
                   toast.error('Cannot rename area, an area with that name already exists')
@@ -204,31 +203,16 @@ const Area = (props: AreaProps): ReactElement => {
           />
         )}
       </Grid>
-      {data.newEditor.enabled ? (
-        <EditableText2
-          singleLine={false}
-          placeholder="Add a description for your ..."
-          shouldClearOnSubmit={false}
-          hideToolbar={false}
-          shouldSubmitOnBlur={true}
-          onUpdate={(input) => {
-            changeDescriptionArea({ variables: { key: area.key, description: input } })
-          }}
-        />
-      ) : (
-        <EditableText
-          placeholder="Add a description for your area..."
-          shouldSubmitOnBlur={true}
-          key={area.key + 'description'}
-          onUpdate={(input) => {
-            changeDescriptionArea({ variables: { key: area.key, description: input } })
-          }}
-          innerRef={description}
-          input={area.description}
-          height="150px"
-          shouldClearOnSubmit={false}
-        />
-      )}
+      <EditableText2
+        singleLine={false}
+        placeholder="Add a description for your ..."
+        shouldClearOnSubmit={false}
+        hideToolbar={false}
+        shouldSubmitOnBlur={true}
+        onUpdate={(input) => {
+          changeDescriptionArea({ variables: { key: area.key, description: input } })
+        }}
+      />
       <Text my={3} fontSize={'xl'} color="blue.500">
         Items
       </Text>

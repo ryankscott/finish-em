@@ -2,6 +2,7 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import {
   Box,
   Flex,
+  Text,
   useTheme,
   Switch,
   Editable,
@@ -12,10 +13,8 @@ import React, { ReactElement, useEffect, useRef, useState } from 'react'
 import Select from './Select'
 import { ItemIcons } from '../interfaces/item'
 import Button from './Button'
-import EditableText from './EditableText'
 import Expression from './filter-box/Expression'
 import ItemFilterBox from './ItemFilterBox'
-import { Code } from './Typography'
 
 const options: { value: string; label: string }[] = [
   { value: ItemIcons.Project, label: 'Project' },
@@ -145,7 +144,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             color="gray.800"
             fontSize="md"
             w={'100%'}
-            onChange={(input) => {
+            onSubmit={(input) => {
               setListName(input)
               return true
             }}
@@ -160,21 +159,19 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex overflowX={'scroll'} direction={'column'} w={'100%'} justifyContent={'space-between'}>
           {params.legacyFilter && (
             <Box my={2} mx={2}>
-              <EditableText
-                innerRef={filterRef}
-                key={'ed-name'}
-                input={params?.legacyFilter || ''}
-                fontSize={'xsmall'}
-                shouldSubmitOnBlur={true}
-                onEscape={() => {}}
-                readOnly={true}
-                style={Code}
-                plainText={true}
-                validation={(input) => true}
-                singleline={false}
-                shouldClearOnSubmit={false}
-                onUpdate={(input) => {}}
-              />
+              <Text
+                border="1px solid"
+                borderRadius={5}
+                bg={'gray.100'}
+                borderColor={'gray.200'}
+                p={1.5}
+                fontFamily={'mono'}
+                color="gray.800"
+                fontSize="sm"
+                w={'100%'}
+              >
+                {params.legacyFilter}
+              </Text>
             </Box>
           )}
           <ItemFilterBox
