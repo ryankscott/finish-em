@@ -500,7 +500,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                     componentKey={null}
                     itemKey={childItem.key}
                     shouldIndent={false}
-                    alwaysVisible={true}
                     hiddenIcons={[ItemIcons.Project, ItemIcons.Subtask]}
                   />
                 )

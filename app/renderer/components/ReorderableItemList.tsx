@@ -81,7 +81,7 @@ type ReorderableItemListProps = {
 function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
   const [setItemOrder] = useMutation(SET_ITEM_ORDER)
   const [currentPage, setCurrentPage] = useState(1)
-  const [sortedItems, setSortedItems] = useState([])
+  const [sortedItems, setSortedItems] = useState<Item[] | []>([])
   const [bulkCreateItemOrders] = useMutation(BULK_CREATE_ITEMORDERS)
   const [deleteItemOrdersByComponent] = useMutation(DELETE_ITEMORDERS_BY_COMPONENT)
 

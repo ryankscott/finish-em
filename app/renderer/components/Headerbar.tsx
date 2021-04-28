@@ -141,12 +141,11 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
         >
           <Button
             size="md"
-            id="shortcut-button"
             variant="invert"
             icon="help"
             iconSize="20px"
             iconColour={theme.colors.gray[100]}
-            tooltipText="Show shortcuts"
+            tooltipText="Show help"
             onClick={() => {
               history.push('/help/')
             }}

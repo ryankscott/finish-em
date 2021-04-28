@@ -279,7 +279,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
         placeholder={defaultValues.noValueText}
         defaultValue={defaultValue}
         invertColours={props.invert}
-        renderLabelAsElement={true}
+        renderLabelAsElement={props.attribute == 'item' ? false : true}
       />
     </Box>
   )
