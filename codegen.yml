@@ -9,6 +9,6 @@ generates:
   app/main/generated/apollo-helpers.tsx:
     plugins:
       - 'typescript-react-apollo'
-      - typescript-apollo-client-helpers
+      - 'typescript-apollo-client-helpers'
     config:
       withComponent: true
