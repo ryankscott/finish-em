@@ -61,7 +61,7 @@ const Select = (props: Props) => {
       container: (styles, { isDisabled }) => ({
         ...styles,
         width: props.fullWidth ? '100%' : 'auto',
-        padding: '0px 0px',
+        padding: '0px',
         border: props.invert ? '1px solid' : 'none !important',
         borderColor: theme.colors.gray[700],
         borderRadius: '5px',
@@ -87,6 +87,7 @@ const Select = (props: Props) => {
       }),
       valueContainer: (styles, { data, isFocused }) => ({
         ...styles,
+        margin: theme.space[0.5],
         padding: '0px',
         alignContent: 'center',
         height: 'auto',
@@ -150,7 +151,7 @@ const Select = (props: Props) => {
       },
       placeholder: (styles, { isDisabled }) => ({
         backgroundColor: 'transparent',
-        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
+        color: props.invert ? theme.colors.gray[200] : theme.colors.gray[400],
         opacity: isDisabled ? 0.4 : 1,
         fontSize: props.fontSize,
         fontWeight: 400,
@@ -271,10 +272,12 @@ const Select = (props: Props) => {
       indicatorSeparator: () => ({
         display: 'none',
       }),
-      dropdownIndicator: (styles, { isDisabled }) => {
-        return props.hideDropdownIndicator
-          ? { display: 'none', opacity: isDisabled ? 0.4 : 1 }
-          : { display: 'auto', opacity: isDisabled ? 0.4 : 1 }
+      dropdownIndicator: (styles, state) => {
+        return {
+          display: props.hideDropdownIndicator ? 'none' : 'auto',
+          opacity: state.isDisabled ? 0.4 : 1,
+          color: state.hasValue ? theme.colors.gray[800] : theme.colors.gray[500],
+        }
       },
       noOptionsMessage: () => ({
         fontSize: props.fontSize,

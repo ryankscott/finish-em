@@ -48,6 +48,8 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
           variant={'default'}
           width={'100%'}
           textAlign={'start'}
+          fontWeight={'normal'}
+          color={'gray.400'}
         >
           {props.text ? props.text : props.defaultText}
         </MenuButton>

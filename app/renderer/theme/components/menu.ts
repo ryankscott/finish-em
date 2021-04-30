@@ -20,6 +20,7 @@ function baseStyleItem(props: Record<string, any>) {
     py: '0.4rem',
     px: '0.8rem',
     fontSize: 'md',
+    fontWeight: 400,
     transition: 'background 50ms ease-in 0s',
     _focus: {
       bg: mode(`gray.100`, `whiteAlpha.100`)(props),

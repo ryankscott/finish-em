@@ -30,7 +30,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     }
   }
   const repeatText = props.repeat ? capitaliseFirstLetter(rruleToText(props.repeat)) : 'Add repeat'
-  const tooltipText = props.repeat ? capitaliseFirstLetter(props.repeat.toText()) : 'Repeat'
 
   const generateIconSize = (size: string) => {
     switch (size) {
@@ -58,6 +57,8 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           variant={'default'}
           width={'100%'}
           textAlign={'start'}
+          fontWeight={'normal'}
+          color={'gray.400'}
         >
           {repeatText}
         </MenuButton>
