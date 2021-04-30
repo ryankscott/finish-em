@@ -5,7 +5,7 @@ import React, { ReactElement, useEffect } from 'react'
 import { Route, Switch, useHistory, useParams } from 'react-router-dom'
 import { Slide, toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import { focusbarVisibleVar, sidebarVisibleVar } from '../index'
+import { activeItemVar, focusbarVisibleVar, sidebarVisibleVar } from '../index'
 import { ActionBar } from './ActionBar'
 import Area from './Area'
 import DailyAgenda from './DailyAgenda'
@@ -125,11 +125,11 @@ const App = (props: AppProps): ReactElement => {
 
   // TODO: Work out the best way to expand the width here
   const handleResize = () => {
-    if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && data.sidebarVisible) {
+    if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && sidebarVisibleVar()) {
       sidebarVisibleVar(false)
     }
-    if (data.focusbarVisible) {
-      if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && data.focusbarVisible) {
+    if (focusbarVisibleVar()) {
+      if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && focusbarVisibleVar()) {
         focusbarVisibleVar(false)
       }
     }
@@ -199,7 +199,7 @@ const App = (props: AppProps): ReactElement => {
         </Flex>
         <Focusbar />
       </Flex>
-      {data.activeItem.length > 1 && <ActionBar />}
+      {activeItemVar().length > 1 && <ActionBar />}
       <ToastContainer
         position="bottom-center"
         autoClose={3000}

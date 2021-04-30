@@ -284,7 +284,7 @@ function Item(props: ItemProps): ReactElement {
     return
   }
 
-  const isFocused = data.activeItem.findIndex((i) => i == item.key) >= 0
+  const isFocused = activeItemVar().findIndex((i) => i == item.key) >= 0
   return (
     <Grid
       display={isVisible ? 'grid' : 'none'}
@@ -350,14 +350,16 @@ function Item(props: ItemProps): ReactElement {
           }
         } else {
           activeItemVar([item.key])
-          focusbarVisibleVar(true)
+          if (focusbarVisibleVar() == false || focusbarVisibleVar() == undefined) {
+            focusbarVisibleVar(true)
+          }
         }
       }}
       tabIndex={0}
     >
       <GridItem colStart={props.compact ? 1 : 3} colSpan={props.compact ? 7 : 3}>
         <Tooltip
-          openDelay={500}
+          openDelay={750}
           arrowSize={5}
           hasArrow={true}
           placement={'bottom-start'}
@@ -390,7 +392,13 @@ function Item(props: ItemProps): ReactElement {
       <GridItem colStart={props.compact ? 8 : 6} colSpan={1}>
         {(!props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null) && (
           <Flex justifyContent={'flex-end'}>
-            <Tooltip openDelay={500} arrowSize={5} hasArrow={true} label={item.project?.name}>
+            <Tooltip
+              openDelay={750}
+              closeDelay={1}
+              arrowSize={5}
+              hasArrow={true}
+              label={item.project?.name}
+            >
               <Tag size={props.compact ? 'sm' : 'md'} color={'white'} bg={'blue.500'}>
                 <TagLabel>
                   {props.compact ? truncateString(item.project?.name, 8) : item.project?.name}
@@ -483,7 +491,7 @@ function Item(props: ItemProps): ReactElement {
           <GridItem colStart={7} colSpan={1}>
             {item.reminders.filter((r) => r.deleted == false).length > 0 && (
               <Tooltip
-                openDelay={500}
+                openDelay={750}
                 arrowSize={5}
                 hasArrow={true}
                 label={`Reminder at: ${format(

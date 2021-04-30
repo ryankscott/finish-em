@@ -8,7 +8,7 @@ import { Item as ItemType } from '../../main/generated/typescript-helpers'
 import { Icons } from '../assets/icons'
 import { IconType } from '../interfaces'
 import { ItemIcons } from '../interfaces/item'
-import { formatRelativeDate, removeItemTypeFromString } from '../utils'
+import { formatRelativeDate } from '../utils'
 import AttributeSelect from './AttributeSelect'
 import Button from './Button'
 import DatePicker from './DatePicker'
@@ -16,12 +16,6 @@ import EditableText2 from './EditableText2'
 import Item from './Item'
 import ItemCreator from './ItemCreator'
 import RepeatPicker from './RepeatPicker'
-
-const GET_ACTIVE_ITEM = gql`
-  query {
-    activeItem @client
-  }
-`
 
 const GET_DATA = gql`
   query itemByKey($key: String!) {
@@ -62,12 +56,8 @@ const GET_DATA = gql`
         key
       }
     }
-    newEditor: featureByName(name: "newEditor") {
-      key
-      enabled
-    }
-    theme @client
     focusbarVisible @client
+    activeItem @client
   }
 `
 
@@ -197,18 +187,10 @@ interface StateProps {}
 
 type FocusbarProps = DispatchProps & StateProps
 const Focusbar = (props: FocusbarProps): ReactElement => {
-  const ref = React.useRef<HTMLInputElement>()
-  const { loading: activeLoading, error: activeError, data: activeData } = useQuery(GET_ACTIVE_ITEM)
-  if (activeLoading) {
-    return null
-  }
-  if (activeError) {
-    console.log(activeError)
-    return null
-  }
-  const { loading, error, data, refetch } = useQuery(GET_DATA, {
+  const activeItem = activeItemVar()
+  const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
-      key: activeData.activeItem.length ? activeData.activeItem[0] : '',
+      key: activeItem.length ? activeItem[0] : '',
     },
   })
 
@@ -236,6 +218,23 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   if (error) {
     console.log(error)
     return null
+  }
+  if (loading) {
+    return (
+      <VStack
+        border={'1px solid'}
+        borderColor={'gray.200'}
+        shadow={'md'}
+        minW={focusbarVisibleVar() ? '350px' : 0}
+        opacity={focusbarVisibleVar() ? 1 : 0}
+        px={3}
+        py={3}
+        h={'100%'}
+        overflowY={'scroll'}
+        bg={'gray.50'}
+        transition={'all 0.2s ease-in-out'}
+      ></VStack>
+    )
   }
 
   const item: ItemType = data?.item
@@ -270,9 +269,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       border={'1px solid'}
       borderColor={'gray.200'}
       shadow={'md'}
-      width={data.focusbarVisible ? '100%' : 0}
-      maxWidth={'350px'}
-      opacity={data.focusbarVisible ? 1 : 0}
+      minW={focusbarVisibleVar() ? '350px' : 0}
+      opacity={focusbarVisibleVar() ? 1 : 0}
       px={3}
       py={3}
       h={'100%'}
@@ -307,7 +305,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       </Grid>
       <Flex alignItems={'baseline'} w={'100%'} direction="row" m={0} px={2} py={4}>
         <Button
-          disabled={item.deleted}
+          disabled={item?.deleted}
           variant="default"
           size="sm"
           onClick={() => {
@@ -317,11 +315,11 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
                 : completeItem({ variables: { key: item.key } })
             }
           }}
-          icon={item.type == 'NOTE' ? 'note' : item.completed ? 'todoChecked' : 'todoUnchecked'}
+          icon={item?.type == 'NOTE' ? 'note' : item?.completed ? 'todoChecked' : 'todoUnchecked'}
         />
-        <Box w={'100%'} textDecoration={item.completed ? 'line-through' : 'inherit'}>
+        <Box w={'100%'} textDecoration={item?.completed ? 'line-through' : 'inherit'}>
           <EditableText2
-            key={item.key}
+            key={item?.key}
             height={'45px'}
             width={'260px'}
             input={item.text}
