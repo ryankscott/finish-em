@@ -153,7 +153,7 @@ const App = (props: AppProps): ReactElement => {
   }
 
   return (
-    <Flex direction={'column'} h={'100%'} w={'100%'}>
+    <Flex direction={'column'} h={'100vh'} w={'100%'}>
       <Flex
         sx={{
           WebkitAppRegion: 'drag',
@@ -168,7 +168,7 @@ const App = (props: AppProps): ReactElement => {
       </Flex>
       <Flex pt={'50px'} overflowY={'scroll'} h={'100%'} direction={'row'}>
         <Sidebar />
-        <Flex overflowY={'scroll'} w={'100%'} justifyContent={'center'}>
+        <Flex overflowY={'scroll'} w={'100%'} h={'100%'} justifyContent={'center'}>
           <ShortcutDialog />
           <Switch>
             <Route path="/help">
