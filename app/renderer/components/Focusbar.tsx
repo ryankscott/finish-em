@@ -269,6 +269,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       border={'1px solid'}
       borderColor={'gray.200'}
       shadow={'md'}
+      w={focusbarVisibleVar() ? '350px' : 0}
       minW={focusbarVisibleVar() ? '350px' : 0}
       opacity={focusbarVisibleVar() ? 1 : 0}
       px={3}
