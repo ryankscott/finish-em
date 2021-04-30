@@ -1,7 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { Flex } from '@chakra-ui/react'
 import { isSameMinute, parseISO } from 'date-fns'
-import cron from 'node-cron'
 import React, { ReactElement, useEffect } from 'react'
 import { Route, Switch, useHistory, useParams } from 'react-router-dom'
 import { Slide, toast, ToastContainer } from 'react-toastify'
@@ -140,7 +139,7 @@ const App = (props: AppProps): ReactElement => {
   })
 
   if (data?.reminders) {
-    cron.schedule('* * * * * ', () => {
+    setInterval(
       data.reminders.map((r) => {
         if (r.deleted) return
         if (isSameMinute(parseISO(r.remindAt), new Date())) {
@@ -148,8 +147,9 @@ const App = (props: AppProps): ReactElement => {
             body: r.text,
           })
         }
-      })
-    })
+      }),
+      1000 * 60,
+    )
   }
 
   return (
