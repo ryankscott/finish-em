@@ -78,20 +78,10 @@ const settingValueStyles = {
 }
 
 const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
-  const nameRef = useRef<HTMLInputElement>()
   const [updateComponent] = useMutation(UPDATE_COMPONENT)
-  const [headerName, setHeaderName] = useState('')
-  const [icon, setIcon] = useState('')
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: props.componentKey },
   })
-
-  useEffect(() => {
-    if (loading === false && data) {
-      setHeaderName(params.name)
-      setIcon(params.icon)
-    }
-  }, [loading, data])
 
   if (loading) return null
   if (error) {
@@ -140,13 +130,13 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
         <Flex direction={'column'} {...settingValueStyles}>
           <Editable
             width={'180px'}
-            value={headerName}
+            defaultValue={params.name}
             fontSize="md"
             mx={2}
             w={'100%'}
             color="gray.700"
-            onSubmit={(input) => {
-              setHeaderName(input)
+            onChange={(input) => {
+              params.name = input
             }}
           >
             <EditablePreview />
@@ -161,9 +151,9 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
             <Select
               size="md"
               placeholder="Select icon"
-              defaultValue={options.find((o) => o.value == icon)}
+              defaultValue={options.find((o) => o.value == params.icon)}
               onChange={(i) => {
-                setIcon(i.value)
+                params.icon = i.value
               }}
               options={options}
               escapeClearsValue={true}
@@ -189,7 +179,7 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
             updateComponent({
               variables: {
                 key: props.componentKey,
-                parameters: { name: headerName, icon: icon },
+                parameters: { name: params.name, icon: params.icon },
               },
             })
             props.onClose()
