@@ -225,7 +225,6 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
             borderRadius={5}
             variant={'default'}
             textAlign={'start'}
-            width={'125px'}
           >
             Add component
           </MenuButton>
