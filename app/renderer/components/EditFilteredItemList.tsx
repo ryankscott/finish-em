@@ -48,41 +48,31 @@ type FilteredItemDialogProps = {
 }
 
 const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
-  const theme = useTheme()
-  const node = useRef<HTMLDivElement>()
-  const filterRef = useRef<HTMLInputElement>()
-  const nameRef = useRef<HTMLInputElement>()
   const [isValid, setIsValid] = useState(true)
-  const [listName, setListName] = useState('')
-  const [isFilterable, setIsFilterable] = useState(true)
-  const [filter, setFilter] = useState('')
-  const [flattenSubtasks, setFlattenSubtasks] = useState(true)
-  const [hideCompletedSubtasks, setHideCompletedSubtasks] = useState(false)
-  const [hideDeletedSubtasks, setHideDeletedSubtasks] = useState(false)
-  const [hiddenIcons, setHiddenIcons] = useState([])
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT)
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: props.componentKey },
   })
-  useEffect(() => {
-    if (loading === false && data) {
-      setListName(params.listName)
-      setIsFilterable(params.isFilterable)
-      setFilter(params.filter)
-      setFlattenSubtasks(params.flattenSubtasks)
-      setHiddenIcons(params.hiddenIcons)
-      setHideCompletedSubtasks(params?.hideCompletedSubtasks ? params.hideCompletedSubtasks : false)
-      setHideDeletedSubtasks(params?.hideDeletedSubtasks ? params.hideCompletedSubtasks : false)
-    }
-  }, [loading, data])
 
   if (loading) return null
   if (error) {
     console.log(error)
     return null
   }
-  let params = {}
+  let params: {
+    listName: string
+    isFilterable: boolean
+    legacyFilter: string
+    filter: string
+    flattenSubtasks: boolean
+    hiddenIcons: []
+    hideCompletedSubtasks: boolean
+    hideDeletedSubtasks: boolean
+    showCompletedToggle: boolean
+    initiallyExpanded: boolean
+  }
+
   try {
     params = JSON.parse(data.component.parameters)
   } catch (error) {
@@ -120,9 +110,10 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
     alignItems: 'flex-start',
   }
 
+  console.log('re-render')
   // TODO: Create individual update queries instead of this big one
   return (
-    <Flex direction={'column'} bg={'gray.50'} py={2} px={4} pb={6} w={'100%'} ref={node}>
+    <Flex direction={'column'} bg={'gray.50'} py={2} px={4} pb={6} w={'100%'}>
       <Flex direction={'row'} justifyContent={'flex-end'} p={2}>
         <Box>
           <Button
@@ -140,13 +131,12 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex {...settingLabelStyles}>Name:</Flex>
         <Flex direction={'column'} {...settingValueStyles}>
           <Editable
-            value={listName}
+            defaultValue={params.listName}
             color="gray.800"
             fontSize="md"
             w={'100%'}
-            onSubmit={(input) => {
-              setListName(input)
-              return true
+            onChange={(input) => {
+              params.listName = input
             }}
           >
             <EditablePreview />
@@ -175,9 +165,9 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             </Box>
           )}
           <ItemFilterBox
-            filter={filter ? JSON.parse(filter).text : ''}
+            filter={params.filter ? JSON.parse(params.filter).text : ''}
             onSubmit={(query: string, filter: Expression[]) => {
-              setFilter(JSON.stringify({ text: query, value: filter }))
+              params.filter = JSON.stringify({ text: query, value: filter })
               setIsValid(true)
             }}
             onError={() => setIsValid(false)}
@@ -189,9 +179,10 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
             size="sm"
-            checked={isFilterable}
+            defaultChecked={params.isFilterable}
+            checked={params.isFilterable}
             onChange={() => {
-              setIsFilterable(!isFilterable)
+              params.isFilterable = !params.isFilterable
             }}
           />
         </Flex>
@@ -201,9 +192,10 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
             size="sm"
-            checked={flattenSubtasks}
+            defaultChecked={params.flattenSubtasks}
+            checked={params.flattenSubtasks}
             onChange={() => {
-              setFlattenSubtasks(!flattenSubtasks)
+              params.flattenSubtasks = !params.flattenSubtasks
             }}
           />
         </Flex>
@@ -214,9 +206,10 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
             size="sm"
-            checked={hideCompletedSubtasks}
-            onChange={(input) => {
-              setFlattenSubtasks(!hideCompletedSubtasks)
+            defaultChecked={params.hideCompletedSubtasks}
+            checked={params.hideCompletedSubtasks}
+            onChange={() => {
+              params.hideCompletedSubtasks = !params.hideCompletedSubtasks
             }}
           />
         </Flex>
@@ -226,9 +219,10 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex direction={'column'} {...settingValueStyles}>
           <Switch
             size="sm"
-            checked={hideDeletedSubtasks}
-            onChange={(input) => {
-              setFlattenSubtasks(!hideDeletedSubtasks)
+            defaultChecked={params.hideDeletedSubtasks}
+            checked={params.hideDeletedSubtasks}
+            onChange={() => {
+              params.hideDeletedSubtasks = !params.hideDeletedSubtasks
             }}
           />
         </Flex>
@@ -240,13 +234,13 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             <Select
               placeholder="Select icons to hide"
               size="md"
-              defaultValue={hiddenIcons?.map((i) => {
+              defaultValue={params.hiddenIcons?.map((i) => {
                 return options.find((o) => o.value == i)
               })}
               isMulti={true}
               onChange={(values: { value: string; label: string }[]) => {
                 const hiddenIcons = values.map((v) => v.value)
-                setHiddenIcons(hiddenIcons)
+                params.hiddenIcons = hiddenIcons
               }}
               options={options}
               escapeClearsValue={true}
@@ -273,18 +267,16 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
               variables: {
                 key: props.componentKey,
                 parameters: {
-                  filter: filter,
-                  legacyFilter: params.legacyFilter ? params.legacyFilter : null,
-                  hiddenIcons: hiddenIcons ? hiddenIcons : null,
-                  listName: listName,
-                  showCompletedToggle: params.showCompletedToggle
-                    ? params.showCompletedToggle
-                    : true,
-                  initiallyExpanded: params.initiallyExpanded ? params.initiallyExpanded : true,
-                  flattenSubtasks: flattenSubtasks ? flattenSubtasks : true,
-                  isFilterable: isFilterable ? isFilterable : true,
-                  hideCompletedSubtasks: hideCompletedSubtasks ? hideCompletedSubtasks : false,
-                  hideDeletedSubtasks: hideDeletedSubtasks ? hideDeletedSubtasks : false,
+                  filter: params.filter,
+                  legacyFilter: params.legacyFilter,
+                  hiddenIcons: params.hiddenIcons,
+                  listName: params.listName,
+                  showCompletedToggle: params.showCompletedToggle,
+                  initiallyExpanded: params.initiallyExpanded,
+                  flattenSubtasks: params.flattenSubtasks,
+                  isFilterable: params.isFilterable,
+                  hideCompletedSubtasks: params.hideCompletedSubtasks,
+                  hideDeletedSubtasks: params.hideDeletedSubtasks,
                 },
               },
             })
@@ -296,4 +288,4 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   )
 }
 
-export default FilteredItemDialog
+export default React.memo(FilteredItemDialog, () => true)
