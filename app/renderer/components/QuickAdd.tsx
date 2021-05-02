@@ -1,5 +1,4 @@
 import React, { ReactElement, useEffect } from 'react'
-import EditableText2 from './EditableText2'
 import { Box, Editable, EditableInput, EditablePreview } from '@chakra-ui/react'
 
 type QuickAddProps = {
@@ -7,11 +6,16 @@ type QuickAddProps = {
 }
 
 function QuickAdd(props: QuickAddProps): ReactElement {
+  const initialRef = React.useRef()
+
+  useEffect(() => {
+    initialRef.current.focus()
+  }, [])
+
   const handleEscape = (): void => {
     window.electron.sendMessage('close-quickadd')
   }
 
-  // TODO: #357 Replace with new editable text
   return (
     <Box
       p={0}
@@ -43,7 +47,7 @@ function QuickAdd(props: QuickAddProps): ReactElement {
         }}
       >
         <EditablePreview />
-        <EditableInput />
+        <EditableInput ref={initialRef} />
       </Editable>
     </Box>
   )
