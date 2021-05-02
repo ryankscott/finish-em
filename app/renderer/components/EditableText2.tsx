@@ -83,7 +83,6 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
   const [editorHtml, setEditorHtml] = useState(props.input ? props.input : '')
   const [isEditing, setIsEditing] = useState(false)
 
-  let reactQuillRef = React.useRef<ReactQuill>()
   const handleChange = (content, delta, source, editor) => {
     const lastChar = delta.ops[delta.ops.length - 1]?.insert?.charCodeAt(0)
     if (lastChar == 10 && props.singleLine) {
@@ -91,7 +90,6 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
         setEditorHtml('')
       }
       // TODO: Need to blur on submit
-      reactQuillRef.current.blur()
       props.onUpdate(editorHtml)
     } else {
       setEditorHtml(content)
@@ -106,6 +104,7 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
   }
 
   const handleFocus = () => {
+    if (props.readOnly) return
     setIsEditing(true)
   }
 
@@ -132,7 +131,6 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
     >
       <ReactQuill
         className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}
-        ref={reactQuillRef}
         theme={'snow'}
         onChange={handleChange}
         value={editorHtml}

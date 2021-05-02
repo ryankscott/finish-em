@@ -320,6 +320,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         />
         <Box w={'100%'} textDecoration={item?.completed ? 'line-through' : 'inherit'}>
           <EditableText2
+            readOnly={item?.deleted}
             key={item?.key}
             height={'45px'}
             width={'260px'}

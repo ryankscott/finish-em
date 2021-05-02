@@ -349,6 +349,16 @@ const styles = {
         py: 1,
         px: 2,
       },
+      '.Toastify__toast': {
+        fontSize: 'md',
+      },
+      '.Toaastify__toast--error': {
+        bg: 'red.500',
+      },
+      '.Toastify__toast--dark': {
+        bg: 'gray.800',
+        color: 'gray.50',
+      },
     }
   },
 }

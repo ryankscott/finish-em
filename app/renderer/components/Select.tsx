@@ -233,20 +233,22 @@ const Select = (props: Props) => {
       multiValue: (styles) => ({
         ...styles,
         margin: '2px',
+        backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[100],
+        '&:hover': {
+          backgroundColor: props.invert ? theme.colors.gray[900] : theme.colors.gray[200],
+        },
       }),
       multiValueLabel: (styles) => ({
         ...styles,
         border: 'none',
-        backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[50],
       }),
       multiValueRemove: (styles) => ({
         ...styles,
-        color: theme.colors.gray[800],
-        backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[50],
+        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
         border: 'none',
         '&:hover': {
-          color: theme.colors.gray[800],
-          backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[50],
+          color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
+          backgroundColor: props.invert ? theme.colors.gray[900] : theme.colors.gray[200],
           cursor: 'pointer',
         },
         '> svg': {
@@ -256,11 +258,13 @@ const Select = (props: Props) => {
       }),
       clearIndicator: (styles) => ({
         ...styles,
+        borderRadius: '5px',
+        padding: '2px',
         color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
         backgroundColor: 'inherit',
         '&:hover': {
-          color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
-          backgroundColor: 'inherit',
+          color: props.invert ? theme.colors.gray[100] : theme.colors.gray[900],
+          backgroundColor: props.invert ? theme.colors.gray[900] : theme.colors.gray[200],
           cursor: 'pointer',
         },
         '> svg': {

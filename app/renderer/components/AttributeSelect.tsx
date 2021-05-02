@@ -14,66 +14,58 @@ import Select from './Select'
 type OptionType = { value: string; label: JSX.Element | string; color?: CSS.Property.Color }
 type Attribute = 'area' | 'item' | 'label' | 'project'
 
-const getData = (attr: Attribute): DocumentNode => {
-  switch (attr) {
-    case 'area':
-      return gql`
-        query {
-          areas {
-            key
-            emoji
-            name
-            deleted
-          }
-        }
-      `
-    case 'label':
-      return gql`
-        query {
-          labels {
-            key
-            name
-            colour
-          }
-        }
-      `
-    case 'project':
-      return gql`
-        query {
-          projects(input: { deleted: false }) {
-            key
-            emoji
-            name
-            area {
-              key
-              name
-            }
-          }
-        }
-      `
-    case 'item':
-      return gql`
-        query {
-          items {
-            key
-            text
-            deleted
-            completed
-            project {
-              key
-              name
-            }
-            parent {
-              key
-              text
-            }
-          }
-        }
-      `
+const queries [Attribute: DocumentNode] = {
+  area: gql`
+    query {
+      areas {
+        key
+        emoji
+        name
+        deleted
+      }
+    }
+  `,
 
-    default:
-      break
-  }
+  label: gql`
+    query {
+      labels {
+        key
+        name
+        colour
+      }
+    }
+  `,
+  project: gql`
+    query {
+      projects(input: { deleted: false }) {
+        key
+        emoji
+        name
+        area {
+          key
+          name
+        }
+      }
+    }
+  `,
+  item: gql`
+    query {
+      items {
+        key
+        text
+        deleted
+        completed
+        project {
+          key
+          name
+        }
+        parent {
+          key
+          text
+        }
+      }
+    }
+  `,
 }
 
 interface AttributeSelectProps {
@@ -86,7 +78,7 @@ interface AttributeSelectProps {
 }
 
 export default function AttributeSelect(props: AttributeSelectProps): ReactElement {
-  const { loading, error, data } = useQuery(getData(props.attribute))
+  const { loading, error, data } = useQuery(queries[props.attribute])
   if (loading) return null
   if (error) {
     console.log(error)
@@ -144,7 +136,11 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
               value: a.key,
               label: (
                 <Flex>
-                  {a.emoji && <Emoji emoji={a.emoji} size={12} native={true} />}
+                  {a.emoji && (
+                    <Box pr={2}>
+                      <Emoji emoji={a.emoji} size={12} native={true} />
+                    </Box>
+                  )}
                   <Text pl={2}>{a.name}</Text>
                 </Flex>
               ),
@@ -179,8 +175,12 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
               value: p.key,
               label: (
                 <Flex>
-                  {p.emoji && <Emoji emoji={p.emoji} size={12} native={true} />}
-                  <Text pl={2}>{p.name}</Text>
+                  {p.emoji && (
+                    <Box pr={2}>
+                      <Emoji emoji={p.emoji} size={12} native={true} />
+                    </Box>
+                  )}
+                  <Text>{p.name}</Text>
                 </Flex>
               ),
             }

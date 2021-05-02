@@ -66,7 +66,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
     legacyFilter: string
     filter: string
     flattenSubtasks: boolean
-    hiddenIcons: []
+    hiddenIcons: string[]
     hideCompletedSubtasks: boolean
     hideDeletedSubtasks: boolean
     showCompletedToggle: boolean
