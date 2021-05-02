@@ -78,10 +78,6 @@ export type ItemCreatorProps = {
 const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   const [showItemCreator, setShowItemCreator] = useState(false)
 
-  const textRef: React.RefObject<HTMLInputElement> = props.innerRef
-    ? props.innerRef
-    : React.useRef<HTMLInputElement>()
-
   const node = useRef<HTMLDivElement>()
   const handleClick = (e): null => {
     if (node.current.contains(e.target)) {
@@ -139,8 +135,6 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         >
           {!props.hideButton && (
             <Button
-              mx={1}
-              my={1}
               size="md"
               variant="primary"
               icon="add"
@@ -151,7 +145,6 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               tooltipText={props.parentKey ? 'Create subtask' : 'Create item'}
               onClick={() => {
                 setShowItemCreator(!showItemCreator)
-                showItemCreator ? textRef.current.blur() : textRef.current.focus()
               }}
             />
           )}
