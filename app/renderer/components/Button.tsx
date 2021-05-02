@@ -1,6 +1,5 @@
 import React, { ReactElement } from 'react'
 import { IconType } from '../interfaces'
-import { v4 as uuidv4 } from 'uuid'
 import { Button as CButton, IconButton, Tooltip } from '@chakra-ui/react'
 import { Icons } from '../assets/icons'
 import * as CSS from 'csstype'
@@ -22,8 +21,6 @@ type ButtonProps = {
   isActive?: boolean
 }
 const Button = (props: ButtonProps): ReactElement => {
-  const id = uuidv4()
-
   return (
     <Tooltip arrowSize={5} hasArrow={true} openDelay={500} label={props.tooltipText}>
       {!props.text ? (
