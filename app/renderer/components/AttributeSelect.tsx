@@ -11,10 +11,10 @@ import { Area, Item, Label, Project } from '../../main/generated/typescript-help
 import { markdownBasicRegex, markdownLinkRegex, removeItemTypeFromString } from '../utils'
 import Select from './Select'
 
-type OptionType = { value: string; label: JSX.Element | string; color?: CSS.Property.Color }
+type OptionType = { value: string; label: ReactElement | string; color?: CSS.Property.Color }
 type Attribute = 'area' | 'item' | 'label' | 'project'
 
-const queries [Attribute: DocumentNode] = {
+const queries: { [key: string]: DocumentNode } = {
   area: gql`
     query {
       areas {
