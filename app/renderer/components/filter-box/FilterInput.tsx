@@ -100,5 +100,4 @@ const FilterInput = (props: FilterInputProps) => {
     </Box>
   )
 }
-
 export default FilterInput
