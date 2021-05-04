@@ -360,6 +360,9 @@ const styles = {
         bg: 'gray.800',
         color: 'gray.50',
       },
+      '.tippy-content': {
+        fontSize: 'sm',
+      },
     }
   },
 }

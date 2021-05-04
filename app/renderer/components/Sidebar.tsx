@@ -14,31 +14,33 @@ import Button from './Button'
 import { chakra, Flex, Text, VStack, Divider, Stack, Tooltip, useTheme } from '@chakra-ui/react'
 import { SidebarSection } from './SidebarSection'
 import { SidebarDraggableItem } from './SidebarDraggableItem'
+import Tippy from '@tippyjs/react'
+import 'tippy.js/dist/tippy.css'
+import 'tippy.js/dist/tippy.css'
 
 const SidebarItem = (props: {
   sidebarVisible: boolean
   iconName: string
   text: string
 }): React.ReactElement => {
-  const id = uuidv4()
   if (props.sidebarVisible) {
     return (
-      <Tooltip key={uuidv4()} label={props.text} arrowSize={5} hasArrow={true} openDelay={500}>
+      <Tippy delay={500} content={props.text}>
         <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="flex-start" alignItems={'center'}>
           {props.iconName && Icons[props.iconName](16, 16)}
           <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
             {props.text}
           </Text>
         </Flex>
-      </Tooltip>
+      </Tippy>
     )
   }
   return (
-    <Tooltip key={uuidv4()} label={props.text} arrowSize={5} hasArrow={true} openDelay={500}>
+    <Tippy delay={500} content={props.text}>
       <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="center">
         {Icons[props.iconName](20, 20)}
       </Flex>
-    </Tooltip>
+    </Tippy>
   )
 }
 
@@ -367,13 +369,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                               px={0}
                               alignItems={'center'}
                             >
-                              <Tooltip
-                                key={uuidv4()}
-                                label={a.name}
-                                arrowSize={5}
-                                hasArrow={true}
-                                openDelay={500}
-                              >
+                              <Tippy content={a.name} delay={500}>
                                 <StyledLink
                                   activeStyle={{
                                     backgroundColor: theme.colors.gray[900],
@@ -401,7 +397,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                     </Text>
                                   )}
                                 </StyledLink>
-                              </Tooltip>
+                              </Tippy>
                               {data.sidebarVisible && (
                                 <Button
                                   size="md"
@@ -453,13 +449,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                             snapshot={snapshot}
                                             provided={provided}
                                           >
-                                            <Tooltip
-                                              key={uuidv4()}
-                                              label={p.name}
-                                              arrowSize={5}
-                                              hasArrow={true}
-                                              openDelay={500}
-                                            >
+                                            <Tippy content={p.name} delay={500}>
                                               <StyledLink
                                                 activeStyle={{
                                                   backgroundColor: theme.colors.gray[900],
@@ -494,7 +484,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                                                   </Text>
                                                 )}
                                               </StyledLink>
-                                            </Tooltip>
+                                            </Tippy>
                                           </SidebarDraggableItem>
                                         )}
                                       </Draggable>

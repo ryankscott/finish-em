@@ -2,7 +2,8 @@ import React, { ReactElement } from 'react'
 import { Icons } from '../assets/icons'
 import marked from 'marked'
 import { Flex, Text } from '@chakra-ui/layout'
-import { Tooltip } from '@chakra-ui/react'
+import Tippy from '@tippyjs/react'
+import 'tippy.js/dist/tippy.css'
 
 type ItemAttributeProps = {
   type: 'repeat' | 'due' | 'scheduled' | 'subtask'
@@ -16,7 +17,7 @@ const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
   const iconSize = props.compact ? 12 : 14
   return (
     <>
-      <Tooltip openDelay={500} arrowSize={5} hasArrow={true} label={props.tooltipText}>
+      <Tippy delay={500} content={props.tooltipText}>
         <Flex
           direction="row"
           alignItems="center"
@@ -36,7 +37,7 @@ const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
             dangerouslySetInnerHTML={{ __html: marked(props.text) }}
           ></Text>
         </Flex>
-      </Tooltip>
+      </Tippy>
     </>
   )
 }

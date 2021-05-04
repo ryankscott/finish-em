@@ -22,6 +22,8 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
 import { LoadingItem } from './LoadingItem'
+import Tippy from '@tippyjs/react'
+import 'tippy.js/dist/tippy.css'
 
 type ItemProps = {
   compact: boolean
@@ -358,13 +360,7 @@ function Item(props: ItemProps): ReactElement {
       tabIndex={0}
     >
       <GridItem colStart={props.compact ? 1 : 3} colSpan={props.compact ? 7 : 3}>
-        <Tooltip
-          openDelay={750}
-          arrowSize={5}
-          hasArrow={true}
-          placement={'bottom-start'}
-          label={HTMLToPlainText(item.text)}
-        >
+        <Tippy delay={500} content={HTMLToPlainText(item.text)}>
           <Text
             id="body"
             mx={0}
@@ -387,24 +383,18 @@ function Item(props: ItemProps): ReactElement {
               __html: removeItemTypeFromString(item.text),
             }}
           />
-        </Tooltip>
+        </Tippy>
       </GridItem>
       <GridItem colStart={props.compact ? 8 : 6} colSpan={1}>
         {(!props.hiddenIcons?.includes(ItemIcons.Project) || item.project == null) && (
           <Flex justifyContent={'flex-end'}>
-            <Tooltip
-              openDelay={750}
-              closeDelay={1}
-              arrowSize={5}
-              hasArrow={true}
-              label={item.project?.name}
-            >
+            <Tippy delay={500} content={item.project?.name}>
               <Tag size={props.compact ? 'sm' : 'md'} color={'white'} bg={'blue.500'}>
                 <TagLabel>
                   {props.compact ? truncateString(item.project?.name, 8) : item.project?.name}
                 </TagLabel>
               </Tag>
-            </Tooltip>
+            </Tippy>
           </Flex>
         )}
       </GridItem>
@@ -490,17 +480,15 @@ function Item(props: ItemProps): ReactElement {
           </GridItem>
           <GridItem colStart={7} colSpan={1}>
             {item.reminders.filter((r) => r.deleted == false).length > 0 && (
-              <Tooltip
-                openDelay={750}
-                arrowSize={5}
-                hasArrow={true}
-                label={`Reminder at: ${format(
+              <Tippy
+                delay={500}
+                content={`Reminder at: ${format(
                   parseISO(item?.reminders?.[0]?.remindAt),
                   'h:mm aaaa EEEE',
                 )}`}
               >
                 {Icons['reminder']()}
-              </Tooltip>
+              </Tippy>
             )}
           </GridItem>
         </>

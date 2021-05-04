@@ -3,6 +3,8 @@ import { IconType } from '../interfaces'
 import { Button as CButton, IconButton, Tooltip } from '@chakra-ui/react'
 import { Icons } from '../assets/icons'
 import * as CSS from 'csstype'
+import Tippy from '@tippyjs/react'
+import 'tippy.js/dist/tippy.css'
 
 type ButtonProps = {
   id?: string
@@ -22,7 +24,7 @@ type ButtonProps = {
 }
 const Button = (props: ButtonProps): ReactElement => {
   return (
-    <Tooltip arrowSize={5} hasArrow={true} openDelay={500} label={props.tooltipText}>
+    <Tippy delay={500} content={props.tooltipText}>
       {!props.text ? (
         <IconButton
           aria-label={props.icon}
@@ -60,7 +62,7 @@ const Button = (props: ButtonProps): ReactElement => {
           {props.text}
         </CButton>
       )}
-    </Tooltip>
+    </Tippy>
   )
 }
 

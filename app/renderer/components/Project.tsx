@@ -6,11 +6,12 @@ import {
   GridItem,
   Text,
   useTheme,
-  Tooltip,
   Editable,
   EditableInput,
   EditablePreview,
 } from '@chakra-ui/react'
+import Tippy from '@tippyjs/react'
+import 'tippy.js/dist/tippy.css'
 import { parseISO } from 'date-fns'
 import { Emoji, Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
@@ -212,7 +213,7 @@ const Project = (props: ProjectProps): ReactElement => {
           </Flex>
         </GridItem>
         <GridItem rowStart={2} colstart={2} colSpan={1}>
-          <Tooltip label={`${completedItems.length}/${allItems.length} completed`}>
+          <Tippy delay={500} content={`${completedItems.length}/${allItems.length} completed`}>
             <Flex justifyContent={'flex-start'} alignItems={'center'}>
               <Donut
                 size={30}
@@ -226,7 +227,7 @@ const Project = (props: ProjectProps): ReactElement => {
                 {completedItems.length} of {allItems.length} items completed
               </Text>
             </Flex>
-          </Tooltip>
+          </Tippys>
         </GridItem>
 
         {showEmojiPicker && (

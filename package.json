@@ -128,6 +128,7 @@
     "@graphql-tools/merge": "^6.2.13",
     "@graphql-tools/schema": "^7.1.4",
     "@parcel/transformer-graphql": "^2.0.0-alpha.3",
+    "@tippyjs/react": "^4.2.5",
     "@types/codemirror": "0.0.109",
     "@types/emoji-regex": "^8.0.0",
     "@types/lodash": "^4.14.168",
