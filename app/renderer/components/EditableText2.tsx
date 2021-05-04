@@ -103,7 +103,7 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
     setIsEditing(false)
   }
 
-  const handleFocus = () => {
+  const handleFocus = (range, source, editor) => {
     if (props.readOnly) return
     setIsEditing(true)
   }
@@ -146,4 +146,4 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
   )
 }
 
-export default EditableText2
+export default React.memo(EditableText2, () => true)

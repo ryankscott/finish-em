@@ -102,8 +102,6 @@ type AreaProps = {
 const Area = (props: AreaProps): ReactElement => {
   const history = useHistory()
   const theme = useTheme()
-  const name = React.useRef<HTMLInputElement>()
-  const description = React.useRef<HTMLInputElement>()
   const [setEmoji] = useMutation(SET_EMOJI)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [deleteArea] = useMutation(DELETE_AREA, {
@@ -179,6 +177,7 @@ const Area = (props: AreaProps): ReactElement => {
           h={'100px'}
           borderRadius={'50%'}
           cursor={'pointer'}
+          transition={'all 0.1s ease-in-out'}
           onClick={() => {
             setShowEmojiPicker(!showEmojiPicker)
           }}
@@ -246,7 +245,7 @@ const Area = (props: AreaProps): ReactElement => {
         return (
           <Grid
             position={'relative'}
-            transition={'max-height 0.2s ease-in-out, opacity 0.05s ease-in-out'}
+            transition={'all 0.1s ease-in-out'}
             maxH={'200px'}
             maxW={'650px'}
             my={1}

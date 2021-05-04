@@ -88,6 +88,7 @@ const styles = {
         px: 2,
         borderRadius: 4,
         border: 'none',
+        transition: 'all 0.1s ease-in-out',
         _hover: {
           bg: 'gray.100',
         },

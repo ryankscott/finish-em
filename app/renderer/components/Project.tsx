@@ -129,8 +129,6 @@ type ProjectProps = {
 const Project = (props: ProjectProps): ReactElement => {
   const theme = useTheme()
   const history = useHistory()
-  const name = React.useRef<HTMLInputElement>()
-  const description = React.useRef<HTMLInputElement>()
   const [deleteProject] = useMutation(DELETE_PROJECT, { refetchQueries: ['GetSidebarData'] })
   const [changeDescription] = useMutation(CHANGE_DESCRIPTION)
   const [renameProject] = useMutation(RENAME_PROJECT)
@@ -174,6 +172,7 @@ const Project = (props: ProjectProps): ReactElement => {
             _hover={{
               bg: 'gray.200',
             }}
+            transition={'all 0.1s ease-in-out'}
             cursor={'pointer'}
             onClick={() => {
               setShowEmojiPicker(!showEmojiPicker)

@@ -3,7 +3,7 @@ import * as CodeMirror from 'codemirror'
 import 'codemirror/addon/hint/show-hint'
 import 'codemirror/addon/display/placeholder'
 import './FilterMode'
-import { UnControlled as ReactCodeMirror } from 'react-codemirror2'
+import { UnControlled as ReactCodeMirror } from 'react-codemirror2-react-17'
 
 import { ExtendedCodeMirror } from './models/ExtendedCodeMirror'
 import AutoCompletePopup from './AutoCompletePopup'
