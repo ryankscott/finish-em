@@ -24,7 +24,7 @@ type ButtonProps = {
 }
 const Button = (props: ButtonProps): ReactElement => {
   return (
-    <Tippy delay={500} content={props.tooltipText}>
+    <Tippy delay={500} disabled={!props.tooltipText} content={props.tooltipText}>
       {!props.text ? (
         <IconButton
           aria-label={props.icon}
