@@ -1,22 +1,20 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
+import { chakra, Divider, Flex, Stack, Text, useTheme, VStack } from '@chakra-ui/react'
+import Tippy from '@tippyjs/react'
+import { Emoji } from 'emoji-mart'
 import { orderBy } from 'lodash'
 import React, { ReactElement, useEffect, useState } from 'react'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 import { NavLink, useHistory } from 'react-router-dom'
+import 'tippy.js/dist/tippy.css'
 import { v4 as uuidv4 } from 'uuid'
 import { Icons } from '../assets/icons'
 import { sidebarVisibleVar } from '../index'
 import { IconType } from '../interfaces'
 import { createShortSidebarItem, getProductName } from '../utils'
-import { Emoji } from 'emoji-mart'
 import Button from './Button'
-
-import { chakra, Flex, Text, VStack, Divider, Stack, Tooltip, useTheme } from '@chakra-ui/react'
-import { SidebarSection } from './SidebarSection'
 import { SidebarDraggableItem } from './SidebarDraggableItem'
-import Tippy from '@tippyjs/react'
-import 'tippy.js/dist/tippy.css'
-import 'tippy.js/dist/tippy.css'
+import { SidebarSection } from './SidebarSection'
 
 const SidebarItem = (props: {
   sidebarVisible: boolean
