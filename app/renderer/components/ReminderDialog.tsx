@@ -78,7 +78,7 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
       bg={'gray.50'}
     >
       <Flex direction={'row'} alignItems={'baseline'} justifyContent={'space-between'}>
-        <Text pl={2} p={1}>
+        <Text fontSize={'md'} pl={2} p={1}>
           Remind at:
         </Text>
         <Button
