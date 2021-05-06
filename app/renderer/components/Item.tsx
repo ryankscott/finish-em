@@ -360,16 +360,11 @@ function Item(props: ItemProps): ReactElement {
       tabIndex={0}
     >
       <GridItem colStart={props.compact ? 1 : 3} colSpan={props.compact ? 7 : 3}>
-        <Tippy
-          delay={500}
-          disabled={!HTMLToPlainText(item.text)}
-          content={HTMLToPlainText(item.text)}
-        >
+        <Tippy delay={500} disabled={!item.text} content={HTMLToPlainText(item.text)}>
           <Text
             id="body"
             mx={0}
             my={2}
-            z
             fontSize="md"
             isTruncated={true}
             textDecoration={item.completed ? 'line-through' : null}

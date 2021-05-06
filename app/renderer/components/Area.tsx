@@ -9,7 +9,6 @@ import marked from 'marked'
 import React, { ReactElement, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { v4 as uuidv4 } from 'uuid'
 import { Area as AreaType, Project } from '../../main/generated/typescript-helpers'
 import { formatRelativeDate } from '../utils'
 import DeleteAreaDialog from './DeleteAreaDialog'
@@ -17,6 +16,7 @@ import { Donut } from './Donut'
 import EditableText2 from './EditableText2'
 import FilteredItemList from './FilteredItemList'
 import { Page } from './Page'
+import { v4 as uuidv4 } from 'uuid'
 
 const GET_AREA_BY_KEY = gql`
   query AreaByKey($key: String!) {
@@ -139,6 +139,7 @@ const Area = (props: AreaProps): ReactElement => {
         <GridItem colStart={2} colSpan={1}>
           <Flex w={'100%'} alignItems={'flex-start'}>
             <Editable
+              key={uuidv4()}
               defaultValue={area.name}
               fontSize="3xl"
               mx={2}

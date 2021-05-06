@@ -1,17 +1,16 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import {
   Box,
+  Editable,
+  EditableInput,
+  EditablePreview,
   Flex,
   Grid,
   GridItem,
   Text,
   useTheme,
-  Editable,
-  EditableInput,
-  EditablePreview,
 } from '@chakra-ui/react'
 import Tippy from '@tippyjs/react'
-import 'tippy.js/dist/tippy.css'
 import { parseISO } from 'date-fns'
 import { Emoji, Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
@@ -19,6 +18,7 @@ import React, { ReactElement, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import { useHistory } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import 'tippy.js/dist/tippy.css'
 import { Item as ItemType, Project as ProjectType } from '../../main/generated/typescript-helpers'
 import { formatRelativeDate } from '../utils'
 import DeleteProjectDialog from './DeleteProjectDialog'
@@ -26,6 +26,7 @@ import { Donut } from './Donut'
 import EditableText2 from './EditableText2'
 import ItemCreator from './ItemCreator'
 import './styled/ReactDatePicker.css'
+import { v4 as uuidv4 } from 'uuid'
 
 const GET_PROJECT_BY_KEY = gql`
   query ProjectByKey($key: String!) {
@@ -185,6 +186,7 @@ const Project = (props: ProjectProps): ReactElement => {
         <GridItem rowStart={1} colStart={2} colSpan={1}>
           <Flex w={'100%'} justifyContent={'flex-start'} alignItems={'flex-start'}>
             <Editable
+              key={uuidv4()}
               defaultValue={project.name}
               fontSize="3xl"
               mx={2}
@@ -227,7 +229,7 @@ const Project = (props: ProjectProps): ReactElement => {
                 {completedItems.length} of {allItems.length} items completed
               </Text>
             </Flex>
-          </Tippys>
+          </Tippy>
         </GridItem>
 
         {showEmojiPicker && (
