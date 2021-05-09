@@ -37,7 +37,7 @@ export const getEventsForCalendar = async (db: sqlite.Database, calendarId: stri
     AND datetime(zci.ZSTARTDATE,'unixepoch','31 years') > datetime('now', '-7 day')
     AND datetime(zci.ZSTARTDATE,'unixepoch','31 years') < datetime('now', '+7 day')
     GROUP BY 1,2,3,4,5,6,7,8,9
-    ORDER BY zci.Z_PK DESC 
+    ORDER BY zci.Z_PK ASC
     ;`,
   )
 
@@ -71,7 +71,7 @@ export const getRecurringEventsForCalendar = async (db: sqlite.Database, calenda
     AND ZRECURRENCERULE IS NOT NULL
     AND datetime(zci.ZCREATIONDATE,'unixepoch','31 years') > datetime('now', '-2 year') 
     GROUP BY 1,2,3,4,5,6,7,8,9
-    ORDER BY zci.Z_PK DESC 
+    ORDER BY zci.Z_PK ASC 
     ;`,
   )
 

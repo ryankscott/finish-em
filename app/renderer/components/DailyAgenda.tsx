@@ -30,7 +30,7 @@ const getSortedEventsForToday = (events: Event[], currentDate: Date): Event[] =>
     recurrence.options.byhour = [startDate.getUTCHours()]
     recurrence.options.byminute = [startDate.getUTCMinutes()]
     recurrence.options.bysecond = [startDate.getUTCSeconds()]
-    const nextOccurrence = recurrence.after(new Date())
+    const nextOccurrence = recurrence.after(new Date(), true)
 
     // It's possible that there is no next occurrence
     if (nextOccurrence) {
