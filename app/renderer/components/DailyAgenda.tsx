@@ -1,15 +1,54 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import FilteredItemList from './FilteredItemList'
-import { parseISO, format, sub, add, isSameDay, startOfDay } from 'date-fns'
-import { Grid, GridItem, Flex, VStack, Text, Spacer, Box } from '@chakra-ui/react'
+import { parseISO, format, sub, add, isSameDay, startOfDay, parse, parseJSON } from 'date-fns'
+import { Grid, GridItem, Flex, VStack, Text, Box } from '@chakra-ui/react'
 import { v5 as uuidv5 } from 'uuid'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
-import { sortBy } from 'lodash'
+import { cloneDeep, sortBy, uniqBy } from 'lodash'
 import { Event } from '../../main/generated/typescript-helpers'
 import RRule from 'rrule'
 import { EventModal } from './EventModal'
+import { Icons } from '../assets/icons'
+
+const getSortedEventsForToday = (events: Event[], currentDate: Date): Event[] => {
+  // Set next recurrence to startDate
+  const allEvents = events.map((e: Event) => {
+    if (!e.recurrence) {
+      return e
+    }
+    const startDate = parseJSON(e.startAt)
+    /*
+      If you don't have a start date for a recurrence
+      RRULE will just use the time now, so you've got to manually 
+      set the startDate to the original startDate.
+      Then we need to ensure it's all in UTC
+    */
+    const recurrence = RRule.fromString(e.recurrence)
+    recurrence.options.dtstart = parseJSON(startDate)
+    recurrence.options.byhour = [startDate.getUTCHours()]
+    recurrence.options.byminute = [startDate.getUTCMinutes()]
+    recurrence.options.bysecond = [startDate.getUTCSeconds()]
+    const nextOccurrence = recurrence.after(new Date())
+
+    // It's possible that there is no next occurrence
+    if (nextOccurrence) {
+      e.startAt = nextOccurrence.toISOString()
+    }
+    return e
+  })
+  // Only get events today
+  const eventsToday = allEvents.filter((e: Event) => {
+    return isSameDay(parseISO(e.startAt), currentDate)
+  })
+
+  // Remove duplicates
+  const uniqEvents = uniqBy(eventsToday, 'title')
+
+  // TODO: We can't sort by startAt because recurring tasks will be wrong
+  return sortBy(uniqEvents, ['startAt'], ['desc'])
+}
 
 type DailyAgendaProps = {}
 const GET_DATA = gql`
@@ -21,6 +60,7 @@ const GET_DATA = gql`
       endAt
       description
       allDay
+      recurrence
       attendees {
         name
         email
@@ -42,6 +82,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   const [showModal, setShowModal] = useState(false)
   const [activeEvent, setActiveEvent] = useState(null)
 
+  const offset = new Date().getTimezoneOffset()
   useEffect(() => {
     window.electron.onReceiveMessage('events-refreshed', (event, arg) => {
       console.log('refreshed events')
@@ -54,13 +95,9 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
     console.log(error)
     return null
   }
-  const eventsToday = data?.eventsForActiveCalendar?.filter((e: Event) => {
-    const recurrence = e.recurrence ? RRule.fromString(e?.recurrence) : null
-    const nextOccurrence = recurrence ? recurrence.after(new Date()) : null
-    return isSameDay(parseISO(e.startAt), currentDate) || isSameDay(nextOccurrence, currentDate)
-  })
 
-  const sortedEventsForToday = sortBy(eventsToday, ['startAt'], ['desc'])
+  const events = cloneDeep(data?.eventsForActiveCalendar)
+  const sortedEventsForToday = getSortedEventsForToday(events, currentDate)
 
   return (
     <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
@@ -109,7 +146,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
           borderRadius="5px"
           spacing={1}
         >
-          {eventsToday?.length ? (
+          {sortedEventsForToday.length ? (
             sortedEventsForToday.map((e: Event) => {
               return (
                 <Flex
@@ -125,17 +162,19 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                   }}
                   py={1}
                   px={3}
-                  borderRadius="5px"
+                  borderRadius={5}
+                  alignItems={'center'}
                 >
                   <Text minW="150px" pr={4} color={'blue.500'} fontSize="md" key={`time-${e.key}`}>
-                    {`${format(parseISO(e.startAt), 'h:mm aa')} - ${format(
-                      parseISO(e.endAt),
+                    {`${format(
+                      sub(parseISO(e.startAt), { minutes: offset }),
                       'h:mm aa',
-                    )}`}
+                    )} - ${format(sub(parseISO(e.endAt), { minutes: offset }), 'h:mm aa')}`}
                   </Text>
-                  <Text fontSize="md" key={`title-${e.title}`}>
+                  <Text w="100%" fontSize="md" key={`title-${e.title}`}>
                     {e.title}
                   </Text>
+                  {e.recurrence && <Box>{Icons['repeat'](12, 12)}</Box>}
                 </Flex>
               )
             })

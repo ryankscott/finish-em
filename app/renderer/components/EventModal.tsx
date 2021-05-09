@@ -13,11 +13,12 @@ import {
 } from '@chakra-ui/react'
 import { Event } from '../../main/generated/typescript-helpers'
 import { format, parseISO } from 'date-fns'
+import Button from './Button'
+import { createNote } from '../utils/bear'
 
 interface Props {
   event: Event
   isOpen: boolean
-  footer?: JSX.Element
   onClose: () => void
 }
 
@@ -51,7 +52,7 @@ export const EventModal = (props: Props) => {
     }
     return (
       <Text fontSize="md">
-        {format(parseISO(props.event?.startAt), 'h:mm a')} -
+        {format(parseISO(props.event?.startAt), 'h:mm a')} -{' '}
         {format(parseISO(props.event?.endAt), 'h:mm a')}
       </Text>
     )
@@ -114,7 +115,41 @@ export const EventModal = (props: Props) => {
               </Flex>
             </Flex>
           </ModalBody>
-          <ModalFooter>{props?.footer}</ModalFooter>
+          <ModalFooter>
+            <Button
+              text={'Create note'}
+              variant={'primary'}
+              size="md"
+              icon={'bear'}
+              iconPosition="right"
+              iconColour="white"
+              onClick={(e) => {
+                const title = `${format(new Date(), 'yyyy-MM-dd')} - ${props.event?.title}`
+                const contents = `
+_${format(parseISO(props.event?.startAt), 'h:mm a')} - ${format(
+                  parseISO(props.event?.endAt),
+                  'h:mm a',
+                )}_
+
+## Attendees:
+${props.event?.attendees
+  ?.map((a) => {
+    return '- ' + a.name
+  })
+  .join('\n')}
+
+## Notes:
+
+
+## Action Items:
+`
+                window.electron.sendMessage('create-bear-note', {
+                  title: title,
+                  content: contents,
+                })
+              }}
+            />
+          </ModalFooter>
         </ModalContent>
       </ModalOverlay>
     </Modal>

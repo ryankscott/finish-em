@@ -120,7 +120,7 @@ export const getEventsForActiveCalendar = async (input, ctx) => {
     })
 }
 
-export const createEvent = (
+export const createEvent = async (
   input: {
     key: string
     title: string
@@ -135,9 +135,8 @@ export const createEvent = (
   },
   ctx,
 ) => {
-  return ctx.db
-    .run(
-      SQL`REPLACE INTO event (key, title, description, startAt, endAt,  allDay, calendarKey, createdAt, location, attendees, recurrence)
+  const result = await ctx.db.run(
+    SQL`REPLACE INTO event (key, title, description, startAt, endAt,  allDay, calendarKey, createdAt, location, attendees, recurrence)
   VALUES (${input.key}, 
   ${input.title}, 
   ${input.description}, 
@@ -151,12 +150,13 @@ export const createEvent = (
   ${input.recurrence}
   )
  `,
-    )
-    .then((result) => {
-      return result.changes
-        ? getEvent({ key: input.key }, ctx)
-        : new Error('Unable to create event')
-    })
+  )
+  if (result) {
+    return result.changes ? getEvent({ key: input.key }, ctx) : new Error('Unable to create event')
+  } else {
+    console.log(result)
+    return new Error('Unable to create event')
+  }
 }
 
 export const eventRootValues = {

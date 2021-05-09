@@ -135,3 +135,4 @@ export type IconType =
   | 'weekly'
   | 'notes'
   | 'todos'
+  | 'bear'

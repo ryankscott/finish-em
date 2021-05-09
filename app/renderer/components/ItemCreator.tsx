@@ -80,7 +80,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
 
   const node = useRef<HTMLDivElement>()
   const handleClick = (e): null => {
-    if (node.current.contains(e.target)) {
+    if (node?.current?.contains(e.target)) {
       return
     } else {
       setShowItemCreator(false)

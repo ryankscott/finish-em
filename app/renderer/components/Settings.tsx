@@ -1,6 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { transparentize } from 'polished'
-import React, { ReactElement, useEffect, useState } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
 import colormap from 'colormap'
@@ -9,16 +9,7 @@ import { themeVar } from '..'
 import { Label } from '../../main/generated/typescript-helpers'
 import { HexColorPicker } from 'react-colorful'
 import { debounce } from 'lodash'
-import {
-  Box,
-  Flex,
-  Text,
-  useTheme,
-  Switch,
-  Editable,
-  EditableInput,
-  EditablePreview,
-} from '@chakra-ui/react'
+import { Box, Flex, Text, Switch, Editable, EditableInput, EditablePreview } from '@chakra-ui/react'
 import Select from './Select'
 const NUMBER_OF_COLOURS = 12
 
@@ -108,7 +99,6 @@ const CREATE_LABEL = gql`
 `
 
 function Settings(props: SettingsPickerProps): ReactElement {
-  const theme = useTheme()
   const [showColourPicker, setShowColourPicker] = useState(false)
   const [colourPickerTriggeredBy, setColourPickerTriggeredBy] = useState(null)
   const [activeCategory, setActiveCategory] = useState('UI')
@@ -264,13 +254,12 @@ function Settings(props: SettingsPickerProps): ReactElement {
                       <Box pl={3} w={'180px'}>
                         <Select
                           size="md"
-                          placeholder=""
                           key={f.key + '-select'}
                           autoFocus={true}
+                          placeholder={'Choose calendar'}
                           defaultValue={calendarOptions?.find(
                             (c) => c.value == data?.activeCalendar?.key,
                           )}
-                          isDisabled={!f.enabled}
                           onChange={(e) => {
                             setActiveCalendar({
                               variables: {

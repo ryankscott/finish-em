@@ -71,8 +71,8 @@ export const createCalendar = (
 ): Calendar | null | Error => {
   return ctx.db
     .run(
-      SQL`INSERT OR IGNORE INTO calendar (key, name, deleted, lastUpdatedAt, deletedAt, createdAt ) 
-      VALUES (${input.key},${input.name}, false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
+      SQL`INSERT OR REPLACE INTO calendar (key, name, active, deleted, lastUpdatedAt, deletedAt, createdAt ) 
+      VALUES (${input.key},${input.name},${input.active}, false, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'), null, strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));`,
     )
     .then((result) => {
       return getCalendar({ key: input.key }, ctx)

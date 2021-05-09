@@ -143,6 +143,7 @@
     "cross-fetch": "^3.1.4",
     "csstype": "^3.0.8",
     "date-fns": "^2.21.1",
+    "date-fns-tz": "^1.1.4",
     "electron-log": "^4.3.4",
     "emoji-mart": "^3.0.1",
     "emoji-regex": "^9.2.2",
@@ -160,6 +161,7 @@
     "morgan": "^1.10.0",
     "node": "^15.14.0",
     "node-cron": "^3.0.0",
+    "open": "^8.0.8",
     "parcel-plugin-markdown": "^0.4.2",
     "polished": "^4.1.2",
     "quill-markdown-shortcuts": "0.0.10",
@@ -189,6 +191,7 @@
     "styled-components": "^5.2.3",
     "sugar-date": "^2.0.6",
     "theme-ui": "^0.7.5",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "xcall": "^1.0.4"
   }
 }
