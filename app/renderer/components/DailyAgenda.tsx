@@ -13,7 +13,7 @@ import { EventModal } from './EventModal'
 import { Icons } from '../assets/icons'
 
 const getSortedEventsForToday = (events: Event[], currentDate: Date): Event[] => {
-  if (!events.length) return
+  if (!events?.length) return
 
   // Set next recurrence to startDate
   const allEvents = events.map((e: Event) => {
@@ -148,7 +148,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
           borderRadius="5px"
           spacing={1}
         >
-          {sortedEventsForToday.length ? (
+          {sortedEventsForToday ? (
             sortedEventsForToday.map((e: Event) => {
               return (
                 <Flex
