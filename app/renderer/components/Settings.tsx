@@ -24,7 +24,7 @@ const generateOptions = (cals): { value: string; label: string }[] => {
 }
 
 const GET_FEATURES_AND_LABELS = gql`
-  query {
+  query settings {
     features {
       key
       name
@@ -104,7 +104,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
   const [activeCategory, setActiveCategory] = useState('UI')
   const { loading, error, data } = useQuery(GET_FEATURES_AND_LABELS)
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
-    refetchQueries: ['getActiveCalendar'],
+    refetchQueries: ['settings'],
   })
   const [setFeature] = useMutation(SET_FEATURE, { refetchQueries: ['getActiveCalendar'] })
   const [renameLabel] = useMutation(RENAME_LABEL)
@@ -248,12 +248,15 @@ function Settings(props: SettingsPickerProps): ReactElement {
                           },
                         })
                       }}
-                      checked={data.features.find((df) => df.key == f.key).enabled}
+                      defaultChecked={data.features.find((df) => df.key == f.key).enabled}
                     />
                     {f.name == 'calendarIntegration' && (
                       <Box pl={3} w={'180px'}>
                         <Select
                           size="md"
+                          isDisabled={
+                            !data.features.find((df) => df.name == 'calendarIntegration').enabled
+                          }
                           key={f.key + '-select'}
                           autoFocus={true}
                           placeholder={'Choose calendar'}
