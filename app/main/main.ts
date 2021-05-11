@@ -16,10 +16,12 @@ import {
   ApolloClient,
   ApolloError,
   createHttpLink,
+  from,
   gql,
   InMemoryCache,
   NormalizedCacheObject,
 } from '@apollo/client'
+import { RetryLink } from '@apollo/client/link/retry'
 import { AttendeeInput, Event } from './generated/typescript-helpers'
 import 'sugar-date/locales'
 import util from 'util'
@@ -29,7 +31,6 @@ import {
   getEventsForCalendar,
   getRecurringEventsForCalendar,
 } from './appleCalendar'
-import { parse, parseISO } from 'date-fns'
 import { parseJSON } from 'date-fns'
 const { zonedTimeToUtc } = require('date-fns-tz')
 
@@ -39,7 +40,6 @@ const executeAppleScript = util.promisify(applescript.execString)
 const isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == 'true' : false
 
 const GRAPHQL_PORT = 8089
-
 type AppleCalendarEvent = {
   id: string
   title: string
@@ -100,9 +100,12 @@ const setUpDatabase = async (): Promise<sqlite.Database<sqlite3.Database, sqlite
 
 const startGraphQL = async () => {
   const graphQLApp = await express()
+  morgan.token('body', function (req, res) {
+    return JSON.stringify(req.body)
+  })
 
   graphQLApp.use(
-    morgan(':date[iso] :status  - :response-time ms', {
+    morgan(':date[iso] :req[header] :url :status - :response-time ms :body', {
       skip: function (req, res) {
         return res.statusCode < 400
       },
@@ -164,9 +167,21 @@ const createApolloClient = () => {
       authorization: `Bearer ${token}`,
     },
   })
+  const retryLink = new RetryLink({
+    delay: {
+      initial: 300,
+      max: Infinity,
+      jitter: true,
+    },
+    attempts: {
+      max: 5,
+      retryIf: (error, _operation) => !!error,
+    },
+  })
+
   const client = new ApolloClient({
     cache: new InMemoryCache(),
-    link: httpLink,
+    link: from([retryLink, httpLink]),
   })
   return client
 }
@@ -247,7 +262,6 @@ const saveCalendars = async (
   log.info(`Getting calendars from Apple Calendar`)
   log.info(`Saving ${cals.length} calendars from Apple Calendar`)
   cals.map((c) => {
-    log.info(`Saving calendar - "${c.title}"`)
     try {
       createCalendar(client, c.id, c.title, c.id.toString() == activeCalKey ? true : false)
     } catch (err) {
@@ -259,10 +273,10 @@ const saveCalendars = async (
 
 const saveEventsToDB = (events: Event[], calendarKey: string) => {
   log.info(`Saving ${events.length} events to DB`)
-  events.forEach((e, idx) => {
-    log.info(`Saving event ${idx + 1} / ${events.length}`)
+  events.forEach(async (e, idx) => {
     saveEventToDB(e, calendarKey)
   })
+  log.info(`Saved ${events.length} events to DB`)
 }
 
 const saveEventToDB = (ev: Event, calendarKey: string) => {
@@ -507,30 +521,40 @@ function createMainWindow() {
   mainWindow.webContents.on('new-window', handleRedirect)
 }
 
-let mainWindow, quickAddWindow, db, db2, client
-const startApp = async () => {
-  db = await setUpDatabase()
-  db2 = await setupAppleCalDatabase()
-
-  await startGraphQL()
-  client = createApolloClient()
-
+const saveAppleCalendarEvents = async (getRecurringEvents: boolean) => {
+  const db2 = await setupAppleCalDatabase()
   const data = await getActiveCalendar(client)
   const activeCal = data?.getActiveCalendar
   const cals = await getAppleCalendars(db2)
   await saveCalendars(client, cals, activeCal?.key)
-
-  await getFeatures(client)
   const appleEvents: AppleCalendarEvent[] = await getEventsForCalendar(db2, activeCal?.key)
   const events = translateAppleEventToEvent(appleEvents)
   saveEventsToDB(events, activeCal?.key)
 
-  const recurringAppleEvents: AppleCalendarEvent[] = await getRecurringEventsForCalendar(
-    db2,
-    activeCal?.key,
-  )
-  const recurringEvents = translateAppleEventToEvent(recurringAppleEvents)
-  saveEventsToDB(recurringEvents, activeCal?.key)
+  if (getRecurringEvents) {
+    const recurringAppleEvents: AppleCalendarEvent[] = await getRecurringEventsForCalendar(
+      db2,
+      activeCal?.key,
+    )
+    const recurringEvents = translateAppleEventToEvent(recurringAppleEvents)
+    saveEventsToDB(recurringEvents, activeCal?.key)
+  }
+}
+
+let mainWindow, quickAddWindow, db, client
+const startApp = async () => {
+  db = await setUpDatabase()
+
+  await startGraphQL()
+  client = createApolloClient()
+
+  await getFeatures(client)
+  await saveAppleCalendarEvents(true)
+
+  // Get events every 5 mins
+  setInterval(async () => {
+    saveAppleCalendarEvents(false)
+  }, 1000 * 60 * 5)
 }
 
 startApp()
@@ -589,10 +613,6 @@ ipcMain.on('create-task', (event, arg) => {
     text: `Task added from Quick Add`,
     type: 'info',
   })
-})
-
-ipcMain.on('get-todays-events', (event, arg) => {
-  //getActiveCalendarEvents(client, 1)
 })
 
 ipcMain.on('create-bear-note', (event, arg) => {
