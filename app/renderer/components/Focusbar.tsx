@@ -310,6 +310,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           disabled={item?.deleted}
           variant="default"
           size="sm"
+          iconColour={item.label ? item.label.colour : null}
           onClick={() => {
             if (item.type == 'TODO') {
               item.completed
