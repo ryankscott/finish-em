@@ -76,12 +76,12 @@ export const ActionBar = (props: Props) => {
   }
   return (
     <Grid
-      maxW="650px"
+      maxW="700px"
       position="absolute"
       zIndex="tooltip"
       alignItems="center"
       padding="2"
-      bg="black"
+      bg="gray.800"
       color="white"
       bottom="0"
       left="0"
@@ -91,24 +91,32 @@ export const ActionBar = (props: Props) => {
       width="100%"
       boxShadow="sm"
       borderRadius="4"
+      gridRowGap={1}
+      gridColumnGap={3}
     >
       <Flex position="absolute" top={'2px'} right={'2px'}>
         <Button
-          size="xs"
+          size={'xs'}
           variant={'invert'}
           icon={'close'}
           iconSize={'12px'}
+          iconColour={'white'}
           onClick={() => {
             activeItemVar([])
             focusbarVisibleVar(false)
           }}
         />
       </Flex>
-      <GridItem colSpan={5} rowSpan={1}>
-        <Text paddingLeft="5" fontSize="sm">{`${data.activeItem.length} items selected`}</Text>
+      <GridItem colSpan={5} rowSpan={1} gridRowGap={2}>
+        <Text
+          paddingLeft={'4'}
+          paddingTop={'2'}
+          fontSize="md"
+        >{`${data.activeItem.length} items selected`}</Text>
       </GridItem>
       <GridItem colSpan={1}>
         <DatePicker
+          variant={'invert'}
           key={'dd'}
           text={'Set due date'}
           tooltipText={'Set due date'}
@@ -124,6 +132,7 @@ export const ActionBar = (props: Props) => {
       </GridItem>
       <GridItem colSpan={1}>
         <DatePicker
+          variant={'invert'}
           key={'sd'}
           text={'Set scheduled date'}
           defaultText={'Scheduled at: '}
@@ -153,7 +162,7 @@ export const ActionBar = (props: Props) => {
       </GridItem>
       <GridItem colSpan={1}>
         <Button
-          size="sm"
+          size="md"
           text="Complete items"
           tooltipText={'Complete items'}
           variant={'invert'}
@@ -167,7 +176,7 @@ export const ActionBar = (props: Props) => {
       </GridItem>
       <GridItem colSpan={1}>
         <Button
-          size="sm"
+          size="md"
           text="Delete items"
           tooltipText={'Delete items'}
           variant={'invert'}

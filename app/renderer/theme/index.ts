@@ -14,6 +14,8 @@ import Tooltip from './components/tooltip'
 import Editable from './components/editable'
 
 const theme = extendTheme({
+  initialColorMode: 'light',
+  useSystemColorMode: false,
   ...typography,
   space,
   colors,

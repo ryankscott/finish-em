@@ -1,7 +1,7 @@
 import React, { ReactElement, useState } from 'react'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import Button from './Button'
-import { Flex } from '@chakra-ui/react'
+import { Flex, useColorMode } from '@chakra-ui/react'
 const GET_DATA = gql`
   query {
     views {
@@ -32,6 +32,7 @@ type ComponentActionProps = {
 }
 
 const ComponentActions = (props: ComponentActionProps): ReactElement => {
+  const { colorMode, toggleColorMode } = useColorMode()
   const [showActions, setShowActions] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const { loading, error, data } = useQuery(GET_DATA)
@@ -69,13 +70,13 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
       {showActions && (
         <>
           <Flex
-            bg="gray.50"
+            bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
             direction={'column'}
             position={'absolute'}
             right={'-38px'}
             zIndex={9}
             border={'1px solid'}
-            borderColor={'gray.200'}
+            borderColor={colorMode == 'light' ? 'gray.200' : 'gray.600'}
             shadow="sm"
             p={0}
             borderRadius={5}

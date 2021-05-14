@@ -10,8 +10,7 @@ import EditableText2 from './EditableText2'
 import ItemList from './ItemList'
 import ReorderableComponentList from './ReorderableComponentList'
 
-import { Paragraph } from './Typography'
-import { Grid, GridItem, Box, Flex, Text } from '@chakra-ui/react'
+import { Grid, GridItem, Box, Flex, Text, useColorMode } from '@chakra-ui/react'
 
 const GET_DATA = gql`
   query weeklyItems($filter: String!, $componentKey: String!) {
@@ -73,6 +72,7 @@ const filter = JSON.stringify({
 const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342'
   const goalRef = React.useRef<HTMLInputElement>()
+  const { colorMode, toggleColorMode } = useColorMode()
   const [currentDate, setDate] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL, { refetchQueries: ['weeklyItems'] })
   const { loading, error, data } = useQuery(GET_DATA, {
@@ -139,7 +139,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
         padding-left={12}
         border={'1px solid'}
         borderRadius={4}
-        borderColor={'gray.100'}
+        borderColor={colorMode == 'light' ? 'gray.100' : 'gray.600'}
         my={6}
         mx={3}
       >
@@ -174,9 +174,17 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
               py={2}
               px={2}
               border={'1px solid'}
-              borderColor={'gray.200'}
-              borderRadius={4}
-              bg={isBefore(listDate, startOfDay(new Date())) ? 'gray.100' : 'gray.50'}
+              borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
+              borderRadius={5}
+              bg={
+                isBefore(listDate, startOfDay(new Date()))
+                  ? colorMode == 'light'
+                    ? 'gray.100'
+                    : 'gray.700'
+                  : colorMode == 'light'
+                  ? 'gray.50'
+                  : 'gray.800'
+              }
               key={`${idx}-container`}
             >
               <Text p={2} textAlign={'center'} fontSize="lg" key={`${idx}-title`}>

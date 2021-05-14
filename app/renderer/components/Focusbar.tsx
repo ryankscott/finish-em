@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { Box, Flex, Grid, GridItem, Text, VStack } from '@chakra-ui/react'
+import { Box, Flex, Grid, GridItem, Text, useColorMode, VStack } from '@chakra-ui/react'
 import { parseISO } from 'date-fns'
 import React, { ReactElement } from 'react'
 import RRule from 'rrule'
@@ -187,6 +187,7 @@ interface StateProps {}
 
 type FocusbarProps = DispatchProps & StateProps
 const Focusbar = (props: FocusbarProps): ReactElement => {
+  const { colorMode, toggleColorMode } = useColorMode()
   const activeItem = activeItemVar()
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
@@ -223,7 +224,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     return (
       <VStack
         border={'1px solid'}
-        borderColor={'gray.200'}
+        borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
         shadow={'md'}
         minW={focusbarVisibleVar() ? '350px' : 0}
         opacity={focusbarVisibleVar() ? 1 : 0}
@@ -231,7 +232,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         py={3}
         h={'100%'}
         overflowY={'scroll'}
-        bg={'gray.50'}
+        bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
         transition={'all 0.2s ease-in-out'}
       ></VStack>
     )
@@ -267,7 +268,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   return (
     <VStack
       border={'1px solid'}
-      borderColor={'gray.200'}
+      borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
       shadow={'md'}
       w={focusbarVisibleVar() ? '350px' : 0}
       minW={focusbarVisibleVar() ? '350px' : 0}
@@ -276,7 +277,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       py={3}
       h={'100%'}
       overflowY={'scroll'}
-      bg={'gray.50'}
+      bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
       transition={'all 0.2s ease-in-out'}
     >
       <Grid templateColumns={'repeat(5, 1fr)'} width={'100%'} m={0} p={0}>

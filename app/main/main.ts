@@ -1,17 +1,3 @@
-import { ipcMain, app, net, BrowserWindow, globalShortcut } from 'electron'
-import * as path from 'path'
-import { v4 as uuidv4 } from 'uuid'
-import applescript from 'applescript'
-import * as semver from 'semver'
-import express from 'express'
-import { graphqlHTTP } from 'express-graphql'
-import { schema, rootValue } from './schemas/schema'
-import * as sqlite from 'sqlite'
-import * as sqlite3 from 'sqlite3'
-import morgan from 'morgan'
-import fetch from 'cross-fetch'
-import * as jwtSign from 'jsonwebtoken'
-import jwt from 'express-jwt'
 import {
   ApolloClient,
   ApolloError,
@@ -22,16 +8,36 @@ import {
   NormalizedCacheObject,
 } from '@apollo/client'
 import { RetryLink } from '@apollo/client/link/retry'
-import { AttendeeInput, Event } from './generated/typescript-helpers'
+import applescript from 'applescript'
+import fetch from 'cross-fetch'
+import { parseJSON } from 'date-fns'
+import { app, BrowserWindow, globalShortcut, ipcMain, net } from 'electron'
+import express from 'express'
+import { graphqlHTTP } from 'express-graphql'
+import jwt from 'express-jwt'
+import * as jwtSign from 'jsonwebtoken'
+import morgan from 'morgan'
+import * as path from 'path'
+import * as semver from 'semver'
+import * as sqlite from 'sqlite'
+import * as sqlite3 from 'sqlite3'
 import 'sugar-date/locales'
 import util from 'util'
-import { createNote } from '../renderer/utils/bear'
+import { v4 as uuidv4 } from 'uuid'
+import { createNote, getAllTodos } from '../renderer/utils/bear'
 import {
+  AppleCalendarEvent,
+  appleMailLinkScript,
   getAppleCalendars,
   getEventsForCalendar,
   getRecurringEventsForCalendar,
+  setupAppleCalDatabase,
 } from './appleCalendar'
-import { parseJSON } from 'date-fns'
+import { AttendeeInput, Event, Feature } from './generated/typescript-helpers'
+import { getOutlookLink, openOutlookLink } from './outlook'
+import { rootValue, schema } from './schemas/schema'
+var crypto = require('crypto')
+
 const { zonedTimeToUtc } = require('date-fns-tz')
 
 const log = require('electron-log')
@@ -40,37 +46,11 @@ const executeAppleScript = util.promisify(applescript.execString)
 const isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == 'true' : false
 
 const GRAPHQL_PORT = 8089
-type AppleCalendarEvent = {
-  id: string
-  title: string
-  status: string
-  summary: string
-  allDayEvent: number
-  location: string
-  timezone: string
-  startDate: string
-  endDate: string
-  creationDate: string
-  attendees: string
-  recurrence: string
-}
 
 if (isDev) {
   log.info('Running in development')
 } else {
   log.info('Running in production')
-}
-
-const setupAppleCalDatabase = async (): Promise<
-  sqlite.Database<sqlite3.Database, sqlite3.Statement>
-> => {
-  const databasePath = `${app.getPath('home')}/Library/Calendars/Calendar\ Cache`
-  log.info(`Loading Apple Calendar DB at: ${databasePath}`)
-
-  return await sqlite.open({
-    filename: databasePath,
-    driver: sqlite3.Database,
-  })
 }
 
 const setUpDatabase = async (): Promise<sqlite.Database<sqlite3.Database, sqlite3.Statement>> => {
@@ -209,7 +189,7 @@ const createCalendar = async (
   return await result.data
 }
 
-const getFeatures = async (client: ApolloClient<NormalizedCacheObject>) => {
+const getFeatures = async (client: ApolloClient<NormalizedCacheObject>): Promise<Feature[]> => {
   const result = await client.query({
     query: gql`
       query {
@@ -224,21 +204,8 @@ const getFeatures = async (client: ApolloClient<NormalizedCacheObject>) => {
   return await result.data
 }
 
-const getMailLink = async () => {
-  const script = `
-    tell application "Mail"
-		set theSelection to selection
-		set theMessage to item 1 of theSelection
-		set theSubject to subject of theMessage
-		set theSender to sender of theMessage
-		set theID to message id of theMessage
-		set theLink to "message://%3c" & theID & "%3e"
-        set theItem to "TODO [" & theSubject & " - " & theSender & " ](" & theLink & ")"
-        set the clipboard to theItem
-		return theItem
-	end tell
-`
-  const mailLink = await executeAppleScript(script)
+const createItemFromAppleMail = async () => {
+  const mailLink = await executeAppleScript(appleMailLinkScript)
   if (mailLink) {
     mainWindow.webContents.send('create-item', {
       key: uuidv4(),
@@ -271,15 +238,23 @@ const saveCalendars = async (
   log.info(`All calendars saved`)
 }
 
-const saveEventsToDB = (events: Event[], calendarKey: string) => {
+const saveEventsToDB = (
+  client: ApolloClient<NormalizedCacheObject>,
+  events: Event[],
+  calendarKey: string,
+) => {
   log.info(`Saving ${events.length} events to DB`)
   events.forEach(async (e, idx) => {
-    saveEventToDB(e, calendarKey)
+    saveEventToDB(client, e, calendarKey)
   })
   log.info(`Saved ${events.length} events to DB`)
 }
 
-const saveEventToDB = (ev: Event, calendarKey: string) => {
+const saveEventToDB = (
+  client: ApolloClient<NormalizedCacheObject>,
+  ev: Event,
+  calendarKey: string,
+) => {
   client
     .mutate({
       mutation: gql`
@@ -332,7 +307,28 @@ const saveEventToDB = (ev: Event, calendarKey: string) => {
   log.debug(`Saved event with uid - ${ev.key}`)
 }
 
-const getActiveCalendar = async (client: ApolloClient<NormalizedCacheObject>) => {
+const saveTodosFromBear = async (client: ApolloClient<NormalizedCacheObject>) => {
+  const todos = await getAllTodos()
+  log.info(`Found ${todos.length} notes with todos`)
+  todos.map((t) => {
+    const [id, noteTodos] = t
+    log.info(`Saving todos from note with id ${id}`)
+    // We're using the order we found them as the unique key
+    noteTodos.map((m, idx) => {
+      mainWindow.webContents.send('create-item', {
+        key: crypto
+          .createHash('md5')
+          .update(id + idx)
+          .digest('hex'),
+        type: 'TODO',
+        text: m,
+      })
+    })
+  })
+  log.info('Finished saving todos from notes')
+}
+
+const getActiveCalendar = async (client: ApolloClient<NormalizedCacheObject>): Promise<any> => {
   log.info(`Getting active calendar`)
   const result = await client.query({
     query: gql`
@@ -365,40 +361,6 @@ const translateAppleEventToEvent = (events: AppleCalendarEvent[]): Event[] => {
       recurrence: e.recurrence,
     }
   })
-}
-
-const getOutlookLink = async () => {
-  const script = `
-    tell application "Microsoft Outlook"
-    set theSelection to selection
-    set theMessage to item 1 of theSelection
-    set theSubject to subject of theMessage
-    set theSender to sender of theMessage
-    set theID to message id of theMessage
-    set theLink to "outlook://" & theID
-    set theItem to "TODO [" & theSubject & " - " & theSender & " ](" & theLink & ")"
-    set the clipboard to theItem
-    return theItem
-end tell
-`
-  const link = await executeAppleScript(script)
-  if (!link) {
-    log.error(`Failed to get Outlook link`)
-  }
-}
-
-const openOutlookLink = async (url: string) => {
-  const script = `
-	set the messageId to text 11 thru -1 of ${url}
-	tell application "Microsoft Outlook"
-        open message id messageId
-        activate
-	end tell
-`
-  const link = await executeAppleScript(script)
-  if (!link) {
-    log.error(`Failed to open Outlook link`)
-  }
 }
 
 const checkForNewVersion = () => {
@@ -521,15 +483,19 @@ function createMainWindow() {
   mainWindow.webContents.on('new-window', handleRedirect)
 }
 
-const saveAppleCalendarEvents = async (getRecurringEvents: boolean) => {
+const saveAppleCalendarEvents = async (
+  client: ApolloClient<NormalizedCacheObject>,
+  getRecurringEvents: boolean,
+) => {
   const db2 = await setupAppleCalDatabase()
   const data = await getActiveCalendar(client)
+
   const activeCal = data?.getActiveCalendar
   const cals = await getAppleCalendars(db2)
   await saveCalendars(client, cals, activeCal?.key)
   const appleEvents: AppleCalendarEvent[] = await getEventsForCalendar(db2, activeCal?.key)
   const events = translateAppleEventToEvent(appleEvents)
-  saveEventsToDB(events, activeCal?.key)
+  saveEventsToDB(client, events, activeCal?.key)
 
   if (getRecurringEvents) {
     const recurringAppleEvents: AppleCalendarEvent[] = await getRecurringEventsForCalendar(
@@ -537,7 +503,7 @@ const saveAppleCalendarEvents = async (getRecurringEvents: boolean) => {
       activeCal?.key,
     )
     const recurringEvents = translateAppleEventToEvent(recurringAppleEvents)
-    saveEventsToDB(recurringEvents, activeCal?.key)
+    saveEventsToDB(client, recurringEvents, activeCal?.key)
   }
 }
 
@@ -548,13 +514,25 @@ const startApp = async () => {
   await startGraphQL()
   client = createApolloClient()
 
-  await getFeatures(client)
-  await saveAppleCalendarEvents(true)
+  const features = await getFeatures(client)
+  const calendarIntegration = await features?.find((f) => f.name == 'calendarIntegration')
 
-  // Get events every 5 mins
-  setInterval(async () => {
-    saveAppleCalendarEvents(false)
-  }, 1000 * 60 * 5)
+  if (calendarIntegration?.enabled) {
+    await saveAppleCalendarEvents(client, true)
+    // Get events every 5 mins
+    setInterval(async () => {
+      await saveAppleCalendarEvents(client, false)
+    }, 1000 * 60 * 5)
+  }
+
+  const bearNotesIntegration = await features?.find((f) => f.name == 'bearNotesIntegration')
+  if (bearNotesIntegration?.enabled) {
+    await saveTodosFromBear(client)
+    // Get todos from bear
+    setInterval(async () => {
+      saveTodosFromBear(client)
+    }, 1000 * 60 * 5)
+  }
 }
 
 startApp()
@@ -562,7 +540,7 @@ startApp()
 app.on('ready', () => {
   createMainWindow()
   globalShortcut.register('Command+Shift+N', createQuickAddWindow)
-  globalShortcut.register('Command+Shift+A', getMailLink)
+  globalShortcut.register('Command+Shift+A', createItemFromAppleMail)
   globalShortcut.register('Command+Shift+O', getOutlookLink)
   try {
     checkForNewVersion()
@@ -616,6 +594,5 @@ ipcMain.on('create-task', (event, arg) => {
 })
 
 ipcMain.on('create-bear-note', (event, arg) => {
-  console.log('creating bear note')
   createNote(arg.title, arg.content)
 })

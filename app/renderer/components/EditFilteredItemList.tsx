@@ -3,11 +3,12 @@ import {
   Box,
   Flex,
   Text,
-  useTheme,
+  useColorModeValue,
   Switch,
   Editable,
   EditableInput,
   EditablePreview,
+  useColorMode,
 } from '@chakra-ui/react'
 import React, { ReactElement, useEffect, useRef, useState } from 'react'
 import Select from './Select'
@@ -49,6 +50,7 @@ type FilteredItemDialogProps = {
 
 const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   const [isValid, setIsValid] = useState(true)
+  const { colorMode, toggleColorMode } = useColorMode()
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT)
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
@@ -92,7 +94,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   const settingLabelStyles = {
     display: 'flex',
     alignSelf: 'flex-start',
-    color: 'gray.800',
+    color: colorMode == 'light' ? 'gray.800' : 'gray.100',
     fontSize: 'md',
     py: 1,
     px: 3,
@@ -113,7 +115,14 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   console.log('re-render')
   // TODO: Create individual update queries instead of this big one
   return (
-    <Flex direction={'column'} bg={'gray.50'} py={2} px={4} pb={6} w={'100%'}>
+    <Flex
+      direction={'column'}
+      bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
+      py={2}
+      px={4}
+      pb={6}
+      w={'100%'}
+    >
       <Flex direction={'row'} justifyContent={'flex-end'} p={2}>
         <Box>
           <Button
@@ -132,7 +141,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         <Flex direction={'column'} {...settingValueStyles}>
           <Editable
             defaultValue={params.listName}
-            color="gray.800"
+            color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
             fontSize="md"
             w={'100%'}
             onChange={(input) => {
@@ -152,11 +161,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
               <Text
                 border="1px solid"
                 borderRadius={5}
-                bg={'gray.100'}
-                borderColor={'gray.200'}
+                bg={colorMode == 'light' ? 'gray.100' : 'gray.800'}
+                borderColor={colorMode == 'light' ? 'gray.200' : 'gray.700'}
                 p={1.5}
                 fontFamily={'mono'}
-                color="gray.800"
+                color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
                 fontSize="sm"
                 w={'100%'}
               >

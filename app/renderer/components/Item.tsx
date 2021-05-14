@@ -17,7 +17,7 @@ import ItemAttribute from './ItemAttribute'
 import LabelDialog from './LabelDialog'
 import MoreDropdown, { MoreDropdownOptions } from './MoreDropdown'
 import ReminderDialog from './ReminderDialog'
-import { Grid, GridItem, Tag, TagLabel, Flex, Text } from '@chakra-ui/react'
+import { Grid, GridItem, Tag, TagLabel, Flex, Text, useColorMode } from '@chakra-ui/react'
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..'
 import { Item as ItemType } from '../../main/generated/typescript-helpers'
@@ -131,6 +131,7 @@ const CLONE_ITEM = gql`
 `
 
 function Item(props: ItemProps): ReactElement {
+  const { colorMode, toggleColorMode } = useColorMode()
   const [moreButtonVisible, setMoreButtonVisible] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const [subtasksVisible, setSubtasksVisible] = useState(true)
@@ -303,8 +304,10 @@ function Item(props: ItemProps): ReactElement {
       alignItems={'center'}
       cursor={'pointer'}
       borderRadius={5}
-      gridTemplateColumns={props.compact ? 'repeat(8, 1fr)' : '25px 25px repeat(4, 1fr) 25px 25px'}
+      gridTemplateColumns={props.compact ? 'repeat(8, 1fr)' : '25px 25px repeat(4, 1fr) 25px 30px'}
       gridTemplateRows={'40px auto'}
+      outline={'none'}
+      outlineColor={'transparent'}
       _before={{
         content: "''",
         position: 'absolute',
@@ -312,7 +315,7 @@ function Item(props: ItemProps): ReactElement {
         left: '16px',
         height: props.shouldIndent ? 'calc(100% + 10px)' : '0px',
         transition: 'all 0.1s ease-in-out',
-        background: 'gray.400',
+        background: colorMode == 'light' ? 'gray.400' : 'gray.200',
         width: '1px',
         zIndex: 9,
       }}
@@ -325,10 +328,18 @@ function Item(props: ItemProps): ReactElement {
         margin: 'auto',
         width: props.shouldIndent || subtasksVisible ? '90%' : '100%',
         borderBottom: '1px',
-        borderColor: 'gray.100',
+        borderColor: colorMode == 'light' ? 'gray.100' : 'gray.700',
         opacity: 0.8,
       }}
-      bg={isFocused ? 'gray.100' : 'gray.50'}
+      bg={
+        isFocused
+          ? colorMode == 'light'
+            ? 'gray.100'
+            : 'gray.900'
+          : colorMode == 'light'
+          ? 'gray.50'
+          : 'gray.800'
+      }
       id={item.key}
       onMouseEnter={() => {
         enterInterval = setTimeout(() => setMoreButtonVisible(true), 250)
@@ -368,7 +379,15 @@ function Item(props: ItemProps): ReactElement {
             fontSize="md"
             isTruncated={true}
             textDecoration={item.completed ? 'line-through' : null}
-            color={item.deleted ? 'gray.500' : 'gray.800'}
+            color={
+              item.deleted
+                ? colorMode == 'light'
+                  ? 'gray.500'
+                  : 'gray.400'
+                : colorMode == 'light'
+                ? 'gray.800'
+                : 'gray.200'
+            }
             sx={{
               p: {
                 overflow: 'hidden',

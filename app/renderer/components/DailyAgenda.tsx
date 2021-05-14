@@ -1,8 +1,8 @@
 import React, { ReactElement, useEffect, useState } from 'react'
 import { gql, useQuery } from '@apollo/client'
 import FilteredItemList from './FilteredItemList'
-import { parseISO, format, sub, add, isSameDay, startOfDay, parse, parseJSON } from 'date-fns'
-import { Grid, GridItem, Flex, VStack, Text, Box } from '@chakra-ui/react'
+import { parseISO, format, sub, add, isSameDay, startOfDay, parseJSON } from 'date-fns'
+import { Grid, GridItem, Flex, VStack, Text, Box, useColorMode } from '@chakra-ui/react'
 import { v5 as uuidv5 } from 'uuid'
 import Button from './Button'
 import ReorderableComponentList from './ReorderableComponentList'
@@ -79,7 +79,8 @@ const GET_DATA = gql`
 
 const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   const { loading, error, data, refetch } = useQuery(GET_DATA, { pollInterval: 1000 * 60 * 5 })
-  // TODO: Gross
+  const { colorMode, toggleColorMode } = useColorMode()
+  // TODO: Hoist this to a reactive var so others can use it
   const [currentDate, setDate] = useState(new Date())
   const [showModal, setShowModal] = useState(false)
   const [activeEvent, setActiveEvent] = useState(null)
@@ -143,7 +144,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
         <VStack
           width={'100%'}
           border={'1px solid'}
-          borderColor="gray.100"
+          borderColor={colorMode == 'light' ? 'gray.100' : 'gray.600'}
           padding={3}
           borderRadius="5px"
           spacing={1}
@@ -159,7 +160,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                   }}
                   width={'100%'}
                   _hover={{
-                    background: 'gray.100',
+                    background: colorMode == 'light' ? 'gray.100' : 'gray.900',
                     cursor: 'pointer',
                   }}
                   py={1}

@@ -86,16 +86,23 @@ const App = (props: AppProps): ReactElement => {
   const searchRef = React.useRef<HTMLSelectElement>()
   useEffect(() => {
     // Handle Electron events
-    window.electron.onReceiveMessage('create-item', (event, arg) => {
-      createItem({
-        variables: {
-          key: arg.key,
-          type: arg.type,
-          text: arg.text,
-          projectKey: arg?.projectKey,
-        },
-      })
+    window.electron.onReceiveMessage('create-item', async (event, arg) => {
+      try {
+        const item = await createItem({
+          variables: {
+            key: arg.key,
+            type: arg.type,
+            text: arg.text,
+            projectKey: arg?.projectKey,
+          },
+        })
+      } catch (err) {
+        // TODO: Have a think about the best way to handle a failed insert
+        return
+      }
+      toast.dark(`New item added from Bear - ${arg.text}`)
     })
+
     window.electron.onReceiveMessage('send-notification', (event, arg) => {
       // TODO: Implement multiple notification types
       toast.dark(`${arg.text}`)

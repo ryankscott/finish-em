@@ -64,7 +64,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           {props.sortType ? props.sortType.label : props.defaultText}
         </MenuButton>
 
-        <MenuList bg={'gray.50'}>
+        <MenuList>
           <MenuOptionGroup defaultValue="asc" title="Order" type="radio">
             <MenuItemOption
               value="asc"

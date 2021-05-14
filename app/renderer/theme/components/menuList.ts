@@ -1,4 +1,4 @@
-const MenuItem = {
+const MenuList = {
   baseStyle: {
     px: 2,
     py: 1,
@@ -10,6 +10,11 @@ const MenuItem = {
       fontWeight: 400,
     },
   },
-  variants: {},
+  variants: {
+    invert: {
+      bg: 'gray.800',
+      color: 'gray.100',
+    },
+  },
 }
-export default MenuItem
+export default MenuList

@@ -4,6 +4,7 @@ import 'react-quill/dist/quill.snow.css'
 import MarkdownShortcuts from 'quill-markdown-shortcuts'
 import CSS from 'csstype'
 import { Box } from '@chakra-ui/layout'
+import { useColorModeValue } from '@chakra-ui/color-mode'
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts)
 
@@ -126,7 +127,7 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
       textOverflow={'ellipsis'}
       whiteSpace={'nowrap'}
       border={props.showBorder ? '1px solid' : 'none'}
-      borderColor={'gray.200'}
+      borderColor={useColorModeValue('gray.200', 'gray.600')}
       borderRadius={5}
     >
       <ReactQuill

@@ -5,11 +5,19 @@ import { v4 as uuidv4 } from 'uuid'
 import Button from './Button'
 import colormap from 'colormap'
 import { camelCaseToInitialCaps } from '../utils'
-import { themeVar } from '..'
 import { Label } from '../../main/generated/typescript-helpers'
 import { HexColorPicker } from 'react-colorful'
 import { debounce } from 'lodash'
-import { Box, Flex, Text, Switch, Editable, EditableInput, EditablePreview } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  Text,
+  Switch,
+  Editable,
+  EditableInput,
+  EditablePreview,
+  useColorMode,
+} from '@chakra-ui/react'
 import Select from './Select'
 const NUMBER_OF_COLOURS = 12
 
@@ -118,6 +126,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
       cache.evict({ id: cacheId })
     },
   })
+  const { colorMode, toggleColorMode } = useColorMode()
 
   const colours = colormap({
     colormap: 'jet',
@@ -139,7 +148,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
     px: 6,
     m: 0,
     _hover: {
-      bg: 'gray.100',
+      bg: colorMode == 'light' ? 'gray.100' : 'gray.900',
       cursor: 'pointer',
     },
   }
@@ -174,10 +183,10 @@ function Settings(props: SettingsPickerProps): ReactElement {
     <Flex direction={'row'} w={'100%'} h={'100vh'}>
       <Flex
         borderRight={'1px solid'}
-        borderColor={'gray.200'}
+        borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
         direction={'column'}
         w={'280px'}
-        bg={'gray.50'}
+        bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
         py={2}
         px={0}
         h={'100%'}
@@ -188,14 +197,30 @@ function Settings(props: SettingsPickerProps): ReactElement {
         </Text>
         <Text
           {...settingSidebarHeaderStyles}
-          bg={activeCategory == 'UI' ? 'gray.200' : 'gray.50'}
+          bg={
+            activeCategory == 'UI'
+              ? colorMode == 'light'
+                ? 'gray.200'
+                : 'gray.900'
+              : colorMode == 'light'
+              ? 'gray.50'
+              : 'gray.800'
+          }
           onClick={() => setActiveCategory('UI')}
         >
           User Interface
         </Text>
         <Text
           {...settingSidebarHeaderStyles}
-          bg={activeCategory == 'LABELS' ? 'gray.200' : 'gray.50'}
+          bg={
+            activeCategory == 'LABELS'
+              ? colorMode == 'light'
+                ? 'gray.200'
+                : 'gray.900'
+              : colorMode == 'light'
+              ? 'gray.50'
+              : 'gray.800'
+          }
           onClick={() => setActiveCategory('LABELS')}
         >
           Labels
@@ -279,27 +304,6 @@ function Settings(props: SettingsPickerProps): ReactElement {
                 </span>
               )
             })}
-            <Flex
-              direction={'row'}
-              justifyContent={'flex-start'}
-              py={3}
-              px={0}
-              w={'100%'}
-              h={'30px'}
-              alignItems={'center'}
-              key={'dark-mode'}
-            >
-              <Text fontSize="sm" w={'180px'} key={`dark-mode`}>
-                Dark Mode
-              </Text>
-              <Switch
-                size="sm"
-                onChange={() => {
-                  data.theme == 'light' ? themeVar('dark') : themeVar('light')
-                }}
-                checked={data.theme == 'dark'}
-              />
-            </Flex>
           </Box>
         )}
         {activeCategory == 'LABELS' && (
@@ -313,7 +317,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     justifyContent={'space-between'}
                     alignItems={'center'}
                     height={'auto'}
-                    bg={'gray.50'}
+                    bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
                     key={'lc-' + m.key}
                   >
                     <Box w={'100%'} mr={1}>
@@ -321,7 +325,6 @@ function Settings(props: SettingsPickerProps): ReactElement {
                         borderRadius={5}
                         value={m.name}
                         bg={transparentize(0.7, m.colour)}
-                        color="gray.800"
                         fontSize="xs"
                         w={'100%'}
                         onSubmit={(input) => {

@@ -9,6 +9,7 @@ import {
   GridItem,
   Text,
   useTheme,
+  useColorMode,
 } from '@chakra-ui/react'
 import Tippy from '@tippyjs/react'
 import { parseISO } from 'date-fns'
@@ -131,6 +132,7 @@ type ProjectProps = {
 const Project = (props: ProjectProps): ReactElement => {
   const theme = useTheme()
   const history = useHistory()
+  const { colorMode, toggleColorMode } = useColorMode()
   const [deleteProject] = useMutation(DELETE_PROJECT, { refetchQueries: ['GetSidebarData'] })
   const [changeDescription] = useMutation(CHANGE_DESCRIPTION)
   const [renameProject] = useMutation(RENAME_PROJECT)
@@ -169,10 +171,11 @@ const Project = (props: ProjectProps): ReactElement => {
             borderRadius={'50%'}
             justifyContent={'center'}
             fontSize={'xl'}
-            bg={'gray.100'}
+            boxShadow={colorMode == 'light' ? 'none' : '0 0 3px 0 #222'}
+            bg={colorMode == 'light' ? 'gray.100' : 'gray.800'}
             my={0}
             _hover={{
-              bg: 'gray.200',
+              bg: colorMode == 'light' ? 'gray.200' : 'gray.900',
             }}
             transition={'all 0.1s ease-in-out'}
             cursor={'pointer'}
@@ -222,8 +225,6 @@ const Project = (props: ProjectProps): ReactElement => {
                 progress={
                   allItems.length != 0 ? (100 * completedItems.length) / allItems.length : 0
                 }
-                activeColour={theme.colors.blue[500]}
-                inactiveColour={theme.colors.gray[300]}
               />
               <Text fontSize="md">
                 {completedItems.length} of {allItems.length} items completed

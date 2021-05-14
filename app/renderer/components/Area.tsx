@@ -1,7 +1,6 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
 import { Flex, Grid, GridItem, Text } from '@chakra-ui/react'
-import { useTheme } from '@chakra-ui/system'
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react'
+import { Editable, EditableInput, EditablePreview, useColorMode, useTheme } from '@chakra-ui/react'
 import { parseISO } from 'date-fns'
 import { Emoji, Picker } from 'emoji-mart'
 import 'emoji-mart/css/emoji-mart.css'
@@ -102,6 +101,7 @@ type AreaProps = {
 const Area = (props: AreaProps): ReactElement => {
   const history = useHistory()
   const theme = useTheme()
+  const { colorMode, toggleColorMode } = useColorMode()
   const [setEmoji] = useMutation(SET_EMOJI)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [deleteArea] = useMutation(DELETE_AREA, {
@@ -172,7 +172,8 @@ const Area = (props: AreaProps): ReactElement => {
           rowSpan={2}
           colSpan={1}
           colStart={1}
-          bg={'gray.100'}
+          boxShadow={colorMode == 'light' ? 'none' : '0 0 3px 0 #222'}
+          bg={colorMode == 'light' ? 'gray.100' : 'gray.800'}
           my={0}
           w={'100px'}
           h={'100px'}
@@ -183,7 +184,7 @@ const Area = (props: AreaProps): ReactElement => {
             setShowEmojiPicker(!showEmojiPicker)
           }}
           _hover={{
-            bg: 'gray.200',
+            bg: colorMode == 'light' ? 'gray.200' : 'gray.900',
           }}
         >
           <Flex justifyContent={'center'} alignItems={'center'}>
@@ -258,7 +259,7 @@ const Area = (props: AreaProps): ReactElement => {
             cursor={'pointer'}
             borderRadius={3}
             _hover={{
-              bg: 'gray.100',
+              bg: colorMode == 'light' ? 'gray.100' : 'gray.900',
             }}
             _after={{
               content: "''",
@@ -270,7 +271,8 @@ const Area = (props: AreaProps): ReactElement => {
               height: 1,
               width: 'calc(100% - 10px)',
               borderBottom: '1px solid',
-              borderColor: 'gray.100',
+              borderColor: colorMode == 'light' ? 'gray.100' : 'gray.700',
+              opacity: 0.8,
             }}
             key={p.key}
             onClick={() => {
@@ -278,12 +280,7 @@ const Area = (props: AreaProps): ReactElement => {
             }}
           >
             <GridItem colSpan={1} rowSpan={2} colStart={1} rowStart={1}>
-              <Donut
-                size={24}
-                progress={progress}
-                activeColour={theme.colors.blue[500]}
-                inactiveColour={theme.colors.gray[100]}
-              />
+              <Donut size={24} progress={progress} />
             </GridItem>
             <GridItem colSpan={1} colStart={2}>
               <Text fontSize="lg">{p.name}</Text>

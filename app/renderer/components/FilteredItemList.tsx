@@ -1,13 +1,12 @@
-import { gql, useMutation, useQuery } from '@apollo/client'
-import { Box, Flex, Grid, GridItem, Text } from '@chakra-ui/react'
-import { orderBy } from 'lodash'
+import { gql, useMutation } from '@apollo/client'
+import { Box, Flex, Grid, GridItem, Text, useColorMode, useColorModeValue } from '@chakra-ui/react'
 import React, { ReactElement, useState } from 'react'
 import { Item } from '../../main/generated/typescript-helpers'
-import { ItemIcons, ItemType } from '../interfaces/item'
+import { ItemIcons } from '../interfaces/item'
 import Button from './Button'
 import EditFilteredItemList from './EditFilteredItemList'
 import ReorderableItemList from './ReorderableItemList'
-import SortDropdown, { SortDirectionEnum, SortOption } from './SortDropdown'
+import SortDropdown, { SortDirectionEnum } from './SortDropdown'
 
 const determineVisibilityRules = (
   isFilterable: boolean,
@@ -60,6 +59,7 @@ export type FilteredItemListProps = {
 }
 
 const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
+  const { colorMode, toggleColorMode } = useColorMode()
   const [sortType, setSortType] = useState({
     label: 'Due',
     sort: (items: Item[], direction: SortDirectionEnum) =>
@@ -82,7 +82,14 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
   )
 
   return (
-    <Box m={0} p={0} w={'100%'} borderRadius={5} border="1px solid" borderColor="gray.200">
+    <Box
+      m={0}
+      p={0}
+      w={'100%'}
+      borderRadius={5}
+      border="1px solid"
+      borderColor={colorMode == 'light' ? 'gray.200' : 'gray.600'}
+    >
       <Grid
         position={'relative'}
         alignItems={'center'}
@@ -95,7 +102,8 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
         gridTemplateRows={'40px'}
         gridTemplateColumns={'30px auto auto'}
         borderBottom={'1px solid'}
-        borderColor={'gray.200'}
+        bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
+        borderColor={colorMode == 'light' ? 'gray.200' : 'gray.600'}
       >
         <GridItem colSpan={1}>
           <Button
@@ -207,7 +215,13 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
           />
         </Box>
       ) : showItemList ? (
-        <Flex w={'100%'} transition={'0.2s ease-in-out'} py={0} px={3}>
+        <Flex
+          bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
+          w={'100%'}
+          transition={'0.2s ease-in-out'}
+          py={0}
+          px={3}
+        >
           <ReorderableItemList
             expandSubtasks={expandSubtasks}
             onItemsFetched={(itemLengths) => {

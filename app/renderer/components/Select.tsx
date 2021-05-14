@@ -5,23 +5,8 @@ import { v4 as uuidv4 } from 'uuid'
 import * as CSS from 'csstype'
 
 import { Icons } from '../assets/icons'
-import { darken, readableColor } from 'polished'
-
-const generateOptionBackgroundColour = (
-  data: { color: string },
-  isFocused: boolean,
-  altBackgroundColour: CSS.Property.BackgroundColor,
-  backgroundColour: CSS.Property.BackgroundColor,
-  invert: boolean,
-): string => {
-  if (data?.color) {
-    return data.color
-  }
-  if (isFocused) {
-    return invert ? darken(0.05, altBackgroundColour) : darken(0.05, backgroundColour)
-  }
-  return invert ? altBackgroundColour : backgroundColour
-}
+import { borderColor, darken } from 'polished'
+import { useColorMode } from '@chakra-ui/react'
 
 interface SelectStylesProps {
   fontSize: CSS.Property.FontSize
@@ -55,6 +40,35 @@ const DropdownIndicator = (props: ElementConfig<typeof components.DropdownIndica
 
 const Select = (props: Props) => {
   const theme = useTheme()
+  const { colorMode, toggleColorMode } = useColorMode()
+
+  const generateColour = (invert: boolean) => {
+    return invert
+      ? colorMode == 'light'
+        ? theme.colors.gray[50]
+        : theme.colors.gray[800]
+      : colorMode == 'light'
+      ? theme.colors.gray[800]
+      : theme.colors.gray[50]
+  }
+
+  const generateBackgroundColour = (
+    data: { color: string },
+    isFocused: boolean,
+    invert: boolean,
+  ): string => {
+    const backgroundColor = colorMode == 'light' ? theme.colors.gray[50] : theme.colors.gray[800]
+    const invertBackgroundColor =
+      colorMode == 'light' ? theme.colors.gray[800] : theme.colors.gray[50]
+
+    if (data?.color) {
+      return data.color
+    }
+    if (isFocused) {
+      return invert ? darken(0.05, invertBackgroundColor) : darken(0.05, backgroundColor)
+    }
+    return invert ? invertBackgroundColor : backgroundColor
+  }
 
   const selectStyles = (props: SelectStylesProps) => {
     return {
@@ -62,16 +76,12 @@ const Select = (props: Props) => {
         ...styles,
         width: props.fullWidth ? '100%' : 'auto',
         padding: '0px',
-        border: props.invert ? '1px solid' : 'none !important',
-        borderColor: theme.colors.gray[700],
         borderRadius: '5px',
         '&:active': {
-          border: props.invert ? '1px solid' : 'none !important',
-          borderColor: theme.colors.gray[600],
+          border: 'none !important',
         },
         '&:focus': {
-          border: props.invert ? '1px solid' : 'none !important',
-          borderColor: theme.colors.gray[600],
+          border: 'none !important',
         },
       }),
       input: (styles, { data, isFocused, isDisabled }) => ({
@@ -81,7 +91,7 @@ const Select = (props: Props) => {
         height: 'auto',
         lineHeight: 'auto',
         padding: '0px 2px',
-        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
+        color: generateColour(props.invert),
         fontSize: props.fontSize,
         border: `none !important`,
       }),
@@ -93,24 +103,34 @@ const Select = (props: Props) => {
         height: 'auto',
         minHeight: '28px',
         fontWeight: 400,
-        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
+        color: generateColour(props.invert),
       }),
+
       menu: (styles) => {
         return {
           ...styles,
           margin: '0px 0px',
           padding: '5px 0px',
-          backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[50],
-          border: 'none',
+          backgroundColor: props.invert
+            ? colorMode == 'light'
+              ? theme.colors.gray[800]
+              : theme.colors.gray[50]
+            : colorMode == 'light'
+            ? theme.colors.gray[50]
+            : theme.colors.gray[800],
+          border: '1px solid',
+          borderColor: colorMode == 'light' ? theme.colors.gray[200] : theme.colors.gray[800],
           borderRadius: '5px',
           tabIndex: 0,
           zIndex: 999,
+          boxShadow: colorMode == 'light' ? theme.shadows.md : theme.shadows['dark-lg'],
         }
       },
-      menuList: (styles) => {
+      menuList: (styles, state) => {
         return {
           ...styles,
           zIndex: 999,
+          backgroundColor: generateBackgroundColour(null, false, props.invert),
         }
       },
       option: (styles, { data, isFocused, isDisabled }) => {
@@ -118,14 +138,8 @@ const Select = (props: Props) => {
           ...styles,
           tabIndex: 0,
           position: 'relative',
-          color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
-          backgroundColor: generateOptionBackgroundColour(
-            data,
-            isFocused,
-            theme.colors.gray[800],
-            theme.colors.gray[50],
-            props.invert,
-          ),
+          color: generateColour(props.invert),
+          backgroundColor: generateBackgroundColour(data, isFocused, props.invert),
           padding: '5px 10px',
           margin: '0px',
           fontSize: props.fontSize,
@@ -133,16 +147,7 @@ const Select = (props: Props) => {
           zIndex: 999,
           '&:active': {
             fontWeight: 500,
-            backgroundColor: darken(
-              0.05,
-              generateOptionBackgroundColour(
-                data,
-                isFocused,
-                theme.colors.gray[800],
-                theme.colors.gray[50],
-                props.invert,
-              ),
-            ),
+            backgroundColor: darken(0.05, generateBackgroundColour(data, isFocused, props.invert)),
           },
           '&:hover': {
             fontWeight: 500,
@@ -151,16 +156,22 @@ const Select = (props: Props) => {
       },
       placeholder: (styles, { isDisabled }) => ({
         backgroundColor: 'transparent',
-        color: props.invert ? theme.colors.gray[200] : theme.colors.gray[400],
+        color: props.invert
+          ? colorMode == 'light'
+            ? theme.colors.gray[100]
+            : theme.colors.gray[400]
+          : colorMode == 'light'
+          ? theme.colors.gray[400]
+          : theme.colors.gray[100],
         opacity: isDisabled ? 0.4 : 1,
         fontSize: props.fontSize,
         fontWeight: 400,
       }),
       singleValue: (styles) => ({
         ...styles,
-        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
+        color: generateColour(props.invert),
       }),
-      control: (styles, { isDisabled }) => ({
+      control: (styles, { data, isFocused, isDisabled }) => ({
         ...styles,
         display: 'flex',
         minHeight: 'none',
@@ -173,53 +184,20 @@ const Select = (props: Props) => {
         opacity: isDisabled ? 0.4 : 1,
         fontSize: props.fontSize,
         cursor: isDisabled ? 'not-allowed' : 'inherit',
-        backgroundColor: generateOptionBackgroundColour(
-          null,
-          false,
-          theme.colors.gray[800],
-          theme.colors.gray[50],
-          props.invert,
-        ),
-        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
+        backgroundColor: generateBackgroundColour(null, isFocused, props.invert),
+        color: generateColour(props.invert),
         border: 'none',
         boxShadow: 'none !important',
         borderRadius: '5px',
         '&:hover': {
-          backgroundColor: darken(
-            0.05,
-            generateOptionBackgroundColour(
-              null,
-              false,
-              theme.colors.gray[800],
-              theme.colors.gray[50],
-              props.invert,
-            ),
-          ),
+          backgroundColor: darken(0.05, generateBackgroundColour(null, false, props.invert)),
         },
         '&:active': {
-          backgroundColor: darken(
-            0.05,
-            generateOptionBackgroundColour(
-              null,
-              false,
-              theme.colors.gray[800],
-              theme.colors.gray[50],
-              props.invert,
-            ),
-          ),
+          backgroundColor: darken(0.05, generateBackgroundColour(null, false, props.invert)),
           boxShadow: 'none !important',
         },
         '&:focus': {
-          backgroundColor: darken(
-            0.05,
-            generateOptionBackgroundColour(
-              null,
-              false,
-              theme.colors.gray[800],
-              theme.colors.gray[50],
-              props.invert,
-            ),
-          ),
+          backgroundColor: darken(0.05, generateBackgroundColour(null, false, props.invert)),
           boxShadow: 'none !important',
         },
       }),
@@ -233,22 +211,43 @@ const Select = (props: Props) => {
       multiValue: (styles) => ({
         ...styles,
         margin: '2px',
-        backgroundColor: props.invert ? theme.colors.gray[800] : theme.colors.gray[100],
+        color: generateColour(props.invert),
+        backgroundColor: props.invert
+          ? colorMode == 'light'
+            ? theme.colors.gray[700]
+            : theme.colors.gray[100]
+          : colorMode == 'light'
+          ? theme.colors.gray[100]
+          : theme.colors.gray[700],
         '&:hover': {
-          backgroundColor: props.invert ? theme.colors.gray[900] : theme.colors.gray[200],
+          backgroundColor: props.invert
+            ? colorMode == 'light'
+              ? theme.colors.gray[600]
+              : theme.colors.gray[200]
+            : colorMode == 'light'
+            ? theme.colors.gray[200]
+            : theme.colors.gray[600],
         },
       }),
       multiValueLabel: (styles) => ({
         ...styles,
         border: 'none',
+        color: generateColour(props.invert),
       }),
       multiValueRemove: (styles) => ({
         ...styles,
-        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
+        color: generateColour(props.invert),
         border: 'none',
         '&:hover': {
-          color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
-          backgroundColor: props.invert ? theme.colors.gray[900] : theme.colors.gray[200],
+          color: generateColour(props.invert),
+          border: 'none',
+          backgroundColor: props.invert
+            ? colorMode == 'light'
+              ? theme.colors.gray[200]
+              : theme.colors.gray[900]
+            : colorMode == 'light'
+            ? theme.colors.gray[900]
+            : theme.colors.gray[700],
           cursor: 'pointer',
         },
         '> svg': {
@@ -260,17 +259,40 @@ const Select = (props: Props) => {
         ...styles,
         borderRadius: '5px',
         padding: '2px',
-        color: props.invert ? theme.colors.gray[50] : theme.colors.gray[800],
+        color: generateColour(props.invert),
         backgroundColor: 'inherit',
         '&:hover': {
-          color: props.invert ? theme.colors.gray[100] : theme.colors.gray[900],
-          backgroundColor: props.invert ? theme.colors.gray[900] : theme.colors.gray[200],
+          color: props.invert
+            ? colorMode == 'light'
+              ? theme.colors.gray[100]
+              : theme.colors.gray[900]
+            : colorMode == 'light'
+            ? theme.colors.gray[100]
+            : theme.colors.gray[900],
+          backgroundColor: props.invert
+            ? colorMode == 'light'
+              ? theme.colors.gray[200]
+              : theme.colors.gray[900]
+            : colorMode == 'light'
+            ? theme.colors.gray[200]
+            : theme.colors.gray[900],
           cursor: 'pointer',
         },
         '> svg': {
           height: '16px',
           width: '16px',
         },
+      }),
+      group: (styles) => ({
+        ...styles,
+        color: 'pink',
+        backgroundColor: props.invert
+          ? colorMode == 'light'
+            ? theme.colors.gray[800]
+            : theme.colors.gray[50]
+          : colorMode == 'light'
+          ? theme.colors.gray[50]
+          : theme.colors.gray[800],
       }),
 
       indicatorSeparator: () => ({
@@ -280,7 +302,13 @@ const Select = (props: Props) => {
         return {
           display: props.hideDropdownIndicator ? 'none' : 'auto',
           opacity: state.isDisabled ? 0.4 : 1,
-          color: state.hasValue ? theme.colors.gray[800] : theme.colors.gray[500],
+          color: state.hasValue
+            ? colorMode == 'light'
+              ? theme.colors.gray[800]
+              : theme.colors.gray[400]
+            : colorMode == 'light'
+            ? theme.colors.gray[500]
+            : theme.colors.gray[600],
         }
       },
       noOptionsMessage: () => ({
@@ -312,6 +340,7 @@ const Select = (props: Props) => {
       options={props.options}
       escapeClearsValue={true}
       defaultMenuIsOpen={false}
+      menuPlacement={'auto'}
       styles={selectStyles({
         fontSize: theme.fontSizes.md,
         invert: props.invertColours,

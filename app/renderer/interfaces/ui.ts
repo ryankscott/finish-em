@@ -136,3 +136,5 @@ export type IconType =
   | 'notes'
   | 'todos'
   | 'bear'
+  | 'darkMode'
+  | 'lightMode'

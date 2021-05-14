@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react'
 import { IconType } from '../interfaces'
-import { Button as CButton, IconButton, Tooltip } from '@chakra-ui/react'
+import { Button as CButton, IconButton, useColorModeValue } from '@chakra-ui/react'
 import { Icons } from '../assets/icons'
 import * as CSS from 'csstype'
 import Tippy from '@tippyjs/react'
@@ -31,7 +31,7 @@ const Button = (props: ButtonProps): ReactElement => {
           isActive={props.isActive}
           variant={props.variant}
           isDisabled={props.disabled}
-          color={'gray.700'}
+          color={useColorModeValue('gray.700', 'gray.200')}
           icon={Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)}
           size={props.size}
           onClick={(e) => props?.onClick(e)}

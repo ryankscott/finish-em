@@ -9,7 +9,7 @@ import { activeItemVar, focusbarVisibleVar } from '..'
 import { Item, Project } from '../../main/generated/typescript-helpers'
 import { sortBy } from 'lodash'
 import { CommandBar } from './CommandBar'
-import { Flex, Grid, GridItem, useTheme } from '@chakra-ui/react'
+import { Flex, Grid, GridItem, useColorMode, useTheme, Switch } from '@chakra-ui/react'
 
 type OptionType = { label: string; value: () => void }
 
@@ -39,6 +39,7 @@ type HeaderbarProps = {
 const Headerbar = (props: HeaderbarProps): ReactElement => {
   const theme = useTheme()
   const history = useHistory()
+  const { colorMode, toggleColorMode } = useColorMode()
   const { loading, error, data } = useQuery(GET_DATA)
   if (loading) return null
   if (error) {
@@ -79,10 +80,12 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
     <Grid
       w={'100%'}
       alignItems="center"
-      gridTemplateColumns={'1fr repeat(3, 35px)'}
+      gridTemplateColumns={'1fr repeat(4, 35px)'}
       gridTemplateRows={'50px'}
       zIndex={999}
       color={'gray.50'}
+      borderBottom={colorMode == 'light' ? 'none' : '1px solid'}
+      borderColor={colorMode == 'light' ? 'transparent' : 'gray.900'}
       bg={'gray.800'}
       px={2}
     >
@@ -96,7 +99,7 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
               selected.value()
             }}
             options={generateOptions(data.projects, data.items)}
-            invertColours={true}
+            invertColours={colorMode == 'light' ? true : false}
             fullWidth={true}
           />
         </Flex>
@@ -149,6 +152,27 @@ const Headerbar = (props: HeaderbarProps): ReactElement => {
             onClick={() => {
               history.push('/help/')
             }}
+          />
+        </Flex>
+      </GridItem>
+
+      <GridItem>
+        <Flex
+          direction="row"
+          justifyContent={'center'}
+          alignItems={'center'}
+          p={3}
+          _hover={{ cursor: 'pointer' }}
+        >
+          <Button
+            size="md"
+            variant="invert"
+            icon={colorMode == 'light' ? 'darkMode' : 'lightMode'}
+            iconPosition={'right'}
+            iconColour={'white'}
+            iconSize={'20px'}
+            onClick={toggleColorMode}
+            tooltipText={'Toggle dark mode'}
           />
         </Flex>
       </GridItem>

@@ -12,9 +12,20 @@ import {
   Link,
 } from '@chakra-ui/react'
 import { Event } from '../../main/generated/typescript-helpers'
-import { format, parseISO } from 'date-fns'
+import { format, parseISO, sub } from 'date-fns'
 import Button from './Button'
-import { createNote } from '../utils/bear'
+import { gql, useQuery } from '@apollo/client'
+import RRule from 'rrule'
+import { capitaliseFirstLetter } from '../utils'
+
+const GET_FEATURES = gql`
+  query {
+    bearNotesIntegration: featureByName(name: "bearNotesIntegration") {
+      key
+      enabled
+    }
+  }
+`
 
 interface Props {
   event: Event
@@ -46,14 +57,28 @@ const AttributeValueStyles = {
 }
 
 export const EventModal = (props: Props) => {
+  const { loading, error, data } = useQuery(GET_FEATURES)
+  if (loading) return null
+  if (error) {
+    console.log(error)
+    return null
+  }
+
+  const offset = new Date().getTimezoneOffset()
+  const startAt = props.event?.startAt
+    ? format(sub(parseISO(props.event?.startAt), { minutes: offset }), 'h:mm aa')
+    : ''
+  const endAt = props.event?.endAt
+    ? format(sub(parseISO(props?.event?.endAt), { minutes: offset }), 'h:mm aa')
+    : ''
+
   const generateDuration = () => {
-    if (!props?.event?.startAt || !props?.event?.endAt) {
+    if (!startAt || !endAt) {
       return <Text fontSize="md"></Text>
     }
     return (
       <Text fontSize="md">
-        {format(parseISO(props.event?.startAt), 'h:mm a')} -{' '}
-        {format(parseISO(props.event?.endAt), 'h:mm a')}
+        {startAt} - {endAt}
       </Text>
     )
   }
@@ -76,8 +101,7 @@ export const EventModal = (props: Props) => {
     if (!props?.event?.attendees) {
       return <Text fontSize="md">-</Text>
     }
-
-    return props.event?.attendees?.map((a) => (
+    return props.event?.attendees?.map((a, idx) => (
       <Text fontSize="md" key={a.name}>
         {a.name}
       </Text>
@@ -87,7 +111,7 @@ export const EventModal = (props: Props) => {
     <Modal isOpen={props.isOpen} onClose={props.onClose}>
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader>{props.event?.title}</ModalHeader>
+          <ModalHeader pr={'40px'}>{props.event?.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Flex direction={'row'} {...AttributeContainerStyles}>
@@ -95,9 +119,21 @@ export const EventModal = (props: Props) => {
                 <Text fontSize="md">Time: </Text>
               </Flex>
               <Flex pl={3} postion={'relative'} direction={'column'} {...AttributeValueStyles}>
-                <Text fontSize="md">{generateDuration()}</Text>
+                {generateDuration()}
               </Flex>
             </Flex>
+            {props.event?.recurrence && (
+              <Flex direction={'row'} {...AttributeContainerStyles}>
+                <Flex {...AttributeKeyStyles}>
+                  <Text fontSize="md">Recurrence: </Text>
+                </Flex>
+                <Flex pl={3} postion={'relative'} direction={'column'} {...AttributeValueStyles}>
+                  <Text fontSize="md">
+                    {capitaliseFirstLetter(RRule.fromString(props.event.recurrence).toText())}
+                  </Text>
+                </Flex>
+              </Flex>
+            )}
             <Flex direction={'row'} {...AttributeContainerStyles}>
               <Flex {...AttributeKeyStyles}>
                 <Text fontSize="md">Location: </Text>
@@ -116,20 +152,18 @@ export const EventModal = (props: Props) => {
             </Flex>
           </ModalBody>
           <ModalFooter>
-            <Button
-              text={'Create note'}
-              variant={'primary'}
-              size="md"
-              icon={'bear'}
-              iconPosition="right"
-              iconColour="white"
-              onClick={(e) => {
-                const title = `${format(new Date(), 'yyyy-MM-dd')} - ${props.event?.title}`
-                const contents = `
-_${format(parseISO(props.event?.startAt), 'h:mm a')} - ${format(
-                  parseISO(props.event?.endAt),
-                  'h:mm a',
-                )}_
+            {data.bearNotesIntegration.enabled && (
+              <Button
+                text={'Create note'}
+                variant={'primary'}
+                size="md"
+                icon={'bear'}
+                iconPosition="right"
+                iconColour="white"
+                onClick={(e) => {
+                  const title = `${format(new Date(), 'yyyy-MM-dd')} - ${props.event?.title}`
+                  const contents = `
+_${startAt} - ${endAt}_
 
 ## Attendees:
 ${props.event?.attendees
@@ -143,12 +177,13 @@ ${props.event?.attendees
 
 ## Action Items:
 `
-                window.electron.sendMessage('create-bear-note', {
-                  title: title,
-                  content: contents,
-                })
-              }}
-            />
+                  window.electron.sendMessage('create-bear-note', {
+                    title: title,
+                    content: contents,
+                  })
+                }}
+              />
+            )}
           </ModalFooter>
         </ModalContent>
       </ModalOverlay>

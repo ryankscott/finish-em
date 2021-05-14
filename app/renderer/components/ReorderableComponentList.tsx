@@ -4,7 +4,7 @@ import React, { ReactElement, useEffect, useState } from 'react'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { Icons } from '../assets/icons'
-import { Menu, MenuButton, MenuList, MenuItem, Button, Flex, useTheme } from '@chakra-ui/react'
+import { Menu, MenuButton, MenuList, MenuItem, Button, Flex, useTheme, useColorMode } from '@chakra-ui/react'
 import ComponentActions from './ComponentActions'
 import FilteredItemList from './FilteredItemList'
 import ItemCreator from './ItemCreator'
@@ -29,7 +29,6 @@ const GET_COMPONENTS_BY_VIEW = gql`
         sortOrder
       }
     }
-    theme @client
   }
 `
 const ADD_COMPONENT = gql`
@@ -54,6 +53,7 @@ type ReorderableComponentListProps = {
 
 const ReorderableComponentList = (props: ReorderableComponentListProps): ReactElement => {
   const theme = useTheme()
+  const { colorMode, toggleColorMode } = useColorMode()
   const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey: props.viewKey },
   })
@@ -67,13 +67,17 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
     }
   }, [loading, data])
 
-  if (loading)
+  if (loading) {
     return (
       <Flex h={'100%'} w={'100%'} justifyContent={'center'} alignContent={'center'}>
         <Spinner loading={true}></Spinner>
       </Flex>
     )
-  if (error) return null
+  }
+  if (error) {
+    console.log(error)
+    return null
+  }
 
   const componentSwitch = (params, comp, provided) => {
     switch (comp.type) {
@@ -161,11 +165,12 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                           mb={8}
                           border={'1px solid'}
                           borderColor={snapshot.isDragging ? 'gray.200' : 'transparent'}
-                          bg="gray.50"
+            bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
+
                           shadow={snapshot.isDragging ? 'md' : null}
                           _hover={{
                             border: '1px solid',
-                            borderColor: 'gray.200',
+            borderColor: colorMode == 'light' ? 'gray.200' : 'gray.600'
                             shadow: 'base',
                           }}
                           ref={provided.innerRef}
@@ -228,7 +233,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
           >
             Add component
           </MenuButton>
-          <MenuList bg={'gray.50'}>
+          <MenuList>
             <MenuItem
               onClick={() => {
                 addComponent({

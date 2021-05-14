@@ -44,16 +44,16 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
           fontSize={props.size ? props.size : 'md'}
           as={Button}
           rightIcon={Icons['collapse'](iconSize, iconSize)}
-          borderRadius={5}
           variant={'default'}
+          borderRadiu
+          wls={5}
           width={'100%'}
           textAlign={'start'}
           fontWeight={'normal'}
-          color={'gray.400'}
         >
           {props.text ? props.text : props.defaultText}
         </MenuButton>
-        <MenuList width={'235px'} bg={'gray.50'}>
+        <MenuList minW={'188px'}>
           <MenuItem fontSize={'md'} onClick={() => handleDayChange(new Date())}>
             Today
           </MenuItem>

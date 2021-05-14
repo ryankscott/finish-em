@@ -8,6 +8,7 @@ import { Icons } from '../assets/icons'
 
 type RepeatPickerProps = {
   size?: 'xs' | 'sm' | 'md' | 'lg'
+  variant?: 'invert'
   repeat: RRule
   onSubmit: (value: RRule) => void
   onEscape?: () => void
@@ -49,20 +50,19 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     <>
       <Menu gutter={0} arrowPadding={0} closeOnSelect={true} closeOnBlur={true}>
         <MenuButton
+          variant={'default'}
           isDisabled={props.deleted || props.completed}
           fontSize={props.size ? props.size : 'md'}
           as={Button}
           rightIcon={Icons['collapse'](iconSize, iconSize)}
           borderRadius={5}
-          variant={'default'}
           width={'100%'}
           textAlign={'start'}
           fontWeight={'normal'}
-          color={'gray.400'}
         >
           {repeatText}
         </MenuButton>
-        <MenuList width={'235px'} bg={'gray.50'}>
+        <MenuList minW={'188px'}>
           <MenuItem
             fontSize={'md'}
             onClick={() =>

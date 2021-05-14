@@ -1,19 +1,24 @@
 import { transparentize } from 'polished'
+import { mode } from '@chakra-ui/theme-tools'
 
 const styles = {
   html: {
     boxSizing: 'border-box',
     fontWeight: 'normal',
+    outlineColor: 'blue.500',
   },
-  body: {
-    fontFamily: 'body',
-    color: 'gray.800',
-    bg: 'gray.50',
-    fontWeight: 'normal',
-    fontSize: 'sm',
-    boxSizing: 'border-box',
-    padding: 0,
-    margin: 0,
+  body: (props) => {
+    return {
+      fontFamily: 'body',
+      color: mode('gray.800', 'gray.100')(props),
+      bg: mode('gray.50', 'gray.800')(props),
+      fontWeight: 'normal',
+      fontSize: 'sm',
+      boxSizing: 'border-box',
+      padding: 0,
+      margin: 0,
+      outlineColor: 'blue.500',
+    }
   },
   a: {
     color: 'blue.500',
@@ -21,14 +26,16 @@ const styles = {
       textDecoration: 'underline',
     },
   },
-  p: {
-    fontSize: 'sm',
-    fontWeight: 'normal',
-    fontFamily: 'body',
-    color: 'gray.800',
-    my: 1,
-    mx: 2,
-    px: 2,
+  p: (props) => {
+    return {
+      fontSize: 'sm',
+      fontWeight: 'normal',
+      fontFamily: 'body',
+      color: mode('gray.800', 'gray.100')(props),
+      my: 1,
+      mx: 2,
+      px: 2,
+    }
   },
   global: (props) => {
     return {
@@ -65,7 +72,7 @@ const styles = {
       },
       '.ql-snow .ql-tooltip a.ql-preview': {
         textDecoration: 'underline',
-        color: 'gray.100',
+        color: mode('gray.100', 'gray.200')(props),
         px: 2,
         mr: 2,
         borderRadius: 5,
@@ -79,6 +86,7 @@ const styles = {
         fontStyle: 'normal',
         opacity: 0.7,
         left: 2,
+        color: mode('gray.800', 'gray.200')(props),
       },
       '.ql-editor': {
         fontFamily: 'body',
@@ -88,13 +96,17 @@ const styles = {
         px: 2,
         borderRadius: 4,
         border: 'none',
+        color: mode('gray.800', 'gray.200')(props),
         transition: 'all 0.1s ease-in-out',
         _hover: {
-          bg: 'gray.100',
+          bg: mode('gray.100', 'gray.900')(props),
         },
         _focus: {
-          bg: 'gray.100',
+          bg: mode('gray.100', 'gray.900')(props),
         },
+      },
+      '.ql-editor p': {
+        color: mode('gray.800', 'gray.200')(props),
       },
       '.ql-container': {
         border: 'none',
@@ -160,9 +172,9 @@ const styles = {
         display: 'flex',
         padding: 2,
         borderRadius: 4,
-        bg: 'gray.100',
+        bg: mode('gray.100', 'gray.900')(props),
         border: '1px solid',
-        borderColor: 'gray.100',
+        borderColor: mode('gray.200', 'gray.600')(props),
         position: 'absolute',
         bottom: 0,
         width: '100%',
@@ -172,6 +184,7 @@ const styles = {
 
       '.ql-toolbar.ql-snow': {
         padding: 1,
+        borderColor: mode('gray.200', 'gray.600')(props),
       },
       '.ql-toolbar.ql-snow .ql-formats': {
         mr: 3,
@@ -180,11 +193,17 @@ const styles = {
         border: 'none',
         _focus: {
           border: '1px solid',
-          borderColor: 'gray.200',
+          borderColor: mode('gray.200', 'gray.600')(props),
         },
+      },
+      '.ql-snow .ql-stroke': {
+        color: mode('gray.800', 'gray.200')(props),
+        stroke: mode('gray.800', 'gray.200')(props),
       },
       '.ql-stroke': {
         strokeWidth: '0.9 !important',
+        color: mode('gray.800', 'gray.200')(props),
+        stroke: mode('gray.800', 'gray.200')(props),
       },
       '.ql-stroke.ql-thin': {
         strokeWidth: '0.8 !important',
@@ -192,26 +211,30 @@ const styles = {
       '.ql-snow.ql-toolbar button': {
         borderRadius: 3,
       },
+
       '.ql-snow.ql-toolbar button:hover .ql-stroke': {
-        color: 'gray.800',
-        stroke: 'gray.800',
+        color: mode('gray.800', 'gray.200')(props),
+        stroke: mode('gray.800', 'gray.200')(props),
       },
       '.ql-snow.ql-toolbar button:hover .ql-fill': {
-        fill: 'gray.800',
+        fill: mode('gray.800', 'gray.200')(props),
       },
 
       '.ql-snow.ql-toolbar button:hover': {
         color: 'gray.800',
-        bg: 'gray.200',
+        bg: mode('gray.200', 'gray.800')(props),
+      },
+      '.ql-snow .ql-stroke.ql-fill': {
+        fill: mode('gray.800', 'gray.200')(props),
       },
 
       '.ql-snow.ql-toolbar button.ql-active': {
         color: 'gray.800',
-        bg: 'gray.300',
+        bg: mode('gray.300', 'gray.900')(props),
       },
 
       '.ql-snow.ql-toolbar button.ql-active .ql-stroke': {
-        stroke: 'gray.900',
+        stroke: mode('gray.900', 'gray.400')(props),
         strokeWidth: 1.25,
       },
       '.quill-blurred-editor': {

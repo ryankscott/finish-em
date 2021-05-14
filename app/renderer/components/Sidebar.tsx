@@ -1,5 +1,14 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { chakra, Divider, Flex, Stack, Text, useTheme, VStack } from '@chakra-ui/react'
+import {
+  chakra,
+  Divider,
+  Flex,
+  Stack,
+  Text,
+  useTheme,
+  VStack,
+  useColorMode,
+} from '@chakra-ui/react'
 import Tippy from '@tippyjs/react'
 import { Emoji } from 'emoji-mart'
 import { orderBy } from 'lodash'
@@ -24,7 +33,15 @@ const SidebarItem = (props: {
   if (props.sidebarVisible) {
     return (
       <Tippy delay={500} content={props.text}>
-        <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="flex-start" alignItems={'center'}>
+        <Flex
+          key={uuidv4()}
+          focusBorderColor={'blue.500'}
+          m={0}
+          px={2}
+          py={0}
+          justifyContent="flex-start"
+          alignItems={'center'}
+        >
           {props.iconName && Icons[props.iconName](16, 16)}
           <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
             {props.text}
@@ -144,6 +161,7 @@ type SidebarProps = {}
 const Sidebar = (props: SidebarProps): ReactElement => {
   const history = useHistory()
   const theme = useTheme()
+  const { colorMode, toggleColorMode } = useColorMode()
   const { loading, error, data } = useQuery(GET_AREAS)
   const [setProjectOrder] = useMutation(SET_PROJECT_ORDER)
   const [setAreaOrder] = useMutation(SET_AREA_ORDER)
@@ -198,6 +216,11 @@ const Sidebar = (props: SidebarProps): ReactElement => {
     m: 0,
     my: 0.25,
     px: data.sidebarVisible ? 2 : 0,
+    _focus: {
+      outlineColor: 'blue.500',
+      border: 'none',
+      bg: 'gray.900',
+    },
     _hover: {
       bg: 'gray.900',
     },
@@ -218,6 +241,7 @@ const Sidebar = (props: SidebarProps): ReactElement => {
   return (
     <>
       <Flex
+        zIndex={50}
         alignItems={data.sidebarVisible ? 'none' : 'center'}
         direction={'column'}
         justifyContent={'space-between'}
@@ -227,10 +251,13 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         height={'100%'}
         p={2}
         bg={'gray.800'}
-        shadow={'md'}
+        shadow={'lg'}
         data-cy="sidebar-container"
         m={0}
         overflowY={'scroll'}
+        border={'none'}
+        borderRight={colorMode == 'light' ? 'none' : '1px solid'}
+        borderColor={colorMode == 'light' ? 'transparent' : 'gray.900'}
       >
         <VStack spacing={0} w={'100%'}>
           <SidebarSection name="Views" iconName="view" sidebarVisible={data.sidebarVisible} />
