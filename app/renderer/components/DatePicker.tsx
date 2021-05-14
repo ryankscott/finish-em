@@ -45,8 +45,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
           as={Button}
           rightIcon={Icons['collapse'](iconSize, iconSize)}
           variant={'default'}
-          borderRadiu
-          wls={5}
+          borderRadius={5}
           width={'100%'}
           textAlign={'start'}
           fontWeight={'normal'}

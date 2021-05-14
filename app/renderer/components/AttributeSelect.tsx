@@ -137,11 +137,11 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
               label: (
                 <Flex>
                   {a.emoji && (
-                    <Box pr={2}>
+                    <Box pr={1}>
                       <Emoji emoji={a.emoji} size={12} native={true} />
                     </Box>
                   )}
-                  <Text pl={2}>{a.name}</Text>
+                  <Text pl={1}>{a.name}</Text>
                 </Flex>
               ),
             }

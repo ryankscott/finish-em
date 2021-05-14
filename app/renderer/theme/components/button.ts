@@ -71,6 +71,9 @@ function variantInvert(props: Dict) {
     _active: {
       bg: 'gray.900',
     },
+    _focus: {
+      bg: 'gray.900',
+    },
   }
 }
 function variantSubtle(props: Dict) {

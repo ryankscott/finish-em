@@ -161,7 +161,7 @@ const Select = (props: Props) => {
             ? theme.colors.gray[100]
             : theme.colors.gray[400]
           : colorMode == 'light'
-          ? theme.colors.gray[400]
+          ? theme.colors.gray[700]
           : theme.colors.gray[100],
         opacity: isDisabled ? 0.4 : 1,
         fontSize: props.fontSize,
