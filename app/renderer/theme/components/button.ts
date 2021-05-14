@@ -46,6 +46,12 @@ function variantPrimary(props: Dict) {
     _hover: {
       bg: mode('blue.400', 'blue.600')(props),
     },
+    _active: {
+      bg: mode('blue.400', 'blue.600')(props),
+    },
+    _focus: {
+      bg: mode('blue.400', 'blue.600')(props),
+    },
     _disabled: {
       bg: mode('blue.300', 'blue.800')(props),
     },
@@ -57,6 +63,12 @@ function variantError(props: Dict) {
     bg: 'red.400',
     color: 'white',
     _hover: {
+      bg: 'red.500',
+    },
+    _focus: {
+      bg: 'red.500',
+    },
+    _active: {
       bg: 'red.500',
     },
   }
