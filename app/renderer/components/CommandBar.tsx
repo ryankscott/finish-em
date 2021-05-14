@@ -162,7 +162,7 @@ export const CommandBar = () => {
             ) : (
               <span>{suggestion.name}</span>
             )}
-            <span className={'command-shortcut'}>{suggestion.shortcut}</span>
+            {/*   <span className={'command-shortcut'}>{suggestion.shortcut}</span>*/}
           </Flex>
         )
       }}
