@@ -189,19 +189,24 @@ const createCalendar = async (
   return await result.data
 }
 
-const getFeatures = async (client: ApolloClient<NormalizedCacheObject>): Promise<Feature[]> => {
-  const result = await client.query({
-    query: gql`
-      query {
-        features {
-          key
-          name
-          enabled
+const getFeatures = async (client: ApolloClient<NormalizedCacheObject>): Promise<any> => {
+  const result = await client
+    .query({
+      query: gql`
+        query {
+          features {
+            key
+            name
+            enabled
+          }
         }
-      }
-    `,
-  })
-  return await result.data
+      `,
+    })
+    .catch((e: ApolloError) => {
+      log.error(`Failed to get features - ${e}`)
+      return null
+    })
+  return result?.data
 }
 
 const createItemFromAppleMail = async () => {
@@ -228,7 +233,7 @@ const saveCalendars = async (
 ) => {
   log.info(`Getting calendars from Apple Calendar`)
   log.info(`Saving ${cals.length} calendars from Apple Calendar`)
-  cals.map((c) => {
+  cals?.map((c) => {
     try {
       createCalendar(client, c.id, c.title, c.id.toString() == activeCalKey ? true : false)
     } catch (err) {
@@ -245,7 +250,11 @@ const saveEventsToDB = (
 ) => {
   log.info(`Saving ${events.length} events to DB`)
   events.forEach(async (e, idx) => {
-    saveEventToDB(client, e, calendarKey)
+    try {
+      saveEventToDB(client, e, calendarKey)
+    } catch (err) {
+      log.error(`Failed to save event to db - ${err}`)
+    }
   })
   log.info(`Saved ${events.length} events to DB`)
 }
@@ -302,7 +311,7 @@ const saveEventToDB = (
       },
     })
     .catch((e: ApolloError) => {
-      log.error(`Failed to insert event with error - ${e}`)
+      log.error(`Failed to save event with error - ${e}`)
     })
   log.debug(`Saved event with uid - ${ev.key}`)
 }
@@ -514,11 +523,13 @@ const startApp = async () => {
   await startGraphQL()
   client = createApolloClient()
 
-  const features = await getFeatures(client)
+  const featureResult = await getFeatures(client)
+  const features = featureResult.features
   const calendarIntegration = await features?.find((f) => f.name == 'calendarIntegration')
 
+  console.log(calendarIntegration)
   if (calendarIntegration?.enabled) {
-    await saveAppleCalendarEvents(client, true)
+    //   await saveAppleCalendarEvents(client, true)
     // Get events every 5 mins
     setInterval(async () => {
       await saveAppleCalendarEvents(client, false)
@@ -527,7 +538,7 @@ const startApp = async () => {
 
   const bearNotesIntegration = await features?.find((f) => f.name == 'bearNotesIntegration')
   if (bearNotesIntegration?.enabled) {
-    await saveTodosFromBear(client)
+    // await saveTodosFromBear(client)
     // Get todos from bear
     setInterval(async () => {
       saveTodosFromBear(client)
