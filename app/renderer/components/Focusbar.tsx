@@ -195,26 +195,24 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     },
   })
 
-  const [renameItem] = useMutation(RENAME_ITEM, { refetchQueries: ['itemByKey'] })
+  const [renameItem] = useMutation(RENAME_ITEM)
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: ['itemsByFilter'],
   })
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: ['itemsByFilter'],
   })
-  const [setProject] = useMutation(SET_PROJECT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
-  const [setArea] = useMutation(SET_AREA, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
+  const [setProject] = useMutation(SET_PROJECT, { refetchQueries: ['itemsByFilter'] })
+  const [setArea] = useMutation(SET_AREA, { refetchQueries: ['itemsByFilter'] })
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
     refetchQueries: ['itemsByFilter', 'weeklyItems'],
   })
-  const [setDueAt] = useMutation(SET_DUE_AT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
-  const [setRepeat] = useMutation(SET_REPEAT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
-  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
-  const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
-  const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter', 'itemByKey'] })
-  const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
-  })
+  const [setDueAt] = useMutation(SET_DUE_AT, { refetchQueries: ['itemsByFilter'] })
+  const [setRepeat] = useMutation(SET_REPEAT, { refetchQueries: ['itemsByFilter'] })
+  const [setParent] = useMutation(SET_PARENT, { refetchQueries: ['itemsByFilter'] })
+  const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByFilter'] })
+  const [deleteItem] = useMutation(DELETE_ITEM, { refetchQueries: ['itemsByFilter'] })
+  const [restoreItem] = useMutation(RESTORE_ITEM, { refetchQueries: ['itemsByFilter'] })
 
   if (error) {
     console.log(error)
@@ -234,7 +232,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         overflowY={'scroll'}
         bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
         transition={'all 0.2s ease-in-out'}
-      ></VStack>
+      />
     )
   }
 
