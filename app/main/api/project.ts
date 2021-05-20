@@ -7,7 +7,7 @@ import { createView, deleteView, renameView } from './view'
 export const createGetProjectsQuery = (input: { deleted: boolean }) => {
   const deletedText = input.deleted != undefined ? `AND deleted = ${input.deleted}` : ''
   return `
-SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey
+SELECT key, name, deleted, description, lastUpdatedAt, deletedAt, createdAt, startAt, endAt, areaKey, emoji
 FROM project
 WHERE 1 = 1
 ${deletedText}
