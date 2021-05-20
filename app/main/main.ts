@@ -527,7 +527,6 @@ const startApp = async () => {
   const features = featureResult.features
   const calendarIntegration = await features?.find((f) => f.name == 'calendarIntegration')
 
-  console.log(calendarIntegration)
   if (calendarIntegration?.enabled) {
     //   await saveAppleCalendarEvents(client, true)
     // Get events every 5 mins
