@@ -10,7 +10,7 @@ interface Props {
   sidebarVisible: boolean
 }
 
-export const SidebarSection = (props: Props) => {
+const SidebarSection = (props: Props) => {
   const theme = useTheme()
 
   const sectionStyles = {
@@ -36,3 +36,5 @@ export const SidebarSection = (props: Props) => {
     </Flex>
   )
 }
+
+export default SidebarSection

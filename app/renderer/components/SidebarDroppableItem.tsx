@@ -1,7 +1,6 @@
 import React from 'react'
 import { Flex } from '@chakra-ui/react'
 import { DroppableProvided, DroppableStateSnapshot } from 'react-beautiful-dnd'
-import { v4 as uuidv4 } from 'uuid'
 
 interface Props {
   sidebarVisible: boolean
@@ -10,24 +9,24 @@ interface Props {
   children: React.ReactNode
 }
 
-const SidebarDroppableList = (props: Props) => {
+const SidebarDroppableItem = (props: Props) => {
   return (
     <Flex
-      key={uuidv4()}
       direction={'column'}
-      alignItems={'center'}
       justifyContent={'center'}
       w={'100%'}
-      px={props.sidebarVisible ? 1 : 0}
-      py={props.sidebarVisible ? (props.snapshot.isDraggingOver ? 3 : 1) : 1}
       m={0}
-      my={props.snapshot.isDraggingOver ? 3 : 0}
-      {...props.provided.droppableProps}
+      p={0}
+      px={props.sidebarVisible ? 1 : 0}
+      borderRadius={5}
+      bg={props.snapshot.isDragging ? 'gray.900' : 'gray.800'}
+      shadow={props.snapshot.isDragging ? 'base' : 'none'}
+      {...props.provided.draggableProps}
+      {...props.provided.dragHandleProps}
       ref={props.provided.innerRef}
     >
       {props.children}
     </Flex>
   )
 }
-
-export default SidebarDroppableList
+export default SidebarDroppableItem

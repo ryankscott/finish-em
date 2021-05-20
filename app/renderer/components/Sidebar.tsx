@@ -1,63 +1,18 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import {
-  chakra,
-  Divider,
-  Flex,
-  Stack,
-  Text,
-  useTheme,
-  VStack,
-  useColorMode,
-} from '@chakra-ui/react'
-import Tippy from '@tippyjs/react'
-import { Emoji } from 'emoji-mart'
+import { Divider, Flex, Stack, useTheme, VStack, useColorMode, Box } from '@chakra-ui/react'
 import { orderBy } from 'lodash'
 import React, { ReactElement, useEffect, useState } from 'react'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
-import { NavLink, useHistory } from 'react-router-dom'
-import 'tippy.js/dist/tippy.css'
+import { useHistory } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
-import { Icons } from '../assets/icons'
 import { sidebarVisibleVar } from '../index'
 import { IconType } from '../interfaces'
-import { createShortSidebarItem, getProductName } from '../utils'
+import { getProductName } from '../utils'
 import Button from './Button'
-import { SidebarDraggableItem } from './SidebarDraggableItem'
-import { SidebarSection } from './SidebarSection'
-
-const SidebarItem = (props: {
-  sidebarVisible: boolean
-  iconName: string
-  text: string
-}): React.ReactElement => {
-  if (props.sidebarVisible) {
-    return (
-      <Tippy delay={500} content={props.text}>
-        <Flex
-          key={uuidv4()}
-          focusBorderColor={'blue.500'}
-          m={0}
-          px={2}
-          py={0}
-          justifyContent="flex-start"
-          alignItems={'center'}
-        >
-          {props.iconName && Icons[props.iconName](16, 16)}
-          <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
-            {props.text}
-          </Text>
-        </Flex>
-      </Tippy>
-    )
-  }
-  return (
-    <Tippy delay={500} content={props.text}>
-      <Flex key={uuidv4()} m={0} px={2} py={0} justifyContent="center">
-        {Icons[props.iconName](20, 20)}
-      </Flex>
-    </Tippy>
-  )
-}
+import SidebarDraggableItem from './SidebarDraggableItem'
+import SidebarDroppableItem from './SidebarDroppableItem'
+import SidebarItem from './SidebarItem'
+import SidebarSection from './SidebarSection'
 
 const GET_AREAS = gql`
   query GetSidebarData {
@@ -96,7 +51,6 @@ const GET_AREAS = gql`
     sidebarVisible @client
   }
 `
-
 const SET_PROJECT_ORDER = gql`
   mutation SetProjectOrder($projectKey: String!, $sortOrder: Int!) {
     setProjectOrder(input: { projectKey: $projectKey, sortOrder: $sortOrder }) {
@@ -105,7 +59,6 @@ const SET_PROJECT_ORDER = gql`
     }
   }
 `
-
 const SET_AREA_OF_PROJECT = gql`
   mutation SetAreaOfProject($key: String!, $areaKey: String!) {
     setAreaOfProject(input: { key: $key, areaKey: $areaKey }) {
@@ -116,7 +69,6 @@ const SET_AREA_OF_PROJECT = gql`
     }
   }
 `
-
 const SET_AREA_ORDER = gql`
   mutation SetAreaOrder($areaKey: String!, $sortOrder: Int!) {
     setAreaOrder(input: { areaKey: $areaKey, sortOrder: $sortOrder }) {
@@ -208,37 +160,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
     },
   ]
 
-  const StyledLink = chakra(NavLink)
-  const linkStyles = {
-    color: 'gray.100',
-    w: '100%',
-    borderRadius: 4,
-    py: 1.25,
-    m: 0,
-    my: 0.25,
-    px: sidebarVisible ? 2 : 0,
-    _focus: {
-      outlineColor: 'blue.500',
-      border: 'none',
-      bg: 'gray.900',
-    },
-    _hover: {
-      bg: 'gray.900',
-    },
-    _active: {
-      bg: 'gray.900',
-    },
-  }
-
-  const droppableStyles = {
-    direction: 'column',
-    justifyContent: 'center',
-    w: '100%',
-    m: 0,
-    p: 0,
-    borderRadius: 5,
-  }
-
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result
 
@@ -299,27 +220,6 @@ const Sidebar = (props: SidebarProps): ReactElement => {
     }
   }
 
-  const generateSidebarItem = (sidebarVisible: boolean, name: string, emoji?: string) => {
-    if (sidebarVisible) {
-      return (
-        <Flex alignItems="baseline">
-          <Emoji emoji={emoji ? emoji : ''} size={14} native={true} />
-          <Text fontSize="md" color={'gray.100'} pl={1}>
-            {name}
-          </Text>
-        </Flex>
-      )
-    }
-
-    if (emoji) <Emoji emoji={emoji} size={16} native={true} />
-
-    return (
-      <Text textAlign={'center'} fontSize="md" color={'gray.100'}>
-        {createShortSidebarItem(name)}
-      </Text>
-    )
-  }
-
   return (
     <Flex
       zIndex={50}
@@ -339,47 +239,36 @@ const Sidebar = (props: SidebarProps): ReactElement => {
       border={'none'}
       borderRight={colorMode == 'light' ? 'none' : '1px solid'}
       borderColor={colorMode == 'light' ? 'transparent' : 'gray.900'}
+      sx={{ scrollbarWidth: 'thin' }}
     >
       <VStack spacing={0} w={'100%'}>
         <SidebarSection name="Views" iconName="view" sidebarVisible={sidebarVisible} />
         <VStack spacing={0} w={'100%'}>
           {defaultViews.map((d) => {
             return (
-              <StyledLink
-                activeStyle={{
-                  backgroundColor: theme.colors.gray[900],
-                }}
-                {...linkStyles}
-                to={d.path}
-                key={'link-' + d.path}
-              >
-                <SidebarItem
-                  key={d.path}
-                  sidebarVisible={sidebarVisible}
-                  iconName={d.iconName}
-                  text={d.text}
-                />
-              </StyledLink>
+              <SidebarItem
+                key={d.path}
+                sidebarVisible={sidebarVisible}
+                iconName={d.iconName}
+                text={d.text}
+                activeColour={theme.colors.gray[900]}
+                path={d.path}
+                variant="defaultView"
+              />
             )
           })}
           {sortedViews.map((view) => {
             if (view.type == 'project' || view.type == 'area') return null
             return (
-              <StyledLink
-                activeStyle={{
-                  backgroundColor: theme.colors.gray[900],
-                }}
-                {...linkStyles}
-                key={view.key}
-                to={`/views/${view.key}`}
-              >
-                <SidebarItem
-                  key={'sidebarItem-' + view.key}
-                  sidebarVisible={sidebarVisible}
-                  iconName={view.icon}
-                  text={view.name}
-                />
-              </StyledLink>
+              <SidebarItem
+                variant={'defaultView'}
+                key={'sidebarItem-' + view.key}
+                sidebarVisible={sidebarVisible}
+                iconName={view.icon}
+                text={view.name}
+                path={`/views/${view.key}`}
+                activeColour={theme.colors.gray[900]}
+              />
             )
           })}
         </VStack>
@@ -387,25 +276,20 @@ const Sidebar = (props: SidebarProps): ReactElement => {
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId={uuidv4()} type="AREA">
             {(provided, snapshot) => (
-              <Flex
-                {...droppableStyles}
-                bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
-                shadow={snapshot.isDragging ? 'base' : 'none'}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                ref={provided.innerRef}
+              <SidebarDroppableItem
+                sidebarVisible={sidebarVisible}
+                provided={provided}
+                snapshot={snapshot}
               >
                 {sortedAreas.map((a, index) => {
                   return (
                     <Draggable key={'draggable-' + a.key} draggableId={a.key} index={index}>
                       {(provided, snapshot) => (
-                        <Flex
-                          {...droppableStyles}
-                          bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
-                          shadow={snapshot.isDragging ? 'base' : 'none'}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          ref={provided.innerRef}
+                        <SidebarDraggableItem
+                          key={'draggable-' + a.key}
+                          sidebarVisible={sidebarVisible}
+                          snapshot={snapshot}
+                          provided={provided}
                         >
                           {!sidebarVisible && <Divider />}
                           <Flex
@@ -415,18 +299,14 @@ const Sidebar = (props: SidebarProps): ReactElement => {
                             px={0}
                             alignItems={'center'}
                           >
-                            <Tippy content={a.name} delay={500}>
-                              <StyledLink
-                                activeStyle={{
-                                  backgroundColor: theme.colors.gray[900],
-                                }}
-                                {...linkStyles}
-                                textAlign={'center'}
-                                to={`/areas/${a.key}`}
-                              >
-                                {generateSidebarItem(sidebarVisible, a.name, a.emoji)}
-                              </StyledLink>
-                            </Tippy>
+                            <SidebarItem
+                              variant="customView"
+                              sidebarVisible={sidebarVisible}
+                              text={a.name}
+                              emoji={a.emoji}
+                              path={`/areas/${a.key}`}
+                              activeColour={theme.colors.gray[900]}
+                            />
                             {sidebarVisible && (
                               <Button
                                 size="md"
@@ -454,57 +334,51 @@ const Sidebar = (props: SidebarProps): ReactElement => {
 
                           <Droppable key={a.key} droppableId={a.key} type="PROJECT">
                             {(provided, snapshot) => (
-                              <Flex
-                                {...droppableStyles}
-                                pl={sidebarVisible ? 1 : 0}
-                                bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
-                                shadow={snapshot.isDragging ? 'base' : 'none'}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                ref={provided.innerRef}
+                              <SidebarDroppableItem
+                                sidebarVisible={sidebarVisible}
+                                snapshot={snapshot}
+                                provided={provided}
                               >
-                                {sortedProjects.map((p, index) => {
-                                  // Don't render the inbox here
-                                  if (p.key == '0') return
-                                  const pathName = '/views/' + p.key
-                                  // Don't render projects not part of this area
-                                  if (p.area.key != a.key) return
-                                  return (
-                                    <Draggable key={p.key} draggableId={p.key} index={index}>
-                                      {(provided, snapshot) => (
-                                        <SidebarDraggableItem
-                                          key={'draggable-' + p.key}
-                                          sidebarVisible={sidebarVisible}
-                                          snapshot={snapshot}
-                                          provided={provided}
-                                        >
-                                          <Tippy content={p.name} delay={500}>
-                                            <StyledLink
-                                              activeStyle={{
-                                                backgroundColor: theme.colors.gray[900],
-                                              }}
-                                              {...linkStyles}
-                                              to={pathName}
-                                              textAlign={'center'}
-                                            >
-                                              {generateSidebarItem(sidebarVisible, p.name, p.emoji)}
-                                            </StyledLink>
-                                          </Tippy>
-                                        </SidebarDraggableItem>
-                                      )}
-                                    </Draggable>
-                                  )
-                                })}
-                                {provided.placeholder}
-                              </Flex>
+                                <Box px={1}>
+                                  {sortedProjects.map((p, index) => {
+                                    // Don't render the inbox here
+                                    if (p.key == '0') return
+                                    const pathName = '/views/' + p.key
+                                    // Don't render projects not part of this area
+                                    if (p.area.key != a.key) return
+                                    return (
+                                      <Draggable key={p.key} draggableId={p.key} index={index}>
+                                        {(provided, snapshot) => (
+                                          <SidebarDraggableItem
+                                            key={'draggable-' + p.key}
+                                            sidebarVisible={sidebarVisible}
+                                            snapshot={snapshot}
+                                            provided={provided}
+                                          >
+                                            <SidebarItem
+                                              variant="customView"
+                                              sidebarVisible={sidebarVisible}
+                                              text={p.name}
+                                              emoji={p.emoji}
+                                              path={pathName}
+                                              activeColour={theme.colors.gray[900]}
+                                            />
+                                          </SidebarDraggableItem>
+                                        )}
+                                      </Draggable>
+                                    )
+                                  })}
+                                  {provided.placeholder}
+                                </Box>
+                              </SidebarDroppableItem>
                             )}
                           </Droppable>
-                        </Flex>
+                        </SidebarDraggableItem>
                       )}
                     </Draggable>
                   )
                 })}
-              </Flex>
+              </SidebarDroppableItem>
             )}
           </Droppable>
         </DragDropContext>
@@ -538,21 +412,15 @@ const Sidebar = (props: SidebarProps): ReactElement => {
       >
         {!sidebarVisible && <Divider />}
         <Flex key={uuidv4()} alignItems={'center'}>
-          <StyledLink
+          <SidebarItem
+            variant="defaultView"
             key={uuidv4()}
-            activeStyle={{
-              backgroundColor: theme.colors.gray[900],
-            }}
-            {...linkStyles}
-            to="/settings"
-          >
-            <SidebarItem
-              key={uuidv4()}
-              sidebarVisible={sidebarVisible}
-              iconName={'settings'}
-              text={'Settings'}
-            />
-          </StyledLink>
+            sidebarVisible={sidebarVisible}
+            iconName={'settings'}
+            text={'Settings'}
+            path="/settings"
+            activeColour={theme.colors.gray[900]}
+          />
         </Flex>
         <Flex key={uuidv4()} justifyContent={'center'} alignItems={'center'}>
           <Button

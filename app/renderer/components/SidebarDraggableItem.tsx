@@ -1,7 +1,6 @@
 import React from 'react'
 import { Flex } from '@chakra-ui/react'
 import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd'
-import { v4 as uuidv4 } from 'uuid'
 interface Props {
   sidebarVisible: boolean
   snapshot: DraggableStateSnapshot
@@ -9,15 +8,15 @@ interface Props {
   children: React.ReactNode
 }
 
-export const SidebarDraggableItem = (props: Props) => {
+const SidebarDraggableItem = (props: Props) => {
   return (
     <Flex
       direction={'column'}
       justifyContent={'center'}
       w={'100%'}
       m={0}
-      p={0}
-      pl={props.sidebarVisible ? 1 : 0}
+      py={0}
+      px={props.sidebarVisible ? 1 : 0}
       bg={props.snapshot.isDragging ? 'gray.900' : 'gray.800'}
       shadow={props.snapshot.isDragging ? 'base' : 'none'}
       borderRadius={5}
@@ -29,3 +28,4 @@ export const SidebarDraggableItem = (props: Props) => {
     </Flex>
   )
 }
+export default SidebarDraggableItem
