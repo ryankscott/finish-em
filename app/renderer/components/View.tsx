@@ -42,7 +42,6 @@ const View = (props: ViewProps): ReactElement => {
     console.log(error)
     return null
   }
-  console.log(props.viewKey)
   return (
     <Page>
       {headerComponent(data.view.type, props.viewKey)}
