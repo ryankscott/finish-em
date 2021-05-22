@@ -92,6 +92,9 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
           >
             Custom Date
           </MenuItem>
+          <MenuItem fontSize={'md'} onClick={() => handleDayChange(null)}>
+            No date
+          </MenuItem>
         </MenuList>
       </Menu>
       <Box position={'absolute'}>

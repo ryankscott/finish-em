@@ -11,9 +11,6 @@ import { Area, Item, Label, Project } from '../../main/generated/typescript-help
 import { markdownBasicRegex, markdownLinkRegex, removeItemTypeFromString } from '../utils'
 import Select from './Select'
 
-type OptionType = { value: string; label: ReactElement | string; color?: CSS.Property.Color }
-type Attribute = 'area' | 'item' | 'label' | 'project'
-
 const queries: { [key: string]: DocumentNode } = {
   area: gql`
     query {
@@ -68,14 +65,36 @@ const queries: { [key: string]: DocumentNode } = {
   `,
 }
 
-interface AttributeSelectProps {
-  attribute: Attribute
-  currentAttribute: Area | Item | Label | Project
+type AttributeType =
+  | {
+      attribute: 'item'
+      currentAttribute: Item
+    }
+  | {
+      attribute: 'label'
+      currentAttribute: Label
+    }
+  | {
+      attribute: 'project'
+      currentAttribute: Project
+    }
+  | {
+      attribute: 'item'
+      currentAttribute: Item
+    }
+  | {
+      attribute: 'area'
+      currentAttribute: Area
+    }
+
+type OtherProps = {
   completed: boolean
   deleted: boolean
   invert?: boolean
   onSubmit: (key: string) => void
 }
+
+type AttributeSelectProps = AttributeType & OtherProps
 
 export default function AttributeSelect(props: AttributeSelectProps): ReactElement {
   const { loading, error, data } = useQuery(queries[props.attribute])
@@ -86,32 +105,32 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
   }
 
   const generateDefaultValues = (
-    attr: Attribute,
+    input: AttributeType,
   ): {
     currentValue: string
     noValueText: string
     backgroundColour?: CSS.Property.Color
   } => {
-    switch (attr) {
+    switch (input.attribute) {
       case 'area':
         return {
-          currentValue: props?.currentAttribute?.key,
+          currentValue: input?.currentAttribute?.key,
           noValueText: 'Add area',
         }
       case 'label':
         return {
-          currentValue: props?.currentAttribute?.key,
+          currentValue: input?.currentAttribute?.key,
           noValueText: 'Add label',
-          backgroundColour: props.currentAttribute?.colour,
+          backgroundColour: input.currentAttribute?.colour,
         }
       case 'project':
         return {
-          currentValue: props?.currentAttribute?.key,
+          currentValue: input?.currentAttribute?.key,
           noValueText: 'Add project',
         }
       case 'item':
         return {
-          currentValue: props?.currentAttribute.parent ? props.currentAttribute.parent.key : null,
+          currentValue: input?.currentAttribute.parent ? input.currentAttribute.parent.key : null,
           noValueText: 'Add parent',
         }
 
@@ -123,11 +142,8 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
     }
   }
 
-  const generateOptions = (
-    attr: Attribute,
-    currentAttr: Area | Item | Label | Project,
-  ): OptionsType<any> | GroupedOptionsType<any> => {
-    switch (attr) {
+  const generateOptions = (input: AttributeType): OptionsType<any> | GroupedOptionsType<any> => {
+    switch (input.attribute) {
       case 'area':
         const filteredAreas = data.areas.filter((a) => a.deleted == false)
         return [
@@ -168,7 +184,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
 
         const groupedProjects = groupBy(filteredProjects, 'area.name')
         const aGroups = Object.keys(groupedProjects).map((i) => {
-          const group: GroupType<OptionType> = { label: '', options: [] }
+          const group = { label: '', options: [] }
           group['label'] = i
           group['options'] = groupedProjects[i].map((p: Project) => {
             return {
@@ -190,9 +206,13 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
 
         // Sort to ensure that the current project is at the front
         // Only if it has a project
-        if (currentAttr != null) {
+        if (input.currentAttribute != null) {
           aGroups.sort((a, b) =>
-            a.label == currentAttr.area?.name ? -1 : b.label == currentAttr.area?.name ? 1 : 0,
+            a.label == input.currentAttribute.area?.name
+              ? -1
+              : b.label == input.currentAttribute.area?.name
+              ? 1
+              : 0,
           )
         }
 
@@ -207,7 +227,10 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
       case 'item':
         const filteredValues = data.items.filter(
           (i) =>
-            i.key != null && i.key != currentAttr.key && i.deleted == false && i.completed == false,
+            i.key != null &&
+            i.key != input.currentAttribute.key &&
+            i.deleted == false &&
+            i.completed == false,
         )
         // Return if we've filtered all items
         if (!filteredValues.length) return
@@ -216,7 +239,7 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
         // Show the items from the project the item is in first
         // Update the label to be the project name, and the items to be the right format
         const allGroups = Object.keys(groupedItems).map((i) => {
-          const group: GroupType<OptionType> = { label: '', options: [] }
+          const group = { label: '', options: [] }
           // It's possible to not have a project
           group['label'] = i ? i : 'No Project'
           group['options'] = groupedItems[i].map((i) => {
@@ -231,16 +254,16 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
         })
         // Sort to ensure that the current project is at the front
         allGroups.sort((a, b) => {
-          if (!currentAttr?.project?.key) return 0
-          return a.label == currentAttr?.project?.name
+          if (!input.currentAttribute?.project?.key) return 0
+          return a.label == input.currentAttribute?.project?.name
             ? -1
-            : b.label == currentAttr?.project?.name
+            : b.label == input.currentAttribute?.project?.name
             ? 1
             : 0
         })
 
         // If it's already a subtask add an option to create it to a task
-        return currentAttr?.parent != null
+        return input.currentAttribute?.parent != null
           ? [
               {
                 label: 'Options',
@@ -251,13 +274,21 @@ export default function AttributeSelect(props: AttributeSelectProps): ReactEleme
           : allGroups
 
       default:
-        return {}
+        return null
         break
     }
   }
 
-  const defaultValues = generateDefaultValues(props.attribute)
-  const options = generateOptions(props.attribute, props.currentAttribute)
+  const defaultValues = generateDefaultValues({
+    attribute: props.attribute,
+    currentAttribute: props.currentAttribute,
+  })
+
+  const options = generateOptions({
+    attribute: props.attribute,
+    currentAttribute: props.currentAttribute,
+  })
+
   const allOptions = options
     .map((o) => {
       return o.options ? o.options : o

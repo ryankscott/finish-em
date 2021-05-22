@@ -13,10 +13,10 @@ import {
   Flex,
   Text,
   Switch,
+  useColorMode,
   Editable,
   EditableInput,
   EditablePreview,
-  useColorMode,
 } from '@chakra-ui/react'
 import Select from './Select'
 const NUMBER_OF_COLOURS = 12
@@ -37,6 +37,7 @@ const GET_FEATURES_AND_LABELS = gql`
       key
       name
       enabled
+      metadata
     }
     labels {
       key
@@ -69,6 +70,14 @@ const SET_FEATURE = gql`
     setFeature(input: { key: $key, enabled: $enabled }) {
       key
       enabled
+    }
+  }
+`
+const SET_FEATURE_METADATA = gql`
+  mutation SetFeatureMetadata($key: String!, $metadata: JSON!) {
+    setFeatureMetadata(input: { key: $key, metadata: $metadata }) {
+      key
+      metadata
     }
   }
 `
@@ -115,6 +124,7 @@ function Settings(props: SettingsPickerProps): ReactElement {
     refetchQueries: ['settings'],
   })
   const [setFeature] = useMutation(SET_FEATURE, { refetchQueries: ['getActiveCalendar'] })
+  const [setFeatureMetadata] = useMutation(SET_FEATURE_METADATA)
   const [renameLabel] = useMutation(RENAME_LABEL)
   const [setColourOfLabel] = useMutation(RECOLOUR_LABEL)
   const [deleteLabel] = useMutation(DELETE_LABEL, {
@@ -266,22 +276,26 @@ function Settings(props: SettingsPickerProps): ReactElement {
                     <Switch
                       size="sm"
                       onChange={() => {
+                        window.electron.sendMessage('feature-toggled', {
+                          name: f.name,
+                          key: f.key,
+                          enabled: !f.enabled,
+                          metadata: f.metadata,
+                        })
                         setFeature({
                           variables: {
                             key: f.key,
-                            enabled: !data.features.find((df) => df.key == f.key).enabled,
+                            enabled: !f.enabled,
                           },
                         })
                       }}
-                      defaultChecked={data.features.find((df) => df.key == f.key).enabled}
+                      defaultChecked={f.enabled}
                     />
                     {f.name == 'calendarIntegration' && (
                       <Box pl={3} w={'180px'}>
                         <Select
                           size="md"
-                          isDisabled={
-                            !data.features.find((df) => df.name == 'calendarIntegration').enabled
-                          }
+                          isDisabled={!f.enabled}
                           key={f.key + '-select'}
                           autoFocus={true}
                           placeholder={'Choose calendar'}
@@ -298,6 +312,30 @@ function Settings(props: SettingsPickerProps): ReactElement {
                           options={calendarOptions}
                           escapeClearsValue={true}
                         />
+                      </Box>
+                    )}
+                    {f.name == 'bearNotesIntegration' && (
+                      <Box pl={3} w={'180px'}>
+                        <Editable
+                          defaultValue={JSON.parse(f?.metadata)?.apiToken}
+                          onSubmit={(val) => {
+                            window.electron.sendMessage('feature-metadata-updated', {
+                              name: f.name,
+                              key: f.key,
+                              enabled: f.enabled,
+                              metadata: { apiToken: val },
+                            })
+                            setFeatureMetadata({
+                              variables: { key: f.key, metadata: { apiToken: val } },
+                            })
+                          }}
+                          fontSize="sm"
+                          placeholder="Bear API Token"
+                          isDisabled={!f.enabled}
+                        >
+                          <EditablePreview py={2} />
+                          <EditableInput py={2} />
+                        </Editable>
                       </Box>
                     )}
                   </Flex>

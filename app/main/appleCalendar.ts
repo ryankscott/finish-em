@@ -23,11 +23,16 @@ export const setupAppleCalDatabase = async (): Promise<
 > => {
   const databasePath = `${app.getPath('home')}/Library/Calendars/Calendar\ Cache`
   log.info(`Loading Apple Calendar DB at: ${databasePath}`)
-
-  return await sqlite.open({
-    filename: databasePath,
-    driver: sqlite3.Database,
-  })
+  try {
+    const db = await sqlite.open({
+      filename: databasePath,
+      driver: sqlite3.Database,
+    })
+    return db
+  } catch (e) {
+    log.error(`Failed to open Apple Cal Database - ${e}`)
+    return null
+  }
 }
 
 export const getAppleCalendars = async (db: sqlite.Database) => {
@@ -40,7 +45,7 @@ WHERE ZTITLE IS NOT NULl;`)
   if (res) {
     return res
   } else {
-    console.log('error')
+    log.error(`Failed to get Apple Calendars from cache db - ${res}`)
     return null
   }
 }

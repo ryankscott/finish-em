@@ -6,15 +6,6 @@ import EditItemCreator from './EditItemCreator'
 import EditableText2 from './EditableText2'
 import { Flex } from '@chakra-ui/react'
 
-const GET_FEATURE = gql`
-  query {
-    newEditor: featureByName(name: "newEditor") {
-      key
-      enabled
-    }
-  }
-`
-
 const CREATE_ITEM = gql`
   mutation CreateItem(
     $key: String!
@@ -103,12 +94,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   const [createItem] = useMutation(CREATE_ITEM, {
     refetchQueries: ['itemsByFilter'],
   })
-  const { loading, error, data } = useQuery(GET_FEATURE)
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
+
   return (
     <>
       {props.editing ? (

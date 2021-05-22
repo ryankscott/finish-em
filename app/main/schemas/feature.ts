@@ -1,19 +1,28 @@
 export const feature = `
+scalar JSON
+
 type Feature {
   key: String!
   name: String!
   enabled: Boolean
+  metadata: JSON 
 }
 
 input CreateFeatureInput {
   key: String!
   name: String!
   enabled: Boolean!
+  metadata: JSON 
 }
 
 input SetFeatureInput {
   key: String!
   enabled: Boolean!
+}
+
+input SetFeatureMetadataInput {
+  key: String!
+  metadata: JSON!
 }
 
 type Query {
@@ -25,5 +34,6 @@ type Query {
 type Mutation {
   createFeature(input: CreateFeatureInput!): Feature
   setFeature(input: SetFeatureInput!): Feature
+  setFeatureMetadata(input: SetFeatureMetadataInput!): Feature
 }
 `

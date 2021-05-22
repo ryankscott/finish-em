@@ -24,7 +24,7 @@ import * as sqlite3 from 'sqlite3'
 import 'sugar-date/locales'
 import util from 'util'
 import { v4 as uuidv4 } from 'uuid'
-import { createNote, getAllTodos } from '../renderer/utils/bear'
+import { createNote, getAllTodos } from './bear'
 import {
   AppleCalendarEvent,
   appleMailLinkScript,
@@ -33,7 +33,7 @@ import {
   getRecurringEventsForCalendar,
   setupAppleCalDatabase,
 } from './appleCalendar'
-import { AttendeeInput, Event, Feature } from './generated/typescript-helpers'
+import { AttendeeInput, Event } from './generated/typescript-helpers'
 import { getOutlookLink, openOutlookLink } from './outlook'
 import { rootValue, schema } from './schemas/schema'
 var crypto = require('crypto')
@@ -46,6 +46,8 @@ const executeAppleScript = util.promisify(applescript.execString)
 const isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == 'true' : false
 
 const GRAPHQL_PORT = 8089
+const BEAR_SYNC_INTERVAL = 1000 * 60 * 5
+const CAL_SYNC_INTERVAL = 1000 * 60 * 5
 
 if (isDev) {
   log.info('Running in development')
@@ -198,6 +200,7 @@ const getFeatures = async (client: ApolloClient<NormalizedCacheObject>): Promise
             key
             name
             enabled
+            metadata
           }
         }
       `,
@@ -241,6 +244,7 @@ const saveCalendars = async (
     }
   })
   log.info(`All calendars saved`)
+  return
 }
 
 const saveEventsToDB = (
@@ -316,8 +320,9 @@ const saveEventToDB = (
   log.debug(`Saved event with uid - ${ev.key}`)
 }
 
-const saveTodosFromBear = async (client: ApolloClient<NormalizedCacheObject>) => {
-  const todos = await getAllTodos()
+const saveTodosFromBear = async (token: string, client: ApolloClient<NormalizedCacheObject>) => {
+  const todos = await getAllTodos(token)
+  if (!todos) return
   log.info(`Found ${todos.length} notes with todos`)
   todos.map((t) => {
     const [id, noteTodos] = t
@@ -339,18 +344,23 @@ const saveTodosFromBear = async (client: ApolloClient<NormalizedCacheObject>) =>
 
 const getActiveCalendar = async (client: ApolloClient<NormalizedCacheObject>): Promise<any> => {
   log.info(`Getting active calendar`)
-  const result = await client.query({
-    query: gql`
-      query {
-        getActiveCalendar {
-          key
-          name
-          active
+  try {
+    const result = await client.query({
+      query: gql`
+        query {
+          getActiveCalendar {
+            key
+            name
+            active
+          }
         }
-      }
-    `,
-  })
-  return await result.data
+      `,
+    })
+    return await result.data
+  } catch (e) {
+    console.log(`Failed to get active calendar - ${e}`)
+    return null
+  }
 }
 
 const translateAppleEventToEvent = (events: AppleCalendarEvent[]): Event[] => {
@@ -497,10 +507,23 @@ const saveAppleCalendarEvents = async (
   getRecurringEvents: boolean,
 ) => {
   const db2 = await setupAppleCalDatabase()
+  if (!db2) {
+    log.error('Failed to set up Apple calendar db')
+    return
+  }
   const data = await getActiveCalendar(client)
+  if (!data) {
+    log.error('Failed to get active calendar when saving events')
+    return
+  }
 
   const activeCal = data?.getActiveCalendar
   const cals = await getAppleCalendars(db2)
+  if (!cals) {
+    log.error('Failed to get calendars from Apple calendar cache')
+    return
+  }
+
   await saveCalendars(client, cals, activeCal?.key)
   const appleEvents: AppleCalendarEvent[] = await getEventsForCalendar(db2, activeCal?.key)
   const events = translateAppleEventToEvent(appleEvents)
@@ -517,6 +540,7 @@ const saveAppleCalendarEvents = async (
 }
 
 let mainWindow, quickAddWindow, db, client
+let calendarSyncInterval, bearNotesSyncInterval
 const startApp = async () => {
   db = await setUpDatabase()
 
@@ -528,20 +552,30 @@ const startApp = async () => {
   const calendarIntegration = await features?.find((f) => f.name == 'calendarIntegration')
 
   if (calendarIntegration?.enabled) {
-    //   await saveAppleCalendarEvents(client, true)
+    log.info('Calendar integration enabled - turning on sync')
     // Get events every 5 mins
-    setInterval(async () => {
+    calendarSyncInterval = setInterval(async () => {
       await saveAppleCalendarEvents(client, false)
-    }, 1000 * 60 * 5)
+    }, CAL_SYNC_INTERVAL)
   }
 
   const bearNotesIntegration = await features?.find((f) => f.name == 'bearNotesIntegration')
   if (bearNotesIntegration?.enabled) {
-    // await saveTodosFromBear(client)
+    log.info('Bear notes integration enabled - turning on sync')
+    const metadata = bearNotesIntegration?.metadata
+    if (!metadata) {
+      log.error('No metadata attached to bear notes')
+      return
+    }
+    const token = JSON.parse(metadata)?.apiToken
+    if (!token) {
+      log.error(`Failed to get API token for bear notes integration`)
+      return
+    }
     // Get todos from bear
-    setInterval(async () => {
-      saveTodosFromBear(client)
-    }, 1000 * 60 * 5)
+    bearNotesSyncInterval = setInterval(async () => {
+      saveTodosFromBear(token, client)
+    }, BEAR_SYNC_INTERVAL)
   }
 }
 
@@ -605,4 +639,67 @@ ipcMain.on('create-task', (event, arg) => {
 
 ipcMain.on('create-bear-note', (event, arg) => {
   createNote(arg.title, arg.content)
+})
+
+ipcMain.on('feature-toggled', (event, arg) => {
+  if (arg.name == 'calendarIntegration') {
+    if (arg.enabled) {
+      log.info('Enabling calendar sync')
+      calendarSyncInterval = setInterval(async () => {
+        await saveAppleCalendarEvents(client, false)
+      }, CAL_SYNC_INTERVAL)
+    } else {
+      log.info('Disabling calendar sync')
+      clearInterval(calendarSyncInterval)
+    }
+  }
+
+  if (arg.name == 'bearNotesIntegration') {
+    if (arg.enabled) {
+      const metadata = arg?.metadata
+      if (!metadata) {
+        log.error('No metadata attached to bear notes')
+        return
+      }
+      const token = JSON.parse(metadata)?.apiToken
+      if (!token) {
+        log.error(`Failed to get API token for bear notes integration`)
+        return
+      }
+      log.info('Enabling bear notes sync')
+      // Get todos from bear
+      saveTodosFromBear(token, client)
+      bearNotesSyncInterval = setInterval(async () => {
+        saveTodosFromBear(token, client)
+      }, BEAR_SYNC_INTERVAL)
+    } else {
+      log.info('Disabling bear notes sync')
+      clearInterval(bearNotesSyncInterval)
+    }
+  }
+})
+
+ipcMain.on('feature-metadata-updated', (event, arg) => {
+  if (arg.name == 'bearNotesIntegration') {
+    if (arg.enabled) {
+      const metadata = arg?.metadata
+      if (!metadata) {
+        log.error('No metadata attached to bear notes')
+        return
+      }
+      const token = metadata.apiToken
+      log.info('Updated API token for bear note')
+      if (!token) {
+        log.error(`Failed to get API token for bear notes integration`)
+        return
+      }
+      // Get todos from bear
+      saveTodosFromBear(token, client)
+      bearNotesSyncInterval = setInterval(async () => {
+        saveTodosFromBear(token, client)
+      }, BEAR_SYNC_INTERVAL)
+    } else {
+      clearInterval(bearNotesSyncInterval)
+    }
+  }
 })

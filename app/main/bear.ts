@@ -1,18 +1,36 @@
+import { exec } from 'child_process'
+
 const xcall = require('xcall')
 const client = new xcall('bear')
 const open = require('open')
+const log = require('electron-log')
+log.transports.console.level = 'info'
 
-const TOKEN_ID = '2D890E-E92087-1AAFC5'
-const BEAR_TODO_REGEX = /^- \[ \]\s+(\w*)/
+const BEAR_TODO_REGEX = /^- \[ \]\s+(.+)/
 
 type BearNote = {
   identifier: string
   note: string
 }
 
+const killXCall = () => {
+  exec('killall xcall', (error, stdout, stderr) => {
+    if (error) {
+      return
+    }
+  })
+}
+
 const getTodosFromString = (input: string): string[] => {
+  if (!input) {
+    log.info('No input string provided')
+    return []
+  }
   const lines = input.split('\n')
-  if (!lines.length) return
+  if (!lines.length) {
+    log.error('No new lines found in note')
+    return
+  }
 
   return lines.reduce((acc, currentValue) => {
     const match = currentValue.match(BEAR_TODO_REGEX)
@@ -33,30 +51,44 @@ const getNoteContents = async (id: string): Promise<BearNote> => {
   }
 }
 
-const getNotesWithTodos = async () => {
+const getNotesWithTodos = async (token: string) => {
   try {
-    const res = await client.call('todo', { token: TOKEN_ID, show_window: 'no' })
+    const res = await client.call('todo', { token: token, show_window: 'no' })
     if (res) {
+      log.info(`Got response from bear notes`)
       const resp = JSON.parse(res)
+      log.info(`Parsed response payload`)
       const notes: BearNote[] = JSON.parse(resp.notes)
+      log.info(`Parsing ${notes.length} notes`)
       return notes.map((n) => {
         return n.identifier
       })
+    } else {
+      return null
     }
   } catch (err) {
-    console.error(`Failed to get notes with todos from bear - ${err}`)
+    log.error(`Failed to get notes with todos from bear - ${err}`)
     return null
   }
 }
 
-export const getAllTodos = async (): Promise<any> => {
-  const noteIds = await getNotesWithTodos()
+export const getAllTodos = async (token: string): Promise<any> => {
+  killXCall()
+  log.info(`Getting all notes from Bear with todos`)
+  const noteIds = await getNotesWithTodos(token)
   if (!noteIds) return
+  log.info(`Found ${noteIds.length} notes with todos`)
+
   return Promise.all(
     noteIds.map(async (n) => {
+      log.info(`Getting contents for note with id ${n}`)
       const noteContents = await getNoteContents(n)
-      if (!noteContents) return
+      if (!noteContents) {
+        log.error(`Didn't get note contents for note - ${n}`)
+        return [n, []]
+      }
       const todos = getTodosFromString(noteContents.note)
+      log.info(`Found ${todos.length} todos for note id ${n}`)
       return [n, todos]
     }),
   )
