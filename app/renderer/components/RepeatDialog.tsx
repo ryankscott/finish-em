@@ -7,25 +7,22 @@ import { Icons } from '../assets/icons'
 import {
   NumberInput,
   NumberInputField,
-  NumberInputStepper,
-  NumberIncrementStepper,
-  NumberDecrementStepper,
   Menu,
   MenuItem,
   MenuButton,
   MenuList,
-  Text,
   VStack,
+  Text,
   Flex,
-  Grid,
-  GridItem,
+  CloseButton,
   Button as CButton,
 } from '@chakra-ui/react'
 import lowerCase from 'lodash/lowerCase'
 import upperFirst from 'lodash/upperFirst'
 
 type RepeatDialogProps = {
-  onSubmit: (RRule) => void
+  onSubmit: (rule: RRule) => void
+  onClose: () => void
 }
 const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
   const [startDate, setStartDate] = useState(new Date())
@@ -69,28 +66,26 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
     switch (frequency) {
       case 0:
         return 'Years'
-        break
       case 1:
         return 'Months'
-        break
       case 2:
         return 'Weeks'
-        break
       case 3:
         return 'Days'
-        break
-
       default:
         break
     }
   }
-  const gridStyle = {
-    direction: 'row',
-    p: 1,
-    m: 1,
-    gap: 1,
-    w: '100%',
-    templateColumns: 'repeat(5, 1fr)',
+
+  const labelStyle = {
+    fontSize: 'sm',
+    w: '20%',
+    minW: '90px',
+  }
+
+  const optionStyle = {
+    width: '100%',
+    justifyContent: 'space-between',
     alignItems: 'center',
   }
 
@@ -101,53 +96,66 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
       borderColor={'gray.100'}
       bg={'white'}
       spacing={1}
-      px={3}
+      px={4}
       py={2}
       position="absolute"
-      top="30px"
-      right="0px"
+      top="38px"
+      right="-2px"
       zIndex="99"
-      width="275px"
+      width="290px"
       boxShadow="md"
     >
-      <Grid {...gridStyle}>
-        <GridItem colSpan={2}>
-          <Text fontSize="sm">Starts: </Text>
-        </GridItem>
-        <GridItem colSpan={3}>
-          <DatePicker
+      <Flex w={'100%'} justifyContent="flex-end" py={2}>
+        <CloseButton size="xs" onClick={props.onClose} />
+      </Flex>
+      <Flex {...optionStyle}>
+        <Text {...labelStyle}>Starts: </Text>
+        <DatePicker
+          size="sm"
+          text={startDateText}
+          defaultText={'Start date'}
+          onSubmit={(val) => {
+            setStartDate(val)
+          }}
+          completed={false}
+        />
+      </Flex>
+      <Flex {...optionStyle}>
+        <Text {...labelStyle}>Repeats every: </Text>
+        <Flex justifyContent="start" alignItems="center" w={'100%'} pl="5px">
+          <NumberInput
             size="sm"
-            text={startDateText}
-            defaultText={'Start date'}
-            onSubmit={(val) => {
-              setStartDate(val)
-            }}
-            completed={false}
-          />
-        </GridItem>
-      </Grid>
-      <Grid {...gridStyle}>
-        <GridItem colSpan={2}>
-          <Text fontSize="sm">Repeats every: </Text>
-        </GridItem>
-        <GridItem colSpan={1}>
-          <NumberInput size="xs" min={1} max={999} onChange={(s, n) => setRepeatInterval(n)}>
-            <NumberInputField />
-            <NumberInputStepper size="xs">
-              <NumberIncrementStepper />
-              <NumberDecrementStepper />
-            </NumberInputStepper>
+            height="32px"
+            width="60px"
+            borderColor={'transparent'}
+            defaultValue={1}
+            min={1}
+            max={999}
+            borderRadius="5px"
+            _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }}
+            onChange={(s, n) => setRepeatInterval(n)}
+          >
+            <NumberInputField
+              color="gray.900"
+              fontSize="sm"
+              fontWeight="normal"
+              borderRadius={'5px'}
+              p={2}
+              _hover={{ borderColor: 'gray.100' }}
+            />
           </NumberInput>
-        </GridItem>
-        <GridItem colSpan={2}>
           <Menu placement="bottom" gutter={0} arrowPadding={0}>
             <MenuButton
+              height="32px"
               size="sm"
               as={CButton}
               fontWeight={'normal'}
               borderRadius={5}
               variant={'subtle'}
+              _hover={{ bg: 'gray.100' }}
               rightIcon={Icons['collapse'](12, 12)}
+              width="100%"
+              textAlign="start"
             >
               {repeatIntervalType ? translateFrequencyToString(repeatIntervalType) : 'Interval'}
             </MenuButton>
@@ -158,73 +166,81 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
               <MenuItem onClick={() => setRepeatIntervalType(RRule.YEARLY)}>Years</MenuItem>
             </MenuList>
           </Menu>
-        </GridItem>
-      </Grid>
-      <Grid {...gridStyle}>
-        <GridItem colSpan={2}>
-          <Text fontSize="sm">Ends: </Text>
-        </GridItem>
-        <GridItem colSpan={2}>
-          <Menu placement="bottom" gutter={0} arrowPadding={0}>
-            <MenuButton
-              size="sm"
-              as={CButton}
-              rightIcon={Icons['collapse'](12, 12)}
-              fontWeight={'normal'}
-              borderRadius={5}
-              variant={'subtle'}
-            >
-              {endType ? upperFirst(lowerCase(endType)) : 'Never'}
-            </MenuButton>
-            <MenuList bg={'white'}>
-              <MenuItem onClick={() => setEndType('on_a_date')}>On a date</MenuItem>
-              <MenuItem onClick={() => setEndType('after_x_times')}>After X times</MenuItem>
-              <MenuItem onClick={() => setEndType('never')}>Never</MenuItem>
-            </MenuList>
-          </Menu>
-        </GridItem>
-      </Grid>
+        </Flex>
+      </Flex>
+      <Flex {...optionStyle}>
+        <Text {...labelStyle}>Ends: </Text>
+        <Menu placement="bottom" gutter={0} arrowPadding={0}>
+          <MenuButton
+            height="32px"
+            size="sm"
+            as={CButton}
+            rightIcon={Icons['collapse'](12, 12)}
+            fontWeight={'normal'}
+            borderRadius={5}
+            variant={'subtle'}
+            _hover={{ bg: 'gray.100' }}
+            width="100%"
+            textAlign="start"
+          >
+            {endType ? upperFirst(lowerCase(endType)) : 'Never'}
+          </MenuButton>
+          <MenuList bg={'white'}>
+            <MenuItem onClick={() => setEndType('on_a_date')}>On a date</MenuItem>
+            <MenuItem onClick={() => setEndType('after_x_times')}>After X times</MenuItem>
+            <MenuItem onClick={() => setEndType('never')}>Never</MenuItem>
+          </MenuList>
+        </Menu>
+      </Flex>
       {endType == 'after_x_times' && (
-        <Grid {...gridStyle}>
-          <GridItem colSpan={2}>
-            <Text fontSize="sm">After </Text>
-          </GridItem>
-          <GridItem colSpan={2}>
-            <NumberInput size="xs" min={0} max={100} onChange={(s, n) => setRepeatNumber(n)}>
-              <NumberInputField />
-              <NumberInputStepper size="xs">
-                <NumberIncrementStepper size="xs" />
-                <NumberDecrementStepper size="xs" />
-              </NumberInputStepper>
+        <Flex {...optionStyle}>
+          <Text {...labelStyle}>After: </Text>
+          <Flex justifyContent="start" alignItems="center" w={'100%'} pl={'5px'}>
+            <NumberInput
+              size="sm"
+              height="32px"
+              width="60px"
+              borderColor={'transparent'}
+              defaultValue={1}
+              min={1}
+              max={999}
+              borderRadius="5px"
+              _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }}
+              onChange={(s, n) => setRepeatNumber(n)}
+            >
+              <NumberInputField
+                color="gray.900"
+                fontSize="sm"
+                fontWeight="normal"
+                borderRadius={'5px'}
+                p={2}
+                _hover={{ borderColor: 'gray.100' }}
+              />
             </NumberInput>
-          </GridItem>
-          <GridItem colSpan={1}>
-            <Text fontSize="sm">times </Text>
-          </GridItem>
-        </Grid>
+            <Text fontSize="sm" width="100%" lineHeight="32px" height="32px" pl={2}>
+              times{' '}
+            </Text>
+          </Flex>
+        </Flex>
       )}
       {endType == 'on_a_date' && (
-        <Grid {...gridStyle}>
-          <GridItem colSpan={2}>
-            <Text fontSize="sm">End date: </Text>
-          </GridItem>
-          <GridItem colSpan={2}>
-            <DatePicker
-              size="sm"
-              completed={false}
-              text={endDateText}
-              defaultText="End date"
-              onSubmit={(val) => {
-                setEndDate(val)
-              }}
-            />
-          </GridItem>
-        </Grid>
+        <Flex {...optionStyle}>
+          <Text {...labelStyle}>End date: </Text>
+          <DatePicker
+            size="sm"
+            completed={false}
+            text={endDateText}
+            defaultText="End date"
+            onSubmit={(val) => {
+              setEndDate(val)
+            }}
+          />
+        </Flex>
       )}
       <Flex direction="row" p={1} m={1} w="100%" justify="flex-end">
         <Button
           variant="primary"
-          size="sm"
+          size="md"
           text="Set Repeat"
           onClick={() => {
             handleSubmit()

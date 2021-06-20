@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import { Menu, MenuButton, MenuList, MenuItem, Button } from '@chakra-ui/react'
+import { Menu, MenuButton, MenuList, MenuItem, Button, Box } from '@chakra-ui/react'
 import { format } from 'date-fns'
 import { RRule } from 'rrule'
 import RepeatDialog from './RepeatDialog'
@@ -20,9 +20,15 @@ type RepeatPickerProps = {
 function RepeatPicker(props: RepeatPickerProps): ReactElement {
   const [repeatDialogVisible, setRepeatDialogVisible] = useState(false)
 
-  const handleRepeatChange = (input: RRule | null) => {
-    if (input) {
-      props.onSubmit(input)
+  type repeatOption = {
+    type: 'custom' | 'default'
+    repeat: RRule | null
+  }
+
+  const handleRepeatChange = (input: repeatOption) => {
+    console.log(input)
+    if (input.type == 'default') {
+      props.onSubmit(input.repeat)
       setRepeatDialogVisible(false)
       return
     } else {
@@ -47,7 +53,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
   const iconSize = generateIconSize(props.size)
 
   return (
-    <>
+    <Box w={'100%'} position="relative">
       <Menu gutter={0} arrowPadding={0} closeOnSelect={true} closeOnBlur={true}>
         <MenuButton
           variant={'default'}
@@ -66,12 +72,13 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           <MenuItem
             fontSize={'md'}
             onClick={() =>
-              handleRepeatChange(
-                new RRule({
+              handleRepeatChange({
+                type: 'default',
+                repeat: new RRule({
                   freq: RRule.DAILY,
                   interval: 1,
                 }),
-              )
+              })
             }
           >
             Daily
@@ -79,13 +86,14 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           <MenuItem
             fontSize={'md'}
             onClick={() =>
-              handleRepeatChange(
-                new RRule({
+              handleRepeatChange({
+                type: 'default',
+                repeat: new RRule({
                   freq: RRule.DAILY,
                   interval: 1,
                   byweekday: [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR],
                 }),
-              )
+              })
             }
           >
             Weekdays
@@ -93,13 +101,14 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           <MenuItem
             fontSize={'md'}
             onClick={() =>
-              handleRepeatChange(
-                new RRule({
+              handleRepeatChange({
+                type: 'default',
+                repeat: new RRule({
                   freq: RRule.WEEKLY,
                   interval: 1,
                   byweekday: new Date().getDay() == 0 ? 6 : new Date().getDay() - 1,
                 }),
-              )
+              })
             }
           >
             {'Weekly on ' + format(new Date(), 'EEE')}
@@ -107,32 +116,42 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           <MenuItem
             fontSize={'md'}
             onClick={() =>
-              handleRepeatChange(
-                new RRule({
+              handleRepeatChange({
+                type: 'default',
+                repeat: new RRule({
                   freq: RRule.MONTHLY,
                   interval: 1,
                   bymonthday: new Date().getDate(),
                 }),
-              )
+              })
             }
           >
             {'Monthly on the ' + format(new Date(), 'do')}
           </MenuItem>
-          <MenuItem fontSize={'md'} onClick={() => handleRepeatChange(null)}>
+          <MenuItem
+            fontSize={'md'}
+            onClick={() => handleRepeatChange({ type: 'custom', repeat: null })}
+          >
             Custom repeat
+          </MenuItem>
+          <MenuItem
+            fontSize={'md'}
+            onClick={() => handleRepeatChange({ type: 'default', repeat: null })}
+          >
+            No repeat
           </MenuItem>
         </MenuList>
       </Menu>
-
       {repeatDialogVisible && (
         <RepeatDialog
+          onClose={() => setRepeatDialogVisible(false)}
           onSubmit={(r) => {
             props.onSubmit(r)
             setRepeatDialogVisible(false)
           }}
         />
       )}
-    </>
+    </Box>
   )
 }
 
