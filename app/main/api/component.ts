@@ -70,6 +70,30 @@ export const createComponent = async (
   return new Error('Unable to create component')
 }
 
+export const updateComponentOnProjectNameChange = async (
+  input: {
+    viewKey: string
+    newName: string
+  },
+  ctx,
+) => {
+  const result = await ctx.db.all(SQL`
+SELECT key, parameters
+FROM component
+WHERE viewKey = ${input.viewKey}
+AND type = "FilteredItemList";
+`)
+  if (result) {
+    result.map((r) => {
+      const params = JSON.parse(r.parameters)
+      const filter = JSON.parse(params.filter)
+      filter.text = filter.text.replace(/project = ".+"/, `project = \"${input.newName}\"`)
+      params.filter = JSON.stringify(filter)
+      updateParametersOfComponent({ key: r.key, parameters: params }, ctx)
+    })
+  }
+}
+
 export const updateParametersOfComponent = (
   input: {
     key: string

@@ -55,6 +55,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   const [updateComponent] = useMutation(UPDATE_COMPONENT)
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: props.componentKey },
+    fetchPolicy: 'no-cache',
   })
 
   if (loading) return null

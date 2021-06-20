@@ -1,5 +1,6 @@
 import SQL from 'sql-template-strings'
 import Project from '../classes/project'
+import { updateComponentOnProjectNameChange } from './component'
 import { getItemsByProject, setProjectOfItem } from './item'
 import { createProjectOrder } from './projectOrder'
 import { createView, deleteView, renameView } from './view'
@@ -225,6 +226,7 @@ export const renameProject = async (input: { key: string; name: string }, ctx) =
     .then((result) => {
       if (result.changes) {
         renameView({ key: input.key, name: input.name }, ctx)
+        updateComponentOnProjectNameChange({ viewKey: input.key, newName: input.name }, ctx)
         return getProject({ key: input.key }, ctx)
       }
       return new Error('Unable to rename project')
