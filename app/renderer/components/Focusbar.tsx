@@ -274,7 +274,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       px={3}
       py={3}
       h={'100%'}
-      overflowY={'scroll'}
+      overflow={'visble'}
       bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
       transition={'all 0.2s ease-in-out'}
     >
