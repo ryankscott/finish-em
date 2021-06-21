@@ -12,6 +12,7 @@ import Button from './components/button'
 import Menu from './components/menu'
 import Tooltip from './components/tooltip'
 import Editable from './components/editable'
+import CloseButton from './components/closebutton'
 
 const theme = extendTheme({
   initialColorMode: 'light',
@@ -26,6 +27,7 @@ const theme = extendTheme({
     Menu,
     Tooltip,
     Editable,
+    CloseButton,
     // Other components go here
   },
 })

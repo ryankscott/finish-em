@@ -37,15 +37,7 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
   const [isEditing, setIsEditing] = useState(false)
   const { loading, error, data } = useQuery(GET_DATA)
   const [cloneComponent] = useMutation(CLONE_COMPONENT, { refetchQueries: ['ComponentsByView'] })
-  const [deleteComponent] = useMutation(DELETE_COMPONENT, {
-    update(cache, { data: { deleteComponent } }) {
-      const cacheId = cache.identify({
-        __typename: 'Component',
-        key: props.componentKey,
-      })
-      cache.evict({ id: cacheId })
-    },
-  })
+  const [deleteComponent] = useMutation(DELETE_COMPONENT, { refetchQueries: ['ComponentsByView'] })
   if (loading) return null
   if (error) {
     console.log(error)

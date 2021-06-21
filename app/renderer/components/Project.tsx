@@ -134,7 +134,7 @@ const Project = (props: ProjectProps): ReactElement => {
   const history = useHistory()
   const { colorMode, toggleColorMode } = useColorMode()
   const [deleteProject] = useMutation(DELETE_PROJECT, { refetchQueries: ['GetSidebarData'] })
-  const [changeDescription] = useMutation(CHANGE_DESCRIPTION)
+  const [changeDescription] = useMutation(CHANGE_DESCRIPTION, { refetchQueries: ['ViewByKey'] })
   const [renameProject] = useMutation(RENAME_PROJECT)
   const [setEndDate] = useMutation(SET_END_DATE)
   const [setStartDate] = useMutation(SET_START_DATE)
@@ -271,6 +271,8 @@ const Project = (props: ProjectProps): ReactElement => {
         </Flex>
       )}
       <EditableText2
+        key={`desc-${project.key}`}
+        input={project.description}
         singleLine={false}
         placeholder="Add a description for your project..."
         shouldClearOnSubmit={false}
@@ -283,6 +285,7 @@ const Project = (props: ProjectProps): ReactElement => {
 
       <Flex direction={'column'} justifyContent={'flex-end'} py={2} px={0} w={'100%'}>
         <ItemCreator
+          key={`creator-${project.key}`}
           projectKey={project.key}
           buttonText="Add to project"
           width="100%"

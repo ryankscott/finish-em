@@ -4,7 +4,16 @@ import React, { ReactElement, useEffect, useState } from 'react'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 import { v4 as uuidv4 } from 'uuid'
 import { Icons } from '../assets/icons'
-import { Menu, MenuButton, MenuList, MenuItem, Button, Flex, useTheme, useColorMode } from '@chakra-ui/react'
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  Button,
+  Flex,
+  useTheme,
+  useColorMode,
+} from '@chakra-ui/react'
 import ComponentActions from './ComponentActions'
 import FilteredItemList from './FilteredItemList'
 import ItemCreator from './ItemCreator'
@@ -56,6 +65,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
   const { colorMode, toggleColorMode } = useColorMode()
   const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey: props.viewKey },
+    fetchPolicy: 'no-cache',
   })
   const [addComponent] = useMutation(ADD_COMPONENT)
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER)
@@ -165,12 +175,11 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                           mb={8}
                           border={'1px solid'}
                           borderColor={snapshot.isDragging ? 'gray.200' : 'transparent'}
-            bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-
+                          bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
                           shadow={snapshot.isDragging ? 'md' : null}
                           _hover={{
                             border: '1px solid',
-            borderColor: colorMode == 'light' ? 'gray.200' : 'gray.600'
+                            borderColor: colorMode == 'light' ? 'gray.200' : 'gray.600',
                             shadow: 'base',
                           }}
                           ref={provided.innerRef}
