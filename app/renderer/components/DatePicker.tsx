@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import { Flex, Button, Text, Box } from '@chakra-ui/react'
+import { Flex, Button, Text, Box, forwardRef, FlexProps, useOutsideClick } from '@chakra-ui/react'
 import { add, sub, lastDayOfWeek } from 'date-fns'
 import RDatePicker from 'react-datepicker'
 import { Icons } from '../assets/icons'
@@ -24,7 +24,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
   const [dayPickerVisible, setDayPickerVisible] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
 
-  const MenuList = (props) => (
+  const MenuList = forwardRef<FlexProps, 'div'>((props, ref) => (
     <Flex
       direction="row"
       shadow="md"
@@ -37,26 +37,28 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
       zIndex="2"
       bg="gray.50"
       top="36px"
-      right="0px"
-      minW="192px"
+      right="-2px"
+      minW="190px"
       transition={'0.2s all ease-in-out'}
       justifyContent="center"
+      ref={ref}
+      {...props}
     >
       {props.children}
     </Flex>
-  )
+  ))
 
   const MenuItem = (props) => (
     <Flex
       px={2}
       my={0.5}
-      py={2}
+      py={1.5}
       _hover={{ bg: 'gray.100' }}
       cursor="pointer"
       bg="gray.50"
       zIndex={4}
       justifyContent={dayPickerVisible ? 'center' : 'start'}
-      minW={dayPickerVisible ? '110px' : '192px'}
+      minW={dayPickerVisible ? '110px' : '190px'}
       {...props}
     >
       <Text fontSize="md" px={2}>
@@ -122,9 +124,18 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
     }
   }
   const iconSize = generateIconSize(props.size)
+
+  const ref = React.useRef()
+  useOutsideClick({
+    ref: ref,
+    handler: () => {
+      setShowMenu(false)
+      setDayPickerVisible(false)
+    },
+  })
   return (
-    <Flex direction="column" minW="192px" zindex={99} w="100%">
-      <Flex position="relative" direction="column" minW="192px" w="100%">
+    <Flex direction="column" minW="190px" zindex={99} w="100%">
+      <Flex position="relative" direction="column" minW="190px" w="100%">
         <Button
           bg={showMenu ? 'gray.100' : 'gray.50'}
           w="100%"
@@ -143,7 +154,11 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
           <MenuList>
             <Flex direction="column" w="100%" justifyContent="center" borderRadius="md">
               {menuItems.map((m, idx) => (
-                <MenuItem key={idx} onClick={m.clickHandler}>
+                <MenuItem
+                  bg={m.name == 'Custom date' && dayPickerVisible ? 'gray.100' : 'gray.50'}
+                  key={idx}
+                  onClick={m.clickHandler}
+                >
                   {m.name}
                 </MenuItem>
               ))}

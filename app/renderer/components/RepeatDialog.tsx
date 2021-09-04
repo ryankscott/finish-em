@@ -11,10 +11,8 @@ import {
   MenuItem,
   MenuButton,
   MenuList,
-  VStack,
   Text,
   Flex,
-  CloseButton,
   Button as CButton,
 } from '@chakra-ui/react'
 import lowerCase from 'lodash/lowerCase'
@@ -22,7 +20,6 @@ import upperFirst from 'lodash/upperFirst'
 
 type RepeatDialogProps = {
   onSubmit: (rule: RRule) => void
-  onClose: () => void
 }
 const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
   const [startDate, setStartDate] = useState(new Date())
@@ -78,7 +75,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
   }
 
   const labelStyle = {
-    fontSize: 'sm',
+    fontSize: 'md',
     w: '20%',
     minW: '90px',
   }
@@ -90,28 +87,23 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
   }
 
   return (
-    <VStack
+    <Flex
+      direction="column"
       borderRadius={5}
       border={'1px solid'}
       borderColor={'gray.100'}
       bg={'white'}
-      spacing={1}
-      px={4}
-      py={2}
-      position="absolute"
-      top="38px"
-      right="-2px"
+      p={4}
+      mx={2}
+      position="relative"
       zIndex="99"
-      width="290px"
-      boxShadow="md"
+      width="320px"
+      height="100%"
     >
-      <Flex w={'100%'} justifyContent="flex-end" py={2}>
-        <CloseButton size="xs" onClick={props.onClose} />
-      </Flex>
       <Flex {...optionStyle}>
         <Text {...labelStyle}>Starts: </Text>
         <DatePicker
-          size="sm"
+          size="md"
           text={startDateText}
           defaultText={'Start date'}
           onSubmit={(val) => {
@@ -137,7 +129,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
           >
             <NumberInputField
               color="gray.900"
-              fontSize="sm"
+              fontSize="md"
               fontWeight="normal"
               borderRadius={'5px'}
               p={2}
@@ -147,7 +139,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
           <Menu placement="bottom" gutter={0} arrowPadding={0}>
             <MenuButton
               height="32px"
-              size="sm"
+              size="md"
               as={CButton}
               fontWeight={'normal'}
               borderRadius={5}
@@ -173,7 +165,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
         <Menu placement="bottom" gutter={0} arrowPadding={0}>
           <MenuButton
             height="32px"
-            size="sm"
+            size="md"
             as={CButton}
             rightIcon={Icons['collapse'](12, 12)}
             fontWeight={'normal'}
@@ -210,14 +202,14 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
             >
               <NumberInputField
                 color="gray.900"
-                fontSize="sm"
+                fontSize="md"
                 fontWeight="normal"
                 borderRadius={'5px'}
                 p={2}
                 _hover={{ borderColor: 'gray.100' }}
               />
             </NumberInput>
-            <Text fontSize="sm" width="100%" lineHeight="32px" height="32px" pl={2}>
+            <Text fontSize="md" width="100%" lineHeight="32px" height="32px" pl={2}>
               times{' '}
             </Text>
           </Flex>
@@ -227,7 +219,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
         <Flex {...optionStyle}>
           <Text {...labelStyle}>End date: </Text>
           <DatePicker
-            size="sm"
+            size="md"
             completed={false}
             text={endDateText}
             defaultText="End date"
@@ -245,9 +237,9 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
           onClick={() => {
             handleSubmit()
           }}
-        ></Button>
+        />
       </Flex>
-    </VStack>
+    </Flex>
   )
 }
 
