@@ -66,7 +66,6 @@ const ReactFilterBox = (props: ReactFilterBoxProps): ReactElement => {
   }
 
   const onChange = (query: string) => {
-    console.log('on change')
     var validationResult = { isValid: true }
     var result = parser.parse(query)
     if ((result as ParsedError).isError) {

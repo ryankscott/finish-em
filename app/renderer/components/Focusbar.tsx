@@ -220,7 +220,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   }
   if (loading) {
     return (
-      <VStack
+      <Flex
+        direction="column"
         border={'1px solid'}
         borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
         shadow={'md'}
@@ -229,7 +230,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
         px={3}
         py={3}
         h={'100%'}
-        overflowY={'scroll'}
         bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
         transition={'all 0.2s ease-in-out'}
       />
@@ -244,6 +244,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     width: '100%',
     minW: '180px',
     px: 4,
+    my: 1,
   }
 
   const generateSidebarTitle = (icon: IconType, text: string) => {
@@ -264,7 +265,8 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
     : 'Add scheduled date'
 
   return (
-    <VStack
+    <Flex
+      direction="column"
       border={'1px solid'}
       borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
       shadow={'md'}
@@ -274,7 +276,6 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       px={3}
       py={3}
       h={'100%'}
-      overflowY={'scroll'}
       bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
       transition={'all 0.2s ease-in-out'}
     >
@@ -471,11 +472,11 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       )}
       {item.parent?.key == null && item.type == 'TODO' && (
         <>
-          <Text fontSize="md" w="100%" mx={0} px={2} pt={6} pb={0}>
-            Subtasks:
+          <Text fontSize="md" w="100%" mx={0} px={2} pt={6} pb={2}>
+            Subtasks ({item.children.length}):
           </Text>
           {item.children.length ? (
-            <Box py={0} px={2} w={'100%'} key={`box-${item.key}`}>
+            <Box overflow="scroll" py={0} px={2} w={'100%'} key={`box-${item.key}`}>
               {item.children?.map((childItem) => {
                 return (
                   <Item
@@ -497,7 +498,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
           <ItemCreator key={`${item.key}-subtask`} parentKey={item.key} initiallyExpanded={false} />
         </>
       )}
-    </VStack>
+    </Flex>
   )
 }
 

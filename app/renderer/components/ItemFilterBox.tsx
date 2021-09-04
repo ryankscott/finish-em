@@ -7,7 +7,7 @@ import Expression from './filter-box/Expression'
 import GridDataAutoCompleteHandler, { Option } from './filter-box/GridDataAutoCompleteHandler'
 import ParsedError from './filter-box/ParsedError'
 import { ValidationResult } from './filter-box/validateQuery'
-import { Box, Text, ListItem } from '@chakra-ui/layout'
+import { Box, Text } from '@chakra-ui/layout'
 
 const GET_DATA = gql`
   query {
@@ -80,6 +80,11 @@ const filterOptions: Option[] = [
     columnField: 'projectKey',
     columnText: 'project',
     type: 'selection',
+    customValuesFunc: (a, b) => {
+      console.log(a)
+      console.log(b)
+      return ['cat', 'dog']
+    },
   },
   {
     columnField: 'areaKey',
@@ -152,7 +157,13 @@ const generateInputData = (data: any): any[] => {
   Object.keys(all).map((o) => {
     all[o].length > all[longest].length ? (longest = o) : null
   })
-
+  /* 
+This is a super weird data structure that's needed for the component 
+For each of the "types" in the dropdown, you need all of the options
+In order to generate that, you need to generate an entry with that option
+This data structure tries to generate the least number of entries in the array 
+but give all the options of all the different "types"
+*/
   return [...Array(all[longest].length)].map((p, idx) => {
     return {
       type: all.type.values[idx % all.type.length],

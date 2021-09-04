@@ -94,11 +94,8 @@
   border: 1px solid var(--chakra-colors-gray-200);
   border-radius: 0.3rem;
   display: inline-block;
-  position: absolute;
+  position: relative;
   z-index: 99;
-  left: 8px;
-  bottom: -210px;
-  box-shadow: 0px 1px 4px var(--chakra-colors-gray-200);
 }
 
 .react-datepicker--time-only .react-datepicker__triangle {

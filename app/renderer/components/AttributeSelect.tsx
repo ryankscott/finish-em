@@ -11,6 +11,7 @@ import { Area, Item, Label, Project } from '../../main/generated/typescript-help
 import { markdownBasicRegex, markdownLinkRegex, removeItemTypeFromString } from '../utils'
 import Select from './Select'
 
+
 const queries: { [key: string]: DocumentNode } = {
   area: gql`
     query {

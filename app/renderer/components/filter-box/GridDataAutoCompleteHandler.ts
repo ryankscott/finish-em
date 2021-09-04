@@ -68,6 +68,7 @@ export default class GridDataAutoCompleteHandler extends BaseAutoCompleteHandler
     }
 
     if (found != null && found.customValuesFunc) {
+      console.log('here')
       return found.customValuesFunc(parsedCategory, parsedOperator)
     }
 

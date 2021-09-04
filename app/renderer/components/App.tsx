@@ -170,10 +170,11 @@ const App = (props: AppProps): ReactElement => {
         h={'50px'}
         w={'100%'}
         shadow="md"
+        overflow="hidden"
       >
         <Headerbar searchRef={searchRef} />
       </Flex>
-      <Flex pt={'50px'} overflowY={'scroll'} h={'100%'} direction={'row'}>
+      <Flex pt={'50px'} direction={'row'} overflow="hidden">
         <Sidebar />
         <Flex overflowY={'scroll'} w={'100%'} h={'100%'} justifyContent={'center'}>
           <ShortcutDialog />

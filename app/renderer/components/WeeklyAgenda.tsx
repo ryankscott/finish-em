@@ -1,5 +1,5 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { add, format, getWeek, isBefore, parseISO, startOfDay, startOfWeek, sub } from 'date-fns'
+import { add, format, isBefore, parseISO, startOfDay, startOfWeek, sub } from 'date-fns'
 import groupBy from 'lodash/groupBy'
 import React, { ReactElement, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
