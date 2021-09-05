@@ -1,6 +1,6 @@
 {
   "name": "Finish-em",
-  "version": "0.6.36",
+  "version": "0.6.37",
   "author": "Ryan Scott (ryan@ryankennethscott.com)",
   "description": "An org-mode inspired personal organiser",
   "repository": {
@@ -32,13 +32,20 @@
     "generate": "graphql-codegen --config codegen.yml"
   },
   "license": "MIT",
-  "browserslist": ["last 2 Chrome versions"],
+  "browserslist": [
+    "last 2 Chrome versions"
+  ],
   "build": {
     "productName": "Finish-em",
     "appId": "com.ryankscott.finish-em",
-    "files": ["build/main/**", "build/renderer/production/**"],
+    "files": [
+      "build/main/**",
+      "build/renderer/production/**"
+    ],
     "mac": {
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "artifactName": "${productName}.${ext}"
     },
     "publish": {
@@ -51,7 +58,9 @@
       {
         "from": "./app/main/migrations/",
         "to": "./migrations/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       "./preload.js"
     ]
@@ -68,7 +77,14 @@
       "^.+\\.tsx?$": "babel-jest"
     },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json", "node"]
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.14.0",
