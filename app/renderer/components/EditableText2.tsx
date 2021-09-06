@@ -147,4 +147,4 @@ const EditableText2 = (props: EditableText2Props): ReactElement => {
   )
 }
 
-export default React.memo(EditableText2, () => true)
+export default EditableText2
