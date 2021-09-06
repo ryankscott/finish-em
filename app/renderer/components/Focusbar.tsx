@@ -472,9 +472,16 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
       )}
       {item.parent?.key == null && item.type == 'TODO' && (
         <>
-          <Text fontSize="md" w="100%" mx={0} px={2} pt={6} pb={2}>
-            Subtasks ({item.children.length}):
-          </Text>
+          <Flex pt={6} pb={2} alignItems="baseline">
+            <Text fontSize="lg" px={2}>
+              Subtasks
+            </Text>
+            {item.children.length && (
+              <Text fontSize="sm" color="gray.600">
+                {item.children.length} items
+              </Text>
+            )}
+          </Flex>
           {item.children.length ? (
             <Box overflow="scroll" py={0} px={2} w={'100%'} key={`box-${item.key}`}>
               {item.children?.map((childItem) => {

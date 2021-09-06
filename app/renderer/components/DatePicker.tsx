@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import { Flex, Button, Text, Box, forwardRef, FlexProps, useOutsideClick } from '@chakra-ui/react'
+import { Flex, Button, Text, Box, forwardRef, FlexProps } from '@chakra-ui/react'
 import { add, sub, lastDayOfWeek } from 'date-fns'
 import RDatePicker from 'react-datepicker'
 import { Icons } from '../assets/icons'
@@ -34,7 +34,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
       borderColor="gray.100"
       borderRadius="md"
       position="absolute"
-      zIndex="2"
+      zIndex={2}
       bg="gray.50"
       top="36px"
       right="-2px"
@@ -125,14 +125,6 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
   }
   const iconSize = generateIconSize(props.size)
 
-  const ref = React.useRef()
-  useOutsideClick({
-    ref: ref,
-    handler: () => {
-      setShowMenu(false)
-      setDayPickerVisible(false)
-    },
-  })
   return (
     <Flex direction="column" minW="190px" zindex={99} w="100%">
       <Flex position="relative" direction="column" minW="190px" w="100%">

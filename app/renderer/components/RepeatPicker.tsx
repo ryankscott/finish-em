@@ -1,17 +1,5 @@
 import React, { ReactElement, useState } from 'react'
-import {
-  Menu,
-  MenuButton,
-  Flex,
-  Text,
-  MenuList,
-  MenuItem,
-  Button,
-  Box,
-  forwardRef
-  useOutsideClick,
-  FlexProps,
-} from '@chakra-ui/react'
+import { Flex, Text, Button, forwardRef, FlexProps } from '@chakra-ui/react'
 import { format } from 'date-fns'
 import { RRule } from 'rrule'
 import RepeatDialog from './RepeatDialog'
@@ -42,6 +30,29 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     repeat: RRule | null
   }
 
+  const MenuList = forwardRef<FlexProps, 'div'>((props, ref) => (
+    <Flex
+      direction="row"
+      shadow="md"
+      py={2}
+      px={repeatDialogVisible ? 2 : 0}
+      border="1px solid"
+      borderColor="gray.100"
+      borderRadius="md"
+      position="absolute"
+      zIndex={2}
+      bg="gray.50"
+      top="36px"
+      right="-2px"
+      minW="190px"
+      transition={'0.2s all ease-in-out'}
+      justifyContent="center"
+      ref={ref}
+      {...props}
+    >
+      {props.children}
+    </Flex>
+  ))
 
   const MenuItem = (props) => (
     <Flex
@@ -61,31 +72,6 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
       </Text>
     </Flex>
   )
-
-  const MenuList = forwardRef<FlexProps, "div">((props, ref) => (
-    <Flex
-      direction="row"
-      shadow="md"
-      py={2}
-      px={repeatDialogVisible ? 2 : 0}
-      border="1px solid"
-      borderColor="gray.100"
-      borderRadius="md"
-      position="absolute"
-      zIndex={2}
-      bg="gray.50"
-      top="36px"
-      right="-2px"
-      minW="190px"
-      transition={'0.2s all ease-in-out'}
-      justifyContent="center"
-      ref={ref} 
-      {...props}
-    >
-      {props.children}
-    </Flex>
-  ))
-
 
   const handleRepeatChange = (input: repeatOption) => {
     if (input.type == 'default') {
@@ -172,14 +158,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
     }
   }
   const iconSize = generateIconSize(props.size)
-  const ref = React.useRef()
-  useOutsideClick({
-    ref: ref,
-    handler: () => {
-      setShowMenu(false) 
-      setRepeatDialogVisible(false)
-    }
-  })
+
   return (
     <Flex direction="column" minW="190px" zindex={99} w="100%">
       <Flex position="relative" direction="column" minW="190px" w="100%">
@@ -198,7 +177,7 @@ function RepeatPicker(props: RepeatPickerProps): ReactElement {
           {repeatText}
         </Button>
         {showMenu && (
-          <MenuList ref={ref}>
+          <MenuList>
             <Flex direction="column" w="100%" justifyContent="center" borderRadius="md">
               {menuItems.map((m, idx) => (
                 <MenuItem
