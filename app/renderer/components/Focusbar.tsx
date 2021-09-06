@@ -498,7 +498,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               })}
             </Box>
           ) : (
-            <Text fontSize="md" pl={4}>
+            <Text fontSize="md" pl={4} py={2} color="gray.600">
               No subtasks
             </Text>
           )}
