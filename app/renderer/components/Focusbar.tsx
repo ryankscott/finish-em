@@ -476,7 +476,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
             <Text fontSize="lg" px={2}>
               Subtasks
             </Text>
-            {item.children.length && (
+            {item.children.length > 0 && (
               <Text fontSize="sm" color="gray.600">
                 {item.children.length} items
               </Text>
@@ -498,7 +498,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
               })}
             </Box>
           ) : (
-            <Text fontSize="md" pl={1}>
+            <Text fontSize="md" pl={4}>
               No subtasks
             </Text>
           )}
