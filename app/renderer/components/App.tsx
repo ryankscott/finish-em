@@ -174,7 +174,7 @@ const App = (props: AppProps): ReactElement => {
       >
         <Headerbar searchRef={searchRef} />
       </Flex>
-      <Flex pt={'50px'} direction={'row'} overflow="hidden">
+      <Flex pt={'50px'} direction={'row'} overflow="hidden" h={'100vh'}>
         <Sidebar />
         <Flex overflowY={'scroll'} w={'100%'} h={'100%'} justifyContent={'center'}>
           <ShortcutDialog />
