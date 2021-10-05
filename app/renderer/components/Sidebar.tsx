@@ -1,5 +1,15 @@
 import { gql, useMutation, useQuery } from '@apollo/client'
-import { Divider, Flex, Stack, useTheme, VStack, useColorMode, Box } from '@chakra-ui/react'
+import {
+  Divider,
+  Flex,
+  Stack,
+  useTheme,
+  VStack,
+  useColorMode,
+  Box,
+  IconButton,
+} from '@chakra-ui/react'
+import { Icons } from '../assets/icons'
 import { orderBy } from 'lodash'
 import React, { ReactElement, useEffect, useState } from 'react'
 import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
@@ -422,14 +432,23 @@ const Sidebar = (props: SidebarProps): ReactElement => {
             activeColour={theme.colors.gray[900]}
           />
         </Flex>
-        <Flex key={uuidv4()} justifyContent={'center'} alignItems={'center'}>
-          <Button
+        <Flex
+          position="absolute"
+          bottom="5px"
+          left={sidebarVisible ? '227px' : '37px'}
+          key={uuidv4()}
+          justifyContent={'center'}
+          alignItems={'center'}
+        >
+          <IconButton
+            colorScheme="blue"
+            aria-label={'Toggle sidebar'}
+            borderRadius="50%"
+            shadow="md"
             key={uuidv4()}
-            tooltipText="Toggle sidebar"
-            size="sm"
-            icon={sidebarVisible ? 'slideLeft' : 'slideRight'}
-            variant="invert"
-            iconColour="white"
+            icon={sidebarVisible ? Icons['slideLeft']() : Icons['slideRight']()}
+            size={'sm'}
+            transition={'all 0.2s ease-in-out'}
             onClick={() => {
               sidebarVisibleVar(!sidebarVisible)
             }}
