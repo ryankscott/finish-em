@@ -34,15 +34,17 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
       <AlertDialog leastDestructiveRef={cancelRef} isOpen={isOpen} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
-            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+            <AlertDialogHeader fontSize="xl" fontWeight="bold">
               Delete Project
             </AlertDialogHeader>
-            <AlertDialogBody>Are you sure? You can't undo this action afterwards.</AlertDialogBody>
+            <AlertDialogBody fontSize={'md'}>
+              Are you sure? You can't undo this action afterwards.
+            </AlertDialogBody>
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
                 Cancel
               </Button>
-              <Button colorScheme="red" onClick={onClose} ml={3}>
+              <Button colorScheme="red" onClick={props.onDelete} ml={3}>
                 Delete
               </Button>
             </AlertDialogFooter>
