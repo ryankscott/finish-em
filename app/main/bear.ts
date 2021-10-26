@@ -67,7 +67,7 @@ const getNotesWithTodos = async (token: string) => {
       return null
     }
   } catch (err) {
-    log.error(`Failed to get notes with todos from bear - ${err}`)
+    log.error(`Failed to get notes with todos from bear - ${JSON.stringify(err)}`)
     return null
   }
 }
