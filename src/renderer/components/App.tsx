@@ -1,12 +1,12 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
 import { isSameMinute, parseISO } from 'date-fns';
 import { ReactElement, useEffect } from 'react';
-import { Route, Routes, useNavigate, useParams } from 'react-router-dom';
+import { Route, Routes, useParams } from 'react-router-dom';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { activeItemVar, focusbarVisibleVar, sidebarVisibleVar } from '../index';
-import { ActionBar } from './ActionBar';
+import ActionBar from './ActionBar';
 import Area from './Area';
 import DailyAgenda from './DailyAgenda';
 import Focusbar from './Focusbar';
@@ -19,62 +19,10 @@ import Sidebar from './Sidebar';
 import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
 import '../filterBoxStyles.css';
+import { CREATE_ITEM, GET_APP_DATA } from 'renderer/queries/app';
 
 export const MIN_WIDTH_FOR_SIDEBAR = 1125;
 export const MIN_WIDTH_FOR_FOCUSBAR = 1125;
-
-const GET_DATA = gql`
-  query getAppData {
-    projects(input: { deleted: false }) {
-      key
-      sortOrder {
-        sortOrder
-      }
-    }
-
-    reminders {
-      key
-      text
-      remindAt
-    }
-    features {
-      key
-      enabled
-    }
-
-    sidebarVisible @client
-    focusbarVisible @client
-    activeItem @client
-    shortcutDialogVisible @client
-  }
-`;
-
-const CREATE_ITEM = gql`
-  mutation CreateItem(
-    $key: String!
-    $type: String!
-    $text: String!
-    $parentKey: String
-    $projectKey: String
-  ) {
-    createItem(
-      input: {
-        key: $key
-        type: $type
-        text: $text
-        parentKey: $parentKey
-        projectKey: $projectKey
-      }
-    ) {
-      key
-      type
-      text
-      project {
-        key
-      }
-    }
-  }
-`;
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
@@ -142,7 +90,7 @@ const App = (): ReactElement => {
   const [createItem] = useMutation(CREATE_ITEM, {
     refetchQueries: ['itemsByFilter'],
   });
-  const { loading, error, data } = useQuery(GET_DATA);
+  const { loading, error, data } = useQuery(GET_APP_DATA);
   if (loading) return <></>;
   if (error) {
     console.log(error);

@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Divider,
   Flex,
@@ -9,7 +9,7 @@ import {
   Box,
   IconButton,
 } from '@chakra-ui/react';
-import { Icons } from '../assets/icons';
+import { convertSVGElementToReact, Icons } from '../assets/icons';
 import { orderBy } from 'lodash';
 import { ReactElement, useEffect, useState } from 'react';
 import {
@@ -101,11 +101,11 @@ const Sidebar = (): ReactElement => {
     const { destination, source, draggableId, type } = result;
 
     if (type == 'PROJECT') {
-      const areaKey = destination.droppableId;
-      //  Trying to detect drops in non-valid areas
       if (!destination) {
         return;
       }
+      const areaKey = destination.droppableId;
+      //  Trying to detect drops in non-valid areas
 
       // Do nothing if it was a drop to the same place
       if (destination.index == source.index) return;
@@ -405,7 +405,11 @@ const Sidebar = (): ReactElement => {
             borderRadius="50%"
             shadow="md"
             key={uuidv4()}
-            icon={sidebarVisible ? Icons['slideLeft']() : Icons['slideRight']()}
+            icon={
+              sidebarVisible
+                ? convertSVGElementToReact(Icons['slideLeft']())
+                : convertSVGElementToReact(Icons['slideRight']())
+            }
             size={'sm'}
             transition={'all 0.2s ease-in-out'}
             onClick={() => {

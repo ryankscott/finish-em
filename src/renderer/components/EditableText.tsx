@@ -70,10 +70,10 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
   }, [editable]);
 
   const { loading, error, data } = useQuery(GET_THEME);
-  if (loading) return null;
+  if (loading) return <></>;
   if (error) {
     console.log(error);
-    return null;
+    return <></>;
   }
   const theme: ThemeType = themes[data.theme];
 
@@ -87,6 +87,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     // Handle links normally
     if (e.target.nodeName == 'A') {
       if (e.target.href.startsWith('outlook')) {
+        //@ts-ignore
         window.electron.ipcRenderer.sendMessage('open-outlook-link', {
           url: e.target.href,
         });

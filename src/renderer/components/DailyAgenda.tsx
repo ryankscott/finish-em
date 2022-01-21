@@ -307,6 +307,3 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
 };
 
 export default DailyAgenda;
-function sha1(viewKey: string): any {
-  throw new Error('Function not implemented.');
-}

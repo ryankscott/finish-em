@@ -39,7 +39,8 @@ const ViewHeader = (props: ViewHeaderProps): ReactElement => {
           templateColumns={'40px 1fr 60px'}
         >
           <GridItem colSpan={1} p={0}>
-            {props?.icon && Icons[props?.icon](36, 36, theme.colors.blue[500])}
+            {props?.icon &&
+              Icons[props?.icon]('36px', '36px', theme.colors.blue[500])}
           </GridItem>
           <GridItem colSpan={1}>
             <Text

@@ -5,7 +5,10 @@ import AttributeSelect from './AttributeSelect';
 import Button from './Button';
 import DatePicker from './DatePicker';
 
-const GET_DATA = gql`
+type ActiveItem = {
+  activeItem: string[];
+};
+const GET_ACTIVE_ITEM = gql`
   query {
     activeItem @client
   }
@@ -71,12 +74,17 @@ const ActionBar = () => {
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
     refetchQueries: ['itemsByFilter', 'weeklyItems'],
   });
-  const { loading, error, data } = useQuery(GET_DATA);
+  const { loading, error, data } = useQuery<ActiveItem>(GET_ACTIVE_ITEM);
   if (loading) return null;
   if (error) {
     console.log(error);
     return null;
   }
+
+  if (!data) {
+    return null;
+  }
+
   return (
     <Grid
       maxW="700px"
@@ -119,7 +127,6 @@ const ActionBar = () => {
       </GridItem>
       <GridItem colSpan={1}>
         <DatePicker
-          variant="invert"
           key="dd"
           text="Set due date"
           tooltipText="Set due date"
@@ -135,7 +142,6 @@ const ActionBar = () => {
       </GridItem>
       <GridItem colSpan={1}>
         <DatePicker
-          variant="invert"
           key="sd"
           text="Set scheduled date"
           defaultText="Scheduled at: "

@@ -4,6 +4,10 @@ import * as CSS from 'csstype';
 import { IconType } from '../interfaces';
 import { tint } from 'polished';
 
+export const convertSVGElementToReact = (svg: React.SVGProps<SVGElement>) => (
+  <>{svg}</>
+);
+
 export const Icons: Record<
   IconType,
   (

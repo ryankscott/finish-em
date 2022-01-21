@@ -1,9 +1,9 @@
-import React, { ReactElement } from 'react'
-import ReorderableComponentList from './ReorderableComponentList'
-import { gql, useQuery } from '@apollo/client'
-import Project from './Project'
-import Area from './Area'
-import { Page } from './Page'
+import { ReactElement } from 'react';
+import ReorderableComponentList from './ReorderableComponentList';
+import { gql, useQuery } from '@apollo/client';
+import Project from './Project';
+import Area from './Area';
+import { Page } from './Page';
 
 const GET_DATA = gql`
   query ViewByKey($key: String!) {
@@ -14,40 +14,40 @@ const GET_DATA = gql`
       icon
     }
   }
-`
+`;
 type ViewProps = {
-  viewKey: string
-}
+  viewKey: string;
+};
 
 // TODO: Need to migrate Areas to use views
 const headerComponent = (type: string, viewKey: string) => {
   switch (type) {
     case 'project':
-      return <Project projectKey={viewKey} />
+      return <Project projectKey={viewKey} />;
     case 'area':
-      return <Area areaKey={viewKey} />
+      return <Area areaKey={viewKey} />;
     default:
-      break
+      return <></>;
   }
-}
+};
 
 const View = (props: ViewProps): ReactElement => {
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       key: props.viewKey,
     },
-  })
-  if (loading) return null
+  });
+  if (loading) return <></>;
   if (error) {
-    console.log(error)
-    return null
+    console.log(error);
+    return <></>;
   }
   return (
     <Page>
       {headerComponent(data.view.type, props.viewKey)}
       <ReorderableComponentList viewKey={props.viewKey} />
     </Page>
-  )
-}
+  );
+};
 
-export default View
+export default View;

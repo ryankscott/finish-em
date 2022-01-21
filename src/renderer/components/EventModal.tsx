@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -104,12 +103,13 @@ export const EventModal = (props: Props) => {
     if (!props?.event?.attendees) {
       return <Text fontSize="md">-</Text>;
     }
-    return props.event?.attendees?.map((a, idx) => (
-      <Text fontSize="md" key={a.name}>
-        {a.name}
+    return props.event?.attendees?.map((a, _) => (
+      <Text fontSize="md" key={a?.name}>
+        {a?.name ?? '-'}
       </Text>
     ));
   };
+
   return (
     <Modal isOpen={props.isOpen} onClose={props.onClose}>
       <ModalOverlay>
@@ -185,7 +185,7 @@ export const EventModal = (props: Props) => {
                 icon={'bear'}
                 iconPosition="right"
                 iconColour="white"
-                onClick={(e) => {
+                onClick={() => {
                   const title = `${format(new Date(), 'yyyy-MM-dd')} - ${
                     props.event?.title
                   }`;
@@ -195,7 +195,7 @@ _${startAt} - ${endAt}_
 ## Attendees:
 ${props.event?.attendees
   ?.map((a) => {
-    return '- ' + a.name;
+    return '- ' + a?.name;
   })
   .join('\n')}
 
@@ -204,6 +204,7 @@ ${props.event?.attendees
 
 ## Action Items:
 `;
+                  //@ts-ignore
                   window.electron.ipcRenderer.sendMessage('create-bear-note', {
                     title: title,
                     content: contents,

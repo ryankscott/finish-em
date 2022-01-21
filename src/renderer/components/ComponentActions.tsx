@@ -1,62 +1,52 @@
-import React, { ReactElement, useState } from 'react'
-import { gql, useMutation, useQuery } from '@apollo/client'
-import Button from './Button'
-import { Flex, useColorMode } from '@chakra-ui/react'
-const GET_DATA = gql`
-  query {
-    views {
-      key
-      name
-    }
-  }
-`
+import React, { ReactElement, useState } from 'react';
+import { gql, useMutation } from '@apollo/client';
+import Button from './Button';
+import { Flex, useColorMode } from '@chakra-ui/react';
 const DELETE_COMPONENT = gql`
   mutation DeleteComponent($key: String!) {
     deleteComponent(input: { key: $key }) {
       key
     }
   }
-`
+`;
 const CLONE_COMPONENT = gql`
   mutation CloneComponent($key: String!) {
     cloneComponent(input: { key: $key }) {
       key
     }
   }
-`
+`;
 
 type ComponentActionProps = {
-  children: JSX.Element
-  componentKey: string
-  readOnly?: boolean
-}
+  children: JSX.Element;
+  componentKey: string;
+  readOnly?: boolean;
+};
 
 const ComponentActions = (props: ComponentActionProps): ReactElement => {
-  const { colorMode, toggleColorMode } = useColorMode()
-  const [showActions, setShowActions] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
-  const { loading, error, data } = useQuery(GET_DATA)
-  const [cloneComponent] = useMutation(CLONE_COMPONENT, { refetchQueries: ['ComponentsByView'] })
-  const [deleteComponent] = useMutation(DELETE_COMPONENT, { refetchQueries: ['ComponentsByView'] })
-  if (loading) return null
-  if (error) {
-    console.log(error)
-    return null
-  }
-  let enterInterval, exitInterval
+  const { colorMode } = useColorMode();
+  const [showActions, setShowActions] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [cloneComponent] = useMutation(CLONE_COMPONENT, {
+    refetchQueries: ['ComponentsByView'],
+  });
+  const [deleteComponent] = useMutation(DELETE_COMPONENT, {
+    refetchQueries: ['ComponentsByView'],
+  });
+  let enterInterval: NodeJS.Timeout, exitInterval: NodeJS.Timeout;
 
-  if (props.readOnly) return <div>{props.children}</div>
+  if (props.readOnly) return <div>{props.children}</div>;
 
   return (
     <Flex
       position={'relative'}
       onMouseEnter={() => {
-        enterInterval = setTimeout(() => setShowActions(true), 250)
-        clearTimeout(exitInterval)
+        enterInterval = setTimeout(() => setShowActions(true), 250);
+        clearTimeout(exitInterval);
       }}
       onMouseLeave={() => {
-        clearTimeout(enterInterval)
-        exitInterval = setTimeout(() => setShowActions(false), 400)
+        clearTimeout(enterInterval);
+        exitInterval = setTimeout(() => setShowActions(false), 400);
       }}
     >
       {showActions && (
@@ -79,7 +69,7 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
               variant={'default'}
               tooltipText={'Edit component'}
               onClick={() => {
-                setIsEditing(true)
+                setIsEditing(true);
               }}
             />
             <Button
@@ -88,7 +78,7 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
               variant={'default'}
               tooltipText={'Clone component'}
               onClick={() => {
-                cloneComponent({ variables: { key: props.componentKey } })
+                cloneComponent({ variables: { key: props.componentKey } });
               }}
             />
             <Button
@@ -97,7 +87,7 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
               variant={'default'}
               tooltipText={'Move component'}
               onClick={() => {
-                console.log('move')
+                console.log('move');
               }}
             />
             <Button
@@ -105,7 +95,9 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
               icon={'trash'}
               variant={'default'}
               tooltipText={'Delete component'}
-              onClick={() => deleteComponent({ variables: { key: props.componentKey } })}
+              onClick={() =>
+                deleteComponent({ variables: { key: props.componentKey } })
+              }
             />
           </Flex>
         </>
@@ -114,10 +106,10 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
         return React.cloneElement(props.children, {
           editing: isEditing,
           setEditing: setIsEditing,
-        })
+        });
       })}
     </Flex>
-  )
-}
+  );
+};
 
-export default ComponentActions
+export default ComponentActions;

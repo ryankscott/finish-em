@@ -26,6 +26,7 @@ import {
 } from '../utils';
 import Select from './Select';
 
+// TODO: Split this component
 const queries: { [key: string]: DocumentNode } = {
   area: GET_AREAS,
   label: GET_LABELS,

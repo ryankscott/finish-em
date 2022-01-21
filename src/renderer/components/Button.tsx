@@ -1,30 +1,45 @@
-import React, { ReactElement } from 'react'
-import { IconType } from '../interfaces'
-import { Button as CButton, IconButton, useColorModeValue } from '@chakra-ui/react'
-import { Icons } from '../assets/icons'
-import * as CSS from 'csstype'
-import Tippy from '@tippyjs/react'
-import 'tippy.js/dist/tippy.css'
+import React, { ReactElement } from 'react';
+import { IconType } from '../interfaces';
+import {
+  Button as CButton,
+  IconButton,
+  useColorModeValue,
+} from '@chakra-ui/react';
+import { Icons } from '../assets/icons';
+import * as CSS from 'csstype';
+import Tippy from '@tippyjs/react';
+import 'tippy.js/dist/tippy.css';
 
+// TODO: Get rid of this and use the native button
 type ButtonProps = {
-  id?: string
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
-  variant: 'primary' | 'error' | 'default' | 'invert' | 'subtle' | 'subtleInvert'
-  text?: string | JSX.Element
-  size: 'xs' | 'sm' | 'md' | 'lg'
-  icon?: IconType
-  iconPosition?: 'left' | 'right'
-  iconSize?: CSS.Property.Width
-  iconColour?: CSS.Property.Color
-  tooltipText?: string
-  disabled?: boolean
-  visible?: boolean
-  fullWidth?: boolean
-  isActive?: boolean
-}
+  id?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  variant:
+    | 'primary'
+    | 'error'
+    | 'default'
+    | 'invert'
+    | 'subtle'
+    | 'subtleInvert';
+  text?: string | JSX.Element;
+  size: 'xs' | 'sm' | 'md' | 'lg';
+  icon?: IconType;
+  iconPosition?: 'left' | 'right';
+  iconSize?: CSS.Property.Width;
+  iconColour?: CSS.Property.Color;
+  tooltipText?: string;
+  disabled?: boolean;
+  visible?: boolean;
+  fullWidth?: boolean;
+  isActive?: boolean;
+};
 const Button = (props: ButtonProps): ReactElement => {
   return (
-    <Tippy delay={500} disabled={!props.tooltipText} content={props.tooltipText}>
+    <Tippy
+      delay={500}
+      disabled={!props.tooltipText}
+      content={props.tooltipText}
+    >
       {!props.text ? (
         <IconButton
           aria-label={props.icon}
@@ -32,7 +47,11 @@ const Button = (props: ButtonProps): ReactElement => {
           variant={props.variant}
           isDisabled={props.disabled}
           color={useColorModeValue('gray.700', 'gray.200')}
-          icon={Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)}
+          icon={Icons[props.icon](
+            props.iconSize,
+            props.iconSize,
+            props.iconColour
+          )}
           size={props.size}
           onClick={(e) => props?.onClick(e)}
           visible={props.visible?.toString()}
@@ -49,12 +68,20 @@ const Button = (props: ButtonProps): ReactElement => {
           onClick={(e) => props.onClick(e)}
           leftIcon={
             props.iconPosition == 'left'
-              ? Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)
+              ? Icons[props.icon](
+                  props.iconSize,
+                  props.iconSize,
+                  props.iconColour
+                )
               : null
           }
           rightIcon={
             props.iconPosition == 'right'
-              ? Icons[props.icon](props.iconSize, props.iconSize, props.iconColour)
+              ? Icons[props.icon](
+                  props.iconSize,
+                  props.iconSize,
+                  props.iconColour
+                )
               : null
           }
           size={props.size}
@@ -63,7 +90,7 @@ const Button = (props: ButtonProps): ReactElement => {
         </CButton>
       )}
     </Tippy>
-  )
-}
+  );
+};
 
-export default Button
+export default Button;

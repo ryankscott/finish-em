@@ -1,28 +1,35 @@
-import React, { ReactElement, useState } from 'react'
-import { Flex, Button, Text, Box, forwardRef, FlexProps } from '@chakra-ui/react'
-import { add, sub, lastDayOfWeek } from 'date-fns'
-import RDatePicker from 'react-datepicker'
-import { Icons } from '../assets/icons'
+import { ReactElement, useState } from 'react';
+import {
+  Flex,
+  Button,
+  Text,
+  Box,
+  forwardRef,
+  FlexProps,
+} from '@chakra-ui/react';
+import { add, sub, lastDayOfWeek } from 'date-fns';
+import RDatePicker from 'react-datepicker';
+import { Icons } from '../assets/icons';
 
 type DatePickerProps = {
-  text?: string
-  size?: 'xs' | 'sm' | 'md' | 'lg'
-  defaultText?: string
-  onSubmit: (d: Date) => void
-  onEscape?: () => void
-  tooltipText?: string
-  completed: boolean
-  deleted?: boolean
-}
+  text?: string;
+  size?: 'xs' | 'sm' | 'md' | 'lg';
+  defaultText?: string;
+  onSubmit: (d: Date) => void;
+  onEscape?: () => void;
+  tooltipText?: string;
+  completed: boolean;
+  deleted?: boolean;
+};
 
 type MenuItemType = {
-  name: string
-  clickHandler: () => void
-}
+  name: string;
+  clickHandler: () => void;
+};
 
 const DatePicker = (props: DatePickerProps): ReactElement => {
-  const [dayPickerVisible, setDayPickerVisible] = useState(false)
-  const [showMenu, setShowMenu] = useState(false)
+  const [dayPickerVisible, setDayPickerVisible] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   const MenuList = forwardRef<FlexProps, 'div'>((props, ref) => (
     <Flex
@@ -46,7 +53,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
     >
       {props.children}
     </Flex>
-  ))
+  ));
 
   const MenuItem = (props) => (
     <Flex
@@ -65,14 +72,14 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
         {props.children}
       </Text>
     </Flex>
-  )
+  );
 
-  const handleDayChange = (input: Date) => {
-    props.onSubmit(input)
-    setDayPickerVisible(false)
-    setShowMenu(false)
-    return
-  }
+  const handleDayChange = (input: Date | null) => {
+    props.onSubmit(input);
+    setDayPickerVisible(false);
+    setShowMenu(false);
+    return;
+  };
 
   const menuItems: MenuItemType[] = [
     {
@@ -89,7 +96,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
         handleDayChange(
           sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
             days: 2,
-          }),
+          })
         ),
     },
     {
@@ -98,7 +105,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
         handleDayChange(
           add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
             days: 1,
-          }),
+          })
         ),
     },
     {
@@ -109,21 +116,21 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
       name: 'No date',
       clickHandler: () => handleDayChange(null),
     },
-  ]
+  ];
 
   const generateIconSize = (size: string) => {
     switch (size) {
       case 'md':
-        return '12px'
+        return '12px';
       case 'sm':
-        return '10px'
+        return '10px';
       case 'xs':
-        return '8px'
+        return '8px';
       default:
-        return '12px'
+        return '12px';
     }
-  }
-  const iconSize = generateIconSize(props.size)
+  };
+  const iconSize = generateIconSize(props.size);
 
   return (
     <Flex direction="column" minW="190px" zindex={99} w="100%">
@@ -144,10 +151,19 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
         </Button>
         {showMenu && (
           <MenuList>
-            <Flex direction="column" w="100%" justifyContent="center" borderRadius="md">
+            <Flex
+              direction="column"
+              w="100%"
+              justifyContent="center"
+              borderRadius="md"
+            >
               {menuItems.map((m, idx) => (
                 <MenuItem
-                  bg={m.name == 'Custom date' && dayPickerVisible ? 'gray.100' : 'gray.50'}
+                  bg={
+                    m.name == 'Custom date' && dayPickerVisible
+                      ? 'gray.100'
+                      : 'gray.50'
+                  }
                   key={idx}
                   onClick={m.clickHandler}
                 >
@@ -169,7 +185,7 @@ const DatePicker = (props: DatePickerProps): ReactElement => {
         )}
       </Flex>
     </Flex>
-  )
-}
+  );
+};
 
-export default DatePicker
+export default DatePicker;

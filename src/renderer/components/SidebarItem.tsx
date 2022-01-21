@@ -1,33 +1,34 @@
-import { chakra, Flex, Text } from '@chakra-ui/react'
-import React from 'react'
-import { createShortSidebarItem } from '../utils'
-import { v4 as uuidv4 } from 'uuid'
-import { Icons } from '../assets/icons'
-import Tippy from '@tippyjs/react'
-import { Emoji } from 'emoji-mart'
-import { NavLink } from 'react-router-dom'
-import 'tippy.js/dist/tippy.css'
+import { chakra, Flex, Text } from '@chakra-ui/react';
+import React from 'react';
+import { createShortSidebarItem } from '../utils';
+import { v4 as uuidv4 } from 'uuid';
+import { Icons } from '../assets/icons';
+import Tippy from '@tippyjs/react';
+import { Emoji } from 'emoji-mart';
+import { NavLink } from 'react-router-dom';
+import 'tippy.js/dist/tippy.css';
+import { IconType } from 'renderer/interfaces';
 
 type SidebarItemProps =
   | {
-      variant: 'defaultView'
-      sidebarVisible: boolean
-      path: string
-      text: string
-      activeColour: string
-      iconName?: string
+      variant: 'defaultView';
+      sidebarVisible: boolean;
+      path: string;
+      text: string;
+      activeColour: string;
+      iconName?: IconType;
     }
   | {
-      variant: 'customView'
-      sidebarVisible: boolean
-      path: string
-      text: string
-      activeColour: string
-      emoji?: string
-    }
+      variant: 'customView';
+      sidebarVisible: boolean;
+      path: string;
+      text: string;
+      activeColour: string;
+      emoji?: string;
+    };
 
 export const SidebarItem = (props: SidebarItemProps): React.ReactElement => {
-  const StyledLink = chakra(NavLink)
+  const StyledLink = chakra(NavLink);
   const linkStyles = {
     color: 'gray.100',
     w: '100%',
@@ -47,7 +48,7 @@ export const SidebarItem = (props: SidebarItemProps): React.ReactElement => {
     _active: {
       bg: 'gray.900',
     },
-  }
+  };
 
   if (props.sidebarVisible) {
     return (
@@ -68,17 +69,26 @@ export const SidebarItem = (props: SidebarItemProps): React.ReactElement => {
             justifyContent="flex-start"
             alignItems={'center'}
           >
-            {props.variant == 'defaultView' && props.iconName && Icons[props.iconName](16, 16)}
+            {props.variant == 'defaultView' &&
+              props.iconName &&
+              Icons[props.iconName]('16px', '16px')}
             {props.variant == 'customView' && props.emoji && (
               <Emoji emoji={props.emoji} size={14} native={true} />
             )}
-            <Text key={uuidv4()} p={0} pl={1} m={0} color={'gray.100'} fontSize="md">
+            <Text
+              key={uuidv4()}
+              p={0}
+              pl={1}
+              m={0}
+              color={'gray.100'}
+              fontSize="md"
+            >
               {props.text}
             </Text>
           </Flex>
         </StyledLink>
       </Tippy>
-    )
+    );
   }
 
   return (
@@ -91,7 +101,9 @@ export const SidebarItem = (props: SidebarItemProps): React.ReactElement => {
         to={props.path}
       >
         <Flex justifyContent="center">
-          {props.variant == 'defaultView' && props.iconName && Icons[props.iconName](20, 20)}
+          {props.variant == 'defaultView' &&
+            props.iconName &&
+            Icons[props.iconName](20, 20)}
           {props.variant == 'customView' && props.emoji && (
             <Emoji emoji={props.emoji} size={16} native={true} />
           )}
@@ -103,6 +115,6 @@ export const SidebarItem = (props: SidebarItemProps): React.ReactElement => {
         </Flex>
       </StyledLink>
     </Tippy>
-  )
-}
-export default SidebarItem
+  );
+};
+export default SidebarItem;

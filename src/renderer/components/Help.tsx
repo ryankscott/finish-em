@@ -1,6 +1,6 @@
-import { List, ListItem, Text, Code, VStack } from '@chakra-ui/react'
-import React, { ReactElement } from 'react'
-import { Page } from './Page'
+import { List, ListItem, Text, Code, VStack } from '@chakra-ui/react';
+import { ReactElement } from 'react';
+import { Page } from './Page';
 
 const filterAttributes: { name: string; description: string }[] = [
   { name: 'key', description: 'the ID of the item' },
@@ -18,7 +18,7 @@ const filterAttributes: { name: string; description: string }[] = [
   { name: 'project', description: 'the project that an item was part of' },
   { name: 'area', description: 'the area that an item was part of' },
   { name: 'repeat', description: 'whether or not the item repeats' },
-]
+];
 
 export const Help = (): ReactElement => {
   return (
@@ -41,12 +41,12 @@ export const Help = (): ReactElement => {
                   <Code>{f.name}</Code> - {f.description}
                 </Text>
               </ListItem>
-            )
+            );
           })}
         </List>
       </VStack>
     </Page>
-  )
-}
+  );
+};
 
-export default Help
+export default Help;
