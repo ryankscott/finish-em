@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
-import { isSameMinute, parseISO } from 'date-fns';
+import { isSameDay, isSameMinute, parseISO } from 'date-fns';
 import { ReactElement, useEffect } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { Slide, toast, ToastContainer } from 'react-toastify';
@@ -19,7 +19,8 @@ import Sidebar from './Sidebar';
 import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
 import '../filterBoxStyles.css';
-import { CREATE_ITEM, GET_APP_DATA } from 'renderer/queries/app';
+import { CREATE_ITEM, GET_APP_DATA } from 'renderer/queries/';
+import { Reminder } from 'main/generated/typescript-helpers';
 
 export const MIN_WIDTH_FOR_SIDEBAR = 1125;
 export const MIN_WIDTH_FOR_FOCUSBAR = 1125;
@@ -113,17 +114,18 @@ const App = (): ReactElement => {
   });
 
   if (data?.reminders) {
-    setInterval(
-      data.reminders.map((r) => {
-        if (r.deleted) return;
-        if (isSameMinute(parseISO(r.remindAt), new Date())) {
-          const _ = new Notification('Reminder', {
-            body: r.text,
-          });
-        }
-      }),
-      1000 * 60
-    );
+    setInterval(() => {
+      data.reminders
+        .filter((r: Reminder) => r.deleted != true)
+        .map((r: Reminder) => {
+          if (r.deleted) return;
+          if (isSameMinute(parseISO(r.remindAt), new Date())) {
+            new Notification('Reminder', {
+              body: r?.text ?? 'Reminder for task',
+            });
+          }
+        });
+    }, 60 * 1000);
   }
 
   return (

@@ -54,6 +54,7 @@ const Inbox = (): ReactElement => {
             flattenSubtasks={false}
             readOnly={true}
             hiddenIcons={[ItemIcons.Project]}
+            shouldPoll={true}
           />
         </Flex>
       </Flex>

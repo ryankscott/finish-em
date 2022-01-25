@@ -1,53 +1,76 @@
-import React, { ReactElement } from 'react';
-import Button from './Button';
+import { ReactElement } from 'react';
 import Select from './Select';
 import {
   removeItemTypeFromString,
   markdownLinkRegex,
   markdownBasicRegex,
 } from '../utils';
-import { useNavigate } from 'react-router-dom';
 
-import { gql, useQuery } from '@apollo/client';
+import { GroupType } from 'react-select';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@apollo/client';
 import { activeItemVar, focusbarVisibleVar } from '..';
 import { Item, Project } from '../../main/generated/typescript-helpers';
 import { sortBy } from 'lodash';
 import { CommandBar } from './CommandBar';
-import { Flex, Grid, GridItem, useColorMode, useTheme } from '@chakra-ui/react';
+import {
+  Flex,
+  Grid,
+  IconButton,
+  Tooltip,
+  useColorMode,
+  useTheme,
+  GridItem,
+} from '@chakra-ui/react';
+import { convertSVGElementToReact, Icons } from 'renderer/assets/icons';
+import { IconType } from 'renderer/interfaces';
+import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
 
 type OptionType = { label: string; value: () => void };
 
-const GET_DATA = gql`
-  query {
-    projects(input: { deleted: false }) {
-      key
-      name
-    }
-    areas {
-      key
-      name
-    }
-    items {
-      key
-      text
-      deleted
-      lastUpdatedAt
-    }
-  }
-`;
+const HeaderItem = (props: any) => (
+  <GridItem>
+    <Flex
+      direction="row"
+      justifyContent={'center'}
+      alignItems={'center'}
+      p={3}
+      _hover={{ cursor: 'pointer' }}
+    >
+      {props.children}
+    </Flex>
+  </GridItem>
+);
 
 const Headerbar = (): ReactElement => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { colorMode, toggleColorMode } = useColorMode();
-  const { loading, error, data } = useQuery(GET_DATA);
-  if (loading) return null;
+  const { loading, error, data } = useQuery(GET_HEADER_BAR_DATA);
+  if (loading) return <></>;
   if (error) {
     console.log(error);
-    return null;
+    return <></>;
   }
 
-  const generateOptions = (
+  const HeaderButton = (props: {
+    label: string;
+    icon: IconType;
+    iconColour: string;
+    onClickHandler: () => void;
+  }) => (
+    <Tooltip delay={500} label={props.label}>
+      <IconButton
+        aria-label={props.label}
+        variant="invert"
+        icon={convertSVGElementToReact(Icons[props.icon]('18px', '18px'))}
+        iconColour={props.iconColour}
+        onClick={props.onClickHandler}
+      />
+    </Tooltip>
+  );
+
+  const generateSearchOptions = (
     projects: Project[],
     items: Item[]
   ): GroupType<OptionType>[] => {
@@ -56,7 +79,7 @@ const Headerbar = (): ReactElement => {
       .filter((i) => i.deleted == false)
       .map((i) => {
         return {
-          label: removeItemTypeFromString(i.text)
+          label: removeItemTypeFromString(i.text ?? '')
             .replace(markdownLinkRegex, '$1')
             .replace(markdownBasicRegex, '$1'),
           value: () => {
@@ -92,7 +115,7 @@ const Headerbar = (): ReactElement => {
       bg={'gray.800'}
       px={2}
     >
-      <GridItem as={Flex} justifyContent="flex-end" colSpan={1}>
+      <HeaderItem as={Flex} justifyContent="flex-end" colSpan={1}>
         <Flex w={'350px'} py={0} px={2}>
           <Select
             size="md"
@@ -101,88 +124,46 @@ const Headerbar = (): ReactElement => {
             onChange={(selected) => {
               selected.value();
             }}
-            options={generateOptions(data.projects, data.items)}
+            options={generateSearchOptions(data.projects, data.items)}
             invertColours={colorMode == 'light' ? true : false}
             fullWidth={true}
           />
         </Flex>
-      </GridItem>
-      <GridItem>
-        <Flex
-          direction="row"
-          justifyContent={'center'}
-          alignItems={'center'}
-          p={3}
-          _hover={{ cursor: 'pointer' }}
-        >
-          <CommandBar />
-        </Flex>
-      </GridItem>
-      <GridItem>
-        <Flex
-          direction="row"
-          justifyContent={'center'}
-          alignItems={'center'}
-          p={3}
-          _hover={{ cursor: 'pointer' }}
-        >
-          <Button
-            size="md"
-            variant="invert"
-            icon="feedback"
-            iconSize="20px"
-            iconColour={theme.colors.gray[100]}
-            tooltipText={'Give feedback'}
-            onClick={() =>
-              window.open(
-                'https://github.com/ryankscott/finish-em/issues/new/choose'
-              )
-            }
-          />
-        </Flex>
-      </GridItem>
-      <GridItem>
-        <Flex
-          direction="row"
-          justifyContent={'center'}
-          alignItems={'center'}
-          p={3}
-          _hover={{ cursor: 'pointer' }}
-        >
-          <Button
-            size="md"
-            variant="invert"
-            icon="help"
-            iconSize="20px"
-            iconColour={theme.colors.gray[100]}
-            tooltipText="Show help"
-            onClick={() => {
-              navigate('/help/');
-            }}
-          />
-        </Flex>
-      </GridItem>
+      </HeaderItem>
+      <HeaderItem>
+        <CommandBar />
+      </HeaderItem>
+      <HeaderItem>
+        <HeaderButton
+          label={'Give feedback'}
+          icon={'feedback' as IconType}
+          iconColour={theme.colors.gray[100]}
+          onClickHandler={() => {
+            window.open(
+              'https://github.com/ryankscott/finish-em/issues/new/choose'
+            );
+          }}
+        />
+      </HeaderItem>
+      <HeaderItem>
+        <HeaderButton
+          label="Show Help"
+          icon={'help' as IconType}
+          iconColour={theme.colors.gray[100]}
+          onClickHandler={() => {
+            navigate('/help/');
+          }}
+        />
+      </HeaderItem>
 
-      <GridItem>
-        <Flex
-          direction="row"
-          justifyContent={'center'}
-          alignItems={'center'}
-          p={3}
-          _hover={{ cursor: 'pointer' }}
-        >
-          <Button
-            size="md"
-            variant="invert"
-            icon={colorMode == 'light' ? 'darkMode' : 'lightMode'}
-            iconPosition={'right'}
-            iconColour={'white'}
-            iconSize={'20px'}
-            onClick={toggleColorMode}
-            tooltipText={'Toggle dark mode'}
-          />
-        </Flex>
-      </GridItem>
+      <HeaderItem>
+        <HeaderButton
+          label="Toggle dark mode"
+          icon={colorMode == 'light' ? 'darkMode' : 'lightMode'}
+          iconColour={theme.colors.gray[100]}
+          onClickHandler={toggleColorMode}
+        />
+      </HeaderItem>
     </Grid>
   );
 };

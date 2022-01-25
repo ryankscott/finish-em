@@ -18,37 +18,5 @@ export const GET_APP_DATA = gql`
       key
       enabled
     }
-
-    sidebarVisible @client
-    focusbarVisible @client
-    activeItem @client
-    shortcutDialogVisible @client
-  }
-`;
-
-export const CREATE_ITEM = gql`
-  mutation CreateItem(
-    $key: String!
-    $type: String!
-    $text: String!
-    $parentKey: String
-    $projectKey: String
-  ) {
-    createItem(
-      input: {
-        key: $key
-        type: $type
-        text: $text
-        parentKey: $parentKey
-        projectKey: $projectKey
-      }
-    ) {
-      key
-      type
-      text
-      project {
-        key
-      }
-    }
   }
 `;

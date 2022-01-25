@@ -75,21 +75,21 @@ export const setEndOfContenteditable = (
   }
 };
 
-export const formatRelativeDate = (date: Date, compact?: boolean): string => {
+export const formatRelativeDate = (date: Date): string => {
   if (!isValid(date)) return '';
   if (isToday(date)) {
-    return compact ? 'TDA' : 'Today';
+    return 'Today';
   } else if (isTomorrow(date)) {
-    return compact ? 'TMR' : 'Tomorrow';
+    return 'Tomorrow';
   } else if (isYesterday(date)) {
-    return compact ? 'YDA' : 'Yesterday';
+    return 'Yesterday';
   } else if (
     differenceInDays(date, new Date()) < 7 &&
     isAfter(date, new Date())
   ) {
-    return compact ? format(date, 'E') : format(date, 'EEEE');
+    return format(date, 'EEEE');
   } else {
-    return compact ? format(date, 'do MMM') : format(date, 'do MMMM');
+    return format(date, 'do MMMM');
   }
 };
 
@@ -109,13 +109,13 @@ export const hasEmoji = (input: string): boolean => {
   return emojiRegexText().test(input);
 };
 
-export const getEmoji = (input: string): string => {
+export const getEmoji = (input: string): string | null => {
   if (!input) return null;
   const found = input.match(emojiRegexText());
   return found ? found[0] : null;
 };
 
-export const createShortSidebarItem = (input: string): string => {
+export const createShortSidebarItem = (input: string): string | null => {
   if (!input) return input;
 
   if (hasEmoji(input)) return getEmoji(input);
@@ -331,7 +331,6 @@ export const HTMLToPlainText = (html: string): string => {
   html = html.replace(/<\/p>/gi, '\n');
   html = html.replace(/<br\s*[\/]?>/gi, '\n');
   html = html.replace(/<[^>]+>/gi, '');
-
   return html;
 };
 

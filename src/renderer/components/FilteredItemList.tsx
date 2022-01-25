@@ -1,24 +1,33 @@
-import { gql, useMutation } from '@apollo/client'
-import { Box, Flex, Grid, GridItem, Text, useColorMode, useColorModeValue } from '@chakra-ui/react'
-import React, { ReactElement, useState } from 'react'
-import { Item } from '../../main/generated/typescript-helpers'
-import { ItemIcons } from '../interfaces/item'
-import Button from './Button'
-import EditFilteredItemList from './EditFilteredItemList'
-import ReorderableItemList from './ReorderableItemList'
-import SortDropdown, { SortDirectionEnum } from './SortDropdown'
+import { useMutation } from '@apollo/client';
+import {
+  Box,
+  Flex,
+  Grid,
+  GridItem,
+  Text,
+  useColorMode,
+} from '@chakra-ui/react';
+import { ReactElement, useState } from 'react';
+import { DELETE_ITEM } from 'renderer/queries';
+import { Item } from '../../main/generated/typescript-helpers';
+import { ItemIcons } from '../interfaces/item';
+import Button from './Button';
+import EditFilteredItemList from './EditFilteredItemList';
+import ReorderableItemList from './ReorderableItemList';
+import SortDropdown, { SortDirectionEnum } from './SortDropdown';
+import { orderBy } from 'lodash';
 
 const determineVisibilityRules = (
   isFilterable: boolean,
   showItemList: boolean,
   itemsLength: number,
   completedItemsLength: number,
-  showCompletedToggle: boolean,
-): {
   showCompletedToggle: boolean
-  showFilterBar: boolean
-  showDeleteButton: boolean
-  showSortButton: boolean
+): {
+  showCompletedToggle: boolean;
+  showFilterBar: boolean;
+  showDeleteButton: boolean;
+  showSortButton: boolean;
 } => {
   return {
     // Show completed toggle if we have a completed item and we want to show the toggle
@@ -29,57 +38,51 @@ const determineVisibilityRules = (
     showDeleteButton: completedItemsLength > 0 && showItemList,
     // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
     showSortButton: itemsLength >= 1 && showItemList,
-  }
-}
-
-const DELETE_ITEM = gql`
-  mutation DeleteItem($key: String!) {
-    deleteItem(input: { key: $key }) {
-      key
-      deleted
-    }
-  }
-`
+  };
+};
 
 export type FilteredItemListProps = {
-  componentKey: string
-  isFilterable?: boolean
-  hiddenIcons?: ItemIcons[]
-  listName?: string
-  filter: string
-  legacyFilter?: string
-  flattenSubtasks?: boolean
-  showCompletedToggle?: boolean
-  initiallyExpanded?: boolean
-  hideDeletedSubtasks?: boolean
-  hideCompletedSubtasks?: boolean
-  readOnly?: boolean
-  editing?: boolean
-  setEditing?: (editing: boolean) => void
-}
+  componentKey: string;
+  isFilterable?: boolean;
+  hiddenIcons?: ItemIcons[];
+  listName?: string;
+  filter: string;
+  legacyFilter?: string;
+  flattenSubtasks?: boolean;
+  showCompletedToggle?: boolean;
+  initiallyExpanded?: boolean;
+  hideDeletedSubtasks?: boolean;
+  hideCompletedSubtasks?: boolean;
+  shouldPoll?: boolean;
+  readOnly?: boolean;
+  editing?: boolean;
+  setEditing?: (editing: boolean) => void;
+};
 
 const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
-  const { colorMode, toggleColorMode } = useColorMode()
+  const { colorMode } = useColorMode();
   const [sortType, setSortType] = useState({
     label: 'Due',
     sort: (items: Item[], direction: SortDirectionEnum) =>
       orderBy(items, [(i) => new Date(i.dueAt)], direction),
-  })
-  const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
-  const [showCompleted, setShowCompleted] = useState(true)
-  const [showItemList, setShowItemList] = useState(true)
-  const [itemsLength, setItemsLength] = useState([])
-  const [expandSubtasks, setExpandSubtasks] = useState(true)
-  const [deleteItem] = useMutation(DELETE_ITEM)
+  });
+  const [sortDirection, setSortDirection] = useState(
+    SortDirectionEnum.Ascending
+  );
+  const [showCompleted, setShowCompleted] = useState(true);
+  const [showItemList, setShowItemList] = useState(true);
+  const [itemsLength, setItemsLength] = useState([]);
+  const [expandSubtasks, setExpandSubtasks] = useState(true);
+  const [deleteItem] = useMutation(DELETE_ITEM);
 
-  const [allItemsLength, completedItemsLength] = itemsLength
+  const [allItemsLength, completedItemsLength] = itemsLength;
   const visibility = determineVisibilityRules(
-    props.isFilterable,
+    props.isFilterable ?? true,
     showItemList,
     allItemsLength,
     completedItemsLength,
-    props.showCompletedToggle,
-  )
+    props.showCompletedToggle ?? false
+  );
 
   return (
     <Box
@@ -91,6 +94,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
       borderColor={colorMode == 'light' ? 'gray.200' : 'gray.600'}
     >
       <Grid
+        overflow={'hidden'}
         position={'relative'}
         alignItems={'center'}
         py={4}
@@ -112,13 +116,20 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
             size="sm"
             icon={showItemList == true ? 'collapse' : 'expand'}
             onClick={() => {
-              setShowItemList(!showItemList)
+              setShowItemList(!showItemList);
             }}
             tooltipText="Hide items"
           />
         </GridItem>
         <GridItem colSpan={1}>
-          <Flex direction={'row'} py={1} px={0} my={0} mx={2} alignItems={'baseline'}>
+          <Flex
+            direction={'row'}
+            py={1}
+            px={0}
+            my={0}
+            mx={2}
+            alignItems={'baseline'}
+          >
             <Text fontSize="lg">{props.listName}</Text>
             <Text fontSize="sm" py={0} px={2} minW={'80px'} color={'gray.500'}>
               {allItemsLength
@@ -145,9 +156,13 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                     variant="default"
                     icon={showCompleted ? 'hide' : 'show'}
                     onClick={() => {
-                      setShowCompleted(!showCompleted)
+                      setShowCompleted(!showCompleted);
                     }}
-                    tooltipText={showCompleted ? 'Show completed items' : 'Hide completed items'}
+                    tooltipText={
+                      showCompleted
+                        ? 'Show completed items'
+                        : 'Hide completed items'
+                    }
                   />
                 )}
                 {visibility.showDeleteButton && (
@@ -173,7 +188,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                   iconSize="14px"
                   tooltipText={'Expand all subtasks'}
                   onClick={() => {
-                    setExpandSubtasks(true)
+                    setExpandSubtasks(true);
                   }}
                 />
                 <Button
@@ -183,7 +198,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                   iconSize="14px"
                   tooltipText={'Collapse all subtasks'}
                   onClick={() => {
-                    setExpandSubtasks(false)
+                    setExpandSubtasks(false);
                   }}
                 />
                 <Box w={'145px'}>
@@ -192,10 +207,10 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                     sortType={sortType}
                     sortDirection={sortDirection}
                     onSetSortDirection={(d) => {
-                      setSortDirection(d)
+                      setSortDirection(d);
                     }}
                     onSetSortType={(t) => {
-                      setSortType(t)
+                      setSortType(t);
                     }}
                   />
                 </Box>
@@ -210,7 +225,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
             key={`dlg-${props.componentKey}`}
             componentKey={props.componentKey}
             onClose={() => {
-              props.setEditing(false)
+              props.setEditing && props.setEditing(false);
             }}
           />
         </Box>
@@ -225,7 +240,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
           <ReorderableItemList
             expandSubtasks={expandSubtasks}
             onItemsFetched={(itemLengths) => {
-              setItemsLength(itemLengths)
+              setItemsLength(itemLengths);
             }}
             filter={props.filter}
             key={props.componentKey}
@@ -237,11 +252,12 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
             sortType={sortType}
             flattenSubtasks={props.flattenSubtasks}
             showCompleted={showCompleted}
+            shouldPoll={props.shouldPoll}
           />
         </Flex>
       ) : null}
     </Box>
-  )
-}
+  );
+};
 
-export default FilteredItemList
+export default FilteredItemList;

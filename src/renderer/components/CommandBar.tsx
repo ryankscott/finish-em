@@ -1,63 +1,18 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
-import { Flex, useTheme } from '@chakra-ui/react';
+import { useMutation } from '@apollo/client';
+import { Flex, useTheme, IconButton, Tooltip } from '@chakra-ui/react';
 import CommandPalette from 'react-command-palette';
-import Button from './Button';
-const GET_ACTIVE_ITEM = gql`
-  query {
-    activeItem @client
-  }
-`;
-const COMPLETE_ITEM = gql`
-  mutation CompleteItem($key: String!) {
-    completeItem(input: { key: $key }) {
-      key
-      completed
-      completedAt
-    }
-  }
-`;
-const UNCOMPLETE_ITEM = gql`
-  mutation UnCompleteItem($key: String!) {
-    unCompleteItem(input: { key: $key }) {
-      key
-      completed
-      completedAt
-    }
-  }
-`;
-const DELETE_ITEM = gql`
-  mutation DeleteItem($key: String!) {
-    deleteItem(input: { key: $key }) {
-      key
-      deleted
-      deletedAt
-      children {
-        key
-        deleted
-        deletedAt
-      }
-    }
-  }
-`;
-const RESTORE_ITEM = gql`
-  mutation RestoreItem($key: String!) {
-    restoreItem(input: { key: $key }) {
-      key
-      deleted
-      deletedAt
-    }
-  }
-`;
+import { activeItemVar } from 'renderer';
+import { convertSVGElementToReact, Icons } from 'renderer/assets/icons';
+import {
+  COMPLETE_ITEM,
+  DELETE_ITEM,
+  RESTORE_ITEM,
+  UNCOMPLETE_ITEM,
+} from 'renderer/queries';
 
 export const CommandBar = () => {
   const theme = useTheme();
-  const { loading, error, data } = useQuery(GET_ACTIVE_ITEM);
-
-  if (loading) return null;
-  if (error) {
-    console.log(error);
-    return null;
-  }
+  const activeItem = activeItemVar();
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: ['itemsByFilter'],
@@ -85,7 +40,7 @@ export const CommandBar = () => {
       shortcut: 'c',
       name: 'Complete item',
       command: () => {
-        data.activeItem.map((i) => {
+        activeItem.map((i) => {
           completeItem({ variables: { key: i } });
         });
       },
@@ -96,7 +51,7 @@ export const CommandBar = () => {
       shortcut: 'd',
       name: 'Delete item',
       command: () => {
-        data.activeItem.map((i) => {
+        activeItem.map((i) => {
           deleteItem({ variables: { key: i } });
         });
       },
@@ -107,7 +62,7 @@ export const CommandBar = () => {
       shortcut: 'u',
       name: 'Uncomplete item',
       command: () => {
-        data.activeItem.map((i) => {
+        activeItem.map((i) => {
           unCompleteItem({ variables: { key: i } });
         });
       },
@@ -118,7 +73,7 @@ export const CommandBar = () => {
       shortcut: 'r',
       name: 'Restore item',
       command: () => {
-        data.activeItem.map((i) => {
+        activeItem.map((i) => {
           restoreItem({ variables: { key: i } });
         });
       },
@@ -152,14 +107,14 @@ export const CommandBar = () => {
         suggestionsList: 'command-suggestionsList',
       }}
       trigger={
-        <Button
-          size="md"
-          variant="invert"
-          icon="terminal"
-          iconSize="20px"
-          tooltipText="Show command bar"
-          iconColour={theme.colors.gray[100]}
-        />
+        <Tooltip delay={500} label="Show commandbar">
+          <IconButton
+            aria-label="show command bar"
+            variant="invert"
+            icon={convertSVGElementToReact(Icons['terminal']())}
+            iconColour={theme.colors.gray[100]}
+          />
+        </Tooltip>
       }
       renderCommand={(suggestion) => {
         return (

@@ -5,7 +5,6 @@ export type SidebarData = {
   areas: Area[];
   views: View[];
   projects: Project[];
-  sidebarVisible: boolean;
 };
 export const GET_SIDEBAR = gql`
   query GetSidebarData {
@@ -41,7 +40,6 @@ export const GET_SIDEBAR = gql`
         sortOrder
       }
     }
-    sidebarVisible @client
   }
 `;
 

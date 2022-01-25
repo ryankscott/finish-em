@@ -1,5 +1,4 @@
 import ReactDOM from 'react-dom';
-import ViewManager from './components/ViewManager';
 import {
   ApolloProvider,
   ApolloClient,
@@ -95,8 +94,11 @@ export const shortcutDialogVisibleVar: ReactiveVar<Boolean> =
 export const activeItemVar: ReactiveVar<Array<String>> = makeVar<Array<String>>(
   []
 );
-export const subtasksVisibleVar: ReactiveVar<Object> = makeVar<Object>({});
-export const activeCalendarVar: ReactiveVar<Object> = makeVar<String>('');
+export const subtasksVisibleVar: ReactiveVar<{
+  [key: string]: { [key: string]: boolean };
+}> = makeVar<{ [key: string]: { [key: string]: boolean } }>({});
+
+export const activeCalendarVar: ReactiveVar<Object> = makeVar<Object>({});
 
 ReactDOM.render(
   <ChakraProvider theme={theme}>

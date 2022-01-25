@@ -54,7 +54,7 @@ const Sidebar = (): ReactElement => {
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
   const [sortedViews, setSortedViews] = useState<View[]>([]);
-  const sidebarVisible = data?.sidebarVisible;
+  const sidebarVisible = sidebarVisibleVar().valueOf();
 
   useEffect(() => {
     if (loading === false && data) {
@@ -100,10 +100,11 @@ const Sidebar = (): ReactElement => {
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
 
+    if (!destination) {
+      return;
+    }
+
     if (type == 'PROJECT') {
-      if (!destination) {
-        return;
-      }
       const areaKey = destination.droppableId;
       //  Trying to detect drops in non-valid areas
 
@@ -132,7 +133,7 @@ const Sidebar = (): ReactElement => {
       setProjectOrder({
         variables: {
           projectKey: draggableId,
-          sortOrder: projectAtDestination.sortOrder.sortOrder,
+          sortOrder: projectAtDestination?.sortOrder?.sortOrder,
         },
       });
     }
@@ -151,7 +152,7 @@ const Sidebar = (): ReactElement => {
       setAreaOrder({
         variables: {
           areaKey: draggableId,
-          sortOrder: areaAtDestination.sortOrder.sortOrder,
+          sortOrder: areaAtDestination?.sortOrder?.sortOrder,
         },
       });
     }
@@ -205,7 +206,7 @@ const Sidebar = (): ReactElement => {
                 variant={'defaultView'}
                 key={'sidebarItem-' + view.key}
                 sidebarVisible={sidebarVisible}
-                iconName={view.icon}
+                iconName={view.icon as IconType}
                 text={view.name}
                 path={`/views/${view.key}`}
                 activeColour={theme.colors.gray[900]}

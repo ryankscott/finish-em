@@ -9,6 +9,7 @@ import {
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import applescript from 'applescript';
+import { GRAPHQL_PORT, CAL_SYNC_INTERVAL } from 'consts';
 import fetch from 'cross-fetch';
 import { parseJSON } from 'date-fns';
 import { app, BrowserWindow, globalShortcut, ipcMain, net } from 'electron';
@@ -46,10 +47,6 @@ console.log(`logging to  ${app.getPath('logs')}/main.log`);
 
 const executeAppleScript = util.promisify(applescript.execString);
 const isDev = process.env.NODE_ENV.trim() == 'development';
-
-const GRAPHQL_PORT = 8089;
-const BEAR_SYNC_INTERVAL = 1000 * 60 * 5;
-const CAL_SYNC_INTERVAL = 1000 * 60 * 5;
 
 log.info(`Running in ${isDev ? 'development' : 'production'}`);
 
@@ -546,12 +543,12 @@ const saveAppleCalendarEvents = async (
   }
 };
 
-let mainWindow;
-let quickAddWindow;
-let db;
-let client;
-let calendarSyncInterval;
-let bearNotesSyncInterval;
+let mainWindow: BrowserWindow;
+let quickAddWindow: BrowserWindow;
+let db: sqlite.Database<sqlite3.Database>;
+let client: ApolloClient<NormalizedCacheObject>;
+let calendarSyncInterval: NodeJS.Timer;
+
 const startApp = async () => {
   db = await setUpDatabase();
 
@@ -587,10 +584,14 @@ const startApp = async () => {
       log.error(`Failed to get API token for bear notes integration`);
       return;
     }
+
     // Get todos from bear
+    /*
+// TODO: This is intentionally commented out until there's a more performant way of getting todos
     bearNotesSyncInterval = setInterval(async () => {
       saveTodosFromBear(token, client);
     }, BEAR_SYNC_INTERVAL);
+*/
   }
 };
 
@@ -681,15 +682,13 @@ ipcMain.on('feature-toggled', (event, arg) => {
         log.error(`Failed to get API token for bear notes integration`);
         return;
       }
-      log.info('Enabling bear notes sync');
+
       // Get todos from bear
-      saveTodosFromBear(token, client);
+      /* saveTodosFromBear(token, client);
       bearNotesSyncInterval = setInterval(async () => {
         saveTodosFromBear(token, client);
       }, BEAR_SYNC_INTERVAL);
-    } else {
-      log.info('Disabling bear notes sync');
-      clearInterval(bearNotesSyncInterval);
+      */
     }
   }
 });
@@ -708,13 +707,6 @@ ipcMain.on('feature-metadata-updated', (event, arg) => {
         log.error(`Failed to get API token for bear notes integration`);
         return;
       }
-      // Get todos from bear
-      saveTodosFromBear(token, client);
-      bearNotesSyncInterval = setInterval(async () => {
-        saveTodosFromBear(token, client);
-      }, BEAR_SYNC_INTERVAL);
-    } else {
-      clearInterval(bearNotesSyncInterval);
     }
   }
 });

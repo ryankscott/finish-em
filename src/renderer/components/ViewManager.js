@@ -9,6 +9,7 @@ const ViewManager = (props) => {
     quickAdd: <QuickAdd />,
   };
 
+  console.log(props);
   const name = props.location.search.substr(1);
   if (name == '') {
     return view['main'];
@@ -17,11 +18,7 @@ const ViewManager = (props) => {
   const view = views[name];
   if (view == null) throw new Error("View '" + name + "' is undefined");
 
-  return (
-    <Router>
-      <App />
-    </Router>
-  );
+  return <Router>{views[view]}</Router>;
 };
 
 export default ViewManager;

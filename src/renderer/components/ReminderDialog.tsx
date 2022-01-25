@@ -1,14 +1,13 @@
-import React, { ReactElement } from 'react'
-import { add, startOfWeek, startOfTomorrow } from 'date-fns'
-import { v4 as uuidv4 } from 'uuid'
-import { ReminderContainer } from './styled/ReminderDialog'
-import Button from './Button'
-import { gql, useMutation, useQuery } from '@apollo/client'
-import { Flex, Box, Text } from '@chakra-ui/react'
+import { ReactElement } from 'react';
+import { add, startOfWeek, startOfTomorrow } from 'date-fns';
+import { v4 as uuidv4 } from 'uuid';
+import Button from './Button';
+import { gql, useMutation } from '@apollo/client';
+import { Flex, Text } from '@chakra-ui/react';
 
-const reminders: {
-  label: string
-  value: string
+const reminderOptions: {
+  label: string;
+  value: string;
 }[] = [
   {
     label: 'In 20 minutes',
@@ -32,40 +31,49 @@ const reminders: {
       hours: 9,
     }).toISOString(),
   },
-]
+];
 
 const CREATE_REMINDER = gql`
-  mutation CreateReminder($key: String!, $text: String!, $remindAt: DateTime, $itemKey: String) {
-    createReminder(input: { key: $key, text: $text, remindAt: $remindAt, itemKey: $itemKey }) {
+  mutation CreateReminder(
+    $key: String!
+    $text: String!
+    $remindAt: DateTime
+    $itemKey: String
+  ) {
+    createReminder(
+      input: { key: $key, text: $text, remindAt: $remindAt, itemKey: $itemKey }
+    ) {
       key
+      text
       remindAt
     }
   }
-`
+`;
 const DELETE_REMINDER_FROM_ITEM = gql`
   mutation DeleteReminderFromItem($itemKey: String!) {
     deleteReminderFromItem(input: { itemKey: $itemKey }) {
       key
     }
   }
-`
+`;
 
 type ReminderDialogProps = {
-  itemKey: string
-  reminderText: string
-  onClose: () => void
-}
+  itemKey: string;
+  reminderText: string;
+  onClose: () => void;
+};
 
 function ReminderDialog(props: ReminderDialogProps): ReactElement {
   const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
     refetchQueries: ['itemByKey', 'getAppData'],
-  })
+  });
   const [createReminder] = useMutation(CREATE_REMINDER, {
     refetchQueries: ['itemByKey', 'getAppData'],
-  })
+  });
 
   return (
-    <Box
+    <Flex
+      direction="column"
       zIndex={2}
       position={'absolute'}
       minW={'180px'}
@@ -74,10 +82,15 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
       border={'1px solid'}
       borderColor={'gray.200'}
       borderRadius={4}
-      padding={1}
+      py={1}
+      px={2}
       bg={'gray.50'}
     >
-      <Flex direction={'row'} alignItems={'baseline'} justifyContent={'space-between'}>
+      <Flex
+        direction={'row'}
+        alignItems={'baseline'}
+        justifyContent={'space-between'}
+      >
         <Text fontSize={'md'} pl={2} p={1}>
           Remind at:
         </Text>
@@ -85,14 +98,15 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
           variant="default"
           size="sm"
           iconSize="12px"
-          onClick={() => {
-            props.onClose()
+          onClick={(e) => {
+            e.stopPropagation();
+            props.onClose();
           }}
           icon={'close'}
         />
       </Flex>
       <Flex direction={'column'} py={2} px={1}>
-        {reminders.map((r) => {
+        {reminderOptions.map((r) => {
           return (
             <div key={r.label}>
               <Flex
@@ -106,15 +120,18 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
                   fontWeight: 'semibold',
                   cursor: 'pointer',
                 }}
-                onClick={() => {
+                onClick={(e) => {
                   createReminder({
                     variables: {
                       key: uuidv4(),
-                      itemKey: props.itemKey,
                       text: props.reminderText,
                       remindAt: r.value,
+                      itemKey: props.itemKey,
                     },
-                  })
+                  });
+
+                  e.stopPropagation();
+                  props.onClose();
                 }}
               >
                 <Text
@@ -130,7 +147,7 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
                 </Text>
               </Flex>
             </div>
-          )
+          );
         })}
         <Flex
           key={'lc'}
@@ -144,9 +161,9 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
             cursor: 'pointer',
           }}
           onClick={(e) => {
-            deleteReminderFromItem({ variables: { itemKey: props.itemKey } })
-            e.stopPropagation()
-            props.onClose()
+            deleteReminderFromItem({ variables: { itemKey: props.itemKey } });
+            e.stopPropagation();
+            props.onClose();
           }}
         >
           <Text
@@ -162,8 +179,8 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
           </Text>
         </Flex>
       </Flex>
-    </Box>
-  )
+    </Flex>
+  );
 }
 
-export default ReminderDialog
+export default ReminderDialog;

@@ -3,7 +3,7 @@ scalar DateTime
 
 type Reminder {
   key: String!
-  text: String
+  text: String!
   deleted: Boolean
   remindAt: DateTime
   item: Item
@@ -38,4 +38,4 @@ type Mutation {
   deleteReminder(input: DeleteReminderInput!): Reminder
   deleteReminderFromItem(input: DeleteReminderFromItemInput!): Reminder
 }
-`
+`;

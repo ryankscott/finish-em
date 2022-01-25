@@ -79,7 +79,7 @@ const CREATE_WEEKLY_GOAL = gql`
 
 type WeeklyAgendaProps = {};
 
-const filter = JSON.stringify({
+const weeklyFilter = JSON.stringify({
   text: 'scheduledAt is "this week"',
   value: [{ category: 'scheduledAt', operator: 'is', value: 'this week' }],
 });
@@ -95,7 +95,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   });
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
-      filter: filter,
+      filter: weeklyFilter,
       componentKey: componentKey,
     },
   });
@@ -107,6 +107,9 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   const itemsByDate = groupBy(data.items, (i) => {
     return format(parseISO(i.scheduledAt), 'yyyy-MM-dd');
   });
+
+  console.log(data);
+
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
     (w) => w.week == format(currentDate, 'yyyy-MM-dd')
   );
