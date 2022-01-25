@@ -9,7 +9,7 @@ import {
 } from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import applescript from 'applescript';
-import { GRAPHQL_PORT, CAL_SYNC_INTERVAL } from 'consts';
+import { GRAPHQL_PORT, CAL_SYNC_INTERVAL } from '../consts';
 import fetch from 'cross-fetch';
 import { parseJSON } from 'date-fns';
 import { app, BrowserWindow, globalShortcut, ipcMain, net } from 'electron';
@@ -528,6 +528,11 @@ const saveAppleCalendarEvents = async (
   }
 
   await saveCalendars(client, cals, activeCal?.key);
+  if (!activeCal) {
+    log.info('Not getting events as active calendar is not set');
+    return;
+  }
+
   const appleEvents: AppleCalendarEvent[] = await getEventsForCalendar(
     db2,
     activeCal?.key
@@ -657,10 +662,16 @@ ipcMain.on('create-bear-note', (event, arg) => {
   createNote(arg.title, arg.content);
 });
 
+ipcMain.on('active-calendar-set', (event, arg) => {
+  log.info('Active calendar set');
+  saveAppleCalendarEvents(client, false);
+});
+
 ipcMain.on('feature-toggled', (event, arg) => {
   if (arg.name == 'calendarIntegration') {
     if (arg.enabled) {
       log.info('Enabling calendar sync');
+      saveAppleCalendarEvents(client, false);
       calendarSyncInterval = setInterval(async () => {
         await saveAppleCalendarEvents(client, false);
       }, CAL_SYNC_INTERVAL);

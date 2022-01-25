@@ -88,7 +88,6 @@ const Settings = (): ReactElement => {
   useOutsideClick({
     ref: ref,
     handler: () => {
-      console.log('handler');
       setShowColourPicker(false);
     },
   });
@@ -96,9 +95,7 @@ const Settings = (): ReactElement => {
   const { loading, error, data } = useQuery<FeaturesAndLabels>(
     GET_FEATURES_AND_LABELS
   );
-  const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
-    refetchQueries: ['settings'],
-  });
+  const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR);
   const [setFeature] = useMutation(SET_FEATURE, {
     refetchQueries: ['getActiveCalendar'],
   });
@@ -242,9 +239,7 @@ const Settings = (): ReactElement => {
                           )}
                           onChange={(e) => {
                             setActiveCalendar({
-                              variables: {
-                                key: e.value,
-                              },
+                              variables: { key: e.value },
                             });
                           }}
                           options={calendarOptions}
