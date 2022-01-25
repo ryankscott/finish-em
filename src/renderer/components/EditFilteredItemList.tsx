@@ -1,21 +1,20 @@
-import { gql, useMutation, useQuery } from '@apollo/client'
+import { gql, useMutation, useQuery } from '@apollo/client';
 import {
   Box,
   Flex,
   Text,
-  useColorModeValue,
   Switch,
   Editable,
   EditableInput,
   EditablePreview,
   useColorMode,
-} from '@chakra-ui/react'
-import React, { ReactElement, useEffect, useRef, useState } from 'react'
-import Select from './Select'
-import { ItemIcons } from '../interfaces/item'
-import Button from './Button'
-import Expression from './filter-box/Expression'
-import ItemFilterBox from './ItemFilterBox'
+} from '@chakra-ui/react';
+import React, { ReactElement, useState } from 'react';
+import Select from './Select';
+import { ItemIcons } from '../interfaces/item';
+import Button from './Button';
+import Expression from './filter-box/Expression';
+import ItemFilterBox from './ItemFilterBox';
 
 const options: { value: string; label: string }[] = [
   { value: ItemIcons.Project, label: 'Project' },
@@ -23,7 +22,7 @@ const options: { value: string; label: string }[] = [
   { value: ItemIcons.Scheduled, label: 'Scheduled' },
   { value: ItemIcons.Repeat, label: 'Repeat' },
   { value: ItemIcons.Subtask, label: 'Subtask' },
-]
+];
 
 const GET_COMPONENT_BY_KEY = gql`
   query ComponentByKey($key: String!) {
@@ -32,7 +31,7 @@ const GET_COMPONENT_BY_KEY = gql`
       parameters
     }
   }
-`
+`;
 
 const UPDATE_COMPONENT = gql`
   mutation SetParametersOfComponent($key: String!, $parameters: JSON!) {
@@ -41,79 +40,87 @@ const UPDATE_COMPONENT = gql`
       parameters
     }
   }
-`
+`;
 
 type FilteredItemDialogProps = {
-  componentKey: string
-  onClose: () => void
-}
+  componentKey: string;
+  onClose: () => void;
+};
 
 const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
-  const [isValid, setIsValid] = useState(true)
-  const { colorMode, toggleColorMode } = useColorMode()
+  const [isValid, setIsValid] = useState(true);
+  const { colorMode } = useColorMode();
 
-  const [updateComponent] = useMutation(UPDATE_COMPONENT)
+  const [updateComponent] = useMutation(UPDATE_COMPONENT, {
+    refetchQueries: ['ComponentByKey'],
+  });
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: props.componentKey },
     fetchPolicy: 'no-cache',
-  })
+  });
 
-  if (loading) return null
+  if (loading) return <></>;
   if (error) {
-    console.log(error)
-    return null
+    console.log(error);
+    return <></>;
   }
+
   let params: {
-    listName: string
-    isFilterable: boolean
-    legacyFilter: string
-    filter: string
-    flattenSubtasks: boolean
-    hiddenIcons: string[]
-    hideCompletedSubtasks: boolean
-    hideDeletedSubtasks: boolean
-    showCompletedToggle: boolean
-    initiallyExpanded: boolean
-  }
+    listName: string;
+    isFilterable: boolean;
+    legacyFilter: string;
+    filter: string;
+    flattenSubtasks: boolean;
+    hiddenIcons: string[];
+    hideCompletedSubtasks: boolean;
+    hideDeletedSubtasks: boolean;
+    showCompletedToggle: boolean;
+    initiallyExpanded: boolean;
+  };
 
   try {
-    params = JSON.parse(data.component.parameters)
+    params = JSON.parse(data.component.parameters);
   } catch (error) {
-    console.log('Failed to parse parameters')
-    console.log(error)
-    return null
-  }
-  const settingStyles = {
-    justifyContent: 'flex-start',
-    py: 1,
-    px: 2,
-    w: '100%',
-    minH: '35px',
-    alignItems: 'bottom',
+    console.log('Failed to parse parameters');
+    console.log(error);
+    return <></>;
   }
 
-  const settingLabelStyles = {
-    display: 'flex',
-    alignSelf: 'flex-start',
-    color: colorMode == 'light' ? 'gray.800' : 'gray.100',
-    fontSize: 'md',
-    py: 1,
-    px: 3,
-    mr: 3,
-    w: '160px',
-    minW: '160px',
-  }
+  const ItemListSetting = (props: { children: Element; name: string }) => (
+    <Flex
+      direction={'row'}
+      justifyContent={'flex-start'}
+      py={1}
+      px={2}
+      w="100%"
+      minH="35px"
+      alignItems="bottom"
+    >
+      <Flex
+        alignSelf={'flex-start'}
+        color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
+        fontSize={'md'}
+        py={1}
+        px={3}
+        mr={3}
+        w={'160px'}
+        minW={'160px'}
+      >
+        {props.name}:
+      </Flex>
+      <Flex
+        direction={'column'}
+        justifyContent="center"
+        py={0}
+        px={2}
+        width={'100%'}
+        alignItems={'flex-start'}
+      >
+        {props.children}
+      </Flex>
+    </Flex>
+  );
 
-  const settingValueStyles = {
-    display: 'flex',
-    justifyContent: 'center',
-    py: 0,
-    px: 2,
-    width: '100%',
-    alignItems: 'flex-start',
-  }
-
-  console.log('re-render')
   // TODO: Create individual update queries instead of this big one
   return (
     <Flex
@@ -125,38 +132,39 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
       w={'100%'}
     >
       <Flex direction={'row'} justifyContent={'flex-end'} p={2}>
-        <Box>
-          <Button
-            size="sm"
-            variant="default"
-            iconSize="14"
-            icon="close"
-            onClick={() => {
-              props.onClose()
-            }}
-          />
-        </Box>
+        <Button
+          size="sm"
+          variant="default"
+          iconSize="14"
+          icon="close"
+          onClick={() => {
+            props.onClose();
+          }}
+        />
       </Flex>
-      <Flex direction={'row'} {...settingStyles}>
-        <Flex {...settingLabelStyles}>Name:</Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
-          <Editable
-            defaultValue={params.listName}
-            color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
-            fontSize="md"
-            w={'100%'}
-            onChange={(input) => {
-              params.listName = input
-            }}
-          >
-            <EditablePreview />
-            <EditableInput />
-          </Editable>
-        </Flex>
-      </Flex>
-      <Flex direction={'row'} {...settingStyles}>
-        <Flex {...settingLabelStyles}>Filter:</Flex>
-        <Flex overflowX={'scroll'} direction={'column'} w={'100%'} justifyContent={'space-between'}>
+
+      <ItemListSetting name={'Name'}>
+        <Editable
+          defaultValue={params.listName}
+          color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
+          fontSize="md"
+          w={'100%'}
+          onChange={(input) => {
+            params.listName = input;
+          }}
+        >
+          <EditablePreview />
+          <EditableInput />
+        </Editable>
+      </ItemListSetting>
+
+      <ItemListSetting name={'Filter'}>
+        <Flex
+          overflowX={'scroll'}
+          direction={'column'}
+          w={'100%'}
+          justifyContent={'space-between'}
+        >
           {params.legacyFilter && (
             <Box my={2} mx={2}>
               <Text
@@ -177,87 +185,77 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           <ItemFilterBox
             filter={params.filter ? JSON.parse(params.filter).text : ''}
             onSubmit={(query: string, filter: Expression[]) => {
-              params.filter = JSON.stringify({ text: query, value: filter })
-              setIsValid(true)
+              params.filter = JSON.stringify({ text: query, value: filter });
+              setIsValid(true);
             }}
             onError={() => setIsValid(false)}
           />
         </Flex>
-      </Flex>
-      <Flex direction={'row'} {...settingStyles}>
-        <Flex {...settingLabelStyles}>Filterable:</Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
-          <Switch
-            size="sm"
-            defaultChecked={params.isFilterable}
-            checked={params.isFilterable}
-            onChange={() => {
-              params.isFilterable = !params.isFilterable
-            }}
-          />
-        </Flex>
-      </Flex>
-      <Flex direction={'row'} {...settingStyles}>
-        <Flex {...settingLabelStyles}>Flatten subtasks:</Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
-          <Switch
-            size="sm"
-            defaultChecked={params.flattenSubtasks}
-            checked={params.flattenSubtasks}
-            onChange={() => {
-              params.flattenSubtasks = !params.flattenSubtasks
-            }}
-          />
-        </Flex>
-      </Flex>
+      </ItemListSetting>
 
-      <Flex direction={'row'} {...settingStyles}>
-        <Flex {...settingLabelStyles}>Hide completed subtasks:</Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
-          <Switch
-            size="sm"
-            defaultChecked={params.hideCompletedSubtasks}
-            checked={params.hideCompletedSubtasks}
-            onChange={() => {
-              params.hideCompletedSubtasks = !params.hideCompletedSubtasks
+      <ItemListSetting name={'Filterable'}>
+        <Switch
+          size="sm"
+          defaultChecked={params.isFilterable}
+          checked={params.isFilterable}
+          onChange={() => {
+            params.isFilterable = !params.isFilterable;
+          }}
+        />
+      </ItemListSetting>
+
+      <ItemListSetting name={'Flatten subtasks'}>
+        <Switch
+          size="sm"
+          defaultChecked={params.flattenSubtasks}
+          checked={params.flattenSubtasks}
+          onChange={() => {
+            params.flattenSubtasks = !params.flattenSubtasks;
+          }}
+        />
+      </ItemListSetting>
+
+      <ItemListSetting name={'Hide completed subtasks'}>
+        <Switch
+          size="sm"
+          defaultChecked={params.hideCompletedSubtasks}
+          checked={params.hideCompletedSubtasks}
+          onChange={() => {
+            params.hideCompletedSubtasks = !params.hideCompletedSubtasks;
+          }}
+        />
+      </ItemListSetting>
+
+      <ItemListSetting name={'Hide deleted subtasks'}>
+        <Switch
+          size="sm"
+          defaultChecked={params.hideDeletedSubtasks}
+          checked={params.hideDeletedSubtasks}
+          onChange={() => {
+            params.hideDeletedSubtasks = !params.hideDeletedSubtasks;
+          }}
+        />
+      </ItemListSetting>
+
+      <ItemListSetting name={'Hide icons'}>
+        <Box>
+          <Select
+            placeholder="Select icons to hide"
+            size="md"
+            defaultValue={params.hiddenIcons?.map((i) => {
+              return options.find((o) => o.value == i);
+            })}
+            isMulti={true}
+            onChange={(values: { value: string; label: string }[]) => {
+              const hiddenIcons = values.map((v) => v.value);
+              params.hiddenIcons = hiddenIcons;
             }}
+            options={options}
+            escapeClearsValue={true}
           />
-        </Flex>
-      </Flex>
-      <Flex direction={'row'} {...settingStyles}>
-        <Flex {...settingLabelStyles}>Hide deleted subtasks:</Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
-          <Switch
-            size="sm"
-            defaultChecked={params.hideDeletedSubtasks}
-            checked={params.hideDeletedSubtasks}
-            onChange={() => {
-              params.hideDeletedSubtasks = !params.hideDeletedSubtasks
-            }}
-          />
-        </Flex>
-      </Flex>
-      <Flex direction={'row'} {...settingStyles}>
-        <Flex {...settingLabelStyles}>Hide icons:</Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
-          <Box>
-            <Select
-              placeholder="Select icons to hide"
-              size="md"
-              defaultValue={params.hiddenIcons?.map((i) => {
-                return options.find((o) => o.value == i)
-              })}
-              isMulti={true}
-              onChange={(values: { value: string; label: string }[]) => {
-                const hiddenIcons = values.map((v) => v.value)
-                params.hiddenIcons = hiddenIcons
-              }}
-              options={options}
-              escapeClearsValue={true}
-            />
-          </Box>
-        </Flex>
-      </Flex>
+        </Box>
+      </ItemListSetting>
+
       <Flex
         position={'relative'}
         direction={'row'}
@@ -289,13 +287,13 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                   hideDeletedSubtasks: params.hideDeletedSubtasks,
                 },
               },
-            })
-            props.onClose()
+            });
+            props.onClose();
           }}
         />
       </Flex>
     </Flex>
-  )
-}
+  );
+};
 
-export default React.memo(FilteredItemDialog, () => true)
+export default React.memo(FilteredItemDialog, () => true);
