@@ -1,60 +1,19 @@
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import Item from './Item';
 import { ItemIcons } from '../interfaces/item';
 import { item as itemKeymap } from '../keymap';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
 import { get } from 'lodash';
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
-import { Spinner } from './Spinner';
-import { Box, Flex, Text } from '@chakra-ui/react';
-
-const GET_DATA = gql`
-  query {
-    subtasksVisible @client
-  }
-`;
-
-const COMPLETE_ITEM = gql`
-  mutation CompleteItem($key: String!) {
-    completeItem(input: { key: $key }) {
-      key
-      completed
-      completedAt
-    }
-  }
-`;
-
-const UNCOMPLETE_ITEM = gql`
-  mutation UnCompleteItem($key: String!) {
-    unCompleteItem(input: { key: $key }) {
-      key
-      completed
-      completedAt
-    }
-  }
-`;
-
-const DELETE_ITEM = gql`
-  mutation DeleteItem($key: String!) {
-    deleteItem(input: { key: $key }) {
-      key
-      deleted
-      deletedAt
-    }
-  }
-`;
-
-const RESTORE_ITEM = gql`
-  mutation RestoreItem($key: String!) {
-    restoreItem(input: { key: $key }) {
-      key
-      deleted
-      deletedAt
-    }
-  }
-`;
+import { Box, Text } from '@chakra-ui/react';
+import {
+  COMPLETE_ITEM,
+  DELETE_ITEM,
+  RESTORE_ITEM,
+  UNCOMPLETE_ITEM,
+} from 'renderer/queries';
 
 type ItemListProps = {
   componentKey: string;
@@ -74,22 +33,6 @@ type ItemListProps = {
 };
 
 function ItemList(props: ItemListProps): ReactElement {
-  const { loading, error, data } = useQuery(GET_DATA);
-  if (loading)
-    return (
-      <Flex
-        h={'100%'}
-        w={'100%'}
-        justifyContent={'center'}
-        alignContent={'center'}
-      >
-        <Spinner loading={true}></Spinner>
-      </Flex>
-    );
-  if (error) {
-    console.log(error);
-    return <></>;
-  }
   const [completeItem] = useMutation(COMPLETE_ITEM);
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM);
   const [deleteItem] = useMutation(DELETE_ITEM);
@@ -109,7 +52,7 @@ function ItemList(props: ItemListProps): ReactElement {
   const handlers = {
     TOGGLE_CHILDREN: (event) => {
       const itemKey = event.target.id;
-      let newState = cloneDeep(data.subtasksVisible);
+      let newState = cloneDeep(subtasksVisibleVar());
       const newValue = get(
         newState,
         [`${itemKey}`, `${props.componentKey}`],
@@ -218,7 +161,7 @@ function ItemList(props: ItemListProps): ReactElement {
     return (
       <Box tabIndex={0} key={'container-' + i.key}>
         <Item
-          compact={props.compact}
+          compact={props.compact ?? false}
           key={i.key}
           itemKey={i.key}
           componentKey={props.componentKey}
@@ -230,7 +173,7 @@ function ItemList(props: ItemListProps): ReactElement {
           // We need to check if the child exists in the original input list
           return (
             <Item
-              compact={props.compact}
+              compact={props.compact ?? false}
               key={childItem.key}
               itemKey={childItem.key}
               componentKey={props.componentKey}

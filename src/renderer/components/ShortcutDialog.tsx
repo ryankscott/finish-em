@@ -1,8 +1,6 @@
 import { marked } from 'marked';
-
 import shortcutsText from '../assets/shortcuts.md';
 import { shortcutDialogVisibleVar } from '..';
-import { gql, useQuery } from '@apollo/client';
 import {
   Modal,
   ModalOverlay,
@@ -12,20 +10,7 @@ import {
   ModalHeader,
 } from '@chakra-ui/react';
 
-const GET_DATA = gql`
-  query {
-    shortcutDialogVisible @client
-  }
-`;
-
 const ShortcutDialog = () => {
-  const { loading, error, data } = useQuery(GET_DATA);
-  if (loading) return null;
-  if (error) {
-    console.log(error);
-    return null;
-  }
-
   return (
     <Modal
       isOpen={shortcutDialogVisibleVar().valueOf()}
@@ -41,7 +26,7 @@ const ShortcutDialog = () => {
           dangerouslySetInnerHTML={{
             __html: marked(shortcutsText, { breaks: true }),
           }}
-        ></ModalBody>
+        />
       </ModalContent>
     </Modal>
   );

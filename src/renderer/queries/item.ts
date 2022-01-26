@@ -73,8 +73,6 @@ export const GET_ITEM_BY_KEY = gql`
         key
       }
     }
-    activeItem @client
-    subtasksVisible @client
   }
 `;
 
@@ -128,6 +126,85 @@ export const CLONE_ITEM = gql`
   mutation CloneItem($key: String!) {
     cloneItem(input: { key: $key }) {
       key
+    }
+  }
+`;
+
+export const SET_PROJECT = gql`
+  mutation SetProjectOfItem($key: String!, $projectKey: String) {
+    setProjectOfItem(input: { key: $key, projectKey: $projectKey }) {
+      key
+      project {
+        key
+      }
+    }
+  }
+`;
+
+export const SET_SCHEDULED_AT = gql`
+  mutation SetScheduledAtOfItem($key: String!, $scheduledAt: DateTime) {
+    setScheduledAtOfItem(input: { key: $key, scheduledAt: $scheduledAt }) {
+      key
+      scheduledAt
+    }
+  }
+`;
+export const SET_DUE_AT = gql`
+  mutation SetDueAtOfItem($key: String!, $dueAt: DateTime) {
+    setDueAtOfItem(input: { key: $key, dueAt: $dueAt }) {
+      key
+      dueAt
+    }
+  }
+`;
+
+export const RENAME_ITEM = gql`
+  mutation RenameItem($key: String!, $text: String!) {
+    renameItem(input: { key: $key, text: $text }) {
+      key
+      text
+    }
+  }
+`;
+
+export const SET_AREA = gql`
+  mutation SetAreaOfItem($key: String!, $areaKey: String) {
+    setAreaOfItem(input: { key: $key, areaKey: $areaKey }) {
+      key
+      area {
+        key
+        name
+      }
+    }
+  }
+`;
+
+export const SET_REPEAT = gql`
+  mutation SetRepeatOfItem($key: String!, $repeat: String) {
+    setRepeatOfItem(input: { key: $key, repeat: $repeat }) {
+      key
+      repeat
+      dueAt
+    }
+  }
+`;
+export const SET_PARENT = gql`
+  mutation SetParentOfItem($key: String!, $parentKey: String) {
+    setParentOfItem(input: { key: $key, parentKey: $parentKey }) {
+      key
+      parent {
+        key
+      }
+    }
+  }
+`;
+export const SET_LABEL = gql`
+  mutation SetLabelOfItem($key: String!, $labelKey: String) {
+    setLabelOfItem(input: { key: $key, labelKey: $labelKey }) {
+      key
+      label {
+        key
+      }
     }
   }
 `;

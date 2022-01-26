@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Box,
   Flex,
@@ -6,14 +6,28 @@ import {
   GridItem,
   Text,
   useColorMode,
-  VStack,
 } from '@chakra-ui/react';
 import { parseISO } from 'date-fns';
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
+import {
+  GET_ITEM_BY_KEY,
+  RENAME_ITEM,
+  COMPLETE_ITEM,
+  SET_AREA,
+  SET_PROJECT,
+  UNCOMPLETE_ITEM,
+  SET_SCHEDULED_AT,
+  SET_DUE_AT,
+  SET_REPEAT,
+  SET_PARENT,
+  SET_LABEL,
+  DELETE_ITEM,
+  RESTORE_ITEM,
+} from 'renderer/queries';
 import RRule from 'rrule';
 import { activeItemVar, focusbarVisibleVar } from '..';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
-import { Icons } from '../assets/icons';
+import { convertSVGElementToReact, Icons } from '../assets/icons';
 import { IconType } from '../interfaces';
 import { ItemIcons } from '../interfaces/item';
 import { formatRelativeDate } from '../utils';
@@ -25,179 +39,10 @@ import Item from './Item';
 import ItemCreator from './ItemCreator';
 import RepeatPicker from './RepeatPicker';
 
-const GET_DATA = gql`
-  query itemByKey($key: String!) {
-    item: item(key: $key) {
-      key
-      type
-      text
-      deleted
-      completed
-      dueAt
-      scheduledAt
-      lastUpdatedAt
-      completedAt
-      createdAt
-      deletedAt
-      repeat
-      area {
-        key
-        name
-      }
-      reminders {
-        remindAt
-      }
-      label {
-        key
-        name
-        colour
-      }
-      project {
-        key
-        name
-      }
-      parent {
-        key
-        text
-      }
-      children {
-        key
-      }
-    }
-    focusbarVisible @client
-    activeItem @client
-  }
-`;
-
-const RENAME_ITEM = gql`
-  mutation RenameItem($key: String!, $text: String!) {
-    renameItem(input: { key: $key, text: $text }) {
-      key
-      text
-    }
-  }
-`;
-
-const COMPLETE_ITEM = gql`
-  mutation CompleteItem($key: String!) {
-    completeItem(input: { key: $key }) {
-      key
-      completed
-      completedAt
-    }
-  }
-`;
-const UNCOMPLETE_ITEM = gql`
-  mutation UnCompleteItem($key: String!) {
-    unCompleteItem(input: { key: $key }) {
-      key
-      completed
-      completedAt
-    }
-  }
-`;
-
-const DELETE_ITEM = gql`
-  mutation DeleteItem($key: String!) {
-    deleteItem(input: { key: $key }) {
-      key
-      deleted
-      deletedAt
-      children {
-        key
-        deleted
-        deletedAt
-      }
-    }
-  }
-`;
-const RESTORE_ITEM = gql`
-  mutation RestoreItem($key: String!) {
-    restoreItem(input: { key: $key }) {
-      key
-      deleted
-      deletedAt
-    }
-  }
-`;
-
-const SET_PROJECT = gql`
-  mutation SetProjectOfItem($key: String!, $projectKey: String) {
-    setProjectOfItem(input: { key: $key, projectKey: $projectKey }) {
-      key
-      project {
-        key
-      }
-    }
-  }
-`;
-
-const SET_AREA = gql`
-  mutation SetAreaOfItem($key: String!, $areaKey: String) {
-    setAreaOfItem(input: { key: $key, areaKey: $areaKey }) {
-      key
-      area {
-        key
-        name
-      }
-    }
-  }
-`;
-
-const SET_SCHEDULED_AT = gql`
-  mutation SetScheduledAtOfItem($key: String!, $scheduledAt: DateTime) {
-    setScheduledAtOfItem(input: { key: $key, scheduledAt: $scheduledAt }) {
-      key
-      scheduledAt
-    }
-  }
-`;
-const SET_DUE_AT = gql`
-  mutation SetDueAtOfItem($key: String!, $dueAt: DateTime) {
-    setDueAtOfItem(input: { key: $key, dueAt: $dueAt }) {
-      key
-      dueAt
-    }
-  }
-`;
-const SET_REPEAT = gql`
-  mutation SetRepeatOfItem($key: String!, $repeat: String) {
-    setRepeatOfItem(input: { key: $key, repeat: $repeat }) {
-      key
-      repeat
-      dueAt
-    }
-  }
-`;
-const SET_PARENT = gql`
-  mutation SetParentOfItem($key: String!, $parentKey: String) {
-    setParentOfItem(input: { key: $key, parentKey: $parentKey }) {
-      key
-      parent {
-        key
-      }
-    }
-  }
-`;
-const SET_LABEL = gql`
-  mutation SetLabelOfItem($key: String!, $labelKey: String) {
-    setLabelOfItem(input: { key: $key, labelKey: $labelKey }) {
-      key
-      label {
-        key
-      }
-    }
-  }
-`;
-
-interface DispatchProps {}
-interface StateProps {}
-
-type FocusbarProps = DispatchProps & StateProps;
-const Focusbar = (props: FocusbarProps): ReactElement => {
+const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
   const activeItem = activeItemVar();
-  const { loading, error, data } = useQuery(GET_DATA, {
+  const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
     variables: {
       key: activeItem.length ? activeItem[0] : '',
     },
@@ -240,8 +85,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
 
   if (error) {
     console.log(error);
-    return null;
+    return <></>;
   }
+
   if (loading) {
     return (
       <Flex
@@ -261,8 +107,9 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   }
 
   const item: ItemType = data?.item;
-  if (!item) return null;
+  if (!item) return <></>;
 
+  // TODO: Refactor me
   const attributeContainerStyles = {
     justifyContent: 'space-between',
     width: '100%',
@@ -274,7 +121,7 @@ const Focusbar = (props: FocusbarProps): ReactElement => {
   const generateSidebarTitle = (icon: IconType, text: string) => {
     return (
       <Flex minW={'100px'} alignItems={'center'}>
-        {Icons[icon]()}
+        {convertSVGElementToReact(Icons[icon]())}
         <Text fontSize="md" pl={1}>
           {text}
         </Text>

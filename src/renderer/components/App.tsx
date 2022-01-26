@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
-import { isSameDay, isSameMinute, parseISO } from 'date-fns';
+import { isSameMinute, parseISO } from 'date-fns';
 import { ReactElement, useEffect } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { Slide, toast, ToastContainer } from 'react-toastify';
