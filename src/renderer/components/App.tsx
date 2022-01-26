@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
 import { isSameMinute, parseISO } from 'date-fns';
 import { ReactElement, useEffect } from 'react';
@@ -35,6 +35,10 @@ const AreaWrapper = (): ReactElement => {
 };
 
 const App = (): ReactElement => {
+  const activeItems = useReactiveVar(activeItemVar);
+  const focusbarVisible = useReactiveVar(focusbarVisibleVar);
+  const sidebarVisible = useReactiveVar(sidebarVisibleVar);
+
   useEffect(() => {
     // Handle Electron events
     //@ts-ignore
@@ -100,11 +104,11 @@ const App = (): ReactElement => {
 
   // TODO: Work out the best way to expand the width here
   const handleResize = () => {
-    if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && sidebarVisibleVar()) {
+    if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && sidebarVisible) {
       sidebarVisibleVar(false);
     }
-    if (focusbarVisibleVar()) {
-      if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && focusbarVisibleVar()) {
+    if (focusbarVisible) {
+      if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && focusbarVisible) {
         focusbarVisibleVar(false);
       }
     }
@@ -165,7 +169,7 @@ const App = (): ReactElement => {
         </Flex>
         <Focusbar />
       </Flex>
-      {activeItemVar().length > 1 && <ActionBar />}
+      {activeItems.length > 1 && <ActionBar />}
       <ToastContainer
         position="bottom-center"
         autoClose={3000}

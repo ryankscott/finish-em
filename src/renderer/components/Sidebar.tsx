@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
   Divider,
   Flex,
@@ -54,7 +54,7 @@ const Sidebar = (): ReactElement => {
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
   const [sortedViews, setSortedViews] = useState<View[]>([]);
-  const sidebarVisible = sidebarVisibleVar().valueOf();
+  const sidebarVisible = useReactiveVar(sidebarVisibleVar).valueOf();
 
   useEffect(() => {
     if (loading === false && data) {

@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import { Grid, GridItem, Flex, Text } from '@chakra-ui/react';
 import {
   COMPLETE_ITEM,
@@ -25,10 +25,12 @@ const ActionBar = () => {
     refetchQueries: ['itemsByFilter', 'weeklyItems'],
   });
 
-  const activeItem = activeItemVar();
+  const activeItem = useReactiveVar(activeItemVar);
   if (!activeItem) {
     return null;
   }
+
+  // TODO: Fix the styling
 
   return (
     <Grid

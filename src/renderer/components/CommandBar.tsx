@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import { Flex, useTheme, IconButton, Tooltip } from '@chakra-ui/react';
 import CommandPalette from 'react-command-palette';
 import { activeItemVar } from 'renderer';
@@ -12,7 +12,7 @@ import {
 
 export const CommandBar = () => {
   const theme = useTheme();
-  const activeItem = activeItemVar();
+  const activeItem = useReactiveVar(activeItemVar);
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: ['itemsByFilter'],

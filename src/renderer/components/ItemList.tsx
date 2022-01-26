@@ -52,6 +52,7 @@ function ItemList(props: ItemListProps): ReactElement {
   const handlers = {
     TOGGLE_CHILDREN: (event) => {
       const itemKey = event.target.id;
+      // TODO: This may be broken
       let newState = cloneDeep(subtasksVisibleVar());
       const newValue = get(
         newState,

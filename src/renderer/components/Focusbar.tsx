@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
   Box,
   Flex,
@@ -41,7 +41,8 @@ import RepeatPicker from './RepeatPicker';
 
 const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
-  const activeItem = activeItemVar();
+  const activeItem = useReactiveVar(activeItemVar);
+  const focusbarVisible = useReactiveVar(focusbarVisibleVar);
   const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
     variables: {
       key: activeItem.length ? activeItem[0] : '',
@@ -95,8 +96,8 @@ const Focusbar = (): ReactElement => {
         border={'1px solid'}
         borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
         shadow={'md'}
-        minW={focusbarVisibleVar() ? '350px' : 0}
-        opacity={focusbarVisibleVar() ? 1 : 0}
+        minW={focusbarVisible ? '350px' : 0}
+        opacity={focusbarVisible ? 1 : 0}
         px={3}
         py={3}
         h={'100%'}
@@ -143,9 +144,9 @@ const Focusbar = (): ReactElement => {
       border={'1px solid'}
       borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
       shadow={'md'}
-      w={focusbarVisibleVar() ? '350px' : 0}
-      minW={focusbarVisibleVar() ? '350px' : 0}
-      opacity={focusbarVisibleVar() ? 1 : 0}
+      w={focusbarVisible ? '350px' : 0}
+      minW={focusbarVisible ? '350px' : 0}
+      opacity={focusbarVisible ? 1 : 0}
       px={3}
       py={3}
       h={'100%'}

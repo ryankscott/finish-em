@@ -9,11 +9,13 @@ import {
   ModalCloseButton,
   ModalHeader,
 } from '@chakra-ui/react';
+import { useReactiveVar } from '@apollo/client';
 
 const ShortcutDialog = () => {
+  const shortcutDialogVisible = useReactiveVar(shortcutDialogVisibleVar);
   return (
     <Modal
-      isOpen={shortcutDialogVisibleVar().valueOf()}
+      isOpen={shortcutDialogVisible.valueOf()}
       onClose={() => {
         shortcutDialogVisibleVar(false);
       }}
