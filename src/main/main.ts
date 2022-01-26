@@ -33,7 +33,6 @@ import {
 } from './appleCalendar';
 import { createNote, getAllTodos } from './bear';
 import { AttendeeInput, Event } from './generated/typescript-helpers';
-import { getOutlookLink, openOutlookLink } from './outlook';
 import { rootValue, schema } from './schemas/schema';
 
 const crypto = require('crypto');
@@ -606,7 +605,6 @@ app.on('ready', () => {
   createMainWindow();
   globalShortcut.register('Command+Shift+N', createQuickAddWindow);
   globalShortcut.register('Command+Shift+A', createItemFromAppleMail);
-  globalShortcut.register('Command+Shift+O', getOutlookLink);
   try {
     checkForNewVersion();
   } catch (e) {
@@ -637,10 +635,6 @@ ipcMain.on('close-quickadd', (event, arg) => {
   if (quickAddWindow) {
     quickAddWindow.close();
   }
-});
-
-ipcMain.on('open-outlook-link', (event, arg) => {
-  openOutlookLink(arg.url);
 });
 
 // This is to send events between quick add and main window
