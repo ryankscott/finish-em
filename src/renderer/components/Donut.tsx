@@ -1,13 +1,13 @@
-import { useTheme } from '@chakra-ui/react'
-import React from 'react'
+import { useTheme } from '@chakra-ui/react';
+import React from 'react';
 
 interface DonutProps {
-  size: number
-  progress: number
+  size: number;
+  progress: number;
 }
 
 export const Donut = (props: DonutProps): React.ReactElement => {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <div style={{ margin: '5px' }}>
       <svg width={props.size} height={props.size} viewBox={`0 0 40 40`}>
@@ -18,7 +18,7 @@ export const Donut = (props: DonutProps): React.ReactElement => {
           r="15.91549430918954"
           stroke="transparent"
           fill="transparent"
-        ></circle>
+        />
         <circle
           cx={20}
           cy={20}
@@ -27,7 +27,7 @@ export const Donut = (props: DonutProps): React.ReactElement => {
           color="white"
           stroke={theme.colors.gray[300]}
           strokeWidth={2}
-        ></circle>
+        />
         <circle
           cx={20}
           cy={20}
@@ -38,8 +38,8 @@ export const Donut = (props: DonutProps): React.ReactElement => {
           strokeDasharray={`${props.progress} ${100 - props.progress}`}
           strokeDashoffset="50"
           style={{ transition: 'all 0.2s ease-in-out' }}
-        ></circle>
+        />
       </svg>
     </div>
-  )
-}
+  );
+};

@@ -32,6 +32,7 @@ import ItemCreator from './ItemCreator';
 import './styled/ReactDatePicker.css';
 import { v4 as uuidv4 } from 'uuid';
 
+// TODO: Move these to queries file
 const GET_PROJECT_BY_KEY = gql`
   query ProjectByKey($key: String!) {
     project(key: $key) {

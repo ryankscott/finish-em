@@ -291,7 +291,6 @@
     "regenerator-runtime": "^0.13.9",
     "rrule": "^2.6.8",
     "sql-template-strings": "^2.2.2",
-    "sqlite3": "^5.0.2",
     "sqlstring-sqlite": "^0.1.1",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.2.3",

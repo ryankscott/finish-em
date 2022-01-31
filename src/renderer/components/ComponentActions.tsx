@@ -2,6 +2,7 @@ import React, { ReactElement, useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import Button from './Button';
 import { Flex, useColorMode } from '@chakra-ui/react';
+// TODO: Move me to a queries file
 const DELETE_COMPONENT = gql`
   mutation DeleteComponent($key: String!) {
     deleteComponent(input: { key: $key }) {

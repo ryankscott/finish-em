@@ -23,7 +23,6 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
   return (
     <>
       <Button
-        size="md"
         variant="primary"
         rightIcon={convertSVGElementToReact(
           Icons['trash']('12px', '12px', 'white')

@@ -1,11 +1,11 @@
-import { gql, useMutation, useQuery } from '@apollo/client'
-import React, { ReactElement, useEffect, useState } from 'react'
-import Select from './Select'
-import { Label, Project } from '../../main/generated/typescript-helpers'
-import Button from './Button'
+import { gql, useMutation, useQuery } from '@apollo/client';
+import { ReactElement, useEffect, useState } from 'react';
+import Select from './Select';
+import { Label, Project } from '../../main/generated/typescript-helpers';
+import Button from './Button';
 
-import { ItemCreatorProps } from './ItemCreator'
-import { Box, Flex, Switch } from '@chakra-ui/react'
+import { ItemCreatorProps } from './ItemCreator';
+import { Box, Flex, Switch } from '@chakra-ui/react';
 
 const GET_COMPONENT_BY_KEY = gql`
   query ComponentByKey($key: String!) {
@@ -27,7 +27,7 @@ const GET_COMPONENT_BY_KEY = gql`
     }
     theme @client
   }
-`
+`;
 
 const UPDATE_COMPONENT = gql`
   mutation SetParametersOfComponent($key: String!, $parameters: JSON!) {
@@ -36,7 +36,7 @@ const UPDATE_COMPONENT = gql`
       parameters
     }
   }
-`
+`;
 
 // TODO: turn these into variants
 const settingStyles = {
@@ -46,7 +46,7 @@ const settingStyles = {
   w: '100%',
   minH: '35px',
   alignItems: 'bottom',
-}
+};
 
 const settingLabelStyles = {
   display: 'flex',
@@ -58,7 +58,7 @@ const settingLabelStyles = {
   mr: 3,
   w: '160px',
   minW: '160px',
-}
+};
 
 const settingValueStyles = {
   display: 'flex',
@@ -68,67 +68,71 @@ const settingValueStyles = {
   width: '100%',
   minH: '30px',
   alignItems: 'flex-start',
-}
+};
 
 type EditItemCreatorProps = {
-  componentKey: string
-  onClose: () => void
-}
+  componentKey: string;
+  onClose: () => void;
+};
 
 const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
-  const [initiallyExpanded, setInitiallyExpanded] = useState(true)
-  const [projectKey, setProjectKey] = useState('')
-  const [labelKey, setLabelKey] = useState('')
+  const [initiallyExpanded, setInitiallyExpanded] = useState(true);
+  const [projectKey, setProjectKey] = useState('');
+  const [labelKey, setLabelKey] = useState('');
 
-  const [updateComponent] = useMutation(UPDATE_COMPONENT)
+  const [updateComponent] = useMutation(UPDATE_COMPONENT);
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: props.componentKey },
-  })
+  });
   useEffect(() => {
     if (loading === false && data) {
-      setInitiallyExpanded(params.initiallyExpanded)
-      setProjectKey(params.projectKey)
-      setLabelKey(params.labelKey)
+      setInitiallyExpanded(params.initiallyExpanded);
+      setProjectKey(params.projectKey);
+      setLabelKey(params.labelKey);
     }
-  }, [loading, data])
+  }, [loading, data]);
 
-  if (loading) return null
+  if (loading) return null;
   if (error) {
-    console.log(error)
-    return null
+    console.log(error);
+    return null;
   }
-  let params: ItemCreatorProps = { initiallyExpanded: false }
+  let params: ItemCreatorProps = { initiallyExpanded: false };
   try {
-    params = JSON.parse(data.component.parameters)
+    params = JSON.parse(data.component.parameters);
   } catch (error) {
-    console.log('Failed to parse parameters')
-    console.log(error)
-    return null
+    console.log('Failed to parse parameters');
+    console.log(error);
+    return null;
   }
 
-  const generateProjectOptions = (projects: Project[]): { value: string; label: string }[] => {
+  const generateProjectOptions = (
+    projects: Project[]
+  ): { value: string; label: string }[] => {
     return projects.map((p) => {
       return {
         value: p.key,
         label: p.name,
-      }
-    })
-  }
+      };
+    });
+  };
 
-  const generateLabelOptions = (labels: Label[]): { value: string; label: string }[] => {
+  const generateLabelOptions = (
+    labels: Label[]
+  ): { value: string; label: string }[] => {
     return [
       ...labels.map((a) => {
         return {
           value: a.key,
           label: a.name,
-        }
+        };
       }),
       { value: '', label: 'No label' },
-    ]
-  }
+    ];
+  };
 
-  const projectOptions = generateProjectOptions(data.projects)
-  const labelOptions = generateLabelOptions(data.labels)
+  const projectOptions = generateProjectOptions(data.projects);
+  const labelOptions = generateLabelOptions(data.labels);
   return (
     <Flex
       border="1px solid"
@@ -149,7 +153,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
             iconSize="14"
             icon="close"
             onClick={() => {
-              props.onClose()
+              props.onClose();
             }}
           />
         </Box>
@@ -161,7 +165,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
             size="sm"
             checked={initiallyExpanded}
             onChange={() => {
-              setInitiallyExpanded(!initiallyExpanded)
+              setInitiallyExpanded(!initiallyExpanded);
             }}
           />
         </Flex>
@@ -175,7 +179,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
               placeholder="Select project"
               defaultValue={projectOptions.find((p) => p.value == projectKey)}
               onChange={(p) => {
-                setProjectKey(p.value)
+                setProjectKey(p.value);
               }}
               options={projectOptions}
               escapeClearsValue={true}
@@ -192,7 +196,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
               placeholder="Select label"
               defaultValue={labelOptions.find((l) => l.value == labelKey)}
               onChange={(l) => {
-                setLabelKey(l.value)
+                setLabelKey(l.value);
               }}
               options={labelOptions}
               escapeClearsValue={true}
@@ -223,13 +227,13 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
                   labelKey: labelKey,
                 },
               },
-            })
-            props.onClose()
+            });
+            props.onClose();
           }}
         />
       </Flex>
     </Flex>
-  )
-}
+  );
+};
 
-export default EditItemCreator
+export default EditItemCreator;

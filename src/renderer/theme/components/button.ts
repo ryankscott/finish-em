@@ -1,6 +1,6 @@
-import { mode } from '@chakra-ui/theme-tools'
+import { mode } from '@chakra-ui/theme-tools';
 
-type Dict = Record<string, any>
+type Dict = Record<string, any>;
 function baseStyle(props: Record<string, any>) {
   return {
     size: 'md',
@@ -19,7 +19,7 @@ function baseStyle(props: Record<string, any>) {
     _focus: {
       bg: mode('gray.100', 'gray.900'),
     },
-  }
+  };
 }
 
 function variantDefault(props: Dict) {
@@ -36,7 +36,7 @@ function variantDefault(props: Dict) {
     _focus: {
       bg: mode('gray.100', 'gray.900')(props),
     },
-  }
+  };
 }
 
 function variantPrimary(props: Dict) {
@@ -44,18 +44,18 @@ function variantPrimary(props: Dict) {
     bg: mode('blue.400', 'blue.500')(props),
     color: 'white',
     _hover: {
-      bg: mode('blue.400', 'blue.600')(props),
+      bg: mode('blue.500', 'blue.600')(props),
     },
     _active: {
-      bg: mode('blue.400', 'blue.600')(props),
+      bg: mode('blue.500', 'blue.600')(props),
     },
     _focus: {
-      bg: mode('blue.400', 'blue.600')(props),
+      bg: mode('blue.500', 'blue.600')(props),
     },
     _disabled: {
       bg: mode('blue.300', 'blue.800')(props),
     },
-  }
+  };
 }
 
 function variantError(props: Dict) {
@@ -71,7 +71,7 @@ function variantError(props: Dict) {
     _active: {
       bg: 'red.500',
     },
-  }
+  };
 }
 function variantInvert(props: Dict) {
   return {
@@ -86,7 +86,7 @@ function variantInvert(props: Dict) {
     _focus: {
       bg: 'gray.900',
     },
-  }
+  };
 }
 function variantSubtle(props: Dict) {
   return {
@@ -102,7 +102,7 @@ function variantSubtle(props: Dict) {
     _focus: {
       bg: 'transparent',
     },
-  }
+  };
 }
 
 const sizes = {
@@ -130,7 +130,7 @@ const sizes = {
     fontSize: 'xs',
     px: 2,
   },
-}
+};
 
 const variants = {
   default: variantDefault,
@@ -138,10 +138,10 @@ const variants = {
   invert: variantInvert,
   primary: variantPrimary,
   subtle: variantSubtle,
-}
+};
 
 export default {
   baseStyle,
   variants,
   sizes,
-}
+};
