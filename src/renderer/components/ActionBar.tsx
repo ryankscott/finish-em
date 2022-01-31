@@ -1,5 +1,6 @@
 import { useMutation, useReactiveVar } from '@apollo/client';
-import { Grid, GridItem, Flex, Text } from '@chakra-ui/react';
+import { Grid, Flex, Text, IconButton, Tooltip, Box } from '@chakra-ui/react';
+import { convertSVGElementToReact, Icons } from 'renderer/assets/icons';
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
@@ -34,7 +35,7 @@ const ActionBar = () => {
 
   return (
     <Grid
-      maxW="700px"
+      maxW="750px"
       position="absolute"
       zIndex="tooltip"
       alignItems="center"
@@ -47,10 +48,14 @@ const ActionBar = () => {
       marginLeft="auto"
       marginRight="auto"
       width="100%"
-      boxShadow="sm"
+      boxShadow="md"
       borderRadius="4"
-      gridRowGap={1}
-      gridColumnGap={3}
+      gridGap={0.5}
+      gridTemplateRows={'16px 40px'}
+      gridTemplateColumns={'repeat(3, 1fr) repeat(2, 24px)'}
+      gridTemplateAreas={`
+      "items items     items   .        . "
+      "due   scheduled project complete delete"`}
     >
       <Flex position="absolute" top="2px" right="2px">
         <Button
@@ -65,14 +70,16 @@ const ActionBar = () => {
           }}
         />
       </Flex>
-      <GridItem colSpan={5} rowSpan={1} gridRowGap={2}>
+
+      <Box gridArea="items">
         <Text
           paddingLeft="4"
           paddingTop="2"
           fontSize="md"
         >{`${activeItem.length} items selected`}</Text>
-      </GridItem>
-      <GridItem colSpan={1}>
+      </Box>
+
+      <Box gridArea="due">
         <DatePicker
           key="dd"
           text="Set due date"
@@ -86,8 +93,9 @@ const ActionBar = () => {
           completed={false}
           deleted={false}
         />
-      </GridItem>
-      <GridItem colSpan={1}>
+      </Box>
+
+      <Box gridArea="scheduled">
         <DatePicker
           key="sd"
           text="Set scheduled date"
@@ -101,8 +109,9 @@ const ActionBar = () => {
           completed={false}
           deleted={false}
         />
-      </GridItem>
-      <GridItem colSpan={1}>
+      </Box>
+
+      <Box gridArea="project">
         <AttributeSelect
           attribute="project"
           currentAttribute={null}
@@ -115,35 +124,43 @@ const ActionBar = () => {
             });
           }}
         />
-      </GridItem>
-      <GridItem colSpan={1}>
-        <Button
-          size="md"
-          text="Complete items"
-          tooltipText="Complete items"
-          variant="invert"
-          icon="todoChecked"
-          onClick={() => {
-            activeItem.map((i) => {
-              completeItem({ variables: { key: i } });
-            });
-          }}
-        />
-      </GridItem>
-      <GridItem colSpan={1}>
-        <Button
-          size="md"
-          text="Delete items"
-          tooltipText="Delete items"
-          variant="invert"
-          icon="trash"
-          onClick={() => {
-            activeItem.map((i) => {
-              deleteItem({ variables: { key: i } });
-            });
-          }}
-        />
-      </GridItem>
+      </Box>
+
+      <Box gridArea="complete">
+        <Tooltip delay={500} label={'Complete items'}>
+          <IconButton
+            size="md"
+            variant="invert"
+            aria-label="complete"
+            icon={convertSVGElementToReact(
+              Icons['todoChecked']('18px', '18px')
+            )}
+            iconColour={'gray.100'}
+            onClick={() => {
+              activeItem.map((i) => {
+                completeItem({ variables: { key: i } });
+              });
+            }}
+          />
+        </Tooltip>
+      </Box>
+
+      <Box gridArea="delete">
+        <Tooltip delay={500} label={'Delete items'}>
+          <IconButton
+            size="md"
+            variant="invert"
+            aria-label="delete"
+            icon={convertSVGElementToReact(Icons['trash']('18px', '18px'))}
+            iconColour={'gray.100'}
+            onClick={() => {
+              activeItem.map((i) => {
+                deleteItem({ variables: { key: i } });
+              });
+            }}
+          />
+        </Tooltip>
+      </Box>
     </Grid>
   );
 };

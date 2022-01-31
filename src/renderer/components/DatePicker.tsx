@@ -27,6 +27,8 @@ type MenuItemType = {
   clickHandler: () => void;
 };
 
+// TODO: Refactor me
+//
 const DatePicker = (props: DatePickerProps): ReactElement => {
   const [dayPickerVisible, setDayPickerVisible] = useState(false);
   const [showMenu, setShowMenu] = useState(false);

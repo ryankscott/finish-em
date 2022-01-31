@@ -1,4 +1,4 @@
-import { format, parseISO } from 'date-fns';
+import { format, isPast, parseISO } from 'date-fns';
 import React, { ReactElement, useEffect, useState } from 'react';
 import { RRule } from 'rrule';
 import { convertSVGElementToReact, Icons } from '../assets/icons';
@@ -27,6 +27,7 @@ import {
   Text,
   useColorMode,
   Tooltip,
+  useTheme,
 } from '@chakra-ui/react';
 import { useMutation, useQuery } from '@apollo/client';
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
@@ -40,7 +41,10 @@ import {
   RESTORE_ITEM,
   PERMANENT_DELETE_ITEM,
 } from 'renderer/queries';
-import { Item as ItemType } from '../../main/generated/typescript-helpers';
+import {
+  Item as ItemType,
+  Reminder,
+} from '../../main/generated/typescript-helpers';
 import { Emoji } from 'emoji-mart';
 
 type ItemProps = {
@@ -80,6 +84,7 @@ const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
 
 function Item(props: ItemProps): ReactElement {
   const { colorMode } = useColorMode();
+  const theme = useTheme();
   const [moreButtonVisible, setMoreButtonVisible] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [subtasksVisible, setSubtasksVisible] = useState(true);
@@ -267,6 +272,7 @@ function Item(props: ItemProps): ReactElement {
   };
 
   const isFocused = activeItemVar().findIndex((i) => i == item.key) >= 0;
+  const reminder = item?.reminders?.[0];
   return (
     <Grid
       display={isVisible ? 'grid' : 'none'}
@@ -274,8 +280,7 @@ function Item(props: ItemProps): ReactElement {
       transition={'all 0.2s ease-in-out'}
       position={'relative'}
       maxHeight={'200px'}
-      py={1}
-      px={1}
+      p={1}
       pl={props.shouldIndent ? 5 : 1}
       mx={0}
       my={1}
@@ -527,7 +532,7 @@ function Item(props: ItemProps): ReactElement {
       </Box>
 
       <Box gridArea="reminder">
-        {item.reminders && item.reminders.find((r) => r?.deleted == false) && (
+        {reminder && (
           <Tooltip
             delay={500}
             label={`Reminder at: ${format(
@@ -536,7 +541,15 @@ function Item(props: ItemProps): ReactElement {
             )}`}
           >
             <Flex justifyContent="center">
-              {convertSVGElementToReact(Icons['reminder']())}
+              {convertSVGElementToReact(
+                Icons['reminder'](
+                  '12px',
+                  '12px',
+                  isPast(parseISO(reminder.remindAt))
+                    ? theme?.colors?.gray[400]
+                    : theme?.colors?.blue[400]
+                )
+              )}
             </Flex>
           </Tooltip>
         )}

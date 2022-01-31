@@ -94,7 +94,6 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
       borderColor={colorMode == 'light' ? 'gray.200' : 'gray.600'}
     >
       <Grid
-        overflow={'hidden'}
         position={'relative'}
         alignItems={'center'}
         py={4}

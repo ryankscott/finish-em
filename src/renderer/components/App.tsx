@@ -21,9 +21,7 @@ import WeeklyAgenda from './WeeklyAgenda';
 import '../filterBoxStyles.css';
 import { CREATE_ITEM, GET_APP_DATA } from 'renderer/queries/';
 import { Reminder } from 'main/generated/typescript-helpers';
-
-export const MIN_WIDTH_FOR_SIDEBAR = 1125;
-export const MIN_WIDTH_FOR_FOCUSBAR = 1125;
+import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from 'consts';
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
