@@ -261,8 +261,7 @@
     "rrule": "^2.6.8",
     "sql-template-strings": "^2.2.2",
     "sqlstring-sqlite": "^0.1.1",
-    "sugar-date": "^2.0.6",
-    "tippy": "^0.0.0"
+    "sugar-date": "^2.0.6"
   },
   "devEngines": {
     "node": ">=14.x",
