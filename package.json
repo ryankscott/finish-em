@@ -69,17 +69,6 @@
         }
       ]
     },
-    "win": {
-      "target": [
-        "nsis"
-      ]
-    },
-    "linux": {
-      "target": [
-        "AppImage"
-      ],
-      "category": "Development"
-    },
     "directories": {
       "app": "release/app",
       "buildResources": "assets",
