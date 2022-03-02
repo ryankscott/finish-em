@@ -1,0 +1,21 @@
+{
+  "name": "Finish-em",
+  "version": "0.6.45",
+  "description": "An org-mode inspired personal organiser",
+  "main": "./dist/main/main.js",
+  "author": {
+    "name": "Ryan Scott",
+    "email": "ryan@ryankennethscott.com"
+  },
+  "scripts": {
+    "electron-rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
+    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts",
+    "postinstall": "npm run electron-rebuild && npm run link-modules"
+  },
+  "dependencies": {
+    "sqlite": "^4.0.23",
+    "sqlite3": "^5.0.2",
+    "xcall": "^1.0.4"
+  },
+  "license": "MIT"
+}

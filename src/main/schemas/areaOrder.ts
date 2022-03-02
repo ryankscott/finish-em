@@ -1,0 +1,31 @@
+export const areaOrder = `
+type AreaOrder {
+  areaKey: String!
+  sortOrder: Int!
+}
+
+input SetAreaOrderInput {
+  areaKey: String!
+  sortOrder: Int!
+}
+
+input CreateAreaOrderInput {
+  areaKey: String!
+}
+input MigrateAreaOrderInput {
+  areaKey: String!
+  sortOrder: Int!
+}
+
+type Query {
+  areaOrders: [AreaOrder]
+  areaOrder(areaKey: String!): AreaOrder
+}
+
+type Mutation {
+  setAreaOrder(input: SetAreaOrderInput!): AreaOrder
+  createAreaOrder(input: CreateAreaOrderInput!): AreaOrder
+  createAreaOrder(input: CreateAreaOrderInput!): AreaOrder
+  migrateAreaOrder(input: MigrateAreaOrderInput!): AreaOrder
+}
+`
