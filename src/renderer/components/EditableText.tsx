@@ -5,7 +5,7 @@ import React, { ReactElement, useEffect, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { fontSizeType, ThemeType } from '../interfaces';
 import { ThemeProvider } from '../StyledComponents';
-import { themes } from '../theme';
+import themes from '../theme';
 import { itemRegex, setEndOfContenteditable } from '../utils';
 import { Container, Placeholder } from './styled/EditableText';
 import { Code, Header, Paragraph, Title } from './Typography';
@@ -61,13 +61,13 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
   useEffect(() => {
     setInput(props.input);
-  });
+  }, [props.input]);
 
   useEffect(() => {
     if (editable) {
       setEndOfContenteditable(props.innerRef.current);
     }
-  }, [editable]);
+  }, [editable, props.innerRef]);
 
   const { loading, error, data } = useQuery(GET_THEME);
   if (loading) return <></>;
@@ -98,7 +98,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     if (props.onEditingChange) {
       props.onEditingChange(true);
     }
-    return;
   };
 
   const handleBlur = (): void => {
@@ -120,7 +119,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
       if (props.shouldClearOnSubmit) {
         clearInput();
       }
-      return;
     }
   };
 
@@ -200,7 +198,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
       e.preventDefault();
       setEditable(false);
       props.innerRef.current.blur();
-      return;
     }
   };
 
@@ -224,7 +221,6 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
     }
 
     setEndOfContenteditable(props.innerRef.current);
-    return;
   };
 
   // NOTE: We have to replace newlines with HTML breaks

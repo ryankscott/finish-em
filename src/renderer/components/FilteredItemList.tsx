@@ -1,4 +1,3 @@
-import { useMutation } from '@apollo/client';
 import {
   Box,
   Flex,
@@ -8,14 +7,13 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
-import { DELETE_ITEM } from 'renderer/queries';
+import { orderBy } from 'lodash';
 import { Item } from '../../main/generated/typescript-helpers';
 import { ItemIcons } from '../interfaces/item';
 import Button from './Button';
 import EditFilteredItemList from './EditFilteredItemList';
 import ReorderableItemList from './ReorderableItemList';
 import SortDropdown, { SortDirectionEnum } from './SortDropdown';
-import { orderBy } from 'lodash';
 
 const determineVisibilityRules = (
   isFilterable: boolean,
@@ -73,7 +71,6 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
   const [showItemList, setShowItemList] = useState(true);
   const [itemsLength, setItemsLength] = useState([]);
   const [expandSubtasks, setExpandSubtasks] = useState(true);
-  const [deleteItem] = useMutation(DELETE_ITEM);
 
   const [allItemsLength, completedItemsLength] = itemsLength;
   const visibility = determineVisibilityRules(
@@ -88,32 +85,32 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
     <Box
       m={0}
       p={0}
-      w={'100%'}
+      w="100%"
       borderRadius={5}
       border="1px solid"
-      borderColor={colorMode == 'light' ? 'gray.200' : 'gray.600'}
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
     >
       <Grid
-        position={'relative'}
-        alignItems={'center'}
+        position="relative"
+        alignItems="center"
         py={4}
         px={2}
         mt={0}
         gridGap={1}
         borderRadius={0}
         borderTopRadius={5}
-        gridTemplateRows={'40px'}
-        gridTemplateColumns={'30px auto auto'}
-        borderBottom={'1px solid'}
-        bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-        borderColor={colorMode == 'light' ? 'gray.200' : 'gray.600'}
+        gridTemplateRows="40px"
+        gridTemplateColumns="30px auto auto"
+        borderBottom="1px solid"
+        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
       >
         <GridItem colSpan={1}>
           <Button
             key={`btn-${props.componentKey}`}
             variant="default"
             size="sm"
-            icon={showItemList == true ? 'collapse' : 'expand'}
+            icon={showItemList === true ? 'collapse' : 'expand'}
             onClick={() => {
               setShowItemList(!showItemList);
             }}
@@ -122,29 +119,29 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
         </GridItem>
         <GridItem colSpan={1}>
           <Flex
-            direction={'row'}
+            direction="row"
             py={1}
             px={0}
             my={0}
             mx={2}
-            alignItems={'baseline'}
+            alignItems="baseline"
           >
             <Text fontSize="lg">{props.listName}</Text>
-            <Text fontSize="sm" py={0} px={2} minW={'80px'} color={'gray.500'}>
+            <Text fontSize="sm" py={0} px={2} minW="80px" color="gray.500">
               {allItemsLength
-                ? allItemsLength == 1
+                ? allItemsLength === 1
                   ? '1 item'
-                  : allItemsLength + ' items'
+                  : `${allItemsLength} items`
                 : '0 items'}
             </Text>
           </Flex>
         </GridItem>
         <GridItem colSpan={1}>
           <Flex
-            position={'relative'}
-            direction={'row'}
-            justifyContent={'flex-end'}
-            alignItems={'center'}
+            position="relative"
+            direction="row"
+            justifyContent="flex-end"
+            alignItems="center"
           >
             {visibility.showFilterBar && (
               <>
@@ -173,10 +170,10 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                     tooltipText="Delete completed items"
                     onClick={() => {
                       /* completedItems.forEach((c) => {
-                          if (c.parent?.key == null) {
+                          if (c.parent?.key === null) {
                             deleteItem({ variables: { key: c.key } })
                           }
-                        })*/
+                        }) */
                     }}
                   />
                 )}
@@ -185,7 +182,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                   size="sm"
                   icon="expandAll"
                   iconSize="14px"
-                  tooltipText={'Expand all subtasks'}
+                  tooltipText="Expand all subtasks"
                   onClick={() => {
                     setExpandSubtasks(true);
                   }}
@@ -195,12 +192,12 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
                   variant="default"
                   icon="collapseAll"
                   iconSize="14px"
-                  tooltipText={'Collapse all subtasks'}
+                  tooltipText="Collapse all subtasks"
                   onClick={() => {
                     setExpandSubtasks(false);
                   }}
                 />
-                <Box w={'145px'}>
+                <Box w="145px">
                   <SortDropdown
                     defaultText="Due"
                     sortType={sortType}
@@ -230,9 +227,9 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
         </Box>
       ) : showItemList ? (
         <Flex
-          bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-          w={'100%'}
-          transition={'0.2s ease-in-out'}
+          bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+          w="100%"
+          transition="0.2s ease-in-out"
           py={0}
           px={3}
         >

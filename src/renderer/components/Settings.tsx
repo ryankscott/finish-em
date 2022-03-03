@@ -156,10 +156,10 @@ const Settings = (): ReactElement => {
     <Flex direction="row" w="100%" h="100vh">
       <Flex
         borderRight="1px solid"
-        borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
+        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         direction="column"
         w="280px"
-        bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
+        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
         py={2}
         px={0}
         h="100%"

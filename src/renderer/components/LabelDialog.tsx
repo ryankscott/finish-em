@@ -1,30 +1,11 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { Box, Flex, Text } from '@chakra-ui/layout';
 import { transparentize } from 'polished';
 import { ReactElement } from 'react';
+import { SET_LABEL } from 'renderer/queries';
+import { GET_LABELS } from 'renderer/queries/label';
 import { Label } from '../../main/generated/typescript-helpers';
 import Button from './Button';
-
-const GET_LABELS = gql`
-  query {
-    labels {
-      key
-      name
-      colour
-    }
-  }
-`;
-
-const SET_LABEL = gql`
-  mutation SetLabelOfItem($key: String!, $labelKey: String) {
-    setLabelOfItem(input: { key: $key, labelKey: $labelKey }) {
-      key
-      label {
-        key
-      }
-    }
-  }
-`;
 
 type LabelDialogProps = {
   itemKey: string;

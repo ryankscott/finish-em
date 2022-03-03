@@ -1,8 +1,8 @@
 import { ReactElement } from 'react';
-import { Icons } from '../assets/icons';
 import { marked } from 'marked';
 import { Flex, Text, Tooltip } from '@chakra-ui/react';
 import { HTMLToPlainText } from 'renderer/utils';
+import { Icons } from '../assets/icons';
 
 type ItemAttributeProps = {
   type: 'repeat' | 'due' | 'scheduled' | 'subtask';
@@ -13,9 +13,10 @@ type ItemAttributeProps = {
 };
 
 const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
-  const iconSize = props.compact ? '12px' : '14px';
+  const { compact, tooltipText, text, completed, type } = props;
+  const iconSize = compact ? '12px' : '14px';
   return (
-    <Tooltip delay={500} label={HTMLToPlainText(props.tooltipText)}>
+    <Tooltip delay={500} label={HTMLToPlainText(tooltipText)}>
       <Flex
         direction="row"
         alignItems="center"
@@ -23,17 +24,17 @@ const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
         px={1}
         my={0}
         mx={1}
-        textDecoration={props.completed ? 'strike-through' : 'none'}
+        textDecoration={completed ? 'strike-through' : 'none'}
       >
         <Flex p={0} m={0} alignItems="center">
-          {Icons[props.type](iconSize, iconSize)}
+          {Icons[type](iconSize, iconSize)}
         </Flex>
-        {!props.compact && (
+        {!compact && (
           <Text
             fontSize="xs"
-            fontWeight={'light'}
+            fontWeight="light"
             px={1}
-            dangerouslySetInnerHTML={{ __html: marked(props.text) }}
+            dangerouslySetInnerHTML={{ __html: marked(text) }}
           />
         )}
       </Flex>

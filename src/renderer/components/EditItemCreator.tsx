@@ -1,42 +1,11 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import { Box, Flex, Switch } from '@chakra-ui/react';
 import { ReactElement, useEffect, useState } from 'react';
-import Select from './Select';
+import { GET_COMPONENT_BY_KEY, UPDATE_COMPONENT } from 'renderer/queries';
 import { Label, Project } from '../../main/generated/typescript-helpers';
 import Button from './Button';
-
 import { ItemCreatorProps } from './ItemCreator';
-import { Box, Flex, Switch } from '@chakra-ui/react';
-
-const GET_COMPONENT_BY_KEY = gql`
-  query ComponentByKey($key: String!) {
-    projects(input: { deleted: false }) {
-      key
-      name
-    }
-    areas {
-      key
-      name
-    }
-    labels {
-      key
-      name
-    }
-    component(key: $key) {
-      key
-      parameters
-    }
-    theme @client
-  }
-`;
-
-const UPDATE_COMPONENT = gql`
-  mutation SetParametersOfComponent($key: String!, $parameters: JSON!) {
-    setParametersOfComponent(input: { key: $key, parameters: $parameters }) {
-      key
-      parameters
-    }
-  }
-`;
+import Select from './Select';
 
 // TODO: turn these into variants
 const settingStyles = {
@@ -136,16 +105,16 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
   return (
     <Flex
       border="1px solid"
-      borderColor={'gray.200'}
+      borderColor="gray.200"
       borderRadius={3}
-      direction={'column'}
-      bg={'gray.50'}
+      direction="column"
+      bg="gray.50"
       py={2}
       px={2}
       pb={4}
-      w={'100%'}
+      w="100%"
     >
-      <Flex direction={'row'} justifyContent={'flex-end'} p={2}>
+      <Flex direction="row" justifyContent="flex-end" p={2}>
         <Box>
           <Button
             size="sm"
@@ -158,9 +127,9 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
           />
         </Box>
       </Flex>
-      <Flex direction={'row'} {...settingStyles}>
+      <Flex direction="row" {...settingStyles}>
         <Flex {...settingLabelStyles}>Initially expanded:</Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
+        <Flex direction="column" {...settingValueStyles}>
           <Switch
             size="sm"
             checked={initiallyExpanded}
@@ -170,10 +139,10 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
           />
         </Flex>
       </Flex>
-      <Flex direction={'row'} {...settingStyles}>
+      <Flex direction="row" {...settingStyles}>
         <Flex {...settingLabelStyles}>Project:</Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
-          <Box position={'relative'} width={'180px'}>
+        <Flex direction="column" {...settingValueStyles}>
+          <Box position="relative" width="180px">
             <Select
               size="md"
               placeholder="Select project"
@@ -182,15 +151,15 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
                 setProjectKey(p.value);
               }}
               options={projectOptions}
-              escapeClearsValue={true}
+              escapeClearsValue
             />
           </Box>
         </Flex>
       </Flex>
-      <Flex direction={'row'} {...settingStyles}>
+      <Flex direction="row" {...settingStyles}>
         <Flex {...settingLabelStyles}>Label: </Flex>
-        <Flex direction={'column'} {...settingValueStyles}>
-          <Box position={'relative'} width={'180px'}>
+        <Flex direction="column" {...settingValueStyles}>
+          <Box position="relative" width="180px">
             <Select
               size="md"
               placeholder="Select label"
@@ -199,32 +168,32 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
                 setLabelKey(l.value);
               }}
               options={labelOptions}
-              escapeClearsValue={true}
+              escapeClearsValue
             />
           </Box>
         </Flex>
       </Flex>
       <Flex
-        position={'relative'}
-        direction={'row'}
-        justifyContent={'flex-end'}
+        position="relative"
+        direction="row"
+        justifyContent="flex-end"
         py={0}
         px={8}
-        width={'100%'}
+        width="100%"
       >
         <Button
           size="md"
           text="Save"
-          variant={'primary'}
+          variant="primary"
           icon="save"
           onClick={() => {
             updateComponent({
               variables: {
                 key: props.componentKey,
                 parameters: {
-                  initiallyExpanded: initiallyExpanded,
-                  projectKey: projectKey,
-                  labelKey: labelKey,
+                  initiallyExpanded,
+                  projectKey,
+                  labelKey,
                 },
               },
             });

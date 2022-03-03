@@ -1,9 +1,13 @@
-import { gql, useMutation, useQuery } from '@apollo/client'
-import { orderBy } from 'lodash'
-import React, { ReactElement, useEffect, useState } from 'react'
-import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
-import { v4 as uuidv4 } from 'uuid'
-import { Icons } from '../assets/icons'
+import { useMutation, useQuery } from '@apollo/client';
+import { orderBy } from 'lodash';
+import { ReactElement, useEffect, useState } from 'react';
+import {
+  DragDropContext,
+  Draggable,
+  Droppable,
+  DropResult,
+} from 'react-beautiful-dnd';
+import { v4 as uuidv4 } from 'uuid';
 import {
   Menu,
   MenuButton,
@@ -13,86 +17,70 @@ import {
   Flex,
   useTheme,
   useColorMode,
-} from '@chakra-ui/react'
-import ComponentActions from './ComponentActions'
-import FilteredItemList from './FilteredItemList'
-import ItemCreator from './ItemCreator'
-import { Spinner } from './Spinner'
-import ViewHeader from './ViewHeader'
-import { transparentize } from 'polished'
-import { Component } from '../../main/generated/typescript-helpers'
-
-const GET_COMPONENTS_BY_VIEW = gql`
-  query ComponentsByView($viewKey: String!) {
-    view(key: $viewKey) {
-      key
-      name
-      type
-    }
-    componentsByView(viewKey: $viewKey) {
-      key
-      type
-      location
-      parameters
-      sortOrder {
-        sortOrder
-      }
-    }
-  }
-`
-const ADD_COMPONENT = gql`
-  mutation CreateComponent($input: CreateComponentInput!) {
-    createComponent(input: $input) {
-      key
-    }
-  }
-`
-
-const SET_COMPONENT_ORDER = gql`
-  mutation SetComponentOrder($componentKey: String!, $sortOrder: Int!) {
-    setComponentOrder(input: { componentKey: $componentKey, sortOrder: $sortOrder }) {
-      componentKey
-    }
-  }
-`
+} from '@chakra-ui/react';
+import { transparentize } from 'polished';
+import {
+  ADD_COMPONENT,
+  GET_COMPONENTS_BY_VIEW,
+  SET_COMPONENT_ORDER,
+} from 'renderer/queries';
+import { Icons } from '../assets/icons';
+import ComponentActions from './ComponentActions';
+import FilteredItemList from './FilteredItemList';
+import ItemCreator from './ItemCreator';
+import { Spinner } from './Spinner';
+import ViewHeader from './ViewHeader';
+import { Component } from '../../main/generated/typescript-helpers';
 
 type ReorderableComponentListProps = {
-  viewKey: string
-}
+  viewKey: string;
+};
 
-const ReorderableComponentList = (props: ReorderableComponentListProps): ReactElement => {
-  const theme = useTheme()
-  const { colorMode, toggleColorMode } = useColorMode()
+const ReorderableComponentList = (
+  props: ReorderableComponentListProps
+): ReactElement => {
+  const theme = useTheme();
+  const { colorMode, toggleColorMode } = useColorMode();
   const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey: props.viewKey },
     fetchPolicy: 'no-cache',
-  })
-  const [addComponent] = useMutation(ADD_COMPONENT)
-  const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER)
-  const [sortedComponents, setSortedComponents] = useState<Component[] | []>([])
+  });
+  const [addComponent] = useMutation(ADD_COMPONENT);
+  const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER);
+  const [sortedComponents, setSortedComponents] = useState<Component[] | []>(
+    []
+  );
 
   useEffect(() => {
     if (loading === false && data) {
-      setSortedComponents(orderBy(data.componentsByView, ['sortOrder.sortOrder'], ['asc']))
+      setSortedComponents(
+        orderBy(data.componentsByView, ['sortOrder.sortOrder'], ['asc'])
+      );
     }
-  }, [loading, data])
+  }, [loading, data]);
 
   if (loading) {
     return (
-      <Flex h={'100%'} w={'100%'} justifyContent={'center'} alignContent={'center'}>
-        <Spinner loading={true}></Spinner>
+      <Flex h="100%" w="100%" justifyContent="center" alignContent="center">
+        <Spinner loading />
       </Flex>
-    )
+    );
   }
   if (error) {
-    console.log(error)
-    return null
+    console.log(error);
+    return null;
   }
 
   const componentSwitch = (params, comp, provided) => {
     switch (comp.type) {
       case 'FilteredItemList':
-        return <FilteredItemList {...params} componentKey={comp.key} key={comp.key} />
+        return (
+          <FilteredItemList
+            {...params}
+            componentKey={comp.key}
+            key={comp.key}
+          />
+        );
       case 'ViewHeader':
         return (
           <ViewHeader
@@ -102,33 +90,42 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
             id={comp.key}
             {...params}
           />
-        )
+        );
       case 'ItemCreator':
-        return <ItemCreator componentKey={comp.key} key={comp.key} {...params} />
+        return (
+          <ItemCreator componentKey={comp.key} key={comp.key} {...params} />
+        );
     }
-  }
+  };
 
   return (
-    <Flex direction={'column'} justifyContent={'flex-end'} w={'100%'} my={3} mx={0} mt={6}>
+    <Flex
+      direction="column"
+      justifyContent="flex-end"
+      w="100%"
+      my={3}
+      mx={0}
+      mt={6}
+    >
       <DragDropContext
         onDragEnd={(result: DropResult) => {
-          const { destination, source, draggableId, type } = result
+          const { destination, source, draggableId, type } = result;
 
           //  Trying to detect drops in non-valid areas
           if (!destination) {
-            return
+            return;
           }
           // Do nothing if it was a drop to the same place
-          if (destination.index == source.index) return
+          if (destination.index == source.index) return;
 
-          const componentAtDestination = sortedComponents[destination.index]
-          const componentAtSource = sortedComponents[source.index]
+          const componentAtDestination = sortedComponents[destination.index];
+          const componentAtSource = sortedComponents[source.index];
 
           // Sync update
-          const newSortedComponents = sortedComponents
-          newSortedComponents.splice(source.index, 1)
-          newSortedComponents.splice(destination.index, 0, componentAtSource)
-          setSortedComponents(newSortedComponents)
+          const newSortedComponents = sortedComponents;
+          newSortedComponents.splice(source.index, 1);
+          newSortedComponents.splice(destination.index, 0, componentAtSource);
+          setSortedComponents(newSortedComponents);
 
           // Async update
           setComponentOrder({
@@ -136,17 +133,17 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
               componentKey: draggableId,
               sortOrder: componentAtDestination.sortOrder.sortOrder,
             },
-          })
+          });
         }}
         style={{ width: '100%' }}
       >
         <Droppable droppableId={uuidv4()} type="COMPONENT">
           {(provided, snapshot) => (
             <Flex
-              direction={'column'}
-              justifyContent={'center'}
-              bg={'inherit'}
-              w={'100%'}
+              direction="column"
+              justifyContent="center"
+              bg="inherit"
+              w="100%"
               m={0}
               py={snapshot.isDraggingOver ? 18 : 3}
               px={3}
@@ -155,7 +152,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
             >
               {sortedComponents.map((comp, index) => {
                 if (comp.location == 'main') {
-                  const params = JSON.parse(comp.parameters)
+                  const params = JSON.parse(comp.parameters);
                   return (
                     <Draggable
                       key={comp.key}
@@ -165,35 +162,38 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                     >
                       {(provided, snapshot) => (
                         <Flex
-                          position={'relative'}
-                          flexDirection={'column'}
-                          height={'auto'}
-                          userSelect={'none'}
+                          position="relative"
+                          flexDirection="column"
+                          height="auto"
+                          userSelect="none"
                           p={0}
                           m={0}
                           borderRadius={5}
                           mb={8}
-                          border={'1px solid'}
-                          borderColor={snapshot.isDragging ? 'gray.200' : 'transparent'}
+                          border="1px solid"
+                          borderColor={
+                            snapshot.isDragging ? 'gray.200' : 'transparent'
+                          }
                           bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
                           shadow={snapshot.isDragging ? 'md' : null}
                           _hover={{
                             border: '1px solid',
-                            borderColor: colorMode == 'light' ? 'gray.200' : 'gray.600',
+                            borderColor:
+                              colorMode == 'light' ? 'gray.200' : 'gray.600',
                             shadow: 'base',
                           }}
                           ref={provided.innerRef}
                           {...provided.draggableProps}
-                          key={'container-' + comp.key}
+                          key={`container-${comp.key}`}
                         >
                           <Flex
-                            position={'absolute'}
+                            position="absolute"
                             direction="row"
                             justifyContent="center"
                             alignItems="center"
                             h={6}
                             top={0}
-                            w={'100%'}
+                            w="100%"
                             zIndex={100}
                             opacity={0}
                             borderRadius={5}
@@ -207,15 +207,18 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                             }}
                             {...provided.dragHandleProps}
                           >
-                            {Icons['dragHandle']()}
+                            {Icons.dragHandle()}
                           </Flex>
-                          <ComponentActions readOnly={false} componentKey={comp.key}>
+                          <ComponentActions
+                            readOnly={false}
+                            componentKey={comp.key}
+                          >
                             {componentSwitch(params, comp, provided)}
                           </ComponentActions>
                         </Flex>
                       )}
                     </Draggable>
-                  )
+                  );
                 }
               })}
             </Flex>
@@ -224,21 +227,21 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
       </DragDropContext>
 
       {/* TODO extract to a component */}
-      <Flex w={'100%'} position={'relative'} justifyContent={'center'} pb={6}>
+      <Flex w="100%" position="relative" justifyContent="center" pb={6}>
         <Menu
           placement="bottom"
           gutter={0}
           arrowPadding={0}
-          closeOnSelect={true}
-          closeOnBlur={true}
+          closeOnSelect
+          closeOnBlur
         >
           <MenuButton
-            size={'md'}
+            size="md"
             as={Button}
-            rightIcon={Icons['collapse'](12, 12)}
+            rightIcon={Icons.collapse(12, 12)}
             borderRadius={5}
-            variant={'default'}
-            textAlign={'start'}
+            variant="default"
+            textAlign="start"
           >
             Add component
           </MenuButton>
@@ -267,7 +270,13 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                                     value: data.view.key,
                                   },
                                 ]
-                              : [{ category: 'createdAt', operator: 'is', value: 'today' }],
+                              : [
+                                  {
+                                    category: 'createdAt',
+                                    operator: 'is',
+                                    value: 'today',
+                                  },
+                                ],
                         }),
                         hiddenIcons: [],
                         isFilterable: true,
@@ -278,8 +287,8 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                       },
                     },
                   },
-                })
-                refetch()
+                });
+                refetch();
               }}
             >
               Item list
@@ -299,8 +308,8 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                       },
                     },
                   },
-                })
-                refetch()
+                });
+                refetch();
               }}
             >
               Header
@@ -319,8 +328,8 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
                       },
                     },
                   },
-                })
-                refetch()
+                });
+                refetch();
               }}
             >
               Item creator
@@ -329,7 +338,7 @@ const ReorderableComponentList = (props: ReorderableComponentListProps): ReactEl
         </Menu>
       </Flex>
     </Flex>
-  )
-}
+  );
+};
 
-export default ReorderableComponentList
+export default ReorderableComponentList;

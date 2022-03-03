@@ -9,10 +9,10 @@ import { ReactElement } from 'react';
 import { GroupedOptionsType, OptionsType } from 'react-select';
 import {
   GET_AREAS,
+  GET_PROJECTS,
   GET_ITEMS,
   GET_LABELS,
-  GET_PROJECTS,
-} from 'renderer/queries/attributeselect';
+} from 'renderer/queries';
 import {
   Area,
   Item,

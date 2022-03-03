@@ -109,7 +109,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 
   useEffect(() => {
     if (!sortedItems.length) return;
-    let newState = cloneDeep(data?.subtasksVisible);
+    const newState = cloneDeep(data?.subtasksVisible);
     sortedItems.forEach((a) => {
       if (a.children.length > 0) {
         if (newState[a.key]) {
@@ -167,16 +167,16 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 	- Edit description
  */
   return (
-    <Box w={'100%'} my={4} mx={0} zIndex={0}>
+    <Box w="100%" my={4} mx={0} zIndex={0}>
       <DragDropContext onDragEnd={(result) => reorderItems(result)}>
         <Droppable droppableId={uuidv4()} type="ITEM">
           {(provided, snapshot) => (
             <Flex
               zIndex={0}
-              direction={'column'}
-              justifyContent={'center'}
+              direction="column"
+              justifyContent="center"
               borderRadius={3}
-              w={'100%'}
+              w="100%"
               padding={snapshot.isDraggingOver ? '20px 5px' : '5px'}
               {...provided.droppableProps}
               ref={provided.innerRef}
@@ -200,19 +200,19 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                   >
                     {(provided, snapshot) => (
                       <Flex
-                        position={'relative'}
-                        flexDirection={'column'}
-                        height={'auto'}
-                        userSelect={'none'}
+                        position="relative"
+                        flexDirection="column"
+                        height="auto"
+                        userSelect="none"
                         p={0}
                         m={0}
-                        border={'none'}
+                        border="none"
                         borderRadius={4}
                         shadow={snapshot.isDragging ? 'base' : undefined}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        key={'container-' + item.key}
+                        key={`container-${item.key}`}
                       >
                         <ItemComponent
                           compact={false}
@@ -240,7 +240,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                     itemKey={child.key}
                                     key={child.key}
                                     componentKey={props.componentKey}
-                                    shouldIndent={true}
+                                    shouldIndent
                                     hideCollapseIcon={props.flattenSubtasks}
                                     hiddenIcons={
                                       props.hiddenIcons
@@ -263,7 +263,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
               })}
 
               {data?.items?.length == 0 && (
-                <Text color={'gray.400'} fontSize={'sm'} py={4} px={0} pl={4}>
+                <Text color="gray.400" fontSize="sm" py={4} px={0} pl={4}>
                   No items
                 </Text>
               )}

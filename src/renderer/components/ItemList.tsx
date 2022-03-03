@@ -1,12 +1,8 @@
 import { ReactElement } from 'react';
-import Item from './Item';
-import { ItemIcons } from '../interfaces/item';
-import { item as itemKeymap } from '../keymap';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { useMutation } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
 import { get } from 'lodash';
-import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
 import { Box, Text } from '@chakra-ui/react';
 import {
   COMPLETE_ITEM,
@@ -14,6 +10,10 @@ import {
   RESTORE_ITEM,
   UNCOMPLETE_ITEM,
 } from 'renderer/queries';
+import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
+import { item as itemKeymap } from '../keymap';
+import { ItemIcons } from '../interfaces/item';
+import Item from './Item';
 
 type ItemListProps = {
   componentKey: string;
@@ -53,7 +53,7 @@ function ItemList(props: ItemListProps): ReactElement {
     TOGGLE_CHILDREN: (event) => {
       const itemKey = event.target.id;
       // TODO: This may be broken
-      let newState = cloneDeep(subtasksVisibleVar());
+      const newState = cloneDeep(subtasksVisibleVar());
       const newValue = get(
         newState,
         [`${itemKey}`, `${props.componentKey}`],
@@ -81,7 +81,6 @@ function ItemList(props: ItemListProps): ReactElement {
       const nextItem = parent?.nextSibling?.firstChild;
       if (nextItem) {
         nextItem.focus();
-        return;
       }
     },
     PREV_ITEM: (event) => {
@@ -97,14 +96,12 @@ function ItemList(props: ItemListProps): ReactElement {
       const prevItem = parent?.previousSibling?.lastChild;
       if (prevItem) {
         prevItem.focus();
-        return;
       }
     },
     SET_ACTIVE_ITEM: (event) => {
       const itemKey = event.target.id;
       focusbarVisibleVar(true);
       activeItemVar([itemKey]);
-      return;
     },
     COMPLETE_ITEM: (event) => {
       const itemKey = event.target.id;
@@ -126,8 +123,8 @@ function ItemList(props: ItemListProps): ReactElement {
   Object.entries(itemKeymap).map(([k, v]) => {
     useHotkeys(v, handlers[k], {
       filter: (event) => {
-        const target = event.target;
-        var tagName = (event.target || event.srcElement).tagName;
+        const { target } = event;
+        const { tagName } = event.target || event.srcElement;
         return !(
           target.contentEditable ||
           tagName == 'INPUT' ||
@@ -160,7 +157,7 @@ function ItemList(props: ItemListProps): ReactElement {
       }
     }
     return (
-      <Box tabIndex={0} key={'container-' + i.key}>
+      <Box tabIndex={0} key={`container-${i.key}`}>
         <Item
           compact={props.compact ?? false}
           key={i.key}
@@ -183,7 +180,7 @@ function ItemList(props: ItemListProps): ReactElement {
                   ? [...props.hiddenIcons, ItemIcons.Subtask]
                   : [ItemIcons.Subtask]
               }
-              shouldIndent={true}
+              shouldIndent
             />
           );
         })}
@@ -192,12 +189,12 @@ function ItemList(props: ItemListProps): ReactElement {
   };
 
   return (
-    <Box w={'100%'} my={4} mx={0} data-cy="item-list">
+    <Box w="100%" my={4} mx={0} data-cy="item-list">
       {props.inputItems.map((i) => {
         return renderItem(i);
       })}
       {props.inputItems.length == 0 && (
-        <Text color={'gray.400'} fontSize="sm" py={4} px={0} pl={4}>
+        <Text color="gray.400" fontSize="sm" py={4} px={0} pl={4}>
           No items
         </Text>
       )}

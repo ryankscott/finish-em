@@ -77,3 +77,31 @@ export const SET_EMOJI = gql`
     }
   }
 `;
+
+export const SET_AREA_ORDER = gql`
+  mutation SetAreaOrder($areaKey: String!, $sortOrder: Int!) {
+    setAreaOrder(input: { areaKey: $areaKey, sortOrder: $sortOrder }) {
+      areaKey
+      sortOrder
+    }
+  }
+`;
+export const CREATE_AREA = gql`
+  mutation CreateArea($key: String!, $name: String!, $description: String) {
+    createArea(input: { key: $key, name: $name, description: $description }) {
+      key
+      name
+    }
+  }
+`;
+
+export const GET_AREAS = gql`
+  query {
+    areas {
+      key
+      emoji
+      name
+      deleted
+    }
+  }
+`;

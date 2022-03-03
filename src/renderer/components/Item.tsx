@@ -1,9 +1,31 @@
 import { format, isPast, parseISO } from 'date-fns';
 import React, { ReactElement, useEffect, useState } from 'react';
 import { RRule } from 'rrule';
+import { get, isEmpty } from 'lodash';
+import {
+  Box,
+  Grid,
+  Tag,
+  TagLabel,
+  Flex,
+  Text,
+  useColorMode,
+  Tooltip,
+  useTheme,
+} from '@chakra-ui/react';
+import { useMutation, useQuery } from '@apollo/client';
+import {
+  COMPLETE_ITEM,
+  GET_ITEM_BY_KEY,
+  DELETE_ITEM,
+  CLONE_ITEM,
+  UNCOMPLETE_ITEM,
+  RESTORE_ITEM,
+  PERMANENT_DELETE_ITEM,
+} from 'renderer/queries';
+import { Emoji } from 'emoji-mart';
 import { convertSVGElementToReact, Icons } from '../assets/icons';
 import { ItemIcons } from '../interfaces';
-import { get, isEmpty } from 'lodash';
 import {
   capitaliseFirstLetter,
   createShortSidebarItem,
@@ -18,34 +40,9 @@ import ItemAttribute from './ItemAttribute';
 import LabelDialog from './LabelDialog';
 import MoreDropdown, { MoreDropdownOptions } from './MoreDropdown';
 import ReminderDialog from './ReminderDialog';
-import {
-  Box,
-  Grid,
-  Tag,
-  TagLabel,
-  Flex,
-  Text,
-  useColorMode,
-  Tooltip,
-  useTheme,
-} from '@chakra-ui/react';
-import { useMutation, useQuery } from '@apollo/client';
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
 import { LoadingItem } from './LoadingItem';
-import {
-  COMPLETE_ITEM,
-  GET_ITEM_BY_KEY,
-  DELETE_ITEM,
-  CLONE_ITEM,
-  UNCOMPLETE_ITEM,
-  RESTORE_ITEM,
-  PERMANENT_DELETE_ITEM,
-} from 'renderer/queries';
-import {
-  Item as ItemType,
-  Reminder,
-} from '../../main/generated/typescript-helpers';
-import { Emoji } from 'emoji-mart';
+import { Item as ItemType } from '../../main/generated/typescript-helpers';
 
 type ItemProps = {
   compact: boolean;
@@ -62,12 +59,12 @@ const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
 
   if (project?.emoji) {
     if (compact) {
-      return <Emoji emoji={project.emoji} size={8} native={true} />;
+      return <Emoji emoji={project.emoji} size={8} native />;
     }
 
     return (
       <Flex alignItems="baseline">
-        <Emoji emoji={project.emoji} size={8} native={true} />
+        <Emoji emoji={project.emoji} size={8} native />
         <Text pl={1} fontSize="xs">
           {project.name}
         </Text>
@@ -113,16 +110,6 @@ function Item(props: ItemProps): ReactElement {
     variables: { key: props.itemKey ? props.itemKey : null },
   });
 
-  useEffect(() => {
-    if (!data) return;
-    setIsVisible(
-      determineItemVisiblility(data.item?.parent?.key ?? '', props.componentKey)
-    );
-    setSubtasksVisible(
-      determineSubtasksVisibility(data.item?.key, props.componentKey)
-    );
-  }, [data, props.itemKey, props.componentKey]);
-
   // Check if the item should be visible, based on a parent hiding subtasks
   const determineItemVisiblility = (
     parentKey: string,
@@ -140,13 +127,24 @@ function Item(props: ItemProps): ReactElement {
           [parentKey]: { [componentKey]: true },
         });
         return true;
-      } else if (parentVisibility == false) {
+      }
+      if (parentVisibility == false) {
         // If the parent visibility is false, all subtasks should be hidden
         return false;
       }
     }
     return true;
   };
+
+  useEffect(() => {
+    if (!data) return;
+    setIsVisible(
+      determineItemVisiblility(data.item?.parent?.key ?? '', props.componentKey)
+    );
+    setSubtasksVisible(
+      determineSubtasksVisibility(data.item?.key, props.componentKey)
+    );
+  }, [data, props.itemKey, props.componentKey]);
 
   // Determine if any subtasks of the item should be visible
   const determineSubtasksVisibility = (
@@ -168,11 +166,12 @@ function Item(props: ItemProps): ReactElement {
     return subtaskVisibility;
   };
 
-  let enterInterval: NodeJS.Timer, exitInterval: NodeJS.Timer;
+  let enterInterval: NodeJS.Timer;
+  let exitInterval: NodeJS.Timer;
 
   if (!data || !data.item) return <></>;
 
-  const item: ItemType = data.item;
+  const { item } = data;
 
   if (loading) return <LoadingItem />;
 
@@ -187,7 +186,6 @@ function Item(props: ItemProps): ReactElement {
             permanentDeleteItem({ variables: { key: item.key } });
             e.stopPropagation();
             e.preventDefault();
-            return;
           },
           icon: 'trashPermanent',
         },
@@ -197,7 +195,6 @@ function Item(props: ItemProps): ReactElement {
             restoreItem({ variables: { key: item.key } });
             e.stopPropagation();
             e.preventDefault();
-            return;
           },
           icon: 'restore',
         },
@@ -209,7 +206,6 @@ function Item(props: ItemProps): ReactElement {
             e.stopPropagation();
             e.preventDefault();
             setShowLabelDialog(!showLabelDialog);
-            return;
           },
           icon: 'flag',
         },
@@ -219,7 +215,6 @@ function Item(props: ItemProps): ReactElement {
             deleteItem({ variables: { key: item.key } });
             e.stopPropagation();
             e.preventDefault();
-            return;
           },
           icon: 'trash',
         },
@@ -229,7 +224,6 @@ function Item(props: ItemProps): ReactElement {
             cloneItem({ variables: { key: item.key } });
             e.stopPropagation();
             e.preventDefault();
-            return;
           },
           icon: 'copy',
         },
@@ -239,7 +233,6 @@ function Item(props: ItemProps): ReactElement {
             setShowReminderDialog(!showReminderDialog);
             e.stopPropagation();
             e.preventDefault();
-            return;
           },
           icon: 'reminder',
         },
@@ -255,7 +248,6 @@ function Item(props: ItemProps): ReactElement {
       item.completed
         ? unCompleteItem({ variables: { key: item.key } })
         : completeItem({ variables: { key: item.key } });
-      return;
     }
   };
 
@@ -268,7 +260,6 @@ function Item(props: ItemProps): ReactElement {
     );
     const newSubState = { [item.key]: { [props.componentKey]: !currentValue } };
     subtasksVisibleVar({ ...subtasksVisibleVar(), ...newSubState });
-    return;
   };
 
   const isFocused = activeItemVar().findIndex((i) => i == item.key) >= 0;
@@ -277,23 +268,23 @@ function Item(props: ItemProps): ReactElement {
     <Grid
       display={isVisible ? 'grid' : 'none'}
       height={isVisible ? 'auto' : '0px'}
-      transition={'all 0.2s ease-in-out'}
-      position={'relative'}
-      maxHeight={'200px'}
+      transition="all 0.2s ease-in-out"
+      position="relative"
+      maxHeight="200px"
       p={1}
       pl={props.shouldIndent ? 5 : 1}
       mx={0}
       my={1}
       gap={0.5}
-      alignItems={'center'}
-      cursor={'pointer'}
+      alignItems="center"
+      cursor="pointer"
       borderRadius={5}
       gridTemplateColumns={
         props.compact
           ? 'repeat(5, 1fr)'
           : 'repeat(2, 25px) repeat(5, 1fr) repeat(1, 30px)'
       }
-      gridTemplateRows={'40px auto'}
+      gridTemplateRows="40px auto"
       gridTemplateAreas={
         props.compact
           ? `
@@ -305,8 +296,8 @@ function Item(props: ItemProps): ReactElement {
             ".         .         parent       due          scheduled    repeat      project    reminder"
            `
       }
-      outline={'none'}
-      outlineColor={'transparent'}
+      outline="none"
+      outlineColor="transparent"
       _before={{
         content: "''",
         position: 'absolute',
@@ -372,7 +363,7 @@ function Item(props: ItemProps): ReactElement {
       }}
       tabIndex={0}
     >
-      <Box gridArea={'description'}>
+      <Box gridArea="description">
         <Tooltip
           delay={500}
           disabled={!item.text}
@@ -383,7 +374,7 @@ function Item(props: ItemProps): ReactElement {
             mx={0}
             my={2}
             fontSize="md"
-            isTruncated={true}
+            isTruncated
             textDecoration={item.completed ? 'line-through' : 'initial'}
             color={
               item.deleted
@@ -415,12 +406,12 @@ function Item(props: ItemProps): ReactElement {
       <Box gridArea="project">
         {(!props.hiddenIcons?.includes(ItemIcons.Project) ||
           item.project == null) && (
-          <Flex justifyContent={'flex-end'}>
+          <Flex justifyContent="flex-end">
             <Tooltip delay={500} label={item.project?.name}>
               <Tag
                 size={props.compact ? 'sm' : 'md'}
-                color={'white'}
-                bg={'blue.500'}
+                color="white"
+                bg="blue.500"
               >
                 {generateProjectTag(item, props.compact)}
               </Tag>
@@ -436,7 +427,7 @@ function Item(props: ItemProps): ReactElement {
             size="sm"
             onClick={handleExpand}
             icon={subtasksVisible ? 'collapse' : 'expand'}
-            iconSize={'16px'}
+            iconSize="16px"
           />
         </Box>
       )}
@@ -461,7 +452,7 @@ function Item(props: ItemProps): ReactElement {
                 ? 'todoChecked'
                 : 'todoUnchecked'
             }
-            iconSize={'16px'}
+            iconSize="16px"
             iconColour={item?.label?.colour || undefined}
           />
         </Box>
@@ -472,7 +463,7 @@ function Item(props: ItemProps): ReactElement {
           <ItemAttribute
             compact={props.compact}
             completed={item.completed ?? false}
-            type={'subtask'}
+            type="subtask"
             tooltipText={item.parent.text ?? ''}
             text={
               item.parent
@@ -504,7 +495,7 @@ function Item(props: ItemProps): ReactElement {
         <Box gridArea="more">
           {moreButtonVisible && (
             <>
-              <MoreDropdown options={dropdownOptions}></MoreDropdown>
+              <MoreDropdown options={dropdownOptions} />
               {showLabelDialog && (
                 <LabelDialog
                   itemKey={item.key}
@@ -524,7 +515,7 @@ function Item(props: ItemProps): ReactElement {
             <ItemAttribute
               compact={props.compact}
               completed={item.completed ?? false}
-              type={'scheduled'}
+              type="scheduled"
               tooltipText={formatRelativeDate(parseISO(item.scheduledAt))}
               text={formatRelativeDate(parseISO(item.scheduledAt))}
             />
@@ -542,7 +533,7 @@ function Item(props: ItemProps): ReactElement {
           >
             <Flex justifyContent="center">
               {convertSVGElementToReact(
-                Icons['reminder'](
+                Icons.reminder(
                   '12px',
                   '12px',
                   isPast(parseISO(reminder.remindAt))
@@ -560,7 +551,7 @@ function Item(props: ItemProps): ReactElement {
           <ItemAttribute
             compact={props.compact}
             completed={item.completed ?? false}
-            type={'due'}
+            type="due"
             tooltipText={formatRelativeDate(parseISO(item.dueAt))}
             text={formatRelativeDate(parseISO(item.dueAt))}
           />
@@ -572,7 +563,7 @@ function Item(props: ItemProps): ReactElement {
           <ItemAttribute
             compact={props.compact}
             completed={item.completed ?? false}
-            type={'repeat'}
+            type="repeat"
             tooltipText={capitaliseFirstLetter(
               rruleToText(RRule.fromString(item?.repeat))
             )}

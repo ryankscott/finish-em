@@ -208,3 +208,22 @@ export const SET_LABEL = gql`
     }
   }
 `;
+
+export const GET_ITEMS = gql`
+  query {
+    items {
+      key
+      text
+      deleted
+      completed
+      project {
+        key
+        name
+      }
+      parent {
+        key
+        text
+      }
+    }
+  }
+`;

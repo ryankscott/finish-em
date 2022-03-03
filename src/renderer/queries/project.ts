@@ -87,3 +87,62 @@ export const SET_EMOJI_OF_PROJECT = gql`
     }
   }
 `;
+
+export const CREATE_PROJECT = gql`
+  mutation CreateProject(
+    $key: String!
+    $name: String!
+    $description: String!
+    $startAt: DateTime
+    $endAt: DateTime
+    $areaKey: String!
+  ) {
+    createProject(
+      input: {
+        key: $key
+        name: $name
+        description: $description
+        startAt: $startAt
+        endAt: $endAt
+        areaKey: $areaKey
+      }
+    ) {
+      key
+      name
+    }
+  }
+`;
+
+export const SET_AREA_OF_PROJECT = gql`
+  mutation SetAreaOfProject($key: String!, $areaKey: String!) {
+    setAreaOfProject(input: { key: $key, areaKey: $areaKey }) {
+      key
+      area {
+        key
+      }
+    }
+  }
+`;
+
+export const SET_PROJECT_ORDER = gql`
+  mutation SetProjectOrder($projectKey: String!, $sortOrder: Int!) {
+    setProjectOrder(input: { projectKey: $projectKey, sortOrder: $sortOrder }) {
+      projectKey
+      sortOrder
+    }
+  }
+`;
+
+export const GET_PROJECTS = gql`
+  query {
+    projects(input: { deleted: false }) {
+      key
+      emoji
+      name
+      area {
+        key
+        name
+      }
+    }
+  }
+`;

@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Box,
   Flex,
@@ -10,6 +10,10 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import React, { ReactElement, useState } from 'react';
+import {
+  UPDATE_COMPONENT,
+  GET_COMPONENT_BY_KEY,
+} from 'renderer/queries/component';
 import Select from './Select';
 import { ItemIcons } from '../interfaces/item';
 import Button from './Button';
@@ -24,24 +28,6 @@ const options: { value: string; label: string }[] = [
   { value: ItemIcons.Subtask, label: 'Subtask' },
 ];
 
-const GET_COMPONENT_BY_KEY = gql`
-  query ComponentByKey($key: String!) {
-    component(key: $key) {
-      key
-      parameters
-    }
-  }
-`;
-
-const UPDATE_COMPONENT = gql`
-  mutation SetParametersOfComponent($key: String!, $parameters: JSON!) {
-    setParametersOfComponent(input: { key: $key, parameters: $parameters }) {
-      key
-      parameters
-    }
-  }
-`;
-
 type FilteredItemDialogProps = {
   componentKey: string;
   onClose: () => void;
@@ -52,7 +38,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   const { colorMode } = useColorMode();
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT, {
-    refetchQueries: ['ComponentByKey'],
+    refetchQueries: ['ComponentByKey', 'itemsByFilter'],
   });
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: props.componentKey },

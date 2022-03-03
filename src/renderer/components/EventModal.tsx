@@ -10,11 +10,11 @@ import {
   Text,
   Link,
 } from '@chakra-ui/react';
-import { Event } from '../../main/generated/typescript-helpers';
 import { format, parseISO, sub } from 'date-fns';
-import Button from './Button';
 import { gql, useQuery } from '@apollo/client';
 import RRule from 'rrule';
+import Button from './Button';
+import { Event } from '../../main/generated/typescript-helpers';
 import { capitaliseFirstLetter } from '../utils';
 
 const GET_FEATURES = gql`
@@ -76,7 +76,7 @@ export const EventModal = (props: Props) => {
 
   const generateDuration = () => {
     if (!startAt || !endAt) {
-      return <Text fontSize="md"></Text>;
+      return <Text fontSize="md" />;
     }
     return (
       <Text fontSize="md">
@@ -114,31 +114,31 @@ export const EventModal = (props: Props) => {
     <Modal isOpen={props.isOpen} onClose={props.onClose}>
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader pr={'40px'}>{props.event?.title}</ModalHeader>
+          <ModalHeader pr="40px">{props.event?.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Flex direction={'row'} {...AttributeContainerStyles}>
+            <Flex direction="row" {...AttributeContainerStyles}>
               <Flex {...AttributeKeyStyles}>
                 <Text fontSize="md">Time: </Text>
               </Flex>
               <Flex
                 pl={3}
-                postion={'relative'}
-                direction={'column'}
+                postion="relative"
+                direction="column"
                 {...AttributeValueStyles}
               >
                 {generateDuration()}
               </Flex>
             </Flex>
             {props.event?.recurrence && (
-              <Flex direction={'row'} {...AttributeContainerStyles}>
+              <Flex direction="row" {...AttributeContainerStyles}>
                 <Flex {...AttributeKeyStyles}>
                   <Text fontSize="md">Recurrence: </Text>
                 </Flex>
                 <Flex
                   pl={3}
-                  postion={'relative'}
-                  direction={'column'}
+                  postion="relative"
+                  direction="column"
                   {...AttributeValueStyles}
                 >
                   <Text fontSize="md">
@@ -149,27 +149,27 @@ export const EventModal = (props: Props) => {
                 </Flex>
               </Flex>
             )}
-            <Flex direction={'row'} {...AttributeContainerStyles}>
+            <Flex direction="row" {...AttributeContainerStyles}>
               <Flex {...AttributeKeyStyles}>
                 <Text fontSize="md">Location: </Text>
               </Flex>
               <Flex
                 pl={3}
-                postion={'relative'}
-                direction={'column'}
+                postion="relative"
+                direction="column"
                 {...AttributeValueStyles}
               >
                 {generateLocation()}
               </Flex>
             </Flex>
-            <Flex direction={'row'} {...AttributeContainerStyles}>
+            <Flex direction="row" {...AttributeContainerStyles}>
               <Flex {...AttributeKeyStyles}>
                 <Text fontSize="md">Attendees: </Text>
               </Flex>
               <Flex
                 pl={3}
-                postion={'relative'}
-                direction={'column'}
+                postion="relative"
+                direction="column"
                 {...AttributeValueStyles}
               >
                 {generateAttendees()}
@@ -179,10 +179,10 @@ export const EventModal = (props: Props) => {
           <ModalFooter>
             {data.bearNotesIntegration.enabled && (
               <Button
-                text={'Create note'}
-                variant={'primary'}
+                text="Create note"
+                variant="primary"
                 size="md"
-                icon={'bear'}
+                icon="bear"
                 iconPosition="right"
                 iconColour="white"
                 onClick={() => {
@@ -195,7 +195,7 @@ _${startAt} - ${endAt}_
 ## Attendees:
 ${props.event?.attendees
   ?.map((a) => {
-    return '- ' + a?.name;
+    return `- ${a?.name}`;
   })
   .join('\n')}
 
@@ -204,9 +204,9 @@ ${props.event?.attendees
 
 ## Action Items:
 `;
-                  //@ts-ignore
+                  // @ts-ignore
                   window.electron.ipcRenderer.sendMessage('create-bear-note', {
-                    title: title,
+                    title,
                     content: contents,
                   });
                 }}

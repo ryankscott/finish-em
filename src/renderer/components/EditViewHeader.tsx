@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { startCase } from 'lodash';
 import {
   Box,
@@ -9,28 +9,14 @@ import {
   EditablePreview,
   useColorMode,
 } from '@chakra-ui/react';
+import {
+  GET_COMPONENT_BY_KEY,
+  UPDATE_COMPONENT,
+} from 'renderer/queries/component';
 import Button from './Button';
 
 import Select from './Select';
 import { Icons } from '../assets/icons';
-
-const GET_COMPONENT_BY_KEY = gql`
-  query ComponentByKey($key: String!) {
-    component(key: $key) {
-      key
-      parameters
-    }
-  }
-`;
-
-const UPDATE_COMPONENT = gql`
-  mutation SetParametersOfComponent($key: String!, $parameters: JSON!) {
-    setParametersOfComponent(input: { key: $key, parameters: $parameters }) {
-      key
-      parameters
-    }
-  }
-`;
 
 export type ViewHeaderProps = {
   componentKey: string;
