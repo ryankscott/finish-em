@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Box,
   Editable,
@@ -8,10 +8,10 @@ import {
   Grid,
   GridItem,
   Text,
-  useTheme,
+  Tooltip,
   useColorMode,
+  useTheme,
 } from '@chakra-ui/react';
-import Tippy from '@tippyjs/react';
 import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
@@ -19,118 +19,28 @@ import { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import 'tippy.js/dist/tippy.css';
 import {
-  Item as ItemType,
-  Project as ProjectType,
-} from '../../main/generated/typescript-helpers';
+  CHANGE_DESCRIPTION_OF_PROJECT,
+  DELETE_PROJECT,
+  DELETE_VIEW,
+  GET_PROJECT_BY_KEY,
+  RENAME_PROJECT,
+  SET_EMOJI_OF_PROJECT,
+  SET_END_DATE_OF_PROJECT,
+  SET_START_DATE_OF_PROJECT,
+} from 'renderer/queries';
+import 'tippy.js/dist/tippy.css';
+import { v4 as uuidv4 } from 'uuid';
+import { Item as ItemType } from '../../main/generated/typescript-helpers';
 import { formatRelativeDate } from '../utils';
 import DeleteProjectDialog from './DeleteProjectDialog';
 import { Donut } from './Donut';
 import EditableText2 from './EditableText2';
 import ItemCreator from './ItemCreator';
 import './styled/ReactDatePicker.css';
-import { v4 as uuidv4 } from 'uuid';
-
-// TODO: Move these to queries file
-const GET_PROJECT_BY_KEY = gql`
-  query ProjectByKey($key: String!) {
-    project(key: $key) {
-      key
-      name
-      deleted
-      description
-      lastUpdatedAt
-      deletedAt
-      createdAt
-      startAt
-      endAt
-      emoji
-      items {
-        key
-        type
-        text
-        deleted
-        completed
-        dueAt
-        scheduledAt
-        repeat
-      }
-    }
-    projects(input: { deleted: false }) {
-      key
-      name
-    }
-    projectDates: featureByName(name: "projectDates") {
-      key
-      enabled
-    }
-    newEditor: featureByName(name: "newEditor") {
-      key
-      enabled
-    }
-  }
-`;
-
-const DELETE_PROJECT = gql`
-  mutation DeleteProject($key: String!) {
-    deleteProject(input: { key: $key }) {
-      key
-    }
-  }
-`;
-const CHANGE_DESCRIPTION = gql`
-  mutation ChangeDescriptionProject($key: String!, $description: String!) {
-    changeDescriptionProject(input: { key: $key, description: $description }) {
-      key
-      description
-    }
-  }
-`;
-const RENAME_PROJECT = gql`
-  mutation RenameProject($key: String!, $name: String!) {
-    renameProject(input: { key: $key, name: $name }) {
-      key
-      name
-    }
-  }
-`;
-
-const SET_END_DATE = gql`
-  mutation SetEndDateOfProject($key: String!, $endAt: String!) {
-    setEndDateOfProject(input: { key: $key, endAt: $endAt }) {
-      key
-      endAt
-    }
-  }
-`;
-const SET_START_DATE = gql`
-  mutation SetStartDateOfProject($key: String!, $startAt: String!) {
-    setStartDateOfProject(input: { key: $key, startAt: $startAt }) {
-      key
-      startAt
-    }
-  }
-`;
-const SET_EMOJI = gql`
-  mutation SetEmojiOfProject($key: String!, $emoji: String!) {
-    setEmojiOfProject(input: { key: $key, emoji: $emoji }) {
-      key
-      emoji
-    }
-  }
-`;
-
-const DELETE_VIEW = gql`
-  mutation DeleteView($key: String!) {
-    deleteView(input: { key: $key }) {
-      key
-    }
-  }
-`;
 
 type ProjectProps = {
-  projectKey: String;
+  projectKey: string;
 };
 
 const Project = (props: ProjectProps) => {
@@ -140,13 +50,15 @@ const Project = (props: ProjectProps) => {
   const [deleteProject] = useMutation(DELETE_PROJECT, {
     refetchQueries: ['GetSidebarData'],
   });
-  const [changeDescription] = useMutation(CHANGE_DESCRIPTION, {
+  const [changeDescription] = useMutation(CHANGE_DESCRIPTION_OF_PROJECT, {
     refetchQueries: ['ViewByKey'],
   });
-  const [renameProject] = useMutation(RENAME_PROJECT);
-  const [setEndDate] = useMutation(SET_END_DATE);
-  const [setStartDate] = useMutation(SET_START_DATE);
-  const [setEmoji] = useMutation(SET_EMOJI);
+  const [renameProject] = useMutation(RENAME_PROJECT, {
+    refetchQueries: ['ComponentByKey'],
+  });
+  const [setEndDate] = useMutation(SET_END_DATE_OF_PROJECT);
+  const [setStartDate] = useMutation(SET_START_DATE_OF_PROJECT);
+  const [setEmoji] = useMutation(SET_EMOJI_OF_PROJECT);
   const [deleteView] = useMutation(DELETE_VIEW);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -159,34 +71,34 @@ const Project = (props: ProjectProps) => {
     console.log(error);
     return null;
   }
-  const project: ProjectType = data.project;
-  const projects: ProjectType[] = data.projects;
+  const { project } = data;
+  const { projects } = data;
   const allItems: ItemType[] = project?.items;
   const completedItems = allItems.filter((i) => i.completed == true);
   return (
     <>
       <Grid
-        gridAutoRows={'60px 40px'}
-        gridTemplateColumns={'110px 1fr'}
-        alignItems={'center'}
+        gridAutoRows="60px 40px"
+        gridTemplateColumns="110px 1fr"
+        alignItems="center"
         py={2}
         px={0}
       >
         <GridItem colStart={1} colSpan={1} rowStart={1} rowSpan={2}>
           <Flex
-            w={'100px'}
-            h={'100px'}
-            borderRadius={'50%'}
-            justifyContent={'center'}
-            fontSize={'xl'}
+            w="100px"
+            h="100px"
+            borderRadius="50%"
+            justifyContent="center"
+            fontSize="xl"
             boxShadow={colorMode == 'light' ? 'none' : '0 0 3px 0 #222'}
             bg={colorMode == 'light' ? 'gray.100' : 'gray.800'}
             my={0}
             _hover={{
               bg: colorMode == 'light' ? 'gray.200' : 'gray.900',
             }}
-            transition={'all 0.1s ease-in-out'}
-            cursor={'pointer'}
+            transition="all 0.1s ease-in-out"
+            cursor="pointer"
             onClick={() => {
               setShowEmojiPicker(!showEmojiPicker);
             }}
@@ -194,22 +106,18 @@ const Project = (props: ProjectProps) => {
             <Emoji
               emoji={project.emoji ? project.emoji : ''}
               size={68}
-              native={true}
+              native
             />
           </Flex>
         </GridItem>
         <GridItem rowStart={1} colStart={2} colSpan={1}>
-          <Flex
-            w={'100%'}
-            justifyContent={'flex-start'}
-            alignItems={'flex-start'}
-          >
+          <Flex w="100%" justifyContent="flex-start" alignItems="flex-start">
             <Editable
               key={uuidv4()}
               defaultValue={project.name}
               fontSize="3xl"
               mx={2}
-              w={'100%'}
+              w="100%"
               color="blue.500"
               fontWeight="light"
               onSubmit={(input) => {
@@ -240,11 +148,10 @@ const Project = (props: ProjectProps) => {
           </Flex>
         </GridItem>
         <GridItem rowStart={2} colstart={2} colSpan={1}>
-          <Tippy
-            delay={500}
-            content={`${completedItems.length}/${allItems.length} completed`}
+          <Tooltip
+            label={`${completedItems.length}/${allItems.length} completed`}
           >
-            <Flex justifyContent={'flex-start'} alignItems={'center'}>
+            <Flex justifyContent="flex-start" alignItems="center">
               <Donut
                 size={30}
                 progress={
@@ -257,13 +164,13 @@ const Project = (props: ProjectProps) => {
                 {completedItems.length} of {allItems.length} items completed
               </Text>
             </Flex>
-          </Tippy>
+          </Tooltip>
         </GridItem>
 
         {showEmojiPicker && (
-          <Flex position={'relative'} zIndex={9}>
+          <Flex position="relative" zIndex={9}>
             <Picker
-              native={true}
+              native
               title=""
               emoji=""
               color={theme.colors.blue[500]}
@@ -276,7 +183,7 @@ const Project = (props: ProjectProps) => {
         )}
       </Grid>
       {data.projectDates.enabled && (
-        <Flex pl={4} direction={'row'} alignItems={'center'}>
+        <Flex pl={4} direction="row" alignItems="center">
           <Text>Start: </Text>
           <Box>
             <DatePicker
@@ -320,7 +227,7 @@ const Project = (props: ProjectProps) => {
         placeholder="Add a description for your project..."
         shouldClearOnSubmit={false}
         hideToolbar={false}
-        shouldSubmitOnBlur={true}
+        shouldSubmitOnBlur
         onUpdate={(input) => {
           changeDescription({
             variables: { key: project.key, description: input },
@@ -328,13 +235,7 @@ const Project = (props: ProjectProps) => {
         }}
       />
 
-      <Flex
-        direction={'column'}
-        justifyContent={'flex-end'}
-        py={2}
-        px={0}
-        w={'100%'}
-      >
+      <Flex direction="column" justifyContent="flex-end" py={2} px={0} w="100%">
         <ItemCreator
           key={`creator-${project.key}`}
           projectKey={project.key}

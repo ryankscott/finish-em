@@ -5,6 +5,9 @@ import { ReactElement, useEffect } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { CREATE_ITEM, GET_APP_DATA } from 'renderer/queries/';
+import { Reminder } from 'main/generated/typescript-helpers';
+import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from 'consts';
 import { activeItemVar, focusbarVisibleVar, sidebarVisibleVar } from '../index';
 import ActionBar from './ActionBar';
 import Area from './Area';
@@ -19,9 +22,6 @@ import Sidebar from './Sidebar';
 import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
 import '../filterBoxStyles.css';
-import { CREATE_ITEM, GET_APP_DATA } from 'renderer/queries/';
-import { Reminder } from 'main/generated/typescript-helpers';
-import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from 'consts';
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
@@ -40,7 +40,7 @@ const App = (): ReactElement => {
   useEffect(() => {
     // Handle Electron events
 
-    //@ts-ignore
+    // @ts-ignore
     window.electron.ipcRenderer.onReceiveMessage(
       'send-notification',
       (event, arg) => {
@@ -49,7 +49,7 @@ const App = (): ReactElement => {
       }
     );
 
-    //@ts-ignore
+    // @ts-ignore
     window.electron.ipcRenderer.onReceiveMessage(
       'new-version',
       (event, arg) => {
@@ -111,28 +111,22 @@ const App = (): ReactElement => {
   }
 
   return (
-    <Flex direction={'column'} h={'100vh'} w={'100%'}>
+    <Flex direction="column" h="100vh" w="100%">
       <Flex
         sx={{
           WebkitAppRegion: 'drag',
         }}
         zIndex={999}
-        position={'fixed'}
-        h={'50px'}
-        w={'100%'}
+        position="fixed"
+        h="50px"
+        w="100%"
         shadow="md"
-        overflow="hidden"
       >
         <Headerbar />
       </Flex>
-      <Flex pt={'50px'} direction={'row'} overflow="hidden" h={'100vh'}>
+      <Flex pt="50px" direction="row" overflow="hidden" h="100vh">
         <Sidebar />
-        <Flex
-          overflowY={'scroll'}
-          w={'100%'}
-          h={'100%'}
-          justifyContent={'center'}
-        >
+        <Flex overflowY="scroll" w="100%" h="100%" justifyContent="center">
           <ShortcutDialog />
           <Routes>
             <Route path="/help" element={<Help />} />

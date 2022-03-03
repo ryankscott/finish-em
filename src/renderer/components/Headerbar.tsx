@@ -1,18 +1,9 @@
 import { ReactElement } from 'react';
-import Select from './Select';
-import {
-  removeItemTypeFromString,
-  markdownLinkRegex,
-  markdownBasicRegex,
-} from '../utils';
 
 import { GroupType } from 'react-select';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { activeItemVar, focusbarVisibleVar } from '..';
-import { Item, Project } from '../../main/generated/typescript-helpers';
 import { sortBy } from 'lodash';
-import { CommandBar } from './CommandBar';
 import {
   Flex,
   Grid,
@@ -25,6 +16,15 @@ import {
 import { convertSVGElementToReact, Icons } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
+import { CommandBar } from './CommandBar';
+import { Item, Project } from '../../main/generated/typescript-helpers';
+import { activeItemVar, focusbarVisibleVar } from '..';
+import {
+  removeItemTypeFromString,
+  markdownLinkRegex,
+  markdownBasicRegex,
+} from '../utils';
+import Select from './Select';
 
 type OptionType = { label: string; value: () => void };
 
@@ -32,8 +32,8 @@ const HeaderItem = (props: any) => (
   <GridItem>
     <Flex
       direction="row"
-      justifyContent={'center'}
-      alignItems={'center'}
+      justifyContent="center"
+      alignItems="center"
       p={3}
       _hover={{ cursor: 'pointer' }}
     >
@@ -104,29 +104,28 @@ const Headerbar = (): ReactElement => {
 
   return (
     <Grid
-      w={'100%'}
+      w="100%"
       alignItems="center"
-      gridTemplateColumns={'1fr repeat(4, 35px)'}
-      gridTemplateRows={'50px'}
+      gridTemplateColumns="1fr repeat(4, 35px)"
+      gridTemplateRows="50px"
       zIndex={999}
-      color={'gray.50'}
+      color="gray.50"
       borderBottom={colorMode == 'light' ? 'none' : '1px solid'}
       borderColor={colorMode == 'light' ? 'transparent' : 'gray.900'}
-      bg={'gray.800'}
+      bg="gray.800"
       px={2}
     >
       <HeaderItem as={Flex} justifyContent="flex-end" colSpan={1}>
-        <Flex w={'350px'} py={0} px={2}>
+        <Flex w="450px" px={2}>
           <Select
-            size="md"
             isMulti={false}
             placeholder="Search for items..."
             onChange={(selected) => {
               selected.value();
             }}
             options={generateSearchOptions(data.projects, data.items)}
-            invertColours={colorMode == 'light' ? true : false}
-            fullWidth={true}
+            invertColours={colorMode === 'light'}
+            fullWidth
           />
         </Flex>
       </HeaderItem>
@@ -135,7 +134,7 @@ const Headerbar = (): ReactElement => {
       </HeaderItem>
       <HeaderItem>
         <HeaderButton
-          label={'Give feedback'}
+          label="Give feedback"
           icon={'feedback' as IconType}
           iconColour={theme.colors.gray[100]}
           onClickHandler={() => {

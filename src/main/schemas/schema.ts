@@ -1,23 +1,23 @@
-import * as api from '../api/'
-import { mergeTypeDefs } from '@graphql-tools/merge'
-import { DateTimeResolver, JSONResolver } from 'graphql-scalars'
-import { area } from './area'
-import { areaOrder } from './areaOrder'
-import { calendar } from './calendar'
-import { component } from './component'
-import { componentOrder } from './componentOrder'
-import { event } from './event'
-import { feature } from './feature'
-import { item } from './item'
-import { itemOrder } from './itemOrder'
-import { label } from './label'
-import { project } from './project'
-import { projectOrder } from './projectOrder'
-import { reminder } from './reminder'
-import { view } from './view'
-import { viewOrder } from './viewOrder'
-import { weeklyGoal } from './weeklyGoal'
-import { makeExecutableSchema } from '@graphql-tools/schema'
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { mergeTypeDefs } from '@graphql-tools/merge';
+import { DateTimeResolver, JSONResolver } from 'graphql-scalars';
+import * as api from '../api';
+import { area } from './area';
+import { areaOrder } from './areaOrder';
+import { calendar } from './calendar';
+import { component } from './component';
+import { componentOrder } from './componentOrder';
+import { event } from './event';
+import { feature } from './feature';
+import { item } from './item';
+import { itemOrder } from './itemOrder';
+import { label } from './label';
+import { project } from './project';
+import { projectOrder } from './projectOrder';
+import { reminder } from './reminder';
+import { view } from './view';
+import { viewOrder } from './viewOrder';
+import { weeklyGoal } from './weeklyGoal';
 
 const typeDefs = mergeTypeDefs([
   area,
@@ -36,15 +36,15 @@ const typeDefs = mergeTypeDefs([
   view,
   viewOrder,
   weeklyGoal,
-])
+]);
 
 export const schema = makeExecutableSchema({
-  typeDefs: typeDefs,
+  typeDefs,
   resolvers: {
     DateTime: DateTimeResolver,
     JSON: JSONResolver,
   },
-})
+});
 
 export const rootValue = {
   ...api.itemRootValues,
@@ -63,4 +63,4 @@ export const rootValue = {
   ...api.componentRootValues,
   ...api.componentOrderRootValues,
   ...api.weeklyGoalRootValues,
-}
+};

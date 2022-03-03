@@ -63,4 +63,4 @@ type Mutation {
   changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area
   setEmojiOfArea(input: SetEmojiOfAreaInput!): Area
 }
-`
+`;

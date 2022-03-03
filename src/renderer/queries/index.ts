@@ -6,3 +6,5 @@ export * from './app';
 export * from './item';
 export * from './headerbar';
 export * from './reorderableitemlist';
+export * from './project';
+export * from './view';
