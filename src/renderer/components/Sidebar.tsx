@@ -9,7 +9,6 @@ import {
   useColorMode,
   useTheme,
   VStack,
-  Tooltip,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
 import { Area, Project, View } from 'main/generated/typescript-helpers';

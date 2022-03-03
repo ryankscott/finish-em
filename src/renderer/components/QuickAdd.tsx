@@ -4,6 +4,7 @@ import {
   Editable,
   EditableInput,
   EditablePreview,
+  useColorMode,
 } from '@chakra-ui/react';
 
 type QuickAddProps = {
@@ -12,6 +13,7 @@ type QuickAddProps = {
 
 function QuickAdd(props: QuickAddProps): ReactElement {
   const initialRef = React.useRef();
+  const { colorMode } = useColorMode();
 
   useEffect(() => {
     initialRef.current.focus();
@@ -25,8 +27,8 @@ function QuickAdd(props: QuickAddProps): ReactElement {
     <Box
       p={0}
       m={0}
-      bg={'gray.100'}
-      w={'100%'}
+      bg="gray.100"
+      w="100%"
       borderRadius={5}
       outline={0}
       _active={{
@@ -37,23 +39,27 @@ function QuickAdd(props: QuickAddProps): ReactElement {
       }}
     >
       <Editable
-        placeholder={'Add an item'}
-        startWithEditView={true}
+        placeholder="Add an item"
+        startWithEditView
         color="gray.800"
         fontSize="lg"
         p={2}
         m={0}
-        w={'100%'}
+        w="100%"
         onCancel={handleEscape}
         onSubmit={(text) => {
           if (!text) return;
           window.electron.ipcRenderer.sendMessage('create-task', {
-            text: text,
+            text,
           });
           window.electron.ipcRenderer.sendMessage('close-quickadd');
         }}
       >
-        <EditablePreview />
+        <EditablePreview
+          _hover={{
+            bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+          }}
+        />
         <EditableInput ref={initialRef} />
       </Editable>
     </Box>

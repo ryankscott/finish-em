@@ -110,8 +110,8 @@ const Headerbar = (): ReactElement => {
       gridTemplateRows="50px"
       zIndex={999}
       color="gray.50"
-      borderBottom={colorMode == 'light' ? 'none' : '1px solid'}
-      borderColor={colorMode == 'light' ? 'transparent' : 'gray.900'}
+      borderBottom={colorMode === 'light' ? 'none' : '1px solid'}
+      borderColor={colorMode === 'light' ? 'transparent' : 'gray.900'}
       bg="gray.800"
       px={2}
     >

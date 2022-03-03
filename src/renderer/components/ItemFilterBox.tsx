@@ -1,13 +1,16 @@
-import React, { ReactElement, useState } from 'react'
-import { gql, useQuery } from '@apollo/client'
-import ReactFilterBox from './filter-box/ReactFilterBox'
-import { Completion, HintResult } from './filter-box/models/ExtendedCodeMirror'
-import { Area, Label, Project } from '../../main/generated/typescript-helpers'
-import Expression from './filter-box/Expression'
-import GridDataAutoCompleteHandler, { Option } from './filter-box/GridDataAutoCompleteHandler'
-import ParsedError from './filter-box/ParsedError'
-import { ValidationResult } from './filter-box/validateQuery'
-import { Box, Text } from '@chakra-ui/layout'
+import React, { ReactElement, useState } from 'react';
+import { gql, useQuery } from '@apollo/client';
+import { Box, Text } from '@chakra-ui/layout';
+import { useColorMode } from '@chakra-ui/react';
+import ReactFilterBox from './filter-box/ReactFilterBox';
+import { Completion, HintResult } from './filter-box/models/ExtendedCodeMirror';
+import { Area, Label, Project } from '../../main/generated/typescript-helpers';
+import Expression from './filter-box/Expression';
+import GridDataAutoCompleteHandler, {
+  Option,
+} from './filter-box/GridDataAutoCompleteHandler';
+import ParsedError from './filter-box/ParsedError';
+import { ValidationResult } from './filter-box/validateQuery';
 
 const GET_DATA = gql`
   query {
@@ -24,7 +27,7 @@ const GET_DATA = gql`
       name
     }
   }
-`
+`;
 
 const filterOptions: Option[] = [
   {
@@ -81,9 +84,9 @@ const filterOptions: Option[] = [
     columnText: 'project',
     type: 'selection',
     customValuesFunc: (a, b) => {
-      console.log(a)
-      console.log(b)
-      return ['cat', 'dog']
+      console.log(a);
+      console.log(b);
+      return ['cat', 'dog'];
     },
   },
   {
@@ -95,7 +98,7 @@ const filterOptions: Option[] = [
     columnField: 'repeat',
     type: 'selection',
   },
-]
+];
 
 class CustomAutoComplete extends GridDataAutoCompleteHandler {
   needOperators(parsedCategory) {
@@ -106,7 +109,7 @@ class CustomAutoComplete extends GridDataAutoCompleteHandler {
       case 'lastUpdatedAt':
       case 'createdAt':
       case 'deletedAt':
-        return ['=', '!=', 'is', '!is', '<', '>']
+        return ['=', '!=', 'is', '!is', '<', '>'];
       case 'key':
       case 'type':
       case 'completed':
@@ -114,11 +117,11 @@ class CustomAutoComplete extends GridDataAutoCompleteHandler {
       case 'area':
       case 'label':
       case 'project':
-        return ['=', '!=', 'is', '!is']
+        return ['=', '!=', 'is', '!is'];
       case 'repeat':
-        return ['is', '!is']
+        return ['is', '!is'];
       default:
-        return ['=', '!=']
+        return ['=', '!='];
     }
   }
 
@@ -130,16 +133,16 @@ class CustomAutoComplete extends GridDataAutoCompleteHandler {
       'lastUpdatedAt',
       'deletedAt',
       'createdAt',
-    ].includes(parsedCategory)
+    ].includes(parsedCategory);
 
     if (parsedOperator == 'is' || parsedOperator == '!is') {
       if (isDateCategory) {
-        return ['null', 'past', 'today', 'this week', 'this month']
+        return ['null', 'past', 'today', 'this week', 'this month'];
       }
-      return ['null']
+      return ['null'];
     }
 
-    return super.needValues(parsedCategory, parsedOperator)
+    return super.needValues(parsedCategory, parsedOperator);
   }
 }
 
@@ -148,20 +151,29 @@ const generateInputData = (data: any): any[] => {
     type: { values: ['TODO', 'NOTE'], length: 2 },
     deleted: { values: ['false', 'true'], length: 2 },
     completed: { values: ['false', 'true'], length: 2 },
-    projects: { values: data.projects.map((p: Project) => p.name), length: data.projects.length },
-    areas: { values: data.areas.map((a: Area) => a.name), length: data.areas.length },
-    labels: { values: data.labels.map((l: Label) => l.name), length: data.labels.length },
-  }
+    projects: {
+      values: data.projects.map((p: Project) => p.name),
+      length: data.projects.length,
+    },
+    areas: {
+      values: data.areas.map((a: Area) => a.name),
+      length: data.areas.length,
+    },
+    labels: {
+      values: data.labels.map((l: Label) => l.name),
+      length: data.labels.length,
+    },
+  };
 
-  let longest = 'type'
+  let longest = 'type';
   Object.keys(all).map((o) => {
-    all[o].length > all[longest].length ? (longest = o) : null
-  })
-  /* 
-This is a super weird data structure that's needed for the component 
+    all[o].length > all[longest].length ? (longest = o) : null;
+  });
+  /*
+This is a super weird data structure that's needed for the component
 For each of the "types" in the dropdown, you need all of the options
 In order to generate that, you need to generate an entry with that option
-This data structure tries to generate the least number of entries in the array 
+This data structure tries to generate the least number of entries in the array
 but give all the options of all the different "types"
 */
   return [...Array(all[longest].length)].map((p, idx) => {
@@ -172,46 +184,47 @@ but give all the options of all the different "types"
       project: all.projects.values[idx % all.projects.length],
       area: all.areas.values[idx % all.areas.length],
       label: all.labels.values[idx % all.labels.length],
-    }
-  })
-}
+    };
+  });
+};
 
 type ItemFilterBoxProps = {
-  filter: string
-  onSubmit: (query: string, filter: Expression[]) => void
-  onError?: () => void
-}
+  filter: string;
+  onSubmit: (query: string, filter: Expression[]) => void;
+  onError?: () => void;
+};
 
 const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
-  const [errorMessage, setErrorMessage] = useState('')
-  const { loading, error, data } = useQuery(GET_DATA)
-  if (loading) return null
+  const [errorMessage, setErrorMessage] = useState('');
+  const colorMode = useColorMode();
+  const { loading, error, data } = useQuery(GET_DATA);
+  if (loading) return <></>;
   if (error) {
-    console.log(error)
-    return null
+    console.log(error);
+    return <></>;
   }
-  const inputData = generateInputData(data)
+  const inputData = generateInputData(data);
 
   const customRenderCompletionItem = (
     self: HintResult,
     data: Completion,
-    registerAndGetPickFunc: Function,
+    registerAndGetPickFunc: Function
   ) => {
     return (
       <Box
         my={2}
         mx={0}
         p={3}
-        bg={'transparent'}
-        _hover={{ bg: 'gray.200' }}
-        _active={{ bg: 'gray.200' }}
+        bg="transparent"
+        _hover={{ bg: colorMode == 'light' ? 'gray.200' : 'gray.900' }}
+        _active={{ bg: colorMode == 'light' ? 'gray.200' : 'gray.900' }}
       >
         <span>{data.value}</span>
       </Box>
-    )
-  }
+    );
+  };
 
-  const customAutoComplete = new CustomAutoComplete(inputData, filterOptions)
+  const customAutoComplete = new CustomAutoComplete(inputData, filterOptions);
 
   const transformExpression = (e: Expression): Expression => {
     switch (e.category) {
@@ -219,61 +232,70 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
         return {
           ...e,
           category: 'projectKey',
-          value: e.value == 'null' ? 'null' : data.projects.find((p) => p.name == e.value)?.key,
-        }
+          value:
+            e.value === 'null'
+              ? 'null'
+              : data.projects.find((p) => p.name === e.value)?.key,
+        };
 
       case 'area':
         return {
           ...e,
           category: 'areaKey',
-          value: e.value == 'null' ? 'null' : data.areas.find((p) => p.name == e.value)?.key,
-        }
+          value:
+            e.value == 'null'
+              ? 'null'
+              : data.areas.find((p) => p.name == e.value)?.key,
+        };
 
       case 'label':
         return {
           ...e,
           category: 'labelKey',
-          value: e.value == 'null' ? 'null' : data.labels.find((p) => p.name == e.value)?.key,
-        }
+          value:
+            e.value == 'null'
+              ? 'null'
+              : data.labels.find((p) => p.name == e.value)?.key,
+        };
 
       default:
-        return e
-        break
+        return e;
+        break;
     }
-  }
+  };
 
   const onParseOk = (query: string, expressions: Expression[]) => {
-    setErrorMessage('')
+    setErrorMessage('');
     const transformedExpressions = expressions.map((e) => {
       if (e.expressions) {
-        e.expressions = e.expressions.map((es) => transformExpression(es))
+        e.expressions = e.expressions.map((es) => transformExpression(es));
       }
-      return transformExpression(e)
-    })
-    props.onSubmit(query, transformedExpressions)
-  }
+      return transformExpression(e);
+    });
+    props.onSubmit(query, transformedExpressions);
+  };
 
   const onParseError = (
     query: string,
     result: Expression[] | ParsedError,
-    error?: ValidationResult,
+    error?: ValidationResult
   ) => {
     // This library has two different validations, this first one is the "simple" one
     if (error.isValid != true) {
-      setErrorMessage(error.message)
+      setErrorMessage(error.message);
     } else {
       // This second one is a parser error, types are fucked
       setErrorMessage(
-        `${result.message} at ${result?.location?.start.line}:${result?.location?.start.column}`,
-      )
+        `${result.message} at ${result?.location?.start.line}:${result?.location?.start.column}`
+      );
     }
     if (props.onError) {
-      props.onError()
+      props.onError();
     }
-  }
+  };
 
   return (
-    <Box w={'auto'} my={0} mx={2} overflowX={'scroll'}>
+    <Box w="auto" my={0} mx={2} overflowX="scroll">
       <ReactFilterBox
         data={inputData}
         autoCompleteHandler={customAutoComplete}
@@ -283,13 +305,21 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
         onParseOk={onParseOk}
         onChange={() => {}}
         onParseError={onParseError}
-        strictMode={true}
+        strictMode
       />
-      <Text fontSize="sm" fontFamily="mono" w={'100%'} m={0} mt={1} color={'red.500'} pl={1}>
+      <Text
+        fontSize="sm"
+        fontFamily="mono"
+        w="100%"
+        m={0}
+        mt={1}
+        color="red.500"
+        pl={1}
+      >
         {errorMessage}
       </Text>
     </Box>
-  )
-}
+  );
+};
 
-export default ItemFilterBox
+export default ItemFilterBox;

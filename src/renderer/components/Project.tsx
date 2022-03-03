@@ -31,7 +31,10 @@ import {
 } from 'renderer/queries';
 import 'tippy.js/dist/tippy.css';
 import { v4 as uuidv4 } from 'uuid';
-import { Item as ItemType } from '../../main/generated/typescript-helpers';
+import {
+  Item as ItemType,
+  Project as ProjectType,
+} from '../../main/generated/typescript-helpers';
 import { formatRelativeDate } from '../utils';
 import DeleteProjectDialog from './DeleteProjectDialog';
 import { Donut } from './Donut';
@@ -91,11 +94,11 @@ const Project = (props: ProjectProps) => {
             borderRadius="50%"
             justifyContent="center"
             fontSize="xl"
-            boxShadow={colorMode == 'light' ? 'none' : '0 0 3px 0 #222'}
-            bg={colorMode == 'light' ? 'gray.100' : 'gray.800'}
+            boxShadow={colorMode === 'light' ? 'none' : '0 0 3px 0 #222'}
+            bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
             my={0}
             _hover={{
-              bg: colorMode == 'light' ? 'gray.200' : 'gray.900',
+              bg: colorMode === 'light' ? 'gray.200' : 'gray.900',
             }}
             transition="all 0.1s ease-in-out"
             cursor="pointer"
@@ -122,7 +125,7 @@ const Project = (props: ProjectProps) => {
               fontWeight="light"
               onSubmit={(input) => {
                 const exists = projects
-                  .map((p) => p.name == input)
+                  .map((p: ProjectType) => p.name === input)
                   .includes(true);
                 if (exists) {
                   toast.error(
@@ -135,7 +138,11 @@ const Project = (props: ProjectProps) => {
                 }
               }}
             >
-              <EditablePreview />
+              <EditablePreview
+                _hover={{
+                  bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+                }}
+              />
               <EditableInput />
             </Editable>
             <DeleteProjectDialog

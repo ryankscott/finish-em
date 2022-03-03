@@ -98,7 +98,11 @@ const Area = (props: AreaProps): ReactElement => {
                 }
               }}
             >
-              <EditablePreview />
+              <EditablePreview
+                _hover={{
+                  bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+                }}
+              />
               <EditableInput />
             </Editable>
 

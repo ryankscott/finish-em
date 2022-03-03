@@ -1,9 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
 import React, { ReactElement, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import Button from './Button';
 import colormap from 'colormap';
-import { camelCaseToInitialCaps } from '../utils';
 import { HexColorPicker } from 'react-colorful';
 import {
   Box,
@@ -16,7 +14,6 @@ import {
   EditablePreview,
   useOutsideClick,
 } from '@chakra-ui/react';
-import Select from './Select';
 import {
   CREATE_LABEL,
   DELETE_LABEL,
@@ -29,6 +26,10 @@ import {
   SET_FEATURE_METADATA,
 } from 'renderer/queries';
 import { Calendar, Label } from 'main/generated/typescript-helpers';
+import Select from './Select';
+import { camelCaseToInitialCaps } from '../utils';
+import Button from './Button';
+
 const NUMBER_OF_COLOURS = 12;
 
 const SidebarHeader = (props: {
@@ -38,8 +39,8 @@ const SidebarHeader = (props: {
   onClick: () => void;
 }) => (
   <Text
-    fontSize={'md'}
-    fontWeight={'regular'}
+    fontSize="md"
+    fontWeight="regular"
     py={2}
     px={6}
     m={0}
@@ -62,7 +63,7 @@ const SidebarHeader = (props: {
 );
 
 const SettingHeader = (props: { name: string }): JSX.Element => (
-  <Text py={4} px={0} fontSize={'xl'} fontWeight={'semibold'}>
+  <Text py={4} px={0} fontSize="xl" fontWeight="semibold">
     {props.name}
   </Text>
 );
@@ -86,7 +87,7 @@ const Settings = (): ReactElement => {
   const [activeCategory, setActiveCategory] = useState('UI');
 
   useOutsideClick({
-    ref: ref,
+    ref,
     handler: () => {
       setShowColourPicker(false);
     },
@@ -152,62 +153,58 @@ const Settings = (): ReactElement => {
   const calendarOptions = generateOptions(data.calendars);
 
   return (
-    <Flex direction={'row'} w={'100%'} h={'100vh'}>
+    <Flex direction="row" w="100%" h="100vh">
       <Flex
-        borderRight={'1px solid'}
+        borderRight="1px solid"
         borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
-        direction={'column'}
-        w={'280px'}
+        direction="column"
+        w="280px"
         bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
         py={2}
         px={0}
-        h={'100%'}
-        shadow={'md'}
+        h="100%"
+        shadow="md"
       >
-        <Text p={4} fontSize={'lg'} fontWeight={'semibold'}>
+        <Text p={4} fontSize="lg" fontWeight="semibold">
           Settings
         </Text>
         <SidebarHeader
-          name={'User Interface'}
+          name="User Interface"
           colorMode={colorMode}
-          isActive={activeCategory == 'UI'}
+          isActive={activeCategory === 'UI'}
           onClick={() => setActiveCategory('UI')}
         />
         <SidebarHeader
-          name={'Labels'}
+          name="Labels"
           colorMode={colorMode}
           isActive={activeCategory == 'LABELS'}
           onClick={() => setActiveCategory('LABELS')}
         />
       </Flex>
-      <Flex position={'relative'} direction={'column'} p={2} w={'100%'}>
-        {activeCategory == 'UI' && (
+      <Flex position="relative" direction="column" p={2} w="100%">
+        {activeCategory === 'UI' && (
           <Box p={3} my={6} px={3}>
-            <SettingHeader name={'User Interface'} />
+            <SettingHeader name="User Interface" />
             {data.features.map((feature) => {
               return (
                 <span key={`${feature.key}-container`}>
                   <Flex
-                    direction={'row'}
-                    justifyContent={'flex-start'}
+                    direction="row"
+                    justifyContent="flex-start"
                     py={3}
                     px={0}
-                    w={'100%'}
-                    h={'30px'}
-                    alignItems={'center'}
+                    w="100%"
+                    h="30px"
+                    alignItems="center"
                     key={feature.key}
                   >
-                    <Text
-                      fontSize="sm"
-                      w={'180px'}
-                      key={`${feature.key}-label`}
-                    >
+                    <Text fontSize="sm" w="180px" key={`${feature.key}-label`}>
                       {camelCaseToInitialCaps(feature.name)}
                     </Text>
                     <Switch
                       size="sm"
                       onChange={() => {
-                        //@ts-ignore
+                        // @ts-ignore
                         window.electron.ipcRenderer.sendMessage(
                           'feature-toggled',
                           {
@@ -226,14 +223,13 @@ const Settings = (): ReactElement => {
                       }}
                       defaultChecked={feature.enabled ?? false}
                     />
-                    {feature.name == 'calendarIntegration' && (
-                      <Box pl={3} w={'180px'}>
+                    {feature.name === 'calendarIntegration' && (
+                      <Box pl={3} w="180px">
                         <Select
-                          size="md"
                           isDisabled={!feature.enabled}
-                          key={feature.key + '-select'}
-                          autoFocus={true}
-                          placeholder={'Choose calendar'}
+                          key={`${feature.key}-select`}
+                          autoFocus
+                          placeholder="Choose calendar"
                           defaultValue={calendarOptions?.find(
                             (c) => c.value == data?.activeCalendar?.key
                           )}
@@ -243,16 +239,16 @@ const Settings = (): ReactElement => {
                             });
                           }}
                           options={calendarOptions}
-                          escapeClearsValue={true}
+                          escapeClearsValue
                         />
                       </Box>
                     )}
                     {feature.name == 'bearNotesIntegration' && (
-                      <Box pl={3} w={'180px'}>
+                      <Box pl={3} w="180px">
                         <Editable
                           defaultValue={JSON.parse(feature?.metadata)?.apiToken}
                           onSubmit={(val) => {
-                            //@ts-ignore
+                            // @ts-ignore
                             window.electron.ipcRenderer.sendMessage(
                               'feature-metadata-updated',
                               {
@@ -273,7 +269,13 @@ const Settings = (): ReactElement => {
                           placeholder="Bear API Token"
                           isDisabled={!feature.enabled}
                         >
-                          <EditablePreview py={2} />
+                          <EditablePreview
+                            _hover={{
+                              bg:
+                                colorMode === 'light' ? 'gray.100' : 'gray.900',
+                            }}
+                            py={2}
+                          />
                           <EditableInput py={2} />
                         </Editable>
                       </Box>
@@ -286,28 +288,25 @@ const Settings = (): ReactElement => {
         )}
         {activeCategory == 'LABELS' && (
           <Box p={3} my={6} px={3}>
-            <SettingHeader name={'Labels'} />
+            <SettingHeader name="Labels" />
             {Object.values(data.labels).map((label: Label) => {
               return (
-                <div id={label.key} key={'f-' + label.key}>
+                <div id={label.key} key={`f-${label.key}`}>
                   <Flex
-                    w={'250px'}
-                    justifyContent={'space-between'}
-                    alignItems={'center'}
-                    height={'auto'}
+                    w="250px"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    height="auto"
                     bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-                    key={'lc-' + label.key}
+                    key={`lc-${label.key}`}
                   >
-                    <Box w={'100%'} mr={1}>
+                    <Box w="100%" mr={1}>
                       <Editable
-                        borderRadius={'md'}
-                        borderColor={'gray.50'}
-                        _hover={{
-                          bg: 'gray.50',
-                        }}
+                        borderRadius="md"
+                        borderColor="gray.50"
                         defaultValue={label.name ?? 'Label'}
                         fontSize="sm"
-                        w={'100%'}
+                        w="100%"
                         onBlur={(e) => {
                           renameLabel({
                             // @ts-ignore
@@ -321,13 +320,18 @@ const Settings = (): ReactElement => {
                         }}
                         submitOnBlur={false}
                       >
-                        <EditablePreview fontSize="sm" />
+                        <EditablePreview
+                          fontSize="sm"
+                          _hover={{
+                            bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+                          }}
+                        />
                         <EditableInput />
                       </Editable>
                     </Box>
                     <Flex
                       bg={label.colour ?? '#000'}
-                      cursor={'pointer'}
+                      cursor="pointer"
                       width="30px"
                       height="24px"
                       borderRadius="md"
@@ -348,7 +352,7 @@ const Settings = (): ReactElement => {
                       id={`${label.key}-delete`}
                       key={`delete-label-${label.key}`}
                       icon="trash"
-                      iconSize={'18px'}
+                      iconSize="18px"
                       size="sm"
                       variant="default"
                       onClick={() => {
@@ -360,21 +364,21 @@ const Settings = (): ReactElement => {
               );
             })}
             {showColourPicker && (
-              <Flex w="200px" ref={ref} postion={'absolute'} zIndex={99}>
+              <Flex w="200px" ref={ref} postion="absolute" zIndex={99}>
                 <HexColorPicker
                   color={colourPickerTriggeredBy?.colour ?? '#000'}
                   onChange={(colour) => {
                     setColourOfLabel({
                       variables: {
                         key: colourPickerTriggeredBy?.key,
-                        colour: colour,
+                        colour,
                       },
                     });
                   }}
                 />
               </Flex>
             )}
-            <Flex w={'185px'} justifyContent={'center'} pt={3}>
+            <Flex w="185px" justifyContent="center" pt={3}>
               <Button
                 variant="default"
                 size="md"

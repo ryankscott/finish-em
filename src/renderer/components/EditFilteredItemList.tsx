@@ -88,8 +88,8 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
 
   const ItemListSetting = (props: { children: Element; name: string }) => (
     <Flex
-      direction={'row'}
-      justifyContent={'flex-start'}
+      direction="row"
+      justifyContent="flex-start"
       py={1}
       px={2}
       w="100%"
@@ -97,24 +97,24 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
       alignItems="bottom"
     >
       <Flex
-        alignSelf={'flex-start'}
-        color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
-        fontSize={'md'}
+        alignSelf="flex-start"
+        color={colorMode === 'light' ? 'gray.800' : 'gray.100'}
+        fontSize="md"
         py={1}
         px={3}
         mr={3}
-        w={'160px'}
-        minW={'160px'}
+        w="160px"
+        minW="160px"
       >
         {props.name}:
       </Flex>
       <Flex
-        direction={'column'}
+        direction="column"
         justifyContent="center"
         py={0}
         px={2}
-        width={'100%'}
-        alignItems={'flex-start'}
+        width="100%"
+        alignItems="flex-start"
       >
         {props.children}
       </Flex>
@@ -124,14 +124,14 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
   // TODO: Create individual update queries instead of this big one
   return (
     <Flex
-      direction={'column'}
-      bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
+      direction="column"
+      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
       py={2}
       px={4}
       pb={6}
-      w={'100%'}
+      w="100%"
     >
-      <Flex direction={'row'} justifyContent={'flex-end'} p={2}>
+      <Flex direction="row" justifyContent="flex-end" p={2}>
         <Button
           size="sm"
           variant="default"
@@ -143,27 +143,31 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         />
       </Flex>
 
-      <ItemListSetting name={'Name'}>
+      <ItemListSetting name="Name">
         <Editable
           defaultValue={params.listName}
-          color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
+          color={colorMode === 'light' ? 'gray.800' : 'gray.100'}
           fontSize="md"
-          w={'100%'}
+          w="100%"
           onChange={(input) => {
             params.listName = input;
           }}
         >
-          <EditablePreview />
+          <EditablePreview
+            _hover={{
+              bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+            }}
+          />
           <EditableInput />
         </Editable>
       </ItemListSetting>
 
-      <ItemListSetting name={'Filter'}>
+      <ItemListSetting name="Filter">
         <Flex
-          overflowX={'scroll'}
-          direction={'column'}
-          w={'100%'}
-          justifyContent={'space-between'}
+          overflowX="scroll"
+          direction="column"
+          w="100%"
+          justifyContent="space-between"
         >
           {params.legacyFilter && (
             <Box my={2} mx={2}>
@@ -173,10 +177,10 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 bg={colorMode == 'light' ? 'gray.100' : 'gray.800'}
                 borderColor={colorMode == 'light' ? 'gray.200' : 'gray.700'}
                 p={1.5}
-                fontFamily={'mono'}
+                fontFamily="mono"
                 color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
                 fontSize="sm"
-                w={'100%'}
+                w="100%"
               >
                 {params.legacyFilter}
               </Text>
@@ -193,7 +197,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         </Flex>
       </ItemListSetting>
 
-      <ItemListSetting name={'Filterable'}>
+      <ItemListSetting name="Filterable">
         <Switch
           size="sm"
           defaultChecked={params.isFilterable}
@@ -204,7 +208,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         />
       </ItemListSetting>
 
-      <ItemListSetting name={'Flatten subtasks'}>
+      <ItemListSetting name="Flatten subtasks">
         <Switch
           size="sm"
           defaultChecked={params.flattenSubtasks}
@@ -215,7 +219,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         />
       </ItemListSetting>
 
-      <ItemListSetting name={'Hide completed subtasks'}>
+      <ItemListSetting name="Hide completed subtasks">
         <Switch
           size="sm"
           defaultChecked={params.hideCompletedSubtasks}
@@ -226,7 +230,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         />
       </ItemListSetting>
 
-      <ItemListSetting name={'Hide deleted subtasks'}>
+      <ItemListSetting name="Hide deleted subtasks">
         <Switch
           size="sm"
           defaultChecked={params.hideDeletedSubtasks}
@@ -237,7 +241,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         />
       </ItemListSetting>
 
-      <ItemListSetting name={'Hide icons'}>
+      <ItemListSetting name="Hide icons">
         <Box>
           <Select
             placeholder="Select icons to hide"
@@ -245,30 +249,30 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             defaultValue={params.hiddenIcons?.map((i) => {
               return options.find((o) => o.value == i);
             })}
-            isMulti={true}
+            isMulti
             onChange={(values: { value: string; label: string }[]) => {
               const hiddenIcons = values.map((v) => v.value);
               params.hiddenIcons = hiddenIcons;
             }}
             options={options}
-            escapeClearsValue={true}
+            escapeClearsValue
           />
         </Box>
       </ItemListSetting>
 
       <Flex
-        position={'relative'}
-        direction={'row'}
-        justifyContent={'flex-end'}
+        position="relative"
+        direction="row"
+        justifyContent="flex-end"
         py={0}
         px={8}
-        width={'100%'}
+        width="100%"
       >
         <Button
           size="md"
           text="Save"
           disabled={!isValid}
-          variant={'primary'}
+          variant="primary"
           icon="save"
           onClick={() => {
             updateComponent({
