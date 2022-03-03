@@ -9,7 +9,6 @@ import {
   isYesterday,
 } from 'date-fns';
 import emojiRegexText from 'emoji-regex';
-import { useEffect, useRef } from 'react';
 import RRule from 'rrule';
 
 export const itemRegex = /^(TODO|NOTE)\b/i;
@@ -24,8 +23,11 @@ export const markdownBasicRegex = /[*_]{1,2}(\w*)[*_]{1,2}/;
 
 export const capitaliseItemTypeFromString = (text: string): string => {
   const words = text.split(/\s+/);
-  const t = words.shift().toUpperCase();
-  words.unshift(t);
+  const firstWord = words.shift();
+  if (firstWord) {
+    firstWord.toUpperCase();
+    words.unshift(firstWord);
+  }
   return words.join(' ');
 };
 export const validateItemString = (text: string): boolean => {
@@ -46,14 +48,14 @@ export const removeItemTypeFromString = (text: string): string => {
   return words.join(' ').trim();
 };
 
-export const extractDateFromString = (text: string): Date => {
+export const extractDateFromString = (text: string): Date | null => {
   const dates = chrono.parse(text);
   return dates.length ? dates[0].ref : null;
 };
 
 export const removeDateFromString = (text: string): string => {
   const dates = chrono.parse(text);
-  if (dates.length == 0 || dates === undefined) {
+  if (dates.length === 0 || dates === undefined) {
     return text;
   }
   const startString = text.slice(0, dates[0].index);
@@ -64,14 +66,17 @@ export const removeDateFromString = (text: string): string => {
 export const setEndOfContenteditable = (
   contentEditableElement: Element
 ): void => {
-  let range, selection;
+  let range;
+  let selection;
   if (document.createRange) {
-    range = document.createRange(); //Create a range (a range is a like the selection but invisible)
-    range.selectNodeContents(contentEditableElement); //Select the entire contents of the element with the range
-    range.collapse(false); //collapse the range to the end point. false means collapse to end rather than the start
-    selection = window.getSelection(); //get the selection object (allows you to change selection)
-    selection.removeAllRanges(); //remove any selections already made
-    selection.addRange(range); //make the range you have just created the visible selection*/
+    range = document.createRange(); // Create a range (a range is a like the selection but invisible)
+    range.selectNodeContents(contentEditableElement); // Select the entire contents of the element with the range
+    range.collapse(false); // collapse the range to the end point. false means collapse to end rather than the start
+    selection = window.getSelection(); // get the selection object (allows you to change selection)
+    if (selection) {
+      selection.removeAllRanges(); // remove any selections already made
+      selection.addRange(range); // make the range you have just created the visible selection*/
+    }
   }
 };
 
@@ -79,18 +84,17 @@ export const formatRelativeDate = (date: Date): string => {
   if (!isValid(date)) return '';
   if (isToday(date)) {
     return 'Today';
-  } else if (isTomorrow(date)) {
-    return 'Tomorrow';
-  } else if (isYesterday(date)) {
-    return 'Yesterday';
-  } else if (
-    differenceInDays(date, new Date()) < 7 &&
-    isAfter(date, new Date())
-  ) {
-    return format(date, 'EEEE');
-  } else {
-    return format(date, 'do MMMM');
   }
+  if (isTomorrow(date)) {
+    return 'Tomorrow';
+  }
+  if (isYesterday(date)) {
+    return 'Yesterday';
+  }
+  if (differenceInDays(date, new Date()) < 7 && isAfter(date, new Date())) {
+    return format(date, 'EEEE');
+  }
+  return format(date, 'do MMMM');
 };
 
 export const capitaliseEachWordInString = (text: string): string => {
@@ -122,7 +126,7 @@ export const createShortSidebarItem = (input: string): string | null => {
 
   const words = input.split(' ');
   // If there's only one word
-  if (words.length == 1) {
+  if (words.length === 1) {
     const word = words[0];
 
     // Return  the first two letters
@@ -136,22 +140,22 @@ export const createShortSidebarItem = (input: string): string | null => {
 };
 
 const getNumberAndSuffix = (i: number): string => {
-  const j = i % 10,
-    k = i % 100;
-  if (j == 1 && k != 11) {
-    return i + 'st';
+  const j = i % 10;
+  const k = i % 100;
+  if (j === 1 && k !== 11) {
+    return `${i}st`;
   }
-  if (j == 2 && k != 12) {
-    return i + 'nd';
+  if (j === 2 && k !== 12) {
+    return `${i}nd`;
   }
-  if (j == 3 && k != 13) {
-    return i + 'rd';
+  if (j === 3 && k !== 13) {
+    return `${i}rd`;
   }
-  return i + 'th';
+  return `${i}th`;
 };
 
-const dayToString = (i: number): string => {
-  switch (i) {
+const dayToString = (day: number): string => {
+  switch (day) {
     case 0:
       return 'Monday';
     case 1:
@@ -167,25 +171,28 @@ const dayToString = (i: number): string => {
     case 6:
       return 'Sunday';
     default:
-      break;
+      return 'Monday';
   }
 };
 
 export const rruleToText = (input: RRule): string => {
   switch (input.options.freq) {
-    case RRule.MONTHLY:
+    case RRule.MONTHLY: {
       const date = input.options.bymonthday[0];
       const dateString = getNumberAndSuffix(date);
-      return dateString + ' of the month';
-    case RRule.WEEKLY:
+      return `${dateString} of the month`;
+    }
+    case RRule.WEEKLY: {
       const day = input.options.byweekday[0];
-      return 'every ' + dayToString(day);
-    case RRule.DAILY:
+      return `every ${dayToString(day)}`;
+    }
+    case RRule.DAILY: {
       const d = input.options.byweekday;
       if (d?.length > 0) {
         return input.toText();
       }
       return 'daily';
+    }
     default:
       return input.toText();
   }
@@ -199,7 +206,7 @@ export const truncateString = (input: string, length: number): string => {
   if (input.length <= length) {
     return input;
   }
-  return input.slice(0, length - 1) + '...';
+  return `${input.slice(0, length - 1)}...`;
 };
 
 // TODO: Refactor me
@@ -210,7 +217,7 @@ export const convertToProperTzOffset = (inputTz: string): string => {
   const fraction = Math.abs(n % 1);
   const isNegative = n < 0;
   const intPart = Math.abs(Math.trunc(n));
-  const fractionString = fraction == 0 ? '' : fraction * 60;
+  const fractionString = fraction === 0 ? '' : fraction * 60;
 
   /* Example conversions
    *  2 -> +02
@@ -219,7 +226,7 @@ export const convertToProperTzOffset = (inputTz: string): string => {
    *  -2.5 -> -0230
    */
   if (intPart > 14 || intPart < -12) {
-    throw 'Invalid timezone';
+    throw new Error('Invalid timezone');
   }
 
   if (intPart < 10) {
@@ -322,19 +329,20 @@ export const getProductDescription = (): string => {
 };
 
 export const HTMLToPlainText = (html: string): string => {
-  html = html.replace(/<style([\s\S]*?)<\/style>/gi, '');
-  html = html.replace(/<script([\s\S]*?)<\/script>/gi, '');
-  html = html.replace(/<\/div>/gi, '\n');
-  html = html.replace(/<\/li>/gi, '\n');
-  html = html.replace(/<li>/gi, '  *  ');
-  html = html.replace(/<\/ul>/gi, '\n');
-  html = html.replace(/<\/p>/gi, '\n');
-  html = html.replace(/<br\s*[\/]?>/gi, '\n');
-  html = html.replace(/<[^>]+>/gi, '');
-  return html;
+  return html
+    .replace(/<style([\s\S]*?)<\/style>/gi, '')
+    .replace(/<script([\s\S]*?)<\/script>/gi, '')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<\/li>/gi, '\n')
+    .replace(/<li>/gi, '  *  ')
+    .replace(/<\/ul>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<br\s*[\/]?>/gi, '\n')
+    .replace(/<[^>]+>/gi, '');
 };
 
-export const useTraceUpdate = (props) => {
+/*
+export const useTraceUpdate = (props: never) => {
   const prev = useRef(props);
   useEffect(() => {
     const changedProps = Object.entries(props).reduce((ps, [k, v]) => {
@@ -349,3 +357,4 @@ export const useTraceUpdate = (props) => {
     prev.current = props;
   });
 };
+*/
