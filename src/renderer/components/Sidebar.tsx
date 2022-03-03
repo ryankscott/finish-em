@@ -138,7 +138,7 @@ const Sidebar = (): ReactElement => {
         },
       });
     }
-    if (type == 'AREA') {
+    if (type === 'AREA') {
       // Project Order is harder as the index is based on the area
       const areaAtDestination = sortedAreas[destination.index];
       const areaAtSource = sortedAreas[source.index];

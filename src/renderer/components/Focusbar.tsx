@@ -93,16 +93,16 @@ const Focusbar = (): ReactElement => {
     return (
       <Flex
         direction="column"
-        border={'1px solid'}
-        borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
-        shadow={'md'}
+        border="1px solid"
+        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+        shadow="md"
         minW={focusbarVisible ? '350px' : 0}
         opacity={focusbarVisible ? 1 : 0}
         px={3}
         py={3}
-        h={'100%'}
-        bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-        transition={'all 0.2s ease-in-out'}
+        h="100%"
+        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        transition="all 0.2s ease-in-out"
       />
     );
   }
@@ -121,7 +121,7 @@ const Focusbar = (): ReactElement => {
 
   const generateSidebarTitle = (icon: IconType, text: string) => {
     return (
-      <Flex minW={'100px'} alignItems={'center'}>
+      <Flex minW="100px" alignItems="center">
         {convertSVGElementToReact(Icons[icon]())}
         <Text fontSize="md" pl={1}>
           {text}
@@ -141,65 +141,58 @@ const Focusbar = (): ReactElement => {
   return (
     <Flex
       direction="column"
-      border={'1px solid'}
-      borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
-      shadow={'md'}
+      border="1px solid"
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+      shadow="md"
       w={focusbarVisible ? '350px' : 0}
       minW={focusbarVisible ? '350px' : 0}
       opacity={focusbarVisible ? 1 : 0}
       px={3}
       py={3}
-      h={'100%'}
-      bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-      transition={'all 0.2s ease-in-out'}
+      h="100%"
+      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+      transition="all 0.2s ease-in-out"
     >
-      <Grid templateColumns={'repeat(5, 1fr)'} width={'100%'} m={0} p={0}>
+      <Grid templateColumns="repeat(5, 1fr)" width="100%" m={0} p={0}>
         {item?.parent != null && (
           <GridItem colSpan={1}>
             <Button
               variant="default"
               size="sm"
-              tooltipText={'Up level'}
+              tooltipText="Up level"
               onClick={() => {
                 activeItemVar([item.parent.key]);
               }}
-              icon={'upLevel'}
+              icon="upLevel"
             />
           </GridItem>
         )}
         <GridItem colStart={5} colSpan={1}>
-          <Flex justifyContent={'flex-end'}>
+          <Flex justifyContent="flex-end">
             <Button
               variant="default"
               size="sm"
               onClick={() => focusbarVisibleVar(false)}
-              icon={'close'}
+              icon="close"
             />
           </Flex>
         </GridItem>
       </Grid>
-      <Flex
-        alignItems={'baseline'}
-        w={'100%'}
-        direction="row"
-        m={0}
-        px={2}
-        py={4}
-      >
+      <Flex alignItems="baseline" w="100%" direction="row" m={0} px={2} py={4}>
         <Button
           disabled={item?.deleted}
           variant="default"
           size="sm"
           iconColour={item.label ? item.label.colour : null}
           onClick={() => {
-            if (item.type == 'TODO') {
+            if (item.type === 'TODO') {
               item.completed
                 ? unCompleteItem({ variables: { key: item.key } })
                 : completeItem({ variables: { key: item.key } });
             }
           }}
           icon={
-            item?.type == 'NOTE'
+            item?.type === 'NOTE'
               ? 'note'
               : item?.completed
               ? 'todoChecked'
@@ -207,21 +200,21 @@ const Focusbar = (): ReactElement => {
           }
         />
         <Box
-          w={'100%'}
+          w="100%"
           textDecoration={item?.completed ? 'line-through' : 'inherit'}
         >
           <EditableText2
             readOnly={item?.deleted}
             key={item?.key}
-            height={'45px'}
-            width={'260px'}
+            height="45px"
+            width="260px"
             input={item.text}
-            singleLine={true}
+            singleLine
             shouldClearOnSubmit={false}
-            shouldSubmitOnBlur={true}
+            shouldSubmitOnBlur
             hideToolbar={false}
             onUpdate={(text) => {
-              renameItem({ variables: { key: item.key, text: text } });
+              renameItem({ variables: { key: item.key, text } });
             }}
           />
         </Box>
@@ -247,7 +240,7 @@ const Focusbar = (): ReactElement => {
           />
         )}
       </Flex>
-      {item.project?.key == '0' && (
+      {item.project?.key === '0' && (
         <Flex {...attributeContainerStyles}>
           {generateSidebarTitle('area', 'Area: ')}
           <AttributeSelect
@@ -256,7 +249,7 @@ const Focusbar = (): ReactElement => {
             completed={item.completed}
             deleted={item.deleted}
             onSubmit={(areaKey) =>
-              setArea({ variables: { key: item.key, areaKey: areaKey } })
+              setArea({ variables: { key: item.key, areaKey } })
             }
           />
         </Flex>
@@ -264,7 +257,7 @@ const Focusbar = (): ReactElement => {
       <Flex {...attributeContainerStyles}>
         {generateSidebarTitle('project', 'Project: ')}
         <AttributeSelect
-          attribute={'project'}
+          attribute="project"
           currentAttribute={item.project}
           deleted={item.deleted}
           completed={item.completed}
@@ -272,19 +265,19 @@ const Focusbar = (): ReactElement => {
             setProject({
               variables: {
                 key: item.key,
-                projectKey: projectKey,
+                projectKey,
               },
             });
           }}
         />
       </Flex>
-      {item.type == 'TODO' && (
+      {item.type === 'TODO' && (
         <>
           <Flex {...attributeContainerStyles}>
             {generateSidebarTitle('scheduled', 'Scheduled: ')}
             <DatePicker
-              key={'sd' + item.key}
-              defaultText={'Scheduled at: '}
+              key={`sd${item.key}`}
+              defaultText="Scheduled at: "
               onSubmit={(d: Date) => {
                 setScheduledAt({
                   variables: { key: item.key, scheduledAt: d },
@@ -298,8 +291,8 @@ const Focusbar = (): ReactElement => {
           <Flex {...attributeContainerStyles}>
             {generateSidebarTitle('due', 'Due: ')}
             <DatePicker
-              key={'dd' + item.key}
-              defaultText={'Due at: '}
+              key={`dd${item.key}`}
+              defaultText="Due at: "
               onSubmit={(d: Date) =>
                 setDueAt({ variables: { key: item.key, dueAt: d } })
               }
@@ -318,7 +311,7 @@ const Focusbar = (): ReactElement => {
               }
               completed={item.completed}
               deleted={item.deleted}
-              key={'rp' + item.key}
+              key={`rp${item.key}`}
               onSubmit={(r: RRule) =>
                 setRepeat({
                   variables: { key: item.key, repeat: r?.toString() },
@@ -328,11 +321,11 @@ const Focusbar = (): ReactElement => {
           </Flex>
         </>
       )}
-      {item.children.length == 0 && (
+      {item.children?.length === 0 && (
         <Flex {...attributeContainerStyles}>
           {generateSidebarTitle('subtask', 'Parent: ')}
           <AttributeSelect
-            attribute={'item'}
+            attribute="item"
             currentAttribute={item}
             completed={item.completed}
             deleted={item.deleted}
@@ -345,12 +338,12 @@ const Focusbar = (): ReactElement => {
       <Flex {...attributeContainerStyles}>
         {generateSidebarTitle('label', 'Label: ')}
         <AttributeSelect
-          attribute={'label'}
+          attribute="label"
           currentAttribute={item.label}
           completed={item.completed}
           deleted={item.deleted}
           onSubmit={(labelKey) => {
-            setLabel({ variables: { key: item.key, labelKey: labelKey } });
+            setLabel({ variables: { key: item.key, labelKey } });
           }}
         />
       </Flex>
@@ -370,7 +363,7 @@ const Focusbar = (): ReactElement => {
           </Text>
         </Flex>
       )}
-      {item.parent?.key == null && item.type == 'TODO' && (
+      {item.parent?.key == null && item.type === 'TODO' && (
         <>
           <Flex pt={6} pb={2} alignItems="baseline">
             <Text fontSize="lg" px={2}>
@@ -387,7 +380,7 @@ const Focusbar = (): ReactElement => {
               overflow="scroll"
               py={0}
               px={2}
-              w={'100%'}
+              w="100%"
               key={`box-${item.key}`}
             >
               {item.children?.map((childItem) => {

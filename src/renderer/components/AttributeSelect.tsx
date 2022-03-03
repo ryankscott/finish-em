@@ -48,10 +48,6 @@ type AttributeType =
       currentAttribute: Project;
     }
   | {
-      attribute: 'item';
-      currentAttribute: Item;
-    }
-  | {
       attribute: 'area';
       currentAttribute: Area;
     }
@@ -78,13 +74,14 @@ export default function AttributeSelect(
     invert = false,
   } = props;
   const { loading, error, data } = useQuery(queries[attribute]);
-
   if (loading) return <></>;
 
   if (error) {
     console.log(error);
     return <></>;
   }
+
+  // #FIXME #407 #406 The items query doesn't return any results
 
   const generateDefaultValues = (
     input: AttributeType
@@ -131,9 +128,9 @@ export default function AttributeSelect(
   ): OptionsType<any> | GroupedOptionsType<any> => {
     switch (input.attribute) {
       case 'area':
-        const filteredAreas = data.areas.filter((a) => a.deleted == false);
+        const filteredAreas = data.areas?.filter((a) => a.deleted == false);
         return [
-          ...filteredAreas.map((a) => {
+          ...filteredAreas?.map((a) => {
             return {
               value: a.key,
               label: (
@@ -153,7 +150,7 @@ export default function AttributeSelect(
 
       case 'label':
         return [
-          ...data.labels.map((l: Label) => {
+          ...data.labels?.map((l: Label) => {
             return {
               value: l.key,
               label: l.name,
@@ -169,7 +166,7 @@ export default function AttributeSelect(
           .filter((p) => p.key != null);
 
         const groupedProjects = groupBy(filteredProjects, 'area.name');
-        const aGroups = Object.keys(groupedProjects).map((i) => {
+        const aGroups = Object.keys(groupedProjects)?.map((i) => {
           const group = { label: '', options: [] };
           group.label = i;
           group.options = groupedProjects[i].map((p: Project) => {
@@ -224,11 +221,11 @@ export default function AttributeSelect(
         const groupedItems = groupBy(filteredValues, 'project.name');
         // Show the items from the project the item is in first
         // Update the label to be the project name, and the items to be the right format
-        const allGroups = Object.keys(groupedItems).map((i) => {
+        const allGroups = Object.keys(groupedItems)?.map((i) => {
           const group = { label: '', options: [] };
           // It's possible to not have a project
           group.label = i || 'No Project';
-          group.options = groupedItems[i].map((i) => {
+          group.options = groupedItems[i]?.map((i) => {
             return {
               value: i.key,
               label: removeItemTypeFromString(i.text)
@@ -276,12 +273,12 @@ export default function AttributeSelect(
   });
 
   const allOptions = options
-    .map((o) => {
+    ?.map((o) => {
       return o.options ? o.options : o;
     })
     .flat();
-  const defaultValue = allOptions.filter(
-    (o) => o.value == defaultValues.currentValue
+  const defaultValue = allOptions?.filter(
+    (o) => o.value === defaultValues.currentValue
   );
 
   return (

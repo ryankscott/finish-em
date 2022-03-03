@@ -121,14 +121,14 @@ function Item(props: ItemProps): ReactElement {
     if (parentKey) {
       const parentVisibility = subtasksVisible?.[parentKey]?.[componentKey];
       // If the parent doesn't have visibility then set it to true
-      if (parentVisibility == undefined) {
+      if (parentVisibility === undefined) {
         subtasksVisibleVar({
           ...subtasksVisibleVar(),
           [parentKey]: { [componentKey]: true },
         });
         return true;
       }
-      if (parentVisibility == false) {
+      if (parentVisibility === false) {
         // If the parent visibility is false, all subtasks should be hidden
         return false;
       }
@@ -144,7 +144,7 @@ function Item(props: ItemProps): ReactElement {
     setSubtasksVisible(
       determineSubtasksVisibility(data.item?.key, props.componentKey)
     );
-  }, [data, props.itemKey, props.componentKey]);
+  }, [data, props.itemKey, props.componentKey, subtasksVisibleVar()]);
 
   // Determine if any subtasks of the item should be visible
   const determineSubtasksVisibility = (
@@ -258,6 +258,7 @@ function Item(props: ItemProps): ReactElement {
       `${item.key}.${props.componentKey}`,
       false
     );
+
     const newSubState = { [item.key]: { [props.componentKey]: !currentValue } };
     subtasksVisibleVar({ ...subtasksVisibleVar(), ...newSubState });
   };
