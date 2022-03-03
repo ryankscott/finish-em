@@ -1,16 +1,18 @@
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
+  Button as CButton,
+  Box,
   Divider,
   Flex,
+  IconButton,
   Stack,
+  useColorMode,
   useTheme,
   VStack,
-  useColorMode,
-  Box,
-  IconButton,
+  Tooltip,
 } from '@chakra-ui/react';
-import { convertSVGElementToReact, Icons } from '../assets/icons';
 import { orderBy } from 'lodash';
+import { Area, Project, View } from 'main/generated/typescript-helpers';
 import { ReactElement, useEffect, useState } from 'react';
 import {
   DragDropContext,
@@ -19,15 +21,6 @@ import {
   DropResult,
 } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
-import { v4 as uuidv4 } from 'uuid';
-import { sidebarVisibleVar } from '../index';
-import { IconType } from '../interfaces';
-import { getProductName } from '../utils';
-import Button from './Button';
-import SidebarDraggableItem from './SidebarDraggableItem';
-import SidebarDroppableItem from './SidebarDroppableItem';
-import SidebarItem from './SidebarItem';
-import SidebarSection from './SidebarSection';
 import {
   CREATE_AREA,
   CREATE_PROJECT,
@@ -37,7 +30,16 @@ import {
   SET_PROJECT_ORDER,
   SidebarData,
 } from 'renderer/queries';
-import { Area, Project, View } from 'main/generated/typescript-helpers';
+import { v4 as uuidv4 } from 'uuid';
+import { convertSVGElementToReact, Icons } from '../assets/icons';
+import { sidebarVisibleVar } from '../index';
+import { IconType } from '../interfaces';
+import { getProductName } from '../utils';
+import Button from './Button';
+import SidebarDraggableItem from './SidebarDraggableItem';
+import SidebarDroppableItem from './SidebarDroppableItem';
+import SidebarItem from './SidebarItem';
+import SidebarSection from './SidebarSection';
 
 const Sidebar = (): ReactElement => {
   const navigate = useNavigate();
@@ -60,7 +62,7 @@ const Sidebar = (): ReactElement => {
     if (loading === false && data) {
       setSortedAreas(
         orderBy(data.areas, ['sortOrder.sortOrder'], ['asc']).filter(
-          (a) => a.deleted == false
+          (a) => a.deleted === false
         )
       );
       setSortedProjects(
@@ -69,7 +71,7 @@ const Sidebar = (): ReactElement => {
 
       setSortedViews(
         orderBy(data.views, ['sortOrder.sortOrder'], ['asc']).filter(
-          (v) => v.type != 'default'
+          (v) => v.type !== 'default'
         )
       );
     }
@@ -104,12 +106,12 @@ const Sidebar = (): ReactElement => {
       return;
     }
 
-    if (type == 'PROJECT') {
+    if (type === 'PROJECT') {
       const areaKey = destination.droppableId;
       //  Trying to detect drops in non-valid areas
 
       // Do nothing if it was a drop to the same place
-      if (destination.index == source.index) return;
+      if (destination.index === source.index) return;
 
       // Project Order is harder as the index is based on the area
       const projectAtDestination = sortedProjects[destination.index];
@@ -127,7 +129,7 @@ const Sidebar = (): ReactElement => {
 
       // Async update
       setAreaOfProject({
-        variables: { key: draggableId, areaKey: areaKey },
+        variables: { key: draggableId, areaKey },
       });
 
       setProjectOrder({
@@ -162,30 +164,30 @@ const Sidebar = (): ReactElement => {
     <Flex
       zIndex={50}
       alignItems={sidebarVisible ? 'none' : 'center'}
-      direction={'column'}
-      justifyContent={'space-between'}
-      transition={'all 0.2s ease-in-out'}
+      direction="column"
+      justifyContent="space-between"
+      transition="all 0.2s ease-in-out"
       w={sidebarVisible ? '250px' : '50px'}
       minW={sidebarVisible ? '250px' : '50px'}
-      height={'100%'}
+      height="100%"
       p={2}
-      bg={'gray.800'}
-      shadow={'lg'}
+      bg="gray.800"
+      shadow="lg"
       data-cy="sidebar-container"
       m={0}
-      overflowY={'scroll'}
-      border={'none'}
-      borderRight={colorMode == 'light' ? 'none' : '1px solid'}
-      borderColor={colorMode == 'light' ? 'transparent' : 'gray.900'}
+      overflowY="scroll"
+      border="none"
+      borderRight={colorMode === 'light' ? 'none' : '1px solid'}
+      borderColor={colorMode === 'light' ? 'transparent' : 'gray.900'}
       sx={{ scrollbarWidth: 'thin' }}
     >
-      <VStack spacing={0} w={'100%'}>
+      <VStack spacing={0} w="100%">
         <SidebarSection
           name="Views"
           iconName="view"
           sidebarVisible={sidebarVisible}
         />
-        <VStack spacing={0} w={'100%'}>
+        <VStack spacing={0} w="100%">
           {defaultViews.map((d) => {
             return (
               <SidebarItem
@@ -200,11 +202,11 @@ const Sidebar = (): ReactElement => {
             );
           })}
           {sortedViews.map((view) => {
-            if (view.type == 'project' || view.type == 'area') return null;
+            if (view.type === 'project' || view.type === 'area') return null;
             return (
               <SidebarItem
-                variant={'defaultView'}
-                key={'sidebarItem-' + view.key}
+                variant="defaultView"
+                key={`sidebarItem-${view.key}`}
                 sidebarVisible={sidebarVisible}
                 iconName={view.icon as IconType}
                 text={view.name}
@@ -230,24 +232,24 @@ const Sidebar = (): ReactElement => {
                 {sortedAreas.map((a, index) => {
                   return (
                     <Draggable
-                      key={'draggable-' + a.key}
+                      key={`draggable-${a.key}`}
                       draggableId={a.key}
                       index={index}
                     >
                       {(provided, snapshot) => (
                         <SidebarDraggableItem
-                          key={'draggable-' + a.key}
+                          key={`draggable-${a.key}`}
                           sidebarVisible={sidebarVisible}
                           snapshot={snapshot}
                           provided={provided}
                         >
                           {!sidebarVisible && <Divider />}
                           <Flex
-                            direction={'row'}
-                            justifyContent={'space-between'}
+                            direction="row"
+                            justifyContent="space-between"
                             py={1}
                             px={0}
-                            alignItems={'center'}
+                            alignItems="center"
                           >
                             <SidebarItem
                               variant="customView"
@@ -257,29 +259,6 @@ const Sidebar = (): ReactElement => {
                               path={`/areas/${a.key}`}
                               activeColour={theme.colors.gray[900]}
                             />
-                            {sidebarVisible && (
-                              <Button
-                                size="md"
-                                tooltipText="Add Project"
-                                variant="invert"
-                                icon="add"
-                                iconColour={'white'}
-                                onClick={() => {
-                                  const projectKey = uuidv4();
-                                  createProject({
-                                    variables: {
-                                      key: projectKey,
-                                      name: getProductName(),
-                                      description: '',
-                                      startAt: null,
-                                      endAt: null,
-                                      areaKey: a.key,
-                                    },
-                                  });
-                                  navigate('/views/' + projectKey);
-                                }}
-                              />
-                            )}
                           </Flex>
 
                           <Droppable
@@ -296,10 +275,10 @@ const Sidebar = (): ReactElement => {
                                 <Box px={1}>
                                   {sortedProjects.map((p, index) => {
                                     // Don't render the inbox here
-                                    if (p.key == '0') return;
-                                    const pathName = '/views/' + p.key;
+                                    if (p.key === '0') return;
+                                    const pathName = `/views/${p.key}`;
                                     // Don't render projects not part of this area
-                                    if (p.area.key != a.key) return;
+                                    if (p.area.key !== a.key) return;
                                     return (
                                       <Draggable
                                         key={p.key}
@@ -308,7 +287,7 @@ const Sidebar = (): ReactElement => {
                                       >
                                         {(provided, snapshot) => (
                                           <SidebarDraggableItem
-                                            key={'draggable-' + p.key}
+                                            key={`draggable-${p.key}`}
                                             sidebarVisible={sidebarVisible}
                                             snapshot={snapshot}
                                             provided={provided}
@@ -329,6 +308,39 @@ const Sidebar = (): ReactElement => {
                                     );
                                   })}
                                   {provided.placeholder}
+                                  {sidebarVisible && (
+                                    <Flex
+                                      w="100%"
+                                      justifyContent="center"
+                                      pb={2}
+                                    >
+                                      <CButton
+                                        size="sm"
+                                        variant="invert"
+                                        rightIcon={Icons.add(
+                                          '12px',
+                                          '12px',
+                                          '#FFFFFF'
+                                        )}
+                                        onClick={() => {
+                                          const projectKey = uuidv4();
+                                          createProject({
+                                            variables: {
+                                              key: projectKey,
+                                              name: getProductName(),
+                                              description: '',
+                                              startAt: null,
+                                              endAt: null,
+                                              areaKey: a.key,
+                                            },
+                                          });
+                                          navigate(`/views/${projectKey}`);
+                                        }}
+                                      >
+                                        Add Project
+                                      </CButton>
+                                    </Flex>
+                                  )}
                                 </Box>
                               </SidebarDroppableItem>
                             )}
@@ -345,10 +357,10 @@ const Sidebar = (): ReactElement => {
         {sidebarVisible && (
           <Flex
             key={uuidv4()}
-            mt={4}
-            w={'100%'}
-            justifyContent={'center'}
-            bg={'gray.800'}
+            mt={6}
+            w="100%"
+            justifyContent="center"
+            bg="gray.800"
           >
             <Button
               key={uuidv4()}
@@ -375,19 +387,19 @@ const Sidebar = (): ReactElement => {
       </VStack>
       <Stack
         key={uuidv4()}
-        justifyContent={'space-between'}
-        w={'100%'}
+        justifyContent="space-between"
+        w="100%"
         my={2}
         direction={sidebarVisible ? 'row' : 'column'}
       >
         {!sidebarVisible && <Divider />}
-        <Flex key={uuidv4()} alignItems={'center'}>
+        <Flex key={uuidv4()} alignItems="center">
           <SidebarItem
             variant="defaultView"
             key={uuidv4()}
             sidebarVisible={sidebarVisible}
-            iconName={'settings'}
-            text={'Settings'}
+            iconName="settings"
+            text="Settings"
             path="/settings"
             activeColour={theme.colors.gray[900]}
           />
@@ -397,22 +409,22 @@ const Sidebar = (): ReactElement => {
           bottom="5px"
           left={sidebarVisible ? '227px' : '37px'}
           key={uuidv4()}
-          justifyContent={'center'}
-          alignItems={'center'}
+          justifyContent="center"
+          alignItems="center"
         >
           <IconButton
             colorScheme="blue"
-            aria-label={'Toggle sidebar'}
+            aria-label="Toggle sidebar"
             borderRadius="50%"
             shadow="md"
             key={uuidv4()}
             icon={
               sidebarVisible
-                ? convertSVGElementToReact(Icons['slideLeft']())
-                : convertSVGElementToReact(Icons['slideRight']())
+                ? convertSVGElementToReact(Icons.slideLeft())
+                : convertSVGElementToReact(Icons.slideRight())
             }
-            size={'sm'}
-            transition={'all 0.2s ease-in-out'}
+            size="sm"
+            transition="all 0.2s ease-in-out"
             onClick={() => {
               sidebarVisibleVar(!sidebarVisible);
             }}
