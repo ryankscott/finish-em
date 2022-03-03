@@ -1,6 +1,6 @@
 
 <html>
-<img src="https://github.com/ryankscott/finish-em/raw/master/app/renderer/assets/finish_em.svg"
+<img src="https://github.com/ryankscott/finish-em/raw/master/assets/icon.svg"
   align="left"
   width="64"
   height=64"
@@ -42,7 +42,5 @@ npm run start
 The following commands will build the mac version of Finish-em
 
 ```
-npm run clean
-npm run build
-npm run dist
+npm run package 
 ```
