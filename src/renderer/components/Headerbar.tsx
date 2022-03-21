@@ -1,5 +1,4 @@
 import { ReactElement } from 'react';
-
 import { GroupType } from 'react-select';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
@@ -53,19 +52,25 @@ const Headerbar = (): ReactElement => {
     return <></>;
   }
 
-  const HeaderButton = (props: {
+  type HeaderButtonProps = {
     label: string;
     icon: IconType;
     iconColour: string;
     onClickHandler: () => void;
-  }) => (
-    <Tooltip delay={500} label={props.label}>
+  };
+  const HeaderButton = ({
+    label,
+    icon,
+    iconColour,
+    onClickHandler,
+  }: HeaderButtonProps) => (
+    <Tooltip delay={500} label={label}>
       <IconButton
-        aria-label={props.label}
+        aria-label={label}
         variant="invert"
-        icon={convertSVGElementToReact(Icons[props.icon]('18px', '18px'))}
-        iconColour={props.iconColour}
-        onClick={props.onClickHandler}
+        icon={convertSVGElementToReact(Icons[icon]('18px', '18px'))}
+        color={iconColour}
+        onClick={onClickHandler}
       />
     </Tooltip>
   );
@@ -76,7 +81,7 @@ const Headerbar = (): ReactElement => {
   ): GroupType<OptionType>[] => {
     const sortedItems = sortBy(items, ['lastUpdatedAt'], ['desc']);
     const itemOptions = sortedItems
-      .filter((i) => i.deleted == false)
+      .filter((i) => i.deleted === false)
       .map((i) => {
         return {
           label: removeItemTypeFromString(i.text ?? '')
@@ -92,7 +97,9 @@ const Headerbar = (): ReactElement => {
     const projectOptions = projects.map((p) => {
       return {
         label: p.name,
-        value: () => navigate(`/projects/${p.key}`),
+        value: () => {
+          navigate(`/views/${p.key}`);
+        },
       };
     });
 
