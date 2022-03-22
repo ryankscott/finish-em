@@ -79,7 +79,60 @@ const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
   return <TagLabel>{project.name}</TagLabel>;
 };
 
-function Item(props: ItemProps): ReactElement {
+// Check if the item should be visible, based on a parent hiding subtasks
+const determineItemVisiblility = (
+  parentKey: string,
+  componentKey: string
+): boolean => {
+  const subtasksVisible = subtasksVisibleVar();
+  if (!parentKey || !componentKey || isEmpty(subtasksVisible)) return true;
+  // If the item has a parent, then check if the parent is hidden
+  if (parentKey) {
+    const parentVisibility = subtasksVisible?.[parentKey]?.[componentKey];
+    // If the parent doesn't have visibility then set it to true
+    if (parentVisibility === undefined) {
+      subtasksVisibleVar({
+        ...subtasksVisibleVar(),
+        [parentKey]: { [componentKey]: true },
+      });
+      return true;
+    }
+    if (parentVisibility === false) {
+      // If the parent visibility is false, all subtasks should be hidden
+      return false;
+    }
+  }
+  return true;
+};
+
+// Determine if any subtasks of the item should be visible
+const determineSubtasksVisibility = (
+  itemKey: string,
+  componentKey: string
+): boolean => {
+  const subtasksVisible = subtasksVisibleVar();
+  if (!itemKey || !componentKey || isEmpty(subtasksVisible)) return true;
+
+  const subtaskVisibility = subtasksVisible?.[itemKey]?.[componentKey];
+  if (subtaskVisibility === undefined) {
+    // Default to visible
+    subtasksVisibleVar({
+      ...subtasksVisibleVar(),
+      [itemKey]: { [componentKey]: true },
+    });
+    return true;
+  }
+  return subtaskVisibility;
+};
+
+function Item({
+  compact,
+  itemKey,
+  componentKey,
+  hiddenIcons,
+  shouldIndent,
+  hideCollapseIcon,
+}: ItemProps): ReactElement {
   const { colorMode } = useColorMode();
   const theme = useTheme();
   const [moreButtonVisible, setMoreButtonVisible] = useState(false);
@@ -107,64 +160,18 @@ function Item(props: ItemProps): ReactElement {
   });
 
   const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
-    variables: { key: props.itemKey ? props.itemKey : null },
+    variables: { key: itemKey || null },
   });
-
-  // Check if the item should be visible, based on a parent hiding subtasks
-  const determineItemVisiblility = (
-    parentKey: string,
-    componentKey: string
-  ): boolean => {
-    const subtasksVisible = subtasksVisibleVar();
-    if (!parentKey || !componentKey || isEmpty(subtasksVisible)) return true;
-    // If the item has a parent, then check if the parent is hidden
-    if (parentKey) {
-      const parentVisibility = subtasksVisible?.[parentKey]?.[componentKey];
-      // If the parent doesn't have visibility then set it to true
-      if (parentVisibility === undefined) {
-        subtasksVisibleVar({
-          ...subtasksVisibleVar(),
-          [parentKey]: { [componentKey]: true },
-        });
-        return true;
-      }
-      if (parentVisibility === false) {
-        // If the parent visibility is false, all subtasks should be hidden
-        return false;
-      }
-    }
-    return true;
-  };
 
   useEffect(() => {
     if (!data) return;
     setIsVisible(
-      determineItemVisiblility(data.item?.parent?.key ?? '', props.componentKey)
+      determineItemVisiblility(data.item?.parent?.key ?? '', componentKey)
     );
     setSubtasksVisible(
-      determineSubtasksVisibility(data.item?.key, props.componentKey)
+      determineSubtasksVisibility(data.item?.key, componentKey)
     );
-  }, [data, props.itemKey, props.componentKey, subtasksVisibleVar()]);
-
-  // Determine if any subtasks of the item should be visible
-  const determineSubtasksVisibility = (
-    itemKey: string,
-    componentKey: string
-  ): boolean => {
-    const subtasksVisible = subtasksVisibleVar();
-    if (!itemKey || !componentKey || isEmpty(subtasksVisible)) return true;
-
-    const subtaskVisibility = subtasksVisible?.[itemKey]?.[componentKey];
-    if (subtaskVisibility == undefined) {
-      // Default to visible
-      subtasksVisibleVar({
-        ...subtasksVisibleVar(),
-        [itemKey]: { [componentKey]: true },
-      });
-      return true;
-    }
-    return subtaskVisibility;
-  };
+  }, [data, itemKey, componentKey, subtasksVisibleVar()]);
 
   let enterInterval: NodeJS.Timer;
   let exitInterval: NodeJS.Timer;
@@ -244,10 +251,12 @@ function Item(props: ItemProps): ReactElement {
       restoreItem({ variables: { key: item.key } });
       return;
     }
-    if (item.type == 'TODO') {
-      item.completed
-        ? unCompleteItem({ variables: { key: item.key } })
-        : completeItem({ variables: { key: item.key } });
+    if (item.type === 'TODO') {
+      if (item.complete) {
+        unCompleteItem({ variables: { key: item.key } });
+      } else {
+        completeItem({ variables: { key: item.key } });
+      }
     }
   };
 
@@ -255,15 +264,15 @@ function Item(props: ItemProps): ReactElement {
     e.stopPropagation();
     const currentValue = get(
       subtasksVisibleVar(),
-      `${item.key}.${props.componentKey}`,
+      `${item.key}.${componentKey}`,
       false
     );
 
-    const newSubState = { [item.key]: { [props.componentKey]: !currentValue } };
+    const newSubState = { [item.key]: { [componentKey]: !currentValue } };
     subtasksVisibleVar({ ...subtasksVisibleVar(), ...newSubState });
   };
 
-  const isFocused = activeItemVar().findIndex((i) => i == item.key) >= 0;
+  const isFocused = activeItemVar().findIndex((i) => i === item.key) >= 0;
   const reminder = item?.reminders?.[0];
   return (
     <Grid
@@ -273,7 +282,7 @@ function Item(props: ItemProps): ReactElement {
       position="relative"
       maxHeight="200px"
       p={1}
-      pl={props.shouldIndent ? 5 : 1}
+      pl={shouldIndent ? 5 : 1}
       mx={0}
       my={1}
       gap={0.5}
@@ -281,20 +290,20 @@ function Item(props: ItemProps): ReactElement {
       cursor="pointer"
       borderRadius={5}
       gridTemplateColumns={
-        props.compact
+        compact
           ? 'repeat(5, 1fr)'
           : 'repeat(2, 25px) repeat(5, 1fr) repeat(1, 30px)'
       }
       gridTemplateRows="40px auto"
       gridTemplateAreas={
-        props.compact
+        compact
           ? `
             "description  description  description  description  description"
             "parent       due          scheduled    repeat       project    "
            `
           : `
-            "collapse  complete  description  description  .            .           .          more"
-            ".         .         parent       due          scheduled    repeat      project    reminder"
+            "collapse  complete  description  description  description  description description more"
+            ".         .         parent       due          scheduled    repeat      project     reminder"
            `
       }
       outline="none"
@@ -304,9 +313,9 @@ function Item(props: ItemProps): ReactElement {
         position: 'absolute',
         top: '-16px',
         left: '16px',
-        height: props.shouldIndent ? 'calc(100% + 10px)' : '0px',
+        height: shouldIndent ? 'calc(100% + 10px)' : '0px',
         transition: 'all 0.1s ease-in-out',
-        background: colorMode == 'light' ? 'gray.400' : 'gray.200',
+        background: colorMode === 'light' ? 'gray.400' : 'gray.200',
         width: '1px',
         zIndex: 9,
       }}
@@ -317,9 +326,9 @@ function Item(props: ItemProps): ReactElement {
         right: '0px',
         left: '0px',
         margin: 'auto',
-        width: props.shouldIndent || subtasksVisible ? '90%' : '100%',
+        width: shouldIndent || subtasksVisible ? '90%' : '100%',
         borderBottom: '1px',
-        borderColor: colorMode == 'light' ? 'gray.100' : 'gray.700',
+        borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
         opacity: 0.8,
       }}
       bg={
@@ -343,9 +352,9 @@ function Item(props: ItemProps): ReactElement {
       onClick={(e) => {
         if (e.shiftKey) {
           if (isFocused) {
-            const activeItems = activeItemVar().filter((i) => i != item.key);
+            const activeItems = activeItemVar().filter((i) => i !== item.key);
             activeItemVar(activeItems);
-            if (activeItems.length == 0) {
+            if (activeItems.length === 0) {
               focusbarVisibleVar(false);
             }
           } else {
@@ -355,8 +364,8 @@ function Item(props: ItemProps): ReactElement {
         } else {
           activeItemVar([item.key]);
           if (
-            focusbarVisibleVar() == false ||
-            focusbarVisibleVar() == undefined
+            focusbarVisibleVar() === false ||
+            focusbarVisibleVar() === undefined
           ) {
             focusbarVisibleVar(true);
           }
@@ -365,11 +374,7 @@ function Item(props: ItemProps): ReactElement {
       tabIndex={0}
     >
       <Box gridArea="description">
-        <Tooltip
-          delay={500}
-          disabled={!item.text}
-          label={HTMLToPlainText(item.text ?? '')}
-        >
+        <Tooltip disabled={!item.text} label={HTMLToPlainText(item.text ?? '')}>
           <Text
             id="body"
             mx={0}
@@ -379,10 +384,10 @@ function Item(props: ItemProps): ReactElement {
             textDecoration={item.completed ? 'line-through' : 'initial'}
             color={
               item.deleted
-                ? colorMode == 'light'
+                ? colorMode === 'light'
                   ? 'gray.500'
                   : 'gray.400'
-                : colorMode == 'light'
+                : colorMode === 'light'
                 ? 'gray.800'
                 : 'gray.200'
             }
@@ -405,23 +410,19 @@ function Item(props: ItemProps): ReactElement {
 
       {/* TODO: use emoji for projects names  */}
       <Box gridArea="project">
-        {(!props.hiddenIcons?.includes(ItemIcons.Project) ||
+        {(!hiddenIcons?.includes(ItemIcons.Project) ||
           item.project == null) && (
           <Flex justifyContent="flex-end">
-            <Tooltip delay={500} label={item.project?.name}>
-              <Tag
-                size={props.compact ? 'sm' : 'md'}
-                color="white"
-                bg="blue.500"
-              >
-                {generateProjectTag(item, props.compact)}
+            <Tooltip label={item.project?.name}>
+              <Tag size={compact ? 'sm' : 'md'} color="white" bg="blue.500">
+                {generateProjectTag(item, compact)}
               </Tag>
             </Tooltip>
           </Flex>
         )}
       </Box>
 
-      {item.children && item.children.length > 0 && !props.hideCollapseIcon && (
+      {item.children && item.children.length > 0 && !hideCollapseIcon && (
         <Box gridArea="collapse">
           <Button
             variant="default"
@@ -433,7 +434,7 @@ function Item(props: ItemProps): ReactElement {
         </Box>
       )}
 
-      {!props.compact && (
+      {!compact && (
         <Box gridArea="complete">
           <Button
             variant="subtle"
@@ -460,9 +461,9 @@ function Item(props: ItemProps): ReactElement {
       )}
 
       <Box gridArea="parent">
-        {!props.hiddenIcons?.includes(ItemIcons.Subtask) && item.parent && (
+        {!hiddenIcons?.includes(ItemIcons.Subtask) && item.parent && (
           <ItemAttribute
-            compact={props.compact}
+            compact={compact}
             completed={item.completed ?? false}
             type="subtask"
             tooltipText={item.parent.text ?? ''}
@@ -478,7 +479,7 @@ function Item(props: ItemProps): ReactElement {
         )}
       </Box>
 
-      {!props.compact && (
+      {!compact && (
         <Box>
           {showReminderDialog && (
             <ReminderDialog
@@ -492,7 +493,7 @@ function Item(props: ItemProps): ReactElement {
         </Box>
       )}
 
-      {!props.compact && (
+      {!compact && (
         <Box gridArea="more">
           {moreButtonVisible && (
             <>
@@ -512,9 +513,9 @@ function Item(props: ItemProps): ReactElement {
 
       <Box gridArea="scheduled">
         {item.scheduledAt != null &&
-          !props.hiddenIcons?.includes(ItemIcons.Scheduled) && (
+          !hiddenIcons?.includes(ItemIcons.Scheduled) && (
             <ItemAttribute
-              compact={props.compact}
+              compact={compact}
               completed={item.completed ?? false}
               type="scheduled"
               tooltipText={formatRelativeDate(parseISO(item.scheduledAt))}
@@ -526,7 +527,6 @@ function Item(props: ItemProps): ReactElement {
       <Box gridArea="reminder">
         {reminder && (
           <Tooltip
-            delay={500}
             label={`Reminder at: ${format(
               parseISO(item?.reminders?.[0]?.remindAt),
               'h:mm aaaa EEEE'
@@ -548,9 +548,9 @@ function Item(props: ItemProps): ReactElement {
       </Box>
 
       <Box gridArea="due">
-        {item.dueAt != null && !props.hiddenIcons?.includes(ItemIcons.Due) && (
+        {item.dueAt != null && !hiddenIcons?.includes(ItemIcons.Due) && (
           <ItemAttribute
-            compact={props.compact}
+            compact={compact}
             completed={item.completed ?? false}
             type="due"
             tooltipText={formatRelativeDate(parseISO(item.dueAt))}
@@ -560,9 +560,9 @@ function Item(props: ItemProps): ReactElement {
       </Box>
 
       <Box gridArea="repeat">
-        {item.repeat && !props.hiddenIcons?.includes(ItemIcons.Repeat) && (
+        {item.repeat && !hiddenIcons?.includes(ItemIcons.Repeat) && (
           <ItemAttribute
-            compact={props.compact}
+            compact={compact}
             completed={item.completed ?? false}
             type="repeat"
             tooltipText={capitaliseFirstLetter(
