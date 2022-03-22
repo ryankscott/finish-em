@@ -1,11 +1,11 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import Button from './Button';
 import { useMutation } from '@apollo/client';
-import EditItemCreator from './EditItemCreator';
-import EditableText2 from './EditableText2';
 import { Flex } from '@chakra-ui/react';
 import { CREATE_ITEM } from 'renderer/queries';
+import Button from './Button';
+import EditItemCreator from './EditItemCreator';
+import EditableText2 from './EditableText2';
 
 export type ItemCreatorProps = {
   style?: 'subtle' | 'default';
@@ -39,9 +39,8 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   const handleClick = (e) => {
     if (node?.current?.contains(e.target)) {
       return;
-    } else {
-      setShowItemCreator(false);
     }
+    setShowItemCreator(false);
 
     if (props.shouldCloseOnBlur) {
       setShowItemCreator(false);
@@ -71,17 +70,17 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
         />
       ) : (
         <Flex
-          w={'100%'}
+          w="100%"
           alignItems="baseline"
           justifyContent="flex-end"
           py={0}
           px={1}
           overflowX="visible"
           m={1}
-          h={'75px'}
+          h="75px"
           ref={node}
           onKeyDown={(e) => {
-            if (e.key == 'Escape') {
+            if (e.key === 'Escape') {
               setShowItemCreator(false);
             }
           }}
@@ -113,23 +112,23 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               showItemCreator ? (props.width ? props.width : '100%') : '0px'
             }
             opacity={showItemCreator ? '1' : 0}
-            transition={'width 0.2s ease-in-out 0.1s,opacity 0.2s,0.2s'}
+            transition="width 0.2s ease-in-out 0.1s,opacity 0.2s,0.2s"
             data-cy="item-creator"
           >
             <EditableText2
-              singleLine={true}
+              singleLine
               onEscape={props.onEscape}
-              placeholder={'Add an item'}
-              shouldClearOnSubmit={true}
+              placeholder="Add an item"
+              shouldClearOnSubmit
               hideToolbar={false}
               shouldSubmitOnBlur={false}
-              showBorder={true}
+              showBorder
               onUpdate={(text) => {
                 createItem({
                   variables: {
                     key: uuidv4(),
                     type: 'TODO',
-                    text: text,
+                    text,
                     projectKey: props.projectKey,
                     parentKey: props.parentKey,
                     dueAt: props.dueAt,
