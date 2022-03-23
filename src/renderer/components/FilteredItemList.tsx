@@ -41,10 +41,10 @@ const determineVisibilityRules = (
 
 export type FilteredItemListProps = {
   componentKey: string;
+  filter: string;
   isFilterable?: boolean;
   hiddenIcons?: ItemIcons[];
   listName?: string;
-  filter: string;
   legacyFilter?: string;
   flattenSubtasks?: boolean;
   showCompletedToggle?: boolean;
@@ -57,7 +57,39 @@ export type FilteredItemListProps = {
   setEditing?: (editing: boolean) => void;
 };
 
-const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
+type ListItemLength = [filteredItems: number, filteredButCompleted: number];
+
+const determineItemListLengthString = (
+  itemsLength: ListItemLength | undefined
+): string => {
+  if (!itemsLength) {
+    return '0 items';
+  }
+  const filteredItems = itemsLength?.[0];
+  const filteredButCompleted = itemsLength?.[1];
+  return `${filteredItems}  ${
+    filteredItems > 0 ? 'items' : 'item'
+  } (${filteredButCompleted} completed)
+  `;
+};
+
+const FilteredItemList = ({
+  componentKey,
+  isFilterable,
+  hiddenIcons,
+  listName,
+  filter,
+  legacyFilter,
+  flattenSubtasks,
+  showCompletedToggle,
+  initiallyExpanded,
+  hideDeletedSubtasks,
+  hideCompletedSubtasks,
+  shouldPoll,
+  readOnly,
+  editing,
+  setEditing,
+}: FilteredItemListProps): ReactElement => {
   const { colorMode } = useColorMode();
   const [sortType, setSortType] = useState({
     label: 'Due',
@@ -69,16 +101,15 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
   );
   const [showCompleted, setShowCompleted] = useState(true);
   const [showItemList, setShowItemList] = useState(true);
-  const [itemsLength, setItemsLength] = useState([]);
+  const [itemsLength, setItemsLength] = useState<ListItemLength>();
   const [expandSubtasks, setExpandSubtasks] = useState(true);
 
-  const [allItemsLength, completedItemsLength] = itemsLength;
   const visibility = determineVisibilityRules(
-    props.isFilterable ?? true,
+    isFilterable ?? true,
     showItemList,
-    allItemsLength,
-    completedItemsLength,
-    props.showCompletedToggle ?? false
+    itemsLength?.[0],
+    itemsLength?.[1],
+    showCompletedToggle ?? false
   );
 
   return (
@@ -107,7 +138,7 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
       >
         <GridItem colSpan={1}>
           <Button
-            key={`btn-${props.componentKey}`}
+            key={`btn-${componentKey}`}
             variant="default"
             size="sm"
             icon={showItemList === true ? 'collapse' : 'expand'}
@@ -126,13 +157,9 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
             mx={2}
             alignItems="baseline"
           >
-            <Text fontSize="lg">{props.listName}</Text>
+            <Text fontSize="lg">{listName}</Text>
             <Text fontSize="sm" py={0} px={2} minW="80px" color="gray.500">
-              {allItemsLength
-                ? allItemsLength === 1
-                  ? '1 item'
-                  : `${allItemsLength} items`
-                : '0 items'}
+              {determineItemListLengthString(itemsLength)}
             </Text>
           </Flex>
         </GridItem>
@@ -215,13 +242,13 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
           </Flex>
         </GridItem>
       </Grid>
-      {props.editing ? (
+      {editing ? (
         <Box>
           <EditFilteredItemList
-            key={`dlg-${props.componentKey}`}
-            componentKey={props.componentKey}
+            key={`dlg-${componentKey}`}
+            componentKey={componentKey}
             onClose={() => {
-              props.setEditing && props.setEditing(false);
+              setEditing && setEditing(false);
             }}
           />
         </Box>
@@ -238,17 +265,17 @@ const FilteredItemList = (props: FilteredItemListProps): ReactElement => {
             onItemsFetched={(itemLengths) => {
               setItemsLength(itemLengths);
             }}
-            filter={props.filter}
-            key={props.componentKey}
-            hideDeletedSubtasks={props.hideDeletedSubtasks}
-            hideCompletedSubtasks={props.hideCompletedSubtasks}
-            componentKey={props.componentKey}
-            hiddenIcons={props.hiddenIcons}
+            filter={filter}
+            key={componentKey}
+            hideDeletedSubtasks={hideDeletedSubtasks}
+            hideCompletedSubtasks={hideCompletedSubtasks}
+            componentKey={componentKey}
+            hiddenIcons={hiddenIcons}
             sortDirection={sortDirection}
             sortType={sortType}
-            flattenSubtasks={props.flattenSubtasks}
+            flattenSubtasks={flattenSubtasks}
             showCompleted={showCompleted}
-            shouldPoll={props.shouldPoll}
+            shouldPoll={shouldPoll}
           />
         </Flex>
       ) : null}

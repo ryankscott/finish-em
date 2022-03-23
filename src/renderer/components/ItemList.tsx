@@ -26,13 +26,20 @@ type ItemListProps = {
     children: { key: string }[];
     sortOrder: { sortOrder: number };
   }[];
+  hiddenIcons: ItemIcons[];
   grouping?: 'project' | 'label';
   flattenSubtasks?: boolean;
-  hiddenIcons: ItemIcons[];
   compact?: boolean;
 };
 
-function ItemList(props: ItemListProps): ReactElement {
+function ItemList({
+  componentKey,
+  inputItems,
+  flattenSubtasks,
+  compact,
+  hiddenIcons,
+  grouping,
+}: ItemListProps): ReactElement {
   const [completeItem] = useMutation(COMPLETE_ITEM);
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM);
   const [deleteItem] = useMutation(DELETE_ITEM);
@@ -54,16 +61,12 @@ function ItemList(props: ItemListProps): ReactElement {
       const itemKey = event.target.id;
       // TODO: This may be broken
       const newState = cloneDeep(subtasksVisibleVar());
-      const newValue = get(
-        newState,
-        [`${itemKey}`, `${props.componentKey}`],
-        false
-      );
+      const newValue = get(newState, [`${itemKey}`, `${componentKey}`], false);
       if (newState[itemKey]) {
-        newState[itemKey][props.componentKey] = !newValue;
+        newState[itemKey][componentKey] = !newValue;
       } else {
         newState[itemKey] = {
-          [props.componentKey]: true,
+          [componentKey]: true,
         };
       }
       subtasksVisibleVar(newState);
@@ -127,9 +130,9 @@ function ItemList(props: ItemListProps): ReactElement {
         const { tagName } = event.target || event.srcElement;
         return !(
           target.contentEditable ||
-          tagName == 'INPUT' ||
-          tagName == 'SELECT' ||
-          tagName == 'TEXTAREA'
+          tagName === 'INPUT' ||
+          tagName === 'SELECT' ||
+          tagName === 'TEXTAREA'
         );
       },
       filterPreventDefault: false,
@@ -137,7 +140,7 @@ function ItemList(props: ItemListProps): ReactElement {
   });
 
   const renderItem = (i): JSX.Element => {
-    if (i == undefined) return <></>;
+    if (i === undefined) return <></>;
     /* We want to allow flattening of subtasks which means:
   1. If we should flatten
       - If an item has a parent and the parent is in the list, don't render the parent
@@ -145,39 +148,39 @@ function ItemList(props: ItemListProps): ReactElement {
       - If an item has a parent, don't render it (as it will get rendered later)
       - For each item, render the item and it's children  (In the Item component)
 */
-    if (props.flattenSubtasks == true) {
+    if (flattenSubtasks === true) {
       if (i.parent != null) {
-        const parentExistsInList = props.inputItems.find(
-          (z) => z.key == i.parent.key
+        const parentExistsInList = inputItems.find(
+          (z) => z.key === i.parent.key
         );
         // It exists it will get rendered later, so don't render it
         if (parentExistsInList) {
-          return;
+          return <></>;
         }
       }
     }
     return (
       <Box tabIndex={0} key={`container-${i.key}`}>
         <Item
-          compact={props.compact ?? false}
+          compact={compact ?? false}
           key={i.key}
           itemKey={i.key}
-          componentKey={props.componentKey}
+          componentKey={componentKey}
           shouldIndent={false}
-          hiddenIcons={props.hiddenIcons}
+          hiddenIcons={hiddenIcons}
         />
 
         {i.children?.map((childItem) => {
           // We need to check if the child exists in the original input list
           return (
             <Item
-              compact={props.compact ?? false}
+              compact={compact ?? false}
               key={childItem.key}
               itemKey={childItem.key}
-              componentKey={props.componentKey}
+              componentKey={componentKey}
               hiddenIcons={
-                props.hiddenIcons
-                  ? [...props.hiddenIcons, ItemIcons.Subtask]
+                hiddenIcons
+                  ? [...hiddenIcons, ItemIcons.Subtask]
                   : [ItemIcons.Subtask]
               }
               shouldIndent
@@ -190,10 +193,10 @@ function ItemList(props: ItemListProps): ReactElement {
 
   return (
     <Box w="100%" my={4} mx={0} data-cy="item-list">
-      {props.inputItems.map((i) => {
+      {inputItems.map((i) => {
         return renderItem(i);
       })}
-      {props.inputItems.length == 0 && (
+      {inputItems.length === 0 && (
         <Text color="gray.400" fontSize="sm" py={4} px={0} pl={4}>
           No items
         </Text>

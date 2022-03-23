@@ -18,8 +18,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { subtasksVisibleVar } from '..';
 import { Item } from '../../main/generated/typescript-helpers';
 import { PAGE_SIZE } from '../../consts';
-import { ItemIcons } from '../interfaces/item';
-import { FailedFilteredItemList } from './FailedFilteredItemList';
+import { ItemIcons, ItemType } from '../interfaces/item';
+import FailedFilteredItemList from './FailedFilteredItemList';
 import ItemComponent from './Item';
 import Pagination from './Pagination';
 import { SortDirectionEnum, SortOption } from './SortDropdown';
@@ -37,11 +37,24 @@ type ReorderableItemListProps = {
   shouldPoll?: boolean;
   hiddenIcons: ItemIcons[];
   onItemsFetched: (
-    fetchedItems: [totalItems: number, filteredItems: number]
+    fetchedItems: [filteredItems: number, filteredButCompletedItems: number]
   ) => void;
 };
 
-function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
+function ReorderableItemList({
+  componentKey,
+  filter,
+  sortDirection,
+  sortType,
+  showCompleted,
+  hideCompletedSubtasks,
+  hideDeletedSubtasks,
+  expandSubtasks,
+  flattenSubtasks,
+  shouldPoll,
+  hiddenIcons,
+  onItemsFetched,
+}: ReorderableItemListProps): ReactElement {
   const [setItemOrder] = useMutation(SET_ITEM_ORDER);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortedItems, setSortedItems] = useState<Item[] | []>([]);
@@ -52,77 +65,72 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 
   const { loading, error, data } = useQuery(ITEMS_BY_FILTER, {
     variables: {
-      filter: props.filter ? props.filter : '',
-      componentKey: props.componentKey,
+      filter: filter ?? '',
+      componentKey,
     },
-    pollInterval: props.shouldPoll ? 5000 : 0,
+    pollInterval: shouldPoll ? 5000 : 0,
   });
-  if (error) {
-    return (
-      <FailedFilteredItemList
-        componentKey={props.componentKey}
-        setEditing={() => true}
-      />
-    );
-  }
 
   useEffect(() => {
-    if (loading == false && data) {
-      const sI = data?.items?.map((i) => {
+    if (loading === false && data) {
+      const si = data?.items?.map((item: Item) => {
         // Items have different sort orders per component
-        const sortOrder = i.sortOrders.find(
-          (s) => s.componentKey == props.componentKey
+        const sortOrder = item?.sortOrders?.find(
+          (s) => s.componentKey === componentKey
         );
-        return { ...i, sortOrder };
+        return { ...item, sortOrder };
       });
-      const sorted = orderBy(sI, 'sortOrder.sortOrder', 'asc');
-      const uncompletedItems = sorted.filter((m) => m.completed == false);
-      const filteredItems = props.showCompleted ? uncompletedItems : sorted;
+
+      const sorted = orderBy(si, 'sortOrder.sortOrder', 'asc');
+      const uncompletedItems = sorted.filter((m) => m.completed === false);
+      const filteredItems = showCompleted ? uncompletedItems : sorted;
       setSortedItems(filteredItems);
 
       // Update listeners
-      if (props?.onItemsFetched) {
-        props.onItemsFetched([
-          data?.items.length,
-          data?.items.filter((d) => d.completed == true).length,
+      if (onItemsFetched) {
+        onItemsFetched([
+          filteredItems.length,
+          sorted.filter((m) => m.completed).length,
         ]);
       }
     }
-  }, [loading, data, props.showCompleted]);
+  }, [loading, data, showCompleted, componentKey]);
 
   useEffect(() => {
     if (!sortedItems.length) return;
-    const sorted = props.sortType.sort(sortedItems, props.sortDirection);
-    // Async update
-    deleteItemOrdersByComponent({
-      variables: { componentKey: props.componentKey },
-    });
+    const sorted = sortType.sort(sortedItems, sortDirection);
 
+    // Persist the sort order
+    deleteItemOrdersByComponent({
+      variables: { componentKey },
+    });
     const sortedItemKeys = sorted.map((s) => s.key);
     bulkCreateItemOrders({
-      variables: { itemKeys: sortedItemKeys, componentKey: props.componentKey },
+      variables: { itemKeys: sortedItemKeys, componentKey },
     });
 
-    // Sync Update
+    // Update the state locally
     setSortedItems(sorted);
-  }, [props.sortDirection, props.sortType]);
+  }, [sortDirection, sortType]);
 
   useEffect(() => {
     if (!sortedItems.length) return;
+
+    // Update storage to expand subtasks if that's what's being passed to the component
     const newState = cloneDeep(data?.subtasksVisible);
     sortedItems.forEach((a) => {
-      if (a.children.length > 0) {
+      if (a?.children?.length > 0) {
         if (newState[a.key]) {
-          newState[a.key][props.componentKey] = props.expandSubtasks;
+          newState[a.key][componentKey] = expandSubtasks;
         } else {
           newState[a.key] = {
-            [props.componentKey]: props.expandSubtasks,
+            [componentKey]: expandSubtasks,
           };
         }
       }
     });
     subtasksVisibleVar(newState);
-  }, [props.expandSubtasks]);
+  }, [expandSubtasks]);
 
   const reorderItems = (result: DropResult): void => {
     const { destination, source, draggableId, type } = result;
@@ -145,7 +153,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
     setItemOrder({
       variables: {
         itemKey: draggableId,
-        componentKey: props.componentKey,
+        componentKey,
         sortOrder: itemAtDestination.sortOrder.sortOrder,
       },
     });
@@ -166,6 +174,16 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
 	- Add Area
 	- Edit description
  */
+
+  if (error) {
+    return (
+      <FailedFilteredItemList
+        componentKey={componentKey}
+        setEditing={() => true}
+      />
+    );
+  }
+
   return (
     <Box w="100%" my={4} mx={0} zIndex={0}>
       <DragDropContext onDragEnd={(result) => reorderItems(result)}>
@@ -181,15 +199,15 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
               {...provided.droppableProps}
               ref={provided.innerRef}
             >
-              {pagedItems?.map((item: Item, index) => {
+              {pagedItems?.map((item: Item, index): ReactElement => {
                 if (item?.parent) {
                   // Find if the parent already exists in this list
                   const parentExistsInList = sortedItems?.find(
-                    (z) => z.key == item.parent?.key
+                    (z) => z.key === item.parent?.key
                   );
                   // If it does and we don't want to flattenSubtasks then return
-                  if (parentExistsInList && !props.flattenSubtasks) {
-                    return;
+                  if (parentExistsInList && !flattenSubtasks) {
+                    return <></>;
                   }
                 }
                 return (
@@ -218,20 +236,19 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                           compact={false}
                           itemKey={item.key}
                           key={item.key}
-                          componentKey={props.componentKey}
+                          componentKey={componentKey}
                           shouldIndent={false}
-                          hiddenIcons={props.hiddenIcons}
-                          hideCollapseIcon={props.flattenSubtasks}
+                          hiddenIcons={hiddenIcons}
+                          hideCollapseIcon={flattenSubtasks}
                         />
                         {item.children && item?.children.length > 0 && (
                           <Box>
                             {item.children.map((child) => {
                               // We need to check if the child exists in the original input list
                               const shouldHideItem =
-                                (props.hideCompletedSubtasks &&
-                                  child.completed) ||
-                                (props.hideDeletedSubtasks && child.deleted) ||
-                                props.flattenSubtasks;
+                                (hideCompletedSubtasks && child.completed) ||
+                                (hideDeletedSubtasks && child.deleted) ||
+                                flattenSubtasks;
 
                               return (
                                 !shouldHideItem && (
@@ -239,15 +256,12 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                                     compact={false}
                                     itemKey={child.key}
                                     key={child.key}
-                                    componentKey={props.componentKey}
+                                    componentKey={componentKey}
                                     shouldIndent
-                                    hideCollapseIcon={props.flattenSubtasks}
+                                    hideCollapseIcon={flattenSubtasks}
                                     hiddenIcons={
-                                      props.hiddenIcons
-                                        ? [
-                                            ...props.hiddenIcons,
-                                            ItemIcons.Subtask,
-                                          ]
+                                      hiddenIcons
+                                        ? [...hiddenIcons, ItemIcons.Subtask]
                                         : [ItemIcons.Subtask]
                                     }
                                   />
@@ -262,7 +276,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
                 );
               })}
 
-              {data?.items?.length == 0 && (
+              {sortedItems.length === 0 && (
                 <Text color="gray.400" fontSize="sm" py={4} px={0} pl={4}>
                   No items
                 </Text>
@@ -273,7 +287,7 @@ function ReorderableItemList(props: ReorderableItemListProps): ReactElement {
         </Droppable>
       </DragDropContext>
       <Pagination
-        itemsLength={data?.items?.length}
+        itemsLength={sortedItems.length}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
       />

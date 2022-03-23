@@ -110,9 +110,14 @@ const EditableText2 = ({
 }: EditableText2Props): ReactElement => {
   const [editorHtml, setEditorHtml] = useState(input || '');
   const [isEditing, setIsEditing] = useState(false);
-  let quillRef;
+  const quillRef = useRef<ReactQuill>();
 
-  const handleChange = (content, delta) => {
+  const handleChange = (
+    content: string,
+    delta: Delta,
+    source: Sources,
+    editor: ReactQuill.UnprivilegedEditor
+  ) => {
     const lastOp = delta.ops[delta.ops.length - 1];
     const lastChar = lastOp?.insert?.charCodeAt(0);
 
@@ -121,6 +126,7 @@ const EditableText2 = ({
       if (shouldClearOnSubmit) {
         setEditorHtml('');
       }
+      quillRef.current?.blur();
       // TODO: Need to blur on submit
       onUpdate(editorHtml);
     } else {
@@ -129,6 +135,7 @@ const EditableText2 = ({
   };
 
   const handleBlur = () => {
+    console.log('blur');
     if (shouldSubmitOnBlur) {
       onUpdate(editorHtml);
     }
@@ -163,11 +170,7 @@ const EditableText2 = ({
       borderRadius={5}
     >
       <ReactQuill
-        ref={(node) => {
-          if (node) {
-            quillRef = node;
-          }
-        }}
+        ref={quillRef}
         className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}
         theme="snow"
         onChange={handleChange}

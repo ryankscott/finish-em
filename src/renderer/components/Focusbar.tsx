@@ -180,35 +180,27 @@ const Focusbar = (): ReactElement => {
       </Grid>
       <Flex alignItems="baseline" w="100%" direction="row" m={0} px={2} py={4}>
         <Button
-          disabled={item?.deleted}
+          disabled={item?.deleted ?? false}
           variant="default"
           size="sm"
           iconColour={item.label ? item.label.colour : null}
           onClick={() => {
-            if (item.type === 'TODO') {
-              item.completed
-                ? unCompleteItem({ variables: { key: item.key } })
-                : completeItem({ variables: { key: item.key } });
-            }
+            item.completed
+              ? unCompleteItem({ variables: { key: item.key } })
+              : completeItem({ variables: { key: item.key } });
           }}
-          icon={
-            item?.type === 'NOTE'
-              ? 'note'
-              : item?.completed
-              ? 'todoChecked'
-              : 'todoUnchecked'
-          }
+          icon={item?.completed ? 'todoChecked' : 'todoUnchecked'}
         />
         <Box
           w="100%"
           textDecoration={item?.completed ? 'line-through' : 'inherit'}
         >
           <EditableText2
-            readOnly={item?.deleted}
+            readOnly={item.deleted ?? false}
             key={item?.key}
             height="45px"
             width="260px"
-            input={item.text}
+            input={item.text ?? ''}
             singleLine
             shouldClearOnSubmit={false}
             shouldSubmitOnBlur
