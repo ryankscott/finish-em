@@ -16,12 +16,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { Icons } from '../assets/icons';
 
 interface Props {
+  options: OptionsType<OptionTypeBase>;
+  placeholder: string;
   onChange: (val: any) => void;
   isDisabled?: boolean;
   autoFocus?: boolean;
   escapeClearsValue?: boolean;
-  options: OptionsType<OptionTypeBase>;
-  placeholder: string;
   defaultValue?: OptionTypeBase;
   isMulti?: boolean;
   invertColours?: boolean;
@@ -84,6 +84,7 @@ const Select = (props: Props) => {
         ? darken(0.05, invertBackgroundColor)
         : darken(0.05, backgroundColor);
     }
+
     return invert ? invertBackgroundColor : backgroundColor;
   };
 

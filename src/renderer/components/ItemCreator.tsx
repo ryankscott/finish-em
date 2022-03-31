@@ -58,7 +58,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     setShowItemCreator(props.initiallyExpanded);
   }, [props.initiallyExpanded]);
   const [createItem] = useMutation(CREATE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
 
   return (

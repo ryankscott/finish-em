@@ -1,5 +1,6 @@
-import { mode } from '@chakra-ui/theme-tools'
-const parts = ['item', 'command', 'list', 'button', 'groupTitle', 'divider']
+import { mode } from '@chakra-ui/theme-tools';
+
+const parts = ['item', 'command', 'list', 'button', 'groupTitle', 'divider'];
 
 function baseStyleList(props: Record<string, any>) {
   return {
@@ -11,7 +12,7 @@ function baseStyleList(props: Record<string, any>) {
     zIndex: 1,
     borderRadius: 'md',
     borderWidth: '1px',
-  }
+  };
 }
 
 function baseStyleItem(props: Record<string, any>) {
@@ -39,7 +40,7 @@ function baseStyleItem(props: Record<string, any>) {
       opacity: 0.4,
       cursor: 'not-allowed',
     },
-  }
+  };
 }
 
 const baseStyleGroupTitle = {
@@ -47,11 +48,11 @@ const baseStyleGroupTitle = {
   my: 2,
   fontWeight: 'semibold',
   fontSize: 'sm',
-}
+};
 
 const baseStyleCommand = {
   opacity: 0.6,
-}
+};
 
 const baseStyleDivider = {
   border: 0,
@@ -59,7 +60,27 @@ const baseStyleDivider = {
   borderColor: 'inherit',
   my: '0.5rem',
   opacity: 0.6,
-}
+};
+
+const baseStyleButton = (props: Record<string, any>) => {
+  return {
+    m: 0.5,
+    bg: mode('gray.50', 'gray.800')(props),
+    color: mode('gray.800', 'gray.200')(props),
+    border: '1px solid',
+    borderColor: 'transparent',
+    fontWeight: 'medium',
+    _hover: {
+      bg: mode('gray.100', 'gray.900'),
+    },
+    _active: {
+      bg: mode('gray.100', 'gray.900'),
+    },
+    _focus: {
+      bg: mode('gray.100', 'gray.900'),
+    },
+  };
+};
 
 function invertVariant(props: Record<string, any>) {
   return {
@@ -117,23 +138,24 @@ function invertVariant(props: Record<string, any>) {
         cursor: 'not-allowed',
       },
     },
-  }
+  };
 }
 
 const variants = {
   invert: invertVariant,
-}
+};
 
 const baseStyle = (props: Record<string, any>) => ({
   list: baseStyleList(props),
   item: baseStyleItem(props),
+  button: baseStyleButton(props),
   groupTitle: baseStyleGroupTitle,
   command: baseStyleCommand,
   divider: baseStyleDivider,
-})
+});
 
 export default {
   parts,
   baseStyle,
   variants,
-}
+};

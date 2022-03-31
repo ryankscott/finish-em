@@ -126,9 +126,14 @@ export default function AttributeSelect(
   const generateOptions = (
     input: AttributeType
   ): OptionsType<any> | GroupedOptionsType<any> => {
+    const filteredAreas = data.areas?.filter((a) => a.deleted === false);
+    const filteredProjects = data.projects
+      ?.filter((p) => p.key !== '0')
+      ?.filter((p) => p.key != null);
+
+    const groupedProjects = groupBy(filteredProjects, 'area.name');
     switch (input.attribute) {
       case 'area':
-        const filteredAreas = data.areas?.filter((a) => a.deleted == false);
         return [
           ...filteredAreas?.map((a) => {
             return {
@@ -161,11 +166,6 @@ export default function AttributeSelect(
         ];
 
       case 'project':
-        const filteredProjects = data.projects
-          .filter((p) => p.key != '0')
-          .filter((p) => p.key != null);
-
-        const groupedProjects = groupBy(filteredProjects, 'area.name');
         const aGroups = Object.keys(groupedProjects)?.map((i) => {
           const group = { label: '', options: [] };
           group.label = i;
@@ -277,6 +277,7 @@ export default function AttributeSelect(
       return o.options ? o.options : o;
     })
     .flat();
+
   const defaultValue = allOptions?.filter(
     (o) => o.value === defaultValues.currentValue
   );
@@ -284,7 +285,6 @@ export default function AttributeSelect(
   return (
     <Box w="100%" cursor={completed || deleted ? 'not-allowed' : 'inherit'}>
       <Select
-        size="sm"
         isMulti={false}
         isDisabled={completed || deleted}
         onChange={(p) => {

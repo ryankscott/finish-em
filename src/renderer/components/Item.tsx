@@ -53,30 +53,33 @@ type ItemProps = {
   hideCollapseIcon?: boolean;
 };
 
-const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
-  const project = item?.project;
-  if (!project) return <></>;
-
-  if (project?.emoji) {
-    if (compact) {
-      return <Emoji emoji={project.emoji} size={8} native />;
+const determineTextColour = (deleted: boolean, colorMode: 'light' | 'dark') => {
+  if (deleted) {
+    if (colorMode === 'light') {
+      return 'gray.500';
     }
-
-    return (
-      <Flex alignItems="baseline">
-        <Emoji emoji={project.emoji} size={8} native />
-        <Text pl={1} fontSize="xs">
-          {project.name}
-        </Text>
-      </Flex>
-    );
+    return 'gray.400';
   }
-
-  if (compact) {
-    return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>;
+  if (colorMode === 'light') {
+    return 'gray.800';
   }
+  return 'gray.200';
+};
 
-  return <TagLabel>{project.name}</TagLabel>;
+const determineBackgroundColour = (
+  isFocused: boolean,
+  colorMode: 'light' | 'dark'
+): string => {
+  if (isFocused) {
+    if (colorMode === 'light') {
+      return 'gray.100';
+    }
+    return 'gray.900';
+  }
+  if (colorMode === 'light') {
+    return 'gray.50';
+  }
+  return 'gray.800';
 };
 
 // Check if the item should be visible, based on a parent hiding subtasks
@@ -163,6 +166,30 @@ function Item({
     variables: { key: itemKey || null },
   });
 
+  const generateProjectTag = (
+    item: ItemType,
+    compact: boolean
+  ): ReactElement => {
+    const project = item?.project;
+    if (!project) return <></>;
+
+    if (project?.emoji) {
+      return <Emoji emoji={project.emoji} size={12} native />;
+    }
+    if (compact) {
+      return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>;
+    }
+
+    if (project.name === 'Inbox') {
+      return (
+        <TagLabel>
+          {Icons.inbox('12px', '12px', theme.colors.blue[500])}
+        </TagLabel>
+      );
+    }
+
+    return <TagLabel>{project.name}</TagLabel>;
+  };
   useEffect(() => {
     if (!data) return;
     setIsVisible(
@@ -331,15 +358,7 @@ function Item({
         borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
         opacity: 0.8,
       }}
-      bg={
-        isFocused
-          ? colorMode == 'light'
-            ? 'gray.100'
-            : 'gray.900'
-          : colorMode == 'light'
-          ? 'gray.50'
-          : 'gray.800'
-      }
+      bg={determineBackgroundColour(isFocused, colorMode)}
       id={item.key}
       onMouseEnter={() => {
         enterInterval = setTimeout(() => setMoreButtonVisible(true), 250);
@@ -374,7 +393,10 @@ function Item({
       tabIndex={0}
     >
       <Box gridArea="description">
-        <Tooltip disabled={!item.text} label={HTMLToPlainText(item.text ?? '')}>
+        <Tooltip
+          isDisabled={!item.text}
+          label={HTMLToPlainText(item.text ?? '')}
+        >
           <Text
             id="body"
             mx={0}
@@ -382,15 +404,7 @@ function Item({
             fontSize="md"
             isTruncated
             textDecoration={item.completed ? 'line-through' : 'initial'}
-            color={
-              item.deleted
-                ? colorMode === 'light'
-                  ? 'gray.500'
-                  : 'gray.400'
-                : colorMode === 'light'
-                ? 'gray.800'
-                : 'gray.200'
-            }
+            color={determineTextColour(item.deleted, colorMode)}
             sx={{
               p: {
                 overflow: 'hidden',
@@ -414,7 +428,7 @@ function Item({
           item.project == null) && (
           <Flex justifyContent="flex-end">
             <Tooltip label={item.project?.name}>
-              <Tag size={compact ? 'sm' : 'md'} color="white" bg="blue.500">
+              <Tag size={compact ? 'sm' : 'md'} colorScheme="blue">
                 {generateProjectTag(item, compact)}
               </Tag>
             </Tooltip>
@@ -439,21 +453,25 @@ function Item({
           <Button
             variant="subtle"
             size="sm"
-            tooltipText={
-              item.deleted
-                ? 'Restore'
-                : item.completed
-                ? 'Uncomplete'
-                : 'Complete'
-            }
+            tooltipText={((deleted: boolean, completed: boolean) => {
+              if (deleted) {
+                return 'Restore';
+              }
+              if (completed) {
+                return 'Uncomplete';
+              }
+              return 'Complete';
+            })(item.deleted, item.completed)}
             onClick={handleIconClick}
-            icon={
-              item.deleted
-                ? 'restore'
-                : item.completed
-                ? 'todoChecked'
-                : 'todoUnchecked'
-            }
+            icon={((deleted: boolean, completed: boolean) => {
+              if (deleted) {
+                return 'restore';
+              }
+              if (completed) {
+                return 'todoChecked';
+              }
+              return 'todoUnchecked';
+            })(item.deleted, item.completed)}
             iconSize="16px"
             iconColour={item?.label?.colour || undefined}
           />
@@ -555,6 +573,7 @@ function Item({
             type="due"
             tooltipText={formatRelativeDate(parseISO(item.dueAt))}
             text={formatRelativeDate(parseISO(item.dueAt))}
+            isOverdue={isPast(parseISO(item.dueAt))}
           />
         )}
       </Box>

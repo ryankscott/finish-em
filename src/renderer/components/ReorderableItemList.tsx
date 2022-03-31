@@ -18,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { subtasksVisibleVar } from '..';
 import { Item } from '../../main/generated/typescript-helpers';
 import { PAGE_SIZE } from '../../consts';
-import { ItemIcons, ItemType } from '../interfaces/item';
+import { ItemIcons } from '../interfaces/item';
 import FailedFilteredItemList from './FailedFilteredItemList';
 import ItemComponent from './Item';
 import Pagination from './Pagination';
@@ -30,15 +30,15 @@ type ReorderableItemListProps = {
   sortDirection: SortDirectionEnum;
   sortType: SortOption;
   showCompleted: boolean;
-  hideCompletedSubtasks?: boolean;
-  hideDeletedSubtasks?: boolean;
   expandSubtasks: boolean;
-  flattenSubtasks?: boolean;
-  shouldPoll?: boolean;
   hiddenIcons: ItemIcons[];
   onItemsFetched: (
     fetchedItems: [filteredItems: number, filteredButCompletedItems: number]
   ) => void;
+  hideCompletedSubtasks?: boolean;
+  hideDeletedSubtasks?: boolean;
+  flattenSubtasks?: boolean;
+  shouldPoll?: boolean;
 };
 
 function ReorderableItemList({
@@ -138,7 +138,7 @@ function ReorderableItemList({
     if (!destination) return;
 
     // Do nothing if it was a drop to the same place
-    if (destination.index == source.index) return;
+    if (destination.index === source.index) return;
 
     const itemAtDestination = sortedItems[destination.index];
     const itemAtSource = sortedItems[source.index];
@@ -244,6 +244,8 @@ function ReorderableItemList({
                         {item.children && item?.children.length > 0 && (
                           <Box>
                             {item.children.map((child) => {
+                              // Keep TS happy
+                              if (!child) return <></>;
                               // We need to check if the child exists in the original input list
                               const shouldHideItem =
                                 (hideCompletedSubtasks && child.completed) ||

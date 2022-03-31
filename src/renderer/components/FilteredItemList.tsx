@@ -66,10 +66,7 @@ const determineItemListLengthString = (
     return '0 items';
   }
   const filteredItems = itemsLength?.[0];
-  const filteredButCompleted = itemsLength?.[1];
-  return `${filteredItems}  ${
-    filteredItems > 0 ? 'items' : 'item'
-  } (${filteredButCompleted} completed)
+  return `${filteredItems}  ${filteredItems > 0 ? 'items' : 'item'}
   `;
 };
 

@@ -4,19 +4,27 @@ import { Flex, Text, Tooltip } from '@chakra-ui/react';
 import { HTMLToPlainText } from 'renderer/utils';
 import { Icons } from '../assets/icons';
 
+type ItemAttributeType = 'repeat' | 'due' | 'scheduled' | 'subtask';
 type ItemAttributeProps = {
-  type: 'repeat' | 'due' | 'scheduled' | 'subtask';
+  type: ItemAttributeType;
   text: string;
   tooltipText: string;
   completed: boolean;
   compact: boolean;
+  isOverdue?: boolean;
 };
 
-const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
-  const { compact, tooltipText, text, completed, type } = props;
+const ItemAttribute = ({
+  compact,
+  tooltipText,
+  text,
+  completed,
+  type,
+  isOverdue,
+}: ItemAttributeProps): ReactElement => {
   const iconSize = compact ? '12px' : '14px';
   return (
-    <Tooltip delay={500} label={HTMLToPlainText(tooltipText)}>
+    <Tooltip label={HTMLToPlainText(tooltipText)}>
       <Flex
         direction="row"
         alignItems="center"
@@ -27,7 +35,9 @@ const ItemAttribute = (props: ItemAttributeProps): ReactElement => {
         textDecoration={completed ? 'strike-through' : 'none'}
       >
         <Flex p={0} m={0} alignItems="center">
-          {Icons[type](iconSize, iconSize)}
+          <Text color={isOverdue ? 'red' : 'inherit'}>
+            {Icons[type](iconSize, iconSize)}
+          </Text>
         </Flex>
         {!compact && (
           <Text

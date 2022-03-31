@@ -31,6 +31,7 @@ import { convertSVGElementToReact, Icons } from '../assets/icons';
 import { IconType } from '../interfaces';
 import { ItemIcons } from '../interfaces/item';
 import { formatRelativeDate } from '../utils';
+import AreaSelect from './AreaSelect';
 import AttributeSelect from './AttributeSelect';
 import Button from './Button';
 import DatePicker from './DatePicker';
@@ -60,7 +61,7 @@ const Focusbar = (): ReactElement => {
     refetchQueries: ['itemsByFilter'],
   });
   const [setArea] = useMutation(SET_AREA, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter, itemByKey'],
   });
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
     refetchQueries: ['itemsByFilter', 'weeklyItems'],
@@ -111,13 +112,17 @@ const Focusbar = (): ReactElement => {
   if (!item) return <></>;
 
   // TODO: Refactor me
-  const attributeContainerStyles = {
-    justifyContent: 'space-between',
-    width: '100%',
-    minW: '180px',
-    px: 4,
-    my: 1,
-  };
+  const AttributeContainer = (props) => (
+    <Flex
+      justifyContent="space-between"
+      width="100%"
+      minW="180px"
+      px={4}
+      my={1}
+    >
+      {props.children}
+    </Flex>
+  );
 
   const generateSidebarTitle = (icon: IconType, text: string) => {
     return (
@@ -185,9 +190,10 @@ const Focusbar = (): ReactElement => {
           size="sm"
           iconColour={item.label ? item.label.colour : null}
           onClick={() => {
-            item.completed
-              ? unCompleteItem({ variables: { key: item.key } })
-              : completeItem({ variables: { key: item.key } });
+            if (item.completed) {
+              unCompleteItem({ variables: { key: item.key } });
+            }
+            completeItem({ variables: { key: item.key } });
           }}
           icon={item?.completed ? 'todoChecked' : 'todoUnchecked'}
         />
@@ -233,20 +239,20 @@ const Focusbar = (): ReactElement => {
         )}
       </Flex>
       {item.project?.key === '0' && (
-        <Flex {...attributeContainerStyles}>
+        <AttributeContainer>
           {generateSidebarTitle('area', 'Area: ')}
-          <AttributeSelect
-            attribute="area"
-            currentAttribute={item.area}
-            completed={item.completed}
-            deleted={item.deleted}
-            onSubmit={(areaKey) =>
-              setArea({ variables: { key: item.key, areaKey } })
-            }
+          <AreaSelect
+            currentArea={item.area ?? null}
+            completed={item.completed ?? false}
+            deleted={item.deleted ?? false}
+            onSubmit={(areaKey) => {
+              console.log(areaKey);
+              setArea({ variables: { key: item.key, areaKey } });
+            }}
           />
-        </Flex>
+        </AttributeContainer>
       )}
-      <Flex {...attributeContainerStyles}>
+      <AttributeContainer>
         {generateSidebarTitle('project', 'Project: ')}
         <AttributeSelect
           attribute="project"
@@ -262,10 +268,10 @@ const Focusbar = (): ReactElement => {
             });
           }}
         />
-      </Flex>
+      </AttributeContainer>
       {item.type === 'TODO' && (
         <>
-          <Flex {...attributeContainerStyles}>
+          <AttributeContainer>
             {generateSidebarTitle('scheduled', 'Scheduled: ')}
             <DatePicker
               key={`sd${item.key}`}
@@ -276,11 +282,11 @@ const Focusbar = (): ReactElement => {
                 });
               }}
               text={scheduledDate}
-              completed={item.completed}
-              deleted={item.deleted}
+              completed={item.completed ?? false}
+              deleted={item.deleted ?? false}
             />
-          </Flex>
-          <Flex {...attributeContainerStyles}>
+          </AttributeContainer>
+          <AttributeContainer>
             {generateSidebarTitle('due', 'Due: ')}
             <DatePicker
               key={`dd${item.key}`}
@@ -289,20 +295,20 @@ const Focusbar = (): ReactElement => {
                 setDueAt({ variables: { key: item.key, dueAt: d } })
               }
               text={dueDate}
-              completed={item.completed}
-              deleted={item.deleted}
+              completed={item.completed ?? false}
+              deleted={item.deleted ?? false}
             />
-          </Flex>
-          <Flex {...attributeContainerStyles}>
+          </AttributeContainer>
+          <AttributeContainer>
             {generateSidebarTitle('repeat', 'Repeating: ')}
             <RepeatPicker
               repeat={
-                item.repeat && item.repeat != 'undefined'
+                item.repeat && item.repeat !== 'undefined'
                   ? RRule.fromString(item.repeat)
                   : null
               }
-              completed={item.completed}
-              deleted={item.deleted}
+              completed={item.completed ?? false}
+              deleted={item.deleted ?? false}
               key={`rp${item.key}`}
               onSubmit={(r: RRule) =>
                 setRepeat({
@@ -310,50 +316,50 @@ const Focusbar = (): ReactElement => {
                 })
               }
             />
-          </Flex>
+          </AttributeContainer>
         </>
       )}
       {item.children?.length === 0 && (
-        <Flex {...attributeContainerStyles}>
+        <AttributeContainer>
           {generateSidebarTitle('subtask', 'Parent: ')}
           <AttributeSelect
             attribute="item"
             currentAttribute={item}
-            completed={item.completed}
-            deleted={item.deleted}
+            completed={item.completed ?? false}
+            deleted={item.deleted ?? false}
             onSubmit={(itemKey: string) =>
               setParent({ variables: { key: item.key, parentKey: itemKey } })
             }
           />
-        </Flex>
+        </AttributeContainer>
       )}
-      <Flex {...attributeContainerStyles}>
+      <AttributeContainer>
         {generateSidebarTitle('label', 'Label: ')}
         <AttributeSelect
           attribute="label"
           currentAttribute={item.label}
-          completed={item.completed}
-          deleted={item.deleted}
+          completed={item.completed ?? false}
+          deleted={item.deleted ?? false}
           onSubmit={(labelKey) => {
             setLabel({ variables: { key: item.key, labelKey } });
           }}
         />
-      </Flex>
+      </AttributeContainer>
       {item.deleted && (
-        <Flex {...attributeContainerStyles}>
+        <AttributeContainer>
           {generateSidebarTitle('trash', 'Deleted at: ')}
           <Text fontSize="md" m={1} py={2} px={3}>
             {formatRelativeDate(parseISO(item?.deletedAt))}
           </Text>
-        </Flex>
+        </AttributeContainer>
       )}
       {item.completed && (
-        <Flex {...attributeContainerStyles}>
+        <AttributeContainer>
           {generateSidebarTitle('todoChecked', 'Completed at: ')}
           <Text fontSize="md" m={1} py={2} px={3}>
             {formatRelativeDate(parseISO(item?.completedAt))}
           </Text>
-        </Flex>
+        </AttributeContainer>
       )}
       {item.parent?.key == null && item.type === 'TODO' && (
         <>
@@ -380,7 +386,7 @@ const Focusbar = (): ReactElement => {
                   <Item
                     compact={false}
                     key={childItem.key}
-                    componentKey={null}
+                    componentKey=""
                     itemKey={childItem.key}
                     shouldIndent={false}
                     hiddenIcons={[ItemIcons.Project, ItemIcons.Subtask]}
