@@ -210,7 +210,7 @@ export const SET_LABEL = gql`
 `;
 
 export const GET_ITEMS = gql`
-  query {
+  query getItems {
     items {
       key
       text

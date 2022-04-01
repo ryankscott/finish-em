@@ -7,16 +7,16 @@ import {
   forwardRef,
   FlexProps,
   useColorMode,
+  Icon,
 } from '@chakra-ui/react';
 import { add, sub, lastDayOfWeek } from 'date-fns';
 import RDatePicker from 'react-datepicker';
 import { Icons } from '../assets/icons';
 
 type DatePickerProps = {
-  onSubmit: (d: Date) => void;
   completed: boolean;
+  onSubmit: (d: Date | null) => void;
   text?: string;
-  size?: 'xs' | 'sm' | 'md' | 'lg';
   tooltipText?: string;
   defaultText?: string;
   deleted?: boolean;
@@ -27,29 +27,15 @@ type MenuItemType = {
   name: string;
   clickHandler: () => void;
 };
-const generateIconSize = (size: string | undefined) => {
-  switch (size) {
-    case 'md':
-      return '12px';
-    case 'sm':
-      return '10px';
-    case 'xs':
-      return '8px';
-    default:
-      return '12px';
-  }
-};
 
-// TODO: Refactor me
 const DatePicker = ({
-  text,
-  size,
-  defaultText,
-  onSubmit,
-  onEscape,
-  tooltipText,
   completed,
+  onSubmit,
+  text,
+  tooltipText,
+  defaultText,
   deleted,
+  onEscape,
 }: DatePickerProps): ReactElement => {
   const [dayPickerVisible, setDayPickerVisible] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -79,27 +65,30 @@ const DatePicker = ({
     </Flex>
   ));
 
-  const MenuItem = (props) => (
-    <Flex
-      px={2}
-      my={0.5}
-      py={1.5}
-      _hover={{ bg: colorMode === 'light' ? 'gray.100' : 'gray.900' }}
-      cursor="pointer"
-      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-      zIndex={4}
-      justifyContent={dayPickerVisible ? 'center' : 'start'}
-      minW={dayPickerVisible ? '110px' : '190px'}
-      {...props}
-    >
-      <Text fontSize="md" px={2}>
-        {props.children}
-      </Text>
-    </Flex>
-  );
+  type MenuItemProps = FlexProps;
+  const MenuItem = (props: MenuItemProps) => {
+    return (
+      <Flex
+        px={2}
+        my={0.5}
+        py={1.5}
+        _hover={{ bg: colorMode === 'light' ? 'gray.100' : 'gray.900' }}
+        cursor="pointer"
+        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        zIndex={4}
+        justifyContent={dayPickerVisible ? 'center' : 'start'}
+        minW={dayPickerVisible ? '110px' : '190px'}
+        {...props}
+      >
+        <Text fontSize="md" px={2}>
+          {props.children}
+        </Text>
+      </Flex>
+    );
+  };
 
   const handleDayChange = (input: Date | null) => {
-    props.onSubmit(input);
+    onSubmit(input);
     setDayPickerVisible(false);
     setShowMenu(false);
   };
@@ -141,8 +130,6 @@ const DatePicker = ({
     },
   ];
 
-  const iconSize = generateIconSize(size);
-
   return (
     <Flex direction="column" minW="190px" w="100%">
       <Flex position="relative" direction="column" minW="190px" w="100%">
@@ -150,8 +137,12 @@ const DatePicker = ({
           w="100%"
           variant="default"
           isDisabled={deleted || completed}
-          fontSize={size || 'md'}
-          rightIcon={Icons.collapse(iconSize, iconSize)}
+          fontSize="md"
+          rightIcon={
+            <Icon p={0} m={0}>
+              {Icons.collapse('24px', '24px')}{' '}
+            </Icon>
+          }
           borderRadius={5}
           width="100%"
           justifyContent="space-between"
@@ -169,8 +160,8 @@ const DatePicker = ({
               justifyContent="center"
               borderRadius="md"
             >
-              {menuItems.map((m, idx) => (
-                <MenuItem key={idx} onClick={m.clickHandler}>
+              {menuItems.map((m) => (
+                <MenuItem key={m.name} onClick={m.clickHandler}>
                   {m.name}
                 </MenuItem>
               ))}

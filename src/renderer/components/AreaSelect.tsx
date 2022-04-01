@@ -7,7 +7,7 @@ import { GET_AREAS } from 'renderer/queries';
 import Select from './Select';
 
 type Props = {
-  currentArea: Area;
+  currentArea: Area | null;
   completed: boolean;
   deleted: boolean;
   onSubmit: (key: string) => void;
@@ -21,7 +21,7 @@ export default function AreaSelect({
   onSubmit,
   invert,
 }: Props) {
-  const { loading, error, data } = useQuery(GET_AREAS);
+  const { loading, error, data } = useQuery<{ areas: Area[] }, null>(GET_AREAS);
   if (loading) return <></>;
 
   if (error) {
@@ -29,28 +29,29 @@ export default function AreaSelect({
     return <></>;
   }
 
-  const filteredAreas = data.areas?.filter((a: Area) => a.deleted === false);
-  type AreaOption = { value: string; label: ReactElement };
-  const options: AreaOption[] = [
-    ...filteredAreas?.map((a: Area) => {
-      return {
-        value: a.key,
-        label: (
-          <Flex>
-            {a.emoji && (
-              <Box pr={1}>
-                <Emoji emoji={a.emoji} size={12} native />
-              </Box>
-            )}
-            <Text pl={1}>{a.name}</Text>
-          </Flex>
-        ),
-      };
-    }),
-    { value: null, label: 'None' },
-  ];
-  console.log(options.filter((a) => a.value === currentArea?.key));
-  console.log(currentArea);
+  const filteredAreas = data?.areas?.filter((a: Area) => a.deleted === false);
+
+  type AreaOption = { value: string; label: ReactElement | string };
+  const options: AreaOption[] | [] = filteredAreas
+    ? [
+        ...filteredAreas?.map((a: Area) => {
+          return {
+            value: a.key,
+            label: (
+              <Flex>
+                {a.emoji && (
+                  <Box pr={1}>
+                    <Emoji emoji={a.emoji} size={12} native />
+                  </Box>
+                )}
+                <Text pl={1}>{a.name}</Text>
+              </Flex>
+            ),
+          };
+        }),
+        { value: '', label: 'None' },
+      ]
+    : [];
 
   return (
     <Box w="100%" cursor={completed || deleted ? 'not-allowed' : 'inherit'}>

@@ -6,6 +6,7 @@ import {
   forwardRef,
   FlexProps,
   useColorMode,
+  Icon,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { RRule } from 'rrule';
@@ -14,14 +15,12 @@ import { rruleToText, capitaliseFirstLetter } from '../utils';
 import { Icons } from '../assets/icons';
 
 type RepeatPickerProps = {
-  repeat: RRule;
+  repeat: RRule | null;
   onSubmit: (value: RRule) => void;
   completed: boolean;
   onEscape?: () => void;
   tooltipText?: string;
   deleted?: boolean;
-  size?: 'xs' | 'sm' | 'md' | 'lg';
-  variant?: 'invert';
 };
 type MenuItemType = {
   name: string;
@@ -35,8 +34,6 @@ const RepeatPicker = ({
   onEscape,
   tooltipText,
   deleted,
-  size,
-  variant,
 }: RepeatPickerProps): ReactElement => {
   const [showMenu, setShowMenu] = useState(false);
   const [repeatDialogVisible, setRepeatDialogVisible] = useState(false);
@@ -47,7 +44,8 @@ const RepeatPicker = ({
     repeat: RRule | null;
   };
 
-  const MenuItem = (props) => (
+  type MenuItemProps = FlexProps & { text: string };
+  const MenuItem = ({ text, ...props }: MenuItemProps) => (
     <Flex
       px={2}
       my={0.5}
@@ -58,10 +56,11 @@ const RepeatPicker = ({
       zIndex={4}
       justifyContent="start"
       minW={repeatDialogVisible ? '130px' : '192'}
+      // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
     >
       <Text fontSize="md" px={2}>
-        {props.children}
+        {text}
       </Text>
     </Flex>
   );
@@ -84,13 +83,12 @@ const RepeatPicker = ({
       transition="0.2s all ease-in-out"
       justifyContent="center"
       ref={ref}
+      // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
-    >
-      {props.children}
-    </Flex>
+    />
   ));
   const handleRepeatChange = (input: RepeatOption) => {
-    if (input.type == 'default') {
+    if (input.type === 'default') {
       props.onSubmit(input.repeat);
       setRepeatDialogVisible(false);
       setShowMenu(false);
@@ -161,30 +159,20 @@ const RepeatPicker = ({
     ? capitaliseFirstLetter(rruleToText(repeat))
     : 'Add repeat';
 
-  const generateIconSize = (size: string) => {
-    switch (size) {
-      case 'md':
-        return '12px';
-      case 'sm':
-        return '10px';
-      case 'xs':
-        return '8px';
-      default:
-        return '12px';
-    }
-  };
-  const iconSize = generateIconSize(size);
-
   return (
     <Flex direction="column" minW="190px" w="100%">
       <Flex position="relative" direction="column" minW="190px" w="100%">
         <Button
           w="100%"
           isDisabled={deleted || completed}
-          fontSize={size || 'md'}
+          fontSize="md"
           fontWeight="normal"
           bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-          rightIcon={Icons.collapse(iconSize, iconSize)}
+          rightIcon={
+            <Icon p={0} m={0}>
+              {Icons.collapse('24px', '24px')}
+            </Icon>
+          }
           variant="ghost"
           borderRadius={5}
           width="100%"
@@ -201,10 +189,8 @@ const RepeatPicker = ({
               justifyContent="center"
               borderRadius="md"
             >
-              {menuItems.map((m, idx) => (
-                <MenuItem key={idx} onClick={m.clickHandler}>
-                  {m.name}
-                </MenuItem>
+              {menuItems.map((m) => (
+                <MenuItem key={m.name} onClick={m.clickHandler} text={m.name} />
               ))}
             </Flex>
 

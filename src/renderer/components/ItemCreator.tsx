@@ -8,7 +8,6 @@ import EditItemCreator from './EditItemCreator';
 import EditableText2 from './EditableText2';
 
 export type ItemCreatorProps = {
-  style?: 'subtle' | 'default';
   initiallyExpanded: boolean;
   readOnly?: boolean;
   componentKey?: string;
@@ -29,10 +28,34 @@ export type ItemCreatorProps = {
   onCreate?: () => void;
   onEscape?: () => void;
   editing?: boolean;
+  style?: 'subtle' | 'default';
   setEditing?: (editing: boolean) => void;
 };
 
-const ItemCreator = (props: ItemCreatorProps): ReactElement => {
+const ItemCreator = ({
+  initiallyExpanded,
+  readOnly,
+  componentKey,
+  shouldCloseOnBlur,
+  shouldCloseOnSubmit,
+  parentKey,
+  areaKey,
+  projectKey,
+  dueAt,
+  scheduledAt,
+  repeat,
+  labelKey,
+  buttonText,
+  width,
+  hideButton,
+  backgroundColour,
+  innerRef,
+  onCreate,
+  onEscape,
+  editing,
+  style,
+  setEditing,
+}: ItemCreatorProps): ReactElement => {
   const [showItemCreator, setShowItemCreator] = useState(false);
 
   const node = useRef<HTMLDivElement>();
@@ -42,7 +65,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
     }
     setShowItemCreator(false);
 
-    if (props.shouldCloseOnBlur) {
+    if (shouldCloseOnBlur) {
       setShowItemCreator(false);
     }
   };
@@ -55,18 +78,18 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
   }, []);
 
   useEffect(() => {
-    setShowItemCreator(props.initiallyExpanded);
-  }, [props.initiallyExpanded]);
+    setShowItemCreator(initiallyExpanded);
+  }, [initiallyExpanded]);
   const [createItem] = useMutation(CREATE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: ['itemsByFilter', 'itemByKey', 'getItems'],
   });
 
   return (
     <>
-      {props.editing ? (
+      {editing ? (
         <EditItemCreator
-          componentKey={props.componentKey}
-          onClose={() => props.setEditing && props.setEditing(false)}
+          componentKey={componentKey}
+          onClose={() => setEditing && setEditing(false)}
         />
       ) : (
         <Flex
@@ -85,7 +108,7 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
             }
           }}
         >
-          {!props.hideButton && (
+          {!hideButton && (
             <Button
               size="md"
               variant="primary"
@@ -93,8 +116,8 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
               iconPosition="left"
               iconColour="#FFF"
               iconSize="14px"
-              text={showItemCreator ? '' : props.buttonText}
-              tooltipText={props.parentKey ? 'Create subtask' : 'Create item'}
+              text={showItemCreator ? '' : buttonText}
+              tooltipText={parentKey ? 'Create subtask' : 'Create item'}
               onClick={() => {
                 setShowItemCreator(!showItemCreator);
               }}
@@ -108,16 +131,14 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
             justifyContent="flex-start"
             alignItems="center"
             borderRadius={4}
-            width={
-              showItemCreator ? (props.width ? props.width : '100%') : '0px'
-            }
+            width={showItemCreator ? width || '100%' : '0px'}
             opacity={showItemCreator ? '1' : 0}
             transition="width 0.2s ease-in-out 0.1s,opacity 0.2s,0.2s"
             data-cy="item-creator"
           >
             <EditableText2
               singleLine
-              onEscape={props.onEscape}
+              onEscape={onEscape}
               placeholder="Add an item"
               shouldClearOnSubmit
               hideToolbar={false}
@@ -129,12 +150,12 @@ const ItemCreator = (props: ItemCreatorProps): ReactElement => {
                     key: uuidv4(),
                     type: 'TODO',
                     text,
-                    projectKey: props.projectKey,
-                    parentKey: props.parentKey,
-                    dueAt: props.dueAt,
-                    scheduledAt: props.scheduledAt,
-                    repeat: props.repeat,
-                    labelKey: props.labelKey,
+                    projectKey,
+                    parentKey,
+                    dueAt,
+                    scheduledAt,
+                    repeat,
+                    labelKey,
                   },
                 });
               }}

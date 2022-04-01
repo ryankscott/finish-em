@@ -2,10 +2,14 @@ import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
   Box,
   Flex,
+  FlexProps,
   Grid,
   GridItem,
   Text,
   useColorMode,
+  Tooltip,
+  Icon,
+  IconButton,
 } from '@chakra-ui/react';
 import { parseISO } from 'date-fns';
 import { ReactElement } from 'react';
@@ -32,12 +36,13 @@ import { IconType } from '../interfaces';
 import { ItemIcons } from '../interfaces/item';
 import { formatRelativeDate } from '../utils';
 import AreaSelect from './AreaSelect';
-import AttributeSelect from './AttributeSelect';
-import Button from './Button';
+import ItemSelect from './ItemSelect';
 import DatePicker from './DatePicker';
 import EditableText2 from './EditableText2';
 import Item from './Item';
 import ItemCreator from './ItemCreator';
+import LabelSelect from './LabelSelect';
+import ProjectSelect from './ProjectSelect';
 import RepeatPicker from './RepeatPicker';
 
 const Focusbar = (): ReactElement => {
@@ -112,28 +117,26 @@ const Focusbar = (): ReactElement => {
   if (!item) return <></>;
 
   // TODO: Refactor me
-  const AttributeContainer = (props) => (
+  const AttributeContainer = (props: FlexProps) => (
     <Flex
       justifyContent="space-between"
       width="100%"
       minW="180px"
       px={4}
       my={1}
-    >
-      {props.children}
-    </Flex>
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      {...props}
+    />
   );
 
-  const generateSidebarTitle = (icon: IconType, text: string) => {
-    return (
-      <Flex minW="100px" alignItems="center">
-        {convertSVGElementToReact(Icons[icon]())}
-        <Text fontSize="md" pl={1}>
-          {text}
-        </Text>
-      </Flex>
-    );
-  };
+  const SidebarTitle = ({ text, icon }: { text: string; icon: IconType }) => (
+    <Flex minW="100px" alignItems="center">
+      {convertSVGElementToReact(Icons[icon]())}
+      <Text fontSize="md" pl={1}>
+        {text}
+      </Text>
+    </Flex>
+  );
 
   // TODO: Do I need these? Or can I move to the component
   const dueDate = item?.dueAt
@@ -159,43 +162,70 @@ const Focusbar = (): ReactElement => {
       transition="all 0.2s ease-in-out"
     >
       <Grid templateColumns="repeat(5, 1fr)" width="100%" m={0} p={0}>
-        {item?.parent != null && (
+        {item?.parent && (
           <GridItem colSpan={1}>
-            <Button
-              variant="default"
-              size="sm"
-              tooltipText="Up level"
-              onClick={() => {
-                activeItemVar([item.parent.key]);
-              }}
-              icon="upLevel"
-            />
+            <Tooltip label="Up level">
+              <IconButton
+                aria-label="up"
+                variant="default"
+                size="sm"
+                onClick={() => {
+                  if (item?.parent) {
+                    activeItemVar([item?.parent?.key]);
+                  }
+                }}
+                icon={
+                  <Icon p={0} m={0}>
+                    {Icons.upLevel('24px', '24px')}
+                  </Icon>
+                }
+              />
+            </Tooltip>
           </GridItem>
         )}
         <GridItem colStart={5} colSpan={1}>
           <Flex justifyContent="flex-end">
-            <Button
+            <IconButton
+              aria-label="close"
               variant="default"
               size="sm"
               onClick={() => focusbarVisibleVar(false)}
-              icon="close"
+              icon={
+                <Icon p={0} m={0}>
+                  {Icons.close('24px', '24px')}
+                </Icon>
+              }
             />
           </Flex>
         </GridItem>
       </Grid>
       <Flex alignItems="baseline" w="100%" direction="row" m={0} px={2} py={4}>
-        <Button
+        <IconButton
+          size="md"
+          aria-label="toggle-complete"
           disabled={item?.deleted ?? false}
           variant="default"
-          size="sm"
-          iconColour={item.label ? item.label.colour : null}
           onClick={() => {
             if (item.completed) {
               unCompleteItem({ variables: { key: item.key } });
             }
             completeItem({ variables: { key: item.key } });
           }}
-          icon={item?.completed ? 'todoChecked' : 'todoUnchecked'}
+          icon={
+            <Icon p={0} m={0}>
+              {item?.completed
+                ? Icons.todoChecked(
+                    '24px',
+                    '24px',
+                    item.label ? item.label.colour : undefined
+                  )
+                : Icons.todoUnchecked(
+                    '24px',
+                    '24px',
+                    item.label ? item.label.colour : undefined
+                  )}
+            </Icon>
+          }
         />
         <Box
           w="100%"
@@ -217,49 +247,59 @@ const Focusbar = (): ReactElement => {
           />
         </Box>
         {item.deleted ? (
-          <Button
-            variant="default"
-            icon="restore"
-            size="sm"
-            tooltipText="Restore"
-            onClick={() => {
-              restoreItem({ variables: { key: item.key } });
-            }}
-          />
+          <Tooltip label="Restore">
+            <IconButton
+              aria-label="restore"
+              variant="default"
+              icon={
+                <Icon p={0} m={0}>
+                  {Icons.restore('24px', '24px')}
+                </Icon>
+              }
+              size="sm"
+              onClick={() => {
+                restoreItem({ variables: { key: item.key } });
+              }}
+            />
+          </Tooltip>
         ) : (
-          <Button
-            variant="default"
-            icon="trash"
-            size="sm"
-            tooltipText="Delete"
-            onClick={() => {
-              deleteItem({ variables: { key: item.key } });
-            }}
-          />
+          <Tooltip label="delete">
+            <IconButton
+              variant="default"
+              aria-label="delete"
+              icon={
+                <Icon p={0} m={0}>
+                  {Icons.trash('24px', '24px')}
+                </Icon>
+              }
+              size="sm"
+              onClick={() => {
+                deleteItem({ variables: { key: item.key } });
+              }}
+            />
+          </Tooltip>
         )}
       </Flex>
       {item.project?.key === '0' && (
         <AttributeContainer>
-          {generateSidebarTitle('area', 'Area: ')}
+          <SidebarTitle icon="area" text="Area: " />
           <AreaSelect
             currentArea={item.area ?? null}
             completed={item.completed ?? false}
             deleted={item.deleted ?? false}
             onSubmit={(areaKey) => {
-              console.log(areaKey);
               setArea({ variables: { key: item.key, areaKey } });
             }}
           />
         </AttributeContainer>
       )}
       <AttributeContainer>
-        {generateSidebarTitle('project', 'Project: ')}
-        <AttributeSelect
-          attribute="project"
-          currentAttribute={item.project}
-          deleted={item.deleted}
-          completed={item.completed}
-          onSubmit={(projectKey) => {
+        <SidebarTitle icon="project" text="Project: " />
+        <ProjectSelect
+          currentProject={item.project ?? null}
+          deleted={item.deleted ?? false}
+          completed={item.completed ?? false}
+          onSubmit={(projectKey: string) => {
             setProject({
               variables: {
                 key: item.key,
@@ -272,11 +312,11 @@ const Focusbar = (): ReactElement => {
       {item.type === 'TODO' && (
         <>
           <AttributeContainer>
-            {generateSidebarTitle('scheduled', 'Scheduled: ')}
+            <SidebarTitle icon="scheduled" text="Scheduled: " />
             <DatePicker
               key={`sd${item.key}`}
               defaultText="Scheduled at: "
-              onSubmit={(d: Date) => {
+              onSubmit={(d: Date | null) => {
                 setScheduledAt({
                   variables: { key: item.key, scheduledAt: d },
                 });
@@ -287,11 +327,11 @@ const Focusbar = (): ReactElement => {
             />
           </AttributeContainer>
           <AttributeContainer>
-            {generateSidebarTitle('due', 'Due: ')}
+            <SidebarTitle icon="due" text="Due: " />
             <DatePicker
               key={`dd${item.key}`}
               defaultText="Due at: "
-              onSubmit={(d: Date) =>
+              onSubmit={(d: Date | null) =>
                 setDueAt({ variables: { key: item.key, dueAt: d } })
               }
               text={dueDate}
@@ -300,7 +340,7 @@ const Focusbar = (): ReactElement => {
             />
           </AttributeContainer>
           <AttributeContainer>
-            {generateSidebarTitle('repeat', 'Repeating: ')}
+            <SidebarTitle icon="repeat" text="Repeating: " />
             <RepeatPicker
               repeat={
                 item.repeat && item.repeat !== 'undefined'
@@ -321,10 +361,9 @@ const Focusbar = (): ReactElement => {
       )}
       {item.children?.length === 0 && (
         <AttributeContainer>
-          {generateSidebarTitle('subtask', 'Parent: ')}
-          <AttributeSelect
-            attribute="item"
-            currentAttribute={item}
+          <SidebarTitle icon="subtask" text="Parent: " />
+          <ItemSelect
+            currentItem={item}
             completed={item.completed ?? false}
             deleted={item.deleted ?? false}
             onSubmit={(itemKey: string) =>
@@ -334,10 +373,9 @@ const Focusbar = (): ReactElement => {
         </AttributeContainer>
       )}
       <AttributeContainer>
-        {generateSidebarTitle('label', 'Label: ')}
-        <AttributeSelect
-          attribute="label"
-          currentAttribute={item.label}
+        <SidebarTitle icon="label" text="Label: " />
+        <LabelSelect
+          currentLabel={item.label ?? null}
           completed={item.completed ?? false}
           deleted={item.deleted ?? false}
           onSubmit={(labelKey) => {
@@ -347,7 +385,7 @@ const Focusbar = (): ReactElement => {
       </AttributeContainer>
       {item.deleted && (
         <AttributeContainer>
-          {generateSidebarTitle('trash', 'Deleted at: ')}
+          <SidebarTitle icon="trash" text="Deleted at: " />
           <Text fontSize="md" m={1} py={2} px={3}>
             {formatRelativeDate(parseISO(item?.deletedAt))}
           </Text>
@@ -355,25 +393,26 @@ const Focusbar = (): ReactElement => {
       )}
       {item.completed && (
         <AttributeContainer>
-          {generateSidebarTitle('todoChecked', 'Completed at: ')}
+          <SidebarTitle icon="todoChecked" text="Completed at: " />
           <Text fontSize="md" m={1} py={2} px={3}>
             {formatRelativeDate(parseISO(item?.completedAt))}
           </Text>
         </AttributeContainer>
       )}
+
       {item.parent?.key == null && item.type === 'TODO' && (
         <>
           <Flex pt={6} pb={2} alignItems="baseline">
             <Text fontSize="lg" px={2}>
               Subtasks
             </Text>
-            {item.children.length > 0 && (
+            {item.children && item.children?.length > 0 && (
               <Text fontSize="sm" color="gray.600">
                 {item.children.length} items
               </Text>
             )}
           </Flex>
-          {item.children.length ? (
+          {item.children && item.children?.length > 0 ? (
             <Box
               overflow="scroll"
               py={0}
@@ -382,6 +421,7 @@ const Focusbar = (): ReactElement => {
               key={`box-${item.key}`}
             >
               {item.children?.map((childItem) => {
+                if (!childItem) return <></>;
                 return (
                   <Item
                     compact={false}

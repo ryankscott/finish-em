@@ -9,9 +9,9 @@ import {
   SET_SCHEDULED_AT,
 } from 'renderer/queries';
 import { activeItemVar, focusbarVisibleVar } from '..';
-import AttributeSelect from './AttributeSelect';
 import Button from './Button';
 import DatePicker from './DatePicker';
+import ProjectSelect from './ProjectSelect';
 
 const ActionBar = () => {
   const [completeItem] = useMutation(COMPLETE_ITEM);
@@ -51,8 +51,8 @@ const ActionBar = () => {
       boxShadow="md"
       borderRadius="4"
       gridGap={0.5}
-      gridTemplateRows={'16px 40px'}
-      gridTemplateColumns={'repeat(3, 1fr) repeat(2, 24px)'}
+      gridTemplateRows="16px 40px"
+      gridTemplateColumns="repeat(3, 1fr) repeat(2, 24px)"
       gridTemplateAreas={`
       "items items     items   .        . "
       "due   scheduled project complete delete"`}
@@ -112,8 +112,7 @@ const ActionBar = () => {
       </Box>
 
       <Box gridArea="project">
-        <AttributeSelect
-          attribute="project"
+        <ProjectSelect
           currentAttribute={null}
           invert
           completed={false}
@@ -127,15 +126,13 @@ const ActionBar = () => {
       </Box>
 
       <Box gridArea="complete">
-        <Tooltip delay={500} label={'Complete items'}>
+        <Tooltip delay={500} label="Complete items">
           <IconButton
             size="md"
             variant="invert"
             aria-label="complete"
-            icon={convertSVGElementToReact(
-              Icons['todoChecked']('18px', '18px')
-            )}
-            iconColour={'gray.100'}
+            icon={convertSVGElementToReact(Icons.todoChecked('18px', '18px'))}
+            iconColour="gray.100"
             onClick={() => {
               activeItem.map((i) => {
                 completeItem({ variables: { key: i } });
@@ -146,13 +143,13 @@ const ActionBar = () => {
       </Box>
 
       <Box gridArea="delete">
-        <Tooltip delay={500} label={'Delete items'}>
+        <Tooltip delay={500} label="Delete items">
           <IconButton
             size="md"
             variant="invert"
             aria-label="delete"
-            icon={convertSVGElementToReact(Icons['trash']('18px', '18px'))}
-            iconColour={'gray.100'}
+            icon={convertSVGElementToReact(Icons.trash('18px', '18px'))}
+            iconColour="gray.100"
             onClick={() => {
               activeItem.map((i) => {
                 deleteItem({ variables: { key: i } });

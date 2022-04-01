@@ -8,24 +8,31 @@ import EditViewHeader from './EditViewHeader';
 
 export type ViewHeaderProps = {
   name: string;
-  icon?: IconType;
-  readOnly?: boolean;
+  componentKey: string;
   editing?: boolean;
   setEditing?: (editing: boolean) => void;
-  componentKey: string;
+  icon?: IconType;
+  readOnly?: boolean;
 };
 
-const ViewHeader = (props: ViewHeaderProps): ReactElement => {
+const ViewHeader = ({
+  name,
+  icon,
+  readOnly,
+  editing,
+  setEditing,
+  componentKey,
+}: ViewHeaderProps): ReactElement => {
   const theme = useTheme();
   return (
     <>
-      {props.editing ? (
+      {editing ? (
         <EditViewHeader
-          key={`dlg-${props.componentKey}`}
-          componentKey={props.componentKey}
+          key={`dlg-${componentKey}`}
+          componentKey={componentKey}
           onClose={() => {
-            if (props?.setEditing) {
-              props.setEditing(false);
+            if (setEditing) {
+              setEditing(false);
             }
           }}
         />
@@ -39,8 +46,7 @@ const ViewHeader = (props: ViewHeaderProps): ReactElement => {
           templateColumns="40px 1fr 60px"
         >
           <GridItem colSpan={1} p={0}>
-            {props?.icon &&
-              Icons[props?.icon]('36px', '36px', theme.colors.blue[500])}
+            {icon && Icons[icon]('36px', '36px', theme.colors.blue[500])}
           </GridItem>
           <GridItem colSpan={1}>
             <Text
@@ -50,7 +56,7 @@ const ViewHeader = (props: ViewHeaderProps): ReactElement => {
               p={2}
               m={0}
             >
-              {props.name}
+              {name}
             </Text>
           </GridItem>
         </Grid>

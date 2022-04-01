@@ -1,8 +1,8 @@
 /* eslint-disable react/display-name */
 import React from 'react';
 import * as CSS from 'csstype';
-import { IconType } from '../interfaces';
 import { tint } from 'polished';
+import { IconType } from '../interfaces';
 
 export const convertSVGElementToReact = (svg: React.SVGProps<SVGElement>) => (
   <>{svg}</>
@@ -24,11 +24,11 @@ export const Icons: Record<
     <svg
       key="repeat"
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -48,16 +48,16 @@ export const Icons: Record<
     <svg
       key="due"
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M22 5.72l-4.6-3.86-1.29 1.53 4.6 3.86L22 5.72zM7.88 3.39L6.6 1.86 2 5.71l1.29 1.53 4.59-3.85zM12.5 8H11v6l4.75 2.85.75-1.23-4-2.37V8zM12 4c-4.97 0-9 4.03-9 9s4.02 9 9 9c4.97 0 9-4.03 9-9s-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
+      <path d="M6,3A1,1 0 0,1 7,4V4.88C8.06,4.44 9.5,4 11,4C14,4 14,6 16,6C19,6 20,4 20,4V12C20,12 19,14 16,14C13,14 13,12 11,12C8,12 7,14 7,14V21H5V4A1,1 0 0,1 6,3Z" />
     </svg>
   ),
 
@@ -68,10 +68,10 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
       strokeWidth="1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -88,19 +88,19 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '18'}
-      height={height ? height : '18'}
+      width={width || '18'}
+      height={height || '18'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
       <polyline points="14 2 14 8 20 8"> </polyline>
-      <line x1="16" y1="13" x2="8" y2="13"></line>
-      <line x1="16" y1="17" x2="8" y2="17"></line>
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
       <polyline points="10 9 9 9 8 9"> </polyline>
     </svg>
   ),
@@ -112,11 +112,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -133,16 +133,16 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill={colour ? tint(0.4, colour) : 'none'}
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="10"></circle>
+      <circle cx="12" cy="12" r="10" />
     </svg>
   ),
 
@@ -153,17 +153,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '14'}
-      height={height ? height : '14'}
+      width={width || '14'}
+      height={height || '14'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <line x1="12" y1="4" x2="12" y2="20"></line>
-      <line x1="4" y1="12" x2="20" y2="12"></line>
+      <line x1="12" y1="4" x2="12" y2="20" />
+      <line x1="4" y1="12" x2="20" y2="12" />
     </svg>
   ),
 
@@ -174,11 +174,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      height={height ? height : '18'}
-      width={width ? width : '18'}
+      height={height || '18'}
+      width={width || '18'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -193,11 +193,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      height={height ? height : '18'}
-      width={width ? width : '18'}
+      height={height || '18'}
+      width={width || '18'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -214,18 +214,18 @@ export const Icons: Record<
     <svg
       id="help"
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '24'}
-      height={height ? height : '24'}
+      width={width || '24'}
+      height={height || '24'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="10"></circle>
+      <circle cx="12" cy="12" r="10" />
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"> </path>
-      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   ),
 
@@ -236,17 +236,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   ),
 
@@ -257,19 +257,19 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
       <polyline points="3 6 5 6 21 6"> </polyline>
-      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-      <line x1="10" y1="11" x2="10" y2="17"></line>
-      <line x1="14" y1="11" x2="14" y2="17"></line>
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
     </svg>
   ),
 
@@ -280,17 +280,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '14'}
-      height={height ? height : '14'}
+      width={width || '14'}
+      height={height || '14'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"> </path>
-      <circle cx="12" cy="12" r="3"></circle>
+      <circle cx="12" cy="12" r="3" />
     </svg>
   ),
 
@@ -301,17 +301,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '14'}
-      height={height ? height : '14'}
+      width={width || '14'}
+      height={height || '14'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-      <line x1="1" y1="1" x2="23" y2="23"></line>
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
   ),
 
@@ -322,11 +322,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       stroke="none"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
     >
       <path d="M0 0h24v24H0V0z" fill="none" />
       <path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
@@ -340,11 +340,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 32 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -385,17 +385,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-      <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
+      <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+      <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
     </svg>
   ),
 
@@ -406,11 +406,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -426,17 +426,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="11 17 6 12 11 7"></polyline>
-      <polyline points="18 17 13 12 18 7"></polyline>
+      <polyline points="11 17 6 12 11 7" />
+      <polyline points="18 17 13 12 18 7" />
     </svg>
   ),
 
@@ -447,17 +447,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="13 17 18 12 13 7"></polyline>
-      <polyline points="6 17 11 12 6 7"></polyline>
+      <polyline points="13 17 18 12 13 7" />
+      <polyline points="6 17 11 12 6 7" />
     </svg>
   ),
 
@@ -468,15 +468,15 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
     >
-      <polyline points="14 9 9 4 4 9"></polyline>
-      <path d="M20 20h-7a4 4 0 0 1-4-4V4"></path>
+      <polyline points="14 9 9 4 4 9" />
+      <path d="M20 20h-7a4 4 0 0 1-4-4V4" />
     </svg>
   ),
 
@@ -487,17 +487,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <line x1="19" y1="12" x2="5" y2="12"></line>
-      <polyline points="12 19 5 12 12 5"></polyline>
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
     </svg>
   ),
   forward: (
@@ -507,17 +507,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <line x1="5" y1="12" x2="19" y2="12"></line>
-      <polyline points="12 5 19 12 12 19"></polyline>
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
     </svg>
   ),
 
@@ -528,17 +528,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="3"></circle>
-      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
     </svg>
   ),
 
@@ -549,11 +549,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      stroke={colour ? colour : 'currentColor'}
-      fill={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
+      fill={colour || 'currentColor'}
       strokeWidth="0"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -578,18 +578,18 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="1"></circle>
-      <circle cx="12" cy="5" r="1"></circle>
-      <circle cx="12" cy="19" r="1"></circle>
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="12" cy="5" r="1" />
+      <circle cx="12" cy="19" r="1" />
     </svg>
   ),
 
@@ -600,17 +600,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-      <line x1="4" y1="22" x2="4" y2="15"></line>
+      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+      <line x1="4" y1="22" x2="4" y2="15" />
     </svg>
   ),
 
@@ -621,11 +621,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="none"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -649,11 +649,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -671,16 +671,16 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     </svg>
   ),
 
@@ -691,17 +691,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-      <line x1="7" y1="7" x2="7.01" y2="7"></line>
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+      <line x1="7" y1="7" x2="7.01" y2="7" />
     </svg>
   ),
 
@@ -712,11 +712,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -731,17 +731,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '12'}
-      height={height ? height : '12'}
+      width={width || '12'}
+      height={height || '12'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M12 20h9"></path>
-      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
     </svg>
   ),
 
@@ -752,11 +752,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '12'}
-      height={height ? height : '12'}
+      width={width || '12'}
+      height={height || '12'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -775,11 +775,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '12'}
-      height={height ? height : '12'}
+      width={width || '12'}
+      height={height || '12'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -795,11 +795,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '12'}
-      height={height ? height : '12'}
+      width={width || '12'}
+      height={height || '12'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -814,12 +814,12 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
       fillOpacity="1"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -834,19 +834,19 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
       fill="rgba(255,255,255,255)"
       fillOpacity="0"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-      <polyline points="17 21 17 13 7 13 7 21"></polyline>
-      <polyline points="7 3 7 8 15 8"></polyline>
+      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+      <polyline points="17 21 17 13 7 13 7 21" />
+      <polyline points="7 3 7 8 15 8" />
     </svg>
   ),
   feedback: (
@@ -856,12 +856,12 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
       fillOpacity="1"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -876,19 +876,19 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
       fillOpacity="0"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-      <polyline points="2 17 12 22 22 17"></polyline>
-      <polyline points="2 12 12 17 22 12"></polyline>
+      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+      <polyline points="2 17 12 22 22 17" />
+      <polyline points="2 12 12 17 22 12" />
     </svg>
   ),
   area: (
@@ -898,19 +898,19 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
       fillOpacity="0"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+      <line x1="12" y1="22.08" x2="12" y2="12" />
     </svg>
   ),
   project: (
@@ -920,12 +920,12 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
       fillOpacity="1"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -940,18 +940,18 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
       fillOpacity="0"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
     </svg>
   ),
   reminder: (
@@ -961,18 +961,18 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
       fillOpacity="0"
-      stroke={colour ? colour : 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </svg>
   ),
   weekly: (
@@ -982,11 +982,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -1001,11 +1001,11 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={colour ? colour : 'currentColor'}
-      stroke={colour ? colour : 'currentColor'}
+      fill={colour || 'currentColor'}
+      stroke={colour || 'currentColor'}
       strokeWidth="0.1"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -1020,17 +1020,17 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={'none'}
-      stroke={colour ? colour : 'currentColor'}
+      fill="none"
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="4 17 10 11 4 5"></polyline>
-      <line x1="12" y1="19" x2="20" y2="19"></line>
+      <polyline points="4 17 10 11 4 5" />
+      <line x1="12" y1="19" x2="20" y2="19" />
     </svg>
   ),
   move: (
@@ -1040,18 +1040,18 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={'none'}
-      stroke={colour ? colour : 'currentColor'}
+      fill="none"
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="10"></circle>
-      <polyline points="12 16 16 12 12 8"></polyline>
-      <line x1="8" y1="12" x2="16" y2="12"></line>
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 16 16 12 12 8" />
+      <line x1="8" y1="12" x2="16" y2="12" />
     </svg>
   ),
   refresh: (
@@ -1061,18 +1061,18 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={'none'}
-      stroke={colour ? colour : 'currentColor'}
+      fill="none"
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <polyline points="23 4 23 10 17 10"></polyline>
-      <polyline points="1 20 1 14 7 14"></polyline>
-      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      <polyline points="23 4 23 10 17 10" />
+      <polyline points="1 20 1 14 7 14" />
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
     </svg>
   ),
   lightMode: (
@@ -1082,24 +1082,24 @@ export const Icons: Record<
   ): React.SVGProps<SVGSVGElement> => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
       viewBox="0 0 24 24"
-      fill={'none'}
-      stroke={colour ? colour : 'currentColor'}
+      fill="none"
+      stroke={colour || 'currentColor'}
       strokeWidth="1.75"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      <circle cx="12" cy="12" r="5" />
+      <line x1="12" y1="1" x2="12" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="23" />
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+      <line x1="1" y1="12" x2="3" y2="12" />
+      <line x1="21" y1="12" x2="23" y2="12" />
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
     </svg>
   ),
   finish_em: (
@@ -1110,8 +1110,8 @@ export const Icons: Record<
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 1200 1200"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
     >
       <g filter="url(#filter0_d)">
         <rect
@@ -1239,8 +1239,8 @@ export const Icons: Record<
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 28 32"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
     >
       <g filter="url(#filter0_d)">
         <path d="M9 16.7768H19V19.1735H9V16.7768Z" fill="url(#paint0_linear)" />
@@ -1330,8 +1330,8 @@ export const Icons: Record<
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 35 32"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
     >
       <g filter="url(#filter0_d)">
         <path
@@ -1398,18 +1398,18 @@ export const Icons: Record<
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 48 48"
-      width={width ? width : '16'}
-      height={height ? height : '16'}
+      width={width || '16'}
+      height={height || '16'}
     >
       <defs>
         <path
           d="M36.4731588,54.1000025 C32.1372057,53.8032112 20.3108863,53.0117794 12.3384586,49.3912148 C5.89109393,46.4632359 2.63600006,40.5350121 2.63600006,40.5350121 C2.63600006,40.5350121 4.90456161,29.8098131 6.59236116,25.5510862 C8.27598837,21.3028873 12.7547143,15.0303309 12.7547143,15.0303309 C12.7547143,15.0303309 12.2709698,10.1779824 14.3143534,10.1779824 C16.8491107,10.1779824 19.2033412,12.722764 19.2033412,12.722764 C19.2033412,12.722764 26.8910907,11.6736603 29.4367595,14.6837345 C32.3184106,18.0910841 38.8505708,19.9718349 38.8505708,19.9718349 C38.8505708,19.9718349 41.188477,19.2870699 40.2251575,22.951569 C39.2618379,26.6160682 36.0237119,29.8373991 29.5359385,29.8421559 C27.2195011,29.8438542 26.4954309,31.2599202 26.6176816,33.105413 C26.8733604,36.965135 30.6960205,42.8773535 30.6960205,42.8773535 C30.6960205,42.8773535 38.3119065,54.2258627 36.4731588,54.1000025 Z"
           id="path-4"
-        ></path>
+        />
         <path
           d="M34.0731588,44.1000025 C30.5848924,43.8612344 16.2824932,43.6845712 9.49658538,40.7488808 C1.02612008,37.0844244 0.236000061,30.5350121 0.236000061,30.5350121 C0.236000061,30.5350121 2.50456161,19.8098131 4.19236116,15.5510862 C5.87598837,11.3028873 10.3547143,5.03033089 10.3547143,5.03033089 C10.3547143,5.03033089 9.87096977,0.177982367 11.9143534,0.177982367 C14.4491107,0.177982367 16.8033412,2.72276403 16.8033412,2.72276403 C16.8033412,2.72276403 24.4910907,1.67366034 27.0367595,4.68373452 C29.9184106,8.09108414 36.4505708,9.9718349 36.4505708,9.9718349 C36.4505708,9.9718349 38.788477,9.28706986 37.8251575,12.951569 C36.8618379,16.6160682 33.6237119,19.8373991 27.1359385,19.8421559 C24.8195011,19.8438542 24.0954309,21.2599202 24.2176816,23.105413 C24.4733604,26.965135 28.2960205,32.8773535 28.2960205,32.8773535 C28.2960205,32.8773535 35.9119065,44.2258627 34.0731588,44.1000025 Z"
           id="path-7"
-        ></path>
+        />
       </defs>
       <g
         id="bear-logo-page-1"
@@ -1421,13 +1421,13 @@ export const Icons: Record<
         <g id="header" transform="translate(-449.000000, -31.000000)">
           <g id="navigation" transform="translate(449.000000, 31.000000)">
             <g id="icon">
-              <g id="Oval-mask-copy"></g>
+              <g id="Oval-mask-copy" />
               <g id="Bear-fill" mask="url(#mask-2)">
                 <use
-                  fill={colour ? colour : '#000'}
+                  fill={colour || '#000'}
                   fillRule="evenodd"
                   xlinkHref="#path-4"
-                ></use>
+                />
               </g>
             </g>
           </g>
