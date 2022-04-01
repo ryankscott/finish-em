@@ -1,9 +1,9 @@
 import { ReactElement } from 'react';
 
 import { Text, Grid, GridItem } from '@chakra-ui/layout';
-import { useTheme } from '@chakra-ui/system';
+import { Icon } from '@chakra-ui/react';
 import { IconType } from '../interfaces';
-import { Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 import EditViewHeader from './EditViewHeader';
 
 export type ViewHeaderProps = {
@@ -12,18 +12,15 @@ export type ViewHeaderProps = {
   editing?: boolean;
   setEditing?: (editing: boolean) => void;
   icon?: IconType;
-  readOnly?: boolean;
 };
 
 const ViewHeader = ({
   name,
   icon,
-  readOnly,
   editing,
   setEditing,
   componentKey,
 }: ViewHeaderProps): ReactElement => {
-  const theme = useTheme();
   return (
     <>
       {editing ? (
@@ -45,8 +42,8 @@ const ViewHeader = ({
           w="100%"
           templateColumns="40px 1fr 60px"
         >
-          <GridItem colSpan={1} p={0}>
-            {icon && Icons[icon]('36px', '36px', theme.colors.blue[500])}
+          <GridItem colSpan={1} p={0} px={2}>
+            {icon && <Icon as={Icons2[icon]} color="blue.500" w={7} h={7} />}
           </GridItem>
           <GridItem colSpan={1}>
             <Text

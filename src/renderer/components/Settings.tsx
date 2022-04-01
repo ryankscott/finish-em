@@ -13,6 +13,9 @@ import {
   EditableInput,
   EditablePreview,
   useOutsideClick,
+  Button,
+  Icon,
+  IconButton,
 } from '@chakra-ui/react';
 import {
   CREATE_LABEL,
@@ -26,18 +29,24 @@ import {
   SET_FEATURE_METADATA,
 } from 'renderer/queries';
 import { Calendar, Label } from 'main/generated/typescript-helpers';
+import { Icons2 } from 'renderer/assets/icons';
 import Select from './Select';
 import { camelCaseToInitialCaps } from '../utils';
-import Button from './Button';
 
 const NUMBER_OF_COLOURS = 12;
 
-const SidebarHeader = (props: {
+type SidebarHeadeProps = {
   name: string;
   colorMode: 'light' | 'dark';
   isActive: boolean;
   onClick: () => void;
-}) => (
+};
+const SidebarHeader = ({
+  name,
+  colorMode,
+  isActive,
+  onClick,
+}: SidebarHeadeProps) => (
   <Text
     fontSize="md"
     fontWeight="regular"
@@ -46,25 +55,26 @@ const SidebarHeader = (props: {
     m={0}
     cursor="pointer"
     bg={
-      props.isActive
-        ? props.colorMode == 'light'
+      isActive
+        ? colorMode === 'light'
           ? 'gray.200'
           : 'gray.900'
-        : props.colorMode == 'light'
+        : colorMode === 'light'
         ? 'gray.50'
         : 'gray.800'
     }
     onClick={() => {
-      props.onClick();
+      onClick();
     }}
   >
-    {props.name}
+    {name}
   </Text>
 );
 
-const SettingHeader = (props: { name: string }): JSX.Element => (
+type SettingHeaderProps = { name: string };
+const SettingHeader = ({ name }: SettingHeaderProps): JSX.Element => (
   <Text py={4} px={0} fontSize="xl" fontWeight="semibold">
-    {props.name}
+    {name}
   </Text>
 );
 
@@ -177,7 +187,7 @@ const Settings = (): ReactElement => {
         <SidebarHeader
           name="Labels"
           colorMode={colorMode}
-          isActive={activeCategory == 'LABELS'}
+          isActive={activeCategory === 'LABELS'}
           onClick={() => setActiveCategory('LABELS')}
         />
       </Flex>
@@ -231,7 +241,7 @@ const Settings = (): ReactElement => {
                           autoFocus
                           placeholder="Choose calendar"
                           defaultValue={calendarOptions?.find(
-                            (c) => c.value == data?.activeCalendar?.key
+                            (c) => c.value === data?.activeCalendar?.key
                           )}
                           onChange={(e) => {
                             setActiveCalendar({
@@ -243,7 +253,7 @@ const Settings = (): ReactElement => {
                         />
                       </Box>
                     )}
-                    {feature.name == 'bearNotesIntegration' && (
+                    {feature.name === 'bearNotesIntegration' && (
                       <Box pl={3} w="180px">
                         <Editable
                           defaultValue={JSON.parse(feature?.metadata)?.apiToken}
@@ -286,7 +296,7 @@ const Settings = (): ReactElement => {
             })}
           </Box>
         )}
-        {activeCategory == 'LABELS' && (
+        {activeCategory === 'LABELS' && (
           <Box p={3} my={6} px={3}>
             <SettingHeader name="Labels" />
             {Object.values(data.labels).map((label: Label) => {
@@ -297,7 +307,7 @@ const Settings = (): ReactElement => {
                     justifyContent="space-between"
                     alignItems="center"
                     height="auto"
-                    bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
+                    bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
                     key={`lc-${label.key}`}
                   >
                     <Box w="100%" mr={1}>
@@ -340,21 +350,17 @@ const Settings = (): ReactElement => {
                       shadow="md"
                       id={`${label.key}-edit`}
                       key={`edit-colour-${label.key}`}
-                      size="sm"
-                      variant="default"
                       onClick={(e) => {
                         setShowColourPicker(!showColourPicker);
                         setColourPickerTriggeredBy(label);
                         e.stopPropagation();
                       }}
                     />
-                    <Button
+                    <IconButton
+                      aria-label="delete label"
                       id={`${label.key}-delete`}
                       key={`delete-label-${label.key}`}
-                      icon="trash"
-                      iconSize="18px"
-                      size="sm"
-                      variant="default"
+                      icon={<Icon as={Icons2.trash} />}
                       onClick={() => {
                         deleteLabel({ variables: { key: label.key } });
                       }}
@@ -382,8 +388,7 @@ const Settings = (): ReactElement => {
               <Button
                 variant="default"
                 size="md"
-                icon="add"
-                text="Add label"
+                rightIcon={<Icon as={Icons2.add} />}
                 onClick={() => {
                   createLabel({
                     variables: {
@@ -394,9 +399,9 @@ const Settings = (): ReactElement => {
                     },
                   });
                 }}
-                iconPosition="right"
-                iconSize="12px"
-              />
+              >
+                Add label
+              </Button>
             </Flex>
           </Box>
         )}

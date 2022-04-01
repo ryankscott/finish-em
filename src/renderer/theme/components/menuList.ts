@@ -16,5 +16,5 @@ const MenuList = {
       color: 'gray.100',
     },
   },
-}
-export default MenuList
+};
+export default MenuList;

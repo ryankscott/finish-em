@@ -1,9 +1,9 @@
-import React from 'react'
+import React from 'react';
 
-import { SkeletonCircle, Skeleton, Box, useColorMode } from '@chakra-ui/react'
+import { SkeletonCircle, Skeleton, Box, useColorMode } from '@chakra-ui/react';
 
 export const LoadingItem = () => {
-  const { colorMode, toggleColorMode } = useColorMode()
+  const { colorMode, toggleColorMode } = useColorMode();
   return (
     <Box
       my={1}
@@ -15,7 +15,7 @@ export const LoadingItem = () => {
       _after={{
         width: '100%',
         borderBottom: '1px solid',
-        borderColor: colorMode == 'light' ? 'gray.400' : 'gray.600',
+        borderColor: colorMode === 'light' ? 'gray.400' : 'gray.600',
         height: '1px',
         position: 'absolute',
         bottom: '0',
@@ -25,8 +25,8 @@ export const LoadingItem = () => {
       }}
     >
       <SkeletonCircle
-        startColor={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-        endColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
+        startColor={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        endColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         my={1}
         left="0px"
         position="absolute"
@@ -34,8 +34,8 @@ export const LoadingItem = () => {
         size={'6'}
       />
       <Skeleton
-        startColor={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-        endColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
+        startColor={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        endColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         my={1}
         mx={2}
         position="absolute"
@@ -45,8 +45,8 @@ export const LoadingItem = () => {
         top="0px"
       />
       <Skeleton
-        startColor={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-        endColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
+        startColor={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        endColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         my={1}
         mx={2}
         position="absolute"
@@ -56,8 +56,8 @@ export const LoadingItem = () => {
         bottom="0px"
       />
       <Skeleton
-        startColor={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-        endColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
+        startColor={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        endColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         my={1}
         mx={2}
         position="absolute"
@@ -67,8 +67,8 @@ export const LoadingItem = () => {
         bottom="0px"
       />
       <Skeleton
-        startColor={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-        endColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
+        startColor={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        endColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
         my={1}
         mx={2}
         position="absolute"
@@ -78,5 +78,5 @@ export const LoadingItem = () => {
         bottom="0px"
       />
     </Box>
-  )
-}
+  );
+};

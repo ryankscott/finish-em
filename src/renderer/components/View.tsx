@@ -1,9 +1,9 @@
 import { ReactElement } from 'react';
-import ReorderableComponentList from './ReorderableComponentList';
 import { gql, useQuery } from '@apollo/client';
+import ReorderableComponentList from './ReorderableComponentList';
 import Project from './Project';
 import Area from './Area';
-import { Page } from './Page';
+import Page from './Page';
 
 const GET_DATA = gql`
   query ViewByKey($key: String!) {
@@ -31,10 +31,10 @@ const headerComponent = (type: string, viewKey: string) => {
   }
 };
 
-const View = (props: ViewProps): ReactElement => {
+const View = ({ viewKey }: ViewProps): ReactElement => {
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
-      key: props.viewKey,
+      key: viewKey,
     },
   });
   if (loading) return <></>;
@@ -44,8 +44,8 @@ const View = (props: ViewProps): ReactElement => {
   }
   return (
     <Page>
-      {headerComponent(data.view.type, props.viewKey)}
-      <ReorderableComponentList viewKey={props.viewKey} />
+      {headerComponent(data.view.type, viewKey)}
+      <ReorderableComponentList viewKey={viewKey} />
     </Page>
   );
 };

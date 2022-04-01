@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import { forwardRef, ReactElement, useState } from 'react';
 import RRule from 'rrule';
 import {
   NumberInput,
@@ -9,19 +9,20 @@ import {
   MenuList,
   Text,
   Flex,
-  Button as CButton,
+  Button,
+  Icon,
+  FlexProps,
 } from '@chakra-ui/react';
 import lowerCase from 'lodash/lowerCase';
 import upperFirst from 'lodash/upperFirst';
-import Button from './Button';
 import DatePicker from './DatePicker';
 import { formatRelativeDate } from '../utils';
-import { Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 
 type RepeatDialogProps = {
   onSubmit: (rule: RRule) => void;
 };
-const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
+const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [repeatInterval, setRepeatInterval] = useState(1);
@@ -35,29 +36,29 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
   const endDateText = endDate ? formatRelativeDate(endDate) : 'End date';
 
   const handleSubmit = (): void => {
-    if (endType == 'on_a_date') {
+    if (endType === 'on_a_date') {
       const r = new RRule({
         freq: repeatIntervalType,
         interval: repeatInterval,
         dtstart: startDate,
         until: endDate,
       });
-      props.onSubmit(r);
-    } else if (endType == 'after_x_times') {
+      onSubmit(r);
+    } else if (endType === 'after_x_times') {
       const r = new RRule({
         freq: repeatIntervalType,
         interval: repeatInterval,
         dtstart: startDate,
         count: repeatNumber,
       });
-      props.onSubmit(r);
+      onSubmit(r);
     } else {
       const r = new RRule({
         freq: repeatIntervalType,
         interval: repeatInterval,
         dtstart: startDate,
       });
-      props.onSubmit(r);
+      onSubmit(r);
     }
   };
 
@@ -72,7 +73,7 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
       case 3:
         return 'Days';
       default:
-        break;
+        return '';
     }
   };
 
@@ -82,27 +83,24 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
     minW: '90px',
   };
 
-  const optionStyle = {
-    width: '100%',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  };
+  const Option = forwardRef<FlexProps, 'div'>((props, ref) => (
+    <Flex w="100%" justifyContent="space-between" alignItems="center">
+      {props.children}
+    </Flex>
+  ));
 
   return (
     <Flex
       direction="column"
       borderRadius={5}
-      border="1px solid"
-      borderColor="gray.100"
       bg="white"
-      p={4}
+      p={2}
       mx={2}
       position="relative"
       zIndex="99"
       width="320px"
-      height="100%"
     >
-      <Flex {...optionStyle}>
+      <Option>
         <Text {...labelStyle}>Starts: </Text>
         <DatePicker
           text={startDateText}
@@ -112,8 +110,8 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
           }}
           completed={false}
         />
-      </Flex>
-      <Flex {...optionStyle}>
+      </Option>
+      <Option>
         <Text {...labelStyle}>Repeats every: </Text>
         <Flex justifyContent="start" alignItems="center" w="100%" pl="5px">
           <NumberInput
@@ -141,12 +139,12 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
             <MenuButton
               height="32px"
               size="md"
-              as={CButton}
+              as={Button}
               fontWeight="normal"
               borderRadius={5}
               variant="subtle"
               _hover={{ bg: 'gray.100' }}
-              rightIcon={Icons.collapse(12, 12)}
+              rightIcon={<Icon as={Icons2.collapse} />}
               width="100%"
               textAlign="start"
             >
@@ -170,15 +168,15 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
             </MenuList>
           </Menu>
         </Flex>
-      </Flex>
-      <Flex {...optionStyle}>
+      </Option>
+      <Option>
         <Text {...labelStyle}>Ends: </Text>
         <Menu placement="bottom" gutter={0} arrowPadding={0}>
           <MenuButton
             height="32px"
             size="md"
-            as={CButton}
-            rightIcon={Icons.collapse(12, 12)}
+            as={Button}
+            rightIcon={<Icon as={Icons2.collapse} />}
             fontWeight="normal"
             borderRadius={5}
             variant="subtle"
@@ -198,9 +196,9 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
             <MenuItem onClick={() => setEndType('never')}>Never</MenuItem>
           </MenuList>
         </Menu>
-      </Flex>
-      {endType == 'after_x_times' && (
-        <Flex {...optionStyle}>
+      </Option>
+      {endType === 'after_x_times' && (
+        <Option>
           <Text {...labelStyle}>After: </Text>
           <Flex justifyContent="start" alignItems="center" w="100%" pl="5px">
             <NumberInput
@@ -234,10 +232,10 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
               times{' '}
             </Text>
           </Flex>
-        </Flex>
+        </Option>
       )}
-      {endType == 'on_a_date' && (
-        <Flex {...optionStyle}>
+      {endType === 'on_a_date' && (
+        <Option>
           <Text {...labelStyle}>End date: </Text>
           <DatePicker
             size="md"
@@ -248,17 +246,18 @@ const RepeatDialog = (props: RepeatDialogProps): ReactElement => {
               setEndDate(val);
             }}
           />
-        </Flex>
+        </Option>
       )}
       <Flex direction="row" p={1} m={1} w="100%" justify="flex-end">
         <Button
           variant="primary"
           size="md"
-          text="Set Repeat"
           onClick={() => {
             handleSubmit();
           }}
-        />
+        >
+          Set Repeat
+        </Button>
       </Flex>
     </Flex>
   );

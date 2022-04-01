@@ -1,7 +1,8 @@
 import { ReactElement } from 'react';
 import { Flex, Text } from '@chakra-ui/layout';
+import { IconButton, Icon, Button } from '@chakra-ui/react';
+import { Icons2 } from 'renderer/assets/icons';
 import { PAGE_SIZE } from '../../consts';
-import Button from './Button';
 
 export type PaginationProps = {
   currentPage: number;
@@ -25,10 +26,11 @@ const Pagination = ({
       py={2}
     >
       {/* Start page button  */}
-      <Button
+      <IconButton
+        aria-label="first"
         size="sm"
         variant="default"
-        icon="slideLeft"
+        icon={<Icon as={Icons2.slideLeft} />}
         onClick={() =>
           setCurrentPage(currentPage === 1 ? currentPage : currentPage - 1)
         }
@@ -36,12 +38,9 @@ const Pagination = ({
 
       {/* First page button  */}
       {currentPage !== 1 && (
-        <Button
-          size="sm"
-          variant="default"
-          text="1"
-          onClick={() => setCurrentPage(1)}
-        />
+        <Button size="sm" variant="default" onClick={() => setCurrentPage(1)}>
+          1
+        </Button>
       )}
       {/* More pages indicator (small no. of pages) */}
       {currentPage >= 4 && '...'}
@@ -51,27 +50,26 @@ const Pagination = ({
         <Button
           size="sm"
           variant="default"
-          text={(currentPage - 1).toString()}
           onClick={() => setCurrentPage(currentPage - 1)}
-        />
+        >
+          {(currentPage - 1).toString()}
+        </Button>
       )}
 
       {/* Current page button */}
-      <Button
-        size="sm"
-        isActive
-        variant="default"
-        text={currentPage.toString()}
-      />
+      <Button size="sm" isActive variant="default">
+        {currentPage.toString()}
+      </Button>
 
       {/* Next page button (if we're not at the end) */}
       {currentPage <= totalPages - 2 && (
         <Button
           size="sm"
           variant="default"
-          text={(currentPage + 1).toString()}
           onClick={() => setCurrentPage(currentPage + 1)}
-        />
+        >
+          {(currentPage + 1).toString()}
+        </Button>
       )}
       {/* More pages indicator */}
       {currentPage <= totalPages - 2 && (
@@ -84,17 +82,19 @@ const Pagination = ({
         <Button
           size="sm"
           variant="default"
-          text={totalPages.toString()}
           onClick={() => {
             setCurrentPage(totalPages);
           }}
-        />
+        >
+          {totalPages.toString()}
+        </Button>
       )}
       {/* End button */}
-      <Button
+      <IconButton
+        aria-label="next"
         size="sm"
         variant="default"
-        icon="slideRight"
+        icon={<Icon as={Icons2.slideRight} />}
         onClick={() =>
           setCurrentPage(
             currentPage === totalPages ? totalPages : currentPage + 1

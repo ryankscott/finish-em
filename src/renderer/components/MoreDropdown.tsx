@@ -1,6 +1,4 @@
 import React, { ReactElement } from 'react';
-import { IconType } from '../interfaces';
-import { Icons } from '../assets/icons';
 import {
   Flex,
   Menu,
@@ -10,7 +8,10 @@ import {
   IconButton,
   Text,
   useColorMode,
+  Icon,
 } from '@chakra-ui/react';
+import { IconType } from '../interfaces';
+import { Icons2 } from '../assets/icons';
 
 export type MoreDropdownOptions = {
   label: string;
@@ -19,35 +20,39 @@ export type MoreDropdownOptions = {
 }[];
 
 type MoreDropdownProps = {
+  options: MoreDropdownOptions;
   showDialog?: boolean;
   disableClick?: boolean;
-  options: MoreDropdownOptions;
 };
 
-function MoreDropdown(props: MoreDropdownProps): ReactElement {
+const MoreDropdown = ({
+  options,
+  showDialog,
+  disableClick,
+}: MoreDropdownProps): ReactElement => {
   const { colorMode } = useColorMode();
 
   return (
-    <Menu matchWidth={true}>
+    <Menu matchWidth>
       <MenuButton
         as={IconButton}
         onClick={(e) => e.stopPropagation()}
-        variant={'subtle'}
-        color={colorMode == 'light' ? 'gray.800' : 'gray.400'}
-        icon={Icons['more']('14px', '14px')}
+        variant="subtle"
+        color={colorMode === 'light' ? 'gray.800' : 'gray.400'}
+        icon={<Icon as={Icons2.more} />}
       />
-      <MenuList minW={'140px'}>
-        {props.options.map((v, i) => {
+      <MenuList minW="140px">
+        {options.map((v, i) => {
           return (
-            <MenuItem borderRadius={5} w={'140px'} key={i} onClick={v.onClick}>
+            <MenuItem borderRadius={5} w="140px" key={i} onClick={v.onClick}>
               <Flex
-                direction={'row'}
-                justifyContent={'center'}
-                alignItems={'center'}
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
                 py={0}
                 px={2}
               >
-                {Icons[v.icon]('14px', '14px')}
+                <Icon as={Icons2[v?.icon]} />
                 <Text pl={2} fontSize="sm">
                   {v.label}
                 </Text>
@@ -58,6 +63,6 @@ function MoreDropdown(props: MoreDropdownProps): ReactElement {
       </MenuList>
     </Menu>
   );
-}
+};
 
 export default MoreDropdown;

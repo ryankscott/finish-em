@@ -1,6 +1,6 @@
 import { List, ListItem, Text, Code, VStack } from '@chakra-ui/react';
 import { ReactElement } from 'react';
-import { Page } from './Page';
+import Page from './Page';
 
 const filterAttributes: { name: string; description: string }[] = [
   { name: 'key', description: 'the ID of the item' },
@@ -23,21 +23,21 @@ const filterAttributes: { name: string; description: string }[] = [
 export const Help = (): ReactElement => {
   return (
     <Page>
-      <VStack w={'100%'} justifyContent={'flex-start'}>
-        <Text py={4} w={'100%'} fontSize={'3xl'} color={'blue.500'}>
+      <VStack w="100%" justifyContent="flex-start">
+        <Text py={4} w="100%" fontSize="3xl" color="blue.500">
           Help
         </Text>
-        <Text w={'100%'} fontSize={'2xl'}>
+        <Text w="100%" fontSize="2xl">
           Filter Syntax
         </Text>
-        <Text w={'100%'} fontSize={'xl'}>
+        <Text w="100%" fontSize="xl">
           Attributes
         </Text>
-        <List pl={2} w={'100%'}>
+        <List pl={2} w="100%">
           {filterAttributes.map((f) => {
             return (
               <ListItem py={1}>
-                <Text fontSize="md" w={'100%'}>
+                <Text fontSize="md" w="100%">
                   <Code>{f.name}</Code> - {f.description}
                 </Text>
               </ListItem>

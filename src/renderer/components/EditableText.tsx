@@ -85,7 +85,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
 
   const handleClick = (e): void => {
     // Handle links normally
-    if (e.target.nodeName == 'A') {
+    if (e.target.nodeName === 'A') {
       return;
     }
     if (props.readOnly) {
@@ -123,7 +123,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
   };
 
   const handleKeyUp = (e): void => {
-    if (e.key == 'Escape') {
+    if (e.key === 'Escape') {
       if (props.onEditingChange) {
         props.onEditingChange(false);
       }
@@ -147,7 +147,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
       props.keywords.map((keyword) => {
         words.map((word, index) => {
           // Because we're only testing for the itemRegex on the first word ignore if it's a later word
-          if (index > 0 && keyword.matcher == itemRegex) return;
+          if (index > 0 && keyword.matcher === itemRegex) return;
           const matches = word.match(keyword.matcher);
           if (!matches) return;
           const valid = matches.some(keyword.validation);
@@ -177,7 +177,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
       props.onKeyDown(currentText);
     }
 
-    if (e.key == 'Enter') {
+    if (e.key === 'Enter') {
       // If it's not valid then don't submit
       if (props.validation && !valid) {
         // This stops an actual enter being sent
@@ -204,7 +204,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
   const handleFocus = (e): void => {
     // Ignore clicks if it's already editable
     if (editable) return;
-    if (e.target.nodeName == 'A') {
+    if (e.target.nodeName === 'A') {
       return;
     }
     // NOTE: Weirdly Chrome sometimes fires a focus event before a click
@@ -280,7 +280,7 @@ function InternalEditableText(props: EditableTextProps): ReactElement {
               : getMarkdownText()
           }
         />
-        {input.length == 0 &&
+        {input.length === 0 &&
           !(
             props.innerRef?.current?.innerText != undefined &&
             props.innerRef?.current?.innerText != ''

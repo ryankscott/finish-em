@@ -9,11 +9,12 @@ import {
   Flex,
   Text,
   Link,
+  Button,
 } from '@chakra-ui/react';
 import { format, parseISO, sub } from 'date-fns';
 import { gql, useQuery } from '@apollo/client';
 import RRule from 'rrule';
-import Button from './Button';
+import { Icons2 } from 'renderer/assets/icons';
 import { Event } from '../../main/generated/typescript-helpers';
 import { capitaliseFirstLetter } from '../utils';
 
@@ -55,7 +56,7 @@ const AttributeValueStyles = {
   textOverflow: 'ellipsis',
 };
 
-export const EventModal = (props: Props) => {
+const EventModal = ({ event, isOpen, onClose }: Props) => {
   const { loading, error, data } = useQuery(GET_FEATURES);
   if (loading) return null;
   if (error) {
@@ -64,14 +65,11 @@ export const EventModal = (props: Props) => {
   }
 
   const offset = new Date().getTimezoneOffset();
-  const startAt = props.event?.startAt
-    ? format(
-        sub(parseISO(props.event?.startAt), { minutes: offset }),
-        'h:mm aa'
-      )
+  const startAt = event?.startAt
+    ? format(sub(parseISO(event?.startAt), { minutes: offset }), 'h:mm aa')
     : '';
-  const endAt = props.event?.endAt
-    ? format(sub(parseISO(props?.event?.endAt), { minutes: offset }), 'h:mm aa')
+  const endAt = event?.endAt
+    ? format(sub(parseISO(event?.endAt), { minutes: offset }), 'h:mm aa')
     : '';
 
   const generateDuration = () => {
@@ -86,24 +84,24 @@ export const EventModal = (props: Props) => {
   };
 
   const generateLocation = () => {
-    if (!props?.event?.location) {
+    if (!event?.location) {
       return <Text fontSize="md">-</Text>;
     }
-    if (props?.event?.location?.startsWith('http')) {
+    if (event?.location?.startsWith('http')) {
       return (
-        <Link fontSize="md" href={props.event.location}>
-          {props.event.location}
+        <Link fontSize="md" href={event.location}>
+          {event.location}
         </Link>
       );
     }
-    return <Text fontSize="md">{props.event.location} </Text>;
+    return <Text fontSize="md">{event.location} </Text>;
   };
 
   const generateAttendees = () => {
-    if (!props?.event?.attendees) {
+    if (!event?.attendees) {
       return <Text fontSize="md">-</Text>;
     }
-    return props.event?.attendees?.map((a, _) => (
+    return event?.attendees?.map((a, _) => (
       <Text fontSize="md" key={a?.name}>
         {a?.name ?? '-'}
       </Text>
@@ -111,10 +109,10 @@ export const EventModal = (props: Props) => {
   };
 
   return (
-    <Modal isOpen={props.isOpen} onClose={props.onClose}>
+    <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay>
         <ModalContent>
-          <ModalHeader pr="40px">{props.event?.title}</ModalHeader>
+          <ModalHeader pr="40px">{event?.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Flex direction="row" {...AttributeContainerStyles}>
@@ -130,7 +128,7 @@ export const EventModal = (props: Props) => {
                 {generateDuration()}
               </Flex>
             </Flex>
-            {props.event?.recurrence && (
+            {event?.recurrence && (
               <Flex direction="row" {...AttributeContainerStyles}>
                 <Flex {...AttributeKeyStyles}>
                   <Text fontSize="md">Recurrence: </Text>
@@ -143,7 +141,7 @@ export const EventModal = (props: Props) => {
                 >
                   <Text fontSize="md">
                     {capitaliseFirstLetter(
-                      RRule.fromString(props.event.recurrence).toText()
+                      RRule.fromString(event.recurrence).toText()
                     )}
                   </Text>
                 </Flex>
@@ -179,21 +177,19 @@ export const EventModal = (props: Props) => {
           <ModalFooter>
             {data.bearNotesIntegration.enabled && (
               <Button
-                text="Create note"
                 variant="primary"
                 size="md"
-                icon="bear"
-                iconPosition="right"
-                iconColour="white"
+                rightIcon={<Icon as={Icons2.bear} />}
+                color="white"
                 onClick={() => {
                   const title = `${format(new Date(), 'yyyy-MM-dd')} - ${
-                    props.event?.title
+                    event?.title
                   }`;
                   const contents = `
 _${startAt} - ${endAt}_
 
 ## Attendees:
-${props.event?.attendees
+${event?.attendees
   ?.map((a) => {
     return `- ${a?.name}`;
   })
@@ -210,7 +206,9 @@ ${props.event?.attendees
                     content: contents,
                   });
                 }}
-              />
+              >
+                Create note
+              </Button>
             )}
           </ModalFooter>
         </ModalContent>
@@ -218,3 +216,5 @@ ${props.event?.attendees
     </Modal>
   );
 };
+
+export default EventModal;

@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import {
+  Button,
   Box,
   Flex,
   Text,
@@ -8,15 +9,17 @@ import {
   EditableInput,
   EditablePreview,
   useColorMode,
+  Icon,
+  IconButton,
 } from '@chakra-ui/react';
 import React, { ReactElement, useState } from 'react';
 import {
   UPDATE_COMPONENT,
   GET_COMPONENT_BY_KEY,
 } from 'renderer/queries/component';
+import { Icons2 } from 'renderer/assets/icons';
 import Select from './Select';
 import { ItemIcons } from '../interfaces/item';
-import Button from './Button';
 import Expression from './filter-box/Expression';
 import ItemFilterBox from './ItemFilterBox';
 
@@ -115,14 +118,18 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
       py={2}
       px={4}
       pb={6}
+      shadow="md"
+      borderBottom="1px solid"
+      borderRadius="md"
+      borderColor="gray.200"
       w="100%"
     >
       <Flex direction="row" justifyContent="flex-end" p={2}>
-        <Button
+        <IconButton
+          aria-label="close"
           size="sm"
           variant="default"
-          iconSize="14"
-          icon="close"
+          icon={<Icon as={Icons2.close} />}
           onClick={() => {
             props.onClose();
           }}
@@ -160,11 +167,11 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
               <Text
                 border="1px solid"
                 borderRadius={5}
-                bg={colorMode == 'light' ? 'gray.100' : 'gray.800'}
-                borderColor={colorMode == 'light' ? 'gray.200' : 'gray.700'}
+                bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
+                borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
                 p={1.5}
                 fontFamily="mono"
-                color={colorMode == 'light' ? 'gray.800' : 'gray.100'}
+                color={colorMode === 'light' ? 'gray.800' : 'gray.100'}
                 fontSize="sm"
                 w="100%"
               >
@@ -233,7 +240,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             placeholder="Select icons to hide"
             size="md"
             defaultValue={params.hiddenIcons?.map((i) => {
-              return options.find((o) => o.value == i);
+              return options.find((o) => o.value === i);
             })}
             isMulti
             onChange={(values: { value: string; label: string }[]) => {
@@ -256,10 +263,9 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
       >
         <Button
           size="md"
-          text="Save"
           disabled={!isValid}
           variant="primary"
-          icon="save"
+          rightIcon={<Icon as={Icons2.save} />}
           onClick={() => {
             updateComponent({
               variables: {
@@ -280,7 +286,9 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
             });
             props.onClose();
           }}
-        />
+        >
+          Save
+        </Button>
       </Flex>
     </Flex>
   );

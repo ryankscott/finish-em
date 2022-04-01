@@ -11,12 +11,12 @@ const ViewManager = (props) => {
 
   console.log(props);
   const name = props.location.search.substr(1);
-  if (name == '') {
+  if (name === '') {
     return view['main'];
   }
 
   const view = views[name];
-  if (view == null) throw new Error("View '" + name + "' is undefined");
+  if (view === null) throw new Error("View '" + name + "' is undefined");
 
   return <Router>{views[view]}</Router>;
 };

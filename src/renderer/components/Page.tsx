@@ -1,14 +1,9 @@
-import React from 'react'
-import { Flex } from '@chakra-ui/react'
+import { Flex, FlexProps, forwardRef } from '@chakra-ui/react';
 
-interface Props {
-  children: React.ReactNode
-}
+const Page = forwardRef<FlexProps, 'div'>((props) => (
+  <Flex mt={14} m={5} p={5} w="100%" direction="column" maxW="800px">
+    {props.children}
+  </Flex>
+));
 
-export const Page = (props: Props) => {
-  return (
-    <Flex marginTop="14" margin="5" padding="5" width="100%" direction="column" maxW="800">
-      {props.children}
-    </Flex>
-  )
-}
+export default Page;

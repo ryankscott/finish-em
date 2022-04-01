@@ -4,8 +4,7 @@ import { ItemIcons } from '../interfaces';
 import FilteredItemList from './FilteredItemList';
 import ItemCreator from './ItemCreator';
 import ViewHeader from './ViewHeader';
-
-import { Page } from './Page';
+import Page from './Page';
 
 const Inbox = (): ReactElement => {
   return (

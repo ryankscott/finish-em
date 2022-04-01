@@ -1,8 +1,8 @@
 import { useMutation, useReactiveVar } from '@apollo/client';
-import { Flex, useTheme, IconButton, Tooltip } from '@chakra-ui/react';
+import { Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
 import CommandPalette from 'react-command-palette';
 import { activeItemVar } from 'renderer';
-import { convertSVGElementToReact, Icons } from 'renderer/assets/icons';
+import { Icons2 } from 'renderer/assets/icons';
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
@@ -10,8 +10,7 @@ import {
   UNCOMPLETE_ITEM,
 } from 'renderer/queries';
 
-export const CommandBar = () => {
-  const theme = useTheme();
+const CommandBar = () => {
   const activeItem = useReactiveVar(activeItemVar);
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
@@ -79,14 +78,14 @@ export const CommandBar = () => {
       },
     },
   ];
-  let commands = allCommands;
+  const commands = allCommands;
 
   return (
     <CommandPalette
       commands={commands}
-      closeOnSelect={true}
-      resetInputOnClose={true}
-      alwaysRenderCommands={true}
+      closeOnSelect
+      resetInputOnClose
+      alwaysRenderCommands
       theme={{
         container: 'command-container',
         containerOpen: 'command-containerOpen',
@@ -107,18 +106,18 @@ export const CommandBar = () => {
         suggestionsList: 'command-suggestionsList',
       }}
       trigger={
-        <Tooltip delay={500} label="Show commandbar">
+        <Tooltip label="Show commandbar">
           <IconButton
             aria-label="show command bar"
             variant="invert"
-            icon={convertSVGElementToReact(Icons['terminal']())}
-            iconColour={theme.colors.gray[100]}
+            icon={<Icon as={Icons2.terminal} />}
+            color="gray.100"
           />
         </Tooltip>
       }
       renderCommand={(suggestion) => {
         return (
-          <Flex width={'100%'} justifyContent={'space-between'}>
+          <Flex width="100%" justifyContent="space-between">
             {suggestion.highlight ? (
               <span
                 dangerouslySetInnerHTML={{ __html: suggestion.highlight }}
@@ -126,7 +125,7 @@ export const CommandBar = () => {
             ) : (
               <span>{suggestion.name}</span>
             )}
-            {/*   <span className={'command-shortcut'}>{suggestion.shortcut}</span>*/}
+            {/*   <span className={'command-shortcut'}>{suggestion.shortcut}</span> */}
           </Flex>
         );
       }}
@@ -134,3 +133,4 @@ export const CommandBar = () => {
     />
   );
 };
+export default CommandBar;

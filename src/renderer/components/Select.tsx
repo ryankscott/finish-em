@@ -1,4 +1,4 @@
-import { useColorMode } from '@chakra-ui/react';
+import { Icon, useColorMode } from '@chakra-ui/react';
 import { useTheme } from '@chakra-ui/system';
 import { CSSObject } from '@emotion/react';
 import * as CSS from 'csstype';
@@ -13,7 +13,7 @@ import RSelect, {
   OptionTypeBase,
 } from 'react-select';
 import { v4 as uuidv4 } from 'uuid';
-import { Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 
 interface Props {
   options: OptionsType<OptionTypeBase>;
@@ -32,7 +32,7 @@ interface Props {
 const DropdownIndicator = (props: IndicatorProps<any>) => {
   return (
     <components.DropdownIndicator {...props}>
-      {Icons.collapse('12px', '12px')}
+      <Icon as={Icons2.collapse} />
     </components.DropdownIndicator>
   );
 };
@@ -321,8 +321,8 @@ const Select = (props: Props) => {
         backgroundColor: 'inherit',
         cursor: 'pointer',
         '> svg': {
-          height: '16px',
-          width: '16px',
+          height: '14px',
+          width: '14px',
           strokeWidth: '0.25',
         },
       }),

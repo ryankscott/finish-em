@@ -11,13 +11,6 @@ import {
 import groupBy from 'lodash/groupBy';
 import { ReactElement, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { WeeklyGoal } from '../../main/generated/typescript-helpers';
-import { ItemIcons } from '../interfaces';
-import Button from './Button';
-import EditableText2 from './EditableText2';
-import ItemList from './ItemList';
-import ReorderableComponentList from './ReorderableComponentList';
-
 import {
   Grid,
   GridItem,
@@ -25,7 +18,16 @@ import {
   Flex,
   Text,
   useColorMode,
+  Icon,
+  IconButton,
+  useBreakpointValue,
 } from '@chakra-ui/react';
+import { Icons2 } from 'renderer/assets/icons';
+import { WeeklyGoal } from '../../main/generated/typescript-helpers';
+import { ItemIcons } from '../interfaces';
+import EditableText2 from './EditableText2';
+import ItemList from './ItemList';
+import ReorderableComponentList from './ReorderableComponentList';
 
 const GET_DATA = gql`
   query weeklyItems($filter: String!, $componentKey: String!) {
@@ -77,14 +79,13 @@ const CREATE_WEEKLY_GOAL = gql`
   }
 `;
 
-type WeeklyAgendaProps = {};
-
 const weeklyFilter = JSON.stringify({
   text: 'scheduledAt is "this week"',
   value: [{ category: 'scheduledAt', operator: 'is', value: 'this week' }],
 });
 
-const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
+const WeeklyAgenda = (): ReactElement => {
+  const dayOfWeekFormat = useBreakpointValue(['EEE', 'EEE', 'EEEE', 'EEEE']);
   const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342';
   const { colorMode } = useColorMode();
   const [currentDate, setDate] = useState(
@@ -96,7 +97,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   const { loading, error, data } = useQuery(GET_DATA, {
     variables: {
       filter: weeklyFilter,
-      componentKey: componentKey,
+      componentKey,
     },
   });
   if (loading) return <></>;
@@ -108,10 +109,8 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
     return format(parseISO(i.scheduledAt), 'yyyy-MM-dd');
   });
 
-  console.log(data);
-
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
-    (w) => w.week == format(currentDate, 'yyyy-MM-dd')
+    (w) => w.week === format(currentDate, 'yyyy-MM-dd')
   );
   if (!weeklyGoal) {
     weeklyGoal = {
@@ -123,11 +122,12 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
   return (
     <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
       <Grid templateColumns="repeat(5, 1fr)" width="100%" my={5} mx={1}>
-        <GridItem colSpan={1} textAlign={'start'}>
-          <Button
+        <GridItem colSpan={1} textAlign="start">
+          <IconButton
+            aria-label="back"
             size="md"
             variant="default"
-            icon="back"
+            icon={<Icon as={Icons2.back} />}
             onClick={() => {
               setDate(sub(currentDate, { days: 7 }));
             }}
@@ -135,19 +135,20 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
         </GridItem>
         <GridItem colSpan={3} textAlign="center">
           <Text
-            fontWeight={'normal'}
+            fontWeight="normal"
             color="blue.500"
             fontSize="3xl"
-            textAlign={'center'}
+            textAlign="center"
           >
             Week starting {format(currentDate, 'EEEE do MMMM yyyy')}
           </Text>
         </GridItem>
         <GridItem colSpan={1} textAlign="end">
-          <Button
+          <IconButton
+            aria-label="forward"
             size="md"
             variant="default"
-            icon="forward"
+            icon={<Icon as={Icons2.forward} />}
             onClick={() => {
               setDate(add(currentDate, { days: 7 }));
             }}
@@ -163,17 +164,17 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           textAlign="end"
           style={{ gridArea: 'week_of_quarter' }}
         >
-          Week of quarter: {parseInt(format(currentDate, 'w')) % 13} / 13
+          Week of quarter: {parseInt(format(currentDate, 'w'), 10) % 13} / 13
         </Text>
       </Flex>
       <Flex
-        direction={'column'}
-        w={'100%'}
+        direction="column"
+        w="100%"
         padding={4}
         padding-left={12}
-        border={'1px solid'}
+        border="1px solid"
         borderRadius={4}
-        borderColor={colorMode == 'light' ? 'gray.100' : 'gray.600'}
+        borderColor={colorMode === 'light' ? 'gray.100' : 'gray.600'}
         my={6}
         mx={3}
       >
@@ -185,7 +186,7 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           singleLine={false}
           input={weeklyGoal.goal ?? ''}
           placeholder="Add a weekly goal..."
-          shouldSubmitOnBlur={true}
+          shouldSubmitOnBlur
           shouldClearOnSubmit={false}
           hideToolbar={false}
           height="120px"
@@ -201,11 +202,11 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
         />
       </Flex>
       <Grid
-        templateColumns={'repeat(5, minmax(0, 1fr))'}
+        templateColumns="repeat(5, minmax(0, 1fr))"
         m={0}
         mx={3}
         p={0}
-        w={'100%'}
+        w="100%"
       >
         {Array.from({ length: 5 }, (_, idx) => {
           const listDate = add(currentDate, { days: idx });
@@ -213,31 +214,26 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
             <Box
               py={2}
               px={2}
-              border={'1px solid'}
-              borderColor={colorMode == 'light' ? 'gray.200' : 'gray.900'}
+              border="1px solid"
+              borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
               borderRadius={5}
               bg={
                 isBefore(listDate, startOfDay(new Date()))
-                  ? colorMode == 'light'
+                  ? colorMode === 'light'
                     ? 'gray.100'
                     : 'gray.700'
-                  : colorMode == 'light'
+                  : colorMode === 'light'
                   ? 'gray.50'
                   : 'gray.800'
               }
               key={`${idx}-container`}
             >
-              <Text
-                p={2}
-                textAlign={'center'}
-                fontSize="lg"
-                key={`${idx}-title`}
-              >
-                {format(listDate, 'EEEE')}
+              <Text p={2} textAlign="center" fontSize="lg" key={`${idx}-title`}>
+                {format(listDate, dayOfWeekFormat)}
               </Text>
               <ItemList
                 key={idx}
-                compact={true}
+                compact
                 componentKey={uuidv4()}
                 inputItems={itemsByDate?.[format(listDate, 'yyyy-MM-dd')] || []}
                 flattenSubtasks={false}
@@ -247,16 +243,8 @@ const WeeklyAgenda = (props: WeeklyAgendaProps): ReactElement => {
           );
         })}
       </Grid>
-      <Flex
-        direction={'row'}
-        w={'100%'}
-        justifyContent={'center'}
-        py={6}
-        px={2}
-      >
-        <ReorderableComponentList
-          viewKey={'6c40814f-8fad-40dc-9a96-0454149a9408'}
-        />
+      <Flex direction="row" w="100%" justifyContent="center" py={6} px={2}>
+        <ReorderableComponentList viewKey="6c40814f-8fad-40dc-9a96-0454149a9408" />
       </Flex>
     </Flex>
   );

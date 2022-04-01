@@ -2,21 +2,22 @@ import { ReactElement } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
 import { startCase } from 'lodash';
 import {
+  Button,
   Box,
   Flex,
   Editable,
   EditableInput,
   EditablePreview,
   useColorMode,
+  Icon,
 } from '@chakra-ui/react';
 import {
   GET_COMPONENT_BY_KEY,
   UPDATE_COMPONENT,
 } from 'renderer/queries/component';
-import Button from './Button';
 
 import Select from './Select';
-import { Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 
 export type ViewHeaderProps = {
   componentKey: string;
@@ -33,7 +34,7 @@ const generateIconOptions = (): {
       label: (
         <Flex alignItems="center">
           <Flex pr={1} alignItems="center">
-            {Icons[i](12, 12)}
+            <Icon as={Icons2?.[i]} />
           </Flex>
           {startCase(i)}
         </Flex>
@@ -73,11 +74,14 @@ const settingValueStyles = {
   alignItems: 'flex-start',
 };
 
-const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
+const EditViewHeader = ({
+  componentKey,
+  onClose,
+}: ViewHeaderProps): ReactElement => {
   const { colorMode } = useColorMode();
   const [updateComponent] = useMutation(UPDATE_COMPONENT);
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
-    variables: { key: props.componentKey },
+    variables: { key: componentKey },
   });
 
   if (loading) return <></>;
@@ -114,10 +118,9 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
           <Button
             size="sm"
             variant="default"
-            iconSize="14"
-            icon="close"
+            rightIcon={<Icon as={Icons2.close} />}
             onClick={() => {
-              props.onClose();
+              onClose();
             }}
           />
         </Box>
@@ -152,7 +155,7 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
             <Select
               size="md"
               placeholder="Select icon"
-              defaultValue={options.find((o) => o.value == params.icon)}
+              defaultValue={options.find((o) => o.value === params.icon)}
               onChange={(i) => {
                 params.icon = i.value;
               }}
@@ -173,19 +176,20 @@ const EditViewHeader = (props: ViewHeaderProps): ReactElement => {
       >
         <Button
           size="md"
-          text="Save"
           variant="primary"
-          icon="save"
+          rightIcon={<Icon as={Icons2.save} />}
           onClick={() => {
             updateComponent({
               variables: {
-                key: props.componentKey,
+                key: componentKey,
                 parameters: { name: params.name, icon: params.icon },
               },
             });
-            props.onClose();
+            onClose();
           }}
-        />
+        >
+          Save
+        </Button>
       </Flex>
     </Flex>
   );

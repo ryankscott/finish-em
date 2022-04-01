@@ -135,7 +135,7 @@ class CustomAutoComplete extends GridDataAutoCompleteHandler {
       'createdAt',
     ].includes(parsedCategory);
 
-    if (parsedOperator == 'is' || parsedOperator == '!is') {
+    if (parsedOperator === 'is' || parsedOperator === '!is') {
       if (isDateCategory) {
         return ['null', 'past', 'today', 'this week', 'this month'];
       }
@@ -216,8 +216,8 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
         mx={0}
         p={3}
         bg="transparent"
-        _hover={{ bg: colorMode == 'light' ? 'gray.200' : 'gray.900' }}
-        _active={{ bg: colorMode == 'light' ? 'gray.200' : 'gray.900' }}
+        _hover={{ bg: colorMode === 'light' ? 'gray.200' : 'gray.900' }}
+        _active={{ bg: colorMode === 'light' ? 'gray.200' : 'gray.900' }}
       >
         <span>{data.value}</span>
       </Box>
@@ -243,9 +243,9 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
           ...e,
           category: 'areaKey',
           value:
-            e.value == 'null'
+            e.value === 'null'
               ? 'null'
-              : data.areas.find((p) => p.name == e.value)?.key,
+              : data.areas.find((p) => p.name === e.value)?.key,
         };
 
       case 'label':
@@ -253,9 +253,9 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
           ...e,
           category: 'labelKey',
           value:
-            e.value == 'null'
+            e.value === 'null'
               ? 'null'
-              : data.labels.find((p) => p.name == e.value)?.key,
+              : data.labels.find((p) => p.name === e.value)?.key,
         };
 
       default:

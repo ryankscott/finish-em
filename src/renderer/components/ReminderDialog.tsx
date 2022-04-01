@@ -1,9 +1,9 @@
 import { ReactElement } from 'react';
 import { add, startOfWeek, startOfTomorrow } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import Button from './Button';
 import { gql, useMutation } from '@apollo/client';
-import { Flex, Text } from '@chakra-ui/react';
+import { Flex, Icon, IconButton, Text } from '@chakra-ui/react';
+import { Icons2 } from 'renderer/assets/icons';
 
 const reminderOptions: {
   label: string;
@@ -63,7 +63,11 @@ type ReminderDialogProps = {
   onClose: () => void;
 };
 
-function ReminderDialog(props: ReminderDialogProps): ReactElement {
+function ReminderDialog({
+  itemKey,
+  reminderText,
+  onClose,
+}: ReminderDialogProps): ReactElement {
   const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
     refetchQueries: ['itemByKey', 'getAppData'],
   });
@@ -75,45 +79,45 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
     <Flex
       direction="column"
       zIndex={2}
-      position={'absolute'}
-      minW={'180px'}
-      right={'144px'}
-      top={'36px'}
-      border={'1px solid'}
-      borderColor={'gray.200'}
+      position="absolute"
+      minW="180px"
+      right="144px"
+      top="36px"
+      border="1px solid"
+      borderColor="gray.200"
       borderRadius={4}
       py={1}
       px={2}
-      bg={'gray.50'}
+      bg="gray.50"
     >
       <Flex
-        direction={'row'}
-        alignItems={'baseline'}
-        justifyContent={'space-between'}
+        direction="row"
+        alignItems="baseline"
+        justifyContent="space-between"
       >
-        <Text fontSize={'md'} pl={2} p={1}>
+        <Text fontSize="md" pl={2} p={1}>
           Remind at:
         </Text>
-        <Button
+        <IconButton
+          aria-label="close"
           variant="default"
           size="sm"
-          iconSize="12px"
           onClick={(e) => {
             e.stopPropagation();
-            props.onClose();
+            onClose();
           }}
-          icon={'close'}
+          icon={<Icon as={Icons2.close} />}
         />
       </Flex>
-      <Flex direction={'column'} py={2} px={1}>
+      <Flex direction="column" py={2} px={1}>
         {reminderOptions.map((r) => {
           return (
             <div key={r.label}>
               <Flex
-                key={'lc-' + r.label}
-                justifyContent={'space-between'}
-                alignItems={'center'}
-                height={'25px'}
+                key={`lc-${r.label}`}
+                justifyContent="space-between"
+                alignItems="center"
+                height="25px"
                 borderRadius={4}
                 _hover={{
                   bg: 'gray.100',
@@ -124,14 +128,14 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
                   createReminder({
                     variables: {
                       key: uuidv4(),
-                      text: props.reminderText,
+                      text: reminderText,
                       remindAt: r.value,
-                      itemKey: props.itemKey,
+                      itemKey,
                     },
                   });
 
                   e.stopPropagation();
-                  props.onClose();
+                  onClose();
                 }}
               >
                 <Text
@@ -150,10 +154,10 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
           );
         })}
         <Flex
-          key={'lc'}
-          justifyContent={'space-between'}
-          alignItems={'center'}
-          height={'25px'}
+          key="lc"
+          justifyContent="space-between"
+          alignItems="center"
+          height="25px"
           borderRadius={4}
           _hover={{
             bg: 'gray.100',
@@ -161,9 +165,9 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
             cursor: 'pointer',
           }}
           onClick={(e) => {
-            deleteReminderFromItem({ variables: { itemKey: props.itemKey } });
+            deleteReminderFromItem({ variables: { itemKey } });
             e.stopPropagation();
-            props.onClose();
+            onClose();
           }}
         >
           <Text
@@ -175,7 +179,7 @@ function ReminderDialog(props: ReminderDialogProps): ReactElement {
               cursor: 'pointer',
             }}
           >
-            {"Don't remind"}
+            Don't remind
           </Text>
         </Flex>
       </Flex>

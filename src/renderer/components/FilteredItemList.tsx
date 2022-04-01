@@ -1,16 +1,19 @@
 import {
+  IconButton,
   Box,
   Flex,
   Grid,
   GridItem,
   Text,
   useColorMode,
+  Icon,
+  Tooltip,
 } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
 import { orderBy } from 'lodash';
+import { Icons2 } from 'renderer/assets/icons';
 import { Item } from '../../main/generated/typescript-helpers';
 import { ItemIcons } from '../interfaces/item';
-import Button from './Button';
 import EditFilteredItemList from './EditFilteredItemList';
 import ReorderableItemList from './ReorderableItemList';
 import SortDropdown, { SortDirectionEnum } from './SortDropdown';
@@ -134,16 +137,26 @@ const FilteredItemList = ({
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
       >
         <GridItem colSpan={1}>
-          <Button
-            key={`btn-${componentKey}`}
-            variant="default"
-            size="sm"
-            icon={showItemList === true ? 'collapse' : 'expand'}
-            onClick={() => {
-              setShowItemList(!showItemList);
-            }}
-            tooltipText="Hide items"
-          />
+          <Tooltip label="Hide items">
+            <Box>
+              <IconButton
+                aria-label="collapse or expand"
+                key={`btn-${componentKey}`}
+                variant="default"
+                size="sm"
+                icon={
+                  <Icon
+                    as={showItemList === true ? Icons2.collapse : Icons2.expand}
+                    w={4}
+                    h={4}
+                  />
+                }
+                onClick={() => {
+                  setShowItemList(!showItemList);
+                }}
+              />
+            </Box>
+          </Tooltip>
         </GridItem>
         <GridItem colSpan={1}>
           <Flex
@@ -170,57 +183,77 @@ const FilteredItemList = ({
             {visibility.showFilterBar && (
               <>
                 {visibility.showCompletedToggle && (
-                  <Button
-                    size="sm"
-                    iconSize="14px"
-                    variant="default"
-                    icon={showCompleted ? 'hide' : 'show'}
-                    onClick={() => {
-                      setShowCompleted(!showCompleted);
-                    }}
-                    tooltipText={
+                  <Tooltip
+                    label={
                       showCompleted
                         ? 'Show completed items'
                         : 'Hide completed items'
                     }
-                  />
+                  >
+                    <Box>
+                      <IconButton
+                        aria-label="toggle completed"
+                        size="sm"
+                        variant="default"
+                        icon={
+                          <Icon
+                            w={3}
+                            h={3}
+                            as={showCompleted ? Icons2.hide : Icons2.show}
+                          />
+                        }
+                        onClick={() => {
+                          setShowCompleted(!showCompleted);
+                        }}
+                      />
+                    </Box>
+                  </Tooltip>
                 )}
                 {visibility.showDeleteButton && (
-                  <Button
-                    size="sm"
-                    iconSize="14px"
-                    variant="default"
-                    icon="trashSweep"
-                    tooltipText="Delete completed items"
-                    onClick={() => {
-                      /* completedItems.forEach((c) => {
+                  <Tooltip label="Delete completed items">
+                    <Box>
+                      <IconButton
+                        size="sm"
+                        aria-label="delete completed"
+                        variant="default"
+                        icon={<Icon w={3} h={3} as={Icons2.trashSweep} />}
+                        onClick={() => {
+                          /* completedItems.forEach((c) => {
                           if (c.parent?.key === null) {
                             deleteItem({ variables: { key: c.key } })
                           }
                         }) */
-                    }}
-                  />
+                        }}
+                      />
+                    </Box>
+                  </Tooltip>
                 )}
-                <Button
-                  variant="default"
-                  size="sm"
-                  icon="expandAll"
-                  iconSize="14px"
-                  tooltipText="Expand all subtasks"
-                  onClick={() => {
-                    setExpandSubtasks(true);
-                  }}
-                />
-                <Button
-                  size="sm"
-                  variant="default"
-                  icon="collapseAll"
-                  iconSize="14px"
-                  tooltipText="Collapse all subtasks"
-                  onClick={() => {
-                    setExpandSubtasks(false);
-                  }}
-                />
+                <Tooltip label="Expand all subtasks">
+                  <Box>
+                    <IconButton
+                      size="sm"
+                      aria-label="expand all"
+                      variant="default"
+                      icon={<Icon w={3} h={3} as={Icons2.expandAll} />}
+                      onClick={() => {
+                        setExpandSubtasks(true);
+                      }}
+                    />
+                  </Box>
+                </Tooltip>
+                <Tooltip label="Collapse all subtasks">
+                  <Box>
+                    <IconButton
+                      size="sm"
+                      aria-label="collapse all"
+                      variant="default"
+                      icon={<Icon w={3} h={3} as={Icons2.collapseAll} />}
+                      onClick={() => {
+                        setExpandSubtasks(false);
+                      }}
+                    />
+                  </Box>
+                </Tooltip>
                 <Box w="145px">
                   <SortDropdown
                     defaultText="Due"
@@ -239,17 +272,20 @@ const FilteredItemList = ({
           </Flex>
         </GridItem>
       </Grid>
-      {editing ? (
+      {editing && (
         <Box>
           <EditFilteredItemList
             key={`dlg-${componentKey}`}
             componentKey={componentKey}
             onClose={() => {
-              setEditing && setEditing(false);
+              if (setEditing) {
+                setEditing(false);
+              }
             }}
           />
         </Box>
-      ) : showItemList ? (
+      )}{' '}
+      {showItemList && (
         <Flex
           bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
           w="100%"
@@ -275,7 +311,7 @@ const FilteredItemList = ({
             shouldPoll={shouldPoll}
           />
         </Flex>
-      ) : null}
+      )}
     </Box>
   );
 };

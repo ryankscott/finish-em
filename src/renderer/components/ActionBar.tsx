@@ -1,6 +1,14 @@
 import { useMutation, useReactiveVar } from '@apollo/client';
-import { Grid, Flex, Text, IconButton, Tooltip, Box } from '@chakra-ui/react';
-import { convertSVGElementToReact, Icons } from 'renderer/assets/icons';
+import {
+  Grid,
+  Flex,
+  Text,
+  IconButton,
+  Tooltip,
+  Box,
+  Icon,
+} from '@chakra-ui/react';
+import { Icons2 } from 'renderer/assets/icons';
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
@@ -9,7 +17,6 @@ import {
   SET_SCHEDULED_AT,
 } from 'renderer/queries';
 import { activeItemVar, focusbarVisibleVar } from '..';
-import Button from './Button';
 import DatePicker from './DatePicker';
 import ProjectSelect from './ProjectSelect';
 
@@ -58,16 +65,16 @@ const ActionBar = () => {
       "due   scheduled project complete delete"`}
     >
       <Flex position="absolute" top="2px" right="2px">
-        <Button
+        <IconButton
           size="xs"
           variant="invert"
-          icon="close"
-          iconSize="12px"
-          iconColour="white"
+          icon={<Icon as={Icons2.close} />}
+          color="white"
           onClick={() => {
             activeItemVar([]);
             focusbarVisibleVar(false);
           }}
+          aria-label="close"
         />
       </Flex>
 
@@ -85,8 +92,8 @@ const ActionBar = () => {
           text="Set due date"
           tooltipText="Set due date"
           defaultText="Due at: "
-          onSubmit={(d: Date) => {
-            activeItem.map((i) => {
+          onSubmit={(d: Date | null) => {
+            activeItem.forEach((i) => {
               setDueAt({ variables: { key: i, dueAt: d } });
             });
           }}
@@ -101,8 +108,8 @@ const ActionBar = () => {
           text="Set scheduled date"
           defaultText="Scheduled at: "
           tooltipText="Set scheduled date"
-          onSubmit={(d: Date) => {
-            activeItem.map((i) => {
+          onSubmit={(d: Date | null) => {
+            activeItem.forEach((i) => {
               setScheduledAt({ variables: { key: i, scheduledAt: d } });
             });
           }}
@@ -113,12 +120,12 @@ const ActionBar = () => {
 
       <Box gridArea="project">
         <ProjectSelect
-          currentAttribute={null}
+          currentProject={null}
           invert
           completed={false}
           deleted={false}
           onSubmit={(projectKey) => {
-            activeItem.map((i) => {
+            activeItem.forEach((i) => {
               setProject({ variables: { key: i, projectKey } });
             });
           }}
@@ -126,15 +133,14 @@ const ActionBar = () => {
       </Box>
 
       <Box gridArea="complete">
-        <Tooltip delay={500} label="Complete items">
+        <Tooltip label="Complete items">
           <IconButton
             size="md"
             variant="invert"
             aria-label="complete"
-            icon={convertSVGElementToReact(Icons.todoChecked('18px', '18px'))}
-            iconColour="gray.100"
+            icon={<Icon as={Icons2.todoChecked} />}
             onClick={() => {
-              activeItem.map((i) => {
+              activeItem.forEach((i) => {
                 completeItem({ variables: { key: i } });
               });
             }}
@@ -143,15 +149,14 @@ const ActionBar = () => {
       </Box>
 
       <Box gridArea="delete">
-        <Tooltip delay={500} label="Delete items">
+        <Tooltip label="Delete items">
           <IconButton
             size="md"
             variant="invert"
             aria-label="delete"
-            icon={convertSVGElementToReact(Icons.trash('18px', '18px'))}
-            iconColour="gray.100"
+            icon={<Icon as={Icons2.trash} />}
             onClick={() => {
-              activeItem.map((i) => {
+              activeItem.forEach((i) => {
                 deleteItem({ variables: { key: i } });
               });
             }}

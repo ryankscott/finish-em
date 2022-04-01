@@ -1,12 +1,12 @@
 import { useMutation, useQuery } from '@apollo/client';
 import {
+  Editable,
+  EditableInput,
+  EditablePreview,
   Flex,
   Grid,
   GridItem,
   Text,
-  Editable,
-  EditableInput,
-  EditablePreview,
   useColorMode,
   useTheme,
 } from '@chakra-ui/react';
@@ -18,11 +18,11 @@ import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
-  SET_EMOJI,
-  DELETE_AREA,
   CHANGE_DESCRIPTION_AREA,
-  RENAME_AREA,
+  DELETE_AREA,
   GET_AREA_BY_KEY,
+  RENAME_AREA,
+  SET_EMOJI,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { Project } from '../../main/generated/typescript-helpers';
@@ -31,7 +31,7 @@ import DeleteAreaDialog from './DeleteAreaDialog';
 import { Donut } from './Donut';
 import EditableText2 from './EditableText2';
 import FilteredItemList from './FilteredItemList';
-import { Page } from './Page';
+import Page from './Page';
 
 type AreaProps = {
   areaKey: string;
@@ -59,10 +59,12 @@ const Area = (props: AreaProps): ReactElement => {
   const { loading, error, data } = useQuery(GET_AREA_BY_KEY, {
     variables: { key: areaKey },
   });
-  if (loading) return null;
+
+  if (loading) return <></>;
+
   if (error) {
     console.log(error);
-    return null;
+    return <></>;
   }
   const { area } = data;
   const { areas } = data;
@@ -196,12 +198,12 @@ const Area = (props: AreaProps): ReactElement => {
       {area.projects.map((p: Project) => {
         const totalItemsCount = p.items.length;
         const completedItemsCount = p.items.filter(
-          (i) => i.completed == true && i.deleted == false
+          (i) => i.completed === true && i.deleted === false
         ).length;
         const progress =
-          totalItemsCount == 0
+          totalItemsCount === 0
             ? 0
-            : completedItemsCount == 0
+            : completedItemsCount === 0
             ? 0
             : totalItemsCount / completedItemsCount;
         return (

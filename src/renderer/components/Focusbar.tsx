@@ -31,7 +31,7 @@ import {
 import RRule from 'rrule';
 import { activeItemVar, focusbarVisibleVar } from '..';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
-import { convertSVGElementToReact, Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 import { IconType } from '../interfaces';
 import { ItemIcons } from '../interfaces/item';
 import { formatRelativeDate } from '../utils';
@@ -131,8 +131,8 @@ const Focusbar = (): ReactElement => {
 
   const SidebarTitle = ({ text, icon }: { text: string; icon: IconType }) => (
     <Flex minW="100px" alignItems="center">
-      {convertSVGElementToReact(Icons[icon]())}
-      <Text fontSize="md" pl={1}>
+      <Icon as={Icons2[icon]} h={3.5} w={3.5} />
+      <Text fontSize="md" pl={2}>
         {text}
       </Text>
     </Flex>
@@ -174,11 +174,7 @@ const Focusbar = (): ReactElement => {
                     activeItemVar([item?.parent?.key]);
                   }
                 }}
-                icon={
-                  <Icon p={0} m={0}>
-                    {Icons.upLevel('24px', '24px')}
-                  </Icon>
-                }
+                icon={<Icon p={0} m={0} as={Icons2.upLevel} />}
               />
             </Tooltip>
           </GridItem>
@@ -190,11 +186,7 @@ const Focusbar = (): ReactElement => {
               variant="default"
               size="sm"
               onClick={() => focusbarVisibleVar(false)}
-              icon={
-                <Icon p={0} m={0}>
-                  {Icons.close('24px', '24px')}
-                </Icon>
-              }
+              icon={<Icon p={0} m={0} as={Icons2.close} />}
             />
           </Flex>
         </GridItem>
@@ -212,30 +204,25 @@ const Focusbar = (): ReactElement => {
             completeItem({ variables: { key: item.key } });
           }}
           icon={
-            <Icon p={0} m={0}>
-              {item?.completed
-                ? Icons.todoChecked(
-                    '24px',
-                    '24px',
-                    item.label ? item.label.colour : undefined
-                  )
-                : Icons.todoUnchecked(
-                    '24px',
-                    '24px',
-                    item.label ? item.label.colour : undefined
-                  )}
-            </Icon>
+            <Icon
+              p={0}
+              m={0}
+              color={item.label ? item.label.colour : undefined}
+              as={item?.completed ? Icons2.todoChecked : Icons2.todoUnchecked}
+              h={3.5}
+              w={3.5}
+            />
           }
         />
         <Box
           w="100%"
           textDecoration={item?.completed ? 'line-through' : 'inherit'}
+          px={1}
         >
           <EditableText2
             readOnly={item.deleted ?? false}
             key={item?.key}
             height="45px"
-            width="260px"
             input={item.text ?? ''}
             singleLine
             shouldClearOnSubmit={false}
@@ -251,28 +238,21 @@ const Focusbar = (): ReactElement => {
             <IconButton
               aria-label="restore"
               variant="default"
-              icon={
-                <Icon p={0} m={0}>
-                  {Icons.restore('24px', '24px')}
-                </Icon>
-              }
+              icon={<Icon p={0} m={0} as={Icons2.restore} h={3.5} w={3.5} />}
               size="sm"
               onClick={() => {
                 restoreItem({ variables: { key: item.key } });
               }}
+              h={3}
+              w={3}
             />
           </Tooltip>
         ) : (
-          <Tooltip label="delete">
+          <Tooltip label="Delete">
             <IconButton
               variant="default"
               aria-label="delete"
-              icon={
-                <Icon p={0} m={0}>
-                  {Icons.trash('24px', '24px')}
-                </Icon>
-              }
-              size="sm"
+              icon={<Icon as={Icons2.trash} h={3.5} w={3.5} />}
               onClick={() => {
                 deleteItem({ variables: { key: item.key } });
               }}
@@ -400,7 +380,7 @@ const Focusbar = (): ReactElement => {
         </AttributeContainer>
       )}
 
-      {item.parent?.key == null && item.type === 'TODO' && (
+      {item.parent?.key === null && item.type === 'TODO' && (
         <>
           <Flex pt={6} pb={2} alignItems="baseline">
             <Text fontSize="lg" px={2}>

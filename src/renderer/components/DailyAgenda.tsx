@@ -1,6 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import FilteredItemList from './FilteredItemList';
 import {
   parseISO,
   format,
@@ -18,15 +17,17 @@ import {
   Text,
   Box,
   useColorMode,
+  Icon,
+  IconButton,
 } from '@chakra-ui/react';
 import v5 from 'uuid/v5';
-import Button from './Button';
-import ReorderableComponentList from './ReorderableComponentList';
 import { cloneDeep, sortBy, uniqBy } from 'lodash';
-import { Event } from '../../main/generated/typescript-helpers';
 import RRule from 'rrule';
-import { EventModal } from './EventModal';
-import { Icons } from '../assets/icons';
+import ReorderableComponentList from './ReorderableComponentList';
+import { Event } from '../../main/generated/typescript-helpers';
+import FilteredItemList from './FilteredItemList';
+import EventModal from './EventModal';
+import { Icons2 } from '../assets/icons';
 
 const VIEW_NAMESPACE = '9eb50a57-cbee-418b-bc44-889da1225429';
 
@@ -73,7 +74,6 @@ const getSortedEventsForToday = (
   return sortBy(uniqEvents, ['startAt'], ['desc']);
 };
 
-type DailyAgendaProps = {};
 const GET_DATA = gql`
   query dailyEvents {
     eventsForActiveCalendar {
@@ -98,19 +98,19 @@ const GET_DATA = gql`
   }
 `;
 
-const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
-  const { loading, error, data, refetch } = useQuery(GET_DATA, {
+const DailyAgenda = (): ReactElement => {
+  const { loading, error, data } = useQuery(GET_DATA, {
     pollInterval: 1000 * 60 * 5,
   });
   const { colorMode } = useColorMode();
   // TODO: Hoist this to a reactive var so others can use it
   const [currentDate, setDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
-  const [activeEvent, setActiveEvent] = useState(null);
+  const [activeEvent, setActiveEvent] = useState();
 
   const offset = new Date().getTimezoneOffset();
   useEffect(() => {
-    //@ts-ignore
+    // @ts-ignore
     window.electron.ipcRenderer.onReceiveMessage(
       'events-refreshed',
       (event, arg) => {
@@ -132,11 +132,11 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
   return (
     <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
       <Grid templateColumns="repeat(5, 1fr)" width="100%" my={5} mx={1}>
-        <GridItem colSpan={1} textAlign={'start'}>
-          <Button
-            size="md"
+        <GridItem colSpan={1} textAlign="start">
+          <IconButton
+            aria-label="back"
             variant="default"
-            icon="back"
+            icon={<Icon as={Icons2.back} />}
             onClick={() => {
               setDate(sub(currentDate, { days: 1 }));
             }}
@@ -144,19 +144,19 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
         </GridItem>
         <GridItem colSpan={3} textAlign="center">
           <Text
-            fontWeight={'normal'}
+            fontWeight="normal"
             color="blue.500"
             fontSize="3xl"
-            textAlign={'center'}
+            textAlign="center"
           >
             {format(currentDate, 'EEEE do MMMM yyyy')}
           </Text>
         </GridItem>
         <GridItem colSpan={1} textAlign="end">
-          <Button
-            size="md"
+          <IconButton
+            aria-label="forward"
             variant="default"
-            icon="forward"
+            icon={<Icon as={Icons2.forward} />}
             onClick={() => {
               setDate(add(currentDate, { days: 1 }));
             }}
@@ -172,15 +172,15 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
           textAlign="end"
           style={{ gridArea: 'week_of_quarter' }}
         >
-          Week of quarter: {parseInt(format(currentDate, 'w')) % 13} / 13
+          Week of quarter: {parseInt(format(currentDate, 'w'), 10) % 13} / 13
         </Text>
       </Flex>
 
       {data.calendarIntegration.enabled && (
         <VStack
-          width={'100%'}
-          border={'1px solid'}
-          borderColor={colorMode == 'light' ? 'gray.100' : 'gray.600'}
+          width="100%"
+          border="1px solid"
+          borderColor={colorMode === 'light' ? 'gray.100' : 'gray.600'}
           padding={3}
           borderRadius="5px"
           spacing={1}
@@ -194,20 +194,20 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                     setActiveEvent(e);
                     setShowModal(!showModal);
                   }}
-                  width={'100%'}
+                  width="100%"
                   _hover={{
-                    background: colorMode == 'light' ? 'gray.100' : 'gray.900',
+                    background: colorMode === 'light' ? 'gray.100' : 'gray.900',
                     cursor: 'pointer',
                   }}
                   py={1}
                   px={3}
                   borderRadius={5}
-                  alignItems={'center'}
+                  alignItems="center"
                 >
                   <Text
                     minW="150px"
                     pr={4}
-                    color={'blue.500'}
+                    color="blue.500"
                     fontSize="md"
                     key={`time-${e.key}`}
                   >
@@ -222,7 +222,7 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
                   <Text w="100%" fontSize="md" key={`title-${e.title}`}>
                     {e.title}
                   </Text>
-                  {e.recurrence && <Box>{Icons['repeat'](12, 12)}</Box>}
+                  {e.recurrence && <Icon as={Icons2.repeat} />}
                 </Flex>
               );
             })
@@ -240,15 +240,15 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
       <Flex p={3} direction="column">
         <FilteredItemList
           key={v5(
-            startOfDay(currentDate).toISOString() + 'due',
+            `${startOfDay(currentDate).toISOString()}due`,
             VIEW_NAMESPACE
           )}
           componentKey={v5(
-            startOfDay(currentDate).toISOString() + 'due',
+            `${startOfDay(currentDate).toISOString()}due`,
             VIEW_NAMESPACE
           )}
-          isFilterable={true}
-          showCompletedToggle={true}
+          isFilterable
+          showCompletedToggle
           listName="Due Today"
           filter={JSON.stringify({
             text: 'dueAt is today ',
@@ -266,8 +266,8 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
               },
             ],
           })}
-          flattenSubtasks={true}
-          readOnly={true}
+          flattenSubtasks
+          readOnly
         />
         <Box h={5} />
         <FilteredItemList
@@ -276,11 +276,11 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
             VIEW_NAMESPACE
           )}
           componentKey={v5(
-            startOfDay(currentDate).toISOString() + 'scheduled',
+            `${startOfDay(currentDate).toISOString()}scheduled`,
             VIEW_NAMESPACE
           )}
-          isFilterable={true}
-          showCompletedToggle={true}
+          isFilterable
+          showCompletedToggle
           listName="Scheduled Today"
           filter={JSON.stringify({
             text: 'scheduledAt = today ',
@@ -298,8 +298,8 @@ const DailyAgenda = (props: DailyAgendaProps): ReactElement => {
               },
             ],
           })}
-          flattenSubtasks={true}
-          readOnly={true}
+          flattenSubtasks
+          readOnly
         />
       </Flex>
     </Flex>

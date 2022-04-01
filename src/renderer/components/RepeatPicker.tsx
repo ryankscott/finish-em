@@ -1,25 +1,25 @@
 import { ReactElement, useState } from 'react';
 import {
-  Flex,
-  Text,
+  Box,
   Button,
-  forwardRef,
-  FlexProps,
   useColorMode,
   Icon,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
 } from '@chakra-ui/react';
 import { format } from 'date-fns';
 import { RRule } from 'rrule';
 import RepeatDialog from './RepeatDialog';
 import { rruleToText, capitaliseFirstLetter } from '../utils';
-import { Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 
 type RepeatPickerProps = {
   repeat: RRule | null;
   onSubmit: (value: RRule) => void;
   completed: boolean;
   onEscape?: () => void;
-  tooltipText?: string;
   deleted?: boolean;
 };
 type MenuItemType = {
@@ -32,7 +32,6 @@ const RepeatPicker = ({
   onSubmit,
   completed,
   onEscape,
-  tooltipText,
   deleted,
 }: RepeatPickerProps): ReactElement => {
   const [showMenu, setShowMenu] = useState(false);
@@ -44,52 +43,9 @@ const RepeatPicker = ({
     repeat: RRule | null;
   };
 
-  type MenuItemProps = FlexProps & { text: string };
-  const MenuItem = ({ text, ...props }: MenuItemProps) => (
-    <Flex
-      px={2}
-      my={0.5}
-      py={1.5}
-      _hover={{ bg: colorMode === 'light' ? 'gray.100' : 'gray.900' }}
-      cursor="pointer"
-      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-      zIndex={4}
-      justifyContent="start"
-      minW={repeatDialogVisible ? '130px' : '192'}
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...props}
-    >
-      <Text fontSize="md" px={2}>
-        {text}
-      </Text>
-    </Flex>
-  );
-
-  const MenuList = forwardRef<FlexProps, 'div'>((props, ref) => (
-    <Flex
-      direction="row"
-      shadow="md"
-      py={2}
-      px={repeatDialogVisible ? 2 : 0}
-      border="1px solid"
-      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-      borderColor={colorMode === 'light' ? 'gray.100' : 'gray.900'}
-      borderRadius="md"
-      position="absolute"
-      zIndex={2}
-      top="36px"
-      right="-2px"
-      minW="190px"
-      transition="0.2s all ease-in-out"
-      justifyContent="center"
-      ref={ref}
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...props}
-    />
-  ));
   const handleRepeatChange = (input: RepeatOption) => {
     if (input.type === 'default') {
-      props.onSubmit(input.repeat);
+      onSubmit(input.repeat);
       setRepeatDialogVisible(false);
       setShowMenu(false);
     } else {
@@ -129,7 +85,7 @@ const RepeatPicker = ({
           repeat: new RRule({
             freq: RRule.WEEKLY,
             interval: 1,
-            byweekday: new Date().getDay() == 0 ? 6 : new Date().getDay() - 1,
+            byweekday: new Date().getDay() === 0 ? 6 : new Date().getDay() - 1,
           }),
         }),
     },
@@ -147,7 +103,9 @@ const RepeatPicker = ({
     },
     {
       name: 'Custom repeat',
-      clickHandler: () => handleRepeatChange({ type: 'custom', repeat: null }),
+      clickHandler: () => {
+        setRepeatDialogVisible(!repeatDialogVisible);
+      },
     },
     {
       name: 'No repeat',
@@ -160,53 +118,50 @@ const RepeatPicker = ({
     : 'Add repeat';
 
   return (
-    <Flex direction="column" minW="190px" w="100%">
-      <Flex position="relative" direction="column" minW="190px" w="100%">
-        <Button
-          w="100%"
-          isDisabled={deleted || completed}
-          fontSize="md"
-          fontWeight="normal"
-          bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-          rightIcon={
-            <Icon p={0} m={0}>
-              {Icons.collapse('24px', '24px')}
-            </Icon>
-          }
-          variant="ghost"
-          borderRadius={5}
-          width="100%"
-          justifyContent="space-between"
-          onClick={() => setShowMenu(!showMenu)}
-        >
-          {repeatText}
-        </Button>
-        {showMenu && (
-          <MenuList>
-            <Flex
-              direction="column"
-              w="100%"
-              justifyContent="center"
-              borderRadius="md"
-            >
-              {menuItems.map((m) => (
-                <MenuItem key={m.name} onClick={m.clickHandler} text={m.name} />
-              ))}
-            </Flex>
-
-            {repeatDialogVisible && (
-              <RepeatDialog
-                onSubmit={(r) => {
-                  onSubmit(r);
-                  setRepeatDialogVisible(false);
-                  setShowMenu(false);
-                }}
-              />
-            )}
-          </MenuList>
-        )}
-      </Flex>
-    </Flex>
+    <Menu matchWidth>
+      <MenuButton
+        as={Button}
+        w="100%"
+        isDisabled={deleted || completed}
+        fontSize="md"
+        fontWeight="normal"
+        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        rightIcon={<Icon p={0} m={0} as={Icons2.collapse} />}
+        variant="ghost"
+        borderRadius={5}
+        width="100%"
+        textAlign="start"
+        onClick={() => {
+          setShowMenu(!showMenu);
+          setRepeatDialogVisible(false);
+        }}
+      >
+        {repeatText}
+      </MenuButton>
+      {showMenu && (
+        <MenuList minW="250px">
+          {!repeatDialogVisible &&
+            menuItems.map((m) => (
+              <MenuItem
+                key={m.name}
+                onClick={m.clickHandler}
+                closeOnSelect={m.name !== 'Custom repeat'}
+              >
+                {m.name}
+              </MenuItem>
+            ))}
+          {repeatDialogVisible && (
+            <RepeatDialog
+              onSubmit={(r) => {
+                onSubmit(r);
+                setRepeatDialogVisible(false);
+                setShowMenu(false);
+              }}
+            />
+          )}
+        </MenuList>
+      )}
+    </Menu>
   );
 };
 

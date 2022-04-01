@@ -1,20 +1,22 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Box, Flex, Text } from '@chakra-ui/layout';
+import { IconButton, Icon } from '@chakra-ui/react';
 import { transparentize } from 'polished';
 import { ReactElement } from 'react';
+import { Icons2 } from 'renderer/assets/icons';
 import { SET_LABEL } from 'renderer/queries';
 import { GET_LABELS } from 'renderer/queries/label';
 import { Label } from '../../main/generated/typescript-helpers';
-import Button from './Button';
 
 type LabelDialogProps = {
   itemKey: string;
   onClose: () => void;
 };
-function LabelDialog(props: LabelDialogProps): ReactElement {
+function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
   const [setLabel] = useMutation(SET_LABEL);
   const { loading, error, data } = useQuery(GET_LABELS);
   if (loading) return <></>;
+
   if (error) {
     console.log(error);
     return <></>;
@@ -40,14 +42,14 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
         pb={1}
       >
         <Text pl={2}>Labels</Text>
-        <Button
+        <IconButton
+          aria-label="close"
           variant="default"
           size="sm"
-          iconSize="12px"
           onClick={() => {
-            props.onClose();
+            onClose();
           }}
-          icon="close"
+          icon={<Icon as={Icons2.close} />}
         />
       </Flex>
       <Flex direction="column" py={2} px={1}>
@@ -66,14 +68,14 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
                 }}
                 onClick={() => {
                   setLabel({
-                    variables: { key: props.itemKey, labelKey: m.key },
+                    variables: { key: itemKey, labelKey: m.key },
                   });
-                  props.onClose();
+                  onClose();
                 }}
               >
                 <Text
                   fontSize="xs"
-                  color={m.colour}
+                  color={m.colour ?? 'black'}
                   p={1}
                   pl={4}
                   _hover={{
@@ -108,9 +110,9 @@ function LabelDialog(props: LabelDialogProps): ReactElement {
               cursor: 'pointer',
             }}
             onClick={(e) => {
-              setLabel({ variables: { key: props.itemKey, labelKey: null } });
+              setLabel({ variables: { key: itemKey, labelKey: null } });
               e.stopPropagation();
-              props.onClose();
+              onClose();
             }}
           >
             No label

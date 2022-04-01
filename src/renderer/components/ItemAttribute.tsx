@@ -1,8 +1,8 @@
 import { ReactElement } from 'react';
 import { marked } from 'marked';
-import { Flex, Text, Tooltip } from '@chakra-ui/react';
+import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { HTMLToPlainText } from 'renderer/utils';
-import { Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 
 type ItemAttributeType = 'repeat' | 'due' | 'scheduled' | 'subtask';
 type ItemAttributeProps = {
@@ -22,7 +22,6 @@ const ItemAttribute = ({
   type,
   isOverdue,
 }: ItemAttributeProps): ReactElement => {
-  const iconSize = compact ? '12px' : '14px';
   return (
     <Tooltip label={HTMLToPlainText(tooltipText)}>
       <Flex
@@ -30,13 +29,13 @@ const ItemAttribute = ({
         alignItems="center"
         py={0}
         px={1}
-        my={0}
         mx={1}
+        my={0}
         textDecoration={completed ? 'strike-through' : 'none'}
       >
         <Flex p={0} m={0} alignItems="center">
           <Text color={isOverdue ? 'red' : 'inherit'}>
-            {Icons[type](iconSize, iconSize)}
+            <Icon w={3} h={3} as={Icons2[type]} />
           </Text>
         </Flex>
         {!compact && (

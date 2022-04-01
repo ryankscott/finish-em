@@ -236,7 +236,7 @@ const saveCalendars = async (
   log.info(`Saving ${cals.length} calendars from Apple Calendar`);
   cals?.map((c) => {
     try {
-      createCalendar(client, c.id, c.title, c.id.toString() == activeCalKey);
+      createCalendar(client, c.id, c.title, c.id.toString() === activeCalKey);
     } catch (err) {
       log.error(`Failed to create calendar - ${err}`);
     }
@@ -380,8 +380,8 @@ const checkForNewVersion = () => {
         const response = JSON.parse(rawData);
         // Get rid of draft versions and prereleases and get the last published
         const sortedReleases = response
-          .filter((r) => r.draft == false)
-          .filter((r) => r.prerelease == false)
+          .filter((r) => r.draft === false)
+          .filter((r) => r.prerelease === false)
           .sort((a, b) => b.published_at - a.published_at);
         // Get the semver of the release
         const latestRelease = sortedReleases[0];
@@ -533,7 +533,7 @@ const startApp = async () => {
   const featureResult = await getFeatures(client);
   const { features } = featureResult;
   const calendarIntegration = await features?.find(
-    (f) => f.name == 'calendarIntegration'
+    (f) => f.name === 'calendarIntegration'
   );
 
   if (calendarIntegration?.enabled) {
@@ -545,7 +545,7 @@ const startApp = async () => {
   }
 
   const bearNotesIntegration = await features?.find(
-    (f) => f.name == 'bearNotesIntegration'
+    (f) => f.name === 'bearNotesIntegration'
   );
   if (bearNotesIntegration?.enabled) {
     log.info('Bear notes integration enabled - turning on sync');
@@ -624,7 +624,7 @@ ipcMain.on('active-calendar-set', (event, arg) => {
 });
 
 ipcMain.on('feature-toggled', (event, arg) => {
-  if (arg.name == 'calendarIntegration') {
+  if (arg.name === 'calendarIntegration') {
     if (arg.enabled) {
       log.info('Enabling calendar sync');
       saveAppleCalendarEvents(client, false);
@@ -637,7 +637,7 @@ ipcMain.on('feature-toggled', (event, arg) => {
     }
   }
 
-  if (arg.name == 'bearNotesIntegration') {
+  if (arg.name === 'bearNotesIntegration') {
     if (arg.enabled) {
       const metadata = arg?.metadata;
       if (!metadata) {
@@ -653,7 +653,7 @@ ipcMain.on('feature-toggled', (event, arg) => {
 });
 
 ipcMain.on('feature-metadata-updated', (event, arg) => {
-  if (arg.name == 'bearNotesIntegration') {
+  if (arg.name === 'bearNotesIntegration') {
     if (arg.enabled) {
       const metadata = arg?.metadata;
       if (!metadata) {

@@ -3,16 +3,17 @@ import {
   Menu,
   MenuButton,
   MenuList,
-  Button as CButton,
+  Button,
   Flex,
   MenuOptionGroup,
   MenuItemOption,
   MenuDivider,
+  Icon,
 } from '@chakra-ui/react';
-import { Icons } from '../assets/icons';
 import { orderBy } from 'lodash';
-import { Item as ItemType } from '../../main/generated/typescript-helpers';
 import RRule from 'rrule';
+import { Icons2 } from '../assets/icons';
+import { Item as ItemType } from '../../main/generated/typescript-helpers';
 
 export enum SortDirectionEnum {
   Ascending = 'asc',
@@ -33,67 +34,57 @@ type SortDropdownProps = {
   onSetSortDirection: (direction: SortDirectionEnum) => void;
 };
 
-function SortDropdown(props: SortDropdownProps): ReactElement {
-  const generateIconSize = (size: string | undefined) => {
-    switch (size) {
-      case 'md':
-        return '12px';
-      case 'sm':
-        return '10px';
-      case 'xs':
-        return '8px';
-      default:
-        return '12px';
-    }
-  };
-  const iconSize = generateIconSize(props.size);
+function SortDropdown({
+  size,
+  defaultText,
+  sortType,
+  sortDirection,
+  onSetSortDirection,
+  onSetSortType,
+}: SortDropdownProps): ReactElement {
   return (
-    <Flex alignItems={'center'}>
+    <Flex alignItems="center">
       <Menu
         placement="bottom"
         gutter={0}
         arrowPadding={0}
-        closeOnSelect={true}
-        closeOnBlur={true}
+        closeOnSelect
+        closeOnBlur
       >
         <MenuButton
           mx={1}
-          size={props.size ? props.size : 'md'}
-          as={CButton}
-          rightIcon={Icons['collapse'](iconSize, iconSize)}
-          fontWeight={'normal'}
+          size={size || 'md'}
+          as={Button}
+          rightIcon={<Icon as={Icons2.collapse} />}
+          fontWeight="normal"
           borderRadius={5}
-          variant={'default'}
-          width={'100%'}
-          textAlign={'start'}
+          variant="default"
+          width="100%"
+          textAlign="start"
         >
-          {props.sortType ? props.sortType.label : props.defaultText}
+          {sortType ? sortType.label : defaultText}
         </MenuButton>
 
         <MenuList>
           <MenuOptionGroup defaultValue="asc" title="Order" type="radio">
             <MenuItemOption
               value="asc"
-              onClick={() =>
-                props.onSetSortDirection(SortDirectionEnum.Ascending)
-              }
+              onClick={() => onSetSortDirection(SortDirectionEnum.Ascending)}
             >
               Ascending
             </MenuItemOption>
             <MenuItemOption
               value="desc"
-              onClick={() =>
-                props.onSetSortDirection(SortDirectionEnum.Descending)
-              }
+              onClick={() => onSetSortDirection(SortDirectionEnum.Descending)}
             >
               Descending
             </MenuItemOption>
           </MenuOptionGroup>
           <MenuDivider />
-          <MenuOptionGroup type="radio" title="Property"></MenuOptionGroup>
+          <MenuOptionGroup type="radio" title="Property" />
           <MenuItemOption
             onClick={() =>
-              props.onSetSortType({
+              onSetSortType({
                 label: 'Status',
                 sort: (
                   items: ItemType[],
@@ -107,7 +98,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           </MenuItemOption>
           <MenuItemOption
             onClick={() =>
-              props.onSetSortType({
+              onSetSortType({
                 label: 'Due',
                 sort: (
                   items: ItemType[],
@@ -121,7 +112,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           </MenuItemOption>
           <MenuItemOption
             onClick={() =>
-              props.onSetSortType({
+              onSetSortType({
                 label: 'Scheduled',
                 sort: (
                   items: ItemType[],
@@ -135,7 +126,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           </MenuItemOption>
           <MenuItemOption
             onClick={() =>
-              props.onSetSortType({
+              onSetSortType({
                 label: 'Label',
                 sort: (
                   items: ItemType[],
@@ -149,7 +140,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           </MenuItemOption>
           <MenuItemOption
             onClick={() =>
-              props.onSetSortType({
+              onSetSortType({
                 label: 'Created',
                 sort: (
                   items: ItemType[],
@@ -163,7 +154,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           </MenuItemOption>
           <MenuItemOption
             onClick={() =>
-              props.onSetSortType({
+              onSetSortType({
                 label: 'Updated',
                 sort: (
                   items: ItemType[],
@@ -177,7 +168,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           </MenuItemOption>
           <MenuItemOption
             onClick={() =>
-              props.onSetSortType({
+              onSetSortType({
                 label: 'Project',
                 sort: (
                   items: ItemType[],
@@ -191,7 +182,7 @@ function SortDropdown(props: SortDropdownProps): ReactElement {
           </MenuItemOption>
           <MenuItemOption
             onClick={() =>
-              props.onSetSortType({
+              onSetSortType({
                 label: 'Repeat',
                 sort: (
                   items: ItemType[],

@@ -77,7 +77,7 @@ const Project = (props: ProjectProps) => {
   const { project } = data;
   const { projects } = data;
   const allItems: ItemType[] = project?.items;
-  const completedItems = allItems.filter((i) => i.completed == true);
+  const completedItems = allItems.filter((i) => i.completed === true);
   return (
     <>
       <Grid

@@ -60,7 +60,7 @@ export const createArea = async (
   ctx
 ) => {
   const areas = await getAreas({}, ctx);
-  const exists = areas.map((a) => a.name == input.name).includes(true);
+  const exists = areas.map((a) => a.name === input.name).includes(true);
   if (exists) {
     log.error(`Unable to create area - name already in use`);
     return new Error('Unable to create area - name already in use');
@@ -151,7 +151,7 @@ export const deleteArea = (input: { key: string }, ctx) => {
 
 export const renameArea = async (input: { key: string; name: string }, ctx) => {
   const areas = await getAreas({}, ctx);
-  const exists = areas.map((a) => a.name == input.name).includes(true);
+  const exists = areas.map((a) => a.name === input.name).includes(true);
   if (exists) {
     log.error(`Unable to create area - name already in use`);
     return new Error('Unable to create area - name already in use');

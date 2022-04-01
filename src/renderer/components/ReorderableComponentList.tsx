@@ -17,6 +17,7 @@ import {
   Flex,
   useTheme,
   useColorMode,
+  Icon,
 } from '@chakra-ui/react';
 import { transparentize } from 'polished';
 import {
@@ -24,7 +25,7 @@ import {
   GET_COMPONENTS_BY_VIEW,
   SET_COMPONENT_ORDER,
 } from 'renderer/queries';
-import { Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 import ComponentActions from './ComponentActions';
 import FilteredItemList from './FilteredItemList';
 import ItemCreator from './ItemCreator';
@@ -40,7 +41,7 @@ const ReorderableComponentList = (
   props: ReorderableComponentListProps
 ): ReactElement => {
   const theme = useTheme();
-  const { colorMode, toggleColorMode } = useColorMode();
+  const { colorMode } = useColorMode();
   const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey: props.viewKey },
     fetchPolicy: 'no-cache',
@@ -116,7 +117,7 @@ const ReorderableComponentList = (
             return;
           }
           // Do nothing if it was a drop to the same place
-          if (destination.index == source.index) return;
+          if (destination.index === source.index) return;
 
           const componentAtDestination = sortedComponents[destination.index];
           const componentAtSource = sortedComponents[source.index];
@@ -151,7 +152,7 @@ const ReorderableComponentList = (
               ref={provided.innerRef}
             >
               {sortedComponents.map((comp, index) => {
-                if (comp.location == 'main') {
+                if (comp.location === 'main') {
                   const params = JSON.parse(comp.parameters);
                   return (
                     <Draggable
@@ -174,12 +175,12 @@ const ReorderableComponentList = (
                           borderColor={
                             snapshot.isDragging ? 'gray.200' : 'transparent'
                           }
-                          bg={colorMode == 'light' ? 'gray.50' : 'gray.800'}
-                          shadow={snapshot.isDragging ? 'md' : null}
+                          bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+                          shadow={snapshot.isDragging ? 'md' : undefined}
                           _hover={{
                             border: '1px solid',
                             borderColor:
-                              colorMode == 'light' ? 'gray.200' : 'gray.600',
+                              colorMode === 'light' ? 'gray.200' : 'gray.600',
                             shadow: 'base',
                           }}
                           ref={provided.innerRef}
@@ -207,7 +208,7 @@ const ReorderableComponentList = (
                             }}
                             {...provided.dragHandleProps}
                           >
-                            {Icons.dragHandle()}
+                            <Icon as={Icons2.drag} />
                           </Flex>
                           <ComponentActions
                             readOnly={false}
@@ -238,7 +239,7 @@ const ReorderableComponentList = (
           <MenuButton
             size="md"
             as={Button}
-            rightIcon={Icons.collapse(12, 12)}
+            rightIcon={<Icon as={Icons2.collapse} />}
             borderRadius={5}
             variant="default"
             textAlign="start"
@@ -258,11 +259,11 @@ const ReorderableComponentList = (
                       parameters: {
                         filter: JSON.stringify({
                           text:
-                            data.view.type == 'project'
+                            data.view.type === 'project'
                               ? `project = "${data.view.name}"`
                               : 'createdAt is today ',
                           value:
-                            data.view.type == 'project'
+                            data.view.type === 'project'
                               ? [
                                   {
                                     category: 'projectKey',

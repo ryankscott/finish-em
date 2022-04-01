@@ -8,14 +8,17 @@ import {
   AlertDialogContent,
   AlertDialogOverlay,
   Button,
+  Icon,
 } from '@chakra-ui/react';
-import { convertSVGElementToReact, Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 
 type DeleteProjectDialogProps = {
   onDelete: () => void;
 };
 
-const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
+const DeleteProjectDialog = ({
+  onDelete,
+}: DeleteProjectDialogProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const cancelRef = React.useRef(null);
   const onClose = () => setIsOpen(false);
@@ -24,9 +27,7 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
     <>
       <Button
         variant="primary"
-        rightIcon={convertSVGElementToReact(
-          Icons['trash']('12px', '12px', 'white')
-        )}
+        rightIcon={<Icon as={Icons2.trash} />}
         onClick={() => setIsOpen(true)}
       >
         Delete
@@ -42,14 +43,14 @@ const DeleteProjectDialog = (props: DeleteProjectDialogProps): ReactElement => {
             <AlertDialogHeader fontSize="xl" fontWeight="bold">
               Delete Project
             </AlertDialogHeader>
-            <AlertDialogBody fontSize={'md'}>
-              {"Are you sure? You can't undo this action afterwards"}
+            <AlertDialogBody fontSize="md">
+              Are you sure? You can't undo this action afterwards
             </AlertDialogBody>
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>
                 Cancel
               </Button>
-              <Button colorScheme="red" onClick={props.onDelete} ml={3}>
+              <Button colorScheme="red" onClick={onDelete} ml={3}>
                 Delete
               </Button>
             </AlertDialogFooter>

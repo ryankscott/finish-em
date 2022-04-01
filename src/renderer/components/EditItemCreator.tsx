@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { Box, Flex, Switch } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, IconButton, Switch } from '@chakra-ui/react';
 import { ReactElement, useEffect, useState } from 'react';
+import { Icons2 } from 'renderer/assets/icons';
 import { GET_COMPONENT_BY_KEY, UPDATE_COMPONENT } from 'renderer/queries';
 import { Label, Project } from '../../main/generated/typescript-helpers';
-import Button from './Button';
 import { ItemCreatorProps } from './ItemCreator';
 import Select from './Select';
 
@@ -116,11 +116,11 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
     >
       <Flex direction="row" justifyContent="flex-end" p={2}>
         <Box>
-          <Button
+          <IconButton
+            aria-label="close"
             size="sm"
             variant="default"
-            iconSize="14"
-            icon="close"
+            icon={<Icon as={Icons2.close} />}
             onClick={() => {
               props.onClose();
             }}
@@ -146,7 +146,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
             <Select
               size="md"
               placeholder="Select project"
-              defaultValue={projectOptions.find((p) => p.value == projectKey)}
+              defaultValue={projectOptions.find((p) => p.value === projectKey)}
               onChange={(p) => {
                 setProjectKey(p.value);
               }}
@@ -163,7 +163,7 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
             <Select
               size="md"
               placeholder="Select label"
-              defaultValue={labelOptions.find((l) => l.value == labelKey)}
+              defaultValue={labelOptions.find((l) => l.value === labelKey)}
               onChange={(l) => {
                 setLabelKey(l.value);
               }}
@@ -183,9 +183,8 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
       >
         <Button
           size="md"
-          text="Save"
           variant="primary"
-          icon="save"
+          rightIcon={<Icon as={Icons2.save} />}
           onClick={() => {
             updateComponent({
               variables: {
@@ -199,7 +198,9 @@ const EditItemCreator = (props: EditItemCreatorProps): ReactElement => {
             });
             props.onClose();
           }}
-        />
+        >
+          Save
+        </Button>
       </Flex>
     </Flex>
   );

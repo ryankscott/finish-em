@@ -1,8 +1,15 @@
 import React, { ReactElement, useState } from 'react';
 import { useMutation } from '@apollo/client';
-import { Flex, useColorMode } from '@chakra-ui/react';
+import {
+  Box,
+  Flex,
+  Icon,
+  IconButton,
+  Tooltip,
+  useColorMode,
+} from '@chakra-ui/react';
 import { CLONE_COMPONENT, DELETE_COMPONENT } from 'renderer/queries';
-import Button from './Button';
+import { Icons2 } from 'renderer/assets/icons';
 
 type ComponentActionProps = {
   children: JSX.Element;
@@ -10,7 +17,11 @@ type ComponentActionProps = {
   readOnly?: boolean;
 };
 
-const ComponentActions = (props: ComponentActionProps): ReactElement => {
+const ComponentActions = ({
+  children,
+  componentKey,
+  readOnly,
+}: ComponentActionProps): ReactElement => {
   const { colorMode } = useColorMode();
   const [showActions, setShowActions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -23,7 +34,7 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
   let enterInterval: NodeJS.Timeout;
   let exitInterval: NodeJS.Timeout;
 
-  if (props.readOnly) return <div>{props.children}</div>;
+  if (readOnly) return <div>{children}</div>;
 
   return (
     <Flex
@@ -51,47 +62,62 @@ const ComponentActions = (props: ComponentActionProps): ReactElement => {
             p={0}
             borderRadius={5}
           >
-            <Button
-              size="md"
-              icon="edit"
-              variant="default"
-              tooltipText="Edit component"
-              onClick={() => {
-                setIsEditing(true);
-              }}
-            />
-            <Button
-              size="md"
-              icon="copy"
-              variant="default"
-              tooltipText="Clone component"
-              onClick={() => {
-                cloneComponent({ variables: { key: props.componentKey } });
-              }}
-            />
-            <Button
-              size="md"
-              icon="move"
-              variant="default"
-              tooltipText="Move component"
-              onClick={() => {
-                console.log('move');
-              }}
-            />
-            <Button
-              size="md"
-              icon="trash"
-              variant="default"
-              tooltipText="Delete component"
-              onClick={() =>
-                deleteComponent({ variables: { key: props.componentKey } })
-              }
-            />
+            <Tooltip label="Edit component">
+              <Box>
+                <IconButton
+                  size="md"
+                  icon={<Icon as={Icons2.edit} />}
+                  variant="default"
+                  onClick={() => {
+                    setIsEditing(true);
+                  }}
+                  aria-label="Edit"
+                />
+              </Box>
+            </Tooltip>
+            <Tooltip label="Clone component">
+              <Box>
+                <IconButton
+                  aria-label="clone"
+                  size="md"
+                  icon={<Icon as={Icons2.copy} />}
+                  variant="default"
+                  onClick={() => {
+                    cloneComponent({ variables: { key: componentKey } });
+                  }}
+                />
+              </Box>
+            </Tooltip>
+            <Tooltip label="Move component">
+              <Box>
+                <IconButton
+                  aria-label="move"
+                  size="md"
+                  icon={<Icon as={Icons2.move} />}
+                  variant="default"
+                  onClick={() => {
+                    console.log('move');
+                  }}
+                />
+              </Box>
+            </Tooltip>
+            <Tooltip label="Delete component">
+              <Box>
+                <IconButton
+                  aria-label="delete"
+                  icon={<Icon as={Icons2.trash} />}
+                  variant="default"
+                  onClick={() =>
+                    deleteComponent({ variables: { key: componentKey } })
+                  }
+                />
+              </Box>
+            </Tooltip>
           </Flex>
         </>
       )}
-      {React.Children.map(props.children, (c) => {
-        return React.cloneElement(props.children, {
+      {React.Children.map(children, (_) => {
+        return React.cloneElement(children, {
           editing: isEditing,
           setEditing: setIsEditing,
         });

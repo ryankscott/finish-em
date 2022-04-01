@@ -12,6 +12,8 @@ import {
   useColorMode,
   Tooltip,
   useTheme,
+  Icon,
+  IconButton,
 } from '@chakra-ui/react';
 import { useMutation, useQuery } from '@apollo/client';
 import {
@@ -24,7 +26,7 @@ import {
   PERMANENT_DELETE_ITEM,
 } from 'renderer/queries';
 import { Emoji } from 'emoji-mart';
-import { convertSVGElementToReact, Icons } from '../assets/icons';
+import { convertSVGElementToReact, Icons, Icons2 } from '../assets/icons';
 import { ItemIcons } from '../interfaces';
 import {
   capitaliseFirstLetter,
@@ -43,6 +45,7 @@ import ReminderDialog from './ReminderDialog';
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
 import { LoadingItem } from './LoadingItem';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
+import ItemSelect from './ItemSelect';
 
 type ItemProps = {
   compact: boolean;
@@ -183,7 +186,7 @@ function Item({
     if (project.name === 'Inbox') {
       return (
         <TagLabel>
-          {Icons.inbox('12px', '12px', theme.colors.blue[500])}
+          <Icon color="blue.500" as={Icons2.inbox} />
         </TagLabel>
       );
     }
@@ -319,7 +322,7 @@ function Item({
       gridTemplateColumns={
         compact
           ? 'repeat(5, 1fr)'
-          : 'repeat(2, 25px) repeat(5, 1fr) repeat(1, 30px)'
+          : 'repeat(2, 30px) repeat(5, 1fr) repeat(1, 30px)'
       }
       gridTemplateRows="40px auto"
       gridTemplateAreas={
@@ -330,7 +333,7 @@ function Item({
            `
           : `
             "collapse  complete  description  description  description  description description more"
-            ".         .         parent       due          scheduled    repeat      project     reminder"
+            ".         parent    parent       due          scheduled    repeat      project     reminder"
            `
       }
       outline="none"
@@ -425,7 +428,7 @@ function Item({
       {/* TODO: use emoji for projects names  */}
       <Box gridArea="project">
         {(!hiddenIcons?.includes(ItemIcons.Project) ||
-          item.project == null) && (
+          item.project === null) && (
           <Flex justifyContent="flex-end">
             <Tooltip label={item.project?.name}>
               <Tag size={compact ? 'sm' : 'md'} colorScheme="blue">
@@ -438,44 +441,71 @@ function Item({
 
       {item.children && item.children.length > 0 && !hideCollapseIcon && (
         <Box gridArea="collapse">
-          <Button
+          <IconButton
+            aria-label={subtasksVisible ? 'collapse' : 'expand'}
             variant="default"
             size="sm"
             onClick={handleExpand}
-            icon={subtasksVisible ? 'collapse' : 'expand'}
-            iconSize="16px"
+            icon={
+              <Icon as={subtasksVisible ? Icons2.collapse : Icons2.expand} />
+            }
           />
         </Box>
       )}
 
       {!compact && (
-        <Box gridArea="complete">
-          <Button
-            variant="subtle"
-            size="sm"
-            tooltipText={((deleted: boolean, completed: boolean) => {
-              if (deleted) {
-                return 'Restore';
-              }
-              if (completed) {
-                return 'Uncomplete';
-              }
-              return 'Complete';
-            })(item.deleted, item.completed)}
-            onClick={handleIconClick}
-            icon={((deleted: boolean, completed: boolean) => {
-              if (deleted) {
-                return 'restore';
-              }
-              if (completed) {
-                return 'todoChecked';
-              }
-              return 'todoUnchecked';
-            })(item.deleted, item.completed)}
-            iconSize="16px"
-            iconColour={item?.label?.colour || undefined}
-          />
-        </Box>
+        <Tooltip
+          label={((deleted: boolean, completed: boolean) => {
+            if (deleted) {
+              return 'Restore';
+            }
+            if (completed) {
+              return 'Uncomplete';
+            }
+            return 'Complete';
+          })(item.deleted, item.completed)}
+        >
+          <Box gridArea="complete">
+            <IconButton
+              aria-label="restore"
+              variant="subtle"
+              p={0}
+              m={0}
+              onClick={handleIconClick}
+              icon={((deleted: boolean, completed: boolean) => {
+                if (deleted) {
+                  return (
+                    <Icon
+                      as={Icons2.restore}
+                      w={3.5}
+                      h={3.5}
+                      color={colorMode === 'light' ? 'gray.800' : 'gray.50'}
+                    />
+                  );
+                }
+                if (completed) {
+                  return (
+                    <Icon
+                      as={Icons2.todoChecked}
+                      w={3.5}
+                      h={3.5}
+                      color={colorMode === 'light' ? 'gray.800' : 'gray.50'}
+                    />
+                  );
+                }
+                return (
+                  <Icon
+                    as={Icons2.todoUnchecked}
+                    w={3.5}
+                    h={3.5}
+                    color={colorMode === 'light' ? 'gray.800' : 'gray.50'}
+                  />
+                );
+              })(item.deleted, item.completed)}
+              color={item?.label?.colour || undefined}
+            />
+          </Box>
+        </Tooltip>
       )}
 
       <Box gridArea="parent">

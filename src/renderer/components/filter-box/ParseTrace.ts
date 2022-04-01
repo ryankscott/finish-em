@@ -1,46 +1,46 @@
-import * as _ from 'lodash'
+import * as _ from 'lodash';
 
 export default class ParseTrace {
-  private arr: Array<TraceItem> = []
+  private arr: Array<TraceItem> = [];
   constructor() {
-    this.arr = []
+    this.arr = [];
   }
 
   push(item: TraceItem) {
-    this.arr.push(item)
+    this.arr.push(item);
   }
 
   clear() {
-    this.arr = []
+    this.arr = [];
   }
 
   getLastOperator() {
-    return _.findLast(this.arr, (f) => f.type == 'operator').value
+    return _.findLast(this.arr, (f) => f.type === 'operator').value;
   }
 
   getLastCategory() {
-    return _.findLast(this.arr, (f) => f.type == 'category').value
+    return _.findLast(this.arr, (f) => f.type === 'category').value;
   }
 
   getLastTokenType() {
-    if (this.arr.length <= 0) return null
-    return _.last(this.arr).type
+    if (this.arr.length <= 0) return null;
+    return _.last(this.arr).type;
   }
 
   pushOperator(operator: string) {
-    this.push({ type: 'operator', value: operator })
+    this.push({ type: 'operator', value: operator });
   }
 
   pushCategory(category: string) {
-    this.push({ type: 'category', value: category })
+    this.push({ type: 'category', value: category });
   }
 
   pushValue(value: string) {
-    this.push({ type: 'value', value: value })
+    this.push({ type: 'value', value: value });
   }
 }
 
 interface TraceItem {
-  type: string
-  value: string
+  type: string;
+  value: string;
 }

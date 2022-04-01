@@ -1,33 +1,31 @@
-import { chakra, Flex, Text } from '@chakra-ui/react';
+import { chakra, Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import React from 'react';
-import { createShortSidebarItem } from '../utils';
 import { v4 as uuidv4 } from 'uuid';
-import { Icons } from '../assets/icons';
-import Tippy from '@tippyjs/react';
 import { Emoji } from 'emoji-mart';
 import { NavLink } from 'react-router-dom';
-import 'tippy.js/dist/tippy.css';
 import { IconType } from 'renderer/interfaces';
+import { Icons2 } from '../assets/icons';
+import { createShortSidebarItem } from '../utils';
 
-type SidebarItemProps =
-  | {
-      variant: 'defaultView';
-      sidebarVisible: boolean;
-      path: string;
-      text: string;
-      activeColour: string;
-      iconName?: IconType;
-    }
-  | {
-      variant: 'customView';
-      sidebarVisible: boolean;
-      path: string;
-      text: string;
-      activeColour: string;
-      emoji?: string;
-    };
+type SidebarItemProps = {
+  variant: 'defaultView' | 'customView';
+  sidebarVisible: boolean;
+  path: string;
+  text: string;
+  activeColour: string;
+  iconName?: IconType;
+  emoji?: string;
+};
 
-export const SidebarItem = (props: SidebarItemProps): React.ReactElement => {
+export const SidebarItem = ({
+  variant,
+  sidebarVisible,
+  path,
+  text,
+  activeColour,
+  iconName,
+  emoji,
+}: SidebarItemProps): React.ReactElement => {
   const StyledLink = chakra(NavLink);
   const linkStyles = {
     color: 'gray.100',
@@ -36,7 +34,7 @@ export const SidebarItem = (props: SidebarItemProps): React.ReactElement => {
     py: 1.25,
     m: 0,
     my: 0.25,
-    px: props.sidebarVisible ? 1 : 0,
+    px: sidebarVisible ? 1 : 0,
     _focus: {
       outlineColor: 'blue.500',
       border: 'none',
@@ -50,71 +48,71 @@ export const SidebarItem = (props: SidebarItemProps): React.ReactElement => {
     },
   };
 
-  if (props.sidebarVisible) {
+  if (sidebarVisible) {
     return (
-      <Tippy delay={500} content={props.text}>
+      <Tooltip label={text}>
         <StyledLink
           activeStyle={{
-            backgroundColour: props.activeColour,
+            backgroundColour: activeColour,
           }}
           {...linkStyles}
-          to={props.path}
+          to={path}
         >
           <Flex
             key={uuidv4()}
-            focusBorderColor={'blue.500'}
+            focusBorderColor="blue.500"
             m={0}
             px={2}
             py={0}
             justifyContent="flex-start"
-            alignItems={'center'}
+            alignItems="center"
           >
-            {props.variant == 'defaultView' &&
-              props.iconName &&
-              Icons[props.iconName]('16px', '16px')}
-            {props.variant == 'customView' && props.emoji && (
-              <Emoji emoji={props.emoji} size={14} native={true} />
+            {variant === 'defaultView' && iconName && (
+              <Icon as={Icons2[iconName]} />
+            )}
+            {variant === 'customView' && emoji && (
+              <Emoji emoji={emoji} size={14} native />
             )}
             <Text
               key={uuidv4()}
               p={0}
               pl={1}
               m={0}
-              color={'gray.100'}
+              color="gray.100"
               fontSize="md"
             >
-              {props.text}
+              {text}
             </Text>
           </Flex>
         </StyledLink>
-      </Tippy>
+      </Tooltip>
     );
   }
 
   return (
-    <Tippy delay={500} content={props.text}>
+    <Tooltip label={text}>
       <StyledLink
         activeStyle={{
-          backgroundColour: props.activeColour,
+          backgroundColour: activeColour,
         }}
         {...linkStyles}
-        to={props.path}
+        to={path}
       >
         <Flex justifyContent="center">
-          {props.variant == 'defaultView' &&
-            props.iconName &&
-            Icons[props.iconName](20, 20)}
-          {props.variant == 'customView' && props.emoji && (
-            <Emoji emoji={props.emoji} size={16} native={true} />
+          {variant === 'defaultView' && iconName && (
+            <Icon as={Icons2[iconName]} />
           )}
-          {props.variant == 'customView' && !props.emoji && (
-            <Text textAlign={'center'} fontSize="md" color={'gray.100'}>
-              {createShortSidebarItem(props.text)}
+          {variant === 'customView' && emoji && (
+            <Emoji emoji={emoji} size={16} native />
+          )}
+          {variant === 'customView' && !emoji && (
+            <Text textAlign="center" fontSize="md" color="gray.100">
+              {createShortSidebarItem(text)}
             </Text>
           )}
         </Flex>
       </StyledLink>
-    </Tippy>
+    </Tooltip>
   );
 };
 export default SidebarItem;

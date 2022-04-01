@@ -1,9 +1,9 @@
 import React, { ReactElement, useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useMutation } from '@apollo/client';
-import { Flex } from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
 import { CREATE_ITEM } from 'renderer/queries';
-import Button from './Button';
+import { Icons2 } from 'renderer/assets/icons';
 import EditItemCreator from './EditItemCreator';
 import EditableText2 from './EditableText2';
 
@@ -83,7 +83,7 @@ const ItemCreator = ({
   const [createItem] = useMutation(CREATE_ITEM, {
     refetchQueries: ['itemsByFilter', 'itemByKey', 'getItems'],
   });
-
+  console.log(buttonText);
   return (
     <>
       {editing ? (
@@ -109,19 +109,34 @@ const ItemCreator = ({
           }}
         >
           {!hideButton && (
-            <Button
-              size="md"
-              variant="primary"
-              icon="add"
-              iconPosition="left"
-              iconColour="#FFF"
-              iconSize="14px"
-              text={showItemCreator ? '' : buttonText}
-              tooltipText={parentKey ? 'Create subtask' : 'Create item'}
-              onClick={() => {
-                setShowItemCreator(!showItemCreator);
-              }}
-            />
+            <Tooltip label={parentKey ? 'Create subtask' : 'Create item'}>
+              <Box>
+                {showItemCreator || !buttonText ? (
+                  <IconButton
+                    aria-label="hide"
+                    size="md"
+                    variant="primary"
+                    icon={<Icon as={Icons2.add} />}
+                    color="#FFF"
+                    onClick={() => {
+                      setShowItemCreator(!showItemCreator);
+                    }}
+                  />
+                ) : (
+                  <Button
+                    size="md"
+                    variant="primary"
+                    leftIcon={<Icon as={Icons2.add} />}
+                    color="#FFF"
+                    onClick={() => {
+                      setShowItemCreator(!showItemCreator);
+                    }}
+                  >
+                    {buttonText}
+                  </Button>
+                )}
+              </Box>
+            </Tooltip>
           )}
           <Flex
             position="relative"

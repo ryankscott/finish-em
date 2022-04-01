@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
 import {
-  Button as CButton,
+  Button,
   Box,
   Divider,
   Flex,
@@ -9,6 +9,8 @@ import {
   useColorMode,
   useTheme,
   VStack,
+  Tooltip,
+  Icon,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
 import { Area, Project, View } from 'main/generated/typescript-helpers';
@@ -30,11 +32,10 @@ import {
   SidebarData,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import { convertSVGElementToReact, Icons } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 import { sidebarVisibleVar } from '../index';
 import { IconType } from '../interfaces';
 import { getProductName } from '../utils';
-import Button from './Button';
 import SidebarDraggableItem from './SidebarDraggableItem';
 import SidebarDroppableItem from './SidebarDroppableItem';
 import SidebarItem from './SidebarItem';
@@ -313,14 +314,10 @@ const Sidebar = (): ReactElement => {
                                       justifyContent="center"
                                       pb={2}
                                     >
-                                      <CButton
+                                      <Button
                                         size="sm"
                                         variant="invert"
-                                        rightIcon={Icons.add(
-                                          '12px',
-                                          '12px',
-                                          '#FFFFFF'
-                                        )}
+                                        rightIcon={<Icon as={Icons2.add} />}
                                         onClick={() => {
                                           const projectKey = uuidv4();
                                           createProject({
@@ -337,7 +334,7 @@ const Sidebar = (): ReactElement => {
                                         }}
                                       >
                                         Add Project
-                                      </CButton>
+                                      </Button>
                                     </Flex>
                                   )}
                                 </Box>
@@ -361,26 +358,28 @@ const Sidebar = (): ReactElement => {
             justifyContent="center"
             bg="gray.800"
           >
-            <Button
-              key={uuidv4()}
-              tooltipText="Add Area"
-              variant="invert"
-              size="md"
-              text={sidebarVisible ? 'Add Area' : ''}
-              iconSize="12px"
-              icon="add"
-              iconPosition="right"
-              onClick={() => {
-                const areaKey = uuidv4();
-                createArea({
-                  variables: {
-                    key: areaKey,
-                    name: getProductName(),
-                    description: '',
-                  },
-                });
-              }}
-            />
+            <Tooltip label="Add Area">
+              <Box>
+                <Button
+                  key={uuidv4()}
+                  variant="invert"
+                  size="md"
+                  rightIcon={<Icon as={Icons2.add} />}
+                  onClick={() => {
+                    const areaKey = uuidv4();
+                    createArea({
+                      variables: {
+                        key: areaKey,
+                        name: getProductName(),
+                        description: '',
+                      },
+                    });
+                  }}
+                >
+                  {sidebarVisible ? 'Add Area' : ''}
+                </Button>
+              </Box>
+            </Tooltip>
           </Flex>
         )}
       </VStack>
@@ -418,16 +417,15 @@ const Sidebar = (): ReactElement => {
             shadow="md"
             key={uuidv4()}
             icon={
-              sidebarVisible
-                ? convertSVGElementToReact(Icons.slideLeft())
-                : convertSVGElementToReact(Icons.slideRight())
+              <Icon
+                as={sidebarVisible ? Icons2.slideLeft : Icons2.slideRight}
+              />
             }
             size="sm"
             transition="all 0.2s ease-in-out"
             onClick={() => {
               sidebarVisibleVar(!sidebarVisible);
             }}
-            iconSize="18px"
           />
         </Flex>
       </Stack>

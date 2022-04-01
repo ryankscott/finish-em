@@ -2,7 +2,7 @@
  * Grammar
  * ==========================
  *
- * Accepts expressions like: nha == nhat AND (nhat == nha or "nhat " contains "tt") OR nhat == "test"
+ * Accepts expressions like: nha===nhat AND (nhat===nha or "nhat " contains "tt") OR nhat==="test"
  */
 
 {
@@ -23,27 +23,27 @@ Expression
     }
 
 Condition
-  = "(" _ expr:Expression _ ")" 
-  		{   
-        	return {expressions:expr}; 
+  = "(" _ expr:Expression _ ")"
+  		{
+        	return {expressions:expr};
         }
-  / ThreeFactorCondition 
-  
+  / ThreeFactorCondition
+
 ThreeFactorCondition
-  = category:ValidName ws operator:Operator ws value:ValidValue 
-  			{ 
+  = category:ValidName ws operator:Operator ws value:ValidValue
+  			{
             	return {
                 	category : category,
                   operator: operator,
                   value: value
-                }; 
-            } 
-  
+                };
+            }
+
 Operator "operator"
   = ValidToken+  { parseTrace.pushOperator(text()); return text(); }
-  
+
 ValidValue "value"
-  = ValidToken+ { parseTrace.pushValue(text() ); return text(); }  
+  = ValidToken+ { parseTrace.pushValue(text() ); return text(); }
   /"\"" name:[^\"]* "\"" {
         var value = name.join("");
         parseTrace.pushValue(value);
@@ -51,7 +51,7 @@ ValidValue "value"
       }
 
 ValidName  "category"
-  = ValidToken+ { parseTrace.pushCategory(text() ); return text(); }  
+  = ValidToken+ { parseTrace.pushCategory(text() ); return text(); }
   /"\"" name:[^\"]* "\"" {
         var value = name.join("");
         parseTrace.pushCategory(value);
@@ -63,6 +63,6 @@ ValidToken
 
 ws "whitespace"
   = [ \t\n\r]+
-  
+
 _ "whitespace"
   = [ \t\n\r]*

@@ -11,11 +11,12 @@ import {
   useColorMode,
   useTheme,
   GridItem,
+  Icon,
 } from '@chakra-ui/react';
-import { convertSVGElementToReact, Icons } from 'renderer/assets/icons';
+import { Icons2 } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
-import { CommandBar } from './CommandBar';
+import CommandBar from './CommandBar';
 import { Item, Project } from '../../main/generated/typescript-helpers';
 import { activeItemVar, focusbarVisibleVar } from '..';
 import {
@@ -64,11 +65,11 @@ const Headerbar = (): ReactElement => {
     iconColour,
     onClickHandler,
   }: HeaderButtonProps) => (
-    <Tooltip delay={500} label={label}>
+    <Tooltip label={label}>
       <IconButton
         aria-label={label}
         variant="invert"
-        icon={convertSVGElementToReact(Icons[icon]('18px', '18px'))}
+        icon={<Icon as={Icons2[icon]} h={4} w={4} />}
         color={iconColour}
         onClick={onClickHandler}
       />
@@ -165,7 +166,7 @@ const Headerbar = (): ReactElement => {
       <HeaderItem>
         <HeaderButton
           label="Toggle dark mode"
-          icon={colorMode == 'light' ? 'darkMode' : 'lightMode'}
+          icon={colorMode === 'light' ? 'darkMode' : 'lightMode'}
           iconColour={theme.colors.gray[100]}
           onClickHandler={toggleColorMode}
         />

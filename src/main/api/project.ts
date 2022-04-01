@@ -172,7 +172,7 @@ export const createProject = async (
   ctx
 ) => {
   const projects = await getProjects({ deleted: false }, ctx);
-  const exists = projects.map((p) => p.name == input.name).includes(true);
+  const exists = projects.map((p) => p.name === input.name).includes(true);
   if (exists) {
     return new Error('Unable to create project - name already in use');
   }
@@ -226,7 +226,7 @@ export const renameProject = async (
   ctx
 ) => {
   const projects = await getProjects({ deleted: false }, ctx);
-  const exists = projects.map((p) => p.name == input.name).includes(true);
+  const exists = projects.map((p) => p.name === input.name).includes(true);
   if (exists) {
     return new Error('Unable to create project - name already in use');
   }
