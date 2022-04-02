@@ -162,6 +162,7 @@ const EditableText2 = ({
       minH={height || 'auto'}
       mb="30px"
       width={width || '100%'}
+      maxW="100%"
       overflow="visible"
       textOverflow="ellipsis"
       whiteSpace="nowrap"

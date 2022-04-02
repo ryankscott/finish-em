@@ -16,7 +16,6 @@ import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
 import { useState } from 'react';
-import DatePicker from 'react-datepicker';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
@@ -29,8 +28,8 @@ import {
   SET_END_DATE_OF_PROJECT,
   SET_START_DATE_OF_PROJECT,
 } from 'renderer/queries';
-import 'tippy.js/dist/tippy.css';
 import { v4 as uuidv4 } from 'uuid';
+import DatePicker from './DatePicker';
 import {
   Item as ItemType,
   Project as ProjectType,
@@ -46,7 +45,7 @@ type ProjectProps = {
   projectKey: string;
 };
 
-const Project = (props: ProjectProps) => {
+const Project = ({ projectKey }: ProjectProps) => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
@@ -66,7 +65,7 @@ const Project = (props: ProjectProps) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const { loading, error, data } = useQuery(GET_PROJECT_BY_KEY, {
-    variables: { key: props.projectKey },
+    variables: { key: projectKey },
   });
 
   if (loading) return null;
@@ -138,12 +137,8 @@ const Project = (props: ProjectProps) => {
                 }
               }}
             >
-              <EditablePreview
-                _hover={{
-                  bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
-                }}
-              />
-              <EditableInput />
+              <EditablePreview px={2} />
+              <EditableInput px={2} />
             </Editable>
             <DeleteProjectDialog
               onDelete={() => {
@@ -154,7 +149,7 @@ const Project = (props: ProjectProps) => {
             />
           </Flex>
         </GridItem>
-        <GridItem rowStart={2} colstart={2} colSpan={1}>
+        <GridItem rowStart={2} colStart={2} colSpan={1}>
           <Tooltip
             label={`${completedItems.length}/${allItems.length} completed`}
           >
@@ -162,7 +157,7 @@ const Project = (props: ProjectProps) => {
               <Donut
                 size={30}
                 progress={
-                  allItems.length != 0
+                  allItems.length !== 0
                     ? (100 * completedItems.length) / allItems.length
                     : 0
                 }
@@ -190,16 +185,19 @@ const Project = (props: ProjectProps) => {
         )}
       </Grid>
       {data.projectDates.enabled && (
-        <Flex pl={4} direction="row" alignItems="center">
-          <Text>Start: </Text>
-          <Box>
+        <Flex direction="row" alignItems="center">
+          <Text fontSize="md" px={2} fontWeight="medium">
+            Starting:
+          </Text>
+          <Box minW="180px">
             <DatePicker
-              value={
+              completed={false}
+              text={
                 project.startAt
                   ? formatRelativeDate(parseISO(project.startAt))
                   : ''
               }
-              onChange={(e) => {
+              onSubmit={(e) => {
                 setStartDate({
                   variables: {
                     key: project.key,
@@ -209,17 +207,20 @@ const Project = (props: ProjectProps) => {
               }}
             />
           </Box>
-          <Text>End: </Text>
-          <Box>
+          <Text fontSize="md" px={2} fontWeight="medium">
+            Ending:
+          </Text>
+          <Box minW="180px">
             <DatePicker
-              value={
+              completed={false}
+              text={
                 project.endAt ? formatRelativeDate(parseISO(project.endAt)) : ''
               }
-              onChange={(e) => {
+              onSubmit={(d) => {
                 setEndDate({
                   variables: {
                     key: project.key,
-                    endAt: e ? e.toISOString() : '',
+                    endAt: d ? d.toISOString() : '',
                   },
                 });
               }}

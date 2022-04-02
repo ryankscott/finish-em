@@ -68,6 +68,20 @@ const Area = (props: AreaProps): ReactElement => {
   }
   const { area } = data;
   const { areas } = data;
+
+  const determineProgress = (
+    totalItemsCount: number,
+    completedItemsCount: number
+  ): number => {
+    if (totalItemsCount === 0) {
+      return 0;
+    }
+    if (completedItemsCount === 0) {
+      return 0;
+    }
+    return totalItemsCount / completedItemsCount;
+  };
+
   return (
     <Page>
       <Grid
@@ -100,12 +114,8 @@ const Area = (props: AreaProps): ReactElement => {
                 }
               }}
             >
-              <EditablePreview
-                _hover={{
-                  bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
-                }}
-              />
-              <EditableInput />
+              <EditablePreview px={2} />
+              <EditableInput px={2} />
             </Editable>
 
             <DeleteAreaDialog
@@ -196,16 +206,15 @@ const Area = (props: AreaProps): ReactElement => {
         Projects
       </Text>
       {area.projects.map((p: Project) => {
+        if (!p.items) return <></>;
         const totalItemsCount = p.items.length;
         const completedItemsCount = p.items.filter(
-          (i) => i.completed === true && i.deleted === false
+          (i) => i?.completed === true && i?.deleted === false
         ).length;
-        const progress =
-          totalItemsCount === 0
-            ? 0
-            : completedItemsCount === 0
-            ? 0
-            : totalItemsCount / completedItemsCount;
+        const progress = determineProgress(
+          totalItemsCount,
+          completedItemsCount
+        );
         return (
           <Grid
             position="relative"

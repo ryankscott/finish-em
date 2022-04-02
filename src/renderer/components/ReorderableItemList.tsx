@@ -31,7 +31,7 @@ type ReorderableItemListProps = {
   sortType: SortOption;
   showCompleted: boolean;
   expandSubtasks: boolean;
-  hiddenIcons: ItemIcons[];
+  hiddenIcons: ItemIcons[] | undefined;
   onItemsFetched: (
     fetchedItems: [filteredItems: number, filteredButCompletedItems: number]
   ) => void;
@@ -241,37 +241,41 @@ function ReorderableItemList({
                           hiddenIcons={hiddenIcons}
                           hideCollapseIcon={flattenSubtasks}
                         />
-                        {item.children && item?.children.length > 0 && (
-                          <Box>
-                            {item.children.map((child) => {
-                              // Keep TS happy
-                              if (!child) return <></>;
-                              // We need to check if the child exists in the original input list
-                              const shouldHideItem =
-                                (hideCompletedSubtasks && child.completed) ||
-                                (hideDeletedSubtasks && child.deleted) ||
-                                flattenSubtasks;
+                        <Box
+                          display={
+                            item.children && item?.children.length > 0
+                              ? 'initial'
+                              : 'none'
+                          }
+                        >
+                          {item.children.map((child) => {
+                            // Keep TS happy
+                            if (!child) return <></>;
+                            // We need to check if the child exists in the original input list
+                            const shouldHideItem =
+                              (hideCompletedSubtasks && child.completed) ||
+                              (hideDeletedSubtasks && child.deleted) ||
+                              flattenSubtasks;
 
-                              return (
-                                !shouldHideItem && (
-                                  <ItemComponent
-                                    compact={false}
-                                    itemKey={child.key}
-                                    key={child.key}
-                                    componentKey={componentKey}
-                                    shouldIndent
-                                    hideCollapseIcon={flattenSubtasks}
-                                    hiddenIcons={
-                                      hiddenIcons
-                                        ? [...hiddenIcons, ItemIcons.Subtask]
-                                        : [ItemIcons.Subtask]
-                                    }
-                                  />
-                                )
-                              );
-                            })}
-                          </Box>
-                        )}
+                            return (
+                              !shouldHideItem && (
+                                <ItemComponent
+                                  compact={false}
+                                  itemKey={child.key}
+                                  key={child.key}
+                                  componentKey={componentKey}
+                                  shouldIndent
+                                  hideCollapseIcon={flattenSubtasks}
+                                  hiddenIcons={
+                                    hiddenIcons
+                                      ? [...hiddenIcons, ItemIcons.Subtask]
+                                      : [ItemIcons.Subtask]
+                                  }
+                                />
+                              )
+                            );
+                          })}
+                        </Box>
                       </Flex>
                     )}
                   </Draggable>

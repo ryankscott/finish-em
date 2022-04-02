@@ -301,44 +301,35 @@ const Settings = (): ReactElement => {
             <SettingHeader name="Labels" />
             {Object.values(data.labels).map((label: Label) => {
               return (
-                <div id={label.key} key={`f-${label.key}`}>
+                <Flex id={label.key} key={`f-${label.key}`} my={0.5}>
                   <Flex
                     w="250px"
                     justifyContent="space-between"
                     alignItems="center"
                     height="auto"
-                    bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
                     key={`lc-${label.key}`}
                   >
-                    <Box w="100%" mr={1}>
-                      <Editable
-                        borderRadius="md"
-                        borderColor="gray.50"
-                        defaultValue={label.name ?? 'Label'}
-                        fontSize="sm"
-                        w="100%"
-                        onBlur={(e) => {
-                          renameLabel({
-                            // @ts-ignore
-                            variables: { key: label.key, name: e.target.value },
-                          });
-                        }}
-                        onSubmit={(input) => {
-                          renameLabel({
-                            variables: { key: label.key, name: input },
-                          });
-                        }}
-                        submitOnBlur={false}
-                      >
-                        <EditablePreview
-                          fontSize="sm"
-                          _hover={{
-                            bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
-                          }}
-                        />
-                        <EditableInput />
-                      </Editable>
-                    </Box>
+                    <Editable
+                      mx={2}
+                      defaultValue={label.name ?? 'Label'}
+                      fontSize="sm"
+                      w="100%"
+                      onBlur={(e) => {
+                        renameLabel({
+                          // @ts-ignore
+                          variables: { key: label.key, name: e.target.value },
+                        });
+                      }}
+                      onSubmit={(input) => {
+                        renameLabel({
+                          variables: { key: label.key, name: input },
+                        });
+                      }}
+                      submitOnBlur={false}
+                    >
+                      <EditablePreview p={2} py={1} fontSize="sm" />
+                      <EditableInput p={2} py={1} />
+                    </Editable>
                     <Flex
                       bg={label.colour ?? '#000'}
                       cursor="pointer"
@@ -346,8 +337,7 @@ const Settings = (): ReactElement => {
                       height="24px"
                       borderRadius="md"
                       borderWidth="3px"
-                      borderColor="white"
-                      shadow="md"
+                      borderColor="gray.100"
                       id={`${label.key}-edit`}
                       key={`edit-colour-${label.key}`}
                       onClick={(e) => {
@@ -357,6 +347,9 @@ const Settings = (): ReactElement => {
                       }}
                     />
                     <IconButton
+                      size="sm"
+                      mx={2}
+                      variant="ghost"
                       aria-label="delete label"
                       id={`${label.key}-delete`}
                       key={`delete-label-${label.key}`}
@@ -366,11 +359,11 @@ const Settings = (): ReactElement => {
                       }}
                     />
                   </Flex>
-                </div>
+                </Flex>
               );
             })}
             {showColourPicker && (
-              <Flex w="200px" ref={ref} postion="absolute" zIndex={99}>
+              <Flex w="200px" ref={ref} position="absolute" zIndex={99}>
                 <HexColorPicker
                   color={colourPickerTriggeredBy?.colour ?? '#000'}
                   onChange={(colour) => {

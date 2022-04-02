@@ -1,23 +1,24 @@
-import { ReactElement } from 'react';
 import { useMutation, useQuery } from '@apollo/client';
-import { startCase } from 'lodash';
 import {
-  Button,
   Box,
-  Flex,
+  Button,
   Editable,
   EditableInput,
   EditablePreview,
-  useColorMode,
+  Flex,
+  FlexProps,
+  forwardRef,
   Icon,
+  useColorMode,
 } from '@chakra-ui/react';
+import { startCase } from 'lodash';
+import { ReactElement } from 'react';
 import {
   GET_COMPONENT_BY_KEY,
   UPDATE_COMPONENT,
 } from 'renderer/queries/component';
-
-import Select from './Select';
 import { Icons2 } from '../assets/icons';
+import Select from './Select';
 
 export type ViewHeaderProps = {
   componentKey: string;
@@ -42,37 +43,45 @@ const generateIconOptions = (): {
     };
   });
 };
+const Setting = forwardRef<FlexProps, 'div'>((props, ref) => (
+  <Flex
+    py={1}
+    px={1}
+    w="100%"
+    minH="35px"
+    alignItems="bottom"
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  />
+));
 
-const settingStyles = {
-  justifyContent: 'flex-start',
-  py: 1,
-  px: 2,
-  w: '100%',
-  minH: '35px',
-  alignItems: 'bottom',
-};
+const SettingLabel = forwardRef<FlexProps, 'div'>((props, ref) => (
+  <Flex
+    alignSelf="flex-start"
+    color="gray.800"
+    fontSize="md"
+    py={1}
+    px={3}
+    mr={3}
+    w="160px"
+    minW="160px"
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  />
+));
 
-const settingLabelStyles = {
-  display: 'flex',
-  alignSelf: 'flex-start',
-  color: 'gray.800',
-  fontSize: 'md',
-  py: 1,
-  px: 3,
-  mr: 3,
-  w: '160px',
-  minW: '160px',
-};
-
-const settingValueStyles = {
-  display: 'flex',
-  justifyContent: 'center',
-  py: 0,
-  px: 2,
-  width: '100%',
-  minH: '30px',
-  alignItems: 'flex-start',
-};
+const SettingValue = forwardRef<FlexProps, 'div'>((props, ref) => (
+  <Flex
+    justifyContent="center"
+    py={0}
+    px={2}
+    w="100%"
+    minH="30px"
+    alignItems="flex-start"
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  />
+));
 
 const EditViewHeader = ({
   componentKey,
@@ -125,9 +134,9 @@ const EditViewHeader = ({
           />
         </Box>
       </Flex>
-      <Flex direction="row" {...settingStyles}>
-        <Flex {...settingLabelStyles}>Name:</Flex>
-        <Flex direction="column" {...settingValueStyles}>
+      <Setting>
+        <SettingLabel>Name:</SettingLabel>
+        <SettingValue direction="column">
           <Editable
             width="180px"
             defaultValue={params.name}
@@ -146,14 +155,13 @@ const EditViewHeader = ({
             />
             <EditableInput />
           </Editable>
-        </Flex>
-      </Flex>
-      <Flex direction="row" {...settingStyles}>
-        <Flex {...settingLabelStyles}>Icon:</Flex>
-        <Flex direction="column" {...settingValueStyles}>
+        </SettingValue>
+      </Setting>
+      <Setting>
+        <SettingLabel>Icon:</SettingLabel>
+        <SettingValue direction="column">
           <Box position="relative" width="180px">
             <Select
-              size="md"
               placeholder="Select icon"
               defaultValue={options.find((o) => o.value === params.icon)}
               onChange={(i) => {
@@ -164,8 +172,8 @@ const EditViewHeader = ({
               renderLabelAsElement
             />
           </Box>
-        </Flex>
-      </Flex>
+        </SettingValue>
+      </Setting>
       <Flex
         position="relative"
         direction="row"

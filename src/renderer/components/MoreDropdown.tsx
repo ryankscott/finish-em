@@ -21,13 +21,11 @@ export type MoreDropdownOptions = {
 
 type MoreDropdownProps = {
   options: MoreDropdownOptions;
-  showDialog?: boolean;
   disableClick?: boolean;
 };
 
 const MoreDropdown = ({
   options,
-  showDialog,
   disableClick,
 }: MoreDropdownProps): ReactElement => {
   const { colorMode } = useColorMode();
@@ -35,6 +33,7 @@ const MoreDropdown = ({
   return (
     <Menu matchWidth>
       <MenuButton
+        disabled={disableClick}
         as={IconButton}
         onClick={(e) => e.stopPropagation()}
         variant="subtle"

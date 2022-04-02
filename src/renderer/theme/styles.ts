@@ -1,5 +1,5 @@
-import { transparentize } from 'polished'
-import { mode } from '@chakra-ui/theme-tools'
+import { transparentize } from 'polished';
+import { mode } from '@chakra-ui/theme-tools';
 
 const styles = {
   html: {
@@ -18,7 +18,7 @@ const styles = {
       padding: 0,
       margin: 0,
       outlineColor: 'blue.500',
-    }
+    };
   },
   a: {
     color: 'blue.500',
@@ -35,7 +35,7 @@ const styles = {
       my: 1,
       mx: 2,
       px: 2,
-    }
+    };
   },
   global: (props) => {
     return {
@@ -383,10 +383,7 @@ const styles = {
         bg: 'gray.800',
         color: 'gray.50',
       },
-      '.tippy-content': {
-        fontSize: 'sm',
-      },
-    }
+    };
   },
-}
-export default styles
+};
+export default styles;

@@ -36,7 +36,10 @@ type FilteredItemDialogProps = {
   onClose: () => void;
 };
 
-const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
+const FilteredItemDialog = ({
+  componentKey,
+  onClose,
+}: FilteredItemDialogProps): ReactElement => {
   const [isValid, setIsValid] = useState(true);
   const { colorMode } = useColorMode();
 
@@ -44,7 +47,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
     refetchQueries: ['ComponentByKey', 'itemsByFilter'],
   });
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
-    variables: { key: props.componentKey },
+    variables: { key: componentKey },
     fetchPolicy: 'no-cache',
   });
 
@@ -69,13 +72,17 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
 
   try {
     params = JSON.parse(data.component.parameters);
-  } catch (error) {
+  } catch (err) {
     console.log('Failed to parse parameters');
-    console.log(error);
+    console.log(err);
     return <></>;
   }
 
-  const ItemListSetting = (props: { children: Element; name: string }) => (
+  type ItemListSettingProps = {
+    children: any;
+    name: string;
+  };
+  const ItemListSetting = ({ children, name }: ItemListSettingProps) => (
     <Flex
       direction="row"
       justifyContent="flex-start"
@@ -95,7 +102,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         w="160px"
         minW="160px"
       >
-        {props.name}:
+        {name}:
       </Flex>
       <Flex
         direction="column"
@@ -105,7 +112,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
         width="100%"
         alignItems="flex-start"
       >
-        {props.children}
+        {children}
       </Flex>
     </Flex>
   );
@@ -131,7 +138,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           variant="default"
           icon={<Icon as={Icons2.close} />}
           onClick={() => {
-            props.onClose();
+            onClose();
           }}
         />
       </Flex>
@@ -139,18 +146,13 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
       <ItemListSetting name="Name">
         <Editable
           defaultValue={params.listName}
-          color={colorMode === 'light' ? 'gray.800' : 'gray.100'}
           fontSize="md"
           w="100%"
           onChange={(input) => {
             params.listName = input;
           }}
         >
-          <EditablePreview
-            _hover={{
-              bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
-            }}
-          />
+          <EditablePreview />
           <EditableInput />
         </Editable>
       </ItemListSetting>
@@ -269,7 +271,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
           onClick={() => {
             updateComponent({
               variables: {
-                key: props.componentKey,
+                key: componentKey,
                 parameters: {
                   filter: params.filter,
                   legacyFilter: params.legacyFilter,
@@ -284,7 +286,7 @@ const FilteredItemDialog = (props: FilteredItemDialogProps): ReactElement => {
                 },
               },
             });
-            props.onClose();
+            onClose();
           }}
         >
           Save

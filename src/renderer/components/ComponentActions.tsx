@@ -116,7 +116,7 @@ const ComponentActions = ({
           </Flex>
         </>
       )}
-      {React.Children.map(children, (_) => {
+      {React.Children.map(children, () => {
         return React.cloneElement(children, {
           editing: isEditing,
           setEditing: setIsEditing,

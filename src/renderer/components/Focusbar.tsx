@@ -57,13 +57,13 @@ const Focusbar = (): ReactElement => {
 
   const [renameItem] = useMutation(RENAME_ITEM);
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
   const [setProject] = useMutation(SET_PROJECT, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
   const [setArea] = useMutation(SET_AREA, {
     refetchQueries: ['itemsByFilter, itemByKey'],
@@ -72,28 +72,38 @@ const Focusbar = (): ReactElement => {
     refetchQueries: ['itemsByFilter', 'weeklyItems'],
   });
   const [setDueAt] = useMutation(SET_DUE_AT, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
   const [setRepeat] = useMutation(SET_REPEAT, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
   const [setParent] = useMutation(SET_PARENT, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
   const [setLabel] = useMutation(SET_LABEL, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
   const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
 
   if (error) {
     console.log(error);
     return <></>;
   }
+
+  const determineIconColour = (item: Item): string => {
+    if (item.label?.colour) {
+      return item.label.colour;
+    }
+    if (colorMode === 'light') {
+      return 'gray.800';
+    }
+    return 'gray.50';
+  };
 
   if (loading) {
     return (
@@ -146,6 +156,7 @@ const Focusbar = (): ReactElement => {
     ? formatRelativeDate(parseISO(item?.scheduledAt))
     : 'Add scheduled date';
 
+  const iconColour = determineIconColour(item);
   return (
     <Flex
       direction="column"
@@ -207,7 +218,9 @@ const Focusbar = (): ReactElement => {
             <Icon
               p={0}
               m={0}
-              color={item.label ? item.label.colour : undefined}
+              fill={item.completed ? 'undefined' : iconColour}
+              fillOpacity={0.6}
+              color={iconColour}
               as={item?.completed ? Icons2.todoChecked : Icons2.todoUnchecked}
               h={3.5}
               w={3.5}
@@ -216,6 +229,7 @@ const Focusbar = (): ReactElement => {
         />
         <Box
           w="100%"
+          maxW="250px"
           textDecoration={item?.completed ? 'line-through' : 'inherit'}
           px={1}
         >
@@ -243,8 +257,6 @@ const Focusbar = (): ReactElement => {
               onClick={() => {
                 restoreItem({ variables: { key: item.key } });
               }}
-              h={3}
-              w={3}
             />
           </Tooltip>
         ) : (

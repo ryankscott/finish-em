@@ -44,7 +44,7 @@ const DeleteProjectDialog = ({
               Delete Project
             </AlertDialogHeader>
             <AlertDialogBody fontSize="md">
-              Are you sure? You can't undo this action afterwards
+              {`Are you sure? You can't undo this action afterwards`}
             </AlertDialogBody>
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose}>

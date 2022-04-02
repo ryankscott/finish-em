@@ -90,7 +90,6 @@ const ActionBar = () => {
         <DatePicker
           key="dd"
           text="Set due date"
-          tooltipText="Set due date"
           defaultText="Due at: "
           onSubmit={(d: Date | null) => {
             activeItem.forEach((i) => {
@@ -107,7 +106,6 @@ const ActionBar = () => {
           key="sd"
           text="Set scheduled date"
           defaultText="Scheduled at: "
-          tooltipText="Set scheduled date"
           onSubmit={(d: Date | null) => {
             activeItem.forEach((i) => {
               setScheduledAt({ variables: { key: i, scheduledAt: d } });

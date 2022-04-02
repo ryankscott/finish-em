@@ -37,13 +37,13 @@ type ReorderableComponentListProps = {
   viewKey: string;
 };
 
-const ReorderableComponentList = (
-  props: ReorderableComponentListProps
-): ReactElement => {
+const ReorderableComponentList = ({
+  viewKey,
+}: ReorderableComponentListProps): ReactElement => {
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
-    variables: { viewKey: props.viewKey },
+    variables: { viewKey },
     fetchPolicy: 'no-cache',
   });
   const [addComponent] = useMutation(ADD_COMPONENT);
@@ -69,7 +69,7 @@ const ReorderableComponentList = (
   }
   if (error) {
     console.log(error);
-    return null;
+    return <></>;
   }
 
   const componentSwitch = (params, comp, provided) => {
@@ -96,6 +96,8 @@ const ReorderableComponentList = (
         return (
           <ItemCreator componentKey={comp.key} key={comp.key} {...params} />
         );
+      default:
+        <></>;
     }
   };
 
@@ -253,7 +255,7 @@ const ReorderableComponentList = (
                   variables: {
                     input: {
                       key: uuidv4(),
-                      viewKey: props.viewKey,
+                      viewKey,
                       type: 'FilteredItemList',
                       location: 'main',
                       parameters: {
@@ -300,7 +302,7 @@ const ReorderableComponentList = (
                   variables: {
                     input: {
                       key: uuidv4(),
-                      viewKey: props.viewKey,
+                      viewKey,
                       type: 'ViewHeader',
                       location: 'main',
                       parameters: {
@@ -321,7 +323,7 @@ const ReorderableComponentList = (
                   variables: {
                     input: {
                       key: uuidv4(),
-                      viewKey: props.viewKey,
+                      viewKey,
                       type: 'ItemCreator',
                       location: 'main',
                       parameters: {

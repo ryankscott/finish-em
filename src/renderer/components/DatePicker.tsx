@@ -38,6 +38,7 @@ const DatePicker = ({
   const [showMenu, setShowMenu] = useState(false);
 
   const handleDayChange = (input: Date | null) => {
+    console.log(onSubmit);
     onSubmit(input);
     setDayPickerVisible(false);
     setShowMenu(false);
@@ -117,6 +118,7 @@ const DatePicker = ({
         {dayPickerVisible && (
           <Box mt={-3} mb={-4} pb={-2}>
             <RDatePicker
+              // @ts-ignore
               utcOffset={new Date().getTimezoneOffset()}
               inline
               tabIndex={0}

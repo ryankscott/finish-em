@@ -1,4 +1,16 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import {
+  Box,
+  ColorMode,
+  Flex,
+  Grid,
+  GridItem,
+  Icon,
+  IconButton,
+  Text,
+  useBreakpointValue,
+  useColorMode,
+} from '@chakra-ui/react';
 import {
   add,
   format,
@@ -10,79 +22,32 @@ import {
 } from 'date-fns';
 import groupBy from 'lodash/groupBy';
 import { ReactElement, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import {
-  Grid,
-  GridItem,
-  Box,
-  Flex,
-  Text,
-  useColorMode,
-  Icon,
-  IconButton,
-  useBreakpointValue,
-} from '@chakra-ui/react';
 import { Icons2 } from 'renderer/assets/icons';
+import { GET_WEEKLY_ITEMS, SET_WEEKLY_GOAL } from 'renderer/queries';
+import { v4 as uuidv4 } from 'uuid';
 import { WeeklyGoal } from '../../main/generated/typescript-helpers';
 import { ItemIcons } from '../interfaces';
 import EditableText2 from './EditableText2';
 import ItemList from './ItemList';
 import ReorderableComponentList from './ReorderableComponentList';
 
-const GET_DATA = gql`
-  query weeklyItems($filter: String!, $componentKey: String!) {
-    items: itemsByFilter(filter: $filter, componentKey: $componentKey) {
-      key
-      text
-      completed
-      deleted
-      dueAt
-      scheduledAt
-      lastUpdatedAt
-      createdAt
-      reminders {
-        key
-        remindAt
-      }
-      project {
-        key
-      }
-      parent {
-        key
-      }
-      children {
-        key
-        project {
-          key
-          name
-        }
-      }
-    }
-    weeklyGoals {
-      key
-      week
-      goal
-    }
-    newEditor: featureByName(name: "newEditor") {
-      key
-      enabled
-    }
-  }
-`;
-const CREATE_WEEKLY_GOAL = gql`
-  mutation CreateWeeklyGoal($key: String!, $week: String!, $goal: String) {
-    createWeeklyGoal(input: { key: $key, week: $week, goal: $goal }) {
-      key
-      week
-      goal
-    }
-  }
-`;
-
 const weeklyFilter = JSON.stringify({
   text: 'scheduledAt is "this week"',
   value: [{ category: 'scheduledAt', operator: 'is', value: 'this week' }],
 });
+
+const determineDayBgColour = (listDate: Date, colorMode: ColorMode) => {
+  if (isBefore(listDate, startOfDay(new Date()))) {
+    if (colorMode === 'light') {
+      return 'gray.100';
+    }
+    return 'gray.700';
+  }
+  if (colorMode === 'light') {
+    return 'gray.50';
+  }
+  return 'gray.800';
+};
 
 const WeeklyAgenda = (): ReactElement => {
   const dayOfWeekFormat = useBreakpointValue(['EEE', 'EEE', 'EEEE', 'EEEE']);
@@ -91,10 +56,10 @@ const WeeklyAgenda = (): ReactElement => {
   const [currentDate, setDate] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
-  const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL, {
+  const [createWeeklyGoal] = useMutation(SET_WEEKLY_GOAL, {
     refetchQueries: ['weeklyItems'],
   });
-  const { loading, error, data } = useQuery(GET_DATA, {
+  const { loading, error, data } = useQuery(GET_WEEKLY_ITEMS, {
     variables: {
       filter: weeklyFilter,
       componentKey,
@@ -217,15 +182,7 @@ const WeeklyAgenda = (): ReactElement => {
               border="1px solid"
               borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
               borderRadius={5}
-              bg={
-                isBefore(listDate, startOfDay(new Date()))
-                  ? colorMode === 'light'
-                    ? 'gray.100'
-                    : 'gray.700'
-                  : colorMode === 'light'
-                  ? 'gray.50'
-                  : 'gray.800'
-              }
+              bg={determineDayBgColour(listDate, colorMode)}
               key={`${idx}-container`}
             >
               <Text p={2} textAlign="center" fontSize="lg" key={`${idx}-title`}>

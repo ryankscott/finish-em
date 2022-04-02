@@ -26,7 +26,7 @@ import {
   PERMANENT_DELETE_ITEM,
 } from 'renderer/queries';
 import { Emoji } from 'emoji-mart';
-import { convertSVGElementToReact, Icons, Icons2 } from '../assets/icons';
+import { Icons2 } from '../assets/icons';
 import { ItemIcons } from '../interfaces';
 import {
   capitaliseFirstLetter,
@@ -37,7 +37,6 @@ import {
   rruleToText,
   truncateString,
 } from '../utils';
-import Button from './Button';
 import ItemAttribute from './ItemAttribute';
 import LabelDialog from './LabelDialog';
 import MoreDropdown, { MoreDropdownOptions } from './MoreDropdown';
@@ -45,7 +44,6 @@ import ReminderDialog from './ReminderDialog';
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
 import { LoadingItem } from './LoadingItem';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
-import ItemSelect from './ItemSelect';
 
 type ItemProps = {
   compact: boolean;
@@ -168,6 +166,16 @@ function Item({
   const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
     variables: { key: itemKey || null },
   });
+
+  const determineIconColour = (item: Item): string => {
+    if (item.label?.colour) {
+      return item.label.colour;
+    }
+    if (colorMode === 'light') {
+      return 'gray.800';
+    }
+    return 'gray.50';
+  };
 
   const generateProjectTag = (
     item: ItemType,
@@ -473,13 +481,15 @@ function Item({
               m={0}
               onClick={handleIconClick}
               icon={((deleted: boolean, completed: boolean) => {
+                const iconColour = determineIconColour(item);
+
                 if (deleted) {
                   return (
                     <Icon
                       as={Icons2.restore}
                       w={3.5}
                       h={3.5}
-                      color={colorMode === 'light' ? 'gray.800' : 'gray.50'}
+                      color={iconColour}
                     />
                   );
                 }
@@ -489,7 +499,7 @@ function Item({
                       as={Icons2.todoChecked}
                       w={3.5}
                       h={3.5}
-                      color={colorMode === 'light' ? 'gray.800' : 'gray.50'}
+                      color={iconColour}
                     />
                   );
                 }
@@ -498,7 +508,9 @@ function Item({
                     as={Icons2.todoUnchecked}
                     w={3.5}
                     h={3.5}
-                    color={colorMode === 'light' ? 'gray.800' : 'gray.50'}
+                    fill={iconColour}
+                    fillOpacity={0.6}
+                    color={iconColour}
                   />
                 );
               })(item.deleted, item.completed)}

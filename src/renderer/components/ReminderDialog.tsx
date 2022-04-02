@@ -179,7 +179,7 @@ function ReminderDialog({
               cursor: 'pointer',
             }}
           >
-            Don't remind
+            {`Don't remind`}
           </Text>
         </Flex>
       </Flex>

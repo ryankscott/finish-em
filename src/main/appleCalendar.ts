@@ -1,6 +1,7 @@
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
 import { app } from 'electron';
+
 const log = require('electron-log');
 
 export type AppleCalendarEvent = {
@@ -18,9 +19,10 @@ export type AppleCalendarEvent = {
   recurrence: string;
 };
 
-export const setupAppleCalDatabase = async (): Promise<
-  sqlite.Database<sqlite3.Database, sqlite3.Statement>
-> => {
+export const setupAppleCalDatabase = async (): Promise<sqlite.Database<
+  sqlite3.Database,
+  sqlite3.Statement
+> | null> => {
   const databasePath = `${app.getPath(
     'home'
   )}/Library/Calendars/Calendar\ Cache`;
@@ -46,10 +48,9 @@ FROM ZNODE
 WHERE ZTITLE IS NOT NULl;`);
   if (res) {
     return res;
-  } else {
-    log.error(`Failed to get Apple Calendars from cache db - ${res}`);
-    return null;
   }
+  log.error(`Failed to get Apple Calendars from cache db - ${res}`);
+  return null;
 };
 
 export const getEventsForCalendar = async (
@@ -83,10 +84,9 @@ export const getEventsForCalendar = async (
 
   if (res) {
     return res;
-  } else {
-    console.log('error');
-    return null;
   }
+  console.log('error');
+  return null;
 };
 
 export const getRecurringEventsForCalendar = async (
@@ -120,10 +120,9 @@ export const getRecurringEventsForCalendar = async (
 
   if (res) {
     return res;
-  } else {
-    console.log('error');
-    return null;
   }
+  console.log('error');
+  return null;
 };
 
 export const appleMailLinkScript = `
