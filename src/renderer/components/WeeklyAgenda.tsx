@@ -22,7 +22,7 @@ import {
 } from 'date-fns';
 import groupBy from 'lodash/groupBy';
 import { ReactElement, useState } from 'react';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import { GET_WEEKLY_ITEMS, SET_WEEKLY_GOAL } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { WeeklyGoal } from '../../main/generated/typescript-helpers';
@@ -92,7 +92,7 @@ const WeeklyAgenda = (): ReactElement => {
             aria-label="back"
             size="md"
             variant="default"
-            icon={<Icon as={Icons2.back} />}
+            icon={<Icon as={Icons.back} />}
             onClick={() => {
               setDate(sub(currentDate, { days: 7 }));
             }}
@@ -113,7 +113,7 @@ const WeeklyAgenda = (): ReactElement => {
             aria-label="forward"
             size="md"
             variant="default"
-            icon={<Icon as={Icons2.forward} />}
+            icon={<Icon as={Icons.forward} />}
             onClick={() => {
               setDate(add(currentDate, { days: 7 }));
             }}

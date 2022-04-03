@@ -194,9 +194,13 @@ type ItemFilterBoxProps = {
   onError?: () => void;
 };
 
-const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
+const ItemFilterBox = ({
+  filter,
+  onSubmit,
+  onError,
+}: ItemFilterBoxProps): ReactElement => {
   const [errorMessage, setErrorMessage] = useState('');
-  const colorMode = useColorMode();
+  const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_DATA);
   if (loading) return <></>;
   if (error) {
@@ -272,7 +276,7 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
       }
       return transformExpression(e);
     });
-    props.onSubmit(query, transformedExpressions);
+    onSubmit(query, transformedExpressions);
   };
 
   const onParseError = (
@@ -281,7 +285,7 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
     error?: ValidationResult
   ) => {
     // This library has two different validations, this first one is the "simple" one
-    if (error.isValid != true) {
+    if (error.isValid !== true) {
       setErrorMessage(error.message);
     } else {
       // This second one is a parser error, types are fucked
@@ -289,8 +293,8 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
         `${result.message} at ${result?.location?.start.line}:${result?.location?.start.column}`
       );
     }
-    if (props.onError) {
-      props.onError();
+    if (onError) {
+      onError();
     }
   };
 
@@ -301,7 +305,7 @@ const ItemFilterBox = (props: ItemFilterBoxProps): ReactElement => {
         autoCompleteHandler={customAutoComplete}
         customRenderCompletionItem={customRenderCompletionItem}
         options={filterOptions}
-        query={props.filter}
+        query={filter}
         onParseOk={onParseOk}
         onChange={() => {}}
         onParseError={onParseError}

@@ -13,7 +13,7 @@ import {
   GridItem,
   Icon,
 } from '@chakra-ui/react';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
 import CommandBar from './CommandBar';
@@ -69,7 +69,7 @@ const Headerbar = (): ReactElement => {
       <IconButton
         aria-label={label}
         variant="invert"
-        icon={<Icon as={Icons2[icon]} h={4} w={4} />}
+        icon={<Icon as={Icons[icon]} h={4} w={4} />}
         color={iconColour}
         onClick={onClickHandler}
       />

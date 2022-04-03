@@ -10,7 +10,7 @@ import {
   Switch,
 } from '@chakra-ui/react';
 import { ReactElement, useEffect, useState } from 'react';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import { GET_COMPONENT_BY_KEY, UPDATE_COMPONENT } from 'renderer/queries';
 import { Label, Project } from '../../main/generated/typescript-helpers';
 import { ItemCreatorProps } from './ItemCreator';
@@ -148,7 +148,7 @@ const EditItemCreator = ({
             aria-label="close"
             size="sm"
             variant="default"
-            icon={<Icon as={Icons2.close} />}
+            icon={<Icon as={Icons.close} />}
             onClick={() => {
               onClose();
             }}
@@ -210,7 +210,7 @@ const EditItemCreator = ({
         <Button
           size="md"
           variant="primary"
-          rightIcon={<Icon as={Icons2.save} />}
+          rightIcon={<Icon as={Icons.save} />}
           onClick={() => {
             updateComponent({
               variables: {

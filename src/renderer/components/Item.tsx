@@ -26,7 +26,7 @@ import {
   PERMANENT_DELETE_ITEM,
 } from 'renderer/queries';
 import { Emoji } from 'emoji-mart';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 import { ItemIcons } from '../interfaces';
 import {
   capitaliseFirstLetter,
@@ -194,7 +194,7 @@ function Item({
     if (project.name === 'Inbox') {
       return (
         <TagLabel>
-          <Icon color="blue.500" as={Icons2.inbox} />
+          <Icon color="blue.500" as={Icons.inbox} />
         </TagLabel>
       );
     }
@@ -454,9 +454,7 @@ function Item({
             variant="default"
             size="sm"
             onClick={handleExpand}
-            icon={
-              <Icon as={subtasksVisible ? Icons2.collapse : Icons2.expand} />
-            }
+            icon={<Icon as={subtasksVisible ? Icons.collapse : Icons.expand} />}
           />
         </Box>
       )}
@@ -486,7 +484,7 @@ function Item({
                 if (deleted) {
                   return (
                     <Icon
-                      as={Icons2.restore}
+                      as={Icons.restore}
                       w={3.5}
                       h={3.5}
                       color={iconColour}
@@ -496,7 +494,7 @@ function Item({
                 if (completed) {
                   return (
                     <Icon
-                      as={Icons2.todoChecked}
+                      as={Icons.todoChecked}
                       w={3.5}
                       h={3.5}
                       color={iconColour}
@@ -505,7 +503,7 @@ function Item({
                 }
                 return (
                   <Icon
-                    as={Icons2.todoUnchecked}
+                    as={Icons.todoUnchecked}
                     w={3.5}
                     h={3.5}
                     fill={iconColour}

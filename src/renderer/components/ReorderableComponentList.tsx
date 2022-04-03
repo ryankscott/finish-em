@@ -25,7 +25,7 @@ import {
   GET_COMPONENTS_BY_VIEW,
   SET_COMPONENT_ORDER,
 } from 'renderer/queries';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 import ComponentActions from './ComponentActions';
 import FilteredItemList from './FilteredItemList';
 import ItemCreator from './ItemCreator';
@@ -210,7 +210,7 @@ const ReorderableComponentList = ({
                             }}
                             {...provided.dragHandleProps}
                           >
-                            <Icon as={Icons2.drag} />
+                            <Icon as={Icons.drag} />
                           </Flex>
                           <ComponentActions
                             readOnly={false}
@@ -241,7 +241,7 @@ const ReorderableComponentList = ({
           <MenuButton
             size="md"
             as={Button}
-            rightIcon={<Icon as={Icons2.collapse} />}
+            rightIcon={<Icon as={Icons.collapse} />}
             borderRadius={5}
             variant="default"
             textAlign="start"

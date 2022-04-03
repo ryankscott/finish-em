@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Emoji } from 'emoji-mart';
 import { NavLink } from 'react-router-dom';
 import { IconType } from 'renderer/interfaces';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 import { createShortSidebarItem } from '../utils';
 
 type SidebarItemProps = {
@@ -68,7 +68,7 @@ export const SidebarItem = ({
             alignItems="center"
           >
             {variant === 'defaultView' && iconName && (
-              <Icon as={Icons2[iconName]} />
+              <Icon as={Icons[iconName]} />
             )}
             {variant === 'customView' && emoji && (
               <Emoji emoji={emoji} size={14} native />
@@ -100,7 +100,7 @@ export const SidebarItem = ({
       >
         <Flex justifyContent="center">
           {variant === 'defaultView' && iconName && (
-            <Icon as={Icons2[iconName]} />
+            <Icon as={Icons[iconName]} />
           )}
           {variant === 'customView' && emoji && (
             <Emoji emoji={emoji} size={16} native />

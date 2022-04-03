@@ -9,7 +9,7 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import { CLONE_COMPONENT, DELETE_COMPONENT } from 'renderer/queries';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 
 type ComponentActionProps = {
   children: JSX.Element;
@@ -66,7 +66,7 @@ const ComponentActions = ({
               <Box>
                 <IconButton
                   size="md"
-                  icon={<Icon as={Icons2.edit} />}
+                  icon={<Icon as={Icons.edit} />}
                   variant="default"
                   onClick={() => {
                     setIsEditing(true);
@@ -80,7 +80,7 @@ const ComponentActions = ({
                 <IconButton
                   aria-label="clone"
                   size="md"
-                  icon={<Icon as={Icons2.copy} />}
+                  icon={<Icon as={Icons.copy} />}
                   variant="default"
                   onClick={() => {
                     cloneComponent({ variables: { key: componentKey } });
@@ -93,7 +93,7 @@ const ComponentActions = ({
                 <IconButton
                   aria-label="move"
                   size="md"
-                  icon={<Icon as={Icons2.move} />}
+                  icon={<Icon as={Icons.move} />}
                   variant="default"
                   onClick={() => {
                     console.log('move');
@@ -105,7 +105,7 @@ const ComponentActions = ({
               <Box>
                 <IconButton
                   aria-label="delete"
-                  icon={<Icon as={Icons2.trash} />}
+                  icon={<Icon as={Icons.trash} />}
                   variant="default"
                   onClick={() =>
                     deleteComponent({ variables: { key: componentKey } })

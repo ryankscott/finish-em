@@ -17,7 +17,7 @@ import {
   GET_COMPONENT_BY_KEY,
   UPDATE_COMPONENT,
 } from 'renderer/queries/component';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 import Select from './Select';
 
 export type ViewHeaderProps = {
@@ -35,7 +35,7 @@ const generateIconOptions = (): {
       label: (
         <Flex alignItems="center">
           <Flex pr={1} alignItems="center">
-            <Icon as={Icons2?.[i]} />
+            <Icon as={Icons?.[i]} />
           </Flex>
           {startCase(i)}
         </Flex>
@@ -127,7 +127,7 @@ const EditViewHeader = ({
           <Button
             size="sm"
             variant="default"
-            rightIcon={<Icon as={Icons2.close} />}
+            rightIcon={<Icon as={Icons.close} />}
             onClick={() => {
               onClose();
             }}
@@ -185,7 +185,7 @@ const EditViewHeader = ({
         <Button
           size="md"
           variant="primary"
-          rightIcon={<Icon as={Icons2.save} />}
+          rightIcon={<Icon as={Icons.save} />}
           onClick={() => {
             updateComponent({
               variables: {

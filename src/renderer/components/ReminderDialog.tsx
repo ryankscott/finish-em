@@ -3,7 +3,7 @@ import { add, startOfWeek, startOfTomorrow } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { gql, useMutation } from '@apollo/client';
 import { Flex, Icon, IconButton, Text } from '@chakra-ui/react';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 
 const reminderOptions: {
   label: string;
@@ -106,7 +106,7 @@ function ReminderDialog({
             e.stopPropagation();
             onClose();
           }}
-          icon={<Icon as={Icons2.close} />}
+          icon={<Icon as={Icons.close} />}
         />
       </Flex>
       <Flex direction="column" py={2} px={1}>

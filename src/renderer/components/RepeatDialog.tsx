@@ -19,7 +19,7 @@ import lowerCase from 'lodash/lowerCase';
 import upperFirst from 'lodash/upperFirst';
 import DatePicker from './DatePicker';
 import { formatRelativeDate } from '../utils';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 
 type RepeatDialogProps = {
   onSubmit: (rule: RRule) => void;
@@ -154,7 +154,7 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
               borderRadius={5}
               variant="subtle"
               _hover={{ bg: 'gray.100' }}
-              rightIcon={<Icon as={Icons2.collapse} />}
+              rightIcon={<Icon as={Icons.collapse} />}
               width="100%"
               textAlign="start"
             >
@@ -186,7 +186,7 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
             height="32px"
             size="md"
             as={Button}
-            rightIcon={<Icon as={Icons2.collapse} />}
+            rightIcon={<Icon as={Icons.collapse} />}
             fontWeight="normal"
             borderRadius={5}
             variant="subtle"

@@ -32,7 +32,7 @@ import {
   SidebarData,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 import { sidebarVisibleVar } from '../index';
 import { IconType } from '../interfaces';
 import { getProductName } from '../utils';
@@ -317,7 +317,7 @@ const Sidebar = (): ReactElement => {
                                       <Button
                                         size="sm"
                                         variant="invert"
-                                        rightIcon={<Icon as={Icons2.add} />}
+                                        rightIcon={<Icon as={Icons.add} />}
                                         onClick={() => {
                                           const projectKey = uuidv4();
                                           createProject({
@@ -364,7 +364,7 @@ const Sidebar = (): ReactElement => {
                   key={uuidv4()}
                   variant="invert"
                   size="md"
-                  rightIcon={<Icon as={Icons2.add} />}
+                  rightIcon={<Icon as={Icons.add} />}
                   onClick={() => {
                     const areaKey = uuidv4();
                     createArea({
@@ -417,9 +417,7 @@ const Sidebar = (): ReactElement => {
             shadow="md"
             key={uuidv4()}
             icon={
-              <Icon
-                as={sidebarVisible ? Icons2.slideLeft : Icons2.slideRight}
-              />
+              <Icon as={sidebarVisible ? Icons.slideLeft : Icons.slideRight} />
             }
             size="sm"
             transition="all 0.2s ease-in-out"

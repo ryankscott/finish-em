@@ -1,38 +1,45 @@
-import React from 'react';
 import * as CodeMirror from 'codemirror';
 import 'codemirror/addon/hint/show-hint';
 import 'codemirror/addon/display/placeholder';
 import './FilterMode';
 import { UnControlled as ReactCodeMirror } from 'react-codemirror2';
 
+import { Box } from '@chakra-ui/react';
 import { ExtendedCodeMirror } from './models/ExtendedCodeMirror';
 import AutoCompletePopup from './AutoCompletePopup';
 import { HintInfo } from './ExtendedCodeMirror';
-import { Box } from '@chakra-ui/react';
 
 type FilterInputProps = {
   value: string;
   customRenderCompletionItem: any;
   needAutoCompleteValues: (
     codemirror: ExtendedCodeMirror,
-    text: String
+    text: string
   ) => HintInfo[];
-  onSubmit: (string) => void;
-  onChange: (string) => void;
+  onSubmit: (text: string) => void;
+  onChange: (text: string) => void;
   onBlur: () => void;
   onFocus: () => void;
 };
 
-const FilterInput = (props: FilterInputProps) => {
+const FilterInput = ({
+  value,
+  customRenderCompletionItem,
+  needAutoCompleteValues,
+  onSubmit,
+  onChange,
+  onBlur,
+  onFocus,
+}: FilterInputProps) => {
   let options: CodeMirror.EditorConfiguration;
   let codeMirror: ExtendedCodeMirror;
   let doc: CodeMirror.Doc;
   let autoCompletePopup: AutoCompletePopup;
 
-  const onSubmit = (text: string) => {
+  const onLocalSubmit = (text: string) => {
     autoCompletePopup.completionShow = false;
-    if (props.onSubmit) {
-      props.onSubmit(text);
+    if (onSubmit) {
+      onSubmit(text);
     }
   };
 
@@ -44,14 +51,13 @@ const FilterInput = (props: FilterInputProps) => {
     codeMirror = ref.editor;
     doc = ref.editor.getDoc();
     autoCompletePopup = new AutoCompletePopup(codeMirror, (text) =>
-      props.needAutoCompleteValues(codeMirror, text)
+      needAutoCompleteValues(codeMirror, text)
     );
 
-    autoCompletePopup.customRenderCompletionItem =
-      props.customRenderCompletionItem;
+    autoCompletePopup.customRenderCompletionItem = customRenderCompletionItem;
 
     ref.editor.on('beforeChange', function (instance, change) {
-      var newtext = change.text.join('').replace(/\n/g, ''); // remove ALL \n !
+      const newtext = change.text.join('').replace(/\n/g, ''); // remove ALL \n !
       change.update(change.from, change.to, [newtext] as any);
       return true;
     });
@@ -65,12 +71,12 @@ const FilterInput = (props: FilterInputProps) => {
     });
 
     ref.editor.on('focus', (cm, e?) => {
-      props.onFocus();
+      onFocus();
     });
 
     ref.editor.on('blur', (cm, e?) => {
-      onSubmit(doc.getValue());
-      props.onBlur();
+      onLocalSubmit(doc.getValue());
+      onBlur();
       autoCompletePopup.completionShow = false;
     });
 
@@ -90,16 +96,16 @@ const FilterInput = (props: FilterInputProps) => {
     _data: CodeMirror.EditorChange,
     value: string
   ) => {
-    props.onChange(value);
+    onChange(value);
   };
 
   return (
-    <Box w={'100%'} overflow={'auto !important'}>
+    <Box w="100%" overflow="auto !important">
       <ReactCodeMirror
         ref={codeMirrorRef}
         onChange={handleEditorChange}
         options={options}
-        value={props.value}
+        value={value}
       />
     </Box>
   );

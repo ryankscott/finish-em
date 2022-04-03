@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 import { marked } from 'marked';
 import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import { HTMLToPlainText } from 'renderer/utils';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 
 type ItemAttributeType = 'repeat' | 'due' | 'scheduled' | 'subtask';
 type ItemAttributeProps = {
@@ -35,7 +35,7 @@ const ItemAttribute = ({
       >
         <Flex p={0} m={0} alignItems="center">
           <Text color={isOverdue ? 'red' : 'inherit'}>
-            <Icon w={3} h={3} as={Icons2[type]} />
+            <Icon w={3} h={3} as={Icons[type]} />
           </Text>
         </Flex>
         {!compact && (

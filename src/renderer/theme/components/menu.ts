@@ -9,7 +9,7 @@ function baseStyleList(props: Record<string, any>) {
     boxShadow: mode('sm', 'dark-lg')(props),
     minW: '3xs',
     py: '2',
-    zIndex: 1,
+    zIndex: 10,
     borderRadius: 'md',
     borderWidth: '1px',
   };

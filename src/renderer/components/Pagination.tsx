@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 import { Flex, Text } from '@chakra-ui/layout';
 import { IconButton, Icon, Button } from '@chakra-ui/react';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import { PAGE_SIZE } from '../../consts';
 
 export type PaginationProps = {
@@ -30,7 +30,7 @@ const Pagination = ({
         aria-label="first"
         size="sm"
         variant="default"
-        icon={<Icon as={Icons2.slideLeft} />}
+        icon={<Icon as={Icons.slideLeft} />}
         onClick={() =>
           setCurrentPage(currentPage === 1 ? currentPage : currentPage - 1)
         }
@@ -94,7 +94,7 @@ const Pagination = ({
         aria-label="next"
         size="sm"
         variant="default"
-        icon={<Icon as={Icons2.slideRight} />}
+        icon={<Icon as={Icons.slideRight} />}
         onClick={() =>
           setCurrentPage(
             currentPage === totalPages ? totalPages : currentPage + 1

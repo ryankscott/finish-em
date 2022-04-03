@@ -383,6 +383,39 @@ const styles = {
         bg: 'gray.800',
         color: 'gray.50',
       },
+      '.rule': {
+        p: 1,
+        pt: 0,
+        m: 1,
+        mt: 0,
+        border: '1px solid',
+        borderColor: mode('gray.200', 'gray.700')(props),
+        borderRadius: 'md',
+      },
+      '.ruleGroup': {
+        p: 1,
+        pt: 0,
+        m: 1,
+        mt: 0,
+        border: '1px solid',
+        borderColor: mode('gray.200', 'gray.700')(props),
+        borderRadius: 'md',
+      },
+      '.ruleGroup[data-level="1"]': {
+        bg: mode('gray.100', 'gray.700')(props),
+      },
+      '.ruleGroup[data-level="2"]': {
+        bg: mode('blue.50', 'blue.800')(props),
+      },
+      '.ruleGroup[data-level="3"]': {
+        bg: mode('purple.50', 'purple.800')(props),
+      },
+      '.ruleGroup[data-level="4"]': {
+        bg: mode('green.50', 'green.800')(props),
+      },
+      '.ruleGroup[data-level="5"]': {
+        bg: mode('yellow.50', 'yellow.800')(props),
+      },
     };
   },
 };

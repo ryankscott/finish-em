@@ -10,11 +10,15 @@ import {
   Text,
   Link,
   Button,
+  FlexProps,
+  forwardRef,
+  Icon,
+  useColorMode,
 } from '@chakra-ui/react';
 import { format, parseISO, sub } from 'date-fns';
 import { gql, useQuery } from '@apollo/client';
 import RRule from 'rrule';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import { Event } from '../../main/generated/typescript-helpers';
 import { capitaliseFirstLetter } from '../utils';
 
@@ -33,30 +37,48 @@ interface Props {
   onClose: () => void;
 }
 
-const AttributeContainerStyles = {
-  alignItems: 'flex-start',
-  justifyContent: 'flex-start',
-  my: 1,
-  mx: 3,
-  minH: 6,
-};
+const AttributeContainer = forwardRef<FlexProps, 'div'>((props, ref) => (
+  <Flex
+    direction="row"
+    alignItems="flex-start"
+    justifyContent="flex-start"
+    my={1}
+    mx={3}
+    minH={6}
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  />
+));
 
-const AttributeKeyStyles = {
-  justifyContent: 'flex-start',
-  fontWeight: 'semi-bold',
-  alignItems: 'center',
-  ml: 0,
-  minW: '70px',
-};
+const AttributeKey = forwardRef<FlexProps, 'div'>((props, ref) => (
+  <Flex
+    direction="row"
+    justifyContent="flex-start"
+    fontWeight="semibold"
+    alignItems="center"
+    ml={0}
+    minW="70px"
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  />
+));
 
-const AttributeValueStyles = {
-  justifyContent: 'flex-start',
-  alignItems: 'flex-start',
-  minW: '180px',
-  textOverflow: 'ellipsis',
-};
+const AttributeValue = forwardRef<FlexProps, 'div'>((props, ref) => (
+  <Flex
+    justifyContent="flex-start"
+    alignItems="flex-start"
+    minW="180px"
+    textOverflow="ellipsis"
+    pl={3}
+    position="relative"
+    direction="column"
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  />
+));
 
 const EventModal = ({ event, isOpen, onClose }: Props) => {
+  const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_FEATURES);
   if (loading) return null;
   if (error) {
@@ -115,71 +137,45 @@ const EventModal = ({ event, isOpen, onClose }: Props) => {
           <ModalHeader pr="40px">{event?.title}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Flex direction="row" {...AttributeContainerStyles}>
-              <Flex {...AttributeKeyStyles}>
+            <AttributeContainer>
+              <AttributeKey>
                 <Text fontSize="md">Time: </Text>
-              </Flex>
-              <Flex
-                pl={3}
-                postion="relative"
-                direction="column"
-                {...AttributeValueStyles}
-              >
-                {generateDuration()}
-              </Flex>
-            </Flex>
+              </AttributeKey>
+              <AttributeValue>{generateDuration()}</AttributeValue>
+            </AttributeContainer>
             {event?.recurrence && (
-              <Flex direction="row" {...AttributeContainerStyles}>
-                <Flex {...AttributeKeyStyles}>
+              <AttributeContainer>
+                <AttributeKey>
                   <Text fontSize="md">Recurrence: </Text>
-                </Flex>
-                <Flex
-                  pl={3}
-                  postion="relative"
-                  direction="column"
-                  {...AttributeValueStyles}
-                >
+                </AttributeKey>
+                <AttributeValue>
                   <Text fontSize="md">
                     {capitaliseFirstLetter(
                       RRule.fromString(event.recurrence).toText()
                     )}
                   </Text>
-                </Flex>
-              </Flex>
+                </AttributeValue>
+              </AttributeContainer>
             )}
-            <Flex direction="row" {...AttributeContainerStyles}>
-              <Flex {...AttributeKeyStyles}>
+            <AttributeContainer>
+              <AttributeKey>
                 <Text fontSize="md">Location: </Text>
-              </Flex>
-              <Flex
-                pl={3}
-                postion="relative"
-                direction="column"
-                {...AttributeValueStyles}
-              >
-                {generateLocation()}
-              </Flex>
-            </Flex>
-            <Flex direction="row" {...AttributeContainerStyles}>
-              <Flex {...AttributeKeyStyles}>
+              </AttributeKey>
+              <AttributeValue>{generateLocation()}</AttributeValue>
+            </AttributeContainer>
+            <AttributeContainer>
+              <AttributeKey>
                 <Text fontSize="md">Attendees: </Text>
-              </Flex>
-              <Flex
-                pl={3}
-                postion="relative"
-                direction="column"
-                {...AttributeValueStyles}
-              >
-                {generateAttendees()}
-              </Flex>
-            </Flex>
+              </AttributeKey>
+              <AttributeValue>{generateAttendees()}</AttributeValue>
+            </AttributeContainer>
           </ModalBody>
           <ModalFooter>
             {data.bearNotesIntegration.enabled && (
               <Button
                 variant="primary"
                 size="md"
-                rightIcon={<Icon as={Icons2.bear} />}
+                rightIcon={<Icon as={Icons.bear} />}
                 color="white"
                 onClick={() => {
                   const title = `${format(new Date(), 'yyyy-MM-dd')} - ${

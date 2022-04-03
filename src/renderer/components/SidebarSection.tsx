@@ -1,7 +1,7 @@
 import { Flex, Icon, Text } from '@chakra-ui/react';
 import { v4 as uuidv4 } from 'uuid';
 import { IconType } from '../interfaces';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 
 interface Props {
   name: string;
@@ -24,7 +24,7 @@ const SidebarSection = ({ name, iconName, sidebarVisible }: Props) => {
       py={2}
       pt={sidebarVisible ? 4 : 2}
     >
-      <Icon as={Icons2[iconName]} color="blue.500" />
+      <Icon as={Icons[iconName]} color="blue.500" />
       {sidebarVisible && (
         <Text key={uuidv4()} fontSize="lg" my={1} mx={2} color="blue.500">
           {name}

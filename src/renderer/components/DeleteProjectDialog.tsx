@@ -10,7 +10,7 @@ import {
   Button,
   Icon,
 } from '@chakra-ui/react';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 
 type DeleteProjectDialogProps = {
   onDelete: () => void;
@@ -27,7 +27,7 @@ const DeleteProjectDialog = ({
     <>
       <Button
         variant="primary"
-        rightIcon={<Icon as={Icons2.trash} />}
+        rightIcon={<Icon as={Icons.trash} />}
         onClick={() => setIsOpen(true)}
       >
         Delete

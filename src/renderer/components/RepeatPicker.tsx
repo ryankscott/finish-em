@@ -13,7 +13,7 @@ import { format } from 'date-fns';
 import { RRule } from 'rrule';
 import RepeatDialog from './RepeatDialog';
 import { rruleToText, capitaliseFirstLetter } from '../utils';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 
 type RepeatPickerProps = {
   repeat: RRule | null;
@@ -126,7 +126,7 @@ const RepeatPicker = ({
         fontSize="md"
         fontWeight="normal"
         bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-        rightIcon={<Icon p={0} m={0} as={Icons2.collapse} />}
+        rightIcon={<Icon p={0} m={0} as={Icons.collapse} />}
         variant="ghost"
         borderRadius={5}
         width="100%"

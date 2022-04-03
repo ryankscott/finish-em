@@ -60,7 +60,7 @@ export const convertSVGElementToReact = (svg: React.SVGProps<SVGElement>) => (
   <>{svg}</>
 );
 
-export const Icons2: Record<IconType, RIconType> = {
+export const Icons: Record<IconType, RIconType> = {
   inbox: FiInbox,
   todoChecked: FiCheckCircle,
   todoUnchecked: FiCircle,

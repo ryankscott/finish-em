@@ -29,7 +29,7 @@ import {
   SET_FEATURE_METADATA,
 } from 'renderer/queries';
 import { Calendar, Label } from 'main/generated/typescript-helpers';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
 import { camelCaseToInitialCaps } from '../utils';
 
@@ -353,7 +353,7 @@ const Settings = (): ReactElement => {
                       aria-label="delete label"
                       id={`${label.key}-delete`}
                       key={`delete-label-${label.key}`}
-                      icon={<Icon as={Icons2.trash} />}
+                      icon={<Icon as={Icons.trash} />}
                       onClick={() => {
                         deleteLabel({ variables: { key: label.key } });
                       }}
@@ -381,7 +381,7 @@ const Settings = (): ReactElement => {
               <Button
                 variant="default"
                 size="md"
-                rightIcon={<Icon as={Icons2.add} />}
+                rightIcon={<Icon as={Icons.add} />}
                 onClick={() => {
                   createLabel({
                     variables: {

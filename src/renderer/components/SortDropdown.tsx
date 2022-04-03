@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
 import RRule from 'rrule';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
 
 export enum SortDirectionEnum {
@@ -55,7 +55,7 @@ function SortDropdown({
           mx={1}
           size={size || 'md'}
           as={Button}
-          rightIcon={<Icon as={Icons2.collapse} />}
+          rightIcon={<Icon as={Icons.collapse} />}
           fontWeight="normal"
           borderRadius={5}
           variant="default"

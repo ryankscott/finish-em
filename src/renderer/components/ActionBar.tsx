@@ -8,7 +8,7 @@ import {
   Box,
   Icon,
 } from '@chakra-ui/react';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
@@ -68,7 +68,7 @@ const ActionBar = () => {
         <IconButton
           size="xs"
           variant="invert"
-          icon={<Icon as={Icons2.close} />}
+          icon={<Icon as={Icons.close} />}
           color="white"
           onClick={() => {
             activeItemVar([]);
@@ -136,7 +136,7 @@ const ActionBar = () => {
             size="md"
             variant="invert"
             aria-label="complete"
-            icon={<Icon as={Icons2.todoChecked} />}
+            icon={<Icon as={Icons.todoChecked} />}
             onClick={() => {
               activeItem.forEach((i) => {
                 completeItem({ variables: { key: i } });
@@ -152,7 +152,7 @@ const ActionBar = () => {
             size="md"
             variant="invert"
             aria-label="delete"
-            icon={<Icon as={Icons2.trash} />}
+            icon={<Icon as={Icons.trash} />}
             onClick={() => {
               activeItem.forEach((i) => {
                 deleteItem({ variables: { key: i } });

@@ -17,11 +17,12 @@ import {
   UPDATE_COMPONENT,
   GET_COMPONENT_BY_KEY,
 } from 'renderer/queries/component';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
 import { ItemIcons } from '../interfaces/item';
 import Expression from './filter-box/Expression';
 import ItemFilterBox from './ItemFilterBox';
+import ItemFilterBuilder from './filter-box/ItemFilterBuilder';
 
 const options: { value: string; label: string }[] = [
   { value: ItemIcons.Project, label: 'Project' },
@@ -136,7 +137,7 @@ const FilteredItemDialog = ({
           aria-label="close"
           size="sm"
           variant="default"
-          icon={<Icon as={Icons2.close} />}
+          icon={<Icon as={Icons.close} />}
           onClick={() => {
             onClose();
           }}
@@ -164,6 +165,7 @@ const FilteredItemDialog = ({
           w="100%"
           justifyContent="space-between"
         >
+          {/* <ItemFilterBuilder /> */}
           {params.legacyFilter && (
             <Box my={2} mx={2}>
               <Text
@@ -267,7 +269,7 @@ const FilteredItemDialog = ({
           size="md"
           disabled={!isValid}
           variant="primary"
-          rightIcon={<Icon as={Icons2.save} />}
+          rightIcon={<Icon as={Icons.save} />}
           onClick={() => {
             updateComponent({
               variables: {

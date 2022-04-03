@@ -11,7 +11,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { IconType } from '../interfaces';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 
 export type MoreDropdownOptions = {
   label: string;
@@ -38,7 +38,7 @@ const MoreDropdown = ({
         onClick={(e) => e.stopPropagation()}
         variant="subtle"
         color={colorMode === 'light' ? 'gray.800' : 'gray.400'}
-        icon={<Icon as={Icons2.more} />}
+        icon={<Icon as={Icons.more} />}
       />
       <MenuList minW="140px">
         {options.map((v, i) => {
@@ -51,7 +51,7 @@ const MoreDropdown = ({
                 py={0}
                 px={2}
               >
-                <Icon as={Icons2[v?.icon]} />
+                <Icon as={Icons[v?.icon]} />
                 <Text pl={2} fontSize="sm">
                   {v.label}
                 </Text>

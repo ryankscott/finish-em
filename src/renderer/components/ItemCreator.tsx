@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useMutation } from '@apollo/client';
 import { Box, Button, Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
 import { CREATE_ITEM } from 'renderer/queries';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import EditItemCreator from './EditItemCreator';
 import EditableText2 from './EditableText2';
 
@@ -116,7 +116,7 @@ const ItemCreator = ({
                     aria-label="hide"
                     size="md"
                     variant="primary"
-                    icon={<Icon as={Icons2.add} />}
+                    icon={<Icon as={Icons.add} />}
                     color="#FFF"
                     onClick={() => {
                       setShowItemCreator(!showItemCreator);
@@ -126,7 +126,7 @@ const ItemCreator = ({
                   <Button
                     size="md"
                     variant="primary"
-                    leftIcon={<Icon as={Icons2.add} />}
+                    leftIcon={<Icon as={Icons.add} />}
                     color="#FFF"
                     onClick={() => {
                       setShowItemCreator(!showItemCreator);

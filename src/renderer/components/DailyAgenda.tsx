@@ -27,7 +27,7 @@ import ReorderableComponentList from './ReorderableComponentList';
 import { Event } from '../../main/generated/typescript-helpers';
 import FilteredItemList from './FilteredItemList';
 import EventModal from './EventModal';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 
 const VIEW_NAMESPACE = '9eb50a57-cbee-418b-bc44-889da1225429';
 
@@ -136,7 +136,7 @@ const DailyAgenda = (): ReactElement => {
           <IconButton
             aria-label="back"
             variant="default"
-            icon={<Icon as={Icons2.back} />}
+            icon={<Icon as={Icons.back} />}
             onClick={() => {
               setDate(sub(currentDate, { days: 1 }));
             }}
@@ -156,7 +156,7 @@ const DailyAgenda = (): ReactElement => {
           <IconButton
             aria-label="forward"
             variant="default"
-            icon={<Icon as={Icons2.forward} />}
+            icon={<Icon as={Icons.forward} />}
             onClick={() => {
               setDate(add(currentDate, { days: 1 }));
             }}
@@ -222,7 +222,7 @@ const DailyAgenda = (): ReactElement => {
                   <Text w="100%" fontSize="md" key={`title-${e.title}`}>
                     {e.title}
                   </Text>
-                  {e.recurrence && <Icon as={Icons2.repeat} />}
+                  {e.recurrence && <Icon as={Icons.repeat} />}
                 </Flex>
               );
             })

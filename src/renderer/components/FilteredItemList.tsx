@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { ReactElement, useState } from 'react';
 import { orderBy } from 'lodash';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import { Item } from '../../main/generated/typescript-helpers';
 import { ItemIcons } from '../interfaces/item';
 import EditFilteredItemList from './EditFilteredItemList';
@@ -51,7 +51,6 @@ export type FilteredItemListProps = {
   legacyFilter?: string;
   flattenSubtasks?: boolean;
   showCompletedToggle?: boolean;
-  initiallyExpanded?: boolean;
   hideDeletedSubtasks?: boolean;
   hideCompletedSubtasks?: boolean;
   shouldPoll?: boolean;
@@ -81,7 +80,6 @@ const FilteredItemList = ({
   filter,
   flattenSubtasks,
   showCompletedToggle,
-  initiallyExpanded,
   hideDeletedSubtasks,
   hideCompletedSubtasks,
   shouldPoll,
@@ -145,7 +143,7 @@ const FilteredItemList = ({
                 size="sm"
                 icon={
                   <Icon
-                    as={showItemList === true ? Icons2.collapse : Icons2.expand}
+                    as={showItemList === true ? Icons.collapse : Icons.expand}
                     w={4}
                     h={4}
                   />
@@ -198,7 +196,7 @@ const FilteredItemList = ({
                           <Icon
                             w={3}
                             h={3}
-                            as={showCompleted ? Icons2.hide : Icons2.show}
+                            as={showCompleted ? Icons.hide : Icons.show}
                           />
                         }
                         onClick={() => {
@@ -215,7 +213,7 @@ const FilteredItemList = ({
                         size="sm"
                         aria-label="delete completed"
                         variant="default"
-                        icon={<Icon w={3} h={3} as={Icons2.trashSweep} />}
+                        icon={<Icon w={3} h={3} as={Icons.trashSweep} />}
                         onClick={() => {
                           /* completedItems.forEach((c) => {
                           if (c.parent?.key === null) {
@@ -233,7 +231,7 @@ const FilteredItemList = ({
                       size="sm"
                       aria-label="expand all"
                       variant="default"
-                      icon={<Icon w={3} h={3} as={Icons2.expandAll} />}
+                      icon={<Icon w={3} h={3} as={Icons.expandAll} />}
                       onClick={() => {
                         setExpandSubtasks(true);
                       }}
@@ -246,7 +244,7 @@ const FilteredItemList = ({
                       size="sm"
                       aria-label="collapse all"
                       variant="default"
-                      icon={<Icon w={3} h={3} as={Icons2.collapseAll} />}
+                      icon={<Icon w={3} h={3} as={Icons.collapseAll} />}
                       onClick={() => {
                         setExpandSubtasks(false);
                       }}

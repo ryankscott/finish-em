@@ -60,3 +60,10 @@ a:hover {
   align-items: center;
   margin: 20px 0;
 }
+
+.rule {
+  border: '1px solid';
+  border-radius: var(--chakra-radii-md);
+  border-color: var(--chakra-color-gray-200);
+  padding:2px;
+}

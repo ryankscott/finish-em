@@ -3,7 +3,7 @@ import { Box, Flex, Text } from '@chakra-ui/layout';
 import { IconButton, Icon } from '@chakra-ui/react';
 import { transparentize } from 'polished';
 import { ReactElement } from 'react';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import { SET_LABEL } from 'renderer/queries';
 import { GET_LABELS } from 'renderer/queries/label';
 import { Label } from '../../main/generated/typescript-helpers';
@@ -49,7 +49,7 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
           onClick={() => {
             onClose();
           }}
-          icon={<Icon as={Icons2.close} />}
+          icon={<Icon as={Icons.close} />}
         />
       </Flex>
       <Flex direction="column" py={2} px={1}>

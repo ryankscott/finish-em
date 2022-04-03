@@ -13,7 +13,7 @@ import RSelect, {
   OptionTypeBase,
 } from 'react-select';
 import { v4 as uuidv4 } from 'uuid';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 
 interface Props {
   options: OptionsType<OptionTypeBase>;
@@ -32,7 +32,7 @@ interface Props {
 const DropdownIndicator = (props: IndicatorProps<any>) => {
   return (
     <components.DropdownIndicator {...props}>
-      <Icon as={Icons2.collapse} />
+      <Icon as={Icons.collapse} />
     </components.DropdownIndicator>
   );
 };

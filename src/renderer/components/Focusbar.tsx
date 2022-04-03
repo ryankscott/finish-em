@@ -31,7 +31,7 @@ import {
 import RRule from 'rrule';
 import { activeItemVar, focusbarVisibleVar } from '..';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
-import { Icons2 } from '../assets/icons';
+import { Icons } from '../assets/icons';
 import { IconType } from '../interfaces';
 import { ItemIcons } from '../interfaces/item';
 import { formatRelativeDate } from '../utils';
@@ -141,7 +141,7 @@ const Focusbar = (): ReactElement => {
 
   const SidebarTitle = ({ text, icon }: { text: string; icon: IconType }) => (
     <Flex minW="100px" alignItems="center">
-      <Icon as={Icons2[icon]} h={3.5} w={3.5} />
+      <Icon as={Icons[icon]} h={3.5} w={3.5} />
       <Text fontSize="md" pl={2}>
         {text}
       </Text>
@@ -185,7 +185,7 @@ const Focusbar = (): ReactElement => {
                     activeItemVar([item?.parent?.key]);
                   }
                 }}
-                icon={<Icon p={0} m={0} as={Icons2.upLevel} />}
+                icon={<Icon p={0} m={0} as={Icons.upLevel} />}
               />
             </Tooltip>
           </GridItem>
@@ -197,7 +197,7 @@ const Focusbar = (): ReactElement => {
               variant="default"
               size="sm"
               onClick={() => focusbarVisibleVar(false)}
-              icon={<Icon p={0} m={0} as={Icons2.close} />}
+              icon={<Icon p={0} m={0} as={Icons.close} />}
             />
           </Flex>
         </GridItem>
@@ -221,7 +221,7 @@ const Focusbar = (): ReactElement => {
               fill={item.completed ? 'undefined' : iconColour}
               fillOpacity={0.6}
               color={iconColour}
-              as={item?.completed ? Icons2.todoChecked : Icons2.todoUnchecked}
+              as={item?.completed ? Icons.todoChecked : Icons.todoUnchecked}
               h={3.5}
               w={3.5}
             />
@@ -252,7 +252,7 @@ const Focusbar = (): ReactElement => {
             <IconButton
               aria-label="restore"
               variant="default"
-              icon={<Icon p={0} m={0} as={Icons2.restore} h={3.5} w={3.5} />}
+              icon={<Icon p={0} m={0} as={Icons.restore} h={3.5} w={3.5} />}
               size="sm"
               onClick={() => {
                 restoreItem({ variables: { key: item.key } });
@@ -264,7 +264,7 @@ const Focusbar = (): ReactElement => {
             <IconButton
               variant="default"
               aria-label="delete"
-              icon={<Icon as={Icons2.trash} h={3.5} w={3.5} />}
+              icon={<Icon as={Icons.trash} h={3.5} w={3.5} />}
               onClick={() => {
                 deleteItem({ variables: { key: item.key } });
               }}

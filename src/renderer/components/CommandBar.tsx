@@ -2,7 +2,7 @@ import { useMutation, useReactiveVar } from '@apollo/client';
 import { Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
 import CommandPalette from 'react-command-palette';
 import { activeItemVar } from 'renderer';
-import { Icons2 } from 'renderer/assets/icons';
+import { Icons } from 'renderer/assets/icons';
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
@@ -110,7 +110,7 @@ const CommandBar = () => {
           <IconButton
             aria-label="show command bar"
             variant="invert"
-            icon={<Icon as={Icons2.terminal} />}
+            icon={<Icon as={Icons.terminal} />}
             color="gray.100"
           />
         </Tooltip>
