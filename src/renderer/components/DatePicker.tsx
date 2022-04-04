@@ -38,10 +38,9 @@ const DatePicker = ({
   const [showMenu, setShowMenu] = useState(false);
 
   const handleDayChange = (input: Date | null) => {
-    console.log(onSubmit);
-    onSubmit(input);
     setDayPickerVisible(false);
     setShowMenu(false);
+    onSubmit(input);
   };
 
   const menuItems: MenuItemType[] = [

@@ -1,4 +1,4 @@
-import QueryBuilder, { Field, ValueSelectorProps } from 'react-querybuilder';
+import { Field, ValueSelectorProps } from 'react-querybuilder';
 import { Select } from '@chakra-ui/react';
 
 const isOptionGroupArray = (arr: Field['values']): arr is OptionGroup[] =>

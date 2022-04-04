@@ -1,5 +1,4 @@
 import { ReactElement } from 'react';
-
 import { Text, Grid, GridItem } from '@chakra-ui/layout';
 import { Icon } from '@chakra-ui/react';
 import { IconType } from '../interfaces';

@@ -2,10 +2,11 @@
 import QueryBuilder, { Field, formatQuery } from 'react-querybuilder';
 import { Box, Text, useColorMode } from '@chakra-ui/react';
 import { useState } from 'react';
-import CustomValueEditor from '../CustomValueEditor';
+import { gql, useQuery } from '@apollo/client';
 import CustomActionElement from './CustomActionElement';
-import CustomDragHandle from './CustomDragHandle';
 import CustomFieldSelector from './CustomFieldSelector';
+import CustomDragHandle from './CustomDragHandle';
+import CustomValueEditor from '../CustomValueEditor';
 
 type Props = {};
 
@@ -55,6 +56,7 @@ project
       { name: '=', label: 'is' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
+      { name: 'this week', label: 'this week' },
     ],
     datatype: 'date',
   },
@@ -110,9 +112,33 @@ project
   },
 ];
 
+const GET_DATA = gql`
+  query {
+    projects(input: { deleted: false }) {
+      key
+      name
+    }
+    areas {
+      key
+      name
+    }
+    labels {
+      key
+      name
+    }
+  }
+`;
+
 const ItemFilterBuilder = (props: Props) => {
   const [query, setQuery] = useState({ combinator: 'and', rules: [] });
   const { colorMode } = useColorMode();
+  const { loading, error, data } = useQuery(GET_DATA);
+  if (loading) return <></>;
+  if (error) {
+    console.log(error);
+    return <></>;
+  }
+  console.log(data);
   return (
     <Box
       p={2}
