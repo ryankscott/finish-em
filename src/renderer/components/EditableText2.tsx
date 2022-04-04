@@ -135,7 +135,6 @@ const EditableText2 = ({
   };
 
   const handleBlur = () => {
-    console.log('blur');
     if (shouldSubmitOnBlur) {
       onUpdate(editorHtml);
     }

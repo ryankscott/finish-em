@@ -81,9 +81,9 @@ const ItemCreator = ({
     setShowItemCreator(initiallyExpanded);
   }, [initiallyExpanded]);
   const [createItem] = useMutation(CREATE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey', 'getItems'],
+    refetchQueries: ['itemsByFilter', 'itemByKey'],
   });
-  console.log(buttonText);
+
   return (
     <>
       {editing ? (
