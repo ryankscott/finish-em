@@ -22,7 +22,7 @@ import Select from './Select';
 import { ItemIcons } from '../interfaces/item';
 import Expression from './filter-box/Expression';
 import ItemFilterBox from './ItemFilterBox';
-import ItemFilterBuilder from './filter-box/ItemFilterBuilder';
+import ItemFilterBuilder from './ItemFilterBuilder';
 
 const options: { value: string; label: string }[] = [
   { value: ItemIcons.Project, label: 'Project' },
@@ -165,7 +165,7 @@ const FilteredItemDialog = ({
           w="100%"
           justifyContent="space-between"
         >
-          {/* <ItemFilterBuilder /> */}
+          <ItemFilterBuilder />
           {params.legacyFilter && (
             <Box my={2} mx={2}>
               <Text

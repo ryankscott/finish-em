@@ -11,8 +11,8 @@ import { parse, format } from 'date-fns';
 import { useEffect } from 'react';
 import { ValueEditorProps, ValueSelector } from 'react-querybuilder';
 import { formatRelativeDate } from 'renderer/utils';
-import DatePicker from '../DatePicker';
-import { CustomFieldSelector } from './ItemFilterBuilder';
+import CustomDatePicker from './CustomDatePicker';
+import CustomFieldSelector from './CustomFieldSelector';
 
 const CustomValueEditor = ({
   fieldData,
@@ -48,18 +48,19 @@ const CustomValueEditor = ({
   )
     ? 'text'
     : inputType || 'text';
+  console.log(fieldData);
 
   if (fieldData.datatype === 'date') {
     return (
-      <DatePicker
+      <CustomDatePicker
         completed={false}
         defaultText={
           !value
             ? ''
             : formatRelativeDate(parse(value, 'yyyy-MM-dd', new Date()))
         }
-        onSubmit={(d: Date | null) => {
-          handleOnChange(d ? format(d, 'yyyy-MM-dd') : d);
+        onSubmit={(d: string) => {
+          handleOnChange(d);
         }}
       />
     );
@@ -76,7 +77,7 @@ const CustomValueEditor = ({
           value={value}
           disabled={disabled}
           handleOnChange={handleOnChange}
-          options={values!}
+          options={values}
         />
       );
 
@@ -89,7 +90,7 @@ const CustomValueEditor = ({
           value={value}
           disabled={disabled}
           handleOnChange={handleOnChange}
-          options={values!}
+          options={values}
           multiple
         />
       );
@@ -170,4 +171,5 @@ const CustomValueEditor = ({
     />
   );
 };
+
 export default CustomValueEditor;

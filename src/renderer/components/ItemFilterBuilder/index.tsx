@@ -1,16 +1,19 @@
 /* eslint-disable react/destructuring-assignment */
-import QueryBuilder, { Field, formatQuery } from 'react-querybuilder';
+import QueryBuilder, {
+  defaultValueProcessor,
+  Field,
+  formatQuery,
+} from 'react-querybuilder';
 import { Box, Text, useColorMode } from '@chakra-ui/react';
 import { useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
+import { capitaliseFirstLetter } from 'renderer/utils';
 import CustomActionElement from './CustomActionElement';
 import CustomFieldSelector from './CustomFieldSelector';
 import CustomDragHandle from './CustomDragHandle';
-import CustomValueEditor from '../CustomValueEditor';
+import CustomValueEditor from './CustomValueEditor';
 
-type Props = {};
-
-const fields: Field[] = [
+const defaultFields: Field[] = [
   {
     name: 'text',
     label: 'Text',
@@ -33,37 +36,25 @@ const fields: Field[] = [
     valueEditorType: 'switch',
     operators: [{ name: '=', label: 'is' }],
   },
-  /*
-area
-project
-  */
+
   {
-    name: 'label',
-    label: 'Label',
-    valueEditorType: 'multiselect',
-    values: [{ name: 'foo', label: 'cat' }],
-    operators: [
-      { name: '=', label: 'is' },
-      { name: '!=', label: 'is not' },
-      { name: 'in', label: 'in' },
-      { name: 'not in', label: 'not in' },
-    ],
-  },
-  {
-    name: 'dueAt',
+    name: 'DATE(dueAt)',
     label: 'Due date',
     operators: [
+      { name: 'null', label: 'is null' },
+      { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
-      { name: 'this week', label: 'this week' },
     ],
     datatype: 'date',
   },
   {
-    name: 'scheduledAt',
+    name: 'DATE(scheduledAt)',
     label: 'Scheduled date',
     operators: [
+      { name: 'null', label: 'is null' },
+      { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
@@ -71,9 +62,11 @@ project
     datatype: 'date',
   },
   {
-    name: 'completedAt',
+    name: 'DATE(completedAt)',
     label: 'Completed date',
     operators: [
+      { name: 'null', label: 'is null' },
+      { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
@@ -81,9 +74,11 @@ project
     datatype: 'date',
   },
   {
-    name: 'deletedAt',
+    name: 'DATE(deletedAt)',
     label: 'Deleted date',
     operators: [
+      { name: 'null', label: 'is null' },
+      { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
@@ -91,9 +86,11 @@ project
     datatype: 'date',
   },
   {
-    name: 'createdAt',
+    name: 'DATE(createdAt)',
     label: 'Created date',
     operators: [
+      { name: 'null', label: 'is null' },
+      { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
@@ -101,9 +98,11 @@ project
     datatype: 'date',
   },
   {
-    name: 'lastUpdatedAt',
+    name: 'DATE(lastUpdatedAt)',
     label: 'Last updated date',
     operators: [
+      { name: 'null', label: 'is null' },
+      { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
@@ -129,7 +128,28 @@ const GET_DATA = gql`
   }
 `;
 
-const ItemFilterBuilder = (props: Props) => {
+const generateDynamicFields = (data: {
+  projects: { key: string; name: string }[];
+  areas: { key: string; name: string }[];
+  labels: { key: string; name: string }[];
+}) => {
+  return Object.keys(data).map((d) => {
+    return {
+      name: `${d.slice(0, -1)}Key`,
+      label: capitaliseFirstLetter(d.slice(0, -1)),
+      valueEditorType: 'select',
+      values: data?.[d].map((a) => {
+        return { name: a.key, label: a.name };
+      }),
+      operators: [
+        { name: '=', label: 'is' },
+        { name: '!=', label: 'is not' },
+      ],
+    };
+  });
+};
+
+const ItemFilterBuilder = () => {
   const [query, setQuery] = useState({ combinator: 'and', rules: [] });
   const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_DATA);
@@ -138,7 +158,31 @@ const ItemFilterBuilder = (props: Props) => {
     console.log(error);
     return <></>;
   }
-  console.log(data);
+
+  const dynamicFields = generateDynamicFields(data);
+  const fields = [...defaultFields, ...dynamicFields];
+
+  const valueProcessor = (field: Field, operator: string, value) => {
+    const dateField = [
+      'DATE(dueAt)',
+      'DATE(completedAt)',
+      'DATE(scheduledAt)',
+      'DATE(deletedAt)',
+      'DATE(lastUpdatedAt)',
+      'DATE(createdAt)',
+    ].includes(field);
+    if (dateField) {
+      if (value === 'Today') {
+        // Assuming `value` is an array, such as from a multi-select
+        return `DATE(date()))`;
+      }
+      if (value === 'Tomorrow') {
+        return `DATE(date('+1 day')))`;
+      }
+    }
+    return defaultValueProcessor(field, operator, value);
+  };
+
   return (
     <Box
       p={2}
@@ -176,7 +220,10 @@ const ItemFilterBuilder = (props: Props) => {
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
       >
         <Text fontSize="sm" fontFamily="mono" my={2}>
-          {formatQuery(query, 'sql')}
+          {formatQuery(query, {
+            format: 'sql',
+            valueProcessor,
+          })}
         </Text>
       </Box>
     </Box>
