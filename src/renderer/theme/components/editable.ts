@@ -5,7 +5,7 @@ import type { SystemStyleObject } from '@chakra-ui/theme-tools';
 const baseStylePreview = (props: Record<string, any>): SystemStyleObject => ({
   w: '100%',
   borderRadius: 'md',
-  py: '3px',
+  p: '2',
   _hover: {
     bg: mode('gray.100', 'gray.900')(props),
   },
@@ -15,7 +15,7 @@ const baseStylePreview = (props: Record<string, any>): SystemStyleObject => ({
 
 const baseStyleInput = (props: Record<string, any>): SystemStyleObject => ({
   borderRadius: 'md',
-  py: '3px',
+  p: '2',
   transitionProperty: 'common',
   transitionDuration: 'normal',
   width: 'full',
@@ -28,7 +28,7 @@ const baseStyleInput = (props: Record<string, any>): SystemStyleObject => ({
 
 const baseStyleTextarea: SystemStyleObject = {
   borderRadius: 'md',
-  py: '3px',
+  p: '2',
   transitionProperty: 'common',
   transitionDuration: 'normal',
   width: 'full',

@@ -1,4 +1,4 @@
-import QueryBuilder, { ActionProps } from 'react-querybuilder';
+import { ActionProps } from 'react-querybuilder';
 import { Button } from '@chakra-ui/react';
 
 const CustomActionElement = ({

@@ -56,7 +56,7 @@ const Project = ({ projectKey }: ProjectProps) => {
     refetchQueries: ['ViewByKey'],
   });
   const [renameProject] = useMutation(RENAME_PROJECT, {
-    refetchQueries: ['ComponentByKey'],
+    refetchQueries: ['getComponent'],
   });
   const [setEndDate] = useMutation(SET_END_DATE_OF_PROJECT);
   const [setStartDate] = useMutation(SET_START_DATE_OF_PROJECT);

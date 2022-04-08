@@ -1,11 +1,11 @@
 import { startOfDay } from 'date-fns';
 import log from 'electron-log';
 import { without } from 'lodash';
+import { formatQuery, defaultValueProcessor } from 'react-querybuilder';
 import { rrulestr } from 'rrule';
 import { SQL } from 'sql-template-strings';
 import SqlString from 'sqlstring-sqlite';
 import { v4 as uuidv4 } from 'uuid';
-import Expression from '../../renderer/components/filter-box/Expression';
 import Item from '../classes/item';
 import { Item as ItemType } from '../generated/typescript-helpers';
 import {
@@ -61,138 +61,77 @@ export const getItems = (obj, ctx) => {
       )
     );
 };
+
+const valueProcessor = (field: string, operator: string, value) => {
+  const dateField = [
+    'DATE(dueAt)',
+    'DATE(completedAt)',
+    'DATE(scheduledAt)',
+    'DATE(deletedAt)',
+    'DATE(lastUpdatedAt)',
+    'DATE(createdAt)',
+  ].includes(field);
+
+  const booleanField = ['completed', 'deleted'].includes(field);
+  if (booleanField) {
+    return !!value;
+  }
+  if (dateField) {
+    /*
+      This craziness is because we are using a BETWEEN operator
+    */
+    if (value === 'past') {
+      return `DATE(date('now', '-10 year')) AND DATE(date('now', '-1 day'))`;
+    }
+    if (value === 'today') {
+      return `DATE(date()) AND DATE(date())`;
+    }
+    if (value === 'tomorrow') {
+      return `DATE(date('now', '+1 day')) AND DATE(date('now', '+1 day'))`;
+    }
+    if (value === 'week') {
+      return `(strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0'))`;
+    }
+  }
+  return defaultValueProcessor(field, operator, value);
+};
+
 export const getFilteredItems = async (
   input: { filter: string; componentKey: string },
   ctx
 ) => {
   log.info(`Executing with filter: ${input.filter}`);
+
   // Parse string into object
   const parseFilters = (
     filter: string
-  ): { text: string; value: Expression[] } => {
+  ): { combinator: 'and'; rules: [] } | null => {
     // Return an empty object
-    if (!filter) return { text: '', value: [] };
+    if (!filter) return null;
     try {
       return JSON.parse(filter);
     } catch (e) {
       log.error(`Failed to parse filters - ${e}`);
-      return { text: '', value: [] };
+      return null;
     }
   };
 
-  const generateQueryString = (exps: Expression[]): string => {
-    const transformExpressionToString = (
-      conditionType: string,
-      category: string,
-      operator: string,
-      value: string
-    ) => {
-      const conditionText = conditionType || '';
-      const valueResolver = (value: string) => {
-        switch (value) {
-          case 'true':
-            return 'true';
-
-          case 'false':
-            return 'false';
-
-          default:
-            return `'${value}'`;
-        }
-      };
-      const valueText = valueResolver(value);
-      const categoryText = category;
-      const isDateCategory = [
-        'dueAt',
-        'scheduledAt',
-        'completedAt',
-        'lastUpdatedAt',
-        'deletedAt',
-        'createdAt',
-      ].includes(categoryText);
-
-      switch (operator) {
-        case '=':
-          if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') = DATE(${valueText}, 'localtime')`;
-          }
-          return `${conditionText} ${categoryText} ${operator} ${valueText}`;
-
-        case '!=':
-          if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') != DATE(${valueText}, 'localtime')`;
-          }
-          return `${conditionText} (${categoryText} ${operator} ${valueText} OR ${categoryText} IS NULL)`;
-
-        case '<':
-          if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') < DATE('now', ${valueText}, 'localtime')`;
-          }
-          return `${conditionText} ${categoryText} ${operator} ${valueText}`;
-        case '>':
-          if (isDateCategory) {
-            return `${conditionText} DATE(${categoryText}, 'localtime') > DATE('now', ${valueText}, 'localtime')`;
-          }
-          return `${conditionText} ${categoryText} ${operator} ${valueText}`;
-
-        case '!is':
-          if (value === 'null')
-            return `${conditionText} ${categoryText} IS NOT null`;
-          if (value === 'this week')
-            return `${conditionText} strftime('%W', ${categoryText}) != strftime('%W',date())`;
-          if (value === 'this month')
-            return `${conditionText} strftime('%m', ${categoryText}) != strftime('%m',date())`;
-          if (value === 'today')
-            return `${conditionText} DATE(${categoryText}) != DATE(date())`;
-          if (value === 'past')
-            return `${conditionText} DATE(${categoryText}) >= DATE(date())`;
-          break;
-
-        case 'is':
-          if (value === 'null')
-            return `${conditionText} ${categoryText} IS null`;
-          if (value === 'this week')
-            return `${conditionText} strftime('%W', ${categoryText}) = strftime('%W',date())`;
-          if (value === 'this month')
-            return `${conditionText} strftime('%m', ${categoryText}) = strftime('%m',date())`;
-          if (value === 'today')
-            return `${conditionText} DATE(${categoryText}) = DATE(date())`;
-          if (value === 'past')
-            return `${conditionText} DATE(${categoryText}) < DATE(date())`;
-          break;
-
-        default:
-          return `${conditionText} ${categoryText} ${operator} ${valueText}`;
-      }
-    };
-
-    const filterTextArray = exps.map((f: Expression, idx: number) => {
-      if (f.expressions) {
-        return `${f.conditionType ? f.conditionType : ''} ( ${f.expressions
-          .map((fs, idx) => {
-            const filterString = transformExpressionToString(
-              fs?.conditionType,
-              fs.category,
-              fs.operator,
-              fs.value
-            );
-            return filterString;
-          })
-          .join(' ')})`;
-      }
-      return f
-        ? transformExpressionToString(
-            f?.conditionType,
-            f.category,
-            f.operator,
-            f.value
-          )
-        : '';
+  const generateQueryString = (
+    query: {
+      combinator: 'and';
+      rules: [];
+    } | null
+  ): string => {
+    return formatQuery(query, {
+      format: 'sql',
+      valueProcessor,
     });
-    return filterTextArray.flat().join(' ');
   };
+
   const filters = parseFilters(input.filter);
-  const filterString = generateQueryString(filters.value);
+
+  const filterString = generateQueryString(filters);
+  console.log({ filterString });
   const results = await ctx.db.all(
     `SELECT
         key,

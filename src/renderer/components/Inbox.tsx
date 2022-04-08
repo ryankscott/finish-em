@@ -28,28 +28,34 @@ const Inbox = (): ReactElement => {
             isFilterable
             listName="Inbox"
             filter={JSON.stringify({
-              text: 'project = "Inbox"',
-              value: [
-                { category: 'projectKey', operator: '=', value: '0' },
+              combinator: 'and',
+              rules: [
                 {
-                  conditionType: 'AND',
-                  category: 'areaKey',
-                  operator: 'is',
-                  value: 'null',
-                },
-                {
-                  conditionType: 'AND',
-                  category: 'deleted',
-                  operator: '=',
-                  value: 'false',
-                },
-                {
-                  conditionType: 'AND',
-                  category: 'completed',
-                  operator: '=',
-                  value: 'false',
+                  combinator: 'and',
+                  rules: [
+                    {
+                      field: 'projectKey',
+                      operator: '=',
+                      valueSource: 'value',
+                      value: '0',
+                    },
+                    {
+                      field: 'deleted',
+                      operator: '=',
+                      valueSource: 'value',
+                      value: false,
+                    },
+                    {
+                      field: 'areaKey',
+                      operator: 'null',
+                      valueSource: 'value',
+                      value: '0',
+                    },
+                  ],
+                  not: false,
                 },
               ],
+              not: false,
             })}
             flattenSubtasks={false}
             readOnly

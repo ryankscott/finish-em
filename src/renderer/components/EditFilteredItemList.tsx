@@ -45,7 +45,7 @@ const FilteredItemDialog = ({
   const { colorMode } = useColorMode();
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT, {
-    refetchQueries: ['ComponentByKey', 'itemsByFilter'],
+    refetchQueries: ['ComponentsByView', 'getComponentByKey'],
   });
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: componentKey },
@@ -88,7 +88,7 @@ const FilteredItemDialog = ({
       direction="row"
       justifyContent="flex-start"
       py={1}
-      px={2}
+      px={0}
       w="100%"
       minH="35px"
       alignItems="bottom"
@@ -98,10 +98,10 @@ const FilteredItemDialog = ({
         color={colorMode === 'light' ? 'gray.800' : 'gray.100'}
         fontSize="md"
         py={1}
-        px={3}
-        mr={3}
-        w="160px"
-        minW="160px"
+        px={2}
+        mr={2}
+        w="130px"
+        minW="130px"
       >
         {name}:
       </Flex>
@@ -132,7 +132,7 @@ const FilteredItemDialog = ({
       borderColor="gray.200"
       w="100%"
     >
-      <Flex direction="row" justifyContent="flex-end" p={2}>
+      <Flex direction="row" justifyContent="flex-end" py={2}>
         <IconButton
           aria-label="close"
           size="sm"
@@ -165,32 +165,29 @@ const FilteredItemDialog = ({
           w="100%"
           justifyContent="space-between"
         >
-          <ItemFilterBuilder />
-          {params.legacyFilter && (
-            <Box my={2} mx={2}>
-              <Text
-                border="1px solid"
-                borderRadius={5}
-                bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
-                borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
-                p={1.5}
-                fontFamily="mono"
-                color={colorMode === 'light' ? 'gray.800' : 'gray.100'}
-                fontSize="sm"
-                w="100%"
-              >
-                {params.legacyFilter}
-              </Text>
-            </Box>
-          )}
-          <ItemFilterBox
-            filter={params.filter ? JSON.parse(params.filter).text : ''}
-            onSubmit={(query: string, filter: Expression[]) => {
-              params.filter = JSON.stringify({ text: query, value: filter });
+          <ItemFilterBuilder
+            defaultFilter={params.filter}
+            onSubmit={(filter) => {
+              params.filter = filter;
               setIsValid(true);
             }}
-            onError={() => setIsValid(false)}
           />
+
+          {params.legacyFilter && !params.filter && (
+            <ItemFilterBox
+              filter={
+                params.legacyFilter ? JSON.parse(params.legacyFilter).text : ''
+              }
+              onSubmit={(query: string, filter: Expression[]) => {
+                params.legacyFilter = JSON.stringify({
+                  text: query,
+                  value: filter,
+                });
+                setIsValid(true);
+              }}
+              onError={() => setIsValid(false)}
+            />
+          )}
         </Flex>
       </ItemListSetting>
 
@@ -242,7 +239,6 @@ const FilteredItemDialog = ({
         <Box>
           <Select
             placeholder="Select icons to hide"
-            size="md"
             defaultValue={params.hiddenIcons?.map((i) => {
               return options.find((o) => o.value === i);
             })}
@@ -262,7 +258,7 @@ const FilteredItemDialog = ({
         direction="row"
         justifyContent="flex-end"
         py={0}
-        px={8}
+        px={2}
         width="100%"
       >
         <Button

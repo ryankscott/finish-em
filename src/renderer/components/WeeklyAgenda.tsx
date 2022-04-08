@@ -32,8 +32,22 @@ import ItemList from './ItemList';
 import ReorderableComponentList from './ReorderableComponentList';
 
 const weeklyFilter = JSON.stringify({
-  text: 'scheduledAt is "this week"',
-  value: [{ category: 'scheduledAt', operator: 'is', value: 'this week' }],
+  combinator: 'and',
+  rules: [
+    {
+      field: 'DATE(scheduledAt)',
+      operator: 'between',
+      valueSource: 'value',
+      value: 'week',
+    },
+    {
+      field: 'deleted',
+      operator: '=',
+      valueSource: 'value',
+      value: false,
+    },
+  ],
+  not: false,
 });
 
 const determineDayBgColour = (listDate: Date, colorMode: ColorMode) => {
@@ -70,9 +84,12 @@ const WeeklyAgenda = (): ReactElement => {
     console.log(error);
     return <></>;
   }
+
   const itemsByDate = groupBy(data.items, (i) => {
-    return format(parseISO(i.scheduledAt), 'yyyy-MM-dd');
+    return format(parseISO(i?.scheduledAt), 'yyyy-MM-dd');
   });
+
+  console.log(itemsByDate);
 
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
     (w) => w.week === format(currentDate, 'yyyy-MM-dd')
@@ -186,7 +203,7 @@ const WeeklyAgenda = (): ReactElement => {
               key={`${idx}-container`}
             >
               <Text p={2} textAlign="center" fontSize="lg" key={`${idx}-title`}>
-                {format(listDate, dayOfWeekFormat)}
+                {format(listDate, dayOfWeekFormat ?? 'EEEE')}
               </Text>
               <ItemList
                 key={idx}

@@ -6,12 +6,50 @@ import QueryBuilder, {
 } from 'react-querybuilder';
 import { Box, Text, useColorMode } from '@chakra-ui/react';
 import { useState } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { capitaliseFirstLetter } from 'renderer/utils';
+import { GET_FILTER_DATA } from 'renderer/queries/filter';
 import CustomActionElement from './CustomActionElement';
 import CustomFieldSelector from './CustomFieldSelector';
 import CustomDragHandle from './CustomDragHandle';
 import CustomValueEditor from './CustomValueEditor';
+import CustomDeleteButton from './CustomDeleteButton';
+
+// TODO: This is duplicated in /main/api
+export const valueProcessor = (field: string, operator: string, value) => {
+  const dateField = [
+    'DATE(dueAt)',
+    'DATE(completedAt)',
+    'DATE(scheduledAt)',
+    'DATE(deletedAt)',
+    'DATE(lastUpdatedAt)',
+    'DATE(createdAt)',
+  ].includes(field);
+
+  const booleanField = ['completed', 'deleted'].includes(field);
+  if (booleanField) {
+    return !!value;
+  }
+
+  if (dateField) {
+    /*
+      This craziness is because we are using a BETWEEN operator
+    */
+    if (value === 'past') {
+      return `DATE(date('now', '-10 year')) AND DATE(date('now', '-1 day'))`;
+    }
+    if (value === 'today') {
+      return `DATE(date()) AND DATE(date())`;
+    }
+    if (value === 'tomorrow') {
+      return `DATE(date('now', '+1 day')) AND DATE(date('now', '+1 day'))`;
+    }
+    if (value === 'week') {
+      return `(strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0'))`;
+    }
+  }
+  return defaultValueProcessor(field, operator, value);
+};
 
 const defaultFields: Field[] = [
   {
@@ -41,9 +79,10 @@ const defaultFields: Field[] = [
     name: 'DATE(dueAt)',
     label: 'Due date',
     operators: [
+      { name: 'between', label: 'is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
-      { name: '=', label: 'is' },
+      { name: '=', label: '=' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
     ],
@@ -53,6 +92,7 @@ const defaultFields: Field[] = [
     name: 'DATE(scheduledAt)',
     label: 'Scheduled date',
     operators: [
+      { name: 'between', label: 'is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
@@ -65,6 +105,7 @@ const defaultFields: Field[] = [
     name: 'DATE(completedAt)',
     label: 'Completed date',
     operators: [
+      { name: 'between', label: 'is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
@@ -77,6 +118,7 @@ const defaultFields: Field[] = [
     name: 'DATE(deletedAt)',
     label: 'Deleted date',
     operators: [
+      { name: 'between', label: 'is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
@@ -89,6 +131,7 @@ const defaultFields: Field[] = [
     name: 'DATE(createdAt)',
     label: 'Created date',
     operators: [
+      { name: 'between', label: 'is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
@@ -101,6 +144,7 @@ const defaultFields: Field[] = [
     name: 'DATE(lastUpdatedAt)',
     label: 'Last updated date',
     operators: [
+      { name: 'between', label: 'is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
       { name: '=', label: 'is' },
@@ -110,23 +154,6 @@ const defaultFields: Field[] = [
     datatype: 'date',
   },
 ];
-
-const GET_DATA = gql`
-  query {
-    projects(input: { deleted: false }) {
-      key
-      name
-    }
-    areas {
-      key
-      name
-    }
-    labels {
-      key
-      name
-    }
-  }
-`;
 
 const generateDynamicFields = (data: {
   projects: { key: string; name: string }[];
@@ -144,15 +171,33 @@ const generateDynamicFields = (data: {
       operators: [
         { name: '=', label: 'is' },
         { name: '!=', label: 'is not' },
+        { name: 'null', label: 'is null' },
+        { name: 'notNull', label: 'is not null' },
       ],
     };
   });
 };
 
-const ItemFilterBuilder = () => {
-  const [query, setQuery] = useState({ combinator: 'and', rules: [] });
+type ItemFilterBuilderProps = {
+  defaultFilter: string;
+  onSubmit: (filter: string) => void;
+};
+
+const ItemFilterBuilder = ({
+  onSubmit,
+  defaultFilter,
+}: ItemFilterBuilderProps) => {
+  let inputQuery = { combinator: 'and', rules: [] };
+  try {
+    inputQuery = JSON.parse(defaultFilter);
+  } catch (error) {
+    console.log(error);
+  }
+
+  const [query, setQuery] = useState(inputQuery);
   const { colorMode } = useColorMode();
-  const { loading, error, data } = useQuery(GET_DATA);
+  const { loading, error, data } = useQuery(GET_FILTER_DATA);
+
   if (loading) return <></>;
   if (error) {
     console.log(error);
@@ -162,40 +207,17 @@ const ItemFilterBuilder = () => {
   const dynamicFields = generateDynamicFields(data);
   const fields = [...defaultFields, ...dynamicFields];
 
-  const valueProcessor = (field: Field, operator: string, value) => {
-    const dateField = [
-      'DATE(dueAt)',
-      'DATE(completedAt)',
-      'DATE(scheduledAt)',
-      'DATE(deletedAt)',
-      'DATE(lastUpdatedAt)',
-      'DATE(createdAt)',
-    ].includes(field);
-    if (dateField) {
-      if (value === 'Today') {
-        // Assuming `value` is an array, such as from a multi-select
-        return `DATE(date()))`;
-      }
-      if (value === 'Tomorrow') {
-        return `DATE(date('+1 day')))`;
-      }
-    }
-    return defaultValueProcessor(field, operator, value);
-  };
-
+  console.log(`Query in FE: ${JSON.stringify(query)}`);
   return (
-    <Box
-      p={2}
-      border="1px solid"
-      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
-      borderRadius="md"
-      my={2}
-    >
+    <Box p={0} m={0} my={2}>
       <QueryBuilder
         enableDragAndDrop={false}
         fields={fields}
         query={query}
-        onQueryChange={(q) => setQuery(q)}
+        onQueryChange={(q) => {
+          onSubmit(JSON.stringify(q));
+          setQuery(q);
+        }}
         controlElements={{
           addGroupAction: CustomActionElement,
           addRuleAction: CustomActionElement,
@@ -205,8 +227,8 @@ const ItemFilterBuilder = () => {
           fieldSelector: CustomFieldSelector,
           lockRuleAction: CustomActionElement,
           lockGroupAction: CustomActionElement,
-          removeGroupAction: CustomActionElement,
-          removeRuleAction: CustomActionElement,
+          removeGroupAction: CustomDeleteButton,
+          removeRuleAction: CustomDeleteButton,
           combinatorSelector: CustomFieldSelector,
           operatorSelector: CustomFieldSelector,
           dragHandle: CustomDragHandle,
@@ -220,10 +242,11 @@ const ItemFilterBuilder = () => {
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
       >
         <Text fontSize="sm" fontFamily="mono" my={2}>
-          {formatQuery(query, {
-            format: 'sql',
-            valueProcessor,
-          })}
+          {query &&
+            formatQuery(query, {
+              format: 'sql',
+              valueProcessor,
+            })}
         </Text>
       </Box>
     </Box>

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_COMPONENT_BY_KEY = gql`
-  query ComponentByKey($key: String!) {
+  query getComponentByKey($key: String!) {
     projects(input: { deleted: false }) {
       key
       name

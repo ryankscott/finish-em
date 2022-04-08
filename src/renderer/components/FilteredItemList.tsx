@@ -106,7 +106,7 @@ const FilteredItemList = ({
     showItemList,
     itemsLength?.[0],
     itemsLength?.[1],
-    showCompletedToggle ?? false
+    showCompletedToggle ?? true
   );
 
   return (
@@ -288,7 +288,7 @@ const FilteredItemList = ({
             w="100%"
             transition="0.2s ease-in-out"
             py={0}
-            px={3}
+            px={0}
           >
             <ReorderableItemList
               expandSubtasks={expandSubtasks}

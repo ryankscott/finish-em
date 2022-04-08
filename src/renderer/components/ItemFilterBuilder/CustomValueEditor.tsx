@@ -3,15 +3,15 @@ import {
   Input,
   Radio,
   RadioGroup,
+  Select,
   Stack,
   Switch,
   Textarea,
 } from '@chakra-ui/react';
-import { parse, format } from 'date-fns';
+import { format } from 'date-fns';
 import { useEffect } from 'react';
 import { ValueEditorProps, ValueSelector } from 'react-querybuilder';
-import { formatRelativeDate } from 'renderer/utils';
-import CustomDatePicker from './CustomDatePicker';
+import DatePicker from 'react-datepicker';
 import CustomFieldSelector from './CustomFieldSelector';
 
 const CustomValueEditor = ({
@@ -48,19 +48,44 @@ const CustomValueEditor = ({
   )
     ? 'text'
     : inputType || 'text';
-  console.log(fieldData);
 
   if (fieldData.datatype === 'date') {
+    if (operator === 'between') {
+      return (
+        <Select
+          p={1}
+          borderRadius="md"
+          title={title}
+          placeholder="..."
+          size="sm"
+          w="fit-content"
+          display="inline-block"
+          disabled={disabled}
+          defaultValue={value}
+          onChange={(e) => handleOnChange(e.target.value)}
+        >
+          <option key="past" value="past">
+            past
+          </option>
+          <option key="today" value="today">
+            today
+          </option>
+          <option key="tomorrow" value="tomorrow">
+            tomorrow
+          </option>
+          <option key="week" value="week">
+            this week
+          </option>
+        </Select>
+      );
+    }
     return (
-      <CustomDatePicker
-        completed={false}
-        defaultText={
-          !value
-            ? ''
-            : formatRelativeDate(parse(value, 'yyyy-MM-dd', new Date()))
-        }
-        onSubmit={(d: string) => {
-          handleOnChange(d);
+      <DatePicker
+        value={value}
+        utcOffset={new Date().getTimezoneOffset()}
+        tabIndex={0}
+        onChange={(d: Date) => {
+          handleOnChange(format(d, 'yyyy-MM-dd'));
         }}
       />
     );
@@ -114,10 +139,13 @@ const CustomValueEditor = ({
         <Switch
           className={className}
           isChecked={!!value}
+          defaultChecked={false}
           title={title}
           size="sm"
           isDisabled={disabled}
-          onChange={(e) => handleOnChange(e.target.checked)}
+          onChange={(e) => {
+            return handleOnChange(e.target.checked);
+          }}
         />
       );
 

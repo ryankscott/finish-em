@@ -44,6 +44,7 @@ import ItemCreator from './ItemCreator';
 import LabelSelect from './LabelSelect';
 import ProjectSelect from './ProjectSelect';
 import RepeatPicker from './RepeatPicker';
+import ItemActionButton from './ItemActionButton';
 
 const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
@@ -203,29 +204,17 @@ const Focusbar = (): ReactElement => {
         </GridItem>
       </Grid>
       <Flex alignItems="baseline" w="100%" direction="row" m={0} px={2} py={4}>
-        <IconButton
-          size="md"
-          aria-label="toggle-complete"
-          disabled={item?.deleted ?? false}
-          variant="default"
+        <ItemActionButton
+          deleted={item.deleted ?? false}
+          completed={item.completed ?? false}
           onClick={() => {
             if (item.completed) {
               unCompleteItem({ variables: { key: item.key } });
+            } else {
+              completeItem({ variables: { key: item.key } });
             }
-            completeItem({ variables: { key: item.key } });
           }}
-          icon={
-            <Icon
-              p={0}
-              m={0}
-              fill={item.completed ? 'undefined' : iconColour}
-              fillOpacity={0.6}
-              color={iconColour}
-              as={item?.completed ? Icons.todoChecked : Icons.todoUnchecked}
-              h={3.5}
-              w={3.5}
-            />
-          }
+          disableOnDelete
         />
         <Box
           w="100%"
@@ -280,6 +269,7 @@ const Focusbar = (): ReactElement => {
             completed={item.completed ?? false}
             deleted={item.deleted ?? false}
             onSubmit={(areaKey) => {
+              console.log(areaKey);
               setArea({ variables: { key: item.key, areaKey } });
             }}
           />

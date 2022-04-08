@@ -44,6 +44,7 @@ import ReminderDialog from './ReminderDialog';
 import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
 import { LoadingItem } from './LoadingItem';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
+import ItemActionButton from './ItemActionButton';
 
 type ItemProps = {
   compact: boolean;
@@ -166,17 +167,6 @@ function Item({
   const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
     variables: { key: itemKey || null },
   });
-
-  const determineIconColour = (item: Item): string => {
-    if (item.label?.colour) {
-      return item.label.colour;
-    }
-    if (colorMode === 'light') {
-      return 'gray.800';
-    }
-    return 'gray.50';
-  };
-
   const generateProjectTag = (
     item: ItemType,
     compact: boolean
@@ -289,12 +279,10 @@ function Item({
       restoreItem({ variables: { key: item.key } });
       return;
     }
-    if (item.type === 'TODO') {
-      if (item.complete) {
-        unCompleteItem({ variables: { key: item.key } });
-      } else {
-        completeItem({ variables: { key: item.key } });
-      }
+    if (item.completed) {
+      unCompleteItem({ variables: { key: item.key } });
+    } else {
+      completeItem({ variables: { key: item.key } });
     }
   };
 
@@ -472,47 +460,11 @@ function Item({
           })(item.deleted, item.completed)}
         >
           <Box gridArea="complete">
-            <IconButton
-              aria-label="restore"
-              variant="subtle"
-              p={0}
-              m={0}
+            <ItemActionButton
               onClick={handleIconClick}
-              icon={((deleted: boolean, completed: boolean) => {
-                const iconColour = determineIconColour(item);
-
-                if (deleted) {
-                  return (
-                    <Icon
-                      as={Icons.restore}
-                      w={3.5}
-                      h={3.5}
-                      color={iconColour}
-                    />
-                  );
-                }
-                if (completed) {
-                  return (
-                    <Icon
-                      as={Icons.todoChecked}
-                      w={3.5}
-                      h={3.5}
-                      color={iconColour}
-                    />
-                  );
-                }
-                return (
-                  <Icon
-                    as={Icons.todoUnchecked}
-                    w={3.5}
-                    h={3.5}
-                    fill={iconColour}
-                    fillOpacity={0.6}
-                    color={iconColour}
-                  />
-                );
-              })(item.deleted, item.completed)}
-              color={item?.label?.colour || undefined}
+              completed={item.completed}
+              deleted={item.deleted}
+              colour={item?.label?.colour}
             />
           </Box>
         </Tooltip>
@@ -591,15 +543,14 @@ function Item({
             )}`}
           >
             <Flex justifyContent="center">
-              {convertSVGElementToReact(
-                Icons.reminder(
-                  '12px',
-                  '12px',
+              <Icon
+                as={Icons.reminder}
+                color={
                   isPast(parseISO(reminder.remindAt))
-                    ? theme?.colors?.gray[400]
-                    : theme?.colors?.blue[400]
-                )
-              )}
+                    ? theme?.colors?.red[400]
+                    : theme?.colors?.gray[600]
+                }
+              />
             </Flex>
           </Tooltip>
         )}

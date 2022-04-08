@@ -182,22 +182,28 @@ const Area = (props: AreaProps): ReactElement => {
         componentKey={uuidv4()}
         isFilterable={false}
         filter={JSON.stringify({
-          text: `area = "${area.name}" and type = "TODO" and deleted = "false"`,
-          value: [
-            { category: 'areaKey', operator: '=', value: area.key },
+          combinator: 'and',
+          rules: [
             {
-              conditionType: 'AND',
-              category: 'type',
-              operator: '=',
-              value: 'TODO',
-            },
-            {
-              conditionType: 'AND',
-              category: 'deleted',
-              operator: '=',
-              value: 'false',
+              combinator: 'and',
+              rules: [
+                {
+                  field: 'areaKey',
+                  operator: '=',
+                  valueSource: 'value',
+                  value: area.key,
+                },
+                {
+                  field: 'deleted',
+                  operator: '=',
+                  valueSource: 'value',
+                  value: false,
+                },
+              ],
+              not: false,
             },
           ],
+          not: false,
         })}
         flattenSubtasks
         readOnly

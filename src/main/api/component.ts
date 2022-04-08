@@ -1,201 +1,215 @@
-import log from 'electron-log'
-import SQL from 'sql-template-strings'
-import { v4 as uuidv4 } from 'uuid'
-import Component from '../classes/component'
-import { createComponentOrder } from './componentOrder'
+import log from 'electron-log';
+import SQL from 'sql-template-strings';
+import { v4 as uuidv4 } from 'uuid';
+import Component from '../classes/component';
+import { createComponentOrder } from './componentOrder';
 
 export const getComponents = (obj, ctx) => {
   return ctx.db
     .all('SELECT key, viewKey, location, type, parameters FROM component')
     .then((result) =>
-      result.map((r) => new Component(r.key, r.viewKey, r.location, r.type, r.parameters)),
-    )
-}
+      result.map(
+        (r) => new Component(r.key, r.viewKey, r.location, r.type, r.parameters)
+      )
+    );
+};
 
-export const getComponent = (input: { key: string }, ctx) => {
+export const getComponentByKey = (input: { key: string }, ctx) => {
   return ctx.db
     .get(
-      SQL`SELECT 
-            key, 
-            viewKey, 
-            location, 
-            type, 
-            parameters 
-            FROM component 
-            WHERE key = ${input.key};`,
+      SQL`SELECT
+            key,
+            viewKey,
+            location,
+            type,
+            parameters
+            FROM component
+            WHERE key = ${input.key};`
     )
-    .then((r) => (r ? new Component(r.key, r.viewKey, r.location, r.type, r.parameters) : null))
-}
+    .then((r) =>
+      r
+        ? new Component(r.key, r.viewKey, r.location, r.type, r.parameters)
+        : null
+    );
+};
 
 export const getComponentsByView = (input: { viewKey: string }, ctx) => {
   return ctx.db
     .all(
-      SQL`SELECT 
-            key, 
-            viewKey, 
-            location, 
-            type, 
-            parameters 
-            FROM component 
-            WHERE viewKey = ${input.viewKey};`,
+      SQL`SELECT
+            key,
+            viewKey,
+            location,
+            type,
+            parameters
+            FROM component
+            WHERE viewKey = ${input.viewKey};`
     )
     .then((result) => {
       return result.length
-        ? result.map((r) => new Component(r.key, r.viewKey, r.location, r.type, r.parameters))
-        : null
-    })
-}
+        ? result.map(
+            (r) =>
+              new Component(r.key, r.viewKey, r.location, r.type, r.parameters)
+          )
+        : null;
+    });
+};
 
 export const createComponent = async (
   input: {
-    key: string
-    viewKey: string
-    location: string
-    type: string
-    parameters: Object
+    key: string;
+    viewKey: string;
+    location: string;
+    type: string;
+    parameters: Object;
   },
-  ctx,
+  ctx
 ) => {
   const result = await ctx.db.run(SQL`
   INSERT INTO component (key, viewKey, location, type, parameters)
-  VALUES (${input.key}, ${input.viewKey}, ${input.location}, 
-  ${input.type}, json(${JSON.stringify(input.parameters)})); 
-`)
+  VALUES (${input.key}, ${input.viewKey}, ${input.location},
+  ${input.type}, json(${JSON.stringify(input.parameters)}));
+`);
   if (result) {
-    const order = await createComponentOrder({ componentKey: input.key }, ctx)
+    const order = await createComponentOrder({ componentKey: input.key }, ctx);
     if (order) {
-      return getComponent({ key: input.key }, ctx)
+      return getComponentByKey({ key: input.key }, ctx);
     }
   }
-  return new Error('Unable to create component')
-}
+  return new Error('Unable to create component');
+};
+
+export const updateParametersOfComponent = (
+  input: {
+    key: string;
+    parameters: Object;
+  },
+  ctx
+) => {
+  return ctx.db
+    .run(
+      SQL`
+      UPDATE component SET parameters = ${JSON.stringify(input.parameters)}
+      WHERE key = ${input.key};`
+    )
+    .then((result) => {
+      return result.changes
+        ? getComponentByKey({ key: input.key }, ctx)
+        : new Error('Unable to set parameters of component');
+    });
+};
 
 export const updateComponentOnProjectNameChange = async (
   input: {
-    viewKey: string
-    newName: string
+    viewKey: string;
+    newName: string;
   },
-  ctx,
+  ctx
 ) => {
   const result = await ctx.db.all(SQL`
 SELECT key, parameters
 FROM component
 WHERE viewKey = ${input.viewKey}
 AND type = "FilteredItemList";
-`)
+`);
   if (result) {
     result.map((r) => {
-      const params = JSON.parse(r.parameters)
-      const filter = JSON.parse(params.filter)
-      filter.text = filter.text.replace(/project = ".+"/, `project = \"${input.newName}\"`)
-      params.filter = JSON.stringify(filter)
-      updateParametersOfComponent({ key: r.key, parameters: params }, ctx)
-    })
+      const params = JSON.parse(r.parameters);
+      const filter = JSON.parse(params.filter);
+      filter.text = filter.text.replace(
+        /project = ".+"/,
+        `project = \"${input.newName}\"`
+      );
+      params.filter = JSON.stringify(filter);
+      updateParametersOfComponent({ key: r.key, parameters: params }, ctx);
+    });
   }
-}
-
-export const updateParametersOfComponent = (
-  input: {
-    key: string
-    parameters: Object
-  },
-  ctx,
-) => {
-  return ctx.db
-    .run(
-      SQL`
-      UPDATE component SET parameters = ${JSON.stringify(input.parameters)} 
-      WHERE key = ${input.key};`,
-    )
-    .then((result) => {
-      return result.changes
-        ? getComponent({ key: input.key }, ctx)
-        : new Error('Unable to set parameters of component')
-    })
-}
+};
 
 export const migrateComponent = (
   input: {
-    key: string
-    viewKey: string
-    location: string
-    type: string
-    parameters: Object
+    key: string;
+    viewKey: string;
+    location: string;
+    type: string;
+    parameters: Object;
   },
-  ctx,
+  ctx
 ) => {
   return ctx.db
     .run(
       SQL`
   REPLACE INTO component (key, viewKey, location, type, parameters)
-  VALUES (${input.key}, ${input.viewKey}, ${input.location}, ${input.type}, json(${input.parameters}));`,
+  VALUES (${input.key}, ${input.viewKey}, ${input.location}, ${input.type}, json(${input.parameters}));`
     )
     .then((result) => {
       return result.changes
-        ? getComponent({ key: input.key }, ctx)
-        : new Error('Unable to migrate component')
-    })
-}
+        ? getComponentByKey({ key: input.key }, ctx)
+        : new Error('Unable to migrate component');
+    });
+};
 // TODO: #339 Remove all item orders when deleting a component
 export const deleteComponent = (input: { key: string }, ctx) => {
-  return ctx.db.run(SQL`DELETE FROM component WHERE key = ${input.key}`).then((result) => {
-    return result.changes
-      ? getComponent({ key: input.key }, ctx)
-      : new Error('Unable to delete component')
-  })
-}
+  return ctx.db
+    .run(SQL`DELETE FROM component WHERE key = ${input.key}`)
+    .then((result) => {
+      return result.changes
+        ? getComponentByKey({ key: input.key }, ctx)
+        : new Error('Unable to delete component');
+    });
+};
 
 export const cloneComponent = async (input: { key: string }, ctx) => {
-  const newKey = uuidv4()
+  const newKey = uuidv4();
   const result = await ctx.db.run(SQL`
-  INSERT INTO component 
+  INSERT INTO component
   (
     viewKey,
     location,
     type,
     parameters,
     key)
-  SELECT 
+  SELECT
     viewKey,
     location,
     type,
     parameters,
     ${newKey}
-  FROM component 
-  WHERE key = ${input.key}`)
+  FROM component
+  WHERE key = ${input.key}`);
   if (result.changes) {
-    const order = await createComponentOrder({ componentKey: newKey }, ctx)
+    const order = await createComponentOrder({ componentKey: newKey }, ctx);
     if (order) {
-      return getComponent({ key: newKey }, ctx)
+      return getComponentByKey({ key: newKey }, ctx);
     }
   }
-  log.error(`Unable to clone component, key - ${input.key}`)
-  return new Error('Unable to clone component')
-}
+  log.error(`Unable to clone component, key - ${input.key}`);
+  return new Error('Unable to clone component');
+};
 
 export const componentRootValues = {
   components: (obj, ctx) => {
-    return getComponents(obj, ctx)
+    return getComponents(obj, ctx);
   },
   component: (key, ctx) => {
-    return getComponent(key, ctx)
+    return getComponentByKey(key, ctx);
   },
   componentsByView: (key, ctx) => {
-    return getComponentsByView(key, ctx)
+    return getComponentsByView(key, ctx);
   },
   createComponent: ({ input }, ctx) => {
-    return createComponent(input, ctx)
+    return createComponent(input, ctx);
   },
   setParametersOfComponent: ({ input }, ctx) => {
-    return updateParametersOfComponent(input, ctx)
+    return updateParametersOfComponent(input, ctx);
   },
   migrateComponent: ({ input }, ctx) => {
-    return migrateComponent(input, ctx)
+    return migrateComponent(input, ctx);
   },
   deleteComponent: ({ input }, ctx) => {
-    return deleteComponent(input, ctx)
+    return deleteComponent(input, ctx);
   },
   cloneComponent: ({ input }, ctx) => {
-    return cloneComponent(input, ctx)
+    return cloneComponent(input, ctx);
   },
-}
+};

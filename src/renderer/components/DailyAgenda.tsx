@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import {
   parseISO,
   format,
@@ -23,6 +23,7 @@ import {
 import v5 from 'uuid/v5';
 import { cloneDeep, sortBy, uniqBy } from 'lodash';
 import RRule from 'rrule';
+import { GET_DAILY_EVENTS } from 'renderer/queries/dailyagenda';
 import ReorderableComponentList from './ReorderableComponentList';
 import { Event } from '../../main/generated/typescript-helpers';
 import FilteredItemList from './FilteredItemList';
@@ -74,32 +75,8 @@ const getSortedEventsForToday = (
   return sortBy(uniqEvents, ['startAt'], ['desc']);
 };
 
-const GET_DATA = gql`
-  query dailyEvents {
-    eventsForActiveCalendar {
-      key
-      title
-      startAt
-      endAt
-      description
-      allDay
-      recurrence
-      attendees {
-        name
-        email
-      }
-      location
-    }
-
-    calendarIntegration: featureByName(name: "calendarIntegration") {
-      key
-      enabled
-    }
-  }
-`;
-
 const DailyAgenda = (): ReactElement => {
-  const { loading, error, data } = useQuery(GET_DATA, {
+  const { loading, error, data } = useQuery(GET_DAILY_EVENTS, {
     pollInterval: 1000 * 60 * 5,
   });
   const { colorMode } = useColorMode();
@@ -251,20 +228,22 @@ const DailyAgenda = (): ReactElement => {
           showCompletedToggle
           listName="Due Today"
           filter={JSON.stringify({
-            text: 'dueAt is today ',
-            value: [
+            combinator: 'and',
+            rules: [
               {
-                category: 'dueAt',
-                operator: '=',
-                value: currentDate.toISOString(),
+                field: 'DATE(dueAt)',
+                operator: 'between',
+                valueSource: 'value',
+                value: 'today',
               },
               {
-                conditionType: 'AND',
-                category: 'deleted',
+                field: 'deleted',
                 operator: '=',
-                value: 'false',
+                valueSource: 'value',
+                value: false,
               },
             ],
+            not: false,
           })}
           flattenSubtasks
           readOnly
@@ -283,20 +262,22 @@ const DailyAgenda = (): ReactElement => {
           showCompletedToggle
           listName="Scheduled Today"
           filter={JSON.stringify({
-            text: 'scheduledAt = today ',
-            value: [
+            combinator: 'and',
+            rules: [
               {
-                category: 'scheduledAt',
-                operator: '=',
-                value: currentDate.toISOString(),
+                field: 'DATE(scheduledAt)',
+                operator: 'between',
+                valueSource: 'value',
+                value: 'today',
               },
               {
-                conditionType: 'AND',
-                category: 'deleted',
+                field: 'deleted',
                 operator: '=',
-                value: 'false',
+                valueSource: 'value',
+                value: false,
               },
             ],
+            not: false,
           })}
           flattenSubtasks
           readOnly

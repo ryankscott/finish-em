@@ -251,6 +251,7 @@ const ReorderableComponentList = ({
           <MenuList>
             <MenuItem
               onClick={() => {
+                // TODO: Update this to use the new filter syntax
                 addComponent({
                   variables: {
                     input: {

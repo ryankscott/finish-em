@@ -8,7 +8,7 @@ import {
   MenuItem,
   MenuList,
 } from '@chakra-ui/react';
-import { add, sub, lastDayOfWeek, format } from 'date-fns';
+import { format } from 'date-fns';
 import RDatePicker from 'react-datepicker';
 import { Icons } from 'renderer/assets/icons';
 

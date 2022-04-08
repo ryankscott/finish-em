@@ -270,7 +270,8 @@ const Select = (props: Props) => {
       }),
       multiValue: (styles: CSSObject) => ({
         ...styles,
-        margin: '2px',
+        marginLeft: '0px',
+        marginRight: '2px',
         borderRadius: '5px',
         backgroundColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {

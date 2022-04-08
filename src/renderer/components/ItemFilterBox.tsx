@@ -218,7 +218,8 @@ const ItemFilterBox = ({
       <Box
         my={2}
         mx={0}
-        p={3}
+        py={2}
+        px={0}
         bg="transparent"
         _hover={{ bg: colorMode === 'light' ? 'gray.200' : 'gray.900' }}
         _active={{ bg: colorMode === 'light' ? 'gray.200' : 'gray.900' }}
@@ -299,7 +300,7 @@ const ItemFilterBox = ({
   };
 
   return (
-    <Box w="auto" my={0} mx={2} overflowX="scroll">
+    <Box w="auto" m={0} overflowX="scroll">
       <ReactFilterBox
         data={inputData}
         autoCompleteHandler={customAutoComplete}

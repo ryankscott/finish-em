@@ -1,5 +1,6 @@
 import { transparentize } from 'polished';
 import { mode } from '@chakra-ui/theme-tools';
+import { NonEmptyString } from 'graphql-scalars/mocks';
 
 const styles = {
   html: {
@@ -385,12 +386,13 @@ const styles = {
       },
       '.rule': {
         p: 1,
-        pt: 0,
+        pr: 6,
         m: 1,
         mt: 0,
         border: '1px solid',
         borderColor: mode('gray.200', 'gray.700')(props),
         borderRadius: 'md',
+        position: 'relative',
       },
       '.ruleGroup': {
         p: 1,
@@ -400,6 +402,7 @@ const styles = {
         border: '1px solid',
         borderColor: mode('gray.200', 'gray.700')(props),
         borderRadius: 'md',
+        position: 'relative',
       },
       '.ruleGroup[data-level="1"]': {
         bg: mode('gray.100', 'gray.700')(props),
@@ -415,6 +418,23 @@ const styles = {
       },
       '.ruleGroup[data-level="5"]': {
         bg: mode('yellow.50', 'yellow.800')(props),
+      },
+      '.react-datepicker-wrapper > div > input[type=text]': {
+        paddingInline: 2,
+        p: 2,
+        fontSize: 'sm',
+        border: '1px solid',
+        bg: mode('gray.50', 'gray.800')(props),
+        borderRadius: 'md',
+        maxH: '32px',
+        outlineOffset: '2px',
+        borderColor: 'blue.400',
+        boxShadow: '0 0 0 1px #14a7eb',
+        outline: '2px solid transparent',
+      },
+      '.react-datepicker-wrapper > div > input[type=text]:active': {
+        border: '1px solid',
+        outline: 'none',
       },
     };
   },
