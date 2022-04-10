@@ -10,7 +10,11 @@ import {
   RESTORE_ITEM,
   UNCOMPLETE_ITEM,
 } from 'renderer/queries';
-import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
+import {
+  activeItemVar,
+  focusbarVisibleVar,
+  subtasksVisibleVar,
+} from '../cache';
 import { item as itemKeymap } from '../keymap';
 import { ItemIcons } from '../interfaces/item';
 import Item from './Item';

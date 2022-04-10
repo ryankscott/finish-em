@@ -20,7 +20,7 @@ const filterAttributes: { name: string; description: string }[] = [
   { name: 'repeat', description: 'whether or not the item repeats' },
 ];
 
-export const Help = (): ReactElement => {
+const Help = (): ReactElement => {
   return (
     <Page>
       <VStack w="100%" justifyContent="flex-start">

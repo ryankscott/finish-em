@@ -15,7 +15,7 @@ import {
   SET_ITEM_ORDER,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import { subtasksVisibleVar } from '..';
+import { subtasksVisibleVar } from '../cache';
 import { Item } from '../../main/generated/typescript-helpers';
 import { PAGE_SIZE } from '../../consts';
 import { ItemIcons } from '../interfaces/item';

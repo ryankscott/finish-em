@@ -3,7 +3,6 @@ import {
   Button,
   Box,
   Flex,
-  Text,
   Switch,
   Editable,
   EditableInput,
@@ -80,7 +79,7 @@ const FilteredItemDialog = ({
   }
 
   type ItemListSettingProps = {
-    children: any;
+    children: JSX.Element;
     name: string;
   };
   const ItemListSetting = ({ children, name }: ItemListSettingProps) => (

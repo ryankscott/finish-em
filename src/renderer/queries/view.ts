@@ -7,3 +7,14 @@ export const DELETE_VIEW = gql`
     }
   }
 `;
+
+export const GET_VIEW = gql`
+  query ViewByKey($key: String!) {
+    view(key: $key) {
+      key
+      name
+      type
+      icon
+    }
+  }
+`;

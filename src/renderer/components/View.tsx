@@ -1,20 +1,11 @@
 import { ReactElement } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
+import { GET_VIEW } from 'renderer/queries';
 import ReorderableComponentList from './ReorderableComponentList';
 import Project from './Project';
 import Area from './Area';
 import Page from './Page';
 
-const GET_DATA = gql`
-  query ViewByKey($key: String!) {
-    view(key: $key) {
-      key
-      name
-      type
-      icon
-    }
-  }
-`;
 type ViewProps = {
   viewKey: string;
 };
@@ -32,7 +23,7 @@ const headerComponent = (type: string, viewKey: string) => {
 };
 
 const View = ({ viewKey }: ViewProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_DATA, {
+  const { loading, error, data } = useQuery(GET_VIEW, {
     variables: {
       key: viewKey,
     },

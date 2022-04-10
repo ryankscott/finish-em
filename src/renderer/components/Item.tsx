@@ -41,7 +41,11 @@ import ItemAttribute from './ItemAttribute';
 import LabelDialog from './LabelDialog';
 import MoreDropdown, { MoreDropdownOptions } from './MoreDropdown';
 import ReminderDialog from './ReminderDialog';
-import { activeItemVar, focusbarVisibleVar, subtasksVisibleVar } from '..';
+import {
+  activeItemVar,
+  focusbarVisibleVar,
+  subtasksVisibleVar,
+} from '../cache';
 import { LoadingItem } from './LoadingItem';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
 import ItemActionButton from './ItemActionButton';

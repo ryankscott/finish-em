@@ -29,7 +29,7 @@ import {
   RESTORE_ITEM,
 } from 'renderer/queries';
 import RRule from 'rrule';
-import { activeItemVar, focusbarVisibleVar } from '..';
+import { activeItemVar, focusbarVisibleVar } from '../cache';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
 import { Icons } from '../assets/icons';
 import { IconType } from '../interfaces';

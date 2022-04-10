@@ -13,7 +13,6 @@ import {
   FlexProps,
   forwardRef,
   Icon,
-  useColorMode,
 } from '@chakra-ui/react';
 import { format, parseISO, sub } from 'date-fns';
 import { gql, useQuery } from '@apollo/client';
@@ -32,7 +31,7 @@ const GET_FEATURES = gql`
 `;
 
 interface Props {
-  event: Event;
+  event: Event | undefined;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -78,7 +77,6 @@ const AttributeValue = forwardRef<FlexProps, 'div'>((props, ref) => (
 ));
 
 const EventModal = ({ event, isOpen, onClose }: Props) => {
-  const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_FEATURES);
   if (loading) return null;
   if (error) {

@@ -18,9 +18,9 @@ const SidebarSection = ({ name, iconName, sidebarVisible }: Props) => {
       width="100%"
       alignItems="center"
       justifyContent={sidebarVisible ? 'flex-start' : 'center'}
-      mx={sidebarVisible ? 2 : 0}
+      mx={sidebarVisible ? 1 : 0}
       my={0}
-      px={sidebarVisible ? 2 : 0}
+      px={sidebarVisible ? 1 : 0}
       py={2}
       pt={sidebarVisible ? 4 : 2}
     >

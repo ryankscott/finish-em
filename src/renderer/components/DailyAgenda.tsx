@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ReactElement, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import {
@@ -83,7 +84,7 @@ const DailyAgenda = (): ReactElement => {
   // TODO: Hoist this to a reactive var so others can use it
   const [currentDate, setDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
-  const [activeEvent, setActiveEvent] = useState();
+  const [activeEvent, setActiveEvent] = useState<Event>();
 
   const offset = new Date().getTimezoneOffset();
   useEffect(() => {

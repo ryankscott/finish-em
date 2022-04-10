@@ -18,7 +18,7 @@ import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
 import CommandBar from './CommandBar';
 import { Item, Project } from '../../main/generated/typescript-helpers';
-import { activeItemVar, focusbarVisibleVar } from '..';
+import { activeItemVar, focusbarVisibleVar } from '../cache';
 import {
   removeItemTypeFromString,
   markdownLinkRegex,

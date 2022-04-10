@@ -1,31 +1,31 @@
-import React from 'react'
-import { Flex } from '@chakra-ui/react'
-import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd'
+/* eslint-disable react/jsx-props-no-spreading */
+import React from 'react';
+import { Flex } from '@chakra-ui/react';
+import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
+
 interface Props {
-  sidebarVisible: boolean
-  snapshot: DraggableStateSnapshot
-  provided: DraggableProvided
-  children: React.ReactNode
+  snapshot: DraggableStateSnapshot;
+  provided: DraggableProvided;
+  children: React.ReactNode;
 }
 
-const SidebarDraggableItem = (props: Props) => {
+const SidebarDraggableItem = ({ snapshot, provided, children }: Props) => {
   return (
     <Flex
-      direction={'column'}
-      justifyContent={'center'}
-      w={'100%'}
+      direction="column"
+      justifyContent="center"
+      w="100%"
       m={0}
-      py={0}
-      px={props.sidebarVisible ? 1 : 0}
-      bg={props.snapshot.isDragging ? 'gray.900' : 'gray.800'}
-      shadow={props.snapshot.isDragging ? 'base' : 'none'}
+      p={0}
+      bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
+      shadow={snapshot.isDragging ? 'lg' : 'none'}
       borderRadius={5}
-      {...props.provided.draggableProps}
-      {...props.provided.dragHandleProps}
-      ref={props.provided.innerRef}
+      {...provided.draggableProps}
+      {...provided.dragHandleProps}
+      ref={provided.innerRef}
     >
-      {props.children}
+      {children}
     </Flex>
-  )
-}
-export default SidebarDraggableItem
+  );
+};
+export default SidebarDraggableItem;

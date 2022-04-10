@@ -16,7 +16,11 @@ import CustomValueEditor from './CustomValueEditor';
 import CustomDeleteButton from './CustomDeleteButton';
 
 // TODO: This is duplicated in /main/api
-export const valueProcessor = (field: string, operator: string, value) => {
+export const valueProcessor = (
+  field: string,
+  operator: string,
+  value: any
+): string => {
   const dateField = [
     'DATE(dueAt)',
     'DATE(completedAt)',
@@ -28,7 +32,7 @@ export const valueProcessor = (field: string, operator: string, value) => {
 
   const booleanField = ['completed', 'deleted'].includes(field);
   if (booleanField) {
-    return !!value;
+    return (!!value).toString();
   }
 
   if (dateField) {
@@ -160,7 +164,7 @@ const generateDynamicFields = (data: {
   areas: { key: string; name: string }[];
   labels: { key: string; name: string }[];
 }) => {
-  return Object.keys(data).map((d) => {
+  return Object.keys(data)?.map((d) => {
     return {
       name: `${d.slice(0, -1)}Key`,
       label: capitaliseFirstLetter(d.slice(0, -1)),
@@ -189,7 +193,11 @@ const ItemFilterBuilder = ({
 }: ItemFilterBuilderProps) => {
   let inputQuery = { combinator: 'and', rules: [] };
   try {
-    inputQuery = JSON.parse(defaultFilter);
+    const parsedFilter = JSON.parse(defaultFilter);
+    // TODO: This is just in case somehow we get an old style filter
+    if (!(Object.keys(parsedFilter)[0] === 'text')) {
+      inputQuery = parsedFilter;
+    }
   } catch (error) {
     console.log(error);
   }

@@ -16,7 +16,7 @@ import {
   SET_PROJECT,
   SET_SCHEDULED_AT,
 } from 'renderer/queries';
-import { activeItemVar, focusbarVisibleVar } from '..';
+import { activeItemVar, focusbarVisibleVar } from '../cache';
 import DatePicker from './DatePicker';
 import ProjectSelect from './ProjectSelect';
 

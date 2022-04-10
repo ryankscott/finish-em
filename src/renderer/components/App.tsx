@@ -1,14 +1,15 @@
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { useQuery, useReactiveVar } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
 import { isSameMinute, parseISO } from 'date-fns';
 import { ReactElement, useEffect } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { Slide, toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { CREATE_ITEM, GET_APP_DATA } from 'renderer/queries/';
+import { GET_APP_DATA } from 'renderer/queries/';
 import { Reminder } from 'main/generated/typescript-helpers';
 import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from 'consts';
-import { activeItemVar, focusbarVisibleVar, sidebarVisibleVar } from '../index';
+import { activeItemVar, focusbarVisibleVar, sidebarVisibleVar } from '../cache';
 import ActionBar from './ActionBar';
 import Area from './Area';
 import DailyAgenda from './DailyAgenda';
@@ -21,7 +22,6 @@ import ShortcutDialog from './ShortcutDialog';
 import Sidebar from './Sidebar';
 import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
-import '../filterBoxStyles.css';
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
@@ -60,8 +60,8 @@ const App = (): ReactElement => {
               <br />
               Download the new version <a href={arg.downloadUrl}>here </a>
               <br />
-              Or checkout the release <a href={arg.releaseURL}> notes</a> `for
-              what's` changed
+              {`Or checkout the release <a href={arg.releaseURL}> notes</a> for
+              what's changed`}
             </p>
           </div>,
           { autoClose: false }
@@ -70,9 +70,6 @@ const App = (): ReactElement => {
     );
   }, []);
 
-  const [createItem] = useMutation(CREATE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
-  });
   const { loading, error, data } = useQuery(GET_APP_DATA);
   if (loading) return <></>;
   if (error) {
@@ -98,10 +95,11 @@ const App = (): ReactElement => {
   if (data?.reminders) {
     setInterval(() => {
       data.reminders
-        .filter((r: Reminder) => r.deleted != true)
-        .map((r: Reminder) => {
+        .filter((r: Reminder) => r.deleted !== true)
+        .forEach((r: Reminder) => {
           if (r.deleted) return;
           if (isSameMinute(parseISO(r.remindAt), new Date())) {
+            // eslint-disable-next-line no-new
             new Notification('Reminder', {
               body: r?.text ?? 'Reminder for task',
             });

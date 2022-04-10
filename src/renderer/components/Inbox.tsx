@@ -14,7 +14,6 @@ const Inbox = (): ReactElement => {
           componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4496"
           name="Inbox"
           icon="inbox"
-          readOnly
         />
         <ItemCreator
           buttonText="Add Item"

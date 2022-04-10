@@ -1,6 +1,4 @@
 import { marked } from 'marked';
-import shortcutsText from '../assets/shortcuts.md';
-import { shortcutDialogVisibleVar } from '..';
 import {
   Modal,
   ModalOverlay,
@@ -10,6 +8,8 @@ import {
   ModalHeader,
 } from '@chakra-ui/react';
 import { useReactiveVar } from '@apollo/client';
+import shortcutsText from '../assets/shortcuts.md';
+import { shortcutDialogVisibleVar } from '../cache';
 
 const ShortcutDialog = () => {
   const shortcutDialogVisible = useReactiveVar(shortcutDialogVisibleVar);

@@ -1,7 +1,6 @@
 import { useMutation, useReactiveVar } from '@apollo/client';
 import { Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
 import CommandPalette from 'react-command-palette';
-import { activeItemVar } from 'renderer';
 import { Icons } from 'renderer/assets/icons';
 import {
   COMPLETE_ITEM,
@@ -9,6 +8,7 @@ import {
   RESTORE_ITEM,
   UNCOMPLETE_ITEM,
 } from 'renderer/queries';
+import { activeItemVar } from '../cache';
 
 const CommandBar = () => {
   const activeItem = useReactiveVar(activeItemVar);
@@ -50,7 +50,7 @@ const CommandBar = () => {
       shortcut: 'd',
       name: 'Delete item',
       command: () => {
-        activeItem.map((i) => {
+        activeItem.forEach((i) => {
           deleteItem({ variables: { key: i } });
         });
       },
@@ -61,7 +61,7 @@ const CommandBar = () => {
       shortcut: 'u',
       name: 'Uncomplete item',
       command: () => {
-        activeItem.map((i) => {
+        activeItem.forEach((i) => {
           unCompleteItem({ variables: { key: i } });
         });
       },
@@ -72,7 +72,7 @@ const CommandBar = () => {
       shortcut: 'r',
       name: 'Restore item',
       command: () => {
-        activeItem.map((i) => {
+        activeItem.forEach((i) => {
           restoreItem({ variables: { key: i } });
         });
       },

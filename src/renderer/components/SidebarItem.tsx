@@ -12,60 +12,48 @@ type SidebarItemProps = {
   sidebarVisible: boolean;
   path: string;
   text: string;
-  activeColour: string;
   iconName?: IconType;
   emoji?: string;
 };
 
-export const SidebarItem = ({
+const SidebarItem = ({
   variant,
   sidebarVisible,
   path,
   text,
-  activeColour,
   iconName,
   emoji,
 }: SidebarItemProps): React.ReactElement => {
-  const StyledLink = chakra(NavLink);
   const linkStyles = {
     color: 'gray.100',
     w: '100%',
-    borderRadius: 4,
-    py: 1.25,
     m: 0,
-    my: 0.25,
-    px: sidebarVisible ? 1 : 0,
-    _focus: {
-      outlineColor: 'blue.500',
-      border: 'none',
-      bg: 'gray.900',
-    },
-    _hover: {
-      bg: 'gray.900',
-    },
-    _active: {
-      bg: 'gray.900',
-    },
+    p: 0,
   };
-
+  const StyledLink = chakra(NavLink, { baseStyle: linkStyles });
+  const isActive = window.location.pathname.includes(path);
   if (sidebarVisible) {
     return (
       <Tooltip label={text}>
-        <StyledLink
-          activeStyle={{
-            backgroundColour: activeColour,
-          }}
-          {...linkStyles}
-          to={path}
-        >
+        <StyledLink to={path}>
           <Flex
             key={uuidv4()}
-            focusBorderColor="blue.500"
-            m={0}
-            px={2}
-            py={0}
+            my={0.25}
+            mx={1}
+            px={sidebarVisible ? 2 : 0}
+            py={1.5}
+            borderRadius={4}
             justifyContent="flex-start"
             alignItems="center"
+            bg={isActive ? 'gray.900' : 'inherit'}
+            _hover={{
+              bg: 'gray.900',
+            }}
+            _focus={{
+              outlineColor: 'blue.500',
+              border: 'none',
+              bg: 'gray.900',
+            }}
           >
             {variant === 'defaultView' && iconName && (
               <Icon as={Icons[iconName]} />
@@ -91,14 +79,26 @@ export const SidebarItem = ({
 
   return (
     <Tooltip label={text}>
-      <StyledLink
-        activeStyle={{
-          backgroundColour: activeColour,
-        }}
-        {...linkStyles}
-        to={path}
-      >
-        <Flex justifyContent="center">
+      <StyledLink to={path}>
+        <Flex
+          key={uuidv4()}
+          my={0.5}
+          mx={1}
+          px={sidebarVisible ? 2 : 0}
+          py={1.5}
+          borderRadius={4}
+          alignItems="center"
+          bg={isActive ? 'gray.900' : 'gray.800'}
+          _hover={{
+            bg: 'gray.900',
+          }}
+          _focus={{
+            outlineColor: 'blue.500',
+            border: 'none',
+            bg: 'gray.900',
+          }}
+          justifyContent="center"
+        >
           {variant === 'defaultView' && iconName && (
             <Icon as={Icons[iconName]} />
           )}

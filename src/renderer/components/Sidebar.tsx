@@ -7,7 +7,6 @@ import {
   IconButton,
   Stack,
   useColorMode,
-  useTheme,
   VStack,
   Tooltip,
   Icon,
@@ -33,7 +32,7 @@ import {
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { Icons } from '../assets/icons';
-import { sidebarVisibleVar } from '../index';
+import { sidebarVisibleVar } from '../cache';
 import { IconType } from '../interfaces';
 import { getProductName } from '../utils';
 import SidebarDraggableItem from './SidebarDraggableItem';
@@ -43,7 +42,6 @@ import SidebarSection from './SidebarSection';
 
 const Sidebar = (): ReactElement => {
   const navigate = useNavigate();
-  const theme = useTheme();
   const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery<SidebarData>(GET_SIDEBAR);
   const [setProjectOrder] = useMutation(SET_PROJECT_ORDER);
@@ -170,7 +168,8 @@ const Sidebar = (): ReactElement => {
       w={sidebarVisible ? '250px' : '50px'}
       minW={sidebarVisible ? '250px' : '50px'}
       height="100%"
-      p={2}
+      py={2}
+      px={sidebarVisible ? 2 : 0.5}
       bg="gray.800"
       shadow="lg"
       data-cy="sidebar-container"
@@ -195,14 +194,13 @@ const Sidebar = (): ReactElement => {
                 sidebarVisible={sidebarVisible}
                 iconName={d.iconName}
                 text={d.text}
-                activeColour={theme.colors.gray[900]}
                 path={d.path}
                 variant="defaultView"
               />
             );
           })}
           {sortedViews.map((view) => {
-            if (view.type === 'project' || view.type === 'area') return null;
+            if (view.type === 'project' || view.type === 'area') return <></>;
             return (
               <SidebarItem
                 variant="defaultView"
@@ -211,7 +209,6 @@ const Sidebar = (): ReactElement => {
                 iconName={view.icon as IconType}
                 text={view.name}
                 path={`/views/${view.key}`}
-                activeColour={theme.colors.gray[900]}
               />
             );
           })}
@@ -222,9 +219,10 @@ const Sidebar = (): ReactElement => {
           sidebarVisible={sidebarVisible}
         />
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId={uuidv4()} type="AREA">
+          <Droppable key={uuidv4()} droppableId={uuidv4()} type="AREA">
             {(provided, snapshot) => (
               <SidebarDroppableItem
+                key={uuidv4()}
                 sidebarVisible={sidebarVisible}
                 provided={provided}
                 snapshot={snapshot}
@@ -236,71 +234,63 @@ const Sidebar = (): ReactElement => {
                       draggableId={a.key}
                       index={index}
                     >
-                      {(provided, snapshot) => (
+                      {(draggableProvided, draggableSnapshot) => (
                         <SidebarDraggableItem
                           key={`draggable-${a.key}`}
-                          sidebarVisible={sidebarVisible}
-                          snapshot={snapshot}
-                          provided={provided}
+                          provided={draggableProvided}
+                          snapshot={draggableSnapshot}
                         >
-                          {!sidebarVisible && <Divider />}
-                          <Flex
-                            direction="row"
-                            justifyContent="space-between"
-                            py={1}
-                            px={0}
-                            alignItems="center"
-                          >
-                            <SidebarItem
-                              variant="customView"
-                              sidebarVisible={sidebarVisible}
-                              text={a.name ?? ''}
-                              emoji={a.emoji ?? ''}
-                              path={`/areas/${a.key}`}
-                              activeColour={theme.colors.gray[900]}
-                            />
-                          </Flex>
+                          {!sidebarVisible && <Divider my={1} />}
+
+                          <SidebarItem
+                            variant="customView"
+                            sidebarVisible={sidebarVisible}
+                            text={a.name ?? ''}
+                            emoji={a.emoji ?? ''}
+                            path={`/areas/${a.key}`}
+                          />
 
                           <Droppable
                             key={a.key}
                             droppableId={a.key}
                             type="PROJECT"
                           >
-                            {(provided, snapshot) => (
+                            {(droppableProvided, droppableSnapshot) => (
                               <SidebarDroppableItem
+                                key={`${a.key}-droppable`}
                                 sidebarVisible={sidebarVisible}
-                                snapshot={snapshot}
-                                provided={provided}
+                                provided={droppableProvided}
+                                snapshot={droppableSnapshot}
                               >
-                                <Box px={1}>
-                                  {sortedProjects.map((p, index) => {
+                                <Box
+                                  key={`${a.key}-box`}
+                                  px={sidebarVisible ? 1 : 0}
+                                >
+                                  {sortedProjects.map((p, idx) => {
                                     // Don't render the inbox here
-                                    if (p.key === '0') return;
+                                    if (p.key === '0') return <></>;
                                     const pathName = `/views/${p.key}`;
                                     // Don't render projects not part of this area
-                                    if (p.area.key !== a.key) return;
+                                    if (p?.area?.key !== a.key) return <></>;
                                     return (
                                       <Draggable
-                                        key={p.key}
+                                        key={`draggable-${p.key}`}
                                         draggableId={p.key}
-                                        index={index}
+                                        index={idx}
                                       >
-                                        {(provided, snapshot) => (
+                                        {(providedProject, snapshotProject) => (
                                           <SidebarDraggableItem
-                                            key={`draggable-${p.key}`}
-                                            sidebarVisible={sidebarVisible}
-                                            snapshot={snapshot}
-                                            provided={provided}
+                                            key={`draggableitem-${p.key}`}
+                                            provided={providedProject}
+                                            snapshot={snapshotProject}
                                           >
                                             <SidebarItem
+                                              key={`draggablesidebaritem-${p.key}`}
                                               variant="customView"
                                               sidebarVisible={sidebarVisible}
                                               text={p.name}
-                                              emoji={p.emoji}
+                                              emoji={p.emoji ?? undefined}
                                               path={pathName}
-                                              activeColour={
-                                                theme.colors.gray[900]
-                                              }
                                             />
                                           </SidebarDraggableItem>
                                         )}
@@ -390,7 +380,7 @@ const Sidebar = (): ReactElement => {
         my={2}
         direction={sidebarVisible ? 'row' : 'column'}
       >
-        {!sidebarVisible && <Divider />}
+        {!sidebarVisible && <Divider py={1} />}
         <Flex key={uuidv4()} alignItems="center">
           <SidebarItem
             variant="defaultView"
@@ -399,7 +389,6 @@ const Sidebar = (): ReactElement => {
             iconName="settings"
             text="Settings"
             path="/settings"
-            activeColour={theme.colors.gray[900]}
           />
         </Flex>
         <Flex

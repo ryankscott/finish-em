@@ -186,6 +186,7 @@ const ReorderableComponentList = ({
                             shadow: 'base',
                           }}
                           ref={provided.innerRef}
+                          // eslint-disable-next-line react/jsx-props-no-spreading
                           {...provided.draggableProps}
                           key={`container-${comp.key}`}
                         >
@@ -208,6 +209,7 @@ const ReorderableComponentList = ({
                               opacity: 1,
                               bg: transparentize(0.6, theme.colors.gray[100]),
                             }}
+                            // eslint-disable-next-line react/jsx-props-no-spreading
                             {...provided.dragHandleProps}
                           >
                             <Icon as={Icons.drag} />
@@ -251,7 +253,6 @@ const ReorderableComponentList = ({
           <MenuList>
             <MenuItem
               onClick={() => {
-                // TODO: Update this to use the new filter syntax
                 addComponent({
                   variables: {
                     input: {
@@ -261,30 +262,38 @@ const ReorderableComponentList = ({
                       location: 'main',
                       parameters: {
                         filter: JSON.stringify({
-                          text:
-                            data.view.type === 'project'
-                              ? `project = "${data.view.name}"`
-                              : 'createdAt is today ',
-                          value:
-                            data.view.type === 'project'
-                              ? [
-                                  {
-                                    category: 'projectKey',
-                                    operator: '=',
-                                    value: data.view.key,
-                                  },
-                                ]
-                              : [
-                                  {
-                                    category: 'createdAt',
-                                    operator: 'is',
-                                    value: 'today',
-                                  },
-                                ],
+                          combinator: 'and',
+                          rules: [
+                            {
+                              combinator: 'and',
+                              rules: [
+                                {
+                                  field: 'projectKey',
+                                  operator: '=',
+                                  valueSource: 'value',
+                                  value: data.view.key,
+                                },
+                                {
+                                  field: 'deleted',
+                                  operator: '=',
+                                  valueSource: 'value',
+                                  value: false,
+                                },
+                                {
+                                  field: 'areaKey',
+                                  operator: 'null',
+                                  valueSource: 'value',
+                                  value: '0',
+                                },
+                              ],
+                              not: false,
+                            },
+                          ],
+                          not: false,
                         }),
                         hiddenIcons: [],
                         isFilterable: true,
-                        listName: 'New list',
+                        listName: 'Created today',
                         flattenSubtasks: true,
                         showCompletedToggle: true,
                         initiallyExpanded: true,

@@ -88,7 +88,9 @@ const EditViewHeader = ({
   onClose,
 }: ViewHeaderProps): ReactElement => {
   const { colorMode } = useColorMode();
-  const [updateComponent] = useMutation(UPDATE_COMPONENT);
+  const [updateComponent] = useMutation(UPDATE_COMPONENT, {
+    refetchQueries: ['ComponentsByView'],
+  });
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: componentKey },
   });
@@ -107,6 +109,7 @@ const EditViewHeader = ({
     console.log(error);
     return <></>;
   }
+  console.log(params);
 
   const options = generateIconOptions();
 
