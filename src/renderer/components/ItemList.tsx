@@ -31,7 +31,6 @@ type ItemListProps = {
     sortOrder: { sortOrder: number };
   }[];
   hiddenIcons: ItemIcons[];
-  grouping?: 'project' | 'label';
   flattenSubtasks?: boolean;
   compact?: boolean;
 };
@@ -42,7 +41,6 @@ function ItemList({
   flattenSubtasks,
   compact,
   hiddenIcons,
-  grouping,
 }: ItemListProps): ReactElement {
   const [completeItem] = useMutation(COMPLETE_ITEM);
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM);

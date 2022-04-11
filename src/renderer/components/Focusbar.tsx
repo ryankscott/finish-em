@@ -38,7 +38,7 @@ import { formatRelativeDate } from '../utils';
 import AreaSelect from './AreaSelect';
 import ItemSelect from './ItemSelect';
 import DatePicker from './DatePicker';
-import EditableText2 from './EditableText2';
+import EditableText from './EditableText';
 import Item from './Item';
 import ItemCreator from './ItemCreator';
 import LabelSelect from './LabelSelect';
@@ -222,7 +222,7 @@ const Focusbar = (): ReactElement => {
           textDecoration={item?.completed ? 'line-through' : 'inherit'}
           px={1}
         >
-          <EditableText2
+          <EditableText
             readOnly={item.deleted ?? false}
             key={item?.key}
             height="45px"

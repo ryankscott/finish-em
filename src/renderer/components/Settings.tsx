@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { gql, useMutation, useQuery } from '@apollo/client';
 import React, { ReactElement, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,6 +17,7 @@ import {
   Button,
   Icon,
   IconButton,
+  ColorMode,
 } from '@chakra-ui/react';
 import {
   CREATE_LABEL,
@@ -41,6 +43,23 @@ type SidebarHeadeProps = {
   isActive: boolean;
   onClick: () => void;
 };
+
+const determineBackgroundColour = (
+  isActive: boolean,
+  colorMode: ColorMode
+): string => {
+  if (isActive) {
+    if (colorMode === 'light') {
+      return 'gray.200';
+    }
+    return 'gray.900';
+  }
+  if (colorMode === 'light') {
+    return 'gray.50';
+  }
+  return 'gray.800';
+};
+
 const SidebarHeader = ({
   name,
   colorMode,
@@ -54,15 +73,7 @@ const SidebarHeader = ({
     px={6}
     m={0}
     cursor="pointer"
-    bg={
-      isActive
-        ? colorMode === 'light'
-          ? 'gray.200'
-          : 'gray.900'
-        : colorMode === 'light'
-        ? 'gray.50'
-        : 'gray.800'
-    }
+    bg={determineBackgroundColour(isActive, colorMode)}
     onClick={() => {
       onClick();
     }}

@@ -5,7 +5,7 @@ import { Box, Button, Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
 import { CREATE_ITEM } from 'renderer/queries';
 import { Icons } from 'renderer/assets/icons';
 import EditItemCreator from './EditItemCreator';
-import EditableText2 from './EditableText2';
+import EditableText from './EditableText';
 
 export type ItemCreatorProps = {
   initiallyExpanded: boolean;
@@ -151,7 +151,7 @@ const ItemCreator = ({
             transition="width 0.2s ease-in-out 0.1s,opacity 0.2s,0.2s"
             data-cy="item-creator"
           >
-            <EditableText2
+            <EditableText
               singleLine
               onEscape={onEscape}
               placeholder="Add an item"

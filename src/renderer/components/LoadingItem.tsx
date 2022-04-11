@@ -1,9 +1,7 @@
-import React from 'react';
-
 import { SkeletonCircle, Skeleton, Box, useColorMode } from '@chakra-ui/react';
 
-export const LoadingItem = () => {
-  const { colorMode, toggleColorMode } = useColorMode();
+const LoadingItem = () => {
+  const { colorMode } = useColorMode();
   return (
     <Box
       my={1}
@@ -31,7 +29,7 @@ export const LoadingItem = () => {
         left="0px"
         position="absolute"
         top="0px"
-        size={'6'}
+        size="6"
       />
       <Skeleton
         startColor={colorMode === 'light' ? 'gray.50' : 'gray.800'}
@@ -80,3 +78,4 @@ export const LoadingItem = () => {
     </Box>
   );
 };
+export default LoadingItem;

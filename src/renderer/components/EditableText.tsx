@@ -1,304 +1,190 @@
-import { gql, useQuery } from '@apollo/client';
+import { ReactElement, useRef, useState } from 'react';
+import ReactQuill, { Quill } from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import CSS from 'csstype';
-import { marked } from 'marked';
-import React, { ReactElement, useEffect, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { fontSizeType, ThemeType } from '../interfaces';
-import { ThemeProvider } from '../StyledComponents';
-import themes from '../theme';
-import { itemRegex, setEndOfContenteditable } from '../utils';
-import { Container, Placeholder } from './styled/EditableText';
-import { Code, Header, Paragraph, Title } from './Typography';
+import { Box } from '@chakra-ui/layout';
+import { useColorModeValue } from '@chakra-ui/color-mode';
 
-const GET_THEME = gql`
-  query {
-    theme @client
+Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
+
+const Link = Quill.import('formats/link');
+Link.sanitize = function (url) {
+  // Protocols which we don't append http to
+  const protocolIgnoreList = ['mailto', 'message', 'http', 'https'];
+  let protocol = url.slice(0, url.indexOf(':'));
+
+  // Add http to the start of the link (to open in browser)
+  if (!protocolIgnoreList.includes(protocol)) {
+    url = `http://${url}`;
   }
-`;
-export type EditableTextProps = {
-  input: string;
-  innerRef: React.RefObject<HTMLInputElement>;
-  onUpdate: (input: string) => void;
+  // Reconsruct the link
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  protocol = anchor.href.slice(0, anchor.href.indexOf(':'));
+  return url;
+};
+Quill.register(Link, true);
+
+type EditableText2Props = {
+  singleLine: boolean;
   shouldSubmitOnBlur: boolean;
   shouldClearOnSubmit: boolean;
-  backgroundColour?: CSS.Property.BackgroundColor;
-  fontSize?: fontSizeType;
-  readOnly?: boolean;
-  width?: string;
-  height?: string;
-  padding?: CSS.Property.Padding;
+  onUpdate: (input: string) => void;
+  showBorder?: boolean;
+  hideToolbar?: boolean;
   placeholder?: string;
-  singleline?: boolean;
-  plainText?: boolean;
-  alwaysShowBorder?: boolean;
-  keywords?: {
-    matcher: string | RegExp;
-    validation: (input: string) => boolean;
-  }[];
-  style?: typeof Title | typeof Paragraph | typeof Header | typeof Code;
-  validation?: (input: string) => boolean;
-  onKeyDown?: (input: string) => void;
-  onKeyPress?: (input: string) => void;
-  onEditingChange?: (isEditing: boolean) => void;
+  height?: CSS.Property.Height;
+  width?: CSS.Property.Width;
+  input?: string;
+  readOnly?: boolean;
   onEscape?: () => void;
-  onInvalidSubmit?: () => void;
 };
 
-function InternalEditableText(props: EditableTextProps): ReactElement {
-  const [editable, setEditable] = useState(false);
-  const [input, setInput] = useState(props.input);
-  const [valid, setValid] = useState(false);
-  const id = uuidv4();
-
-  const handlePaste = (e): void => {
-    e.preventDefault();
-    document.execCommand(
-      'inserttext',
-      false,
-      e.clipboardData.getData('text/plain')
-    );
+const generateModules = (hideToolbar: boolean, singleLine: boolean) => {
+  const defaultItems = {
+    clipboard: { matchVisual: false },
+    markdownShortcuts: {},
   };
-
-  useEffect(() => {
-    setInput(props.input);
-  }, [props.input]);
-
-  useEffect(() => {
-    if (editable) {
-      setEndOfContenteditable(props.innerRef.current);
-    }
-  }, [editable, props.innerRef]);
-
-  const { loading, error, data } = useQuery(GET_THEME);
-  if (loading) return <></>;
-  if (error) {
-    console.log(error);
-    return <></>;
+  if (hideToolbar) {
+    return {
+      toolbar: false,
+      ...defaultItems,
+    };
   }
-  const theme: ThemeType = themes[data.theme];
+  if (singleLine) {
+    return {
+      toolbar: [['bold', 'italic', 'underline', 'strike'], ['link']],
+      ...defaultItems,
+    };
+  }
 
-  const clearInput = (): void => {
-    props.innerRef.current.innerText = '';
-    props.innerRef.current.innerHTML = '';
-    setInput('');
+  return {
+    toolbar: [
+      [{ header: '1' }, { header: '2' }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [
+        { list: 'ordered' },
+        { list: 'bullet' },
+        { indent: '-1' },
+        { indent: '+1' },
+      ],
+      ['link'],
+      ['code'],
+      ['blockquote'],
+      ['clean'],
+    ],
+    ...defaultItems,
   };
+};
 
-  const handleClick = (e): void => {
-    // Handle links normally
-    if (e.target.nodeName === 'A') {
-      return;
-    }
-    if (props.readOnly) {
-      e.preventDefault();
-      return;
-    }
-    // Ignore clicks if it's already editable
-    if (editable) return;
-    setEditable(true);
-    if (props.onEditingChange) {
-      props.onEditingChange(true);
-    }
-  };
+const formats = [
+  'font',
+  'header',
+  'bold',
+  'italic',
+  'underline',
+  'strike',
+  'link',
+  'list',
+  'indent',
+  'clean',
+  'size',
+  'code',
+  'blockquote',
+];
 
-  const handleBlur = (): void => {
-    // Ignore events if it's read only
-    if (props.readOnly) return;
-    // Ignore events if we're not editing
-    if (!editable) return;
-    setEditable(false);
+const EditableText = ({
+  shouldSubmitOnBlur,
+  shouldClearOnSubmit,
+  onUpdate,
+  singleLine,
+  readOnly,
+  onEscape,
+  height,
+  input,
+  width,
+  showBorder,
+  hideToolbar,
+  placeholder,
+}: EditableText2Props): ReactElement => {
+  const [editorHtml, setEditorHtml] = useState(input || '');
+  const [isEditing, setIsEditing] = useState(false);
+  const quillRef = useRef<ReactQuill>();
 
-    if (props.onEditingChange) {
-      props.onEditingChange(false);
-    }
-    if (props.shouldSubmitOnBlur) {
-      if (props.validation && !valid) {
-        return;
+  const handleChange = (
+    content: string,
+    delta: Delta,
+    source: Sources,
+    editor: ReactQuill.UnprivilegedEditor
+  ) => {
+    const lastOp = delta.ops[delta.ops.length - 1];
+    const lastChar = lastOp?.insert?.charCodeAt(0);
+
+    // If you hit enter and it's set as a single line then clear the input
+    if (lastChar === 10 && singleLine) {
+      if (shouldClearOnSubmit) {
+        setEditorHtml('');
       }
-      props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'));
-
-      if (props.shouldClearOnSubmit) {
-        clearInput();
-      }
+      quillRef.current?.blur();
+      // TODO: Need to blur on submit
+      onUpdate(editorHtml);
+    } else {
+      setEditorHtml(content);
     }
   };
 
-  const handleKeyUp = (e): void => {
+  const handleBlur = () => {
+    if (shouldSubmitOnBlur) {
+      onUpdate(editorHtml);
+    }
+    setIsEditing(false);
+  };
+
+  const handleFocus = () => {
+    if (readOnly) return;
+    setIsEditing(true);
+  };
+
+  const handleKeyUp = (e) => {
     if (e.key === 'Escape') {
-      if (props.onEditingChange) {
-        props.onEditingChange(false);
-      }
-      setEditable(false);
-      props.onEscape ? props.onEscape() : null;
-    }
-  };
-
-  const handleKeyPress = (e): void => {
-    const currentText = props.innerRef.current.innerText;
-
-    // Validation
-    if (props.validation) {
-      setValid(props.validation(currentText));
-    }
-
-    // Keywords
-    if (props.keywords) {
-      const words = currentText.split(/\s+/);
-      // TODO: Refactor to only look at the last word
-      props.keywords.map((keyword) => {
-        words.map((word, index) => {
-          // Because we're only testing for the itemRegex on the first word ignore if it's a later word
-          if (index > 0 && keyword.matcher === itemRegex) return;
-          const matches = word.match(keyword.matcher);
-          if (!matches) return;
-          const valid = matches.some(keyword.validation);
-          if (valid) {
-            words[index] = word.replace(
-              keyword.matcher,
-              '<span class="valid">$&</span>'
-            );
-          } else {
-            words[index] = word.replace(
-              keyword.matcher,
-              '<span class="invalid">$&</span>'
-            );
-          }
-        });
-      });
-      props.innerRef.current.innerHTML = words.join('&nbsp');
-      // TODO: Find a way to detect changes and only change the cursor then
-      setEndOfContenteditable(props.innerRef.current);
-    }
-
-    if (props.onKeyPress) {
-      props.onKeyPress(currentText);
-    }
-
-    if (props.onKeyDown) {
-      props.onKeyDown(currentText);
-    }
-
-    if (e.key === 'Enter') {
-      // If it's not valid then don't submit
-      if (props.validation && !valid) {
-        // This stops an actual enter being sent
-        if (props.onInvalidSubmit) {
-          props.onInvalidSubmit();
-        }
-        e.preventDefault();
-        return;
-      }
-
-      props.onUpdate(props.innerRef.current.innerText.replace(/\r/gi, '<br/>'));
-
-      // If we're clearing on submission we should clear the input and continue allowing editing
-      if (props.shouldClearOnSubmit) {
-        clearInput();
-      }
-      // This stops an actual enter being sent
-      e.preventDefault();
-      setEditable(false);
-      props.innerRef.current.blur();
-    }
-  };
-
-  const handleFocus = (e): void => {
-    // Ignore clicks if it's already editable
-    if (editable) return;
-    if (e.target.nodeName === 'A') {
-      return;
-    }
-    // NOTE: Weirdly Chrome sometimes fires a focus event before a click
-    if (props.readOnly) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
-    if (!editable) {
-      setEditable(true);
-      if (props.onEditingChange) {
-        props.onEditingChange(true);
+      if (onEscape) {
+        onEscape();
       }
     }
-
-    setEndOfContenteditable(props.innerRef.current);
-  };
-
-  // NOTE: We have to replace newlines with HTML breaks
-  const getRawText = (): {} => {
-    return {
-      __html: input.replace(/\n/gi, '<br/>'),
-    };
-  };
-
-  const getMarkdownText = (): {} => {
-    return {
-      __html: marked(input, {
-        breaks: true,
-      }),
-    };
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          width: '100%',
-        }}
-      >
-        <Container
-          singleline={props.singleline}
-          id={id}
-          fontSize={props.fontSize}
-          backgroundColour={props.backgroundColour}
-          padding={props.padding}
-          valid={props.validation ? valid : true}
-          as={props.style ? props.style : Paragraph}
-          readOnly={props.readOnly}
-          ref={props.innerRef}
-          width={props.width}
-          height={props.height}
-          editing={editable}
-          contentEditable={editable}
-          onClick={handleClick}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          onPaste={handlePaste}
-          tabIndex={-1}
-          onKeyPress={handleKeyPress}
-          onKeyUp={handleKeyUp}
-          alwaysShowBorder={props.alwaysShowBorder}
-          dangerouslySetInnerHTML={
-            props.plainText
-              ? {
-                  __html: props.input,
-                }
-              : editable
-              ? getRawText()
-              : getMarkdownText()
-          }
-        />
-        {input.length === 0 &&
-          !(
-            props.innerRef?.current?.innerText != undefined &&
-            props.innerRef?.current?.innerText != ''
-          ) &&
-          !editable && (
-            <Placeholder onClick={handleClick}>{props.placeholder}</Placeholder>
-          )}
-      </div>
-    </ThemeProvider>
+    <Box
+      position="relative"
+      height="auto"
+      minH={height || 'auto'}
+      mb="30px"
+      width={width || '100%'}
+      maxW="100%"
+      overflow="visible"
+      textOverflow="ellipsis"
+      whiteSpace="nowrap"
+      border={showBorder ? '1px solid' : 'none'}
+      borderColor={useColorModeValue('gray.200', 'gray.600')}
+      borderRadius={5}
+    >
+      <ReactQuill
+        ref={quillRef}
+        className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}
+        theme="snow"
+        onChange={handleChange}
+        value={editorHtml}
+        modules={generateModules(hideToolbar ?? false, singleLine)}
+        formats={formats}
+        onKeyUp={handleKeyUp}
+        readOnly={readOnly}
+        placeholder={placeholder}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
+    </Box>
   );
-}
-
-const EditableText = React.forwardRef(
-  (props: EditableTextProps, ref: React.RefObject<HTMLInputElement>) => (
-    <InternalEditableText innerRef={ref} {...props} />
-  )
-);
-
-EditableText.displayName = 'EditableText';
+};
 
 export default EditableText;

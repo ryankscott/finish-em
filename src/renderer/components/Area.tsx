@@ -29,7 +29,7 @@ import { Project } from '../../main/generated/typescript-helpers';
 import { formatRelativeDate } from '../utils';
 import DeleteAreaDialog from './DeleteAreaDialog';
 import { Donut } from './Donut';
-import EditableText2 from './EditableText2';
+import EditableText from './EditableText';
 import FilteredItemList from './FilteredItemList';
 import Page from './Page';
 
@@ -163,7 +163,7 @@ const Area = (props: AreaProps): ReactElement => {
           />
         )}
       </Grid>
-      <EditableText2
+      <EditableText
         singleLine={false}
         placeholder="Add a description for your ..."
         shouldClearOnSubmit={false}

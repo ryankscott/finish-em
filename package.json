@@ -218,6 +218,7 @@
     "@graphql-tools/merge": "^8.2.3",
     "@graphql-tools/schema": "^8.3.2",
     "@react-querybuilder/chakra": "^4.2.2",
+    "@types/sqlite3": "^3.1.8",
     "applescript": "^1.0.0",
     "chrono-node": "^2.3.7",
     "codemirror": "^5.65.2",

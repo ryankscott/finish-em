@@ -27,7 +27,7 @@ import { GET_WEEKLY_ITEMS, SET_WEEKLY_GOAL } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { WeeklyGoal } from '../../main/generated/typescript-helpers';
 import { ItemIcons } from '../interfaces';
-import EditableText2 from './EditableText2';
+import EditableText from './EditableText';
 import ItemList from './ItemList';
 import ReorderableComponentList from './ReorderableComponentList';
 
@@ -163,7 +163,7 @@ const WeeklyAgenda = (): ReactElement => {
         <Text fontSize="lg" mb={3}>
           Weekly goals
         </Text>
-        <EditableText2
+        <EditableText
           key={weeklyGoal.key}
           singleLine={false}
           input={weeklyGoal.goal ?? ''}

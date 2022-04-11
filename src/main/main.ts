@@ -333,7 +333,7 @@ const getActiveCalendar = async (
         }
       `,
     });
-    return await result.data;
+    return result.data;
   } catch (e) {
     console.log(`Failed to get active calendar - ${e}`);
     return null;

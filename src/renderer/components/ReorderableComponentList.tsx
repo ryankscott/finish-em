@@ -29,7 +29,7 @@ import { Icons } from '../assets/icons';
 import ComponentActions from './ComponentActions';
 import FilteredItemList from './FilteredItemList';
 import ItemCreator from './ItemCreator';
-import { Spinner } from './Spinner';
+import Spinner from './Spinner';
 import ViewHeader from './ViewHeader';
 import { Component } from '../../main/generated/typescript-helpers';
 

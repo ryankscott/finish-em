@@ -37,7 +37,7 @@ import {
 import { formatRelativeDate } from '../utils';
 import DeleteProjectDialog from './DeleteProjectDialog';
 import { Donut } from './Donut';
-import EditableText2 from './EditableText2';
+import EditableText from './EditableText';
 import ItemCreator from './ItemCreator';
 import './styled/ReactDatePicker.css';
 
@@ -228,7 +228,7 @@ const Project = ({ projectKey }: ProjectProps) => {
           </Box>
         </Flex>
       )}
-      <EditableText2
+      <EditableText
         key={`desc-${project.key}`}
         input={project.description ?? ''}
         singleLine={false}

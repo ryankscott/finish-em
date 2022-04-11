@@ -48,7 +48,6 @@ export type FilteredItemListProps = {
   isFilterable?: boolean;
   hiddenIcons?: ItemIcons[];
   listName?: string;
-  legacyFilter?: string;
   flattenSubtasks?: boolean;
   showCompletedToggle?: boolean;
   hideDeletedSubtasks?: boolean;
