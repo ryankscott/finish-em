@@ -90,7 +90,10 @@ const valueProcessor = (field: string, operator: string, value) => {
       return `DATE(date('now', '+1 day')) AND DATE(date('now', '+1 day'))`;
     }
     if (value === 'week') {
-      return `(strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0'))`;
+      return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
+    }
+    if (value === 'month') {
+      return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-1 month') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
     }
   }
   return defaultValueProcessor(field, operator, value);

@@ -50,7 +50,7 @@ const CustomValueEditor = ({
     : inputType || 'text';
 
   if (fieldData.datatype === 'date') {
-    if (operator === 'between') {
+    if (operator === 'between' || operator === 'notBetween') {
       return (
         <Select
           p={1}
@@ -75,6 +75,9 @@ const CustomValueEditor = ({
           </option>
           <option key="week" value="week">
             this week
+          </option>
+          <option key="month" value="month">
+            this month
           </option>
         </Select>
       );

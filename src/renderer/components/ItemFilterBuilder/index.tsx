@@ -49,7 +49,10 @@ export const valueProcessor = (
       return `DATE(date('now', '+1 day')) AND DATE(date('now', '+1 day'))`;
     }
     if (value === 'week') {
-      return `(strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0'))`;
+      return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
+    }
+    if (value === 'month') {
+      return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-1 month') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
     }
   }
   return defaultValueProcessor(field, operator, value);
@@ -84,6 +87,7 @@ const defaultFields: Field[] = [
     label: 'Due date',
     operators: [
       { name: 'between', label: 'is' },
+      { name: 'notBetween', label: '!is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
       { name: '=', label: '=' },
@@ -97,9 +101,10 @@ const defaultFields: Field[] = [
     label: 'Scheduled date',
     operators: [
       { name: 'between', label: 'is' },
+      { name: 'notBetween', label: '!is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
-      { name: '=', label: 'is' },
+      { name: '=', label: '=' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
     ],
@@ -110,9 +115,10 @@ const defaultFields: Field[] = [
     label: 'Completed date',
     operators: [
       { name: 'between', label: 'is' },
+      { name: 'notBetween', label: '!is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
-      { name: '=', label: 'is' },
+      { name: '=', label: '=' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
     ],
@@ -123,9 +129,10 @@ const defaultFields: Field[] = [
     label: 'Deleted date',
     operators: [
       { name: 'between', label: 'is' },
+      { name: 'notBetween', label: '!is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
-      { name: '=', label: 'is' },
+      { name: '=', label: '=' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
     ],
@@ -136,9 +143,10 @@ const defaultFields: Field[] = [
     label: 'Created date',
     operators: [
       { name: 'between', label: 'is' },
+      { name: 'notBetween', label: '!is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
-      { name: '=', label: 'is' },
+      { name: '=', label: '=' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
     ],
@@ -149,9 +157,10 @@ const defaultFields: Field[] = [
     label: 'Last updated date',
     operators: [
       { name: 'between', label: 'is' },
+      { name: 'notBetween', label: '!is' },
       { name: 'null', label: 'is null' },
       { name: 'notNull', label: 'is not null' },
-      { name: '=', label: 'is' },
+      { name: '=', label: '=' },
       { name: '>', label: 'after' },
       { name: '<', label: 'before' },
     ],
