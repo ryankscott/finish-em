@@ -113,7 +113,7 @@ const FilteredItemList = ({
       m={0}
       p={0}
       w="100%"
-      borderRadius={5}
+      borderRadius="md"
       border="1px solid"
       borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
     >
@@ -163,7 +163,9 @@ const FilteredItemList = ({
             mx={2}
             alignItems="baseline"
           >
-            <Text fontSize="lg">{listName}</Text>
+            <Text fontSize="lg" isTruncated>
+              {listName}
+            </Text>
             <Text fontSize="sm" py={0} px={2} minW="80px" color="gray.500">
               {determineItemListLengthString(itemsLength)}
             </Text>
@@ -288,6 +290,7 @@ const FilteredItemList = ({
             transition="0.2s ease-in-out"
             py={0}
             px={0}
+            borderRadius="md"
           >
             <ReorderableItemList
               expandSubtasks={expandSubtasks}

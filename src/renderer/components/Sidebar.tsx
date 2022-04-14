@@ -243,6 +243,7 @@ const Sidebar = (): ReactElement => {
                           {!sidebarVisible && <Divider my={1} />}
 
                           <SidebarItem
+                            type="area"
                             variant="customView"
                             sidebarVisible={sidebarVisible}
                             text={a.name ?? ''}
@@ -264,7 +265,7 @@ const Sidebar = (): ReactElement => {
                               >
                                 <Box
                                   key={`${a.key}-box`}
-                                  px={sidebarVisible ? 1 : 0}
+                                  px={sidebarVisible ? 2 : 0}
                                 >
                                   {sortedProjects.map((p, idx) => {
                                     // Don't render the inbox here
@@ -286,6 +287,7 @@ const Sidebar = (): ReactElement => {
                                           >
                                             <SidebarItem
                                               key={`draggablesidebaritem-${p.key}`}
+                                              type="project"
                                               variant="customView"
                                               sidebarVisible={sidebarVisible}
                                               text={p.name}

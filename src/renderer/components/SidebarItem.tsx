@@ -9,6 +9,7 @@ import { createShortSidebarItem } from '../utils';
 
 type SidebarItemProps = {
   variant: 'defaultView' | 'customView';
+  type: 'area' | 'project';
   sidebarVisible: boolean;
   path: string;
   text: string;
@@ -23,6 +24,7 @@ const SidebarItem = ({
   text,
   iconName,
   emoji,
+  type,
 }: SidebarItemProps): React.ReactElement => {
   const linkStyles = {
     color: 'gray.100',
@@ -67,7 +69,9 @@ const SidebarItem = ({
               pl={1}
               m={0}
               color="gray.100"
-              fontSize="md"
+              fontSize={type === 'area' ? 'sm' : 'md'}
+              fontWeight={type === 'area' ? 'semibold' : 'normal'}
+              textTransform={type === 'area' ? 'uppercase' : 'none'}
             >
               {text}
             </Text>

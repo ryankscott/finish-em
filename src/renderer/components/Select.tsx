@@ -5,6 +5,7 @@ import * as CSS from 'csstype';
 import { darken } from 'polished';
 import RSelect, {
   ActionMeta,
+  ClearIndicatorProps,
   components,
   ControlProps,
   IndicatorProps,
@@ -34,6 +35,14 @@ const DropdownIndicator = (props: IndicatorProps<any>) => {
     <components.DropdownIndicator {...props}>
       <Icon as={Icons.collapse} />
     </components.DropdownIndicator>
+  );
+};
+
+const ClearIndicator = (props: ClearIndicatorProps<any>) => {
+  return (
+    <components.ClearIndicator {...props}>
+      <Icon as={Icons.close} w={3.5} h={3.5} mx={0.5} />
+    </components.ClearIndicator>
   );
 };
 
@@ -124,8 +133,10 @@ const Select = (props: Props) => {
       }),
       valueContainer: (styles: CSSObject) => ({
         ...styles,
-        margin: theme.space[0.5],
-        padding: '0px',
+        paddingTop: theme.space[1],
+        paddingBottom: theme.space[1],
+        paddingLeft: theme.space[0.5],
+        paddingRight: theme.space[0.5],
         height: 'auto',
         minHeight: '28px',
         fontWeight: 400,
@@ -225,8 +236,7 @@ const Select = (props: Props) => {
         flexDirection: 'row',
         alignContent: 'center',
         margin: 0,
-        padding: '0px 12px',
-        height: '30px',
+        padding: '2px 12px',
         width: 'auto',
         opacity: isDisabled ? 0.4 : 1,
         fontSize,
@@ -270,6 +280,7 @@ const Select = (props: Props) => {
       }),
       multiValue: (styles: CSSObject) => ({
         ...styles,
+
         marginLeft: '0px',
         marginRight: '2px',
         borderRadius: '5px',
@@ -316,16 +327,9 @@ const Select = (props: Props) => {
       }),
       clearIndicator: (styles: CSSObject) => ({
         ...styles,
-        borderRadius: '5px',
-        padding: '2px',
         color: generateColour(invert ?? false),
         backgroundColor: 'inherit',
         cursor: 'pointer',
-        '> svg': {
-          height: '14px',
-          width: '14px',
-          strokeWidth: '0.25',
-        },
       }),
       group: (styles: CSSObject) => ({
         ...styles,
@@ -403,7 +407,7 @@ const Select = (props: Props) => {
           <span dangerouslySetInnerHTML={{ __html: data.label }} />
         );
       }}
-      components={{ DropdownIndicator }}
+      components={{ DropdownIndicator, ClearIndicator }}
     />
   );
 };

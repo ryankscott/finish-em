@@ -229,8 +229,6 @@ const Area = (props: AreaProps): ReactElement => {
             maxW="650px"
             my={1}
             mx={0}
-            templateColumns="35px minmax(180px, auto) auto"
-            templateRows="minmax(20px, auto) minmax(20px, auto)"
             padding={1}
             alignItems="center"
             cursor="pointer"
@@ -255,28 +253,35 @@ const Area = (props: AreaProps): ReactElement => {
             onClick={() => {
               navigate(`/views/${p.key}`);
             }}
+            templateColumns="35px repeat(4, auto)"
+            templateRows="auto"
+            gridTemplateAreas={`
+                  "progress project project startAt endAt"
+                 `}
           >
-            <GridItem colSpan={1} rowSpan={2} colStart={1} rowStart={1}>
-              <Donut size={24} progress={progress} />
+            <GridItem gridTemplate="progress">
+              <Donut size={18} progress={progress} />
             </GridItem>
-            <GridItem colSpan={1} colStart={2}>
-              <Text fontSize="lg">{p.name}</Text>
+            <GridItem gridTemplate="project">
+              <Flex direction="row">
+                <Text fontSize="md" fontWeight="medium" mr={2}>
+                  {p.name} -
+                </Text>
+                <Text
+                  fontSize="md"
+                  dangerouslySetInnerHTML={{
+                    __html: marked(p.description ?? '', { breaks: true }),
+                  }}
+                />
+              </Flex>
             </GridItem>
-            <GridItem colSpan={1} colStart={3}>
-              <Text
-                fontSize="md"
-                dangerouslySetInnerHTML={{
-                  __html: marked(p.description ?? '', { breaks: true }),
-                }}
-              />
-            </GridItem>
-            <GridItem rowStart={2} colStart={2} colSpan={1}>
+            <GridItem gridTemplate="startAt">
               <Text>
                 {p.startAt &&
                   `Starting: ${formatRelativeDate(parseISO(p.startAt))}`}
               </Text>
             </GridItem>
-            <GridItem rowStart={2} colStart={3} colSpan={1}>
+            <GridItem gridTemplate="endAt">
               <Text>
                 {p.endAt && `Ending: ${formatRelativeDate(parseISO(p.endAt))}`}
               </Text>
