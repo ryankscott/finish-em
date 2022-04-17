@@ -31,7 +31,7 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
       top="36px"
       border="1px solid"
       borderColor="gray.200"
-      borderRadius={4}
+      borderRadius="md"
       padding={1}
       bg="gray.50"
     >

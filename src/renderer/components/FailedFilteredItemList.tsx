@@ -23,7 +23,7 @@ const FailedFilteredItemList = ({ componentKey, setEditing }: Props) => {
         border="1px solid"
         borderColor="red.200"
       >
-        <Text fontSize="sm" fontWeight="medium" color="gray.700" py={3}>
+        <Text fontSize="sm" color="red.700" py={3}>
           Failed to load component - please reconfigure
         </Text>
       </Flex>

@@ -19,7 +19,7 @@ const SidebarDraggableItem = ({ snapshot, provided, children }: Props) => {
       p={0}
       bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
       shadow={snapshot.isDragging ? 'lg' : 'none'}
-      borderRadius={5}
+      borderRadius="md"
       {...provided.draggableProps}
       {...provided.dragHandleProps}
       ref={provided.innerRef}

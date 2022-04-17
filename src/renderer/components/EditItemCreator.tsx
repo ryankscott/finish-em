@@ -134,7 +134,7 @@ const EditItemCreator = ({
     <Flex
       border="1px solid"
       borderColor="gray.200"
-      borderRadius={3}
+      borderRadius="sm"
       direction="column"
       bg="gray.50"
       py={2}

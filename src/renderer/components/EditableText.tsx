@@ -167,7 +167,7 @@ const EditableText = ({
       whiteSpace="nowrap"
       border={showBorder ? '1px solid' : 'none'}
       borderColor={useColorModeValue('gray.200', 'gray.600')}
-      borderRadius={5}
+      borderRadius="md"
     >
       <ReactQuill
         ref={quillRef}

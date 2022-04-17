@@ -125,7 +125,6 @@ const FilteredItemDialog = ({
       py={2}
       px={4}
       pb={6}
-      shadow="md"
       borderBottom="1px solid"
       borderRadius="md"
       borderColor="gray.200"

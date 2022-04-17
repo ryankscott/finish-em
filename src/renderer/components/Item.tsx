@@ -318,7 +318,7 @@ function Item({
       gap={0.5}
       alignItems="center"
       cursor="pointer"
-      borderRadius={5}
+      borderRadius="md"
       gridTemplateColumns={
         compact
           ? 'repeat(5, 1fr)'

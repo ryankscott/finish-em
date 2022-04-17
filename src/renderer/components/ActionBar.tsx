@@ -56,7 +56,7 @@ const ActionBar = () => {
       marginRight="auto"
       width="100%"
       boxShadow="md"
-      borderRadius="4"
+      borderRadius="md"
       gridGap={0.5}
       gridTemplateRows="16px 40px"
       gridTemplateColumns="repeat(3, 1fr) repeat(2, 24px)"

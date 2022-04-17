@@ -41,28 +41,51 @@ const styles = {
   global: (props) => {
     return {
       '.emoji-mart': {
-        position: 'absolute',
+        position: 'fixed',
+        top: '20%',
         fontFamily: 'body',
-        bg: 'gray.50',
-        borderColour: 'gray.100',
-        borderRadius: 4,
+        color: mode('gray.800', 'gray.100')(props),
+        bg: mode('gray.50', 'gray.800')(props),
+        borderColor: mode('gray.100', 'gray.900')(props),
+        borderRadius: 'md',
         shadow: 'xl',
-        zIndex: 99,
+        zIndex: 101,
+        fontSize: 'sm',
       },
+      '.emoji-mart-category .emoji-mart-emoji:hover:before': {
+        bg: mode('gray.100', 'gray.900')(props),
+      },
+
       '.emoji-mart-search input': {
-        fontSize: 'xs',
+        fontSize: 'sm',
+        bg: mode('gray.50', 'gray.800')(props),
+        borderColor: mode('gray.100', 'gray.700')(props),
+      },
+      '.emoji-mart-bar': {
+        borderColor: mode('gray.100', 'gray.700')(props),
+      },
+
+      '.emoji-mart-search-icon': {
+        top: '5px',
+      },
+      '.emoji-mart-search-icon > svg': {
+        width: '11px',
+        height: '11px',
+        fill: mode('gray.800', 'gray.100')(props),
       },
       '.emoji-mart-category-label': {
         fontFamily: 'body',
         fontSize: 'sm',
         fontWeight: 'normal',
-        bg: 'gray.100',
+        color: mode('gray.800', 'gray.100')(props),
+        bg: mode('gray.100', 'gray.900')(props),
+        zIndex: 100,
       },
       '.emoji-mart-category-label span': {
         fontFamily: 'body',
         fontSize: 'sm',
         fontWeight: 'normal',
-        bg: 'gray.50',
+        bg: mode('gray.50', 'gray.800')(props),
       },
       '.emoji-mart-emoji': {
         zIndex: 99,
@@ -76,7 +99,7 @@ const styles = {
         color: mode('gray.100', 'gray.200')(props),
         px: 2,
         mr: 2,
-        borderRadius: 5,
+        borderRadius: 'md',
         _hover: {
           bg: 'gray.900',
         },
@@ -95,7 +118,7 @@ const styles = {
         height: 'auto',
         py: 2,
         px: 2,
-        borderRadius: 4,
+        borderRadius: 'md',
         border: 'none',
         color: mode('gray.800', 'gray.200')(props),
         transition: 'all 0.1s ease-in-out',
@@ -111,7 +134,7 @@ const styles = {
       },
       '.ql-container': {
         border: 'none',
-        borderRadius: 4,
+        borderRadius: 'md',
         fontFamily: 'body',
       },
       '.ql-snow .ql-editor a': {
@@ -137,7 +160,7 @@ const styles = {
         borderColor: 'gray.700',
       },
       '.ql-snow .ql-tooltip a.ql-action::after': {
-        borderRadius: 5,
+        borderRadius: 'md',
         px: 2,
         py: 1,
         m: 0,
@@ -150,7 +173,7 @@ const styles = {
         },
       },
       '.ql-snow .ql-tooltip a.ql-remove::before': {
-        borderRadius: 5,
+        borderRadius: 'md',
         px: 2,
         py: 1,
         m: 0,
@@ -163,7 +186,7 @@ const styles = {
         },
       },
       '.ql-snow .ql-tooltip input[type=text]': {
-        borderRadius: 5,
+        borderRadius: 'md',
         outlineColor: 'blue.400',
         bg: 'gray.800',
         border: '1px solid',
@@ -172,7 +195,7 @@ const styles = {
       '.ql-toolbar': {
         display: 'flex',
         padding: 2,
-        borderRadius: 4,
+        borderRadius: 'md',
         bg: mode('gray.100', 'gray.900')(props),
         border: '1px solid',
         borderColor: mode('gray.200', 'gray.600')(props),
@@ -253,7 +276,7 @@ const styles = {
         border: '0px none',
         bg: 'gray.800',
         overflow: 'hidden',
-        borderRadius: 5,
+        borderRadius: 'md',
         outline: 'none',
         p: 3,
         shadow: 'md',
@@ -283,7 +306,7 @@ const styles = {
         border: '0px none',
         bg: 'gray.800',
         overflow: 'hidden',
-        borderRadius: 5,
+        borderRadius: 'md',
         outline: 'none',
         p: 6,
         minW: '600px',
@@ -295,7 +318,7 @@ const styles = {
       },
       '.command-input': {
         fontSize: 'sm',
-        borderRadius: 5,
+        borderRadius: 'md',
         width: '100%',
         p: 2,
         outline: 'none',
@@ -311,7 +334,7 @@ const styles = {
         bg: 'gray.700',
       },
       '.command-suggestionsContainer': {
-        borderRadius: 5,
+        borderRadius: 'md',
         border: 'none',
       },
       '.command-suggestionsContainerOpen': {
@@ -327,10 +350,10 @@ const styles = {
         mb: 0,
         mt: 0,
         w: '100%',
-        borderRadius: 5,
+        borderRadius: 'md',
       },
       '.command-suggestion': {
-        borderRadius: 5,
+        borderRadius: 'md',
         display: 'flex',
         justifyContent: 'space-between',
         fontWeight: 'medium',
@@ -370,7 +393,7 @@ const styles = {
         backgroundColor: 'gray.200',
         border: '1px solid',
         borderColor: 'gray.200',
-        borderRadius: 5,
+        borderRadius: 'md',
         py: 1,
         px: 2,
       },

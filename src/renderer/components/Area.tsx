@@ -13,10 +13,10 @@ import {
 import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
-import { marked } from 'marked';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { AreaType } from 'renderer/interfaces';
 import {
   CHANGE_DESCRIPTION_AREA,
   DELETE_AREA,
@@ -43,16 +43,7 @@ const Area = (props: AreaProps): ReactElement => {
   const { colorMode } = useColorMode();
   const [setEmoji] = useMutation(SET_EMOJI);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [deleteArea] = useMutation(DELETE_AREA, {
-    update(cache, { data: { deleteArea } }) {
-      const cacheId = cache.identify({
-        __typename: 'Area',
-        key: areaKey,
-      });
-
-      cache.evict({ id: cacheId });
-    },
-  });
+  const [deleteArea] = useMutation(DELETE_AREA);
   const [changeDescriptionArea] = useMutation(CHANGE_DESCRIPTION_AREA);
   const [renameArea] = useMutation(RENAME_AREA);
 
@@ -85,68 +76,34 @@ const Area = (props: AreaProps): ReactElement => {
   return (
     <Page>
       <Grid
-        autoRows="60px 40px"
-        templateColumns="110px 1fr"
         alignItems="center"
+        gridTemplateRows="60px 40px"
+        gridTemplateColumns="110px 1fr"
+        gridTemplateAreas={`
+        "emoji name"
+        "emoji _"`}
         py={2}
         px={0}
       >
-        <GridItem colStart={2} colSpan={1}>
-          <Flex w="100%" alignItems="flex-start">
-            <Editable
-              key={uuidv4()}
-              defaultValue={area.name}
-              fontSize="3xl"
-              mx={2}
-              w="100%"
-              color="blue.500"
-              fontWeight="light"
-              onSubmit={(input) => {
-                const exists = areas
-                  .map((a) => a.name === input)
-                  .includes(true);
-                if (exists) {
-                  toast.error(
-                    'Cannot rename area, an area with that name already exists'
-                  );
-                } else {
-                  renameArea({ variables: { key: area.key, name: input } });
-                }
-              }}
-            >
-              <EditablePreview px={2} />
-              <EditableInput px={2} />
-            </Editable>
-
-            <DeleteAreaDialog
-              onDelete={() => {
-                deleteArea({ variables: { key: area.key } });
-                navigate('/inbox');
-              }}
-            />
-          </Flex>
-        </GridItem>
-        <GridItem
-          rowStart={1}
-          rowSpan={2}
-          colSpan={1}
-          colStart={1}
-          boxShadow={colorMode === 'light' ? 'none' : '0 0 3px 0 #222'}
-          bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
-          my={0}
-          w="100px"
-          h="100px"
-          borderRadius="50%"
-          cursor="pointer"
-          transition="all 0.1s ease-in-out"
-          onClick={() => {
-            setShowEmojiPicker(!showEmojiPicker);
-          }}
-          _hover={{
-            bg: colorMode === 'light' ? 'gray.200' : 'gray.900',
-          }}
-        >
-          <Flex justifyContent="center" alignItems="center">
+        <GridItem gridArea="emoji">
+          <Flex
+            w="100px"
+            h="100px"
+            borderRadius="50%"
+            justifyContent="center"
+            fontSize="xl"
+            boxShadow={colorMode === 'light' ? 'none' : '0 0 3px 0 #222'}
+            bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
+            my={0}
+            _hover={{
+              bg: colorMode === 'light' ? 'gray.200' : 'gray.900',
+            }}
+            transition="all 0.1s ease-in-out"
+            cursor="pointer"
+            onClick={() => {
+              setShowEmojiPicker(!showEmojiPicker);
+            }}
+          >
             <Emoji emoji={area.emoji ? area.emoji : ''} size={68} native />
           </Flex>
         </GridItem>
@@ -162,6 +119,42 @@ const Area = (props: AreaProps): ReactElement => {
             }}
           />
         )}
+        <GridItem gridArea="name">
+          <Flex w="100%" justifyContent="flex-start">
+            <Editable
+              key={uuidv4()}
+              defaultValue={area.name}
+              fontSize="3xl"
+              mx={2}
+              w="100%"
+              color="blue.500"
+              fontWeight="light"
+              onSubmit={(input) => {
+                const exists = areas
+                  .maa((a: AreaType) => a.name === input)
+                  .includes(true);
+                if (exists) {
+                  toast.error(
+                    'Cannot rename area, an area with that name already exists'
+                  );
+                } else {
+                  renameArea({
+                    variables: { key: area.key, name: input },
+                  });
+                }
+              }}
+            >
+              <EditablePreview px={2} />
+              <EditableInput px={2} />
+            </Editable>
+            <DeleteAreaDialog
+              onDelete={() => {
+                deleteArea({ variables: { key: area.key } });
+                navigate('/inbox');
+              }}
+            />
+          </Flex>
+        </GridItem>
       </Grid>
       <EditableText
         singleLine={false}
@@ -211,84 +204,82 @@ const Area = (props: AreaProps): ReactElement => {
       <Text my={3} mt={6} fontSize="xl" color="blue.500">
         Projects
       </Text>
-      {area.projects.map((p: Project) => {
-        if (!p.items) return <></>;
-        const totalItemsCount = p.items.length;
-        const completedItemsCount = p.items.filter(
-          (i) => i?.completed === true && i?.deleted === false
-        ).length;
-        const progress = determineProgress(
-          totalItemsCount,
-          completedItemsCount
-        );
-        return (
-          <Grid
-            position="relative"
-            transition="all 0.1s ease-in-out"
-            maxH="200px"
-            maxW="650px"
-            my={1}
-            mx={0}
-            padding={1}
-            alignItems="center"
-            cursor="pointer"
-            borderRadius={3}
-            _hover={{
-              bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
-            }}
-            _after={{
-              content: "''",
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              left: 0,
-              margin: '0px auto',
-              height: 1,
-              width: 'calc(100% - 10px)',
-              borderBottom: '1px solid',
-              borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
-              opacity: 0.8,
-            }}
-            key={p.key}
-            onClick={() => {
-              navigate(`/views/${p.key}`);
-            }}
-            templateColumns="35px repeat(4, auto)"
-            templateRows="auto"
-            gridTemplateAreas={`
+      <Flex direction="column" pb={10}>
+        {area.projects.map((p: Project) => {
+          if (p.key === '0') return <></>;
+          if (!p.items) return <></>;
+          const totalItemsCount = p.items.length;
+          const completedItemsCount = p.items.filter(
+            (i) => i?.completed === true && i?.deleted === false
+          ).length;
+          const progress = determineProgress(
+            totalItemsCount,
+            completedItemsCount
+          );
+          return (
+            <Grid
+              position="relative"
+              transition="all 0.1s ease-in-out"
+              maxH="200px"
+              maxW="650px"
+              my={1}
+              mx={0}
+              padding={1}
+              alignItems="center"
+              cursor="pointer"
+              borderRadius="md"
+              _hover={{
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+              }}
+              _after={{
+                content: "''",
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                left: 0,
+                margin: '0px auto',
+                height: 1,
+                width: 'calc(100% - 10px)',
+                borderBottom: '1px solid',
+                borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
+                opacity: 0.8,
+              }}
+              key={p.key}
+              onClick={() => {
+                navigate(`/views/${p.key}`);
+              }}
+              templateColumns="35px repeat(4, auto)"
+              templateRows="auto"
+              gridTemplateAreas={`
                   "progress project project startAt endAt"
                  `}
-          >
-            <GridItem gridTemplate="progress">
-              <Donut size={18} progress={progress} />
-            </GridItem>
-            <GridItem gridTemplate="project">
-              <Flex direction="row">
-                <Text fontSize="md" fontWeight="medium" mr={2}>
-                  {p.name} -
+            >
+              <GridItem gridTemplate="progress">
+                <Donut size={18} progress={progress} />
+              </GridItem>
+              <GridItem gridTemplate="project">
+                <Flex direction="row">
+                  <Text fontSize="md" fontWeight="medium" pr={4}>
+                    {p.name}
+                  </Text>
+                </Flex>
+              </GridItem>
+              <GridItem gridTemplate="startAt">
+                <Text>
+                  {p.startAt &&
+                    `Starting: ${formatRelativeDate(parseISO(p.startAt))}`}
                 </Text>
-                <Text
-                  fontSize="md"
-                  dangerouslySetInnerHTML={{
-                    __html: marked(p.description ?? '', { breaks: true }),
-                  }}
-                />
-              </Flex>
-            </GridItem>
-            <GridItem gridTemplate="startAt">
-              <Text>
-                {p.startAt &&
-                  `Starting: ${formatRelativeDate(parseISO(p.startAt))}`}
-              </Text>
-            </GridItem>
-            <GridItem gridTemplate="endAt">
-              <Text>
-                {p.endAt && `Ending: ${formatRelativeDate(parseISO(p.endAt))}`}
-              </Text>
-            </GridItem>
-          </Grid>
-        );
-      })}
+              </GridItem>
+              <GridItem gridTemplate="endAt">
+                <Text>
+                  {p.endAt &&
+                    `Ending: ${formatRelativeDate(parseISO(p.endAt))}`}
+                </Text>
+              </GridItem>
+            </Grid>
+          );
+        })}
+      </Flex>
     </Page>
   );
 };

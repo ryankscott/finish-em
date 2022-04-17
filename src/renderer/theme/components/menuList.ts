@@ -2,7 +2,7 @@ const MenuList = {
   baseStyle: {
     px: 2,
     py: 1,
-    borderRadius: 4,
+    borderRadius: 'md',
     fontSize: 'sm',
     bg: 'gray.50',
     fontWeight: 300,

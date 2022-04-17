@@ -155,7 +155,7 @@ const WeeklyAgenda = (): ReactElement => {
         padding={4}
         padding-left={12}
         border="1px solid"
-        borderRadius={4}
+        borderRadius="md"
         borderColor={colorMode === 'light' ? 'gray.100' : 'gray.600'}
         my={6}
         mx={3}
@@ -198,7 +198,7 @@ const WeeklyAgenda = (): ReactElement => {
               px={2}
               border="1px solid"
               borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
-              borderRadius={5}
+              borderRadius="md"
               bg={determineDayBgColour(listDate, colorMode)}
               key={`${idx}-container`}
             >

@@ -91,7 +91,7 @@ const DatePicker = ({
         isDisabled={deleted || completed}
         fontSize="md"
         rightIcon={<Icon p={0} m={0} as={Icons.collapse} />}
-        borderRadius={5}
+        borderRadius="md"
         width="100%"
         justifyContent="space-between"
         onClick={() => {

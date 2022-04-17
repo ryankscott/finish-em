@@ -102,7 +102,7 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
   return (
     <Flex
       direction="column"
-      borderRadius={5}
+      borderRadius="md"
       bg="white"
       p={2}
       mx={2}
@@ -151,7 +151,7 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
               size="md"
               as={Button}
               fontWeight="normal"
-              borderRadius={5}
+              borderRadius="md"
               variant="subtle"
               _hover={{ bg: 'gray.100' }}
               rightIcon={<Icon as={Icons.collapse} />}
@@ -188,7 +188,7 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
             as={Button}
             rightIcon={<Icon as={Icons.collapse} />}
             fontWeight="normal"
-            borderRadius={5}
+            borderRadius="md"
             variant="subtle"
             _hover={{ bg: 'gray.100' }}
             width="100%"

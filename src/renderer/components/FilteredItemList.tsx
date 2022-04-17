@@ -107,7 +107,7 @@ const FilteredItemList = ({
     itemsLength?.[1],
     showCompletedToggle ?? true
   );
-
+  console.log({ showItemList });
   return (
     <Box
       m={0}
@@ -124,15 +124,15 @@ const FilteredItemList = ({
         px={2}
         mt={0}
         gridGap={1}
-        borderRadius={0}
-        borderTopRadius={5}
+        borderRadius="md"
+        borderBottomRadius={showItemList ? 'none' : 'md'}
         gridTemplateRows="40px"
         gridTemplateColumns="30px auto auto"
-        borderBottom="1px solid"
+        borderBottom={showItemList ? '1px solid' : 'none'}
         bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
         borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
       >
-        <GridItem colSpan={1}>
+        <GridItem colSpan={1} borderRadius="md">
           <Tooltip label="Hide items">
             <Box>
               <IconButton

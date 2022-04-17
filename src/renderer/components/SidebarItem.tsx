@@ -40,11 +40,11 @@ const SidebarItem = ({
         <StyledLink to={path}>
           <Flex
             key={uuidv4()}
-            my={0.25}
+            my={type === 'area' ? 0.5 : 0.25}
             mx={1}
             px={sidebarVisible ? 2 : 0}
             py={1.5}
-            borderRadius={4}
+            borderRadius="md"
             justifyContent="flex-start"
             alignItems="center"
             bg={isActive ? 'gray.900' : 'inherit'}
@@ -66,7 +66,7 @@ const SidebarItem = ({
             <Text
               key={uuidv4()}
               p={0}
-              pl={1}
+              pl={2}
               m={0}
               color="gray.100"
               fontSize={type === 'area' ? 'sm' : 'md'}
@@ -90,7 +90,7 @@ const SidebarItem = ({
           mx={1}
           px={sidebarVisible ? 2 : 0}
           py={1.5}
-          borderRadius={4}
+          borderRadius="md"
           alignItems="center"
           bg={isActive ? 'gray.900' : 'gray.800'}
           _hover={{

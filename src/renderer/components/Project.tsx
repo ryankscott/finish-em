@@ -80,13 +80,16 @@ const Project = ({ projectKey }: ProjectProps) => {
   return (
     <>
       <Grid
-        gridAutoRows="60px 40px"
-        gridTemplateColumns="110px 1fr"
         alignItems="center"
+        gridTemplateRows="60px 40px"
+        gridTemplateColumns="110px 1fr"
+        gridTemplateAreas={`
+        "emoji name"
+        "emoji completed"`}
         py={2}
         px={0}
       >
-        <GridItem colStart={1} colSpan={1} rowStart={1} rowSpan={2}>
+        <GridItem gridArea="emoji">
           <Flex
             w="100px"
             h="100px"
@@ -112,8 +115,20 @@ const Project = ({ projectKey }: ProjectProps) => {
             />
           </Flex>
         </GridItem>
-        <GridItem rowStart={1} colStart={2} colSpan={1}>
-          <Flex w="100%" justifyContent="flex-start" alignItems="flex-start">
+        {showEmojiPicker && (
+          <Picker
+            native
+            title=""
+            emoji=""
+            color={theme.colors.blue[500]}
+            onSelect={(emoji) => {
+              setEmoji({ variables: { key: project.key, emoji: emoji.id } });
+              setShowEmojiPicker(false);
+            }}
+          />
+        )}
+        <GridItem gridArea="name">
+          <Flex w="100%" justifyContent="flex-start">
             <Editable
               key={uuidv4()}
               defaultValue={project.name}
@@ -149,7 +164,7 @@ const Project = ({ projectKey }: ProjectProps) => {
             />
           </Flex>
         </GridItem>
-        <GridItem rowStart={2} colStart={2} colSpan={1}>
+        <GridItem gridArea="completed">
           <Tooltip
             label={`${completedItems.length}/${allItems.length} completed`}
           >
@@ -168,21 +183,6 @@ const Project = ({ projectKey }: ProjectProps) => {
             </Flex>
           </Tooltip>
         </GridItem>
-
-        {showEmojiPicker && (
-          <Flex position="relative" zIndex={9}>
-            <Picker
-              native
-              title=""
-              emoji=""
-              color={theme.colors.blue[500]}
-              onSelect={(emoji) => {
-                setEmoji({ variables: { key: project.key, emoji: emoji.id } });
-                setShowEmojiPicker(false);
-              }}
-            />
-          </Flex>
-        )}
       </Grid>
       {data.projectDates.enabled && (
         <Flex direction="row" alignItems="center">

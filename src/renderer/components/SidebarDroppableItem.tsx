@@ -17,7 +17,7 @@ const SidebarDroppableItem = ({ snapshot, provided, children }: Props) => {
       w="100%"
       m={0}
       p={0}
-      borderRadius={5}
+      borderRadius="md"
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...provided.droppableProps}
       ref={provided.innerRef}

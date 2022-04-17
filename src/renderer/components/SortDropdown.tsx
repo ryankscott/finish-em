@@ -57,7 +57,7 @@ function SortDropdown({
           as={Button}
           rightIcon={<Icon as={Icons.collapse} />}
           fontWeight="normal"
-          borderRadius={5}
+          borderRadius="md"
           variant="default"
           width="100%"
           textAlign="start"

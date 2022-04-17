@@ -33,7 +33,7 @@ interface Props {
 const DropdownIndicator = (props: IndicatorProps<any>) => {
   return (
     <components.DropdownIndicator {...props}>
-      <Icon as={Icons.collapse} />
+      <Icon as={Icons.collapse} w={3} h={3} />
     </components.DropdownIndicator>
   );
 };
@@ -41,7 +41,7 @@ const DropdownIndicator = (props: IndicatorProps<any>) => {
 const ClearIndicator = (props: ClearIndicatorProps<any>) => {
   return (
     <components.ClearIndicator {...props}>
-      <Icon as={Icons.close} w={3.5} h={3.5} mx={0.5} />
+      <Icon as={Icons.close} w={3} h={3} mx={0.5} />
     </components.ClearIndicator>
   );
 };
@@ -349,9 +349,13 @@ const Select = (props: Props) => {
       indicatorSeparator: () => ({
         display: 'none',
       }),
-      dropdownIndicator: (state: Control, { hasValue }) => ({
+      dropdownIndicator: (styles: CSSObject, { isDisabled, hasValue }) => ({
+        ...styles,
+
+        cursor: 'pointer',
+        padding: '2px',
         display: hideDropdownIndicator ? 'none' : 'auto',
-        opacity: state.isDisabled ? 0.4 : 1,
+        opacity: isDisabled ? 0.4 : 1,
         color: ((value) => {
           if (value) {
             return colorMode === 'light'

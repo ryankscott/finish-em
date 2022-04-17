@@ -60,7 +60,7 @@ const ComponentActions = ({
             borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
             shadow="sm"
             p={0}
-            borderRadius={5}
+            borderRadius="md"
           >
             <Tooltip label="Edit component">
               <Box>

@@ -128,7 +128,7 @@ const RepeatPicker = ({
         bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
         rightIcon={<Icon p={0} m={0} as={Icons.collapse} />}
         variant="ghost"
-        borderRadius={5}
+        borderRadius="md"
         width="100%"
         textAlign="start"
         onClick={() => {

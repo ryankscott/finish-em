@@ -225,8 +225,8 @@ function ReorderableItemList({
                         p={0}
                         m={0}
                         border="none"
-                        borderRadius={4}
-                        shadow={snapshot.isDragging ? 'base' : undefined}
+                        borderRadius="md"
+                        shadow={snapshot.isDragging ? 'base' : 'none'}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}

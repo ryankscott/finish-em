@@ -85,7 +85,7 @@ function ReminderDialog({
       top="36px"
       border="1px solid"
       borderColor="gray.200"
-      borderRadius={4}
+      borderRadius="md"
       py={1}
       px={2}
       bg="gray.50"
@@ -118,7 +118,7 @@ function ReminderDialog({
                 justifyContent="space-between"
                 alignItems="center"
                 height="25px"
-                borderRadius={4}
+                borderRadius="md"
                 _hover={{
                   bg: 'gray.100',
                   fontWeight: 'semibold',
@@ -158,7 +158,7 @@ function ReminderDialog({
           justifyContent="space-between"
           alignItems="center"
           height="25px"
-          borderRadius={4}
+          borderRadius="md"
           _hover={{
             bg: 'gray.100',
             fontWeight: 'semibold',

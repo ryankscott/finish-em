@@ -29,7 +29,7 @@ function QuickAdd(props: QuickAddProps): ReactElement {
       m={0}
       bg="gray.100"
       w="100%"
-      borderRadius={5}
+      borderRadius="md"
       outline={0}
       _active={{
         outline: 0,

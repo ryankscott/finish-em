@@ -160,7 +160,7 @@ const DailyAgenda = (): ReactElement => {
           border="1px solid"
           borderColor={colorMode === 'light' ? 'gray.100' : 'gray.600'}
           padding={3}
-          borderRadius="5px"
+          borderRadius="md"
           spacing={1}
         >
           {sortedEventsForToday ? (
@@ -179,7 +179,7 @@ const DailyAgenda = (): ReactElement => {
                   }}
                   py={1}
                   px={3}
-                  borderRadius={5}
+                  borderRadius="md"
                   alignItems="center"
                 >
                   <Text

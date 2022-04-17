@@ -162,6 +162,9 @@ const ReorderableComponentList = ({
                       draggableId={comp.key}
                       index={index}
                       isDragDisabled={false}
+                      _hover={{
+                        shadow: 'sm',
+                      }}
                     >
                       {(provided, snapshot) => (
                         <Flex
@@ -171,20 +174,14 @@ const ReorderableComponentList = ({
                           userSelect="none"
                           p={0}
                           m={0}
-                          borderRadius={5}
+                          borderRadius="md"
                           mb={8}
                           border="1px solid"
                           borderColor={
                             snapshot.isDragging ? 'gray.200' : 'transparent'
                           }
                           bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-                          shadow={snapshot.isDragging ? 'md' : undefined}
-                          _hover={{
-                            border: '1px solid',
-                            borderColor:
-                              colorMode === 'light' ? 'gray.200' : 'gray.600',
-                            shadow: 'base',
-                          }}
+                          shadow={snapshot.isDragging ? 'md' : 'none'}
                           ref={provided.innerRef}
                           // eslint-disable-next-line react/jsx-props-no-spreading
                           {...provided.draggableProps}
@@ -200,14 +197,23 @@ const ReorderableComponentList = ({
                             w="100%"
                             zIndex={100}
                             opacity={0}
-                            borderRadius={5}
+                            borderRadius="none"
+                            borderTopLeftRadius="md"
+                            borderTopRightRadius="md"
+                            border="1px solid"
+                            borderBottom="none"
+                            borderColor={
+                              colorMode === 'light' ? 'gray.200' : 'gray.700'
+                            }
                             _active={{
                               opacity: 1,
-                              bg: transparentize(0.6, theme.colors.gray[100]),
+                              bg:
+                                colorMode === 'light' ? 'gray.100' : 'gray.900',
                             }}
                             _hover={{
                               opacity: 1,
-                              bg: transparentize(0.6, theme.colors.gray[100]),
+                              bg:
+                                colorMode === 'light' ? 'gray.100' : 'gray.900',
                             }}
                             // eslint-disable-next-line react/jsx-props-no-spreading
                             {...provided.dragHandleProps}
@@ -244,7 +250,7 @@ const ReorderableComponentList = ({
             size="md"
             as={Button}
             rightIcon={<Icon as={Icons.collapse} />}
-            borderRadius={5}
+            borderRadius="md"
             variant="default"
             textAlign="start"
           >

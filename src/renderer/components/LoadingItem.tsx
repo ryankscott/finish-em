@@ -8,7 +8,7 @@ const LoadingItem = () => {
       mx={0}
       w="100%"
       height="60px"
-      borderRadius={3}
+      borderRadius="md"
       position="relative"
       _after={{
         width: '100%',
