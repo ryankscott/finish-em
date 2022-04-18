@@ -11,7 +11,7 @@ const MenuList = {
     },
   },
   variants: {
-    invert: {
+    dark: {
       bg: 'gray.800',
       color: 'gray.100',
     },

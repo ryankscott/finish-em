@@ -308,7 +308,7 @@ const Sidebar = (): ReactElement => {
                                     >
                                       <Button
                                         size="sm"
-                                        variant="invert"
+                                        variant="dark"
                                         rightIcon={<Icon as={Icons.add} />}
                                         onClick={() => {
                                           const projectKey = uuidv4();
@@ -354,7 +354,7 @@ const Sidebar = (): ReactElement => {
               <Box>
                 <Button
                   key={uuidv4()}
-                  variant="invert"
+                  variant="dark"
                   size="md"
                   rightIcon={<Icon as={Icons.add} />}
                   onClick={() => {

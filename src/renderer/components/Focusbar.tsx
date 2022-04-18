@@ -157,7 +157,6 @@ const Focusbar = (): ReactElement => {
     ? formatRelativeDate(parseISO(item?.scheduledAt))
     : 'Add scheduled date';
 
-  const iconColour = determineIconColour(item);
   return (
     <Flex
       direction="column"

@@ -82,7 +82,7 @@ const baseStyleButton = (props: Record<string, any>) => {
   };
 };
 
-function invertVariant(props: Record<string, any>) {
+function darkVariant(props: Record<string, any>) {
   return {
     divider: {
       bg: 'gray.800',
@@ -117,6 +117,7 @@ function invertVariant(props: Record<string, any>) {
     },
     list: {
       color: 'gray.100',
+      bg: 'gray.800',
     },
     item: {
       color: 'gray.100',
@@ -142,7 +143,7 @@ function invertVariant(props: Record<string, any>) {
 }
 
 const variants = {
-  invert: invertVariant,
+  dark: darkVariant,
 };
 
 const baseStyle = (props: Record<string, any>) => ({

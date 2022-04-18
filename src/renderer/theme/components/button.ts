@@ -73,7 +73,7 @@ function variantError(props: Dict) {
     },
   };
 }
-function variantInvert(props: Dict) {
+function variantDark(props: Dict) {
   return {
     bg: 'gray.800',
     color: 'gray.50',
@@ -135,7 +135,7 @@ const sizes = {
 const variants = {
   default: variantDefault,
   error: variantError,
-  invert: variantInvert,
+  dark: variantDark,
   primary: variantPrimary,
   subtle: variantSubtle,
 };

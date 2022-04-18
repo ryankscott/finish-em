@@ -12,7 +12,7 @@ type ProjectSelectProps = {
   completed: boolean;
   deleted: boolean;
   onSubmit: (key: string) => void;
-  invert?: boolean;
+  invertColours?: boolean;
 };
 
 export default function ProjectSelect({
@@ -20,7 +20,7 @@ export default function ProjectSelect({
   completed,
   deleted,
   onSubmit,
-  invert = false,
+  invertColours = false,
 }: ProjectSelectProps) {
   const { loading, error, data } = useQuery<{ projects: Project[] }, null>(
     GET_PROJECTS
@@ -101,7 +101,7 @@ export default function ProjectSelect({
         escapeClearsValue
         placeholder="Add label"
         defaultValue={defaultValue}
-        invertColours={invert}
+        invertColours
         renderLabelAsElement
       />
     </Box>

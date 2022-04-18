@@ -68,7 +68,7 @@ const Headerbar = (): ReactElement => {
     <Tooltip label={label}>
       <IconButton
         aria-label={label}
-        variant="invert"
+        variant="dark"
         icon={<Icon as={Icons[icon]} h={4} w={4} />}
         color={iconColour}
         onClick={onClickHandler}

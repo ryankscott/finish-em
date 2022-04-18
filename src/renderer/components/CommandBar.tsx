@@ -109,7 +109,7 @@ const CommandBar = () => {
         <Tooltip label="Show commandbar">
           <IconButton
             aria-label="show command bar"
-            variant="invert"
+            variant="dark"
             icon={<Icon as={Icons.terminal} />}
             color="gray.100"
           />

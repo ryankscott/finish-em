@@ -107,7 +107,6 @@ const FilteredItemList = ({
     itemsLength?.[1],
     showCompletedToggle ?? true
   );
-  console.log({ showItemList });
   return (
     <Box
       m={0}

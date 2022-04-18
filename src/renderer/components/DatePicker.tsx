@@ -19,6 +19,7 @@ type DatePickerProps = {
   defaultText?: string;
   deleted?: boolean;
   onEscape?: () => void;
+  forceDark?: boolean;
 };
 
 type MenuItemType = {
@@ -33,6 +34,7 @@ const DatePicker = ({
   defaultText,
   deleted,
   onEscape,
+  forceDark,
 }: DatePickerProps): ReactElement => {
   const [dayPickerVisible, setDayPickerVisible] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -81,13 +83,13 @@ const DatePicker = ({
       clickHandler: () => handleDayChange(null),
     },
   ];
+  console.log({ forceDark });
 
   return (
-    <Menu matchWidth>
+    <Menu matchWidth variant="dark">
       <MenuButton
         as={Button}
         w="100%"
-        variant="default"
         isDisabled={deleted || completed}
         fontSize="md"
         rightIcon={<Icon p={0} m={0} as={Icons.collapse} />}
@@ -100,6 +102,7 @@ const DatePicker = ({
         }}
         fontWeight="normal"
         textAlign="start"
+        variant={forceDark ? 'dark' : 'default'}
       >
         {text || defaultText}
       </MenuButton>
