@@ -50,16 +50,17 @@ const ActionBar = () => {
       bg="gray.800"
       color="white"
       bottom="0"
-      left="0"
       right="0"
-      marginLeft="auto"
-      marginRight="auto"
-      width="100%"
+      left="0"
+      margin="0 auto"
+      border="1px solid"
+      borderColor="gray.600"
       boxShadow="md"
       borderRadius="md"
-      gridGap={0.5}
+      gridRowGap={0.5}
+      gridColumnGap={1}
       gridTemplateRows="16px 40px"
-      gridTemplateColumns="repeat(3, 1fr) repeat(2, 24px)"
+      gridTemplateColumns="repeat(3, auto) repeat(2, 32px)"
       gridTemplateAreas={`
       "items items     items   .        . "
       "due   scheduled project complete delete"`}
@@ -67,7 +68,7 @@ const ActionBar = () => {
       <Flex position="absolute" top="2px" right="2px">
         <IconButton
           size="xs"
-          variant="invert"
+          variant="dark"
           icon={<Icon as={Icons.close} />}
           color="white"
           onClick={() => {
@@ -88,6 +89,7 @@ const ActionBar = () => {
 
       <Box gridArea="due">
         <DatePicker
+          forceDark
           key="dd"
           text="Set due date"
           defaultText="Due at: "
@@ -103,6 +105,7 @@ const ActionBar = () => {
 
       <Box gridArea="scheduled">
         <DatePicker
+          forceDark
           key="sd"
           text="Set scheduled date"
           defaultText="Scheduled at: "
@@ -119,7 +122,7 @@ const ActionBar = () => {
       <Box gridArea="project">
         <ProjectSelect
           currentProject={null}
-          invert
+          invertColours
           completed={false}
           deleted={false}
           onSubmit={(projectKey) => {
@@ -134,7 +137,7 @@ const ActionBar = () => {
         <Tooltip label="Complete items">
           <IconButton
             size="md"
-            variant="invert"
+            variant="dark"
             aria-label="complete"
             icon={<Icon as={Icons.todoChecked} />}
             onClick={() => {
@@ -150,7 +153,7 @@ const ActionBar = () => {
         <Tooltip label="Delete items">
           <IconButton
             size="md"
-            variant="invert"
+            variant="dark"
             aria-label="delete"
             icon={<Icon as={Icons.trash} />}
             onClick={() => {
