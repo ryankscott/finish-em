@@ -130,7 +130,7 @@ const MoreDropdown = ({
           color={colorMode === 'light' ? 'gray.800' : 'gray.400'}
           icon={<Icon as={Icons.more} />}
         />
-        <MenuList minW="140px">
+        <MenuList minW="140px" zIndex={101}>
           {dropdownOptions.map((v, i) => {
             return (
               <MenuItem key={i} onClick={v.onClick}>
