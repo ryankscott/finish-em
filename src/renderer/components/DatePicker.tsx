@@ -83,10 +83,9 @@ const DatePicker = ({
       clickHandler: () => handleDayChange(null),
     },
   ];
-  console.log({ forceDark });
 
   return (
-    <Menu matchWidth variant="dark">
+    <Menu matchWidth>
       <MenuButton
         as={Button}
         w="100%"
