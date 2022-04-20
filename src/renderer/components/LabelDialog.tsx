@@ -34,7 +34,6 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
       border="1px solid"
       borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
-      p={1}
       bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
     >
       <Flex direction="column" py={2} px={0}>
@@ -44,7 +43,6 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
               px={3}
               py={0.5}
               my={0.5}
-              borderRadius="md"
               key={m.key}
               justifyContent="space-between"
               alignItems="center"

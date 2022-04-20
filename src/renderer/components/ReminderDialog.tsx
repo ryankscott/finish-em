@@ -99,19 +99,9 @@ function ReminderDialog({
         alignItems="baseline"
         justifyContent="space-between"
       >
-        <Text fontSize="md" px={3}>
+        <Text fontSize="md" p={2} px={3}>
           Remind me:
         </Text>
-        <IconButton
-          aria-label="close"
-          variant="default"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onClose();
-          }}
-          icon={<Icon as={Icons.close} />}
-        />
       </Flex>
       <Flex direction="column" py={2} px={0}>
         {reminderOptions.map((r) => {
@@ -120,7 +110,6 @@ function ReminderDialog({
               px={3}
               py={0.5}
               my={0.5}
-              borderRadius="md"
               height="25px"
               key={`lc-${r.label}`}
               justifyContent="space-between"

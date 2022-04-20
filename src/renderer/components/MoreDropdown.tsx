@@ -133,7 +133,7 @@ const MoreDropdown = ({
         <MenuList minW="140px">
           {dropdownOptions.map((v, i) => {
             return (
-              <MenuItem borderRadius="md" w="140px" key={i} onClick={v.onClick}>
+              <MenuItem key={i} onClick={v.onClick}>
                 <Flex
                   direction="row"
                   justifyContent="center"
