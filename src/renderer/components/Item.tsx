@@ -46,7 +46,7 @@ import {
   focusbarVisibleVar,
   subtasksVisibleVar,
 } from '../cache';
-import { LoadingItem } from './LoadingItem';
+import LoadingItem from './LoadingItem';
 import { Item as ItemType } from '../../main/generated/typescript-helpers';
 import ItemActionButton from './ItemActionButton';
 
@@ -246,7 +246,7 @@ function Item({
             e.preventDefault();
             setShowLabelDialog(!showLabelDialog);
           },
-          icon: 'flag',
+          icon: 'label',
         },
         {
           label: 'Delete item',
