@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 import { add, startOfWeek, startOfTomorrow } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { gql, useMutation } from '@apollo/client';
-import { Flex, Icon, IconButton, Text } from '@chakra-ui/react';
+import { Flex, Icon, IconButton, Text, useColorMode } from '@chakra-ui/react';
 import { Icons } from 'renderer/assets/icons';
 
 const reminderOptions: {
@@ -30,6 +30,10 @@ const reminderOptions: {
     value: add(startOfWeek(new Date(), { weekStartsOn: 1 }), {
       hours: 9,
     }).toISOString(),
+  },
+  {
+    label: `Don't remind`,
+    value: '',
   },
 ];
 
@@ -68,6 +72,7 @@ function ReminderDialog({
   reminderText,
   onClose,
 }: ReminderDialogProps): ReactElement {
+  const { colorMode } = useColorMode();
   const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
     refetchQueries: ['itemByKey', 'getAppData'],
   });
@@ -79,24 +84,23 @@ function ReminderDialog({
     <Flex
       direction="column"
       zIndex={2}
-      position="absolute"
+      position="relative"
       minW="180px"
       right="144px"
       top="36px"
       border="1px solid"
-      borderColor="gray.200"
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
       py={1}
-      px={2}
-      bg="gray.50"
+      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
     >
       <Flex
         direction="row"
         alignItems="baseline"
         justifyContent="space-between"
       >
-        <Text fontSize="md" pl={2} p={1}>
-          Remind at:
+        <Text fontSize="md" px={3}>
+          Remind me:
         </Text>
         <IconButton
           aria-label="close"
@@ -109,22 +113,26 @@ function ReminderDialog({
           icon={<Icon as={Icons.close} />}
         />
       </Flex>
-      <Flex direction="column" py={2} px={1}>
+      <Flex direction="column" py={2} px={0}>
         {reminderOptions.map((r) => {
           return (
-            <div key={r.label}>
-              <Flex
-                key={`lc-${r.label}`}
-                justifyContent="space-between"
-                alignItems="center"
-                height="25px"
-                borderRadius="md"
-                _hover={{
-                  bg: 'gray.100',
-                  fontWeight: 'semibold',
-                  cursor: 'pointer',
-                }}
-                onClick={(e) => {
+            <Flex
+              px={3}
+              py={0.5}
+              my={0.5}
+              borderRadius="md"
+              height="25px"
+              key={`lc-${r.label}`}
+              justifyContent="space-between"
+              alignItems="center"
+              _hover={{
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+                cursor: 'pointer',
+              }}
+              onClick={(e) => {
+                if (r.label === `Don't remind`) {
+                  deleteReminderFromItem({ variables: { itemKey } });
+                } else {
                   createReminder({
                     variables: {
                       key: uuidv4(),
@@ -133,55 +141,18 @@ function ReminderDialog({
                       itemKey,
                     },
                   });
+                }
 
-                  e.stopPropagation();
-                  onClose();
-                }}
-              >
-                <Text
-                  fontSize="xs"
-                  p={1}
-                  pl={4}
-                  _hover={{
-                    fontWeight: 'semibold',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {r.label}
-                </Text>
-              </Flex>
-            </div>
+                e.stopPropagation();
+                onClose();
+              }}
+            >
+              <Text px={3} fontSize="xs">
+                {r.label}
+              </Text>
+            </Flex>
           );
         })}
-        <Flex
-          key="lc"
-          justifyContent="space-between"
-          alignItems="center"
-          height="25px"
-          borderRadius="md"
-          _hover={{
-            bg: 'gray.100',
-            fontWeight: 'semibold',
-            cursor: 'pointer',
-          }}
-          onClick={(e) => {
-            deleteReminderFromItem({ variables: { itemKey } });
-            e.stopPropagation();
-            onClose();
-          }}
-        >
-          <Text
-            fontSize="xs"
-            p={1}
-            pl={4}
-            _hover={{
-              fontWeight: 'semibold',
-              cursor: 'pointer',
-            }}
-          >
-            {`Don't remind`}
-          </Text>
-        </Flex>
       </Flex>
     </Flex>
   );

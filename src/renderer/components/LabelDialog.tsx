@@ -1,9 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Box, Flex, Text } from '@chakra-ui/layout';
-import { IconButton, Icon } from '@chakra-ui/react';
-import { transparentize } from 'polished';
+import { useColorMode } from '@chakra-ui/react';
 import { ReactElement } from 'react';
-import { Icons } from 'renderer/assets/icons';
 import { SET_LABEL } from 'renderer/queries';
 import { GET_LABELS } from 'renderer/queries/label';
 import { Label } from '../../main/generated/typescript-helpers';
@@ -13,7 +11,9 @@ type LabelDialogProps = {
   onClose: () => void;
 };
 function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
-  const [setLabel] = useMutation(SET_LABEL);
+  const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByKey'] });
+  const { colorMode } = useColorMode();
+
   const { loading, error, data } = useQuery(GET_LABELS);
   if (loading) return <></>;
 
@@ -22,102 +22,57 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
     return <></>;
   }
 
+  const labels = [...data?.labels, { name: 'No label', key: null }];
+
   return (
     <Box
       zIndex={2}
-      position="absolute"
+      position="relative"
       minW="180px"
       right="144px"
       top="36px"
       border="1px solid"
-      borderColor="gray.200"
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
-      padding={1}
-      bg="gray.50"
+      p={1}
+      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
     >
-      <Flex
-        direction="row"
-        alignItems="baseline"
-        justifyContent="space-between"
-        pb={1}
-      >
-        <Text pl={2}>Labels</Text>
-        <IconButton
-          aria-label="close"
-          variant="default"
-          size="sm"
-          onClick={() => {
-            onClose();
-          }}
-          icon={<Icon as={Icons.close} />}
-        />
-      </Flex>
-      <Flex direction="column" py={2} px={1}>
-        {data.labels.map((m: Label) => {
+      <Flex direction="column" py={2} px={0}>
+        {labels.map((m: Label) => {
           return (
-            <div key={m.key}>
+            <Flex
+              px={3}
+              py={0.5}
+              my={0.5}
+              borderRadius="md"
+              key={m.key}
+              justifyContent="space-between"
+              alignItems="center"
+              _hover={{
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+              }}
+              onClick={() => {
+                setLabel({
+                  variables: { key: itemKey, labelKey: m.key },
+                });
+                onClose();
+              }}
+            >
+              <Text fontSize="xs">{m.name}</Text>
               <Flex
-                key={`lc-${m.key}`}
-                justifyContent="space-between"
-                alignItems="center"
-                height="25px"
-                bg={m.colour ? transparentize(0.8, m.colour) : 'gray.50'}
-                _hover={{
-                  fontWeight: 'semibold',
-                  cursor: 'pointer',
-                }}
-                onClick={() => {
-                  setLabel({
-                    variables: { key: itemKey, labelKey: m.key },
-                  });
-                  onClose();
-                }}
-              >
-                <Text
-                  fontSize="xs"
-                  color={m.colour ?? 'black'}
-                  p={1}
-                  pl={4}
-                  _hover={{
-                    fontWeight: 'semibold',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {m.name}
-                </Text>
-              </Flex>
-            </div>
+                bg={m.colour ?? '#000'}
+                borderRadius="50%"
+                cursor="pointer"
+                width="24px"
+                height="24px"
+                borderWidth="3px"
+                borderColor="gray.200"
+                id={`${m.key}-edit`}
+                key={`edit-colour-${m.key}`}
+              />
+            </Flex>
           );
         })}
-        <Flex
-          justifyContent="space-between"
-          alignItems="center"
-          height="25px"
-          bg="gray.50"
-          _hover={{
-            fontWeight: 'semibold',
-            cursor: 'pointer',
-          }}
-        >
-          <Text
-            fontSize="xs"
-            w="100%"
-            bg="gray.100"
-            p={1}
-            pl={4}
-            _hover={{
-              fontWeight: 'semibold',
-              cursor: 'pointer',
-            }}
-            onClick={(e) => {
-              setLabel({ variables: { key: itemKey, labelKey: null } });
-              e.stopPropagation();
-              onClose();
-            }}
-          >
-            No label
-          </Text>
-        </Flex>
       </Flex>
     </Box>
   );

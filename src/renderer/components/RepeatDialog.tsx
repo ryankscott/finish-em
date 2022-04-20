@@ -60,6 +60,7 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
         interval: repeatInterval,
         dtstart: startDate,
       });
+      console.log(r);
       onSubmit(r);
     }
   };
@@ -162,7 +163,7 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
                 ? translateFrequencyToString(repeatIntervalType)
                 : 'Interval'}
             </MenuButton>
-            <MenuList bg="white">
+            <MenuList>
               <MenuItem onClick={() => setRepeatIntervalType(RRule.DAILY)}>
                 Days
               </MenuItem>

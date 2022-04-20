@@ -344,9 +344,9 @@ const Settings = (): ReactElement => {
                     <Flex
                       bg={label.colour ?? '#000'}
                       cursor="pointer"
-                      width="30px"
+                      width="24px"
                       height="24px"
-                      borderRadius="md"
+                      borderRadius="50%"
                       borderWidth="3px"
                       borderColor="gray.100"
                       id={`${label.key}-edit`}

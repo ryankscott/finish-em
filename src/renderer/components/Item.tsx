@@ -19,11 +19,8 @@ import { useMutation, useQuery } from '@apollo/client';
 import {
   COMPLETE_ITEM,
   GET_ITEM_BY_KEY,
-  DELETE_ITEM,
-  CLONE_ITEM,
   UNCOMPLETE_ITEM,
   RESTORE_ITEM,
-  PERMANENT_DELETE_ITEM,
 } from 'renderer/queries';
 import { Emoji } from 'emoji-mart';
 import { Icons } from '../assets/icons';
@@ -38,9 +35,7 @@ import {
   truncateString,
 } from '../utils';
 import ItemAttribute from './ItemAttribute';
-import LabelDialog from './LabelDialog';
-import MoreDropdown, { MoreDropdownOptions } from './MoreDropdown';
-import ReminderDialog from './ReminderDialog';
+import MoreDropdown from './MoreDropdown';
 import {
   activeItemVar,
   focusbarVisibleVar,
@@ -147,23 +142,14 @@ function Item({
   const [moreButtonVisible, setMoreButtonVisible] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [subtasksVisible, setSubtasksVisible] = useState(true);
-  const [showLabelDialog, setShowLabelDialog] = useState(false);
-  const [showReminderDialog, setShowReminderDialog] = useState(false);
+
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: ['itemsByFilter'],
   });
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
     refetchQueries: ['itemsByFilter'],
   });
-  const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
-  });
-  const [cloneItem] = useMutation(CLONE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
-  });
-  const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
-  });
+
   const [restoreItem] = useMutation(RESTORE_ITEM, {
     refetchQueries: ['itemsByFilter'],
   });
@@ -217,65 +203,6 @@ function Item({
   if (error) return <></>;
 
   // TODO: Move this to the MoreDropdown component
-  const dropdownOptions: MoreDropdownOptions = item.deleted
-    ? [
-        {
-          label: 'Delete permanently',
-          onClick: (e: React.MouseEvent) => {
-            permanentDeleteItem({ variables: { key: item.key } });
-            e.stopPropagation();
-            e.preventDefault();
-          },
-          icon: 'trashPermanent',
-        },
-        {
-          label: 'Restore item',
-          onClick: (e: React.MouseEvent) => {
-            restoreItem({ variables: { key: item.key } });
-            e.stopPropagation();
-            e.preventDefault();
-          },
-          icon: 'restore',
-        },
-      ]
-    : [
-        {
-          label: 'Add label',
-          onClick: (e: React.MouseEvent) => {
-            e.stopPropagation();
-            e.preventDefault();
-            setShowLabelDialog(!showLabelDialog);
-          },
-          icon: 'label',
-        },
-        {
-          label: 'Delete item',
-          onClick: (e: React.MouseEvent) => {
-            deleteItem({ variables: { key: item.key } });
-            e.stopPropagation();
-            e.preventDefault();
-          },
-          icon: 'trash',
-        },
-        {
-          label: 'Clone item',
-          onClick: (e: React.MouseEvent) => {
-            cloneItem({ variables: { key: item.key } });
-            e.stopPropagation();
-            e.preventDefault();
-          },
-          icon: 'copy',
-        },
-        {
-          label: 'Remind me',
-          onClick: (e: React.MouseEvent) => {
-            setShowReminderDialog(!showReminderDialog);
-            e.stopPropagation();
-            e.preventDefault();
-          },
-          icon: 'reminder',
-        },
-      ];
 
   const handleIconClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.stopPropagation();
@@ -494,33 +421,13 @@ function Item({
       </Box>
 
       {!compact && (
-        <Box>
-          {showReminderDialog && (
-            <ReminderDialog
-              itemKey={item.key}
-              reminderText={HTMLToPlainText(item.text ?? '')}
-              onClose={() => {
-                setShowReminderDialog(false);
-              }}
-            />
-          )}
-        </Box>
-      )}
-
-      {!compact && (
         <Box gridArea="more">
           {moreButtonVisible && (
-            <>
-              <MoreDropdown options={dropdownOptions} />
-              {showLabelDialog && (
-                <LabelDialog
-                  itemKey={item.key}
-                  onClose={() => {
-                    setShowLabelDialog(false);
-                  }}
-                />
-              )}
-            </>
+            <MoreDropdown
+              itemKey={item.key}
+              itemText={item.text}
+              deleted={item.deleted}
+            />
           )}
         </Box>
       )}
