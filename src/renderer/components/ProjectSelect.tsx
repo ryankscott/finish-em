@@ -101,7 +101,7 @@ export default function ProjectSelect({
         escapeClearsValue
         placeholder="Add label"
         defaultValue={defaultValue}
-        invertColours
+        invertColours={invertColours}
         renderLabelAsElement
       />
     </Box>
