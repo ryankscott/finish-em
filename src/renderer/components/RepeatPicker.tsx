@@ -124,13 +124,11 @@ const RepeatPicker = ({
         w="100%"
         isDisabled={deleted || completed}
         fontSize="md"
-        fontWeight="normal"
-        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
         rightIcon={<Icon p={0} m={0} as={Icons.collapse} />}
-        variant="ghost"
         borderRadius="md"
         width="100%"
         textAlign="start"
+        variant="default"
         onClick={() => {
           setShowMenu(!showMenu);
           setRepeatDialogVisible(false);
