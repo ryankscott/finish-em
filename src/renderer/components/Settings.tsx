@@ -344,8 +344,8 @@ const Settings = (): ReactElement => {
                     <Flex
                       bg={label.colour ?? '#000'}
                       cursor="pointer"
-                      width="24px"
-                      height="24px"
+                      minW="24px"
+                      minH="24px"
                       borderRadius="50%"
                       borderWidth="3px"
                       borderColor="gray.100"
