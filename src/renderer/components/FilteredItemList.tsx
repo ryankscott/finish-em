@@ -108,7 +108,8 @@ const FilteredItemList = ({
     showCompletedToggle ?? true
   );
   return (
-    <Box
+    <Flex
+      direction="column"
       m={0}
       p={0}
       w="100%"
@@ -270,48 +271,37 @@ const FilteredItemList = ({
         </GridItem>
       </Grid>
       {editing ? (
-        <Box>
-          <EditFilteredItemList
-            key={`dlg-${componentKey}`}
-            componentKey={componentKey}
-            onClose={() => {
-              if (setEditing) {
-                setEditing(false);
-              }
-            }}
-          />
-        </Box>
+        <EditFilteredItemList
+          key={`dlg-${componentKey}`}
+          componentKey={componentKey}
+          onClose={() => {
+            if (setEditing) {
+              setEditing(false);
+            }
+          }}
+        />
       ) : (
         showItemList && (
-          <Flex
-            bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-            w="100%"
-            transition="0.2s ease-in-out"
-            py={0}
-            px={0}
-            borderRadius="md"
-          >
-            <ReorderableItemList
-              expandSubtasks={expandSubtasks}
-              onItemsFetched={(itemLengths) => {
-                setItemsLength(itemLengths);
-              }}
-              filter={filter}
-              key={componentKey}
-              hideDeletedSubtasks={hideDeletedSubtasks}
-              hideCompletedSubtasks={hideCompletedSubtasks}
-              componentKey={componentKey}
-              hiddenIcons={hiddenIcons}
-              sortDirection={sortDirection}
-              sortType={sortType}
-              flattenSubtasks={flattenSubtasks}
-              showCompleted={showCompleted}
-              shouldPoll={shouldPoll}
-            />
-          </Flex>
+          <ReorderableItemList
+            expandSubtasks={expandSubtasks}
+            onItemsFetched={(itemLengths) => {
+              setItemsLength(itemLengths);
+            }}
+            filter={filter}
+            key={componentKey}
+            hideDeletedSubtasks={hideDeletedSubtasks}
+            hideCompletedSubtasks={hideCompletedSubtasks}
+            componentKey={componentKey}
+            hiddenIcons={hiddenIcons}
+            sortDirection={sortDirection}
+            sortType={sortType}
+            flattenSubtasks={flattenSubtasks}
+            showCompleted={showCompleted}
+            shouldPoll={shouldPoll}
+          />
         )
       )}
-    </Box>
+    </Flex>
   );
 };
 

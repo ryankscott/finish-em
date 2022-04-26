@@ -1,5 +1,6 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import { useMutation, useQuery } from '@apollo/client';
-import { Box, Flex, Text } from '@chakra-ui/layout';
+import { Flex, Text } from '@chakra-ui/layout';
 import { cloneDeep, orderBy } from 'lodash';
 import { ReactElement, useEffect, useState } from 'react';
 import {
@@ -185,7 +186,7 @@ function ReorderableItemList({
   }
 
   return (
-    <Box w="100%" my={4} mx={0} zIndex={0}>
+    <>
       <DragDropContext onDragEnd={(result) => reorderItems(result)}>
         <Droppable droppableId={uuidv4()} type="ITEM">
           {(provided, snapshot) => (
@@ -241,41 +242,36 @@ function ReorderableItemList({
                           hiddenIcons={hiddenIcons}
                           hideCollapseIcon={flattenSubtasks}
                         />
-                        <Box
-                          display={
-                            item.children && item?.children.length > 0
-                              ? 'initial'
-                              : 'none'
-                          }
-                        >
-                          {item.children.map((child) => {
+                        <>
+                          {item?.children?.map((child) => {
                             // Keep TS happy
                             if (!child) return <></>;
+
                             // We need to check if the child exists in the original input list
                             const shouldHideItem =
                               (hideCompletedSubtasks && child.completed) ||
                               (hideDeletedSubtasks && child.deleted) ||
                               flattenSubtasks;
 
+                            if (shouldHideItem) return <></>;
+
                             return (
-                              !shouldHideItem && (
-                                <ItemComponent
-                                  compact={false}
-                                  itemKey={child.key}
-                                  key={child.key}
-                                  componentKey={componentKey}
-                                  shouldIndent
-                                  hideCollapseIcon={flattenSubtasks}
-                                  hiddenIcons={
-                                    hiddenIcons
-                                      ? [...hiddenIcons, ItemIcons.Subtask]
-                                      : [ItemIcons.Subtask]
-                                  }
-                                />
-                              )
+                              <ItemComponent
+                                compact={false}
+                                itemKey={child.key}
+                                key={child.key}
+                                componentKey={componentKey}
+                                shouldIndent
+                                hideCollapseIcon={flattenSubtasks}
+                                hiddenIcons={
+                                  hiddenIcons
+                                    ? [...hiddenIcons, ItemIcons.Subtask]
+                                    : [ItemIcons.Subtask]
+                                }
+                              />
                             );
                           })}
-                        </Box>
+                        </>
                       </Flex>
                     )}
                   </Draggable>
@@ -297,7 +293,7 @@ function ReorderableItemList({
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
       />
-    </Box>
+    </>
   );
 }
 

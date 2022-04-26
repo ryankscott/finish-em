@@ -49,7 +49,7 @@ type ItemProps = {
   compact: boolean;
   itemKey: string;
   componentKey: string;
-  hiddenIcons: ItemIcons[];
+  hiddenIcons: ItemIcons[] | undefined;
   shouldIndent: boolean;
   hideCollapseIcon?: boolean;
 };

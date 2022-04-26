@@ -1,21 +1,5 @@
 import { ReactElement } from 'react';
-import { useHotkeys } from 'react-hotkeys-hook';
-import { useMutation } from '@apollo/client';
-import { cloneDeep } from '@apollo/client/utilities';
-import { get } from 'lodash';
 import { Box, Text } from '@chakra-ui/react';
-import {
-  COMPLETE_ITEM,
-  DELETE_ITEM,
-  RESTORE_ITEM,
-  UNCOMPLETE_ITEM,
-} from 'renderer/queries';
-import {
-  activeItemVar,
-  focusbarVisibleVar,
-  subtasksVisibleVar,
-} from '../cache';
-import { item as itemKeymap } from '../keymap';
 import { ItemIcons } from '../interfaces/item';
 import Item from './Item';
 
@@ -42,105 +26,6 @@ function ItemList({
   compact,
   hiddenIcons,
 }: ItemListProps): ReactElement {
-  const [completeItem] = useMutation(COMPLETE_ITEM);
-  const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM);
-  const [deleteItem] = useMutation(DELETE_ITEM);
-  const [restoreItem] = useMutation(RESTORE_ITEM);
-
-  /* TODO: Introduce the following shortcuts:
-  - Scheduled At
-  - Due At
-  - Create subtask
-  - Convert to subtask
-  - Repeat
-  - Add Project
-  - Add Area
-  - Edit description
- */
-
-  const handlers = {
-    TOGGLE_CHILDREN: (event) => {
-      const itemKey = event.target.id;
-      // TODO: This may be broken
-      const newState = cloneDeep(subtasksVisibleVar());
-      const newValue = get(newState, [`${itemKey}`, `${componentKey}`], false);
-      if (newState[itemKey]) {
-        newState[itemKey][componentKey] = !newValue;
-      } else {
-        newState[itemKey] = {
-          [componentKey]: true,
-        };
-      }
-      subtasksVisibleVar(newState);
-    },
-    NEXT_ITEM: (event) => {
-      // Check if there are siblings (subtasks)
-      const hasSibling = event.target.nextSibling;
-      if (hasSibling) {
-        hasSibling.focus();
-        return;
-      }
-
-      // Otherwise we have to go up a node
-      const parent = event.target.parentNode;
-      const nextItem = parent?.nextSibling?.firstChild;
-      if (nextItem) {
-        nextItem.focus();
-      }
-    },
-    PREV_ITEM: (event) => {
-      // Check if there are siblings (subtasks)
-      const hasSibling = event.target.previousSibling;
-      if (hasSibling) {
-        hasSibling.focus();
-        return;
-      }
-
-      // Otherwise we have to go up a node
-      const parent = event.target.parentNode;
-      const prevItem = parent?.previousSibling?.lastChild;
-      if (prevItem) {
-        prevItem.focus();
-      }
-    },
-    SET_ACTIVE_ITEM: (event) => {
-      const itemKey = event.target.id;
-      focusbarVisibleVar(true);
-      activeItemVar([itemKey]);
-    },
-    COMPLETE_ITEM: (event) => {
-      const itemKey = event.target.id;
-      completeItem({ variables: { key: itemKey } });
-    },
-    UNCOMPLETE_ITEM: (event) => {
-      const itemKey = event.target.id;
-      unCompleteItem({ variables: { key: itemKey } });
-    },
-    DELETE_ITEM: (event) => {
-      const itemKey = event.target.id;
-      deleteItem({ variables: { key: itemKey } });
-    },
-    UNDELETE_ITEM: (event) => {
-      const itemKey = event.target.id;
-      restoreItem({ variables: { key: itemKey } });
-    },
-  };
-  Object.entries(itemKeymap).map(([k, v]) => {
-    useHotkeys(v, handlers[k], {
-      filter: (event) => {
-        const { target } = event;
-        const { tagName } = event.target || event.srcElement;
-        return !(
-          target.contentEditable ||
-          tagName === 'INPUT' ||
-          tagName === 'SELECT' ||
-          tagName === 'TEXTAREA'
-        );
-      },
-      filterPreventDefault: false,
-    });
-  });
-
   const renderItem = (i): JSX.Element => {
     if (i === undefined) return <></>;
     /* We want to allow flattening of subtasks which means:
@@ -161,8 +46,9 @@ function ItemList({
         }
       }
     }
+
     return (
-      <Box tabIndex={0} key={`container-${i.key}`}>
+      <>
         <Item
           compact={compact ?? false}
           key={i.key}
@@ -189,7 +75,7 @@ function ItemList({
             />
           );
         })}
-      </Box>
+      </>
     );
   };
 
