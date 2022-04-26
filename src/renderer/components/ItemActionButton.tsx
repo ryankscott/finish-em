@@ -72,6 +72,7 @@ const ItemActionButton = ({
 
   return (
     <IconButton
+      tabIndex={-1}
       aria-label="restore"
       variant="subtle"
       p={0}

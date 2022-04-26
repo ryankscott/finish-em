@@ -123,6 +123,7 @@ const MoreDropdown = ({
     <>
       <Menu matchWidth>
         <MenuButton
+          tabIndex={-1}
           disabled={disableClick}
           as={IconButton}
           onClick={(e) => e.stopPropagation()}
