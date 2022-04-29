@@ -24,6 +24,10 @@ import * as sqlite3 from 'sqlite3';
 import 'sugar-date/locales';
 import util from 'util';
 import { v4 as uuidv4 } from 'uuid';
+import { ApolloServer } from 'apollo-server';
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
+import { loadSchema } from '@graphql-tools/load';
+import { DateTimeResolver, JSONResolver } from 'graphql-scalars';
 import { CAL_SYNC_INTERVAL, GRAPHQL_PORT } from '../consts';
 import {
   AppleCalendarEvent,
@@ -36,6 +40,9 @@ import {
 import { AttendeeInput, Event } from './generated/typescript-helpers';
 import { rootValue, schema } from './schemas/schema';
 import { createNote } from './bear';
+import AppDatabase from './database';
+
+import { Resolvers } from './resolvers-types';
 
 const { zonedTimeToUtc } = require('date-fns-tz');
 
@@ -43,13 +50,59 @@ const executeAppleScript = util.promisify(applescript.execString);
 
 const isDev =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
-
 log.info(`Running in ${isDev ? 'development' : 'production'}`);
 let mainWindow: BrowserWindow | null = null;
 let quickAddWindow: BrowserWindow | null = null;
 let db: sqlite.Database<sqlite3.Database>;
 let client: ApolloClient<NormalizedCacheObject>;
 let calendarSyncInterval: NodeJS.Timer;
+
+/* Use Apollo Server */
+
+const startApolloServer = async () => {
+  const knexConfig = {
+    client: 'sqlite3',
+    connection: {
+      filename: isDev
+        ? './database.db'
+        : path.join(app.getPath('userData'), './database.db'),
+    },
+    useNullAsDefault: true,
+    debug: true,
+  };
+  const apolloDb = new AppDatabase(knexConfig);
+
+  const typeDefs = await loadSchema('./src/main/schemas/area.graphql', {
+    loaders: [new GraphQLFileLoader()],
+  });
+
+  const resolvers: Resolvers = {
+    Query: {
+      areas: async (_, {}, { dataSources }) => {
+        return dataSources.apolloDb.getAreas();
+      },
+    },
+    DateTime: DateTimeResolver,
+  };
+
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    dataSources: () => ({ apolloDb }),
+  });
+
+  // The `listen` method launches a web server.
+  server
+    .listen()
+    // eslint-disable-next-line promise/always-return
+    .then(({ url }) => {
+      console.log(`🚀 Server ready at ${url}`);
+    })
+    .catch((err) => {
+      console.log(`😢 Server startup failed: ${err}`);
+      app.exit();
+    });
+};
 
 const setUpDatabase = async (): Promise<
   sqlite.Database<sqlite3.Database, sqlite3.Statement>
@@ -526,6 +579,8 @@ const saveAppleCalendarEvents = async (
 
 const startApp = async () => {
   db = await setUpDatabase();
+
+  await startApolloServer();
 
   await startGraphQL();
   client = createApolloClient();

@@ -1,0 +1,44 @@
+type ItemOrder {
+  item: Item!
+  componentKey: String!
+  sortOrder: Int!
+}
+
+input CreateItemOrderInput {
+  itemKey: String!
+  componentKey: String!
+}
+
+input SetItemOrderInput {
+  itemKey: String!
+  componentKey: String!
+  sortOrder: Int!
+}
+input MigrateItemOrderInput {
+  itemKey: String!
+  componentKey: String!
+  sortOrder: Int!
+}
+input DeleteItemOrdersByComponentInput {
+  componentKey: String!
+}
+
+input BulkCreateItemOrdersInput {
+  itemKeys: [String]!
+  componentKey: String!
+}
+
+type Query {
+  itemOrders: [ItemOrder]
+  itemOrder(itemKey: String!, componentKey: String!): ItemOrder
+  itemOrdersByComponent(componentKey: String!): [ItemOrder]
+  itemOrdersByItem(itemKey: String!): [ItemOrder]
+}
+
+type Mutation {
+  setItemOrder(input: SetItemOrderInput!): String
+  deleteItemOrdersByComponent(input: DeleteItemOrdersByComponentInput!): String
+  createItemOrder(input: CreateItemOrderInput!): ItemOrder
+  bulkCreateItemOrders(input: BulkCreateItemOrdersInput!): String
+  migrateItemOrder(input: MigrateItemOrderInput!): ItemOrder
+}
