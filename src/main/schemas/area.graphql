@@ -1,5 +1,3 @@
-#area.graphql
-
 scalar DateTime
 
 type Area {
@@ -11,19 +9,9 @@ type Area {
   deletedAt: DateTime
   createdAt: DateTime
   emoji: String
-  # projects: [Project]
-  # items: [Item]
-  # sortOrder: AreaOrder
-}
-
-input MigrateAreaInput {
-  key: String!
-  name: String
-  deleted: Boolean
-  description: String
-  lastUpdatedAt: DateTime
-  deletedAt: DateTime
-  createdAt: DateTime
+  projects: [Project]
+  items: [Item]
+  sortOrder: AreaOrder
 }
 
 input CreateAreaInput {
@@ -41,7 +29,7 @@ input RenameAreaInput {
   name: String!
 }
 
-input ChangeDescriptionAreaInput {
+input SetDescriptionOfAreaInput {
   key: String!
   description: String!
 }
@@ -58,9 +46,8 @@ type Query {
 
 type Mutation {
   createArea(input: CreateAreaInput!): Area
-  migrateArea(input: MigrateAreaInput!): Area
   deleteArea(input: DeleteAreaInput!): Area
   renameArea(input: RenameAreaInput!): Area
-  changeDescriptionArea(input: ChangeDescriptionAreaInput!): Area
+  setDescriptionOfArea(input: SetDescriptionOfAreaInput!): Area
   setEmojiOfArea(input: SetEmojiOfAreaInput!): Area
 }

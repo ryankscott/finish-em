@@ -1,6 +1,7 @@
 scalar DateTime
 
 type Project {
+  id: String!
   key: String!
   name: String!
   deleted: Boolean
@@ -24,19 +25,6 @@ input CreateProjectInput {
   endAt: DateTime
   areaKey: String
   emoji: String
-}
-
-input MigrateProjectInput {
-  key: String!
-  name: String
-  deleted: Boolean
-  description: String
-  lastUpdatedAt: DateTime
-  deletedAt: DateTime
-  createdAt: DateTime
-  startAt: DateTime
-  endAt: DateTime
-  areaKey: String
 }
 
 input DeleteProjectInput {
@@ -89,7 +77,6 @@ type Query {
 
 type Mutation {
   createProject(input: CreateProjectInput!): Project
-  migrateProject(input: MigrateProjectInput!): Project
   deleteProject(input: DeleteProjectInput!): Project
   renameProject(input: RenameProjectInput!): Project
   changeDescriptionProject(input: ChangeDescriptionProjectInput!): Project

@@ -16,12 +16,13 @@ import 'emoji-mart/css/emoji-mart.css';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { apolloServerClient } from 'renderer';
 import { AreaType } from 'renderer/interfaces';
 import {
-  CHANGE_DESCRIPTION_AREA,
   DELETE_AREA,
   GET_AREA_BY_KEY,
   RENAME_AREA,
+  SET_DESCRIPTION_OF_AREA,
   SET_EMOJI,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
@@ -41,13 +42,15 @@ const Area = (props: AreaProps): ReactElement => {
   const navigate = useNavigate();
   const theme = useTheme();
   const { colorMode } = useColorMode();
-  const [setEmoji] = useMutation(SET_EMOJI);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [deleteArea] = useMutation(DELETE_AREA);
-  const [changeDescriptionArea] = useMutation(CHANGE_DESCRIPTION_AREA);
-  const [renameArea] = useMutation(RENAME_AREA);
+  const [setEmoji] = useMutation(SET_EMOJI, { client: apolloServerClient });
+  const [deleteArea] = useMutation(DELETE_AREA, { client: apolloServerClient });
+  const [setDescriptionOfArea] = useMutation(SET_DESCRIPTION_OF_AREA, {
+    client: apolloServerClient,
+  });
+  const [renameArea] = useMutation(RENAME_AREA, { client: apolloServerClient });
 
-  const { loading, error, data } = useQuery(GET_AREA_BY_KEY, {
+  const { loading, error, data, refetch } = useQuery(GET_AREA_BY_KEY, {
     variables: { key: areaKey },
   });
 
@@ -57,8 +60,7 @@ const Area = (props: AreaProps): ReactElement => {
     console.log(error);
     return <></>;
   }
-  const { area } = data;
-  const { areas } = data;
+  const { area, areas } = data;
 
   const determineProgress = (
     totalItemsCount: number,
@@ -72,6 +74,7 @@ const Area = (props: AreaProps): ReactElement => {
     }
     return totalItemsCount / completedItemsCount;
   };
+  console.log(area.emoji);
 
   return (
     <Page>
@@ -113,9 +116,10 @@ const Area = (props: AreaProps): ReactElement => {
             title=""
             emoji=""
             color={theme.colors.blue[500]}
-            onSelect={(emoji) => {
-              setEmoji({ variables: { key: area.key, emoji: emoji.id } });
+            onSelect={async (emoji) => {
+              await setEmoji({ variables: { key: area.key, emoji: emoji.id } });
               setShowEmojiPicker(false);
+              refetch();
             }}
           />
         )}
@@ -129,18 +133,15 @@ const Area = (props: AreaProps): ReactElement => {
               w="100%"
               color="blue.500"
               fontWeight="light"
-              onSubmit={(input) => {
-                const exists = areas
-                  .maa((a: AreaType) => a.name === input)
-                  .includes(true);
-                if (exists) {
+              onSubmit={async (input) => {
+                try {
+                  await renameArea({
+                    variables: { key: area.key, name: input },
+                  });
+                } catch (e) {
                   toast.error(
                     'Cannot rename area, an area with that name already exists'
                   );
-                } else {
-                  renameArea({
-                    variables: { key: area.key, name: input },
-                  });
                 }
               }}
             >
@@ -158,12 +159,13 @@ const Area = (props: AreaProps): ReactElement => {
       </Grid>
       <EditableText
         singleLine={false}
-        placeholder="Add a description for your ..."
+        placeholder="Add a description for your area"
         shouldClearOnSubmit={false}
         hideToolbar={false}
         shouldSubmitOnBlur
+        input={area.description}
         onUpdate={(input) => {
-          changeDescriptionArea({
+          setDescriptionOfArea({
             variables: { key: area.key, description: input },
           });
         }}

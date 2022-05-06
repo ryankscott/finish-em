@@ -1,6 +1,7 @@
 scalar DateTime
 
 type Item {
+  id: String!
   key: String!
   type: String
   text: String
@@ -33,30 +34,6 @@ input CreateItemInput {
   scheduledAt: DateTime
   repeat: String
   labelKey: String
-}
-
-input MigrateItemInput {
-  key: String!
-  type: String
-  text: String
-  deleted: Boolean
-  completed: Boolean
-  parentKey: String
-  projectKey: String
-  dueAt: DateTime
-  scheduledAt: DateTime
-  lastUpdatedAt: DateTime
-  completedAt: DateTime
-  createdAt: DateTime
-  deletedAt: DateTime
-  repeat: String
-  labelKey: String
-  areaKey: String
-}
-
-input SetTypeOfItemInput {
-  key: String!
-  type: String!
 }
 
 input DeleteItemInput {
@@ -133,11 +110,9 @@ type Query {
 
 type Mutation {
   createItem(input: CreateItemInput!): Item
-  migrateItem(input: MigrateItemInput!): Item
   deleteItem(input: DeleteItemInput!): Item
   restoreItem(input: RestoreItemInput!): Item
   renameItem(input: RenameItemInput!): Item
-  setTypeOfItem(input: SetTypeOfItemInput!): Item
   completeItem(input: CompleteItemInput!): Item
   unCompleteItem(input: UnCompleteItemInput!): Item
   setRepeatOfItem(input: SetRepeatOfItemInput!): Item

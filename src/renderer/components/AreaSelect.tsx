@@ -1,8 +1,9 @@
-import { useQuery } from '@apollo/client';
+import { ApolloClient, useQuery } from '@apollo/client';
 import { Flex, Box, Text } from '@chakra-ui/react';
 import { Emoji } from 'emoji-mart';
 import { Area } from 'main/generated/typescript-helpers';
 import { ReactElement } from 'react';
+import { apolloServerClient } from 'renderer';
 import { GET_AREAS } from 'renderer/queries';
 import Select from './Select';
 
@@ -21,14 +22,18 @@ export default function AreaSelect({
   onSubmit,
   invert,
 }: Props) {
-  const { loading, error, data } = useQuery<{ areas: Area[] }, null>(GET_AREAS);
+  const { loading, error, data } = useQuery<{ areas: Area[] }, null>(
+    GET_AREAS,
+    { client: apolloServerClient }
+  );
+
   if (loading) return <></>;
 
   if (error) {
     console.log(error);
     return <></>;
   }
-
+  console.log(data);
   const filteredAreas = data?.areas?.filter((a: Area) => a.deleted === false);
 
   type AreaOption = { value: string; label: ReactElement | string };

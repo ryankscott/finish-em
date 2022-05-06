@@ -1,0 +1,38 @@
+scalar DateTime
+
+type Calendar {
+  key: String!
+  name: String!
+  active: Boolean
+  deleted: Boolean
+  lastUpdatedAt: DateTime
+  deletedAt: DateTime
+  createdAt: DateTime
+  events: [Event]
+}
+
+input CreateCalendarInput {
+  key: String!
+  name: String!
+  active: Boolean!
+}
+
+input DeleteCalendarInput {
+  key: String!
+}
+
+input ActiveCalendarInput {
+  key: String!
+}
+
+type Query {
+  calendars: [Calendar]
+  calendar(key: String!): Calendar
+  getActiveCalendar: Calendar
+}
+
+type Mutation {
+  createCalendar(input: CreateCalendarInput!): Calendar
+  deleteCalendar(input: DeleteCalendarInput!): Calendar
+  setActiveCalendar(input: ActiveCalendarInput!): Calendar
+}

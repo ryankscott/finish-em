@@ -13,6 +13,11 @@ export type Scalars = {
   Int: number;
   Float: number;
   DateTime: any;
+  JSON: any;
+};
+
+export type ActiveCalendarInput = {
+  key: Scalars['String'];
 };
 
 export type Area = {
@@ -36,18 +41,40 @@ export type AreaOrder = {
   sortOrder: Scalars['Int'];
 };
 
+export type Attendee = {
+  __typename?: 'Attendee';
+  email: Scalars['String'];
+  name?: Maybe<Scalars['String']>;
+};
+
+export type AttendeeInput = {
+  email: Scalars['String'];
+  name?: InputMaybe<Scalars['String']>;
+};
+
 export type BulkCreateItemOrdersInput = {
   componentKey: Scalars['String'];
   itemKeys: Array<InputMaybe<Scalars['String']>>;
 };
 
-export type ChangeDescriptionAreaInput = {
-  description: Scalars['String'];
+export type Calendar = {
+  __typename?: 'Calendar';
+  active?: Maybe<Scalars['Boolean']>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  deleted?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['DateTime']>;
+  events?: Maybe<Array<Maybe<Event>>>;
   key: Scalars['String'];
+  lastUpdatedAt?: Maybe<Scalars['DateTime']>;
+  name: Scalars['String'];
 };
 
 export type ChangeDescriptionProjectInput = {
   description: Scalars['String'];
+  key: Scalars['String'];
+};
+
+export type CloneComponentInput = {
   key: Scalars['String'];
 };
 
@@ -59,6 +86,22 @@ export type CompleteItemInput = {
   key: Scalars['String'];
 };
 
+export type Component = {
+  __typename?: 'Component';
+  key: Scalars['String'];
+  location: Scalars['String'];
+  parameters?: Maybe<Scalars['String']>;
+  sortOrder: ComponentOrder;
+  type: Scalars['String'];
+  viewKey: Scalars['String'];
+};
+
+export type ComponentOrder = {
+  __typename?: 'ComponentOrder';
+  componentKey: Scalars['String'];
+  sortOrder: Scalars['Int'];
+};
+
 export type CreateAreaInput = {
   description?: InputMaybe<Scalars['String']>;
   key: Scalars['String'];
@@ -67,6 +110,44 @@ export type CreateAreaInput = {
 
 export type CreateAreaOrderInput = {
   areaKey: Scalars['String'];
+};
+
+export type CreateCalendarInput = {
+  active: Scalars['Boolean'];
+  key: Scalars['String'];
+  name: Scalars['String'];
+};
+
+export type CreateComponentInput = {
+  key: Scalars['String'];
+  location: Scalars['String'];
+  parameters: Scalars['JSON'];
+  type: Scalars['String'];
+  viewKey: Scalars['String'];
+};
+
+export type CreateComponentOrderInput = {
+  componentKey: Scalars['String'];
+};
+
+export type CreateEventInput = {
+  allDay?: InputMaybe<Scalars['Boolean']>;
+  attendees?: InputMaybe<Array<InputMaybe<AttendeeInput>>>;
+  calendarKey?: InputMaybe<Scalars['String']>;
+  description?: InputMaybe<Scalars['String']>;
+  endAt?: InputMaybe<Scalars['DateTime']>;
+  key: Scalars['String'];
+  location?: InputMaybe<Scalars['String']>;
+  recurrence?: InputMaybe<Scalars['String']>;
+  startAt?: InputMaybe<Scalars['DateTime']>;
+  title: Scalars['String'];
+};
+
+export type CreateFeatureInput = {
+  enabled: Scalars['Boolean'];
+  key: Scalars['String'];
+  metadata?: InputMaybe<Scalars['JSON']>;
+  name: Scalars['String'];
 };
 
 export type CreateItemInput = {
@@ -114,7 +195,36 @@ export type CreateReminderInput = {
   text: Scalars['String'];
 };
 
+export type CreateViewInput = {
+  icon?: InputMaybe<Scalars['String']>;
+  key: Scalars['String'];
+  name: Scalars['String'];
+  type: Scalars['String'];
+};
+
+export type CreateViewOrderInput = {
+  viewKey: Scalars['String'];
+};
+
+export type CreateWeeklyGoalInput = {
+  goal?: InputMaybe<Scalars['String']>;
+  key: Scalars['String'];
+  week: Scalars['String'];
+};
+
 export type DeleteAreaInput = {
+  key: Scalars['String'];
+};
+
+export type DeleteCalendarInput = {
+  key: Scalars['String'];
+};
+
+export type DeleteComponentInput = {
+  key: Scalars['String'];
+};
+
+export type DeleteEventInput = {
   key: Scalars['String'];
 };
 
@@ -142,6 +252,33 @@ export type DeleteReminderInput = {
   key: Scalars['String'];
 };
 
+export type DeleteViewInput = {
+  key: Scalars['String'];
+};
+
+export type Event = {
+  __typename?: 'Event';
+  allDay?: Maybe<Scalars['Boolean']>;
+  attendees?: Maybe<Array<Maybe<Attendee>>>;
+  calendar?: Maybe<Calendar>;
+  createdAt?: Maybe<Scalars['DateTime']>;
+  description?: Maybe<Scalars['String']>;
+  endAt?: Maybe<Scalars['DateTime']>;
+  key: Scalars['String'];
+  location?: Maybe<Scalars['String']>;
+  recurrence?: Maybe<Scalars['String']>;
+  startAt?: Maybe<Scalars['DateTime']>;
+  title: Scalars['String'];
+};
+
+export type Feature = {
+  __typename?: 'Feature';
+  enabled?: Maybe<Scalars['Boolean']>;
+  key: Scalars['String'];
+  metadata?: Maybe<Scalars['JSON']>;
+  name: Scalars['String'];
+};
+
 export type Item = {
   __typename?: 'Item';
   area?: Maybe<Area>;
@@ -152,6 +289,7 @@ export type Item = {
   deleted?: Maybe<Scalars['Boolean']>;
   deletedAt?: Maybe<Scalars['DateTime']>;
   dueAt?: Maybe<Scalars['DateTime']>;
+  id: Scalars['String'];
   key: Scalars['String'];
   label?: Maybe<Label>;
   lastUpdatedAt?: Maybe<Scalars['DateTime']>;
@@ -179,38 +317,22 @@ export type Label = {
   name?: Maybe<Scalars['String']>;
 };
 
-export type MigrateAreaInput = {
-  createdAt?: InputMaybe<Scalars['DateTime']>;
-  deleted?: InputMaybe<Scalars['Boolean']>;
-  deletedAt?: InputMaybe<Scalars['DateTime']>;
-  description?: InputMaybe<Scalars['String']>;
-  key: Scalars['String'];
-  lastUpdatedAt?: InputMaybe<Scalars['DateTime']>;
-  name?: InputMaybe<Scalars['String']>;
-};
-
 export type MigrateAreaOrderInput = {
   areaKey: Scalars['String'];
   sortOrder: Scalars['Int'];
 };
 
-export type MigrateItemInput = {
-  areaKey?: InputMaybe<Scalars['String']>;
-  completed?: InputMaybe<Scalars['Boolean']>;
-  completedAt?: InputMaybe<Scalars['DateTime']>;
-  createdAt?: InputMaybe<Scalars['DateTime']>;
-  deleted?: InputMaybe<Scalars['Boolean']>;
-  deletedAt?: InputMaybe<Scalars['DateTime']>;
-  dueAt?: InputMaybe<Scalars['DateTime']>;
+export type MigrateComponentInput = {
   key: Scalars['String'];
-  labelKey?: InputMaybe<Scalars['String']>;
-  lastUpdatedAt?: InputMaybe<Scalars['DateTime']>;
-  parentKey?: InputMaybe<Scalars['String']>;
-  projectKey?: InputMaybe<Scalars['String']>;
-  repeat?: InputMaybe<Scalars['String']>;
-  scheduledAt?: InputMaybe<Scalars['DateTime']>;
-  text?: InputMaybe<Scalars['String']>;
-  type?: InputMaybe<Scalars['String']>;
+  location: Scalars['String'];
+  parameters: Scalars['String'];
+  type: Scalars['String'];
+  viewKey: Scalars['String'];
+};
+
+export type MigrateComponentOrderInput = {
+  componentKey: Scalars['String'];
+  sortOrder: Scalars['Int'];
 };
 
 export type MigrateItemOrderInput = {
@@ -219,75 +341,80 @@ export type MigrateItemOrderInput = {
   sortOrder: Scalars['Int'];
 };
 
-export type MigrateProjectInput = {
-  areaKey?: InputMaybe<Scalars['String']>;
-  createdAt?: InputMaybe<Scalars['DateTime']>;
-  deleted?: InputMaybe<Scalars['Boolean']>;
-  deletedAt?: InputMaybe<Scalars['DateTime']>;
-  description?: InputMaybe<Scalars['String']>;
-  endAt?: InputMaybe<Scalars['DateTime']>;
-  key: Scalars['String'];
-  lastUpdatedAt?: InputMaybe<Scalars['DateTime']>;
-  name?: InputMaybe<Scalars['String']>;
-  startAt?: InputMaybe<Scalars['DateTime']>;
-};
-
-export type MigrateProjectOrderInput = {
-  projectKey: Scalars['String'];
+export type MigrateViewOrderInput = {
   sortOrder: Scalars['Int'];
+  viewKey: Scalars['String'];
 };
 
 export type Mutation = {
   __typename?: 'Mutation';
-  bulkCreateItemOrders?: Maybe<Scalars['String']>;
-  changeDescriptionArea?: Maybe<Area>;
+  bulkCreateItemOrders?: Maybe<Array<Maybe<ItemOrder>>>;
   changeDescriptionProject?: Maybe<Project>;
+  cloneComponent?: Maybe<Component>;
   cloneItem?: Maybe<Item>;
   completeItem?: Maybe<Item>;
   createArea?: Maybe<Area>;
   createAreaOrder?: Maybe<AreaOrder>;
+  createCalendar?: Maybe<Calendar>;
+  createComponent?: Maybe<Component>;
+  createComponentOrder?: Maybe<ComponentOrder>;
+  createEvent?: Maybe<Event>;
+  createFeature?: Maybe<Feature>;
   createItem?: Maybe<Item>;
   createItemOrder?: Maybe<ItemOrder>;
   createLabel?: Maybe<Label>;
   createProject?: Maybe<Project>;
   createProjectOrder?: Maybe<ProjectOrder>;
   createReminder?: Maybe<Reminder>;
+  createView?: Maybe<View>;
+  createViewOrder?: Maybe<ViewOrder>;
+  createWeeklyGoal?: Maybe<WeeklyGoal>;
   deleteArea?: Maybe<Area>;
+  deleteCalendar?: Maybe<Calendar>;
+  deleteComponent?: Maybe<Component>;
+  deleteEvent?: Maybe<Scalars['String']>;
   deleteItem?: Maybe<Item>;
-  deleteItemOrdersByComponent?: Maybe<Scalars['String']>;
+  deleteItemOrdersByComponent?: Maybe<Array<Maybe<Scalars['String']>>>;
   deleteLabel?: Maybe<Scalars['String']>;
   deleteProject?: Maybe<Project>;
   deleteReminder?: Maybe<Reminder>;
   deleteReminderFromItem?: Maybe<Reminder>;
-  migrateArea?: Maybe<Area>;
+  deleteView?: Maybe<View>;
   migrateAreaOrder?: Maybe<AreaOrder>;
-  migrateItem?: Maybe<Item>;
+  migrateComponent?: Maybe<Component>;
+  migrateComponentOrder?: Maybe<ComponentOrder>;
   migrateItemOrder?: Maybe<ItemOrder>;
-  migrateProject?: Maybe<Project>;
-  migrateProjectOrder?: Maybe<ProjectOrder>;
+  migrateViewOrder?: Maybe<ViewOrder>;
   permanentDeleteItem: Scalars['String'];
   renameArea?: Maybe<Area>;
   renameItem?: Maybe<Item>;
   renameLabel?: Maybe<Label>;
   renameProject?: Maybe<Project>;
+  renameView?: Maybe<View>;
   restoreItem?: Maybe<Item>;
+  setActiveCalendar?: Maybe<Calendar>;
   setAreaOfItem?: Maybe<Item>;
   setAreaOfProject?: Maybe<Project>;
   setAreaOrder?: Maybe<AreaOrder>;
   setColourOfLabel?: Maybe<Label>;
+  setComponentOrder?: Maybe<ComponentOrder>;
+  setDescriptionOfArea?: Maybe<Area>;
   setDueAtOfItem?: Maybe<Item>;
   setEmojiOfArea?: Maybe<Area>;
   setEmojiOfProject?: Maybe<Project>;
   setEndDateOfProject?: Maybe<Project>;
-  setItemOrder?: Maybe<Scalars['String']>;
+  setFeature?: Maybe<Feature>;
+  setFeatureMetadata?: Maybe<Feature>;
+  setItemOrder?: Maybe<ItemOrder>;
   setLabelOfItem?: Maybe<Item>;
+  setParametersOfComponent?: Maybe<Component>;
   setParentOfItem?: Maybe<Item>;
   setProjectOfItem?: Maybe<Item>;
   setProjectOrder?: Maybe<ProjectOrder>;
   setRepeatOfItem?: Maybe<Item>;
   setScheduledAtOfItem?: Maybe<Item>;
   setStartDateOfProject?: Maybe<Project>;
-  setTypeOfItem?: Maybe<Item>;
+  setViewOrder?: Maybe<ViewOrder>;
   unCompleteItem?: Maybe<Item>;
 };
 
@@ -297,13 +424,13 @@ export type MutationBulkCreateItemOrdersArgs = {
 };
 
 
-export type MutationChangeDescriptionAreaArgs = {
-  input: ChangeDescriptionAreaInput;
+export type MutationChangeDescriptionProjectArgs = {
+  input: ChangeDescriptionProjectInput;
 };
 
 
-export type MutationChangeDescriptionProjectArgs = {
-  input: ChangeDescriptionProjectInput;
+export type MutationCloneComponentArgs = {
+  input: CloneComponentInput;
 };
 
 
@@ -324,6 +451,31 @@ export type MutationCreateAreaArgs = {
 
 export type MutationCreateAreaOrderArgs = {
   input: CreateAreaOrderInput;
+};
+
+
+export type MutationCreateCalendarArgs = {
+  input: CreateCalendarInput;
+};
+
+
+export type MutationCreateComponentArgs = {
+  input: CreateComponentInput;
+};
+
+
+export type MutationCreateComponentOrderArgs = {
+  input: CreateComponentOrderInput;
+};
+
+
+export type MutationCreateEventArgs = {
+  input: CreateEventInput;
+};
+
+
+export type MutationCreateFeatureArgs = {
+  input: CreateFeatureInput;
 };
 
 
@@ -357,8 +509,38 @@ export type MutationCreateReminderArgs = {
 };
 
 
+export type MutationCreateViewArgs = {
+  input: CreateViewInput;
+};
+
+
+export type MutationCreateViewOrderArgs = {
+  input: CreateViewOrderInput;
+};
+
+
+export type MutationCreateWeeklyGoalArgs = {
+  input: CreateWeeklyGoalInput;
+};
+
+
 export type MutationDeleteAreaArgs = {
   input: DeleteAreaInput;
+};
+
+
+export type MutationDeleteCalendarArgs = {
+  input: DeleteCalendarInput;
+};
+
+
+export type MutationDeleteComponentArgs = {
+  input: DeleteComponentInput;
+};
+
+
+export type MutationDeleteEventArgs = {
+  input: DeleteEventInput;
 };
 
 
@@ -392,8 +574,8 @@ export type MutationDeleteReminderFromItemArgs = {
 };
 
 
-export type MutationMigrateAreaArgs = {
-  input: MigrateAreaInput;
+export type MutationDeleteViewArgs = {
+  input: DeleteViewInput;
 };
 
 
@@ -402,8 +584,13 @@ export type MutationMigrateAreaOrderArgs = {
 };
 
 
-export type MutationMigrateItemArgs = {
-  input: MigrateItemInput;
+export type MutationMigrateComponentArgs = {
+  input: MigrateComponentInput;
+};
+
+
+export type MutationMigrateComponentOrderArgs = {
+  input: MigrateComponentOrderInput;
 };
 
 
@@ -412,13 +599,8 @@ export type MutationMigrateItemOrderArgs = {
 };
 
 
-export type MutationMigrateProjectArgs = {
-  input: MigrateProjectInput;
-};
-
-
-export type MutationMigrateProjectOrderArgs = {
-  input: MigrateProjectOrderInput;
+export type MutationMigrateViewOrderArgs = {
+  input: MigrateViewOrderInput;
 };
 
 
@@ -447,8 +629,18 @@ export type MutationRenameProjectArgs = {
 };
 
 
+export type MutationRenameViewArgs = {
+  input: RenameViewInput;
+};
+
+
 export type MutationRestoreItemArgs = {
   input: RestoreItemInput;
+};
+
+
+export type MutationSetActiveCalendarArgs = {
+  input: ActiveCalendarInput;
 };
 
 
@@ -472,6 +664,16 @@ export type MutationSetColourOfLabelArgs = {
 };
 
 
+export type MutationSetComponentOrderArgs = {
+  input: SetComponentOrderInput;
+};
+
+
+export type MutationSetDescriptionOfAreaArgs = {
+  input: SetDescriptionOfAreaInput;
+};
+
+
 export type MutationSetDueAtOfItemArgs = {
   input: SetDueAtOfItemInput;
 };
@@ -492,6 +694,16 @@ export type MutationSetEndDateOfProjectArgs = {
 };
 
 
+export type MutationSetFeatureArgs = {
+  input: SetFeatureInput;
+};
+
+
+export type MutationSetFeatureMetadataArgs = {
+  input: SetFeatureMetadataInput;
+};
+
+
 export type MutationSetItemOrderArgs = {
   input: SetItemOrderInput;
 };
@@ -499,6 +711,11 @@ export type MutationSetItemOrderArgs = {
 
 export type MutationSetLabelOfItemArgs = {
   input: SetLabelOfInput;
+};
+
+
+export type MutationSetParametersOfComponentArgs = {
+  input: SetParametersOfComponentInput;
 };
 
 
@@ -532,8 +749,8 @@ export type MutationSetStartDateOfProjectArgs = {
 };
 
 
-export type MutationSetTypeOfItemArgs = {
-  input: SetTypeOfItemInput;
+export type MutationSetViewOrderArgs = {
+  input: SetViewOrderInput;
 };
 
 
@@ -554,6 +771,7 @@ export type Project = {
   description?: Maybe<Scalars['String']>;
   emoji?: Maybe<Scalars['String']>;
   endAt?: Maybe<Scalars['DateTime']>;
+  id: Scalars['String'];
   items?: Maybe<Array<Maybe<Item>>>;
   key: Scalars['String'];
   lastUpdatedAt?: Maybe<Scalars['DateTime']>;
@@ -582,6 +800,21 @@ export type Query = {
   areaOrder?: Maybe<AreaOrder>;
   areaOrders?: Maybe<Array<Maybe<AreaOrder>>>;
   areas?: Maybe<Array<Maybe<Area>>>;
+  calendar?: Maybe<Calendar>;
+  calendars?: Maybe<Array<Maybe<Calendar>>>;
+  component?: Maybe<Component>;
+  componentOrder?: Maybe<ComponentOrder>;
+  componentOrders?: Maybe<Array<Maybe<ComponentOrder>>>;
+  components?: Maybe<Array<Maybe<Component>>>;
+  componentsByView?: Maybe<Array<Maybe<Component>>>;
+  event?: Maybe<Event>;
+  events?: Maybe<Array<Maybe<Event>>>;
+  eventsByCalendar?: Maybe<Array<Maybe<Event>>>;
+  eventsForActiveCalendar?: Maybe<Array<Maybe<Event>>>;
+  feature?: Maybe<Feature>;
+  featureByName?: Maybe<Feature>;
+  features?: Maybe<Array<Maybe<Feature>>>;
+  getActiveCalendar?: Maybe<Calendar>;
   item?: Maybe<Item>;
   itemOrder?: Maybe<ItemOrder>;
   itemOrders?: Maybe<Array<Maybe<ItemOrder>>>;
@@ -602,6 +835,13 @@ export type Query = {
   reminder?: Maybe<Reminder>;
   reminders?: Maybe<Array<Maybe<Reminder>>>;
   remindersByItem?: Maybe<Array<Maybe<Reminder>>>;
+  view?: Maybe<View>;
+  viewOrder?: Maybe<ViewOrder>;
+  viewOrders?: Maybe<Array<Maybe<ViewOrder>>>;
+  views?: Maybe<Array<Maybe<View>>>;
+  weeklyGoal?: Maybe<WeeklyGoal>;
+  weeklyGoalByName?: Maybe<WeeklyGoal>;
+  weeklyGoals?: Maybe<Array<Maybe<WeeklyGoal>>>;
 };
 
 
@@ -612,6 +852,46 @@ export type QueryAreaArgs = {
 
 export type QueryAreaOrderArgs = {
   areaKey: Scalars['String'];
+};
+
+
+export type QueryCalendarArgs = {
+  key: Scalars['String'];
+};
+
+
+export type QueryComponentArgs = {
+  key: Scalars['String'];
+};
+
+
+export type QueryComponentOrderArgs = {
+  componentKey: Scalars['String'];
+};
+
+
+export type QueryComponentsByViewArgs = {
+  viewKey: Scalars['String'];
+};
+
+
+export type QueryEventArgs = {
+  key: Scalars['String'];
+};
+
+
+export type QueryEventsByCalendarArgs = {
+  calendarKey: Scalars['String'];
+};
+
+
+export type QueryFeatureArgs = {
+  key: Scalars['String'];
+};
+
+
+export type QueryFeatureByNameArgs = {
+  name: Scalars['String'];
 };
 
 
@@ -691,6 +971,26 @@ export type QueryRemindersByItemArgs = {
   itemKey: Scalars['String'];
 };
 
+
+export type QueryViewArgs = {
+  key: Scalars['String'];
+};
+
+
+export type QueryViewOrderArgs = {
+  viewKey: Scalars['String'];
+};
+
+
+export type QueryWeeklyGoalArgs = {
+  key: Scalars['String'];
+};
+
+
+export type QueryWeeklyGoalByNameArgs = {
+  name: Scalars['String'];
+};
+
 export type Reminder = {
   __typename?: 'Reminder';
   createdAt?: Maybe<Scalars['DateTime']>;
@@ -723,6 +1023,11 @@ export type RenameProjectInput = {
   name: Scalars['String'];
 };
 
+export type RenameViewInput = {
+  key: Scalars['String'];
+  name: Scalars['String'];
+};
+
 export type RestoreItemInput = {
   key: Scalars['String'];
 };
@@ -747,6 +1052,16 @@ export type SetColourOfLabelInput = {
   key: Scalars['String'];
 };
 
+export type SetComponentOrderInput = {
+  componentKey: Scalars['String'];
+  sortOrder: Scalars['Int'];
+};
+
+export type SetDescriptionOfAreaInput = {
+  description: Scalars['String'];
+  key: Scalars['String'];
+};
+
 export type SetDueAtOfItemInput = {
   dueAt?: InputMaybe<Scalars['DateTime']>;
   key: Scalars['String'];
@@ -762,6 +1077,16 @@ export type SetEndDateOfProjectInput = {
   key: Scalars['String'];
 };
 
+export type SetFeatureInput = {
+  enabled: Scalars['Boolean'];
+  key: Scalars['String'];
+};
+
+export type SetFeatureMetadataInput = {
+  key: Scalars['String'];
+  metadata: Scalars['JSON'];
+};
+
 export type SetItemOrderInput = {
   componentKey: Scalars['String'];
   itemKey: Scalars['String'];
@@ -771,6 +1096,11 @@ export type SetItemOrderInput = {
 export type SetLabelOfInput = {
   key: Scalars['String'];
   labelKey?: InputMaybe<Scalars['String']>;
+};
+
+export type SetParametersOfComponentInput = {
+  key: Scalars['String'];
+  parameters: Scalars['JSON'];
 };
 
 export type SetParentOfItemInput = {
@@ -803,13 +1133,40 @@ export type SetStartDateOfProjectInput = {
   startAt: Scalars['String'];
 };
 
-export type SetTypeOfItemInput = {
-  key: Scalars['String'];
-  type: Scalars['String'];
+export type SetViewOrderInput = {
+  sortOrder: Scalars['Int'];
+  viewKey: Scalars['String'];
 };
 
 export type UnCompleteItemInput = {
   key: Scalars['String'];
+};
+
+export type View = {
+  __typename?: 'View';
+  createdAt?: Maybe<Scalars['DateTime']>;
+  deleted: Scalars['Boolean'];
+  deletedAt?: Maybe<Scalars['DateTime']>;
+  icon: Scalars['String'];
+  id: Scalars['String'];
+  key: Scalars['String'];
+  name: Scalars['String'];
+  sortOrder?: Maybe<ViewOrder>;
+  type: Scalars['String'];
+};
+
+export type ViewOrder = {
+  __typename?: 'ViewOrder';
+  id: Scalars['String'];
+  sortOrder: Scalars['Int'];
+  viewKey: Scalars['String'];
+};
+
+export type WeeklyGoal = {
+  __typename?: 'WeeklyGoal';
+  goal?: Maybe<Scalars['String']>;
+  key: Scalars['String'];
+  week: Scalars['String'];
 };
 
 export type SetEmojiOfProjectInput = {
@@ -887,40 +1244,60 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
+  ActiveCalendarInput: ActiveCalendarInput;
   Area: ResolverTypeWrapper<Area>;
   AreaOrder: ResolverTypeWrapper<AreaOrder>;
+  Attendee: ResolverTypeWrapper<Attendee>;
+  AttendeeInput: AttendeeInput;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   BulkCreateItemOrdersInput: BulkCreateItemOrdersInput;
-  ChangeDescriptionAreaInput: ChangeDescriptionAreaInput;
+  Calendar: ResolverTypeWrapper<Calendar>;
   ChangeDescriptionProjectInput: ChangeDescriptionProjectInput;
+  CloneComponentInput: CloneComponentInput;
   CloneItemInput: CloneItemInput;
   CompleteItemInput: CompleteItemInput;
+  Component: ResolverTypeWrapper<Component>;
+  ComponentOrder: ResolverTypeWrapper<ComponentOrder>;
   CreateAreaInput: CreateAreaInput;
   CreateAreaOrderInput: CreateAreaOrderInput;
+  CreateCalendarInput: CreateCalendarInput;
+  CreateComponentInput: CreateComponentInput;
+  CreateComponentOrderInput: CreateComponentOrderInput;
+  CreateEventInput: CreateEventInput;
+  CreateFeatureInput: CreateFeatureInput;
   CreateItemInput: CreateItemInput;
   CreateItemOrderInput: CreateItemOrderInput;
   CreateLabelInput: CreateLabelInput;
   CreateProjectInput: CreateProjectInput;
   CreateProjectOrderInput: CreateProjectOrderInput;
   CreateReminderInput: CreateReminderInput;
+  CreateViewInput: CreateViewInput;
+  CreateViewOrderInput: CreateViewOrderInput;
+  CreateWeeklyGoalInput: CreateWeeklyGoalInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   DeleteAreaInput: DeleteAreaInput;
+  DeleteCalendarInput: DeleteCalendarInput;
+  DeleteComponentInput: DeleteComponentInput;
+  DeleteEventInput: DeleteEventInput;
   DeleteItemInput: DeleteItemInput;
   DeleteItemOrdersByComponentInput: DeleteItemOrdersByComponentInput;
   DeleteLabelInput: DeleteLabelInput;
   DeleteProjectInput: DeleteProjectInput;
   DeleteReminderFromItemInput: DeleteReminderFromItemInput;
   DeleteReminderInput: DeleteReminderInput;
+  DeleteViewInput: DeleteViewInput;
+  Event: ResolverTypeWrapper<Event>;
+  Feature: ResolverTypeWrapper<Feature>;
   Int: ResolverTypeWrapper<Scalars['Int']>;
   Item: ResolverTypeWrapper<Item>;
   ItemOrder: ResolverTypeWrapper<ItemOrder>;
+  JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Label: ResolverTypeWrapper<Label>;
-  MigrateAreaInput: MigrateAreaInput;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
-  MigrateItemInput: MigrateItemInput;
+  MigrateComponentInput: MigrateComponentInput;
+  MigrateComponentOrderInput: MigrateComponentOrderInput;
   MigrateItemOrderInput: MigrateItemOrderInput;
-  MigrateProjectInput: MigrateProjectInput;
-  MigrateProjectOrderInput: MigrateProjectOrderInput;
+  MigrateViewOrderInput: MigrateViewOrderInput;
   Mutation: ResolverTypeWrapper<{}>;
   PermanentDeleteInput: PermanentDeleteInput;
   Project: ResolverTypeWrapper<Project>;
@@ -933,64 +1310,93 @@ export type ResolversTypes = ResolversObject<{
   RenameItemInput: RenameItemInput;
   RenameLabelInput: RenameLabelInput;
   RenameProjectInput: RenameProjectInput;
+  RenameViewInput: RenameViewInput;
   RestoreItemInput: RestoreItemInput;
   SetAreaOfItemInput: SetAreaOfItemInput;
   SetAreaOfProjectInput: SetAreaOfProjectInput;
   SetAreaOrderInput: SetAreaOrderInput;
   SetColourOfLabelInput: SetColourOfLabelInput;
+  SetComponentOrderInput: SetComponentOrderInput;
+  SetDescriptionOfAreaInput: SetDescriptionOfAreaInput;
   SetDueAtOfItemInput: SetDueAtOfItemInput;
   SetEmojiOfAreaInput: SetEmojiOfAreaInput;
   SetEndDateOfProjectInput: SetEndDateOfProjectInput;
+  SetFeatureInput: SetFeatureInput;
+  SetFeatureMetadataInput: SetFeatureMetadataInput;
   SetItemOrderInput: SetItemOrderInput;
   SetLabelOfInput: SetLabelOfInput;
+  SetParametersOfComponentInput: SetParametersOfComponentInput;
   SetParentOfItemInput: SetParentOfItemInput;
   SetProjectOfItemInput: SetProjectOfItemInput;
   SetProjectOrderInput: SetProjectOrderInput;
   SetRepeatOfItemInput: SetRepeatOfItemInput;
   SetScheduledAtOfItemInput: SetScheduledAtOfItemInput;
   SetStartDateOfProjectInput: SetStartDateOfProjectInput;
-  SetTypeOfItemInput: SetTypeOfItemInput;
+  SetViewOrderInput: SetViewOrderInput;
   String: ResolverTypeWrapper<Scalars['String']>;
   UnCompleteItemInput: UnCompleteItemInput;
+  View: ResolverTypeWrapper<View>;
+  ViewOrder: ResolverTypeWrapper<ViewOrder>;
+  WeeklyGoal: ResolverTypeWrapper<WeeklyGoal>;
   setEmojiOfProjectInput: SetEmojiOfProjectInput;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
+  ActiveCalendarInput: ActiveCalendarInput;
   Area: Area;
   AreaOrder: AreaOrder;
+  Attendee: Attendee;
+  AttendeeInput: AttendeeInput;
   Boolean: Scalars['Boolean'];
   BulkCreateItemOrdersInput: BulkCreateItemOrdersInput;
-  ChangeDescriptionAreaInput: ChangeDescriptionAreaInput;
+  Calendar: Calendar;
   ChangeDescriptionProjectInput: ChangeDescriptionProjectInput;
+  CloneComponentInput: CloneComponentInput;
   CloneItemInput: CloneItemInput;
   CompleteItemInput: CompleteItemInput;
+  Component: Component;
+  ComponentOrder: ComponentOrder;
   CreateAreaInput: CreateAreaInput;
   CreateAreaOrderInput: CreateAreaOrderInput;
+  CreateCalendarInput: CreateCalendarInput;
+  CreateComponentInput: CreateComponentInput;
+  CreateComponentOrderInput: CreateComponentOrderInput;
+  CreateEventInput: CreateEventInput;
+  CreateFeatureInput: CreateFeatureInput;
   CreateItemInput: CreateItemInput;
   CreateItemOrderInput: CreateItemOrderInput;
   CreateLabelInput: CreateLabelInput;
   CreateProjectInput: CreateProjectInput;
   CreateProjectOrderInput: CreateProjectOrderInput;
   CreateReminderInput: CreateReminderInput;
+  CreateViewInput: CreateViewInput;
+  CreateViewOrderInput: CreateViewOrderInput;
+  CreateWeeklyGoalInput: CreateWeeklyGoalInput;
   DateTime: Scalars['DateTime'];
   DeleteAreaInput: DeleteAreaInput;
+  DeleteCalendarInput: DeleteCalendarInput;
+  DeleteComponentInput: DeleteComponentInput;
+  DeleteEventInput: DeleteEventInput;
   DeleteItemInput: DeleteItemInput;
   DeleteItemOrdersByComponentInput: DeleteItemOrdersByComponentInput;
   DeleteLabelInput: DeleteLabelInput;
   DeleteProjectInput: DeleteProjectInput;
   DeleteReminderFromItemInput: DeleteReminderFromItemInput;
   DeleteReminderInput: DeleteReminderInput;
+  DeleteViewInput: DeleteViewInput;
+  Event: Event;
+  Feature: Feature;
   Int: Scalars['Int'];
   Item: Item;
   ItemOrder: ItemOrder;
+  JSON: Scalars['JSON'];
   Label: Label;
-  MigrateAreaInput: MigrateAreaInput;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
-  MigrateItemInput: MigrateItemInput;
+  MigrateComponentInput: MigrateComponentInput;
+  MigrateComponentOrderInput: MigrateComponentOrderInput;
   MigrateItemOrderInput: MigrateItemOrderInput;
-  MigrateProjectInput: MigrateProjectInput;
-  MigrateProjectOrderInput: MigrateProjectOrderInput;
+  MigrateViewOrderInput: MigrateViewOrderInput;
   Mutation: {};
   PermanentDeleteInput: PermanentDeleteInput;
   Project: Project;
@@ -1003,25 +1409,34 @@ export type ResolversParentTypes = ResolversObject<{
   RenameItemInput: RenameItemInput;
   RenameLabelInput: RenameLabelInput;
   RenameProjectInput: RenameProjectInput;
+  RenameViewInput: RenameViewInput;
   RestoreItemInput: RestoreItemInput;
   SetAreaOfItemInput: SetAreaOfItemInput;
   SetAreaOfProjectInput: SetAreaOfProjectInput;
   SetAreaOrderInput: SetAreaOrderInput;
   SetColourOfLabelInput: SetColourOfLabelInput;
+  SetComponentOrderInput: SetComponentOrderInput;
+  SetDescriptionOfAreaInput: SetDescriptionOfAreaInput;
   SetDueAtOfItemInput: SetDueAtOfItemInput;
   SetEmojiOfAreaInput: SetEmojiOfAreaInput;
   SetEndDateOfProjectInput: SetEndDateOfProjectInput;
+  SetFeatureInput: SetFeatureInput;
+  SetFeatureMetadataInput: SetFeatureMetadataInput;
   SetItemOrderInput: SetItemOrderInput;
   SetLabelOfInput: SetLabelOfInput;
+  SetParametersOfComponentInput: SetParametersOfComponentInput;
   SetParentOfItemInput: SetParentOfItemInput;
   SetProjectOfItemInput: SetProjectOfItemInput;
   SetProjectOrderInput: SetProjectOrderInput;
   SetRepeatOfItemInput: SetRepeatOfItemInput;
   SetScheduledAtOfItemInput: SetScheduledAtOfItemInput;
   SetStartDateOfProjectInput: SetStartDateOfProjectInput;
-  SetTypeOfItemInput: SetTypeOfItemInput;
+  SetViewOrderInput: SetViewOrderInput;
   String: Scalars['String'];
   UnCompleteItemInput: UnCompleteItemInput;
+  View: View;
+  ViewOrder: ViewOrder;
+  WeeklyGoal: WeeklyGoal;
   setEmojiOfProjectInput: SetEmojiOfProjectInput;
 }>;
 
@@ -1046,9 +1461,66 @@ export type AreaOrderResolvers<ContextType = any, ParentType extends ResolversPa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type AttendeeResolvers<ContextType = any, ParentType extends ResolversParentTypes['Attendee'] = ResolversParentTypes['Attendee']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CalendarResolvers<ContextType = any, ParentType extends ResolversParentTypes['Calendar'] = ResolversParentTypes['Calendar']> = ResolversObject<{
+  active?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  deleted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  events?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastUpdatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ComponentResolvers<ContextType = any, ParentType extends ResolversParentTypes['Component'] = ResolversParentTypes['Component']> = ResolversObject<{
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  parameters?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  sortOrder?: Resolver<ResolversTypes['ComponentOrder'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  viewKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ComponentOrderResolvers<ContextType = any, ParentType extends ResolversParentTypes['ComponentOrder'] = ResolversParentTypes['ComponentOrder']> = ResolversObject<{
+  componentKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['DateTime'], any> {
   name: 'DateTime';
 }
+
+export type EventResolvers<ContextType = any, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = ResolversObject<{
+  allDay?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  attendees?: Resolver<Maybe<Array<Maybe<ResolversTypes['Attendee']>>>, ParentType, ContextType>;
+  calendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType>;
+  createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  endAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  location?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  recurrence?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  startAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type FeatureResolvers<ContextType = any, ParentType extends ResolversParentTypes['Feature'] = ResolversParentTypes['Feature']> = ResolversObject<{
+  enabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  metadata?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
 
 export type ItemResolvers<ContextType = any, ParentType extends ResolversParentTypes['Item'] = ResolversParentTypes['Item']> = ResolversObject<{
   area?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType>;
@@ -1059,6 +1531,7 @@ export type ItemResolvers<ContextType = any, ParentType extends ResolversParentT
   deleted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   dueAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   label?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType>;
   lastUpdatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -1080,6 +1553,10 @@ export type ItemOrderResolvers<ContextType = any, ParentType extends ResolversPa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
+  name: 'JSON';
+}
+
 export type LabelResolvers<ContextType = any, ParentType extends ResolversParentTypes['Label'] = ResolversParentTypes['Label']> = ResolversObject<{
   colour?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -1088,55 +1565,73 @@ export type LabelResolvers<ContextType = any, ParentType extends ResolversParent
 }>;
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
-  bulkCreateItemOrders?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationBulkCreateItemOrdersArgs, 'input'>>;
-  changeDescriptionArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationChangeDescriptionAreaArgs, 'input'>>;
+  bulkCreateItemOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType, RequireFields<MutationBulkCreateItemOrdersArgs, 'input'>>;
   changeDescriptionProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationChangeDescriptionProjectArgs, 'input'>>;
+  cloneComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCloneComponentArgs, 'input'>>;
   cloneItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationCloneItemArgs, 'input'>>;
   completeItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationCompleteItemArgs, 'input'>>;
   createArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationCreateAreaArgs, 'input'>>;
   createAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationCreateAreaOrderArgs, 'input'>>;
+  createCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationCreateCalendarArgs, 'input'>>;
+  createComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCreateComponentArgs, 'input'>>;
+  createComponentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<MutationCreateComponentOrderArgs, 'input'>>;
+  createEvent?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<MutationCreateEventArgs, 'input'>>;
+  createFeature?: Resolver<Maybe<ResolversTypes['Feature']>, ParentType, ContextType, RequireFields<MutationCreateFeatureArgs, 'input'>>;
   createItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationCreateItemArgs, 'input'>>;
   createItemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<MutationCreateItemOrderArgs, 'input'>>;
   createLabel?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType, RequireFields<MutationCreateLabelArgs, 'input'>>;
   createProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createProjectOrder?: Resolver<Maybe<ResolversTypes['ProjectOrder']>, ParentType, ContextType, RequireFields<MutationCreateProjectOrderArgs, 'input'>>;
   createReminder?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
+  createView?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<MutationCreateViewArgs, 'input'>>;
+  createViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationCreateViewOrderArgs, 'input'>>;
+  createWeeklyGoal?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<MutationCreateWeeklyGoalArgs, 'input'>>;
   deleteArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationDeleteAreaArgs, 'input'>>;
+  deleteCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationDeleteCalendarArgs, 'input'>>;
+  deleteComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
+  deleteEvent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'input'>>;
   deleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationDeleteItemArgs, 'input'>>;
-  deleteItemOrdersByComponent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteItemOrdersByComponentArgs, 'input'>>;
+  deleteItemOrdersByComponent?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType, RequireFields<MutationDeleteItemOrdersByComponentArgs, 'input'>>;
   deleteLabel?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'input'>>;
   deleteProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'input'>>;
   deleteReminder?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'input'>>;
   deleteReminderFromItem?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<MutationDeleteReminderFromItemArgs, 'input'>>;
-  migrateArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationMigrateAreaArgs, 'input'>>;
+  deleteView?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<MutationDeleteViewArgs, 'input'>>;
   migrateAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationMigrateAreaOrderArgs, 'input'>>;
-  migrateItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationMigrateItemArgs, 'input'>>;
+  migrateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationMigrateComponentArgs, 'input'>>;
+  migrateComponentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<MutationMigrateComponentOrderArgs, 'input'>>;
   migrateItemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<MutationMigrateItemOrderArgs, 'input'>>;
-  migrateProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationMigrateProjectArgs, 'input'>>;
-  migrateProjectOrder?: Resolver<Maybe<ResolversTypes['ProjectOrder']>, ParentType, ContextType, RequireFields<MutationMigrateProjectOrderArgs, 'input'>>;
+  migrateViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationMigrateViewOrderArgs, 'input'>>;
   permanentDeleteItem?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationPermanentDeleteItemArgs, 'input'>>;
   renameArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationRenameAreaArgs, 'input'>>;
   renameItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationRenameItemArgs, 'input'>>;
   renameLabel?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType, RequireFields<MutationRenameLabelArgs, 'input'>>;
   renameProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationRenameProjectArgs, 'input'>>;
+  renameView?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<MutationRenameViewArgs, 'input'>>;
   restoreItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationRestoreItemArgs, 'input'>>;
+  setActiveCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationSetActiveCalendarArgs, 'input'>>;
   setAreaOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetAreaOfItemArgs, 'input'>>;
   setAreaOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetAreaOfProjectArgs, 'input'>>;
   setAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationSetAreaOrderArgs, 'input'>>;
   setColourOfLabel?: Resolver<Maybe<ResolversTypes['Label']>, ParentType, ContextType, RequireFields<MutationSetColourOfLabelArgs, 'input'>>;
+  setComponentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<MutationSetComponentOrderArgs, 'input'>>;
+  setDescriptionOfArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationSetDescriptionOfAreaArgs, 'input'>>;
   setDueAtOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetDueAtOfItemArgs, 'input'>>;
   setEmojiOfArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationSetEmojiOfAreaArgs, 'input'>>;
   setEmojiOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetEmojiOfProjectArgs, 'input'>>;
   setEndDateOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetEndDateOfProjectArgs, 'input'>>;
-  setItemOrder?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetItemOrderArgs, 'input'>>;
+  setFeature?: Resolver<Maybe<ResolversTypes['Feature']>, ParentType, ContextType, RequireFields<MutationSetFeatureArgs, 'input'>>;
+  setFeatureMetadata?: Resolver<Maybe<ResolversTypes['Feature']>, ParentType, ContextType, RequireFields<MutationSetFeatureMetadataArgs, 'input'>>;
+  setItemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<MutationSetItemOrderArgs, 'input'>>;
   setLabelOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetLabelOfItemArgs, 'input'>>;
+  setParametersOfComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationSetParametersOfComponentArgs, 'input'>>;
   setParentOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetParentOfItemArgs, 'input'>>;
   setProjectOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetProjectOfItemArgs, 'input'>>;
   setProjectOrder?: Resolver<Maybe<ResolversTypes['ProjectOrder']>, ParentType, ContextType, RequireFields<MutationSetProjectOrderArgs, 'input'>>;
   setRepeatOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetRepeatOfItemArgs, 'input'>>;
   setScheduledAtOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetScheduledAtOfItemArgs, 'input'>>;
   setStartDateOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetStartDateOfProjectArgs, 'input'>>;
-  setTypeOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetTypeOfItemArgs, 'input'>>;
+  setViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationSetViewOrderArgs, 'input'>>;
   unCompleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationUnCompleteItemArgs, 'input'>>;
 }>;
 
@@ -1148,6 +1643,7 @@ export type ProjectResolvers<ContextType = any, ParentType extends ResolversPare
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   emoji?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   endAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   items?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lastUpdatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -1168,6 +1664,21 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   areaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<QueryAreaOrderArgs, 'areaKey'>>;
   areaOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['AreaOrder']>>>, ParentType, ContextType>;
   areas?: Resolver<Maybe<Array<Maybe<ResolversTypes['Area']>>>, ParentType, ContextType>;
+  calendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<QueryCalendarArgs, 'key'>>;
+  calendars?: Resolver<Maybe<Array<Maybe<ResolversTypes['Calendar']>>>, ParentType, ContextType>;
+  component?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<QueryComponentArgs, 'key'>>;
+  componentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<QueryComponentOrderArgs, 'componentKey'>>;
+  componentOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ComponentOrder']>>>, ParentType, ContextType>;
+  components?: Resolver<Maybe<Array<Maybe<ResolversTypes['Component']>>>, ParentType, ContextType>;
+  componentsByView?: Resolver<Maybe<Array<Maybe<ResolversTypes['Component']>>>, ParentType, ContextType, RequireFields<QueryComponentsByViewArgs, 'viewKey'>>;
+  event?: Resolver<Maybe<ResolversTypes['Event']>, ParentType, ContextType, RequireFields<QueryEventArgs, 'key'>>;
+  events?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType>;
+  eventsByCalendar?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType, RequireFields<QueryEventsByCalendarArgs, 'calendarKey'>>;
+  eventsForActiveCalendar?: Resolver<Maybe<Array<Maybe<ResolversTypes['Event']>>>, ParentType, ContextType>;
+  feature?: Resolver<Maybe<ResolversTypes['Feature']>, ParentType, ContextType, RequireFields<QueryFeatureArgs, 'key'>>;
+  featureByName?: Resolver<Maybe<ResolversTypes['Feature']>, ParentType, ContextType, RequireFields<QueryFeatureByNameArgs, 'name'>>;
+  features?: Resolver<Maybe<Array<Maybe<ResolversTypes['Feature']>>>, ParentType, ContextType>;
+  getActiveCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType>;
   item?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<QueryItemArgs, 'key'>>;
   itemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<QueryItemOrderArgs, 'componentKey' | 'itemKey'>>;
   itemOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType>;
@@ -1188,6 +1699,13 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   reminder?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<QueryReminderArgs, 'key'>>;
   reminders?: Resolver<Maybe<Array<Maybe<ResolversTypes['Reminder']>>>, ParentType, ContextType>;
   remindersByItem?: Resolver<Maybe<Array<Maybe<ResolversTypes['Reminder']>>>, ParentType, ContextType, RequireFields<QueryRemindersByItemArgs, 'itemKey'>>;
+  view?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<QueryViewArgs, 'key'>>;
+  viewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<QueryViewOrderArgs, 'viewKey'>>;
+  viewOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ViewOrder']>>>, ParentType, ContextType>;
+  views?: Resolver<Maybe<Array<Maybe<ResolversTypes['View']>>>, ParentType, ContextType>;
+  weeklyGoal?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<QueryWeeklyGoalArgs, 'key'>>;
+  weeklyGoalByName?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<QueryWeeklyGoalByNameArgs, 'name'>>;
+  weeklyGoals?: Resolver<Maybe<Array<Maybe<ResolversTypes['WeeklyGoal']>>>, ParentType, ContextType>;
 }>;
 
 export type ReminderResolvers<ContextType = any, ParentType extends ResolversParentTypes['Reminder'] = ResolversParentTypes['Reminder']> = ResolversObject<{
@@ -1202,17 +1720,54 @@ export type ReminderResolvers<ContextType = any, ParentType extends ResolversPar
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ViewResolvers<ContextType = any, ParentType extends ResolversParentTypes['View'] = ResolversParentTypes['View']> = ResolversObject<{
+  createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  deleted?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  icon?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sortOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ViewOrderResolvers<ContextType = any, ParentType extends ResolversParentTypes['ViewOrder'] = ResolversParentTypes['ViewOrder']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  viewKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WeeklyGoalResolvers<ContextType = any, ParentType extends ResolversParentTypes['WeeklyGoal'] = ResolversParentTypes['WeeklyGoal']> = ResolversObject<{
+  goal?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  week?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = any> = ResolversObject<{
   Area?: AreaResolvers<ContextType>;
   AreaOrder?: AreaOrderResolvers<ContextType>;
+  Attendee?: AttendeeResolvers<ContextType>;
+  Calendar?: CalendarResolvers<ContextType>;
+  Component?: ComponentResolvers<ContextType>;
+  ComponentOrder?: ComponentOrderResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
+  Event?: EventResolvers<ContextType>;
+  Feature?: FeatureResolvers<ContextType>;
   Item?: ItemResolvers<ContextType>;
   ItemOrder?: ItemOrderResolvers<ContextType>;
+  JSON?: GraphQLScalarType;
   Label?: LabelResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Project?: ProjectResolvers<ContextType>;
   ProjectOrder?: ProjectOrderResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
+  View?: ViewResolvers<ContextType>;
+  ViewOrder?: ViewOrderResolvers<ContextType>;
+  WeeklyGoal?: WeeklyGoalResolvers<ContextType>;
 }>;
 

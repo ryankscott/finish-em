@@ -8,6 +8,12 @@ import { queryCache } from './cache';
 
 const root = document.getElementById('root');
 
+// eslint-disable-next-line import/prefer-default-export
+export const apolloServerClient = new ApolloClient({
+  uri: 'http://localhost:4000/',
+  cache: queryCache,
+});
+
 const client = new ApolloClient({
   uri: 'http://localhost:8089/graphql',
   cache: queryCache,

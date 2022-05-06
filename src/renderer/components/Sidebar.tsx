@@ -21,6 +21,7 @@ import {
   DropResult,
 } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
+import { apolloServerClient } from 'renderer';
 import {
   CREATE_AREA,
   CREATE_PROJECT,
@@ -32,7 +33,7 @@ import {
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { Icons } from '../assets/icons';
-import { sidebarVisibleVar } from '../cache';
+import { queryCache, sidebarVisibleVar } from '../cache';
 import { IconType } from '../interfaces';
 import { getProductName } from '../utils';
 import SidebarDraggableItem from './SidebarDraggableItem';
@@ -43,13 +44,13 @@ import SidebarSection from './SidebarSection';
 const Sidebar = (): ReactElement => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
-  const { loading, error, data } = useQuery<SidebarData>(GET_SIDEBAR);
+  const { loading, error, data, refetch } = useQuery<SidebarData>(GET_SIDEBAR);
   const [setProjectOrder] = useMutation(SET_PROJECT_ORDER);
   const [setAreaOrder] = useMutation(SET_AREA_ORDER);
   const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT);
   const [createProject] = useMutation(CREATE_PROJECT);
   const [createArea] = useMutation(CREATE_AREA, {
-    refetchQueries: ['GetSidebarData'],
+    client: apolloServerClient,
   });
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
@@ -77,7 +78,10 @@ const Sidebar = (): ReactElement => {
 
   // TODO: Loading and error states
   if (loading) return <></>;
-  if (error) return <></>;
+  if (error) {
+    console.log(error);
+    return <></>;
+  }
 
   const defaultViews: { path: string; iconName: IconType; text: string }[] = [
     {
@@ -310,9 +314,9 @@ const Sidebar = (): ReactElement => {
                                         size="sm"
                                         variant="dark"
                                         rightIcon={<Icon as={Icons.add} />}
-                                        onClick={() => {
+                                        onClick={async () => {
                                           const projectKey = uuidv4();
-                                          createProject({
+                                          await createProject({
                                             variables: {
                                               key: projectKey,
                                               name: getProductName(),
@@ -357,15 +361,18 @@ const Sidebar = (): ReactElement => {
                   variant="dark"
                   size="md"
                   rightIcon={<Icon as={Icons.add} />}
-                  onClick={() => {
+                  onClick={async () => {
                     const areaKey = uuidv4();
-                    createArea({
+                    await createArea({
                       variables: {
                         key: areaKey,
                         name: getProductName(),
                         description: '',
                       },
                     });
+
+                    refetch();
+                    navigate(`/views/${areaKey}`);
                   }}
                 >
                   {sidebarVisible ? 'Add Area' : ''}

@@ -32,10 +32,6 @@ export const GET_PROJECT_BY_KEY = gql`
       key
       enabled
     }
-    newEditor: featureByName(name: "newEditor") {
-      key
-      enabled
-    }
   }
 `;
 

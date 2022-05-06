@@ -40,6 +40,7 @@ import { Donut } from './Donut';
 import EditableText from './EditableText';
 import ItemCreator from './ItemCreator';
 import './styled/ReactDatePicker.css';
+import { apolloServerClient } from 'renderer';
 
 type ProjectProps = {
   projectKey: string;
@@ -66,6 +67,7 @@ const Project = ({ projectKey }: ProjectProps) => {
 
   const { loading, error, data } = useQuery(GET_PROJECT_BY_KEY, {
     variables: { key: projectKey },
+    client: apolloServerClient,
   });
 
   if (loading) return null;
@@ -73,8 +75,8 @@ const Project = ({ projectKey }: ProjectProps) => {
     console.log(error);
     return null;
   }
-  const { project } = data;
-  const { projects } = data;
+  const { project, projects } = data;
+  console.log({ project });
   const allItems: ItemType[] = project?.items;
   const completedItems = allItems.filter((i) => i.completed === true);
   return (

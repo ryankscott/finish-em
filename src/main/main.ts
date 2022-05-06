@@ -27,7 +27,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { ApolloServer } from 'apollo-server';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { loadSchema } from '@graphql-tools/load';
-import { DateTimeResolver, JSONResolver } from 'graphql-scalars';
 import { CAL_SYNC_INTERVAL, GRAPHQL_PORT } from '../consts';
 import {
   AppleCalendarEvent,
@@ -37,12 +36,10 @@ import {
   getRecurringEventsForCalendar,
   setupAppleCalDatabase,
 } from './appleCalendar';
-import { AttendeeInput, Event } from './generated/typescript-helpers';
 import { rootValue, schema } from './schemas/schema';
 import { createNote } from './bear';
 import AppDatabase from './database';
-
-import { Resolvers } from './resolvers-types';
+import resolvers from './resolvers';
 
 const { zonedTimeToUtc } = require('date-fns-tz');
 
@@ -72,18 +69,9 @@ const startApolloServer = async () => {
   };
   const apolloDb = new AppDatabase(knexConfig);
 
-  const typeDefs = await loadSchema('./src/main/schemas/area.graphql', {
+  const typeDefs = await loadSchema('./src/main/schemas/*.graphql', {
     loaders: [new GraphQLFileLoader()],
   });
-
-  const resolvers: Resolvers = {
-    Query: {
-      areas: async (_, {}, { dataSources }) => {
-        return dataSources.apolloDb.getAreas();
-      },
-    },
-    DateTime: DateTimeResolver,
-  };
 
   const server = new ApolloServer({
     typeDefs,
