@@ -27,10 +27,12 @@ class AppDatabase extends SQLDataSource {
   /* View Order */
 
   async getViewOrders(): Promise<ViewOrderEntity[]> {
+    log.debug('Getting all view orders');
     return this.knex('viewOrder').select('*');
   }
 
   async getViewOrder(key: string): Promise<ViewOrderEntity> {
+    log.debug(`Getting view order with key: ${key}`);
     try {
       const viewOrder = await this.knex()
         .select<ViewOrderEntity>('*')
@@ -49,6 +51,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async createViewOrder(viewKey: string): Promise<ViewOrderEntity> {
+    log.debug(`Creating view order for view: ${viewKey}`);
     const maxSortOrder = await this.knex
       .max('sortOrder as max')
       .from('viewOrder')
@@ -80,6 +83,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setViewOrder(key: string, sortOrder: number): Promise<ViewOrderEntity> {
+    log.debug(`Setting view order for view: ${key} to ${sortOrder}`);
     const currentViewOrder = await this.getViewOrder(key);
     if (!currentViewOrder) {
       throw new Error('Failed to get current view order');
@@ -108,10 +112,12 @@ class AppDatabase extends SQLDataSource {
   /* Views */
 
   async getViews(): Promise<ViewEntity[]> {
+    log.debug('Getting all views');
     return this.knex('view').select('*');
   }
 
   async getView(key: string): Promise<ViewEntity> {
+    log.debug(`Getting view with key: ${key}`);
     try {
       const view = await this.knex()
         .select<ViewEntity>('*')
@@ -138,6 +144,9 @@ class AppDatabase extends SQLDataSource {
     icon: string,
     type: string
   ): Promise<ViewEntity> {
+    log.debug(
+      `Creating view with key: ${key}, name: ${name}, icon: ${icon}, type: ${type}`
+    );
     try {
       const insertedId = await this.knex
         .insert({
@@ -173,6 +182,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteView(key: string): Promise<ViewEntity> {
+    log.debug(`Deleting view with key: ${key}`);
     try {
       await this.knex('view').where({ key }).update({
         deleted: true,
@@ -198,6 +208,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async renameView(key: string, name: string): Promise<ViewEntity> {
+    log.debug(`Renaming view with key: ${key} to ${name}`);
     try {
       await this.knex('view')
         .where({ key })
@@ -221,10 +232,12 @@ class AppDatabase extends SQLDataSource {
 
   /* ProjectOrder */
   async getProjectOrders(): Promise<ProjectOrderEntity[]> {
+    log.debug('Getting all project orders');
     return this.knex('projectOrder').select('*');
   }
 
   async getProjectOrder(projectKey: string): Promise<ProjectOrderEntity> {
+    log.debug(`Getting project order with projectKey: ${projectKey}`);
     try {
       const projectOrder = await this.knex()
         .select<ProjectOrderEntity>('*')
@@ -244,6 +257,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async createProjectOrder(projectKey: string): Promise<ProjectOrderEntity> {
+    log.debug(`Creating project order with projectKey: ${projectKey}`);
     const maxSortOrder = await this.knex
       .max('sortOrder as max')
       .from('projectOrder')
@@ -280,6 +294,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     sortOrder: number
   ): Promise<ProjectOrderEntity> {
+    log.debug(`Setting project order with key: ${key} to ${sortOrder}`);
     const currentProjectOrder = await this.getProjectOrder(key);
     const currentOrder = currentProjectOrder.sortOrder;
     try {
@@ -305,10 +320,12 @@ class AppDatabase extends SQLDataSource {
 
   /* Projects */
   async getProjects(): Promise<ProjectEntity[]> {
+    log.debug('Getting all projects');
     return this.knex.select('*').from('project');
   }
 
   async getProject(key: string): Promise<ProjectEntity> {
+    log.debug(`Getting project with key: ${key}`);
     try {
       const project = await this.knex()
         .select<ProjectEntity>('*')
@@ -329,6 +346,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getProjectsByArea(areaKey: string): Promise<ProjectEntity[]> {
+    log.debug(`Getting projects with areaKey: ${areaKey}`);
     try {
       const projects = await this.knex()
         .select('*')
@@ -346,6 +364,9 @@ class AppDatabase extends SQLDataSource {
     name: string,
     description: string
   ): Promise<ProjectEntity> {
+    log.debug(
+      `Creating project with key: ${key}, name: ${name}, description: ${description}`
+    );
     try {
       const insertedId = await this.knex
         .insert({
@@ -384,6 +405,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteProject(key: string): Promise<ProjectEntity> {
+    log.debug(`Deleting project with key: ${key}`);
     try {
       const deletedId = await this.knex('project').where({ key }).update({
         deleted: true,
@@ -408,6 +430,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async renameProject(key: string, name: string): Promise<ProjectEntity> {
+    log.debug(`Renaming project with key: ${key} to ${name}`);
     try {
       const projectId = await this.knex('project')
         .update({ name, lastUpdatedAt: new Date().toISOString() })
@@ -430,6 +453,9 @@ class AppDatabase extends SQLDataSource {
     key: string,
     description: string
   ): Promise<ProjectEntity> {
+    log.debug(
+      `Changing description of project with key: ${key} to ${description}`
+    );
     try {
       const projectId = await this.knex('project')
         .where({ key })
@@ -451,6 +477,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setEndDateOfProject(key: string, endAt: Date) {
+    log.debug(`Setting end date of project with key: ${key} to ${endAt}`);
     try {
       const projectId = await this.knex('project')
         .where({ key })
@@ -469,6 +496,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setStartDateOfProject(key: string, startAt: Date) {
+    log.debug(`Setting start date of project with key: ${key} to ${startAt}`);
     try {
       const projectId = await this.knex('project')
         .where({ key })
@@ -489,6 +517,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setEmojiOfProject(key: string, emoji: string): Promise<ProjectEntity> {
+    log.debug(`Setting emoji of project with key: ${key} to ${emoji}`);
     try {
       const projectId = await this.knex('project')
         .where({ key })
@@ -507,6 +536,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setAreaOfProject(key: string, areaKey: string): Promise<ProjectEntity> {
+    log.debug(`Setting area of project with key: ${key} to ${areaKey}`);
     try {
       const projectId = await this.knex('project')
         .where({ key })
@@ -527,10 +557,12 @@ class AppDatabase extends SQLDataSource {
   /* AreaOrder */
 
   async getAreaOrders(): Promise<AreaOrderEntity[]> {
+    log.debug(`Getting area orders`);
     return this.knex('areaOrder').select('*');
   }
 
   async getAreaOrder(areaKey: string): Promise<AreaOrderEntity> {
+    log.debug(`Getting area order with area key: ${areaKey}`);
     try {
       const areaOrder = await this.knex()
         .select('*')
@@ -545,6 +577,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async createAreaOrder(areaKey: string): Promise<AreaOrderEntity> {
+    log.debug(`Creating area order with area key: ${areaKey}`);
     try {
       const maxSortOrder = await this.knex
         .max('sortOrder as max')
@@ -571,6 +604,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setAreaOrder(key: string, sortOrder: number): Promise<AreaOrderEntity> {
+    log.debug(`Setting area order with key: ${key} to ${sortOrder}`);
     try {
       const currentAreaOrder = await this.getAreaOrder(key);
       const currentOrder = currentAreaOrder.sortOrder;
@@ -603,10 +637,12 @@ class AppDatabase extends SQLDataSource {
 
   /* Areas */
   async getAreas(): Promise<AreaEntity[]> {
+    log.debug(`Getting areas`);
     return this.knex.select('*').from('area');
   }
 
   async getArea(key: string): Promise<AreaEntity> {
+    log.debug(`Getting area with key: ${key}`);
     try {
       const area = await this.knex()
         .select('*')
@@ -625,6 +661,9 @@ class AppDatabase extends SQLDataSource {
     name: string,
     description: string
   ): Promise<AreaEntity> {
+    log.debug(
+      `Creating area with key: ${key}, name: ${name}, description: ${description}`
+    );
     try {
       const insertedId = await this.knex
         .insert({
@@ -655,6 +694,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteArea(key: string): Promise<AreaEntity> {
+    log.debug(`Deleting area with key: ${key}`);
     try {
       const deletedId = await this.knex('area').where({ key }).update({
         deleted: true,
@@ -685,6 +725,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async renameArea(key: string, name: string): Promise<AreaEntity> {
+    log.debug(`Renaming area with key: ${key} to ${name}`);
     try {
       const updatedId = await this.knex('area')
         .where({ key })
@@ -704,6 +745,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     description: string
   ): Promise<AreaEntity> {
+    log.debug(`Setting description of area with key: ${key} to ${description}`);
     try {
       const updatedId = await this.knex('area')
         .where({ key })
@@ -722,6 +764,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setEmojiOfArea(key: string, emoji: string): Promise<AreaEntity> {
+    log.debug(`Setting emoji of area with key: ${key} to ${emoji}`);
     try {
       const updatedId = await this.knex('area')
         .where({ key })
@@ -741,6 +784,7 @@ class AppDatabase extends SQLDataSource {
 
   /* ItemOrders */
   async getItemOrders(): Promise<ItemOrderEntity[]> {
+    log.debug(`Getting itemOrders`);
     return this.knex('itemOrder');
   }
 
@@ -748,6 +792,9 @@ class AppDatabase extends SQLDataSource {
     itemKey: string,
     componentKey: string
   ): Promise<ItemOrderEntity> {
+    log.debug(
+      `Getting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey}`
+    );
     try {
       console.log({ componentKey });
       const itemOrder = await this.knex()
@@ -769,6 +816,7 @@ class AppDatabase extends SQLDataSource {
   async getItemOrdersByComponent(
     componentKey: string
   ): Promise<ItemOrderEntity[]> {
+    log.debug(`Getting itemOrders with componentKey: ${componentKey}`);
     try {
       console.log({ componentKey });
       const itemOrders = await this.knex()
@@ -796,6 +844,9 @@ class AppDatabase extends SQLDataSource {
     itemKey: string,
     componentKey: string
   ): Promise<ItemOrderEntity> {
+    log.debug(
+      `Creating itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey}`
+    );
     try {
       const maxSortOrder = await this.knex
         .max('sortOrder as max')
@@ -829,10 +880,12 @@ class AppDatabase extends SQLDataSource {
     itemOrders: string[],
     componentKey: string
   ): Promise<ItemOrderEntity[]> {
+    log.debug(`Bulk creating itemOrders with componentKey: ${componentKey}`);
     try {
       const maxSortOrder = await this.knex
         .max('sortOrder as max')
         .from('itemOrder')
+        .where({ componentKey })
         .first();
 
       const inserted = await this.knex.batchInsert(
@@ -868,6 +921,9 @@ class AppDatabase extends SQLDataSource {
     componentKey: string,
     sortOrder: number
   ): Promise<ItemOrderEntity> {
+    log.debug(
+      `Setting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey} to sortOrder: ${sortOrder}`
+    );
     try {
       const currentItemOrder = await this.getItemOrder(itemKey, componentKey);
       const currentOrder = currentItemOrder.sortOrder;
@@ -903,6 +959,9 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteItemOrders(itemKeys: string[], componentKey: string) {
+    log.debug(
+      `Deleting itemOrders with itemKeys: ${itemKeys} and componentKey: ${componentKey}`
+    );
     const deletedIds = await this.knex('itemOrder')
       .whereIn('itemKey', itemKeys)
       .where({ componentKey })
@@ -911,6 +970,9 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteItemOrder(itemKey: string, componentKey: string) {
+    log.debug(
+      `Deleting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey}`
+    );
     const deletedId = await this.knex('itemOrder')
       .where({ itemKey, componentKey })
       .delete();
@@ -918,6 +980,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteItemOrdersByComponent(componentKey: string): Promise<string> {
+    log.debug(`Deleting itemOrders with componentKey: ${componentKey}`);
     return (
       await this.knex('itemOrder').where({ componentKey }).delete()
     ).toString();
@@ -926,10 +989,12 @@ class AppDatabase extends SQLDataSource {
   /* Items */
 
   async getItems(): Promise<ItemEntity[]> {
+    log.debug('Getting items');
     return this.knex.select('*').from('item');
   }
 
   async getItem(key: string): Promise<ItemEntity> {
+    log.debug(`Getting item with key: ${key}`);
     try {
       const item = await this.knex()
         .select('*')
@@ -944,6 +1009,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getItemsByProject(projectKey: string): Promise<ItemEntity[]> {
+    log.debug(`Getting items with projectKey: ${projectKey}`);
     try {
       const item = await this.knex()
         .select('*')
@@ -957,6 +1023,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getItemsByArea(areaKey: string): Promise<ItemEntity[]> {
+    log.debug(`Getting items with areaKey: ${areaKey}`);
     try {
       const item = await this.knex()
         .select('*')
@@ -970,6 +1037,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getItemsByParent(parentKey: string): Promise<ItemEntity[]> {
+    log.debug(`Getting items with parentKey: ${parentKey}`);
     try {
       const item = await this.knex()
         .select('*')
@@ -986,7 +1054,9 @@ class AppDatabase extends SQLDataSource {
     filter: string,
     componentKey: string
   ): Promise<ItemEntity[]> {
-    console.log(componentKey);
+    log.debug(
+      `Getting items with filter: ${filter} and componentKey: ${componentKey}`
+    );
 
     const valueProcessor = (
       field: string,
@@ -1092,6 +1162,9 @@ class AppDatabase extends SQLDataSource {
     dueAt?: Date,
     scheduledAt?: Date
   ): Promise<ItemEntity> {
+    log.debug(
+      `Creating item with key: ${key}, labelKey: ${labelKey}, parentKey: ${parentKey}, projectKey: ${projectKey}, repeat: ${repeat}, text: ${text}, type: ${type}, dueAt: ${dueAt}, scheduledAt: ${scheduledAt}`
+    );
     try {
       // Get the parent to inherit some values
       const parent = parentKey ? null : await this.getItem(parentKey);
@@ -1130,6 +1203,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteItem(key: string): Promise<ItemEntity> {
+    log.debug(`Deleting item with key: ${key}`);
     try {
       // TODO: Check if the item is deleted
       const children = await this.getItemsByParent(key);
@@ -1159,6 +1233,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async restoreItem(key: string): Promise<ItemEntity> {
+    log.debug(`Restoring item with key: ${key}`);
     try {
       // TODO: Check if the item is deleted
       const children = await this.getItemsByParent(key);
@@ -1185,6 +1260,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async renameItem(key: string, text: string): Promise<ItemEntity> {
+    log.debug(`Renaming item with key: ${key} to text: ${text}`);
     try {
       // TODO: Check if the item is deleted
       const renamedItemId = await this.knex('item').where({ key }).update({
@@ -1203,6 +1279,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async completeItem(key: string): Promise<ItemEntity> {
+    log.debug(`Completing item with key: ${key}`);
     try {
       const item = await this.getItem(key);
       if (item.repeat) {
@@ -1240,6 +1317,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async unCompleteItem(key: string): Promise<ItemEntity> {
+    log.debug(`Uncompleting item with key: ${key}`);
     try {
       await this.getItem(key);
       // What should happen if an item has a repeat?
@@ -1262,6 +1340,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setRepeatOfItem(key: string, repeat: string): Promise<ItemEntity> {
+    log.debug(`Setting repeat of item with key: ${key} to ${repeat}`);
     try {
       const nextRepeatDate = rrulestr(repeat).after(new Date());
       const updatedId = await this.knex('item').where({ key }).update({
@@ -1281,6 +1360,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setProjectOfItem(key: string, projectKey: string): Promise<ItemEntity> {
+    log.debug(`Setting project of item with key: ${key} to ${projectKey}`);
     try {
       const updatedId = await this.knex('item').where({ key }).update({
         projectKey,
@@ -1304,6 +1384,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setAreaOfItem(key: string, areaKey: string): Promise<ItemEntity> {
+    log.debug(`Setting area of item with key: ${key} to ${areaKey}`);
     try {
       const updatedId = await this.knex('item').where({ key }).update({
         areaKey,
@@ -1330,6 +1411,9 @@ class AppDatabase extends SQLDataSource {
     key: string,
     scheduledAt: Date
   ): Promise<ItemEntity> {
+    log.debug(
+      `Setting scheduled at of item with key: ${key} to ${scheduledAt}`
+    );
     try {
       const updatedId = await this.knex('item')
         .where({ key })
@@ -1347,6 +1431,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setDueAtOfItem(key: string, dueAt: Date): Promise<ItemEntity> {
+    log.debug(`Setting due at of item with key: ${key} to ${dueAt}`);
     try {
       const updatedId = await this.knex('item')
         .where({ key })
@@ -1364,6 +1449,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async cloneItem(key: string): Promise<ItemEntity> {
+    log.debug(`Cloning item with key: ${key}`);
     const newKey = uuidv4();
     const item = await this.getItem(key);
     return this.createItem(
@@ -1380,6 +1466,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setParentOfItem(key: string, parentKey: string): Promise<ItemEntity> {
+    log.debug(`Setting parent of item with key: ${key} to ${parentKey}`);
     try {
       const children = await this.getItemsByParent(key);
       if (children.length) {
@@ -1403,6 +1490,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async permanentDeleteItem(key: string): Promise<string> {
+    log.debug(`Permanently deleting item with key: ${key}`);
     try {
       // TODO: What about deleting children?
       const deletedId = await this.knex('item').where({ key }).delete();
@@ -1418,6 +1506,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setLabelOfItem(key: string, labelKey: string): Promise<ItemEntity> {
+    log.debug(`Setting label of item with key: ${key} to ${labelKey}`);
     try {
       const updatedId = await this.knex('item').where({ key }).update({
         labelKey,
@@ -1443,10 +1532,12 @@ class AppDatabase extends SQLDataSource {
 
   /* Features */
   async getFeatures(): Promise<FeatureEntity[]> {
+    log.debug('Getting features');
     return this.knex.select('*').from('feature');
   }
 
   async getFeature(key: string): Promise<FeatureEntity> {
+    log.debug(`Getting feature with key: ${key}`);
     try {
       const feature = await this.knex()
         .select('*')
@@ -1465,6 +1556,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getFeatureByName(name: string): Promise<FeatureEntity> {
+    log.debug(`Getting feature with name: ${name}`);
     try {
       const feature = await this.knex()
         .select('*')
@@ -1483,6 +1575,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setFeature(key: string, enabled: boolean): Promise<FeatureEntity> {
+    log.debug(`Setting feature with key: ${key} to ${enabled}`);
     try {
       const updatedId = await this.knex('feature')
         .where({ key })
@@ -1502,6 +1595,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     metadata: Record<string, unknown>
   ): Promise<FeatureEntity> {
+    log.debug(`Setting feature metadata with key: ${key}`);
     try {
       const updatedId = await this.knex('feature')
         .where({ key })
@@ -1523,6 +1617,11 @@ class AppDatabase extends SQLDataSource {
     enabled: boolean,
     metadata: Record<string, unknown>
   ): Promise<FeatureEntity> {
+    log.debug(
+      `Creating feature with key: ${key}, name: ${name}, enabled: ${enabled}, metadata: ${JSON.stringify(
+        metadata
+      )}`
+    );
     try {
       const insertedId = await this.knex
         .insert({
@@ -1550,6 +1649,7 @@ class AppDatabase extends SQLDataSource {
   /* Labels */
 
   async getLabels(): Promise<LabelEntity[]> {
+    log.debug('Getting labels');
     try {
       return await this.knex.select('*').from('label');
     } catch (e) {
@@ -1559,7 +1659,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getLabel(key: string): Promise<LabelEntity> {
-    console.log({ key });
+    log.debug(`Getting label with key: ${key}`);
     try {
       const label = await this.knex('label').select('*').where({ key }).first();
       console.log({ label });
@@ -1579,6 +1679,9 @@ class AppDatabase extends SQLDataSource {
     name: string,
     colour: string
   ): Promise<LabelEntity> {
+    log.debug(
+      `Creating label with key: ${key}, name: ${name}, colour: ${colour}`
+    );
     try {
       const newLabel = await this.knex('label').insert({ key, name, colour });
       if (newLabel) {
@@ -1593,6 +1696,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async renameLabel(key: string, name: string): Promise<LabelEntity> {
+    log.debug(`Renaming label with key: ${key} to ${name}`);
     try {
       const updatedId = await this.knex('label')
         .where({ key })
@@ -1609,6 +1713,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setColourOfLabel(key: string, colour: string): Promise<LabelEntity> {
+    log.debug(`Setting colour of label with key: ${key} to ${colour}`);
     try {
       const updatedId = await this.knex('label')
         .where({ key })
@@ -1625,6 +1730,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteLabel(key: string): Promise<string> {
+    log.debug(`Deleting label with key: ${key}`);
     try {
       const updatedId = await this.knex('label').where({ key }).del();
       if (updatedId) {
@@ -1640,6 +1746,7 @@ class AppDatabase extends SQLDataSource {
 
   /* Reminder */
   async getReminders(): Promise<ReminderEntity[]> {
+    log.debug('Getting reminders');
     try {
       return await this.knex.select('*').from('reminder');
     } catch (e) {
@@ -1649,6 +1756,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getReminder(key: string): Promise<ReminderEntity> {
+    log.debug(`Getting reminder with key: ${key}`);
     try {
       const reminder = await this.knex('reminder').where({ key }).first();
       return reminder;
@@ -1659,6 +1767,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getRemindersByItem(itemKey: string): Promise<ReminderEntity[]> {
+    log.debug(`Getting reminders with item key: ${itemKey}`);
     try {
       const items = await this.knex('reminder').where({ itemKey }).select('*');
       if (items) {
@@ -1678,6 +1787,9 @@ class AppDatabase extends SQLDataSource {
     remindAt: Date,
     itemKey: string
   ): Promise<ReminderEntity> {
+    log.debug(
+      `Creating reminder with key: ${key}, text: ${text}, remindAt: ${remindAt.toISOString()}, itemKey: ${itemKey}`
+    );
     try {
       const insertedId = await this.knex('reminder').insert({
         key,
@@ -1699,6 +1811,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteReminder(key: string): Promise<ReminderEntity> {
+    log.debug(`Deleting reminder with key: ${key}`);
     try {
       const updatedId = await this.knex('reminder')
         .update({
@@ -1719,6 +1832,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteReminderFromItem(itemKey: string): Promise<ReminderEntity> {
+    log.debug(`Deleting reminders with item key: ${itemKey}`);
     try {
       const updatedId = await this.knex('reminder')
         .update({
@@ -1740,6 +1854,7 @@ class AppDatabase extends SQLDataSource {
 
   /* Component */
   async getComponents(): Promise<ComponentEntity[]> {
+    log.debug('Getting components');
     try {
       return await this.knex.select('*').from('component');
     } catch (e) {
@@ -1749,6 +1864,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getComponent(key: string): Promise<ComponentEntity> {
+    log.debug(`Getting component with key: ${key}`);
     try {
       const component = await this.knex('component').where({ key }).first();
       if (component) {
@@ -1763,6 +1879,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getComponentsByView(viewKey: string): Promise<ComponentEntity[]> {
+    log.debug(`Getting components with view key: ${viewKey}`);
     try {
       const components = await this.knex('component').where({ viewKey });
       if (components) {
@@ -1783,6 +1900,11 @@ class AppDatabase extends SQLDataSource {
     type: string,
     parameters: Record<string, any>
   ): Promise<ComponentEntity> {
+    log.debug(
+      `Creating component with key: ${key}, viewKey: ${viewKey}, location: ${location}, type: ${type}, parameters: ${JSON.stringify(
+        parameters
+      )}`
+    );
     try {
       const insertedId = await this.knex('component').insert({
         key,
@@ -1804,6 +1926,7 @@ class AppDatabase extends SQLDataSource {
 
   // TODO: Make this a transaction
   async cloneComponent(key: string): Promise<ComponentEntity> {
+    log.debug(`Cloning component with key: ${key}`);
     try {
       const newKey = uuidv4();
       const component = await this.getComponent(key);
@@ -1848,6 +1971,7 @@ class AppDatabase extends SQLDataSource {
 
   // TODO: Remove all item orders when deleting a component #339
   async deleteComponent(key: string): Promise<string> {
+    log.debug(`Deleting component with key: ${key}`);
     try {
       const deletedId = await this.knex('component').where({ key }).del();
       if (deletedId) {
@@ -1865,6 +1989,11 @@ class AppDatabase extends SQLDataSource {
     key: string,
     parameters: Record<string, any>
   ): Promise<ComponentEntity> {
+    log.debug(
+      `Setting parameters of component with key: ${key}, parameters: ${JSON.stringify(
+        parameters
+      )}`
+    );
     try {
       const updatedId = await this.knex('component')
         .where({ key })
@@ -1881,6 +2010,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async updateComponentOnProjectNameChange(viewKey: string, name: string) {
+    log.debug(`Updating component on project name change with viewKey: ${viewKey}, name: ${name}`);)
     const components = await this.knex('component').where({
       viewKey,
       type: 'FilteredItemList',
@@ -1907,6 +2037,7 @@ class AppDatabase extends SQLDataSource {
 
   /* Component Order */
   async getComponentOrders(): Promise<ComponentOrderEntity[]> {
+    log.debug('Getting component orders');
     try {
       return await this.knex.select('*').from('componentOrder');
     } catch (e) {
@@ -1916,6 +2047,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getComponentOrder(componentKey: string): Promise<ComponentOrderEntity> {
+    log.debug(`Getting component order with component key: ${componentKey}`);
     try {
       const componentOrder = await this.knex('componentOrder')
         .where({ componentKey })
@@ -1934,6 +2066,7 @@ class AppDatabase extends SQLDataSource {
   async createComponentOrder(
     componentKey: string
   ): Promise<ComponentOrderEntity> {
+    log.debug(`Creating component order with component key: ${componentKey}`);
     try {
       const maxSortOrder = await this.knex
         .max('sortOrder as max')
@@ -1962,6 +2095,7 @@ class AppDatabase extends SQLDataSource {
     componentKey: string,
     sortOrder: number
   ): Promise<ComponentOrderEntity> {
+    log.debug( `Setting component order with component key: ${componentKey}, sortOrder: ${sortOrder}`);
     try {
       const currentcomponentOrder = await this.getComponentOrder(componentKey);
       const currentOrder = currentcomponentOrder.sortOrder;
@@ -1991,10 +2125,12 @@ class AppDatabase extends SQLDataSource {
 
   /* Calendar */
   async getCalendars(): Promise<CalendarEntity[]> {
+    log.debug(`Getting calendars`);
     return this.knex.select('*').from('calendar');
   }
 
   async getCalendar(key: string): Promise<CalendarEntity> {
+    log.debug(`Getting calendar with key: ${key}`);
     try {
       const calendar = await this.knex('calendar').where({ key }).first();
       if (calendar) {
@@ -2009,6 +2145,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getActiveCalendar(): Promise<CalendarEntity> {
+    log.debug('Getting active calendar');
     try {
       const calendar = await this.knex('calendar')
         .where({ active: true })
@@ -2029,6 +2166,7 @@ class AppDatabase extends SQLDataSource {
     name: string,
     active: boolean
   ): Promise<CalendarEntity> {
+    log.debug(`Creating calendar with key: ${key}, name: ${name}, active: ${active}`);
     try {
       const insertedId = await this.knex('calendar').insert({
         key,
@@ -2049,6 +2187,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteCalendar(key: string): Promise<CalendarEntity> {
+    log.debug(`Deleting calendar with key: ${key}`);
     try {
       const deletedId = await this.knex('calendar').where({ key }).update({
         deleted: true,
@@ -2067,6 +2206,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setActiveCalendar(key: string): Promise<CalendarEntity> {
+    log.debug(`Setting active calendar with key: ${key}`);
     // TODO: Setting a deleted calendar active
     try {
       await this.knex('calendar').update({
@@ -2090,6 +2230,7 @@ class AppDatabase extends SQLDataSource {
 
   /* Events */
   async getEvents(): Promise<Event[]> {
+    log.debug(`Getting events`);
     try {
       return await this.knex.select('*').from('event');
     } catch (err) {
@@ -2099,6 +2240,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getEvent(key: string): Promise<Event> {
+    log.debug(`Getting event with key: ${key}`);
     try {
       return await this.knex('event').where({ key }).first();
     } catch (err) {
@@ -2108,6 +2250,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getEventsByCalendar(calendarKey: string): Promise<Event[]> {
+    log.debug(`Getting events with calendar key: ${calendarKey}`);
     try {
       return await this.knex('event').where({ calendarKey });
     } catch (err) {
@@ -2119,6 +2262,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getEventsForActiveCalendar(): Promise<Event[]> {
+    log.debug('Getting events for active calendar');
     try {
       const activeCalendar = await this.getActiveCalendar();
       if (!activeCalendar) {
@@ -2146,6 +2290,7 @@ class AppDatabase extends SQLDataSource {
     attendees: { name: string; email: string }[],
     recurrence: string
   ): Promise<Event> {
+    log.debug(`Creating event with key: ${key}, title: ${title}, description: ${description}, startAt: ${startAt}, endAt: ${endAt}, allDay: ${allDay}, calendarKey: ${calendarKey}, location: ${location}, attendees: ${attendees}, recurrence: ${recurrence}`);
     try {
       const insertedId = await this.knex('event')
         .insert({
@@ -2175,6 +2320,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteEvent(key: string): Promise<string> {
+    log.debug(`Deleting event with key: ${key}`);
     try {
       return await this.knex('event').where({ key }).del();
     } catch (err) {
@@ -2186,10 +2332,12 @@ class AppDatabase extends SQLDataSource {
   /* Weekly goal */
 
   async getWeeklyGoals(): Promise<WeeklyGoalEntity[]> {
+    log.debug(`Getting weekly goals`);
     return this.knex.select('*').from('weeklyGoal');
   }
 
   async getWeeklyGoal(key: string): Promise<WeeklyGoalEntity> {
+    log.debug(`Getting weekly goal with key: ${key}`);
     try {
       return await this.knex('weeklyGoal').where({ key }).first();
     } catch (err) {
@@ -2199,6 +2347,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getWeeklyGoalByName(name: string): Promise<WeeklyGoalEntity> {
+    log.debug(`Getting weekly goal with name: ${name}`);
     try {
       return await this.knex('weeklyGoal').where({ name }).first();
     } catch (err) {
@@ -2212,6 +2361,7 @@ class AppDatabase extends SQLDataSource {
     week: string,
     goal: string
   ): Promise<WeeklyGoalEntity> {
+    log.debug(`Creating weekly goal with key: ${key}, week: ${week}, goal: ${goal}`);
     try {
       const createdId = await this.knex('weeklyGoal')
         .insert({
