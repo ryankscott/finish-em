@@ -44,6 +44,8 @@ const { zonedTimeToUtc } = require('date-fns-tz');
 
 const executeAppleScript = util.promisify(applescript.execString);
 
+log.transports.console.level = 'debug';
+
 const isDev =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 log.info(`Running in ${isDev ? 'development' : 'production'}`);

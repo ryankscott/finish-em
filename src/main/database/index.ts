@@ -2010,7 +2010,9 @@ class AppDatabase extends SQLDataSource {
   }
 
   async updateComponentOnProjectNameChange(viewKey: string, name: string) {
-    log.debug(`Updating component on project name change with viewKey: ${viewKey}, name: ${name}`);)
+    log.debug(
+      `Updating component on project name change with viewKey: ${viewKey}, name: ${name}`
+    );
     const components = await this.knex('component').where({
       viewKey,
       type: 'FilteredItemList',
@@ -2095,7 +2097,9 @@ class AppDatabase extends SQLDataSource {
     componentKey: string,
     sortOrder: number
   ): Promise<ComponentOrderEntity> {
-    log.debug( `Setting component order with component key: ${componentKey}, sortOrder: ${sortOrder}`);
+    log.debug(
+      `Setting component order with component key: ${componentKey}, sortOrder: ${sortOrder}`
+    );
     try {
       const currentcomponentOrder = await this.getComponentOrder(componentKey);
       const currentOrder = currentcomponentOrder.sortOrder;
@@ -2166,7 +2170,9 @@ class AppDatabase extends SQLDataSource {
     name: string,
     active: boolean
   ): Promise<CalendarEntity> {
-    log.debug(`Creating calendar with key: ${key}, name: ${name}, active: ${active}`);
+    log.debug(
+      `Creating calendar with key: ${key}, name: ${name}, active: ${active}`
+    );
     try {
       const insertedId = await this.knex('calendar').insert({
         key,
@@ -2290,7 +2296,9 @@ class AppDatabase extends SQLDataSource {
     attendees: { name: string; email: string }[],
     recurrence: string
   ): Promise<Event> {
-    log.debug(`Creating event with key: ${key}, title: ${title}, description: ${description}, startAt: ${startAt}, endAt: ${endAt}, allDay: ${allDay}, calendarKey: ${calendarKey}, location: ${location}, attendees: ${attendees}, recurrence: ${recurrence}`);
+    log.debug(
+      `Creating event with key: ${key}, title: ${title}, description: ${description}, startAt: ${startAt}, endAt: ${endAt}, allDay: ${allDay}, calendarKey: ${calendarKey}, location: ${location}, attendees: ${attendees}, recurrence: ${recurrence}`
+    );
     try {
       const insertedId = await this.knex('event')
         .insert({
@@ -2361,7 +2369,9 @@ class AppDatabase extends SQLDataSource {
     week: string,
     goal: string
   ): Promise<WeeklyGoalEntity> {
-    log.debug(`Creating weekly goal with key: ${key}, week: ${week}, goal: ${goal}`);
+    log.debug(
+      `Creating weekly goal with key: ${key}, week: ${week}, goal: ${goal}`
+    );
     try {
       const createdId = await this.knex('weeklyGoal')
         .insert({
