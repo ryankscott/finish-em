@@ -18,7 +18,7 @@ import {
 } from 'renderer/queries/component';
 import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
-import { ItemIcons } from '../interfaces/item';
+import { ItemIcons } from '../interfaces';
 import Expression from './filter-box/Expression';
 import ItemFilterBox from './ItemFilterBox';
 import ItemFilterBuilder from './ItemFilterBuilder';
@@ -50,6 +50,8 @@ const FilteredItemDialog = ({
     variables: { key: componentKey },
     fetchPolicy: 'no-cache',
   });
+  console.log({ componentKey });
+  console.log({ data });
 
   if (loading) return <></>;
   if (error) {

@@ -12,8 +12,8 @@ import {
 import { ReactElement, useState } from 'react';
 import { orderBy } from 'lodash';
 import { Icons } from 'renderer/assets/icons';
-import { Item } from '../../main/generated/typescript-helpers';
-import { ItemIcons } from '../interfaces/item';
+import { INBOX_COMPONENT_KEY } from 'consts';
+import { ItemIcons } from '../interfaces';
 import EditFilteredItemList from './EditFilteredItemList';
 import ReorderableItemList from './ReorderableItemList';
 import SortDropdown, { SortDirectionEnum } from './SortDropdown';
@@ -270,7 +270,7 @@ const FilteredItemList = ({
           </Flex>
         </GridItem>
       </Grid>
-      {editing ? (
+      {editing && componentKey != INBOX_COMPONENT_KEY ? (
         <EditFilteredItemList
           key={`dlg-${componentKey}`}
           componentKey={componentKey}

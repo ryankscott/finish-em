@@ -29,17 +29,15 @@ import {
   RESTORE_ITEM,
 } from 'renderer/queries';
 import RRule from 'rrule';
+import { Item } from 'main/resolvers-types';
 import { activeItemVar, focusbarVisibleVar } from '../cache';
-import { Item as ItemType } from '../../main/generated/typescript-helpers';
 import { Icons } from '../assets/icons';
-import { IconType } from '../interfaces';
-import { ItemIcons } from '../interfaces/item';
+import { IconType, ItemIcons } from '../interfaces';
 import { formatRelativeDate } from '../utils';
 import AreaSelect from './AreaSelect';
 import ItemSelect from './ItemSelect';
 import DatePicker from './DatePicker';
 import EditableText from './EditableText';
-import Item from './Item';
 import ItemCreator from './ItemCreator';
 import LabelSelect from './LabelSelect';
 import ProjectSelect from './ProjectSelect';
@@ -124,7 +122,7 @@ const Focusbar = (): ReactElement => {
     );
   }
 
-  const item: ItemType = data?.item;
+  const item: Item = data?.item;
   if (!item) return <></>;
 
   // TODO: Refactor me

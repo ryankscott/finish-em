@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { View, Area, Project } from 'main/generated/typescript-helpers';
+import { Area, View, Project } from 'main/resolvers-types';
 
 export type SidebarData = {
   areas: Area[];

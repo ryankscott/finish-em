@@ -15,6 +15,7 @@ import {
 import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
+import { Item, Project } from 'main/resolvers-types';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -29,18 +30,13 @@ import {
   SET_START_DATE_OF_PROJECT,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import DatePicker from './DatePicker';
-import {
-  Item as ItemType,
-  Project as ProjectType,
-} from '../../main/generated/typescript-helpers';
 import { formatRelativeDate } from '../utils';
+import DatePicker from './DatePicker';
 import DeleteProjectDialog from './DeleteProjectDialog';
 import { Donut } from './Donut';
 import EditableText from './EditableText';
 import ItemCreator from './ItemCreator';
 import './styled/ReactDatePicker.css';
-import { apolloServerClient } from 'renderer';
 
 type ProjectProps = {
   projectKey: string;
@@ -67,7 +63,6 @@ const Project = ({ projectKey }: ProjectProps) => {
 
   const { loading, error, data } = useQuery(GET_PROJECT_BY_KEY, {
     variables: { key: projectKey },
-    client: apolloServerClient,
   });
 
   if (loading) return null;
@@ -76,8 +71,7 @@ const Project = ({ projectKey }: ProjectProps) => {
     return null;
   }
   const { project, projects } = data;
-  console.log({ project });
-  const allItems: ItemType[] = project?.items;
+  const allItems: Item[] = project?.items;
   const completedItems = allItems.filter((i) => i.completed === true);
   return (
     <>
@@ -141,7 +135,7 @@ const Project = ({ projectKey }: ProjectProps) => {
               fontWeight="light"
               onSubmit={(input) => {
                 const exists = projects
-                  .map((p: ProjectType) => p.name === input)
+                  .map((p: Project) => p.name === input)
                   .includes(true);
                 if (exists) {
                   toast.error(

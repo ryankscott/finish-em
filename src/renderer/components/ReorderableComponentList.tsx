@@ -15,23 +15,21 @@ import {
   MenuItem,
   Button,
   Flex,
-  useTheme,
   useColorMode,
   Icon,
 } from '@chakra-ui/react';
-import { transparentize } from 'polished';
 import {
   ADD_COMPONENT,
   GET_COMPONENTS_BY_VIEW,
   SET_COMPONENT_ORDER,
 } from 'renderer/queries';
+import { Component } from 'main/resolvers-types';
 import { Icons } from '../assets/icons';
 import ComponentActions from './ComponentActions';
 import FilteredItemList from './FilteredItemList';
 import ItemCreator from './ItemCreator';
 import Spinner from './Spinner';
 import ViewHeader from './ViewHeader';
-import { Component } from '../../main/generated/typescript-helpers';
 
 type ReorderableComponentListProps = {
   viewKey: string;
@@ -40,7 +38,6 @@ type ReorderableComponentListProps = {
 const ReorderableComponentList = ({
   viewKey,
 }: ReorderableComponentListProps): ReactElement => {
-  const theme = useTheme();
   const { colorMode } = useColorMode();
   const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey },

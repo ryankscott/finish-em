@@ -39,7 +39,7 @@ const CommandBar = () => {
       shortcut: 'c',
       name: 'Complete item',
       command: () => {
-        activeItem.map((i) => {
+        activeItem.forEach((i) => {
           completeItem({ variables: { key: i } });
         });
       },

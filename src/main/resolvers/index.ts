@@ -55,6 +55,8 @@ const resolvers: Resolvers = {
   },
   Project: project.Project,
   Area: area.Area,
+  Component: component.Component,
+  Item: item.Item,
 };
 
 export default resolvers;

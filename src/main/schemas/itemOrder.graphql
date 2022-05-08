@@ -14,11 +14,7 @@ input SetItemOrderInput {
   componentKey: String!
   sortOrder: Int!
 }
-input MigrateItemOrderInput {
-  itemKey: String!
-  componentKey: String!
-  sortOrder: Int!
-}
+
 input DeleteItemOrdersByComponentInput {
   componentKey: String!
 }
@@ -42,5 +38,4 @@ type Mutation {
   ): [String]
   createItemOrder(input: CreateItemOrderInput!): ItemOrder
   bulkCreateItemOrders(input: BulkCreateItemOrdersInput!): [ItemOrder]
-  migrateItemOrder(input: MigrateItemOrderInput!): ItemOrder
 }

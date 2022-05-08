@@ -16,10 +16,10 @@ import {
   SET_ITEM_ORDER,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
+import { Item } from 'main/resolvers-types';
 import { subtasksVisibleVar } from '../cache';
-import { Item } from '../../main/generated/typescript-helpers';
 import { PAGE_SIZE } from '../../consts';
-import { ItemIcons } from '../interfaces/item';
+import { ItemIcons } from '../interfaces';
 import FailedFilteredItemList from './FailedFilteredItemList';
 import ItemComponent from './Item';
 import Pagination from './Pagination';
@@ -64,6 +64,7 @@ function ReorderableItemList({
     DELETE_ITEM_ORDERS_BY_COMPONENT
   );
 
+  console.log(componentKey);
   const { loading, error, data } = useQuery(ITEMS_BY_FILTER, {
     variables: {
       filter: filter ?? '',
@@ -71,13 +72,14 @@ function ReorderableItemList({
     },
     pollInterval: shouldPoll ? 5000 : 0,
   });
+  console.log({ data });
 
   useEffect(() => {
     if (loading === false && data) {
       const si = data?.items?.map((item: Item) => {
         // Items have different sort orders per component
         const sortOrder = item?.sortOrders?.find(
-          (s) => s.componentKey === componentKey
+          (s) => s?.componentKey === componentKey
         );
         return { ...item, sortOrder };
       });
@@ -155,7 +157,7 @@ function ReorderableItemList({
       variables: {
         itemKey: draggableId,
         componentKey,
-        sortOrder: itemAtDestination.sortOrder.sortOrder,
+        sortOrder: itemAtDestination.sortOrders.sortOrder,
       },
     });
   };

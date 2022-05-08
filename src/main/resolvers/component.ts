@@ -1,6 +1,11 @@
 import { Resolvers } from 'main/resolvers-types';
 
 const component: Partial<Resolvers> = {
+  Component: {
+    sortOrder: (parent, __, { dataSources }) => {
+      return dataSources.apolloDb.getComponentOrder(parent.key);
+    },
+  },
   Query: {
     components: (_, __, { dataSources }) => {
       return dataSources.apolloDb.getComponents();

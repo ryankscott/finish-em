@@ -3,10 +3,10 @@ import { Resolvers } from 'main/resolvers-types';
 const view: Partial<Resolvers> = {
   Query: {
     views: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getviews();
+      return dataSources.apolloDb.getViews();
     },
     view: (_, { key }, { dataSources }) => {
-      return dataSources.apolloDb.getview(key);
+      return dataSources.apolloDb.getView(key);
     },
   },
   Mutation: {

@@ -335,12 +335,6 @@ export type MigrateComponentOrderInput = {
   sortOrder: Scalars['Int'];
 };
 
-export type MigrateItemOrderInput = {
-  componentKey: Scalars['String'];
-  itemKey: Scalars['String'];
-  sortOrder: Scalars['Int'];
-};
-
 export type MigrateViewOrderInput = {
   sortOrder: Scalars['Int'];
   viewKey: Scalars['String'];
@@ -371,7 +365,7 @@ export type Mutation = {
   createWeeklyGoal?: Maybe<WeeklyGoal>;
   deleteArea?: Maybe<Area>;
   deleteCalendar?: Maybe<Calendar>;
-  deleteComponent?: Maybe<Component>;
+  deleteComponent?: Maybe<Scalars['String']>;
   deleteEvent?: Maybe<Scalars['String']>;
   deleteItem?: Maybe<Item>;
   deleteItemOrdersByComponent?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -383,7 +377,6 @@ export type Mutation = {
   migrateAreaOrder?: Maybe<AreaOrder>;
   migrateComponent?: Maybe<Component>;
   migrateComponentOrder?: Maybe<ComponentOrder>;
-  migrateItemOrder?: Maybe<ItemOrder>;
   migrateViewOrder?: Maybe<ViewOrder>;
   permanentDeleteItem: Scalars['String'];
   renameArea?: Maybe<Area>;
@@ -591,11 +584,6 @@ export type MutationMigrateComponentArgs = {
 
 export type MutationMigrateComponentOrderArgs = {
   input: MigrateComponentOrderInput;
-};
-
-
-export type MutationMigrateItemOrderArgs = {
-  input: MigrateItemOrderInput;
 };
 
 
@@ -1296,7 +1284,6 @@ export type ResolversTypes = ResolversObject<{
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
-  MigrateItemOrderInput: MigrateItemOrderInput;
   MigrateViewOrderInput: MigrateViewOrderInput;
   Mutation: ResolverTypeWrapper<{}>;
   PermanentDeleteInput: PermanentDeleteInput;
@@ -1395,7 +1382,6 @@ export type ResolversParentTypes = ResolversObject<{
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
-  MigrateItemOrderInput: MigrateItemOrderInput;
   MigrateViewOrderInput: MigrateViewOrderInput;
   Mutation: {};
   PermanentDeleteInput: PermanentDeleteInput;
@@ -1588,7 +1574,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   createWeeklyGoal?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<MutationCreateWeeklyGoalArgs, 'input'>>;
   deleteArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationDeleteAreaArgs, 'input'>>;
   deleteCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationDeleteCalendarArgs, 'input'>>;
-  deleteComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
+  deleteComponent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
   deleteEvent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'input'>>;
   deleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationDeleteItemArgs, 'input'>>;
   deleteItemOrdersByComponent?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType, RequireFields<MutationDeleteItemOrdersByComponentArgs, 'input'>>;
@@ -1600,7 +1586,6 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   migrateAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationMigrateAreaOrderArgs, 'input'>>;
   migrateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationMigrateComponentArgs, 'input'>>;
   migrateComponentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<MutationMigrateComponentOrderArgs, 'input'>>;
-  migrateItemOrder?: Resolver<Maybe<ResolversTypes['ItemOrder']>, ParentType, ContextType, RequireFields<MutationMigrateItemOrderArgs, 'input'>>;
   migrateViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationMigrateViewOrderArgs, 'input'>>;
   permanentDeleteItem?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationPermanentDeleteItemArgs, 'input'>>;
   renameArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationRenameAreaArgs, 'input'>>;

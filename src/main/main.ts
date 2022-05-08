@@ -17,7 +17,6 @@ import { app, BrowserWindow, globalShortcut, ipcMain, net } from 'electron';
 import express from 'express';
 import { graphqlHTTP } from 'express-graphql';
 import morgan from 'morgan';
-import * as path from 'path';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
@@ -65,7 +64,6 @@ const startApolloServer = async () => {
         : path.join(app.getPath('userData'), './database.db'),
     },
     useNullAsDefault: true,
-    debug: true,
   };
   const apolloDb = new AppDatabase(knexConfig);
 

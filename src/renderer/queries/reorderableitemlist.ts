@@ -59,6 +59,12 @@ export const BULK_CREATE_ITEM_ORDERS = gql`
   mutation BulkCreateItemOrders($itemKeys: [String]!, $componentKey: String!) {
     bulkCreateItemOrders(
       input: { itemKeys: $itemKeys, componentKey: $componentKey }
-    )
+    ) {
+      item {
+        key
+      }
+      componentKey
+      sortOrder
+    }
   }
 `;

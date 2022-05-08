@@ -16,8 +16,6 @@ import 'emoji-mart/css/emoji-mart.css';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { apolloServerClient } from 'renderer';
-import { AreaType } from 'renderer/interfaces';
 import {
   DELETE_AREA,
   GET_AREA_BY_KEY,
@@ -43,12 +41,10 @@ const Area = (props: AreaProps): ReactElement => {
   const theme = useTheme();
   const { colorMode } = useColorMode();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [setEmoji] = useMutation(SET_EMOJI, { client: apolloServerClient });
-  const [deleteArea] = useMutation(DELETE_AREA, { client: apolloServerClient });
-  const [setDescriptionOfArea] = useMutation(SET_DESCRIPTION_OF_AREA, {
-    client: apolloServerClient,
-  });
-  const [renameArea] = useMutation(RENAME_AREA, { client: apolloServerClient });
+  const [setEmoji] = useMutation(SET_EMOJI);
+  const [deleteArea] = useMutation(DELETE_AREA);
+  const [setDescriptionOfArea] = useMutation(SET_DESCRIPTION_OF_AREA);
+  const [renameArea] = useMutation(RENAME_AREA);
 
   const { loading, error, data, refetch } = useQuery(GET_AREA_BY_KEY, {
     variables: { key: areaKey },

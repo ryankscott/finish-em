@@ -1,6 +1,25 @@
 import { Resolvers } from 'main/resolvers-types';
 
 const item: Partial<Resolvers> = {
+  Item: {
+    area: (parent, _, { dataSources }) =>
+      dataSources.apolloDb.getArea(parent.area?.key),
+    label: (parent, _, { dataSources }) => {
+      if (!parent?.label) return null;
+      return dataSources.apolloDb.getLabel(parent.label.key);
+    },
+    project: (parent, _, { dataSources }) =>
+      dataSources.apolloDb.getProject(parent.project?.key),
+    parent: (parent, _, { dataSources }) =>
+      dataSources.apolloDb.getItem(parent.parent?.key),
+    children: (parent, _, { dataSources }) =>
+      dataSources.apolloDb.getItemsByParent(parent.key),
+    reminders: (parent, _, { dataSources }) =>
+      dataSources.apolloDb.getRemindersByItem(parent.key),
+    sortOrders: (parent, _, { dataSources }) =>
+      dataSources.apolloDb.getItemOrder(parent.key),
+  },
+
   Query: {
     items: (_, __, { dataSources }) => {
       return dataSources.apolloDb.getItems();
@@ -17,8 +36,9 @@ const item: Partial<Resolvers> = {
     itemsByParent: (_, { parentKey }, { dataSources }) => {
       return dataSources.apolloDb.getItemsByParent(parentKey);
     },
-    itemsByFilter: (_, { filter }, { dataSources }) => {
-      return dataSources.apolloDb.getItemsByFilter(filter);
+    itemsByFilter: (_, { filter, componentKey }, { dataSources }) => {
+      console.log(`here's the key: ${componentKey} `);
+      return dataSources.apolloDb.getItemsByFilter(filter, componentKey);
     },
   },
   Mutation: {

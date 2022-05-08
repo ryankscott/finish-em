@@ -12,7 +12,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
-import { Area, Project, View } from 'main/generated/typescript-helpers';
+import { Area, Project, View } from 'main/resolvers-types';
 import { ReactElement, useEffect, useState } from 'react';
 import {
   DragDropContext,
@@ -21,7 +21,6 @@ import {
   DropResult,
 } from 'react-beautiful-dnd';
 import { useNavigate } from 'react-router-dom';
-import { apolloServerClient } from 'renderer';
 import {
   CREATE_AREA,
   CREATE_PROJECT,
@@ -33,7 +32,7 @@ import {
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { Icons } from '../assets/icons';
-import { queryCache, sidebarVisibleVar } from '../cache';
+import { sidebarVisibleVar } from '../cache';
 import { IconType } from '../interfaces';
 import { getProductName } from '../utils';
 import SidebarDraggableItem from './SidebarDraggableItem';
@@ -49,9 +48,7 @@ const Sidebar = (): ReactElement => {
   const [setAreaOrder] = useMutation(SET_AREA_ORDER);
   const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT);
   const [createProject] = useMutation(CREATE_PROJECT);
-  const [createArea] = useMutation(CREATE_AREA, {
-    client: apolloServerClient,
-  });
+  const [createArea] = useMutation(CREATE_AREA);
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
   const [sortedViews, setSortedViews] = useState<View[]>([]);
