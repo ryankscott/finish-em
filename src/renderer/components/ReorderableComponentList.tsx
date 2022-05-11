@@ -44,7 +44,6 @@ const ReorderableComponentList = ({
     fetchPolicy: 'no-cache',
   });
   const [addComponent] = useMutation(ADD_COMPONENT, {
-    variables: { viewKey },
     refetchQueries: [GET_COMPONENTS_BY_VIEW],
   });
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER);
@@ -97,7 +96,7 @@ const ReorderableComponentList = ({
           <ItemCreator componentKey={comp.key} key={comp.key} {...params} />
         );
       default:
-        <></>;
+        return <></>;
     }
   };
 
@@ -138,7 +137,6 @@ const ReorderableComponentList = ({
             },
           });
         }}
-        style={{ width: '100%' }}
       >
         <Droppable droppableId={uuidv4()} type="COMPONENT">
           {(provided, snapshot) => (
