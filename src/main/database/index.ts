@@ -2089,14 +2089,7 @@ class AppDatabase extends SQLDataSource {
   async getActiveCalendar(): Promise<CalendarEntity> {
     log.debug('Getting active calendar');
     try {
-      const calendar = await this.knex('calendar')
-        .where({ active: true })
-        .first();
-      if (calendar) {
-        return calendar;
-      }
-      log.error('Failed to get active calendar without error');
-      throw new Error('Failed to get active calendar');
+      return await this.knex('calendar').where({ active: true }).first();
     } catch (err) {
       log.error(`Failed to get active calendar - ${err}`);
       throw err;
@@ -2250,15 +2243,13 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
-  async getEventsForActiveCalendar(): Promise<Event[]> {
+  async getEventsForActiveCalendar(): Promise<Event[] | null> {
     log.debug('Getting events for active calendar');
     try {
       const activeCalendar = await this.getActiveCalendar();
       if (!activeCalendar) {
-        log.error(`Failed to get events because there's no active calendar`);
-        throw new Error(
-          `Failed to get events because there's no active calendar`
-        );
+        log.warn(`Failed to get events because there's no active calendar`);
+        return null;
       }
       return await this.getEventsByCalendar(activeCalendar.key);
     } catch (err) {
