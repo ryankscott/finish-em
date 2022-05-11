@@ -2361,8 +2361,6 @@ class AppDatabase extends SQLDataSource {
           key,
           week,
           goal,
-          createdAt: new Date().toISOString(),
-          lastUpdatedAt: new Date().toISOString(),
         })
         .onConflict('key')
         .merge();
