@@ -13,6 +13,7 @@ import { ReactElement, useState } from 'react';
 import { orderBy } from 'lodash';
 import { Icons } from 'renderer/assets/icons';
 import { INBOX_COMPONENT_KEY } from 'consts';
+import { Item } from 'main/resolvers-types';
 import { ItemIcons } from '../interfaces';
 import EditFilteredItemList from './EditFilteredItemList';
 import ReorderableItemList from './ReorderableItemList';
@@ -270,7 +271,7 @@ const FilteredItemList = ({
           </Flex>
         </GridItem>
       </Grid>
-      {editing && componentKey != INBOX_COMPONENT_KEY ? (
+      {editing && componentKey !== INBOX_COMPONENT_KEY ? (
         <EditFilteredItemList
           key={`dlg-${componentKey}`}
           componentKey={componentKey}

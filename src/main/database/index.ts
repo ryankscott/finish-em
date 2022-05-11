@@ -11,6 +11,7 @@ import {
   CalendarEntity,
   ComponentEntity,
   ComponentOrderEntity,
+  EventEntity,
   FeatureEntity,
   ItemEntity,
   ItemOrderEntity,
@@ -34,9 +35,8 @@ class AppDatabase extends SQLDataSource {
   async getViewOrder(key: string): Promise<ViewOrderEntity> {
     log.debug(`Getting view order with key: ${key}`);
     try {
-      const viewOrder = await this.knex()
+      const viewOrder = await this.knex('viewOrder')
         .select<ViewOrderEntity>('*')
-        .from('viewOrder')
         .where({ key })
         .first();
 
@@ -52,18 +52,15 @@ class AppDatabase extends SQLDataSource {
 
   async createViewOrder(viewKey: string): Promise<ViewOrderEntity> {
     log.debug(`Creating view order for view: ${viewKey}`);
-    const maxSortOrder = await this.knex
+    const maxSortOrder = await this.knex('viewOrder')
       .max('sortOrder as max')
-      .from('viewOrder')
       .first();
 
     try {
-      await this.knex
-        .insert({
-          viewKey,
-          sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
-        })
-        .into('viewOrder');
+      await this.knex('viewOrder').insert({
+        viewKey,
+        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+      });
 
       const insertedRow = await this.knex<ViewOrderEntity>('viewOrder')
         .select('*')
@@ -119,9 +116,8 @@ class AppDatabase extends SQLDataSource {
   async getView(key: string): Promise<ViewEntity> {
     log.debug(`Getting view with key: ${key}`);
     try {
-      const view = await this.knex()
+      const view = await this.knex('view')
         .select<ViewEntity>('*')
-        .from('view')
         .where({ key })
         .first();
 
@@ -148,26 +144,18 @@ class AppDatabase extends SQLDataSource {
       `Creating view with key: ${key}, name: ${name}, icon: ${icon}, type: ${type}`
     );
     try {
-      const insertedId = await this.knex
-        .insert({
-          key,
-          name,
-          icon,
-          type,
-          deleted: false,
-          lastUpdatedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        })
-        .into('view')
-        .first();
+      const insertedId = await this.knex('view').insert({
+        key,
+        name,
+        icon,
+        type,
+        deleted: false,
+        lastUpdatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      });
 
       await this.createViewOrder(key);
-
-      const view = await this.knex
-        .select<ViewEntity>('*')
-        .from('view')
-        .where({ id: insertedId })
-        .first();
+      const view = await this.getView(key);
 
       if (!view) {
         log.error(`Failed to get view with id: ${insertedId}`);
@@ -190,10 +178,7 @@ class AppDatabase extends SQLDataSource {
         deletedAt: new Date().toISOString(),
       });
 
-      const deletedView = await this.knex<ViewEntity>('view')
-        .select('*')
-        .where({ key })
-        .first();
+      const deletedView = await this.getView(key);
 
       if (!deletedView) {
         log.error(`Failed to get deleted view with key: ${key}`);
@@ -214,10 +199,8 @@ class AppDatabase extends SQLDataSource {
         .where({ key })
         .update({ name, lastUpdatedAt: new Date().toISOString() });
 
-      const updatedView = await this.knex<ViewEntity>('view')
-        .select('*')
-        .where({ key })
-        .first();
+      const updatedView = await this.getView(key);
+
       if (!updatedView) {
         log.error('Failed to get updated view when renaming');
         throw new Error('Failed to get updated view');
@@ -239,9 +222,8 @@ class AppDatabase extends SQLDataSource {
   async getProjectOrder(projectKey: string): Promise<ProjectOrderEntity> {
     log.debug(`Getting project order with projectKey: ${projectKey}`);
     try {
-      const projectOrder = await this.knex()
+      const projectOrder = await this.knex('projectOrder')
         .select<ProjectOrderEntity>('*')
-        .from('projectOrder')
         .where({ projectKey })
         .first();
 
@@ -258,23 +240,17 @@ class AppDatabase extends SQLDataSource {
 
   async createProjectOrder(projectKey: string): Promise<ProjectOrderEntity> {
     log.debug(`Creating project order with projectKey: ${projectKey}`);
-    const maxSortOrder = await this.knex
+    const maxSortOrder = await this.knex('projectOrder')
       .max('sortOrder as max')
-      .from('projectOrder')
       .first();
 
     try {
-      await this.knex
-        .insert({
-          projectKey,
-          sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
-        })
-        .into('projectOrder');
+      await this.knex('projectOrder').insert({
+        projectKey,
+        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+      });
 
-      const insertedRow = await this.knex<ProjectOrderEntity>('projectOrder')
-        .select('*')
-        .where({ projectKey })
-        .first();
+      const insertedRow = await this.getProjectOrder(projectKey);
 
       if (!insertedRow) {
         log.error(`Failed to get projectOrder after inserting: ${projectKey}`);
@@ -321,15 +297,14 @@ class AppDatabase extends SQLDataSource {
   /* Projects */
   async getProjects(): Promise<ProjectEntity[]> {
     log.debug('Getting all projects');
-    return this.knex.select('*').from('project');
+    return this.knex('project').select('*');
   }
 
   async getProject(key: string): Promise<ProjectEntity> {
     log.debug(`Getting project with key: ${key}`);
     try {
-      const project = await this.knex()
+      const project = await this.knex('project')
         .select<ProjectEntity>('*')
-        .from('project')
         .where({ key })
         .first();
 
@@ -348,10 +323,9 @@ class AppDatabase extends SQLDataSource {
   async getProjectsByArea(areaKey: string): Promise<ProjectEntity[]> {
     log.debug(`Getting projects with areaKey: ${areaKey}`);
     try {
-      const projects = await this.knex()
+      const projects = await this.knex('project')
         .select('*')
-        .from('project')
-        .where({ areaKey });
+        .where({ areaKey, deleted: false });
       return projects;
     } catch (err) {
       log.error(`Failed to get project with key: ${areaKey} - ${err}`);
@@ -362,36 +336,32 @@ class AppDatabase extends SQLDataSource {
   async createProject(
     key: string,
     name: string,
-    description: string
+    description: string,
+    areaKey?: string
   ): Promise<ProjectEntity> {
     log.debug(
       `Creating project with key: ${key}, name: ${name}, description: ${description}`
     );
     try {
-      const insertedId = await this.knex
-        .insert({
-          key,
-          name,
-          deleted: false,
-          description,
-          lastUpdatedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        })
-        .into('project')
-        .first();
+      const insertedId = await this.knex('project').insert({
+        key,
+        name,
+        areaKey,
+        deleted: false,
+        description,
+        lastUpdatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      });
+
       if (!insertedId) {
         log.error(`Failed to create project with key: ${key}`);
         throw new Error(`Failed to create project with key: ${key}`);
       }
 
-      this.createProjectOrder(key);
-      this.createView(key, name, '', 'project');
+      await this.createProjectOrder(key);
+      await this.createView(key, name, '', 'project');
 
-      const insertedProject = await this.knex
-        .select('*')
-        .from<ProjectEntity>('project')
-        .where({ key })
-        .first();
+      const insertedProject = await this.getProject(key);
 
       if (!insertedProject) {
         log.error(`Failed to get project after inserting: ${key}`);
@@ -418,8 +388,7 @@ class AppDatabase extends SQLDataSource {
           items.map((i: ItemEntity) => this.setProjectOfItem(i.key, '0'));
         }
         await this.deleteView(key);
-        const deletedProject = await this.getProject(key);
-        return deletedProject;
+        return await this.getProject(key);
       }
       log.error(`Failed to delete project with key: ${key}`);
       throw new Error(`Failed to delete project with key: ${key}`);
@@ -438,8 +407,7 @@ class AppDatabase extends SQLDataSource {
       if (projectId) {
         this.renameView(key, name);
         this.updateComponentOnProjectNameChange(key, name);
-        const project = await this.getProject(key);
-        return project;
+        return await this.getProject(key);
       }
       log.error(`Failed to rename project with key: ${key}`);
       throw new Error(`Failed to rename project with key: ${key}`);
@@ -449,28 +417,25 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
-  async changeDescriptionOfProject(
+  async setDescriptionOfProject(
     key: string,
     description: string
   ): Promise<ProjectEntity> {
     log.debug(
-      `Changing description of project with key: ${key} to ${description}`
+      `Setting description of project with key: ${key} to ${description}`
     );
     try {
       const projectId = await this.knex('project')
         .where({ key })
         .update({ description, lastUpdatedAt: new Date().toISOString() });
       if (projectId) {
-        const project = await this.getProject(key);
-        return project;
+        return await this.getProject(key);
       }
-      log.error(`Failed to change description of project with key: ${key}`);
-      throw new Error(
-        `Failed to change description of project with key: ${key}`
-      );
+      log.error(`Failed to set description of project with key: ${key}`);
+      throw new Error(`Failed to set description of project with key: ${key}`);
     } catch (err) {
       log.error(
-        `Failed to change description of project with key: ${key} - ${err}`
+        `Failed to set description of project with key: ${key} - ${err}`
       );
       throw err;
     }
@@ -484,8 +449,7 @@ class AppDatabase extends SQLDataSource {
         .update({ endAt, lastUpdatedAt: new Date().toISOString() });
 
       if (projectId) {
-        const project = await this.getProject(key);
-        return project;
+        return await this.getProject(key);
       }
       log.error(`Failed to set end date of project with key: ${key}`);
       throw new Error(`Failed to set end date of project with key: ${key}`);
@@ -503,8 +467,7 @@ class AppDatabase extends SQLDataSource {
         .update({ startAt, lastUpdatedAt: new Date().toISOString() });
 
       if (projectId) {
-        const project = await this.getProject(key);
-        return project;
+        return await this.getProject(key);
       }
       log.error(`Failed to set start date of project with key: ${key}`);
       throw new Error(`Failed to set start date of project with key: ${key}`);
@@ -524,8 +487,7 @@ class AppDatabase extends SQLDataSource {
         .update({ emoji, lastUpdatedAt: new Date().toISOString() });
 
       if (projectId) {
-        const project = await this.getProject(key);
-        return project;
+        return await this.getProject(key);
       }
       log.error(`Failed to set emoji of project with key: ${key}`);
       throw new Error(`Failed to set emoji of project with key: ${key}`);
@@ -543,8 +505,7 @@ class AppDatabase extends SQLDataSource {
         .update({ areaKey, lastUpdatedAt: new Date().toISOString() });
 
       if (projectId) {
-        const project = await this.getProject(key);
-        return project;
+        return await this.getProject(key);
       }
       log.error(`Failed to set area of project with key: ${key}`);
       throw new Error(`Failed to set area of project with key: ${key}`);
@@ -564,9 +525,8 @@ class AppDatabase extends SQLDataSource {
   async getAreaOrder(areaKey: string): Promise<AreaOrderEntity> {
     log.debug(`Getting area order with area key: ${areaKey}`);
     try {
-      const areaOrder = await this.knex()
+      const areaOrder = await this.knex('areaOrder')
         .select('*')
-        .from('areaOrder')
         .where({ areaKey })
         .first();
       return areaOrder;
@@ -579,24 +539,20 @@ class AppDatabase extends SQLDataSource {
   async createAreaOrder(areaKey: string): Promise<AreaOrderEntity> {
     log.debug(`Creating area order with area key: ${areaKey}`);
     try {
-      const maxSortOrder = await this.knex
+      const maxSortOrder = await this.knex('areaOrder')
         .max('sortOrder as max')
-        .from('areaOrder')
         .first();
 
-      const insertedId = await this.knex
-        .insert({
-          areaKey,
-          sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
-        })
-        .into('areaOrder');
+      const insertedId = await this.knex('areaOrder').insert({
+        areaKey,
+        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+      });
       if (!insertedId) {
         log.error(`Failed to create areaOrder with areaKey: ${areaKey}`);
         throw new Error(`Failed to create areaOrder with areaKey: ${areaKey}`);
       }
 
-      const areaOrder = await this.getAreaOrder(areaKey);
-      return areaOrder;
+      return await this.getAreaOrder(areaKey);
     } catch (err) {
       log.error(`Failed to create areaOrder with key: ${areaKey} - ${err}`);
       throw err;
@@ -626,9 +582,7 @@ class AppDatabase extends SQLDataSource {
         log.error(`Failed to set areaOrder with key: ${key}`);
         throw new Error(`Failed to set areaOrder with key: ${key}`);
       }
-      const areaOrder = await this.getAreaOrder(key);
-
-      return areaOrder;
+      return await this.getAreaOrder(key);
     } catch (err) {
       log.error(`Failed to set areaOrder with key: ${key} - ${err}`);
       throw err;
@@ -638,18 +592,13 @@ class AppDatabase extends SQLDataSource {
   /* Areas */
   async getAreas(): Promise<AreaEntity[]> {
     log.debug(`Getting areas`);
-    return this.knex.select('*').from('area');
+    return this.knex('area').select('*');
   }
 
   async getArea(key: string): Promise<AreaEntity> {
     log.debug(`Getting area with key: ${key}`);
     try {
-      const area = await this.knex()
-        .select('*')
-        .from('area')
-        .where({ key })
-        .first();
-      return area;
+      return await this.knex('area').select('*').where({ key }).first();
     } catch (err) {
       log.error(`Failed to get area with key: ${key} - ${err}`);
       throw err;
@@ -665,25 +614,19 @@ class AppDatabase extends SQLDataSource {
       `Creating area with key: ${key}, name: ${name}, description: ${description}`
     );
     try {
-      const insertedId = await this.knex
-        .insert({
-          key,
-          name,
-          deleted: false,
-          description,
-          lastUpdatedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-        })
-        .into('area');
+      const insertedId = await this.knex('area').insert({
+        key,
+        name,
+        deleted: false,
+        description,
+        lastUpdatedAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+      });
       if (insertedId) {
         this.createAreaOrder(key);
         this.createView(key, name, '', 'area');
 
-        return await this.knex
-          .select('*')
-          .from('area')
-          .where({ id: insertedId[0] })
-          .first();
+        return await this.getArea(key);
       }
       log.error(`Failed to create area with key: ${key}`);
       throw new Error(`Failed to create area with key: ${key}`);
@@ -784,8 +727,7 @@ class AppDatabase extends SQLDataSource {
 
   /* ItemOrders */
   async getItemOrders(): Promise<ItemOrderEntity[]> {
-    log.debug(`Getting itemOrders`);
-    return this.knex('itemOrder');
+    return this.knex('itemOrder').select('*');
   }
 
   async getItemOrder(
@@ -796,14 +738,12 @@ class AppDatabase extends SQLDataSource {
       `Getting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey}`
     );
     try {
-      console.log({ componentKey });
-      const itemOrder = await this.knex()
+      const itemOrder = await this.knex('itemOrder')
         .select('*')
-        .from('itemOrder')
         .where({ itemKey, componentKey })
         .first();
       if (!itemOrder) {
-        log.error(`Failed to get itemOrder with key: ${itemKey}`);
+        log.error(`Failed to get itemOrder for key with key: ${itemKey}`);
         throw new Error(`ItemOrder with key: ${itemKey} not found`);
       }
       return itemOrder;
@@ -813,15 +753,32 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
+  async getItemOrdersByItem(itemKey: string): Promise<ItemOrderEntity[]> {
+    log.debug(`Getting itemOrders for item with key: ${itemKey}`);
+    try {
+      const itemOrders = await this.knex('itemOrder')
+        .select('*')
+        .where({ itemKey });
+      if (!itemOrders) {
+        log.error(`Failed to get itemOrders for item with key: ${itemKey}`);
+        throw new Error(`ItemOrders with key: ${itemKey} not found`);
+      }
+      return itemOrders;
+    } catch (err) {
+      log.error(
+        `Failed to get itemOrders for item with key: ${itemKey} - ${err}`
+      );
+      throw err;
+    }
+  }
+
   async getItemOrdersByComponent(
     componentKey: string
   ): Promise<ItemOrderEntity[]> {
     log.debug(`Getting itemOrders with componentKey: ${componentKey}`);
     try {
-      console.log({ componentKey });
-      const itemOrders = await this.knex()
+      const itemOrders = await this.knex('itemOrder')
         .select('*')
-        .from('itemOrder')
         .where({ componentKey });
       if (!itemOrders) {
         log.error(
@@ -848,18 +805,16 @@ class AppDatabase extends SQLDataSource {
       `Creating itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey}`
     );
     try {
-      const maxSortOrder = await this.knex
+      const maxSortOrder = await this.knex('itemOrder')
         .max('sortOrder as max')
-        .from('itemOrder')
         .first();
 
-      const insertedId = await this.knex
-        .insert({
-          itemKey,
-          componentKey,
-          sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
-        })
-        .into('itemOrder');
+      const insertedId = await this.knex('itemOrder').insert({
+        itemKey,
+        componentKey,
+        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+      });
+
       if (!insertedId) {
         log.error(
           `Failed to create itemOrder with itemKey: ${itemKey}, componentKey: ${componentKey}`
@@ -868,8 +823,7 @@ class AppDatabase extends SQLDataSource {
           `Failed to create areaOrder with itemKey: ${itemKey}, componentKey: ${componentKey}`
         );
       }
-      const itemOrder = await this.getItemOrder(itemKey, componentKey);
-      return itemOrder;
+      return await this.getItemOrder(itemKey, componentKey);
     } catch (err) {
       log.error(`Failed to create itemOrder with itemKey: ${itemKey} - ${err}`);
       throw err;
@@ -882,9 +836,8 @@ class AppDatabase extends SQLDataSource {
   ): Promise<ItemOrderEntity[]> {
     log.debug(`Bulk creating itemOrders with componentKey: ${componentKey}`);
     try {
-      const maxSortOrder = await this.knex
+      const maxSortOrder = await this.knex('itemOrder')
         .max('sortOrder as max')
-        .from('itemOrder')
         .where({ componentKey })
         .first();
 
@@ -902,16 +855,12 @@ class AppDatabase extends SQLDataSource {
         throw new Error(`Failed to create itemOrders`);
       }
       return await Promise.all(
-        inserted.map(async (i) => {
-          console.log({ i });
-          console.log({ componentKey });
+        itemOrders.map(async (i) => {
           return this.getItemOrder(i.toString(), componentKey);
         })
       );
     } catch (err) {
-      log.error(
-        `Failed to  bulk create itemOrders with itemKeys: ${itemOrders} - ${err}`
-      );
+      log.error(`Failed to  bulk create itemOrders with itemKeys} - ${err}`);
       throw err;
     }
   }
@@ -950,8 +899,7 @@ class AppDatabase extends SQLDataSource {
           `Failed to set itemOrder with itemKey: ${itemKey}, componentKey: ${componentKey}`
         );
       }
-      const itemOrder = await this.getItemOrder(itemKey, componentKey);
-      return itemOrder;
+      return await this.getItemOrder(itemKey, componentKey);
     } catch (err) {
       log.error(`Failed to set itemOrder with itemKey: ${itemKey} - ${err}`);
       throw err;
@@ -990,18 +938,13 @@ class AppDatabase extends SQLDataSource {
 
   async getItems(): Promise<ItemEntity[]> {
     log.debug('Getting items');
-    return this.knex.select('*').from('item');
+    return this.knex('item').select('*');
   }
 
   async getItem(key: string): Promise<ItemEntity> {
     log.debug(`Getting item with key: ${key}`);
     try {
-      const item = await this.knex()
-        .select('*')
-        .from('item')
-        .where({ key })
-        .first();
-      return item;
+      return await this.knex('item').select('*').where({ key }).first();
     } catch (err) {
       log.error(`Failed to get item with key: ${key} - ${err}`);
       throw err;
@@ -1011,11 +954,7 @@ class AppDatabase extends SQLDataSource {
   async getItemsByProject(projectKey: string): Promise<ItemEntity[]> {
     log.debug(`Getting items with projectKey: ${projectKey}`);
     try {
-      const item = await this.knex()
-        .select('*')
-        .from('item')
-        .where({ projectKey });
-      return item;
+      return await this.knex('item').select('*').where({ projectKey });
     } catch (err) {
       log.error(`Failed to get item with projectKey: ${projectKey} - ${err}`);
       throw err;
@@ -1025,11 +964,7 @@ class AppDatabase extends SQLDataSource {
   async getItemsByArea(areaKey: string): Promise<ItemEntity[]> {
     log.debug(`Getting items with areaKey: ${areaKey}`);
     try {
-      const item = await this.knex()
-        .select('*')
-        .from('item')
-        .where({ areaKey });
-      return item;
+      return await this.knex('item').select('*').where({ areaKey });
     } catch (err) {
       log.error(`Failed to get item with areaKey: ${areaKey} - ${err}`);
       throw err;
@@ -1039,11 +974,7 @@ class AppDatabase extends SQLDataSource {
   async getItemsByParent(parentKey: string): Promise<ItemEntity[]> {
     log.debug(`Getting items with parentKey: ${parentKey}`);
     try {
-      const item = await this.knex()
-        .select('*')
-        .from('item')
-        .where({ parentKey });
-      return item;
+      return await this.knex('item').select('*').where({ parentKey });
     } catch (err) {
       log.error(`Failed to get item with parentKey: ${parentKey} - ${err}`);
       throw err;
@@ -1134,10 +1065,7 @@ class AppDatabase extends SQLDataSource {
     const items = await this.knex('item').select('*').whereRaw(filterString);
     const orders = await this.getItemOrdersByComponent(componentKey);
 
-    const orderKeys = orders.map((o) => {
-      // TODO: We need to do types for the database
-      return o.itemKey;
-    });
+    const orderKeys = orders.map((o) => o.itemKey);
     const itemKeys = items.map((r) => r.key);
 
     // Delete itemOrders
@@ -1167,30 +1095,31 @@ class AppDatabase extends SQLDataSource {
     );
     try {
       // Get the parent to inherit some values
-      const parent = parentKey ? null : await this.getItem(parentKey);
-      const areaKey = parent?.areaKey ? parent?.areaKey : '';
+      const parent = parentKey ? await this.getItem(parentKey) : null;
+      const areaKey = parent?.areaKey ? parent?.areaKey : null;
       const parentProjectKey = parent?.projectKey
-        ? parent?.projectKey
+        ? parent.projectKey
         : projectKey;
 
-      const insertedId = await this.knex({
+      const insertedId = await this.knex('item').insert({
         key,
-        dueAt: dueAt?.toISOString() ?? '',
+        dueAt: dueAt?.toISOString() ?? null,
         labelKey,
         parentKey,
-        projectKey: parentProjectKey,
+        projectKey: parentProjectKey ?? null,
         repeat,
-        scheduledAt: scheduledAt?.toISOString() ?? '',
+        scheduledAt: scheduledAt?.toISOString() ?? null,
         text,
-        type,
         areaKey,
         createdAt: new Date().toISOString(),
-      }).into('item');
+        type: 'TODO',
+        deleted: false,
+        completed: false,
+      });
 
       if (insertedId) {
-        return await this.knex
+        return await this.knex('item')
           .select('*')
-          .from('tem')
           .where({ id: insertedId[0] })
           .first();
       }
@@ -1342,12 +1271,14 @@ class AppDatabase extends SQLDataSource {
   async setRepeatOfItem(key: string, repeat: string): Promise<ItemEntity> {
     log.debug(`Setting repeat of item with key: ${key} to ${repeat}`);
     try {
-      const nextRepeatDate = rrulestr(repeat).after(new Date());
-      const updatedId = await this.knex('item').where({ key }).update({
-        repeat,
-        dueAt: nextRepeatDate,
-        lastUpdatedAt: new Date().toISOString(),
-      });
+      const nextRepeatDate = repeat ? rrulestr(repeat).after(new Date()) : null;
+      const updatedId = await this.knex('item')
+        .where({ key })
+        .update({
+          repeat: repeat ?? null,
+          dueAt: nextRepeatDate ? nextRepeatDate.toISOString() : null,
+          lastUpdatedAt: new Date().toISOString(),
+        });
       if (updatedId) {
         return await this.getItem(key);
       }
@@ -1373,7 +1304,7 @@ class AppDatabase extends SQLDataSource {
             return this.setProjectOfItem(c.key, projectKey);
           });
         }
-        return await this.knex('item').where({ key }).first();
+        return await this.getItem(key);
       }
       log.error(`Failed to set project of item without error`);
       throw new Error(`Failed to set project of item`);
@@ -1397,7 +1328,7 @@ class AppDatabase extends SQLDataSource {
             return this.setAreaOfItem(c.key, areaKey);
           });
         }
-        return await this.knex('item').where({ key }).first();
+        return await this.getItem(key);
       }
       log.error('Failed to set area of item without error');
       throw new Error('Failed to set area of item');
@@ -1459,7 +1390,7 @@ class AppDatabase extends SQLDataSource {
       item.projectKey ?? '',
       item.repeat ?? '',
       item.text ?? '',
-      item.type ?? '',
+      'TODO',
       item.dueAt ? parseISO(item.dueAt) : undefined,
       item.scheduledAt ? parseISO(item.scheduledAt) : undefined
     );
@@ -1512,15 +1443,17 @@ class AppDatabase extends SQLDataSource {
         labelKey,
         lastUpdatedAt: new Date().toISOString(),
       });
+
       if (updatedId) {
         const children = await this.getItemsByParent(key);
         if (children.length) {
-          children.map((c) => {
-            return this.setLabelOfItem(c.key, labelKey);
-          });
+          await Promise.all(
+            children.map(async (c) => {
+              return this.setLabelOfItem(c.key, labelKey);
+            })
+          );
         }
-        const item = await this.knex('item').where({ key }).first();
-        return item;
+        return await this.getItem(key);
       }
       log.error('Failed to set label of item without error');
       throw new Error('Failed to set label of item');
@@ -1533,15 +1466,14 @@ class AppDatabase extends SQLDataSource {
   /* Features */
   async getFeatures(): Promise<FeatureEntity[]> {
     log.debug('Getting features');
-    return this.knex.select('*').from('feature');
+    return this.knex('feature').select('*');
   }
 
   async getFeature(key: string): Promise<FeatureEntity> {
     log.debug(`Getting feature with key: ${key}`);
     try {
-      const feature = await this.knex()
+      const feature = await this.knex('feature')
         .select('*')
-        .from('feature')
         .where({ key })
         .first();
       if (feature) {
@@ -1558,9 +1490,8 @@ class AppDatabase extends SQLDataSource {
   async getFeatureByName(name: string): Promise<FeatureEntity> {
     log.debug(`Getting feature with name: ${name}`);
     try {
-      const feature = await this.knex()
+      const feature = await this.knex('feature')
         .select('*')
-        .from('feature')
         .where({ name })
         .first();
       if (feature) {
@@ -1623,18 +1554,16 @@ class AppDatabase extends SQLDataSource {
       )}`
     );
     try {
-      const insertedId = await this.knex
-        .insert({
-          key,
-          name,
-          enabled,
-          metadata,
-        })
-        .into('feature');
+      const insertedId = await this.knex('feature').insert({
+        key,
+        name,
+        enabled,
+        metadata,
+      });
+
       if (insertedId) {
-        return await this.knex
+        return await this.knex('area')
           .select('*')
-          .from('area')
           .where({ id: insertedId[0] })
           .first();
       }
@@ -1651,7 +1580,7 @@ class AppDatabase extends SQLDataSource {
   async getLabels(): Promise<LabelEntity[]> {
     log.debug('Getting labels');
     try {
-      return await this.knex.select('*').from('label');
+      return await this.knex('label').select('*');
     } catch (e) {
       log.error(`Failed to get labels - ${e}`);
       throw e;
@@ -1662,7 +1591,6 @@ class AppDatabase extends SQLDataSource {
     log.debug(`Getting label with key: ${key}`);
     try {
       const label = await this.knex('label').select('*').where({ key }).first();
-      console.log({ label });
       if (label) {
         return label;
       }
@@ -1748,7 +1676,7 @@ class AppDatabase extends SQLDataSource {
   async getReminders(): Promise<ReminderEntity[]> {
     log.debug('Getting reminders');
     try {
-      return await this.knex.select('*').from('reminder');
+      return await this.knex('reminder').select('*');
     } catch (e) {
       log.error(`Failed to get reminders - ${e}`);
       throw e;
@@ -1856,7 +1784,7 @@ class AppDatabase extends SQLDataSource {
   async getComponents(): Promise<ComponentEntity[]> {
     log.debug('Getting components');
     try {
-      return await this.knex.select('*').from('component');
+      return await this.knex('component').select('*');
     } catch (e) {
       log.error(`Failed to get components - ${e}`);
       throw e;
@@ -1911,9 +1839,11 @@ class AppDatabase extends SQLDataSource {
         viewKey,
         location,
         type,
-        parameters,
+        parameters: JSON.stringify(parameters),
       });
+
       if (insertedId) {
+        await this.createComponentOrder(key);
         return await this.getComponent(key);
       }
       log.error('Failed to create component without error');
@@ -1997,7 +1927,7 @@ class AppDatabase extends SQLDataSource {
     try {
       const updatedId = await this.knex('component')
         .where({ key })
-        .update({ parameters });
+        .update({ parameters: JSON.stringify(parameters) });
       if (updatedId) {
         return await this.getComponent(key);
       }
@@ -2022,18 +1952,27 @@ class AppDatabase extends SQLDataSource {
 
       const params = component.parameters;
       if (!params) {
+        log.error(
+          `Failed to update component on project name change without error - no parameters found`
+        );
         return;
       }
 
-      // @ts-ignore
-      const filter = JSON.parse(params?.filter);
-      filter.text = filter.text.replace(
-        /project = ".+"/,
-        `project = "${name}"`
-      );
-      // @ts-ignore
-      params.filter = JSON.stringify(filter);
-      this.setParametersOfComponent(component.key, params);
+      try {
+        // @ts-ignore
+        const filter = JSON.parse(params?.filter);
+        filter.text = filter.text.replace(
+          /project = ".+"/,
+          `project = "${name}"`
+        );
+        // @ts-ignore
+        params.filter = JSON.stringify(filter);
+        this.setParametersOfComponent(component.key, params);
+      } catch (e) {
+        log.error(
+          `Failed to update component on project name change without error - ${e}`
+        );
+      }
     });
   }
 
@@ -2041,7 +1980,7 @@ class AppDatabase extends SQLDataSource {
   async getComponentOrders(): Promise<ComponentOrderEntity[]> {
     log.debug('Getting component orders');
     try {
-      return await this.knex.select('*').from('componentOrder');
+      return await this.knex('componentOrder').select('*');
     } catch (e) {
       log.error(`Failed to get component orders - ${e}`);
       throw e;
@@ -2054,6 +1993,7 @@ class AppDatabase extends SQLDataSource {
       const componentOrder = await this.knex('componentOrder')
         .where({ componentKey })
         .first();
+
       if (componentOrder) {
         return componentOrder;
       }
@@ -2070,17 +2010,15 @@ class AppDatabase extends SQLDataSource {
   ): Promise<ComponentOrderEntity> {
     log.debug(`Creating component order with component key: ${componentKey}`);
     try {
-      const maxSortOrder = await this.knex
+      const maxSortOrder = await this.knex('componentOrder')
         .max('sortOrder as max')
-        .from('componentOrder')
         .first();
 
-      const insertedId = await this.knex
-        .insert({
-          componentKey,
-          sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
-        })
-        .into('areaOrder');
+      const insertedId = await this.knex('componentOrder').insert({
+        componentKey,
+        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+      });
+
       if (insertedId) {
         return await this.getComponentOrder(componentKey);
       }
@@ -2130,7 +2068,7 @@ class AppDatabase extends SQLDataSource {
   /* Calendar */
   async getCalendars(): Promise<CalendarEntity[]> {
     log.debug(`Getting calendars`);
-    return this.knex.select('*').from('calendar');
+    return this.knex('calendar').select('*');
   }
 
   async getCalendar(key: string): Promise<CalendarEntity> {
@@ -2235,10 +2173,24 @@ class AppDatabase extends SQLDataSource {
   }
 
   /* Events */
-  async getEvents(): Promise<Event[]> {
+
+  async getEvents(): Promise<EventEntity[]> {
     log.debug(`Getting events`);
     try {
-      return await this.knex.select('*').from('event');
+      const events = await this.knex('event').select('*');
+      if (!events) {
+        log.error(`Failed to get events`);
+        throw new Error(`Failed to get events`);
+      }
+      try {
+        return events.map((e) => ({
+          ...e,
+          attendees: JSON.parse(e.attendees),
+        }));
+      } catch (e) {
+        log.error(`Failed to parse attendees for events `);
+        throw new Error(`Failed to parse attendees for events`);
+      }
     } catch (err) {
       log.error(`Failed to get events - ${err}`);
       throw err;
@@ -2248,7 +2200,19 @@ class AppDatabase extends SQLDataSource {
   async getEvent(key: string): Promise<Event> {
     log.debug(`Getting event with key: ${key}`);
     try {
-      return await this.knex('event').where({ key }).first();
+      const event = await this.knex('event').where({ key }).first();
+      if (event) {
+        try {
+          return { ...event, attendees: JSON.parse(event.attendees) };
+        } catch (e) {
+          log.error(`Failed to parse attendees for event with key: ${key}`);
+          throw new Error(
+            `Failed to parse attendees for event with key: ${key}`
+          );
+        }
+      }
+      log.error('Failed to get event without error');
+      throw new Error('Failed to get event without error');
     } catch (err) {
       log.error(`Failed to get event with key: ${key} - ${err}`);
       throw err;
@@ -2258,7 +2222,26 @@ class AppDatabase extends SQLDataSource {
   async getEventsByCalendar(calendarKey: string): Promise<Event[]> {
     log.debug(`Getting events with calendar key: ${calendarKey}`);
     try {
-      return await this.knex('event').where({ calendarKey });
+      const events = await this.knex('event').where({ calendarKey });
+      if (!events) {
+        log.error(`Failed to get events with calendar key: ${calendarKey}`);
+        throw new Error(
+          `Failed to get events with calendar key: ${calendarKey}`
+        );
+      }
+      try {
+        return events.map((e) => ({
+          ...e,
+          attendees: JSON.parse(e.attendees),
+        }));
+      } catch (e) {
+        log.error(
+          `Failed to parse attendees for events from calendar: ${calendarKey}: ${e}`
+        );
+        throw new Error(
+          `Failed to parse attendees for events from calendar: ${calendarKey}: ${e}`
+        );
+      }
     } catch (err) {
       log.error(
         `Failed to get events with calendar key: ${calendarKey} - ${err}`
@@ -2341,7 +2324,7 @@ class AppDatabase extends SQLDataSource {
 
   async getWeeklyGoals(): Promise<WeeklyGoalEntity[]> {
     log.debug(`Getting weekly goals`);
-    return this.knex.select('*').from('weeklyGoal');
+    return this.knex('weeklyGoal').select('*');
   }
 
   async getWeeklyGoal(key: string): Promise<WeeklyGoalEntity> {

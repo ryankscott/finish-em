@@ -36,7 +36,7 @@ input RenameProjectInput {
   name: String!
 }
 
-input ChangeDescriptionProjectInput {
+input setDescriptionOfProjectInput {
   key: String!
   description: String!
 }
@@ -79,7 +79,7 @@ type Mutation {
   createProject(input: CreateProjectInput!): Project
   deleteProject(input: DeleteProjectInput!): Project
   renameProject(input: RenameProjectInput!): Project
-  changeDescriptionProject(input: ChangeDescriptionProjectInput!): Project
+  setDescriptionOfProject(input: setDescriptionOfProjectInput!): Project
   setEndDateOfProject(input: SetEndDateOfProjectInput!): Project
   setStartDateOfProject(input: SetStartDateOfProjectInput!): Project
   setEmojiOfProject(input: setEmojiOfProjectInput!): Project

@@ -64,7 +64,6 @@ function ReorderableItemList({
     DELETE_ITEM_ORDERS_BY_COMPONENT
   );
 
-  console.log(componentKey);
   const { loading, error, data } = useQuery(ITEMS_BY_FILTER, {
     variables: {
       filter: filter ?? '',
@@ -72,7 +71,6 @@ function ReorderableItemList({
     },
     pollInterval: shouldPoll ? 5000 : 0,
   });
-  console.log({ data });
 
   useEffect(() => {
     if (loading === false && data) {

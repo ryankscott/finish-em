@@ -42,9 +42,9 @@ export const DELETE_PROJECT = gql`
     }
   }
 `;
-export const CHANGE_DESCRIPTION_OF_PROJECT = gql`
-  mutation ChangeDescriptionProject($key: String!, $description: String!) {
-    changeDescriptionProject(input: { key: $key, description: $description }) {
+export const SET_DESCRIPTION_OF_PROJECT = gql`
+  mutation SetDescriptionOfProject($key: String!, $description: String!) {
+    setDescriptionOfProject(input: { key: $key, description: $description }) {
       key
       description
     }

@@ -43,12 +43,16 @@ import SidebarSection from './SidebarSection';
 const Sidebar = (): ReactElement => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
-  const { loading, error, data, refetch } = useQuery<SidebarData>(GET_SIDEBAR);
+  const { loading, error, data } = useQuery<SidebarData>(GET_SIDEBAR);
   const [setProjectOrder] = useMutation(SET_PROJECT_ORDER);
   const [setAreaOrder] = useMutation(SET_AREA_ORDER);
   const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT);
-  const [createProject] = useMutation(CREATE_PROJECT);
-  const [createArea] = useMutation(CREATE_AREA);
+  const [createProject] = useMutation(CREATE_PROJECT, {
+    refetchQueries: [GET_SIDEBAR],
+  });
+  const [createArea] = useMutation(CREATE_AREA, {
+    refetchQueries: [GET_SIDEBAR],
+  });
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
   const [sortedViews, setSortedViews] = useState<View[]>([]);
@@ -368,7 +372,6 @@ const Sidebar = (): ReactElement => {
                       },
                     });
 
-                    refetch();
                     navigate(`/views/${areaKey}`);
                   }}
                 >

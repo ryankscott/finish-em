@@ -4,7 +4,7 @@ import 'emoji-mart/css/emoji-mart.css';
 import { GET_PROJECTS } from 'renderer/queries';
 import { groupBy } from 'lodash';
 import { Emoji } from 'emoji-mart';
-import { Project } from '../../main/generated/typescript-helpers';
+import { Project } from 'main/resolvers-types';
 import Select from './Select';
 
 type ProjectSelectProps = {
@@ -99,7 +99,7 @@ export default function ProjectSelect({
         }}
         options={options}
         escapeClearsValue
-        placeholder="Add label"
+        placeholder="Add to project"
         defaultValue={defaultValue}
         invertColours={invertColours}
         renderLabelAsElement

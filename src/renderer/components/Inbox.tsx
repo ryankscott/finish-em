@@ -60,7 +60,6 @@ const Inbox = (): ReactElement => {
             flattenSubtasks={false}
             readOnly
             hiddenIcons={[ItemIcons.Project]}
-            shouldPoll
           />
         </Flex>
       </Flex>

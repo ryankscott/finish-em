@@ -20,7 +20,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
-  CHANGE_DESCRIPTION_OF_PROJECT,
+  SET_DESCRIPTION_OF_PROJECT,
   DELETE_PROJECT,
   DELETE_VIEW,
   GET_PROJECT_BY_KEY,
@@ -49,7 +49,7 @@ const Project = ({ projectKey }: ProjectProps) => {
   const [deleteProject] = useMutation(DELETE_PROJECT, {
     refetchQueries: ['GetSidebarData'],
   });
-  const [changeDescription] = useMutation(CHANGE_DESCRIPTION_OF_PROJECT, {
+  const [changeDescription] = useMutation(SET_DESCRIPTION_OF_PROJECT, {
     refetchQueries: ['ViewByKey'],
   });
   const [renameProject] = useMutation(RENAME_PROJECT, {

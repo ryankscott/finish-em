@@ -9,9 +9,6 @@ const project: Partial<Resolvers> = {
       return dataSources.apolloDb.getProjectOrder(parent.key);
     },
     area(parent, _, { dataSources }) {
-      console.log({ parent });
-      // TODO: Fix types
-      // @ts-ignore
       return dataSources.apolloDb.getArea(parent?.areaKey);
     },
   },
@@ -23,7 +20,45 @@ const project: Partial<Resolvers> = {
       return dataSources.apolloDb.getProject(key);
     },
   },
-  Mutation: {},
+  Mutation: {
+    createProject: (_, { input }, { dataSources }) => {
+      const { key, name, description, areaKey } = input;
+      return dataSources.apolloDb.createProject(
+        key,
+        name,
+        description,
+        areaKey
+      );
+    },
+    deleteProject: (_, { input }, { dataSources }) => {
+      const { key } = input;
+      return dataSources.apolloDb.deleteProject(key);
+    },
+    renameProject: (_, { input }, { dataSources }) => {
+      const { key, name } = input;
+      return dataSources.apolloDb.renameProject(key, name);
+    },
+    setDescriptionOfProject: (_, { input }, { dataSources }) => {
+      const { key, description } = input;
+      return dataSources.apolloDb.setDescriptionOfProject(key, description);
+    },
+    setEndDateOfProject: (_, { input }, { dataSources }) => {
+      const { key, endAt } = input;
+      return dataSources.apolloDb.setEndAtOfProject(key, endAt);
+    },
+    setStartDateOfProject: (_, { input }, { dataSources }) => {
+      const { key, startAt } = input;
+      return dataSources.apolloDb.setstartAtOfProject(key, startAt);
+    },
+    setEmojiOfProject: (_, { input }, { dataSources }) => {
+      const { key, emoji } = input;
+      return dataSources.apolloDb.setEmojiOfProject(key, emoji);
+    },
+    setAreaOfProject: (_, { input }, { dataSources }) => {
+      const { key, areaKey } = input;
+      return dataSources.apolloDb.setAreaOfProject(key, areaKey);
+    },
+  },
 };
 
 export default project;

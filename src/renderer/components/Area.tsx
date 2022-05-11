@@ -13,6 +13,7 @@ import {
 import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
+import { Project } from 'main/resolvers-types';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -24,7 +25,6 @@ import {
   SET_EMOJI,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import { Project } from '../../main/generated/typescript-helpers';
 import { formatRelativeDate } from '../utils';
 import DeleteAreaDialog from './DeleteAreaDialog';
 import { Donut } from './Donut';

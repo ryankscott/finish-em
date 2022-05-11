@@ -84,10 +84,10 @@ const startApolloServer = async () => {
     .listen()
     // eslint-disable-next-line promise/always-return
     .then(({ url }) => {
-      console.log(`🚀 Server ready at ${url}`);
+      log.info(`🚀 Server ready at ${url}`);
     })
     .catch((err) => {
-      console.log(`😢 Server startup failed: ${err}`);
+      log.error(`😢 Server startup failed: ${err}`);
       app.exit();
     });
 };

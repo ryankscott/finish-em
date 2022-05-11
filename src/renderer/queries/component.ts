@@ -32,9 +32,7 @@ export const UPDATE_COMPONENT = gql`
 
 export const DELETE_COMPONENT = gql`
   mutation DeleteComponent($key: String!) {
-    deleteComponent(input: { key: $key }) {
-      key
-    }
+    deleteComponent(input: { key: $key })
   }
 `;
 export const CLONE_COMPONENT = gql`

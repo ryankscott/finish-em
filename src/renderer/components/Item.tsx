@@ -157,6 +157,7 @@ function Item({
   const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
     variables: { key: itemKey || null },
   });
+
   const generateProjectTag = (
     item: ItemType,
     compact: boolean
@@ -352,10 +353,8 @@ function Item({
         </Tooltip>
       </Box>
 
-      {/* TODO: use emoji for projects names  */}
       <Box gridArea="project">
-        {(!hiddenIcons?.includes(ItemIcons.Project) ||
-          item.project === null) && (
+        {!hiddenIcons?.includes(ItemIcons.Project) && (
           <Flex justifyContent="flex-end">
             <Tooltip label={item.project?.name}>
               <Tag size={compact ? 'sm' : 'md'} colorScheme="blue">

@@ -2,6 +2,24 @@ schema: ./src/main/schemas/*.graphql
 generates:
   ./src/main/resolvers-types.ts:
     config:
+      contextType: models
+      mappers:
+        Area: ./src/main/database/index#AreaEntity
+        AreaOrder: ./src/main/database/index#AreaOrderEntity
+        Calendar: ./src/main/database/index#CalendarEntity
+        Component: ./src/main/database/index#ComponentEntity
+        ComponentOrder: ./src/main/database/index#ComponentOrderEntity
+        Event: ./src/main/database/index#EventEntity
+        Feature: ./src/main/database/index#FeatureEntity
+        Item: ./src/main/database/index#ItemEntity
+        ItemOrder: ./src/main/database/index#ItemOrderEntity
+        Label: ./src/main/database/index#LabelEntity
+        Project: ./src/main/database/index#ProjectEntity
+        ProjectOrder: ./src/main/database/index#ProjectOrderEntity
+        Reminder: ./src/main/database/index#ReminderEntity
+        View: ./src/main/database/index#ViewEntity
+        ViewOrder: ./src/main/database/index#ViewOrderEntity
+        WeeklyGoal: ./src/main/database/index#WeeklyGoalEntity
       useIndexSignature: true
     plugins:
       - typescript

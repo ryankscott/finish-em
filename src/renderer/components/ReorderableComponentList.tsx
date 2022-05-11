@@ -39,11 +39,14 @@ const ReorderableComponentList = ({
   viewKey,
 }: ReorderableComponentListProps): ReactElement => {
   const { colorMode } = useColorMode();
-  const { loading, error, data, refetch } = useQuery(GET_COMPONENTS_BY_VIEW, {
+  const { loading, error, data } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey },
     fetchPolicy: 'no-cache',
   });
-  const [addComponent] = useMutation(ADD_COMPONENT);
+  const [addComponent] = useMutation(ADD_COMPONENT, {
+    variables: { viewKey },
+    refetchQueries: [GET_COMPONENTS_BY_VIEW],
+  });
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER);
   const [sortedComponents, setSortedComponents] = useState<Component[] | []>(
     []
@@ -152,81 +155,93 @@ const ReorderableComponentList = ({
             >
               {sortedComponents.map((comp, index) => {
                 if (comp.location === 'main') {
-                  const params = JSON.parse(comp.parameters);
-                  return (
-                    <Draggable
-                      key={comp.key}
-                      draggableId={comp.key}
-                      index={index}
-                      isDragDisabled={false}
-                      _hover={{
-                        shadow: 'sm',
-                      }}
-                    >
-                      {(provided, snapshot) => (
-                        <Flex
-                          position="relative"
-                          flexDirection="column"
-                          height="auto"
-                          userSelect="none"
-                          p={0}
-                          m={0}
-                          borderRadius="md"
-                          mb={8}
-                          border="1px solid"
-                          borderColor={
-                            snapshot.isDragging ? 'gray.200' : 'transparent'
-                          }
-                          bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-                          shadow={snapshot.isDragging ? 'md' : 'none'}
-                          ref={provided.innerRef}
-                          // eslint-disable-next-line react/jsx-props-no-spreading
-                          {...provided.draggableProps}
-                          key={`container-${comp.key}`}
-                        >
+                  try {
+                    console.log(typeof comp.parameters);
+                    console.log(JSON.stringify(comp.parameters));
+                    const params = JSON.parse(comp?.parameters);
+                    return (
+                      <Draggable
+                        key={comp.key}
+                        draggableId={comp.key}
+                        index={index}
+                        isDragDisabled={false}
+                        _hover={{
+                          shadow: 'sm',
+                        }}
+                      >
+                        {(provided, snapshot) => (
                           <Flex
-                            position="absolute"
-                            direction="row"
-                            justifyContent="center"
-                            alignItems="center"
-                            h={6}
-                            top={0}
-                            w="100%"
-                            zIndex={100}
-                            opacity={0}
-                            borderRadius="none"
-                            borderTopLeftRadius="md"
-                            borderTopRightRadius="md"
+                            position="relative"
+                            flexDirection="column"
+                            height="auto"
+                            userSelect="none"
+                            p={0}
+                            m={0}
+                            borderRadius="md"
+                            mb={8}
                             border="1px solid"
-                            borderBottom="none"
                             borderColor={
-                              colorMode === 'light' ? 'gray.200' : 'gray.700'
+                              snapshot.isDragging ? 'gray.200' : 'transparent'
                             }
-                            _active={{
-                              opacity: 1,
-                              bg:
-                                colorMode === 'light' ? 'gray.100' : 'gray.900',
-                            }}
-                            _hover={{
-                              opacity: 1,
-                              bg:
-                                colorMode === 'light' ? 'gray.100' : 'gray.900',
-                            }}
+                            bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+                            shadow={snapshot.isDragging ? 'md' : 'none'}
+                            ref={provided.innerRef}
                             // eslint-disable-next-line react/jsx-props-no-spreading
-                            {...provided.dragHandleProps}
+                            {...provided.draggableProps}
+                            key={`container-${comp.key}`}
                           >
-                            <Icon as={Icons.drag} />
+                            <Flex
+                              position="absolute"
+                              direction="row"
+                              justifyContent="center"
+                              alignItems="center"
+                              h={6}
+                              top={0}
+                              w="100%"
+                              zIndex={100}
+                              opacity={0}
+                              borderRadius="none"
+                              borderTopLeftRadius="md"
+                              borderTopRightRadius="md"
+                              border="1px solid"
+                              borderBottom="none"
+                              borderColor={
+                                colorMode === 'light' ? 'gray.200' : 'gray.700'
+                              }
+                              _active={{
+                                opacity: 1,
+                                bg:
+                                  colorMode === 'light'
+                                    ? 'gray.100'
+                                    : 'gray.900',
+                              }}
+                              _hover={{
+                                opacity: 1,
+                                bg:
+                                  colorMode === 'light'
+                                    ? 'gray.100'
+                                    : 'gray.900',
+                              }}
+                              // eslint-disable-next-line react/jsx-props-no-spreading
+                              {...provided.dragHandleProps}
+                            >
+                              <Icon as={Icons.drag} />
+                            </Flex>
+                            <ComponentActions
+                              readOnly={false}
+                              componentKey={comp.key}
+                            >
+                              {componentSwitch(params, comp, provided)}
+                            </ComponentActions>
                           </Flex>
-                          <ComponentActions
-                            readOnly={false}
-                            componentKey={comp.key}
-                          >
-                            {componentSwitch(params, comp, provided)}
-                          </ComponentActions>
-                        </Flex>
-                      )}
-                    </Draggable>
-                  );
+                        )}
+                      </Draggable>
+                    );
+                  } catch (e) {
+                    console.log(
+                      `Failed to parse parameters of sortedComponent - ${comp.key}, with error - ${e}`
+                    );
+                  }
                 }
               })}
             </Flex>
@@ -304,7 +319,6 @@ const ReorderableComponentList = ({
                     },
                   },
                 });
-                refetch();
               }}
             >
               Item list
@@ -325,7 +339,6 @@ const ReorderableComponentList = ({
                     },
                   },
                 });
-                refetch();
               }}
             >
               Header
@@ -345,7 +358,6 @@ const ReorderableComponentList = ({
                     },
                   },
                 });
-                refetch();
               }}
             >
               Item creator

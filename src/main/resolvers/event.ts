@@ -1,6 +1,11 @@
 import { Resolvers } from 'main/resolvers-types';
 
 const event: Partial<Resolvers> = {
+  Event: {
+    calendar: (parent, _, { dataSources }) => {
+      return dataSources.apolloDb.getCalendar(parent.key);
+    },
+  },
   Query: {
     events: (_, __, { dataSources }) => {
       return dataSources.apolloDb.getEvents();
@@ -17,8 +22,30 @@ const event: Partial<Resolvers> = {
   },
   Mutation: {
     createEvent: (_, { input }, { dataSources }) => {
-      const { key, name, active } = input;
-      return dataSources.apolloDb.createEvent(key, name, active);
+      const {
+        allDay,
+        attendees,
+        calendarKey,
+        description,
+        endAt,
+        key,
+        location,
+        recurrence,
+        startAt,
+        title,
+      } = input;
+      return dataSources.apolloDb.createEvent(
+        allDay,
+        attendees,
+        calendarKey,
+        description,
+        endAt,
+        key,
+        location,
+        recurrence,
+        startAt,
+        title
+      );
     },
 
     deleteEvent: (_, { input }, { dataSources }) => {
