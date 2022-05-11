@@ -14,9 +14,6 @@ import applescript from 'applescript';
 import fetch from 'cross-fetch';
 import { parseJSON } from 'date-fns';
 import { app, BrowserWindow, globalShortcut, ipcMain, net } from 'electron';
-import express from 'express';
-import { graphqlHTTP } from 'express-graphql';
-import morgan from 'morgan';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
@@ -26,7 +23,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ApolloServer } from 'apollo-server';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { loadSchema } from '@graphql-tools/load';
-import { CAL_SYNC_INTERVAL, GRAPHQL_PORT } from '../consts';
+import { CAL_SYNC_INTERVAL } from '../consts';
 import {
   AppleCalendarEvent,
   appleMailLinkScript,
@@ -35,10 +32,11 @@ import {
   getRecurringEventsForCalendar,
   setupAppleCalDatabase,
 } from './appleCalendar';
-import { rootValue, schema } from './schemas/schema';
 import { createNote } from './bear';
 import AppDatabase from './database';
 import resolvers from './resolvers';
+import { AttendeeInput } from './resolvers-types';
+import { EventEntity } from './database/types';
 
 const { zonedTimeToUtc } = require('date-fns-tz');
 
@@ -55,8 +53,9 @@ let db: sqlite.Database<sqlite3.Database>;
 let client: ApolloClient<NormalizedCacheObject>;
 let calendarSyncInterval: NodeJS.Timer;
 
-/* Use Apollo Server */
+// TODO: Refactor all of this
 
+/* Use Apollo Server */
 const startApolloServer = async () => {
   const knexConfig = {
     client: 'sqlite3',
@@ -122,63 +121,10 @@ const setUpDatabase = async (): Promise<
   return db;
 };
 
-const startGraphQL = async () => {
-  const graphQLApp = await express();
-  morgan.token('body', function (req, res) {
-    return JSON.stringify(req.body);
-  });
-
-  graphQLApp.use(
-    morgan(':date[iso] :req[header] :url :status - :response-time ms :body', {
-      skip(req, res) {
-        return res.statusCode < 400;
-      },
-    })
-  );
-
-  graphQLApp.use('/graphql', function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, Content-Length, X-Requested-With'
-    );
-    if (req.method === 'OPTIONS') {
-      res.sendStatus(200);
-    } else {
-      next();
-    }
-  });
-
-  graphQLApp.use(
-    '/graphql',
-    graphqlHTTP({
-      rootValue,
-      graphiql: true,
-      pretty: true,
-      schema,
-      context: {
-        db: {
-          get: (...args) => db.get(...args),
-          all: (...args) => db.all(...args),
-          run: (...args) => db.run(...args),
-        },
-      },
-    })
-  );
-
-  await graphQLApp.listen(GRAPHQL_PORT, () => {
-    log.info(
-      `GraphQL server is now running on http://localhost:${GRAPHQL_PORT}`
-    );
-  });
-
-  return graphQLApp;
-};
-
 const createApolloClient = () => {
   // Creating a client for use in the backend
   const httpLink = createHttpLink({
-    uri: 'http://localhost:8089/graphql',
+    uri: 'http://localhost:4000/graphql',
     fetch,
     headers: {},
   });
@@ -381,7 +327,9 @@ const getActiveCalendar = async (
   }
 };
 
-const translateAppleEventToEvent = (events: AppleCalendarEvent[]): Event[] => {
+const translateAppleEventToEvent = (
+  events: AppleCalendarEvent[]
+): EventEntity[] => {
   return events.map((e) => {
     const attendees: AttendeeInput[] = e.attendees
       ?.split(',')
@@ -570,7 +518,6 @@ const startApp = async () => {
 
   await startApolloServer();
 
-  await startGraphQL();
   client = createApolloClient();
 
   const featureResult = await getFeatures(client);
