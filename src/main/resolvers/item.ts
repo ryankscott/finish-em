@@ -68,13 +68,14 @@ const item: Partial<Resolvers> = {
       } = input;
       return dataSources.apolloDb.createItem(
         key,
-        labelKey,
-        parentKey,
-        projectKey,
-        repeat,
+        labelKey ?? '',
+        parentKey ?? '',
+        projectKey ?? '',
+        repeat ?? '',
         text,
-        dueAt,
-        scheduledAt
+        type,
+        dueAt || undefined,
+        scheduledAt || undefined
       );
     },
 
@@ -140,12 +141,15 @@ const item: Partial<Resolvers> = {
 
     setScheduledAtOfItem: (_, { input }, { dataSources }) => {
       const { key, scheduledAt } = input;
-      return dataSources.apolloDb.setScheduledAtOfItem(key, scheduledAt);
+      return dataSources.apolloDb.setScheduledAtOfItem(
+        key,
+        scheduledAt ?? null
+      );
     },
 
     setDueAtOfItem: (_, { input }, { dataSources }) => {
       const { key, dueAt } = input;
-      return dataSources.apolloDb.setDueAtOfItem(key, dueAt);
+      return dataSources.apolloDb.setDueAtOfItem(key, dueAt ?? null);
     },
   },
 };

@@ -1,4 +1,5 @@
 import { Resolvers } from 'main/resolvers-types';
+import { DateTimeResolver } from 'graphql-scalars';
 import area from './area';
 import feature from './feature';
 import item from './item';
@@ -57,6 +58,10 @@ const resolvers: Resolvers = {
   Area: area.Area,
   Component: component.Component,
   Item: item.Item,
+  ItemOrder: itemOrder.ItemOrder,
+  DateTime: DateTimeResolver,
+  View: view.View,
+  Calendar: calendar.Calendar,
 };
 
 export default resolvers;

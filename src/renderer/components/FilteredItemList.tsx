@@ -91,7 +91,7 @@ const FilteredItemList = ({
   const [sortType, setSortType] = useState({
     label: 'Due',
     sort: (items: Item[], direction: SortDirectionEnum) =>
-      orderBy(items, [(i) => new Date(i.dueAt)], direction),
+      orderBy(items, [(i) => i.dueAt], direction),
   });
   const [sortDirection, setSortDirection] = useState(
     SortDirectionEnum.Ascending

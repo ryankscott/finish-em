@@ -58,7 +58,7 @@ input UnCompleteItemInput {
 
 input SetRepeatOfItemInput {
   key: String!
-  repeat: String
+  repeat: String!
 }
 
 input CloneItemInput {
@@ -67,12 +67,12 @@ input CloneItemInput {
 
 input SetProjectOfItemInput {
   key: String!
-  projectKey: String
+  projectKey: String!
 }
 
 input SetAreaOfItemInput {
   key: String!
-  areaKey: String
+  areaKey: String!
 }
 
 input SetScheduledAtOfItemInput {
@@ -87,7 +87,7 @@ input SetDueAtOfItemInput {
 
 input SetParentOfItemInput {
   key: String!
-  parentKey: String
+  parentKey: String!
 }
 
 input PermanentDeleteInput {
@@ -96,7 +96,7 @@ input PermanentDeleteInput {
 
 input SetLabelOfInput {
   key: String!
-  labelKey: String
+  labelKey: String!
 }
 
 type Query {

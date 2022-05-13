@@ -1,7 +1,7 @@
-import { ApolloClient, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Flex, Box, Text } from '@chakra-ui/react';
 import { Emoji } from 'emoji-mart';
-import { Area } from 'main/generated/typescript-helpers';
+import { Area } from 'main/resolvers-types';
 import { ReactElement } from 'react';
 import { GET_AREAS } from 'renderer/queries';
 import Select from './Select';

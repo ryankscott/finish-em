@@ -33,9 +33,7 @@ type Query {
 
 type Mutation {
   setItemOrder(input: SetItemOrderInput!): ItemOrder
-  deleteItemOrdersByComponent(
-    input: DeleteItemOrdersByComponentInput!
-  ): [String]
+  deleteItemOrdersByComponent(input: DeleteItemOrdersByComponentInput!): String
   createItemOrder(input: CreateItemOrderInput!): ItemOrder
   bulkCreateItemOrders(input: BulkCreateItemOrdersInput!): [ItemOrder]
 }

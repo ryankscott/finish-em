@@ -14,7 +14,7 @@ import {
 import { parseISO } from 'date-fns';
 import { ReactElement } from 'react';
 import {
-  GET_ITEM_BY_KEY,
+  ITEM_BY_KEY,
   RENAME_ITEM,
   COMPLETE_ITEM,
   SET_AREA,
@@ -27,6 +27,7 @@ import {
   SET_LABEL,
   DELETE_ITEM,
   RESTORE_ITEM,
+  ITEMS_BY_FILTER,
 } from 'renderer/queries';
 import RRule from 'rrule';
 import { Item } from 'main/resolvers-types';
@@ -48,7 +49,7 @@ const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
   const activeItem = useReactiveVar(activeItemVar);
   const focusbarVisible = useReactiveVar(focusbarVisibleVar);
-  const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
+  const { loading, error, data } = useQuery(ITEM_BY_KEY, {
     variables: {
       key: activeItem.length ? activeItem[0] : '',
     },
@@ -56,53 +57,43 @@ const Focusbar = (): ReactElement => {
 
   const [renameItem] = useMutation(RENAME_ITEM);
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [setProject] = useMutation(SET_PROJECT, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [setArea] = useMutation(SET_AREA, {
-    refetchQueries: ['itemsByFilter, itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
-    refetchQueries: ['itemsByFilter', 'weeklyItems'],
+    refetchQueries: [ITEMS_BY_FILTER, 'weeklyItems', ITEM_BY_KEY],
   });
   const [setDueAt] = useMutation(SET_DUE_AT, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY],
   });
   const [setRepeat] = useMutation(SET_REPEAT, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [setParent] = useMutation(SET_PARENT, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [setLabel] = useMutation(SET_LABEL, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY],
   });
   const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
 
   if (error) {
     console.log(error);
     return <></>;
   }
-
-  const determineIconColour = (item: Item): string => {
-    if (item.label?.colour) {
-      return item.label.colour;
-    }
-    if (colorMode === 'light') {
-      return 'gray.800';
-    }
-    return 'gray.50';
-  };
 
   if (loading) {
     return (
@@ -148,9 +139,12 @@ const Focusbar = (): ReactElement => {
   );
 
   // TODO: Do I need these? Or can I move to the component
+  // @ts-ignore
   const dueDate = item?.dueAt
     ? formatRelativeDate(parseISO(item?.dueAt))
     : 'Add due date';
+
+  // @ts-ignore
   const scheduledDate = item?.scheduledAt
     ? formatRelativeDate(parseISO(item?.scheduledAt))
     : 'Add scheduled date';
@@ -212,6 +206,7 @@ const Focusbar = (): ReactElement => {
             }
           }}
           disableOnDelete
+          colour={item?.label?.colour}
         />
         <Box
           w="100%"

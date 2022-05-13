@@ -2,24 +2,26 @@ schema: ./src/main/schemas/*.graphql
 generates:
   ./src/main/resolvers-types.ts:
     config:
-      contextType: models
+      scalars:
+        DateTime: Date
+      contextType: ./resolvers/types#Context
       mappers:
-        Area: ./src/main/database/index#AreaEntity
-        AreaOrder: ./src/main/database/index#AreaOrderEntity
-        Calendar: ./src/main/database/index#CalendarEntity
-        Component: ./src/main/database/index#ComponentEntity
-        ComponentOrder: ./src/main/database/index#ComponentOrderEntity
-        Event: ./src/main/database/index#EventEntity
-        Feature: ./src/main/database/index#FeatureEntity
-        Item: ./src/main/database/index#ItemEntity
-        ItemOrder: ./src/main/database/index#ItemOrderEntity
-        Label: ./src/main/database/index#LabelEntity
-        Project: ./src/main/database/index#ProjectEntity
-        ProjectOrder: ./src/main/database/index#ProjectOrderEntity
-        Reminder: ./src/main/database/index#ReminderEntity
-        View: ./src/main/database/index#ViewEntity
-        ViewOrder: ./src/main/database/index#ViewOrderEntity
-        WeeklyGoal: ./src/main/database/index#WeeklyGoalEntity
+        Area: ./database/types/index#AreaEntity
+        AreaOrder: ./database/types/index#AreaOrderEntity
+        Calendar: ./database/types/index#CalendarEntity
+        Component: ./database/types/index#ComponentEntity
+        ComponentOrder: ./database/types/index#ComponentOrderEntity
+        Event: ./database/types/index#EventEntity
+        Feature: ./database/types/index#FeatureEntity
+        Item: ./database/types/index#ItemEntity
+        ItemOrder: ./database/types/index#ItemOrderEntity
+        Label: ./database/types/index#LabelEntity
+        Project: ./database/types/index#ProjectEntity
+        ProjectOrder: ./database/types/index#ProjectOrderEntity
+        Reminder: ./database/types/index#ReminderEntity
+        View: ./database/types/index#ViewEntity
+        ViewOrder: ./database/types/index#ViewOrderEntity
+        WeeklyGoal: ./database/types/index#WeeklyGoalEntity
       useIndexSignature: true
     plugins:
       - typescript

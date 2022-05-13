@@ -60,7 +60,7 @@ export const RENAME_PROJECT = gql`
 `;
 
 export const SET_END_DATE_OF_PROJECT = gql`
-  mutation SetEndDateOfProject($key: String!, $endAt: String!) {
+  mutation SetEndDateOfProject($key: String!, $endAt: DateTime!) {
     setEndDateOfProject(input: { key: $key, endAt: $endAt }) {
       key
       endAt
@@ -68,7 +68,7 @@ export const SET_END_DATE_OF_PROJECT = gql`
   }
 `;
 export const SET_START_DATE_OF_PROJECT = gql`
-  mutation SetStartDateOfProject($key: String!, $startAt: String!) {
+  mutation SetStartDateOfProject($key: String!, $startAt: DateTime!) {
     setStartDateOfProject(input: { key: $key, startAt: $startAt }) {
       key
       startAt

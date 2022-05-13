@@ -18,9 +18,10 @@ import {
 import { useMutation, useQuery } from '@apollo/client';
 import {
   COMPLETE_ITEM,
-  GET_ITEM_BY_KEY,
+  ITEM_BY_KEY,
   UNCOMPLETE_ITEM,
   RESTORE_ITEM,
+  ITEMS_BY_FILTER,
 } from 'renderer/queries';
 import { Emoji } from 'emoji-mart';
 import { Icons } from '../assets/icons';
@@ -42,7 +43,7 @@ import {
   subtasksVisibleVar,
 } from '../cache';
 import LoadingItem from './LoadingItem';
-import { Item as ItemType } from '../../main/generated/typescript-helpers';
+import { Item as ItemType } from '../../main/resolvers-types';
 import ItemActionButton from './ItemActionButton';
 
 type ItemProps = {
@@ -144,17 +145,17 @@ function Item({
   const [subtasksVisible, setSubtasksVisible] = useState(true);
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
 
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
 
-  const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
+  const { loading, error, data } = useQuery(ITEM_BY_KEY, {
     variables: { key: itemKey || null },
   });
 

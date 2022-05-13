@@ -1,5 +1,6 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { AreaEntity, AreaOrderEntity, CalendarEntity, ComponentEntity, ComponentOrderEntity, EventEntity, FeatureEntity, ItemEntity, ItemOrderEntity, LabelEntity, ProjectEntity, ProjectOrderEntity, ReminderEntity, ViewEntity, ViewOrderEntity, WeeklyGoalEntity } from './src/main/database/index';
+import { AreaEntity, AreaOrderEntity, CalendarEntity, ComponentEntity, ComponentOrderEntity, EventEntity, FeatureEntity, ItemEntity, ItemOrderEntity, LabelEntity, ProjectEntity, ProjectOrderEntity, ReminderEntity, ViewEntity, ViewOrderEntity, WeeklyGoalEntity } from './database/types/index';
+import { Context } from './resolvers/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -13,7 +14,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  DateTime: any;
+  DateTime: Date;
   JSON: any;
 };
 
@@ -363,7 +364,7 @@ export type Mutation = {
   deleteComponent?: Maybe<Scalars['String']>;
   deleteEvent?: Maybe<Scalars['String']>;
   deleteItem?: Maybe<Item>;
-  deleteItemOrdersByComponent?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deleteItemOrdersByComponent?: Maybe<Scalars['String']>;
   deleteLabel?: Maybe<Scalars['String']>;
   deleteProject?: Maybe<Project>;
   deleteReminder?: Maybe<Reminder>;
@@ -1017,7 +1018,7 @@ export type RestoreItemInput = {
 };
 
 export type SetAreaOfItemInput = {
-  areaKey?: InputMaybe<Scalars['String']>;
+  areaKey: Scalars['String'];
   key: Scalars['String'];
 };
 
@@ -1057,7 +1058,7 @@ export type SetEmojiOfAreaInput = {
 };
 
 export type SetEndDateOfProjectInput = {
-  endAt: Scalars['String'];
+  endAt: Scalars['DateTime'];
   key: Scalars['String'];
 };
 
@@ -1079,7 +1080,7 @@ export type SetItemOrderInput = {
 
 export type SetLabelOfInput = {
   key: Scalars['String'];
-  labelKey?: InputMaybe<Scalars['String']>;
+  labelKey: Scalars['String'];
 };
 
 export type SetParametersOfComponentInput = {
@@ -1089,12 +1090,12 @@ export type SetParametersOfComponentInput = {
 
 export type SetParentOfItemInput = {
   key: Scalars['String'];
-  parentKey?: InputMaybe<Scalars['String']>;
+  parentKey: Scalars['String'];
 };
 
 export type SetProjectOfItemInput = {
   key: Scalars['String'];
-  projectKey?: InputMaybe<Scalars['String']>;
+  projectKey: Scalars['String'];
 };
 
 export type SetProjectOrderInput = {
@@ -1104,7 +1105,7 @@ export type SetProjectOrderInput = {
 
 export type SetRepeatOfItemInput = {
   key: Scalars['String'];
-  repeat?: InputMaybe<Scalars['String']>;
+  repeat: Scalars['String'];
 };
 
 export type SetScheduledAtOfItemInput = {
@@ -1114,7 +1115,7 @@ export type SetScheduledAtOfItemInput = {
 
 export type SetStartDateOfProjectInput = {
   key: Scalars['String'];
-  startAt: Scalars['String'];
+  startAt: Scalars['DateTime'];
 };
 
 export type SetViewOrderInput = {
@@ -1427,7 +1428,7 @@ export type ResolversParentTypes = ResolversObject<{
   setEmojiOfProjectInput: SetEmojiOfProjectInput;
 }>;
 
-export type AreaResolvers<ContextType = models, ParentType extends ResolversParentTypes['Area'] = ResolversParentTypes['Area']> = ResolversObject<{
+export type AreaResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Area'] = ResolversParentTypes['Area']> = ResolversObject<{
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   deleted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -1442,19 +1443,19 @@ export type AreaResolvers<ContextType = models, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AreaOrderResolvers<ContextType = models, ParentType extends ResolversParentTypes['AreaOrder'] = ResolversParentTypes['AreaOrder']> = ResolversObject<{
+export type AreaOrderResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AreaOrder'] = ResolversParentTypes['AreaOrder']> = ResolversObject<{
   areaKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type AttendeeResolvers<ContextType = models, ParentType extends ResolversParentTypes['Attendee'] = ResolversParentTypes['Attendee']> = ResolversObject<{
+export type AttendeeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Attendee'] = ResolversParentTypes['Attendee']> = ResolversObject<{
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type CalendarResolvers<ContextType = models, ParentType extends ResolversParentTypes['Calendar'] = ResolversParentTypes['Calendar']> = ResolversObject<{
+export type CalendarResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Calendar'] = ResolversParentTypes['Calendar']> = ResolversObject<{
   active?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   deleted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -1466,7 +1467,7 @@ export type CalendarResolvers<ContextType = models, ParentType extends Resolvers
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ComponentResolvers<ContextType = models, ParentType extends ResolversParentTypes['Component'] = ResolversParentTypes['Component']> = ResolversObject<{
+export type ComponentResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Component'] = ResolversParentTypes['Component']> = ResolversObject<{
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   parameters?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1476,7 +1477,7 @@ export type ComponentResolvers<ContextType = models, ParentType extends Resolver
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ComponentOrderResolvers<ContextType = models, ParentType extends ResolversParentTypes['ComponentOrder'] = ResolversParentTypes['ComponentOrder']> = ResolversObject<{
+export type ComponentOrderResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ComponentOrder'] = ResolversParentTypes['ComponentOrder']> = ResolversObject<{
   componentKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1486,7 +1487,7 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
   name: 'DateTime';
 }
 
-export type EventResolvers<ContextType = models, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = ResolversObject<{
+export type EventResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Event'] = ResolversParentTypes['Event']> = ResolversObject<{
   allDay?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   attendees?: Resolver<Maybe<Array<Maybe<ResolversTypes['Attendee']>>>, ParentType, ContextType>;
   calendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType>;
@@ -1501,7 +1502,7 @@ export type EventResolvers<ContextType = models, ParentType extends ResolversPar
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type FeatureResolvers<ContextType = models, ParentType extends ResolversParentTypes['Feature'] = ResolversParentTypes['Feature']> = ResolversObject<{
+export type FeatureResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Feature'] = ResolversParentTypes['Feature']> = ResolversObject<{
   enabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   metadata?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
@@ -1509,7 +1510,7 @@ export type FeatureResolvers<ContextType = models, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ItemResolvers<ContextType = models, ParentType extends ResolversParentTypes['Item'] = ResolversParentTypes['Item']> = ResolversObject<{
+export type ItemResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Item'] = ResolversParentTypes['Item']> = ResolversObject<{
   area?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType>;
   children?: Resolver<Maybe<Array<Maybe<ResolversTypes['Item']>>>, ParentType, ContextType>;
   completed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -1533,7 +1534,7 @@ export type ItemResolvers<ContextType = models, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ItemOrderResolvers<ContextType = models, ParentType extends ResolversParentTypes['ItemOrder'] = ResolversParentTypes['ItemOrder']> = ResolversObject<{
+export type ItemOrderResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItemOrder'] = ResolversParentTypes['ItemOrder']> = ResolversObject<{
   componentKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   item?: Resolver<ResolversTypes['Item'], ParentType, ContextType>;
   sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -1544,14 +1545,14 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'JSON';
 }
 
-export type LabelResolvers<ContextType = models, ParentType extends ResolversParentTypes['Label'] = ResolversParentTypes['Label']> = ResolversObject<{
+export type LabelResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Label'] = ResolversParentTypes['Label']> = ResolversObject<{
   colour?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type MutationResolvers<ContextType = models, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
+export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   bulkCreateItemOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType, RequireFields<MutationBulkCreateItemOrdersArgs, 'input'>>;
   cloneComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCloneComponentArgs, 'input'>>;
   cloneItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationCloneItemArgs, 'input'>>;
@@ -1577,7 +1578,7 @@ export type MutationResolvers<ContextType = models, ParentType extends Resolvers
   deleteComponent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
   deleteEvent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'input'>>;
   deleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationDeleteItemArgs, 'input'>>;
-  deleteItemOrdersByComponent?: Resolver<Maybe<Array<Maybe<ResolversTypes['String']>>>, ParentType, ContextType, RequireFields<MutationDeleteItemOrdersByComponentArgs, 'input'>>;
+  deleteItemOrdersByComponent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteItemOrdersByComponentArgs, 'input'>>;
   deleteLabel?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteLabelArgs, 'input'>>;
   deleteProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'input'>>;
   deleteReminder?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'input'>>;
@@ -1621,7 +1622,7 @@ export type MutationResolvers<ContextType = models, ParentType extends Resolvers
   unCompleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationUnCompleteItemArgs, 'input'>>;
 }>;
 
-export type ProjectResolvers<ContextType = models, ParentType extends ResolversParentTypes['Project'] = ResolversParentTypes['Project']> = ResolversObject<{
+export type ProjectResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Project'] = ResolversParentTypes['Project']> = ResolversObject<{
   area?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType>;
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   deleted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
@@ -1639,13 +1640,13 @@ export type ProjectResolvers<ContextType = models, ParentType extends ResolversP
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ProjectOrderResolvers<ContextType = models, ParentType extends ResolversParentTypes['ProjectOrder'] = ResolversParentTypes['ProjectOrder']> = ResolversObject<{
+export type ProjectOrderResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ProjectOrder'] = ResolversParentTypes['ProjectOrder']> = ResolversObject<{
   projectKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type QueryResolvers<ContextType = models, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   area?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<QueryAreaArgs, 'key'>>;
   areaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<QueryAreaOrderArgs, 'areaKey'>>;
   areaOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['AreaOrder']>>>, ParentType, ContextType>;
@@ -1694,7 +1695,7 @@ export type QueryResolvers<ContextType = models, ParentType extends ResolversPar
   weeklyGoals?: Resolver<Maybe<Array<Maybe<ResolversTypes['WeeklyGoal']>>>, ParentType, ContextType>;
 }>;
 
-export type ReminderResolvers<ContextType = models, ParentType extends ResolversParentTypes['Reminder'] = ResolversParentTypes['Reminder']> = ResolversObject<{
+export type ReminderResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Reminder'] = ResolversParentTypes['Reminder']> = ResolversObject<{
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   deleted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -1706,7 +1707,7 @@ export type ReminderResolvers<ContextType = models, ParentType extends Resolvers
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ViewResolvers<ContextType = models, ParentType extends ResolversParentTypes['View'] = ResolversParentTypes['View']> = ResolversObject<{
+export type ViewResolvers<ContextType = Context, ParentType extends ResolversParentTypes['View'] = ResolversParentTypes['View']> = ResolversObject<{
   createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   deleted?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   deletedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -1719,21 +1720,21 @@ export type ViewResolvers<ContextType = models, ParentType extends ResolversPare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ViewOrderResolvers<ContextType = models, ParentType extends ResolversParentTypes['ViewOrder'] = ResolversParentTypes['ViewOrder']> = ResolversObject<{
+export type ViewOrderResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ViewOrder'] = ResolversParentTypes['ViewOrder']> = ResolversObject<{
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   viewKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type WeeklyGoalResolvers<ContextType = models, ParentType extends ResolversParentTypes['WeeklyGoal'] = ResolversParentTypes['WeeklyGoal']> = ResolversObject<{
+export type WeeklyGoalResolvers<ContextType = Context, ParentType extends ResolversParentTypes['WeeklyGoal'] = ResolversParentTypes['WeeklyGoal']> = ResolversObject<{
   goal?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   week?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Resolvers<ContextType = models> = ResolversObject<{
+export type Resolvers<ContextType = Context> = ResolversObject<{
   Area?: AreaResolvers<ContextType>;
   AreaOrder?: AreaOrderResolvers<ContextType>;
   Attendee?: AttendeeResolvers<ContextType>;

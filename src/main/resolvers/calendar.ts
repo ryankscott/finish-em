@@ -1,6 +1,11 @@
 import { Resolvers } from 'main/resolvers-types';
 
 const calendar: Partial<Resolvers> = {
+  Calendar: {
+    events: (parent, _, { dataSources }) => {
+      return dataSources.apolloDb.getEventsByCalendar(parent.key);
+    },
+  },
   Query: {
     calendars: (_, __, { dataSources }) => {
       return dataSources.apolloDb.getCalendars();

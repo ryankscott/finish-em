@@ -201,6 +201,7 @@ const Sidebar = (): ReactElement => {
                 text={d.text}
                 path={d.path}
                 variant="defaultView"
+                type="project"
               />
             );
           })}
@@ -214,6 +215,7 @@ const Sidebar = (): ReactElement => {
                 iconName={view.icon as IconType}
                 text={view.name}
                 path={`/views/${view.key}`}
+                type="project"
               />
             );
           })}
@@ -398,6 +400,7 @@ const Sidebar = (): ReactElement => {
             iconName="settings"
             text="Settings"
             path="/settings"
+            type="project"
           />
         </Flex>
         <Flex

@@ -34,17 +34,27 @@ const event: Partial<Resolvers> = {
         startAt,
         title,
       } = input;
+      if (!startAt) {
+        throw new Error('Failed to create event - startAt is required');
+      }
+      if (!endAt) {
+        throw new Error('Failed to create event - endAt is required');
+      }
+      if (!attendees) {
+        throw new Error('Failed to create event - attendees is required');
+      }
       return dataSources.apolloDb.createEvent(
-        allDay,
-        attendees,
-        calendarKey,
-        description,
-        endAt,
         key,
-        location,
-        recurrence,
+        title,
+        description ?? '',
         startAt,
-        title
+        endAt,
+        allDay ?? false,
+        calendarKey ?? '',
+        location ?? '',
+        // @ts-ignore
+        attendees ?? null,
+        recurrence
       );
     },
 

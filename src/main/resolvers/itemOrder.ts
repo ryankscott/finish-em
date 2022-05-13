@@ -1,8 +1,11 @@
+import log from 'electron-log';
 import { Resolvers } from 'main/resolvers-types';
 
 const itemOrder: Partial<Resolvers> = {
   ItemOrder: {
-    item: ({ item }, _, { dataSources }) => dataSources.item.getItem(item.key),
+    item: (parent, _, { dataSources }) => {
+      return dataSources.apolloDb.getItem(parent.itemKey);
+    },
   },
   Query: {
     itemOrders: (_, __, { dataSources }) => {
@@ -22,13 +25,17 @@ const itemOrder: Partial<Resolvers> = {
   },
   Mutation: {
     createItemOrder(_, { input }, { dataSources }) {
-      const { itemKey } = input;
-      return dataSources.apolloDb.createItemOrder(itemKey);
+      const { itemKey, componentKey } = input;
+      return dataSources.apolloDb.createItemOrder(itemKey, componentKey);
     },
 
     setItemOrder(_, { input }, { dataSources }) {
-      const { itemKey, sortOrder } = input;
-      return dataSources.apolloDb.setItemOrder(itemKey, sortOrder);
+      const { itemKey, componentKey, sortOrder } = input;
+      return dataSources.apolloDb.setItemOrder(
+        itemKey,
+        componentKey,
+        sortOrder
+      );
     },
 
     deleteItemOrdersByComponent(_, { input }, { dataSources }) {
@@ -37,8 +44,15 @@ const itemOrder: Partial<Resolvers> = {
     },
 
     bulkCreateItemOrders(_, { input }, { dataSources }) {
-      const { itemKeys } = input;
-      return dataSources.apolloDb.bulkCreateItemOrders(itemKeys);
+      const { itemKeys, componentKey } = input;
+      if (!itemKeys) {
+        log.error(`Can't bulk create itemOrdres as itemKeys is missing`);
+        throw new Error(`Can't bulk create itemOrdres as itemKeys is missing`);
+      }
+      return dataSources.apolloDb.bulkCreateItemOrders(
+        itemKeys as string[],
+        componentKey
+      );
     },
   },
 };

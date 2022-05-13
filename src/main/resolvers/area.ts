@@ -25,7 +25,7 @@ const area: Partial<Resolvers> = {
   Mutation: {
     createArea: (_, { input }, { dataSources }) => {
       const { key, name, description } = input;
-      return dataSources.apolloDb.createArea(key, name, description);
+      return dataSources.apolloDb.createArea(key, name, description ?? '');
     },
 
     deleteArea: (_, { input }, { dataSources }) => {

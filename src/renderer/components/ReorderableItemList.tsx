@@ -155,7 +155,7 @@ function ReorderableItemList({
       variables: {
         itemKey: draggableId,
         componentKey,
-        sortOrder: itemAtDestination.sortOrders.sortOrder,
+        sortOrder: itemAtDestination.sortOrder.sortOrder,
       },
     });
   };

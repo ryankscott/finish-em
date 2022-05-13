@@ -9,6 +9,9 @@ const project: Partial<Resolvers> = {
       return dataSources.apolloDb.getProjectOrder(parent.key);
     },
     area(parent, _, { dataSources }) {
+      if (!parent.areaKey) {
+        return null;
+      }
       return dataSources.apolloDb.getArea(parent?.areaKey);
     },
   },
@@ -26,8 +29,8 @@ const project: Partial<Resolvers> = {
       return dataSources.apolloDb.createProject(
         key,
         name,
-        description,
-        areaKey
+        description ?? '',
+        areaKey ?? undefined
       );
     },
     deleteProject: (_, { input }, { dataSources }) => {
@@ -44,11 +47,11 @@ const project: Partial<Resolvers> = {
     },
     setEndDateOfProject: (_, { input }, { dataSources }) => {
       const { key, endAt } = input;
-      return dataSources.apolloDb.setEndAtOfProject(key, endAt);
+      return dataSources.apolloDb.setEndDateOfProject(key, endAt);
     },
     setStartDateOfProject: (_, { input }, { dataSources }) => {
       const { key, startAt } = input;
-      return dataSources.apolloDb.setstartAtOfProject(key, startAt);
+      return dataSources.apolloDb.setStartDateOfProject(key, startAt);
     },
     setEmojiOfProject: (_, { input }, { dataSources }) => {
       const { key, emoji } = input;

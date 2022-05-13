@@ -43,12 +43,12 @@ input setDescriptionOfProjectInput {
 
 input SetEndDateOfProjectInput {
   key: String!
-  endAt: String!
+  endAt: DateTime!
 }
 
 input SetStartDateOfProjectInput {
   key: String!
-  startAt: String!
+  startAt: DateTime!
 }
 
 input setEmojiOfProjectInput {

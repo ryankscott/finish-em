@@ -15,7 +15,7 @@ import {
 import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
-import { Item, Project } from 'main/resolvers-types';
+import { Item, Project as ProjectType } from 'main/resolvers-types';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -135,7 +135,7 @@ const Project = ({ projectKey }: ProjectProps) => {
               fontWeight="light"
               onSubmit={(input) => {
                 const exists = projects
-                  .map((p: Project) => p.name === input)
+                  .map((p: ProjectType) => p.name === input)
                   .includes(true);
                 if (exists) {
                   toast.error(
