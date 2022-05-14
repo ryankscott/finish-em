@@ -29,7 +29,6 @@ export default function AreaSelect({
     console.log(error);
     return <></>;
   }
-  console.log(data);
   const filteredAreas = data?.areas?.filter((a: Area) => a.deleted === false);
 
   type AreaOption = { value: string; label: ReactElement | string };
