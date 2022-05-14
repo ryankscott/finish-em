@@ -1,9 +1,15 @@
 import log from 'electron-log';
 import path from 'path';
-
 import applescript from 'applescript';
-import { parseJSON } from 'date-fns';
-import { app, BrowserWindow, globalShortcut, ipcMain, net } from 'electron';
+import { parseJSON, parseISO, isAfter } from 'date-fns';
+import {
+  app,
+  BrowserWindow,
+  globalShortcut,
+  ipcMain,
+  net,
+  shell,
+} from 'electron';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
@@ -13,6 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ApolloServer } from 'apollo-server';
 import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
 import { loadSchema } from '@graphql-tools/load';
+import { Release } from './github';
 import { CAL_SYNC_INTERVAL } from '../consts';
 import {
   AppleCalendarEvent,
@@ -222,7 +229,6 @@ const translateAppleEventToEvent = (
 const checkForNewVersion = () => {
   const releasesURL =
     ' https://api.github.com/repos/ryankscott/finish-em/releases';
-
   const request = net.request(releasesURL);
   request.on('response', (response) => {
     let rawData = '';
@@ -231,12 +237,19 @@ const checkForNewVersion = () => {
     });
     response.on('end', () => {
       try {
-        const resp = JSON.parse(rawData);
+        const resp: Release[] = JSON.parse(rawData);
         // Get rid of draft versions and prereleases and get the last published
         const sortedReleases = resp
           .filter((r) => r.draft === false)
           .filter((r) => r.prerelease === false)
-          .sort((a, b) => b.published_at - a.published_at);
+          .sort((a, b) => {
+            if (a.published_at && b.published_at) {
+              return isAfter(parseISO(a.published_at), parseISO(b.published_at))
+                ? -1
+                : 1;
+            }
+            return 0;
+          });
 
         // Get the semver of the release
         const latestRelease = sortedReleases[0];
@@ -245,7 +258,7 @@ const checkForNewVersion = () => {
           return;
         }
         // If there's a new version
-        if (semver.gt(latestRelease.name, app.getVersion())) {
+        if (semver.gt(latestRelease.name ?? '', app.getVersion())) {
           const macRelease = latestRelease.assets.find((a) =>
             a.name.endsWith('.dmg')
           );
@@ -253,7 +266,7 @@ const checkForNewVersion = () => {
           mainWindow?.webContents.send('new-version', {
             version: latestRelease.name,
             publishedAt: latestRelease.published_at,
-            downloadUrl: macRelease.browser_download_url,
+            downloadUrl: macRelease?.browser_download_url,
             releaseURL: latestRelease.html_url,
             releaseNotes: latestRelease.body,
           });
@@ -263,7 +276,7 @@ const checkForNewVersion = () => {
       }
     });
   });
-  request.on('error', (_) => {
+  request.on('error', () => {
     setTimeout(checkForNewVersion, 60 * 60 * 1000);
   });
   request.end();
@@ -325,10 +338,10 @@ function createMainWindow() {
     mainWindow = null;
   });
 
-  const handleRedirect = (e, url) => {
-    if (url !== mainWindow?.getURL()) {
+  const handleRedirect = (e: Event, url: string) => {
+    if (url !== mainWindow?.webContents.getURL()) {
       e.preventDefault();
-      require('electron').shell.openExternal(url);
+      shell.openExternal(url);
     }
   };
 
@@ -450,7 +463,7 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.on('close-quickadd', (event, arg) => {
+ipcMain.on('close-quickadd', () => {
   if (quickAddWindow) {
     quickAddWindow.close();
   }
@@ -458,7 +471,7 @@ ipcMain.on('close-quickadd', (event, arg) => {
 
 // This is to send events between quick add and main window
 // Don't try to do this in the backend because invalidating the cache won't work
-ipcMain.on('create-task', (event, arg) => {
+ipcMain.on('create-task', (_, arg) => {
   mainWindow?.webContents.send('create-item', {
     key: uuidv4(),
     type: 'TODO',
@@ -471,16 +484,16 @@ ipcMain.on('create-task', (event, arg) => {
   });
 });
 
-ipcMain.on('create-bear-note', (event, arg) => {
+ipcMain.on('create-bear-note', (_, arg) => {
   createNote(arg.title, arg.content);
 });
 
-ipcMain.on('active-calendar-set', (event, arg) => {
+ipcMain.on('active-calendar-set', () => {
   log.info('Active calendar set');
   saveAppleCalendarEvents(false);
 });
 
-ipcMain.on('feature-toggled', (event, arg) => {
+ipcMain.on('feature-toggled', (_, arg) => {
   if (arg.name === 'calendarIntegration') {
     if (arg.enabled) {
       log.info('Enabling calendar sync');
@@ -509,7 +522,7 @@ ipcMain.on('feature-toggled', (event, arg) => {
   }
 });
 
-ipcMain.on('feature-metadata-updated', (event, arg) => {
+ipcMain.on('feature-metadata-updated', (_, arg: any) => {
   if (arg.name === 'bearNotesIntegration') {
     if (arg.enabled) {
       const metadata = arg?.metadata;
