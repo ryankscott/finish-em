@@ -154,8 +154,6 @@ const ReorderableComponentList = ({
               {sortedComponents.map((comp, index) => {
                 if (comp.location === 'main') {
                   try {
-                    console.log(typeof comp.parameters);
-                    console.log(JSON.stringify(comp.parameters));
                     const params = JSON.parse(comp?.parameters);
                     return (
                       <Draggable
