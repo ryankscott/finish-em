@@ -196,15 +196,55 @@ function Item({
   let enterInterval: NodeJS.Timer;
   let exitInterval: NodeJS.Timer;
 
-  if (!data || !data.item) return <></>;
+  if (!data || !data.item) {
+    return (
+      <Flex
+        w="100%"
+        p={1}
+        mx={0}
+        my={1}
+        alignItems="center"
+        cursor="pointer"
+        borderRadius="md"
+        alignContent="center"
+        justifyContent="center"
+        bg="red.100"
+        border="1px solid"
+        borderColor="red.400"
+      >
+        <Text fontSize="md" color="red.500">
+          `Failed to load item`
+        </Text>
+      </Flex>
+    );
+  }
 
+  console.log({ data });
   const { item } = data;
 
   if (loading) return <LoadingItem />;
 
-  if (error) return <></>;
-
-  // TODO: Move this to the MoreDropdown component
+  if (error)
+    return (
+      <Flex
+        w="100%"
+        p={1}
+        mx={0}
+        my={1}
+        alignItems="center"
+        cursor="pointer"
+        borderRadius="md"
+        alignContent="center"
+        justifyContent="center"
+        bg="red.100"
+        border="1px solid"
+        borderColor="red.400"
+      >
+        <Text fontSize="md" color="red.500">
+          `Failed to load item - ${error}`
+        </Text>
+      </Flex>
+    );
 
   const handleIconClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.stopPropagation();
