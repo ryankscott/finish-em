@@ -195,6 +195,7 @@ function Item({
 
   let enterInterval: NodeJS.Timer;
   let exitInterval: NodeJS.Timer;
+  if (loading) return <LoadingItem />;
 
   if (!data || !data.item) {
     return (
@@ -221,8 +222,6 @@ function Item({
 
   console.log({ data });
   const { item } = data;
-
-  if (loading) return <LoadingItem />;
 
   if (error)
     return (
