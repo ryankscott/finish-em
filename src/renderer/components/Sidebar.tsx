@@ -12,7 +12,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
-import { Area, Project, View } from 'main/generated/typescript-helpers';
+import { Area, Project, View } from 'main/resolvers-types';
 import { ReactElement, useEffect, useState } from 'react';
 import {
   DragDropContext,
@@ -47,9 +47,11 @@ const Sidebar = (): ReactElement => {
   const [setProjectOrder] = useMutation(SET_PROJECT_ORDER);
   const [setAreaOrder] = useMutation(SET_AREA_ORDER);
   const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT);
-  const [createProject] = useMutation(CREATE_PROJECT);
+  const [createProject] = useMutation(CREATE_PROJECT, {
+    refetchQueries: [GET_SIDEBAR],
+  });
   const [createArea] = useMutation(CREATE_AREA, {
-    refetchQueries: ['GetSidebarData'],
+    refetchQueries: [GET_SIDEBAR],
   });
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
@@ -77,7 +79,10 @@ const Sidebar = (): ReactElement => {
 
   // TODO: Loading and error states
   if (loading) return <></>;
-  if (error) return <></>;
+  if (error) {
+    console.log(error);
+    return <></>;
+  }
 
   const defaultViews: { path: string; iconName: IconType; text: string }[] = [
     {
@@ -196,6 +201,7 @@ const Sidebar = (): ReactElement => {
                 text={d.text}
                 path={d.path}
                 variant="defaultView"
+                type="project"
               />
             );
           })}
@@ -209,6 +215,7 @@ const Sidebar = (): ReactElement => {
                 iconName={view.icon as IconType}
                 text={view.name}
                 path={`/views/${view.key}`}
+                type="project"
               />
             );
           })}
@@ -310,9 +317,9 @@ const Sidebar = (): ReactElement => {
                                         size="sm"
                                         variant="dark"
                                         rightIcon={<Icon as={Icons.add} />}
-                                        onClick={() => {
+                                        onClick={async () => {
                                           const projectKey = uuidv4();
-                                          createProject({
+                                          await createProject({
                                             variables: {
                                               key: projectKey,
                                               name: getProductName(),
@@ -357,15 +364,17 @@ const Sidebar = (): ReactElement => {
                   variant="dark"
                   size="md"
                   rightIcon={<Icon as={Icons.add} />}
-                  onClick={() => {
+                  onClick={async () => {
                     const areaKey = uuidv4();
-                    createArea({
+                    await createArea({
                       variables: {
                         key: areaKey,
                         name: getProductName(),
                         description: '',
                       },
                     });
+
+                    navigate(`/views/${areaKey}`);
                   }}
                 >
                   {sidebarVisible ? 'Add Area' : ''}
@@ -391,6 +400,7 @@ const Sidebar = (): ReactElement => {
             iconName="settings"
             text="Settings"
             path="/settings"
+            type="project"
           />
         </Flex>
         <Flex

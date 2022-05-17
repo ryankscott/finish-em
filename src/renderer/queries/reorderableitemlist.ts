@@ -47,7 +47,11 @@ export const SET_ITEM_ORDER = gql`
         componentKey: $componentKey
         sortOrder: $sortOrder
       }
-    )
+    ) {
+      item {
+        key
+      }
+    }
   }
 `;
 export const DELETE_ITEM_ORDERS_BY_COMPONENT = gql`
@@ -59,6 +63,12 @@ export const BULK_CREATE_ITEM_ORDERS = gql`
   mutation BulkCreateItemOrders($itemKeys: [String]!, $componentKey: String!) {
     bulkCreateItemOrders(
       input: { itemKeys: $itemKeys, componentKey: $componentKey }
-    )
+    ) {
+      item {
+        key
+      }
+      componentKey
+      sortOrder
+    }
   }
 `;

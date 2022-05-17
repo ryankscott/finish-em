@@ -1,7 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { Flex, Box, Text } from '@chakra-ui/react';
 import { Emoji } from 'emoji-mart';
-import { Area } from 'main/generated/typescript-helpers';
+import { Area } from 'main/resolvers-types';
 import { ReactElement } from 'react';
 import { GET_AREAS } from 'renderer/queries';
 import Select from './Select';
@@ -22,13 +22,13 @@ export default function AreaSelect({
   invert,
 }: Props) {
   const { loading, error, data } = useQuery<{ areas: Area[] }, null>(GET_AREAS);
+
   if (loading) return <></>;
 
   if (error) {
     console.log(error);
     return <></>;
   }
-
   const filteredAreas = data?.areas?.filter((a: Area) => a.deleted === false);
 
   type AreaOption = { value: string; label: ReactElement | string };

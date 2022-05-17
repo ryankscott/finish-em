@@ -32,15 +32,6 @@ export const GET_AREA_BY_KEY = gql`
         repeat
       }
     }
-    areas {
-      key
-      name
-      emoji
-    }
-    newEditor: featureByName(name: "newEditor") {
-      key
-      enabled
-    }
   }
 `;
 
@@ -52,9 +43,9 @@ export const DELETE_AREA = gql`
   }
 `;
 
-export const CHANGE_DESCRIPTION_AREA = gql`
-  mutation ChangeDescriptionArea($key: String!, $description: String!) {
-    changeDescriptionArea(input: { key: $key, description: $description }) {
+export const SET_DESCRIPTION_OF_AREA = gql`
+  mutation setDescriptionOfArea($key: String!, $description: String!) {
+    setDescriptionOfArea(input: { key: $key, description: $description }) {
       key
       description
     }

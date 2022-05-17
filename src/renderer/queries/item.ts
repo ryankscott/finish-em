@@ -35,7 +35,7 @@ export const CREATE_ITEM = gql`
   }
 `;
 
-export const GET_ITEM_BY_KEY = gql`
+export const ITEM_BY_KEY = gql`
   query itemByKey($key: String!) {
     item: item(key: $key) {
       key
@@ -59,6 +59,9 @@ export const GET_ITEM_BY_KEY = gql`
         key
         name
         colour
+      }
+      area {
+        key
       }
       project {
         key
@@ -131,7 +134,7 @@ export const CLONE_ITEM = gql`
 `;
 
 export const SET_PROJECT = gql`
-  mutation SetProjectOfItem($key: String!, $projectKey: String) {
+  mutation SetProjectOfItem($key: String!, $projectKey: String!) {
     setProjectOfItem(input: { key: $key, projectKey: $projectKey }) {
       key
       project {
@@ -168,7 +171,7 @@ export const RENAME_ITEM = gql`
 `;
 
 export const SET_AREA = gql`
-  mutation SetAreaOfItem($key: String!, $areaKey: String) {
+  mutation SetAreaOfItem($key: String!, $areaKey: String!) {
     setAreaOfItem(input: { key: $key, areaKey: $areaKey }) {
       key
       area {
@@ -180,7 +183,7 @@ export const SET_AREA = gql`
 `;
 
 export const SET_REPEAT = gql`
-  mutation SetRepeatOfItem($key: String!, $repeat: String) {
+  mutation SetRepeatOfItem($key: String!, $repeat: String!) {
     setRepeatOfItem(input: { key: $key, repeat: $repeat }) {
       key
       repeat
@@ -189,7 +192,7 @@ export const SET_REPEAT = gql`
   }
 `;
 export const SET_PARENT = gql`
-  mutation SetParentOfItem($key: String!, $parentKey: String) {
+  mutation SetParentOfItem($key: String!, $parentKey: String!) {
     setParentOfItem(input: { key: $key, parentKey: $parentKey }) {
       key
       parent {
@@ -199,7 +202,7 @@ export const SET_PARENT = gql`
   }
 `;
 export const SET_LABEL = gql`
-  mutation SetLabelOfItem($key: String!, $labelKey: String) {
+  mutation SetLabelOfItem($key: String!, $labelKey: String!) {
     setLabelOfItem(input: { key: $key, labelKey: $labelKey }) {
       key
       label {

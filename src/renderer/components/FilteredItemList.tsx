@@ -12,8 +12,9 @@ import {
 import { ReactElement, useState } from 'react';
 import { orderBy } from 'lodash';
 import { Icons } from 'renderer/assets/icons';
-import { Item } from '../../main/generated/typescript-helpers';
-import { ItemIcons } from '../interfaces/item';
+import { INBOX_COMPONENT_KEY } from 'consts';
+import { Item } from 'main/resolvers-types';
+import { ItemIcons } from '../interfaces';
 import EditFilteredItemList from './EditFilteredItemList';
 import ReorderableItemList from './ReorderableItemList';
 import SortDropdown, { SortDirectionEnum } from './SortDropdown';
@@ -90,7 +91,7 @@ const FilteredItemList = ({
   const [sortType, setSortType] = useState({
     label: 'Due',
     sort: (items: Item[], direction: SortDirectionEnum) =>
-      orderBy(items, [(i) => new Date(i.dueAt)], direction),
+      orderBy(items, [(i) => i.dueAt], direction),
   });
   const [sortDirection, setSortDirection] = useState(
     SortDirectionEnum.Ascending
@@ -270,7 +271,7 @@ const FilteredItemList = ({
           </Flex>
         </GridItem>
       </Grid>
-      {editing ? (
+      {editing && componentKey !== INBOX_COMPONENT_KEY ? (
         <EditFilteredItemList
           key={`dlg-${componentKey}`}
           componentKey={componentKey}

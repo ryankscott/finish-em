@@ -16,10 +16,10 @@ import {
   SET_ITEM_ORDER,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
+import { Item } from 'main/resolvers-types';
 import { subtasksVisibleVar } from '../cache';
-import { Item } from '../../main/generated/typescript-helpers';
 import { PAGE_SIZE } from '../../consts';
-import { ItemIcons } from '../interfaces/item';
+import { ItemIcons } from '../interfaces';
 import FailedFilteredItemList from './FailedFilteredItemList';
 import ItemComponent from './Item';
 import Pagination from './Pagination';
@@ -77,7 +77,7 @@ function ReorderableItemList({
       const si = data?.items?.map((item: Item) => {
         // Items have different sort orders per component
         const sortOrder = item?.sortOrders?.find(
-          (s) => s.componentKey === componentKey
+          (s) => s?.componentKey === componentKey
         );
         return { ...item, sortOrder };
       });

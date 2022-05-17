@@ -1,8 +1,62 @@
-export * from './theme';
-export * from './item';
-export * from './project';
-export * from './feature';
-export * from './area';
-export * from './event';
-export * from './reminder';
-export * from './icon';
+export type IconType =
+  | 'close'
+  | 'expand'
+  | 'collapse'
+  | 'help'
+  | 'repeat'
+  | 'due'
+  | 'scheduled'
+  | 'note'
+  | 'add'
+  | 'todoUnchecked'
+  | 'todoChecked'
+  | 'trash'
+  | 'trashSweep'
+  | 'show'
+  | 'hide'
+  | 'sort'
+  | 'sortDirection'
+  | 'inbox'
+  | 'calendar'
+  | 'slideRight'
+  | 'slideLeft'
+  | 'upLevel'
+  | 'back'
+  | 'forward'
+  | 'settings'
+  | 'subtask'
+  | 'more'
+  | 'flag'
+  | 'trashPermanent'
+  | 'stale'
+  | 'label'
+  | 'edit'
+  | 'colour'
+  | 'expandAll'
+  | 'collapseAll'
+  | 'restore'
+  | 'save'
+  | 'feedback'
+  | 'area'
+  | 'view'
+  | 'project'
+  | 'copy'
+  | 'reminder'
+  | 'drag'
+  | 'terminal'
+  | 'move'
+  | 'refresh'
+  | 'weekly'
+  | 'notes'
+  | 'todos'
+  | 'bear'
+  | 'darkMode'
+  | 'lightMode';
+
+export enum ItemIcons {
+  Due = 'due',
+  Scheduled = 'scheduled',
+  Repeat = 'repeat',
+  Project = 'project',
+  Subtask = 'subtask',
+}

@@ -1,30 +1,26 @@
 import log from 'electron-log';
 import path from 'path';
-import {
-  ApolloClient,
-  ApolloError,
-  createHttpLink,
-  from,
-  gql,
-  InMemoryCache,
-  NormalizedCacheObject,
-} from '@apollo/client';
-import { RetryLink } from '@apollo/client/link/retry';
 import applescript from 'applescript';
-import fetch from 'cross-fetch';
-import { parseJSON } from 'date-fns';
-import { app, BrowserWindow, globalShortcut, ipcMain, net } from 'electron';
-import express from 'express';
-import { graphqlHTTP } from 'express-graphql';
-import morgan from 'morgan';
-import * as path from 'path';
+import { parseJSON, parseISO, isAfter } from 'date-fns';
+import {
+  app,
+  BrowserWindow,
+  globalShortcut,
+  ipcMain,
+  net,
+  shell,
+} from 'electron';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
 import 'sugar-date/locales';
 import util from 'util';
 import { v4 as uuidv4 } from 'uuid';
-import { CAL_SYNC_INTERVAL, GRAPHQL_PORT } from '../consts';
+import { ApolloServer } from 'apollo-server';
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
+import { loadSchema } from '@graphql-tools/load';
+import { Release } from './github';
+import { CAL_SYNC_INTERVAL } from '../consts';
 import {
   AppleCalendarEvent,
   appleMailLinkScript,
@@ -33,23 +29,62 @@ import {
   getRecurringEventsForCalendar,
   setupAppleCalDatabase,
 } from './appleCalendar';
-import { AttendeeInput, Event } from './generated/typescript-helpers';
-import { rootValue, schema } from './schemas/schema';
 import { createNote } from './bear';
+import AppDatabase from './database';
+import resolvers from './resolvers';
+import { AttendeeInput } from './resolvers-types';
+import { CalendarEntity, EventEntity } from './database/types';
 
 const { zonedTimeToUtc } = require('date-fns-tz');
 
 const executeAppleScript = util.promisify(applescript.execString);
 
+log.transports.console.level = 'debug';
+
 const isDev =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
-
 log.info(`Running in ${isDev ? 'development' : 'production'}`);
 let mainWindow: BrowserWindow | null = null;
 let quickAddWindow: BrowserWindow | null = null;
 let db: sqlite.Database<sqlite3.Database>;
-let client: ApolloClient<NormalizedCacheObject>;
 let calendarSyncInterval: NodeJS.Timer;
+const knexConfig = {
+  client: 'sqlite3',
+  connection: {
+    filename: isDev
+      ? './database.db'
+      : path.join(app.getPath('userData'), './database.db'),
+  },
+  useNullAsDefault: true,
+};
+const apolloDb = new AppDatabase(knexConfig);
+
+// TODO: Refactor all of this
+
+/* Use Apollo Server */
+const startApolloServer = async () => {
+  const typeDefs = await loadSchema('./src/main/schemas/*.graphql', {
+    loaders: [new GraphQLFileLoader()],
+  });
+
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    dataSources: () => ({ apolloDb }),
+  });
+
+  // The `listen` method launches a web server.
+  server
+    .listen()
+    // eslint-disable-next-line promise/always-return
+    .then(({ url }) => {
+      log.info(`🚀 Server ready at ${url}`);
+    })
+    .catch((err) => {
+      log.error(`😢 Server startup failed: ${err}`);
+      app.exit();
+    });
+};
 
 const setUpDatabase = async (): Promise<
   sqlite.Database<sqlite3.Database, sqlite3.Statement>
@@ -81,144 +116,23 @@ const setUpDatabase = async (): Promise<
   return db;
 };
 
-const startGraphQL = async () => {
-  const graphQLApp = await express();
-  morgan.token('body', function (req, res) {
-    return JSON.stringify(req.body);
-  });
-
-  graphQLApp.use(
-    morgan(':date[iso] :req[header] :url :status - :response-time ms :body', {
-      skip(req, res) {
-        return res.statusCode < 400;
-      },
-    })
-  );
-
-  graphQLApp.use('/graphql', function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization, Content-Length, X-Requested-With'
-    );
-    if (req.method === 'OPTIONS') {
-      res.sendStatus(200);
-    } else {
-      next();
-    }
-  });
-
-  graphQLApp.use(
-    '/graphql',
-    graphqlHTTP({
-      rootValue,
-      graphiql: true,
-      pretty: true,
-      schema,
-      context: {
-        db: {
-          get: (...args) => db.get(...args),
-          all: (...args) => db.all(...args),
-          run: (...args) => db.run(...args),
-        },
-      },
-    })
-  );
-
-  await graphQLApp.listen(GRAPHQL_PORT, () => {
-    log.info(
-      `GraphQL server is now running on http://localhost:${GRAPHQL_PORT}`
-    );
-  });
-
-  return graphQLApp;
-};
-
-const createApolloClient = () => {
-  // Creating a client for use in the backend
-  const httpLink = createHttpLink({
-    uri: 'http://localhost:8089/graphql',
-    fetch,
-    headers: {},
-  });
-  const retryLink = new RetryLink({
-    delay: {
-      initial: 300,
-      max: Infinity,
-      jitter: true,
-    },
-    attempts: {
-      max: 5,
-      retryIf: (error, _operation) => !!error,
-    },
-  });
-
-  const client = new ApolloClient({
-    cache: new InMemoryCache(),
-    link: from([retryLink, httpLink]),
-  });
-  return client;
-};
-
 const createCalendar = async (
-  client: ApolloClient<NormalizedCacheObject>,
   key: number,
   name: string,
   active: boolean
-) => {
-  const result = await client.mutate({
-    mutation: gql`
-      mutation CreateCalendar(
-        $key: String!
-        $name: String!
-        $active: Boolean!
-      ) {
-        createCalendar(input: { key: $key, name: $name, active: $active }) {
-          key
-        }
-      }
-    `,
-    variables: {
-      key: key.toString(),
-      name,
-      active,
-    },
-  });
-  return await result.data;
-};
-
-const getFeatures = async (
-  client: ApolloClient<NormalizedCacheObject>
-): Promise<any> => {
-  const result = await client
-    .query({
-      query: gql`
-        query {
-          features {
-            key
-            name
-            enabled
-            metadata
-          }
-        }
-      `,
-    })
-    .catch((e: ApolloError) => {
-      log.error(`Failed to get features - ${e}`);
-      return null;
-    });
-  return result?.data;
+): Promise<CalendarEntity> => {
+  return apolloDb.createCalendar(key.toString(), name, active);
 };
 
 const createItemFromAppleMail = async () => {
   const mailLink = await executeAppleScript(appleMailLinkScript);
   if (mailLink) {
-    mainWindow.webContents.send('create-item', {
+    mainWindow?.webContents.send('create-item', {
       key: uuidv4(),
       type: 'TODO',
       text: mailLink,
     });
-    mainWindow.webContents.send('send-notification', {
+    mainWindow?.webContents.send('send-notification', {
       text: `Task added from Apple Mail`,
       type: 'info',
     });
@@ -228,88 +142,56 @@ const createItemFromAppleMail = async () => {
 };
 
 const saveCalendars = async (
-  client: ApolloClient<NormalizedCacheObject>,
   cals: { id: number; title: string }[],
   activeCalKey: string
 ) => {
   log.info(`Getting calendars from Apple Calendar`);
   log.info(`Saving ${cals.length} calendars from Apple Calendar`);
-  cals?.map((c) => {
-    try {
-      createCalendar(client, c.id, c.title, c.id.toString() === activeCalKey);
-    } catch (err) {
-      log.error(`Failed to create calendar - ${err}`);
-    }
-  });
+  try {
+    await Promise.all(
+      cals.map(async (c) => {
+        return createCalendar(c.id, c.title, c.id.toString() === activeCalKey);
+      })
+    );
+  } catch (e) {
+    log.error(`Failed to save calendars - ${e}`);
+    return;
+  }
+
   log.info(`All calendars saved`);
 };
 
-const saveEventToDB = (
-  client: ApolloClient<NormalizedCacheObject>,
-  ev: Event,
-  calendarKey: string
-) => {
-  client
-    .mutate({
-      mutation: gql`
-        mutation CreateEvent(
-          $key: String!
-          $title: String!
-          $startAt: DateTime
-          $endAt: DateTime
-          $description: String
-          $allDay: Boolean
-          $calendarKey: String
-          $location: String
-          $attendees: [AttendeeInput]
-          $recurrence: String
-        ) {
-          createEvent(
-            input: {
-              key: $key
-              title: $title
-              startAt: $startAt
-              endAt: $endAt
-              description: $description
-              allDay: $allDay
-              calendarKey: $calendarKey
-              location: $location
-              attendees: $attendees
-              recurrence: $recurrence
-            }
-          ) {
-            key
-          }
-        }
-      `,
-      variables: {
-        key: ev.key.toString(),
-        title: ev.title,
-        description: ev.description,
-        startAt: parseJSON(ev.startAt),
-        endAt: parseJSON(ev.endAt),
-        allDay: ev.allDay,
-        calendarKey,
-        location: ev.location,
-        attendees: ev.attendees,
-        recurrence: ev.recurrence,
-      },
-    })
-    .catch((e: ApolloError) => {
-      log.error(`Failed to save event with error - ${e}`);
-    });
+const saveEventToDB = async (ev: EventEntity, calendarKey: string) => {
+  if (!ev.startAt) {
+    log.warn(`Not saving event as ${ev.title} has no startAt`);
+    return;
+  }
+
+  if (!ev.endAt) {
+    log.warn(`Not saving event as ${ev.title} has no endAt`);
+    return;
+  }
+
+  await apolloDb.createEvent(
+    ev.key.toString(),
+    ev.title ?? '',
+    ev.description ?? '',
+    parseJSON(ev.startAt),
+    parseJSON(ev.endAt),
+    ev.allDay ?? false,
+    calendarKey,
+    ev.location ?? '',
+    (ev.attendees as { name: string; email: string }[]) ?? null,
+    ev.recurrence ?? ''
+  );
   log.debug(`Saved event with uid - ${ev.key}`);
 };
 
-const saveEventsToDB = (
-  client: ApolloClient<NormalizedCacheObject>,
-  events: Event[],
-  calendarKey: string
-) => {
+const saveEventsToDB = (events: EventEntity[], calendarKey: string) => {
   log.info(`Saving ${events.length} events to DB`);
-  events.forEach(async (e, idx) => {
+  events.forEach(async (e) => {
     try {
-      saveEventToDB(client, e, calendarKey);
+      saveEventToDB(e, calendarKey);
     } catch (err) {
       log.error(`Failed to save event to db - ${err}`);
     }
@@ -317,30 +199,9 @@ const saveEventsToDB = (
   log.info(`Saved ${events.length} events to DB`);
 };
 
-const getActiveCalendar = async (
-  client: ApolloClient<NormalizedCacheObject>
-): Promise<any> => {
-  log.info(`Getting active calendar`);
-  try {
-    const result = await client.query({
-      query: gql`
-        query {
-          getActiveCalendar {
-            key
-            name
-            active
-          }
-        }
-      `,
-    });
-    return result.data;
-  } catch (e) {
-    console.log(`Failed to get active calendar - ${e}`);
-    return null;
-  }
-};
-
-const translateAppleEventToEvent = (events: AppleCalendarEvent[]): Event[] => {
+const translateAppleEventToEvent = (
+  events: AppleCalendarEvent[]
+): EventEntity[] => {
   return events.map((e) => {
     const attendees: AttendeeInput[] = e.attendees
       ?.split(',')
@@ -368,7 +229,6 @@ const translateAppleEventToEvent = (events: AppleCalendarEvent[]): Event[] => {
 const checkForNewVersion = () => {
   const releasesURL =
     ' https://api.github.com/repos/ryankscott/finish-em/releases';
-
   const request = net.request(releasesURL);
   request.on('response', (response) => {
     let rawData = '';
@@ -377,12 +237,20 @@ const checkForNewVersion = () => {
     });
     response.on('end', () => {
       try {
-        const response = JSON.parse(rawData);
+        const resp: Release[] = JSON.parse(rawData);
         // Get rid of draft versions and prereleases and get the last published
-        const sortedReleases = response
+        const sortedReleases = resp
           .filter((r) => r.draft === false)
           .filter((r) => r.prerelease === false)
-          .sort((a, b) => b.published_at - a.published_at);
+          .sort((a, b) => {
+            if (a.published_at && b.published_at) {
+              return isAfter(parseISO(a.published_at), parseISO(b.published_at))
+                ? -1
+                : 1;
+            }
+            return 0;
+          });
+
         // Get the semver of the release
         const latestRelease = sortedReleases[0];
         if (!latestRelease) {
@@ -390,25 +258,25 @@ const checkForNewVersion = () => {
           return;
         }
         // If there's a new version
-        if (semver.gt(latestRelease.name, app.getVersion())) {
+        if (semver.gt(latestRelease.name ?? '', app.getVersion())) {
           const macRelease = latestRelease.assets.find((a) =>
             a.name.endsWith('.dmg')
           );
           // Send an event to the front-end to push a notification
-          mainWindow.webContents.send('new-version', {
+          mainWindow?.webContents.send('new-version', {
             version: latestRelease.name,
             publishedAt: latestRelease.published_at,
-            downloadUrl: macRelease.browser_download_url,
+            downloadUrl: macRelease?.browser_download_url,
             releaseURL: latestRelease.html_url,
             releaseNotes: latestRelease.body,
           });
         }
       } catch (e) {
-        log.error(`Failed to check for new version - ${e.message}`);
+        log.error(`Failed to check for new version - ${e}`);
       }
     });
   });
-  request.on('error', (error) => {
+  request.on('error', () => {
     setTimeout(checkForNewVersion, 60 * 60 * 1000);
   });
   request.end();
@@ -470,10 +338,10 @@ function createMainWindow() {
     mainWindow = null;
   });
 
-  const handleRedirect = (e, url) => {
-    if (url != mainWindow.getURL()) {
+  const handleRedirect = (e: Event, url: string) => {
+    if (url !== mainWindow?.webContents.getURL()) {
       e.preventDefault();
-      require('electron').shell.openExternal(url);
+      shell.openExternal(url);
     }
   };
 
@@ -481,58 +349,59 @@ function createMainWindow() {
   mainWindow.webContents.on('new-window', handleRedirect);
 }
 
-const saveAppleCalendarEvents = async (
-  client: ApolloClient<NormalizedCacheObject>,
-  getRecurringEvents: boolean
-) => {
-  const db2 = await setupAppleCalDatabase();
-  if (!db2) {
+const saveAppleCalendarEvents = async (getRecurringEvents: boolean) => {
+  const appleCalDb = await setupAppleCalDatabase();
+  if (!appleCalDb) {
     log.error('Failed to set up Apple calendar db');
     return;
   }
-  const data = await getActiveCalendar(client);
-  if (!data) {
+  const activeCal = await apolloDb.getActiveCalendar();
+  if (!activeCal) {
     log.error('Failed to get active calendar when saving events');
     return;
   }
 
-  const activeCal = data?.getActiveCalendar;
-  const cals = await getAppleCalendars(db2);
+  const cals = await getAppleCalendars(appleCalDb);
   if (!cals) {
     log.error('Failed to get calendars from Apple calendar cache');
     return;
   }
 
-  await saveCalendars(client, cals, activeCal?.key);
+  await saveCalendars(cals, activeCal?.key);
   if (!activeCal) {
     log.info('Not getting events as active calendar is not set');
     return;
   }
 
-  const appleEvents: AppleCalendarEvent[] = await getEventsForCalendar(
-    db2,
-    activeCal?.key
-  );
+  const appleEvents = await getEventsForCalendar(appleCalDb, activeCal?.key);
+  if (!appleEvents) {
+    log.error('Failed to get events from Apple calendar');
+    return;
+  }
   const events = translateAppleEventToEvent(appleEvents);
-  saveEventsToDB(client, events, activeCal?.key);
+  saveEventsToDB(events, activeCal?.key);
 
   if (getRecurringEvents) {
-    const recurringAppleEvents: AppleCalendarEvent[] =
-      await getRecurringEventsForCalendar(db2, activeCal?.key);
+    const recurringAppleEvents = await getRecurringEventsForCalendar(
+      appleCalDb,
+      activeCal?.key
+    );
+    if (!recurringAppleEvents) {
+      log.error('Failed to get recurring events from Apple calendar');
+      return;
+    }
     const recurringEvents = translateAppleEventToEvent(recurringAppleEvents);
-    saveEventsToDB(client, recurringEvents, activeCal?.key);
+    saveEventsToDB(recurringEvents, activeCal?.key);
   }
 };
 
 const startApp = async () => {
   db = await setUpDatabase();
 
-  await startGraphQL();
-  client = createApolloClient();
+  await startApolloServer();
 
-  const featureResult = await getFeatures(client);
-  const { features } = featureResult;
-  const calendarIntegration = await features?.find(
+  const features = await apolloDb.getFeatures();
+  const calendarIntegration = features?.find(
     (f) => f.name === 'calendarIntegration'
   );
 
@@ -540,11 +409,11 @@ const startApp = async () => {
     log.info('Calendar integration enabled - turning on sync');
     // Get events every 5 mins
     calendarSyncInterval = setInterval(async () => {
-      await saveAppleCalendarEvents(client, false);
+      await saveAppleCalendarEvents(false);
     }, CAL_SYNC_INTERVAL);
   }
 
-  const bearNotesIntegration = await features?.find(
+  const bearNotesIntegration = features?.find(
     (f) => f.name === 'bearNotesIntegration'
   );
   if (bearNotesIntegration?.enabled) {
@@ -554,7 +423,8 @@ const startApp = async () => {
       log.error('No metadata attached to bear notes');
       return;
     }
-    const token = JSON.parse(metadata)?.apiToken;
+    // @ts-ignore
+    const token = metadata?.apiToken;
     if (!token) {
       log.error(`Failed to get API token for bear notes integration`);
     }
@@ -575,7 +445,7 @@ app.on('ready', () => {
   }
 });
 
-// Quit when a  ll windows are closed.
+// Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
@@ -593,7 +463,7 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.on('close-quickadd', (event, arg) => {
+ipcMain.on('close-quickadd', () => {
   if (quickAddWindow) {
     quickAddWindow.close();
   }
@@ -601,35 +471,35 @@ ipcMain.on('close-quickadd', (event, arg) => {
 
 // This is to send events between quick add and main window
 // Don't try to do this in the backend because invalidating the cache won't work
-ipcMain.on('create-task', (event, arg) => {
-  mainWindow.webContents.send('create-item', {
+ipcMain.on('create-task', (_, arg) => {
+  mainWindow?.webContents.send('create-item', {
     key: uuidv4(),
     type: 'TODO',
     text: arg.text,
     projectKey: arg?.projectId,
   });
-  mainWindow.webContents.send('send-notification', {
+  mainWindow?.webContents.send('send-notification', {
     text: `Task added from Quick Add`,
     type: 'info',
   });
 });
 
-ipcMain.on('create-bear-note', (event, arg) => {
+ipcMain.on('create-bear-note', (_, arg) => {
   createNote(arg.title, arg.content);
 });
 
-ipcMain.on('active-calendar-set', (event, arg) => {
+ipcMain.on('active-calendar-set', () => {
   log.info('Active calendar set');
-  saveAppleCalendarEvents(client, false);
+  saveAppleCalendarEvents(false);
 });
 
-ipcMain.on('feature-toggled', (event, arg) => {
+ipcMain.on('feature-toggled', (_, arg) => {
   if (arg.name === 'calendarIntegration') {
     if (arg.enabled) {
       log.info('Enabling calendar sync');
-      saveAppleCalendarEvents(client, false);
+      saveAppleCalendarEvents(false);
       calendarSyncInterval = setInterval(async () => {
-        await saveAppleCalendarEvents(client, false);
+        await saveAppleCalendarEvents(false);
       }, CAL_SYNC_INTERVAL);
     } else {
       log.info('Disabling calendar sync');
@@ -652,7 +522,7 @@ ipcMain.on('feature-toggled', (event, arg) => {
   }
 });
 
-ipcMain.on('feature-metadata-updated', (event, arg) => {
+ipcMain.on('feature-metadata-updated', (_, arg: any) => {
   if (arg.name === 'bearNotesIntegration') {
     if (arg.enabled) {
       const metadata = arg?.metadata;

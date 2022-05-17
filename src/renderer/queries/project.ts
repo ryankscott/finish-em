@@ -32,10 +32,6 @@ export const GET_PROJECT_BY_KEY = gql`
       key
       enabled
     }
-    newEditor: featureByName(name: "newEditor") {
-      key
-      enabled
-    }
   }
 `;
 
@@ -46,9 +42,9 @@ export const DELETE_PROJECT = gql`
     }
   }
 `;
-export const CHANGE_DESCRIPTION_OF_PROJECT = gql`
-  mutation ChangeDescriptionProject($key: String!, $description: String!) {
-    changeDescriptionProject(input: { key: $key, description: $description }) {
+export const SET_DESCRIPTION_OF_PROJECT = gql`
+  mutation SetDescriptionOfProject($key: String!, $description: String!) {
+    setDescriptionOfProject(input: { key: $key, description: $description }) {
       key
       description
     }
@@ -64,7 +60,7 @@ export const RENAME_PROJECT = gql`
 `;
 
 export const SET_END_DATE_OF_PROJECT = gql`
-  mutation SetEndDateOfProject($key: String!, $endAt: String!) {
+  mutation SetEndDateOfProject($key: String!, $endAt: DateTime!) {
     setEndDateOfProject(input: { key: $key, endAt: $endAt }) {
       key
       endAt
@@ -72,7 +68,7 @@ export const SET_END_DATE_OF_PROJECT = gql`
   }
 `;
 export const SET_START_DATE_OF_PROJECT = gql`
-  mutation SetStartDateOfProject($key: String!, $startAt: String!) {
+  mutation SetStartDateOfProject($key: String!, $startAt: DateTime!) {
     setStartDateOfProject(input: { key: $key, startAt: $startAt }) {
       key
       startAt

@@ -15,11 +15,12 @@ import {
 import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
+import { Item, Project as ProjectType } from 'main/resolvers-types';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
-  CHANGE_DESCRIPTION_OF_PROJECT,
+  SET_DESCRIPTION_OF_PROJECT,
   DELETE_PROJECT,
   DELETE_VIEW,
   GET_PROJECT_BY_KEY,
@@ -29,12 +30,8 @@ import {
   SET_START_DATE_OF_PROJECT,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import DatePicker from './DatePicker';
-import {
-  Item as ItemType,
-  Project as ProjectType,
-} from '../../main/generated/typescript-helpers';
 import { formatRelativeDate } from '../utils';
+import DatePicker from './DatePicker';
 import DeleteProjectDialog from './DeleteProjectDialog';
 import { Donut } from './Donut';
 import EditableText from './EditableText';
@@ -52,7 +49,7 @@ const Project = ({ projectKey }: ProjectProps) => {
   const [deleteProject] = useMutation(DELETE_PROJECT, {
     refetchQueries: ['GetSidebarData'],
   });
-  const [changeDescription] = useMutation(CHANGE_DESCRIPTION_OF_PROJECT, {
+  const [changeDescription] = useMutation(SET_DESCRIPTION_OF_PROJECT, {
     refetchQueries: ['ViewByKey'],
   });
   const [renameProject] = useMutation(RENAME_PROJECT, {
@@ -73,9 +70,8 @@ const Project = ({ projectKey }: ProjectProps) => {
     console.log(error);
     return null;
   }
-  const { project } = data;
-  const { projects } = data;
-  const allItems: ItemType[] = project?.items;
+  const { project, projects } = data;
+  const allItems: Item[] = project?.items;
   const completedItems = allItems.filter((i) => i.completed === true);
   return (
     <>

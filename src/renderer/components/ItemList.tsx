@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { Box, Text } from '@chakra-ui/react';
-import { ItemIcons } from '../interfaces/item';
+import { ItemIcons } from '../interfaces';
 import Item from './Item';
 
 type ItemListProps = {

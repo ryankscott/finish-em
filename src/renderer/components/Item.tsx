@@ -18,9 +18,10 @@ import {
 import { useMutation, useQuery } from '@apollo/client';
 import {
   COMPLETE_ITEM,
-  GET_ITEM_BY_KEY,
+  ITEM_BY_KEY,
   UNCOMPLETE_ITEM,
   RESTORE_ITEM,
+  ITEMS_BY_FILTER,
 } from 'renderer/queries';
 import { Emoji } from 'emoji-mart';
 import { Icons } from '../assets/icons';
@@ -42,7 +43,7 @@ import {
   subtasksVisibleVar,
 } from '../cache';
 import LoadingItem from './LoadingItem';
-import { Item as ItemType } from '../../main/generated/typescript-helpers';
+import { Item as ItemType } from '../../main/resolvers-types';
 import ItemActionButton from './ItemActionButton';
 
 type ItemProps = {
@@ -144,19 +145,20 @@ function Item({
   const [subtasksVisible, setSubtasksVisible] = useState(true);
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
 
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
 
-  const { loading, error, data } = useQuery(GET_ITEM_BY_KEY, {
+  const { loading, error, data } = useQuery(ITEM_BY_KEY, {
     variables: { key: itemKey || null },
   });
+
   const generateProjectTag = (
     item: ItemType,
     compact: boolean
@@ -193,16 +195,55 @@ function Item({
 
   let enterInterval: NodeJS.Timer;
   let exitInterval: NodeJS.Timer;
-
-  if (!data || !data.item) return <></>;
-
-  const { item } = data;
-
   if (loading) return <LoadingItem />;
 
-  if (error) return <></>;
+  if (!data || !data.item) {
+    return (
+      <Flex
+        w="100%"
+        p={1}
+        mx={0}
+        my={1}
+        alignItems="center"
+        cursor="pointer"
+        borderRadius="md"
+        alignContent="center"
+        justifyContent="center"
+        bg="red.100"
+        border="1px solid"
+        borderColor="red.400"
+      >
+        <Text fontSize="md" color="red.500">
+          `Failed to load item`
+        </Text>
+      </Flex>
+    );
+  }
 
-  // TODO: Move this to the MoreDropdown component
+  console.log({ data });
+  const { item } = data;
+
+  if (error)
+    return (
+      <Flex
+        w="100%"
+        p={1}
+        mx={0}
+        my={1}
+        alignItems="center"
+        cursor="pointer"
+        borderRadius="md"
+        alignContent="center"
+        justifyContent="center"
+        bg="red.100"
+        border="1px solid"
+        borderColor="red.400"
+      >
+        <Text fontSize="md" color="red.500">
+          `Failed to load item - ${error}`
+        </Text>
+      </Flex>
+    );
 
   const handleIconClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.stopPropagation();
@@ -352,10 +393,8 @@ function Item({
         </Tooltip>
       </Box>
 
-      {/* TODO: use emoji for projects names  */}
       <Box gridArea="project">
-        {(!hiddenIcons?.includes(ItemIcons.Project) ||
-          item.project === null) && (
+        {!hiddenIcons?.includes(ItemIcons.Project) && (
           <Flex justifyContent="flex-end">
             <Tooltip label={item.project?.name}>
               <Tag size={compact ? 'sm' : 'md'} colorScheme="blue">

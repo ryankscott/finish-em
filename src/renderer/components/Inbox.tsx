@@ -1,5 +1,6 @@
 import { ReactElement } from 'react';
 import { Flex } from '@chakra-ui/react';
+import { INBOX_COMPONENT_KEY } from 'consts';
 import { ItemIcons } from '../interfaces';
 import FilteredItemList from './FilteredItemList';
 import ItemCreator from './ItemCreator';
@@ -11,7 +12,7 @@ const Inbox = (): ReactElement => {
     <Page>
       <Flex direction="column" m={5} p={5}>
         <ViewHeader
-          componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4496"
+          componentKey={INBOX_COMPONENT_KEY}
           name="Inbox"
           icon="inbox"
         />
@@ -23,7 +24,7 @@ const Inbox = (): ReactElement => {
         />
         <Flex marginTop="2">
           <FilteredItemList
-            componentKey="42c6cea5-785f-4418-bd0f-5f4d388f4497"
+            componentKey={INBOX_COMPONENT_KEY}
             isFilterable
             listName="Inbox"
             filter={JSON.stringify({
@@ -59,7 +60,6 @@ const Inbox = (): ReactElement => {
             flattenSubtasks={false}
             readOnly
             hiddenIcons={[ItemIcons.Project]}
-            shouldPoll
           />
         </Flex>
       </Flex>
