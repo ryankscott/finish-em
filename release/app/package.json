@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "sqlite": "^4.0.23",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^5.0.3",
     "xcall": "^1.0.4"
   },
   "license": "MIT"
