@@ -1478,7 +1478,7 @@ class AppDatabase extends SQLDataSource {
 
   /* Features */
   async getFeatures(): Promise<FeatureEntity[]> {
-    log.debug('Getting features');
+    log.info('Getting features');
     const features = await this.knex('feature').select('*');
     try {
       return features.map((f) => ({ ...f, metadata: JSON.parse(f.metadata) }));

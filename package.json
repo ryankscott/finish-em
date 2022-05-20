@@ -83,6 +83,13 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "./src/main/schemas/",
+        "to": "./schemas/",
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "publish": {
@@ -152,7 +159,6 @@
     "@types/react-datepicker": "^4.3.4",
     "@types/react-dom": "^17.0.11",
     "@types/react-test-renderer": "^17.0.1",
-    "@types/sqlite3": "^3.1.8",
     "@types/terser-webpack-plugin": "^5.0.4",
     "@types/uuid": "^8.3.4",
     "@types/webpack-env": "^1.16.3",
@@ -215,17 +221,15 @@
     "@chakra-ui/react": "^1.8.6",
     "@emotion/react": "^11.8.1",
     "@emotion/styled": "^11.8.1",
-    "@graphql-codegen/cli": "^2.6.2",
-    "@graphql-codegen/typescript": "^2.4.8",
-    "@graphql-codegen/typescript-resolvers": "^2.6.1",
-    "@graphql-tools/graphql-file-loader": "^7.3.11",
-    "@graphql-tools/load": "^7.5.10",
-    "@graphql-tools/merge": "^8.2.3",
-    "@graphql-tools/schema": "^8.3.2",
+    "@graphql-codegen/typescript": "^2.4.11",
+    "@graphql-codegen/typescript-resolvers": "^2.6.4",
+    "@graphql-tools/graphql-file-loader": "^7.3.12",
+    "@graphql-tools/load": "^7.5.11",
+    "@graphql-tools/load-files": "^6.5.3",
+    "@graphql-tools/merge": "^8.2.11",
+    "@graphql-tools/schema": "^8.3.11",
     "@react-querybuilder/chakra": "^4.2.2",
-    "@rmp135/sql-ts": "^1.13.0",
-    "@vscode/sqlite3": "^5.0.8",
-    "apollo-server": "^3.6.7",
+    "apollo-server": "^3.7.0",
     "applescript": "^1.0.0",
     "chrono-node": "^2.3.7",
     "codemirror": "^5.65.2",
@@ -274,14 +278,12 @@
     "react-toastify": "^8.2.0",
     "rrule": "^2.6.8",
     "sass-loader": "^12.6.0",
-    "sql-template-strings": "^2.2.2",
-    "sqlstring-sqlite": "^0.1.1",
+    "sqlite3": "^5.0.8",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
     "sugar-date": "^2.0.6",
     "url": "^0.11.0",
-    "util": "^0.12.4",
-    "vscode-sqlite3": "^4.0.11"
+    "util": "^0.12.4"
   },
   "devEngines": {
     "node": ">=14.x",

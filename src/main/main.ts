@@ -17,8 +17,10 @@ import 'sugar-date/locales';
 import util from 'util';
 import { v4 as uuidv4 } from 'uuid';
 import { ApolloServer } from 'apollo-server';
-import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader';
-import { loadSchema } from '@graphql-tools/load';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import { loadFiles } from '@graphql-tools/load-files';
+import { zonedTimeToUtc } from 'date-fns-tz';
+import { GraphQLSchema } from 'graphql';
 import { Release } from './github';
 import { CAL_SYNC_INTERVAL } from '../consts';
 import {
@@ -34,8 +36,6 @@ import AppDatabase from './database';
 import resolvers from './resolvers';
 import { AttendeeInput } from './resolvers-types';
 import { CalendarEntity, EventEntity } from './database/types';
-
-const { zonedTimeToUtc } = require('date-fns-tz');
 
 const executeAppleScript = util.promisify(applescript.execString);
 
@@ -63,27 +63,42 @@ const apolloDb = new AppDatabase(knexConfig);
 
 /* Use Apollo Server */
 const startApolloServer = async () => {
-  const typeDefs = await loadSchema('./src/main/schemas/*.graphql', {
-    loaders: [new GraphQLFileLoader()],
-  });
+  const schemasPath = isDev
+    ? path.join(__dirname, './schemas/')
+    : path.join(process.resourcesPath, '/schemas/');
 
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-    dataSources: () => ({ apolloDb }),
-  });
+  log.info(`Loading schemas from: ${schemasPath}`);
+  try {
+    const typeDefs = await loadFiles(`${schemasPath}*.graphql`);
 
-  // The `listen` method launches a web server.
-  server
-    .listen()
-    // eslint-disable-next-line promise/always-return
-    .then(({ url }) => {
-      log.info(`🚀 Server ready at ${url}`);
-    })
-    .catch((err) => {
-      log.error(`😢 Server startup failed: ${err}`);
-      app.exit();
+    const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+    if (schema instanceof GraphQLSchema) {
+      console.log('schema is good');
+    } else {
+      console.log(schema);
+      console.log('schema is no good');
+    }
+
+    const server = new ApolloServer({
+      schema,
+      dataSources: () => ({ apolloDb }),
     });
+
+    // The `listen` method launches a web server.
+    server
+      .listen()
+      // eslint-disable-next-line promise/always-return
+      .then(({ url }) => {
+        log.info(`🚀 Server ready at ${url}`);
+      })
+      .catch((err) => {
+        log.error(`😢 Server startup failed listening: ${err}`);
+        app.exit();
+      });
+  } catch (err) {
+    log.error(`😢 Server startup failed: ${err}`);
+  }
 };
 
 const setUpDatabase = async (): Promise<

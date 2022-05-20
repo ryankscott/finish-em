@@ -7,7 +7,24 @@ import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
 
 const configuration: webpack.Configuration = {
-  externals: [...Object.keys(externals || {})],
+  externals: [
+    ...Object.keys(externals || {}),
+    {
+      // Possible drivers for knex - we'll ignore them
+      //sqlite3: 'sqlite3',
+      'better-sqlite3': 'better-sqlite3',
+      mysql2: 'mysql2',
+      mariasql: 'mariasql',
+      mysql: 'mysql',
+      mssql: 'mssql',
+      tedious: 'tedious',
+      oracle: 'oracle',
+      'strong-oracle': 'strong-oracle',
+      oracledb: 'oracledb',
+      pg: 'pg',
+      'pg-query-stream': 'pg-query-stream',
+    },
+  ],
 
   stats: 'errors-only',
 
