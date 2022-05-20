@@ -50,8 +50,6 @@ const FilteredItemDialog = ({
     variables: { key: componentKey },
     fetchPolicy: 'no-cache',
   });
-  console.log({ componentKey });
-  console.log({ data });
 
   if (loading) return <></>;
   if (error) {

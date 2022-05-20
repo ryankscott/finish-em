@@ -939,7 +939,6 @@ class AppDatabase extends SQLDataSource {
     const orders = await this.knex('itemOrder')
       .where({ componentKey })
       .delete();
-    console.log({ orders });
     return orders.toString();
   }
 
@@ -1082,7 +1081,6 @@ class AppDatabase extends SQLDataSource {
     await this.deleteItemOrders(inOrderButNotResult, componentKey);
 
     // Add new ones
-    console.log({ componentKey });
     const inResultButNotOrder = without(itemKeys, ...orderKeys);
     await this.bulkCreateItemOrders(inResultButNotOrder, componentKey);
 
@@ -2305,8 +2303,8 @@ class AppDatabase extends SQLDataSource {
           key,
           title,
           description,
-          startAt,
-          endAt,
+          startAt: startAt ? startAt.toISOString() : null,
+          endAt: endAt ? endAt.toISOString() : null,
           allDay,
           calendarKey,
           createdAt: new Date().toISOString(),

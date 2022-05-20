@@ -1,8 +1,7 @@
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
 import { app } from 'electron';
-
-const log = require('electron-log');
+import log from 'electron-log';
 
 export type AppleCalendarEvent = {
   id: string;

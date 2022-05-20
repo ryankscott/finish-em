@@ -109,7 +109,6 @@ const EditViewHeader = ({
     console.log(error);
     return <></>;
   }
-  console.log(params);
 
   const options = generateIconOptions();
 

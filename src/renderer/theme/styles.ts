@@ -1,6 +1,5 @@
 import { transparentize } from 'polished';
 import { mode } from '@chakra-ui/theme-tools';
-import { NonEmptyString } from 'graphql-scalars/mocks';
 
 const styles = {
   html: {

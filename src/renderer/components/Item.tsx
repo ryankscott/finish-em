@@ -214,13 +214,12 @@ function Item({
         borderColor="red.400"
       >
         <Text fontSize="md" color="red.500">
-          `Failed to load item`
+          Failed to load item
         </Text>
       </Flex>
     );
   }
 
-  console.log({ data });
   const { item } = data;
 
   if (error)
@@ -240,7 +239,7 @@ function Item({
         borderColor="red.400"
       >
         <Text fontSize="md" color="red.500">
-          `Failed to load item - ${error}`
+          Failed to load item - ${error}
         </Text>
       </Flex>
     );

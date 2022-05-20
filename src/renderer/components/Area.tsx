@@ -70,7 +70,6 @@ const Area = (props: AreaProps): ReactElement => {
     }
     return totalItemsCount / completedItemsCount;
   };
-  console.log(area.emoji);
 
   return (
     <Page>

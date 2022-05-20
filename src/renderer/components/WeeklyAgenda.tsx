@@ -89,8 +89,6 @@ const WeeklyAgenda = (): ReactElement => {
     return format(parseISO(i?.scheduledAt), 'yyyy-MM-dd');
   });
 
-  console.log(itemsByDate);
-
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
     (w) => w.week === format(currentDate, 'yyyy-MM-dd')
   );

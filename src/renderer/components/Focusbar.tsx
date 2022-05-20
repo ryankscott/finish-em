@@ -261,7 +261,6 @@ const Focusbar = (): ReactElement => {
             completed={item.completed ?? false}
             deleted={item.deleted ?? false}
             onSubmit={(areaKey) => {
-              console.log(areaKey);
               setArea({ variables: { key: item.key, areaKey } });
             }}
           />

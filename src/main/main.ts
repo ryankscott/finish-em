@@ -16,11 +16,8 @@ import * as sqlite3 from 'sqlite3';
 import 'sugar-date/locales';
 import util from 'util';
 import { v4 as uuidv4 } from 'uuid';
-import { ApolloServer } from 'apollo-server';
-import { makeExecutableSchema } from '@graphql-tools/schema';
-import { loadFiles } from '@graphql-tools/load-files';
 import { zonedTimeToUtc } from 'date-fns-tz';
-import { GraphQLSchema } from 'graphql';
+import { loadFiles } from '@graphql-tools/load-files';
 import { Release } from './github';
 import { CAL_SYNC_INTERVAL } from '../consts';
 import {
@@ -36,6 +33,8 @@ import AppDatabase from './database';
 import resolvers from './resolvers';
 import { AttendeeInput } from './resolvers-types';
 import { CalendarEntity, EventEntity } from './database/types';
+
+const { ApolloServer } = require('apollo-server');
 
 const executeAppleScript = util.promisify(applescript.execString);
 
@@ -71,17 +70,9 @@ const startApolloServer = async () => {
   try {
     const typeDefs = await loadFiles(`${schemasPath}*.graphql`);
 
-    const schema = makeExecutableSchema({ typeDefs, resolvers });
-
-    if (schema instanceof GraphQLSchema) {
-      console.log('schema is good');
-    } else {
-      console.log(schema);
-      console.log('schema is no good');
-    }
-
     const server = new ApolloServer({
-      schema,
+      typeDefs,
+      resolvers,
       dataSources: () => ({ apolloDb }),
     });
 
