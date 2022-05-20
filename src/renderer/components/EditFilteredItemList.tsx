@@ -19,8 +19,6 @@ import {
 import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
 import { ItemIcons } from '../interfaces';
-import Expression from './filter-box/Expression';
-import ItemFilterBox from './ItemFilterBox';
 import ItemFilterBuilder from './ItemFilterBuilder';
 
 const options: { value: string; label: string }[] = [
@@ -170,22 +168,6 @@ const FilteredItemDialog = ({
               setIsValid(true);
             }}
           />
-
-          {params.legacyFilter && !params.filter && (
-            <ItemFilterBox
-              filter={
-                params.legacyFilter ? JSON.parse(params.legacyFilter).text : ''
-              }
-              onSubmit={(query: string, filter: Expression[]) => {
-                params.legacyFilter = JSON.stringify({
-                  text: query,
-                  value: filter,
-                });
-                setIsValid(true);
-              }}
-              onError={() => setIsValid(false)}
-            />
-          )}
         </Flex>
       </ItemListSetting>
 

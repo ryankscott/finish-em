@@ -62,10 +62,6 @@ const configuration: webpack.Configuration = {
   module: {
     rules: [
       {
-        test: /\.pegjs$/,
-        loader: 'pegjs-loader',
-      },
-      {
         test: /\.md$/,
         use: [
           {
