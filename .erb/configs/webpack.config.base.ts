@@ -59,6 +59,11 @@ const configuration: webpack.Configuration = {
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
     modules: [webpackPaths.srcPath, 'node_modules'],
+    /*
+    This is a fix due to the fact that grapql exports both ESM and CJS modules. Somehow, webpack packages both of them
+    This causes a weird behaviour as the graphql module is imported twice, and they behave _slightly_ differently
+    https://github.com/apollographql/apollo-server/issues/4637
+    */
     alias: {
       graphql$: webpackPaths.rootPath + '/node_modules/graphql/index.js',
     },
