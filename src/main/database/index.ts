@@ -1072,6 +1072,8 @@ class AppDatabase extends SQLDataSource {
 
     log.debug(`Getting items using filter: ${filterString}`);
     const items = await this.knex('item').select('*').whereRaw(filterString);
+
+    log.debug(`Found ${items.length} items`);
     const orders = await this.getItemOrdersByComponent(componentKey);
 
     const orderKeys = orders.map((o) => o.itemKey);
@@ -1079,12 +1081,15 @@ class AppDatabase extends SQLDataSource {
 
     // Delete itemOrders
     const inOrderButNotResult = without(orderKeys, ...itemKeys);
+    log.debug(`Deleting ${inOrderButNotResult.length} itemOrders`);
     await this.deleteItemOrders(inOrderButNotResult, componentKey);
 
     // Add new ones
     const inResultButNotOrder = without(itemKeys, ...orderKeys);
+    log.debug(`Adding ${inResultButNotOrder.length} itemOrders`);
     await this.bulkCreateItemOrders(inResultButNotOrder, componentKey);
 
+    log.debug(`Returning ${items.length} items`);
     return items;
   }
 

@@ -35,11 +35,15 @@ const determineVisibilityRules = (
     // Show completed toggle if we have a completed item and we want to show the toggle
     showCompletedToggle: completedItemsLength > 0 && showCompletedToggle,
     // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
-    showFilterBar: isFilterable && itemsLength > 0 && showItemList,
+    showFilterBar:
+      isFilterable &&
+      (itemsLength > 0 || completedItemsLength > 0) &&
+      showItemList,
     // Show delete button if we have at least one deleted item
     showDeleteButton: completedItemsLength > 0 && showItemList,
     // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
-    showSortButton: itemsLength >= 1 && showItemList,
+    showSortButton:
+      (itemsLength >= 1 || completedItemsLength >= 1) && showItemList,
   };
 };
 
@@ -56,6 +60,7 @@ export type FilteredItemListProps = {
   shouldPoll?: boolean;
   readOnly?: boolean;
   editing?: boolean;
+  alwaysShowCompletedTasks?: boolean;
   setEditing?: (editing: boolean) => void;
 };
 
@@ -85,6 +90,7 @@ const FilteredItemList = ({
   shouldPoll,
   readOnly,
   editing,
+  alwaysShowCompletedTasks: alwaysShowCompletedSubtasks,
   setEditing,
 }: FilteredItemListProps): ReactElement => {
   const { colorMode } = useColorMode();
@@ -297,7 +303,7 @@ const FilteredItemList = ({
             sortDirection={sortDirection}
             sortType={sortType}
             flattenSubtasks={flattenSubtasks}
-            showCompleted={showCompleted}
+            showCompleted={showCompleted || alwaysShowCompletedSubtasks}
             shouldPoll={shouldPoll}
           />
         )
