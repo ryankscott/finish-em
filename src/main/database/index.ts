@@ -5,7 +5,7 @@ import { without } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { SQLDataSource } from 'datasource-sql';
 import { parseISO } from 'date-fns';
-import { AttendeeInput } from 'main/resolvers-types';
+import { AttendeeInput } from '../resolvers-types';
 import {
   AreaEntity,
   AreaOrderEntity,
@@ -1070,6 +1070,7 @@ class AppDatabase extends SQLDataSource {
 
     const filterString = generateQueryString(filters);
 
+    log.debug(`Getting items using filter: ${filterString}`);
     const items = await this.knex('item').select('*').whereRaw(filterString);
     const orders = await this.getItemOrdersByComponent(componentKey);
 
@@ -1217,6 +1218,7 @@ class AppDatabase extends SQLDataSource {
     try {
       const item = await this.getItem(key);
       if (item.repeat) {
+        console.log('repeat');
         const nextDate = rrulestr(item.repeat).after(new Date());
         if (!nextDate) {
           return await this.knex('item').where({ key }).update({
@@ -1233,17 +1235,20 @@ class AppDatabase extends SQLDataSource {
           completed: false,
           lastUpdatedAt: new Date().toISOString(),
         });
+        console.log(updatedId);
         if (updatedId) {
           return await this.getItem(key);
         }
         log.error('Failed to complete item without error');
         throw new Error('Failed to complete item');
       }
-      return await this.knex('item').where({ key }).update({
+      await this.knex('item').where({ key }).update({
         completed: true,
         completedAt: new Date().toISOString(),
         lastUpdatedAt: new Date().toISOString(),
       });
+
+      return await this.getItem(key);
     } catch (e) {
       log.error(`Failed to complete item - ${e}`);
       throw e;
