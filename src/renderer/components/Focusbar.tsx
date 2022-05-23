@@ -325,7 +325,7 @@ const Focusbar = (): ReactElement => {
               key={`rp${item.key}`}
               onSubmit={(r: RRule) =>
                 setRepeat({
-                  variables: { key: item.key, repeat: r?.toString() },
+                  variables: { key: item.key, repeat: r ? r.toString() : '' },
                 })
               }
             />

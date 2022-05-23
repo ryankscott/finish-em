@@ -1,8 +1,6 @@
 import { ReactElement, useState } from 'react';
 import {
-  Box,
   Button,
-  useColorMode,
   Icon,
   Menu,
   MenuButton,
@@ -36,7 +34,6 @@ const RepeatPicker = ({
 }: RepeatPickerProps): ReactElement => {
   const [showMenu, setShowMenu] = useState(false);
   const [repeatDialogVisible, setRepeatDialogVisible] = useState(false);
-  const { colorMode } = useColorMode();
 
   type RepeatOption = {
     type: 'custom' | 'default';
@@ -109,7 +106,7 @@ const RepeatPicker = ({
     },
     {
       name: 'No repeat',
-      clickHandler: () => handleRepeatChange({ type: 'default', repeat: null }),
+      clickHandler: () => handleRepeatChange({ type: 'default', repeat: '' }),
     },
   ];
 
