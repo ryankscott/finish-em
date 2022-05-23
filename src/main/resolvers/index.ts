@@ -1,4 +1,4 @@
-import { Resolvers } from 'main/resolvers-types';
+import { Resolvers } from '../resolvers-types';
 import { DateTimeResolver, JSONResolver } from 'graphql-scalars';
 import area from './area';
 import feature from './feature';

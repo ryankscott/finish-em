@@ -1,5 +1,5 @@
 import log from 'electron-log';
-import { Resolvers } from 'main/resolvers-types';
+import { Resolvers } from '../resolvers-types';
 
 const itemOrder: Partial<Resolvers> = {
   ItemOrder: {

@@ -1,4 +1,4 @@
-import { Resolvers } from 'main/resolvers-types';
+import { Resolvers } from '../resolvers-types';
 
 const area: Partial<Resolvers> = {
   Area: {

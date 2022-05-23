@@ -20,6 +20,7 @@ import { toast } from 'react-toastify';
 import {
   DELETE_AREA,
   GET_AREA_BY_KEY,
+  GET_SIDEBAR,
   RENAME_AREA,
   SET_DESCRIPTION_OF_AREA,
   SET_EMOJI,
@@ -42,7 +43,9 @@ const Area = (props: AreaProps): ReactElement => {
   const { colorMode } = useColorMode();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [setEmoji] = useMutation(SET_EMOJI);
-  const [deleteArea] = useMutation(DELETE_AREA);
+  const [deleteArea] = useMutation(DELETE_AREA, {
+    refetchQueries: [GET_SIDEBAR],
+  });
   const [setDescriptionOfArea] = useMutation(SET_DESCRIPTION_OF_AREA);
   const [renameArea] = useMutation(RENAME_AREA);
 

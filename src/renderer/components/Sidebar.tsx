@@ -66,7 +66,9 @@ const Sidebar = (): ReactElement => {
         )
       );
       setSortedProjects(
-        orderBy(data.projects, ['sortOrder.sortOrder'], ['asc'])
+        orderBy(data.projects, ['sortOrder.sortOrder'], ['asc']).filter(
+          (p) => p.deleted === false
+        )
       );
 
       setSortedViews(

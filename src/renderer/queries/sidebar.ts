@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client';
-import { Area, View, Project } from 'main/resolvers-types';
+import { Area, View, Project } from '../../main/resolvers-types';
 
 export type SidebarData = {
   areas: Area[];
@@ -28,10 +28,11 @@ export const GET_SIDEBAR = gql`
         sortOrder
       }
     }
-    projects(input: { deleted: false }) {
+    projects {
       key
       name
       emoji
+      deleted
       area {
         key
       }
