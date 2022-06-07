@@ -1218,6 +1218,27 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
+  async snoozeItem(key: string, snoozeUntil: Date): Promise<ItemEntity> {
+    log.debug(
+      `Snoozing item with key: ${key} until: ${snoozeUntil.toISOString()}`
+    );
+    try {
+      // TODO: Check if the item is deleted
+      const snoozedItemId = await this.knex('item').where({ key }).update({
+        snoozedUntil: new Date().toISOString(),
+        lastUpdatedAt: new Date().toISOString(),
+      });
+      if (snoozedItemId) {
+        return await this.getItem(key);
+      }
+      log.error('Failed to snooze item without error');
+      throw new Error('Failed to snooze item');
+    } catch (e) {
+      log.error(`Failed to snooze item - ${e}`);
+      throw e;
+    }
+  }
+
   async completeItem(key: string): Promise<ItemEntity> {
     log.debug(`Completing item with key: ${key}`);
     try {

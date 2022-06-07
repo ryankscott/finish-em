@@ -15,6 +15,7 @@ type Item {
   completedAt: DateTime
   createdAt: DateTime
   deletedAt: DateTime
+  snoozedUntil: DateTime
   repeat: String
   label: Label
   area: Area
@@ -80,6 +81,11 @@ input SetScheduledAtOfItemInput {
   scheduledAt: DateTime
 }
 
+input SetSnoozeOfItemInput {
+  key: String!
+  snoozedUntil: DateTime
+}
+
 input SetDueAtOfItemInput {
   key: String!
   dueAt: DateTime
@@ -121,6 +127,7 @@ type Mutation {
   setAreaOfItem(input: SetAreaOfItemInput!): Item
   setScheduledAtOfItem(input: SetScheduledAtOfItemInput!): Item
   setDueAtOfItem(input: SetDueAtOfItemInput!): Item
+  setSnoozeOfItem(input: SetSnoozeOfItemInput!): Item
   setParentOfItem(input: SetParentOfItemInput!): Item
   permanentDeleteItem(input: PermanentDeleteInput!): String!
   setLabelOfItem(input: SetLabelOfInput!): Item

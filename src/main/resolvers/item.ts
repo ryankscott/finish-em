@@ -147,6 +147,11 @@ const item: Partial<Resolvers> = {
       );
     },
 
+    setSnoozeOfItem: (_, { input }, { dataSources }) => {
+      const { key, snoozedUntil } = input;
+      return dataSources.apolloDb.snoozeItem(key, snoozedUntil ?? new Date());
+    },
+
     setDueAtOfItem: (_, { input }, { dataSources }) => {
       const { key, dueAt } = input;
       return dataSources.apolloDb.setDueAtOfItem(key, dueAt ?? null);
