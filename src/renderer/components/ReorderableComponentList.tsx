@@ -62,7 +62,7 @@ const ReorderableComponentList = ({
   if (loading) {
     return (
       <Flex h="100%" w="100%" justifyContent="center" alignContent="center">
-        <Spinner loading />
+        <Spinner />
       </Flex>
     );
   }
