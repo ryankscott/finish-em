@@ -1,15 +1,7 @@
 import { ReactElement } from 'react';
-import BeatLoader from 'react-spinners/BeatLoader';
-import { Flex } from '@chakra-ui/layout';
-import { useTheme } from '@chakra-ui/system';
+import { Flex, Spinner as CSpinner } from '@chakra-ui/react';
 
-type SpinnerProps = {
-  loading: boolean;
-};
-
-const Spinner = ({ loading }: SpinnerProps): ReactElement => {
-  const theme = useTheme();
-
+const Spinner = (): ReactElement => {
   return (
     <Flex
       direction="row"
@@ -18,7 +10,7 @@ const Spinner = ({ loading }: SpinnerProps): ReactElement => {
       py={8}
       px={0}
     >
-      <BeatLoader size={10} color={theme.colors.blue[500]} loading={loading} />
+      <CSpinner color="blue.500" />
     </Flex>
   );
 };
