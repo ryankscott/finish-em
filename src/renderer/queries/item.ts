@@ -49,6 +49,7 @@ export const ITEM_BY_KEY = gql`
       completedAt
       createdAt
       deletedAt
+      snoozedUntil
       repeat
       reminders {
         key
@@ -278,6 +279,14 @@ export const SET_WEEKLY_GOAL = gql`
       key
       week
       goal
+    }
+  }
+`;
+
+export const SNOOZE_ITEM = gql`
+  mutation SetSnoozeOfItem($key: String!, $snoozedUntil: DateTime!) {
+    setSnoozeOfItem(input: { key: $key, snoozedUntil: $snoozedUntil }) {
+      key
     }
   }
 `;

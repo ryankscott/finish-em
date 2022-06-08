@@ -35,6 +35,14 @@ export const valueProcessor = (
     return (!!value).toString();
   }
 
+  // This is crazy because we can only do one check so we need to coalesce this to ensure it's non-null
+  if (field == `COALESCE(DATE(snoozedUntil), DATE(date('now')))`) {
+    if (value) {
+      return `> DATE(date('now'))`;
+    }
+    return ` <= DATE(date('now'))`;
+  }
+
   if (dateField) {
     /*
       This craziness is because we are using a BETWEEN operator
@@ -81,7 +89,12 @@ const defaultFields: Field[] = [
     valueEditorType: 'switch',
     operators: [{ name: '=', label: 'is' }],
   },
-
+  {
+    name: `COALESCE(DATE(snoozedUntil), DATE(date('now')))`,
+    label: 'Snoozed',
+    valueEditorType: 'switch',
+    operators: [{ name: '', label: 'is' }],
+  },
   {
     name: 'DATE(dueAt)',
     label: 'Due date',

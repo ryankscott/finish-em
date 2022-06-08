@@ -61,6 +61,7 @@ export type FilteredItemListProps = {
   readOnly?: boolean;
   editing?: boolean;
   alwaysShowCompletedTasks?: boolean;
+  showSnoozedItems?: boolean;
   setEditing?: (editing: boolean) => void;
 };
 
@@ -87,6 +88,7 @@ const FilteredItemList = ({
   showCompletedToggle,
   hideDeletedSubtasks,
   hideCompletedSubtasks,
+  showSnoozedItems,
   shouldPoll,
   readOnly,
   editing,
@@ -296,6 +298,7 @@ const FilteredItemList = ({
             }}
             filter={filter}
             key={componentKey}
+            showSnoozedItems={showSnoozedItems}
             hideDeletedSubtasks={hideDeletedSubtasks}
             hideCompletedSubtasks={hideCompletedSubtasks}
             componentKey={componentKey}

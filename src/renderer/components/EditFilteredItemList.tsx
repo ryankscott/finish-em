@@ -66,6 +66,7 @@ const FilteredItemDialog = ({
     hideDeletedSubtasks: boolean;
     showCompletedToggle: boolean;
     initiallyExpanded: boolean;
+    showSnoozedItems: boolean;
   };
 
   try {
@@ -215,6 +216,17 @@ const FilteredItemDialog = ({
         />
       </ItemListSetting>
 
+      <ItemListSetting name="Show snoozed items">
+        <Switch
+          size="sm"
+          defaultChecked={params.showSnoozedItems}
+          checked={params.showSnoozedItems}
+          onChange={() => {
+            params.showSnoozedItems = !params.showSnoozedItems;
+          }}
+        />
+      </ItemListSetting>
+
       <ItemListSetting name="Hide icons">
         <Box>
           <Select
@@ -261,6 +273,7 @@ const FilteredItemDialog = ({
                   isFilterable: params.isFilterable,
                   hideCompletedSubtasks: params.hideCompletedSubtasks,
                   hideDeletedSubtasks: params.hideDeletedSubtasks,
+                  showSnoozedItems: params.showSnoozedItems,
                 },
               },
             });

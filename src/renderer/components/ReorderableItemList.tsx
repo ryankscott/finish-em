@@ -24,6 +24,7 @@ import FailedFilteredItemList from './FailedFilteredItemList';
 import ItemComponent from './Item';
 import Pagination from './Pagination';
 import { SortDirectionEnum, SortOption } from './SortDropdown';
+import { isFuture, parseISO } from 'date-fns';
 
 type ReorderableItemListProps = {
   componentKey: string;
@@ -40,6 +41,7 @@ type ReorderableItemListProps = {
   hideDeletedSubtasks?: boolean;
   flattenSubtasks?: boolean;
   shouldPoll?: boolean;
+  showSnoozedItems?: boolean;
 };
 
 function ReorderableItemList({
@@ -54,6 +56,7 @@ function ReorderableItemList({
   flattenSubtasks,
   shouldPoll,
   hiddenIcons,
+  showSnoozedItems,
   onItemsFetched,
 }: ReorderableItemListProps): ReactElement {
   const [setItemOrder] = useMutation(SET_ITEM_ORDER);
@@ -72,6 +75,33 @@ function ReorderableItemList({
     pollInterval: shouldPoll ? 5000 : 0,
   });
 
+  const filterItems = (
+    items: Item[],
+    showCompleted: boolean,
+    showSnoozedItems: boolean
+  ): Item[] => {
+    return items.filter((item) => {
+      console.log(item);
+      if (item.completed) {
+        if (showCompleted) {
+          return true;
+        }
+        return false;
+      }
+
+      // Hide snoozed items
+      if (item.snoozedUntil && isFuture(parseISO(item.snoozedUntil))) {
+        // Sometimes we want to override this (e.g. show all snoozed)
+        if (showSnoozedItems) {
+          return true;
+        }
+        return false;
+      }
+
+      return true;
+    });
+  };
+
   useEffect(() => {
     if (loading === false && data) {
       const si = data?.items?.map((item: Item) => {
@@ -83,8 +113,11 @@ function ReorderableItemList({
       });
 
       const sorted = orderBy(si, 'sortOrder.sortOrder', 'asc');
-      const uncompletedItems = sorted.filter((m) => m.completed === false);
-      const filteredItems = showCompleted ? uncompletedItems : sorted;
+      const filteredItems = filterItems(
+        sorted,
+        showCompleted,
+        showSnoozedItems
+      );
       setSortedItems(filteredItems);
 
       // Update listeners

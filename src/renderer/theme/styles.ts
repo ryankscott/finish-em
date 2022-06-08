@@ -427,7 +427,7 @@ const styles = {
         position: 'relative',
       },
       '.ruleGroup[data-level="1"]': {
-        bg: mode('gray.100', 'gray.700')(props),
+        bg: mode('gray.50', 'gray.700')(props),
       },
       '.ruleGroup[data-level="2"]': {
         bg: mode('blue.50', 'blue.800')(props),

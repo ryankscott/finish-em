@@ -1,32 +1,29 @@
-import { ReactElement } from 'react';
-import { add, startOfWeek, startOfTomorrow } from 'date-fns';
-import { v4 as uuidv4 } from 'uuid';
-import { useMutation } from '@apollo/client';
-import { Flex, Text, useColorMode } from '@chakra-ui/react';
+import { ReactElement, useState } from 'react';
 import {
-  CREATE_REMINDER,
-  DELETE_REMINDER_FROM_ITEM,
-} from '../queries/reminder';
+  add,
+  sub,
+  startOfWeek,
+  startOfTomorrow,
+  lastDayOfWeek,
+} from 'date-fns';
+import { useMutation } from '@apollo/client';
+import { Box, Flex, Text, useColorMode } from '@chakra-ui/react';
+import DatePicker from 'react-datepicker';
+import { SNOOZE_ITEM } from '../queries';
 
-const reminderOptions: {
+const snoozeOptions: {
   label: string;
   value: string;
 }[] = [
   {
-    label: 'In 20 minutes',
-    value: add(new Date(), { minutes: 20 }).toISOString(),
-  },
-  {
-    label: 'In an hour',
-    value: add(new Date(), { hours: 1 }).toISOString(),
-  },
-  {
-    label: 'In three hours',
-    value: add(new Date(), { hours: 3 }).toISOString(),
-  },
-  {
     label: 'Tomorrow',
     value: add(startOfTomorrow(), { hours: 9 }).toISOString(),
+  },
+  {
+    label: 'End of week',
+    value: sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+      days: 2,
+    }).toISOString(),
   },
   {
     label: 'Next week',
@@ -35,29 +32,20 @@ const reminderOptions: {
     }).toISOString(),
   },
   {
-    label: `Don't remind`,
+    label: 'Custom date',
     value: '',
   },
 ];
 
-type ReminderDialogProps = {
+type SnoozeDialogProps = {
   itemKey: string;
-  reminderText: string;
   onClose: () => void;
 };
 
-function ReminderDialog({
-  itemKey,
-  reminderText,
-  onClose,
-}: ReminderDialogProps): ReactElement {
+function SnoozeDialog({ itemKey, onClose }: SnoozeDialogProps): ReactElement {
   const { colorMode } = useColorMode();
-  const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
-    refetchQueries: ['itemByKey', 'getAppData'],
-  });
-  const [createReminder] = useMutation(CREATE_REMINDER, {
-    refetchQueries: ['itemByKey', 'getAppData'],
-  });
+  const [dayPickerVisible, setDayPickerVisible] = useState(false);
+  const [snoozeItem] = useMutation(SNOOZE_ITEM);
 
   return (
     <Flex
@@ -78,12 +66,12 @@ function ReminderDialog({
         alignItems="baseline"
         justifyContent="space-between"
       >
-        <Text fontSize="md" p={1} px={3}>
-          Remind me:
+        <Text fontSize="md" py={1} px={3}>
+          Snooze until:
         </Text>
       </Flex>
       <Flex direction="column" py={1} px={0}>
-        {reminderOptions.map((r) => {
+        {snoozeOptions.map((r) => {
           return (
             <Flex
               px={3}
@@ -98,21 +86,18 @@ function ReminderDialog({
                 cursor: 'pointer',
               }}
               onClick={(e) => {
-                if (r.label === `Don't remind`) {
-                  deleteReminderFromItem({ variables: { itemKey } });
+                if (r.label == 'Custom date') {
+                  setDayPickerVisible(true);
                 } else {
-                  createReminder({
+                  snoozeItem({
                     variables: {
-                      key: uuidv4(),
-                      text: reminderText,
-                      remindAt: r.value,
-                      itemKey,
+                      key: itemKey,
+                      snoozedUntil: r.value,
                     },
                   });
+                  e.stopPropagation();
+                  onClose();
                 }
-
-                e.stopPropagation();
-                onClose();
               }}
             >
               <Text px={3} fontSize="xs">
@@ -122,8 +107,28 @@ function ReminderDialog({
           );
         })}
       </Flex>
+
+      {dayPickerVisible && (
+        <Box position="absolute" top="0" right="180px">
+          <DatePicker
+            // @ts-ignore
+            utcOffset={new Date().getTimezoneOffset()}
+            inline
+            tabIndex={0}
+            onChange={(d) => {
+              snoozeItem({
+                variables: {
+                  key: itemKey,
+                  snoozedUntil: d?.toISOString(),
+                },
+              });
+              onClose();
+            }}
+          />
+        </Box>
+      )}
     </Flex>
   );
 }
 
-export default ReminderDialog;
+export default SnoozeDialog;

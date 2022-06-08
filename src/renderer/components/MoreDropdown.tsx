@@ -22,6 +22,7 @@ import { Icons } from '../assets/icons';
 import { IconType } from '../interfaces';
 import LabelDialog from './LabelDialog';
 import ReminderDialog from './ReminderDialog';
+import SnoozeDialog from './SnoozeDialog';
 
 export type MoreDropdownOptions = {
   label: string;
@@ -46,6 +47,7 @@ const MoreDropdown = ({
   const { colorMode } = useColorMode();
   const [showLabelDialog, setShowLabelDialog] = useState(false);
   const [showReminderDialog, setShowReminderDialog] = useState(false);
+  const [showSnoozeDialog, setShowSnoozeDialog] = useState(false);
   const [deleteItem] = useMutation(DELETE_ITEM, {
     refetchQueries: ['itemsByFilter'],
   });
@@ -117,6 +119,15 @@ const MoreDropdown = ({
           },
           icon: 'reminder',
         },
+        {
+          label: 'Snooze',
+          onClick: (e: React.MouseEvent) => {
+            setShowSnoozeDialog(!showSnoozeDialog);
+            e.stopPropagation();
+            e.preventDefault();
+          },
+          icon: 'snooze',
+        },
       ];
 
   return (
@@ -166,6 +177,14 @@ const MoreDropdown = ({
           reminderText={HTMLToPlainText(itemText ?? '')}
           onClose={() => {
             setShowReminderDialog(false);
+          }}
+        />
+      )}
+      {showSnoozeDialog && (
+        <SnoozeDialog
+          itemKey={itemKey}
+          onClose={() => {
+            setShowSnoozeDialog(false);
           }}
         />
       )}
