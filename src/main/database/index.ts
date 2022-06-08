@@ -1225,7 +1225,7 @@ class AppDatabase extends SQLDataSource {
     try {
       // TODO: Check if the item is deleted
       const snoozedItemId = await this.knex('item').where({ key }).update({
-        snoozedUntil: new Date().toISOString(),
+        snoozedUntil: snoozeUntil.toISOString(),
         lastUpdatedAt: new Date().toISOString(),
       });
       if (snoozedItemId) {
