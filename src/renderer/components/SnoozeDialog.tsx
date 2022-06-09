@@ -9,7 +9,12 @@ import {
 import { useMutation } from '@apollo/client';
 import { Box, Flex, Text, useColorMode } from '@chakra-ui/react';
 import DatePicker from 'react-datepicker';
-import { SNOOZE_ITEM } from '../queries';
+import {
+  GET_APP_DATA,
+  ITEMS_BY_FILTER,
+  ITEM_BY_KEY,
+  SNOOZE_ITEM,
+} from '../queries';
 
 const snoozeOptions: {
   label: string;
@@ -27,8 +32,8 @@ const snoozeOptions: {
   },
   {
     label: 'Next week',
-    value: add(startOfWeek(new Date(), { weekStartsOn: 1 }), {
-      hours: 9,
+    value: add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+      days: 1,
     }).toISOString(),
   },
   {
@@ -45,16 +50,18 @@ type SnoozeDialogProps = {
 function SnoozeDialog({ itemKey, onClose }: SnoozeDialogProps): ReactElement {
   const { colorMode } = useColorMode();
   const [dayPickerVisible, setDayPickerVisible] = useState(false);
-  const [snoozeItem] = useMutation(SNOOZE_ITEM);
+  const [snoozeItem] = useMutation(SNOOZE_ITEM, {
+    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY, GET_APP_DATA],
+  });
 
   return (
     <Flex
       direction="column"
       zIndex={2}
-      position="relative"
+      position="absolute"
       minW="180px"
-      right="144px"
-      top="36px"
+      right="0px"
+      top="0px"
       border="1px solid"
       borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
@@ -100,7 +107,7 @@ function SnoozeDialog({ itemKey, onClose }: SnoozeDialogProps): ReactElement {
                 }
               }}
             >
-              <Text px={3} fontSize="xs">
+              <Text px={3} fontSize="sm">
                 {r.label}
               </Text>
             </Flex>

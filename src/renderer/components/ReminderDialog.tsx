@@ -1,8 +1,9 @@
 import { ReactElement } from 'react';
-import { add, startOfWeek, startOfTomorrow } from 'date-fns';
+import { add, lastDayOfWeek, startOfTomorrow } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { useMutation } from '@apollo/client';
 import { Flex, Text, useColorMode } from '@chakra-ui/react';
+import { GET_APP_DATA, ITEM_BY_KEY } from '../queries';
 import {
   CREATE_REMINDER,
   DELETE_REMINDER_FROM_ITEM,
@@ -30,8 +31,8 @@ const reminderOptions: {
   },
   {
     label: 'Next week',
-    value: add(startOfWeek(new Date(), { weekStartsOn: 1 }), {
-      hours: 9,
+    value: add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+      days: 1,
     }).toISOString(),
   },
   {
@@ -53,20 +54,20 @@ function ReminderDialog({
 }: ReminderDialogProps): ReactElement {
   const { colorMode } = useColorMode();
   const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
-    refetchQueries: ['itemByKey', 'getAppData'],
+    refetchQueries: [ITEM_BY_KEY, GET_APP_DATA],
   });
   const [createReminder] = useMutation(CREATE_REMINDER, {
-    refetchQueries: ['itemByKey', 'getAppData'],
+    refetchQueries: [ITEM_BY_KEY, GET_APP_DATA],
   });
 
   return (
     <Flex
       direction="column"
       zIndex={2}
-      position="relative"
+      position="absolute"
       minW="180px"
-      right="144px"
-      top="36px"
+      right="0px"
+      top="0px"
       border="1px solid"
       borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
@@ -115,7 +116,7 @@ function ReminderDialog({
                 onClose();
               }}
             >
-              <Text px={3} fontSize="xs">
+              <Text px={3} fontSize="sm">
                 {r.label}
               </Text>
             </Flex>

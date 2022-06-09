@@ -1785,7 +1785,7 @@ class AppDatabase extends SQLDataSource {
       const insertedId = await this.knex('reminder').insert({
         key,
         text,
-        remindAt,
+        remindAt: remindAt.toISOString(),
         itemKey,
         lastUpdatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),

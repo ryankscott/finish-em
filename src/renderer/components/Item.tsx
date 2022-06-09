@@ -505,9 +505,8 @@ function Item({
       <Box gridArea="snooze">
         {item.snoozedUntil && isFuture(parseISO(item.snoozedUntil)) && (
           <Tooltip
-            label={`Snoozed until: ${format(
-              parseISO(item?.snoozedUntil),
-              'dd/MM/yyyy h:mm aaaa'
+            label={`Snoozed until: ${formatRelativeDate(
+              parseISO(item?.snoozedUntil)
             )}`}
           >
             <Flex justifyContent="center">
