@@ -75,33 +75,6 @@ function ReorderableItemList({
     pollInterval: shouldPoll ? 5000 : 0,
   });
 
-  const filterItems = (
-    items: Item[],
-    showCompleted: boolean,
-    showSnoozedItems: boolean
-  ): Item[] => {
-    return items.filter((item) => {
-      console.log(item);
-      if (item.completed) {
-        if (showCompleted) {
-          return true;
-        }
-        return false;
-      }
-
-      // Hide snoozed items
-      if (item.snoozedUntil && isFuture(parseISO(item.snoozedUntil))) {
-        // Sometimes we want to override this (e.g. show all snoozed)
-        if (showSnoozedItems) {
-          return true;
-        }
-        return false;
-      }
-
-      return true;
-    });
-  };
-
   useEffect(() => {
     if (loading === false && data) {
       const si = data?.items?.map((item: Item) => {
@@ -113,18 +86,27 @@ function ReorderableItemList({
       });
 
       const sorted = orderBy(si, 'sortOrder.sortOrder', 'asc');
-      const filteredItems = filterItems(
-        sorted,
-        showCompleted,
-        showSnoozedItems
-      );
+      const filtered = sorted.filter((item) => {
+        if (item.snoozedUntil && isFuture(parseISO(item.snoozedUntil))) {
+          // Sometimes we want to override this (e.g. show all snoozed)
+          if (showSnoozedItems) {
+            return true;
+          }
+          return false;
+        }
+
+        return true;
+      });
+
+      const uncompletedItems = filtered.filter((m) => m.completed === false);
+      const filteredItems = showCompleted ? uncompletedItems : filtered;
       setSortedItems(filteredItems);
 
       // Update listeners
       if (onItemsFetched) {
         onItemsFetched([
           filteredItems.length,
-          sorted.filter((m) => m.completed).length,
+          filtered.filter((m) => m.completed).length,
         ]);
       }
     }

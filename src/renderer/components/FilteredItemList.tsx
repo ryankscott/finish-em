@@ -306,7 +306,7 @@ const FilteredItemList = ({
             sortDirection={sortDirection}
             sortType={sortType}
             flattenSubtasks={flattenSubtasks}
-            showCompleted={showCompleted || alwaysShowCompletedSubtasks}
+            showCompleted={alwaysShowCompletedSubtasks ? true : showCompleted}
             shouldPoll={shouldPoll}
           />
         )
