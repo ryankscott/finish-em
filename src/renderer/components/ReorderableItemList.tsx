@@ -84,7 +84,7 @@ function ReorderableItemList({
         );
         return { ...item, sortOrder };
       });
-
+      // TODO: This is really gnarly and should be refactored
       const sorted = orderBy(si, 'sortOrder.sortOrder', 'asc');
       const filtered = sorted.filter((item) => {
         if (item.snoozedUntil && isFuture(parseISO(item.snoozedUntil))) {
