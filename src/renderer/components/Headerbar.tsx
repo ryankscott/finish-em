@@ -17,7 +17,6 @@ import { Icons } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
 import CommandBar from './CommandBar';
-import { Item, Project } from '../../main/generated/typescript-helpers';
 import { activeItemVar, focusbarVisibleVar } from '../cache';
 import {
   removeItemTypeFromString,
@@ -25,6 +24,7 @@ import {
   markdownBasicRegex,
 } from '../utils';
 import Select from './Select';
+import { Item, Project } from 'main/resolvers-types';
 
 type OptionType = { label: string; value: () => void };
 
@@ -122,9 +122,10 @@ const Headerbar = (): ReactElement => {
       borderColor={colorMode === 'light' ? 'transparent' : 'gray.900'}
       bg="gray.800"
       px={2}
+      pl={'60px'}
     >
       <HeaderItem as={Flex} justifyContent="flex-end" colSpan={1}>
-        <Flex w="450px" px={2}>
+        <Flex w="100%" maxW="600px" px={2}>
           <Select
             isMulti={false}
             placeholder="Search for items..."
