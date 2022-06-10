@@ -12,6 +12,8 @@ import { Icons } from 'renderer/assets/icons';
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
+  WEEKLY_ITEMS,
+  ITEMS_BY_FILTER,
   SET_DUE_AT,
   SET_PROJECT,
   SET_SCHEDULED_AT,
@@ -24,13 +26,13 @@ const ActionBar = () => {
   const [completeItem] = useMutation(COMPLETE_ITEM);
   const [deleteItem] = useMutation(DELETE_ITEM);
   const [setProject] = useMutation(SET_PROJECT, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [setDueAt] = useMutation(SET_DUE_AT, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
-    refetchQueries: ['itemsByFilter', 'weeklyItems'],
+    refetchQueries: [ITEMS_BY_FILTER, WEEKLY_ITEMS],
   });
 
   const activeItem = useReactiveVar(activeItemVar);

@@ -21,11 +21,11 @@ import {
   sub,
 } from 'date-fns';
 import groupBy from 'lodash/groupBy';
+import { WeeklyGoal } from 'main/resolvers-types';
 import { ReactElement, useState } from 'react';
 import { Icons } from 'renderer/assets/icons';
-import { GET_WEEKLY_ITEMS, SET_WEEKLY_GOAL } from 'renderer/queries';
+import { WEEKLY_ITEMS, CREATE_WEEKLY_GOAL } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import { WeeklyGoal } from '../../main/generated/typescript-helpers';
 import { ItemIcons } from '../interfaces';
 import EditableText from './EditableText';
 import ItemList from './ItemList';
@@ -70,10 +70,10 @@ const WeeklyAgenda = (): ReactElement => {
   const [currentDate, setDate] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
-  const [createWeeklyGoal] = useMutation(SET_WEEKLY_GOAL, {
-    refetchQueries: ['weeklyItems'],
+  const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL, {
+    refetchQueries: [WEEKLY_ITEMS],
   });
-  const { loading, error, data } = useQuery(GET_WEEKLY_ITEMS, {
+  const { loading, error, data } = useQuery(WEEKLY_ITEMS, {
     variables: {
       filter: weeklyFilter,
       componentKey,

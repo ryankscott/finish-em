@@ -14,9 +14,10 @@ import {
 import { startCase } from 'lodash';
 import { ReactElement } from 'react';
 import {
+  GET_COMPONENTS_BY_VIEW,
   GET_COMPONENT_BY_KEY,
   UPDATE_COMPONENT,
-} from 'renderer/queries/component';
+} from '../queries/component';
 import { Icons } from '../assets/icons';
 import Select from './Select';
 
@@ -89,7 +90,7 @@ const EditViewHeader = ({
 }: ViewHeaderProps): ReactElement => {
   const { colorMode } = useColorMode();
   const [updateComponent] = useMutation(UPDATE_COMPONENT, {
-    refetchQueries: ['ComponentsByView'],
+    refetchQueries: [GET_COMPONENTS_BY_VIEW],
   });
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: componentKey },

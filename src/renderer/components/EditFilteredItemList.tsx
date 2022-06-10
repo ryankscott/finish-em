@@ -15,7 +15,8 @@ import React, { ReactElement, useState } from 'react';
 import {
   UPDATE_COMPONENT,
   GET_COMPONENT_BY_KEY,
-} from 'renderer/queries/component';
+  GET_COMPONENTS_BY_VIEW,
+} from '../queries/component';
 import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
 import { ItemIcons } from '../interfaces';
@@ -42,7 +43,7 @@ const FilteredItemDialog = ({
   const { colorMode } = useColorMode();
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT, {
-    refetchQueries: ['ComponentsByView', 'getComponentByKey'],
+    refetchQueries: [GET_COMPONENTS_BY_VIEW, GET_COMPONENT_BY_KEY],
   });
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: componentKey },

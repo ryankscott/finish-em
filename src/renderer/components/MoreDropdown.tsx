@@ -16,6 +16,7 @@ import {
   CLONE_ITEM,
   PERMANENT_DELETE_ITEM,
   RESTORE_ITEM,
+  ITEMS_BY_FILTER,
 } from 'renderer/queries';
 import { HTMLToPlainText } from 'renderer/utils';
 import { Icons } from '../assets/icons';
@@ -49,16 +50,16 @@ const MoreDropdown = ({
   const [showReminderDialog, setShowReminderDialog] = useState(false);
   const [showSnoozeDialog, setShowSnoozeDialog] = useState(false);
   const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [cloneItem] = useMutation(CLONE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
 
   const dropdownOptions: MoreDropdownOptions = deleted

@@ -7,23 +7,24 @@ import {
   DELETE_ITEM,
   RESTORE_ITEM,
   UNCOMPLETE_ITEM,
-} from 'renderer/queries';
+  ITEMS_BY_FILTER,
+} from '../queries';
 import { activeItemVar } from '../cache';
 
 const CommandBar = () => {
   const activeItem = useReactiveVar(activeItemVar);
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
 
   const allCommands: {

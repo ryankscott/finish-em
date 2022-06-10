@@ -29,11 +29,11 @@ import {
   SET_ACTIVE_CALENDAR,
   SET_FEATURE,
   SET_FEATURE_METADATA,
-} from 'renderer/queries';
-import { Calendar, Label } from 'main/generated/typescript-helpers';
+} from '../queries';
 import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
 import { camelCaseToInitialCaps } from '../utils';
+import { Calendar, Label } from 'main/resolvers-types';
 
 const NUMBER_OF_COLOURS = 12;
 
@@ -119,11 +119,11 @@ const Settings = (): ReactElement => {
   );
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR);
   const [setFeature] = useMutation(SET_FEATURE, {
-    refetchQueries: ['getActiveCalendar'],
+    refetchQueries: [GET_FEATURES_AND_LABELS],
   });
   const [setFeatureMetadata] = useMutation(SET_FEATURE_METADATA);
   const [renameLabel] = useMutation(RENAME_LABEL, {
-    refetchQueries: ['settings'],
+    refetchQueries: [GET_FEATURES_AND_LABELS],
   });
   const [setColourOfLabel] = useMutation(RECOLOUR_LABEL);
   const [deleteLabel] = useMutation(DELETE_LABEL, {
