@@ -1390,6 +1390,7 @@ class AppDatabase extends SQLDataSource {
       `Setting scheduled at of item with key: ${key} to ${scheduledAt}`
     );
     try {
+      console.log(typeof scheduledAt);
       const updatedId = await this.knex('item')
         .where({ key })
         .update({

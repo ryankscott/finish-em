@@ -64,7 +64,6 @@ const determineDayBgColour = (listDate: Date, colorMode: ColorMode) => {
 };
 
 const WeeklyAgenda = (): ReactElement => {
-  const dayOfWeekFormat = useBreakpointValue(['EEE', 'EEE', 'EEEE', 'EEEE']);
   const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342';
   const { colorMode } = useColorMode();
   const [currentDate, setDate] = useState(
@@ -181,17 +180,12 @@ const WeeklyAgenda = (): ReactElement => {
           }}
         />
       </Flex>
-      <Grid
-        templateColumns="repeat(5, minmax(0, 1fr))"
-        m={0}
-        mx={3}
-        p={0}
-        w="100%"
-      >
+      <Flex m={0} mx={3} p={0} w="100%" direction="row" alignItems={'center'}>
         {Array.from({ length: 5 }, (_, idx) => {
           const listDate = add(currentDate, { days: idx });
           return (
             <Box
+              mx={0.5}
               py={2}
               px={2}
               border="1px solid"
@@ -199,9 +193,11 @@ const WeeklyAgenda = (): ReactElement => {
               borderRadius="md"
               bg={determineDayBgColour(listDate, colorMode)}
               key={`${idx}-container`}
+              w={'20%'}
+              h="100%"
             >
               <Text p={2} textAlign="center" fontSize="lg" key={`${idx}-title`}>
-                {format(listDate, dayOfWeekFormat ?? 'EEEE')}
+                {format(listDate, 'EEEE')}
               </Text>
               <ItemList
                 key={idx}
@@ -214,7 +210,7 @@ const WeeklyAgenda = (): ReactElement => {
             </Box>
           );
         })}
-      </Grid>
+      </Flex>
       <Flex direction="row" w="100%" justifyContent="center" py={6} px={2}>
         <ReorderableComponentList viewKey="6c40814f-8fad-40dc-9a96-0454149a9408" />
       </Flex>

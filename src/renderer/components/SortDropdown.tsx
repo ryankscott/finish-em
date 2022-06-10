@@ -9,6 +9,8 @@ import {
   MenuItemOption,
   MenuDivider,
   Icon,
+  IconButton,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
 import RRule from 'rrule';
@@ -42,6 +44,43 @@ function SortDropdown({
   onSetSortDirection,
   onSetSortType,
 }: SortDropdownProps): ReactElement {
+  const RegularSortButton = (
+    <MenuButton
+      mx={1}
+      size={size || 'md'}
+      as={Button}
+      rightIcon={<Icon as={Icons.collapse} />}
+      fontWeight="normal"
+      borderRadius="md"
+      variant="default"
+      width="100%"
+      textAlign="start"
+    >
+      {sortType ? sortType.label : defaultText}
+    </MenuButton>
+  );
+
+  const IconSortButton = (
+    <MenuButton
+      mx={1}
+      size={size || 'md'}
+      as={IconButton}
+      fontWeight="normal"
+      borderRadius="md"
+      variant="default"
+      width="100%"
+      textAlign="start"
+      icon={<Icon as={Icons.sort} />}
+    />
+  );
+
+  const sortButton = useBreakpointValue([
+    IconSortButton,
+    IconSortButton,
+    RegularSortButton,
+    RegularSortButton,
+  ]);
+
   return (
     <Flex alignItems="center">
       <Menu
@@ -51,20 +90,7 @@ function SortDropdown({
         closeOnSelect
         closeOnBlur
       >
-        <MenuButton
-          mx={1}
-          size={size || 'md'}
-          as={Button}
-          rightIcon={<Icon as={Icons.collapse} />}
-          fontWeight="normal"
-          borderRadius="md"
-          variant="default"
-          width="100%"
-          textAlign="start"
-        >
-          {sortType ? sortType.label : defaultText}
-        </MenuButton>
-
+        {sortButton}
         <MenuList>
           <MenuOptionGroup defaultValue="asc" title="Order" type="radio">
             <MenuItemOption

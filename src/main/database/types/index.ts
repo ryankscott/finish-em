@@ -78,6 +78,7 @@ export interface ItemEntity {
   'projectKey'?: string | null;
   'repeat'?: string | null;
   'scheduledAt'?: string | null;
+  'snoozedUntil'?: string | null;
   'text'?: string | null;
   'type'?: string | null;
 }

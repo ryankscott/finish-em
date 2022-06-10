@@ -165,17 +165,16 @@ const FilteredItemList = ({
         </GridItem>
         <GridItem colSpan={1}>
           <Flex
-            direction="row"
+            direction={['column', 'column', 'row', 'row']}
             py={1}
             px={0}
             my={0}
-            mx={2}
             alignItems="baseline"
           >
-            <Text fontSize="lg" isTruncated>
+            <Text fontSize="lg" isTruncated pr={2}>
               {listName}
             </Text>
-            <Text fontSize="sm" py={0} px={2} minW="80px" color="gray.500">
+            <Text fontSize="sm" py={0} isTruncated w="60px" color="gray.500">
               {determineItemListLengthString(itemsLength)}
             </Text>
           </Flex>
@@ -261,7 +260,7 @@ const FilteredItemList = ({
                     />
                   </Box>
                 </Tooltip>
-                <Box w="145px">
+                <Box minW={['20px', '20px', '120px', '120px']}>
                   <SortDropdown
                     defaultText="Due"
                     sortType={sortType}

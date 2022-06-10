@@ -14,7 +14,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  DateTime: Date;
+  DateTime: string;
   JSON: any;
 };
 
@@ -1293,7 +1293,7 @@ export type ResolversTypes = ResolversObject<{
   Item: ResolverTypeWrapper<ItemEntity>;
   ItemOrder: ResolverTypeWrapper<ItemOrderEntity>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
-  Label: ResolverTypeWrapper<LabelEntity>;
+  Label: ResolverTypeWrapper< LabelEntity>;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
@@ -1392,7 +1392,7 @@ export type ResolversParentTypes = ResolversObject<{
   Item: ItemEntity;
   ItemOrder: ItemOrderEntity;
   JSON: Scalars['JSON'];
-  Label: LabelEntity;
+  Label:  LabelEntity;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
