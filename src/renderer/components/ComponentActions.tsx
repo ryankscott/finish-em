@@ -8,7 +8,11 @@ import {
   Tooltip,
   useColorMode,
 } from '@chakra-ui/react';
-import { CLONE_COMPONENT, DELETE_COMPONENT } from 'renderer/queries';
+import {
+  CLONE_COMPONENT,
+  DELETE_COMPONENT,
+  GET_COMPONENTS_BY_VIEW,
+} from '../queries';
 import { Icons } from 'renderer/assets/icons';
 
 type ComponentActionProps = {
@@ -26,10 +30,10 @@ const ComponentActions = ({
   const [showActions, setShowActions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [cloneComponent] = useMutation(CLONE_COMPONENT, {
-    refetchQueries: ['ComponentsByView'],
+    refetchQueries: [GET_COMPONENTS_BY_VIEW],
   });
   const [deleteComponent] = useMutation(DELETE_COMPONENT, {
-    refetchQueries: ['ComponentsByView'],
+    refetchQueries: [GET_COMPONENTS_BY_VIEW],
   });
   let enterInterval: NodeJS.Timeout;
   let exitInterval: NodeJS.Timeout;

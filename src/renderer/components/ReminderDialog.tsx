@@ -1,9 +1,13 @@
 import { ReactElement } from 'react';
-import { add, startOfWeek, startOfTomorrow } from 'date-fns';
+import { add, lastDayOfWeek, startOfTomorrow } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
-import { gql, useMutation } from '@apollo/client';
-import { Flex, Icon, IconButton, Text, useColorMode } from '@chakra-ui/react';
-import { Icons } from 'renderer/assets/icons';
+import { useMutation } from '@apollo/client';
+import { Flex, Text, useColorMode } from '@chakra-ui/react';
+import { GET_APP_DATA, ITEM_BY_KEY } from '../queries';
+import {
+  CREATE_REMINDER,
+  DELETE_REMINDER_FROM_ITEM,
+} from '../queries/reminder';
 
 const reminderOptions: {
   label: string;
@@ -27,8 +31,8 @@ const reminderOptions: {
   },
   {
     label: 'Next week',
-    value: add(startOfWeek(new Date(), { weekStartsOn: 1 }), {
-      hours: 9,
+    value: add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+      days: 1,
     }).toISOString(),
   },
   {
@@ -36,30 +40,6 @@ const reminderOptions: {
     value: '',
   },
 ];
-
-const CREATE_REMINDER = gql`
-  mutation CreateReminder(
-    $key: String!
-    $text: String!
-    $remindAt: DateTime
-    $itemKey: String
-  ) {
-    createReminder(
-      input: { key: $key, text: $text, remindAt: $remindAt, itemKey: $itemKey }
-    ) {
-      key
-      text
-      remindAt
-    }
-  }
-`;
-const DELETE_REMINDER_FROM_ITEM = gql`
-  mutation DeleteReminderFromItem($itemKey: String!) {
-    deleteReminderFromItem(input: { itemKey: $itemKey }) {
-      key
-    }
-  }
-`;
 
 type ReminderDialogProps = {
   itemKey: string;
@@ -74,20 +54,20 @@ function ReminderDialog({
 }: ReminderDialogProps): ReactElement {
   const { colorMode } = useColorMode();
   const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
-    refetchQueries: ['itemByKey', 'getAppData'],
+    refetchQueries: [ITEM_BY_KEY, GET_APP_DATA],
   });
   const [createReminder] = useMutation(CREATE_REMINDER, {
-    refetchQueries: ['itemByKey', 'getAppData'],
+    refetchQueries: [ITEM_BY_KEY, GET_APP_DATA],
   });
 
   return (
     <Flex
       direction="column"
       zIndex={2}
-      position="relative"
+      position="absolute"
       minW="180px"
-      right="144px"
-      top="36px"
+      right="0px"
+      top="0px"
       border="1px solid"
       borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
@@ -99,11 +79,11 @@ function ReminderDialog({
         alignItems="baseline"
         justifyContent="space-between"
       >
-        <Text fontSize="md" p={2} px={3}>
+        <Text fontSize="md" p={1} px={3}>
           Remind me:
         </Text>
       </Flex>
-      <Flex direction="column" py={2} px={0}>
+      <Flex direction="column" py={1} px={0}>
         {reminderOptions.map((r) => {
           return (
             <Flex
@@ -136,7 +116,7 @@ function ReminderDialog({
                 onClose();
               }}
             >
-              <Text px={3} fontSize="xs">
+              <Text px={3} fontSize="sm">
                 {r.label}
               </Text>
             </Flex>

@@ -1015,6 +1015,14 @@ class AppDatabase extends SQLDataSource {
       if (booleanField) {
         return (!!value).toString();
       }
+      // This is crazy because we can only do one check so we need to coalesce this to ensure it's non-null
+      if (field == `COALESCE(DATE(snoozedUntil), DATE(date('now')))`) {
+        if (value) {
+          return `> DATE(date('now'))`;
+        }
+        return `<= DATE(date('now'))`;
+      }
+
       if (dateField) {
         /*
           This craziness is because we are using a BETWEEN operator
@@ -1218,6 +1226,27 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
+  async snoozeItem(key: string, snoozeUntil: Date): Promise<ItemEntity> {
+    log.debug(
+      `Snoozing item with key: ${key} until: ${snoozeUntil.toISOString()}`
+    );
+    try {
+      // TODO: Check if the item is deleted
+      const snoozedItemId = await this.knex('item').where({ key }).update({
+        snoozedUntil: snoozeUntil.toISOString(),
+        lastUpdatedAt: new Date().toISOString(),
+      });
+      if (snoozedItemId) {
+        return await this.getItem(key);
+      }
+      log.error('Failed to snooze item without error');
+      throw new Error('Failed to snooze item');
+    } catch (e) {
+      log.error(`Failed to snooze item - ${e}`);
+      throw e;
+    }
+  }
+
   async completeItem(key: string): Promise<ItemEntity> {
     log.debug(`Completing item with key: ${key}`);
     try {
@@ -1361,6 +1390,7 @@ class AppDatabase extends SQLDataSource {
       `Setting scheduled at of item with key: ${key} to ${scheduledAt}`
     );
     try {
+      console.log(typeof scheduledAt);
       const updatedId = await this.knex('item')
         .where({ key })
         .update({
@@ -1756,7 +1786,7 @@ class AppDatabase extends SQLDataSource {
       const insertedId = await this.knex('reminder').insert({
         key,
         text,
-        remindAt,
+        remindAt: remindAt.toISOString(),
         itemKey,
         lastUpdatedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),

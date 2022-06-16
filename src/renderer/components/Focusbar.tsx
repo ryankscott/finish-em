@@ -28,6 +28,7 @@ import {
   DELETE_ITEM,
   RESTORE_ITEM,
   ITEMS_BY_FILTER,
+  WEEKLY_ITEMS,
 } from 'renderer/queries';
 import RRule from 'rrule';
 import { Item } from 'main/resolvers-types';
@@ -69,7 +70,7 @@ const Focusbar = (): ReactElement => {
     refetchQueries: [ITEMS_BY_FILTER],
   });
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
-    refetchQueries: [ITEMS_BY_FILTER, 'weeklyItems', ITEM_BY_KEY],
+    refetchQueries: [ITEMS_BY_FILTER, WEEKLY_ITEMS, ITEM_BY_KEY],
   });
   const [setDueAt] = useMutation(SET_DUE_AT, {
     refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY],

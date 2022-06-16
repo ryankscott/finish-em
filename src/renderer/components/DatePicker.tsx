@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { add, sub, lastDayOfWeek } from 'date-fns';
 import RDatePicker from 'react-datepicker';
-import { Icons } from 'renderer/assets/icons';
+import { Icons } from '../assets/icons';
 
 type DatePickerProps = {
   completed: boolean;

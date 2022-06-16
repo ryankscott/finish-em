@@ -24,6 +24,7 @@ import FailedFilteredItemList from './FailedFilteredItemList';
 import ItemComponent from './Item';
 import Pagination from './Pagination';
 import { SortDirectionEnum, SortOption } from './SortDropdown';
+import { isFuture, parseISO } from 'date-fns';
 
 type ReorderableItemListProps = {
   componentKey: string;
@@ -40,6 +41,7 @@ type ReorderableItemListProps = {
   hideDeletedSubtasks?: boolean;
   flattenSubtasks?: boolean;
   shouldPoll?: boolean;
+  showSnoozedItems?: boolean;
 };
 
 function ReorderableItemList({
@@ -54,6 +56,7 @@ function ReorderableItemList({
   flattenSubtasks,
   shouldPoll,
   hiddenIcons,
+  showSnoozedItems,
   onItemsFetched,
 }: ReorderableItemListProps): ReactElement {
   const [setItemOrder] = useMutation(SET_ITEM_ORDER);
@@ -81,17 +84,29 @@ function ReorderableItemList({
         );
         return { ...item, sortOrder };
       });
-
+      // TODO: This is really gnarly and should be refactored   
       const sorted = orderBy(si, 'sortOrder.sortOrder', 'asc');
-      const uncompletedItems = sorted.filter((m) => m.completed === false);
-      const filteredItems = showCompleted ? uncompletedItems : sorted;
+      const filtered = sorted.filter((item) => {
+        if (item.snoozedUntil && isFuture(parseISO(item.snoozedUntil))) {
+          // Sometimes we want to override this (e.g. show all snoozed)
+          if (showSnoozedItems) {
+            return true;
+          }
+          return false;
+        }
+
+        return true;
+      });
+
+      const uncompletedItems = filtered.filter((m) => m.completed === false);
+      const filteredItems = showCompleted ? uncompletedItems : filtered;
       setSortedItems(filteredItems);
 
       // Update listeners
       if (onItemsFetched) {
         onItemsFetched([
           filteredItems.length,
-          sorted.filter((m) => m.completed).length,
+          filtered.filter((m) => m.completed).length,
         ]);
       }
     }

@@ -50,7 +50,7 @@ import {
   MdOutlineDeleteSweep,
 } from 'react-icons/md';
 import { BiSortAlt2 } from 'react-icons/bi';
-import { RiBearSmileLine } from 'react-icons/ri';
+import { RiBearSmileLine, RiZzzFill } from 'react-icons/ri';
 import { IconType as RIconType } from 'react-icons';
 import { IconType } from '../interfaces';
 
@@ -112,4 +112,5 @@ export const Icons: Record<IconType, RIconType> = {
   lightMode: FiSun,
   darkMode: FiMoon,
   bear: RiBearSmileLine,
+  snooze: RiZzzFill,
 };

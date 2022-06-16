@@ -239,11 +239,6 @@ export const convertToProperTzOffset = (inputTz: string): string => {
     : `+${intPart.toString()}${fractionString}`;
 };
 
-// TODO: Refactor function
-export function arrayIntersection<T>(a: T[], b: T[]): T[] {
-  return a.filter((x) => b.includes(x));
-}
-
 export const getProductName = (): string => {
   const adjective = [
     'Small',

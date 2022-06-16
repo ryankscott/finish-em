@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_VIEW } from 'renderer/queries';
+import { GET_VIEW_BY_KEY } from 'renderer/queries';
 import ReorderableComponentList from './ReorderableComponentList';
 import Project from './Project';
 import Area from './Area';
@@ -23,7 +23,7 @@ const headerComponent = (type: string, viewKey: string) => {
 };
 
 const View = ({ viewKey }: ViewProps): ReactElement => {
-  const { loading, error, data } = useQuery(GET_VIEW, {
+  const { loading, error, data } = useQuery(GET_VIEW_BY_KEY, {
     variables: {
       key: viewKey,
     },

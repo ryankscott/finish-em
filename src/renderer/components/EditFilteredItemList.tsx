@@ -15,7 +15,8 @@ import React, { ReactElement, useState } from 'react';
 import {
   UPDATE_COMPONENT,
   GET_COMPONENT_BY_KEY,
-} from 'renderer/queries/component';
+  GET_COMPONENTS_BY_VIEW,
+} from '../queries/component';
 import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
 import { ItemIcons } from '../interfaces';
@@ -42,7 +43,7 @@ const FilteredItemDialog = ({
   const { colorMode } = useColorMode();
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT, {
-    refetchQueries: ['ComponentsByView', 'getComponentByKey'],
+    refetchQueries: [GET_COMPONENTS_BY_VIEW, GET_COMPONENT_BY_KEY],
   });
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: componentKey },
@@ -66,6 +67,7 @@ const FilteredItemDialog = ({
     hideDeletedSubtasks: boolean;
     showCompletedToggle: boolean;
     initiallyExpanded: boolean;
+    showSnoozedItems: boolean;
   };
 
   try {
@@ -215,6 +217,17 @@ const FilteredItemDialog = ({
         />
       </ItemListSetting>
 
+      <ItemListSetting name="Show snoozed items">
+        <Switch
+          size="sm"
+          defaultChecked={params.showSnoozedItems}
+          checked={params.showSnoozedItems}
+          onChange={() => {
+            params.showSnoozedItems = !params.showSnoozedItems;
+          }}
+        />
+      </ItemListSetting>
+
       <ItemListSetting name="Hide icons">
         <Box>
           <Select
@@ -261,6 +274,7 @@ const FilteredItemDialog = ({
                   isFilterable: params.isFilterable,
                   hideCompletedSubtasks: params.hideCompletedSubtasks,
                   hideDeletedSubtasks: params.hideDeletedSubtasks,
+                  showSnoozedItems: params.showSnoozedItems,
                 },
               },
             });

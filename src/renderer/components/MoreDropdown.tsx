@@ -16,12 +16,14 @@ import {
   CLONE_ITEM,
   PERMANENT_DELETE_ITEM,
   RESTORE_ITEM,
+  ITEMS_BY_FILTER,
 } from 'renderer/queries';
 import { HTMLToPlainText } from 'renderer/utils';
 import { Icons } from '../assets/icons';
 import { IconType } from '../interfaces';
 import LabelDialog from './LabelDialog';
 import ReminderDialog from './ReminderDialog';
+import SnoozeDialog from './SnoozeDialog';
 
 export type MoreDropdownOptions = {
   label: string;
@@ -46,17 +48,18 @@ const MoreDropdown = ({
   const { colorMode } = useColorMode();
   const [showLabelDialog, setShowLabelDialog] = useState(false);
   const [showReminderDialog, setShowReminderDialog] = useState(false);
+  const [showSnoozeDialog, setShowSnoozeDialog] = useState(false);
   const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [cloneItem] = useMutation(CLONE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: ['itemsByFilter'],
+    refetchQueries: [ITEMS_BY_FILTER],
   });
 
   const dropdownOptions: MoreDropdownOptions = deleted
@@ -117,6 +120,15 @@ const MoreDropdown = ({
           },
           icon: 'reminder',
         },
+        {
+          label: 'Snooze',
+          onClick: (e: React.MouseEvent) => {
+            setShowSnoozeDialog(!showSnoozeDialog);
+            e.stopPropagation();
+            e.preventDefault();
+          },
+          icon: 'snooze',
+        },
       ];
 
   return (
@@ -166,6 +178,14 @@ const MoreDropdown = ({
           reminderText={HTMLToPlainText(itemText ?? '')}
           onClose={() => {
             setShowReminderDialog(false);
+          }}
+        />
+      )}
+      {showSnoozeDialog && (
+        <SnoozeDialog
+          itemKey={itemKey}
+          onClose={() => {
+            setShowSnoozeDialog(false);
           }}
         />
       )}

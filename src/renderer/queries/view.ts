@@ -8,7 +8,7 @@ export const DELETE_VIEW = gql`
   }
 `;
 
-export const GET_VIEW = gql`
+export const GET_VIEW_BY_KEY = gql`
   query ViewByKey($key: String!) {
     view(key: $key) {
       key

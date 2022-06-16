@@ -8,6 +8,7 @@ export const ITEMS_BY_FILTER = gql`
       dueAt
       scheduledAt
       createdAt
+      snoozedUntil
       repeat
       label {
         key

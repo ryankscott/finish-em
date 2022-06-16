@@ -1,17 +1,16 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { Box, Flex, Text } from '@chakra-ui/layout';
+import { Flex, Text } from '@chakra-ui/layout';
 import { useColorMode } from '@chakra-ui/react';
 import { ReactElement } from 'react';
-import { SET_LABEL } from 'renderer/queries';
-import { GET_LABELS } from 'renderer/queries/label';
-import { Label } from '../../main/generated/typescript-helpers';
+import { ITEM_BY_KEY, SET_LABEL } from '../queries';
+import { GET_LABELS } from '../queries/label';
 
 type LabelDialogProps = {
   itemKey: string;
   onClose: () => void;
 };
 function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
-  const [setLabel] = useMutation(SET_LABEL, { refetchQueries: ['itemsByKey'] });
+  const [setLabel] = useMutation(SET_LABEL, { refetchQueries: [ITEM_BY_KEY] });
   const { colorMode } = useColorMode();
 
   const { loading, error, data } = useQuery(GET_LABELS);
@@ -25,12 +24,13 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
   const labels = [...data?.labels, { name: 'No label', key: null }];
 
   return (
-    <Box
+    <Flex
+      direction="column"
       zIndex={2}
-      position="relative"
+      position="absolute"
       minW="180px"
-      right="144px"
-      top="36px"
+      right="0px"
+      top="0px"
       border="1px solid"
       borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
@@ -56,7 +56,7 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
                 onClose();
               }}
             >
-              <Text fontSize="xs">{m.name}</Text>
+              <Text fontSize="sm">{m.name}</Text>
               <Flex
                 bg={m.colour ?? '#000'}
                 borderRadius="50%"
@@ -72,7 +72,7 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
           );
         })}
       </Flex>
-    </Box>
+    </Flex>
   );
 }
 

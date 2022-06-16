@@ -2,7 +2,7 @@ import React, { ReactElement, useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useMutation } from '@apollo/client';
 import { Box, Button, Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
-import { CREATE_ITEM } from 'renderer/queries';
+import { CREATE_ITEM, ITEMS_BY_FILTER, ITEM_BY_KEY } from 'renderer/queries';
 import { Icons } from 'renderer/assets/icons';
 import EditItemCreator from './EditItemCreator';
 import EditableText from './EditableText';
@@ -81,7 +81,7 @@ const ItemCreator = ({
     setShowItemCreator(initiallyExpanded);
   }, [initiallyExpanded]);
   const [createItem] = useMutation(CREATE_ITEM, {
-    refetchQueries: ['itemsByFilter', 'itemByKey'],
+    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY],
   });
 
   return (

@@ -49,6 +49,7 @@ export const ITEM_BY_KEY = gql`
       completedAt
       createdAt
       deletedAt
+      snoozedUntil
       repeat
       reminders {
         key
@@ -231,7 +232,7 @@ export const GET_ITEMS = gql`
   }
 `;
 
-export const GET_WEEKLY_ITEMS = gql`
+export const WEEKLY_ITEMS = gql`
   query weeklyItems($filter: String!, $componentKey: String!) {
     items: itemsByFilter(filter: $filter, componentKey: $componentKey) {
       key
@@ -272,12 +273,20 @@ export const GET_WEEKLY_ITEMS = gql`
   }
 `;
 
-export const SET_WEEKLY_GOAL = gql`
+export const CREATE_WEEKLY_GOAL = gql`
   mutation CreateWeeklyGoal($key: String!, $week: String!, $goal: String) {
     createWeeklyGoal(input: { key: $key, week: $week, goal: $goal }) {
       key
       week
       goal
+    }
+  }
+`;
+
+export const SNOOZE_ITEM = gql`
+  mutation SetSnoozeOfItem($key: String!, $snoozedUntil: DateTime!) {
+    setSnoozeOfItem(input: { key: $key, snoozedUntil: $snoozedUntil }) {
+      key
     }
   }
 `;

@@ -15,6 +15,8 @@ export const GET_AREA_BY_KEY = gql`
         key
         name
         description
+        startAt
+        endAt
         items {
           type
           key

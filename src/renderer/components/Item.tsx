@@ -1,4 +1,4 @@
-import { format, isPast, parseISO } from 'date-fns';
+import { format, isPast, parseISO, isFuture } from 'date-fns';
 import React, { ReactElement, useEffect, useState } from 'react';
 import { RRule } from 'rrule';
 import { get, isEmpty } from 'lodash';
@@ -139,7 +139,6 @@ function Item({
   hideCollapseIcon,
 }: ItemProps): ReactElement {
   const { colorMode } = useColorMode();
-  const theme = useTheme();
   const [moreButtonVisible, setMoreButtonVisible] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [subtasksVisible, setSubtasksVisible] = useState(true);
@@ -289,7 +288,7 @@ function Item({
       gridTemplateColumns={
         compact
           ? 'repeat(5, 1fr)'
-          : 'repeat(2, 30px) repeat(5, 1fr) repeat(1, 30px)'
+          : 'repeat(2, 30px) repeat(6, 1fr) repeat(1, 30px)'
       }
       gridTemplateRows="40px auto"
       gridTemplateAreas={
@@ -299,8 +298,8 @@ function Item({
             "parent       due          scheduled    repeat       project    "
            `
           : `
-            "collapse  complete  description  description  description  description description more"
-            ".         parent    parent       due          scheduled    repeat      project     reminder"
+            "collapse  complete  description  description  description  description description description more"
+            ".         parent    parent       due          scheduled    repeat      project     reminder snooze"
            `
       }
       outline="none"
@@ -495,9 +494,7 @@ function Item({
               <Icon
                 as={Icons.reminder}
                 color={
-                  isPast(parseISO(reminder.remindAt))
-                    ? theme?.colors?.red[400]
-                    : theme?.colors?.gray[600]
+                  isPast(parseISO(reminder.remindAt)) ? 'red.400' : 'gray.600'
                 }
               />
             </Flex>
@@ -505,6 +502,19 @@ function Item({
         )}
       </Box>
 
+      <Box gridArea="snooze">
+        {item.snoozedUntil && isFuture(parseISO(item.snoozedUntil)) && (
+          <Tooltip
+            label={`Snoozed until: ${formatRelativeDate(
+              parseISO(item?.snoozedUntil)
+            )}`}
+          >
+            <Flex justifyContent="center">
+              <Icon as={Icons.snooze} color={'gray.600'} />
+            </Flex>
+          </Tooltip>
+        )}
+      </Box>
       <Box gridArea="due">
         {item.dueAt != null && !hiddenIcons?.includes(ItemIcons.Due) && (
           <ItemAttribute

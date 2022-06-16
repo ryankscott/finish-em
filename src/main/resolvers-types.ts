@@ -14,7 +14,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  DateTime: Date;
+  DateTime: string;
   JSON: any;
 };
 
@@ -295,6 +295,7 @@ export type Item = {
   reminders?: Maybe<Array<Maybe<Reminder>>>;
   repeat?: Maybe<Scalars['String']>;
   scheduledAt?: Maybe<Scalars['DateTime']>;
+  snoozedUntil?: Maybe<Scalars['DateTime']>;
   sortOrders?: Maybe<Array<Maybe<ItemOrder>>>;
   text?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
@@ -403,6 +404,7 @@ export type Mutation = {
   setProjectOrder?: Maybe<ProjectOrder>;
   setRepeatOfItem?: Maybe<Item>;
   setScheduledAtOfItem?: Maybe<Item>;
+  setSnoozeOfItem?: Maybe<Item>;
   setStartDateOfProject?: Maybe<Project>;
   setViewOrder?: Maybe<ViewOrder>;
   unCompleteItem?: Maybe<Item>;
@@ -726,6 +728,11 @@ export type MutationSetRepeatOfItemArgs = {
 
 export type MutationSetScheduledAtOfItemArgs = {
   input: SetScheduledAtOfItemInput;
+};
+
+
+export type MutationSetSnoozeOfItemArgs = {
+  input: SetSnoozeOfItemInput;
 };
 
 
@@ -1113,6 +1120,11 @@ export type SetScheduledAtOfItemInput = {
   scheduledAt?: InputMaybe<Scalars['DateTime']>;
 };
 
+export type SetSnoozeOfItemInput = {
+  key: Scalars['String'];
+  snoozedUntil?: InputMaybe<Scalars['DateTime']>;
+};
+
 export type SetStartDateOfProjectInput = {
   key: Scalars['String'];
   startAt: Scalars['DateTime'];
@@ -1281,7 +1293,7 @@ export type ResolversTypes = ResolversObject<{
   Item: ResolverTypeWrapper<ItemEntity>;
   ItemOrder: ResolverTypeWrapper<ItemOrderEntity>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
-  Label: ResolverTypeWrapper<LabelEntity>;
+  Label: ResolverTypeWrapper< LabelEntity>;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
@@ -1319,6 +1331,7 @@ export type ResolversTypes = ResolversObject<{
   SetProjectOrderInput: SetProjectOrderInput;
   SetRepeatOfItemInput: SetRepeatOfItemInput;
   SetScheduledAtOfItemInput: SetScheduledAtOfItemInput;
+  SetSnoozeOfItemInput: SetSnoozeOfItemInput;
   SetStartDateOfProjectInput: SetStartDateOfProjectInput;
   SetViewOrderInput: SetViewOrderInput;
   String: ResolverTypeWrapper<Scalars['String']>;
@@ -1379,7 +1392,7 @@ export type ResolversParentTypes = ResolversObject<{
   Item: ItemEntity;
   ItemOrder: ItemOrderEntity;
   JSON: Scalars['JSON'];
-  Label: LabelEntity;
+  Label:  LabelEntity;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
@@ -1417,6 +1430,7 @@ export type ResolversParentTypes = ResolversObject<{
   SetProjectOrderInput: SetProjectOrderInput;
   SetRepeatOfItemInput: SetRepeatOfItemInput;
   SetScheduledAtOfItemInput: SetScheduledAtOfItemInput;
+  SetSnoozeOfItemInput: SetSnoozeOfItemInput;
   SetStartDateOfProjectInput: SetStartDateOfProjectInput;
   SetViewOrderInput: SetViewOrderInput;
   String: Scalars['String'];
@@ -1528,6 +1542,7 @@ export type ItemResolvers<ContextType = Context, ParentType extends ResolversPar
   reminders?: Resolver<Maybe<Array<Maybe<ResolversTypes['Reminder']>>>, ParentType, ContextType>;
   repeat?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   scheduledAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  snoozedUntil?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   sortOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType>;
   text?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   type?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -1617,6 +1632,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   setProjectOrder?: Resolver<Maybe<ResolversTypes['ProjectOrder']>, ParentType, ContextType, RequireFields<MutationSetProjectOrderArgs, 'input'>>;
   setRepeatOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetRepeatOfItemArgs, 'input'>>;
   setScheduledAtOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetScheduledAtOfItemArgs, 'input'>>;
+  setSnoozeOfItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationSetSnoozeOfItemArgs, 'input'>>;
   setStartDateOfProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationSetStartDateOfProjectArgs, 'input'>>;
   setViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationSetViewOrderArgs, 'input'>>;
   unCompleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationUnCompleteItemArgs, 'input'>>;

@@ -28,6 +28,9 @@ import {
   SET_EMOJI_OF_PROJECT,
   SET_END_DATE_OF_PROJECT,
   SET_START_DATE_OF_PROJECT,
+  GET_SIDEBAR,
+  GET_VIEW_BY_KEY,
+  GET_COMPONENT_BY_KEY,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { formatRelativeDate } from '../utils';
@@ -47,13 +50,13 @@ const Project = ({ projectKey }: ProjectProps) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const [deleteProject] = useMutation(DELETE_PROJECT, {
-    refetchQueries: ['GetSidebarData'],
+    refetchQueries: [GET_SIDEBAR],
   });
   const [changeDescription] = useMutation(SET_DESCRIPTION_OF_PROJECT, {
-    refetchQueries: ['ViewByKey'],
+    refetchQueries: [GET_VIEW_BY_KEY],
   });
   const [renameProject] = useMutation(RENAME_PROJECT, {
-    refetchQueries: ['getComponent'],
+    refetchQueries: [GET_COMPONENT_BY_KEY],
   });
   const [setEndDate] = useMutation(SET_END_DATE_OF_PROJECT);
   const [setStartDate] = useMutation(SET_START_DATE_OF_PROJECT);

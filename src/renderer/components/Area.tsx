@@ -13,7 +13,7 @@ import {
 import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
 import 'emoji-mart/css/emoji-mart.css';
-import { Project } from 'main/resolvers-types';
+import { Project } from '../../main/resolvers-types';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -59,7 +59,7 @@ const Area = (props: AreaProps): ReactElement => {
     console.log(error);
     return <></>;
   }
-  const { area, areas } = data;
+  const { area } = data;
 
   const determineProgress = (
     totalItemsCount: number,
@@ -206,6 +206,7 @@ const Area = (props: AreaProps): ReactElement => {
       </Text>
       <Flex direction="column" pb={10}>
         {area.projects.map((p: Project) => {
+          // Don't show inbox
           if (p.key === '0') return <></>;
           if (!p.items) return <></>;
           const totalItemsCount = p.items.length;
@@ -265,13 +266,13 @@ const Area = (props: AreaProps): ReactElement => {
                 </Flex>
               </GridItem>
               <GridItem gridTemplate="startAt">
-                <Text>
+                <Text fontSize={'sm'}>
                   {p.startAt &&
                     `Starting: ${formatRelativeDate(parseISO(p.startAt))}`}
                 </Text>
               </GridItem>
               <GridItem gridTemplate="endAt">
-                <Text>
+                <Text fontSize="sm">
                   {p.endAt &&
                     `Ending: ${formatRelativeDate(parseISO(p.endAt))}`}
                 </Text>
