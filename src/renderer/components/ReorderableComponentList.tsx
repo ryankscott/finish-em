@@ -307,7 +307,7 @@ const ReorderableComponentList = ({
                         }),
                         hiddenIcons: [],
                         isFilterable: true,
-                        listName: 'Created today',
+                        listName: 'Todo',
                         flattenSubtasks: true,
                         showCompletedToggle: true,
                         initiallyExpanded: true,

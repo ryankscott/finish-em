@@ -31,12 +31,9 @@ type ReorderableItemListProps = {
   filter: string;
   sortDirection: SortDirectionEnum;
   sortType: SortOption;
-  showCompleted: boolean;
   expandSubtasks: boolean;
   hiddenIcons: ItemIcons[] | undefined;
-  onItemsFetched: (
-    fetchedItems: [filteredItems: number, filteredButCompletedItems: number]
-  ) => void;
+  onItemsFetched: (fetchedItems: number) => void;
   hideCompletedSubtasks?: boolean;
   hideDeletedSubtasks?: boolean;
   flattenSubtasks?: boolean;
@@ -49,7 +46,6 @@ function ReorderableItemList({
   filter,
   sortDirection,
   sortType,
-  showCompleted,
   hideCompletedSubtasks,
   hideDeletedSubtasks,
   expandSubtasks,
@@ -84,9 +80,9 @@ function ReorderableItemList({
         );
         return { ...item, sortOrder };
       });
-      // TODO: This is really gnarly and should be refactored   
+      // TODO: This is really gnarly and should be refactored
       const sorted = orderBy(si, 'sortOrder.sortOrder', 'asc');
-      const filtered = sorted.filter((item) => {
+      const filteredItems = sorted.filter((item) => {
         if (item.snoozedUntil && isFuture(parseISO(item.snoozedUntil))) {
           // Sometimes we want to override this (e.g. show all snoozed)
           if (showSnoozedItems) {
@@ -98,19 +94,14 @@ function ReorderableItemList({
         return true;
       });
 
-      const uncompletedItems = filtered.filter((m) => m.completed === false);
-      const filteredItems = showCompleted ? uncompletedItems : filtered;
       setSortedItems(filteredItems);
 
       // Update listeners
       if (onItemsFetched) {
-        onItemsFetched([
-          filteredItems.length,
-          filtered.filter((m) => m.completed).length,
-        ]);
+        onItemsFetched(filteredItems.length);
       }
     }
-  }, [loading, data, showCompleted, componentKey]);
+  }, [loading, data, componentKey]);
 
   useEffect(() => {
     if (!sortedItems.length) return;

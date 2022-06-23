@@ -22,28 +22,17 @@ import SortDropdown, { SortDirectionEnum } from './SortDropdown';
 const determineVisibilityRules = (
   isFilterable: boolean,
   showItemList: boolean,
-  itemsLength: number,
-  completedItemsLength: number,
-  showCompletedToggle: boolean
+  itemsLength: number
 ): {
-  showCompletedToggle: boolean;
   showFilterBar: boolean;
-  showDeleteButton: boolean;
+
   showSortButton: boolean;
 } => {
   return {
-    // Show completed toggle if we have a completed item and we want to show the toggle
-    showCompletedToggle: completedItemsLength > 0 && showCompletedToggle,
     // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
-    showFilterBar:
-      isFilterable &&
-      (itemsLength > 0 || completedItemsLength > 0) &&
-      showItemList,
-    // Show delete button if we have at least one deleted item
-    showDeleteButton: completedItemsLength > 0 && showItemList,
+    showFilterBar: isFilterable && itemsLength > 0 && showItemList,
     // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
-    showSortButton:
-      (itemsLength >= 1 || completedItemsLength >= 1) && showItemList,
+    showSortButton: itemsLength >= 1 && showItemList,
   };
 };
 
@@ -65,15 +54,10 @@ export type FilteredItemListProps = {
   setEditing?: (editing: boolean) => void;
 };
 
-type ListItemLength = [filteredItems: number, filteredButCompleted: number];
-
-const determineItemListLengthString = (
-  itemsLength: ListItemLength | undefined
-): string => {
-  if (!itemsLength) {
+const determineItemListLengthString = (filteredItems: number): string => {
+  if (!filteredItems) {
     return '0 items';
   }
-  const filteredItems = itemsLength?.[0];
   return `${filteredItems}  ${filteredItems > 0 ? 'items' : 'item'}
   `;
 };
@@ -85,7 +69,6 @@ const FilteredItemList = ({
   listName,
   filter,
   flattenSubtasks,
-  showCompletedToggle,
   hideDeletedSubtasks,
   hideCompletedSubtasks,
   showSnoozedItems,
@@ -104,17 +87,14 @@ const FilteredItemList = ({
   const [sortDirection, setSortDirection] = useState(
     SortDirectionEnum.Ascending
   );
-  const [showCompleted, setShowCompleted] = useState(true);
   const [showItemList, setShowItemList] = useState(true);
-  const [itemsLength, setItemsLength] = useState<ListItemLength>();
+  const [itemsLength, setItemsLength] = useState<number>(0);
   const [expandSubtasks, setExpandSubtasks] = useState(true);
 
   const visibility = determineVisibilityRules(
     isFilterable ?? true,
     showItemList,
-    itemsLength?.[0],
-    itemsLength?.[1],
-    showCompletedToggle ?? true
+    itemsLength ?? 0
   );
   return (
     <Flex
@@ -188,52 +168,6 @@ const FilteredItemList = ({
           >
             {visibility.showFilterBar && (
               <>
-                {visibility.showCompletedToggle && (
-                  <Tooltip
-                    label={
-                      showCompleted
-                        ? 'Show completed items'
-                        : 'Hide completed items'
-                    }
-                  >
-                    <Box>
-                      <IconButton
-                        aria-label="toggle completed"
-                        size="sm"
-                        variant="default"
-                        icon={
-                          <Icon
-                            w={3}
-                            h={3}
-                            as={showCompleted ? Icons.hide : Icons.show}
-                          />
-                        }
-                        onClick={() => {
-                          setShowCompleted(!showCompleted);
-                        }}
-                      />
-                    </Box>
-                  </Tooltip>
-                )}
-                {visibility.showDeleteButton && (
-                  <Tooltip label="Delete completed items">
-                    <Box>
-                      <IconButton
-                        size="sm"
-                        aria-label="delete completed"
-                        variant="default"
-                        icon={<Icon w={3} h={3} as={Icons.trashSweep} />}
-                        onClick={() => {
-                          /* completedItems.forEach((c) => {
-                          if (c.parent?.key === null) {
-                            deleteItem({ variables: { key: c.key } })
-                          }
-                        }) */
-                        }}
-                      />
-                    </Box>
-                  </Tooltip>
-                )}
                 <Tooltip label="Expand all subtasks">
                   <Box>
                     <IconButton
@@ -278,7 +212,7 @@ const FilteredItemList = ({
           </Flex>
         </GridItem>
       </Grid>
-      {editing && componentKey !== INBOX_COMPONENT_KEY ? (
+      {editing && !readOnly && componentKey !== INBOX_COMPONENT_KEY ? (
         <EditFilteredItemList
           key={`dlg-${componentKey}`}
           componentKey={componentKey}
@@ -292,8 +226,8 @@ const FilteredItemList = ({
         showItemList && (
           <ReorderableItemList
             expandSubtasks={expandSubtasks}
-            onItemsFetched={(itemLengths) => {
-              setItemsLength(itemLengths);
+            onItemsFetched={(itemLength) => {
+              setItemsLength(itemLength);
             }}
             filter={filter}
             key={componentKey}
@@ -305,7 +239,6 @@ const FilteredItemList = ({
             sortDirection={sortDirection}
             sortType={sortType}
             flattenSubtasks={flattenSubtasks}
-            showCompleted={alwaysShowCompletedSubtasks ? true : showCompleted}
             shouldPoll={shouldPoll}
           />
         )
