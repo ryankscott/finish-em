@@ -298,7 +298,7 @@ class AppDatabase extends SQLDataSource {
   /* Projects */
   async getProjects(): Promise<ProjectEntity[]> {
     log.debug('Getting all projects');
-    return this.knex('project').select('*');
+    return this.knex('project').select('*').where({ deleted: false });
   }
 
   async getProject(key: string): Promise<ProjectEntity> {

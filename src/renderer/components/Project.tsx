@@ -31,6 +31,7 @@ import {
   GET_SIDEBAR,
   GET_VIEW_BY_KEY,
   GET_COMPONENT_BY_KEY,
+  GET_PROJECTS,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { formatRelativeDate } from '../utils';
@@ -50,7 +51,7 @@ const Project = ({ projectKey }: ProjectProps) => {
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const [deleteProject] = useMutation(DELETE_PROJECT, {
-    refetchQueries: [GET_SIDEBAR],
+    refetchQueries: [GET_SIDEBAR, GET_PROJECTS],
   });
   const [changeDescription] = useMutation(SET_DESCRIPTION_OF_PROJECT, {
     refetchQueries: [GET_VIEW_BY_KEY],

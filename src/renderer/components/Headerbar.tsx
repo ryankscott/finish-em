@@ -112,7 +112,6 @@ const Headerbar = (): ReactElement => {
 
   const searchOptions = generateSearchOptions(data.projects, data.items);
 
-  console.log(data);
   return (
     <Grid
       w="100%"
