@@ -1,8 +1,21 @@
-import React, { ReactElement, useState, useEffect, useRef } from 'react';
+import { ReactElement, useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useMutation } from '@apollo/client';
-import { Box, Button, Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
-import { CREATE_ITEM, ITEMS_BY_FILTER, ITEM_BY_KEY } from 'renderer/queries';
+import {
+  Box,
+  Button,
+  Flex,
+  Icon,
+  IconButton,
+  Tooltip,
+  useOutsideClick,
+} from '@chakra-ui/react';
+import {
+  CREATE_ITEM,
+  GET_HEADER_BAR_DATA,
+  ITEMS_BY_FILTER,
+  ITEM_BY_KEY,
+} from 'renderer/queries';
 import { Icons } from 'renderer/assets/icons';
 import EditItemCreator from './EditItemCreator';
 import EditableText from './EditableText';
@@ -14,7 +27,6 @@ export type ItemCreatorProps = {
   shouldCloseOnSubmit?: boolean;
   shouldCloseOnBlur?: boolean;
   parentKey?: string;
-  areaKey?: string;
   projectKey?: string | '0';
   dueAt?: Date;
   scheduledAt?: Date;
@@ -23,8 +35,6 @@ export type ItemCreatorProps = {
   buttonText?: string;
   width?: string;
   hideButton?: boolean;
-  backgroundColour?: string;
-  innerRef?: React.RefObject<HTMLInputElement>;
   onCreate?: () => void;
   onEscape?: () => void;
   editing?: boolean;
@@ -39,7 +49,6 @@ const ItemCreator = ({
   shouldCloseOnBlur,
   shouldCloseOnSubmit,
   parentKey,
-  areaKey,
   projectKey,
   dueAt,
   scheduledAt,
@@ -48,40 +57,26 @@ const ItemCreator = ({
   buttonText,
   width,
   hideButton,
-  backgroundColour,
-  innerRef,
   onCreate,
   onEscape,
   editing,
-  style,
   setEditing,
 }: ItemCreatorProps): ReactElement => {
   const [showItemCreator, setShowItemCreator] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
-  const node = useRef<HTMLDivElement>();
-  const handleClick = (e) => {
-    if (node?.current?.contains(e.target)) {
-      return;
-    }
-    setShowItemCreator(false);
-
-    if (shouldCloseOnBlur) {
+  useOutsideClick({
+    ref: ref,
+    handler: () => {
       setShowItemCreator(false);
-    }
-  };
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClick);
-    return () => {
-      document.removeEventListener('mousedown', handleClick);
-    };
-  }, []);
+    },
+  });
 
   useEffect(() => {
     setShowItemCreator(initiallyExpanded);
   }, [initiallyExpanded]);
   const [createItem] = useMutation(CREATE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY],
+    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY, GET_HEADER_BAR_DATA],
   });
 
   return (
@@ -100,8 +95,8 @@ const ItemCreator = ({
           px={1}
           overflowX="visible"
           m={1}
+          ref={ref}
           h="75px"
-          ref={node}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
               setShowItemCreator(false);
