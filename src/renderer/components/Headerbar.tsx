@@ -110,6 +110,9 @@ const Headerbar = (): ReactElement => {
     ];
   };
 
+  const searchOptions = generateSearchOptions(data.projects, data.items);
+
+  console.log(data);
   return (
     <Grid
       w="100%"
@@ -132,7 +135,7 @@ const Headerbar = (): ReactElement => {
             onChange={(selected) => {
               selected.value();
             }}
-            options={generateSearchOptions(data.projects, data.items)}
+            options={searchOptions}
             invertColours={colorMode === 'light'}
             fullWidth
           />
