@@ -46,6 +46,12 @@ const Inbox = (): ReactElement => {
                       value: false,
                     },
                     {
+                      field: 'completed',
+                      operator: '=',
+                      valueSource: 'value',
+                      value: false,
+                    },
+                    {
                       field: 'areaKey',
                       operator: 'null',
                       valueSource: 'value',
