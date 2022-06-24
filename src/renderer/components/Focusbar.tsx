@@ -31,7 +31,7 @@ import {
   WEEKLY_ITEMS,
 } from 'renderer/queries';
 import RRule from 'rrule';
-import { Item } from 'main/resolvers-types';
+import { Item as ItemType } from 'main/resolvers-types';
 import { activeItemVar, focusbarVisibleVar } from '../cache';
 import { Icons } from '../assets/icons';
 import { IconType, ItemIcons } from '../interfaces';
@@ -45,6 +45,7 @@ import LabelSelect from './LabelSelect';
 import ProjectSelect from './ProjectSelect';
 import RepeatPicker from './RepeatPicker';
 import ItemActionButton from './ItemActionButton';
+import Item from './Item';
 
 const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
@@ -55,6 +56,8 @@ const Focusbar = (): ReactElement => {
       key: activeItem.length ? activeItem[0] : '',
     },
   });
+
+  console.log(data);
 
   const [renameItem] = useMutation(RENAME_ITEM);
   const [completeItem] = useMutation(COMPLETE_ITEM, {
@@ -114,7 +117,13 @@ const Focusbar = (): ReactElement => {
     );
   }
 
-  const item: Item = data?.item;
+  const item: ItemType = data?.item;
+  console.log(item.children);
+  console.log(item?.children?.length > 0);
+  console.log(item.parent?.key);
+
+  console.log(item.children && item?.children?.length > 0);
+
   if (!item) return <></>;
 
   // TODO: Refactor me
@@ -374,10 +383,10 @@ const Focusbar = (): ReactElement => {
         </AttributeContainer>
       )}
 
-      {item.parent?.key === null && item.type === 'TODO' && (
+      {!item.parent?.key && (
         <>
           <Flex pt={6} pb={2} alignItems="baseline">
-            <Text fontSize="lg" px={2}>
+            <Text fontSize="md" px={2}>
               Subtasks
             </Text>
             {item.children && item.children?.length > 0 && (
