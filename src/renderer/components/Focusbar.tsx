@@ -57,8 +57,6 @@ const Focusbar = (): ReactElement => {
     },
   });
 
-  console.log(data);
-
   const [renameItem] = useMutation(RENAME_ITEM);
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER],
@@ -391,7 +389,8 @@ const Focusbar = (): ReactElement => {
             </Text>
             {item.children && item.children?.length > 0 && (
               <Text fontSize="sm" color="gray.600">
-                {item.children.length} items
+                {item.children.length} item
+                {item.children.length > 1 ? 's' : ''}
               </Text>
             )}
           </Flex>
