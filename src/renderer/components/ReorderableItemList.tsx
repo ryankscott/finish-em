@@ -183,6 +183,7 @@ function ReorderableItemList({
  */
 
   if (error) {
+    console.log(error);
     return (
       <FailedFilteredItemList
         componentKey={componentKey}

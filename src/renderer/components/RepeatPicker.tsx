@@ -106,7 +106,7 @@ const RepeatPicker = ({
     },
     {
       name: 'No repeat',
-      clickHandler: () => handleRepeatChange({ type: 'default', repeat: '' }),
+      clickHandler: () => handleRepeatChange({ type: 'default', repeat: null }),
     },
   ];
 
@@ -147,6 +147,7 @@ const RepeatPicker = ({
             ))}
           {repeatDialogVisible && (
             <RepeatDialog
+              repeat={repeat}
               onSubmit={(r) => {
                 onSubmit(r);
                 setRepeatDialogVisible(false);

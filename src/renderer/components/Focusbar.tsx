@@ -116,11 +116,6 @@ const Focusbar = (): ReactElement => {
   }
 
   const item: ItemType = data?.item;
-  console.log(item.children);
-  console.log(item?.children?.length > 0);
-  console.log(item.parent?.key);
-
-  console.log(item.children && item?.children?.length > 0);
 
   if (!item) return <></>;
 
@@ -172,9 +167,15 @@ const Focusbar = (): ReactElement => {
       bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
       transition="all 0.2s ease-in-out"
     >
-      <Grid templateColumns="repeat(5, 1fr)" width="100%" m={0} p={0}>
+      <Grid
+        templateColumns="repeat(5, 1fr)"
+        gridTemplateAreas={`"up . . . close"`}
+        width="100%"
+        m={0}
+        p={0}
+      >
         {item?.parent && (
-          <GridItem colSpan={1}>
+          <GridItem gridArea={'up'}>
             <Tooltip label="Up level">
               <IconButton
                 aria-label="up"
@@ -190,7 +191,7 @@ const Focusbar = (): ReactElement => {
             </Tooltip>
           </GridItem>
         )}
-        <GridItem colStart={5} colSpan={1}>
+        <GridItem gridArea={'close'}>
           <Flex justifyContent="flex-end">
             <IconButton
               aria-label="close"

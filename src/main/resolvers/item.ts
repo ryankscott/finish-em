@@ -141,6 +141,8 @@ const item: Partial<Resolvers> = {
 
     setScheduledAtOfItem: (_, { input }, { dataSources }) => {
       const { key, scheduledAt } = input;
+      console.log(typeof scheduledAt);
+      console.log(scheduledAt);
       return dataSources.apolloDb.setScheduledAtOfItem(
         key,
         scheduledAt ?? null

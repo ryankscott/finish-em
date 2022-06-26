@@ -22,6 +22,7 @@ import Sidebar from './Sidebar';
 import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
 import { Reminder } from '../../main/resolvers-types';
+import Zen from './Zen';
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
@@ -127,6 +128,7 @@ const App = (): ReactElement => {
             <Route path="/help" element={<Help />} />
             <Route path="/dailyAgenda" element={<DailyAgenda />} />
             <Route path="/inbox" element={<Inbox />} />
+            <Route path="/zen" element={<Zen />} />
             <Route path="/views/:id" element={<ViewWrapper />} />
             <Route path="/areas/:id" element={<AreaWrapper />} />
             <Route path="/Settings" element={<Settings />} />

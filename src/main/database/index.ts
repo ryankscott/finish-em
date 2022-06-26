@@ -841,21 +841,30 @@ class AppDatabase extends SQLDataSource {
     itemOrders: string[],
     componentKey: string
   ): Promise<ItemOrderEntity[]> {
-    log.debug(`Bulk creating itemOrders with componentKey: ${componentKey}`);
+    log.debug(
+      `Bulk creating ${itemOrders.length} itemOrders for componentKey: ${componentKey}`
+    );
     try {
       const maxSortOrder = await this.knex('itemOrder')
         .max('sortOrder as max')
         .where({ componentKey })
         .first();
 
+      console.log({ maxSortOrder });
+
+      const rowsToInsert = itemOrders.map((itemKey, idx) => ({
+        itemKey,
+        componentKey,
+        sortOrder: maxSortOrder ? maxSortOrder?.max + idx + 1 : 1,
+      }));
+
+      // Sqlite3 has a limit of 500 terms in a compound select (https://www.sqlite.org/limits.html)
       const inserted = await this.knex.batchInsert(
         'itemOrder',
-        itemOrders.map((itemKey, idx) => ({
-          itemKey,
-          componentKey,
-          sortOrder: maxSortOrder ? maxSortOrder?.max + idx + 1 : 1,
-        }))
+        rowsToInsert,
+        500
       );
+
       // TODO: I think this is the wrong return type
       if (!inserted) {
         log.error(`Failed to create itemOrders`);
@@ -867,7 +876,7 @@ class AppDatabase extends SQLDataSource {
         })
       );
     } catch (err) {
-      log.error(`Failed to  bulk create itemOrders with itemKeys} - ${err}`);
+      log.error(`Failed to  bulk create itemOrders with itemKeys - ${err}`);
       throw err;
     }
   }

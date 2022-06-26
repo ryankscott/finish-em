@@ -1,7 +1,6 @@
 import { ReactElement } from 'react';
-import { GroupType } from 'react-select';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { useQuery, useReactiveVar } from '@apollo/client';
 import { sortBy } from 'lodash';
 import {
   Flex,
@@ -17,7 +16,7 @@ import { Icons } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
 import CommandBar from './CommandBar';
-import { activeItemVar, focusbarVisibleVar } from '../cache';
+import { activeItemVar, focusbarVisibleVar, sidebarVisibleVar } from '../cache';
 import {
   removeItemTypeFromString,
   markdownLinkRegex,
@@ -47,6 +46,8 @@ const Headerbar = (): ReactElement => {
   const navigate = useNavigate();
   const { colorMode, toggleColorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_HEADER_BAR_DATA);
+  const activeItem = useReactiveVar(activeItemVar);
+
   if (loading) return <></>;
   if (error) {
     console.log(error);
@@ -57,6 +58,7 @@ const Headerbar = (): ReactElement => {
     label: string;
     icon: IconType;
     iconColour: string;
+    disabled?: boolean;
     onClickHandler: () => void;
   };
   const HeaderButton = ({
@@ -64,9 +66,11 @@ const Headerbar = (): ReactElement => {
     icon,
     iconColour,
     onClickHandler,
+    disabled,
   }: HeaderButtonProps) => (
     <Tooltip label={label}>
       <IconButton
+        disabled={disabled}
         aria-label={label}
         variant="dark"
         icon={<Icon as={Icons[icon]} h={4} w={4} />}
@@ -116,7 +120,7 @@ const Headerbar = (): ReactElement => {
     <Grid
       w="100%"
       alignItems="center"
-      gridTemplateColumns="1fr repeat(4, 35px)"
+      gridTemplateColumns="1fr repeat(5, 35px)"
       gridTemplateRows="50px"
       zIndex={999}
       color="gray.50"
@@ -172,6 +176,19 @@ const Headerbar = (): ReactElement => {
           icon={colorMode === 'light' ? 'darkMode' : 'lightMode'}
           iconColour={theme.colors.gray[100]}
           onClickHandler={toggleColorMode}
+        />
+      </HeaderItem>
+      <HeaderItem>
+        <HeaderButton
+          label="Zen mode"
+          icon={'zen'}
+          disabled={activeItem.length == 0}
+          iconColour={theme.colors.gray[100]}
+          onClickHandler={() => {
+            sidebarVisibleVar(false);
+            focusbarVisibleVar(false);
+            navigate('/zen/');
+          }}
         />
       </HeaderItem>
     </Grid>

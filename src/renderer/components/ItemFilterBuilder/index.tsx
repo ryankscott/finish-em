@@ -216,6 +216,7 @@ const ItemFilterBuilder = ({
   let inputQuery = { combinator: 'and', rules: [] };
   try {
     const parsedFilter = JSON.parse(defaultFilter);
+    console.log({ parsedFilter });
     // TODO: This is just in case somehow we get an old style filter
     if (!(Object.keys(parsedFilter)[0] === 'text')) {
       inputQuery = parsedFilter;

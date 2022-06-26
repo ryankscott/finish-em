@@ -1,5 +1,5 @@
-import { ReactElement, useState } from 'react';
-import RRule, { rrulestr } from 'rrule';
+import { ReactElement, useEffect, useState } from 'react';
+import RRule from 'rrule';
 import {
   NumberInput,
   NumberInputField,
@@ -21,21 +21,119 @@ import DatePicker from './DatePicker';
 import { formatRelativeDate } from '../utils';
 import { Icons } from '../assets/icons';
 
+type RepeatTimesInputProps = {
+  defaultValue: number;
+  onChange: (afterNumber: number) => void;
+};
+
+const RepeatTimesInput = ({
+  defaultValue,
+  onChange,
+}: RepeatTimesInputProps) => (
+  <Flex justifyContent="start" alignItems="center" w="100%" pl="5px">
+    <NumberInput
+      size="sm"
+      height="32px"
+      width="60px"
+      borderColor="transparent"
+      defaultValue={defaultValue}
+      min={1}
+      max={999}
+      borderRadius="5px"
+      _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }}
+      onChange={(_, n) => {
+        if (!Number.isNaN(n)) {
+          onChange(n);
+        }
+      }}
+    >
+      <NumberInputField
+        color="gray.900"
+        fontSize="md"
+        fontWeight="normal"
+        borderRadius="5px"
+        p={2}
+        _hover={{ borderColor: 'gray.100' }}
+      />
+    </NumberInput>
+    <Text fontSize="md" width="100%" lineHeight="32px" height="32px" pl={2}>
+      times
+    </Text>
+  </Flex>
+);
+
+type RepeatNumberInputProps = {
+  defaultValue: number;
+  onChange: (repeatNumber: number) => void;
+};
+const RepeatNumberInput = ({
+  defaultValue,
+  onChange,
+}: RepeatNumberInputProps) => (
+  <NumberInput
+    size="sm"
+    height="32px"
+    width="60px"
+    borderColor="transparent"
+    defaultValue={defaultValue}
+    max={999}
+    borderRadius="5px"
+    _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }}
+    onChange={(_, vn) => {
+      if (!Number.isNaN(vn)) {
+        onChange(vn);
+      }
+    }}
+  >
+    <NumberInputField
+      color="gray.900"
+      fontSize="md"
+      fontWeight="normal"
+      borderRadius="5px"
+      p={2}
+      _hover={{ borderColor: 'gray.100' }}
+    />
+  </NumberInput>
+);
+
 type RepeatDialogProps = {
+  repeat: RRule;
   onSubmit: (rule: RRule) => void;
 };
 
-const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
+type EndType = 'never' | 'on_a_date' | 'after_x_times';
+
+const RepeatDialog = ({
+  repeat,
+  onSubmit,
+}: RepeatDialogProps): ReactElement => {
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
-  const [repeatInterval, setRepeatInterval] = useState(1);
+  const [repeatInterval, setRepeatInterval] = useState<number>(1);
   const [repeatIntervalType, setRepeatIntervalType] = useState(RRule.WEEKLY);
-  const [endType, setEndType] = useState('never');
-  const [repeatNumber, setRepeatNumber] = useState(1);
+  const [endType, setEndType] = useState<EndType>('never');
+  const [repeatTimes, setRepeatTimes] = useState(1);
 
   const startDateText = startDate
     ? formatRelativeDate(startDate)
     : 'Start date';
+
+  useEffect(() => {
+    setStartDate(repeat.options.dtstart);
+    setRepeatInterval(repeat.options.interval);
+    setRepeatIntervalType(repeat.options.freq);
+
+    if (repeat.options.until) {
+      setEndType('on_a_date');
+      setEndDate(repeat.options.until);
+    }
+
+    if (repeat.options.count) {
+      setEndType('after_x_times');
+      setRepeatTimes(repeat.options.count);
+    }
+  }, [repeat]);
+
   const endDateText = endDate ? formatRelativeDate(endDate) : 'End date';
 
   const handleSubmit = (): void => {
@@ -62,7 +160,7 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
         freq: repeatIntervalType,
         interval: repeatInterval,
         dtstart: startDate,
-        count: repeatNumber,
+        count: repeatTimes,
         tzid: timezone,
       });
       onSubmit(r);
@@ -127,39 +225,21 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
       <Option>
         <Label>Starts: </Label>
         <DatePicker
-          text={startDateText}
           defaultText="Start date"
-          onSubmit={(val) => {
-            setStartDate(val);
-            console.log(val);
-          }}
+          text={startDateText}
+          onSubmit={(d) => setStartDate(d)}
           completed={false}
         />
       </Option>
       <Option>
         <Label>Repeats every: </Label>
+        <RepeatNumberInput
+          defaultValue={repeatInterval}
+          onChange={(n) => {
+            setRepeatInterval(n);
+          }}
+        />
         <Flex justifyContent="start" alignItems="center" w="100%" pl="5px">
-          <NumberInput
-            size="sm"
-            height="32px"
-            width="60px"
-            borderColor="transparent"
-            defaultValue={1}
-            min={1}
-            max={999}
-            borderRadius="5px"
-            _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }}
-            onChange={(s, n) => setRepeatInterval(n)}
-          >
-            <NumberInputField
-              color="gray.900"
-              fontSize="md"
-              fontWeight="normal"
-              borderRadius="5px"
-              p={2}
-              _hover={{ borderColor: 'gray.100' }}
-            />
-          </NumberInput>
           <Menu placement="bottom" gutter={0} arrowPadding={0}>
             <MenuButton
               height="32px"
@@ -225,38 +305,10 @@ const RepeatDialog = ({ onSubmit }: RepeatDialogProps): ReactElement => {
       {endType === 'after_x_times' && (
         <Option>
           <Label>After: </Label>
-          <Flex justifyContent="start" alignItems="center" w="100%" pl="5px">
-            <NumberInput
-              size="sm"
-              height="32px"
-              width="60px"
-              borderColor="transparent"
-              defaultValue={1}
-              min={1}
-              max={999}
-              borderRadius="5px"
-              _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }}
-              onChange={(_, n) => setRepeatNumber(n)}
-            >
-              <NumberInputField
-                color="gray.900"
-                fontSize="md"
-                fontWeight="normal"
-                borderRadius="5px"
-                p={2}
-                _hover={{ borderColor: 'gray.100' }}
-              />
-            </NumberInput>
-            <Text
-              fontSize="md"
-              width="100%"
-              lineHeight="32px"
-              height="32px"
-              pl={2}
-            >
-              times{' '}
-            </Text>
-          </Flex>
+          <RepeatTimesInput
+            defaultValue={repeatTimes}
+            onChange={(v) => setRepeatTimes(v)}
+          />
         </Option>
       )}
       {endType === 'on_a_date' && (

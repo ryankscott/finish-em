@@ -52,7 +52,8 @@ export type IconType =
   | 'bear'
   | 'darkMode'
   | 'lightMode'
-  | 'snooze';
+  | 'snooze'
+  | 'zen';
 
 export enum ItemIcons {
   Due = 'due',
