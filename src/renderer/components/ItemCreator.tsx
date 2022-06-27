@@ -160,7 +160,7 @@ const ItemCreator = ({
                     key: uuidv4(),
                     type: 'TODO',
                     text,
-                    projectKey,
+                    projectKey: projectKey ?? '0',
                     parentKey,
                     dueAt,
                     scheduledAt,
