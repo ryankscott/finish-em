@@ -49,7 +49,6 @@ export type FilteredItemListProps = {
   shouldPoll?: boolean;
   readOnly?: boolean;
   editing?: boolean;
-  alwaysShowCompletedTasks?: boolean;
   showSnoozedItems?: boolean;
   setEditing?: (editing: boolean) => void;
 };
@@ -75,7 +74,6 @@ const FilteredItemList = ({
   shouldPoll,
   readOnly,
   editing,
-  alwaysShowCompletedTasks: alwaysShowCompletedSubtasks,
   setEditing,
 }: FilteredItemListProps): ReactElement => {
   const { colorMode } = useColorMode();
