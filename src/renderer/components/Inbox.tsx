@@ -26,6 +26,7 @@ const Inbox = (): ReactElement => {
           <FilteredItemList
             componentKey={INBOX_COMPONENT_KEY}
             isFilterable
+            shouldPoll
             listName="Inbox"
             filter={JSON.stringify({
               combinator: 'and',
