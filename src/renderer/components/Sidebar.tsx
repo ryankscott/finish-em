@@ -308,14 +308,10 @@ const Sidebar = (): ReactElement => {
                                       </Draggable>
                                     );
                                   })}
-                                  {provided.placeholder}
-                                  {sidebarVisible && (
-                                    <Flex
-                                      w="100%"
-                                      justifyContent="center"
-                                      pb={2}
-                                    >
+                                  {sidebarVisible && !snapshot.isDraggingOver && (
+                                    <Flex w="100%" justifyContent="center">
                                       <Button
+                                        mb={2}
                                         size="sm"
                                         variant="dark"
                                         rightIcon={<Icon as={Icons.add} />}
@@ -347,44 +343,44 @@ const Sidebar = (): ReactElement => {
                     </Draggable>
                   );
                 })}
+                {sidebarVisible && !snapshot.isDraggingOver && (
+                  <Flex
+                    key={uuidv4()}
+                    mt={2}
+                    w="100%"
+                    justifyContent="center"
+                    bg="gray.800"
+                  >
+                    <Tooltip label="Add Area">
+                      <Box>
+                        <Button
+                          key={uuidv4()}
+                          variant="dark"
+                          size="md"
+                          rightIcon={<Icon as={Icons.add} />}
+                          onClick={async () => {
+                            const areaKey = uuidv4();
+                            await createArea({
+                              variables: {
+                                key: areaKey,
+                                name: getProductName(),
+                                description: '',
+                              },
+                            });
+
+                            navigate(`/views/${areaKey}`);
+                          }}
+                        >
+                          {sidebarVisible ? 'Add Area' : ''}
+                        </Button>
+                      </Box>
+                    </Tooltip>
+                  </Flex>
+                )}
               </SidebarDroppableItem>
             )}
           </Droppable>
         </DragDropContext>
-        {sidebarVisible && (
-          <Flex
-            key={uuidv4()}
-            mt={6}
-            w="100%"
-            justifyContent="center"
-            bg="gray.800"
-          >
-            <Tooltip label="Add Area">
-              <Box>
-                <Button
-                  key={uuidv4()}
-                  variant="dark"
-                  size="md"
-                  rightIcon={<Icon as={Icons.add} />}
-                  onClick={async () => {
-                    const areaKey = uuidv4();
-                    await createArea({
-                      variables: {
-                        key: areaKey,
-                        name: getProductName(),
-                        description: '',
-                      },
-                    });
-
-                    navigate(`/views/${areaKey}`);
-                  }}
-                >
-                  {sidebarVisible ? 'Add Area' : ''}
-                </Button>
-              </Box>
-            </Tooltip>
-          </Flex>
-        )}
       </VStack>
       <Stack
         key={uuidv4()}

@@ -3,7 +3,7 @@ import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { Emoji } from 'emoji-mart';
 import { NavLink } from 'react-router-dom';
-import { IconType } from 'renderer/interfaces';
+import { IconType } from '../interfaces';
 import { Icons } from '../assets/icons';
 import { createShortSidebarItem } from '../utils';
 

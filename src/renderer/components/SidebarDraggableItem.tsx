@@ -13,12 +13,12 @@ const SidebarDraggableItem = ({ snapshot, provided, children }: Props) => {
   return (
     <Flex
       direction="column"
-      justifyContent="center"
       w="100%"
       m={0}
       p={0}
       bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
       shadow={snapshot.isDragging ? 'lg' : 'none'}
+      border={snapshot.isDragging ? '1px solid gray.900' : 'none'}
       borderRadius="md"
       {...provided.draggableProps}
       {...provided.dragHandleProps}
