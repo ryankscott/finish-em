@@ -126,7 +126,7 @@ function ReorderableItemList({
     // Update storage to expand subtasks if that's what's being passed to the component
     const newState = cloneDeep(data?.subtasksVisible);
     sortedItems.forEach((a) => {
-      if (a?.children?.length > 0) {
+      if (a.children && a.children?.length > 0) {
         if (newState[a.key]) {
           newState[a.key][componentKey] = expandSubtasks;
         } else {
