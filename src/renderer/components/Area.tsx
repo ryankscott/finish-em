@@ -32,6 +32,7 @@ import { Donut } from './Donut';
 import EditableText from './EditableText';
 import FilteredItemList from './FilteredItemList';
 import Page from './Page';
+import { ItemIcons } from 'renderer/interfaces';
 
 type AreaProps = {
   areaKey: string;
@@ -192,6 +193,18 @@ const Area = (props: AreaProps): ReactElement => {
                   valueSource: 'value',
                   value: false,
                 },
+                {
+                  field: 'completed',
+                  operator: '=',
+                  valueSource: 'value',
+                  value: false,
+                },
+                {
+                  field: 'deleted',
+                  operator: '=',
+                  valueSource: 'value',
+                  value: false,
+                },
               ],
               not: false,
             },
@@ -199,6 +212,7 @@ const Area = (props: AreaProps): ReactElement => {
           not: false,
         })}
         flattenSubtasks
+        hiddenIcons={[ItemIcons.Project]}
         readOnly
       />
       <Text my={3} mt={6} fontSize="xl" color="blue.500">
