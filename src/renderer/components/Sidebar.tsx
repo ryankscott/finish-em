@@ -12,7 +12,7 @@ import {
   Icon,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
-import { Area, Project, View } from 'main/resolvers-types';
+import { Area, Project, View } from '../../main/resolvers-types';
 import { ReactElement, useEffect, useState } from 'react';
 import {
   DragDropContext,
@@ -197,7 +197,7 @@ const Sidebar = (): ReactElement => {
           {defaultViews.map((d) => {
             return (
               <SidebarItem
-                key={d.path}
+                key={d.text}
                 sidebarVisible={sidebarVisible}
                 iconName={d.iconName}
                 text={d.text}
@@ -208,7 +208,7 @@ const Sidebar = (): ReactElement => {
             );
           })}
           {sortedViews.map((view) => {
-            if (view.type === 'project' || view.type === 'area') return <></>;
+            if (view.type === 'project' || view.type === 'area') return null;
             return (
               <SidebarItem
                 variant="defaultView"
@@ -231,7 +231,7 @@ const Sidebar = (): ReactElement => {
           <Droppable key={uuidv4()} droppableId={uuidv4()} type="AREA">
             {(provided, snapshot) => (
               <SidebarDroppableItem
-                key={uuidv4()}
+                key={`sidebar-droppable-${uuidv4()}`}
                 sidebarVisible={sidebarVisible}
                 provided={provided}
                 snapshot={snapshot}
@@ -239,19 +239,20 @@ const Sidebar = (): ReactElement => {
                 {sortedAreas.map((a, index) => {
                   return (
                     <Draggable
-                      key={`draggable-${a.key}`}
+                      key={`draggable-${uuidv4()}`}
                       draggableId={a.key}
                       index={index}
                     >
                       {(draggableProvided, draggableSnapshot) => (
                         <SidebarDraggableItem
-                          key={`draggable-${a.key}`}
+                          key={`draggableitem-${uuidv4()}`}
                           provided={draggableProvided}
                           snapshot={draggableSnapshot}
                         >
-                          {!sidebarVisible && <Divider my={1} />}
+                          {!sidebarVisible && <Divider key={uuidv4()} my={1} />}
 
                           <SidebarItem
+                            key={`sidebar-item-${uuidv4()}`}
                             type="area"
                             variant="customView"
                             sidebarVisible={sidebarVisible}
@@ -261,19 +262,19 @@ const Sidebar = (): ReactElement => {
                           />
 
                           <Droppable
-                            key={a.key}
+                            key={`project-${uuidv4()}`}
                             droppableId={a.key}
                             type="PROJECT"
                           >
                             {(droppableProvided, droppableSnapshot) => (
                               <SidebarDroppableItem
-                                key={`${a.key}-droppable`}
+                                key={`sidebardroppable-${uuidv4()}`}
                                 sidebarVisible={sidebarVisible}
                                 provided={droppableProvided}
                                 snapshot={droppableSnapshot}
                               >
                                 <Box
-                                  key={`${a.key}-box`}
+                                  key={`box-${uuidv4()}`}
                                   px={sidebarVisible ? 2 : 0}
                                 >
                                   {sortedProjects.map((p, idx) => {
@@ -284,18 +285,18 @@ const Sidebar = (): ReactElement => {
                                     if (p?.area?.key !== a.key) return <></>;
                                     return (
                                       <Draggable
-                                        key={`draggable-${p.key}`}
+                                        key={`draggable-${uuidv4()}`}
                                         draggableId={p.key}
                                         index={idx}
                                       >
                                         {(providedProject, snapshotProject) => (
                                           <SidebarDraggableItem
-                                            key={`draggableitem-${p.key}`}
+                                            key={`draggableitem-${uuidv4()}`}
                                             provided={providedProject}
                                             snapshot={snapshotProject}
                                           >
                                             <SidebarItem
-                                              key={`draggablesidebaritem-${p.key}`}
+                                              key={`draggablesidebaritem-${uuidv4()}`}
                                               type="project"
                                               variant="customView"
                                               sidebarVisible={sidebarVisible}
@@ -309,11 +310,16 @@ const Sidebar = (): ReactElement => {
                                     );
                                   })}
                                   {sidebarVisible && !snapshot.isDraggingOver && (
-                                    <Flex w="100%" justifyContent="center">
+                                    <Flex
+                                      w="100%"
+                                      justifyContent="center"
+                                      key={`flex-${uuidv4()}`}
+                                    >
                                       <Button
                                         mb={2}
                                         size="sm"
                                         variant="dark"
+                                        key={`button-${uuidv4()}`}
                                         rightIcon={<Icon as={Icons.add} />}
                                         onClick={async () => {
                                           const projectKey = uuidv4();
@@ -351,8 +357,8 @@ const Sidebar = (): ReactElement => {
                     justifyContent="center"
                     bg="gray.800"
                   >
-                    <Tooltip label="Add Area">
-                      <Box>
+                    <Tooltip label="Add Area" key={uuidv4()}>
+                      <Box key={uuidv4()}>
                         <Button
                           key={uuidv4()}
                           variant="dark"

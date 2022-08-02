@@ -36,7 +36,7 @@ const SidebarItem = ({
   const isActive = window.location.pathname.includes(path);
   if (sidebarVisible) {
     return (
-      <Tooltip label={text}>
+      <Tooltip label={text} key={uuidv4()}>
         <StyledLink to={path}>
           <Flex
             key={uuidv4()}
@@ -82,7 +82,7 @@ const SidebarItem = ({
   }
 
   return (
-    <Tooltip label={text}>
+    <Tooltip label={text} key={uuidv4()}>
       <StyledLink to={path}>
         <Flex
           key={uuidv4()}

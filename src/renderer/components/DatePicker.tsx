@@ -119,11 +119,18 @@ const DatePicker = ({
         {dayPickerVisible && (
           <Box mt={-3} mb={-4} pb={-2}>
             <RDatePicker
-              // @ts-ignore
-              utcOffset={new Date().getTimezoneOffset()}
               inline
               tabIndex={0}
-              onChange={handleDayChange}
+              onChange={(d: Date) => {
+                const now = new Date();
+
+                // TODO: #430 This is a hack fix to add the current time to the date, this still doesn't fix the underlying problem
+                const dateWithTime = add(d, {
+                  hours: now.getHours(),
+                  minutes: now.getMinutes(),
+                });
+                handleDayChange(dateWithTime);
+              }}
             />
           </Box>
         )}
