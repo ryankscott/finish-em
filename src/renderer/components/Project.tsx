@@ -10,10 +10,8 @@ import {
   Text,
   Tooltip,
   useColorMode,
-  useTheme,
 } from '@chakra-ui/react';
 import { parseISO } from 'date-fns';
-import { Emoji, Picker } from 'emoji-mart';
 import { Item, Project as ProjectType } from 'main/resolvers-types';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -39,14 +37,15 @@ import DeleteProjectDialog from './DeleteProjectDialog';
 import { Donut } from './Donut';
 import EditableText from './EditableText';
 import ItemCreator from './ItemCreator';
-import './styled/ReactDatePicker.css';
+import EmojiPicker from './EmojiPicker';
+import EmojiDisplay from './EmojiDisplay';
+// import './styled/ReactDatePicker.css';
 
 type ProjectProps = {
   projectKey: string;
 };
 
 const Project = ({ projectKey }: ProjectProps) => {
-  const theme = useTheme();
   const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const [deleteProject] = useMutation(DELETE_PROJECT, {
@@ -64,7 +63,11 @@ const Project = ({ projectKey }: ProjectProps) => {
   const [deleteView] = useMutation(DELETE_VIEW);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  const { loading, error, data } = useQuery(GET_PROJECT_BY_KEY, {
+  const {
+    loading,
+    error,
+    data: projectData,
+  } = useQuery(GET_PROJECT_BY_KEY, {
     variables: { key: projectKey },
   });
 
@@ -73,7 +76,7 @@ const Project = ({ projectKey }: ProjectProps) => {
     console.log(error);
     return null;
   }
-  const { project, projects } = data;
+  const { project, projects, projectDates } = projectData;
   const allItems: Item[] = project?.items;
   const completedItems = allItems.filter((i) => i.completed === true);
   return (
@@ -107,20 +110,12 @@ const Project = ({ projectKey }: ProjectProps) => {
               setShowEmojiPicker(!showEmojiPicker);
             }}
           >
-            <Emoji
-              emoji={project.emoji ? project.emoji : ''}
-              size={68}
-              native
-            />
+            {project.emoji && <EmojiDisplay emojiId={project.emoji} />}
           </Flex>
         </GridItem>
         {showEmojiPicker && (
-          <Picker
-            native
-            title=""
-            emoji=""
-            color={theme.colors.blue[500]}
-            onSelect={(emoji) => {
+          <EmojiPicker
+            onEmojiSelected={(emoji) => {
               setEmoji({ variables: { key: project.key, emoji: emoji.id } });
               setShowEmojiPicker(false);
             }}
@@ -183,7 +178,7 @@ const Project = ({ projectKey }: ProjectProps) => {
           </Tooltip>
         </GridItem>
       </Grid>
-      {data.projectDates.enabled && (
+      {projectDates?.enabled && (
         <Flex direction="row" alignItems="center">
           <Text fontSize="md" px={2} fontWeight="medium">
             Starting:

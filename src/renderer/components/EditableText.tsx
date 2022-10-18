@@ -110,7 +110,7 @@ const EditableText = ({
 }: EditableText2Props): ReactElement => {
   const [editorHtml, setEditorHtml] = useState(input || '');
   const [isEditing, setIsEditing] = useState(false);
-  const quillRef = useRef<ReactQuill>();
+  const quillRef = useRef<ReactQuill>(null);
 
   const handleChange = (
     content: string,

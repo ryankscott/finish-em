@@ -11,7 +11,6 @@ import {
   Text,
   useColorMode,
   Tooltip,
-  useTheme,
   Icon,
   IconButton,
 } from '@chakra-ui/react';
@@ -23,7 +22,6 @@ import {
   RESTORE_ITEM,
   ITEMS_BY_FILTER,
 } from 'renderer/queries';
-import { Emoji } from 'emoji-mart';
 import { Icons } from '../assets/icons';
 import { ItemIcons } from '../interfaces';
 import {
@@ -45,6 +43,7 @@ import {
 import LoadingItem from './LoadingItem';
 import { Item as ItemType } from '../../main/resolvers-types';
 import ItemActionButton from './ItemActionButton';
+import EmojiDisplay from './EmojiDisplay';
 
 type ItemProps = {
   compact: boolean;
@@ -166,7 +165,7 @@ function Item({
     if (!project) return <></>;
 
     if (project?.emoji) {
-      return <Emoji emoji={project.emoji} size={12} native />;
+      return <EmojiDisplay emojiId={project.emoji} size={12} />;
     }
     if (compact) {
       return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>;

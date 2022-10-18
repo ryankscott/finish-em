@@ -1,11 +1,11 @@
 import { chakra, Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Emoji } from 'emoji-mart';
 import { NavLink } from 'react-router-dom';
 import { IconType } from '../interfaces';
 import { Icons } from '../assets/icons';
 import { createShortSidebarItem } from '../utils';
+import EmojiDisplay from './EmojiDisplay';
 
 type SidebarItemProps = {
   variant: 'defaultView' | 'customView';
@@ -61,7 +61,7 @@ const SidebarItem = ({
               <Icon as={Icons[iconName]} />
             )}
             {variant === 'customView' && emoji && (
-              <Emoji emoji={emoji} size={14} native />
+              <EmojiDisplay emojiId={emoji} size={14} />
             )}
             <Text
               key={uuidv4()}
@@ -107,7 +107,7 @@ const SidebarItem = ({
             <Icon as={Icons[iconName]} />
           )}
           {variant === 'customView' && emoji && (
-            <Emoji emoji={emoji} size={16} native />
+            <EmojiDisplay emojiId={emoji} size={16} />
           )}
           {variant === 'customView' && !emoji && (
             <Text textAlign="center" fontSize="md" color="gray.100">
