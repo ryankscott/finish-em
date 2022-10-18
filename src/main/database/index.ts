@@ -850,8 +850,6 @@ class AppDatabase extends SQLDataSource {
         .where({ componentKey })
         .first();
 
-      console.log({ maxSortOrder });
-
       const rowsToInsert = itemOrders.map((itemKey, idx) => ({
         itemKey,
         componentKey,
