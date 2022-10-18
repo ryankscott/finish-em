@@ -7,7 +7,6 @@ import {
   EditablePreview,
   Flex,
   FlexProps,
-  forwardRef,
   Icon,
   useColorMode,
 } from '@chakra-ui/react';
@@ -44,7 +43,7 @@ const generateIconOptions = (): {
     };
   });
 };
-const Setting = forwardRef<FlexProps, 'div'>((props, ref) => (
+const Setting = (props: FlexProps) => (
   <Flex
     py={1}
     px={1}
@@ -54,9 +53,9 @@ const Setting = forwardRef<FlexProps, 'div'>((props, ref) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-));
+);
 
-const SettingLabel = forwardRef<FlexProps, 'div'>((props, ref) => (
+const SettingLabel = (props: FlexProps) => (
   <Flex
     alignSelf="flex-start"
     color="gray.800"
@@ -69,9 +68,9 @@ const SettingLabel = forwardRef<FlexProps, 'div'>((props, ref) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-));
+);
 
-const SettingValue = forwardRef<FlexProps, 'div'>((props, ref) => (
+const SettingValue = (props: FlexProps) => (
   <Flex
     justifyContent="center"
     py={0}
@@ -82,7 +81,7 @@ const SettingValue = forwardRef<FlexProps, 'div'>((props, ref) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-));
+);
 
 const EditViewHeader = ({
   componentKey,

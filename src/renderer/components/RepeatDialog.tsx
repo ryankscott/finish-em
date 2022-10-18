@@ -13,7 +13,6 @@ import {
   Icon,
   FlexProps,
   TextProps,
-  forwardRef,
 } from '@chakra-ui/react';
 import lowerCase from 'lodash/lowerCase';
 import upperFirst from 'lodash/upperFirst';
@@ -191,7 +190,7 @@ const RepeatDialog = ({
     }
   };
 
-  const Label = forwardRef<TextProps, 'p'>((props, ref) => (
+  const Label = (props: TextProps) => (
     <Text
       fontSize="md"
       w="20%"
@@ -199,9 +198,9 @@ const RepeatDialog = ({
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
     />
-  ));
+  );
 
-  const Option = forwardRef<FlexProps, 'div'>((props, ref) => (
+  const Option = (props: FlexProps) => (
     <Flex
       w="100%"
       justifyContent="space-between"
@@ -209,7 +208,7 @@ const RepeatDialog = ({
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
     />
-  ));
+  );
 
   return (
     <Flex

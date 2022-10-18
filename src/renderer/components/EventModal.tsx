@@ -11,7 +11,6 @@ import {
   Link,
   Button,
   FlexProps,
-  forwardRef,
   Icon,
 } from '@chakra-ui/react';
 import { format, parseISO, sub } from 'date-fns';
@@ -36,7 +35,7 @@ interface Props {
   onClose: () => void;
 }
 
-const AttributeContainer = forwardRef<FlexProps, 'div'>((props, ref) => (
+const AttributeContainer = (props: FlexProps) => (
   <Flex
     direction="row"
     alignItems="flex-start"
@@ -47,9 +46,9 @@ const AttributeContainer = forwardRef<FlexProps, 'div'>((props, ref) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-));
+);
 
-const AttributeKey = forwardRef<FlexProps, 'div'>((props, ref) => (
+const AttributeKey = (props: FlexProps) => (
   <Flex
     direction="row"
     justifyContent="flex-start"
@@ -60,9 +59,9 @@ const AttributeKey = forwardRef<FlexProps, 'div'>((props, ref) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-));
+);
 
-const AttributeValue = forwardRef<FlexProps, 'div'>((props, ref) => (
+const AttributeValue = (props: FlexProps) => (
   <Flex
     justifyContent="flex-start"
     alignItems="flex-start"
@@ -74,7 +73,7 @@ const AttributeValue = forwardRef<FlexProps, 'div'>((props, ref) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-));
+);
 
 const EventModal = ({ event, isOpen, onClose }: Props) => {
   const { loading, error, data } = useQuery(GET_FEATURES);
