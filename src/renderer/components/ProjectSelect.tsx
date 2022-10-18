@@ -1,5 +1,4 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
-import 'emoji-mart/css/emoji-mart.css';
 import { GET_PROJECTS } from '../queries';
 import { groupBy } from 'lodash';
 import { Emoji } from 'emoji-mart';

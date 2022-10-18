@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
-import 'emoji-mart/css/emoji-mart.css';
 import { transparentize } from 'polished';
 import { GET_LABELS } from 'renderer/queries';
 import { Label } from '../../main/generated/typescript-helpers';

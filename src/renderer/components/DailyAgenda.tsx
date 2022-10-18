@@ -21,7 +21,7 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react';
-import v5 from 'uuid/v5';
+import { v5 } from 'uuid';
 import { cloneDeep, sortBy, uniqBy } from 'lodash';
 import RRule from 'rrule';
 import { GET_DAILY_EVENTS } from 'renderer/queries/dailyagenda';

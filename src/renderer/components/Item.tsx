@@ -371,7 +371,6 @@ function Item({
             mx={0}
             my={2}
             fontSize="md"
-            isTruncated
             textDecoration={item.completed ? 'line-through' : 'initial'}
             color={determineTextColour(item.deleted, colorMode)}
             sx={{

@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react';
 import { parseISO } from 'date-fns';
 import { Emoji, Picker } from 'emoji-mart';
-import 'emoji-mart/css/emoji-mart.css';
 import { Item, Project as ProjectType } from 'main/resolvers-types';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
