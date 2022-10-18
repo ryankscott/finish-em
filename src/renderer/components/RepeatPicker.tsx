@@ -29,7 +29,6 @@ const RepeatPicker = ({
   repeat,
   onSubmit,
   completed,
-  onEscape,
   deleted,
 }: RepeatPickerProps): ReactElement => {
   const [showMenu, setShowMenu] = useState(false);
@@ -125,6 +124,7 @@ const RepeatPicker = ({
         borderRadius="md"
         width="100%"
         textAlign="start"
+        fontWeight="normal"
         variant="default"
         onClick={() => {
           setShowMenu(!showMenu);
