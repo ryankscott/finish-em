@@ -15,7 +15,9 @@
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "test": "jest",
     "prepare": "husky install",
-    "generate": "graphql-codegen && npx @rmp135/sql-ts -c ./sqlite.json"
+    "generate": "graphql-codegen && npx @rmp135/sql-ts -c ./sqlite.json",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -145,7 +147,17 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@chakra-ui/storybook-addon": "^4.0.12",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.4",
+    "@storybook/addon-actions": "^6.5.12",
+    "@storybook/addon-essentials": "^6.5.12",
+    "@storybook/addon-interactions": "^6.5.12",
+    "@storybook/addon-links": "^6.5.12",
+    "@storybook/builder-webpack5": "^6.5.12",
+    "@storybook/manager-webpack5": "^6.5.12",
+    "@storybook/react": "^6.5.12",
+    "@storybook/testing-library": "^0.0.13",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^13.4.0",
@@ -163,6 +175,7 @@
     "@types/webpack-env": "^1.16.3",
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
+    "babel-loader": "^8.2.5",
     "browserslist-config-erb": "^0.0.3",
     "chalk": "^4.1.2",
     "concurrently": "^6.5.1",
@@ -284,8 +297,6 @@
     "node": ">=14.x",
     "npm": ">=7.x"
   },
-  "collective": {},
-  "browserslist": [],
   "prettier": {
     "overrides": [
       {

@@ -161,9 +161,6 @@ const ReorderableComponentList = ({
                         draggableId={comp.key}
                         index={index}
                         isDragDisabled={false}
-                        _hover={{
-                          shadow: 'sm',
-                        }}
                       >
                         {(provided, snapshot) => (
                           <Flex

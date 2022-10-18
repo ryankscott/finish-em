@@ -112,7 +112,7 @@ const ItemCreator = ({
                     size="md"
                     variant="primary"
                     icon={<Icon as={Icons.add} />}
-                    color="#FFF"
+                    color="white"
                     onClick={() => {
                       setShowItemCreator(!showItemCreator);
                     }}
@@ -122,7 +122,7 @@ const ItemCreator = ({
                     size="md"
                     variant="primary"
                     leftIcon={<Icon as={Icons.add} />}
-                    color="#FFF"
+                    color="white"
                     onClick={() => {
                       setShowItemCreator(!showItemCreator);
                     }}
