@@ -120,7 +120,7 @@ const Headerbar = (): ReactElement => {
     <Grid
       w="100%"
       alignItems="center"
-      gridTemplateColumns="1fr repeat(5, 35px)"
+      gridTemplateColumns="1fr repeat(4, 35px)"
       gridTemplateRows="50px"
       zIndex={999}
       color="gray.50"
@@ -176,19 +176,6 @@ const Headerbar = (): ReactElement => {
           icon={colorMode === 'light' ? 'darkMode' : 'lightMode'}
           iconColour={theme.colors.gray[100]}
           onClickHandler={toggleColorMode}
-        />
-      </HeaderItem>
-      <HeaderItem>
-        <HeaderButton
-          label="Zen mode"
-          icon={'zen'}
-          disabled={activeItem.length == 0}
-          iconColour={theme.colors.gray[100]}
-          onClickHandler={() => {
-            sidebarVisibleVar(false);
-            focusbarVisibleVar(false);
-            navigate('/zen/');
-          }}
         />
       </HeaderItem>
     </Grid>
