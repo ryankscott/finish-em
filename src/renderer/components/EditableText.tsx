@@ -112,15 +112,16 @@ const EditableText = ({
 }: EditableTextProps): ReactElement => {
   const [editorHtml, setEditorHtml] = useState(input || '');
   const [isEditing, setIsEditing] = useState(false);
-  let quillRef = null;
-  let reactQuillRef: ReactQuill | null = null;
+  const editorRef = useRef<ReactQuill>(null);
 
   useEffect(() => {
-    if (typeof reactQuillRef.getEditor !== 'function') return;
-    quillRef = reactQuillRef.getEditor();
-  });
+    if (shouldBlurOnSubmit) {
+      editorRef?.current.blur();
+      setIsEditing(false);
+    }
+  }, [input]);
 
-  const handleChange = (content: string, delta: Delta) => {
+  const handleChange = (content: string, delta) => {
     const lastOp = delta.ops[delta.ops.length - 1];
     const lastChar = lastOp?.insert?.charCodeAt(0);
 
@@ -131,11 +132,13 @@ const EditableText = ({
       }
       // TODO: Need to blur on submit
       onUpdate(editorHtml);
+
+      if (shouldBlurOnSubmit) {
+        editorRef?.current.blur();
+        setIsEditing(false);
+      }
     } else {
       setEditorHtml(content);
-    }
-    if (shouldBlurOnSubmit) {
-      quillRef?.blur();
     }
   };
 
@@ -146,7 +149,11 @@ const EditableText = ({
     setIsEditing(false);
   };
 
-  const handleFocus = () => {
+  const handleFocus = (_, source, __) => {
+    if (source === 'silent') {
+      setIsEditing(false);
+      return;
+    }
     if (readOnly) return;
     setIsEditing(true);
   };
@@ -175,9 +182,7 @@ const EditableText = ({
       borderRadius="md"
     >
       <ReactQuill
-        ref={(el) => {
-          reactQuillRef = el;
-        }}
+        ref={editorRef}
         className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}
         theme="snow"
         onChange={handleChange}
