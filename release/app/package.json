@@ -10,9 +10,12 @@
   "scripts": {
     "electron-rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts",
-    "postinstall": "npm run electron-rebuild && npm run link-modules"
+    "postinstall": "npm run electron-rebuild && npm run link-modules",
+    "generate": "npx @rmp135/sql-ts -c ../../sqlite.json"
   },
   "dependencies": {
+    "@rmp135/sql-ts": "^1.15.1",
+    "@vscode/sqlite3": "^5.0.8",
     "datasource-sql": "^2.0.1",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.8",
