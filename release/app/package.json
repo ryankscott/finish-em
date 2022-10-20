@@ -13,6 +13,7 @@
     "postinstall": "npm run electron-rebuild && npm run link-modules"
   },
   "dependencies": {
+    "datasource-sql": "^2.0.1",
     "sqlite": "^4.0.23",
     "sqlite3": "^5.0.8",
     "xcall": "^1.0.4"
