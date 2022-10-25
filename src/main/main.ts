@@ -333,7 +333,7 @@ function createMainWindow() {
   mainWindow.loadURL(
     isDev
       ? 'http://localhost:1212/'
-      : `file://${path.join(__dirname, '../renderer/index.html/')}`
+      : `file://${path.join(__dirname, '../renderer/index.html')}`
   );
 
   // Open dev tools

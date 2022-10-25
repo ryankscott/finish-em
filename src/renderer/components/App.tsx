@@ -138,6 +138,7 @@ const App = (): ReactElement => {
             <Route path="/Settings" element={<Settings />} />
             <Route path="/weeklyAgenda" element={<WeeklyAgenda />} />
             <Route path="/" element={<Inbox />} />
+            <Route path="*" element={<Inbox />} />
           </Routes>
         </Flex>
         <Focusbar />
