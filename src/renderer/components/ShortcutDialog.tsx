@@ -7,17 +7,21 @@ import {
   ModalCloseButton,
   ModalHeader,
 } from '@chakra-ui/react';
-import { useReactiveVar } from '@apollo/client';
+import { AppState, useAppStore } from 'renderer/state';
 import shortcutsText from '../assets/shortcuts.md';
-import { shortcutDialogVisibleVar } from '../cache';
 
 const ShortcutDialog = () => {
-  const shortcutDialogVisible = useReactiveVar(shortcutDialogVisibleVar);
+  const [shortcutDialogVisible, setShortcutDialogVisible] = useAppStore(
+    (state: AppState) => [
+      state.shortcutDialogVisible,
+      state.setShortcutDialogVisible,
+    ]
+  );
   return (
     <Modal
-      isOpen={shortcutDialogVisible.valueOf()}
+      isOpen={shortcutDialogVisible}
       onClose={() => {
-        shortcutDialogVisibleVar(false);
+        setShortcutDialogVisible(false);
       }}
     >
       <ModalOverlay />

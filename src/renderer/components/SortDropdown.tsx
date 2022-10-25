@@ -13,9 +13,10 @@ import {
   useBreakpointValue,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
-import RRule from 'rrule';
+import { RRule } from 'rrule';
 import { Icons } from '../assets/icons';
-import { Item as ItemType } from '../../main/generated/typescript-helpers';
+import { Item as ItemType } from 'main/resolvers-types';
+import { parseISO } from 'date-fns';
 
 export enum SortDirectionEnum {
   Ascending = 'asc',
@@ -130,7 +131,11 @@ function SortDropdown({
                   items: ItemType[],
                   direction: SortDirectionEnum
                 ): ItemType[] =>
-                  orderBy(items, [(i) => new Date(i.dueAt)], direction),
+                  orderBy(
+                    items,
+                    [(i) => new Date(parseISO(i.dueAt ?? ''))],
+                    direction
+                  ),
               })
             }
           >
@@ -144,7 +149,11 @@ function SortDropdown({
                   items: ItemType[],
                   direction: SortDirectionEnum
                 ): ItemType[] =>
-                  orderBy(items, [(i) => new Date(i.scheduledAt)], direction),
+                  orderBy(
+                    items,
+                    [(i) => new Date(parseISO(i.scheduledAt ?? ''))],
+                    direction
+                  ),
               })
             }
           >
@@ -172,7 +181,11 @@ function SortDropdown({
                   items: ItemType[],
                   direction: SortDirectionEnum
                 ): ItemType[] =>
-                  orderBy(items, [(i) => new Date(i.createdAt)], direction),
+                  orderBy(
+                    items,
+                    [(i) => new Date(parseISO(i.createdAt ?? ''))],
+                    direction
+                  ),
               })
             }
           >
@@ -186,7 +199,11 @@ function SortDropdown({
                   items: ItemType[],
                   direction: SortDirectionEnum
                 ): ItemType[] =>
-                  orderBy(items, [(i) => new Date(i.lastUpdatedAt)], direction),
+                  orderBy(
+                    items,
+                    [(i) => new Date(parseISO(i.lastUpdatedAt ?? ''))],
+                    direction
+                  ),
               })
             }
           >

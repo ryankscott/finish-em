@@ -3,34 +3,34 @@ import { useTheme } from '@chakra-ui/system';
 import { CSSObject } from '@emotion/react';
 import * as CSS from 'csstype';
 import { darken } from 'polished';
+import { DropdownIndicatorProps, MultiValue, SingleValue } from 'react-select';
 import RSelect, {
   ActionMeta,
   ClearIndicatorProps,
   components,
   ControlProps,
-  IndicatorProps,
-  Option,
-  OptionsType,
-  OptionTypeBase,
 } from 'react-select';
 import { v4 as uuidv4 } from 'uuid';
 import { Icons } from '../assets/icons';
 
+type OptionType = { [key: string]: any };
+type OptionsType = Array<OptionType>;
+
 interface Props {
-  options: OptionsType<OptionTypeBase>;
+  options: OptionsType;
   placeholder: string;
   onChange: (val: any) => void;
   isDisabled?: boolean;
   autoFocus?: boolean;
   escapeClearsValue?: boolean;
-  defaultValue?: OptionTypeBase;
+  defaultValue?: OptionType;
   isMulti?: boolean;
   invertColours?: boolean;
   fullWidth?: boolean;
   renderLabelAsElement?: boolean;
 }
 
-const DropdownIndicator = (props: IndicatorProps<any>) => {
+const DropdownIndicator = (props: DropdownIndicatorProps) => {
   return (
     <components.DropdownIndicator {...props}>
       <Icon as={Icons.collapse} w={3} h={3} />
@@ -145,7 +145,7 @@ const Select = (props: Props) => {
 
       menu: (styles: CSSObject) => ({
         ...styles,
-        margin: '0px 0px',
+        margin: `${theme.space[1]} 0px`,
         padding: '5px 0px',
         backgroundColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {
@@ -205,7 +205,7 @@ const Select = (props: Props) => {
           fontWeight: 500,
         },
       }),
-      placeholder: (styles, { isDisabled }) => ({
+      placeholder: (styles, { isDisabled: boolean }) => ({
         ...styles,
         backgroundColor: 'transparent',
         color: ((invertColour: boolean | undefined) => {
@@ -380,7 +380,10 @@ const Select = (props: Props) => {
       key={uuidv4()}
       autoFocus={autoFocus}
       isDisabled={isDisabled}
-      onChange={(newValue: Option, actionMeta: ActionMeta<Option>) => {
+      onChange={(
+        newValue: MultiValue<OptionType> | SingleValue<OptionType>,
+        actionMeta: ActionMeta<OptionType>
+      ) => {
         if (
           actionMeta.action === 'select-option' ||
           actionMeta.action === 'remove-value' ||
@@ -404,7 +407,7 @@ const Select = (props: Props) => {
       isSearchable
       defaultValue={defaultValue}
       placeholder={placeholder}
-      formatOptionLabel={(data: OptionsType) => {
+      formatOptionLabel={(data: OptionType) => {
         return renderLabelAsElement ? (
           <span>{data.label}</span>
         ) : (

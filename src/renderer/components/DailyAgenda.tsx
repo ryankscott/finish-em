@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ReactElement, useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import {
@@ -21,12 +20,12 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react';
-import v5 from 'uuid/v5';
+import { v5 } from 'uuid';
 import { cloneDeep, sortBy, uniqBy } from 'lodash';
-import RRule from 'rrule';
+import { RRule } from 'rrule';
 import { GET_DAILY_EVENTS } from 'renderer/queries/dailyagenda';
 import ReorderableComponentList from './ReorderableComponentList';
-import { Event } from '../../main/generated/typescript-helpers';
+import { Event } from 'main/resolvers-types';
 import FilteredItemList from './FilteredItemList';
 import EventModal from './EventModal';
 import { Icons } from '../assets/icons';
@@ -44,7 +43,7 @@ const getSortedEventsForToday = (
     if (!e.recurrence) {
       return e;
     }
-    const startDate = parseJSON(e.startAt);
+    const startDate = parseJSON(e.startAt ?? '');
     /*
       If you don't have a start date for a recurrence
       RRULE will just use the time now, so you've got to manually
@@ -66,7 +65,7 @@ const getSortedEventsForToday = (
   });
   // Only get events today
   const eventsToday = allEvents.filter((e: Event) => {
-    return isSameDay(parseISO(e.startAt), currentDate);
+    return isSameDay(parseISO(e.startAt ?? ''), currentDate);
   });
 
   // Remove duplicates
@@ -88,13 +87,9 @@ const DailyAgenda = (): ReactElement => {
 
   const offset = new Date().getTimezoneOffset();
   useEffect(() => {
-    // @ts-ignore
-    window.electron.ipcRenderer.onReceiveMessage(
-      'events-refreshed',
-      (event, arg) => {
-        console.log('refreshed events');
-      }
-    );
+    window.electronAPI.ipcRenderer.onReceiveMessage('events-refreshed', () => {
+      console.log('refreshed events');
+    });
   }, []);
 
   const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134';
@@ -190,10 +185,10 @@ const DailyAgenda = (): ReactElement => {
                     key={`time-${e.key}`}
                   >
                     {`${format(
-                      sub(parseISO(e.startAt), { minutes: offset }),
+                      sub(parseISO(e.startAt ?? ''), { minutes: offset }),
                       'h:mm aa'
                     )} - ${format(
-                      sub(parseISO(e.endAt), { minutes: offset }),
+                      sub(parseISO(e.endAt ?? ''), { minutes: offset }),
                       'h:mm aa'
                     )}`}
                   </Text>

@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import { add, sub, lastDayOfWeek } from 'date-fns';
 import RDatePicker from 'react-datepicker';
+import './styled/ReactDatePicker.css';
 import { Icons } from '../assets/icons';
 
 type DatePickerProps = {
@@ -33,7 +34,6 @@ const DatePicker = ({
   text,
   defaultText,
   deleted,
-  onEscape,
   forceDark,
 }: DatePickerProps): ReactElement => {
   const [dayPickerVisible, setDayPickerVisible] = useState(false);
@@ -85,7 +85,7 @@ const DatePicker = ({
   ];
 
   return (
-    <Menu matchWidth>
+    <Menu flip={false} offset={[0, 4]} placement={'bottom-end'}>
       <MenuButton
         as={Button}
         w="100%"
@@ -93,7 +93,6 @@ const DatePicker = ({
         fontSize="md"
         rightIcon={<Icon p={0} m={0} as={Icons.collapse} />}
         borderRadius="md"
-        width="100%"
         justifyContent="space-between"
         onClick={() => {
           setShowMenu(!showMenu);

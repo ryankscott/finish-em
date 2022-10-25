@@ -15,9 +15,9 @@ import {
 } from '@chakra-ui/react';
 import { format, parseISO, sub } from 'date-fns';
 import { gql, useQuery } from '@apollo/client';
-import RRule from 'rrule';
+import { RRule } from 'rrule';
 import { Icons } from 'renderer/assets/icons';
-import { Event } from '../../main/generated/typescript-helpers';
+import { Event } from 'main/resolvers-types';
 import { capitaliseFirstLetter } from '../utils';
 
 const GET_FEATURES = gql`
@@ -194,10 +194,10 @@ ${event?.attendees
 ## Action Items:
 `;
                   // @ts-ignore
-                  window.electron.ipcRenderer.sendMessage('create-bear-note', {
+                  window.electronAPI.ipcRenderer.createBearNote(
                     title,
-                    content: contents,
-                  });
+                    contents
+                  );
                 }}
               >
                 Create note

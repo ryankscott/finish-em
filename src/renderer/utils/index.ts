@@ -9,7 +9,7 @@ import {
   isYesterday,
 } from 'date-fns';
 import emojiRegexText from 'emoji-regex';
-import RRule from 'rrule';
+import { RRule } from 'rrule';
 
 export const itemRegex = /^(TODO|NOTE)\b/i;
 export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/gi;
@@ -299,9 +299,8 @@ export const getProductName = (): string => {
     'Chips',
   ];
 
-  return `${adjective[Math.floor(Math.random() * adjective.length)]} ${
-    material[Math.floor(Math.random() * material.length)]
-  } ${product[Math.floor(Math.random() * product.length)]}`;
+  return `${adjective[Math.floor(Math.random() * adjective.length)]} ${material[Math.floor(Math.random() * material.length)]
+    } ${product[Math.floor(Math.random() * product.length)]}`;
 };
 
 export const getProductDescription = (): string => {

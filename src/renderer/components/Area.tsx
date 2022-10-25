@@ -8,11 +8,7 @@ import {
   GridItem,
   Text,
   useColorMode,
-  useTheme,
 } from '@chakra-ui/react';
-import { parseISO } from 'date-fns';
-import { Emoji, Picker } from 'emoji-mart';
-import 'emoji-mart/css/emoji-mart.css';
 import { Project } from '../../main/resolvers-types';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +29,8 @@ import EditableText from './EditableText';
 import FilteredItemList from './FilteredItemList';
 import Page from './Page';
 import { ItemIcons } from 'renderer/interfaces';
+import EmojiPicker from './EmojiPicker';
+import EmojiDisplay from './EmojiDisplay';
 
 type AreaProps = {
   areaKey: string;
@@ -40,7 +38,6 @@ type AreaProps = {
 const Area = (props: AreaProps): ReactElement => {
   const { areaKey } = props;
   const navigate = useNavigate();
-  const theme = useTheme();
   const { colorMode } = useColorMode();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [setEmoji] = useMutation(SET_EMOJI);
@@ -83,7 +80,7 @@ const Area = (props: AreaProps): ReactElement => {
         gridTemplateColumns="110px 1fr"
         gridTemplateAreas={`
         "emoji name"
-        "emoji _"`}
+        "emoji ."`}
         py={2}
         px={0}
       >
@@ -106,16 +103,12 @@ const Area = (props: AreaProps): ReactElement => {
               setShowEmojiPicker(!showEmojiPicker);
             }}
           >
-            <Emoji emoji={area.emoji ? area.emoji : ''} size={68} native />
+            {area?.emoji && <EmojiDisplay emojiId={area.emoji} />}
           </Flex>
         </GridItem>
         {showEmojiPicker && (
-          <Picker
-            native
-            title=""
-            emoji=""
-            color={theme.colors.blue[500]}
-            onSelect={async (emoji) => {
+          <EmojiPicker
+            onEmojiSelected={async (emoji) => {
               await setEmoji({ variables: { key: area.key, emoji: emoji.id } });
               setShowEmojiPicker(false);
               refetch();
@@ -233,6 +226,7 @@ const Area = (props: AreaProps): ReactElement => {
           );
           return (
             <Grid
+              key={p.key}
               position="relative"
               transition="all 0.1s ease-in-out"
               maxH="200px"
@@ -259,15 +253,12 @@ const Area = (props: AreaProps): ReactElement => {
                 borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
                 opacity: 0.8,
               }}
-              key={p.key}
               onClick={() => {
                 navigate(`/views/${p.key}`);
               }}
               templateColumns="35px repeat(4, auto)"
               templateRows="auto"
-              gridTemplateAreas={`
-                  "progress project project startAt endAt"
-                 `}
+              gridTemplateAreas={`"progress project project startAt endAt"`}
             >
               <GridItem gridTemplate="progress">
                 <Donut size={18} progress={progress} />
@@ -281,14 +272,12 @@ const Area = (props: AreaProps): ReactElement => {
               </GridItem>
               <GridItem gridTemplate="startAt">
                 <Text fontSize={'sm'}>
-                  {p.startAt &&
-                    `Starting: ${formatRelativeDate(parseISO(p.startAt))}`}
+                  {p.startAt && `Starting: ${formatRelativeDate(p.startAt)}`}
                 </Text>
               </GridItem>
               <GridItem gridTemplate="endAt">
                 <Text fontSize="sm">
-                  {p.endAt &&
-                    `Ending: ${formatRelativeDate(parseISO(p.endAt))}`}
+                  {p.endAt && `Ending: ${formatRelativeDate(p.endAt)}`}
                 </Text>
               </GridItem>
             </Grid>

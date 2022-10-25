@@ -161,9 +161,6 @@ const ReorderableComponentList = ({
                         draggableId={comp.key}
                         index={index}
                         isDragDisabled={false}
-                        _hover={{
-                          shadow: 'sm',
-                        }}
                       >
                         {(provided, snapshot) => (
                           <Flex
@@ -195,24 +192,21 @@ const ReorderableComponentList = ({
                               top={0}
                               w="100%"
                               zIndex={100}
+                              borderTopLeftRadius={'md'}
+                              borderTopRightRadius={'md'}
                               opacity={0}
-                              borderRadius="none"
-                              borderTopLeftRadius="md"
-                              borderTopRightRadius="md"
-                              border="1px solid"
-                              borderBottom="none"
                               borderColor={
                                 colorMode === 'light' ? 'gray.200' : 'gray.700'
                               }
                               _active={{
-                                opacity: 1,
+                                opacity: 0.6,
                                 bg:
                                   colorMode === 'light'
                                     ? 'gray.100'
                                     : 'gray.900',
                               }}
                               _hover={{
-                                opacity: 1,
+                                opacity: 0.6,
                                 bg:
                                   colorMode === 'light'
                                     ? 'gray.100'
@@ -221,7 +215,7 @@ const ReorderableComponentList = ({
                               // eslint-disable-next-line react/jsx-props-no-spreading
                               {...provided.dragHandleProps}
                             >
-                              <Icon as={Icons.drag} />
+                              <Icon as={Icons.drag} opacity={1} />
                             </Flex>
                             <ComponentActions
                               readOnly={false}
@@ -285,7 +279,10 @@ const ReorderableComponentList = ({
                                   field: 'projectKey',
                                   operator: '=',
                                   valueSource: 'value',
-                                  value: data.view.key,
+                                  value:
+                                    data.view.type == 'project'
+                                      ? data.view.key
+                                      : '0',
                                 },
                                 {
                                   field: 'deleted',

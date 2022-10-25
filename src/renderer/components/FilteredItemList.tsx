@@ -94,6 +94,9 @@ const FilteredItemList = ({
     showItemList,
     itemsLength ?? 0
   );
+
+  if (!colorMode) return <></>;
+
   return (
     <Flex
       direction="column"
@@ -149,10 +152,10 @@ const FilteredItemList = ({
             my={0}
             alignItems="baseline"
           >
-            <Text fontSize="lg" isTruncated pr={2}>
+            <Text fontSize="lg" pr={2}>
               {listName}
             </Text>
-            <Text fontSize="sm" py={0} isTruncated w="60px" color="gray.500">
+            <Text fontSize="sm" py={0} w="60px" color="gray.500">
               {determineItemListLengthString(itemsLength)}
             </Text>
           </Flex>

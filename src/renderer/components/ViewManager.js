@@ -9,7 +9,6 @@ const ViewManager = (props) => {
     quickAdd: <QuickAdd />,
   };
 
-  console.log(props);
   const name = props.location.search.substr(1);
   if (name === '') {
     return view['main'];

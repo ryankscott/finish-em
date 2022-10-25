@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { gql, useMutation, useQuery } from '@apollo/client';
-import React, { ReactElement, useState } from 'react';
+import { ReactElement, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import colormap from 'colormap';
-import { HexColorPicker } from 'react-colorful';
 import {
   Box,
   Flex,
@@ -13,10 +11,8 @@ import {
   Editable,
   EditableInput,
   EditablePreview,
-  useOutsideClick,
   Button,
   Icon,
-  IconButton,
   ColorMode,
 } from '@chakra-ui/react';
 import {
@@ -34,6 +30,7 @@ import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
 import { camelCaseToInitialCaps } from '../utils';
 import { Calendar, Label } from 'main/resolvers-types';
+import LabelEdit from './LabelEdit';
 
 const NUMBER_OF_COLOURS = 12;
 
@@ -101,18 +98,7 @@ const generateOptions = (
 };
 
 const Settings = (): ReactElement => {
-  const ref = React.createRef<HTMLDivElement>();
-  const [showColourPicker, setShowColourPicker] = useState<boolean>(false);
-  const [colourPickerTriggeredBy, setColourPickerTriggeredBy] =
-    useState<Label>();
   const [activeCategory, setActiveCategory] = useState('UI');
-
-  useOutsideClick({
-    ref,
-    handler: () => {
-      setShowColourPicker(false);
-    },
-  });
 
   const { loading, error, data } = useQuery<FeaturesAndLabels>(
     GET_FEATURES_AND_LABELS
@@ -122,9 +108,7 @@ const Settings = (): ReactElement => {
     refetchQueries: [GET_FEATURES_AND_LABELS],
   });
   const [setFeatureMetadata] = useMutation(SET_FEATURE_METADATA);
-  const [renameLabel] = useMutation(RENAME_LABEL, {
-    refetchQueries: [GET_FEATURES_AND_LABELS],
-  });
+  const [renameLabel] = useMutation(RENAME_LABEL, {});
   const [setColourOfLabel] = useMutation(RECOLOUR_LABEL);
   const [deleteLabel] = useMutation(DELETE_LABEL, {
     update(cache, { data: { deleteLabel } }) {
@@ -226,14 +210,9 @@ const Settings = (): ReactElement => {
                       size="sm"
                       onChange={() => {
                         // @ts-ignore
-                        window.electron.ipcRenderer.sendMessage(
-                          'feature-toggled',
-                          {
-                            name: feature.name,
-                            key: feature.key,
-                            enabled: !feature.enabled,
-                            metadata: feature.metadata,
-                          }
+                        window.electronAPI.ipcRenderer.toggleFeature(
+                          feature.name,
+                          !feature.enabled
                         );
                         setFeature({
                           variables: {
@@ -269,16 +248,6 @@ const Settings = (): ReactElement => {
                         <Editable
                           defaultValue={JSON.parse(feature?.metadata)?.apiToken}
                           onSubmit={(val) => {
-                            // @ts-ignore
-                            window.electron.ipcRenderer.sendMessage(
-                              'feature-metadata-updated',
-                              {
-                                name: feature.name,
-                                key: feature.key,
-                                enabled: feature.enabled,
-                                metadata: { apiToken: val },
-                              }
-                            );
                             setFeatureMetadata({
                               variables: {
                                 key: feature.key,
@@ -313,81 +282,27 @@ const Settings = (): ReactElement => {
             {Object.values(data.labels).map((label: Label) => {
               return (
                 <Flex id={label.key} key={`f-${label.key}`} my={0.5}>
-                  <Flex
-                    w="250px"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    height="auto"
-                    key={`lc-${label.key}`}
-                  >
-                    <Editable
-                      mx={2}
-                      defaultValue={label.name ?? 'Label'}
-                      fontSize="sm"
-                      w="100%"
-                      onBlur={(e) => {
-                        renameLabel({
-                          // @ts-ignore
-                          variables: { key: label.key, name: e.target.value },
-                        });
-                      }}
-                      onSubmit={(input) => {
-                        renameLabel({
-                          variables: { key: label.key, name: input },
-                        });
-                      }}
-                      submitOnBlur={false}
-                    >
-                      <EditablePreview p={2} py={1} fontSize="sm" />
-                      <EditableInput p={2} py={1} />
-                    </Editable>
-                    <Flex
-                      bg={label.colour ?? '#000'}
-                      cursor="pointer"
-                      minW="24px"
-                      minH="24px"
-                      borderRadius="50%"
-                      borderWidth="3px"
-                      borderColor="gray.100"
-                      id={`${label.key}-edit`}
-                      key={`edit-colour-${label.key}`}
-                      onClick={(e) => {
-                        setShowColourPicker(!showColourPicker);
-                        setColourPickerTriggeredBy(label);
-                        e.stopPropagation();
-                      }}
-                    />
-                    <IconButton
-                      size="sm"
-                      mx={2}
-                      variant="ghost"
-                      aria-label="delete label"
-                      id={`${label.key}-delete`}
-                      key={`delete-label-${label.key}`}
-                      icon={<Icon as={Icons.trash} />}
-                      onClick={() => {
-                        deleteLabel({ variables: { key: label.key } });
-                      }}
-                    />
-                  </Flex>
+                  <LabelEdit
+                    name={label.name ?? ''}
+                    colour={label.colour ?? '#F00F00'}
+                    renameLabel={(name) => {
+                      renameLabel({
+                        // @ts-ignore
+                        variables: { key: label.key, name: name },
+                      });
+                    }}
+                    deleteLabel={() => {
+                      deleteLabel({ variables: { key: label.key } });
+                    }}
+                    colourChange={(colour) => {
+                      setColourOfLabel({
+                        variables: { key: label.key, colour: colour },
+                      });
+                    }}
+                  />
                 </Flex>
               );
             })}
-            {showColourPicker && (
-              <Flex w="200px" ref={ref} position="absolute" zIndex={99}>
-                <HexColorPicker
-                  color={colourPickerTriggeredBy?.colour ?? '#000'}
-                  onChange={(colour) => {
-                    setColourOfLabel({
-                      variables: {
-                        key: colourPickerTriggeredBy?.key,
-                        colour,
-                      },
-                    });
-                  }}
-                />
-              </Flex>
-            )}
             <Flex w="185px" justifyContent="center" pt={3}>
               <Button
                 variant="default"

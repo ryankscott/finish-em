@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from 'react';
-import RRule from 'rrule';
+import { RRule } from 'rrule';
 import {
   NumberInput,
   NumberInputField,
@@ -136,8 +136,6 @@ const RepeatDialog = ({
   const endDateText = endDate ? formatRelativeDate(endDate) : 'End date';
 
   const handleSubmit = (): void => {
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
     // This is terrible and I hate it. Because the RRULE library seems to be doing some sort of time conversion
     // and I haven't worked out what it is, I'm going to hack this by manually setting the hours.
     // This means when it changes the timezone from local to UTC it should always end up with the same date
@@ -151,7 +149,6 @@ const RepeatDialog = ({
         interval: repeatInterval,
         dtstart: startDate,
         until: endDate,
-        tzid: timezone,
       });
       onSubmit(r);
     } else if (endType === 'after_x_times') {
@@ -160,7 +157,6 @@ const RepeatDialog = ({
         interval: repeatInterval,
         dtstart: startDate,
         count: repeatTimes,
-        tzid: timezone,
       });
       onSubmit(r);
     } else {
@@ -168,10 +164,8 @@ const RepeatDialog = ({
         freq: repeatIntervalType,
         interval: repeatInterval,
         dtstart: startDate,
-        tzid: timezone,
       });
       onSubmit(r);
-      console.log(r);
     }
   };
 

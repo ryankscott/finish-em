@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
-import 'emoji-mart/css/emoji-mart.css';
 import { groupBy } from 'lodash';
 import { ReactElement } from 'react';
 import { GET_ITEMS } from 'renderer/queries';

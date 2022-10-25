@@ -266,10 +266,6 @@ export const WEEKLY_ITEMS = gql`
       week
       goal
     }
-    newEditor: featureByName(name: "newEditor") {
-      key
-      enabled
-    }
   }
 `;
 

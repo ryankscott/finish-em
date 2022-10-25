@@ -1,4 +1,4 @@
-import { ReactElement, useRef, useState } from 'react';
+import { ReactElement, useEffect, useRef, useState } from 'react';
 import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import MarkdownShortcuts from 'quill-markdown-shortcuts';
@@ -26,7 +26,7 @@ Link.sanitize = function (url) {
 };
 Quill.register(Link, true);
 
-type EditableText2Props = {
+type EditableTextProps = {
   singleLine: boolean;
   shouldSubmitOnBlur: boolean;
   shouldClearOnSubmit: boolean;
@@ -39,6 +39,7 @@ type EditableText2Props = {
   input?: string;
   readOnly?: boolean;
   onEscape?: () => void;
+  shouldBlurOnSubmit?: boolean;
 };
 
 const generateModules = (hideToolbar: boolean, singleLine: boolean) => {
@@ -107,17 +108,21 @@ const EditableText = ({
   showBorder,
   hideToolbar,
   placeholder,
-}: EditableText2Props): ReactElement => {
-  const [editorHtml, setEditorHtml] = useState(input || '');
+  shouldBlurOnSubmit,
+}: EditableTextProps): ReactElement => {
+  const [editorHtml, setEditorHtml] = useState<string>(input ?? '');
   const [isEditing, setIsEditing] = useState(false);
-  const quillRef = useRef<ReactQuill>();
+  const editorRef = useRef<ReactQuill>(null);
 
-  const handleChange = (
-    content: string,
-    delta: Delta,
-    source: Sources,
-    editor: ReactQuill.UnprivilegedEditor
-  ) => {
+  useEffect(() => {
+    if (shouldBlurOnSubmit) {
+      editorRef?.current.blur();
+      setIsEditing(false);
+    }
+    setEditorHtml(input ?? '');
+  }, [input]);
+
+  const handleChange = (content: string, delta: Delta) => {
     const lastOp = delta.ops[delta.ops.length - 1];
     const lastChar = lastOp?.insert?.charCodeAt(0);
 
@@ -126,9 +131,13 @@ const EditableText = ({
       if (shouldClearOnSubmit) {
         setEditorHtml('');
       }
-      quillRef.current?.blur();
       // TODO: Need to blur on submit
       onUpdate(editorHtml);
+
+      if (shouldBlurOnSubmit) {
+        editorRef?.current.blur();
+        setIsEditing(false);
+      }
     } else {
       setEditorHtml(content);
     }
@@ -141,7 +150,11 @@ const EditableText = ({
     setIsEditing(false);
   };
 
-  const handleFocus = () => {
+  const handleFocus = (_, source, __) => {
+    if (source === 'silent') {
+      setIsEditing(false);
+      return;
+    }
     if (readOnly) return;
     setIsEditing(true);
   };
@@ -158,7 +171,7 @@ const EditableText = ({
     <Box
       position="relative"
       height="auto"
-      minH={height || 'auto'}
+      minH={height || '37px'}
       mb="30px"
       width={width || '100%'}
       maxW="100%"
@@ -170,10 +183,11 @@ const EditableText = ({
       borderRadius="md"
     >
       <ReactQuill
-        ref={quillRef}
+        ref={editorRef}
         className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}
         theme="snow"
         onChange={handleChange}
+        defaultValue={input}
         value={editorHtml}
         modules={generateModules(hideToolbar ?? false, singleLine)}
         formats={formats}

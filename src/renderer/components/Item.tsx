@@ -1,30 +1,30 @@
-import { format, isPast, parseISO, isFuture } from 'date-fns';
-import React, { ReactElement, useEffect, useState } from 'react';
-import { RRule } from 'rrule';
-import { get, isEmpty } from 'lodash';
-import {
-  Box,
-  Grid,
-  Tag,
-  TagLabel,
-  Flex,
-  Text,
-  useColorMode,
-  Tooltip,
-  useTheme,
-  Icon,
-  IconButton,
-} from '@chakra-ui/react';
 import { useMutation, useQuery } from '@apollo/client';
 import {
+  Box,
+  Flex,
+  Grid,
+  Icon,
+  IconButton,
+  Tag,
+  TagLabel,
+  Text,
+  Tooltip,
+  useColorMode,
+} from '@chakra-ui/react';
+import { format, isFuture, isPast, parseISO } from 'date-fns';
+import { get, isEmpty } from 'lodash';
+import React, { ReactElement, useEffect, useState } from 'react';
+import {
   COMPLETE_ITEM,
-  ITEM_BY_KEY,
-  UNCOMPLETE_ITEM,
-  RESTORE_ITEM,
   ITEMS_BY_FILTER,
+  ITEM_BY_KEY,
+  RESTORE_ITEM,
+  UNCOMPLETE_ITEM,
 } from 'renderer/queries';
-import { Emoji } from 'emoji-mart';
+import { RRule } from 'rrule';
+import { Item as ItemType } from '../../main/resolvers-types';
 import { Icons } from '../assets/icons';
+import { AppState, useAppStore } from 'renderer/state';
 import { ItemIcons } from '../interfaces';
 import {
   capitaliseFirstLetter,
@@ -35,16 +35,11 @@ import {
   rruleToText,
   truncateString,
 } from '../utils';
-import ItemAttribute from './ItemAttribute';
-import MoreDropdown from './MoreDropdown';
-import {
-  activeItemVar,
-  focusbarVisibleVar,
-  subtasksVisibleVar,
-} from '../cache';
-import LoadingItem from './LoadingItem';
-import { Item as ItemType } from '../../main/resolvers-types';
+import EmojiDisplay from './EmojiDisplay';
 import ItemActionButton from './ItemActionButton';
+import ItemAttribute from './ItemAttribute';
+import LoadingItem from './LoadingItem';
+import MoreDropdown from './MoreDropdown';
 
 type ItemProps = {
   compact: boolean;
@@ -87,17 +82,20 @@ const determineBackgroundColour = (
 // Check if the item should be visible, based on a parent hiding subtasks
 const determineItemVisiblility = (
   parentKey: string,
-  componentKey: string
+  componentKey: string,
+  visibleSubtasks: Record<string, Record<string, boolean>>,
+  setVisibleSubtasks: (
+    visibleSubtasks: Record<string, Record<string, boolean>>
+  ) => void
 ): boolean => {
-  const subtasksVisible = subtasksVisibleVar();
-  if (!parentKey || !componentKey || isEmpty(subtasksVisible)) return true;
+  if (!parentKey || !componentKey || isEmpty(visibleSubtasks)) return true;
   // If the item has a parent, then check if the parent is hidden
   if (parentKey) {
-    const parentVisibility = subtasksVisible?.[parentKey]?.[componentKey];
+    const parentVisibility = visibleSubtasks?.[parentKey]?.[componentKey];
     // If the parent doesn't have visibility then set it to true
     if (parentVisibility === undefined) {
-      subtasksVisibleVar({
-        ...subtasksVisibleVar(),
+      setVisibleSubtasks({
+        ...visibleSubtasks,
         [parentKey]: { [componentKey]: true },
       });
       return true;
@@ -113,16 +111,19 @@ const determineItemVisiblility = (
 // Determine if any subtasks of the item should be visible
 const determineSubtasksVisibility = (
   itemKey: string,
-  componentKey: string
+  componentKey: string,
+  visibleSubtasks: Record<string, Record<string, boolean>>,
+  setVisibleSubtasks: (
+    visibleSubtasks: Record<string, Record<string, boolean>>
+  ) => void
 ): boolean => {
-  const subtasksVisible = subtasksVisibleVar();
-  if (!itemKey || !componentKey || isEmpty(subtasksVisible)) return true;
+  if (!itemKey || !componentKey || isEmpty(visibleSubtasks)) return true;
 
-  const subtaskVisibility = subtasksVisible?.[itemKey]?.[componentKey];
+  const subtaskVisibility = visibleSubtasks?.[itemKey]?.[componentKey];
   if (subtaskVisibility === undefined) {
     // Default to visible
-    subtasksVisibleVar({
-      ...subtasksVisibleVar(),
+    setVisibleSubtasks({
+      ...visibleSubtasks,
       [itemKey]: { [componentKey]: true },
     });
     return true;
@@ -142,6 +143,21 @@ function Item({
   const [moreButtonVisible, setMoreButtonVisible] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [subtasksVisible, setSubtasksVisible] = useState(true);
+  const [
+    activeItemIds,
+    setActiveItemIds,
+    focusbarVisible,
+    setFocusbarVisible,
+    globalVisibleSubtasks,
+    setGlobalVisibleSubtasks,
+  ] = useAppStore((state: AppState) => [
+    state.activeItemIds,
+    state.setActiveItemIds,
+    state.focusbarVisible,
+    state.setFocusbarVisible,
+    state.visibleSubtasks,
+    state.setVisibleSubtasks,
+  ]);
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER],
@@ -166,7 +182,7 @@ function Item({
     if (!project) return <></>;
 
     if (project?.emoji) {
-      return <Emoji emoji={project.emoji} size={12} native />;
+      return <EmojiDisplay emojiId={project.emoji} size={12} />;
     }
     if (compact) {
       return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>;
@@ -185,12 +201,22 @@ function Item({
   useEffect(() => {
     if (!data) return;
     setIsVisible(
-      determineItemVisiblility(data.item?.parent?.key ?? '', componentKey)
+      determineItemVisiblility(
+        data.item?.parent?.key ?? '',
+        componentKey,
+        globalVisibleSubtasks,
+        setGlobalVisibleSubtasks
+      )
     );
     setSubtasksVisible(
-      determineSubtasksVisibility(data.item?.key, componentKey)
+      determineSubtasksVisibility(
+        data.item?.key,
+        componentKey,
+        globalVisibleSubtasks,
+        setGlobalVisibleSubtasks
+      )
     );
-  }, [data, itemKey, componentKey, subtasksVisibleVar()]);
+  }, [data, itemKey, componentKey, globalVisibleSubtasks]);
 
   let enterInterval: NodeJS.Timer;
   let exitInterval: NodeJS.Timer;
@@ -259,16 +285,16 @@ function Item({
   const handleExpand: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.stopPropagation();
     const currentValue = get(
-      subtasksVisibleVar(),
+      globalVisibleSubtasks,
       `${item.key}.${componentKey}`,
       false
     );
 
     const newSubState = { [item.key]: { [componentKey]: !currentValue } };
-    subtasksVisibleVar({ ...subtasksVisibleVar(), ...newSubState });
+    setGlobalVisibleSubtasks({ ...globalVisibleSubtasks, ...newSubState });
   };
 
-  const isFocused = activeItemVar().findIndex((i) => i === item.key) >= 0;
+  const isFocused = activeItemIds.findIndex((i) => i === item.key) >= 0;
   const reminder = item?.reminders?.[0];
   return (
     <Grid
@@ -340,22 +366,19 @@ function Item({
       onClick={(e) => {
         if (e.shiftKey) {
           if (isFocused) {
-            const activeItems = activeItemVar().filter((i) => i !== item.key);
-            activeItemVar(activeItems);
+            const activeItems = activeItemIds.filter((i) => i !== item.key);
+            setActiveItemIds(activeItems);
             if (activeItems.length === 0) {
-              focusbarVisibleVar(false);
+              setFocusbarVisible(false);
             }
           } else {
-            activeItemVar([item.key, ...activeItemVar()]);
-            focusbarVisibleVar(true);
+            setActiveItemIds([item.key, ...activeItemIds]);
+            setFocusbarVisible(true);
           }
         } else {
-          activeItemVar([item.key]);
-          if (
-            focusbarVisibleVar() === false ||
-            focusbarVisibleVar() === undefined
-          ) {
-            focusbarVisibleVar(true);
+          setActiveItemIds([item.key]);
+          if (focusbarVisible === false || focusbarVisible === undefined) {
+            setFocusbarVisible(true);
           }
         }
       }}
@@ -371,7 +394,6 @@ function Item({
             mx={0}
             my={2}
             fontSize="md"
-            isTruncated
             textDecoration={item.completed ? 'line-through' : 'initial'}
             color={determineTextColour(item.deleted, colorMode)}
             sx={{
@@ -535,7 +557,7 @@ function Item({
             completed={item.completed ?? false}
             type="repeat"
             tooltipText={capitaliseFirstLetter(
-              rruleToText(RRule.fromString(item?.repeat))
+              RRule.fromString(item?.repeat).toText()
             )}
             text={capitaliseFirstLetter(
               rruleToText(RRule.fromString(item?.repeat))

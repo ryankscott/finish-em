@@ -1,7 +1,9 @@
 import { transparentize } from 'polished';
+import type { Styles, GlobalStyleProps } from "@chakra-ui/theme-tools"
+
 import { mode } from '@chakra-ui/theme-tools';
 
-const styles = {
+const styles: Styles = {
   html: {
     boxSizing: 'border-box',
     fontWeight: 'normal',
@@ -37,57 +39,14 @@ const styles = {
       px: 2,
     };
   },
-  global: (props) => {
+  global: (props: GlobalStyleProps) => {
     return {
-      '.emoji-mart': {
+      'em-emoji-picker': {
         position: 'fixed',
         top: '20%',
-        fontFamily: 'body',
-        color: mode('gray.800', 'gray.100')(props),
-        bg: mode('gray.50', 'gray.800')(props),
-        borderColor: mode('gray.100', 'gray.900')(props),
-        borderRadius: 'md',
-        shadow: 'xl',
         zIndex: 101,
-        fontSize: 'sm',
-      },
-      '.emoji-mart-category .emoji-mart-emoji:hover:before': {
-        bg: mode('gray.100', 'gray.900')(props),
-      },
-
-      '.emoji-mart-search input': {
-        fontSize: 'sm',
-        bg: mode('gray.50', 'gray.800')(props),
-        borderColor: mode('gray.100', 'gray.700')(props),
-      },
-      '.emoji-mart-bar': {
-        borderColor: mode('gray.100', 'gray.700')(props),
-      },
-
-      '.emoji-mart-search-icon': {
-        top: '5px',
-      },
-      '.emoji-mart-search-icon > svg': {
-        width: '11px',
-        height: '11px',
-        fill: mode('gray.800', 'gray.100')(props),
-      },
-      '.emoji-mart-category-label': {
-        fontFamily: 'body',
-        fontSize: 'sm',
-        fontWeight: 'normal',
-        color: mode('gray.800', 'gray.100')(props),
-        bg: mode('gray.100', 'gray.900')(props),
-        zIndex: 100,
-      },
-      '.emoji-mart-category-label span': {
-        fontFamily: 'body',
-        fontSize: 'sm',
-        fontWeight: 'normal',
-        bg: mode('gray.50', 'gray.800')(props),
-      },
-      '.emoji-mart-emoji': {
-        zIndex: 99,
+        borderRadius: 'md',
+        shadow: 'md',
       },
       '.quill': {
         width: '100%',

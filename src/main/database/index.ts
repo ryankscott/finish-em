@@ -850,8 +850,6 @@ class AppDatabase extends SQLDataSource {
         .where({ componentKey })
         .first();
 
-      console.log({ maxSortOrder });
-
       const rowsToInsert = itemOrders.map((itemKey, idx) => ({
         itemKey,
         componentKey,
@@ -1323,6 +1321,7 @@ class AppDatabase extends SQLDataSource {
 
   async setRepeatOfItem(key: string, repeat: string): Promise<ItemEntity> {
     log.debug(`Setting repeat of item with key: ${key} to ${repeat}`);
+
     try {
       const nextRepeatDate = repeat ? rrulestr(repeat).after(new Date()) : null;
       const updatedId = await this.knex('item')
@@ -1399,7 +1398,6 @@ class AppDatabase extends SQLDataSource {
       `Setting scheduled at of item with key: ${key} to ${scheduledAt}`
     );
     try {
-      console.log(typeof scheduledAt);
       const updatedId = await this.knex('item')
         .where({ key })
         .update({

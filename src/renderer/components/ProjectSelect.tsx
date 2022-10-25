@@ -1,11 +1,10 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
-import 'emoji-mart/css/emoji-mart.css';
 import { GET_PROJECTS } from '../queries';
 import { groupBy } from 'lodash';
-import { Emoji } from 'emoji-mart';
 import { Project } from 'main/resolvers-types';
 import { useQuery } from '@apollo/client';
 import Select from './Select';
+import EmojiDisplay from './EmojiDisplay';
 
 type ProjectSelectProps = {
   currentProject: Project | null;
@@ -48,7 +47,7 @@ export default function ProjectSelect({
               <Flex>
                 {p.emoji && (
                   <Box pr={2}>
-                    <Emoji emoji={p.emoji} size={12} native />
+                    <EmojiDisplay emojiId={p.emoji} size={12} />
                   </Box>
                 )}
                 <Text>{p.name}</Text>

@@ -1,10 +1,10 @@
 import { useQuery } from '@apollo/client';
 import { Flex, Box, Text } from '@chakra-ui/react';
-import { Emoji } from 'emoji-mart';
 import { Area } from '../../main/resolvers-types';
 import { ReactElement } from 'react';
 import { GET_AREAS } from 'renderer/queries';
 import Select from './Select';
+import EmojiDisplay from './EmojiDisplay';
 
 type Props = {
   currentArea: Area | null;
@@ -41,7 +41,7 @@ export default function AreaSelect({
               <Flex>
                 {a.emoji && (
                   <Box pr={1}>
-                    <Emoji emoji={a.emoji} size={12} native />
+                    <EmojiDisplay emojiId={a.emoji} size={12} />
                   </Box>
                 )}
                 <Text pl={1}>{a.name}</Text>

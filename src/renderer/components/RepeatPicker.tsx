@@ -41,7 +41,7 @@ const RepeatPicker = ({
 
   const handleRepeatChange = (input: RepeatOption) => {
     if (input.type === 'default') {
-      onSubmit(input.repeat);
+      onSubmit(input.repeat!);
       setRepeatDialogVisible(false);
       setShowMenu(false);
     } else {
@@ -114,7 +114,7 @@ const RepeatPicker = ({
     : 'Add repeat';
 
   return (
-    <Menu matchWidth>
+    <Menu flip={false} offset={[0, 4]} placement={'bottom-end'}>
       <MenuButton
         as={Button}
         w="100%"
@@ -134,7 +134,7 @@ const RepeatPicker = ({
         {repeatText}
       </MenuButton>
       {showMenu && (
-        <MenuList minW="250px">
+        <MenuList>
           {!repeatDialogVisible &&
             menuItems.map((m) => (
               <MenuItem
@@ -147,7 +147,7 @@ const RepeatPicker = ({
             ))}
           {repeatDialogVisible && (
             <RepeatDialog
-              repeat={repeat}
+              repeat={repeat!}
               onSubmit={(r) => {
                 onSubmit(r);
                 setRepeatDialogVisible(false);
