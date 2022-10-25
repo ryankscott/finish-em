@@ -1,6 +1,6 @@
 import { ReactElement } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { sortBy } from 'lodash';
 import {
   Flex,
@@ -16,7 +16,6 @@ import { Icons } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
 import CommandBar from './CommandBar';
-import { activeItemVar, focusbarVisibleVar, sidebarVisibleVar } from '../cache';
 import {
   removeItemTypeFromString,
   markdownLinkRegex,
@@ -24,6 +23,7 @@ import {
 } from '../utils';
 import Select from './Select';
 import { Item, Project } from 'main/resolvers-types';
+import { AppState, useAppStore } from 'renderer/state';
 
 type OptionType = { label: string; value: () => void };
 
@@ -46,7 +46,9 @@ const Headerbar = (): ReactElement => {
   const navigate = useNavigate();
   const { colorMode, toggleColorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_HEADER_BAR_DATA);
-  const activeItem = useReactiveVar(activeItemVar);
+  const [setActiveItemIds, setFocusbarVisible] = useAppStore(
+    (state: AppState) => [state.setActiveItemIds, state.setFocusbarVisible]
+  );
 
   if (loading) return <></>;
   if (error) {
@@ -93,8 +95,8 @@ const Headerbar = (): ReactElement => {
             .replace(markdownLinkRegex, '$1')
             .replace(markdownBasicRegex, '$1'),
           value: () => {
-            focusbarVisibleVar(true);
-            activeItemVar([i.key]);
+            setFocusbarVisible(true);
+            setActiveItemIds([i.key]);
           },
         };
       });

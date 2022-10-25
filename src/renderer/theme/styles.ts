@@ -1,7 +1,9 @@
 import { transparentize } from 'polished';
+import type { Styles, GlobalStyleProps } from "@chakra-ui/theme-tools"
+
 import { mode } from '@chakra-ui/theme-tools';
 
-const styles = {
+const styles: Styles = {
   html: {
     boxSizing: 'border-box',
     fontWeight: 'normal',
@@ -37,7 +39,7 @@ const styles = {
       px: 2,
     };
   },
-  global: (props) => {
+  global: (props: GlobalStyleProps) => {
     return {
       'em-emoji-picker': {
         position: 'fixed',

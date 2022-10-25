@@ -1,24 +1,23 @@
-import log from 'electron-log';
-import path from 'path';
+import { loadFiles } from '@graphql-tools/load-files';
 import applescript from 'applescript';
-import { parseJSON, parseISO, isAfter } from 'date-fns';
+import { isAfter, parseISO, parseJSON } from 'date-fns';
+import { zonedTimeToUtc } from 'date-fns-tz';
 import {
   app,
   BrowserWindow,
   globalShortcut,
   ipcMain,
   net,
-  shell,
+  shell
 } from 'electron';
+import log from 'electron-log';
+import path from 'path';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
 import 'sugar-date/locales';
 import util from 'util';
 import { v4 as uuidv4 } from 'uuid';
-import { zonedTimeToUtc } from 'date-fns-tz';
-import { loadFiles } from '@graphql-tools/load-files';
-import { Release } from './github';
 import { CAL_SYNC_INTERVAL } from '../consts';
 import {
   AppleCalendarEvent,
@@ -26,15 +25,16 @@ import {
   getAppleCalendars,
   getEventsForCalendar,
   getRecurringEventsForCalendar,
-  setupAppleCalDatabase,
+  setupAppleCalDatabase
 } from './appleCalendar';
 import { createNote } from './bear';
 import AppDatabase from './database';
+import { CalendarEntity, EventEntity } from './database/types';
+import { Release } from './github';
 import resolvers from './resolvers';
 import { AttendeeInput } from './resolvers-types';
-import { CalendarEntity, EventEntity } from './database/types';
 
-const { ApolloServer } = require('apollo-server');
+import { ApolloServer } from 'apollo-server';
 
 const executeAppleScript = util.promisify(applescript.execString);
 
@@ -69,7 +69,6 @@ const startApolloServer = async () => {
   log.info(`Loading schemas from: ${schemasPath}`);
   try {
     const typeDefs = await loadFiles(`${schemasPath}*.graphql`);
-
     const server = new ApolloServer({
       typeDefs,
       resolvers,
@@ -299,6 +298,7 @@ function createQuickAddWindow() {
     movable: true,
     webPreferences: {
       nodeIntegration: false,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 
@@ -332,8 +332,8 @@ function createMainWindow() {
   // Load the index.html of the app.
   mainWindow.loadURL(
     isDev
-      ? 'http://localhost:1212?main'
-      : `file://${path.join(__dirname, '../renderer/index.html?main')}`
+      ? 'http://localhost:1212/'
+      : `file://${path.join(__dirname, '../renderer/index.html/')}`
   );
 
   // Open dev tools
@@ -441,8 +441,6 @@ startApp();
 
 app.on('ready', () => {
   createMainWindow();
-  globalShortcut.register('Command+Shift+N', createQuickAddWindow);
-  globalShortcut.register('Command+Shift+A', createItemFromAppleMail);
   try {
     checkForNewVersion();
   } catch (e) {
@@ -513,34 +511,4 @@ ipcMain.on('feature-toggled', (_, arg) => {
     }
   }
 
-  if (arg.name === 'bearNotesIntegration') {
-    if (arg.enabled) {
-      const metadata = arg?.metadata;
-      if (!metadata) {
-        log.error('No metadata attached to bear notes');
-        return;
-      }
-      const token = JSON.parse(metadata)?.apiToken;
-      if (!token) {
-        log.error(`Failed to get API token for bear notes integration`);
-      }
-    }
-  }
-});
-
-ipcMain.on('feature-metadata-updated', (_, arg: any) => {
-  if (arg.name === 'bearNotesIntegration') {
-    if (arg.enabled) {
-      const metadata = arg?.metadata;
-      if (!metadata) {
-        log.error('No metadata attached to bear notes');
-        return;
-      }
-      const token = metadata.apiToken;
-      log.info('Updated API token for bear note');
-      if (!token) {
-        log.error(`Failed to get API token for bear notes integration`);
-      }
-    }
-  }
 });

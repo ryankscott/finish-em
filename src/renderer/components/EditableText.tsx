@@ -110,7 +110,7 @@ const EditableText = ({
   placeholder,
   shouldBlurOnSubmit,
 }: EditableTextProps): ReactElement => {
-  const [editorHtml, setEditorHtml] = useState(input || '');
+  const [editorHtml, setEditorHtml] = useState<string>(input ?? '');
   const [isEditing, setIsEditing] = useState(false);
   const editorRef = useRef<ReactQuill>(null);
 
@@ -119,9 +119,10 @@ const EditableText = ({
       editorRef?.current.blur();
       setIsEditing(false);
     }
+    setEditorHtml(input ?? '');
   }, [input]);
 
-  const handleChange = (content: string, delta) => {
+  const handleChange = (content: string, delta: Delta) => {
     const lastOp = delta.ops[delta.ops.length - 1];
     const lastChar = lastOp?.insert?.charCodeAt(0);
 
@@ -186,6 +187,7 @@ const EditableText = ({
         className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}
         theme="snow"
         onChange={handleChange}
+        defaultValue={input}
         value={editorHtml}
         modules={generateModules(hideToolbar ?? false, singleLine)}
         formats={formats}

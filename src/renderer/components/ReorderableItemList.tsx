@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { Flex, Text } from '@chakra-ui/layout';
 import { cloneDeep, orderBy } from 'lodash';
 import { ReactElement, useEffect, useState } from 'react';
+import { AppState, useAppStore } from 'renderer/state';
 import {
   DragDropContext,
   Draggable,
@@ -17,7 +18,6 @@ import {
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { Item } from 'main/resolvers-types';
-import { subtasksVisibleVar } from '../cache';
 import { PAGE_SIZE } from '../../consts';
 import { ItemIcons } from '../interfaces';
 import FailedFilteredItemList from './FailedFilteredItemList';
@@ -62,6 +62,17 @@ function ReorderableItemList({
   const [deleteItemOrdersByComponent] = useMutation(
     DELETE_ITEM_ORDERS_BY_COMPONENT
   );
+  const [
+    currentlyVisibleItemIds,
+    setCurrentlyVisibleItemIds,
+    visibleSubtasks,
+    setVisibleSubtasks,
+  ] = useAppStore((state: AppState) => [
+    state.currentlyVisibleItemIds,
+    state.setCurrentlyVisibleItemIds,
+    state.visibleSubtasks,
+    state.setVisibleSubtasks,
+  ]);
 
   const { loading, error, data } = useQuery(ITEMS_BY_FILTER, {
     variables: {
@@ -73,6 +84,8 @@ function ReorderableItemList({
 
   useEffect(() => {
     if (loading === false && data) {
+      console.log('new items');
+
       const si = data?.items?.map((item: Item) => {
         // Items have different sort orders per component
         const sortOrder = item?.sortOrders?.find(
@@ -95,6 +108,11 @@ function ReorderableItemList({
       });
 
       setSortedItems(filteredItems);
+
+      setCurrentlyVisibleItemIds([
+        ...currentlyVisibleItemIds,
+        ...filteredItems.map((i) => i.key),
+      ]);
 
       // Update listeners
       if (onItemsFetched) {
@@ -124,7 +142,7 @@ function ReorderableItemList({
     if (!sortedItems.length) return;
 
     // Update storage to expand subtasks if that's what's being passed to the component
-    const newState = cloneDeep(data?.subtasksVisible);
+    const newState = cloneDeep(visibleSubtasks);
     sortedItems.forEach((a) => {
       if (a.children && a.children?.length > 0) {
         if (newState[a.key]) {
@@ -136,11 +154,11 @@ function ReorderableItemList({
         }
       }
     });
-    subtasksVisibleVar(newState);
+    setVisibleSubtasks(newState);
   }, [expandSubtasks]);
 
   const reorderItems = (result: DropResult): void => {
-    const { destination, source, draggableId, type } = result;
+    const { destination, source, draggableId } = result;
     //  Trying to detect drops in non-valid areas
     if (!destination) return;
 

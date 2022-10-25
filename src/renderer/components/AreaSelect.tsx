@@ -41,7 +41,7 @@ export default function AreaSelect({
               <Flex>
                 {a.emoji && (
                   <Box pr={1}>
-                    <EmojiDisplay emoji={a.emoji} size={12} />
+                    <EmojiDisplay emojiId={a.emoji} size={12} />
                   </Box>
                 )}
                 <Text pl={1}>{a.name}</Text>

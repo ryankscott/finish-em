@@ -1,5 +1,5 @@
-import { useMutation, useReactiveVar } from '@apollo/client';
-import { Flex, Icon, IconButton, Tooltip } from '@chakra-ui/react';
+import { useMutation } from '@apollo/client';
+import { Flex, Icon, IconButton, Tooltip, Kbd } from '@chakra-ui/react';
 import CommandPalette from 'react-command-palette';
 import { Icons } from 'renderer/assets/icons';
 import {
@@ -9,10 +9,12 @@ import {
   UNCOMPLETE_ITEM,
   ITEMS_BY_FILTER,
 } from '../queries';
-import { activeItemVar } from '../cache';
+import { useAppStore, AppState } from 'renderer/state';
 
 const CommandBar = () => {
-  const activeItem = useReactiveVar(activeItemVar);
+  const [activeItemIds] = useAppStore((state: AppState) => [
+    state.activeItemIds,
+  ]);
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER],
@@ -27,20 +29,23 @@ const CommandBar = () => {
     refetchQueries: [ITEMS_BY_FILTER],
   });
 
-  const allCommands: {
+  type CustomCommand = {
     id: number;
     icon: string;
     shortcut: string;
+    color: string;
     name: string;
     command: () => void;
-  }[] = [
+  };
+  const allCommands: CustomCommand[] = [
     {
       id: 1,
       icon: '',
       shortcut: 'c',
+      color: '',
       name: 'Complete item',
       command: () => {
-        activeItem.forEach((i) => {
+        activeItemIds.forEach((i) => {
           completeItem({ variables: { key: i } });
         });
       },
@@ -49,9 +54,10 @@ const CommandBar = () => {
       id: 2,
       icon: '',
       shortcut: 'd',
+      color: '',
       name: 'Delete item',
       command: () => {
-        activeItem.forEach((i) => {
+        activeItemIds.forEach((i) => {
           deleteItem({ variables: { key: i } });
         });
       },
@@ -60,9 +66,10 @@ const CommandBar = () => {
       id: 3,
       icon: '',
       shortcut: 'u',
+      color: '',
       name: 'Uncomplete item',
       command: () => {
-        activeItem.forEach((i) => {
+        activeItemIds.forEach((i) => {
           unCompleteItem({ variables: { key: i } });
         });
       },
@@ -71,9 +78,10 @@ const CommandBar = () => {
       id: 4,
       icon: '',
       shortcut: 'r',
+      color: '',
       name: 'Restore item',
       command: () => {
-        activeItem.forEach((i) => {
+        activeItemIds.forEach((i) => {
           restoreItem({ variables: { key: i } });
         });
       },
@@ -85,7 +93,7 @@ const CommandBar = () => {
     <CommandPalette
       commands={commands}
       closeOnSelect
-      resetInputOnClose
+      resetInputOnOpen
       alwaysRenderCommands
       theme={{
         container: 'command-container',
@@ -107,7 +115,7 @@ const CommandBar = () => {
         suggestionsList: 'command-suggestionsList',
       }}
       trigger={
-        <Tooltip label="Show commandbar">
+        <Tooltip label="Show command bar">
           <IconButton
             aria-label="show command bar"
             variant="dark"
@@ -119,14 +127,8 @@ const CommandBar = () => {
       renderCommand={(suggestion) => {
         return (
           <Flex width="100%" justifyContent="space-between">
-            {suggestion.highlight ? (
-              <span
-                dangerouslySetInnerHTML={{ __html: suggestion.highlight }}
-              />
-            ) : (
-              <span>{suggestion.name}</span>
-            )}
-            {/*   <span className={'command-shortcut'}>{suggestion.shortcut}</span> */}
+            <span>{suggestion.name}</span>
+            <Kbd color="black">{suggestion.shortcut}</Kbd>
           </Flex>
         );
       }}

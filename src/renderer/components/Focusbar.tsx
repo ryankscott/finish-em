@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Box,
   Flex,
@@ -11,7 +11,6 @@ import {
   Icon,
   IconButton,
 } from '@chakra-ui/react';
-import { parseISO } from 'date-fns';
 import { ReactElement } from 'react';
 import {
   ITEM_BY_KEY,
@@ -30,9 +29,8 @@ import {
   ITEMS_BY_FILTER,
   WEEKLY_ITEMS,
 } from 'renderer/queries';
-import RRule from 'rrule';
+import { RRule } from 'rrule';
 import { Item as ItemType } from 'main/resolvers-types';
-import { activeItemVar, focusbarVisibleVar } from '../cache';
 import { Icons } from '../assets/icons';
 import { IconType, ItemIcons } from '../interfaces';
 import { formatRelativeDate } from '../utils';
@@ -46,14 +44,22 @@ import ProjectSelect from './ProjectSelect';
 import RepeatPicker from './RepeatPicker';
 import ItemActionButton from './ItemActionButton';
 import Item from './Item';
+import { AppState, useAppStore } from 'renderer/state';
+import { parseISO } from 'date-fns';
 
 const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
-  const activeItem = useReactiveVar(activeItemVar);
-  const focusbarVisible = useReactiveVar(focusbarVisibleVar);
+  const [activeItemIds, setActiveItemIds, focusbarVisible, setFocusbarVisible] =
+    useAppStore((state: AppState) => [
+      state.activeItemIds,
+      state.setActiveItemIds,
+      state.focusbarVisible,
+      state.setFocusbarVisible,
+    ]);
   const { loading, error, data } = useQuery(ITEM_BY_KEY, {
+    skip: activeItemIds.length == 0 || !activeItemIds?.[0],
     variables: {
-      key: activeItem.length ? activeItem[0] : '',
+      key: activeItemIds[0],
     },
   });
 
@@ -142,12 +148,11 @@ const Focusbar = (): ReactElement => {
   );
 
   // TODO: Do I need these? Or can I move to the component
-  // @ts-ignore
+
   const dueDate = item?.dueAt
     ? formatRelativeDate(parseISO(item?.dueAt))
     : 'Add due date';
 
-  // @ts-ignore
   const scheduledDate = item?.scheduledAt
     ? formatRelativeDate(parseISO(item?.scheduledAt))
     : 'Add scheduled date';
@@ -183,7 +188,7 @@ const Focusbar = (): ReactElement => {
                 size="sm"
                 onClick={() => {
                   if (item?.parent) {
-                    activeItemVar([item?.parent?.key]);
+                    setActiveItemIds([item?.parent?.key]);
                   }
                 }}
                 icon={<Icon p={0} m={0} as={Icons.upLevel} />}
@@ -197,7 +202,7 @@ const Focusbar = (): ReactElement => {
               aria-label="close"
               variant="default"
               size="sm"
-              onClick={() => focusbarVisibleVar(false)}
+              onClick={() => setFocusbarVisible(false)}
               icon={<Icon p={0} m={0} as={Icons.close} />}
             />
           </Flex>
@@ -215,7 +220,7 @@ const Focusbar = (): ReactElement => {
             }
           }}
           disableOnDelete
-          colour={item?.label?.colour}
+          colour={item?.label?.colour ?? undefined}
         />
         <Box
           w="100%"
@@ -225,12 +230,12 @@ const Focusbar = (): ReactElement => {
         >
           <EditableText
             readOnly={item.deleted ?? false}
-            key={item?.key}
             height="45px"
-            input={item.text ?? ''}
+            input={item?.text ?? ''}
             singleLine
             shouldClearOnSubmit={false}
             shouldSubmitOnBlur
+            shouldBlurOnSubmit
             hideToolbar={false}
             onUpdate={(text) => {
               renameItem({ variables: { key: item.key, text } });
@@ -365,7 +370,7 @@ const Focusbar = (): ReactElement => {
           }}
         />
       </AttributeContainer>
-      {item.deleted && (
+      {item.deletedAt && (
         <AttributeContainer>
           <SidebarTitle icon="trash" text="Deleted at: " />
           <Text fontSize="md" m={1} py={2} px={3}>
@@ -373,7 +378,7 @@ const Focusbar = (): ReactElement => {
           </Text>
         </AttributeContainer>
       )}
-      {item.completed && (
+      {item.completedAt && (
         <AttributeContainer>
           <SidebarTitle icon="todoChecked" text="Completed at: " />
           <Text fontSize="md" m={1} py={2} px={3}>
@@ -408,7 +413,6 @@ const Focusbar = (): ReactElement => {
                 return (
                   <Item
                     compact={false}
-                    key={childItem.key}
                     componentKey=""
                     itemKey={childItem.key}
                     shouldIndent={false}
@@ -422,11 +426,7 @@ const Focusbar = (): ReactElement => {
               No subtasks
             </Text>
           )}
-          <ItemCreator
-            key={`${item.key}-subtask`}
-            parentKey={item.key}
-            initiallyExpanded={false}
-          />
+          <ItemCreator parentKey={item.key} initiallyExpanded={false} />
         </>
       )}
     </Flex>

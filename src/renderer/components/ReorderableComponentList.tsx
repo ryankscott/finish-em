@@ -279,7 +279,10 @@ const ReorderableComponentList = ({
                                   field: 'projectKey',
                                   operator: '=',
                                   valueSource: 'value',
-                                  value: data.view.key,
+                                  value:
+                                    data.view.type == 'project'
+                                      ? data.view.key
+                                      : '0',
                                 },
                                 {
                                   field: 'deleted',

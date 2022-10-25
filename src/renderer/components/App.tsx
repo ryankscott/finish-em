@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { useQuery, useReactiveVar } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
 import { isSameMinute, parseISO } from 'date-fns';
 import { ReactElement, useEffect } from 'react';
@@ -8,7 +7,6 @@ import { Slide, toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { GET_APP_DATA } from 'renderer/queries/';
 import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from 'consts';
-import { activeItemVar, focusbarVisibleVar, sidebarVisibleVar } from '../cache';
 import ActionBar from './ActionBar';
 import Area from './Area';
 import DailyAgenda from './DailyAgenda';
@@ -22,7 +20,7 @@ import Sidebar from './Sidebar';
 import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
 import { Reminder } from '../../main/resolvers-types';
-import Zen from './Zen';
+import { AppState, useAppStore } from 'renderer/state';
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
@@ -34,15 +32,23 @@ const AreaWrapper = (): ReactElement => {
 };
 
 const App = (): ReactElement => {
-  const activeItems = useReactiveVar(activeItemVar);
-  const focusbarVisible = useReactiveVar(focusbarVisibleVar);
-  const sidebarVisible = useReactiveVar(sidebarVisibleVar);
+  const [
+    activeItemIds,
+    focusbarVisible,
+    setFocusbarVisible,
+    sidebarVisible,
+    setSidebarVisible,
+  ] = useAppStore((state: AppState) => [
+    state.activeItemIds,
+    state.focusbarVisible,
+    state.setFocusbarVisible,
+    state.sidebarVisible,
+    state.setSidebarVisible,
+  ]);
 
   useEffect(() => {
     // Handle Electron events
-
-    // @ts-ignore
-    window.electron.ipcRenderer.onReceiveMessage(
+    window.electronAPI.ipcRenderer.onReceiveMessage(
       'send-notification',
       (_, arg) => {
         // TODO: Implement multiple notification types
@@ -50,8 +56,7 @@ const App = (): ReactElement => {
       }
     );
 
-    // @ts-ignore
-    window.electron.ipcRenderer.onReceiveMessage('new-version', (_, arg) => {
+    window.electronAPI.ipcRenderer.onReceiveMessage('new-version', (_, arg) => {
       toast(
         <div>
           <p>
@@ -78,11 +83,11 @@ const App = (): ReactElement => {
   // TODO: Work out the best way to expand the width here
   const handleResize = () => {
     if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && sidebarVisible) {
-      sidebarVisibleVar(false);
+      setSidebarVisible(false);
     }
     if (focusbarVisible) {
       if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && focusbarVisible) {
-        focusbarVisibleVar(false);
+        setFocusbarVisible(false);
       }
     }
   };
@@ -128,7 +133,6 @@ const App = (): ReactElement => {
             <Route path="/help" element={<Help />} />
             <Route path="/dailyAgenda" element={<DailyAgenda />} />
             <Route path="/inbox" element={<Inbox />} />
-            <Route path="/zen" element={<Zen />} />
             <Route path="/views/:id" element={<ViewWrapper />} />
             <Route path="/areas/:id" element={<AreaWrapper />} />
             <Route path="/Settings" element={<Settings />} />
@@ -138,7 +142,7 @@ const App = (): ReactElement => {
         </Flex>
         <Focusbar />
       </Flex>
-      {activeItems.length > 1 && <ActionBar />}
+      {activeItemIds.length > 1 && <ActionBar />}
       <ToastContainer
         position="bottom-center"
         autoClose={3000}

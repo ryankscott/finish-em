@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Flex, Text } from '@chakra-ui/layout';
 import { useColorMode } from '@chakra-ui/react';
+import { Label } from 'main/resolvers-types';
 import { ReactElement } from 'react';
 import { ITEM_BY_KEY, SET_LABEL } from '../queries';
 import { GET_LABELS } from '../queries/label';

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useReactiveVar } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
   Button,
   Box,
@@ -32,13 +32,13 @@ import {
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
 import { Icons } from '../assets/icons';
-import { sidebarVisibleVar } from '../cache';
 import { IconType } from '../interfaces';
 import { getProductName } from '../utils';
 import SidebarDraggableItem from './SidebarDraggableItem';
 import SidebarDroppableItem from './SidebarDroppableItem';
 import SidebarItem from './SidebarItem';
 import SidebarSection from './SidebarSection';
+import { useAppStore, AppState } from '../state';
 
 const Sidebar = (): ReactElement => {
   const navigate = useNavigate();
@@ -56,7 +56,10 @@ const Sidebar = (): ReactElement => {
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
   const [sortedViews, setSortedViews] = useState<View[]>([]);
-  const sidebarVisible = useReactiveVar(sidebarVisibleVar).valueOf();
+  const [sidebarVisible, setSidebarVisible] = useAppStore((state: AppState) => [
+    state.sidebarVisible,
+    state.setSidebarVisible,
+  ]);
 
   useEffect(() => {
     if (loading === false && data) {
@@ -427,7 +430,7 @@ const Sidebar = (): ReactElement => {
             size="sm"
             transition="all 0.2s ease-in-out"
             onClick={() => {
-              sidebarVisibleVar(!sidebarVisible);
+              setSidebarVisible(!sidebarVisible);
             }}
           />
         </Flex>

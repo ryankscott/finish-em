@@ -1,4 +1,4 @@
-import React, { ReactElement, useEffect } from 'react';
+import { ReactElement, useEffect, useRef } from 'react';
 import {
   Box,
   Editable,
@@ -7,20 +7,16 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 
-type QuickAddProps = {
-  projectKey?: string | '0';
-};
-
-function QuickAdd(props: QuickAddProps): ReactElement {
-  const initialRef = React.useRef();
+function QuickAdd(): ReactElement {
+  const ref = useRef<HTMLInputElement>(null);
   const { colorMode } = useColorMode();
 
   useEffect(() => {
-    initialRef.current.focus();
+    ref?.current?.focus();
   }, []);
 
   const handleEscape = (): void => {
-    window.electron.ipcRenderer.sendMessage('close-quickadd');
+    window.electronAPI.ipcRenderer.closeQuickAdd();
   };
 
   return (
@@ -49,10 +45,8 @@ function QuickAdd(props: QuickAddProps): ReactElement {
         onCancel={handleEscape}
         onSubmit={(text) => {
           if (!text) return;
-          window.electron.ipcRenderer.sendMessage('create-task', {
-            text,
-          });
-          window.electron.ipcRenderer.sendMessage('close-quickadd');
+          window.electronAPI.ipcRenderer.createTask(text);
+          window.electronAPI.ipcRenderer.closeQuickAdd();
         }}
       >
         <EditablePreview
@@ -60,7 +54,7 @@ function QuickAdd(props: QuickAddProps): ReactElement {
             bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
           }}
         />
-        <EditableInput ref={initialRef} />
+        <EditableInput ref={ref} />
       </Editable>
     </Box>
   );

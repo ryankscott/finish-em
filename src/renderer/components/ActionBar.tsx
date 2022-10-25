@@ -1,4 +1,4 @@
-import { useMutation, useReactiveVar } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import {
   Grid,
   Flex,
@@ -18,7 +18,7 @@ import {
   SET_PROJECT,
   SET_SCHEDULED_AT,
 } from 'renderer/queries';
-import { activeItemVar, focusbarVisibleVar } from '../cache';
+import { AppState, useAppStore } from 'renderer/state';
 import DatePicker from './DatePicker';
 import ProjectSelect from './ProjectSelect';
 
@@ -35,8 +35,15 @@ const ActionBar = () => {
     refetchQueries: [ITEMS_BY_FILTER, WEEKLY_ITEMS],
   });
 
-  const activeItem = useReactiveVar(activeItemVar);
-  if (!activeItem) {
+  const [activeItemIds, setActiveItemIds, setFocusbarVisible] = useAppStore(
+    (state: AppState) => [
+      state.activeItemIds,
+      state.setActiveItemIds,
+      state.setFocusbarVisible,
+    ]
+  );
+
+  if (!activeItemIds) {
     return null;
   }
 
@@ -74,8 +81,8 @@ const ActionBar = () => {
           icon={<Icon as={Icons.close} />}
           color="white"
           onClick={() => {
-            activeItemVar([]);
-            focusbarVisibleVar(false);
+            setActiveItemIds([]);
+            setFocusbarVisible(false);
           }}
           aria-label="close"
         />
@@ -86,7 +93,7 @@ const ActionBar = () => {
           paddingLeft="4"
           paddingTop="2"
           fontSize="md"
-        >{`${activeItem.length} items selected`}</Text>
+        >{`${activeItemIds.length} items selected`}</Text>
       </Box>
 
       <Box gridArea="due">
@@ -96,7 +103,7 @@ const ActionBar = () => {
           text="Set due date"
           defaultText="Due at: "
           onSubmit={(d: Date | null) => {
-            activeItem.forEach((i) => {
+            activeItemIds.forEach((i) => {
               setDueAt({ variables: { key: i, dueAt: d } });
             });
           }}
@@ -112,7 +119,7 @@ const ActionBar = () => {
           text="Set scheduled date"
           defaultText="Scheduled at: "
           onSubmit={(d: Date | null) => {
-            activeItem.forEach((i) => {
+            activeItemIds.forEach((i) => {
               setScheduledAt({ variables: { key: i, scheduledAt: d } });
             });
           }}
@@ -128,7 +135,7 @@ const ActionBar = () => {
           completed={false}
           deleted={false}
           onSubmit={(projectKey) => {
-            activeItem.forEach((i) => {
+            activeItemIds.forEach((i) => {
               setProject({ variables: { key: i, projectKey } });
             });
           }}
@@ -143,7 +150,7 @@ const ActionBar = () => {
             aria-label="complete"
             icon={<Icon as={Icons.todoChecked} />}
             onClick={() => {
-              activeItem.forEach((i) => {
+              activeItemIds.forEach((i) => {
                 completeItem({ variables: { key: i } });
               });
             }}
@@ -159,7 +166,7 @@ const ActionBar = () => {
             aria-label="delete"
             icon={<Icon as={Icons.trash} />}
             onClick={() => {
-              activeItem.forEach((i) => {
+              activeItemIds.forEach((i) => {
                 deleteItem({ variables: { key: i } });
               });
             }}

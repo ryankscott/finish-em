@@ -8,7 +8,6 @@ import {
   Icon,
   IconButton,
   Text,
-  useBreakpointValue,
   useColorMode,
 } from '@chakra-ui/react';
 import {
@@ -89,7 +88,7 @@ const WeeklyAgenda = (): ReactElement => {
   });
 
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
-    (w) => w.week === format(currentDate, 'yyyy-MM-dd')
+    (w: WeeklyGoal) => w.week === format(currentDate, 'yyyy-MM-dd')
   );
   if (!weeklyGoal) {
     weeklyGoal = {
