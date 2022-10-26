@@ -62,17 +62,9 @@ function ReorderableItemList({
   const [deleteItemOrdersByComponent] = useMutation(
     DELETE_ITEM_ORDERS_BY_COMPONENT
   );
-  const [
-    currentlyVisibleItemIds,
-    setCurrentlyVisibleItemIds,
-    visibleSubtasks,
-    setVisibleSubtasks,
-  ] = useAppStore((state: AppState) => [
-    state.currentlyVisibleItemIds,
-    state.setCurrentlyVisibleItemIds,
-    state.visibleSubtasks,
-    state.setVisibleSubtasks,
-  ]);
+  const [visibleSubtasks, setVisibleSubtasks] = useAppStore(
+    (state: AppState) => [state.visibleSubtasks, state.setVisibleSubtasks]
+  );
 
   const { loading, error, data } = useQuery(ITEMS_BY_FILTER, {
     variables: {
@@ -84,8 +76,6 @@ function ReorderableItemList({
 
   useEffect(() => {
     if (loading === false && data) {
-      console.log('new items');
-
       const si = data?.items?.map((item: Item) => {
         // Items have different sort orders per component
         const sortOrder = item?.sortOrders?.find(
@@ -108,11 +98,6 @@ function ReorderableItemList({
       });
 
       setSortedItems(filteredItems);
-
-      setCurrentlyVisibleItemIds([
-        ...currentlyVisibleItemIds,
-        ...filteredItems.map((i) => i.key),
-      ]);
 
       // Update listeners
       if (onItemsFetched) {

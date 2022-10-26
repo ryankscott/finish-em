@@ -30,6 +30,7 @@ import FilteredItemList from './FilteredItemList';
 import ItemCreator from './ItemCreator';
 import Spinner from './Spinner';
 import ViewHeader from './ViewHeader';
+import DragHandle from './DragHandle';
 
 type ReorderableComponentListProps = {
   viewKey: string;
@@ -183,40 +184,9 @@ const ReorderableComponentList = ({
                             {...provided.draggableProps}
                             key={`container-${comp.key}`}
                           >
-                            <Flex
-                              position="absolute"
-                              direction="row"
-                              justifyContent="center"
-                              alignItems="center"
-                              h={6}
-                              top={0}
-                              w="100%"
-                              zIndex={100}
-                              borderTopLeftRadius={'md'}
-                              borderTopRightRadius={'md'}
-                              opacity={0}
-                              borderColor={
-                                colorMode === 'light' ? 'gray.200' : 'gray.700'
-                              }
-                              _active={{
-                                opacity: 0.6,
-                                bg:
-                                  colorMode === 'light'
-                                    ? 'gray.100'
-                                    : 'gray.900',
-                              }}
-                              _hover={{
-                                opacity: 0.6,
-                                bg:
-                                  colorMode === 'light'
-                                    ? 'gray.100'
-                                    : 'gray.900',
-                              }}
-                              // eslint-disable-next-line react/jsx-props-no-spreading
-                              {...provided.dragHandleProps}
-                            >
-                              <Icon as={Icons.drag} opacity={1} />
-                            </Flex>
+                            <DragHandle
+                              dragHandleProps={provided.dragHandleProps}
+                            />
                             <ComponentActions
                               readOnly={false}
                               componentKey={comp.key}
