@@ -347,6 +347,8 @@ const ReorderableComponentList = ({
                       location: 'main',
                       parameters: {
                         initiallyExpanded: false,
+                        projectKey:
+                          data.view.type == 'project' ? data.view.key : '0',
                       },
                     },
                   },
