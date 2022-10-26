@@ -91,12 +91,11 @@ const ItemCreator = ({
           w="100%"
           alignItems="baseline"
           justifyContent="flex-end"
-          py={0}
-          px={1}
+          p={0}
           overflowX="visible"
-          m={1}
+          my={1}
+          mx={0}
           ref={ref}
-          h="75px"
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
               setShowItemCreator(false);
@@ -119,10 +118,10 @@ const ItemCreator = ({
                   />
                 ) : (
                   <Button
-                    size="md"
                     variant="primary"
                     leftIcon={<Icon as={Icons.add} />}
-                    color="white"
+                    h={9}
+                    minW={9}
                     onClick={() => {
                       setShowItemCreator(!showItemCreator);
                     }}
@@ -135,8 +134,7 @@ const ItemCreator = ({
           )}
           <Flex
             position="relative"
-            my={0}
-            mx={1}
+            m={0}
             direction="column"
             justifyContent="flex-start"
             alignItems="center"
@@ -146,30 +144,32 @@ const ItemCreator = ({
             transition="width 0.2s ease-in-out 0.1s,opacity 0.2s,0.2s"
             data-cy="item-creator"
           >
-            <EditableText
-              singleLine
-              onEscape={onEscape}
-              placeholder="Add an item"
-              shouldClearOnSubmit
-              hideToolbar={false}
-              shouldSubmitOnBlur={false}
-              showBorder
-              onUpdate={(text) => {
-                createItem({
-                  variables: {
-                    key: uuidv4(),
-                    type: 'TODO',
-                    text,
-                    projectKey: projectKey ?? '0',
-                    parentKey,
-                    dueAt,
-                    scheduledAt,
-                    repeat,
-                    labelKey,
-                  },
-                });
-              }}
-            />
+            {showItemCreator && (
+              <EditableText
+                singleLine
+                onEscape={onEscape}
+                placeholder="Add an item"
+                shouldClearOnSubmit
+                hideToolbar={false}
+                shouldSubmitOnBlur={false}
+                showBorder
+                onUpdate={(text) => {
+                  createItem({
+                    variables: {
+                      key: uuidv4(),
+                      type: 'TODO',
+                      text,
+                      projectKey: projectKey ?? '0',
+                      parentKey,
+                      dueAt,
+                      scheduledAt,
+                      repeat,
+                      labelKey,
+                    },
+                  });
+                }}
+              />
+            )}
           </Flex>
         </Flex>
       )}

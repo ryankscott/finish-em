@@ -51,6 +51,8 @@ const styles: Styles = {
       '.quill': {
         width: '100%',
         position: 'relative',
+        bg: mode('gray.100', 'gray.900')(props),
+        borderRadius: 'md',
       },
       '.ql-snow .ql-tooltip a.ql-preview': {
         textDecoration: 'underline',
@@ -158,7 +160,7 @@ const styles: Styles = {
         border: '1px solid',
         borderColor: mode('gray.200', 'gray.600')(props),
         position: 'absolute',
-        bottom: 0,
+        bottom: '-1px',
         width: '100%',
         transform: 'translateY(100%)',
         transition: 'all 0.2s ease-in-out',
