@@ -2,7 +2,6 @@ import create from 'zustand'
 
 interface State {
   activeItemIds: string[]
-  currentlyVisibleItemIds: string[]
   focusbarVisible: boolean
   sidebarVisible: boolean
   visibleSubtasks: Record<string, Record<string, boolean>>
@@ -11,7 +10,6 @@ interface State {
 
 interface Actions {
   setActiveItemIds: (activeItemIds: string[]) => void
-  setCurrentlyVisibleItemIds: (currentlyVisibleItemIds: string[]) => void
   setFocusbarVisible: (visible: boolean) => void
   setSidebarVisible: (visible: boolean) => void
   setVisibleSubtasks: (visibleSubtasks: Record<string, Record<string, boolean>>) => void
@@ -21,7 +19,6 @@ export type AppState = State & Actions
 
 const initialState: State = {
   activeItemIds: [],
-  currentlyVisibleItemIds: [],
   focusbarVisible: false,
   sidebarVisible: true,
   visibleSubtasks: {},
@@ -31,7 +28,6 @@ const initialState: State = {
 export const useAppStore = create<AppState>((set) => ({
   ...initialState,
   setActiveItemIds: (activeItemIds) => set(() => ({ activeItemIds: activeItemIds })),
-  setCurrentlyVisibleItemIds: (currentlyVisibleItemIds) => set(() => ({ currentlyVisibleItemIds: currentlyVisibleItemIds })),
   setFocusbarVisible: (visible) => set(() => ({ focusbarVisible: visible })),
   setSidebarVisible: (visible) => set(() => ({ sidebarVisible: visible })),
   setVisibleSubtasks: (visibleSubtasks) => set(() => ({ visibleSubtasks: visibleSubtasks })),

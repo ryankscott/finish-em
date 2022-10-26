@@ -12,7 +12,6 @@ import Area from './Area';
 import DailyAgenda from './DailyAgenda';
 import Focusbar from './Focusbar';
 import Headerbar from './Headerbar';
-import Help from './Help';
 import Inbox from './Inbox';
 import Settings from './Settings';
 import ShortcutDialog from './ShortcutDialog';
@@ -130,7 +129,6 @@ const App = (): ReactElement => {
         <Flex overflowY="scroll" w="100%" h="100%" justifyContent="center">
           <ShortcutDialog />
           <Routes>
-            <Route path="/help" element={<Help />} />
             <Route path="/dailyAgenda" element={<DailyAgenda />} />
             <Route path="/inbox" element={<Inbox />} />
             <Route path="/views/:id" element={<ViewWrapper />} />

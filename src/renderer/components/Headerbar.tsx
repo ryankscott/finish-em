@@ -122,7 +122,7 @@ const Headerbar = (): ReactElement => {
     <Grid
       w="100%"
       alignItems="center"
-      gridTemplateColumns="1fr repeat(4, 35px)"
+      gridTemplateColumns="1fr repeat(3, 35px)"
       gridTemplateRows="50px"
       zIndex={999}
       color="gray.50"
@@ -158,16 +158,6 @@ const Headerbar = (): ReactElement => {
             window.open(
               'https://github.com/ryankscott/finish-em/issues/new/choose'
             );
-          }}
-        />
-      </HeaderItem>
-      <HeaderItem>
-        <HeaderButton
-          label="Show Help"
-          icon={'help' as IconType}
-          iconColour={theme.colors.gray[100]}
-          onClickHandler={() => {
-            navigate('/help/');
           }}
         />
       </HeaderItem>
