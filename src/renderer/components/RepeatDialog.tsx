@@ -118,7 +118,8 @@ const RepeatDialog = ({
     : 'Start date';
 
   useEffect(() => {
-    setStartDate(repeat.options.dtstart);
+    if (!repeat) return;
+    setStartDate(repeat?.options?.dtstart);
     setRepeatInterval(repeat.options.interval);
     setRepeatIntervalType(repeat.options.freq);
 
