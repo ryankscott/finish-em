@@ -1,6 +1,6 @@
 {
   "name": "Finish-em",
-  "version": "0.8.4",
+  "version": "0.8.7",
   "description": "An org-mode inspired personal organiser",
   "main": "./dist/main/main.js",
   "author": {
