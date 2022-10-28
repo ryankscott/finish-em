@@ -1,6 +1,5 @@
 import { loadFiles } from '@graphql-tools/load-files';
 import { ApolloServer } from 'apollo-server';
-import applescript from 'applescript';
 import { isAfter, parseISO, parseJSON } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import {
@@ -14,28 +13,25 @@ import path from 'path';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
-import 'sugar-date/locales';
-import util from 'util';
 import { v4 as uuidv4 } from 'uuid';
 import { CAL_SYNC_INTERVAL } from '../consts';
 import {
   AppleCalendarEvent,
-  appleMailLinkScript,
   getAppleCalendars,
   getEventsForCalendar,
   getRecurringEventsForCalendar,
   setupAppleCalDatabase
 } from './appleCalendar';
-import { createNote } from './bear';
+import { saveAppleCalendarEvents } from './calendar';
 import AppDatabase from './database';
 import { CalendarEntity, EventEntity } from './database/types';
 import { Release } from './github';
+import registerIPCHandlers from './ipcMainHandlers';
 import resolvers from './resolvers';
 import { AttendeeInput } from './resolvers-types';
 import { store } from './settings';
 
 
-const executeAppleScript = util.promisify(applescript.execString);
 log.transports.console.level = 'debug';
 
 
@@ -44,7 +40,6 @@ const isDev =
 log.info(`Running in ${isDev ? 'development' : 'production'}`);
 let mainWindow: BrowserWindow | null = null;
 let quickAddWindow: BrowserWindow | null = null;
-let db: sqlite.Database<sqlite3.Database>;
 let server: ApolloServer;
 let apolloDb: AppDatabase;
 let calendarSyncInterval: NodeJS.Timer;
@@ -58,7 +53,6 @@ const determineDatabasePath = (isDev: boolean): string => {
     ? './finish_em.db'
     : path.join(app.getPath('userData'), './finish_em.db');
 }
-
 
 const knexConfig = {
   client: 'sqlite3',
@@ -87,31 +81,27 @@ const startApolloServer = async () => {
       dataSources: () => ({ apolloDb }),
     });
 
-    // The `listen` method launches a web server.
-    server
-      .listen()
-      // eslint-disable-next-line promise/always-return
-      .then(({ url }) => {
+    try {
+      const { url } = await server.listen()
+      if (url) {
         log.info(`🚀 Server ready at ${url}`);
-      })
-      .catch((err) => {
-        log.error(`😢 Server startup failed listening: ${err}`);
-        app.exit();
-      });
+      }
+    }
+    catch (err) {
+      log.error(`😢 Server startup failed listening: ${err}`);
+      app.exit();
+    }
   } catch (err) {
     log.error(`😢 Server startup failed: ${err}`);
   }
 };
 
-
-const setUpDatabase = async (): Promise<
-  sqlite.Database<sqlite3.Database, sqlite3.Statement>
-> => {
+const runMigrations = async () => {
 
   const databasePath = determineDatabasePath(isDev)
   log.info(`Loading database at: ${databasePath}`);
 
-  db = await sqlite.open({
+  const db = await sqlite.open({
     filename: databasePath,
     driver: sqlite3.Database,
   });
@@ -134,106 +124,13 @@ const setUpDatabase = async (): Promise<
   // })
 
   log.info('Migrations complete');
-  return db;
-};
-
-const createCalendar = async (
-  key: number,
-  name: string,
-  active: boolean
-): Promise<CalendarEntity> => {
-  return apolloDb.createCalendar(key.toString(), name, active);
-};
-
-
-const saveCalendars = async (
-  cals: { id: number; title: string }[],
-  activeCalKey: string
-) => {
-  log.info(`Getting calendars from Apple Calendar`);
-  log.info(`Saving ${cals.length} calendars from Apple Calendar`);
-  try {
-    await Promise.all(
-      cals.map(async (c) => {
-        return createCalendar(c.id, c.title, c.id.toString() === activeCalKey);
-      })
-    );
-  } catch (e) {
-    log.error(`Failed to save calendars - ${e}`);
-    return;
-  }
-
-  log.info(`All calendars saved`);
-};
-
-const saveEventToDB = async (ev: EventEntity, calendarKey: string) => {
-  if (!ev.startAt) {
-    log.warn(`Not saving event as ${ev.title} has no startAt`);
-    return;
-  }
-
-  if (!ev.endAt) {
-    log.warn(`Not saving event as ${ev.title} has no endAt`);
-    return;
-  }
-
-  await apolloDb.createEvent(
-    ev.key.toString(),
-    ev.title ?? '',
-    ev.description ?? '',
-    parseJSON(ev.startAt),
-    parseJSON(ev.endAt),
-    ev.allDay ?? false,
-    calendarKey,
-    ev.location ?? '',
-    (ev.attendees as { name: string; email: string }[]) ?? null,
-    ev.recurrence ?? ''
-  );
-  log.debug(`Saved event with uid - ${ev.key}`);
-};
-
-const saveEventsToDB = (events: EventEntity[], calendarKey: string) => {
-  log.info(`Saving ${events.length} events to DB`);
-  events.forEach(async (e) => {
-    try {
-      saveEventToDB(e, calendarKey);
-    } catch (err) {
-      log.error(`Failed to save event to db - ${err}`);
-    }
-  });
-  log.info(`Saved ${events.length} events to DB`);
-};
-
-const translateAppleEventToEvent = (
-  events: AppleCalendarEvent[]
-): EventEntity[] => {
-  return events.map((e) => {
-    const attendees: AttendeeInput[] = e.attendees
-      ?.split(',')
-      .map((a) => ({ name: a, email: a }));
-    const startDate = e.timezone
-      ? zonedTimeToUtc(e.startDate, e.timezone)
-      : e.startDate;
-    const endDate = e.timezone
-      ? zonedTimeToUtc(e.endDate, e.timezone)
-      : e.endDate;
-    return {
-      key: e.id,
-      title: e.title,
-      summary: e.summary,
-      startAt: startDate,
-      endAt: endDate,
-      attendees,
-      allDay: !!e.allDayEvent,
-      location: e.location,
-      recurrence: e.recurrence,
-    };
-  });
+  return;
 };
 
 const checkForNewVersion = () => {
   const releasesURL =
-    ' https://api.github.com/repos/ryankscott/finish-em/releases';
+    'https://api.github.com/repos/ryankscott/finish-em/releases';
+  // TODO: Refactor this using fetch
   const request = net.request(releasesURL);
   request.on('response', (response) => {
     let rawData = '';
@@ -287,7 +184,6 @@ const checkForNewVersion = () => {
   request.end();
 };
 
-
 function createMainWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
@@ -327,57 +223,13 @@ function createMainWindow() {
   mainWindow.webContents.on('new-window', handleRedirect);
 }
 
-const saveAppleCalendarEvents = async (getRecurringEvents: boolean) => {
-  const appleCalDb = await setupAppleCalDatabase();
-  if (!appleCalDb) {
-    log.error('Failed to set up Apple calendar db');
-    return;
-  }
-  const activeCal = await apolloDb.getActiveCalendar();
-  if (!activeCal) {
-    log.error('Failed to get active calendar when saving events');
-    return;
-  }
-
-  const cals = await getAppleCalendars(appleCalDb);
-  if (!cals) {
-    log.error('Failed to get calendars from Apple calendar cache');
-    return;
-  }
-
-  await saveCalendars(cals, activeCal?.key);
-  if (!activeCal) {
-    log.info('Not getting events as active calendar is not set');
-    return;
-  }
-
-  const appleEvents = await getEventsForCalendar(appleCalDb, activeCal?.key);
-  if (!appleEvents) {
-    log.error('Failed to get events from Apple calendar');
-    return;
-  }
-  const events = translateAppleEventToEvent(appleEvents);
-  saveEventsToDB(events, activeCal?.key);
-
-  if (getRecurringEvents) {
-    const recurringAppleEvents = await getRecurringEventsForCalendar(
-      appleCalDb,
-      activeCal?.key
-    );
-    if (!recurringAppleEvents) {
-      log.error('Failed to get recurring events from Apple calendar');
-      return;
-    }
-    const recurringEvents = translateAppleEventToEvent(recurringAppleEvents);
-    saveEventsToDB(recurringEvents, activeCal?.key);
-  }
-};
-
 const startApp = async () => {
 
-  db = await setUpDatabase();
+  await runMigrations();
 
   await startApolloServer();
+
+  registerIPCHandlers({ apolloDb, quickAddWindow, mainWindow })
 
   const features = await apolloDb.getFeatures();
 
@@ -385,31 +237,14 @@ const startApp = async () => {
     (f) => f.name === 'calendarIntegration'
   );
 
-
   if (calendarIntegration?.enabled) {
     log.info('Calendar integration enabled - turning on sync');
     // Get events every 5 mins
     calendarSyncInterval = setInterval(async () => {
-      await saveAppleCalendarEvents(false);
+      await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
     }, CAL_SYNC_INTERVAL);
   }
 
-  const bearNotesIntegration = features?.find(
-    (f) => f.name === 'bearNotesIntegration'
-  );
-  if (bearNotesIntegration?.enabled) {
-    log.info('Bear notes integration enabled - turning on sync');
-    const metadata = bearNotesIntegration?.metadata;
-    if (!metadata) {
-      log.error('No metadata attached to bear notes');
-      return;
-    }
-    // @ts-ignore
-    const token = metadata?.apiToken;
-    if (!token) {
-      log.error(`Failed to get API token for bear notes integration`);
-    }
-  }
 };
 
 startApp();
@@ -442,75 +277,3 @@ app.on('activate', () => {
   }
 });
 
-ipcMain.on('close-quickadd', () => {
-  if (quickAddWindow) {
-    quickAddWindow.close();
-  }
-});
-
-// This is to send events between quick add and main window
-// Don't try to do this in the backend because invalidating the cache won't work
-ipcMain.on('create-task', (_, arg) => {
-  mainWindow?.webContents.send('create-item', {
-    key: uuidv4(),
-    type: 'TODO',
-    text: arg.text,
-    projectKey: arg?.projectId,
-  });
-  mainWindow?.webContents.send('send-notification', {
-    text: `Task added from Quick Add`,
-    type: 'info',
-  });
-});
-
-ipcMain.on('create-bear-note', (_, arg) => {
-  createNote(arg.title, arg.content);
-});
-
-ipcMain.on('active-calendar-set', () => {
-  log.info('Active calendar set');
-  saveAppleCalendarEvents(false);
-});
-
-
-ipcMain.on('set-setting', async (_, arg) => {
-  log.info('Setting setting')
-  const settingName = arg.name
-  store.set(settingName, arg.contents)
-
-  if (settingName === 'overrideDatabaseDirectory') {
-    app.relaunch()
-    app.exit(0)
-  }
-})
-
-
-ipcMain.on('feature-toggled', (_, arg) => {
-  if (arg.name === 'calendarIntegration') {
-    if (arg.enabled) {
-      log.info('Enabling calendar sync');
-      saveAppleCalendarEvents(false);
-      calendarSyncInterval = setInterval(async () => {
-        await saveAppleCalendarEvents(false);
-      }, CAL_SYNC_INTERVAL);
-    } else {
-      log.info('Disabling calendar sync');
-      clearInterval(calendarSyncInterval);
-    }
-
-  }
-
-});
-
-
-const handleGetSettings = () => {
-  log.info("Getting settings");
-  return store.store
-}
-
-ipcMain.handle('get-settings', handleGetSettings)
-
-ipcMain.handle('open-dialog', (_, options) => {
-  log.info("Opening dialog")
-  return dialog.showOpenDialogSync(options)
-})

@@ -106,7 +106,9 @@ const Settings = (): ReactElement => {
   const [settings, setSettings] = useState<Record<string, string>>({});
 
   const { loading, error, data } = useQuery(GET_SETTINGS);
-  const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR);
+  const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
+    refetchQueries: [GET_SETTINGS],
+  });
   const [setFeature] = useMutation(SET_FEATURE, {
     refetchQueries: [GET_SETTINGS],
   });
@@ -209,86 +211,84 @@ const Settings = (): ReactElement => {
             <SettingHeader name="Features" />
             {data.features.map((feature) => {
               return (
-                <Box key={`${feature.key}-container`}>
-                  <Flex
-                    direction="row"
-                    justifyContent="flex-start"
-                    py={3}
-                    px={0}
-                    w="100%"
-                    h="30px"
-                    alignItems="center"
-                    key={feature.key}
-                  >
-                    <Text fontSize="sm" w="180px" key={`${feature.key}-label`}>
-                      {camelCaseToInitialCaps(feature.name)}
-                    </Text>
-                    <Switch
-                      size="sm"
-                      onChange={() => {
-                        // @ts-ignore
-                        window.electronAPI.ipcRenderer.toggleFeature(
-                          feature.name,
-                          !feature.enabled
-                        );
-                        setFeature({
-                          variables: {
-                            key: feature.key,
-                            enabled: !feature.enabled,
-                          },
-                        });
-                      }}
-                      defaultChecked={feature.enabled ?? false}
-                    />
-                    {feature.name === 'calendarIntegration' && (
-                      <Box pl={3} w="180px">
-                        <Select
-                          isDisabled={!feature.enabled}
-                          key={`${feature.key}-select`}
-                          autoFocus
-                          placeholder="Choose calendar"
-                          defaultValue={calendarOptions?.find(
-                            (c) => c.value === data?.activeCalendar?.key
-                          )}
-                          onChange={(e) => {
-                            setActiveCalendar({
-                              variables: { key: e.value },
-                            });
+                <Flex
+                  direction="row"
+                  justifyContent="flex-start"
+                  w="100%"
+                  h="30px"
+                  py={5}
+                  px={0}
+                  alignItems="center"
+                  key={feature.key}
+                >
+                  <Text fontSize="sm" w="180px" key={`${feature.key}-label`}>
+                    {camelCaseToInitialCaps(feature.name)}
+                  </Text>
+                  <Switch
+                    size="sm"
+                    onChange={() => {
+                      window.electronAPI.ipcRenderer.toggleFeature(
+                        feature.name,
+                        !feature.enabled
+                      );
+                      setFeature({
+                        variables: {
+                          key: feature.key,
+                          enabled: !feature.enabled,
+                        },
+                      });
+                    }}
+                    defaultChecked={feature.enabled ?? false}
+                  />
+                  {feature.name === 'calendarIntegration' && (
+                    <Box pl={3} w="180px">
+                      <Select
+                        isDisabled={!feature.enabled}
+                        key={`${feature.key}-select`}
+                        autoFocus
+                        placeholder="Choose calendar"
+                        defaultValue={calendarOptions.filter(
+                          (option) =>
+                            option.label ===
+                            data?.calendars.find((c) => c.active)?.name
+                        )}
+                        onChange={(e) => {
+                          setActiveCalendar({
+                            variables: { key: e.value },
+                          });
+                        }}
+                        options={calendarOptions}
+                        escapeClearsValue
+                      />
+                    </Box>
+                  )}
+                  {feature.name === 'bearNotesIntegration' && (
+                    <Box pl={3} w="180px">
+                      <Editable
+                        defaultValue={feature?.metadata?.apiToken}
+                        onSubmit={(val) => {
+                          setFeatureMetadata({
+                            variables: {
+                              key: feature.key,
+                              metadata: { apiToken: val },
+                            },
+                          });
+                        }}
+                        fontSize="sm"
+                        placeholder="Bear API Token"
+                        isDisabled={!feature.enabled}
+                      >
+                        <EditablePreview
+                          _hover={{
+                            bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
                           }}
-                          options={calendarOptions}
-                          escapeClearsValue
+                          py={2}
                         />
-                      </Box>
-                    )}
-                    {feature.name === 'bearNotesIntegration' && (
-                      <Box pl={3} w="180px">
-                        <Editable
-                          defaultValue={feature?.metadata?.apiToken}
-                          onSubmit={(val) => {
-                            setFeatureMetadata({
-                              variables: {
-                                key: feature.key,
-                                metadata: { apiToken: val },
-                              },
-                            });
-                          }}
-                          fontSize="sm"
-                          placeholder="Bear API Token"
-                          isDisabled={!feature.enabled}
-                        >
-                          <EditablePreview
-                            _hover={{
-                              bg:
-                                colorMode === 'light' ? 'gray.100' : 'gray.900',
-                            }}
-                            py={2}
-                          />
-                          <EditableInput py={2} />
-                        </Editable>
-                      </Box>
-                    )}
-                  </Flex>
-                </Box>
+                        <EditableInput py={2} />
+                      </Editable>
+                    </Box>
+                  )}
+                </Flex>
               );
             })}
           </Box>
@@ -354,7 +354,7 @@ const Settings = (): ReactElement => {
                   <Flex
                     direction="row"
                     justifyContent="flex-start"
-                    py={3}
+                    py={5}
                     px={0}
                     w="100%"
                     h="30px"

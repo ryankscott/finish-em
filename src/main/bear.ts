@@ -39,7 +39,7 @@ const getTodosFromString = (input: string): string[] => {
   }, []);
 };
 
-const getNoteContents = async (id: string): Promise<BearNote> => {
+const getNoteContents = async (id: string): Promise<BearNote | null> => {
   try {
     const res = await client.call('open-note', {
       id: id,
@@ -49,6 +49,7 @@ const getNoteContents = async (id: string): Promise<BearNote> => {
     if (res) {
       return JSON.parse(res);
     }
+    return null
   } catch (err) {
     console.error(
       `Failed to get note contents from note ${id} from bear - ${err}`
@@ -80,7 +81,7 @@ const getNotesWithTodos = async (token: string) => {
   }
 };
 
-export const createNote = (noteTitle, contents) => {
+export const createNote = (noteTitle: string, contents: string) => {
   const noteURL = new URL('/create', 'bear://x-callback-url/');
   noteURL.search = `text=yes&title=${encodeURI(noteTitle)}&text=${encodeURI(
     contents

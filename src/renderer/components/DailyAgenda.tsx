@@ -158,7 +158,7 @@ const DailyAgenda = (): ReactElement => {
           borderRadius="md"
           spacing={1}
         >
-          {sortedEventsForToday ? (
+          {sortedEventsForToday?.length > 0 ? (
             sortedEventsForToday.map((e: Event) => {
               return (
                 <Flex

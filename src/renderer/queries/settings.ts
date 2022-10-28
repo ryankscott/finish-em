@@ -23,10 +23,7 @@ export const GET_SETTINGS = gql`
     calendars {
       key
       name
-    }
-    activeCalendar: getActiveCalendar {
-      key
-      name
+      active
     }
   }
 `;
