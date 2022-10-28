@@ -1,14 +1,14 @@
 import { gql } from '@apollo/client';
-import { Calendar, Feature, Label } from 'main/generated/typescript-helpers';
+import { Calendar, Feature, Label } from 'main/resolvers-types';
 
-export type FeaturesAndLabels = {
+export type Settings = {
   features: Feature[];
   labels: Label[];
   calendars: Calendar[];
   activeCalendar: Calendar;
 };
-export const GET_FEATURES_AND_LABELS = gql`
-  query settings {
+export const GET_SETTINGS = gql`
+  query all_settings {
     features {
       key
       name

@@ -1,7 +1,7 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { ReactElement, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { ReactElement, useEffect, useState } from 'react';
 import colormap from 'colormap';
+import { v4 as uuidv4 } from 'uuid';
 import {
   Box,
   Flex,
@@ -11,28 +11,31 @@ import {
   Editable,
   EditableInput,
   EditablePreview,
+  ColorMode,
   Button,
   Icon,
-  ColorMode,
+  AlertIcon,
+  Alert,
+  AlertDescription,
 } from '@chakra-ui/react';
 import {
   CREATE_LABEL,
   DELETE_LABEL,
-  FeaturesAndLabels,
-  GET_FEATURES_AND_LABELS,
+  GET_SETTINGS,
   RECOLOUR_LABEL,
   RENAME_LABEL,
   SET_ACTIVE_CALENDAR,
   SET_FEATURE,
   SET_FEATURE_METADATA,
 } from '../queries';
-import { Icons } from 'renderer/assets/icons';
 import Select from './Select';
 import { camelCaseToInitialCaps } from '../utils';
 import { Calendar, Label } from 'main/resolvers-types';
 import LabelEdit from './LabelEdit';
+import { Icons } from 'renderer/assets/icons';
 
 const NUMBER_OF_COLOURS = 12;
+type SettingCategory = 'FEATURES' | 'LABELS' | 'ADVANCED';
 
 type SidebarHeadeProps = {
   name: string;
@@ -98,14 +101,14 @@ const generateOptions = (
 };
 
 const Settings = (): ReactElement => {
-  const [activeCategory, setActiveCategory] = useState('UI');
+  const [activeCategory, setActiveCategory] =
+    useState<SettingCategory>('FEATURES');
+  const [settings, setSettings] = useState<Record<string, string>>({});
 
-  const { loading, error, data } = useQuery<FeaturesAndLabels>(
-    GET_FEATURES_AND_LABELS
-  );
+  const { loading, error, data } = useQuery(GET_SETTINGS);
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR);
   const [setFeature] = useMutation(SET_FEATURE, {
-    refetchQueries: [GET_FEATURES_AND_LABELS],
+    refetchQueries: [GET_SETTINGS],
   });
   const [setFeatureMetadata] = useMutation(SET_FEATURE_METADATA);
   const [renameLabel] = useMutation(RENAME_LABEL, {});
@@ -127,6 +130,14 @@ const Settings = (): ReactElement => {
     format: 'hex',
     alpha: 1,
   });
+
+  useEffect(() => {
+    const getSettings = async () => {
+      const settings = await window.electronAPI.ipcRenderer.getSettings();
+      setSettings(settings);
+    };
+    getSettings();
+  }, []);
 
   // We have to update the cache on add / removes
   const [createLabel] = useMutation(CREATE_LABEL, {
@@ -174,10 +185,10 @@ const Settings = (): ReactElement => {
           Settings
         </Text>
         <SidebarHeader
-          name="User Interface"
+          name="Features"
           colorMode={colorMode}
-          isActive={activeCategory === 'UI'}
-          onClick={() => setActiveCategory('UI')}
+          isActive={activeCategory === 'FEATURES'}
+          onClick={() => setActiveCategory('FEATURES')}
         />
         <SidebarHeader
           name="Labels"
@@ -185,14 +196,20 @@ const Settings = (): ReactElement => {
           isActive={activeCategory === 'LABELS'}
           onClick={() => setActiveCategory('LABELS')}
         />
+        <SidebarHeader
+          name="Advanced"
+          colorMode={colorMode}
+          isActive={activeCategory === 'ADVANCED'}
+          onClick={() => setActiveCategory('ADVANCED')}
+        />
       </Flex>
       <Flex position="relative" direction="column" p={2} w="100%">
-        {activeCategory === 'UI' && (
+        {activeCategory === 'FEATURES' && (
           <Box p={3} my={6} px={3}>
-            <SettingHeader name="User Interface" />
+            <SettingHeader name="Features" />
             {data.features.map((feature) => {
               return (
-                <span key={`${feature.key}-container`}>
+                <Box key={`${feature.key}-container`}>
                   <Flex
                     direction="row"
                     justifyContent="flex-start"
@@ -246,7 +263,7 @@ const Settings = (): ReactElement => {
                     {feature.name === 'bearNotesIntegration' && (
                       <Box pl={3} w="180px">
                         <Editable
-                          defaultValue={JSON.parse(feature?.metadata)?.apiToken}
+                          defaultValue={feature?.metadata?.apiToken}
                           onSubmit={(val) => {
                             setFeatureMetadata({
                               variables: {
@@ -271,7 +288,7 @@ const Settings = (): ReactElement => {
                       </Box>
                     )}
                   </Flex>
-                </span>
+                </Box>
               );
             })}
           </Box>
@@ -321,6 +338,67 @@ const Settings = (): ReactElement => {
               >
                 Add label
               </Button>
+            </Flex>
+          </Box>
+        )}
+        {activeCategory === 'ADVANCED' && (
+          <Box p={3} my={6} px={3}>
+            <SettingHeader name="Advanced" />
+            <Text fontSize="md" fontWeight={500} mt={-2} mb={4}>
+              🐉 Changing these properties can cause you to lose all your data!!
+            </Text>
+            <Flex my={0.5} direction={'column'}>
+              {Object.keys(settings).map((key, index) => {
+                if (key === '__internal__') return;
+                return (
+                  <Flex
+                    direction="row"
+                    justifyContent="flex-start"
+                    py={3}
+                    px={0}
+                    w="100%"
+                    h="30px"
+                    alignItems="center"
+                  >
+                    <Text fontSize="sm" w="180px" fontWeight="bold">
+                      {camelCaseToInitialCaps(key)}
+                    </Text>
+                    {key === 'overrideDatabaseDirectory' && (
+                      <>
+                        <Text ml={3} fontSize="sm">
+                          {settings[key]}
+                        </Text>
+                        <Button
+                          ml={3}
+                          onClick={async () => {
+                            const newDirectory =
+                              await window.electronAPI.ipcRenderer.openDialog({
+                                title: 'Open folder',
+                                properties: ['openDirectory'],
+                              });
+                            window.electronAPI.ipcRenderer.setSetting(
+                              'overrideDatabaseDirectory',
+                              newDirectory?.[0]
+                            );
+
+                            setSettings(
+                              await window.electronAPI.ipcRenderer.getSettings()
+                            );
+                          }}
+                        >
+                          Open
+                        </Button>
+                      </>
+                    )}
+                  </Flex>
+                );
+              })}
+              <Alert status="warning" size={'sm'} borderRadius={'md'} my={4}>
+                <AlertIcon />
+                <AlertDescription fontSize={'md'}>
+                  Finish em will restart after chosing a new database directory
+                </AlertDescription>
+              </Alert>
             </Flex>
           </Box>
         )}

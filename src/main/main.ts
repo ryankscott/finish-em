@@ -1,12 +1,11 @@
 import { loadFiles } from '@graphql-tools/load-files';
+import { ApolloServer } from 'apollo-server';
 import applescript from 'applescript';
 import { isAfter, parseISO, parseJSON } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import {
   app,
-  BrowserWindow,
-  globalShortcut,
-  ipcMain,
+  BrowserWindow, dialog, globalShortcut, ipcMain,
   net,
   shell
 } from 'electron';
@@ -33,12 +32,12 @@ import { CalendarEntity, EventEntity } from './database/types';
 import { Release } from './github';
 import resolvers from './resolvers';
 import { AttendeeInput } from './resolvers-types';
+import { store } from './settings';
 
-import { ApolloServer } from 'apollo-server';
 
 const executeAppleScript = util.promisify(applescript.execString);
-
 log.transports.console.level = 'debug';
+
 
 const isDev =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
@@ -46,17 +45,30 @@ log.info(`Running in ${isDev ? 'development' : 'production'}`);
 let mainWindow: BrowserWindow | null = null;
 let quickAddWindow: BrowserWindow | null = null;
 let db: sqlite.Database<sqlite3.Database>;
+let server: ApolloServer;
+let apolloDb: AppDatabase;
 let calendarSyncInterval: NodeJS.Timer;
+
+const determineDatabasePath = (isDev: boolean): string => {
+  const overrideDatabaseDirectory = store.get('overrideDatabaseDirectory') as string;
+  if (overrideDatabaseDirectory) {
+    return `${overrideDatabaseDirectory}/finish_em.db`
+  }
+  return isDev
+    ? './finish_em.db'
+    : path.join(app.getPath('userData'), './finish_em.db');
+}
+
+
 const knexConfig = {
   client: 'sqlite3',
   connection: {
-    filename: isDev
-      ? './database.db'
-      : path.join(app.getPath('userData'), './database.db'),
+    filename: determineDatabasePath(isDev)
   },
   useNullAsDefault: true,
 };
-const apolloDb = new AppDatabase(knexConfig);
+
+apolloDb = new AppDatabase(knexConfig);
 
 // TODO: Refactor all of this
 
@@ -69,7 +81,7 @@ const startApolloServer = async () => {
   log.info(`Loading schemas from: ${schemasPath}`);
   try {
     const typeDefs = await loadFiles(`${schemasPath}*.graphql`);
-    const server = new ApolloServer({
+    server = new ApolloServer({
       typeDefs,
       resolvers,
       dataSources: () => ({ apolloDb }),
@@ -91,28 +103,32 @@ const startApolloServer = async () => {
   }
 };
 
+
 const setUpDatabase = async (): Promise<
   sqlite.Database<sqlite3.Database, sqlite3.Statement>
 > => {
-  const databasePath = isDev
-    ? './database.db'
-    : path.join(app.getPath('userData'), './database.db');
 
+  const databasePath = determineDatabasePath(isDev)
   log.info(`Loading database at: ${databasePath}`);
 
   db = await sqlite.open({
     filename: databasePath,
     driver: sqlite3.Database,
   });
+
   await db.run('PRAGMA foreign_keys=on');
   const migrationsPath = isDev
     ? path.join(__dirname, '../../src/main/migrations')
     : path.join(process.resourcesPath, '/migrations/');
 
   log.info(`Loading migrations at: ${migrationsPath}`);
-  await db.migrate({
-    migrationsPath,
-  });
+  try {
+    await db.migrate({
+      migrationsPath,
+    });
+  } catch (e) {
+    log.error({ error: e }, "Failed to migrate")
+  }
   // await db.on('trace', (data) => {
   //   console.log(data)
   // })
@@ -129,22 +145,6 @@ const createCalendar = async (
   return apolloDb.createCalendar(key.toString(), name, active);
 };
 
-const createItemFromAppleMail = async () => {
-  const mailLink = await executeAppleScript(appleMailLinkScript);
-  if (mailLink) {
-    mainWindow?.webContents.send('create-item', {
-      key: uuidv4(),
-      type: 'TODO',
-      text: mailLink,
-    });
-    mainWindow?.webContents.send('send-notification', {
-      text: `Task added from Apple Mail`,
-      type: 'info',
-    });
-  } else {
-    log.error(`Failed to get mail link`);
-  }
-};
 
 const saveCalendars = async (
   cals: { id: number; title: string }[],
@@ -287,34 +287,6 @@ const checkForNewVersion = () => {
   request.end();
 };
 
-function createQuickAddWindow() {
-  if (quickAddWindow) return;
-  quickAddWindow = new BrowserWindow({
-    width: 560,
-    height: 45,
-    transparent: true,
-    frame: false,
-    resizable: false,
-    movable: true,
-    webPreferences: {
-      nodeIntegration: false,
-      preload: path.join(__dirname, 'preload.js'),
-    },
-  });
-
-  quickAddWindow.loadURL(
-    isDev
-      ? 'http://localhost:1212?quickAdd'
-      : `file://${path.join(__dirname, '../renderer/index.html?quickAdd')}`
-  );
-  // Open dev tools
-  // quickAddWindow.webContents.openDevTools()
-
-  // On closing derefernce
-  quickAddWindow.on('closed', () => {
-    quickAddWindow = null;
-  });
-}
 
 function createMainWindow() {
   // Create the browser window.
@@ -402,14 +374,17 @@ const saveAppleCalendarEvents = async (getRecurringEvents: boolean) => {
 };
 
 const startApp = async () => {
+
   db = await setUpDatabase();
 
   await startApolloServer();
 
   const features = await apolloDb.getFeatures();
+
   const calendarIntegration = features?.find(
     (f) => f.name === 'calendarIntegration'
   );
+
 
   if (calendarIntegration?.enabled) {
     log.info('Calendar integration enabled - turning on sync');
@@ -497,6 +472,19 @@ ipcMain.on('active-calendar-set', () => {
   saveAppleCalendarEvents(false);
 });
 
+
+ipcMain.on('set-setting', async (_, arg) => {
+  log.info('Setting setting')
+  const settingName = arg.name
+  store.set(settingName, arg.contents)
+
+  if (settingName === 'overrideDatabaseDirectory') {
+    app.relaunch()
+    app.exit(0)
+  }
+})
+
+
 ipcMain.on('feature-toggled', (_, arg) => {
   if (arg.name === 'calendarIntegration') {
     if (arg.enabled) {
@@ -509,6 +497,20 @@ ipcMain.on('feature-toggled', (_, arg) => {
       log.info('Disabling calendar sync');
       clearInterval(calendarSyncInterval);
     }
+
   }
 
 });
+
+
+const handleGetSettings = () => {
+  log.info("Getting settings");
+  return store.store
+}
+
+ipcMain.handle('get-settings', handleGetSettings)
+
+ipcMain.handle('open-dialog', (_, options) => {
+  log.info("Opening dialog")
+  return dialog.showOpenDialogSync(options)
+})
