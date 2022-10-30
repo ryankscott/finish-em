@@ -6,6 +6,7 @@ import {
   Icon,
   IconButton,
   useOutsideClick,
+  useColorMode,
 } from '@chakra-ui/react';
 import { createRef, useState } from 'react';
 import { Icons } from 'renderer/assets/icons';
@@ -28,6 +29,7 @@ const LabelEdit = ({
 }: LabelEditProps) => {
   const [showColourPicker, setShowColourPicker] = useState<boolean>(false);
   const [labelName, setLabelName] = useState<string>(name);
+  const { colorMode } = useColorMode();
   const ref = createRef<HTMLDivElement>();
   useOutsideClick({
     ref,
@@ -72,7 +74,7 @@ const LabelEdit = ({
         minH="24px"
         borderRadius="50%"
         borderWidth="3px"
-        borderColor="gray.100"
+        borderColor={colorMode === 'light' ? 'gray.100' : 'gray.900'}
         onClick={(e) => {
           setShowColourPicker(!showColourPicker);
           e.stopPropagation();
@@ -95,7 +97,7 @@ const LabelEdit = ({
           position="absolute"
           zIndex={99}
           border="1px solid"
-          borderColor="gray.200"
+          borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
           borderRadius="8px"
           shadow="md"
         >
