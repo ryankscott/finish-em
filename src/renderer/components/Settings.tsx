@@ -17,6 +17,11 @@ import {
   AlertIcon,
   Alert,
   AlertDescription,
+  TabPanel,
+  TabList,
+  Tab,
+  Tabs,
+  TabPanels,
 } from '@chakra-ui/react';
 import {
   CREATE_LABEL,
@@ -30,61 +35,15 @@ import {
 } from '../queries';
 import Select from './Select';
 import { camelCaseToInitialCaps } from '../utils';
-import { Calendar, Label } from 'main/resolvers-types';
+import { Calendar, Feature, Label } from 'main/resolvers-types';
 import LabelEdit from './LabelEdit';
 import { Icons } from 'renderer/assets/icons';
 
 const NUMBER_OF_COLOURS = 12;
-type SettingCategory = 'FEATURES' | 'LABELS' | 'ADVANCED';
-
-type SidebarHeadeProps = {
-  name: string;
-  colorMode: 'light' | 'dark';
-  isActive: boolean;
-  onClick: () => void;
-};
-
-const determineBackgroundColour = (
-  isActive: boolean,
-  colorMode: ColorMode
-): string => {
-  if (isActive) {
-    if (colorMode === 'light') {
-      return 'gray.200';
-    }
-    return 'gray.900';
-  }
-  if (colorMode === 'light') {
-    return 'gray.50';
-  }
-  return 'gray.800';
-};
-
-const SidebarHeader = ({
-  name,
-  colorMode,
-  isActive,
-  onClick,
-}: SidebarHeadeProps) => (
-  <Text
-    fontSize="md"
-    fontWeight="regular"
-    py={2}
-    px={6}
-    m={0}
-    cursor="pointer"
-    bg={determineBackgroundColour(isActive, colorMode)}
-    onClick={() => {
-      onClick();
-    }}
-  >
-    {name}
-  </Text>
-);
 
 type SettingHeaderProps = { name: string };
 const SettingHeader = ({ name }: SettingHeaderProps): JSX.Element => (
-  <Text py={4} px={0} fontSize="xl" fontWeight="semibold">
+  <Text py={4} px={0} fontSize="2xl" fontWeight="semibold">
     {name}
   </Text>
 );
@@ -101,10 +60,7 @@ const generateOptions = (
 };
 
 const Settings = (): ReactElement => {
-  const [activeCategory, setActiveCategory] =
-    useState<SettingCategory>('FEATURES');
   const [settings, setSettings] = useState<Record<string, string>>({});
-
   const { loading, error, data } = useQuery(GET_SETTINGS);
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
     refetchQueries: [GET_SETTINGS],
@@ -172,44 +128,26 @@ const Settings = (): ReactElement => {
 
   return (
     <Flex direction="row" w="100%" h="100vh">
-      <Flex
-        borderRight="1px solid"
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
-        direction="column"
-        w="280px"
-        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-        py={2}
-        px={0}
-        h="100%"
-        shadow="md"
-      >
-        <Text p={4} fontSize="lg" fontWeight="semibold">
-          Settings
-        </Text>
-        <SidebarHeader
-          name="Features"
-          colorMode={colorMode}
-          isActive={activeCategory === 'FEATURES'}
-          onClick={() => setActiveCategory('FEATURES')}
-        />
-        <SidebarHeader
-          name="Labels"
-          colorMode={colorMode}
-          isActive={activeCategory === 'LABELS'}
-          onClick={() => setActiveCategory('LABELS')}
-        />
-        <SidebarHeader
-          name="Advanced"
-          colorMode={colorMode}
-          isActive={activeCategory === 'ADVANCED'}
-          onClick={() => setActiveCategory('ADVANCED')}
-        />
-      </Flex>
-      <Flex position="relative" direction="column" p={2} w="100%">
-        {activeCategory === 'FEATURES' && (
-          <Box p={3} my={6} px={3}>
+      <Tabs orientation="vertical" variant="custom">
+        <TabList>
+          <Text p={4} fontSize="lg" fontWeight="semibold">
+            Settings
+          </Text>
+          <Tab borderRadius="none" justifyContent="start">
+            Features
+          </Tab>
+          <Tab borderRadius="none" justifyContent="start">
+            Labels
+          </Tab>
+          <Tab borderRadius="none" justifyContent="start">
+            Advanced
+          </Tab>
+        </TabList>
+
+        <TabPanels>
+          <TabPanel px={10}>
             <SettingHeader name="Features" />
-            {data.features.map((feature) => {
+            {data.features.map((feature: Feature) => {
               return (
                 <Flex
                   direction="row"
@@ -291,10 +229,8 @@ const Settings = (): ReactElement => {
                 </Flex>
               );
             })}
-          </Box>
-        )}
-        {activeCategory === 'LABELS' && (
-          <Box p={3} my={6} px={3}>
+          </TabPanel>
+          <TabPanel px={10}>
             <SettingHeader name="Labels" />
             {Object.values(data.labels).map((label: Label) => {
               return (
@@ -339,10 +275,8 @@ const Settings = (): ReactElement => {
                 Add label
               </Button>
             </Flex>
-          </Box>
-        )}
-        {activeCategory === 'ADVANCED' && (
-          <Box p={3} my={6} px={3}>
+          </TabPanel>
+          <TabPanel px={10}>
             <SettingHeader name="Advanced" />
             <Text fontSize="md" fontWeight={500} mt={-2} mb={4}>
               🐉 Changing these properties can cause you to lose all your data!!
@@ -400,9 +334,9 @@ const Settings = (): ReactElement => {
                 </AlertDescription>
               </Alert>
             </Flex>
-          </Box>
-        )}
-      </Flex>
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
     </Flex>
   );
 };

@@ -15,6 +15,7 @@ import Menu from './components/menu';
 import Tooltip from './components/tooltip';
 import Editable from './components/editable';
 import CloseButton from './components/closebutton';
+import Tabs from './components/tabs';
 
 const theme = extendTheme({
   initialColorMode: 'light',
@@ -30,7 +31,7 @@ const theme = extendTheme({
     Tooltip,
     Editable,
     CloseButton,
-    // Other components go here
+    Tabs,
   },
 });
 export default theme;
