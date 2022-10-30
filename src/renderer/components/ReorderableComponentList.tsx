@@ -272,7 +272,8 @@ const ReorderableComponentList = ({
                           ],
                           not: false,
                         }),
-                        hiddenIcons: [],
+                        hiddenIcons:
+                          data.view.type == 'project' ? ['project'] : [],
                         isFilterable: true,
                         listName: 'Todo',
                         flattenSubtasks: true,
