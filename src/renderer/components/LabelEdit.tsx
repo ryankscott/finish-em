@@ -38,13 +38,9 @@ const LabelEdit = ({
     },
   });
 
-  const debouncedColourChange = useDebouncedCallback(
-    // function
-    (colour) => {
-      colourChange(colour);
-    },
-    250
-  );
+  const debouncedColourChange = useDebouncedCallback((colour) => {
+    colourChange(colour);
+  }, 250);
 
   return (
     <Flex
