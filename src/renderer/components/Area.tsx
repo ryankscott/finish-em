@@ -1,11 +1,13 @@
 import { useMutation, useQuery } from '@apollo/client';
 import {
+  Button,
   Editable,
   EditableInput,
   EditablePreview,
   Flex,
   Grid,
   GridItem,
+  Icon,
   Text,
   useColorMode,
 } from '@chakra-ui/react';
@@ -14,6 +16,8 @@ import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
+  ADD_COMPONENT,
+  CREATE_PROJECT,
   DELETE_AREA,
   GET_AREA_BY_KEY,
   GET_SIDEBAR,
@@ -22,7 +26,7 @@ import {
   SET_EMOJI,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import { formatRelativeDate } from '../utils';
+import { formatRelativeDate, getProductName } from '../utils';
 import DeleteAreaDialog from './DeleteAreaDialog';
 import { Donut } from './Donut';
 import EditableText from './EditableText';
@@ -31,6 +35,7 @@ import Page from './Page';
 import { ItemIcons } from 'renderer/interfaces';
 import EmojiPicker from './EmojiPicker';
 import EmojiDisplay from './EmojiDisplay';
+import { Icons } from 'renderer/assets/icons';
 
 type AreaProps = {
   areaKey: string;
@@ -41,11 +46,15 @@ const Area = (props: AreaProps): ReactElement => {
   const { colorMode } = useColorMode();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [setEmoji] = useMutation(SET_EMOJI);
+  const [addComponent] = useMutation(ADD_COMPONENT);
   const [deleteArea] = useMutation(DELETE_AREA, {
     refetchQueries: [GET_SIDEBAR],
   });
   const [setDescriptionOfArea] = useMutation(SET_DESCRIPTION_OF_AREA);
   const [renameArea] = useMutation(RENAME_AREA);
+  const [createProject] = useMutation(CREATE_PROJECT, {
+    refetchQueries: [GET_SIDEBAR, GET_AREA_BY_KEY],
+  });
 
   const { loading, error, data, refetch } = useQuery(GET_AREA_BY_KEY, {
     variables: { key: areaKey },
@@ -283,6 +292,71 @@ const Area = (props: AreaProps): ReactElement => {
             </Grid>
           );
         })}
+
+        <Flex w="100%" my={2} justifyContent="flex-end">
+          <Button
+            variant="primary"
+            rightIcon={<Icon as={Icons.add} />}
+            onClick={async () => {
+              const projectKey = uuidv4();
+              await createProject({
+                variables: {
+                  key: projectKey,
+                  name: getProductName(),
+                  description: '',
+                  startAt: null,
+                  endAt: null,
+                  areaKey: area.key,
+                },
+              });
+              addComponent({
+                variables: {
+                  input: {
+                    key: uuidv4(),
+                    viewKey: projectKey,
+                    type: 'FilteredItemList',
+                    location: 'main',
+                    parameters: {
+                      filter: JSON.stringify({
+                        combinator: 'and',
+                        rules: [
+                          {
+                            combinator: 'and',
+                            rules: [
+                              {
+                                field: 'projectKey',
+                                operator: '=',
+                                valueSource: 'value',
+                                value: projectKey,
+                              },
+                              {
+                                field: 'deleted',
+                                operator: '=',
+                                valueSource: 'value',
+                                value: false,
+                              },
+                            ],
+                            not: false,
+                          },
+                        ],
+                        not: false,
+                      }),
+                      hiddenIcons: ['project'],
+                      isFilterable: true,
+                      listName: 'Todo',
+                      flattenSubtasks: true,
+                      showCompletedToggle: true,
+                      initiallyExpanded: true,
+                    },
+                  },
+                },
+              });
+              navigate(`/views/${projectKey}`);
+            }}
+          >
+            Add Project
+          </Button>
+        </Flex>
       </Flex>
     </Page>
   );

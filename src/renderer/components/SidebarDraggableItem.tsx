@@ -2,7 +2,6 @@
 import React from 'react';
 import { Flex } from '@chakra-ui/react';
 import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
-import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
   snapshot: DraggableStateSnapshot;
@@ -17,10 +16,11 @@ const SidebarDraggableItem = ({ snapshot, provided, children }: Props) => {
       w="100%"
       m={0}
       p={0}
-      key={uuidv4()}
+      my={0.5}
       bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
       shadow={snapshot.isDragging ? 'lg' : 'none'}
-      border={snapshot.isDragging ? '1px solid gray.900' : 'none'}
+      border={'1px solid'}
+      borderColor={snapshot.isDragging ? 'gray.900' : 'transparent'}
       borderRadius="md"
       {...provided.draggableProps}
       {...provided.dragHandleProps}

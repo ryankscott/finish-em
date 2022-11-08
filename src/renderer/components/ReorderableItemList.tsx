@@ -25,6 +25,7 @@ import ItemComponent from './Item';
 import Pagination from './Pagination';
 import { SortDirectionEnum, SortOption } from './SortDropdown';
 import { isFuture, parseISO } from 'date-fns';
+import { useColorMode } from '@chakra-ui/react';
 
 type ReorderableItemListProps = {
   componentKey: string;
@@ -55,7 +56,10 @@ function ReorderableItemList({
   showSnoozedItems,
   onItemsFetched,
 }: ReorderableItemListProps): ReactElement {
-  const [setItemOrder] = useMutation(SET_ITEM_ORDER);
+  const { colorMode } = useColorMode();
+  const [setItemOrder] = useMutation(SET_ITEM_ORDER, {
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [sortedItems, setSortedItems] = useState<Item[] | []>([]);
   const [bulkCreateItemOrders] = useMutation(BULK_CREATE_ITEM_ORDERS);
@@ -114,6 +118,7 @@ function ReorderableItemList({
     deleteItemOrdersByComponent({
       variables: { componentKey },
     });
+
     const sortedItemKeys = sorted.map((s) => s.key);
     bulkCreateItemOrders({
       variables: { itemKeys: sortedItemKeys, componentKey },
@@ -144,6 +149,7 @@ function ReorderableItemList({
 
   const reorderItems = (result: DropResult): void => {
     const { destination, source, draggableId } = result;
+
     //  Trying to detect drops in non-valid areas
     if (!destination) return;
 
@@ -164,7 +170,7 @@ function ReorderableItemList({
       variables: {
         itemKey: draggableId,
         componentKey,
-        sortOrder: itemAtDestination.sortOrder.sortOrder,
+        sortOrder: itemAtDestination?.sortOrder?.sortOrder,
       },
     });
   };
@@ -173,17 +179,6 @@ function ReorderableItemList({
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
-
-  /* TODO: Introduce the following shortcuts:
-	- Scheduled At
-	- Due At
-	- Create subtask
-	- Convert to subtask
-	- Repeat
-	- Add Project
-	- Add Area
-	- Edit description
- */
 
   if (error) {
     console.log(error);
@@ -198,7 +193,7 @@ function ReorderableItemList({
   return (
     <>
       <DragDropContext onDragEnd={(result) => reorderItems(result)}>
-        <Droppable droppableId={uuidv4()} type="ITEM">
+        <Droppable droppableId={'items'} type="ITEM">
           {(provided, snapshot) => (
             <Flex
               zIndex={0}
@@ -235,9 +230,16 @@ function ReorderableItemList({
                         userSelect="none"
                         p={0}
                         m={0}
-                        border="none"
+                        border={'1px solid'}
+                        borderColor={() => {
+                          if (snapshot.isDragging) {
+                            if (colorMode == 'dark') return 'gray.900';
+                            return 'gray.200';
+                          }
+                          return 'transparent';
+                        }}
                         borderRadius="md"
-                        shadow={snapshot.isDragging ? 'base' : 'none'}
+                        shadow={snapshot.isDragging ? 'lg' : 'none'}
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}

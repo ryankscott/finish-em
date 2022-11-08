@@ -8,17 +8,14 @@ import { getProductName } from 'renderer/utils';
 import { useNavigate } from 'react-router-dom';
 
 interface SidebarAddProjectButtonProps {
-  sidebarVisible: boolean;
+  areaKey: string;
 }
 
-const SidebarAddProjectButton = ({
-  sidebarVisible,
-}: SidebarAddProjectButtonProps) => {
+const SidebarAddProjectButton = ({ areaKey }: SidebarAddProjectButtonProps) => {
   const navigate = useNavigate();
   const [createProject] = useMutation(CREATE_PROJECT, {
     refetchQueries: [GET_SIDEBAR],
   });
-  if (!sidebarVisible) return null;
   return (
     <Flex w="100%" justifyContent="center">
       <Button
@@ -35,7 +32,7 @@ const SidebarAddProjectButton = ({
               description: '',
               startAt: null,
               endAt: null,
-              areaKey: a.key,
+              areaKey: areaKey,
             },
           });
           navigate(`/views/${projectKey}`);

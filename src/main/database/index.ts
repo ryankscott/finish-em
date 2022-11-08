@@ -60,7 +60,7 @@ class AppDatabase extends SQLDataSource {
     try {
       await this.knex('viewOrder').insert({
         viewKey,
-        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+        sortOrder: maxSortOrder?.max ? maxSortOrder?.max + 1 : 0,
       });
 
       const insertedRow = await this.knex<ViewOrderEntity>('viewOrder')
@@ -80,24 +80,25 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
-  async setViewOrder(key: string, sortOrder: number): Promise<ViewOrderEntity> {
-    log.debug(`Setting view order for view: ${key} to ${sortOrder}`);
+  async setViewOrder(key: string, newSortOrder: number): Promise<ViewOrderEntity> {
+    log.debug(`Setting view order for view: ${key} to ${newSortOrder}`);
     const currentViewOrder = await this.getViewOrder(key);
     if (!currentViewOrder) {
       throw new Error('Failed to get current view order');
     }
 
     const currentOrder = currentViewOrder.sortOrder;
-    if (sortOrder < currentOrder) {
+    if (newSortOrder < currentOrder) {
       await this.knex('viewOrder')
-        .update({ sortOrder: sortOrder + 1 })
-        .whereBetween('sortOrder', [sortOrder, currentOrder - 1]);
+      await this.knex('projectOrder')
+        .increment('sortOrder', 1)
+        .whereBetween('sortOrder', [newSortOrder, currentOrder]);
     } else {
       await this.knex('viewOrder')
-        .update({ sortOrder: sortOrder - 1 })
-        .whereBetween('sortOrder', [currentOrder + 1, sortOrder]);
+        .decrement('sortOrder', 1)
+        .whereBetween('sortOrder', [currentOrder + 1, newSortOrder]);
     }
-    await this.knex('viewOrder').where({ viewKey: key }).update({ sortOrder });
+    await this.knex('viewOrder').where({ viewKey: key }).update({ sortOrder: newSortOrder });
 
     const newViewOrder = await this.getViewOrder(key);
     if (!newViewOrder) {
@@ -248,7 +249,7 @@ class AppDatabase extends SQLDataSource {
     try {
       await this.knex('projectOrder').insert({
         projectKey,
-        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+        sortOrder: maxSortOrder?.max ? maxSortOrder?.max + 1 : 0,
       });
 
       const insertedRow = await this.getProjectOrder(projectKey);
@@ -269,24 +270,27 @@ class AppDatabase extends SQLDataSource {
 
   async setProjectOrder(
     key: string,
-    sortOrder: number
+    newSortOrder: number
   ): Promise<ProjectOrderEntity> {
-    log.debug(`Setting project order with key: ${key} to ${sortOrder}`);
+    log.debug(`Setting project order with key: ${key} to ${newSortOrder}`);
     const currentProjectOrder = await this.getProjectOrder(key);
     const currentOrder = currentProjectOrder.sortOrder;
     try {
-      if (sortOrder < currentOrder) {
+      // Moving up the sortOrder (i.e. decreasing sortOrder)
+      if (newSortOrder < currentOrder) {
         await this.knex('projectOrder')
-          .update({ sortOrder: sortOrder + 1 })
-          .whereBetween('sortOrder', [sortOrder, currentOrder - 1]);
+          .increment('sortOrder', 1)
+          .whereBetween('sortOrder', [newSortOrder, currentOrder]);
       } else {
+
+        // Moving down the sortOrder (i.e. increasing sortOrder)
         await this.knex('projectOrder')
-          .update({ sortOrder: sortOrder - 1 })
-          .whereBetween('sortOrder', [currentOrder + 1, sortOrder]);
+          .decrement('sortOrder', 1)
+          .whereBetween('sortOrder', [currentOrder + 1, newSortOrder]);
       }
       await this.knex('projectOrder')
         .where({ projectKey: key })
-        .update({ sortOrder });
+        .update({ sortOrder: newSortOrder });
     } catch (err) {
       log.error(`Failed to set projectOrder with key: ${key} - ${err}`);
       throw err;
@@ -552,7 +556,7 @@ class AppDatabase extends SQLDataSource {
 
       const insertedId = await this.knex('areaOrder').insert({
         areaKey,
-        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+        sortOrder: maxSortOrder?.max ? maxSortOrder?.max + 1 : 0,
       });
       if (!insertedId) {
         log.error(`Failed to create areaOrder with areaKey: ${areaKey}`);
@@ -566,24 +570,24 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
-  async setAreaOrder(key: string, sortOrder: number): Promise<AreaOrderEntity> {
-    log.debug(`Setting area order with key: ${key} to ${sortOrder}`);
+  async setAreaOrder(key: string, newSortOrder: number): Promise<AreaOrderEntity> {
+    log.debug(`Setting area order with key: ${key} to ${newSortOrder}`);
     try {
       const currentAreaOrder = await this.getAreaOrder(key);
       const currentOrder = currentAreaOrder.sortOrder;
-      if (sortOrder < currentOrder) {
+      if (newSortOrder < currentOrder) {
         await this.knex('areaOrder')
-          .update({ sortOrder: sortOrder + 1 })
-          .whereBetween('sortOrder', [sortOrder, currentOrder - 1]);
+          .increment('sortOrder', 1)
+          .whereBetween('sortOrder', [newSortOrder, currentOrder]);
       } else {
         await this.knex('areaOrder')
-          .update({ sortOrder: sortOrder - 1 })
-          .whereBetween('sortOrder', [currentOrder + 1, sortOrder]);
+          .decrement('sortOrder', 1)
+          .whereBetween('sortOrder', [currentOrder + 1, newSortOrder]);
       }
 
       const updatedId = await this.knex('areaOrder')
         .where({ areaKey: key })
-        .update({ sortOrder });
+        .update({ sortOrder: newSortOrder });
 
       if (!updatedId) {
         log.error(`Failed to set areaOrder with key: ${key}`);
@@ -819,7 +823,7 @@ class AppDatabase extends SQLDataSource {
       const insertedId = await this.knex('itemOrder').insert({
         itemKey,
         componentKey,
-        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+        sortOrder: maxSortOrder?.max ? maxSortOrder?.max + 1 : 0,
       });
 
       if (!insertedId) {
@@ -850,10 +854,12 @@ class AppDatabase extends SQLDataSource {
         .where({ componentKey })
         .first();
 
+      const firstIndex = maxSortOrder?.max ? maxSortOrder?.max + 1 : 0
+
       const rowsToInsert = itemOrders.map((itemKey, idx) => ({
         itemKey,
         componentKey,
-        sortOrder: maxSortOrder ? maxSortOrder?.max + idx + 1 : 1,
+        sortOrder: firstIndex + idx,
       }));
 
       // Sqlite3 has a limit of 500 terms in a compound select (https://www.sqlite.org/limits.html)
@@ -882,28 +888,28 @@ class AppDatabase extends SQLDataSource {
   async setItemOrder(
     itemKey: string,
     componentKey: string,
-    sortOrder: number
+    newSortOrder: number
   ): Promise<ItemOrderEntity> {
     log.debug(
-      `Setting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey} to sortOrder: ${sortOrder}`
+      `Setting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey} to sortOrder: ${newSortOrder}`
     );
     try {
       const currentItemOrder = await this.getItemOrder(itemKey, componentKey);
       const currentOrder = currentItemOrder.sortOrder;
-      if (sortOrder < currentOrder) {
+      if (newSortOrder < currentOrder) {
         await this.knex('itemOrder')
-          .update({ sortOrder: sortOrder + 1 })
-          .whereBetween('sortOrder', [sortOrder, currentOrder - 1])
+          .increment('sortOrder', 1)
+          .whereBetween('sortOrder', [newSortOrder, currentOrder - 1])
           .where({ componentKey });
       } else {
         await this.knex('itemOrder')
-          .update({ sortOrder: sortOrder - 1 })
-          .whereBetween('sortOrder', [currentOrder + 1, sortOrder])
+          .decrement('sortOrder', 1)
+          .whereBetween('sortOrder', [currentOrder, newSortOrder])
           .where({ componentKey });
       }
       const itemOrderId = await this.knex('itemOrder')
         .where({ itemKey, componentKey })
-        .update({ sortOrder });
+        .update({ sortOrder: newSortOrder });
 
       if (!itemOrderId) {
         log.error(
@@ -2087,7 +2093,7 @@ class AppDatabase extends SQLDataSource {
 
       const insertedId = await this.knex('componentOrder').insert({
         componentKey,
-        sortOrder: maxSortOrder ? maxSortOrder?.max + 1 : 0,
+        sortOrder: maxSortOrder?.max ? maxSortOrder?.max + 1 : 0,
       });
 
       if (insertedId) {
@@ -2104,27 +2110,27 @@ class AppDatabase extends SQLDataSource {
   // TODO: Wrap this in a transaction
   async setComponentOrder(
     componentKey: string,
-    sortOrder: number
+    newSortOrder: number
   ): Promise<ComponentOrderEntity> {
     log.debug(
-      `Setting component order with component key: ${componentKey}, sortOrder: ${sortOrder}`
+      `Setting component order with component key: ${componentKey}, sortOrder: ${newSortOrder}`
     );
     try {
       const currentcomponentOrder = await this.getComponentOrder(componentKey);
       const currentOrder = currentcomponentOrder.sortOrder;
-      if (sortOrder < currentOrder) {
+      if (newSortOrder < currentOrder) {
         await this.knex('componentOrder')
-          .update({ sortOrder: sortOrder + 1 })
-          .whereBetween('sortOrder', [sortOrder, currentOrder - 1]);
+          .increment('sortOrder', 1)
+          .whereBetween('sortOrder', [newSortOrder, currentOrder]);
       } else {
         await this.knex('componentOrder')
-          .update({ sortOrder: sortOrder - 1 })
-          .whereBetween('sortOrder', [currentOrder + 1, sortOrder]);
+          .decrement('sortOrder', 1)
+          .whereBetween('sortOrder', [currentOrder + 1, newSortOrder]);
       }
 
       const updatedComponentOrderId = await this.knex('componentOrder')
         .where({ componentKey })
-        .update({ sortOrder });
+        .update({ sortOrder: newSortOrder });
       if (updatedComponentOrderId) {
         return await this.getComponentOrder(componentKey);
       }
