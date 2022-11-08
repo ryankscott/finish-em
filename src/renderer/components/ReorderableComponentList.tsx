@@ -47,7 +47,9 @@ const ReorderableComponentList = ({
   const [addComponent] = useMutation(ADD_COMPONENT, {
     refetchQueries: [GET_COMPONENTS_BY_VIEW],
   });
-  const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER);
+  const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER, {
+    refetchQueries: [GET_COMPONENTS_BY_VIEW],
+  });
   const [sortedComponents, setSortedComponents] = useState<Component[] | []>(
     []
   );
@@ -112,7 +114,7 @@ const ReorderableComponentList = ({
     >
       <DragDropContext
         onDragEnd={(result: DropResult) => {
-          const { destination, source, draggableId, type } = result;
+          const { destination, source, draggableId } = result;
 
           //  Trying to detect drops in non-valid areas
           if (!destination) {
@@ -123,6 +125,11 @@ const ReorderableComponentList = ({
 
           const componentAtDestination = sortedComponents[destination.index];
           const componentAtSource = sortedComponents[source.index];
+          console.log({ destination });
+          console.log({ source });
+
+          console.log({ componentAtSource });
+          console.log({ componentAtDestination });
 
           // Sync update
           const newSortedComponents = sortedComponents;
@@ -134,12 +141,12 @@ const ReorderableComponentList = ({
           setComponentOrder({
             variables: {
               componentKey: draggableId,
-              sortOrder: componentAtDestination.sortOrder.sortOrder,
+              sortOrder: componentAtDestination?.sortOrder?.sortOrder,
             },
           });
         }}
       >
-        <Droppable droppableId={uuidv4()} type="COMPONENT">
+        <Droppable droppableId={'component'} type="COMPONENT">
           {(provided, snapshot) => (
             <Flex
               direction="column"
@@ -153,57 +160,57 @@ const ReorderableComponentList = ({
               ref={provided.innerRef}
             >
               {sortedComponents.map((comp, index) => {
-                if (comp.location === 'main') {
-                  try {
-                    const params = JSON.parse(comp?.parameters);
-                    return (
-                      <Draggable
-                        key={comp.key}
-                        draggableId={comp.key}
-                        index={index}
-                        isDragDisabled={false}
-                      >
-                        {(provided, snapshot) => (
-                          <Flex
-                            position="relative"
-                            flexDirection="column"
-                            height="auto"
-                            userSelect="none"
-                            p={0}
-                            m={0}
-                            borderRadius="md"
-                            mb={8}
-                            border="1px solid"
-                            borderColor={
-                              snapshot.isDragging ? 'gray.200' : 'transparent'
-                            }
-                            bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-                            shadow={snapshot.isDragging ? 'md' : 'none'}
-                            ref={provided.innerRef}
-                            // eslint-disable-next-line react/jsx-props-no-spreading
-                            {...provided.draggableProps}
-                            key={`container-${comp.key}`}
+                try {
+                  const params = JSON.parse(comp?.parameters);
+                  return (
+                    <Draggable
+                      key={comp.key}
+                      draggableId={comp.key}
+                      index={index}
+                      isDragDisabled={false}
+                    >
+                      {(provided, snapshot) => (
+                        <Flex
+                          position="relative"
+                          flexDirection="column"
+                          height="auto"
+                          userSelect="none"
+                          p={0}
+                          m={0}
+                          borderRadius="md"
+                          mb={8}
+                          border="1px solid"
+                          borderColor={
+                            snapshot.isDragging ? 'gray.200' : 'transparent'
+                          }
+                          bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+                          shadow={snapshot.isDragging ? 'md' : 'none'}
+                          ref={provided.innerRef}
+                          // eslint-disable-next-line react/jsx-props-no-spreading
+                          {...provided.draggableProps}
+                          key={`container-${comp.key}`}
+                        >
+                          <DragHandle
+                            dragHandleProps={provided.dragHandleProps}
+                          />
+                          <ComponentActions
+                            readOnly={false}
+                            componentKey={comp.key}
                           >
-                            <DragHandle
-                              dragHandleProps={provided.dragHandleProps}
-                            />
-                            <ComponentActions
-                              readOnly={false}
-                              componentKey={comp.key}
-                            >
-                              {componentSwitch(params, comp, provided)}
-                            </ComponentActions>
-                          </Flex>
-                        )}
-                      </Draggable>
-                    );
-                  } catch (e) {
-                    console.log(
-                      `Failed to parse parameters of sortedComponent - ${comp.key}, with error - ${e}`
-                    );
-                  }
+                            {componentSwitch(params, comp, provided)}
+                          </ComponentActions>
+                        </Flex>
+                      )}
+                    </Draggable>
+                  );
+                } catch (e) {
+                  console.log(
+                    `Failed to parse parameters of sortedComponent - ${comp.key}, with error - ${e}`
+                  );
                 }
               })}
+
+              {provided.placeholder}
             </Flex>
           )}
         </Droppable>

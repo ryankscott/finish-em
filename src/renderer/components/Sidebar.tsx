@@ -1,15 +1,11 @@
 import { useMutation, useQuery } from '@apollo/client';
 import {
-  Button,
   Box,
   Divider,
   Flex,
-  IconButton,
   Stack,
   useColorMode,
   VStack,
-  Tooltip,
-  Icon,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
 import { Area, Project, View } from '../../main/resolvers-types';
@@ -20,10 +16,7 @@ import {
   Droppable,
   DropResult,
 } from 'react-beautiful-dnd';
-import { useNavigate } from 'react-router-dom';
 import {
-  CREATE_AREA,
-  CREATE_PROJECT,
   GET_SIDEBAR,
   SET_AREA_OF_PROJECT,
   SET_AREA_ORDER,
@@ -31,32 +24,30 @@ import {
   SidebarData,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import { Icons } from '../assets/icons';
 import { IconType } from '../interfaces';
-import { getProductName } from '../utils';
 import SidebarDraggableItem from './SidebarDraggableItem';
 import SidebarDroppableItem from './SidebarDroppableItem';
 import SidebarItem from './SidebarItem';
 import SidebarSection from './SidebarSection';
 import { useAppStore, AppState } from '../state';
+import SidebarToggleButton from './SidebarToggleButton';
+import { SidebarAddAreaButton } from './SidebarAddAreaButton';
+import { SidebarAddProjectButton } from './SidebarAddProjectButton';
 
 const Sidebar = (): ReactElement => {
-  const navigate = useNavigate();
   const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery<SidebarData>(GET_SIDEBAR);
-  const [setProjectOrder] = useMutation(SET_PROJECT_ORDER);
-  const [setAreaOrder] = useMutation(SET_AREA_ORDER);
+  const [setProjectOrder] = useMutation(SET_PROJECT_ORDER, {
+    refetchQueries: [GET_SIDEBAR],
+  });
+  const [setAreaOrder] = useMutation(SET_AREA_ORDER, {
+    refetchQueries: [GET_SIDEBAR],
+  });
   const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT);
-  const [createProject] = useMutation(CREATE_PROJECT, {
-    refetchQueries: [GET_SIDEBAR],
-  });
-  const [createArea] = useMutation(CREATE_AREA, {
-    refetchQueries: [GET_SIDEBAR],
-  });
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
   const [sortedViews, setSortedViews] = useState<View[]>([]);
-  const [sidebarVisible, setSidebarVisible] = useAppStore((state: AppState) => [
+  const [sidebarVisible] = useAppStore((state: AppState) => [
     state.sidebarVisible,
     state.setSidebarVisible,
   ]);
@@ -201,7 +192,6 @@ const Sidebar = (): ReactElement => {
             return (
               <SidebarItem
                 key={d.text}
-                sidebarVisible={sidebarVisible}
                 iconName={d.iconName}
                 text={d.text}
                 path={d.path}
@@ -216,7 +206,6 @@ const Sidebar = (): ReactElement => {
               <SidebarItem
                 variant="defaultView"
                 key={`sidebarItem-${view.key}`}
-                sidebarVisible={sidebarVisible}
                 iconName={view.icon as IconType}
                 text={view.name}
                 path={`/views/${view.key}`}
@@ -231,160 +220,84 @@ const Sidebar = (): ReactElement => {
           sidebarVisible={sidebarVisible}
         />
         <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable key={uuidv4()} droppableId={uuidv4()} type="AREA">
+          <Droppable droppableId={'areas'} type="AREA">
             {(provided, snapshot) => (
-              <SidebarDroppableItem
-                key={`sidebar-droppable-${uuidv4()}`}
-                sidebarVisible={sidebarVisible}
-                provided={provided}
-                snapshot={snapshot}
-              >
-                {sortedAreas.map((a, index) => {
-                  return (
-                    <Draggable
-                      key={`draggable-${uuidv4()}`}
-                      draggableId={a.key}
-                      index={index}
-                    >
-                      {(draggableProvided, draggableSnapshot) => (
-                        <SidebarDraggableItem
-                          key={`draggableitem-${uuidv4()}`}
-                          provided={draggableProvided}
-                          snapshot={draggableSnapshot}
-                        >
-                          {!sidebarVisible && <Divider key={uuidv4()} my={1} />}
-
-                          <SidebarItem
-                            key={`sidebar-item-${uuidv4()}`}
-                            type="area"
-                            variant="customView"
-                            sidebarVisible={sidebarVisible}
-                            text={a.name ?? ''}
-                            emoji={a.emoji ?? ''}
-                            path={`/areas/${a.key}`}
-                          />
-
-                          <Droppable
-                            key={`project-${uuidv4()}`}
-                            droppableId={a.key}
-                            type="PROJECT"
-                          >
-                            {(droppableProvided, droppableSnapshot) => (
-                              <SidebarDroppableItem
-                                key={`sidebardroppable-${uuidv4()}`}
-                                sidebarVisible={sidebarVisible}
-                                provided={droppableProvided}
-                                snapshot={droppableSnapshot}
-                              >
-                                <Box
-                                  key={`box-${uuidv4()}`}
-                                  px={sidebarVisible ? 2 : 0}
-                                >
-                                  {sortedProjects.map((p, idx) => {
-                                    // Don't render the inbox here
-                                    if (p.key === '0') return <></>;
-                                    const pathName = `/views/${p.key}`;
-                                    // Don't render projects not part of this area
-                                    if (p?.area?.key !== a.key) return <></>;
-                                    return (
-                                      <Draggable
-                                        key={`draggable-${uuidv4()}`}
-                                        draggableId={p.key}
-                                        index={idx}
-                                      >
-                                        {(providedProject, snapshotProject) => (
-                                          <SidebarDraggableItem
-                                            key={`draggableitem-${uuidv4()}`}
-                                            provided={providedProject}
-                                            snapshot={snapshotProject}
-                                          >
-                                            <SidebarItem
-                                              key={`draggablesidebaritem-${uuidv4()}`}
-                                              type="project"
-                                              variant="customView"
-                                              sidebarVisible={sidebarVisible}
-                                              text={p.name}
-                                              emoji={p.emoji ?? undefined}
-                                              path={pathName}
-                                            />
-                                          </SidebarDraggableItem>
-                                        )}
-                                      </Draggable>
-                                    );
-                                  })}
-                                  {sidebarVisible && !snapshot.isDraggingOver && (
-                                    <Flex
-                                      w="100%"
-                                      justifyContent="center"
-                                      key={`flex-${uuidv4()}`}
-                                    >
-                                      <Button
-                                        mb={2}
-                                        size="sm"
-                                        variant="dark"
-                                        key={`button-${uuidv4()}`}
-                                        rightIcon={<Icon as={Icons.add} />}
-                                        onClick={async () => {
-                                          const projectKey = uuidv4();
-                                          await createProject({
-                                            variables: {
-                                              key: projectKey,
-                                              name: getProductName(),
-                                              description: '',
-                                              startAt: null,
-                                              endAt: null,
-                                              areaKey: a.key,
-                                            },
-                                          });
-                                          navigate(`/views/${projectKey}`);
-                                        }}
-                                      >
-                                        Add Project
-                                      </Button>
-                                    </Flex>
-                                  )}
-                                </Box>
-                              </SidebarDroppableItem>
-                            )}
-                          </Droppable>
-                        </SidebarDraggableItem>
-                      )}
-                    </Draggable>
-                  );
-                })}
-                {sidebarVisible && !snapshot.isDraggingOver && (
-                  <Flex
-                    key={uuidv4()}
-                    mt={2}
-                    w="100%"
-                    justifyContent="center"
-                    bg="gray.800"
+              <SidebarDroppableItem provided={provided} snapshot={snapshot}>
+                {sortedAreas.map((a, idx) => (
+                  <Draggable
+                    key={`draggable-${a.key}`}
+                    draggableId={a.key}
+                    index={idx}
                   >
-                    <Tooltip label="Add Area" key={uuidv4()}>
-                      <Box key={uuidv4()}>
-                        <Button
-                          key={uuidv4()}
-                          variant="dark"
-                          size="md"
-                          rightIcon={<Icon as={Icons.add} />}
-                          onClick={async () => {
-                            const areaKey = uuidv4();
-                            await createArea({
-                              variables: {
-                                key: areaKey,
-                                name: getProductName(),
-                                description: '',
-                              },
-                            });
+                    {(draggableProvided, draggableSnapshot) => (
+                      <SidebarDraggableItem
+                        provided={draggableProvided}
+                        snapshot={draggableSnapshot}
+                      >
+                        {!sidebarVisible && <Divider key={uuidv4()} my={1} />}
+                        <SidebarItem
+                          key={`sidebar-item-${uuidv4()}`}
+                          type="area"
+                          variant="customView"
+                          text={a.name ?? ''}
+                          emoji={a.emoji ?? ''}
+                          path={`/areas/${a.key}`}
+                        />
 
-                            navigate(`/views/${areaKey}`);
-                          }}
-                        >
-                          {sidebarVisible ? 'Add Area' : ''}
-                        </Button>
-                      </Box>
-                    </Tooltip>
-                  </Flex>
+                        <Droppable droppableId={a.key} type="PROJECT">
+                          {(provided, snapshot) => (
+                            <SidebarDroppableItem
+                              key={`droppable-${a.key}`}
+                              snapshot={snapshot}
+                              provided={provided}
+                            >
+                              {sortedProjects.map((p, idx) => {
+                                // Don't display inbox or projects not in this area
+                                // NB: This is intentionally filtered here as the logic for re-ordering needs indices this way
+                                if (p.key === '0' || p?.area?.key !== a.key) {
+                                  return <></>;
+                                }
+                                const pathName = `/views/${p.key}`;
+                                return (
+                                  <Draggable
+                                    key={`${a.key}-${p.key}`}
+                                    draggableId={`${p.key}`}
+                                    index={idx}
+                                  >
+                                    {(provided, snapshot) => (
+                                      <SidebarDraggableItem
+                                        snapshot={snapshot}
+                                        provided={provided}
+                                      >
+                                        <Box px={sidebarVisible ? 2 : 0}>
+                                          <SidebarItem
+                                            key={`draggablesidebaritem-${uuidv4()}`}
+                                            type="project"
+                                            variant="customView"
+                                            text={p.name}
+                                            emoji={p.emoji ?? undefined}
+                                            path={pathName}
+                                          />
+                                        </Box>
+                                      </SidebarDraggableItem>
+                                    )}
+                                  </Draggable>
+                                );
+                              })}
+
+                              {sidebarVisible && !snapshot.isDraggingOver && (
+                                <SidebarAddProjectButton areaKey={a.key} />
+                              )}
+                            </SidebarDroppableItem>
+                          )}
+                        </Droppable>
+                      </SidebarDraggableItem>
+                    )}
+                  </Draggable>
+                ))}
+
+                {sidebarVisible && !snapshot.isDraggingOver && (
+                  <SidebarAddAreaButton />
                 )}
               </SidebarDroppableItem>
             )}
@@ -392,48 +305,22 @@ const Sidebar = (): ReactElement => {
         </DragDropContext>
       </VStack>
       <Stack
-        key={uuidv4()}
         justifyContent="space-between"
         w="100%"
         my={2}
         direction={sidebarVisible ? 'row' : 'column'}
       >
         {!sidebarVisible && <Divider py={1} />}
-        <Flex key={uuidv4()} alignItems="center">
+        <Flex alignItems="center">
           <SidebarItem
             variant="defaultView"
-            key={uuidv4()}
-            sidebarVisible={sidebarVisible}
             iconName="settings"
             text="Settings"
             path="/settings"
             type="project"
           />
         </Flex>
-        <Flex
-          position="absolute"
-          bottom="5px"
-          left={sidebarVisible ? '227px' : '37px'}
-          key={uuidv4()}
-          justifyContent="center"
-          alignItems="center"
-        >
-          <IconButton
-            colorScheme="blue"
-            aria-label="Toggle sidebar"
-            borderRadius="50%"
-            shadow="md"
-            key={uuidv4()}
-            icon={
-              <Icon as={sidebarVisible ? Icons.slideLeft : Icons.slideRight} />
-            }
-            size="sm"
-            transition="all 0.2s ease-in-out"
-            onClick={() => {
-              setSidebarVisible(!sidebarVisible);
-            }}
-          />
-        </Flex>
+        <SidebarToggleButton />
       </Stack>
     </Flex>
   );

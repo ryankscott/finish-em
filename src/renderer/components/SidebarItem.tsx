@@ -1,16 +1,15 @@
 import { chakra, Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
 import React from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import { NavLink } from 'react-router-dom';
 import { IconType } from '../interfaces';
 import { Icons } from '../assets/icons';
 import { createShortSidebarItem } from '../utils';
 import EmojiDisplay from './EmojiDisplay';
+import { AppState, useAppStore } from 'renderer/state';
 
 type SidebarItemProps = {
   variant: 'defaultView' | 'customView';
   type: 'area' | 'project';
-  sidebarVisible: boolean;
   path: string;
   text: string;
   iconName?: IconType;
@@ -19,13 +18,15 @@ type SidebarItemProps = {
 
 const SidebarItem = ({
   variant,
-  sidebarVisible,
   path,
   text,
   iconName,
   emoji,
   type,
 }: SidebarItemProps): React.ReactElement => {
+  const [sidebarVisible] = useAppStore((state: AppState) => [
+    state.sidebarVisible,
+  ]);
   const linkStyles = {
     color: 'gray.100',
     w: '100%',
@@ -36,10 +37,9 @@ const SidebarItem = ({
   const isActive = window.location.pathname.includes(path);
   if (sidebarVisible) {
     return (
-      <Tooltip label={text} key={uuidv4()}>
+      <Tooltip label={text}>
         <StyledLink to={path}>
           <Flex
-            key={uuidv4()}
             my={type === 'area' ? 0.5 : 0.25}
             mx={1}
             px={sidebarVisible ? 2 : 0}
@@ -64,7 +64,6 @@ const SidebarItem = ({
               <EmojiDisplay emojiId={emoji} size={14} />
             )}
             <Text
-              key={uuidv4()}
               p={0}
               pl={2}
               m={0}
@@ -82,10 +81,9 @@ const SidebarItem = ({
   }
 
   return (
-    <Tooltip label={text} key={uuidv4()}>
+    <Tooltip label={text}>
       <StyledLink to={path}>
         <Flex
-          key={uuidv4()}
           my={0.5}
           mx={1}
           px={sidebarVisible ? 2 : 0}

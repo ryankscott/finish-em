@@ -28,12 +28,15 @@ function variantDefault(props: Dict) {
     color: mode('gray.700', 'gray.200')(props),
     borderColour: 'transparent',
     _hover: {
+      color: mode('gray.700', 'gray.200')(props),
       bg: mode('gray.100', 'gray.900')(props),
     },
     _active: {
+      color: mode('gray.700', 'gray.200')(props),
       bg: mode('gray.100', 'gray.900')(props),
     },
     _focus: {
+      color: mode('gray.700', 'gray.200')(props),
       bg: mode('gray.100', 'gray.900')(props),
     },
   };

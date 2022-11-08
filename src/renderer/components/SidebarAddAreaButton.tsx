@@ -7,18 +7,11 @@ import { useMutation } from '@apollo/client';
 import { getProductName } from 'renderer/utils';
 import { useNavigate } from 'react-router-dom';
 
-interface SidebarAddAreaButtonProps {
-  sidebarVisible: boolean;
-}
-
-const SidebarAddAreaButton = ({
-  sidebarVisible,
-}: SidebarAddAreaButtonProps) => {
+const SidebarAddAreaButton = () => {
   const navigate = useNavigate();
   const [createArea] = useMutation(CREATE_AREA, {
     refetchQueries: [GET_SIDEBAR],
   });
-  if (!sidebarVisible) return null;
   return (
     <Flex mt={2} w="100%" justifyContent="center" bg="gray.800">
       <Tooltip label="Add Area" key={uuidv4()}>

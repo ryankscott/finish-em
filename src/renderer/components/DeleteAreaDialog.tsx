@@ -48,7 +48,7 @@ const DeleteAreaDialog = ({
               {`Are you sure? You can't undo this action afterwards.`}
             </AlertDialogBody>
             <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>
+              <Button variant="default" ref={cancelRef} onClick={onClose}>
                 Cancel
               </Button>
               <Button colorScheme="red" onClick={onDelete} ml={3}>
