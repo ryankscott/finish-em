@@ -39,6 +39,7 @@ afterAll(async () => {
 describe('Views', () => {
   it('should create a view', async () => {
     const expectedView = {
+      id: 10,
       key: 'test',
       name: 'this is a test',
       createdAt: new Date().toISOString(),
