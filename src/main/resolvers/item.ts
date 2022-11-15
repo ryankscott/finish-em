@@ -70,7 +70,7 @@ const item: Partial<Resolvers> = {
         key,
         labelKey ?? '',
         parentKey ?? '',
-        projectKey ?? '',
+        projectKey ?? '0',
         repeat ?? '',
         text,
         type,
