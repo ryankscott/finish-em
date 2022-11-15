@@ -19,6 +19,7 @@ import {
 import { Icons } from 'renderer/assets/icons';
 import EditItemCreator from './EditItemCreator';
 import EditableText from './EditableText';
+import { HTMLToPlainText } from 'renderer/utils';
 
 export type ItemCreatorProps = {
   initiallyExpanded: boolean;
@@ -154,6 +155,8 @@ const ItemCreator = ({
                 shouldSubmitOnBlur={false}
                 showBorder
                 onUpdate={(text) => {
+                  const rawText = HTMLToPlainText(text);
+                  if (!rawText.trim()) return;
                   createItem({
                     variables: {
                       key: uuidv4(),
