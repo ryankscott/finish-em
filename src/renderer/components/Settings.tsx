@@ -11,7 +11,6 @@ import {
   Editable,
   EditableInput,
   EditablePreview,
-  ColorMode,
   Button,
   Icon,
   AlertIcon,
@@ -282,7 +281,7 @@ const Settings = (): ReactElement => {
               🐉 Changing these properties can cause you to lose all your data!!
             </Text>
             <Flex my={0.5} direction={'column'}>
-              {Object.keys(settings).map((key, index) => {
+              {Object.keys(settings).map((key) => {
                 if (key === '__internal__') return;
                 return (
                   <Flex
