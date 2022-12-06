@@ -230,7 +230,6 @@ const Focusbar = (): ReactElement => {
         >
           <EditableText
             readOnly={item.deleted ?? false}
-            height="45px"
             input={item?.text ?? ''}
             singleLine
             shouldClearOnSubmit={false}
@@ -318,9 +317,11 @@ const Focusbar = (): ReactElement => {
             <DatePicker
               key={`dd${item.key}`}
               defaultText="Due at: "
-              onSubmit={(d: Date | null) =>
-                setDueAt({ variables: { key: item.key, dueAt: d } })
-              }
+              onSubmit={(d: Date | null) => {
+                setDueAt({
+                  variables: { key: item.key, dueAt: d.toISOString() },
+                });
+              }}
               text={dueDate}
               completed={item.completed ?? false}
               deleted={item.deleted ?? false}

@@ -86,6 +86,7 @@ const DailyAgenda = (): ReactElement => {
   const [activeEvent, setActiveEvent] = useState<Event>();
 
   const offset = new Date().getTimezoneOffset();
+
   useEffect(() => {
     window.electronAPI.ipcRenderer.onReceiveMessage('events-refreshed', () => {
       console.log('refreshed events');
@@ -228,9 +229,9 @@ const DailyAgenda = (): ReactElement => {
             rules: [
               {
                 field: 'DATE(dueAt)',
-                operator: 'between',
+                operator: '=',
                 valueSource: 'value',
-                value: 'today',
+                value: currentDate.toISOString(),
               },
               {
                 field: 'deleted',
@@ -262,9 +263,9 @@ const DailyAgenda = (): ReactElement => {
             rules: [
               {
                 field: 'DATE(scheduledAt)',
-                operator: 'between',
+                operator: '=',
                 valueSource: 'value',
-                value: 'today',
+                value: currentDate.toISOString(),
               },
               {
                 field: 'deleted',

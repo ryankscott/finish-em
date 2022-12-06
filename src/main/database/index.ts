@@ -1,6 +1,7 @@
 import log from 'electron-log';
 import { defaultValueProcessor, formatQuery } from 'react-querybuilder';
 import { rrulestr } from 'rrule';
+import { parseISO } from 'date-fns';
 import { without } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { SQLDataSource } from 'datasource-sql';
@@ -80,7 +81,10 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
-  async setViewOrder(key: string, newSortOrder: number): Promise<ViewOrderEntity> {
+  async setViewOrder(
+    key: string,
+    newSortOrder: number
+  ): Promise<ViewOrderEntity> {
     log.debug(`Setting view order for view: ${key} to ${newSortOrder}`);
     const currentViewOrder = await this.getViewOrder(key);
     if (!currentViewOrder) {
@@ -89,7 +93,7 @@ class AppDatabase extends SQLDataSource {
 
     const currentOrder = currentViewOrder.sortOrder;
     if (newSortOrder < currentOrder) {
-      await this.knex('viewOrder')
+      await this.knex('viewOrder');
       await this.knex('projectOrder')
         .increment('sortOrder', 1)
         .whereBetween('sortOrder', [newSortOrder, currentOrder]);
@@ -98,7 +102,9 @@ class AppDatabase extends SQLDataSource {
         .decrement('sortOrder', 1)
         .whereBetween('sortOrder', [currentOrder + 1, newSortOrder]);
     }
-    await this.knex('viewOrder').where({ viewKey: key }).update({ sortOrder: newSortOrder });
+    await this.knex('viewOrder')
+      .where({ viewKey: key })
+      .update({ sortOrder: newSortOrder });
 
     const newViewOrder = await this.getViewOrder(key);
     if (!newViewOrder) {
@@ -282,7 +288,6 @@ class AppDatabase extends SQLDataSource {
           .increment('sortOrder', 1)
           .whereBetween('sortOrder', [newSortOrder, currentOrder]);
       } else {
-
         // Moving down the sortOrder (i.e. increasing sortOrder)
         await this.knex('projectOrder')
           .decrement('sortOrder', 1)
@@ -313,7 +318,7 @@ class AppDatabase extends SQLDataSource {
         .where({ key })
         .first();
 
-      if (!project) {
+      if (!project && project != 0) {
         log.error(`Failed to get project with key: ${key}`);
         throw new Error(`No project found with key: ${key}`);
       }
@@ -570,7 +575,10 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
-  async setAreaOrder(key: string, newSortOrder: number): Promise<AreaOrderEntity> {
+  async setAreaOrder(
+    key: string,
+    newSortOrder: number
+  ): Promise<AreaOrderEntity> {
     log.debug(`Setting area order with key: ${key} to ${newSortOrder}`);
     try {
       const currentAreaOrder = await this.getAreaOrder(key);
@@ -854,7 +862,7 @@ class AppDatabase extends SQLDataSource {
         .where({ componentKey })
         .first();
 
-      const firstIndex = maxSortOrder?.max ? maxSortOrder?.max + 1 : 0
+      const firstIndex = maxSortOrder?.max ? maxSortOrder?.max + 1 : 0;
 
       const rowsToInsert = itemOrders.map((itemKey, idx) => ({
         itemKey,
@@ -1037,23 +1045,33 @@ class AppDatabase extends SQLDataSource {
       }
 
       if (dateField) {
+        if (operator === '=') {
+          try {
+            const specificDate = parseISO(value);
+            return `DATE('${value}')`;
+          } catch (e) {
+            log.error(`Failed to parse date of ${value} - ${e}`);
+          }
+        }
         /*
           This craziness is because we are using a BETWEEN operator
         */
-        if (value === 'past') {
-          return `DATE(date('now', '-10 year')) AND DATE(date('now', '-1 day'))`;
-        }
-        if (value === 'today') {
-          return `DATE(date()) AND DATE(date())`;
-        }
-        if (value === 'tomorrow') {
-          return `DATE(date('now', '+1 day')) AND DATE(date('now', '+1 day'))`;
-        }
-        if (value === 'week') {
-          return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
-        }
-        if (value === 'month') {
-          return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-1 month') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
+        if (operator === 'between' || operator === 'notBetween') {
+          if (value === 'past') {
+            return `DATE(date('now', '-10 year')) AND DATE(date('now', '-1 day'))`;
+          }
+          if (value === 'today') {
+            return `DATE(date()) AND DATE(date())`;
+          }
+          if (value === 'tomorrow') {
+            return `DATE(date('now', '+1 day')) AND DATE(date('now', '+1 day'))`;
+          }
+          if (value === 'week') {
+            return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
+          }
+          if (value === 'month') {
+            return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-1 month') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
+          }
         }
       }
       return defaultValueProcessor(field, operator, value);

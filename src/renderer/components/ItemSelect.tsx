@@ -1,9 +1,9 @@
 import { useQuery } from '@apollo/client';
 import { Box } from '@chakra-ui/react';
 import { groupBy } from 'lodash';
+import { Item } from 'main/resolvers-types';
 import { ReactElement } from 'react';
 import { GET_ITEMS } from 'renderer/queries';
-import { Item } from '../../main/generated/typescript-helpers';
 import {
   markdownBasicRegex,
   markdownLinkRegex,

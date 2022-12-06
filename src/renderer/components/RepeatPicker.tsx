@@ -1,5 +1,6 @@
 import { ReactElement, useState } from 'react';
 import {
+  Text,
   Button,
   Icon,
   Menu,
@@ -117,21 +118,18 @@ const RepeatPicker = ({
     <Menu flip={false} offset={[0, 4]} placement={'bottom-end'}>
       <MenuButton
         as={Button}
-        w="100%"
         isDisabled={deleted || completed}
         fontSize="md"
         rightIcon={<Icon p={0} m={0} as={Icons.collapse} />}
         borderRadius="md"
-        width="100%"
         textAlign="start"
-        fontWeight="normal"
         variant="default"
         onClick={() => {
           setShowMenu(!showMenu);
           setRepeatDialogVisible(false);
         }}
       >
-        {repeatText}
+        <Text noOfLines={1}>{repeatText}</Text>
       </MenuButton>
       {showMenu && (
         <MenuList>

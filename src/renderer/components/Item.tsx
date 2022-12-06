@@ -557,7 +557,7 @@ function Item({
             completed={item.completed ?? false}
             type="repeat"
             tooltipText={capitaliseFirstLetter(
-              RRule.fromString(item?.repeat).toText()
+              rruleToText(RRule.fromString(item?.repeat))
             )}
             text={capitaliseFirstLetter(
               rruleToText(RRule.fromString(item?.repeat))

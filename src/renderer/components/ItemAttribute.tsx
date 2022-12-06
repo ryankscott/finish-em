@@ -40,6 +40,7 @@ const ItemAttribute = ({
         </Flex>
         {!compact && (
           <Text
+            noOfLines={1}
             fontSize="xs"
             fontWeight="light"
             px={1}

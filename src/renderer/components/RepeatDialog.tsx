@@ -8,17 +8,56 @@ import {
   MenuButton,
   MenuList,
   Text,
+  VStack,
   Flex,
   Button,
   Icon,
   FlexProps,
   TextProps,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import lowerCase from 'lodash/lowerCase';
 import upperFirst from 'lodash/upperFirst';
 import DatePicker from './DatePicker';
 import { formatRelativeDate } from '../utils';
 import { Icons } from '../assets/icons';
+import { DayOfWeekPicker } from './DayOfWeekPicker';
+
+const translateFrequencyToString = (frequency: number): string => {
+  switch (frequency) {
+    case 0:
+      return 'Years';
+    case 1:
+      return 'Months';
+    case 2:
+      return 'Weeks';
+    case 3:
+      return 'Days';
+    default:
+      return '';
+  }
+};
+
+const Label = (props: TextProps) => (
+  <Text
+    fontSize="md"
+    w="20%"
+    minW="90px"
+    mr={2}
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  />
+);
+
+const Option = (props: FlexProps) => (
+  <Flex
+    w="100%"
+    justifyContent="space-between"
+    alignItems="center"
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    {...props}
+  />
+);
 
 type RepeatTimesInputProps = {
   defaultValue: number;
@@ -77,7 +116,6 @@ const RepeatNumberInput = ({
     defaultValue={defaultValue}
     max={999}
     borderRadius="5px"
-    _hover={{ backgroundColor: 'gray.100', cursor: 'pointer' }}
     onChange={(_, vn) => {
       if (!Number.isNaN(vn)) {
         onChange(vn);
@@ -85,12 +123,12 @@ const RepeatNumberInput = ({
     }}
   >
     <NumberInputField
-      color="gray.900"
       fontSize="md"
       fontWeight="normal"
       borderRadius="5px"
+      color={useColorModeValue('gray.800', 'gray.100')}
       p={2}
-      _hover={{ borderColor: 'gray.100' }}
+      _hover={{ bg: useColorModeValue('gray.100', 'gray.900') }}
     />
   </NumberInput>
 );
@@ -110,6 +148,7 @@ const RepeatDialog = ({
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [repeatInterval, setRepeatInterval] = useState<number>(1);
   const [repeatIntervalType, setRepeatIntervalType] = useState(RRule.WEEKLY);
+  const [repeatDays, setRepeatDays] = useState<number[]>([]);
   const [endType, setEndType] = useState<EndType>('never');
   const [repeatTimes, setRepeatTimes] = useState(1);
 
@@ -122,6 +161,7 @@ const RepeatDialog = ({
     setStartDate(repeat?.options?.dtstart);
     setRepeatInterval(repeat.options.interval);
     setRepeatIntervalType(repeat.options.freq);
+    setRepeatDays(repeat.options.byweekday);
 
     if (repeat.options.until) {
       setEndType('on_a_date');
@@ -144,13 +184,18 @@ const RepeatDialog = ({
     startDate?.setHours(12);
     endDate?.setHours(12);
 
+    const weekDays =
+      repeatIntervalType == RRule.WEEKLY ? repeatDays : undefined;
+
     if (endType === 'on_a_date') {
       const r = new RRule({
         freq: repeatIntervalType,
         interval: repeatInterval,
         dtstart: startDate,
         until: endDate,
+        byweekday: weekDays,
       });
+      console.log(r);
       onSubmit(r);
     } else if (endType === 'after_x_times') {
       const r = new RRule({
@@ -158,63 +203,32 @@ const RepeatDialog = ({
         interval: repeatInterval,
         dtstart: startDate,
         count: repeatTimes,
+        byweekday: weekDays,
       });
+      console.log(r);
       onSubmit(r);
     } else {
       const r = new RRule({
         freq: repeatIntervalType,
         interval: repeatInterval,
         dtstart: startDate,
+        byweekday: weekDays,
       });
+      console.log(r);
       onSubmit(r);
     }
   };
 
-  const translateFrequencyToString = (frequency: number): string => {
-    switch (frequency) {
-      case 0:
-        return 'Years';
-      case 1:
-        return 'Months';
-      case 2:
-        return 'Weeks';
-      case 3:
-        return 'Days';
-      default:
-        return '';
-    }
-  };
-
-  const Label = (props: TextProps) => (
-    <Text
-      fontSize="md"
-      w="20%"
-      minW="90px"
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...props}
-    />
-  );
-
-  const Option = (props: FlexProps) => (
-    <Flex
-      w="100%"
-      justifyContent="space-between"
-      alignItems="center"
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      {...props}
-    />
-  );
-
   return (
-    <Flex
+    <VStack
       direction="column"
       borderRadius="md"
-      bg="white"
-      p={2}
-      mx={2}
+      px={4}
+      py={2}
       position="relative"
       zIndex="99"
-      width="320px"
+      width="360px"
+      spacing={1}
     >
       <Option>
         <Label>Starts: </Label>
@@ -237,12 +251,12 @@ const RepeatDialog = ({
           <Menu placement="bottom" gutter={0} arrowPadding={0}>
             <MenuButton
               height="32px"
+              variant="default"
               size="md"
               as={Button}
               fontWeight="normal"
               borderRadius="md"
-              variant="subtle"
-              _hover={{ bg: 'gray.100' }}
+              _hover={{ bg: useColorModeValue('gray.100', 'gray.900') }}
               rightIcon={<Icon as={Icons.collapse} />}
               width="100%"
               textAlign="start"
@@ -268,6 +282,17 @@ const RepeatDialog = ({
           </Menu>
         </Flex>
       </Option>
+      {repeatIntervalType === RRule.WEEKLY && (
+        <Option>
+          <Label>On: </Label>
+          <DayOfWeekPicker
+            selectedDays={repeatDays}
+            onSelect={(days) => {
+              setRepeatDays(days);
+            }}
+          />
+        </Option>
+      )}
       <Option>
         <Label>Ends: </Label>
         <Menu placement="bottom" gutter={0} arrowPadding={0}>
@@ -278,14 +303,13 @@ const RepeatDialog = ({
             rightIcon={<Icon as={Icons.collapse} />}
             fontWeight="normal"
             borderRadius="md"
-            variant="subtle"
-            _hover={{ bg: 'gray.100' }}
+            variant="default"
             width="100%"
             textAlign="start"
           >
             {endType ? upperFirst(lowerCase(endType)) : 'Never'}
           </MenuButton>
-          <MenuList bg="white">
+          <MenuList>
             <MenuItem onClick={() => setEndType('on_a_date')}>
               On a date
             </MenuItem>
@@ -329,7 +353,7 @@ const RepeatDialog = ({
           Set Repeat
         </Button>
       </Flex>
-    </Flex>
+    </VStack>
   );
 };
 

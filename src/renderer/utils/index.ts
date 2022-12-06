@@ -154,7 +154,7 @@ const getNumberAndSuffix = (i: number): string => {
   return `${i}th`;
 };
 
-const dayToString = (day: number): string => {
+export const dayToString = (day: number): string => {
   switch (day) {
     case 0:
       return 'Monday';
@@ -183,8 +183,13 @@ export const rruleToText = (input: RRule): string => {
       return `${dateString} of the month`;
     }
     case RRule.WEEKLY: {
-      const day = input.options.byweekday[0];
-      return `every ${dayToString(day)}`;
+      const formatter = new Intl.ListFormat('en', {
+        style: 'long',
+        type: 'conjunction',
+      });
+      const days = input.options.byweekday;
+      const dayString = formatter.format(days.map((d) => dayToString(d)));
+      return `every ${dayString}`;
     }
     case RRule.DAILY: {
       const d = input.options.byweekday;
@@ -299,8 +304,9 @@ export const getProductName = (): string => {
     'Chips',
   ];
 
-  return `${adjective[Math.floor(Math.random() * adjective.length)]} ${material[Math.floor(Math.random() * material.length)]
-    } ${product[Math.floor(Math.random() * product.length)]}`;
+  return `${adjective[Math.floor(Math.random() * adjective.length)]} ${
+    material[Math.floor(Math.random() * material.length)]
+  } ${product[Math.floor(Math.random() * product.length)]}`;
 };
 
 export const getProductDescription = (): string => {
