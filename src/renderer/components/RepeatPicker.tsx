@@ -117,6 +117,7 @@ const RepeatPicker = ({
   return (
     <Menu flip={false} offset={[0, 4]} placement={'bottom-end'}>
       <MenuButton
+        w="100%"
         as={Button}
         isDisabled={deleted || completed}
         fontSize="md"
@@ -129,7 +130,9 @@ const RepeatPicker = ({
           setRepeatDialogVisible(false);
         }}
       >
-        <Text noOfLines={1}>{repeatText}</Text>
+        <Text fontWeight="normal" noOfLines={1}>
+          {repeatText}
+        </Text>
       </MenuButton>
       {showMenu && (
         <MenuList>
