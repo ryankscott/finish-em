@@ -8,7 +8,6 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
-import { Area, Project, View } from '../../main/resolvers-types';
 import { ReactElement, useEffect, useState } from 'react';
 import {
   DragDropContext,
@@ -24,15 +23,34 @@ import {
   SidebarData,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
+import { Area, Project, View } from '../../main/resolvers-types';
 import { IconType } from '../interfaces';
+import { AppState, useAppStore } from '../state';
+import { SidebarAddAreaButton } from './SidebarAddAreaButton';
+import { SidebarAddProjectButton } from './SidebarAddProjectButton';
 import SidebarDraggableItem from './SidebarDraggableItem';
 import SidebarDroppableItem from './SidebarDroppableItem';
 import SidebarItem from './SidebarItem';
 import SidebarSection from './SidebarSection';
-import { useAppStore, AppState } from '../state';
 import SidebarToggleButton from './SidebarToggleButton';
-import { SidebarAddAreaButton } from './SidebarAddAreaButton';
-import { SidebarAddProjectButton } from './SidebarAddProjectButton';
+
+const defaultViews: { path: string; iconName: IconType; text: string }[] = [
+  {
+    path: '/inbox',
+    iconName: 'inbox',
+    text: 'Inbox',
+  },
+  {
+    path: '/dailyAgenda',
+    iconName: 'calendar',
+    text: 'Daily Agenda',
+  },
+  {
+    path: '/weeklyAgenda',
+    iconName: 'weekly',
+    text: 'Weekly Agenda',
+  },
+];
 
 const Sidebar = (): ReactElement => {
   const { colorMode } = useColorMode();
@@ -79,24 +97,6 @@ const Sidebar = (): ReactElement => {
     console.log(error);
     return <></>;
   }
-
-  const defaultViews: { path: string; iconName: IconType; text: string }[] = [
-    {
-      path: '/inbox',
-      iconName: 'inbox',
-      text: 'Inbox',
-    },
-    {
-      path: '/dailyAgenda',
-      iconName: 'calendar',
-      text: 'Daily Agenda',
-    },
-    {
-      path: '/weeklyAgenda',
-      iconName: 'weekly',
-      text: 'Weekly Agenda',
-    },
-  ];
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId, type } = result;
@@ -177,7 +177,7 @@ const Sidebar = (): ReactElement => {
       m={0}
       overflowY="scroll"
       border="none"
-      borderRight={colorMode === 'light' ? 'none' : '1px solid'}
+      borderRight="1px solid"
       borderColor={colorMode === 'light' ? 'transparent' : 'gray.900'}
       sx={{ scrollbarWidth: 'thin' }}
     >
@@ -200,19 +200,20 @@ const Sidebar = (): ReactElement => {
               />
             );
           })}
-          {sortedViews.map((view) => {
-            if (view.type === 'project' || view.type === 'area') return null;
-            return (
-              <SidebarItem
-                variant="defaultView"
-                key={`sidebarItem-${view.key}`}
-                iconName={view.icon as IconType}
-                text={view.name}
-                path={`/views/${view.key}`}
-                type="project"
-              />
-            );
-          })}
+          {sortedViews
+            .filter((v) => v.type != 'project' && v.type != 'area')
+            .map((view) => {
+              return (
+                <SidebarItem
+                  variant="defaultView"
+                  key={`sidebarItem-${view.key}`}
+                  iconName={view.icon as IconType}
+                  text={view.name}
+                  path={`/views/${view.key}`}
+                  type="project"
+                />
+              );
+            })}
         </VStack>
         <SidebarSection
           name="Areas"
