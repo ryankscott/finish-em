@@ -7,6 +7,7 @@ import {
   add,
   isSameDay,
   startOfDay,
+  parse,
   parseJSON,
 } from 'date-fns';
 import {
@@ -81,7 +82,7 @@ const DailyAgenda = (): ReactElement => {
   });
   const { colorMode } = useColorMode();
   // TODO: Hoist this to a reactive var so others can use it
-  const [currentDate, setDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [showModal, setShowModal] = useState(false);
   const [activeEvent, setActiveEvent] = useState<Event>();
 
@@ -93,14 +94,19 @@ const DailyAgenda = (): ReactElement => {
     });
   }, []);
 
+  useEffect(() => {
+    const day = window.location.search.split('=')?.[1];
+    if (day) setCurrentDate(parse(day, 'yyyy-MM-dd', new Date()));
+  }, []);
+
   const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134';
   if (loading) return <></>;
   if (error) {
     console.log(error);
     return <></>;
   }
-
-  const events = cloneDeep(data?.eventsForActiveCalendar);
+  const { eventsForActiveCalendar, calendarIntegration } = data;
+  const events = cloneDeep(eventsForActiveCalendar);
   const sortedEventsForToday = getSortedEventsForToday(events, currentDate);
 
   return (
@@ -112,7 +118,7 @@ const DailyAgenda = (): ReactElement => {
             variant="default"
             icon={<Icon as={Icons.back} />}
             onClick={() => {
-              setDate(sub(currentDate, { days: 1 }));
+              setCurrentDate(sub(currentDate, { days: 1 }));
             }}
           />
         </GridItem>
@@ -132,7 +138,7 @@ const DailyAgenda = (): ReactElement => {
             variant="default"
             icon={<Icon as={Icons.forward} />}
             onClick={() => {
-              setDate(add(currentDate, { days: 1 }));
+              setCurrentDate(add(currentDate, { days: 1 }));
             }}
           />
         </GridItem>
@@ -150,12 +156,12 @@ const DailyAgenda = (): ReactElement => {
         </Text>
       </Flex>
 
-      {data.calendarIntegration.enabled && (
+      {calendarIntegration.enabled && (
         <VStack
-          width="100%"
           border="1px solid"
           borderColor={colorMode === 'light' ? 'gray.100' : 'gray.600'}
-          padding={3}
+          p={3}
+          mx={3}
           borderRadius="md"
           spacing={1}
         >
