@@ -20,7 +20,7 @@ import { Icons } from 'renderer/assets/icons';
 import { Event } from 'main/resolvers-types';
 import { capitaliseFirstLetter } from '../utils';
 
-const GET_FEATURES = gql`
+const GET_BEAR_INTEGRATION = gql`
   query {
     bearNotesIntegration: featureByName(name: "bearNotesIntegration") {
       key
@@ -76,7 +76,7 @@ const AttributeValue = (props: FlexProps) => (
 );
 
 const EventModal = ({ event, isOpen, onClose }: Props) => {
-  const { loading, error, data } = useQuery(GET_FEATURES);
+  const { loading, error, data } = useQuery(GET_BEAR_INTEGRATION);
   if (loading) return null;
   if (error) {
     console.log(error);

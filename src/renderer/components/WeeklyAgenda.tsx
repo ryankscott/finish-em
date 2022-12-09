@@ -1,7 +1,5 @@
 import { useMutation, useQuery } from '@apollo/client';
 import {
-  Box,
-  ColorMode,
   Flex,
   Grid,
   GridItem,
@@ -10,25 +8,15 @@ import {
   Text,
   useColorMode,
 } from '@chakra-ui/react';
-import {
-  add,
-  format,
-  isBefore,
-  parseISO,
-  startOfDay,
-  startOfWeek,
-  sub,
-} from 'date-fns';
-import groupBy from 'lodash/groupBy';
+import { add, format, startOfWeek, sub } from 'date-fns';
 import { WeeklyGoal } from 'main/resolvers-types';
 import { ReactElement, useState } from 'react';
 import { Icons } from 'renderer/assets/icons';
 import { WEEKLY_ITEMS, CREATE_WEEKLY_GOAL } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
-import { ItemIcons } from '../interfaces';
 import EditableText from './EditableText';
-import ItemList from './ItemList';
 import ReorderableComponentList from './ReorderableComponentList';
+import { DailySummary } from './DailySummary';
 
 const weeklyFilter = JSON.stringify({
   combinator: 'and',
@@ -49,23 +37,10 @@ const weeklyFilter = JSON.stringify({
   not: false,
 });
 
-const determineDayBgColour = (listDate: Date, colorMode: ColorMode) => {
-  if (isBefore(listDate, startOfDay(new Date()))) {
-    if (colorMode === 'light') {
-      return 'gray.100';
-    }
-    return 'gray.700';
-  }
-  if (colorMode === 'light') {
-    return 'gray.50';
-  }
-  return 'gray.800';
-};
-
 const WeeklyAgenda = (): ReactElement => {
   const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342';
   const { colorMode } = useColorMode();
-  const [currentDate, setDate] = useState(
+  const [currentDate, setCurrentDate] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
   const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL, {
@@ -82,10 +57,6 @@ const WeeklyAgenda = (): ReactElement => {
     console.log(error);
     return <></>;
   }
-
-  const itemsByDate = groupBy(data.items, (i) => {
-    return format(parseISO(i?.scheduledAt), 'yyyy-MM-dd');
-  });
 
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
     (w: WeeklyGoal) => w.week === format(currentDate, 'yyyy-MM-dd')
@@ -107,7 +78,7 @@ const WeeklyAgenda = (): ReactElement => {
             variant="default"
             icon={<Icon as={Icons.back} />}
             onClick={() => {
-              setDate(sub(currentDate, { days: 7 }));
+              setCurrentDate(sub(currentDate, { days: 7 }));
             }}
           />
         </GridItem>
@@ -128,7 +99,7 @@ const WeeklyAgenda = (): ReactElement => {
             variant="default"
             icon={<Icon as={Icons.forward} />}
             onClick={() => {
-              setDate(add(currentDate, { days: 7 }));
+              setCurrentDate(add(currentDate, { days: 7 }));
             }}
           />
         </GridItem>
@@ -147,14 +118,13 @@ const WeeklyAgenda = (): ReactElement => {
       </Flex>
       <Flex
         direction="column"
-        w="100%"
         padding={4}
         padding-left={12}
         border="1px solid"
         borderRadius="md"
-        borderColor={colorMode === 'light' ? 'gray.100' : 'gray.600'}
+        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
         my={6}
-        mx={3}
+        mx={5}
       >
         <Text fontSize="lg" mb={3}>
           Weekly goals
@@ -167,7 +137,6 @@ const WeeklyAgenda = (): ReactElement => {
           shouldSubmitOnBlur
           shouldClearOnSubmit={false}
           hideToolbar={false}
-          height="120px"
           onUpdate={(input) => {
             createWeeklyGoal({
               variables: {
@@ -179,36 +148,21 @@ const WeeklyAgenda = (): ReactElement => {
           }}
         />
       </Flex>
-      <Flex m={0} mx={3} p={0} w="100%" direction="row" alignItems={'center'}>
-        {Array.from({ length: 5 }, (_, idx) => {
-          const listDate = add(currentDate, { days: idx });
-          return (
-            <Box
-              mx={0.5}
-              py={2}
-              px={2}
-              border="1px solid"
-              borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
-              borderRadius="md"
-              bg={determineDayBgColour(listDate, colorMode)}
-              key={`${idx}-container`}
-              w={'20%'}
-              h="100%"
-            >
-              <Text p={2} textAlign="center" fontSize="lg" key={`${idx}-title`}>
-                {format(listDate, 'EEEE')}
-              </Text>
-              <ItemList
-                key={idx}
-                compact
-                componentKey={uuidv4()}
-                inputItems={itemsByDate?.[format(listDate, 'yyyy-MM-dd')] || []}
-                flattenSubtasks={false}
-                hiddenIcons={[ItemIcons.Scheduled]}
-              />
-            </Box>
-          );
-        })}
+      <Flex
+        m={0}
+        p={0}
+        mx={5}
+        direction="column"
+        alignItems={'center'}
+        border="1px solid"
+        borderColor="chakra-border-color"
+        borderRadius="md"
+      >
+        <DailySummary
+          startOfWeekDate={currentDate}
+          items={data.items}
+          calendarIntegrationEnabled={data.calendarIntegration.enabled}
+        />
       </Flex>
       <Flex direction="row" w="100%" justifyContent="center" py={6} px={2}>
         <ReorderableComponentList viewKey="6c40814f-8fad-40dc-9a96-0454149a9408" />

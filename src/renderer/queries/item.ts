@@ -266,6 +266,10 @@ export const WEEKLY_ITEMS = gql`
       week
       goal
     }
+    calendarIntegration: featureByName(name: "calendarIntegration") {
+      key
+      enabled
+    }
   }
 `;
 

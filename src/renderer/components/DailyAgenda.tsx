@@ -1,92 +1,25 @@
-import { ReactElement, useEffect, useState } from 'react';
-import { useQuery } from '@apollo/client';
 import {
-  parseISO,
-  format,
-  sub,
-  add,
-  isSameDay,
-  startOfDay,
-  parse,
-  parseJSON,
-} from 'date-fns';
-import {
+  Box,
+  Flex,
   Grid,
   GridItem,
-  Flex,
-  VStack,
-  Text,
-  Box,
-  useColorMode,
   Icon,
   IconButton,
+  Text,
 } from '@chakra-ui/react';
+import { add, format, parse, startOfDay, sub } from 'date-fns';
+import { ReactElement, useEffect, useState } from 'react';
+import { Icons } from 'renderer/assets/icons';
 import { v5 } from 'uuid';
-import { cloneDeep, sortBy, uniqBy } from 'lodash';
-import { RRule } from 'rrule';
-import { GET_DAILY_EVENTS } from 'renderer/queries/dailyagenda';
-import ReorderableComponentList from './ReorderableComponentList';
-import { Event } from 'main/resolvers-types';
+import CalendarAgenda from './CalendarAgenda';
 import FilteredItemList from './FilteredItemList';
-import EventModal from './EventModal';
-import { Icons } from '../assets/icons';
+import ReorderableComponentList from './ReorderableComponentList';
 
 const VIEW_NAMESPACE = '9eb50a57-cbee-418b-bc44-889da1225429';
 
-const getSortedEventsForToday = (
-  events: Event[],
-  currentDate: Date
-): Event[] => {
-  if (!events?.length) return [];
-
-  // Set next recurrence to startDate
-  const allEvents = events.map((e: Event) => {
-    if (!e.recurrence) {
-      return e;
-    }
-    const startDate = parseJSON(e.startAt ?? '');
-    /*
-      If you don't have a start date for a recurrence
-      RRULE will just use the time now, so you've got to manually
-      set the startDate to the original startDate.
-      Then we need to ensure it's all in UTC
-    */
-    const recurrence = RRule.fromString(e.recurrence);
-    recurrence.options.dtstart = parseJSON(startDate);
-    recurrence.options.byhour = [startDate.getUTCHours()];
-    recurrence.options.byminute = [startDate.getUTCMinutes()];
-    recurrence.options.bysecond = [startDate.getUTCSeconds()];
-    const nextOccurrence = recurrence.after(new Date(), true);
-
-    // It's possible that there is no next occurrence
-    if (nextOccurrence) {
-      e.startAt = nextOccurrence.toISOString();
-    }
-    return e;
-  });
-  // Only get events today
-  const eventsToday = allEvents.filter((e: Event) => {
-    return isSameDay(parseISO(e.startAt ?? ''), currentDate);
-  });
-
-  // Remove duplicates
-  const uniqEvents = uniqBy(eventsToday, 'title');
-
-  // TODO: We can't sort by startAt because recurring tasks will be wrong
-  return sortBy(uniqEvents, ['startAt'], ['desc']);
-};
-
 const DailyAgenda = (): ReactElement => {
-  const { loading, error, data } = useQuery(GET_DAILY_EVENTS, {
-    pollInterval: 1000 * 60 * 5,
-  });
-  const { colorMode } = useColorMode();
   // TODO: Hoist this to a reactive var so others can use it
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [showModal, setShowModal] = useState(false);
-  const [activeEvent, setActiveEvent] = useState<Event>();
-
-  const offset = new Date().getTimezoneOffset();
 
   useEffect(() => {
     window.electronAPI.ipcRenderer.onReceiveMessage('events-refreshed', () => {
@@ -100,14 +33,6 @@ const DailyAgenda = (): ReactElement => {
   }, []);
 
   const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134';
-  if (loading) return <></>;
-  if (error) {
-    console.log(error);
-    return <></>;
-  }
-  const { eventsForActiveCalendar, calendarIntegration } = data;
-  const events = cloneDeep(eventsForActiveCalendar);
-  const sortedEventsForToday = getSortedEventsForToday(events, currentDate);
 
   return (
     <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
@@ -156,66 +81,7 @@ const DailyAgenda = (): ReactElement => {
         </Text>
       </Flex>
 
-      {calendarIntegration.enabled && (
-        <VStack
-          border="1px solid"
-          borderColor={colorMode === 'light' ? 'gray.100' : 'gray.600'}
-          p={3}
-          mx={3}
-          borderRadius="md"
-          spacing={1}
-        >
-          {sortedEventsForToday?.length > 0 ? (
-            sortedEventsForToday.map((e: Event) => {
-              return (
-                <Flex
-                  key={e.key}
-                  onClick={() => {
-                    setActiveEvent(e);
-                    setShowModal(!showModal);
-                  }}
-                  width="100%"
-                  _hover={{
-                    background: colorMode === 'light' ? 'gray.100' : 'gray.900',
-                    cursor: 'pointer',
-                  }}
-                  py={1}
-                  px={3}
-                  borderRadius="md"
-                  alignItems="center"
-                >
-                  <Text
-                    minW="150px"
-                    pr={4}
-                    color="blue.500"
-                    fontSize="md"
-                    key={`time-${e.key}`}
-                  >
-                    {`${format(
-                      sub(parseISO(e.startAt ?? ''), { minutes: offset }),
-                      'h:mm aa'
-                    )} - ${format(
-                      sub(parseISO(e.endAt ?? ''), { minutes: offset }),
-                      'h:mm aa'
-                    )}`}
-                  </Text>
-                  <Text w="100%" fontSize="md" key={`title-${e.title}`}>
-                    {e.title}
-                  </Text>
-                  {e.recurrence && <Icon as={Icons.repeat} />}
-                </Flex>
-              );
-            })
-          ) : (
-            <Text fontSize="md">No events on this day</Text>
-          )}
-          <EventModal
-            event={activeEvent}
-            isOpen={showModal}
-            onClose={() => setShowModal(false)}
-          />
-        </VStack>
-      )}
+      <CalendarAgenda selectedDate={currentDate} />
       <ReorderableComponentList viewKey={viewKey} />
       <Flex p={3} direction="column">
         <FilteredItemList

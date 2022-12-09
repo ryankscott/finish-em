@@ -1,5 +1,5 @@
 import { transparentize } from 'polished';
-import type { Styles, GlobalStyleProps } from "@chakra-ui/theme-tools"
+import type { Styles, GlobalStyleProps } from '@chakra-ui/theme-tools';
 
 import { mode } from '@chakra-ui/theme-tools';
 
@@ -51,7 +51,8 @@ const styles: Styles = {
       '.quill': {
         width: '100%',
         position: 'relative',
-        bg: mode('gray.100', 'gray.900')(props),
+        bg: mode('gray.50', 'gray.800')(props),
+        border: 'none',
         borderRadius: 'md',
       },
       '.ql-snow .ql-tooltip a.ql-preview': {

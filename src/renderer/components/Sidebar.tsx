@@ -187,7 +187,7 @@ const Sidebar = (): ReactElement => {
           iconName="view"
           sidebarVisible={sidebarVisible}
         />
-        <VStack spacing={0} w="100%">
+        <VStack spacing={0.5} w="100%">
           {defaultViews.map((d) => {
             return (
               <SidebarItem
