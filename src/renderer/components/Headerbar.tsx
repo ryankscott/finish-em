@@ -164,7 +164,7 @@ const Headerbar = (): ReactElement => {
 
       <HeaderItem>
         <HeaderButton
-          label="Toggle dark mode"
+          label={`${colorMode === 'light' ? 'Dark' : 'Light'} mode`}
           icon={colorMode === 'light' ? 'darkMode' : 'lightMode'}
           iconColour={theme.colors.gray[100]}
           onClickHandler={toggleColorMode}
