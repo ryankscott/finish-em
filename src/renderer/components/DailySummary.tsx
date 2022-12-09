@@ -10,6 +10,7 @@ import {
   Tabs,
   Text,
   useColorMode,
+  useBreakpointValue,
 } from '@chakra-ui/react';
 
 import { add, format, isBefore, parseISO, startOfDay } from 'date-fns';
@@ -46,6 +47,7 @@ const DailySummary = ({
   items,
 }: DailySummaryPropTypes) => {
   const { colorMode } = useColorMode();
+  const dateFormat = useBreakpointValue(['EEEEE', 'EEEEE', 'EE', 'EEEE']);
   const dates = [...new Array(7)].map((_, i) =>
     add(startOfWeekDate, {
       days: i,
@@ -73,11 +75,15 @@ const DailySummary = ({
                     w="100%"
                     fontWeight={400}
                   >
-                    {format(d, 'EEEE')}
+                    {format(d, dateFormat)}
                   </Text>
                   {itemsOnDate?.length > 0 && (
                     <Circle bg="blue.500" size="16px">
-                      <Text color="gray.50" fontSize="xs">
+                      <Text
+                        justifyContent="center"
+                        color="gray.50"
+                        fontSize="xs"
+                      >
                         {itemsOnDate?.length}
                       </Text>
                     </Circle>
