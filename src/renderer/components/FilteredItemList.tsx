@@ -5,7 +5,7 @@ import {
   Grid,
   GridItem,
   Text,
-  useColorMode,
+  useColorModeValue,
   Icon,
   Tooltip,
 } from '@chakra-ui/react';
@@ -76,7 +76,6 @@ const FilteredItemList = ({
   editing,
   setEditing,
 }: FilteredItemListProps): ReactElement => {
-  const { colorMode } = useColorMode();
   const [sortType, setSortType] = useState({
     label: 'Due',
     sort: (items: Item[], direction: SortDirectionEnum) =>
@@ -95,8 +94,6 @@ const FilteredItemList = ({
     itemsLength ?? 0
   );
 
-  if (!colorMode) return <></>;
-
   return (
     <Flex
       direction="column"
@@ -105,7 +102,7 @@ const FilteredItemList = ({
       w="100%"
       borderRadius="md"
       border="1px solid"
-      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+      borderColor={'chakra-border-color'}
     >
       <Grid
         position="relative"
@@ -119,8 +116,8 @@ const FilteredItemList = ({
         gridTemplateRows="40px"
         gridTemplateColumns="30px auto auto"
         borderBottom={showItemList ? '1px solid' : 'none'}
-        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+        bg={useColorModeValue('gray.50', 'gray.800')}
+        borderColor={'chakra-border-color'}
       >
         <GridItem colSpan={1} borderRadius="md">
           <Tooltip label="Hide items">
