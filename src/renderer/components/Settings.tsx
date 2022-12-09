@@ -1,27 +1,29 @@
 import { gql, useMutation, useQuery } from '@apollo/client';
-import { ReactElement, useEffect, useState } from 'react';
-import colormap from 'colormap';
-import { v4 as uuidv4 } from 'uuid';
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Box,
-  Flex,
-  Text,
-  Switch,
-  useColorMode,
+  Button,
   Editable,
   EditableInput,
   EditablePreview,
-  Button,
+  Flex,
   Icon,
-  AlertIcon,
-  Alert,
-  AlertDescription,
-  TabPanel,
-  TabList,
+  Switch,
   Tab,
-  Tabs,
+  TabList,
+  TabPanel,
   TabPanels,
+  Tabs,
+  Text,
+  useColorMode,
 } from '@chakra-ui/react';
+import colormap from 'colormap';
+import { Calendar, Feature, Label } from 'main/resolvers-types';
+import { ReactElement, useEffect, useState } from 'react';
+import { Icons } from 'renderer/assets/icons';
+import { v4 as uuidv4 } from 'uuid';
 import {
   CREATE_LABEL,
   DELETE_LABEL,
@@ -32,11 +34,9 @@ import {
   SET_FEATURE,
   SET_FEATURE_METADATA,
 } from '../queries';
-import Select from './Select';
 import { camelCaseToInitialCaps } from '../utils';
-import { Calendar, Feature, Label } from 'main/resolvers-types';
 import LabelEdit from './LabelEdit';
-import { Icons } from 'renderer/assets/icons';
+import Select from './Select';
 
 const NUMBER_OF_COLOURS = 12;
 
@@ -163,6 +163,7 @@ const Settings = (): ReactElement => {
                   </Text>
                   <Switch
                     size="sm"
+                    isChecked={feature.enabled ?? false}
                     onChange={() => {
                       window.electronAPI.ipcRenderer.toggleFeature(
                         feature.name,
@@ -175,7 +176,6 @@ const Settings = (): ReactElement => {
                         },
                       });
                     }}
-                    defaultChecked={feature.enabled ?? false}
                   />
                   {feature.name === 'calendarIntegration' && (
                     <Box pl={3} w="180px">
