@@ -123,14 +123,14 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
               <Text
                 fontSize="sm"
                 color={colorMode == 'light' ? 'gray.800' : 'gray.200'}
-                key={`time-${e.key}`}
+                key={`time-start-${e.key}`}
               >
                 {format(
                   sub(parseISO(e.startAt ?? ''), { minutes: offset }),
                   'h:mm aa'
                 )}
               </Text>
-              <Text color="gray.500" fontSize="sm" key={`time-${e.key}`}>
+              <Text color="gray.500" fontSize="sm" key={`time-end-${e.key}`}>
                 {format(
                   sub(parseISO(e.endAt ?? ''), { minutes: offset }),
                   'h:mm aa'
