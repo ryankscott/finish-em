@@ -9,7 +9,7 @@ import {
   GridItem,
   Icon,
   Text,
-  useColorMode,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { Project } from '../../main/resolvers-types';
 import { ReactElement, useState } from 'react';
@@ -43,7 +43,6 @@ type AreaProps = {
 const Area = (props: AreaProps): ReactElement => {
   const { areaKey } = props;
   const navigate = useNavigate();
-  const { colorMode } = useColorMode();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [setEmoji] = useMutation(SET_EMOJI);
   const [addComponent] = useMutation(ADD_COMPONENT);
@@ -100,11 +99,11 @@ const Area = (props: AreaProps): ReactElement => {
             borderRadius="50%"
             justifyContent="center"
             fontSize="xl"
-            boxShadow={colorMode === 'light' ? 'none' : '0 0 3px 0 #222'}
-            bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
+            boxShadow={useColorModeValue('none', '0 0 3px 0 #222')}
+            bg={useColorModeValue('gray.100', 'gray.800')}
             my={0}
             _hover={{
-              bg: colorMode === 'light' ? 'gray.200' : 'gray.900',
+              bg: useColorModeValue('gray.200', 'gray.900'),
             }}
             transition="all 0.1s ease-in-out"
             cursor="pointer"
@@ -247,7 +246,7 @@ const Area = (props: AreaProps): ReactElement => {
               cursor="pointer"
               borderRadius="md"
               _hover={{
-                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+                bg: useColorModeValue('gray.100', 'gray.900'),
               }}
               _after={{
                 content: "''",
@@ -259,7 +258,7 @@ const Area = (props: AreaProps): ReactElement => {
                 height: 1,
                 width: 'calc(100% - 10px)',
                 borderBottom: '1px solid',
-                borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
+                borderColor: useColorModeValue('gray.100', 'gray.700'),
                 opacity: 0.8,
               }}
               onClick={() => {

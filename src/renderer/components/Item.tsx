@@ -10,6 +10,7 @@ import {
   Text,
   Tooltip,
   useColorMode,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { format, isFuture, isPast, parseISO } from 'date-fns';
 import { get, isEmpty } from 'lodash';
@@ -337,7 +338,7 @@ function Item({
         left: '16px',
         height: shouldIndent ? 'calc(100% + 10px)' : '0px',
         transition: 'all 0.1s ease-in-out',
-        background: colorMode === 'light' ? 'gray.400' : 'gray.200',
+        background: useColorModeValue('gray.400', 'gray.200'),
         width: '1px',
         zIndex: 9,
       }}
@@ -350,7 +351,7 @@ function Item({
         margin: 'auto',
         width: shouldIndent || subtasksVisible ? '90%' : '100%',
         borderBottom: '1px',
-        borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
+        borderColor: useColorModeValue('gray.100', 'gray.700'),
         opacity: 0.8,
       }}
       bg={determineBackgroundColour(isFocused, colorMode)}

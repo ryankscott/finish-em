@@ -17,7 +17,7 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useColorMode,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import colormap from 'colormap';
 import { Calendar, Feature, Label } from 'main/resolvers-types';
@@ -79,7 +79,6 @@ const Settings = (): ReactElement => {
       cache.evict({ id: cacheId });
     },
   });
-  const { colorMode } = useColorMode();
 
   const colours = colormap({
     colormap: 'jet',
@@ -217,7 +216,7 @@ const Settings = (): ReactElement => {
                       >
                         <EditablePreview
                           _hover={{
-                            bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+                            bg: useColorModeValue('gray.100', 'gray.900'),
                           }}
                           py={2}
                         />

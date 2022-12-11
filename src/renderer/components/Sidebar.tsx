@@ -4,7 +4,7 @@ import {
   Divider,
   Flex,
   Stack,
-  useColorMode,
+  useColorModeValue,
   VStack,
 } from '@chakra-ui/react';
 import { orderBy } from 'lodash';
@@ -53,7 +53,6 @@ const defaultViews: { path: string; iconName: IconType; text: string }[] = [
 ];
 
 const Sidebar = (): ReactElement => {
-  const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery<SidebarData>(GET_SIDEBAR);
   const [setProjectOrder] = useMutation(SET_PROJECT_ORDER, {
     refetchQueries: [GET_SIDEBAR],
@@ -178,7 +177,7 @@ const Sidebar = (): ReactElement => {
       overflowY="scroll"
       border="none"
       borderRight="1px solid"
-      borderColor={colorMode === 'light' ? 'transparent' : 'gray.900'}
+      borderColor={useColorModeValue('transparent', 'gray.900')}
       sx={{ scrollbarWidth: 'thin' }}
     >
       <VStack spacing={0} w="100%">

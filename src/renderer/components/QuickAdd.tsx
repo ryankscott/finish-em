@@ -4,12 +4,11 @@ import {
   Editable,
   EditableInput,
   EditablePreview,
-  useColorMode,
+  useColorModeValue,
 } from '@chakra-ui/react';
 
 function QuickAdd(): ReactElement {
   const ref = useRef<HTMLInputElement>(null);
-  const { colorMode } = useColorMode();
 
   useEffect(() => {
     ref?.current?.focus();
@@ -51,7 +50,7 @@ function QuickAdd(): ReactElement {
       >
         <EditablePreview
           _hover={{
-            bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+            bg: useColorModeValue('gray.100', 'gray.900'),
           }}
         />
         <EditableInput ref={ref} />

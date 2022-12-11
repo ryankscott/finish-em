@@ -6,7 +6,7 @@ import {
   Icon,
   IconButton,
   Tooltip,
-  useColorMode,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import {
   CLONE_COMPONENT,
@@ -26,7 +26,6 @@ const ComponentActions = ({
   componentKey,
   readOnly,
 }: ComponentActionProps): ReactElement => {
-  const { colorMode } = useColorMode();
   const [showActions, setShowActions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [cloneComponent] = useMutation(CLONE_COMPONENT, {
@@ -55,13 +54,13 @@ const ComponentActions = ({
       {showActions && (
         <>
           <Flex
-            bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+            bg={useColorModeValue('gray.50', 'gray.800')}
             direction="column"
             position="absolute"
             right="-38px"
             zIndex={9}
             border="1px solid"
-            borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+            borderColor={useColorModeValue('gray.200', 'gray.600')}
             shadow="sm"
             p={0}
             borderRadius="md"

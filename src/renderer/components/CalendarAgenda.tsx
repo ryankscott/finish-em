@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Icons } from 'renderer/assets/icons';
 
 import { cloneDeep, sortBy, uniqBy } from 'lodash';
-import { Flex, Text, useColorMode, Icon } from '@chakra-ui/react';
+import { Flex, Text, Icon, useColorModeValue } from '@chakra-ui/react';
 import EventModal from './EventModal';
 import { RRule } from 'rrule';
 import { useQuery } from '@apollo/client';
@@ -62,7 +62,6 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
   });
   const [showModal, setShowModal] = useState(false);
   const [activeEvent, setActiveEvent] = useState<Event>();
-  const { colorMode } = useColorMode();
   const offset = new Date().getTimezoneOffset();
 
   if (loading) return <></>;
@@ -84,7 +83,7 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
     return (
       <Text
         w="100%"
-        color={colorMode === 'light' ? 'gray.600' : 'gray.400'}
+        color={useColorModeValue('gray.600', 'gray.400')}
         fontSize="sm"
         py={4}
         px={0}
@@ -105,7 +104,7 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
             }}
             width="100%"
             _hover={{
-              background: colorMode === 'light' ? 'gray.100' : 'gray.900',
+              background: useColorModeValue('gray.100', 'gray.900'),
               cursor: 'pointer',
             }}
             py={1}
@@ -122,7 +121,7 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
             >
               <Text
                 fontSize="sm"
-                color={colorMode == 'light' ? 'gray.800' : 'gray.200'}
+                color={useColorModeValue('gray.800', 'gray.200')}
                 key={`time-start-${e.key}`}
               >
                 {format(

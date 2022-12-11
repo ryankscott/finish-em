@@ -6,10 +6,10 @@ import {
   Grid,
   GridItem,
   Text,
-  useColorMode,
   Tooltip,
   Icon,
   IconButton,
+  useColorModeValue,
 } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import {
@@ -48,7 +48,6 @@ import { AppState, useAppStore } from 'renderer/state';
 import { parseISO } from 'date-fns';
 
 const Focusbar = (): ReactElement => {
-  const { colorMode } = useColorMode();
   const [activeItemIds, setActiveItemIds, focusbarVisible, setFocusbarVisible] =
     useAppStore((state: AppState) => [
       state.activeItemIds,
@@ -108,14 +107,14 @@ const Focusbar = (): ReactElement => {
       <Flex
         direction="column"
         border="1px solid"
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+        borderColor={useColorModeValue('gray.200', 'gray.900')}
         shadow="md"
         minW={focusbarVisible ? '350px' : 0}
         opacity={focusbarVisible ? 1 : 0}
         px={3}
         py={3}
         h="100%"
-        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        bg={useColorModeValue('gray.50', 'gray.800')}
         transition="all 0.2s ease-in-out"
       />
     );
@@ -161,7 +160,7 @@ const Focusbar = (): ReactElement => {
     <Flex
       direction="column"
       border="1px solid"
-      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+      borderColor={useColorModeValue('gray.200', 'gray.900')}
       shadow="md"
       w={focusbarVisible ? '350px' : 0}
       minW={focusbarVisible ? '350px' : 0}
@@ -169,7 +168,7 @@ const Focusbar = (): ReactElement => {
       px={3}
       py={3}
       h="100%"
-      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+      bg={useColorModeValue('gray.50', 'gray.800')}
       transition="all 0.2s ease-in-out"
     >
       <Grid

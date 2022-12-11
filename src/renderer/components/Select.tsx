@@ -1,4 +1,4 @@
-import { Icon, useColorMode } from '@chakra-ui/react';
+import { Icon, useColorModeValue } from '@chakra-ui/react';
 import { useTheme } from '@chakra-ui/system';
 import { CSSObject } from '@emotion/react';
 import * as CSS from 'csstype';
@@ -48,7 +48,6 @@ const ClearIndicator = (props: ClearIndicatorProps<any>) => {
 
 const Select = (props: Props) => {
   const theme = useTheme();
-  const { colorMode } = useColorMode();
   const {
     onChange,
     isDisabled,
@@ -65,13 +64,9 @@ const Select = (props: Props) => {
 
   const generateColour = (invert: boolean) => {
     if (invert) {
-      return colorMode === 'light'
-        ? theme.colors.gray[50]
-        : theme.colors.gray[800];
+      return useColorModeValue(theme.colors.gray[50], theme.colors.gray[800]);
     }
-    return colorMode === 'light'
-      ? theme.colors.gray[800]
-      : theme.colors.gray[50];
+    return useColorModeValue(theme.colors.gray[800], theme.colors.gray[50]);
   };
 
   const generateBackgroundColour = (
@@ -83,10 +78,14 @@ const Select = (props: Props) => {
       return data.color;
     }
 
-    const backgroundColor =
-      colorMode === 'light' ? theme.colors.gray[50] : theme.colors.gray[800];
-    const invertBackgroundColor =
-      colorMode === 'light' ? theme.colors.gray[800] : theme.colors.gray[50];
+    const backgroundColor = useColorModeValue(
+      theme.colors.gray[50],
+      theme.colors.gray[800]
+    );
+    const invertBackgroundColor = useColorModeValue(
+      theme.colors.gray[800],
+      theme.colors.gray[50]
+    );
 
     if (isFocused) {
       return invert
@@ -149,30 +148,36 @@ const Select = (props: Props) => {
         padding: '5px 0px',
         backgroundColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {
-            return colorMode === 'light'
-              ? theme.colors.gray[800]
-              : theme.colors.gray[50];
+            return useColorModeValue(
+              theme.colors.gray[800],
+              theme.colors.gray[50]
+            );
           }
-          return colorMode === 'light'
-            ? theme.colors.gray[50]
-            : theme.colors.gray[800];
+          return useColorModeValue(
+            theme.colors.gray[50],
+            theme.colors.gray[800]
+          );
         })(invert),
         border: '1px solid',
         borderColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {
-            return colorMode === 'light'
-              ? theme.colors.gray[900]
-              : theme.colors.gray[200];
+            return useColorModeValue(
+              theme.colors.gray[900],
+              theme.colors.gray[200]
+            );
           }
-          return colorMode === 'light'
-            ? theme.colors.gray[200]
-            : theme.colors.gray[900];
+          return useColorModeValue(
+            theme.colors.gray[200],
+            theme.colors.gray[900]
+          );
         })(invert),
         borderRadius: '5px',
         tabIndex: 0,
         zIndex: 999,
-        boxShadow:
-          colorMode === 'light' ? theme.shadows.md : theme.shadows['dark-lg'],
+        boxShadow: useColorModeValue(
+          theme.shadows.md,
+          theme.shadows['dark-lg']
+        ),
       }),
       menuList: (styles: CSSObject) => ({
         ...styles,
@@ -210,13 +215,15 @@ const Select = (props: Props) => {
         backgroundColor: 'transparent',
         color: ((invertColour: boolean | undefined) => {
           if (invertColour) {
-            return colorMode === 'light'
-              ? theme.colors.gray[100]
-              : theme.colors.gray[400];
+            return useColorModeValue(
+              theme.colors.gray[100],
+              theme.colors.gray[400]
+            );
           }
-          return colorMode === 'light'
-            ? theme.colors.gray[700]
-            : theme.colors.gray[100];
+          return useColorModeValue(
+            theme.colors.gray[700],
+            theme.colors.gray[100]
+          );
         })(invert),
         opacity: isDisabled ? 0.4 : 1,
         fontSize,
@@ -286,13 +293,15 @@ const Select = (props: Props) => {
         borderRadius: '5px',
         backgroundColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {
-            return colorMode === 'light'
-              ? theme.colors.blue[400]
-              : theme.colors.blue[500];
+            return useColorModeValue(
+              theme.colors.blue[400],
+              theme.colors.blue[500]
+            );
           }
-          return colorMode === 'light'
-            ? theme.colors.blue[500]
-            : theme.colors.blue[400];
+          return useColorModeValue(
+            theme.colors.blue[500],
+            theme.colors.blue[400]
+          );
         })(invert),
       }),
       multiValueLabel: (styles: CSSObject) => ({
@@ -310,13 +319,15 @@ const Select = (props: Props) => {
           border: 'none',
           backgroundColor: ((invertColour: boolean | undefined) => {
             if (invertColour) {
-              return colorMode === 'light'
-                ? theme.colors.blue[500]
-                : theme.colors.blue[600];
+              return useColorModeValue(
+                theme.colors.blue[500],
+                theme.colors.blue[600]
+              );
             }
-            return colorMode === 'light'
-              ? theme.colors.blue[600]
-              : theme.colors.blue[500];
+            return useColorModeValue(
+              theme.colors.blue[600],
+              theme.colors.blue[500]
+            );
           })(invert),
           cursor: 'pointer',
         },
@@ -336,13 +347,15 @@ const Select = (props: Props) => {
         color: 'pink',
         backgroundColor: ((invertColours: boolean | undefined) => {
           if (invertColours) {
-            return colorMode === 'light'
-              ? theme.colors.gray[800]
-              : theme.colors.gray[50];
+            return useColorModeValue(
+              theme.colors.gray[800],
+              theme.colors.gray[50]
+            );
           }
-          return colorMode === 'light'
-            ? theme.colors.gray[50]
-            : theme.colors.gray[800];
+          return useColorModeValue(
+            theme.colors.gray[50],
+            theme.colors.gray[800]
+          );
         })(invert),
       }),
 
@@ -358,13 +371,15 @@ const Select = (props: Props) => {
         opacity: isDisabled ? 0.4 : 1,
         color: ((value) => {
           if (value) {
-            return colorMode === 'light'
-              ? theme.colors.gray[800]
-              : theme.colors.gray[400];
+            return useColorModeValue(
+              theme.colors.gray[800],
+              theme.colors.gray[400]
+            );
           }
-          return colorMode === 'light'
-            ? theme.colors.gray[500]
-            : theme.colors.gray[600];
+          return useColorModeValue(
+            theme.colors.gray[500],
+            theme.colors.gray[600]
+          );
         })(hasValue),
       }),
       noOptionsMessage: () => ({
