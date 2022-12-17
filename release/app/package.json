@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@rmp135/sql-ts": "^1.15.1",
-    "@vscode/sqlite3": "^5.0.8",
+    "@vscode/sqlite3": "^5.1.2",
     "datasource-sql": "^2.0.1",
     "electron-store": "^8.1.0",
     "knex": "^2.3.0",
