@@ -39,10 +39,10 @@ const SidebarItem = ({
     return (
       <Tooltip label={text}>
         <Flex
-          w="100%"
+          w={'100%'}
           my={type === 'area' ? 0.5 : 0.25}
           mx={1}
-          px={sidebarVisible ? 2 : 0}
+          px={2}
           py={1.5}
           borderRadius="md"
           justifyContent="flex-start"
@@ -87,8 +87,8 @@ const SidebarItem = ({
     <Tooltip label={text}>
       <Flex
         my={0.5}
-        mx={1}
-        px={sidebarVisible ? 2 : 0}
+        mx={0}
+        px={0}
         py={1.5}
         borderRadius="md"
         alignItems="center"

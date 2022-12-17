@@ -235,15 +235,21 @@ const Sidebar = (): ReactElement => {
                         provided={draggableProvided}
                         snapshot={draggableSnapshot}
                       >
-                        {!sidebarVisible && <Divider key={uuidv4()} my={1} />}
-                        <SidebarItem
-                          key={`sidebar-item-${uuidv4()}`}
-                          type="area"
-                          variant="customView"
-                          text={a.name ?? ''}
-                          emoji={a.emoji ?? ''}
-                          path={`/areas/${a.key}`}
-                        />
+                        {!sidebarVisible && <Divider my={1} bg="gray.100" />}
+                        <Flex alignItems="center">
+                          <SidebarItem
+                            key={`sidebar-item-${uuidv4()}`}
+                            type="area"
+                            variant="customView"
+                            text={a.name ?? ''}
+                            emoji={a.emoji ?? ''}
+                            path={`/areas/${a.key}`}
+                          />
+
+                          {sidebarVisible && !snapshot.isDraggingOver && (
+                            <SidebarAddProjectButton areaKey={a.key} />
+                          )}
+                        </Flex>
 
                         <Droppable droppableId={a.key} type="PROJECT">
                           {(provided, snapshot) => (
@@ -285,10 +291,6 @@ const Sidebar = (): ReactElement => {
                                   </Draggable>
                                 );
                               })}
-
-                              {sidebarVisible && !snapshot.isDraggingOver && (
-                                <SidebarAddProjectButton areaKey={a.key} />
-                              )}
                             </SidebarDroppableItem>
                           )}
                         </Droppable>
