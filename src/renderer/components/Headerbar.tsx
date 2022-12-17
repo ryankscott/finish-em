@@ -10,7 +10,6 @@ import {
   useTheme,
   GridItem,
   Icon,
-  useColorModeValue,
   useColorMode,
 } from '@chakra-ui/react';
 import { Icons } from 'renderer/assets/icons';
@@ -127,8 +126,8 @@ const Headerbar = (): ReactElement => {
       gridTemplateRows="50px"
       zIndex={999}
       color="gray.50"
-      borderBottom={useColorModeValue('none', '1px solid')}
-      borderColor={useColorModeValue('transparent', 'gray.900')}
+      borderBottom={colorMode === 'light' ? 'none' : '1px solid'}
+      borderColor={colorMode === 'light' ? 'transparent' : 'gray.900'}
       bg="gray.800"
       px={2}
       pl={'60px'}
@@ -165,8 +164,8 @@ const Headerbar = (): ReactElement => {
 
       <HeaderItem>
         <HeaderButton
-          label={`${useColorModeValue('Dark', 'Light')} mode`}
-          icon={useColorModeValue('darkMode', 'lightMode')}
+          label={`${colorMode === 'light' ? 'Dark' : 'Light'} mode`}
+          icon={colorMode === 'light' ? 'darkMode' : 'lightMode'}
           iconColour={theme.colors.gray[100]}
           onClickHandler={toggleColorMode}
         />
@@ -175,4 +174,5 @@ const Headerbar = (): ReactElement => {
   );
 };
 
+Headerbar.whyDidYouRender = true;
 export default Headerbar;

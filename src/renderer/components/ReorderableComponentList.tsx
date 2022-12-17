@@ -16,7 +16,7 @@ import {
   Button,
   Flex,
   Icon,
-  useColorModeValue,
+  useColorMode,
 } from '@chakra-ui/react';
 import {
   ADD_COMPONENT,
@@ -39,6 +39,7 @@ type ReorderableComponentListProps = {
 const ReorderableComponentList = ({
   viewKey,
 }: ReorderableComponentListProps): ReactElement => {
+  const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey },
     fetchPolicy: 'no-cache',
@@ -124,11 +125,6 @@ const ReorderableComponentList = ({
 
           const componentAtDestination = sortedComponents[destination.index];
           const componentAtSource = sortedComponents[source.index];
-          console.log({ destination });
-          console.log({ source });
-
-          console.log({ componentAtSource });
-          console.log({ componentAtDestination });
 
           // Sync update
           const newSortedComponents = sortedComponents;
@@ -182,7 +178,7 @@ const ReorderableComponentList = ({
                           borderColor={
                             snapshot.isDragging ? 'gray.200' : 'transparent'
                           }
-                          bg={useColorModeValue('gray.50', 'gray.800')}
+                          bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
                           shadow={snapshot.isDragging ? 'md' : 'none'}
                           ref={provided.innerRef}
                           // eslint-disable-next-line react/jsx-props-no-spreading

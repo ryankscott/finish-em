@@ -1,7 +1,7 @@
 import { ReactElement, useState } from 'react';
 import { add, sub, startOfTomorrow, lastDayOfWeek } from 'date-fns';
 import { useMutation } from '@apollo/client';
-import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Flex, Text, useColorMode } from '@chakra-ui/react';
 import DatePicker from 'react-datepicker';
 import {
   GET_APP_DATA,
@@ -42,6 +42,7 @@ type SnoozeDialogProps = {
 };
 
 function SnoozeDialog({ itemKey, onClose }: SnoozeDialogProps): ReactElement {
+  const { colorMode } = useColorMode();
   const [dayPickerVisible, setDayPickerVisible] = useState(false);
   const [snoozeItem] = useMutation(SNOOZE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY, GET_APP_DATA],
@@ -56,10 +57,10 @@ function SnoozeDialog({ itemKey, onClose }: SnoozeDialogProps): ReactElement {
       right="0px"
       top="0px"
       border="1px solid"
-      borderColor={useColorModeValue('gray.200', 'gray.800')}
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
       py={1}
-      bg={useColorModeValue('gray.50', 'gray.800')}
+      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
     >
       <Flex
         direction="row"
@@ -82,7 +83,7 @@ function SnoozeDialog({ itemKey, onClose }: SnoozeDialogProps): ReactElement {
               justifyContent="space-between"
               alignItems="center"
               _hover={{
-                bg: useColorModeValue('gray.100', 'gray.900'),
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
                 cursor: 'pointer',
               }}
               onClick={(e) => {

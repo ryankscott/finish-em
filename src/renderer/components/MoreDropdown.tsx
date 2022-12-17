@@ -8,7 +8,7 @@ import {
   IconButton,
   Text,
   Icon,
-  useColorModeValue,
+  useColorMode,
 } from '@chakra-ui/react';
 import { useMutation } from '@apollo/client';
 import {
@@ -45,6 +45,7 @@ const MoreDropdown = ({
   itemText,
   deleted,
 }: MoreDropdownProps): ReactElement => {
+  const { colorMode } = useColorMode();
   const [showLabelDialog, setShowLabelDialog] = useState(false);
   const [showReminderDialog, setShowReminderDialog] = useState(false);
   const [showSnoozeDialog, setShowSnoozeDialog] = useState(false);
@@ -139,7 +140,7 @@ const MoreDropdown = ({
           as={IconButton}
           onClick={(e) => e.stopPropagation()}
           variant="subtle"
-          color={useColorModeValue('gray.800', 'gray.400')}
+          color={colorMode === 'light' ? 'gray.800' : 'gray.400'}
           icon={<Icon as={Icons.more} />}
         />
         <MenuList minW="140px" zIndex={101}>

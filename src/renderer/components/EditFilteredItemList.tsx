@@ -7,7 +7,7 @@ import {
   Editable,
   EditableInput,
   EditablePreview,
-  useColorModeValue,
+  useColorMode,
   Icon,
   IconButton,
 } from '@chakra-ui/react';
@@ -39,6 +39,7 @@ const FilteredItemDialog = ({
   componentKey,
   onClose,
 }: FilteredItemDialogProps): ReactElement => {
+  const { colorMode } = useColorMode();
   const [isValid, setIsValid] = useState(true);
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT, {
@@ -93,7 +94,7 @@ const FilteredItemDialog = ({
     >
       <Flex
         alignSelf="flex-start"
-        color={useColorModeValue('gray.800', 'gray.100')}
+        color={colorMode === 'light' ? 'gray.800' : 'gray.100'}
         fontSize="md"
         py={1}
         px={2}
@@ -120,7 +121,7 @@ const FilteredItemDialog = ({
   return (
     <Flex
       direction="column"
-      bg={useColorModeValue('gray.50', 'gray.800')}
+      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
       py={2}
       px={4}
       pb={6}

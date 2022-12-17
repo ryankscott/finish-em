@@ -2,7 +2,7 @@ import { ReactElement } from 'react';
 import { add, lastDayOfWeek, startOfTomorrow } from 'date-fns';
 import { v4 as uuidv4 } from 'uuid';
 import { useMutation } from '@apollo/client';
-import { Flex, Text, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Text, useColorMode } from '@chakra-ui/react';
 import { GET_APP_DATA, ITEM_BY_KEY } from '../queries';
 import {
   CREATE_REMINDER,
@@ -52,6 +52,7 @@ function ReminderDialog({
   reminderText,
   onClose,
 }: ReminderDialogProps): ReactElement {
+  const { colorMode } = useColorMode();
   const [deleteReminderFromItem] = useMutation(DELETE_REMINDER_FROM_ITEM, {
     refetchQueries: [ITEM_BY_KEY, GET_APP_DATA],
   });
@@ -68,10 +69,10 @@ function ReminderDialog({
       right="0px"
       top="0px"
       border="1px solid"
-      borderColor={useColorModeValue('gray.200', 'gray.800')}
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
       py={1}
-      bg={useColorModeValue('gray.50', 'gray.800')}
+      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
     >
       <Flex
         direction="row"
@@ -94,7 +95,7 @@ function ReminderDialog({
               justifyContent="space-between"
               alignItems="center"
               _hover={{
-                bg: useColorModeValue('gray.100', 'gray.900'),
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
                 cursor: 'pointer',
               }}
               onClick={(e) => {

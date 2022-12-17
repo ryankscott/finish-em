@@ -14,7 +14,7 @@ import {
   Icon,
   FlexProps,
   TextProps,
-  useColorModeValue,
+  useColorMode,
 } from '@chakra-ui/react';
 import lowerCase from 'lodash/lowerCase';
 import upperFirst from 'lodash/upperFirst';
@@ -101,10 +101,12 @@ const RepeatTimesInput = ({
 );
 
 type RepeatNumberInputProps = {
+  colorMode: 'light' | 'dark';
   defaultValue: number;
   onChange: (repeatNumber: number) => void;
 };
 const RepeatNumberInput = ({
+  colorMode,
   defaultValue,
   onChange,
 }: RepeatNumberInputProps) => (
@@ -126,9 +128,9 @@ const RepeatNumberInput = ({
       fontSize="md"
       fontWeight="normal"
       borderRadius="5px"
-      color={useColorModeValue('gray.800', 'gray.100')}
+      color={colorMode === 'light' ? 'gray.800' : 'gray.100'}
       p={2}
-      _hover={{ bg: useColorModeValue('gray.100', 'gray.900') }}
+      _hover={{ bg: colorMode === 'light' ? 'gray.100' : 'gray.900' }}
     />
   </NumberInput>
 );
@@ -144,6 +146,7 @@ const RepeatDialog = ({
   repeat,
   onSubmit,
 }: RepeatDialogProps): ReactElement => {
+  const { colorMode } = useColorMode();
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [repeatInterval, setRepeatInterval] = useState<number>(1);
@@ -242,6 +245,7 @@ const RepeatDialog = ({
       <Option>
         <Label>Repeats every: </Label>
         <RepeatNumberInput
+          colorMode={colorMode}
           defaultValue={repeatInterval}
           onChange={(n) => {
             setRepeatInterval(n);
@@ -256,7 +260,7 @@ const RepeatDialog = ({
               as={Button}
               fontWeight="normal"
               borderRadius="md"
-              _hover={{ bg: useColorModeValue('gray.100', 'gray.900') }}
+              _hover={{ bg: colorMode === 'light' ? 'gray.100' : 'gray.900' }}
               rightIcon={<Icon as={Icons.collapse} />}
               width="100%"
               textAlign="start"

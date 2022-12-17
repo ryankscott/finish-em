@@ -1,39 +1,28 @@
 import { loadFiles } from '@graphql-tools/load-files';
 import { ApolloServer } from 'apollo-server';
-import { isAfter, parseISO, parseJSON } from 'date-fns';
-import { zonedTimeToUtc } from 'date-fns-tz';
-import {
-  app,
-  BrowserWindow, dialog, globalShortcut, ipcMain,
-  net,
-  shell
-} from 'electron';
+import { isAfter, parseISO } from 'date-fns';
+import { app, BrowserWindow, globalShortcut, net, shell } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
-import { v4 as uuidv4 } from 'uuid';
 import { CAL_SYNC_INTERVAL } from '../consts';
 import {
   AppleCalendarEvent,
   getAppleCalendars,
   getEventsForCalendar,
   getRecurringEventsForCalendar,
-  setupAppleCalDatabase
+  setupAppleCalDatabase,
 } from './appleCalendar';
 import { saveAppleCalendarEvents } from './calendar';
 import AppDatabase from './database';
-import { CalendarEntity, EventEntity } from './database/types';
 import { Release } from './github';
 import registerIPCHandlers from './ipcMainHandlers';
 import resolvers from './resolvers';
-import { AttendeeInput } from './resolvers-types';
 import { store } from './settings';
 
-
 log.transports.console.level = 'debug';
-
 
 const isDev =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
@@ -45,19 +34,21 @@ let apolloDb: AppDatabase;
 let calendarSyncInterval: NodeJS.Timer;
 
 const determineDatabasePath = (isDev: boolean): string => {
-  const overrideDatabaseDirectory = store.get('overrideDatabaseDirectory') as string;
+  const overrideDatabaseDirectory = store.get(
+    'overrideDatabaseDirectory'
+  ) as string;
   if (overrideDatabaseDirectory) {
-    return `${overrideDatabaseDirectory}/finish_em.db`
+    return `${overrideDatabaseDirectory}/finish_em.db`;
   }
   return isDev
     ? './finish_em.db'
     : path.join(app.getPath('userData'), './finish_em.db');
-}
+};
 
 const knexConfig = {
   client: 'sqlite3',
   connection: {
-    filename: determineDatabasePath(isDev)
+    filename: determineDatabasePath(isDev),
   },
   useNullAsDefault: true,
 };
@@ -82,12 +73,11 @@ const startApolloServer = async () => {
     });
 
     try {
-      const { url } = await server.listen()
+      const { url } = await server.listen();
       if (url) {
         log.info(`🚀 Server ready at ${url}`);
       }
-    }
-    catch (err) {
+    } catch (err) {
       log.error(`😢 Server startup failed listening: ${err}`);
       app.exit();
     }
@@ -97,8 +87,7 @@ const startApolloServer = async () => {
 };
 
 const runMigrations = async () => {
-
-  const databasePath = determineDatabasePath(isDev)
+  const databasePath = determineDatabasePath(isDev);
   log.info(`Loading database at: ${databasePath}`);
 
   const db = await sqlite.open({
@@ -117,7 +106,7 @@ const runMigrations = async () => {
       migrationsPath,
     });
   } catch (e) {
-    log.error({ error: e }, "Failed to migrate")
+    log.error({ error: e }, 'Failed to migrate');
   }
   // await db.on('trace', (data) => {
   //   console.log(data)
@@ -224,12 +213,11 @@ function createMainWindow() {
 }
 
 const startApp = async () => {
-
   await runMigrations();
 
   await startApolloServer();
 
-  registerIPCHandlers({ apolloDb, quickAddWindow, mainWindow })
+  registerIPCHandlers({ apolloDb, quickAddWindow, mainWindow });
 
   const features = await apolloDb.getFeatures();
 
@@ -244,7 +232,6 @@ const startApp = async () => {
       await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
     }, CAL_SYNC_INTERVAL);
   }
-
 };
 
 startApp();
@@ -276,4 +263,3 @@ app.on('activate', () => {
     createMainWindow();
   }
 });
-

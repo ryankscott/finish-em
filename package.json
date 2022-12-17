@@ -20,7 +20,9 @@
     "build-storybook": "build-storybook"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["cross-env NODE_ENV=development eslint --cache"],
+    "*.{js,jsx,ts,tsx}": [
+      "cross-env NODE_ENV=development eslint --cache"
+    ],
     "*.json,.{eslintrc,prettierrc}": [
       "prettier --ignore-path .eslintignore --parser json --write"
     ],
@@ -36,12 +38,18 @@
     "appId": "com.ryankscott.finish-em",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
-    "files": ["dist", "node_modules", "package.json"],
+    "files": [
+      "dist",
+      "node_modules",
+      "package.json"
+    ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
       "target": {
         "target": "default",
-        "arch": ["x64"]
+        "arch": [
+          "x64"
+        ]
       },
       "type": "distribution",
       "hardenedRuntime": false,
@@ -73,12 +81,16 @@
       {
         "from": "./src/main/migrations/",
         "to": "./migrations/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       },
       {
         "from": "./src/main/schemas/",
         "to": "./schemas/",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "publish": {
@@ -100,7 +112,10 @@
   "bugs": {
     "url": "https://github.com/ryankscott/finish-em/issues"
   },
-  "keywords": ["react", "typescript"],
+  "keywords": [
+    "react",
+    "typescript"
+  ],
   "homepage": "https://github.com/ryankscott/finish-em/readme",
   "jest": {
     "testURL": "http://localhost/",
@@ -112,10 +127,23 @@
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
       "\\.(css|less|sass|scss)$": "identity-obj-proxy"
     },
-    "moduleFileExtensions": ["js", "jsx", "ts", "tsx", "json"],
-    "moduleDirectories": ["node_modules", "release/app/node_modules"],
-    "testPathIgnorePatterns": ["release/app/dist"],
-    "setupFiles": ["./.erb/scripts/check-build-exists.ts"]
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "ts",
+      "tsx",
+      "json"
+    ],
+    "moduleDirectories": [
+      "node_modules",
+      "release/app/node_modules"
+    ],
+    "testPathIgnorePatterns": [
+      "release/app/dist"
+    ],
+    "setupFiles": [
+      "./.erb/scripts/check-build-exists.ts"
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
@@ -151,6 +179,7 @@
     "@typescript-eslint/eslint-plugin": "^5.40.1",
     "@typescript-eslint/parser": "^5.40.1",
     "@vue/compiler-sfc": "^3.2.41",
+    "@welldone-software/why-did-you-render": "^7.0.1",
     "babel-loader": "^8.2.5",
     "browserslist-config-erb": "^0.0.3",
     "chalk": "^4.1.2",
@@ -274,7 +303,10 @@
   "prettier": {
     "overrides": [
       {
-        "files": [".prettierrc", ".eslintrc"],
+        "files": [
+          ".prettierrc",
+          ".eslintrc"
+        ],
         "options": {
           "parser": "json"
         }

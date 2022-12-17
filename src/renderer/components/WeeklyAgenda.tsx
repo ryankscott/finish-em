@@ -6,7 +6,7 @@ import {
   Icon,
   IconButton,
   Text,
-  useColorModeValue,
+  useColorMode,
 } from '@chakra-ui/react';
 import { add, format, startOfWeek, sub } from 'date-fns';
 import { WeeklyGoal } from 'main/resolvers-types';
@@ -39,6 +39,7 @@ const weeklyFilter = JSON.stringify({
 
 const WeeklyAgenda = (): ReactElement => {
   const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342';
+  const { colorMode } = useColorMode();
   const [currentDate, setCurrentDate] = useState(
     startOfWeek(new Date(), { weekStartsOn: 1 })
   );
@@ -121,7 +122,7 @@ const WeeklyAgenda = (): ReactElement => {
         padding-left={12}
         border="1px solid"
         borderRadius="md"
-        borderColor={useColorModeValue('gray.200', 'gray.600')}
+        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
         my={6}
         mx={5}
       >

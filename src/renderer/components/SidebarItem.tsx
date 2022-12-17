@@ -123,4 +123,5 @@ const SidebarItem = ({
     </Tooltip>
   );
 };
+SidebarItem.whyDidYouRender = true;
 export default SidebarItem;

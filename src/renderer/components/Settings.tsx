@@ -17,7 +17,7 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useColorModeValue,
+  useColorMode,
 } from '@chakra-ui/react';
 import colormap from 'colormap';
 import { Calendar, Feature, Label } from 'main/resolvers-types';
@@ -59,6 +59,7 @@ const generateOptions = (
 };
 
 const Settings = (): ReactElement => {
+  const { colorMode } = useColorMode();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const { loading, error, data } = useQuery(GET_SETTINGS);
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
@@ -216,7 +217,7 @@ const Settings = (): ReactElement => {
                       >
                         <EditablePreview
                           _hover={{
-                            bg: useColorModeValue('gray.100', 'gray.900'),
+                            bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
                           }}
                           py={2}
                         />

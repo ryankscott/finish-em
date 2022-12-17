@@ -10,7 +10,6 @@ import {
   Text,
   Tooltip,
   useColorMode,
-  useColorModeValue,
 } from '@chakra-ui/react';
 import { format, isFuture, isPast, parseISO } from 'date-fns';
 import { get, isEmpty } from 'lodash';
@@ -41,6 +40,7 @@ import ItemActionButton from './ItemActionButton';
 import ItemAttribute from './ItemAttribute';
 import LoadingItem from './LoadingItem';
 import MoreDropdown from './MoreDropdown';
+import { FailedItem } from './FailedItem';
 
 type ItemProps = {
   compact: boolean;
@@ -224,51 +224,12 @@ function Item({
   if (loading) return <LoadingItem />;
 
   if (!data || !data.item) {
-    return (
-      <Flex
-        w="100%"
-        p={1}
-        mx={0}
-        my={1}
-        alignItems="center"
-        cursor="pointer"
-        borderRadius="md"
-        alignContent="center"
-        justifyContent="center"
-        bg="red.100"
-        border="1px solid"
-        borderColor="red.400"
-      >
-        <Text fontSize="md" color="red.500">
-          Failed to load item
-        </Text>
-      </Flex>
-    );
+    return <FailedItem />;
   }
 
   const { item } = data;
 
-  if (error)
-    return (
-      <Flex
-        w="100%"
-        p={1}
-        mx={0}
-        my={1}
-        alignItems="center"
-        cursor="pointer"
-        borderRadius="md"
-        alignContent="center"
-        justifyContent="center"
-        bg="red.100"
-        border="1px solid"
-        borderColor="red.400"
-      >
-        <Text fontSize="md" color="red.500">
-          Failed to load item - ${error}
-        </Text>
-      </Flex>
-    );
+  if (error) return <FailedItem reason={error.message} />;
 
   const handleIconClick: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.stopPropagation();
@@ -338,7 +299,7 @@ function Item({
         left: '16px',
         height: shouldIndent ? 'calc(100% + 10px)' : '0px',
         transition: 'all 0.1s ease-in-out',
-        background: useColorModeValue('gray.400', 'gray.200'),
+        background: colorMode === 'light' ? 'gray.400' : 'gray.200',
         width: '1px',
         zIndex: 9,
       }}
@@ -351,7 +312,7 @@ function Item({
         margin: 'auto',
         width: shouldIndent || subtasksVisible ? '90%' : '100%',
         borderBottom: '1px',
-        borderColor: useColorModeValue('gray.100', 'gray.700'),
+        borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
         opacity: 0.8,
       }}
       bg={determineBackgroundColour(isFocused, colorMode)}

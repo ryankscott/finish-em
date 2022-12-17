@@ -1,3 +1,4 @@
+import './wdyr';
 import { useQuery } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
 import { isSameMinute, parseISO } from 'date-fns';

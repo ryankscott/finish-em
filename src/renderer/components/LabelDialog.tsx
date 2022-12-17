@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { Flex, Text } from '@chakra-ui/layout';
-import { useColorModeValue } from '@chakra-ui/react';
+import { useColorMode } from '@chakra-ui/react';
 import { Label } from 'main/resolvers-types';
 import { ReactElement } from 'react';
 import { ITEM_BY_KEY, SET_LABEL } from '../queries';
@@ -11,6 +11,7 @@ type LabelDialogProps = {
   onClose: () => void;
 };
 function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
+  const { colorMode } = useColorMode();
   const [setLabel] = useMutation(SET_LABEL, { refetchQueries: [ITEM_BY_KEY] });
 
   const { loading, error, data } = useQuery(GET_LABELS);
@@ -32,9 +33,9 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
       right="0px"
       top="0px"
       border="1px solid"
-      borderColor={useColorModeValue('gray.200', 'gray.800')}
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
       borderRadius="md"
-      bg={useColorModeValue('gray.50', 'gray.800')}
+      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
     >
       <Flex direction="column" py={2} px={0}>
         {labels.map((m: Label) => {
@@ -47,7 +48,7 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
               justifyContent="space-between"
               alignItems="center"
               _hover={{
-                bg: useColorModeValue('gray.100', 'gray.900'),
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
               }}
               onClick={() => {
                 setLabel({

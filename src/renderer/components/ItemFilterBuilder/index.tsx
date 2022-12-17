@@ -4,7 +4,7 @@ import QueryBuilder, {
   Field,
   formatQuery,
 } from 'react-querybuilder';
-import { Box, Text, useColorModeValue } from '@chakra-ui/react';
+import { Box, Text, useColorMode } from '@chakra-ui/react';
 import { useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { capitaliseFirstLetter } from 'renderer/utils';
@@ -224,6 +224,7 @@ const ItemFilterBuilder = ({
   } catch (error) {
     console.log(error);
   }
+  const { colorMode } = useColorMode();
 
   const [query, setQuery] = useState(inputQuery);
   const { loading, error, data } = useQuery(GET_FILTER_DATA);
@@ -269,7 +270,7 @@ const ItemFilterBuilder = ({
         px={2}
         border="1px solid"
         borderRadius="md"
-        borderColor={useColorModeValue('gray.200', 'gray.700')}
+        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
       >
         <Text fontSize="sm" fontFamily="mono" my={2}>
           {query &&

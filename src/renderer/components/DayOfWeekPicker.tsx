@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Flex, Button, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Button, useColorMode } from '@chakra-ui/react';
 import { dayToString } from '../utils';
 
 interface DayOfWeekPickerPropTypes {
@@ -12,6 +12,7 @@ const DayOfWeekPicker = ({
   selectedDays,
   onSelect,
 }: DayOfWeekPickerPropTypes) => {
+  const { colorMode } = useColorMode();
   const [activeDays, setActiveDays] = useState<Set<number>>(
     new Set(selectedDays)
   );
@@ -24,7 +25,7 @@ const DayOfWeekPicker = ({
     <Flex
       border="1px solid"
       borderRadius="md"
-      borderColor={useColorModeValue('gray.200', 'gray.900')}
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
     >
       {days.map((d) => (
         <Button
@@ -36,16 +37,16 @@ const DayOfWeekPicker = ({
           borderTopLeftRadius={d == 0 ? 'md' : '0'}
           borderBottomLeftRadius={d == 0 ? 'md' : '0'}
           variant="outline"
-          bg={useColorModeValue('gray.50', 'gray.800')}
-          color={useColorModeValue('gray.600', 'gray.200')}
+          bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+          color={colorMode === 'light' ? 'gray.600' : 'gray.200'}
           _hover={{
-            bg: useColorModeValue('blue.100', 'blue.200'),
-            color: useColorModeValue('gray.600', 'gray.800'),
+            bg: colorMode === 'light' ? 'blue.100' : 'blue.200',
+            color: colorMode === 'light' ? 'gray.600' : 'gray.800',
           }}
           _focus={{}}
           _active={{
-            bg: useColorModeValue('blue.400', 'blue.500'),
-            color: useColorModeValue('gray.100', 'gray.100'),
+            bg: colorMode === 'light' ? 'blue.400' : 'blue.500',
+            color: colorMode === 'light' ? 'gray.100' : 'gray.100',
           }}
           m={0}
           isActive={activeDays?.has(d)}

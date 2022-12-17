@@ -9,7 +9,7 @@ import {
   GridItem,
   Text,
   Tooltip,
-  useColorModeValue,
+  useColorMode,
 } from '@chakra-ui/react';
 import { parseISO } from 'date-fns';
 import { Item, Project as ProjectType } from 'main/resolvers-types';
@@ -46,6 +46,7 @@ type ProjectProps = {
 };
 
 const Project = ({ projectKey }: ProjectProps) => {
+  const { colorMode } = useColorMode();
   const navigate = useNavigate();
   const [deleteProject] = useMutation(DELETE_PROJECT, {
     refetchQueries: [GET_SIDEBAR, GET_PROJECTS],
@@ -97,11 +98,11 @@ const Project = ({ projectKey }: ProjectProps) => {
             borderRadius="50%"
             justifyContent="center"
             fontSize="xl"
-            boxShadow={useColorModeValue('none', '0 0 3px 0 #222')}
-            bg={useColorModeValue('gray.100', 'gray.800')}
+            boxShadow={colorMode === 'light' ? 'none' : '0 0 3px 0 #222'}
+            bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
             my={0}
             _hover={{
-              bg: useColorModeValue('gray.200', 'gray.900'),
+              bg: colorMode === 'light' ? 'gray.200' : 'gray.900',
             }}
             transition="all 0.1s ease-in-out"
             cursor="pointer"

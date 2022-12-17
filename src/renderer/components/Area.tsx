@@ -9,7 +9,7 @@ import {
   GridItem,
   Icon,
   Text,
-  useColorModeValue,
+  useColorMode,
 } from '@chakra-ui/react';
 import { Project } from '../../main/resolvers-types';
 import { ReactElement, useState } from 'react';
@@ -41,6 +41,7 @@ type AreaProps = {
   areaKey: string;
 };
 const Area = (props: AreaProps): ReactElement => {
+  const { colorMode } = useColorMode();
   const { areaKey } = props;
   const navigate = useNavigate();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -99,11 +100,11 @@ const Area = (props: AreaProps): ReactElement => {
             borderRadius="50%"
             justifyContent="center"
             fontSize="xl"
-            boxShadow={useColorModeValue('none', '0 0 3px 0 #222')}
-            bg={useColorModeValue('gray.100', 'gray.800')}
+            boxShadow={colorMode === 'light' ? 'none' : '0 0 3px 0 #222'}
+            bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
             my={0}
             _hover={{
-              bg: useColorModeValue('gray.200', 'gray.900'),
+              bg: colorMode === 'light' ? 'gray.200' : 'gray.900',
             }}
             transition="all 0.1s ease-in-out"
             cursor="pointer"
@@ -246,7 +247,7 @@ const Area = (props: AreaProps): ReactElement => {
               cursor="pointer"
               borderRadius="md"
               _hover={{
-                bg: useColorModeValue('gray.100', 'gray.900'),
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
               }}
               _after={{
                 content: "''",
@@ -258,7 +259,7 @@ const Area = (props: AreaProps): ReactElement => {
                 height: 1,
                 width: 'calc(100% - 10px)',
                 borderBottom: '1px solid',
-                borderColor: useColorModeValue('gray.100', 'gray.700'),
+                borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
                 opacity: 0.8,
               }}
               onClick={() => {

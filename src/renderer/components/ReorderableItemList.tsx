@@ -24,7 +24,7 @@ import ItemComponent from './Item';
 import Pagination from './Pagination';
 import { SortDirectionEnum, SortOption } from './SortDropdown';
 import { isFuture, parseISO } from 'date-fns';
-import { useColorModeValue } from '@chakra-ui/react';
+import { useColorMode } from '@chakra-ui/react';
 
 type ReorderableItemListProps = {
   componentKey: string;
@@ -55,6 +55,7 @@ function ReorderableItemList({
   showSnoozedItems,
   onItemsFetched,
 }: ReorderableItemListProps): ReactElement {
+  const { colorMode } = useColorMode();
   const [setItemOrder] = useMutation(SET_ITEM_ORDER, {
     refetchQueries: [ITEMS_BY_FILTER],
   });
@@ -231,7 +232,9 @@ function ReorderableItemList({
                         border={'1px solid'}
                         borderColor={() => {
                           if (snapshot.isDragging) {
-                            return useColorModeValue('gray.200', 'gray.900');
+                            return colorMode === 'light'
+                              ? 'gray.200'
+                              : 'gray.900';
                           }
                           return 'transparent';
                         }}

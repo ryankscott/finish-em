@@ -4,7 +4,7 @@ import 'react-quill/dist/quill.snow.css';
 import MarkdownShortcuts from 'quill-markdown-shortcuts';
 import CSS from 'csstype';
 import { Box } from '@chakra-ui/layout';
-import { useColorModeValue } from '@chakra-ui/color-mode';
+import { useColorMode } from '@chakra-ui/color-mode';
 
 Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
 
@@ -107,6 +107,7 @@ const EditableText = ({
   placeholder,
   shouldBlurOnSubmit,
 }: EditableTextProps): ReactElement => {
+  const { colorMode } = useColorMode();
   const [editorHtml, setEditorHtml] = useState<string>(input ?? '');
   const [isEditing, setIsEditing] = useState(false);
   const editorRef = useRef<ReactQuill>(null);
@@ -173,7 +174,7 @@ const EditableText = ({
       whiteSpace="nowrap"
       border={'none'}
       borderRadius="md"
-      bg={useColorModeValue('gray.100', 'gray.900')}
+      bg={colorMode === 'light' ? 'gray.100' : 'gray.900'}
     >
       <ReactQuill
         ref={editorRef}

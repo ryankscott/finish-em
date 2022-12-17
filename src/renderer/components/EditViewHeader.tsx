@@ -8,7 +8,7 @@ import {
   Flex,
   FlexProps,
   Icon,
-  useColorModeValue,
+  useColorMode,
 } from '@chakra-ui/react';
 import { startCase } from 'lodash';
 import { ReactElement } from 'react';
@@ -87,6 +87,7 @@ const EditViewHeader = ({
   componentKey,
   onClose,
 }: ViewHeaderProps): ReactElement => {
+  const { colorMode } = useColorMode();
   const [updateComponent] = useMutation(UPDATE_COMPONENT, {
     refetchQueries: [GET_COMPONENTS_BY_VIEW],
   });
@@ -151,7 +152,7 @@ const EditViewHeader = ({
           >
             <EditablePreview
               _hover={{
-                bg: useColorModeValue('gray.100', 'gray.900'),
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
               }}
             />
             <EditableInput />
