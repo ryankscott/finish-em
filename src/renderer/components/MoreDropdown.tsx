@@ -96,7 +96,7 @@ const MoreDropdown = ({
         {
           label: 'Delete item',
           onClick: (e: React.MouseEvent) => {
-            deleteItem({ variables: { itemKey } });
+            deleteItem({ variables: { key: itemKey } });
             e.stopPropagation();
             e.preventDefault();
           },
@@ -105,7 +105,7 @@ const MoreDropdown = ({
         {
           label: 'Clone item',
           onClick: (e: React.MouseEvent) => {
-            cloneItem({ variables: { itemKey } });
+            cloneItem({ variables: { key: itemKey } });
             e.stopPropagation();
             e.preventDefault();
           },
