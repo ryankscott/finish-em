@@ -295,58 +295,54 @@ const Focusbar = (): ReactElement => {
           }}
         />
       </AttributeContainer>
-      {item.type === 'TODO' && (
-        <>
-          <AttributeContainer>
-            <SidebarTitle icon="scheduled" text="Scheduled: " />
-            <DatePicker
-              key={`sd${item.key}`}
-              defaultText="Scheduled at: "
-              onSubmit={(d: Date | null) => {
-                setScheduledAt({
-                  variables: { key: item.key, scheduledAt: d },
-                });
-              }}
-              text={scheduledDate}
-              completed={item.completed ?? false}
-              deleted={item.deleted ?? false}
-            />
-          </AttributeContainer>
-          <AttributeContainer>
-            <SidebarTitle icon="due" text="Due: " />
-            <DatePicker
-              key={`dd${item.key}`}
-              defaultText="Due at: "
-              onSubmit={(d: Date | null) => {
-                setDueAt({
-                  variables: { key: item.key, dueAt: d.toISOString() },
-                });
-              }}
-              text={dueDate}
-              completed={item.completed ?? false}
-              deleted={item.deleted ?? false}
-            />
-          </AttributeContainer>
-          <AttributeContainer>
-            <SidebarTitle icon="repeat" text="Repeating: " />
-            <RepeatPicker
-              repeat={
-                item.repeat && item.repeat !== 'undefined'
-                  ? RRule.fromString(item.repeat)
-                  : null
-              }
-              completed={item.completed ?? false}
-              deleted={item.deleted ?? false}
-              key={`rp${item.key}`}
-              onSubmit={(r: RRule) =>
-                setRepeat({
-                  variables: { key: item.key, repeat: r ? r.toString() : '' },
-                })
-              }
-            />
-          </AttributeContainer>
-        </>
-      )}
+      <AttributeContainer>
+        <SidebarTitle icon="scheduled" text="Scheduled: " />
+        <DatePicker
+          key={`sd${item.key}`}
+          defaultText="Scheduled at: "
+          onSubmit={(d: Date | null) => {
+            setScheduledAt({
+              variables: { key: item.key, scheduledAt: d },
+            });
+          }}
+          text={scheduledDate}
+          completed={item.completed ?? false}
+          deleted={item.deleted ?? false}
+        />
+      </AttributeContainer>
+      <AttributeContainer>
+        <SidebarTitle icon="due" text="Due: " />
+        <DatePicker
+          key={`dd${item.key}`}
+          defaultText="Due at: "
+          onSubmit={(d: Date | null) => {
+            setDueAt({
+              variables: { key: item.key, dueAt: d },
+            });
+          }}
+          text={dueDate}
+          completed={item.completed ?? false}
+          deleted={item.deleted ?? false}
+        />
+      </AttributeContainer>
+      <AttributeContainer>
+        <SidebarTitle icon="repeat" text="Repeating: " />
+        <RepeatPicker
+          repeat={
+            item.repeat && item.repeat !== 'undefined'
+              ? RRule.fromString(item.repeat)
+              : null
+          }
+          completed={item.completed ?? false}
+          deleted={item.deleted ?? false}
+          key={`rp${item.key}`}
+          onSubmit={(r: RRule) =>
+            setRepeat({
+              variables: { key: item.key, repeat: r ? r.toString() : '' },
+            })
+          }
+        />
+      </AttributeContainer>
       {item.children?.length === 0 && (
         <AttributeContainer>
           <SidebarTitle icon="subtask" text="Parent: " />
