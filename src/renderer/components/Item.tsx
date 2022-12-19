@@ -460,7 +460,9 @@ function Item({
               compact={compact}
               completed={item.completed ?? false}
               type="scheduled"
-              tooltipText={formatRelativeDate(parseISO(item.scheduledAt))}
+              tooltipText={`Scheduled ${formatRelativeDate(
+                parseISO(item.scheduledAt)
+              )}`}
               text={formatRelativeDate(parseISO(item.scheduledAt))}
             />
           )}
@@ -489,7 +491,7 @@ function Item({
       <Box gridArea="snooze">
         {item.snoozedUntil && isFuture(parseISO(item.snoozedUntil)) && (
           <Tooltip
-            label={`Snoozed until: ${formatRelativeDate(
+            label={`Snoozed until ${formatRelativeDate(
               parseISO(item?.snoozedUntil)
             )}`}
           >
@@ -505,7 +507,7 @@ function Item({
             compact={compact}
             completed={item.completed ?? false}
             type="due"
-            tooltipText={formatRelativeDate(parseISO(item.dueAt))}
+            tooltipText={`Due ${formatRelativeDate(parseISO(item.dueAt))}`}
             text={formatRelativeDate(parseISO(item.dueAt))}
             isOverdue={isPast(parseISO(item.dueAt))}
           />
@@ -518,9 +520,9 @@ function Item({
             compact={compact}
             completed={item.completed ?? false}
             type="repeat"
-            tooltipText={capitaliseFirstLetter(
+            tooltipText={`Repeating ${capitaliseFirstLetter(
               rruleToText(RRule.fromString(item?.repeat))
-            )}
+            )}`}
             text={capitaliseFirstLetter(
               rruleToText(RRule.fromString(item?.repeat))
             )}
