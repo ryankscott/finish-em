@@ -208,7 +208,7 @@ const Focusbar = (): ReactElement => {
           </Flex>
         </GridItem>
       </Grid>
-      <Flex alignItems="baseline" w="100%" direction="row" m={0} px={2} py={4}>
+      <Flex alignItems="center" w="100%" direction="row" m={0} px={2} py={4}>
         <ItemActionButton
           deleted={item.deleted ?? false}
           completed={item.completed ?? false}
