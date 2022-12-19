@@ -1,5 +1,6 @@
 import { ReactElement, useState } from 'react';
 import {
+  Flex,
   Button,
   Box,
   Icon,
@@ -7,11 +8,13 @@ import {
   Menu,
   MenuItem,
   MenuList,
+  Text,
 } from '@chakra-ui/react';
-import { add, sub, lastDayOfWeek } from 'date-fns';
+import { add, lastDayOfWeek } from 'date-fns';
 import RDatePicker from 'react-datepicker';
 import './styled/ReactDatePicker.css';
 import { Icons } from '../assets/icons';
+import { DayOfWeekPicker } from './DayOfWeekPicker';
 
 type DatePickerProps = {
   completed: boolean;
@@ -21,11 +24,6 @@ type DatePickerProps = {
   deleted?: boolean;
   onEscape?: () => void;
   forceDark?: boolean;
-};
-
-type MenuItemType = {
-  name: string;
-  clickHandler: () => void;
 };
 
 const DatePicker = ({
@@ -44,45 +42,6 @@ const DatePicker = ({
     setShowMenu(false);
     onSubmit(input);
   };
-
-  const menuItems: MenuItemType[] = [
-    {
-      name: 'Today',
-      clickHandler: () => handleDayChange(new Date()),
-    },
-    {
-      name: 'Tomorrow',
-      clickHandler: () => handleDayChange(add(new Date(), { days: 1 })),
-    },
-    {
-      name: 'End of week',
-      clickHandler: () =>
-        handleDayChange(
-          sub(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
-            days: 2,
-          })
-        ),
-    },
-    {
-      name: 'Next week',
-      clickHandler: () =>
-        handleDayChange(
-          add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
-            days: 1,
-          })
-        ),
-    },
-    {
-      name: 'Custom date',
-      clickHandler: () => {
-        setDayPickerVisible(!dayPickerVisible);
-      },
-    },
-    {
-      name: 'No date',
-      clickHandler: () => handleDayChange(null),
-    },
-  ];
 
   return (
     <Menu flip={false} offset={[0, 4]} placement={'bottom-end'}>
@@ -105,16 +64,44 @@ const DatePicker = ({
         {text || defaultText}
       </MenuButton>
       <MenuList>
-        {!dayPickerVisible &&
-          menuItems.map((m) => (
-            <MenuItem
-              key={m.name}
-              onClick={m.clickHandler}
-              closeOnSelect={m.name !== 'Custom date'}
-            >
-              {m.name}
-            </MenuItem>
-          ))}
+        <MenuItem onClick={() => handleDayChange(new Date())}>Today</MenuItem>
+
+        <MenuItem closeOnSelect={false}>
+          <Flex direction="column">
+            <Text pb={2}>This week</Text>
+            <DayOfWeekPicker
+              selectedDays={[]}
+              onSelect={(days: number[]) => {
+                const today = new Date();
+                const currentDay = today.getDay();
+                const diff = days?.[0] - currentDay;
+                today.setDate(today.getDate() + (diff + 1));
+                handleDayChange(today);
+              }}
+            />
+          </Flex>
+        </MenuItem>
+        <MenuItem
+          onClick={() =>
+            handleDayChange(
+              add(lastDayOfWeek(new Date(), { weekStartsOn: 1 }), {
+                days: 1,
+              })
+            )
+          }
+        >
+          Next week
+        </MenuItem>
+
+        <MenuItem
+          closeOnSelect={false}
+          onClick={() => setDayPickerVisible(!dayPickerVisible)}
+        >
+          Custom Date
+        </MenuItem>
+
+        <MenuItem onClick={() => handleDayChange(null)}>No date</MenuItem>
+
         {dayPickerVisible && (
           <Box mt={-3} mb={-4} pb={-2}>
             <RDatePicker
