@@ -168,9 +168,9 @@ const EditableText = ({
   return (
     <Box
       position="relative"
-      mb="30px"
       width={width || '100%'}
       maxW="100%"
+      pb={isEditing ? '30px' : '0px'}
       whiteSpace="nowrap"
       border={'none'}
       borderRadius="md"
