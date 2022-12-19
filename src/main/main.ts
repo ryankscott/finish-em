@@ -108,9 +108,6 @@ const runMigrations = async () => {
   } catch (e) {
     log.error({ error: e }, 'Failed to migrate');
   }
-  // await db.on('trace', (data) => {
-  //   console.log(data)
-  // })
 
   log.info('Migrations complete');
   return;
@@ -193,9 +190,6 @@ function createMainWindow() {
       : `file://${path.join(__dirname, '../renderer/index.html')}`
   );
 
-  // Open dev tools
-  // mainWindow.webContents.openDevTools()
-
   // On closing derefernce
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -229,7 +223,9 @@ const startApp = async () => {
     log.info('Calendar integration enabled - turning on sync');
     // Get events every 5 mins
     calendarSyncInterval = setInterval(async () => {
+      mainWindow?.webContents.send('syncing-calendar-start', {});
       await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
+      mainWindow?.webContents.send('syncing-calendar-finished', {});
     }, CAL_SYNC_INTERVAL);
   }
 };

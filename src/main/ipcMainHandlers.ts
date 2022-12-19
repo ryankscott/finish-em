@@ -1,9 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  dialog,
-  ipcMain,
-} from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import { v4 as uuidv4 } from 'uuid';
 import log from 'electron-log';
 import { createNote } from './bear';
@@ -12,24 +7,25 @@ import {
   getAppleCalendars,
   getEventsForCalendar,
   getRecurringEventsForCalendar,
-  setupAppleCalDatabase
+  setupAppleCalDatabase,
 } from './appleCalendar';
 import { CAL_SYNC_INTERVAL } from '../consts';
-import { EventEntity } from './database/types';
-import { parseJSON } from 'date-fns';
 import AppDatabase from './database';
 import { store } from './settings';
 import { saveAppleCalendarEvents, saveCalendars } from './calendar';
 let calendarSyncInterval: NodeJS.Timer;
 
 interface RegisterIPCHandlersProps {
-  apolloDb: AppDatabase
-  quickAddWindow: BrowserWindow | null
-  mainWindow: BrowserWindow | null
+  apolloDb: AppDatabase;
+  quickAddWindow: BrowserWindow | null;
+  mainWindow: BrowserWindow | null;
 }
 
-const registerIPCHandlers = ({ apolloDb, quickAddWindow, mainWindow }: RegisterIPCHandlersProps) => {
-
+const registerIPCHandlers = ({
+  apolloDb,
+  quickAddWindow,
+  mainWindow,
+}: RegisterIPCHandlersProps) => {
   ipcMain.on('close-quickadd', () => {
     if (quickAddWindow) {
       quickAddWindow.close();
@@ -55,35 +51,44 @@ const registerIPCHandlers = ({ apolloDb, quickAddWindow, mainWindow }: RegisterI
     createNote(arg.title, arg.content);
   });
 
-  ipcMain.on('active-calendar-set', () => {
+  ipcMain.on('active-calendar-set', async () => {
     log.info('Active calendar set');
-    saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
+
+    mainWindow?.webContents.send('syncing-calendar-start', {});
+    await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
+    mainWindow?.webContents.send('syncing-calendar-finished', {});
   });
 
-
   ipcMain.on('set-setting', async (_, arg) => {
-    log.info('Setting setting')
-    const settingName = arg.name
-    store.set(settingName, arg.contents)
+    log.info('Setting setting');
+    const settingName = arg.name;
+    store.set(settingName, arg.contents);
 
     if (settingName === 'overrideDatabaseDirectory') {
-      app.relaunch()
-      app.exit(0)
+      app.relaunch();
+      app.exit(0);
     }
-  })
-
+  });
 
   ipcMain.on('feature-toggled', async (_, arg) => {
     if (arg.name === 'calendarIntegration') {
       if (arg.enabled) {
-
-        log.info("Fetching calendars from Apple and saving in db")
-        await saveCalendars({ apolloDb })
+        log.info('Fetching calendars from Apple and saving in db');
+        await saveCalendars({ apolloDb });
 
         log.info('Enabling calendar sync');
-        saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
+
+        mainWindow?.webContents.send('syncing-calendar-start', {});
+        await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
+        mainWindow?.webContents.send('syncing-calendar-finished', {});
         calendarSyncInterval = setInterval(async () => {
-          await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
+          mainWindow?.webContents.send('syncing-calendar-start', {});
+          await saveAppleCalendarEvents({
+            apolloDb,
+            getRecurringEvents: false,
+          });
+
+          mainWindow?.webContents.send('syncing-calendar-finished', {});
         }, CAL_SYNC_INTERVAL);
       } else {
         log.info('Disabling calendar sync');
@@ -92,19 +97,17 @@ const registerIPCHandlers = ({ apolloDb, quickAddWindow, mainWindow }: RegisterI
     }
   });
 
-
   const handleGetSettings = () => {
-    log.info("Getting settings");
-    return store.store
-  }
+    log.info('Getting settings');
+    return store.store;
+  };
 
-  ipcMain.handle('get-settings', handleGetSettings)
+  ipcMain.handle('get-settings', handleGetSettings);
 
   ipcMain.handle('open-dialog', (_, options) => {
-    log.info("Opening dialog")
-    return dialog.showOpenDialogSync(options)
-  })
-
-}
+    log.info('Opening dialog');
+    return dialog.showOpenDialogSync(options);
+  });
+};
 
 export default registerIPCHandlers;

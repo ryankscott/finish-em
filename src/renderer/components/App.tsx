@@ -56,6 +56,20 @@ const App = (): ReactElement => {
       }
     );
 
+    window.electronAPI.ipcRenderer.onReceiveMessage(
+      'syncing-calendar-start',
+      (_, arg) => {
+        console.log('Calendar sync start');
+      }
+    );
+
+    window.electronAPI.ipcRenderer.onReceiveMessage(
+      'syncing-calendar-finished',
+      (_, arg) => {
+        console.log('Calendar sync finished');
+      }
+    );
+
     window.electronAPI.ipcRenderer.onReceiveMessage('new-version', (_, arg) => {
       toast(
         <div>

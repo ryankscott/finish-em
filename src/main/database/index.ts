@@ -2218,21 +2218,13 @@ class AppDatabase extends SQLDataSource {
     }
   }
 
-  async deleteCalendar(key: string): Promise<CalendarEntity> {
-    log.debug(`Deleting calendar with key: ${key}`);
+  async deleteCalendars() {
+    log.debug(`Deleting all calendars`);
     try {
-      const deletedId = await this.knex('calendar').where({ key }).update({
-        deleted: true,
-        deletedAt: new Date().toISOString(),
-        lastUpdatedAt: new Date().toISOString(),
-      });
-      if (deletedId) {
-        return await this.getCalendar(key);
-      }
-      log.error('Failed to delete calendar without error');
-      throw new Error('Failed to delete calendar');
+      await this.knex('calendar').del();
+      return;
     } catch (err) {
-      log.error(`Failed to delete calendar with key: ${key} - ${err}`);
+      log.error(`Failed to delete calendars - ${err}`);
       throw err;
     }
   }

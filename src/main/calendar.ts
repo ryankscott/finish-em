@@ -1,11 +1,16 @@
 import { parseJSON } from 'date-fns';
-import { zonedTimeToUtc } from "date-fns-tz";
+import { zonedTimeToUtc } from 'date-fns-tz';
 import log from 'electron-log';
-import { AppleCalendarEvent, getAppleCalendars, getEventsForCalendar, getRecurringEventsForCalendar, setupAppleCalDatabase } from "./appleCalendar";
-import AppDatabase from "./database";
-import { CalendarEntity, EventEntity } from "./database/types";
-import { AttendeeInput } from "./resolvers-types";
-
+import {
+  AppleCalendarEvent,
+  getAppleCalendars,
+  getEventsForCalendar,
+  getRecurringEventsForCalendar,
+  setupAppleCalDatabase,
+} from './appleCalendar';
+import AppDatabase from './database';
+import { CalendarEntity, EventEntity } from './database/types';
+import { AttendeeInput } from './resolvers-types';
 
 const translateAppleEventToEvent = (
   events: AppleCalendarEvent[]
@@ -34,22 +39,27 @@ const translateAppleEventToEvent = (
   });
 };
 
-export const createCalendar = async ({ apolloDb, key, name, active }: {
-  apolloDb: AppDatabase
-  key: number,
-  name: string,
-  active: boolean
-}
-): Promise<CalendarEntity> => {
+export const createCalendar = async ({
+  apolloDb,
+  key,
+  name,
+  active,
+}: {
+  apolloDb: AppDatabase;
+  key: number;
+  name: string;
+  active: boolean;
+}): Promise<CalendarEntity> => {
   return apolloDb.createCalendar(key.toString(), name, active);
 };
 
-
-export const saveCalendars = async ({ apolloDb, activeCalendarKey }: {
-  apolloDb: AppDatabase,
-  activeCalendarKey?: string
-}
-) => {
+export const saveCalendars = async ({
+  apolloDb,
+  activeCalendarKey,
+}: {
+  apolloDb: AppDatabase;
+  activeCalendarKey?: string;
+}) => {
   log.info(`Getting calendars from Apple Calendar`);
 
   const appleCalDb = await setupAppleCalDatabase();
@@ -64,10 +74,18 @@ export const saveCalendars = async ({ apolloDb, activeCalendarKey }: {
   }
   log.info(`Saving ${calendars.length} calendars from Apple Calendar`);
 
+  // Delete all calendars first
+  await apolloDb.deleteCalendars();
+
   try {
     await Promise.all(
       calendars.map(async (c) => {
-        return createCalendar({ apolloDb, key: c.id, name: c.title, active: c.id.toString() === activeCalendarKey });
+        return createCalendar({
+          apolloDb,
+          key: c.id,
+          name: c.title,
+          active: c.id.toString() === activeCalendarKey,
+        });
       })
     );
   } catch (e) {
@@ -78,7 +96,15 @@ export const saveCalendars = async ({ apolloDb, activeCalendarKey }: {
   log.info(`All calendars saved`);
 };
 
-const saveEventsToDB = ({ apolloDb, events, calendarKey }: { apolloDb: AppDatabase, events: EventEntity[], calendarKey: string }) => {
+const saveEventsToDB = ({
+  apolloDb,
+  events,
+  calendarKey,
+}: {
+  apolloDb: AppDatabase;
+  events: EventEntity[];
+  calendarKey: string;
+}) => {
   log.info(`Saving ${events.length} events to DB`);
   events.forEach(async (e) => {
     try {
@@ -112,9 +138,13 @@ const saveEventsToDB = ({ apolloDb, events, calendarKey }: { apolloDb: AppDataba
   log.info(`Saved ${events.length} events to DB`);
 };
 
-export const saveAppleCalendarEvents = async ({ apolloDb, getRecurringEvents }: { apolloDb: AppDatabase, getRecurringEvents: boolean }) => {
-
-
+export const saveAppleCalendarEvents = async ({
+  apolloDb,
+  getRecurringEvents,
+}: {
+  apolloDb: AppDatabase;
+  getRecurringEvents: boolean;
+}) => {
   const activeCalendar = await apolloDb.getActiveCalendar();
   if (!activeCalendar) {
     log.error('Failed to get active calendar when saving events');
@@ -127,9 +157,11 @@ export const saveAppleCalendarEvents = async ({ apolloDb, getRecurringEvents }: 
     return;
   }
 
-  const appleEvents = await getEventsForCalendar(appleCalDb, activeCalendar.key);
+  const appleEvents = await getEventsForCalendar(
+    appleCalDb,
+    activeCalendar.key
+  );
   if (!appleEvents) {
-    log.error('Failed to get events from Apple calendar');
     return;
   }
   const events = translateAppleEventToEvent(appleEvents);
@@ -141,10 +173,13 @@ export const saveAppleCalendarEvents = async ({ apolloDb, getRecurringEvents }: 
       activeCalendar.key
     );
     if (!recurringAppleEvents) {
-      log.error('Failed to get recurring events from Apple calendar');
       return;
     }
     const recurringEvents = translateAppleEventToEvent(recurringAppleEvents);
-    saveEventsToDB({ apolloDb, events: recurringEvents, calendarKey: activeCalendar.key });
+    saveEventsToDB({
+      apolloDb,
+      events: recurringEvents,
+      calendarKey: activeCalendar.key,
+    });
   }
 };
