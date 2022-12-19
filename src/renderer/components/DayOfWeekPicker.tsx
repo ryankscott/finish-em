@@ -14,7 +14,7 @@ const generateTextColour = (
 ) => {
   switch (state) {
     case 'hover': {
-      return colorMode === 'light' ? 'gray.600' : 'gray.800';
+      return colorMode === 'light' ? 'gray.100' : 'gray.800';
     }
     case 'active': {
       return 'gray.100';
@@ -32,10 +32,10 @@ const generateBackgroundColour = (
 ) => {
   switch (state) {
     case 'hover': {
-      return colorMode === 'light' ? 'blue.200' : 'blue.300';
+      return colorMode === 'light' ? 'blue.300' : 'blue.300';
     }
     case 'active': {
-      return colorMode === 'light' ? 'blue.400' : 'blue.500';
+      return colorMode === 'light' ? 'blue.500' : 'blue.500';
     }
     case 'default': {
       return colorMode === 'light' ? 'gray.50' : 'gray.800';
