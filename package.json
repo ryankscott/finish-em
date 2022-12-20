@@ -1,6 +1,6 @@
 {
   "name": "Finish-em",
-  "version": "0.8.15",
+  "version": "0.8.16",
   "description": "An org-mode inspired personal organiser",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
