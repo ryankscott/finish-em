@@ -35,7 +35,7 @@ function ItemList({
       - If an item has a parent, don't render it (as it will get rendered later)
       - For each item, render the item and it's children  (In the Item component)
 */
-    if (flattenSubtasks === true) {
+    if (flattenSubtasks) {
       if (i.parent != null) {
         const parentExistsInList = inputItems.find(
           (z) => z.key === i.parent.key
@@ -64,6 +64,7 @@ function ItemList({
             <Item
               compact={compact ?? false}
               key={childItem.key}
+              parentKey={i.key}
               itemKey={childItem.key}
               componentKey={componentKey}
               hiddenIcons={

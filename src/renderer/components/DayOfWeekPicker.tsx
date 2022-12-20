@@ -67,6 +67,7 @@ const DayOfWeekPicker = ({
         const isToday = new Date().getDay() - 1 === d;
         return (
           <Button
+            key={d}
             padding={1}
             borderRadius={0}
             borderColor="transparent"

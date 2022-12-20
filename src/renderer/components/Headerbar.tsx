@@ -23,7 +23,7 @@ import {
 } from '../utils';
 import Select from './Select';
 import { Item, Project } from 'main/resolvers-types';
-import { AppState, useAppStore } from 'renderer/state';
+import { useAppStore } from 'renderer/state';
 
 type OptionType = { label: string; value: () => void };
 
@@ -46,9 +46,9 @@ const Headerbar = (): ReactElement => {
   const navigate = useNavigate();
   const { colorMode, toggleColorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_HEADER_BAR_DATA);
-  const [setActiveItemIds, setFocusbarVisible] = useAppStore(
-    (state: AppState) => [state.setActiveItemIds, state.setFocusbarVisible]
-  );
+
+  const setActiveItemIds = useAppStore((state) => state.setActiveItemIds);
+  const setFocusbarVisible = useAppStore((state) => state.setFocusbarVisible);
 
   if (loading) return <></>;
   if (error) {

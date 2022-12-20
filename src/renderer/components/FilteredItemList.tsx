@@ -18,6 +18,7 @@ import { ItemIcons } from '../interfaces';
 import EditFilteredItemList from './EditFilteredItemList';
 import ReorderableItemList from './ReorderableItemList';
 import SortDropdown, { SortDirectionEnum } from './SortDropdown';
+import { useAppStore } from 'renderer/state';
 
 const determineVisibilityRules = (
   isFilterable: boolean,
@@ -87,7 +88,9 @@ const FilteredItemList = ({
   );
   const [showItemList, setShowItemList] = useState(true);
   const [itemsLength, setItemsLength] = useState<number>(0);
-  const [expandSubtasks, setExpandSubtasks] = useState(true);
+  const [setSubtaskVisibilityForComponent] = useAppStore((state: AppState) => [
+    state.setSubtaskVisibilityForComponent,
+  ]);
 
   const visibility = determineVisibilityRules(
     isFilterable ?? true,
@@ -175,7 +178,7 @@ const FilteredItemList = ({
                       variant="default"
                       icon={<Icon w={3} h={3} as={Icons.expandAll} />}
                       onClick={() => {
-                        setExpandSubtasks(true);
+                        setSubtaskVisibilityForComponent(componentKey, true);
                       }}
                     />
                   </Box>
@@ -188,7 +191,7 @@ const FilteredItemList = ({
                       variant="default"
                       icon={<Icon w={3} h={3} as={Icons.collapseAll} />}
                       onClick={() => {
-                        setExpandSubtasks(false);
+                        setSubtaskVisibilityForComponent(componentKey, false);
                       }}
                     />
                   </Box>
@@ -224,7 +227,6 @@ const FilteredItemList = ({
       ) : (
         showItemList && (
           <ReorderableItemList
-            expandSubtasks={expandSubtasks}
             onItemsFetched={(itemLength) => {
               setItemsLength(itemLength);
             }}
@@ -232,12 +234,12 @@ const FilteredItemList = ({
             key={componentKey}
             showSnoozedItems={showSnoozedItems}
             hideDeletedSubtasks={hideDeletedSubtasks}
+            flattenSubtasks={flattenSubtasks ?? false}
             hideCompletedSubtasks={hideCompletedSubtasks}
             componentKey={componentKey}
             hiddenIcons={hiddenIcons}
             sortDirection={sortDirection}
             sortType={sortType}
-            flattenSubtasks={flattenSubtasks}
             shouldPoll={shouldPoll}
           />
         )

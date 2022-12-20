@@ -1,5 +1,4 @@
 import {
-  Circle,
   ColorMode,
   Flex,
   VStack,
@@ -11,13 +10,14 @@ import {
   Text,
   useColorMode,
   useBreakpointValue,
+  Tag,
 } from '@chakra-ui/react';
+
+import { v5 as uuidv5 } from 'uuid';
 
 import { add, format, isBefore, parseISO, startOfDay } from 'date-fns';
 import { ItemIcons } from 'renderer/interfaces';
-import { v4 as uuidv4 } from 'uuid';
 import ItemList from './ItemList';
-
 import groupBy from 'lodash/groupBy';
 import CalendarAgenda from './CalendarAgenda';
 
@@ -59,34 +59,33 @@ const DailySummary = ({
   });
 
   return (
-    <Flex overflow="scroll" w="100%" px={2} justifyContent="center">
-      <Tabs isLazy orientation="horizontal">
-        <TabList>
+    <Flex overflow="scroll" w="100%">
+      <Tabs isLazy orientation="vertical">
+        <TabList minW="150px">
           {dates.map((d) => {
             const itemsOnDate = itemsByDate[format(d, 'yyy-MM-dd')];
             return (
-              <Tab key={`tab-${d.toISOString()}`} w="100%">
-                <Flex alignItems="center" justifyContent="space-between" py={1}>
+              <Tab key={`tab-${d.toISOString()}`} w="100%" px={4}>
+                <Flex
+                  direction="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  py={1}
+                  w="100%"
+                >
                   <Text
-                    pr={2}
+                    pr={1}
                     textAlign="start"
                     fontSize="lg"
                     color={determineDayTextColour(d, colorMode)}
-                    w="100%"
                     fontWeight={400}
                   >
                     {format(d, dateFormat)}
                   </Text>
                   {itemsOnDate?.length > 0 && (
-                    <Circle bg="blue.500" size="16px">
-                      <Text
-                        justifyContent="center"
-                        color="gray.50"
-                        fontSize="xs"
-                      >
-                        {itemsOnDate?.length}
-                      </Text>
-                    </Circle>
+                    <Tag colorScheme="blue" size="sm" m={0}>
+                      {itemsOnDate?.length}
+                    </Tag>
                   )}
                 </Flex>
               </Tab>
@@ -94,7 +93,7 @@ const DailySummary = ({
           })}
         </TabList>
 
-        <TabPanels>
+        <TabPanels borderLeft="1px solid" borderColor="chakra-border-color">
           {dates.map((d) => (
             <TabPanel key={`tabpanel-${d.toISOString()}`} h="100%">
               <VStack>
@@ -110,7 +109,10 @@ const DailySummary = ({
                   Items scheduled
                 </Text>
                 <ItemList
-                  componentKey={uuidv4()}
+                  componentKey={uuidv5(
+                    format(d, 'yyyy-MM-dd'),
+                    '9AFBD899-0E31-4C6A-AEC7-17BD2BF5322C'
+                  )}
                   inputItems={itemsByDate[format(d, 'yyyy-MM-dd')] || []}
                   flattenSubtasks={false}
                   hiddenIcons={[ItemIcons.Scheduled]}

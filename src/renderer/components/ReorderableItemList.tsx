@@ -1,9 +1,8 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import { useMutation, useQuery } from '@apollo/client';
 import { Flex, Text } from '@chakra-ui/layout';
-import { cloneDeep, orderBy } from 'lodash';
+import { orderBy } from 'lodash';
 import { ReactElement, useEffect, useState } from 'react';
-import { AppState, useAppStore } from 'renderer/state';
 import {
   DragDropContext,
   Draggable,
@@ -25,18 +24,18 @@ import Pagination from './Pagination';
 import { SortDirectionEnum, SortOption } from './SortDropdown';
 import { isFuture, parseISO } from 'date-fns';
 import { useColorMode } from '@chakra-ui/react';
+import { AppState, useAppStore } from 'renderer/state';
 
 type ReorderableItemListProps = {
   componentKey: string;
   filter: string;
   sortDirection: SortDirectionEnum;
   sortType: SortOption;
-  expandSubtasks: boolean;
   hiddenIcons: ItemIcons[] | undefined;
+  flattenSubtasks: boolean;
   onItemsFetched: (fetchedItems: number) => void;
   hideCompletedSubtasks?: boolean;
   hideDeletedSubtasks?: boolean;
-  flattenSubtasks?: boolean;
   shouldPoll?: boolean;
   showSnoozedItems?: boolean;
 };
@@ -48,9 +47,8 @@ function ReorderableItemList({
   sortType,
   hideCompletedSubtasks,
   hideDeletedSubtasks,
-  expandSubtasks,
-  flattenSubtasks,
   shouldPoll,
+  flattenSubtasks,
   hiddenIcons,
   showSnoozedItems,
   onItemsFetched,
@@ -65,8 +63,9 @@ function ReorderableItemList({
   const [deleteItemOrdersByComponent] = useMutation(
     DELETE_ITEM_ORDERS_BY_COMPONENT
   );
-  const [visibleSubtasks, setVisibleSubtasks] = useAppStore(
-    (state: AppState) => [state.visibleSubtasks, state.setVisibleSubtasks]
+
+  const [createSubtaskVisibilityIfDoesntExist] = useAppStore(
+    (state: AppState) => [state.createSubtaskVisibilityIfDoesntExist]
   );
 
   const { loading, error, data } = useQuery(ITEMS_BY_FILTER, {
@@ -80,12 +79,18 @@ function ReorderableItemList({
   useEffect(() => {
     if (loading === false && data) {
       const si = data?.items?.map((item: Item) => {
+        // Subtasks //
+        createSubtaskVisibilityIfDoesntExist(item.key, componentKey);
+
+        // SORT ORDER //
+
         // Items have different sort orders per component
         const sortOrder = item?.sortOrders?.find(
           (s) => s?.componentKey === componentKey
         );
         return { ...item, sortOrder };
       });
+
       // TODO: This is really gnarly and should be refactored
       const sorted = orderBy(si, 'sortOrder.sortOrder', 'asc');
       const filteredItems = sorted.filter((item) => {
@@ -126,25 +131,6 @@ function ReorderableItemList({
     // Update the state locally
     setSortedItems(sorted);
   }, [sortDirection, sortType]);
-
-  useEffect(() => {
-    if (!sortedItems.length) return;
-
-    // Update storage to expand subtasks if that's what's being passed to the component
-    const newState = cloneDeep(visibleSubtasks);
-    sortedItems.forEach((a) => {
-      if (a.children && a.children?.length > 0) {
-        if (newState[a.key]) {
-          newState[a.key][componentKey] = expandSubtasks;
-        } else {
-          newState[a.key] = {
-            [componentKey]: expandSubtasks,
-          };
-        }
-      }
-    });
-    setVisibleSubtasks(newState);
-  }, [expandSubtasks]);
 
   const reorderItems = (result: DropResult): void => {
     const { destination, source, draggableId } = result;
@@ -270,6 +256,7 @@ function ReorderableItemList({
                             return (
                               <ItemComponent
                                 compact={false}
+                                parentKey={item.key}
                                 itemKey={child.key}
                                 key={child.key}
                                 componentKey={componentKey}

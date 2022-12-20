@@ -12,8 +12,7 @@ import {
   useColorMode,
 } from '@chakra-ui/react';
 import { format, isFuture, isPast, parseISO } from 'date-fns';
-import { get, isEmpty } from 'lodash';
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement, useState } from 'react';
 import {
   COMPLETE_ITEM,
   ITEMS_BY_FILTER,
@@ -45,23 +44,40 @@ import { FailedItem } from './FailedItem';
 type ItemProps = {
   compact: boolean;
   itemKey: string;
+  parentKey?: string;
   componentKey: string;
   hiddenIcons: ItemIcons[] | undefined;
   shouldIndent: boolean;
   hideCollapseIcon?: boolean;
 };
 
+const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
+  const project = item?.project;
+  if (!project) return <></>;
+
+  if (project?.emoji) {
+    return <EmojiDisplay emojiId={project.emoji} size={12} />;
+  }
+  if (compact) {
+    return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>;
+  }
+
+  if (project.name === 'Inbox') {
+    return (
+      <TagLabel>
+        <Icon color="blue.500" as={Icons.inbox} />
+      </TagLabel>
+    );
+  }
+
+  return <TagLabel>{project.name}</TagLabel>;
+};
+
 const determineTextColour = (deleted: boolean, colorMode: 'light' | 'dark') => {
   if (deleted) {
-    if (colorMode === 'light') {
-      return 'gray.500';
-    }
-    return 'gray.400';
+    return colorMode === 'light' ? 'gray.500' : 'gray.400';
   }
-  if (colorMode === 'light') {
-    return 'gray.800';
-  }
-  return 'gray.200';
+  return colorMode === 'light' ? 'gray.800' : 'gray.200';
 };
 
 const determineBackgroundColour = (
@@ -69,72 +85,15 @@ const determineBackgroundColour = (
   colorMode: 'light' | 'dark'
 ): string => {
   if (isFocused) {
-    if (colorMode === 'light') {
-      return 'gray.100';
-    }
-    return 'gray.900';
+    return colorMode === 'light' ? 'gray.100' : 'gray.900';
   }
-  if (colorMode === 'light') {
-    return 'gray.50';
-  }
-  return 'gray.800';
-};
-
-// Check if the item should be visible, based on a parent hiding subtasks
-const determineItemVisiblility = (
-  parentKey: string,
-  componentKey: string,
-  visibleSubtasks: Record<string, Record<string, boolean>>,
-  setVisibleSubtasks: (
-    visibleSubtasks: Record<string, Record<string, boolean>>
-  ) => void
-): boolean => {
-  if (!parentKey || !componentKey || isEmpty(visibleSubtasks)) return true;
-  // If the item has a parent, then check if the parent is hidden
-  if (parentKey) {
-    const parentVisibility = visibleSubtasks?.[parentKey]?.[componentKey];
-    // If the parent doesn't have visibility then set it to true
-    if (parentVisibility === undefined) {
-      setVisibleSubtasks({
-        ...visibleSubtasks,
-        [parentKey]: { [componentKey]: true },
-      });
-      return true;
-    }
-    if (parentVisibility === false) {
-      // If the parent visibility is false, all subtasks should be hidden
-      return false;
-    }
-  }
-  return true;
-};
-
-// Determine if any subtasks of the item should be visible
-const determineSubtasksVisibility = (
-  itemKey: string,
-  componentKey: string,
-  visibleSubtasks: Record<string, Record<string, boolean>>,
-  setVisibleSubtasks: (
-    visibleSubtasks: Record<string, Record<string, boolean>>
-  ) => void
-): boolean => {
-  if (!itemKey || !componentKey || isEmpty(visibleSubtasks)) return true;
-
-  const subtaskVisibility = visibleSubtasks?.[itemKey]?.[componentKey];
-  if (subtaskVisibility === undefined) {
-    // Default to visible
-    setVisibleSubtasks({
-      ...visibleSubtasks,
-      [itemKey]: { [componentKey]: true },
-    });
-    return true;
-  }
-  return subtaskVisibility;
+  return colorMode === 'light' ? 'gray.50' : 'gray.800';
 };
 
 function Item({
   compact,
   itemKey,
+  parentKey,
   componentKey,
   hiddenIcons,
   shouldIndent,
@@ -142,23 +101,37 @@ function Item({
 }: ItemProps): ReactElement {
   const { colorMode } = useColorMode();
   const [moreButtonVisible, setMoreButtonVisible] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [subtasksVisible, setSubtasksVisible] = useState(true);
   const [
     activeItemIds,
     setActiveItemIds,
-    focusbarVisible,
     setFocusbarVisible,
-    globalVisibleSubtasks,
-    setGlobalVisibleSubtasks,
+    setSubtaskVisibility,
   ] = useAppStore((state: AppState) => [
     state.activeItemIds,
     state.setActiveItemIds,
-    state.focusbarVisible,
     state.setFocusbarVisible,
-    state.visibleSubtasks,
-    state.setVisibleSubtasks,
+    state.setSubtaskVisibility,
   ]);
+
+  const subtasksVisible = useAppStore((state) => {
+    if (state.visibleSubtasks?.[itemKey]) {
+      const visibility = state.visibleSubtasks?.[itemKey]?.[componentKey];
+      return visibility === undefined ? true : visibility;
+    }
+
+    return true;
+  });
+
+  const isVisible = useAppStore((state) => {
+    if (!parentKey) {
+      return true;
+    }
+    if (state.visibleSubtasks?.[parentKey]) {
+      const visibility = state.visibleSubtasks?.[parentKey]?.[componentKey];
+      return visibility === undefined ? true : visibility;
+    }
+    return true;
+  });
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER],
@@ -166,58 +139,12 @@ function Item({
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER],
   });
-
   const [restoreItem] = useMutation(RESTORE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER],
   });
-
   const { loading, error, data } = useQuery(ITEM_BY_KEY, {
     variables: { key: itemKey || null },
   });
-
-  const generateProjectTag = (
-    item: ItemType,
-    compact: boolean
-  ): ReactElement => {
-    const project = item?.project;
-    if (!project) return <></>;
-
-    if (project?.emoji) {
-      return <EmojiDisplay emojiId={project.emoji} size={12} />;
-    }
-    if (compact) {
-      return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>;
-    }
-
-    if (project.name === 'Inbox') {
-      return (
-        <TagLabel>
-          <Icon color="blue.500" as={Icons.inbox} />
-        </TagLabel>
-      );
-    }
-
-    return <TagLabel>{project.name}</TagLabel>;
-  };
-  useEffect(() => {
-    if (!data) return;
-    setIsVisible(
-      determineItemVisiblility(
-        data.item?.parent?.key ?? '',
-        componentKey,
-        globalVisibleSubtasks,
-        setGlobalVisibleSubtasks
-      )
-    );
-    setSubtasksVisible(
-      determineSubtasksVisibility(
-        data.item?.key,
-        componentKey,
-        globalVisibleSubtasks,
-        setGlobalVisibleSubtasks
-      )
-    );
-  }, [data, itemKey, componentKey, globalVisibleSubtasks]);
 
   let enterInterval: NodeJS.Timer;
   let exitInterval: NodeJS.Timer;
@@ -246,14 +173,7 @@ function Item({
 
   const handleExpand: React.MouseEventHandler<HTMLElement> = (e): void => {
     e.stopPropagation();
-    const currentValue = get(
-      globalVisibleSubtasks,
-      `${item.key}.${componentKey}`,
-      false
-    );
-
-    const newSubState = { [item.key]: { [componentKey]: !currentValue } };
-    setGlobalVisibleSubtasks({ ...globalVisibleSubtasks, ...newSubState });
+    setSubtaskVisibility(itemKey, componentKey, !subtasksVisible);
   };
 
   const isFocused = activeItemIds.findIndex((i) => i === item.key) >= 0;
@@ -339,9 +259,7 @@ function Item({
           }
         } else {
           setActiveItemIds([item.key]);
-          if (focusbarVisible === false || focusbarVisible === undefined) {
-            setFocusbarVisible(true);
-          }
+          setFocusbarVisible(true);
         }
       }}
       tabIndex={0}
