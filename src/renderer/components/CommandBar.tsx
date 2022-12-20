@@ -9,13 +9,10 @@ import {
   UNCOMPLETE_ITEM,
   ITEMS_BY_FILTER,
 } from '../queries';
-import { useAppStore, AppState } from 'renderer/state';
+import { useAppStore } from 'renderer/state';
 
 const CommandBar = () => {
-  const [activeItemIds] = useAppStore((state: AppState) => [
-    state.activeItemIds,
-  ]);
-
+  const activeItemIds = useAppStore((state) => state.activeItemIds);
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER],
   });
@@ -136,4 +133,5 @@ const CommandBar = () => {
     />
   );
 };
+
 export default CommandBar;
