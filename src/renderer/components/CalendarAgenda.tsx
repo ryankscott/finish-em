@@ -82,14 +82,7 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
 
   if (sortedEventsForToday.length == 0)
     return (
-      <Text
-        w="100%"
-        color={colorMode === 'light' ? 'gray.600' : 'gray.400'}
-        fontSize="sm"
-        py={4}
-        px={0}
-        pl={4}
-      >
+      <Text w="100%" color={'gray.400'} fontSize="sm" py={4} px={0} pl={4}>
         No calendar events
       </Text>
     );
