@@ -5,7 +5,6 @@ import { parseISO } from 'date-fns';
 import { without } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 import { SQLDataSource } from 'datasource-sql';
-import { parseISO } from 'date-fns';
 import { AttendeeInput } from '../resolvers-types';
 import {
   AreaEntity,
