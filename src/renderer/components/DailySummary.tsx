@@ -80,7 +80,7 @@ const DailySummary = ({
                     color={determineDayTextColour(d, colorMode)}
                     fontWeight={400}
                   >
-                    {format(d, dateFormat)}
+                    {format(d, dateFormat ?? 'EEEE')}
                   </Text>
                   {itemsOnDate?.length > 0 && (
                     <Tag colorScheme="blue" size="sm" m={0}>
