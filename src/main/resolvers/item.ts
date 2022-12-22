@@ -68,14 +68,14 @@ const item: Partial<Resolvers> = {
       } = input;
       return dataSources.apolloDb.createItem(
         key,
-        labelKey ?? '',
-        parentKey ?? '',
         projectKey ?? '0',
         repeat ?? '',
         text,
         type,
-        dueAt || undefined,
-        scheduledAt || undefined
+        labelKey,
+        parentKey,
+        dueAt,
+        scheduledAt
       );
     },
 

@@ -1044,14 +1044,6 @@ class AppDatabase extends SQLDataSource {
       }
 
       if (dateField) {
-        if (operator === '=') {
-          try {
-            const specificDate = parseISO(value);
-            return `DATE('${value}')`;
-          } catch (e) {
-            log.error(`Failed to parse date of ${value} - ${e}`);
-          }
-        }
         /*
           This craziness is because we are using a BETWEEN operator
         */
@@ -1133,12 +1125,12 @@ class AppDatabase extends SQLDataSource {
 
   async createItem(
     key: string,
-    labelKey: string,
-    parentKey: string,
     projectKey: string,
     repeat: string,
     text: string,
     type: string,
+    labelKey?: string,
+    parentKey?: string,
     dueAt?: Date,
     scheduledAt?: Date
   ): Promise<ItemEntity> {
