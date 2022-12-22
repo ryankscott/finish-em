@@ -10,11 +10,21 @@ const CustomActionElement = ({
   disabledTranslation,
 }: ActionProps) => (
   <Button
-    className={className}
+    variant="outline"
     title={disabledTranslation && disabled ? disabledTranslation.title : title}
     onClick={(e) => handleOnClick(e)}
     size="sm"
     isDisabled={disabled && !disabledTranslation}
+    bg={'transparent'}
+    _active={{
+      bg: 'transparent',
+    }}
+    _hover={{
+      bg: 'transparent',
+    }}
+    _focus={{
+      bg: 'transparent',
+    }}
   >
     {disabledTranslation && disabled ? disabledTranslation.title : title}
   </Button>

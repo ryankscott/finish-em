@@ -390,18 +390,27 @@ const styles: Styles = {
       },
       '.ruleGroup[data-level="1"]': {
         bg: mode('gray.50', 'gray.700')(props),
+        borderColor: mode('gray.50', 'gray.700')(props),
       },
       '.ruleGroup[data-level="2"]': {
-        bg: mode('blue.50', 'blue.800')(props),
+        bg: mode('blue.100', 'blue.600')(props),
+        borderColor: mode('blue.100', 'blue.600')(props),
       },
       '.ruleGroup[data-level="3"]': {
-        bg: mode('purple.50', 'purple.800')(props),
+        bg: mode('purple.100', 'purple.600')(props),
+        borderColor: mode('purple.100', 'purple.600')(props),
       },
       '.ruleGroup[data-level="4"]': {
-        bg: mode('green.50', 'green.800')(props),
+        bg: mode('green.100', 'green.600')(props),
+        borderColor: mode('green.100', 'green.600')(props),
       },
       '.ruleGroup[data-level="5"]': {
-        bg: mode('yellow.50', 'yellow.800')(props),
+        bg: mode('yellow.100', 'yellow.600')(props),
+        borderColor: mode('yellow.100', 'yellow.600')(props),
+      },
+      '.ruleGroup[data-level="6"]': {
+        bg: mode('red.100', 'red.600')(props),
+        borderColor: mode('red.100', 'red.600')(props),
       },
       '.react-datepicker-wrapper > div > input[type=text]': {
         paddingInline: 2,
