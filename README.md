@@ -5,7 +5,7 @@
   width="64"
   height=64"
 >
-  <h1>Finish-em </h1>
+  <h1>Finish-em server</h1>
 </html>
 Who doesn't need a 400MB todo list?
 
@@ -29,18 +29,10 @@ npm install
 
 ## Developing
 
-### Running the Electron version (development)
+### Running the dev server
 
 ```
 npm run start
 ```
 
-## Building
 
-### Building the Electron app
-
-The following commands will build the mac version of Finish-em
-
-```
-npm run package 
-```
