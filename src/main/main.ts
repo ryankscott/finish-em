@@ -207,26 +207,33 @@ function createMainWindow() {
 }
 
 const startApp = async () => {
-  await runMigrations();
+  const cloudSync = store.get('cloudSync');
+  if (cloudSync?.enabled) {
+    mainWindow?.webContents.send('cloud-sync', {
+      url: cloudSync.url,
+    });
+  } else {
+    await runMigrations();
 
-  await startApolloServer();
+    await startApolloServer();
 
-  registerIPCHandlers({ apolloDb, quickAddWindow, mainWindow });
+    registerIPCHandlers({ apolloDb, quickAddWindow, mainWindow });
 
-  const features = await apolloDb.getFeatures();
+    const features = await apolloDb.getFeatures();
 
-  const calendarIntegration = features?.find(
-    (f) => f.name === 'calendarIntegration'
-  );
+    const calendarIntegration = features?.find(
+      (f) => f.name === 'calendarIntegration'
+    );
 
-  if (calendarIntegration?.enabled) {
-    log.info('Calendar integration enabled - turning on sync');
-    // Get events every 5 mins
-    calendarSyncInterval = setInterval(async () => {
-      mainWindow?.webContents.send('syncing-calendar-start', {});
-      await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
-      mainWindow?.webContents.send('syncing-calendar-finished', {});
-    }, CAL_SYNC_INTERVAL);
+    if (calendarIntegration?.enabled) {
+      log.info('Calendar integration enabled - turning on sync');
+      // Get events every 5 mins
+      calendarSyncInterval = setInterval(async () => {
+        mainWindow?.webContents.send('syncing-calendar-start', {});
+        await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
+        mainWindow?.webContents.send('syncing-calendar-finished', {});
+      }, CAL_SYNC_INTERVAL);
+    }
   }
 };
 

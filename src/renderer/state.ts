@@ -6,6 +6,7 @@ interface State {
   sidebarVisible: boolean;
   visibleSubtasks: Record<string, Record<string, boolean>>;
   shortcutDialogVisible: boolean;
+  serverUrl: string;
 }
 
 interface Actions {
@@ -29,6 +30,7 @@ interface Actions {
     componentKey: string,
     visible: boolean
   ) => void;
+  setServerUrl: (url: string) => void;
 }
 export type AppState = State & Actions;
 
@@ -121,4 +123,6 @@ export const useAppStore = create<AppState>((set) => ({
         visibleSubtasks: Object.fromEntries(newVisibility),
       };
     }),
+
+  setServerUrl: (url) => set(() => ({ serverUrl: url })),
 }));
