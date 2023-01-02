@@ -1,9 +1,9 @@
-schema: ./src/main/schemas/*.graphql
+schema: ./src/schemas/*.graphql
 generates:
-  ./src/main/resolvers-types.ts:
+  ./src/resolvers-types.ts:
     config:
       scalars:
-        DateTime: string
+        DateTime: Date
       contextType: ./resolvers/types#Context
       mappers:
         Area: ./database/types/index#AreaEntity
@@ -22,6 +22,7 @@ generates:
         View: ./database/types/index#ViewEntity
         ViewOrder: ./database/types/index#ViewOrderEntity
         WeeklyGoal: ./database/types/index#WeeklyGoalEntity
+        User: ./database/types/index#UserEntity
       useIndexSignature: true
     plugins:
       - typescript

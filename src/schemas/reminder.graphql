@@ -14,8 +14,8 @@ type Reminder {
 input CreateReminderInput {
   key: String!
   text: String!
-  remindAt: DateTime
-  itemKey: String
+  remindAt: DateTime!
+  itemKey: String!
 }
 
 input DeleteReminderInput {

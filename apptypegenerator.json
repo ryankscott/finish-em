@@ -3,7 +3,7 @@
   "connection": {
     "filename": "./finish_em.db"
   },
-  "folder": "../../src/database/types/",
+  "folder": "./src/database/types/",
   "filename": "app",
   "tableNameCasing": "pascal"
 }

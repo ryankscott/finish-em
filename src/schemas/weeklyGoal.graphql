@@ -1,13 +1,13 @@
 type WeeklyGoal {
   key: String!
   week: String!
-  goal: String
+  goal: String!
 }
 
 input CreateWeeklyGoalInput {
   key: String!
   week: String!
-  goal: String
+  goal: String!
 }
 
 type Query {

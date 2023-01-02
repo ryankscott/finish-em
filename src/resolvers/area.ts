@@ -1,48 +1,48 @@
-import { Resolvers } from '../resolvers-types';
+import { Resolvers } from "../resolvers-types";
 
 const area: Partial<Resolvers> = {
   Area: {
     items(parent, _, { dataSources }) {
-      return dataSources.apolloDb.getItemsByArea(parent.key);
+      return dataSources.appDb.getItemsByArea(parent.key);
     },
 
     projects(parent, _, { dataSources }) {
-      return dataSources.apolloDb.getProjectsByArea(parent.key);
+      return dataSources.appDb.getProjectsByArea(parent.key);
     },
 
     sortOrder(parent, _, { dataSources }) {
-      return dataSources.apolloDb.getAreaOrder(parent.key);
+      return dataSources.appDb.getAreaOrder(parent.key);
     },
   },
   Query: {
     areas: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getAreas();
+      return dataSources.appDb.getAreas();
     },
     area: (_, { key }, { dataSources }) => {
-      return dataSources.apolloDb.getArea(key);
+      return dataSources.appDb.getArea(key);
     },
   },
   Mutation: {
     createArea: (_, { input }, { dataSources }) => {
       const { key, name, description } = input;
-      return dataSources.apolloDb.createArea(key, name, description ?? '');
+      return dataSources.appDb.createArea(key, name, description ?? "");
     },
 
     deleteArea: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.deleteArea(key);
+      return dataSources.appDb.deleteArea(key);
     },
     renameArea: (_, { input }, { dataSources }) => {
       const { key, name } = input;
-      return dataSources.apolloDb.renameArea(key, name);
+      return dataSources.appDb.renameArea(key, name);
     },
     setDescriptionOfArea: (_, { input }, { dataSources }) => {
       const { key, description } = input;
-      return dataSources.apolloDb.setDescriptionOfArea(key, description);
+      return dataSources.appDb.setDescriptionOfArea(key, description);
     },
     setEmojiOfArea: (_, { input }, { dataSources }) => {
       const { key, emoji } = input;
-      return dataSources.apolloDb.setEmojiOfArea(key, emoji);
+      return dataSources.appDb.setEmojiOfArea(key, emoji);
     },
   },
 };

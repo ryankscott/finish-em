@@ -1,7 +1,8 @@
-import AppDatabase from 'main/database';
+import { AppDatabase, UserDatabase } from "../database";
 
 export type Context = {
   dataSources: {
-    apolloDb: AppDatabase;
+    appDb: AppDatabase;
+    userDb: UserDatabase;
   };
 };

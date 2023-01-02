@@ -1,23 +1,23 @@
-import { Resolvers } from '../resolvers-types';
+import { Resolvers } from "../resolvers-types";
 
 const event: Partial<Resolvers> = {
   Event: {
     calendar: (parent, _, { dataSources }) => {
-      return dataSources.apolloDb.getCalendar(parent.key);
+      return dataSources.appDb.getCalendar(parent.key);
     },
   },
   Query: {
     events: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getEvents();
+      return dataSources.appDb.getEvents();
     },
     event: (_, { key }, { dataSources }) => {
-      return dataSources.apolloDb.getEvent(key);
+      return dataSources.appDb.getEvent(key);
     },
     eventsByCalendar: (_, { calendarKey }, { dataSources }) => {
-      return dataSources.apolloDb.getEventsByCalendar(calendarKey);
+      return dataSources.appDb.getEventsByCalendar(calendarKey);
     },
     eventsForActiveCalendar: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getEventsForActiveCalendar();
+      return dataSources.appDb.getEventsForActiveCalendar();
     },
   },
   Mutation: {
@@ -35,23 +35,23 @@ const event: Partial<Resolvers> = {
         title,
       } = input;
       if (!startAt) {
-        throw new Error('Failed to create event - startAt is required');
+        throw new Error("Failed to create event - startAt is required");
       }
       if (!endAt) {
-        throw new Error('Failed to create event - endAt is required');
+        throw new Error("Failed to create event - endAt is required");
       }
       if (!attendees) {
-        throw new Error('Failed to create event - attendees is required');
+        throw new Error("Failed to create event - attendees is required");
       }
-      return dataSources.apolloDb.createEvent(
+      return dataSources.appDb.createEvent(
         key,
         title,
-        description ?? '',
+        description ?? "",
         startAt,
         endAt,
         allDay ?? false,
-        calendarKey ?? '',
-        location ?? '',
+        calendarKey ?? "",
+        location ?? "",
         // @ts-ignore
         attendees ?? null,
         recurrence
@@ -60,7 +60,7 @@ const event: Partial<Resolvers> = {
 
     deleteEvent: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.deleteEvent(key);
+      return dataSources.appDb.deleteEvent(key);
     },
   },
 };

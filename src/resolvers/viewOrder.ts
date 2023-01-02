@@ -3,21 +3,21 @@ import { Resolvers } from '../resolvers-types';
 const viewOrder: Partial<Resolvers> = {
   Query: {
     viewOrders: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getViewOrders();
+      return dataSources.appDb.getViewOrders();
     },
     viewOrder: (_, { viewKey }, { dataSources }) => {
-      return dataSources.apolloDb.getViewOrder(viewKey);
+      return dataSources.appDb.getViewOrder(viewKey);
     },
   },
   Mutation: {
     createViewOrder(_, { input }, { dataSources }) {
       const { viewKey } = input;
-      return dataSources.apolloDb.createViewOrder(viewKey);
+      return dataSources.appDb.createViewOrder(viewKey);
     },
 
     setViewOrder(_, { input }, { dataSources }) {
       const { viewKey, sortOrder } = input;
-      return dataSources.apolloDb.setViewOrder(viewKey, sortOrder);
+      return dataSources.appDb.setViewOrder(viewKey, sortOrder);
     },
   },
 };

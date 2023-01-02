@@ -1,56 +1,56 @@
-import { Resolvers } from '../resolvers-types';
+import { Resolvers } from "../resolvers-types";
 
 const item: Partial<Resolvers> = {
   Item: {
     area: (parent, _, { dataSources }) => {
       // Default area is of key 0
       if (parent.areaKey === undefined || parent.areaKey === null) return null;
-      return dataSources.apolloDb.getArea(parent?.areaKey);
+      return dataSources.appDb.getArea(parent?.areaKey);
     },
     label: (parent, _, { dataSources }) => {
       if (!parent.labelKey) return null;
-      return dataSources.apolloDb.getLabel(parent?.labelKey);
+      return dataSources.appDb.getLabel(parent?.labelKey);
     },
     project: (parent, _, { dataSources }) => {
       // Default project is of key 0
       if (parent.projectKey === undefined || parent.projectKey === null) {
         return null;
       }
-      return dataSources.apolloDb.getProject(parent?.projectKey);
+      return dataSources.appDb.getProject(parent?.projectKey);
     },
     parent: (parent, _, { dataSources }) => {
       if (!parent.parentKey) return null;
-      return dataSources.apolloDb.getItem(parent?.parentKey);
+      return dataSources.appDb.getItem(parent?.parentKey);
     },
     children: (parent, _, { dataSources }) => {
-      return dataSources.apolloDb.getItemsByParent(parent.key);
+      return dataSources.appDb.getItemsByParent(parent.key);
     },
     reminders: (parent, _, { dataSources }) => {
-      return dataSources.apolloDb.getRemindersByItem(parent.key);
+      return dataSources.appDb.getRemindersByItem(parent.key);
     },
     sortOrders: (parent, _, { dataSources }) => {
-      return dataSources.apolloDb.getItemOrdersByItem(parent.key);
+      return dataSources.appDb.getItemOrdersByItem(parent.key);
     },
   },
 
   Query: {
     items: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getItems();
+      return dataSources.appDb.getItems();
     },
     item: (_, { key }, { dataSources }) => {
-      return dataSources.apolloDb.getItem(key);
+      return dataSources.appDb.getItem(key);
     },
     itemsByProject: (_, { projectKey }, { dataSources }) => {
-      return dataSources.apolloDb.getItemsByProject(projectKey);
+      return dataSources.appDb.getItemsByProject(projectKey);
     },
     itemsByArea: (_, { areaKey }, { dataSources }) => {
-      return dataSources.apolloDb.getItemsByArea(areaKey);
+      return dataSources.appDb.getItemsByArea(areaKey);
     },
     itemsByParent: (_, { parentKey }, { dataSources }) => {
-      return dataSources.apolloDb.getItemsByParent(parentKey);
+      return dataSources.appDb.getItemsByParent(parentKey);
     },
     itemsByFilter: (_, { filter, componentKey }, { dataSources }) => {
-      return dataSources.apolloDb.getItemsByFilter(filter, componentKey);
+      return dataSources.appDb.getItemsByFilter(filter, componentKey);
     },
   },
   Mutation: {
@@ -66,10 +66,10 @@ const item: Partial<Resolvers> = {
         text,
         type,
       } = input;
-      return dataSources.apolloDb.createItem(
+      return dataSources.appDb.createItem(
         key,
-        projectKey ?? '0',
-        repeat ?? '',
+        projectKey ?? "0",
+        repeat ?? "",
         text,
         type,
         labelKey,
@@ -81,82 +81,80 @@ const item: Partial<Resolvers> = {
 
     deleteItem: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.deleteItem(key);
+      return dataSources.appDb.deleteItem(key);
     },
 
     restoreItem: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.restoreItem(key);
+      return dataSources.appDb.restoreItem(key);
     },
 
     renameItem: (_, { input }, { dataSources }) => {
       const { key, text } = input;
-      return dataSources.apolloDb.renameItem(key, text);
+      return dataSources.appDb.renameItem(key, text);
     },
 
     completeItem: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.completeItem(key);
+      return dataSources.appDb.completeItem(key);
     },
 
     unCompleteItem: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.unCompleteItem(key);
+      return dataSources.appDb.unCompleteItem(key);
     },
 
     setRepeatOfItem: (_, { input }, { dataSources }) => {
       const { key, repeat } = input;
-      return dataSources.apolloDb.setRepeatOfItem(key, repeat);
+      return dataSources.appDb.setRepeatOfItem(key, repeat);
     },
 
     cloneItem: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.cloneItem(key);
+      return dataSources.appDb.cloneItem(key);
     },
 
     permanentDeleteItem: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.permanentDeleteItem(key);
+      return dataSources.appDb.permanentDeleteItem(key);
     },
 
     setProjectOfItem: (_, { input }, { dataSources }) => {
       const { key, projectKey } = input;
-      return dataSources.apolloDb.setProjectOfItem(key, projectKey);
+      return dataSources.appDb.setProjectOfItem(key, projectKey);
     },
 
     setAreaOfItem: (_, { input }, { dataSources }) => {
       const { key, areaKey } = input;
-      return dataSources.apolloDb.setAreaOfItem(key, areaKey);
+      return dataSources.appDb.setAreaOfItem(key, areaKey);
     },
 
     setParentOfItem: (_, { input }, { dataSources }) => {
       const { key, parentKey } = input;
-      return dataSources.apolloDb.setParentOfItem(key, parentKey);
+      return dataSources.appDb.setParentOfItem(key, parentKey);
     },
 
     setLabelOfItem: (_, { input }, { dataSources }) => {
       const { key, labelKey } = input;
-      return dataSources.apolloDb.setLabelOfItem(key, labelKey);
+      return dataSources.appDb.setLabelOfItem(key, labelKey);
     },
 
     setScheduledAtOfItem: (_, { input }, { dataSources }) => {
       const { key, scheduledAt } = input;
       console.log(typeof scheduledAt);
       console.log(scheduledAt);
-      return dataSources.apolloDb.setScheduledAtOfItem(
-        key,
-        scheduledAt ?? null
-      );
+      return dataSources.appDb.setScheduledAtOfItem(key, scheduledAt ?? null);
     },
 
     setSnoozeOfItem: (_, { input }, { dataSources }) => {
       const { key, snoozedUntil } = input;
-      return dataSources.apolloDb.snoozeItem(key, snoozedUntil ?? new Date());
+      // @ts-ignore
+      return dataSources.appDb.snoozeItem(key, snoozedUntil ?? new Date());
     },
 
     setDueAtOfItem: (_, { input }, { dataSources }) => {
       const { key, dueAt } = input;
-      return dataSources.apolloDb.setDueAtOfItem(key, dueAt ?? null);
+      return dataSources.appDb.setDueAtOfItem(key, dueAt ?? null);
     },
   },
 };

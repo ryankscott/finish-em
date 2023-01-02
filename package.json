@@ -5,7 +5,8 @@
   "main": "src/main.js",
   "scripts": {
     "start:dev": "npx nodemon",
-    "start": "npm run build && node build/index.js"
+    "start": "npm run build && node build/index.js",
+    "generate": "npx @rmp135/sql-ts -c ./apptypegenerator.json && npx @rmp135/sql-ts -c ./usertypegenerator.json "
   },
   "repository": {
     "type": "git",
@@ -26,14 +27,19 @@
   ],
   "homepage": "https://github.com/ryankscott/finish-em/readme",
   "dependencies": {
+    "@apollo/server": "^4.3.0",
+    "@graphql-codegen/cli": "^2.13.7",
+    "@graphql-codegen/typescript": "^2.7.4",
+    "@graphql-codegen/typescript-resolvers": "^2.7.4",
     "@graphql-tools/load-files": "^6.6.1",
     "@rmp135/sql-ts": "^1.15.1",
     "@vscode/sqlite3": "^5.1.2",
-    "apollo-server": "^3.11.1",
+    "bcrypt": "^5.1.0",
     "datasource-sql": "^2.0.1",
     "date-fns": "^2.29.3",
     "electron-store": "^8.1.0",
     "graphql-scalars": "^1.20.1",
+    "jsonwebtoken": "^9.0.0",
     "knex": "^2.3.0",
     "lodash": "^4.17.21",
     "pino": "^8.8.0",
@@ -46,6 +52,7 @@
     "xcall": "^1.0.4"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/lodash": "^4.14.191",
     "@types/uuid": "^9.0.0",
     "nodemon": "^2.0.20",

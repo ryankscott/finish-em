@@ -3,26 +3,26 @@ import { Resolvers } from '../resolvers-types';
 const reminder: Partial<Resolvers> = {
   Query: {
     reminders: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getReminders();
+      return dataSources.appDb.getReminders();
     },
     reminder: (_, { key }, { dataSources }) => {
-      return dataSources.apolloDb.getReminder(key);
+      return dataSources.appDb.getReminder(key);
     },
   },
   Mutation: {
     createReminder: (_, { input }, { dataSources }) => {
       const { key, text, remindAt, itemKey } = input;
-      return dataSources.apolloDb.createReminder(key, text, remindAt, itemKey);
+      return dataSources.appDb.createReminder(key, text, remindAt, itemKey);
     },
 
     deleteReminder: (_, { input }, { dataSources }) => {
       const { key } = input;
-      return dataSources.apolloDb.deleteReminder(key);
+      return dataSources.appDb.deleteReminder(key);
     },
 
     deleteReminderFromItem: (_, { input }, { dataSources }) => {
       const { itemKey } = input;
-      return dataSources.apolloDb.deleteReminderFromItem(itemKey);
+      return dataSources.appDb.deleteReminderFromItem(itemKey);
     },
   },
 };

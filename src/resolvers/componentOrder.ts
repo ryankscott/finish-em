@@ -3,21 +3,21 @@ import { Resolvers } from '../resolvers-types';
 const componentOrder: Partial<Resolvers> = {
   Query: {
     componentOrders: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getComponentOrders();
+      return dataSources.appDb.getComponentOrders();
     },
     componentOrder: (_, { componentKey }, { dataSources }) => {
-      return dataSources.apolloDb.getComponentOrder(componentKey);
+      return dataSources.appDb.getComponentOrder(componentKey);
     },
   },
   Mutation: {
     createComponentOrder(_, { input }, { dataSources }) {
       const { componentKey } = input;
-      return dataSources.apolloDb.createComponentOrder(componentKey);
+      return dataSources.appDb.createComponentOrder(componentKey);
     },
 
     setComponentOrder(_, { input }, { dataSources }) {
       const { componentKey, sortOrder } = input;
-      return dataSources.apolloDb.setComponentOrder(componentKey, sortOrder);
+      return dataSources.appDb.setComponentOrder(componentKey, sortOrder);
     },
   },
 };

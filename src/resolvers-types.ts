@@ -1,5 +1,5 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { AreaEntity, AreaOrderEntity, CalendarEntity, ComponentEntity, ComponentOrderEntity, EventEntity, FeatureEntity, ItemEntity, ItemOrderEntity, LabelEntity, ProjectEntity, ProjectOrderEntity, ReminderEntity, ViewEntity, ViewOrderEntity, WeeklyGoalEntity } from './database/types/index';
+import { AreaEntity, AreaOrderEntity, CalendarEntity, ComponentEntity, ComponentOrderEntity, EventEntity, FeatureEntity, ItemEntity, ItemOrderEntity, LabelEntity, ProjectEntity, ProjectOrderEntity, ReminderEntity, ViewEntity, ViewOrderEntity, WeeklyGoalEntity, UserEntity } from './database/types/index';
 import { Context } from './resolvers/types';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
@@ -14,7 +14,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  DateTime: string;
+  DateTime: Date;
   JSON: any;
 };
 
@@ -186,10 +186,17 @@ export type CreateProjectOrderInput = {
 };
 
 export type CreateReminderInput = {
-  itemKey?: InputMaybe<Scalars['String']>;
+  itemKey: Scalars['String'];
   key: Scalars['String'];
-  remindAt?: InputMaybe<Scalars['DateTime']>;
+  remindAt: Scalars['DateTime'];
   text: Scalars['String'];
+};
+
+export type CreateUserInput = {
+  email: Scalars['String'];
+  key: Scalars['String'];
+  name: Scalars['String'];
+  password: Scalars['String'];
 };
 
 export type CreateViewInput = {
@@ -204,7 +211,7 @@ export type CreateViewOrderInput = {
 };
 
 export type CreateWeeklyGoalInput = {
-  goal?: InputMaybe<Scalars['String']>;
+  goal: Scalars['String'];
   key: Scalars['String'];
   week: Scalars['String'];
 };
@@ -246,6 +253,10 @@ export type DeleteReminderFromItemInput = {
 };
 
 export type DeleteReminderInput = {
+  key: Scalars['String'];
+};
+
+export type DeleteUserInput = {
   key: Scalars['String'];
 };
 
@@ -315,6 +326,11 @@ export type Label = {
   name?: Maybe<Scalars['String']>;
 };
 
+export type LoginUserInput = {
+  email: Scalars['String'];
+  password: Scalars['String'];
+};
+
 export type MigrateAreaOrderInput = {
   areaKey: Scalars['String'];
   sortOrder: Scalars['Int'];
@@ -357,11 +373,11 @@ export type Mutation = {
   createProject?: Maybe<Project>;
   createProjectOrder?: Maybe<ProjectOrder>;
   createReminder?: Maybe<Reminder>;
+  createUser?: Maybe<User>;
   createView?: Maybe<View>;
   createViewOrder?: Maybe<ViewOrder>;
   createWeeklyGoal?: Maybe<WeeklyGoal>;
   deleteArea?: Maybe<Area>;
-  deleteCalendar?: Maybe<Calendar>;
   deleteComponent?: Maybe<Scalars['String']>;
   deleteEvent?: Maybe<Scalars['String']>;
   deleteItem?: Maybe<Item>;
@@ -370,7 +386,9 @@ export type Mutation = {
   deleteProject?: Maybe<Project>;
   deleteReminder?: Maybe<Reminder>;
   deleteReminderFromItem?: Maybe<Reminder>;
+  deleteUser?: Maybe<Scalars['String']>;
   deleteView?: Maybe<View>;
+  loginUser?: Maybe<Scalars['String']>;
   migrateAreaOrder?: Maybe<AreaOrder>;
   migrateComponent?: Maybe<Component>;
   migrateComponentOrder?: Maybe<ComponentOrder>;
@@ -496,6 +514,11 @@ export type MutationCreateReminderArgs = {
 };
 
 
+export type MutationCreateUserArgs = {
+  input: CreateUserInput;
+};
+
+
 export type MutationCreateViewArgs = {
   input: CreateViewInput;
 };
@@ -513,11 +536,6 @@ export type MutationCreateWeeklyGoalArgs = {
 
 export type MutationDeleteAreaArgs = {
   input: DeleteAreaInput;
-};
-
-
-export type MutationDeleteCalendarArgs = {
-  input: DeleteCalendarInput;
 };
 
 
@@ -561,8 +579,18 @@ export type MutationDeleteReminderFromItemArgs = {
 };
 
 
+export type MutationDeleteUserArgs = {
+  input: DeleteUserInput;
+};
+
+
 export type MutationDeleteViewArgs = {
   input: DeleteViewInput;
+};
+
+
+export type MutationLoginUserArgs = {
+  input: LoginUserInput;
 };
 
 
@@ -827,6 +855,7 @@ export type Query = {
   reminder?: Maybe<Reminder>;
   reminders?: Maybe<Array<Maybe<Reminder>>>;
   remindersByItem?: Maybe<Array<Maybe<Reminder>>>;
+  user?: Maybe<User>;
   view?: Maybe<View>;
   viewOrder?: Maybe<ViewOrder>;
   viewOrders?: Maybe<Array<Maybe<ViewOrder>>>;
@@ -961,6 +990,11 @@ export type QueryReminderArgs = {
 
 export type QueryRemindersByItemArgs = {
   itemKey: Scalars['String'];
+};
+
+
+export type QueryUserArgs = {
+  key: Scalars['String'];
 };
 
 
@@ -1139,6 +1173,16 @@ export type UnCompleteItemInput = {
   key: Scalars['String'];
 };
 
+export type User = {
+  __typename?: 'User';
+  createdAt?: Maybe<Scalars['DateTime']>;
+  email: Scalars['String'];
+  key: Scalars['String'];
+  lastUpdatedAt?: Maybe<Scalars['DateTime']>;
+  name: Scalars['String'];
+  password: Scalars['String'];
+};
+
 export type View = {
   __typename?: 'View';
   createdAt?: Maybe<Scalars['DateTime']>;
@@ -1161,7 +1205,7 @@ export type ViewOrder = {
 
 export type WeeklyGoal = {
   __typename?: 'WeeklyGoal';
-  goal?: Maybe<Scalars['String']>;
+  goal: Scalars['String'];
   key: Scalars['String'];
   week: Scalars['String'];
 };
@@ -1272,6 +1316,7 @@ export type ResolversTypes = ResolversObject<{
   CreateProjectInput: CreateProjectInput;
   CreateProjectOrderInput: CreateProjectOrderInput;
   CreateReminderInput: CreateReminderInput;
+  CreateUserInput: CreateUserInput;
   CreateViewInput: CreateViewInput;
   CreateViewOrderInput: CreateViewOrderInput;
   CreateWeeklyGoalInput: CreateWeeklyGoalInput;
@@ -1286,6 +1331,7 @@ export type ResolversTypes = ResolversObject<{
   DeleteProjectInput: DeleteProjectInput;
   DeleteReminderFromItemInput: DeleteReminderFromItemInput;
   DeleteReminderInput: DeleteReminderInput;
+  DeleteUserInput: DeleteUserInput;
   DeleteViewInput: DeleteViewInput;
   Event: ResolverTypeWrapper<EventEntity>;
   Feature: ResolverTypeWrapper<FeatureEntity>;
@@ -1294,6 +1340,7 @@ export type ResolversTypes = ResolversObject<{
   ItemOrder: ResolverTypeWrapper<ItemOrderEntity>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Label: ResolverTypeWrapper< LabelEntity>;
+  LoginUserInput: LoginUserInput;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
@@ -1336,6 +1383,7 @@ export type ResolversTypes = ResolversObject<{
   SetViewOrderInput: SetViewOrderInput;
   String: ResolverTypeWrapper<Scalars['String']>;
   UnCompleteItemInput: UnCompleteItemInput;
+  User: ResolverTypeWrapper<UserEntity>;
   View: ResolverTypeWrapper<ViewEntity>;
   ViewOrder: ResolverTypeWrapper<ViewOrderEntity>;
   WeeklyGoal: ResolverTypeWrapper<WeeklyGoalEntity>;
@@ -1371,6 +1419,7 @@ export type ResolversParentTypes = ResolversObject<{
   CreateProjectInput: CreateProjectInput;
   CreateProjectOrderInput: CreateProjectOrderInput;
   CreateReminderInput: CreateReminderInput;
+  CreateUserInput: CreateUserInput;
   CreateViewInput: CreateViewInput;
   CreateViewOrderInput: CreateViewOrderInput;
   CreateWeeklyGoalInput: CreateWeeklyGoalInput;
@@ -1385,6 +1434,7 @@ export type ResolversParentTypes = ResolversObject<{
   DeleteProjectInput: DeleteProjectInput;
   DeleteReminderFromItemInput: DeleteReminderFromItemInput;
   DeleteReminderInput: DeleteReminderInput;
+  DeleteUserInput: DeleteUserInput;
   DeleteViewInput: DeleteViewInput;
   Event: EventEntity;
   Feature: FeatureEntity;
@@ -1393,6 +1443,7 @@ export type ResolversParentTypes = ResolversObject<{
   ItemOrder: ItemOrderEntity;
   JSON: Scalars['JSON'];
   Label:  LabelEntity;
+  LoginUserInput: LoginUserInput;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
   MigrateComponentOrderInput: MigrateComponentOrderInput;
@@ -1435,6 +1486,7 @@ export type ResolversParentTypes = ResolversObject<{
   SetViewOrderInput: SetViewOrderInput;
   String: Scalars['String'];
   UnCompleteItemInput: UnCompleteItemInput;
+  User: UserEntity;
   View: ViewEntity;
   ViewOrder: ViewOrderEntity;
   WeeklyGoal: WeeklyGoalEntity;
@@ -1585,11 +1637,11 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createProjectOrder?: Resolver<Maybe<ResolversTypes['ProjectOrder']>, ParentType, ContextType, RequireFields<MutationCreateProjectOrderArgs, 'input'>>;
   createReminder?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<MutationCreateReminderArgs, 'input'>>;
+  createUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createView?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<MutationCreateViewArgs, 'input'>>;
   createViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationCreateViewOrderArgs, 'input'>>;
   createWeeklyGoal?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<MutationCreateWeeklyGoalArgs, 'input'>>;
   deleteArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationDeleteAreaArgs, 'input'>>;
-  deleteCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationDeleteCalendarArgs, 'input'>>;
   deleteComponent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
   deleteEvent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'input'>>;
   deleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationDeleteItemArgs, 'input'>>;
@@ -1598,7 +1650,9 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteProject?: Resolver<Maybe<ResolversTypes['Project']>, ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'input'>>;
   deleteReminder?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<MutationDeleteReminderArgs, 'input'>>;
   deleteReminderFromItem?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<MutationDeleteReminderFromItemArgs, 'input'>>;
+  deleteUser?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'input'>>;
   deleteView?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<MutationDeleteViewArgs, 'input'>>;
+  loginUser?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginUserArgs, 'input'>>;
   migrateAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationMigrateAreaOrderArgs, 'input'>>;
   migrateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationMigrateComponentArgs, 'input'>>;
   migrateComponentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<MutationMigrateComponentOrderArgs, 'input'>>;
@@ -1702,6 +1756,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   reminder?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<QueryReminderArgs, 'key'>>;
   reminders?: Resolver<Maybe<Array<Maybe<ResolversTypes['Reminder']>>>, ParentType, ContextType>;
   remindersByItem?: Resolver<Maybe<Array<Maybe<ResolversTypes['Reminder']>>>, ParentType, ContextType, RequireFields<QueryRemindersByItemArgs, 'itemKey'>>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'key'>>;
   view?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<QueryViewArgs, 'key'>>;
   viewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<QueryViewOrderArgs, 'viewKey'>>;
   viewOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ViewOrder']>>>, ParentType, ContextType>;
@@ -1720,6 +1775,16 @@ export type ReminderResolvers<ContextType = Context, ParentType extends Resolver
   lastUpdatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   remindAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
+  createdAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastUpdatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1744,7 +1809,7 @@ export type ViewOrderResolvers<ContextType = Context, ParentType extends Resolve
 }>;
 
 export type WeeklyGoalResolvers<ContextType = Context, ParentType extends ResolversParentTypes['WeeklyGoal'] = ResolversParentTypes['WeeklyGoal']> = ResolversObject<{
-  goal?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  goal?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   week?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -1769,6 +1834,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   ProjectOrder?: ProjectOrderResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   Reminder?: ReminderResolvers<ContextType>;
+  User?: UserResolvers<ContextType>;
   View?: ViewResolvers<ContextType>;
   ViewOrder?: ViewOrderResolvers<ContextType>;
   WeeklyGoal?: WeeklyGoalResolvers<ContextType>;

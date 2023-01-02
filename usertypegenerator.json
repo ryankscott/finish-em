@@ -1,0 +1,9 @@
+{
+  "client": "sqlite3",
+  "connection": {
+    "filename": "./user.db"
+  },
+  "folder": "./src/database/types/",
+  "filename": "user",
+  "tableNameCasing": "pascal"
+}

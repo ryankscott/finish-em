@@ -3,21 +3,21 @@ import { Resolvers } from '../resolvers-types';
 const areaOrder: Partial<Resolvers> = {
   Query: {
     areaOrders: (_, __, { dataSources }) => {
-      return dataSources.apolloDb.getAreaOrders();
+      return dataSources.appDb.getAreaOrders();
     },
     areaOrder: (_, { areaKey }, { dataSources }) => {
-      return dataSources.apolloDb.getAreaOrder(areaKey);
+      return dataSources.appDb.getAreaOrder(areaKey);
     },
   },
   Mutation: {
     createAreaOrder(_, { input }, { dataSources }) {
       const { areaKey } = input;
-      return dataSources.apolloDb.createAreaOrder(areaKey);
+      return dataSources.appDb.createAreaOrder(areaKey);
     },
 
     setAreaOrder(_, { input }, { dataSources }) {
       const { areaKey, sortOrder } = input;
-      return dataSources.apolloDb.setAreaOrder(areaKey, sortOrder);
+      return dataSources.appDb.setAreaOrder(areaKey, sortOrder);
     },
   },
 };
