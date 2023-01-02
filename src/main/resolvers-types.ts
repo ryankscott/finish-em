@@ -14,7 +14,7 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
-  DateTime: string;
+  DateTime: Date;
   JSON: any;
 };
 
@@ -132,11 +132,11 @@ export type CreateEventInput = {
   attendees?: InputMaybe<Array<InputMaybe<AttendeeInput>>>;
   calendarKey?: InputMaybe<Scalars['String']>;
   description?: InputMaybe<Scalars['String']>;
-  endAt?: InputMaybe<Scalars['DateTime']>;
+  endAt: Scalars['DateTime'];
   key: Scalars['String'];
   location?: InputMaybe<Scalars['String']>;
   recurrence?: InputMaybe<Scalars['String']>;
-  startAt?: InputMaybe<Scalars['DateTime']>;
+  startAt: Scalars['DateTime'];
   title: Scalars['String'];
 };
 
@@ -210,10 +210,6 @@ export type CreateWeeklyGoalInput = {
 };
 
 export type DeleteAreaInput = {
-  key: Scalars['String'];
-};
-
-export type DeleteCalendarInput = {
   key: Scalars['String'];
 };
 
@@ -361,7 +357,6 @@ export type Mutation = {
   createViewOrder?: Maybe<ViewOrder>;
   createWeeklyGoal?: Maybe<WeeklyGoal>;
   deleteArea?: Maybe<Area>;
-  deleteCalendar?: Maybe<Calendar>;
   deleteComponent?: Maybe<Scalars['String']>;
   deleteEvent?: Maybe<Scalars['String']>;
   deleteItem?: Maybe<Item>;
@@ -513,11 +508,6 @@ export type MutationCreateWeeklyGoalArgs = {
 
 export type MutationDeleteAreaArgs = {
   input: DeleteAreaInput;
-};
-
-
-export type MutationDeleteCalendarArgs = {
-  input: DeleteCalendarInput;
 };
 
 
@@ -1277,7 +1267,6 @@ export type ResolversTypes = ResolversObject<{
   CreateWeeklyGoalInput: CreateWeeklyGoalInput;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']>;
   DeleteAreaInput: DeleteAreaInput;
-  DeleteCalendarInput: DeleteCalendarInput;
   DeleteComponentInput: DeleteComponentInput;
   DeleteEventInput: DeleteEventInput;
   DeleteItemInput: DeleteItemInput;
@@ -1376,7 +1365,6 @@ export type ResolversParentTypes = ResolversObject<{
   CreateWeeklyGoalInput: CreateWeeklyGoalInput;
   DateTime: Scalars['DateTime'];
   DeleteAreaInput: DeleteAreaInput;
-  DeleteCalendarInput: DeleteCalendarInput;
   DeleteComponentInput: DeleteComponentInput;
   DeleteEventInput: DeleteEventInput;
   DeleteItemInput: DeleteItemInput;
@@ -1589,7 +1577,6 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   createViewOrder?: Resolver<Maybe<ResolversTypes['ViewOrder']>, ParentType, ContextType, RequireFields<MutationCreateViewOrderArgs, 'input'>>;
   createWeeklyGoal?: Resolver<Maybe<ResolversTypes['WeeklyGoal']>, ParentType, ContextType, RequireFields<MutationCreateWeeklyGoalArgs, 'input'>>;
   deleteArea?: Resolver<Maybe<ResolversTypes['Area']>, ParentType, ContextType, RequireFields<MutationDeleteAreaArgs, 'input'>>;
-  deleteCalendar?: Resolver<Maybe<ResolversTypes['Calendar']>, ParentType, ContextType, RequireFields<MutationDeleteCalendarArgs, 'input'>>;
   deleteComponent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteComponentArgs, 'input'>>;
   deleteEvent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteEventArgs, 'input'>>;
   deleteItem?: Resolver<Maybe<ResolversTypes['Item']>, ParentType, ContextType, RequireFields<MutationDeleteItemArgs, 'input'>>;

@@ -1,9 +1,7 @@
-import { exec } from 'child_process';
-
-const xcall = require('xcall');
+import xcall from 'xcall';
 const client = new xcall('bear');
-const open = require('open');
-const log = require('electron-log');
+import open from 'open';
+import log from 'electron-log';
 log.transports.console.level = 'info';
 
 const BEAR_TODO_REGEX = /^- \[ \]\s+(.+)/;
@@ -11,14 +9,6 @@ const BEAR_TODO_REGEX = /^- \[ \]\s+(.+)/;
 type BearNote = {
   identifier: string;
   note: string;
-};
-
-const killXCall = () => {
-  exec('killall xcall', (error, stdout, stderr) => {
-    if (error) {
-      return;
-    }
-  });
 };
 
 const getTodosFromString = (input: string): string[] => {
@@ -29,7 +19,7 @@ const getTodosFromString = (input: string): string[] => {
   const lines = input.split('\n');
   if (!lines.length) {
     log.error('No new lines found in note');
-    return;
+    return [];
   }
 
   return lines.reduce((acc, currentValue) => {
@@ -49,7 +39,7 @@ const getNoteContents = async (id: string): Promise<BearNote | null> => {
     if (res) {
       return JSON.parse(res);
     }
-    return null
+    return null;
   } catch (err) {
     console.error(
       `Failed to get note contents from note ${id} from bear - ${err}`

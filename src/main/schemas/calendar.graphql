@@ -17,10 +17,6 @@ input CreateCalendarInput {
   active: Boolean!
 }
 
-input DeleteCalendarInput {
-  key: String!
-}
-
 input ActiveCalendarInput {
   key: String!
 }
@@ -33,6 +29,5 @@ type Query {
 
 type Mutation {
   createCalendar(input: CreateCalendarInput!): Calendar
-  deleteCalendar(input: DeleteCalendarInput!): Calendar
   setActiveCalendar(input: ActiveCalendarInput!): Calendar
 }

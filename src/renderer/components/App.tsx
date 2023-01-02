@@ -58,7 +58,7 @@ const App = (): ReactElement => {
 
     // Handle Electron events
     window.electronAPI.ipcRenderer.onReceiveMessage('cloud-sync', (_, arg) => {
-      store;
+      //store;
     });
 
     window.electronAPI.ipcRenderer.onReceiveMessage(
