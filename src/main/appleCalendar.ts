@@ -4,6 +4,7 @@ import { app } from 'electron';
 import log from 'electron-log';
 import os from 'os';
 import * as semver from 'semver';
+import { getErrorMessage } from '../renderer/utils';
 
 const isLegacy = semver.lte(os.release(), '22.0.0');
 
@@ -127,7 +128,7 @@ export const setupAppleCalDatabase = async (): Promise<sqlite.Database<
     });
     return db;
   } catch (e) {
-    log.error(`Failed to open Apple Cal Database - ${e}`);
+    log.error(`Failed to open Apple Cal Database - ${getErrorMessage(e)}`);
     return null;
   }
 };
@@ -136,8 +137,8 @@ export const getAppleCalendars = async (db: sqlite.Database) => {
   try {
     const stmt = await db.prepare(calendarQueries['GET_CALENDARS']);
     return await stmt.all();
-  } catch (e) {
-    log.error(`Failed to get Apple Calendars from cache db - ${e.message}`);
+  } catch (error) {
+    `Failed to get Apple Calendars from cache db - ${getErrorMessage(error)}`;
     return null;
   }
 };
@@ -151,7 +152,9 @@ export const getEventsForCalendar = async (
     await stmt.bind({ 1: calendarId });
     return await stmt.all();
   } catch (e) {
-    log.error(`Failed to get events from Apple Calendars - ${e.message}`);
+    log.error(
+      `Failed to get events from Apple Calendars - ${getErrorMessage(e)}`
+    );
     return null;
   }
 };
@@ -166,7 +169,9 @@ export const getRecurringEventsForCalendar = async (
     return await stmt.all();
   } catch (e) {
     log.error(
-      `Failed to get recurring events from Apple Calendars - ${e.message}`
+      `Failed to get recurring events from Apple Calendars - ${getErrorMessage(
+        e
+      )}`
     );
     return null;
   }

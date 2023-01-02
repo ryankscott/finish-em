@@ -27,8 +27,8 @@ type Event {
 input CreateEventInput {
   key: String!
   title: String!
-  startAt: DateTime
-  endAt: DateTime
+  startAt: DateTime!
+  endAt: DateTime!
   description: String
   allDay: Boolean
   calendarKey: String

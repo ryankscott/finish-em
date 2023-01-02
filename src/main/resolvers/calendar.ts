@@ -23,11 +23,6 @@ const calendar: Partial<Resolvers> = {
       return dataSources.apolloDb.createCalendar(key, name, active);
     },
 
-    deleteCalendar: (_, { input }, { dataSources }) => {
-      const { key } = input;
-      return dataSources.apolloDb.deleteCalendar(key);
-    },
-
     setActiveCalendar: (_, { input }, { dataSources }) => {
       const { key } = input;
       return dataSources.apolloDb.setActiveCalendar(key);

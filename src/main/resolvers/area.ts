@@ -1,5 +1,4 @@
 import { Resolvers } from '../resolvers-types';
-import { parseISO } from 'date-fns';
 
 const area: Partial<Resolvers> = {
   Area: {

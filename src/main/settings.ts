@@ -1,5 +1,13 @@
-import Store from 'electron-store';
-const settingsSchema = {
+import Store, { Schema } from 'electron-store';
+
+interface StoreSchema {
+  overrideDatabaseDirectory: string;
+  cloudSync: {
+    enabled: boolean;
+    url: string;
+  };
+}
+const settingsSchema: Schema<StoreSchema> = {
   overrideDatabaseDirectory: {
     type: 'string',
   },

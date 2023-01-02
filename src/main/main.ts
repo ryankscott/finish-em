@@ -1,5 +1,6 @@
 import { loadFiles } from '@graphql-tools/load-files';
-import { ApolloServer } from 'apollo-server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+import { ApolloServer } from '@apollo/server';
 import { isAfter, parseISO } from 'date-fns';
 import { app, BrowserWindow, globalShortcut, net, shell } from 'electron';
 import log from 'electron-log';
@@ -7,14 +8,7 @@ import path from 'path';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
-import { CAL_SYNC_INTERVAL } from '../consts';
-import {
-  AppleCalendarEvent,
-  getAppleCalendars,
-  getEventsForCalendar,
-  getRecurringEventsForCalendar,
-  setupAppleCalDatabase,
-} from './appleCalendar';
+import { GRAPHQL_PORT, CAL_SYNC_INTERVAL } from '../consts';
 import { saveAppleCalendarEvents } from './calendar';
 import AppDatabase from './database';
 import { Release } from './github';
@@ -31,7 +25,6 @@ let mainWindow: BrowserWindow | null = null;
 let quickAddWindow: BrowserWindow | null = null;
 let server: ApolloServer;
 let apolloDb: AppDatabase;
-let calendarSyncInterval: NodeJS.Timer;
 
 const determineDatabasePath = (isDev: boolean): string => {
   const overrideDatabaseDirectory = store.get(
@@ -69,11 +62,19 @@ const startApolloServer = async () => {
     server = new ApolloServer({
       typeDefs,
       resolvers,
-      dataSources: () => ({ apolloDb }),
     });
 
     try {
-      const { url } = await server.listen();
+      const { url } = await startStandaloneServer(server, {
+        listen: { port: GRAPHQL_PORT },
+        context: async ({ req }) => {
+          const dataSources = {
+            apolloDb,
+          };
+          return { dataSources };
+        },
+      });
+
       if (url) {
         log.info(`🚀 Server ready at ${url}`);
       }
@@ -208,9 +209,10 @@ function createMainWindow() {
 
 const startApp = async () => {
   const cloudSync = store.get('cloudSync');
-  if (cloudSync?.enabled) {
+  const { enabled, url } = cloudSync;
+  if (enabled) {
     mainWindow?.webContents.send('cloud-sync', {
-      url: cloudSync.url,
+      url: url,
     });
   } else {
     await runMigrations();
@@ -228,7 +230,7 @@ const startApp = async () => {
     if (calendarIntegration?.enabled) {
       log.info('Calendar integration enabled - turning on sync');
       // Get events every 5 mins
-      calendarSyncInterval = setInterval(async () => {
+      setInterval(async () => {
         mainWindow?.webContents.send('syncing-calendar-start', {});
         await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
         mainWindow?.webContents.send('syncing-calendar-finished', {});

@@ -3,7 +3,7 @@ generates:
   ./src/main/resolvers-types.ts:
     config:
       scalars:
-        DateTime: string
+        DateTime: Date
       contextType: ./resolvers/types#Context
       mappers:
         Area: ./database/types/index#AreaEntity

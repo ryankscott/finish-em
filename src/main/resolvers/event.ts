@@ -52,8 +52,7 @@ const event: Partial<Resolvers> = {
         allDay ?? false,
         calendarKey ?? '',
         location ?? '',
-        // @ts-ignore
-        attendees ?? null,
+        attendees,
         recurrence
       );
     },
