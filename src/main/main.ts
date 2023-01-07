@@ -1,6 +1,8 @@
-import { loadFiles } from '@graphql-tools/load-files';
-import { startStandaloneServer } from '@apollo/server/standalone';
 import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
+import { loadFiles } from '@graphql-tools/load-files';
+import { exec } from 'child_process';
+import fs from 'fs';
 import { isAfter, parseISO } from 'date-fns';
 import { app, BrowserWindow, globalShortcut, net, shell } from 'electron';
 import log from 'electron-log';
@@ -8,13 +10,15 @@ import path from 'path';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
-import { GRAPHQL_PORT, CAL_SYNC_INTERVAL } from '../consts';
+import { CAL_SYNC_INTERVAL, CLOUD_SERVER_URL, GRAPHQL_PORT } from '../consts';
 import { saveAppleCalendarEvents } from './calendar';
 import AppDatabase from './database';
 import { Release } from './github';
 import registerIPCHandlers from './ipcMainHandlers';
 import resolvers from './resolvers';
 import { store } from './settings';
+import fetch from 'node-fetch';
+import FormData from 'form-data';
 
 log.transports.console.level = 'debug';
 
@@ -26,7 +30,7 @@ let quickAddWindow: BrowserWindow | null = null;
 let server: ApolloServer;
 let apolloDb: AppDatabase;
 
-const determineDatabasePath = (isDev: boolean): string => {
+const determineDatabasePath = (): string => {
   const overrideDatabaseDirectory = store.get(
     'overrideDatabaseDirectory'
   ) as string;
@@ -41,7 +45,7 @@ const determineDatabasePath = (isDev: boolean): string => {
 const knexConfig = {
   client: 'sqlite3',
   connection: {
-    filename: determineDatabasePath(isDev),
+    filename: determineDatabasePath(),
   },
   useNullAsDefault: true,
 };
@@ -88,7 +92,7 @@ const startApolloServer = async () => {
 };
 
 const runMigrations = async () => {
-  const databasePath = determineDatabasePath(isDev);
+  const databasePath = determineDatabasePath();
   log.info(`Loading database at: ${databasePath}`);
 
   const db = await sqlite.open({
@@ -184,6 +188,8 @@ function createMainWindow() {
     },
   });
 
+  registerIPCHandlers({ apolloDb, mainWindow });
+
   // Load the index.html of the app.
   mainWindow.loadURL(
     isDev
@@ -207,19 +213,56 @@ function createMainWindow() {
   mainWindow.webContents.on('new-window', handleRedirect);
 }
 
+const determineBackupPath = () => {
+  return app.getPath('temp') + 'backup.db';
+};
+
+export const sendBackupToCloud = async (userKey: string) => {
+  try {
+    const formData = new FormData();
+    const filePath = `${determineBackupPath()}`;
+    formData.append('file', fs.createReadStream(filePath));
+    formData.append('key', userKey);
+
+    const res = await fetch(`${CLOUD_SERVER_URL}/upload`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!res.ok) {
+      log.error(`Failed to upload backup to cloud - ${res.statusText}`);
+      return;
+    }
+    log.info('Successfully backed up to cloud');
+    return;
+  } catch (e) {
+    console.log(e);
+    log.error(`Failed to upload backup to cloud - ${e.message}`);
+    return;
+  }
+};
+
+export const backup = async () => {
+  exec(
+    `sqlite3 ${determineDatabasePath()} ".backup ${determineBackupPath()}"`,
+    (error, _, stderr) => {
+      if (error || stderr) {
+        log.error(`Failed to dump database - ${stderr}`);
+        throw new Error('Failed to dump database');
+      } else {
+        log.info('Database backup complete');
+        return;
+      }
+    }
+  );
+};
+
 const startApp = async () => {
   const cloudSync = store.get('cloudSync');
-  const { enabled, url } = cloudSync;
-  if (enabled) {
-    mainWindow?.webContents.send('cloud-sync', {
-      url: url,
-    });
-  } else {
+  const { enabled } = cloudSync;
+  if (!enabled) {
     await runMigrations();
 
     await startApolloServer();
-
-    registerIPCHandlers({ apolloDb, quickAddWindow, mainWindow });
 
     const features = await apolloDb.getFeatures();
 

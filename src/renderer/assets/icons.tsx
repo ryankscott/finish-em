@@ -50,6 +50,7 @@ import {
   MdOutlineDeleteSweep,
   MdOutlineUnfoldLess,
   MdOutlineUnfoldMore,
+  MdOutlineCloudDone,
   MdSort,
 } from 'react-icons/md';
 import { RiBearSmileLine, RiZzzFill } from 'react-icons/ri';
@@ -115,4 +116,5 @@ export const Icons: Record<IconType, RIconType> = {
   bear: RiBearSmileLine,
   snooze: RiZzzFill,
   zen: GiFocusedLightning,
+  cloud: MdOutlineCloudDone,
 };

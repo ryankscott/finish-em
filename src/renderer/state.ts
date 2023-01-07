@@ -40,6 +40,7 @@ const initialState: State = {
   sidebarVisible: true,
   visibleSubtasks: {},
   shortcutDialogVisible: false,
+  serverUrl: 'http://localhost:4000',
 };
 
 export const useAppStore = create<AppState>((set) => ({

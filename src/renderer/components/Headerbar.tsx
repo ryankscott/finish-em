@@ -1,4 +1,4 @@
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
 import { sortBy } from 'lodash';
@@ -28,24 +28,28 @@ import { useAppStore } from 'renderer/state';
 type OptionType = { label: string; value: () => void };
 
 const HeaderItem = (props: any) => (
-  <GridItem>
-    <Flex
-      direction="row"
-      justifyContent="center"
-      alignItems="center"
-      p={3}
-      _hover={{ cursor: 'pointer' }}
-    >
-      {props.children}
-    </Flex>
-  </GridItem>
+  <Flex
+    direction="row"
+    justifyContent="center"
+    h="100%"
+    alignItems="center"
+    _hover={{ cursor: 'pointer' }}
+  >
+    {props.children}
+  </Flex>
 );
 
 const Headerbar = (): ReactElement => {
   const theme = useTheme();
+  const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false);
   const navigate = useNavigate();
   const { colorMode, toggleColorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_HEADER_BAR_DATA);
+
+  window.electronAPI.ipcRenderer.getSettings().then((settings) => {
+    const { cloudSync } = settings;
+    setCloudSyncEnabled(cloudSync.enabled);
+  });
 
   const setActiveItemIds = useAppStore((state) => state.setActiveItemIds);
   const setFocusbarVisible = useAppStore((state) => state.setFocusbarVisible);
@@ -119,11 +123,8 @@ const Headerbar = (): ReactElement => {
   const searchOptions = generateSearchOptions(data.projects, data.items);
 
   return (
-    <Grid
+    <Flex
       w="100%"
-      alignItems="center"
-      gridTemplateColumns="1fr repeat(3, 35px)"
-      gridTemplateRows="50px"
       zIndex={999}
       color="gray.50"
       borderBottom={colorMode === 'light' ? 'none' : '1px solid'}
@@ -131,9 +132,10 @@ const Headerbar = (): ReactElement => {
       bg="gray.800"
       px={2}
       pl={'60px'}
+      justifyContent="space-between"
     >
-      <HeaderItem as={Flex} justifyContent="flex-end" colSpan={1}>
-        <Flex w="100%" maxW="600px" px={2}>
+      <Flex w="100%" alignItems="center" justifyContent="center">
+        <Flex w="100%" px={2} maxW="600px">
           <Select
             isMulti={false}
             placeholder="Search for items..."
@@ -145,34 +147,46 @@ const Headerbar = (): ReactElement => {
             fullWidth
           />
         </Flex>
-      </HeaderItem>
-      <HeaderItem>
-        <CommandBar />
-      </HeaderItem>
-      <HeaderItem>
-        <HeaderButton
-          label="Give feedback"
-          icon={'feedback' as IconType}
-          iconColour={theme.colors.gray[100]}
-          onClickHandler={() => {
-            window.open(
-              'https://github.com/ryankscott/finish-em/issues/new/choose'
-            );
-          }}
-        />
-      </HeaderItem>
+      </Flex>
+      <Flex justifyContent="flex-end">
+        <HeaderItem>
+          <CommandBar />
+        </HeaderItem>
 
-      <HeaderItem>
-        <HeaderButton
-          label={`${colorMode === 'light' ? 'Dark' : 'Light'} mode`}
-          icon={colorMode === 'light' ? 'darkMode' : 'lightMode'}
-          iconColour={theme.colors.gray[100]}
-          onClickHandler={toggleColorMode}
-        />
-      </HeaderItem>
-    </Grid>
+        {cloudSyncEnabled && (
+          <HeaderItem>
+            <HeaderButton
+              label={'Cloud sync enabled'}
+              icon={'cloud' as IconType}
+              iconColour={theme.colors.gray[100]}
+              onClickHandler={() => {}}
+            />
+          </HeaderItem>
+        )}
+        <HeaderItem>
+          <HeaderButton
+            label="Give feedback"
+            icon={'feedback' as IconType}
+            iconColour={theme.colors.gray[100]}
+            onClickHandler={() => {
+              window.open(
+                'https://github.com/ryankscott/finish-em/issues/new/choose'
+              );
+            }}
+          />
+        </HeaderItem>
+
+        <HeaderItem>
+          <HeaderButton
+            label={`${colorMode === 'light' ? 'Dark' : 'Light'} mode`}
+            icon={colorMode === 'light' ? 'darkMode' : 'lightMode'}
+            iconColour={theme.colors.gray[100]}
+            onClickHandler={toggleColorMode}
+          />
+        </HeaderItem>
+      </Flex>
+    </Flex>
   );
 };
 
-Headerbar.whyDidYouRender = true;
 export default Headerbar;

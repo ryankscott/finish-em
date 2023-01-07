@@ -11,6 +11,8 @@ import {
 import emojiRegexText from 'emoji-regex';
 import { RRule } from 'rrule';
 
+export const emailRegex =
+  /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 export const itemRegex = /^(TODO|NOTE)\b/i;
 export const dueTextRegex = /due:(\s*"[\s\S]*")|due:(\s*\S+)/gi;
 export const scheduledTextRegex =
