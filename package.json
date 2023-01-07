@@ -258,6 +258,7 @@
     "electron-log": "^4.4.7",
     "electron-updater": "^4.6.5",
     "emoji-mart": "^5.2.2",
+    "form-data": "^4.0.0",
     "framer-motion": "^6.5.1",
     "graphql-codegen": "^0.4.0",
     "graphql-scalars": "^1.14.1",
@@ -267,6 +268,7 @@
     "markdown-loader": "^8.0.0",
     "marked": "^4.0.12",
     "morgan": "^1.10.0",
+    "node-fetch": "^3.3.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "polished": "^4.1.4",
@@ -297,7 +299,7 @@
     "zustand": "^4.1.2"
   },
   "devEngines": {
-    "node": ">=14.x",
+    "node": ">=18.x",
     "npm": ">=7.x"
   },
   "prettier": {

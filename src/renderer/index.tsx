@@ -1,20 +1,17 @@
 import { createRoot } from 'react-dom/client';
-import { ApolloProvider, ApolloClient } from '@apollo/client';
+import { ApolloProvider, ApolloClient, ApolloLink } from '@apollo/client';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
 import App from './components/App';
 import theme from './theme';
-import { queryCache } from './cache';
+import { client, setLinkURL } from './client';
 
-const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphql',
-  cache: queryCache,
-});
-
-// eslint-disable-next-line import/prefer-default-export
-export const legacyClient = new ApolloClient({
-  uri: 'http://localhost:4000/graphql',
-  cache: queryCache,
+window.electronAPI.ipcRenderer.getSettings().then((settings) => {
+  const { cloudSync } = settings;
+  if (cloudSync.enabled) {
+    setLinkURL('server');
+    localStorage.setItem('token', cloudSync.token);
+  }
 });
 
 const container = document.getElementById('root');

@@ -23,6 +23,7 @@ import colormap from 'colormap';
 import { Calendar, Feature, Label } from 'main/resolvers-types';
 import { ReactElement, useEffect, useState } from 'react';
 import { Icons } from 'renderer/assets/icons';
+import { AppState, useAppStore } from 'renderer/state';
 import { v4 as uuidv4 } from 'uuid';
 import {
   CREATE_LABEL,
@@ -35,6 +36,7 @@ import {
   SET_FEATURE_METADATA,
 } from '../queries';
 import { camelCaseToInitialCaps } from '../utils';
+import CloudSync from './CloudSync';
 import LabelEdit from './LabelEdit';
 import Select from './Select';
 
@@ -59,6 +61,11 @@ const generateOptions = (
 };
 
 const Settings = (): ReactElement => {
+  const [serverUrl, setServerUrl] = useAppStore((state: AppState) => [
+    state.serverUrl,
+    state.setServerUrl,
+  ]);
+
   const { colorMode } = useColorMode();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const { loading, error, data } = useQuery(GET_SETTINGS);
@@ -283,8 +290,10 @@ const Settings = (): ReactElement => {
             <Flex my={0.5} direction={'column'}>
               {Object.keys(settings).map((key) => {
                 if (key === '__internal__') return;
+                const setting = settings[key];
                 return (
                   <Flex
+                    key={key}
                     direction="row"
                     justifyContent="flex-start"
                     py={5}
@@ -296,10 +305,18 @@ const Settings = (): ReactElement => {
                     <Text fontSize="sm" w="180px" fontWeight="bold">
                       {camelCaseToInitialCaps(key)}
                     </Text>
+
+                    {key === 'cloudSync' && (
+                      <CloudSync
+                        enabled={setting.enabled}
+                        email={setting.email}
+                        token={setting.token}
+                      />
+                    )}
                     {key === 'overrideDatabaseDirectory' && (
                       <>
                         <Text ml={3} fontSize="sm">
-                          {settings[key]}
+                          {setting}
                         </Text>
                         <Button
                           ml={3}

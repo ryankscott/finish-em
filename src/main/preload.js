@@ -11,6 +11,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     toggleFeature: (name, enabled) =>
       ipcRenderer.send('feature-toggled', { name, enabled }),
 
+    backupToCloud: (userKey) =>
+      ipcRenderer.invoke('backup-to-cloud', { userKey }),
+
+    restartApp: () => ipcRenderer.send('restart-app'),
+
     closeQuickAdd: () => ipcRenderer.send('close-quickadd'),
 
     createTask: (text) => ipcRenderer.send('create-task', { text }),

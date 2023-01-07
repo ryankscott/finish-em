@@ -8,4 +8,5 @@ export * from './reorderableitemlist';
 export * from './project';
 export * from './view';
 export * from './component';
+export * from './user';
 export * from './label';

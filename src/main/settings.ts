@@ -4,7 +4,8 @@ interface StoreSchema {
   overrideDatabaseDirectory: string;
   cloudSync: {
     enabled: boolean;
-    url: string;
+    email: string;
+    token: string;
   };
 }
 const settingsSchema: Schema<StoreSchema> = {
@@ -15,7 +16,8 @@ const settingsSchema: Schema<StoreSchema> = {
     type: 'object',
     properties: {
       enabled: { type: 'boolean' },
-      url: { type: 'string' },
+      email: { type: 'string' },
+      token: { type: 'string' },
     },
   },
 };
@@ -27,8 +29,9 @@ export const store = new Store({
     '0.0.1': (store) => {
       store.set('overrideDatabaseDirectory', '');
       store.set('cloudSync', {
-        enabled: 'true',
-        url: 'http://localhost:8089',
+        enabled: 'false',
+        email: '',
+        token: '',
       });
     },
   },
