@@ -5,7 +5,7 @@
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT,
-  email TEXT,
+  email TEXT UNIQUE,
   password TEXT,
   createdAt TEXT,
   deletedAt TEXT,

@@ -326,6 +326,13 @@ export type Label = {
   name?: Maybe<Scalars['String']>;
 };
 
+export type LoggedInUser = {
+  __typename?: 'LoggedInUser';
+  email: Scalars['String'];
+  key: Scalars['String'];
+  token: Scalars['String'];
+};
+
 export type LoginUserInput = {
   email: Scalars['String'];
   password: Scalars['String'];
@@ -388,7 +395,7 @@ export type Mutation = {
   deleteReminderFromItem?: Maybe<Reminder>;
   deleteUser?: Maybe<Scalars['String']>;
   deleteView?: Maybe<View>;
-  loginUser?: Maybe<Scalars['String']>;
+  loginUser?: Maybe<LoggedInUser>;
   migrateAreaOrder?: Maybe<AreaOrder>;
   migrateComponent?: Maybe<Component>;
   migrateComponentOrder?: Maybe<ComponentOrder>;
@@ -1340,6 +1347,7 @@ export type ResolversTypes = ResolversObject<{
   ItemOrder: ResolverTypeWrapper<ItemOrderEntity>;
   JSON: ResolverTypeWrapper<Scalars['JSON']>;
   Label: ResolverTypeWrapper< LabelEntity>;
+  LoggedInUser: ResolverTypeWrapper<LoggedInUser>;
   LoginUserInput: LoginUserInput;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
@@ -1443,6 +1451,7 @@ export type ResolversParentTypes = ResolversObject<{
   ItemOrder: ItemOrderEntity;
   JSON: Scalars['JSON'];
   Label:  LabelEntity;
+  LoggedInUser: LoggedInUser;
   LoginUserInput: LoginUserInput;
   MigrateAreaOrderInput: MigrateAreaOrderInput;
   MigrateComponentInput: MigrateComponentInput;
@@ -1619,6 +1628,13 @@ export type LabelResolvers<ContextType = Context, ParentType extends ResolversPa
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LoggedInUserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LoggedInUser'] = ResolversParentTypes['LoggedInUser']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   bulkCreateItemOrders?: Resolver<Maybe<Array<Maybe<ResolversTypes['ItemOrder']>>>, ParentType, ContextType, RequireFields<MutationBulkCreateItemOrdersArgs, 'input'>>;
   cloneComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationCloneComponentArgs, 'input'>>;
@@ -1652,7 +1668,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   deleteReminderFromItem?: Resolver<Maybe<ResolversTypes['Reminder']>, ParentType, ContextType, RequireFields<MutationDeleteReminderFromItemArgs, 'input'>>;
   deleteUser?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'input'>>;
   deleteView?: Resolver<Maybe<ResolversTypes['View']>, ParentType, ContextType, RequireFields<MutationDeleteViewArgs, 'input'>>;
-  loginUser?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationLoginUserArgs, 'input'>>;
+  loginUser?: Resolver<Maybe<ResolversTypes['LoggedInUser']>, ParentType, ContextType, RequireFields<MutationLoginUserArgs, 'input'>>;
   migrateAreaOrder?: Resolver<Maybe<ResolversTypes['AreaOrder']>, ParentType, ContextType, RequireFields<MutationMigrateAreaOrderArgs, 'input'>>;
   migrateComponent?: Resolver<Maybe<ResolversTypes['Component']>, ParentType, ContextType, RequireFields<MutationMigrateComponentArgs, 'input'>>;
   migrateComponentOrder?: Resolver<Maybe<ResolversTypes['ComponentOrder']>, ParentType, ContextType, RequireFields<MutationMigrateComponentOrderArgs, 'input'>>;
@@ -1829,6 +1845,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   ItemOrder?: ItemOrderResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Label?: LabelResolvers<ContextType>;
+  LoggedInUser?: LoggedInUserResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Project?: ProjectResolvers<ContextType>;
   ProjectOrder?: ProjectOrderResolvers<ContextType>;

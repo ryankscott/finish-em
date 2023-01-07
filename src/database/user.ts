@@ -2,9 +2,9 @@ import { SQLDataSource } from "datasource-sql";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import pino from "pino";
-import { UserEntity } from "./types/user";
 import { SECRET } from "../../consts";
 import { runAppMigrations } from "../main";
+import { UserEntity } from "./types/user";
 const log = pino({
   transport: {
     target: "pino-pretty",
@@ -42,11 +42,12 @@ class UserDatabase extends SQLDataSource {
         email,
         password: await bcrypt.hash(password, 12),
         name,
+        createdAt: new Date(),
+        deleted: false,
       });
       if (insertedId) {
         /* Create an app database and migrate */
-        // TODO: Need to restore previous data
-        await runAppMigrations(`/databases/${key}.db`);
+        await runAppMigrations(`./databases/${key}.db`);
 
         return await this.getUser(key);
       }
@@ -70,9 +71,9 @@ class UserDatabase extends SQLDataSource {
           user: { key: user.key, email: user.email },
         },
         SECRET,
-        { expiresIn: "1y" }
+        { expiresIn: "5y" }
       );
-      return token;
+      return { email: user.email, key: user.key, token };
     } catch (e) {
       log.error("Failed to login user - no user with that email");
       throw e;

@@ -1,7 +1,7 @@
 {
   "client": "sqlite3",
   "connection": {
-    "filename": "./finish_em.db"
+    "filename": "./databases/finish_em.db"
   },
   "folder": "./src/database/types/",
   "filename": "app",

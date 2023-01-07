@@ -7,6 +7,12 @@ type User {
   lastUpdatedAt: DateTime
 }
 
+type LoggedInUser {
+  key: String!
+  email: String!
+  token: String!
+}
+
 input CreateUserInput {
   key: String!
   email: String!
@@ -30,6 +36,6 @@ type Query {
 
 type Mutation {
   createUser(input: CreateUserInput!): User
-  loginUser(input: LoginUserInput!): String
+  loginUser(input: LoginUserInput!): LoggedInUser
   deleteUser(input: DeleteUserInput!): String
 }

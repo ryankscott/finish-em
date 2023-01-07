@@ -1,17 +1,21 @@
-import { loadFiles } from "@graphql-tools/load-files";
-// import { exec } from "child_process";
 import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { loadFiles } from "@graphql-tools/load-files";
+import bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
+import fileUpload from "express-fileupload";
+import { GraphQLError } from "graphql";
+import http from "http";
+import jwt from "jsonwebtoken";
 import path from "path";
+import pino from "pino";
 import * as sqlite from "sqlite";
 import * as sqlite3 from "sqlite3";
-import { GRAPHQL_PORT, SECRET } from "../consts";
-import { startStandaloneServer } from "@apollo/server/standalone";
-import { AppDatabase } from "./database/index";
-import { UserDatabase } from "./database/index";
+import { GRAPHQL_PORT, SECRET, USER_GQL_OPERATIONS } from "../consts";
+import { AppDatabase, UserDatabase } from "./database/index";
 import resolvers from "./resolvers";
-import jwt from "jsonwebtoken";
-import pino from "pino";
-import { GraphQLError } from "graphql";
 const log = pino({
   transport: {
     target: "pino-pretty",
@@ -50,15 +54,18 @@ const userDbConfig = {
   },
   useNullAsDefault: true,
 };
+const app = express();
+app.use(
+  fileUpload({
+    createParentPath: true,
+    limits: { fileSize: 50 * 1024 * 1024 },
+  })
+);
 
+const httpServer = http.createServer(app);
 appDb = new AppDatabase(appDbConfig);
 userDb = new UserDatabase(userDbConfig);
 
-// interface AppContext {
-//   user: { key: string; email: string };
-// }
-
-let server: ApolloServer;
 /* Use Apollo Server */
 const startApolloServer = async () => {
   const schemasPath = path.join(__dirname, "./schemas/");
@@ -66,14 +73,42 @@ const startApolloServer = async () => {
   log.info(`Loading schemas from: ${schemasPath}`);
   try {
     const typeDefs = await loadFiles(`${schemasPath}*.graphql`);
-    server = new ApolloServer({
+    const server = new ApolloServer({
       typeDefs,
       resolvers,
+      plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    });
+    await server.start();
+
+    app.post("/upload", async (req, res) => {
+      if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).send("No files were uploaded.");
+      }
+
+      const { key } = req.body;
+      const backupFile = req.files.file;
+      const uploadPath = path.join(__dirname, `../databases/${key}.db`);
+
+      if (Array.isArray(backupFile)) {
+        log.error("Multiple files sent for backup");
+        return res.status(400).send("Bad request - multiple files uploaded");
+      }
+
+      try {
+        await backupFile.mv(uploadPath);
+        log.info(`Successfully moved backup with key - ${key}`);
+        return res.status(200).send("OK");
+      } catch (err) {
+        log.error(`Failed to move file - ${err}`);
+        return res.status(500).send("Internal server error");
+      }
     });
 
-    try {
-      const { url } = await startStandaloneServer(server, {
-        listen: { port: GRAPHQL_PORT },
+    app.use(
+      "/",
+      cors<cors.CorsRequest>(),
+      bodyParser.json({ limit: "50mb" }),
+      expressMiddleware(server, {
         context: async ({ req }) => {
           const dataSources = {
             userDb,
@@ -81,11 +116,10 @@ const startApolloServer = async () => {
           };
           //@ts-ignore
           const operationName = req?.body?.operationName;
-          if (operationName == "CreateUser" || operationName == "LoginUser") {
+          if (USER_GQL_OPERATIONS.includes(operationName)) {
             return { dataSources };
           }
-          const authHeader = req.headers.authorization || "";
-          const token = authHeader.split(" ")[1];
+          const token = req.headers.authorization || "";
 
           if (token) {
             if (Array.isArray(token)) {
@@ -122,17 +156,16 @@ const startApolloServer = async () => {
           }
           throw new GraphQLError("You must be logged in to query this schema");
         },
-      });
+      })
+    );
 
-      if (url) {
-        log.info(`🚀 Server ready at ${url}`);
-      }
-    } catch (err) {
-      log.error(`😢 Server startup failed listening: ${err}`);
-      return;
-    }
+    await new Promise<void>((resolve) =>
+      httpServer.listen({ port: GRAPHQL_PORT }, resolve)
+    );
+    log.info(`🚀 Server ready at http://localhost:${GRAPHQL_PORT}/`);
   } catch (err) {
-    log.error(`😢 Server startup failed: ${err}`);
+    log.error(`😢 Server startup failed listening: ${err}`);
+    return;
   }
 };
 
@@ -180,25 +213,7 @@ export const runAppMigrations = async (dbPath: string) => {
   log.info("App migrations complete");
 };
 
-// const backup = async () => {
-//   const databasePath = determineAppDatabasePath();
-//   exec(`sqlite3 ${databasePath} .dump`, (error, stdout, stderr) => {
-//     if (error) {
-//       console.log(stderr);
-//       log.error(`Failed to dump - ${stderr}`);
-//       return;
-//     }
-//     const dump = stdout;
-//     console.log(dump.length);
-//   });
-
-//   log.info("Dump complete");
-//   return;
-// };
-
 const startApp = async () => {
-  // await backup();
-
   await runUserMigrations(determineUserDatabasePath());
 
   await startApolloServer();

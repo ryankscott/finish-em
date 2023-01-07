@@ -1,7 +1,7 @@
 {
   "client": "sqlite3",
   "connection": {
-    "filename": "./user.db"
+    "filename": "./databases/user.db"
   },
   "folder": "./src/database/types/",
   "filename": "user",
