@@ -322,7 +322,7 @@ class AppDatabase extends SQLDataSource {
         .where({ key })
         .first();
 
-      if (!project && project != 0) {
+      if (!project && project.key != "0") {
         log.error(`Failed to get project with key: ${key}`);
         throw new Error(`No project found with key: ${key}`);
       }

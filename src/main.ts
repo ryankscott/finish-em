@@ -2,20 +2,20 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { loadFiles } from "@graphql-tools/load-files";
-import bodyParser from "body-parser";
-import cors from "cors";
-import express from "express";
-import fileUpload from "express-fileupload";
 import { GraphQLError } from "graphql";
-import http from "http";
-import jwt from "jsonwebtoken";
-import path from "path";
 import pino from "pino";
 import * as sqlite from "sqlite";
 import * as sqlite3 from "sqlite3";
 import { GRAPHQL_PORT, SECRET, USER_GQL_OPERATIONS } from "../consts";
 import { AppDatabase, UserDatabase } from "./database/index";
 import resolvers from "./resolvers";
+var bodyParser = require("body-parser");
+var cors = require("cors");
+var http = require("http");
+import express = require("express");
+const fileUpload = require("express-fileupload");
+const jwt = require("jsonwebtoken");
+import path = require("path");
 const log = pino({
   transport: {
     target: "pino-pretty",
@@ -106,7 +106,7 @@ const startApolloServer = async () => {
 
     app.use(
       "/",
-      cors<cors.CorsRequest>(),
+      cors(),
       bodyParser.json({ limit: "50mb" }),
       expressMiddleware(server, {
         context: async ({ req }) => {

@@ -1,6 +1,6 @@
 import { SQLDataSource } from "datasource-sql";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+var bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 import pino from "pino";
 import { SECRET } from "../../consts";
 import { runAppMigrations } from "../main";
