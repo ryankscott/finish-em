@@ -6,4 +6,4 @@ export const MIN_WIDTH_FOR_SIDEBAR = 1125;
 export const MIN_WIDTH_FOR_FOCUSBAR = 1125;
 export const INBOX_COMPONENT_KEY = '42c6cea5-785f-4418-bd0f-5f4d388f4497';
 export const USER_GQL_OPERATIONS = ['CreateUser', 'LoginUser'];
-export const CLOUD_SERVER_URL = 'http://localhost:8089';
+export const CLOUD_SERVER_URL = 'https://delicate-pond-7687.fly.dev';
