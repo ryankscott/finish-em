@@ -1,7 +1,6 @@
 import { SQLDataSource } from "datasource-sql";
 import { parseISO } from "date-fns";
 import { without } from "lodash";
-import pino from "pino";
 import { defaultValueProcessor, formatQuery } from "react-querybuilder";
 import { rrulestr } from "rrule";
 import { v4 as uuidv4 } from "uuid";
@@ -24,22 +23,18 @@ import {
   ViewOrderEntity,
   WeeklyGoalEntity,
 } from "./types";
-const log = pino({
-  transport: {
-    target: "pino-pretty",
-  },
-});
+const logger = require("../logger");
 
 class AppDatabase extends SQLDataSource {
   /* View Order */
 
   async getViewOrders(): Promise<ViewOrderEntity[]> {
-    log.debug("Getting all view orders");
+    logger.debug("Getting all view orders");
     return this.knex("viewOrder").select("*");
   }
 
   async getViewOrder(viewKey: string): Promise<ViewOrderEntity> {
-    log.debug(`Getting view order with key: ${viewKey}`);
+    logger.debug(`Getting view order with key: ${viewKey}`);
     try {
       const viewOrder = await this.knex("viewOrder")
         .select<ViewOrderEntity>("*")
@@ -51,13 +46,13 @@ class AppDatabase extends SQLDataSource {
       }
       return viewOrder;
     } catch (err) {
-      log.error(`Failed to get viewOrder with key: ${viewKey} - ${err}`);
+      logger.error(`Failed to get viewOrder with key: ${viewKey} - ${err}`);
       throw err;
     }
   }
 
   async createViewOrder(viewKey: string): Promise<ViewOrderEntity> {
-    log.debug(`Creating view order for view: ${viewKey}`);
+    logger.debug(`Creating view order for view: ${viewKey}`);
     const maxSortOrder = await this.knex("viewOrder")
       .max("sortOrder as max")
       .first();
@@ -74,13 +69,15 @@ class AppDatabase extends SQLDataSource {
         .first();
 
       if (!insertedRow) {
-        log.error(`Failed to get viewOrder after inserting: ${viewKey}`);
+        logger.error(`Failed to get viewOrder after inserting: ${viewKey}`);
         throw new Error("Failed to get inserted row");
       }
 
       return insertedRow;
     } catch (err) {
-      log.error(`Failed to create viewOrder with viewKey: ${viewKey} - ${err}`);
+      logger.error(
+        `Failed to create viewOrder with viewKey: ${viewKey} - ${err}`
+      );
       throw err;
     }
   }
@@ -89,7 +86,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     newSortOrder: number
   ): Promise<ViewOrderEntity> {
-    log.debug(`Setting view order for view: ${key} to ${newSortOrder}`);
+    logger.debug(`Setting view order for view: ${key} to ${newSortOrder}`);
     const currentViewOrder = await this.getViewOrder(key);
     if (!currentViewOrder) {
       throw new Error("Failed to get current view order");
@@ -121,12 +118,12 @@ class AppDatabase extends SQLDataSource {
   /* Views */
 
   async getViews(): Promise<ViewEntity[]> {
-    log.debug("Getting all views");
+    logger.debug("Getting all views");
     return this.knex("view").select("*");
   }
 
   async getView(key: string): Promise<ViewEntity> {
-    log.debug(`Getting view with key: ${key}`);
+    logger.debug(`Getting view with key: ${key}`);
     try {
       const view = await this.knex("view")
         .select<ViewEntity>("*")
@@ -134,13 +131,13 @@ class AppDatabase extends SQLDataSource {
         .first();
 
       if (!view) {
-        log.error(`Failed to get view with key: ${key}`);
+        logger.error(`Failed to get view with key: ${key}`);
         throw new Error(`No view found with key: ${key}`);
       }
 
       return view;
     } catch (err) {
-      log.error(`Failed to get view with key: ${key} - ${err}`);
+      logger.error(`Failed to get view with key: ${key} - ${err}`);
       throw err;
     }
   }
@@ -152,7 +149,7 @@ class AppDatabase extends SQLDataSource {
     icon: string,
     type: string
   ): Promise<ViewEntity> {
-    log.debug(
+    logger.debug(
       `Creating view with key: ${key}, name: ${name}, icon: ${icon}, type: ${type}`
     );
     try {
@@ -170,19 +167,19 @@ class AppDatabase extends SQLDataSource {
       const view = await this.getView(key);
 
       if (!view) {
-        log.error(`Failed to get view with id: ${insertedId}`);
+        logger.error(`Failed to get view with id: ${insertedId}`);
         throw new Error("Failed to get inserted view");
       }
 
       return view;
     } catch (err) {
-      log.error(`Failed to create view with key: ${key} - ${err}`);
+      logger.error(`Failed to create view with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async deleteView(key: string): Promise<ViewEntity> {
-    log.debug(`Deleting view with key: ${key}`);
+    logger.debug(`Deleting view with key: ${key}`);
     try {
       await this.knex("view").where({ key }).update({
         deleted: true,
@@ -193,19 +190,19 @@ class AppDatabase extends SQLDataSource {
       const deletedView = await this.getView(key);
 
       if (!deletedView) {
-        log.error(`Failed to get deleted view with key: ${key}`);
+        logger.error(`Failed to get deleted view with key: ${key}`);
         throw new Error("Failed to get deleted view");
       }
 
       return deletedView;
     } catch (err) {
-      log.error(`Failed to delete view with key: ${key} - ${err}`);
+      logger.error(`Failed to delete view with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async renameView(key: string, name: string): Promise<ViewEntity> {
-    log.debug(`Renaming view with key: ${key} to ${name}`);
+    logger.debug(`Renaming view with key: ${key} to ${name}`);
     try {
       await this.knex("view")
         .where({ key })
@@ -214,25 +211,25 @@ class AppDatabase extends SQLDataSource {
       const updatedView = await this.getView(key);
 
       if (!updatedView) {
-        log.error("Failed to get updated view when renaming");
+        logger.error("Failed to get updated view when renaming");
         throw new Error("Failed to get updated view");
       }
 
       return updatedView;
     } catch (err) {
-      log.error(`Failed to rename view with key: ${key} - ${err}`);
+      logger.error(`Failed to rename view with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   /* ProjectOrder */
   async getProjectOrders(): Promise<ProjectOrderEntity[]> {
-    log.debug("Getting all project orders");
+    logger.debug("Getting all project orders");
     return this.knex("projectOrder").select("*");
   }
 
   async getProjectOrder(projectKey: string): Promise<ProjectOrderEntity> {
-    log.debug(`Getting project order with projectKey: ${projectKey}`);
+    logger.debug(`Getting project order with projectKey: ${projectKey}`);
     try {
       const projectOrder = await this.knex("projectOrder")
         .select<ProjectOrderEntity>("*")
@@ -240,18 +237,20 @@ class AppDatabase extends SQLDataSource {
         .first();
 
       if (!projectOrder) {
-        log.error(`Failed to get project order with key: ${projectKey}`);
+        logger.error(`Failed to get project order with key: ${projectKey}`);
         throw new Error(`No projectOrder found with key: ${projectKey}`);
       }
       return projectOrder;
     } catch (err) {
-      log.error(`Failed to get projectOrder with key: ${projectKey} - ${err}`);
+      logger.error(
+        `Failed to get projectOrder with key: ${projectKey} - ${err}`
+      );
       throw err;
     }
   }
 
   async createProjectOrder(projectKey: string): Promise<ProjectOrderEntity> {
-    log.debug(`Creating project order with projectKey: ${projectKey}`);
+    logger.debug(`Creating project order with projectKey: ${projectKey}`);
     const maxSortOrder = await this.knex("projectOrder")
       .max("sortOrder as max")
       .first();
@@ -265,13 +264,15 @@ class AppDatabase extends SQLDataSource {
       const insertedRow = await this.getProjectOrder(projectKey);
 
       if (!insertedRow) {
-        log.error(`Failed to get projectOrder after inserting: ${projectKey}`);
+        logger.error(
+          `Failed to get projectOrder after inserting: ${projectKey}`
+        );
         throw new Error("Failed to get inserted row");
       }
 
       return insertedRow;
     } catch (err) {
-      log.error(
+      logger.error(
         `Failed to create projectOrder with projectKey: ${projectKey} - ${err}`
       );
       throw err;
@@ -282,7 +283,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     newSortOrder: number
   ): Promise<ProjectOrderEntity> {
-    log.debug(`Setting project order with key: ${key} to ${newSortOrder}`);
+    logger.debug(`Setting project order with key: ${key} to ${newSortOrder}`);
     const currentProjectOrder = await this.getProjectOrder(key);
     const currentOrder = currentProjectOrder.sortOrder;
     try {
@@ -301,7 +302,7 @@ class AppDatabase extends SQLDataSource {
         .where({ projectKey: key })
         .update({ sortOrder: newSortOrder });
     } catch (err) {
-      log.error(`Failed to set projectOrder with key: ${key} - ${err}`);
+      logger.error(`Failed to set projectOrder with key: ${key} - ${err}`);
       throw err;
     }
     const projectOrder = await this.getProjectOrder(key);
@@ -310,12 +311,12 @@ class AppDatabase extends SQLDataSource {
 
   /* Projects */
   async getProjects(): Promise<ProjectEntity[]> {
-    log.debug("Getting all projects");
+    logger.debug("Getting all projects");
     return this.knex("project").select("*").where({ deleted: false });
   }
 
   async getProject(key: string): Promise<ProjectEntity> {
-    log.debug(`Getting project with key: ${key}`);
+    logger.debug(`Getting project with key: ${key}`);
     try {
       const project = await this.knex("project")
         .select<ProjectEntity>("*")
@@ -323,26 +324,26 @@ class AppDatabase extends SQLDataSource {
         .first();
 
       if (!project && project.key != "0") {
-        log.error(`Failed to get project with key: ${key}`);
+        logger.error(`Failed to get project with key: ${key}`);
         throw new Error(`No project found with key: ${key}`);
       }
 
       return project;
     } catch (err) {
-      log.error(`Failed to get project with key: ${key} - ${err}`);
+      logger.error(`Failed to get project with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async getProjectsByArea(areaKey: string): Promise<ProjectEntity[]> {
-    log.debug(`Getting projects with areaKey: ${areaKey}`);
+    logger.debug(`Getting projects with areaKey: ${areaKey}`);
     try {
       const projects = await this.knex("project")
         .select("*")
         .where({ areaKey, deleted: false });
       return projects;
     } catch (err) {
-      log.error(`Failed to get project with key: ${areaKey} - ${err}`);
+      logger.error(`Failed to get project with key: ${areaKey} - ${err}`);
       throw err;
     }
   }
@@ -353,7 +354,7 @@ class AppDatabase extends SQLDataSource {
     description: string,
     areaKey?: string
   ): Promise<ProjectEntity> {
-    log.debug(
+    logger.debug(
       `Creating project with key: ${key}, name: ${name}, description: ${description}`
     );
     try {
@@ -368,7 +369,7 @@ class AppDatabase extends SQLDataSource {
       });
 
       if (!insertedId) {
-        log.error(`Failed to create project with key: ${key}`);
+        logger.error(`Failed to create project with key: ${key}`);
         throw new Error(`Failed to create project with key: ${key}`);
       }
 
@@ -378,18 +379,18 @@ class AppDatabase extends SQLDataSource {
       const insertedProject = await this.getProject(key);
 
       if (!insertedProject) {
-        log.error(`Failed to get project after inserting: ${key}`);
+        logger.error(`Failed to get project after inserting: ${key}`);
         throw new Error(`Failed to get project after inserting: ${key}`);
       }
       return insertedProject;
     } catch (err) {
-      log.error(`Failed to create project with key: ${key} - ${err}`);
+      logger.error(`Failed to create project with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async deleteProject(key: string): Promise<ProjectEntity> {
-    log.debug(`Deleting project with key: ${key}`);
+    logger.debug(`Deleting project with key: ${key}`);
     try {
       const deletedId = await this.knex("project").where({ key }).update({
         deleted: true,
@@ -404,16 +405,16 @@ class AppDatabase extends SQLDataSource {
         await this.deleteView(key);
         return await this.getProject(key);
       }
-      log.error(`Failed to delete project with key: ${key}`);
+      logger.error(`Failed to delete project with key: ${key}`);
       throw new Error(`Failed to delete project with key: ${key}`);
     } catch (err) {
-      log.error(`Failed to delete project with key: ${key} - ${err}`);
+      logger.error(`Failed to delete project with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async renameProject(key: string, name: string): Promise<ProjectEntity> {
-    log.debug(`Renaming project with key: ${key} to ${name}`);
+    logger.debug(`Renaming project with key: ${key} to ${name}`);
     try {
       const projectId = await this.knex("project")
         .update({ name, lastUpdatedAt: new Date().toISOString() })
@@ -423,10 +424,10 @@ class AppDatabase extends SQLDataSource {
         this.updateComponentOnProjectNameChange(key, name);
         return await this.getProject(key);
       }
-      log.error(`Failed to rename project with key: ${key}`);
+      logger.error(`Failed to rename project with key: ${key}`);
       throw new Error(`Failed to rename project with key: ${key}`);
     } catch (err) {
-      log.error(`Failed to rename project with key: ${key} - ${err}`);
+      logger.error(`Failed to rename project with key: ${key} - ${err}`);
       throw err;
     }
   }
@@ -435,7 +436,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     description: string
   ): Promise<ProjectEntity> {
-    log.debug(
+    logger.debug(
       `Setting description of project with key: ${key} to ${description}`
     );
     try {
@@ -445,10 +446,10 @@ class AppDatabase extends SQLDataSource {
       if (projectId) {
         return await this.getProject(key);
       }
-      log.error(`Failed to set description of project with key: ${key}`);
+      logger.error(`Failed to set description of project with key: ${key}`);
       throw new Error(`Failed to set description of project with key: ${key}`);
     } catch (err) {
-      log.error(
+      logger.error(
         `Failed to set description of project with key: ${key} - ${err}`
       );
       throw err;
@@ -456,7 +457,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setEndDateOfProject(key: string, endAt: Date) {
-    log.debug(`Setting end date of project with key: ${key} to ${endAt}`);
+    logger.debug(`Setting end date of project with key: ${key} to ${endAt}`);
     try {
       const projectId = await this.knex("project")
         .where({ key })
@@ -468,16 +469,20 @@ class AppDatabase extends SQLDataSource {
       if (projectId) {
         return await this.getProject(key);
       }
-      log.error(`Failed to set end date of project with key: ${key}`);
+      logger.error(`Failed to set end date of project with key: ${key}`);
       throw new Error(`Failed to set end date of project with key: ${key}`);
     } catch (err) {
-      log.error(`Failed to set end date of project with key: ${key} - ${err}`);
+      logger.error(
+        `Failed to set end date of project with key: ${key} - ${err}`
+      );
       throw err;
     }
   }
 
   async setStartDateOfProject(key: string, startAt: Date) {
-    log.debug(`Setting start date of project with key: ${key} to ${startAt}`);
+    logger.debug(
+      `Setting start date of project with key: ${key} to ${startAt}`
+    );
     try {
       const projectId = await this.knex("project")
         .where({ key })
@@ -489,10 +494,10 @@ class AppDatabase extends SQLDataSource {
       if (projectId) {
         return await this.getProject(key);
       }
-      log.error(`Failed to set start date of project with key: ${key}`);
+      logger.error(`Failed to set start date of project with key: ${key}`);
       throw new Error(`Failed to set start date of project with key: ${key}`);
     } catch (err) {
-      log.error(
+      logger.error(
         `Failed to set start date of project with key: ${key} - ${err}`
       );
       throw err;
@@ -500,7 +505,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setEmojiOfProject(key: string, emoji: string): Promise<ProjectEntity> {
-    log.debug(`Setting emoji of project with key: ${key} to ${emoji}`);
+    logger.debug(`Setting emoji of project with key: ${key} to ${emoji}`);
     try {
       const projectId = await this.knex("project")
         .where({ key })
@@ -509,16 +514,16 @@ class AppDatabase extends SQLDataSource {
       if (projectId) {
         return await this.getProject(key);
       }
-      log.error(`Failed to set emoji of project with key: ${key}`);
+      logger.error(`Failed to set emoji of project with key: ${key}`);
       throw new Error(`Failed to set emoji of project with key: ${key}`);
     } catch (err) {
-      log.error(`Failed to set emoji of project with key: ${key} - ${err}`);
+      logger.error(`Failed to set emoji of project with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async setAreaOfProject(key: string, areaKey: string): Promise<ProjectEntity> {
-    log.debug(`Setting area of project with key: ${key} to ${areaKey}`);
+    logger.debug(`Setting area of project with key: ${key} to ${areaKey}`);
     try {
       const projectId = await this.knex("project")
         .where({ key })
@@ -527,10 +532,10 @@ class AppDatabase extends SQLDataSource {
       if (projectId) {
         return await this.getProject(key);
       }
-      log.error(`Failed to set area of project with key: ${key}`);
+      logger.error(`Failed to set area of project with key: ${key}`);
       throw new Error(`Failed to set area of project with key: ${key}`);
     } catch (err) {
-      log.error(`Failed to set area of project with key: ${key} - ${err}`);
+      logger.error(`Failed to set area of project with key: ${key} - ${err}`);
       throw err;
     }
   }
@@ -538,12 +543,12 @@ class AppDatabase extends SQLDataSource {
   /* AreaOrder */
 
   async getAreaOrders(): Promise<AreaOrderEntity[]> {
-    log.debug(`Getting area orders`);
+    logger.debug(`Getting area orders`);
     return this.knex("areaOrder").select("*");
   }
 
   async getAreaOrder(areaKey: string): Promise<AreaOrderEntity> {
-    log.debug(`Getting area order with area key: ${areaKey}`);
+    logger.debug(`Getting area order with area key: ${areaKey}`);
     try {
       const areaOrder = await this.knex("areaOrder")
         .select("*")
@@ -551,13 +556,13 @@ class AppDatabase extends SQLDataSource {
         .first();
       return areaOrder;
     } catch (err) {
-      log.error(`Failed to get areaOrder with key: ${areaKey} - ${err}`);
+      logger.error(`Failed to get areaOrder with key: ${areaKey} - ${err}`);
       throw err;
     }
   }
 
   async createAreaOrder(areaKey: string): Promise<AreaOrderEntity> {
-    log.debug(`Creating area order with area key: ${areaKey}`);
+    logger.debug(`Creating area order with area key: ${areaKey}`);
     try {
       const maxSortOrder = await this.knex("areaOrder")
         .max("sortOrder as max")
@@ -568,13 +573,13 @@ class AppDatabase extends SQLDataSource {
         sortOrder: maxSortOrder?.max ? maxSortOrder?.max + 1 : 0,
       });
       if (!insertedId) {
-        log.error(`Failed to create areaOrder with areaKey: ${areaKey}`);
+        logger.error(`Failed to create areaOrder with areaKey: ${areaKey}`);
         throw new Error(`Failed to create areaOrder with areaKey: ${areaKey}`);
       }
 
       return await this.getAreaOrder(areaKey);
     } catch (err) {
-      log.error(`Failed to create areaOrder with key: ${areaKey} - ${err}`);
+      logger.error(`Failed to create areaOrder with key: ${areaKey} - ${err}`);
       throw err;
     }
   }
@@ -583,7 +588,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     newSortOrder: number
   ): Promise<AreaOrderEntity> {
-    log.debug(`Setting area order with key: ${key} to ${newSortOrder}`);
+    logger.debug(`Setting area order with key: ${key} to ${newSortOrder}`);
     try {
       const currentAreaOrder = await this.getAreaOrder(key);
       const currentOrder = currentAreaOrder.sortOrder;
@@ -602,28 +607,28 @@ class AppDatabase extends SQLDataSource {
         .update({ sortOrder: newSortOrder });
 
       if (!updatedId) {
-        log.error(`Failed to set areaOrder with key: ${key}`);
+        logger.error(`Failed to set areaOrder with key: ${key}`);
         throw new Error(`Failed to set areaOrder with key: ${key}`);
       }
       return await this.getAreaOrder(key);
     } catch (err) {
-      log.error(`Failed to set areaOrder with key: ${key} - ${err}`);
+      logger.error(`Failed to set areaOrder with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   /* Areas */
   async getAreas(): Promise<AreaEntity[]> {
-    log.debug(`Getting areas`);
+    logger.debug(`Getting areas`);
     return this.knex("area").select("*");
   }
 
   async getArea(key: string): Promise<AreaEntity> {
-    log.debug(`Getting area with key: ${key}`);
+    logger.debug(`Getting area with key: ${key}`);
     try {
       return await this.knex("area").select("*").where({ key }).first();
     } catch (err) {
-      log.error(`Failed to get area with key: ${key} - ${err}`);
+      logger.error(`Failed to get area with key: ${key} - ${err}`);
       throw err;
     }
   }
@@ -633,7 +638,7 @@ class AppDatabase extends SQLDataSource {
     name: string,
     description: string
   ): Promise<AreaEntity> {
-    log.debug(
+    logger.debug(
       `Creating area with key: ${key}, name: ${name}, description: ${description}`
     );
     try {
@@ -651,16 +656,16 @@ class AppDatabase extends SQLDataSource {
 
         return await this.getArea(key);
       }
-      log.error(`Failed to create area with key: ${key}`);
+      logger.error(`Failed to create area with key: ${key}`);
       throw new Error(`Failed to create area with key: ${key}`);
     } catch (err) {
-      log.error(`Failed to create area with key: ${key} - ${err}`);
+      logger.error(`Failed to create area with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async deleteArea(key: string): Promise<AreaEntity> {
-    log.debug(`Deleting area with key: ${key}`);
+    logger.debug(`Deleting area with key: ${key}`);
     try {
       const deletedId = await this.knex("area").where({ key }).update({
         deleted: true,
@@ -682,16 +687,16 @@ class AppDatabase extends SQLDataSource {
         const area = await this.getArea(key);
         return area;
       }
-      log.error(`Failed to delete area with key: ${key}`);
+      logger.error(`Failed to delete area with key: ${key}`);
       throw new Error(`Failed to delete area with key: ${key}`);
     } catch (err) {
-      log.error(`Failed to delete area with key: ${key} - ${err}`);
+      logger.error(`Failed to delete area with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async renameArea(key: string, name: string): Promise<AreaEntity> {
-    log.debug(`Renaming area with key: ${key} to ${name}`);
+    logger.debug(`Renaming area with key: ${key} to ${name}`);
     try {
       const updatedId = await this.knex("area")
         .where({ key })
@@ -699,10 +704,10 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getArea(key);
       }
-      log.error(`Failed to rename area with key: ${key}`);
+      logger.error(`Failed to rename area with key: ${key}`);
       throw new Error(`Failed to rename area with key: ${key}`);
     } catch (err) {
-      log.error(`Failed to rename area - ${key} - ${name}:  ${err}`);
+      logger.error(`Failed to rename area - ${key} - ${name}:  ${err}`);
       throw err;
     }
   }
@@ -711,7 +716,9 @@ class AppDatabase extends SQLDataSource {
     key: string,
     description: string
   ): Promise<AreaEntity> {
-    log.debug(`Setting description of area with key: ${key} to ${description}`);
+    logger.debug(
+      `Setting description of area with key: ${key} to ${description}`
+    );
     try {
       const updatedId = await this.knex("area")
         .where({ key })
@@ -719,10 +726,10 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getArea(key);
       }
-      log.error(`Failed to update description of area with key: ${key}`);
+      logger.error(`Failed to update description of area with key: ${key}`);
       throw new Error(`Failed to update description of area with key: ${key}`);
     } catch (err) {
-      log.error(
+      logger.error(
         `Failed to update description of area with key: - ${key} - ${description}:  ${err}`
       );
       throw err;
@@ -730,7 +737,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setEmojiOfArea(key: string, emoji: string): Promise<AreaEntity> {
-    log.debug(`Setting emoji of area with key: ${key} to ${emoji}`);
+    logger.debug(`Setting emoji of area with key: ${key} to ${emoji}`);
     try {
       const updatedId = await this.knex("area")
         .where({ key })
@@ -738,10 +745,10 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getArea(key);
       }
-      log.error(`Failed to update emoji of area with key: ${key}`);
+      logger.error(`Failed to update emoji of area with key: ${key}`);
       throw new Error(`Failed to update emoji of area with key: ${key}`);
     } catch (err) {
-      log.error(
+      logger.error(
         `Failed to update emoji of area with key: - ${key} - ${emoji}:  ${err}`
       );
       throw err;
@@ -757,7 +764,7 @@ class AppDatabase extends SQLDataSource {
     itemKey: string,
     componentKey: string
   ): Promise<ItemOrderEntity> {
-    log.debug(
+    logger.debug(
       `Getting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey}`
     );
     try {
@@ -766,29 +773,29 @@ class AppDatabase extends SQLDataSource {
         .where({ itemKey, componentKey })
         .first();
       if (!itemOrder) {
-        log.error(`Failed to get itemOrder for key with key: ${itemKey}`);
+        logger.error(`Failed to get itemOrder for key with key: ${itemKey}`);
         throw new Error(`ItemOrder with key: ${itemKey} not found`);
       }
       return itemOrder;
     } catch (err) {
-      log.error(`Failed to get itemOrder with key: ${itemKey} - ${err}`);
+      logger.error(`Failed to get itemOrder with key: ${itemKey} - ${err}`);
       throw err;
     }
   }
 
   async getItemOrdersByItem(itemKey: string): Promise<ItemOrderEntity[]> {
-    log.debug(`Getting itemOrders for item with key: ${itemKey}`);
+    logger.debug(`Getting itemOrders for item with key: ${itemKey}`);
     try {
       const itemOrders = await this.knex("itemOrder")
         .select("*")
         .where({ itemKey });
       if (!itemOrders) {
-        log.error(`Failed to get itemOrders for item with key: ${itemKey}`);
+        logger.error(`Failed to get itemOrders for item with key: ${itemKey}`);
         throw new Error(`ItemOrders with key: ${itemKey} not found`);
       }
       return itemOrders;
     } catch (err) {
-      log.error(
+      logger.error(
         `Failed to get itemOrders for item with key: ${itemKey} - ${err}`
       );
       throw err;
@@ -798,13 +805,13 @@ class AppDatabase extends SQLDataSource {
   async getItemOrdersByComponent(
     componentKey: string
   ): Promise<ItemOrderEntity[]> {
-    log.debug(`Getting itemOrders with componentKey: ${componentKey}`);
+    logger.debug(`Getting itemOrders with componentKey: ${componentKey}`);
     try {
       const itemOrders = await this.knex("itemOrder")
         .select("*")
         .where({ componentKey });
       if (!itemOrders) {
-        log.error(
+        logger.error(
           `Failed to get itemOrders with componentKey: ${componentKey}`
         );
         throw new Error(
@@ -813,7 +820,7 @@ class AppDatabase extends SQLDataSource {
       }
       return itemOrders;
     } catch (err) {
-      log.error(
+      logger.error(
         `Failed to get itemOrders with componentKey: ${componentKey} - ${err}`
       );
       throw err;
@@ -824,7 +831,7 @@ class AppDatabase extends SQLDataSource {
     itemKey: string,
     componentKey: string
   ): Promise<ItemOrderEntity> {
-    log.debug(
+    logger.debug(
       `Creating itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey}`
     );
     try {
@@ -839,7 +846,7 @@ class AppDatabase extends SQLDataSource {
       });
 
       if (!insertedId) {
-        log.error(
+        logger.error(
           `Failed to create itemOrder with itemKey: ${itemKey}, componentKey: ${componentKey}`
         );
         throw new Error(
@@ -848,7 +855,9 @@ class AppDatabase extends SQLDataSource {
       }
       return await this.getItemOrder(itemKey, componentKey);
     } catch (err) {
-      log.error(`Failed to create itemOrder with itemKey: ${itemKey} - ${err}`);
+      logger.error(
+        `Failed to create itemOrder with itemKey: ${itemKey} - ${err}`
+      );
       throw err;
     }
   }
@@ -857,7 +866,7 @@ class AppDatabase extends SQLDataSource {
     itemOrders: string[],
     componentKey: string
   ): Promise<ItemOrderEntity[]> {
-    log.debug(
+    logger.debug(
       `Bulk creating ${itemOrders.length} itemOrders for componentKey: ${componentKey}`
     );
     try {
@@ -883,7 +892,7 @@ class AppDatabase extends SQLDataSource {
 
       // TODO: I think this is the wrong return type
       if (!inserted) {
-        log.error(`Failed to create itemOrders`);
+        logger.error(`Failed to create itemOrders`);
         throw new Error(`Failed to create itemOrders`);
       }
       return await Promise.all(
@@ -892,7 +901,7 @@ class AppDatabase extends SQLDataSource {
         })
       );
     } catch (err) {
-      log.error(`Failed to  bulk create itemOrders with itemKeys - ${err}`);
+      logger.error(`Failed to  bulk create itemOrders with itemKeys - ${err}`);
       throw err;
     }
   }
@@ -902,7 +911,7 @@ class AppDatabase extends SQLDataSource {
     componentKey: string,
     newSortOrder: number
   ): Promise<ItemOrderEntity> {
-    log.debug(
+    logger.debug(
       `Setting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey} to sortOrder: ${newSortOrder}`
     );
     try {
@@ -924,7 +933,7 @@ class AppDatabase extends SQLDataSource {
         .update({ sortOrder: newSortOrder });
 
       if (!itemOrderId) {
-        log.error(
+        logger.error(
           `Failed to set itemOrder with itemKey: ${itemKey}, componentKey: ${componentKey}`
         );
         throw new Error(
@@ -933,13 +942,13 @@ class AppDatabase extends SQLDataSource {
       }
       return await this.getItemOrder(itemKey, componentKey);
     } catch (err) {
-      log.error(`Failed to set itemOrder with itemKey: ${itemKey} - ${err}`);
+      logger.error(`Failed to set itemOrder with itemKey: ${itemKey} - ${err}`);
       throw err;
     }
   }
 
   async deleteItemOrders(itemKeys: string[], componentKey: string) {
-    log.debug(
+    logger.debug(
       `Deleting itemOrders with itemKeys: ${itemKeys} and componentKey: ${componentKey}`
     );
     const deletedIds = await this.knex("itemOrder")
@@ -950,7 +959,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteItemOrder(itemKey: string, componentKey: string) {
-    log.debug(
+    logger.debug(
       `Deleting itemOrder with itemKey: ${itemKey} and componentKey: ${componentKey}`
     );
     const deletedId = await this.knex("itemOrder")
@@ -960,7 +969,7 @@ class AppDatabase extends SQLDataSource {
   }
 
   async deleteItemOrdersByComponent(componentKey: string): Promise<string> {
-    log.debug(`Deleting itemOrders with componentKey: ${componentKey}`);
+    logger.debug(`Deleting itemOrders with componentKey: ${componentKey}`);
     const orders = await this.knex("itemOrder")
       .where({ componentKey })
       .delete();
@@ -970,46 +979,48 @@ class AppDatabase extends SQLDataSource {
   /* Items */
 
   async getItems(): Promise<ItemEntity[]> {
-    log.debug("Getting items");
+    logger.debug("Getting items");
     return this.knex("item").select("*");
   }
 
   async getItem(key: string): Promise<ItemEntity> {
-    log.debug(`Getting item with key: ${key}`);
+    logger.debug(`Getting item with key: ${key}`);
     try {
       return await this.knex("item").select("*").where({ key }).first();
     } catch (err) {
-      log.error(`Failed to get item with key: ${key} - ${err}`);
+      logger.error(`Failed to get item with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async getItemsByProject(projectKey: string): Promise<ItemEntity[]> {
-    log.debug(`Getting items with projectKey: ${projectKey}`);
+    logger.debug(`Getting items with projectKey: ${projectKey}`);
     try {
       return await this.knex("item").select("*").where({ projectKey });
     } catch (err) {
-      log.error(`Failed to get item with projectKey: ${projectKey} - ${err}`);
+      logger.error(
+        `Failed to get item with projectKey: ${projectKey} - ${err}`
+      );
       throw err;
     }
   }
 
   async getItemsByArea(areaKey: string): Promise<ItemEntity[]> {
-    log.debug(`Getting items with areaKey: ${areaKey}`);
+    logger.debug(`Getting items with areaKey: ${areaKey}`);
     try {
       return await this.knex("item").select("*").where({ areaKey });
     } catch (err) {
-      log.error(`Failed to get item with areaKey: ${areaKey} - ${err}`);
+      logger.error(`Failed to get item with areaKey: ${areaKey} - ${err}`);
       throw err;
     }
   }
 
   async getItemsByParent(parentKey: string): Promise<ItemEntity[]> {
-    log.debug(`Getting items with parentKey: ${parentKey}`);
+    logger.debug(`Getting items with parentKey: ${parentKey}`);
     try {
       return await this.knex("item").select("*").where({ parentKey });
     } catch (err) {
-      log.error(`Failed to get item with parentKey: ${parentKey} - ${err}`);
+      logger.error(`Failed to get item with parentKey: ${parentKey} - ${err}`);
       throw err;
     }
   }
@@ -1018,7 +1029,7 @@ class AppDatabase extends SQLDataSource {
     filter: string,
     componentKey: string
   ): Promise<ItemEntity[]> {
-    log.debug(
+    logger.debug(
       `Getting items with filter: ${filter} and componentKey: ${componentKey}`
     );
 
@@ -1082,7 +1093,7 @@ class AppDatabase extends SQLDataSource {
       try {
         return JSON.parse(filterString);
       } catch (e) {
-        log.error(`Failed to parse filters - ${e}`);
+        logger.error(`Failed to parse filters - ${e}`);
         return null;
       }
     };
@@ -1105,10 +1116,10 @@ class AppDatabase extends SQLDataSource {
 
     const filterString = generateQueryString(filters);
 
-    log.debug(`Getting items using filter: ${filterString}`);
+    logger.debug(`Getting items using filter: ${filterString}`);
     const items = await this.knex("item").select("*").whereRaw(filterString);
 
-    log.debug(`Found ${items.length} items`);
+    logger.debug(`Found ${items.length} items`);
     const orders = await this.getItemOrdersByComponent(componentKey);
 
     const orderKeys = orders.map((o) => o.itemKey);
@@ -1116,15 +1127,15 @@ class AppDatabase extends SQLDataSource {
 
     // Delete itemOrders
     const inOrderButNotResult = without(orderKeys, ...itemKeys);
-    log.debug(`Deleting ${inOrderButNotResult.length} itemOrders`);
+    logger.debug(`Deleting ${inOrderButNotResult.length} itemOrders`);
     await this.deleteItemOrders(inOrderButNotResult, componentKey);
 
     // Add new ones
     const inResultButNotOrder = without(itemKeys, ...orderKeys);
-    log.debug(`Adding ${inResultButNotOrder.length} itemOrders`);
+    logger.debug(`Adding ${inResultButNotOrder.length} itemOrders`);
     await this.bulkCreateItemOrders(inResultButNotOrder, componentKey);
 
-    log.debug(`Returning ${items.length} items`);
+    logger.debug(`Returning ${items.length} items`);
     return items;
   }
 
@@ -1139,7 +1150,7 @@ class AppDatabase extends SQLDataSource {
     dueAt?: Date | null,
     scheduledAt?: Date | null
   ): Promise<ItemEntity> {
-    log.debug(
+    logger.debug(
       `Creating item with key: ${key}, labelKey: ${labelKey}, parentKey: ${parentKey}, projectKey: ${projectKey}, repeat: ${repeat}, text: ${text}, type: ${type}, dueAt: ${dueAt}, scheduledAt: ${scheduledAt}`
     );
     try {
@@ -1172,16 +1183,16 @@ class AppDatabase extends SQLDataSource {
           .where({ id: insertedId[0] })
           .first();
       }
-      log.error("Failed to create item without error");
+      logger.error("Failed to create item without error");
       throw new Error("Failed to create item");
     } catch (e) {
-      log.error(`Failed to create item - ${e}`);
+      logger.error(`Failed to create item - ${e}`);
       throw e;
     }
   }
 
   async deleteItem(key: string): Promise<ItemEntity> {
-    log.debug(`Deleting item with key: ${key}`);
+    logger.debug(`Deleting item with key: ${key}`);
     try {
       // TODO: Check if the item is deleted
       const children = await this.getItemsByParent(key);
@@ -1199,16 +1210,16 @@ class AppDatabase extends SQLDataSource {
       if (deletedItemId) {
         return await this.getItem(key);
       }
-      log.error("Failed to delete item without error");
+      logger.error("Failed to delete item without error");
       throw new Error("Failed to delete item");
     } catch (e) {
-      log.error(`Failed to delete item - ${e}`);
+      logger.error(`Failed to delete item - ${e}`);
       throw e;
     }
   }
 
   async restoreItem(key: string): Promise<ItemEntity> {
-    log.debug(`Restoring item with key: ${key}`);
+    logger.debug(`Restoring item with key: ${key}`);
     try {
       // TODO: Check if the item is deleted
       const children = await this.getItemsByParent(key);
@@ -1226,16 +1237,16 @@ class AppDatabase extends SQLDataSource {
       if (restoredItemId) {
         return await this.getItem(key);
       }
-      log.error("Failed to restore item without error");
+      logger.error("Failed to restore item without error");
       throw new Error("Failed to restore item");
     } catch (e) {
-      log.error(`Failed to restore item - ${e}`);
+      logger.error(`Failed to restore item - ${e}`);
       throw e;
     }
   }
 
   async renameItem(key: string, text: string): Promise<ItemEntity> {
-    log.debug(`Renaming item with key: ${key} to text: ${text}`);
+    logger.debug(`Renaming item with key: ${key} to text: ${text}`);
     try {
       // TODO: Check if the item is deleted
       const renamedItemId = await this.knex("item").where({ key }).update({
@@ -1245,16 +1256,16 @@ class AppDatabase extends SQLDataSource {
       if (renamedItemId) {
         return await this.getItem(key);
       }
-      log.error("Failed to rename item without error");
+      logger.error("Failed to rename item without error");
       throw new Error("Failed to rename item");
     } catch (e) {
-      log.error(`Failed to rename item - ${e}`);
+      logger.error(`Failed to rename item - ${e}`);
       throw e;
     }
   }
 
   async snoozeItem(key: string, snoozeUntil: Date): Promise<ItemEntity> {
-    log.debug(
+    logger.debug(
       `Snoozing item with key: ${key} until: ${snoozeUntil.toISOString()}`
     );
     try {
@@ -1266,16 +1277,16 @@ class AppDatabase extends SQLDataSource {
       if (snoozedItemId) {
         return await this.getItem(key);
       }
-      log.error("Failed to snooze item without error");
+      logger.error("Failed to snooze item without error");
       throw new Error("Failed to snooze item");
     } catch (e) {
-      log.error(`Failed to snooze item - ${e}`);
+      logger.error(`Failed to snooze item - ${e}`);
       throw e;
     }
   }
 
   async completeItem(key: string): Promise<ItemEntity> {
-    log.debug(`Completing item with key: ${key}`);
+    logger.debug(`Completing item with key: ${key}`);
     try {
       const item = await this.getItem(key);
       if (item.repeat) {
@@ -1300,7 +1311,7 @@ class AppDatabase extends SQLDataSource {
         if (updatedId) {
           return await this.getItem(key);
         }
-        log.error("Failed to complete item without error");
+        logger.error("Failed to complete item without error");
         throw new Error("Failed to complete item");
       }
       await this.knex("item").where({ key }).update({
@@ -1311,13 +1322,13 @@ class AppDatabase extends SQLDataSource {
 
       return await this.getItem(key);
     } catch (e) {
-      log.error(`Failed to complete item - ${e}`);
+      logger.error(`Failed to complete item - ${e}`);
       throw e;
     }
   }
 
   async unCompleteItem(key: string): Promise<ItemEntity> {
-    log.debug(`Uncompleting item with key: ${key}`);
+    logger.debug(`Uncompleting item with key: ${key}`);
     try {
       await this.getItem(key);
       // What should happen if an item has a repeat?
@@ -1331,16 +1342,16 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getItem(key);
       }
-      log.error("Failed to uncomplete item without error");
+      logger.error("Failed to uncomplete item without error");
       throw new Error("Failed to uncomplete item");
     } catch (e) {
-      log.error(`Failed to uncomplete item - ${e}`);
+      logger.error(`Failed to uncomplete item - ${e}`);
       throw e;
     }
   }
 
   async setRepeatOfItem(key: string, repeat: string): Promise<ItemEntity> {
-    log.debug(`Setting repeat of item with key: ${key} to ${repeat}`);
+    logger.debug(`Setting repeat of item with key: ${key} to ${repeat}`);
 
     try {
       const nextRepeatDate = repeat ? rrulestr(repeat).after(new Date()) : null;
@@ -1354,16 +1365,16 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getItem(key);
       }
-      log.error("Failed to set repeat of item without error");
+      logger.error("Failed to set repeat of item without error");
       throw new Error("Failed to set repeat of item");
     } catch (e) {
-      log.error(`Failed to set repeat of item - ${e}`);
+      logger.error(`Failed to set repeat of item - ${e}`);
       throw e;
     }
   }
 
   async setProjectOfItem(key: string, projectKey: string): Promise<ItemEntity> {
-    log.debug(`Setting project of item with key: ${key} to ${projectKey}`);
+    logger.debug(`Setting project of item with key: ${key} to ${projectKey}`);
     try {
       const updatedId = await this.knex("item").where({ key }).update({
         projectKey,
@@ -1378,16 +1389,16 @@ class AppDatabase extends SQLDataSource {
         }
         return await this.getItem(key);
       }
-      log.error(`Failed to set project of item without error`);
+      logger.error(`Failed to set project of item without error`);
       throw new Error(`Failed to set project of item`);
     } catch (e) {
-      log.error(`Failed to set project of item - ${e}`);
+      logger.error(`Failed to set project of item - ${e}`);
       throw e;
     }
   }
 
   async setAreaOfItem(key: string, areaKey: string): Promise<ItemEntity> {
-    log.debug(`Setting area of item with key: ${key} to ${areaKey}`);
+    logger.debug(`Setting area of item with key: ${key} to ${areaKey}`);
     try {
       const updatedId = await this.knex("item").where({ key }).update({
         areaKey,
@@ -1402,10 +1413,10 @@ class AppDatabase extends SQLDataSource {
         }
         return await this.getItem(key);
       }
-      log.error("Failed to set area of item without error");
+      logger.error("Failed to set area of item without error");
       throw new Error("Failed to set area of item");
     } catch (e) {
-      log.error(`Failed to set area of item - ${e}`);
+      logger.error(`Failed to set area of item - ${e}`);
       throw e;
     }
   }
@@ -1414,7 +1425,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     scheduledAt: Date | null
   ): Promise<ItemEntity> {
-    log.debug(
+    logger.debug(
       `Setting scheduled at of item with key: ${key} to ${scheduledAt}`
     );
     try {
@@ -1428,16 +1439,16 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getItem(key);
       }
-      log.error("Failed to set scheduled at of item without error");
+      logger.error("Failed to set scheduled at of item without error");
       throw new Error("Failed to set scheduled at of item");
     } catch (e) {
-      log.error(`Failed to set scheduled at of item - ${e}`);
+      logger.error(`Failed to set scheduled at of item - ${e}`);
       throw e;
     }
   }
 
   async setDueAtOfItem(key: string, dueAt: Date | null): Promise<ItemEntity> {
-    log.debug(`Setting due at of item with key: ${key} to ${dueAt}`);
+    logger.debug(`Setting due at of item with key: ${key} to ${dueAt}`);
     try {
       const updatedId = await this.knex("item")
         .where({ key })
@@ -1449,16 +1460,16 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getItem(key);
       }
-      log.error("Failed to set due at of item without error");
+      logger.error("Failed to set due at of item without error");
       throw new Error("Failed to set due at of item");
     } catch (e) {
-      log.error(`Failed to set due at of item - ${e}`);
+      logger.error(`Failed to set due at of item - ${e}`);
       throw e;
     }
   }
 
   async cloneItem(key: string): Promise<ItemEntity> {
-    log.debug(`Cloning item with key: ${key}`);
+    logger.debug(`Cloning item with key: ${key}`);
     const newKey = uuidv4();
     const item = await this.getItem(key);
     return this.createItem(
@@ -1475,11 +1486,11 @@ class AppDatabase extends SQLDataSource {
   }
 
   async setParentOfItem(key: string, parentKey: string): Promise<ItemEntity> {
-    log.debug(`Setting parent of item with key: ${key} to ${parentKey}`);
+    logger.debug(`Setting parent of item with key: ${key} to ${parentKey}`);
     try {
       const children = await this.getItemsByParent(key);
       if (children.length) {
-        log.error(`Can't set parent of item as it already has a parent`);
+        logger.error(`Can't set parent of item as it already has a parent`);
         throw new Error("Can't set parent of item as it already has a parent");
       }
       const updatedId = await this.knex("item").where({ key }).update({
@@ -1490,32 +1501,32 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getItem("key");
       }
-      log.error(`Failed to update parent of item`);
+      logger.error(`Failed to update parent of item`);
       throw new Error(`Failed to update parent of item`);
     } catch (e) {
-      log.error(`Failed to set parent of item - ${e}`);
+      logger.error(`Failed to set parent of item - ${e}`);
       throw e;
     }
   }
 
   async permanentDeleteItem(key: string): Promise<string> {
-    log.debug(`Permanently deleting item with key: ${key}`);
+    logger.debug(`Permanently deleting item with key: ${key}`);
     try {
       // TODO: What about deleting children?
       const deletedId = await this.knex("item").where({ key }).delete();
       if (deletedId) {
         return deletedId.toString();
       }
-      log.error("Failed to permanent delete item without error");
+      logger.error("Failed to permanent delete item without error");
       throw new Error("Failed to permanent delete item");
     } catch (e) {
-      log.error(`Failed to permanent delete item - ${e}`);
+      logger.error(`Failed to permanent delete item - ${e}`);
       throw e;
     }
   }
 
   async setLabelOfItem(key: string, labelKey: string): Promise<ItemEntity> {
-    log.debug(`Setting label of item with key: ${key} to ${labelKey}`);
+    logger.debug(`Setting label of item with key: ${key} to ${labelKey}`);
     try {
       const updatedId = await this.knex("item").where({ key }).update({
         labelKey,
@@ -1533,28 +1544,28 @@ class AppDatabase extends SQLDataSource {
         }
         return await this.getItem(key);
       }
-      log.error("Failed to set label of item without error");
+      logger.error("Failed to set label of item without error");
       throw new Error("Failed to set label of item");
     } catch (e) {
-      log.error(`Failed to set label of item - ${e}`);
+      logger.error(`Failed to set label of item - ${e}`);
       throw e;
     }
   }
 
   /* Features */
   async getFeatures(): Promise<FeatureEntity[]> {
-    log.info("Getting features");
+    logger.info("Getting features");
     const features = await this.knex("feature").select("*");
     try {
       return features.map((f) => ({ ...f, metadata: JSON.parse(f.metadata) }));
     } catch (e) {
-      log.error(`Failed to get features - ${e}`);
+      logger.error(`Failed to get features - ${e}`);
       throw new Error(`Failed to get features - ${e}`);
     }
   }
 
   async getFeature(key: string): Promise<FeatureEntity> {
-    log.debug(`Getting feature with key: ${key}`);
+    logger.debug(`Getting feature with key: ${key}`);
     try {
       const feature = await this.knex("feature")
         .select("*")
@@ -1564,20 +1575,20 @@ class AppDatabase extends SQLDataSource {
         try {
           return { ...feature, metadata: JSON.parse(feature.metadata) };
         } catch (e) {
-          log.error(`Failed to get feature - ${e}`);
+          logger.error(`Failed to get feature - ${e}`);
           throw new Error(`Failed to get feature - ${e}`);
         }
       }
-      log.error("Failed to get feature without error");
+      logger.error("Failed to get feature without error");
       throw new Error("Failed to get feature");
     } catch (err) {
-      log.error(`Failed to get feature with key: ${key} - ${err}`);
+      logger.error(`Failed to get feature with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async getFeatureByName(name: string): Promise<FeatureEntity> {
-    log.debug(`Getting feature with name: ${name}`);
+    logger.debug(`Getting feature with name: ${name}`);
     try {
       const feature = await this.knex("feature")
         .select("*")
@@ -1587,20 +1598,20 @@ class AppDatabase extends SQLDataSource {
         try {
           return { ...feature, metadata: JSON.parse(feature.metadata) };
         } catch (e) {
-          log.error(`Failed to get feature by name - ${e}`);
+          logger.error(`Failed to get feature by name - ${e}`);
           throw new Error(`Failed to get feature by name - ${e}`);
         }
       }
-      log.error("Failed to get feature without error");
+      logger.error("Failed to get feature without error");
       throw new Error("Failed to get feature");
     } catch (err) {
-      log.error(`Failed to get feature with key: ${name} - ${err}`);
+      logger.error(`Failed to get feature with key: ${name} - ${err}`);
       throw err;
     }
   }
 
   async setFeature(key: string, enabled: boolean): Promise<FeatureEntity> {
-    log.debug(`Setting feature with key: ${key} to ${enabled}`);
+    logger.debug(`Setting feature with key: ${key} to ${enabled}`);
     try {
       const updatedId = await this.knex("feature")
         .where({ key })
@@ -1608,10 +1619,10 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getFeature(key);
       }
-      log.error("Failed to set feature without error");
+      logger.error("Failed to set feature without error");
       throw new Error("Failed to set feature");
     } catch (e) {
-      log.error(`Failed to set feature - ${key}:  ${e}`);
+      logger.error(`Failed to set feature - ${key}:  ${e}`);
       throw e;
     }
   }
@@ -1620,7 +1631,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     metadata: Record<string, unknown>
   ): Promise<FeatureEntity> {
-    log.debug(`Setting feature metadata with key: ${key}`);
+    logger.debug(`Setting feature metadata with key: ${key}`);
     try {
       const updatedId = await this.knex("feature")
         .where({ key })
@@ -1628,10 +1639,10 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getFeature(key);
       }
-      log.error("Failed to set feature metadata without error");
+      logger.error("Failed to set feature metadata without error");
       throw new Error("Failed to set feature metadata");
     } catch (e) {
-      log.error(`Failed to set feature metadata- ${key}:  ${e}`);
+      logger.error(`Failed to set feature metadata- ${key}:  ${e}`);
       throw e;
     }
   }
@@ -1642,7 +1653,7 @@ class AppDatabase extends SQLDataSource {
     enabled: boolean,
     metadata: Record<string, unknown>
   ): Promise<FeatureEntity> {
-    log.debug(
+    logger.debug(
       `Creating feature with key: ${key}, name: ${name}, enabled: ${enabled}, metadata: ${JSON.stringify(
         metadata
       )}`
@@ -1658,10 +1669,10 @@ class AppDatabase extends SQLDataSource {
       if (insertedId) {
         return await this.getFeature(key);
       }
-      log.error("Failed to create feature without error");
+      logger.error("Failed to create feature without error");
       throw new Error("Failed to create feature");
     } catch (e) {
-      log.error(`Failed to create feature - ${e}`);
+      logger.error(`Failed to create feature - ${e}`);
       throw e;
     }
   }
@@ -1669,26 +1680,26 @@ class AppDatabase extends SQLDataSource {
   /* Labels */
 
   async getLabels(): Promise<LabelEntity[]> {
-    log.debug("Getting labels");
+    logger.debug("Getting labels");
     try {
       return await this.knex("label").select("*");
     } catch (e) {
-      log.error(`Failed to get labels - ${e}`);
+      logger.error(`Failed to get labels - ${e}`);
       throw e;
     }
   }
 
   async getLabel(key: string): Promise<LabelEntity> {
-    log.debug(`Getting label with key: ${key}`);
+    logger.debug(`Getting label with key: ${key}`);
     try {
       const label = await this.knex("label").select("*").where({ key }).first();
       if (label) {
         return label;
       }
-      log.error("Failed to get label without error");
+      logger.error("Failed to get label without error");
       throw new Error("Failed to get label");
     } catch (err) {
-      log.error(`Failed to get label with key: ${key} - ${err}`);
+      logger.error(`Failed to get label with key: ${key} - ${err}`);
       throw err;
     }
   }
@@ -1698,7 +1709,7 @@ class AppDatabase extends SQLDataSource {
     name: string,
     colour: string
   ): Promise<LabelEntity> {
-    log.debug(
+    logger.debug(
       `Creating label with key: ${key}, name: ${name}, colour: ${colour}`
     );
     try {
@@ -1706,16 +1717,16 @@ class AppDatabase extends SQLDataSource {
       if (newLabel) {
         return await this.getLabel(key);
       }
-      log.error("Failed to create label without error");
+      logger.error("Failed to create label without error");
       throw new Error("Failed to create label");
     } catch (e) {
-      log.error(`Failed to create label - ${e}`);
+      logger.error(`Failed to create label - ${e}`);
       throw e;
     }
   }
 
   async renameLabel(key: string, name: string): Promise<LabelEntity> {
-    log.debug(`Renaming label with key: ${key} to ${name}`);
+    logger.debug(`Renaming label with key: ${key} to ${name}`);
     try {
       const updatedId = await this.knex("label")
         .where({ key })
@@ -1723,16 +1734,16 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getLabel(key);
       }
-      log.error("Failed to rename label without error");
+      logger.error("Failed to rename label without error");
       throw new Error("Failed to rename label");
     } catch (e) {
-      log.error(`Failed to rename label - ${e}`);
+      logger.error(`Failed to rename label - ${e}`);
       throw e;
     }
   }
 
   async setColourOfLabel(key: string, colour: string): Promise<LabelEntity> {
-    log.debug(`Setting colour of label with key: ${key} to ${colour}`);
+    logger.debug(`Setting colour of label with key: ${key} to ${colour}`);
     try {
       const updatedId = await this.knex("label")
         .where({ key })
@@ -1740,62 +1751,64 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getLabel(key);
       }
-      log.error("Failed to set colour of label without error");
+      logger.error("Failed to set colour of label without error");
       throw new Error("Failed to set colour of label");
     } catch (e) {
-      log.error(`Failed to set colour of label - ${e}`);
+      logger.error(`Failed to set colour of label - ${e}`);
       throw e;
     }
   }
 
   async deleteLabel(key: string): Promise<string> {
-    log.debug(`Deleting label with key: ${key}`);
+    logger.debug(`Deleting label with key: ${key}`);
     try {
       const updatedId = await this.knex("label").where({ key }).del();
       if (updatedId) {
         return key;
       }
-      log.error("Failed to delete label without error");
+      logger.error("Failed to delete label without error");
       throw new Error("Failed to delete label");
     } catch (e) {
-      log.error(`Failed to delete label - ${e}`);
+      logger.error(`Failed to delete label - ${e}`);
       throw e;
     }
   }
 
   /* Reminder */
   async getReminders(): Promise<ReminderEntity[]> {
-    log.debug("Getting reminders");
+    logger.debug("Getting reminders");
     try {
       return await this.knex("reminder").select("*");
     } catch (e) {
-      log.error(`Failed to get reminders - ${e}`);
+      logger.error(`Failed to get reminders - ${e}`);
       throw e;
     }
   }
 
   async getReminder(key: string): Promise<ReminderEntity> {
-    log.debug(`Getting reminder with key: ${key}`);
+    logger.debug(`Getting reminder with key: ${key}`);
     try {
       const reminder = await this.knex("reminder").where({ key }).first();
       return reminder;
     } catch (err) {
-      log.error(`Failed to get reminder with key: ${key} - ${err}`);
+      logger.error(`Failed to get reminder with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async getRemindersByItem(itemKey: string): Promise<ReminderEntity[]> {
-    log.debug(`Getting reminders with item key: ${itemKey}`);
+    logger.debug(`Getting reminders with item key: ${itemKey}`);
     try {
       const items = await this.knex("reminder").where({ itemKey }).select("*");
       if (items) {
         return items;
       }
-      log.error("Failed to get reminders by item without error");
+      logger.error("Failed to get reminders by item without error");
       throw new Error("Failed to get reminders by item");
     } catch (err) {
-      log.error(`Failed to get reminders with item key: ${itemKey} - ${err}`);
+      logger.error(
+        `Failed to get reminders with item key: ${itemKey} - ${err}`
+      );
       throw err;
     }
   }
@@ -1806,7 +1819,7 @@ class AppDatabase extends SQLDataSource {
     remindAt: Date,
     itemKey: string
   ): Promise<ReminderEntity> {
-    log.debug(
+    logger.debug(
       `Creating reminder with key: ${key}, text: ${text}, remindAt: ${remindAt.toISOString()}, itemKey: ${itemKey}`
     );
     try {
@@ -1821,16 +1834,16 @@ class AppDatabase extends SQLDataSource {
       if (insertedId) {
         return await this.getReminder(key);
       }
-      log.error("Failed to create reminder without error");
+      logger.error("Failed to create reminder without error");
       throw new Error("Failed to create reminder");
     } catch (e) {
-      log.error(`Failed to create reminder - ${e}`);
+      logger.error(`Failed to create reminder - ${e}`);
       throw e;
     }
   }
 
   async deleteReminder(key: string): Promise<ReminderEntity> {
-    log.debug(`Deleting reminder with key: ${key}`);
+    logger.debug(`Deleting reminder with key: ${key}`);
     try {
       const updatedId = await this.knex("reminder")
         .update({
@@ -1842,16 +1855,16 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getReminder(key);
       }
-      log.error("Failed to delete reminder without error");
+      logger.error("Failed to delete reminder without error");
       throw new Error("Failed to delete reminder");
     } catch (e) {
-      log.error(`Failed to delete reminder - ${e}`);
+      logger.error(`Failed to delete reminder - ${e}`);
       throw e;
     }
   }
 
   async deleteReminderFromItem(itemKey: string): Promise<ReminderEntity> {
-    log.debug(`Deleting reminders with item key: ${itemKey}`);
+    logger.debug(`Deleting reminders with item key: ${itemKey}`);
     try {
       const updatedId = await this.knex("reminder")
         .update({
@@ -1863,51 +1876,51 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getReminder(itemKey);
       }
-      log.error("Failed to delete reminder from item without error");
+      logger.error("Failed to delete reminder from item without error");
       throw new Error("Failed to delete reminder from item");
     } catch (e) {
-      log.error(`Failed to delete reminder from item - ${e}`);
+      logger.error(`Failed to delete reminder from item - ${e}`);
       throw e;
     }
   }
 
   /* Component */
   async getComponents(): Promise<ComponentEntity[]> {
-    log.debug("Getting components");
+    logger.debug("Getting components");
     try {
       return await this.knex("component").select("*");
     } catch (e) {
-      log.error(`Failed to get components - ${e}`);
+      logger.error(`Failed to get components - ${e}`);
       throw e;
     }
   }
 
   async getComponent(key: string): Promise<ComponentEntity> {
-    log.debug(`Getting component with key: ${key}`);
+    logger.debug(`Getting component with key: ${key}`);
     try {
       const component = await this.knex("component").where({ key }).first();
       if (component) {
         return component;
       }
-      log.error("Failed to get component without error");
+      logger.error("Failed to get component without error");
       throw new Error("Failed to get component");
     } catch (err) {
-      log.error(`Failed to get component with key: ${key} - ${err}`);
+      logger.error(`Failed to get component with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async getComponentsByView(viewKey: string): Promise<ComponentEntity[]> {
-    log.debug(`Getting components with view key: ${viewKey}`);
+    logger.debug(`Getting components with view key: ${viewKey}`);
     try {
       const components = await this.knex("component").where({ viewKey });
       if (components) {
         return components;
       }
-      log.error("Failed to get component by view without error");
+      logger.error("Failed to get component by view without error");
       throw new Error("Failed to get component by view");
     } catch (err) {
-      log.error(`Failed to get component with key: ${viewKey} - ${err}`);
+      logger.error(`Failed to get component with key: ${viewKey} - ${err}`);
       throw err;
     }
   }
@@ -1919,7 +1932,7 @@ class AppDatabase extends SQLDataSource {
     type: string,
     parameters: Record<string, any>
   ): Promise<ComponentEntity> {
-    log.debug(
+    logger.debug(
       `Creating component with key: ${key}, viewKey: ${viewKey}, location: ${location}, type: ${type}, parameters: ${JSON.stringify(
         parameters
       )}`
@@ -1937,17 +1950,17 @@ class AppDatabase extends SQLDataSource {
         await this.createComponentOrder(key);
         return await this.getComponent(key);
       }
-      log.error("Failed to create component without error");
+      logger.error("Failed to create component without error");
       throw new Error("Failed to create component");
     } catch (e) {
-      log.error(`Failed to create component - ${e}`);
+      logger.error(`Failed to create component - ${e}`);
       throw e;
     }
   }
 
   // TODO: Make this a transaction
   async cloneComponent(key: string): Promise<ComponentEntity> {
-    log.debug(`Cloning component with key: ${key}`);
+    logger.debug(`Cloning component with key: ${key}`);
     try {
       const newKey = uuidv4();
       const component = await this.getComponent(key);
@@ -1956,17 +1969,17 @@ class AppDatabase extends SQLDataSource {
 
         // TODO: Make viewKey not null
         if (!component.viewKey) {
-          log.error(`Failed to clone component due to missing viewKey`);
+          logger.error(`Failed to clone component due to missing viewKey`);
           throw new Error(`Failed to clone component due to missing viewKey`);
         }
 
         if (!component.location) {
-          log.error(`Failed to clone component due to missing location`);
+          logger.error(`Failed to clone component due to missing location`);
           throw new Error(`Failed to clone component due to missing location`);
         }
 
         if (!component.type) {
-          log.error(`Failed to clone component due to missing type`);
+          logger.error(`Failed to clone component due to missing type`);
           throw new Error(`Failed to clone component due to missing type`);
         }
 
@@ -1982,26 +1995,26 @@ class AppDatabase extends SQLDataSource {
           return component;
         }
       }
-      log.error("Failed to clone component without error");
+      logger.error("Failed to clone component without error");
       throw new Error("Failed to clone component");
     } catch (e) {
-      log.error(`Failed to clone component - ${e}`);
+      logger.error(`Failed to clone component - ${e}`);
       throw e;
     }
   }
 
   // TODO: Remove all item orders when deleting a component #339
   async deleteComponent(key: string): Promise<string> {
-    log.debug(`Deleting component with key: ${key}`);
+    logger.debug(`Deleting component with key: ${key}`);
     try {
       const deletedId = await this.knex("component").where({ key }).del();
       if (deletedId) {
         return key;
       }
-      log.error("Failed to delete component without error");
+      logger.error("Failed to delete component without error");
       throw new Error("Failed to delete component");
     } catch (e) {
-      log.error(`Failed to delete component - ${e}`);
+      logger.error(`Failed to delete component - ${e}`);
       throw e;
     }
   }
@@ -2010,7 +2023,7 @@ class AppDatabase extends SQLDataSource {
     key: string,
     parameters: Record<string, any>
   ): Promise<ComponentEntity> {
-    log.debug(
+    logger.debug(
       `Setting parameters of component with key: ${key}, parameters: ${JSON.stringify(
         parameters
       )}`
@@ -2022,16 +2035,16 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getComponent(key);
       }
-      log.error("Failed to set parameters of component without error");
+      logger.error("Failed to set parameters of component without error");
       throw new Error("Failed to set parameters of component");
     } catch (e) {
-      log.error(`Failed to set parameters of component - ${e}`);
+      logger.error(`Failed to set parameters of component - ${e}`);
       throw e;
     }
   }
 
   async updateComponentOnProjectNameChange(viewKey: string, name: string) {
-    log.debug(
+    logger.debug(
       `Updating component on project name change with viewKey: ${viewKey}, name: ${name}`
     );
     const components = await this.knex("component").where({
@@ -2043,7 +2056,7 @@ class AppDatabase extends SQLDataSource {
 
       const params = component.parameters;
       if (!params) {
-        log.error(
+        logger.error(
           `Failed to update component on project name change without error - no parameters found`
         );
         return;
@@ -2060,7 +2073,7 @@ class AppDatabase extends SQLDataSource {
         params.filter = JSON.stringify(filter);
         this.setParametersOfComponent(component.key, params);
       } catch (e) {
-        log.error(
+        logger.error(
           `Failed to update component on project name change without error - ${e}`
         );
       }
@@ -2069,17 +2082,17 @@ class AppDatabase extends SQLDataSource {
 
   /* Component Order */
   async getComponentOrders(): Promise<ComponentOrderEntity[]> {
-    log.debug("Getting component orders");
+    logger.debug("Getting component orders");
     try {
       return await this.knex("componentOrder").select("*");
     } catch (e) {
-      log.error(`Failed to get component orders - ${e}`);
+      logger.error(`Failed to get component orders - ${e}`);
       throw e;
     }
   }
 
   async getComponentOrder(componentKey: string): Promise<ComponentOrderEntity> {
-    log.debug(`Getting component order with component key: ${componentKey}`);
+    logger.debug(`Getting component order with component key: ${componentKey}`);
     try {
       const componentOrder = await this.knex("componentOrder")
         .where({ componentKey })
@@ -2088,10 +2101,10 @@ class AppDatabase extends SQLDataSource {
       if (componentOrder) {
         return componentOrder;
       }
-      log.error("Failed to get component order without error");
+      logger.error("Failed to get component order without error");
       throw new Error("Failed to get component order");
     } catch (e) {
-      log.error(`Failed to get component order - ${e}`);
+      logger.error(`Failed to get component order - ${e}`);
       throw e;
     }
   }
@@ -2099,7 +2112,9 @@ class AppDatabase extends SQLDataSource {
   async createComponentOrder(
     componentKey: string
   ): Promise<ComponentOrderEntity> {
-    log.debug(`Creating component order with component key: ${componentKey}`);
+    logger.debug(
+      `Creating component order with component key: ${componentKey}`
+    );
     try {
       const maxSortOrder = await this.knex("componentOrder")
         .max("sortOrder as max")
@@ -2113,10 +2128,10 @@ class AppDatabase extends SQLDataSource {
       if (insertedId) {
         return await this.getComponentOrder(componentKey);
       }
-      log.error("Failed to create component order without error");
+      logger.error("Failed to create component order without error");
       throw new Error("Failed to create component order");
     } catch (e) {
-      log.error(`Failed to create component order - ${e}`);
+      logger.error(`Failed to create component order - ${e}`);
       throw e;
     }
   }
@@ -2126,7 +2141,7 @@ class AppDatabase extends SQLDataSource {
     componentKey: string,
     newSortOrder: number
   ): Promise<ComponentOrderEntity> {
-    log.debug(
+    logger.debug(
       `Setting component order with component key: ${componentKey}, sortOrder: ${newSortOrder}`
     );
     try {
@@ -2148,41 +2163,41 @@ class AppDatabase extends SQLDataSource {
       if (updatedComponentOrderId) {
         return await this.getComponentOrder(componentKey);
       }
-      log.error("Failed to set component order without error");
+      logger.error("Failed to set component order without error");
       throw new Error("Failed to set component order");
     } catch (e) {
-      log.error(`Failed to set component order - ${e}`);
+      logger.error(`Failed to set component order - ${e}`);
       throw e;
     }
   }
 
   /* Calendar */
   async getCalendars(): Promise<CalendarEntity[]> {
-    log.debug(`Getting calendars`);
+    logger.debug(`Getting calendars`);
     return this.knex("calendar").select("*");
   }
 
   async getCalendar(key: string): Promise<CalendarEntity> {
-    log.debug(`Getting calendar with key: ${key}`);
+    logger.debug(`Getting calendar with key: ${key}`);
     try {
       const calendar = await this.knex("calendar").where({ key }).first();
       if (calendar) {
         return calendar;
       }
-      log.error("Failed to get calendar without error");
+      logger.error("Failed to get calendar without error");
       throw new Error("Failed to get calendar");
     } catch (err) {
-      log.error(`Failed to get calendar with key: ${key} - ${err}`);
+      logger.error(`Failed to get calendar with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async getActiveCalendar(): Promise<CalendarEntity> {
-    log.debug("Getting active calendar");
+    logger.debug("Getting active calendar");
     try {
       return await this.knex("calendar").where({ active: true }).first();
     } catch (err) {
-      log.error(`Failed to get active calendar - ${err}`);
+      logger.error(`Failed to get active calendar - ${err}`);
       throw err;
     }
   }
@@ -2192,7 +2207,7 @@ class AppDatabase extends SQLDataSource {
     name: string,
     active: boolean
   ): Promise<CalendarEntity> {
-    log.debug(
+    logger.debug(
       `Creating calendar with key: ${key}, name: ${name}, active: ${active}`
     );
     try {
@@ -2206,27 +2221,27 @@ class AppDatabase extends SQLDataSource {
       if (insertedId) {
         return await this.getCalendar(key);
       }
-      log.error("Failed to create calendar without error");
+      logger.error("Failed to create calendar without error");
       throw new Error("Failed to create calendar");
     } catch (err) {
-      log.error(`Failed to create calendar with key: ${key} - ${err}`);
+      logger.error(`Failed to create calendar with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async deleteCalendars() {
-    log.debug(`Deleting all calendars`);
+    logger.debug(`Deleting all calendars`);
     try {
       await this.knex("calendar").del();
       return;
     } catch (err) {
-      log.error(`Failed to delete calendars - ${err}`);
+      logger.error(`Failed to delete calendars - ${err}`);
       throw err;
     }
   }
 
   async setActiveCalendar(key: string): Promise<CalendarEntity> {
-    log.debug(`Setting active calendar with key: ${key}`);
+    logger.debug(`Setting active calendar with key: ${key}`);
     // TODO: Setting a deleted calendar active
     try {
       await this.knex("calendar").update({
@@ -2240,10 +2255,10 @@ class AppDatabase extends SQLDataSource {
       if (updatedId) {
         return await this.getCalendar(key);
       }
-      log.error("Failed to set active calendar without error");
+      logger.error("Failed to set active calendar without error");
       throw new Error("Failed to set active calendar");
     } catch (err) {
-      log.error(`Failed to set active calendar with key: ${key} - ${err}`);
+      logger.error(`Failed to set active calendar with key: ${key} - ${err}`);
       throw err;
     }
   }
@@ -2251,11 +2266,11 @@ class AppDatabase extends SQLDataSource {
   /* Events */
 
   async getEvents(): Promise<EventEntity[]> {
-    log.debug(`Getting events`);
+    logger.debug(`Getting events`);
     try {
       const events = await this.knex("event").select("*");
       if (!events) {
-        log.error(`Failed to get events`);
+        logger.error(`Failed to get events`);
         throw new Error(`Failed to get events`);
       }
       try {
@@ -2264,43 +2279,43 @@ class AppDatabase extends SQLDataSource {
           attendees: JSON.parse(e.attendees),
         }));
       } catch (e) {
-        log.error(`Failed to parse attendees for events `);
+        logger.error(`Failed to parse attendees for events `);
         throw new Error(`Failed to parse attendees for events`);
       }
     } catch (err) {
-      log.error(`Failed to get events - ${err}`);
+      logger.error(`Failed to get events - ${err}`);
       throw err;
     }
   }
 
   async getEvent(key: string): Promise<EventEntity> {
-    log.debug(`Getting event with key: ${key}`);
+    logger.debug(`Getting event with key: ${key}`);
     try {
       const event = await this.knex("event").where({ key }).first();
       if (event) {
         try {
           return { ...event, attendees: JSON.parse(event.attendees) };
         } catch (e) {
-          log.error(`Failed to parse attendees for event with key: ${key}`);
+          logger.error(`Failed to parse attendees for event with key: ${key}`);
           throw new Error(
             `Failed to parse attendees for event with key: ${key}`
           );
         }
       }
-      log.error("Failed to get event without error");
+      logger.error("Failed to get event without error");
       throw new Error("Failed to get event without error");
     } catch (err) {
-      log.error(`Failed to get event with key: ${key} - ${err}`);
+      logger.error(`Failed to get event with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async getEventsByCalendar(calendarKey: string): Promise<EventEntity[]> {
-    log.debug(`Getting events with calendar key: ${calendarKey}`);
+    logger.debug(`Getting events with calendar key: ${calendarKey}`);
     try {
       const events = await this.knex("event").where({ calendarKey });
       if (!events) {
-        log.error(`Failed to get events with calendar key: ${calendarKey}`);
+        logger.error(`Failed to get events with calendar key: ${calendarKey}`);
         throw new Error(
           `Failed to get events with calendar key: ${calendarKey}`
         );
@@ -2311,7 +2326,7 @@ class AppDatabase extends SQLDataSource {
           attendees: JSON.parse(e.attendees),
         }));
       } catch (e) {
-        log.error(
+        logger.error(
           `Failed to parse attendees for events from calendar: ${calendarKey}: ${e}`
         );
         throw new Error(
@@ -2319,7 +2334,7 @@ class AppDatabase extends SQLDataSource {
         );
       }
     } catch (err) {
-      log.error(
+      logger.error(
         `Failed to get events with calendar key: ${calendarKey} - ${err}`
       );
       throw err;
@@ -2327,16 +2342,16 @@ class AppDatabase extends SQLDataSource {
   }
 
   async getEventsForActiveCalendar(): Promise<EventEntity[] | null> {
-    log.debug("Getting events for active calendar");
+    logger.debug("Getting events for active calendar");
     try {
       const activeCalendar = await this.getActiveCalendar();
       if (!activeCalendar) {
-        log.warn(`Failed to get events because there's no active calendar`);
+        logger.warn(`Failed to get events because there's no active calendar`);
         return null;
       }
       return await this.getEventsByCalendar(activeCalendar.key);
     } catch (err) {
-      log.error(`Failed to get events for active calendar - ${err}`);
+      logger.error(`Failed to get events for active calendar - ${err}`);
       throw err;
     }
   }
@@ -2353,7 +2368,7 @@ class AppDatabase extends SQLDataSource {
     attendees: AttendeeInput[] | null,
     recurrence: string
   ): Promise<EventEntity> {
-    log.debug(
+    logger.debug(
       `Creating event with key: ${key}, title: ${title}, description: ${description}, startAt: ${startAt}, endAt: ${endAt}, allDay: ${allDay}, calendarKey: ${calendarKey}, location: ${location}, attendees: ${attendees}, recurrence: ${recurrence}`
     );
     try {
@@ -2376,20 +2391,20 @@ class AppDatabase extends SQLDataSource {
       if (insertedId) {
         return await this.getEvent(key);
       }
-      log.error("Failed to create event without error");
+      logger.error("Failed to create event without error");
       throw new Error("Failed to create event");
     } catch (err) {
-      log.error(`Failed to create event with key: ${key} - ${err}`);
+      logger.error(`Failed to create event with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async deleteEvent(key: string): Promise<string> {
-    log.debug(`Deleting event with key: ${key}`);
+    logger.debug(`Deleting event with key: ${key}`);
     try {
       return await this.knex("event").where({ key }).del();
     } catch (err) {
-      log.error(`Failed to delete event with key: ${key} - ${err}`);
+      logger.error(`Failed to delete event with key: ${key} - ${err}`);
       throw err;
     }
   }
@@ -2397,26 +2412,26 @@ class AppDatabase extends SQLDataSource {
   /* Weekly goal */
 
   async getWeeklyGoals(): Promise<WeeklyGoalEntity[]> {
-    log.debug(`Getting weekly goals`);
+    logger.debug(`Getting weekly goals`);
     return this.knex("weeklyGoal").select("*");
   }
 
   async getWeeklyGoal(key: string): Promise<WeeklyGoalEntity> {
-    log.debug(`Getting weekly goal with key: ${key}`);
+    logger.debug(`Getting weekly goal with key: ${key}`);
     try {
       return await this.knex("weeklyGoal").where({ key }).first();
     } catch (err) {
-      log.error(`Failed to get weekly goal with key: ${key} - ${err}`);
+      logger.error(`Failed to get weekly goal with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async getWeeklyGoalByName(name: string): Promise<WeeklyGoalEntity> {
-    log.debug(`Getting weekly goal with name: ${name}`);
+    logger.debug(`Getting weekly goal with name: ${name}`);
     try {
       return await this.knex("weeklyGoal").where({ name }).first();
     } catch (err) {
-      log.error(`Failed to get weekly goal with name: ${name} - ${err}`);
+      logger.error(`Failed to get weekly goal with name: ${name} - ${err}`);
       throw err;
     }
   }
@@ -2426,7 +2441,7 @@ class AppDatabase extends SQLDataSource {
     week: string,
     goal: string
   ): Promise<WeeklyGoalEntity> {
-    log.debug(
+    logger.debug(
       `Creating weekly goal with key: ${key}, week: ${week}, goal: ${goal}`
     );
     try {
@@ -2441,10 +2456,10 @@ class AppDatabase extends SQLDataSource {
       if (createdId) {
         return await this.getWeeklyGoal(key);
       }
-      log.error("Failed to create weekly goal without error");
+      logger.error("Failed to create weekly goal without error");
       throw new Error("Failed to create weekly goal");
     } catch (err) {
-      log.error(`Failed to create weekly goal with key: ${key} - ${err}`);
+      logger.error(`Failed to create weekly goal with key: ${key} - ${err}`);
       throw err;
     }
   }

@@ -3,12 +3,12 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { loadFiles } from "@graphql-tools/load-files";
 import { GraphQLError } from "graphql";
-import pino from "pino";
 import * as sqlite from "sqlite";
 import * as sqlite3 from "sqlite3";
 import { GRAPHQL_PORT, SECRET, USER_GQL_OPERATIONS } from "../consts";
 import { AppDatabase, UserDatabase } from "./database/index";
 import resolvers from "./resolvers";
+const logger = require("./logger");
 var bodyParser = require("body-parser");
 var cors = require("cors");
 var http = require("http");
@@ -16,15 +16,13 @@ import express = require("express");
 const fileUpload = require("express-fileupload");
 const jwt = require("jsonwebtoken");
 import path = require("path");
-const log = pino({
-  transport: {
-    target: "pino-pretty",
-  },
-});
 
 const isDev =
   process.env.NODE_ENV === "development" || process.env.DEBUG_PROD === "true";
-log.info(`Running in ${isDev ? "development" : "production"}`);
+logger.log({
+  level: "debug",
+  message: `Running in ${isDev ? "development" : "production"}`,
+});
 
 let appDb: AppDatabase;
 let userDb: UserDatabase;
@@ -55,6 +53,7 @@ const userDbConfig = {
   useNullAsDefault: true,
 };
 const app = express();
+
 app.use(
   fileUpload({
     createParentPath: true,
@@ -70,7 +69,7 @@ userDb = new UserDatabase(userDbConfig);
 const startApolloServer = async () => {
   const schemasPath = path.join(__dirname, "./schemas/");
 
-  log.info(`Loading schemas from: ${schemasPath}`);
+  logger.info(`Loading schemas from: ${schemasPath}`);
   try {
     const typeDefs = await loadFiles(`${schemasPath}*.graphql`);
     const server = new ApolloServer({
@@ -90,16 +89,16 @@ const startApolloServer = async () => {
       const uploadPath = path.join(__dirname, `../databases/${key}.db`);
 
       if (Array.isArray(backupFile)) {
-        log.error("Multiple files sent for backup");
+        logger.error("Multiple files sent for backup");
         return res.status(400).send("Bad request - multiple files uploaded");
       }
 
       try {
         await backupFile.mv(uploadPath);
-        log.info(`Successfully moved backup with key - ${key}`);
+        logger.info(`Successfully moved backup with key - ${key}`);
         return res.status(200).send("OK");
       } catch (err) {
-        log.error(`Failed to move file - ${err}`);
+        logger.error(`Failed to move file - ${err}`);
         return res.status(500).send("Internal server error");
       }
     });
@@ -148,7 +147,7 @@ const startApolloServer = async () => {
             try {
               appDb = new AppDatabase(appDbConfig);
             } catch (e) {
-              log.error(`Failed to create database - ${e}`);
+              logger.error(`Failed to create database - ${e}`);
               throw new GraphQLError("Failed to create database for user");
             }
 
@@ -162,15 +161,15 @@ const startApolloServer = async () => {
     await new Promise<void>((resolve) =>
       httpServer.listen({ port: GRAPHQL_PORT }, resolve)
     );
-    log.info(`🚀 Server ready at http://localhost:${GRAPHQL_PORT}/`);
+    logger.info(`🚀 Server ready at http://localhost:${GRAPHQL_PORT}/`);
   } catch (err) {
-    log.error(`😢 Server startup failed listening: ${err}`);
+    logger.error(`😢 Server startup failed listening: ${err}`);
     return;
   }
 };
 
 const runUserMigrations = async (dbPath: string) => {
-  log.info(`Loading database at: ${dbPath}`);
+  logger.info(`Loading database at: ${dbPath}`);
 
   const userDb = await sqlite.open({
     filename: dbPath,
@@ -180,18 +179,18 @@ const runUserMigrations = async (dbPath: string) => {
   await userDb.run("PRAGMA foreign_keys=on");
   const userMigrationsPath = path.join(__dirname, "./migrations/user");
 
-  log.info(`Loading migrations at: ${userMigrationsPath}`);
+  logger.info(`Loading migrations at: ${userMigrationsPath}`);
   try {
     await userDb.migrate({
       migrationsPath: userMigrationsPath,
     });
   } catch (e) {
-    log.error({ error: e }, "Failed to migrate");
+    logger.error(`Failed to migrate - ${e.message}`);
   }
 };
 
 export const runAppMigrations = async (dbPath: string) => {
-  log.info(`Loading database at: ${dbPath}`);
+  logger.info(`Loading database at: ${dbPath}`);
 
   const appDb = await sqlite.open({
     filename: dbPath,
@@ -201,16 +200,16 @@ export const runAppMigrations = async (dbPath: string) => {
   await appDb.run("PRAGMA foreign_keys=on");
   const appMigrationsPath = path.join(__dirname, "./migrations");
 
-  log.info(`Loading migrations at: ${appMigrationsPath}`);
+  logger.info(`Loading migrations at: ${appMigrationsPath}`);
   try {
     await appDb.migrate({
       migrationsPath: appMigrationsPath,
     });
   } catch (e) {
-    log.error({ error: e }, "Failed to migrate");
+    logger.error(`Failed to migrate - ${e.message}`);
   }
 
-  log.info("App migrations complete");
+  logger.info("App migrations complete");
 };
 
 const startApp = async () => {

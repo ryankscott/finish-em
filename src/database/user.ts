@@ -1,41 +1,36 @@
 import { SQLDataSource } from "datasource-sql";
 var bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-import pino from "pino";
+const logger = require("../logger");
 import { SECRET } from "../../consts";
 import { runAppMigrations } from "../main";
 import { UserEntity } from "./types/user";
-const log = pino({
-  transport: {
-    target: "pino-pretty",
-  },
-});
 
 class UserDatabase extends SQLDataSource {
   async getUserByEmail({ email }: { email: string }) {
-    log.debug(`Getting user by email`);
+    logger.debug(`Getting user by email`);
     try {
       const user = await this.knex("user").where({ email }).first();
       return user;
     } catch (err) {
-      log.error(`Failed to get user with email - ${err}`);
+      logger.error(`Failed to get user with email - ${err}`);
       throw err;
     }
   }
 
   async getUser(key: string): Promise<UserEntity> {
-    log.debug(`Getting user with key: ${key}`);
+    logger.debug(`Getting user with key: ${key}`);
     try {
       const user = await this.knex("user").where({ key }).first();
       return user;
     } catch (err) {
-      log.error(`Failed to get user with key: ${key} - ${err}`);
+      logger.error(`Failed to get user with key: ${key} - ${err}`);
       throw err;
     }
   }
 
   async createUser(key: string, email: string, password: string, name: string) {
-    log.debug("Creating user");
+    logger.debug("Creating user");
     try {
       const insertedId = await this.knex("user").insert({
         key,
@@ -51,10 +46,10 @@ class UserDatabase extends SQLDataSource {
 
         return await this.getUser(key);
       }
-      log.error(`Failed to create user`);
+      logger.error(`Failed to create user`);
       throw new Error("Failed to create user");
     } catch (e) {
-      log.error(`Failed to create user - ${e}`);
+      logger.error(`Failed to create user - ${e}`);
       throw e;
     }
   }
@@ -75,7 +70,7 @@ class UserDatabase extends SQLDataSource {
       );
       return { email: user.email, key: user.key, token };
     } catch (e) {
-      log.error("Failed to login user - no user with that email");
+      logger.error("Failed to login user - no user with that email");
       throw e;
     }
   }

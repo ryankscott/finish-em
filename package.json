@@ -45,13 +45,12 @@
     "jsonwebtoken": "^9.0.0",
     "knex": "^2.3.0",
     "lodash": "^4.17.21",
-    "pino": "^8.8.0",
-    "pino-pretty": "^9.1.1",
     "react-querybuilder": "^5.2.0",
     "rrule": "^2.7.1",
     "sqlite": "^4.1.2",
     "sqlite3": "^5.1.4",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",

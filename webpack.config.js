@@ -14,11 +14,6 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.js$/,
-        loader: "source-map-loader",
-        exclude: [/node_modules/, /build/, /__test__/],
-      },
-      {
         test: /\.ts$/,
         exclude: [/node_modules/, /build/, /__test__/],
         loader: "ts-loader",

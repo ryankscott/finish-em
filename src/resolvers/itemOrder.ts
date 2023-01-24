@@ -1,10 +1,5 @@
 import { Resolvers } from "../resolvers-types";
-import pino from "pino";
-const log = pino({
-  transport: {
-    target: "pino-pretty",
-  },
-});
+const logger = require("../logger");
 
 const itemOrder: Partial<Resolvers> = {
   ItemOrder: {
@@ -47,7 +42,7 @@ const itemOrder: Partial<Resolvers> = {
     bulkCreateItemOrders(_, { input }, { dataSources }) {
       const { itemKeys, componentKey } = input;
       if (!itemKeys) {
-        log.error(`Can't bulk create itemOrdres as itemKeys is missing`);
+        logger.error(`Can't bulk create itemOrdres as itemKeys is missing`);
         throw new Error(`Can't bulk create itemOrdres as itemKeys is missing`);
       }
       return dataSources.appDb.bulkCreateItemOrders(
