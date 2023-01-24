@@ -23,7 +23,6 @@ import colormap from 'colormap';
 import { Calendar, Feature, Label } from 'main/resolvers-types';
 import { ReactElement, useEffect, useState } from 'react';
 import { Icons } from 'renderer/assets/icons';
-import { AppState, useAppStore } from 'renderer/state';
 import { v4 as uuidv4 } from 'uuid';
 import {
   CREATE_LABEL,
@@ -61,11 +60,6 @@ const generateOptions = (
 };
 
 const Settings = (): ReactElement => {
-  const [serverUrl, setServerUrl] = useAppStore((state: AppState) => [
-    state.serverUrl,
-    state.setServerUrl,
-  ]);
-
   const { colorMode } = useColorMode();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const { loading, error, data } = useQuery(GET_SETTINGS);

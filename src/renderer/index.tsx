@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { ApolloProvider, ApolloClient, ApolloLink } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { BrowserRouter } from 'react-router-dom';
 import App from './components/App';
