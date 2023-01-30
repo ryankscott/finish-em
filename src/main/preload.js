@@ -24,6 +24,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     getSettings: () => ipcRenderer.invoke('get-settings'),
 
+    getSignedInUser: () => ipcRenderer.invoke('get-signedin-user'),
+
     openDialog: (options) => ipcRenderer.invoke('open-dialog', options),
   },
 });

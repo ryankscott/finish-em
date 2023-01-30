@@ -1,29 +1,28 @@
-import { ReactElement, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@apollo/client';
-import { sortBy } from 'lodash';
 import {
   Flex,
-  Grid,
+  Icon,
   IconButton,
   Tooltip,
-  useTheme,
-  GridItem,
-  Icon,
   useColorMode,
+  useTheme,
 } from '@chakra-ui/react';
+import { sortBy } from 'lodash';
+import { Item, Project } from 'main/resolvers-types';
+import { ReactElement, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Icons } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
-import CommandBar from './CommandBar';
-import {
-  removeItemTypeFromString,
-  markdownLinkRegex,
-  markdownBasicRegex,
-} from '../utils';
-import Select from './Select';
-import { Item, Project } from 'main/resolvers-types';
 import { useAppStore } from 'renderer/state';
+import {
+  markdownBasicRegex,
+  markdownLinkRegex,
+  removeItemTypeFromString,
+} from '../utils';
+import AccountMenu from './AccountMenu';
+import CommandBar from './CommandBar';
+import Select from './Select';
 
 type OptionType = { label: string; value: () => void };
 
@@ -153,16 +152,6 @@ const Headerbar = (): ReactElement => {
           <CommandBar />
         </HeaderItem>
 
-        {cloudSyncEnabled && (
-          <HeaderItem>
-            <HeaderButton
-              label={'Cloud sync enabled'}
-              icon={'cloud' as IconType}
-              iconColour={theme.colors.gray[100]}
-              onClickHandler={() => {}}
-            />
-          </HeaderItem>
-        )}
         <HeaderItem>
           <HeaderButton
             label="Give feedback"
@@ -184,6 +173,12 @@ const Headerbar = (): ReactElement => {
             onClickHandler={toggleColorMode}
           />
         </HeaderItem>
+
+        {cloudSyncEnabled && (
+          <HeaderItem>
+            <AccountMenu />
+          </HeaderItem>
+        )}
       </Flex>
     </Flex>
   );

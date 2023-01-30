@@ -5,6 +5,7 @@ import ReorderableComponentList from './ReorderableComponentList';
 import Project from './Project';
 import Area from './Area';
 import Page from './Page';
+import Spinner from './Spinner';
 
 type ViewProps = {
   viewKey: string;
@@ -28,7 +29,7 @@ const View = ({ viewKey }: ViewProps): ReactElement => {
       key: viewKey,
     },
   });
-  if (loading) return <></>;
+  if (loading) return <Spinner />;
   if (error) {
     console.log(error);
     return <></>;

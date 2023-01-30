@@ -4,11 +4,10 @@ import { Flex, Spinner as CSpinner } from '@chakra-ui/react';
 const Spinner = (): ReactElement => {
   return (
     <Flex
-      direction="row"
+      direction="column"
       justifyContent="center"
-      alignContent="center"
-      py={8}
-      px={0}
+      alignItems="center"
+      h="100%"
     >
       <CSpinner color="blue.500" />
     </Flex>

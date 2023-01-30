@@ -6,6 +6,7 @@ const LoadingItem = () => {
     <Box
       my={1}
       mx={0}
+      px={2}
       w="100%"
       height="60px"
       borderRadius="md"

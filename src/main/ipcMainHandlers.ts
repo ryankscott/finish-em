@@ -112,6 +112,11 @@ const registerIPCHandlers = ({
     return store.store;
   });
 
+  ipcMain.handle('get-signedin-user', () => {
+    log.info('Getting signedin user');
+    return store.store.cloudSync;
+  });
+
   ipcMain.handle('open-dialog', (_, options) => {
     log.info('Opening dialog');
     return dialog.showOpenDialogSync(options);

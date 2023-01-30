@@ -21,6 +21,7 @@ import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
 import { Reminder } from '../../main/resolvers-types';
 import { AppState, useAppStore } from 'renderer/state';
+import { setLinkURL } from '../client';
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
@@ -45,6 +46,16 @@ const App = (): ReactElement => {
     state.sidebarVisible,
     state.setSidebarVisible,
   ]);
+
+  useEffect(() => {
+    window.electronAPI.ipcRenderer.getSettings().then((settings) => {
+      const { cloudSync } = settings;
+      if (cloudSync?.enabled) {
+        setLinkURL('server');
+        localStorage.setItem('token', cloudSync.token);
+      }
+    });
+  });
 
   useEffect(() => {
     // Handle Electron events

@@ -1,6 +1,7 @@
 import { IconType as RIconType } from 'react-icons';
 import { BiSortAlt2 } from 'react-icons/bi';
 import {
+  FiUser,
   FiArrowLeft,
   FiArrowRight,
   FiArrowRightCircle,
@@ -117,4 +118,5 @@ export const Icons: Record<IconType, RIconType> = {
   snooze: RiZzzFill,
   zen: GiFocusedLightning,
   cloud: MdOutlineCloudDone,
+  avatar: FiUser,
 };
