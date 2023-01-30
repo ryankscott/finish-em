@@ -6,6 +6,15 @@ import App from './components/App';
 import theme from './theme';
 import { client, setLinkURL } from './client';
 
+const getSettings = async () => {
+  const settings = await window.electronAPI.ipcRenderer.getSettings();
+  const { cloudSync } = settings;
+  if (cloudSync?.enabled) {
+    setLinkURL('server');
+    localStorage.setItem('token', cloudSync.token);
+  }
+};
+getSettings();
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(

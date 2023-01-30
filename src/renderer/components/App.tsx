@@ -47,15 +47,7 @@ const App = (): ReactElement => {
     state.setSidebarVisible,
   ]);
 
-  useEffect(() => {
-    window.electronAPI.ipcRenderer.getSettings().then((settings) => {
-      const { cloudSync } = settings;
-      if (cloudSync?.enabled) {
-        setLinkURL('server');
-        localStorage.setItem('token', cloudSync.token);
-      }
-    });
-  });
+  const { loading, error, data, refetch } = useQuery(GET_APP_DATA);
 
   useEffect(() => {
     // Handle Electron events
@@ -98,7 +90,6 @@ const App = (): ReactElement => {
     });
   }, []);
 
-  const { loading, error, data } = useQuery(GET_APP_DATA);
   if (loading) return <></>;
   if (error) {
     console.log(error);
