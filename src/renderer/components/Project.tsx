@@ -7,6 +7,7 @@ import {
   Flex,
   Grid,
   GridItem,
+  Spinner,
   Text,
   Tooltip,
   useColorMode,
@@ -74,7 +75,20 @@ const Project = ({ projectKey }: ProjectProps) => {
   if (loading) return null;
   if (error) {
     console.log(error);
-    return null;
+    return (
+      <Flex
+        w="100%"
+        p={1}
+        mx={0}
+        alignItems="center"
+        alignContent="center"
+        justifyContent="center"
+      >
+        <Text fontSize="md" color="red.500">
+          Failed to load project {error ? `- ${error.message}` : ''}
+        </Text>
+      </Flex>
+    );
   }
   const { project, projects, projectDates } = projectData;
   const allItems: Item[] = project?.items;

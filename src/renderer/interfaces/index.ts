@@ -54,7 +54,8 @@ export type IconType =
   | 'lightMode'
   | 'snooze'
   | 'zen'
-  | 'cloud';
+  | 'cloud'
+  | 'avatar';
 
 export enum ItemIcons {
   Due = 'due',

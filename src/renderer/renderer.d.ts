@@ -19,6 +19,7 @@ export interface IElectronAPI {
     createBearNote: (title: string, contents: string) => void;
     toggleFeature: (name: string, enabled: boolean) => void;
     getSettings: () => Promise<Record<string, string>>;
+    getSignedInUser: () => Promise<Record<string, string>>;
     setSetting: (name: string, contents: string) => Promise<void>;
     closeQuickAdd: () => void;
     backupToCloud: (key: string) => Promise<boolean>;

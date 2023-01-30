@@ -9,18 +9,17 @@ const FailedItem = ({ reason }: FailedItemPropTypes) => (
     w="100%"
     p={1}
     mx={0}
-    my={1}
+    minH="40px"
     alignItems="center"
     cursor="pointer"
     borderRadius="md"
     alignContent="center"
     justifyContent="center"
     bg="red.100"
-    border="1px solid"
     borderColor="red.400"
   >
     <Text fontSize="md" color="red.500">
-      r Failed to load item - ${reason}
+      Failed to load item {reason ? `- ${reason}` : ''}
     </Text>
   </Flex>
 );
