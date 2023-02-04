@@ -42,7 +42,7 @@ class UserDatabase extends SQLDataSource {
       });
       if (insertedId) {
         /* Create an app database and migrate */
-        await runAppMigrations(`./databases/${key}.db`);
+        await runAppMigrations(`./data/${key}.db`);
 
         return await this.getUser(key);
       }

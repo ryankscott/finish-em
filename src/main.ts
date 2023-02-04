@@ -29,12 +29,12 @@ let userDb: UserDatabase;
 
 const determineAppDatabasePath = (): string => {
   // TODO: Work out where to put this in nodejs
-  return "./databases/finish_em.db";
+  return "/databases/finish_em.db";
 };
 
 const determineUserDatabasePath = (): string => {
   // TODO: Work out where to put this in nodejs
-  return "./databases/user.db";
+  return "/databases/user.db";
 };
 
 const appDbConfig = {
@@ -86,7 +86,7 @@ const startApolloServer = async () => {
 
       const { key } = req.body;
       const backupFile = req.files.file;
-      const uploadPath = path.join(__dirname, `../databases/${key}.db`);
+      const uploadPath = `/databases/${key}.db`;
 
       if (Array.isArray(backupFile)) {
         logger.error("Multiple files sent for backup");
@@ -140,7 +140,7 @@ const startApolloServer = async () => {
             const appDbConfig = {
               client: "sqlite3",
               connection: {
-                filename: `./databases/${user.key}.db`,
+                filename: `/databases/${user.key}.db`,
               },
               useNullAsDefault: true,
             };
@@ -169,7 +169,7 @@ const startApolloServer = async () => {
 };
 
 const runUserMigrations = async (dbPath: string) => {
-  logger.info(`Loading database at: ${dbPath}`);
+  logger.info(`Running user migrations on: ${dbPath}`);
 
   const userDb = await sqlite.open({
     filename: dbPath,
@@ -179,7 +179,7 @@ const runUserMigrations = async (dbPath: string) => {
   await userDb.run("PRAGMA foreign_keys=on");
   const userMigrationsPath = path.join(__dirname, "./migrations/user");
 
-  logger.info(`Loading migrations at: ${userMigrationsPath}`);
+  logger.info(`Loading user migrations at: ${userMigrationsPath}`);
   try {
     await userDb.migrate({
       migrationsPath: userMigrationsPath,
@@ -187,10 +187,12 @@ const runUserMigrations = async (dbPath: string) => {
   } catch (e) {
     logger.error(`Failed to migrate - ${e.message}`);
   }
+
+  logger.info("User migrations complete");
 };
 
 export const runAppMigrations = async (dbPath: string) => {
-  logger.info(`Loading database at: ${dbPath}`);
+  logger.info(`Running app migrations on: ${dbPath}`);
 
   const appDb = await sqlite.open({
     filename: dbPath,
@@ -200,7 +202,7 @@ export const runAppMigrations = async (dbPath: string) => {
   await appDb.run("PRAGMA foreign_keys=on");
   const appMigrationsPath = path.join(__dirname, "./migrations");
 
-  logger.info(`Loading migrations at: ${appMigrationsPath}`);
+  logger.info(`Loading migrations from: ${appMigrationsPath}`);
   try {
     await appDb.migrate({
       migrationsPath: appMigrationsPath,
