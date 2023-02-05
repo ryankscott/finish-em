@@ -257,7 +257,11 @@ export const backup = async () => {
 };
 
 const startApp = async () => {
-  const cloudSync = store.get('cloudSync');
+  const cloudSync = store.get('cloudSync', {
+    enabled: false,
+    email: '',
+    token: '',
+  });
   const { enabled } = cloudSync;
   if (!enabled) {
     await runMigrations();
@@ -280,6 +284,7 @@ const startApp = async () => {
       }, CAL_SYNC_INTERVAL);
     }
   }
+  log.info('Cloud sync enabled - GQL server not starting');
 };
 
 startApp();

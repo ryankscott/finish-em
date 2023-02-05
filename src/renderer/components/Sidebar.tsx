@@ -25,7 +25,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { Area, Project, View } from '../../main/resolvers-types';
 import { IconType } from '../interfaces';
-import { AppState, useAppStore } from '../state';
+import { AppState, useBoundStore } from '../state';
 import { SidebarAddAreaButton } from './SidebarAddAreaButton';
 import { SidebarAddProjectButton } from './SidebarAddProjectButton';
 import SidebarDraggableItem from './SidebarDraggableItem';
@@ -65,7 +65,7 @@ const Sidebar = (): ReactElement => {
   const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
   const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
   const [sortedViews, setSortedViews] = useState<View[]>([]);
-  const [sidebarVisible] = useAppStore((state: AppState) => [
+  const [sidebarVisible] = useBoundStore((state: AppState) => [
     state.sidebarVisible,
     state.setSidebarVisible,
   ]);

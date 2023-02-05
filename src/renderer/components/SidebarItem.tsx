@@ -5,7 +5,7 @@ import { IconType } from '../interfaces';
 import { Icons } from '../assets/icons';
 import { createShortSidebarItem } from '../utils';
 import EmojiDisplay from './EmojiDisplay';
-import { AppState, useAppStore } from 'renderer/state';
+import { AppState, useBoundStore } from 'renderer/state';
 
 type SidebarItemProps = {
   variant: 'defaultView' | 'customView';
@@ -27,7 +27,7 @@ const SidebarItem = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [isActive, setIsActive] = useState(false);
-  const [sidebarVisible] = useAppStore((state: AppState) => [
+  const [sidebarVisible] = useBoundStore((state: AppState) => [
     state.sidebarVisible,
   ]);
 

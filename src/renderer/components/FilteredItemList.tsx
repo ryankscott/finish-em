@@ -18,7 +18,7 @@ import { ItemIcons } from '../interfaces';
 import EditFilteredItemList from './EditFilteredItemList';
 import ReorderableItemList from './ReorderableItemList';
 import SortDropdown, { SortDirectionEnum } from './SortDropdown';
-import { useAppStore } from 'renderer/state';
+import { useBoundStore } from 'renderer/state';
 
 const determineVisibilityRules = (
   isFilterable: boolean,
@@ -88,7 +88,7 @@ const FilteredItemList = ({
   );
   const [showItemList, setShowItemList] = useState(true);
   const [itemsLength, setItemsLength] = useState<number>(0);
-  const [setSubtaskVisibilityForComponent] = useAppStore((state: AppState) => [
+  const [setSubtaskVisibilityForComponent] = useBoundStore((state: AppState) => [
     state.setSubtaskVisibilityForComponent,
   ]);
 

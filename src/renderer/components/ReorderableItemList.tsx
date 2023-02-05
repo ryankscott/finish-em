@@ -24,7 +24,7 @@ import Pagination from './Pagination';
 import { SortDirectionEnum, SortOption } from './SortDropdown';
 import { isFuture, parseISO } from 'date-fns';
 import { useColorMode } from '@chakra-ui/react';
-import { AppState, useAppStore } from 'renderer/state';
+import { AppState, useBoundStore } from 'renderer/state';
 
 type ReorderableItemListProps = {
   componentKey: string;
@@ -64,7 +64,7 @@ function ReorderableItemList({
     DELETE_ITEM_ORDERS_BY_COMPONENT
   );
 
-  const [createSubtaskVisibilityIfDoesntExist] = useAppStore(
+  const [createSubtaskVisibilityIfDoesntExist] = useBoundStore(
     (state: AppState) => [state.createSubtaskVisibilityIfDoesntExist]
   );
 

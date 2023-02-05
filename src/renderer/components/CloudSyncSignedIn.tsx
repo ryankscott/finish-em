@@ -10,7 +10,6 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import CloudIcon from './CloudIcon';
-import { setLinkURL } from '../client';
 
 interface CloudSyncSignedInProps {
   onClose: () => void;
@@ -26,8 +25,7 @@ const CloudSyncSignedIn = ({ onClose, email }: CloudSyncSignedInProps) => {
         <Flex direction="column" my={2} mt={8}>
           <CloudIcon />
           <Text fontSize="lg" my={2} w="100%" justifyContent="center">
-            You're signed in to Finish Em cloud sync with the following email
-            address
+            You're signed in to Finish-em Cloud with the following email address
           </Text>
 
           <Input
@@ -49,7 +47,7 @@ const CloudSyncSignedIn = ({ onClose, email }: CloudSyncSignedInProps) => {
             toast({
               title: 'Signed out.',
               variant: 'subtle',
-              description: 'Successfully out of Finish Em Cloud.',
+              description: 'Successfully signed out of Finish-em Cloud.',
               status: 'success',
               duration: 9000,
               isClosable: true,
@@ -62,8 +60,6 @@ const CloudSyncSignedIn = ({ onClose, email }: CloudSyncSignedInProps) => {
             });
 
             localStorage.setItem('token', '');
-
-            setLinkURL('local');
 
             window.electronAPI.ipcRenderer.restartApp();
           }}

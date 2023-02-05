@@ -18,7 +18,7 @@ import {
   SET_PROJECT,
   SET_SCHEDULED_AT,
 } from 'renderer/queries';
-import { AppState, useAppStore } from 'renderer/state';
+import { AppState, useBoundStore } from 'renderer/state';
 import DatePicker from './DatePicker';
 import ProjectSelect from './ProjectSelect';
 
@@ -35,7 +35,7 @@ const ActionBar = () => {
     refetchQueries: [ITEMS_BY_FILTER, WEEKLY_ITEMS],
   });
 
-  const [activeItemIds, setActiveItemIds, setFocusbarVisible] = useAppStore(
+  const [activeItemIds, setActiveItemIds, setFocusbarVisible] = useBoundStore(
     (state: AppState) => [
       state.activeItemIds,
       state.setActiveItemIds,

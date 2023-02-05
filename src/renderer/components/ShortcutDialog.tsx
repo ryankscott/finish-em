@@ -7,15 +7,12 @@ import {
   ModalCloseButton,
   ModalHeader,
 } from '@chakra-ui/react';
-import { AppState, useAppStore } from 'renderer/state';
+import { useBoundStore } from 'renderer/state';
 import shortcutsText from '../assets/shortcuts.md';
 
 const ShortcutDialog = () => {
-  const [shortcutDialogVisible, setShortcutDialogVisible] = useAppStore(
-    (state: AppState) => [
-      state.shortcutDialogVisible,
-      state.setShortcutDialogVisible,
-    ]
+  const [shortcutDialogVisible, setShortcutDialogVisible] = useBoundStore(
+    (state) => [state.shortcutDialogVisible, state.setShortcutDialogVisible]
   );
   return (
     <Modal

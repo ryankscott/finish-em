@@ -1,4 +1,5 @@
 import { IpcRendererEvent } from 'electron';
+import { StoreSchema } from 'main/settings';
 
 interface FileFilter {
   name: string;
@@ -18,7 +19,7 @@ export interface IElectronAPI {
   ipcRenderer: {
     createBearNote: (title: string, contents: string) => void;
     toggleFeature: (name: string, enabled: boolean) => void;
-    getSettings: () => Promise<Record<string, string>>;
+    getSettings: () => Promise<StoreSchema>;
     getSignedInUser: () => Promise<Record<string, string>>;
     setSetting: (name: string, contents: string) => Promise<void>;
     closeQuickAdd: () => void;

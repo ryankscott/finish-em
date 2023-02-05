@@ -1,15 +1,11 @@
-import create from 'zustand';
+import { StateCreator } from 'zustand';
 
-interface State {
+export interface UISlice {
   activeItemIds: string[];
   focusbarVisible: boolean;
   sidebarVisible: boolean;
   visibleSubtasks: Record<string, Record<string, boolean>>;
   shortcutDialogVisible: boolean;
-  serverUrl: string;
-}
-
-interface Actions {
   setActiveItemIds: (activeItemIds: string[]) => void;
   setFocusbarVisible: (visible: boolean) => void;
   setSidebarVisible: (visible: boolean) => void;
@@ -30,20 +26,17 @@ interface Actions {
     componentKey: string,
     visible: boolean
   ) => void;
-  setServerUrl: (url: string) => void;
 }
-export type AppState = State & Actions;
 
-const initialState: State = {
+const initialState = {
   activeItemIds: [],
   focusbarVisible: false,
   sidebarVisible: true,
   visibleSubtasks: {},
   shortcutDialogVisible: false,
-  serverUrl: 'http://localhost:4000',
 };
 
-export const useAppStore = create<AppState>((set) => ({
+export const createUISlice: StateCreator<UISlice> = (set) => ({
   ...initialState,
   setActiveItemIds: (activeItemIds) =>
     set(() => ({ activeItemIds: activeItemIds })),
@@ -124,6 +117,4 @@ export const useAppStore = create<AppState>((set) => ({
         visibleSubtasks: Object.fromEntries(newVisibility),
       };
     }),
-
-  setServerUrl: (url) => set(() => ({ serverUrl: url })),
-}));
+});

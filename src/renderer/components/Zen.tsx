@@ -2,10 +2,10 @@ import { Flex } from '@chakra-ui/react';
 import { ReactElement } from 'react';
 import Item from './Item';
 import Page from './Page';
-import { useAppStore, AppState } from 'renderer/state';
+import { useBoundStore, AppState } from 'renderer/state';
 
 const Zen = (): ReactElement => {
-  const [activeItemIds] = useAppStore((state: AppState) => [
+  const [activeItemIds] = useBoundStore((state: AppState) => [
     state.activeItemIds,
   ]);
   return (

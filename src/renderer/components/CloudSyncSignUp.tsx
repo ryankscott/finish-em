@@ -81,7 +81,7 @@ const CloudSyncSignUp = ({ onClose, setMode }: CloudSyncSignUpProps) => {
     toast({
       title: 'Failed to create account.',
       variant: 'subtle',
-      description: `Something went wrong when creating your account - ${error.message}.`,
+      description: `Something went wrong when creating your account`,
       status: 'error',
       duration: 9000,
       isClosable: true,

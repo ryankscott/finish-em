@@ -9,11 +9,11 @@ import {
   ModalCloseButton,
   ModalContent,
   ModalFooter,
+  Switch,
   Text,
   useToast,
 } from '@chakra-ui/react';
 import { useState } from 'react';
-import { setLinkURL } from '../client';
 import { LOGIN_USER } from '../queries';
 import { emailRegex } from '../utils';
 import CloudIcon from './CloudIcon';
@@ -28,12 +28,13 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
   const [email, setEmail] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [password, setPassword] = useState('');
+  const [shouldSync, setShouldSync] = useState(true);
   const [backedUp, setBackedUp] = useState(false);
   const [loginUser, { data, loading, error }] = useMutation(LOGIN_USER);
 
   const toast = useToast();
 
-  if (data) {
+  if (data && !loading) {
     toast({
       title: 'Signed in.',
       variant: 'subtle',
@@ -53,12 +54,11 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
 
     localStorage.setItem('token', token);
 
-    window.electronAPI.ipcRenderer
-      .backupToCloud(key)
-      .then(() => setBackedUp(true));
-
-    setLinkURL('server');
-
+    if (shouldSync) {
+      window.electronAPI.ipcRenderer
+        .backupToCloud(key)
+        .then(() => setBackedUp(true));
+    }
     return (
       <ModalContent>
         <ModalCloseButton />
@@ -67,13 +67,14 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
             <CloudIcon />
             <Flex w="100%" alignItems="center" direction="column" py={4}>
               <Text fontSize="lg" mb={4}>
-                Finish em will now synchronise your data with the Cloud. Once
-                completed you can restart to start using Finish em Cloud.
+                {shouldSync
+                  ? 'Finish-em will now synchronise your data with the cloud. Once completed you can restart to start using Finish-em Cloud'
+                  : 'Please restart Finish-em to start using cloud sync.'}
               </Text>
 
               <Button
-                isLoading={!backedUp}
-                isDisabled={!backedUp}
+                isLoading={shouldSync ? backedUp : false}
+                isDisabled={shouldSync ? backedUp : false}
                 colorScheme="blue"
                 w="140px"
                 size="md"
@@ -114,7 +115,7 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
         <Flex direction="column" my={2} mt={8}>
           <CloudIcon />
           <Text fontSize="lg" mb={4}>
-            Sign in to Finish Em cloud sync to enable cross-device sync.
+            Sign in to Finish-em Cloud to enable cross-device sync.
           </Text>
 
           <Input
@@ -141,6 +142,16 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
               </Button>
             </InputRightElement>
           </InputGroup>
+          <Flex alignItems="center" py={2}>
+            <Text pr={2} fontSize="sm">
+              Synchronise your local database with the cloud?
+            </Text>
+            <Switch
+              size="sm"
+              isChecked={shouldSync}
+              onChange={(e) => setShouldSync(e.target.checked)}
+            />
+          </Flex>
         </Flex>
         <Flex w="100%" justifyContent="start" alignItems="baseline">
           <Text fontSize="md" my={2}>

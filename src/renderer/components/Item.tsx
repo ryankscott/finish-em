@@ -23,7 +23,7 @@ import {
 import { RRule } from 'rrule';
 import { Item as ItemType } from '../../main/resolvers-types';
 import { Icons } from '../assets/icons';
-import { AppState, useAppStore } from 'renderer/state';
+import { AppState, useBoundStore } from 'renderer/state';
 import { ItemIcons } from '../interfaces';
 import {
   capitaliseFirstLetter,
@@ -106,14 +106,14 @@ function Item({
     setActiveItemIds,
     setFocusbarVisible,
     setSubtaskVisibility,
-  ] = useAppStore((state: AppState) => [
+  ] = useBoundStore((state: AppState) => [
     state.activeItemIds,
     state.setActiveItemIds,
     state.setFocusbarVisible,
     state.setSubtaskVisibility,
   ]);
 
-  const subtasksVisible = useAppStore((state) => {
+  const subtasksVisible = useBoundStore((state) => {
     if (state.visibleSubtasks?.[itemKey]) {
       const visibility = state.visibleSubtasks?.[itemKey]?.[componentKey];
       return visibility === undefined ? true : visibility;
@@ -122,7 +122,7 @@ function Item({
     return true;
   });
 
-  const isVisible = useAppStore((state) => {
+  const isVisible = useBoundStore((state) => {
     if (!parentKey) {
       return true;
     }

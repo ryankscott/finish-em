@@ -1,6 +1,6 @@
 import Store, { Schema } from 'electron-store';
 
-interface StoreSchema {
+export interface StoreSchema {
   overrideDatabaseDirectory: string;
   cloudSync: {
     enabled: boolean;
@@ -28,8 +28,10 @@ export const store = new Store({
   migrations: {
     '0.0.1': (store) => {
       store.set('overrideDatabaseDirectory', '');
+    },
+    '0.8.18': (store) => {
       store.set('cloudSync', {
-        enabled: 'false',
+        enabled: false,
         email: '',
         token: '',
       });

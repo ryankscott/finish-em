@@ -1,10 +1,10 @@
 import { Flex, IconButton, Icon } from '@chakra-ui/react';
 import { Icons } from '../assets/icons';
 import { v4 as uuidv4 } from 'uuid';
-import { AppState, useAppStore } from 'renderer/state';
+import { AppState, useBoundStore } from 'renderer/state';
 
 const SidebarToggleButton = () => {
-  const [sidebarVisible, setSidebarVisible] = useAppStore((state: AppState) => [
+  const [sidebarVisible, setSidebarVisible] = useBoundStore((state: AppState) => [
     state.sidebarVisible,
     state.setSidebarVisible,
   ]);

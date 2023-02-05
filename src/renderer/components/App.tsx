@@ -20,8 +20,7 @@ import Sidebar from './Sidebar';
 import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
 import { Reminder } from '../../main/resolvers-types';
-import { AppState, useAppStore } from 'renderer/state';
-import { setLinkURL } from '../client';
+import { AppState, useBoundStore } from 'renderer/state';
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
@@ -39,7 +38,7 @@ const App = (): ReactElement => {
     setFocusbarVisible,
     sidebarVisible,
     setSidebarVisible,
-  ] = useAppStore((state: AppState) => [
+  ] = useBoundStore((state: AppState) => [
     state.activeItemIds,
     state.focusbarVisible,
     state.setFocusbarVisible,
@@ -47,7 +46,7 @@ const App = (): ReactElement => {
     state.setSidebarVisible,
   ]);
 
-  const { loading, error, data, refetch } = useQuery(GET_APP_DATA);
+  const { loading, error, data } = useQuery(GET_APP_DATA);
 
   useEffect(() => {
     // Handle Electron events

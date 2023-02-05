@@ -44,13 +44,13 @@ import ProjectSelect from './ProjectSelect';
 import RepeatPicker from './RepeatPicker';
 import ItemActionButton from './ItemActionButton';
 import Item from './Item';
-import { AppState, useAppStore } from 'renderer/state';
+import { AppState, useBoundStore } from 'renderer/state';
 import { parseISO } from 'date-fns';
 
 const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
   const [activeItemIds, setActiveItemIds, focusbarVisible, setFocusbarVisible] =
-    useAppStore((state: AppState) => [
+    useBoundStore((state: AppState) => [
       state.activeItemIds,
       state.setActiveItemIds,
       state.focusbarVisible,

@@ -21,8 +21,9 @@ import {
 } from '@chakra-ui/react';
 import colormap from 'colormap';
 import { Calendar, Feature, Label } from 'main/resolvers-types';
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement } from 'react';
 import { Icons } from 'renderer/assets/icons';
+import { useSettings } from 'renderer/hooks';
 import { v4 as uuidv4 } from 'uuid';
 import {
   CREATE_LABEL,
@@ -61,7 +62,7 @@ const generateOptions = (
 
 const Settings = (): ReactElement => {
   const { colorMode } = useColorMode();
-  const [settings, setSettings] = useState<Record<string, string>>({});
+  const settings = useSettings();
   const { loading, error, data } = useQuery(GET_SETTINGS);
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
     refetchQueries: [GET_SETTINGS],
@@ -88,14 +89,6 @@ const Settings = (): ReactElement => {
     format: 'hex',
     alpha: 1,
   });
-
-  useEffect(() => {
-    const getSettings = async () => {
-      const settings = await window.electronAPI.ipcRenderer.getSettings();
-      setSettings(settings);
-    };
-    getSettings();
-  }, []);
 
   // We have to update the cache on add / removes
   const [createLabel] = useMutation(CREATE_LABEL, {
@@ -324,10 +317,6 @@ const Settings = (): ReactElement => {
                               'overrideDatabaseDirectory',
                               newDirectory?.[0]
                             );
-
-                            setSettings(
-                              await window.electronAPI.ipcRenderer.getSettings()
-                            );
                           }}
                         >
                           Open
@@ -340,7 +329,7 @@ const Settings = (): ReactElement => {
               <Alert status="warning" size={'sm'} borderRadius={'md'} my={4}>
                 <AlertIcon />
                 <AlertDescription fontSize={'md'}>
-                  Finish em will restart after chosing a new database directory
+                  Finish-em will restart after chosing a new database directory
                 </AlertDescription>
               </Alert>
             </Flex>

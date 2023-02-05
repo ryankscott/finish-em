@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { Icons } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
-import { useAppStore } from 'renderer/state';
+import { useBoundStore } from 'renderer/state';
 import {
   markdownBasicRegex,
   markdownLinkRegex,
@@ -50,8 +50,8 @@ const Headerbar = (): ReactElement => {
     setCloudSyncEnabled(cloudSync.enabled);
   });
 
-  const setActiveItemIds = useAppStore((state) => state.setActiveItemIds);
-  const setFocusbarVisible = useAppStore((state) => state.setFocusbarVisible);
+  const setActiveItemIds = useBoundStore((state) => state.setActiveItemIds);
+  const setFocusbarVisible = useBoundStore((state) => state.setFocusbarVisible);
 
   if (loading) return <></>;
   if (error) {

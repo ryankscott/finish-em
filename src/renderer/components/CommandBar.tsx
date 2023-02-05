@@ -9,10 +9,10 @@ import {
   UNCOMPLETE_ITEM,
   ITEMS_BY_FILTER,
 } from '../queries';
-import { useAppStore } from 'renderer/state';
+import { useBoundStore } from 'renderer/state';
 
 const CommandBar = () => {
-  const activeItemIds = useAppStore((state) => state.activeItemIds);
+  const activeItemIds = useBoundStore((state) => state.activeItemIds);
   const [completeItem] = useMutation(COMPLETE_ITEM, {
     refetchQueries: [ITEMS_BY_FILTER],
   });

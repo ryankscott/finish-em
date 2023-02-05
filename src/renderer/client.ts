@@ -1,5 +1,11 @@
 import { queryCache } from './cache';
-import { HttpLink, concat, ApolloLink, ApolloClient } from '@apollo/client';
+import {
+  HttpLink,
+  concat,
+  ApolloLink,
+  ApolloClient,
+  NormalizedCacheObject,
+} from '@apollo/client';
 import { RetryLink } from '@apollo/client/link/retry';
 import { CLOUD_SERVER_URL, GRAPHQL_PORT, USER_GQL_OPERATIONS } from 'consts';
 
@@ -31,11 +37,24 @@ const createLink = (serverURL: string) => {
   return concat(authMiddleware, retryLink);
 };
 
-export const setLinkURL = (server: 'local' | 'server') => {
-  if (server == 'server') {
-    client.setLink(createLink(CLOUD_SERVER_URL));
+export const getClient = async (): Promise<
+  ApolloClient<NormalizedCacheObject>
+> => {
+  const settings = await window.electronAPI.ipcRenderer.getSettings();
+  const { cloudSync } = settings;
+  if (cloudSync?.enabled) {
+    console.log(`Cloud sync enabled, routing queries to cloud`);
+    localStorage.setItem('token', cloudSync.token);
+    return new ApolloClient({
+      cache: queryCache,
+      link: createLink(CLOUD_SERVER_URL),
+    });
   } else {
-    client.setLink(createLink(`http://localhost:${GRAPHQL_PORT}`));
+    console.log(`Cloud sync disabled, routing queries locally`);
+    return new ApolloClient({
+      cache: queryCache,
+      link: createLink(`http://localhost:${GRAPHQL_PORT}`),
+    });
   }
 };
 
