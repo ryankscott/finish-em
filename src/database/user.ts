@@ -14,7 +14,7 @@ class UserDatabase extends SQLDataSource {
       return user;
     } catch (err) {
       logger.error(`Failed to get user with email - ${err}`);
-      throw err;
+      throw new Error("Failed to get user");
     }
   }
 
@@ -25,7 +25,7 @@ class UserDatabase extends SQLDataSource {
       return user;
     } catch (err) {
       logger.error(`Failed to get user with key: ${key} - ${err}`);
-      throw err;
+      throw new Error("Failed to get user");
     }
   }
 
@@ -40,17 +40,17 @@ class UserDatabase extends SQLDataSource {
         createdAt: new Date(),
         deleted: false,
       });
+
       if (insertedId) {
         /* Create an app database and migrate */
         await runAppMigrations(`/databases/${key}.db`);
-
         return await this.getUser(key);
       }
       logger.error(`Failed to create user`);
       throw new Error("Failed to create user");
     } catch (e) {
       logger.error(`Failed to create user - ${e}`);
-      throw e;
+      throw new Error("Failed to create user");
     }
   }
 
@@ -71,7 +71,7 @@ class UserDatabase extends SQLDataSource {
       return { email: user.email, key: user.key, token };
     } catch (e) {
       logger.error("Failed to login user - no user with that email");
-      throw e;
+      throw new Error("Failed to login user");
     }
   }
 
