@@ -274,7 +274,7 @@ export const WEEKLY_ITEMS = gql`
 `;
 
 export const CREATE_WEEKLY_GOAL = gql`
-  mutation CreateWeeklyGoal($key: String!, $week: String!, $goal: String) {
+  mutation CreateWeeklyGoal($key: String!, $week: String!, $goal: String!) {
     createWeeklyGoal(input: { key: $key, week: $week, goal: $goal }) {
       key
       week

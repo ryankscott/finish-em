@@ -55,9 +55,10 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
     localStorage.setItem('token', token);
 
     if (shouldSync) {
-      window.electronAPI.ipcRenderer
-        .backupToCloud(key)
-        .then(() => setBackedUp(true));
+      window.electronAPI.ipcRenderer.backupToCloud(key).then(() => {
+        console.log('backed up');
+        setBackedUp(true);
+      });
     }
     return (
       <ModalContent>
@@ -73,8 +74,8 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
               </Text>
 
               <Button
-                isLoading={shouldSync ? backedUp : false}
-                isDisabled={shouldSync ? backedUp : false}
+                isLoading={shouldSync ? !backedUp : false}
+                isDisabled={shouldSync ? !backedUp : false}
                 colorScheme="blue"
                 w="140px"
                 size="md"

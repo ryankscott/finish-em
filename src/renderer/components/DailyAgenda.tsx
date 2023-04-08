@@ -7,6 +7,7 @@ import {
   IconButton,
   Text,
 } from '@chakra-ui/react';
+import { DAILY_AGENDA_VIEW_KEY, DAILY_AGENDA_VIEW_NAMESPACE } from 'consts';
 import { add, format, parse, startOfDay, sub } from 'date-fns';
 import { ReactElement, useEffect, useState } from 'react';
 import { Icons } from 'renderer/assets/icons';
@@ -15,24 +16,14 @@ import CalendarAgenda from './CalendarAgenda';
 import FilteredItemList from './FilteredItemList';
 import ReorderableComponentList from './ReorderableComponentList';
 
-const VIEW_NAMESPACE = '9eb50a57-cbee-418b-bc44-889da1225429';
-
 const DailyAgenda = (): ReactElement => {
   // TODO: Hoist this to a reactive var so others can use it
   const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
-    window.electronAPI.ipcRenderer.onReceiveMessage('events-refreshed', () => {
-      console.log('refreshed events');
-    });
-  }, []);
-
-  useEffect(() => {
     const day = window.location.search.split('=')?.[1];
     if (day) setCurrentDate(parse(day, 'yyyy-MM-dd', new Date()));
   }, []);
-
-  const viewKey = 'ccf4ccf9-28ff-46cb-9f75-bd3f8cd26134';
 
   return (
     <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
@@ -82,16 +73,16 @@ const DailyAgenda = (): ReactElement => {
       </Flex>
 
       <CalendarAgenda selectedDate={currentDate} />
-      <ReorderableComponentList viewKey={viewKey} />
+      <ReorderableComponentList viewKey={DAILY_AGENDA_VIEW_KEY} />
       <Flex p={3} direction="column">
         <FilteredItemList
           key={v5(
             `${startOfDay(currentDate).toISOString()}due`,
-            VIEW_NAMESPACE
+            DAILY_AGENDA_VIEW_NAMESPACE
           )}
           componentKey={v5(
             `${startOfDay(currentDate).toISOString()}due`,
-            VIEW_NAMESPACE
+            DAILY_AGENDA_VIEW_NAMESPACE
           )}
           isFilterable
           showCompletedToggle
@@ -121,11 +112,11 @@ const DailyAgenda = (): ReactElement => {
         <FilteredItemList
           key={v5(
             `${startOfDay(currentDate).toISOString()}scheduled`,
-            VIEW_NAMESPACE
+            DAILY_AGENDA_VIEW_NAMESPACE
           )}
           componentKey={v5(
             `${startOfDay(currentDate).toISOString()}scheduled`,
-            VIEW_NAMESPACE
+            DAILY_AGENDA_VIEW_NAMESPACE
           )}
           isFilterable
           showCompletedToggle

@@ -245,31 +245,25 @@ const ReorderableComponentList = ({
                           combinator: 'and',
                           rules: [
                             {
-                              combinator: 'and',
-                              rules: [
-                                {
-                                  field: 'projectKey',
-                                  operator: '=',
-                                  valueSource: 'value',
-                                  value:
-                                    data.view.type == 'project'
-                                      ? data.view.key
-                                      : '0',
-                                },
-                                {
-                                  field: 'deleted',
-                                  operator: '=',
-                                  valueSource: 'value',
-                                  value: false,
-                                },
-                                {
-                                  field: 'areaKey',
-                                  operator: 'null',
-                                  valueSource: 'value',
-                                  value: '0',
-                                },
-                              ],
-                              not: false,
+                              field: 'projectKey',
+                              operator: '=',
+                              valueSource: 'value',
+                              value:
+                                data.view.type == 'project'
+                                  ? data.view.key
+                                  : '0',
+                            },
+                            {
+                              field: 'deleted',
+                              operator: '=',
+                              valueSource: 'value',
+                              value: false,
+                            },
+                            {
+                              field: 'areaKey',
+                              operator: 'null',
+                              valueSource: 'value',
+                              value: '0',
                             },
                           ],
                           not: false,

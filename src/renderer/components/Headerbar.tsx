@@ -11,6 +11,7 @@ import { sortBy } from 'lodash';
 import { Item, Project } from 'main/resolvers-types';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GroupBase } from 'react-select';
 import { Icons } from 'renderer/assets/icons';
 import { IconType } from 'renderer/interfaces';
 import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
@@ -88,7 +89,7 @@ const Headerbar = (): ReactElement => {
   const generateSearchOptions = (
     projects: Project[],
     items: Item[]
-  ): GroupType<OptionType>[] => {
+  ): GroupBase<OptionType>[] => {
     const sortedItems = sortBy(items, ['lastUpdatedAt'], ['desc']);
     const itemOptions = sortedItems
       .filter((i) => i.deleted === false)
@@ -132,6 +133,12 @@ const Headerbar = (): ReactElement => {
       px={2}
       pl={'60px'}
       justifyContent="space-between"
+      sx={{
+        WebkitAppRegion: 'drag',
+      }}
+      position="fixed"
+      h="50px"
+      shadow="md"
     >
       <Flex w="100%" alignItems="center" justifyContent="center">
         <Flex w="100%" px={2} maxW="600px">

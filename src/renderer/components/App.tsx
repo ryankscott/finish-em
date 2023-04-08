@@ -1,26 +1,29 @@
 //import './wdyr';
 import { useQuery } from '@apollo/client';
 import { Flex } from '@chakra-ui/react';
+import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from 'consts';
 import { isSameMinute, parseISO } from 'date-fns';
 import { ReactElement, useEffect } from 'react';
 import { Route, Routes, useParams } from 'react-router-dom';
-import { Slide, toast, ToastContainer } from 'react-toastify';
+import { Slide, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useOnlineStatus, useSettings } from 'renderer/hooks';
 import { GET_APP_DATA } from 'renderer/queries/';
-import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from 'consts';
+import { AppState, useBoundStore } from 'renderer/state';
+import { registerHandlers } from 'renderer/utils/ipcMessageHanders';
+import { Reminder } from '../../main/resolvers-types';
 import ActionBar from './ActionBar';
 import Area from './Area';
 import DailyAgenda from './DailyAgenda';
 import Focusbar from './Focusbar';
 import Headerbar from './Headerbar';
 import Inbox from './Inbox';
+import OfflineStatus from './OfflineState';
 import Settings from './Settings';
 import ShortcutDialog from './ShortcutDialog';
 import Sidebar from './Sidebar';
 import View from './View';
 import WeeklyAgenda from './WeeklyAgenda';
-import { Reminder } from '../../main/resolvers-types';
-import { AppState, useBoundStore } from 'renderer/state';
 
 const ViewWrapper = (): ReactElement => {
   const { id } = useParams();
@@ -46,53 +49,17 @@ const App = (): ReactElement => {
     state.setSidebarVisible,
   ]);
 
-  const { loading, error, data } = useQuery(GET_APP_DATA);
+  const settings = useSettings();
+  const isOnline = useOnlineStatus();
+  const cloudSync = settings?.cloudSync;
 
-  useEffect(() => {
-    // Handle Electron events
-    window.electronAPI.ipcRenderer.onReceiveMessage(
-      'send-notification',
-      (_, arg) => {
-        // TODO: Implement multiple notification types
-        toast.dark(`${arg.text}`);
-      }
-    );
+  const { error, data } = useQuery(GET_APP_DATA);
 
-    window.electronAPI.ipcRenderer.onReceiveMessage(
-      'syncing-calendar-start',
-      (_, arg) => {
-        console.log('Calendar sync start');
-      }
-    );
-
-    window.electronAPI.ipcRenderer.onReceiveMessage(
-      'syncing-calendar-finished',
-      (_, arg) => {
-        console.log('Calendar sync finished');
-      }
-    );
-
-    window.electronAPI.ipcRenderer.onReceiveMessage('new-version', (_, arg) => {
-      toast(
-        <div>
-          <p>
-            <strong>New version available 🎉</strong>
-            <br />
-            Download the new version <a href={arg.downloadUrl}>here </a>
-            <br />
-            {`Or checkout the release <a href={arg.releaseURL}> notes</a> for
-              what's changed`}
-          </p>
-        </div>,
-        { autoClose: false }
-      );
-    });
-  }, []);
-
-  if (loading) return <></>;
+  if (!isOnline && cloudSync?.enabled) {
+    return <OfflineStatus />;
+  }
   if (error) {
     console.log(error);
-    return <></>;
   }
 
   // TODO: Work out the best way to expand the width here
@@ -126,20 +93,14 @@ const App = (): ReactElement => {
     }, 60 * 1000);
   }
 
+  useEffect(() => {
+    // Handle Electron events
+    registerHandlers();
+  }, []);
+
   return (
     <Flex direction="column" h="100vh" w="100%">
-      <Flex
-        sx={{
-          WebkitAppRegion: 'drag',
-        }}
-        zIndex={999}
-        position="fixed"
-        h="50px"
-        w="100%"
-        shadow="md"
-      >
-        <Headerbar />
-      </Flex>
+      <Headerbar />
       <Flex pt="50px" direction="row" overflow="hidden" h="100vh">
         <Sidebar />
         <Flex overflowY="scroll" w="100%" h="100%" justifyContent="center">

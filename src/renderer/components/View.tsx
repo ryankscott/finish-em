@@ -1,10 +1,10 @@
-import { ReactElement } from 'react';
 import { useQuery } from '@apollo/client';
+import { ReactElement } from 'react';
 import { GET_VIEW_BY_KEY } from 'renderer/queries';
-import ReorderableComponentList from './ReorderableComponentList';
-import Project from './Project';
 import Area from './Area';
 import Page from './Page';
+import Project from './Project';
+import ReorderableComponentList from './ReorderableComponentList';
 import Spinner from './Spinner';
 
 type ViewProps = {

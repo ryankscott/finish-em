@@ -392,7 +392,7 @@ const Select = (props: Props) => {
           onChange(newValue);
           return;
         }
-        onChange(newValue.value);
+        onChange(newValue?.value);
       }}
       isMulti={isMulti}
       options={options}

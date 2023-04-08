@@ -11,10 +11,11 @@ import {
   Text,
   useColorMode,
 } from '@chakra-ui/react';
-import { Project } from '../../main/resolvers-types';
 import { ReactElement, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Icons } from 'renderer/assets/icons';
+import { ItemIcons } from 'renderer/interfaces';
 import {
   ADD_COMPONENT,
   CREATE_PROJECT,
@@ -26,16 +27,15 @@ import {
   SET_EMOJI,
 } from 'renderer/queries';
 import { v4 as uuidv4 } from 'uuid';
+import { Project } from '../../main/resolvers-types';
 import { formatRelativeDate, getProductName } from '../utils';
 import DeleteAreaDialog from './DeleteAreaDialog';
 import { Donut } from './Donut';
 import EditableText from './EditableText';
+import EmojiDisplay from './EmojiDisplay';
+import EmojiPicker from './EmojiPicker';
 import FilteredItemList from './FilteredItemList';
 import Page from './Page';
-import { ItemIcons } from 'renderer/interfaces';
-import EmojiPicker from './EmojiPicker';
-import EmojiDisplay from './EmojiDisplay';
-import { Icons } from 'renderer/assets/icons';
 
 type AreaProps = {
   areaKey: string;
@@ -197,12 +197,6 @@ const Area = (props: AreaProps): ReactElement => {
                 },
                 {
                   field: 'completed',
-                  operator: '=',
-                  valueSource: 'value',
-                  value: false,
-                },
-                {
-                  field: 'deleted',
                   operator: '=',
                   valueSource: 'value',
                   value: false,

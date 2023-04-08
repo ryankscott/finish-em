@@ -70,7 +70,7 @@ const LabelEdit = ({
         minH="24px"
         borderRadius="50%"
         borderWidth="3px"
-        borderColor={colorMode === 'light' ? 'gray.100' : 'gray.900'}
+        borderColor={colorMode === 'light' ? 'gray.100' : 'gray.800'}
         onClick={(e) => {
           setShowColourPicker(!showColourPicker);
           e.stopPropagation();

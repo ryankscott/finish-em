@@ -102,7 +102,6 @@ const EditableText = ({
   onEscape,
   input,
   width,
-  showBorder,
   hideToolbar,
   placeholder,
   shouldBlurOnSubmit,

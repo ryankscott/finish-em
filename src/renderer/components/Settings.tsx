@@ -9,6 +9,7 @@ import {
   EditableInput,
   EditablePreview,
   Flex,
+  FlexProps,
   Icon,
   Switch,
   Tab,
@@ -17,6 +18,7 @@ import {
   TabPanels,
   Tabs,
   Text,
+  useBreakpointValue,
   useColorMode,
 } from '@chakra-ui/react';
 import colormap from 'colormap';
@@ -43,6 +45,11 @@ import Select from './Select';
 const NUMBER_OF_COLOURS = 12;
 
 type SettingHeaderProps = { name: string };
+const SettingContent = (props: FlexProps) => (
+  <Flex direction="column" w="100%">
+    {props.children}
+  </Flex>
+);
 const SettingHeader = ({ name }: SettingHeaderProps): JSX.Element => (
   <Text py={4} px={0} fontSize="2xl" fontWeight="semibold">
     {name}
@@ -61,6 +68,12 @@ const generateOptions = (
 };
 
 const Settings = (): ReactElement => {
+  const settingsOrientation = useBreakpointValue([
+    'horizontal',
+    'horizontal',
+    'vertical',
+    'vertical',
+  ]) as 'horizontal' | 'vertical';
   const { colorMode } = useColorMode();
   const settings = useSettings();
   const { loading, error, data } = useQuery(GET_SETTINGS);
@@ -120,8 +133,12 @@ const Settings = (): ReactElement => {
   const calendarOptions = generateOptions(data.calendars);
 
   return (
-    <Flex direction="row" w="100%" h="100vh">
-      <Tabs orientation="vertical" variant="custom">
+    <Flex direction="row" w="100%">
+      <Tabs
+        orientation={settingsOrientation ?? 'vertical'}
+        variant="custom"
+        w="100%"
+      >
         <TabList>
           <Text p={4} fontSize="lg" fontWeight="semibold">
             Settings
@@ -137,202 +154,225 @@ const Settings = (): ReactElement => {
           </Tab>
         </TabList>
 
-        <TabPanels>
-          <TabPanel px={10}>
+        <TabPanels w="100%" px={10}>
+          <TabPanel w="100%">
             <SettingHeader name="Features" />
-            {data.features.map((feature: Feature) => {
-              return (
-                <Flex
-                  direction="row"
-                  justifyContent="flex-start"
-                  w="100%"
-                  h="30px"
-                  py={5}
-                  px={0}
-                  alignItems="center"
-                  key={feature.key}
-                >
-                  <Text fontSize="sm" w="180px" key={`${feature.key}-label`}>
-                    {camelCaseToInitialCaps(feature.name)}
-                  </Text>
-                  <Switch
-                    size="sm"
-                    isChecked={feature.enabled ?? false}
-                    onChange={() => {
-                      window.electronAPI.ipcRenderer.toggleFeature(
-                        feature.name,
-                        !feature.enabled
-                      );
-                      setFeature({
-                        variables: {
-                          key: feature.key,
-                          enabled: !feature.enabled,
-                        },
-                      });
-                    }}
-                  />
-                  {feature.name === 'calendarIntegration' && (
-                    <Box pl={3} w="180px">
-                      <Select
-                        isDisabled={!feature.enabled}
-                        key={`${feature.key}-select`}
-                        autoFocus
-                        placeholder="Choose calendar"
-                        defaultValue={calendarOptions.filter(
-                          (option) =>
-                            option.label ===
-                            data?.calendars.find((c) => c.active)?.name
-                        )}
-                        onChange={(e) => {
-                          setActiveCalendar({
-                            variables: { key: e.value },
-                          });
-                        }}
-                        options={calendarOptions}
-                        escapeClearsValue
-                      />
-                    </Box>
-                  )}
-                  {feature.name === 'bearNotesIntegration' && (
-                    <Box pl={3} w="180px">
-                      <Editable
-                        defaultValue={feature?.metadata?.apiToken}
-                        onSubmit={(val) => {
-                          setFeatureMetadata({
-                            variables: {
-                              key: feature.key,
-                              metadata: { apiToken: val },
-                            },
-                          });
-                        }}
-                        fontSize="sm"
-                        placeholder="Bear API Token"
-                        isDisabled={!feature.enabled}
-                      >
-                        <EditablePreview
-                          _hover={{
-                            bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
-                          }}
-                          py={2}
-                        />
-                        <EditableInput py={2} />
-                      </Editable>
-                    </Box>
-                  )}
-                </Flex>
-              );
-            })}
-          </TabPanel>
-          <TabPanel px={10}>
-            <SettingHeader name="Labels" />
-            {Object.values(data.labels).map((label: Label) => {
-              return (
-                <Flex id={label.key} key={`f-${label.key}`} my={0.5}>
-                  <LabelEdit
-                    name={label.name ?? ''}
-                    colour={label.colour ?? '#F00F00'}
-                    renameLabel={(name) => {
-                      renameLabel({
-                        // @ts-ignore
-                        variables: { key: label.key, name: name },
-                      });
-                    }}
-                    deleteLabel={() => {
-                      deleteLabel({ variables: { key: label.key } });
-                    }}
-                    colourChange={(colour) => {
-                      setColourOfLabel({
-                        variables: { key: label.key, colour: colour },
-                      });
-                    }}
-                  />
-                </Flex>
-              );
-            })}
-            <Flex w="185px" justifyContent="center" pt={3}>
-              <Button
-                variant="default"
-                size="md"
-                rightIcon={<Icon as={Icons.add} />}
-                onClick={() => {
-                  createLabel({
-                    variables: {
-                      key: uuidv4(),
-                      name: 'New Label',
-                      colour:
-                        colours[Math.floor(Math.random() * NUMBER_OF_COLOURS)],
-                    },
-                  });
-                }}
-              >
-                Add label
-              </Button>
-            </Flex>
-          </TabPanel>
-          <TabPanel px={10}>
-            <SettingHeader name="Advanced" />
-            <Text fontSize="md" fontWeight={500} mt={-2} mb={4}>
-              🐉 Changing these properties can cause you to lose all your data!!
-            </Text>
-            <Flex my={0.5} direction={'column'}>
-              {Object.keys(settings).map((key) => {
-                if (key === '__internal__') return;
-                const setting = settings[key];
+            <SettingContent>
+              {data.features.map((feature: Feature) => {
                 return (
                   <Flex
-                    key={key}
                     direction="row"
                     justifyContent="flex-start"
-                    py={5}
-                    px={0}
                     w="100%"
                     h="30px"
+                    py={5}
+                    px={0}
                     alignItems="center"
+                    key={feature.key}
                   >
-                    <Text fontSize="sm" w="180px" fontWeight="bold">
-                      {camelCaseToInitialCaps(key)}
+                    <Text fontSize="sm" w="180px" key={`${feature.key}-label`}>
+                      {camelCaseToInitialCaps(feature.name)}
                     </Text>
-
-                    {key === 'cloudSync' && (
-                      <CloudSync
-                        enabled={setting.enabled}
-                        email={setting.email}
-                        token={setting.token}
-                      />
-                    )}
-                    {key === 'overrideDatabaseDirectory' && (
-                      <>
-                        <Text ml={3} fontSize="sm">
-                          {setting}
-                        </Text>
-                        <Button
-                          ml={3}
-                          onClick={async () => {
-                            const newDirectory =
-                              await window.electronAPI.ipcRenderer.openDialog({
-                                title: 'Open folder',
-                                properties: ['openDirectory'],
-                              });
-                            window.electronAPI.ipcRenderer.setSetting(
-                              'overrideDatabaseDirectory',
-                              newDirectory?.[0]
-                            );
+                    <Switch
+                      size="sm"
+                      isChecked={feature.enabled ?? false}
+                      onChange={() => {
+                        window.electronAPI.ipcRenderer.toggleFeature(
+                          feature.name,
+                          !feature.enabled
+                        );
+                        setFeature({
+                          variables: {
+                            key: feature.key,
+                            enabled: !feature.enabled,
+                          },
+                        });
+                      }}
+                    />
+                    {feature.name === 'calendarIntegration' && (
+                      <Box pl={3} w="180px">
+                        <Select
+                          isDisabled={!feature.enabled}
+                          key={`${feature.key}-select`}
+                          autoFocus
+                          placeholder="Choose calendar"
+                          defaultValue={calendarOptions.filter(
+                            (option) =>
+                              option.label ===
+                              data?.calendars.find((c) => c.active)?.name
+                          )}
+                          onChange={(e) => {
+                            setActiveCalendar({
+                              variables: { key: e.value },
+                            });
                           }}
+                          options={calendarOptions}
+                          escapeClearsValue
+                        />
+                      </Box>
+                    )}
+                    {feature.name === 'bearNotesIntegration' && (
+                      <Box pl={3} w="180px">
+                        <Editable
+                          defaultValue={feature?.metadata?.apiToken}
+                          onSubmit={(val) => {
+                            setFeatureMetadata({
+                              variables: {
+                                key: feature.key,
+                                metadata: { apiToken: val },
+                              },
+                            });
+                          }}
+                          fontSize="sm"
+                          placeholder="Bear API Token"
+                          isDisabled={!feature.enabled}
                         >
-                          Open
-                        </Button>
-                      </>
+                          <EditablePreview
+                            _hover={{
+                              bg:
+                                colorMode === 'light' ? 'gray.100' : 'gray.900',
+                            }}
+                            py={2}
+                          />
+                          <EditableInput py={2} />
+                        </Editable>
+                      </Box>
                     )}
                   </Flex>
                 );
               })}
-              <Alert status="warning" size={'sm'} borderRadius={'md'} my={4}>
+            </SettingContent>
+          </TabPanel>
+          <TabPanel w="100%" px={10}>
+            <SettingHeader name="Labels" />
+            <SettingContent justifyContent="center">
+              <Flex maxW="400px" direction="column" justifyContent="center">
+                {Object.values(data.labels).map((label: Label) => {
+                  return (
+                    <Flex id={label.key} key={`f-${label.key}`} my={0.5}>
+                      <LabelEdit
+                        name={label.name ?? ''}
+                        colour={label.colour ?? '#F00F00'}
+                        renameLabel={(name) => {
+                          renameLabel({
+                            // @ts-ignore
+                            variables: { key: label.key, name: name },
+                          });
+                        }}
+                        deleteLabel={() => {
+                          deleteLabel({ variables: { key: label.key } });
+                        }}
+                        colourChange={(colour) => {
+                          setColourOfLabel({
+                            variables: { key: label.key, colour: colour },
+                          });
+                        }}
+                      />
+                    </Flex>
+                  );
+                })}
+                <Button
+                  variant="default"
+                  size="md"
+                  maxW="180px"
+                  my={2}
+                  rightIcon={<Icon as={Icons.add} />}
+                  onClick={() => {
+                    createLabel({
+                      variables: {
+                        key: uuidv4(),
+                        name: 'New Label',
+                        colour:
+                          colours[
+                            Math.floor(Math.random() * NUMBER_OF_COLOURS)
+                          ],
+                      },
+                    });
+                  }}
+                >
+                  Add label
+                </Button>
+              </Flex>
+            </SettingContent>
+          </TabPanel>
+          <TabPanel w="100%">
+            <SettingHeader name="Advanced" />
+            <SettingContent>
+              <Alert status="warning" borderRadius="md" mb={4}>
                 <AlertIcon />
                 <AlertDescription fontSize={'md'}>
-                  Finish-em will restart after chosing a new database directory
+                  🐉 Changing these properties can cause you to lose all your
+                  data!!
                 </AlertDescription>
               </Alert>
-            </Flex>
+              <Flex my={0.5} direction={'column'}>
+                {Object.keys(settings).map((key) => {
+                  if (key === '__internal__') return;
+                  const setting = settings?.[key];
+                  return (
+                    <Flex
+                      key={key}
+                      direction="row"
+                      justifyContent="flex-start"
+                      py={6}
+                      px={4}
+                      w="100%"
+                      h="30px"
+                      alignItems="center"
+                    >
+                      <Text fontSize="sm" minW="180px" fontWeight="bold">
+                        {camelCaseToInitialCaps(key)}
+                      </Text>
+                      <Flex
+                        justifyContent="flex-end"
+                        alignItems="center"
+                        w="100%"
+                      >
+                        {key === 'cloudSync' && (
+                          <CloudSync
+                            enabled={setting.enabled}
+                            email={setting.email}
+                            token={setting.token}
+                          />
+                        )}
+                        {key === 'overrideDatabaseDirectory' && (
+                          <>
+                            <Text ml={3} fontSize="sm">
+                              {setting}
+                            </Text>
+                            <Button
+                              ml={3}
+                              onClick={async () => {
+                                const newDirectory =
+                                  await window.electronAPI.ipcRenderer.openDialog(
+                                    {
+                                      title: 'Open folder',
+                                      properties: ['openDirectory'],
+                                    }
+                                  );
+                                window.electronAPI.ipcRenderer.setSetting(
+                                  'overrideDatabaseDirectory',
+                                  newDirectory?.[0]
+                                );
+                              }}
+                            >
+                              Open
+                            </Button>
+                          </>
+                        )}
+                      </Flex>
+                    </Flex>
+                  );
+                })}
+                <Alert status="info" size={'sm'} borderRadius={'md'} my={4}>
+                  <AlertIcon />
+                  <AlertDescription fontSize={'md'}>
+                    Finish-em will restart after chosing a new database
+                    directory
+                  </AlertDescription>
+                </Alert>
+              </Flex>
+            </SettingContent>
           </TabPanel>
         </TabPanels>
       </Tabs>
