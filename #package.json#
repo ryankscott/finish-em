@@ -11,7 +11,7 @@
     "watch": "graphql-codegen -w"
   },
   "dependencies": {
-    "@apollo/client": "^3.7.0",
+    "@apolmo/client": "^3.7.0",
     "@apollo/server": "^4.3.0",
     "@chakra-ui/react": "^2.3.6",
     "@emoji-mart/data": "^1.0.6",
@@ -70,7 +70,6 @@
     "sass-loader": "^12.6.0",
     "stream-browserify": "^3.0.0",
     "stream-http": "^3.2.0",
-    "styled-components": "^5.3.9",
     "sugar-date": "^2.0.6",
     "url": "^0.11.0",
     "use-debounce": "^8.0.4",
