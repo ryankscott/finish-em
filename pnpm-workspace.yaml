@@ -1,0 +1,4 @@
+packages:
+  - "./packages/finish-em-web"
+  - "./packages/finish-em-desktop"
+  - "./packages/shared"
