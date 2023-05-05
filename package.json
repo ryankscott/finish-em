@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:web": "cd packages/finish-em-web && npm run build",
-    "install:web": "cd packages/finish-em-web && npm run install"
+    "install:web": "cd packages/finish-em-web && npm run install",
+    "dev:web": "cd packages/finish-em-web && npm run dev"
   },
   "keywords": [],
   "author": "",
