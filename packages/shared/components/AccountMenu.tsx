@@ -1,25 +1,32 @@
 import {
-  IconButton,
   Icon,
+  IconButton,
   Menu,
   MenuButton,
+  MenuGroup,
   MenuItem,
   MenuList,
-  MenuGroup,
 } from "@chakra-ui/react";
 import { Icons } from "../assets/icons";
+import { HEADERBAR_ICON_SIZE } from "./Headerbar";
 
 // TODO: Store the logged in user details and show in the menu
 function AccountMenu() {
   return (
-    <Menu>
+    <Menu variant="dark">
       <MenuButton
         as={IconButton}
         w="32px"
         h="32px"
         variant="dark"
         aria-label="Account"
-        icon={<Icon as={Icons["avatar"]} h={4} w={4} />}
+        icon={
+          <Icon
+            as={Icons["avatar"]}
+            h={HEADERBAR_ICON_SIZE}
+            w={HEADERBAR_ICON_SIZE}
+          />
+        }
       />
 
       <MenuList>

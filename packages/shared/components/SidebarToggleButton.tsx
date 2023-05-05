@@ -1,32 +1,39 @@
-import { IconButton, Flex } from "@chakra-ui/react";
-import { v4 as uuidv4 } from "uuid";
+import { Icon, IconButton, Tooltip } from "@chakra-ui/react";
+import { Icons } from "../assets/icons";
 import { AppState, useBoundStore } from "../state";
-import { ArrowRightIcon, ArrowLeftIcon } from "@chakra-ui/icons";
+import { HEADERBAR_ICON_SIZE } from "./Headerbar";
 
 const SidebarToggleButton = () => {
   const [sidebarVisible, setSidebarVisible] = useBoundStore(
     (state: AppState) => [state.sidebarVisible, state.setSidebarVisible]
   );
   return (
-    <Flex w="100%" justifyContent={sidebarVisible ? "flex-end" : "center"}>
+    <Tooltip label={"Toggle menu"}>
       <IconButton
         my={0}
-        size="lg"
-        colorScheme={"black"}
+        size="md"
+        variant="dark"
         aria-label="Toggle sidebar"
-        key={uuidv4()}
         icon={
           sidebarVisible ? (
-            <ArrowLeftIcon boxSize={2} />
+            <Icon
+              as={Icons.close}
+              w={HEADERBAR_ICON_SIZE}
+              h={HEADERBAR_ICON_SIZE}
+            />
           ) : (
-            <ArrowRightIcon boxSize={2} />
+            <Icon
+              as={Icons.menu}
+              w={HEADERBAR_ICON_SIZE}
+              h={HEADERBAR_ICON_SIZE}
+            />
           )
         }
         onClick={() => {
           setSidebarVisible(!sidebarVisible);
         }}
       />
-    </Flex>
+    </Tooltip>
   );
 };
 export default SidebarToggleButton;

@@ -1,13 +1,14 @@
+import { ApolloServer } from '@apollo/server';
+import { startStandaloneServer } from '@apollo/server/standalone';
 import { loadFiles } from '@graphql-tools/load-files';
-import { ApolloServer } from 'apollo-server';
 import { isAfter, parseISO } from 'date-fns';
-import { app, BrowserWindow, globalShortcut, net, shell } from 'electron';
+import { app, BrowserWindow, globalShortcut, shell } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 import * as semver from 'semver';
 import * as sqlite from 'sqlite';
 import * as sqlite3 from 'sqlite3';
-import { CAL_SYNC_INTERVAL } from '../consts';
+import { CAL_SYNC_INTERVAL, GRAPHQL_PORT } from '../consts';
 import { saveAppleCalendarEvents } from './calendar';
 import AppDatabase from './database';
 import { Release } from './github';
@@ -21,24 +22,22 @@ const isDev =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 log.info(`Running in ${isDev ? 'development' : 'production'}`);
 let mainWindow: BrowserWindow | null = null;
-let quickAddWindow: BrowserWindow | null = null;
+const quickAddWindow: BrowserWindow | null = null;
 let server: ApolloServer;
-let apolloDb: AppDatabase;
-let calendarSyncInterval: NodeJS.Timer;
 
-const determineDatabasePath = (isDev: boolean): string => {
+const determineDatabasePath = (isInDev: boolean): string => {
   const overrideDatabaseDirectory = store.get(
     'overrideDatabaseDirectory'
   ) as string;
   if (overrideDatabaseDirectory) {
     return `${overrideDatabaseDirectory}/finish_em.db`;
   }
-  return isDev
+  return isInDev
     ? './finish_em.db'
     : path.join(app.getPath('userData'), './finish_em.db');
 };
 
-const knexConfig = {
+const appDbConfig = {
   client: 'sqlite3',
   connection: {
     filename: determineDatabasePath(isDev),
@@ -46,7 +45,7 @@ const knexConfig = {
   useNullAsDefault: true,
 };
 
-apolloDb = new AppDatabase(knexConfig);
+const appDb = new AppDatabase(appDbConfig);
 
 // TODO: Refactor all of this
 
@@ -62,11 +61,15 @@ const startApolloServer = async () => {
     server = new ApolloServer({
       typeDefs,
       resolvers,
-      dataSources: () => ({ apolloDb }),
     });
 
     try {
-      const { url } = await server.listen();
+      const { url } = await startStandaloneServer(server, {
+        context: async () => {
+          return { dataSources: { apolloDb: appDb } };
+        },
+        listen: { port: GRAPHQL_PORT },
+      });
       if (url) {
         log.info(`🚀 Server ready at ${url}`);
       }
@@ -79,7 +82,7 @@ const startApolloServer = async () => {
   }
 };
 
-export const runMigrations = async () => {
+const runMigrations = async () => {
   const databasePath = determineDatabasePath(isDev);
   log.info(`Loading database at: ${databasePath}`);
 
@@ -101,69 +104,58 @@ export const runMigrations = async () => {
   } catch (e) {
     log.error({ error: e }, 'Failed to migrate');
   }
-  // await db.on('trace', (data) => {
-  //   console.log(data)
-  // })
 
   log.info('Migrations complete');
-  return;
 };
 
-const checkForNewVersion = () => {
+const checkForNewVersion = async () => {
   const releasesURL =
     'https://api.github.com/repos/ryankscott/finish-em/releases';
-  // TODO: Refactor this using fetch
-  const request = net.request(releasesURL);
-  request.on('response', (response) => {
-    let rawData = '';
-    response.on('data', (chunk) => {
-      rawData += chunk;
-    });
-    response.on('end', () => {
-      try {
-        const resp: Release[] = JSON.parse(rawData);
-        // Get rid of draft versions and prereleases and get the last published
-        const sortedReleases = resp
-          .filter((r) => r.draft === false)
-          .filter((r) => r.prerelease === false)
-          .sort((a, b) => {
-            if (a.published_at && b.published_at) {
-              return isAfter(parseISO(a.published_at), parseISO(b.published_at))
-                ? -1
-                : 1;
-            }
-            return 0;
-          });
 
-        // Get the semver of the release
-        const latestRelease = sortedReleases[0];
-        if (!latestRelease) {
-          log.info('Not updating - no new releases');
-          return;
+  try {
+    // eslint-disable-next-line compat/compat
+    const response = await fetch(releasesURL);
+    const resp: Release[] = await response.json();
+    // Get rid of draft versions and prereleases and get the last published
+    const sortedReleases = resp
+      .filter((r) => r.draft === false)
+      .filter((r) => r.prerelease === false)
+      .sort((a, b) => {
+        if (a.published_at && b.published_at) {
+          return isAfter(parseISO(a.published_at), parseISO(b.published_at))
+            ? -1
+            : 1;
         }
-        // If there's a new version
-        if (semver.gt(latestRelease.name ?? '', app.getVersion())) {
-          const macRelease = latestRelease.assets.find((a) =>
-            a.name.endsWith('.dmg')
-          );
-          // Send an event to the front-end to push a notification
-          mainWindow?.webContents.send('new-version', {
-            version: latestRelease.name,
-            publishedAt: latestRelease.published_at,
-            downloadUrl: macRelease?.browser_download_url,
-            releaseURL: latestRelease.html_url,
-            releaseNotes: latestRelease.body,
-          });
-        }
-      } catch (e) {
-        log.error(`Failed to check for new version - ${e}`);
-      }
-    });
-  });
-  request.on('error', () => {
-    setTimeout(checkForNewVersion, 60 * 60 * 1000);
-  });
-  request.end();
+        return 0;
+      });
+
+    // Get the semver of the release
+    const latestRelease = sortedReleases[0];
+    if (!latestRelease) {
+      log.info('Not updating - no new releases');
+      return;
+    }
+    // If there's a new version
+    const latestVersion = latestRelease.name ?? '';
+    const currentVersion = app.getVersion();
+    if (semver.gt(latestVersion, currentVersion)) {
+      const macRelease = latestRelease.assets.find((a) =>
+        a.name.endsWith('.dmg')
+      );
+      // Send an event to the front-end to push a notification
+      mainWindow?.webContents.send('new-version', {
+        version: latestVersion,
+        publishedAt: latestRelease.published_at,
+        downloadUrl: macRelease?.browser_download_url,
+        releaseURL: latestRelease.html_url,
+        releaseNotes: latestRelease.body,
+      });
+    }
+  } catch (e) {
+    log.error(`Failed to check for new version - ${e}`);
+  }
+
+  setTimeout(checkForNewVersion, 60 * 60 * 1000);
 };
 
 function createMainWindow() {
@@ -202,7 +194,6 @@ function createMainWindow() {
   };
 
   mainWindow.webContents.on('will-navigate', handleRedirect);
-  mainWindow.webContents.on('new-window', handleRedirect);
 }
 
 const startApp = async () => {
@@ -210,9 +201,9 @@ const startApp = async () => {
 
   await startApolloServer();
 
-  registerIPCHandlers({ apolloDb, quickAddWindow, mainWindow });
+  registerIPCHandlers({ apolloDb: appDb, quickAddWindow, mainWindow });
 
-  const features = await apolloDb.getFeatures();
+  const features = await appDb.getFeatures();
 
   const calendarIntegration = features?.find(
     (f) => f.name === 'calendarIntegration'
@@ -221,8 +212,11 @@ const startApp = async () => {
   if (calendarIntegration?.enabled) {
     log.info('Calendar integration enabled - turning on sync');
     // Get events every 5 mins
-    calendarSyncInterval = setInterval(async () => {
-      await saveAppleCalendarEvents({ apolloDb, getRecurringEvents: false });
+    setInterval(async () => {
+      await saveAppleCalendarEvents({
+        apolloDb: appDb,
+        getRecurringEvents: false,
+      });
     }, CAL_SYNC_INTERVAL);
   }
 };

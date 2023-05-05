@@ -1,15 +1,16 @@
-import { useMutation } from '@apollo/client';
-import { Flex, Icon, IconButton, Tooltip, Kbd } from '@chakra-ui/react';
-import CommandPalette from 'react-command-palette';
-import { Icons } from '../assets/icons';
+import { useMutation } from "@apollo/client";
+import { Flex, Icon, IconButton, Kbd, Tooltip } from "@chakra-ui/react";
+import CommandPalette from "react-command-palette";
+import { Icons } from "../assets/icons";
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
+  ITEMS_BY_FILTER,
   RESTORE_ITEM,
   UNCOMPLETE_ITEM,
-  ITEMS_BY_FILTER,
-} from '../queries';
-import { useBoundStore } from '../state';
+} from "../queries";
+import { useBoundStore } from "../state";
+import { HEADERBAR_ICON_SIZE } from "./Headerbar";
 
 const CommandBar = () => {
   const activeItemIds = useBoundStore((state) => state.activeItemIds);
@@ -37,10 +38,10 @@ const CommandBar = () => {
   const allCommands: CustomCommand[] = [
     {
       id: 1,
-      icon: '',
-      shortcut: 'c',
-      color: '',
-      name: 'Complete item',
+      icon: "",
+      shortcut: "c",
+      color: "",
+      name: "Complete item",
       command: () => {
         activeItemIds.forEach((i) => {
           completeItem({ variables: { key: i } });
@@ -49,10 +50,10 @@ const CommandBar = () => {
     },
     {
       id: 2,
-      icon: '',
-      shortcut: 'd',
-      color: '',
-      name: 'Delete item',
+      icon: "",
+      shortcut: "d",
+      color: "",
+      name: "Delete item",
       command: () => {
         activeItemIds.forEach((i) => {
           deleteItem({ variables: { key: i } });
@@ -61,10 +62,10 @@ const CommandBar = () => {
     },
     {
       id: 3,
-      icon: '',
-      shortcut: 'u',
-      color: '',
-      name: 'Uncomplete item',
+      icon: "",
+      shortcut: "u",
+      color: "",
+      name: "Uncomplete item",
       command: () => {
         activeItemIds.forEach((i) => {
           unCompleteItem({ variables: { key: i } });
@@ -73,10 +74,10 @@ const CommandBar = () => {
     },
     {
       id: 4,
-      icon: '',
-      shortcut: 'r',
-      color: '',
-      name: 'Restore item',
+      icon: "",
+      shortcut: "r",
+      color: "",
+      name: "Restore item",
       command: () => {
         activeItemIds.forEach((i) => {
           restoreItem({ variables: { key: i } });
@@ -93,30 +94,36 @@ const CommandBar = () => {
       resetInputOnOpen
       alwaysRenderCommands
       theme={{
-        container: 'command-container',
-        containerOpen: 'command-containerOpen',
-        content: 'command-content',
-        header: 'command-header',
-        input: 'command-input',
-        inputFocused: 'command-inputFocused',
-        inputOpen: 'command-inputOpen',
-        modal: 'command-modal',
-        overlay: 'command-overlay',
-        spinner: 'command-spinner',
-        shortcut: 'command-shortcut',
-        suggestion: 'command-suggestion',
-        suggestionFirst: 'command-suggestionFirst',
-        suggestionHighlighted: 'command-suggestionHighlighted',
-        suggestionsContainer: 'command-suggestionsContainer',
-        suggestionsContainerOpen: 'command-suggestionsContainerOpen',
-        suggestionsList: 'command-suggestionsList',
+        container: "command-container",
+        containerOpen: "command-containerOpen",
+        content: "command-content",
+        header: "command-header",
+        input: "command-input",
+        inputFocused: "command-inputFocused",
+        inputOpen: "command-inputOpen",
+        modal: "command-modal",
+        overlay: "command-overlay",
+        spinner: "command-spinner",
+        shortcut: "command-shortcut",
+        suggestion: "command-suggestion",
+        suggestionFirst: "command-suggestionFirst",
+        suggestionHighlighted: "command-suggestionHighlighted",
+        suggestionsContainer: "command-suggestionsContainer",
+        suggestionsContainerOpen: "command-suggestionsContainerOpen",
+        suggestionsList: "command-suggestionsList",
       }}
       trigger={
         <Tooltip label="Show command bar">
           <IconButton
             aria-label="show command bar"
             variant="dark"
-            icon={<Icon as={Icons.terminal} />}
+            icon={
+              <Icon
+                as={Icons.terminal}
+                h={HEADERBAR_ICON_SIZE}
+                w={HEADERBAR_ICON_SIZE}
+              />
+            }
             color="gray.100"
           />
         </Tooltip>

@@ -1,5 +1,6 @@
 import { useQuery } from "@apollo/client";
 import {
+  Box,
   Flex,
   Icon,
   IconButton,
@@ -21,10 +22,13 @@ import {
   markdownLinkRegex,
   removeItemTypeFromString,
 } from "../utils";
+import { isElectron } from "../utils/index";
 import AccountMenu from "./AccountMenu";
 import CommandBar from "./CommandBar";
-import Select from "./Select";
-import { isElectron } from "../utils/index";
+import ExpandingSearchBar from "./ExpandingSearchBar";
+import SidebarToggleButton from "./SidebarToggleButton";
+
+export const HEADERBAR_ICON_SIZE = 4;
 
 type OptionType = { label: string; value: () => void };
 
@@ -74,7 +78,13 @@ const Headerbar = (): ReactElement => {
         disabled={disabled}
         aria-label={label}
         variant="dark"
-        icon={<Icon as={Icons[icon]} h={4} w={4} />}
+        icon={
+          <Icon
+            as={Icons[icon]}
+            h={HEADERBAR_ICON_SIZE}
+            w={HEADERBAR_ICON_SIZE}
+          />
+        }
         color={iconColour}
         onClick={onClickHandler}
       />
@@ -133,26 +143,21 @@ const Headerbar = (): ReactElement => {
     >
       <Flex justifyContent="flex-end" alignItems="center" h="100%">
         {isElectron() && (
-          <Flex
-            w="100%"
+          <Box
+            position="absolute"
+            left="0px"
             h="100%"
+            w="70px"
             sx={{
               WebkitAppRegion: "drag",
             }}
           />
         )}
-        <Flex w="100%" px={4} maxW="600px">
-          <Select
-            isSearch={true}
-            isMulti={false}
-            placeholder="Search for items..."
-            onChange={(selected) => {
-              selected.value();
-            }}
-            options={searchOptions}
-            invertColours={colorMode === "light"}
-            fullWidth
-          />
+        <Box position="absolute" left={isElectron() ? "70px" : "0px"} mx={2}>
+          <SidebarToggleButton />
+        </Box>
+        <Flex w="100%" maxW="600px" justifyContent="flex-end">
+          <ExpandingSearchBar searchOptions={searchOptions} />
         </Flex>
         <Flex justifyContent="flex-end">
           <HeaderItem>

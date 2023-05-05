@@ -14,32 +14,27 @@ import {
 import { parseISO } from "date-fns";
 import { Item, Project as ProjectType } from "../resolvers-types";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
   SET_DESCRIPTION_OF_PROJECT,
-  DELETE_PROJECT,
   DELETE_VIEW,
   GET_PROJECT_BY_KEY,
   RENAME_PROJECT,
   SET_EMOJI_OF_PROJECT,
   SET_END_DATE_OF_PROJECT,
   SET_START_DATE_OF_PROJECT,
-  GET_SIDEBAR,
   GET_VIEW_BY_KEY,
   GET_COMPONENT_BY_KEY,
-  GET_PROJECTS,
 } from "../queries";
 import { v4 as uuidv4 } from "uuid";
 import { formatRelativeDate } from "../utils";
 import DatePicker from "./DatePicker";
-import DeleteProjectDialog from "./DeleteProjectDialog";
 import { Donut } from "./Donut";
 import EditableText from "./EditableText";
 import ItemCreator from "./ItemCreator";
 import EmojiPicker from "./EmojiPicker";
 import EmojiDisplay from "./EmojiDisplay";
-// import './styled/ReactDatePicker.css';
+import ProjectOptionsMenu from "./ProjectOptionsMenu";
 
 type ProjectProps = {
   projectKey: string;
@@ -47,10 +42,6 @@ type ProjectProps = {
 
 const Project = ({ projectKey }: ProjectProps) => {
   const { colorMode } = useColorMode();
-  const navigate = useNavigate();
-  const [deleteProject] = useMutation(DELETE_PROJECT, {
-    refetchQueries: [GET_SIDEBAR, GET_PROJECTS],
-  });
   const [changeDescription] = useMutation(SET_DESCRIPTION_OF_PROJECT, {
     refetchQueries: [GET_VIEW_BY_KEY],
   });
@@ -60,7 +51,6 @@ const Project = ({ projectKey }: ProjectProps) => {
   const [setEndDate] = useMutation(SET_END_DATE_OF_PROJECT);
   const [setStartDate] = useMutation(SET_START_DATE_OF_PROJECT);
   const [setEmoji] = useMutation(SET_EMOJI_OF_PROJECT);
-  const [deleteView] = useMutation(DELETE_VIEW);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const {
@@ -162,13 +152,7 @@ const Project = ({ projectKey }: ProjectProps) => {
               <EditablePreview px={2} />
               <EditableInput px={2} />
             </Editable>
-            <DeleteProjectDialog
-              onDelete={() => {
-                deleteProject({ variables: { key: project.key } });
-                deleteView({ variables: { key: project.key } });
-                navigate("/inbox");
-              }}
-            />
+            <ProjectOptionsMenu projectKey={project.key} />
           </Flex>
         </GridItem>
         <GridItem gridArea="completed">

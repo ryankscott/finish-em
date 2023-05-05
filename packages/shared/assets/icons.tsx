@@ -36,6 +36,7 @@ import {
   FiTag,
   FiTerminal,
   FiThumbsUp,
+  FiMenu,
   FiTrash2,
   FiX,
 } from 'react-icons/fi';
@@ -119,4 +120,5 @@ export const Icons: Record<IconType, RIconType> = {
   zen: GiFocusedLightning,
   cloud: MdOutlineCloudDone,
   avatar: FiUser,
+  menu: FiMenu, 
 };

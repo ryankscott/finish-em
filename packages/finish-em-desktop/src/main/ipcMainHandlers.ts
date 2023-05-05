@@ -6,7 +6,8 @@ import { CAL_SYNC_INTERVAL } from '../consts';
 import AppDatabase from './database';
 import { store } from './settings';
 import { saveAppleCalendarEvents, saveCalendars } from './calendar';
-let calendarSyncInterval: NodeJS.Timer;
+
+let calendarSyncInterval: NodeJS.Timer | undefined;
 
 interface RegisterIPCHandlersProps {
   apolloDb: AppDatabase;

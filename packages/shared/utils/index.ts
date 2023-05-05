@@ -50,11 +50,6 @@ export const removeItemTypeFromString = (text: string): string => {
   return words.join(" ").trim();
 };
 
-export const extractDateFromString = (text: string): Date | null => {
-  const dates = chrono.parse(text);
-  return dates.length ? dates[0].ref : null;
-};
-
 export const removeDateFromString = (text: string): string => {
   const dates = chrono.parse(text);
   if (dates.length === 0 || dates === undefined) {
@@ -369,8 +364,10 @@ export const isElectron = (): boolean => {
   // Renderer process
   if (
     typeof window !== "undefined" &&
-    typeof window.process === "object" &&
-    window.process.type === "renderer"
+    // @ts-ignore
+    typeof window?.process === "object" &&
+    // @ts-ignore
+    window.process?.type === "renderer"
   ) {
     return true;
   }

@@ -12,7 +12,10 @@ import {
   useColorMode,
 } from "@chakra-ui/react";
 import { format, isFuture, isPast, parseISO } from "date-fns";
-import React, { ReactElement, useState } from "react";
+import React, { ReactElement } from "react";
+import { RRule } from "rrule";
+import { Icons } from "../assets/icons";
+import { ItemIcons } from "../interfaces";
 import {
   COMPLETE_ITEM,
   ITEMS_BY_FILTER,
@@ -20,11 +23,8 @@ import {
   RESTORE_ITEM,
   UNCOMPLETE_ITEM,
 } from "../queries";
-import { RRule } from "rrule";
 import { Item as ItemType } from "../resolvers-types";
-import { Icons } from "../assets/icons";
 import { AppState, useBoundStore } from "../state";
-import { ItemIcons } from "../interfaces";
 import {
   capitaliseFirstLetter,
   createShortSidebarItem,
@@ -35,11 +35,11 @@ import {
   truncateString,
 } from "../utils";
 import EmojiDisplay from "./EmojiDisplay";
+import { FailedItem } from "./FailedItem";
 import ItemActionButton from "./ItemActionButton";
 import ItemAttribute from "./ItemAttribute";
 import LoadingItem from "./LoadingItem";
 import MoreDropdown from "./MoreDropdown";
-import { FailedItem } from "./FailedItem";
 
 type ItemProps = {
   compact: boolean;
@@ -100,7 +100,6 @@ function Item({
   hideCollapseIcon,
 }: ItemProps): ReactElement {
   const { colorMode } = useColorMode();
-  const [moreButtonVisible, setMoreButtonVisible] = useState(false);
   const [
     activeItemIds,
     setActiveItemIds,
@@ -146,8 +145,6 @@ function Item({
     variables: { key: itemKey || null },
   });
 
-  let enterInterval: NodeJS.Timer;
-  let exitInterval: NodeJS.Timer;
   if (loading) return <LoadingItem />;
 
   if (!data || !data.item) {
@@ -237,14 +234,6 @@ function Item({
       }}
       bg={determineBackgroundColour(isFocused, colorMode)}
       id={item.key}
-      onMouseEnter={() => {
-        enterInterval = setTimeout(() => setMoreButtonVisible(true), 250);
-        clearTimeout(exitInterval);
-      }}
-      onMouseLeave={() => {
-        clearTimeout(enterInterval);
-        exitInterval = setTimeout(() => setMoreButtonVisible(false), 200);
-      }}
       onClick={(e) => {
         if (e.shiftKey) {
           if (isFocused) {
@@ -361,13 +350,11 @@ function Item({
 
       {!compact && (
         <Box gridArea="more">
-          {moreButtonVisible && (
-            <MoreDropdown
-              itemKey={item.key}
-              itemText={item.text}
-              deleted={item.deleted}
-            />
-          )}
+          <MoreDropdown
+            itemKey={item.key}
+            itemText={item.text}
+            deleted={item.deleted}
+          />
         </Box>
       )}
 

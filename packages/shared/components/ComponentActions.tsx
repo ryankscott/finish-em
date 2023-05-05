@@ -1,5 +1,4 @@
-import React, { ReactElement, useState } from 'react';
-import { useMutation } from '@apollo/client';
+import { useMutation } from "@apollo/client";
 import {
   Box,
   Flex,
@@ -7,13 +6,14 @@ import {
   IconButton,
   Tooltip,
   useColorMode,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
+import React, { ReactElement, useState } from "react";
+import { Icons } from "../assets/icons";
 import {
   CLONE_COMPONENT,
   DELETE_COMPONENT,
   GET_COMPONENTS_BY_VIEW,
-} from '../queries';
-import { Icons } from '../assets/icons';
+} from "../queries";
 
 type ComponentActionProps = {
   children: JSX.Element;
@@ -35,8 +35,8 @@ const ComponentActions = ({
   const [deleteComponent] = useMutation(DELETE_COMPONENT, {
     refetchQueries: [GET_COMPONENTS_BY_VIEW],
   });
-  let enterInterval: NodeJS.Timeout;
-  let exitInterval: NodeJS.Timeout;
+  let enterInterval;
+  let exitInterval;
 
   if (readOnly) return <div>{children}</div>;
 
@@ -55,13 +55,13 @@ const ComponentActions = ({
       {showActions && (
         <>
           <Flex
-            bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+            bg={colorMode === "light" ? "gray.50" : "gray.800"}
             direction="column"
             position="absolute"
             right="-38px"
             zIndex={9}
             border="1px solid"
-            borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+            borderColor={colorMode === "light" ? "gray.200" : "gray.600"}
             shadow="sm"
             p={0}
             borderRadius="md"
@@ -100,7 +100,7 @@ const ComponentActions = ({
                   icon={<Icon as={Icons.move} />}
                   variant="default"
                   onClick={() => {
-                    console.log('move');
+                    console.log("move");
                   }}
                 />
               </Box>

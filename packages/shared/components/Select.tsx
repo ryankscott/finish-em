@@ -74,6 +74,7 @@ const Select = (props: Props) => {
     fullWidth,
     renderLabelAsElement,
     isSearch,
+    showBorder,
   } = props;
 
   const generateColour = (invert: boolean) => {
@@ -115,6 +116,7 @@ const Select = (props: Props) => {
     hideDropdownIndicator?: boolean;
     invert?: boolean;
     fullWidth?: boolean;
+    showBorder?: boolean;
   }
 
   const selectStyles = (input: SelectStylesInput) => {
@@ -123,7 +125,7 @@ const Select = (props: Props) => {
     return {
       container: (styles: CSSObject) => ({
         ...styles,
-        border: true ? "1px solid" : "none",
+        border: showBorder ? "1px solid" : "none",
         borderColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {
             return colorMode === "light"
@@ -429,6 +431,7 @@ const Select = (props: Props) => {
         fontSize: theme.fontSizes.md,
         invert: invertColours,
         fullWidth,
+        showBorder,
       })}
       isSearchable
       defaultValue={defaultValue}

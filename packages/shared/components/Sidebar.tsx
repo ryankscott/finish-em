@@ -15,6 +15,8 @@ import {
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";
+import { v4 as uuidv4 } from "uuid";
+import { IconType } from "../interfaces";
 import {
   GET_SIDEBAR,
   SET_AREA_OF_PROJECT,
@@ -22,8 +24,7 @@ import {
   SET_PROJECT_ORDER,
   SidebarData,
 } from "../queries";
-import { v4 as uuidv4 } from "uuid";
-import { IconType } from "../interfaces";
+import { Area, Project, View } from "../resolvers-types";
 import { AppState, useBoundStore } from "../state";
 import { SidebarAddAreaButton } from "./SidebarAddAreaButton";
 import { SidebarAddProjectButton } from "./SidebarAddProjectButton";
@@ -31,8 +32,6 @@ import SidebarDraggableItem from "./SidebarDraggableItem";
 import SidebarDroppableItem from "./SidebarDroppableItem";
 import SidebarItem from "./SidebarItem";
 import SidebarSection from "./SidebarSection";
-import { Area, Project, View } from "../resolvers-types";
-import SidebarToggleButton from "./SidebarToggleButton";
 
 const defaultViews: { path: string; iconName: IconType; text: string }[] = [
   {
@@ -186,10 +185,9 @@ const Sidebar = (): ReactElement => {
       borderRight="1px solid"
       borderColor={colorMode === "light" ? "transparent" : "gray.900"}
       sx={{ scrollbarWidth: "thin" }}
-      display={sidebarVisible ? ["none", "none", "flex", "flex"] : "flex"}
+      display={sidebarVisible ? "flex" : ["none", "none", "flex", "flex"]}
     >
       <VStack spacing={0} w="100%">
-        <SidebarToggleButton />
         <SidebarSection
           name="Views"
           iconName="view"

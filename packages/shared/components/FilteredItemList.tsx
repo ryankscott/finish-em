@@ -1,24 +1,24 @@
 import {
-  IconButton,
   Box,
   Flex,
   Grid,
   GridItem,
-  Text,
-  useColorMode,
   Icon,
+  IconButton,
+  Text,
   Tooltip,
+  useColorMode,
 } from "@chakra-ui/react";
-import { ReactElement, useState } from "react";
 import { orderBy } from "lodash";
+import { ReactElement, useState } from "react";
 import { Icons } from "../assets/icons";
 import { INBOX_COMPONENT_KEY } from "../consts";
 import { ItemIcons } from "../interfaces";
+import { Item } from "../resolvers-types";
+import { AppState, useBoundStore } from "../state";
 import EditFilteredItemList from "./EditFilteredItemList";
 import ReorderableItemList from "./ReorderableItemList";
 import SortDropdown, { SortDirectionEnum } from "./SortDropdown";
-import { AppState, useBoundStore } from "../state";
-import { Item } from "../resolvers-types";
 
 const determineVisibilityRules = (
   isFilterable: boolean,

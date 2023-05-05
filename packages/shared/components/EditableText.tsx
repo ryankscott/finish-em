@@ -1,10 +1,10 @@
+import { useColorMode } from "@chakra-ui/color-mode";
+import { Box } from "@chakra-ui/layout";
+import type * as CSS from "csstype";
+import MarkdownShortcuts from "quill-markdown-shortcuts";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import MarkdownShortcuts from "quill-markdown-shortcuts";
-import CSS from "csstype";
-import { Box } from "@chakra-ui/layout";
-import { useColorMode } from "@chakra-ui/color-mode";
 
 Quill.register("modules/markdownShortcuts", MarkdownShortcuts);
 

@@ -1,12 +1,10 @@
 import { useQuery } from "@apollo/client";
-import { ChakraProvider, ColorModeScript } from "@chakra-ui/react";
-import { Flex } from "@chakra-ui/react";
+import { ChakraProvider, ColorModeScript, Flex } from "@chakra-ui/react";
 import { isSameMinute, parseISO } from "date-fns";
 import { ReactElement } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { MIN_WIDTH_FOR_FOCUSBAR, MIN_WIDTH_FOR_SIDEBAR } from "../consts";
 import { useOnlineStatus } from "../hooks";
 import { GET_APP_DATA } from "../queries/";
 import { AppState, useBoundStore } from "../state";
@@ -35,18 +33,8 @@ const AreaWrapper = (): ReactElement => {
 };
 
 const App = (): ReactElement => {
-  const [
-    activeItemIds,
-    focusbarVisible,
-    setFocusbarVisible,
-    sidebarVisible,
-    setSidebarVisible,
-  ] = useBoundStore((state: AppState) => [
+  const [activeItemIds] = useBoundStore((state: AppState) => [
     state.activeItemIds,
-    state.focusbarVisible,
-    state.setFocusbarVisible,
-    state.sidebarVisible,
-    state.setSidebarVisible,
   ]);
 
   const isOnline = useOnlineStatus();
@@ -61,23 +49,13 @@ const App = (): ReactElement => {
   }
   const signedIn = localStorage.getItem("token");
   if (!signedIn) {
-    return <CloudSyncSignUpOrIn onClose={() => {}} />;
+    return (
+      <ChakraProvider theme={theme}>
+        <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+        <CloudSyncSignUpOrIn onClose={() => {}} />
+      </ChakraProvider>
+    );
   }
-
-  // TODO: Work out the best way to expand the width here
-  const handleResize = () => {
-    if (window.innerWidth < MIN_WIDTH_FOR_SIDEBAR && sidebarVisible) {
-      setSidebarVisible(false);
-    }
-    if (focusbarVisible) {
-      if (window.innerWidth < MIN_WIDTH_FOR_FOCUSBAR && focusbarVisible) {
-        setFocusbarVisible(false);
-      }
-    }
-  };
-  window.addEventListener("resize", () => {
-    setTimeout(handleResize, 250);
-  });
 
   if (data?.reminders) {
     setInterval(() => {

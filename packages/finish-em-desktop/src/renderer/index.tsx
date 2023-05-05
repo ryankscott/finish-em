@@ -9,12 +9,6 @@ const client = new ApolloClient({
   cache: queryCache,
 });
 
-// eslint-disable-next-line import/prefer-default-export
-export const legacyClient = new ApolloClient({
-  uri: 'http://localhost:8089/graphql',
-  cache: queryCache,
-});
-
 const container = document.getElementById('root');
 const root = createRoot(container);
 root.render(
