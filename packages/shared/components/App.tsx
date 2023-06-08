@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { ChakraProvider, ColorModeScript, Flex } from "@chakra-ui/react";
+import { Box, ChakraProvider, ColorModeScript, Flex } from "@chakra-ui/react";
 import { isSameMinute, parseISO } from "date-fns";
 import { ReactElement } from "react";
 import { Route, Routes, useParams } from "react-router-dom";
@@ -52,7 +52,9 @@ const App = (): ReactElement => {
     return (
       <ChakraProvider theme={theme}>
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
-        <CloudSyncSignUpOrIn onClose={() => {}} />
+        <Box m={4}>
+          <CloudSyncSignUpOrIn onClose={() => {}} />
+        </Box>
       </ChakraProvider>
     );
   }

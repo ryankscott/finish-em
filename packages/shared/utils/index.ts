@@ -77,7 +77,8 @@ export const setEndOfContenteditable = (
   }
 };
 
-export const formatRelativeDate = (date: Date): string => {
+export const formatRelativeDate = (date: Date | null | undefined): string => {
+  if (!date) return "";
   if (!isValid(date)) return "";
   if (isToday(date)) {
     return "Today";

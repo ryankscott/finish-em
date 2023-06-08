@@ -68,6 +68,7 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
         <CloudIcon />
         <Input
           type="email"
+          id="email"
           value={email}
           borderRadius="md"
           size="md"
@@ -75,6 +76,7 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
           placeholder="Email address"
           isInvalid={!isEmailValid && email != ""}
           onChange={handleEmailChange}
+          required
         />
         <InputGroup size="md">
           <Input

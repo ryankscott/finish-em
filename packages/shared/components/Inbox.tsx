@@ -1,11 +1,11 @@
-import { ReactElement } from "react";
 import { Flex } from "@chakra-ui/react";
+import { ReactElement } from "react";
 import { INBOX_COMPONENT_KEY } from "../consts";
 import { ItemIcons } from "../interfaces";
 import FilteredItemList from "./FilteredItemList";
 import ItemCreator from "./ItemCreator";
-import ViewHeader from "./ViewHeader";
 import Page from "./Page";
+import ViewHeader from "./ViewHeader";
 
 const Inbox = (): ReactElement => {
   return (

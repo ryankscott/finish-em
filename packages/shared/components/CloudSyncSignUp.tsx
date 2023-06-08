@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import { CREATE_USER } from "../queries";
 import { emailRegex } from "../utils";
 import CloudIcon from "./CloudIcon";
+import Page from "./Page";
 
 interface CloudSyncSignUpProps {
   setMode: (mode: "signin") => void;
@@ -46,7 +47,7 @@ const CloudSyncSignUp = ({ onClose, setMode }: CloudSyncSignUpProps) => {
       isClosable: true,
     });
     return (
-      <Flex>
+      <Page>
         <Flex direction="column" my={2} mt={8}>
           <CloudIcon />
           <Flex w="100%" alignItems="center" direction="column" py={4}>
@@ -66,7 +67,7 @@ const CloudSyncSignUp = ({ onClose, setMode }: CloudSyncSignUpProps) => {
             </Button>
           </Flex>
         </Flex>
-      </Flex>
+      </Page>
     );
   }
   if (error) {

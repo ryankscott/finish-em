@@ -1,13 +1,13 @@
-import { Box, Flex, Text } from "@chakra-ui/react";
-import { GET_PROJECTS } from "../queries";
-import { groupBy } from "lodash";
-import { Project } from "../resolvers-types";
 import { useQuery } from "@apollo/client";
-import Select from "./Select";
+import { Box, Flex, Text } from "@chakra-ui/react";
+import { groupBy } from "lodash";
+import { GET_PROJECTS } from "../queries";
+import { Project } from "../resolvers-types";
 import EmojiDisplay from "./EmojiDisplay";
+import Select from "./Select";
 
 type ProjectSelectProps = {
-  currentProject: Project | null;
+  currentProjectKey: string | null;
   completed: boolean;
   deleted: boolean;
   onSubmit: (key: string) => void;
@@ -15,7 +15,7 @@ type ProjectSelectProps = {
 };
 
 export default function ProjectSelect({
-  currentProject,
+  currentProjectKey,
   completed,
   deleted,
   onSubmit,
@@ -60,6 +60,9 @@ export default function ProjectSelect({
 
     // Sort to ensure that the current project is at the front
     // Only if it has a project
+    const currentProject = data?.projects.find(
+      (p) => p.key == currentProjectKey
+    );
     if (currentProject != null) {
       aGroups.sort((a, b) => {
         if (a.label === currentProject.area?.name) return -1;
@@ -84,9 +87,7 @@ export default function ProjectSelect({
     })
     .flat();
 
-  const defaultValue = allOptions?.filter(
-    (o) => o.value === currentProject?.key
-  );
+  const defaultValue = allOptions?.filter((o) => o.value === currentProjectKey);
 
   return (
     <Box w="100%" cursor={completed || deleted ? "not-allowed" : "inherit"}>
@@ -98,7 +99,7 @@ export default function ProjectSelect({
         }}
         options={options}
         escapeClearsValue
-        placeholder="Add to project"
+        placeholder="Project:"
         defaultValue={defaultValue}
         invertColours={invertColours}
         renderLabelAsElement

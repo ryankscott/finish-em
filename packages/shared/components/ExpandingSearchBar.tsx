@@ -1,5 +1,10 @@
 import { SearchIcon } from "@chakra-ui/icons";
-import { IconButton, useColorMode, useOutsideClick } from "@chakra-ui/react";
+import {
+  Box,
+  IconButton,
+  useColorMode,
+  useOutsideClick,
+} from "@chakra-ui/react";
 import { useRef, useState } from "react";
 import { GroupBase } from "react-select";
 import { HEADERBAR_ICON_SIZE } from "./Headerbar";
@@ -20,7 +25,7 @@ const ExpandingSearchBar = ({ searchOptions }: ExpandingSearchBarProps) => {
   return (
     <>
       {isExpanded ? (
-        <div ref={ref}>
+        <Box ref={ref} w="100%">
           <Select
             showBorder
             isSearch
@@ -34,7 +39,7 @@ const ExpandingSearchBar = ({ searchOptions }: ExpandingSearchBarProps) => {
             invertColours={colorMode === "light"}
             fullWidth
           />
-        </div>
+        </Box>
       ) : (
         <IconButton
           variant="dark"

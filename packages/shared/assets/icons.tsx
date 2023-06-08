@@ -1,10 +1,10 @@
-import { IconType as RIconType } from 'react-icons';
-import { BiSortAlt2 } from 'react-icons/bi';
+import { IconType as RIconType } from "react-icons";
+import { BiSortAlt2 } from "react-icons/bi";
 import {
-  FiUser,
   FiArrowLeft,
   FiArrowRight,
   FiArrowRightCircle,
+  FiBold,
   FiBox,
   FiCalendar,
   FiCheckCircle,
@@ -22,7 +22,10 @@ import {
   FiFlag,
   FiHelpCircle,
   FiInbox,
+  FiItalic,
   FiLayers,
+  FiLink,
+  FiMenu,
   FiMoon,
   FiMoreVertical,
   FiPlus,
@@ -36,11 +39,13 @@ import {
   FiTag,
   FiTerminal,
   FiThumbsUp,
-  FiMenu,
   FiTrash2,
+  FiUnderline,
+  FiUser,
   FiX,
-} from 'react-icons/fi';
-import { GiFocusedLightning } from 'react-icons/gi';
+} from "react-icons/fi";
+import { GiFocusedLightning } from "react-icons/gi";
+import { ImStrikethrough } from "react-icons/im";
 import {
   MdAlarm,
   MdBlock,
@@ -49,14 +54,14 @@ import {
   MdDragHandle,
   MdHourglassBottom,
   MdOutlineCalendarViewWeek,
+  MdOutlineCloudDone,
   MdOutlineDeleteSweep,
   MdOutlineUnfoldLess,
   MdOutlineUnfoldMore,
-  MdOutlineCloudDone,
   MdSort,
-} from 'react-icons/md';
-import { RiBearSmileLine, RiZzzFill } from 'react-icons/ri';
-import { IconType } from '../interfaces';
+} from "react-icons/md";
+import { RiBearSmileLine, RiZzzFill } from "react-icons/ri";
+import { IconType } from "../interfaces";
 
 export const convertSVGElementToReact = (svg: React.SVGProps<SVGElement>) => (
   <>{svg}</>
@@ -120,5 +125,10 @@ export const Icons: Record<IconType, RIconType> = {
   zen: GiFocusedLightning,
   cloud: MdOutlineCloudDone,
   avatar: FiUser,
-  menu: FiMenu, 
+  menu: FiMenu,
+  link: FiLink,
+  bold: FiBold,
+  italic: FiItalic,
+  underline: FiUnderline,
+  strike: ImStrikethrough,
 };

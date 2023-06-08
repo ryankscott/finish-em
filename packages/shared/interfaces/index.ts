@@ -56,7 +56,12 @@ export type IconType =
   | "zen"
   | "cloud"
   | "avatar"
-  | "menu";
+  | "menu"
+  | "link"
+  | "bold"
+  | "italic"
+  | "underline"
+  | "strike";
 
 export enum ItemIcons {
   Due = "due",

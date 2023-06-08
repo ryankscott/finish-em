@@ -1,22 +1,22 @@
 import { useMutation } from "@apollo/client";
 import {
-  Grid,
-  Flex,
-  Text,
-  IconButton,
-  Tooltip,
   Box,
+  Flex,
+  Grid,
   Icon,
+  IconButton,
+  Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import { Icons } from "../assets/icons";
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
-  WEEKLY_ITEMS,
   ITEMS_BY_FILTER,
   SET_DUE_AT,
   SET_PROJECT,
   SET_SCHEDULED_AT,
+  WEEKLY_ITEMS,
 } from "../queries";
 import { AppState, useBoundStore } from "../state";
 import DatePicker from "./DatePicker";
@@ -130,7 +130,7 @@ const ActionBar = () => {
 
       <Box gridArea="project">
         <ProjectSelect
-          currentProject={null}
+          currentProjectKey={null}
           invertColours
           completed={false}
           deleted={false}

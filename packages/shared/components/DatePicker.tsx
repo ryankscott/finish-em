@@ -1,20 +1,23 @@
-import { ReactElement, useState } from 'react';
 import {
-  Flex,
-  Button,
   Box,
+  Button,
+  Flex,
   Icon,
-  MenuButton,
   Menu,
+  MenuButton,
   MenuItem,
   MenuList,
   Text,
-} from '@chakra-ui/react';
-import { add, lastDayOfWeek } from 'date-fns';
-import RDatePicker from 'react-datepicker';
-import './styled/ReactDatePicker.css';
-import { Icons } from '../assets/icons';
-import { DayOfWeekPicker } from './DayOfWeekPicker';
+  useDisclosure,
+  useOutsideClick,
+} from "@chakra-ui/react";
+import { add, lastDayOfWeek } from "date-fns";
+import { ReactElement, useRef, useState } from "react";
+import RDatePicker from "react-datepicker";
+import { Icons } from "../assets/icons";
+import { IconType } from "../interfaces";
+import { DayOfWeekPicker } from "./DayOfWeekPicker";
+import "./styled/ReactDatePicker.css";
 
 type DatePickerProps = {
   completed: boolean;
@@ -24,6 +27,7 @@ type DatePickerProps = {
   deleted?: boolean;
   onEscape?: () => void;
   forceDark?: boolean;
+  icon?: IconType;
 };
 
 const DatePicker = ({
@@ -33,18 +37,32 @@ const DatePicker = ({
   defaultText,
   deleted,
   forceDark,
+  icon,
 }: DatePickerProps): ReactElement => {
   const [dayPickerVisible, setDayPickerVisible] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const ref = useRef(null);
+  useOutsideClick({
+    ref: ref,
+    handler: () => onClose(),
+  });
 
   const handleDayChange = (input: Date | null) => {
     setDayPickerVisible(false);
-    setShowMenu(false);
+    onClose();
     onSubmit(input);
   };
 
   return (
-    <Menu flip={false} offset={[0, 4]} placement={'bottom-end'}>
+    <Menu
+      flip={false}
+      offset={[0, 4]}
+      placement={"bottom-end"}
+      isOpen={isOpen}
+      closeOnBlur={true}
+      ref={ref}
+    >
       <MenuButton
         as={Button}
         w="100%"
@@ -54,12 +72,13 @@ const DatePicker = ({
         borderRadius="md"
         justifyContent="space-between"
         onClick={() => {
-          setShowMenu(!showMenu);
+          isOpen ? onClose() : onOpen();
           setDayPickerVisible(false);
         }}
         fontWeight="normal"
         textAlign="start"
-        variant={forceDark ? 'dark' : 'default'}
+        variant={forceDark ? "dark" : "default"}
+        leftIcon={icon && <Icon as={Icons?.[icon]} />}
       >
         {text || defaultText}
       </MenuButton>

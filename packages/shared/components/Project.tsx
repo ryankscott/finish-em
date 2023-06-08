@@ -227,7 +227,7 @@ const Project = ({ projectKey }: ProjectProps) => {
         shouldClearOnSubmit={false}
         hideToolbar={false}
         shouldSubmitOnBlur
-        onUpdate={(input) => {
+        onSubmit={(input) => {
           changeDescription({
             variables: { key: project.key, description: input },
           });

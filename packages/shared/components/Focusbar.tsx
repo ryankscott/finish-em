@@ -2,55 +2,55 @@ import { useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
   Flex,
   FlexProps,
-  Text,
-  Tooltip,
   Icon,
   IconButton,
-  useColorMode,
-  DrawerContent,
-  DrawerBody,
-  DrawerOverlay,
-  DrawerHeader,
-  DrawerCloseButton,
+  Text,
+  Tooltip,
   useBreakpointValue,
+  useColorMode,
 } from "@chakra-ui/react";
+import { parseISO } from "date-fns";
 import { ReactElement } from "react";
-import {
-  ITEM_BY_KEY,
-  RENAME_ITEM,
-  COMPLETE_ITEM,
-  SET_AREA,
-  SET_PROJECT,
-  UNCOMPLETE_ITEM,
-  SET_SCHEDULED_AT,
-  SET_DUE_AT,
-  SET_REPEAT,
-  SET_PARENT,
-  SET_LABEL,
-  DELETE_ITEM,
-  RESTORE_ITEM,
-  ITEMS_BY_FILTER,
-  WEEKLY_ITEMS,
-} from "../queries";
 import { RRule } from "rrule";
-import { Item as ItemType } from "../resolvers-types";
 import { Icons } from "../assets/icons";
 import { IconType, ItemIcons } from "../interfaces";
+import {
+  COMPLETE_ITEM,
+  DELETE_ITEM,
+  ITEMS_BY_FILTER,
+  ITEM_BY_KEY,
+  RENAME_ITEM,
+  RESTORE_ITEM,
+  SET_AREA,
+  SET_DUE_AT,
+  SET_LABEL,
+  SET_PARENT,
+  SET_PROJECT,
+  SET_REPEAT,
+  SET_SCHEDULED_AT,
+  UNCOMPLETE_ITEM,
+  WEEKLY_ITEMS,
+} from "../queries";
+import { Item as ItemType } from "../resolvers-types";
+import { AppState, useBoundStore } from "../state";
 import { formatRelativeDate } from "../utils";
 import AreaSelect from "./AreaSelect";
-import ItemSelect from "./ItemSelect";
 import DatePicker from "./DatePicker";
 import EditableText from "./EditableText";
+import Item from "./Item";
+import ItemActionButton from "./ItemActionButton";
 import ItemCreator from "./ItemCreator";
+import ItemSelect from "./ItemSelect";
 import LabelSelect from "./LabelSelect";
 import ProjectSelect from "./ProjectSelect";
 import RepeatPicker from "./RepeatPicker";
-import ItemActionButton from "./ItemActionButton";
-import Item from "./Item";
-import { AppState, useBoundStore } from "../state";
-import { parseISO } from "date-fns";
 
 const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
@@ -208,9 +208,9 @@ const Focusbar = (): ReactElement => {
           </Flex>
         </DrawerHeader>
         <DrawerBody>
-          <Flex direction="column">
+          <Flex direction="column" w="100%">
             <Flex w="100%" justifyContent="space-between" mb={2}>
-              <Flex>
+              <Flex alignItems="center" w="100% ">
                 <ItemActionButton
                   deleted={item.deleted ?? false}
                   completed={item.completed ?? false}
@@ -224,25 +224,25 @@ const Focusbar = (): ReactElement => {
                   disableOnDelete
                   colour={item?.label?.colour ?? undefined}
                 />
-                <Box
+                <Flex
                   w="100%"
                   maxW="250px"
                   textDecoration={item?.completed ? "line-through" : "inherit"}
                   px={1}
                 >
                   <EditableText
+                    size="sm"
                     readOnly={item.deleted ?? false}
                     input={item?.text ?? ""}
                     singleLine
                     shouldClearOnSubmit={false}
                     shouldSubmitOnBlur
                     shouldBlurOnSubmit
-                    hideToolbar={false}
-                    onUpdate={(text) => {
+                    onSubmit={(text) => {
                       renameItem({ variables: { key: item.key, text } });
                     }}
                   />
-                </Box>
+                </Flex>
               </Flex>
               {item.deleted ? (
                 <Tooltip label="Restore">
@@ -287,7 +287,7 @@ const Focusbar = (): ReactElement => {
             <AttributeContainer>
               <SidebarTitle icon="project" text="Project: " />
               <ProjectSelect
-                currentProject={item.project ?? null}
+                currentProjectKey={item?.project?.key ?? null}
                 deleted={item.deleted ?? false}
                 completed={item.completed ?? false}
                 onSubmit={(projectKey: string) => {
@@ -366,7 +366,7 @@ const Focusbar = (): ReactElement => {
             <AttributeContainer>
               <SidebarTitle icon="label" text="Label: " />
               <LabelSelect
-                currentLabel={item.label ?? null}
+                currentLabelKey={item.label?.key ?? null}
                 completed={item.completed ?? false}
                 deleted={item.deleted ?? false}
                 onSubmit={(labelKey) => {
@@ -430,7 +430,13 @@ const Focusbar = (): ReactElement => {
                     No subtasks
                   </Text>
                 )}
-                <ItemCreator parentKey={item.key} initiallyExpanded={false} />
+                <Box p={4}>
+                  <ItemCreator
+                    parentKey={item.key}
+                    initiallyExpanded={false}
+                    buttonText="Add subtask"
+                  />
+                </Box>
               </>
             )}
           </Flex>

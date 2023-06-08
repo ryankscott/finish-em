@@ -138,7 +138,7 @@ const WeeklyAgenda = (): ReactElement => {
           shouldSubmitOnBlur
           shouldClearOnSubmit={false}
           hideToolbar={false}
-          onUpdate={(input) => {
+          onSubmit={(input) => {
             createWeeklyGoal({
               variables: {
                 key: weeklyGoal?.key,

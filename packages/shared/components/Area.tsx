@@ -165,7 +165,7 @@ const Area = (props: AreaProps): ReactElement => {
         hideToolbar={false}
         shouldSubmitOnBlur
         input={area.description}
-        onUpdate={(input) => {
+        onSubmit={(input) => {
           setDescriptionOfArea({
             variables: { key: area.key, description: input },
           });
