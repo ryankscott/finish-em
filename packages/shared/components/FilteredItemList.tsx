@@ -196,7 +196,7 @@ const FilteredItemList = ({
                     />
                   </Box>
                 </Tooltip>
-                <Box minW={["20px", "20px", "120px", "120px"]}>
+                <Box>
                   <SortDropdown
                     defaultText="Due"
                     sortType={sortType}

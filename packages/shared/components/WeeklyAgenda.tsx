@@ -137,7 +137,6 @@ const WeeklyAgenda = (): ReactElement => {
           placeholder="Add a weekly goal..."
           shouldSubmitOnBlur
           shouldClearOnSubmit={false}
-          hideToolbar={false}
           onSubmit={(input) => {
             createWeeklyGoal({
               variables: {

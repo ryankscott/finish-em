@@ -231,7 +231,6 @@ const Focusbar = (): ReactElement => {
                   px={1}
                 >
                   <EditableText
-                    size="sm"
                     readOnly={item.deleted ?? false}
                     input={item?.text ?? ""}
                     singleLine
@@ -366,7 +365,7 @@ const Focusbar = (): ReactElement => {
             <AttributeContainer>
               <SidebarTitle icon="label" text="Label: " />
               <LabelSelect
-                currentLabelKey={item.label?.key ?? null}
+                currentLabelKey={item.label?.key}
                 completed={item.completed ?? false}
                 deleted={item.deleted ?? false}
                 onSubmit={(labelKey) => {

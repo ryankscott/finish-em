@@ -1,8 +1,6 @@
 import { useQuery } from "@apollo/client";
 import { Box } from "@chakra-ui/react";
 import { transparentize } from "polished";
-import { Icons } from "../assets/icons";
-import { IconType } from "../interfaces";
 import { GET_LABELS } from "../queries";
 import { Label } from "../resolvers-types";
 import Select from "./Select";
@@ -52,7 +50,7 @@ export default function LabelSelect({
   return (
     <Box w="100%" cursor={completed || deleted ? "not-allowed" : "inherit"}>
       <Select
-        icon={showIcon ? Icons.label : undefined}
+        icon={showIcon ? "label" : undefined}
         isMulti={false}
         isDisabled={completed || deleted}
         onChange={(p) => {

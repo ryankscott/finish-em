@@ -108,6 +108,7 @@ const Select = (props: Props) => {
     ),
     Option: ({ children, ...props }) => {
       return (
+        // @ts-ignore
         <chakraComponents.Option {...props}>
           {props.data.color && (
             <Circle
@@ -123,11 +124,11 @@ const Select = (props: Props) => {
       );
     },
     ValueContainer: ({ children, ...props }) => {
-      console.log({ icon });
       return (
+        // @ts-ignore
         <chakraComponents.ValueContainer {...props}>
           <Flex alignItems="center" px={1}>
-            {icon && <Icon mr={2} as={icon} />}
+            {icon && <Icon mr={2} as={Icons[icon]} />}
             {children}
           </Flex>
         </chakraComponents.ValueContainer>

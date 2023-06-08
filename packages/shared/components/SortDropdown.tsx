@@ -77,7 +77,7 @@ function SortDropdown({
   ]);
 
   return (
-    <Menu closeOnSelect closeOnBlur>
+    <Menu closeOnSelect closeOnBlur placement="bottom-end">
       {sortButton}
       <MenuList>
         <MenuOptionGroup defaultValue="asc" title="Order" type="radio">

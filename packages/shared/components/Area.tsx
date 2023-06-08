@@ -162,7 +162,6 @@ const Area = (props: AreaProps): ReactElement => {
         singleLine={false}
         placeholder="Add a description for your area"
         shouldClearOnSubmit={false}
-        hideToolbar={false}
         shouldSubmitOnBlur
         input={area.description}
         onSubmit={(input) => {

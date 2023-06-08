@@ -7,7 +7,6 @@ import Menu from "./ItemCreator/Menu";
 import Link from "@tiptap/extension-link";
 
 type EditableTextProps = {
-  size: "sm" | "md" | "lg";
   singleLine: boolean;
   shouldSubmitOnBlur: boolean;
   shouldClearOnSubmit: boolean;
@@ -21,7 +20,6 @@ type EditableTextProps = {
 };
 
 const EditableText = ({
-  size,
   shouldSubmitOnBlur,
   shouldClearOnSubmit,
   onSubmit,

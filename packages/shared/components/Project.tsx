@@ -17,7 +17,6 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import {
   SET_DESCRIPTION_OF_PROJECT,
-  DELETE_VIEW,
   GET_PROJECT_BY_KEY,
   RENAME_PROJECT,
   SET_EMOJI_OF_PROJECT,
@@ -225,7 +224,6 @@ const Project = ({ projectKey }: ProjectProps) => {
         singleLine={false}
         placeholder="Add a description for your project..."
         shouldClearOnSubmit={false}
-        hideToolbar={false}
         shouldSubmitOnBlur
         onSubmit={(input) => {
           changeDescription({

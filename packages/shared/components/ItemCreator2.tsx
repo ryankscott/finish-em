@@ -133,7 +133,6 @@ const ItemCreator2 = ({
       p={4}
     >
       <EditableText
-        size="md"
         input={content}
         readOnly={readOnly ?? false}
         singleLine={singleLine ?? true}
