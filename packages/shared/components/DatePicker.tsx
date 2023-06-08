@@ -55,7 +55,7 @@ const DatePicker = ({
   };
 
   return (
-    <Box ref={ref}>
+    <Box ref={ref} w="100%">
       <Menu
         flip={false}
         offset={[0, 4]}

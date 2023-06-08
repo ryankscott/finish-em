@@ -433,8 +433,8 @@ const styles: Styles = {
       },
       // Tiptap
       ".ProseMirror": {
-        py: 1,
-        px: 2,
+        py: 1.5,
+        px: 2.5,
         mt: 0,
         borderRadius: "md",
         fontSize: "lg",
