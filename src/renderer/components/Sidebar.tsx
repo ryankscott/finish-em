@@ -214,6 +214,7 @@ const Sidebar = (): ReactElement => {
                 />
               );
             })}
+          <Button onClick={openNewViewForm}>Create New View</Button>
         </VStack>
         <SidebarSection
           name="Areas"
