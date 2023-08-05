@@ -27,6 +27,9 @@ const view: Partial<Resolvers> = {
       const { key, name } = input;
       return dataSources.apolloDb.renameView(key, name);
     },
+    createNewView: (_, { key, name, icon, type }, { dataSources }) => {
+      return dataSources.apolloDb.createView(key, name, icon ?? '', type);
+    },
   },
 };
 
