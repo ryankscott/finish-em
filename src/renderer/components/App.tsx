@@ -112,6 +112,7 @@ const App = (): ReactElement => {
             <Route path="/areas/:id" element={<AreaWrapper />} />
             <Route path="/Settings" element={<Settings />} />
             <Route path="/weeklyAgenda" element={<WeeklyAgenda />} />
+            <Route path="/newView/:id" element={<ViewWrapper />} />
             <Route path="/" element={<Inbox />} />
             <Route path="*" element={<Inbox />} />
           </Routes>

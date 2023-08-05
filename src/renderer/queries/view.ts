@@ -18,3 +18,14 @@ export const GET_VIEW_BY_KEY = gql`
     }
   }
 `;
+
+export const CREATE_VIEW = gql`
+  mutation CreateView($key: String!, $name: String!, $icon: String, $type: String!) {
+    createView(input: { key: $key, name: $name, icon: $icon, type: $type }) {
+      key
+      name
+      type
+      icon
+    }
+  }
+`;
