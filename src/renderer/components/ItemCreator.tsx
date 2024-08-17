@@ -1,47 +1,34 @@
-import { ReactElement, useState, useEffect, useRef } from 'react';
-import { v4 as uuidv4 } from 'uuid';
-import { useMutation } from '@apollo/client';
-import {
-  Box,
-  Button,
-  Flex,
-  Icon,
-  IconButton,
-  Tooltip,
-  useOutsideClick,
-} from '@chakra-ui/react';
-import {
-  CREATE_ITEM,
-  GET_HEADER_BAR_DATA,
-  ITEMS_BY_FILTER,
-  ITEM_BY_KEY,
-} from 'renderer/queries';
-import { Icons } from 'renderer/assets/icons';
-import EditItemCreator from './EditItemCreator';
-import EditableText from './EditableText';
-import { HTMLToPlainText } from 'renderer/utils';
+import { ReactElement, useState, useEffect, useRef } from 'react'
+import { v4 as uuidv4 } from 'uuid'
+import { useMutation } from '@apollo/client'
+import { Box, Button, Flex, Icon, IconButton, Tooltip, useOutsideClick } from '@chakra-ui/react'
+import { CREATE_ITEM, GET_HEADER_BAR_DATA, ITEMS_BY_FILTER, ITEM_BY_KEY } from '../queries'
+import { Icons } from '../assets/icons'
+import EditItemCreator from './EditItemCreator'
+import EditableText from './EditableText'
+import { HTMLToPlainText } from '../utils'
 
 export type ItemCreatorProps = {
-  initiallyExpanded: boolean;
-  readOnly?: boolean;
-  componentKey?: string;
-  shouldCloseOnSubmit?: boolean;
-  shouldCloseOnBlur?: boolean;
-  parentKey?: string;
-  projectKey?: string | '0';
-  dueAt?: Date;
-  scheduledAt?: Date;
-  repeat?: string;
-  labelKey?: string;
-  buttonText?: string;
-  width?: string;
-  hideButton?: boolean;
-  onCreate?: () => void;
-  onEscape?: () => void;
-  editing?: boolean;
-  style?: 'subtle' | 'default';
-  setEditing?: (editing: boolean) => void;
-};
+  initiallyExpanded: boolean
+  readOnly?: boolean
+  componentKey?: string
+  shouldCloseOnSubmit?: boolean
+  shouldCloseOnBlur?: boolean
+  parentKey?: string
+  projectKey?: string | '0'
+  dueAt?: Date
+  scheduledAt?: Date
+  repeat?: string
+  labelKey?: string
+  buttonText?: string
+  width?: string
+  hideButton?: boolean
+  onCreate?: () => void
+  onEscape?: () => void
+  editing?: boolean
+  style?: 'subtle' | 'default'
+  setEditing?: (editing: boolean) => void
+}
 
 const ItemCreator = ({
   initiallyExpanded,
@@ -61,24 +48,24 @@ const ItemCreator = ({
   onCreate,
   onEscape,
   editing,
-  setEditing,
+  setEditing
 }: ItemCreatorProps): ReactElement => {
-  const [showItemCreator, setShowItemCreator] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [showItemCreator, setShowItemCreator] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
   useOutsideClick({
     ref: ref,
     handler: () => {
-      setShowItemCreator(false);
-    },
-  });
+      setShowItemCreator(false)
+    }
+  })
 
   useEffect(() => {
-    setShowItemCreator(initiallyExpanded);
-  }, [initiallyExpanded]);
+    setShowItemCreator(initiallyExpanded)
+  }, [initiallyExpanded])
   const [createItem] = useMutation(CREATE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY, GET_HEADER_BAR_DATA],
-  });
+    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY, GET_HEADER_BAR_DATA]
+  })
 
   return (
     <>
@@ -99,7 +86,7 @@ const ItemCreator = ({
           ref={ref}
           onKeyDown={(e) => {
             if (e.key === 'Escape') {
-              setShowItemCreator(false);
+              setShowItemCreator(false)
             }
           }}
         >
@@ -114,7 +101,7 @@ const ItemCreator = ({
                     icon={<Icon as={Icons.add} />}
                     color="white"
                     onClick={() => {
-                      setShowItemCreator(!showItemCreator);
+                      setShowItemCreator(!showItemCreator)
                     }}
                   />
                 ) : (
@@ -124,7 +111,7 @@ const ItemCreator = ({
                     h={9}
                     minW={9}
                     onClick={() => {
-                      setShowItemCreator(!showItemCreator);
+                      setShowItemCreator(!showItemCreator)
                     }}
                   >
                     {buttonText}
@@ -155,8 +142,8 @@ const ItemCreator = ({
                 shouldSubmitOnBlur={false}
                 showBorder
                 onUpdate={(text) => {
-                  const rawText = HTMLToPlainText(text);
-                  if (!rawText.trim()) return;
+                  const rawText = HTMLToPlainText(text)
+                  if (!rawText.trim()) return
                   createItem({
                     variables: {
                       key: uuidv4(),
@@ -167,9 +154,9 @@ const ItemCreator = ({
                       dueAt,
                       scheduledAt,
                       repeat,
-                      labelKey,
-                    },
-                  });
+                      labelKey
+                    }
+                  })
                 }}
               />
             )}
@@ -177,7 +164,7 @@ const ItemCreator = ({
         </Flex>
       )}
     </>
-  );
-};
+  )
+}
 
-export default ItemCreator;
+export default ItemCreator

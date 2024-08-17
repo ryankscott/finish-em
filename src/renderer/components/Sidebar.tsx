@@ -1,163 +1,145 @@
-import { useMutation, useQuery } from '@apollo/client';
-import {
-  Box,
-  Divider,
-  Flex,
-  Stack,
-  useColorMode,
-  VStack,
-} from '@chakra-ui/react';
-import { orderBy } from 'lodash';
-import { ReactElement, useEffect, useState } from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from 'react-beautiful-dnd';
+import { useMutation, useQuery } from '@apollo/client'
+import { Box, Divider, Flex, Stack, useColorMode, VStack } from '@chakra-ui/react'
+import { orderBy } from 'lodash'
+import { ReactElement, useEffect, useState } from 'react'
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
 import {
   GET_SIDEBAR,
   SET_AREA_OF_PROJECT,
   SET_AREA_ORDER,
   SET_PROJECT_ORDER,
-  SidebarData,
-} from 'renderer/queries';
-import { v4 as uuidv4 } from 'uuid';
-import { Area, Project, View } from '../../main/resolvers-types';
-import { IconType } from '../interfaces';
-import { AppState, useBoundStore } from '../state';
-import { SidebarAddAreaButton } from './SidebarAddAreaButton';
-import { SidebarAddProjectButton } from './SidebarAddProjectButton';
-import SidebarDraggableItem from './SidebarDraggableItem';
-import SidebarDroppableItem from './SidebarDroppableItem';
-import SidebarItem from './SidebarItem';
-import SidebarSection from './SidebarSection';
-import SidebarToggleButton from './SidebarToggleButton';
+  SidebarData
+} from '../queries'
+import { v4 as uuidv4 } from 'uuid'
+import { Area, Project, View } from '../../main/resolvers-types'
+import { IconType } from '../interfaces'
+import { AppState, useBoundStore } from '../state'
+import { SidebarAddAreaButton } from './SidebarAddAreaButton'
+import { SidebarAddProjectButton } from './SidebarAddProjectButton'
+import SidebarDraggableItem from './SidebarDraggableItem'
+import SidebarDroppableItem from './SidebarDroppableItem'
+import SidebarItem from './SidebarItem'
+import SidebarSection from './SidebarSection'
+import SidebarToggleButton from './SidebarToggleButton'
 
 const defaultViews: { path: string; iconName: IconType; text: string }[] = [
   {
     path: '/inbox',
     iconName: 'inbox',
-    text: 'Inbox',
+    text: 'Inbox'
   },
   {
     path: '/dailyAgenda',
     iconName: 'calendar',
-    text: 'Daily Agenda',
+    text: 'Daily Agenda'
   },
   {
     path: '/weeklyAgenda',
     iconName: 'weekly',
-    text: 'Weekly Agenda',
-  },
-];
+    text: 'Weekly Agenda'
+  }
+]
 
 const Sidebar = (): ReactElement => {
-  const { colorMode } = useColorMode();
-  const { loading, error, data } = useQuery<SidebarData>(GET_SIDEBAR);
+  const { colorMode } = useColorMode()
+  const { loading, error, data } = useQuery<SidebarData>(GET_SIDEBAR)
   const [setProjectOrder] = useMutation(SET_PROJECT_ORDER, {
-    refetchQueries: [GET_SIDEBAR],
-  });
+    refetchQueries: [GET_SIDEBAR]
+  })
   const [setAreaOrder] = useMutation(SET_AREA_ORDER, {
-    refetchQueries: [GET_SIDEBAR],
-  });
-  const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT);
-  const [sortedAreas, setSortedAreas] = useState<Area[]>([]);
-  const [sortedProjects, setSortedProjects] = useState<Project[]>([]);
-  const [sortedViews, setSortedViews] = useState<View[]>([]);
+    refetchQueries: [GET_SIDEBAR]
+  })
+  const [setAreaOfProject] = useMutation(SET_AREA_OF_PROJECT)
+  const [sortedAreas, setSortedAreas] = useState<Area[]>([])
+  const [sortedProjects, setSortedProjects] = useState<Project[]>([])
+  const [sortedViews, setSortedViews] = useState<View[]>([])
   const [sidebarVisible] = useBoundStore((state: AppState) => [
     state.sidebarVisible,
-    state.setSidebarVisible,
-  ]);
+    state.setSidebarVisible
+  ])
 
   useEffect(() => {
     if (loading === false && data) {
       setSortedAreas(
-        orderBy(data.areas, ['sortOrder.sortOrder'], ['asc']).filter(
-          (a) => a.deleted === false
-        )
-      );
+        orderBy(data.areas, ['sortOrder.sortOrder'], ['asc']).filter((a) => a.deleted === false)
+      )
       setSortedProjects(
-        orderBy(data.projects, ['sortOrder.sortOrder'], ['asc']).filter(
-          (p) => p.deleted === false
-        )
-      );
+        orderBy(data.projects, ['sortOrder.sortOrder'], ['asc']).filter((p) => p.deleted === false)
+      )
 
       setSortedViews(
-        orderBy(data.views, ['sortOrder.sortOrder'], ['asc']).filter(
-          (v) => v.type !== 'default'
-        )
-      );
+        orderBy(data.views, ['sortOrder.sortOrder'], ['asc']).filter((v) => v.type !== 'default')
+      )
     }
-  }, [loading, data]);
+  }, [loading, data])
 
   // TODO: Loading and error states
-  if (loading) return <></>;
+  if (loading) return <></>
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
 
   const handleDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId, type } = result;
+    const { destination, source, draggableId, type } = result
 
     if (!destination) {
-      return;
+      return
     }
 
     if (type === 'PROJECT') {
-      const areaKey = destination.droppableId;
+      const areaKey = destination.droppableId
       //  Trying to detect drops in non-valid areas
 
       // Do nothing if it was a drop to the same place
-      if (destination.index === source.index) return;
+      if (destination.index === source.index) return
 
       // Project Order is harder as the index is based on the area
-      const projectAtDestination = sortedProjects[destination.index];
-      const projectAtSource = sortedProjects[source.index];
+      const projectAtDestination = sortedProjects[destination.index]
+      const projectAtSource = sortedProjects[source.index]
       // If there's no projects in the area
       if (!projectAtDestination) {
-        return;
+        return
       }
 
       // Sync update
-      const newSortedProjects = sortedProjects;
-      newSortedProjects.splice(source.index, 1);
-      newSortedProjects.splice(destination.index, 0, projectAtSource);
-      setSortedProjects(newSortedProjects);
+      const newSortedProjects = sortedProjects
+      newSortedProjects.splice(source.index, 1)
+      newSortedProjects.splice(destination.index, 0, projectAtSource)
+      setSortedProjects(newSortedProjects)
 
       // Async update
       setAreaOfProject({
-        variables: { key: draggableId, areaKey },
-      });
+        variables: { key: draggableId, areaKey }
+      })
 
       setProjectOrder({
         variables: {
           projectKey: draggableId,
-          sortOrder: projectAtDestination?.sortOrder?.sortOrder,
-        },
-      });
+          sortOrder: projectAtDestination?.sortOrder?.sortOrder
+        }
+      })
     }
     if (type === 'AREA') {
       // Project Order is harder as the index is based on the area
-      const areaAtDestination = sortedAreas[destination.index];
-      const areaAtSource = sortedAreas[source.index];
+      const areaAtDestination = sortedAreas[destination.index]
+      const areaAtSource = sortedAreas[source.index]
 
       // Sync update
-      const newSortedAreas = sortedAreas;
-      newSortedAreas.splice(source.index, 1);
-      newSortedAreas.splice(destination.index, 0, areaAtSource);
-      setSortedAreas(newSortedAreas);
+      const newSortedAreas = sortedAreas
+      newSortedAreas.splice(source.index, 1)
+      newSortedAreas.splice(destination.index, 0, areaAtSource)
+      setSortedAreas(newSortedAreas)
 
       // async update
       setAreaOrder({
         variables: {
           areaKey: draggableId,
-          sortOrder: areaAtDestination?.sortOrder?.sortOrder,
-        },
-      });
+          sortOrder: areaAtDestination?.sortOrder?.sortOrder
+        }
+      })
     }
-  };
+  }
 
   return (
     <Flex
@@ -182,11 +164,7 @@ const Sidebar = (): ReactElement => {
       sx={{ scrollbarWidth: 'thin' }}
     >
       <VStack spacing={0} w="100%">
-        <SidebarSection
-          name="Views"
-          iconName="view"
-          sidebarVisible={sidebarVisible}
-        />
+        <SidebarSection name="Views" iconName="view" sidebarVisible={sidebarVisible} />
         <VStack spacing={0.5} w="100%">
           {defaultViews.map((d) => {
             return (
@@ -198,7 +176,7 @@ const Sidebar = (): ReactElement => {
                 variant="defaultView"
                 type="project"
               />
-            );
+            )
           })}
           {sortedViews
             .filter((v) => v.type != 'project' && v.type != 'area')
@@ -212,24 +190,16 @@ const Sidebar = (): ReactElement => {
                   path={`/views/${view.key}`}
                   type="project"
                 />
-              );
+              )
             })}
         </VStack>
-        <SidebarSection
-          name="Areas"
-          iconName="area"
-          sidebarVisible={sidebarVisible}
-        />
+        <SidebarSection name="Areas" iconName="area" sidebarVisible={sidebarVisible} />
         <DragDropContext onDragEnd={handleDragEnd}>
           <Droppable droppableId={'areas'} type="AREA">
             {(provided, snapshot) => (
               <SidebarDroppableItem provided={provided} snapshot={snapshot}>
                 {sortedAreas.map((a, idx) => (
-                  <Draggable
-                    key={`draggable-${a.key}`}
-                    draggableId={a.key}
-                    index={idx}
-                  >
+                  <Draggable key={`draggable-${a.key}`} draggableId={a.key} index={idx}>
                     {(draggableProvided, draggableSnapshot) => (
                       <SidebarDraggableItem
                         provided={draggableProvided}
@@ -262,9 +232,9 @@ const Sidebar = (): ReactElement => {
                                 // Don't display inbox or projects not in this area
                                 // NB: This is intentionally filtered here as the logic for re-ordering needs indices this way
                                 if (p.key === '0' || p?.area?.key !== a.key) {
-                                  return <></>;
+                                  return <></>
                                 }
-                                const pathName = `/views/${p.key}`;
+                                const pathName = `/views/${p.key}`
                                 return (
                                   <Draggable
                                     key={`${a.key}-${p.key}`}
@@ -272,10 +242,7 @@ const Sidebar = (): ReactElement => {
                                     index={idx}
                                   >
                                     {(provided, snapshot) => (
-                                      <SidebarDraggableItem
-                                        snapshot={snapshot}
-                                        provided={provided}
-                                      >
+                                      <SidebarDraggableItem snapshot={snapshot} provided={provided}>
                                         <Box px={sidebarVisible ? 2 : 0}>
                                           <SidebarItem
                                             key={`draggablesidebaritem-${uuidv4()}`}
@@ -289,7 +256,7 @@ const Sidebar = (): ReactElement => {
                                       </SidebarDraggableItem>
                                     )}
                                   </Draggable>
-                                );
+                                )
                               })}
                             </SidebarDroppableItem>
                           )}
@@ -299,9 +266,7 @@ const Sidebar = (): ReactElement => {
                   </Draggable>
                 ))}
 
-                {sidebarVisible && !snapshot.isDraggingOver && (
-                  <SidebarAddAreaButton />
-                )}
+                {sidebarVisible && !snapshot.isDraggingOver && <SidebarAddAreaButton />}
               </SidebarDroppableItem>
             )}
           </Droppable>
@@ -326,7 +291,7 @@ const Sidebar = (): ReactElement => {
         <SidebarToggleButton />
       </Stack>
     </Flex>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Sidebar

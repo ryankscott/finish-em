@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client'
 import {
   Button,
   Box,
@@ -9,79 +9,76 @@ import {
   EditablePreview,
   useColorMode,
   Icon,
-  IconButton,
-} from '@chakra-ui/react';
-import React, { ReactElement, useState } from 'react';
+  IconButton
+} from '@chakra-ui/react'
+import React, { ReactElement, useState } from 'react'
 import {
   UPDATE_COMPONENT,
   GET_COMPONENT_BY_KEY,
-  GET_COMPONENTS_BY_VIEW,
-} from '../queries/component';
-import { Icons } from 'renderer/assets/icons';
-import Select from './Select';
-import { ItemIcons } from '../interfaces';
-import ItemFilterBuilder from './ItemFilterBuilder';
+  GET_COMPONENTS_BY_VIEW
+} from '../queries/component'
+import { Icons } from '../assets/icons'
+import Select from './Select'
+import { ItemIcons } from '../interfaces'
+import ItemFilterBuilder from './ItemFilterBuilder'
 
 const options: { value: string; label: string }[] = [
   { value: ItemIcons.Project, label: 'Project' },
   { value: ItemIcons.Due, label: 'Due' },
   { value: ItemIcons.Scheduled, label: 'Scheduled' },
   { value: ItemIcons.Repeat, label: 'Repeat' },
-  { value: ItemIcons.Subtask, label: 'Subtask' },
-];
+  { value: ItemIcons.Subtask, label: 'Subtask' }
+]
 
 type FilteredItemDialogProps = {
-  componentKey: string;
-  onClose: () => void;
-};
+  componentKey: string
+  onClose: () => void
+}
 
-const FilteredItemDialog = ({
-  componentKey,
-  onClose,
-}: FilteredItemDialogProps): ReactElement => {
-  const { colorMode } = useColorMode();
-  const [isValid, setIsValid] = useState(true);
+const FilteredItemDialog = ({ componentKey, onClose }: FilteredItemDialogProps): ReactElement => {
+  const { colorMode } = useColorMode()
+  const [isValid, setIsValid] = useState(true)
 
   const [updateComponent] = useMutation(UPDATE_COMPONENT, {
-    refetchQueries: [GET_COMPONENTS_BY_VIEW, GET_COMPONENT_BY_KEY],
-  });
+    refetchQueries: [GET_COMPONENTS_BY_VIEW, GET_COMPONENT_BY_KEY]
+  })
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
     variables: { key: componentKey },
-    fetchPolicy: 'no-cache',
-  });
+    fetchPolicy: 'no-cache'
+  })
 
-  if (loading) return <></>;
+  if (loading) return <></>
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
 
   let params: {
-    listName: string;
-    isFilterable: boolean;
-    legacyFilter: string;
-    filter: string;
-    flattenSubtasks: boolean;
-    hiddenIcons: string[];
-    hideCompletedSubtasks: boolean;
-    hideDeletedSubtasks: boolean;
-    showCompletedToggle: boolean;
-    initiallyExpanded: boolean;
-    showSnoozedItems: boolean;
-  };
+    listName: string
+    isFilterable: boolean
+    legacyFilter: string
+    filter: string
+    flattenSubtasks: boolean
+    hiddenIcons: string[]
+    hideCompletedSubtasks: boolean
+    hideDeletedSubtasks: boolean
+    showCompletedToggle: boolean
+    initiallyExpanded: boolean
+    showSnoozedItems: boolean
+  }
 
   try {
-    params = JSON.parse(data.component.parameters);
+    params = JSON.parse(data.component.parameters)
   } catch (err) {
-    console.log('Failed to parse parameters');
-    console.log(err);
-    return <></>;
+    console.log('Failed to parse parameters')
+    console.log(err)
+    return <></>
   }
 
   type ItemListSettingProps = {
-    children: JSX.Element;
-    name: string;
-  };
+    children: JSX.Element
+    name: string
+  }
   const ItemListSetting = ({ children, name }: ItemListSettingProps) => (
     <Flex
       direction="row"
@@ -115,7 +112,7 @@ const FilteredItemDialog = ({
         {children}
       </Flex>
     </Flex>
-  );
+  )
 
   // TODO: Create individual update queries instead of this big one
   return (
@@ -137,7 +134,7 @@ const FilteredItemDialog = ({
           variant="default"
           icon={<Icon as={Icons.close} />}
           onClick={() => {
-            onClose();
+            onClose()
           }}
         />
       </Flex>
@@ -148,7 +145,7 @@ const FilteredItemDialog = ({
           fontSize="md"
           w="100%"
           onChange={(input) => {
-            params.listName = input;
+            params.listName = input
           }}
         >
           <EditablePreview />
@@ -157,17 +154,12 @@ const FilteredItemDialog = ({
       </ItemListSetting>
 
       <ItemListSetting name="Filter">
-        <Flex
-          overflowX="scroll"
-          direction="column"
-          w="100%"
-          justifyContent="space-between"
-        >
+        <Flex overflowX="scroll" direction="column" w="100%" justifyContent="space-between">
           <ItemFilterBuilder
             defaultFilter={params.filter}
             onSubmit={(filter) => {
-              params.filter = filter;
-              setIsValid(true);
+              params.filter = filter
+              setIsValid(true)
             }}
           />
         </Flex>
@@ -179,7 +171,7 @@ const FilteredItemDialog = ({
           defaultChecked={params.isFilterable}
           checked={params.isFilterable}
           onChange={() => {
-            params.isFilterable = !params.isFilterable;
+            params.isFilterable = !params.isFilterable
           }}
         />
       </ItemListSetting>
@@ -190,7 +182,7 @@ const FilteredItemDialog = ({
           defaultChecked={params.flattenSubtasks}
           checked={params.flattenSubtasks}
           onChange={() => {
-            params.flattenSubtasks = !params.flattenSubtasks;
+            params.flattenSubtasks = !params.flattenSubtasks
           }}
         />
       </ItemListSetting>
@@ -201,7 +193,7 @@ const FilteredItemDialog = ({
           defaultChecked={params.hideCompletedSubtasks}
           checked={params.hideCompletedSubtasks}
           onChange={() => {
-            params.hideCompletedSubtasks = !params.hideCompletedSubtasks;
+            params.hideCompletedSubtasks = !params.hideCompletedSubtasks
           }}
         />
       </ItemListSetting>
@@ -212,7 +204,7 @@ const FilteredItemDialog = ({
           defaultChecked={params.hideDeletedSubtasks}
           checked={params.hideDeletedSubtasks}
           onChange={() => {
-            params.hideDeletedSubtasks = !params.hideDeletedSubtasks;
+            params.hideDeletedSubtasks = !params.hideDeletedSubtasks
           }}
         />
       </ItemListSetting>
@@ -223,7 +215,7 @@ const FilteredItemDialog = ({
           defaultChecked={params.showSnoozedItems}
           checked={params.showSnoozedItems}
           onChange={() => {
-            params.showSnoozedItems = !params.showSnoozedItems;
+            params.showSnoozedItems = !params.showSnoozedItems
           }}
         />
       </ItemListSetting>
@@ -233,12 +225,12 @@ const FilteredItemDialog = ({
           <Select
             placeholder="Select icons to hide"
             defaultValue={params.hiddenIcons?.map((i) => {
-              return options.find((o) => o.value === i);
+              return options.find((o) => o.value === i)
             })}
             isMulti
             onChange={(values: { value: string; label: string }[]) => {
-              const hiddenIcons = values.map((v) => v.value);
-              params.hiddenIcons = hiddenIcons;
+              const hiddenIcons = values.map((v) => v.value)
+              params.hiddenIcons = hiddenIcons
             }}
             options={options}
             escapeClearsValue
@@ -274,18 +266,18 @@ const FilteredItemDialog = ({
                   isFilterable: params.isFilterable,
                   hideCompletedSubtasks: params.hideCompletedSubtasks,
                   hideDeletedSubtasks: params.hideDeletedSubtasks,
-                  showSnoozedItems: params.showSnoozedItems,
-                },
-              },
-            });
-            onClose();
+                  showSnoozedItems: params.showSnoozedItems
+                }
+              }
+            })
+            onClose()
           }}
         >
           Save
         </Button>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default React.memo(FilteredItemDialog, () => true);
+export default React.memo(FilteredItemDialog, () => true)

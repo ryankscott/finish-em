@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client'
 import {
   Box,
   Flex,
@@ -9,22 +9,22 @@ import {
   TagLabel,
   Text,
   Tooltip,
-  useColorMode,
-} from '@chakra-ui/react';
-import { format, isFuture, isPast, parseISO } from 'date-fns';
-import React, { ReactElement, useState } from 'react';
+  useColorMode
+} from '@chakra-ui/react'
+import { format, isFuture, isPast, parseISO } from 'date-fns'
+import React, { ReactElement, useState } from 'react'
 import {
   COMPLETE_ITEM,
   ITEMS_BY_FILTER,
   ITEM_BY_KEY,
   RESTORE_ITEM,
-  UNCOMPLETE_ITEM,
-} from 'renderer/queries';
-import { RRule } from 'rrule';
-import { Item as ItemType } from '../../main/resolvers-types';
-import { Icons } from '../assets/icons';
-import { AppState, useBoundStore } from 'renderer/state';
-import { ItemIcons } from '../interfaces';
+  UNCOMPLETE_ITEM
+} from '../queries'
+import { RRule } from 'rrule'
+import { Item as ItemType } from '../../main/resolvers-types'
+import { Icons } from '../assets/icons'
+import { AppState, useBoundStore } from '../state'
+import { ItemIcons } from '../interfaces'
 import {
   capitaliseFirstLetter,
   createShortSidebarItem,
@@ -32,34 +32,34 @@ import {
   HTMLToPlainText,
   removeItemTypeFromString,
   rruleToText,
-  truncateString,
-} from '../utils';
-import EmojiDisplay from './EmojiDisplay';
-import ItemActionButton from './ItemActionButton';
-import ItemAttribute from './ItemAttribute';
-import LoadingItem from './LoadingItem';
-import MoreDropdown from './MoreDropdown';
-import { FailedItem } from './FailedItem';
+  truncateString
+} from '../utils'
+import EmojiDisplay from './EmojiDisplay'
+import ItemActionButton from './ItemActionButton'
+import ItemAttribute from './ItemAttribute'
+import LoadingItem from './LoadingItem'
+import MoreDropdown from './MoreDropdown'
+import { FailedItem } from './FailedItem'
 
 type ItemProps = {
-  compact: boolean;
-  itemKey: string;
-  parentKey?: string;
-  componentKey: string;
-  hiddenIcons: ItemIcons[] | undefined;
-  shouldIndent: boolean;
-  hideCollapseIcon?: boolean;
-};
+  compact: boolean
+  itemKey: string
+  parentKey?: string
+  componentKey: string
+  hiddenIcons: ItemIcons[] | undefined
+  shouldIndent: boolean
+  hideCollapseIcon?: boolean
+}
 
 const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
-  const project = item?.project;
-  if (!project) return <></>;
+  const project = item?.project
+  if (!project) return <></>
 
   if (project?.emoji) {
-    return <EmojiDisplay emojiId={project.emoji} size={12} />;
+    return <EmojiDisplay emojiId={project.emoji} size={12} />
   }
   if (compact) {
-    return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>;
+    return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>
   }
 
   if (project.name === 'Inbox') {
@@ -67,28 +67,25 @@ const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
       <TagLabel>
         <Icon color="blue.500" as={Icons.inbox} />
       </TagLabel>
-    );
+    )
   }
 
-  return <TagLabel>{project.name}</TagLabel>;
-};
+  return <TagLabel>{project.name}</TagLabel>
+}
 
 const determineTextColour = (deleted: boolean, colorMode: 'light' | 'dark') => {
   if (deleted) {
-    return colorMode === 'light' ? 'gray.500' : 'gray.400';
+    return colorMode === 'light' ? 'gray.500' : 'gray.400'
   }
-  return colorMode === 'light' ? 'gray.800' : 'gray.200';
-};
+  return colorMode === 'light' ? 'gray.800' : 'gray.200'
+}
 
-const determineBackgroundColour = (
-  isFocused: boolean,
-  colorMode: 'light' | 'dark'
-): string => {
+const determineBackgroundColour = (isFocused: boolean, colorMode: 'light' | 'dark'): string => {
   if (isFocused) {
-    return colorMode === 'light' ? 'gray.100' : 'gray.900';
+    return colorMode === 'light' ? 'gray.100' : 'gray.900'
   }
-  return colorMode === 'light' ? 'gray.50' : 'gray.800';
-};
+  return colorMode === 'light' ? 'gray.50' : 'gray.800'
+}
 
 function Item({
   compact,
@@ -97,87 +94,84 @@ function Item({
   componentKey,
   hiddenIcons,
   shouldIndent,
-  hideCollapseIcon,
+  hideCollapseIcon
 }: ItemProps): ReactElement {
-  const { colorMode } = useColorMode();
-  const [moreButtonVisible, setMoreButtonVisible] = useState(false);
-  const [
-    activeItemIds,
-    setActiveItemIds,
-    setFocusbarVisible,
-    setSubtaskVisibility,
-  ] = useBoundStore((state: AppState) => [
-    state.activeItemIds,
-    state.setActiveItemIds,
-    state.setFocusbarVisible,
-    state.setSubtaskVisibility,
-  ]);
+  const { colorMode } = useColorMode()
+  const [moreButtonVisible, setMoreButtonVisible] = useState(false)
+  const [activeItemIds, setActiveItemIds, setFocusbarVisible, setSubtaskVisibility] = useBoundStore(
+    (state: AppState) => [
+      state.activeItemIds,
+      state.setActiveItemIds,
+      state.setFocusbarVisible,
+      state.setSubtaskVisibility
+    ]
+  )
 
   const subtasksVisible = useBoundStore((state) => {
     if (state.visibleSubtasks?.[itemKey]) {
-      const visibility = state.visibleSubtasks?.[itemKey]?.[componentKey];
-      return visibility === undefined ? true : visibility;
+      const visibility = state.visibleSubtasks?.[itemKey]?.[componentKey]
+      return visibility === undefined ? true : visibility
     }
 
-    return true;
-  });
+    return true
+  })
 
   const isVisible = useBoundStore((state) => {
     if (!parentKey) {
-      return true;
+      return true
     }
     if (state.visibleSubtasks?.[parentKey]) {
-      const visibility = state.visibleSubtasks?.[parentKey]?.[componentKey];
-      return visibility === undefined ? true : visibility;
+      const visibility = state.visibleSubtasks?.[parentKey]?.[componentKey]
+      return visibility === undefined ? true : visibility
     }
-    return true;
-  });
+    return true
+  })
 
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const { loading, error, data } = useQuery(ITEM_BY_KEY, {
-    variables: { key: itemKey || null },
-  });
+    variables: { key: itemKey || null }
+  })
 
-  let enterInterval: NodeJS.Timer;
-  let exitInterval: NodeJS.Timer;
-  if (loading) return <LoadingItem />;
+  let enterInterval: NodeJS.Timer
+  let exitInterval: NodeJS.Timer
+  if (loading) return <LoadingItem />
 
   if (!data || !data.item) {
-    return <FailedItem />;
+    return <FailedItem />
   }
 
-  const { item } = data;
+  const { item } = data
 
-  if (error) return <FailedItem reason={error.message} />;
+  if (error) return <FailedItem reason={error.message} />
 
   const handleIconClick: React.MouseEventHandler<HTMLElement> = (e): void => {
-    e.stopPropagation();
+    e.stopPropagation()
     if (item.deleted) {
-      restoreItem({ variables: { key: item.key } });
-      return;
+      restoreItem({ variables: { key: item.key } })
+      return
     }
     if (item.completed) {
-      unCompleteItem({ variables: { key: item.key } });
+      unCompleteItem({ variables: { key: item.key } })
     } else {
-      completeItem({ variables: { key: item.key } });
+      completeItem({ variables: { key: item.key } })
     }
-  };
+  }
 
   const handleExpand: React.MouseEventHandler<HTMLElement> = (e): void => {
-    e.stopPropagation();
-    setSubtaskVisibility(itemKey, componentKey, !subtasksVisible);
-  };
+    e.stopPropagation()
+    setSubtaskVisibility(itemKey, componentKey, !subtasksVisible)
+  }
 
-  const isFocused = activeItemIds.findIndex((i) => i === item.key) >= 0;
-  const reminder = item?.reminders?.[0];
+  const isFocused = activeItemIds.findIndex((i) => i === item.key) >= 0
+  const reminder = item?.reminders?.[0]
   return (
     <Grid
       display={isVisible ? 'grid' : 'none'}
@@ -194,9 +188,7 @@ function Item({
       cursor="pointer"
       borderRadius="md"
       gridTemplateColumns={
-        compact
-          ? 'repeat(5, 1fr)'
-          : 'repeat(2, 30px) repeat(6, 1fr) repeat(1, 30px)'
+        compact ? 'repeat(5, 1fr)' : 'repeat(2, 30px) repeat(6, 1fr) repeat(1, 30px)'
       }
       gridTemplateRows="40px auto"
       gridTemplateAreas={
@@ -221,7 +213,7 @@ function Item({
         transition: 'all 0.1s ease-in-out',
         background: colorMode === 'light' ? 'gray.400' : 'gray.200',
         width: '1px',
-        zIndex: 9,
+        zIndex: 9
       }}
       _after={{
         content: "''",
@@ -233,42 +225,39 @@ function Item({
         width: shouldIndent || subtasksVisible ? '90%' : '100%',
         borderBottom: '1px',
         borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
-        opacity: 0.8,
+        opacity: 0.8
       }}
       bg={determineBackgroundColour(isFocused, colorMode)}
       id={item.key}
       onMouseEnter={() => {
-        enterInterval = setTimeout(() => setMoreButtonVisible(true), 250);
-        clearTimeout(exitInterval);
+        enterInterval = setTimeout(() => setMoreButtonVisible(true), 250)
+        clearTimeout(exitInterval)
       }}
       onMouseLeave={() => {
-        clearTimeout(enterInterval);
-        exitInterval = setTimeout(() => setMoreButtonVisible(false), 200);
+        clearTimeout(enterInterval)
+        exitInterval = setTimeout(() => setMoreButtonVisible(false), 200)
       }}
       onClick={(e) => {
         if (e.shiftKey) {
           if (isFocused) {
-            const activeItems = activeItemIds.filter((i) => i !== item.key);
-            setActiveItemIds(activeItems);
+            const activeItems = activeItemIds.filter((i) => i !== item.key)
+            setActiveItemIds(activeItems)
             if (activeItems.length === 0) {
-              setFocusbarVisible(false);
+              setFocusbarVisible(false)
             }
           } else {
-            setActiveItemIds([item.key, ...activeItemIds]);
-            setFocusbarVisible(true);
+            setActiveItemIds([item.key, ...activeItemIds])
+            setFocusbarVisible(true)
           }
         } else {
-          setActiveItemIds([item.key]);
-          setFocusbarVisible(true);
+          setActiveItemIds([item.key])
+          setFocusbarVisible(true)
         }
       }}
       tabIndex={0}
     >
       <Box gridArea="description">
-        <Tooltip
-          isDisabled={!item.text}
-          label={HTMLToPlainText(item.text ?? '')}
-        >
+        <Tooltip isDisabled={!item.text} label={HTMLToPlainText(item.text ?? '')}>
           <Text
             id="body"
             mx={0}
@@ -280,14 +269,14 @@ function Item({
               p: {
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                whiteSpace: 'nowrap'
               },
               a: {
-                textDecoration: 'underline',
-              },
+                textDecoration: 'underline'
+              }
             }}
             dangerouslySetInnerHTML={{
-              __html: removeItemTypeFromString(item.text ?? ''),
+              __html: removeItemTypeFromString(item.text ?? '')
             }}
           />
         </Tooltip>
@@ -321,12 +310,12 @@ function Item({
         <Tooltip
           label={((deleted: boolean, completed: boolean) => {
             if (deleted) {
-              return 'Restore';
+              return 'Restore'
             }
             if (completed) {
-              return 'Uncomplete';
+              return 'Uncomplete'
             }
-            return 'Complete';
+            return 'Complete'
           })(item.deleted, item.completed)}
         >
           <Box gridArea="complete">
@@ -349,10 +338,7 @@ function Item({
             tooltipText={item.parent.text ?? ''}
             text={
               item.parent
-                ? truncateString(
-                    removeItemTypeFromString(item.parent.text ?? ''),
-                    12
-                  )
+                ? truncateString(removeItemTypeFromString(item.parent.text ?? ''), 12)
                 : ''
             }
           />
@@ -362,28 +348,21 @@ function Item({
       {!compact && (
         <Box gridArea="more">
           {moreButtonVisible && (
-            <MoreDropdown
-              itemKey={item.key}
-              itemText={item.text}
-              deleted={item.deleted}
-            />
+            <MoreDropdown itemKey={item.key} itemText={item.text} deleted={item.deleted} />
           )}
         </Box>
       )}
 
       <Box gridArea="scheduled">
-        {item.scheduledAt != null &&
-          !hiddenIcons?.includes(ItemIcons.Scheduled) && (
-            <ItemAttribute
-              compact={compact}
-              completed={item.completed ?? false}
-              type="scheduled"
-              tooltipText={`Scheduled ${formatRelativeDate(
-                parseISO(item.scheduledAt)
-              )}`}
-              text={formatRelativeDate(parseISO(item.scheduledAt))}
-            />
-          )}
+        {item.scheduledAt != null && !hiddenIcons?.includes(ItemIcons.Scheduled) && (
+          <ItemAttribute
+            compact={compact}
+            completed={item.completed ?? false}
+            type="scheduled"
+            tooltipText={`Scheduled ${formatRelativeDate(parseISO(item.scheduledAt))}`}
+            text={formatRelativeDate(parseISO(item.scheduledAt))}
+          />
+        )}
       </Box>
 
       <Box gridArea="reminder">
@@ -397,9 +376,7 @@ function Item({
             <Flex justifyContent="center">
               <Icon
                 as={Icons.reminder}
-                color={
-                  isPast(parseISO(reminder.remindAt)) ? 'red.400' : 'gray.600'
-                }
+                color={isPast(parseISO(reminder.remindAt)) ? 'red.400' : 'gray.600'}
               />
             </Flex>
           </Tooltip>
@@ -408,11 +385,7 @@ function Item({
 
       <Box gridArea="snooze">
         {item.snoozedUntil && isFuture(parseISO(item.snoozedUntil)) && (
-          <Tooltip
-            label={`Snoozed until ${formatRelativeDate(
-              parseISO(item?.snoozedUntil)
-            )}`}
-          >
+          <Tooltip label={`Snoozed until ${formatRelativeDate(parseISO(item?.snoozedUntil))}`}>
             <Flex justifyContent="center">
               <Icon as={Icons.snooze} color={'gray.600'} />
             </Flex>
@@ -441,14 +414,12 @@ function Item({
             tooltipText={`Repeating ${capitaliseFirstLetter(
               rruleToText(RRule.fromString(item?.repeat))
             )}`}
-            text={capitaliseFirstLetter(
-              rruleToText(RRule.fromString(item?.repeat))
-            )}
+            text={capitaliseFirstLetter(rruleToText(RRule.fromString(item?.repeat)))}
           />
         )}
       </Box>
     </Grid>
-  );
+  )
 }
 
-export default Item;
+export default Item

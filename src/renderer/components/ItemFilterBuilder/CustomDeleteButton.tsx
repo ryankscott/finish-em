@@ -1,6 +1,6 @@
-import { ActionProps } from 'react-querybuilder';
-import { Flex, Icon, IconButton, useColorMode } from '@chakra-ui/react';
-import { Icons } from 'renderer/assets/icons';
+import { ActionProps } from 'react-querybuilder'
+import { Flex, Icon, IconButton, useColorMode } from '@chakra-ui/react'
+import { Icons } from '../../assets/icons'
 
 const CustomDeleteButton = ({
   className,
@@ -8,9 +8,9 @@ const CustomDeleteButton = ({
   label,
   title,
   disabled,
-  disabledTranslation,
+  disabledTranslation
 }: ActionProps) => {
-  const { colorMode } = useColorMode();
+  const { colorMode } = useColorMode()
   return (
     <Flex position="absolute" top="0px" right="0px" justifyContent="flex-end">
       <IconButton
@@ -19,7 +19,7 @@ const CustomDeleteButton = ({
         bg={'transparent'}
         _hover={{
           color: colorMode === 'light' ? 'gray.800' : 'gray.50',
-          bg: 'transparent',
+          bg: 'transparent'
         }}
         icon={<Icon as={Icons.close} />}
         onClick={(e) => handleOnClick(e)}
@@ -28,7 +28,7 @@ const CustomDeleteButton = ({
         isDisabled={disabled && !disabledTranslation}
       />
     </Flex>
-  );
-};
+  )
+}
 
-export default CustomDeleteButton;
+export default CustomDeleteButton

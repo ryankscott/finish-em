@@ -1,29 +1,21 @@
-import {
-  Box,
-  Flex,
-  Grid,
-  GridItem,
-  Icon,
-  IconButton,
-  Text,
-} from '@chakra-ui/react';
-import { DAILY_AGENDA_VIEW_KEY, DAILY_AGENDA_VIEW_NAMESPACE } from 'consts';
-import { add, format, parse, startOfDay, sub } from 'date-fns';
-import { ReactElement, useEffect, useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
-import { v5 } from 'uuid';
-import CalendarAgenda from './CalendarAgenda';
-import FilteredItemList from './FilteredItemList';
-import ReorderableComponentList from './ReorderableComponentList';
+import { Box, Flex, Grid, GridItem, Icon, IconButton, Text } from '@chakra-ui/react'
+import { DAILY_AGENDA_VIEW_KEY, DAILY_AGENDA_VIEW_NAMESPACE } from '../../consts'
+import { add, format, parse, startOfDay, sub } from 'date-fns'
+import { ReactElement, useEffect, useState } from 'react'
+import { Icons } from '../assets/icons'
+import { v5 } from 'uuid'
+import CalendarAgenda from './CalendarAgenda'
+import FilteredItemList from './FilteredItemList'
+import ReorderableComponentList from './ReorderableComponentList'
 
 const DailyAgenda = (): ReactElement => {
   // TODO: Hoist this to a reactive var so others can use it
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(new Date())
 
   useEffect(() => {
-    const day = window.location.search.split('=')?.[1];
-    if (day) setCurrentDate(parse(day, 'yyyy-MM-dd', new Date()));
-  }, []);
+    const day = window.location.search.split('=')?.[1]
+    if (day) setCurrentDate(parse(day, 'yyyy-MM-dd', new Date()))
+  }, [])
 
   return (
     <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
@@ -34,17 +26,12 @@ const DailyAgenda = (): ReactElement => {
             variant="default"
             icon={<Icon as={Icons.back} />}
             onClick={() => {
-              setCurrentDate(sub(currentDate, { days: 1 }));
+              setCurrentDate(sub(currentDate, { days: 1 }))
             }}
           />
         </GridItem>
         <GridItem colSpan={3} textAlign="center">
-          <Text
-            fontWeight="normal"
-            color="blue.500"
-            fontSize="3xl"
-            textAlign="center"
-          >
+          <Text fontWeight="normal" color="blue.500" fontSize="3xl" textAlign="center">
             {format(currentDate, 'EEEE do MMMM yyyy')}
           </Text>
         </GridItem>
@@ -54,7 +41,7 @@ const DailyAgenda = (): ReactElement => {
             variant="default"
             icon={<Icon as={Icons.forward} />}
             onClick={() => {
-              setCurrentDate(add(currentDate, { days: 1 }));
+              setCurrentDate(add(currentDate, { days: 1 }))
             }}
           />
         </GridItem>
@@ -63,11 +50,7 @@ const DailyAgenda = (): ReactElement => {
         <Text fontSize="md" style={{ gridArea: 'week_of_year' }}>
           Week of year: {format(currentDate, 'w')} / 52
         </Text>
-        <Text
-          fontSize="md"
-          textAlign="end"
-          style={{ gridArea: 'week_of_quarter' }}
-        >
+        <Text fontSize="md" textAlign="end" style={{ gridArea: 'week_of_quarter' }}>
           Week of quarter: {parseInt(format(currentDate, 'w'), 10) % 13} / 13
         </Text>
       </Flex>
@@ -76,10 +59,7 @@ const DailyAgenda = (): ReactElement => {
       <ReorderableComponentList viewKey={DAILY_AGENDA_VIEW_KEY} />
       <Flex p={3} direction="column">
         <FilteredItemList
-          key={v5(
-            `${startOfDay(currentDate).toISOString()}due`,
-            DAILY_AGENDA_VIEW_NAMESPACE
-          )}
+          key={v5(`${startOfDay(currentDate).toISOString()}due`, DAILY_AGENDA_VIEW_NAMESPACE)}
           componentKey={v5(
             `${startOfDay(currentDate).toISOString()}due`,
             DAILY_AGENDA_VIEW_NAMESPACE
@@ -94,26 +74,23 @@ const DailyAgenda = (): ReactElement => {
                 field: 'DATE(dueAt)',
                 operator: '=',
                 valueSource: 'value',
-                value: currentDate.toISOString(),
+                value: currentDate.toISOString()
               },
               {
                 field: 'deleted',
                 operator: '=',
                 valueSource: 'value',
-                value: false,
-              },
+                value: false
+              }
             ],
-            not: false,
+            not: false
           })}
           flattenSubtasks
           readOnly
         />
         <Box h={5} />
         <FilteredItemList
-          key={v5(
-            `${startOfDay(currentDate).toISOString()}scheduled`,
-            DAILY_AGENDA_VIEW_NAMESPACE
-          )}
+          key={v5(`${startOfDay(currentDate).toISOString()}scheduled`, DAILY_AGENDA_VIEW_NAMESPACE)}
           componentKey={v5(
             `${startOfDay(currentDate).toISOString()}scheduled`,
             DAILY_AGENDA_VIEW_NAMESPACE
@@ -128,23 +105,23 @@ const DailyAgenda = (): ReactElement => {
                 field: 'DATE(scheduledAt)',
                 operator: '=',
                 valueSource: 'value',
-                value: currentDate.toISOString(),
+                value: currentDate.toISOString()
               },
               {
                 field: 'deleted',
                 operator: '=',
                 valueSource: 'value',
-                value: false,
-              },
+                value: false
+              }
             ],
-            not: false,
+            not: false
           })}
           flattenSubtasks
           readOnly
         />
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default DailyAgenda;
+export default DailyAgenda

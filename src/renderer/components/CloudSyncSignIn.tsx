@@ -1,4 +1,4 @@
-import { useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client'
 import {
   Button,
   Flex,
@@ -11,28 +11,28 @@ import {
   ModalFooter,
   Switch,
   Text,
-  useToast,
-} from '@chakra-ui/react';
-import { useState } from 'react';
-import { LOGIN_USER } from '../queries';
-import { emailRegex } from '../utils';
-import CloudIcon from './CloudIcon';
+  useToast
+} from '@chakra-ui/react'
+import { useState } from 'react'
+import { LOGIN_USER } from '../queries'
+import { emailRegex } from '../utils'
+import CloudIcon from './CloudIcon'
 
 interface CloudSyncSignInProps {
-  setMode: (mode: 'signup') => void;
-  onClose: () => void;
+  setMode: (mode: 'signup') => void
+  onClose: () => void
 }
 
 const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
-  const [show, setShow] = useState(false);
-  const [email, setEmail] = useState('');
-  const [isEmailValid, setIsEmailValid] = useState(false);
-  const [password, setPassword] = useState('');
-  const [shouldSync, setShouldSync] = useState(true);
-  const [backedUp, setBackedUp] = useState(false);
-  const [loginUser, { data, loading, error }] = useMutation(LOGIN_USER);
+  const [show, setShow] = useState(false)
+  const [email, setEmail] = useState('')
+  const [isEmailValid, setIsEmailValid] = useState(false)
+  const [password, setPassword] = useState('')
+  const [shouldSync, setShouldSync] = useState(true)
+  const [backedUp, setBackedUp] = useState(false)
+  const [loginUser, { data, loading, error }] = useMutation(LOGIN_USER)
 
-  const toast = useToast();
+  const toast = useToast()
 
   if (data && !loading) {
     toast({
@@ -41,24 +41,24 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
       description: 'Successfully signed in to your account.',
       status: 'success',
       duration: 9000,
-      isClosable: true,
-    });
-    const { loginUser } = data;
-    const { email, token, key } = loginUser;
+      isClosable: true
+    })
+    const { loginUser } = data
+    const { email, token, key } = loginUser
 
-    window.electronAPI.ipcRenderer.setSetting('cloudSync', {
+    window.api.setSetting('cloudSync', {
       enabled: true,
       email: email,
-      token: token,
-    });
+      token: token
+    })
 
-    localStorage.setItem('token', token);
+    localStorage.setItem('token', token)
 
     if (shouldSync) {
-      window.electronAPI.ipcRenderer.backupToCloud(key).then(() => {
-        console.log('backed up');
-        setBackedUp(true);
-      });
+      window.api.backupToCloud(key).then(() => {
+        console.log('backed up')
+        setBackedUp(true)
+      })
     }
     return (
       <ModalContent>
@@ -80,7 +80,7 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
                 w="140px"
                 size="md"
                 onClick={() => {
-                  window.electronAPI.ipcRenderer.restartApp();
+                  window.api.restartApp()
                 }}
               >
                 Restart
@@ -89,7 +89,7 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
           </Flex>
         </ModalBody>
       </ModalContent>
-    );
+    )
   }
 
   if (error) {
@@ -99,16 +99,16 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
       description: `Something went wrong when signing into your account - ${error.message}.`,
       status: 'error',
       duration: 9000,
-      isClosable: true,
-    });
+      isClosable: true
+    })
   }
 
-  const handlePasswordChange = (event) => setPassword(event.target.value);
+  const handlePasswordChange = (event) => setPassword(event.target.value)
   const handleEmailChange = (event) => {
-    setIsEmailValid(emailRegex.test(event.target.value));
-    setEmail(event.target.value);
-  };
-  const handleClick = () => setShow(!show);
+    setIsEmailValid(emailRegex.test(event.target.value))
+    setEmail(event.target.value)
+  }
+  const handleClick = () => setShow(!show)
   return (
     <ModalContent>
       <ModalCloseButton />
@@ -175,9 +175,9 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
               await loginUser({
                 variables: {
                   email: email,
-                  password: password,
-                },
-              });
+                  password: password
+                }
+              })
             } catch (e) {
               toast({
                 title: 'Failed sign in to account.',
@@ -185,8 +185,8 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
                 description: e.message,
                 status: 'error',
                 duration: 9000,
-                isClosable: true,
-              });
+                isClosable: true
+              })
             }
           }}
         >
@@ -195,7 +195,7 @@ const CloudSyncSignIn = ({ onClose, setMode }: CloudSyncSignInProps) => {
         <Button variant="ghost">Cancel</Button>
       </ModalFooter>
     </ModalContent>
-  );
-};
+  )
+}
 
-export default CloudSyncSignIn;
+export default CloudSyncSignIn

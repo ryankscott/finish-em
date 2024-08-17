@@ -1,54 +1,47 @@
-import { useQuery } from '@apollo/client';
-import { Box } from '@chakra-ui/react';
-import { groupBy } from 'lodash';
-import { Item } from 'main/resolvers-types';
-import { ReactElement } from 'react';
-import { GET_ITEMS } from 'renderer/queries';
-import {
-  markdownBasicRegex,
-  markdownLinkRegex,
-  removeItemTypeFromString,
-} from '../utils';
-import Select from './Select';
+import { useQuery } from '@apollo/client'
+import { Box } from '@chakra-ui/react'
+import { groupBy } from 'lodash'
+import { Item } from '../../main/resolvers-types'
+import { ReactElement } from 'react'
+import { GET_ITEMS } from '../queries'
+import { markdownBasicRegex, markdownLinkRegex, removeItemTypeFromString } from '../utils'
+import Select from './Select'
 
 type ItemSelectProps = {
-  currentItem: Item;
-  completed: boolean;
-  deleted: boolean;
-  onSubmit: (key: string) => void;
-  invert?: boolean;
-};
+  currentItem: Item
+  completed: boolean
+  deleted: boolean
+  onSubmit: (key: string) => void
+  invert?: boolean
+}
 
 export default function ItemSelect({
   currentItem,
   completed,
   deleted,
   onSubmit,
-  invert = false,
+  invert = false
 }: ItemSelectProps): ReactElement {
-  const { loading, error, data } = useQuery(GET_ITEMS);
+  const { loading, error, data } = useQuery(GET_ITEMS)
 
-  if (loading) return <></>;
+  if (loading) return <></>
 
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
 
   const generateOptions = () => {
     const filteredValues = data.items.filter(
       (i: Item) =>
-        i.key != null &&
-        i.key !== currentItem.key &&
-        i.deleted === false &&
-        i.completed === false
-    );
+        i.key != null && i.key !== currentItem.key && i.deleted === false && i.completed === false
+    )
 
     // Return if we've filtered all items
-    if (!filteredValues.length) return [];
+    if (!filteredValues.length) return []
 
     // Group them by project
-    const itemsGroupedByProject = groupBy(filteredValues, 'project.name');
+    const itemsGroupedByProject = groupBy(filteredValues, 'project.name')
 
     // Show the items from the project the item is in first
     // Update the label to be the project name, and the items to be the right format
@@ -61,19 +54,19 @@ export default function ItemSelect({
             value: item.key,
             label: removeItemTypeFromString(item.text ?? '')
               .replace(markdownLinkRegex, '$1')
-              .replace(markdownBasicRegex, '$1'),
-          };
-        }),
-      };
-    });
+              .replace(markdownBasicRegex, '$1')
+          }
+        })
+      }
+    })
 
     // Sort to ensure that the current project is at the front
     allGroups.sort((a, b) => {
-      if (!currentItem?.project?.key) return 0;
-      if (a.label === currentItem?.project?.name) return -1;
-      if (b.label === currentItem?.project?.name) return 1;
-      return 0;
-    });
+      if (!currentItem?.project?.key) return 0
+      if (a.label === currentItem?.project?.name) return -1
+      if (b.label === currentItem?.project?.name) return 1
+      return 0
+    })
 
     // If it's already a subtask add an option to create it to a task
     if (currentItem?.parent != null) {
@@ -81,23 +74,21 @@ export default function ItemSelect({
         ...allGroups,
         {
           label: 'Options',
-          options: [{ value: '', label: 'Convert to task' }],
-        },
-      ];
+          options: [{ value: '', label: 'Convert to task' }]
+        }
+      ]
     }
-    return allGroups;
-  };
+    return allGroups
+  }
 
-  const options = generateOptions();
+  const options = generateOptions()
   const flattenedOptions = options
     ?.map((o) => {
-      return o.options;
+      return o.options
     })
-    .flat();
+    .flat()
 
-  const defaultValue = flattenedOptions?.filter(
-    (o) => o.value === currentItem.parent?.key
-  );
+  const defaultValue = flattenedOptions?.filter((o) => o.value === currentItem.parent?.key)
 
   return (
     <Box w="100%" cursor={completed || deleted ? 'not-allowed' : 'inherit'}>
@@ -105,7 +96,7 @@ export default function ItemSelect({
         isMulti={false}
         isDisabled={completed || deleted}
         onChange={(p) => {
-          onSubmit(p.value);
+          onSubmit(p.value)
         }}
         options={options}
         escapeClearsValue
@@ -115,5 +106,5 @@ export default function ItemSelect({
         renderLabelAsElement={false}
       />
     </Box>
-  );
+  )
 }

@@ -6,49 +6,38 @@ import {
   Icon,
   IconButton,
   useOutsideClick,
-  useColorMode,
-} from '@chakra-ui/react';
-import { createRef, useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
-import { HexColorPicker } from 'react-colorful';
-import { useDebouncedCallback } from 'use-debounce';
+  useColorMode
+} from '@chakra-ui/react'
+import { createRef, useState } from 'react'
+import { Icons } from '../assets/icons'
+import { HexColorPicker } from 'react-colorful'
+import { useDebouncedCallback } from 'use-debounce'
 
 interface LabelEditProps {
-  name: string;
-  colour: string;
-  renameLabel: (name: string) => void;
-  deleteLabel: () => void;
-  colourChange: (colour: string) => void;
+  name: string
+  colour: string
+  renameLabel: (name: string) => void
+  deleteLabel: () => void
+  colourChange: (colour: string) => void
 }
-const LabelEdit = ({
-  name,
-  colour,
-  renameLabel,
-  deleteLabel,
-  colourChange,
-}: LabelEditProps) => {
-  const { colorMode } = useColorMode();
-  const [showColourPicker, setShowColourPicker] = useState<boolean>(false);
-  const [labelName, setLabelName] = useState<string>(name);
-  const ref = createRef<HTMLDivElement>();
+const LabelEdit = ({ name, colour, renameLabel, deleteLabel, colourChange }: LabelEditProps) => {
+  const { colorMode } = useColorMode()
+  const [showColourPicker, setShowColourPicker] = useState<boolean>(false)
+  const [labelName, setLabelName] = useState<string>(name)
+  const ref = createRef<HTMLDivElement>()
   useOutsideClick({
     ref,
     handler: () => {
-      setShowColourPicker(false);
-    },
-  });
+      setShowColourPicker(false)
+    }
+  })
 
   const debouncedColourChange = useDebouncedCallback((colour) => {
-    colourChange(colour);
-  }, 250);
+    colourChange(colour)
+  }, 250)
 
   return (
-    <Flex
-      w="250px"
-      justifyContent="space-between"
-      alignItems="center"
-      height="auto"
-    >
+    <Flex w="250px" justifyContent="space-between" alignItems="center" height="auto">
       <Editable
         mx={2}
         value={labelName}
@@ -56,7 +45,7 @@ const LabelEdit = ({
         fontSize="sm"
         w="100%"
         onSubmit={(input) => {
-          renameLabel(input);
+          renameLabel(input)
         }}
         submitOnBlur={true}
       >
@@ -72,8 +61,8 @@ const LabelEdit = ({
         borderWidth="3px"
         borderColor={colorMode === 'light' ? 'gray.100' : 'gray.800'}
         onClick={(e) => {
-          setShowColourPicker(!showColourPicker);
-          e.stopPropagation();
+          setShowColourPicker(!showColourPicker)
+          e.stopPropagation()
         }}
       />
       <IconButton
@@ -83,7 +72,7 @@ const LabelEdit = ({
         aria-label="delete label"
         icon={<Icon as={Icons.trash} />}
         onClick={() => {
-          deleteLabel();
+          deleteLabel()
         }}
       />
       {showColourPicker && (
@@ -100,13 +89,13 @@ const LabelEdit = ({
           <HexColorPicker
             color={colour ?? '#000'}
             onChange={(colour) => {
-              debouncedColourChange(colour);
+              debouncedColourChange(colour)
             }}
           />
         </Flex>
       )}
     </Flex>
-  );
-};
+  )
+}
 
-export default LabelEdit;
+export default LabelEdit

@@ -1,14 +1,6 @@
-import { useMutation } from '@apollo/client';
-import {
-  Grid,
-  Flex,
-  Text,
-  IconButton,
-  Tooltip,
-  Box,
-  Icon,
-} from '@chakra-ui/react';
-import { Icons } from 'renderer/assets/icons';
+import { useMutation } from '@apollo/client'
+import { Grid, Flex, Text, IconButton, Tooltip, Box, Icon } from '@chakra-ui/react'
+import { Icons } from '../assets/icons'
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
@@ -16,35 +8,33 @@ import {
   ITEMS_BY_FILTER,
   SET_DUE_AT,
   SET_PROJECT,
-  SET_SCHEDULED_AT,
-} from 'renderer/queries';
-import { AppState, useBoundStore } from 'renderer/state';
-import DatePicker from './DatePicker';
-import ProjectSelect from './ProjectSelect';
+  SET_SCHEDULED_AT
+} from '../queries'
+import { AppState, useBoundStore } from '../state'
+import DatePicker from './DatePicker'
+import ProjectSelect from './ProjectSelect'
 
 const ActionBar = () => {
-  const [completeItem] = useMutation(COMPLETE_ITEM);
-  const [deleteItem] = useMutation(DELETE_ITEM);
+  const [completeItem] = useMutation(COMPLETE_ITEM)
+  const [deleteItem] = useMutation(DELETE_ITEM)
   const [setProject] = useMutation(SET_PROJECT, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [setDueAt] = useMutation(SET_DUE_AT, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
-    refetchQueries: [ITEMS_BY_FILTER, WEEKLY_ITEMS],
-  });
+    refetchQueries: [ITEMS_BY_FILTER, WEEKLY_ITEMS]
+  })
 
-  const [activeItemIds, setActiveItemIds, setFocusbarVisible] = useBoundStore(
-    (state: AppState) => [
-      state.activeItemIds,
-      state.setActiveItemIds,
-      state.setFocusbarVisible,
-    ]
-  );
+  const [activeItemIds, setActiveItemIds, setFocusbarVisible] = useBoundStore((state: AppState) => [
+    state.activeItemIds,
+    state.setActiveItemIds,
+    state.setFocusbarVisible
+  ])
 
   if (!activeItemIds) {
-    return null;
+    return null
   }
 
   // TODO: Fix the styling
@@ -81,8 +71,8 @@ const ActionBar = () => {
           icon={<Icon as={Icons.close} />}
           color="white"
           onClick={() => {
-            setActiveItemIds([]);
-            setFocusbarVisible(false);
+            setActiveItemIds([])
+            setFocusbarVisible(false)
           }}
           aria-label="close"
         />
@@ -104,8 +94,8 @@ const ActionBar = () => {
           defaultText="Due at: "
           onSubmit={(d: Date | null) => {
             activeItemIds.forEach((i) => {
-              setDueAt({ variables: { key: i, dueAt: d } });
-            });
+              setDueAt({ variables: { key: i, dueAt: d } })
+            })
           }}
           completed={false}
           deleted={false}
@@ -120,8 +110,8 @@ const ActionBar = () => {
           defaultText="Scheduled at: "
           onSubmit={(d: Date | null) => {
             activeItemIds.forEach((i) => {
-              setScheduledAt({ variables: { key: i, scheduledAt: d } });
-            });
+              setScheduledAt({ variables: { key: i, scheduledAt: d } })
+            })
           }}
           completed={false}
           deleted={false}
@@ -136,8 +126,8 @@ const ActionBar = () => {
           deleted={false}
           onSubmit={(projectKey) => {
             activeItemIds.forEach((i) => {
-              setProject({ variables: { key: i, projectKey } });
-            });
+              setProject({ variables: { key: i, projectKey } })
+            })
           }}
         />
       </Box>
@@ -151,8 +141,8 @@ const ActionBar = () => {
             icon={<Icon as={Icons.todoChecked} />}
             onClick={() => {
               activeItemIds.forEach((i) => {
-                completeItem({ variables: { key: i } });
-              });
+                completeItem({ variables: { key: i } })
+              })
             }}
           />
         </Tooltip>
@@ -167,14 +157,14 @@ const ActionBar = () => {
             icon={<Icon as={Icons.trash} />}
             onClick={() => {
               activeItemIds.forEach((i) => {
-                deleteItem({ variables: { key: i } });
-              });
+                deleteItem({ variables: { key: i } })
+              })
             }}
           />
         </Tooltip>
       </Box>
     </Grid>
-  );
-};
+  )
+}
 
-export default ActionBar;
+export default ActionBar

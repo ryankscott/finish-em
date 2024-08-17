@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client'
 import {
   Button,
   Editable,
@@ -9,13 +9,13 @@ import {
   GridItem,
   Icon,
   Text,
-  useColorMode,
-} from '@chakra-ui/react';
-import { ReactElement, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { Icons } from 'renderer/assets/icons';
-import { ItemIcons } from 'renderer/interfaces';
+  useColorMode
+} from '@chakra-ui/react'
+import { ReactElement, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { Icons } from '../assets/icons'
+import { ItemIcons } from '../interfaces'
 import {
   ADD_COMPONENT,
   CREATE_PROJECT,
@@ -24,62 +24,59 @@ import {
   GET_SIDEBAR,
   RENAME_AREA,
   SET_DESCRIPTION_OF_AREA,
-  SET_EMOJI,
-} from 'renderer/queries';
-import { v4 as uuidv4 } from 'uuid';
-import { Project } from '../../main/resolvers-types';
-import { formatRelativeDate, getProductName } from '../utils';
-import DeleteAreaDialog from './DeleteAreaDialog';
-import { Donut } from './Donut';
-import EditableText from './EditableText';
-import EmojiDisplay from './EmojiDisplay';
-import EmojiPicker from './EmojiPicker';
-import FilteredItemList from './FilteredItemList';
-import Page from './Page';
+  SET_EMOJI
+} from '../queries'
+import { v4 as uuidv4 } from 'uuid'
+import { Project } from '../../main/resolvers-types'
+import { formatRelativeDate, getProductName } from '../utils'
+import DeleteAreaDialog from './DeleteAreaDialog'
+import { Donut } from './Donut'
+import EditableText from './EditableText'
+import EmojiDisplay from './EmojiDisplay'
+import EmojiPicker from './EmojiPicker'
+import FilteredItemList from './FilteredItemList'
+import Page from './Page'
 
 type AreaProps = {
-  areaKey: string;
-};
+  areaKey: string
+}
 const Area = (props: AreaProps): ReactElement => {
-  const { colorMode } = useColorMode();
-  const { areaKey } = props;
-  const navigate = useNavigate();
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [setEmoji] = useMutation(SET_EMOJI);
-  const [addComponent] = useMutation(ADD_COMPONENT);
+  const { colorMode } = useColorMode()
+  const { areaKey } = props
+  const navigate = useNavigate()
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [setEmoji] = useMutation(SET_EMOJI)
+  const [addComponent] = useMutation(ADD_COMPONENT)
   const [deleteArea] = useMutation(DELETE_AREA, {
-    refetchQueries: [GET_SIDEBAR],
-  });
-  const [setDescriptionOfArea] = useMutation(SET_DESCRIPTION_OF_AREA);
-  const [renameArea] = useMutation(RENAME_AREA);
+    refetchQueries: [GET_SIDEBAR]
+  })
+  const [setDescriptionOfArea] = useMutation(SET_DESCRIPTION_OF_AREA)
+  const [renameArea] = useMutation(RENAME_AREA)
   const [createProject] = useMutation(CREATE_PROJECT, {
-    refetchQueries: [GET_SIDEBAR, GET_AREA_BY_KEY],
-  });
+    refetchQueries: [GET_SIDEBAR, GET_AREA_BY_KEY]
+  })
 
   const { loading, error, data, refetch } = useQuery(GET_AREA_BY_KEY, {
-    variables: { key: areaKey },
-  });
+    variables: { key: areaKey }
+  })
 
-  if (loading) return <></>;
+  if (loading) return <></>
 
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
-  const { area } = data;
+  const { area } = data
 
-  const determineProgress = (
-    totalItemsCount: number,
-    completedItemsCount: number
-  ): number => {
+  const determineProgress = (totalItemsCount: number, completedItemsCount: number): number => {
     if (totalItemsCount === 0) {
-      return 0;
+      return 0
     }
     if (completedItemsCount === 0) {
-      return 0;
+      return 0
     }
-    return totalItemsCount / completedItemsCount;
-  };
+    return totalItemsCount / completedItemsCount
+  }
 
   return (
     <Page>
@@ -104,12 +101,12 @@ const Area = (props: AreaProps): ReactElement => {
             bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
             my={0}
             _hover={{
-              bg: colorMode === 'light' ? 'gray.200' : 'gray.900',
+              bg: colorMode === 'light' ? 'gray.200' : 'gray.900'
             }}
             transition="all 0.1s ease-in-out"
             cursor="pointer"
             onClick={() => {
-              setShowEmojiPicker(!showEmojiPicker);
+              setShowEmojiPicker(!showEmojiPicker)
             }}
           >
             {area?.emoji && <EmojiDisplay emojiId={area.emoji} />}
@@ -118,9 +115,9 @@ const Area = (props: AreaProps): ReactElement => {
         {showEmojiPicker && (
           <EmojiPicker
             onEmojiSelected={async (emoji) => {
-              await setEmoji({ variables: { key: area.key, emoji: emoji.id } });
-              setShowEmojiPicker(false);
-              refetch();
+              await setEmoji({ variables: { key: area.key, emoji: emoji.id } })
+              setShowEmojiPicker(false)
+              refetch()
             }}
           />
         )}
@@ -137,12 +134,10 @@ const Area = (props: AreaProps): ReactElement => {
               onSubmit={async (input) => {
                 try {
                   await renameArea({
-                    variables: { key: area.key, name: input },
-                  });
+                    variables: { key: area.key, name: input }
+                  })
                 } catch (e) {
-                  toast.error(
-                    'Cannot rename area, an area with that name already exists'
-                  );
+                  toast.error('Cannot rename area, an area with that name already exists')
                 }
               }}
             >
@@ -151,8 +146,8 @@ const Area = (props: AreaProps): ReactElement => {
             </Editable>
             <DeleteAreaDialog
               onDelete={() => {
-                deleteArea({ variables: { key: area.key } });
-                navigate('/inbox');
+                deleteArea({ variables: { key: area.key } })
+                navigate('/inbox')
               }}
             />
           </Flex>
@@ -167,8 +162,8 @@ const Area = (props: AreaProps): ReactElement => {
         input={area.description}
         onUpdate={(input) => {
           setDescriptionOfArea({
-            variables: { key: area.key, description: input },
-          });
+            variables: { key: area.key, description: input }
+          })
         }}
       />
       <Text my={3} fontSize="xl" color="blue.500">
@@ -187,25 +182,25 @@ const Area = (props: AreaProps): ReactElement => {
                   field: 'areaKey',
                   operator: '=',
                   valueSource: 'value',
-                  value: area.key,
+                  value: area.key
                 },
                 {
                   field: 'deleted',
                   operator: '=',
                   valueSource: 'value',
-                  value: false,
+                  value: false
                 },
                 {
                   field: 'completed',
                   operator: '=',
                   valueSource: 'value',
-                  value: false,
-                },
+                  value: false
+                }
               ],
-              not: false,
-            },
+              not: false
+            }
           ],
-          not: false,
+          not: false
         })}
         flattenSubtasks
         hiddenIcons={[ItemIcons.Project]}
@@ -217,16 +212,13 @@ const Area = (props: AreaProps): ReactElement => {
       <Flex direction="column" pb={10}>
         {area.projects.map((p: Project) => {
           // Don't show inbox
-          if (p.key === '0') return <></>;
-          if (!p.items) return <></>;
-          const totalItemsCount = p.items.length;
+          if (p.key === '0') return <></>
+          if (!p.items) return <></>
+          const totalItemsCount = p.items.length
           const completedItemsCount = p.items.filter(
             (i) => i?.completed === true && i?.deleted === false
-          ).length;
-          const progress = determineProgress(
-            totalItemsCount,
-            completedItemsCount
-          );
+          ).length
+          const progress = determineProgress(totalItemsCount, completedItemsCount)
           return (
             <Grid
               key={p.key}
@@ -241,7 +233,7 @@ const Area = (props: AreaProps): ReactElement => {
               cursor="pointer"
               borderRadius="md"
               _hover={{
-                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+                bg: colorMode === 'light' ? 'gray.100' : 'gray.900'
               }}
               _after={{
                 content: "''",
@@ -254,10 +246,10 @@ const Area = (props: AreaProps): ReactElement => {
                 width: 'calc(100% - 10px)',
                 borderBottom: '1px solid',
                 borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
-                opacity: 0.8,
+                opacity: 0.8
               }}
               onClick={() => {
-                navigate(`/views/${p.key}`);
+                navigate(`/views/${p.key}`)
               }}
               templateColumns="35px repeat(4, auto)"
               templateRows="auto"
@@ -279,12 +271,10 @@ const Area = (props: AreaProps): ReactElement => {
                 </Text>
               </GridItem>
               <GridItem gridTemplate="endAt">
-                <Text fontSize="sm">
-                  {p.endAt && `Ending: ${formatRelativeDate(p.endAt)}`}
-                </Text>
+                <Text fontSize="sm">{p.endAt && `Ending: ${formatRelativeDate(p.endAt)}`}</Text>
               </GridItem>
             </Grid>
-          );
+          )
         })}
 
         <Flex w="100%" my={2} justifyContent="flex-end">
@@ -292,7 +282,7 @@ const Area = (props: AreaProps): ReactElement => {
             variant="primary"
             rightIcon={<Icon as={Icons.add} />}
             onClick={async () => {
-              const projectKey = uuidv4();
+              const projectKey = uuidv4()
               await createProject({
                 variables: {
                   key: projectKey,
@@ -300,9 +290,9 @@ const Area = (props: AreaProps): ReactElement => {
                   description: '',
                   startAt: null,
                   endAt: null,
-                  areaKey: area.key,
-                },
-              });
+                  areaKey: area.key
+                }
+              })
               addComponent({
                 variables: {
                   input: {
@@ -321,31 +311,31 @@ const Area = (props: AreaProps): ReactElement => {
                                 field: 'projectKey',
                                 operator: '=',
                                 valueSource: 'value',
-                                value: projectKey,
+                                value: projectKey
                               },
                               {
                                 field: 'deleted',
                                 operator: '=',
                                 valueSource: 'value',
-                                value: false,
-                              },
+                                value: false
+                              }
                             ],
-                            not: false,
-                          },
+                            not: false
+                          }
                         ],
-                        not: false,
+                        not: false
                       }),
                       hiddenIcons: ['project'],
                       isFilterable: true,
                       listName: 'Todo',
                       flattenSubtasks: true,
                       showCompletedToggle: true,
-                      initiallyExpanded: true,
-                    },
-                  },
-                },
-              });
-              navigate(`/views/${projectKey}`);
+                      initiallyExpanded: true
+                    }
+                  }
+                }
+              })
+              navigate(`/views/${projectKey}`)
             }}
           >
             Add Project
@@ -353,7 +343,7 @@ const Area = (props: AreaProps): ReactElement => {
         </Flex>
       </Flex>
     </Page>
-  );
-};
+  )
+}
 
-export default Area;
+export default Area

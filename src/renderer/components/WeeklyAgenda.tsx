@@ -1,22 +1,14 @@
-import { useMutation, useQuery } from '@apollo/client';
-import {
-  Flex,
-  Grid,
-  GridItem,
-  Icon,
-  IconButton,
-  Text,
-  useColorMode,
-} from '@chakra-ui/react';
-import { add, format, startOfWeek, sub } from 'date-fns';
-import { WeeklyGoal } from 'main/resolvers-types';
-import { ReactElement, useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
-import { WEEKLY_ITEMS, CREATE_WEEKLY_GOAL } from 'renderer/queries';
-import { v4 as uuidv4 } from 'uuid';
-import EditableText from './EditableText';
-import ReorderableComponentList from './ReorderableComponentList';
-import { DailySummary } from './DailySummary';
+import { useMutation, useQuery } from '@apollo/client'
+import { Flex, Grid, GridItem, Icon, IconButton, Text, useColorMode } from '@chakra-ui/react'
+import { add, format, startOfWeek, sub } from 'date-fns'
+import { WeeklyGoal } from '../../main/resolvers-types'
+import { ReactElement, useState } from 'react'
+import { Icons } from '../assets/icons'
+import { WEEKLY_ITEMS, CREATE_WEEKLY_GOAL } from '../queries'
+import { v4 as uuidv4 } from 'uuid'
+import EditableText from './EditableText'
+import ReorderableComponentList from './ReorderableComponentList'
+import { DailySummary } from './DailySummary'
 
 const weeklyFilter = JSON.stringify({
   combinator: 'and',
@@ -25,48 +17,46 @@ const weeklyFilter = JSON.stringify({
       field: 'DATE(scheduledAt)',
       operator: 'between',
       valueSource: 'value',
-      value: 'week',
+      value: 'week'
     },
     {
       field: 'deleted',
       operator: '=',
       valueSource: 'value',
-      value: false,
-    },
+      value: false
+    }
   ],
-  not: false,
-});
+  not: false
+})
 
 const WeeklyAgenda = (): ReactElement => {
-  const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342';
-  const { colorMode } = useColorMode();
-  const [currentDate, setCurrentDate] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 })
-  );
+  const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342'
+  const { colorMode } = useColorMode()
+  const [currentDate, setCurrentDate] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }))
   const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL, {
-    refetchQueries: [WEEKLY_ITEMS],
-  });
+    refetchQueries: [WEEKLY_ITEMS]
+  })
   const { loading, error, data } = useQuery(WEEKLY_ITEMS, {
     variables: {
       filter: weeklyFilter,
-      componentKey,
-    },
-  });
-  if (loading) return <></>;
+      componentKey
+    }
+  })
+  if (loading) return <></>
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
 
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
     (w: WeeklyGoal) => w.week === format(currentDate, 'yyyy-MM-dd')
-  );
+  )
   if (!weeklyGoal) {
     weeklyGoal = {
       key: uuidv4(),
       week: format(currentDate, 'yyyy-MM-dd'),
-      goal: '',
-    };
+      goal: ''
+    }
   }
   return (
     <Flex m={5} mt={12} padding={5} width="100%" direction="column" maxW="800">
@@ -78,17 +68,12 @@ const WeeklyAgenda = (): ReactElement => {
             variant="default"
             icon={<Icon as={Icons.back} />}
             onClick={() => {
-              setCurrentDate(sub(currentDate, { days: 7 }));
+              setCurrentDate(sub(currentDate, { days: 7 }))
             }}
           />
         </GridItem>
         <GridItem colSpan={3} textAlign="center">
-          <Text
-            fontWeight="normal"
-            color="blue.500"
-            fontSize="3xl"
-            textAlign="center"
-          >
+          <Text fontWeight="normal" color="blue.500" fontSize="3xl" textAlign="center">
             Week starting {format(currentDate, 'EEEE do MMMM yyyy')}
           </Text>
         </GridItem>
@@ -99,7 +84,7 @@ const WeeklyAgenda = (): ReactElement => {
             variant="default"
             icon={<Icon as={Icons.forward} />}
             onClick={() => {
-              setCurrentDate(add(currentDate, { days: 7 }));
+              setCurrentDate(add(currentDate, { days: 7 }))
             }}
           />
         </GridItem>
@@ -108,11 +93,7 @@ const WeeklyAgenda = (): ReactElement => {
         <Text fontSize="md" style={{ gridArea: 'week_of_year' }}>
           Week of year: {format(currentDate, 'w')} / 52
         </Text>
-        <Text
-          fontSize="md"
-          textAlign="end"
-          style={{ gridArea: 'week_of_quarter' }}
-        >
+        <Text fontSize="md" textAlign="end" style={{ gridArea: 'week_of_quarter' }}>
           Week of quarter: {parseInt(format(currentDate, 'w'), 10) % 13} / 13
         </Text>
       </Flex>
@@ -142,9 +123,9 @@ const WeeklyAgenda = (): ReactElement => {
               variables: {
                 key: weeklyGoal?.key,
                 week: weeklyGoal.week,
-                goal: input,
-              },
-            });
+                goal: input
+              }
+            })
           }}
         />
       </Flex>
@@ -168,7 +149,7 @@ const WeeklyAgenda = (): ReactElement => {
         <ReorderableComponentList viewKey="6c40814f-8fad-40dc-9a96-0454149a9408" />
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default WeeklyAgenda;
+export default WeeklyAgenda

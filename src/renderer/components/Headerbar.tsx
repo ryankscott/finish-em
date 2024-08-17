@@ -1,31 +1,20 @@
-import { useQuery } from '@apollo/client';
-import {
-  Flex,
-  Icon,
-  IconButton,
-  Tooltip,
-  useColorMode,
-  useTheme,
-} from '@chakra-ui/react';
-import { sortBy } from 'lodash';
-import { Item, Project } from 'main/resolvers-types';
-import { ReactElement, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { GroupBase } from 'react-select';
-import { Icons } from 'renderer/assets/icons';
-import { IconType } from 'renderer/interfaces';
-import { GET_HEADER_BAR_DATA } from 'renderer/queries/headerbar';
-import { useBoundStore } from 'renderer/state';
-import {
-  markdownBasicRegex,
-  markdownLinkRegex,
-  removeItemTypeFromString,
-} from '../utils';
-import AccountMenu from './AccountMenu';
-import CommandBar from './CommandBar';
-import Select from './Select';
+import { useQuery } from '@apollo/client'
+import { Flex, Icon, IconButton, Tooltip, useColorMode, useTheme } from '@chakra-ui/react'
+import { sortBy } from 'lodash'
+import { Item, Project } from '../../main/resolvers-types'
+import { ReactElement, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { GroupBase } from 'react-select'
+import { Icons } from '../assets/icons'
+import { IconType } from '../interfaces'
+import { GET_HEADER_BAR_DATA } from '../queries/headerbar'
+import { useBoundStore } from '../state'
+import { markdownBasicRegex, markdownLinkRegex, removeItemTypeFromString } from '../utils'
+import AccountMenu from './AccountMenu'
+import CommandBar from './CommandBar'
+import Select from './Select'
 
-type OptionType = { label: string; value: () => void };
+type OptionType = { label: string; value: () => void }
 
 const HeaderItem = (props: any) => (
   <Flex
@@ -37,42 +26,42 @@ const HeaderItem = (props: any) => (
   >
     {props.children}
   </Flex>
-);
+)
 
 const Headerbar = (): ReactElement => {
-  const theme = useTheme();
-  const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false);
-  const navigate = useNavigate();
-  const { colorMode, toggleColorMode } = useColorMode();
-  const { loading, error, data } = useQuery(GET_HEADER_BAR_DATA);
+  const theme = useTheme()
+  const [cloudSyncEnabled, setCloudSyncEnabled] = useState(false)
+  const navigate = useNavigate()
+  const { colorMode, toggleColorMode } = useColorMode()
+  const { loading, error, data } = useQuery(GET_HEADER_BAR_DATA)
 
-  window.electronAPI.ipcRenderer.getSettings().then((settings) => {
-    const { cloudSync } = settings;
-    setCloudSyncEnabled(cloudSync.enabled);
-  });
+  window.api.getSettings().then((settings) => {
+    const { cloudSync } = settings
+    setCloudSyncEnabled(cloudSync.enabled)
+  })
 
-  const setActiveItemIds = useBoundStore((state) => state.setActiveItemIds);
-  const setFocusbarVisible = useBoundStore((state) => state.setFocusbarVisible);
+  const setActiveItemIds = useBoundStore((state) => state.setActiveItemIds)
+  const setFocusbarVisible = useBoundStore((state) => state.setFocusbarVisible)
 
-  if (loading) return <></>;
+  if (loading) return <></>
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
 
   type HeaderButtonProps = {
-    label: string;
-    icon: IconType;
-    iconColour: string;
-    disabled?: boolean;
-    onClickHandler: () => void;
-  };
+    label: string
+    icon: IconType
+    iconColour: string
+    disabled?: boolean
+    onClickHandler: () => void
+  }
   const HeaderButton = ({
     label,
     icon,
     iconColour,
     onClickHandler,
-    disabled,
+    disabled
   }: HeaderButtonProps) => (
     <Tooltip label={label}>
       <IconButton
@@ -84,13 +73,10 @@ const Headerbar = (): ReactElement => {
         onClick={onClickHandler}
       />
     </Tooltip>
-  );
+  )
 
-  const generateSearchOptions = (
-    projects: Project[],
-    items: Item[]
-  ): GroupBase<OptionType>[] => {
-    const sortedItems = sortBy(items, ['lastUpdatedAt'], ['desc']);
+  const generateSearchOptions = (projects: Project[], items: Item[]): GroupBase<OptionType>[] => {
+    const sortedItems = sortBy(items, ['lastUpdatedAt'], ['desc'])
     const itemOptions = sortedItems
       .filter((i) => i.deleted === false)
       .map((i) => {
@@ -99,28 +85,28 @@ const Headerbar = (): ReactElement => {
             .replace(markdownLinkRegex, '$1')
             .replace(markdownBasicRegex, '$1'),
           value: () => {
-            setFocusbarVisible(true);
-            setActiveItemIds([i.key]);
-          },
-        };
-      });
+            setFocusbarVisible(true)
+            setActiveItemIds([i.key])
+          }
+        }
+      })
 
     const projectOptions = projects.map((p) => {
       return {
         label: p.name,
         value: () => {
-          navigate(`/views/${p.key}`);
-        },
-      };
-    });
+          navigate(`/views/${p.key}`)
+        }
+      }
+    })
 
     return [
       { label: 'Items', options: itemOptions },
-      { label: 'Projects', options: projectOptions },
-    ];
-  };
+      { label: 'Projects', options: projectOptions }
+    ]
+  }
 
-  const searchOptions = generateSearchOptions(data.projects, data.items);
+  const searchOptions = generateSearchOptions(data.projects, data.items)
 
   return (
     <Flex
@@ -134,7 +120,7 @@ const Headerbar = (): ReactElement => {
       pl={'60px'}
       justifyContent="space-between"
       sx={{
-        WebkitAppRegion: 'drag',
+        WebkitAppRegion: 'drag'
       }}
       position="fixed"
       h="50px"
@@ -146,7 +132,7 @@ const Headerbar = (): ReactElement => {
             isMulti={false}
             placeholder="Search for items..."
             onChange={(selected) => {
-              selected.value();
+              selected.value()
             }}
             options={searchOptions}
             invertColours={colorMode === 'light'}
@@ -165,9 +151,7 @@ const Headerbar = (): ReactElement => {
             icon={'feedback' as IconType}
             iconColour={theme.colors.gray[100]}
             onClickHandler={() => {
-              window.open(
-                'https://github.com/ryankscott/finish-em/issues/new/choose'
-              );
+              window.open('https://github.com/ryankscott/finish-em/issues/new/choose')
             }}
           />
         </HeaderItem>
@@ -188,7 +172,7 @@ const Headerbar = (): ReactElement => {
         )}
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default Headerbar;
+export default Headerbar

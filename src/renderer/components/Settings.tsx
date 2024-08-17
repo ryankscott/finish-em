@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client'
 import {
   Alert,
   AlertDescription,
@@ -19,14 +19,14 @@ import {
   Tabs,
   Text,
   useBreakpointValue,
-  useColorMode,
-} from '@chakra-ui/react';
-import colormap from 'colormap';
-import { Calendar, Feature, Label } from 'main/resolvers-types';
-import { ReactElement } from 'react';
-import { Icons } from 'renderer/assets/icons';
-import { useSettings } from 'renderer/hooks';
-import { v4 as uuidv4 } from 'uuid';
+  useColorMode
+} from '@chakra-ui/react'
+import colormap from 'colormap'
+import { Calendar, Feature, Label } from '../../main/resolvers-types'
+import React, { ReactElement } from 'react'
+import { Icons } from '../assets/icons'
+import { useSettings } from '../hooks'
+import { v4 as uuidv4 } from 'uuid'
 import {
   CREATE_LABEL,
   DELETE_LABEL,
@@ -35,73 +35,72 @@ import {
   RENAME_LABEL,
   SET_ACTIVE_CALENDAR,
   SET_FEATURE,
-  SET_FEATURE_METADATA,
-} from '../queries';
-import { camelCaseToInitialCaps } from '../utils';
-import CloudSync from './CloudSync';
-import LabelEdit from './LabelEdit';
-import Select from './Select';
+  SET_FEATURE_METADATA
+} from '../queries'
+import { camelCaseToInitialCaps } from '../utils'
+import CloudSync from './CloudSync'
+import LabelEdit from './LabelEdit'
+import Select from './Select'
 
-const NUMBER_OF_COLOURS = 12;
+const NUMBER_OF_COLOURS = 12
 
-type SettingHeaderProps = { name: string };
+type SettingHeaderProps = { name: string }
 const SettingContent = (props: FlexProps) => (
   <Flex direction="column" w="100%">
     {props.children}
   </Flex>
-);
+)
 const SettingHeader = ({ name }: SettingHeaderProps): JSX.Element => (
   <Text py={4} px={0} fontSize="2xl" fontWeight="semibold">
     {name}
   </Text>
-);
+)
 
-const generateOptions = (
-  cals: Calendar[]
-): { value: string; label: string }[] => {
+const generateOptions = (cals: Calendar[]): { value: string; label: string }[] => {
   return cals?.map((c) => {
     return {
       value: c.key,
-      label: c.name,
-    };
-  });
-};
+      label: c.name
+    }
+  })
+}
 
 const Settings = (): ReactElement => {
   const settingsOrientation = useBreakpointValue([
     'horizontal',
     'horizontal',
     'vertical',
-    'vertical',
-  ]) as 'horizontal' | 'vertical';
-  const { colorMode } = useColorMode();
-  const settings = useSettings();
-  const { loading, error, data } = useQuery(GET_SETTINGS);
+    'vertical'
+  ]) as 'horizontal' | 'vertical'
+  const { colorMode } = useColorMode()
+  const settings = useSettings()
+  console.log({ settings })
+  const { loading, error, data } = useQuery(GET_SETTINGS)
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
-    refetchQueries: [GET_SETTINGS],
-  });
+    refetchQueries: [GET_SETTINGS]
+  })
   const [setFeature] = useMutation(SET_FEATURE, {
-    refetchQueries: [GET_SETTINGS],
-  });
-  const [setFeatureMetadata] = useMutation(SET_FEATURE_METADATA);
-  const [renameLabel] = useMutation(RENAME_LABEL, {});
-  const [setColourOfLabel] = useMutation(RECOLOUR_LABEL);
+    refetchQueries: [GET_SETTINGS]
+  })
+  const [setFeatureMetadata] = useMutation(SET_FEATURE_METADATA)
+  const [renameLabel] = useMutation(RENAME_LABEL, {})
+  const [setColourOfLabel] = useMutation(RECOLOUR_LABEL)
   const [deleteLabel] = useMutation(DELETE_LABEL, {
     update(cache, { data: { deleteLabel } }) {
       const cacheId = cache.identify({
         __typename: 'Label',
-        key: deleteLabel,
-      });
-      cache.evict({ id: cacheId });
-    },
-  });
+        key: deleteLabel
+      })
+      cache.evict({ id: cacheId })
+    }
+  })
 
   const colours = colormap({
     colormap: 'jet',
     nshades: NUMBER_OF_COLOURS,
     format: 'hex',
-    alpha: 1,
-  });
+    alpha: 1
+  })
 
   // We have to update the cache on add / removes
   const [createLabel] = useMutation(CREATE_LABEL, {
@@ -116,29 +115,25 @@ const Settings = (): ReactElement => {
                   key
                   name
                 }
-              `,
-            });
-            return [...existingLabels, newLabelRef];
-          },
-        },
-      });
-    },
-  });
+              `
+            })
+            return [...existingLabels, newLabelRef]
+          }
+        }
+      })
+    }
+  })
 
   // TODO: Loading and error states
-  if (loading) return <></>;
-  if (error) return <></>;
-  if (!data) return <></>;
+  if (loading) return <></>
+  if (error) return <></>
+  if (!data) return <></>
 
-  const calendarOptions = generateOptions(data.calendars);
+  const calendarOptions = generateOptions(data.calendars)
 
   return (
     <Flex direction="row" w="100%">
-      <Tabs
-        orientation={settingsOrientation ?? 'vertical'}
-        variant="custom"
-        w="100%"
-      >
+      <Tabs orientation={settingsOrientation ?? 'vertical'} variant="custom" w="100%">
         <TabList>
           <Text p={4} fontSize="lg" fontWeight="semibold">
             Settings
@@ -177,16 +172,13 @@ const Settings = (): ReactElement => {
                       size="sm"
                       isChecked={feature.enabled ?? false}
                       onChange={() => {
-                        window.electronAPI.ipcRenderer.toggleFeature(
-                          feature.name,
-                          !feature.enabled
-                        );
+                        window.api.toggleFeature(feature.name, !feature.enabled)
                         setFeature({
                           variables: {
                             key: feature.key,
-                            enabled: !feature.enabled,
-                          },
-                        });
+                            enabled: !feature.enabled
+                          }
+                        })
                       }}
                     />
                     {feature.name === 'calendarIntegration' && (
@@ -197,14 +189,12 @@ const Settings = (): ReactElement => {
                           autoFocus
                           placeholder="Choose calendar"
                           defaultValue={calendarOptions.filter(
-                            (option) =>
-                              option.label ===
-                              data?.calendars.find((c) => c.active)?.name
+                            (option) => option.label === data?.calendars.find((c) => c.active)?.name
                           )}
                           onChange={(e) => {
                             setActiveCalendar({
-                              variables: { key: e.value },
-                            });
+                              variables: { key: e.value }
+                            })
                           }}
                           options={calendarOptions}
                           escapeClearsValue
@@ -219,9 +209,9 @@ const Settings = (): ReactElement => {
                             setFeatureMetadata({
                               variables: {
                                 key: feature.key,
-                                metadata: { apiToken: val },
-                              },
-                            });
+                                metadata: { apiToken: val }
+                              }
+                            })
                           }}
                           fontSize="sm"
                           placeholder="Bear API Token"
@@ -229,8 +219,7 @@ const Settings = (): ReactElement => {
                         >
                           <EditablePreview
                             _hover={{
-                              bg:
-                                colorMode === 'light' ? 'gray.100' : 'gray.900',
+                              bg: colorMode === 'light' ? 'gray.100' : 'gray.900'
                             }}
                             py={2}
                           />
@@ -239,7 +228,7 @@ const Settings = (): ReactElement => {
                       </Box>
                     )}
                   </Flex>
-                );
+                )
               })}
             </SettingContent>
           </TabPanel>
@@ -256,20 +245,20 @@ const Settings = (): ReactElement => {
                         renameLabel={(name) => {
                           renameLabel({
                             // @ts-ignore
-                            variables: { key: label.key, name: name },
-                          });
+                            variables: { key: label.key, name: name }
+                          })
                         }}
                         deleteLabel={() => {
-                          deleteLabel({ variables: { key: label.key } });
+                          deleteLabel({ variables: { key: label.key } })
                         }}
                         colourChange={(colour) => {
                           setColourOfLabel({
-                            variables: { key: label.key, colour: colour },
-                          });
+                            variables: { key: label.key, colour: colour }
+                          })
                         }}
                       />
                     </Flex>
-                  );
+                  )
                 })}
                 <Button
                   variant="default"
@@ -282,12 +271,9 @@ const Settings = (): ReactElement => {
                       variables: {
                         key: uuidv4(),
                         name: 'New Label',
-                        colour:
-                          colours[
-                            Math.floor(Math.random() * NUMBER_OF_COLOURS)
-                          ],
-                      },
-                    });
+                        colour: colours[Math.floor(Math.random() * NUMBER_OF_COLOURS)]
+                      }
+                    })
                   }}
                 >
                   Add label
@@ -301,14 +287,13 @@ const Settings = (): ReactElement => {
               <Alert status="warning" borderRadius="md" mb={4}>
                 <AlertIcon />
                 <AlertDescription fontSize={'md'}>
-                  🐉 Changing these properties can cause you to lose all your
-                  data!!
+                  🐉 Changing these properties can cause you to lose all your data!!
                 </AlertDescription>
               </Alert>
               <Flex my={0.5} direction={'column'}>
-                {Object.keys(settings).map((key) => {
-                  if (key === '__internal__') return;
-                  const setting = settings?.[key];
+                {Object.keys(settings)?.map((key) => {
+                  if (key === '__internal__') return
+                  const setting = settings?.[key]
                   return (
                     <Flex
                       key={key}
@@ -323,11 +308,7 @@ const Settings = (): ReactElement => {
                       <Text fontSize="sm" minW="180px" fontWeight="bold">
                         {camelCaseToInitialCaps(key)}
                       </Text>
-                      <Flex
-                        justifyContent="flex-end"
-                        alignItems="center"
-                        w="100%"
-                      >
+                      <Flex justifyContent="flex-end" alignItems="center" w="100%">
                         {key === 'cloudSync' && (
                           <CloudSync
                             enabled={setting.enabled}
@@ -343,17 +324,14 @@ const Settings = (): ReactElement => {
                             <Button
                               ml={3}
                               onClick={async () => {
-                                const newDirectory =
-                                  await window.electronAPI.ipcRenderer.openDialog(
-                                    {
-                                      title: 'Open folder',
-                                      properties: ['openDirectory'],
-                                    }
-                                  );
-                                window.electronAPI.ipcRenderer.setSetting(
+                                const newDirectory = await window.api.openDialog({
+                                  title: 'Open folder',
+                                  properties: ['openDirectory']
+                                })
+                                window.api.ipcRenderer.setSetting(
                                   'overrideDatabaseDirectory',
                                   newDirectory?.[0]
-                                );
+                                )
                               }}
                             >
                               Open
@@ -362,13 +340,12 @@ const Settings = (): ReactElement => {
                         )}
                       </Flex>
                     </Flex>
-                  );
+                  )
                 })}
                 <Alert status="info" size={'sm'} borderRadius={'md'} my={4}>
                   <AlertIcon />
                   <AlertDescription fontSize={'md'}>
-                    Finish-em will restart after chosing a new database
-                    directory
+                    Finish-em will restart after chosing a new database directory
                   </AlertDescription>
                 </Alert>
               </Flex>
@@ -377,6 +354,6 @@ const Settings = (): ReactElement => {
         </TabPanels>
       </Tabs>
     </Flex>
-  );
-};
-export default Settings;
+  )
+}
+export default Settings

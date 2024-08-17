@@ -1,32 +1,24 @@
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'
+console.log(window.electron)
 export const registerHandlers = () => {
-  window.electronAPI.ipcRenderer.onReceiveMessage(
-    'send-notification',
-    (_, arg) => {
-      // TODO: Implement multiple notification types
-      toast.dark(`${arg.text}`);
-    }
-  );
+  window.electron.ipcRenderer.on('send-notification', (_, arg) => {
+    // TODO: Implement multiple notification types
+    toast.dark(`${arg.text}`)
+  })
 
-  window.electronAPI.ipcRenderer.onReceiveMessage(
-    'syncing-calendar-start',
-    (_, arg) => {
-      console.log('Calendar sync start');
-    }
-  );
+  window.electron.ipcRenderer.on('syncing-calendar-start', (_, arg) => {
+    console.log('Calendar sync start')
+  })
 
-  window.electronAPI.ipcRenderer.onReceiveMessage('events-refreshed', () => {
-    console.log('refreshed events');
-  });
+  window.electron.ipcRenderer.on('events-refreshed', () => {
+    console.log('refreshed events')
+  })
 
-  window.electronAPI.ipcRenderer.onReceiveMessage(
-    'syncing-calendar-finished',
-    (_, arg) => {
-      console.log('Calendar sync finished');
-    }
-  );
+  window.electron.ipcRenderer.on('syncing-calendar-finished', (_, arg) => {
+    console.log('Calendar sync finished')
+  })
 
-  window.electronAPI.ipcRenderer.onReceiveMessage('new-version', (_, arg) => {
+  window.electron.ipcRenderer.on('new-version', (_, arg) => {
     toast(
       <div>
         <p>
@@ -39,6 +31,6 @@ export const registerHandlers = () => {
         </p>
       </div>,
       { autoClose: false }
-    );
-  });
-};
+    )
+  })
+}

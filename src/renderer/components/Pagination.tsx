@@ -1,39 +1,31 @@
-import { ReactElement } from 'react';
-import { Flex, Text } from '@chakra-ui/layout';
-import { IconButton, Icon, Button } from '@chakra-ui/react';
-import { Icons } from 'renderer/assets/icons';
-import { PAGE_SIZE } from '../../consts';
+import { ReactElement } from 'react'
+import { Flex, Text } from '@chakra-ui/layout'
+import { IconButton, Icon, Button } from '@chakra-ui/react'
+import { Icons } from '../assets/icons'
+import { PAGE_SIZE } from '../../consts'
 
 export type PaginationProps = {
-  currentPage: number;
-  itemsLength: number;
-  setCurrentPage: (page: number) => void;
-};
+  currentPage: number
+  itemsLength: number
+  setCurrentPage: (page: number) => void
+}
 const Pagination = ({
   currentPage,
   itemsLength,
-  setCurrentPage,
+  setCurrentPage
 }: PaginationProps): ReactElement => {
-  if (itemsLength < PAGE_SIZE) return <></>;
-  const totalPages = Math.ceil(itemsLength / PAGE_SIZE);
+  if (itemsLength < PAGE_SIZE) return <></>
+  const totalPages = Math.ceil(itemsLength / PAGE_SIZE)
 
   return (
-    <Flex
-      direction="row"
-      w="100%"
-      justifyContent="center"
-      alignItems="center"
-      py={2}
-    >
+    <Flex direction="row" w="100%" justifyContent="center" alignItems="center" py={2}>
       {/* Start page button  */}
       <IconButton
         aria-label="first"
         size="sm"
         variant="default"
         icon={<Icon as={Icons.slideLeft} />}
-        onClick={() =>
-          setCurrentPage(currentPage === 1 ? currentPage : currentPage - 1)
-        }
+        onClick={() => setCurrentPage(currentPage === 1 ? currentPage : currentPage - 1)}
       />
 
       {/* First page button  */}
@@ -47,11 +39,7 @@ const Pagination = ({
 
       {/* Next page button (if we're not at the end) */}
       {currentPage >= 3 && (
-        <Button
-          size="sm"
-          variant="default"
-          onClick={() => setCurrentPage(currentPage - 1)}
-        >
+        <Button size="sm" variant="default" onClick={() => setCurrentPage(currentPage - 1)}>
           {(currentPage - 1).toString()}
         </Button>
       )}
@@ -63,11 +51,7 @@ const Pagination = ({
 
       {/* Next page button (if we're not at the end) */}
       {currentPage <= totalPages - 2 && (
-        <Button
-          size="sm"
-          variant="default"
-          onClick={() => setCurrentPage(currentPage + 1)}
-        >
+        <Button size="sm" variant="default" onClick={() => setCurrentPage(currentPage + 1)}>
           {(currentPage + 1).toString()}
         </Button>
       )}
@@ -83,7 +67,7 @@ const Pagination = ({
           size="sm"
           variant="default"
           onClick={() => {
-            setCurrentPage(totalPages);
+            setCurrentPage(totalPages)
           }}
         >
           {totalPages.toString()}
@@ -95,14 +79,10 @@ const Pagination = ({
         size="sm"
         variant="default"
         icon={<Icon as={Icons.slideRight} />}
-        onClick={() =>
-          setCurrentPage(
-            currentPage === totalPages ? totalPages : currentPage + 1
-          )
-        }
+        onClick={() => setCurrentPage(currentPage === totalPages ? totalPages : currentPage + 1)}
       />
     </Flex>
-  );
-};
+  )
+}
 
-export default Pagination;
+export default Pagination

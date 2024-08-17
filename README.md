@@ -1,46 +1,34 @@
+# my-app
 
-<html>
-<img src="https://github.com/ryankscott/finish-em/raw/master/assets/icon.svg"
-  align="left"
-  width="64"
-  height=64"
->
-  <h1>Finish-em </h1>
-</html>
-Who doesn't need a 400MB todo list?
+An Electron application with React and TypeScript
 
-## Getting Started
+## Recommended IDE Setup
 
-Basic guide to getting Finish-em up and running
+- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
-### Installing
+## Project Setup
 
-Initially clone the repo
+### Install
 
-```
-git clone https://github.com/ryankscott/finish-em.git
+```bash
+$ npm install
 ```
 
-Install the dependencies
+### Development
 
-```
-npm install
-```
-
-## Developing
-
-### Running the Electron version (development)
-
-```
-npm run start
+```bash
+$ npm run dev
 ```
 
-## Building
+### Build
 
-### Building the Electron app
+```bash
+# For windows
+$ npm run build:win
 
-The following commands will build the mac version of Finish-em
+# For macOS
+$ npm run build:mac
 
-```
-npm run package 
+# For Linux
+$ npm run build:linux
 ```

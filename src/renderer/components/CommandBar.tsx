@@ -1,39 +1,39 @@
-import { useMutation } from '@apollo/client';
-import { Flex, Icon, IconButton, Tooltip, Kbd } from '@chakra-ui/react';
-import CommandPalette from 'react-command-palette';
-import { Icons } from 'renderer/assets/icons';
+import { useMutation } from '@apollo/client'
+import { Flex, Icon, IconButton, Tooltip, Kbd } from '@chakra-ui/react'
+import CommandPalette from 'react-command-palette'
+import { Icons } from '../assets/icons'
 import {
   COMPLETE_ITEM,
   DELETE_ITEM,
   RESTORE_ITEM,
   UNCOMPLETE_ITEM,
-  ITEMS_BY_FILTER,
-} from '../queries';
-import { useBoundStore } from 'renderer/state';
+  ITEMS_BY_FILTER
+} from '../queries'
+import { useBoundStore } from '../state'
 
 const CommandBar = () => {
-  const activeItemIds = useBoundStore((state) => state.activeItemIds);
+  const activeItemIds = useBoundStore((state) => state.activeItemIds)
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
 
   type CustomCommand = {
-    id: number;
-    icon: string;
-    shortcut: string;
-    color: string;
-    name: string;
-    command: () => void;
-  };
+    id: number
+    icon: string
+    shortcut: string
+    color: string
+    name: string
+    command: () => void
+  }
   const allCommands: CustomCommand[] = [
     {
       id: 1,
@@ -43,9 +43,9 @@ const CommandBar = () => {
       name: 'Complete item',
       command: () => {
         activeItemIds.forEach((i) => {
-          completeItem({ variables: { key: i } });
-        });
-      },
+          completeItem({ variables: { key: i } })
+        })
+      }
     },
     {
       id: 2,
@@ -55,9 +55,9 @@ const CommandBar = () => {
       name: 'Delete item',
       command: () => {
         activeItemIds.forEach((i) => {
-          deleteItem({ variables: { key: i } });
-        });
-      },
+          deleteItem({ variables: { key: i } })
+        })
+      }
     },
     {
       id: 3,
@@ -67,9 +67,9 @@ const CommandBar = () => {
       name: 'Uncomplete item',
       command: () => {
         activeItemIds.forEach((i) => {
-          unCompleteItem({ variables: { key: i } });
-        });
-      },
+          unCompleteItem({ variables: { key: i } })
+        })
+      }
     },
     {
       id: 4,
@@ -79,12 +79,12 @@ const CommandBar = () => {
       name: 'Restore item',
       command: () => {
         activeItemIds.forEach((i) => {
-          restoreItem({ variables: { key: i } });
-        });
-      },
-    },
-  ];
-  const commands = allCommands;
+          restoreItem({ variables: { key: i } })
+        })
+      }
+    }
+  ]
+  const commands = allCommands
 
   return (
     <CommandPalette
@@ -109,7 +109,7 @@ const CommandBar = () => {
         suggestionHighlighted: 'command-suggestionHighlighted',
         suggestionsContainer: 'command-suggestionsContainer',
         suggestionsContainerOpen: 'command-suggestionsContainerOpen',
-        suggestionsList: 'command-suggestionsList',
+        suggestionsList: 'command-suggestionsList'
       }}
       trigger={
         <Tooltip label="Show command bar">
@@ -127,11 +127,11 @@ const CommandBar = () => {
             <span>{suggestion.name}</span>
             <Kbd color="black">{suggestion.shortcut}</Kbd>
           </Flex>
-        );
+        )
       }}
       onSelect={() => {}}
     />
-  );
-};
+  )
+}
 
-export default CommandBar;
+export default CommandBar

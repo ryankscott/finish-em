@@ -1,19 +1,11 @@
-import { useMutation, useQuery } from '@apollo/client';
-import {
-  Box,
-  Button,
-  Flex,
-  FlexProps,
-  Icon,
-  IconButton,
-  Switch,
-} from '@chakra-ui/react';
-import { ReactElement, useEffect, useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
-import { GET_COMPONENT_BY_KEY, UPDATE_COMPONENT } from 'renderer/queries';
-import { Label, Project } from '../../main/generated/typescript-helpers';
-import { ItemCreatorProps } from './ItemCreator';
-import Select from './Select';
+import { useMutation, useQuery } from '@apollo/client'
+import { Box, Button, Flex, FlexProps, Icon, IconButton, Switch } from '@chakra-ui/react'
+import { ReactElement, useEffect, useState } from 'react'
+import { Icons } from '../assets/icons'
+import { GET_COMPONENT_BY_KEY, UPDATE_COMPONENT } from '../queries'
+import { Label, Project } from '../../main/generated/typescript-helpers'
+import { ItemCreatorProps } from './ItemCreator'
+import Select from './Select'
 
 const Setting = (props: FlexProps) => (
   <Flex
@@ -26,7 +18,7 @@ const Setting = (props: FlexProps) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-);
+)
 
 const SettingLabel = (props: FlexProps) => (
   <Flex
@@ -41,7 +33,7 @@ const SettingLabel = (props: FlexProps) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-);
+)
 
 const SettingValue = (props: FlexProps) => (
   <Flex
@@ -54,81 +46,68 @@ const SettingValue = (props: FlexProps) => (
     // eslint-disable-next-line react/jsx-props-no-spreading
     {...props}
   />
-);
+)
 
 type EditItemCreatorProps = {
-  componentKey: string;
-  onClose: () => void;
-};
+  componentKey: string
+  onClose: () => void
+}
 
-const EditItemCreator = ({
-  componentKey,
-  onClose,
-}: EditItemCreatorProps): ReactElement => {
-  const [initiallyExpanded, setInitiallyExpanded] = useState(true);
-  const [projectKey, setProjectKey] = useState<string | undefined>();
-  const [labelKey, setLabelKey] = useState<string | undefined>();
+const EditItemCreator = ({ componentKey, onClose }: EditItemCreatorProps): ReactElement => {
+  const [initiallyExpanded, setInitiallyExpanded] = useState(true)
+  const [projectKey, setProjectKey] = useState<string | undefined>()
+  const [labelKey, setLabelKey] = useState<string | undefined>()
 
-  const [updateComponent] = useMutation(UPDATE_COMPONENT);
+  const [updateComponent] = useMutation(UPDATE_COMPONENT)
   const { loading, error, data } = useQuery(GET_COMPONENT_BY_KEY, {
-    variables: { key: componentKey },
-  });
+    variables: { key: componentKey }
+  })
 
-  let params: ItemCreatorProps = { initiallyExpanded: false };
+  let params: ItemCreatorProps = { initiallyExpanded: false }
   useEffect(() => {
     if (loading === false && data) {
-      setInitiallyExpanded(params.initiallyExpanded);
-      setProjectKey(params.projectKey);
-      setLabelKey(params.labelKey);
+      setInitiallyExpanded(params.initiallyExpanded)
+      setProjectKey(params.projectKey)
+      setLabelKey(params.labelKey)
     }
-  }, [
-    loading,
-    data,
-    params.initiallyExpanded,
-    params.projectKey,
-    params.labelKey,
-  ]);
+  }, [loading, data, params.initiallyExpanded, params.projectKey, params.labelKey])
 
-  if (loading) return <></>;
+  if (loading) return <></>
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
   try {
-    params = JSON.parse(data.component.parameters);
+    params = JSON.parse(data.component.parameters)
   } catch (err) {
-    console.log('Failed to parse parameters');
-    console.log(err);
-    return <></>;
+    console.log('Failed to parse parameters')
+    console.log(err)
+    return <></>
   }
 
-  const generateProjectOptions = (
-    projects: Project[]
-  ): { value: string; label: string }[] => {
+  const generateProjectOptions = (projects: Project[]): { value: string; label: string }[] => {
     return projects.map((p) => {
       return {
         value: p.key,
-        label: p.name,
-      };
-    });
-  };
+        label: p.name
+      }
+    })
+  }
 
-  const generateLabelOptions = (
-    labels: Label[]
-  ): { value: string; label: string }[] => {
+  const generateLabelOptions = (labels: Label[]): { value: string; label: string }[] => {
     return [
       ...labels.map((a) => {
         return {
           value: a.key,
-          label: a.name ?? '',
-        };
+          label: a.name ?? ''
+        }
       }),
-      { value: '', label: 'No label' },
-    ];
-  };
+      { value: '', label: 'No label' }
+    ]
+  }
 
-  const projectOptions = generateProjectOptions(data.projects);
-  const labelOptions = generateLabelOptions(data.labels);
+  const projectOptions = generateProjectOptions(data.projects)
+  const labelOptions = generateLabelOptions(data.labels)
   return (
     <Flex
       border="1px solid"
@@ -149,7 +128,7 @@ const EditItemCreator = ({
             variant="default"
             icon={<Icon as={Icons.close} />}
             onClick={() => {
-              onClose();
+              onClose()
             }}
           />
         </Box>
@@ -161,7 +140,7 @@ const EditItemCreator = ({
             size="sm"
             checked={initiallyExpanded}
             onChange={() => {
-              setInitiallyExpanded(!initiallyExpanded);
+              setInitiallyExpanded(!initiallyExpanded)
             }}
           />
         </SettingValue>
@@ -174,7 +153,7 @@ const EditItemCreator = ({
               placeholder="Select project"
               defaultValue={projectOptions.find((p) => p.value === projectKey)}
               onChange={(p) => {
-                setProjectKey(p.value);
+                setProjectKey(p.value)
               }}
               options={projectOptions}
               escapeClearsValue
@@ -190,7 +169,7 @@ const EditItemCreator = ({
               placeholder="Select label"
               defaultValue={labelOptions.find((l) => l.value === labelKey)}
               onChange={(l) => {
-                setLabelKey(l.value);
+                setLabelKey(l.value)
               }}
               options={labelOptions}
               escapeClearsValue
@@ -217,18 +196,18 @@ const EditItemCreator = ({
                 parameters: {
                   initiallyExpanded,
                   projectKey,
-                  labelKey,
-                },
-              },
-            });
-            onClose();
+                  labelKey
+                }
+              }
+            })
+            onClose()
           }}
         >
           Save
         </Button>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default EditItemCreator;
+export default EditItemCreator

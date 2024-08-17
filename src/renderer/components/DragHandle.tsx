@@ -1,9 +1,9 @@
-import { Flex, Icon } from '@chakra-ui/react';
-import { DraggableProvidedDragHandleProps } from 'react-beautiful-dnd';
-import { Icons } from 'renderer/assets/icons';
+import { Flex, Icon } from '@chakra-ui/react'
+import { DraggableProvidedDragHandleProps } from 'react-beautiful-dnd'
+import { Icons } from '../assets/icons'
 
 interface DragHandleProps {
-  dragHandleProps: DraggableProvidedDragHandleProps | undefined;
+  dragHandleProps: DraggableProvidedDragHandleProps | undefined
 }
 const DragHandle = ({ dragHandleProps }: DragHandleProps) => {
   return (
@@ -18,14 +18,14 @@ const DragHandle = ({ dragHandleProps }: DragHandleProps) => {
       zIndex={100}
       opacity={0}
       _hover={{
-        opacity: 1,
+        opacity: 1
       }}
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...dragHandleProps}
     >
       <Icon as={Icons.drag} opacity={0.8} />
     </Flex>
-  );
-};
+  )
+}
 
-export default DragHandle;
+export default DragHandle

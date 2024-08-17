@@ -1,37 +1,31 @@
-import { useQuery } from '@apollo/client';
-import { Flex, Box, Text } from '@chakra-ui/react';
-import { Area } from '../../main/resolvers-types';
-import { ReactElement } from 'react';
-import { GET_AREAS } from 'renderer/queries';
-import Select from './Select';
-import EmojiDisplay from './EmojiDisplay';
+import { useQuery } from '@apollo/client'
+import { Flex, Box, Text } from '@chakra-ui/react'
+import { Area } from '../../main/resolvers-types'
+import { ReactElement } from 'react'
+import { GET_AREAS } from '../queries'
+import Select from './Select'
+import EmojiDisplay from './EmojiDisplay'
 
 type Props = {
-  currentArea: Area | null;
-  completed: boolean;
-  deleted: boolean;
-  onSubmit: (key: string) => void;
-  invert?: boolean;
-};
+  currentArea: Area | null
+  completed: boolean
+  deleted: boolean
+  onSubmit: (key: string) => void
+  invert?: boolean
+}
 
-export default function AreaSelect({
-  currentArea,
-  completed,
-  deleted,
-  onSubmit,
-  invert,
-}: Props) {
-  const { loading, error, data } = useQuery<{ areas: Area[] }, null>(GET_AREAS);
+export default function AreaSelect({ currentArea, completed, deleted, onSubmit, invert }: Props) {
+  const { loading, error, data } = useQuery<{ areas: Area[] }, null>(GET_AREAS)
 
-  if (loading) return <></>;
+  if (loading) return <></>
 
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
-  const filteredAreas = data?.areas?.filter((a: Area) => a.deleted === false);
+  const filteredAreas = data?.areas?.filter((a: Area) => a.deleted === false)
 
-  type AreaOption = { value: string; label: ReactElement | string };
+  type AreaOption = { value: string; label: ReactElement | string }
   const options: AreaOption[] | [] = filteredAreas
     ? [
         ...filteredAreas?.map((a: Area) => {
@@ -46,12 +40,12 @@ export default function AreaSelect({
                 )}
                 <Text pl={1}>{a.name}</Text>
               </Flex>
-            ),
-          };
+            )
+          }
         }),
-        { value: '', label: 'None' },
+        { value: '', label: 'None' }
       ]
-    : [];
+    : []
 
   return (
     <Box w="100%" cursor={completed || deleted ? 'not-allowed' : 'inherit'}>
@@ -59,7 +53,7 @@ export default function AreaSelect({
         isMulti={false}
         isDisabled={completed || deleted}
         onChange={(a) => {
-          onSubmit(a.value);
+          onSubmit(a.value)
         }}
         options={options}
         escapeClearsValue
@@ -69,5 +63,5 @@ export default function AreaSelect({
         renderLabelAsElement
       />
     </Box>
-  );
+  )
 }

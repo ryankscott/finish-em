@@ -1,18 +1,18 @@
-import { ReactElement } from 'react';
-import { marked } from 'marked';
-import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
-import { HTMLToPlainText } from 'renderer/utils';
-import { Icons } from '../assets/icons';
+import { ReactElement } from 'react'
+import { marked } from 'marked'
+import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react'
+import { HTMLToPlainText } from '../utils'
+import { Icons } from '../assets/icons'
 
-type ItemAttributeType = 'repeat' | 'due' | 'scheduled' | 'subtask';
+type ItemAttributeType = 'repeat' | 'due' | 'scheduled' | 'subtask'
 type ItemAttributeProps = {
-  type: ItemAttributeType;
-  text: string;
-  tooltipText: string;
-  completed: boolean;
-  compact: boolean;
-  isOverdue?: boolean;
-};
+  type: ItemAttributeType
+  text: string
+  tooltipText: string
+  completed: boolean
+  compact: boolean
+  isOverdue?: boolean
+}
 
 const ItemAttribute = ({
   compact,
@@ -20,7 +20,7 @@ const ItemAttribute = ({
   text,
   completed,
   type,
-  isOverdue,
+  isOverdue
 }: ItemAttributeProps): ReactElement => {
   return (
     <Tooltip label={HTMLToPlainText(tooltipText)}>
@@ -49,6 +49,6 @@ const ItemAttribute = ({
         )}
       </Flex>
     </Tooltip>
-  );
-};
-export default ItemAttribute;
+  )
+}
+export default ItemAttribute

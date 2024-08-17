@@ -1,13 +1,8 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { orderBy } from 'lodash';
-import { ReactElement, useEffect, useState } from 'react';
-import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from 'react-beautiful-dnd';
-import { v4 as uuidv4 } from 'uuid';
+import { useMutation, useQuery } from '@apollo/client'
+import { orderBy } from 'lodash'
+import { ReactElement, useEffect, useState } from 'react'
+import { DragDropContext, Draggable, Droppable, DropResult } from 'react-beautiful-dnd'
+import { v4 as uuidv4 } from 'uuid'
 import {
   Menu,
   MenuButton,
@@ -16,74 +11,58 @@ import {
   Button,
   Flex,
   Icon,
-  useColorMode,
-} from '@chakra-ui/react';
-import {
-  ADD_COMPONENT,
-  GET_COMPONENTS_BY_VIEW,
-  SET_COMPONENT_ORDER,
-} from 'renderer/queries';
-import { Component } from 'main/resolvers-types';
-import { Icons } from '../assets/icons';
-import ComponentActions from './ComponentActions';
-import FilteredItemList from './FilteredItemList';
-import ItemCreator from './ItemCreator';
-import Spinner from './Spinner';
-import ViewHeader from './ViewHeader';
-import DragHandle from './DragHandle';
+  useColorMode
+} from '@chakra-ui/react'
+import { ADD_COMPONENT, GET_COMPONENTS_BY_VIEW, SET_COMPONENT_ORDER } from '../queries'
+import { Component } from '../../main/resolvers-types'
+import { Icons } from '../assets/icons'
+import ComponentActions from './ComponentActions'
+import FilteredItemList from './FilteredItemList'
+import ItemCreator from './ItemCreator'
+import Spinner from './Spinner'
+import ViewHeader from './ViewHeader'
+import DragHandle from './DragHandle'
 
 type ReorderableComponentListProps = {
-  viewKey: string;
-};
+  viewKey: string
+}
 
-const ReorderableComponentList = ({
-  viewKey,
-}: ReorderableComponentListProps): ReactElement => {
-  const { colorMode } = useColorMode();
+const ReorderableComponentList = ({ viewKey }: ReorderableComponentListProps): ReactElement => {
+  const { colorMode } = useColorMode()
   const { loading, error, data } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey },
-    fetchPolicy: 'no-cache',
-  });
+    fetchPolicy: 'no-cache'
+  })
   const [addComponent] = useMutation(ADD_COMPONENT, {
-    refetchQueries: [GET_COMPONENTS_BY_VIEW],
-  });
+    refetchQueries: [GET_COMPONENTS_BY_VIEW]
+  })
   const [setComponentOrder] = useMutation(SET_COMPONENT_ORDER, {
-    refetchQueries: [GET_COMPONENTS_BY_VIEW],
-  });
-  const [sortedComponents, setSortedComponents] = useState<Component[] | []>(
-    []
-  );
+    refetchQueries: [GET_COMPONENTS_BY_VIEW]
+  })
+  const [sortedComponents, setSortedComponents] = useState<Component[] | []>([])
 
   useEffect(() => {
     if (loading === false && data) {
-      setSortedComponents(
-        orderBy(data.componentsByView, ['sortOrder.sortOrder'], ['asc'])
-      );
+      setSortedComponents(orderBy(data.componentsByView, ['sortOrder.sortOrder'], ['asc']))
     }
-  }, [loading, data]);
+  }, [loading, data])
 
   if (loading) {
     return (
       <Flex h="100%" w="100%" justifyContent="center" alignContent="center">
         <Spinner />
       </Flex>
-    );
+    )
   }
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
 
   const componentSwitch = (params, comp, provided) => {
     switch (comp.type) {
       case 'FilteredItemList':
-        return (
-          <FilteredItemList
-            {...params}
-            componentKey={comp.key}
-            key={comp.key}
-          />
-        );
+        return <FilteredItemList {...params} componentKey={comp.key} key={comp.key} />
       case 'ViewHeader':
         return (
           <ViewHeader
@@ -93,52 +72,43 @@ const ReorderableComponentList = ({
             id={comp.key}
             {...params}
           />
-        );
+        )
       case 'ItemCreator':
-        return (
-          <ItemCreator componentKey={comp.key} key={comp.key} {...params} />
-        );
+        return <ItemCreator componentKey={comp.key} key={comp.key} {...params} />
       default:
-        return <></>;
+        return <></>
     }
-  };
+  }
 
   return (
-    <Flex
-      direction="column"
-      justifyContent="flex-end"
-      w="100%"
-      my={3}
-      mx={0}
-      mt={6}
-    >
+    <Flex direction="column" justifyContent="flex-end" w="100%" my={3} mx={0} mt={6}>
       <DragDropContext
         onDragEnd={(result: DropResult) => {
-          const { destination, source, draggableId } = result;
+          const { destination, source, draggableId } = result
 
           //  Trying to detect drops in non-valid areas
           if (!destination) {
-            return;
+            return
           }
           // Do nothing if it was a drop to the same place
-          if (destination.index === source.index) return;
+          if (destination.index === source.index) return
 
-          const componentAtDestination = sortedComponents[destination.index];
-          const componentAtSource = sortedComponents[source.index];
+          const componentAtDestination = sortedComponents[destination.index]
+          const componentAtSource = sortedComponents[source.index]
 
           // Sync update
-          const newSortedComponents = sortedComponents;
-          newSortedComponents.splice(source.index, 1);
-          newSortedComponents.splice(destination.index, 0, componentAtSource);
-          setSortedComponents(newSortedComponents);
+          const newSortedComponents = sortedComponents
+          newSortedComponents.splice(source.index, 1)
+          newSortedComponents.splice(destination.index, 0, componentAtSource)
+          setSortedComponents(newSortedComponents)
 
           // Async update
           setComponentOrder({
             variables: {
               componentKey: draggableId,
-              sortOrder: componentAtDestination?.sortOrder?.sortOrder,
-            },
-          });
+              sortOrder: componentAtDestination?.sortOrder?.sortOrder
+            }
+          })
         }}
       >
         <Droppable droppableId={'component'} type="COMPONENT">
@@ -156,7 +126,7 @@ const ReorderableComponentList = ({
             >
               {sortedComponents.map((comp, index) => {
                 try {
-                  const params = JSON.parse(comp?.parameters);
+                  const params = JSON.parse(comp?.parameters)
                   return (
                     <Draggable
                       key={comp.key}
@@ -175,9 +145,7 @@ const ReorderableComponentList = ({
                           borderRadius="md"
                           mb={8}
                           border="1px solid"
-                          borderColor={
-                            snapshot.isDragging ? 'gray.200' : 'transparent'
-                          }
+                          borderColor={snapshot.isDragging ? 'gray.200' : 'transparent'}
                           bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
                           shadow={snapshot.isDragging ? 'md' : 'none'}
                           ref={provided.innerRef}
@@ -185,23 +153,18 @@ const ReorderableComponentList = ({
                           {...provided.draggableProps}
                           key={`container-${comp.key}`}
                         >
-                          <DragHandle
-                            dragHandleProps={provided.dragHandleProps}
-                          />
-                          <ComponentActions
-                            readOnly={false}
-                            componentKey={comp.key}
-                          >
+                          <DragHandle dragHandleProps={provided.dragHandleProps} />
+                          <ComponentActions readOnly={false} componentKey={comp.key}>
                             {componentSwitch(params, comp, provided)}
                           </ComponentActions>
                         </Flex>
                       )}
                     </Draggable>
-                  );
+                  )
                 } catch (e) {
                   console.log(
                     `Failed to parse parameters of sortedComponent - ${comp.key}, with error - ${e}`
-                  );
+                  )
                 }
               })}
 
@@ -213,13 +176,7 @@ const ReorderableComponentList = ({
 
       {/* TODO extract to a component */}
       <Flex w="100%" position="relative" justifyContent="center" pb={6}>
-        <Menu
-          placement="bottom"
-          gutter={0}
-          arrowPadding={0}
-          closeOnSelect
-          closeOnBlur
-        >
+        <Menu placement="bottom" gutter={0} arrowPadding={0} closeOnSelect closeOnBlur>
           <MenuButton
             size="md"
             as={Button}
@@ -248,37 +205,33 @@ const ReorderableComponentList = ({
                               field: 'projectKey',
                               operator: '=',
                               valueSource: 'value',
-                              value:
-                                data.view.type == 'project'
-                                  ? data.view.key
-                                  : '0',
+                              value: data.view.type == 'project' ? data.view.key : '0'
                             },
                             {
                               field: 'deleted',
                               operator: '=',
                               valueSource: 'value',
-                              value: false,
+                              value: false
                             },
                             {
                               field: 'areaKey',
                               operator: 'null',
                               valueSource: 'value',
-                              value: '0',
-                            },
+                              value: '0'
+                            }
                           ],
-                          not: false,
+                          not: false
                         }),
-                        hiddenIcons:
-                          data.view.type == 'project' ? ['project'] : [],
+                        hiddenIcons: data.view.type == 'project' ? ['project'] : [],
                         isFilterable: true,
                         listName: 'Todo',
                         flattenSubtasks: true,
                         showCompletedToggle: true,
-                        initiallyExpanded: true,
-                      },
-                    },
-                  },
-                });
+                        initiallyExpanded: true
+                      }
+                    }
+                  }
+                })
               }}
             >
               Item list
@@ -294,11 +247,11 @@ const ReorderableComponentList = ({
                       location: 'main',
                       parameters: {
                         name: data.view.name,
-                        icon: 'view',
-                      },
-                    },
-                  },
-                });
+                        icon: 'view'
+                      }
+                    }
+                  }
+                })
               }}
             >
               Header
@@ -314,12 +267,11 @@ const ReorderableComponentList = ({
                       location: 'main',
                       parameters: {
                         initiallyExpanded: false,
-                        projectKey:
-                          data.view.type == 'project' ? data.view.key : '0',
-                      },
-                    },
-                  },
-                });
+                        projectKey: data.view.type == 'project' ? data.view.key : '0'
+                      }
+                    }
+                  }
+                })
               }}
             >
               Item creator
@@ -328,7 +280,7 @@ const ReorderableComponentList = ({
         </Menu>
       </Flex>
     </Flex>
-  );
-};
+  )
+}
 
-export default ReorderableComponentList;
+export default ReorderableComponentList
