@@ -1,33 +1,34 @@
-import { ReactElement } from 'react';
-import { Box, Text } from '@chakra-ui/react';
-import { ItemIcons } from '../interfaces';
-import Item from './Item';
+import { ReactElement } from 'react'
+import { Box, Text } from '@chakra-ui/react'
+import { ItemIcons } from '../interfaces'
+import Item from './Item'
+import React from 'react'
 
 type ItemListProps = {
-  componentKey: string;
+  componentKey: string
   inputItems: {
-    key: string;
-    text: string;
-    label: { key: string; name: string };
-    project: { key: string; name: string };
-    parent: { key: string; name: string };
-    children: { key: string }[];
-    sortOrder: { sortOrder: number };
-  }[];
-  hiddenIcons: ItemIcons[];
-  flattenSubtasks?: boolean;
-  compact?: boolean;
-};
+    key: string
+    text: string
+    label: { key: string; name: string }
+    project: { key: string; name: string }
+    parent: { key: string; name: string }
+    children: { key: string }[]
+    sortOrder: { sortOrder: number }
+  }[]
+  hiddenIcons: ItemIcons[]
+  flattenSubtasks?: boolean
+  compact?: boolean
+}
 
 function ItemList({
   componentKey,
   inputItems,
   flattenSubtasks,
   compact,
-  hiddenIcons,
+  hiddenIcons
 }: ItemListProps): ReactElement {
   const renderItem = (i): JSX.Element => {
-    if (i === undefined) return <></>;
+    if (i === undefined) return <></>
     /* We want to allow flattening of subtasks which means:
   1. If we should flatten
       - If an item has a parent and the parent is in the list, don't render the parent
@@ -37,12 +38,10 @@ function ItemList({
 */
     if (flattenSubtasks) {
       if (i.parent != null) {
-        const parentExistsInList = inputItems.find(
-          (z) => z.key === i.parent.key
-        );
+        const parentExistsInList = inputItems.find((z) => z.key === i.parent.key)
         // It exists it will get rendered later, so don't render it
         if (parentExistsInList) {
-          return <></>;
+          return <></>
         }
       }
     }
@@ -67,23 +66,19 @@ function ItemList({
               parentKey={i.key}
               itemKey={childItem.key}
               componentKey={componentKey}
-              hiddenIcons={
-                hiddenIcons
-                  ? [...hiddenIcons, ItemIcons.Subtask]
-                  : [ItemIcons.Subtask]
-              }
+              hiddenIcons={hiddenIcons ? [...hiddenIcons, ItemIcons.Subtask] : [ItemIcons.Subtask]}
               shouldIndent
             />
-          );
+          )
         })}
       </>
-    );
-  };
+    )
+  }
 
   return (
     <Box w="100%" my={4} mx={0} data-cy="item-list">
       {inputItems.map((i) => {
-        return renderItem(i);
+        return renderItem(i)
       })}
       {inputItems.length === 0 && (
         <Text color="gray.400" fontSize="sm" py={4} px={0} pl={4}>
@@ -91,7 +86,7 @@ function ItemList({
         </Text>
       )}
     </Box>
-  );
+  )
 }
 
-export default ItemList;
+export default ItemList

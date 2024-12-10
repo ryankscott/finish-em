@@ -153,18 +153,27 @@ const Sidebar = (): ReactElement => {
       height="100%"
       py={2}
       px={sidebarVisible ? 2 : 0.5}
-      bg="gray.800"
+      bg="gray.100"
       shadow="lg"
       data-cy="sidebar-container"
       m={0}
       overflowY="scroll"
       border="none"
       borderRight="1px solid"
-      borderColor={colorMode === 'light' ? 'transparent' : 'gray.900'}
+      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
       sx={{ scrollbarWidth: 'thin' }}
     >
       <VStack spacing={0} w="100%">
-        <SidebarSection name="Views" iconName="view" sidebarVisible={sidebarVisible} />
+        {!sidebarVisible && (
+          <Flex direction="column" py={2}>
+            <SidebarToggleButton />
+            <Divider my={1} bg="gray.900" />
+          </Flex>
+        )}
+        <Flex justifyContent="space-between" alignItems={'center'} w="100%">
+          <SidebarSection name="Views" iconName="view" sidebarVisible={sidebarVisible} />
+          {sidebarVisible && <SidebarToggleButton />}
+        </Flex>
         <VStack spacing={0.5} w="100%">
           {defaultViews.map((d) => {
             return (
@@ -205,7 +214,7 @@ const Sidebar = (): ReactElement => {
                         provided={draggableProvided}
                         snapshot={draggableSnapshot}
                       >
-                        {!sidebarVisible && <Divider my={1} bg="gray.100" />}
+                        {!sidebarVisible && <Divider my={1} bg="gray.600" />}
                         <Flex alignItems="center">
                           <SidebarItem
                             key={`sidebar-item-${uuidv4()}`}
@@ -278,7 +287,7 @@ const Sidebar = (): ReactElement => {
         my={2}
         direction={sidebarVisible ? 'row' : 'column'}
       >
-        {!sidebarVisible && <Divider py={1} />}
+        {!sidebarVisible && <Divider my={1} bg="gray.600" />}
         <Flex alignItems="center">
           <SidebarItem
             variant="defaultView"
@@ -288,7 +297,6 @@ const Sidebar = (): ReactElement => {
             type="project"
           />
         </Flex>
-        <SidebarToggleButton />
       </Stack>
     </Flex>
   )

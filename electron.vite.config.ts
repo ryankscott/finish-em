@@ -13,7 +13,7 @@ export default defineConfig({
     assetsInclude: ['**/*.md'],
     resolve: {
       alias: {
-        '@renderer': resolve('src/renderer/src')
+        '@renderer': resolve('src/renderer/')
       }
     },
     plugins: [react()]

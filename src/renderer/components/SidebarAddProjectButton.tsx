@@ -21,10 +21,10 @@ const SidebarAddProjectButton = ({ areaKey }: SidebarAddProjectButtonProps) => {
       <Box>
         <IconButton
           m={0}
-          w={9}
-          h={9}
+          w={8}
+          h={8}
           aria-label="add-project"
-          variant="dark"
+          variant="subtle"
           icon={<Icon as={Icons.add} />}
           onClick={async () => {
             const projectKey = uuidv4()

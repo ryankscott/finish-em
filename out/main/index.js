@@ -41684,7 +41684,7 @@ function createMainWindow() {
     width: 1200,
     height: 850,
     minWidth: 550,
-    titleBarStyle: "hidden",
+    titleBarStyle: "hiddenInset",
     webPreferences: {
       sandbox: false,
       nodeIntegration: false,

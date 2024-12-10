@@ -19,6 +19,7 @@ import EditFilteredItemList from './EditFilteredItemList'
 import ReorderableItemList from './ReorderableItemList'
 import SortDropdown, { SortDirectionEnum } from './SortDropdown'
 import { useBoundStore } from '../state'
+import React from 'react'
 
 const determineVisibilityRules = (
   isFilterable: boolean,

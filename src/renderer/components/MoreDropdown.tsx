@@ -66,19 +66,21 @@ const MoreDropdown = ({
     ? [
         {
           label: 'Delete permanently',
-          onClick: (e: React.MouseEvent) => {
+          onClick: (e: React.MouseEvent): void => {
             permanentDeleteItem({ variables: { itemKey } })
             e.stopPropagation()
             e.preventDefault()
+            return
           },
           icon: 'trashPermanent'
         },
         {
           label: 'Restore item',
-          onClick: (e: React.MouseEvent) => {
+          onClick: (e: React.MouseEvent): void => {
             restoreItem({ variables: { itemKey } })
             e.stopPropagation()
             e.preventDefault()
+            return
           },
           icon: 'restore'
         }
@@ -86,46 +88,51 @@ const MoreDropdown = ({
     : [
         {
           label: 'Add label',
-          onClick: (e: React.MouseEvent) => {
+          onClick: (e: React.MouseEvent): void => {
             e.stopPropagation()
             e.preventDefault()
             setShowLabelDialog(!showLabelDialog)
+            return
           },
           icon: 'label'
         },
         {
           label: 'Delete item',
-          onClick: (e: React.MouseEvent) => {
+          onClick: (e: React.MouseEvent): void => {
             deleteItem({ variables: { key: itemKey } })
             e.stopPropagation()
             e.preventDefault()
+            return
           },
           icon: 'trash'
         },
         {
           label: 'Clone item',
-          onClick: (e: React.MouseEvent) => {
+          onClick: (e: React.MouseEvent): void => {
             cloneItem({ variables: { key: itemKey } })
             e.stopPropagation()
             e.preventDefault()
+            return
           },
           icon: 'copy'
         },
         {
           label: 'Remind me',
-          onClick: (e: React.MouseEvent) => {
+          onClick: (e: React.MouseEvent): void => {
             setShowReminderDialog(!showReminderDialog)
             e.stopPropagation()
             e.preventDefault()
+            return
           },
           icon: 'reminder'
         },
         {
           label: 'Snooze',
-          onClick: (e: React.MouseEvent) => {
+          onClick: (e: React.MouseEvent): void => {
             setShowSnoozeDialog(!showSnoozeDialog)
             e.stopPropagation()
             e.preventDefault()
+            return
           },
           icon: 'snooze'
         }
@@ -135,6 +142,7 @@ const MoreDropdown = ({
     <>
       <Menu matchWidth>
         <MenuButton
+          zIndex={100}
           tabIndex={-1}
           disabled={disableClick}
           as={IconButton}

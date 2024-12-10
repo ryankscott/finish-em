@@ -1,12 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
-import { Flex } from '@chakra-ui/react';
-import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
+import React from 'react'
+import { Flex } from '@chakra-ui/react'
+import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd'
 
 interface Props {
-  snapshot: DraggableStateSnapshot;
-  provided: DraggableProvided;
-  children: React.ReactNode;
+  snapshot: DraggableStateSnapshot
+  provided: DraggableProvided
+  children: React.ReactNode
 }
 
 const SidebarDraggableItem = ({ snapshot, provided, children }: Props) => {
@@ -15,10 +15,10 @@ const SidebarDraggableItem = ({ snapshot, provided, children }: Props) => {
       direction="column"
       m={0}
       p={0}
-      bg={snapshot.isDragging ? 'gray.900' : 'gray.800'}
+      bg={snapshot.isDragging ? 'gray.200' : 'gray.100'}
       shadow={snapshot.isDragging ? 'lg' : 'none'}
       border={'1px solid'}
-      borderColor={snapshot.isDragging ? 'gray.900' : 'transparent'}
+      borderColor={snapshot.isDragging ? 'gray.200' : 'transparent'}
       borderRadius="md"
       {...provided.draggableProps}
       {...provided.dragHandleProps}
@@ -26,6 +26,6 @@ const SidebarDraggableItem = ({ snapshot, provided, children }: Props) => {
     >
       {children}
     </Flex>
-  );
-};
-export default SidebarDraggableItem;
+  )
+}
+export default SidebarDraggableItem

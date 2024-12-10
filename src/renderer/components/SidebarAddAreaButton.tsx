@@ -13,13 +13,13 @@ const SidebarAddAreaButton = () => {
     refetchQueries: [GET_SIDEBAR]
   })
   return (
-    <Flex mt={2} w="100%" justifyContent="center" bg="gray.800">
+    <Flex mt={2} w="100%" justifyContent="center" bg="gray.100">
       <Tooltip label="Add Area" key={uuidv4()}>
         <Box>
           <Button
             mb={2}
             size="sm"
-            variant="dark"
+            variant="subtle"
             rightIcon={<Icon as={Icons.add} />}
             onClick={async () => {
               const areaKey = uuidv4()

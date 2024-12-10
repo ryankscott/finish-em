@@ -23,7 +23,7 @@ import {
 } from '@chakra-ui/react'
 import colormap from 'colormap'
 import { Calendar, Feature, Label } from '../../main/resolvers-types'
-import React, { ReactElement } from 'react'
+import { ReactElement } from 'react'
 import { Icons } from '../assets/icons'
 import { useSettings } from '../hooks'
 import { v4 as uuidv4 } from 'uuid'
@@ -41,6 +41,7 @@ import { camelCaseToInitialCaps } from '../utils'
 import CloudSync from './CloudSync'
 import LabelEdit from './LabelEdit'
 import Select from './Select'
+import React from 'react'
 
 const NUMBER_OF_COLOURS = 12
 
@@ -74,7 +75,6 @@ const Settings = (): ReactElement => {
   ]) as 'horizontal' | 'vertical'
   const { colorMode } = useColorMode()
   const settings = useSettings()
-  console.log({ settings })
   const { loading, error, data } = useQuery(GET_SETTINGS)
   const [setActiveCalendar] = useMutation(SET_ACTIVE_CALENDAR, {
     refetchQueries: [GET_SETTINGS]
@@ -127,7 +127,7 @@ const Settings = (): ReactElement => {
   // TODO: Loading and error states
   if (loading) return <></>
   if (error) return <></>
-  if (!data) return <></>
+  if (!data || !settings) return <></>
 
   const calendarOptions = generateOptions(data.calendars)
 

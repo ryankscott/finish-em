@@ -1,10 +1,10 @@
 import { useQuery } from '@apollo/client'
-import { Flex, Icon, IconButton, Tooltip, useColorMode, useTheme } from '@chakra-ui/react'
+import { Box, Flex, Icon, IconButton, Tooltip, useColorMode, useTheme } from '@chakra-ui/react'
 import { sortBy } from 'lodash'
-import { Item, Project } from '../../main/resolvers-types'
-import { ReactElement, useState } from 'react'
+import React, { ReactElement, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GroupBase } from 'react-select'
+import { Item, Project } from '../../main/resolvers-types'
 import { Icons } from '../assets/icons'
 import { IconType } from '../interfaces'
 import { GET_HEADER_BAR_DATA } from '../queries/headerbar'
@@ -67,7 +67,7 @@ const Headerbar = (): ReactElement => {
       <IconButton
         disabled={disabled}
         aria-label={label}
-        variant="dark"
+        variant="subtle"
         icon={<Icon as={Icons[icon]} h={4} w={4} />}
         color={iconColour}
         onClick={onClickHandler}
@@ -114,20 +114,24 @@ const Headerbar = (): ReactElement => {
       zIndex={999}
       color="gray.50"
       borderBottom={colorMode === 'light' ? 'none' : '1px solid'}
-      borderColor={colorMode === 'light' ? 'transparent' : 'gray.900'}
-      bg="gray.800"
+      borderColor={colorMode === 'light' ? 'transparent' : 'gray.200'}
+      bg="gray.200"
       px={2}
       pl={'60px'}
       justifyContent="space-between"
-      sx={{
-        WebkitAppRegion: 'drag'
-      }}
       position="fixed"
       h="50px"
       shadow="md"
+      onClick={() => console.log('click')}
     >
+      <Box
+        w="100%"
+        sx={{
+          WebkitAppRegion: 'drag'
+        }}
+      />
       <Flex w="100%" alignItems="center" justifyContent="center">
-        <Flex w="100%" px={2} maxW="600px">
+        <Flex px={2} minW="600px">
           <Select
             isMulti={false}
             placeholder="Search for items..."
@@ -135,7 +139,6 @@ const Headerbar = (): ReactElement => {
               selected.value()
             }}
             options={searchOptions}
-            invertColours={colorMode === 'light'}
             fullWidth
           />
         </Flex>
@@ -149,7 +152,7 @@ const Headerbar = (): ReactElement => {
           <HeaderButton
             label="Give feedback"
             icon={'feedback' as IconType}
-            iconColour={theme.colors.gray[100]}
+            iconColour={theme.colors.gray[900]}
             onClickHandler={() => {
               window.open('https://github.com/ryankscott/finish-em/issues/new/choose')
             }}
@@ -160,7 +163,7 @@ const Headerbar = (): ReactElement => {
           <HeaderButton
             label={`${colorMode === 'light' ? 'Dark' : 'Light'} mode`}
             icon={colorMode === 'light' ? 'darkMode' : 'lightMode'}
-            iconColour={theme.colors.gray[100]}
+            iconColour={theme.colors.gray[900]}
             onClickHandler={toggleColorMode}
           />
         </HeaderItem>
