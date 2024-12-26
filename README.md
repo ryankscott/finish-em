@@ -1,4 +1,4 @@
-# my-app
+# Finish-em 
 
 An Electron application with React and TypeScript
 

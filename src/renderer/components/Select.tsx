@@ -1,17 +1,16 @@
-import { Icon, useColorMode } from '@chakra-ui/react';
-import { useTheme } from '@chakra-ui/system';
-import { CSSObject } from '@emotion/react';
-import * as CSS from 'csstype';
-import { darken } from 'polished';
-import { DropdownIndicatorProps, MultiValue, SingleValue } from 'react-select';
+import { Icon, useColorMode, useTheme } from "@chakra-ui/react";
+import { CSSObject } from "@emotion/react";
+import * as CSS from "csstype";
+import { darken } from "polished";
+import { DropdownIndicatorProps, MultiValue, SingleValue } from "react-select";
 import RSelect, {
   ActionMeta,
   ClearIndicatorProps,
   components,
   ControlProps,
-} from 'react-select';
-import { v4 as uuidv4 } from 'uuid';
-import { Icons } from '../assets/icons';
+} from "react-select";
+import { v4 as uuidv4 } from "uuid";
+import { Icons } from "../assets/icons";
 
 type OptionType = { [key: string]: any };
 type OptionsType = Array<OptionType>;
@@ -65,12 +64,12 @@ const Select = (props: Props) => {
 
   const generateColour = (invert: boolean) => {
     if (invert) {
-      return colorMode == 'light'
+      return colorMode == "light"
         ? theme.colors.gray[50]
         : theme.colors.gray[800];
     }
 
-    return colorMode == 'light'
+    return colorMode == "light"
       ? theme.colors.gray[800]
       : theme.colors.gray[50];
   };
@@ -78,16 +77,16 @@ const Select = (props: Props) => {
   const generateBackgroundColour = (
     data: { color: string } | null,
     isFocused: boolean,
-    invert: boolean
+    invert: boolean,
   ): string => {
     if (data?.color) {
       return data.color;
     }
 
     const backgroundColor =
-      colorMode === 'light' ? theme.colors.gray[50] : theme.colors.gray[800];
+      colorMode === "light" ? theme.colors.gray[50] : theme.colors.gray[800];
     const invertBackgroundColor =
-      colorMode === 'light' ? theme.colors.gray[800] : theme.colors.gray[50];
+      colorMode === "light" ? theme.colors.gray[800] : theme.colors.gray[50];
     if (isFocused) {
       return invert
         ? darken(0.05, invertBackgroundColor)
@@ -110,23 +109,23 @@ const Select = (props: Props) => {
     return {
       container: (styles: CSSObject) => ({
         ...styles,
-        width: fullWidth ? '100%' : 'auto',
-        padding: '0px',
-        borderRadius: '5px',
-        '&:active': {
-          border: 'none !important',
+        width: fullWidth ? "100%" : "auto",
+        padding: "0px",
+        borderRadius: "5px",
+        "&:active": {
+          border: "none !important",
         },
-        '&:focus': {
-          border: 'none !important',
+        "&:focus": {
+          border: "none !important",
         },
       }),
       input: (styles: CSSObject) => ({
         ...styles,
-        display: 'flex',
-        alignItems: 'center',
-        height: 'auto',
-        lineHeight: 'auto',
-        padding: '0px 2px',
+        display: "flex",
+        alignItems: "center",
+        height: "auto",
+        lineHeight: "auto",
+        padding: "0px 2px",
         color: generateColour(invert ?? false),
         fontSize,
         border: `none !important`,
@@ -137,8 +136,8 @@ const Select = (props: Props) => {
         paddingBottom: theme.space[1],
         paddingLeft: theme.space[0.5],
         paddingRight: theme.space[0.5],
-        height: 'auto',
-        minHeight: '28px',
+        height: "auto",
+        minHeight: "28px",
         fontWeight: 400,
         color: generateColour(invert ?? false),
       }),
@@ -146,33 +145,33 @@ const Select = (props: Props) => {
       menu: (styles: CSSObject) => ({
         ...styles,
         margin: `${theme.space[1]} 0px`,
-        padding: '5px 0px',
+        padding: "5px 0px",
         backgroundColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {
-            return colorMode === 'light'
+            return colorMode === "light"
               ? theme.colors.gray[800]
               : theme.colors.gray[50];
           }
-          return colorMode === 'light'
+          return colorMode === "light"
             ? theme.colors.gray[50]
             : theme.colors.gray[800];
         })(invert),
-        border: '1px solid',
+        border: "1px solid",
         borderColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {
-            return colorMode === 'light'
+            return colorMode === "light"
               ? theme.colors.gray[900]
               : theme.colors.gray[200];
           }
-          return colorMode === 'light'
+          return colorMode === "light"
             ? theme.colors.gray[200]
             : theme.colors.gray[900];
         })(invert),
-        borderRadius: '5px',
+        borderRadius: "5px",
         tabIndex: 0,
         zIndex: 999,
         boxShadow:
-          colorMode === 'light' ? theme.shadows.md : theme.shadows['dark-lg'],
+          colorMode === "light" ? theme.shadows.md : theme.shadows["dark-lg"],
       }),
       menuList: (styles: CSSObject) => ({
         ...styles,
@@ -182,39 +181,39 @@ const Select = (props: Props) => {
       option: (styles: CSSObject, { data, isFocused }): Control => ({
         ...styles,
         tabIndex: 0,
-        position: 'relative',
+        position: "relative",
         color: generateColour(invert ?? false),
         backgroundColor: generateBackgroundColour(
           data,
           isFocused,
-          invert ?? false
+          invert ?? false,
         ),
-        padding: '5px 10px',
-        margin: '0px',
+        padding: "5px 10px",
+        margin: "0px",
         fontSize,
         fontWeight: 400,
         zIndex: 999,
-        '&:active': {
+        "&:active": {
           fontWeight: 500,
           backgroundColor: darken(
             0.05,
-            generateBackgroundColour(data, isFocused, invert ?? false)
+            generateBackgroundColour(data, isFocused, invert ?? false),
           ),
         },
-        '&:hover': {
+        "&:hover": {
           fontWeight: 500,
         },
       }),
       placeholder: (styles, { isDisabled: boolean }) => ({
         ...styles,
-        backgroundColor: 'transparent',
+        backgroundColor: "transparent",
         color: ((invertColour: boolean | undefined) => {
           if (invertColour) {
-            return colorMode === 'light'
+            return colorMode === "light"
               ? theme.colors.gray[100]
               : theme.colors.gray[400];
           }
-          return colorMode === 'light'
+          return colorMode === "light"
             ? theme.colors.gray[700]
             : theme.colors.gray[100];
         })(invert),
@@ -228,141 +227,141 @@ const Select = (props: Props) => {
       }),
       control: (
         styles: CSSObject,
-        { isFocused, isDisabled }: ControlProps
+        { isFocused, isDisabled }: ControlProps,
       ) => ({
         ...styles,
-        display: 'flex',
-        minHeight: 'none',
-        flexDirection: 'row',
-        alignContent: 'center',
+        display: "flex",
+        minHeight: "none",
+        flexDirection: "row",
+        alignContent: "center",
         margin: 0,
-        padding: '2px 12px',
-        width: 'auto',
+        padding: "2px 12px",
+        width: "auto",
         opacity: isDisabled ? 0.4 : 1,
         fontSize,
-        cursor: isDisabled ? 'not-allowed' : 'inherit',
+        cursor: isDisabled ? "not-allowed" : "inherit",
         backgroundColor: generateBackgroundColour(
           null,
           isFocused,
-          invert ?? false
+          invert ?? false,
         ),
         color: generateColour(invert ?? false),
-        border: 'none',
-        boxShadow: 'none !important',
-        borderRadius: '5px',
-        '&:hover': {
+        border: "none",
+        boxShadow: "none !important",
+        borderRadius: "5px",
+        "&:hover": {
           backgroundColor: darken(
             0.05,
-            generateBackgroundColour(null, false, invert ?? false)
+            generateBackgroundColour(null, false, invert ?? false),
           ),
         },
-        '&:active': {
+        "&:active": {
           backgroundColor: darken(
             0.05,
-            generateBackgroundColour(null, false, invert ?? false)
+            generateBackgroundColour(null, false, invert ?? false),
           ),
-          boxShadow: 'none !important',
+          boxShadow: "none !important",
         },
-        '&:focus': {
+        "&:focus": {
           backgroundColor: darken(
             0.05,
-            generateBackgroundColour(null, false, invert ?? false)
+            generateBackgroundColour(null, false, invert ?? false),
           ),
-          boxShadow: 'none !important',
+          boxShadow: "none !important",
         },
       }),
       indicatorsContainer: (styles: CSSObject) => ({
         ...styles,
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: '0px 2px',
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        padding: "0px 2px",
       }),
       multiValue: (styles: CSSObject) => ({
         ...styles,
 
-        marginLeft: '0px',
-        marginRight: '2px',
-        borderRadius: '5px',
+        marginLeft: "0px",
+        marginRight: "2px",
+        borderRadius: "5px",
         backgroundColor: ((invertColour: boolean | undefined) => {
           if (invertColour) {
-            return colorMode === 'light'
+            return colorMode === "light"
               ? theme.colors.blue[400]
               : theme.colors.blue[500];
           }
-          return colorMode === 'light'
+          return colorMode === "light"
             ? theme.colors.blue[500]
             : theme.colors.blue[400];
         })(invert),
       }),
       multiValueLabel: (styles: CSSObject) => ({
         ...styles,
-        borderRadius: '5px',
+        borderRadius: "5px",
         color: theme.colors.gray[50],
       }),
       multiValueRemove: (styles: CSSObject) => ({
         ...styles,
-        borderRadius: '5px',
+        borderRadius: "5px",
         color: theme.colors.gray[50],
-        border: 'none',
-        '&:hover': {
+        border: "none",
+        "&:hover": {
           color: theme.colors.gray[50],
-          border: 'none',
+          border: "none",
           backgroundColor: ((invertColour: boolean | undefined) => {
             if (invertColour) {
-              return colorMode === 'light'
+              return colorMode === "light"
                 ? theme.colors.blue[500]
                 : theme.colors.blue[600];
             }
-            return colorMode === 'light'
+            return colorMode === "light"
               ? theme.colors.blue[600]
               : theme.colors.blue[500];
           })(invert),
-          cursor: 'pointer',
+          cursor: "pointer",
         },
-        '> svg': {
-          height: '12px',
-          width: '12px',
+        "> svg": {
+          height: "12px",
+          width: "12px",
         },
       }),
       clearIndicator: (styles: CSSObject) => ({
         ...styles,
         color: generateColour(invert ?? false),
-        backgroundColor: 'inherit',
-        cursor: 'pointer',
+        backgroundColor: "inherit",
+        cursor: "pointer",
       }),
       group: (styles: CSSObject) => ({
         ...styles,
-        color: 'pink',
+        color: "pink",
         backgroundColor: ((invertColours: boolean | undefined) => {
           if (invertColours) {
-            return colorMode === 'light'
+            return colorMode === "light"
               ? theme.colors.gray[800]
               : theme.colors.gray[50];
           }
-          return colorMode === 'light'
+          return colorMode === "light"
             ? theme.colors.gray[50]
             : theme.colors.gray[800];
         })(invert),
       }),
 
       indicatorSeparator: () => ({
-        display: 'none',
+        display: "none",
       }),
       dropdownIndicator: (styles: CSSObject, { isDisabled, hasValue }) => ({
         ...styles,
 
-        cursor: 'pointer',
-        padding: '2px',
-        display: hideDropdownIndicator ? 'none' : 'auto',
+        cursor: "pointer",
+        padding: "2px",
+        display: hideDropdownIndicator ? "none" : "auto",
         opacity: isDisabled ? 0.4 : 1,
         color: ((value) => {
           if (value) {
-            return colorMode === 'light'
+            return colorMode === "light"
               ? theme.colors.gray[800]
               : theme.colors.gray[400];
           }
-          return colorMode === 'light'
+          return colorMode === "light"
             ? theme.colors.gray[500]
             : theme.colors.gray[600];
         })(hasValue),
@@ -370,7 +369,7 @@ const Select = (props: Props) => {
       noOptionsMessage: () => ({
         fontSize,
         fontWeight: 400,
-        padding: '0px 5px',
+        padding: "0px 5px",
       }),
     };
   };
@@ -382,12 +381,12 @@ const Select = (props: Props) => {
       isDisabled={isDisabled}
       onChange={(
         newValue: MultiValue<OptionType> | SingleValue<OptionType>,
-        actionMeta: ActionMeta<OptionType>
+        actionMeta: ActionMeta<OptionType>,
       ) => {
         if (
-          actionMeta.action === 'select-option' ||
-          actionMeta.action === 'remove-value' ||
-          actionMeta.action === 'clear'
+          actionMeta.action === "select-option" ||
+          actionMeta.action === "remove-value" ||
+          actionMeta.action === "clear"
         ) {
           onChange(newValue);
           return;

@@ -1,9 +1,8 @@
-import { ReactElement } from 'react';
-import { Text, Grid, GridItem } from '@chakra-ui/layout';
-import { Icon } from '@chakra-ui/react';
-import { IconType } from '../interfaces';
-import { Icons } from '../assets/icons';
-import EditViewHeader from './EditViewHeader';
+import { ReactElement } from "react";
+import { Icon, Text, Grid, GridItem } from "@chakra-ui/react";
+import { IconType } from "../interfaces";
+import { Icons } from "../assets/icons";
+import EditViewHeader from "./EditViewHeader";
 
 export type ViewHeaderProps = {
   name: string;

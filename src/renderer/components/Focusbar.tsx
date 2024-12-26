@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Drawer,
@@ -17,9 +17,9 @@ import {
   DrawerHeader,
   DrawerCloseButton,
   useMediaQuery,
-  useBreakpointValue
-} from '@chakra-ui/react'
-import { ReactElement } from 'react'
+  useBreakpointValue,
+} from "@chakra-ui/react";
+import { ReactElement } from "react";
 import {
   ITEM_BY_KEY,
   RENAME_ITEM,
@@ -35,82 +35,87 @@ import {
   DELETE_ITEM,
   RESTORE_ITEM,
   ITEMS_BY_FILTER,
-  WEEKLY_ITEMS
-} from '../queries'
-import { RRule } from 'rrule'
-import { Item as ItemType } from '../../main/resolvers-types'
-import { Icons } from '../assets/icons'
-import { IconType, ItemIcons } from '../interfaces'
-import { formatRelativeDate } from '../utils'
-import AreaSelect from './AreaSelect'
-import ItemSelect from './ItemSelect'
-import DatePicker from './DatePicker'
-import EditableText from './EditableText'
-import ItemCreator from './ItemCreator'
-import LabelSelect from './LabelSelect'
-import ProjectSelect from './ProjectSelect'
-import RepeatPicker from './RepeatPicker'
-import ItemActionButton from './ItemActionButton'
-import Item from './Item'
-import { AppState, useBoundStore } from '../state'
-import { parseISO } from 'date-fns'
+  WEEKLY_ITEMS,
+} from "../queries";
+import { RRule } from "rrule";
+import { Item as ItemType } from "../../main/resolvers-types";
+import { Icons } from "../assets/icons";
+import { IconType, ItemIcons } from "../interfaces";
+import { formatRelativeDate } from "../utils";
+import AreaSelect from "./AreaSelect";
+import ItemSelect from "./ItemSelect";
+import DatePicker from "./DatePicker";
+import EditableText from "./EditableText";
+import ItemCreator from "./ItemCreator";
+import LabelSelect from "./LabelSelect";
+import ProjectSelect from "./ProjectSelect";
+import RepeatPicker from "./RepeatPicker";
+import ItemActionButton from "./ItemActionButton";
+import Item from "./Item";
+import { AppState, useBoundStore } from "../state";
+import { parseISO } from "date-fns";
+import React from "react";
 
 const Focusbar = (): ReactElement => {
-  const { colorMode } = useColorMode()
-  const focusbarPlacement = useBreakpointValue(['bottom', 'bottom', 'right', 'right'])
-  const [activeItemIds, setActiveItemIds, focusbarVisible, setFocusbarVisible] = useBoundStore(
-    (state: AppState) => [
+  const { colorMode } = useColorMode();
+  const focusbarPlacement = useBreakpointValue([
+    "bottom",
+    "bottom",
+    "right",
+    "right",
+  ]);
+  const [activeItemIds, setActiveItemIds, focusbarVisible, setFocusbarVisible] =
+    useBoundStore((state: AppState) => [
       state.activeItemIds,
       state.setActiveItemIds,
       state.focusbarVisible,
-      state.setFocusbarVisible
-    ]
-  )
+      state.setFocusbarVisible,
+    ]);
   const { loading, error, data } = useQuery(ITEM_BY_KEY, {
     skip: activeItemIds.length == 0 || !activeItemIds?.[0],
     variables: {
-      key: activeItemIds[0]
-    }
-  })
+      key: activeItemIds[0],
+    },
+  });
 
-  const [renameItem] = useMutation(RENAME_ITEM)
+  const [renameItem] = useMutation(RENAME_ITEM);
   const [completeItem] = useMutation(COMPLETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER]
-  })
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
   const [unCompleteItem] = useMutation(UNCOMPLETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER]
-  })
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
   const [setProject] = useMutation(SET_PROJECT, {
-    refetchQueries: [ITEMS_BY_FILTER]
-  })
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
   const [setArea] = useMutation(SET_AREA, {
-    refetchQueries: [ITEMS_BY_FILTER]
-  })
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
   const [setScheduledAt] = useMutation(SET_SCHEDULED_AT, {
-    refetchQueries: [ITEMS_BY_FILTER, WEEKLY_ITEMS, ITEM_BY_KEY]
-  })
+    refetchQueries: [ITEMS_BY_FILTER, WEEKLY_ITEMS, ITEM_BY_KEY],
+  });
   const [setDueAt] = useMutation(SET_DUE_AT, {
-    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY]
-  })
+    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY],
+  });
   const [setRepeat] = useMutation(SET_REPEAT, {
-    refetchQueries: [ITEMS_BY_FILTER]
-  })
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
   const [setParent] = useMutation(SET_PARENT, {
-    refetchQueries: [ITEMS_BY_FILTER]
-  })
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
   const [setLabel] = useMutation(SET_LABEL, {
-    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY]
-  })
+    refetchQueries: [ITEMS_BY_FILTER, ITEM_BY_KEY],
+  });
   const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER]
-  })
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER]
-  })
+    refetchQueries: [ITEMS_BY_FILTER],
+  });
 
   if (error) {
-    console.log(error)
-    return <></>
+    console.log(error);
+    return <></>;
   }
 
   if (loading) {
@@ -118,22 +123,22 @@ const Focusbar = (): ReactElement => {
       <Flex
         direction="column"
         border="1px solid"
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+        borderColor={colorMode === "light" ? "gray.200" : "gray.900"}
         shadow="md"
-        minW={focusbarVisible ? '350px' : 0}
+        minW={focusbarVisible ? "350px" : 0}
         opacity={focusbarVisible ? 1 : 0}
         px={3}
         py={3}
         h="100%"
-        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        bg={colorMode === "light" ? "gray.50" : "gray.800"}
         transition="all 0.2s ease-in-out"
       />
-    )
+    );
   }
 
-  const item: ItemType = data?.item
+  const item: ItemType = data?.item;
 
-  if (!item) return <></>
+  if (!item) return <></>;
 
   // TODO: Refactor me
   const AttributeContainer = (props: FlexProps) => (
@@ -146,7 +151,7 @@ const Focusbar = (): ReactElement => {
       // eslint-disable-next-line react/jsx-props-no-spreading
       {...props}
     />
-  )
+  );
 
   const SidebarTitle = ({ text, icon }: { text: string; icon: IconType }) => (
     <Flex minW="100px" alignItems="center">
@@ -155,32 +160,37 @@ const Focusbar = (): ReactElement => {
         {text}
       </Text>
     </Flex>
-  )
+  );
 
   // TODO: Do I need these? Or can I move to the component
 
-  const dueDate = item?.dueAt ? formatRelativeDate(parseISO(item?.dueAt)) : 'Add due date'
+  const dueDate = item?.dueAt
+    ? formatRelativeDate(parseISO(item?.dueAt))
+    : "Add due date";
 
   const scheduledDate = item?.scheduledAt
     ? formatRelativeDate(parseISO(item?.scheduledAt))
-    : 'Add scheduled date'
+    : "Add scheduled date";
 
   return (
     <Drawer
-      placement={focusbarPlacement ?? 'right'}
+      placement={focusbarPlacement ?? "right"}
       isOpen={focusbarVisible}
       onClose={() => setFocusbarVisible(false)}
     >
       <DrawerOverlay />
       <DrawerContent
         border="1px solid"
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+        borderColor={colorMode === "light" ? "gray.200" : "gray.900"}
         p={4}
-        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        bg={colorMode === "light" ? "gray.50" : "gray.800"}
         minW="400px"
         justifyContent="center"
       >
-        <DrawerCloseButton size="sm" onClick={() => setFocusbarVisible(false)} />
+        <DrawerCloseButton
+          size="sm"
+          onClick={() => setFocusbarVisible(false)}
+        />
         <DrawerHeader>
           <Flex w="100%">
             {item?.parent && (
@@ -191,7 +201,7 @@ const Focusbar = (): ReactElement => {
                   size="sm"
                   onClick={() => {
                     if (item?.parent) {
-                      setActiveItemIds([item?.parent?.key])
+                      setActiveItemIds([item?.parent?.key]);
                     }
                   }}
                   icon={<Icon p={0} m={0} as={Icons.upLevel} />}
@@ -203,15 +213,15 @@ const Focusbar = (): ReactElement => {
         <DrawerBody>
           <Flex direction="column">
             <Flex w="100%" justifyContent="space-between" mb={2}>
-              <Flex>
+              <Flex w="100%">
                 <ItemActionButton
                   deleted={item.deleted ?? false}
                   completed={item.completed ?? false}
                   onClick={() => {
                     if (item.completed) {
-                      unCompleteItem({ variables: { key: item.key } })
+                      unCompleteItem({ variables: { key: item.key } });
                     } else {
-                      completeItem({ variables: { key: item.key } })
+                      completeItem({ variables: { key: item.key } });
                     }
                   }}
                   disableOnDelete
@@ -220,19 +230,19 @@ const Focusbar = (): ReactElement => {
                 <Box
                   w="100%"
                   maxW="250px"
-                  textDecoration={item?.completed ? 'line-through' : 'inherit'}
+                  textDecoration={item?.completed ? "line-through" : "inherit"}
                   px={1}
                 >
                   <EditableText
                     readOnly={item.deleted ?? false}
-                    input={item?.text ?? ''}
+                    input={item?.text ?? ""}
                     singleLine
                     shouldClearOnSubmit={false}
                     shouldSubmitOnBlur
                     shouldBlurOnSubmit
                     hideToolbar={false}
                     onUpdate={(text) => {
-                      renameItem({ variables: { key: item.key, text } })
+                      renameItem({ variables: { key: item.key, text } });
                     }}
                   />
                 </Box>
@@ -242,10 +252,12 @@ const Focusbar = (): ReactElement => {
                   <IconButton
                     aria-label="restore"
                     variant="default"
-                    icon={<Icon p={0} m={0} as={Icons.restore} h={3.5} w={3.5} />}
+                    icon={
+                      <Icon p={0} m={0} as={Icons.restore} h={3.5} w={3.5} />
+                    }
                     size="sm"
                     onClick={() => {
-                      restoreItem({ variables: { key: item.key } })
+                      restoreItem({ variables: { key: item.key } });
                     }}
                   />
                 </Tooltip>
@@ -256,13 +268,13 @@ const Focusbar = (): ReactElement => {
                     aria-label="delete"
                     icon={<Icon as={Icons.trash} h={3.5} w={3.5} />}
                     onClick={() => {
-                      deleteItem({ variables: { key: item.key } })
+                      deleteItem({ variables: { key: item.key } });
                     }}
                   />
                 </Tooltip>
               )}
             </Flex>
-            {item.project?.key === '0' && (
+            {item.project?.key === "0" && (
               <AttributeContainer>
                 <SidebarTitle icon="area" text="Area: " />
                 <AreaSelect
@@ -270,7 +282,7 @@ const Focusbar = (): ReactElement => {
                   completed={item.completed ?? false}
                   deleted={item.deleted ?? false}
                   onSubmit={(areaKey) => {
-                    setArea({ variables: { key: item.key, areaKey } })
+                    setArea({ variables: { key: item.key, areaKey } });
                   }}
                 />
               </AttributeContainer>
@@ -285,9 +297,9 @@ const Focusbar = (): ReactElement => {
                   setProject({
                     variables: {
                       key: item.key,
-                      projectKey
-                    }
-                  })
+                      projectKey,
+                    },
+                  });
                 }}
               />
             </AttributeContainer>
@@ -298,8 +310,8 @@ const Focusbar = (): ReactElement => {
                 defaultText="Scheduled at: "
                 onSubmit={(d: Date | null) => {
                   setScheduledAt({
-                    variables: { key: item.key, scheduledAt: d }
-                  })
+                    variables: { key: item.key, scheduledAt: d },
+                  });
                 }}
                 text={scheduledDate}
                 completed={item.completed ?? false}
@@ -313,8 +325,8 @@ const Focusbar = (): ReactElement => {
                 defaultText="Due at: "
                 onSubmit={(d: Date | null) => {
                   setDueAt({
-                    variables: { key: item.key, dueAt: d }
-                  })
+                    variables: { key: item.key, dueAt: d },
+                  });
                 }}
                 text={dueDate}
                 completed={item.completed ?? false}
@@ -325,14 +337,16 @@ const Focusbar = (): ReactElement => {
               <SidebarTitle icon="repeat" text="Repeating: " />
               <RepeatPicker
                 repeat={
-                  item.repeat && item.repeat !== 'undefined' ? RRule.fromString(item.repeat) : null
+                  item.repeat && item.repeat !== "undefined"
+                    ? RRule.fromString(item.repeat)
+                    : null
                 }
                 completed={item.completed ?? false}
                 deleted={item.deleted ?? false}
                 key={`rp${item.key}`}
                 onSubmit={(r: RRule) =>
                   setRepeat({
-                    variables: { key: item.key, repeat: r ? r.toString() : '' }
+                    variables: { key: item.key, repeat: r ? r.toString() : "" },
                   })
                 }
               />
@@ -346,7 +360,7 @@ const Focusbar = (): ReactElement => {
                   deleted={item.deleted ?? false}
                   onSubmit={(itemKey: string) =>
                     setParent({
-                      variables: { key: item.key, parentKey: itemKey }
+                      variables: { key: item.key, parentKey: itemKey },
                     })
                   }
                 />
@@ -359,7 +373,7 @@ const Focusbar = (): ReactElement => {
                 completed={item.completed ?? false}
                 deleted={item.deleted ?? false}
                 onSubmit={(labelKey) => {
-                  setLabel({ variables: { key: item.key, labelKey } })
+                  setLabel({ variables: { key: item.key, labelKey } });
                 }}
               />
             </AttributeContainer>
@@ -389,14 +403,20 @@ const Focusbar = (): ReactElement => {
                   {item.children && item.children?.length > 0 && (
                     <Text fontSize="sm" color="gray.600">
                       {item.children.length} item
-                      {item.children.length > 1 ? 's' : ''}
+                      {item.children.length > 1 ? "s" : ""}
                     </Text>
                   )}
                 </Flex>
                 {item.children && item.children?.length > 0 ? (
-                  <Box overflow="scroll" py={0} px={2} w="100%" key={`box-${item.key}`}>
+                  <Box
+                    overflow="scroll"
+                    py={0}
+                    px={2}
+                    w="100%"
+                    key={`box-${item.key}`}
+                  >
                     {item.children?.map((childItem) => {
-                      if (!childItem) return <></>
+                      if (!childItem) return <></>;
                       return (
                         <Item
                           compact={false}
@@ -405,7 +425,7 @@ const Focusbar = (): ReactElement => {
                           shouldIndent={false}
                           hiddenIcons={[ItemIcons.Project, ItemIcons.Subtask]}
                         />
-                      )
+                      );
                     })}
                   </Box>
                 ) : (
@@ -420,7 +440,6 @@ const Focusbar = (): ReactElement => {
         </DrawerBody>
       </DrawerContent>
     </Drawer>
-  )
-}
-
-export default Focusbar
+  );
+};
+export default Focusbar;

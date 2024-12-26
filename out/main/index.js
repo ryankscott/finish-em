@@ -13835,8 +13835,7 @@ function serialize(cmpts, opts) {
     }
   }
   if (options.reference !== "suffix" && components.scheme) {
-    uriTokens.push(components.scheme);
-    uriTokens.push(":");
+    uriTokens.push(components.scheme, ":");
   }
   const authority = recomposeAuthority(components, options);
   if (authority !== void 0) {
@@ -13859,12 +13858,10 @@ function serialize(cmpts, opts) {
     uriTokens.push(s);
   }
   if (components.query !== void 0) {
-    uriTokens.push("?");
-    uriTokens.push(components.query);
+    uriTokens.push("?", components.query);
   }
   if (components.fragment !== void 0) {
-    uriTokens.push("#");
-    uriTokens.push(components.fragment);
+    uriTokens.push("#", components.fragment);
   }
   return uriTokens.join("");
 }
@@ -13942,9 +13939,6 @@ function parse(uri2, opts) {
     if (!schemeHandler || schemeHandler && !schemeHandler.skipNormalize) {
       if (gotEncoding && parsed.scheme !== void 0) {
         parsed.scheme = unescape(parsed.scheme);
-      }
-      if (gotEncoding && parsed.userinfo !== void 0) {
-        parsed.userinfo = unescape(parsed.userinfo);
       }
       if (gotEncoding && parsed.host !== void 0) {
         parsed.host = unescape(parsed.host);
@@ -22975,21 +22969,23 @@ class Conf {
       options.cwd = envPaths(options.projectName, { suffix: options.projectSuffix }).config;
     }
     this.#options = options;
-    if (options.schema) {
-      if (typeof options.schema !== "object") {
+    if (options.schema ?? options.ajvOptions ?? options.rootSchema) {
+      if (options.schema && typeof options.schema !== "object") {
         throw new TypeError("The `schema` option must be an object.");
       }
       const ajv2 = new _2020Exports.Ajv2020({
         allErrors: true,
-        useDefaults: true
+        useDefaults: true,
+        ...options.ajvOptions
       });
       ajvFormats(ajv2);
       const schema = {
+        ...options.rootSchema,
         type: "object",
         properties: options.schema
       };
       this.#validator = ajv2.compile(schema);
-      for (const [key, value] of Object.entries(options.schema)) {
+      for (const [key, value] of Object.entries(options.schema ?? {})) {
         if (value?.default) {
           this.#defaultValues[key] = value.default;
         }
@@ -41294,7 +41290,7 @@ FormData2.prototype.append = function(field, value, options) {
   if (typeof value == "number") {
     value = "" + value;
   }
-  if (util.isArray(value)) {
+  if (Array.isArray(value)) {
     this._error(new Error("Arrays are not supported."));
     return;
   }
@@ -41573,7 +41569,9 @@ let mainWindow = null;
 let server;
 let apolloDb;
 const determineDatabasePath = () => {
-  const overrideDatabaseDirectory = store.get("overrideDatabaseDirectory");
+  const overrideDatabaseDirectory = store.get(
+    "overrideDatabaseDirectory"
+  );
   if (overrideDatabaseDirectory) {
     return `${overrideDatabaseDirectory}/finish_em.db`;
   }
@@ -41588,7 +41586,7 @@ const knexConfig = {
 };
 apolloDb = new AppDatabase(knexConfig);
 const startApolloServer = async () => {
-  const schemasPath = isDev ? path$2.join(__dirname, "../../resources/schemas/") : path$2.join(process.resourcesPath, "/schemas/");
+  const schemasPath = isDev ? path$2.join(__dirname, "../../resources/schemas/") : path$2.join(process.resourcesPath, "/app.asar.unpacked/resources/schemas/");
   log.info(`Loading schemas from: ${schemasPath}`);
   try {
     const typeDefs = await loadFiles.loadFiles(`${schemasPath}*.graphql`);
@@ -41625,7 +41623,10 @@ const runMigrations = async () => {
     driver: sqlite3__namespace.Database
   });
   await db.run("PRAGMA foreign_keys=on");
-  const migrationsPath = isDev ? path$2.join(__dirname, "../../src/main/migrations") : path$2.join(process.resourcesPath, "/migrations/");
+  const migrationsPath = isDev ? path$2.join(__dirname, "../../resources/migrations/") : path$2.join(
+    process.resourcesPath,
+    "/app.asar.unpacked/resources/migrations/"
+  );
   log.info(`Loading migrations at: ${migrationsPath}`);
   try {
     await db.migrate({
@@ -41660,7 +41661,9 @@ const checkForNewVersion = () => {
           return;
         }
         if (semver.gt(latestRelease.name ?? "", electron.app.getVersion())) {
-          const macRelease = latestRelease.assets.find((a) => a.name.endsWith(".dmg"));
+          const macRelease = latestRelease.assets.find(
+            (a) => a.name.endsWith(".dmg")
+          );
           mainWindow?.webContents.send("new-version", {
             version: latestRelease.name,
             publishedAt: latestRelease.published_at,
@@ -41757,7 +41760,9 @@ const startApp = async () => {
     await runMigrations();
     await startApolloServer();
     const features = await apolloDb.getFeatures();
-    const calendarIntegration = features?.find((f2) => f2.name === "calendarIntegration");
+    const calendarIntegration = features?.find(
+      (f2) => f2.name === "calendarIntegration"
+    );
     if (calendarIntegration?.enabled) {
       log.info("Calendar integration enabled - turning on sync");
       setInterval(async () => {

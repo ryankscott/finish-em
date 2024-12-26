@@ -1,21 +1,20 @@
-import React, { ReactElement } from 'react'
-import { Flex } from '@chakra-ui/layout'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { Item } from '../../main/resolvers-types'
-import { useColorMode } from '@chakra-ui/react'
-import ItemComponent from './Item'
-import { ItemIcons } from '../interfaces'
+import React, { ReactElement } from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { Item } from "../../main/resolvers-types";
+import { Flex, useColorMode } from "@chakra-ui/react";
+import ItemComponent from "./Item";
+import { ItemIcons } from "../interfaces";
 
 type SortableItemProps = {
-  id: string
-  item: Item
-  componentKey: string
-  flattenSubtasks: boolean
-  hiddenIcons: ItemIcons[] | undefined
-  hideCompletedSubtasks?: boolean
-  hideDeletedSubtasks?: boolean
-}
+  id: string;
+  item: Item;
+  componentKey: string;
+  flattenSubtasks: boolean;
+  hiddenIcons: ItemIcons[] | undefined;
+  hideCompletedSubtasks?: boolean;
+  hideDeletedSubtasks?: boolean;
+};
 
 function SortableItem({
   id,
@@ -24,12 +23,19 @@ function SortableItem({
   flattenSubtasks,
   hiddenIcons,
   hideCompletedSubtasks,
-  hideDeletedSubtasks
+  hideDeletedSubtasks,
 }: SortableItemProps): ReactElement {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id
-  })
-  const { colorMode } = useColorMode()
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id,
+  });
+  const { colorMode } = useColorMode();
 
   return (
     <Flex
@@ -37,9 +43,9 @@ function SortableItem({
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        borderColor: 'gray.200',
+        borderColor: "gray.200",
         borderRadius: 3,
-        boxShadow: isDragging ? 'xl' : 'none'
+        boxShadow: isDragging ? "xl" : "none",
       }}
       position="relative"
       flexDirection="column"
@@ -60,14 +66,14 @@ function SortableItem({
       />
       <>
         {item?.children?.map((child) => {
-          if (!child) return <></>
+          if (!child) return <></>;
 
           const shouldHideItem =
             (hideCompletedSubtasks && child.completed) ||
             (hideDeletedSubtasks && child.deleted) ||
-            flattenSubtasks
+            flattenSubtasks;
 
-          if (shouldHideItem) return <></>
+          if (shouldHideItem) return <></>;
 
           return (
             <ItemComponent
@@ -78,13 +84,17 @@ function SortableItem({
               componentKey={componentKey}
               shouldIndent
               hideCollapseIcon={flattenSubtasks}
-              hiddenIcons={hiddenIcons ? [...hiddenIcons, ItemIcons.Subtask] : [ItemIcons.Subtask]}
+              hiddenIcons={
+                hiddenIcons
+                  ? [...hiddenIcons, ItemIcons.Subtask]
+                  : [ItemIcons.Subtask]
+              }
             />
-          )
+          );
         })}
       </>
     </Flex>
-  )
+  );
 }
 
-export default SortableItem
+export default SortableItem;
