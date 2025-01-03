@@ -1,27 +1,28 @@
-import { ReactElement, useEffect, useRef, useState } from 'react';
-import ReactQuill, { Quill } from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import MarkdownShortcuts from 'quill-markdown-shortcuts';
-import CSS from 'csstype';
-import { Box } from '@chakra-ui/layout';
-import { useColorMode } from '@chakra-ui/color-mode';
+import { ReactElement, useEffect, useRef, useState } from "react";
+import ReactQuill, { Quill } from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import MarkdownShortcuts from "quill-markdown-shortcuts";
+import CSS from "csstype";
+import { background, Box, Flex, Icon, useColorMode } from "@chakra-ui/react";
+import React from "react";
+import { Icons } from "../assets/icons";
 
-Quill.register('modules/markdownShortcuts', MarkdownShortcuts);
+Quill.register("modules/markdownShortcuts", MarkdownShortcuts);
 
-const Link = Quill.import('formats/link');
+const Link = Quill.import("formats/link");
 Link.sanitize = function (url) {
   // Protocols which we don't append http to
-  const protocolIgnoreList = ['mailto', 'message', 'http', 'https'];
-  let protocol = url.slice(0, url.indexOf(':'));
+  const protocolIgnoreList = ["mailto", "message", "http", "https"];
+  let protocol = url.slice(0, url.indexOf(":"));
 
   // Add http to the start of the link (to open in browser)
   if (!protocolIgnoreList.includes(protocol)) {
     url = `http://${url}`;
   }
   // Reconsruct the link
-  const anchor = document.createElement('a');
+  const anchor = document.createElement("a");
   anchor.href = url;
-  protocol = anchor.href.slice(0, anchor.href.indexOf(':'));
+  protocol = anchor.href.slice(0, anchor.href.indexOf(":"));
   return url;
 };
 Quill.register(Link, true);
@@ -38,6 +39,7 @@ type EditableTextProps = {
   readOnly?: boolean;
   onEscape?: () => void;
   shouldBlurOnSubmit?: boolean;
+  showBorder?: boolean;
 };
 
 const generateModules = (hideToolbar: boolean, singleLine: boolean) => {
@@ -53,44 +55,44 @@ const generateModules = (hideToolbar: boolean, singleLine: boolean) => {
   }
   if (singleLine) {
     return {
-      toolbar: [['bold', 'italic', 'underline', 'strike'], ['link']],
+      toolbar: [["bold", "italic", "underline", "strike"], ["link"]],
       ...defaultItems,
     };
   }
 
   return {
     toolbar: [
-      [{ header: '1' }, { header: '2' }],
-      ['bold', 'italic', 'underline', 'strike'],
+      [{ header: "1" }, { header: "2" }],
+      ["bold", "italic", "underline", "strike"],
       [
-        { list: 'ordered' },
-        { list: 'bullet' },
-        { indent: '-1' },
-        { indent: '+1' },
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
       ],
-      ['link'],
-      ['code'],
-      ['blockquote'],
-      ['clean'],
+      ["link"],
+      ["code"],
+      ["blockquote"],
+      ["clean"],
     ],
     ...defaultItems,
   };
 };
 
 const formats = [
-  'font',
-  'header',
-  'bold',
-  'italic',
-  'underline',
-  'strike',
-  'link',
-  'list',
-  'indent',
-  'clean',
-  'size',
-  'code',
-  'blockquote',
+  "font",
+  "header",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "link",
+  "list",
+  "indent",
+  "clean",
+  "size",
+  "code",
+  "blockquote",
 ];
 
 const EditableText = ({
@@ -104,10 +106,11 @@ const EditableText = ({
   width,
   hideToolbar,
   placeholder,
+  showBorder,
   shouldBlurOnSubmit,
 }: EditableTextProps): ReactElement => {
   const { colorMode } = useColorMode();
-  const [editorHtml, setEditorHtml] = useState<string>(input ?? '');
+  const [editorHtml, setEditorHtml] = useState<string>(input ?? "");
   const [isEditing, setIsEditing] = useState(false);
   const editorRef = useRef<ReactQuill>(null);
 
@@ -116,7 +119,7 @@ const EditableText = ({
       editorRef?.current.blur();
       setIsEditing(false);
     }
-    setEditorHtml(input ?? '');
+    setEditorHtml(input ?? "");
   }, [input]);
 
   const handleChange = (content: string, delta: Delta) => {
@@ -126,7 +129,7 @@ const EditableText = ({
     // If you hit enter and it's set as a single line then clear the input
     if (lastChar === 10 && singleLine) {
       if (shouldClearOnSubmit) {
-        setEditorHtml('');
+        setEditorHtml("");
       }
       // TODO: Need to blur on submit
       onUpdate(editorHtml);
@@ -148,7 +151,7 @@ const EditableText = ({
   };
 
   const handleFocus = (_, source, __) => {
-    if (source === 'silent') {
+    if (source === "silent") {
       setIsEditing(false);
       return;
     }
@@ -157,7 +160,7 @@ const EditableText = ({
   };
 
   const handleKeyUp = (e) => {
-    if (e.key === 'Escape') {
+    if (e.key === "Escape") {
       if (onEscape) {
         onEscape();
       }
@@ -165,19 +168,22 @@ const EditableText = ({
   };
 
   return (
-    <Box
+    <Flex
       position="relative"
-      width={width || '100%'}
+      width={width || "100%"}
       maxW="100%"
-      pb={isEditing ? '30px' : '0px'}
+      pb={isEditing ? "30px" : "0px"}
       whiteSpace="nowrap"
-      border={'none'}
+      justifyContent={"center"}
+      alignItems={"center"}
+      border={showBorder ? "1px solid" : "none"}
+      borderColor={"gray.200"}
       borderRadius="md"
-      bg={colorMode === 'light' ? 'gray.100' : 'gray.900'}
+      bg={colorMode === "light" ? "gray.100" : "gray.900"}
     >
       <ReactQuill
         ref={editorRef}
-        className={isEditing ? 'quill-focused-editor' : 'quill-blurred-editor'}
+        className={isEditing ? "quill-focused-editor" : "quill-blurred-editor"}
         theme="snow"
         onChange={handleChange}
         defaultValue={input}
@@ -190,7 +196,7 @@ const EditableText = ({
         onFocus={handleFocus}
         onBlur={handleBlur}
       />
-    </Box>
+    </Flex>
   );
 };
 

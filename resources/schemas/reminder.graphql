@@ -1,0 +1,39 @@
+scalar DateTime
+
+type Reminder {
+  key: String!
+  text: String!
+  deleted: Boolean
+  remindAt: DateTime
+  item: Item
+  lastUpdatedAt: DateTime
+  deletedAt: DateTime
+  createdAt: DateTime
+}
+
+input CreateReminderInput {
+  key: String!
+  text: String!
+  remindAt: DateTime
+  itemKey: String
+}
+
+input DeleteReminderInput {
+  key: String!
+}
+
+input DeleteReminderFromItemInput {
+  itemKey: String!
+}
+
+type Query {
+  reminders: [Reminder]
+  reminder(key: String!): Reminder
+  remindersByItem(itemKey: String!): [Reminder]
+}
+
+type Mutation {
+  createReminder(input: CreateReminderInput!): Reminder
+  deleteReminder(input: DeleteReminderInput!): Reminder
+  deleteReminderFromItem(input: DeleteReminderFromItemInput!): Reminder
+}

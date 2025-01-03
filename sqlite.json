@@ -1,9 +1,0 @@
-{
-  "client": "sqlite3",
-  "connection": {
-    "filename": "/Users/ryan/Documents/finish_em.db"
-  },
-  "folder": "../../src/main/database/types/",
-  "filename": "index",
-  "tableNameCasing": "pascal"
-}

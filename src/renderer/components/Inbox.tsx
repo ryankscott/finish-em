@@ -1,21 +1,17 @@
-import { ReactElement } from 'react';
-import { Flex } from '@chakra-ui/react';
-import { INBOX_COMPONENT_KEY } from 'consts';
-import { ItemIcons } from '../interfaces';
-import FilteredItemList from './FilteredItemList';
-import ItemCreator from './ItemCreator';
-import ViewHeader from './ViewHeader';
-import Page from './Page';
+import { ReactElement } from 'react'
+import { Flex } from '@chakra-ui/react'
+import { INBOX_COMPONENT_KEY } from '../../consts'
+import { ItemIcons } from '../interfaces'
+import FilteredItemList from './FilteredItemList'
+import ItemCreator from './ItemCreator'
+import ViewHeader from './ViewHeader'
+import Page from './Page'
 
 const Inbox = (): ReactElement => {
   return (
     <Page>
       <Flex direction="column" m={5} p={5}>
-        <ViewHeader
-          componentKey={INBOX_COMPONENT_KEY}
-          name="Inbox"
-          icon="inbox"
-        />
+        <ViewHeader componentKey={INBOX_COMPONENT_KEY} name="Inbox" icon="inbox" />
         <ItemCreator
           buttonText="Add Item"
           initiallyExpanded
@@ -38,31 +34,31 @@ const Inbox = (): ReactElement => {
                       field: 'projectKey',
                       operator: '=',
                       valueSource: 'value',
-                      value: '0',
+                      value: '0'
                     },
                     {
                       field: 'deleted',
                       operator: '=',
                       valueSource: 'value',
-                      value: false,
+                      value: false
                     },
                     {
                       field: 'completed',
                       operator: '=',
                       valueSource: 'value',
-                      value: false,
+                      value: false
                     },
                     {
                       field: 'areaKey',
                       operator: 'null',
                       valueSource: 'value',
-                      value: '0',
-                    },
+                      value: '0'
+                    }
                   ],
-                  not: false,
-                },
+                  not: false
+                }
               ],
-              not: false,
+              not: false
             })}
             flattenSubtasks={false}
             readOnly
@@ -71,7 +67,7 @@ const Inbox = (): ReactElement => {
         </Flex>
       </Flex>
     </Page>
-  );
-};
+  )
+}
 
-export default Inbox;
+export default Inbox

@@ -1,10 +1,11 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { Flex, Text } from '@chakra-ui/layout';
-import { useColorMode } from '@chakra-ui/react';
-import { Label } from 'main/resolvers-types';
-import { ReactElement } from 'react';
-import { ITEM_BY_KEY, SET_LABEL } from '../queries';
-import { GET_LABELS } from '../queries/label';
+import React from "react";
+import { useMutation, useQuery } from "@apollo/client";
+import { Flex, Text } from "@chakra-ui/react";
+import { useColorMode } from "@chakra-ui/react";
+import { Label } from "main/resolvers-types";
+import { ReactElement } from "react";
+import { ITEM_BY_KEY, SET_LABEL } from "../queries";
+import { GET_LABELS } from "../queries/label";
 
 type LabelDialogProps = {
   itemKey: string;
@@ -22,7 +23,7 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
     return <></>;
   }
 
-  const labels = [...data?.labels, { name: 'No label', key: null }];
+  const labels = [...data?.labels, { name: "No label", key: null }];
 
   return (
     <Flex
@@ -33,9 +34,9 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
       right="0px"
       top="0px"
       border="1px solid"
-      borderColor={colorMode === 'light' ? 'gray.200' : 'gray.800'}
+      borderColor={colorMode === "light" ? "gray.200" : "gray.800"}
       borderRadius="md"
-      bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+      bg={colorMode === "light" ? "gray.50" : "gray.800"}
     >
       <Flex direction="column" py={2} px={0}>
         {labels.map((m: Label) => {
@@ -48,7 +49,7 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
               justifyContent="space-between"
               alignItems="center"
               _hover={{
-                bg: colorMode === 'light' ? 'gray.100' : 'gray.900',
+                bg: colorMode === "light" ? "gray.100" : "gray.900",
               }}
               onClick={() => {
                 setLabel({
@@ -59,7 +60,7 @@ function LabelDialog({ itemKey, onClose }: LabelDialogProps): ReactElement {
             >
               <Text fontSize="sm">{m.name}</Text>
               <Flex
-                bg={m.colour ?? '#000'}
+                bg={m.colour ?? "#000"}
                 borderRadius="50%"
                 cursor="pointer"
                 width="24px"

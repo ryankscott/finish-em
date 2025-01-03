@@ -1,8 +1,7 @@
-import { ReactElement } from 'react';
-import { Flex, Text } from '@chakra-ui/layout';
-import { IconButton, Icon, Button } from '@chakra-ui/react';
-import { Icons } from 'renderer/assets/icons';
-import { PAGE_SIZE } from '../../consts';
+import { ReactElement } from "react";
+import { Flex, Text, IconButton, Icon, Button } from "@chakra-ui/react";
+import { Icons } from "../assets/icons";
+import { PAGE_SIZE } from "../../consts";
 
 export type PaginationProps = {
   currentPage: number;
@@ -43,7 +42,7 @@ const Pagination = ({
         </Button>
       )}
       {/* More pages indicator (small no. of pages) */}
-      {currentPage >= 4 && '...'}
+      {currentPage >= 4 && "..."}
 
       {/* Next page button (if we're not at the end) */}
       {currentPage >= 3 && (
@@ -97,7 +96,7 @@ const Pagination = ({
         icon={<Icon as={Icons.slideRight} />}
         onClick={() =>
           setCurrentPage(
-            currentPage === totalPages ? totalPages : currentPage + 1
+            currentPage === totalPages ? totalPages : currentPage + 1,
           )
         }
       />

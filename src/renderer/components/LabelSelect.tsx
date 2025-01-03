@@ -1,31 +1,31 @@
-import { useQuery } from '@apollo/client';
-import { Box } from '@chakra-ui/react';
-import { Label } from 'main/resolvers-types';
-import { transparentize } from 'polished';
-import { GET_LABELS } from 'renderer/queries';
-import Select from './Select';
+import { useQuery } from '@apollo/client'
+import { Box } from '@chakra-ui/react'
+import { Label } from '../../main/resolvers-types'
+import { transparentize } from 'polished'
+import { GET_LABELS } from '../queries'
+import Select from './Select'
 
 type LabelSelectProps = {
-  currentLabel: Label | null;
-  completed: boolean;
-  deleted: boolean;
-  onSubmit: (key: string) => void;
-  invert?: boolean;
-};
+  currentLabel: Label | null
+  completed: boolean
+  deleted: boolean
+  onSubmit: (key: string) => void
+  invert?: boolean
+}
 
 export default function LabelSelect({
   currentLabel,
   completed,
   deleted,
   onSubmit,
-  invert = false,
+  invert = false
 }: LabelSelectProps) {
-  const { loading, error, data } = useQuery<{ labels: Label[] }>(GET_LABELS);
-  if (loading) return <></>;
+  const { loading, error, data } = useQuery<{ labels: Label[] }>(GET_LABELS)
+  if (loading) return <></>
 
   if (error) {
-    console.log(error);
-    return <></>;
+    console.log(error)
+    return <></>
   }
 
   const options = data?.labels
@@ -34,12 +34,12 @@ export default function LabelSelect({
           return {
             value: l.key,
             label: l.name,
-            color: transparentize(0.7, l.colour ?? '#FFFFFF'),
-          };
+            color: transparentize(0.7, l.colour ?? '#FFFFFF')
+          }
         }),
-        { value: '', label: 'No label', color: '' },
+        { value: '', label: 'No label', color: '' }
       ]
-    : [];
+    : []
 
   return (
     <Box w="100%" cursor={completed || deleted ? 'not-allowed' : 'inherit'}>
@@ -47,7 +47,7 @@ export default function LabelSelect({
         isMulti={false}
         isDisabled={completed || deleted}
         onChange={(p) => {
-          onSubmit(p.value);
+          onSubmit(p.value)
         }}
         options={options}
         escapeClearsValue
@@ -56,5 +56,5 @@ export default function LabelSelect({
         invertColours={invert}
       />
     </Box>
-  );
+  )
 }

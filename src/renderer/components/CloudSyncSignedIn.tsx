@@ -7,16 +7,16 @@ import {
   ModalContent,
   ModalFooter,
   Text,
-  useToast,
-} from '@chakra-ui/react';
-import CloudIcon from './CloudIcon';
+  useToast
+} from '@chakra-ui/react'
+import CloudIcon from './CloudIcon'
 
 interface CloudSyncSignedInProps {
-  onClose: () => void;
-  email: string;
+  onClose: () => void
+  email: string
 }
 const CloudSyncSignedIn = ({ onClose, email }: CloudSyncSignedInProps) => {
-  const toast = useToast();
+  const toast = useToast()
 
   return (
     <ModalContent>
@@ -28,14 +28,7 @@ const CloudSyncSignedIn = ({ onClose, email }: CloudSyncSignedInProps) => {
             You're signed in to Finish-em Cloud with the following email address
           </Text>
 
-          <Input
-            readOnly
-            type="email"
-            value={email}
-            borderRadius="md"
-            size="md"
-            my={2}
-          />
+          <Input readOnly type="email" value={email} borderRadius="md" size="md" my={2} />
         </Flex>
       </ModalBody>
 
@@ -50,18 +43,18 @@ const CloudSyncSignedIn = ({ onClose, email }: CloudSyncSignedInProps) => {
               description: 'Successfully signed out of Finish-em Cloud.',
               status: 'success',
               duration: 9000,
-              isClosable: true,
-            });
+              isClosable: true
+            })
 
-            window.electronAPI.ipcRenderer.setSetting('cloudSync', {
+            window.api.ipcRenderer.setSetting('cloudSync', {
               enabled: false,
               email: '',
-              token: '',
-            });
+              token: ''
+            })
 
-            localStorage.setItem('token', '');
+            localStorage.setItem('token', '')
 
-            window.electronAPI.ipcRenderer.restartApp();
+            window.api.ipcRenderer.restartApp()
           }}
         >
           Sign out
@@ -71,7 +64,7 @@ const CloudSyncSignedIn = ({ onClose, email }: CloudSyncSignedInProps) => {
         </Button>
       </ModalFooter>
     </ModalContent>
-  );
-};
+  )
+}
 
-export default CloudSyncSignedIn;
+export default CloudSyncSignedIn

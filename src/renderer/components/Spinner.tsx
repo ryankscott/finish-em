@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
-import { Flex, Spinner as CSpinner } from '@chakra-ui/react';
+import { ReactElement } from "react";
+import { Flex, Spinner as CSpinner } from "@chakra-ui/react";
 
 const Spinner = (): ReactElement => {
   return (
@@ -9,7 +9,7 @@ const Spinner = (): ReactElement => {
       alignItems="center"
       h="100%"
     >
-      <CSpinner color="blue.500" />
+      <CSpinner color="blue.700" />
     </Flex>
   );
 };

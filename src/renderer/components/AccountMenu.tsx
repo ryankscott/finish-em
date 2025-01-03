@@ -1,25 +1,17 @@
-import {
-  IconButton,
-  Icon,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  MenuGroup,
-} from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
+import { IconButton, Icon, Menu, MenuButton, MenuItem, MenuList, MenuGroup } from '@chakra-ui/react'
+import { useEffect, useState } from 'react'
+import { Icons } from '../assets/icons'
 
 function AccountMenu() {
-  const [user, setUser] = useState();
+  const [user, setUser] = useState()
 
   useEffect(() => {
     const getUser = async () => {
-      const user = await window.electronAPI.ipcRenderer.getSignedInUser();
-      setUser(user);
-    };
-    getUser();
-  }, []);
+      const user = await window.api.getSignedInUser()
+      setUser(user)
+    }
+    getUser()
+  }, [])
 
   return (
     <Menu>
@@ -40,7 +32,7 @@ function AccountMenu() {
         </MenuGroup>
       </MenuList>
     </Menu>
-  );
+  )
 }
 
-export default AccountMenu;
+export default AccountMenu

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Flex,
   Grid,
@@ -7,30 +7,30 @@ import {
   IconButton,
   Text,
   useColorMode,
-} from '@chakra-ui/react';
-import { add, format, startOfWeek, sub } from 'date-fns';
-import { WeeklyGoal } from 'main/resolvers-types';
-import { ReactElement, useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
-import { WEEKLY_ITEMS, CREATE_WEEKLY_GOAL } from 'renderer/queries';
-import { v4 as uuidv4 } from 'uuid';
-import EditableText from './EditableText';
-import ReorderableComponentList from './ReorderableComponentList';
-import { DailySummary } from './DailySummary';
+} from "@chakra-ui/react";
+import { add, format, startOfWeek, sub } from "date-fns";
+import { WeeklyGoal } from "../../main/resolvers-types";
+import { ReactElement, useState } from "react";
+import { Icons } from "../assets/icons";
+import { WEEKLY_ITEMS, CREATE_WEEKLY_GOAL } from "../queries";
+import { v4 as uuidv4 } from "uuid";
+import EditableText from "./EditableText";
+import ReorderableComponentList from "./ReorderableComponentList";
+import { DailySummary } from "./DailySummary";
 
 const weeklyFilter = JSON.stringify({
-  combinator: 'and',
+  combinator: "and",
   rules: [
     {
-      field: 'DATE(scheduledAt)',
-      operator: 'between',
-      valueSource: 'value',
-      value: 'week',
+      field: "DATE(scheduledAt)",
+      operator: "between",
+      valueSource: "value",
+      value: "week",
     },
     {
-      field: 'deleted',
-      operator: '=',
-      valueSource: 'value',
+      field: "deleted",
+      operator: "=",
+      valueSource: "value",
       value: false,
     },
   ],
@@ -38,10 +38,10 @@ const weeklyFilter = JSON.stringify({
 });
 
 const WeeklyAgenda = (): ReactElement => {
-  const componentKey = 'ad127825-0574-48d7-a8d3-45375efb5342';
+  const componentKey = "ad127825-0574-48d7-a8d3-45375efb5342";
   const { colorMode } = useColorMode();
   const [currentDate, setCurrentDate] = useState(
-    startOfWeek(new Date(), { weekStartsOn: 1 })
+    startOfWeek(new Date(), { weekStartsOn: 1 }),
   );
   const [createWeeklyGoal] = useMutation(CREATE_WEEKLY_GOAL, {
     refetchQueries: [WEEKLY_ITEMS],
@@ -59,13 +59,13 @@ const WeeklyAgenda = (): ReactElement => {
   }
 
   let weeklyGoal: WeeklyGoal = data.weeklyGoals.find(
-    (w: WeeklyGoal) => w.week === format(currentDate, 'yyyy-MM-dd')
+    (w: WeeklyGoal) => w.week === format(currentDate, "yyyy-MM-dd"),
   );
   if (!weeklyGoal) {
     weeklyGoal = {
       key: uuidv4(),
-      week: format(currentDate, 'yyyy-MM-dd'),
-      goal: '',
+      week: format(currentDate, "yyyy-MM-dd"),
+      goal: "",
     };
   }
   return (
@@ -85,11 +85,11 @@ const WeeklyAgenda = (): ReactElement => {
         <GridItem colSpan={3} textAlign="center">
           <Text
             fontWeight="normal"
-            color="blue.500"
+            color="blue.700"
             fontSize="3xl"
             textAlign="center"
           >
-            Week starting {format(currentDate, 'EEEE do MMMM yyyy')}
+            Week starting {format(currentDate, "EEEE do MMMM yyyy")}
           </Text>
         </GridItem>
         <GridItem colSpan={1} textAlign="end">
@@ -105,15 +105,15 @@ const WeeklyAgenda = (): ReactElement => {
         </GridItem>
       </Grid>
       <Flex justify="space-between" width="100%" marginBottom="5">
-        <Text fontSize="md" style={{ gridArea: 'week_of_year' }}>
-          Week of year: {format(currentDate, 'w')} / 52
+        <Text fontSize="md" style={{ gridArea: "week_of_year" }}>
+          Week of year: {format(currentDate, "w")} / 52
         </Text>
         <Text
           fontSize="md"
           textAlign="end"
-          style={{ gridArea: 'week_of_quarter' }}
+          style={{ gridArea: "week_of_quarter" }}
         >
-          Week of quarter: {parseInt(format(currentDate, 'w'), 10) % 13} / 13
+          Week of quarter: {parseInt(format(currentDate, "w"), 10) % 13} / 13
         </Text>
       </Flex>
       <Flex
@@ -122,7 +122,7 @@ const WeeklyAgenda = (): ReactElement => {
         padding-left={12}
         border="1px solid"
         borderRadius="md"
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.600'}
+        borderColor={colorMode === "light" ? "gray.200" : "gray.600"}
         my={6}
         mx={5}
       >
@@ -132,7 +132,7 @@ const WeeklyAgenda = (): ReactElement => {
         <EditableText
           key={weeklyGoal.key}
           singleLine={false}
-          input={weeklyGoal.goal ?? ''}
+          input={weeklyGoal.goal ?? ""}
           placeholder="Add a weekly goal..."
           shouldSubmitOnBlur
           shouldClearOnSubmit={false}
@@ -153,7 +153,7 @@ const WeeklyAgenda = (): ReactElement => {
         p={0}
         mx={5}
         direction="column"
-        alignItems={'center'}
+        alignItems={"center"}
         border="1px solid"
         borderColor="chakra-border-color"
         borderRadius="md"

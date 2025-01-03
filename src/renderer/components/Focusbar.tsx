@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Drawer,
@@ -18,8 +18,9 @@ import {
   DrawerCloseButton,
   useMediaQuery,
   useBreakpointValue,
-} from '@chakra-ui/react';
-import { ReactElement } from 'react';
+  Divider,
+} from "@chakra-ui/react";
+import { ReactElement } from "react";
 import {
   ITEM_BY_KEY,
   RENAME_ITEM,
@@ -36,32 +37,33 @@ import {
   RESTORE_ITEM,
   ITEMS_BY_FILTER,
   WEEKLY_ITEMS,
-} from 'renderer/queries';
-import { RRule } from 'rrule';
-import { Item as ItemType } from 'main/resolvers-types';
-import { Icons } from '../assets/icons';
-import { IconType, ItemIcons } from '../interfaces';
-import { formatRelativeDate } from '../utils';
-import AreaSelect from './AreaSelect';
-import ItemSelect from './ItemSelect';
-import DatePicker from './DatePicker';
-import EditableText from './EditableText';
-import ItemCreator from './ItemCreator';
-import LabelSelect from './LabelSelect';
-import ProjectSelect from './ProjectSelect';
-import RepeatPicker from './RepeatPicker';
-import ItemActionButton from './ItemActionButton';
-import Item from './Item';
-import { AppState, useBoundStore } from 'renderer/state';
-import { parseISO } from 'date-fns';
+} from "../queries";
+import { RRule } from "rrule";
+import { Item as ItemType } from "../../main/resolvers-types";
+import { Icons } from "../assets/icons";
+import { IconType, ItemIcons } from "../interfaces";
+import { formatRelativeDate } from "../utils";
+import AreaSelect from "./AreaSelect";
+import ItemSelect from "./ItemSelect";
+import DatePicker from "./DatePicker";
+import EditableText from "./EditableText";
+import ItemCreator from "./ItemCreator";
+import LabelSelect from "./LabelSelect";
+import ProjectSelect from "./ProjectSelect";
+import RepeatPicker from "./RepeatPicker";
+import ItemActionButton from "./ItemActionButton";
+import Item from "./Item";
+import { AppState, useBoundStore } from "../state";
+import { parseISO } from "date-fns";
+import React from "react";
 
 const Focusbar = (): ReactElement => {
   const { colorMode } = useColorMode();
   const focusbarPlacement = useBreakpointValue([
-    'bottom',
-    'bottom',
-    'right',
-    'right',
+    "bottom",
+    "bottom",
+    "right",
+    "right",
   ]);
   const [activeItemIds, setActiveItemIds, focusbarVisible, setFocusbarVisible] =
     useBoundStore((state: AppState) => [
@@ -122,14 +124,14 @@ const Focusbar = (): ReactElement => {
       <Flex
         direction="column"
         border="1px solid"
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+        borderColor={colorMode === "light" ? "gray.200" : "gray.900"}
         shadow="md"
-        minW={focusbarVisible ? '350px' : 0}
+        minW={focusbarVisible ? "350px" : 0}
         opacity={focusbarVisible ? 1 : 0}
         px={3}
         py={3}
         h="100%"
-        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        bg={colorMode === "light" ? "gray.50" : "gray.800"}
         transition="all 0.2s ease-in-out"
       />
     );
@@ -165,24 +167,24 @@ const Focusbar = (): ReactElement => {
 
   const dueDate = item?.dueAt
     ? formatRelativeDate(parseISO(item?.dueAt))
-    : 'Add due date';
+    : "Add due date";
 
   const scheduledDate = item?.scheduledAt
     ? formatRelativeDate(parseISO(item?.scheduledAt))
-    : 'Add scheduled date';
+    : "Add scheduled date";
 
   return (
     <Drawer
-      placement={focusbarPlacement ?? 'right'}
+      placement={focusbarPlacement ?? "right"}
       isOpen={focusbarVisible}
       onClose={() => setFocusbarVisible(false)}
     >
       <DrawerOverlay />
       <DrawerContent
         border="1px solid"
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.900'}
+        borderColor={colorMode === "light" ? "gray.200" : "gray.900"}
         p={4}
-        bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
+        bg={colorMode === "light" ? "gray.50" : "gray.800"}
         minW="400px"
         justifyContent="center"
       >
@@ -212,7 +214,7 @@ const Focusbar = (): ReactElement => {
         <DrawerBody>
           <Flex direction="column">
             <Flex w="100%" justifyContent="space-between" mb={2}>
-              <Flex>
+              <Flex w="100%">
                 <ItemActionButton
                   deleted={item.deleted ?? false}
                   completed={item.completed ?? false}
@@ -229,12 +231,12 @@ const Focusbar = (): ReactElement => {
                 <Box
                   w="100%"
                   maxW="250px"
-                  textDecoration={item?.completed ? 'line-through' : 'inherit'}
+                  textDecoration={item?.completed ? "line-through" : "inherit"}
                   px={1}
                 >
                   <EditableText
                     readOnly={item.deleted ?? false}
-                    input={item?.text ?? ''}
+                    input={item?.text ?? ""}
                     singleLine
                     shouldClearOnSubmit={false}
                     shouldSubmitOnBlur
@@ -273,7 +275,7 @@ const Focusbar = (): ReactElement => {
                 </Tooltip>
               )}
             </Flex>
-            {item.project?.key === '0' && (
+            {item.project?.key === "0" && (
               <AttributeContainer>
                 <SidebarTitle icon="area" text="Area: " />
                 <AreaSelect
@@ -336,7 +338,7 @@ const Focusbar = (): ReactElement => {
               <SidebarTitle icon="repeat" text="Repeating: " />
               <RepeatPicker
                 repeat={
-                  item.repeat && item.repeat !== 'undefined'
+                  item.repeat && item.repeat !== "undefined"
                     ? RRule.fromString(item.repeat)
                     : null
                 }
@@ -345,7 +347,7 @@ const Focusbar = (): ReactElement => {
                 key={`rp${item.key}`}
                 onSubmit={(r: RRule) =>
                   setRepeat({
-                    variables: { key: item.key, repeat: r ? r.toString() : '' },
+                    variables: { key: item.key, repeat: r ? r.toString() : "" },
                   })
                 }
               />
@@ -394,15 +396,16 @@ const Focusbar = (): ReactElement => {
             )}
 
             {!item.parent?.key && (
-              <>
-                <Flex pt={6} pb={2} alignItems="baseline">
+              <Flex direction={"column"} pt={4} gap={2} px={2}>
+                <Divider mb={2} />
+                <Flex pb={2} alignItems="baseline">
                   <Text fontSize="md" px={2}>
                     Subtasks
                   </Text>
                   {item.children && item.children?.length > 0 && (
                     <Text fontSize="sm" color="gray.600">
                       {item.children.length} item
-                      {item.children.length > 1 ? 's' : ''}
+                      {item.children.length > 1 ? "s" : ""}
                     </Text>
                   )}
                 </Flex>
@@ -432,8 +435,8 @@ const Focusbar = (): ReactElement => {
                     No subtasks
                   </Text>
                 )}
-                <ItemCreator parentKey={item.key} initiallyExpanded={false} />
-              </>
+                <ItemCreator parentKey={item.key} />
+              </Flex>
             )}
           </Flex>
         </DrawerBody>
@@ -441,5 +444,4 @@ const Focusbar = (): ReactElement => {
     </Drawer>
   );
 };
-
 export default Focusbar;

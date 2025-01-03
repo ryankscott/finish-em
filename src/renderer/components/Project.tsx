@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Editable,
@@ -11,12 +11,12 @@ import {
   Text,
   Tooltip,
   useColorMode,
-} from '@chakra-ui/react';
-import { parseISO } from 'date-fns';
-import { Item, Project as ProjectType } from 'main/resolvers-types';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+} from "@chakra-ui/react";
+import { parseISO } from "date-fns";
+import { Item, Project as ProjectType } from "../../main/resolvers-types";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   SET_DESCRIPTION_OF_PROJECT,
   DELETE_PROJECT,
@@ -30,16 +30,16 @@ import {
   GET_VIEW_BY_KEY,
   GET_COMPONENT_BY_KEY,
   GET_PROJECTS,
-} from 'renderer/queries';
-import { v4 as uuidv4 } from 'uuid';
-import { formatRelativeDate } from '../utils';
-import DatePicker from './DatePicker';
-import DeleteProjectDialog from './DeleteProjectDialog';
-import { Donut } from './Donut';
-import EditableText from './EditableText';
-import ItemCreator from './ItemCreator';
-import EmojiPicker from './EmojiPicker';
-import EmojiDisplay from './EmojiDisplay';
+} from "../queries";
+import { v4 as uuidv4 } from "uuid";
+import { formatRelativeDate } from "../utils";
+import DatePicker from "./DatePicker";
+import DeleteProjectDialog from "./DeleteProjectDialog";
+import { Donut } from "./Donut";
+import EditableText from "./EditableText";
+import ItemCreator from "./ItemCreator";
+import EmojiPicker from "./EmojiPicker";
+import EmojiDisplay from "./EmojiDisplay";
 // import './styled/ReactDatePicker.css';
 
 type ProjectProps = {
@@ -85,7 +85,7 @@ const Project = ({ projectKey }: ProjectProps) => {
         justifyContent="center"
       >
         <Text fontSize="md" color="red.500">
-          Failed to load project {error ? `- ${error.message}` : ''}
+          Failed to load project {error ? `- ${error.message}` : ""}
         </Text>
       </Flex>
     );
@@ -112,11 +112,11 @@ const Project = ({ projectKey }: ProjectProps) => {
             borderRadius="50%"
             justifyContent="center"
             fontSize="xl"
-            boxShadow={colorMode === 'light' ? 'none' : '0 0 3px 0 #222'}
-            bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
+            boxShadow={colorMode === "light" ? "none" : "0 0 3px 0 #222"}
+            bg={colorMode === "light" ? "gray.100" : "gray.800"}
             my={0}
             _hover={{
-              bg: colorMode === 'light' ? 'gray.200' : 'gray.900',
+              bg: colorMode === "light" ? "gray.200" : "gray.900",
             }}
             transition="all 0.1s ease-in-out"
             cursor="pointer"
@@ -143,7 +143,7 @@ const Project = ({ projectKey }: ProjectProps) => {
               fontSize="3xl"
               mx={2}
               w="100%"
-              color="blue.500"
+              color="blue.700"
               fontWeight="light"
               onSubmit={(input) => {
                 const exists = projects
@@ -151,7 +151,7 @@ const Project = ({ projectKey }: ProjectProps) => {
                   .includes(true);
                 if (exists) {
                   toast.error(
-                    'Cannot rename project, a project with that name already exists'
+                    "Cannot rename project, a project with that name already exists",
                   );
                 } else {
                   renameProject({
@@ -167,7 +167,7 @@ const Project = ({ projectKey }: ProjectProps) => {
               onDelete={() => {
                 deleteProject({ variables: { key: project.key } });
                 deleteView({ variables: { key: project.key } });
-                navigate('/inbox');
+                navigate("/inbox");
               }}
             />
           </Flex>
@@ -203,13 +203,13 @@ const Project = ({ projectKey }: ProjectProps) => {
               text={
                 project.startAt
                   ? formatRelativeDate(parseISO(project.startAt))
-                  : ''
+                  : ""
               }
               onSubmit={(e) => {
                 setStartDate({
                   variables: {
                     key: project.key,
-                    startAt: e ? e.toISOString() : '',
+                    startAt: e ? e.toISOString() : "",
                   },
                 });
               }}
@@ -222,13 +222,13 @@ const Project = ({ projectKey }: ProjectProps) => {
             <DatePicker
               completed={false}
               text={
-                project.endAt ? formatRelativeDate(parseISO(project.endAt)) : ''
+                project.endAt ? formatRelativeDate(parseISO(project.endAt)) : ""
               }
               onSubmit={(d) => {
                 setEndDate({
                   variables: {
                     key: project.key,
-                    endAt: d ? d.toISOString() : '',
+                    endAt: d ? d.toISOString() : "",
                   },
                 });
               }}
@@ -238,7 +238,7 @@ const Project = ({ projectKey }: ProjectProps) => {
       )}
       <EditableText
         key={`desc-${project.key}`}
-        input={project.description ?? ''}
+        input={project.description ?? ""}
         singleLine={false}
         placeholder="Add a description for your project..."
         shouldClearOnSubmit={false}

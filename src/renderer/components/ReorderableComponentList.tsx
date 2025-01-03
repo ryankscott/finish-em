@@ -1,13 +1,13 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { orderBy } from 'lodash';
-import { ReactElement, useEffect, useState } from 'react';
+import { useMutation, useQuery } from "@apollo/client";
+import { orderBy } from "lodash";
+import { ReactElement, useEffect, useState } from "react";
 import {
   DragDropContext,
   Draggable,
   Droppable,
   DropResult,
-} from 'react-beautiful-dnd';
-import { v4 as uuidv4 } from 'uuid';
+} from "react-beautiful-dnd";
+import { v4 as uuidv4 } from "uuid";
 import {
   Menu,
   MenuButton,
@@ -17,20 +17,21 @@ import {
   Flex,
   Icon,
   useColorMode,
-} from '@chakra-ui/react';
+} from "@chakra-ui/react";
 import {
   ADD_COMPONENT,
   GET_COMPONENTS_BY_VIEW,
   SET_COMPONENT_ORDER,
-} from 'renderer/queries';
-import { Component } from 'main/resolvers-types';
-import { Icons } from '../assets/icons';
-import ComponentActions from './ComponentActions';
-import FilteredItemList from './FilteredItemList';
-import ItemCreator from './ItemCreator';
-import Spinner from './Spinner';
-import ViewHeader from './ViewHeader';
-import DragHandle from './DragHandle';
+} from "../queries";
+import { Component } from "../../main/resolvers-types";
+import { Icons } from "../assets/icons";
+import ComponentActions from "./ComponentActions";
+import FilteredItemList from "./FilteredItemList";
+import ItemCreator from "./ItemCreator";
+import Spinner from "./Spinner";
+import ViewHeader from "./ViewHeader";
+import DragHandle from "./DragHandle";
+import React from "react";
 
 type ReorderableComponentListProps = {
   viewKey: string;
@@ -42,7 +43,7 @@ const ReorderableComponentList = ({
   const { colorMode } = useColorMode();
   const { loading, error, data } = useQuery(GET_COMPONENTS_BY_VIEW, {
     variables: { viewKey },
-    fetchPolicy: 'no-cache',
+    fetchPolicy: "no-cache",
   });
   const [addComponent] = useMutation(ADD_COMPONENT, {
     refetchQueries: [GET_COMPONENTS_BY_VIEW],
@@ -51,13 +52,13 @@ const ReorderableComponentList = ({
     refetchQueries: [GET_COMPONENTS_BY_VIEW],
   });
   const [sortedComponents, setSortedComponents] = useState<Component[] | []>(
-    []
+    [],
   );
 
   useEffect(() => {
     if (loading === false && data) {
       setSortedComponents(
-        orderBy(data.componentsByView, ['sortOrder.sortOrder'], ['asc'])
+        orderBy(data.componentsByView, ["sortOrder.sortOrder"], ["asc"]),
       );
     }
   }, [loading, data]);
@@ -76,7 +77,7 @@ const ReorderableComponentList = ({
 
   const componentSwitch = (params, comp, provided) => {
     switch (comp.type) {
-      case 'FilteredItemList':
+      case "FilteredItemList":
         return (
           <FilteredItemList
             {...params}
@@ -84,7 +85,7 @@ const ReorderableComponentList = ({
             key={comp.key}
           />
         );
-      case 'ViewHeader':
+      case "ViewHeader":
         return (
           <ViewHeader
             dragHandle={provided.dragHandleProps}
@@ -94,7 +95,7 @@ const ReorderableComponentList = ({
             {...params}
           />
         );
-      case 'ItemCreator':
+      case "ItemCreator":
         return (
           <ItemCreator componentKey={comp.key} key={comp.key} {...params} />
         );
@@ -141,7 +142,7 @@ const ReorderableComponentList = ({
           });
         }}
       >
-        <Droppable droppableId={'component'} type="COMPONENT">
+        <Droppable droppableId={"component"} type="COMPONENT">
           {(provided, snapshot) => (
             <Flex
               direction="column"
@@ -176,10 +177,10 @@ const ReorderableComponentList = ({
                           mb={8}
                           border="1px solid"
                           borderColor={
-                            snapshot.isDragging ? 'gray.200' : 'transparent'
+                            snapshot.isDragging ? "gray.200" : "transparent"
                           }
-                          bg={colorMode === 'light' ? 'gray.50' : 'gray.800'}
-                          shadow={snapshot.isDragging ? 'md' : 'none'}
+                          bg={colorMode === "light" ? "gray.50" : "gray.800"}
+                          shadow={snapshot.isDragging ? "md" : "none"}
                           ref={provided.innerRef}
                           // eslint-disable-next-line react/jsx-props-no-spreading
                           {...provided.draggableProps}
@@ -200,7 +201,7 @@ const ReorderableComponentList = ({
                   );
                 } catch (e) {
                   console.log(
-                    `Failed to parse parameters of sortedComponent - ${comp.key}, with error - ${e}`
+                    `Failed to parse parameters of sortedComponent - ${comp.key}, with error - ${e}`,
                   );
                 }
               })}
@@ -238,40 +239,40 @@ const ReorderableComponentList = ({
                     input: {
                       key: uuidv4(),
                       viewKey,
-                      type: 'FilteredItemList',
-                      location: 'main',
+                      type: "FilteredItemList",
+                      location: "main",
                       parameters: {
                         filter: JSON.stringify({
-                          combinator: 'and',
+                          combinator: "and",
                           rules: [
                             {
-                              field: 'projectKey',
-                              operator: '=',
-                              valueSource: 'value',
+                              field: "projectKey",
+                              operator: "=",
+                              valueSource: "value",
                               value:
-                                data.view.type == 'project'
+                                data.view.type == "project"
                                   ? data.view.key
-                                  : '0',
+                                  : "0",
                             },
                             {
-                              field: 'deleted',
-                              operator: '=',
-                              valueSource: 'value',
+                              field: "deleted",
+                              operator: "=",
+                              valueSource: "value",
                               value: false,
                             },
                             {
-                              field: 'areaKey',
-                              operator: 'null',
-                              valueSource: 'value',
-                              value: '0',
+                              field: "areaKey",
+                              operator: "null",
+                              valueSource: "value",
+                              value: "0",
                             },
                           ],
                           not: false,
                         }),
                         hiddenIcons:
-                          data.view.type == 'project' ? ['project'] : [],
+                          data.view.type == "project" ? ["project"] : [],
                         isFilterable: true,
-                        listName: 'Todo',
+                        listName: "Todo",
                         flattenSubtasks: true,
                         showCompletedToggle: true,
                         initiallyExpanded: true,
@@ -290,11 +291,11 @@ const ReorderableComponentList = ({
                     input: {
                       key: uuidv4(),
                       viewKey,
-                      type: 'ViewHeader',
-                      location: 'main',
+                      type: "ViewHeader",
+                      location: "main",
                       parameters: {
                         name: data.view.name,
-                        icon: 'view',
+                        icon: "view",
                       },
                     },
                   },
@@ -310,12 +311,12 @@ const ReorderableComponentList = ({
                     input: {
                       key: uuidv4(),
                       viewKey,
-                      type: 'ItemCreator',
-                      location: 'main',
+                      type: "ItemCreator",
+                      location: "main",
                       parameters: {
                         initiallyExpanded: false,
                         projectKey:
-                          data.view.type == 'project' ? data.view.key : '0',
+                          data.view.type == "project" ? data.view.key : "0",
                       },
                     },
                   },

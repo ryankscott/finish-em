@@ -1,30 +1,36 @@
-/* eslint-disable react/jsx-props-no-spreading */
-import { useMutation, useQuery } from '@apollo/client';
-import { Flex, Text } from '@chakra-ui/layout';
-import { orderBy } from 'lodash';
-import { ReactElement, useEffect, useState } from 'react';
+import { useMutation, useQuery } from "@apollo/client";
+import { Flex, Text } from "@chakra-ui/react";
+import { orderBy } from "lodash";
+import React, { ReactElement, useEffect, useState } from "react";
 import {
-  DragDropContext,
-  Draggable,
-  Droppable,
-  DropResult,
-} from 'react-beautiful-dnd';
+  DndContext,
+  closestCenter,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import {
   BULK_CREATE_ITEM_ORDERS,
   DELETE_ITEM_ORDERS_BY_COMPONENT,
   ITEMS_BY_FILTER,
   SET_ITEM_ORDER,
-} from 'renderer/queries';
-import { Item } from 'main/resolvers-types';
-import { PAGE_SIZE } from '../../consts';
-import { ItemIcons } from '../interfaces';
-import FailedFilteredItemList from './FailedFilteredItemList';
-import ItemComponent from './Item';
-import Pagination from './Pagination';
-import { SortDirectionEnum, SortOption } from './SortDropdown';
-import { isFuture, parseISO } from 'date-fns';
-import { useColorMode } from '@chakra-ui/react';
-import { AppState, useBoundStore } from 'renderer/state';
+} from "../queries";
+import { Item } from "../../main/resolvers-types";
+import { PAGE_SIZE } from "../../consts";
+import { ItemIcons } from "../interfaces";
+import FailedFilteredItemList from "./FailedFilteredItemList";
+import Pagination from "./Pagination";
+import { SortDirectionEnum, SortOption } from "./SortDropdown";
+import { isFuture, parseISO } from "date-fns";
+import { useColorMode } from "@chakra-ui/react";
+import { AppState, useBoundStore } from "../state";
+import SortableItem from "./SortableItem";
 
 type ReorderableItemListProps = {
   componentKey: string;
@@ -61,16 +67,16 @@ function ReorderableItemList({
   const [sortedItems, setSortedItems] = useState<Item[] | []>([]);
   const [bulkCreateItemOrders] = useMutation(BULK_CREATE_ITEM_ORDERS);
   const [deleteItemOrdersByComponent] = useMutation(
-    DELETE_ITEM_ORDERS_BY_COMPONENT
+    DELETE_ITEM_ORDERS_BY_COMPONENT,
   );
 
   const [createSubtaskVisibilityIfDoesntExist] = useBoundStore(
-    (state: AppState) => [state.createSubtaskVisibilityIfDoesntExist]
+    (state: AppState) => [state.createSubtaskVisibilityIfDoesntExist],
   );
 
   const { loading, error, data } = useQuery(ITEMS_BY_FILTER, {
     variables: {
-      filter: filter ?? '',
+      filter: filter ?? "",
       componentKey,
     },
     pollInterval: shouldPoll ? 5000 : 0,
@@ -79,35 +85,24 @@ function ReorderableItemList({
   useEffect(() => {
     if (loading === false && data) {
       const si = data?.items?.map((item: Item) => {
-        // Subtasks //
         createSubtaskVisibilityIfDoesntExist(item.key, componentKey);
-
-        // SORT ORDER //
-
-        // Items have different sort orders per component
         const sortOrder = item?.sortOrders?.find(
-          (s) => s?.componentKey === componentKey
+          (s) => s?.componentKey === componentKey,
         );
         return { ...item, sortOrder };
       });
 
-      // TODO: This is really gnarly and should be refactored
-      const sorted = orderBy(si, 'sortOrder.sortOrder', 'asc');
-      const filteredItems = sorted.filter((item) => {
-        if (item.snoozedUntil && isFuture(parseISO(item.snoozedUntil))) {
-          // Sometimes we want to override this (e.g. show all snoozed)
-          if (showSnoozedItems) {
-            return true;
-          }
-          return false;
-        }
+      const sorted = orderBy(si, "sortOrder.sortOrder", "asc");
 
-        return true;
+      const filteredItems = sorted.filter((item) => {
+        const isSnoozed =
+          item.snoozedUntil && isFuture(parseISO(item.snoozedUntil));
+
+        return !isSnoozed || showSnoozedItems;
       });
 
       setSortedItems(filteredItems);
 
-      // Update listeners
       if (onItemsFetched) {
         onItemsFetched(filteredItems.length);
       }
@@ -118,7 +113,6 @@ function ReorderableItemList({
     if (!sortedItems.length) return;
     const sorted = sortType.sort(sortedItems, sortDirection);
 
-    // Persist the sort order
     deleteItemOrdersByComponent({
       variables: { componentKey },
     });
@@ -128,41 +122,45 @@ function ReorderableItemList({
       variables: { itemKeys: sortedItemKeys, componentKey },
     });
 
-    // Update the state locally
     setSortedItems(sorted);
   }, [sortDirection, sortType]);
 
-  const reorderItems = (result: DropResult): void => {
-    const { destination, source, draggableId } = result;
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+  );
 
-    //  Trying to detect drops in non-valid areas
-    if (!destination) return;
+  const reorderItems = (event: any): void => {
+    const { active, over } = event;
 
-    // Do nothing if it was a drop to the same place
-    if (destination.index === source.index) return;
+    if (!over || active.id === over.id) return;
 
-    const itemAtDestination = sortedItems[destination.index];
-    const itemAtSource = sortedItems[source.index];
+    const oldIndex = sortedItems.findIndex((item) => item.key === active.id);
+    const newIndex = sortedItems.findIndex((item) => item.key === over.id);
 
-    // Sync update
-    const newSortedItems = sortedItems;
-    newSortedItems.splice(source.index, 1);
-    newSortedItems.splice(destination.index, 0, itemAtSource);
+    const newSortedItems = arrayMove(sortedItems, oldIndex, newIndex);
     setSortedItems(newSortedItems);
 
-    // Async update
     setItemOrder({
       variables: {
-        itemKey: draggableId,
+        itemKey: active.id,
         componentKey,
-        sortOrder: itemAtDestination?.sortOrder?.sortOrder,
+        sortOrder: newSortedItems[newIndex]?.sortOrder?.sortOrder,
       },
     });
   };
 
   const pagedItems: Item[] = sortedItems?.slice(
     (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE
+    currentPage * PAGE_SIZE,
   );
 
   if (error) {
@@ -177,116 +175,54 @@ function ReorderableItemList({
 
   return (
     <>
-      <DragDropContext onDragEnd={(result) => reorderItems(result)}>
-        <Droppable droppableId={'items'} type="ITEM">
-          {(provided, snapshot) => (
-            <Flex
-              zIndex={0}
-              direction="column"
-              justifyContent="center"
-              borderRadius={3}
-              w="100%"
-              padding={snapshot.isDraggingOver ? '20px 5px' : '5px'}
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              {pagedItems?.map((item: Item, index): ReactElement => {
-                if (item?.parent) {
-                  // Find if the parent already exists in this list
-                  const parentExistsInList = sortedItems?.find(
-                    (z) => z.key === item.parent?.key
-                  );
-                  // If it does and we don't want to flattenSubtasks then return
-                  if (parentExistsInList && !flattenSubtasks) {
-                    return <></>;
-                  }
-                }
-                return (
-                  <Draggable
-                    key={item.key}
-                    draggableId={item.key}
-                    index={index}
-                  >
-                    {(provided, snapshot) => (
-                      <Flex
-                        position="relative"
-                        flexDirection="column"
-                        height="auto"
-                        userSelect="none"
-                        p={0}
-                        m={0}
-                        border={'1px solid'}
-                        borderColor={() => {
-                          if (snapshot.isDragging) {
-                            return colorMode === 'light'
-                              ? 'gray.200'
-                              : 'gray.900';
-                          }
-                          return 'transparent';
-                        }}
-                        borderRadius="md"
-                        shadow={snapshot.isDragging ? 'lg' : 'none'}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        key={`container-${item.key}`}
-                      >
-                        <ItemComponent
-                          compact={false}
-                          itemKey={item.key}
-                          key={item.key}
-                          componentKey={componentKey}
-                          shouldIndent={false}
-                          hiddenIcons={hiddenIcons}
-                          hideCollapseIcon={flattenSubtasks}
-                        />
-                        <>
-                          {item?.children?.map((child) => {
-                            // Keep TS happy
-                            if (!child) return <></>;
-
-                            // We need to check if the child exists in the original input list
-                            const shouldHideItem =
-                              (hideCompletedSubtasks && child.completed) ||
-                              (hideDeletedSubtasks && child.deleted) ||
-                              flattenSubtasks;
-
-                            if (shouldHideItem) return <></>;
-
-                            return (
-                              <ItemComponent
-                                compact={false}
-                                parentKey={item.key}
-                                itemKey={child.key}
-                                key={child.key}
-                                componentKey={componentKey}
-                                shouldIndent
-                                hideCollapseIcon={flattenSubtasks}
-                                hiddenIcons={
-                                  hiddenIcons
-                                    ? [...hiddenIcons, ItemIcons.Subtask]
-                                    : [ItemIcons.Subtask]
-                                }
-                              />
-                            );
-                          })}
-                        </>
-                      </Flex>
-                    )}
-                  </Draggable>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={reorderItems}
+      >
+        <SortableContext
+          items={pagedItems.map((item) => item.key)}
+          strategy={verticalListSortingStrategy}
+        >
+          <Flex
+            zIndex={0}
+            direction="column"
+            justifyContent="center"
+            borderRadius={3}
+            w="100%"
+            padding="5px"
+          >
+            {pagedItems?.map((item: Item): ReactElement => {
+              if (item?.parent) {
+                const parentExistsInList = sortedItems?.find(
+                  (z) => z.key === item.parent?.key,
                 );
-              })}
+                if (parentExistsInList && !flattenSubtasks) {
+                  return <></>;
+                }
+              }
+              return (
+                <SortableItem
+                  key={item.key}
+                  id={item.key}
+                  item={item}
+                  componentKey={componentKey}
+                  flattenSubtasks={flattenSubtasks}
+                  hiddenIcons={hiddenIcons}
+                  hideCompletedSubtasks={hideCompletedSubtasks}
+                  hideDeletedSubtasks={hideDeletedSubtasks}
+                />
+              );
+            })}
 
-              {sortedItems.length === 0 && (
-                <Text color="gray.400" fontSize="sm" py={4} px={0} pl={4}>
-                  No items
-                </Text>
-              )}
-              {provided.placeholder}
-            </Flex>
-          )}
-        </Droppable>
-      </DragDropContext>
+            {sortedItems.length === 0 && (
+              <Text color="gray.400" fontSize="sm" py={4} px={0} pl={4}>
+                No items
+              </Text>
+            )}
+          </Flex>
+        </SortableContext>
+      </DndContext>
       <Pagination
         itemsLength={sortedItems.length}
         currentPage={currentPage}

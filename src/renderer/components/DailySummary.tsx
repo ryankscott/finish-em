@@ -10,60 +10,60 @@ import {
   Text,
   useColorMode,
   useBreakpointValue,
-  Tag,
-} from '@chakra-ui/react';
+  Tag
+} from '@chakra-ui/react'
 
-import { v5 as uuidv5 } from 'uuid';
+import { v5 as uuidv5 } from 'uuid'
 
-import { add, format, isBefore, parseISO, startOfDay } from 'date-fns';
-import { ItemIcons } from 'renderer/interfaces';
-import ItemList from './ItemList';
-import groupBy from 'lodash/groupBy';
-import CalendarAgenda from './CalendarAgenda';
+import { add, format, isBefore, parseISO, startOfDay } from 'date-fns'
+import { ItemIcons } from '../interfaces'
+import ItemList from './ItemList'
+import groupBy from 'lodash/groupBy'
+import CalendarAgenda from './CalendarAgenda'
 
 const determineDayTextColour = (listDate: Date, colorMode: ColorMode) => {
   if (isBefore(listDate, startOfDay(new Date()))) {
     if (colorMode === 'light') {
-      return 'gray.400';
+      return 'gray.400'
     }
-    return 'gray.600';
+    return 'gray.600'
   }
   if (colorMode === 'light') {
-    return 'gray.800';
+    return 'gray.800'
   }
-  return 'gray.200';
-};
+  return 'gray.200'
+}
 
 // TODO: Fix types
 interface DailySummaryPropTypes {
-  startOfWeekDate: Date;
-  calendarIntegrationEnabled: boolean;
-  items: any[];
+  startOfWeekDate: Date
+  calendarIntegrationEnabled: boolean
+  items: any[]
 }
 
 const DailySummary = ({
   startOfWeekDate,
   calendarIntegrationEnabled,
-  items,
+  items
 }: DailySummaryPropTypes) => {
-  const { colorMode } = useColorMode();
-  const dateFormat = useBreakpointValue(['EEEEE', 'EEEEE', 'EE', 'EEEE']);
+  const { colorMode } = useColorMode()
+  const dateFormat = useBreakpointValue(['EEEEE', 'EEEEE', 'EE', 'EEEE'])
   const dates = [...new Array(7)].map((_, i) =>
     add(startOfWeekDate, {
-      days: i,
+      days: i
     })
-  );
+  )
 
   const itemsByDate = groupBy(items, (i) => {
-    return format(parseISO(i?.scheduledAt), 'yyyy-MM-dd');
-  });
+    return format(parseISO(i?.scheduledAt), 'yyyy-MM-dd')
+  })
 
   return (
     <Flex overflow="scroll" w="100%">
       <Tabs isLazy orientation="vertical">
         <TabList minW="150px">
           {dates.map((d) => {
-            const itemsOnDate = itemsByDate[format(d, 'yyy-MM-dd')];
+            const itemsOnDate = itemsByDate[format(d, 'yyy-MM-dd')]
             return (
               <Tab key={`tab-${d.toISOString()}`} w="100%" px={4}>
                 <Flex
@@ -89,7 +89,7 @@ const DailySummary = ({
                   )}
                 </Flex>
               </Tab>
-            );
+            )
           })}
         </TabList>
 
@@ -123,7 +123,7 @@ const DailySummary = ({
         </TabPanels>
       </Tabs>
     </Flex>
-  );
-};
+  )
+}
 
-export { DailySummary };
+export { DailySummary }

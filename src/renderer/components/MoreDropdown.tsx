@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useState } from 'react'
 import {
   Flex,
   Menu,
@@ -8,133 +8,141 @@ import {
   IconButton,
   Text,
   Icon,
-  useColorMode,
-} from '@chakra-ui/react';
-import { useMutation } from '@apollo/client';
+  useColorMode
+} from '@chakra-ui/react'
+import { useMutation } from '@apollo/client'
 import {
   DELETE_ITEM,
   CLONE_ITEM,
   PERMANENT_DELETE_ITEM,
   RESTORE_ITEM,
-  ITEMS_BY_FILTER,
-} from 'renderer/queries';
-import { HTMLToPlainText } from 'renderer/utils';
-import { Icons } from '../assets/icons';
-import { IconType } from '../interfaces';
-import LabelDialog from './LabelDialog';
-import ReminderDialog from './ReminderDialog';
-import SnoozeDialog from './SnoozeDialog';
+  ITEMS_BY_FILTER
+} from '../queries'
+import { HTMLToPlainText } from '../utils'
+import { Icons } from '../assets/icons'
+import { IconType } from '../interfaces'
+import LabelDialog from './LabelDialog'
+import ReminderDialog from './ReminderDialog'
+import SnoozeDialog from './SnoozeDialog'
 
 export type MoreDropdownOptions = {
-  label: string;
-  icon: IconType;
+  label: string
+  icon: IconType
 
-  onClick: (e: React.MouseEvent) => void;
-}[];
+  onClick: (e: React.MouseEvent) => void
+}[]
 
 type MoreDropdownProps = {
-  disableClick?: boolean;
-  deleted: boolean;
-  itemKey: string;
-  itemText: string;
-};
+  disableClick?: boolean
+  deleted: boolean
+  itemKey: string
+  itemText: string
+}
 
 const MoreDropdown = ({
   disableClick,
   itemKey,
   itemText,
-  deleted,
+  deleted
 }: MoreDropdownProps): ReactElement => {
-  const { colorMode } = useColorMode();
-  const [showLabelDialog, setShowLabelDialog] = useState(false);
-  const [showReminderDialog, setShowReminderDialog] = useState(false);
-  const [showSnoozeDialog, setShowSnoozeDialog] = useState(false);
+  const { colorMode } = useColorMode()
+  const [showLabelDialog, setShowLabelDialog] = useState(false)
+  const [showReminderDialog, setShowReminderDialog] = useState(false)
+  const [showSnoozeDialog, setShowSnoozeDialog] = useState(false)
   const [deleteItem] = useMutation(DELETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [cloneItem] = useMutation(CLONE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [permanentDeleteItem] = useMutation(PERMANENT_DELETE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
   const [restoreItem] = useMutation(RESTORE_ITEM, {
-    refetchQueries: [ITEMS_BY_FILTER],
-  });
+    refetchQueries: [ITEMS_BY_FILTER]
+  })
 
   const dropdownOptions: MoreDropdownOptions = deleted
     ? [
         {
           label: 'Delete permanently',
-          onClick: (e: React.MouseEvent) => {
-            permanentDeleteItem({ variables: { itemKey } });
-            e.stopPropagation();
-            e.preventDefault();
+          onClick: (e: React.MouseEvent): void => {
+            permanentDeleteItem({ variables: { itemKey } })
+            e.stopPropagation()
+            e.preventDefault()
+            return
           },
-          icon: 'trashPermanent',
+          icon: 'trashPermanent'
         },
         {
           label: 'Restore item',
-          onClick: (e: React.MouseEvent) => {
-            restoreItem({ variables: { itemKey } });
-            e.stopPropagation();
-            e.preventDefault();
+          onClick: (e: React.MouseEvent): void => {
+            restoreItem({ variables: { itemKey } })
+            e.stopPropagation()
+            e.preventDefault()
+            return
           },
-          icon: 'restore',
-        },
+          icon: 'restore'
+        }
       ]
     : [
         {
           label: 'Add label',
-          onClick: (e: React.MouseEvent) => {
-            e.stopPropagation();
-            e.preventDefault();
-            setShowLabelDialog(!showLabelDialog);
+          onClick: (e: React.MouseEvent): void => {
+            e.stopPropagation()
+            e.preventDefault()
+            setShowLabelDialog(!showLabelDialog)
+            return
           },
-          icon: 'label',
+          icon: 'label'
         },
         {
           label: 'Delete item',
-          onClick: (e: React.MouseEvent) => {
-            deleteItem({ variables: { key: itemKey } });
-            e.stopPropagation();
-            e.preventDefault();
+          onClick: (e: React.MouseEvent): void => {
+            deleteItem({ variables: { key: itemKey } })
+            e.stopPropagation()
+            e.preventDefault()
+            return
           },
-          icon: 'trash',
+          icon: 'trash'
         },
         {
           label: 'Clone item',
-          onClick: (e: React.MouseEvent) => {
-            cloneItem({ variables: { key: itemKey } });
-            e.stopPropagation();
-            e.preventDefault();
+          onClick: (e: React.MouseEvent): void => {
+            cloneItem({ variables: { key: itemKey } })
+            e.stopPropagation()
+            e.preventDefault()
+            return
           },
-          icon: 'copy',
+          icon: 'copy'
         },
         {
           label: 'Remind me',
-          onClick: (e: React.MouseEvent) => {
-            setShowReminderDialog(!showReminderDialog);
-            e.stopPropagation();
-            e.preventDefault();
+          onClick: (e: React.MouseEvent): void => {
+            setShowReminderDialog(!showReminderDialog)
+            e.stopPropagation()
+            e.preventDefault()
+            return
           },
-          icon: 'reminder',
+          icon: 'reminder'
         },
         {
           label: 'Snooze',
-          onClick: (e: React.MouseEvent) => {
-            setShowSnoozeDialog(!showSnoozeDialog);
-            e.stopPropagation();
-            e.preventDefault();
+          onClick: (e: React.MouseEvent): void => {
+            setShowSnoozeDialog(!showSnoozeDialog)
+            e.stopPropagation()
+            e.preventDefault()
+            return
           },
-          icon: 'snooze',
-        },
-      ];
+          icon: 'snooze'
+        }
+      ]
 
   return (
     <>
       <Menu matchWidth>
         <MenuButton
+          zIndex={100}
           tabIndex={-1}
           disabled={disableClick}
           as={IconButton}
@@ -147,20 +155,14 @@ const MoreDropdown = ({
           {dropdownOptions.map((v, i) => {
             return (
               <MenuItem key={i} onClick={v.onClick}>
-                <Flex
-                  direction="row"
-                  justifyContent="center"
-                  alignItems="center"
-                  py={0}
-                  px={2}
-                >
+                <Flex direction="row" justifyContent="center" alignItems="center" py={0} px={2}>
                   <Icon as={Icons[v?.icon]} />
                   <Text pl={2} fontSize="sm">
                     {v.label}
                   </Text>
                 </Flex>
               </MenuItem>
-            );
+            )
           })}
         </MenuList>
       </Menu>
@@ -168,7 +170,7 @@ const MoreDropdown = ({
         <LabelDialog
           itemKey={itemKey}
           onClose={() => {
-            setShowLabelDialog(false);
+            setShowLabelDialog(false)
           }}
         />
       )}
@@ -177,7 +179,7 @@ const MoreDropdown = ({
           itemKey={itemKey}
           reminderText={HTMLToPlainText(itemText ?? '')}
           onClose={() => {
-            setShowReminderDialog(false);
+            setShowReminderDialog(false)
           }}
         />
       )}
@@ -185,12 +187,12 @@ const MoreDropdown = ({
         <SnoozeDialog
           itemKey={itemKey}
           onClose={() => {
-            setShowSnoozeDialog(false);
+            setShowSnoozeDialog(false)
           }}
         />
       )}
     </>
-  );
-};
+  )
+}
 
-export default MoreDropdown;
+export default MoreDropdown

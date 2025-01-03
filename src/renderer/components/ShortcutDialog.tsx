@@ -1,24 +1,25 @@
-import { marked } from 'marked';
+import { marked } from 'marked'
 import {
   Modal,
   ModalOverlay,
   ModalBody,
   ModalContent,
   ModalCloseButton,
-  ModalHeader,
-} from '@chakra-ui/react';
-import { useBoundStore } from 'renderer/state';
-import shortcutsText from '../assets/shortcuts.md';
+  ModalHeader
+} from '@chakra-ui/react'
+import { useBoundStore } from '../state'
+import shortcutsText from '../assets/shortcuts.md'
 
 const ShortcutDialog = () => {
-  const [shortcutDialogVisible, setShortcutDialogVisible] = useBoundStore(
-    (state) => [state.shortcutDialogVisible, state.setShortcutDialogVisible]
-  );
+  const [shortcutDialogVisible, setShortcutDialogVisible] = useBoundStore((state) => [
+    state.shortcutDialogVisible,
+    state.setShortcutDialogVisible
+  ])
   return (
     <Modal
       isOpen={shortcutDialogVisible}
       onClose={() => {
-        setShortcutDialogVisible(false);
+        setShortcutDialogVisible(false)
       }}
     >
       <ModalOverlay />
@@ -27,12 +28,12 @@ const ShortcutDialog = () => {
         <ModalCloseButton />
         <ModalBody
           dangerouslySetInnerHTML={{
-            __html: marked(shortcutsText, { breaks: true }),
+            __html: marked(shortcutsText, { breaks: true })
           }}
         />
       </ModalContent>
     </Modal>
-  );
-};
+  )
+}
 
-export default ShortcutDialog;
+export default ShortcutDialog

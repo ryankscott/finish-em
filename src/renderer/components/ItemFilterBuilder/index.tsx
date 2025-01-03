@@ -3,34 +3,35 @@ import QueryBuilder, {
   defaultValueProcessor,
   Field,
   formatQuery,
-} from 'react-querybuilder';
-import { Box, Text, useColorMode } from '@chakra-ui/react';
-import { useState } from 'react';
-import { useQuery } from '@apollo/client';
-import { capitaliseFirstLetter } from 'renderer/utils';
-import { GET_FILTER_DATA } from 'renderer/queries/filter';
-import CustomActionElement from './CustomActionElement';
-import CustomFieldSelector from './CustomFieldSelector';
-import CustomDragHandle from './CustomDragHandle';
-import CustomValueEditor from './CustomValueEditor';
-import CustomDeleteButton from './CustomDeleteButton';
+} from "react-querybuilder";
+import { Box, Text, useColorMode } from "@chakra-ui/react";
+import { useState } from "react";
+import { useQuery } from "@apollo/client";
+import { capitaliseFirstLetter } from "../../utils";
+import { GET_FILTER_DATA } from "../../queries/filter";
+import CustomActionElement from "./CustomActionElement";
+import CustomFieldSelector from "./CustomFieldSelector";
+import CustomDragHandle from "./CustomDragHandle";
+import CustomValueEditor from "./CustomValueEditor";
+import CustomDeleteButton from "./CustomDeleteButton";
+import React from "react";
 
 // TODO: This is duplicated in /main/api
 export const valueProcessor = (
   field: string,
   operator: string,
-  value: any
+  value: any,
 ): string => {
   const dateField = [
-    'DATE(dueAt)',
-    'DATE(completedAt)',
-    'DATE(scheduledAt)',
-    'DATE(deletedAt)',
-    'DATE(lastUpdatedAt)',
-    'DATE(createdAt)',
+    "DATE(dueAt)",
+    "DATE(completedAt)",
+    "DATE(scheduledAt)",
+    "DATE(deletedAt)",
+    "DATE(lastUpdatedAt)",
+    "DATE(createdAt)",
   ].includes(field);
 
-  const booleanField = ['completed', 'deleted'].includes(field);
+  const booleanField = ["completed", "deleted"].includes(field);
   if (booleanField) {
     return (!!value).toString();
   }
@@ -47,19 +48,19 @@ export const valueProcessor = (
     /*
       This craziness is because we are using a BETWEEN operator
     */
-    if (value === 'past') {
+    if (value === "past") {
       return `DATE(date('now', '-10 year')) AND DATE(date('now', '-1 day'))`;
     }
-    if (value === 'today') {
+    if (value === "today") {
       return `DATE(date()) AND DATE(date())`;
     }
-    if (value === 'tomorrow') {
+    if (value === "tomorrow") {
       return `DATE(date('now', '+1 day')) AND DATE(date('now', '+1 day'))`;
     }
-    if (value === 'week') {
+    if (value === "week") {
       return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
     }
-    if (value === 'month') {
+    if (value === "month") {
       return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-1 month') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
     }
   }
@@ -68,116 +69,116 @@ export const valueProcessor = (
 
 const defaultFields: Field[] = [
   {
-    name: 'text',
-    label: 'Text',
+    name: "text",
+    label: "Text",
     operators: [
-      { name: '=', label: 'is' },
-      { name: 'beginsWith', label: 'begins with' },
-      { name: 'endsWith', label: 'ends with' },
-      { name: 'contains', label: 'contains' },
+      { name: "=", label: "is" },
+      { name: "beginsWith", label: "begins with" },
+      { name: "endsWith", label: "ends with" },
+      { name: "contains", label: "contains" },
     ],
   },
   {
-    name: 'deleted',
-    label: 'Deleted',
-    valueEditorType: 'switch',
-    operators: [{ name: '=', label: 'is' }],
+    name: "deleted",
+    label: "Deleted",
+    valueEditorType: "switch",
+    operators: [{ name: "=", label: "is" }],
   },
   {
-    name: 'completed',
-    label: 'Completed',
-    valueEditorType: 'switch',
-    operators: [{ name: '=', label: 'is' }],
+    name: "completed",
+    label: "Completed",
+    valueEditorType: "switch",
+    operators: [{ name: "=", label: "is" }],
   },
   {
     name: `COALESCE(DATE(snoozedUntil), DATE(date('now')))`,
-    label: 'Snoozed',
-    valueEditorType: 'switch',
-    operators: [{ name: '', label: 'is' }],
+    label: "Snoozed",
+    valueEditorType: "switch",
+    operators: [{ name: "", label: "is" }],
   },
   {
-    name: 'DATE(dueAt)',
-    label: 'Due date',
+    name: "DATE(dueAt)",
+    label: "Due date",
     operators: [
-      { name: 'between', label: 'is' },
-      { name: 'notBetween', label: '!is' },
-      { name: 'null', label: 'is null' },
-      { name: 'notNull', label: 'is not null' },
-      { name: '=', label: '=' },
-      { name: '>', label: 'after' },
-      { name: '<', label: 'before' },
+      { name: "between", label: "is" },
+      { name: "notBetween", label: "!is" },
+      { name: "null", label: "is null" },
+      { name: "notNull", label: "is not null" },
+      { name: "=", label: "=" },
+      { name: ">", label: "after" },
+      { name: "<", label: "before" },
     ],
-    datatype: 'date',
+    datatype: "date",
   },
   {
-    name: 'DATE(scheduledAt)',
-    label: 'Scheduled date',
+    name: "DATE(scheduledAt)",
+    label: "Scheduled date",
     operators: [
-      { name: 'between', label: 'is' },
-      { name: 'notBetween', label: '!is' },
-      { name: 'null', label: 'is null' },
-      { name: 'notNull', label: 'is not null' },
-      { name: '=', label: '=' },
-      { name: '>', label: 'after' },
-      { name: '<', label: 'before' },
+      { name: "between", label: "is" },
+      { name: "notBetween", label: "!is" },
+      { name: "null", label: "is null" },
+      { name: "notNull", label: "is not null" },
+      { name: "=", label: "=" },
+      { name: ">", label: "after" },
+      { name: "<", label: "before" },
     ],
-    datatype: 'date',
+    datatype: "date",
   },
   {
-    name: 'DATE(completedAt)',
-    label: 'Completed date',
+    name: "DATE(completedAt)",
+    label: "Completed date",
     operators: [
-      { name: 'between', label: 'is' },
-      { name: 'notBetween', label: '!is' },
-      { name: 'null', label: 'is null' },
-      { name: 'notNull', label: 'is not null' },
-      { name: '=', label: '=' },
-      { name: '>', label: 'after' },
-      { name: '<', label: 'before' },
+      { name: "between", label: "is" },
+      { name: "notBetween", label: "!is" },
+      { name: "null", label: "is null" },
+      { name: "notNull", label: "is not null" },
+      { name: "=", label: "=" },
+      { name: ">", label: "after" },
+      { name: "<", label: "before" },
     ],
-    datatype: 'date',
+    datatype: "date",
   },
   {
-    name: 'DATE(deletedAt)',
-    label: 'Deleted date',
+    name: "DATE(deletedAt)",
+    label: "Deleted date",
     operators: [
-      { name: 'between', label: 'is' },
-      { name: 'notBetween', label: '!is' },
-      { name: 'null', label: 'is null' },
-      { name: 'notNull', label: 'is not null' },
-      { name: '=', label: '=' },
-      { name: '>', label: 'after' },
-      { name: '<', label: 'before' },
+      { name: "between", label: "is" },
+      { name: "notBetween", label: "!is" },
+      { name: "null", label: "is null" },
+      { name: "notNull", label: "is not null" },
+      { name: "=", label: "=" },
+      { name: ">", label: "after" },
+      { name: "<", label: "before" },
     ],
-    datatype: 'date',
+    datatype: "date",
   },
   {
-    name: 'DATE(createdAt)',
-    label: 'Created date',
+    name: "DATE(createdAt)",
+    label: "Created date",
     operators: [
-      { name: 'between', label: 'is' },
-      { name: 'notBetween', label: '!is' },
-      { name: 'null', label: 'is null' },
-      { name: 'notNull', label: 'is not null' },
-      { name: '=', label: '=' },
-      { name: '>', label: 'after' },
-      { name: '<', label: 'before' },
+      { name: "between", label: "is" },
+      { name: "notBetween", label: "!is" },
+      { name: "null", label: "is null" },
+      { name: "notNull", label: "is not null" },
+      { name: "=", label: "=" },
+      { name: ">", label: "after" },
+      { name: "<", label: "before" },
     ],
-    datatype: 'date',
+    datatype: "date",
   },
   {
-    name: 'DATE(lastUpdatedAt)',
-    label: 'Last updated date',
+    name: "DATE(lastUpdatedAt)",
+    label: "Last updated date",
     operators: [
-      { name: 'between', label: 'is' },
-      { name: 'notBetween', label: '!is' },
-      { name: 'null', label: 'is null' },
-      { name: 'notNull', label: 'is not null' },
-      { name: '=', label: '=' },
-      { name: '>', label: 'after' },
-      { name: '<', label: 'before' },
+      { name: "between", label: "is" },
+      { name: "notBetween", label: "!is" },
+      { name: "null", label: "is null" },
+      { name: "notNull", label: "is not null" },
+      { name: "=", label: "=" },
+      { name: ">", label: "after" },
+      { name: "<", label: "before" },
     ],
-    datatype: 'date',
+    datatype: "date",
   },
 ];
 
@@ -190,15 +191,15 @@ const generateDynamicFields = (data: {
     return {
       name: `${d.slice(0, -1)}Key`,
       label: capitaliseFirstLetter(d.slice(0, -1)),
-      valueEditorType: 'select',
+      valueEditorType: "select",
       values: data?.[d].map((a) => {
         return { name: a.key, label: a.name };
       }),
       operators: [
-        { name: '=', label: 'is' },
-        { name: '!=', label: 'is not' },
-        { name: 'null', label: 'is null' },
-        { name: 'notNull', label: 'is not null' },
+        { name: "=", label: "is" },
+        { name: "!=", label: "is not" },
+        { name: "null", label: "is null" },
+        { name: "notNull", label: "is not null" },
       ],
     };
   });
@@ -213,11 +214,11 @@ const ItemFilterBuilder = ({
   onSubmit,
   defaultFilter,
 }: ItemFilterBuilderProps) => {
-  let inputQuery = { combinator: 'and', rules: [] };
+  let inputQuery = { combinator: "and", rules: [] };
   try {
     const parsedFilter = JSON.parse(defaultFilter);
     // TODO: This is just in case somehow we get an old style filter
-    if (!(Object.keys(parsedFilter)[0] === 'text')) {
+    if (!(Object.keys(parsedFilter)[0] === "text")) {
       inputQuery = parsedFilter;
     }
   } catch (error) {
@@ -269,12 +270,12 @@ const ItemFilterBuilder = ({
         px={2}
         border="1px solid"
         borderRadius="md"
-        borderColor={colorMode === 'light' ? 'gray.200' : 'gray.700'}
+        borderColor={colorMode === "light" ? "gray.200" : "gray.700"}
       >
         <Text fontSize="sm" fontFamily="mono" my={2}>
           {query &&
             formatQuery(query, {
-              format: 'sql',
+              format: "sql",
               valueProcessor,
             })}
         </Text>

@@ -6,23 +6,26 @@ import {
   Icon,
   IconButton,
   Text,
-} from '@chakra-ui/react';
-import { DAILY_AGENDA_VIEW_KEY, DAILY_AGENDA_VIEW_NAMESPACE } from 'consts';
-import { add, format, parse, startOfDay, sub } from 'date-fns';
-import { ReactElement, useEffect, useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
-import { v5 } from 'uuid';
-import CalendarAgenda from './CalendarAgenda';
-import FilteredItemList from './FilteredItemList';
-import ReorderableComponentList from './ReorderableComponentList';
+} from "@chakra-ui/react";
+import {
+  DAILY_AGENDA_VIEW_KEY,
+  DAILY_AGENDA_VIEW_NAMESPACE,
+} from "../../consts";
+import { add, format, parse, startOfDay, sub } from "date-fns";
+import { ReactElement, useEffect, useState } from "react";
+import { Icons } from "../assets/icons";
+import { v5 } from "uuid";
+import CalendarAgenda from "./CalendarAgenda";
+import FilteredItemList from "./FilteredItemList";
+import ReorderableComponentList from "./ReorderableComponentList";
 
 const DailyAgenda = (): ReactElement => {
   // TODO: Hoist this to a reactive var so others can use it
   const [currentDate, setCurrentDate] = useState(new Date());
 
   useEffect(() => {
-    const day = window.location.search.split('=')?.[1];
-    if (day) setCurrentDate(parse(day, 'yyyy-MM-dd', new Date()));
+    const day = window.location.search.split("=")?.[1];
+    if (day) setCurrentDate(parse(day, "yyyy-MM-dd", new Date()));
   }, []);
 
   return (
@@ -41,11 +44,11 @@ const DailyAgenda = (): ReactElement => {
         <GridItem colSpan={3} textAlign="center">
           <Text
             fontWeight="normal"
-            color="blue.500"
+            color="blue.700"
             fontSize="3xl"
             textAlign="center"
           >
-            {format(currentDate, 'EEEE do MMMM yyyy')}
+            {format(currentDate, "EEEE do MMMM yyyy")}
           </Text>
         </GridItem>
         <GridItem colSpan={1} textAlign="end">
@@ -60,15 +63,15 @@ const DailyAgenda = (): ReactElement => {
         </GridItem>
       </Grid>
       <Flex justify="space-between" width="100%" marginBottom="5">
-        <Text fontSize="md" style={{ gridArea: 'week_of_year' }}>
-          Week of year: {format(currentDate, 'w')} / 52
+        <Text fontSize="md" style={{ gridArea: "week_of_year" }}>
+          Week of year: {format(currentDate, "w")} / 52
         </Text>
         <Text
           fontSize="md"
           textAlign="end"
-          style={{ gridArea: 'week_of_quarter' }}
+          style={{ gridArea: "week_of_quarter" }}
         >
-          Week of quarter: {parseInt(format(currentDate, 'w'), 10) % 13} / 13
+          Week of quarter: {parseInt(format(currentDate, "w"), 10) % 13} / 13
         </Text>
       </Flex>
 
@@ -78,28 +81,28 @@ const DailyAgenda = (): ReactElement => {
         <FilteredItemList
           key={v5(
             `${startOfDay(currentDate).toISOString()}due`,
-            DAILY_AGENDA_VIEW_NAMESPACE
+            DAILY_AGENDA_VIEW_NAMESPACE,
           )}
           componentKey={v5(
             `${startOfDay(currentDate).toISOString()}due`,
-            DAILY_AGENDA_VIEW_NAMESPACE
+            DAILY_AGENDA_VIEW_NAMESPACE,
           )}
           isFilterable
           showCompletedToggle
           listName="Due Today"
           filter={JSON.stringify({
-            combinator: 'and',
+            combinator: "and",
             rules: [
               {
-                field: 'DATE(dueAt)',
-                operator: '=',
-                valueSource: 'value',
+                field: "DATE(dueAt)",
+                operator: "=",
+                valueSource: "value",
                 value: currentDate.toISOString(),
               },
               {
-                field: 'deleted',
-                operator: '=',
-                valueSource: 'value',
+                field: "deleted",
+                operator: "=",
+                valueSource: "value",
                 value: false,
               },
             ],
@@ -112,28 +115,28 @@ const DailyAgenda = (): ReactElement => {
         <FilteredItemList
           key={v5(
             `${startOfDay(currentDate).toISOString()}scheduled`,
-            DAILY_AGENDA_VIEW_NAMESPACE
+            DAILY_AGENDA_VIEW_NAMESPACE,
           )}
           componentKey={v5(
             `${startOfDay(currentDate).toISOString()}scheduled`,
-            DAILY_AGENDA_VIEW_NAMESPACE
+            DAILY_AGENDA_VIEW_NAMESPACE,
           )}
           isFilterable
           showCompletedToggle
           listName="Scheduled Today"
           filter={JSON.stringify({
-            combinator: 'and',
+            combinator: "and",
             rules: [
               {
-                field: 'DATE(scheduledAt)',
-                operator: '=',
-                valueSource: 'value',
+                field: "DATE(scheduledAt)",
+                operator: "=",
+                valueSource: "value",
                 value: currentDate.toISOString(),
               },
               {
-                field: 'deleted',
-                operator: '=',
-                valueSource: 'value',
+                field: "deleted",
+                operator: "=",
+                valueSource: "value",
                 value: false,
               },
             ],

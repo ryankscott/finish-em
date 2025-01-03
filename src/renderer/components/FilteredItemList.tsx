@@ -7,60 +7,61 @@ import {
   Text,
   useColorMode,
   Icon,
-  Tooltip,
-} from '@chakra-ui/react';
-import { ReactElement, useState } from 'react';
-import { orderBy } from 'lodash';
-import { Icons } from 'renderer/assets/icons';
-import { INBOX_COMPONENT_KEY } from 'consts';
-import { Item } from 'main/resolvers-types';
-import { ItemIcons } from '../interfaces';
-import EditFilteredItemList from './EditFilteredItemList';
-import ReorderableItemList from './ReorderableItemList';
-import SortDropdown, { SortDirectionEnum } from './SortDropdown';
-import { useBoundStore } from 'renderer/state';
+  Tooltip
+} from '@chakra-ui/react'
+import { ReactElement, useState } from 'react'
+import { orderBy } from 'lodash'
+import { Icons } from '../assets/icons'
+import { INBOX_COMPONENT_KEY } from '../../consts'
+import { Item } from '../../main/resolvers-types'
+import { ItemIcons } from '../interfaces'
+import EditFilteredItemList from './EditFilteredItemList'
+import ReorderableItemList from './ReorderableItemList'
+import SortDropdown, { SortDirectionEnum } from './SortDropdown'
+import { useBoundStore } from '../state'
+import React from 'react'
 
 const determineVisibilityRules = (
   isFilterable: boolean,
   showItemList: boolean,
   itemsLength: number
 ): {
-  showFilterBar: boolean;
+  showFilterBar: boolean
 
-  showSortButton: boolean;
+  showSortButton: boolean
 } => {
   return {
     // Show filter bar if the props isFilterable is set and we have more than one item and we haven't hidden all items
     showFilterBar: isFilterable && itemsLength > 0 && showItemList,
     // Show sort button if we have more than one item and we're not hiding the item list and drag and drop is not enabled
-    showSortButton: itemsLength >= 1 && showItemList,
-  };
-};
+    showSortButton: itemsLength >= 1 && showItemList
+  }
+}
 
 export type FilteredItemListProps = {
-  componentKey: string;
-  filter: string;
-  isFilterable?: boolean;
-  hiddenIcons?: ItemIcons[];
-  listName?: string;
-  flattenSubtasks?: boolean;
-  showCompletedToggle?: boolean;
-  hideDeletedSubtasks?: boolean;
-  hideCompletedSubtasks?: boolean;
-  shouldPoll?: boolean;
-  readOnly?: boolean;
-  editing?: boolean;
-  showSnoozedItems?: boolean;
-  setEditing?: (editing: boolean) => void;
-};
+  componentKey: string
+  filter: string
+  isFilterable?: boolean
+  hiddenIcons?: ItemIcons[]
+  listName?: string
+  flattenSubtasks?: boolean
+  showCompletedToggle?: boolean
+  hideDeletedSubtasks?: boolean
+  hideCompletedSubtasks?: boolean
+  shouldPoll?: boolean
+  readOnly?: boolean
+  editing?: boolean
+  showSnoozedItems?: boolean
+  setEditing?: (editing: boolean) => void
+}
 
 const determineItemListLengthString = (filteredItems: number): string => {
   if (!filteredItems) {
-    return '0 items';
+    return '0 items'
   }
   return `${filteredItems}  ${filteredItems > 0 ? 'items' : 'item'}
-  `;
-};
+  `
+}
 
 const FilteredItemList = ({
   componentKey,
@@ -75,28 +76,22 @@ const FilteredItemList = ({
   shouldPoll,
   readOnly,
   editing,
-  setEditing,
+  setEditing
 }: FilteredItemListProps): ReactElement => {
-  const { colorMode } = useColorMode();
+  const { colorMode } = useColorMode()
   const [sortType, setSortType] = useState({
     label: 'Due',
     sort: (items: Item[], direction: SortDirectionEnum) =>
-      orderBy(items, [(i) => i.dueAt], direction),
-  });
-  const [sortDirection, setSortDirection] = useState(
-    SortDirectionEnum.Ascending
-  );
-  const [showItemList, setShowItemList] = useState(true);
-  const [itemsLength, setItemsLength] = useState<number>(0);
+      orderBy(items, [(i) => i.dueAt], direction)
+  })
+  const [sortDirection, setSortDirection] = useState(SortDirectionEnum.Ascending)
+  const [showItemList, setShowItemList] = useState(true)
+  const [itemsLength, setItemsLength] = useState<number>(0)
   const [setSubtaskVisibilityForComponent] = useBoundStore((state: AppState) => [
-    state.setSubtaskVisibilityForComponent,
-  ]);
+    state.setSubtaskVisibilityForComponent
+  ])
 
-  const visibility = determineVisibilityRules(
-    isFilterable ?? true,
-    showItemList,
-    itemsLength ?? 0
-  );
+  const visibility = determineVisibilityRules(isFilterable ?? true, showItemList, itemsLength ?? 0)
 
   return (
     <Flex
@@ -132,14 +127,10 @@ const FilteredItemList = ({
                 variant="default"
                 size="sm"
                 icon={
-                  <Icon
-                    as={showItemList === true ? Icons.collapse : Icons.expand}
-                    w={4}
-                    h={4}
-                  />
+                  <Icon as={showItemList === true ? Icons.collapse : Icons.expand} w={4} h={4} />
                 }
                 onClick={() => {
-                  setShowItemList(!showItemList);
+                  setShowItemList(!showItemList)
                 }}
               />
             </Box>
@@ -162,12 +153,7 @@ const FilteredItemList = ({
           </Flex>
         </GridItem>
         <GridItem colSpan={1}>
-          <Flex
-            position="relative"
-            direction="row"
-            justifyContent="flex-end"
-            alignItems="center"
-          >
+          <Flex position="relative" direction="row" justifyContent="flex-end" alignItems="center">
             {visibility.showFilterBar && (
               <>
                 <Tooltip label="Expand all subtasks">
@@ -178,7 +164,7 @@ const FilteredItemList = ({
                       variant="default"
                       icon={<Icon w={3} h={3} as={Icons.expandAll} />}
                       onClick={() => {
-                        setSubtaskVisibilityForComponent(componentKey, true);
+                        setSubtaskVisibilityForComponent(componentKey, true)
                       }}
                     />
                   </Box>
@@ -191,7 +177,7 @@ const FilteredItemList = ({
                       variant="default"
                       icon={<Icon w={3} h={3} as={Icons.collapseAll} />}
                       onClick={() => {
-                        setSubtaskVisibilityForComponent(componentKey, false);
+                        setSubtaskVisibilityForComponent(componentKey, false)
                       }}
                     />
                   </Box>
@@ -202,10 +188,10 @@ const FilteredItemList = ({
                     sortType={sortType}
                     sortDirection={sortDirection}
                     onSetSortDirection={(d) => {
-                      setSortDirection(d);
+                      setSortDirection(d)
                     }}
                     onSetSortType={(t) => {
-                      setSortType(t);
+                      setSortType(t)
                     }}
                   />
                 </Box>
@@ -220,7 +206,7 @@ const FilteredItemList = ({
           componentKey={componentKey}
           onClose={() => {
             if (setEditing) {
-              setEditing(false);
+              setEditing(false)
             }
           }}
         />
@@ -228,7 +214,7 @@ const FilteredItemList = ({
         showItemList && (
           <ReorderableItemList
             onItemsFetched={(itemLength) => {
-              setItemsLength(itemLength);
+              setItemsLength(itemLength)
             }}
             filter={filter}
             key={componentKey}
@@ -245,7 +231,7 @@ const FilteredItemList = ({
         )
       )}
     </Flex>
-  );
-};
+  )
+}
 
-export default FilteredItemList;
+export default FilteredItemList

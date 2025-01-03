@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Button,
@@ -7,13 +7,14 @@ import {
   Icon,
   IconButton,
   Switch,
-} from '@chakra-ui/react';
-import { ReactElement, useEffect, useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
-import { GET_COMPONENT_BY_KEY, UPDATE_COMPONENT } from 'renderer/queries';
-import { Label, Project } from '../../main/generated/typescript-helpers';
-import { ItemCreatorProps } from './ItemCreator';
-import Select from './Select';
+} from "@chakra-ui/react";
+import { ReactElement, useEffect, useState } from "react";
+import { Icons } from "../assets/icons";
+import { GET_COMPONENT_BY_KEY, UPDATE_COMPONENT } from "../queries";
+import { Label, Project } from "../../main/generated/typescript-helpers";
+import { ItemCreatorProps } from "./ItemCreator";
+import Select from "./Select";
+import React from "react";
 
 const Setting = (props: FlexProps) => (
   <Flex
@@ -65,7 +66,6 @@ const EditItemCreator = ({
   componentKey,
   onClose,
 }: EditItemCreatorProps): ReactElement => {
-  const [initiallyExpanded, setInitiallyExpanded] = useState(true);
   const [projectKey, setProjectKey] = useState<string | undefined>();
   const [labelKey, setLabelKey] = useState<string | undefined>();
 
@@ -74,20 +74,13 @@ const EditItemCreator = ({
     variables: { key: componentKey },
   });
 
-  let params: ItemCreatorProps = { initiallyExpanded: false };
+  let params: ItemCreatorProps = {};
   useEffect(() => {
     if (loading === false && data) {
-      setInitiallyExpanded(params.initiallyExpanded);
       setProjectKey(params.projectKey);
       setLabelKey(params.labelKey);
     }
-  }, [
-    loading,
-    data,
-    params.initiallyExpanded,
-    params.projectKey,
-    params.labelKey,
-  ]);
+  }, [loading, params.projectKey, params.labelKey]);
 
   if (loading) return <></>;
   if (error) {
@@ -97,13 +90,13 @@ const EditItemCreator = ({
   try {
     params = JSON.parse(data.component.parameters);
   } catch (err) {
-    console.log('Failed to parse parameters');
+    console.log("Failed to parse parameters");
     console.log(err);
     return <></>;
   }
 
   const generateProjectOptions = (
-    projects: Project[]
+    projects: Project[],
   ): { value: string; label: string }[] => {
     return projects.map((p) => {
       return {
@@ -114,16 +107,16 @@ const EditItemCreator = ({
   };
 
   const generateLabelOptions = (
-    labels: Label[]
+    labels: Label[],
   ): { value: string; label: string }[] => {
     return [
       ...labels.map((a) => {
         return {
           value: a.key,
-          label: a.name ?? '',
+          label: a.name ?? "",
         };
       }),
-      { value: '', label: 'No label' },
+      { value: "", label: "No label" },
     ];
   };
 
@@ -154,18 +147,7 @@ const EditItemCreator = ({
           />
         </Box>
       </Flex>
-      <Setting>
-        <SettingLabel>Initially expanded:</SettingLabel>
-        <SettingValue>
-          <Switch
-            size="sm"
-            checked={initiallyExpanded}
-            onChange={() => {
-              setInitiallyExpanded(!initiallyExpanded);
-            }}
-          />
-        </SettingValue>
-      </Setting>
+
       <Setting>
         <SettingLabel>Project:</SettingLabel>
         <SettingValue>
@@ -215,7 +197,6 @@ const EditItemCreator = ({
               variables: {
                 key: componentKey,
                 parameters: {
-                  initiallyExpanded,
                   projectKey,
                   labelKey,
                 },

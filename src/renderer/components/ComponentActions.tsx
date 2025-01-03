@@ -1,55 +1,44 @@
-import React, { ReactElement, useState } from 'react';
-import { useMutation } from '@apollo/client';
-import {
-  Box,
-  Flex,
-  Icon,
-  IconButton,
-  Tooltip,
-  useColorMode,
-} from '@chakra-ui/react';
-import {
-  CLONE_COMPONENT,
-  DELETE_COMPONENT,
-  GET_COMPONENTS_BY_VIEW,
-} from '../queries';
-import { Icons } from 'renderer/assets/icons';
+import React, { ReactElement, useState } from 'react'
+import { useMutation } from '@apollo/client'
+import { Box, Flex, Icon, IconButton, Tooltip, useColorMode } from '@chakra-ui/react'
+import { CLONE_COMPONENT, DELETE_COMPONENT, GET_COMPONENTS_BY_VIEW } from '../queries'
+import { Icons } from '../assets/icons'
 
 type ComponentActionProps = {
-  children: JSX.Element;
-  componentKey: string;
-  readOnly?: boolean;
-};
+  children: JSX.Element
+  componentKey: string
+  readOnly?: boolean
+}
 
 const ComponentActions = ({
   children,
   componentKey,
-  readOnly,
+  readOnly
 }: ComponentActionProps): ReactElement => {
-  const { colorMode } = useColorMode();
-  const [showActions, setShowActions] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const { colorMode } = useColorMode()
+  const [showActions, setShowActions] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [cloneComponent] = useMutation(CLONE_COMPONENT, {
-    refetchQueries: [GET_COMPONENTS_BY_VIEW],
-  });
+    refetchQueries: [GET_COMPONENTS_BY_VIEW]
+  })
   const [deleteComponent] = useMutation(DELETE_COMPONENT, {
-    refetchQueries: [GET_COMPONENTS_BY_VIEW],
-  });
-  let enterInterval: NodeJS.Timeout;
-  let exitInterval: NodeJS.Timeout;
+    refetchQueries: [GET_COMPONENTS_BY_VIEW]
+  })
+  let enterInterval: NodeJS.Timeout
+  let exitInterval: NodeJS.Timeout
 
-  if (readOnly) return <div>{children}</div>;
+  if (readOnly) return <div>{children}</div>
 
   return (
     <Flex
       position="relative"
       onMouseEnter={() => {
-        enterInterval = setTimeout(() => setShowActions(true), 250);
-        clearTimeout(exitInterval);
+        enterInterval = setTimeout(() => setShowActions(true), 250)
+        clearTimeout(exitInterval)
       }}
       onMouseLeave={() => {
-        clearTimeout(enterInterval);
-        exitInterval = setTimeout(() => setShowActions(false), 400);
+        clearTimeout(enterInterval)
+        exitInterval = setTimeout(() => setShowActions(false), 400)
       }}
     >
       {showActions && (
@@ -73,7 +62,7 @@ const ComponentActions = ({
                   icon={<Icon as={Icons.edit} />}
                   variant="default"
                   onClick={() => {
-                    setIsEditing(true);
+                    setIsEditing(true)
                   }}
                   aria-label="Edit"
                 />
@@ -87,7 +76,7 @@ const ComponentActions = ({
                   icon={<Icon as={Icons.copy} />}
                   variant="default"
                   onClick={() => {
-                    cloneComponent({ variables: { key: componentKey } });
+                    cloneComponent({ variables: { key: componentKey } })
                   }}
                 />
               </Box>
@@ -100,7 +89,7 @@ const ComponentActions = ({
                   icon={<Icon as={Icons.move} />}
                   variant="default"
                   onClick={() => {
-                    console.log('move');
+                    console.log('move')
                   }}
                 />
               </Box>
@@ -111,9 +100,7 @@ const ComponentActions = ({
                   aria-label="delete"
                   icon={<Icon as={Icons.trash} />}
                   variant="default"
-                  onClick={() =>
-                    deleteComponent({ variables: { key: componentKey } })
-                  }
+                  onClick={() => deleteComponent({ variables: { key: componentKey } })}
                 />
               </Box>
             </Tooltip>
@@ -123,11 +110,11 @@ const ComponentActions = ({
       {React.Children.map(children, () => {
         return React.cloneElement(children, {
           editing: isEditing,
-          setEditing: setIsEditing,
-        });
+          setEditing: setIsEditing
+        })
       })}
     </Flex>
-  );
-};
+  )
+}
 
-export default ComponentActions;
+export default ComponentActions

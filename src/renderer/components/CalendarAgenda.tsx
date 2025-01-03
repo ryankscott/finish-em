@@ -1,18 +1,18 @@
-import { format, isSameDay, parseISO, sub } from 'date-fns';
-import { Event } from 'main/resolvers-types';
-import { useState } from 'react';
-import { Icons } from 'renderer/assets/icons';
+import { format, isSameDay, parseISO, sub } from "date-fns";
+import { useState } from "react";
+import { Event } from "../../main/resolvers-types";
+import { Icons } from "../assets/icons";
 
-import { cloneDeep, sortBy, uniqBy } from 'lodash';
-import { Flex, Text, Icon, useColorMode } from '@chakra-ui/react';
-import EventModal from './EventModal';
-import { RRule } from 'rrule';
-import { useQuery } from '@apollo/client';
-import { GET_DAILY_EVENTS } from 'renderer/queries/dailyagenda';
+import { useQuery } from "@apollo/client";
+import { Flex, Icon, Text, useColorMode } from "@chakra-ui/react";
+import { cloneDeep, sortBy, uniqBy } from "lodash";
+import { RRule } from "rrule";
+import { GET_DAILY_EVENTS } from "../queries/dailyagenda";
+import EventModal from "./EventModal";
 
 const getSortedEventsForToday = (
   events: Event[],
-  currentDate: Date
+  currentDate: Date,
 ): Event[] => {
   if (!events?.length) return [];
 
@@ -21,7 +21,7 @@ const getSortedEventsForToday = (
     if (!e.recurrence) {
       return e;
     }
-    const startDate = parseISO(e.startAt ?? '');
+    const startDate = parseISO(e.startAt ?? "");
     /*
       If you don't have a start date for a recurrence
       RRULE will just use the time now, so you've got to manually
@@ -43,14 +43,14 @@ const getSortedEventsForToday = (
   });
   // Only get events today
   const eventsToday = allEvents.filter((e: Event) => {
-    return isSameDay(parseISO(e.startAt ?? ''), currentDate);
+    return isSameDay(parseISO(e.startAt ?? ""), currentDate);
   });
 
   // Remove duplicates
-  const uniqEvents = uniqBy(eventsToday, 'title');
+  const uniqEvents = uniqBy(eventsToday, "title");
 
   // TODO: We can't sort by startAt because recurring tasks will be wrong
-  return sortBy(uniqEvents, ['startAt'], ['desc']);
+  return sortBy(uniqEvents, ["startAt"], ["desc"]);
 };
 
 interface CalendarAgendaProps {
@@ -77,12 +77,12 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
 
   const sortedEventsForToday: Event[] = getSortedEventsForToday(
     events,
-    selectedDate
+    selectedDate,
   );
 
   if (sortedEventsForToday.length == 0)
     return (
-      <Text w="100%" color={'gray.400'} fontSize="sm" py={4} px={0} pl={4}>
+      <Text w="100%" color={"gray.400"} fontSize="sm" py={4} px={0} pl={4}>
         No calendar events
       </Text>
     );
@@ -98,8 +98,8 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
             }}
             width="100%"
             _hover={{
-              background: colorMode === 'light' ? 'gray.100' : 'gray.900',
-              cursor: 'pointer',
+              background: colorMode === "light" ? "gray.100" : "gray.900",
+              cursor: "pointer",
             }}
             py={1}
             px={3}
@@ -110,23 +110,23 @@ export default function CalendarAgenda({ selectedDate }: CalendarAgendaProps) {
               direction="column"
               minW="70px"
               borderRight="2px solid"
-              borderColor="blue.500"
+              borderColor="blue.700"
               mr={4}
             >
               <Text
                 fontSize="sm"
-                color={colorMode === 'light' ? 'gray.800' : 'gray.200'}
+                color={colorMode === "light" ? "gray.800" : "gray.200"}
                 key={`time-start-${e.key}`}
               >
                 {format(
-                  sub(parseISO(e.startAt ?? ''), { minutes: offset }),
-                  'h:mm aa'
+                  sub(parseISO(e.startAt ?? ""), { minutes: offset }),
+                  "h:mm aa",
                 )}
               </Text>
               <Text color="gray.500" fontSize="sm" key={`time-end-${e.key}`}>
                 {format(
-                  sub(parseISO(e.endAt ?? ''), { minutes: offset }),
-                  'h:mm aa'
+                  sub(parseISO(e.endAt ?? ""), { minutes: offset }),
+                  "h:mm aa",
                 )}
               </Text>
             </Flex>

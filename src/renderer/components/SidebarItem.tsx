@@ -1,15 +1,15 @@
-import { Flex, Icon, Text, Tooltip } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { IconType } from '../interfaces';
-import { Icons } from '../assets/icons';
-import { createShortSidebarItem } from '../utils';
-import EmojiDisplay from './EmojiDisplay';
-import { AppState, useBoundStore } from 'renderer/state';
+import { Flex, Icon, Text, Tooltip } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { IconType } from "../interfaces";
+import { Icons } from "../assets/icons";
+import { createShortSidebarItem } from "../utils";
+import EmojiDisplay from "./EmojiDisplay";
+import { AppState, useBoundStore } from "../state";
 
 type SidebarItemProps = {
-  variant: 'defaultView' | 'customView';
-  type: 'area' | 'project';
+  variant: "defaultView" | "customView";
+  type: "area" | "project";
   path: string;
   text: string;
   iconName?: IconType;
@@ -39,8 +39,8 @@ const SidebarItem = ({
     return (
       <Tooltip label={text}>
         <Flex
-          w={'100%'}
-          my={type === 'area' ? 0.5 : 0.25}
+          w={"100%"}
+          my={type === "area" ? 0.5 : 0.25}
           mx={1}
           px={2}
           py={1.5}
@@ -48,33 +48,33 @@ const SidebarItem = ({
           justifyContent="flex-start"
           alignItems="center"
           cursor="pointer"
-          bg={isActive ? 'gray.900' : 'inherit'}
+          bg={isActive ? "gray.200" : "inherit"}
           _hover={{
-            bg: 'gray.900',
+            bg: "gray.200",
           }}
           _focus={{
-            outlineColor: 'blue.500',
-            border: 'none',
-            bg: 'gray.900',
+            outlineColor: "blue.700",
+            border: "none",
+            bg: "gray.200",
           }}
           onClick={() => {
             navigate(path);
           }}
         >
-          {variant === 'defaultView' && iconName && (
-            <Icon as={Icons[iconName]} color={'white'} />
+          {variant === "defaultView" && iconName && (
+            <Icon as={Icons[iconName]} color={"black"} />
           )}
-          {variant === 'customView' && emoji && (
+          {variant === "customView" && emoji && (
             <EmojiDisplay emojiId={emoji} size={14} />
           )}
           <Text
             p={0}
             pl={2}
             m={0}
-            color="gray.100"
-            fontSize={type === 'area' ? 'sm' : 'md'}
-            fontWeight={type === 'area' ? 'semibold' : 'normal'}
-            textTransform={type === 'area' ? 'uppercase' : 'none'}
+            color="gray.800"
+            fontSize={type === "area" ? "sm" : "md"}
+            fontWeight={type === "area" ? "semibold" : "normal"}
+            textTransform={type === "area" ? "uppercase" : "none"}
           >
             {text}
           </Text>
@@ -92,14 +92,14 @@ const SidebarItem = ({
         py={1.5}
         borderRadius="md"
         alignItems="center"
-        bg={isActive ? 'gray.900' : 'gray.800'}
+        bg={isActive ? "gray.200" : "gray.100"}
         _hover={{
-          bg: 'gray.900',
+          bg: "gray.200",
         }}
         _focus={{
-          outlineColor: 'blue.500',
-          border: 'none',
-          bg: 'gray.900',
+          outlineColor: "blue.700",
+          border: "none",
+          bg: "gray.200",
         }}
         justifyContent="center"
         cursor="pointer"
@@ -108,14 +108,14 @@ const SidebarItem = ({
         }}
         w="100%"
       >
-        {variant === 'defaultView' && iconName && (
-          <Icon as={Icons[iconName]} color="white" />
+        {variant === "defaultView" && iconName && (
+          <Icon as={Icons[iconName]} color="black" />
         )}
-        {variant === 'customView' && emoji && (
+        {variant === "customView" && emoji && (
           <EmojiDisplay emojiId={emoji} size={16} />
         )}
-        {variant === 'customView' && !emoji && (
-          <Text textAlign="center" fontSize="md" color="gray.100">
+        {variant === "customView" && !emoji && (
+          <Text textAlign="center" fontSize="md" color="gray.800">
             {createShortSidebarItem(text)}
           </Text>
         )}

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Flex,
@@ -10,21 +10,21 @@ import {
   Text,
   Tooltip,
   useColorMode,
-} from '@chakra-ui/react';
-import { format, isFuture, isPast, parseISO } from 'date-fns';
-import React, { ReactElement, useState } from 'react';
+} from "@chakra-ui/react";
+import { format, isFuture, isPast, parseISO } from "date-fns";
+import React, { ReactElement, useState } from "react";
 import {
   COMPLETE_ITEM,
   ITEMS_BY_FILTER,
   ITEM_BY_KEY,
   RESTORE_ITEM,
   UNCOMPLETE_ITEM,
-} from 'renderer/queries';
-import { RRule } from 'rrule';
-import { Item as ItemType } from '../../main/resolvers-types';
-import { Icons } from '../assets/icons';
-import { AppState, useBoundStore } from 'renderer/state';
-import { ItemIcons } from '../interfaces';
+} from "../queries";
+import { RRule } from "rrule";
+import { Item as ItemType } from "../../main/resolvers-types";
+import { Icons } from "../assets/icons";
+import { AppState, useBoundStore } from "../state";
+import { ItemIcons } from "../interfaces";
 import {
   capitaliseFirstLetter,
   createShortSidebarItem,
@@ -33,13 +33,13 @@ import {
   removeItemTypeFromString,
   rruleToText,
   truncateString,
-} from '../utils';
-import EmojiDisplay from './EmojiDisplay';
-import ItemActionButton from './ItemActionButton';
-import ItemAttribute from './ItemAttribute';
-import LoadingItem from './LoadingItem';
-import MoreDropdown from './MoreDropdown';
-import { FailedItem } from './FailedItem';
+} from "../utils";
+import EmojiDisplay from "./EmojiDisplay";
+import ItemActionButton from "./ItemActionButton";
+import ItemAttribute from "./ItemAttribute";
+import LoadingItem from "./LoadingItem";
+import MoreDropdown from "./MoreDropdown";
+import { FailedItem } from "./FailedItem";
 
 type ItemProps = {
   compact: boolean;
@@ -62,10 +62,10 @@ const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
     return <TagLabel>{createShortSidebarItem(project.name)}</TagLabel>;
   }
 
-  if (project.name === 'Inbox') {
+  if (project.name === "Inbox") {
     return (
       <TagLabel>
-        <Icon color="blue.500" as={Icons.inbox} />
+        <Icon color="blue.700" as={Icons.inbox} />
       </TagLabel>
     );
   }
@@ -73,21 +73,21 @@ const generateProjectTag = (item: ItemType, compact: boolean): ReactElement => {
   return <TagLabel>{project.name}</TagLabel>;
 };
 
-const determineTextColour = (deleted: boolean, colorMode: 'light' | 'dark') => {
+const determineTextColour = (deleted: boolean, colorMode: "light" | "dark") => {
   if (deleted) {
-    return colorMode === 'light' ? 'gray.500' : 'gray.400';
+    return colorMode === "light" ? "gray.500" : "gray.400";
   }
-  return colorMode === 'light' ? 'gray.800' : 'gray.200';
+  return colorMode === "light" ? "gray.800" : "gray.200";
 };
 
 const determineBackgroundColour = (
   isFocused: boolean,
-  colorMode: 'light' | 'dark'
+  colorMode: "light" | "dark",
 ): string => {
   if (isFocused) {
-    return colorMode === 'light' ? 'gray.100' : 'gray.900';
+    return colorMode === "light" ? "gray.100" : "gray.900";
   }
-  return colorMode === 'light' ? 'gray.50' : 'gray.800';
+  return colorMode === "light" ? "gray.50" : "gray.800";
 };
 
 function Item({
@@ -180,8 +180,8 @@ function Item({
   const reminder = item?.reminders?.[0];
   return (
     <Grid
-      display={isVisible ? 'grid' : 'none'}
-      height={isVisible ? 'auto' : '0px'}
+      display={isVisible ? "grid" : "none"}
+      height={isVisible ? "auto" : "0px"}
       transition="all 0.2s ease-in-out"
       position="relative"
       maxHeight="200px"
@@ -195,8 +195,8 @@ function Item({
       borderRadius="md"
       gridTemplateColumns={
         compact
-          ? 'repeat(5, 1fr)'
-          : 'repeat(2, 30px) repeat(6, 1fr) repeat(1, 30px)'
+          ? "repeat(5, 1fr)"
+          : "repeat(2, 30px) repeat(6, 1fr) repeat(1, 30px)"
       }
       gridTemplateRows="40px auto"
       gridTemplateAreas={
@@ -214,25 +214,25 @@ function Item({
       outlineColor="transparent"
       _before={{
         content: "''",
-        position: 'absolute',
-        top: '-16px',
-        left: '16px',
-        height: shouldIndent ? 'calc(100% + 10px)' : '0px',
-        transition: 'all 0.1s ease-in-out',
-        background: colorMode === 'light' ? 'gray.400' : 'gray.200',
-        width: '1px',
+        position: "absolute",
+        top: "-16px",
+        left: "16px",
+        height: shouldIndent ? "calc(100% + 10px)" : "0px",
+        transition: "all 0.1s ease-in-out",
+        background: colorMode === "light" ? "gray.400" : "gray.200",
+        width: "1px",
         zIndex: 9,
       }}
       _after={{
         content: "''",
-        position: 'absolute',
+        position: "absolute",
         bottom: -1,
-        right: '0px',
-        left: '0px',
-        margin: 'auto',
-        width: shouldIndent || subtasksVisible ? '90%' : '100%',
-        borderBottom: '1px',
-        borderColor: colorMode === 'light' ? 'gray.100' : 'gray.700',
+        right: "0px",
+        left: "0px",
+        margin: "auto",
+        width: shouldIndent || subtasksVisible ? "90%" : "100%",
+        borderBottom: "1px",
+        borderColor: colorMode === "light" ? "gray.100" : "gray.700",
         opacity: 0.8,
       }}
       bg={determineBackgroundColour(isFocused, colorMode)}
@@ -267,27 +267,27 @@ function Item({
       <Box gridArea="description">
         <Tooltip
           isDisabled={!item.text}
-          label={HTMLToPlainText(item.text ?? '')}
+          label={HTMLToPlainText(item.text ?? "")}
         >
           <Text
             id="body"
             mx={0}
             my={2}
             fontSize="md"
-            textDecoration={item.completed ? 'line-through' : 'initial'}
+            textDecoration={item.completed ? "line-through" : "initial"}
             color={determineTextColour(item.deleted, colorMode)}
             sx={{
               p: {
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
               },
               a: {
-                textDecoration: 'underline',
+                textDecoration: "underline",
               },
             }}
             dangerouslySetInnerHTML={{
-              __html: removeItemTypeFromString(item.text ?? ''),
+              __html: removeItemTypeFromString(item.text ?? ""),
             }}
           />
         </Tooltip>
@@ -297,7 +297,7 @@ function Item({
         {!hiddenIcons?.includes(ItemIcons.Project) && (
           <Flex justifyContent="flex-end">
             <Tooltip label={item.project?.name}>
-              <Tag size={compact ? 'sm' : 'md'} colorScheme="blue">
+              <Tag size={compact ? "sm" : "md"} colorScheme="blue">
                 {generateProjectTag(item, compact)}
               </Tag>
             </Tooltip>
@@ -308,7 +308,7 @@ function Item({
       {item.children && item.children.length > 0 && !hideCollapseIcon && (
         <Box gridArea="collapse">
           <IconButton
-            aria-label={subtasksVisible ? 'collapse' : 'expand'}
+            aria-label={subtasksVisible ? "collapse" : "expand"}
             variant="default"
             size="sm"
             onClick={handleExpand}
@@ -321,12 +321,12 @@ function Item({
         <Tooltip
           label={((deleted: boolean, completed: boolean) => {
             if (deleted) {
-              return 'Restore';
+              return "Restore";
             }
             if (completed) {
-              return 'Uncomplete';
+              return "Uncomplete";
             }
-            return 'Complete';
+            return "Complete";
           })(item.deleted, item.completed)}
         >
           <Box gridArea="complete">
@@ -346,14 +346,14 @@ function Item({
             compact={compact}
             completed={item.completed ?? false}
             type="subtask"
-            tooltipText={item.parent.text ?? ''}
+            tooltipText={item.parent.text ?? ""}
             text={
               item.parent
                 ? truncateString(
-                    removeItemTypeFromString(item.parent.text ?? ''),
-                    12
+                    removeItemTypeFromString(item.parent.text ?? ""),
+                    12,
                   )
-                : ''
+                : ""
             }
           />
         )}
@@ -378,9 +378,7 @@ function Item({
               compact={compact}
               completed={item.completed ?? false}
               type="scheduled"
-              tooltipText={`Scheduled ${formatRelativeDate(
-                parseISO(item.scheduledAt)
-              )}`}
+              tooltipText={`Scheduled ${formatRelativeDate(parseISO(item.scheduledAt))}`}
               text={formatRelativeDate(parseISO(item.scheduledAt))}
             />
           )}
@@ -391,14 +389,14 @@ function Item({
           <Tooltip
             label={`Reminder at: ${format(
               parseISO(item?.reminders?.[0]?.remindAt),
-              'h:mm aaaa EEEE'
+              "h:mm aaaa EEEE",
             )}`}
           >
             <Flex justifyContent="center">
               <Icon
                 as={Icons.reminder}
                 color={
-                  isPast(parseISO(reminder.remindAt)) ? 'red.400' : 'gray.600'
+                  isPast(parseISO(reminder.remindAt)) ? "red.400" : "gray.600"
                 }
               />
             </Flex>
@@ -409,12 +407,10 @@ function Item({
       <Box gridArea="snooze">
         {item.snoozedUntil && isFuture(parseISO(item.snoozedUntil)) && (
           <Tooltip
-            label={`Snoozed until ${formatRelativeDate(
-              parseISO(item?.snoozedUntil)
-            )}`}
+            label={`Snoozed until ${formatRelativeDate(parseISO(item?.snoozedUntil))}`}
           >
             <Flex justifyContent="center">
-              <Icon as={Icons.snooze} color={'gray.600'} />
+              <Icon as={Icons.snooze} color={"gray.600"} />
             </Flex>
           </Tooltip>
         )}
@@ -439,10 +435,10 @@ function Item({
             completed={item.completed ?? false}
             type="repeat"
             tooltipText={`Repeating ${capitaliseFirstLetter(
-              rruleToText(RRule.fromString(item?.repeat))
+              rruleToText(RRule.fromString(item?.repeat)),
             )}`}
             text={capitaliseFirstLetter(
-              rruleToText(RRule.fromString(item?.repeat))
+              rruleToText(RRule.fromString(item?.repeat)),
             )}
           />
         )}
