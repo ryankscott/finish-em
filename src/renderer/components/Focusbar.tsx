@@ -18,6 +18,7 @@ import {
   DrawerCloseButton,
   useMediaQuery,
   useBreakpointValue,
+  Divider,
 } from "@chakra-ui/react";
 import { ReactElement } from "react";
 import {
@@ -395,8 +396,9 @@ const Focusbar = (): ReactElement => {
             )}
 
             {!item.parent?.key && (
-              <>
-                <Flex pt={6} pb={2} alignItems="baseline">
+              <Flex direction={"column"} pt={4} gap={2} px={2}>
+                <Divider mb={2} />
+                <Flex pb={2} alignItems="baseline">
                   <Text fontSize="md" px={2}>
                     Subtasks
                   </Text>
@@ -433,8 +435,8 @@ const Focusbar = (): ReactElement => {
                     No subtasks
                   </Text>
                 )}
-                <ItemCreator parentKey={item.key} initiallyExpanded={false} />
-              </>
+                <ItemCreator parentKey={item.key} />
+              </Flex>
             )}
           </Flex>
         </DrawerBody>

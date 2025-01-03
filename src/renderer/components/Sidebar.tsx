@@ -186,7 +186,7 @@ const Sidebar = (): ReactElement => {
         {!sidebarVisible && (
           <Flex direction="column" py={2}>
             <SidebarToggleButton />
-            <Divider my={1} bg="gray.900" />
+            <Divider my={1} bg="gray.400" />
           </Flex>
         )}
         <Flex justifyContent="space-between" alignItems={"center"} w="100%">
@@ -245,7 +245,7 @@ const Sidebar = (): ReactElement => {
                         provided={draggableProvided}
                         snapshot={draggableSnapshot}
                       >
-                        {!sidebarVisible && <Divider my={1} bg="gray.600" />}
+                        {!sidebarVisible && <Divider my={1} bg="gray.400" />}
                         <Flex alignItems="center">
                           <SidebarItem
                             key={`sidebar-item-${uuidv4()}`}
@@ -323,7 +323,7 @@ const Sidebar = (): ReactElement => {
         my={2}
         direction={sidebarVisible ? "row" : "column"}
       >
-        {!sidebarVisible && <Divider my={1} bg="gray.600" />}
+        {!sidebarVisible && <Divider my={1} bg="gray.400" />}
         <Flex alignItems="center">
           <SidebarItem
             variant="defaultView"

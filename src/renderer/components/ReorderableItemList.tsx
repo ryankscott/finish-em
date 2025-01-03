@@ -191,7 +191,6 @@ function ReorderableItemList({
             borderRadius={3}
             w="100%"
             padding="5px"
-            onClick={() => console.log("click on sortable item")}
           >
             {pagedItems?.map((item: Item): ReactElement => {
               if (item?.parent) {

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@apollo/client'
+import { useMutation, useQuery } from "@apollo/client";
 import {
   Box,
   Editable,
@@ -10,13 +10,13 @@ import {
   Spinner,
   Text,
   Tooltip,
-  useColorMode
-} from '@chakra-ui/react'
-import { parseISO } from 'date-fns'
-import { Item, Project as ProjectType } from '../../main/resolvers-types'
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { toast } from 'react-toastify'
+  useColorMode,
+} from "@chakra-ui/react";
+import { parseISO } from "date-fns";
+import { Item, Project as ProjectType } from "../../main/resolvers-types";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import {
   SET_DESCRIPTION_OF_PROJECT,
   DELETE_PROJECT,
@@ -29,63 +29,70 @@ import {
   GET_SIDEBAR,
   GET_VIEW_BY_KEY,
   GET_COMPONENT_BY_KEY,
-  GET_PROJECTS
-} from '../queries'
-import { v4 as uuidv4 } from 'uuid'
-import { formatRelativeDate } from '../utils'
-import DatePicker from './DatePicker'
-import DeleteProjectDialog from './DeleteProjectDialog'
-import { Donut } from './Donut'
-import EditableText from './EditableText'
-import ItemCreator from './ItemCreator'
-import EmojiPicker from './EmojiPicker'
-import EmojiDisplay from './EmojiDisplay'
+  GET_PROJECTS,
+} from "../queries";
+import { v4 as uuidv4 } from "uuid";
+import { formatRelativeDate } from "../utils";
+import DatePicker from "./DatePicker";
+import DeleteProjectDialog from "./DeleteProjectDialog";
+import { Donut } from "./Donut";
+import EditableText from "./EditableText";
+import ItemCreator from "./ItemCreator";
+import EmojiPicker from "./EmojiPicker";
+import EmojiDisplay from "./EmojiDisplay";
 // import './styled/ReactDatePicker.css';
 
 type ProjectProps = {
-  projectKey: string
-}
+  projectKey: string;
+};
 
 const Project = ({ projectKey }: ProjectProps) => {
-  const { colorMode } = useColorMode()
-  const navigate = useNavigate()
+  const { colorMode } = useColorMode();
+  const navigate = useNavigate();
   const [deleteProject] = useMutation(DELETE_PROJECT, {
-    refetchQueries: [GET_SIDEBAR, GET_PROJECTS]
-  })
+    refetchQueries: [GET_SIDEBAR, GET_PROJECTS],
+  });
   const [changeDescription] = useMutation(SET_DESCRIPTION_OF_PROJECT, {
-    refetchQueries: [GET_VIEW_BY_KEY]
-  })
+    refetchQueries: [GET_VIEW_BY_KEY],
+  });
   const [renameProject] = useMutation(RENAME_PROJECT, {
-    refetchQueries: [GET_COMPONENT_BY_KEY]
-  })
-  const [setEndDate] = useMutation(SET_END_DATE_OF_PROJECT)
-  const [setStartDate] = useMutation(SET_START_DATE_OF_PROJECT)
-  const [setEmoji] = useMutation(SET_EMOJI_OF_PROJECT)
-  const [deleteView] = useMutation(DELETE_VIEW)
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+    refetchQueries: [GET_COMPONENT_BY_KEY],
+  });
+  const [setEndDate] = useMutation(SET_END_DATE_OF_PROJECT);
+  const [setStartDate] = useMutation(SET_START_DATE_OF_PROJECT);
+  const [setEmoji] = useMutation(SET_EMOJI_OF_PROJECT);
+  const [deleteView] = useMutation(DELETE_VIEW);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const {
     loading,
     error,
-    data: projectData
+    data: projectData,
   } = useQuery(GET_PROJECT_BY_KEY, {
-    variables: { key: projectKey }
-  })
+    variables: { key: projectKey },
+  });
 
-  if (loading) return null
+  if (loading) return null;
   if (error) {
-    console.log(error)
+    console.log(error);
     return (
-      <Flex w="100%" p={1} mx={0} alignItems="center" alignContent="center" justifyContent="center">
+      <Flex
+        w="100%"
+        p={1}
+        mx={0}
+        alignItems="center"
+        alignContent="center"
+        justifyContent="center"
+      >
         <Text fontSize="md" color="red.500">
-          Failed to load project {error ? `- ${error.message}` : ''}
+          Failed to load project {error ? `- ${error.message}` : ""}
         </Text>
       </Flex>
-    )
+    );
   }
-  const { project, projects, projectDates } = projectData
-  const allItems: Item[] = project?.items
-  const completedItems = allItems.filter((i) => i.completed === true)
+  const { project, projects, projectDates } = projectData;
+  const allItems: Item[] = project?.items;
+  const completedItems = allItems.filter((i) => i.completed === true);
   return (
     <>
       <Grid
@@ -105,16 +112,16 @@ const Project = ({ projectKey }: ProjectProps) => {
             borderRadius="50%"
             justifyContent="center"
             fontSize="xl"
-            boxShadow={colorMode === 'light' ? 'none' : '0 0 3px 0 #222'}
-            bg={colorMode === 'light' ? 'gray.100' : 'gray.800'}
+            boxShadow={colorMode === "light" ? "none" : "0 0 3px 0 #222"}
+            bg={colorMode === "light" ? "gray.100" : "gray.800"}
             my={0}
             _hover={{
-              bg: colorMode === 'light' ? 'gray.200' : 'gray.900'
+              bg: colorMode === "light" ? "gray.200" : "gray.900",
             }}
             transition="all 0.1s ease-in-out"
             cursor="pointer"
             onClick={() => {
-              setShowEmojiPicker(!showEmojiPicker)
+              setShowEmojiPicker(!showEmojiPicker);
             }}
           >
             {project.emoji && <EmojiDisplay emojiId={project.emoji} />}
@@ -123,8 +130,8 @@ const Project = ({ projectKey }: ProjectProps) => {
         {showEmojiPicker && (
           <EmojiPicker
             onEmojiSelected={(emoji) => {
-              setEmoji({ variables: { key: project.key, emoji: emoji.id } })
-              setShowEmojiPicker(false)
+              setEmoji({ variables: { key: project.key, emoji: emoji.id } });
+              setShowEmojiPicker(false);
             }}
           />
         )}
@@ -136,16 +143,20 @@ const Project = ({ projectKey }: ProjectProps) => {
               fontSize="3xl"
               mx={2}
               w="100%"
-              color="blue.500"
+              color="blue.700"
               fontWeight="light"
               onSubmit={(input) => {
-                const exists = projects.map((p: ProjectType) => p.name === input).includes(true)
+                const exists = projects
+                  .map((p: ProjectType) => p.name === input)
+                  .includes(true);
                 if (exists) {
-                  toast.error('Cannot rename project, a project with that name already exists')
+                  toast.error(
+                    "Cannot rename project, a project with that name already exists",
+                  );
                 } else {
                   renameProject({
-                    variables: { key: project.key, name: input }
-                  })
+                    variables: { key: project.key, name: input },
+                  });
                 }
               }}
             >
@@ -154,20 +165,24 @@ const Project = ({ projectKey }: ProjectProps) => {
             </Editable>
             <DeleteProjectDialog
               onDelete={() => {
-                deleteProject({ variables: { key: project.key } })
-                deleteView({ variables: { key: project.key } })
-                navigate('/inbox')
+                deleteProject({ variables: { key: project.key } });
+                deleteView({ variables: { key: project.key } });
+                navigate("/inbox");
               }}
             />
           </Flex>
         </GridItem>
         <GridItem gridArea="completed">
-          <Tooltip label={`${completedItems.length}/${allItems.length} completed`}>
+          <Tooltip
+            label={`${completedItems.length}/${allItems.length} completed`}
+          >
             <Flex justifyContent="flex-start" alignItems="center">
               <Donut
                 size={30}
                 progress={
-                  allItems.length !== 0 ? (100 * completedItems.length) / allItems.length : 0
+                  allItems.length !== 0
+                    ? (100 * completedItems.length) / allItems.length
+                    : 0
                 }
               />
               <Text fontSize="md">
@@ -185,14 +200,18 @@ const Project = ({ projectKey }: ProjectProps) => {
           <Box minW="180px">
             <DatePicker
               completed={false}
-              text={project.startAt ? formatRelativeDate(parseISO(project.startAt)) : ''}
+              text={
+                project.startAt
+                  ? formatRelativeDate(parseISO(project.startAt))
+                  : ""
+              }
               onSubmit={(e) => {
                 setStartDate({
                   variables: {
                     key: project.key,
-                    startAt: e ? e.toISOString() : ''
-                  }
-                })
+                    startAt: e ? e.toISOString() : "",
+                  },
+                });
               }}
             />
           </Box>
@@ -202,14 +221,16 @@ const Project = ({ projectKey }: ProjectProps) => {
           <Box minW="180px">
             <DatePicker
               completed={false}
-              text={project.endAt ? formatRelativeDate(parseISO(project.endAt)) : ''}
+              text={
+                project.endAt ? formatRelativeDate(parseISO(project.endAt)) : ""
+              }
               onSubmit={(d) => {
                 setEndDate({
                   variables: {
                     key: project.key,
-                    endAt: d ? d.toISOString() : ''
-                  }
-                })
+                    endAt: d ? d.toISOString() : "",
+                  },
+                });
               }}
             />
           </Box>
@@ -217,7 +238,7 @@ const Project = ({ projectKey }: ProjectProps) => {
       )}
       <EditableText
         key={`desc-${project.key}`}
-        input={project.description ?? ''}
+        input={project.description ?? ""}
         singleLine={false}
         placeholder="Add a description for your project..."
         shouldClearOnSubmit={false}
@@ -225,8 +246,8 @@ const Project = ({ projectKey }: ProjectProps) => {
         shouldSubmitOnBlur
         onUpdate={(input) => {
           changeDescription({
-            variables: { key: project.key, description: input }
-          })
+            variables: { key: project.key, description: input },
+          });
         }}
       />
 
@@ -240,7 +261,7 @@ const Project = ({ projectKey }: ProjectProps) => {
         />
       </Flex>
     </>
-  )
-}
+  );
+};
 
-export default Project
+export default Project;

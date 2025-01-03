@@ -1,7 +1,7 @@
 import { ReactElement, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { useMutation } from "@apollo/client";
-import { Flex } from "@chakra-ui/react";
+import { Flex, Icon } from "@chakra-ui/react";
 import {
   CREATE_ITEM,
   GET_HEADER_BAR_DATA,
@@ -12,6 +12,7 @@ import EditItemCreator from "./EditItemCreator";
 import EditableText from "./EditableText";
 import { HTMLToPlainText } from "../utils";
 import React from "react";
+import { Icons } from "../assets/icons";
 
 export type ItemCreatorProps = {
   readOnly?: boolean;
@@ -81,7 +82,7 @@ const ItemCreator = ({
           <EditableText
             singleLine
             onEscape={onEscape}
-            placeholder="Add an item"
+            placeholder=" ✅  Add an item"
             shouldClearOnSubmit
             hideToolbar={false}
             shouldSubmitOnBlur={false}

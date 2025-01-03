@@ -41,13 +41,14 @@ const ViewHeader = ({
           templateColumns="40px 1fr 60px"
         >
           <GridItem colSpan={1} p={0} px={2}>
-            {icon && <Icon as={Icons[icon]} color="blue.500" w={7} h={7} />}
+            {icon && <Icon as={Icons[icon]} color="blue.700" w={7} h={7} />}
           </GridItem>
           <GridItem colSpan={1}>
             <Text
               fontSize="2xl"
-              fontWeight="normal"
-              color="blue.500"
+              fontWeight="regular"
+              textTransform={"capitalize"}
+              color="blue.700"
               p={2}
               m={0}
             >
