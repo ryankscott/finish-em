@@ -41701,14 +41701,10 @@ function createMainWindow() {
   mainWindow.on("closed", () => {
     mainWindow = null;
   });
-  const handleRedirect = (e2, url) => {
-    if (url !== mainWindow?.webContents.getURL()) {
-      e2.preventDefault();
-      electron.shell.openExternal(url);
-    }
-  };
-  mainWindow.webContents.on("will-navigate", handleRedirect);
-  mainWindow.webContents.on("new-window", handleRedirect);
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    electron.shell.openExternal(url);
+    return { action: "deny" };
+  });
 }
 const determineBackupPath = () => {
   return electron.app.getPath("temp") + "backup.db";

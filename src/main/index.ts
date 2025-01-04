@@ -205,15 +205,10 @@ function createMainWindow() {
     mainWindow = null;
   });
 
-  const handleRedirect = (e: Event, url: string) => {
-    if (url !== mainWindow?.webContents.getURL()) {
-      e.preventDefault();
-      shell.openExternal(url);
-    }
-  };
-
-  mainWindow.webContents.on("will-navigate", handleRedirect);
-  mainWindow.webContents.on("new-window", handleRedirect);
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" };
+  });
 }
 
 const determineBackupPath = () => {
