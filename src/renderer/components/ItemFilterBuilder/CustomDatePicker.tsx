@@ -1,4 +1,4 @@
-import { ReactElement, useState } from 'react';
+import { ReactElement, useState } from "react";
 import {
   Button,
   Box,
@@ -7,10 +7,10 @@ import {
   Menu,
   MenuItem,
   MenuList,
-} from '@chakra-ui/react';
-import { format } from 'date-fns';
-import RDatePicker from 'react-datepicker';
-import { Icons } from 'renderer/assets/icons';
+} from "@chakra-ui/react";
+import { format } from "date-fns";
+import RDatePicker from "react-datepicker";
+import { Icons } from "renderer/assets/icons";
 
 type CustomDatePickerProps = {
   completed: boolean;
@@ -44,16 +44,16 @@ const CustomDatePicker = ({
   };
   const menuItems: MenuItemType[] = [
     {
-      name: 'Today',
-      clickHandler: () => handleDayChange('Today'),
+      name: "Today",
+      clickHandler: () => handleDayChange("Today"),
     },
     {
-      name: 'Tomorrow',
-      clickHandler: () => handleDayChange('Tomorrow'),
+      name: "Tomorrow",
+      clickHandler: () => handleDayChange("Tomorrow"),
     },
     {
-      name: 'Week',
-      clickHandler: () => handleDayChange('This week'),
+      name: "Week",
+      clickHandler: () => handleDayChange("This week"),
     },
   ];
 
@@ -84,7 +84,7 @@ const CustomDatePicker = ({
             <MenuItem
               key={m.name}
               onClick={m.clickHandler}
-              closeOnSelect={m.name !== 'Custom date'}
+              closeOnSelect={m.name !== "Custom date"}
             >
               {m.name}
             </MenuItem>
@@ -97,8 +97,7 @@ const CustomDatePicker = ({
               inline
               tabIndex={0}
               onChange={(d: Date) => {
-                console.log('heres');
-                handleDayChange(format(d, 'yyyy-MM-dd'));
+                handleDayChange(format(d, "yyyy-MM-dd"));
               }}
             />
           </Box>

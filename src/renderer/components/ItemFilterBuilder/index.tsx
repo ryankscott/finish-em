@@ -52,16 +52,16 @@ export const valueProcessor = (
       return `DATE(date('now', '-10 year')) AND DATE(date('now', '-1 day'))`;
     }
     if (value === "today") {
-      return `DATE(date()) AND DATE(date())`;
+      return `datetime('now', 'start of day') AND datetime('now', 'start of day', '+1 day', '-1 second')`;
     }
     if (value === "tomorrow") {
-      return `DATE(date('now', '+1 day')) AND DATE(date('now', '+1 day'))`;
+      return `datetime('now', 'start of day', '+1 day AND datetime('now', 'start of day', '+2 days', '-1 second')`;
     }
     if (value === "week") {
-      return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-6 days') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
+      return `datetime('now', 'start of day', 'weekday 1', '-7 days') AND datetime('now', 'start of day', 'weekday 1', '+7 days', '-1 second')`;
     }
     if (value === "month") {
-      return `strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0', '-1 month') AND strftime('%Y-%m-%d', 'now', 'localtime', 'weekday 0')`;
+      return `datetime('now', 'start of month AND datetime('now', 'start of month', '+1 month', '-1 second')`;
     }
   }
   return defaultValueProcessor(field, operator, value);

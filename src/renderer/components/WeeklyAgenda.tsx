@@ -54,7 +54,7 @@ const WeeklyAgenda = (): ReactElement => {
   });
   if (loading) return <></>;
   if (error) {
-    console.log(error);
+    console.log(error.message);
     return <></>;
   }
 

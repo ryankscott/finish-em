@@ -39,6 +39,7 @@ function SortableItem({
 
   return (
     <Flex
+      key={`container-${item.key}`}
       ref={setNodeRef}
       style={{
         transform: CSS.Transform.toString(transform),
@@ -66,7 +67,7 @@ function SortableItem({
       />
       <>
         {item?.children?.map((child) => {
-          if (!child) return <></>;
+          if (!child) return;
 
           const shouldHideItem =
             (hideCompletedSubtasks && child.completed) ||
