@@ -1,0 +1,58 @@
+import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+
+export const settings = sqliteTable('settings', {
+  id: integer('id').primaryKey(),
+  timezone: text('timezone').notNull(),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const projects = sqliteTable('projects', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  name: text('name').notNull(),
+  color: text('color').notNull().default('#ef4444'),
+  isInbox: integer('is_inbox', { mode: 'boolean' }).notNull().default(false),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const tasks = sqliteTable('tasks', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  projectId: integer('project_id')
+    .notNull()
+    .references(() => projects.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  notes: text('notes').notNull().default(''),
+  priority: integer('priority').notNull().default(4),
+  scheduledAt: text('scheduled_at'),
+  dueAt: text('due_at'),
+  dueTimezone: text('due_timezone'),
+  recurrencePreset: text('recurrence_preset'),
+  recurrenceRRule: text('recurrence_rrule'),
+  status: text('status').notNull().default('open'),
+  completedAt: text('completed_at'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const reminders = sqliteTable('reminders', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  taskId: integer('task_id')
+    .notNull()
+    .references(() => tasks.id, { onDelete: 'cascade' }),
+  remindAt: text('remind_at').notNull(),
+  status: text('status').notNull().default('pending'),
+  snoozedUntil: text('snoozed_until'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const goals = sqliteTable('goals', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  periodType: text('period_type').notNull(),
+  periodStart: text('period_start').notNull(),
+  title: text('title').notNull(),
+  done: integer('done', { mode: 'boolean' }).notNull().default(false),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
