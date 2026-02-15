@@ -1,4 +1,4 @@
-import type { Project, Reminder, Task } from '@/server/types'
+import type { Goal, Project, Reminder, Task } from '@/server/types'
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -92,6 +92,31 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
+
+  listGoals: (query?: { periodType?: 'daily' | 'weekly'; periodStart?: string }) => {
+    const params = new URLSearchParams()
+    if (query?.periodType) {
+      params.set('periodType', query.periodType)
+    }
+    if (query?.periodStart) {
+      params.set('periodStart', query.periodStart)
+    }
+    const suffix = params.size ? `?${params.toString()}` : ''
+    return request<Goal[]>(`/api/goals${suffix}`)
+  },
+  createGoal: (payload: {
+    periodType: 'daily' | 'weekly'
+    periodStart: string
+    title: string
+    done?: boolean
+  }) => request<Goal>('/api/goals', { method: 'POST', body: JSON.stringify(payload) }),
+  updateGoal: (goalId: number, payload: Partial<Goal>) =>
+    request<Goal>(`/api/goals/${goalId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  deleteGoal: (goalId: number) =>
+    request<{ ok: boolean }>(`/api/goals/${goalId}`, { method: 'DELETE' }),
 
   parseQuickAdd: (text: string) =>
     request('/api/quick-add/parse', {

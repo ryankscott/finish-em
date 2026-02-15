@@ -4,6 +4,7 @@ import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { resetDbForTests } from '@/server/db/client'
+import { createGoal, listGoals, updateGoal } from '@/server/repos/goals'
 import { createProject } from '@/server/repos/projects'
 import {
   createReminder,
@@ -65,6 +66,19 @@ describe('repositories integration', () => {
 
     expect(snoozed?.status).toBe('snoozed')
     expect(snoozed?.snoozedUntil).toBeTruthy()
+  })
+
+  it('supports goal creation and completion state', () => {
+    const goal = createGoal({
+      periodType: 'daily',
+      periodStart: '2026-02-15',
+      title: 'Ship API docs',
+    })
+
+    const updated = updateGoal(goal.id, { done: true })
+
+    expect(updated?.done).toBe(true)
+    expect(listGoals({ periodType: 'daily' })).toHaveLength(1)
   })
 
   it('creates and retrieves tasks', () => {

@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/select-v2'
 import { api } from '@/lib/api-client'
 
-import type { Task } from '@/server/types'
+import type { Goal, Task } from '@/server/types'
 
 export const Route = createFileRoute('/upcoming')({
   component: UpcomingRoute,
@@ -75,7 +75,10 @@ function UpcomingRoute() {
   const [selectedDayKey, setSelectedDayKey] = useState(() => dateKey(new Date()))
   const [tasks, setTasks] = useState<Task[]>([])
   const [unscheduledTasks, setUnscheduledTasks] = useState<Task[]>([])
+  const [goals, setGoals] = useState<Goal[]>([])
+  const [goalTitle, setGoalTitle] = useState('')
   const [loading, setLoading] = useState(true)
+  const [savingGoal, setSavingGoal] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const weekStartKey = useMemo(() => dateKey(weekStart), [weekStart])
@@ -158,7 +161,7 @@ function UpcomingRoute() {
     setError(null)
     try {
       const weekEnd = addDays(weekStart, weekMode === 'work' ? 4 : 6)
-      const [taskData, unscheduledTaskData] = await Promise.all([
+      const [taskData, unscheduledTaskData, goalData] = await Promise.all([
         api.listTasks({
           status: 'open',
           from: startOfDay(weekStart).toISOString(),
@@ -168,10 +171,14 @@ function UpcomingRoute() {
           status: 'open',
           noDueDate: true,
         }),
+        viewMode === 'week'
+          ? api.listGoals({ periodType: 'weekly', periodStart: weekStartKey })
+          : api.listGoals({ periodType: 'daily', periodStart: selectedDayKey }),
       ])
 
       setTasks(taskData)
       setUnscheduledTasks(unscheduledTaskData)
+      setGoals(goalData)
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : 'Failed to load data')
     } finally {
@@ -183,7 +190,44 @@ function UpcomingRoute() {
     load()
   }, [load])
 
+  const addGoal = useCallback(async () => {
+    const title = goalTitle.trim()
+    if (!title) {
+      return
+    }
 
+    setSavingGoal(true)
+    setError(null)
+    try {
+      await api.createGoal({
+        periodType: viewMode === 'week' ? 'weekly' : 'daily',
+        periodStart: viewMode === 'week' ? weekStartKey : selectedDayKey,
+        title,
+      })
+      setGoalTitle('')
+      await load()
+    } catch (goalError) {
+      setError(goalError instanceof Error ? goalError.message : 'Failed to save goal')
+    } finally {
+      setSavingGoal(false)
+    }
+  }, [goalTitle, load, selectedDayKey, viewMode, weekStartKey])
+
+  const toggleGoal = useCallback(
+    async (goal: Goal) => {
+      setSavingGoal(true)
+      setError(null)
+      try {
+        await api.updateGoal(goal.id, { done: !goal.done })
+        await load()
+      } catch (goalError) {
+        setError(goalError instanceof Error ? goalError.message : 'Failed to update goal')
+      } finally {
+        setSavingGoal(false)
+      }
+    },
+    [load],
+  )
 
   const assignTaskToDay = useCallback(
     async (taskId: number, dayKey: string) => {
@@ -198,6 +242,9 @@ function UpcomingRoute() {
     },
     [load],
   )
+
+  const goalTitleText = viewMode === 'week' ? 'Weekly goals' : 'Daily goals'
+  const currentGoals = goals
 
   return (
     <AppLayout
@@ -345,7 +392,45 @@ function UpcomingRoute() {
           </section>
         )}
 
+        {!loading && !error && (
+          <section className="rounded-xl border border-zinc-200 bg-white p-4">
+            <h3 className="text-base font-semibold text-zinc-900">{goalTitleText}</h3>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Input
+                value={goalTitle}
+                onChange={(event) => setGoalTitle(event.target.value)}
+                placeholder={viewMode === 'week' ? 'Set a weekly goal' : 'Set a daily goal'}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    addGoal()
+                  }
+                }}
+              />
+              <Button type="button" onClick={addGoal} disabled={savingGoal}>
+                Add goal
+              </Button>
+            </div>
 
+            <ul className="mt-3 space-y-2">
+              {currentGoals.map((goal) => (
+                <li key={goal.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={goal.done}
+                    onChange={() => toggleGoal(goal)}
+                    disabled={savingGoal}
+                  />
+                  <span className={goal.done ? 'text-zinc-500 line-through' : 'text-zinc-900'}>
+                    {goal.title}
+                  </span>
+                </li>
+              ))}
+              {currentGoals.length === 0 && (
+                <li className="text-sm text-zinc-500">No goals yet.</li>
+              )}
+            </ul>
+          </section>
+        )}
       </div>
     </AppLayout>
   )

@@ -21,6 +21,7 @@ import { Route as DemoMcpTodosRouteImport } from './routes/demo/mcp-todos'
 import { Route as ApiTasksRouteImport } from './routes/api.tasks'
 import { Route as ApiSettingsRouteImport } from './routes/api.settings'
 import { Route as ApiProjectsRouteImport } from './routes/api.projects'
+import { Route as ApiGoalsRouteImport } from './routes/api.goals'
 import { Route as DemoApiMcpTodosRouteImport } from './routes/demo/api.mcp-todos'
 import { Route as ApiTasksTaskIdRouteImport } from './routes/api.tasks.$taskId'
 import { Route as ApiRemindersReminderIdRouteImport } from './routes/api.reminders.$reminderId'
@@ -28,6 +29,7 @@ import { Route as ApiQuickAddParseRouteImport } from './routes/api.quick-add.par
 import { Route as ApiQuickAddCreateRouteImport } from './routes/api.quick-add.create'
 import { Route as ApiProjectsProjectIdRouteImport } from './routes/api.projects.$projectId'
 import { Route as ApiOpenapiJsonRouteImport } from './routes/api.openapi.json'
+import { Route as ApiGoalsGoalIdRouteImport } from './routes/api.goals.$goalId'
 import { Route as ApiTasksTaskIdUncompleteRouteImport } from './routes/api.tasks.$taskId.uncomplete'
 import { Route as ApiTasksTaskIdRemindersRouteImport } from './routes/api.tasks.$taskId.reminders'
 import { Route as ApiTasksTaskIdCompleteRouteImport } from './routes/api.tasks.$taskId.complete'
@@ -93,6 +95,11 @@ const ApiProjectsRoute = ApiProjectsRouteImport.update({
   path: '/api/projects',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGoalsRoute = ApiGoalsRouteImport.update({
+  id: '/api/goals',
+  path: '/api/goals',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoApiMcpTodosRoute = DemoApiMcpTodosRouteImport.update({
   id: '/demo/api/mcp-todos',
   path: '/demo/api/mcp-todos',
@@ -128,6 +135,11 @@ const ApiOpenapiJsonRoute = ApiOpenapiJsonRouteImport.update({
   path: '/api/openapi/json',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiGoalsGoalIdRoute = ApiGoalsGoalIdRouteImport.update({
+  id: '/$goalId',
+  path: '/$goalId',
+  getParentRoute: () => ApiGoalsRoute,
+} as any)
 const ApiTasksTaskIdUncompleteRoute =
   ApiTasksTaskIdUncompleteRouteImport.update({
     id: '/uncomplete',
@@ -157,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/inbox': typeof InboxRoute
   '/mcp': typeof McpRoute
   '/upcoming': typeof UpcomingRoute
+  '/api/goals': typeof ApiGoalsRouteWithChildren
   '/api/projects': typeof ApiProjectsRouteWithChildren
   '/api/settings': typeof ApiSettingsRoute
   '/api/tasks': typeof ApiTasksRouteWithChildren
@@ -164,6 +177,7 @@ export interface FileRoutesByFullPath {
   '/demo/posthog': typeof DemoPosthogRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/project/$projectId': typeof ProjectProjectIdRoute
+  '/api/goals/$goalId': typeof ApiGoalsGoalIdRoute
   '/api/openapi/json': typeof ApiOpenapiJsonRoute
   '/api/projects/$projectId': typeof ApiProjectsProjectIdRoute
   '/api/quick-add/create': typeof ApiQuickAddCreateRoute
@@ -182,6 +196,7 @@ export interface FileRoutesByTo {
   '/inbox': typeof InboxRoute
   '/mcp': typeof McpRoute
   '/upcoming': typeof UpcomingRoute
+  '/api/goals': typeof ApiGoalsRouteWithChildren
   '/api/projects': typeof ApiProjectsRouteWithChildren
   '/api/settings': typeof ApiSettingsRoute
   '/api/tasks': typeof ApiTasksRouteWithChildren
@@ -189,6 +204,7 @@ export interface FileRoutesByTo {
   '/demo/posthog': typeof DemoPosthogRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/project/$projectId': typeof ProjectProjectIdRoute
+  '/api/goals/$goalId': typeof ApiGoalsGoalIdRoute
   '/api/openapi/json': typeof ApiOpenapiJsonRoute
   '/api/projects/$projectId': typeof ApiProjectsProjectIdRoute
   '/api/quick-add/create': typeof ApiQuickAddCreateRoute
@@ -208,6 +224,7 @@ export interface FileRoutesById {
   '/inbox': typeof InboxRoute
   '/mcp': typeof McpRoute
   '/upcoming': typeof UpcomingRoute
+  '/api/goals': typeof ApiGoalsRouteWithChildren
   '/api/projects': typeof ApiProjectsRouteWithChildren
   '/api/settings': typeof ApiSettingsRoute
   '/api/tasks': typeof ApiTasksRouteWithChildren
@@ -215,6 +232,7 @@ export interface FileRoutesById {
   '/demo/posthog': typeof DemoPosthogRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/project/$projectId': typeof ProjectProjectIdRoute
+  '/api/goals/$goalId': typeof ApiGoalsGoalIdRoute
   '/api/openapi/json': typeof ApiOpenapiJsonRoute
   '/api/projects/$projectId': typeof ApiProjectsProjectIdRoute
   '/api/quick-add/create': typeof ApiQuickAddCreateRoute
@@ -235,6 +253,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/mcp'
     | '/upcoming'
+    | '/api/goals'
     | '/api/projects'
     | '/api/settings'
     | '/api/tasks'
@@ -242,6 +261,7 @@ export interface FileRouteTypes {
     | '/demo/posthog'
     | '/demo/tanstack-query'
     | '/project/$projectId'
+    | '/api/goals/$goalId'
     | '/api/openapi/json'
     | '/api/projects/$projectId'
     | '/api/quick-add/create'
@@ -260,6 +280,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/mcp'
     | '/upcoming'
+    | '/api/goals'
     | '/api/projects'
     | '/api/settings'
     | '/api/tasks'
@@ -267,6 +288,7 @@ export interface FileRouteTypes {
     | '/demo/posthog'
     | '/demo/tanstack-query'
     | '/project/$projectId'
+    | '/api/goals/$goalId'
     | '/api/openapi/json'
     | '/api/projects/$projectId'
     | '/api/quick-add/create'
@@ -285,6 +307,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/mcp'
     | '/upcoming'
+    | '/api/goals'
     | '/api/projects'
     | '/api/settings'
     | '/api/tasks'
@@ -292,6 +315,7 @@ export interface FileRouteTypes {
     | '/demo/posthog'
     | '/demo/tanstack-query'
     | '/project/$projectId'
+    | '/api/goals/$goalId'
     | '/api/openapi/json'
     | '/api/projects/$projectId'
     | '/api/quick-add/create'
@@ -311,6 +335,7 @@ export interface RootRouteChildren {
   InboxRoute: typeof InboxRoute
   McpRoute: typeof McpRoute
   UpcomingRoute: typeof UpcomingRoute
+  ApiGoalsRoute: typeof ApiGoalsRouteWithChildren
   ApiProjectsRoute: typeof ApiProjectsRouteWithChildren
   ApiSettingsRoute: typeof ApiSettingsRoute
   ApiTasksRoute: typeof ApiTasksRouteWithChildren
@@ -411,6 +436,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiProjectsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/goals': {
+      id: '/api/goals'
+      path: '/api/goals'
+      fullPath: '/api/goals'
+      preLoaderRoute: typeof ApiGoalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/api/mcp-todos': {
       id: '/demo/api/mcp-todos'
       path: '/demo/api/mcp-todos'
@@ -460,6 +492,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiOpenapiJsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/goals/$goalId': {
+      id: '/api/goals/$goalId'
+      path: '/$goalId'
+      fullPath: '/api/goals/$goalId'
+      preLoaderRoute: typeof ApiGoalsGoalIdRouteImport
+      parentRoute: typeof ApiGoalsRoute
+    }
     '/api/tasks/$taskId/uncomplete': {
       id: '/api/tasks/$taskId/uncomplete'
       path: '/uncomplete'
@@ -490,6 +529,18 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface ApiGoalsRouteChildren {
+  ApiGoalsGoalIdRoute: typeof ApiGoalsGoalIdRoute
+}
+
+const ApiGoalsRouteChildren: ApiGoalsRouteChildren = {
+  ApiGoalsGoalIdRoute: ApiGoalsGoalIdRoute,
+}
+
+const ApiGoalsRouteWithChildren = ApiGoalsRoute._addFileChildren(
+  ApiGoalsRouteChildren,
+)
 
 interface ApiProjectsRouteChildren {
   ApiProjectsProjectIdRoute: typeof ApiProjectsProjectIdRoute
@@ -551,6 +602,7 @@ const rootRouteChildren: RootRouteChildren = {
   InboxRoute: InboxRoute,
   McpRoute: McpRoute,
   UpcomingRoute: UpcomingRoute,
+  ApiGoalsRoute: ApiGoalsRouteWithChildren,
   ApiProjectsRoute: ApiProjectsRouteWithChildren,
   ApiSettingsRoute: ApiSettingsRoute,
   ApiTasksRoute: ApiTasksRouteWithChildren,

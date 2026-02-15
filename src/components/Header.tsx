@@ -15,9 +15,6 @@ export default function Header() {
           <a href="/upcoming">
             Upcoming
           </a>
-          <a href="/goals">
-            Goals
-          </a>
         </nav>
       </div>
     </header>
