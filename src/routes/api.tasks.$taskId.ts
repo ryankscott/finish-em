@@ -23,7 +23,7 @@ export const Route = createFileRoute('/api/tasks/$taskId')({
             scheduledAt?: string | null
             dueAt?: string | null
             dueTimezone?: string | null
-            recurrencePreset?: 'daily' | 'weekly' | 'monthly' | 'every_weekday' | null
+            recurrencePreset?: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'every_weekday' | null
             recurrenceRRule?: string | null
             status?: 'open' | 'completed'
           }>(request)

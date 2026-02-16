@@ -4,52 +4,10 @@ import { api } from "@/lib/api-client";
 import { useHotkeys } from "@/lib/hotkeys";
 
 import type { Reminder, Task as TaskType } from "@/server/types";
-
+import { ReminderModal } from "./ReminderModal";
 import { Task } from "./Task";
 
-type ReminderMap = Record<number, Reminder | null>;
-type ReminderPreset =
-	| "this_morning"
-	| "this_evening"
-	| "tomorrow_morning"
-	| "next_week";
-
-function atHourUtc(base: Date, hour: number) {
-	const next = new Date(base);
-	next.setUTCHours(hour, 0, 0, 0);
-	return next;
-}
-
-function reminderPresetToIso(preset: ReminderPreset, now = new Date()) {
-	switch (preset) {
-		case "this_morning": {
-			const candidate = atHourUtc(now, 9);
-			if (candidate.getTime() <= now.getTime()) {
-				candidate.setUTCDate(candidate.getUTCDate() + 1);
-			}
-			return candidate.toISOString();
-		}
-		case "this_evening": {
-			const candidate = atHourUtc(now, 18);
-			if (candidate.getTime() <= now.getTime()) {
-				candidate.setUTCDate(candidate.getUTCDate() + 1);
-			}
-			return candidate.toISOString();
-		}
-		case "tomorrow_morning": {
-			const next = new Date(now);
-			next.setUTCDate(next.getUTCDate() + 1);
-			next.setUTCHours(9, 0, 0, 0);
-			return next.toISOString();
-		}
-		case "next_week": {
-			const next = new Date(now);
-			next.setUTCDate(next.getUTCDate() + 7);
-			next.setUTCHours(9, 0, 0, 0);
-			return next.toISOString();
-		}
-	}
-}
+type ReminderMap = Record<number, Reminder[]>;
 
 export function TaskList(props: {
 	tasks: TaskType[];
@@ -60,10 +18,11 @@ export function TaskList(props: {
 	const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
 	const [editingTitle, setEditingTitle] = useState("");
 	const [reminders, setReminders] = useState<ReminderMap>({});
-	const [selectedReminderPresets, setSelectedReminderPresets] = useState<
-		Record<number, ReminderPreset | "">
-	>({});
 	const [query, setQuery] = useState("");
+	const [reminderModalOpen, setReminderModalOpen] = useState(false);
+	const [reminderModalTaskId, setReminderModalTaskId] = useState<number | null>(
+		null,
+	);
 
 	const filteredTasks = useMemo(() => {
 		if (query.trim().length === 0) {
@@ -80,7 +39,7 @@ export function TaskList(props: {
 			const entries = await Promise.all(
 				tasks.map(async (task) => {
 					const list = await api.listTaskReminders(task.id);
-					return [task.id, list[0] ?? null] as const;
+					return [task.id, list] as const;
 				}),
 			);
 
@@ -146,23 +105,34 @@ export function TaskList(props: {
 		await onRefresh();
 	};
 
-	const addReminder = async (taskId: number, preset: ReminderPreset) => {
-		const remindAt = reminderPresetToIso(preset);
+	const addReminder = async (taskId: number, remindAt: string) => {
 		const reminder = await api.createReminder(taskId, { remindAt });
-		setReminders((current) => ({ ...current, [taskId]: reminder }));
-		setSelectedReminderPresets((current) => ({ ...current, [taskId]: preset }));
+		setReminders((current) => ({
+			...current,
+			[taskId]: [...(current[taskId] ?? []), reminder],
+		}));
 	};
 
-	const snooze = async (
-		reminderId: number,
-		preset: "this_morning" | "this_evening" | "tomorrow_morning" | "next_week",
-	) => {
-		const reminder = await api.snoozeReminder(reminderId, { preset });
-		setReminders((current) => ({ ...current, [reminder.taskId]: reminder }));
-		setSelectedReminderPresets((current) => ({
-			...current,
-			[reminder.taskId]: preset,
-		}));
+	const deleteReminder = async (reminderId: number) => {
+		await api.deleteReminder(reminderId);
+		// Refresh reminders for all tasks
+		const entries = await Promise.all(
+			tasks.map(async (task) => {
+				const list = await api.listTaskReminders(task.id);
+				return [task.id, list] as const;
+			}),
+		);
+		setReminders(Object.fromEntries(entries));
+	};
+
+	const openReminderModal = (taskId: number) => {
+		setReminderModalTaskId(taskId);
+		setReminderModalOpen(true);
+	};
+
+	const closeReminderModal = () => {
+		setReminderModalOpen(false);
+		setReminderModalTaskId(null);
 	};
 
 	return (
@@ -185,7 +155,7 @@ export function TaskList(props: {
 
 			<ul className="divide-y divide-zinc-100">
 				{filteredTasks.map((task, index) => {
-					const taskReminder = reminders[task.id] ?? null;
+					const taskReminders = reminders[task.id] ?? [];
 					const isSelected = index === selectedIndex;
 					const isEditing = editingTaskId === task.id;
 
@@ -196,8 +166,7 @@ export function TaskList(props: {
 							isSelected={isSelected}
 							isEditing={isEditing}
 							editingTitle={editingTitle}
-							taskReminder={taskReminder}
-							selectedReminderPreset={selectedReminderPresets[task.id] ?? ""}
+							taskReminders={taskReminders}
 							onMouseEnter={() => setSelectedIndex(index)}
 							onCompleteToggle={async () => {
 								if (task.status === "completed") {
@@ -211,8 +180,8 @@ export function TaskList(props: {
 							onSaveEdit={() => saveEdit(task.id)}
 							onCancelEdit={() => setEditingTaskId(null)}
 							onRefresh={onRefresh}
-							onAddReminder={(preset) => addReminder(task.id, preset)}
-							onSnooze={snooze}
+							onOpenReminderModal={() => openReminderModal(task.id)}
+							onDeleteReminder={deleteReminder}
 						/>
 					);
 				})}
@@ -223,6 +192,17 @@ export function TaskList(props: {
 					</li>
 				)}
 			</ul>
+
+			{reminderModalTaskId !== null && (
+				<ReminderModal
+					isOpen={reminderModalOpen}
+					onClose={closeReminderModal}
+					onAddReminder={(remindAt) =>
+						addReminder(reminderModalTaskId, remindAt)
+					}
+					dueAt={tasks.find((t) => t.id === reminderModalTaskId)?.dueAt ?? null}
+				/>
+			)}
 		</div>
 	);
 }

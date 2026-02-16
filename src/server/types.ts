@@ -7,6 +7,7 @@ export type RecurrencePreset =
   | 'daily'
   | 'weekly'
   | 'monthly'
+  | 'yearly'
   | 'every_weekday'
   | null
 

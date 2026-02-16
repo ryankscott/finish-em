@@ -17,7 +17,7 @@ describe('recurrence service', () => {
   it('validates supported RRULE subset', () => {
     expect(validateRRuleSubset('FREQ=DAILY;INTERVAL=2')).toBe(true)
     expect(validateRRuleSubset('FREQ=WEEKLY;BYDAY=MO,WE,FR')).toBe(true)
-    expect(validateRRuleSubset('FREQ=YEARLY')).toBe(false)
+    expect(validateRRuleSubset('FREQ=YEARLY')).toBe(true)
   })
 
   it('calculates next occurrences for daily and weekly', () => {
@@ -38,5 +38,17 @@ describe('recurrence service', () => {
         recurrenceRRule: 'FREQ=WEEKLY;BYDAY=MO,WE,FR',
       }),
     ).toBe('2026-02-16T09:00:00.000Z')
+  })
+
+  it('calculates next occurrence for yearly', () => {
+    const base = '2026-02-16T09:00:00.000Z'
+
+    expect(
+      getNextOccurrence({
+        baseIso: base,
+        recurrencePreset: 'yearly',
+        recurrenceRRule: null,
+      }),
+    ).toBe('2027-02-16T09:00:00.000Z')
   })
 })

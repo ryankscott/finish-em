@@ -9,7 +9,7 @@ const WEEKDAY_INDEX: Record<string, number> = {
 }
 
 type ParsedRule = {
-  freq: 'DAILY' | 'WEEKLY' | 'MONTHLY'
+  freq: 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
   interval: number
   byDay: number[]
 }
@@ -23,6 +23,12 @@ function addDays(date: Date, days: number) {
 function addMonths(date: Date, months: number) {
   const next = new Date(date)
   next.setUTCMonth(next.getUTCMonth() + months)
+  return next
+}
+
+function addYears(date: Date, years: number) {
+  const next = new Date(date)
+  next.setUTCFullYear(next.getUTCFullYear() + years)
   return next
 }
 
@@ -40,7 +46,7 @@ function parseRRule(rule: string): ParsedRule | null {
   }
 
   const freq = data.get('FREQ')
-  if (freq !== 'DAILY' && freq !== 'WEEKLY' && freq !== 'MONTHLY') {
+  if (freq !== 'DAILY' && freq !== 'WEEKLY' && freq !== 'MONTHLY' && freq !== 'YEARLY') {
     return null
   }
 
@@ -69,6 +75,8 @@ export function presetToRRule(preset: string | null) {
       return 'FREQ=WEEKLY;INTERVAL=1'
     case 'monthly':
       return 'FREQ=MONTHLY;INTERVAL=1'
+    case 'yearly':
+      return 'FREQ=YEARLY;INTERVAL=1'
     case 'every_weekday':
       return 'FREQ=WEEKLY;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR'
     default:
@@ -129,6 +137,10 @@ export function getNextOccurrence(input: {
 
   if (parsed.freq === 'MONTHLY') {
     return addMonths(base, parsed.interval).toISOString()
+  }
+
+  if (parsed.freq === 'YEARLY') {
+    return addYears(base, parsed.interval).toISOString()
   }
 
   return nextWeeklyByDay(base, parsed.interval, parsed.byDay).toISOString()
