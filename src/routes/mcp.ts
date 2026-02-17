@@ -1,53 +1,75 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { createFileRoute } from '@tanstack/react-router'
-import z from 'zod'
 
 import { handleMcpRequest } from '@/utils/mcp-handler'
+import { ALL_TOOLS } from '@/utils/mcp-tools'
+import { mcpResources } from '@/utils/mcp-resources'
 
-import { addTodo } from '@/mcp-todos'
+function createMcpServer() {
+  const server = new McpServer({
+    name: 'finish-em-server',
+    version: '1.0.0',
+  })
 
-const server = new McpServer({
-  name: 'start-server',
-  version: '1.0.0',
-})
+  // Register all tools
+  for (const tool of ALL_TOOLS) {
+    server.registerTool(
+      tool.name,
+      tool.definition,
+      async (input) => {
+        try {
+          return await tool.handler(input)
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error)
+          return {
+            content: [
+              {
+                type: 'text',
+                text: `Error: ${errorMessage}`,
+              },
+            ],
+            isError: true,
+          }
+        }
+      },
+    )
+  }
 
-server.registerTool(
-  'addTodo',
-  {
-    title: 'Tool to add a todo to a list of todos',
-    description: 'Add a todo to a list of todos',
-    inputSchema: {
-      title: z.string().describe('The title of the todo'),
+  // Register resources
+  server.registerResource(
+    'finish-em://tasks',
+    'All Tasks',
+    {
+      description: 'List and browse all tasks',
     },
-  },
-  ({ title }) => ({
-    content: [{ type: 'text', text: String(addTodo(title)) }],
-  }),
-)
+    async (uri) => mcpResources.read(uri.href),
+  )
 
-// server.registerResource(
-//   "counter-value",
-//   "count://",
-//   {
-//     title: "Counter Resource",
-//     description: "Returns the current value of the counter",
-//   },
-//   async (uri) => {
-//     return {
-//       contents: [
-//         {
-//           uri: uri.href,
-//           text: `The counter is at 20!`,
-//         },
-//       ],
-//     };
-//   }
-// );
+  server.registerResource(
+    'finish-em://projects',
+    'All Projects',
+    {
+      description: 'List and browse all projects',
+    },
+    async (uri) => mcpResources.read(uri.href),
+  )
+
+  server.registerResource(
+    'finish-em://goals',
+    'All Goals',
+    {
+      description: 'List and browse all goals',
+    },
+    async (uri) => mcpResources.read(uri.href),
+  )
+
+  return server
+}
 
 export const Route = createFileRoute('/mcp')({
   server: {
     handlers: {
-      POST: async ({ request }) => handleMcpRequest(request, server),
+      POST: async ({ request }) => handleMcpRequest(request, createMcpServer()),
     },
   },
 })

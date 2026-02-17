@@ -1,4 +1,5 @@
-import { Bell, CalendarClock, Check, Flag, Pencil, Plus, Repeat } from "lucide-react";
+import { format,  parseISO } from "date-fns";
+import {  CalendarClock, Check, Flag, Pencil, Repeat } from "lucide-react";
 import { useEffect, useState } from "react";
 import { TaskDatePicker } from "@/components/tasks/TaskDatePicker";
 import { Button } from "@/components/ui/button";
@@ -39,38 +40,7 @@ interface TaskProps {
 	onDeleteReminder: (reminderId: number) => Promise<void>;
 }
 
-/**
- * Format a reminder date for display like "Today 16:00"
- */
-function formatReminderDate(dateString: string): string {
-	const date = new Date(dateString);
-	const now = new Date();
-	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-	const tomorrow = new Date(today);
-	tomorrow.setDate(tomorrow.getDate() + 1);
-	const reminderDay = new Date(
-		date.getFullYear(),
-		date.getMonth(),
-		date.getDate(),
-	);
 
-	const timeStr = date.toLocaleTimeString("en-US", {
-		hour: "numeric",
-		minute: "2-digit",
-		hour12: false,
-	});
-
-	if (reminderDay.getTime() === today.getTime()) {
-		return `Today ${timeStr}`;
-	}
-	if (reminderDay.getTime() === tomorrow.getTime()) {
-		return `Tomorrow ${timeStr}`;
-	}
-
-	// For other days, show the day name
-	const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-	return `${dayName} ${timeStr}`;
-}
 
 export function Task(props: TaskProps) {
 	const {
@@ -105,15 +75,7 @@ export function Task(props: TaskProps) {
 
 	const formatFullDate = (dateString: string | null | undefined) => {
 		if (!dateString) return null;
-		const date = new Date(dateString);
-		return date.toLocaleDateString("en-US", {
-			weekday: "long",
-			year: "numeric",
-			month: "long",
-			day: "numeric",
-			hour: "2-digit",
-			minute: "2-digit"
-		});
+		return format(parseISO(dateString), "EEEE, MMMM d, yyyy HH:mm");
 	};
 
 	const getPriorityLabel = (priority: Priority) => {
@@ -155,10 +117,12 @@ export function Task(props: TaskProps) {
 						<div className="flex items-center gap-2 flex-1">
 						<Tooltip>
 							<TooltipTrigger asChild>
-								<button
+								<Button
 									type="button"
+									variant="ghost"
+									size="icon"
 									onClick={onCompleteToggle}
-									className={`h-5 w-5 rounded-full border ${PRIORITY_BADGE_CLASSES[task.priority]}`}
+									className={`h-5 w-5 rounded-full border p-0 hover:bg-transparent ${PRIORITY_BADGE_CLASSES[task.priority]}`}
 									aria-label="Toggle complete"
 								/>
 							</TooltipTrigger>

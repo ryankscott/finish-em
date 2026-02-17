@@ -22,11 +22,19 @@ export function getProject(projectId: number): Project | null {
 
 export function createProject(input: {
   name: string
+  emoji?: string | null
+  description?: string
+  startAt?: string | null
+  endAt?: string | null
   color?: string
   isInbox?: boolean
 }): Project {
   const db = getDb()
   const now = nowIso()
+  const emoji = input.emoji ?? null
+  const description = input.description ?? ''
+  const startAt = input.startAt ?? null
+  const endAt = input.endAt ?? null
   const color = input.color ?? '#ef4444'
   const isInbox = input.isInbox ? 1 : 0
 
@@ -36,9 +44,9 @@ export function createProject(input: {
 
   const result = db
     .prepare(
-      'INSERT INTO projects (name, color, is_inbox, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
+      'INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
     )
-    .run(input.name, color, isInbox, now, now)
+    .run(input.name, emoji, description, startAt, endAt, color, isInbox, now, now)
 
   const id = Number(result.lastInsertRowid)
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as Record<
@@ -51,7 +59,15 @@ export function createProject(input: {
 
 export function updateProject(
   projectId: number,
-  patch: Partial<{ name: string; color: string; isInbox: boolean }>,
+  patch: Partial<{
+    name: string
+    emoji: string | null
+    description: string
+    startAt: string | null
+    endAt: string | null
+    color: string
+    isInbox: boolean
+  }>,
 ): Project | null {
   const db = getDb()
   const existing = getProject(projectId)
@@ -62,6 +78,10 @@ export function updateProject(
 
   const now = nowIso()
   const name = patch.name ?? existing.name
+  const emoji = patch.emoji ?? existing.emoji
+  const description = patch.description ?? existing.description
+  const startAt = patch.startAt ?? existing.startAt
+  const endAt = patch.endAt ?? existing.endAt
   const color = patch.color ?? existing.color
   const isInbox = patch.isInbox ?? existing.isInbox
 
@@ -70,8 +90,8 @@ export function updateProject(
   }
 
   db.prepare(
-    'UPDATE projects SET name = ?, color = ?, is_inbox = ?, updated_at = ? WHERE id = ?',
-  ).run(name, color, isInbox ? 1 : 0, now, projectId)
+    'UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, updated_at = ? WHERE id = ?',
+  ).run(name, emoji, description, startAt, endAt, color, isInbox ? 1 : 0, now, projectId)
 
   return getProject(projectId)
 }

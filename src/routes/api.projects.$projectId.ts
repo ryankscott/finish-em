@@ -16,11 +16,24 @@ import {
 export const Route = createFileRoute('/api/projects/$projectId')({
   server: {
     handlers: {
+      GET: ({ params }) => {
+        try {
+          const projectId = asNumber(params.projectId, 'projectId')
+          const project = getProject(projectId)
+          return project ? json(project) : notFound('Project not found')
+        } catch (error) {
+          return badRequest('invalid projectId', String(error))
+        }
+      },
       PATCH: async ({ params, request }) => {
         try {
           const projectId = asNumber(params.projectId, 'projectId')
           const payload = await parseJsonBody<{
             name?: string
+            emoji?: string | null
+            description?: string
+            startAt?: string | null
+            endAt?: string | null
             color?: string
             isInbox?: boolean
           }>(request)

@@ -1,3 +1,4 @@
+import { addDays, set, isAfter, isPast, subMinutes } from "date-fns";
 import { Bell } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -17,19 +18,12 @@ interface ReminderModalProps {
 	dueAt: string | null;
 }
 
-/**
- * Check if a date string includes a specific time (not just midnight)
- */
 function hasTime(dateString: string | null): boolean {
 	if (!dateString) return false;
 	const date = new Date(dateString);
 	return date.getUTCHours() !== 0 || date.getUTCMinutes() !== 0;
 }
 
-/**
- * Parse natural language time input like "9am", "Mon 18:00", "ev Tue 7pm"
- * Returns an ISO string for the next occurrence of that time
- */
 function parseTimeInput(input: string): string | null {
 	const now = new Date();
 	const trimmed = input.trim().toLowerCase();
@@ -43,7 +37,6 @@ function parseTimeInput(input: string): string | null {
 			: 0;
 		const meridiem = timeOnlyMatch[3];
 
-		// Validate hours and minutes
 		if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
 			return null;
 		}
@@ -58,12 +51,11 @@ function parseTimeInput(input: string): string | null {
 			hours = 0;
 		}
 
-		const next = new Date(now);
-		next.setHours(hours, minutes, 0, 0);
+		let next = set(now, { hours, minutes, seconds: 0, milliseconds: 0 });
 
 		// If time has passed today, schedule for tomorrow
-		if (next.getTime() <= now.getTime()) {
-			next.setDate(next.getDate() + 1);
+		if (!isAfter(next, now)) {
+			next = addDays(next, 1);
 		}
 
 		return next.toISOString();
@@ -74,13 +66,11 @@ function parseTimeInput(input: string): string | null {
 		/^(?:(ev|every|tomorrow|today)\s+)?(?:(mon|tue|wed|thu|fri|sat|sun|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+)?(\d{1,2})(?::(\d{2}))?\s*(am|pm)?$/i,
 	);
 	if (dayTimeMatch) {
-		const _repeat = dayTimeMatch[1];
 		const dayName = dayTimeMatch[2];
 		let hours = Number.parseInt(dayTimeMatch[3], 10);
 		const minutes = dayTimeMatch[4] ? Number.parseInt(dayTimeMatch[4], 10) : 0;
 		const meridiem = dayTimeMatch[5];
 
-		// Validate hours and minutes
 		if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
 			return null;
 		}
@@ -95,8 +85,7 @@ function parseTimeInput(input: string): string | null {
 			hours = 0;
 		}
 
-		const next = new Date(now);
-		next.setHours(hours, minutes, 0, 0);
+		let next = set(now, { hours, minutes, seconds: 0, milliseconds: 0 });
 
 		if (dayName) {
 			const dayMap: Record<string, number> = {
@@ -121,17 +110,17 @@ function parseTimeInput(input: string): string | null {
 
 			if (
 				daysToAdd < 0 ||
-				(daysToAdd === 0 && next.getTime() <= now.getTime())
+				(daysToAdd === 0 && !isAfter(next, now))
 			) {
 				daysToAdd += 7;
 			}
 
-			next.setDate(next.getDate() + daysToAdd);
+			next = addDays(next, daysToAdd);
 		}
 
 		// If time has passed, schedule for tomorrow (or next occurrence)
-		if (next.getTime() <= now.getTime()) {
-			next.setDate(next.getDate() + 1);
+		if (!isAfter(next, now)) {
+			next = addDays(next, 1);
 		}
 
 		return next.toISOString();
@@ -139,19 +128,15 @@ function parseTimeInput(input: string): string | null {
 
 	// Match "today" or "tomorrow"
 	if (trimmed === "today") {
-		const next = new Date(now);
-		next.setHours(9, 0, 0, 0); // Default to 9am
-		if (next.getTime() <= now.getTime()) {
-			next.setDate(next.getDate() + 1);
+		let next = set(now, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 });
+		if (!isAfter(next, now)) {
+			next = addDays(next, 1);
 		}
 		return next.toISOString();
 	}
 
 	if (trimmed === "tomorrow") {
-		const next = new Date(now);
-		next.setDate(next.getDate() + 1);
-		next.setHours(9, 0, 0, 0);
-		return next.toISOString();
+		return set(addDays(now, 1), { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 }).toISOString();
 	}
 
 	return null;
@@ -213,10 +198,10 @@ export function ReminderModal({
 		}
 
 		const dueDate = new Date(dueAt);
-		const reminderDate = new Date(dueDate.getTime() - minutes * 60 * 1000);
+		const reminderDate = subMinutes(dueDate, minutes);
 
 		// Check if reminder is in the past
-		if (reminderDate.getTime() <= Date.now()) {
+		if (isPast(reminderDate)) {
 			setError("Reminder time would be in the past");
 			return;
 		}

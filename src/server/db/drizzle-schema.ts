@@ -10,6 +10,10 @@ export const settings = sqliteTable('settings', {
 export const projects = sqliteTable('projects', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
+  emoji: text('emoji'),
+  description: text('description').notNull().default(''),
+  startAt: text('start_at'),
+  endAt: text('end_at'),
   color: text('color').notNull().default('#ef4444'),
   isInbox: integer('is_inbox', { mode: 'boolean' }).notNull().default(false),
   createdAt: text('created_at').notNull(),

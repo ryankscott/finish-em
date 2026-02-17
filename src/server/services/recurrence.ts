@@ -1,3 +1,11 @@
+import {
+  addDays as fnsAddDays,
+  addMonths as fnsAddMonths,
+  addYears as fnsAddYears,
+  differenceInCalendarDays,
+  getDay,
+} from 'date-fns'
+
 const WEEKDAY_INDEX: Record<string, number> = {
   SU: 0,
   MO: 1,
@@ -15,21 +23,15 @@ type ParsedRule = {
 }
 
 function addDays(date: Date, days: number) {
-  const next = new Date(date)
-  next.setUTCDate(next.getUTCDate() + days)
-  return next
+  return fnsAddDays(date, days)
 }
 
 function addMonths(date: Date, months: number) {
-  const next = new Date(date)
-  next.setUTCMonth(next.getUTCMonth() + months)
-  return next
+  return fnsAddMonths(date, months)
 }
 
 function addYears(date: Date, years: number) {
-  const next = new Date(date)
-  next.setUTCFullYear(next.getUTCFullYear() + years)
-  return next
+  return fnsAddYears(date, years)
 }
 
 function parseRRule(rule: string): ParsedRule | null {
@@ -92,16 +94,14 @@ export function validateRRuleSubset(rule: string | null) {
 }
 
 function nextWeeklyByDay(base: Date, interval: number, byDay: number[]) {
-  const allowed = byDay.length > 0 ? byDay : [base.getUTCDay()]
+  const allowed = byDay.length > 0 ? byDay : [getDay(base)]
   let cursor = addDays(base, 1)
 
   for (let i = 0; i < 400; i += 1) {
-    const diffDays = Math.floor(
-      (cursor.getTime() - base.getTime()) / (1000 * 60 * 60 * 24),
-    )
+    const diffDays = differenceInCalendarDays(cursor, base)
     const weekBucket = Math.floor(diffDays / 7)
 
-    if (weekBucket % interval === 0 && allowed.includes(cursor.getUTCDay())) {
+    if (weekBucket % interval === 0 && allowed.includes(getDay(cursor))) {
       return cursor
     }
 

@@ -11,6 +11,10 @@ export const SCHEMA_STATEMENTS = [
   CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
+    emoji TEXT,
+    description TEXT NOT NULL DEFAULT '',
+    start_at TEXT,
+    end_at TEXT,
     color TEXT NOT NULL DEFAULT '#ef4444',
     is_inbox INTEGER NOT NULL DEFAULT 0,
     created_at TEXT NOT NULL,

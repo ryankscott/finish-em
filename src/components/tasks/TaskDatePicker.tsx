@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, addDays, nextMonday, nextSaturday, parseISO, isValid, set, isSaturday } from "date-fns";
 import { Calendar as CalendarIcon, Sun, Home, ArrowRight, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -32,8 +32,8 @@ function isoStringToDate(value: string | null): Date | undefined {
 		return undefined;
 	}
 
-	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) {
+	const date = parseISO(value);
+	if (!isValid(date)) {
 		return undefined;
 	}
 
@@ -45,13 +45,8 @@ function dateToIsoString(value: Date | undefined, time?: { hour: number; minute:
 		return null;
 	}
 
-	const date = new Date(value);
-	if (time) {
-		date.setHours(time.hour, time.minute, 0, 0);
-	} else {
-		date.setHours(9, 0, 0, 0);
-	}
-	return date.toISOString();
+	const t = time ?? { hour: 9, minute: 0 };
+	return set(value, { hours: t.hour, minutes: t.minute, seconds: 0, milliseconds: 0 }).toISOString();
 }
 
 function parseSimpleDate(input: string): Date | null {
@@ -63,14 +58,11 @@ function parseSimpleDate(input: string): Date | null {
 	}
 
 	if (lower === "tomorrow") {
-		const tomorrow = new Date(now);
-		tomorrow.setDate(tomorrow.getDate() + 1);
-		return tomorrow;
+		return addDays(now, 1);
 	}
 
-	// Try to parse as a date
-	const parsed = new Date(input);
-	if (!Number.isNaN(parsed.getTime())) {
+	const parsed = parseISO(input);
+	if (isValid(parsed)) {
 		return parsed;
 	}
 
@@ -78,21 +70,15 @@ function parseSimpleDate(input: string): Date | null {
 }
 
 function getNextWeekMonday(): Date {
-	const now = new Date();
-	const dayOfWeek = now.getDay();
-	const daysUntilNextMonday = dayOfWeek === 0 ? 1 : 8 - dayOfWeek;
-	const nextMonday = new Date(now);
-	nextMonday.setDate(now.getDate() + daysUntilNextMonday);
-	return nextMonday;
+	return nextMonday(new Date());
 }
 
 function getThisWeekendSaturday(): Date {
 	const now = new Date();
-	const dayOfWeek = now.getDay();
-	const daysUntilSaturday = dayOfWeek === 6 ? 0 : 6 - dayOfWeek;
-	const saturday = new Date(now);
-	saturday.setDate(now.getDate() + daysUntilSaturday);
-	return saturday;
+	if (isSaturday(now)) {
+		return now;
+	}
+	return nextSaturday(now);
 }
 
 export function TaskDatePicker({
@@ -113,7 +99,7 @@ export function TaskDatePicker({
 	const [timePickerOpen, setTimePickerOpen] = useState(false);
 
 	// Extract time from current value
-	const currentTime = value ? new Date(value) : null;
+	const currentTime = value ? parseISO(value) : null;
 	const [hour, setHour] = useState(currentTime?.getHours() ?? 9);
 	const [minute, setMinute] = useState(currentTime?.getMinutes() ?? 0);
 
@@ -143,18 +129,12 @@ export function TaskDatePicker({
 	};
 
 	const today = new Date();
-	const tomorrow = new Date(today);
-	tomorrow.setDate(today.getDate() + 1);
+	const tomorrow = addDays(today, 1);
 	const thisWeekend = getThisWeekendSaturday();
 	const nextWeek = getNextWeekMonday();
 
-	const formatDayAbbr = (date: Date) => {
-		return date.toLocaleDateString("en-US", { weekday: "short" });
-	};
-
-	const formatDateShort = (date: Date) => {
-		return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-	};
+	const formatDayAbbr = (date: Date) => format(date, "EEE");
+	const formatDateShort = (date: Date) => format(date, "MMM d");
 
 	return (
 		<>
@@ -188,43 +168,47 @@ export function TaskDatePicker({
 
 						{/* Quick select options */}
 						<div className="flex flex-col p-2 border-b gap-1">
-							<button
+							<Button
 								type="button"
+								variant="ghost"
 								onClick={() => handleQuickSelect(today)}
-								className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md transition-colors"
+								className="h-auto w-full flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md transition-colors"
 							>
 								<div className="flex items-center gap-3">
 									<CalendarIcon className="h-4 w-4 text-muted-foreground" />
 									<span className="text-sm">Today</span>
 								</div>
 								<span className="text-sm text-muted-foreground">{formatDayAbbr(today)}</span>
-							</button>
-							<button
+							</Button>
+							<Button
 								type="button"
+								variant="ghost"
 								onClick={() => handleQuickSelect(tomorrow)}
-								className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md transition-colors"
+								className="h-auto w-full flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md transition-colors"
 							>
 								<div className="flex items-center gap-3">
 									<Sun className="h-4 w-4 text-muted-foreground" />
 									<span className="text-sm">Tomorrow</span>
 								</div>
 								<span className="text-sm text-muted-foreground">{formatDayAbbr(tomorrow)}</span>
-							</button>
-							<button
+							</Button>
+							<Button
 								type="button"
+								variant="ghost"
 								onClick={() => handleQuickSelect(thisWeekend)}
-								className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md transition-colors"
+								className="h-auto w-full flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md transition-colors"
 							>
 								<div className="flex items-center gap-3">
 									<Home className="h-4 w-4 text-muted-foreground" />
 									<span className="text-sm">This weekend</span>
 								</div>
 								<span className="text-sm text-muted-foreground">{formatDayAbbr(thisWeekend)}</span>
-							</button>
-							<button
+							</Button>
+							<Button
 								type="button"
+								variant="ghost"
 								onClick={() => handleQuickSelect(nextWeek)}
-								className="flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md transition-colors"
+								className="h-auto w-full flex items-center justify-between px-3 py-2 hover:bg-accent rounded-md transition-colors"
 							>
 								<div className="flex items-center gap-3">
 									<ArrowRight className="h-4 w-4 text-muted-foreground" />
@@ -233,7 +217,7 @@ export function TaskDatePicker({
 								<span className="text-sm text-muted-foreground">
 									{formatDayAbbr(nextWeek)} {formatDateShort(nextWeek)}
 								</span>
-							</button>
+							</Button>
 						</div>
 
 						{/* Calendar */}

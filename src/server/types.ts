@@ -14,6 +14,10 @@ export type RecurrencePreset =
 export type Project = {
   id: number
   name: string
+  emoji: string | null
+  description: string
+  startAt: string | null
+  endAt: string | null
   color: string
   isInbox: boolean
   createdAt: string

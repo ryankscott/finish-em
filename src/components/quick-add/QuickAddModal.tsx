@@ -1,6 +1,8 @@
+import { format, parseISO } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
 
 import { api } from '@/lib/api-client'
+import { Button } from '@/components/ui/button'
 
 type ParsePreview = {
   title: string
@@ -88,13 +90,14 @@ export function QuickAddModal(props: {
             <h2 className="font-semibold text-zinc-900">Quick Add</h2>
             <p className="text-xs text-zinc-500">{subtitle}</p>
           </div>
-          <button
+          <Button
             type="button"
+            variant="outline"
             onClick={onClose}
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
+            className="h-auto rounded-md border border-zinc-300 px-3 py-1.5 text-sm text-zinc-700 hover:bg-zinc-100"
           >
             Esc
-          </button>
+          </Button>
         </div>
 
         <div className="p-5 space-y-3">
@@ -117,10 +120,10 @@ export function QuickAddModal(props: {
               <span>Title: {preview.title}</span>
               <span>Project: {preview.projectName ?? 'Inbox'}</span>
               <span>Priority: {preview.priority ?? 4}</span>
-              <span>Due: {preview.dueAt ? new Date(preview.dueAt).toLocaleString() : 'none'}</span>
+              <span>Due: {preview.dueAt ? format(parseISO(preview.dueAt), 'PPp') : 'none'}</span>
               <span>
                 Scheduled:{' '}
-                {preview.scheduledAt ? new Date(preview.scheduledAt).toLocaleString() : 'none'}
+                {preview.scheduledAt ? format(parseISO(preview.scheduledAt), 'PPp') : 'none'}
               </span>
               <span>
                 Repeat: {preview.recurrencePreset ?? preview.recurrenceRRule ?? 'none'}
@@ -136,21 +139,23 @@ export function QuickAddModal(props: {
           {error && <p className="text-sm text-red-600">{error}</p>}
 
           <div className="flex justify-end gap-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={onClose}
-              className="rounded-md border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
+              className="h-auto rounded-md border border-zinc-300 px-4 py-2 text-sm text-zinc-700 hover:bg-zinc-100"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="ghost"
               onClick={submit}
               disabled={loading || text.trim().length === 0}
-              className="rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
+              className="h-auto rounded-md bg-red-500 px-4 py-2 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-60"
             >
               {loading ? 'Adding...' : 'Add Task'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

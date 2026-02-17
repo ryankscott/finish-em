@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { usePostHog } from '@posthog/react'
 import { useState } from 'react'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/demo/posthog')({
   component: PostHogDemo,
@@ -41,12 +42,14 @@ function PostHogDemo() {
             dashboard to see them appear in real-time.
           </p>
 
-          <button
+          <Button
+            type="button"
+            variant="ghost"
             onClick={() => trackEvent('button_clicked', { button: 'demo' })}
-            className="w-full bg-cyan-600 hover:bg-cyan-700 px-4 py-3 rounded font-medium"
+            className="h-auto w-full bg-cyan-600 hover:bg-cyan-700 px-4 py-3 rounded font-medium"
           >
             Track Click
-          </button>
+          </Button>
 
           {isConfigured && (
             <div className="mt-6 p-4 bg-gray-700 rounded">

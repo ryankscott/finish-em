@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
+import { format, parseISO, isValid, set } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -24,8 +24,8 @@ function isoStringToDate(value: string | null): Date | undefined {
 		return undefined;
 	}
 
-	const date = new Date(value);
-	if (Number.isNaN(date.getTime())) {
+	const date = parseISO(value);
+	if (!isValid(date)) {
 		return undefined;
 	}
 
@@ -37,9 +37,7 @@ function dateToIsoString(value: Date | undefined): string | null {
 		return null;
 	}
 
-	const date = new Date(value);
-	date.setHours(9, 0, 0, 0);
-	return date.toISOString();
+	return set(value, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 }).toISOString();
 }
 
 export function DatePicker({

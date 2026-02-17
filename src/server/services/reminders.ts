@@ -1,3 +1,5 @@
+import { addMinutes as fnsAddMinutes, addDays, isAfter, isPast } from 'date-fns'
+
 export type SnoozePreset =
   | 'this_morning'
   | 'this_evening'
@@ -5,44 +7,34 @@ export type SnoozePreset =
   | 'next_week'
   | 'custom'
 
-function addMinutes(base: Date, minutes: number) {
-  return new Date(base.getTime() + minutes * 60 * 1000)
-}
-
-function atHour(base: Date, hour: number) {
+function setUTCTime(base: Date, hour: number) {
   const next = new Date(base)
   next.setUTCHours(hour, 0, 0, 0)
   return next
 }
 
 function thisMorning(base: Date) {
-  const candidate = atHour(base, 9)
-  if (candidate.getTime() <= base.getTime()) {
-    candidate.setDate(candidate.getDate() + 1)
+  const candidate = setUTCTime(base, 9)
+  if (!isAfter(candidate, base)) {
+    return addDays(candidate, 1)
   }
   return candidate
 }
 
 function thisEvening(base: Date) {
-  const candidate = atHour(base, 18)
-  if (candidate.getTime() <= base.getTime()) {
-    candidate.setDate(candidate.getDate() + 1)
+  const candidate = setUTCTime(base, 18)
+  if (!isAfter(candidate, base)) {
+    return addDays(candidate, 1)
   }
   return candidate
 }
 
 function tomorrowMorning(base: Date) {
-  const next = new Date(base)
-  next.setUTCDate(next.getUTCDate() + 1)
-  next.setUTCHours(9, 0, 0, 0)
-  return next
+  return setUTCTime(addDays(base, 1), 9)
 }
 
 function nextWeek(base: Date) {
-  const next = new Date(base)
-  next.setUTCDate(next.getUTCDate() + 7)
-  next.setUTCHours(9, 0, 0, 0)
-  return next
+  return setUTCTime(addDays(base, 7), 9)
 }
 
 export function resolveSnoozeTime(input: {
@@ -66,13 +58,13 @@ export function resolveSnoozeTime(input: {
       if (!Number.isInteger(minutes) || minutes <= 0) {
         throw new Error('customMinutes must be a positive integer')
       }
-      return addMinutes(base, minutes).toISOString()
+      return fnsAddMinutes(base, minutes).toISOString()
     }
   }
 }
 
 export function isReminderDue(remindAt: string, snoozedUntil: string | null) {
-  const now = new Date().getTime()
-  const target = snoozedUntil ? new Date(snoozedUntil).getTime() : new Date(remindAt).getTime()
-  return target <= now
+  const now = new Date()
+  const target = snoozedUntil ? new Date(snoozedUntil) : new Date(remindAt)
+  return isPast(target)
 }

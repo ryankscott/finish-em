@@ -19,14 +19,30 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 
 export const api = {
   listProjects: () => request<Project[]>('/api/projects'),
-  createProject: (payload: { name: string; color?: string }) =>
+  getProject: (projectId: number) => request<Project>(`/api/projects/${projectId}`),
+  createProject: (payload: {
+    name: string
+    emoji?: string | null
+    description?: string
+    startAt?: string | null
+    endAt?: string | null
+    color?: string
+  }) =>
     request<Project>('/api/projects', {
       method: 'POST',
       body: JSON.stringify(payload),
     }),
   updateProject: (
     projectId: number,
-    payload: Partial<{ name: string; color: string; isInbox: boolean }>,
+    payload: Partial<{
+      name: string
+      emoji: string | null
+      description: string
+      startAt: string | null
+      endAt: string | null
+      color: string
+      isInbox: boolean
+    }>,
   ) =>
     request<Project>(`/api/projects/${projectId}`, {
       method: 'PATCH',

@@ -44,6 +44,17 @@ This document outlines the key architectural decisions and conventions for the F
   - Local form state
   - Theme/appearance settings
 
+## Date & Time
+
+- **Use date-fns for all date operations**: Never use manual `Date` manipulation (e.g., `setDate`, `setHours`, `getFullYear`, `getMonth`). Always use date-fns functions instead:
+  - `startOfDay`, `endOfDay`, `startOfWeek` for day boundaries
+  - `addDays`, `addMonths`, `addYears`, `addMinutes`, `subMinutes` for arithmetic
+  - `format` for formatting dates
+  - `parseISO`, `isValid` for parsing
+  - `isSameDay`, `isToday`, `isTomorrow`, `isBefore`, `isAfter`, `isPast` for comparisons
+  - `set`, `setHours`, `setMinutes` for setting specific fields
+  - `differenceInDays`, `differenceInMinutes` for differences
+
 ## Architecture Summary
 
 ```

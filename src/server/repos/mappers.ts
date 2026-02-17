@@ -14,6 +14,10 @@ export function mapProjectRow(row: Record<string, unknown>): Project {
   return {
     id: Number(row.id),
     name: String(row.name),
+    emoji: row.emoji ? String(row.emoji) : null,
+    description: String(row.description ?? ''),
+    startAt: row.start_at ? String(row.start_at) : null,
+    endAt: row.end_at ? String(row.end_at) : null,
     color: String(row.color),
     isInbox: Number(row.is_inbox) === 1,
     createdAt: String(row.created_at),

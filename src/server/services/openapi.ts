@@ -22,10 +22,25 @@ const schemas = {
   },
   Project: {
     type: 'object',
-    required: ['id', 'name', 'color', 'isInbox', 'createdAt', 'updatedAt'],
+    required: [
+      'id',
+      'name',
+      'emoji',
+      'description',
+      'startAt',
+      'endAt',
+      'color',
+      'isInbox',
+      'createdAt',
+      'updatedAt',
+    ],
     properties: {
       id: { type: 'integer' },
       name: { type: 'string' },
+      emoji: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      description: { type: 'string' },
+      startAt: { anyOf: [{ type: 'string', format: 'date' }, { type: 'null' }] },
+      endAt: { anyOf: [{ type: 'string', format: 'date' }, { type: 'null' }] },
       color: { type: 'string' },
       isInbox: { type: 'boolean' },
       createdAt: isoDateTime,
@@ -222,6 +237,18 @@ const paths = {
     },
   },
   '/api/projects/{projectId}': {
+    get: {
+      responses: {
+        '200': {
+          description: 'Project details',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Project' },
+            },
+          },
+        },
+      },
+    },
     patch: { responses: { '200': { description: 'Updated project' } } },
     delete: { responses: { '200': { description: 'Deleted project' } } },
   },
@@ -320,6 +347,49 @@ const paths = {
   },
   '/api/openapi.json': {
     get: { responses: { '200': { description: 'OpenAPI spec' } } },
+  },
+  '/mcp': {
+    post: {
+      summary: 'Model Context Protocol (MCP) Server',
+      description: 'JSON-RPC 2.0 endpoint for MCP tools and resources. Exposes CRUD operations for tasks, projects, goals, and reminders.',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              description: 'JSON-RPC 2.0 request',
+              properties: {
+                jsonrpc: { type: 'string', enum: ['2.0'] },
+                id: { type: ['string', 'number'] },
+                method: { type: 'string', enum: ['tools/list', 'tools/call', 'resources/list', 'resources/read'] },
+                params: { type: 'object' },
+              },
+              required: ['jsonrpc', 'method'],
+            },
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'JSON-RPC 2.0 response',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                description: 'JSON-RPC 2.0 response with MCP tools and resources',
+                properties: {
+                  jsonrpc: { type: 'string', enum: ['2.0'] },
+                  id: { type: ['string', 'number'] },
+                  result: { type: 'object' },
+                  error: { type: 'object' },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   },
 }
 

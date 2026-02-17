@@ -1,3 +1,4 @@
+import { addDays, startOfDay, endOfDay, startOfWeek, subDays } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
 
 import { AppLayout } from '@/components/layout/AppLayout'
@@ -5,7 +6,6 @@ import { TaskList } from '@/components/tasks/TaskList'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { api } from '@/lib/api-client'
-import { endOfDay, startOfDay, startOfWeek } from '@/lib/datetime'
 
 import type { Project, Task } from '@/server/types'
 
@@ -20,12 +20,6 @@ type DuePresetFilter =
 type ProjectFilter = 'all' | `${number}`
 type TaskQueryValue = string | number | boolean | undefined
 type TaskQuery = Record<string, TaskQueryValue>
-
-function addDays(date: Date, days: number) {
-  const next = new Date(date)
-  next.setDate(next.getDate() + days)
-  return next
-}
 
 function queryForDuePreset(preset: DuePresetFilter, now = new Date()) {
   switch (preset) {
@@ -43,7 +37,7 @@ function queryForDuePreset(preset: DuePresetFilter, now = new Date()) {
       }
     }
     case 'this_week': {
-      const weekStart = startOfWeek(now)
+      const weekStart = startOfWeek(now, { weekStartsOn: 1 })
       const weekEnd = addDays(weekStart, 6)
       return {
         from: startOfDay(now).toISOString(),
@@ -51,7 +45,7 @@ function queryForDuePreset(preset: DuePresetFilter, now = new Date()) {
       }
     }
     case 'overdue': {
-      const yesterday = new Date(startOfDay(now).getTime() - 1)
+      const yesterday = subDays(now, 1)
       return {
         to: endOfDay(yesterday).toISOString(),
       }

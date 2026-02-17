@@ -1,0 +1,4 @@
+ALTER TABLE projects ADD COLUMN emoji TEXT;
+ALTER TABLE projects ADD COLUMN description TEXT NOT NULL DEFAULT '';
+ALTER TABLE projects ADD COLUMN start_at TEXT;
+ALTER TABLE projects ADD COLUMN end_at TEXT;

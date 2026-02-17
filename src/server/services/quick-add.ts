@@ -1,3 +1,4 @@
+import { addDays, addWeeks, parseISO, isValid, set } from 'date-fns'
 import { createTask } from '@/server/repos/tasks'
 import { getInboxProjectId, listProjects } from '@/server/repos/projects'
 import { validateRRuleSubset } from '@/server/services/recurrence'
@@ -44,13 +45,10 @@ function parseDatePhrase(value: string): string | null {
   const normalized = text.replace(/\s+at\s+.+$/, '').trim()
 
   const assignTime = (date: Date) => {
-    const next = new Date(date)
     if (hour === null) {
-      next.setHours(9, 0, 0, 0)
-    } else {
-      next.setHours(hour, minute, 0, 0)
+      return set(date, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 }).toISOString()
     }
-    return next.toISOString()
+    return set(date, { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 }).toISOString()
   }
 
   if (normalized === 'today') {
@@ -58,25 +56,21 @@ function parseDatePhrase(value: string): string | null {
   }
 
   if (normalized === 'tomorrow') {
-    const next = new Date(now)
-    next.setDate(now.getDate() + 1)
-    return assignTime(next)
+    return assignTime(addDays(now, 1))
   }
 
   if (normalized === 'next week') {
-    const next = new Date(now)
-    next.setDate(now.getDate() + 7)
-    return assignTime(next)
+    return assignTime(addWeeks(now, 1))
   }
 
   const explicitDate = normalized.match(/(\d{4}-\d{2}-\d{2})$/)
   if (explicitDate) {
-    const date = new Date(`${explicitDate[1]}T09:00:00`)
-    if (!Number.isNaN(date.getTime())) {
+    const date = parseISO(explicitDate[1])
+    if (isValid(date)) {
       if (hour !== null) {
-        date.setHours(hour, minute, 0, 0)
+        return set(date, { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 }).toISOString()
       }
-      return date.toISOString()
+      return set(date, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 }).toISOString()
     }
   }
 

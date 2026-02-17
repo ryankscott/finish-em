@@ -11,6 +11,10 @@ export const Route = createFileRoute('/api/projects')({
         try {
           const body = await parseJsonBody<{
             name?: string
+            emoji?: string | null
+            description?: string
+            startAt?: string | null
+            endAt?: string | null
             color?: string
             isInbox?: boolean
           }>(request)
@@ -21,6 +25,10 @@ export const Route = createFileRoute('/api/projects')({
 
           const project = createProject({
             name: body.name.trim(),
+            emoji: body.emoji,
+            description: body.description,
+            startAt: body.startAt,
+            endAt: body.endAt,
             color: body.color,
             isInbox: body.isInbox,
           })

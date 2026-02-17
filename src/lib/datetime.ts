@@ -1,52 +1,54 @@
+import {
+  startOfDay as fnsStartOfDay,
+  endOfDay as fnsEndOfDay,
+  startOfWeek as fnsStartOfWeek,
+  format,
+  parseISO,
+  isValid,
+  set,
+} from 'date-fns'
+
 export function toDateInputValue(iso: string | null) {
   if (!iso) {
     return ''
   }
-  return iso.slice(0, 10)
+  const date = parseISO(iso)
+  if (!isValid(date)) {
+    return ''
+  }
+  return format(date, 'yyyy-MM-dd')
 }
 
 export function fromDateInputValue(value: string): string | null {
   if (!value) {
     return null
   }
-  const date = new Date(`${value}T09:00:00`)
-  if (Number.isNaN(date.getTime())) {
+  const date = parseISO(value)
+  if (!isValid(date)) {
     return null
   }
-  return date.toISOString()
+  return set(date, { hours: 9, minutes: 0, seconds: 0, milliseconds: 0 }).toISOString()
 }
 
 export function startOfDay(date = new Date()) {
-  const next = new Date(date)
-  next.setHours(0, 0, 0, 0)
-  return next
+  return fnsStartOfDay(date)
 }
 
 export function endOfDay(date = new Date()) {
-  const next = new Date(date)
-  next.setHours(23, 59, 59, 999)
-  return next
+  return fnsEndOfDay(date)
 }
 
 export function startOfWeek(date = new Date()) {
-  const next = startOfDay(date)
-  const day = next.getDay()
-  const diff = (day + 6) % 7
-  next.setDate(next.getDate() - diff)
-  return next
+  return fnsStartOfWeek(date, { weekStartsOn: 1 })
 }
 
 export function formatDateLabel(iso: string | null) {
   if (!iso) {
     return 'No date'
   }
-  const date = new Date(iso)
-  if (Number.isNaN(date.getTime())) {
+  const date = parseISO(iso)
+  if (!isValid(date)) {
     return 'Invalid date'
   }
-  return date.toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    weekday: 'short',
-  })
+  return format(date, 'EEE, MMM d')
 }
