@@ -19,10 +19,12 @@ interface TaskDatePickerProps {
 	onChange: (value: string | null) => void;
 	placeholder?: string;
 	className?: string;
+	disabled?: boolean;
 	showRepeat?: boolean;
 	currentPreset?: RecurrencePreset;
 	currentRRule?: string | null;
 	onRecurrenceChange?: (preset: RecurrencePreset, rrule: string | null) => void;
+  icon?: React.ReactNode;
 }
 
 function isoStringToDate(value: string | null): Date | undefined {
@@ -98,10 +100,12 @@ export function TaskDatePicker({
 	onChange,
 	placeholder = "Pick a date",
 	className,
+	disabled = false,
 	showRepeat = false,
 	currentPreset = null,
 	currentRRule = null,
 	onRecurrenceChange,
+  icon,
 }: TaskDatePickerProps) {
 	const selectedDate = isoStringToDate(value);
 	const [inputValue, setInputValue] = useState("");
@@ -158,14 +162,15 @@ export function TaskDatePicker({
 				<PopoverTrigger asChild>
 					<Button
 						variant="outline"
+						disabled={disabled}
 						data-empty={!selectedDate}
 						className={cn(
 							"justify-start text-left font-normal data-[empty=true]:text-muted-foreground",
 							className ?? "w-70",
 						)}
 					>
-						<CalendarIcon className="mr-2 h-4 w-4" />
-						{selectedDate ? format(selectedDate, "PPP") : <span>{placeholder}</span>}
+					{icon ?? <CalendarIcon className="mr-2 h-4 w-4" />}
+						{selectedDate ? format(selectedDate, "dd MMM") : <span>{placeholder}</span>}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-auto p-0" align="start">

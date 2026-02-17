@@ -22,13 +22,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 import type { Project } from '@/server/types'
-import { Calendar, CalendarCheck, InboxIcon } from 'lucide-react'
+import { Calendar, CalendarCheck, CheckCircle, CheckCircle2, InboxIcon } from 'lucide-react'
 
 
 const SIDEBAR_ITEMS: {link: string, icon: React.ReactNode, label: string}[] = [
   { link: '/', icon: <CalendarCheck className='w-5 h-5'/>, label: 'Today' },
   { link: '/inbox', icon: <InboxIcon className="w-5 h-5" />, label: 'Inbox' },
   { link: '/upcoming', icon: <Calendar className="w-5 h-5" />, label: 'Upcoming' },
+  { link: '/completed', icon: <CheckCircle className="w-5 h-5" />, label: 'Completed' },
 ]
 
 export function AppLayout(props: {

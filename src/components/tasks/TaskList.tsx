@@ -59,6 +59,16 @@ export function TaskList(props: {
 
 	const selectedTask = filteredTasks[selectedIndex] ?? null;
 
+	const exitEditMode = () => {
+		setEditingTaskId(null);
+		setEditingTitle("");
+	};
+
+	const enterEditMode = (task: TaskType) => {
+		setEditingTaskId(task.id);
+		setEditingTitle(task.title);
+	};
+
 	useHotkeys(
 		{
 			j: () =>
@@ -81,8 +91,10 @@ export function TaskList(props: {
 				if (!selectedTask) {
 					return;
 				}
-				setEditingTaskId(selectedTask.id);
-				setEditingTitle(selectedTask.title);
+				enterEditMode(selectedTask);
+			},
+			escape: () => {
+				exitEditMode();
 			},
 			"/": () => {
 				const input = document.getElementById(
@@ -91,7 +103,7 @@ export function TaskList(props: {
 				input?.focus();
 			},
 		},
-		{ allowInInput: ["/"] },
+		{ allowInInput: ["/", "escape"] },
 	);
 
 	const saveEdit = async (taskId: number) => {
@@ -101,7 +113,7 @@ export function TaskList(props: {
 		}
 
 		await api.updateTask(taskId, { title });
-		setEditingTaskId(null);
+		exitEditMode();
 		await onRefresh();
 	};
 
@@ -178,7 +190,9 @@ export function TaskList(props: {
 							}}
 							onEditingTitleChange={setEditingTitle}
 							onSaveEdit={() => saveEdit(task.id)}
-							onCancelEdit={() => setEditingTaskId(null)}
+							onCancelEdit={exitEditMode}
+							onEnterEditMode={() => enterEditMode(task)}
+							onExitEditMode={exitEditMode}
 							onRefresh={onRefresh}
 							onOpenReminderModal={() => openReminderModal(task.id)}
 							onDeleteReminder={deleteReminder}
