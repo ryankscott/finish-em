@@ -12,32 +12,20 @@ import { Box, Text, useInput, useStdout } from "ink";
 import TextInput from "ink-text-input";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type {
-	AppSettings,
-	AssistantMessage,
-	Goal,
-	Project,
-	Reminder,
-	Task,
-} from "../server/types";
+import type { AssistantMessage, Goal, Project, Reminder, Task } from "../server/types";
 import { AssistantPanel, listPendingAssistantActions } from "./AssistantPanel";
-import type { createApi } from "./api";
 import { parseAssistantSettingsCommand } from "./assistant-commands";
-import { Dashboard } from "./Dashboard";
-import { HelpModal } from "./HelpModal";
-import { NyanCat } from "./NyanCat";
+import type { createApi } from "./api";
 import {
 	parseTaskEditInput,
 	serializeTaskToEditInput,
 } from "./parse-task-input";
-import {
-	buildSettingsRows,
-	type SettingsField,
-	SettingsPanel,
-} from "./SettingsPanel";
+import { Dashboard } from "./Dashboard";
+import { HelpModal } from "./HelpModal";
 import type { SidebarItem } from "./Sidebar";
 import { buildSidebarItems, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
+import { NyanCat } from "./NyanCat";
 import { buildTaskPanelRows, TaskPanel } from "./TaskPanel";
 import type { DayColumn, ViewMode } from "./UpcomingPanel";
 import {
@@ -49,13 +37,7 @@ import {
 	UpcomingPanel,
 } from "./UpcomingPanel";
 
-type View =
-	| "inbox"
-	| "today"
-	| "upcoming"
-	| "completed"
-	| "project"
-	| "settings";
+type View = "inbox" | "today" | "upcoming" | "completed" | "project";
 type FocusArea = "sidebar" | "tasks" | "assistant";
 type InputMode =
 	| "none"
@@ -65,11 +47,7 @@ type InputMode =
 	| "addReminder"
 	| "editTask"
 	| "addGoal"
-	| "assistantChat"
-	| "setTimezone"
-	| "setAiBaseUrl"
-	| "setAiModel"
-	| "setAiApiKey";
+	| "assistantChat";
 
 type ApiClient = ReturnType<typeof createApi>;
 
@@ -87,13 +65,11 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 	const [view, setView] = useState<View>("today");
 	const [activeProjectId, setActiveProjectId] = useState<number | null>(null);
-	const [settings, setSettings] = useState<AppSettings | null>(null);
 	const [projects, setProjects] = useState<Project[]>([]);
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [goals, setGoals] = useState<Goal[]>([]);
 	const [reminders, setReminders] = useState<Reminder[]>([]);
 	const [taskIndex, setTaskIndex] = useState(0);
-	const [settingsIndex, setSettingsIndex] = useState(0);
 	const [columnIndex, setColumnIndex] = useState(0);
 	const [sidebarIndex, setSidebarIndex] = useState(0);
 	const [focusArea, setFocusArea] = useState<FocusArea>("sidebar");
@@ -107,12 +83,8 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [showDashboard, setShowDashboard] = useState(true);
 	const [showHelp, setShowHelp] = useState(false);
 	const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
-	const [showAssistant, setShowAssistant] = useState(
-		() => terminalWidth >= 150,
-	);
-	const [assistantMessages, setAssistantMessages] = useState<
-		AssistantMessage[]
-	>([]);
+	const [showAssistant, setShowAssistant] = useState(() => terminalWidth >= 150);
+	const [assistantMessages, setAssistantMessages] = useState<AssistantMessage[]>([]);
 	const [assistantActionIndex, setAssistantActionIndex] = useState(0);
 	const [isAssistantThinking, setIsAssistantThinking] = useState(false);
 	const [completedToday, setCompletedToday] = useState(0);
@@ -131,14 +103,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [view, tasks, anchorDate, viewMode]);
 
 	const taskRows = useMemo(() => buildTaskPanelRows(tasks), [tasks]);
-	const settingsRows = useMemo(() => buildSettingsRows(settings), [settings]);
 	const currentColumnRows = useMemo(
 		() => buildColumnTaskRows(columns[columnIndex]?.tasks ?? []),
 		[columns, columnIndex],
-	);
-	const selectedSettingsField = useMemo<SettingsField>(
-		() => settingsRows[settingsIndex]?.field ?? "timezone",
-		[settingsIndex, settingsRows],
 	);
 
 	// Derive the effective "selected task" — from columns when in upcoming view
@@ -170,9 +137,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 			const proj = projects.find((p) => p.id === activeProjectId);
 			return proj?.name ?? "Project";
 		}
-		if (view === "settings") {
-			return "Settings";
-		}
 		return view === "inbox"
 			? "Inbox"
 			: view === "today"
@@ -191,29 +155,21 @@ export const App = ({ api, onQuit }: AppProps) => {
 			setActiveProjectId(item.project.id);
 		}
 		setTaskIndex(0);
-		setSettingsIndex(0);
 	}, []);
 
 	const loadData = useCallback(async () => {
 		setLoading(true);
 		setErrorText(null);
 		try {
-			const [loadedProjects, loadedSettings] = await Promise.all([
-				api.listProjects(),
-				api.getSettings(),
-			]);
+			const loadedProjects = await api.listProjects();
 			setProjects(loadedProjects);
-			setSettings(loadedSettings);
 			const resolvedInbox = loadedProjects.find((project) => project.isInbox);
 
 			const now = new Date();
 			const todayStart = startOfDay(now).toISOString();
 			const todayEnd = endOfDay(now).toISOString();
 
-			if (view === "settings") {
-				setTasks([]);
-				setStatusText("Settings");
-			} else if (view === "inbox") {
+			if (view === "inbox") {
 				if (!resolvedInbox) {
 					setTasks([]);
 					setStatusText("Inbox project not found");
@@ -327,13 +283,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [view, currentColumnRows.length, taskRows.length]);
 
 	useEffect(() => {
-		setSettingsIndex((current) => {
-			if (settingsRows.length === 0) return 0;
-			return Math.min(current, settingsRows.length - 1);
-		});
-	}, [settingsRows.length]);
-
-	useEffect(() => {
 		setAssistantActionIndex((current) => {
 			if (pendingAssistantActions.length === 0) {
 				return 0;
@@ -374,66 +323,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setInputValue("");
 	}, []);
 
-	const updateSettingsPatch = useCallback(
-		async (
-			patch: Parameters<ApiClient["updateSettings"]>[0],
-			successMessage: string,
-		) => {
-			setLoading(true);
-			setErrorText(null);
-			try {
-				const updatedSettings = await api.updateSettings(patch);
-				setSettings(updatedSettings);
-				setStatusText(successMessage);
-			} catch (error) {
-				const message = error instanceof Error ? error.message : String(error);
-				setErrorText(message);
-			} finally {
-				setLoading(false);
-			}
-		},
-		[api],
-	);
-
-	const editSelectedSetting = useCallback(() => {
-		switch (selectedSettingsField) {
-			case "timezone":
-				setInputMode("setTimezone");
-				setInputValue(settings?.timezone ?? "");
-				return;
-			case "aiProvider":
-				void updateSettingsPatch(
-					{
-						aiProvider:
-							(settings?.aiProvider ?? "lmstudio") === "lmstudio"
-								? "openai"
-								: "lmstudio",
-					},
-					"Assistant provider updated",
-				);
-				return;
-			case "aiBaseUrl":
-				setInputMode("setAiBaseUrl");
-				setInputValue(settings?.aiBaseUrl ?? "");
-				return;
-			case "aiModel":
-				setInputMode("setAiModel");
-				setInputValue(settings?.aiModel ?? "");
-				return;
-			case "aiApiKey":
-				setInputMode("setAiApiKey");
-				setInputValue("");
-				return;
-		}
-	}, [selectedSettingsField, settings, updateSettingsPatch]);
-
 	const submitInput = useCallback(async () => {
 		const value = inputValue.trim();
-		const allowsEmptyValue =
-			inputMode === "setAiBaseUrl" ||
-			inputMode === "setAiModel" ||
-			inputMode === "setAiApiKey";
-		if (value.length === 0 && !allowsEmptyValue) {
+		if (value.length === 0) {
 			closeInput();
 			return;
 		}
@@ -441,82 +333,35 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setLoading(true);
 		setErrorText(null);
 		try {
-			if (inputMode === "setTimezone") {
-				const updatedSettings = await api.updateSettings({ timezone: value });
-				setSettings(updatedSettings);
-				setStatusText("Timezone updated");
-			} else if (inputMode === "setAiBaseUrl") {
-				const updatedSettings = await api.updateSettings({
-					aiBaseUrl: value.length > 0 ? value : null,
-				});
-				setSettings(updatedSettings);
-				setStatusText(
-					value.length > 0
-						? "Assistant base URL updated"
-						: "Assistant base URL cleared",
-				);
-			} else if (inputMode === "setAiModel") {
-				const updatedSettings = await api.updateSettings({
-					aiModel: value.length > 0 ? value : null,
-				});
-				setSettings(updatedSettings);
-				setStatusText(
-					value.length > 0
-						? "Assistant model updated"
-						: "Assistant model cleared",
-				);
-			} else if (inputMode === "setAiApiKey") {
-				const updatedSettings =
-					value.length > 0
-						? await api.updateSettings({ aiApiKey: value })
-						: await api.updateSettings({ clearAiApiKey: true });
-				setSettings(updatedSettings);
-				setStatusText(
-					value.length > 0
-						? "Assistant API key updated"
-						: "Assistant API key cleared",
-				);
-			} else if (inputMode === "assistantChat") {
+			if (inputMode === "assistantChat") {
 				const command = parseAssistantSettingsCommand(value);
 				if (command) {
 					if (command.type === "set_key") {
-						const updatedSettings = await api.updateSettings({
-							aiApiKey: command.value,
-						});
-						setSettings(updatedSettings);
+						await api.updateSettings({ aiApiKey: command.value });
 						setStatusText("Assistant API key updated");
 					} else if (command.type === "set_base") {
-						const updatedSettings = await api.updateSettings({
-							aiBaseUrl: command.value,
-						});
-						setSettings(updatedSettings);
+						await api.updateSettings({ aiBaseUrl: command.value });
 						setStatusText("Assistant base URL updated");
 					} else if (command.type === "set_model") {
-						const updatedSettings = await api.updateSettings({
-							aiModel: command.value,
-						});
-						setSettings(updatedSettings);
+						await api.updateSettings({ aiModel: command.value });
 						setStatusText("Assistant model updated");
 					} else {
-						const updatedSettings = await api.updateSettings({
-							clearAiApiKey: true,
-						});
-						setSettings(updatedSettings);
+						await api.updateSettings({ clearAiApiKey: true });
 						setStatusText("Assistant API key cleared");
 					}
 				} else {
-					setIsAssistantThinking(true);
+					setIsAssistantThinking(true)
 					try {
 						await api.sendAssistantChat({
 							surface: "tui",
 							message: value,
-						});
-						setStatusText("Assistant replied");
+						})
 					} finally {
-						setIsAssistantThinking(false);
-						await loadAssistant();
+						setIsAssistantThinking(false)
 					}
+					setStatusText("Assistant replied");
 				}
+				await loadAssistant();
 			} else if (inputMode === "quickAdd") {
 				await api.createQuickAdd(value);
 				setStatusText("Task created");
@@ -566,13 +411,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 				setStatusText("Goal created");
 			}
 			closeInput();
-			const shouldReloadData =
-				inputMode !== "assistantChat" &&
-				inputMode !== "setTimezone" &&
-				inputMode !== "setAiBaseUrl" &&
-				inputMode !== "setAiModel" &&
-				inputMode !== "setAiApiKey";
-			if (shouldReloadData) {
+			if (inputMode !== "assistantChat") {
 				await loadData();
 			}
 		} catch (error) {
@@ -590,7 +429,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 		inputValue,
 		loadData,
 		loadAssistant,
-		projects,
 		selectedTask,
 	]);
 
@@ -659,13 +497,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 				setLoading(false);
 			}
 		},
-		[
-			api,
-			assistantActionIndex,
-			loadAssistant,
-			loadData,
-			pendingAssistantActions,
-		],
+		[api, assistantActionIndex, loadAssistant, loadData, pendingAssistantActions],
 	);
 
 	useInput((input: string, key: Key) => {
@@ -720,20 +552,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 			return;
 		}
 
-		if (input === "S") {
-			setView("settings");
-			setActiveProjectId(null);
-			setFocusArea("tasks");
-			const settingsNavIndex = sidebarItems.findIndex(
-				(item) => item.type === "nav" && item.view === "settings",
-			);
-			if (settingsNavIndex >= 0) {
-				setSidebarIndex(settingsNavIndex);
-			}
-			setSettingsIndex(0);
-			return;
-		}
-
 		if (input === "c") {
 			if (!showAssistant) {
 				setShowAssistant(true);
@@ -763,33 +581,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		}
 
 		if (focusArea === "tasks") {
-			if (view === "settings") {
-				if (input === "j" || key.downArrow) {
-					setSettingsIndex((current) =>
-						Math.min(current + 1, Math.max(settingsRows.length - 1, 0)),
-					);
-					return;
-				}
-				if (input === "k" || key.upArrow) {
-					setSettingsIndex((current) => Math.max(current - 1, 0));
-					return;
-				}
-				if (key.return || input === "e") {
-					editSelectedSetting();
-					return;
-				}
-				if (input === " " && selectedSettingsField === "aiProvider") {
-					editSelectedSetting();
-					return;
-				}
-				if (input === "x" && selectedSettingsField === "aiApiKey") {
-					void updateSettingsPatch(
-						{ clearAiApiKey: true },
-						"Assistant API key cleared",
-					);
-					return;
-				}
-			} else if (view === "upcoming") {
+			if (view === "upcoming") {
 				// Column navigation (h/l or left/right)
 				if (input === "h" || key.leftArrow) {
 					setColumnIndex((c) => Math.max(c - 1, 0));
@@ -945,9 +737,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 		if (input === " ") {
 			if (!selectedTask) return;
-			setExpandedTaskId(
-				expandedTaskId === selectedTask.id ? null : selectedTask.id,
-			);
+			setExpandedTaskId(expandedTaskId === selectedTask.id ? null : selectedTask.id);
 			return;
 		}
 
@@ -997,10 +787,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const isInputMode = inputMode !== "none";
 	const isBottomBarMode = isInputMode && inputMode !== "assistantChat";
 	// Reserve rows for nyan cat (1) + status bar (1) + input bar (2 if active) + borders
-	const mainPanelHeight = Math.max(
-		terminalHeight - (isBottomBarMode ? 5 : 3),
-		6,
-	);
+	const mainPanelHeight = Math.max(terminalHeight - (isBottomBarMode ? 5 : 3), 6);
 
 	if (showDashboard) {
 		return (
@@ -1014,6 +801,12 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 	return (
 		<Box flexDirection="column" height={terminalHeight}>
+			{showHelp && (
+				<HelpModal
+					terminalWidth={stdout?.columns ?? 120}
+					terminalHeight={terminalHeight}
+				/>
+			)}
 			<Box flexDirection="row" height={mainPanelHeight}>
 				<Sidebar
 					items={sidebarItems}
@@ -1044,13 +837,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 								selectedColumnIndex={columnIndex}
 								selectedTaskIndex={taskIndex}
 								terminalWidth={terminalWidth}
-							/>
-						) : view === "settings" ? (
-							<SettingsPanel
-								settings={settings}
-								rows={settingsRows}
-								selectedIndex={settingsIndex}
-								focused={focusArea === "tasks"}
 							/>
 						) : (
 							<TaskPanel
@@ -1086,29 +872,18 @@ export const App = ({ api, onQuit }: AppProps) => {
 						{inputMode === "addReminder" && "Reminder (ISO): "}
 						{inputMode === "editTask" && "Edit task: "}
 						{inputMode === "addGoal" && "New goal: "}
-						{inputMode === "setTimezone" && "Timezone: "}
-						{inputMode === "setAiBaseUrl" &&
-							"Assistant base URL (empty clears): "}
-						{inputMode === "setAiModel" && "Assistant model (empty clears): "}
-						{inputMode === "setAiApiKey" &&
-							"Assistant API key (empty clears): "}
 					</Text>
 					<TextInput value={inputValue} onChange={setInputValue} />
 				</Box>
 			)}
 
+			<NyanCat completedToday={completedToday} width={terminalWidth} />
 
 			<StatusBar
 				isInputMode={isInputMode}
 				statusText={loading ? "Loading..." : statusText}
 				errorText={errorText}
 			/>
-			{showHelp && (
-				<HelpModal
-					terminalWidth={stdout?.columns ?? 120}
-					terminalHeight={terminalHeight}
-				/>
-			)}
 		</Box>
 	);
 };

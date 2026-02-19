@@ -3,19 +3,12 @@ import { Box, Text } from "ink";
 const MILESTONE = 10;
 
 const RAINBOW_COLORS = [
-  "#FF0000",
-  "#FF0000",
-  "#FF9008",
-  "#FF9008",
-  "#F6FF00",
-  "#F6FF00",
-  "#7CFF27",
-  "#7CFF27",
-  "#5FFBFF",
-  "#5FFBFF",
-  "#6400FF",
-  "#6400FF",
-  "#FF00FF"
+	"red",
+	"#FF7F00",
+	"yellow",
+	"green",
+	"#4169E1",
+	"#8B00FF",
 ] as const;
 
 type NyanCatProps = {
@@ -40,7 +33,7 @@ export const NyanCat = ({ completedToday, width }: NyanCatProps) => {
 	const rainbowChars: Array<{ char: string; color: string }> = [];
 	for (let i = 0; i < filledCells; i++) {
 		const color = RAINBOW_COLORS[i % RAINBOW_COLORS.length];
-		rainbowChars.push({ char: "█", color });
+		rainbowChars.push({ char: "━", color });
 	}
 
 	return (
@@ -51,7 +44,7 @@ export const NyanCat = ({ completedToday, width }: NyanCatProps) => {
 					{rc.char}
 				</Text>
 			))}
-			{completedToday > 0 && <Text>{"🐱"}</Text>}
+			{completedToday > 0 && <Text>{"=^..^="}</Text>}
 			<Text dimColor>{"░".repeat(emptyCells)}</Text>
 			<Text dimColor>]</Text>
 			<Text dimColor> {label}</Text>
