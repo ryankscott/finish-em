@@ -180,15 +180,11 @@ async function parseWithAiFallback(
   const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
 
   const prompt = `Extract todo fields from this input: ${rawInput}`
-  const importer = new Function(
-    'moduleName',
-    'return import(moduleName)',
-  ) as (moduleName: string) => Promise<unknown>
 
   try {
     const [aiModule, openAiModule] = await Promise.all([
-      importer('ai'),
-      importer('@ai-sdk/openai'),
+      import('ai') as Promise<unknown>,
+      import('@ai-sdk/openai') as Promise<unknown>,
     ])
 
     const { generateObject } = aiModule as {
@@ -283,7 +279,10 @@ export async function parseQuickAdd(rawInput: string) {
   return aiResult
 }
 
-export async function createTaskFromQuickAdd(rawInput: string): Promise<{
+export async function createTaskFromQuickAdd(
+  rawInput: string,
+  options?: { parentTaskId?: number | null },
+): Promise<{
   parse: QuickAddParseResult
   task: Task
 }> {
@@ -300,6 +299,7 @@ export async function createTaskFromQuickAdd(rawInput: string): Promise<{
 
   const task = createTask({
     projectId,
+    parentTaskId: options?.parentTaskId,
     title: parsed.title,
     priority: parsed.priority ?? 4,
     dueAt: parsed.dueAt,

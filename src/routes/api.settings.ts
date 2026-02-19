@@ -9,7 +9,14 @@ export const Route = createFileRoute('/api/settings')({
       GET: () => json(getSettings()),
       PATCH: async ({ request }) => {
         try {
-          const payload = await parseJsonBody<{ timezone?: string }>(request)
+          const payload = await parseJsonBody<{
+            timezone?: string
+            aiProvider?: 'openai' | 'lmstudio'
+            aiBaseUrl?: string | null
+            aiModel?: string | null
+            aiApiKey?: string | null
+            clearAiApiKey?: boolean
+          }>(request)
           return json(updateSettings(payload))
         } catch (error) {
           return badRequest('invalid payload', String(error))

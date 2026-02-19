@@ -15,6 +15,12 @@ describe('openapi spec', () => {
     expect(spec.paths['/api/tasks/{taskId}/complete']).toBeTruthy()
     expect(spec.paths['/api/reminders/{reminderId}/snooze']).toBeTruthy()
     expect(spec.paths['/api/quick-add/create']).toBeTruthy()
+    expect(spec.paths['/api/settings']).toBeTruthy()
+    expect(spec.paths['/api/assistant']).toBeTruthy()
+    expect(spec.paths['/api/assistant/chat']).toBeTruthy()
+    expect(spec.paths['/api/assistant/actions/decision']).toBeTruthy()
+    expect(spec.paths['/api/assistant/messages']).toBeTruthy()
+    expect(spec.paths['/api/openapi/json']).toBeTruthy()
 
     expect(taskQueryParameterNames.has('projectId')).toBe(true)
     expect(taskQueryParameterNames.has('status')).toBe(true)
@@ -22,5 +28,12 @@ describe('openapi spec', () => {
     expect(taskQueryParameterNames.has('to')).toBe(true)
     expect(taskQueryParameterNames.has('priority')).toBe(true)
     expect(taskQueryParameterNames.has('noDueDate')).toBe(true)
+    expect(taskQueryParameterNames.has('parentTaskId')).toBe(true)
+    expect(taskQueryParameterNames.has('rootsOnly')).toBe(true)
+
+    const taskSchema = spec.components.schemas.Task as {
+      properties: Record<string, unknown>
+    }
+    expect(taskSchema.properties.parentTaskId).toBeTruthy()
   })
 })

@@ -1,4 +1,11 @@
-import type { Goal, Project, Reminder, Task } from '@/server/types'
+import type {
+  AppSettings,
+  AssistantMessage,
+  Goal,
+  Project,
+  Reminder,
+  Task,
+} from '@/server/types'
 
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -18,6 +25,21 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  getSettings: () => request<AppSettings>('/api/settings'),
+  updateSettings: (
+    payload: Partial<{
+      timezone: string
+      aiProvider: 'openai' | 'lmstudio'
+      aiBaseUrl: string | null
+      aiModel: string | null
+      aiApiKey: string | null
+      clearAiApiKey: boolean
+    }>,
+  ) =>
+    request<AppSettings>('/api/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
   listProjects: () => request<Project[]>('/api/projects'),
   getProject: (projectId: number) => request<Project>(`/api/projects/${projectId}`),
   createProject: (payload: {
@@ -62,7 +84,18 @@ export const api = {
     const suffix = params.size > 0 ? `?${params.toString()}` : ''
     return request<Task[]>(`/api/tasks${suffix}`)
   },
-  createTask: (payload: Record<string, unknown>) =>
+  createTask: (payload: {
+    projectId: number
+    parentTaskId?: number | null
+    title: string
+    notes?: string
+    priority?: 1 | 2 | 3 | 4
+    scheduledAt?: string | null
+    dueAt?: string | null
+    dueTimezone?: string | null
+    recurrencePreset?: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'every_weekday' | null
+    recurrenceRRule?: string | null
+  }) =>
     request<Task>('/api/tasks', { method: 'POST', body: JSON.stringify(payload) }),
   updateTask: (taskId: number, payload: Record<string, unknown>) =>
     request<Task>(`/api/tasks/${taskId}`, {
@@ -139,11 +172,45 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ text }),
     }),
-  createQuickAdd: (text: string) =>
+  createQuickAdd: (text: string, options?: { parentTaskId?: number | null }) =>
     request<{ task: Task; parse: Record<string, unknown> }>('/api/quick-add/create', {
       method: 'POST',
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({
+        text,
+        parentTaskId: options?.parentTaskId,
+      }),
     }),
 
-  getOpenApiSpec: () => request('/api/openapi.json'),
+  getAssistantState: (surface: 'ui' | 'tui') =>
+    request<{
+      settings: AppSettings
+      messages: AssistantMessage[]
+    }>(`/api/assistant?surface=${surface}`),
+  sendAssistantChat: (payload: { surface: 'ui' | 'tui'; message: string }) =>
+    request<{
+      userMessage: AssistantMessage
+      assistantMessage: AssistantMessage
+    }>('/api/assistant/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  decideAssistantAction: (payload: {
+    surface: 'ui' | 'tui'
+    messageId: number
+    actionId: string
+    decision: 'confirm' | 'cancel'
+  }) =>
+    request<{
+      message: AssistantMessage
+    }>('/api/assistant/actions/decision', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  clearAssistantMessages: (surface: 'ui' | 'tui') =>
+    request<{ ok: boolean; deleted: number }>(
+      `/api/assistant/messages?surface=${surface}`,
+      { method: 'DELETE' },
+    ),
+
+  getOpenApiSpec: () => request('/api/openapi/json'),
 }

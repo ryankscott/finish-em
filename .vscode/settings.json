@@ -31,5 +31,8 @@
   },
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit"
+  },
+  "chat.tools.terminal.autoApprove": {
+    "bun": true
   }
 }

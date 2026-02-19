@@ -11,7 +11,14 @@ import {
   listTaskReminders,
   snoozeReminder,
 } from '@/server/repos/reminders'
-import { completeTask, createTask, getTask } from '@/server/repos/tasks'
+import {
+  completeTask,
+  createTask,
+  deleteTask,
+  getTask,
+  listTasks,
+  updateTask,
+} from '@/server/repos/tasks'
 
 const dbPath = path.join(os.tmpdir(), `finish-em-test-${Date.now()}.db`)
 
@@ -86,5 +93,94 @@ describe('repositories integration', () => {
     const task = createTask({ projectId: project.id, title: 'Book dentist' })
 
     expect(getTask(task.id)?.title).toBe('Book dentist')
+  })
+
+  it('supports parent + subtask and filtering', () => {
+    const project = createProject({ name: 'Work' })
+    const parent = createTask({ projectId: project.id, title: 'Launch v2' })
+    const subtask = createTask({
+      projectId: project.id,
+      title: 'Write changelog',
+      parentTaskId: parent.id,
+    })
+
+    expect(subtask.parentTaskId).toBe(parent.id)
+    expect(listTasks({ rootsOnly: true }).some((task) => task.id === parent.id)).toBe(
+      true,
+    )
+    expect(
+      listTasks({ parentTaskId: parent.id }).some((task) => task.id === subtask.id),
+    ).toBe(true)
+  })
+
+  it('rejects assigning a subtask as a parent task', () => {
+    const project = createProject({ name: 'Ops' })
+    const parent = createTask({ projectId: project.id, title: 'Parent' })
+    const child = createTask({
+      projectId: project.id,
+      title: 'Child',
+      parentTaskId: parent.id,
+    })
+
+    expect(() =>
+      createTask({
+        projectId: project.id,
+        title: 'Grandchild',
+        parentTaskId: child.id,
+      }),
+    ).toThrow('Parent task cannot be a subtask')
+  })
+
+  it('rejects assigning parent task across projects', () => {
+    const projectA = createProject({ name: 'A' })
+    const projectB = createProject({ name: 'B' })
+    const parent = createTask({ projectId: projectA.id, title: 'Parent A' })
+
+    expect(() =>
+      createTask({
+        projectId: projectB.id,
+        title: 'Task B',
+        parentTaskId: parent.id,
+      }),
+    ).toThrow('Parent task must belong to the same project')
+  })
+
+  it('rejects setting task parent to itself', () => {
+    const project = createProject({ name: 'Self-check' })
+    const task = createTask({ projectId: project.id, title: 'Task' })
+
+    expect(() => updateTask(task.id, { parentTaskId: task.id })).toThrow(
+      'Task cannot be its own parent',
+    )
+  })
+
+  it('cascades delete from parent task to subtasks', () => {
+    const project = createProject({ name: 'Cascade' })
+    const parent = createTask({ projectId: project.id, title: 'Parent' })
+    const subtask = createTask({
+      projectId: project.id,
+      title: 'Child',
+      parentTaskId: parent.id,
+    })
+
+    expect(deleteTask(parent.id)).toBe(true)
+    expect(getTask(parent.id)).toBeNull()
+    expect(getTask(subtask.id)).toBeNull()
+  })
+
+  it('rejects assigning parent when task already has subtasks', () => {
+    const project = createProject({ name: 'Hierarchy' })
+    const parent = createTask({ projectId: project.id, title: 'Parent' })
+    const child = createTask({
+      projectId: project.id,
+      title: 'Child',
+      parentTaskId: parent.id,
+    })
+    const anotherRoot = createTask({ projectId: project.id, title: 'Another root' })
+
+    expect(() => updateTask(parent.id, { parentTaskId: anotherRoot.id })).toThrow(
+      'A task with subtasks cannot be assigned as a subtask',
+    )
+    expect(child.parentTaskId).toBe(parent.id)
   })
 })

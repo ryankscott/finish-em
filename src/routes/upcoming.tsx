@@ -60,6 +60,48 @@ type DayColumn = {
   isOverdue?: boolean
 }
 
+type NestedRow = {
+  task: Task
+  depth: 0 | 1
+  parentTitle?: string
+}
+
+function buildNestedRows(tasks: Task[], allTasks: Task[]): NestedRow[] {
+  const visibleMap = new Map(tasks.map((task) => [task.id, task]))
+  const allMap = new Map(allTasks.map((task) => [task.id, task]))
+  const childrenByParent = new Map<number, Task[]>()
+  const roots: Task[] = []
+
+  for (const task of tasks) {
+    if (task.parentTaskId !== null && visibleMap.has(task.parentTaskId)) {
+      const children = childrenByParent.get(task.parentTaskId) ?? []
+      children.push(task)
+      childrenByParent.set(task.parentTaskId, children)
+      continue
+    }
+    roots.push(task)
+  }
+
+  const rows: NestedRow[] = []
+  for (const root of roots) {
+    rows.push({
+      task: root,
+      depth: 0,
+      parentTitle:
+        root.parentTaskId !== null ? allMap.get(root.parentTaskId)?.title : undefined,
+    })
+    for (const child of childrenByParent.get(root.id) ?? []) {
+      rows.push({
+        task: child,
+        depth: 1,
+        parentTitle: root.title,
+      })
+    }
+  }
+
+  return rows
+}
+
 type ViewMode = 'day' | 'work-week' | 'week'
 
 function UpcomingRoute() {
@@ -339,12 +381,14 @@ function UpcomingRoute() {
 
                 {/* Task cards */}
                 <div className="space-y-2">
-                  {col.tasks.map((task) => {
+                  {buildNestedRows(col.tasks, allTasks).map((row) => {
+                    const task = row.task
                     const project = projectMap[task.projectId]
                     return (
                       <div
                         key={task.id}
                         className="rounded-lg border border-zinc-200 bg-white p-3 hover:shadow-sm transition-shadow"
+                        style={row.depth === 1 ? { marginLeft: 16 } : undefined}
                       >
                         <div className="flex items-start gap-2.5">
                           <Button
@@ -361,6 +405,11 @@ function UpcomingRoute() {
                             <p className="text-sm font-medium text-zinc-900 leading-snug">
                               {task.title}
                             </p>
+                            {task.parentTaskId !== null && row.parentTitle && (
+                              <p className="mt-0.5 text-[11px] text-zinc-500">
+                                Subtask of {row.parentTitle}
+                              </p>
+                            )}
                             {task.notes && (
                               <p className="text-xs text-zinc-400 mt-0.5 truncate">
                                 {task.notes}

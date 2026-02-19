@@ -136,3 +136,65 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+/* Nyan Cat animations */
+@keyframes nyan-rainbow-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes nyan-cat-bob {
+  0%, 100% {
+    transform: translateY(-50%);
+  }
+  50% {
+    transform: translateY(calc(-50% - 2px));
+  }
+}
+
+@keyframes nyan-star-twinkle {
+  0%, 100% {
+    opacity: 0.4;
+    transform: translateY(-50%) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.2);
+  }
+}
+
+.nyan-rainbow {
+  background: linear-gradient(
+    to right,
+    #ff0000,
+    #ff8800,
+    #ffff00,
+    #00dd00,
+    #0088ff,
+    #7700ff,
+    #ff0000,
+    #ff8800,
+    #ffff00,
+    #00dd00,
+    #0088ff,
+    #7700ff
+  );
+  background-size: 200% auto;
+  animation: nyan-rainbow-shimmer 2s linear infinite;
+}
+
+.nyan-cat-bob {
+  animation: nyan-cat-bob 0.35s ease-in-out infinite;
+}
+
+.nyan-star {
+  animation: nyan-star-twinkle 0.8s ease-in-out infinite;
+}
+
+.nyan-star-delay {
+  animation: nyan-star-twinkle 0.8s ease-in-out 0.4s infinite;
+}

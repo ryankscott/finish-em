@@ -3,6 +3,26 @@ import { createFileRoute } from '@tanstack/react-router'
 import { createTask, listTasks } from '@/server/repos/tasks'
 import { asNumber, badRequest, json, parseJsonBody } from '@/server/services/http'
 
+function parseParentTaskId(value: unknown) {
+  if (value === undefined) {
+    return undefined
+  }
+
+  if (value === null) {
+    return null
+  }
+
+  if (typeof value === 'number' && Number.isInteger(value)) {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    return asNumber(value, 'parentTaskId')
+  }
+
+  throw new Error('parentTaskId must be an integer or null')
+}
+
 export const Route = createFileRoute('/api/tasks')({
   server: {
     handlers: {
@@ -14,6 +34,8 @@ export const Route = createFileRoute('/api/tasks')({
         const to = url.searchParams.get('to')
         const priority = url.searchParams.get('priority')
         const noDueDate = url.searchParams.get('noDueDate')
+        const parentTaskId = url.searchParams.get('parentTaskId')
+        const rootsOnly = url.searchParams.get('rootsOnly')
 
         const tasks = listTasks({
           projectId: projectId ? asNumber(projectId, 'projectId') : undefined,
@@ -23,6 +45,9 @@ export const Route = createFileRoute('/api/tasks')({
           noDueDate:
             noDueDate === 'true' || noDueDate === '1' ? true : undefined,
           priority: priority ? (asNumber(priority, 'priority') as 1 | 2 | 3 | 4) : undefined,
+          parentTaskId: parentTaskId ? asNumber(parentTaskId, 'parentTaskId') : undefined,
+          rootsOnly:
+            rootsOnly === 'true' || rootsOnly === '1' ? true : undefined,
         })
 
         return json(tasks)
@@ -39,6 +64,7 @@ export const Route = createFileRoute('/api/tasks')({
             dueTimezone?: string | null
             recurrencePreset?: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'every_weekday' | null
             recurrenceRRule?: string | null
+            parentTaskId?: number | null
           }>(request)
 
           if (!body.projectId) {
@@ -59,6 +85,7 @@ export const Route = createFileRoute('/api/tasks')({
             dueTimezone: body.dueTimezone,
             recurrencePreset: body.recurrencePreset,
             recurrenceRRule: body.recurrenceRRule,
+            parentTaskId: parseParentTaskId(body.parentTaskId),
           })
 
           return json(created)

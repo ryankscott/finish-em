@@ -39,6 +39,8 @@ export const listTasksTool = {
       to: z.string().optional().describe('Filter tasks to this date (ISO 8601)'),
       priority: z.enum(['1', '2', '3', '4']).optional().describe('Filter by priority (1-4)'),
       noDueDate: z.boolean().optional().describe('Filter tasks with no due date'),
+      parentTaskId: z.number().optional().describe('Filter by parent task ID'),
+      rootsOnly: z.boolean().optional().describe('Return only root tasks'),
     },
   },
   handler: async (input: Record<string, unknown>) => {
@@ -49,6 +51,10 @@ export const listTasksTool = {
     if (input.to) params.set('to', String(input.to))
     if (input.priority) params.set('priority', String(input.priority))
     if (input.noDueDate) params.set('noDueDate', String(input.noDueDate))
+    if (input.parentTaskId !== undefined) {
+      params.set('parentTaskId', String(input.parentTaskId))
+    }
+    if (input.rootsOnly) params.set('rootsOnly', String(input.rootsOnly))
 
     const path = `/api/tasks${params.size > 0 ? `?${params.toString()}` : ''}`
     const tasks = await apiRequest<Task[]>('GET', path)
@@ -101,6 +107,7 @@ export const createTaskTool = {
       dueTimezone: z.string().optional().describe('Timezone for due date'),
       recurrencePreset: z.enum(['daily', 'weekly', 'monthly', 'yearly', 'every_weekday']).optional().describe('Recurrence pattern'),
       recurrenceRRule: z.string().optional().describe('RRule for custom recurrence'),
+      parentTaskId: z.number().nullable().optional().describe('Parent task ID for subtask creation'),
     },
   },
   handler: async (input: Record<string, unknown>) => {
@@ -114,6 +121,7 @@ export const createTaskTool = {
       dueTimezone: input.dueTimezone,
       recurrencePreset: input.recurrencePreset,
       recurrenceRRule: input.recurrenceRRule,
+      parentTaskId: input.parentTaskId,
     })
 
     return {
@@ -142,6 +150,7 @@ export const updateTaskTool = {
       dueTimezone: z.string().optional().describe('New timezone for due date'),
       recurrencePreset: z.enum(['daily', 'weekly', 'monthly', 'yearly', 'every_weekday']).optional().describe('New recurrence pattern'),
       recurrenceRRule: z.string().optional().describe('New RRule for custom recurrence'),
+      parentTaskId: z.number().nullable().optional().describe('Parent task ID for subtask assignment'),
     },
   },
   handler: async (input: Record<string, unknown>) => {
@@ -154,6 +163,7 @@ export const updateTaskTool = {
       dueTimezone: input.dueTimezone,
       recurrencePreset: input.recurrencePreset,
       recurrenceRRule: input.recurrenceRRule,
+      parentTaskId: input.parentTaskId,
     })
 
     return {

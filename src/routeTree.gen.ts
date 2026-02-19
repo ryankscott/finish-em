@@ -22,6 +22,7 @@ import { Route as ApiTasksRouteImport } from './routes/api.tasks'
 import { Route as ApiSettingsRouteImport } from './routes/api.settings'
 import { Route as ApiProjectsRouteImport } from './routes/api.projects'
 import { Route as ApiGoalsRouteImport } from './routes/api.goals'
+import { Route as ApiAssistantRouteImport } from './routes/api.assistant'
 import { Route as DemoApiMcpTodosRouteImport } from './routes/demo/api.mcp-todos'
 import { Route as ApiTasksTaskIdRouteImport } from './routes/api.tasks.$taskId'
 import { Route as ApiRemindersReminderIdRouteImport } from './routes/api.reminders.$reminderId'
@@ -30,10 +31,13 @@ import { Route as ApiQuickAddCreateRouteImport } from './routes/api.quick-add.cr
 import { Route as ApiProjectsProjectIdRouteImport } from './routes/api.projects.$projectId'
 import { Route as ApiOpenapiJsonRouteImport } from './routes/api.openapi.json'
 import { Route as ApiGoalsGoalIdRouteImport } from './routes/api.goals.$goalId'
+import { Route as ApiAssistantMessagesRouteImport } from './routes/api.assistant.messages'
+import { Route as ApiAssistantChatRouteImport } from './routes/api.assistant.chat'
 import { Route as ApiTasksTaskIdUncompleteRouteImport } from './routes/api.tasks.$taskId.uncomplete'
 import { Route as ApiTasksTaskIdRemindersRouteImport } from './routes/api.tasks.$taskId.reminders'
 import { Route as ApiTasksTaskIdCompleteRouteImport } from './routes/api.tasks.$taskId.complete'
 import { Route as ApiRemindersReminderIdSnoozeRouteImport } from './routes/api.reminders.$reminderId.snooze'
+import { Route as ApiAssistantActionsDecisionRouteImport } from './routes/api.assistant.actions.decision'
 
 const UpcomingRoute = UpcomingRouteImport.update({
   id: '/upcoming',
@@ -100,6 +104,11 @@ const ApiGoalsRoute = ApiGoalsRouteImport.update({
   path: '/api/goals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAssistantRoute = ApiAssistantRouteImport.update({
+  id: '/api/assistant',
+  path: '/api/assistant',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoApiMcpTodosRoute = DemoApiMcpTodosRouteImport.update({
   id: '/demo/api/mcp-todos',
   path: '/demo/api/mcp-todos',
@@ -140,6 +149,16 @@ const ApiGoalsGoalIdRoute = ApiGoalsGoalIdRouteImport.update({
   path: '/$goalId',
   getParentRoute: () => ApiGoalsRoute,
 } as any)
+const ApiAssistantMessagesRoute = ApiAssistantMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => ApiAssistantRoute,
+} as any)
+const ApiAssistantChatRoute = ApiAssistantChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => ApiAssistantRoute,
+} as any)
 const ApiTasksTaskIdUncompleteRoute =
   ApiTasksTaskIdUncompleteRouteImport.update({
     id: '/uncomplete',
@@ -162,6 +181,12 @@ const ApiRemindersReminderIdSnoozeRoute =
     path: '/snooze',
     getParentRoute: () => ApiRemindersReminderIdRoute,
   } as any)
+const ApiAssistantActionsDecisionRoute =
+  ApiAssistantActionsDecisionRouteImport.update({
+    id: '/actions/decision',
+    path: '/actions/decision',
+    getParentRoute: () => ApiAssistantRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -169,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/inbox': typeof InboxRoute
   '/mcp': typeof McpRoute
   '/upcoming': typeof UpcomingRoute
+  '/api/assistant': typeof ApiAssistantRouteWithChildren
   '/api/goals': typeof ApiGoalsRouteWithChildren
   '/api/projects': typeof ApiProjectsRouteWithChildren
   '/api/settings': typeof ApiSettingsRoute
@@ -177,6 +203,8 @@ export interface FileRoutesByFullPath {
   '/demo/posthog': typeof DemoPosthogRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/project/$projectId': typeof ProjectProjectIdRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
+  '/api/assistant/messages': typeof ApiAssistantMessagesRoute
   '/api/goals/$goalId': typeof ApiGoalsGoalIdRoute
   '/api/openapi/json': typeof ApiOpenapiJsonRoute
   '/api/projects/$projectId': typeof ApiProjectsProjectIdRoute
@@ -185,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/api/reminders/$reminderId': typeof ApiRemindersReminderIdRouteWithChildren
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRouteWithChildren
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
+  '/api/assistant/actions/decision': typeof ApiAssistantActionsDecisionRoute
   '/api/reminders/$reminderId/snooze': typeof ApiRemindersReminderIdSnoozeRoute
   '/api/tasks/$taskId/complete': typeof ApiTasksTaskIdCompleteRoute
   '/api/tasks/$taskId/reminders': typeof ApiTasksTaskIdRemindersRoute
@@ -196,6 +225,7 @@ export interface FileRoutesByTo {
   '/inbox': typeof InboxRoute
   '/mcp': typeof McpRoute
   '/upcoming': typeof UpcomingRoute
+  '/api/assistant': typeof ApiAssistantRouteWithChildren
   '/api/goals': typeof ApiGoalsRouteWithChildren
   '/api/projects': typeof ApiProjectsRouteWithChildren
   '/api/settings': typeof ApiSettingsRoute
@@ -204,6 +234,8 @@ export interface FileRoutesByTo {
   '/demo/posthog': typeof DemoPosthogRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/project/$projectId': typeof ProjectProjectIdRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
+  '/api/assistant/messages': typeof ApiAssistantMessagesRoute
   '/api/goals/$goalId': typeof ApiGoalsGoalIdRoute
   '/api/openapi/json': typeof ApiOpenapiJsonRoute
   '/api/projects/$projectId': typeof ApiProjectsProjectIdRoute
@@ -212,6 +244,7 @@ export interface FileRoutesByTo {
   '/api/reminders/$reminderId': typeof ApiRemindersReminderIdRouteWithChildren
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRouteWithChildren
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
+  '/api/assistant/actions/decision': typeof ApiAssistantActionsDecisionRoute
   '/api/reminders/$reminderId/snooze': typeof ApiRemindersReminderIdSnoozeRoute
   '/api/tasks/$taskId/complete': typeof ApiTasksTaskIdCompleteRoute
   '/api/tasks/$taskId/reminders': typeof ApiTasksTaskIdRemindersRoute
@@ -224,6 +257,7 @@ export interface FileRoutesById {
   '/inbox': typeof InboxRoute
   '/mcp': typeof McpRoute
   '/upcoming': typeof UpcomingRoute
+  '/api/assistant': typeof ApiAssistantRouteWithChildren
   '/api/goals': typeof ApiGoalsRouteWithChildren
   '/api/projects': typeof ApiProjectsRouteWithChildren
   '/api/settings': typeof ApiSettingsRoute
@@ -232,6 +266,8 @@ export interface FileRoutesById {
   '/demo/posthog': typeof DemoPosthogRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/project/$projectId': typeof ProjectProjectIdRoute
+  '/api/assistant/chat': typeof ApiAssistantChatRoute
+  '/api/assistant/messages': typeof ApiAssistantMessagesRoute
   '/api/goals/$goalId': typeof ApiGoalsGoalIdRoute
   '/api/openapi/json': typeof ApiOpenapiJsonRoute
   '/api/projects/$projectId': typeof ApiProjectsProjectIdRoute
@@ -240,6 +276,7 @@ export interface FileRoutesById {
   '/api/reminders/$reminderId': typeof ApiRemindersReminderIdRouteWithChildren
   '/api/tasks/$taskId': typeof ApiTasksTaskIdRouteWithChildren
   '/demo/api/mcp-todos': typeof DemoApiMcpTodosRoute
+  '/api/assistant/actions/decision': typeof ApiAssistantActionsDecisionRoute
   '/api/reminders/$reminderId/snooze': typeof ApiRemindersReminderIdSnoozeRoute
   '/api/tasks/$taskId/complete': typeof ApiTasksTaskIdCompleteRoute
   '/api/tasks/$taskId/reminders': typeof ApiTasksTaskIdRemindersRoute
@@ -253,6 +290,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/mcp'
     | '/upcoming'
+    | '/api/assistant'
     | '/api/goals'
     | '/api/projects'
     | '/api/settings'
@@ -261,6 +299,8 @@ export interface FileRouteTypes {
     | '/demo/posthog'
     | '/demo/tanstack-query'
     | '/project/$projectId'
+    | '/api/assistant/chat'
+    | '/api/assistant/messages'
     | '/api/goals/$goalId'
     | '/api/openapi/json'
     | '/api/projects/$projectId'
@@ -269,6 +309,7 @@ export interface FileRouteTypes {
     | '/api/reminders/$reminderId'
     | '/api/tasks/$taskId'
     | '/demo/api/mcp-todos'
+    | '/api/assistant/actions/decision'
     | '/api/reminders/$reminderId/snooze'
     | '/api/tasks/$taskId/complete'
     | '/api/tasks/$taskId/reminders'
@@ -280,6 +321,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/mcp'
     | '/upcoming'
+    | '/api/assistant'
     | '/api/goals'
     | '/api/projects'
     | '/api/settings'
@@ -288,6 +330,8 @@ export interface FileRouteTypes {
     | '/demo/posthog'
     | '/demo/tanstack-query'
     | '/project/$projectId'
+    | '/api/assistant/chat'
+    | '/api/assistant/messages'
     | '/api/goals/$goalId'
     | '/api/openapi/json'
     | '/api/projects/$projectId'
@@ -296,6 +340,7 @@ export interface FileRouteTypes {
     | '/api/reminders/$reminderId'
     | '/api/tasks/$taskId'
     | '/demo/api/mcp-todos'
+    | '/api/assistant/actions/decision'
     | '/api/reminders/$reminderId/snooze'
     | '/api/tasks/$taskId/complete'
     | '/api/tasks/$taskId/reminders'
@@ -307,6 +352,7 @@ export interface FileRouteTypes {
     | '/inbox'
     | '/mcp'
     | '/upcoming'
+    | '/api/assistant'
     | '/api/goals'
     | '/api/projects'
     | '/api/settings'
@@ -315,6 +361,8 @@ export interface FileRouteTypes {
     | '/demo/posthog'
     | '/demo/tanstack-query'
     | '/project/$projectId'
+    | '/api/assistant/chat'
+    | '/api/assistant/messages'
     | '/api/goals/$goalId'
     | '/api/openapi/json'
     | '/api/projects/$projectId'
@@ -323,6 +371,7 @@ export interface FileRouteTypes {
     | '/api/reminders/$reminderId'
     | '/api/tasks/$taskId'
     | '/demo/api/mcp-todos'
+    | '/api/assistant/actions/decision'
     | '/api/reminders/$reminderId/snooze'
     | '/api/tasks/$taskId/complete'
     | '/api/tasks/$taskId/reminders'
@@ -335,6 +384,7 @@ export interface RootRouteChildren {
   InboxRoute: typeof InboxRoute
   McpRoute: typeof McpRoute
   UpcomingRoute: typeof UpcomingRoute
+  ApiAssistantRoute: typeof ApiAssistantRouteWithChildren
   ApiGoalsRoute: typeof ApiGoalsRouteWithChildren
   ApiProjectsRoute: typeof ApiProjectsRouteWithChildren
   ApiSettingsRoute: typeof ApiSettingsRoute
@@ -443,6 +493,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGoalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/assistant': {
+      id: '/api/assistant'
+      path: '/api/assistant'
+      fullPath: '/api/assistant'
+      preLoaderRoute: typeof ApiAssistantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/api/mcp-todos': {
       id: '/demo/api/mcp-todos'
       path: '/demo/api/mcp-todos'
@@ -499,6 +556,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGoalsGoalIdRouteImport
       parentRoute: typeof ApiGoalsRoute
     }
+    '/api/assistant/messages': {
+      id: '/api/assistant/messages'
+      path: '/messages'
+      fullPath: '/api/assistant/messages'
+      preLoaderRoute: typeof ApiAssistantMessagesRouteImport
+      parentRoute: typeof ApiAssistantRoute
+    }
+    '/api/assistant/chat': {
+      id: '/api/assistant/chat'
+      path: '/chat'
+      fullPath: '/api/assistant/chat'
+      preLoaderRoute: typeof ApiAssistantChatRouteImport
+      parentRoute: typeof ApiAssistantRoute
+    }
     '/api/tasks/$taskId/uncomplete': {
       id: '/api/tasks/$taskId/uncomplete'
       path: '/uncomplete'
@@ -527,8 +598,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRemindersReminderIdSnoozeRouteImport
       parentRoute: typeof ApiRemindersReminderIdRoute
     }
+    '/api/assistant/actions/decision': {
+      id: '/api/assistant/actions/decision'
+      path: '/actions/decision'
+      fullPath: '/api/assistant/actions/decision'
+      preLoaderRoute: typeof ApiAssistantActionsDecisionRouteImport
+      parentRoute: typeof ApiAssistantRoute
+    }
   }
 }
+
+interface ApiAssistantRouteChildren {
+  ApiAssistantChatRoute: typeof ApiAssistantChatRoute
+  ApiAssistantMessagesRoute: typeof ApiAssistantMessagesRoute
+  ApiAssistantActionsDecisionRoute: typeof ApiAssistantActionsDecisionRoute
+}
+
+const ApiAssistantRouteChildren: ApiAssistantRouteChildren = {
+  ApiAssistantChatRoute: ApiAssistantChatRoute,
+  ApiAssistantMessagesRoute: ApiAssistantMessagesRoute,
+  ApiAssistantActionsDecisionRoute: ApiAssistantActionsDecisionRoute,
+}
+
+const ApiAssistantRouteWithChildren = ApiAssistantRoute._addFileChildren(
+  ApiAssistantRouteChildren,
+)
 
 interface ApiGoalsRouteChildren {
   ApiGoalsGoalIdRoute: typeof ApiGoalsGoalIdRoute
@@ -602,6 +696,7 @@ const rootRouteChildren: RootRouteChildren = {
   InboxRoute: InboxRoute,
   McpRoute: McpRoute,
   UpcomingRoute: UpcomingRoute,
+  ApiAssistantRoute: ApiAssistantRouteWithChildren,
   ApiGoalsRoute: ApiGoalsRouteWithChildren,
   ApiProjectsRoute: ApiProjectsRouteWithChildren,
   ApiSettingsRoute: ApiSettingsRoute,

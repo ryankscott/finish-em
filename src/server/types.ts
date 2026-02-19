@@ -27,6 +27,7 @@ export type Project = {
 export type Task = {
   id: number
   projectId: number
+  parentTaskId: number | null
   title: string
   notes: string
   priority: Priority
@@ -61,11 +62,57 @@ export type Goal = {
   updatedAt: string
 }
 
+export type AiProvider = 'openai' | 'lmstudio'
+
 export type AppSettings = {
   id: 1
   timezone: string
+  aiProvider: AiProvider
+  aiBaseUrl: string | null
+  aiModel: string | null
+  hasAiApiKey: boolean
+  aiApiKeyMasked: string | null
   createdAt: string
   updatedAt: string
+}
+
+export type AppSettingsSecrets = {
+  aiApiKey: string | null
+}
+
+export type AssistantSurface = 'ui' | 'tui'
+export type AssistantRole = 'user' | 'assistant' | 'system'
+export type AssistantActionType =
+  | 'create_task'
+  | 'update_task'
+  | 'complete_task'
+  | 'uncomplete_task'
+  | 'delete_task'
+  | 'create_project'
+export type AssistantActionStatus = 'pending' | 'executed' | 'cancelled' | 'failed'
+
+export type AssistantAction = {
+  id: string
+  type: AssistantActionType
+  label: string
+  status: AssistantActionStatus
+  payload: Record<string, unknown>
+  resultMessage: string | null
+}
+
+export type AssistantMessage = {
+  id: number
+  surface: AssistantSurface
+  role: AssistantRole
+  content: string
+  actions: AssistantAction[]
+  createdAt: string
+  updatedAt: string
+}
+
+export type AssistantChatResponse = {
+  userMessage: AssistantMessage
+  assistantMessage: AssistantMessage
 }
 
 export type TaskFilters = {
@@ -75,4 +122,6 @@ export type TaskFilters = {
   to?: string
   noDueDate?: boolean
   priority?: Priority
+  parentTaskId?: number | null
+  rootsOnly?: boolean
 }

@@ -8,6 +8,7 @@ describe('MCP Tools - listTasksTool', () => {
         {
           id: 1,
           projectId: 1,
+          parentTaskId: null,
           title: 'Test Task',
           status: 'open',
           priority: 2,
@@ -43,6 +44,7 @@ describe('MCP Tools - createTaskTool', () => {
       json: async () => ({
         id: 2,
         projectId: 1,
+        parentTaskId: null,
         title: 'New Task',
         status: 'open',
         priority: 1,
@@ -80,6 +82,7 @@ describe('MCP Tools - completeTaskTool', () => {
         task: {
           id: 1,
           projectId: 1,
+          parentTaskId: null,
           title: 'Test Task',
           status: 'completed',
           priority: 2,

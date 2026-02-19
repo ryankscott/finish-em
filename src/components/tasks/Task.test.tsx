@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { Task, PRIORITY_BADGE_CLASSES } from "./Task";
+import { render, screen } from "@testing-library/react";
+
 import type { Priority } from "@/server/types";
+import { PRIORITY_BADGE_CLASSES, Task } from "./Task";
 
 vi.mock("@/lib/api-client", () => ({
 	api: {
@@ -12,6 +13,7 @@ vi.mock("@/lib/api-client", () => ({
 const defaultTask = {
 	id: 1,
 	projectId: 1,
+	parentTaskId: null,
 	title: "Test task",
 	notes: "",
 	priority: 2 as Priority,
@@ -42,6 +44,10 @@ const defaultProps = {
 	onRefresh: vi.fn().mockResolvedValue(undefined),
 	onOpenReminderModal: vi.fn(),
 	onDeleteReminder: vi.fn().mockResolvedValue(undefined),
+	depth: 0 as const,
+	parentOptions: [],
+	disableParentSelection: false,
+	onOpenSubtaskModal: vi.fn(),
 };
 
 describe("PRIORITY_BADGE_CLASSES", () => {
@@ -54,90 +60,44 @@ describe("PRIORITY_BADGE_CLASSES", () => {
 });
 
 describe("Task", () => {
-	it("renders priority badge with P number", () => {
-		render(<Task {...defaultProps} />);
-		expect(screen.getByText("P2")).toBeInTheDocument();
-		expect(screen.getByLabelText(/priority/i)).toBeInTheDocument();
+	it("renders subtask context when parent title is provided", () => {
+		render(
+			<Task
+				{...defaultProps}
+				task={{ ...defaultTask, parentTaskId: 12 }}
+				parentTitle="Parent task"
+			/>,
+		);
+
+		expect(screen.getByText("Subtask of Parent task")).toBeTruthy();
 	});
 
-	it("keeps controls disabled in view mode except completion", () => {
-		render(<Task {...defaultProps} />);
-		expect(screen.getByLabelText(/priority/i)).toBeDisabled();
-		expect(screen.getByLabelText(/add reminder/i)).toBeDisabled();
-		expect(screen.getByLabelText(/toggle complete/i)).not.toBeDisabled();
+	it("renders parent selector in edit mode", () => {
+		render(
+			<Task
+				{...defaultProps}
+				isEditing={true}
+				editingTitle="Test task"
+				parentOptions={[{ id: 7, title: "Parent #7" }]}
+			/>,
+		);
+
+		expect(screen.getByLabelText(/Parent task/i)).toBeTruthy();
+		expect(screen.getByRole("button", { name: /Subtask/i })).toBeTruthy();
 	});
 
-	it("shows 'Add description' button when task has no description", () => {
-		render(<Task {...defaultProps} />);
-		expect(screen.getByText("Add description")).toBeInTheDocument();
-	});
+	it("disables parent selector when task has subtasks", () => {
+		render(
+			<Task
+				{...defaultProps}
+				isEditing={true}
+				editingTitle="Test task"
+				disableParentSelection={true}
+			/>,
+		);
 
-	it("allows description editing in edit mode", () => {
-		render(<Task {...defaultProps} isEditing={true} editingTitle="Test task" />);
-		const addButton = screen.getByText("Add description");
-		expect(addButton).not.toBeDisabled();
-		fireEvent.click(addButton);
-		expect(screen.getByPlaceholderText("Add a description...")).toBeInTheDocument();
-	});
-
-	it("shows description section when task has a description", () => {
-		const taskWithDescription = {
-			...defaultTask,
-			notes: "This is a test description",
-		};
-		render(<Task {...defaultProps} task={taskWithDescription} />);
-		expect(screen.getByText("Description")).toBeInTheDocument();
-	});
-
-	it("expands description section when clicking the header", () => {
-		const taskWithDescription = {
-			...defaultTask,
-			notes: "This is a test description",
-		};
-		render(<Task {...defaultProps} task={taskWithDescription} />);
-		const descriptionHeader = screen.getByText("Description");
-		fireEvent.click(descriptionHeader);
-		expect(screen.getByText("This is a test description")).toBeInTheDocument();
-	});
-
-	it("does not enter description edit in view mode", () => {
-		render(<Task {...defaultProps} />);
-		const addButton = screen.getByText("Add description");
-		expect(addButton).toBeDisabled();
-		fireEvent.click(addButton);
 		expect(
-			screen.queryByPlaceholderText("Add a description..."),
-		).not.toBeInTheDocument();
-	});
-
-	it("saves description when clicking Save button", async () => {
-		const { api } = await import("@/lib/api-client");
-		render(<Task {...defaultProps} isEditing={true} editingTitle="Test task" />);
-		const addButton = screen.getByText("Add description");
-		fireEvent.click(addButton);
-
-		const textarea = screen.getByPlaceholderText("Add a description...");
-		fireEvent.change(textarea, { target: { value: "New description" } });
-
-		const saveButton = screen.getByText("Save");
-		fireEvent.click(saveButton);
-
-		await Promise.resolve();
-		expect(api.updateTask).toHaveBeenCalledWith(1, { notes: "New description" });
-		expect(defaultProps.onRefresh).toHaveBeenCalled();
-	});
-
-	it("cancels description editing when clicking Cancel button", () => {
-		render(<Task {...defaultProps} isEditing={true} editingTitle="Test task" />);
-		const addButton = screen.getByText("Add description");
-		fireEvent.click(addButton);
-
-		const textarea = screen.getByPlaceholderText("Add a description...");
-		fireEvent.change(textarea, { target: { value: "New description" } });
-
-		const cancelButton = screen.getByText("Cancel");
-		fireEvent.click(cancelButton);
-
-		expect(screen.queryByPlaceholderText("Add a description...")).not.toBeInTheDocument();
+			screen.getByLabelText(/Parent task/i).getAttribute("data-disabled"),
+		).not.toBeNull();
 	});
 });

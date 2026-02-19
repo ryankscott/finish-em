@@ -1,8 +1,13 @@
+import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const settings = sqliteTable('settings', {
   id: integer('id').primaryKey(),
   timezone: text('timezone').notNull(),
+  aiProvider: text('ai_provider'),
+  aiBaseUrl: text('ai_base_url'),
+  aiModel: text('ai_model'),
+  aiApiKey: text('ai_api_key'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 })
@@ -25,6 +30,10 @@ export const tasks = sqliteTable('tasks', {
   projectId: integer('project_id')
     .notNull()
     .references(() => projects.id, { onDelete: 'cascade' }),
+  parentTaskId: integer('parent_task_id').references(
+    (): AnySQLiteColumn => tasks.id,
+    { onDelete: 'cascade' },
+  ),
   title: text('title').notNull(),
   notes: text('notes').notNull().default(''),
   priority: integer('priority').notNull().default(4),
@@ -57,6 +66,16 @@ export const goals = sqliteTable('goals', {
   periodStart: text('period_start').notNull(),
   title: text('title').notNull(),
   done: integer('done', { mode: 'boolean' }).notNull().default(false),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+})
+
+export const assistantMessages = sqliteTable('assistant_messages', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  surface: text('surface').notNull(),
+  role: text('role').notNull(),
+  content: text('content').notNull(),
+  actionsJson: text('actions_json').notNull().default('[]'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 })

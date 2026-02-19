@@ -52,6 +52,7 @@ describe('TaskList', () => {
           {
             id: 1,
             projectId: 1,
+            parentTaskId: null,
             title: 'Test item',
             notes: '',
             priority: 2,
@@ -101,6 +102,7 @@ describe('TaskList', () => {
           {
             id: 1,
             projectId: 1,
+            parentTaskId: null,
             title: 'Test item',
             notes: '',
             priority: 2,
@@ -142,6 +144,7 @@ describe('TaskList', () => {
           {
             id: 1,
             projectId: 1,
+            parentTaskId: null,
             title: 'Test item',
             notes: '',
             priority: 2,

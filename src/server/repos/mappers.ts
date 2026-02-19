@@ -1,5 +1,11 @@
 import type {
   AppSettings,
+  AssistantAction,
+  AssistantActionStatus,
+  AssistantActionType,
+  AssistantMessage,
+  AssistantRole,
+  AssistantSurface,
   Goal,
   GoalPeriod,
   Priority,
@@ -9,6 +15,22 @@ import type {
   Task,
   TaskStatus,
 } from '@/server/types'
+
+const assistantActionTypes: AssistantActionType[] = [
+  'create_task',
+  'update_task',
+  'complete_task',
+  'uncomplete_task',
+  'delete_task',
+  'create_project',
+]
+
+const assistantActionStatuses: AssistantActionStatus[] = [
+  'pending',
+  'executed',
+  'cancelled',
+  'failed',
+]
 
 export function mapProjectRow(row: Record<string, unknown>): Project {
   return {
@@ -29,6 +51,10 @@ export function mapTaskRow(row: Record<string, unknown>): Task {
   return {
     id: Number(row.id),
     projectId: Number(row.project_id),
+    parentTaskId:
+      row.parent_task_id === null || row.parent_task_id === undefined
+        ? null
+        : Number(row.parent_task_id),
     title: String(row.title),
     notes: String(row.notes),
     priority: Number(row.priority) as Priority,
@@ -69,9 +95,93 @@ export function mapGoalRow(row: Record<string, unknown>): Goal {
 }
 
 export function mapSettingsRow(row: Record<string, unknown>): AppSettings {
+  const rawApiKey =
+    typeof row.ai_api_key === 'string' && row.ai_api_key.trim().length > 0
+      ? row.ai_api_key.trim()
+      : null
+
+  const aiApiKeyMasked =
+    rawApiKey && rawApiKey.length > 8
+      ? `${rawApiKey.slice(0, 4)}...${rawApiKey.slice(-4)}`
+      : rawApiKey
+        ? '***'
+        : null
+
   return {
     id: 1,
     timezone: String(row.timezone),
+    aiProvider: row.ai_provider === 'openai' ? 'openai' : 'lmstudio',
+    aiBaseUrl:
+      typeof row.ai_base_url === 'string' && row.ai_base_url.trim().length > 0
+        ? row.ai_base_url.trim()
+        : null,
+    aiModel:
+      typeof row.ai_model === 'string' && row.ai_model.trim().length > 0
+        ? row.ai_model.trim()
+        : null,
+    hasAiApiKey: rawApiKey !== null,
+    aiApiKeyMasked,
+    createdAt: String(row.created_at),
+    updatedAt: String(row.updated_at),
+  }
+}
+
+function parseAssistantActions(value: unknown): AssistantAction[] {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    return []
+  }
+
+  try {
+    const parsed = JSON.parse(value)
+    if (!Array.isArray(parsed)) {
+      return []
+    }
+
+    const actions: AssistantAction[] = []
+    for (const item of parsed) {
+      if (!item || typeof item !== 'object') {
+        continue
+      }
+      const candidate = item as Record<string, unknown>
+      const type = String(candidate.type)
+      const status = String(candidate.status)
+      if (!assistantActionTypes.includes(type as AssistantActionType)) {
+        continue
+      }
+      if (!assistantActionStatuses.includes(status as AssistantActionStatus)) {
+        continue
+      }
+      actions.push({
+        id: String(candidate.id),
+        type: type as AssistantActionType,
+        label: String(candidate.label ?? ''),
+        status: status as AssistantActionStatus,
+        payload:
+          candidate.payload && typeof candidate.payload === 'object'
+            ? (candidate.payload as Record<string, unknown>)
+            : {},
+        resultMessage:
+          candidate.resultMessage === null || candidate.resultMessage === undefined
+            ? null
+            : String(candidate.resultMessage),
+      })
+    }
+
+    return actions
+  } catch {
+    return []
+  }
+}
+
+export function mapAssistantMessageRow(
+  row: Record<string, unknown>,
+): AssistantMessage {
+  return {
+    id: Number(row.id),
+    surface: String(row.surface) as AssistantSurface,
+    role: String(row.role) as AssistantRole,
+    content: String(row.content),
+    actions: parseAssistantActions(row.actions_json),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   }

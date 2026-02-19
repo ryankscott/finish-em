@@ -1,10 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 
+import { AssistantPanel } from '@/components/assistant/AssistantPanel'
+import {
+  AssistantUiProvider,
+  useAssistantUi,
+} from '@/components/assistant/AssistantUiContext'
 import { QuickAddModal } from '@/components/quick-add/QuickAddModal'
+import { NyanCat } from '@/components/layout/NyanCat'
 import { ShortcutsModal } from '@/components/layout/ShortcutsModal'
 import { api } from '@/lib/api-client'
 import { toDateInputValue } from '@/lib/datetime'
 import { useHotkeys } from '@/lib/hotkeys'
+import { useIsMobile } from '@/hooks/use-mobile'
 import {
   Dialog,
   DialogContent,
@@ -27,9 +34,19 @@ import {
 } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 
 import type { Project } from '@/server/types'
-import { Calendar, CalendarCheck, CheckCircle, InboxIcon, Pencil } from 'lucide-react'
+import {
+  Bot,
+  Calendar,
+  CalendarCheck,
+  CheckCircle,
+  InboxIcon,
+  PanelRightClose,
+  PanelRightOpen,
+  Pencil,
+} from 'lucide-react'
 
 
 const SIDEBAR_ITEMS: {link: string, icon: React.ReactNode, label: string}[] = [
@@ -46,6 +63,23 @@ export function AppLayout(props: {
   children: React.ReactNode
   onTaskCreated?: () => void | Promise<void>
 }) {
+  return (
+    <AssistantUiProvider>
+      <AppLayoutInner {...props} />
+    </AssistantUiProvider>
+  )
+}
+
+function AppLayoutInner(props: {
+  title: string
+  description?: string
+  fullWidth?: boolean
+  children: React.ReactNode
+  onTaskCreated?: () => void | Promise<void>
+}) {
+  const isMobile = useIsMobile()
+  const { desktopVisible, mobileOpen, setDesktopVisible, setMobileOpen } =
+    useAssistantUi()
   const [projects, setProjects] = useState<Project[]>([])
   const [projectName, setProjectName] = useState('')
   const [projectEmoji, setProjectEmoji] = useState('')
@@ -74,13 +108,27 @@ export function AppLayout(props: {
     () => ({
       'mod+k': () => setQuickAddOpen(true),
       q: () => setQuickAddOpen(true),
+      'mod+j': () => {
+        if (isMobile) {
+          setMobileOpen(!mobileOpen)
+          return
+        }
+        setDesktopVisible(!desktopVisible)
+      },
       'shift+?': () => setShortcutsOpen((prev) => !prev),
       escape: () => {
         setQuickAddOpen(false)
         setShortcutsOpen(false)
+        setMobileOpen(false)
       },
     }),
-    [],
+    [
+      desktopVisible,
+      isMobile,
+      mobileOpen,
+      setDesktopVisible,
+      setMobileOpen,
+    ],
   )
 
   useHotkeys(hotkeys)
@@ -282,22 +330,69 @@ export function AppLayout(props: {
               + Quick Add (Q)
             </Button>
             <Button
-              asChild
+              type="button"
               variant="outline"
               className="w-full"
+              onClick={() => setShortcutsOpen(true)}
             >
+              Shortcuts
             </Button>
           </div>
         </SidebarFooter>
       </Sidebar>
 
       <SidebarInset>
-        <div className={props.fullWidth ? "min-w-0 overflow-x-hidden p-8" : "max-w-5xl mx-auto p-8"}>
-          <header className="mb-8">
-            <h2 className="text-3xl font-bold text-zinc-900">{props.title}</h2>
-            {props.description && <p className="mt-2 text-zinc-600">{props.description}</p>}
-          </header>
-          {props.children}
+        <div
+          className={
+            props.fullWidth
+              ? 'min-w-0 overflow-x-hidden p-6'
+              : 'mx-auto max-w-[1400px] p-6'
+          }
+        >
+          <div className="flex min-w-0 gap-4">
+            <div className="min-w-0 flex-1">
+              <header className="mb-8 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <h2 className="text-3xl font-bold text-zinc-900">{props.title}</h2>
+                  {props.description && (
+                    <p className="mt-2 text-zinc-600">{props.description}</p>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    if (isMobile) {
+                      setMobileOpen(true)
+                      return
+                    }
+                    setDesktopVisible(!desktopVisible)
+                  }}
+                >
+                  {isMobile ? (
+                    <Bot className="mr-2 size-4" />
+                  ) : desktopVisible ? (
+                    <PanelRightClose className="mr-2 size-4" />
+                  ) : (
+                    <PanelRightOpen className="mr-2 size-4" />
+                  )}
+                  Assistant
+                </Button>
+              </header>
+              {props.children}
+            </div>
+
+            {!isMobile && desktopVisible && (
+              <AssistantPanel
+                surface="ui"
+                className="sticky top-4 h-[calc(100vh-3rem)] w-[360px] shrink-0"
+              />
+            )}
+          </div>
+        </div>
+        <div className="sticky bottom-0 z-10">
+          <NyanCat />
         </div>
       </SidebarInset>
 
@@ -357,6 +452,11 @@ export function AppLayout(props: {
         </DialogContent>
       </Dialog>
       <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <Sheet open={isMobile && mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="right" className="w-full p-0 sm:max-w-lg">
+          <AssistantPanel surface="ui" className="h-full rounded-none border-0" />
+        </SheetContent>
+      </Sheet>
     </SidebarProvider>
   )
 }

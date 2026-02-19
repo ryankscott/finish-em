@@ -25,6 +25,7 @@ Title: ${task.title}
 Status: ${task.status}
 Priority: ${task.priority}
 Project ID: ${task.projectId}
+Parent Task ID: ${task.parentTaskId ?? 'None'}
 Due: ${task.dueAt || 'No due date'}
 Notes: ${task.notes || 'No notes'}`
 }

@@ -1,13 +1,59 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { QuickAddModal } from "@/components/quick-add/QuickAddModal";
 import { api } from "@/lib/api-client";
 import { useHotkeys } from "@/lib/hotkeys";
-
 import type { Reminder, Task as TaskType } from "@/server/types";
+
 import { ReminderModal } from "./ReminderModal";
 import { Task } from "./Task";
 
 type ReminderMap = Record<number, Reminder[]>;
+
+type TaskRow = {
+	task: TaskType;
+	depth: 0 | 1;
+	parentTitle?: string;
+};
+
+function buildTaskRows(tasks: TaskType[], allTasks: TaskType[]): TaskRow[] {
+	const taskById = new Map(tasks.map((task) => [task.id, task]));
+	const allTaskById = new Map(allTasks.map((task) => [task.id, task]));
+	const childrenByParent = new Map<number, TaskType[]>();
+	const roots: TaskType[] = [];
+
+	for (const task of tasks) {
+		if (task.parentTaskId !== null && taskById.has(task.parentTaskId)) {
+			const children = childrenByParent.get(task.parentTaskId) ?? [];
+			children.push(task);
+			childrenByParent.set(task.parentTaskId, children);
+			continue;
+		}
+		roots.push(task);
+	}
+
+	const rows: TaskRow[] = [];
+	for (const root of roots) {
+		const parentTitle =
+			root.parentTaskId !== null
+				? allTaskById.get(root.parentTaskId)?.title
+				: undefined;
+		rows.push({
+			task: root,
+			depth: 0,
+			parentTitle,
+		});
+		for (const child of childrenByParent.get(root.id) ?? []) {
+			rows.push({
+				task: child,
+				depth: 1,
+				parentTitle: root.title,
+			});
+		}
+	}
+
+	return rows;
+}
 
 export function TaskList(props: {
 	tasks: TaskType[];
@@ -23,6 +69,7 @@ export function TaskList(props: {
 	const [reminderModalTaskId, setReminderModalTaskId] = useState<number | null>(
 		null,
 	);
+	const [subtaskParent, setSubtaskParent] = useState<TaskType | null>(null);
 
 	const filteredTasks = useMemo(() => {
 		if (query.trim().length === 0) {
@@ -31,6 +78,17 @@ export function TaskList(props: {
 		const lowercase = query.toLowerCase();
 		return tasks.filter((task) => task.title.toLowerCase().includes(lowercase));
 	}, [query, tasks]);
+
+	const taskRows = useMemo(
+		() => buildTaskRows(filteredTasks, tasks),
+		[filteredTasks, tasks],
+	);
+
+	useEffect(() => {
+		setSelectedIndex((index) =>
+			Math.max(0, Math.min(index, Math.max(taskRows.length - 1, 0))),
+		);
+	}, [taskRows.length]);
 
 	useEffect(() => {
 		let active = true;
@@ -57,7 +115,7 @@ export function TaskList(props: {
 		};
 	}, [tasks]);
 
-	const selectedTask = filteredTasks[selectedIndex] ?? null;
+	const selectedTask = taskRows[selectedIndex]?.task ?? null;
 
 	const exitEditMode = () => {
 		setEditingTaskId(null);
@@ -73,7 +131,7 @@ export function TaskList(props: {
 		{
 			j: () =>
 				setSelectedIndex((index) =>
-					Math.min(index + 1, filteredTasks.length - 1),
+					Math.min(index + 1, Math.max(taskRows.length - 1, 0)),
 				),
 			k: () => setSelectedIndex((index) => Math.max(index - 1, 0)),
 			x: async () => {
@@ -127,7 +185,6 @@ export function TaskList(props: {
 
 	const deleteReminder = async (reminderId: number) => {
 		await api.deleteReminder(reminderId);
-		// Refresh reminders for all tasks
 		const entries = await Promise.all(
 			tasks.map(async (task) => {
 				const list = await api.listTaskReminders(task.id);
@@ -148,11 +205,9 @@ export function TaskList(props: {
 	};
 
 	return (
-		<div className="rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
+		<div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
 			<div className="flex items-center justify-between gap-3 border-b border-zinc-200 p-3">
-				<h2 className="font-semibold text-zinc-900">
-					Tasks ({filteredTasks.length})
-				</h2>
+				<h2 className="font-semibold text-zinc-900">Tasks ({taskRows.length})</h2>
 				<input
 					id="task-filter-input"
 					placeholder="Filter tasks..."
@@ -166,10 +221,20 @@ export function TaskList(props: {
 			</div>
 
 			<ul className="divide-y divide-zinc-100">
-				{filteredTasks.map((task, index) => {
+				{taskRows.map((row, index) => {
+					const task = row.task;
 					const taskReminders = reminders[task.id] ?? [];
 					const isSelected = index === selectedIndex;
 					const isEditing = editingTaskId === task.id;
+					const hasChildren = tasks.some(
+						(candidate) => candidate.parentTaskId === task.id,
+					);
+					const parentOptions = tasks.filter(
+						(candidate) =>
+							candidate.projectId === task.projectId &&
+							candidate.id !== task.id &&
+							candidate.parentTaskId === null,
+					);
 
 					return (
 						<Task
@@ -179,6 +244,13 @@ export function TaskList(props: {
 							isEditing={isEditing}
 							editingTitle={editingTitle}
 							taskReminders={taskReminders}
+							depth={row.depth}
+							parentTitle={row.parentTitle}
+							parentOptions={parentOptions.map((option) => ({
+								id: option.id,
+								title: option.title,
+							}))}
+							disableParentSelection={hasChildren}
 							onMouseEnter={() => setSelectedIndex(index)}
 							onCompleteToggle={async () => {
 								if (task.status === "completed") {
@@ -196,11 +268,12 @@ export function TaskList(props: {
 							onRefresh={onRefresh}
 							onOpenReminderModal={() => openReminderModal(task.id)}
 							onDeleteReminder={deleteReminder}
+							onOpenSubtaskModal={() => setSubtaskParent(task)}
 						/>
 					);
 				})}
 
-				{filteredTasks.length === 0 && (
+				{taskRows.length === 0 && (
 					<li className="p-6 text-center text-sm text-zinc-500">
 						No tasks found
 					</li>
@@ -211,12 +284,26 @@ export function TaskList(props: {
 				<ReminderModal
 					isOpen={reminderModalOpen}
 					onClose={closeReminderModal}
-					onAddReminder={(remindAt) =>
-						addReminder(reminderModalTaskId, remindAt)
-					}
+					onAddReminder={(remindAt) => addReminder(reminderModalTaskId, remindAt)}
 					dueAt={tasks.find((t) => t.id === reminderModalTaskId)?.dueAt ?? null}
 				/>
 			)}
+
+			<QuickAddModal
+				open={subtaskParent !== null}
+				parentTask={
+					subtaskParent
+						? {
+								id: subtaskParent.id,
+								title: subtaskParent.title,
+						  }
+						: null
+				}
+				onClose={() => setSubtaskParent(null)}
+				onCreated={async () => {
+					await onRefresh();
+				}}
+			/>
 		</div>
 	);
 }

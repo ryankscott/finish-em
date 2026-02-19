@@ -19,10 +19,11 @@ type ParsePreview = {
 
 export function QuickAddModal(props: {
   open: boolean
+  parentTask?: { id: number; title: string } | null
   onClose: () => void
   onCreated: () => void
 }) {
-  const { open, onClose, onCreated } = props
+  const { open, parentTask, onClose, onCreated } = props
   const [text, setText] = useState('')
   const [loading, setLoading] = useState(false)
   const [preview, setPreview] = useState<ParsePreview | null>(null)
@@ -52,11 +53,13 @@ export function QuickAddModal(props: {
 
   const subtitle = useMemo(() => {
     if (!preview) {
-      return 'Type naturally: "Pay rent p1 #Inbox tomorrow every month"'
+      return parentTask
+        ? `Adding subtask to "${parentTask.title}"`
+        : 'Type naturally: "Pay rent p1 #Inbox tomorrow every month"'
     }
 
     return `${preview.source} parse (${Math.round(preview.confidence * 100)}%)`
-  }, [preview])
+  }, [preview, parentTask])
 
   if (!open) {
     return null
@@ -70,7 +73,9 @@ export function QuickAddModal(props: {
     try {
       setLoading(true)
       setError(null)
-      await api.createQuickAdd(text)
+      await api.createQuickAdd(text, {
+        parentTaskId: parentTask?.id,
+      })
       setText('')
       setPreview(null)
       onCreated()
