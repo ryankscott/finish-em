@@ -1,5 +1,6 @@
 import { Box, Text } from 'ink'
 import TextInput from 'ink-text-input'
+import { useEffect, useState } from 'react'
 
 import type { AssistantMessage } from '@/server/types'
 
@@ -56,6 +57,24 @@ export const AssistantPanel = ({
   onChatInputChange,
   isThinking = false,
 }: AssistantPanelProps) => {
+  const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+  const [spinnerIndex, setSpinnerIndex] = useState(0)
+
+  useEffect(() => {
+    if (!isThinking) {
+      setSpinnerIndex(0)
+      return
+    }
+
+    const interval = setInterval(() => {
+      setSpinnerIndex((current) => (current + 1) % spinnerFrames.length)
+    }, 80)
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [isThinking])
+
   const borderColor = isChatMode ? 'magentaBright' : focused ? 'magentaBright' : 'gray'
   let pendingCounter = 0
 
@@ -115,7 +134,7 @@ export const AssistantPanel = ({
         {isThinking && (
           <Box paddingLeft={1} marginTop={messages.length > 0 ? 1 : 0}>
             <Text color="magentaBright" dimColor>
-              ◆ Thinking…
+              {spinnerFrames[spinnerIndex]} Thinking…
             </Text>
           </Box>
         )}
@@ -128,7 +147,7 @@ export const AssistantPanel = ({
             <TextInput value={chatInput} onChange={onChatInputChange} />
           </>
         ) : (
-          <Text dimColor>c chat · y/n confirm/cancel · Ctrl+j toggle</Text>
+          <Text dimColor>c chat · y/n confirm/cancel · Cmd+j toggle</Text>
         )}
       </Box>
     </Box>

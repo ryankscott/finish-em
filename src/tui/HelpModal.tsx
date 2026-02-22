@@ -21,7 +21,7 @@ const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "c", action: "Chat with assistant" },
 	{ keys: "y / n", action: "Confirm/cancel selected assistant action" },
 	{ keys: "Shift+X", action: "Clear assistant chat history" },
-	{ keys: "Ctrl+j", action: "Toggle assistant panel/overlay" },
+	{ keys: "Cmd+j", action: "Toggle assistant panel/overlay" },
 	{ keys: "s", action: "Create subtask under selected task" },
 	{
 		keys: "e",
@@ -33,7 +33,7 @@ const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "z", action: "Delete reminder from selected task" },
 	{ keys: "Shift+s", action: "Open settings view", section: "Settings" },
 	{ keys: "e / Enter", action: "Edit selected setting" },
-	{ keys: "Space", action: "Toggle assistant provider" },
+	{ keys: "/provider <name>", action: "Set assistant provider (gemini/openai/lmstudio)" },
 	{ keys: "x", action: "Clear assistant API key (key row)" },
 	{ keys: "p", action: "Create new project", section: "Projects" },
 	{ keys: "h / ←", action: "Previous column", section: "Upcoming" },

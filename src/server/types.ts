@@ -62,7 +62,7 @@ export type Goal = {
   updatedAt: string
 }
 
-export type AiProvider = 'openai' | 'lmstudio'
+export type AiProvider = 'gemini' | 'openai' | 'lmstudio'
 
 export type AppSettings = {
   id: 1

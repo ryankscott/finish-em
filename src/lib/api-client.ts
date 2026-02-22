@@ -29,7 +29,7 @@ export const api = {
   updateSettings: (
     payload: Partial<{
       timezone: string
-      aiProvider: 'openai' | 'lmstudio'
+      aiProvider: 'gemini' | 'openai' | 'lmstudio'
       aiBaseUrl: string | null
       aiModel: string | null
       aiApiKey: string | null

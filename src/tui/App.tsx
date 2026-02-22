@@ -12,7 +12,7 @@ import { Box, Text, useInput, useStdout } from "ink";
 import TextInput from "ink-text-input";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { AssistantMessage, Goal, Project, Reminder, Task } from "../server/types";
+import type { AppSettings, AssistantMessage, Goal, Project, Reminder, Task } from "../server/types";
 import { AssistantPanel, listPendingAssistantActions } from "./AssistantPanel";
 import { parseAssistantSettingsCommand } from "./assistant-commands";
 import type { createApi } from "./api";
@@ -22,10 +22,11 @@ import {
 } from "./parse-task-input";
 import { Dashboard } from "./Dashboard";
 import { HelpModal } from "./HelpModal";
+import { NyanCat } from "./NyanCat";
+import { buildSettingsRows, SettingsPanel } from "./SettingsPanel";
 import type { SidebarItem } from "./Sidebar";
 import { buildSidebarItems, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
-import { NyanCat } from "./NyanCat";
 import { buildTaskPanelRows, TaskPanel } from "./TaskPanel";
 import type { DayColumn, ViewMode } from "./UpcomingPanel";
 import {
@@ -37,7 +38,7 @@ import {
 	UpcomingPanel,
 } from "./UpcomingPanel";
 
-type View = "inbox" | "today" | "upcoming" | "completed" | "project";
+type View = "inbox" | "today" | "upcoming" | "completed" | "project" | "settings";
 type FocusArea = "sidebar" | "tasks" | "assistant";
 type InputMode =
 	| "none"
@@ -46,6 +47,7 @@ type InputMode =
 	| "createProject"
 	| "addReminder"
 	| "editTask"
+	| "editSetting"
 	| "addGoal"
 	| "assistantChat";
 
@@ -87,6 +89,11 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [assistantMessages, setAssistantMessages] = useState<AssistantMessage[]>([]);
 	const [assistantActionIndex, setAssistantActionIndex] = useState(0);
 	const [isAssistantThinking, setIsAssistantThinking] = useState(false);
+	const [settings, setSettings] = useState<AppSettings | null>(null);
+	const [settingsIndex, setSettingsIndex] = useState(0);
+	const [editingSettingField, setEditingSettingField] = useState<
+		"timezone" | "aiProvider" | "aiBaseUrl" | "aiModel" | "aiApiKey" | null
+	>(null);
 	const [completedToday, setCompletedToday] = useState(0);
 
 	const sidebarItems = useMemo(() => buildSidebarItems(projects), [projects]);
@@ -117,6 +124,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [view, currentColumnRows, taskIndex, taskRows]);
 
 	const selectedReminder = reminders[0] ?? null;
+	const settingsRows = useMemo(() => buildSettingsRows(settings), [settings]);
+	const selectedSettingsRow = settingsRows[settingsIndex] ?? settingsRows[0] ?? null;
+	const cycleProvider = useCallback((provider: "gemini" | "openai" | "lmstudio") => {
+		if (provider === "gemini") return "openai";
+		if (provider === "openai") return "lmstudio";
+		return "gemini";
+	}, []);
 	const pendingAssistantActions = useMemo(
 		() => listPendingAssistantActions(assistantMessages),
 		[assistantMessages],
@@ -161,6 +175,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setLoading(true);
 		setErrorText(null);
 		try {
+			setSettings(await api.getSettings());
 			const loadedProjects = await api.listProjects();
 			setProjects(loadedProjects);
 			const resolvedInbox = loadedProjects.find((project) => project.isInbox);
@@ -169,7 +184,10 @@ export const App = ({ api, onQuit }: AppProps) => {
 			const todayStart = startOfDay(now).toISOString();
 			const todayEnd = endOfDay(now).toISOString();
 
-			if (view === "inbox") {
+			if (view === "settings") {
+				setTasks([]);
+				setStatusText("Settings");
+			} else if (view === "inbox") {
 				if (!resolvedInbox) {
 					setTasks([]);
 					setStatusText("Inbox project not found");
@@ -283,6 +301,15 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [view, currentColumnRows.length, taskRows.length]);
 
 	useEffect(() => {
+		setSettingsIndex((current) => {
+			if (settingsRows.length === 0) {
+				return 0;
+			}
+			return Math.min(current, settingsRows.length - 1);
+		});
+	}, [settingsRows.length]);
+
+	useEffect(() => {
 		setAssistantActionIndex((current) => {
 			if (pendingAssistantActions.length === 0) {
 				return 0;
@@ -334,9 +361,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setErrorText(null);
 		try {
 			if (inputMode === "assistantChat") {
+				setInputValue("");
 				const command = parseAssistantSettingsCommand(value);
 				if (command) {
-					if (command.type === "set_key") {
+					if (command.type === "set_provider") {
+						await api.updateSettings({ aiProvider: command.value });
+						setStatusText(`Assistant provider set to ${command.value}`);
+					} else if (command.type === "set_key") {
 						await api.updateSettings({ aiApiKey: command.value });
 						setStatusText("Assistant API key updated");
 					} else if (command.type === "set_base") {
@@ -350,18 +381,54 @@ export const App = ({ api, onQuit }: AppProps) => {
 						setStatusText("Assistant API key cleared");
 					}
 				} else {
-					setIsAssistantThinking(true)
+					const nowIso = new Date().toISOString();
+					const optimisticUserMessageId = -Date.now();
+					const optimisticUserMessage: AssistantMessage = {
+						id: optimisticUserMessageId,
+						surface: "tui",
+						role: "user",
+						content: value,
+						actions: [],
+						createdAt: nowIso,
+						updatedAt: nowIso,
+					};
+					setAssistantMessages((current) => [...current, optimisticUserMessage]);
+
+					setIsAssistantThinking(true);
 					try {
 						await api.sendAssistantChat({
 							surface: "tui",
 							message: value,
-						})
+						});
+					} catch (error) {
+						setAssistantMessages((current) =>
+							current.filter((message) => message.id !== optimisticUserMessageId),
+						);
+						throw error;
 					} finally {
-						setIsAssistantThinking(false)
+						setIsAssistantThinking(false);
 					}
 					setStatusText("Assistant replied");
 				}
 				await loadAssistant();
+			} else if (inputMode === "editSetting") {
+				if (!editingSettingField) {
+					setStatusText("No setting selected");
+				} else if (editingSettingField === "timezone") {
+					await api.updateSettings({ timezone: value });
+					setStatusText("Timezone updated");
+				} else if (editingSettingField === "aiBaseUrl") {
+					await api.updateSettings({ aiBaseUrl: value });
+					setStatusText("Assistant base URL updated");
+				} else if (editingSettingField === "aiModel") {
+					await api.updateSettings({ aiModel: value });
+					setStatusText("Assistant model updated");
+				} else if (editingSettingField === "aiApiKey") {
+					await api.updateSettings({ aiApiKey: value });
+					setStatusText("Assistant API key updated");
+				}
+				setSettings(await api.getSettings());
+				setEditingSettingField(null);
 			} else if (inputMode === "quickAdd") {
 				await api.createQuickAdd(value);
 				setStatusText("Task created");
@@ -423,6 +490,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [
 		api,
 		closeInput,
+		editingSettingField,
 		goalPeriodStart,
 		goalPeriodType,
 		inputMode,
@@ -522,7 +590,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 			return;
 		}
 
-		if (key.ctrl && input === "j") {
+		if (key.meta && input === "j") {
 			setShowAssistant((current) => {
 				const next = !current;
 				if (next && !canDockAssistant) {
@@ -581,6 +649,70 @@ export const App = ({ api, onQuit }: AppProps) => {
 		}
 
 		if (focusArea === "tasks") {
+			if (view === "settings") {
+				if (input === "j" || key.downArrow) {
+					setSettingsIndex((current) =>
+						Math.min(current + 1, Math.max(settingsRows.length - 1, 0)),
+					);
+					return;
+				}
+				if (input === "k" || key.upArrow) {
+					setSettingsIndex((current) => Math.max(current - 1, 0));
+					return;
+				}
+				if (input === "x" && selectedSettingsRow?.field === "aiApiKey") {
+					void (async () => {
+						setLoading(true);
+						setErrorText(null);
+						try {
+							await api.updateSettings({ clearAiApiKey: true });
+							setSettings(await api.getSettings());
+							setStatusText("Assistant API key cleared");
+						} catch (error) {
+							const message =
+								error instanceof Error ? error.message : String(error);
+							setErrorText(message);
+						} finally {
+							setLoading(false);
+						}
+					})();
+					return;
+				}
+				if ((input === " " || input === "e" || key.return) && selectedSettingsRow?.field === "aiProvider") {
+					void (async () => {
+						setLoading(true);
+						setErrorText(null);
+						try {
+							const currentProvider = settings?.aiProvider ?? "gemini";
+							const nextProvider = cycleProvider(currentProvider);
+							await api.updateSettings({ aiProvider: nextProvider });
+							setSettings(await api.getSettings());
+							setStatusText(`Assistant provider set to ${nextProvider}`);
+						} catch (error) {
+							const message =
+								error instanceof Error ? error.message : String(error);
+							setErrorText(message);
+						} finally {
+							setLoading(false);
+						}
+					})();
+					return;
+				}
+				if (input === "e" || key.return) {
+					if (!selectedSettingsRow) {
+						return;
+					}
+					setEditingSettingField(selectedSettingsRow.field);
+					setInputMode("editSetting");
+					setInputValue(
+						selectedSettingsRow.field === "aiApiKey"
+							? ""
+							: selectedSettingsRow.value,
+					);
+					return;
+				}
+			}
+
 			if (view === "upcoming") {
 				// Column navigation (h/l or left/right)
 				if (input === "h" || key.leftArrow) {
@@ -826,7 +958,14 @@ export const App = ({ api, onQuit }: AppProps) => {
 					/>
 				) : (
 					<>
-						{view === "upcoming" ? (
+						{view === "settings" ? (
+							<SettingsPanel
+								settings={settings}
+								rows={settingsRows}
+								selectedIndex={settingsIndex}
+								focused={focusArea === "tasks"}
+							/>
+						) : view === "upcoming" ? (
 							<UpcomingPanel
 								columns={columns}
 								goals={goals}
@@ -866,6 +1005,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 			{isBottomBarMode && (
 				<Box paddingX={1}>
 					<Text color="magentaBright" bold>
+						{inputMode === "editSetting" && "Edit setting: "}
 						{inputMode === "quickAdd" && "Quick add: "}
 						{inputMode === "createSubtask" && "Subtask title: "}
 						{inputMode === "createProject" && "New project: "}
@@ -876,8 +1016,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 					<TextInput value={inputValue} onChange={setInputValue} />
 				</Box>
 			)}
-
-			<NyanCat completedToday={completedToday} width={terminalWidth} />
 
 			<StatusBar
 				isInputMode={isInputMode}

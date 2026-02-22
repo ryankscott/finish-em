@@ -7,7 +7,8 @@ import { SCHEMA_STATEMENTS } from './schema'
 
 const _require = createRequire(import.meta.url)
 const isBun = 'Bun' in (globalThis as Record<string, unknown>)
-const DEFAULT_ASSISTANT_BASE_URL = 'http://localhost:11434/v1'
+const DEFAULT_ASSISTANT_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
+const DEFAULT_AI_PROVIDER = 'gemini'
 
 // Minimal interface compatible with both better-sqlite3 and bun:sqlite
 type StatementRunResult = {
@@ -137,8 +138,12 @@ function ensureSettingsAiSchema(db: DbLike) {
     db.exec('ALTER TABLE settings ADD COLUMN ai_api_key TEXT')
   }
   if (!hasAiProvider) {
-    db.exec("ALTER TABLE settings ADD COLUMN ai_provider TEXT NOT NULL DEFAULT 'lmstudio'")
+    db.exec(`ALTER TABLE settings ADD COLUMN ai_provider TEXT NOT NULL DEFAULT '${DEFAULT_AI_PROVIDER}'`)
   }
+
+  db.prepare(
+    `UPDATE settings SET ai_provider = ? WHERE id = 1 AND (ai_provider IS NULL OR ai_provider NOT IN ('gemini', 'openai', 'lmstudio'))`,
+  ).run(DEFAULT_AI_PROVIDER)
 
   db.prepare('UPDATE settings SET ai_base_url = ? WHERE id = 1 AND ai_base_url IS NULL')
     .run(DEFAULT_ASSISTANT_BASE_URL)

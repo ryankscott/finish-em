@@ -23,7 +23,7 @@ export type ApiClient = {
 	updateSettings: (
 		input: Partial<{
 			timezone: string;
-			aiProvider: "openai" | "lmstudio";
+			aiProvider: "gemini" | "openai" | "lmstudio";
 			aiBaseUrl: string | null;
 			aiModel: string | null;
 			aiApiKey: string | null;

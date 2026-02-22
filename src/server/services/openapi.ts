@@ -203,7 +203,7 @@ const schemas = {
     properties: {
       id: { type: 'integer' },
       timezone: { type: 'string' },
-      aiProvider: { type: 'string', enum: ['openai', 'lmstudio'] },
+      aiProvider: { type: 'string', enum: ['gemini', 'openai', 'lmstudio'] },
       aiBaseUrl: { anyOf: [{ type: 'string' }, { type: 'null' }] },
       aiModel: { anyOf: [{ type: 'string' }, { type: 'null' }] },
       hasAiApiKey: { type: 'boolean' },

@@ -11,7 +11,7 @@ export const Route = createFileRoute('/api/settings')({
         try {
           const payload = await parseJsonBody<{
             timezone?: string
-            aiProvider?: 'openai' | 'lmstudio'
+            aiProvider?: 'gemini' | 'openai' | 'lmstudio'
             aiBaseUrl?: string | null
             aiModel?: string | null
             aiApiKey?: string | null

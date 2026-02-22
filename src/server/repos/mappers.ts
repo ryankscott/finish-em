@@ -107,10 +107,17 @@ export function mapSettingsRow(row: Record<string, unknown>): AppSettings {
         ? '***'
         : null
 
+  const aiProviderRaw =
+    typeof row.ai_provider === 'string' ? row.ai_provider.trim() : ''
+  const aiProvider =
+    aiProviderRaw === 'gemini' || aiProviderRaw === 'openai' || aiProviderRaw === 'lmstudio'
+      ? aiProviderRaw
+      : 'gemini'
+
   return {
     id: 1,
     timezone: String(row.timezone),
-    aiProvider: row.ai_provider === 'openai' ? 'openai' : 'lmstudio',
+    aiProvider,
     aiBaseUrl:
       typeof row.ai_base_url === 'string' && row.ai_base_url.trim().length > 0
         ? row.ai_base_url.trim()

@@ -1,7 +1,9 @@
 import {
 	addDays,
 	format,
+	isBefore,
 	isSameDay,
+	isValid,
 	parseISO,
 	startOfDay,
 	startOfWeek,
@@ -143,6 +145,23 @@ const priorityColor = (priority: Priority): string => {
 	}
 };
 
+const formatDueDate = (dueAt: string): string => {
+	try {
+		return format(parseISO(dueAt), "MMM dd");
+	} catch {
+		return dueAt;
+	}
+};
+
+const isOverdueDueDate = (dueAt: string): boolean => {
+	try {
+		const dueDate = parseISO(dueAt);
+		return isValid(dueDate) && isBefore(dueDate, new Date());
+	} catch {
+		return false;
+	}
+};
+
 type TaskCardProps = {
 	row: ColumnTaskRow;
 	project: Project | undefined;
@@ -153,6 +172,7 @@ type TaskCardProps = {
 const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 	const task = row.task;
 	const isCompleted = task.status === "completed";
+	const isOverdue = task.dueAt ? isOverdueDueDate(task.dueAt) : false;
 	const circle = isCompleted ? "✓" : "○";
 	const pColor = priorityColor(task.priority);
 	const titleColor =
@@ -184,6 +204,16 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 						<Text dimColor>  subtask of {row.parentTitle}</Text>
 					)}
 				</Box>
+				{task.dueAt && (
+					<Box marginLeft={1}>
+						<Text
+							color={isOverdue && !isCompleted ? "red" : undefined}
+							dimColor={!isOverdue || isCompleted}
+						>
+							{formatDueDate(task.dueAt)}
+						</Text>
+					</Box>
+				)}
 			</Box>
 			{(task.notes || project || hasRecurrence) && (
 				<Box paddingLeft={4}>

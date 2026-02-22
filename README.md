@@ -11,6 +11,7 @@ Todoist-style task manager built on TanStack Start.
 - Reminders and snoozing (`10m`, `1h`, `tomorrow 9am`, custom)
 - Quick Add with keyboard shortcut and NLP-style parsing
 - Optional AI fallback for Quick Add via Vercel AI SDK (`ai` + `@ai-sdk/openai`)
+- Assistant provider switching: Gemini (default), OpenAI, or LM Studio (local)
 - Daily and weekly text goals
 - OpenAPI 3.1 spec at `/api/openapi.json`
 
@@ -36,11 +37,22 @@ Generated Drizzle migrations are written to `src/server/db/drizzle`.
 
 ## Environment variables
 
-Optional for AI fallback:
+Optional assistant provider environment variables:
 
+- `GEMINI_API_KEY` (required only when provider is `gemini` and no key is saved in settings)
+- `GEMINI_BASE_URL` (default: `https://generativelanguage.googleapis.com/v1beta`)
+- `GEMINI_MODEL` (default: `gemini-2.5-flash`)
+- `OPENAI_API_KEY` (required only when provider is `openai` and no key is saved in settings)
 - `OPENAI_BASE_URL` (default: `https://api.openai.com/v1`)
-- `OPENAI_API_KEY`
 - `OPENAI_MODEL` (default: `gpt-4o-mini`)
+- `LMSTUDIO_BASE_URL` (default: `http://localhost:1234/v1`)
+- `LMSTUDIO_MODEL` (default: `gpt-4o-mini`)
+
+Provider behavior:
+
+- Assistant uses exactly the selected provider (no automatic fallback).
+- API key is required for Gemini and OpenAI.
+- API key is not required for LM Studio.
 
 Optional for custom DB path:
 

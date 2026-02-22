@@ -29,9 +29,34 @@ import { cn } from '@/lib/utils'
 
 import type { AssistantAction } from '@/server/types'
 
-const DEFAULT_LMSTUDIO_BASE_URL = 'http://localhost:11434/v1'
-const DEFAULT_LOCAL_BASE_URL = 'http://localhost:11434/v1'
-const DEFAULT_MODEL = 'gpt-4o-mini'
+const DEFAULT_LMSTUDIO_BASE_URL = 'http://localhost:1234/v1'
+const DEFAULT_OPENAI_BASE_URL = 'https://api.openai.com/v1'
+const DEFAULT_GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta'
+const DEFAULT_MODEL_BY_PROVIDER = {
+  gemini: 'gemini-2.5-flash',
+  openai: 'gpt-4o-mini',
+  lmstudio: 'gpt-4o-mini',
+} as const
+
+function getDefaultBaseUrl(provider: 'gemini' | 'openai' | 'lmstudio') {
+  if (provider === 'lmstudio') {
+    return DEFAULT_LMSTUDIO_BASE_URL
+  }
+  if (provider === 'openai') {
+    return DEFAULT_OPENAI_BASE_URL
+  }
+  return DEFAULT_GEMINI_BASE_URL
+}
+
+function getProviderLabel(provider: 'gemini' | 'openai' | 'lmstudio') {
+  if (provider === 'lmstudio') {
+    return 'LM Studio'
+  }
+  if (provider === 'openai') {
+    return 'OpenAI'
+  }
+  return 'Gemini'
+}
 
 const STATUS_BADGE_CLASSES: Record<AssistantAction['status'], string> = {
   pending: 'bg-amber-100 text-amber-800',
@@ -97,9 +122,9 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
   const isClient = typeof window !== 'undefined'
   const [draft, setDraft] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [settingsProvider, setSettingsProvider] = useState<'openai' | 'lmstudio'>('lmstudio')
-  const [settingsBaseUrl, setSettingsBaseUrl] = useState(DEFAULT_LMSTUDIO_BASE_URL)
-  const [settingsModel, setSettingsModel] = useState(DEFAULT_MODEL)
+  const [settingsProvider, setSettingsProvider] = useState<'gemini' | 'openai' | 'lmstudio'>('gemini')
+  const [settingsBaseUrl, setSettingsBaseUrl] = useState(getDefaultBaseUrl('gemini'))
+  const [settingsModel, setSettingsModel] = useState<string>(DEFAULT_MODEL_BY_PROVIDER.gemini)
   const [settingsApiKey, setSettingsApiKey] = useState('')
   const messagesScrollRef = useRef<HTMLDivElement | null>(null)
 
@@ -123,13 +148,10 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
     if (!settingsOpen || !settings) {
       return
     }
-    const provider = settings.aiProvider ?? 'lmstudio'
+    const provider = settings.aiProvider ?? 'gemini'
     setSettingsProvider(provider)
-    setSettingsBaseUrl(
-      settings.aiBaseUrl ??
-        (provider === 'lmstudio' ? DEFAULT_LMSTUDIO_BASE_URL : DEFAULT_LOCAL_BASE_URL),
-    )
-    setSettingsModel(settings.aiModel ?? DEFAULT_MODEL)
+    setSettingsBaseUrl(settings.aiBaseUrl ?? getDefaultBaseUrl(provider))
+    setSettingsModel(settings.aiModel ?? DEFAULT_MODEL_BY_PROVIDER[provider])
     setSettingsApiKey('')
   }, [settingsOpen, settings])
 
@@ -171,7 +193,7 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
 
   const updateSettingsMutation = useMutation({
     mutationFn: (input: {
-      aiProvider: 'openai' | 'lmstudio'
+      aiProvider: 'gemini' | 'openai' | 'lmstudio'
       aiBaseUrl: string | null
       aiModel: string | null
       aiApiKey?: string | null
@@ -189,20 +211,22 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
     actionMutation.isPending ||
     clearMutation.isPending ||
     updateSettingsMutation.isPending
-  const normalizedSettingsModel = settingsModel.trim()
-  const isLmStudioModelMissing =
-    settingsProvider === 'lmstudio' && normalizedSettingsModel.length === 0
 
   const connectionLabel = useMemo(() => {
     if (!settings) {
       return 'Loading assistant settings...'
     }
-    const provider = settings.aiProvider ?? 'lmstudio'
-    const providerLabel = provider === 'lmstudio' ? 'LM Studio' : 'OpenAI'
-    const defaultBaseUrl = provider === 'lmstudio' ? DEFAULT_LMSTUDIO_BASE_URL : DEFAULT_LOCAL_BASE_URL
+    const provider = settings.aiProvider ?? 'gemini'
+    const providerLabel = getProviderLabel(provider)
+    const defaultBaseUrl = getDefaultBaseUrl(provider)
     const baseUrl = settings.aiBaseUrl ?? defaultBaseUrl
-    const model = settings.aiModel ?? DEFAULT_MODEL
-    const keyState = provider === 'lmstudio' ? 'local' : settings.hasAiApiKey ? settings.aiApiKeyMasked ?? 'saved' : 'no key'
+    const model = settings.aiModel ?? DEFAULT_MODEL_BY_PROVIDER[provider]
+    const keyState =
+      provider === 'lmstudio'
+        ? 'not required'
+        : settings.hasAiApiKey
+          ? settings.aiApiKeyMasked ?? 'saved'
+          : 'required'
     return `${providerLabel} · ${baseUrl} · ${model} · ${keyState}`
   }, [settings])
 
@@ -337,13 +361,13 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
                 id="assistant-provider"
                 value={settingsProvider}
                 onChange={(e) => {
-                  const p = e.target.value as 'openai' | 'lmstudio'
+                  const p = e.target.value as 'gemini' | 'openai' | 'lmstudio'
                   setSettingsProvider(p)
-                  setSettingsBaseUrl(
-                    p === 'lmstudio' ? DEFAULT_LMSTUDIO_BASE_URL : DEFAULT_LOCAL_BASE_URL,
-                  )
+                  setSettingsBaseUrl(getDefaultBaseUrl(p))
+                  setSettingsModel(DEFAULT_MODEL_BY_PROVIDER[p])
                 }}
               >
+                <option value="gemini">Gemini</option>
                 <option value="lmstudio">LM Studio (local)</option>
                 <option value="openai">OpenAI</option>
               </Select>
@@ -354,7 +378,7 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
                 id="assistant-base-url"
                 value={settingsBaseUrl}
                 onChange={(event) => setSettingsBaseUrl(event.target.value)}
-                placeholder={settingsProvider === 'lmstudio' ? DEFAULT_LMSTUDIO_BASE_URL : DEFAULT_LOCAL_BASE_URL}
+                placeholder={getDefaultBaseUrl(settingsProvider)}
               />
             </div>
             <div className="space-y-1">
@@ -363,15 +387,10 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
                 id="assistant-model"
                 value={settingsModel}
                 onChange={(event) => setSettingsModel(event.target.value)}
-                placeholder={DEFAULT_MODEL}
+                placeholder={DEFAULT_MODEL_BY_PROVIDER[settingsProvider]}
               />
-              {isLmStudioModelMissing && (
-                <p className="text-xs text-red-600">
-                  Model is required for LM Studio (for example: qwen/qwen3-vl-4b).
-                </p>
-              )}
             </div>
-            {settingsProvider === 'openai' && (
+            {(settingsProvider === 'openai' || settingsProvider === 'gemini') && (
               <div className="space-y-1">
                 <Label htmlFor="assistant-api-key">API key</Label>
                 <Input
@@ -384,6 +403,11 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
                 {settings?.hasAiApiKey && (
                   <p className="text-xs text-zinc-600">Saved key: {settings.aiApiKeyMasked}</p>
                 )}
+                {!settings?.hasAiApiKey && (
+                  <p className="text-xs text-zinc-500">
+                    API key is required for {settingsProvider === 'gemini' ? 'Gemini' : 'OpenAI'}.
+                  </p>
+                )}
               </div>
             )}
             {settingsProvider === 'lmstudio' && (
@@ -394,7 +418,7 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
             )}
           </div>
           <DialogFooter>
-            {settingsProvider === 'openai' && (
+            {(settingsProvider === 'openai' || settingsProvider === 'gemini') && (
               <Button
                 type="button"
                 variant="outline"
@@ -415,18 +439,17 @@ export function AssistantPanel(props: { surface: 'ui' | 'tui'; className?: strin
             <Button
               type="button"
               onClick={() =>
-                !isLmStudioModelMissing &&
                 updateSettingsMutation.mutate({
                   aiProvider: settingsProvider,
                   aiBaseUrl: settingsBaseUrl.trim() || null,
-                  aiModel: normalizedSettingsModel || null,
+                  aiModel: settingsModel.trim() || null,
                   aiApiKey:
-                    settingsProvider === 'openai' && settingsApiKey.trim().length > 0
+                    (settingsProvider === 'openai' || settingsProvider === 'gemini') && settingsApiKey.trim().length > 0
                       ? settingsApiKey.trim()
                       : undefined,
                 })
               }
-              disabled={updateSettingsMutation.isPending || isLmStudioModelMissing}
+              disabled={updateSettingsMutation.isPending}
             >
               Save settings
             </Button>

@@ -1,4 +1,4 @@
-import { format, parseISO } from "date-fns";
+import { format, isBefore, isValid, parseISO } from "date-fns";
 import { Box, Text } from "ink";
 
 import type { Priority, Project, Task } from "../server/types";
@@ -67,6 +67,15 @@ const formatDueDate = (dueAt: string): string => {
 	}
 };
 
+const isOverdueDueDate = (dueAt: string): boolean => {
+	try {
+		const dueDate = parseISO(dueAt);
+		return isValid(dueDate) && isBefore(dueDate, new Date());
+	} catch {
+		return false;
+	}
+};
+
 const formatScheduledDate = (scheduledAt: string): string => {
 	try {
 		return format(parseISO(scheduledAt), "MMM dd, HH:mm");
@@ -129,6 +138,7 @@ const TaskRowItem = ({
 	const isSelected = flatIndex === selectedIndex;
 	const isExpanded = expandedTaskId === task.id;
 	const isCompleted = task.status === "completed";
+	const isOverdue = task.dueAt ? isOverdueDueDate(task.dueAt) : false;
 	const pColor = priorityColor(task.priority);
 	const project = projectMap?.[task.projectId];
 	const titleColor = isSelected && focused ? "cyan" : isSelected ? "blueBright" : undefined;
@@ -160,7 +170,9 @@ const TaskRowItem = ({
 				</Box>
 				{task.dueAt && (
 					<Box marginLeft={1}>
-						<Text dimColor>{formatDueDate(task.dueAt)}</Text>
+						<Text color={isOverdue && !isCompleted ? "red" : undefined} dimColor={!isOverdue || isCompleted}>
+							{formatDueDate(task.dueAt)}
+						</Text>
 					</Box>
 				)}
 			</Box>

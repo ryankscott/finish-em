@@ -1,4 +1,5 @@
 export type AssistantSettingsCommand =
+  | { type: 'set_provider'; value: 'gemini' | 'openai' | 'lmstudio' }
   | { type: 'set_key'; value: string }
   | { type: 'set_base'; value: string }
   | { type: 'set_model'; value: string }
@@ -9,6 +10,14 @@ export function parseAssistantSettingsCommand(
 ): AssistantSettingsCommand | null {
   const text = input.trim()
   if (!text.startsWith('/')) {
+    return null
+  }
+
+  if (text.startsWith('/provider ')) {
+    const value = text.slice('/provider '.length).trim().toLowerCase()
+    if (value === 'gemini' || value === 'openai' || value === 'lmstudio') {
+      return { type: 'set_provider', value }
+    }
     return null
   }
 

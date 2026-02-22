@@ -4,8 +4,13 @@ import { Box, Text } from "ink";
 import type { AppSettings } from "../server/types";
 
 const DEFAULT_LMSTUDIO_BASE_URL = "http://localhost:1234/v1";
-const DEFAULT_OPENAI_BASE_URL = "http://localhost:11434/v1";
-const DEFAULT_MODEL = "gpt-4o-mini";
+const DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1";
+const DEFAULT_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
+const DEFAULT_MODEL_BY_PROVIDER = {
+	gemini: "gemini-2.5-flash",
+	openai: "gpt-4o-mini",
+	lmstudio: "gpt-4o-mini",
+} as const;
 
 export type SettingsField =
 	| "timezone"
@@ -24,15 +29,21 @@ export type SettingsRow = {
 export const buildSettingsRows = (
 	settings: AppSettings | null,
 ): SettingsRow[] => {
-	const provider = settings?.aiProvider ?? "lmstudio";
+	const provider = settings?.aiProvider ?? "gemini";
 	const providerLabel =
-		provider === "lmstudio" ? "LM Studio (local)" : "OpenAI-compatible";
+		provider === "gemini"
+			? "Gemini"
+			: provider === "openai"
+				? "OpenAI"
+				: "LM Studio (local)";
 	const defaultBaseUrl =
 		provider === "lmstudio"
 			? DEFAULT_LMSTUDIO_BASE_URL
-			: DEFAULT_OPENAI_BASE_URL;
+			: provider === "openai"
+				? DEFAULT_OPENAI_BASE_URL
+				: DEFAULT_GEMINI_BASE_URL;
 	const baseUrl = settings?.aiBaseUrl ?? defaultBaseUrl;
-	const model = settings?.aiModel ?? DEFAULT_MODEL;
+	const model = settings?.aiModel ?? DEFAULT_MODEL_BY_PROVIDER[provider];
 	const keyStatus =
 		provider === "lmstudio"
 			? "Not required"
@@ -51,7 +62,7 @@ export const buildSettingsRows = (
 			field: "aiProvider",
 			label: "Assistant provider",
 			value: providerLabel,
-			hint: "Press Enter, e, or Space to toggle",
+			hint: "Use /provider gemini|openai|lmstudio",
 		},
 		{
 			field: "aiBaseUrl",

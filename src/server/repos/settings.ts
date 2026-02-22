@@ -7,6 +7,10 @@ import type {
 	AppSettingsSecrets,
 } from "@/server/types";
 
+function isAiProvider(value: unknown): value is AiProvider {
+	return value === "gemini" || value === "openai" || value === "lmstudio";
+}
+
 function normalizeLmStudioBaseUrl(baseUrl: string | null): string | null {
 	if (!baseUrl || baseUrl.trim().length === 0) {
 		return null;
@@ -94,7 +98,14 @@ export function updateSettings(
 	const current = getSettings();
 	const currentSecrets = getSettingsSecrets();
 	const timezone = patch.timezone ?? current.timezone;
-	const aiProvider = patch.aiProvider ?? current.aiProvider;
+	if (patch.aiProvider !== undefined && !isAiProvider(patch.aiProvider)) {
+		throw new Error("Invalid AI provider");
+	}
+	const aiProvider = isAiProvider(patch.aiProvider)
+		? patch.aiProvider
+		: isAiProvider(current.aiProvider)
+			? current.aiProvider
+			: "gemini";
 	const aiBaseUrlRaw =
 		patch.aiBaseUrl === undefined
 			? current.aiBaseUrl

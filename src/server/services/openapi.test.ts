@@ -35,5 +35,14 @@ describe('openapi spec', () => {
       properties: Record<string, unknown>
     }
     expect(taskSchema.properties.parentTaskId).toBeTruthy()
+
+    const settingsSchema = spec.components.schemas.AppSettings as {
+      properties: { aiProvider: { enum: string[] } }
+    }
+    expect(settingsSchema.properties.aiProvider.enum).toEqual([
+      'gemini',
+      'openai',
+      'lmstudio',
+    ])
   })
 })

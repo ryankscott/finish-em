@@ -27,6 +27,12 @@ afterEach(() => {
 });
 
 describe("settings repository", () => {
+	it("defaults assistant provider to Gemini", () => {
+		const settings = getSettings();
+
+		expect(settings.aiProvider).toBe("gemini");
+	});
+
 	it("allows non-assistant updates when LM Studio model is unset", () => {
 		const updated = updateSettings({ timezone: "UTC" });
 

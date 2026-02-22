@@ -33,9 +33,54 @@ afterEach(() => {
 })
 
 describe('assistant service', () => {
+  it('requires an API key when Gemini provider is selected', async () => {
+    updateSettings({
+      aiProvider: 'gemini',
+      clearAiApiKey: true,
+    })
+
+    const result = await sendAssistantChat({
+      surfaceInput: 'ui',
+      message: 'Summarize my priorities',
+    })
+
+    expect(result.assistantMessage.content).toContain('API key missing for Gemini')
+  })
+
+  it('requires an API key when OpenAI provider is selected', async () => {
+    updateSettings({
+      aiProvider: 'openai',
+      clearAiApiKey: true,
+    })
+
+    const result = await sendAssistantChat({
+      surfaceInput: 'ui',
+      message: 'Summarize my priorities',
+    })
+
+    expect(result.assistantMessage.content).toContain('API key missing for OpenAI')
+  })
+
+  it('does not require an API key when LM Studio provider is selected', async () => {
+    updateSettings({
+      aiProvider: 'lmstudio',
+      aiModel: 'gpt-4o-mini',
+      clearAiApiKey: true,
+    })
+
+    const result = await sendAssistantChat({
+      surfaceInput: 'ui',
+      message: 'Summarize my priorities',
+    })
+
+    expect(result.assistantMessage.content).not.toContain('API key missing')
+  })
+
   it('returns assistant state and persists chat messages', async () => {
     updateSettings({
-      aiBaseUrl: 'https://api.openai.com/v1',
+      aiProvider: 'lmstudio',
+      aiModel: 'gpt-4o-mini',
+      aiBaseUrl: 'http://localhost:1234/v1',
       clearAiApiKey: true,
     })
 
