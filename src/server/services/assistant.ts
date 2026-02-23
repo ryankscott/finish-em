@@ -14,6 +14,7 @@ import {
 	startOfWeek,
 	subDays,
 } from "date-fns";
+import { parseDate } from "chrono-node";
 import { z } from "zod/v3";
 
 import {
@@ -28,12 +29,12 @@ import {
 	createProject,
 	getInboxProjectId,
 	listProjects,
+	updateProject,
 } from "@/server/repos/projects";
 import { getSettings, getSettingsSecrets } from "@/server/repos/settings";
 import {
 	completeTask,
 	createTask,
-	deleteTask,
 	getTask,
 	listTasks,
 	uncompleteTask,
@@ -42,12 +43,13 @@ import {
 
 import type {
 	AssistantAction,
+	AssistantActionOutcome,
 	AssistantActionType,
 	AssistantChatResponse,
+	AssistantDecisionSummary,
 	AssistantMessage,
 	AiProvider,
 	AssistantSurface,
-	Priority,
 	RecurrencePreset,
 } from "@/server/types";
 
@@ -58,16 +60,137 @@ const DEFAULT_LMSTUDIO_MODEL = "gpt-4o-mini";
 const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
 const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
 
+const assistantActionLabelSchema = z.string().min(1).max(140);
+const assistantIdSchema = z.coerce.number().int().positive();
+
+const createTaskActionSchema = z.object({
+	type: z.literal("create_task"),
+	label: assistantActionLabelSchema,
+	payload: z
+		.object({
+			title: z.string().min(1),
+			projectId: assistantIdSchema.optional(),
+			parentTaskId: assistantIdSchema.nullable().optional(),
+			notes: z.string().optional(),
+			priority: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+			scheduledAt: z.string().nullable().optional(),
+			dueAt: z.string().nullable().optional(),
+			dueTimezone: z.string().nullable().optional(),
+			recurrencePreset: z
+				.union([
+					z.literal("daily"),
+					z.literal("weekly"),
+					z.literal("monthly"),
+					z.literal("yearly"),
+					z.literal("every_weekday"),
+					z.null(),
+				])
+				.optional(),
+			recurrenceRRule: z.string().nullable().optional(),
+		}),
+});
+
+const updateTaskActionSchema = z.object({
+	type: z.literal("update_task"),
+	label: assistantActionLabelSchema,
+	payload: z.object({
+		taskId: assistantIdSchema,
+		title: z.string().optional(),
+		notes: z.string().optional(),
+		projectId: assistantIdSchema.nullable().optional(),
+		parentTaskId: assistantIdSchema.nullable().optional(),
+		priority: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)]).optional(),
+		scheduledAt: z.string().nullable().optional(),
+		dueAt: z.string().nullable().optional(),
+		dueTimezone: z.string().nullable().optional(),
+		recurrencePreset: z
+			.union([
+				z.literal("daily"),
+				z.literal("weekly"),
+				z.literal("monthly"),
+				z.literal("yearly"),
+				z.literal("every_weekday"),
+				z.null(),
+			])
+			.optional(),
+		recurrenceRRule: z.string().nullable().optional(),
+	}),
+});
+
+const setTaskDueDateActionSchema = z.object({
+	type: z.literal("set_task_due_date"),
+	label: assistantActionLabelSchema,
+	payload: z.object({
+		taskId: assistantIdSchema,
+		dueAt: z.string().nullable(),
+		dueTimezone: z.string().nullable().optional(),
+		scheduledAt: z.string().nullable().optional(),
+	}),
+});
+
+const completeTaskActionSchema = z.object({
+	type: z.literal("complete_task"),
+	label: assistantActionLabelSchema,
+	payload: z.object({
+		taskId: assistantIdSchema,
+	}),
+});
+
+const uncompleteTaskActionSchema = z.object({
+	type: z.literal("uncomplete_task"),
+	label: assistantActionLabelSchema,
+	payload: z.object({
+		taskId: assistantIdSchema,
+	}),
+});
+
+const createProjectActionSchema = z.object({
+	type: z.literal("create_project"),
+	label: assistantActionLabelSchema,
+	payload: z.object({
+		name: z.string().min(1),
+		emoji: z.string().optional(),
+		description: z.string().optional(),
+		color: z.string().optional(),
+	}),
+});
+
+const updateProjectActionSchema = z.object({
+	type: z.literal("update_project"),
+	label: assistantActionLabelSchema,
+	payload: z.object({
+		projectId: assistantIdSchema,
+		name: z.string().optional(),
+		emoji: z.string().nullable().optional(),
+		description: z.string().optional(),
+		startAt: z.string().nullable().optional(),
+		endAt: z.string().nullable().optional(),
+		color: z.string().optional(),
+		isInbox: z.boolean().optional(),
+	}),
+});
+
+const supportedAssistantActionSchema = z.discriminatedUnion("type", [
+	createTaskActionSchema,
+	updateTaskActionSchema,
+	setTaskDueDateActionSchema,
+	completeTaskActionSchema,
+	uncompleteTaskActionSchema,
+	createProjectActionSchema,
+	updateProjectActionSchema,
+]);
+
 const assistantActionSchema = z.object({
 	type: z.enum([
 		"create_task",
 		"update_task",
+		"set_task_due_date",
 		"complete_task",
 		"uncomplete_task",
-		"delete_task",
 		"create_project",
+		"update_project",
 	]),
-	label: z.string().min(1).max(140),
+	label: assistantActionLabelSchema,
 	payload: z.record(z.any()).optional(),
 });
 
@@ -312,6 +435,7 @@ function normalizeProposedActions(
 		status: "pending",
 		payload: action.payload ?? {},
 		resultMessage: null,
+		outcome: null,
 	}));
 }
 
@@ -374,13 +498,14 @@ async function generateAssistantReply(input: {
 				"Goals are separate from tasks — they are weekly or daily intentions.",
 				"",
 				"## Available actions",
-				"You may propose up to 5 actions requiring user confirmation before execution:",
+				"You may propose up to 5 actions. Proposed actions are executed automatically, so only include actions that should happen now:",
 				"- create_task: payload must include title. Optional: projectId, priority, dueAt (ISO 8601), scheduledAt (ISO 8601), notes, parentTaskId, recurrencePreset (daily/weekly/monthly/yearly/every_weekday).",
 				"- update_task: payload must include taskId. Optional: any task fields to change.",
+				"- set_task_due_date: payload must include taskId and dueAt (ISO 8601 or null to clear). Optional: dueTimezone, scheduledAt.",
 				"- complete_task: payload must include taskId.",
 				"- uncomplete_task: payload must include taskId.",
-				"- delete_task: payload must include taskId. Only propose this when user explicitly wants to delete.",
 				"- create_project: payload must include name. Optional: description, color (hex), emoji.",
+				"- update_project: payload must include projectId. Optional: name, color, emoji, description, startAt, endAt, isInbox.",
 				"",
 				"## Response instructions",
 				'Return a concise reply addressing the user. Avoid filler phrases like "Of course!" or "Certainly!".',
@@ -416,25 +541,6 @@ async function generateAssistantReply(input: {
 	}
 }
 
-function asPositiveInt(value: unknown, field: string): number {
-	const parsed = Number(value);
-	if (!Number.isInteger(parsed) || parsed <= 0) {
-		throw new Error(`Invalid ${field}`);
-	}
-	return parsed;
-}
-
-function asOptionalPriority(value: unknown): Priority | undefined {
-	if (value === undefined) {
-		return undefined;
-	}
-	const parsed = Number(value);
-	if (parsed === 1 || parsed === 2 || parsed === 3 || parsed === 4) {
-		return parsed as Priority;
-	}
-	throw new Error("Invalid priority");
-}
-
 function asOptionalRecurrencePreset(
 	value: unknown,
 ): RecurrencePreset | undefined {
@@ -456,196 +562,404 @@ function asOptionalRecurrencePreset(
 	throw new Error("Invalid recurrence preset");
 }
 
-function executeAssistantAction(action: AssistantAction): string {
-	if (action.type === "create_task") {
-		const titleRaw = action.payload.title;
-		if (typeof titleRaw !== "string" || titleRaw.trim().length === 0) {
-			throw new Error("create_task requires a non-empty title");
+type SupportedAssistantAction = z.infer<typeof supportedAssistantActionSchema>;
+
+class AssistantActionExecutionError extends Error {
+	code: string;
+
+	constructor(code: string, message: string) {
+		super(message);
+		this.code = code;
+	}
+}
+
+function asOptionalIsoDate(
+	value: string | null | undefined,
+	field: string,
+): string | null | undefined {
+	if (value === undefined) {
+		return undefined;
+	}
+	if (value === null) {
+		return null;
+	}
+	const parsed = parseISO(value);
+	if (!isValid(parsed)) {
+		const naturalLanguageParsed = parseDate(value, new Date());
+		if (!naturalLanguageParsed || !isValid(naturalLanguageParsed)) {
+			throw new AssistantActionExecutionError(
+				"INVALID_DATE",
+				`${field} must be a valid date/time string`,
+			);
 		}
-		const projectId =
-			action.payload.projectId === undefined
-				? getInboxProjectId()
-				: asPositiveInt(action.payload.projectId, "projectId");
-		const created = createTask({
-			projectId,
-			parentTaskId:
-				action.payload.parentTaskId === undefined
-					? undefined
-					: action.payload.parentTaskId === null
-						? null
-						: asPositiveInt(action.payload.parentTaskId, "parentTaskId"),
-			title: titleRaw.trim(),
-			notes:
-				typeof action.payload.notes === "string"
-					? action.payload.notes.trim()
-					: undefined,
-			priority: asOptionalPriority(action.payload.priority),
-			scheduledAt:
-				action.payload.scheduledAt === undefined
-					? undefined
-					: action.payload.scheduledAt === null
-						? null
-						: String(action.payload.scheduledAt),
-			dueAt:
-				action.payload.dueAt === undefined
-					? undefined
-					: action.payload.dueAt === null
-						? null
-						: String(action.payload.dueAt),
-			dueTimezone:
-				action.payload.dueTimezone === undefined
-					? undefined
-					: action.payload.dueTimezone === null
-						? null
-						: String(action.payload.dueTimezone),
-			recurrencePreset: asOptionalRecurrencePreset(
-				action.payload.recurrencePreset,
-			),
-			recurrenceRRule:
-				action.payload.recurrenceRRule === undefined
-					? undefined
-					: action.payload.recurrenceRRule === null
-						? null
-						: String(action.payload.recurrenceRRule),
-		});
-		return `Created task "${created.title}" (#${created.id}).`;
+		return naturalLanguageParsed.toISOString();
+	}
+	return parsed.toISOString();
+}
+
+function normalizeSetTaskDueDatePayload(
+	action: AssistantAction,
+): Record<string, unknown> {
+	const payload =
+		action.payload && typeof action.payload === "object"
+			? (action.payload as Record<string, unknown>)
+			: {};
+
+	const normalized: Record<string, unknown> = {
+		taskId: payload.taskId ?? payload.task_id ?? payload.id,
+		dueAt:
+			payload.dueAt ?? payload.due_at ?? payload.dueDate ?? payload.due_date ?? payload.date,
+		dueTimezone:
+			payload.dueTimezone ?? payload.due_timezone ?? payload.timezone,
+		scheduledAt:
+			payload.scheduledAt ?? payload.scheduled_at ?? payload.startAt ?? payload.start_at,
+	};
+
+	if (normalized.taskId === undefined || normalized.taskId === null) {
+		const idMatch = action.label.match(/\(#(\d+)\)/);
+		if (idMatch?.[1]) {
+			normalized.taskId = Number(idMatch[1]);
+		}
 	}
 
-	if (action.type === "update_task") {
-		const taskId = asPositiveInt(action.payload.taskId, "taskId");
-		const existing = getTask(taskId);
+	if (normalized.taskId === undefined || normalized.taskId === null) {
+		const titleMatch = action.label.match(/["'“”‘’]([^"'“”‘’]+)["'“”‘’]/);
+		if (titleMatch?.[1]) {
+			const title = titleMatch[1].trim().toLowerCase();
+			const matchedTask = listTasks().find(
+				(task) => task.title.trim().toLowerCase() === title,
+			);
+			if (matchedTask) {
+				normalized.taskId = matchedTask.id;
+			}
+		}
+	}
+
+	if (normalized.dueAt === undefined) {
+		const toMatch = action.label.match(/\bto\s+(.+)$/i);
+		const toValue = toMatch?.[1]?.trim();
+		if (toValue) {
+			if (/^(clear|remove|none|null)$/i.test(toValue)) {
+				normalized.dueAt = null;
+			} else {
+				normalized.dueAt = toValue;
+			}
+		}
+	}
+
+	return normalized;
+}
+
+function parseSupportedAssistantAction(action: AssistantAction): SupportedAssistantAction {
+	const normalizedPayload =
+		action.type === "set_task_due_date"
+			? normalizeSetTaskDueDatePayload(action)
+			: action.payload;
+
+	const parsed = supportedAssistantActionSchema.safeParse({
+		type: action.type,
+		label: action.label,
+		payload: normalizedPayload,
+	});
+
+	if (!parsed.success) {
+		throw new AssistantActionExecutionError(
+			"UNSUPPORTED_ACTION",
+			`Unsupported or invalid action payload for \"${action.type}\"`,
+		);
+	}
+
+	return parsed.data;
+}
+
+function buildActionOutcome(input: {
+	action: AssistantAction;
+	status: AssistantActionOutcome["status"];
+	message: string;
+	errorCode?: string | null;
+	targetEntity?: "task" | "project" | null;
+	targetId?: number | null;
+}): AssistantActionOutcome {
+	return {
+		actionId: input.action.id,
+		type: input.action.type,
+		targetEntity: input.targetEntity ?? null,
+		targetId: input.targetId ?? null,
+		status: input.status,
+		message: input.message,
+		errorCode: input.errorCode ?? null,
+	};
+}
+
+function executeAssistantAction(action: AssistantAction): AssistantActionOutcome {
+	const supported = parseSupportedAssistantAction(action);
+
+	if (supported.type === "create_task") {
+		const payload = supported.payload;
+		const projectId = payload.projectId ?? getInboxProjectId();
+		const created = createTask({
+			projectId,
+			parentTaskId: payload.parentTaskId,
+			title: payload.title.trim(),
+			notes: payload.notes?.trim(),
+			priority: payload.priority,
+			scheduledAt: asOptionalIsoDate(payload.scheduledAt, "scheduledAt"),
+			dueAt: asOptionalIsoDate(payload.dueAt, "dueAt"),
+			dueTimezone: payload.dueTimezone,
+			recurrencePreset: payload.recurrencePreset,
+			recurrenceRRule: payload.recurrenceRRule,
+		});
+		return buildActionOutcome({
+			action,
+			status: "success",
+			targetEntity: "task",
+			targetId: created.id,
+			message: `Created task \"${created.title}\" (#${created.id}).`,
+		});
+	}
+
+	if (supported.type === "update_task") {
+		const payload = supported.payload;
+		const existing = getTask(payload.taskId);
 		if (!existing) {
-			throw new Error(`Task ${taskId} not found`);
+			throw new AssistantActionExecutionError(
+				"TASK_NOT_FOUND",
+				`Task ${payload.taskId} not found`,
+			);
 		}
 
 		const patch: Record<string, unknown> = {};
-		if (typeof action.payload.title === "string") {
-			patch.title = action.payload.title.trim();
+		if (typeof payload.title === "string") {
+			patch.title = payload.title.trim();
 		}
-		if (typeof action.payload.notes === "string") {
-			patch.notes = action.payload.notes;
+		if (typeof payload.notes === "string") {
+			patch.notes = payload.notes;
 		}
-		if (action.payload.projectId !== undefined) {
-			patch.projectId =
-				action.payload.projectId === null
-					? null
-					: asPositiveInt(action.payload.projectId, "projectId");
+		if (payload.projectId !== undefined) {
+			patch.projectId = payload.projectId;
 		}
-		if (action.payload.parentTaskId !== undefined) {
-			patch.parentTaskId =
-				action.payload.parentTaskId === null
-					? null
-					: asPositiveInt(action.payload.parentTaskId, "parentTaskId");
+		if (payload.parentTaskId !== undefined) {
+			patch.parentTaskId = payload.parentTaskId;
 		}
-		if (action.payload.priority !== undefined) {
-			patch.priority = asOptionalPriority(action.payload.priority);
+		if (payload.priority !== undefined) {
+			patch.priority = payload.priority;
 		}
-		if (action.payload.scheduledAt !== undefined) {
-			patch.scheduledAt =
-				action.payload.scheduledAt === null
-					? null
-					: String(action.payload.scheduledAt);
+		if (payload.scheduledAt !== undefined) {
+			patch.scheduledAt = asOptionalIsoDate(payload.scheduledAt, "scheduledAt");
 		}
-		if (action.payload.dueAt !== undefined) {
-			patch.dueAt =
-				action.payload.dueAt === null ? null : String(action.payload.dueAt);
+		if (payload.dueAt !== undefined) {
+			patch.dueAt = asOptionalIsoDate(payload.dueAt, "dueAt");
 		}
-		if (action.payload.dueTimezone !== undefined) {
-			patch.dueTimezone =
-				action.payload.dueTimezone === null
-					? null
-					: String(action.payload.dueTimezone);
+		if (payload.dueTimezone !== undefined) {
+			patch.dueTimezone = payload.dueTimezone;
 		}
-		if (action.payload.recurrencePreset !== undefined) {
+		if (payload.recurrencePreset !== undefined) {
 			patch.recurrencePreset = asOptionalRecurrencePreset(
-				action.payload.recurrencePreset,
+				payload.recurrencePreset,
 			);
 		}
-		if (action.payload.recurrenceRRule !== undefined) {
-			patch.recurrenceRRule =
-				action.payload.recurrenceRRule === null
-					? null
-					: String(action.payload.recurrenceRRule);
+		if (payload.recurrenceRRule !== undefined) {
+			patch.recurrenceRRule = payload.recurrenceRRule;
 		}
 
 		if (Object.keys(patch).length === 0) {
-			throw new Error("No update fields were provided");
+			throw new AssistantActionExecutionError(
+				"NO_UPDATE_FIELDS",
+				"No update fields were provided",
+			);
 		}
 
-		const updated = updateTask(
-			taskId,
-			patch as Parameters<typeof updateTask>[1],
-		);
+		const updated = updateTask(payload.taskId, patch as Parameters<typeof updateTask>[1]);
 		if (!updated) {
-			throw new Error(`Task ${taskId} not found`);
+			throw new AssistantActionExecutionError(
+				"TASK_NOT_FOUND",
+				`Task ${payload.taskId} not found`,
+			);
 		}
-		return `Updated task "${updated.title}" (#${updated.id}).`;
+
+		return buildActionOutcome({
+			action,
+			status: "success",
+			targetEntity: "task",
+			targetId: updated.id,
+			message: `Updated task \"${updated.title}\" (#${updated.id}).`,
+		});
 	}
 
-	if (action.type === "complete_task") {
-		const taskId = asPositiveInt(action.payload.taskId, "taskId");
-		const result = completeTask(taskId);
-		if (!result.task) {
-			throw new Error(`Task ${taskId} not found`);
-		}
-		return `Completed task "${result.task.title}" (#${result.task.id}).`;
-	}
-
-	if (action.type === "uncomplete_task") {
-		const taskId = asPositiveInt(action.payload.taskId, "taskId");
-		const task = uncompleteTask(taskId);
-		if (!task) {
-			throw new Error(`Task ${taskId} not found`);
-		}
-		return `Reopened task "${task.title}" (#${task.id}).`;
-	}
-
-	if (action.type === "delete_task") {
-		const taskId = asPositiveInt(action.payload.taskId, "taskId");
-		const existing = getTask(taskId);
+	if (supported.type === "set_task_due_date") {
+		const payload = supported.payload;
+		const existing = getTask(payload.taskId);
 		if (!existing) {
-			throw new Error(`Task ${taskId} not found`);
+			throw new AssistantActionExecutionError(
+				"TASK_NOT_FOUND",
+				`Task ${payload.taskId} not found`,
+			);
 		}
-		const deleted = deleteTask(taskId);
-		if (!deleted) {
-			throw new Error(`Failed to delete task ${taskId}`);
+
+		const updated = updateTask(payload.taskId, {
+			dueAt: asOptionalIsoDate(payload.dueAt, "dueAt"),
+			dueTimezone: payload.dueTimezone,
+			scheduledAt: asOptionalIsoDate(payload.scheduledAt, "scheduledAt"),
+		});
+		if (!updated) {
+			throw new AssistantActionExecutionError(
+				"TASK_NOT_FOUND",
+				`Task ${payload.taskId} not found`,
+			);
 		}
-		return `Deleted task "${existing.title}" (#${taskId}).`;
+
+		return buildActionOutcome({
+			action,
+			status: "success",
+			targetEntity: "task",
+			targetId: updated.id,
+			message: `Updated due date for task \"${updated.title}\" (#${updated.id}).`,
+		});
 	}
 
-	if (action.type === "create_project") {
-		const name = action.payload.name;
-		if (typeof name !== "string" || name.trim().length === 0) {
-			throw new Error("create_project requires a non-empty name");
+	if (supported.type === "complete_task") {
+		const result = completeTask(supported.payload.taskId);
+		if (!result.task) {
+			throw new AssistantActionExecutionError(
+				"TASK_NOT_FOUND",
+				`Task ${supported.payload.taskId} not found`,
+			);
 		}
+		return buildActionOutcome({
+			action,
+			status: "success",
+			targetEntity: "task",
+			targetId: result.task.id,
+			message: `Completed task \"${result.task.title}\" (#${result.task.id}).`,
+		});
+	}
+
+	if (supported.type === "uncomplete_task") {
+		const task = uncompleteTask(supported.payload.taskId);
+		if (!task) {
+			throw new AssistantActionExecutionError(
+				"TASK_NOT_FOUND",
+				`Task ${supported.payload.taskId} not found`,
+			);
+		}
+		return buildActionOutcome({
+			action,
+			status: "success",
+			targetEntity: "task",
+			targetId: task.id,
+			message: `Reopened task \"${task.title}\" (#${task.id}).`,
+		});
+	}
+
+	if (supported.type === "create_project") {
 		const created = createProject({
-			name: name.trim(),
+			name: supported.payload.name.trim(),
 			emoji:
-				typeof action.payload.emoji === "string" &&
-				action.payload.emoji.trim().length > 0
-					? action.payload.emoji.trim()
+				typeof supported.payload.emoji === "string" &&
+				supported.payload.emoji.trim().length > 0
+					? supported.payload.emoji.trim()
 					: null,
 			description:
-				typeof action.payload.description === "string"
-					? action.payload.description.trim()
+				typeof supported.payload.description === "string"
+					? supported.payload.description.trim()
 					: undefined,
 			color:
-				typeof action.payload.color === "string" &&
-				action.payload.color.trim().length > 0
-					? action.payload.color.trim()
+				typeof supported.payload.color === "string" &&
+				supported.payload.color.trim().length > 0
+					? supported.payload.color.trim()
 					: undefined,
 		});
-		return `Created project "${created.name}" (#${created.id}).`;
+		return buildActionOutcome({
+			action,
+			status: "success",
+			targetEntity: "project",
+			targetId: created.id,
+			message: `Created project \"${created.name}\" (#${created.id}).`,
+		});
 	}
 
-	throw new Error("Unsupported action type");
+	if (supported.type === "update_project") {
+		const payload = supported.payload;
+		const updated = updateProject(payload.projectId, {
+			name: payload.name,
+			emoji: payload.emoji,
+			description: payload.description,
+			startAt: asOptionalIsoDate(payload.startAt, "startAt"),
+			endAt: asOptionalIsoDate(payload.endAt, "endAt"),
+			color: payload.color,
+			isInbox: payload.isInbox,
+		});
+		if (!updated) {
+			throw new AssistantActionExecutionError(
+				"PROJECT_NOT_FOUND",
+				`Project ${payload.projectId} not found`,
+			);
+		}
+		return buildActionOutcome({
+			action,
+			status: "success",
+			targetEntity: "project",
+			targetId: updated.id,
+			message: `Updated project \"${updated.name}\" (#${updated.id}).`,
+		});
+	}
+
+	const exhaustiveCheck: never = supported;
+	throw new AssistantActionExecutionError(
+		"UNSUPPORTED_ACTION",
+		`Unsupported action type: ${String(exhaustiveCheck)}`,
+	);
+}
+
+function buildActionSummary(message: AssistantMessage): AssistantDecisionSummary {
+	const total = message.actions.length;
+	const pending = message.actions.filter((action) => action.status === "pending").length;
+	const success = message.actions.filter((action) => action.status === "executed").length;
+	const failure = message.actions.filter((action) => action.status === "failed").length;
+	const cancelled = message.actions.filter((action) => action.status === "cancelled").length;
+
+	let status: AssistantDecisionSummary["status"] = "pending";
+	if (failure > 0 && success > 0) {
+		status = "partial_success";
+	} else if (failure > 0 && success === 0 && pending === 0) {
+		status = "failure";
+	} else if (success > 0 && failure === 0 && pending === 0) {
+		status = "success";
+	} else if (cancelled > 0 && success === 0 && failure === 0 && pending === 0) {
+		status = "cancelled";
+	}
+
+	const messageText =
+		status === "success"
+			? `All confirmed actions executed successfully (${success}/${total}).`
+			: status === "partial_success"
+				? `Partial success: ${success} succeeded, ${failure} failed, ${pending} pending.`
+				: status === "failure"
+					? `Action execution failed (${failure}/${total}).`
+					: status === "cancelled"
+						? `All actions were cancelled (${cancelled}/${total}).`
+						: `${pending} action(s) pending review.`;
+
+	return {
+		status,
+		total,
+		pending,
+		success,
+		failure,
+		cancelled,
+		message: messageText,
+	};
 }
 
 function updateActionState(input: {
 	message: AssistantMessage;
 	actionId: string;
 	decision: "confirm" | "cancel";
-}): AssistantMessage {
+}): {
+	message: AssistantMessage;
+	outcome: AssistantActionOutcome;
+	summary: AssistantDecisionSummary;
+} {
 	const actions = input.message.actions.map((action) => ({ ...action }));
 	const index = actions.findIndex((action) => action.id === input.actionId);
 	if (index === -1) {
@@ -657,18 +971,37 @@ function updateActionState(input: {
 		throw new Error("Action is no longer pending");
 	}
 
+	let outcome: AssistantActionOutcome;
+
 	if (input.decision === "cancel") {
 		selected.status = "cancelled";
 		selected.resultMessage = "Action cancelled by user.";
+		outcome = buildActionOutcome({
+			action: selected,
+			status: "cancelled",
+			message: "Action cancelled by user.",
+		});
+		selected.outcome = outcome;
 	} else {
 		try {
-			const resultMessage = executeAssistantAction(selected);
-			selected.status = "executed";
-			selected.resultMessage = resultMessage;
+			outcome = executeAssistantAction(selected);
+			selected.status = outcome.status === "success" ? "executed" : "failed";
+			selected.resultMessage = outcome.message;
+			selected.outcome = outcome;
 		} catch (error) {
 			selected.status = "failed";
-			selected.resultMessage =
+			const message =
 				error instanceof Error ? error.message : "Failed to execute action";
+			const errorCode =
+				error instanceof AssistantActionExecutionError ? error.code : "ACTION_EXECUTION_FAILED";
+			selected.resultMessage = message;
+			outcome = buildActionOutcome({
+				action: selected,
+				status: "failure",
+				message,
+				errorCode,
+			});
+			selected.outcome = outcome;
 		}
 	}
 
@@ -679,7 +1012,30 @@ function updateActionState(input: {
 	if (!updated) {
 		throw new Error("Failed to update assistant action state");
 	}
-	return updated;
+	return {
+		message: updated,
+		outcome,
+		summary: buildActionSummary(updated),
+	};
+}
+
+function executeAllPendingActions(message: AssistantMessage): AssistantMessage {
+	let currentMessage = message;
+	while (true) {
+		const nextPendingAction = currentMessage.actions.find(
+			(action) => action.status === "pending",
+		);
+		if (!nextPendingAction) {
+			return currentMessage;
+		}
+
+		const result = updateActionState({
+			message: currentMessage,
+			actionId: nextPendingAction.id,
+			decision: "confirm",
+		});
+		currentMessage = result.message;
+	}
 }
 
 export function getAssistantState(surfaceInput: string) {
@@ -739,9 +1095,18 @@ export async function sendAssistantChat(input: {
 		actions: generated.actions,
 	});
 
+	let finalizedAssistantMessage = assistantMessage;
+	if (assistantMessage.actions.some((action) => action.status === "pending")) {
+		try {
+			finalizedAssistantMessage = executeAllPendingActions(assistantMessage);
+		} catch (error) {
+			console.error("Failed to auto-execute assistant actions:", error);
+		}
+	}
+
 	return {
 		userMessage,
-		assistantMessage,
+		assistantMessage: finalizedAssistantMessage,
 	};
 }
 
@@ -764,7 +1129,7 @@ export function decideAssistantAction(input: {
 	}
 
 	return {
-		message: updateActionState({
+		...updateActionState({
 			message,
 			actionId: input.actionId,
 			decision: input.decision,

@@ -21,7 +21,7 @@ const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "c", action: "Chat with assistant" },
 	{ keys: "y / n", action: "Confirm/cancel selected assistant action" },
 	{ keys: "Shift+X", action: "Clear assistant chat history" },
-	{ keys: "Cmd+j", action: "Toggle assistant panel/overlay" },
+	{ keys: "\\", action: "Collapse/expand assistant panel" },
 	{ keys: "s", action: "Create subtask under selected task" },
 	{
 		keys: "e",

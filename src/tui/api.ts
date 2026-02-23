@@ -1,5 +1,7 @@
 import type {
 	AppSettings,
+	AssistantActionOutcome,
+	AssistantDecisionSummary,
 	AssistantMessage,
 	Goal,
 	Project,
@@ -117,7 +119,11 @@ export type ApiClient = {
 		messageId: number;
 		actionId: string;
 		decision: "confirm" | "cancel";
-	}) => Promise<{ message: AssistantMessage }>;
+	}) => Promise<{
+		message: AssistantMessage;
+		outcome: AssistantActionOutcome;
+		summary: AssistantDecisionSummary;
+	}>;
 	clearAssistantMessages: (
 		surface: "ui" | "tui",
 	) => Promise<{ ok: boolean; deleted: number }>;
@@ -296,7 +302,11 @@ export const createApi = (baseUrl: string): ApiClient => {
 				body: JSON.stringify(input),
 			}),
 		decideAssistantAction: (input) =>
-			request<{ message: AssistantMessage }>(
+			request<{
+				message: AssistantMessage;
+				outcome: AssistantActionOutcome;
+				summary: AssistantDecisionSummary;
+			}>(
 				"/api/assistant/actions/decision",
 				{
 					method: "POST",

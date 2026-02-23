@@ -6,6 +6,7 @@
     "node": "22.x"
   },
   "scripts": {
+    "predev": "pnpm rebuild better-sqlite3",
     "dev": "vite dev --port 3000",
     "build": "vite build",
     "preview": "vite preview",

@@ -147,7 +147,7 @@ export const AssistantPanel = ({
             <TextInput value={chatInput} onChange={onChatInputChange} />
           </>
         ) : (
-          <Text dimColor>c chat · y/n confirm/cancel · Cmd+j toggle</Text>
+          <Text dimColor>c chat · y/n confirm/cancel · \ collapse/expand</Text>
         )}
       </Box>
     </Box>

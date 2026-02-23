@@ -85,11 +85,25 @@ export type AssistantRole = 'user' | 'assistant' | 'system'
 export type AssistantActionType =
   | 'create_task'
   | 'update_task'
+  | 'set_task_due_date'
   | 'complete_task'
   | 'uncomplete_task'
   | 'delete_task'
   | 'create_project'
+  | 'update_project'
 export type AssistantActionStatus = 'pending' | 'executed' | 'cancelled' | 'failed'
+
+export type AssistantActionOutcomeStatus = 'success' | 'failure' | 'cancelled'
+
+export type AssistantActionOutcome = {
+  actionId: string
+  type: AssistantActionType
+  targetEntity: 'task' | 'project' | null
+  targetId: number | null
+  status: AssistantActionOutcomeStatus
+  message: string
+  errorCode: string | null
+}
 
 export type AssistantAction = {
   id: string
@@ -98,6 +112,7 @@ export type AssistantAction = {
   status: AssistantActionStatus
   payload: Record<string, unknown>
   resultMessage: string | null
+  outcome: AssistantActionOutcome | null
 }
 
 export type AssistantMessage = {
@@ -113,6 +128,16 @@ export type AssistantMessage = {
 export type AssistantChatResponse = {
   userMessage: AssistantMessage
   assistantMessage: AssistantMessage
+}
+
+export type AssistantDecisionSummary = {
+  status: 'pending' | 'success' | 'failure' | 'partial_success' | 'cancelled'
+  total: number
+  pending: number
+  success: number
+  failure: number
+  cancelled: number
+  message: string
 }
 
 export type TaskFilters = {

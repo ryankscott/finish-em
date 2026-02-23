@@ -1,5 +1,7 @@
 import type {
   AppSettings,
+  AssistantActionOutcome,
+  AssistantDecisionSummary,
   AssistantMessage,
   Goal,
   Project,
@@ -202,6 +204,8 @@ export const api = {
   }) =>
     request<{
       message: AssistantMessage
+      outcome: AssistantActionOutcome
+      summary: AssistantDecisionSummary
     }>('/api/assistant/actions/decision', {
       method: 'POST',
       body: JSON.stringify(payload),

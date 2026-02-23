@@ -19,10 +19,12 @@ import type {
 const assistantActionTypes: AssistantActionType[] = [
   'create_task',
   'update_task',
+  'set_task_due_date',
   'complete_task',
   'uncomplete_task',
   'delete_task',
   'create_project',
+  'update_project',
 ]
 
 const assistantActionStatuses: AssistantActionStatus[] = [
@@ -171,6 +173,36 @@ function parseAssistantActions(value: unknown): AssistantAction[] {
           candidate.resultMessage === null || candidate.resultMessage === undefined
             ? null
             : String(candidate.resultMessage),
+        outcome:
+          candidate.outcome && typeof candidate.outcome === 'object'
+            ? {
+                actionId: String((candidate.outcome as Record<string, unknown>).actionId ?? ''),
+                type: String((candidate.outcome as Record<string, unknown>).type) as AssistantActionType,
+                targetEntity:
+                  (candidate.outcome as Record<string, unknown>).targetEntity === 'task' ||
+                  (candidate.outcome as Record<string, unknown>).targetEntity === 'project'
+                    ? ((candidate.outcome as Record<string, unknown>).targetEntity as 'task' | 'project')
+                    : null,
+                targetId:
+                  typeof (candidate.outcome as Record<string, unknown>).targetId === 'number'
+                    ? Number((candidate.outcome as Record<string, unknown>).targetId)
+                    : null,
+                status:
+                  (candidate.outcome as Record<string, unknown>).status === 'success' ||
+                  (candidate.outcome as Record<string, unknown>).status === 'failure' ||
+                  (candidate.outcome as Record<string, unknown>).status === 'cancelled'
+                    ? ((candidate.outcome as Record<string, unknown>).status as
+                        | 'success'
+                        | 'failure'
+                        | 'cancelled')
+                    : 'failure',
+                message: String((candidate.outcome as Record<string, unknown>).message ?? ''),
+                errorCode:
+                  typeof (candidate.outcome as Record<string, unknown>).errorCode === 'string'
+                    ? String((candidate.outcome as Record<string, unknown>).errorCode)
+                    : null,
+              }
+            : null,
       })
     }
 

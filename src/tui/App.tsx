@@ -13,6 +13,10 @@ import TextInput from "ink-text-input";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AppSettings, AssistantMessage, Goal, Project, Reminder, Task } from "../server/types";
+import {
+	getMainPaneTerminalWidth,
+	toggleAssistantVisibility,
+} from "./assistant-layout";
 import { AssistantPanel, listPendingAssistantActions } from "./AssistantPanel";
 import { parseAssistantSettingsCommand } from "./assistant-commands";
 import type { createApi } from "./api";
@@ -22,7 +26,6 @@ import {
 } from "./parse-task-input";
 import { Dashboard } from "./Dashboard";
 import { HelpModal } from "./HelpModal";
-import { NyanCat } from "./NyanCat";
 import { buildSettingsRows, SettingsPanel } from "./SettingsPanel";
 import type { SidebarItem } from "./Sidebar";
 import { buildSidebarItems, Sidebar } from "./Sidebar";
@@ -138,6 +141,11 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 	const canDockAssistant = terminalWidth >= 150;
 	const isAssistantOverlay = showAssistant && !canDockAssistant;
+	const mainPaneTerminalWidth = getMainPaneTerminalWidth({
+		terminalWidth,
+		showAssistant,
+		canDockAssistant,
+	});
 
 	const goalPeriodType =
 		viewMode === "day" ? ("daily" as const) : ("weekly" as const);
@@ -590,17 +598,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 			return;
 		}
 
-		if (key.meta && input === "j") {
-			setShowAssistant((current) => {
-				const next = !current;
-				if (next && !canDockAssistant) {
-					setFocusArea("assistant");
-				}
-				return next;
-			});
-			return;
-		}
-
 		if (key.tab) {
 			const cycle: FocusArea[] = showAssistant
 				? isAssistantOverlay
@@ -612,6 +609,17 @@ export const App = ({ api, onQuit }: AppProps) => {
 				const nextIndex = (currentIndex + 1) % cycle.length;
 				return cycle[nextIndex] ?? "sidebar";
 			});
+			return;
+		}
+
+		if (input === "\\") {
+			const nextState = toggleAssistantVisibility({
+				showAssistant,
+				canDockAssistant,
+				focusArea,
+			});
+			setShowAssistant(nextState.showAssistant);
+			setFocusArea(nextState.focusArea);
 			return;
 		}
 
@@ -933,12 +941,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 	return (
 		<Box flexDirection="column" height={terminalHeight}>
-			{showHelp && (
-				<HelpModal
-					terminalWidth={stdout?.columns ?? 120}
-					terminalHeight={terminalHeight}
-				/>
-			)}
 			<Box flexDirection="row" height={mainPanelHeight}>
 				<Sidebar
 					items={sidebarItems}
@@ -975,7 +977,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 								focused={focusArea === "tasks"}
 								selectedColumnIndex={columnIndex}
 								selectedTaskIndex={taskIndex}
-								terminalWidth={terminalWidth}
+								terminalWidth={mainPaneTerminalWidth}
 							/>
 						) : (
 							<TaskPanel
@@ -1022,6 +1024,12 @@ export const App = ({ api, onQuit }: AppProps) => {
 				statusText={loading ? "Loading..." : statusText}
 				errorText={errorText}
 			/>
+			{showHelp && (
+				<HelpModal
+					terminalWidth={stdout?.columns ?? 120}
+					terminalHeight={terminalHeight}
+				/>
+			)}
 		</Box>
 	);
 };

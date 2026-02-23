@@ -29,10 +29,12 @@ const schemas = {
     enum: [
       'create_task',
       'update_task',
+      'set_task_due_date',
       'complete_task',
       'uncomplete_task',
       'delete_task',
       'create_project',
+      'update_project',
     ],
   },
   AssistantActionStatus: {
@@ -214,7 +216,7 @@ const schemas = {
   },
   AssistantAction: {
     type: 'object',
-    required: ['id', 'type', 'label', 'status', 'payload', 'resultMessage'],
+    required: ['id', 'type', 'label', 'status', 'payload', 'resultMessage', 'outcome'],
     properties: {
       id: { type: 'string' },
       type: { $ref: '#/components/schemas/AssistantActionType' },
@@ -222,6 +224,46 @@ const schemas = {
       status: { $ref: '#/components/schemas/AssistantActionStatus' },
       payload: { type: 'object', additionalProperties: true },
       resultMessage: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+      outcome: {
+        anyOf: [
+          { $ref: '#/components/schemas/AssistantActionOutcome' },
+          { type: 'null' },
+        ],
+      },
+    },
+  },
+  AssistantActionOutcome: {
+    type: 'object',
+    required: ['actionId', 'type', 'targetEntity', 'targetId', 'status', 'message', 'errorCode'],
+    properties: {
+      actionId: { type: 'string' },
+      type: { $ref: '#/components/schemas/AssistantActionType' },
+      targetEntity: {
+        anyOf: [
+          { type: 'string', enum: ['task', 'project'] },
+          { type: 'null' },
+        ],
+      },
+      targetId: { anyOf: [{ type: 'integer' }, { type: 'null' }] },
+      status: { type: 'string', enum: ['success', 'failure', 'cancelled'] },
+      message: { type: 'string' },
+      errorCode: { anyOf: [{ type: 'string' }, { type: 'null' }] },
+    },
+  },
+  AssistantDecisionSummary: {
+    type: 'object',
+    required: ['status', 'total', 'pending', 'success', 'failure', 'cancelled', 'message'],
+    properties: {
+      status: {
+        type: 'string',
+        enum: ['pending', 'success', 'failure', 'partial_success', 'cancelled'],
+      },
+      total: { type: 'integer' },
+      pending: { type: 'integer' },
+      success: { type: 'integer' },
+      failure: { type: 'integer' },
+      cancelled: { type: 'integer' },
+      message: { type: 'string' },
     },
   },
   AssistantMessage: {
@@ -521,9 +563,11 @@ const paths = {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['message'],
+                required: ['message', 'outcome', 'summary'],
                 properties: {
                   message: { $ref: '#/components/schemas/AssistantMessage' },
+                  outcome: { $ref: '#/components/schemas/AssistantActionOutcome' },
+                  summary: { $ref: '#/components/schemas/AssistantDecisionSummary' },
                 },
               },
             },
