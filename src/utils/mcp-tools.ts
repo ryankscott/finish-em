@@ -1,28 +1,32 @@
-import type { Goal, Project, Reminder, Task } from '@/server/types'
+import * as goalRepo from '@/server/repos/goals'
+import * as projectRepo from '@/server/repos/projects'
+import * as reminderRepo from '@/server/repos/reminders'
+import * as settingsRepo from '@/server/repos/settings'
+import * as taskRepo from '@/server/repos/tasks'
+import { decideAssistantAction, getAssistantState, sendAssistantChat, clearAssistantHistory } from '@/server/services/assistant'
+import { createTaskFromQuickAdd } from '@/server/services/quick-add'
+import type { AppSettings, Goal, Project, Reminder, Task } from '@/server/types'
 import z from 'zod'
 
-const API_BASE = 'http://localhost:5173'
-
-async function apiRequest<T>(
-  method: string,
-  path: string,
-  body?: unknown,
-): Promise<T> {
-  const url = `${API_BASE}${path}`
-  const response = await fetch(url, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
+const jsonContent = (value: unknown) => ({
+  content: [
+    {
+      type: 'text' as const,
+      text: JSON.stringify(value, null, 2),
     },
-    body: body ? JSON.stringify(body) : undefined,
-  })
+  ],
+})
 
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`HTTP ${response.status}: ${text}`)
+const parsePriority = (value: unknown): 1 | 2 | 3 | 4 | undefined => {
+  if (value === undefined || value === null) {
+    return undefined
   }
 
-  return (await response.json()) as T
+  const parsed = Number.parseInt(String(value), 10)
+  if (parsed < 1 || parsed > 4 || Number.isNaN(parsed)) {
+    throw new Error('Priority must be between 1 and 4')
+  }
+  return parsed as 1 | 2 | 3 | 4
 }
 
 // Task Tools
@@ -44,29 +48,23 @@ export const listTasksTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const params = new URLSearchParams()
-    if (input.projectId) params.set('projectId', String(input.projectId))
-    if (input.status) params.set('status', String(input.status))
-    if (input.from) params.set('from', String(input.from))
-    if (input.to) params.set('to', String(input.to))
-    if (input.priority) params.set('priority', String(input.priority))
-    if (input.noDueDate) params.set('noDueDate', String(input.noDueDate))
-    if (input.parentTaskId !== undefined) {
-      params.set('parentTaskId', String(input.parentTaskId))
-    }
-    if (input.rootsOnly) params.set('rootsOnly', String(input.rootsOnly))
+    const tasks = taskRepo.listTasks({
+      projectId: input.projectId === undefined ? undefined : Number(input.projectId),
+      status: input.status as 'open' | 'completed' | undefined,
+      from: input.from as string | undefined,
+      to: input.to as string | undefined,
+      priority: parsePriority(input.priority),
+      noDueDate: input.noDueDate as boolean | undefined,
+      parentTaskId:
+        input.parentTaskId === undefined
+          ? undefined
+          : input.parentTaskId === null
+            ? null
+            : Number(input.parentTaskId),
+      rootsOnly: input.rootsOnly as boolean | undefined,
+    })
 
-    const path = `/api/tasks${params.size > 0 ? `?${params.toString()}` : ''}`
-    const tasks = await apiRequest<Task[]>('GET', path)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(tasks, null, 2),
-        },
-      ],
-    }
+    return jsonContent(tasks)
   },
 }
 
@@ -80,15 +78,11 @@ export const getTaskTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const task = await apiRequest<Task>('GET', `/api/tasks/${input.taskId}`)
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(task, null, 2),
-        },
-      ],
+    const task = taskRepo.getTask(Number(input.taskId))
+    if (!task) {
+      throw new Error(`Task ${String(input.taskId)} not found`)
     }
+    return jsonContent(task)
   },
 }
 
@@ -111,27 +105,25 @@ export const createTaskTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const task = await apiRequest<Task>('POST', '/api/tasks', {
-      projectId: input.projectId,
-      title: input.title,
-      notes: input.notes,
-      priority: input.priority ? parseInt(String(input.priority), 10) : undefined,
-      scheduledAt: input.scheduledAt,
-      dueAt: input.dueAt,
-      dueTimezone: input.dueTimezone,
-      recurrencePreset: input.recurrencePreset,
-      recurrenceRRule: input.recurrenceRRule,
-      parentTaskId: input.parentTaskId,
+    const task = taskRepo.createTask({
+      projectId: Number(input.projectId),
+      title: String(input.title),
+      notes: input.notes as string | undefined,
+      priority: parsePriority(input.priority),
+      scheduledAt: (input.scheduledAt as string | undefined) ?? null,
+      dueAt: (input.dueAt as string | undefined) ?? null,
+      dueTimezone: (input.dueTimezone as string | undefined) ?? null,
+      recurrencePreset: (input.recurrencePreset as string | undefined) ?? null,
+      recurrenceRRule: (input.recurrenceRRule as string | undefined) ?? null,
+      parentTaskId:
+        input.parentTaskId === undefined
+          ? null
+          : input.parentTaskId === null
+            ? null
+            : Number(input.parentTaskId),
     })
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(task, null, 2),
-        },
-      ],
-    }
+    return jsonContent(task)
   },
 }
 
@@ -154,26 +146,39 @@ export const updateTaskTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const task = await apiRequest<Task>('PATCH', `/api/tasks/${input.taskId}`, {
-      title: input.title,
-      notes: input.notes,
-      priority: input.priority ? parseInt(String(input.priority), 10) : undefined,
-      scheduledAt: input.scheduledAt,
-      dueAt: input.dueAt,
-      dueTimezone: input.dueTimezone,
-      recurrencePreset: input.recurrencePreset,
-      recurrenceRRule: input.recurrenceRRule,
-      parentTaskId: input.parentTaskId,
+    const task = taskRepo.updateTask(Number(input.taskId), {
+      title: input.title as string | undefined,
+      notes: input.notes as string | undefined,
+      priority: parsePriority(input.priority),
+      scheduledAt:
+        input.scheduledAt === undefined
+          ? undefined
+          : (input.scheduledAt as string | null),
+      dueAt: input.dueAt === undefined ? undefined : (input.dueAt as string | null),
+      dueTimezone:
+        input.dueTimezone === undefined
+          ? undefined
+          : (input.dueTimezone as string | null),
+      recurrencePreset:
+        input.recurrencePreset === undefined
+          ? undefined
+          : (input.recurrencePreset as string | null),
+      recurrenceRRule:
+        input.recurrenceRRule === undefined
+          ? undefined
+          : (input.recurrenceRRule as string | null),
+      parentTaskId:
+        input.parentTaskId === undefined
+          ? undefined
+          : input.parentTaskId === null
+            ? null
+            : Number(input.parentTaskId),
     })
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(task, null, 2),
-        },
-      ],
+    if (!task) {
+      throw new Error(`Task ${String(input.taskId)} not found`)
     }
+
+    return jsonContent(task)
   },
 }
 
@@ -187,19 +192,11 @@ export const completeTaskTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const result = await apiRequest<{ task: Task; nextTask: Task | null }>(
-      'POST',
-      `/api/tasks/${input.taskId}/complete`,
-    )
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result, null, 2),
-        },
-      ],
+    const result = taskRepo.completeTask(Number(input.taskId))
+    if (!result.task) {
+      throw new Error(`Task ${String(input.taskId)} not found`)
     }
+    return jsonContent(result)
   },
 }
 
@@ -213,16 +210,12 @@ export const uncompleteTaskTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const task = await apiRequest<Task>('POST', `/api/tasks/${input.taskId}/uncomplete`)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(task, null, 2),
-        },
-      ],
+    const task = taskRepo.uncompleteTask(Number(input.taskId))
+    if (!task) {
+      throw new Error(`Task ${String(input.taskId)} not found`)
     }
+
+    return jsonContent(task)
   },
 }
 
@@ -236,16 +229,7 @@ export const deleteTaskTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const result = await apiRequest<{ ok: boolean }>('DELETE', `/api/tasks/${input.taskId}`)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result, null, 2),
-        },
-      ],
-    }
+    return jsonContent({ ok: taskRepo.deleteTask(Number(input.taskId)) })
   },
 }
 
@@ -259,16 +243,7 @@ export const listProjectsTool = {
     inputSchema: {},
   },
   handler: async (_input: Record<string, unknown>) => {
-    const projects = await apiRequest<Project[]>('GET', '/api/projects')
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(projects, null, 2),
-        },
-      ],
-    }
+    return jsonContent(projectRepo.listProjects())
   },
 }
 
@@ -282,16 +257,11 @@ export const getProjectTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const project = await apiRequest<Project>('GET', `/api/projects/${input.projectId}`)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(project, null, 2),
-        },
-      ],
+    const project = projectRepo.getProject(Number(input.projectId))
+    if (!project) {
+      throw new Error(`Project ${String(input.projectId)} not found`)
     }
+    return jsonContent(project)
   },
 }
 
@@ -311,24 +281,17 @@ export const createProjectTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const project = await apiRequest<Project>('POST', '/api/projects', {
-      name: input.name,
-      emoji: input.emoji,
-      description: input.description,
-      startAt: input.startAt,
-      endAt: input.endAt,
-      color: input.color,
-      isInbox: input.isInbox,
+    const project = projectRepo.createProject({
+      name: String(input.name),
+      emoji: (input.emoji as string | undefined) ?? null,
+      description: input.description as string | undefined,
+      startAt: (input.startAt as string | undefined) ?? null,
+      endAt: (input.endAt as string | undefined) ?? null,
+      color: input.color as string | undefined,
+      isInbox: input.isInbox as boolean | undefined,
     })
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(project, null, 2),
-        },
-      ],
-    }
+    return jsonContent(project)
   },
 }
 
@@ -349,24 +312,22 @@ export const updateProjectTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const project = await apiRequest<Project>('PATCH', `/api/projects/${input.projectId}`, {
-      name: input.name,
-      emoji: input.emoji,
-      description: input.description,
-      startAt: input.startAt,
-      endAt: input.endAt,
-      color: input.color,
-      isInbox: input.isInbox,
+    const project = projectRepo.updateProject(Number(input.projectId), {
+      name: input.name as string | undefined,
+      emoji:
+        input.emoji === undefined ? undefined : ((input.emoji as string | null) ?? null),
+      description: input.description as string | undefined,
+      startAt:
+        input.startAt === undefined ? undefined : ((input.startAt as string | null) ?? null),
+      endAt: input.endAt === undefined ? undefined : ((input.endAt as string | null) ?? null),
+      color: input.color as string | undefined,
+      isInbox: input.isInbox as boolean | undefined,
     })
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(project, null, 2),
-        },
-      ],
+    if (!project) {
+      throw new Error(`Project ${String(input.projectId)} not found`)
     }
+
+    return jsonContent(project)
   },
 }
 
@@ -380,16 +341,7 @@ export const deleteProjectTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const result = await apiRequest<{ ok: boolean }>('DELETE', `/api/projects/${input.projectId}`)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result, null, 2),
-        },
-      ],
-    }
+    return jsonContent({ ok: projectRepo.deleteProject(Number(input.projectId)) })
   },
 }
 
@@ -406,21 +358,12 @@ export const listGoalsTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const params = new URLSearchParams()
-    if (input.periodType) params.set('periodType', String(input.periodType))
-    if (input.periodStart) params.set('periodStart', String(input.periodStart))
+    const goals = goalRepo.listGoals({
+      periodType: input.periodType as 'daily' | 'weekly' | undefined,
+      periodStart: input.periodStart as string | undefined,
+    })
 
-    const path = `/api/goals${params.size > 0 ? `?${params.toString()}` : ''}`
-    const goals = await apiRequest<Goal[]>('GET', path)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(goals, null, 2),
-        },
-      ],
-    }
+    return jsonContent(goals)
   },
 }
 
@@ -434,16 +377,12 @@ export const getGoalTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const goal = await apiRequest<Goal>('GET', `/api/goals/${input.goalId}`)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(goal, null, 2),
-        },
-      ],
+    const goal = goalRepo.getGoal(Number(input.goalId))
+    if (!goal) {
+      throw new Error(`Goal ${String(input.goalId)} not found`)
     }
+
+    return jsonContent(goal)
   },
 }
 
@@ -460,21 +399,14 @@ export const createGoalTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const goal = await apiRequest<Goal>('POST', '/api/goals', {
-      periodType: input.periodType,
-      periodStart: input.periodStart,
-      title: input.title,
-      done: input.done,
+    const goal = goalRepo.createGoal({
+      periodType: input.periodType as 'daily' | 'weekly',
+      periodStart: String(input.periodStart),
+      title: String(input.title),
+      done: input.done as boolean | undefined,
     })
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(goal, null, 2),
-        },
-      ],
-    }
+    return jsonContent(goal)
   },
 }
 
@@ -490,19 +422,15 @@ export const updateGoalTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const goal = await apiRequest<Goal>('PATCH', `/api/goals/${input.goalId}`, {
-      title: input.title,
-      done: input.done,
+    const goal = goalRepo.updateGoal(Number(input.goalId), {
+      title: input.title as string | undefined,
+      done: input.done as boolean | undefined,
     })
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(goal, null, 2),
-        },
-      ],
+    if (!goal) {
+      throw new Error(`Goal ${String(input.goalId)} not found`)
     }
+
+    return jsonContent(goal)
   },
 }
 
@@ -516,16 +444,7 @@ export const deleteGoalTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const result = await apiRequest<{ ok: boolean }>('DELETE', `/api/goals/${input.goalId}`)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result, null, 2),
-        },
-      ],
-    }
+    return jsonContent({ ok: goalRepo.deleteGoal(Number(input.goalId)) })
   },
 }
 
@@ -541,16 +460,7 @@ export const listRemindersTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const reminders = await apiRequest<Reminder[]>('GET', `/api/tasks/${input.taskId}/reminders`)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(reminders, null, 2),
-        },
-      ],
-    }
+    return jsonContent(reminderRepo.listTaskReminders(Number(input.taskId)))
   },
 }
 
@@ -564,16 +474,12 @@ export const getReminderTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const reminder = await apiRequest<Reminder>('GET', `/api/reminders/${input.reminderId}`)
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(reminder, null, 2),
-        },
-      ],
+    const reminder = reminderRepo.getReminder(Number(input.reminderId))
+    if (!reminder) {
+      throw new Error(`Reminder ${String(input.reminderId)} not found`)
     }
+
+    return jsonContent(reminder)
   },
 }
 
@@ -588,18 +494,12 @@ export const createReminderTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const reminder = await apiRequest<Reminder>('POST', `/api/tasks/${input.taskId}/reminders`, {
-      remindAt: input.remindAt,
+    const reminder = reminderRepo.createReminder({
+      taskId: Number(input.taskId),
+      remindAt: String(input.remindAt),
     })
 
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(reminder, null, 2),
-        },
-      ],
-    }
+    return jsonContent(reminder)
   },
 }
 
@@ -614,22 +514,14 @@ export const updateReminderTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const reminder = await apiRequest<Reminder>(
-      'PATCH',
-      `/api/reminders/${input.reminderId}`,
-      {
-        remindAt: input.remindAt,
-      },
-    )
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(reminder, null, 2),
-        },
-      ],
+    const reminder = reminderRepo.updateReminder(Number(input.reminderId), {
+      remindAt: input.remindAt as string | undefined,
+    })
+    if (!reminder) {
+      throw new Error(`Reminder ${String(input.reminderId)} not found`)
     }
+
+    return jsonContent(reminder)
   },
 }
 
@@ -643,19 +535,7 @@ export const deleteReminderTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const result = await apiRequest<{ ok: boolean }>(
-      'DELETE',
-      `/api/reminders/${input.reminderId}`,
-    )
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(result, null, 2),
-        },
-      ],
-    }
+    return jsonContent({ ok: reminderRepo.deleteReminder(Number(input.reminderId)) })
   },
 }
 
@@ -671,23 +551,151 @@ export const snoozeReminderTool = {
     },
   },
   handler: async (input: Record<string, unknown>) => {
-    const reminder = await apiRequest<Reminder>(
-      'POST',
-      `/api/reminders/${input.reminderId}/snooze`,
-      {
-        preset: input.preset,
-        customMinutes: input.customMinutes,
-      },
-    )
-
-    return {
-      content: [
-        {
-          type: 'text',
-          text: JSON.stringify(reminder, null, 2),
-        },
-      ],
+    const reminder = reminderRepo.snoozeReminder({
+      reminderId: Number(input.reminderId),
+      preset: input.preset as
+        | 'this_morning'
+        | 'this_evening'
+        | 'tomorrow_morning'
+        | 'next_week'
+        | 'custom',
+      customMinutes: input.customMinutes as number | undefined,
+    })
+    if (!reminder) {
+      throw new Error(`Reminder ${String(input.reminderId)} not found`)
     }
+    return jsonContent(reminder)
+  },
+}
+
+export const getSettingsTool = {
+  name: 'get_settings',
+  definition: {
+    title: 'Get app settings',
+    description: 'Get current application settings',
+    inputSchema: {},
+  },
+  handler: async (_input: Record<string, unknown>) => {
+    return jsonContent(settingsRepo.getSettings())
+  },
+}
+
+export const updateSettingsTool = {
+  name: 'update_settings',
+  definition: {
+    title: 'Update app settings',
+    description: 'Update application settings values',
+    inputSchema: {
+      timezone: z.string().optional(),
+      aiProvider: z.enum(['gemini', 'openai', 'lmstudio']).optional(),
+      aiBaseUrl: z.string().nullable().optional(),
+      aiModel: z.string().nullable().optional(),
+      aiApiKey: z.string().nullable().optional(),
+      clearAiApiKey: z.boolean().optional(),
+    },
+  },
+  handler: async (input: Record<string, unknown>) => {
+    const settings: AppSettings = settingsRepo.updateSettings({
+      timezone: input.timezone as string | undefined,
+      aiProvider: input.aiProvider as 'gemini' | 'openai' | 'lmstudio' | undefined,
+      aiBaseUrl:
+        input.aiBaseUrl === undefined ? undefined : (input.aiBaseUrl as string | null),
+      aiModel: input.aiModel === undefined ? undefined : (input.aiModel as string | null),
+      aiApiKey: input.aiApiKey === undefined ? undefined : (input.aiApiKey as string | null),
+      clearAiApiKey: input.clearAiApiKey as boolean | undefined,
+    })
+
+    return jsonContent(settings)
+  },
+}
+
+export const createQuickAddTool = {
+  name: 'create_quick_add',
+  definition: {
+    title: 'Create task from quick add',
+    description: 'Create a task by parsing natural language quick add input',
+    inputSchema: {
+      text: z.string().describe('Quick add text to parse and create task from'),
+    },
+  },
+  handler: async (input: Record<string, unknown>) => {
+    const result = await createTaskFromQuickAdd(String(input.text))
+    return jsonContent(result.task)
+  },
+}
+
+export const getAssistantStateTool = {
+  name: 'get_assistant_state',
+  definition: {
+    title: 'Get assistant state',
+    description: 'Get assistant settings and message history for a surface',
+    inputSchema: {
+      surface: z.enum(['ui', 'tui']).optional(),
+    },
+  },
+  handler: async (input: Record<string, unknown>) => {
+    const surface = (input.surface as 'ui' | 'tui' | undefined) ?? 'tui'
+    return jsonContent(getAssistantState(surface))
+  },
+}
+
+export const sendAssistantChatTool = {
+  name: 'send_assistant_chat',
+  definition: {
+    title: 'Send assistant chat',
+    description: 'Send a message to assistant and receive assistant reply',
+    inputSchema: {
+      surface: z.enum(['ui', 'tui']).optional(),
+      message: z.string().describe('User message text'),
+    },
+  },
+  handler: async (input: Record<string, unknown>) => {
+    const response = await sendAssistantChat({
+      surfaceInput: ((input.surface as 'ui' | 'tui' | undefined) ?? 'tui') as string,
+      message: String(input.message),
+    })
+    return jsonContent(response)
+  },
+}
+
+export const decideAssistantActionTool = {
+  name: 'decide_assistant_action',
+  definition: {
+    title: 'Decide assistant action',
+    description: 'Confirm or cancel a pending assistant action',
+    inputSchema: {
+      surface: z.enum(['ui', 'tui']).optional(),
+      messageId: z.number(),
+      actionId: z.string(),
+      decision: z.enum(['confirm', 'cancel']),
+    },
+  },
+  handler: async (input: Record<string, unknown>) => {
+    const result = decideAssistantAction({
+      surfaceInput: ((input.surface as 'ui' | 'tui' | undefined) ?? 'tui') as string,
+      messageId: Number(input.messageId),
+      actionId: String(input.actionId),
+      decision: input.decision as 'confirm' | 'cancel',
+    })
+
+    return jsonContent(result)
+  },
+}
+
+export const clearAssistantMessagesTool = {
+  name: 'clear_assistant_messages',
+  definition: {
+    title: 'Clear assistant messages',
+    description: 'Clear assistant conversation history for a surface',
+    inputSchema: {
+      surface: z.enum(['ui', 'tui']).optional(),
+    },
+  },
+  handler: async (input: Record<string, unknown>) => {
+    const result = clearAssistantHistory(
+      ((input.surface as 'ui' | 'tui' | undefined) ?? 'tui') as string,
+    )
+    return jsonContent(result)
   },
 }
 
@@ -716,4 +724,11 @@ export const ALL_TOOLS = [
   updateReminderTool,
   deleteReminderTool,
   snoozeReminderTool,
+  getSettingsTool,
+  updateSettingsTool,
+  createQuickAddTool,
+  getAssistantStateTool,
+  sendAssistantChatTool,
+  decideAssistantActionTool,
+  clearAssistantMessagesTool,
 ]

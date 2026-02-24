@@ -1,23 +1,8 @@
+import * as goalRepo from '@/server/repos/goals'
+import * as projectRepo from '@/server/repos/projects'
+import * as reminderRepo from '@/server/repos/reminders'
+import * as taskRepo from '@/server/repos/tasks'
 import type { Goal, Project, Reminder, Task } from '@/server/types'
-
-const API_BASE = 'http://localhost:5173'
-
-async function apiRequest<T>(method: string, path: string): Promise<T> {
-  const url = `${API_BASE}${path}`
-  const response = await fetch(url, {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
-
-  if (!response.ok) {
-    const text = await response.text()
-    throw new Error(`HTTP ${response.status}: ${text}`)
-  }
-
-  return (await response.json()) as T
-}
 
 function formatTask(task: Task): string {
   return `ID: ${task.id}
@@ -61,7 +46,7 @@ export const mcpResources = {
 
     // Tasks resource
     if (pathname === '/tasks') {
-      const tasks = await apiRequest<Task[]>('GET', '/api/tasks')
+      const tasks = taskRepo.listTasks()
       const text = tasks.map(formatTask).join('\n\n')
       return {
         contents: [
@@ -76,7 +61,10 @@ export const mcpResources = {
 
     if (pathname.startsWith('/tasks/')) {
       const taskId = pathname.split('/')[2]
-      const task = await apiRequest<Task>('GET', `/api/tasks/${taskId}`)
+      const task = taskRepo.getTask(Number(taskId))
+      if (!task) {
+        throw new Error(`Task ${taskId} not found`)
+      }
       return {
         contents: [
           {
@@ -90,7 +78,7 @@ export const mcpResources = {
 
     // Projects resource
     if (pathname === '/projects') {
-      const projects = await apiRequest<Project[]>('GET', '/api/projects')
+      const projects = projectRepo.listProjects()
       const text = projects.map(formatProject).join('\n\n')
       return {
         contents: [
@@ -105,7 +93,10 @@ export const mcpResources = {
 
     if (pathname.startsWith('/projects/')) {
       const projectId = pathname.split('/')[2]
-      const project = await apiRequest<Project>('GET', `/api/projects/${projectId}`)
+      const project = projectRepo.getProject(Number(projectId))
+      if (!project) {
+        throw new Error(`Project ${projectId} not found`)
+      }
       return {
         contents: [
           {
@@ -119,7 +110,7 @@ export const mcpResources = {
 
     // Goals resource
     if (pathname === '/goals') {
-      const goals = await apiRequest<Goal[]>('GET', '/api/goals')
+      const goals = goalRepo.listGoals()
       const text = goals.map(formatGoal).join('\n\n')
       return {
         contents: [
@@ -134,7 +125,10 @@ export const mcpResources = {
 
     if (pathname.startsWith('/goals/')) {
       const goalId = pathname.split('/')[2]
-      const goal = await apiRequest<Goal>('GET', `/api/goals/${goalId}`)
+      const goal = goalRepo.getGoal(Number(goalId))
+      if (!goal) {
+        throw new Error(`Goal ${goalId} not found`)
+      }
       return {
         contents: [
           {
@@ -149,7 +143,10 @@ export const mcpResources = {
     // Reminders resource
     if (pathname.startsWith('/reminders/')) {
       const reminderId = pathname.split('/')[2]
-      const reminder = await apiRequest<Reminder>('GET', `/api/reminders/${reminderId}`)
+      const reminder = reminderRepo.getReminder(Number(reminderId))
+      if (!reminder) {
+        throw new Error(`Reminder ${reminderId} not found`)
+      }
       return {
         contents: [
           {

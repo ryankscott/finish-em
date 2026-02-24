@@ -1,66 +1,50 @@
 import { render } from "ink"
 
-import { createApi } from "./api"
-import { createDirectApi } from "./direct-api"
 import { App } from "./App"
-import { ensureServerRunning } from "./server"
+import { startMcpHttpServer } from "./mcp-http-server"
+import { createMcpApi } from "./mcp-api"
 
 const parseArgs = () => {
 	const args = process.argv.slice(2)
-	let apiUrl = process.env.TUI_API_URL ?? "http://localhost:3000"
-	let autoStart = true
-	// Default to embedded mode so the standalone binary works out of the box.
-	// Pass --mode=server to connect to an existing HTTP server instead.
-	let mode: "embedded" | "server" = "embedded"
+	let mcpHost = process.env.FINISH_EM_MCP_HOST ?? "127.0.0.1"
+	let mcpPort = Number.parseInt(process.env.FINISH_EM_MCP_PORT ?? "5173", 10)
+	let enableMcp = true
+	let headlessMcp = false
 
 	for (const arg of args) {
-		if (arg.startsWith("--api-url=")) {
-			apiUrl = arg.slice("--api-url=".length)
-		} else if (arg === "--no-auto-start") {
-			autoStart = false
-		} else if (arg === "--mode=server") {
-			mode = "server"
-		} else if (arg === "--mode=embedded") {
-			mode = "embedded"
+		if (arg.startsWith("--mcp-host=")) {
+			mcpHost = arg.slice("--mcp-host=".length)
+		} else if (arg.startsWith("--mcp-port=")) {
+			mcpPort = Number.parseInt(arg.slice("--mcp-port=".length), 10)
+		} else if (arg === "--no-mcp") {
+			enableMcp = false
+		} else if (arg === "--headless-mcp") {
+			headlessMcp = true
 		}
 	}
 
-	return { apiUrl, autoStart, mode }
+	if (!Number.isFinite(mcpPort) || mcpPort <= 0) {
+		throw new Error("Invalid MCP port: expected a positive integer")
+	}
+
+	return { mcpHost, mcpPort, enableMcp, headlessMcp }
 }
 
 const main = async () => {
-	const { apiUrl, autoStart, mode } = parseArgs()
+	const { mcpHost, mcpPort, enableMcp, headlessMcp } = parseArgs()
 	let appInstance: ReturnType<typeof render> | null = null
+	let mcpHandle: Awaited<ReturnType<typeof startMcpHttpServer>> | null = null
 
-	if (mode === "embedded") {
-		// Embedded mode: call the data layer directly. No HTTP server needed.
-		const api = createDirectApi()
-		try {
-			appInstance = render(
-				<App
-					api={api}
-					onQuit={() => {
-						appInstance?.unmount()
-					}}
-				/>,
-			)
-			await appInstance.waitUntilExit()
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error)
-			process.stderr.write(`TUI error: ${message}\n`)
-			process.exitCode = 1
-		}
-		return
-	}
-
-	// Server mode: connect to an external HTTP API server (dev workflow).
-	const api = createApi(apiUrl)
-	let serverHandle: Awaited<ReturnType<typeof ensureServerRunning>> | null = null
+	const api = createMcpApi()
 
 	try {
-		serverHandle = await ensureServerRunning(apiUrl, autoStart, process.cwd())
-		if (serverHandle.startedServer) {
-			process.stdout.write("Started local server via pnpm dev\n")
+		if (enableMcp) {
+			mcpHandle = await startMcpHttpServer({ host: mcpHost, port: mcpPort })
+			process.stdout.write(`MCP server listening at ${mcpHandle.url}\n`)
+		}
+
+		if (headlessMcp) {
+			await new Promise<void>(() => {})
 		}
 
 		appInstance = render(
@@ -78,8 +62,8 @@ const main = async () => {
 		process.stderr.write(`TUI error: ${message}\n`)
 		process.exitCode = 1
 	} finally {
-		if (serverHandle) {
-			await serverHandle.stop()
+		if (mcpHandle) {
+			await mcpHandle.stop()
 		}
 	}
 }
