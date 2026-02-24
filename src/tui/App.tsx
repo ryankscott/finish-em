@@ -2,7 +2,6 @@ import {
 	addDays,
 	endOfDay,
 	format,
-	isToday,
 	parseISO,
 	startOfDay,
 	startOfWeek,
@@ -17,20 +16,28 @@ import {
 	getMainPaneTerminalWidth,
 	toggleAssistantVisibility,
 } from "./assistant-layout";
-import { AssistantPanel, listPendingAssistantActions } from "./AssistantPanel";
+import { AssistantPanel } from "./AssistantPanel";
 import { parseAssistantSettingsCommand } from "./assistant-commands";
 import type { createApi } from "./api";
 import {
 	parseTaskEditInput,
 	serializeTaskToEditInput,
 } from "./parse-task-input";
+import { getProjectCreateAutocomplete, getTaskCreateAutocomplete } from "./input-autocomplete";
+import {
+	parseProjectCreateInput,
+	serializeProjectToEditInput,
+} from "./parse-project-input";
+import { parseTaskCreateInput } from "./parse-task-create-input";
 import { Dashboard } from "./Dashboard";
 import { HelpModal } from "./HelpModal";
 import { buildSettingsRows, SettingsPanel } from "./SettingsPanel";
 import type { SidebarItem } from "./Sidebar";
 import { buildSidebarItems, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
+import type { StatusMessageTone } from "./StatusMessage";
 import { buildTaskPanelRows, TaskPanel } from "./TaskPanel";
+import { ToastStack, type ToastMessage } from "./ToastStack";
 import type { DayColumn, ViewMode } from "./UpcomingPanel";
 import {
 	buildColumns,
@@ -48,6 +55,7 @@ type InputMode =
 	| "quickAdd"
 	| "createSubtask"
 	| "createProject"
+	| "editProject"
 	| "addReminder"
 	| "editTask"
 	| "editSetting"
@@ -62,6 +70,31 @@ type AppProps = {
 };
 
 const SIDEBAR_WIDTH = 28;
+const AUTOCOMPLETE_TOKEN_PATTERN = /^([a-z_]+:)$/i;
+const TOAST_TTL_MS = 5000;
+const MAX_TOASTS = 4;
+
+export function shouldStartProjectEdit(input: string, view: View, activeProjectId: number | null) {
+	return input === "e" && view === "project" && activeProjectId !== null;
+}
+
+function renderAutocompleteHint(hint: string) {
+	return hint.split(/([a-z_]+:)/gi).map((segment, index) => {
+		if (!segment) return null;
+		if (AUTOCOMPLETE_TOKEN_PATTERN.test(segment)) {
+			return (
+				<Text key={`token-${index}`} color="black" backgroundColor="magentaBright">
+					{segment}
+				</Text>
+			);
+		}
+		return (
+			<Text key={`text-${index}`} dimColor>
+				{segment}
+			</Text>
+		);
+	});
+}
 
 export const App = ({ api, onQuit }: AppProps) => {
 	const { stdout } = useStdout();
@@ -81,23 +114,23 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [loading, setLoading] = useState(false);
 	const [statusText, setStatusText] = useState("Ready");
 	const [errorText, setErrorText] = useState<string | null>(null);
+	const [toasts, setToasts] = useState<(ToastMessage & { expiresAt: number })[]>([]);
 	const [inputMode, setInputMode] = useState<InputMode>("none");
 	const [inputValue, setInputValue] = useState("");
+	const [inputResetVersion, setInputResetVersion] = useState(0);
 	const [viewMode, setViewMode] = useState<ViewMode>("work-week");
 	const [anchorDate, setAnchorDate] = useState(() => startOfDay(new Date()));
 	const [showDashboard, setShowDashboard] = useState(true);
 	const [showHelp, setShowHelp] = useState(false);
 	const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
-	const [showAssistant, setShowAssistant] = useState(() => terminalWidth >= 150);
+	const [showAssistant, setShowAssistant] = useState(false);
 	const [assistantMessages, setAssistantMessages] = useState<AssistantMessage[]>([]);
-	const [assistantActionIndex, setAssistantActionIndex] = useState(0);
 	const [isAssistantThinking, setIsAssistantThinking] = useState(false);
 	const [settings, setSettings] = useState<AppSettings | null>(null);
 	const [settingsIndex, setSettingsIndex] = useState(0);
 	const [editingSettingField, setEditingSettingField] = useState<
 		"timezone" | "aiProvider" | "aiBaseUrl" | "aiModel" | "aiApiKey" | null
 	>(null);
-	const [completedToday, setCompletedToday] = useState(0);
 
 	const sidebarItems = useMemo(() => buildSidebarItems(projects), [projects]);
 
@@ -134,10 +167,26 @@ export const App = ({ api, onQuit }: AppProps) => {
 		if (provider === "openai") return "lmstudio";
 		return "gemini";
 	}, []);
-	const pendingAssistantActions = useMemo(
-		() => listPendingAssistantActions(assistantMessages),
-		[assistantMessages],
-	);
+	const inputAutocomplete = useMemo(() => {
+		if (inputMode === "createProject" || inputMode === "editProject") {
+			return getProjectCreateAutocomplete(inputValue);
+		}
+		if (inputMode === "quickAdd") {
+			return getTaskCreateAutocomplete(inputValue, projects);
+		}
+		return null;
+	}, [inputMode, inputValue, projects]);
+
+	const pushToast = useCallback((text: string, tone: StatusMessageTone = "info") => {
+		const now = Date.now();
+		const toast: ToastMessage & { expiresAt: number } = {
+			id: now + Math.floor(Math.random() * 1000),
+			text,
+			tone,
+			expiresAt: now + TOAST_TTL_MS,
+		};
+		setToasts((current) => [...current, toast].slice(-MAX_TOASTS));
+	}, []);
 
 	const canDockAssistant = terminalWidth >= 150;
 	const isAssistantOverlay = showAssistant && !canDockAssistant;
@@ -146,6 +195,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		showAssistant,
 		canDockAssistant,
 	});
+	const contentPaneTerminalWidth = Math.max(mainPaneTerminalWidth - SIDEBAR_WIDTH, 40);
 
 	const goalPeriodType =
 		viewMode === "day" ? ("daily" as const) : ("weekly" as const);
@@ -157,7 +207,8 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const viewLabel = useMemo(() => {
 		if (view === "project") {
 			const proj = projects.find((p) => p.id === activeProjectId);
-			return proj?.name ?? "Project";
+			if (!proj) return "Project";
+			return proj.emoji ? `${proj.emoji} ${proj.name}` : proj.name;
 		}
 		return view === "inbox"
 			? "Inbox"
@@ -167,6 +218,10 @@ export const App = ({ api, onQuit }: AppProps) => {
 					? "Upcoming"
 					: "Completed";
 	}, [view, projects, activeProjectId]);
+	const activeProject = useMemo(
+		() => projects.find((p) => p.id === activeProjectId) ?? null,
+		[projects, activeProjectId],
+	);
 
 	const applySidebarSelection = useCallback((item: SidebarItem) => {
 		if (item.type === "nav") {
@@ -256,13 +311,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 				setTasks(await api.listTasks({ status: "completed" }));
 				setStatusText("Completed");
 			}
-			// Fetch completed-today count for NyanCat
-			const completedTasks = await api.listTasks({ status: "completed" });
-			setCompletedToday(
-				completedTasks.filter(
-					(t) => t.completedAt && isToday(parseISO(t.completedAt)),
-				).length,
-			);
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			setErrorText(message);
@@ -318,15 +366,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [settingsRows.length]);
 
 	useEffect(() => {
-		setAssistantActionIndex((current) => {
-			if (pendingAssistantActions.length === 0) {
-				return 0;
-			}
-			return Math.min(current, pendingAssistantActions.length - 1);
-		});
-	}, [pendingAssistantActions.length]);
-
-	useEffect(() => {
 		if (!showAssistant && focusArea === "assistant") {
 			setFocusArea("tasks");
 		}
@@ -352,6 +391,16 @@ export const App = ({ api, onQuit }: AppProps) => {
 		};
 		void loadReminders();
 	}, [api, selectedTask]);
+
+	useEffect(() => {
+		const timer = setInterval(() => {
+			const now = Date.now();
+			setToasts((current) =>
+				current.filter((toast) => toast.expiresAt > now),
+			);
+		}, 400);
+		return () => clearInterval(timer);
+	}, []);
 
 	const closeInput = useCallback(() => {
 		setInputMode("none");
@@ -438,8 +487,35 @@ export const App = ({ api, onQuit }: AppProps) => {
 				setSettings(await api.getSettings());
 				setEditingSettingField(null);
 			} else if (inputMode === "quickAdd") {
-				await api.createQuickAdd(value);
-				setStatusText("Task created");
+				const parsed = parseTaskCreateInput(value, projects);
+				if (parsed.usedTokens) {
+					if (parsed.errors.length > 0) {
+						setStatusText(`Task not created: ${parsed.errors.join("; ")}`);
+					} else {
+						await api.createTask({
+							title: String(parsed.input.title),
+							projectId:
+								parsed.input.projectId ??
+								(projects.find((project) => project.isInbox)?.id ?? 1),
+							parentTaskId: parsed.input.parentTaskId,
+							notes: parsed.input.notes,
+							priority: parsed.input.priority,
+							scheduledAt: parsed.input.scheduledAt,
+							dueAt: parsed.input.dueAt,
+							dueTimezone: parsed.input.dueTimezone,
+							recurrencePreset: parsed.input.recurrencePreset,
+							recurrenceRRule: parsed.input.recurrenceRRule,
+						});
+						setStatusText(
+							parsed.warnings.length > 0
+								? `Task created (warnings: ${parsed.warnings.join("; ")})`
+								: "Task created",
+						);
+					}
+				} else {
+					await api.createQuickAdd(value);
+					setStatusText("Task created");
+				}
 			} else if (inputMode === "createSubtask") {
 				if (!selectedTask) {
 					setStatusText("No task selected");
@@ -452,14 +528,62 @@ export const App = ({ api, onQuit }: AppProps) => {
 					setStatusText("Subtask created");
 				}
 			} else if (inputMode === "createProject") {
-				await api.createProject({ name: value });
-				setStatusText("Project created");
+				const parsed = parseProjectCreateInput(value);
+				if (parsed.errors.length > 0) {
+					setStatusText(`Project not created: ${parsed.errors.join("; ")}`);
+				} else {
+					await api.createProject({
+						name: String(parsed.input.name),
+						emoji: parsed.input.emoji ?? undefined,
+						description: parsed.input.description,
+						startAt: parsed.input.startAt,
+						endAt: parsed.input.endAt,
+						color: parsed.input.color,
+						isInbox: parsed.input.isInbox,
+					});
+					setStatusText(
+						parsed.warnings.length > 0
+							? `Project created (warnings: ${parsed.warnings.join("; ")})`
+							: "Project created",
+						);
+				}
+			} else if (inputMode === "editProject") {
+				if (!activeProjectId) {
+					setStatusText("No project selected");
+				} else {
+					const parsed = parseProjectCreateInput(value);
+					if (parsed.errors.length > 0) {
+						setStatusText(`Project not updated: ${parsed.errors.join("; ")}`);
+					} else {
+						const patch = {
+							name: parsed.input.name,
+							emoji: parsed.input.emoji ?? undefined,
+							description: parsed.input.description,
+							startAt: parsed.input.startAt,
+							endAt: parsed.input.endAt,
+						};
+						await api.updateProject(activeProjectId, patch);
+						setStatusText(
+							parsed.warnings.length > 0
+								? `Project updated (warnings: ${parsed.warnings.join("; ")})`
+								: "Project updated",
+						);
+					}
+				}
 			} else if (inputMode === "addReminder") {
 				if (!selectedTask) {
 					setStatusText("No task selected");
 				} else {
-					await api.createReminder(selectedTask.id, { remindAt: value });
+					const reminder = await api.createReminder(selectedTask.id, { remindAt: value });
+					const reminderTime = (() => {
+						try {
+							return format(parseISO(reminder.remindAt), "MMM d, h:mm a");
+						} catch {
+							return reminder.remindAt;
+						}
+					})();
 					setStatusText("Reminder created");
+					pushToast(`Reminder set for ${reminderTime}`, "success");
 				}
 			} else if (inputMode === "editTask") {
 				if (!selectedTask) {
@@ -505,7 +629,11 @@ export const App = ({ api, onQuit }: AppProps) => {
 		inputValue,
 		loadData,
 		loadAssistant,
+		activeProjectId,
+		projects,
 		selectedTask,
+		activeProject,
+		pushToast,
 	]);
 
 	const toggleSelectedTask = useCallback(async () => {
@@ -544,38 +672,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 		}
 	}, [api]);
 
-	const decideSelectedAssistantAction = useCallback(
-		async (decision: "confirm" | "cancel") => {
-			const selected = pendingAssistantActions[assistantActionIndex];
-			if (!selected) {
-				setStatusText("No pending assistant action selected");
-				return;
-			}
-			setLoading(true);
-			setErrorText(null);
-			try {
-				await api.decideAssistantAction({
-					surface: "tui",
-					messageId: selected.messageId,
-					actionId: selected.actionId,
-					decision,
-				});
-				await Promise.all([loadAssistant(), loadData()]);
-				setStatusText(
-					decision === "confirm"
-						? "Assistant action confirmed"
-						: "Assistant action cancelled",
-				);
-			} catch (error) {
-				const message = error instanceof Error ? error.message : String(error);
-				setErrorText(message);
-			} finally {
-				setLoading(false);
-			}
-		},
-		[api, assistantActionIndex, loadAssistant, loadData, pendingAssistantActions],
-	);
-
 	useInput((input: string, key: Key) => {
 		if (showHelp) {
 			if (key.escape || input === "?") setShowHelp(false);
@@ -583,6 +679,11 @@ export const App = ({ api, onQuit }: AppProps) => {
 		}
 
 		if (inputMode !== "none") {
+			if (key.tab && inputAutocomplete) {
+				setInputValue(inputAutocomplete.nextValue);
+				setInputResetVersion((current) => current + 1);
+				return;
+			}
 			if (key.escape) closeInput();
 			if (key.return) void submitInput();
 			return;
@@ -628,7 +729,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 			return;
 		}
 
-		if (input === "c") {
+		if (input === "C") {
 			if (!showAssistant) {
 				setShowAssistant(true);
 			}
@@ -762,27 +863,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 		}
 
 		if (focusArea === "assistant") {
-			if (input === "j" || key.downArrow) {
-				setAssistantActionIndex((current) =>
-					Math.min(
-						current + 1,
-						Math.max(pendingAssistantActions.length - 1, 0),
-					),
-				);
-				return;
-			}
-			if (input === "k" || key.upArrow) {
-				setAssistantActionIndex((current) => Math.max(current - 1, 0));
-				return;
-			}
-			if (input === "y") {
-				void decideSelectedAssistantAction("confirm");
-				return;
-			}
-			if (input === "n") {
-				void decideSelectedAssistantAction("cancel");
-				return;
-			}
 			if (input === "X") {
 				void clearAssistantChat();
 				return;
@@ -831,7 +911,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 			return;
 		}
 
-		if (input === "a") {
+		if (input === "a" || input === "c") {
 			setInputMode("quickAdd");
 			setInputValue("");
 			return;
@@ -860,6 +940,23 @@ export const App = ({ api, onQuit }: AppProps) => {
 		}
 
 		if (input === "e") {
+			if (shouldStartProjectEdit(input, view, activeProjectId)) {
+				if (!activeProject) {
+					setStatusText("No project selected");
+					return;
+				}
+				setInputMode("editProject");
+				setInputValue(
+					serializeProjectToEditInput({
+						name: activeProject.name,
+						emoji: activeProject.emoji,
+						description: activeProject.description,
+						startAt: activeProject.startAt,
+						endAt: activeProject.endAt,
+					}),
+				);
+				return;
+			}
 			if (!selectedTask) return;
 			const projectName = projectMap[selectedTask.projectId]?.name;
 			const initialValue = serializeTaskToEditInput(selectedTask.title, {
@@ -909,6 +1006,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 				try {
 					await api.deleteReminder(selectedReminder.id);
 					setStatusText("Reminder deleted");
+					pushToast("Reminder deleted", "info");
 					if (selectedTask) {
 						setReminders(await api.listTaskReminders(selectedTask.id));
 					}
@@ -924,10 +1022,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 		}
 	});
 
+	const visibleToasts = useMemo(
+		() => toasts.map(({ id, text, tone }) => ({ id, text, tone })),
+		[toasts],
+	);
+
 	const isInputMode = inputMode !== "none";
 	const isBottomBarMode = isInputMode && inputMode !== "assistantChat";
-	// Reserve rows for nyan cat (1) + status bar (1) + input bar (2 if active) + borders
-	const mainPanelHeight = Math.max(terminalHeight - (isBottomBarMode ? 5 : 3), 6);
 
 	if (showDashboard) {
 		return (
@@ -941,7 +1042,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 	return (
 		<Box flexDirection="column" height={terminalHeight}>
-			<Box flexDirection="row" height={mainPanelHeight}>
+			<Box flexDirection="row" flexGrow={1}>
 				<Sidebar
 					items={sidebarItems}
 					selectedIndex={sidebarIndex}
@@ -952,7 +1053,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 					<AssistantPanel
 						focused={focusArea === "assistant"}
 						messages={assistantMessages}
-						selectedPendingIndex={assistantActionIndex}
 						isChatMode={inputMode === "assistantChat"}
 						chatInput={inputValue}
 						onChatInputChange={setInputValue}
@@ -977,7 +1077,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 								focused={focusArea === "tasks"}
 								selectedColumnIndex={columnIndex}
 								selectedTaskIndex={taskIndex}
-								terminalWidth={mainPaneTerminalWidth}
+								terminalWidth={contentPaneTerminalWidth}
 							/>
 						) : (
 							<TaskPanel
@@ -987,13 +1087,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 								focused={focusArea === "tasks"}
 								selectedIndex={taskIndex}
 								expandedTaskId={expandedTaskId}
+								activeProject={view === "project" ? activeProject : null}
 							/>
 						)}
 						{showAssistant && canDockAssistant && (
 							<AssistantPanel
 								focused={focusArea === "assistant"}
 								messages={assistantMessages}
-								selectedPendingIndex={assistantActionIndex}
 								isChatMode={inputMode === "assistantChat"}
 								chatInput={inputValue}
 								onChatInputChange={setInputValue}
@@ -1010,12 +1110,23 @@ export const App = ({ api, onQuit }: AppProps) => {
 						{inputMode === "editSetting" && "Edit setting: "}
 						{inputMode === "quickAdd" && "Quick add: "}
 						{inputMode === "createSubtask" && "Subtask title: "}
-						{inputMode === "createProject" && "New project: "}
+						{inputMode === "createProject" && "New project (tokens optional): "}
+						{inputMode === "editProject" && "Edit project: "}
 						{inputMode === "addReminder" && "Reminder (ISO): "}
 						{inputMode === "editTask" && "Edit task: "}
 						{inputMode === "addGoal" && "New goal: "}
 					</Text>
-					<TextInput value={inputValue} onChange={setInputValue} />
+					<TextInput
+						key={`input-${inputResetVersion}`}
+						value={inputValue}
+						onChange={setInputValue}
+					/>
+					{inputAutocomplete ? (
+						<Box>
+							<Text dimColor>  ↳ </Text>
+							{renderAutocompleteHint(inputAutocomplete.hint)}
+						</Box>
+					) : null}
 				</Box>
 			)}
 
@@ -1023,7 +1134,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 				isInputMode={isInputMode}
 				statusText={loading ? "Loading..." : statusText}
 				errorText={errorText}
+				terminalWidth={terminalWidth}
 			/>
+			<ToastStack toasts={visibleToasts} />
 			{showHelp && (
 				<HelpModal
 					terminalWidth={stdout?.columns ?? 120}

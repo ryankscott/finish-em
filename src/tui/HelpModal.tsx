@@ -17,16 +17,15 @@ const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "Enter", action: "Select sidebar item" },
 	{ keys: "x", action: "Toggle task completion", section: "Tasks" },
 	{ keys: "Space", action: "Expand/collapse task details" },
-	{ keys: "a", action: "Quick add task" },
-	{ keys: "c", action: "Chat with assistant" },
-	{ keys: "y / n", action: "Confirm/cancel selected assistant action" },
+	{ keys: "c", action: "Quick add task" },
+	{ keys: "Shift+C", action: "Chat with assistant" },
 	{ keys: "Shift+X", action: "Clear assistant chat history" },
 	{ keys: "\\", action: "Collapse/expand assistant panel" },
 	{ keys: "s", action: "Create subtask under selected task" },
 	{
 		keys: "e",
 		action:
-			"Edit selected task (title, project, parent, due, scheduled, recurs, priority)",
+			"Edit selected task (or active project when in project view)",
 	},
 	{ keys: "d", action: "Delete selected task" },
 	{ keys: "m", action: "Add reminder to selected task" },
@@ -61,6 +60,7 @@ export const HelpModal = ({
 
 	return (
 		<Box
+    backgroundColor={"black"}
 			position="absolute"
 			flexDirection="column"
 			width={terminalWidth}

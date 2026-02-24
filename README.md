@@ -9,7 +9,8 @@ Todoist-style task manager built on TanStack Start.
 - Due dates and scheduled dates
 - Recurring due dates (`daily`, `weekly`, `monthly`, `every weekday`, RRULE subset)
 - Reminders and snoozing (`10m`, `1h`, `tomorrow 9am`, custom)
-- Quick Add with keyboard shortcut and NLP-style parsing
+- Quick Add with keyboard shortcut (`c`) and NLP-style parsing
+- Assistant chat shortcut (`Shift+C`) in the TUI
 - Optional AI fallback for Quick Add via Vercel AI SDK (`ai` + `@ai-sdk/openai`)
 - Assistant provider switching: Gemini (default), OpenAI, or LM Studio (local)
 - Daily and weekly text goals

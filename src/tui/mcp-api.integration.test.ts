@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { resetDbForTests } from '@/server/db/client'
 import { createMcpApi } from '@/tui/mcp-api'
+import { invokeMcpTool } from '@/utils/mcp-server'
 
 let dbPath = ''
 
@@ -40,6 +41,15 @@ describe('createMcpApi integration', () => {
       color: '#ef4444',
       isInbox: false,
     })
+    const updatedProject = await api.updateProject(project.id, {
+      name: 'MCP Parity Project Updated',
+      emoji: '🛠️',
+      description: 'updated through mcp api',
+      startAt: '2026-03-01',
+      endAt: '2026-06-01',
+    })
+    expect(updatedProject.name).toBe('MCP Parity Project Updated')
+    expect(updatedProject.description).toContain('mcp api')
 
     const task = await api.createTask({
       projectId: project.id,
@@ -90,5 +100,16 @@ describe('createMcpApi integration', () => {
     const result = await api.clearAssistantMessages('tui')
     expect(result.ok).toBe(true)
     expect(typeof result.deleted).toBe('number')
+  })
+
+  it('does not expose assistant decision tool', async () => {
+    await expect(
+      invokeMcpTool('decide_assistant_action', {
+        surface: 'tui',
+        messageId: 1,
+        actionId: 'a-1',
+        decision: 'confirm',
+      }),
+    ).rejects.toThrow('Unknown MCP tool: decide_assistant_action')
   })
 })

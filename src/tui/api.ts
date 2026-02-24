@@ -1,7 +1,5 @@
 import type {
 	AppSettings,
-	AssistantActionOutcome,
-	AssistantDecisionSummary,
 	AssistantMessage,
 	Goal,
 	Project,
@@ -94,9 +92,25 @@ export type ApiClient = {
 	createQuickAdd: (text: string) => Promise<Task>;
 	createProject: (input: {
 		name: string;
+		emoji?: string | null;
+		description?: string;
+		startAt?: string | null;
+		endAt?: string | null;
 		color?: string;
 		isInbox?: boolean;
 	}) => Promise<Project>;
+	updateProject: (
+		projectId: number,
+		input: {
+			name?: string;
+			emoji?: string | null;
+			description?: string;
+			startAt?: string | null;
+			endAt?: string | null;
+			color?: string;
+			isInbox?: boolean;
+		},
+	) => Promise<Project>;
 	listTaskReminders: (taskId: number) => Promise<Reminder[]>;
 	createReminder: (
 		taskId: number,
@@ -113,16 +127,6 @@ export type ApiClient = {
 	}) => Promise<{
 		userMessage: AssistantMessage;
 		assistantMessage: AssistantMessage;
-	}>;
-	decideAssistantAction: (input: {
-		surface: "ui" | "tui";
-		messageId: number;
-		actionId: string;
-		decision: "confirm" | "cancel";
-	}) => Promise<{
-		message: AssistantMessage;
-		outcome: AssistantActionOutcome;
-		summary: AssistantDecisionSummary;
 	}>;
 	clearAssistantMessages: (
 		surface: "ui" | "tui",
@@ -276,6 +280,11 @@ export const createApi = (baseUrl: string): ApiClient => {
 				method: "POST",
 				body: JSON.stringify(input),
 			}),
+		updateProject: (projectId, input) =>
+			request<Project>(`/api/projects/${projectId}`, {
+				method: "PATCH",
+				body: JSON.stringify(input),
+			}),
 		listTaskReminders: (taskId) =>
 			request<Reminder[]>(`/api/tasks/${taskId}/reminders`),
 		createReminder: (taskId, input) =>
@@ -301,18 +310,6 @@ export const createApi = (baseUrl: string): ApiClient => {
 				method: "POST",
 				body: JSON.stringify(input),
 			}),
-		decideAssistantAction: (input) =>
-			request<{
-				message: AssistantMessage;
-				outcome: AssistantActionOutcome;
-				summary: AssistantDecisionSummary;
-			}>(
-				"/api/assistant/actions/decision",
-				{
-					method: "POST",
-					body: JSON.stringify(input),
-				},
-			),
 		clearAssistantMessages: (surface) =>
 			request<{ ok: boolean; deleted: number }>(
 				`/api/assistant/messages?surface=${surface}`,

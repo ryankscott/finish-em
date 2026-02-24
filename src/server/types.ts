@@ -130,16 +130,6 @@ export type AssistantChatResponse = {
   assistantMessage: AssistantMessage
 }
 
-export type AssistantDecisionSummary = {
-  status: 'pending' | 'success' | 'failure' | 'partial_success' | 'cancelled'
-  total: number
-  pending: number
-  success: number
-  failure: number
-  cancelled: number
-  message: string
-}
-
 export type TaskFilters = {
   projectId?: number
   status?: TaskStatus

@@ -12,7 +12,6 @@ import * as settingsRepo from '@/server/repos/settings'
 import { createTaskFromQuickAdd } from '@/server/services/quick-add'
 import {
   clearAssistantHistory,
-  decideAssistantAction,
   getAssistantState,
   sendAssistantChat,
 } from '@/server/services/assistant'
@@ -75,6 +74,12 @@ export const createDirectApi = (): ApiClient => ({
 
   createProject: (input) => Promise.resolve(projectRepo.createProject(input)),
 
+  updateProject: (projectId, input) => {
+    const result = projectRepo.updateProject(projectId, input)
+    if (!result) throw new Error(`Project ${projectId} not found`)
+    return Promise.resolve(result)
+  },
+
   listTaskReminders: (taskId) =>
     Promise.resolve(reminderRepo.listTaskReminders(taskId)),
 
@@ -94,16 +99,6 @@ export const createDirectApi = (): ApiClient => ({
       surfaceInput: input.surface,
       message: input.message,
     }),
-
-  decideAssistantAction: (input) =>
-    Promise.resolve(
-      decideAssistantAction({
-        surfaceInput: input.surface,
-        messageId: input.messageId,
-        actionId: input.actionId,
-        decision: input.decision,
-      }),
-    ),
 
   clearAssistantMessages: (surface) =>
     Promise.resolve(clearAssistantHistory(surface)),

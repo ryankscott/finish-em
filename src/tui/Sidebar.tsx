@@ -56,6 +56,7 @@ export const Sidebar = ({
   const settingsIndex = items.findIndex(
     (item) => item.type === "nav" && item.key === "settings",
   );
+  const navCount = NAV_ITEMS.length;
   const topItems = items
     .map((item, index) => ({ item, index }))
     .filter(({ index }) => index !== settingsIndex);
@@ -71,8 +72,13 @@ export const Sidebar = ({
     const label = isNav
       ? item.label
       : `${item.project.emoji ?? "●"} ${item.project.name}`;
-    const color =
-      isSelected && focused ? "cyan" : isSelected ? "blueBright" : undefined;
+    const color = isNav
+      ? isSelected && focused
+        ? "cyan"
+        : isSelected
+          ? "blueBright"
+          : undefined
+      : item.project.color;
     const isBold = isSelected && focused;
 
     return (
@@ -80,11 +86,6 @@ export const Sidebar = ({
         key={isNav ? item.key : `p-${item.project.id}`}
         flexDirection="column"
       >
-        {!isNav && index === NAV_ITEMS.length && (
-          <Box marginY={0}>
-            <Text dimColor>{"─".repeat(Math.max(width - 4, 10))}</Text>
-          </Box>
-        )}
         <Text bold={isBold} color={color}>
           {isSelected ? "❯ " : "  "}
           {label}
@@ -97,6 +98,7 @@ export const Sidebar = ({
     <Box
       flexDirection="column"
       width={width}
+      flexShrink={0}
       height="100%"
       borderStyle="round"
       borderColor={borderColor}
@@ -105,11 +107,22 @@ export const Sidebar = ({
       <Box flexDirection="column" flexGrow={1}>
         <Box marginBottom={1}>
           <Text bold color="magentaBright">
-            Projects
+            Views
           </Text>
         </Box>
 
-        {topItems.map(({ item, index }) => renderItem(item, index))}
+        {topItems.map(({ item, index }) => (
+          <Box key={`section-${index}`} flexDirection="column">
+            {index === navCount && (
+              <Box marginTop={1} marginBottom={1}>
+                <Text bold color="magentaBright">
+                  Projects
+                </Text>
+              </Box>
+            )}
+            {renderItem(item, index)}
+          </Box>
+        ))}
 
         {items.length === 0 && <Text dimColor>No projects</Text>}
       </Box>

@@ -20,7 +20,6 @@ import { z } from "zod/v3";
 import {
 	clearAssistantMessages,
 	createAssistantMessage,
-	getAssistantMessage,
 	listAssistantMessages,
 	updateAssistantMessageActions,
 } from "@/server/repos/assistant";
@@ -46,7 +45,6 @@ import type {
 	AssistantActionOutcome,
 	AssistantActionType,
 	AssistantChatResponse,
-	AssistantDecisionSummary,
 	AssistantMessage,
 	AiProvider,
 	AssistantSurface,
@@ -151,7 +149,10 @@ const createProjectActionSchema = z.object({
 		name: z.string().min(1),
 		emoji: z.string().optional(),
 		description: z.string().optional(),
+		startAt: z.string().nullable().optional(),
+		endAt: z.string().nullable().optional(),
 		color: z.string().optional(),
+		isInbox: z.boolean().optional(),
 	}),
 });
 
@@ -499,12 +500,12 @@ async function generateAssistantReply(input: {
 				"",
 				"## Available actions",
 				"You may propose up to 5 actions. Proposed actions are executed automatically, so only include actions that should happen now:",
-				"- create_task: payload must include title. Optional: projectId, priority, dueAt (ISO 8601), scheduledAt (ISO 8601), notes, parentTaskId, recurrencePreset (daily/weekly/monthly/yearly/every_weekday).",
+				"- create_task: payload must include title. Optional: projectId, parentTaskId, notes, priority, dueAt (ISO 8601), scheduledAt (ISO 8601), dueTimezone, recurrencePreset (daily/weekly/monthly/yearly/every_weekday), recurrenceRRule.",
 				"- update_task: payload must include taskId. Optional: any task fields to change.",
 				"- set_task_due_date: payload must include taskId and dueAt (ISO 8601 or null to clear). Optional: dueTimezone, scheduledAt.",
 				"- complete_task: payload must include taskId.",
 				"- uncomplete_task: payload must include taskId.",
-				"- create_project: payload must include name. Optional: description, color (hex), emoji.",
+				"- create_project: payload must include name. Optional: emoji, description, startAt (ISO 8601), endAt (ISO 8601), color (hex), isInbox.",
 				"- update_project: payload must include projectId. Optional: name, color, emoji, description, startAt, endAt, isInbox.",
 				"",
 				"## Response instructions",
@@ -691,6 +692,14 @@ function buildActionOutcome(input: {
 	};
 }
 
+type AssistantActionExecutionSummary = {
+	status: "success" | "failure" | "partial_success";
+	total: number;
+	success: number;
+	failure: number;
+	message: string;
+};
+
 function executeAssistantAction(action: AssistantAction): AssistantActionOutcome {
 	const supported = parseSupportedAssistantAction(action);
 
@@ -863,11 +872,14 @@ function executeAssistantAction(action: AssistantAction): AssistantActionOutcome
 				typeof supported.payload.description === "string"
 					? supported.payload.description.trim()
 					: undefined,
+			startAt: asOptionalIsoDate(supported.payload.startAt, "startAt"),
+			endAt: asOptionalIsoDate(supported.payload.endAt, "endAt"),
 			color:
 				typeof supported.payload.color === "string" &&
 				supported.payload.color.trim().length > 0
 					? supported.payload.color.trim()
 					: undefined,
+			isInbox: supported.payload.isInbox,
 		});
 		return buildActionOutcome({
 			action,
@@ -911,42 +923,30 @@ function executeAssistantAction(action: AssistantAction): AssistantActionOutcome
 	);
 }
 
-function buildActionSummary(message: AssistantMessage): AssistantDecisionSummary {
+function buildActionSummary(message: AssistantMessage): AssistantActionExecutionSummary {
 	const total = message.actions.length;
-	const pending = message.actions.filter((action) => action.status === "pending").length;
 	const success = message.actions.filter((action) => action.status === "executed").length;
 	const failure = message.actions.filter((action) => action.status === "failed").length;
-	const cancelled = message.actions.filter((action) => action.status === "cancelled").length;
 
-	let status: AssistantDecisionSummary["status"] = "pending";
+	let status: AssistantActionExecutionSummary["status"] = "success";
 	if (failure > 0 && success > 0) {
 		status = "partial_success";
-	} else if (failure > 0 && success === 0 && pending === 0) {
+	} else if (failure > 0) {
 		status = "failure";
-	} else if (success > 0 && failure === 0 && pending === 0) {
-		status = "success";
-	} else if (cancelled > 0 && success === 0 && failure === 0 && pending === 0) {
-		status = "cancelled";
 	}
 
 	const messageText =
 		status === "success"
-			? `All confirmed actions executed successfully (${success}/${total}).`
+			? `All actions executed successfully (${success}/${total}).`
 			: status === "partial_success"
-				? `Partial success: ${success} succeeded, ${failure} failed, ${pending} pending.`
-				: status === "failure"
-					? `Action execution failed (${failure}/${total}).`
-					: status === "cancelled"
-						? `All actions were cancelled (${cancelled}/${total}).`
-						: `${pending} action(s) pending review.`;
+				? `Partial success: ${success} succeeded, ${failure} failed.`
+				: `Action execution failed (${failure}/${total}).`;
 
 	return {
 		status,
 		total,
-		pending,
 		success,
 		failure,
-		cancelled,
 		message: messageText,
 	};
 }
@@ -954,11 +954,10 @@ function buildActionSummary(message: AssistantMessage): AssistantDecisionSummary
 function updateActionState(input: {
 	message: AssistantMessage;
 	actionId: string;
-	decision: "confirm" | "cancel";
 }): {
 	message: AssistantMessage;
 	outcome: AssistantActionOutcome;
-	summary: AssistantDecisionSummary;
+	summary: AssistantActionExecutionSummary;
 } {
 	const actions = input.message.actions.map((action) => ({ ...action }));
 	const index = actions.findIndex((action) => action.id === input.actionId);
@@ -972,37 +971,25 @@ function updateActionState(input: {
 	}
 
 	let outcome: AssistantActionOutcome;
-
-	if (input.decision === "cancel") {
-		selected.status = "cancelled";
-		selected.resultMessage = "Action cancelled by user.";
+	try {
+		outcome = executeAssistantAction(selected);
+		selected.status = outcome.status === "success" ? "executed" : "failed";
+		selected.resultMessage = outcome.message;
+		selected.outcome = outcome;
+	} catch (error) {
+		selected.status = "failed";
+		const message =
+			error instanceof Error ? error.message : "Failed to execute action";
+		const errorCode =
+			error instanceof AssistantActionExecutionError ? error.code : "ACTION_EXECUTION_FAILED";
+		selected.resultMessage = message;
 		outcome = buildActionOutcome({
 			action: selected,
-			status: "cancelled",
-			message: "Action cancelled by user.",
+			status: "failure",
+			message,
+			errorCode,
 		});
 		selected.outcome = outcome;
-	} else {
-		try {
-			outcome = executeAssistantAction(selected);
-			selected.status = outcome.status === "success" ? "executed" : "failed";
-			selected.resultMessage = outcome.message;
-			selected.outcome = outcome;
-		} catch (error) {
-			selected.status = "failed";
-			const message =
-				error instanceof Error ? error.message : "Failed to execute action";
-			const errorCode =
-				error instanceof AssistantActionExecutionError ? error.code : "ACTION_EXECUTION_FAILED";
-			selected.resultMessage = message;
-			outcome = buildActionOutcome({
-				action: selected,
-				status: "failure",
-				message,
-				errorCode,
-			});
-			selected.outcome = outcome;
-		}
 	}
 
 	const updated = updateAssistantMessageActions({
@@ -1032,7 +1019,6 @@ function executeAllPendingActions(message: AssistantMessage): AssistantMessage {
 		const result = updateActionState({
 			message: currentMessage,
 			actionId: nextPendingAction.id,
-			decision: "confirm",
 		});
 		currentMessage = result.message;
 	}
@@ -1097,43 +1083,12 @@ export async function sendAssistantChat(input: {
 
 	let finalizedAssistantMessage = assistantMessage;
 	if (assistantMessage.actions.some((action) => action.status === "pending")) {
-		try {
-			finalizedAssistantMessage = executeAllPendingActions(assistantMessage);
-		} catch (error) {
-			console.error("Failed to auto-execute assistant actions:", error);
-		}
+		finalizedAssistantMessage = executeAllPendingActions(assistantMessage);
 	}
 
 	return {
 		userMessage,
 		assistantMessage: finalizedAssistantMessage,
-	};
-}
-
-export function decideAssistantAction(input: {
-	surfaceInput: string;
-	messageId: number;
-	actionId: string;
-	decision: "confirm" | "cancel";
-}) {
-	const surface = resolveSurface(input.surfaceInput);
-	const message = getAssistantMessage(input.messageId);
-	if (!message) {
-		throw new Error("Assistant message not found");
-	}
-	if (message.surface !== surface) {
-		throw new Error("Assistant message surface mismatch");
-	}
-	if (message.role !== "assistant") {
-		throw new Error("Only assistant messages can contain actions");
-	}
-
-	return {
-		...updateActionState({
-			message,
-			actionId: input.actionId,
-			decision: input.decision,
-		}),
 	};
 }
 

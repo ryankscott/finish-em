@@ -227,6 +227,7 @@ type TaskPanelProps = {
 	selectedIndex: number;
 	expandedTaskId?: number | null;
 	projectMap?: Record<number, Project>;
+	activeProject?: Project | null;
 };
 
 export const TaskPanel = ({
@@ -236,6 +237,7 @@ export const TaskPanel = ({
 	selectedIndex,
 	expandedTaskId,
 	projectMap,
+	activeProject,
 }: TaskPanelProps) => {
 	const borderColor = focused ? "magentaBright" : "gray";
 	const clusters = buildClusters(rows);
@@ -253,6 +255,28 @@ export const TaskPanel = ({
 					{viewLabel}
 				</Text>
 			</Box>
+			{activeProject && (
+				<Box flexDirection="column" marginBottom={1}>
+					<Text>
+						Description: <Text bold>{activeProject.description || "None"}</Text>
+					</Text>
+					<Text>
+						Start: <Text bold>{activeProject.startAt ?? "None"}</Text>
+					</Text>
+					<Text>
+						End: <Text bold>{activeProject.endAt ?? "None"}</Text>
+					</Text>
+					<Text>
+						Color:{" "}
+						<Text backgroundColor={activeProject.color} color="black">
+							{"   "}
+						</Text>
+					</Text>
+					<Box marginTop={1}>
+						<Text dimColor>{"─".repeat(24)}</Text>
+					</Box>
+				</Box>
+			)}
 
 			{rows.length === 0 ? (
 				<Text dimColor>No tasks</Text>

@@ -250,22 +250,6 @@ const schemas = {
       errorCode: { anyOf: [{ type: 'string' }, { type: 'null' }] },
     },
   },
-  AssistantDecisionSummary: {
-    type: 'object',
-    required: ['status', 'total', 'pending', 'success', 'failure', 'cancelled', 'message'],
-    properties: {
-      status: {
-        type: 'string',
-        enum: ['pending', 'success', 'failure', 'partial_success', 'cancelled'],
-      },
-      total: { type: 'integer' },
-      pending: { type: 'integer' },
-      success: { type: 'integer' },
-      failure: { type: 'integer' },
-      cancelled: { type: 'integer' },
-      message: { type: 'string' },
-    },
-  },
   AssistantMessage: {
     type: 'object',
     required: ['id', 'surface', 'role', 'content', 'actions', 'createdAt', 'updatedAt'],
@@ -546,28 +530,6 @@ const paths = {
                 properties: {
                   userMessage: { $ref: '#/components/schemas/AssistantMessage' },
                   assistantMessage: { $ref: '#/components/schemas/AssistantMessage' },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
-  },
-  '/api/assistant/actions/decision': {
-    post: {
-      responses: {
-        '200': {
-          description: 'Assistant action result',
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['message', 'outcome', 'summary'],
-                properties: {
-                  message: { $ref: '#/components/schemas/AssistantMessage' },
-                  outcome: { $ref: '#/components/schemas/AssistantActionOutcome' },
-                  summary: { $ref: '#/components/schemas/AssistantDecisionSummary' },
                 },
               },
             },

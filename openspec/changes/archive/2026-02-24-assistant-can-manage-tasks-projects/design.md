@@ -17,6 +17,10 @@ Stakeholders:
 **Goals:**
 - Enable assistant-triggered task actions: create, update fields, complete, uncomplete, and due-date/reschedule updates.
 - Enable assistant-triggered project actions: create and update project metadata.
+- Ensure assistant project creation supports canonical metadata fields already handled by backend project repositories.
+- Add a keyboard-first TUI project-entry flow with autocomplete hints to reduce metadata omission.
+- Ensure assistant task creation supports canonical task metadata fields already handled by backend task repositories.
+- Add a keyboard-first TUI task-entry flow with autocomplete hints to reduce task metadata omission.
 - Route assistant mutations through validated server APIs/services that operate on canonical todo data.
 - Return structured action execution results that can be rendered consistently in assistant UI surfaces.
 - Apply safety checks (input validation, supported action allowlist, clear error handling).
@@ -54,12 +58,41 @@ Stakeholders:
 - Alternatives considered:
   - Best-effort coercion of malformed action payloads: rejected because silent coercion can mutate wrong entities.
 
+### 5) Maintain metadata parity for project creation
+- Decision: Keep assistant `create_project` payload support aligned with canonical project metadata fields (`name`, `emoji`, `description`, `startAt`, `endAt`, `color`, `isInbox`) used by project repos and MCP tools.
+- Rationale: Avoids drift where one write surface can set fields that another cannot, which leads to partial project records and inconsistent UX.
+- Alternatives considered:
+  - Keep minimal create payload and require follow-up update: rejected because it increases turns and invites missing metadata.
+
+### 6) Use token autocomplete for TUI project metadata entry
+- Decision: Extend TUI project-creation input from free-text name to tokenized metadata input with inline autocomplete suggestions and warning/status feedback.
+- Rationale: Preserves keyboard speed while making valid metadata discoverable and reducing syntax mistakes.
+- Alternatives considered:
+  - Multi-step modal-like prompt flow in TUI: rejected for extra navigation friction.
+  - Keep raw free text with docs-only guidance: rejected because omission/error rates remain high.
+
+### 7) Maintain metadata parity for task creation
+- Decision: Keep assistant `create_task` payload support aligned with canonical task create metadata fields (`title`, `projectId`, `parentTaskId`, `notes`, `priority`, `scheduledAt`, `dueAt`, `dueTimezone`, `recurrencePreset`, `recurrenceRRule`) used by task repos and MCP tools.
+- Rationale: Avoids drift where assistant task creation can set fewer fields than other write surfaces, causing avoidable follow-up edits.
+- Alternatives considered:
+  - Keep minimal `create_task` payload and rely on `update_task`: rejected due to extra turns and state churn.
+
+### 8) Use token autocomplete for TUI task metadata entry
+- Decision: Extend TUI task-creation input from plain quick text to tokenized metadata input with inline autocomplete suggestions and warning/status feedback.
+- Rationale: Enables metadata-complete task creation while preserving single-line keyboard workflow.
+- Alternatives considered:
+  - Separate dedicated task-create wizard: rejected for interaction overhead.
+  - Keep quick add only and rely on later edit: rejected due to metadata omissions at capture time.
+
 ## Risks / Trade-offs
 
 - [Model emits an incorrect target entity] → Mitigation: require explicit IDs when present, perform preflight lookup/validation, and return no-op failure when entity mismatch is detected.
 - [Partial completion in multi-action requests] → Mitigation: execute actions independently with per-action status reporting and clear summary messaging.
 - [Schema drift between assistant actions and API endpoints] → Mitigation: centralize action schema definitions and keep OpenAPI + action type tests in sync.
 - [Increased mutation surface area] → Mitigation: allowlist only requested operations and keep destructive actions out of scope for this change.
+- [Autocomplete complexity in terminal constraints] → Mitigation: use deterministic token suggestions and explicit fallback to manual entry.
+- [Required-vs-optional metadata ambiguity] → Mitigation: codify required fields in spec and emit clear validation errors before mutation.
+- [Task token ambiguity between title and metadata] → Mitigation: use explicit token prefixes and preserve plain-text fast path.
 
 ## Migration Plan
 
@@ -68,7 +101,9 @@ Stakeholders:
 3. Add structured mutation result payloads and assistant response formatting.
 4. Update OpenAPI contracts for assistant action request/response where applicable.
 5. Add tests for happy-path mutations, validation failures, unsupported actions, and partial success scenarios.
-6. Roll out with feature verification in existing assistant integration tests.
+6. Add TUI project metadata parser/autocomplete behavior and tests for token completion + validation errors.
+7. Add TUI task metadata parser/autocomplete behavior and tests for token completion + validation errors.
+8. Roll out with feature verification in existing assistant integration tests.
 
 Rollback strategy:
 - Disable mutation-capable assistant actions behind the executor entrypoint (or revert route wiring) while preserving read-only assistant behavior.

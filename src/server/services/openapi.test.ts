@@ -18,7 +18,7 @@ describe('openapi spec', () => {
     expect(spec.paths['/api/settings']).toBeTruthy()
     expect(spec.paths['/api/assistant']).toBeTruthy()
     expect(spec.paths['/api/assistant/chat']).toBeTruthy()
-    expect(spec.paths['/api/assistant/actions/decision']).toBeTruthy()
+    expect('/api/assistant/actions/decision' in spec.paths).toBe(false)
     expect(spec.paths['/api/assistant/messages']).toBeTruthy()
     expect(spec.paths['/api/openapi/json']).toBeTruthy()
 

@@ -4,34 +4,9 @@ import { useEffect, useState } from 'react'
 
 import type { AssistantMessage } from '@/server/types'
 
-export type PendingAssistantActionRef = {
-  messageId: number
-  actionId: string
-  label: string
-}
-
-export function listPendingAssistantActions(
-  messages: AssistantMessage[],
-): PendingAssistantActionRef[] {
-  const refs: PendingAssistantActionRef[] = []
-  for (const message of messages) {
-    for (const action of message.actions) {
-      if (action.status === 'pending') {
-        refs.push({
-          messageId: message.id,
-          actionId: action.id,
-          label: action.label,
-        })
-      }
-    }
-  }
-  return refs
-}
-
 type AssistantPanelProps = {
   focused: boolean
   messages: AssistantMessage[]
-  selectedPendingIndex: number
   isChatMode: boolean
   chatInput: string
   onChatInputChange: (value: string) => void
@@ -51,7 +26,6 @@ const ACTION_STATUS_COLOR: Record<
 export const AssistantPanel = ({
   focused,
   messages,
-  selectedPendingIndex,
   isChatMode,
   chatInput,
   onChatInputChange,
@@ -76,7 +50,6 @@ export const AssistantPanel = ({
   }, [isThinking])
 
   const borderColor = isChatMode ? 'magentaBright' : focused ? 'magentaBright' : 'gray'
-  let pendingCounter = 0
 
   return (
     <Box
@@ -108,20 +81,12 @@ export const AssistantPanel = ({
                 <Text wrap="wrap">{message.content}</Text>
               </Box>
               {message.actions.map((action) => {
-                const pendingIndex =
-                  action.status === 'pending' ? pendingCounter++ : -1
-                const isSelected = pendingIndex === selectedPendingIndex
                 return (
                   <Box key={action.id} paddingLeft={1}>
                     <Text
-                      color={
-                        isSelected && focused
-                          ? 'cyan'
-                          : ACTION_STATUS_COLOR[action.status]
-                      }
-                      bold={isSelected && focused}
+                      color={ACTION_STATUS_COLOR[action.status]}
                     >
-                      {action.status === 'pending' && isSelected ? '❯ ' : '  '}
+                      {'  '}
                       [{action.status}] {action.label}
                       {action.resultMessage ? ` · ${action.resultMessage}` : ''}
                     </Text>
@@ -147,7 +112,7 @@ export const AssistantPanel = ({
             <TextInput value={chatInput} onChange={onChatInputChange} />
           </>
         ) : (
-          <Text dimColor>c chat · y/n confirm/cancel · \ collapse/expand</Text>
+          <Text dimColor>c chat · Shift+X clear chat · \ collapse/expand</Text>
         )}
       </Box>
     </Box>

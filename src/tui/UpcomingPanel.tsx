@@ -204,19 +204,8 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 						<Text dimColor>  subtask of {row.parentTitle}</Text>
 					)}
 				</Box>
-				{task.dueAt && (
-					<Box marginLeft={1}>
-						<Text
-							color={isOverdue && !isCompleted ? "red" : undefined}
-							dimColor={!isOverdue || isCompleted}
-						>
-							{formatDueDate(task.dueAt)}
-						</Text>
-					</Box>
-				)}
 			</Box>
-			{(task.notes || project || hasRecurrence) && (
-				<Box paddingLeft={4}>
+				<Box paddingLeft={2} justifyContent="space-between">
 					<Text dimColor wrap="truncate">
 						{hasRecurrence ? "↻ " : ""}
 						{project
@@ -230,8 +219,17 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 								: task.notes
 							: ""}
 					</Text>
+          {task.dueAt && (
+					<Box marginLeft={1}>
+						<Text
+							color={isOverdue && !isCompleted ? "red" : undefined}
+							dimColor={!isOverdue || isCompleted}
+						>
+							{formatDueDate(task.dueAt)}
+						</Text>
+					</Box>
+				)}
 				</Box>
-			)}
 		</Box>
 	);
 };
@@ -279,6 +277,7 @@ type DayColumnViewProps = {
 	isSelectedColumn: boolean;
 	focused: boolean;
 	columnWidth: number;
+	selectedColumnWidth: number;
 };
 
 const DayColumnView = ({
@@ -288,6 +287,7 @@ const DayColumnView = ({
 	isSelectedColumn,
 	focused,
 	columnWidth,
+	selectedColumnWidth,
 }: DayColumnViewProps) => {
 	const headerColor = col.isOverdue ? "red" : "yellow";
 	const borderColor = isSelectedColumn && focused ? "magentaBright" : "gray";
@@ -296,7 +296,7 @@ const DayColumnView = ({
 	return (
 		<Box
 			flexDirection="column"
-			width={columnWidth}
+			width={isSelectedColumn ? selectedColumnWidth : columnWidth}
 			borderStyle="round"
 			borderColor={borderColor}
 			paddingX={1}
@@ -357,14 +357,18 @@ export const UpcomingPanel = ({
 				: "Week";
 	const dateLabel = format(anchorDate, "d MMM yyyy");
 
-	// Subtract sidebar (28) + outer border (2) + padding (2) to get available width
-	const SIDEBAR_WIDTH = 30;
-	const availableWidth = Math.max(terminalWidth - SIDEBAR_WIDTH, 40);
-	// Each column gets equal share, accounting for border+padding overhead (4 per column)
+	const selectedColumnMultiplier = viewMode === "day" ? 1 : 1.5;
+	const widthUnits =
+		columns.length > 0
+			? columns.length + (selectedColumnMultiplier - 1)
+			: 1;
+	const availableWidth = Math.max(terminalWidth - 2, 40);
+	const minColumnWidth = viewMode === "day" ? 20 : 10;
 	const columnWidth = Math.max(
-		Math.floor(availableWidth / Math.max(columns.length, 1)) - 1,
-		20,
+		Math.floor(availableWidth / widthUnits),
+		minColumnWidth,
 	);
+	const selectedColumnWidth = columnWidth * selectedColumnMultiplier;
 
 	return (
 		<Box
@@ -380,7 +384,7 @@ export const UpcomingPanel = ({
 					Upcoming
 				</Text>
 				<Text dimColor>
-					{viewModeLabel} · {dateLabel} · [/] nav · v mode · t today · g goal
+					{viewModeLabel} · {dateLabel} · v mode · t today · g goal
 				</Text>
 			</Box>
 
@@ -401,6 +405,7 @@ export const UpcomingPanel = ({
 							isSelectedColumn={colIdx === selectedColumnIndex}
 							focused={focused}
 							columnWidth={columnWidth}
+							selectedColumnWidth={selectedColumnWidth}
 						/>
 					))}
 				</Box>
@@ -410,7 +415,7 @@ export const UpcomingPanel = ({
 			<Box marginTop={1}>
 				<Text dimColor>
 					{focused
-						? "h/l: column · j/k: task · x: complete · [/]: prev/next week"
+						? "h/l: column · j/k: task · x: complete"
 						: "Tab to focus"}
 				</Text>
 			</Box>

@@ -193,9 +193,44 @@ function ensureTaskSubtaskSchema(db: DbLike) {
   )
 }
 
+function ensureProjectEnhancementsSchema(db: DbLike) {
+  const projectsTable = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'")
+    .get() as { name?: string } | undefined
+
+  if (!projectsTable?.name) {
+    return
+  }
+
+  const columns = db.prepare('PRAGMA table_info(projects)').all() as Array<{
+    name: unknown
+  }>
+
+  const hasEmoji = columns.some((column) => String(column.name) === 'emoji')
+  const hasDescription = columns.some(
+    (column) => String(column.name) === 'description',
+  )
+  const hasStartAt = columns.some((column) => String(column.name) === 'start_at')
+  const hasEndAt = columns.some((column) => String(column.name) === 'end_at')
+
+  if (!hasEmoji) {
+    db.exec('ALTER TABLE projects ADD COLUMN emoji TEXT')
+  }
+  if (!hasDescription) {
+    db.exec("ALTER TABLE projects ADD COLUMN description TEXT NOT NULL DEFAULT ''")
+  }
+  if (!hasStartAt) {
+    db.exec('ALTER TABLE projects ADD COLUMN start_at TEXT')
+  }
+  if (!hasEndAt) {
+    db.exec('ALTER TABLE projects ADD COLUMN end_at TEXT')
+  }
+}
+
 function initialize(db: DbLike) {
   db.exec('PRAGMA foreign_keys = ON')
   ensureTaskSubtaskSchema(db)
+  ensureProjectEnhancementsSchema(db)
   ensureSettingsAiSchema(db)
   ensureAssistantMessagesSchema(db)
   for (const statement of SCHEMA_STATEMENTS) {

@@ -1,7 +1,5 @@
 import type {
   AppSettings,
-  AssistantActionOutcome,
-  AssistantDecisionSummary,
   AssistantMessage,
   Goal,
   Project,
@@ -89,6 +87,9 @@ export const createMcpApi = (): ApiClient => ({
 
   createProject: (input) => callTool<Project>('create_project', input),
 
+  updateProject: (projectId, input) =>
+    callTool<Project>('update_project', { projectId, ...input }),
+
   listTaskReminders: (taskId) => callTool<Reminder[]>('list_reminders', { taskId }),
 
   createReminder: (taskId, input) => callTool<Reminder>('create_reminder', { taskId, ...input }),
@@ -107,13 +108,6 @@ export const createMcpApi = (): ApiClient => ({
       'send_assistant_chat',
       input,
     ),
-
-  decideAssistantAction: (input) =>
-    callTool<{
-      message: AssistantMessage
-      outcome: AssistantActionOutcome
-      summary: AssistantDecisionSummary
-    }>('decide_assistant_action', input),
 
   clearAssistantMessages: (surface) =>
     callTool<{ ok: boolean; deleted: number }>('clear_assistant_messages', { surface }),

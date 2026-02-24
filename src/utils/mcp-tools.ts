@@ -3,9 +3,9 @@ import * as projectRepo from '@/server/repos/projects'
 import * as reminderRepo from '@/server/repos/reminders'
 import * as settingsRepo from '@/server/repos/settings'
 import * as taskRepo from '@/server/repos/tasks'
-import { decideAssistantAction, getAssistantState, sendAssistantChat, clearAssistantHistory } from '@/server/services/assistant'
+import { getAssistantState, sendAssistantChat, clearAssistantHistory } from '@/server/services/assistant'
 import { createTaskFromQuickAdd } from '@/server/services/quick-add'
-import type { AppSettings, Goal, Project, Reminder, Task } from '@/server/types'
+import type { AppSettings } from '@/server/types'
 import z from 'zod'
 
 const jsonContent = (value: unknown) => ({
@@ -658,30 +658,6 @@ export const sendAssistantChatTool = {
   },
 }
 
-export const decideAssistantActionTool = {
-  name: 'decide_assistant_action',
-  definition: {
-    title: 'Decide assistant action',
-    description: 'Confirm or cancel a pending assistant action',
-    inputSchema: {
-      surface: z.enum(['ui', 'tui']).optional(),
-      messageId: z.number(),
-      actionId: z.string(),
-      decision: z.enum(['confirm', 'cancel']),
-    },
-  },
-  handler: async (input: Record<string, unknown>) => {
-    const result = decideAssistantAction({
-      surfaceInput: ((input.surface as 'ui' | 'tui' | undefined) ?? 'tui') as string,
-      messageId: Number(input.messageId),
-      actionId: String(input.actionId),
-      decision: input.decision as 'confirm' | 'cancel',
-    })
-
-    return jsonContent(result)
-  },
-}
-
 export const clearAssistantMessagesTool = {
   name: 'clear_assistant_messages',
   definition: {
@@ -729,6 +705,5 @@ export const ALL_TOOLS = [
   createQuickAddTool,
   getAssistantStateTool,
   sendAssistantChatTool,
-  decideAssistantActionTool,
   clearAssistantMessagesTool,
 ]
