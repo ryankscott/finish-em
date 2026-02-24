@@ -25,7 +25,7 @@ const SHORTCUTS: ShortcutRow[] = [
 	{
 		keys: "e",
 		action:
-			"Edit selected task (or active project when in project view)",
+			"Edit selected task (title, project, parent, due, scheduled, recurs, priority)",
 	},
 	{ keys: "d", action: "Delete selected task" },
 	{ keys: "m", action: "Add reminder to selected task" },
