@@ -1,3 +1,4 @@
+import { shortcodeListForAutocomplete } from "../lib/emoji-shortcodes";
 import type { Project } from "../server/types";
 
 type AutocompleteSuggestion = {
@@ -7,17 +8,6 @@ type AutocompleteSuggestion = {
 
 const PROJECT_KEYS = ["name:", "color:", "emoji:", "description:", "start:", "end:", "inbox:"];
 const TASK_KEYS = ["title:", "project:", "priority:", "due:", "scheduled:", "notes:", "parent:", "recurs:"];
-const EMOJI_SHORTCODES = [
-	":cat:",
-	":dog:",
-	":rocket:",
-	":fire:",
-	":star:",
-	":check:",
-	":bug:",
-	":sparkles:",
-	":wrench:",
-];
 
 function normalizeWords(input: string): { prefix: string; fragment: string } {
 	const trimmedEnd = input.replace(/\s+$/, "");
@@ -78,7 +68,7 @@ export function getProjectCreateAutocomplete(input: string): AutocompleteSuggest
 		return valueSuggestion(input, ["true", "false"]);
 	}
 	if (fragment.toLowerCase().startsWith("emoji:")) {
-		return valueSuggestion(input, EMOJI_SHORTCODES);
+		return valueSuggestion(input, [...shortcodeListForAutocomplete()]);
 	}
 	if (fragment.toLowerCase().startsWith("color:")) {
 		const { prefix } = normalizeWords(input);

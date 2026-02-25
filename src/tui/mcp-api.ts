@@ -90,6 +90,13 @@ export const createMcpApi = (): ApiClient => ({
   updateProject: (projectId, input) =>
     callTool<Project>('update_project', { projectId, ...input }),
 
+  deleteProject: async (projectId) => {
+    const result = await callTool<{ ok: boolean }>('delete_project', { projectId })
+    if (!result.ok) {
+      throw new Error(`Project ${projectId} not found or cannot delete inbox`)
+    }
+  },
+
   listTaskReminders: (taskId) => callTool<Reminder[]>('list_reminders', { taskId }),
 
   createReminder: (taskId, input) => callTool<Reminder>('create_reminder', { taskId, ...input }),

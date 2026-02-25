@@ -1,6 +1,7 @@
 import { format, isBefore, isValid, parseISO } from "date-fns";
 import { Box, Text } from "ink";
 
+import { toDisplayString } from "../lib/task-links";
 import type { Priority, Project, Task } from "../server/types";
 
 export type TaskPanelRow = {
@@ -165,7 +166,7 @@ const TaskRowItem = ({
 						dimColor={isCompleted}
 						strikethrough={isCompleted}
 					>
-						{task.title}
+						{toDisplayString(task.title)}
 					</Text>
 				</Box>
 				{task.dueAt && (
@@ -203,7 +204,7 @@ const TaskRowItem = ({
 					{task.notes && (
 						<Box flexDirection="column">
 							<Text dimColor>Notes:</Text>
-							<Text>{task.notes}</Text>
+							<Text>{toDisplayString(task.notes)}</Text>
 						</Box>
 					)}
 					{project && (

@@ -25,6 +25,7 @@ const assistantActionTypes: AssistantActionType[] = [
   'delete_task',
   'create_project',
   'update_project',
+  'delete_project',
 ]
 
 const assistantActionStatuses: AssistantActionStatus[] = [

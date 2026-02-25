@@ -91,6 +91,7 @@ export type AssistantActionType =
   | 'delete_task'
   | 'create_project'
   | 'update_project'
+  | 'delete_project'
 export type AssistantActionStatus = 'pending' | 'executed' | 'cancelled' | 'failed'
 
 export type AssistantActionOutcomeStatus = 'success' | 'failure' | 'cancelled'

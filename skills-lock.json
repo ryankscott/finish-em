@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "analytics-tracking": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "computedHash": "96c10fd21185cf403b34f9a3af87c9e778708c25db8c6e006ed896afdf2cc8d5"
+    }
+  }
+}

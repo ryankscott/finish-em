@@ -35,6 +35,7 @@ const schemas = {
       'delete_task',
       'create_project',
       'update_project',
+      'delete_project',
     ],
   },
   AssistantActionStatus: {
@@ -381,7 +382,12 @@ const paths = {
       },
     },
     patch: { responses: { '200': { description: 'Updated project' } } },
-    delete: { responses: { '200': { description: 'Deleted project' } } },
+    delete: {
+      responses: {
+        '204': { description: 'Project deleted' },
+        '404': { description: 'Project not found or inbox cannot be deleted' },
+      },
+    },
   },
   '/api/tasks': {
     get: {

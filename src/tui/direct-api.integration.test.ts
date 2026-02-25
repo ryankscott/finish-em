@@ -48,4 +48,37 @@ describe('createDirectApi integration', () => {
     expect(updated.startAt).toBe('2026-03-01')
     expect(updated.endAt).toBe('2026-05-01')
   })
+
+  it('deleteProject removes non-inbox project and reassigns tasks to inbox', async () => {
+    const api = createDirectApi()
+
+    const project = await api.createProject({ name: 'To Delete', color: '#ef4444' })
+    await api.createTask({
+      projectId: project.id,
+      title: 'Task in deleted project',
+    })
+
+    await api.deleteProject(project.id)
+
+    const projects = await api.listProjects()
+    expect(projects.find((p) => p.id === project.id)).toBeUndefined()
+    const tasks = await api.listTasks({ projectId: project.id })
+    expect(tasks.length).toBe(0)
+    const inboxTasks = await api.listTasks({
+      projectId: projects.find((p) => p.isInbox)!.id,
+    })
+    expect(inboxTasks.some((t) => t.title === 'Task in deleted project')).toBe(true)
+  })
+
+  it('deleteProject throws for non-existent project', async () => {
+    const api = createDirectApi()
+    await expect(api.deleteProject(99999)).rejects.toThrow(/not found|inbox/)
+  })
+
+  it('deleteProject throws for inbox project', async () => {
+    const api = createDirectApi()
+    const projects = await api.listProjects()
+    const inbox = projects.find((p) => p.isInbox)!
+    await expect(api.deleteProject(inbox.id)).rejects.toThrow(/not found|inbox/)
+  })
 })

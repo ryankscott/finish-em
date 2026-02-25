@@ -28,10 +28,16 @@ describe("parseProjectCreateInput", () => {
 		expect(result.input.isInbox).toBe(false);
 	});
 
-	it("parses emoji shortcode syntax like :cat:", () => {
+	it("parses emoji shortcode syntax like :cat: via shared source", () => {
 		const result = parseProjectCreateInput("name:Pets emoji::cat:");
 		expect(result.errors).toHaveLength(0);
 		expect(result.input.emoji).toBe("🐱");
+	});
+
+	it("warns and uses literal value for unknown emoji shortcode", () => {
+		const result = parseProjectCreateInput("name:Test emoji::unknown_shortcode:");
+		expect(result.warnings.some((w) => w.includes("Unknown emoji shortcode"))).toBe(true);
+		expect(result.input.emoji).toBe(":unknown_shortcode:");
 	});
 
 	it("validates required name in tokenized mode", () => {

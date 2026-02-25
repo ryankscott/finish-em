@@ -111,6 +111,7 @@ export type ApiClient = {
 			isInbox?: boolean;
 		},
 	) => Promise<Project>;
+	deleteProject: (projectId: number) => Promise<void>;
 	listTaskReminders: (taskId: number) => Promise<Reminder[]>;
 	createReminder: (
 		taskId: number,
@@ -285,6 +286,11 @@ export const createApi = (baseUrl: string): ApiClient => {
 				method: "PATCH",
 				body: JSON.stringify(input),
 			}),
+		deleteProject: async (projectId) => {
+			await request<void>(`/api/projects/${projectId}`, {
+				method: "DELETE",
+			});
+		},
 		listTaskReminders: (taskId) =>
 			request<Reminder[]>(`/api/tasks/${taskId}/reminders`),
 		createReminder: (taskId, input) =>

@@ -216,6 +216,18 @@ describe("parseTaskEditInput", () => {
 			const { warnings } = parseTaskEditInput("Task parent:abc", PROJECTS);
 			expect(warnings.some((w) => w.includes("parent"))).toBe(true);
 		});
+
+		it("parses notes: token (rest of line)", () => {
+			const { patch } = parseTaskEditInput("Title notes: Some notes with [link](https://x.com)", PROJECTS);
+			expect(patch.title).toBe("Title");
+			expect(patch.notes).toBe("Some notes with [link](https://x.com)");
+		});
+
+		it("parses notes: when notes contain spaces and links", () => {
+			const { patch } = parseTaskEditInput("Ship it notes: See https://example.com and [Spec](https://spec.com)", PROJECTS);
+			expect(patch.title).toBe("Ship it");
+			expect(patch.notes).toBe("See https://example.com and [Spec](https://spec.com)");
+		});
 	});
 });
 
@@ -262,5 +274,15 @@ describe("serializeTaskToEditInput", () => {
 	it("omits null recurrencePreset", () => {
 		const result = serializeTaskToEditInput("Task", { recurrencePreset: null });
 		expect(result).not.toContain("recurs:");
+	});
+
+	it("appends notes when provided", () => {
+		const result = serializeTaskToEditInput("Task", { notes: "Some notes with link https://x.com" });
+		expect(result).toBe("Task notes:Some notes with link https://x.com");
+	});
+
+	it("omits empty notes", () => {
+		const result = serializeTaskToEditInput("Task", { notes: "" });
+		expect(result).toBe("Task");
 	});
 });

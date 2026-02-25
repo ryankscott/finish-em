@@ -26,6 +26,7 @@ import {
 import { listGoals } from "@/server/repos/goals";
 import {
 	createProject,
+	deleteProject,
 	getInboxProjectId,
 	listProjects,
 	updateProject,
@@ -171,6 +172,14 @@ const updateProjectActionSchema = z.object({
 	}),
 });
 
+const deleteProjectActionSchema = z.object({
+	type: z.literal("delete_project"),
+	label: assistantActionLabelSchema,
+	payload: z.object({
+		projectId: assistantIdSchema,
+	}),
+});
+
 const supportedAssistantActionSchema = z.discriminatedUnion("type", [
 	createTaskActionSchema,
 	updateTaskActionSchema,
@@ -179,6 +188,7 @@ const supportedAssistantActionSchema = z.discriminatedUnion("type", [
 	uncompleteTaskActionSchema,
 	createProjectActionSchema,
 	updateProjectActionSchema,
+	deleteProjectActionSchema,
 ]);
 
 const assistantActionSchema = z.object({
@@ -190,6 +200,7 @@ const assistantActionSchema = z.object({
 		"uncomplete_task",
 		"create_project",
 		"update_project",
+		"delete_project",
 	]),
 	label: assistantActionLabelSchema,
 	payload: z.record(z.any()).optional(),
@@ -913,6 +924,26 @@ function executeAssistantAction(action: AssistantAction): AssistantActionOutcome
 			targetEntity: "project",
 			targetId: updated.id,
 			message: `Updated project \"${updated.name}\" (#${updated.id}).`,
+		});
+	}
+
+	if (supported.type === "delete_project") {
+		const payload = supported.payload;
+		const ok = deleteProject(payload.projectId);
+		if (!ok) {
+			const project = listProjects().find((p) => p.id === payload.projectId);
+			const code = project?.isInbox ? "CANNOT_DELETE_INBOX" : "PROJECT_NOT_FOUND";
+			const message = project?.isInbox
+				? "Inbox project cannot be deleted"
+				: `Project ${payload.projectId} not found`;
+			throw new AssistantActionExecutionError(code, message);
+		}
+		return buildActionOutcome({
+			action,
+			status: "success",
+			targetEntity: "project",
+			targetId: payload.projectId,
+			message: `Deleted project #${payload.projectId}.`,
 		});
 	}
 

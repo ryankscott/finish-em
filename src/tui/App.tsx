@@ -24,6 +24,8 @@ import {
 	serializeTaskToEditInput,
 } from "./parse-task-input";
 import { getProjectCreateAutocomplete, getTaskCreateAutocomplete } from "./input-autocomplete";
+import { openUrl } from "../lib/open-url";
+import { normalizeBareUrlsInText, toDisplaySegments } from "../lib/task-links";
 import {
 	parseProjectCreateInput,
 	serializeProjectToEditInput,
@@ -60,7 +62,8 @@ type InputMode =
 	| "editTask"
 	| "editSetting"
 	| "addGoal"
-	| "assistantChat";
+	| "assistantChat"
+	| "linkPicker";
 
 type ApiClient = ReturnType<typeof createApi>;
 
@@ -83,7 +86,7 @@ function renderAutocompleteHint(hint: string) {
 		if (!segment) return null;
 		if (AUTOCOMPLETE_TOKEN_PATTERN.test(segment)) {
 			return (
-				<Text key={`token-${index}`} color="black" backgroundColor="magentaBright">
+				<Text key={`token-${index}`} color="magentaBright">
 					{segment}
 				</Text>
 			);
@@ -131,6 +134,10 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [editingSettingField, setEditingSettingField] = useState<
 		"timezone" | "aiProvider" | "aiBaseUrl" | "aiModel" | "aiApiKey" | null
 	>(null);
+	const [linkPickerLinks, setLinkPickerLinks] = useState<
+		{ url: string; displayLabel: string }[] | null
+	>(null);
+	const [linkPickerIndex, setLinkPickerIndex] = useState(0);
 
 	const sidebarItems = useMemo(() => buildSidebarItems(projects), [projects]);
 
@@ -492,13 +499,18 @@ export const App = ({ api, onQuit }: AppProps) => {
 					if (parsed.errors.length > 0) {
 						setStatusText(`Task not created: ${parsed.errors.join("; ")}`);
 					} else {
+						const title = normalizeBareUrlsInText(String(parsed.input.title));
+						const notes =
+							parsed.input.notes != null
+								? normalizeBareUrlsInText(parsed.input.notes)
+								: undefined;
 						await api.createTask({
-							title: String(parsed.input.title),
+							title,
 							projectId:
 								parsed.input.projectId ??
 								(projects.find((project) => project.isInbox)?.id ?? 1),
 							parentTaskId: parsed.input.parentTaskId,
-							notes: parsed.input.notes,
+							notes,
 							priority: parsed.input.priority,
 							scheduledAt: parsed.input.scheduledAt,
 							dueAt: parsed.input.dueAt,
@@ -523,7 +535,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 					await api.createTask({
 						projectId: selectedTask.projectId,
 						parentTaskId: selectedTask.id,
-						title: value,
+						title: normalizeBareUrlsInText(value),
 					});
 					setStatusText("Subtask created");
 				}
@@ -593,7 +605,16 @@ export const App = ({ api, onQuit }: AppProps) => {
 					if (Object.keys(patch).length === 0) {
 						setStatusText("Nothing to update");
 					} else {
-						await api.updateTask(selectedTask.id, patch);
+						const normalizedPatch = {
+							...patch,
+							...(patch.title != null && {
+								title: normalizeBareUrlsInText(patch.title),
+							}),
+							...(patch.notes != null && {
+								notes: normalizeBareUrlsInText(patch.notes),
+							}),
+						};
+						await api.updateTask(selectedTask.id, normalizedPatch);
 						setStatusText(
 							warnings.length > 0
 								? `Task updated (warnings: ${warnings.join("; ")})`
@@ -675,6 +696,56 @@ export const App = ({ api, onQuit }: AppProps) => {
 	useInput((input: string, key: Key) => {
 		if (showHelp) {
 			if (key.escape || input === "?") setShowHelp(false);
+			return;
+		}
+
+		if (inputMode === "linkPicker") {
+			if (key.escape) {
+				setInputMode("none");
+				setLinkPickerLinks(null);
+				setStatusText("Ready");
+				return;
+			}
+			const links = linkPickerLinks ?? [];
+			if (key.return && links.length > 0) {
+				const chosen = links[linkPickerIndex];
+				if (chosen) {
+					openUrl(chosen.url);
+					setStatusText("Opened link");
+				}
+				setInputMode("none");
+				setLinkPickerLinks(null);
+				return;
+			}
+			if (input === "j" || key.downArrow) {
+				setLinkPickerIndex((i) => {
+					const next = (i + 1) % links.length;
+					setStatusText(
+						`Open link (${next + 1}/${links.length}): ${links[next].displayLabel}  j/k  Enter=open Esc=cancel`,
+					);
+					return next;
+				});
+				return;
+			}
+			if (input === "k" || key.upArrow) {
+				setLinkPickerIndex((i) => {
+					const next = (i - 1 + links.length) % links.length;
+					setStatusText(
+						`Open link (${next + 1}/${links.length}): ${links[next].displayLabel}  j/k  Enter=open Esc=cancel`,
+					);
+					return next;
+				});
+				return;
+			}
+			const num = Number(input);
+			if (input.length === 1 && num >= 1 && num <= links.length) {
+				const idx = num - 1;
+				setLinkPickerIndex(idx);
+				setStatusText(
+					`Open link (${num}/${links.length}): ${links[idx].displayLabel}  j/k  Enter=open Esc=cancel`,
+				);
+				return;
+			}
 			return;
 		}
 
@@ -966,6 +1037,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 				dueAt: selectedTask.dueAt,
 				scheduledAt: selectedTask.scheduledAt,
 				recurrencePreset: selectedTask.recurrencePreset,
+				notes: selectedTask.notes ?? undefined,
 			});
 			setInputMode("editTask");
 			setInputValue(initialValue);
@@ -976,6 +1048,29 @@ export const App = ({ api, onQuit }: AppProps) => {
 			if (!selectedTask) return;
 			setExpandedTaskId(expandedTaskId === selectedTask.id ? null : selectedTask.id);
 			return;
+		}
+
+		if (input === "D") {
+			if (view === "project" && activeProject && !activeProject.isInbox) {
+				void (async () => {
+					setLoading(true);
+					setErrorText(null);
+					try {
+						await api.deleteProject(activeProject.id);
+						setStatusText("Project deleted");
+						setView("inbox");
+						setActiveProjectId(null);
+						await loadData();
+					} catch (error) {
+						const message =
+							error instanceof Error ? error.message : String(error);
+						setErrorText(message);
+					} finally {
+						setLoading(false);
+					}
+				})();
+				return;
+			}
 		}
 
 		if (input === "d") {
@@ -995,6 +1090,28 @@ export const App = ({ api, onQuit }: AppProps) => {
 					setLoading(false);
 				}
 			})();
+			return;
+		}
+
+		if (input === "o") {
+			if (!selectedTask) return;
+			const titleSegments = toDisplaySegments(selectedTask.title);
+			const notesSegments = toDisplaySegments(selectedTask.notes ?? "");
+			const links: { url: string; displayLabel: string }[] = [];
+			for (const s of [...titleSegments, ...notesSegments]) {
+				if (s.type === "link") links.push({ url: s.url, displayLabel: s.displayLabel });
+			}
+			if (links.length === 0) {
+				setStatusText("No link in task");
+			} else if (links.length === 1) {
+				openUrl(links[0].url);
+				setStatusText("Opened link");
+			} else {
+				setLinkPickerLinks(links);
+				setLinkPickerIndex(0);
+				setInputMode("linkPicker");
+				setStatusText(`Open link (1/${links.length}): ${links[0].displayLabel}  j/k  Enter=open Esc=cancel`);
+			}
 			return;
 		}
 
@@ -1028,7 +1145,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 	);
 
 	const isInputMode = inputMode !== "none";
-	const isBottomBarMode = isInputMode && inputMode !== "assistantChat";
+	const isBottomBarMode =
+		isInputMode && inputMode !== "assistantChat" && inputMode !== "linkPicker";
+	const isLinkPickerMode = inputMode === "linkPicker";
 
 	if (showDashboard) {
 		return (
@@ -1104,6 +1223,26 @@ export const App = ({ api, onQuit }: AppProps) => {
 				)}
 			</Box>
 
+			{isLinkPickerMode && linkPickerLinks && linkPickerLinks.length > 0 && (
+				<Box paddingX={1} flexDirection="column">
+					<Text color="magentaBright" bold>
+						Open link ({linkPickerIndex + 1}/{linkPickerLinks.length}):
+					</Text>
+					<Box>
+						{linkPickerLinks.map((link, i) => (
+							<Text
+								key={`${i}-${link.url}`}
+								color={i === linkPickerIndex ? "cyan" : undefined}
+								bold={i === linkPickerIndex}
+							>
+								{i > 0 ? "  " : ""}
+								{i + 1}. [{link.displayLabel}]
+							</Text>
+						))}
+						<Text dimColor>  j/k choose  Enter open  Esc cancel</Text>
+					</Box>
+				</Box>
+			)}
 			{isBottomBarMode && (
 				<Box paddingX={1}>
 					<Text color="magentaBright" bold>

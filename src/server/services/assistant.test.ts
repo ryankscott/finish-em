@@ -9,7 +9,7 @@ vi.mock('ai', () => ({
 }))
 
 import { createAssistantMessage, listAssistantMessages } from '@/server/repos/assistant'
-import { createProject, getProject } from '@/server/repos/projects'
+import { createProject, getProject, listProjects } from '@/server/repos/projects'
 import { createTask, getTask } from '@/server/repos/tasks'
 import { resetDbForTests } from '@/server/db/client'
 import {
@@ -147,6 +147,73 @@ describe('assistant service', () => {
     const createdProject = getProject(createdProjectId as number)
     expect(createdProject?.emoji).toBe('🚀')
     expect(createdProject?.description).toBe('Major roadmap planning')
+  })
+
+  it('immediately executes delete_project and removes non-inbox project', async () => {
+    const project = createProject({ name: 'To Delete', color: '#ef4444' })
+
+    mockAssistantReply('I deleted that project.', [
+      {
+        type: 'delete_project',
+        label: `Delete project "${project.name}" (#${project.id})`,
+        payload: { projectId: project.id },
+      },
+    ])
+
+    const result = await sendAssistantChat({
+      surfaceInput: 'ui',
+      message: 'Delete the To Delete project',
+    })
+
+    const deleteAction = result.assistantMessage.actions.find(
+      (action) => action.type === 'delete_project',
+    )
+    expect(deleteAction?.status).toBe('executed')
+    expect(deleteAction?.outcome?.status).toBe('success')
+    expect(getProject(project.id)).toBeNull()
+  })
+
+  it('returns failure for delete_project when project does not exist', async () => {
+    mockAssistantReply('I tried to delete it.', [
+      {
+        type: 'delete_project',
+        label: 'Delete project',
+        payload: { projectId: 99999 },
+      },
+    ])
+
+    const result = await sendAssistantChat({
+      surfaceInput: 'ui',
+      message: 'Delete project 99999',
+    })
+
+    const deleteAction = result.assistantMessage.actions.find(
+      (action) => action.type === 'delete_project',
+    )
+    expect(deleteAction?.status).toBe('failed')
+    expect(deleteAction?.outcome?.errorCode).toBe('PROJECT_NOT_FOUND')
+  })
+
+  it('returns failure for delete_project when target is inbox', async () => {
+    const inbox = listProjects().find((p) => p.isInbox)!
+    mockAssistantReply('I cannot delete inbox.', [
+      {
+        type: 'delete_project',
+        label: 'Delete inbox',
+        payload: { projectId: inbox.id },
+      },
+    ])
+
+    const result = await sendAssistantChat({
+      surfaceInput: 'ui',
+      message: 'Delete the inbox',
+    })
+
+    const deleteAction = result.assistantMessage.actions.find(
+      (action) => action.type === 'delete_project',
+    )
+    expect(deleteAction?.status).toBe('failed')
+    expect(deleteAction?.outcome?.errorCode).toBe('CANNOT_DELETE_INBOX')
   })
 
   it('returns explicit failures for invalid action payloads', async () => {

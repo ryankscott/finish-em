@@ -10,6 +10,7 @@ import {
 } from "date-fns";
 import { Box, Text } from "ink";
 
+import { toDisplayString } from "../lib/task-links";
 import type { Goal, Priority, Project, Task } from "../server/types";
 
 export type ViewMode = "day" | "work-week" | "week";
@@ -198,7 +199,7 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 						strikethrough={isCompleted}
 						wrap="truncate"
 					>
-						{task.title}
+						{toDisplayString(task.title)}
 					</Text>
 					{task.parentTaskId !== null && row.parentTitle && (
 						<Text dimColor>  subtask of {row.parentTitle}</Text>
@@ -215,8 +216,8 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 							: ""}
 						{task.notes
 							? project || hasRecurrence
-								? `  ${task.notes}`
-								: task.notes
+								? `  ${toDisplayString(task.notes)}`
+								: toDisplayString(task.notes)
 							: ""}
 					</Text>
           {task.dueAt && (

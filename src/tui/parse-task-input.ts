@@ -13,6 +13,7 @@ import type { Priority, Project, RecurrencePreset } from "../server/types";
 
 export type TaskEditPatch = {
 	title?: string;
+	notes?: string;
 	projectId?: number;
 	parentTaskId?: number | null;
 	priority?: Priority;
@@ -100,8 +101,8 @@ function parseDatePhrase(phrase: string): string | null {
 	return undefined as unknown as null; // signal: unrecognised
 }
 
-// Known token prefixes used to delimit multi-word project names
-const TOKEN_PREFIXES = ["due:", "scheduled:", "recurs:", "project:", "parent:"];
+// Known token prefixes used to delimit multi-word project names and notes
+const TOKEN_PREFIXES = ["due:", "scheduled:", "recurs:", "project:", "parent:", "notes:"];
 
 /**
  * Extracts a colon-delimited token value from `input` starting at `startIndex`
@@ -242,6 +243,13 @@ export function parseTaskEditInput(
 		working = (working.slice(0, parentMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
 	}
 
+	// --- notes: (rest of line; can contain links and spaces) ---
+	const notesMatch = working.match(/\bnotes:/i);
+	if (notesMatch && notesMatch.index !== undefined) {
+		patch.notes = working.slice(notesMatch.index + notesMatch[0].length).trim();
+		working = working.slice(0, notesMatch.index).replace(/\s+$/, "").trim();
+	}
+
 	const title = working.trim();
 	if (title.length > 0) {
 		patch.title = title;
@@ -263,6 +271,7 @@ export function serializeTaskToEditInput(
 		dueAt?: string | null;
 		scheduledAt?: string | null;
 		recurrencePreset?: RecurrencePreset;
+		notes?: string;
 	},
 ): string {
 	const parts: string[] = [title];
@@ -284,6 +293,9 @@ export function serializeTaskToEditInput(
 	}
 	if (opts.recurrencePreset) {
 		parts.push(`recurs:${opts.recurrencePreset}`);
+	}
+	if (opts.notes !== undefined && opts.notes !== "") {
+		parts.push(`notes:${opts.notes}`);
 	}
 
 	return parts.join(" ");

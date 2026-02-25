@@ -1,4 +1,5 @@
 import { isValid, parseISO } from "date-fns";
+import { lookup as emojiShortcodeLookup } from "../lib/emoji-shortcodes";
 
 type ProjectCreateInput = {
 	name: string;
@@ -35,18 +36,6 @@ const TOKEN_PREFIXES = [
 	"inbox:",
 ];
 
-const EMOJI_SHORTCODE_MAP: Record<string, string> = {
-	cat: "🐱",
-	dog: "🐶",
-	rocket: "🚀",
-	fire: "🔥",
-	star: "⭐",
-	check: "✅",
-	bug: "🐛",
-	sparkles: "✨",
-	wrench: "🔧",
-};
-
 function parseEmojiValue(value: string, warnings: string[]): string {
 	const trimmed = value.trim();
 	const shortcodeMatch = trimmed.match(/^:([a-z0-9_+-]+):$/i);
@@ -54,9 +43,9 @@ function parseEmojiValue(value: string, warnings: string[]): string {
 		return trimmed;
 	}
 
-	const shortcode = shortcodeMatch[1]?.toLowerCase() ?? "";
-	const mapped = EMOJI_SHORTCODE_MAP[shortcode];
-	if (mapped) {
+	const shortcode = shortcodeMatch[1] ?? "";
+	const mapped = emojiShortcodeLookup(shortcode);
+	if (mapped !== undefined) {
 		return mapped;
 	}
 

@@ -27,6 +27,10 @@ const SHORTCUTS: ShortcutRow[] = [
 		action:
 			"Edit selected task (title, project, parent, due, scheduled, recurs, priority)",
 	},
+	{
+		keys: "o",
+		action: "Open link in selected task (if multiple: picker with j/k or 1–9, Enter open)",
+	},
 	{ keys: "d", action: "Delete selected task" },
 	{ keys: "m", action: "Add reminder to selected task" },
 	{ keys: "z", action: "Delete reminder from selected task" },
@@ -35,6 +39,8 @@ const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "/provider <name>", action: "Set assistant provider (gemini/openai/lmstudio)" },
 	{ keys: "x", action: "Clear assistant API key (key row)" },
 	{ keys: "p", action: "Create new project", section: "Projects" },
+	{ keys: "e", action: "Edit project (in project view)" },
+	{ keys: "D", action: "Delete project (in project view, non-inbox)" },
 	{ keys: "h / ←", action: "Previous column", section: "Upcoming" },
 	{ keys: "l / →", action: "Next column" },
 	{ keys: "[ / ]", action: "Previous / next week" },

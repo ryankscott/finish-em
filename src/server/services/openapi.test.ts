@@ -45,4 +45,15 @@ describe('openapi spec', () => {
       'lmstudio',
     ])
   })
+
+  it('documents DELETE /api/projects/:projectId with 204 and 404', () => {
+    const spec = buildOpenApiSpec()
+    const projectIdPath = spec.paths['/api/projects/{projectId}']
+    expect(projectIdPath?.delete).toBeTruthy()
+    const deleteOp = projectIdPath?.delete as { responses: Record<string, { description: string }> }
+    expect(deleteOp.responses['204']?.description).toBe('Project deleted')
+    expect(deleteOp.responses['404']?.description).toBe(
+      'Project not found or inbox cannot be deleted',
+    )
+  })
 })

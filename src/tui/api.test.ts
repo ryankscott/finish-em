@@ -36,4 +36,25 @@ describe('createApi', () => {
 
     vi.unstubAllGlobals()
   })
+
+  it('sends DELETE request for deleteProject', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      text: async () => '',
+      status: 204,
+      statusText: 'No Content',
+    })
+
+    vi.stubGlobal('fetch', fetchMock)
+    const api = createApi('http://localhost:8787')
+
+    await api.deleteProject(2)
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'http://localhost:8787/api/projects/2',
+      expect.objectContaining({ method: 'DELETE' }),
+    )
+
+    vi.unstubAllGlobals()
+  })
 })

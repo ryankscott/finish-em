@@ -80,6 +80,16 @@ export const createDirectApi = (): ApiClient => ({
     return Promise.resolve(result)
   },
 
+  deleteProject: (projectId) => {
+    const ok = projectRepo.deleteProject(projectId)
+    if (!ok) {
+      return Promise.reject(
+        new Error(`Project ${projectId} not found or cannot delete inbox`),
+      )
+    }
+    return Promise.resolve()
+  },
+
   listTaskReminders: (taskId) =>
     Promise.resolve(reminderRepo.listTaskReminders(taskId)),
 
