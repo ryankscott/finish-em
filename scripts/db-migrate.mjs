@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import Database from 'better-sqlite3'
+import { Database } from 'bun:sqlite'
 
 const cwd = process.cwd()
 const dbPath = path.resolve(process.env.TODO_DB_PATH ?? './data/todo.db')
@@ -42,7 +42,7 @@ try {
       continue
     }
 
-    const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8')
+    const sql = await Bun.file(path.join(migrationsDir, file)).text()
     const now = new Date().toISOString()
 
     db.exec('BEGIN')

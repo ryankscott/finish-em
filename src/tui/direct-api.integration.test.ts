@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import { randomUUID } from 'node:crypto'
 import os from 'node:os'
 import path from 'node:path'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test'
 
 import { resetDbForTests } from '@/server/db/client'
 import { createDirectApi } from '@/tui/direct-api'

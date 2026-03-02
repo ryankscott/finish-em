@@ -102,7 +102,23 @@ function parseDatePhrase(phrase: string): string | null {
 }
 
 // Known token prefixes used to delimit multi-word project names and notes
-const TOKEN_PREFIXES = ["due:", "scheduled:", "recurs:", "project:", "parent:", "notes:"];
+const TOKEN_PREFIXES = [
+	"due:",
+	"scheduled:",
+	"sch:",
+	"recurs:",
+	"rec:",
+	"recurrence:",
+	"project:",
+	"proj:",
+	"parent:",
+	"notes:",
+	"🚩",
+	"🔁",
+	"🗓",
+	"⏰",
+	"📁",
+];
 
 /**
  * Extracts a colon-delimited token value from `input` starting at `startIndex`
@@ -148,30 +164,36 @@ export function parseTaskEditInput(
 
 	let working = input.trim();
 
-	// --- priority: p1–p4 ---
-	const priorityMatch = working.match(/\bp([1-4])\b/i);
+	// --- priority: p1–p4, priority:1, prio:1, 🚩1 ---
+	const priorityMatch = working.match(
+		/(?:\bp([1-4])\b|\bpriority\s*:\s*p?([1-4])\b|\bprio\s*:\s*p?([1-4])\b|🚩\s*([1-4]))/i,
+	);
 	if (priorityMatch) {
-		patch.priority = Number(priorityMatch[1]) as Priority;
+		const value = priorityMatch[1] ?? priorityMatch[2] ?? priorityMatch[3] ?? priorityMatch[4];
+		patch.priority = Number(value) as Priority;
 		working = working.replace(priorityMatch[0], "").replace(/\s{2,}/g, " ").trim();
 	}
 
-	// --- recurs:<preset> ---
-	const recursMatch = working.match(/\brecurs:([\w_]+)/i);
+	// --- recurs:<preset>, rec:<preset>, recurrence:<preset>, 🔁 <preset> ---
+	const recursMatch = working.match(
+		/(?:\brecurs:\s*([\w_]+)|\brec:\s*([\w_]+)|\brecurrence:\s*([\w_]+)|🔁\s*([\w_]+))/i,
+	);
 	if (recursMatch) {
-		const presetKey = recursMatch[1].toLowerCase();
+		const rawPreset = recursMatch[1] ?? recursMatch[2] ?? recursMatch[3] ?? recursMatch[4];
+		const presetKey = rawPreset.toLowerCase();
 		if (presetKey === "none" || presetKey === "never" || presetKey === "clear") {
 			patch.recurrencePreset = null;
 			patch.recurrenceRRule = null;
 		} else if (KNOWN_PRESETS[presetKey]) {
 			patch.recurrencePreset = KNOWN_PRESETS[presetKey];
 		} else {
-			warnings.push(`Unknown recurrence preset "${recursMatch[1]}". Use: daily, weekly, monthly, yearly, every_weekday, none`);
+			warnings.push(`Unknown recurrence preset "${rawPreset}". Use: daily, weekly, monthly, yearly, every_weekday, none`);
 		}
 		working = working.replace(recursMatch[0], "").replace(/\s{2,}/g, " ").trim();
 	}
 
-	// --- due:<datePhrase> ---
-	const dueMatch = working.match(/\bdue:/i);
+	// --- due:<datePhrase>, ⏰ <datePhrase> ---
+	const dueMatch = working.match(/(?:\bdue:|⏰\s*)/i);
 	if (dueMatch && dueMatch.index !== undefined) {
 		const valueStart = dueMatch.index + dueMatch[0].length;
 		const [phrase, end] = extractTokenValue(working, valueStart);
@@ -187,8 +209,8 @@ export function parseTaskEditInput(
 		working = (working.slice(0, dueMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
 	}
 
-	// --- scheduled:<datePhrase> ---
-	const scheduledMatch = working.match(/\bscheduled:/i);
+	// --- scheduled:<datePhrase>, sch:<datePhrase>, 🗓 <datePhrase> ---
+	const scheduledMatch = working.match(/(?:\bscheduled:|\bsch:|🗓\s*)/i);
 	if (scheduledMatch && scheduledMatch.index !== undefined) {
 		const valueStart = scheduledMatch.index + scheduledMatch[0].length;
 		const [phrase, end] = extractTokenValue(working, valueStart);
@@ -201,8 +223,8 @@ export function parseTaskEditInput(
 		working = (working.slice(0, scheduledMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
 	}
 
-	// --- project:<name> ---
-	const projectMatch = working.match(/\bproject:/i);
+	// --- project:<name>, proj:<name>, 📁 <name> ---
+	const projectMatch = working.match(/(?:\bproject:|\bproj:|📁\s*)/i);
 	if (projectMatch && projectMatch.index !== undefined) {
 		const valueStart = projectMatch.index + projectMatch[0].length;
 		const [name] = extractTokenValue(working, valueStart);
@@ -277,22 +299,22 @@ export function serializeTaskToEditInput(
 	const parts: string[] = [title];
 
 	if (opts.projectName) {
-		parts.push(`project:${opts.projectName}`);
+		parts.push(`📁 ${opts.projectName}`);
 	}
 	if (opts.parentTaskId !== undefined && opts.parentTaskId !== null) {
 		parts.push(`parent:${opts.parentTaskId}`);
 	}
 	if (opts.priority && opts.priority !== 4) {
-		parts.push(`p${opts.priority}`);
+		parts.push(`🚩${opts.priority}`);
 	}
 	if (opts.dueAt) {
-		parts.push(`due:${format(parseISO(opts.dueAt), "yyyy-MM-dd")}`);
+		parts.push(`⏰ ${format(parseISO(opts.dueAt), "yyyy-MM-dd")}`);
 	}
 	if (opts.scheduledAt) {
-		parts.push(`scheduled:${format(parseISO(opts.scheduledAt), "yyyy-MM-dd")}`);
+		parts.push(`🗓 ${format(parseISO(opts.scheduledAt), "yyyy-MM-dd")}`);
 	}
 	if (opts.recurrencePreset) {
-		parts.push(`recurs:${opts.recurrencePreset}`);
+		parts.push(`🔁 ${opts.recurrencePreset}`);
 	}
 	if (opts.notes !== undefined && opts.notes !== "") {
 		parts.push(`notes:${opts.notes}`);

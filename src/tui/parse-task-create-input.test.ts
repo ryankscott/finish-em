@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 
 import type { Project } from "../server/types";
 import { parseTaskCreateInput } from "./parse-task-create-input";
@@ -53,5 +53,32 @@ describe("parseTaskCreateInput", () => {
 		expect(result.errors.some((error) => error.includes("priority"))).toBe(true);
 		expect(result.errors.some((error) => error.includes("due date"))).toBe(true);
 		expect(result.errors.some((error) => error.includes("parent"))).toBe(true);
+	});
+
+	it("parses emoji and alias tokens consistently with edit mode", () => {
+		const result = parseTaskCreateInput(
+			"Ship docs 📁 Work 🚩1 ⏰ today 🗓 tomorrow 🔁 weekly",
+			PROJECTS,
+		);
+		expect(result.usedTokens).toBe(true);
+		expect(result.errors).toHaveLength(0);
+		expect(result.input.title).toBe("Ship docs");
+		expect(result.input.projectId).toBe(2);
+		expect(result.input.priority).toBe(1);
+		expect(result.input.dueAt).toBeTruthy();
+		expect(result.input.scheduledAt).toBeTruthy();
+		expect(result.input.recurrencePreset).toBe("weekly");
+	});
+
+	it("parses proj:/prio:/sch:/rec: aliases", () => {
+		const result = parseTaskCreateInput(
+			"title:Ship docs proj:Work prio:2 sch:tomorrow rec:daily",
+			PROJECTS,
+		);
+		expect(result.errors).toHaveLength(0);
+		expect(result.input.projectId).toBe(2);
+		expect(result.input.priority).toBe(2);
+		expect(result.input.scheduledAt).toBeTruthy();
+		expect(result.input.recurrencePreset).toBe("daily");
 	});
 });

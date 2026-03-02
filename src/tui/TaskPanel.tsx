@@ -54,9 +54,9 @@ const priorityColor = (priority: Priority): string => {
 		case 2:
 			return "yellow";
 		case 3:
-			return "blue";
+			return "green";
 		default:
-			return "gray";
+			return "blue";
 	}
 };
 
@@ -79,7 +79,7 @@ const isOverdueDueDate = (dueAt: string): boolean => {
 
 const formatScheduledDate = (scheduledAt: string): string => {
 	try {
-		return format(parseISO(scheduledAt), "MMM dd, HH:mm");
+		return format(parseISO(scheduledAt), "MMM dd");
 	} catch {
 		return scheduledAt;
 	}
@@ -90,37 +90,13 @@ const recurrenceLabel = (preset: string | null): string => {
 	return preset.replace(/_/g, " ");
 };
 
-type TaskCluster = { startIndex: number; rows: TaskPanelRow[] };
-
-function buildClusters(rows: TaskPanelRow[]): TaskCluster[] {
-	const clusters: TaskCluster[] = [];
-	let current: TaskPanelRow[] = [];
-	let startIndex = 0;
-
-	for (let i = 0; i < rows.length; i++) {
-		const row = rows[i];
-		if (row.depth === 0) {
-			if (current.length > 0) {
-				clusters.push({ startIndex, rows: current });
-			}
-			startIndex = i;
-			current = [row];
-		} else {
-			current.push(row);
-		}
-	}
-	if (current.length > 0) {
-		clusters.push({ startIndex, rows: current });
-	}
-	return clusters;
-}
-
 type TaskRowItemProps = {
 	task: Task;
 	flatIndex: number;
 	selectedIndex: number;
 	focused: boolean;
 	expandedTaskId?: number | null;
+	hasSubtasks?: boolean;
 	projectMap?: Record<number, Project>;
 	isSubtask?: boolean;
 	isLastSubtask?: boolean;
@@ -132,28 +108,36 @@ const TaskRowItem = ({
 	selectedIndex,
 	focused,
 	expandedTaskId,
+	hasSubtasks = false,
 	projectMap,
 	isSubtask = false,
 	isLastSubtask = false,
 }: TaskRowItemProps) => {
 	const isSelected = flatIndex === selectedIndex;
-	const isExpanded = expandedTaskId === task.id;
+	const isExpanded = hasSubtasks && expandedTaskId === task.id;
 	const isCompleted = task.status === "completed";
 	const isOverdue = task.dueAt ? isOverdueDueDate(task.dueAt) : false;
 	const pColor = priorityColor(task.priority);
 	const project = projectMap?.[task.projectId];
-	const titleColor = isSelected && focused ? "cyan" : isSelected ? "blueBright" : undefined;
+	const titleColor =
+		isSelected && focused ? "cyan" : isSelected ? "blueBright" : undefined;
 	const circle = isCompleted ? "✓" : "○";
+	const recurrenceLabelText = task.recurrencePreset
+		? `🔁 ${recurrenceLabel(task.recurrencePreset)}`
+		: "🔁 -";
+	const scheduledLabel = task.scheduledAt
+		? `🗓 ${formatScheduledDate(task.scheduledAt)}`
+		: "🗓 -";
+	const dueLabel = task.dueAt ? `⏰ ${formatDueDate(task.dueAt)}` : "⏰ -";
+	const projectLabel = project ? `📁 ${project.name}` : "📁 -";
 
 	return (
 		<Box flexDirection="column">
 			<Box>
-				{isSubtask && (
-					<Text dimColor>{isLastSubtask ? "  └─ " : "  ├─ "}</Text>
-				)}
+				{isSubtask && <Text dimColor>{isLastSubtask ? "  └─ " : "  ├─ "}</Text>}
 				<Box width={2}>
 					<Text color={isSelected && focused ? "cyan" : undefined}>
-						{isExpanded ? "▼" : isSelected ? "❯" : " "}
+						{hasSubtasks ? (isExpanded ? "▼" : isSelected ? "❯" : " ") : " "}
 					</Text>
 				</Box>
 				<Box width={2}>
@@ -169,38 +153,33 @@ const TaskRowItem = ({
 						{toDisplayString(task.title)}
 					</Text>
 				</Box>
-				{task.dueAt && (
-					<Box marginLeft={1}>
-						<Text color={isOverdue && !isCompleted ? "red" : undefined} dimColor={!isOverdue || isCompleted}>
-							{formatDueDate(task.dueAt)}
+				<Box marginLeft={1}>
+					<Text
+						dimColor={isCompleted}
+					>
+						<Text color={pColor}>🚩{task.priority}</Text>
+						<Text dimColor={isCompleted}>{"  ·  "}</Text>
+						<Text dimColor={isCompleted}>{recurrenceLabelText}</Text>
+						<Text dimColor={isCompleted}>{"  ·  "}</Text>
+						<Text dimColor={isCompleted}>{scheduledLabel}</Text>
+						<Text dimColor={isCompleted}>{"  ·  "}</Text>
+						<Text
+							color={isOverdue && !isCompleted ? "red" : undefined}
+							dimColor={isCompleted || !isOverdue}
+						>
+							{dueLabel}
 						</Text>
-					</Box>
-				)}
+						<Text dimColor={isCompleted}>{"  ·  "}</Text>
+						<Text dimColor={isCompleted}>{projectLabel}</Text>
+					</Text>
+				</Box>
 			</Box>
 			{isExpanded && (
-				<Box flexDirection="column" marginTop={1} marginLeft={isSubtask ? 8 : 4}>
-					<Box>
-						<Text>
-							Priority:{" "}
-							<Text color={pColor} bold>
-								{task.priority}
-							</Text>
-						</Text>
-					</Box>
-					<Box>
-						<Text>
-							Recurs:{" "}
-							<Text bold>{recurrenceLabel(task.recurrencePreset)}</Text>
-						</Text>
-					</Box>
-					{task.scheduledAt && (
-						<Box>
-							<Text>
-								Scheduled:{" "}
-								<Text bold>{formatScheduledDate(task.scheduledAt)}</Text>
-							</Text>
-						</Box>
-					)}
+				<Box
+					flexDirection="column"
+					marginTop={1}
+					marginLeft={isSubtask ? 8 : 4}
+				>
 					{task.notes && (
 						<Box flexDirection="column">
 							<Text dimColor>Notes:</Text>
@@ -210,8 +189,7 @@ const TaskRowItem = ({
 					{project && (
 						<Box width={"100%"} justifyContent="flex-end">
 							<Text backgroundColor={project.color}>
-								Project:{" "}
-								<Text color={"brightwhite"}> {project.name} </Text>
+								Project: <Text color={"brightwhite"}> {project.name} </Text>
 							</Text>
 						</Box>
 					)}
@@ -227,6 +205,7 @@ type TaskPanelProps = {
 	focused: boolean;
 	selectedIndex: number;
 	expandedTaskId?: number | null;
+	expandableTaskIds?: Set<number>;
 	projectMap?: Record<number, Project>;
 	activeProject?: Project | null;
 };
@@ -237,11 +216,11 @@ export const TaskPanel = ({
 	focused,
 	selectedIndex,
 	expandedTaskId,
+	expandableTaskIds,
 	projectMap,
 	activeProject,
 }: TaskPanelProps) => {
 	const borderColor = focused ? "magentaBright" : "gray";
-	const clusters = buildClusters(rows);
 
 	return (
 		<Box
@@ -282,47 +261,23 @@ export const TaskPanel = ({
 			{rows.length === 0 ? (
 				<Text dimColor>No tasks</Text>
 			) : (
-				clusters.map((cluster) => {
-					const parentRow = cluster.rows[0];
-					const childRows = cluster.rows.slice(1);
-					const isClusterSelected = cluster.rows.some(
-						(_, i) => cluster.startIndex + i === selectedIndex,
-					);
-					const clusterBorderColor =
-						isClusterSelected && focused ? "cyan" : "gray";
-
-					return (
-						<Box
-							key={parentRow.task.id}
-							flexDirection="column"
-							paddingX={1}
-							borderStyle="round"
-							borderColor={clusterBorderColor}
-						>
-							<TaskRowItem
-								task={parentRow.task}
-								flatIndex={cluster.startIndex}
-								selectedIndex={selectedIndex}
-								focused={focused}
-								expandedTaskId={expandedTaskId}
-								projectMap={projectMap}
-							/>
-							{childRows.map((childRow, i) => (
-								<TaskRowItem
-									key={childRow.task.id}
-									task={childRow.task}
-									flatIndex={cluster.startIndex + 1 + i}
-									selectedIndex={selectedIndex}
-									focused={focused}
-									expandedTaskId={expandedTaskId}
-									projectMap={projectMap}
-									isSubtask
-									isLastSubtask={i === childRows.length - 1}
-								/>
-							))}
-						</Box>
-					);
-				})
+				rows.map((row, index) => (
+					<TaskRowItem
+						key={row.task.id}
+						task={row.task}
+						flatIndex={index}
+						selectedIndex={selectedIndex}
+						focused={focused}
+						expandedTaskId={expandedTaskId}
+						hasSubtasks={expandableTaskIds?.has(row.task.id)}
+						projectMap={projectMap}
+						isSubtask={row.depth === 1}
+						isLastSubtask={
+							row.depth === 1 &&
+							(index === rows.length - 1 || rows[index + 1]?.depth !== 1)
+						}
+					/>
+				))
 			)}
 		</Box>
 	);

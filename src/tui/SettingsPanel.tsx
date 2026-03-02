@@ -3,21 +3,7 @@ import { Box, Text } from "ink";
 
 import type { AppSettings } from "../server/types";
 
-const DEFAULT_LMSTUDIO_BASE_URL = "http://localhost:1234/v1";
-const DEFAULT_OPENAI_BASE_URL = "https://api.openai.com/v1";
-const DEFAULT_GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
-const DEFAULT_MODEL_BY_PROVIDER = {
-	gemini: "gemini-2.5-flash",
-	openai: "gpt-4o-mini",
-	lmstudio: "gpt-4o-mini",
-} as const;
-
-export type SettingsField =
-	| "timezone"
-	| "aiProvider"
-	| "aiBaseUrl"
-	| "aiModel"
-	| "aiApiKey";
+export type SettingsField = "timezone";
 
 export type SettingsRow = {
 	field: SettingsField;
@@ -29,58 +15,12 @@ export type SettingsRow = {
 export const buildSettingsRows = (
 	settings: AppSettings | null,
 ): SettingsRow[] => {
-	const provider = settings?.aiProvider ?? "gemini";
-	const providerLabel =
-		provider === "gemini"
-			? "Gemini"
-			: provider === "openai"
-				? "OpenAI"
-				: "LM Studio (local)";
-	const defaultBaseUrl =
-		provider === "lmstudio"
-			? DEFAULT_LMSTUDIO_BASE_URL
-			: provider === "openai"
-				? DEFAULT_OPENAI_BASE_URL
-				: DEFAULT_GEMINI_BASE_URL;
-	const baseUrl = settings?.aiBaseUrl ?? defaultBaseUrl;
-	const model = settings?.aiModel ?? DEFAULT_MODEL_BY_PROVIDER[provider];
-	const keyStatus =
-		provider === "lmstudio"
-			? "Not required"
-			: settings?.hasAiApiKey
-				? (settings.aiApiKeyMasked ?? "Configured")
-				: "Not configured";
-
 	return [
 		{
 			field: "timezone",
 			label: "Timezone",
 			value: settings?.timezone ?? "Loading...",
 			hint: "Press Enter or e to edit",
-		},
-		{
-			field: "aiProvider",
-			label: "Assistant provider",
-			value: providerLabel,
-			hint: "Use /provider gemini|openai|lmstudio",
-		},
-		{
-			field: "aiBaseUrl",
-			label: "Assistant base URL",
-			value: baseUrl,
-			hint: "Press Enter or e to edit; empty clears",
-		},
-		{
-			field: "aiModel",
-			label: "Assistant model",
-			value: model,
-			hint: "Press Enter or e to edit; empty clears",
-		},
-		{
-			field: "aiApiKey",
-			label: "Assistant API key",
-			value: keyStatus,
-			hint: "Press Enter or e to set; x clears",
 		},
 	];
 };

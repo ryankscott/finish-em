@@ -3,33 +3,31 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "22.x"
+    "bun": ">=1.2.0"
   },
   "scripts": {
-    "dev": "tsx --watch src/tui/main.tsx",
-    "build": "pnpm tui:build",
-    "tui": "tsx src/tui/main.tsx",
-    "tui:dev": "tsx --watch src/tui/main.tsx",
-    "mcp": "tsx src/tui/main.tsx --headless-mcp",
+    "dev": "bun --watch src/tui/main.tsx",
+    "build": "bun run tui:build:all",
+    "tui": "bun src/tui/main.tsx",
+    "tui:dev": "bun --watch src/tui/main.tsx",
     "tui:build": "bun src/tui/build.ts bun-darwin-arm64 dist/finish-em",
     "tui:build:x64": "bun src/tui/build.ts bun-darwin-x64 dist/finish-em-x64",
-    "test": "vitest run",
+    "tui:build:all": "bun run tui:build && bun run tui:build:x64",
+    "test": "bun test",
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:migrate": "node scripts/db-migrate.mjs",
+    "db:migrate": "bun scripts/db-migrate.mjs",
     "db:drizzle-migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.30",
     "@ai-sdk/openai": "^3.0.30",
     "@ai-sdk/openai-compatible": "^2.0.30",
-    "@modelcontextprotocol/sdk": "^1.17.0",
     "ai": "^6.0.94",
-    "better-sqlite3": "^11.9.1",
     "chrono-node": "^2.8.4",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.44.7",
@@ -44,15 +42,9 @@
     "@biomejs/biome": "2.2.4",
     "@types/node": "^22.10.2",
     "@types/react": "^19.2.0",
+    "bun-types": "^1.2.22",
     "drizzle-kit": "^0.31.5",
-    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vite": "^7.1.7",
-    "vitest": "^3.0.5"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "better-sqlite3"
-    ]
+    "vite": "^7.1.7"
   }
 }

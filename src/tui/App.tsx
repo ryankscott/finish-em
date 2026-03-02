@@ -11,19 +11,22 @@ import { Box, Text, useInput, useStdout } from "ink";
 import TextInput from "ink-text-input";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { AppSettings, AssistantMessage, Goal, Project, Reminder, Task } from "../server/types";
-import {
-	getMainPaneTerminalWidth,
-	toggleAssistantVisibility,
-} from "./assistant-layout";
-import { AssistantPanel } from "./AssistantPanel";
-import { parseAssistantSettingsCommand } from "./assistant-commands";
-import type { createApi } from "./api";
+import type {
+	AppSettings,
+	Goal,
+	Project,
+	Reminder,
+	Task,
+} from "../server/types";
+import type { ApiClient } from "./api-client";
 import {
 	parseTaskEditInput,
 	serializeTaskToEditInput,
 } from "./parse-task-input";
-import { getProjectCreateAutocomplete, getTaskCreateAutocomplete } from "./input-autocomplete";
+import {
+	getProjectCreateAutocomplete,
+	getTaskCreateAutocomplete,
+} from "./input-autocomplete";
 import { openUrl } from "../lib/open-url";
 import { normalizeBareUrlsInText, toDisplaySegments } from "../lib/task-links";
 import {
@@ -50,8 +53,14 @@ import {
 	UpcomingPanel,
 } from "./UpcomingPanel";
 
-type View = "inbox" | "today" | "upcoming" | "completed" | "project" | "settings";
-type FocusArea = "sidebar" | "tasks" | "assistant";
+type View =
+	| "inbox"
+	| "today"
+	| "upcoming"
+	| "completed"
+	| "project"
+	| "settings";
+type FocusArea = "sidebar" | "tasks";
 type InputMode =
 	| "none"
 	| "quickAdd"
@@ -62,10 +71,7 @@ type InputMode =
 	| "editTask"
 	| "editSetting"
 	| "addGoal"
-	| "assistantChat"
 	| "linkPicker";
-
-type ApiClient = ReturnType<typeof createApi>;
 
 type AppProps = {
 	api: ApiClient;
@@ -76,8 +82,18 @@ const SIDEBAR_WIDTH = 28;
 const AUTOCOMPLETE_TOKEN_PATTERN = /^([a-z_]+:)$/i;
 const TOAST_TTL_MS = 5000;
 const MAX_TOASTS = 4;
+const EMPTY_VIEW_COUNTS = {
+	today: 0,
+	inbox: 0,
+	upcoming: 0,
+	completed: 0,
+};
 
-export function shouldStartProjectEdit(input: string, view: View, activeProjectId: number | null) {
+export function shouldStartProjectEdit(
+	input: string,
+	view: View,
+	activeProjectId: number | null,
+) {
 	return input === "e" && view === "project" && activeProjectId !== null;
 }
 
@@ -117,7 +133,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [loading, setLoading] = useState(false);
 	const [statusText, setStatusText] = useState("Ready");
 	const [errorText, setErrorText] = useState<string | null>(null);
-	const [toasts, setToasts] = useState<(ToastMessage & { expiresAt: number })[]>([]);
+	const [toasts, setToasts] = useState<
+		(ToastMessage & { expiresAt: number })[]
+	>([]);
 	const [inputMode, setInputMode] = useState<InputMode>("none");
 	const [inputValue, setInputValue] = useState("");
 	const [inputResetVersion, setInputResetVersion] = useState(0);
@@ -126,13 +144,11 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [showDashboard, setShowDashboard] = useState(true);
 	const [showHelp, setShowHelp] = useState(false);
 	const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
-	const [showAssistant, setShowAssistant] = useState(false);
-	const [assistantMessages, setAssistantMessages] = useState<AssistantMessage[]>([]);
-	const [isAssistantThinking, setIsAssistantThinking] = useState(false);
 	const [settings, setSettings] = useState<AppSettings | null>(null);
 	const [settingsIndex, setSettingsIndex] = useState(0);
+	const [viewCounts, setViewCounts] = useState(EMPTY_VIEW_COUNTS);
 	const [editingSettingField, setEditingSettingField] = useState<
-		"timezone" | "aiProvider" | "aiBaseUrl" | "aiModel" | "aiApiKey" | null
+		"timezone" | null
 	>(null);
 	const [linkPickerLinks, setLinkPickerLinks] = useState<
 		{ url: string; displayLabel: string }[] | null
@@ -153,6 +169,15 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [view, tasks, anchorDate, viewMode]);
 
 	const taskRows = useMemo(() => buildTaskPanelRows(tasks), [tasks]);
+	const expandableTaskIds = useMemo(() => {
+		const ids = new Set<number>();
+		for (const row of taskRows) {
+			if (row.depth === 1 && row.task.parentTaskId !== null) {
+				ids.add(row.task.parentTaskId);
+			}
+		}
+		return ids;
+	}, [taskRows]);
 	const currentColumnRows = useMemo(
 		() => buildColumnTaskRows(columns[columnIndex]?.tasks ?? []),
 		[columns, columnIndex],
@@ -167,13 +192,12 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [view, currentColumnRows, taskIndex, taskRows]);
 
 	const selectedReminder = reminders[0] ?? null;
+	const selectedTaskHasSubtasks = selectedTask
+		? expandableTaskIds.has(selectedTask.id)
+		: false;
 	const settingsRows = useMemo(() => buildSettingsRows(settings), [settings]);
-	const selectedSettingsRow = settingsRows[settingsIndex] ?? settingsRows[0] ?? null;
-	const cycleProvider = useCallback((provider: "gemini" | "openai" | "lmstudio") => {
-		if (provider === "gemini") return "openai";
-		if (provider === "openai") return "lmstudio";
-		return "gemini";
-	}, []);
+	const selectedSettingsRow =
+		settingsRows[settingsIndex] ?? settingsRows[0] ?? null;
 	const inputAutocomplete = useMemo(() => {
 		if (inputMode === "createProject" || inputMode === "editProject") {
 			return getProjectCreateAutocomplete(inputValue);
@@ -184,25 +208,21 @@ export const App = ({ api, onQuit }: AppProps) => {
 		return null;
 	}, [inputMode, inputValue, projects]);
 
-	const pushToast = useCallback((text: string, tone: StatusMessageTone = "info") => {
-		const now = Date.now();
-		const toast: ToastMessage & { expiresAt: number } = {
-			id: now + Math.floor(Math.random() * 1000),
-			text,
-			tone,
-			expiresAt: now + TOAST_TTL_MS,
-		};
-		setToasts((current) => [...current, toast].slice(-MAX_TOASTS));
-	}, []);
+	const pushToast = useCallback(
+		(text: string, tone: StatusMessageTone = "info") => {
+			const now = Date.now();
+			const toast: ToastMessage & { expiresAt: number } = {
+				id: now + Math.floor(Math.random() * 1000),
+				text,
+				tone,
+				expiresAt: now + TOAST_TTL_MS,
+			};
+			setToasts((current) => [...current, toast].slice(-MAX_TOASTS));
+		},
+		[],
+	);
 
-	const canDockAssistant = terminalWidth >= 150;
-	const isAssistantOverlay = showAssistant && !canDockAssistant;
-	const mainPaneTerminalWidth = getMainPaneTerminalWidth({
-		terminalWidth,
-		showAssistant,
-		canDockAssistant,
-	});
-	const contentPaneTerminalWidth = Math.max(mainPaneTerminalWidth - SIDEBAR_WIDTH, 40);
+	const contentPaneTerminalWidth = Math.max(terminalWidth - SIDEBAR_WIDTH, 40);
 
 	const goalPeriodType =
 		viewMode === "day" ? ("daily" as const) : ("weekly" as const);
@@ -253,6 +273,47 @@ export const App = ({ api, onQuit }: AppProps) => {
 			const now = new Date();
 			const todayStart = startOfDay(now).toISOString();
 			const todayEnd = endOfDay(now).toISOString();
+			const colStart = columnStartDate(anchorDate, viewMode);
+			const rangeEnd = addDays(colStart, daysToShow(viewMode) - 1);
+			const upcomingFrom = startOfDay(colStart).toISOString();
+			const upcomingTo = endOfDay(rangeEnd).toISOString();
+
+			const [
+				todayCountTasks,
+				upcomingRangeTasks,
+				upcomingOverdueTasks,
+				completedTasks,
+				inboxTasks,
+			] = await Promise.all([
+				api.listTasks({
+					status: "open",
+					from: todayStart,
+					to: todayEnd,
+				}),
+				api.listTasks({
+					status: "open",
+					from: upcomingFrom,
+					to: upcomingTo,
+				}),
+				api.listTasks({
+					status: "open",
+					to: upcomingFrom,
+				}),
+				api.listTasks({ status: "completed" }),
+				resolvedInbox
+					? api.listTasks({ projectId: resolvedInbox.id, status: "open" })
+					: Promise.resolve([]),
+			]);
+			setViewCounts({
+				today: todayCountTasks.length,
+				inbox: inboxTasks.length,
+				upcoming:
+					upcomingRangeTasks.length +
+					upcomingOverdueTasks.filter(
+						(t) => t.dueAt && parseISO(t.dueAt) < startOfDay(colStart),
+					).length,
+				completed: completedTasks.length,
+			});
 
 			if (view === "settings") {
 				setTasks([]);
@@ -263,42 +324,20 @@ export const App = ({ api, onQuit }: AppProps) => {
 					setStatusText("Inbox project not found");
 					return;
 				}
-				setTasks(
-					await api.listTasks({ projectId: resolvedInbox.id, status: "open" }),
-				);
+				setTasks(inboxTasks);
 				setStatusText("Inbox");
 			} else if (view === "today") {
-				setTasks(
-					await api.listTasks({
-						status: "open",
-						from: todayStart,
-						to: todayEnd,
-					}),
-				);
+				setTasks(todayCountTasks);
 				setStatusText("Today");
 			} else if (view === "upcoming") {
-				const colStart = columnStartDate(anchorDate, viewMode);
-				const count = daysToShow(viewMode);
-				const rangeEnd = addDays(colStart, count - 1);
-				const [taskData, overdueData, goalData] = await Promise.all([
-					api.listTasks({
-						status: "open",
-						from: startOfDay(colStart).toISOString(),
-						to: endOfDay(rangeEnd).toISOString(),
-					}),
-					api.listTasks({
-						status: "open",
-						to: startOfDay(colStart).toISOString(),
-					}),
-					api.listGoals({
-						periodType: goalPeriodType,
-						periodStart: goalPeriodStart,
-					}),
-				]);
-				const overdueFiltered = overdueData.filter(
+				const goalData = await api.listGoals({
+					periodType: goalPeriodType,
+					periodStart: goalPeriodStart,
+				});
+				const overdueFiltered = upcomingOverdueTasks.filter(
 					(t) => t.dueAt && parseISO(t.dueAt) < startOfDay(colStart),
 				);
-				setTasks([...overdueFiltered, ...taskData]);
+				setTasks([...overdueFiltered, ...upcomingRangeTasks]);
 				setGoals(goalData);
 				setStatusText(
 					`Upcoming · ${format(colStart, "d MMM")} – ${format(rangeEnd, "d MMM")}`,
@@ -315,13 +354,14 @@ export const App = ({ api, onQuit }: AppProps) => {
 					setStatusText(proj?.name ?? "Project");
 				}
 			} else {
-				setTasks(await api.listTasks({ status: "completed" }));
+				setTasks(completedTasks);
 				setStatusText("Completed");
 			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			setErrorText(message);
 			setStatusText("Failed to load");
+			setViewCounts(EMPTY_VIEW_COUNTS);
 		} finally {
 			setLoading(false);
 		}
@@ -335,22 +375,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 		goalPeriodStart,
 	]);
 
-	const loadAssistant = useCallback(async () => {
-		try {
-			const state = await api.getAssistantState("tui");
-			setAssistantMessages(state.messages);
-		} catch {
-			// Assistant is non-critical — silently ignore load errors
-		}
-	}, [api]);
-
 	useEffect(() => {
 		void loadData();
 	}, [loadData]);
-
-	useEffect(() => {
-		void loadAssistant();
-	}, [loadAssistant]);
 
 	useEffect(() => {
 		setTaskIndex((current) => {
@@ -364,6 +391,12 @@ export const App = ({ api, onQuit }: AppProps) => {
 	}, [view, currentColumnRows.length, taskRows.length]);
 
 	useEffect(() => {
+		if (expandedTaskId !== null && !expandableTaskIds.has(expandedTaskId)) {
+			setExpandedTaskId(null);
+		}
+	}, [expandedTaskId, expandableTaskIds]);
+
+	useEffect(() => {
 		setSettingsIndex((current) => {
 			if (settingsRows.length === 0) {
 				return 0;
@@ -371,18 +404,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 			return Math.min(current, settingsRows.length - 1);
 		});
 	}, [settingsRows.length]);
-
-	useEffect(() => {
-		if (!showAssistant && focusArea === "assistant") {
-			setFocusArea("tasks");
-		}
-	}, [focusArea, showAssistant]);
-
-	useEffect(() => {
-		if (isAssistantOverlay && focusArea === "tasks") {
-			setFocusArea("assistant");
-		}
-	}, [focusArea, isAssistantOverlay]);
 
 	useEffect(() => {
 		const loadReminders = async () => {
@@ -402,9 +423,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 	useEffect(() => {
 		const timer = setInterval(() => {
 			const now = Date.now();
-			setToasts((current) =>
-				current.filter((toast) => toast.expiresAt > now),
-			);
+			setToasts((current) => current.filter((toast) => toast.expiresAt > now));
 		}, 400);
 		return () => clearInterval(timer);
 	}, []);
@@ -424,72 +443,12 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setLoading(true);
 		setErrorText(null);
 		try {
-			if (inputMode === "assistantChat") {
-				setInputValue("");
-				const command = parseAssistantSettingsCommand(value);
-				if (command) {
-					if (command.type === "set_provider") {
-						await api.updateSettings({ aiProvider: command.value });
-						setStatusText(`Assistant provider set to ${command.value}`);
-					} else if (command.type === "set_key") {
-						await api.updateSettings({ aiApiKey: command.value });
-						setStatusText("Assistant API key updated");
-					} else if (command.type === "set_base") {
-						await api.updateSettings({ aiBaseUrl: command.value });
-						setStatusText("Assistant base URL updated");
-					} else if (command.type === "set_model") {
-						await api.updateSettings({ aiModel: command.value });
-						setStatusText("Assistant model updated");
-					} else {
-						await api.updateSettings({ clearAiApiKey: true });
-						setStatusText("Assistant API key cleared");
-					}
-				} else {
-					const nowIso = new Date().toISOString();
-					const optimisticUserMessageId = -Date.now();
-					const optimisticUserMessage: AssistantMessage = {
-						id: optimisticUserMessageId,
-						surface: "tui",
-						role: "user",
-						content: value,
-						actions: [],
-						createdAt: nowIso,
-						updatedAt: nowIso,
-					};
-					setAssistantMessages((current) => [...current, optimisticUserMessage]);
-
-					setIsAssistantThinking(true);
-					try {
-						await api.sendAssistantChat({
-							surface: "tui",
-							message: value,
-						});
-					} catch (error) {
-						setAssistantMessages((current) =>
-							current.filter((message) => message.id !== optimisticUserMessageId),
-						);
-						throw error;
-					} finally {
-						setIsAssistantThinking(false);
-					}
-					setStatusText("Assistant replied");
-				}
-				await loadAssistant();
-			} else if (inputMode === "editSetting") {
+			if (inputMode === "editSetting") {
 				if (!editingSettingField) {
 					setStatusText("No setting selected");
 				} else if (editingSettingField === "timezone") {
 					await api.updateSettings({ timezone: value });
 					setStatusText("Timezone updated");
-				} else if (editingSettingField === "aiBaseUrl") {
-					await api.updateSettings({ aiBaseUrl: value });
-					setStatusText("Assistant base URL updated");
-				} else if (editingSettingField === "aiModel") {
-					await api.updateSettings({ aiModel: value });
-					setStatusText("Assistant model updated");
-				} else if (editingSettingField === "aiApiKey") {
-					await api.updateSettings({ aiApiKey: value });
-					setStatusText("Assistant API key updated");
 				}
 				setSettings(await api.getSettings());
 				setEditingSettingField(null);
@@ -508,7 +467,8 @@ export const App = ({ api, onQuit }: AppProps) => {
 							title,
 							projectId:
 								parsed.input.projectId ??
-								(projects.find((project) => project.isInbox)?.id ?? 1),
+								projects.find((project) => project.isInbox)?.id ??
+								1,
 							parentTaskId: parsed.input.parentTaskId,
 							notes,
 							priority: parsed.input.priority,
@@ -557,7 +517,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 						parsed.warnings.length > 0
 							? `Project created (warnings: ${parsed.warnings.join("; ")})`
 							: "Project created",
-						);
+					);
 				}
 			} else if (inputMode === "editProject") {
 				if (!activeProjectId) {
@@ -586,7 +546,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 				if (!selectedTask) {
 					setStatusText("No task selected");
 				} else {
-					const reminder = await api.createReminder(selectedTask.id, { remindAt: value });
+					const reminder = await api.createReminder(selectedTask.id, {
+						remindAt: value,
+					});
 					const reminderTime = (() => {
 						try {
 							return format(parseISO(reminder.remindAt), "MMM d, h:mm a");
@@ -631,9 +593,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 				setStatusText("Goal created");
 			}
 			closeInput();
-			if (inputMode !== "assistantChat") {
-				await loadData();
-			}
+			await loadData();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			setErrorText(message);
@@ -649,7 +609,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 		inputMode,
 		inputValue,
 		loadData,
-		loadAssistant,
 		activeProjectId,
 		projects,
 		selectedTask,
@@ -677,21 +636,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 			setLoading(false);
 		}
 	}, [api, loadData, selectedTask]);
-
-	const clearAssistantChat = useCallback(async () => {
-		setLoading(true);
-		setErrorText(null);
-		try {
-			await api.clearAssistantMessages("tui");
-			setAssistantMessages([]);
-			setStatusText("Assistant chat cleared");
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error);
-			setErrorText(message);
-		} finally {
-			setLoading(false);
-		}
-	}, [api]);
 
 	useInput((input: string, key: Key) => {
 		if (showHelp) {
@@ -771,11 +715,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		}
 
 		if (key.tab) {
-			const cycle: FocusArea[] = showAssistant
-				? isAssistantOverlay
-					? ["sidebar", "assistant"]
-					: ["sidebar", "tasks", "assistant"]
-				: ["sidebar", "tasks"];
+			const cycle: FocusArea[] = ["sidebar", "tasks"];
 			setFocusArea((current) => {
 				const currentIndex = cycle.indexOf(current);
 				const nextIndex = (currentIndex + 1) % cycle.length;
@@ -784,29 +724,8 @@ export const App = ({ api, onQuit }: AppProps) => {
 			return;
 		}
 
-		if (input === "\\") {
-			const nextState = toggleAssistantVisibility({
-				showAssistant,
-				canDockAssistant,
-				focusArea,
-			});
-			setShowAssistant(nextState.showAssistant);
-			setFocusArea(nextState.focusArea);
-			return;
-		}
-
 		if (input === "r") {
 			void loadData();
-			return;
-		}
-
-		if (input === "C") {
-			if (!showAssistant) {
-				setShowAssistant(true);
-			}
-			setInputMode("assistantChat");
-			setInputValue("");
-			setFocusArea("assistant");
 			return;
 		}
 
@@ -840,55 +759,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 					setSettingsIndex((current) => Math.max(current - 1, 0));
 					return;
 				}
-				if (input === "x" && selectedSettingsRow?.field === "aiApiKey") {
-					void (async () => {
-						setLoading(true);
-						setErrorText(null);
-						try {
-							await api.updateSettings({ clearAiApiKey: true });
-							setSettings(await api.getSettings());
-							setStatusText("Assistant API key cleared");
-						} catch (error) {
-							const message =
-								error instanceof Error ? error.message : String(error);
-							setErrorText(message);
-						} finally {
-							setLoading(false);
-						}
-					})();
-					return;
-				}
-				if ((input === " " || input === "e" || key.return) && selectedSettingsRow?.field === "aiProvider") {
-					void (async () => {
-						setLoading(true);
-						setErrorText(null);
-						try {
-							const currentProvider = settings?.aiProvider ?? "gemini";
-							const nextProvider = cycleProvider(currentProvider);
-							await api.updateSettings({ aiProvider: nextProvider });
-							setSettings(await api.getSettings());
-							setStatusText(`Assistant provider set to ${nextProvider}`);
-						} catch (error) {
-							const message =
-								error instanceof Error ? error.message : String(error);
-							setErrorText(message);
-						} finally {
-							setLoading(false);
-						}
-					})();
-					return;
-				}
 				if (input === "e" || key.return) {
 					if (!selectedSettingsRow) {
 						return;
 					}
 					setEditingSettingField(selectedSettingsRow.field);
 					setInputMode("editSetting");
-					setInputValue(
-						selectedSettingsRow.field === "aiApiKey"
-							? ""
-							: selectedSettingsRow.value,
-					);
+					setInputValue(selectedSettingsRow.value);
 					return;
 				}
 			}
@@ -930,13 +807,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 					setTaskIndex((c) => Math.max(c - 1, 0));
 					return;
 				}
-			}
-		}
-
-		if (focusArea === "assistant") {
-			if (input === "X") {
-				void clearAssistantChat();
-				return;
 			}
 		}
 
@@ -1046,7 +916,10 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 		if (input === " ") {
 			if (!selectedTask) return;
-			setExpandedTaskId(expandedTaskId === selectedTask.id ? null : selectedTask.id);
+			if (!selectedTaskHasSubtasks) return;
+			setExpandedTaskId(
+				expandedTaskId === selectedTask.id ? null : selectedTask.id,
+			);
 			return;
 		}
 
@@ -1099,7 +972,8 @@ export const App = ({ api, onQuit }: AppProps) => {
 			const notesSegments = toDisplaySegments(selectedTask.notes ?? "");
 			const links: { url: string; displayLabel: string }[] = [];
 			for (const s of [...titleSegments, ...notesSegments]) {
-				if (s.type === "link") links.push({ url: s.url, displayLabel: s.displayLabel });
+				if (s.type === "link")
+					links.push({ url: s.url, displayLabel: s.displayLabel });
 			}
 			if (links.length === 0) {
 				setStatusText("No link in task");
@@ -1110,7 +984,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 				setLinkPickerLinks(links);
 				setLinkPickerIndex(0);
 				setInputMode("linkPicker");
-				setStatusText(`Open link (1/${links.length}): ${links[0].displayLabel}  j/k  Enter=open Esc=cancel`);
+				setStatusText(
+					`Open link (1/${links.length}): ${links[0].displayLabel}  j/k  Enter=open Esc=cancel`,
+				);
 			}
 			return;
 		}
@@ -1145,8 +1021,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 	);
 
 	const isInputMode = inputMode !== "none";
-	const isBottomBarMode =
-		isInputMode && inputMode !== "assistantChat" && inputMode !== "linkPicker";
+	const isBottomBarMode = isInputMode && inputMode !== "linkPicker";
 	const isLinkPickerMode = inputMode === "linkPicker";
 
 	if (showDashboard) {
@@ -1164,62 +1039,41 @@ export const App = ({ api, onQuit }: AppProps) => {
 			<Box flexDirection="row" flexGrow={1}>
 				<Sidebar
 					items={sidebarItems}
+					viewCounts={viewCounts}
 					selectedIndex={sidebarIndex}
 					focused={focusArea === "sidebar"}
 					width={SIDEBAR_WIDTH}
 				/>
-				{isAssistantOverlay ? (
-					<AssistantPanel
-						focused={focusArea === "assistant"}
-						messages={assistantMessages}
-						isChatMode={inputMode === "assistantChat"}
-						chatInput={inputValue}
-						onChatInputChange={setInputValue}
-						isThinking={isAssistantThinking}
+				{view === "settings" ? (
+					<SettingsPanel
+						settings={settings}
+						rows={settingsRows}
+						selectedIndex={settingsIndex}
+						focused={focusArea === "tasks"}
+					/>
+				) : view === "upcoming" ? (
+					<UpcomingPanel
+						columns={columns}
+						goals={goals}
+						projectMap={projectMap}
+						viewMode={viewMode}
+						anchorDate={anchorDate}
+						focused={focusArea === "tasks"}
+						selectedColumnIndex={columnIndex}
+						selectedTaskIndex={taskIndex}
+						terminalWidth={contentPaneTerminalWidth}
 					/>
 				) : (
-					<>
-						{view === "settings" ? (
-							<SettingsPanel
-								settings={settings}
-								rows={settingsRows}
-								selectedIndex={settingsIndex}
-								focused={focusArea === "tasks"}
-							/>
-						) : view === "upcoming" ? (
-							<UpcomingPanel
-								columns={columns}
-								goals={goals}
-								projectMap={projectMap}
-								viewMode={viewMode}
-								anchorDate={anchorDate}
-								focused={focusArea === "tasks"}
-								selectedColumnIndex={columnIndex}
-								selectedTaskIndex={taskIndex}
-								terminalWidth={contentPaneTerminalWidth}
-							/>
-						) : (
-							<TaskPanel
-								rows={taskRows}
-								projectMap={projectMap}
-								viewLabel={viewLabel}
-								focused={focusArea === "tasks"}
-								selectedIndex={taskIndex}
-								expandedTaskId={expandedTaskId}
-								activeProject={view === "project" ? activeProject : null}
-							/>
-						)}
-						{showAssistant && canDockAssistant && (
-							<AssistantPanel
-								focused={focusArea === "assistant"}
-								messages={assistantMessages}
-								isChatMode={inputMode === "assistantChat"}
-								chatInput={inputValue}
-								onChatInputChange={setInputValue}
-								isThinking={isAssistantThinking}
-							/>
-						)}
-					</>
+					<TaskPanel
+						rows={taskRows}
+						projectMap={projectMap}
+						viewLabel={viewLabel}
+						focused={focusArea === "tasks"}
+						selectedIndex={taskIndex}
+						expandedTaskId={expandedTaskId}
+						expandableTaskIds={expandableTaskIds}
+						activeProject={view === "project" ? activeProject : null}
+					/>
 				)}
 			</Box>
 
@@ -1239,7 +1093,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 								{i + 1}. [{link.displayLabel}]
 							</Text>
 						))}
-						<Text dimColor>  j/k choose  Enter open  Esc cancel</Text>
+						<Text dimColor> j/k choose Enter open Esc cancel</Text>
 					</Box>
 				</Box>
 			)}
@@ -1262,7 +1116,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 					/>
 					{inputAutocomplete ? (
 						<Box>
-							<Text dimColor>  ↳ </Text>
+							<Text dimColor> ↳ </Text>
 							{renderAutocompleteHint(inputAutocomplete.hint)}
 						</Box>
 					) : null}

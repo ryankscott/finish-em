@@ -51,12 +51,22 @@ const KNOWN_PRESETS: Record<string, Exclude<RecurrencePreset, null>> = {
 const TOKEN_PREFIXES = [
 	"title:",
 	"project:",
+	"proj:",
 	"priority:",
+	"prio:",
 	"due:",
+	"⏰",
 	"scheduled:",
+	"sch:",
+	"🗓",
 	"notes:",
 	"parent:",
 	"recurs:",
+	"rec:",
+	"recurrence:",
+	"🚩",
+	"🔁",
+	"📁",
 ];
 
 function parseDatePhrase(phrase: string): string | null | undefined {
@@ -163,7 +173,7 @@ export function parseTaskCreateInput(
 		};
 	}
 
-	const usedTokens = /(\btitle:|\bproject:|\bpriority:|\bdue:|\bscheduled:|\bnotes:|\bparent:|\brecurs:|\bp[1-4]\b)/i.test(trimmed);
+	const usedTokens = /(\btitle:|\bproject:|\bproj:|\bpriority:|\bprio:|\bdue:|⏰|\bscheduled:|\bsch:|🗓|\bnotes:|\bparent:|\brecurs:|\brec:|\brecurrence:|🔁|🚩\s*[1-4]|\bp[1-4]\b|📁)/i.test(trimmed);
 	if (!usedTokens) {
 		return {
 			input: { title: trimmed },
@@ -178,14 +188,14 @@ export function parseTaskCreateInput(
 
 	const unknownTokens = [...trimmed.matchAll(/\b([a-z_]+):/gi)]
 		.map((match) => match[1]?.toLowerCase())
-		.filter((key) => key && !["title", "project", "priority", "due", "scheduled", "notes", "parent", "recurs"].includes(key));
+		.filter((key) => key && !["title", "project", "proj", "priority", "prio", "due", "scheduled", "sch", "notes", "parent", "recurs", "rec", "recurrence"].includes(key));
 	for (const unknown of unknownTokens) {
 		warnings.push(`Unrecognized token "${unknown}:"`);
 	}
 
-	const priorityTokenMatch = working.match(/\bp([1-4])\b/i);
+	const priorityTokenMatch = working.match(/(?:\bp([1-4])\b|🚩\s*([1-4]))/i);
 	if (priorityTokenMatch) {
-		result.priority = Number(priorityTokenMatch[1]) as Priority;
+		result.priority = Number(priorityTokenMatch[1] ?? priorityTokenMatch[2]) as Priority;
 		working = working.replace(priorityTokenMatch[0], "").replace(/\s{2,}/g, " ").trim();
 	}
 
@@ -209,7 +219,7 @@ export function parseTaskCreateInput(
 		working = (working.slice(0, notesMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
 	}
 
-	const projectMatch = working.match(/\bproject:/i);
+	const projectMatch = working.match(/(?:\bproject:|\bproj:|📁\s*)/i);
 	if (projectMatch && projectMatch.index !== undefined) {
 		const valueStart = projectMatch.index + projectMatch[0].length;
 		const [name, end] = extractTokenValue(working, valueStart);
@@ -226,7 +236,7 @@ export function parseTaskCreateInput(
 		working = (working.slice(0, projectMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
 	}
 
-	const priorityMatch = working.match(/\bpriority:/i);
+	const priorityMatch = working.match(/(?:\bpriority:|\bprio:)/i);
 	if (priorityMatch && priorityMatch.index !== undefined) {
 		const valueStart = priorityMatch.index + priorityMatch[0].length;
 		const [value, end] = extractTokenValue(working, valueStart);
@@ -239,21 +249,24 @@ export function parseTaskCreateInput(
 		working = (working.slice(0, priorityMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
 	}
 
-	const recursMatch = working.match(/\brecurs:([\w_]+)/i);
+	const recursMatch = working.match(
+		/(?:\brecurs:\s*([\w_]+)|\brec:\s*([\w_]+)|\brecurrence:\s*([\w_]+)|🔁\s*([\w_]+))/i,
+	);
 	if (recursMatch) {
-		const presetKey = recursMatch[1].toLowerCase();
+		const rawPreset = recursMatch[1] ?? recursMatch[2] ?? recursMatch[3] ?? recursMatch[4];
+		const presetKey = rawPreset.toLowerCase();
 		if (presetKey === "none" || presetKey === "never" || presetKey === "clear") {
 			result.recurrencePreset = null;
 			result.recurrenceRRule = null;
 		} else if (KNOWN_PRESETS[presetKey]) {
 			result.recurrencePreset = KNOWN_PRESETS[presetKey];
 		} else {
-			errors.push(`Unknown recurrence preset "${recursMatch[1]}"`);
+			errors.push(`Unknown recurrence preset "${rawPreset}"`);
 		}
 		working = working.replace(recursMatch[0], "").replace(/\s{2,}/g, " ").trim();
 	}
 
-	const dueMatch = working.match(/\bdue:/i);
+	const dueMatch = working.match(/(?:\bdue:|⏰\s*)/i);
 	if (dueMatch && dueMatch.index !== undefined) {
 		const valueStart = dueMatch.index + dueMatch[0].length;
 		const [phrase, end] = extractTokenValue(working, valueStart);
@@ -269,7 +282,7 @@ export function parseTaskCreateInput(
 		working = (working.slice(0, dueMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
 	}
 
-	const scheduledMatch = working.match(/\bscheduled:/i);
+	const scheduledMatch = working.match(/(?:\bscheduled:|\bsch:|🗓\s*)/i);
 	if (scheduledMatch && scheduledMatch.index !== undefined) {
 		const valueStart = scheduledMatch.index + scheduledMatch[0].length;
 		const [phrase, end] = extractTokenValue(working, valueStart);

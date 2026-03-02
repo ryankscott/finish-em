@@ -18,9 +18,6 @@ const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "x", action: "Toggle task completion", section: "Tasks" },
 	{ keys: "Space", action: "Expand/collapse task details" },
 	{ keys: "c", action: "Quick add task" },
-	{ keys: "Shift+C", action: "Chat with assistant" },
-	{ keys: "Shift+X", action: "Clear assistant chat history" },
-	{ keys: "\\", action: "Collapse/expand assistant panel" },
 	{ keys: "s", action: "Create subtask under selected task" },
 	{
 		keys: "e",
@@ -36,8 +33,6 @@ const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "z", action: "Delete reminder from selected task" },
 	{ keys: "Shift+s", action: "Open settings view", section: "Settings" },
 	{ keys: "e / Enter", action: "Edit selected setting" },
-	{ keys: "/provider <name>", action: "Set assistant provider (gemini/openai/lmstudio)" },
-	{ keys: "x", action: "Clear assistant API key (key row)" },
 	{ keys: "p", action: "Create new project", section: "Projects" },
 	{ keys: "e", action: "Edit project (in project view)" },
 	{ keys: "D", action: "Delete project (in project view, non-inbox)" },
@@ -66,7 +61,7 @@ export const HelpModal = ({
 
 	return (
 		<Box
-    backgroundColor={"black"}
+			backgroundColor={"black"}
 			position="absolute"
 			flexDirection="column"
 			width={terminalWidth}

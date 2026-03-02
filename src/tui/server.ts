@@ -75,7 +75,7 @@ export const ensureServerRunning = async (
 	let signalCode: NodeJS.Signals | null = null
 	let capturedLogs = ""
 
-	const child = spawn("pnpm", ["dev"], {
+	const child = spawn("bun", ["run", "dev"], {
 		cwd,
 		stdio: ["ignore", "pipe", "pipe"],
 		shell: process.platform === "win32",

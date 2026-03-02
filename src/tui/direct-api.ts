@@ -1,7 +1,6 @@
 /**
- * Direct API adapter — implements the same ApiClient interface as the HTTP client
- * but calls repo/service functions in-process, with no HTTP round-trip.
- * Used by the standalone compiled binary.
+ * Direct API adapter — calls repo/service functions in-process with no transport layer.
+ * Shared by the TUI and CLI command surface.
  */
 
 import * as taskRepo from '@/server/repos/tasks'
@@ -10,13 +9,8 @@ import * as goalRepo from '@/server/repos/goals'
 import * as reminderRepo from '@/server/repos/reminders'
 import * as settingsRepo from '@/server/repos/settings'
 import { createTaskFromQuickAdd } from '@/server/services/quick-add'
-import {
-  clearAssistantHistory,
-  getAssistantState,
-  sendAssistantChat,
-} from '@/server/services/assistant'
 
-import type { ApiClient } from './api'
+import type { ApiClient } from './api-client'
 
 export const createDirectApi = (): ApiClient => ({
   getSettings: () => Promise.resolve(settingsRepo.getSettings()),
@@ -100,16 +94,4 @@ export const createDirectApi = (): ApiClient => ({
     reminderRepo.deleteReminder(reminderId)
     return Promise.resolve()
   },
-
-  getAssistantState: (surface) =>
-    Promise.resolve(getAssistantState(surface)),
-
-  sendAssistantChat: (input) =>
-    sendAssistantChat({
-      surfaceInput: input.surface,
-      message: input.message,
-    }),
-
-  clearAssistantMessages: (surface) =>
-    Promise.resolve(clearAssistantHistory(surface)),
 })

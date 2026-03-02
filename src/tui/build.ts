@@ -14,8 +14,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 
-const target = (process.argv[2] ?? 'bun-darwin-arm64') as Parameters<typeof Bun.build>[0]['target']
-const outfile = process.argv[3] ?? 'dist/finish-em'
+const target = (Bun.argv[2] ?? 'bun-darwin-arm64') as Parameters<typeof Bun.build>[0]['target']
+const outfile = Bun.argv[3] ?? 'dist/finish-em'
 
 const bundleDir = path.resolve('dist')
 const bundleName = '.finish-em-bundle.js'

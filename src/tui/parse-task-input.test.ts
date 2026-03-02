@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 
 import type { Project } from "../server/types";
 import { parseTaskEditInput, serializeTaskToEditInput } from "./parse-task-input";
@@ -56,6 +56,17 @@ describe("parseTaskEditInput", () => {
 			const { patch } = parseTaskEditInput("Buy milk P1", PROJECTS);
 			expect(patch.priority).toBe(1);
 		});
+
+		it("parses priority: and prio: aliases", () => {
+			expect(parseTaskEditInput("Buy milk priority:1", PROJECTS).patch.priority).toBe(1);
+			expect(parseTaskEditInput("Buy milk prio:2", PROJECTS).patch.priority).toBe(2);
+		});
+
+		it("parses emoji priority marker", () => {
+			const { patch } = parseTaskEditInput("Buy milk 🚩3", PROJECTS);
+			expect(patch.priority).toBe(3);
+			expect(patch.title).toBe("Buy milk");
+		});
 	});
 
 	describe("recurs", () => {
@@ -80,6 +91,12 @@ describe("parseTaskEditInput", () => {
 			const { patch, warnings } = parseTaskEditInput("Standup recurs:fortnightly", PROJECTS);
 			expect(patch.recurrencePreset).toBeUndefined();
 			expect(warnings.some((w) => w.includes("fortnightly"))).toBe(true);
+		});
+
+		it("parses rec:/recurrence: aliases and emoji marker", () => {
+			expect(parseTaskEditInput("Standup rec:weekly", PROJECTS).patch.recurrencePreset).toBe("weekly");
+			expect(parseTaskEditInput("Standup recurrence:monthly", PROJECTS).patch.recurrencePreset).toBe("monthly");
+			expect(parseTaskEditInput("Standup 🔁 daily", PROJECTS).patch.recurrencePreset).toBe("daily");
 		});
 	});
 
@@ -141,6 +158,11 @@ describe("parseTaskEditInput", () => {
 			const { warnings } = parseTaskEditInput("Task due:yesterday", PROJECTS);
 			expect(warnings.some((w) => w.includes("yesterday"))).toBe(true);
 		});
+
+		it("parses due emoji marker", () => {
+			const { patch } = parseTaskEditInput("Task ⏰ tomorrow", PROJECTS);
+			expect(patch.dueAt).toBeTruthy();
+		});
 	});
 
 	describe("scheduled", () => {
@@ -155,6 +177,11 @@ describe("parseTaskEditInput", () => {
 		it("clears scheduled with scheduled:none", () => {
 			const { patch } = parseTaskEditInput("Task scheduled:none", PROJECTS);
 			expect(patch.scheduledAt).toBeNull();
+		});
+
+		it("parses sch: alias and scheduled emoji marker", () => {
+			expect(parseTaskEditInput("Task sch:tomorrow", PROJECTS).patch.scheduledAt).toBeTruthy();
+			expect(parseTaskEditInput("Task 🗓 tomorrow", PROJECTS).patch.scheduledAt).toBeTruthy();
 		});
 	});
 
@@ -174,6 +201,11 @@ describe("parseTaskEditInput", () => {
 			const { patch, warnings } = parseTaskEditInput("Task project:Unknown", PROJECTS);
 			expect(patch.projectId).toBeUndefined();
 			expect(warnings.some((w) => w.includes("Unknown"))).toBe(true);
+		});
+
+		it("parses proj: alias and project emoji marker", () => {
+			expect(parseTaskEditInput("Task proj:work", PROJECTS).patch.projectId).toBe(1);
+			expect(parseTaskEditInput("Task 📁 My Long Project", PROJECTS).patch.projectId).toBe(3);
 		});
 	});
 
@@ -237,7 +269,7 @@ describe("serializeTaskToEditInput", () => {
 	});
 
 	it("appends project name", () => {
-		expect(serializeTaskToEditInput("Task", { projectName: "Work" })).toBe("Task project:Work");
+		expect(serializeTaskToEditInput("Task", { projectName: "Work" })).toBe("Task 📁 Work");
 	});
 
 	it("appends parent task id", () => {
@@ -250,30 +282,30 @@ describe("serializeTaskToEditInput", () => {
 		expect(serializeTaskToEditInput("Task", { priority: 4 })).toBe("Task");
 	});
 
-	it("appends p1–p3", () => {
-		expect(serializeTaskToEditInput("Task", { priority: 1 })).toContain("p1");
-		expect(serializeTaskToEditInput("Task", { priority: 2 })).toContain("p2");
-		expect(serializeTaskToEditInput("Task", { priority: 3 })).toContain("p3");
+	it("appends emoji priority markers", () => {
+		expect(serializeTaskToEditInput("Task", { priority: 1 })).toContain("🚩1");
+		expect(serializeTaskToEditInput("Task", { priority: 2 })).toContain("🚩2");
+		expect(serializeTaskToEditInput("Task", { priority: 3 })).toContain("🚩3");
 	});
 
 	it("appends due date as YYYY-MM-DD", () => {
 		const result = serializeTaskToEditInput("Task", { dueAt: "2026-03-10T09:00:00.000Z" });
-		expect(result).toContain("due:2026-03-10");
+		expect(result).toContain("⏰ 2026-03-10");
 	});
 
 	it("appends scheduled date as YYYY-MM-DD", () => {
 		const result = serializeTaskToEditInput("Task", { scheduledAt: "2026-03-10T09:00:00.000Z" });
-		expect(result).toContain("scheduled:2026-03-10");
+		expect(result).toContain("🗓 2026-03-10");
 	});
 
 	it("appends recurrence preset", () => {
 		const result = serializeTaskToEditInput("Task", { recurrencePreset: "weekly" });
-		expect(result).toContain("recurs:weekly");
+		expect(result).toContain("🔁 weekly");
 	});
 
 	it("omits null recurrencePreset", () => {
 		const result = serializeTaskToEditInput("Task", { recurrencePreset: null });
-		expect(result).not.toContain("recurs:");
+		expect(result).not.toContain("🔁");
 	});
 
 	it("appends notes when provided", () => {

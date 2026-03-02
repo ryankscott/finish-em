@@ -62,73 +62,11 @@ export type Goal = {
   updatedAt: string
 }
 
-export type AiProvider = 'gemini' | 'openai' | 'lmstudio'
-
 export type AppSettings = {
   id: 1
   timezone: string
-  aiProvider: AiProvider
-  aiBaseUrl: string | null
-  aiModel: string | null
-  hasAiApiKey: boolean
-  aiApiKeyMasked: string | null
   createdAt: string
   updatedAt: string
-}
-
-export type AppSettingsSecrets = {
-  aiApiKey: string | null
-}
-
-export type AssistantSurface = 'ui' | 'tui'
-export type AssistantRole = 'user' | 'assistant' | 'system'
-export type AssistantActionType =
-  | 'create_task'
-  | 'update_task'
-  | 'set_task_due_date'
-  | 'complete_task'
-  | 'uncomplete_task'
-  | 'delete_task'
-  | 'create_project'
-  | 'update_project'
-  | 'delete_project'
-export type AssistantActionStatus = 'pending' | 'executed' | 'cancelled' | 'failed'
-
-export type AssistantActionOutcomeStatus = 'success' | 'failure' | 'cancelled'
-
-export type AssistantActionOutcome = {
-  actionId: string
-  type: AssistantActionType
-  targetEntity: 'task' | 'project' | null
-  targetId: number | null
-  status: AssistantActionOutcomeStatus
-  message: string
-  errorCode: string | null
-}
-
-export type AssistantAction = {
-  id: string
-  type: AssistantActionType
-  label: string
-  status: AssistantActionStatus
-  payload: Record<string, unknown>
-  resultMessage: string | null
-  outcome: AssistantActionOutcome | null
-}
-
-export type AssistantMessage = {
-  id: number
-  surface: AssistantSurface
-  role: AssistantRole
-  content: string
-  actions: AssistantAction[]
-  createdAt: string
-  updatedAt: string
-}
-
-export type AssistantChatResponse = {
-  userMessage: AssistantMessage
-  assistantMessage: AssistantMessage
 }
 
 export type TaskFilters = {
