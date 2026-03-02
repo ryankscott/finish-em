@@ -2,6 +2,9 @@
   "name": "finish-em",
   "private": true,
   "type": "module",
+  "bin": {
+    "finish-em": "./src/cli.ts"
+  },
   "engines": {
     "bun": ">=1.2.0"
   },
@@ -13,6 +16,10 @@
     "tui:build": "bun src/tui/build.ts bun-darwin-arm64 dist/finish-em",
     "tui:build:x64": "bun src/tui/build.ts bun-darwin-x64 dist/finish-em-x64",
     "tui:build:all": "bun run tui:build && bun run tui:build:x64",
+    "cli:link": "bun link",
+    "cli:build": "bun run tui:build",
+    "cli:install": "bash scripts/install-binary.sh",
+    "cli:uninstall": "bash scripts/uninstall-binary.sh",
     "test": "bun test",
     "format": "biome format",
     "lint": "biome lint",
