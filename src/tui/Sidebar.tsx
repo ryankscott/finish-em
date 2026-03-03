@@ -67,7 +67,9 @@ export const buildSidebarItems = (projects: Project[]): SidebarItem[] => {
 type SidebarProps = {
 	items: SidebarItem[];
 	viewCounts?: Partial<
-		Record<"today" | "inbox" | "upcoming" | "completed", number>
+		Record<"today" | "inbox" | "upcoming" | "completed", number> & {
+			projectCounts?: Record<number, number>;
+		}
 	>;
 	selectedIndex: number;
 	focused: boolean;
@@ -100,14 +102,13 @@ export const Sidebar = ({
 		const isNav = item.type === "nav";
 		const label = isNav
 			? `${item.label}${item.countKey ? ` [${viewCounts?.[item.countKey] ?? 0}]` : ""}`
-			: `${item.project.emoji ?? "●"} ${item.project.name}`;
-		const color = isNav
-			? isSelected && focused
+			: `${item.project.emoji ?? "●"} ${item.project.name} [${viewCounts?.projectCounts?.[item.project.id] ?? 0}]`;
+		const color =
+			isSelected && focused
 				? "cyan"
 				: isSelected
 					? "blueBright"
-					: undefined
-			: item.project.color;
+					: undefined;
 		const isBold = isSelected && focused;
 
 		return (

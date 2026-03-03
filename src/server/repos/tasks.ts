@@ -1,5 +1,6 @@
 import { getDb, nowIso } from '@/server/db/client'
 import { mapTaskRow } from '@/server/repos/mappers'
+import { getProject } from '@/server/repos/projects'
 import { getNextOccurrence, validateRRuleSubset } from '@/server/services/recurrence'
 
 import type { Priority, Task, TaskFilters, TaskStatus } from '@/server/types'
@@ -125,6 +126,11 @@ export function createTask(input: {
   recurrencePreset?: string | null
   recurrenceRRule?: string | null
 }): Task {
+  const project = getProject(input.projectId)
+  if (!project) {
+    throw new Error(`Project not found: ${input.projectId}. Use "finish-em project list" to see valid project IDs.`)
+  }
+
   const db = getDb()
   const now = nowIso()
   const parentTaskId = validateParentTaskId({

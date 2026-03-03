@@ -95,6 +95,12 @@ describe('repositories integration', () => {
     expect(getTask(task.id)?.title).toBe('Book dentist')
   })
 
+  it('throws clear error when creating task with non-existent project', () => {
+    expect(() =>
+      createTask({ projectId: 99999, title: 'Orphan task' }),
+    ).toThrow('Project not found: 99999')
+  })
+
   it('supports parent + subtask and filtering', () => {
     const project = createProject({ name: 'Work' })
     const parent = createTask({ projectId: project.id, title: 'Launch v2' })

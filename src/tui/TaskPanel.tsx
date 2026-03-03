@@ -202,11 +202,7 @@ const TaskRowItem = ({
 						</Box>
 					)}
 					{project && (
-						<Box width={"100%"} justifyContent="flex-end">
-							<Text backgroundColor={project.color}>
-								Project: <Text color={"brightwhite"}> {project.name} </Text>
-							</Text>
-						</Box>
+						<Text dimColor>Project: {project.name}</Text>
 					)}
 				</Box>
 			)}
@@ -260,12 +256,6 @@ export const TaskPanel = ({
 					</Text>
 					<Text>
 						End: <Text bold>{activeProject.endAt ?? "None"}</Text>
-					</Text>
-					<Text>
-						Color:{" "}
-						<Text backgroundColor={activeProject.color} color="black">
-							{"   "}
-						</Text>
 					</Text>
 					<Box marginTop={1}>
 						<Text dimColor>{"─".repeat(24)}</Text>

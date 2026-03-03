@@ -78,7 +78,7 @@ type AppProps = {
 	onQuit: () => void;
 };
 
-const SIDEBAR_WIDTH = 28;
+const SIDEBAR_WIDTH = 36;
 const AUTOCOMPLETE_TOKEN_PATTERN = /^([a-z_]+:)$/i;
 const TOAST_TTL_MS = 5000;
 const MAX_TOASTS = 4;
@@ -87,6 +87,7 @@ const EMPTY_VIEW_COUNTS = {
 	inbox: 0,
 	upcoming: 0,
 	completed: 0,
+	projectCounts: {} as Record<number, number>,
 };
 
 export function shouldStartProjectEdit(
@@ -278,12 +279,14 @@ export const App = ({ api, onQuit }: AppProps) => {
 			const upcomingFrom = startOfDay(colStart).toISOString();
 			const upcomingTo = endOfDay(rangeEnd).toISOString();
 
+			const nonInboxProjects = loadedProjects.filter((p) => !p.isInbox);
 			const [
 				todayCountTasks,
 				upcomingRangeTasks,
 				upcomingOverdueTasks,
 				completedTasks,
 				inboxTasks,
+				...projectTaskLists
 			] = await Promise.all([
 				api.listTasks({
 					status: "open",
@@ -303,7 +306,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 				resolvedInbox
 					? api.listTasks({ projectId: resolvedInbox.id, status: "open" })
 					: Promise.resolve([]),
+				...nonInboxProjects.map((p) =>
+					api.listTasks({ projectId: p.id, status: "open" }),
+				),
 			]);
+			const projectCounts: Record<number, number> = Object.fromEntries(
+				nonInboxProjects.map((p, i) => [p.id, projectTaskLists[i]?.length ?? 0]),
+			);
 			setViewCounts({
 				today: todayCountTasks.length,
 				inbox: inboxTasks.length,
@@ -313,6 +322,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 						(t) => t.dueAt && parseISO(t.dueAt) < startOfDay(colStart),
 					).length,
 				completed: completedTasks.length,
+				projectCounts,
 			});
 
 			if (view === "settings") {
