@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 /**
  * Ensures the URL has a scheme so the OS opens it in a browser.
  */
-function withScheme(url: string): string {
+export function withScheme(url: string): string {
 	const u = url.trim();
 	if (!u) return u;
 	if (/^https?:\/\//i.test(u)) return u;
@@ -21,12 +21,10 @@ export function openUrl(url: string): void {
 	const platform = process.platform;
 	let cmd: string;
 	let args: string[];
-	let useShell = false;
 
 	if (platform === "darwin") {
 		cmd = "open";
 		args = [normalized];
-		useShell = true;
 	} else if (platform === "win32") {
 		cmd = "cmd";
 		args = ["/c", "start", "", normalized];
@@ -38,7 +36,6 @@ export function openUrl(url: string): void {
 	const child = spawn(cmd, args, {
 		stdio: "ignore",
 		detached: true,
-		shell: useShell,
 	});
 	child.unref();
 }

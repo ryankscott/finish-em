@@ -90,6 +90,19 @@ const recurrenceLabel = (preset: string | null): string => {
 	return preset.replace(/_/g, " ");
 };
 
+const PROP_WIDTHS = {
+	priority: 4,
+	recurrence: 14,
+	scheduled: 9,
+	due: 9,
+	project: 14,
+} as const;
+
+const truncate = (text: string, maxLen: number): string => {
+	if (text.length <= maxLen) return text.padEnd(maxLen);
+	return `${text.slice(0, maxLen - 1)}…`;
+};
+
 type TaskRowItemProps = {
 	task: Task;
 	flatIndex: number;
@@ -122,14 +135,10 @@ const TaskRowItem = ({
 	const titleColor =
 		isSelected && focused ? "cyan" : isSelected ? "blueBright" : undefined;
 	const circle = isCompleted ? "✓" : "○";
-	const recurrenceLabelText = task.recurrencePreset
-		? `🔁 ${recurrenceLabel(task.recurrencePreset)}`
-		: "🔁 -";
-	const scheduledLabel = task.scheduledAt
-		? `🗓 ${formatScheduledDate(task.scheduledAt)}`
-		: "🗓 -";
-	const dueLabel = task.dueAt ? `⏰ ${formatDueDate(task.dueAt)}` : "⏰ -";
-	const projectLabel = project ? `📁 ${project.name}` : "📁 -";
+	const recurrenceLabelText = `🔁 ${truncate(task.recurrencePreset ? recurrenceLabel(task.recurrencePreset) : "-", PROP_WIDTHS.recurrence - 3)}`;
+	const scheduledLabel = `🗓 ${truncate(task.scheduledAt ? formatScheduledDate(task.scheduledAt) : "-", PROP_WIDTHS.scheduled - 3)}`;
+	const dueLabel = `⏰ ${truncate(task.dueAt ? formatDueDate(task.dueAt) : "-", PROP_WIDTHS.due - 3)}`;
+	const projectLabel = `📁 ${truncate(project ? project.name : "-", PROP_WIDTHS.project - 3)}`;
 
 	return (
 		<Box flexDirection="column">
@@ -153,25 +162,31 @@ const TaskRowItem = ({
 						{toDisplayString(task.title)}
 					</Text>
 				</Box>
-				<Box marginLeft={1}>
-					<Text
-						dimColor={isCompleted}
-					>
-						<Text color={pColor}>🚩{task.priority}</Text>
-						<Text dimColor={isCompleted}>{"  ·  "}</Text>
+				<Box marginLeft={1} gap={1}>
+					<Box width={PROP_WIDTHS.priority}>
+						<Text color={pColor} dimColor={isCompleted}>🚩{task.priority}</Text>
+					</Box>
+					<Text dimColor>·</Text>
+					<Box width={PROP_WIDTHS.recurrence}>
 						<Text dimColor={isCompleted}>{recurrenceLabelText}</Text>
-						<Text dimColor={isCompleted}>{"  ·  "}</Text>
+					</Box>
+					<Text dimColor>·</Text>
+					<Box width={PROP_WIDTHS.scheduled}>
 						<Text dimColor={isCompleted}>{scheduledLabel}</Text>
-						<Text dimColor={isCompleted}>{"  ·  "}</Text>
+					</Box>
+					<Text dimColor>·</Text>
+					<Box width={PROP_WIDTHS.due}>
 						<Text
 							color={isOverdue && !isCompleted ? "red" : undefined}
 							dimColor={isCompleted || !isOverdue}
 						>
 							{dueLabel}
 						</Text>
-						<Text dimColor={isCompleted}>{"  ·  "}</Text>
+					</Box>
+					<Text dimColor>·</Text>
+					<Box width={PROP_WIDTHS.project}>
 						<Text dimColor={isCompleted}>{projectLabel}</Text>
-					</Text>
+					</Box>
 				</Box>
 			</Box>
 			{isExpanded && (

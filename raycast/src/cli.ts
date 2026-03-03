@@ -29,17 +29,17 @@ async function getBinaryPath(): Promise<string> {
 
 export async function runCli<T>(args: string, env?: Record<string, string>): Promise<T> {
   const bunPath = await getBinaryPath();
-  const finishEmPath = `/Users/ryan/Code/finish-em/src/cli.ts`;
-  const todoDbPath = `${homedir()}/.finish-em/todo.db`;
+  const home = homedir();
+  const finishEmDir = `${home}/Code/finish-em`;
+  const finishEmPath = `${finishEmDir}/src/cli.ts`;
 
   try {
     const { stdout, stderr } = await execAsync(`"${bunPath}" "${finishEmPath}" ${args}`, {
       env: {
         ...process.env,
-        TODO_DB_PATH: todoDbPath,
         ...env,
       },
-      cwd: "/Users/ryan/Code/finish-em",
+      cwd: finishEmDir,
     });
 
     if (!stdout.trim()) {

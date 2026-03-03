@@ -13,8 +13,7 @@ export type TaskLinkDisplaySegment =
   | { type: 'text'; text: string }
   | { type: 'link'; displayLabel: string; url: string }
 
-const LABELED_LINK_RE = /\[([^\]]*)\]\(([^)\s]+)\)/g
-// URL capture excludes trailing ) so "https://x.com)" is not included in link
+const LABELED_LINK_RE = /\[([^\]]*)\]\(([^)\s]+)\s*\)/g
 const BARE_URL_RE = /https?:\/\/[^\s)]+/g
 
 /**
@@ -86,14 +85,31 @@ function parseBareUrls(text: string): TaskLinkSegment[] {
 const FALLBACK_LABEL = 'link'
 
 /**
- * Derives the display label for a link: custom label if present, else domain from URL, else fallback.
+ * Ensures the URL has an http(s) scheme. Used at storage time so
+ * downstream consumers (open-url, display) always get a valid URL.
+ */
+export function ensureScheme(url: string): string {
+  const u = url.trim()
+  if (!u) return u
+  if (/^https?:\/\//i.test(u)) return u
+  return `https://${u}`
+}
+
+/**
+ * Derives the display label for a link: custom label if present,
+ * else last meaningful path segment (decoded), else hostname, else fallback.
  */
 export function getLinkDisplayLabel(url: string, customLabel: string | null): string {
   if (customLabel != null && customLabel.trim() !== '') {
     return customLabel.trim()
   }
   try {
-    const parsed = new URL(url.startsWith('http') ? url : `https://${url}`)
+    const parsed = new URL(ensureScheme(url))
+    const pathSegments = parsed.pathname.split('/').filter(Boolean)
+    const lastSegment = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : null
+    if (lastSegment && lastSegment !== '/' && parsed.pathname !== '/') {
+      return decodeURIComponent(lastSegment)
+    }
     return parsed.hostname || FALLBACK_LABEL
   } catch {
     return FALLBACK_LABEL
@@ -130,8 +146,9 @@ export function toDisplayString(input: string): string {
 }
 
 /**
- * Replaces bare URLs in text with [domain](url) so stored form is consistent and labels are editable.
- * Already-labeled links [text](url) are left unchanged.
+ * Replaces bare URLs in text with [label](url) so stored form is consistent and labels are editable.
+ * Ensures all URLs have an http(s) scheme.
+ * Already-labeled links [text](url) are preserved but still get scheme-normalized.
  */
 export function normalizeBareUrlsInText(input: string): string {
   if (!input) return input
@@ -139,11 +156,12 @@ export function normalizeBareUrlsInText(input: string): string {
   return segments
     .map((seg): string => {
       if (seg.type === 'text') return seg.text
+      const url = ensureScheme(seg.url)
       const label =
         seg.label != null && seg.label.trim() !== ''
           ? seg.label.trim()
-          : getLinkDisplayLabel(seg.url, null)
-      return `[${label}](${seg.url})`
+          : getLinkDisplayLabel(url, null)
+      return `[${label}](${url})`
     })
     .join('')
 }

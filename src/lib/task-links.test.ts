@@ -1,6 +1,7 @@
 import { describe, expect, it } from "bun:test";
 
 import {
+	ensureScheme,
 	getLinkDisplayLabel,
 	normalizeBareUrlsInText,
 	parseTaskLinkSegments,
@@ -58,6 +59,25 @@ describe("task-links", () => {
 			const result = parseTaskLinkSegments("[a] b](https://x.com)");
 			expect(result).toContainEqual({ type: "link", url: "https://x.com", label: null });
 		});
+
+		it("handles trailing whitespace inside [label](url ) parens", () => {
+			expect(parseTaskLinkSegments("[doc](https://example.com/page )")).toEqual([
+				{ type: "link", url: "https://example.com/page", label: "doc" },
+			]);
+		});
+
+		it("handles multiple trailing spaces inside parens", () => {
+			expect(parseTaskLinkSegments("[doc](https://example.com/page   )")).toEqual([
+				{ type: "link", url: "https://example.com/page", label: "doc" },
+			]);
+		});
+
+		it("parses long Confluence-style labeled link with trailing space", () => {
+			const input = "[doc](https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page )";
+			expect(parseTaskLinkSegments(input)).toEqual([
+				{ type: "link", url: "https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page", label: "doc" },
+			]);
+		});
 	});
 
 	describe("getLinkDisplayLabel", () => {
@@ -66,23 +86,58 @@ describe("task-links", () => {
 			expect(getLinkDisplayLabel("https://example.com", "  Doc  ")).toBe("Doc");
 		});
 
-		it("returns hostname as label when custom label is null or empty", () => {
-			expect(getLinkDisplayLabel("https://docs.example.com/spec", null)).toBe(
-				"docs.example.com",
-			);
-			expect(getLinkDisplayLabel("https://github.com/user/repo", null)).toBe("github.com");
+		it("returns last path segment as label for URLs with a path", () => {
+			expect(getLinkDisplayLabel("https://docs.example.com/spec", null)).toBe("spec");
+			expect(getLinkDisplayLabel("https://github.com/user/repo", null)).toBe("repo");
+		});
+
+		it("returns hostname when URL has no meaningful path", () => {
+			expect(getLinkDisplayLabel("https://example.com", null)).toBe("example.com");
+			expect(getLinkDisplayLabel("https://example.com/", null)).toBe("example.com");
+		});
+
+		it("decodes percent-encoded path segments", () => {
+			expect(getLinkDisplayLabel("https://example.com/hello%20world", null)).toBe("hello world");
+		});
+
+		it("uses last segment for deep paths (Confluence-style URLs)", () => {
+			expect(
+				getLinkDisplayLabel(
+					"https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page+Title",
+					null,
+				),
+			).toBe("My+Page+Title");
 		});
 
 		it("returns fallback when URL is empty or throws", () => {
 			expect(getLinkDisplayLabel("", null)).toBe("link");
 		});
 
-		it("returns hostname for URL-like string even without TLD (URL parser accepts it)", () => {
+		it("returns hostname for URL-like string without path even without TLD", () => {
 			expect(getLinkDisplayLabel("https://not-a-url", null)).toBe("not-a-url");
 		});
 
 		it("parses URL without scheme by prefixing https", () => {
-			expect(getLinkDisplayLabel("example.com/path", null)).toBe("example.com");
+			expect(getLinkDisplayLabel("example.com/path", null)).toBe("path");
+		});
+	});
+
+	describe("ensureScheme", () => {
+		it("returns empty for empty input", () => {
+			expect(ensureScheme("")).toBe("");
+		});
+
+		it("preserves http:// URLs", () => {
+			expect(ensureScheme("http://example.com")).toBe("http://example.com");
+		});
+
+		it("preserves https:// URLs", () => {
+			expect(ensureScheme("https://example.com")).toBe("https://example.com");
+		});
+
+		it("prepends https:// for schemeless URLs", () => {
+			expect(ensureScheme("www.google.com")).toBe("https://www.google.com");
+			expect(ensureScheme("example.com/path")).toBe("https://example.com/path");
 		});
 	});
 
@@ -91,9 +146,9 @@ describe("task-links", () => {
 			expect(toDisplaySegments("Hello")).toEqual([{ type: "text", text: "Hello" }]);
 		});
 
-		it("returns link segment with displayLabel (domain) for bare URL", () => {
+		it("returns link segment with last path segment as displayLabel for bare URL", () => {
 			expect(toDisplaySegments("https://docs.example.com/spec")).toEqual([
-				{ type: "link", displayLabel: "docs.example.com", url: "https://docs.example.com/spec" },
+				{ type: "link", displayLabel: "spec", url: "https://docs.example.com/spec" },
 			]);
 		});
 
@@ -117,10 +172,14 @@ describe("task-links", () => {
 			expect(toDisplayString("No links")).toBe("No links");
 		});
 
-		it("renders bare URL as [domain]", () => {
+		it("renders bare URL as [last-path-segment]", () => {
 			expect(toDisplayString("Check https://docs.example.com/spec")).toBe(
-				"Check [docs.example.com]",
+				"Check [spec]",
 			);
+		});
+
+		it("renders root-only URL as [hostname]", () => {
+			expect(toDisplayString("Visit https://example.com")).toBe("Visit [example.com]");
 		});
 
 		it("renders [label](url) as [label]", () => {
@@ -139,22 +198,84 @@ describe("task-links", () => {
 			expect(normalizeBareUrlsInText("No links")).toBe("No links");
 		});
 
-		it("replaces bare URL with [domain](url)", () => {
+		it("replaces bare URL with [last-segment](url)", () => {
 			expect(normalizeBareUrlsInText("Check https://docs.example.com/path")).toBe(
-				"Check [docs.example.com](https://docs.example.com/path)",
+				"Check [path](https://docs.example.com/path)",
 			);
 		});
 
-		it("leaves [label](url) unchanged", () => {
+		it("uses hostname for root-only bare URL", () => {
+			expect(normalizeBareUrlsInText("Visit https://example.com")).toBe(
+				"Visit [example.com](https://example.com)",
+			);
+		});
+
+		it("leaves [label](url) label unchanged", () => {
 			expect(
 				normalizeBareUrlsInText("See [Spec](https://example.com)"),
 			).toBe("See [Spec](https://example.com)");
+		});
+
+		it("adds scheme to schemeless labeled links", () => {
+			expect(
+				normalizeBareUrlsInText("[doc](www.google.com)"),
+			).toBe("[doc](https://www.google.com)");
 		});
 
 		it("normalizes multiple bare URLs", () => {
 			expect(
 				normalizeBareUrlsInText("a https://a.com b https://b.com"),
 			).toBe("a [a.com](https://a.com) b [b.com](https://b.com)");
+		});
+
+		it("uses last path segment for deep URLs", () => {
+			expect(
+				normalizeBareUrlsInText("https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page"),
+			).toBe("[My+Page](https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page)");
+		});
+
+		it("strips trailing whitespace from URL inside labeled link", () => {
+			expect(
+				normalizeBareUrlsInText("[doc](https://example.com/page )"),
+			).toBe("[doc](https://example.com/page)");
+		});
+
+		it("normalizes labeled link with trailing space and schemeless URL", () => {
+			expect(
+				normalizeBareUrlsInText("[doc](www.google.com )"),
+			).toBe("[doc](https://www.google.com)");
+		});
+	});
+
+	describe("round-trip stability", () => {
+		it("normalization is idempotent for labeled links", () => {
+			const first = normalizeBareUrlsInText("[doc](https://example.com/page )");
+			const second = normalizeBareUrlsInText(first);
+			expect(second).toBe(first);
+		});
+
+		it("normalization is idempotent for bare URLs", () => {
+			const first = normalizeBareUrlsInText("https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page");
+			const second = normalizeBareUrlsInText(first);
+			expect(second).toBe(first);
+		});
+
+		it("normalized link can be opened via toDisplaySegments", () => {
+			const stored = normalizeBareUrlsInText("[doc](https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page )");
+			const segments = toDisplaySegments(stored);
+			const links = segments.filter((s): s is Extract<typeof s, { type: "link" }> => s.type === "link");
+			expect(links).toHaveLength(1);
+			expect(links[0].url).toBe("https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page");
+			expect(links[0].displayLabel).toBe("doc");
+		});
+
+		it("bare URL round-trips through normalize → display → open", () => {
+			const stored = normalizeBareUrlsInText("https://idexx.atlassian.net/wiki/spaces/DEV/pages/6058935682/2025-02-27+ezyVet+Feature+Release+Process");
+			const segments = toDisplaySegments(stored);
+			const links = segments.filter((s): s is Extract<typeof s, { type: "link" }> => s.type === "link");
+			expect(links).toHaveLength(1);
+			expect(links[0].url).toBe("https://idexx.atlassian.net/wiki/spaces/DEV/pages/6058935682/2025-02-27+ezyVet+Feature+Release+Process");
+			expect(links[0].displayLabel).toBe("2025-02-27+ezyVet+Feature+Release+Process");
 		});
 	});
 });
