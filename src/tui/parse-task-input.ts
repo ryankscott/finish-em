@@ -48,7 +48,7 @@ const DAY_NAMES: Record<string, 0 | 1 | 2 | 3 | 4 | 5 | 6> = {
 	saturday: 6,
 };
 
-function parseDatePhrase(phrase: string): string | null {
+export function parseDatePhrase(phrase: string): string | null {
 	const text = phrase.trim().toLowerCase();
 	const now = new Date();
 

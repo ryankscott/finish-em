@@ -81,6 +81,8 @@ export type ApiClient = {
     },
   ) => Promise<Task>
   deleteTask: (taskId: number) => Promise<void>
+  listDeletedTasks: () => Promise<Task[]>
+  undeleteTask: (taskId: number) => Promise<Task>
   completeTask: (taskId: number) => Promise<Task>
   uncompleteTask: (taskId: number) => Promise<Task>
   createQuickAdd: (text: string) => Promise<Task>
@@ -92,6 +94,9 @@ export type ApiClient = {
     endAt?: string | null
     color?: string
     isInbox?: boolean
+    jiraDiscoveryUrl?: string | null
+    jiraDeliveryUrl?: string | null
+    confluenceUrl?: string | null
   }) => Promise<Project>
   updateProject: (
     projectId: number,
@@ -103,10 +108,14 @@ export type ApiClient = {
       endAt?: string | null
       color?: string
       isInbox?: boolean
+      jiraDiscoveryUrl?: string | null
+      jiraDeliveryUrl?: string | null
+      confluenceUrl?: string | null
     },
   ) => Promise<Project>
   deleteProject: (projectId: number) => Promise<void>
   listTaskReminders: (taskId: number) => Promise<Reminder[]>
+  listDueReminders: () => Promise<(Reminder & { taskTitle: string })[]>
   createReminder: (
     taskId: number,
     input: { remindAt: string; status?: Reminder['status'] },

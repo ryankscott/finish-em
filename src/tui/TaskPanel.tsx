@@ -1,94 +1,23 @@
-import { format, isBefore, isValid, parseISO } from "date-fns";
 import { Box, Text } from "ink";
 
 import { toDisplayString } from "../lib/task-links";
-import type { Priority, Project, Task } from "../server/types";
+import type { Project, Task } from "../server/types";
+import {
+	formatDueDate,
+	formatScheduledDate,
+	isOverdueDueDate,
+	priorityColor,
+	recurrenceLabel,
+	truncate,
+} from "./task-display-helpers";
+import type { TaskRow } from "./task-row-utils";
+import { buildTaskRows } from "./task-row-utils";
 
-export type TaskPanelRow = {
-	task: Task;
-	depth: 0 | 1;
-	parentTitle?: string;
-};
+export type TaskPanelRow = TaskRow;
 
 export function buildTaskPanelRows(tasks: Task[]): TaskPanelRow[] {
-	const visibleById = new Map(tasks.map((task) => [task.id, task]));
-	const childrenByParent = new Map<number, Task[]>();
-	const roots: Task[] = [];
-
-	for (const task of tasks) {
-		if (task.parentTaskId !== null && visibleById.has(task.parentTaskId)) {
-			const children = childrenByParent.get(task.parentTaskId) ?? [];
-			children.push(task);
-			childrenByParent.set(task.parentTaskId, children);
-			continue;
-		}
-		roots.push(task);
-	}
-
-	const rows: TaskPanelRow[] = [];
-	for (const root of roots) {
-		rows.push({
-			task: root,
-			depth: 0,
-			parentTitle:
-				root.parentTaskId !== null
-					? visibleById.get(root.parentTaskId)?.title
-					: undefined,
-		});
-		for (const child of childrenByParent.get(root.id) ?? []) {
-			rows.push({
-				task: child,
-				depth: 1,
-				parentTitle: root.title,
-			});
-		}
-	}
-
-	return rows;
+	return buildTaskRows(tasks);
 }
-
-const priorityColor = (priority: Priority): string => {
-	switch (priority) {
-		case 1:
-			return "red";
-		case 2:
-			return "yellow";
-		case 3:
-			return "green";
-		default:
-			return "blue";
-	}
-};
-
-const formatDueDate = (dueAt: string): string => {
-	try {
-		return format(parseISO(dueAt), "MMM dd");
-	} catch {
-		return dueAt;
-	}
-};
-
-const isOverdueDueDate = (dueAt: string): boolean => {
-	try {
-		const dueDate = parseISO(dueAt);
-		return isValid(dueDate) && isBefore(dueDate, new Date());
-	} catch {
-		return false;
-	}
-};
-
-const formatScheduledDate = (scheduledAt: string): string => {
-	try {
-		return format(parseISO(scheduledAt), "MMM dd");
-	} catch {
-		return scheduledAt;
-	}
-};
-
-const recurrenceLabel = (preset: string | null): string => {
-	if (!preset) return "Does not recur";
-	return preset.replace(/_/g, " ");
-};
 
 const PROP_WIDTHS = {
 	priority: 4,
@@ -97,11 +26,6 @@ const PROP_WIDTHS = {
 	due: 9,
 	project: 14,
 } as const;
-
-const truncate = (text: string, maxLen: number): string => {
-	if (text.length <= maxLen) return text.padEnd(maxLen);
-	return `${text.slice(0, maxLen - 1)}…`;
-};
 
 type TaskRowItemProps = {
 	task: Task;
@@ -189,6 +113,11 @@ const TaskRowItem = ({
 					</Box>
 				</Box>
 			</Box>
+			{!isExpanded && task.notes && (
+				<Box marginLeft={isSubtask ? 11 : 6}>
+					<Text dimColor italic>{truncate(task.notes, 80)}</Text>
+				</Box>
+			)}
 			{isExpanded && (
 				<Box
 					flexDirection="column"
@@ -257,6 +186,21 @@ export const TaskPanel = ({
 					<Text>
 						End: <Text bold>{activeProject.endAt ?? "None"}</Text>
 					</Text>
+					{activeProject.jiraDiscoveryUrl && (
+						<Text>
+							Jira Discovery: <Text bold>{activeProject.jiraDiscoveryUrl}</Text>
+						</Text>
+					)}
+					{activeProject.jiraDeliveryUrl && (
+						<Text>
+							Jira Delivery: <Text bold>{activeProject.jiraDeliveryUrl}</Text>
+						</Text>
+					)}
+					{activeProject.confluenceUrl && (
+						<Text>
+							Confluence: <Text bold>{activeProject.confluenceUrl}</Text>
+						</Text>
+					)}
 					<Box marginTop={1}>
 						<Text dimColor>{"─".repeat(24)}</Text>
 					</Box>

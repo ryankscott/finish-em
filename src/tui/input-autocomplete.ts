@@ -6,7 +6,18 @@ type AutocompleteSuggestion = {
 	hint: string;
 };
 
-const PROJECT_KEYS = ["name:", "color:", "emoji:", "description:", "start:", "end:", "inbox:"];
+const PROJECT_KEYS = [
+	"name:",
+	"color:",
+	"emoji:",
+	"description:",
+	"start:",
+	"end:",
+	"inbox:",
+	"jiraDiscovery:",
+	"jiraDelivery:",
+	"confluence:",
+];
 const TASK_KEYS = ["title:", "project:", "priority:", "due:", "scheduled:", "notes:", "parent:", "recurs:"];
 
 function normalizeWords(input: string): { prefix: string; fragment: string } {

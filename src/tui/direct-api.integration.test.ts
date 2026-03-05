@@ -81,4 +81,24 @@ describe('createDirectApi integration', () => {
     const inbox = projects.find((p) => p.isInbox)!
     await expect(api.deleteProject(inbox.id)).rejects.toThrow(/not found|inbox/)
   })
+
+  it('listDueReminders returns due reminders with task titles', async () => {
+    const api = createDirectApi()
+    const projects = await api.listProjects()
+    const inbox = projects.find((p) => p.isInbox)!
+    const task = await api.createTask({
+      projectId: inbox.id,
+      title: 'Task with reminder',
+    })
+    const past = '2020-01-01T12:00:00.000Z'
+    await api.createReminder(task.id, { remindAt: past, status: 'pending' })
+
+    const due = await api.listDueReminders()
+
+    expect(due.length).toBeGreaterThanOrEqual(1)
+    const found = due.find((r) => r.taskId === task.id)
+    expect(found).toBeDefined()
+    expect(found!.taskTitle).toBe('Task with reminder')
+    expect(found!.remindAt).toBe(past)
+  })
 })

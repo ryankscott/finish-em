@@ -17,6 +17,9 @@ export const SCHEMA_STATEMENTS = [
     end_at TEXT,
     color TEXT NOT NULL DEFAULT '#ef4444',
     is_inbox INTEGER NOT NULL DEFAULT 0,
+    jira_discovery_url TEXT,
+    jira_delivery_url TEXT,
+    confluence_url TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )

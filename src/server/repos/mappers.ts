@@ -20,6 +20,9 @@ export function mapProjectRow(row: Record<string, unknown>): Project {
     endAt: row.end_at ? String(row.end_at) : null,
     color: String(row.color),
     isInbox: Number(row.is_inbox) === 1,
+    jiraDiscoveryUrl: row.jira_discovery_url ? String(row.jira_discovery_url) : null,
+    jiraDeliveryUrl: row.jira_delivery_url ? String(row.jira_delivery_url) : null,
+    confluenceUrl: row.confluence_url ? String(row.confluence_url) : null,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   }
@@ -43,6 +46,7 @@ export function mapTaskRow(row: Record<string, unknown>): Task {
     recurrenceRRule: row.recurrence_rrule ? String(row.recurrence_rrule) : null,
     status: String(row.status) as TaskStatus,
     completedAt: row.completed_at ? String(row.completed_at) : null,
+    deletedAt: row.deleted_at ? String(row.deleted_at) : null,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   }

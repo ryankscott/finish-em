@@ -49,6 +49,9 @@ function buildFilterClause(filters: TaskFilters) {
     values.push(filters.to)
   }
 
+  // Always exclude soft-deleted tasks from regular queries
+  clauses.push('deleted_at IS NULL')
+
   return {
     clause: clauses.length > 0 ? `WHERE ${clauses.join(' AND ')}` : '',
     values,
@@ -254,8 +257,63 @@ export function updateTask(
 
 export function deleteTask(taskId: number): boolean {
   const db = getDb()
-  const result = db.prepare('DELETE FROM tasks WHERE id = ?').run(taskId)
+  const now = nowIso()
+  // Soft-delete the task and all its subtasks
+  db.prepare(
+    'UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE parent_task_id = ? AND deleted_at IS NULL',
+  ).run(now, now, taskId)
+  const result = db
+    .prepare('UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL')
+    .run(now, now, taskId)
   return result.changes > 0
+}
+
+export function listDeletedTasks(): Task[] {
+  const db = getDb()
+  const rows = db
+    .prepare(
+      'SELECT * FROM tasks WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC',
+    )
+    .all() as Record<string, unknown>[]
+  return rows.map(mapTaskRow)
+}
+
+export function undeleteTask(taskId: number): Task | null {
+  const db = getDb()
+  const now = nowIso()
+  const existing = db
+    .prepare('SELECT * FROM tasks WHERE id = ?')
+    .get(taskId) as Record<string, unknown> | undefined
+
+  if (!existing) {
+    return null
+  }
+
+  const task = mapTaskRow(existing)
+
+  // If this task has a soft-deleted parent, undelete the parent first
+  if (task.parentTaskId !== null) {
+    const parent = db
+      .prepare('SELECT * FROM tasks WHERE id = ? AND deleted_at IS NOT NULL')
+      .get(task.parentTaskId) as Record<string, unknown> | undefined
+    if (parent) {
+      db.prepare(
+        'UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE id = ?',
+      ).run(now, task.parentTaskId)
+    }
+  }
+
+  // Undelete soft-deleted subtasks of this task
+  db.prepare(
+    'UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE parent_task_id = ? AND deleted_at IS NOT NULL',
+  ).run(now, taskId)
+
+  // Undelete the task itself
+  db.prepare(
+    'UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE id = ?',
+  ).run(now, taskId)
+
+  return getTask(taskId)
 }
 
 export function completeTask(taskId: number): {

@@ -118,6 +118,31 @@ function ensureTaskSubtaskSchema(db: DbLike) {
   )
 }
 
+function ensureSoftDeleteSchema(db: DbLike) {
+  const tasksTable = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'")
+    .get() as { name?: string } | undefined
+
+  if (!tasksTable?.name) {
+    return
+  }
+
+  const columns = db.prepare('PRAGMA table_info(tasks)').all() as Array<{
+    name: unknown
+  }>
+  const hasDeletedAt = columns.some(
+    (column) => String(column.name) === 'deleted_at',
+  )
+
+  if (!hasDeletedAt) {
+    db.exec('ALTER TABLE tasks ADD COLUMN deleted_at TEXT')
+  }
+
+  db.exec(
+    'CREATE INDEX IF NOT EXISTS idx_tasks_deleted_at ON tasks(deleted_at)',
+  )
+}
+
 function ensureProjectEnhancementsSchema(db: DbLike) {
   const projectsTable = db
     .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'")
@@ -152,6 +177,40 @@ function ensureProjectEnhancementsSchema(db: DbLike) {
   }
 }
 
+function ensureProjectExternalLinksSchema(db: DbLike) {
+  const projectsTable = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'")
+    .get() as { name?: string } | undefined
+
+  if (!projectsTable?.name) {
+    return
+  }
+
+  const columns = db.prepare('PRAGMA table_info(projects)').all() as Array<{
+    name: unknown
+  }>
+
+  const hasJiraDiscoveryUrl = columns.some(
+    (column) => String(column.name) === 'jira_discovery_url',
+  )
+  const hasJiraDeliveryUrl = columns.some(
+    (column) => String(column.name) === 'jira_delivery_url',
+  )
+  const hasConfluenceUrl = columns.some(
+    (column) => String(column.name) === 'confluence_url',
+  )
+
+  if (!hasJiraDiscoveryUrl) {
+    db.exec('ALTER TABLE projects ADD COLUMN jira_discovery_url TEXT')
+  }
+  if (!hasJiraDeliveryUrl) {
+    db.exec('ALTER TABLE projects ADD COLUMN jira_delivery_url TEXT')
+  }
+  if (!hasConfluenceUrl) {
+    db.exec('ALTER TABLE projects ADD COLUMN confluence_url TEXT')
+  }
+}
+
 function initialize(db: DbLike) {
   db.exec('PRAGMA foreign_keys = ON')
   for (const statement of SCHEMA_STATEMENTS) {
@@ -159,6 +218,8 @@ function initialize(db: DbLike) {
   }
   ensureTaskSubtaskSchema(db)
   ensureProjectEnhancementsSchema(db)
+  ensureProjectExternalLinksSchema(db)
+  ensureSoftDeleteSchema(db)
   seedDefaults(db)
 }
 

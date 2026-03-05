@@ -16,7 +16,9 @@ import {
   createTask,
   deleteTask,
   getTask,
+  listDeletedTasks,
   listTasks,
+  undeleteTask,
   updateTask,
 } from '@/server/repos/tasks'
 
@@ -160,7 +162,7 @@ describe('repositories integration', () => {
     )
   })
 
-  it('cascades delete from parent task to subtasks', () => {
+  it('soft-deletes parent task and cascades to subtasks', () => {
     const project = createProject({ name: 'Cascade' })
     const parent = createTask({ projectId: project.id, title: 'Parent' })
     const subtask = createTask({
@@ -170,8 +172,19 @@ describe('repositories integration', () => {
     })
 
     expect(deleteTask(parent.id)).toBe(true)
-    expect(getTask(parent.id)).toBeNull()
-    expect(getTask(subtask.id)).toBeNull()
+
+    // getTask still returns soft-deleted tasks (rows are preserved)
+    const deletedParent = getTask(parent.id)
+    expect(deletedParent).not.toBeNull()
+    expect(deletedParent?.deletedAt).not.toBeNull()
+
+    const deletedSubtask = getTask(subtask.id)
+    expect(deletedSubtask).not.toBeNull()
+    expect(deletedSubtask?.deletedAt).not.toBeNull()
+
+    // listTasks excludes soft-deleted tasks
+    const visibleTasks = listTasks({ projectId: project.id })
+    expect(visibleTasks).toHaveLength(0)
   })
 
   it('rejects assigning parent when task already has subtasks', () => {
@@ -188,5 +201,69 @@ describe('repositories integration', () => {
       'A task with subtasks cannot be assigned as a subtask',
     )
     expect(child.parentTaskId).toBe(parent.id)
+  })
+
+  it('listDeletedTasks returns only soft-deleted tasks ordered by deleted_at desc', () => {
+    const project = createProject({ name: 'Trash' })
+    const t1 = createTask({ projectId: project.id, title: 'First' })
+    const t2 = createTask({ projectId: project.id, title: 'Second' })
+    createTask({ projectId: project.id, title: 'Alive' })
+
+    deleteTask(t1.id)
+    deleteTask(t2.id)
+
+    const deleted = listDeletedTasks()
+    expect(deleted.length).toBeGreaterThanOrEqual(2)
+    const ids = deleted.map((t) => t.id)
+    expect(ids).toContain(t1.id)
+    expect(ids).toContain(t2.id)
+    deleted.forEach((t) => expect(t.deletedAt).not.toBeNull())
+    // Most recently deleted first
+    const t1Idx = ids.indexOf(t1.id)
+    const t2Idx = ids.indexOf(t2.id)
+    expect(t2Idx).toBeLessThan(t1Idx)
+  })
+
+  it('undeleteTask restores a soft-deleted task and its subtasks', () => {
+    const project = createProject({ name: 'Restore' })
+    const parent = createTask({ projectId: project.id, title: 'Parent' })
+    const child = createTask({
+      projectId: project.id,
+      title: 'Child',
+      parentTaskId: parent.id,
+    })
+
+    deleteTask(parent.id)
+    expect(getTask(parent.id)?.deletedAt).not.toBeNull()
+    expect(getTask(child.id)?.deletedAt).not.toBeNull()
+
+    const restored = undeleteTask(parent.id)
+    expect(restored).not.toBeNull()
+    expect(restored?.deletedAt).toBeNull()
+    expect(getTask(child.id)?.deletedAt).toBeNull()
+
+    const visible = listTasks({ projectId: project.id })
+    const ids = visible.map((t) => t.id)
+    expect(ids).toContain(parent.id)
+    expect(ids).toContain(child.id)
+  })
+
+  it('undeleteTask also restores parent when undeleting a subtask with a deleted parent', () => {
+    const project = createProject({ name: 'OrphanRestore' })
+    const parent = createTask({ projectId: project.id, title: 'Parent' })
+    const child = createTask({
+      projectId: project.id,
+      title: 'Child',
+      parentTaskId: parent.id,
+    })
+
+    deleteTask(parent.id)
+    expect(getTask(parent.id)?.deletedAt).not.toBeNull()
+    expect(getTask(child.id)?.deletedAt).not.toBeNull()
+
+    const restored = undeleteTask(child.id)
+    expect(restored).not.toBeNull()
+    expect(restored?.deletedAt).toBeNull()
+    expect(getTask(parent.id)?.deletedAt).toBeNull()
   })
 })

@@ -17,6 +17,9 @@ export const projects = sqliteTable('projects', {
   endAt: text('end_at'),
   color: text('color').notNull().default('#ef4444'),
   isInbox: integer('is_inbox', { mode: 'boolean' }).notNull().default(false),
+  jiraDiscoveryUrl: text('jira_discovery_url'),
+  jiraDeliveryUrl: text('jira_delivery_url'),
+  confluenceUrl: text('confluence_url'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 })

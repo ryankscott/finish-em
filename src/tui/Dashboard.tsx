@@ -20,7 +20,7 @@ const TIPS = [
 	"Press q to quit",
 	"Press r to refresh",
 	"Press x to complete a task",
-	"Press e to edit a task",
+	"Press e to edit task title",
 ];
 
 type DashboardProps = {

@@ -6,8 +6,8 @@ type NavItem = {
 	type: "nav";
 	key: string;
 	label: string;
-	countKey?: "today" | "inbox" | "upcoming" | "completed";
-	view: "today" | "inbox" | "upcoming" | "completed" | "settings";
+	countKey?: "today" | "inbox" | "upcoming" | "completed" | "deleted";
+	view: "today" | "inbox" | "upcoming" | "completed" | "deleted" | "settings";
 };
 
 type ProjectItem = {
@@ -46,6 +46,13 @@ const NAV_ITEMS: NavItem[] = [
 		countKey: "completed",
 		view: "completed",
 	},
+	{
+		type: "nav",
+		key: "deleted",
+		label: "Deleted",
+		countKey: "deleted",
+		view: "deleted",
+	},
 ];
 
 const SETTINGS_ITEM: NavItem = {
@@ -67,7 +74,7 @@ export const buildSidebarItems = (projects: Project[]): SidebarItem[] => {
 type SidebarProps = {
 	items: SidebarItem[];
 	viewCounts?: Partial<
-		Record<"today" | "inbox" | "upcoming" | "completed", number> & {
+		Record<"today" | "inbox" | "upcoming" | "completed" | "deleted", number> & {
 			projectCounts?: Record<number, number>;
 		}
 	>;

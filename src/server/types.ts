@@ -20,6 +20,9 @@ export type Project = {
   endAt: string | null
   color: string
   isInbox: boolean
+  jiraDiscoveryUrl: string | null
+  jiraDeliveryUrl: string | null
+  confluenceUrl: string | null
   createdAt: string
   updatedAt: string
 }
@@ -38,6 +41,7 @@ export type Task = {
   recurrenceRRule: string | null
   status: TaskStatus
   completedAt: string | null
+  deletedAt: string | null
   createdAt: string
   updatedAt: string
 }

@@ -1,3 +1,4 @@
+import { ThemeProvider, defaultTheme } from "@inkjs/ui"
 import { render } from "ink"
 
 import { App } from "./App"
@@ -10,12 +11,14 @@ const runTui = async () => {
 
 	try {
 		appInstance = render(
-			<App
-				api={api}
-				onQuit={() => {
-					appInstance?.unmount()
-				}}
-			/>,
+			<ThemeProvider theme={defaultTheme}>
+				<App
+					api={api}
+					onQuit={() => {
+						appInstance?.unmount()
+					}}
+				/>
+			</ThemeProvider>,
 		)
 
 		await appInstance.waitUntilExit()

@@ -28,6 +28,9 @@ export function createProject(input: {
   endAt?: string | null
   color?: string
   isInbox?: boolean
+  jiraDiscoveryUrl?: string | null
+  jiraDeliveryUrl?: string | null
+  confluenceUrl?: string | null
 }): Project {
   const db = getDb()
   const now = nowIso()
@@ -37,6 +40,9 @@ export function createProject(input: {
   const endAt = input.endAt ?? null
   const color = input.color ?? '#ef4444'
   const isInbox = input.isInbox ? 1 : 0
+  const jiraDiscoveryUrl = input.jiraDiscoveryUrl ?? null
+  const jiraDeliveryUrl = input.jiraDeliveryUrl ?? null
+  const confluenceUrl = input.confluenceUrl ?? null
 
   if (isInbox === 1) {
     db.prepare('UPDATE projects SET is_inbox = 0, updated_at = ?').run(now)
@@ -44,9 +50,22 @@ export function createProject(input: {
 
   const result = db
     .prepare(
-      'INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, jira_discovery_url, jira_delivery_url, confluence_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     )
-    .run(input.name, emoji, description, startAt, endAt, color, isInbox, now, now)
+    .run(
+      input.name,
+      emoji,
+      description,
+      startAt,
+      endAt,
+      color,
+      isInbox,
+      jiraDiscoveryUrl,
+      jiraDeliveryUrl,
+      confluenceUrl,
+      now,
+      now,
+    )
 
   const id = Number(result.lastInsertRowid)
   const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as Record<
@@ -67,6 +86,9 @@ export function updateProject(
     endAt: string | null
     color: string
     isInbox: boolean
+    jiraDiscoveryUrl: string | null
+    jiraDeliveryUrl: string | null
+    confluenceUrl: string | null
   }>,
 ): Project | null {
   const db = getDb()
@@ -84,14 +106,30 @@ export function updateProject(
   const endAt = patch.endAt ?? existing.endAt
   const color = patch.color ?? existing.color
   const isInbox = patch.isInbox ?? existing.isInbox
+  const jiraDiscoveryUrl = patch.jiraDiscoveryUrl ?? existing.jiraDiscoveryUrl
+  const jiraDeliveryUrl = patch.jiraDeliveryUrl ?? existing.jiraDeliveryUrl
+  const confluenceUrl = patch.confluenceUrl ?? existing.confluenceUrl
 
   if (isInbox) {
     db.prepare('UPDATE projects SET is_inbox = 0, updated_at = ?').run(now)
   }
 
   db.prepare(
-    'UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, updated_at = ? WHERE id = ?',
-  ).run(name, emoji, description, startAt, endAt, color, isInbox ? 1 : 0, now, projectId)
+    'UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, jira_discovery_url = ?, jira_delivery_url = ?, confluence_url = ?, updated_at = ? WHERE id = ?',
+  ).run(
+    name,
+    emoji,
+    description,
+    startAt,
+    endAt,
+    color,
+    isInbox ? 1 : 0,
+    jiraDiscoveryUrl,
+    jiraDeliveryUrl,
+    confluenceUrl,
+    now,
+    projectId,
+  )
 
   return getProject(projectId)
 }

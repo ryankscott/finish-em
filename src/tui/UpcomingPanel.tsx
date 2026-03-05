@@ -1,9 +1,7 @@
 import {
 	addDays,
 	format,
-	isBefore,
 	isSameDay,
-	isValid,
 	parseISO,
 	startOfDay,
 	startOfWeek,
@@ -11,7 +9,10 @@ import {
 import { Box, Text } from "ink";
 
 import { toDisplayString } from "../lib/task-links";
-import type { Goal, Priority, Project, Task } from "../server/types";
+import type { Goal, Project, Task } from "../server/types";
+import { formatDueDate, isOverdueDueDate, priorityColor } from "./task-display-helpers";
+import type { TaskRow } from "./task-row-utils";
+import { buildTaskRows } from "./task-row-utils";
 
 export type ViewMode = "day" | "work-week" | "week";
 
@@ -23,47 +24,10 @@ export type DayColumn = {
 	isOverdue?: boolean;
 };
 
-export type ColumnTaskRow = {
-	task: Task;
-	depth: 0 | 1;
-	parentTitle?: string;
-};
+export type ColumnTaskRow = TaskRow;
 
 export function buildColumnTaskRows(tasks: Task[]): ColumnTaskRow[] {
-	const visibleById = new Map(tasks.map((task) => [task.id, task]));
-	const childrenByParent = new Map<number, Task[]>();
-	const roots: Task[] = [];
-
-	for (const task of tasks) {
-		if (task.parentTaskId !== null && visibleById.has(task.parentTaskId)) {
-			const children = childrenByParent.get(task.parentTaskId) ?? [];
-			children.push(task);
-			childrenByParent.set(task.parentTaskId, children);
-			continue;
-		}
-		roots.push(task);
-	}
-
-	const rows: ColumnTaskRow[] = [];
-	for (const root of roots) {
-		rows.push({
-			task: root,
-			depth: 0,
-			parentTitle:
-				root.parentTaskId !== null
-					? visibleById.get(root.parentTaskId)?.title
-					: undefined,
-		});
-		for (const child of childrenByParent.get(root.id) ?? []) {
-			rows.push({
-				task: child,
-				depth: 1,
-				parentTitle: root.title,
-			});
-		}
-	}
-
-	return rows;
+	return buildTaskRows(tasks);
 }
 
 export function dateKey(date: Date): string {
@@ -133,36 +97,6 @@ function formatDayHeader(date: Date, today: Date): string {
 	return `${dayMonth} · ${format(date, "EEE")}`;
 }
 
-const priorityColor = (priority: Priority): string => {
-	switch (priority) {
-		case 1:
-			return "red";
-		case 2:
-			return "yellow";
-		case 3:
-			return "blue";
-		default:
-			return "gray";
-	}
-};
-
-const formatDueDate = (dueAt: string): string => {
-	try {
-		return format(parseISO(dueAt), "MMM dd");
-	} catch {
-		return dueAt;
-	}
-};
-
-const isOverdueDueDate = (dueAt: string): boolean => {
-	try {
-		const dueDate = parseISO(dueAt);
-		return isValid(dueDate) && isBefore(dueDate, new Date());
-	} catch {
-		return false;
-	}
-};
-
 type TaskCardProps = {
 	row: ColumnTaskRow;
 	project: Project | undefined;
@@ -206,21 +140,21 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 					)}
 				</Box>
 			</Box>
-				<Box paddingLeft={2} justifyContent="space-between">
-					<Text dimColor wrap="truncate">
-						{hasRecurrence ? "↻ " : ""}
-						{project
-							? project.isInbox
-								? `⬚ ${project.name}`
-								: `# ${project.name}`
-							: ""}
-						{task.notes
-							? project || hasRecurrence
-								? `  ${toDisplayString(task.notes)}`
-								: toDisplayString(task.notes)
-							: ""}
-					</Text>
-          {task.dueAt && (
+			<Box paddingLeft={2} justifyContent="space-between">
+				<Text dimColor wrap="truncate">
+					{hasRecurrence ? "↻ " : ""}
+					{project
+						? project.isInbox
+							? `⬚ ${project.name}`
+							: `# ${project.name}`
+						: ""}
+					{task.notes
+						? project || hasRecurrence
+							? `  ${toDisplayString(task.notes)}`
+							: toDisplayString(task.notes)
+						: ""}
+				</Text>
+				{task.dueAt && (
 					<Box marginLeft={1}>
 						<Text
 							color={isOverdue && !isCompleted ? "red" : undefined}
@@ -230,7 +164,7 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 						</Text>
 					</Box>
 				)}
-				</Box>
+			</Box>
 		</Box>
 	);
 };
@@ -238,34 +172,56 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 type GoalsSectionProps = {
 	goals: Goal[];
 	viewMode: ViewMode;
+	selectedGoalIndex: number;
+	focused: boolean;
 };
 
-const GoalsSection = ({ goals, viewMode }: GoalsSectionProps) => {
+const GoalsSection = ({ goals, viewMode, selectedGoalIndex, focused }: GoalsSectionProps) => {
 	const label = viewMode === "day" ? "Daily goals" : "Weekly goals";
+	const borderColor = focused ? "magentaBright" : "gray";
 	return (
 		<Box
 			flexDirection="column"
 			borderStyle="round"
-			borderColor="gray"
+			borderColor={borderColor}
 			paddingX={1}
 			marginBottom={1}
 		>
-			<Text bold color="magentaBright">
-				{label}
-			</Text>
+			<Box justifyContent="space-between">
+				<Text bold color="magentaBright">
+					{label}
+				</Text>
+				{focused && (
+					<Text dimColor>j/k select · x toggle · e edit title · Del delete</Text>
+				)}
+			</Box>
 			{goals.length === 0 ? (
 				<Text dimColor>No goals yet. Press g to add a goal.</Text>
 			) : (
-				goals.map((goal) => (
-					<Box key={goal.id}>
-						<Text color={goal.done ? "green" : "gray"}>
-							{goal.done ? "[✓] " : "[ ] "}
-						</Text>
-						<Text dimColor={goal.done} strikethrough={goal.done}>
-							{goal.title}
-						</Text>
-					</Box>
-				))
+				goals.map((goal, i) => {
+					const isSelected = i === selectedGoalIndex;
+					const showCursor = isSelected && focused;
+					return (
+						<Box key={goal.id}>
+							<Box width={2}>
+								<Text color={showCursor ? "cyan" : undefined}>
+									{showCursor ? "❯" : " "}
+								</Text>
+							</Box>
+							<Text color={goal.done ? "green" : "gray"}>
+								{goal.done ? "[✓] " : "[ ] "}
+							</Text>
+							<Text
+								color={showCursor ? "cyan" : undefined}
+								bold={showCursor}
+								dimColor={goal.done && !showCursor}
+								strikethrough={goal.done}
+							>
+								{goal.title}
+							</Text>
+						</Box>
+					);
+				})
 			)}
 		</Box>
 	);
@@ -332,8 +288,10 @@ type UpcomingPanelProps = {
 	viewMode: ViewMode;
 	anchorDate: Date;
 	focused: boolean;
+	focusArea: "tasks" | "goals" | "sidebar";
 	selectedColumnIndex: number;
 	selectedTaskIndex: number;
+	selectedGoalIndex: number;
 	terminalWidth: number;
 };
 
@@ -344,8 +302,10 @@ export const UpcomingPanel = ({
 	viewMode,
 	anchorDate,
 	focused,
+	focusArea,
 	selectedColumnIndex,
 	selectedTaskIndex,
+	selectedGoalIndex,
 	terminalWidth,
 }: UpcomingPanelProps) => {
 	const borderColor = focused ? "magentaBright" : "gray";
@@ -379,7 +339,6 @@ export const UpcomingPanel = ({
 			borderColor={borderColor}
 			paddingX={1}
 		>
-			{/* Header bar */}
 			<Box marginBottom={1} justifyContent="space-between">
 				<Text bold color="magentaBright">
 					Upcoming
@@ -389,10 +348,13 @@ export const UpcomingPanel = ({
 				</Text>
 			</Box>
 
-			{/* Goals section */}
-			<GoalsSection goals={goals} viewMode={viewMode} />
+			<GoalsSection
+				goals={goals}
+				viewMode={viewMode}
+				selectedGoalIndex={selectedGoalIndex}
+				focused={focusArea === "goals"}
+			/>
 
-			{/* Day columns */}
 			{columns.length === 0 ? (
 				<Text dimColor>No tasks</Text>
 			) : (
@@ -412,14 +374,15 @@ export const UpcomingPanel = ({
 				</Box>
 			)}
 
-			{/* Footer hint */}
-			<Box marginTop={1}>
-				<Text dimColor>
-					{focused
-						? "h/l: column · j/k: task · x: complete"
+		<Box marginTop={1}>
+			<Text dimColor>
+				{focused && focusArea === "tasks"
+					? "h/l: column · j/k: task · x: complete · Tab: goals"
+					: focused && focusArea === "goals"
+						? "Tab: tasks"
 						: "Tab to focus"}
-				</Text>
-			</Box>
+			</Text>
+		</Box>
 		</Box>
 	);
 };

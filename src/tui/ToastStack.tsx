@@ -1,6 +1,7 @@
+import { Alert } from "@inkjs/ui";
 import { Box } from "ink";
 
-import { StatusMessage, type StatusMessageTone } from "./StatusMessage";
+import type { StatusMessageTone } from "./StatusMessage";
 
 export type ToastMessage = {
 	id: number;
@@ -18,7 +19,9 @@ export const ToastStack = ({ toasts }: ToastStackProps) => {
 	return (
 		<Box flexDirection="column" paddingX={1}>
 			{toasts.map((toast) => (
-				<StatusMessage key={toast.id} tone={toast.tone} message={toast.text} />
+				<Alert key={toast.id} variant={toast.tone}>
+					{toast.text}
+				</Alert>
 			))}
 		</Box>
 	);

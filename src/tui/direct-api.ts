@@ -49,6 +49,14 @@ export const createDirectApi = (): ApiClient => ({
     return Promise.resolve()
   },
 
+  listDeletedTasks: () => Promise.resolve(taskRepo.listDeletedTasks()),
+
+  undeleteTask: (taskId) => {
+    const result = taskRepo.undeleteTask(taskId)
+    if (!result) throw new Error(`Task ${taskId} not found`)
+    return Promise.resolve(result)
+  },
+
   completeTask: (taskId) => {
     const result = taskRepo.completeTask(taskId)
     if (!result.task) throw new Error(`Task ${taskId} not found`)
@@ -86,6 +94,9 @@ export const createDirectApi = (): ApiClient => ({
 
   listTaskReminders: (taskId) =>
     Promise.resolve(reminderRepo.listTaskReminders(taskId)),
+
+  listDueReminders: () =>
+    Promise.resolve(reminderRepo.listDueRemindersWithTitles()),
 
   createReminder: (taskId, input) =>
     Promise.resolve(reminderRepo.createReminder({ taskId, ...input })),
