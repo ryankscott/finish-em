@@ -49,6 +49,37 @@ describe('createDirectApi integration', () => {
     expect(updated.endAt).toBe('2026-05-01')
   })
 
+  it('updateProject clears project link URLs when passed null', async () => {
+    const api = createDirectApi()
+    const project = await api.createProject({
+      name: 'Links Project',
+      jiraDiscoveryUrl: 'https://jira.example.com/discovery',
+      jiraDeliveryUrl: 'https://jira.example.com/board/1',
+      confluenceUrl: 'https://wiki.example.com/space',
+    })
+    expect(project.jiraDiscoveryUrl).toBe('https://jira.example.com/discovery')
+    expect(project.jiraDeliveryUrl).toBe('https://jira.example.com/board/1')
+    expect(project.confluenceUrl).toBe('https://wiki.example.com/space')
+
+    const clearedDiscovery = await api.updateProject(project.id, {
+      jiraDiscoveryUrl: null,
+    })
+    expect(clearedDiscovery.jiraDiscoveryUrl).toBeNull()
+    expect(clearedDiscovery.jiraDeliveryUrl).toBe(project.jiraDeliveryUrl)
+    expect(clearedDiscovery.confluenceUrl).toBe(project.confluenceUrl)
+
+    const clearedDelivery = await api.updateProject(project.id, {
+      jiraDeliveryUrl: null,
+    })
+    expect(clearedDelivery.jiraDeliveryUrl).toBeNull()
+    expect(clearedDelivery.confluenceUrl).toBe(project.confluenceUrl)
+
+    const clearedConfluence = await api.updateProject(project.id, {
+      confluenceUrl: null,
+    })
+    expect(clearedConfluence.confluenceUrl).toBeNull()
+  })
+
   it('deleteProject removes non-inbox project and reassigns tasks to inbox', async () => {
     const api = createDirectApi()
 

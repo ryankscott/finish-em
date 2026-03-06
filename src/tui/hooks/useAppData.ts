@@ -7,6 +7,10 @@ import {
 } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
 
+export function isOverdueTask(task: { dueAt: string | null }, now: Date): boolean {
+	return !!task.dueAt && parseISO(task.dueAt) < startOfDay(now);
+}
+
 import type {
 	AppSettings,
 	Goal,
@@ -20,6 +24,7 @@ import type { View } from "./useNavigation";
 
 const EMPTY_VIEW_COUNTS = {
 	today: 0,
+	overdue: 0,
 	inbox: 0,
 	upcoming: 0,
 	completed: 0,
@@ -75,6 +80,14 @@ export function useAppData({
 	const loadData = useCallback(async () => {
 		setLoading(true);
 		setErrorText(null);
+		// Set title immediately so it updates before the async fetch completes
+		if (view === "settings") setStatusText("Settings");
+		else if (view === "inbox") setStatusText("Inbox");
+		else if (view === "today") setStatusText("Today");
+		else if (view === "overdue") setStatusText("Overdue");
+		else if (view === "upcoming") setStatusText("Upcoming");
+		else if (view === "completed") setStatusText("Completed");
+		else if (view === "deleted") setStatusText("Deleted");
 		try {
 			setSettings(await api.getSettings());
 			const loadedProjects = await api.listProjects();
@@ -112,11 +125,15 @@ export function useAppData({
 			),
 		]);
 
+		const overdueFilteredTasks = upcomingOverdueTasks.filter((t) =>
+			isOverdueTask(t, now),
+		);
 		const projectCounts: Record<number, number> = Object.fromEntries(
 			nonInboxProjects.map((p, i) => [p.id, projectTaskLists[i]?.length ?? 0]),
 		);
 		setViewCounts({
 			today: todayCountTasks.length,
+			overdue: overdueFilteredTasks.length,
 			inbox: inboxTasks.length,
 			upcoming:
 				upcomingRangeTasks.length +
@@ -142,6 +159,9 @@ export function useAppData({
 			} else if (view === "today") {
 				setTasks(todayCountTasks);
 				setStatusText("Today");
+			} else if (view === "overdue") {
+				setTasks(overdueFilteredTasks);
+				setStatusText("Overdue");
 			} else if (view === "upcoming") {
 				const goalData = await api.listGoals({
 					periodType: goalPeriodType,

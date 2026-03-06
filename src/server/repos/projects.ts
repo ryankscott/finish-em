@@ -106,9 +106,12 @@ export function updateProject(
   const endAt = patch.endAt ?? existing.endAt
   const color = patch.color ?? existing.color
   const isInbox = patch.isInbox ?? existing.isInbox
-  const jiraDiscoveryUrl = patch.jiraDiscoveryUrl ?? existing.jiraDiscoveryUrl
-  const jiraDeliveryUrl = patch.jiraDeliveryUrl ?? existing.jiraDeliveryUrl
-  const confluenceUrl = patch.confluenceUrl ?? existing.confluenceUrl
+  const jiraDiscoveryUrl =
+    "jiraDiscoveryUrl" in patch ? patch.jiraDiscoveryUrl ?? null : existing.jiraDiscoveryUrl
+  const jiraDeliveryUrl =
+    "jiraDeliveryUrl" in patch ? patch.jiraDeliveryUrl ?? null : existing.jiraDeliveryUrl
+  const confluenceUrl =
+    "confluenceUrl" in patch ? patch.confluenceUrl ?? null : existing.confluenceUrl
 
   if (isInbox) {
     db.prepare('UPDATE projects SET is_inbox = 0, updated_at = ?').run(now)

@@ -90,13 +90,17 @@ export function useNavDerived({
 			if (!proj) return "Project";
 			return proj.emoji ? `${proj.emoji} ${proj.name}` : proj.name;
 		}
-		return nav.view === "inbox"
-			? "Inbox"
-			: nav.view === "today"
-				? "Today"
-				: nav.view === "upcoming"
-					? "Upcoming"
-					: "Completed";
+		const labels: Record<typeof nav.view, string> = {
+			inbox: "Inbox",
+			today: "Today",
+			overdue: "Overdue",
+			upcoming: "Upcoming",
+			completed: "Completed",
+			deleted: "Deleted",
+			settings: "Settings",
+			project: "Project",
+		};
+		return labels[nav.view] ?? nav.view;
 	}, [nav.view, projects, nav.activeProjectId]);
 
 	const activeProject = useMemo(

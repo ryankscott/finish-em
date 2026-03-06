@@ -30,7 +30,7 @@ const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "c", action: "Edit task notes / description" },
 	{
 		keys: "o",
-		action: "Open link in task (if multiple: j/k or 1–9, Enter open)",
+		action: "Open link (task links, or project links in project view; if multiple: j/k or 1–9, Enter open)",
 	},
 	{ keys: "d", action: "Delete selected task (soft-delete, recoverable)" },
 	{ keys: "u", action: "Restore deleted task (Deleted view only)" },

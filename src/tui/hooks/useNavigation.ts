@@ -7,6 +7,7 @@ import type { ViewMode } from "../UpcomingPanel";
 export type View =
 	| "inbox"
 	| "today"
+	| "overdue"
 	| "upcoming"
 	| "completed"
 	| "deleted"

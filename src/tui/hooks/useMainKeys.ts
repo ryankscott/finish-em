@@ -724,6 +724,38 @@ export function useMainKeys({
 		}
 
 			if (input === "o") {
+				if (view === "project" && activeProject) {
+					const projectLinks: { url: string; displayLabel: string }[] = [];
+					if (activeProject.jiraDiscoveryUrl)
+						projectLinks.push({
+							url: activeProject.jiraDiscoveryUrl,
+							displayLabel: "Jira Discovery",
+						});
+					if (activeProject.jiraDeliveryUrl)
+						projectLinks.push({
+							url: activeProject.jiraDeliveryUrl,
+							displayLabel: "Jira Delivery",
+						});
+					if (activeProject.confluenceUrl)
+						projectLinks.push({
+							url: activeProject.confluenceUrl,
+							displayLabel: "Confluence",
+						});
+					if (projectLinks.length === 0) {
+						setStatusText("No project links");
+					} else if (projectLinks.length === 1) {
+						openUrl(projectLinks[0].url);
+						setStatusText("Opened link");
+					} else {
+						setLinkPickerLinks(projectLinks);
+						setLinkPickerIndex(0);
+						setInputMode("linkPicker");
+						setStatusText(
+							`Open link (1/${projectLinks.length}): ${projectLinks[0].displayLabel}  j/k  Enter=open Esc=cancel`,
+						);
+					}
+					return;
+				}
 				if (!selectedTask) return;
 				const titleSegments = toDisplaySegments(selectedTask.title);
 				const notesSegments = toDisplaySegments(selectedTask.notes ?? "");
