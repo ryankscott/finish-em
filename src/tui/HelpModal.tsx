@@ -6,12 +6,13 @@ type ShortcutRow = {
 	section?: string;
 };
 
-const SHORTCUTS: ShortcutRow[] = [
+export const SHORTCUTS: ShortcutRow[] = [
 	{
 		keys: "Tab",
 		action: "Cycle focus: sidebar → tasks → goals (upcoming)",
 		section: "Navigation",
 	},
+	{ keys: "/", action: "Toggle sidebar" },
 	{ keys: "j / ↓", action: "Move down" },
 	{ keys: "k / ↑", action: "Move up" },
 	{ keys: "Enter", action: "Select sidebar item" },
@@ -21,7 +22,8 @@ const SHORTCUTS: ShortcutRow[] = [
 		section: "Tasks",
 	},
 	{ keys: "Space", action: "Expand/collapse subtasks" },
-	{ keys: "a", action: "Quick add task" },
+	{ keys: "a", action: "Quick add task (title only, added to current project)" },
+	{ keys: "A", action: "Create task — full form modal (title, project, priority, dates, notes)" },
 	{ keys: "s", action: "Create subtask under selected task" },
 	{
 		keys: "e",
@@ -47,7 +49,8 @@ const SHORTCUTS: ShortcutRow[] = [
 	},
 	{ keys: "Shift+s", action: "Open settings view", section: "Settings" },
 	{ keys: "e / Enter", action: "Edit selected setting" },
-	{ keys: "p", action: "Create new project", section: "Projects" },
+	{ keys: "p", action: "Create new project (quick, tokenized input)", section: "Projects" },
+	{ keys: "P", action: "Create project — full form modal (all fields)" },
 	{ keys: "e", action: "Edit project name" },
 	{ keys: "D", action: "Delete project (in project view, non-inbox)" },
 	{ keys: "h / ←", action: "Previous column", section: "Upcoming" },

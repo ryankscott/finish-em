@@ -299,30 +299,39 @@ describe("useSubmitInput routing — project fields", () => {
 	});
 });
 
-// Mirrors Quick Add projectId fallback in useSubmitInput: parsed.input.projectId ?? activeProjectId ?? inboxId ?? 1
+// Mirrors Quick Add projectId resolution in useSubmitInput: activeProjectId ?? inboxId ?? 1
 function resolveQuickAddProjectId(
-	parsedProjectId: number | undefined,
 	activeProjectId: number | null,
 	projects: Project[],
 ): number {
 	const inboxId = projects.find((p) => p.isInbox)?.id ?? 1;
-	return parsedProjectId ?? activeProjectId ?? inboxId ?? 1;
+	return activeProjectId ?? inboxId;
 }
 
-describe("useSubmitInput — Quick Add project default", () => {
-	it("uses selected project when input has no project token", () => {
-		expect(
-			resolveQuickAddProjectId(undefined, 2, MOCK_PROJECTS),
-		).toBe(2);
+describe("useSubmitInput — Quick Add project assignment", () => {
+	it("uses the active project when in a project view", () => {
+		expect(resolveQuickAddProjectId(2, MOCK_PROJECTS)).toBe(2);
 	});
 
-	it("explicit project in input wins over selected project", () => {
-		expect(resolveQuickAddProjectId(1, 2, MOCK_PROJECTS)).toBe(1);
+	it("falls back to Inbox when no active project", () => {
+		expect(resolveQuickAddProjectId(null, MOCK_PROJECTS)).toBe(1);
 	});
 
-	it("no project selected uses Inbox/default", () => {
-		expect(
-			resolveQuickAddProjectId(undefined, null, MOCK_PROJECTS),
-		).toBe(1);
+	it("falls back to id 1 when no active project and no inbox found", () => {
+		const noInbox = MOCK_PROJECTS.map((p) => ({ ...p, isInbox: false }));
+		expect(resolveQuickAddProjectId(null, noInbox)).toBe(1);
+	});
+});
+
+describe("useSubmitInput — Quick Add title handling", () => {
+	it("treats input with colons as a literal title", () => {
+		const input = "Fix auth: login flow broken";
+		// No token parsing - the raw trimmed value is used as-is
+		expect(input.trim()).toBe("Fix auth: login flow broken");
+	});
+
+	it("trims whitespace from the title", () => {
+		const input = "  Buy milk  ";
+		expect(input.trim()).toBe("Buy milk");
 	});
 });

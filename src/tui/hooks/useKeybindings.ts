@@ -41,11 +41,23 @@ type UseKeybindingsParams = {
 	setEnumPickerItems: (items: EnumPickerItem[]) => void;
 	enumPickerTitle: string;
 	setEnumPickerTitle: (title: string) => void;
-	enumPickerTargetMode: InputMode | null;
-	setEnumPickerTargetMode: (mode: InputMode | null) => void;
+	enumPickerTargetMode: string | null;
+	setEnumPickerTargetMode: (mode: string | null) => void;
+	// Modal create state
+	isModalMode: boolean;
+	isModalTextActive: boolean;
+	modalFieldIndex: number;
+	setModalFieldIndex: React.Dispatch<React.SetStateAction<number>>;
+	modalValues: Record<string, string>;
+	setModalValues: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+	modalValuesRef: React.MutableRefObject<Record<string, string>>;
+	modalActiveFieldKeyRef: React.MutableRefObject<string>;
+	setValidationError: (err: string | null) => void;
 	view: View;
 	focusArea: FocusArea;
 	setFocusArea: React.Dispatch<React.SetStateAction<FocusArea>>;
+	sidebarVisible: boolean;
+	setSidebarVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	sidebarItems: SidebarItem[];
 	sidebarIndex: number;
 	setSidebarIndex: React.Dispatch<React.SetStateAction<number>>;
@@ -119,9 +131,20 @@ export function useKeybindings({
 	setEnumPickerTitle,
 	enumPickerTargetMode,
 	setEnumPickerTargetMode,
+	isModalMode,
+	isModalTextActive,
+	modalFieldIndex,
+	setModalFieldIndex,
+	modalValues: _modalValues,
+	setModalValues,
+	modalValuesRef,
+	modalActiveFieldKeyRef,
+	setValidationError,
 	view,
 	focusArea,
 	setFocusArea,
+	sidebarVisible,
+	setSidebarVisible,
 	sidebarItems,
 	sidebarIndex,
 	setSidebarIndex,
@@ -161,17 +184,17 @@ export function useKeybindings({
 	deleteSelectedGoal,
 	onQuit,
 }: UseKeybindingsParams) {
-	// Sync cursor to end of input when entering text mode
+	// Sync cursor to end of input when entering text mode (including modal text fields)
 	const prevWasTextInputModeRef = useRef(false);
 	useEffect(() => {
-		if (isTextInputMode && !prevWasTextInputModeRef.current) {
+		if ((isTextInputMode || isModalTextActive) && !prevWasTextInputModeRef.current) {
 			setInputCursorOffset(inputValue.length);
 		}
-		prevWasTextInputModeRef.current = isTextInputMode;
-	}, [isTextInputMode, inputValue.length, setInputCursorOffset]);
+		prevWasTextInputModeRef.current = isTextInputMode || isModalTextActive;
+	}, [isTextInputMode, isModalTextActive, inputValue.length, setInputCursorOffset]);
 
 	useTextInputKeys({
-		isActive: isTextInputMode,
+		isActive: isTextInputMode || isModalTextActive,
 		inputMode,
 		inputValueRef,
 		inputCursorRef,
@@ -181,10 +204,15 @@ export function useKeybindings({
 		closeInput,
 		submitInput,
 		openCalendarPicker,
+		isModalMode,
+		isModalTextActive,
+		modalActiveFieldKeyRef,
+		modalValuesRef,
+		setModalValues,
 	});
 
 	useMainKeys({
-		isActive: !isTextInputMode,
+		isActive: isModalMode || !isTextInputMode,
 		showHelp,
 		setShowHelp,
 		inputMode,
@@ -203,6 +231,14 @@ export function useKeybindings({
 		setEnumPickerTitle,
 		enumPickerTargetMode,
 		setEnumPickerTargetMode,
+		isModalMode,
+		isModalTextActive,
+		modalFieldIndex,
+		setModalFieldIndex,
+		modalValuesRef,
+		setValidationError,
+		closeInput,
+		openCalendarPicker,
 		calendarCursorDate,
 		setCalendarCursorDate,
 		calendarVisibleMonth,
@@ -210,6 +246,8 @@ export function useKeybindings({
 		view,
 		focusArea,
 		setFocusArea,
+		sidebarVisible,
+		setSidebarVisible,
 		sidebarItems,
 		sidebarIndex,
 		setSidebarIndex,

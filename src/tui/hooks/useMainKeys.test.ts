@@ -1,7 +1,11 @@
 import { describe, expect, it } from "bun:test";
 
 import type { Project, Task } from "../../server/types";
-import { getEKeyEditOutcome, shouldStartProjectEdit } from "./useMainKeys";
+import {
+	getEKeyEditOutcome,
+	getSidebarToggleOutcome,
+	shouldStartProjectEdit,
+} from "./useMainKeys";
 
 const MOCK_TASK: Task = {
 	id: 1,
@@ -100,5 +104,32 @@ describe("shouldStartProjectEdit", () => {
 	});
 	it("returns false when focus is not on sidebar", () => {
 		expect(shouldStartProjectEdit("e", "project", 42, "tasks")).toBe(false);
+	});
+});
+
+describe("getSidebarToggleOutcome", () => {
+	it("toggles visibility and moves focus to tasks when collapsing from sidebar", () => {
+		expect(getSidebarToggleOutcome(true, "sidebar")).toEqual({
+			nextVisible: false,
+			moveFocusToTasks: true,
+		});
+	});
+	it("toggles visibility and does not move focus when collapsing from tasks", () => {
+		expect(getSidebarToggleOutcome(true, "tasks")).toEqual({
+			nextVisible: false,
+			moveFocusToTasks: false,
+		});
+	});
+	it("toggles visibility and does not move focus when expanding", () => {
+		expect(getSidebarToggleOutcome(false, "tasks")).toEqual({
+			nextVisible: true,
+			moveFocusToTasks: false,
+		});
+	});
+	it("when focus is goals and collapsing, does not move focus to tasks", () => {
+		expect(getSidebarToggleOutcome(true, "goals")).toEqual({
+			nextVisible: false,
+			moveFocusToTasks: false,
+		});
 	});
 });

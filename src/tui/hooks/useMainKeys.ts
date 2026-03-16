@@ -7,6 +7,10 @@ import type { Goal, Project, Reminder, Task } from "../../server/types";
 import type { EnumPickerItem } from "../EnumPicker";
 import { TASK_EDIT_FIELDS } from "../TaskEditPicker";
 import { PROJECT_EDIT_FIELDS } from "../ProjectEditPicker";
+import {
+	getModalFields,
+	type ModalMode,
+} from "../modal-field-defs";
 import type { InputMode } from "./useInputBar";
 import { moveCursorByDays, stepCalendarMonth } from "./useCalendarPicker";
 import type { FocusArea, View } from "./useNavigation";
@@ -28,6 +32,16 @@ export function shouldStartProjectEdit(
 	focusArea: FocusArea,
 ): boolean {
 	return input === "e" && view === "project" && activeProjectId !== null && focusArea === "sidebar";
+}
+
+/** Outcome of the "/" sidebar toggle: next visibility and whether to move focus to tasks (when collapsing from sidebar). */
+export function getSidebarToggleOutcome(
+	sidebarVisible: boolean,
+	focusArea: FocusArea,
+): { nextVisible: boolean; moveFocusToTasks: boolean } {
+	const nextVisible = !sidebarVisible;
+	const moveFocusToTasks = nextVisible === false && focusArea === "sidebar";
+	return { nextVisible, moveFocusToTasks };
 }
 
 /** Pure helper for e key: returns mode and initial value for text-only edit (task title or project name). Used by key handler and tests. */
@@ -65,8 +79,17 @@ type UseMainKeysParams = {
 	setEnumPickerItems: (items: EnumPickerItem[]) => void;
 	enumPickerTitle: string;
 	setEnumPickerTitle: (title: string) => void;
-	enumPickerTargetMode: InputMode | null;
-	setEnumPickerTargetMode: (mode: InputMode | null) => void;
+	enumPickerTargetMode: string | null;
+	setEnumPickerTargetMode: (mode: string | null) => void;
+	// Modal create state
+	isModalMode: boolean;
+	isModalTextActive: boolean;
+	modalFieldIndex: number;
+	setModalFieldIndex: React.Dispatch<React.SetStateAction<number>>;
+	modalValuesRef: React.MutableRefObject<Record<string, string>>;
+	setValidationError: (err: string | null) => void;
+	closeInput: () => void;
+	openCalendarPicker: (calendarMode: InputMode, existingIsoDate?: string) => void;
 	calendarCursorDate: Date;
 	setCalendarCursorDate: React.Dispatch<React.SetStateAction<Date>>;
 	calendarVisibleMonth: Date;
@@ -74,6 +97,8 @@ type UseMainKeysParams = {
 	view: View;
 	focusArea: FocusArea;
 	setFocusArea: React.Dispatch<React.SetStateAction<FocusArea>>;
+	sidebarVisible: boolean;
+	setSidebarVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	sidebarItems: SidebarItem[];
 	sidebarIndex: number;
 	setSidebarIndex: React.Dispatch<React.SetStateAction<number>>;
@@ -136,6 +161,14 @@ export function useMainKeys({
 	setEnumPickerTitle,
 	enumPickerTargetMode: _enumPickerTargetMode,
 	setEnumPickerTargetMode,
+	isModalMode,
+	isModalTextActive,
+	modalFieldIndex,
+	setModalFieldIndex,
+	modalValuesRef,
+	setValidationError,
+	closeInput,
+	openCalendarPicker,
 	calendarCursorDate,
 	setCalendarCursorDate,
 	calendarVisibleMonth,
@@ -143,6 +176,8 @@ export function useMainKeys({
 	view,
 	focusArea,
 	setFocusArea,
+	sidebarVisible,
+	setSidebarVisible,
 	sidebarItems,
 	sidebarIndex,
 	setSidebarIndex,
@@ -203,7 +238,7 @@ export function useMainKeys({
 	const openEnumPicker = (
 		title: string,
 		items: EnumPickerItem[],
-		targetMode: InputMode,
+		targetMode: string,
 	) => {
 		setEnumPickerTitle(title);
 		setEnumPickerItems(items);
@@ -216,6 +251,88 @@ export function useMainKeys({
 		(input, key) => {
 			if (showHelp) {
 				if (key.escape || input === "?") setShowHelp(false);
+				return;
+			}
+
+			// --- Create modal navigation ---
+			if (isModalMode) {
+				if (key.escape) {
+					closeInput();
+					return;
+				}
+
+				const modalMode = inputMode as ModalMode;
+				const fields = getModalFields(modalMode);
+				const fieldCount = fields.length;
+
+				// In modal text mode: only Esc (above) and Enter/navigation are intercepted here;
+				// character input is handled by useTextInputKeys.
+				if (isModalTextActive && !key.return && !key.tab && !key.upArrow && !key.downArrow) {
+					return;
+				}
+
+				const currentField = fields[modalFieldIndex];
+
+				if (input === "j" || key.downArrow || (key.tab && !key.shift)) {
+					setModalFieldIndex((i) => (i + 1) % fieldCount);
+					setValidationError(null);
+					// Reset cursor to end of new field value
+					return;
+				}
+				if (input === "k" || key.upArrow || (key.tab && key.shift)) {
+					setModalFieldIndex((i) => (i - 1 + fieldCount) % fieldCount);
+					setValidationError(null);
+					return;
+				}
+
+				if (key.return) {
+					if (!currentField) return;
+
+					if (currentField.type === "submit") {
+						void submitInput();
+						return;
+					}
+
+					if (currentField.type === "enum") {
+						if (currentField.key === "priority") {
+							openEnumPicker("Set priority:", PRIORITY_ITEMS, `modal:${modalMode}:priority`);
+						} else if (currentField.key === "recurrence") {
+							openEnumPicker("Set recurrence:", RECURRENCE_ITEMS, `modal:${modalMode}:recurrence`);
+						} else if (currentField.key === "project") {
+							const projectItems: EnumPickerItem[] = projects.map((p) => ({
+								label: p.emoji ? `${p.emoji} ${p.name}` : p.name,
+								value: String(p.id),
+							}));
+							openEnumPicker("Move to project:", projectItems, `modal:${modalMode}:project`);
+						}
+						return;
+					}
+
+					if (currentField.type === "text" || currentField.type === "date") {
+						// Enter on a text/date field: advance to next field
+						setModalFieldIndex((i) => (i + 1) % fieldCount);
+						setValidationError(null);
+						return;
+					}
+				}
+
+				// E opens calendar picker from date fields
+				if (input === "E" && currentField?.type === "date") {
+					const dateCalendarModeMap: Record<string, InputMode> = {
+						dueAt: "calendarPickerDueDate",
+						scheduledAt: "calendarPickerScheduledDate",
+						startAt: "calendarPickerProjectStartDate",
+						endAt: "calendarPickerProjectEndDate",
+					};
+					const calendarMode = dateCalendarModeMap[currentField.key];
+					if (calendarMode) {
+						const existingValue = modalValuesRef.current[currentField.key] || undefined;
+						setEnumPickerTargetMode(`modal:${modalMode}:${currentField.key}`);
+						openCalendarPicker(calendarMode, existingValue);
+					}
+					return;
+				}
+
 				return;
 			}
 
@@ -474,6 +591,13 @@ export function useMainKeys({
 				return;
 			}
 
+			if (input === "/") {
+				const outcome = getSidebarToggleOutcome(sidebarVisible, focusArea);
+				setSidebarVisible(outcome.nextVisible);
+				if (outcome.moveFocusToTasks) setFocusArea("tasks");
+				return;
+			}
+
 			if (focusArea === "sidebar") {
 				if (input === "j" || key.downArrow) {
 					setSidebarIndex((c) =>
@@ -618,11 +742,17 @@ export function useMainKeys({
 				return;
 			}
 
-			if (input === "a") {
-				setInputMode("quickAdd");
-				setInputValue("");
-				return;
-			}
+		if (input === "a") {
+			setInputMode("quickAdd");
+			setInputValue("");
+			return;
+		}
+
+		if (input === "A") {
+			setInputMode("createTaskModal");
+			setInputValue("");
+			return;
+		}
 
 			if (input === "c") {
 				if (!selectedTask) {
@@ -644,11 +774,17 @@ export function useMainKeys({
 				return;
 			}
 
-			if (input === "p") {
-				setInputMode("createProject");
-				setInputValue("");
-				return;
-			}
+		if (input === "p") {
+			setInputMode("createProject");
+			setInputValue("");
+			return;
+		}
+
+		if (input === "P") {
+			setInputMode("createProjectModal");
+			setInputValue("");
+			return;
+		}
 
 			if (input === "n") {
 				if (!selectedTask) {

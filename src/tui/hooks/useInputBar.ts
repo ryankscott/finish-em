@@ -2,9 +2,11 @@ import { useCallback, useMemo, useRef, useState } from "react";
 
 import type { Project } from "../../server/types";
 import {
-	getProjectCreateAutocomplete,
-	getTaskCreateAutocomplete,
-} from "../input-autocomplete";
+	getModalFields,
+	MODAL_MODES,
+	type ModalField,
+	type ModalMode,
+} from "../modal-field-defs";
 
 export type InputMode =
 	| "none"
@@ -17,6 +19,9 @@ export type InputMode =
 	| "editSetting"
 	| "addGoal"
 	| "linkPicker"
+	// Full-form create modals
+	| "createTaskModal"
+	| "createProjectModal"
 	// Task field edit modes
 	| "taskEditPicker"
 	| "editDueDate"
@@ -68,17 +73,29 @@ type UseInputBarResult = {
 	setPickerIndex: React.Dispatch<React.SetStateAction<number>>;
 	enumPickerIndex: number;
 	setEnumPickerIndex: React.Dispatch<React.SetStateAction<number>>;
-	enumPickerTargetMode: InputMode | null;
-	setEnumPickerTargetMode: (mode: InputMode | null) => void;
+	enumPickerTargetMode: string | null;
+	setEnumPickerTargetMode: (mode: string | null) => void;
 	openInput: (mode: InputMode, initialValue?: string) => void;
 	closeInput: () => void;
-	inputAutocomplete: ReturnType<typeof getTaskCreateAutocomplete> | null;
+	inputAutocomplete: { hint: string; nextValue: string } | null;
 	isTextInputMode: boolean;
 	isInputMode: boolean;
 	isBottomBarMode: boolean;
 	isLinkPickerMode: boolean;
 	isPickerMode: boolean;
 	isEnumPickerMode: boolean;
+	// Modal create state
+	isModalMode: boolean;
+	modalFieldIndex: number;
+	setModalFieldIndex: React.Dispatch<React.SetStateAction<number>>;
+	modalValues: Record<string, string>;
+	setModalValues: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+	modalValuesRef: React.MutableRefObject<Record<string, string>>;
+	modalActiveFieldKeyRef: React.MutableRefObject<string>;
+	activeModalField: ModalField | undefined;
+	isModalTextActive: boolean;
+	validationError: string | null;
+	setValidationError: (err: string | null) => void;
 };
 
 export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult {
@@ -92,34 +109,53 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 	const [linkPickerIndex, setLinkPickerIndex] = useState(0);
 	const [pickerIndex, setPickerIndex] = useState(0);
 	const [enumPickerIndex, setEnumPickerIndex] = useState(0);
-	const [enumPickerTargetMode, setEnumPickerTargetMode] = useState<InputMode | null>(null);
+	const [enumPickerTargetMode, setEnumPickerTargetMode] = useState<string | null>(null);
+
+	// Modal create state
+	const [modalFieldIndex, setModalFieldIndex] = useState(0);
+	const [modalValues, setModalValues] = useState<Record<string, string>>({});
+	const [validationError, setValidationError] = useState<string | null>(null);
 
 	const inputValueRef = useRef(inputValue);
 	const inputCursorRef = useRef(inputCursorOffset);
 	inputValueRef.current = inputValue;
 	inputCursorRef.current = inputCursorOffset;
 
+	const modalValuesRef = useRef(modalValues);
+	modalValuesRef.current = modalValues;
+	const modalActiveFieldKeyRef = useRef("");
+
+	const isModalMode = (MODAL_MODES as readonly string[]).includes(inputMode);
+
+	const activeModalField = isModalMode
+		? getModalFields(inputMode as ModalMode)[modalFieldIndex]
+		: undefined;
+
+	modalActiveFieldKeyRef.current = activeModalField?.key ?? "";
+
+	const isModalTextActive =
+		isModalMode &&
+		(activeModalField?.type === "text" || activeModalField?.type === "date");
+
 	const openInput = useCallback((mode: InputMode, initialValue = "") => {
 		setInputMode(mode);
 		setInputValue(initialValue);
 		setPickerIndex(0);
 		setEnumPickerIndex(0);
+		setModalFieldIndex(0);
+		setModalValues({});
+		setValidationError(null);
 	}, []);
 
 	const closeInput = useCallback(() => {
 		setInputMode("none");
 		setInputValue("");
+		setModalFieldIndex(0);
+		setModalValues({});
+		setValidationError(null);
 	}, []);
 
-	const inputAutocomplete = useMemo(() => {
-		if (inputMode === "createProject" || inputMode === "editProject") {
-			return getProjectCreateAutocomplete(inputValue);
-		}
-		if (inputMode === "quickAdd") {
-			return getTaskCreateAutocomplete(inputValue, projects);
-		}
-		return null;
-	}, [inputMode, inputValue, projects]);
+	const inputAutocomplete = null;
 
 	const PICKER_MODES: InputMode[] = [
 		"taskEditPicker",
@@ -177,5 +213,16 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 		isLinkPickerMode,
 		isPickerMode,
 		isEnumPickerMode,
+		isModalMode,
+		modalFieldIndex,
+		setModalFieldIndex,
+		modalValues,
+		setModalValues,
+		modalValuesRef,
+		modalActiveFieldKeyRef,
+		activeModalField,
+		isModalTextActive,
+		validationError,
+		setValidationError,
 	};
 }

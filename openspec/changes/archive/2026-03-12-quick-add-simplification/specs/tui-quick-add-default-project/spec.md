@@ -1,4 +1,4 @@
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Quick Add creates task in current project with title only
 
@@ -17,3 +17,17 @@ When the user adds a task via Quick Add (input bar with `a` key), the system SHA
 - **WHEN** the user submits Quick Add input "Discuss auth: login flow"
 - **THEN** the new task is created with title exactly "Discuss auth: login flow"
 - **AND** no token parsing occurs
+
+## REMOVED Requirements
+
+### Requirement: Quick Add defaults to selected project when no project in input
+**Reason**: Superseded by simplified Quick Add behavior. Token parsing is removed entirely.
+**Migration**: Use `A` key (Create Task Modal) for specifying different projects or any structured data.
+
+### Requirement: Quick Add token parsing
+**Reason**: Token syntax (`project:`, `due:`, `p1`, etc.) removed to simplify mental model.
+**Migration**: Use `A` key (Create Task Modal) for setting project, priority, dates, or other fields.
+
+### Requirement: Quick Add AI processing
+**Reason**: AI fallback path removed for predictable, consistent behavior.
+**Migration**: Use `A` key (Create Task Modal) for detailed task entry with full control.

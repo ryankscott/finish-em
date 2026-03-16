@@ -8,8 +8,6 @@ import * as projectRepo from '@/server/repos/projects'
 import * as goalRepo from '@/server/repos/goals'
 import * as reminderRepo from '@/server/repos/reminders'
 import * as settingsRepo from '@/server/repos/settings'
-import { createTaskFromQuickAdd } from '@/server/services/quick-add'
-
 import type { ApiClient } from './api-client'
 
 export const createDirectApi = (): ApiClient => ({
@@ -67,11 +65,6 @@ export const createDirectApi = (): ApiClient => ({
     const result = taskRepo.uncompleteTask(taskId)
     if (!result) throw new Error(`Task ${taskId} not found`)
     return Promise.resolve(result)
-  },
-
-  createQuickAdd: async (text) => {
-    const result = await createTaskFromQuickAdd(text)
-    return result.task
   },
 
   createProject: (input) => Promise.resolve(projectRepo.createProject(input)),

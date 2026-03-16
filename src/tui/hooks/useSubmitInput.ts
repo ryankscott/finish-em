@@ -5,10 +5,28 @@ import type { Goal, Project, Task } from "../../server/types";
 import type { ApiClient } from "../api-client";
 import type { InputMode } from "./useInputBar";
 import { normalizeBareUrlsInText } from "../../lib/task-links";
-import { parseTaskCreateInput } from "../parse-task-create-input";
 import { parseDatePhrase } from "../parse-task-input";
 import { parseProjectCreateInput } from "../parse-project-input";
 import type { StatusMessageTone } from "../StatusMessage";
+
+const CALENDAR_PICKER_MODES: InputMode[] = [
+	"calendarPickerDueDate",
+	"calendarPickerScheduledDate",
+	"calendarPickerProjectStartDate",
+	"calendarPickerProjectEndDate",
+];
+
+/** Returns true if the enumPickerTargetMode encodes a modal field return. */
+export function isModalEnumTarget(mode: string | null): boolean {
+	return typeof mode === "string" && mode.startsWith("modal:");
+}
+
+/** Parse `modal:<modalMode>:<fieldKey>` into its parts. */
+function parseModalTarget(mode: string): { modalMode: InputMode; fieldKey: string } | null {
+	const parts = mode.split(":");
+	if (parts.length < 3) return null;
+	return { modalMode: parts[1] as InputMode, fieldKey: parts[2] ?? "" };
+}
 
 type UseSubmitInputParams = {
 	api: ApiClient;
@@ -22,7 +40,7 @@ type UseSubmitInputParams = {
 	projects: Project[];
 	goalPeriodType: "daily" | "weekly";
 	goalPeriodStart: string;
-	enumPickerTargetMode: InputMode | null;
+	enumPickerTargetMode: string | null;
 	pushToast: (text: string, tone?: StatusMessageTone) => void;
 	closeInput: () => void;
 	loadData: () => Promise<void>;
@@ -30,6 +48,12 @@ type UseSubmitInputParams = {
 	setErrorText: (text: string | null) => void;
 	setStatusText: (text: string) => void;
 	setEditingSettingField: (field: "timezone" | null) => void;
+	// Modal submit params
+	modalValues: Record<string, string>;
+	setModalValues: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+	setModalFieldIndex: (idx: number) => void;
+	setValidationError: (err: string | null) => void;
+	setInputMode: (mode: InputMode) => void;
 };
 
 // Modes where an empty/blank value is intentional (e.g. clearing notes or dates).
@@ -68,10 +92,38 @@ export function useSubmitInput({
 	setErrorText,
 	setStatusText,
 	setEditingSettingField,
+	modalValues,
+	setModalValues,
+	setModalFieldIndex,
+	setValidationError,
+	setInputMode,
 }: UseSubmitInputParams) {
 	const submitInput = useCallback(async (overrideValue?: string) => {
 		const value = (overrideValue !== undefined ? overrideValue : inputValue).trim();
-		if (value.length === 0 && !ALLOW_EMPTY_MODES.includes(inputMode)) {
+
+		// Modal picker return: enum or calendar picker was opened from a modal field.
+		// Write result back to the modal field and return to the modal — don't close or load.
+		const target = enumPickerTargetMode;
+		if (
+			(inputMode === "enumPicker" || CALENDAR_PICKER_MODES.includes(inputMode)) &&
+			isModalEnumTarget(target)
+		) {
+			const parsed = parseModalTarget(target!);
+			if (parsed) {
+				setModalValues((prev) => ({ ...prev, [parsed.fieldKey]: value }));
+				setInputMode(parsed.modalMode);
+			}
+			return;
+		}
+
+		// Modal submit uses modalValues, not inputValue — never treat empty inputValue as cancel.
+		const isModalSubmitMode =
+			inputMode === "createTaskModal" || inputMode === "createProjectModal";
+		if (
+			value.length === 0 &&
+			!ALLOW_EMPTY_MODES.includes(inputMode) &&
+			!isModalSubmitMode
+		) {
 			closeInput();
 			return;
 		}
@@ -87,44 +139,16 @@ export function useSubmitInput({
 					setStatusText("Timezone updated");
 				}
 				setEditingSettingField(null);
-			} else if (inputMode === "quickAdd") {
-				const parsed = parseTaskCreateInput(value, projects);
-				if (parsed.usedTokens) {
-					if (parsed.errors.length > 0) {
-						setStatusText(`Task not created: ${parsed.errors.join("; ")}`);
-					} else {
-						const title = normalizeBareUrlsInText(String(parsed.input.title));
-						const notes =
-							parsed.input.notes != null
-								? normalizeBareUrlsInText(parsed.input.notes)
-								: undefined;
-						await api.createTask({
-							title,
-							projectId:
-								parsed.input.projectId ??
-								activeProjectId ??
-								projects.find((project) => project.isInbox)?.id ??
-								1,
-							parentTaskId: parsed.input.parentTaskId,
-							notes,
-							priority: parsed.input.priority,
-							scheduledAt: parsed.input.scheduledAt,
-							dueAt: parsed.input.dueAt,
-							dueTimezone: parsed.input.dueTimezone,
-							recurrencePreset: parsed.input.recurrencePreset,
-							recurrenceRRule: parsed.input.recurrenceRRule,
-						});
-						setStatusText(
-							parsed.warnings.length > 0
-								? `Task created (warnings: ${parsed.warnings.join("; ")})`
-								: "Task created",
-						);
-					}
-				} else {
-					await api.createQuickAdd(value);
-					setStatusText("Task created");
-				}
-			} else if (inputMode === "createSubtask") {
+		} else if (inputMode === "quickAdd") {
+			await api.createTask({
+				title: normalizeBareUrlsInText(value),
+				projectId:
+					activeProjectId ??
+					projects.find((project) => project.isInbox)?.id ??
+					1,
+			});
+			setStatusText("Task created");
+		} else if (inputMode === "createSubtask") {
 				if (!selectedTask) {
 					setStatusText("No task selected");
 				} else {
@@ -379,16 +403,75 @@ export function useSubmitInput({
 				await api.updateProject(activeProjectId, { jiraDeliveryUrl: value || null });
 				setStatusText(value ? "Jira Delivery URL updated" : "Jira Delivery URL cleared");
 			}
-		} else if (inputMode === "editProjectConfluence") {
-			if (!activeProjectId) {
-				setStatusText("No project selected");
-			} else {
-				await api.updateProject(activeProjectId, { confluenceUrl: value || null });
-				setStatusText(value ? "Confluence URL updated" : "Confluence URL cleared");
-			}
+	} else if (inputMode === "editProjectConfluence") {
+		if (!activeProjectId) {
+			setStatusText("No project selected");
+		} else {
+			await api.updateProject(activeProjectId, { confluenceUrl: value || null });
+			setStatusText(value ? "Confluence URL updated" : "Confluence URL cleared");
 		}
-		closeInput();
-		await loadData();
+	} else if (inputMode === "createTaskModal") {
+		const title = modalValues.title?.trim();
+		if (!title) {
+			setValidationError("Title is required");
+			setModalFieldIndex(0);
+			return;
+		}
+		const inboxProject = projects.find((p) => p.isInbox);
+		const projectId = modalValues.project
+			? Number(modalValues.project)
+			: (activeProjectId ?? inboxProject?.id ?? 1);
+		const dueAt = parseDatePhrase(modalValues.dueAt ?? "");
+		const scheduledAt = parseDatePhrase(modalValues.scheduledAt ?? "");
+		const priorityNum = modalValues.priority ? Number(modalValues.priority) : undefined;
+		const priority =
+			priorityNum !== undefined && priorityNum >= 1 && priorityNum <= 4
+				? (priorityNum as 1 | 2 | 3 | 4)
+				: undefined;
+		const recurrenceRaw = modalValues.recurrence;
+		const recurrencePreset =
+			recurrenceRaw && recurrenceRaw !== "none"
+				? (recurrenceRaw as "daily" | "weekly" | "monthly" | "yearly" | "every_weekday")
+				: null;
+		const notes = modalValues.notes?.trim()
+			? normalizeBareUrlsInText(modalValues.notes.trim())
+			: undefined;
+		await api.createTask({
+			title: normalizeBareUrlsInText(title),
+			projectId,
+			priority,
+			dueAt: dueAt || undefined,
+			dueTimezone: dueAt
+				? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+				: undefined,
+			scheduledAt: scheduledAt || undefined,
+			recurrencePreset,
+			notes,
+		});
+		pushToast("Task created", "success");
+	} else if (inputMode === "createProjectModal") {
+		const name = modalValues.name?.trim();
+		if (!name) {
+			setValidationError("Name is required");
+			setModalFieldIndex(0);
+			return;
+		}
+		const startAt = parseDatePhrase(modalValues.startAt ?? "");
+		const endAt = parseDatePhrase(modalValues.endAt ?? "");
+		await api.createProject({
+			name,
+			emoji: modalValues.emoji?.trim() || undefined,
+			description: modalValues.description?.trim(),
+			startAt: startAt || undefined,
+			endAt: endAt || undefined,
+			jiraDiscoveryUrl: modalValues.jiraDiscovery?.trim() || undefined,
+			jiraDeliveryUrl: modalValues.jiraDelivery?.trim() || undefined,
+			confluenceUrl: modalValues.confluenceUrl?.trim() || undefined,
+		});
+		pushToast("Project created", "success");
+	}
+	closeInput();
+	await loadData();
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			setErrorText(message);
@@ -415,6 +498,11 @@ export function useSubmitInput({
 		setErrorText,
 		setLoading,
 		setStatusText,
+		modalValues,
+		setModalValues,
+		setModalFieldIndex,
+		setValidationError,
+		setInputMode,
 	]);
 
 	return { submitInput };

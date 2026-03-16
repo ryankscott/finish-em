@@ -113,11 +113,11 @@ const TaskRowItem = ({
 					</Box>
 				</Box>
 			</Box>
-			{!isExpanded && task.notes && (
-				<Box marginLeft={isSubtask ? 11 : 6}>
-					<Text dimColor italic>{truncate(task.notes, 80)}</Text>
-				</Box>
-			)}
+		{!isExpanded && task.notes && (
+			<Box marginLeft={isSubtask ? 11 : 6}>
+				<Text dimColor italic>{truncate(toDisplayString(task.notes), 80)}</Text>
+			</Box>
+		)}
 			{isExpanded && (
 				<Box
 					flexDirection="column"
@@ -177,9 +177,9 @@ export const TaskPanel = ({
 			</Box>
 			{activeProject && (
 				<Box flexDirection="column" marginBottom={1}>
-					<Text>
-						Description: <Text bold>{activeProject.description || "None"}</Text>
-					</Text>
+				<Text>
+					Description: <Text bold>{activeProject.description ? toDisplayString(activeProject.description) : "None"}</Text>
+				</Text>
 					<Text>
 						Start: <Text bold>{activeProject.startAt ?? "None"}</Text>
 					</Text>

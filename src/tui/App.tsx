@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Reminder } from "../server/types";
 import type { ApiClient } from "./api-client";
 import { CalendarPicker } from "./CalendarPicker";
+import { CreateProjectModal } from "./CreateProjectModal";
+import { CreateTaskModal } from "./CreateTaskModal";
 import { Dashboard } from "./Dashboard";
 import { EnumPicker, type EnumPickerItem } from "./EnumPicker";
 import { HelpModal } from "./HelpModal";
@@ -51,7 +53,10 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const { stdout } = useStdout();
 	const terminalHeight = stdout?.rows ?? 24;
 	const terminalWidth = stdout?.columns ?? 120;
-	const contentPaneTerminalWidth = Math.max(terminalWidth - SIDEBAR_WIDTH, 40);
+	const [sidebarVisible, setSidebarVisible] = useState(true);
+	const contentPaneTerminalWidth = sidebarVisible
+		? Math.max(terminalWidth - SIDEBAR_WIDTH, 40)
+		: terminalWidth;
 
 	const { visibleToasts, pushToast } = useToasts();
 	useReminderBell(api, pushToast);
@@ -150,6 +155,11 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setErrorText: data.setErrorText,
 		setStatusText: data.setStatusText,
 		setEditingSettingField: inputBar.setEditingSettingField,
+		modalValues: inputBar.modalValues,
+		setModalValues: inputBar.setModalValues,
+		setModalFieldIndex: inputBar.setModalFieldIndex,
+		setValidationError: inputBar.setValidationError,
+		setInputMode: inputBar.openInput,
 	});
 
 	const sidebarItems = useMemo(
@@ -195,9 +205,20 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setEnumPickerTitle,
 		enumPickerTargetMode: inputBar.enumPickerTargetMode,
 		setEnumPickerTargetMode: inputBar.setEnumPickerTargetMode,
+		isModalMode: inputBar.isModalMode,
+		isModalTextActive: inputBar.isModalTextActive,
+		modalFieldIndex: inputBar.modalFieldIndex,
+		setModalFieldIndex: inputBar.setModalFieldIndex,
+		modalValues: inputBar.modalValues,
+		setModalValues: inputBar.setModalValues,
+		modalValuesRef: inputBar.modalValuesRef,
+		modalActiveFieldKeyRef: inputBar.modalActiveFieldKeyRef,
+		setValidationError: inputBar.setValidationError,
 		view: nav.view,
 		focusArea: nav.focusArea,
 		setFocusArea: nav.setFocusArea,
+		sidebarVisible,
+		setSidebarVisible,
 		sidebarItems,
 		sidebarIndex: nav.sidebarIndex,
 		setSidebarIndex: nav.setSidebarIndex,
@@ -251,13 +272,15 @@ export const App = ({ api, onQuit }: AppProps) => {
 	return (
 		<Box flexDirection="column" height={terminalHeight}>
 			<Box flexDirection="row" flexGrow={1}>
-				<Sidebar
-					items={sidebarItems}
-					viewCounts={data.viewCounts}
-					selectedIndex={nav.sidebarIndex}
-					focused={nav.focusArea === "sidebar"}
-					width={SIDEBAR_WIDTH}
-				/>
+				{sidebarVisible && (
+					<Sidebar
+						items={sidebarItems}
+						viewCounts={data.viewCounts}
+						selectedIndex={nav.sidebarIndex}
+						focused={nav.focusArea === "sidebar"}
+						width={SIDEBAR_WIDTH}
+					/>
+				)}
 				{nav.view === "settings" ? (
 					<SettingsPanel
 						settings={data.settings}
@@ -341,13 +364,32 @@ export const App = ({ api, onQuit }: AppProps) => {
 				errorText={data.errorText}
 				terminalWidth={terminalWidth}
 			/>
-			<ToastStack toasts={visibleToasts} />
-			{nav.showHelp && (
-				<HelpModal
-					terminalWidth={stdout?.columns ?? 120}
-					terminalHeight={terminalHeight}
-				/>
-			)}
+		<ToastStack toasts={visibleToasts} />
+		{inputBar.inputMode === "createTaskModal" && (
+			<CreateTaskModal
+				activeFieldIndex={inputBar.modalFieldIndex}
+				modalValues={inputBar.modalValues}
+				inputCursorOffset={inputBar.inputCursorOffset}
+				validationError={inputBar.validationError}
+				projectLabels={Object.fromEntries(
+					data.projects.map((p) => [String(p.id), p.emoji ? `${p.emoji} ${p.name}` : p.name]),
+				)}
+			/>
+		)}
+		{inputBar.inputMode === "createProjectModal" && (
+			<CreateProjectModal
+				activeFieldIndex={inputBar.modalFieldIndex}
+				modalValues={inputBar.modalValues}
+				inputCursorOffset={inputBar.inputCursorOffset}
+				validationError={inputBar.validationError}
+			/>
+		)}
+		{nav.showHelp && (
+			<HelpModal
+				terminalWidth={stdout?.columns ?? 120}
+				terminalHeight={terminalHeight}
+			/>
+		)}
 		</Box>
 	);
 };

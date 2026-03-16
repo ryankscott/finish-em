@@ -85,7 +85,6 @@ export type ApiClient = {
   undeleteTask: (taskId: number) => Promise<Task>
   completeTask: (taskId: number) => Promise<Task>
   uncompleteTask: (taskId: number) => Promise<Task>
-  createQuickAdd: (text: string) => Promise<Task>
   createProject: (input: {
     name: string
     emoji?: string | null

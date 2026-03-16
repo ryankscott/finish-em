@@ -28,6 +28,12 @@ type UseTextInputKeysParams = {
 	closeInput: () => void;
 	submitInput: () => Promise<void>;
 	openCalendarPicker: (calendarMode: InputMode, existingIsoDate?: string) => void;
+	// Modal routing params
+	isModalMode: boolean;
+	isModalTextActive: boolean;
+	modalActiveFieldKeyRef: React.MutableRefObject<string>;
+	modalValuesRef: React.MutableRefObject<Record<string, string>>;
+	setModalValues: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 };
 
 export function useTextInputKeys({
@@ -41,9 +47,40 @@ export function useTextInputKeys({
 	closeInput,
 	submitInput,
 	openCalendarPicker,
+	isModalMode,
+	isModalTextActive,
+	modalActiveFieldKeyRef,
+	modalValuesRef,
+	setModalValues,
 }: UseTextInputKeysParams) {
 	useInput(
 		(input, key) => {
+			// In modal mode: Esc, Enter, Tab, E are always handled by useMainKeys.
+			// When isModalTextActive, we also handle character input below.
+			if (isModalMode) {
+				if (key.escape || key.return || key.tab || input === "E") return;
+				if (!isModalTextActive) return; // Submit row etc — no character input
+				const fieldKey = modalActiveFieldKeyRef.current;
+				const currentValue = modalValuesRef.current[fieldKey] ?? "";
+				const currentCursor = inputCursorRef.current;
+				const result = applyTextEdit(
+					input,
+					{
+						backspace: key.backspace,
+						delete: key.delete,
+						leftArrow: key.leftArrow,
+						rightArrow: key.rightArrow,
+					},
+					currentValue,
+					currentCursor,
+				);
+				if (result) {
+					setModalValues((prev) => ({ ...prev, [fieldKey]: result.value }));
+					setInputCursorOffset(result.cursor);
+				}
+				return;
+			}
+
 			if (key.tab && autocompleteNextValue !== null) {
 				setInputValue(autocompleteNextValue);
 				setInputCursorOffset(autocompleteNextValue.length);
