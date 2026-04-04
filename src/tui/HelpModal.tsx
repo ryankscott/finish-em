@@ -22,6 +22,7 @@ export const SHORTCUTS: ShortcutRow[] = [
 		section: "Tasks",
 	},
 	{ keys: "Space", action: "Expand/collapse subtasks" },
+	{ keys: "Enter", action: "Edit task — full form modal with all fields pre-filled" },
 	{ keys: "a", action: "Quick add task (title only, added to current project)" },
 	{ keys: "A", action: "Create task — full form modal (title, project, priority, dates, notes)" },
 	{ keys: "s", action: "Create subtask under selected task" },

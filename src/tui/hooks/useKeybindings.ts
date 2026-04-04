@@ -20,6 +20,7 @@ type UseKeybindingsParams = {
 	setInputValue: (value: string) => void;
 	setInputCursorOffset: (offset: number) => void;
 	closeInput: () => void;
+	openModalWithValues: (mode: InputMode, values: Record<string, string>, taskId?: number) => void;
 	submitInput: () => Promise<void>;
 	openCalendarPicker: (calendarMode: InputMode, existingIsoDate?: string) => void;
 	calendarCursorDate: Date;
@@ -110,6 +111,7 @@ export function useKeybindings({
 	setInputValue,
 	setInputCursorOffset,
 	closeInput,
+	openModalWithValues,
 	submitInput,
 	openCalendarPicker,
 	calendarCursorDate,
@@ -244,6 +246,7 @@ export function useKeybindings({
 		modalValuesRef,
 		setValidationError,
 		closeInput,
+		openModalWithValues,
 		openCalendarPicker,
 		calendarCursorDate,
 		setCalendarCursorDate,

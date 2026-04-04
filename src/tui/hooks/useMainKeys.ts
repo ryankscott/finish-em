@@ -23,6 +23,19 @@ const CALENDAR_PICKER_MODES: InputMode[] = [
 	"calendarPickerProjectEndDate",
 ];
 
+function taskToModalValues(task: Task): Record<string, string> {
+	return {
+		title: task.title ?? "",
+		project: task.projectId != null ? String(task.projectId) : "",
+		priority: task.priority != null ? String(task.priority) : "",
+		dueAt: task.dueAt ? format(new Date(task.dueAt), "yyyy-MM-dd") : "",
+		scheduledAt: task.scheduledAt ? format(new Date(task.scheduledAt), "yyyy-MM-dd") : "",
+		recurrence: task.recurrencePreset ?? "",
+		blockedReason: task.blockedReason ?? "",
+		notes: task.notes ?? "",
+	};
+}
+
 export function shouldStartProjectEdit(
 	input: string,
 	view: View,
@@ -99,6 +112,7 @@ type UseMainKeysParams = {
 	modalValuesRef: React.MutableRefObject<Record<string, string>>;
 	setValidationError: (err: string | null) => void;
 	closeInput: () => void;
+	openModalWithValues: (mode: InputMode, values: Record<string, string>, taskId?: number) => void;
 	openCalendarPicker: (
 		calendarMode: InputMode,
 		existingIsoDate?: string,
@@ -183,6 +197,7 @@ export function useMainKeys({
 	modalValuesRef,
 	setValidationError,
 	closeInput,
+	openModalWithValues,
 	openCalendarPicker,
 	calendarCursorDate,
 	setCalendarCursorDate,
@@ -787,6 +802,15 @@ export function useMainKeys({
 						setTaskIndex((c) => Math.max(c - 1, 0));
 						return;
 					}
+				}
+
+				if (key.return && selectedTask && view !== "settings") {
+					openModalWithValues(
+						"editTaskModal",
+						taskToModalValues(selectedTask),
+						selectedTask.id,
+					);
+					return;
 				}
 			}
 
