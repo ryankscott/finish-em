@@ -20,7 +20,7 @@ src/
   server/      # DB client, repos, services, types
   cli.ts       # CLI entrypoint
 data/          # Local SQLite database (todo.db) — not committed
-openspec/      # OpenSpec change artifacts (proposals, designs, specs, tasks)
+plans/         # Planning docs, change notes, and capability specs
 ```
 
 ## Development Commands
@@ -89,6 +89,10 @@ When adding a new migration:
 2. Add the corresponding schema guard in `client.ts` if needed for backward compatibility
 3. Update the Drizzle schema in `src/server/db/drizzle-schema.ts`
 
-## OpenSpec Workflow
+## Planning Docs
 
-This project uses an OpenSpec change workflow for structured feature development. Changes live in `openspec/changes/<change-name>/` with artifacts: `proposal.md` → `design.md` → `specs/` → `tasks.md`. See `.claude/skills/` for available skills.
+Planning notes live under `plans/`.
+
+- Use `plans/<topic>.md` for active plans and capability notes.
+- Use `plans/archive/<topic>.md` for completed or superseded plan history.
+- Prefer a single concise document in the style of `plans/blocked-tasks.md`.
