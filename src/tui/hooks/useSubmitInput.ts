@@ -54,6 +54,7 @@ type UseSubmitInputParams = {
 	setModalFieldIndex: (idx: number) => void;
 	setValidationError: (err: string | null) => void;
 	setInputMode: (mode: InputMode) => void;
+	editingTaskId: number | null;
 };
 
 // Modes where an empty/blank value is intentional (e.g. clearing notes or dates).
@@ -98,6 +99,7 @@ export function useSubmitInput({
 	setModalFieldIndex,
 	setValidationError,
 	setInputMode,
+	editingTaskId,
 }: UseSubmitInputParams) {
 	const submitInput = useCallback(async (overrideValue?: string) => {
 		const value = (overrideValue !== undefined ? overrideValue : inputValue).trim();
@@ -461,6 +463,48 @@ export function useSubmitInput({
 			notes,
 		});
 		pushToast("Task created", "success");
+	} else if (inputMode === "editTaskModal") {
+		const title = modalValues.title?.trim();
+		if (!title) {
+			setValidationError("Title is required");
+			setModalFieldIndex(0);
+			return;
+		}
+		if (!editingTaskId) {
+			setStatusText("No task selected");
+			return;
+		}
+		const projectId = modalValues.project ? Number(modalValues.project) : undefined;
+		const dueAt = parseDatePhrase(modalValues.dueAt ?? "");
+		const scheduledAt = parseDatePhrase(modalValues.scheduledAt ?? "");
+		const priorityNum = modalValues.priority ? Number(modalValues.priority) : undefined;
+		const priority =
+			priorityNum !== undefined && priorityNum >= 1 && priorityNum <= 4
+				? (priorityNum as 1 | 2 | 3 | 4)
+				: null;
+		const recurrenceRaw = modalValues.recurrence;
+		const recurrencePreset =
+			recurrenceRaw && recurrenceRaw !== "none"
+				? (recurrenceRaw as "daily" | "weekly" | "monthly" | "yearly" | "every_weekday")
+				: null;
+		const blockedReason = modalValues.blockedReason?.trim() || null;
+		const notes = modalValues.notes?.trim()
+			? normalizeBareUrlsInText(modalValues.notes.trim())
+			: null;
+		await api.updateTask(editingTaskId, {
+			title: normalizeBareUrlsInText(title),
+			projectId,
+			priority: priority ?? undefined,
+			dueAt: dueAt || null,
+			dueTimezone: dueAt
+				? Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+				: undefined,
+			scheduledAt: scheduledAt || null,
+			recurrencePreset,
+			blockedReason,
+			notes: notes ?? undefined,
+		});
+		pushToast("Task updated", "success");
 	} else if (inputMode === "createProjectModal") {
 		const name = modalValues.name?.trim();
 		if (!name) {
@@ -515,6 +559,7 @@ export function useSubmitInput({
 		setModalFieldIndex,
 		setValidationError,
 		setInputMode,
+		editingTaskId,
 	]);
 
 	return { submitInput };

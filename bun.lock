@@ -10,6 +10,7 @@
         "ai": "^6.0.94",
         "date-fns": "^4.1.0",
         "drizzle-orm": "^0.44.7",
+        "emojilib": "2",
         "ink": "^6.7.0",
         "ink-text-input": "^6.0.0",
         "react": "^19.2.0",
@@ -237,6 +238,8 @@
     "drizzle-orm": ["drizzle-orm@0.44.7", "", { "optionalDependencies": { "@opentelemetry/api": "1.9.0", "better-sqlite3": "11.10.0" } }, "sha512-quIpnYznjU9lHshEOAYLoZ9s3jweleHlZIAWR/jX9gAWNg/JhQ1wj0KGRf7/Zm+obRrYd9GjPVJg790QY9N5AQ=="],
 
     "emoji-regex": ["emoji-regex@10.6.0", "", {}, "sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A=="],
+
+    "emojilib": ["emojilib@2.4.0", "", {}, "sha512-5U0rVMU5Y2n2+ykNLQqMoqklN9ICBT/KsvC1Gz6vqHbz2AXXGkG+Pm5rMWk/8Vjrr/mY9985Hi8DYzn1F09Nyw=="],
 
     "end-of-stream": ["end-of-stream@1.4.5", "", { "dependencies": { "once": "1.4.0" } }, "sha512-ooEGc6HP26xXq/N+GCGOT0JKCLDGrq2bQUZrQ7gyrJiZANJ/8YDTxTpQBXGMn+WbIQXNVpyWymm7KYVICQnyOg=="],
 

@@ -1,74 +1,21 @@
 /**
  * Canonical shortcode→emoji mapping for TUI project emoji autocomplete and parsing.
  * Single source of truth; consumers use lookup() and shortcodeListForAutocomplete().
+ *
+ * Backed by emojilib v2 (~1570 GitHub-compatible shortcodes).
  */
+import { createRequire } from "node:module";
 
-const SHORTCODE_TO_EMOJI: Record<string, string> = {
-	// Original set (kept for backward compatibility)
-	cat: "🐱",
-	dog: "🐶",
-	rocket: "🚀",
-	fire: "🔥",
-	star: "⭐",
-	check: "✅",
-	bug: "🐛",
-	sparkles: "✨",
-	wrench: "🔧",
-	// Extended set (common :shortcode: style)
-	heart: "❤️",
-	smile: "😊",
-	grin: "😁",
-	joy: "😂",
-	thumbsup: "👍",
-	thumbsdown: "👎",
-	eyes: "👀",
-	bulb: "💡",
-	book: "📖",
-	calendar: "📅",
-	clock: "🕐",
-	flag: "🚩",
-	key: "🔑",
-	lock: "🔒",
-	memo: "📝",
-	pencil: "✏️",
-	chart: "📊",
-	money: "💰",
-	coffee: "☕",
-	apple: "🍎",
-	pizza: "🍕",
-	house: "🏠",
-	car: "🚗",
-	plane: "✈️",
-	ship: "🚢",
-	ball: "⚽",
-	music: "🎵",
-	camera: "📷",
-	phone: "📱",
-	mail: "✉️",
-	link: "🔗",
-	zap: "⚡",
-	boom: "💥",
-	tada: "🎉",
-	gift: "🎁",
-	medal: "🏅",
-	trophy: "🏆",
-	compass: "🧭",
-	gear: "⚙️",
-	hammer: "🔨",
-	magnifier: "🔍",
-	question: "❓",
-	exclamation: "❗",
-	warning: "⚠️",
-	no_entry: "⛔",
-	recycle: "♻️",
-	white_check_mark: "✅",
-	red_circle: "🔴",
-	green_circle: "🟢",
-	blue_circle: "🔵",
-	yellow_circle: "🟡",
-	purple_circle: "🟣",
-	orange_circle: "🟠",
+const _require = createRequire(import.meta.url);
+const _emojilib = _require("emojilib") as {
+	lib: Record<string, { char: string }>;
 };
+
+/** Index built from emojilib v2: shortcode → emoji char. */
+const EMOJILIB_INDEX: Record<string, string> = {};
+for (const [shortcode, data] of Object.entries(_emojilib.lib)) {
+	if (data?.char) EMOJILIB_INDEX[shortcode] = data.char;
+}
 
 /** Normalize shortcode for lookup: strip surrounding colons, lowercase. */
 function normalizeShortcode(raw: string): string {
@@ -76,22 +23,23 @@ function normalizeShortcode(raw: string): string {
 }
 
 /**
- * Look up emoji for a shortcode. Returns undefined if not in the canonical mapping.
+ * Look up emoji for a shortcode. Returns undefined if not found.
  * Input may be "cat", ":cat:", or "CAT"; matching is case-insensitive.
  */
 export function lookup(shortcode: string): string | undefined {
 	const key = normalizeShortcode(shortcode);
-	return key ? SHORTCODE_TO_EMOJI[key] : undefined;
+	if (!key) return undefined;
+	return EMOJILIB_INDEX[key];
 }
 
-/** List of shortcodes in :shortcode: form for autocomplete, sorted, consistent with lookup(). */
-const AUTOCOMPLETE_SHORTCODES: string[] = Object.keys(SHORTCODE_TO_EMOJI)
-	.sort()
-	.map((s) => `:${s}:`);
+/** All shortcodes in :shortcode: form, sorted, for autocomplete prefix matching. */
+const AUTOCOMPLETE_SHORTCODES: readonly string[] = Object.keys(EMOJILIB_INDEX)
+	.map((s) => `:${s}:`)
+	.sort();
 
 /**
  * Return the list of shortcode strings (e.g. ":cat:") for prefix matching in autocomplete.
- * Same set as used by lookup(); do not mutate the returned array.
+ * Do not mutate the returned array.
  */
 export function shortcodeListForAutocomplete(): readonly string[] {
 	return AUTOCOMPLETE_SHORTCODES;

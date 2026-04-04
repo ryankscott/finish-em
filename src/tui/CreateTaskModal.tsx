@@ -1,8 +1,10 @@
 import { Box, Text, useStdout } from "ink";
 
-import { TASK_CREATE_FIELDS } from "./modal-field-defs";
+import { toDisplaySegments } from "../lib/task-links";
+import { getModalFields, type ModalMode } from "./modal-field-defs";
 
 type CreateTaskModalProps = {
+	mode?: ModalMode;
 	activeFieldIndex: number;
 	modalValues: Record<string, string>;
 	inputCursorOffset: number;
@@ -44,6 +46,25 @@ function renderFieldValue(
 	}
 
 	if (!isActive) {
+		if (fieldKey === "title" && value) {
+			const segments = toDisplaySegments(value);
+			const hasLinks = segments.some((s) => s.type === "link");
+			if (hasLinks) {
+				return (
+					<Text>
+						{segments.map((seg, i) =>
+							seg.type === "text" ? (
+								<Text key={i}>{seg.text}</Text>
+							) : (
+								<Text key={i} color="blue" bold>
+									[{seg.displayLabel}]
+								</Text>
+							),
+						)}
+					</Text>
+				);
+			}
+		}
 		return <Text dimColor={!value}>{value || "—"}</Text>;
 	}
 
@@ -61,6 +82,7 @@ function renderFieldValue(
 }
 
 export const CreateTaskModal = ({
+	mode = "createTaskModal",
 	activeFieldIndex,
 	modalValues,
 	inputCursorOffset,
@@ -71,6 +93,8 @@ export const CreateTaskModal = ({
 	const terminalWidth = stdout?.columns ?? 120;
 	const terminalHeight = stdout?.rows ?? 24;
 	const width = Math.min(68, terminalWidth - 4);
+	const fields = getModalFields(mode);
+	const title = mode === "editTaskModal" ? "Edit Task" : "New Task";
 
 	return (
 		<Box
@@ -92,12 +116,12 @@ export const CreateTaskModal = ({
 			>
 				<Box marginBottom={1} justifyContent="space-between">
 					<Text bold color="magentaBright">
-						New Task
+						{title}
 					</Text>
 					<Text dimColor>Esc to cancel</Text>
 				</Box>
 
-				{TASK_CREATE_FIELDS.map((field, i) => {
+				{fields.map((field, i) => {
 					const isActive = i === activeFieldIndex;
 					const value = modalValues[field.key] ?? "";
 

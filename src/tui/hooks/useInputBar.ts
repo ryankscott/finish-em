@@ -19,9 +19,10 @@ export type InputMode =
 	| "editSetting"
 	| "addGoal"
 	| "linkPicker"
-	// Full-form create modals
+	// Full-form create/edit modals
 	| "createTaskModal"
 	| "createProjectModal"
+	| "editTaskModal"
 	// Task field edit modes
 	| "taskEditPicker"
 	| "editDueDate"
@@ -76,7 +77,9 @@ type UseInputBarResult = {
 	setEnumPickerIndex: React.Dispatch<React.SetStateAction<number>>;
 	enumPickerTargetMode: string | null;
 	setEnumPickerTargetMode: (mode: string | null) => void;
+	editingTaskId: number | null;
 	openInput: (mode: InputMode, initialValue?: string) => void;
+	openModalWithValues: (mode: InputMode, values: Record<string, string>, taskId?: number) => void;
 	closeInput: () => void;
 	inputAutocomplete: { hint: string; nextValue: string } | null;
 	isTextInputMode: boolean;
@@ -112,10 +115,11 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 	const [enumPickerIndex, setEnumPickerIndex] = useState(0);
 	const [enumPickerTargetMode, setEnumPickerTargetMode] = useState<string | null>(null);
 
-	// Modal create state
+	// Modal create/edit state
 	const [modalFieldIndex, setModalFieldIndex] = useState(0);
 	const [modalValues, setModalValues] = useState<Record<string, string>>({});
 	const [validationError, setValidationError] = useState<string | null>(null);
+	const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
 
 	const inputValueRef = useRef(inputValue);
 	const inputCursorRef = useRef(inputCursorOffset);
@@ -146,7 +150,22 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 		setModalFieldIndex(0);
 		setModalValues({});
 		setValidationError(null);
+		setEditingTaskId(null);
 	}, []);
+
+	const openModalWithValues = useCallback(
+		(mode: InputMode, values: Record<string, string>, taskId?: number) => {
+			setInputMode(mode);
+			setInputValue("");
+			setPickerIndex(0);
+			setEnumPickerIndex(0);
+			setModalFieldIndex(0);
+			setModalValues(values);
+			setValidationError(null);
+			setEditingTaskId(taskId ?? null);
+		},
+		[],
+	);
 
 	const closeInput = useCallback(() => {
 		setInputMode("none");
@@ -154,6 +173,7 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 		setModalFieldIndex(0);
 		setModalValues({});
 		setValidationError(null);
+		setEditingTaskId(null);
 	}, []);
 
 	const inputAutocomplete = null;
@@ -205,7 +225,9 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 		setEnumPickerIndex,
 		enumPickerTargetMode,
 		setEnumPickerTargetMode,
+		editingTaskId,
 		openInput,
+		openModalWithValues,
 		closeInput,
 		inputAutocomplete,
 		isTextInputMode,

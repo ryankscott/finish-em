@@ -160,6 +160,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setModalFieldIndex: inputBar.setModalFieldIndex,
 		setValidationError: inputBar.setValidationError,
 		setInputMode: inputBar.openInput,
+		editingTaskId: inputBar.editingTaskId,
 	});
 
 	const sidebarItems = useMemo(
@@ -182,6 +183,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setInputValue: inputBar.setInputValue,
 		setInputCursorOffset: inputBar.setInputCursorOffset,
 		closeInput: inputBar.closeInput,
+		openModalWithValues: inputBar.openModalWithValues,
 		submitInput,
 		openCalendarPicker,
 		calendarCursorDate: calendar.cursorDate,
@@ -368,6 +370,18 @@ export const App = ({ api, onQuit }: AppProps) => {
 		<ToastStack toasts={visibleToasts} />
 		{inputBar.inputMode === "createTaskModal" && (
 			<CreateTaskModal
+				activeFieldIndex={inputBar.modalFieldIndex}
+				modalValues={inputBar.modalValues}
+				inputCursorOffset={inputBar.inputCursorOffset}
+				validationError={inputBar.validationError}
+				projectLabels={Object.fromEntries(
+					data.projects.map((p) => [String(p.id), p.emoji ? `${p.emoji} ${p.name}` : p.name]),
+				)}
+			/>
+		)}
+		{inputBar.inputMode === "editTaskModal" && (
+			<CreateTaskModal
+				mode="editTaskModal"
 				activeFieldIndex={inputBar.modalFieldIndex}
 				modalValues={inputBar.modalValues}
 				inputCursorOffset={inputBar.inputCursorOffset}
