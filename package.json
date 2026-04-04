@@ -34,10 +34,11 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.30",
+    "@inkjs/ui": "^2.0.0",
     "ai": "^6.0.94",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.44.7",
-    "@inkjs/ui": "^2.0.0",
+    "emojilib": "2",
     "ink": "^6.7.0",
     "ink-text-input": "^6.0.0",
     "react": "^19.2.0",

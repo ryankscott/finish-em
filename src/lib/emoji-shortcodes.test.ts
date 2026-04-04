@@ -23,6 +23,13 @@ describe("emoji-shortcodes", () => {
 			expect(lookup("unknown")).toBeUndefined();
 			expect(lookup(":nope:")).toBeUndefined();
 		});
+
+		it("resolves standard emojilib shortcodes", () => {
+			expect(lookup("wave")).toBe("👋");
+			expect(lookup("+1")).toBe("👍");
+			expect(lookup("tada")).toBeDefined();
+			expect(lookup("rainbow")).toBeDefined();
+		});
 	});
 
 	describe("shortcodeListForAutocomplete", () => {
@@ -30,7 +37,7 @@ describe("emoji-shortcodes", () => {
 			const list = shortcodeListForAutocomplete();
 			expect(list.length).toBeGreaterThan(0);
 			for (const s of list) {
-				expect(s).toMatch(/^:[a-z0-9_]+:$/);
+				expect(s).toMatch(/^:[\w+-]+:$/);
 			}
 		});
 
@@ -55,6 +62,18 @@ describe("emoji-shortcodes", () => {
 			expect(list).toContain(":cat:");
 			expect(list).toContain(":rocket:");
 			expect(list).toContain(":heart:");
+		});
+
+		it("includes many more shortcodes than the original 65", () => {
+			const list = shortcodeListForAutocomplete();
+			expect(list.length).toBeGreaterThan(500);
+		});
+
+		it("includes emojilib shortcodes not in the original set", () => {
+			const list = shortcodeListForAutocomplete();
+			expect(list).toContain(":wave:");
+			expect(list).toContain(":rainbow:");
+			expect(list).toContain(":+1:");
 		});
 	});
 });
