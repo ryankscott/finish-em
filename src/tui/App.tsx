@@ -173,6 +173,8 @@ export const App = ({ api, onQuit }: AppProps) => {
 		: false;
 
 	useKeybindings({
+		showDashboard: nav.showDashboard,
+		setShowDashboard: nav.setShowDashboard,
 		isTextInputMode: inputBar.isTextInputMode,
 		inputValueRef: inputBar.inputValueRef,
 		inputCursorRef: inputBar.inputCursorRef,
@@ -262,7 +264,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 	if (nav.showDashboard) {
 		return (
 			<Dashboard
-				onDismiss={() => nav.setShowDashboard(false)}
 				terminalWidth={stdout?.columns ?? 120}
 				terminalHeight={terminalHeight}
 			/>

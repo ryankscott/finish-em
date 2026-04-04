@@ -11,6 +11,7 @@ export const TASK_EDIT_FIELDS: TaskEditField[] = [
 	{ key: "due", label: "Due date", hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)" },
 	{ key: "scheduled", label: "Scheduled date", hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)" },
 	{ key: "recurrence", label: "Recurring", hint: "select from list" },
+	{ key: "blocked", label: "Blocked reason", hint: "free text, blank to unblock" },
 	{ key: "reminder", label: "Reminder", hint: "today / tomorrow / ISO datetime" },
 	{ key: "priority", label: "Priority", hint: "select from list" },
 	{ key: "notes", label: "Notes / description", hint: "free text" },

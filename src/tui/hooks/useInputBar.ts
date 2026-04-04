@@ -29,6 +29,7 @@ export type InputMode =
 	| "editRecurrence"
 	| "editPriority"
 	| "editMoveProject"
+	| "editBlockedReason"
 	| "editReminder"
 	| "editNotes"
 	// Project field edit modes

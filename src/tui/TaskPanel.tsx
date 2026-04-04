@@ -3,6 +3,7 @@ import { Box, Text } from "ink";
 import { toDisplayString } from "../lib/task-links";
 import type { Project, Task } from "../server/types";
 import {
+	blockedIndicator,
 	formatDueDate,
 	formatScheduledDate,
 	isOverdueDueDate,
@@ -53,6 +54,7 @@ const TaskRowItem = ({
 	const isSelected = flatIndex === selectedIndex;
 	const isExpanded = hasSubtasks && expandedTaskId === task.id;
 	const isCompleted = task.status === "completed";
+	const isBlocked = task.blockedReason !== null;
 	const isOverdue = task.dueAt ? isOverdueDueDate(task.dueAt) : false;
 	const pColor = priorityColor(task.priority);
 	const project = projectMap?.[task.projectId];
@@ -75,6 +77,11 @@ const TaskRowItem = ({
 				</Box>
 				<Box width={2}>
 					<Text color={pColor}>{circle}</Text>
+				</Box>
+				<Box width={2}>
+					<Text color={isBlocked ? "yellow" : undefined}>
+						{blockedIndicator(task.blockedReason)}
+					</Text>
 				</Box>
 				<Box flexGrow={1}>
 					<Text
@@ -129,6 +136,9 @@ const TaskRowItem = ({
 							<Text dimColor>Notes:</Text>
 							<Text>{toDisplayString(task.notes)}</Text>
 						</Box>
+					)}
+					{task.blockedReason && (
+						<Text color="yellow">Blocked: {task.blockedReason}</Text>
 					)}
 					{project && (
 						<Text dimColor>Project: {project.name}</Text>

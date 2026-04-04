@@ -24,6 +24,7 @@ import type { View } from "./useNavigation";
 
 const EMPTY_VIEW_COUNTS = {
 	today: 0,
+	blocked: 0,
 	overdue: 0,
 	inbox: 0,
 	upcoming: 0,
@@ -84,6 +85,7 @@ export function useAppData({
 		if (view === "settings") setStatusText("Settings");
 		else if (view === "inbox") setStatusText("Inbox");
 		else if (view === "today") setStatusText("Today");
+		else if (view === "blocked") setStatusText("Blocked");
 		else if (view === "overdue") setStatusText("Overdue");
 		else if (view === "upcoming") setStatusText("Upcoming");
 		else if (view === "completed") setStatusText("Completed");
@@ -105,6 +107,7 @@ export function useAppData({
 		const nonInboxProjects = loadedProjects.filter((p) => !p.isInbox);
 		const [
 			todayCountTasks,
+			blockedTasks,
 			upcomingRangeTasks,
 			upcomingOverdueTasks,
 			completedTasks,
@@ -113,6 +116,7 @@ export function useAppData({
 			...projectTaskLists
 		] = await Promise.all([
 			api.listTasks({ status: "open", from: todayStart, to: todayEnd }),
+			api.listTasks({ status: "open", blocked: true }),
 			api.listTasks({ status: "open", from: upcomingFrom, to: upcomingTo }),
 			api.listTasks({ status: "open", to: upcomingFrom }),
 			api.listTasks({ status: "completed" }),
@@ -133,6 +137,7 @@ export function useAppData({
 		);
 		setViewCounts({
 			today: todayCountTasks.length,
+			blocked: blockedTasks.length,
 			overdue: overdueFilteredTasks.length,
 			inbox: inboxTasks.length,
 			upcoming:
@@ -159,6 +164,9 @@ export function useAppData({
 			} else if (view === "today") {
 				setTasks(todayCountTasks);
 				setStatusText("Today");
+			} else if (view === "blocked") {
+				setTasks(blockedTasks);
+				setStatusText("Blocked");
 			} else if (view === "overdue") {
 				setTasks(overdueFilteredTasks);
 				setStatusText("Overdue");

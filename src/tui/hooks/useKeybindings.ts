@@ -11,6 +11,8 @@ import { useMainKeys } from "./useMainKeys";
 import { useTextInputKeys } from "./useTextInputKeys";
 
 type UseKeybindingsParams = {
+	showDashboard: boolean;
+	setShowDashboard: (show: boolean) => void;
 	isTextInputMode: boolean;
 	inputValueRef: React.MutableRefObject<string>;
 	inputCursorRef: React.MutableRefObject<number>;
@@ -99,6 +101,8 @@ type UseKeybindingsParams = {
 };
 
 export function useKeybindings({
+	showDashboard,
+	setShowDashboard,
 	isTextInputMode,
 	inputValueRef,
 	inputCursorRef,
@@ -213,6 +217,8 @@ export function useKeybindings({
 
 	useMainKeys({
 		isActive: isModalMode || !isTextInputMode,
+		showDashboard,
+		setShowDashboard,
 		showHelp,
 		setShowHelp,
 		inputMode,

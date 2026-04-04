@@ -9,6 +9,7 @@ import type {
 export type TaskQuery = {
   projectId?: number
   status?: 'open' | 'completed'
+  blocked?: boolean
   from?: string
   to?: string
   priority?: 1 | 2 | 3 | 4
@@ -43,6 +44,7 @@ export type ApiClient = {
       | 'every_weekday'
       | null
     recurrenceRRule?: string | null
+    blockedReason?: string | null
   }) => Promise<Task>
   listGoals: (query?: {
     periodType?: 'daily' | 'weekly'
@@ -78,6 +80,7 @@ export type ApiClient = {
         | 'every_weekday'
         | null
       recurrenceRRule?: string | null
+      blockedReason?: string | null
     },
   ) => Promise<Task>
   deleteTask: (taskId: number) => Promise<void>

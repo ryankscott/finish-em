@@ -34,6 +34,7 @@ const INPUT_MODE_LABELS: Partial<Record<InputMode, string>> = {
 	editDueDate: "Due date (today/tomorrow/YYYY-MM-DD/clear): ",
 	editScheduledDate: "Scheduled date (today/tomorrow/YYYY-MM-DD/clear): ",
 	editReminder: "Reminder (today/tomorrow/ISO datetime): ",
+	editBlockedReason: "Blocked reason (blank to unblock): ",
 	editNotes: "Notes / description: ",
 	editGoalTitle: "Edit goal title: ",
 	editProjectName: "Project name: ",

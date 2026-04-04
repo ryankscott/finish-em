@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Box, Text, useInput } from "ink";
+import { Box, Text } from "ink";
 
 // Figlet-style ASCII art for "Finish Em"
 const LOGO = `
@@ -24,28 +24,14 @@ const TIPS = [
 ];
 
 type DashboardProps = {
-	onDismiss: () => void;
 	terminalWidth: number;
 	terminalHeight: number;
 };
 
 export const Dashboard = ({
-	onDismiss,
 	terminalWidth,
 	terminalHeight,
 }: DashboardProps) => {
-	useInput((input, key) => {
-		if (
-			key.return ||
-			key.escape ||
-			input === "q" ||
-			input === " " ||
-			input.length > 0
-		) {
-			onDismiss();
-		}
-	});
-
 	const dateStr = format(new Date(), "EEEE, dd MMM yyyy");
 	const randomTip = TIPS[Math.floor(Math.random() * TIPS.length)];
 

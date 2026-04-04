@@ -143,6 +143,39 @@ function ensureSoftDeleteSchema(db: DbLike) {
   )
 }
 
+function ensureBlockedTaskSchema(db: DbLike) {
+  const tasksTable = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'")
+    .get() as { name?: string } | undefined
+
+  if (!tasksTable?.name) {
+    return
+  }
+
+  const columns = db.prepare('PRAGMA table_info(tasks)').all() as Array<{
+    name: unknown
+  }>
+
+  const hasBlockedAt = columns.some(
+    (column) => String(column.name) === 'blocked_at',
+  )
+  const hasBlockedReason = columns.some(
+    (column) => String(column.name) === 'blocked_reason',
+  )
+
+  if (!hasBlockedAt) {
+    db.exec('ALTER TABLE tasks ADD COLUMN blocked_at TEXT')
+  }
+
+  if (!hasBlockedReason) {
+    db.exec('ALTER TABLE tasks ADD COLUMN blocked_reason TEXT')
+  }
+
+  db.exec(
+    'CREATE INDEX IF NOT EXISTS idx_tasks_blocked_at ON tasks(blocked_at)',
+  )
+}
+
 function ensureProjectEnhancementsSchema(db: DbLike) {
   const projectsTable = db
     .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'")
@@ -220,6 +253,7 @@ function initialize(db: DbLike) {
   ensureProjectEnhancementsSchema(db)
   ensureProjectExternalLinksSchema(db)
   ensureSoftDeleteSchema(db)
+  ensureBlockedTaskSchema(db)
   seedDefaults(db)
 }
 

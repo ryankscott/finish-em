@@ -16,6 +16,8 @@
     "tui:build": "bun src/tui/build.ts bun-darwin-arm64 dist/finish-em",
     "tui:build:x64": "bun src/tui/build.ts bun-darwin-x64 dist/finish-em-x64",
     "tui:build:all": "bun run tui:build && bun run tui:build:x64",
+    "app:build": "bash scripts/build-macos-app.sh",
+    "app:install": "bash scripts/install-macos-app.sh",
     "cli:link": "bun link",
     "cli:build": "bun run tui:build",
     "cli:install": "bash scripts/install-binary.sh",
@@ -31,11 +33,8 @@
     "db:drizzle-migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "@ai-sdk/google": "^2.0.30",
     "@ai-sdk/openai": "^3.0.30",
-    "@ai-sdk/openai-compatible": "^2.0.30",
     "ai": "^6.0.94",
-    "chrono-node": "^2.8.4",
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.44.7",
     "@inkjs/ui": "^2.0.0",
@@ -43,7 +42,6 @@
     "ink-text-input": "^6.0.0",
     "react": "^19.2.0",
     "react-devtools-core": "^7.0.1",
-    "rrule": "^2.8.1",
     "zod": "4.2.1"
   },
   "devDependencies": {

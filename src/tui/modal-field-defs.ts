@@ -14,6 +14,7 @@ export const TASK_CREATE_FIELDS: ModalField[] = [
 	{ key: "dueAt", label: "Due date", type: "date", hint: "YYYY-MM-DD · E calendar" },
 	{ key: "scheduledAt", label: "Scheduled", type: "date", hint: "YYYY-MM-DD · E calendar" },
 	{ key: "recurrence", label: "Recurrence", type: "enum" },
+	{ key: "blockedReason", label: "Blocked reason", type: "text" },
 	{ key: "notes", label: "Notes", type: "text" },
 	{ key: "_submit", label: "Create Task", type: "submit" },
 ];

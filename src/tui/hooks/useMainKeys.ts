@@ -1,22 +1,20 @@
 import { addDays, format, startOfDay } from "date-fns";
 import { useInput } from "ink";
+import { useEffectEvent } from "react";
 
 import { openUrl } from "../../lib/open-url";
 import { toDisplaySegments } from "../../lib/task-links";
 import type { Goal, Project, Reminder, Task } from "../../server/types";
 import type { EnumPickerItem } from "../EnumPicker";
-import { TASK_EDIT_FIELDS } from "../TaskEditPicker";
+import { getModalFields, type ModalMode } from "../modal-field-defs";
 import { PROJECT_EDIT_FIELDS } from "../ProjectEditPicker";
-import {
-	getModalFields,
-	type ModalMode,
-} from "../modal-field-defs";
-import type { InputMode } from "./useInputBar";
-import { moveCursorByDays, stepCalendarMonth } from "./useCalendarPicker";
-import type { FocusArea, View } from "./useNavigation";
-import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
 import type { SettingsRow } from "../SettingsPanel";
 import type { SidebarItem } from "../Sidebar";
+import { TASK_EDIT_FIELDS } from "../TaskEditPicker";
+import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
+import { moveCursorByDays, stepCalendarMonth } from "./useCalendarPicker";
+import type { InputMode } from "./useInputBar";
+import type { FocusArea, View } from "./useNavigation";
 
 const CALENDAR_PICKER_MODES: InputMode[] = [
 	"calendarPickerDueDate",
@@ -31,7 +29,12 @@ export function shouldStartProjectEdit(
 	activeProjectId: number | null,
 	focusArea: FocusArea,
 ): boolean {
-	return input === "e" && view === "project" && activeProjectId !== null && focusArea === "sidebar";
+	return (
+		input === "e" &&
+		view === "project" &&
+		activeProjectId !== null &&
+		focusArea === "sidebar"
+	);
 }
 
 /** Outcome of the "/" sidebar toggle: next visibility and whether to move focus to tasks (when collapsing from sidebar). */
@@ -52,7 +55,10 @@ export function getEKeyEditOutcome(
 	activeProject: Project | null,
 	selectedTask: Task | null,
 ): { mode: InputMode; initialValue: string } | null {
-	if (shouldStartProjectEdit("e", view, activeProjectId, focusArea) && activeProject) {
+	if (
+		shouldStartProjectEdit("e", view, activeProjectId, focusArea) &&
+		activeProject
+	) {
 		return { mode: "editProjectName", initialValue: activeProject.name };
 	}
 	if (selectedTask) {
@@ -63,12 +69,16 @@ export function getEKeyEditOutcome(
 
 type UseMainKeysParams = {
 	isActive: boolean;
+	showDashboard: boolean;
+	setShowDashboard: (show: boolean) => void;
 	showHelp: boolean;
 	setShowHelp: (show: boolean) => void;
 	inputMode: InputMode;
 	setInputMode: (mode: InputMode) => void;
 	linkPickerLinks: { url: string; displayLabel: string }[] | null;
-	setLinkPickerLinks: (links: { url: string; displayLabel: string }[] | null) => void;
+	setLinkPickerLinks: (
+		links: { url: string; displayLabel: string }[] | null,
+	) => void;
 	linkPickerIndex: number;
 	setLinkPickerIndex: React.Dispatch<React.SetStateAction<number>>;
 	pickerIndex: number;
@@ -89,7 +99,10 @@ type UseMainKeysParams = {
 	modalValuesRef: React.MutableRefObject<Record<string, string>>;
 	setValidationError: (err: string | null) => void;
 	closeInput: () => void;
-	openCalendarPicker: (calendarMode: InputMode, existingIsoDate?: string) => void;
+	openCalendarPicker: (
+		calendarMode: InputMode,
+		existingIsoDate?: string,
+	) => void;
 	calendarCursorDate: Date;
 	setCalendarCursorDate: React.Dispatch<React.SetStateAction<Date>>;
 	calendarVisibleMonth: Date;
@@ -143,6 +156,8 @@ type UseMainKeysParams = {
 
 export function useMainKeys({
 	isActive,
+	showDashboard,
+	setShowDashboard,
 	showHelp,
 	setShowHelp,
 	inputMode,
@@ -247,8 +262,13 @@ export function useMainKeys({
 		setInputMode("enumPicker");
 	};
 
-	useInput(
-		(input, key) => {
+	const handleInput = useEffectEvent(
+		(input: string, key: Parameters<Parameters<typeof useInput>[0]>[1]) => {
+			if (showDashboard) {
+				setShowDashboard(false);
+				return;
+			}
+
 			if (showHelp) {
 				if (key.escape || input === "?") setShowHelp(false);
 				return;
@@ -267,7 +287,13 @@ export function useMainKeys({
 
 				// In modal text mode: only Esc (above) and Enter/navigation are intercepted here;
 				// character input is handled by useTextInputKeys.
-				if (isModalTextActive && !key.return && !key.tab && !key.upArrow && !key.downArrow) {
+				if (
+					isModalTextActive &&
+					!key.return &&
+					!key.tab &&
+					!key.upArrow &&
+					!key.downArrow
+				) {
 					return;
 				}
 
@@ -295,15 +321,27 @@ export function useMainKeys({
 
 					if (currentField.type === "enum") {
 						if (currentField.key === "priority") {
-							openEnumPicker("Set priority:", PRIORITY_ITEMS, `modal:${modalMode}:priority`);
+							openEnumPicker(
+								"Set priority:",
+								PRIORITY_ITEMS,
+								`modal:${modalMode}:priority`,
+							);
 						} else if (currentField.key === "recurrence") {
-							openEnumPicker("Set recurrence:", RECURRENCE_ITEMS, `modal:${modalMode}:recurrence`);
+							openEnumPicker(
+								"Set recurrence:",
+								RECURRENCE_ITEMS,
+								`modal:${modalMode}:recurrence`,
+							);
 						} else if (currentField.key === "project") {
 							const projectItems: EnumPickerItem[] = projects.map((p) => ({
 								label: p.emoji ? `${p.emoji} ${p.name}` : p.name,
 								value: String(p.id),
 							}));
-							openEnumPicker("Move to project:", projectItems, `modal:${modalMode}:project`);
+							openEnumPicker(
+								"Move to project:",
+								projectItems,
+								`modal:${modalMode}:project`,
+							);
 						}
 						return;
 					}
@@ -326,7 +364,8 @@ export function useMainKeys({
 					};
 					const calendarMode = dateCalendarModeMap[currentField.key];
 					if (calendarMode) {
-						const existingValue = modalValuesRef.current[currentField.key] || undefined;
+						const existingValue =
+							modalValuesRef.current[currentField.key] || undefined;
 						setEnumPickerTargetMode(`modal:${modalMode}:${currentField.key}`);
 						openCalendarPicker(calendarMode, existingValue);
 					}
@@ -356,20 +395,33 @@ export function useMainKeys({
 					if (!field) return;
 					if (field.key === "due") {
 						setInputMode("editDueDate");
-						setInputValue(selectedTask?.dueAt ? selectedTask.dueAt.slice(0, 10) : "");
+						setInputValue(
+							selectedTask?.dueAt ? selectedTask.dueAt.slice(0, 10) : "",
+						);
 					} else if (field.key === "scheduled") {
 						setInputMode("editScheduledDate");
-						setInputValue(selectedTask?.scheduledAt ? selectedTask.scheduledAt.slice(0, 10) : "");
+						setInputValue(
+							selectedTask?.scheduledAt
+								? selectedTask.scheduledAt.slice(0, 10)
+								: "",
+						);
 					} else if (field.key === "reminder") {
 						setInputMode("editReminder");
 						setInputValue("");
+					} else if (field.key === "blocked") {
+						setInputMode("editBlockedReason");
+						setInputValue(selectedTask?.blockedReason ?? "");
 					} else if (field.key === "notes") {
 						setInputMode("editNotes");
 						setInputValue(selectedTask?.notes ?? "");
 					} else if (field.key === "priority") {
 						openEnumPicker("Set priority:", PRIORITY_ITEMS, "editPriority");
 					} else if (field.key === "recurrence") {
-						openEnumPicker("Set recurrence:", RECURRENCE_ITEMS, "editRecurrence");
+						openEnumPicker(
+							"Set recurrence:",
+							RECURRENCE_ITEMS,
+							"editRecurrence",
+						);
 					} else if (field.key === "project") {
 						const projectItems: EnumPickerItem[] = projects.map((p) => ({
 							label: p.emoji ? `${p.emoji} ${p.name}` : p.name,
@@ -390,7 +442,9 @@ export function useMainKeys({
 					return;
 				}
 				if (input === "j" || key.downArrow) {
-					setPickerIndex((i) => Math.min(i + 1, PROJECT_EDIT_FIELDS.length - 1));
+					setPickerIndex((i) =>
+						Math.min(i + 1, PROJECT_EDIT_FIELDS.length - 1),
+					);
 					return;
 				}
 				if (input === "k" || key.upArrow) {
@@ -403,13 +457,20 @@ export function useMainKeys({
 					let initialValue = "";
 					if (activeProject) {
 						if (field.key === "name") initialValue = activeProject.name;
-						else if (field.key === "emoji") initialValue = activeProject.emoji ?? "";
-						else if (field.key === "description") initialValue = activeProject.description ?? "";
-						else if (field.key === "startDate") initialValue = activeProject.startAt?.slice(0, 10) ?? "";
-						else if (field.key === "endDate") initialValue = activeProject.endAt?.slice(0, 10) ?? "";
-						else if (field.key === "jiraDiscovery") initialValue = activeProject.jiraDiscoveryUrl ?? "";
-						else if (field.key === "jiraDelivery") initialValue = activeProject.jiraDeliveryUrl ?? "";
-						else if (field.key === "confluence") initialValue = activeProject.confluenceUrl ?? "";
+						else if (field.key === "emoji")
+							initialValue = activeProject.emoji ?? "";
+						else if (field.key === "description")
+							initialValue = activeProject.description ?? "";
+						else if (field.key === "startDate")
+							initialValue = activeProject.startAt?.slice(0, 10) ?? "";
+						else if (field.key === "endDate")
+							initialValue = activeProject.endAt?.slice(0, 10) ?? "";
+						else if (field.key === "jiraDiscovery")
+							initialValue = activeProject.jiraDiscoveryUrl ?? "";
+						else if (field.key === "jiraDelivery")
+							initialValue = activeProject.jiraDeliveryUrl ?? "";
+						else if (field.key === "confluence")
+							initialValue = activeProject.confluenceUrl ?? "";
 					}
 					const modeMap: Record<string, InputMode> = {
 						name: "editProjectName",
@@ -432,14 +493,21 @@ export function useMainKeys({
 			}
 
 			// --- Enum Picker navigation ---
-			if (inputMode === "enumPicker" || inputMode === "editRecurrence" || inputMode === "editPriority" || inputMode === "editMoveProject") {
+			if (
+				inputMode === "enumPicker" ||
+				inputMode === "editRecurrence" ||
+				inputMode === "editPriority" ||
+				inputMode === "editMoveProject"
+			) {
 				if (key.escape) {
 					setInputMode("none");
 					setStatusText("Ready");
 					return;
 				}
 				if (input === "j" || key.downArrow) {
-					setEnumPickerIndex((i) => Math.min(i + 1, enumPickerItems.length - 1));
+					setEnumPickerIndex((i) =>
+						Math.min(i + 1, enumPickerItems.length - 1),
+					);
 					return;
 				}
 				if (input === "k" || key.upArrow) {
@@ -457,65 +525,85 @@ export function useMainKeys({
 			}
 
 			// --- Calendar Picker navigation ---
-		if (CALENDAR_PICKER_MODES.includes(inputMode)) {
-			if (key.escape) {
-				setInputMode("none");
-				setStatusText("Ready");
+			if (CALENDAR_PICKER_MODES.includes(inputMode)) {
+				if (key.escape) {
+					setInputMode("none");
+					setStatusText("Ready");
+					return;
+				}
+				if (input === "c") {
+					setInputValue("clear");
+					void submitInput("clear");
+					return;
+				}
+				if (key.return) {
+					const dateStr = format(calendarCursorDate, "yyyy-MM-dd");
+					setInputValue(dateStr);
+					void submitInput(dateStr);
+					return;
+				}
+				// Arrow keys / hjkl: move by day
+				if (input === "h" || key.leftArrow) {
+					const { cursorDate, visibleMonth } = moveCursorByDays(
+						calendarCursorDate,
+						-1,
+					);
+					setCalendarCursorDate(cursorDate);
+					setCalendarVisibleMonth(visibleMonth);
+					return;
+				}
+				if (input === "l" || key.rightArrow) {
+					const { cursorDate, visibleMonth } = moveCursorByDays(
+						calendarCursorDate,
+						1,
+					);
+					setCalendarCursorDate(cursorDate);
+					setCalendarVisibleMonth(visibleMonth);
+					return;
+				}
+				if (input === "k" || key.upArrow) {
+					const { cursorDate, visibleMonth } = moveCursorByDays(
+						calendarCursorDate,
+						-7,
+					);
+					setCalendarCursorDate(cursorDate);
+					setCalendarVisibleMonth(visibleMonth);
+					return;
+				}
+				if (input === "j" || key.downArrow) {
+					const { cursorDate, visibleMonth } = moveCursorByDays(
+						calendarCursorDate,
+						7,
+					);
+					setCalendarCursorDate(cursorDate);
+					setCalendarVisibleMonth(visibleMonth);
+					return;
+				}
+				// [ / ] step month
+				if (input === "[") {
+					const { cursorDate, visibleMonth } = stepCalendarMonth(
+						calendarCursorDate,
+						calendarVisibleMonth,
+						-1,
+					);
+					setCalendarCursorDate(cursorDate);
+					setCalendarVisibleMonth(visibleMonth);
+					return;
+				}
+				if (input === "]") {
+					const { cursorDate, visibleMonth } = stepCalendarMonth(
+						calendarCursorDate,
+						calendarVisibleMonth,
+						1,
+					);
+					setCalendarCursorDate(cursorDate);
+					setCalendarVisibleMonth(visibleMonth);
+					return;
+				}
 				return;
 			}
-			if (input === "c") {
-				setInputValue("clear");
-				void submitInput("clear");
-				return;
-			}
-			if (key.return) {
-				const dateStr = format(calendarCursorDate, "yyyy-MM-dd");
-				setInputValue(dateStr);
-				void submitInput(dateStr);
-				return;
-			}
-			// Arrow keys / hjkl: move by day
-			if (input === "h" || key.leftArrow) {
-				const { cursorDate, visibleMonth } = moveCursorByDays(calendarCursorDate, -1);
-				setCalendarCursorDate(cursorDate);
-				setCalendarVisibleMonth(visibleMonth);
-				return;
-			}
-			if (input === "l" || key.rightArrow) {
-				const { cursorDate, visibleMonth } = moveCursorByDays(calendarCursorDate, 1);
-				setCalendarCursorDate(cursorDate);
-				setCalendarVisibleMonth(visibleMonth);
-				return;
-			}
-			if (input === "k" || key.upArrow) {
-				const { cursorDate, visibleMonth } = moveCursorByDays(calendarCursorDate, -7);
-				setCalendarCursorDate(cursorDate);
-				setCalendarVisibleMonth(visibleMonth);
-				return;
-			}
-			if (input === "j" || key.downArrow) {
-				const { cursorDate, visibleMonth } = moveCursorByDays(calendarCursorDate, 7);
-				setCalendarCursorDate(cursorDate);
-				setCalendarVisibleMonth(visibleMonth);
-				return;
-			}
-			// [ / ] step month
-			if (input === "[") {
-				const { cursorDate, visibleMonth } = stepCalendarMonth(calendarCursorDate, calendarVisibleMonth, -1);
-				setCalendarCursorDate(cursorDate);
-				setCalendarVisibleMonth(visibleMonth);
-				return;
-			}
-			if (input === "]") {
-				const { cursorDate, visibleMonth } = stepCalendarMonth(calendarCursorDate, calendarVisibleMonth, 1);
-				setCalendarCursorDate(cursorDate);
-				setCalendarVisibleMonth(visibleMonth);
-				return;
-			}
-			return;
-		}
 
-		if (inputMode === "linkPicker") {
+			if (inputMode === "linkPicker") {
 				if (key.escape) {
 					setInputMode("none");
 					setLinkPickerLinks(null);
@@ -577,7 +665,9 @@ export function useMainKeys({
 
 			if (key.tab) {
 				const cycle: FocusArea[] =
-					view === "upcoming" ? ["sidebar", "tasks", "goals"] : ["sidebar", "tasks"];
+					view === "upcoming"
+						? ["sidebar", "tasks", "goals"]
+						: ["sidebar", "tasks"];
 				setFocusArea((current) => {
 					const currentIndex = cycle.indexOf(current);
 					const nextIndex = (currentIndex + 1) % cycle.length;
@@ -742,17 +832,17 @@ export function useMainKeys({
 				return;
 			}
 
-		if (input === "a") {
-			setInputMode("quickAdd");
-			setInputValue("");
-			return;
-		}
+			if (input === "a") {
+				setInputMode("quickAdd");
+				setInputValue("");
+				return;
+			}
 
-		if (input === "A") {
-			setInputMode("createTaskModal");
-			setInputValue("");
-			return;
-		}
+			if (input === "A") {
+				setInputMode("createTaskModal");
+				setInputValue("");
+				return;
+			}
 
 			if (input === "c") {
 				if (!selectedTask) {
@@ -774,17 +864,17 @@ export function useMainKeys({
 				return;
 			}
 
-		if (input === "p") {
-			setInputMode("createProject");
-			setInputValue("");
-			return;
-		}
+			if (input === "p") {
+				setInputMode("createProject");
+				setInputValue("");
+				return;
+			}
 
-		if (input === "P") {
-			setInputMode("createProjectModal");
-			setInputValue("");
-			return;
-		}
+			if (input === "P") {
+				setInputMode("createProjectModal");
+				setInputValue("");
+				return;
+			}
 
 			if (input === "n") {
 				if (!selectedTask) {
@@ -846,18 +936,18 @@ export function useMainKeys({
 				return;
 			}
 
-		if (input === "d") {
-			if (!selectedTask) return;
-			void deleteSelectedTask();
-			return;
-		}
+			if (input === "d") {
+				if (!selectedTask) return;
+				void deleteSelectedTask();
+				return;
+			}
 
-		if (input === "u") {
-			if (view !== "deleted") return;
-			if (!selectedTask) return;
-			void undeleteSelectedTask();
-			return;
-		}
+			if (input === "u") {
+				if (view !== "deleted") return;
+				if (!selectedTask) return;
+				void undeleteSelectedTask();
+				return;
+			}
 
 			if (input === "o") {
 				if (view === "project" && activeProject) {
@@ -921,6 +1011,12 @@ export function useMainKeys({
 				void deleteSelectedReminder(selectedReminder);
 				return;
 			}
+		},
+	);
+
+	useInput(
+		(input, key) => {
+			handleInput(input, key);
 		},
 		{ isActive },
 	);

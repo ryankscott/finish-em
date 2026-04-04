@@ -59,6 +59,7 @@ type UseSubmitInputParams = {
 // Modes where an empty/blank value is intentional (e.g. clearing notes or dates).
 const ALLOW_EMPTY_MODES: InputMode[] = [
 	"editNotes",
+	"editBlockedReason",
 	"editDueDate",
 	"editScheduledDate",
 	"editProjectEndDate",
@@ -255,6 +256,15 @@ export function useSubmitInput({
 				await api.updateTask(selectedTask.id, { notes: normalizeBareUrlsInText(value) });
 				setStatusText("Notes updated");
 			}
+		} else if (inputMode === "editBlockedReason") {
+			if (!selectedTask) {
+				setStatusText("No task selected");
+			} else {
+				await api.updateTask(selectedTask.id, {
+					blockedReason: value.length > 0 ? value : null,
+				});
+				setStatusText(value.length > 0 ? "Task blocked" : "Task unblocked");
+			}
 		} else if (inputMode === "editReminder") {
 			if (!selectedTask) {
 				setStatusText("No task selected");
@@ -433,6 +443,7 @@ export function useSubmitInput({
 			recurrenceRaw && recurrenceRaw !== "none"
 				? (recurrenceRaw as "daily" | "weekly" | "monthly" | "yearly" | "every_weekday")
 				: null;
+		const blockedReason = modalValues.blockedReason?.trim() || undefined;
 		const notes = modalValues.notes?.trim()
 			? normalizeBareUrlsInText(modalValues.notes.trim())
 			: undefined;
@@ -446,6 +457,7 @@ export function useSubmitInput({
 				: undefined,
 			scheduledAt: scheduledAt || undefined,
 			recurrencePreset,
+			blockedReason,
 			notes,
 		});
 		pushToast("Task created", "success");

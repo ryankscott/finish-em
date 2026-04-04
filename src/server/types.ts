@@ -41,6 +41,8 @@ export type Task = {
   recurrenceRRule: string | null
   status: TaskStatus
   completedAt: string | null
+  blockedAt: string | null
+  blockedReason: string | null
   deletedAt: string | null
   createdAt: string
   updatedAt: string
@@ -76,6 +78,7 @@ export type AppSettings = {
 export type TaskFilters = {
   projectId?: number
   status?: TaskStatus
+  blocked?: boolean
   from?: string
   to?: string
   noDueDate?: boolean

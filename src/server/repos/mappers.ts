@@ -46,6 +46,8 @@ export function mapTaskRow(row: Record<string, unknown>): Task {
     recurrenceRRule: row.recurrence_rrule ? String(row.recurrence_rrule) : null,
     status: String(row.status) as TaskStatus,
     completedAt: row.completed_at ? String(row.completed_at) : null,
+    blockedAt: row.blocked_at ? String(row.blocked_at) : null,
+    blockedReason: row.blocked_reason ? String(row.blocked_reason) : null,
     deletedAt: row.deleted_at ? String(row.deleted_at) : null,
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),

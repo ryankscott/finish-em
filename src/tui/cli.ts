@@ -38,9 +38,9 @@ const HELP_BY_GROUP: Record<string, string> = {
   task: `finish-em task <subcommand> [flags]
 
 Subcommands:
-  list [--project-id <id>] [--status open|completed] [--json]
-  add <title> --project-id <id> [--notes <text>] [--priority <1-4>] [--json]
-  update <task-id> [--title <text>] [--notes <text>] [--priority <1-4>] [--json]
+  list [--project-id <id>] [--status open|completed] [--blocked true|false] [--json]
+  add <title> --project-id <id> [--notes <text>] [--priority <1-4>] [--blocked-reason <text>] [--json]
+  update <task-id> [--title <text>] [--notes <text>] [--priority <1-4>] [--blocked-reason <text> | --clear-blocked] [--json]
   done <task-id> [--json]
   undone <task-id> [--json]
   delete <task-id> [--json]
@@ -183,10 +183,21 @@ const printResult = (
   io.stdout.write(`${JSON.stringify(value, null, 2)}\n`)
 }
 
-const formatTaskList = (tasks: Array<{ id: number; status: string; priority: number; title: string }>) => {
+const formatTaskList = (
+  tasks: Array<{
+    id: number
+    status: string
+    priority: number
+    title: string
+    blockedReason?: string | null
+  }>,
+) => {
   if (tasks.length === 0) return 'No tasks found.'
   return tasks
-    .map((task) => `[${task.id}] ${task.status} p${task.priority} ${task.title}`)
+    .map((task) => {
+      const blocked = task.blockedReason ? ` blocked:${task.blockedReason}` : ''
+      return `[${task.id}] ${task.status} p${task.priority} ${task.title}${blocked}`
+    })
     .join('\n')
 }
 
@@ -235,6 +246,7 @@ async function runTaskCommand(args: string[], api: ApiClient, io: CliIo) {
     const tasks = await api.listTasks({
       projectId: asNumber(flags, 'project-id'),
       status: asString(flags, 'status') as 'open' | 'completed' | undefined,
+      blocked: asBoolean(flags, 'blocked'),
     })
     printResult(io, tasks, { json: outputJson, human: formatTaskList(tasks) })
     return
@@ -249,6 +261,7 @@ async function runTaskCommand(args: string[], api: ApiClient, io: CliIo) {
       projectId,
       notes: asString(flags, 'notes'),
       priority: asNumber(flags, 'priority') as 1 | 2 | 3 | 4 | undefined,
+      blockedReason: asString(flags, 'blocked-reason') ?? undefined,
     })
     printResult(io, task, {
       json: outputJson,
@@ -259,10 +272,12 @@ async function runTaskCommand(args: string[], api: ApiClient, io: CliIo) {
 
   if (subcommand === 'update') {
     const taskId = Number.parseInt(requirePositional(positionals, 1, 'task-id'), 10)
+    const clearBlocked = flags['clear-blocked'] === true
     const task = await api.updateTask(taskId, {
       title: asString(flags, 'title'),
       notes: asString(flags, 'notes'),
       priority: asNumber(flags, 'priority') as 1 | 2 | 3 | 4 | undefined,
+      blockedReason: clearBlocked ? null : asString(flags, 'blocked-reason') ?? undefined,
     })
     printResult(io, task, {
       json: outputJson,

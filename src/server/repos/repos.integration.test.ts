@@ -57,6 +57,30 @@ describe('repositories integration', () => {
     expect(completion.nextTask?.dueAt).toBe('2026-02-16T09:00:00.000Z')
   })
 
+  it('rejects completing a blocked task until it is unblocked', () => {
+    const project = createProject({ name: 'Blocked' })
+    const task = createTask({
+      projectId: project.id,
+      title: 'Wait for review',
+      blockedReason: 'Waiting on design review',
+    })
+
+    expect(task.blockedAt).toBeTruthy()
+    expect(task.blockedReason).toBe('Waiting on design review')
+    expect(() => completeTask(task.id)).toThrow(
+      'Blocked tasks cannot be completed until unblocked',
+    )
+
+    expect(getTask(task.id)?.status).toBe('open')
+
+    const unblocked = updateTask(task.id, { blockedReason: null })
+    expect(unblocked?.blockedAt).toBeNull()
+    expect(unblocked?.blockedReason).toBeNull()
+
+    const completion = completeTask(task.id)
+    expect(completion.task?.status).toBe('completed')
+  })
+
   it('supports reminders with snoozing', () => {
     const project = createProject({ name: 'Ops' })
     const task = createTask({ projectId: project.id, title: 'Rotate keys' })

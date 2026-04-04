@@ -74,8 +74,8 @@ export const HelpModal = ({
 	terminalWidth,
 	terminalHeight,
 }: HelpModalProps) => {
-	const width = Math.min(60, terminalWidth - 4);
-	const keysColWidth = 12;
+	const width = terminalWidth - 12;
+	const keysColWidth = 18;
 
 	return (
 		<Box
@@ -90,12 +90,13 @@ export const HelpModal = ({
 			<Box
 				flexDirection="column"
 				width={width}
+				height={terminalHeight - 4}
 				borderStyle="round"
 				borderColor="magentaBright"
 				paddingX={2}
 				paddingY={1}
 			>
-				<Box marginBottom={1} justifyContent="space-between">
+				<Box marginBottom={0} justifyContent="space-between">
 					<Text bold color="magentaBright">
 						Keyboard Shortcuts
 					</Text>

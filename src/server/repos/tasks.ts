@@ -5,6 +5,59 @@ import { getNextOccurrence, validateRRuleSubset } from '@/server/services/recurr
 
 import type { Priority, Task, TaskFilters, TaskStatus } from '@/server/types'
 
+function normalizeBlockedReason(blockedReason: string | null | undefined) {
+  if (blockedReason === undefined) {
+    return undefined
+  }
+
+  if (blockedReason === null) {
+    return null
+  }
+
+  const normalized = blockedReason.trim()
+  if (normalized.length === 0) {
+    throw new Error('Blocked reason must not be empty')
+  }
+
+  return normalized
+}
+
+function resolveBlockedState(input: {
+  existingBlockedAt: string | null
+  existingBlockedReason: string | null
+  nextBlockedReason: string | null | undefined
+  nextStatus: TaskStatus
+}) {
+  if (input.nextStatus === 'completed') {
+    if (input.nextBlockedReason === undefined) {
+      if (input.existingBlockedReason !== null) {
+        throw new Error('Blocked tasks cannot be completed until unblocked')
+      }
+    } else if (input.nextBlockedReason !== null) {
+      throw new Error('Blocked tasks cannot be completed until unblocked')
+    }
+  }
+
+  if (input.nextBlockedReason === undefined) {
+    return {
+      blockedAt: input.existingBlockedAt,
+      blockedReason: input.existingBlockedReason,
+    }
+  }
+
+  if (input.nextBlockedReason === null) {
+    return {
+      blockedAt: null,
+      blockedReason: null,
+    }
+  }
+
+  return {
+    blockedAt: input.existingBlockedAt ?? nowIso(),
+    blockedReason: input.nextBlockedReason,
+  }
+}
+
 function buildFilterClause(filters: TaskFilters) {
   const clauses: string[] = []
   const values: Array<number | string> = []
@@ -17,6 +70,12 @@ function buildFilterClause(filters: TaskFilters) {
   if (filters.status) {
     clauses.push('status = ?')
     values.push(filters.status)
+  }
+
+  if (filters.blocked === true) {
+    clauses.push('blocked_at IS NOT NULL')
+  } else if (filters.blocked === false) {
+    clauses.push('blocked_at IS NULL')
   }
 
   if (filters.priority) {
@@ -128,6 +187,7 @@ export function createTask(input: {
   dueTimezone?: string | null
   recurrencePreset?: string | null
   recurrenceRRule?: string | null
+  blockedReason?: string | null
 }): Task {
   const project = getProject(input.projectId)
   if (!project) {
@@ -145,12 +205,15 @@ export function createTask(input: {
     throw new Error('Invalid RRULE subset')
   }
 
+  const blockedReason = normalizeBlockedReason(input.blockedReason)
+  const blockedAt = blockedReason ? now : null
+
   const result = db
     .prepare(
       `INSERT INTO tasks (
         project_id, parent_task_id, title, notes, priority, scheduled_at, due_at, due_timezone,
-        recurrence_preset, recurrence_rrule, status, completed_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', NULL, ?, ?)`,
+        recurrence_preset, recurrence_rrule, status, completed_at, blocked_at, blocked_reason, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', NULL, ?, ?, ?, ?)`,
     )
     .run(
       input.projectId,
@@ -163,6 +226,8 @@ export function createTask(input: {
       input.dueTimezone ?? null,
       input.recurrencePreset ?? null,
       input.recurrenceRRule ?? null,
+      blockedAt,
+      blockedReason ?? null,
       now,
       now,
     )
@@ -189,6 +254,7 @@ export function updateTask(
     recurrencePreset: string | null
     recurrenceRRule: string | null
     status: TaskStatus
+    blockedReason: string | null
   }>,
 ): Task | null {
   const db = getDb()
@@ -205,6 +271,8 @@ export function updateTask(
   const nextProjectId = patch.projectId ?? existing.projectId
   const nextParentTaskId =
     patch.parentTaskId === undefined ? existing.parentTaskId : patch.parentTaskId
+  const nextStatus = patch.status ?? existing.status
+  const nextBlockedReason = normalizeBlockedReason(patch.blockedReason)
 
   if (nextParentTaskId !== null && taskHasChildren(taskId)) {
     throw new Error('A task with subtasks cannot be assigned as a subtask')
@@ -214,6 +282,13 @@ export function updateTask(
     taskId,
     projectId: nextProjectId,
     parentTaskId: nextParentTaskId,
+  })
+
+  const blockedState = resolveBlockedState({
+    existingBlockedAt: existing.blockedAt,
+    existingBlockedReason: existing.blockedReason,
+    nextBlockedReason,
+    nextStatus,
   })
 
   const now = nowIso()
@@ -230,6 +305,8 @@ export function updateTask(
       recurrence_preset = ?,
       recurrence_rrule = ?,
       status = ?,
+      blocked_at = ?,
+      blocked_reason = ?,
       updated_at = ?
     WHERE id = ?`,
   ).run(
@@ -247,7 +324,9 @@ export function updateTask(
     patch.recurrenceRRule === undefined
       ? existing.recurrenceRRule
       : patch.recurrenceRRule,
-    patch.status ?? existing.status,
+    nextStatus,
+    blockedState.blockedAt,
+    blockedState.blockedReason,
     now,
     taskId,
   )
@@ -325,6 +404,10 @@ export function completeTask(taskId: number): {
 
   if (!existing) {
     return { task: null, nextTask: null }
+  }
+
+  if (existing.blockedReason !== null) {
+    throw new Error('Blocked tasks cannot be completed until unblocked')
   }
 
   const now = nowIso()

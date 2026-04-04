@@ -1,5 +1,6 @@
 import { isValid, parseISO } from "date-fns";
 import { lookup as emojiShortcodeLookup } from "../lib/emoji-shortcodes";
+import { extractTokenValue } from "./token-input";
 
 type ProjectCreateInput = {
 	name: string;
@@ -58,31 +59,17 @@ function parseEmojiValue(value: string, warnings: string[]): string {
 		return mapped;
 	}
 
-	warnings.push(`Unknown emoji shortcode ":${shortcode}:"; using literal value`);
+	warnings.push(
+		`Unknown emoji shortcode ":${shortcode}:"; using literal value`,
+	);
 	return trimmed;
 }
 
-function extractTokenValue(input: string, startIndex: number): [string, number] {
-	let end = input.length;
-
-	for (const prefix of TOKEN_PREFIXES) {
-		let pos = startIndex;
-		while (pos < input.length) {
-			const idx = input.toLowerCase().indexOf(prefix, pos);
-			if (idx === -1) break;
-			if (idx > 0 && input[idx - 1] !== " ") {
-				pos = idx + 1;
-				continue;
-			}
-			if (idx < end) end = idx;
-			break;
-		}
-	}
-
-	return [input.slice(startIndex, end).trim(), end];
-}
-
-function parseOptionalDate(value: string, field: string, errors: string[]): string | null | undefined {
+function parseOptionalDate(
+	value: string,
+	field: string,
+	errors: string[],
+): string | null | undefined {
 	const normalized = value.trim().toLowerCase();
 	if (normalized.length === 0) {
 		return undefined;
@@ -106,11 +93,13 @@ function parseInboxValue(value: string, errors: string[]): boolean | undefined {
 	if (["false", "no", "0", "n"].includes(normalized)) {
 		return false;
 	}
-	errors.push('inbox must be one of: true/false, yes/no, 1/0');
+	errors.push("inbox must be one of: true/false, yes/no, 1/0");
 	return undefined;
 }
 
-export function parseProjectCreateInput(input: string): ParseProjectCreateResult {
+export function parseProjectCreateInput(
+	input: string,
+): ParseProjectCreateResult {
 	const warnings: string[] = [];
 	const errors: string[] = [];
 	const trimmed = input.trim();
@@ -124,7 +113,10 @@ export function parseProjectCreateInput(input: string): ParseProjectCreateResult
 		};
 	}
 
-	const usedTokens = /(\bname:|\bemoji:|\bdescription:|\bstart:|\bend:|\bcolor:|\binbox:|\bjiraDiscovery:|\bjiraDelivery:|\bconfluence:)/i.test(trimmed);
+	const usedTokens =
+		/(\bname:|\bemoji:|\bdescription:|\bstart:|\bend:|\bcolor:|\binbox:|\bjiraDiscovery:|\bjiraDelivery:|\bconfluence:)/i.test(
+			trimmed,
+		);
 	if (!usedTokens) {
 		return {
 			input: { name: trimmed },
@@ -137,7 +129,18 @@ export function parseProjectCreateInput(input: string): ParseProjectCreateResult
 	let working = trimmed;
 	const result: Partial<ProjectCreateInput> = {};
 
-	const knownKeys = ["name", "emoji", "description", "start", "end", "color", "inbox", "jiradiscovery", "jiradelivery", "confluence"];
+	const knownKeys = [
+		"name",
+		"emoji",
+		"description",
+		"start",
+		"end",
+		"color",
+		"inbox",
+		"jiradiscovery",
+		"jiradelivery",
+		"confluence",
+	];
 	const unknownTokens = [...trimmed.matchAll(/\b([a-z_]+):/gi)]
 		.map((match) => match[1]?.toLowerCase())
 		.filter((key) => key && !knownKeys.includes(key));
@@ -148,108 +151,167 @@ export function parseProjectCreateInput(input: string): ParseProjectCreateResult
 	const nameMatch = working.match(/\bname:/i);
 	if (nameMatch && nameMatch.index !== undefined) {
 		const valueStart = nameMatch.index + nameMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		if (value.trim().length > 0) {
 			result.name = value.trim();
 		}
-		working = (working.slice(0, nameMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		working = (working.slice(0, nameMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const emojiMatch = working.match(/\bemoji:/i);
 	if (emojiMatch && emojiMatch.index !== undefined) {
 		const valueStart = emojiMatch.index + emojiMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		if (value.trim().length > 0) {
 			result.emoji = parseEmojiValue(value, warnings);
 		}
-		working = (working.slice(0, emojiMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		working = (working.slice(0, emojiMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const descriptionMatch = working.match(/\bdescription:/i);
 	if (descriptionMatch && descriptionMatch.index !== undefined) {
 		const valueStart = descriptionMatch.index + descriptionMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		if (value.trim().length > 0) {
 			result.description = value.trim();
 		}
-		working = (working.slice(0, descriptionMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		working = (working.slice(0, descriptionMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const startMatch = working.match(/\bstart:/i);
 	if (startMatch && startMatch.index !== undefined) {
 		const valueStart = startMatch.index + startMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		const parsed = parseOptionalDate(value, "start", errors);
 		if (parsed !== undefined) {
 			result.startAt = parsed;
 		}
-		working = (working.slice(0, startMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		working = (working.slice(0, startMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const endMatch = working.match(/\bend:/i);
 	if (endMatch && endMatch.index !== undefined) {
 		const valueStart = endMatch.index + endMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		const parsed = parseOptionalDate(value, "end", errors);
 		if (parsed !== undefined) {
 			result.endAt = parsed;
 		}
-		working = (working.slice(0, endMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		working = (working.slice(0, endMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const colorMatch = working.match(/\bcolor:/i);
 	if (colorMatch && colorMatch.index !== undefined) {
 		const valueStart = colorMatch.index + colorMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		if (value.trim().length > 0) {
 			const normalized = value.trim();
 			if (!/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(normalized)) {
-				errors.push('color must be a hex value like #3b82f6');
+				errors.push("color must be a hex value like #3b82f6");
 			} else {
 				result.color = normalized;
 			}
 		}
-		working = (working.slice(0, colorMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		working = (working.slice(0, colorMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const inboxMatch = working.match(/\binbox:/i);
 	if (inboxMatch && inboxMatch.index !== undefined) {
 		const valueStart = inboxMatch.index + inboxMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		if (value.trim().length > 0) {
 			const parsed = parseInboxValue(value, errors);
 			if (parsed !== undefined) {
 				result.isInbox = parsed;
 			}
 		}
-		working = (working.slice(0, inboxMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		working = (working.slice(0, inboxMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const jiraDiscoveryMatch = working.match(/\bjiraDiscovery:/i);
 	if (jiraDiscoveryMatch && jiraDiscoveryMatch.index !== undefined) {
 		const valueStart = jiraDiscoveryMatch.index + jiraDiscoveryMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		const normalized = value.trim().toLowerCase();
-		result.jiraDiscoveryUrl = normalized.length === 0 || ["none", "clear", "null"].includes(normalized) ? null : value.trim();
-		working = (working.slice(0, jiraDiscoveryMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		result.jiraDiscoveryUrl =
+			normalized.length === 0 || ["none", "clear", "null"].includes(normalized)
+				? null
+				: value.trim();
+		working = (working.slice(0, jiraDiscoveryMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const jiraDeliveryMatch = working.match(/\bjiraDelivery:/i);
 	if (jiraDeliveryMatch && jiraDeliveryMatch.index !== undefined) {
 		const valueStart = jiraDeliveryMatch.index + jiraDeliveryMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		const normalized = value.trim().toLowerCase();
-		result.jiraDeliveryUrl = normalized.length === 0 || ["none", "clear", "null"].includes(normalized) ? null : value.trim();
-		working = (working.slice(0, jiraDeliveryMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		result.jiraDeliveryUrl =
+			normalized.length === 0 || ["none", "clear", "null"].includes(normalized)
+				? null
+				: value.trim();
+		working = (working.slice(0, jiraDeliveryMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	const confluenceMatch = working.match(/\bconfluence:/i);
 	if (confluenceMatch && confluenceMatch.index !== undefined) {
 		const valueStart = confluenceMatch.index + confluenceMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart);
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			caseInsensitive: true,
+		});
 		const normalized = value.trim().toLowerCase();
-		result.confluenceUrl = normalized.length === 0 || ["none", "clear", "null"].includes(normalized) ? null : value.trim();
-		working = (working.slice(0, confluenceMatch.index) + working.slice(end)).replace(/\s{2,}/g, " ").trim();
+		result.confluenceUrl =
+			normalized.length === 0 || ["none", "clear", "null"].includes(normalized)
+				? null
+				: value.trim();
+		working = (working.slice(0, confluenceMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
 	}
 
 	if (!result.name && working.length > 0) {

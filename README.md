@@ -64,6 +64,23 @@ Uninstall standalone command:
 bun run cli:uninstall
 ```
 
+### macOS app flow
+
+Build a launcher app that opens Terminal.app and runs the compiled TUI binary:
+
+```bash
+bun run app:build
+bun run app:install
+```
+
+This installs `finish-em.app` into `~/Applications` by default. To install somewhere else:
+
+```bash
+bun run app:install -- /Applications
+```
+
+The app bundle is built at `dist/finish-em.app` and uses `public/icon.svg` to generate its launcher icon.
+
 ## Migration tooling
 
 ```bash

@@ -45,6 +45,9 @@ export const recurrenceLabel = (preset: string | null): string => {
 	return preset.replace(/_/g, " ");
 };
 
+export const blockedIndicator = (blockedReason: string | null): string =>
+	blockedReason ? "⛔" : " ";
+
 export const truncate = (text: string, maxLen: number): string => {
 	if (text.length <= maxLen) return text.padEnd(maxLen);
 	return `${text.slice(0, maxLen - 1)}…`;

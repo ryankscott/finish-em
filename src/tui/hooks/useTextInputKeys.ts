@@ -1,4 +1,5 @@
 import { useInput } from "ink";
+import { useEffectEvent } from "react";
 
 import { applyTextEdit } from "../apply-text-edit";
 import type { InputMode } from "./useInputBar";
@@ -27,7 +28,10 @@ type UseTextInputKeysParams = {
 	setInputCursorOffset: (offset: number) => void;
 	closeInput: () => void;
 	submitInput: () => Promise<void>;
-	openCalendarPicker: (calendarMode: InputMode, existingIsoDate?: string) => void;
+	openCalendarPicker: (
+		calendarMode: InputMode,
+		existingIsoDate?: string,
+	) => void;
 	// Modal routing params
 	isModalMode: boolean;
 	isModalTextActive: boolean;
@@ -53,8 +57,8 @@ export function useTextInputKeys({
 	modalValuesRef,
 	setModalValues,
 }: UseTextInputKeysParams) {
-	useInput(
-		(input, key) => {
+	const handleInput = useEffectEvent(
+		(input: string, key: Parameters<Parameters<typeof useInput>[0]>[1]) => {
 			// In modal mode: Esc, Enter, Tab, E are always handled by useMainKeys.
 			// When isModalTextActive, we also handle character input below.
 			if (isModalMode) {
@@ -117,6 +121,12 @@ export function useTextInputKeys({
 				setInputValue(result.value);
 				setInputCursorOffset(result.cursor);
 			}
+		},
+	);
+
+	useInput(
+		(input, key) => {
+			handleInput(input, key);
 		},
 		{ isActive },
 	);

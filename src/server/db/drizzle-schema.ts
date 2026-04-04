@@ -43,6 +43,8 @@ export const tasks = sqliteTable('tasks', {
   recurrenceRRule: text('recurrence_rrule'),
   status: text('status').notNull().default('open'),
   completedAt: text('completed_at'),
+  blockedAt: text('blocked_at'),
+  blockedReason: text('blocked_reason'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 })
