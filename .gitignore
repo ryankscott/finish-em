@@ -13,3 +13,4 @@ count.txt
 __unconfig*
 todos.json
 mcp-todos.json
+.pnpm-store/
