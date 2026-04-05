@@ -134,6 +134,7 @@ type UseMainKeysParams = {
 	setSettingsIndex: React.Dispatch<React.SetStateAction<number>>;
 	selectedSettingsRow: SettingsRow | null;
 	setEditingSettingField: (field: "timezone" | null) => void;
+	onSyncToggle: () => void;
 	columns: DayColumn[];
 	setColumnIndex: React.Dispatch<React.SetStateAction<number>>;
 	currentColumnRows: ColumnTaskRow[];
@@ -216,6 +217,7 @@ export function useMainKeys({
 	setSettingsIndex,
 	selectedSettingsRow,
 	setEditingSettingField,
+	onSyncToggle,
 	columns,
 	setColumnIndex,
 	currentColumnRows,
@@ -761,6 +763,10 @@ export function useMainKeys({
 					}
 					if (input === "e" || key.return) {
 						if (!selectedSettingsRow) return;
+						if (selectedSettingsRow.field === "syncEnabled") {
+							onSyncToggle();
+							return;
+						}
 						setEditingSettingField(selectedSettingsRow.field);
 						setInputMode("editSetting");
 						setInputValue(selectedSettingsRow.value);

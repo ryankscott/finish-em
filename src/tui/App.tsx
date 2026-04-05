@@ -31,6 +31,7 @@ import { useSubmitInput } from "./hooks/useSubmitInput";
 import { useTaskActions } from "./hooks/useTaskActions";
 import { useReminderBell } from "./hooks/useReminderBell";
 import { useToasts } from "./hooks/useToasts";
+import { getSyncService } from "../server/sync/sync-service";
 
 const CALENDAR_PICKER_MODES: InputMode[] = [
 	"calendarPickerDueDate",
@@ -64,6 +65,17 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [reminders, setReminders] = useState<Reminder[]>([]);
 	const [enumPickerItems, setEnumPickerItems] = useState<EnumPickerItem[]>([]);
 	const [enumPickerTitle, setEnumPickerTitle] = useState("");
+	const [syncEnabled, setSyncEnabled] = useState(() => getSyncService().isEnabled());
+
+	const onSyncToggle = useCallback(() => {
+		const svc = getSyncService();
+		if (svc.isEnabled()) {
+			svc.disable();
+		} else {
+			svc.enable();
+		}
+		setSyncEnabled(svc.isEnabled());
+	}, []);
 
 	const goalPeriodType = nav.viewMode === "day" ? ("daily" as const) : ("weekly" as const);
 	const goalPeriodStart = useMemo(() => {
@@ -86,6 +98,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		tasks: data.tasks,
 		projects: data.projects,
 		settings: data.settings,
+		syncEnabled,
 	});
 
 	// Load reminders whenever the selected task changes
@@ -231,6 +244,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setSettingsIndex: nav.setSettingsIndex,
 		selectedSettingsRow: navDerived.selectedSettingsRow,
 		setEditingSettingField: inputBar.setEditingSettingField,
+		onSyncToggle,
 		columns: navDerived.columns,
 		setColumnIndex: nav.setColumnIndex,
 		currentColumnRows: navDerived.currentColumnRows,

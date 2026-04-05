@@ -36,6 +36,32 @@ try {
     .all()
   const applied = new Set(appliedRows.map((row) => String(row.filename)))
 
+  // Backfill schema_migrations for migrations that were applied via client.ts
+  // schema guards before the migration runner tracked everything.
+  const now = new Date().toISOString()
+  const projectCols = new Set(
+    db.prepare('PRAGMA table_info(projects)').all().map((r) => r.name),
+  )
+  const taskCols = new Set(
+    db.prepare('PRAGMA table_info(tasks)').all().map((r) => r.name),
+  )
+  const backfills = [
+    { file: '002_project_enhancements.sql', check: () => projectCols.has('emoji') },
+    { file: '003_subtasks.sql', check: () => taskCols.has('parent_task_id') },
+    { file: '004_soft_delete_tasks.sql', check: () => taskCols.has('deleted_at') },
+    { file: '005_project_external_links.sql', check: () => projectCols.has('jira_discovery_url') },
+    { file: '006_blocked_tasks.sql', check: () => taskCols.has('blocked_at') },
+  ]
+  for (const { file, check } of backfills) {
+    if (!applied.has(file) && check()) {
+      db.prepare(
+        'INSERT INTO schema_migrations (filename, applied_at) VALUES (?, ?)',
+      ).run(file, now)
+      applied.add(file)
+      console.log(`Backfilled already-applied migration: ${file}`)
+    }
+  }
+
   for (const file of migrationFiles) {
     if (applied.has(file)) {
       console.log(`Skipping already-applied migration: ${file}`)

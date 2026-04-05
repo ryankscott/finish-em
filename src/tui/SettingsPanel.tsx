@@ -3,7 +3,7 @@ import { Box, Text } from "ink";
 
 import type { AppSettings } from "../server/types";
 
-export type SettingsField = "timezone";
+export type SettingsField = "timezone" | "syncEnabled";
 
 export type SettingsRow = {
 	field: SettingsField;
@@ -14,6 +14,7 @@ export type SettingsRow = {
 
 export const buildSettingsRows = (
 	settings: AppSettings | null,
+	syncEnabled: boolean,
 ): SettingsRow[] => {
 	return [
 		{
@@ -21,6 +22,12 @@ export const buildSettingsRows = (
 			label: "Timezone",
 			value: settings?.timezone ?? "Loading...",
 			hint: "Press Enter or e to edit",
+		},
+		{
+			field: "syncEnabled",
+			label: "Sync",
+			value: syncEnabled ? "Enabled" : "Disabled",
+			hint: "Press Enter or e to toggle",
 		},
 	];
 };
