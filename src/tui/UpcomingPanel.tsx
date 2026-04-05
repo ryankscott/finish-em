@@ -62,16 +62,6 @@ export function buildColumns(
 
 	const cols: DayColumn[] = [];
 
-	if (overdueTasks.length > 0) {
-		cols.push({
-			key: "overdue",
-			label: "Overdue",
-			date: null,
-			tasks: overdueTasks,
-			isOverdue: true,
-		});
-	}
-
 	for (let i = 0; i < count; i++) {
 		const day = addDays(colStart, i);
 		const key = dateKey(day);
@@ -84,6 +74,16 @@ export function buildColumns(
 			label: formatDayHeader(day, today),
 			date: day,
 			tasks: dayTasks,
+		});
+	}
+
+	if (overdueTasks.length > 0) {
+		cols.push({
+			key: "overdue",
+			label: "Overdue",
+			date: null,
+			tasks: overdueTasks,
+			isOverdue: true,
 		});
 	}
 
@@ -233,8 +233,8 @@ type DayColumnViewProps = {
 	selectedTaskIndex: number;
 	isSelectedColumn: boolean;
 	focused: boolean;
-	columnWidth: number;
-	selectedColumnWidth: number;
+	flexGrowValue: number;
+	minWidth: number;
 };
 
 const DayColumnView = ({
@@ -243,8 +243,8 @@ const DayColumnView = ({
 	selectedTaskIndex,
 	isSelectedColumn,
 	focused,
-	columnWidth,
-	selectedColumnWidth,
+	flexGrowValue,
+	minWidth,
 }: DayColumnViewProps) => {
 	const headerColor = col.isOverdue ? "red" : "yellow";
 	const borderColor = isSelectedColumn && focused ? "magentaBright" : "gray";
@@ -253,7 +253,8 @@ const DayColumnView = ({
 	return (
 		<Box
 			flexDirection="column"
-			width={isSelectedColumn ? selectedColumnWidth : columnWidth}
+			flexGrow={flexGrowValue}
+			minWidth={minWidth}
 			borderStyle="round"
 			borderColor={borderColor}
 			paddingX={1}
@@ -306,7 +307,7 @@ export const UpcomingPanel = ({
 	selectedColumnIndex,
 	selectedTaskIndex,
 	selectedGoalIndex,
-	terminalWidth,
+	terminalWidth: _terminalWidth,
 }: UpcomingPanelProps) => {
 	const borderColor = focused ? "magentaBright" : "gray";
 
@@ -318,18 +319,14 @@ export const UpcomingPanel = ({
 				: "Week";
 	const dateLabel = format(anchorDate, "d MMM yyyy");
 
-	const selectedColumnMultiplier = viewMode === "day" ? 1 : 1.5;
-	const widthUnits =
-		columns.length > 0
-			? columns.length + (selectedColumnMultiplier - 1)
-			: 1;
-	const availableWidth = Math.max(terminalWidth - 2, 40);
+	// Overdue is always last in the columns array (if present)
+	const overdueCol = columns[columns.length - 1]?.isOverdue
+		? columns[columns.length - 1]
+		: undefined;
+	const dateCols = overdueCol ? columns.slice(0, -1) : columns;
+
+	const selectedColumnMultiplier = viewMode === "day" ? 1 : 2;
 	const minColumnWidth = viewMode === "day" ? 20 : 10;
-	const columnWidth = Math.max(
-		Math.floor(availableWidth / widthUnits),
-		minColumnWidth,
-	);
-	const selectedColumnWidth = columnWidth * selectedColumnMultiplier;
 
 	return (
 		<Box
@@ -355,23 +352,40 @@ export const UpcomingPanel = ({
 				focused={focusArea === "goals"}
 			/>
 
-			{columns.length === 0 ? (
+			{dateCols.length === 0 && !overdueCol ? (
 				<Text dimColor>No tasks</Text>
 			) : (
-				<Box flexDirection="row" flexWrap="nowrap">
-					{columns.map((col, colIdx) => (
-						<DayColumnView
-							key={col.key}
-							col={col}
-							projectMap={projectMap}
-							selectedTaskIndex={selectedTaskIndex}
-							isSelectedColumn={colIdx === selectedColumnIndex}
-							focused={focused}
-							columnWidth={columnWidth}
-							selectedColumnWidth={selectedColumnWidth}
-						/>
-					))}
-				</Box>
+				<>
+					{dateCols.length > 0 && (
+						<Box flexDirection="row" flexWrap="nowrap">
+							{dateCols.map((col, colIdx) => (
+								<DayColumnView
+									key={col.key}
+									col={col}
+									projectMap={projectMap}
+									selectedTaskIndex={selectedTaskIndex}
+									isSelectedColumn={colIdx === selectedColumnIndex}
+									focused={focused}
+									flexGrowValue={colIdx === selectedColumnIndex ? selectedColumnMultiplier : 1}
+									minWidth={minColumnWidth}
+								/>
+							))}
+						</Box>
+					)}
+					{overdueCol && (
+						<Box flexDirection="row" marginTop={dateCols.length > 0 ? 1 : 0}>
+							<DayColumnView
+								col={overdueCol}
+								projectMap={projectMap}
+								selectedTaskIndex={selectedTaskIndex}
+								isSelectedColumn={selectedColumnIndex === dateCols.length}
+								focused={focused}
+								flexGrowValue={1}
+								minWidth={minColumnWidth}
+							/>
+						</Box>
+					)}
+				</>
 			)}
 
 		<Box marginTop={1}>
