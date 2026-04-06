@@ -1,5 +1,6 @@
 import { getDb, nowIso } from '@/server/db/client'
 import { mapGoalRow } from '@/server/repos/mappers'
+import { trackCreate, trackDelete, trackFieldChanges } from '@/server/sync/repo-sync'
 
 import type { Goal, GoalPeriod } from '@/server/types'
 
@@ -47,12 +48,14 @@ export function createGoal(input: {
 }): Goal {
   const db = getDb()
   const now = nowIso()
+  const uuid = crypto.randomUUID()
 
   const result = db
     .prepare(
-      'INSERT INTO goals (period_type, period_start, title, done, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO goals (uuid, period_type, period_start, title, done, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
     )
     .run(
+      uuid,
       input.periodType,
       input.periodStart,
       input.title,
@@ -66,7 +69,7 @@ export function createGoal(input: {
     string,
     unknown
   >
-
+  trackCreate(db, 'goal', uuid, JSON.stringify(row), now)
   return mapGoalRow(row)
 }
 
@@ -103,11 +106,27 @@ export function updateGoal(
     goalId,
   )
 
+  const uuidRow = db.prepare('SELECT uuid FROM goals WHERE id = ?').get(goalId) as { uuid: string | null }
+  if (uuidRow?.uuid) {
+    const fields: Record<string, string | null> = {}
+    if (patch.periodType !== undefined) fields.period_type = patch.periodType
+    if (patch.periodStart !== undefined) fields.period_start = patch.periodStart
+    if (patch.title !== undefined) fields.title = patch.title
+    if (patch.done !== undefined) fields.done = patch.done ? '1' : '0'
+    if (Object.keys(fields).length > 0) {
+      trackFieldChanges(db, 'goal', uuidRow.uuid, fields, nowIso())
+    }
+  }
+
   return getGoal(goalId)
 }
 
 export function deleteGoal(goalId: number): boolean {
   const db = getDb()
+  const uuidRow = db.prepare('SELECT uuid FROM goals WHERE id = ?').get(goalId) as { uuid: string | null }
   const result = db.prepare('DELETE FROM goals WHERE id = ?').run(goalId)
+  if (result.changes > 0 && uuidRow?.uuid) {
+    trackDelete(db, 'goal', uuidRow.uuid, nowIso())
+  }
   return result.changes > 0
 }

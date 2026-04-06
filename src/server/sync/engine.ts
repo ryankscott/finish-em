@@ -252,6 +252,7 @@ export async function pullAndMerge(
 export type SyncResult = {
 	pushed: number;
 	pulled: number;
+	inboxImported: number;
 };
 
 /**
@@ -264,7 +265,7 @@ export async function fullSync(
 ): Promise<SyncResult> {
 	const pushed = await pushChanges(db, backend);
 	const pulled = await pullAndMerge(db, backend);
-	return { pushed, pulled };
+	return { pushed, pulled, inboxImported: 0 };
 }
 
 // ---------------------------------------------------------------------------

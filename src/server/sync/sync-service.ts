@@ -8,12 +8,14 @@ import {
 	getSyncMeta,
 	setSyncMeta,
 } from "@/server/sync/engine";
+import { processInbox } from "@/server/sync/inbox-importer";
 import type { SyncBackend, SyncResult, SyncStatus } from "@/server/sync/types";
 
 export const SYNC_ENABLED_KEY = "sync_enabled";
 export const SYNC_BACKEND_KEY = "sync_backend";
 export const SYNC_INTERVAL_KEY = "sync_interval_ms";
 export const SYNC_PATH_KEY = "sync_path";
+export const INBOX_PATH_KEY = "inbox_path";
 
 const DEFAULT_INTERVAL_MS = 30_000;
 
@@ -75,11 +77,32 @@ export class SyncService {
 
 	async syncNow(): Promise<SyncResult> {
 		if (this.syncing) {
-			return { pushed: 0, pulled: 0 };
+			return { pushed: 0, pulled: 0, inboxImported: 0 };
 		}
 		this.syncing = true;
 		try {
-			const result = await fullSync(this.db, this.backend);
+			const inboxDir = getSyncMeta(this.db, INBOX_PATH_KEY) ?? undefined;
+			const inboxResult = await processInbox(inboxDir).catch(() => ({
+				imported: 0,
+				failed: 0,
+				errors: [] as string[],
+			}));
+
+			if (!this.isEnabled()) {
+				const result: SyncResult = {
+					pushed: 0,
+					pulled: 0,
+					inboxImported: inboxResult.imported,
+				};
+				if (inboxResult.imported > 0) this.emit(result);
+				return result;
+			}
+
+			const syncResult = await fullSync(this.db, this.backend);
+			const result: SyncResult = {
+				...syncResult,
+				inboxImported: inboxResult.imported,
+			};
 			this.emit(result);
 			return result;
 		} catch (err) {
@@ -98,7 +121,6 @@ export class SyncService {
 			Number(getSyncMeta(this.db, SYNC_INTERVAL_KEY) ?? DEFAULT_INTERVAL_MS);
 
 		this.timer = setInterval(() => {
-			if (!this.isEnabled()) return;
 			this.syncNow().catch(() => {
 				// errors are emitted via listeners; swallow here to keep the interval alive
 			});

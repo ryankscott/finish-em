@@ -77,4 +77,24 @@ export const SCHEMA_STATEMENTS = [
   'CREATE INDEX IF NOT EXISTS idx_reminders_task_id ON reminders(task_id)',
   'CREATE INDEX IF NOT EXISTS idx_reminders_remind_at ON reminders(remind_at)',
   'CREATE INDEX IF NOT EXISTS idx_goals_period ON goals(period_type, period_start)',
+  `
+  CREATE TABLE IF NOT EXISTS sync_meta (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  )
+`,
+  `
+  CREATE TABLE IF NOT EXISTS sync_changelog (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    entity_type TEXT NOT NULL,
+    entity_uuid TEXT NOT NULL,
+    field_name TEXT NOT NULL,
+    new_value TEXT,
+    updated_at TEXT NOT NULL,
+    device_id TEXT NOT NULL,
+    synced INTEGER NOT NULL DEFAULT 0
+  )
+`,
+  'CREATE INDEX IF NOT EXISTS idx_sync_changelog_synced ON sync_changelog(synced)',
+  'CREATE INDEX IF NOT EXISTS idx_sync_changelog_entity ON sync_changelog(entity_type, entity_uuid)',
 ]

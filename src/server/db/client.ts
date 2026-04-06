@@ -244,6 +244,54 @@ function ensureProjectExternalLinksSchema(db: DbLike) {
   }
 }
 
+function ensureSyncSchema(db: DbLike) {
+  // sync_meta and sync_changelog are created by SCHEMA_STATEMENTS on new DBs,
+  // but existing DBs that pre-date migration 007 need the tables and uuid columns added.
+  const syncMetaExists = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sync_meta'")
+    .get() as { name?: string } | undefined
+  if (!syncMetaExists?.name) {
+    db.exec(`CREATE TABLE IF NOT EXISTS sync_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)`)
+  }
+
+  const syncChangelogExists = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sync_changelog'")
+    .get() as { name?: string } | undefined
+  if (!syncChangelogExists?.name) {
+    db.exec(`CREATE TABLE IF NOT EXISTS sync_changelog (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      entity_type TEXT NOT NULL,
+      entity_uuid TEXT NOT NULL,
+      field_name TEXT NOT NULL,
+      new_value TEXT,
+      updated_at TEXT NOT NULL,
+      device_id TEXT NOT NULL,
+      synced INTEGER NOT NULL DEFAULT 0
+    )`)
+    db.exec('CREATE INDEX IF NOT EXISTS idx_sync_changelog_synced ON sync_changelog(synced)')
+    db.exec('CREATE INDEX IF NOT EXISTS idx_sync_changelog_entity ON sync_changelog(entity_type, entity_uuid)')
+  }
+
+  // Add uuid columns to entity tables if missing
+  for (const [table, index] of [
+    ['tasks', 'idx_tasks_uuid'],
+    ['projects', 'idx_projects_uuid'],
+    ['goals', 'idx_goals_uuid'],
+    ['reminders', 'idx_reminders_uuid'],
+  ] as const) {
+    const tableExists = db
+      .prepare(`SELECT name FROM sqlite_master WHERE type = 'table' AND name = '${table}'`)
+      .get() as { name?: string } | undefined
+    if (!tableExists?.name) continue
+
+    const columns = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{ name: unknown }>
+    if (!columns.some((c) => String(c.name) === 'uuid')) {
+      db.exec(`ALTER TABLE ${table} ADD COLUMN uuid TEXT`)
+    }
+    db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS ${index} ON ${table}(uuid) WHERE uuid IS NOT NULL`)
+  }
+}
+
 function initialize(db: DbLike) {
   db.exec('PRAGMA foreign_keys = ON')
   for (const statement of SCHEMA_STATEMENTS) {
@@ -254,6 +302,7 @@ function initialize(db: DbLike) {
   ensureProjectExternalLinksSchema(db)
   ensureSoftDeleteSchema(db)
   ensureBlockedTaskSchema(db)
+  ensureSyncSchema(db)
   seedDefaults(db)
 }
 

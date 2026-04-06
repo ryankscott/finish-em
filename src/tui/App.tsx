@@ -18,7 +18,6 @@ import { buildSidebarItems, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
 import { TaskEditPicker } from "./TaskEditPicker";
 import { TaskPanel } from "./TaskPanel";
-import { ToastStack } from "./ToastStack";
 import { dateKey, UpcomingPanel } from "./UpcomingPanel";
 import { useAppData } from "./hooks/useAppData";
 import { useCalendarPicker, initCalendarPicker } from "./hooks/useCalendarPicker";
@@ -66,13 +65,54 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [enumPickerItems, setEnumPickerItems] = useState<EnumPickerItem[]>([]);
 	const [enumPickerTitle, setEnumPickerTitle] = useState("");
 	const [syncEnabled, setSyncEnabled] = useState(() => getSyncService().isEnabled());
+	const [syncState, setSyncState] = useState<{
+		syncing: boolean;
+		lastSyncAt: string | null;
+		error: string | null;
+	}>({ syncing: false, lastSyncAt: getSyncService().getStatus().lastSyncAt, error: null });
+
+	useEffect(() => {
+		const svc = getSyncService();
+		// Always start the timer so inbox import runs even when sync is disabled
+		svc.startAutoSync();
+		const unsub = svc.on((result) => {
+			if (result instanceof Error) {
+				setSyncState((s) => ({ ...s, syncing: false, error: result.message }));
+			} else {
+				setSyncState({ syncing: false, lastSyncAt: new Date().toISOString(), error: null });
+				if (result.inboxImported > 0) {
+					const n = result.inboxImported;
+					pushToast(
+						n === 1 ? "1 task imported from iPhone" : `${n} tasks imported from iPhone`,
+						"success",
+					);
+				}
+			}
+		});
+		if (svc.isEnabled()) {
+			setSyncState((s) => ({ ...s, syncing: true }));
+			svc.syncNow().catch(() => {}).finally(() => {
+				setSyncState((s) => ({ ...s, syncing: false }));
+			});
+		}
+		return () => {
+			unsub();
+			svc.stopAutoSync();
+		};
+	}, [pushToast]);
 
 	const onSyncToggle = useCallback(() => {
 		const svc = getSyncService();
 		if (svc.isEnabled()) {
 			svc.disable();
+			svc.startAutoSync(); // keep timer running for inbox polling
+			setSyncState({ syncing: false, lastSyncAt: null, error: null });
 		} else {
 			svc.enable();
+			setSyncState((s) => ({ ...s, syncing: true, error: null }));
+			svc.syncNow().catch(() => {}).finally(() => {
+				setSyncState((s) => ({ ...s, syncing: false }));
+			});
 		}
 		setSyncEnabled(svc.isEnabled());
 	}, []);
@@ -380,8 +420,10 @@ export const App = ({ api, onQuit }: AppProps) => {
 				statusText={data.loading ? "Loading..." : data.statusText}
 				errorText={data.errorText}
 				terminalWidth={terminalWidth}
+				syncEnabled={syncEnabled}
+				syncState={syncState}
+				activeToast={visibleToasts[0] ?? null}
 			/>
-		<ToastStack toasts={visibleToasts} />
 		{inputBar.inputMode === "createTaskModal" && (
 			<CreateTaskModal
 				activeFieldIndex={inputBar.modalFieldIndex}

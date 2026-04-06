@@ -1,6 +1,7 @@
 import { getDb, nowIso } from '@/server/db/client'
 import { mapTaskRow } from '@/server/repos/mappers'
 import { getProject } from '@/server/repos/projects'
+import { trackCreate, trackDelete, trackFieldChanges } from '@/server/sync/repo-sync'
 import { getNextOccurrence, validateRRuleSubset } from '@/server/services/recurrence'
 
 import type { Priority, Task, TaskFilters, TaskStatus } from '@/server/types'
@@ -208,14 +209,16 @@ export function createTask(input: {
   const blockedReason = normalizeBlockedReason(input.blockedReason)
   const blockedAt = blockedReason ? now : null
 
+  const uuid = crypto.randomUUID()
   const result = db
     .prepare(
       `INSERT INTO tasks (
-        project_id, parent_task_id, title, notes, priority, scheduled_at, due_at, due_timezone,
+        uuid, project_id, parent_task_id, title, notes, priority, scheduled_at, due_at, due_timezone,
         recurrence_preset, recurrence_rrule, status, completed_at, blocked_at, blocked_reason, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', NULL, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', NULL, ?, ?, ?, ?)`,
     )
     .run(
+      uuid,
       input.projectId,
       parentTaskId,
       input.title,
@@ -237,6 +240,7 @@ export function createTask(input: {
     string,
     unknown
   >
+  trackCreate(db, 'task', uuid, JSON.stringify(row), now)
   return mapTaskRow(row)
 }
 
@@ -331,12 +335,32 @@ export function updateTask(
     taskId,
   )
 
+  const uuidRow = db.prepare('SELECT uuid FROM tasks WHERE id = ?').get(taskId) as { uuid: string | null }
+  if (uuidRow?.uuid) {
+    const fields: Record<string, string | null> = {}
+    if (patch.title !== undefined) fields.title = patch.title
+    if (patch.notes !== undefined) fields.notes = patch.notes
+    if (patch.priority !== undefined) fields.priority = String(patch.priority)
+    if (patch.projectId !== undefined) fields.project_id = String(patch.projectId)
+    if (patch.parentTaskId !== undefined) fields.parent_task_id = patch.parentTaskId === null ? null : String(patch.parentTaskId)
+    if (patch.scheduledAt !== undefined) fields.scheduled_at = patch.scheduledAt
+    if (patch.dueAt !== undefined) fields.due_at = patch.dueAt
+    if (patch.dueTimezone !== undefined) fields.due_timezone = patch.dueTimezone
+    if (patch.recurrencePreset !== undefined) fields.recurrence_preset = patch.recurrencePreset
+    if (patch.recurrenceRRule !== undefined) fields.recurrence_rrule = patch.recurrenceRRule
+    if (patch.status !== undefined) fields.status = patch.status
+    if (Object.keys(fields).length > 0) {
+      trackFieldChanges(db, 'task', uuidRow.uuid, fields, now)
+    }
+  }
+
   return getTask(taskId)
 }
 
 export function deleteTask(taskId: number): boolean {
   const db = getDb()
   const now = nowIso()
+  const uuidRow = db.prepare('SELECT uuid FROM tasks WHERE id = ?').get(taskId) as { uuid: string | null }
   // Soft-delete the task and all its subtasks
   db.prepare(
     'UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE parent_task_id = ? AND deleted_at IS NULL',
@@ -344,6 +368,9 @@ export function deleteTask(taskId: number): boolean {
   const result = db
     .prepare('UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL')
     .run(now, now, taskId)
+  if (result.changes > 0 && uuidRow?.uuid) {
+    trackDelete(db, 'task', uuidRow.uuid, now)
+  }
   return result.changes > 0
 }
 
