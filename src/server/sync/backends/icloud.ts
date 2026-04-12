@@ -27,7 +27,8 @@ export class ICloudSyncBackend implements SyncBackend {
 				"Library",
 				"Mobile Documents",
 				"com~apple~CloudDocs",
-				"finish-em-sync",
+				"finish-em",
+        "sync",
 			);
 	}
 

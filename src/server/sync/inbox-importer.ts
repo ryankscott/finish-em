@@ -9,7 +9,8 @@ export const DEFAULT_INBOX_DIR = path.join(
 	"Library",
 	"Mobile Documents",
 	"com~apple~CloudDocs",
-	"finish-em-inbox",
+	"finish-em",
+  "inbox"
 );
 
 export type InboxImportResult = {
