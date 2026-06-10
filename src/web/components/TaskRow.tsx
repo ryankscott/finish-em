@@ -10,7 +10,6 @@ import {
 	Repeat,
 } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
 import {
 	Tooltip,
 	TooltipContent,
@@ -21,16 +20,7 @@ import type { Project, Task } from "@/server/types";
 import { isOverdueDueDate } from "@/tui/task-display-helpers";
 
 import { cn } from "../lib/cn";
-
-const priorityVariant: Record<
-	number,
-	"destructive" | "default" | "secondary" | "outline"
-> = {
-	1: "destructive",
-	2: "outline",
-	3: "secondary",
-	4: "outline",
-};
+import { PriorityFlag } from "./PriorityFlag";
 
 export function TaskRow({
 	task,
@@ -116,12 +106,7 @@ export function TaskRow({
 							{format(parseISO(task.dueAt), "MMM d")}
 						</span>
 					) : null}
-					<Badge
-						variant={priorityVariant[task.priority]}
-						className="px-1 py-0 text-[10px] font-mono"
-					>
-						P{task.priority}
-					</Badge>
+					<PriorityFlag priority={task.priority} />
 					{showProject && project ? (
 						<span className="max-w-32 truncate">
 							{project.emoji ? `${project.emoji} ` : ""}

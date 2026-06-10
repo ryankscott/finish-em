@@ -24,6 +24,7 @@ import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjects, useTaskMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
 import { DateField } from "./DateField";
+import { PriorityFlag } from "./PriorityFlag";
 import { TaskReminderField } from "./TaskReminderField";
 
 const RECURRENCE_OPTIONS: Array<{ value: string; label: string }> = [
@@ -156,10 +157,30 @@ export function TaskEditDialog() {
 									<SelectValue />
 								</SelectTrigger>
 								<SelectContent>
-									<SelectItem value="1">P1 · Urgent</SelectItem>
-									<SelectItem value="2">P2 · High</SelectItem>
-									<SelectItem value="3">P3 · Normal</SelectItem>
-									<SelectItem value="4">P4 · Low</SelectItem>
+									<SelectItem value="1">
+										<div className="flex items-center gap-2">
+											<PriorityFlag priority={1} />
+											<span>Urgent</span>
+										</div>
+									</SelectItem>
+									<SelectItem value="2">
+										<div className="flex items-center gap-2">
+											<PriorityFlag priority={2} />
+											<span>High</span>
+										</div>
+									</SelectItem>
+									<SelectItem value="3">
+										<div className="flex items-center gap-2">
+											<PriorityFlag priority={3} />
+											<span>Normal</span>
+										</div>
+									</SelectItem>
+									<SelectItem value="4">
+										<div className="flex items-center gap-2">
+											<PriorityFlag priority={4} />
+											<span>Low</span>
+										</div>
+									</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>

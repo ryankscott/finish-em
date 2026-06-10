@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @plugin 'tailwindcss-animate';
+@source "../components/ui";
+@source "../web/components";
 
 @theme {
 	--color-background: oklch(0.16 0.005 260);

@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isSameDay, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -10,6 +10,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { parseDatePhrase } from "@/lib/parsing/parse-task-input";
 import { cn } from "@/web/lib/cn";
 
 type Preset = {
@@ -40,14 +41,43 @@ export function DateField({ value, onChange }: DateFieldProps) {
 	const [open, setOpen] = useState(false);
 	const trimmed = value.trim().toLowerCase();
 
-	const isPresetActive = (presetValue: string) => trimmed === presetValue;
+	// Resolve a preset value to an ISO date string (or null for "none")
+	const resolvePreset = (presetValue: string): string | null => {
+		const parsed = parseDatePhrase(presetValue);
+		if (parsed === null) return null;
+		if (parsed === undefined) return presetValue;
+		return format(parseISO(parsed), "yyyy-MM-dd");
+	};
+
+	const isPresetActive = (presetValue: string) => {
+		const resolved = resolvePreset(presetValue);
+		if (resolved === null) return trimmed === "none" || trimmed === "";
+		const currentDate = (() => {
+			const isoMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2})$/);
+			if (isoMatch) {
+				const d = new Date(`${isoMatch[1]}T00:00:00`);
+				if (!Number.isNaN(d.getTime())) return d;
+			}
+			const parsed = parseDatePhrase(trimmed);
+			if (parsed && parsed !== undefined) {
+				return parseISO(parsed);
+			}
+			return null;
+		})();
+		if (!currentDate) return false;
+		return isSameDay(currentDate, parseISO(`${resolved}T00:00:00`));
+	};
 
 	// Try to parse the current value as a Date for the calendar selection
 	const selectedDate = (() => {
 		const isoMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2})$/);
 		if (isoMatch) {
-			const d = new Date(isoMatch[1] + "T00:00:00");
+			const d = new Date(`${isoMatch[1]}T00:00:00`);
 			if (!Number.isNaN(d.getTime())) return d;
+		}
+		const parsed = parseDatePhrase(trimmed);
+		if (parsed && parsed !== undefined) {
+			return parseISO(parsed);
 		}
 		return undefined;
 	})();
@@ -59,6 +89,11 @@ export function DateField({ value, onChange }: DateFieldProps) {
 			onChange("none");
 		}
 		setOpen(false);
+	};
+
+	const handlePresetClick = (presetValue: string) => {
+		const resolved = resolvePreset(presetValue);
+		onChange(resolved ?? "");
 	};
 
 	return (
@@ -93,7 +128,7 @@ export function DateField({ value, onChange }: DateFieldProps) {
 					<button
 						key={preset.value}
 						type="button"
-						onClick={() => onChange(preset.value)}
+						onClick={() => handlePresetClick(preset.value)}
 						className={
 							isPresetActive(preset.value) ? activeChipClass : chipClass
 						}
