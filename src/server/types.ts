@@ -1,4 +1,5 @@
 export type Priority = 1 | 2 | 3 | 4
+export type JiraTicketStatus = 'todo' | 'in_progress' | 'done'
 export type TaskStatus = 'open' | 'completed'
 export type GoalPeriod = 'daily' | 'weekly'
 export type ReminderStatus = 'pending' | 'fired' | 'snoozed' | 'dismissed'
@@ -21,8 +22,15 @@ export type Project = {
   color: string
   isInbox: boolean
   jiraDiscoveryUrl: string | null
+  jiraDiscoveryStatus: JiraTicketStatus | null
   jiraDeliveryUrl: string | null
+  jiraDeliveryStatus: JiraTicketStatus | null
   confluenceUrl: string | null
+  jiraDocsUrl: string | null
+  jiraDocsStatus: JiraTicketStatus | null
+  jiraReleaseNoteUrl: string | null
+  jiraReleaseNoteStatus: JiraTicketStatus | null
+  teamsReleaseNoteUrl: string | null
   createdAt: string
   updatedAt: string
 }

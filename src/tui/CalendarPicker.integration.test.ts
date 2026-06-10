@@ -3,7 +3,7 @@ import { describe, expect, it } from "bun:test";
 import { format } from "date-fns";
 
 import { initCalendarPicker, moveCursorByDays, stepCalendarMonth } from "./hooks/useCalendarPicker";
-import { parseDatePhrase } from "./parse-task-input";
+import { parseDatePhrase } from "../lib/parsing/parse-task-input";
 import type { InputMode } from "./hooks/useInputBar";
 
 // ---

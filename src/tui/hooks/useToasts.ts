@@ -28,7 +28,9 @@ export function pruneExpiredToasts(
 	state: ToastWithExpiry[],
 	now: number,
 ): ToastWithExpiry[] {
-	return state.filter((t) => t.expiresAt > now);
+	const next = state.filter((t) => t.expiresAt > now);
+	// Preserve reference when nothing expired so React bails out of re-render
+	return next.length === state.length ? state : next;
 }
 
 export function toastsToVisible(toasts: ToastWithExpiry[]): ToastMessage[] {
@@ -52,12 +54,16 @@ export function useToasts(): UseToastsResult {
 		[],
 	);
 
+	// Only run the prune interval while toasts are present. With no toasts
+	// there is nothing to prune and ticking would trigger needless re-renders.
+	const hasToasts = toasts.length > 0;
 	useEffect(() => {
+		if (!hasToasts) return;
 		const timer = setInterval(() => {
 			setToasts((current) => pruneExpiredToasts(current, Date.now()));
 		}, 400);
 		return () => clearInterval(timer);
-	}, []);
+	}, [hasToasts]);
 
 	const visibleToasts = useMemo(() => toastsToVisible(toasts), [toasts]);
 

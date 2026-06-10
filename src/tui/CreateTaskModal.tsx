@@ -46,6 +46,9 @@ function renderFieldValue(
 	}
 
 	if (!isActive) {
+		if (fieldKey === "notes" && value.includes("\n")) {
+			return <Text>{value.replace(/\n/g, "↵")}</Text>;
+		}
 		if (fieldKey === "title" && value) {
 			const segments = toDisplaySegments(value);
 			const hasLinks = segments.some((s) => s.type === "link");

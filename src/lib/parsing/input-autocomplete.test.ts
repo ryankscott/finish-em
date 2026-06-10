@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import type { Project } from "../server/types";
+import type { Project } from "../../server/types";
 import {
 	getProjectCreateAutocomplete,
 	getTaskCreateAutocomplete,
@@ -15,6 +15,16 @@ const makeProject = (id: number, name: string): Project => ({
 	endAt: null,
 	color: "#000000",
 	isInbox: false,
+	jiraDiscoveryUrl: null,
+	jiraDiscoveryStatus: null,
+	jiraDeliveryStatus: null,
+	jiraDeliveryUrl: null,
+	confluenceUrl: null,
+	jiraDocsUrl: null,
+	jiraDocsStatus: null,
+	jiraReleaseNoteUrl: null,
+	jiraReleaseNoteStatus: null,
+	teamsReleaseNoteUrl: null,
 	createdAt: "2026-01-01T00:00:00.000Z",
 	updatedAt: "2026-01-01T00:00:00.000Z",
 });

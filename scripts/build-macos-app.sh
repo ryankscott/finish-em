@@ -17,10 +17,11 @@ ICON_PATH="${RESOURCES_DIR}/AppIcon.icns"
 ICON_RENDER_DIR="${DIST_DIR}/icon-render"
 ICON_RENDER_SOURCE="${ICON_RENDER_DIR}/icon.png"
 PLIST_PATH="${CONTENTS_DIR}/Info.plist"
+export PATH="$HOME/.bun/bin:$PATH"
 VERSION="$(bun -e "import pkg from './package.json' assert { type: 'json' }; console.log(pkg.version ?? '0.0.0')" 2>/dev/null || echo "0.0.0")"
 
 cd "${REPO_ROOT}"
-bun run tui:build
+bun run build
 
 if [[ ! -x "${SOURCE_BINARY}" ]]; then
   echo "Missing compiled binary at ${SOURCE_BINARY}."
@@ -67,6 +68,8 @@ set targetTab to missing value
 tell application "Terminal"
   activate
   set targetTab to do script binaryCommand
+  delay 0.3
+  set font size of front window to 18
 end tell
 
 repeat

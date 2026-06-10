@@ -1,5 +1,5 @@
-import { shortcodeListForAutocomplete } from "../lib/emoji-shortcodes";
-import type { Project } from "../server/types";
+import { shortcodeListForAutocomplete } from "../emoji-shortcodes";
+import type { Project } from "../../server/types";
 
 type AutocompleteSuggestion = {
 	nextValue: string;

@@ -52,3 +52,10 @@ export function formatDateLabel(iso: string | null) {
   }
   return format(date, 'EEE, MMM d')
 }
+
+export function isOverdueTask(
+  task: { dueAt: string | null },
+  now: Date,
+): boolean {
+  return !!task.dueAt && parseISO(task.dueAt) < fnsStartOfDay(now)
+}

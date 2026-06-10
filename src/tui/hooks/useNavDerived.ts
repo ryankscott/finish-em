@@ -98,6 +98,7 @@ export function useNavDerived({
 			blocked: "Blocked",
 			overdue: "Overdue",
 			upcoming: "Upcoming",
+			priority: "By Priority",
 			completed: "Completed",
 			deleted: "Deleted",
 			settings: "Settings",

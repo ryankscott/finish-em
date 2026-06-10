@@ -12,7 +12,8 @@ export const SHORTCUTS: ShortcutRow[] = [
 		action: "Cycle focus: sidebar → tasks → goals (upcoming)",
 		section: "Navigation",
 	},
-	{ keys: "/", action: "Toggle sidebar" },
+	{ keys: "/", action: "Global search (filter tasks by title)" },
+	{ keys: "\\", action: "Toggle sidebar" },
 	{ keys: "j / ↓", action: "Move down" },
 	{ keys: "k / ↑", action: "Move up" },
 	{ keys: "Enter", action: "Select sidebar item" },
@@ -41,7 +42,7 @@ export const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "z", action: "Delete reminder from selected task" },
 	{
 		keys: "E",
-		action: "Open field picker (task: due, project, priority, notes · project: name, emoji, dates)",
+		action: "Task: open field picker (due, project, priority, notes) · Sidebar focused: open edit project modal",
 		section: "Field picker",
 	},
 	{
@@ -52,7 +53,8 @@ export const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "e / Enter", action: "Edit selected setting" },
 	{ keys: "p", action: "Create new project (quick, tokenized input)", section: "Projects" },
 	{ keys: "P", action: "Create project — full form modal (all fields)" },
-	{ keys: "e", action: "Edit project name" },
+	{ keys: "e", action: "Edit project name (quick inline)" },
+	{ keys: "E", action: "Edit project — full form modal (works from any view when sidebar is focused)" },
 	{ keys: "D", action: "Delete project (in project view, non-inbox)" },
 	{ keys: "h / ←", action: "Previous column", section: "Upcoming" },
 	{ keys: "l / →", action: "Next column" },

@@ -6,15 +6,14 @@ import {
 	startOfDay,
 } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
-
-export function isOverdueTask(task: { dueAt: string | null }, now: Date): boolean {
-	return !!task.dueAt && parseISO(task.dueAt) < startOfDay(now);
-}
+export { isOverdueTask } from "../../lib/datetime";
+import { isOverdueTask } from "../../lib/datetime";
 
 import type {
 	AppSettings,
 	Goal,
 	Project,
+	Reminder,
 	Task,
 } from "../../server/types";
 import type { ApiClient } from "../api-client";
@@ -30,6 +29,7 @@ const EMPTY_VIEW_COUNTS = {
 	upcoming: 0,
 	completed: 0,
 	deleted: 0,
+	reminders: 0,
 	projectCounts: {} as Record<number, number>,
 };
 
@@ -48,7 +48,9 @@ type UseAppDataParams = {
 type UseAppDataResult = {
 	projects: Project[];
 	tasks: Task[];
+	allTasks: Task[];
 	goals: Goal[];
+	allReminders: (Reminder & { taskTitle: string })[];
 	settings: AppSettings | null;
 	viewCounts: ViewCounts;
 	loading: boolean;
@@ -71,7 +73,9 @@ export function useAppData({
 }: UseAppDataParams): UseAppDataResult {
 	const [projects, setProjects] = useState<Project[]>([]);
 	const [tasks, setTasks] = useState<Task[]>([]);
+	const [allTasks, setAllTasks] = useState<Task[]>([]);
 	const [goals, setGoals] = useState<Goal[]>([]);
+	const [allReminders, setAllReminders] = useState<(Reminder & { taskTitle: string })[]>([]);
 	const [settings, setSettings] = useState<AppSettings | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [statusText, setStatusText] = useState("Ready");
@@ -88,8 +92,10 @@ export function useAppData({
 		else if (view === "blocked") setStatusText("Blocked");
 		else if (view === "overdue") setStatusText("Overdue");
 		else if (view === "upcoming") setStatusText("Upcoming");
+		else if (view === "priority") setStatusText("By Priority");
 		else if (view === "completed") setStatusText("Completed");
 		else if (view === "deleted") setStatusText("Deleted");
+		else if (view === "reminders") setStatusText("Reminders");
 		try {
 			setSettings(await api.getSettings());
 			const loadedProjects = await api.listProjects();
@@ -106,6 +112,7 @@ export function useAppData({
 
 		const nonInboxProjects = loadedProjects.filter((p) => !p.isInbox);
 		const [
+			allOpenTasks,
 			todayCountTasks,
 			blockedTasks,
 			upcomingRangeTasks,
@@ -113,8 +120,10 @@ export function useAppData({
 			completedTasks,
 			deletedTasks,
 			inboxTasks,
+			allRemindersData,
 			...projectTaskLists
 		] = await Promise.all([
+			api.listTasks({ status: "open" }),
 			api.listTasks({ status: "open", from: todayStart, to: todayEnd }),
 			api.listTasks({ status: "open", blocked: true }),
 			api.listTasks({ status: "open", from: upcomingFrom, to: upcomingTo }),
@@ -124,10 +133,12 @@ export function useAppData({
 			resolvedInbox
 				? api.listTasks({ projectId: resolvedInbox.id, status: "open" })
 				: Promise.resolve([]),
+			api.listAllReminders(),
 			...nonInboxProjects.map((p) =>
 				api.listTasks({ projectId: p.id, status: "open" }),
 			),
 		]);
+		setAllTasks(allOpenTasks);
 
 		const overdueFilteredTasks = upcomingOverdueTasks.filter((t) =>
 			isOverdueTask(t, now),
@@ -147,6 +158,7 @@ export function useAppData({
 				).length,
 			completed: completedTasks.length,
 			deleted: deletedTasks.length,
+			reminders: allRemindersData.length,
 			projectCounts,
 		});
 
@@ -162,7 +174,7 @@ export function useAppData({
 				setTasks(inboxTasks);
 				setStatusText("Inbox");
 			} else if (view === "today") {
-				setTasks(todayCountTasks);
+				setTasks([...overdueFilteredTasks, ...todayCountTasks]);
 				setStatusText("Today");
 			} else if (view === "blocked") {
 				setTasks(blockedTasks);
@@ -183,6 +195,10 @@ export function useAppData({
 				setStatusText(
 					`Upcoming · ${format(colStart, "d MMM")} – ${format(rangeEnd, "d MMM")}`,
 				);
+			} else if (view === "priority") {
+				const sorted = [...allOpenTasks].sort((a, b) => a.priority - b.priority);
+				setTasks(sorted);
+				setStatusText("By Priority");
 			} else if (view === "project") {
 				if (!activeProjectId) {
 					setTasks([]);
@@ -197,6 +213,9 @@ export function useAppData({
 		} else if (view === "deleted") {
 			setTasks(deletedTasks);
 			setStatusText("Deleted");
+		} else if (view === "reminders") {
+			setAllReminders(allRemindersData);
+			setStatusText("Reminders");
 		} else {
 			setTasks(completedTasks);
 			setStatusText("Completed");
@@ -226,7 +245,9 @@ export function useAppData({
 	return {
 		projects,
 		tasks,
+		allTasks,
 		goals,
+		allReminders,
 		settings,
 		viewCounts,
 		loading,

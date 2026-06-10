@@ -1,4 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
+import { execFile } from "node:child_process";
+import { join } from "node:path";
 
 import type { ApiClient } from "../api-client";
 
@@ -33,6 +35,21 @@ export function useReminderBell(
 			notified.add(key);
 			process.stdout.write("\x07");
 			pushToast(`Reminder: ${r.taskTitle || "Task"}`, "info");
+			const title = r.taskTitle || "Task";
+			const iconPath = join(__dirname, "../../../../dist/finish-em.app/Contents/Resources/AppIcon.icns");
+			execFile("terminal-notifier", [
+				"-message", title,
+				"-title", "finish-em",
+				"-appIcon", iconPath,
+				"-sound", "Glass",
+			]);
+		}
+
+		// Prune notified keys for reminders that are no longer due so the set
+		// doesn't grow unboundedly across a long-running session.
+		const activeKeys = new Set(due.map(dueReminderKey));
+		for (const key of notified) {
+			if (!activeKeys.has(key)) notified.delete(key);
 		}
 	}, [api, pushToast]);
 

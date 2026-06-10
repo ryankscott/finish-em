@@ -1,5 +1,5 @@
 import { isValid, parseISO } from "date-fns";
-import { lookup as emojiShortcodeLookup } from "../lib/emoji-shortcodes";
+import { lookup as emojiShortcodeLookup } from "../emoji-shortcodes";
 import { extractTokenValue } from "./token-input";
 
 type ProjectCreateInput = {

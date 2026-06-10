@@ -4,12 +4,9 @@
  *
  * Backed by emojilib v2 (~1570 GitHub-compatible shortcodes).
  */
-import { createRequire } from "node:module";
-
-const _require = createRequire(import.meta.url);
-const _emojilib = _require("emojilib") as {
-	lib: Record<string, { char: string }>;
-};
+// @ts-ignore - emojilib is a CJS package; static import lets Bun bundle it
+import _emojilibRaw from "emojilib";
+const _emojilib = _emojilibRaw as { lib: Record<string, { char: string }> };
 
 /** Index built from emojilib v2: shortcode → emoji char. */
 const EMOJILIB_INDEX: Record<string, string> = {};

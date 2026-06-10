@@ -10,10 +10,12 @@ export type View =
 	| "blocked"
 	| "overdue"
 	| "upcoming"
+	| "priority"
 	| "completed"
 	| "deleted"
 	| "project"
-	| "settings";
+	| "settings"
+	| "reminders";
 
 export type FocusArea = "sidebar" | "tasks" | "goals";
 

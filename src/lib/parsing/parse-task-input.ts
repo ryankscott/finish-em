@@ -9,7 +9,7 @@ import {
 	startOfDay,
 } from "date-fns";
 
-import type { Priority, Project, RecurrencePreset } from "../server/types";
+import type { Priority, Project, RecurrencePreset } from "../../server/types";
 import { extractTokenValue } from "./token-input";
 
 export type TaskEditPatch = {

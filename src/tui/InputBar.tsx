@@ -1,5 +1,32 @@
 import { Box, Text } from "ink";
 
+const STATUS_CYCLING_MODES = new Set([
+	"editProjectJiraDiscoveryStatus",
+	"editProjectJiraDeliveryStatus",
+	"editProjectJiraDocsStatus",
+	"editProjectJiraReleaseNoteStatus",
+]);
+
+const STATUS_CYCLING_LABELS: Partial<Record<string, string>> = {
+	editProjectJiraDiscoveryStatus: "Discovery Jira status",
+	editProjectJiraDeliveryStatus: "Delivery epic status",
+	editProjectJiraDocsStatus: "Docs Jira status",
+	editProjectJiraReleaseNoteStatus: "Release Note status",
+};
+
+const STATUS_DISPLAY: Record<string, { label: string; color: string }> = {
+	todo: { label: "Todo", color: "yellow" },
+	in_progress: { label: "In Progress", color: "cyan" },
+	done: { label: "Done", color: "green" },
+};
+
+const STATUS_OPTIONS = [
+	{ label: "—", value: "" },
+	{ label: "Todo", value: "todo" },
+	{ label: "In Progress", value: "in_progress" },
+	{ label: "Done", value: "done" },
+];
+
 import type { InputMode } from "./hooks/useInputBar";
 
 const AUTOCOMPLETE_TOKEN_PATTERN = /^([a-z_]+:)$/i;
@@ -31,6 +58,7 @@ const INPUT_MODE_LABELS: Partial<Record<InputMode, string>> = {
 	addReminder: "Reminder (ISO): ",
 	editTask: "Edit task: ",
 	addGoal: "New goal: ",
+	globalSearch: "Search: ",
 	editDueDate: "Due date (today/tomorrow/YYYY-MM-DD/clear): ",
 	editScheduledDate: "Scheduled date (today/tomorrow/YYYY-MM-DD/clear): ",
 	editReminder: "Reminder (today/tomorrow/ISO datetime): ",
@@ -60,6 +88,25 @@ export const InputBar = ({
 	inputCursorOffset,
 	autocomplete,
 }: InputBarProps) => {
+	if (STATUS_CYCLING_MODES.has(inputMode)) {
+		const fieldLabel = STATUS_CYCLING_LABELS[inputMode] ?? "Status";
+		return (
+			<Box paddingX={1} gap={1}>
+				<Text color="magentaBright" bold>{fieldLabel}:</Text>
+				{STATUS_OPTIONS.map((opt) => {
+					const isSel = inputValue === opt.value;
+					const color = STATUS_DISPLAY[opt.value]?.color ?? "cyan";
+					return (
+						<Text key={opt.value} bold={isSel} color={isSel ? color : undefined} dimColor={!isSel}>
+							{isSel ? `[${opt.label}]` : opt.label}
+						</Text>
+					);
+				})}
+				<Text dimColor>  h/l or ◀▶ cycle · Enter confirm · Esc cancel</Text>
+			</Box>
+		);
+	}
+
 	const label = INPUT_MODE_LABELS[inputMode] ?? "";
 
 	return (

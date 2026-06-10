@@ -80,6 +80,12 @@ Always restore `TODO_DB_PATH` to its original value (or unset it) after manual T
 - **TypeScript strict** — do not use `any` without a clear justification.
 - **Biome** for formatting and linting; run `bun run check` before committing.
 
+## Database Safety
+
+- **NEVER run `drizzle-kit` against the live database.** Schema is owned by `SCHEMA_STATEMENTS` + the `ensure*Schema` guards in `client.ts` and the SQL migrations in `src/server/db/migrations/`. `drizzle-schema.ts` is reference-only and intentionally incomplete; `drizzle-kit push`/`studio`/`migrate` would drop the tables/columns it omits (this is what once wiped the `tasks` table). `drizzle.config.ts` defaults to a disposable scratch DB and hard-throws if pointed at `~/.finish-em/todo.db`. Use `DRIZZLE_DB_PATH` for an explicit scratch path if you need drizzle-kit for diffing.
+- **Automatic backups.** `getDb()` takes a consistent `VACUUM INTO` snapshot of an existing DB before any schema work, once per day, rotated to the last 14, in `<dbDir>/backups/` (e.g. `~/.finish-em/backups/`). Disable with `TODO_DB_NO_BACKUP=1`; tests and temp DBs are skipped.
+- **Manual backup / restore.** `bun run db:backup` writes a timestamped `manual-*.db` snapshot. To restore: stop the app/server (release the DB), copy a backup over `~/.finish-em/todo.db`, delete the `-wal`/`-shm` sidecars, relaunch. `scripts/recover-from-sync.ts` can rebuild tasks/goals from the iCloud sync changeset history if a snapshot is unavailable.
+
 ## Database Migrations
 
 SQL migrations live in `src/server/db/migrations/` and are applied with `bun run db:migrate`. The `getDb()` function in `src/server/db/client.ts` also runs schema guards on startup for column additions (soft deletes, subtasks, project enhancements).

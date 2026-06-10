@@ -10,6 +10,7 @@ import { getModalFields, type ModalMode } from "../modal-field-defs";
 import { PROJECT_EDIT_FIELDS } from "../ProjectEditPicker";
 import type { SettingsRow } from "../SettingsPanel";
 import type { SidebarItem } from "../Sidebar";
+import { getTaskActions } from "../TaskActionPicker";
 import { TASK_EDIT_FIELDS } from "../TaskEditPicker";
 import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
 import { moveCursorByDays, stepCalendarMonth } from "./useCalendarPicker";
@@ -21,9 +22,48 @@ const CALENDAR_PICKER_MODES: InputMode[] = [
 	"calendarPickerScheduledDate",
 	"calendarPickerProjectStartDate",
 	"calendarPickerProjectEndDate",
+	"calendarPickerReminderDate",
 ];
 
-function taskToModalValues(task: Task): Record<string, string> {
+const REMINDER_TIME_OPTIONS: { label: string; value: string }[] = [
+	{ label: "7:00 AM", value: "07:00" },
+	{ label: "8:00 AM", value: "08:00" },
+	{ label: "9:00 AM", value: "09:00" },
+	{ label: "10:00 AM", value: "10:00" },
+	{ label: "11:00 AM", value: "11:00" },
+	{ label: "12:00 PM", value: "12:00" },
+	{ label: "1:00 PM", value: "13:00" },
+	{ label: "2:00 PM", value: "14:00" },
+	{ label: "3:00 PM", value: "15:00" },
+	{ label: "4:00 PM", value: "16:00" },
+	{ label: "5:00 PM", value: "17:00" },
+	{ label: "6:00 PM", value: "18:00" },
+	{ label: "7:00 PM", value: "19:00" },
+	{ label: "8:00 PM", value: "20:00" },
+	{ label: "9:00 PM", value: "21:00" },
+];
+
+function projectToModalValues(project: Project): Record<string, string> {
+	return {
+		name: project.name ?? "",
+		emoji: project.emoji ?? "",
+		description: project.description ?? "",
+		startAt: project.startAt ? format(new Date(project.startAt), "yyyy-MM-dd") : "",
+		endAt: project.endAt ? format(new Date(project.endAt), "yyyy-MM-dd") : "",
+		jiraDiscovery: project.jiraDiscoveryUrl ?? "",
+		jiraDiscoveryStatus: project.jiraDiscoveryStatus ?? "",
+		jiraDelivery: project.jiraDeliveryUrl ?? "",
+		jiraDeliveryStatus: project.jiraDeliveryStatus ?? "",
+		confluenceUrl: project.confluenceUrl ?? "",
+		jiraDocsUrl: project.jiraDocsUrl ?? "",
+		jiraDocsStatus: project.jiraDocsStatus ?? "",
+		jiraReleaseNoteUrl: project.jiraReleaseNoteUrl ?? "",
+		jiraReleaseNoteStatus: project.jiraReleaseNoteStatus ?? "",
+		teamsReleaseNoteUrl: project.teamsReleaseNoteUrl ?? "",
+	};
+}
+
+export function taskToModalValues(task: Task): Record<string, string> {
 	return {
 		title: task.title ?? "",
 		project: task.projectId != null ? String(task.projectId) : "",
@@ -140,6 +180,7 @@ type UseMainKeysParams = {
 	currentColumnRows: ColumnTaskRow[];
 	taskRows: { task: Task }[];
 	setTaskIndex: React.Dispatch<React.SetStateAction<number>>;
+	allRemindersCount: number;
 	goals: Goal[];
 	goalIndex: number;
 	setGoalIndex: React.Dispatch<React.SetStateAction<number>>;
@@ -155,6 +196,7 @@ type UseMainKeysParams = {
 	projects: Project[];
 	projectMap: Record<number, Project>;
 	selectedReminder: Reminder | null;
+	reminderPickerDateRef: React.MutableRefObject<string>;
 	setStatusText: (text: string) => void;
 	setInputValue: (value: string) => void;
 	loadData: () => Promise<void>;
@@ -223,6 +265,7 @@ export function useMainKeys({
 	currentColumnRows,
 	taskRows,
 	setTaskIndex,
+	allRemindersCount,
 	goals,
 	goalIndex,
 	setGoalIndex,
@@ -238,6 +281,7 @@ export function useMainKeys({
 	projects,
 	projectMap: _projectMap,
 	selectedReminder,
+	reminderPickerDateRef,
 	setStatusText,
 	setInputValue,
 	loadData,
@@ -266,6 +310,21 @@ export function useMainKeys({
 		{ label: "Monthly", value: "monthly" },
 		{ label: "Yearly", value: "yearly" },
 	];
+
+	const JIRA_STATUS_ITEMS: EnumPickerItem[] = [
+		{ label: "Todo", value: "todo" },
+		{ label: "In Progress", value: "in_progress" },
+		{ label: "Done", value: "done" },
+		{ label: "Clear", value: "" },
+	];
+
+	const INLINE_STATUS_KEYS = new Set([
+		"jiraDiscoveryStatus",
+		"jiraDeliveryStatus",
+		"jiraDocsStatus",
+		"jiraReleaseNoteStatus",
+	]);
+	const STATUS_CYCLE = ["", "todo", "in_progress", "done"];
 
 	const openEnumPicker = (
 		title: string,
@@ -316,6 +375,24 @@ export function useMainKeys({
 
 				const currentField = fields[modalFieldIndex];
 
+				if (currentField && INLINE_STATUS_KEYS.has(currentField.key)) {
+					if (key.rightArrow || input === "l") {
+						const cur = modalValuesRef.current[currentField.key] ?? "";
+						const idx = STATUS_CYCLE.indexOf(cur);
+						const next = STATUS_CYCLE[(idx === -1 ? 0 : idx + 1) % STATUS_CYCLE.length];
+						setModalValues((prev) => ({ ...prev, [currentField.key]: next }));
+						return;
+					}
+					if (key.leftArrow || input === "h") {
+						const cur = modalValuesRef.current[currentField.key] ?? "";
+						const idx = STATUS_CYCLE.indexOf(cur);
+						const safeIdx = idx === -1 ? 0 : idx;
+						const prev = STATUS_CYCLE[(safeIdx - 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length];
+						setModalValues((prevVals) => ({ ...prevVals, [currentField.key]: prev }));
+						return;
+					}
+				}
+
 				if (input === "j" || key.downArrow || (key.tab && !key.shift)) {
 					setModalFieldIndex((i) => (i + 1) % fieldCount);
 					setValidationError(null);
@@ -359,6 +436,9 @@ export function useMainKeys({
 								projectItems,
 								`modal:${modalMode}:project`,
 							);
+						} else if (INLINE_STATUS_KEYS.has(currentField.key)) {
+							setModalFieldIndex((i) => (i + 1) % fieldCount);
+							setValidationError(null);
 						}
 						return;
 					}
@@ -389,6 +469,44 @@ export function useMainKeys({
 					return;
 				}
 
+				return;
+			}
+
+			// --- Task Action Picker navigation ---
+			if (inputMode === "taskActionPicker") {
+				if (key.escape) {
+					setInputMode("none");
+					setStatusText("Ready");
+					return;
+				}
+				const actions = getTaskActions(selectedTask?.completedAt != null);
+				if (input === "j" || key.downArrow) {
+					setPickerIndex((i) => Math.min(i + 1, actions.length - 1));
+					return;
+				}
+				if (input === "k" || key.upArrow) {
+					setPickerIndex((i) => Math.max(i - 1, 0));
+					return;
+				}
+				if (key.return) {
+					const action = actions[pickerIndex];
+					if (!action) return;
+					setInputMode("none");
+					if (action.key === "edit") {
+						if (selectedTask) {
+							openModalWithValues(
+								"editTaskModal",
+								taskToModalValues(selectedTask),
+								selectedTask.id,
+							);
+						}
+					} else if (action.key === "toggle") {
+						void toggleSelectedTask();
+					} else if (action.key === "delete") {
+						void deleteSelectedTask();
+					}
+					return;
+				}
 				return;
 			}
 
@@ -423,8 +541,7 @@ export function useMainKeys({
 								: "",
 						);
 					} else if (field.key === "reminder") {
-						setInputMode("editReminder");
-						setInputValue("");
+						openCalendarPicker("calendarPickerReminderDate");
 					} else if (field.key === "blocked") {
 						setInputMode("editBlockedReason");
 						setInputValue(selectedTask?.blockedReason ?? "");
@@ -488,6 +605,32 @@ export function useMainKeys({
 							initialValue = activeProject.jiraDeliveryUrl ?? "";
 						else if (field.key === "confluence")
 							initialValue = activeProject.confluenceUrl ?? "";
+						else if (field.key === "jiraDocs")
+							initialValue = activeProject.jiraDocsUrl ?? "";
+						else if (field.key === "jiraReleaseNote")
+							initialValue = activeProject.jiraReleaseNoteUrl ?? "";
+						else if (field.key === "teamsReleaseNote")
+							initialValue = activeProject.teamsReleaseNoteUrl ?? "";
+					}
+					if (field.key === "jiraDiscoveryStatus") {
+						setInputMode("editProjectJiraDiscoveryStatus");
+						setInputValue(activeProject?.jiraDiscoveryStatus ?? "");
+						return;
+					}
+					if (field.key === "jiraDeliveryStatus") {
+						setInputMode("editProjectJiraDeliveryStatus");
+						setInputValue(activeProject?.jiraDeliveryStatus ?? "");
+						return;
+					}
+					if (field.key === "jiraDocsStatus") {
+						setInputMode("editProjectJiraDocsStatus");
+						setInputValue(activeProject?.jiraDocsStatus ?? "");
+						return;
+					}
+					if (field.key === "jiraReleaseNoteStatus") {
+						setInputMode("editProjectJiraReleaseNoteStatus");
+						setInputValue(activeProject?.jiraReleaseNoteStatus ?? "");
+						return;
 					}
 					const modeMap: Record<string, InputMode> = {
 						name: "editProjectName",
@@ -498,6 +641,9 @@ export function useMainKeys({
 						jiraDiscovery: "editProjectJiraDiscovery",
 						jiraDelivery: "editProjectJiraDelivery",
 						confluence: "editProjectConfluence",
+						jiraDocs: "editProjectJiraDocs",
+						jiraReleaseNote: "editProjectJiraReleaseNote",
+						teamsReleaseNote: "editProjectTeamsReleaseNote",
 					};
 					const mode = modeMap[field.key];
 					if (mode) {
@@ -555,6 +701,15 @@ export function useMainKeys({
 				}
 				if (key.return) {
 					const dateStr = format(calendarCursorDate, "yyyy-MM-dd");
+					if (inputMode === "calendarPickerReminderDate") {
+						reminderPickerDateRef.current = dateStr;
+						setEnumPickerTitle("Set reminder time:");
+						setEnumPickerItems(REMINDER_TIME_OPTIONS);
+						setEnumPickerIndex(0);
+						setEnumPickerTargetMode("createReminder");
+						setInputMode("enumPicker");
+						return;
+					}
 					setInputValue(dateStr);
 					void submitInput(dateStr);
 					return;
@@ -699,6 +854,13 @@ export function useMainKeys({
 			}
 
 			if (input === "/") {
+				setInputMode("globalSearch");
+				setInputValue("");
+				setTaskIndex(0);
+				return;
+			}
+
+			if (input === "\\") {
 				const outcome = getSidebarToggleOutcome(sidebarVisible, focusArea);
 				setSidebarVisible(outcome.nextVisible);
 				if (outcome.moveFocusToTasks) setFocusArea("tasks");
@@ -798,9 +960,10 @@ export function useMainKeys({
 						return;
 					}
 				} else {
+					const listLength = view === "reminders" ? allRemindersCount : taskRows.length;
 					if (input === "j" || key.downArrow) {
 						setTaskIndex((c) =>
-							Math.min(c + 1, Math.max(taskRows.length - 1, 0)),
+							Math.min(c + 1, Math.max(listLength - 1, 0)),
 						);
 						return;
 					}
@@ -810,12 +973,9 @@ export function useMainKeys({
 					}
 				}
 
-				if (key.return && selectedTask && view !== "settings") {
-					openModalWithValues(
-						"editTaskModal",
-						taskToModalValues(selectedTask),
-						selectedTask.id,
-					);
+				if (key.return && selectedTask && view !== "settings" && view !== "reminders") {
+					setInputMode("taskActionPicker");
+					setPickerIndex(0);
 					return;
 				}
 			}
@@ -911,19 +1071,13 @@ export function useMainKeys({
 					setStatusText("No task selected");
 					return;
 				}
-				setInputMode("editReminder");
-				setInputValue("");
+				openCalendarPicker("calendarPickerReminderDate");
 				return;
 			}
 
 			if (input === "E") {
-				if (shouldStartProjectEdit("e", view, activeProjectId, focusArea)) {
-					if (!activeProject) {
-						setStatusText("No project selected");
-						return;
-					}
-					setInputMode("projectEditPicker");
-					setPickerIndex(0);
+				if (activeProject && (focusArea === "sidebar" || (view === "project" && !selectedTask))) {
+					openModalWithValues("editProjectModal", projectToModalValues(activeProject));
 					return;
 				}
 				if (!selectedTask) return;
@@ -960,7 +1114,7 @@ export function useMainKeys({
 			}
 
 			if (input === "D") {
-				if (view === "project" && activeProject && !activeProject.isInbox) {
+				if (view === "project" && activeProject && !activeProject.isInbox && focusArea !== "sidebar") {
 					void deleteActiveProject();
 				}
 				return;
@@ -996,6 +1150,21 @@ export function useMainKeys({
 						projectLinks.push({
 							url: activeProject.confluenceUrl,
 							displayLabel: "Confluence",
+						});
+					if (activeProject.jiraDocsUrl)
+						projectLinks.push({
+							url: activeProject.jiraDocsUrl,
+							displayLabel: "Docs Jira",
+						});
+					if (activeProject.jiraReleaseNoteUrl)
+						projectLinks.push({
+							url: activeProject.jiraReleaseNoteUrl,
+							displayLabel: "Release Note Jira",
+						});
+					if (activeProject.teamsReleaseNoteUrl)
+						projectLinks.push({
+							url: activeProject.teamsReleaseNoteUrl,
+							displayLabel: "Teams Release Note",
 						});
 					if (projectLinks.length === 0) {
 						setStatusText("No project links");

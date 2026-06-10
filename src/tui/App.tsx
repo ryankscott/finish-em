@@ -1,6 +1,6 @@
 import { startOfWeek } from "date-fns";
 import { Box, useStdout } from "ink";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { Reminder } from "../server/types";
 import type { ApiClient } from "./api-client";
@@ -14,10 +14,12 @@ import { InputBar } from "./InputBar";
 import { LinkPicker } from "./LinkPicker";
 import { ProjectEditPicker } from "./ProjectEditPicker";
 import { SettingsPanel } from "./SettingsPanel";
+import { RemindersPanel } from "./RemindersPanel";
 import { buildSidebarItems, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
+import { TaskActionPicker } from "./TaskActionPicker";
 import { TaskEditPicker } from "./TaskEditPicker";
-import { TaskPanel } from "./TaskPanel";
+import { buildTaskPanelRows, TaskPanel } from "./TaskPanel";
 import { dateKey, UpcomingPanel } from "./UpcomingPanel";
 import { useAppData } from "./hooks/useAppData";
 import { useCalendarPicker, initCalendarPicker } from "./hooks/useCalendarPicker";
@@ -37,6 +39,7 @@ const CALENDAR_PICKER_MODES: InputMode[] = [
 	"calendarPickerScheduledDate",
 	"calendarPickerProjectStartDate",
 	"calendarPickerProjectEndDate",
+	"calendarPickerReminderDate",
 ];
 
 export { shouldStartProjectEdit } from "./hooks/useMainKeys";
@@ -141,25 +144,75 @@ export const App = ({ api, onQuit }: AppProps) => {
 		syncEnabled,
 	});
 
+	const inputBar = useInputBar({ projects: data.projects });
+
+	// Global search: filter all open tasks by title
+	const searchResults = useMemo(() => {
+		if (inputBar.inputMode !== "globalSearch" || !inputBar.inputValue.trim()) return [];
+		const q = inputBar.inputValue.toLowerCase();
+		return data.allTasks.filter((t) => t.title.toLowerCase().includes(q));
+	}, [inputBar.inputMode, inputBar.inputValue, data.allTasks]);
+
+	const isSearchMode = inputBar.inputMode === "globalSearch";
+	const displayRows = isSearchMode ? buildTaskPanelRows(searchResults) : navDerived.taskRows;
+	const todayOverdueSplitIndex =
+		!isSearchMode && nav.view === "today" ? data.viewCounts.overdue : undefined;
+	const displayLabel = isSearchMode
+		? `Search: ${searchResults.length} result${searchResults.length === 1 ? "" : "s"}`
+		: navDerived.viewLabel;
+	const effectiveSelectedTask = isSearchMode
+		? (searchResults[nav.taskIndex] ?? null)
+		: navDerived.selectedTask;
+
+	const prioritySections = useMemo(() => {
+		if (isSearchMode || nav.view !== "priority") return undefined;
+		const PRIORITY_META: Record<number, { label: string; color: string }> = {
+			1: { label: "P1 · Urgent", color: "red" },
+			2: { label: "P2 · High", color: "yellow" },
+			3: { label: "P3 · Normal", color: "green" },
+			4: { label: "P4 · Low", color: "blue" },
+		};
+		const result: { startIndex: number; label: string; color: string }[] = [];
+		let lastPriority = -1;
+		for (let i = 0; i < navDerived.taskRows.length; i++) {
+			const row = navDerived.taskRows[i];
+			if (!row) continue;
+			if (row.depth === 0 && row.task.priority !== lastPriority) {
+				const meta = PRIORITY_META[row.task.priority];
+				if (meta) result.push({ startIndex: i, ...meta });
+				lastPriority = row.task.priority;
+			}
+		}
+		return result.length > 0 ? result : undefined;
+	}, [isSearchMode, nav.view, navDerived.taskRows]);
+
+	// Reset taskIndex when leaving search mode so it doesn't point out of bounds
+	const prevInputModeRef = useRef(inputBar.inputMode);
+	useEffect(() => {
+		if (prevInputModeRef.current === "globalSearch" && inputBar.inputMode !== "globalSearch") {
+			nav.setTaskIndex(0);
+		}
+		prevInputModeRef.current = inputBar.inputMode;
+	}, [inputBar.inputMode, nav.setTaskIndex]);
+
 	// Load reminders whenever the selected task changes
 	useEffect(() => {
 		const load = async () => {
-			if (!navDerived.selectedTask) {
+			if (!effectiveSelectedTask) {
 				setReminders([]);
 				return;
 			}
 			try {
-				setReminders(await api.listTaskReminders(navDerived.selectedTask.id));
+				setReminders(await api.listTaskReminders(effectiveSelectedTask.id));
 			} catch {
 				setReminders([]);
 			}
 		};
 		void load();
-	}, [api, navDerived.selectedTask]);
-
-	const inputBar = useInputBar({ projects: data.projects });
+	}, [api, effectiveSelectedTask]);
 
 	const calendar = useCalendarPicker();
+	const reminderPickerDateRef = useRef<string>("");
 
 	const openCalendarPicker = useCallback(
 		(calendarMode: InputMode, existingIsoDate?: string) => {
@@ -176,7 +229,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const taskActions = useTaskActions({
 		api,
 		loadData: data.loadData,
-		selectedTask: navDerived.selectedTask,
+		selectedTask: effectiveSelectedTask,
 		activeProject: navDerived.activeProject,
 		selectedGoal,
 		pushToast,
@@ -193,7 +246,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		inputMode: inputBar.inputMode,
 		inputValue: inputBar.inputValue,
 		editingSettingField: inputBar.editingSettingField,
-		selectedTask: navDerived.selectedTask,
+		selectedTask: effectiveSelectedTask,
 		selectedGoal,
 		activeProjectId: nav.activeProjectId,
 		activeProject: navDerived.activeProject,
@@ -214,6 +267,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setValidationError: inputBar.setValidationError,
 		setInputMode: inputBar.openInput,
 		editingTaskId: inputBar.editingTaskId,
+		reminderPickerDateRef,
 	});
 
 	const sidebarItems = useMemo(
@@ -221,9 +275,11 @@ export const App = ({ api, onQuit }: AppProps) => {
 		[data.projects],
 	);
 
-	const selectedReminder = reminders[0] ?? null;
-	const selectedTaskHasSubtasks = navDerived.selectedTask
-		? navDerived.expandableTaskIds.has(navDerived.selectedTask.id)
+	const selectedReminder = nav.view === "reminders"
+		? (data.allReminders[nav.taskIndex] ?? null)
+		: (reminders[0] ?? null);
+	const selectedTaskHasSubtasks = effectiveSelectedTask
+		? navDerived.expandableTaskIds.has(effectiveSelectedTask.id)
 		: false;
 
 	useKeybindings({
@@ -290,13 +346,15 @@ export const App = ({ api, onQuit }: AppProps) => {
 		currentColumnRows: navDerived.currentColumnRows,
 		taskRows: navDerived.taskRows,
 		setTaskIndex: nav.setTaskIndex,
+		searchResultCount: searchResults.length,
+		allRemindersCount: data.allReminders.length,
+		selectedTask: effectiveSelectedTask,
 		goals: data.goals,
 		goalIndex: nav.goalIndex,
 		setGoalIndex: nav.setGoalIndex,
 		viewMode: nav.viewMode,
 		setViewMode: nav.setViewMode,
 		setAnchorDate: nav.setAnchorDate,
-		selectedTask: navDerived.selectedTask,
 		selectedTaskHasSubtasks,
 		expandedTaskId: nav.expandedTaskId,
 		setExpandedTaskId: nav.setExpandedTaskId,
@@ -314,6 +372,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		deleteSelectedReminder: taskActions.deleteSelectedReminder,
 		toggleSelectedGoal: taskActions.toggleSelectedGoal,
 		deleteSelectedGoal: taskActions.deleteSelectedGoal,
+		reminderPickerDateRef,
 		onQuit,
 	});
 
@@ -345,6 +404,14 @@ export const App = ({ api, onQuit }: AppProps) => {
 						selectedIndex={nav.settingsIndex}
 						focused={nav.focusArea === "tasks"}
 					/>
+				) : nav.view === "reminders" ? (
+					<RemindersPanel
+						reminders={data.allReminders}
+						selectedIndex={nav.taskIndex}
+						focused={nav.focusArea === "tasks"}
+						terminalWidth={contentPaneTerminalWidth}
+						terminalHeight={terminalHeight}
+					/>
 				) : nav.view === "upcoming" ? (
 				<UpcomingPanel
 					columns={navDerived.columns}
@@ -361,14 +428,17 @@ export const App = ({ api, onQuit }: AppProps) => {
 				/>
 				) : (
 					<TaskPanel
-						rows={navDerived.taskRows}
+						rows={displayRows}
 						projectMap={navDerived.projectMap}
-						viewLabel={navDerived.viewLabel}
+						viewLabel={displayLabel}
 						focused={nav.focusArea === "tasks"}
 						selectedIndex={nav.taskIndex}
-						expandedTaskId={nav.expandedTaskId}
-						expandableTaskIds={navDerived.expandableTaskIds}
-						activeProject={nav.view === "project" ? navDerived.activeProject : null}
+						expandedTaskId={isSearchMode ? null : nav.expandedTaskId}
+						expandableTaskIds={isSearchMode ? undefined : navDerived.expandableTaskIds}
+						activeProject={nav.view === "project" && !isSearchMode ? navDerived.activeProject : null}
+						terminalHeight={terminalHeight}
+						overdueSplitIndex={todayOverdueSplitIndex}
+						sections={prioritySections}
 					/>
 				)}
 			</Box>
@@ -377,6 +447,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 				<LinkPicker
 					links={inputBar.linkPickerLinks}
 					selectedIndex={inputBar.linkPickerIndex}
+				/>
+			)}
+
+			{inputBar.inputMode === "taskActionPicker" && (
+				<TaskActionPicker
+					selectedIndex={inputBar.pickerIndex}
+					isCompleted={effectiveSelectedTask?.completedAt != null}
 				/>
 			)}
 
@@ -447,8 +524,9 @@ export const App = ({ api, onQuit }: AppProps) => {
 				)}
 			/>
 		)}
-		{inputBar.inputMode === "createProjectModal" && (
+		{(inputBar.inputMode === "createProjectModal" || inputBar.inputMode === "editProjectModal") && (
 			<CreateProjectModal
+				mode={inputBar.inputMode}
 				activeFieldIndex={inputBar.modalFieldIndex}
 				modalValues={inputBar.modalValues}
 				inputCursorOffset={inputBar.inputCursorOffset}

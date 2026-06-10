@@ -20,6 +20,13 @@ export const SCHEMA_STATEMENTS = [
     jira_discovery_url TEXT,
     jira_delivery_url TEXT,
     confluence_url TEXT,
+    jira_discovery_status TEXT,
+    jira_docs_url TEXT,
+    jira_docs_status TEXT,
+    jira_delivery_status TEXT,
+    jira_release_note_url TEXT,
+    jira_release_note_status TEXT,
+    teams_release_note_url TEXT,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
   )

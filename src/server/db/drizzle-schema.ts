@@ -1,3 +1,11 @@
+// REFERENCE ONLY - this is NOT the source of truth for the database schema and
+// is intentionally incomplete (it omits sync_meta, sync_changelog,
+// assistant_messages, the uuid columns, and several project columns).
+//
+// The live schema is owned by SCHEMA_STATEMENTS + the ensure*Schema guards in
+// ./client.ts and the SQL migrations applied via `bun run db:migrate`. Never run
+// `drizzle-kit push`/`studio`/`migrate` against the live database - drizzle.config.ts
+// hard-blocks that, because it would drop the tables/columns missing from this file.
 import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 

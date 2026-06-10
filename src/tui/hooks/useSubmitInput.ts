@@ -1,12 +1,13 @@
 import { format, parseISO } from "date-fns";
 import { useCallback } from "react";
+import type React from "react";
 
 import type { Goal, Project, Task } from "../../server/types";
 import type { ApiClient } from "../api-client";
 import type { InputMode } from "./useInputBar";
 import { normalizeBareUrlsInText } from "../../lib/task-links";
-import { parseDatePhrase } from "../parse-task-input";
-import { parseProjectCreateInput } from "../parse-project-input";
+import { parseDatePhrase } from "../../lib/parsing/parse-task-input";
+import { parseProjectCreateInput } from "../../lib/parsing/parse-project-input";
 import type { StatusMessageTone } from "../StatusMessage";
 
 const CALENDAR_PICKER_MODES: InputMode[] = [
@@ -55,6 +56,7 @@ type UseSubmitInputParams = {
 	setValidationError: (err: string | null) => void;
 	setInputMode: (mode: InputMode) => void;
 	editingTaskId: number | null;
+	reminderPickerDateRef: React.MutableRefObject<string>;
 };
 
 // Modes where an empty/blank value is intentional (e.g. clearing notes or dates).
@@ -68,6 +70,11 @@ const ALLOW_EMPTY_MODES: InputMode[] = [
 	"editProjectJiraDiscovery",
 	"editProjectJiraDelivery",
 	"editProjectConfluence",
+	"editProjectJiraDocs",
+	"editProjectJiraReleaseNote",
+	"editProjectTeamsReleaseNote",
+	"editProjectJiraDiscoveryStatus",
+	"editProjectJiraDeliveryStatus",
 	"calendarPickerDueDate",
 	"calendarPickerScheduledDate",
 	"calendarPickerProjectStartDate",
@@ -100,6 +107,7 @@ export function useSubmitInput({
 	setValidationError,
 	setInputMode,
 	editingTaskId,
+	reminderPickerDateRef,
 }: UseSubmitInputParams) {
 	const submitInput = useCallback(async (overrideValue?: string) => {
 		const value = (overrideValue !== undefined ? overrideValue : inputValue).trim();
@@ -121,7 +129,10 @@ export function useSubmitInput({
 
 		// Modal submit uses modalValues, not inputValue — never treat empty inputValue as cancel.
 		const isModalSubmitMode =
-			inputMode === "createTaskModal" || inputMode === "createProjectModal";
+			inputMode === "createTaskModal" ||
+			inputMode === "createProjectModal" ||
+			inputMode === "editTaskModal" ||
+			inputMode === "editProjectModal";
 		if (
 			value.length === 0 &&
 			!ALLOW_EMPTY_MODES.includes(inputMode) &&
@@ -334,6 +345,58 @@ export function useSubmitInput({
 						setStatusText("Task moved to project");
 					}
 				}
+			} else if (target === "editProjectJiraDiscoveryStatus") {
+				if (!activeProjectId) {
+					setStatusText("No project selected");
+				} else {
+					const status = value || null;
+					await api.updateProject(activeProjectId, { jiraDiscoveryStatus: status as import("../../server/types").JiraTicketStatus | null });
+					setStatusText(status ? `Discovery status set to ${status}` : "Discovery status cleared");
+				}
+			} else if (target === "editProjectJiraDeliveryStatus") {
+				if (!activeProjectId) {
+					setStatusText("No project selected");
+				} else {
+					const status = value || null;
+					await api.updateProject(activeProjectId, { jiraDeliveryStatus: status as import("../../server/types").JiraTicketStatus | null });
+					setStatusText(status ? `Delivery status set to ${status}` : "Delivery status cleared");
+				}
+			} else if (target === "editProjectJiraDocsStatus") {
+				if (!activeProjectId) {
+					setStatusText("No project selected");
+				} else {
+					const status = value || null;
+					await api.updateProject(activeProjectId, { jiraDocsStatus: status as import("../../server/types").JiraTicketStatus | null });
+					setStatusText(status ? `Docs status set to ${status}` : "Docs status cleared");
+				}
+			} else if (target === "editProjectJiraReleaseNoteStatus") {
+				if (!activeProjectId) {
+					setStatusText("No project selected");
+				} else {
+					const status = value || null;
+					await api.updateProject(activeProjectId, { jiraReleaseNoteStatus: status as import("../../server/types").JiraTicketStatus | null });
+					setStatusText(status ? `Release Note status set to ${status}` : "Release Note status cleared");
+				}
+			} else if (target === "createReminder") {
+				if (!selectedTask) {
+					setStatusText("No task selected");
+				} else {
+					const dateStr = reminderPickerDateRef.current;
+					const [h, m] = value.split(":").map(Number);
+					const dt = new Date(dateStr);
+					dt.setHours(h ?? 9, m ?? 0, 0, 0);
+					const remindAt = dt.toISOString();
+					const reminder = await api.createReminder(selectedTask.id, { remindAt });
+					const reminderTime = (() => {
+						try {
+							return format(parseISO(reminder.remindAt), "MMM d, h:mm a");
+						} catch {
+							return reminder.remindAt;
+						}
+					})();
+					pushToast(`Reminder set for ${reminderTime}`, "success");
+					setStatusText("Reminder created");
+				}
 			}
 		} else if (inputMode === "editPriority") {
 			if (!selectedTask) {
@@ -406,23 +469,76 @@ export function useSubmitInput({
 				setStatusText("No project selected");
 			} else {
 				await api.updateProject(activeProjectId, { jiraDiscoveryUrl: value || null });
-				setStatusText(value ? "Jira Discovery URL updated" : "Jira Discovery URL cleared");
+				setStatusText(value ? "Discovery Jira URL updated" : "Discovery Jira URL cleared");
+			}
+		} else if (inputMode === "editProjectJiraDiscoveryStatus") {
+			if (!activeProjectId) {
+				setStatusText("No project selected");
+			} else {
+				const status = value || null;
+				await api.updateProject(activeProjectId, { jiraDiscoveryStatus: status as import("../../server/types").JiraTicketStatus | null });
+				setStatusText(status ? `Discovery status set to ${status}` : "Discovery status cleared");
 			}
 		} else if (inputMode === "editProjectJiraDelivery") {
 			if (!activeProjectId) {
 				setStatusText("No project selected");
 			} else {
 				await api.updateProject(activeProjectId, { jiraDeliveryUrl: value || null });
-				setStatusText(value ? "Jira Delivery URL updated" : "Jira Delivery URL cleared");
+				setStatusText(value ? "Delivery epic URL updated" : "Delivery epic URL cleared");
 			}
-	} else if (inputMode === "editProjectConfluence") {
-		if (!activeProjectId) {
-			setStatusText("No project selected");
-		} else {
-			await api.updateProject(activeProjectId, { confluenceUrl: value || null });
-			setStatusText(value ? "Confluence URL updated" : "Confluence URL cleared");
-		}
-	} else if (inputMode === "createTaskModal") {
+		} else if (inputMode === "editProjectJiraDeliveryStatus") {
+			if (!activeProjectId) {
+				setStatusText("No project selected");
+			} else {
+				const status = value || null;
+				await api.updateProject(activeProjectId, { jiraDeliveryStatus: status as import("../../server/types").JiraTicketStatus | null });
+				setStatusText(status ? `Delivery status set to ${status}` : "Delivery status cleared");
+			}
+		} else if (inputMode === "editProjectConfluence") {
+			if (!activeProjectId) {
+				setStatusText("No project selected");
+			} else {
+				await api.updateProject(activeProjectId, { confluenceUrl: value || null });
+				setStatusText(value ? "PRD URL updated" : "PRD URL cleared");
+			}
+		} else if (inputMode === "editProjectJiraDocs") {
+			if (!activeProjectId) {
+				setStatusText("No project selected");
+			} else {
+				await api.updateProject(activeProjectId, { jiraDocsUrl: value || null });
+				setStatusText(value ? "Docs Jira URL updated" : "Docs Jira URL cleared");
+			}
+		} else if (inputMode === "editProjectJiraDocsStatus") {
+			if (!activeProjectId) {
+				setStatusText("No project selected");
+			} else {
+				const status = value || null;
+				await api.updateProject(activeProjectId, { jiraDocsStatus: status as import("../../server/types").JiraTicketStatus | null });
+				setStatusText(status ? `Docs status set to ${status}` : "Docs status cleared");
+			}
+		} else if (inputMode === "editProjectJiraReleaseNote") {
+			if (!activeProjectId) {
+				setStatusText("No project selected");
+			} else {
+				await api.updateProject(activeProjectId, { jiraReleaseNoteUrl: value || null });
+				setStatusText(value ? "Release Note Jira URL updated" : "Release Note Jira URL cleared");
+			}
+		} else if (inputMode === "editProjectJiraReleaseNoteStatus") {
+			if (!activeProjectId) {
+				setStatusText("No project selected");
+			} else {
+				const status = value || null;
+				await api.updateProject(activeProjectId, { jiraReleaseNoteStatus: status as import("../../server/types").JiraTicketStatus | null });
+				setStatusText(status ? `Release Note status set to ${status}` : "Release Note status cleared");
+			}
+		} else if (inputMode === "editProjectTeamsReleaseNote") {
+			if (!activeProjectId) {
+				setStatusText("No project selected");
+			} else {
+				await api.updateProject(activeProjectId, { teamsReleaseNoteUrl: value || null });
+				setStatusText(value ? "Teams URL updated" : "Teams URL cleared");
+			}
+		} else if (inputMode === "createTaskModal") {
 		const title = modalValues.title?.trim();
 		if (!title) {
 			setValidationError("Title is required");
@@ -521,10 +637,48 @@ export function useSubmitInput({
 			startAt: startAt || undefined,
 			endAt: endAt || undefined,
 			jiraDiscoveryUrl: modalValues.jiraDiscovery?.trim() || undefined,
+			jiraDiscoveryStatus: (modalValues.jiraDiscoveryStatus?.trim() || undefined) as import("../../server/types").JiraTicketStatus | undefined,
 			jiraDeliveryUrl: modalValues.jiraDelivery?.trim() || undefined,
+			jiraDeliveryStatus: (modalValues.jiraDeliveryStatus?.trim() || undefined) as import("../../server/types").JiraTicketStatus | undefined,
 			confluenceUrl: modalValues.confluenceUrl?.trim() || undefined,
+			jiraDocsUrl: modalValues.jiraDocsUrl?.trim() || undefined,
+			jiraDocsStatus: (modalValues.jiraDocsStatus?.trim() || undefined) as import("../../server/types").JiraTicketStatus | undefined,
+			jiraReleaseNoteUrl: modalValues.jiraReleaseNoteUrl?.trim() || undefined,
+			jiraReleaseNoteStatus: (modalValues.jiraReleaseNoteStatus?.trim() || undefined) as import("../../server/types").JiraTicketStatus | undefined,
+			teamsReleaseNoteUrl: modalValues.teamsReleaseNoteUrl?.trim() || undefined,
 		});
 		pushToast("Project created", "success");
+	} else if (inputMode === "editProjectModal") {
+		const name = modalValues.name?.trim();
+		if (!name) {
+			setValidationError("Name is required");
+			setModalFieldIndex(0);
+			return;
+		}
+		if (!activeProjectId) {
+			setStatusText("No project selected");
+			return;
+		}
+		const startAt = parseDatePhrase(modalValues.startAt ?? "");
+		const endAt = parseDatePhrase(modalValues.endAt ?? "");
+		await api.updateProject(activeProjectId, {
+			name,
+			emoji: modalValues.emoji?.trim() || null,
+			description: modalValues.description?.trim(),
+			startAt: startAt || null,
+			endAt: endAt || null,
+			jiraDiscoveryUrl: modalValues.jiraDiscovery?.trim() || null,
+			jiraDiscoveryStatus: (modalValues.jiraDiscoveryStatus?.trim() || null) as import("../../server/types").JiraTicketStatus | null,
+			jiraDeliveryUrl: modalValues.jiraDelivery?.trim() || null,
+			jiraDeliveryStatus: (modalValues.jiraDeliveryStatus?.trim() || null) as import("../../server/types").JiraTicketStatus | null,
+			confluenceUrl: modalValues.confluenceUrl?.trim() || null,
+			jiraDocsUrl: modalValues.jiraDocsUrl?.trim() || null,
+			jiraDocsStatus: (modalValues.jiraDocsStatus?.trim() || null) as import("../../server/types").JiraTicketStatus | null,
+			jiraReleaseNoteUrl: modalValues.jiraReleaseNoteUrl?.trim() || null,
+			jiraReleaseNoteStatus: (modalValues.jiraReleaseNoteStatus?.trim() || null) as import("../../server/types").JiraTicketStatus | null,
+			teamsReleaseNoteUrl: modalValues.teamsReleaseNoteUrl?.trim() || null,
+		});
+		pushToast("Project updated", "success");
 	}
 	closeInput();
 	await loadData();

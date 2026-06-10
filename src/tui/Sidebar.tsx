@@ -6,8 +6,8 @@ type NavItem = {
 	type: "nav";
 	key: string;
 	label: string;
-	countKey?: "today" | "blocked" | "overdue" | "inbox" | "upcoming" | "completed" | "deleted";
-	view: "today" | "blocked" | "overdue" | "inbox" | "upcoming" | "completed" | "deleted" | "settings";
+	countKey?: "today" | "blocked" | "overdue" | "inbox" | "upcoming" | "completed" | "deleted" | "reminders";
+	view: "today" | "blocked" | "overdue" | "inbox" | "upcoming" | "priority" | "completed" | "deleted" | "settings" | "reminders";
 };
 
 type ProjectItem = {
@@ -55,6 +55,19 @@ const NAV_ITEMS: NavItem[] = [
 	},
 	{
 		type: "nav",
+		key: "reminders",
+		label: "Reminders",
+		countKey: "reminders",
+		view: "reminders",
+	},
+	{
+		type: "nav",
+		key: "priority",
+		label: "By Priority",
+		view: "priority",
+	},
+	{
+		type: "nav",
 		key: "completed",
 		label: "Completed",
 		countKey: "completed",
@@ -88,7 +101,7 @@ export const buildSidebarItems = (projects: Project[]): SidebarItem[] => {
 type SidebarProps = {
 	items: SidebarItem[];
 	viewCounts?: Partial<
-		Record<"today" | "blocked" | "overdue" | "inbox" | "upcoming" | "completed" | "deleted", number> & {
+		Record<"today" | "blocked" | "overdue" | "inbox" | "upcoming" | "completed" | "deleted" | "reminders", number> & {
 			projectCounts?: Record<number, number>;
 		}
 	>;
@@ -118,12 +131,23 @@ export const Sidebar = ({
 			? { item: items[settingsIndex] as SidebarItem, index: settingsIndex }
 			: null;
 
+	// border (2) + paddingX (2) + selector "❯ " (2)
+	const maxLabelLen = Math.max(width - 6, 10);
+
 	const renderItem = (item: SidebarItem, index: number) => {
 		const isSelected = index === selectedIndex;
 		const isNav = item.type === "nav";
-		const label = isNav
-			? `${item.label}${item.countKey ? ` [${viewCounts?.[item.countKey] ?? 0}]` : ""}`
-			: `${item.project.emoji ?? "●"} ${item.project.name} [${viewCounts?.projectCounts?.[item.project.id] ?? 0}]`;
+		const suffix = isNav
+			? (item.countKey ? ` [${viewCounts?.[item.countKey] ?? 0}]` : "")
+			: ` [${viewCounts?.projectCounts?.[item.project.id] ?? 0}]`;
+		const prefix = isNav
+			? item.label
+			: `${item.project.emoji ?? "●"} ${item.project.name}`;
+		const maxPrefixLen = maxLabelLen - suffix.length;
+		const truncatedPrefix =
+			prefix.length > maxPrefixLen
+				? prefix.slice(0, maxPrefixLen - 1) + "…"
+				: prefix;
 		const color =
 			isSelected && focused
 				? "cyan"
@@ -135,12 +159,13 @@ export const Sidebar = ({
 		return (
 			<Box
 				key={isNav ? item.key : `p-${item.project.id}`}
-				flexDirection="column"
+				flexDirection="row"
 			>
-				<Text bold={isBold} color={color}>
-					{isSelected ? "❯ " : "  "}
-					{label}
-				</Text>
+				<Text bold={isBold} color={color}>{isSelected ? "❯ " : "  "}</Text>
+				<Box flexGrow={1}>
+					<Text bold={isBold} color={color}>{truncatedPrefix}</Text>
+				</Box>
+				{suffix && <Text bold={isBold} color={color}>{suffix}</Text>}
 			</Box>
 		);
 	};

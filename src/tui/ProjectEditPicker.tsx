@@ -12,9 +12,16 @@ export const PROJECT_EDIT_FIELDS: ProjectEditField[] = [
 	{ key: "description", label: "Description", hint: "free text" },
 	{ key: "startDate", label: "Start date", hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)" },
 	{ key: "endDate", label: "End date", hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)" },
-	{ key: "jiraDiscovery", label: "Jira Discovery", hint: "URL or clear" },
-	{ key: "jiraDelivery", label: "Jira Delivery", hint: "URL or clear" },
-	{ key: "confluence", label: "Confluence", hint: "URL or clear" },
+	{ key: "jiraDiscovery", label: "Discovery: Jira URL", hint: "URL or clear" },
+	{ key: "jiraDiscoveryStatus", label: "Discovery: Jira Status", hint: "h/l or ← → cycle" },
+	{ key: "confluence", label: "Discovery: PRD URL", hint: "URL or clear" },
+	{ key: "jiraDelivery", label: "Delivery: Epic URL", hint: "URL or clear" },
+	{ key: "jiraDeliveryStatus", label: "Delivery: Epic Status", hint: "h/l or ← → cycle" },
+	{ key: "jiraDocs", label: "Delivery: Docs URL", hint: "URL or clear" },
+	{ key: "jiraDocsStatus", label: "Delivery: Docs Status", hint: "h/l or ← → cycle" },
+	{ key: "jiraReleaseNote", label: "Delivery: Release Note URL", hint: "URL or clear" },
+	{ key: "jiraReleaseNoteStatus", label: "Delivery: Release Note Status", hint: "h/l or ← → cycle" },
+	{ key: "teamsReleaseNote", label: "Delivery: Teams URL", hint: "URL or clear" },
 ];
 
 type ProjectEditPickerProps = {

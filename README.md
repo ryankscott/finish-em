@@ -19,6 +19,21 @@ bun install
 bun run dev
 ```
 
+## Desktop app
+
+A keyboard-centric web UI (Vite + React + Tailwind + TanStack Router/Query) served by a local Bun HTTP server that wraps the same repository layer as the TUI/CLI. Both share the SQLite database at `~/.finish-em/todo.db` (WAL mode, safe to run together).
+
+```bash
+bun run server:dev    # HTTP API on http://127.0.0.1:5717 (docs at /api/docs)
+bun run web:dev       # Vite dev server with /api proxy
+bun run desktop:app   # build "dist/finish-em Desktop.app" (server binary + web UI)
+bun run openapi:write # regenerate openapi.json from the route schemas
+```
+
+The `.app` launcher starts the bundled server (if not already running) and opens the UI in a Chrome/Edge/Brave `--app` window, falling back to the default browser. Press `?` in the app for keyboard shortcuts.
+
+Adding a feature so all three surfaces stay in sync: add the behavior to `src/server/repos/`, add the method to the `ApiClient` type in `src/shared/api-client.ts`, implement it in both `src/tui/direct-api.ts` and `src/shared/http-api.ts` plus a route in `src/server/http/app.ts` (the contract test in `src/server/http/contract.integration.test.ts` enforces parity), then wire the TUI keybinding/CLI subcommand and web UI. Quick-entry token parsing is shared from `src/lib/parsing/`.
+
 ## Global command setup
 
 Use one of the following flows to run `finish-em` from anywhere.
@@ -47,7 +62,7 @@ bun unlink
 Build and install a symlink into `~/.local/bin`:
 
 ```bash
-bun run cli:build
+bun run build
 bun run cli:install
 ```
 

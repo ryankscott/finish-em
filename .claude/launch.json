@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "finish-em-web",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "web:dev"],
+      "port": 5174
+    }
+  ]
+}

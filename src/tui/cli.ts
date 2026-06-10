@@ -49,8 +49,20 @@ Subcommands:
 
 Subcommands:
   list [--json]
-  add <name> [--emoji <emoji>] [--description <text>] [--color <hex>] [--json]
-  update <project-id> [--name <text>] [--emoji <emoji>] [--description <text>] [--color <hex>] [--json]
+  add <name> [--emoji <emoji>] [--description <text>] [--color <hex>]
+             [--jira-discovery-url <url>] [--jira-discovery-status todo|in_progress|done]
+             [--jira-delivery-url <url>] [--jira-delivery-status todo|in_progress|done]
+             [--confluence-url <url>]
+             [--jira-docs-url <url>] [--jira-docs-status todo|in_progress|done]
+             [--jira-release-note-url <url>] [--jira-release-note-status todo|in_progress|done]
+             [--teams-release-note-url <url>] [--json]
+  update <project-id> [--name <text>] [--emoji <emoji>] [--description <text>] [--color <hex>]
+             [--jira-discovery-url <url>] [--jira-discovery-status todo|in_progress|done]
+             [--jira-delivery-url <url>] [--jira-delivery-status todo|in_progress|done]
+             [--confluence-url <url>]
+             [--jira-docs-url <url>] [--jira-docs-status todo|in_progress|done]
+             [--jira-release-note-url <url>] [--jira-release-note-status todo|in_progress|done]
+             [--teams-release-note-url <url>] [--json]
   delete <project-id> [--json]
 `,
   goal: `finish-em goal <subcommand> [flags]
@@ -224,6 +236,16 @@ const formatReminderList = (
     .join('\n')
 }
 
+const asJiraStatus = (
+  flags: Record<string, string | boolean>,
+  key: string,
+): 'todo' | 'in_progress' | 'done' | undefined => {
+  const value = asString(flags, key)
+  if (value === undefined) return undefined
+  if (value === 'todo' || value === 'in_progress' || value === 'done') return value
+  throw new Error(`Invalid value for --${key}. Expected todo, in_progress, or done`)
+}
+
 const requirePositional = (positionals: string[], index: number, label: string): string => {
   const value = positionals[index]
   if (!value) {
@@ -342,6 +364,16 @@ async function runProjectCommand(args: string[], api: ApiClient, io: CliIo) {
       emoji: asString(flags, 'emoji') ?? null,
       description: asString(flags, 'description'),
       color: asString(flags, 'color'),
+      jiraDiscoveryUrl: asString(flags, 'jira-discovery-url') ?? null,
+      jiraDiscoveryStatus: asJiraStatus(flags, 'jira-discovery-status') ?? null,
+      jiraDeliveryUrl: asString(flags, 'jira-delivery-url') ?? null,
+      jiraDeliveryStatus: asJiraStatus(flags, 'jira-delivery-status') ?? null,
+      confluenceUrl: asString(flags, 'confluence-url') ?? null,
+      jiraDocsUrl: asString(flags, 'jira-docs-url') ?? null,
+      jiraDocsStatus: asJiraStatus(flags, 'jira-docs-status') ?? null,
+      jiraReleaseNoteUrl: asString(flags, 'jira-release-note-url') ?? null,
+      jiraReleaseNoteStatus: asJiraStatus(flags, 'jira-release-note-status') ?? null,
+      teamsReleaseNoteUrl: asString(flags, 'teams-release-note-url') ?? null,
     })
     printResult(io, project, {
       json: outputJson,
@@ -357,6 +389,16 @@ async function runProjectCommand(args: string[], api: ApiClient, io: CliIo) {
       emoji: asString(flags, 'emoji'),
       description: asString(flags, 'description'),
       color: asString(flags, 'color'),
+      jiraDiscoveryUrl: asString(flags, 'jira-discovery-url'),
+      jiraDiscoveryStatus: asJiraStatus(flags, 'jira-discovery-status'),
+      jiraDeliveryUrl: asString(flags, 'jira-delivery-url'),
+      jiraDeliveryStatus: asJiraStatus(flags, 'jira-delivery-status'),
+      confluenceUrl: asString(flags, 'confluence-url'),
+      jiraDocsUrl: asString(flags, 'jira-docs-url'),
+      jiraDocsStatus: asJiraStatus(flags, 'jira-docs-status'),
+      jiraReleaseNoteUrl: asString(flags, 'jira-release-note-url'),
+      jiraReleaseNoteStatus: asJiraStatus(flags, 'jira-release-note-status'),
+      teamsReleaseNoteUrl: asString(flags, 'teams-release-note-url'),
     })
     printResult(io, project, {
       json: outputJson,

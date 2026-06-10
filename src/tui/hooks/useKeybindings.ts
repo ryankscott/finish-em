@@ -7,7 +7,7 @@ import type { SettingsRow } from "../SettingsPanel";
 import type { SidebarItem } from "../Sidebar";
 import type { InputMode } from "./useInputBar";
 import type { FocusArea, View } from "./useNavigation";
-import { useMainKeys } from "./useMainKeys";
+import { useMainKeys, taskToModalValues } from "./useMainKeys";
 import { useTextInputKeys } from "./useTextInputKeys";
 
 type UseKeybindingsParams = {
@@ -75,14 +75,16 @@ type UseKeybindingsParams = {
 	currentColumnRows: ColumnTaskRow[];
 	taskRows: { task: Task }[];
 	setTaskIndex: React.Dispatch<React.SetStateAction<number>>;
+	searchResultCount: number;
+	allRemindersCount: number;
+	selectedTask: Task | null;
+	selectedTaskHasSubtasks: boolean;
 	goals: Goal[];
 	goalIndex: number;
 	setGoalIndex: React.Dispatch<React.SetStateAction<number>>;
 	viewMode: ViewMode;
 	setViewMode: React.Dispatch<React.SetStateAction<ViewMode>>;
 	setAnchorDate: React.Dispatch<React.SetStateAction<Date>>;
-	selectedTask: Task | null;
-	selectedTaskHasSubtasks: boolean;
 	expandedTaskId: number | null;
 	setExpandedTaskId: (id: number | null) => void;
 	activeProjectId: number | null;
@@ -99,6 +101,7 @@ type UseKeybindingsParams = {
 	deleteSelectedReminder: (reminder: Reminder) => Promise<void>;
 	toggleSelectedGoal: () => Promise<void>;
 	deleteSelectedGoal: () => Promise<void>;
+	reminderPickerDateRef: React.MutableRefObject<string>;
 	onQuit: () => void;
 };
 
@@ -166,14 +169,16 @@ export function useKeybindings({
 	currentColumnRows,
 	taskRows,
 	setTaskIndex,
+	searchResultCount,
+	allRemindersCount,
+	selectedTask,
+	selectedTaskHasSubtasks,
 	goals,
 	goalIndex,
 	setGoalIndex,
 	viewMode,
 	setViewMode,
 	setAnchorDate,
-	selectedTask,
-	selectedTaskHasSubtasks,
 	expandedTaskId,
 	setExpandedTaskId,
 	activeProjectId,
@@ -190,6 +195,7 @@ export function useKeybindings({
 	deleteSelectedReminder,
 	toggleSelectedGoal,
 	deleteSelectedGoal,
+	reminderPickerDateRef,
 	onQuit,
 }: UseKeybindingsParams) {
 	// Sync cursor to end of input when entering text mode (including modal text fields)
@@ -217,6 +223,12 @@ export function useKeybindings({
 		modalActiveFieldKeyRef,
 		modalValuesRef,
 		setModalValues,
+		onSearchNavigate: (delta) =>
+			setTaskIndex((i) => Math.max(0, Math.min(i + delta, searchResultCount - 1))),
+		onSearchSelect: () => {
+			if (!selectedTask) return;
+			openModalWithValues("editTaskModal", taskToModalValues(selectedTask), selectedTask.id);
+		},
 	});
 
 	useMainKeys({
@@ -273,6 +285,7 @@ export function useKeybindings({
 		currentColumnRows,
 		taskRows,
 		setTaskIndex,
+		allRemindersCount,
 		goals,
 		goalIndex,
 		setGoalIndex,
@@ -298,6 +311,7 @@ export function useKeybindings({
 		deleteSelectedReminder,
 		toggleSelectedGoal,
 		deleteSelectedGoal,
+		reminderPickerDateRef,
 		submitInput,
 		onQuit,
 	});

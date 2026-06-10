@@ -8,6 +8,7 @@ import * as projectRepo from '@/server/repos/projects'
 import * as goalRepo from '@/server/repos/goals'
 import * as reminderRepo from '@/server/repos/reminders'
 import * as settingsRepo from '@/server/repos/settings'
+import { getSyncService } from '@/server/sync/sync-service'
 import type { ApiClient } from './api-client'
 
 export const createDirectApi = (): ApiClient => ({
@@ -91,6 +92,9 @@ export const createDirectApi = (): ApiClient => ({
   listDueReminders: () =>
     Promise.resolve(reminderRepo.listDueRemindersWithTitles()),
 
+  listAllReminders: () =>
+    Promise.resolve(reminderRepo.listAllRemindersWithTitles()),
+
   createReminder: (taskId, input) =>
     Promise.resolve(reminderRepo.createReminder({ taskId, ...input })),
 
@@ -98,4 +102,22 @@ export const createDirectApi = (): ApiClient => ({
     reminderRepo.deleteReminder(reminderId)
     return Promise.resolve()
   },
+
+  getSyncStatus: () => Promise.resolve(getSyncService().getStatus()),
+
+  enableSync: async () => {
+    const sync = getSyncService()
+    sync.enable()
+    sync.startAutoSync()
+    await sync.syncNow().catch(() => {})
+    return sync.getStatus()
+  },
+
+  disableSync: () => {
+    const sync = getSyncService()
+    sync.disable()
+    return Promise.resolve(sync.getStatus())
+  },
+
+  syncNow: () => getSyncService().syncNow(),
 })

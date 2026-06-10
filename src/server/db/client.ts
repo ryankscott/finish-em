@@ -45,25 +45,13 @@ function openSqliteDb(filePath: string): DbLike {
 
 let dbInstance: DbLike | null = null
 
-function isCompiledExecutable() {
-  const basename = path.basename(process.execPath).toLowerCase()
-  return basename !== 'bun' && basename !== 'bun.exe'
-}
 
 function getDbPath() {
   const override = process.env.TODO_DB_PATH
   if (override && override.trim().length > 0) {
     return path.resolve(override)
   }
-
-  if (isCompiledExecutable()) {
-    // Bun compiled executable: default to ~/.finish-em/todo.db
-    return path.join(os.homedir(), '.finish-em', 'todo.db')
-  }
-
-  // Bun source mode: keep cwd-relative path
-  const dbDir = path.resolve(process.cwd(), 'data')
-  return path.join(dbDir, 'todo.db')
+  return path.join(os.homedir(), '.finish-em', 'todo.db')
 }
 
 function seedDefaults(db: DbLike) {
@@ -244,6 +232,44 @@ function ensureProjectExternalLinksSchema(db: DbLike) {
   }
 }
 
+function ensureProjectMetaLinksSchema(db: DbLike) {
+  const projectsTable = db
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'")
+    .get() as { name?: string } | undefined
+
+  if (!projectsTable?.name) {
+    return
+  }
+
+  const columns = db.prepare('PRAGMA table_info(projects)').all() as Array<{
+    name: unknown
+  }>
+
+  const columnNames = columns.map((c) => String(c.name))
+
+  if (!columnNames.includes('jira_discovery_status')) {
+    db.exec('ALTER TABLE projects ADD COLUMN jira_discovery_status TEXT')
+  }
+  if (!columnNames.includes('jira_delivery_status')) {
+    db.exec('ALTER TABLE projects ADD COLUMN jira_delivery_status TEXT')
+  }
+  if (!columnNames.includes('jira_docs_url')) {
+    db.exec('ALTER TABLE projects ADD COLUMN jira_docs_url TEXT')
+  }
+  if (!columnNames.includes('jira_docs_status')) {
+    db.exec('ALTER TABLE projects ADD COLUMN jira_docs_status TEXT')
+  }
+  if (!columnNames.includes('jira_release_note_url')) {
+    db.exec('ALTER TABLE projects ADD COLUMN jira_release_note_url TEXT')
+  }
+  if (!columnNames.includes('jira_release_note_status')) {
+    db.exec('ALTER TABLE projects ADD COLUMN jira_release_note_status TEXT')
+  }
+  if (!columnNames.includes('teams_release_note_url')) {
+    db.exec('ALTER TABLE projects ADD COLUMN teams_release_note_url TEXT')
+  }
+}
+
 function ensureSyncSchema(db: DbLike) {
   // sync_meta and sync_changelog are created by SCHEMA_STATEMENTS on new DBs,
   // but existing DBs that pre-date migration 007 need the tables and uuid columns added.
@@ -292,14 +318,74 @@ function ensureSyncSchema(db: DbLike) {
   }
 }
 
+const BACKUP_RETENTION = 14
+
+function pruneBackups(backupsDir: string) {
+  let entries: string[]
+  try {
+    entries = fs.readdirSync(backupsDir)
+  } catch {
+    return
+  }
+  const backups = entries
+    .filter((name) => /^todo-\d{4}-\d{2}-\d{2}\.db$/.test(name))
+    .sort()
+  while (backups.length > BACKUP_RETENTION) {
+    const oldest = backups.shift()
+    if (!oldest) break
+    try {
+      fs.unlinkSync(path.join(backupsDir, oldest))
+    } catch {
+      // best effort
+    }
+  }
+}
+
+/**
+ * Takes a consistent, point-in-time snapshot of the database before any schema
+ * work runs. Backups are kept once per day (rotated) so an accidental schema
+ * rewrite or data loss can be restored in seconds. Disabled for tests/temp DBs
+ * and via TODO_DB_NO_BACKUP=1.
+ */
+function maybeBackup(dbPath: string, db: DbLike) {
+  if (process.env.TODO_DB_NO_BACKUP === '1') return
+  if (dbPath === ':memory:') return
+  if (dbPath.startsWith(`${os.tmpdir()}${path.sep}`) || dbPath.startsWith('/tmp/')) return
+
+  const backupsDir = path.join(path.dirname(dbPath), 'backups')
+  const day = new Date().toISOString().slice(0, 10)
+  const target = path.join(backupsDir, `todo-${day}.db`)
+  if (fs.existsSync(target)) {
+    pruneBackups(backupsDir)
+    return
+  }
+
+  try {
+    fs.mkdirSync(backupsDir, { recursive: true })
+    const tmpTarget = `${target}.tmp`
+    for (const stale of [tmpTarget, `${tmpTarget}-wal`, `${tmpTarget}-shm`]) {
+      if (fs.existsSync(stale)) fs.unlinkSync(stale)
+    }
+    db.exec(`VACUUM INTO '${tmpTarget.replace(/'/g, "''")}'`)
+    fs.renameSync(tmpTarget, target)
+    pruneBackups(backupsDir)
+  } catch (err) {
+    console.error('finish-em: automatic DB backup failed:', err)
+  }
+}
+
 function initialize(db: DbLike) {
   db.exec('PRAGMA foreign_keys = ON')
+  // WAL + busy timeout so the TUI/CLI and the desktop HTTP server can share the DB
+  db.exec('PRAGMA journal_mode = WAL')
+  db.exec('PRAGMA busy_timeout = 5000')
   for (const statement of SCHEMA_STATEMENTS) {
     db.exec(statement)
   }
   ensureTaskSubtaskSchema(db)
   ensureProjectEnhancementsSchema(db)
   ensureProjectExternalLinksSchema(db)
+  ensureProjectMetaLinksSchema(db)
   ensureSoftDeleteSchema(db)
   ensureBlockedTaskSchema(db)
   ensureSyncSchema(db)
@@ -318,7 +404,27 @@ export function getDb() {
     fs.mkdirSync(dir, { recursive: true })
   }
 
+  const isNewDb = !fs.existsSync(dbPath)
+
+  // Orphaned WAL sidecars (main DB deleted, -wal/-shm left behind) make
+  // SQLite fail with a disk I/O error when re-enabling WAL mode.
+  if (isNewDb) {
+    for (const suffix of ['-wal', '-shm']) {
+      const sidecar = `${dbPath}${suffix}`
+      if (fs.existsSync(sidecar)) {
+        fs.unlinkSync(sidecar)
+      }
+    }
+  }
+
   dbInstance = openSqliteDb(dbPath)
+
+  // Snapshot existing data before any schema work runs, so a future accidental
+  // schema rewrite can be restored. Skipped for brand-new (empty) databases.
+  if (!isNewDb) {
+    maybeBackup(dbPath, dbInstance)
+  }
+
   initialize(dbInstance)
 
   return dbInstance

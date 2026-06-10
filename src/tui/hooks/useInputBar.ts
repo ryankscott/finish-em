@@ -18,11 +18,15 @@ export type InputMode =
 	| "editTask"
 	| "editSetting"
 	| "addGoal"
+	| "globalSearch"
 	| "linkPicker"
 	// Full-form create/edit modals
 	| "createTaskModal"
 	| "createProjectModal"
 	| "editTaskModal"
+	| "editProjectModal"
+	// Task action picker
+	| "taskActionPicker"
 	// Task field edit modes
 	| "taskEditPicker"
 	| "editDueDate"
@@ -41,8 +45,15 @@ export type InputMode =
 	| "editProjectStartDate"
 	| "editProjectEndDate"
 	| "editProjectJiraDiscovery"
+	| "editProjectJiraDiscoveryStatus"
 	| "editProjectJiraDelivery"
+	| "editProjectJiraDeliveryStatus"
 	| "editProjectConfluence"
+	| "editProjectJiraDocs"
+	| "editProjectJiraDocsStatus"
+	| "editProjectJiraReleaseNote"
+	| "editProjectJiraReleaseNoteStatus"
+	| "editProjectTeamsReleaseNote"
 	// Goal edit modes
 	| "editGoalTitle"
 	// Generic enum picker
@@ -51,7 +62,8 @@ export type InputMode =
 	| "calendarPickerDueDate"
 	| "calendarPickerScheduledDate"
 	| "calendarPickerProjectStartDate"
-	| "calendarPickerProjectEndDate";
+	| "calendarPickerProjectEndDate"
+	| "calendarPickerReminderDate";
 
 type UseInputBarParams = {
 	projects: Project[];
@@ -179,6 +191,7 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 	const inputAutocomplete = null;
 
 	const PICKER_MODES: InputMode[] = [
+		"taskActionPicker",
 		"taskEditPicker",
 		"projectEditPicker",
 		"enumPicker",
@@ -186,6 +199,7 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 		"calendarPickerScheduledDate",
 		"calendarPickerProjectStartDate",
 		"calendarPickerProjectEndDate",
+		"calendarPickerReminderDate",
 	];
 	const ENUM_PICKER_MODES: InputMode[] = [
 		"editRecurrence",

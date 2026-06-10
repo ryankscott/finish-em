@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { parseDatePhrase } from "../parse-task-input";
+import { parseDatePhrase } from "../../lib/parsing/parse-task-input";
 
 // Test that the calendar picker modes produce the same parsed date as their text counterparts.
 // This validates the routing logic without needing to spin up the full hook.

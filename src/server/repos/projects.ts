@@ -1,7 +1,7 @@
 import { getDb, nowIso } from '@/server/db/client'
 import { mapProjectRow } from '@/server/repos/mappers'
 
-import type { Project } from '@/server/types'
+import type { JiraTicketStatus, Project } from '@/server/types'
 
 export function listProjects(): Project[] {
   const db = getDb()
@@ -29,8 +29,15 @@ export function createProject(input: {
   color?: string
   isInbox?: boolean
   jiraDiscoveryUrl?: string | null
+  jiraDiscoveryStatus?: JiraTicketStatus | null
   jiraDeliveryUrl?: string | null
+  jiraDeliveryStatus?: JiraTicketStatus | null
   confluenceUrl?: string | null
+  jiraDocsUrl?: string | null
+  jiraDocsStatus?: JiraTicketStatus | null
+  jiraReleaseNoteUrl?: string | null
+  jiraReleaseNoteStatus?: JiraTicketStatus | null
+  teamsReleaseNoteUrl?: string | null
 }): Project {
   const db = getDb()
   const now = nowIso()
@@ -41,8 +48,15 @@ export function createProject(input: {
   const color = input.color ?? '#ef4444'
   const isInbox = input.isInbox ? 1 : 0
   const jiraDiscoveryUrl = input.jiraDiscoveryUrl ?? null
+  const jiraDiscoveryStatus = input.jiraDiscoveryStatus ?? null
   const jiraDeliveryUrl = input.jiraDeliveryUrl ?? null
+  const jiraDeliveryStatus = input.jiraDeliveryStatus ?? null
   const confluenceUrl = input.confluenceUrl ?? null
+  const jiraDocsUrl = input.jiraDocsUrl ?? null
+  const jiraDocsStatus = input.jiraDocsStatus ?? null
+  const jiraReleaseNoteUrl = input.jiraReleaseNoteUrl ?? null
+  const jiraReleaseNoteStatus = input.jiraReleaseNoteStatus ?? null
+  const teamsReleaseNoteUrl = input.teamsReleaseNoteUrl ?? null
 
   if (isInbox === 1) {
     db.prepare('UPDATE projects SET is_inbox = 0, updated_at = ?').run(now)
@@ -50,7 +64,7 @@ export function createProject(input: {
 
   const result = db
     .prepare(
-      'INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, jira_discovery_url, jira_delivery_url, confluence_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      'INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, jira_discovery_url, jira_discovery_status, jira_delivery_url, jira_delivery_status, confluence_url, jira_docs_url, jira_docs_status, jira_release_note_url, jira_release_note_status, teams_release_note_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     )
     .run(
       input.name,
@@ -61,8 +75,15 @@ export function createProject(input: {
       color,
       isInbox,
       jiraDiscoveryUrl,
+      jiraDiscoveryStatus,
       jiraDeliveryUrl,
+      jiraDeliveryStatus,
       confluenceUrl,
+      jiraDocsUrl,
+      jiraDocsStatus,
+      jiraReleaseNoteUrl,
+      jiraReleaseNoteStatus,
+      teamsReleaseNoteUrl,
       now,
       now,
     )
@@ -87,8 +108,15 @@ export function updateProject(
     color: string
     isInbox: boolean
     jiraDiscoveryUrl: string | null
+    jiraDiscoveryStatus: JiraTicketStatus | null
     jiraDeliveryUrl: string | null
+    jiraDeliveryStatus: JiraTicketStatus | null
     confluenceUrl: string | null
+    jiraDocsUrl: string | null
+    jiraDocsStatus: JiraTicketStatus | null
+    jiraReleaseNoteUrl: string | null
+    jiraReleaseNoteStatus: JiraTicketStatus | null
+    teamsReleaseNoteUrl: string | null
   }>,
 ): Project | null {
   const db = getDb()
@@ -108,17 +136,31 @@ export function updateProject(
   const isInbox = patch.isInbox ?? existing.isInbox
   const jiraDiscoveryUrl =
     "jiraDiscoveryUrl" in patch ? patch.jiraDiscoveryUrl ?? null : existing.jiraDiscoveryUrl
+  const jiraDiscoveryStatus =
+    "jiraDiscoveryStatus" in patch ? patch.jiraDiscoveryStatus ?? null : existing.jiraDiscoveryStatus
   const jiraDeliveryUrl =
     "jiraDeliveryUrl" in patch ? patch.jiraDeliveryUrl ?? null : existing.jiraDeliveryUrl
+  const jiraDeliveryStatus =
+    "jiraDeliveryStatus" in patch ? patch.jiraDeliveryStatus ?? null : existing.jiraDeliveryStatus
   const confluenceUrl =
     "confluenceUrl" in patch ? patch.confluenceUrl ?? null : existing.confluenceUrl
+  const jiraDocsUrl =
+    "jiraDocsUrl" in patch ? patch.jiraDocsUrl ?? null : existing.jiraDocsUrl
+  const jiraDocsStatus =
+    "jiraDocsStatus" in patch ? patch.jiraDocsStatus ?? null : existing.jiraDocsStatus
+  const jiraReleaseNoteUrl =
+    "jiraReleaseNoteUrl" in patch ? patch.jiraReleaseNoteUrl ?? null : existing.jiraReleaseNoteUrl
+  const jiraReleaseNoteStatus =
+    "jiraReleaseNoteStatus" in patch ? patch.jiraReleaseNoteStatus ?? null : existing.jiraReleaseNoteStatus
+  const teamsReleaseNoteUrl =
+    "teamsReleaseNoteUrl" in patch ? patch.teamsReleaseNoteUrl ?? null : existing.teamsReleaseNoteUrl
 
   if (isInbox) {
     db.prepare('UPDATE projects SET is_inbox = 0, updated_at = ?').run(now)
   }
 
   db.prepare(
-    'UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, jira_discovery_url = ?, jira_delivery_url = ?, confluence_url = ?, updated_at = ? WHERE id = ?',
+    'UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, jira_discovery_url = ?, jira_discovery_status = ?, jira_delivery_url = ?, jira_delivery_status = ?, confluence_url = ?, jira_docs_url = ?, jira_docs_status = ?, jira_release_note_url = ?, jira_release_note_status = ?, teams_release_note_url = ?, updated_at = ? WHERE id = ?',
   ).run(
     name,
     emoji,
@@ -128,8 +170,15 @@ export function updateProject(
     color,
     isInbox ? 1 : 0,
     jiraDiscoveryUrl,
+    jiraDiscoveryStatus,
     jiraDeliveryUrl,
+    jiraDeliveryStatus,
     confluenceUrl,
+    jiraDocsUrl,
+    jiraDocsStatus,
+    jiraReleaseNoteUrl,
+    jiraReleaseNoteStatus,
+    teamsReleaseNoteUrl,
     now,
     projectId,
   )

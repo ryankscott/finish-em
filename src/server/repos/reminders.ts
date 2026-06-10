@@ -157,6 +157,30 @@ export function listDueReminders(): Reminder[] {
 	return rows.map(mapReminderRow);
 }
 
+export type AllReminderWithTitle = Reminder & { taskTitle: string };
+
+export function listAllRemindersWithTitles(): AllReminderWithTitle[] {
+	const db = getDb();
+	const rows = db
+		.prepare(
+			`SELECT r.*, t.title AS task_title
+       FROM reminders r
+       INNER JOIN tasks t ON t.id = r.task_id
+       WHERE r.status IN ('pending', 'snoozed')
+         AND t.deleted_at IS NULL
+       ORDER BY COALESCE(r.snoozed_until, r.remind_at) ASC`,
+		)
+		.all() as (Record<string, unknown> & { task_title: string })[];
+
+	return rows.map((row) => {
+		const { task_title, ...rest } = row;
+		return {
+			...mapReminderRow(rest),
+			taskTitle: String(task_title ?? ""),
+		};
+	});
+}
+
 export type DueReminderWithTitle = Reminder & { taskTitle: string };
 
 export function listDueRemindersWithTitles(): DueReminderWithTitle[] {
