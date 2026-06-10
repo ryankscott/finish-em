@@ -81,7 +81,10 @@ export function useTextInputKeys({
 					if (isModalTextActive && modalActiveFieldKeyRef.current === "notes") {
 						const currentValue = modalValuesRef.current["notes"] ?? "";
 						const currentCursor = inputCursorRef.current;
-						const next = currentValue.slice(0, currentCursor) + "\n" + currentValue.slice(currentCursor);
+						const next =
+							currentValue.slice(0, currentCursor) +
+							"\n" +
+							currentValue.slice(currentCursor);
 						setModalValues((prev) => ({ ...prev, notes: next }));
 						setInputCursorOffset(currentCursor + 1);
 					}
@@ -111,9 +114,18 @@ export function useTextInputKeys({
 
 			// Global search: intercept Up/Down for result navigation and Enter for selection
 			if (inputMode === "globalSearch") {
-				if (key.upArrow)   { onSearchNavigate?.(-1); return; }
-				if (key.downArrow) { onSearchNavigate?.(1);  return; }
-				if (key.return)    { onSearchSelect?.();     return; }
+				if (key.upArrow) {
+					onSearchNavigate?.(-1);
+					return;
+				}
+				if (key.downArrow) {
+					onSearchNavigate?.(1);
+					return;
+				}
+				if (key.return) {
+					onSearchSelect?.();
+					return;
+				}
 			}
 
 			if (key.tab && autocompleteNextValue !== null) {
@@ -134,7 +146,8 @@ export function useTextInputKeys({
 				if (key.rightArrow || input === "l") {
 					const cur = inputValueRef.current;
 					const idx = STATUS_CYCLE.indexOf(cur);
-					const next = STATUS_CYCLE[(idx === -1 ? 0 : idx + 1) % STATUS_CYCLE.length];
+					const next =
+						STATUS_CYCLE[(idx === -1 ? 0 : idx + 1) % STATUS_CYCLE.length];
 					setInputValue(next);
 					setInputCursorOffset(next.length);
 					return;
@@ -143,7 +156,10 @@ export function useTextInputKeys({
 					const cur = inputValueRef.current;
 					const idx = STATUS_CYCLE.indexOf(cur);
 					const safeIdx = idx === -1 ? 0 : idx;
-					const prev = STATUS_CYCLE[(safeIdx - 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length];
+					const prev =
+						STATUS_CYCLE[
+							(safeIdx - 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length
+						];
 					setInputValue(prev);
 					setInputCursorOffset(prev.length);
 					return;

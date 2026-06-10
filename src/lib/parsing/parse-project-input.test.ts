@@ -35,19 +35,27 @@ describe("parseProjectCreateInput", () => {
 	});
 
 	it("warns and uses literal value for unknown emoji shortcode", () => {
-		const result = parseProjectCreateInput("name:Test emoji::unknown_shortcode:");
-		expect(result.warnings.some((w) => w.includes("Unknown emoji shortcode"))).toBe(true);
+		const result = parseProjectCreateInput(
+			"name:Test emoji::unknown_shortcode:",
+		);
+		expect(
+			result.warnings.some((w) => w.includes("Unknown emoji shortcode")),
+		).toBe(true);
 		expect(result.input.emoji).toBe(":unknown_shortcode:");
 	});
 
 	it("validates required name in tokenized mode", () => {
 		const result = parseProjectCreateInput("color:#3b82f6 inbox:true");
 		expect(result.usedTokens).toBe(true);
-		expect(result.errors.some((error) => error.includes("name is required"))).toBe(true);
+		expect(
+			result.errors.some((error) => error.includes("name is required")),
+		).toBe(true);
 	});
 
 	it("validates color and date fields", () => {
-		const result = parseProjectCreateInput("name:Test color:blue start:not-a-date");
+		const result = parseProjectCreateInput(
+			"name:Test color:blue start:not-a-date",
+		);
 		expect(result.errors.some((error) => error.includes("hex"))).toBe(true);
 		expect(result.errors.some((error) => error.includes("start"))).toBe(true);
 	});

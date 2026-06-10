@@ -4,8 +4,9 @@
  *
  * Backed by emojilib v2 (~1570 GitHub-compatible shortcodes).
  */
-// @ts-ignore - emojilib is a CJS package; static import lets Bun bundle it
+// @ts-expect-error - emojilib is a CJS package; static import lets Bun bundle it
 import _emojilibRaw from "emojilib";
+
 const _emojilib = _emojilibRaw as { lib: Record<string, { char: string }> };
 
 /** Index built from emojilib v2: shortcode → emoji char. */

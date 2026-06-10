@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { getDaysInMonth, getDay, startOfMonth } from "date-fns";
+import { getDay, getDaysInMonth, startOfMonth } from "date-fns";
 
 // Pure logic tests for calendar grid construction — no Ink rendering needed.
 

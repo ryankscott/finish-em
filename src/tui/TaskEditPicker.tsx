@@ -8,11 +8,27 @@ export type TaskEditField = {
 
 export const TASK_EDIT_FIELDS: TaskEditField[] = [
 	{ key: "project", label: "Move to project", hint: "select from list" },
-	{ key: "due", label: "Due date", hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)" },
-	{ key: "scheduled", label: "Scheduled date", hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)" },
+	{
+		key: "due",
+		label: "Due date",
+		hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)",
+	},
+	{
+		key: "scheduled",
+		label: "Scheduled date",
+		hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)",
+	},
 	{ key: "recurrence", label: "Recurring", hint: "select from list" },
-	{ key: "blocked", label: "Blocked reason", hint: "free text, blank to unblock" },
-	{ key: "reminder", label: "Reminder", hint: "today / tomorrow / ISO datetime" },
+	{
+		key: "blocked",
+		label: "Blocked reason",
+		hint: "free text, blank to unblock",
+	},
+	{
+		key: "reminder",
+		label: "Reminder",
+		hint: "today / tomorrow / ISO datetime",
+	},
 	{ key: "priority", label: "Priority", hint: "select from list" },
 	{ key: "notes", label: "Notes / description", hint: "free text" },
 ];
@@ -28,7 +44,7 @@ export const TaskEditPicker = ({ selectedIndex }: TaskEditPickerProps) => {
 				<Text color="magentaBright" bold>
 					Edit task field:
 				</Text>
-				<Text dimColor> j/k choose  Enter select  Esc cancel</Text>
+				<Text dimColor> j/k choose Enter select Esc cancel</Text>
 			</Box>
 			{TASK_EDIT_FIELDS.map((field, i) => {
 				const isSelected = i === selectedIndex;
@@ -39,13 +55,10 @@ export const TaskEditPicker = ({ selectedIndex }: TaskEditPickerProps) => {
 								{isSelected ? "❯" : " "}
 							</Text>
 						</Box>
-						<Text
-							color={isSelected ? "cyan" : undefined}
-							bold={isSelected}
-						>
+						<Text color={isSelected ? "cyan" : undefined} bold={isSelected}>
 							{field.label}
 						</Text>
-						<Text dimColor>  {field.hint}</Text>
+						<Text dimColor> {field.hint}</Text>
 					</Box>
 				);
 			})}

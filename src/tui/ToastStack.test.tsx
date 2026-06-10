@@ -17,9 +17,7 @@ describe("ToastStack display contract", () => {
 	});
 
 	it("shows toasts when array has items", () => {
-		const toasts: ToastMessage[] = [
-			{ id: 1, text: "Saved", tone: "success" },
-		];
+		const toasts: ToastMessage[] = [{ id: 1, text: "Saved", tone: "success" }];
 		expect(shouldShowToasts(toasts)).toBe(true);
 		expect(toastCount(toasts)).toBe(1);
 	});

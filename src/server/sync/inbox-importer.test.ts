@@ -1,7 +1,7 @@
+import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "bun:test";
 import { resetDbForTests } from "@/server/db/client";
 import { listTasks } from "@/server/repos/tasks";
 import { processInbox } from "@/server/sync/inbox-importer";

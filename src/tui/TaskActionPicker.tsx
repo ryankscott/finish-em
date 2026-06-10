@@ -18,7 +18,10 @@ type TaskActionPickerProps = {
 	isCompleted: boolean;
 };
 
-export const TaskActionPicker = ({ selectedIndex, isCompleted }: TaskActionPickerProps) => {
+export const TaskActionPicker = ({
+	selectedIndex,
+	isCompleted,
+}: TaskActionPickerProps) => {
 	const actions = getTaskActions(isCompleted);
 	return (
 		<Box paddingX={1} flexDirection="column">
@@ -26,7 +29,7 @@ export const TaskActionPicker = ({ selectedIndex, isCompleted }: TaskActionPicke
 				<Text color="magentaBright" bold>
 					Task actions:
 				</Text>
-				<Text dimColor>  j/k choose  Enter select  Esc cancel</Text>
+				<Text dimColor> j/k choose Enter select Esc cancel</Text>
 			</Box>
 			{actions.map((action, i) => {
 				const isSelected = i === selectedIndex;
@@ -37,10 +40,7 @@ export const TaskActionPicker = ({ selectedIndex, isCompleted }: TaskActionPicke
 								{isSelected ? "❯" : " "}
 							</Text>
 						</Box>
-						<Text
-							color={isSelected ? "cyan" : undefined}
-							bold={isSelected}
-						>
+						<Text color={isSelected ? "cyan" : undefined} bold={isSelected}>
 							{action.label}
 						</Text>
 					</Box>

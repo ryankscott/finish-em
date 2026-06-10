@@ -4,9 +4,13 @@ import { dueReminderKey, getNewlyDueReminders } from "./useReminderBell";
 
 describe("dueReminderKey", () => {
 	it("uses reminder id and effective time (remindAt when no snoozedUntil)", () => {
-		expect(dueReminderKey({ id: 1, remindAt: "2026-01-01T10:00:00Z", snoozedUntil: null })).toBe(
-			"1-2026-01-01T10:00:00Z",
-		);
+		expect(
+			dueReminderKey({
+				id: 1,
+				remindAt: "2026-01-01T10:00:00Z",
+				snoozedUntil: null,
+			}),
+		).toBe("1-2026-01-01T10:00:00Z");
 	});
 
 	it("uses snoozedUntil when present", () => {
@@ -20,16 +24,32 @@ describe("dueReminderKey", () => {
 	});
 
 	it("produces different keys for same id with different effective times", () => {
-		const key1 = dueReminderKey({ id: 1, remindAt: "2026-01-01T10:00:00Z", snoozedUntil: null });
-		const key2 = dueReminderKey({ id: 1, remindAt: "2026-01-02T10:00:00Z", snoozedUntil: null });
+		const key1 = dueReminderKey({
+			id: 1,
+			remindAt: "2026-01-01T10:00:00Z",
+			snoozedUntil: null,
+		});
+		const key2 = dueReminderKey({
+			id: 1,
+			remindAt: "2026-01-02T10:00:00Z",
+			snoozedUntil: null,
+		});
 		expect(key1).not.toBe(key2);
 	});
 });
 
 describe("getNewlyDueReminders", () => {
 	const due = [
-		{ id: 1, remindAt: "2026-01-01T10:00:00Z", snoozedUntil: null as string | null },
-		{ id: 2, remindAt: "2026-01-01T11:00:00Z", snoozedUntil: null as string | null },
+		{
+			id: 1,
+			remindAt: "2026-01-01T10:00:00Z",
+			snoozedUntil: null as string | null,
+		},
+		{
+			id: 2,
+			remindAt: "2026-01-01T11:00:00Z",
+			snoozedUntil: null as string | null,
+		},
 	];
 
 	it("returns all due when notified set is empty", () => {
@@ -47,4 +67,3 @@ describe("getNewlyDueReminders", () => {
 		expect(getNewlyDueReminders(due, notified)).toEqual([]);
 	});
 });
-

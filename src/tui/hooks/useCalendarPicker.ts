@@ -48,8 +48,16 @@ export function stepCalendarMonth(
 	const lastDayOfNewMonth = endOfMonth(newMonth);
 	const clampedCursor =
 		cursorDate.getDate() > lastDayOfNewMonth.getDate()
-			? new Date(newMonth.getFullYear(), newMonth.getMonth(), lastDayOfNewMonth.getDate())
-			: new Date(newMonth.getFullYear(), newMonth.getMonth(), cursorDate.getDate());
+			? new Date(
+					newMonth.getFullYear(),
+					newMonth.getMonth(),
+					lastDayOfNewMonth.getDate(),
+				)
+			: new Date(
+					newMonth.getFullYear(),
+					newMonth.getMonth(),
+					cursorDate.getDate(),
+				);
 	return { cursorDate: clampedCursor, visibleMonth: newMonth };
 }
 

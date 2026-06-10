@@ -10,7 +10,11 @@ import { Box, Text } from "ink";
 
 import { toDisplayString } from "../lib/task-links";
 import type { Goal, Project, Task } from "../server/types";
-import { formatDueDate, isOverdueDueDate, priorityColor } from "./task-display-helpers";
+import {
+	formatDueDate,
+	isOverdueDueDate,
+	priorityColor,
+} from "./task-display-helpers";
 import type { TaskRow } from "./task-row-utils";
 import { buildTaskRows } from "./task-row-utils";
 
@@ -115,7 +119,11 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 	const hasRecurrence = task.recurrencePreset || task.recurrenceRRule;
 
 	return (
-		<Box flexDirection="column" marginBottom={0} paddingLeft={row.depth === 1 ? 2 : 0}>
+		<Box
+			flexDirection="column"
+			marginBottom={0}
+			paddingLeft={row.depth === 1 ? 2 : 0}
+		>
 			<Box>
 				<Box width={2}>
 					<Text color={isSelected && focused ? "cyan" : undefined}>
@@ -136,7 +144,7 @@ const TaskCard = ({ row, project, isSelected, focused }: TaskCardProps) => {
 						{toDisplayString(task.title)}
 					</Text>
 					{task.parentTaskId !== null && row.parentTitle && (
-						<Text dimColor>  subtask of {row.parentTitle}</Text>
+						<Text dimColor> subtask of {row.parentTitle}</Text>
 					)}
 				</Box>
 			</Box>
@@ -176,7 +184,12 @@ type GoalsSectionProps = {
 	focused: boolean;
 };
 
-const GoalsSection = ({ goals, viewMode, selectedGoalIndex, focused }: GoalsSectionProps) => {
+const GoalsSection = ({
+	goals,
+	viewMode,
+	selectedGoalIndex,
+	focused,
+}: GoalsSectionProps) => {
 	const label = viewMode === "day" ? "Daily goals" : "Weekly goals";
 	const borderColor = focused ? "magentaBright" : "gray";
 	return (
@@ -192,7 +205,9 @@ const GoalsSection = ({ goals, viewMode, selectedGoalIndex, focused }: GoalsSect
 					{label}
 				</Text>
 				{focused && (
-					<Text dimColor>j/k select · x toggle · e edit title · Del delete</Text>
+					<Text dimColor>
+						j/k select · x toggle · e edit title · Del delete
+					</Text>
 				)}
 			</Box>
 			{goals.length === 0 ? (
@@ -366,7 +381,11 @@ export const UpcomingPanel = ({
 									selectedTaskIndex={selectedTaskIndex}
 									isSelectedColumn={colIdx === selectedColumnIndex}
 									focused={focused}
-									flexGrowValue={colIdx === selectedColumnIndex ? selectedColumnMultiplier : 1}
+									flexGrowValue={
+										colIdx === selectedColumnIndex
+											? selectedColumnMultiplier
+											: 1
+									}
 									minWidth={minColumnWidth}
 								/>
 							))}
@@ -388,15 +407,15 @@ export const UpcomingPanel = ({
 				</>
 			)}
 
-		<Box marginTop={1}>
-			<Text dimColor>
-				{focused && focusArea === "tasks"
-					? "h/l: column · j/k: task · x: complete · Tab: goals"
-					: focused && focusArea === "goals"
-						? "Tab: tasks"
-						: "Tab to focus"}
-			</Text>
-		</Box>
+			<Box marginTop={1}>
+				<Text dimColor>
+					{focused && focusArea === "tasks"
+						? "h/l: column · j/k: task · x: complete · Tab: goals"
+						: focused && focusArea === "goals"
+							? "Tab: tasks"
+							: "Tab to focus"}
+				</Text>
+			</Box>
 		</Box>
 	);
 };

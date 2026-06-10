@@ -80,7 +80,9 @@ type UseInputBarResult = {
 	editingSettingField: "timezone" | null;
 	setEditingSettingField: (field: "timezone" | null) => void;
 	linkPickerLinks: { url: string; displayLabel: string }[] | null;
-	setLinkPickerLinks: (links: { url: string; displayLabel: string }[] | null) => void;
+	setLinkPickerLinks: (
+		links: { url: string; displayLabel: string }[] | null,
+	) => void;
 	linkPickerIndex: number;
 	setLinkPickerIndex: React.Dispatch<React.SetStateAction<number>>;
 	pickerIndex: number;
@@ -91,7 +93,11 @@ type UseInputBarResult = {
 	setEnumPickerTargetMode: (mode: string | null) => void;
 	editingTaskId: number | null;
 	openInput: (mode: InputMode, initialValue?: string) => void;
-	openModalWithValues: (mode: InputMode, values: Record<string, string>, taskId?: number) => void;
+	openModalWithValues: (
+		mode: InputMode,
+		values: Record<string, string>,
+		taskId?: number,
+	) => void;
 	closeInput: () => void;
 	inputAutocomplete: { hint: string; nextValue: string } | null;
 	isTextInputMode: boolean;
@@ -114,18 +120,24 @@ type UseInputBarResult = {
 	setValidationError: (err: string | null) => void;
 };
 
-export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult {
+export function useInputBar({
+	projects,
+}: UseInputBarParams): UseInputBarResult {
 	const [inputMode, setInputMode] = useState<InputMode>("none");
 	const [inputValue, setInputValue] = useState("");
 	const [inputCursorOffset, setInputCursorOffset] = useState(0);
-	const [editingSettingField, setEditingSettingField] = useState<"timezone" | null>(null);
+	const [editingSettingField, setEditingSettingField] = useState<
+		"timezone" | null
+	>(null);
 	const [linkPickerLinks, setLinkPickerLinks] = useState<
 		{ url: string; displayLabel: string }[] | null
 	>(null);
 	const [linkPickerIndex, setLinkPickerIndex] = useState(0);
 	const [pickerIndex, setPickerIndex] = useState(0);
 	const [enumPickerIndex, setEnumPickerIndex] = useState(0);
-	const [enumPickerTargetMode, setEnumPickerTargetMode] = useState<string | null>(null);
+	const [enumPickerTargetMode, setEnumPickerTargetMode] = useState<
+		string | null
+	>(null);
 
 	// Modal create/edit state
 	const [modalFieldIndex, setModalFieldIndex] = useState(0);
@@ -216,7 +228,11 @@ export function useInputBar({ projects }: UseInputBarParams): UseInputBarResult 
 		!isPickerMode &&
 		!isEnumPickerMode;
 	const isInputMode = inputMode !== "none";
-	const isBottomBarMode = isInputMode && inputMode !== "linkPicker" && !isPickerMode && !isEnumPickerMode;
+	const isBottomBarMode =
+		isInputMode &&
+		inputMode !== "linkPicker" &&
+		!isPickerMode &&
+		!isEnumPickerMode;
 	const isLinkPickerMode = inputMode === "linkPicker";
 
 	return {

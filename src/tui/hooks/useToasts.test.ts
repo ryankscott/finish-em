@@ -1,12 +1,12 @@
 import { describe, expect, it } from "bun:test";
 
 import {
-	MAX_TOASTS,
-	TOAST_TTL_MS,
 	addToast,
+	MAX_TOASTS,
 	pruneExpiredToasts,
-	toastsToVisible,
+	TOAST_TTL_MS,
 	type ToastWithExpiry,
+	toastsToVisible,
 } from "./useToasts";
 
 describe("addToast", () => {

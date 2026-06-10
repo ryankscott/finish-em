@@ -8,7 +8,10 @@ type CalendarPickerProps = {
 	visibleMonth: Date;
 };
 
-export const CalendarPicker = ({ cursorDate, visibleMonth }: CalendarPickerProps) => {
+export const CalendarPicker = ({
+	cursorDate,
+	visibleMonth,
+}: CalendarPickerProps) => {
 	const monthLabel = format(visibleMonth, "MMMM yyyy");
 	const firstDayOfWeek = getDay(startOfMonth(visibleMonth)); // 0=Sun
 	const daysInMonth = getDaysInMonth(visibleMonth);
@@ -38,7 +41,9 @@ export const CalendarPicker = ({ cursorDate, visibleMonth }: CalendarPickerProps
 				<Text color="magentaBright" bold>
 					Pick a date:{" "}
 				</Text>
-				<Text dimColor>arrows move  [/] month  Enter select  c clear  Esc cancel</Text>
+				<Text dimColor>
+					arrows move [/] month Enter select c clear Esc cancel
+				</Text>
 			</Box>
 
 			{/* Month header */}

@@ -30,7 +30,9 @@ describe("parseDatePhrase", () => {
 		expect(result).not.toBeNull();
 		const today = new Date();
 		const tomorrow = new Date(result!);
-		expect(tomorrow.getDate()).toBe(today.getDate() + 1 <= 31 ? today.getDate() + 1 : 1);
+		expect(tomorrow.getDate()).toBe(
+			today.getDate() + 1 <= 31 ? today.getDate() + 1 : 1,
+		);
 		expect(tomorrow.getHours()).toBe(9);
 	});
 

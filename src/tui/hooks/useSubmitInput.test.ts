@@ -1,4 +1,4 @@
-import { describe, expect, it, mock, beforeEach } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 
 import type { Goal, Project, Task } from "../../server/types";
 
@@ -44,7 +44,9 @@ const MOCK_PROJECTS: Project[] = [
 		endAt: null,
 		color: "#666",
 		isInbox: true,
-		jiraDiscoveryUrl: null,\n\t\tjiraDiscoveryStatus: null,\n\t\tjiraDeliveryStatus: null,
+		jiraDiscoveryUrl: null,
+		jiraDiscoveryStatus: null,
+		jiraDeliveryStatus: null,
 		jiraDeliveryUrl: null,
 		confluenceUrl: null,
 		jiraDocsUrl: null,
@@ -64,7 +66,9 @@ const MOCK_PROJECTS: Project[] = [
 		endAt: null,
 		color: "#3b82f6",
 		isInbox: false,
-		jiraDiscoveryUrl: null,\n\t\tjiraDiscoveryStatus: null,\n\t\tjiraDeliveryStatus: null,
+		jiraDiscoveryUrl: null,
+		jiraDiscoveryStatus: null,
+		jiraDeliveryStatus: null,
 		jiraDeliveryUrl: null,
 		confluenceUrl: null,
 		jiraDocsUrl: null,
@@ -78,9 +82,15 @@ const MOCK_PROJECTS: Project[] = [
 ];
 
 // Simulate the routing logic from useSubmitInput for the new modes
-type UpdateTaskArgs = Parameters<(id: number, patch: Record<string, unknown>) => void>;
-type UpdateProjectArgs = Parameters<(id: number, patch: Record<string, unknown>) => void>;
-type UpdateGoalArgs = Parameters<(id: number, patch: Record<string, unknown>) => void>;
+type UpdateTaskArgs = Parameters<
+	(id: number, patch: Record<string, unknown>) => void
+>;
+type UpdateProjectArgs = Parameters<
+	(id: number, patch: Record<string, unknown>) => void
+>;
+type UpdateGoalArgs = Parameters<
+	(id: number, patch: Record<string, unknown>) => void
+>;
 
 function resolveTaskUpdateForMode(
 	mode: string,
@@ -108,13 +118,27 @@ function resolveTaskUpdateForMode(
 
 describe("useSubmitInput routing — editTask", () => {
 	it("patches only title when in editTask mode (plain text)", () => {
-		const result = resolveTaskUpdateForMode("editTask", "New task title", MOCK_TASK);
-		expect(result).toEqual({ field: "title", patch: { title: "New task title" } });
+		const result = resolveTaskUpdateForMode(
+			"editTask",
+			"New task title",
+			MOCK_TASK,
+		);
+		expect(result).toEqual({
+			field: "title",
+			patch: { title: "New task title" },
+		});
 	});
 
 	it("trims whitespace for editTask title", () => {
-		const result = resolveTaskUpdateForMode("editTask", "  trimmed title  ", MOCK_TASK);
-		expect(result).toEqual({ field: "title", patch: { title: "trimmed title" } });
+		const result = resolveTaskUpdateForMode(
+			"editTask",
+			"  trimmed title  ",
+			MOCK_TASK,
+		);
+		expect(result).toEqual({
+			field: "title",
+			patch: { title: "trimmed title" },
+		});
 	});
 
 	it("returns error when no task in editTask mode", () => {
@@ -125,12 +149,20 @@ describe("useSubmitInput routing — editTask", () => {
 
 describe("useSubmitInput routing — editNotes", () => {
 	it("patches notes on selected task", () => {
-		const result = resolveTaskUpdateForMode("editNotes", "Some notes", MOCK_TASK);
+		const result = resolveTaskUpdateForMode(
+			"editNotes",
+			"Some notes",
+			MOCK_TASK,
+		);
 		expect(result).toEqual({ field: "notes", patch: { notes: "Some notes" } });
 	});
 
 	it("trims whitespace", () => {
-		const result = resolveTaskUpdateForMode("editNotes", "  trimmed  ", MOCK_TASK);
+		const result = resolveTaskUpdateForMode(
+			"editNotes",
+			"  trimmed  ",
+			MOCK_TASK,
+		);
 		expect(result).toEqual({ field: "notes", patch: { notes: "trimmed" } });
 	});
 
@@ -169,24 +201,32 @@ function resolveRecurrenceUpdate(
 ): { patch: Record<string, unknown> } | { error: string } {
 	if (!task) return { error: "No task selected" };
 	const preset =
-		value === "none" ? null : (value as "daily" | "weekly" | "monthly" | "yearly" | "every_weekday");
+		value === "none"
+			? null
+			: (value as "daily" | "weekly" | "monthly" | "yearly" | "every_weekday");
 	return { patch: { recurrencePreset: preset, recurrenceRRule: null } };
 }
 
 describe("useSubmitInput routing — recurrence", () => {
 	it("sets daily recurrence", () => {
 		const result = resolveRecurrenceUpdate("daily", MOCK_TASK);
-		expect(result).toEqual({ patch: { recurrencePreset: "daily", recurrenceRRule: null } });
+		expect(result).toEqual({
+			patch: { recurrencePreset: "daily", recurrenceRRule: null },
+		});
 	});
 
 	it("clears recurrence for 'none'", () => {
 		const result = resolveRecurrenceUpdate("none", MOCK_TASK);
-		expect(result).toEqual({ patch: { recurrencePreset: null, recurrenceRRule: null } });
+		expect(result).toEqual({
+			patch: { recurrencePreset: null, recurrenceRRule: null },
+		});
 	});
 
 	it("sets every_weekday preset", () => {
 		const result = resolveRecurrenceUpdate("every_weekday", MOCK_TASK);
-		expect(result).toEqual({ patch: { recurrencePreset: "every_weekday", recurrenceRRule: null } });
+		expect(result).toEqual({
+			patch: { recurrencePreset: "every_weekday", recurrenceRRule: null },
+		});
 	});
 });
 
@@ -256,16 +296,24 @@ function resolveProjectFieldUpdate(
 	const trimmed = value.trim();
 	if (mode === "editProjectName") return { patch: { name: trimmed } };
 	if (mode === "editProjectEmoji") return { patch: { emoji: trimmed || null } };
-	if (mode === "editProjectDescription") return { patch: { description: trimmed } };
-	if (mode === "editProjectJiraDiscovery") return { patch: { jiraDiscoveryUrl: trimmed || null } };
-	if (mode === "editProjectJiraDelivery") return { patch: { jiraDeliveryUrl: trimmed || null } };
-	if (mode === "editProjectConfluence") return { patch: { confluenceUrl: trimmed || null } };
+	if (mode === "editProjectDescription")
+		return { patch: { description: trimmed } };
+	if (mode === "editProjectJiraDiscovery")
+		return { patch: { jiraDiscoveryUrl: trimmed || null } };
+	if (mode === "editProjectJiraDelivery")
+		return { patch: { jiraDeliveryUrl: trimmed || null } };
+	if (mode === "editProjectConfluence")
+		return { patch: { confluenceUrl: trimmed || null } };
 	return { error: "Unknown mode" };
 }
 
 describe("useSubmitInput routing — project fields", () => {
 	it("updates project name", () => {
-		const result = resolveProjectFieldUpdate("editProjectName", "My Project", 1);
+		const result = resolveProjectFieldUpdate(
+			"editProjectName",
+			"My Project",
+			1,
+		);
 		expect(result).toEqual({ patch: { name: "My Project" } });
 	});
 
@@ -280,7 +328,11 @@ describe("useSubmitInput routing — project fields", () => {
 	});
 
 	it("updates project description", () => {
-		const result = resolveProjectFieldUpdate("editProjectDescription", "A great project", 1);
+		const result = resolveProjectFieldUpdate(
+			"editProjectDescription",
+			"A great project",
+			1,
+		);
 		expect(result).toEqual({ patch: { description: "A great project" } });
 	});
 
@@ -307,11 +359,23 @@ describe("useSubmitInput routing — project fields", () => {
 
 	it("updates Jira Delivery and Confluence URLs", () => {
 		expect(
-			resolveProjectFieldUpdate("editProjectJiraDelivery", "https://jira.example.com/board/1", 1),
-		).toEqual({ patch: { jiraDeliveryUrl: "https://jira.example.com/board/1" } });
+			resolveProjectFieldUpdate(
+				"editProjectJiraDelivery",
+				"https://jira.example.com/board/1",
+				1,
+			),
+		).toEqual({
+			patch: { jiraDeliveryUrl: "https://jira.example.com/board/1" },
+		});
 		expect(
-			resolveProjectFieldUpdate("editProjectConfluence", "https://wiki.example.com/space/PRJ", 1),
-		).toEqual({ patch: { confluenceUrl: "https://wiki.example.com/space/PRJ" } });
+			resolveProjectFieldUpdate(
+				"editProjectConfluence",
+				"https://wiki.example.com/space/PRJ",
+				1,
+			),
+		).toEqual({
+			patch: { confluenceUrl: "https://wiki.example.com/space/PRJ" },
+		});
 	});
 });
 

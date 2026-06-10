@@ -1,10 +1,10 @@
-import { format, parseISO } from 'date-fns'
+import { format, parseISO } from "date-fns";
 
-import { parseDatePhrase } from '@/lib/parsing/parse-task-input'
+import { parseDatePhrase } from "@/lib/parsing/parse-task-input";
 
 /** Render an ISO datetime for a free-text date field, or empty when unset. */
 export function formatDateField(iso: string | null): string {
-  return iso ? format(parseISO(iso), 'yyyy-MM-dd HH:mm') : ''
+	return iso ? format(parseISO(iso), "yyyy-MM-dd HH:mm") : "";
 }
 
 /**
@@ -15,13 +15,13 @@ export function formatDateField(iso: string | null): string {
  * unchanged field never loses its time component.
  */
 export function resolveDateField(
-  raw: string,
-  original: string | null,
-): string | null | 'invalid' {
-  const text = raw.trim()
-  if (!text) return null
-  if (original && text === format(parseISO(original), 'yyyy-MM-dd HH:mm')) {
-    return original
-  }
-  return parseDatePhrase(text) ?? 'invalid'
+	raw: string,
+	original: string | null,
+): string | null | "invalid" {
+	const text = raw.trim();
+	if (!text) return null;
+	if (original && text === format(parseISO(original), "yyyy-MM-dd HH:mm")) {
+		return original;
+	}
+	return parseDatePhrase(text) ?? "invalid";
 }

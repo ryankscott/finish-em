@@ -48,7 +48,9 @@ function projectToModalValues(project: Project): Record<string, string> {
 		name: project.name ?? "",
 		emoji: project.emoji ?? "",
 		description: project.description ?? "",
-		startAt: project.startAt ? format(new Date(project.startAt), "yyyy-MM-dd") : "",
+		startAt: project.startAt
+			? format(new Date(project.startAt), "yyyy-MM-dd")
+			: "",
 		endAt: project.endAt ? format(new Date(project.endAt), "yyyy-MM-dd") : "",
 		jiraDiscovery: project.jiraDiscoveryUrl ?? "",
 		jiraDiscoveryStatus: project.jiraDiscoveryStatus ?? "",
@@ -69,7 +71,9 @@ export function taskToModalValues(task: Task): Record<string, string> {
 		project: task.projectId != null ? String(task.projectId) : "",
 		priority: task.priority != null ? String(task.priority) : "",
 		dueAt: task.dueAt ? format(new Date(task.dueAt), "yyyy-MM-dd") : "",
-		scheduledAt: task.scheduledAt ? format(new Date(task.scheduledAt), "yyyy-MM-dd") : "",
+		scheduledAt: task.scheduledAt
+			? format(new Date(task.scheduledAt), "yyyy-MM-dd")
+			: "",
 		recurrence: task.recurrencePreset ?? "",
 		blockedReason: task.blockedReason ?? "",
 		notes: task.notes ?? "",
@@ -152,7 +156,11 @@ type UseMainKeysParams = {
 	modalValuesRef: React.MutableRefObject<Record<string, string>>;
 	setValidationError: (err: string | null) => void;
 	closeInput: () => void;
-	openModalWithValues: (mode: InputMode, values: Record<string, string>, taskId?: number) => void;
+	openModalWithValues: (
+		mode: InputMode,
+		values: Record<string, string>,
+		taskId?: number,
+	) => void;
 	openCalendarPicker: (
 		calendarMode: InputMode,
 		existingIsoDate?: string,
@@ -379,7 +387,8 @@ export function useMainKeys({
 					if (key.rightArrow || input === "l") {
 						const cur = modalValuesRef.current[currentField.key] ?? "";
 						const idx = STATUS_CYCLE.indexOf(cur);
-						const next = STATUS_CYCLE[(idx === -1 ? 0 : idx + 1) % STATUS_CYCLE.length];
+						const next =
+							STATUS_CYCLE[(idx === -1 ? 0 : idx + 1) % STATUS_CYCLE.length];
 						setModalValues((prev) => ({ ...prev, [currentField.key]: next }));
 						return;
 					}
@@ -387,8 +396,14 @@ export function useMainKeys({
 						const cur = modalValuesRef.current[currentField.key] ?? "";
 						const idx = STATUS_CYCLE.indexOf(cur);
 						const safeIdx = idx === -1 ? 0 : idx;
-						const prev = STATUS_CYCLE[(safeIdx - 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length];
-						setModalValues((prevVals) => ({ ...prevVals, [currentField.key]: prev }));
+						const prev =
+							STATUS_CYCLE[
+								(safeIdx - 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length
+							];
+						setModalValues((prevVals) => ({
+							...prevVals,
+							[currentField.key]: prev,
+						}));
 						return;
 					}
 				}
@@ -960,11 +975,10 @@ export function useMainKeys({
 						return;
 					}
 				} else {
-					const listLength = view === "reminders" ? allRemindersCount : taskRows.length;
+					const listLength =
+						view === "reminders" ? allRemindersCount : taskRows.length;
 					if (input === "j" || key.downArrow) {
-						setTaskIndex((c) =>
-							Math.min(c + 1, Math.max(listLength - 1, 0)),
-						);
+						setTaskIndex((c) => Math.min(c + 1, Math.max(listLength - 1, 0)));
 						return;
 					}
 					if (input === "k" || key.upArrow) {
@@ -973,7 +987,12 @@ export function useMainKeys({
 					}
 				}
 
-				if (key.return && selectedTask && view !== "settings" && view !== "reminders") {
+				if (
+					key.return &&
+					selectedTask &&
+					view !== "settings" &&
+					view !== "reminders"
+				) {
 					setInputMode("taskActionPicker");
 					setPickerIndex(0);
 					return;
@@ -1076,8 +1095,14 @@ export function useMainKeys({
 			}
 
 			if (input === "E") {
-				if (activeProject && (focusArea === "sidebar" || (view === "project" && !selectedTask))) {
-					openModalWithValues("editProjectModal", projectToModalValues(activeProject));
+				if (
+					activeProject &&
+					(focusArea === "sidebar" || (view === "project" && !selectedTask))
+				) {
+					openModalWithValues(
+						"editProjectModal",
+						projectToModalValues(activeProject),
+					);
 					return;
 				}
 				if (!selectedTask) return;
@@ -1114,7 +1139,12 @@ export function useMainKeys({
 			}
 
 			if (input === "D") {
-				if (view === "project" && activeProject && !activeProject.isInbox && focusArea !== "sidebar") {
+				if (
+					view === "project" &&
+					activeProject &&
+					!activeProject.isInbox &&
+					focusArea !== "sidebar"
+				) {
 					void deleteActiveProject();
 				}
 				return;

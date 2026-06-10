@@ -20,7 +20,9 @@ const MOCK_GOAL_DONE: Goal = {
 };
 
 // Simulate the toggle logic
-function resolveGoalToggle(goal: Goal | null): { patch: { done: boolean }; statusText: string } | { skip: true } {
+function resolveGoalToggle(
+	goal: Goal | null,
+): { patch: { done: boolean }; statusText: string } | { skip: true } {
 	if (!goal) return { skip: true };
 	return {
 		patch: { done: !goal.done },
@@ -31,12 +33,18 @@ function resolveGoalToggle(goal: Goal | null): { patch: { done: boolean }; statu
 describe("toggleSelectedGoal logic", () => {
 	it("marks a pending goal as done", () => {
 		const result = resolveGoalToggle(MOCK_GOAL_PENDING);
-		expect(result).toEqual({ patch: { done: true }, statusText: "Goal completed" });
+		expect(result).toEqual({
+			patch: { done: true },
+			statusText: "Goal completed",
+		});
 	});
 
 	it("marks a done goal as pending", () => {
 		const result = resolveGoalToggle(MOCK_GOAL_DONE);
-		expect(result).toEqual({ patch: { done: false }, statusText: "Goal reopened" });
+		expect(result).toEqual({
+			patch: { done: false },
+			statusText: "Goal reopened",
+		});
 	});
 
 	it("skips when no goal selected", () => {

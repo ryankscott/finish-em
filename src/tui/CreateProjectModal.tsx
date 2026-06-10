@@ -1,7 +1,11 @@
 import { Box, Text, useStdout } from "ink";
-import React from "react";
+import type React from "react";
 
-import { getModalFields, type ModalField, type ModalMode } from "./modal-field-defs";
+import {
+	getModalFields,
+	type ModalField,
+	type ModalMode,
+} from "./modal-field-defs";
 
 type CreateProjectModalProps = {
 	mode?: ModalMode;
@@ -13,12 +17,24 @@ type CreateProjectModalProps = {
 
 const LABEL_WIDTH = 20;
 
-const DISCOVERY_KEYS = new Set(["jiraDiscovery", "jiraDiscoveryStatus", "confluenceUrl"]);
-const INLINE_STATUS_KEYS = new Set(["jiraDiscoveryStatus", "jiraDeliveryStatus", "jiraDocsStatus", "jiraReleaseNoteStatus"]);
+const DISCOVERY_KEYS = new Set([
+	"jiraDiscovery",
+	"jiraDiscoveryStatus",
+	"confluenceUrl",
+]);
+const INLINE_STATUS_KEYS = new Set([
+	"jiraDiscoveryStatus",
+	"jiraDeliveryStatus",
+	"jiraDocsStatus",
+	"jiraReleaseNoteStatus",
+]);
 const DELIVERY_KEYS = new Set([
-	"jiraDelivery", "jiraDeliveryStatus",
-	"jiraDocsUrl", "jiraDocsStatus",
-	"jiraReleaseNoteUrl", "jiraReleaseNoteStatus",
+	"jiraDelivery",
+	"jiraDeliveryStatus",
+	"jiraDocsUrl",
+	"jiraDocsStatus",
+	"jiraReleaseNoteUrl",
+	"jiraReleaseNoteStatus",
 	"teamsReleaseNoteUrl",
 ]);
 
@@ -40,7 +56,10 @@ const STATUS_DISPLAY: Record<string, { label: string; color: string }> = {
 	done: { label: "Done", color: "green" },
 };
 
-function renderActiveTextValue(value: string, cursorOffset: number): React.ReactElement {
+function renderActiveTextValue(
+	value: string,
+	cursorOffset: number,
+): React.ReactElement {
 	const before = value.slice(0, cursorOffset);
 	const cursor = value[cursorOffset] ?? " ";
 	const after = value.slice(cursorOffset + 1);
@@ -60,7 +79,12 @@ const STATUS_OPTIONS = [
 	{ label: "Done", value: "done" },
 ];
 
-function renderFieldValue(field: ModalField, value: string, isActive: boolean, cursorOffset: number): React.ReactElement {
+function renderFieldValue(
+	field: ModalField,
+	value: string,
+	isActive: boolean,
+	cursorOffset: number,
+): React.ReactElement {
 	if (field.type === "enum" && INLINE_STATUS_KEYS.has(field.key)) {
 		if (isActive) {
 			return (
@@ -69,7 +93,12 @@ function renderFieldValue(field: ModalField, value: string, isActive: boolean, c
 						const isSel = value === opt.value;
 						const color = STATUS_DISPLAY[opt.value]?.color ?? "cyan";
 						return (
-							<Text key={opt.value} bold={isSel} color={isSel ? color : undefined} dimColor={!isSel}>
+							<Text
+								key={opt.value}
+								bold={isSel}
+								color={isSel ? color : undefined}
+								dimColor={!isSel}
+							>
 								{isSel ? `[${opt.label}]` : opt.label}
 							</Text>
 						);
@@ -79,17 +108,29 @@ function renderFieldValue(field: ModalField, value: string, isActive: boolean, c
 		}
 		const status = STATUS_DISPLAY[value];
 		if (status) {
-			return <Text bold color={status.color}>{status.label}</Text>;
+			return (
+				<Text bold color={status.color}>
+					{status.label}
+				</Text>
+			);
 		}
 		return <Text dimColor>—</Text>;
 	}
 	if (field.type === "enum") {
 		if (isActive) {
-			return <Text color="cyan" dimColor>↵ pick</Text>;
+			return (
+				<Text color="cyan" dimColor>
+					↵ pick
+				</Text>
+			);
 		}
 		const status = STATUS_DISPLAY[value];
 		if (status) {
-			return <Text bold color={status.color}>{status.label}</Text>;
+			return (
+				<Text bold color={status.color}>
+					{status.label}
+				</Text>
+			);
 		}
 		return <Text dimColor={!value}>{value || "—"}</Text>;
 	}
@@ -160,7 +201,10 @@ export const CreateProjectModal = ({
 									borderColor={isActive ? "greenBright" : "gray"}
 									paddingX={1}
 								>
-									<Text color={isActive ? "greenBright" : "gray"} bold={isActive}>
+									<Text
+										color={isActive ? "greenBright" : "gray"}
+										bold={isActive}
+									>
 										{field.label}
 									</Text>
 								</Box>
@@ -195,9 +239,7 @@ export const CreateProjectModal = ({
 								<Box flexGrow={1}>
 									{renderFieldValue(field, value, isActive, inputCursorOffset)}
 								</Box>
-								{field.hint && !isActive && (
-									<Text dimColor>  {field.hint}</Text>
-								)}
+								{field.hint && !isActive && <Text dimColor> {field.hint}</Text>}
 							</Box>
 						</Box>
 					);
@@ -210,7 +252,10 @@ export const CreateProjectModal = ({
 				)}
 
 				<Box marginTop={1}>
-					<Text dimColor>j/k navigate · Enter advance · h/l or ◀▶ cycle status · E calendar · Esc cancel</Text>
+					<Text dimColor>
+						j/k navigate · Enter advance · h/l or ◀▶ cycle status · E calendar ·
+						Esc cancel
+					</Text>
 				</Box>
 			</Box>
 		</Box>

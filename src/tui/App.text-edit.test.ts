@@ -66,22 +66,12 @@ describe("applyTextEdit", () => {
 	});
 
 	it("moves cursor right", () => {
-		const result = applyTextEdit(
-			"",
-			{ ...noKeys, rightArrow: true },
-			"abc",
-			1,
-		);
+		const result = applyTextEdit("", { ...noKeys, rightArrow: true }, "abc", 1);
 		expect(result).toEqual({ value: "abc", cursor: 2 });
 	});
 
 	it("does not move cursor right past end", () => {
-		const result = applyTextEdit(
-			"",
-			{ ...noKeys, rightArrow: true },
-			"abc",
-			3,
-		);
+		const result = applyTextEdit("", { ...noKeys, rightArrow: true }, "abc", 3);
 		expect(result).toEqual({ value: "abc", cursor: 3 });
 	});
 

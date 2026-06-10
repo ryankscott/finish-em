@@ -55,13 +55,22 @@ describe("parseTaskCreateInput", () => {
 	it("requires title in tokenized mode", () => {
 		const result = parseTaskCreateInput("project:Work due:today", PROJECTS);
 		expect(result.usedTokens).toBe(true);
-		expect(result.errors.some((error) => error.includes("title is required"))).toBe(true);
+		expect(
+			result.errors.some((error) => error.includes("title is required")),
+		).toBe(true);
 	});
 
 	it("reports invalid tokenized values", () => {
-		const result = parseTaskCreateInput("title:Task priority:9 due:yesterday parent:abc", PROJECTS);
-		expect(result.errors.some((error) => error.includes("priority"))).toBe(true);
-		expect(result.errors.some((error) => error.includes("due date"))).toBe(true);
+		const result = parseTaskCreateInput(
+			"title:Task priority:9 due:yesterday parent:abc",
+			PROJECTS,
+		);
+		expect(result.errors.some((error) => error.includes("priority"))).toBe(
+			true,
+		);
+		expect(result.errors.some((error) => error.includes("due date"))).toBe(
+			true,
+		);
 		expect(result.errors.some((error) => error.includes("parent"))).toBe(true);
 	});
 

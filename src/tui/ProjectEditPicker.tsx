@@ -10,18 +10,50 @@ export const PROJECT_EDIT_FIELDS: ProjectEditField[] = [
 	{ key: "name", label: "Name", hint: "free text" },
 	{ key: "emoji", label: "Emoji", hint: "single emoji character" },
 	{ key: "description", label: "Description", hint: "free text" },
-	{ key: "startDate", label: "Start date", hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)" },
-	{ key: "endDate", label: "End date", hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)" },
+	{
+		key: "startDate",
+		label: "Start date",
+		hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)",
+	},
+	{
+		key: "endDate",
+		label: "End date",
+		hint: "today / tomorrow / YYYY-MM-DD / clear  (E for calendar)",
+	},
 	{ key: "jiraDiscovery", label: "Discovery: Jira URL", hint: "URL or clear" },
-	{ key: "jiraDiscoveryStatus", label: "Discovery: Jira Status", hint: "h/l or ← → cycle" },
+	{
+		key: "jiraDiscoveryStatus",
+		label: "Discovery: Jira Status",
+		hint: "h/l or ← → cycle",
+	},
 	{ key: "confluence", label: "Discovery: PRD URL", hint: "URL or clear" },
 	{ key: "jiraDelivery", label: "Delivery: Epic URL", hint: "URL or clear" },
-	{ key: "jiraDeliveryStatus", label: "Delivery: Epic Status", hint: "h/l or ← → cycle" },
+	{
+		key: "jiraDeliveryStatus",
+		label: "Delivery: Epic Status",
+		hint: "h/l or ← → cycle",
+	},
 	{ key: "jiraDocs", label: "Delivery: Docs URL", hint: "URL or clear" },
-	{ key: "jiraDocsStatus", label: "Delivery: Docs Status", hint: "h/l or ← → cycle" },
-	{ key: "jiraReleaseNote", label: "Delivery: Release Note URL", hint: "URL or clear" },
-	{ key: "jiraReleaseNoteStatus", label: "Delivery: Release Note Status", hint: "h/l or ← → cycle" },
-	{ key: "teamsReleaseNote", label: "Delivery: Teams URL", hint: "URL or clear" },
+	{
+		key: "jiraDocsStatus",
+		label: "Delivery: Docs Status",
+		hint: "h/l or ← → cycle",
+	},
+	{
+		key: "jiraReleaseNote",
+		label: "Delivery: Release Note URL",
+		hint: "URL or clear",
+	},
+	{
+		key: "jiraReleaseNoteStatus",
+		label: "Delivery: Release Note Status",
+		hint: "h/l or ← → cycle",
+	},
+	{
+		key: "teamsReleaseNote",
+		label: "Delivery: Teams URL",
+		hint: "URL or clear",
+	},
 ];
 
 type ProjectEditPickerProps = {
@@ -40,7 +72,7 @@ export const ProjectEditPicker = ({
 					Edit project:{" "}
 				</Text>
 				<Text bold>{projectName}</Text>
-				<Text dimColor>  j/k choose  Enter select  Esc cancel</Text>
+				<Text dimColor> j/k choose Enter select Esc cancel</Text>
 			</Box>
 			{PROJECT_EDIT_FIELDS.map((field, i) => {
 				const isSelected = i === selectedIndex;
@@ -51,13 +83,10 @@ export const ProjectEditPicker = ({
 								{isSelected ? "❯" : " "}
 							</Text>
 						</Box>
-						<Text
-							color={isSelected ? "cyan" : undefined}
-							bold={isSelected}
-						>
+						<Text color={isSelected ? "cyan" : undefined} bold={isSelected}>
 							{field.label}
 						</Text>
-						<Text dimColor>  {field.hint}</Text>
+						<Text dimColor> {field.hint}</Text>
 					</Box>
 				);
 			})}

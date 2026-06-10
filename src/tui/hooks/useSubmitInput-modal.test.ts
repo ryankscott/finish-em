@@ -32,17 +32,19 @@ describe("isModalEnumTarget", () => {
 
 // Test modal submit validation logic independently.
 
-function validateTaskModalSubmit(
-	modalValues: Record<string, string>,
-): { valid: boolean; error: string | null } {
+function validateTaskModalSubmit(modalValues: Record<string, string>): {
+	valid: boolean;
+	error: string | null;
+} {
 	const title = modalValues.title?.trim();
 	if (!title) return { valid: false, error: "Title is required" };
 	return { valid: true, error: null };
 }
 
-function validateProjectModalSubmit(
-	modalValues: Record<string, string>,
-): { valid: boolean; error: string | null } {
+function validateProjectModalSubmit(modalValues: Record<string, string>): {
+	valid: boolean;
+	error: string | null;
+} {
 	const name = modalValues.name?.trim();
 	if (!name) return { valid: false, error: "Name is required" };
 	return { valid: true, error: null };
@@ -66,7 +68,11 @@ describe("createTaskModal submit validation", () => {
 
 	it("is valid with title and other fields", () => {
 		expect(
-			validateTaskModalSubmit({ title: "Task", priority: "2", dueAt: "2026-03-15" }).valid,
+			validateTaskModalSubmit({
+				title: "Task",
+				priority: "2",
+				dueAt: "2026-03-15",
+			}).valid,
 		).toBe(true);
 	});
 });

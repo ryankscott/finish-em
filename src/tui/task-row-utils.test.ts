@@ -1,7 +1,6 @@
 import { describe, expect, it } from "bun:test";
-
-import { buildTaskRows } from "./task-row-utils";
 import type { Task } from "../server/types";
+import { buildTaskRows } from "./task-row-utils";
 
 const makeTask = (overrides: Partial<Task> & { id: number }): Task => ({
 	title: `Task ${overrides.id}`,

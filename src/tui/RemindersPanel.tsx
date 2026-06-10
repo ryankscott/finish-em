@@ -1,5 +1,5 @@
-import { Box, Text } from "ink";
 import { format, isPast, parseISO } from "date-fns";
+import { Box, Text } from "ink";
 import type { Reminder } from "../server/types";
 
 type ReminderWithTitle = Reminder & { taskTitle: string };
@@ -30,11 +30,17 @@ export const RemindersPanel = ({
 }: RemindersPanelProps) => {
 	const borderColor = focused ? "magentaBright" : "gray";
 
-	const availableHeight = terminalHeight ? Math.max(4, terminalHeight - 5) : Infinity;
-	const scrollStart = Math.max(0, selectedIndex - Math.floor(availableHeight / 2));
-	const visibleReminders = availableHeight === Infinity
-		? reminders
-		: reminders.slice(scrollStart, scrollStart + availableHeight);
+	const availableHeight = terminalHeight
+		? Math.max(4, terminalHeight - 5)
+		: Infinity;
+	const scrollStart = Math.max(
+		0,
+		selectedIndex - Math.floor(availableHeight / 2),
+	);
+	const visibleReminders =
+		availableHeight === Infinity
+			? reminders
+			: reminders.slice(scrollStart, scrollStart + availableHeight);
 
 	const timeWidth = 18;
 	const titleWidth = Math.max(10, terminalWidth - timeWidth - 10);
@@ -61,7 +67,12 @@ export const RemindersPanel = ({
 					const isSelected = absoluteIdx === selectedIndex;
 					const isDue = isPast(parseISO(r.snoozedUntil ?? r.remindAt));
 					const timeStr = formatReminderTime(r);
-					const titleColor = isSelected && focused ? "cyan" : isSelected ? "blueBright" : undefined;
+					const titleColor =
+						isSelected && focused
+							? "cyan"
+							: isSelected
+								? "blueBright"
+								: undefined;
 
 					return (
 						<Box key={r.id}>
@@ -72,17 +83,16 @@ export const RemindersPanel = ({
 							</Box>
 							<Box width={timeWidth}>
 								<Text
-									color={isDue ? "red" : (isSelected && focused ? "cyan" : undefined)}
+									color={
+										isDue ? "red" : isSelected && focused ? "cyan" : undefined
+									}
 									bold={isSelected && focused}
 								>
 									{timeStr}
 								</Text>
 							</Box>
 							<Box width={titleWidth}>
-								<Text
-									color={titleColor}
-									bold={isSelected && focused}
-								>
+								<Text color={titleColor} bold={isSelected && focused}>
 									{r.taskTitle.length > titleWidth
 										? r.taskTitle.slice(0, titleWidth - 1) + "…"
 										: r.taskTitle}

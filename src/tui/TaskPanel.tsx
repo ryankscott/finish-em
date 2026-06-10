@@ -1,8 +1,7 @@
 import { Box, Text } from "ink";
 
 import { getLinkDisplayLabel, toDisplayString } from "../lib/task-links";
-import type { JiraTicketStatus } from "../server/types";
-import type { Project, Task } from "../server/types";
+import type { JiraTicketStatus, Project, Task } from "../server/types";
 import {
 	blockedIndicator,
 	formatDueDate,
@@ -118,7 +117,11 @@ const TaskRowItem = ({
 						{titleText}
 					</Text>
 				</Box>
-				<Box width={PROP_WIDTHS.due + PROP_WIDTHS.project + 3} marginLeft={1} gap={1}>
+				<Box
+					width={PROP_WIDTHS.due + PROP_WIDTHS.project + 3}
+					marginLeft={1}
+					gap={1}
+				>
 					<Box width={PROP_WIDTHS.due}>
 						<Text
 							color={isOverdue && !isCompleted ? "red" : undefined}
@@ -135,7 +138,9 @@ const TaskRowItem = ({
 			</Box>
 			{!isExpanded && task.notes && (
 				<Box marginLeft={isSubtask ? 11 : 6}>
-					<Text dimColor italic>{truncate(toDisplayString(task.notes), 80)}</Text>
+					<Text dimColor italic>
+						{truncate(toDisplayString(task.notes), 80)}
+					</Text>
 				</Box>
 			)}
 			{isExpanded && (
@@ -153,9 +158,7 @@ const TaskRowItem = ({
 					{task.blockedReason && (
 						<Text color="yellow">Blocked: {task.blockedReason}</Text>
 					)}
-					{project && (
-						<Text dimColor>Project: {project.name}</Text>
-					)}
+					{project && <Text dimColor>Project: {project.name}</Text>}
 				</Box>
 			)}
 		</Box>
@@ -183,7 +186,10 @@ type TaskPanelProps = {
 	sections?: TaskSection[];
 };
 
-function rowLineHeight(row: TaskRow, expandedTaskId: number | null | undefined): number {
+function rowLineHeight(
+	row: TaskRow,
+	expandedTaskId: number | null | undefined,
+): number {
 	if (expandedTaskId === row.task.id) {
 		// title line + blank line before detail block + at least 1 detail line
 		let h = 3;
@@ -204,7 +210,8 @@ function computeScrollWindow(
 
 	const heights = rows.map((r) => rowLineHeight(r, expandedTaskId));
 	const cumulative: number[] = [0];
-	for (const h of heights) cumulative.push(cumulative[cumulative.length - 1]! + h);
+	for (const h of heights)
+		cumulative.push(cumulative[cumulative.length - 1]! + h);
 
 	const totalHeight = cumulative[rows.length]!;
 	if (totalHeight <= availableHeight) {
@@ -281,15 +288,27 @@ export const TaskPanel = ({
 	sections,
 }: TaskPanelProps) => {
 	const borderColor = focused ? "magentaBright" : "gray";
-	const hasSplit = overdueSplitIndex != null && overdueSplitIndex > 0 && overdueSplitIndex < rows.length;
-	const sectionIndexSet = sections ? new Map(sections.map((s) => [s.startIndex, s])) : null;
+	const hasSplit =
+		overdueSplitIndex != null &&
+		overdueSplitIndex > 0 &&
+		overdueSplitIndex < rows.length;
+	const sectionIndexSet = sections
+		? new Map(sections.map((s) => [s.startIndex, s]))
+		: null;
 
 	// Fixed overhead: border top+bottom (2) + view label + marginBottom (2) + status bar (1)
 	let overhead = 5;
 	if (activeProject) {
 		overhead += 4; // description + start + end + separator
-		const hasDiscovery = !!(activeProject.jiraDiscoveryUrl || activeProject.confluenceUrl);
-		const hasDelivery = !!(activeProject.jiraDeliveryUrl || activeProject.jiraDocsUrl || activeProject.jiraReleaseNoteUrl || activeProject.teamsReleaseNoteUrl);
+		const hasDiscovery = !!(
+			activeProject.jiraDiscoveryUrl || activeProject.confluenceUrl
+		);
+		const hasDelivery = !!(
+			activeProject.jiraDeliveryUrl ||
+			activeProject.jiraDocsUrl ||
+			activeProject.jiraReleaseNoteUrl ||
+			activeProject.teamsReleaseNoteUrl
+		);
 		if (hasDiscovery) {
 			overhead++; // "Discovery" header
 			if (activeProject.jiraDiscoveryUrl) overhead++;
@@ -306,12 +325,19 @@ export const TaskPanel = ({
 	// Each section header takes 2 lines (label + divider)
 	if (hasSplit) overhead += 4;
 	if (sections) overhead += sections.length * 2;
-	const availableHeight = terminalHeight ? Math.max(4, terminalHeight - overhead) : Infinity;
+	const availableHeight = terminalHeight
+		? Math.max(4, terminalHeight - overhead)
+		: Infinity;
 
 	const { scrollOffset, endIndex } =
 		availableHeight === Infinity
 			? { scrollOffset: 0, endIndex: rows.length }
-			: computeScrollWindow(rows, selectedIndex, expandedTaskId, availableHeight);
+			: computeScrollWindow(
+					rows,
+					selectedIndex,
+					expandedTaskId,
+					availableHeight,
+				);
 
 	const visibleRows = rows.slice(scrollOffset, endIndex);
 	const rowsAbove = scrollOffset;
@@ -339,54 +365,128 @@ export const TaskPanel = ({
 						</>
 					) : null}
 					<Box flexDirection="row" gap={2}>
-						<Text><Text bold>Start</Text>  {activeProject.startAt ?? "–"}</Text>
-						<Text><Text bold>End</Text>  {activeProject.endAt ?? "–"}</Text>
+						<Text>
+							<Text bold>Start</Text> {activeProject.startAt ?? "–"}
+						</Text>
+						<Text>
+							<Text bold>End</Text> {activeProject.endAt ?? "–"}
+						</Text>
 					</Box>
-					{(activeProject.jiraDiscoveryUrl || activeProject.confluenceUrl || activeProject.jiraDeliveryUrl || activeProject.jiraDocsUrl || activeProject.jiraReleaseNoteUrl || activeProject.teamsReleaseNoteUrl) && (
+					{(activeProject.jiraDiscoveryUrl ||
+						activeProject.confluenceUrl ||
+						activeProject.jiraDeliveryUrl ||
+						activeProject.jiraDocsUrl ||
+						activeProject.jiraReleaseNoteUrl ||
+						activeProject.teamsReleaseNoteUrl) && (
 						<Text dimColor>{"─".repeat(Math.max(terminalWidth - 36, 40))}</Text>
 					)}
 					{(activeProject.jiraDiscoveryUrl || activeProject.confluenceUrl) && (
 						<>
 							<Text dimColor>{"─".repeat(24)}</Text>
-							<Text bold dimColor>Discovery</Text>
+							<Text bold dimColor>
+								Discovery
+							</Text>
 							{activeProject.jiraDiscoveryUrl && (
 								<Text>
-									{"  "}<Text bold>Jira  </Text><Text color="cyan">[{shortUrl(activeProject.jiraDiscoveryUrl)}]</Text>
-									{activeProject.jiraDiscoveryStatus ? <Text>  <Text color={statusColor(activeProject.jiraDiscoveryStatus)}>{statusLabel(activeProject.jiraDiscoveryStatus)}</Text></Text> : null}
+									{"  "}
+									<Text bold>Jira </Text>
+									<Text color="cyan">
+										[{shortUrl(activeProject.jiraDiscoveryUrl)}]
+									</Text>
+									{activeProject.jiraDiscoveryStatus ? (
+										<Text>
+											{" "}
+											<Text
+												color={statusColor(activeProject.jiraDiscoveryStatus)}
+											>
+												{statusLabel(activeProject.jiraDiscoveryStatus)}
+											</Text>
+										</Text>
+									) : null}
 								</Text>
 							)}
 							{activeProject.confluenceUrl && (
 								<Text>
-									{"  "}<Text bold>PRD   </Text><Text color="cyan">[{shortUrl(activeProject.confluenceUrl)}]</Text>
+									{"  "}
+									<Text bold>PRD </Text>
+									<Text color="cyan">
+										[{shortUrl(activeProject.confluenceUrl)}]
+									</Text>
 								</Text>
 							)}
 						</>
 					)}
-					{(activeProject.jiraDeliveryUrl || activeProject.jiraDocsUrl || activeProject.jiraReleaseNoteUrl || activeProject.teamsReleaseNoteUrl) && (
+					{(activeProject.jiraDeliveryUrl ||
+						activeProject.jiraDocsUrl ||
+						activeProject.jiraReleaseNoteUrl ||
+						activeProject.teamsReleaseNoteUrl) && (
 						<>
 							<Text dimColor>{"─".repeat(24)}</Text>
-							<Text bold dimColor>Delivery</Text>
+							<Text bold dimColor>
+								Delivery
+							</Text>
 							{activeProject.jiraDeliveryUrl && (
 								<Text>
-									{"  "}<Text bold>Epic   </Text><Text color="cyan">[{shortUrl(activeProject.jiraDeliveryUrl)}]</Text>
-									{activeProject.jiraDeliveryStatus ? <Text>  <Text color={statusColor(activeProject.jiraDeliveryStatus)}>{statusLabel(activeProject.jiraDeliveryStatus)}</Text></Text> : null}
+									{"  "}
+									<Text bold>Epic </Text>
+									<Text color="cyan">
+										[{shortUrl(activeProject.jiraDeliveryUrl)}]
+									</Text>
+									{activeProject.jiraDeliveryStatus ? (
+										<Text>
+											{" "}
+											<Text
+												color={statusColor(activeProject.jiraDeliveryStatus)}
+											>
+												{statusLabel(activeProject.jiraDeliveryStatus)}
+											</Text>
+										</Text>
+									) : null}
 								</Text>
 							)}
 							{activeProject.jiraDocsUrl && (
 								<Text>
-									{"  "}<Text bold>Docs   </Text><Text color="cyan">[{shortUrl(activeProject.jiraDocsUrl)}]</Text>
-									{activeProject.jiraDocsStatus ? <Text>  <Text color={statusColor(activeProject.jiraDocsStatus)}>{statusLabel(activeProject.jiraDocsStatus)}</Text></Text> : null}
+									{"  "}
+									<Text bold>Docs </Text>
+									<Text color="cyan">
+										[{shortUrl(activeProject.jiraDocsUrl)}]
+									</Text>
+									{activeProject.jiraDocsStatus ? (
+										<Text>
+											{" "}
+											<Text color={statusColor(activeProject.jiraDocsStatus)}>
+												{statusLabel(activeProject.jiraDocsStatus)}
+											</Text>
+										</Text>
+									) : null}
 								</Text>
 							)}
 							{activeProject.jiraReleaseNoteUrl && (
 								<Text>
-									{"  "}<Text bold>Release</Text>  <Text color="cyan">[{shortUrl(activeProject.jiraReleaseNoteUrl)}]</Text>
-									{activeProject.jiraReleaseNoteStatus ? <Text>  <Text color={statusColor(activeProject.jiraReleaseNoteStatus)}>{statusLabel(activeProject.jiraReleaseNoteStatus)}</Text></Text> : null}
+									{"  "}
+									<Text bold>Release</Text>{" "}
+									<Text color="cyan">
+										[{shortUrl(activeProject.jiraReleaseNoteUrl)}]
+									</Text>
+									{activeProject.jiraReleaseNoteStatus ? (
+										<Text>
+											{" "}
+											<Text
+												color={statusColor(activeProject.jiraReleaseNoteStatus)}
+											>
+												{statusLabel(activeProject.jiraReleaseNoteStatus)}
+											</Text>
+										</Text>
+									) : null}
 								</Text>
 							)}
 							{activeProject.teamsReleaseNoteUrl && (
 								<Text>
-									{"  "}<Text bold>Teams  </Text><Text color="cyan">[{shortUrl(activeProject.teamsReleaseNoteUrl)}]</Text>
+									{"  "}
+									<Text bold>Teams </Text>
+									<Text color="cyan">
+										[{shortUrl(activeProject.teamsReleaseNoteUrl)}]
+									</Text>
 								</Text>
 							)}
 						</>
@@ -395,9 +495,7 @@ export const TaskPanel = ({
 				</Box>
 			)}
 
-			{rowsAbove > 0 && (
-				<Text dimColor>↑ {rowsAbove} above</Text>
-			)}
+			{rowsAbove > 0 && <Text dimColor>↑ {rowsAbove} above</Text>}
 
 			{rows.length === 0 ? (
 				<Text dimColor>No tasks</Text>
@@ -405,25 +503,43 @@ export const TaskPanel = ({
 				<>
 					{hasSplit && (
 						<Box flexDirection="column" marginBottom={1}>
-							<Text bold color="red">Overdue</Text>
+							<Text bold color="red">
+								Overdue
+							</Text>
 							<Text dimColor>{"─".repeat(24)}</Text>
 						</Box>
 					)}
 					{visibleRows.map((row, localIndex) => {
 						const absoluteIndex = scrollOffset + localIndex;
-						const isTodaySectionStart = hasSplit && absoluteIndex === overdueSplitIndex;
+						const isTodaySectionStart =
+							hasSplit && absoluteIndex === overdueSplitIndex;
 						const sectionHeader = sectionIndexSet?.get(absoluteIndex);
 						return (
 							<Box key={row.task.id} flexDirection="column">
 								{isTodaySectionStart && (
 									<Box flexDirection="column" marginTop={1} marginBottom={1}>
-										<Text bold color="magentaBright">Today</Text>
+										<Text bold color="magentaBright">
+											Today
+										</Text>
 										<Text dimColor>{"─".repeat(24)}</Text>
 									</Box>
 								)}
 								{sectionHeader && (
-									<Box flexDirection="column" marginTop={absoluteIndex === 0 ? 0 : 1} marginBottom={1}>
-										<Text bold color={sectionHeader.color as Parameters<typeof Text>[0]["color"]}>{sectionHeader.label}</Text>
+									<Box
+										flexDirection="column"
+										marginTop={absoluteIndex === 0 ? 0 : 1}
+										marginBottom={1}
+									>
+										<Text
+											bold
+											color={
+												sectionHeader.color as Parameters<
+													typeof Text
+												>[0]["color"]
+											}
+										>
+											{sectionHeader.label}
+										</Text>
 										<Text dimColor>{"─".repeat(24)}</Text>
 									</Box>
 								)}
@@ -449,9 +565,7 @@ export const TaskPanel = ({
 				</>
 			)}
 
-			{rowsBelow > 0 && (
-				<Text dimColor>↓ {rowsBelow} below</Text>
-			)}
+			{rowsBelow > 0 && <Text dimColor>↓ {rowsBelow} below</Text>}
 		</Box>
 	);
 };

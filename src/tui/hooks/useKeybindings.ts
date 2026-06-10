@@ -2,12 +2,12 @@ import { useEffect, useRef } from "react";
 
 import type { Goal, Project, Reminder, Task } from "../../server/types";
 import type { EnumPickerItem } from "../EnumPicker";
-import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
 import type { SettingsRow } from "../SettingsPanel";
 import type { SidebarItem } from "../Sidebar";
+import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
 import type { InputMode } from "./useInputBar";
+import { taskToModalValues, useMainKeys } from "./useMainKeys";
 import type { FocusArea, View } from "./useNavigation";
-import { useMainKeys, taskToModalValues } from "./useMainKeys";
 import { useTextInputKeys } from "./useTextInputKeys";
 
 type UseKeybindingsParams = {
@@ -20,9 +20,16 @@ type UseKeybindingsParams = {
 	setInputValue: (value: string) => void;
 	setInputCursorOffset: (offset: number) => void;
 	closeInput: () => void;
-	openModalWithValues: (mode: InputMode, values: Record<string, string>, taskId?: number) => void;
+	openModalWithValues: (
+		mode: InputMode,
+		values: Record<string, string>,
+		taskId?: number,
+	) => void;
 	submitInput: () => Promise<void>;
-	openCalendarPicker: (calendarMode: InputMode, existingIsoDate?: string) => void;
+	openCalendarPicker: (
+		calendarMode: InputMode,
+		existingIsoDate?: string,
+	) => void;
 	calendarCursorDate: Date;
 	setCalendarCursorDate: React.Dispatch<React.SetStateAction<Date>>;
 	calendarVisibleMonth: Date;
@@ -33,7 +40,9 @@ type UseKeybindingsParams = {
 	inputMode: InputMode;
 	setInputMode: (mode: InputMode) => void;
 	linkPickerLinks: { url: string; displayLabel: string }[] | null;
-	setLinkPickerLinks: (links: { url: string; displayLabel: string }[] | null) => void;
+	setLinkPickerLinks: (
+		links: { url: string; displayLabel: string }[] | null,
+	) => void;
 	linkPickerIndex: number;
 	setLinkPickerIndex: React.Dispatch<React.SetStateAction<number>>;
 	pickerIndex: number;
@@ -201,11 +210,19 @@ export function useKeybindings({
 	// Sync cursor to end of input when entering text mode (including modal text fields)
 	const prevWasTextInputModeRef = useRef(false);
 	useEffect(() => {
-		if ((isTextInputMode || isModalTextActive) && !prevWasTextInputModeRef.current) {
+		if (
+			(isTextInputMode || isModalTextActive) &&
+			!prevWasTextInputModeRef.current
+		) {
 			setInputCursorOffset(inputValue.length);
 		}
 		prevWasTextInputModeRef.current = isTextInputMode || isModalTextActive;
-	}, [isTextInputMode, isModalTextActive, inputValue.length, setInputCursorOffset]);
+	}, [
+		isTextInputMode,
+		isModalTextActive,
+		inputValue.length,
+		setInputCursorOffset,
+	]);
 
 	useTextInputKeys({
 		isActive: isTextInputMode || isModalTextActive,
@@ -224,10 +241,16 @@ export function useKeybindings({
 		modalValuesRef,
 		setModalValues,
 		onSearchNavigate: (delta) =>
-			setTaskIndex((i) => Math.max(0, Math.min(i + delta, searchResultCount - 1))),
+			setTaskIndex((i) =>
+				Math.max(0, Math.min(i + delta, searchResultCount - 1)),
+			),
 		onSearchSelect: () => {
 			if (!selectedTask) return;
-			openModalWithValues("editTaskModal", taskToModalValues(selectedTask), selectedTask.id);
+			openModalWithValues(
+				"editTaskModal",
+				taskToModalValues(selectedTask),
+				selectedTask.id,
+			);
 		},
 	});
 

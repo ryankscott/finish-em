@@ -2,8 +2,8 @@ import { describe, expect, it } from "bun:test";
 
 import {
 	getModalFields,
-	TASK_CREATE_FIELDS,
 	PROJECT_CREATE_FIELDS,
+	TASK_CREATE_FIELDS,
 } from "../modal-field-defs";
 
 // Pure logic tests for modal navigation computed separately from useInput hooks.
@@ -31,14 +31,18 @@ describe("modal field definitions", () => {
 	});
 
 	it("TASK_CREATE_FIELDS includes enum fields for project, priority, recurrence", () => {
-		const enumKeys = TASK_CREATE_FIELDS.filter((f) => f.type === "enum").map((f) => f.key);
+		const enumKeys = TASK_CREATE_FIELDS.filter((f) => f.type === "enum").map(
+			(f) => f.key,
+		);
 		expect(enumKeys).toContain("project");
 		expect(enumKeys).toContain("priority");
 		expect(enumKeys).toContain("recurrence");
 	});
 
 	it("TASK_CREATE_FIELDS includes date fields for dueAt and scheduledAt", () => {
-		const dateKeys = TASK_CREATE_FIELDS.filter((f) => f.type === "date").map((f) => f.key);
+		const dateKeys = TASK_CREATE_FIELDS.filter((f) => f.type === "date").map(
+			(f) => f.key,
+		);
 		expect(dateKeys).toContain("dueAt");
 		expect(dateKeys).toContain("scheduledAt");
 	});
@@ -54,7 +58,9 @@ describe("modal field definitions", () => {
 	});
 
 	it("PROJECT_CREATE_FIELDS includes date fields for startAt and endAt", () => {
-		const dateKeys = PROJECT_CREATE_FIELDS.filter((f) => f.type === "date").map((f) => f.key);
+		const dateKeys = PROJECT_CREATE_FIELDS.filter((f) => f.type === "date").map(
+			(f) => f.key,
+		);
 		expect(dateKeys).toContain("startAt");
 		expect(dateKeys).toContain("endAt");
 	});

@@ -35,7 +35,9 @@ describe("TASK_CREATE_FIELDS structure", () => {
 	});
 
 	it("enum fields cover project, priority, recurrence", () => {
-		const enumKeys = TASK_CREATE_FIELDS.filter((f) => f.type === "enum").map((f) => f.key);
+		const enumKeys = TASK_CREATE_FIELDS.filter((f) => f.type === "enum").map(
+			(f) => f.key,
+		);
 		expect(enumKeys).toContain("project");
 		expect(enumKeys).toContain("priority");
 		expect(enumKeys).toContain("recurrence");
@@ -56,13 +58,17 @@ describe("modal field active/inactive rendering logic", () => {
 	});
 
 	it("submit row is the last index", () => {
-		const submitIndex = TASK_CREATE_FIELDS.findIndex((f) => f.type === "submit");
+		const submitIndex = TASK_CREATE_FIELDS.findIndex(
+			(f) => f.type === "submit",
+		);
 		expect(submitIndex).toBe(TASK_CREATE_FIELDS.length - 1);
 	});
 
 	it("validationError presence is a separate concern from field list", () => {
 		// Modal renders validationError independently from the field list
-		const nonSubmitFields = TASK_CREATE_FIELDS.filter((f) => f.type !== "submit");
+		const nonSubmitFields = TASK_CREATE_FIELDS.filter(
+			(f) => f.type !== "submit",
+		);
 		expect(nonSubmitFields.length).toBeGreaterThan(0);
 	});
 });

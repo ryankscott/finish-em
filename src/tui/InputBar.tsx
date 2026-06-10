@@ -92,17 +92,24 @@ export const InputBar = ({
 		const fieldLabel = STATUS_CYCLING_LABELS[inputMode] ?? "Status";
 		return (
 			<Box paddingX={1} gap={1}>
-				<Text color="magentaBright" bold>{fieldLabel}:</Text>
+				<Text color="magentaBright" bold>
+					{fieldLabel}:
+				</Text>
 				{STATUS_OPTIONS.map((opt) => {
 					const isSel = inputValue === opt.value;
 					const color = STATUS_DISPLAY[opt.value]?.color ?? "cyan";
 					return (
-						<Text key={opt.value} bold={isSel} color={isSel ? color : undefined} dimColor={!isSel}>
+						<Text
+							key={opt.value}
+							bold={isSel}
+							color={isSel ? color : undefined}
+							dimColor={!isSel}
+						>
 							{isSel ? `[${opt.label}]` : opt.label}
 						</Text>
 					);
 				})}
-				<Text dimColor>  h/l or ◀▶ cycle · Enter confirm · Esc cancel</Text>
+				<Text dimColor> h/l or ◀▶ cycle · Enter confirm · Esc cancel</Text>
 			</Box>
 		);
 	}

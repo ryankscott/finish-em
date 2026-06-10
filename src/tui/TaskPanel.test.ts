@@ -54,11 +54,14 @@ describe("TaskPanel project description display", () => {
 
 	it("leaves plain project description unchanged", () => {
 		const description = "A project about building things";
-		expect(toDisplayString(description)).toBe("A project about building things");
+		expect(toDisplayString(description)).toBe(
+			"A project about building things",
+		);
 	});
 
 	it("renders multiple links in project description", () => {
-		const description = "[Board](https://jira.example.com) and [Docs](https://docs.example.com)";
+		const description =
+			"[Board](https://jira.example.com) and [Docs](https://docs.example.com)";
 		expect(toDisplayString(description)).toBe("[Board] and [Docs]");
 	});
 });

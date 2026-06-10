@@ -28,7 +28,11 @@ function renderFieldValue(
 			"3": "P3 – Normal",
 			"4": "P4 – Low",
 		};
-		return <Text color={isActive ? "cyan" : undefined}>{labels[value] ?? value}</Text>;
+		return (
+			<Text color={isActive ? "cyan" : undefined}>
+				{labels[value] ?? value}
+			</Text>
+		);
 	}
 	if (fieldKey === "project" && value) {
 		const label = projectLabels[value];
@@ -42,7 +46,11 @@ function renderFieldValue(
 			yearly: "Yearly",
 			every_weekday: "Every weekday",
 		};
-		return <Text color={isActive ? "cyan" : undefined}>{labels[value] ?? value}</Text>;
+		return (
+			<Text color={isActive ? "cyan" : undefined}>
+				{labels[value] ?? value}
+			</Text>
+		);
 	}
 
 	if (!isActive) {
@@ -141,7 +149,10 @@ export const CreateTaskModal = ({
 									borderColor={isActive ? "greenBright" : "gray"}
 									paddingX={1}
 								>
-									<Text color={isActive ? "greenBright" : "gray"} bold={isActive}>
+									<Text
+										color={isActive ? "greenBright" : "gray"}
+										bold={isActive}
+									>
 										{field.label}
 									</Text>
 								</Box>
@@ -162,11 +173,15 @@ export const CreateTaskModal = ({
 								</Text>
 							</Box>
 							<Box flexGrow={1}>
-								{renderFieldValue(field.key, value, isActive, inputCursorOffset, projectLabels)}
+								{renderFieldValue(
+									field.key,
+									value,
+									isActive,
+									inputCursorOffset,
+									projectLabels,
+								)}
 							</Box>
-							{field.hint && !isActive && (
-								<Text dimColor>  {field.hint}</Text>
-							)}
+							{field.hint && !isActive && <Text dimColor> {field.hint}</Text>}
 						</Box>
 					);
 				})}
@@ -178,7 +193,10 @@ export const CreateTaskModal = ({
 				)}
 
 				<Box marginTop={1}>
-					<Text dimColor>j/k navigate · Enter confirm/advance · E calendar on dates · Esc cancel</Text>
+					<Text dimColor>
+						j/k navigate · Enter confirm/advance · E calendar on dates · Esc
+						cancel
+					</Text>
 				</Box>
 			</Box>
 		</Box>

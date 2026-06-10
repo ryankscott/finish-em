@@ -23,9 +23,19 @@ export const SHORTCUTS: ShortcutRow[] = [
 		section: "Tasks",
 	},
 	{ keys: "Space", action: "Expand/collapse subtasks" },
-	{ keys: "Enter", action: "Edit task — full form modal with all fields pre-filled" },
-	{ keys: "a", action: "Quick add task (title only, added to current project)" },
-	{ keys: "A", action: "Create task — full form modal (title, project, priority, dates, notes)" },
+	{
+		keys: "Enter",
+		action: "Edit task — full form modal with all fields pre-filled",
+	},
+	{
+		keys: "a",
+		action: "Quick add task (title only, added to current project)",
+	},
+	{
+		keys: "A",
+		action:
+			"Create task — full form modal (title, project, priority, dates, notes)",
+	},
 	{ keys: "s", action: "Create subtask under selected task" },
 	{
 		keys: "e",
@@ -34,7 +44,8 @@ export const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "c", action: "Edit task notes / description" },
 	{
 		keys: "o",
-		action: "Open link (task links, or project links in project view; if multiple: j/k or 1–9, Enter open)",
+		action:
+			"Open link (task links, or project links in project view; if multiple: j/k or 1–9, Enter open)",
 	},
 	{ keys: "d", action: "Delete selected task (soft-delete, recoverable)" },
 	{ keys: "u", action: "Restore deleted task (Deleted view only)" },
@@ -42,19 +53,29 @@ export const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "z", action: "Delete reminder from selected task" },
 	{
 		keys: "E",
-		action: "Task: open field picker (due, project, priority, notes) · Sidebar focused: open edit project modal",
+		action:
+			"Task: open field picker (due, project, priority, notes) · Sidebar focused: open edit project modal",
 		section: "Field picker",
 	},
 	{
 		keys: "E (date field)",
-		action: "Open calendar picker while editing due / scheduled / project date fields",
+		action:
+			"Open calendar picker while editing due / scheduled / project date fields",
 	},
 	{ keys: "Shift+s", action: "Open settings view", section: "Settings" },
 	{ keys: "e / Enter", action: "Edit selected setting" },
-	{ keys: "p", action: "Create new project (quick, tokenized input)", section: "Projects" },
+	{
+		keys: "p",
+		action: "Create new project (quick, tokenized input)",
+		section: "Projects",
+	},
 	{ keys: "P", action: "Create project — full form modal (all fields)" },
 	{ keys: "e", action: "Edit project name (quick inline)" },
-	{ keys: "E", action: "Edit project — full form modal (works from any view when sidebar is focused)" },
+	{
+		keys: "E",
+		action:
+			"Edit project — full form modal (works from any view when sidebar is focused)",
+	},
 	{ keys: "D", action: "Delete project (in project view, non-inbox)" },
 	{ keys: "h / ←", action: "Previous column", section: "Upcoming" },
 	{ keys: "l / →", action: "Next column" },
@@ -62,7 +83,12 @@ export const SHORTCUTS: ShortcutRow[] = [
 	{ keys: "t", action: "Jump to today" },
 	{ keys: "v", action: "Cycle view mode (day / work week / week)" },
 	{ keys: "g", action: "Add a goal" },
-	{ keys: "Tab (goals)", action: "Focus goals panel · j/k select · x toggle · e edit title · Del delete", section: "Goals" },
+	{
+		keys: "Tab (goals)",
+		action:
+			"Focus goals panel · j/k select · x toggle · e edit title · Del delete",
+		section: "Goals",
+	},
 	{ keys: "r", action: "Refresh data", section: "General" },
 	{ keys: "?", action: "Toggle this help" },
 	{ keys: "q", action: "Quit" },

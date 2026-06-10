@@ -1,12 +1,8 @@
-import {
-	addDays,
-	endOfDay,
-	format,
-	parseISO,
-	startOfDay,
-} from "date-fns";
+import { addDays, endOfDay, format, parseISO, startOfDay } from "date-fns";
 import { useCallback, useEffect, useState } from "react";
+
 export { isOverdueTask } from "../../lib/datetime";
+
 import { isOverdueTask } from "../../lib/datetime";
 
 import type {
@@ -17,8 +13,8 @@ import type {
 	Task,
 } from "../../server/types";
 import type { ApiClient } from "../api-client";
-import { columnStartDate, daysToShow } from "../UpcomingPanel";
 import type { ViewMode } from "../UpcomingPanel";
+import { columnStartDate, daysToShow } from "../UpcomingPanel";
 import type { View } from "./useNavigation";
 
 const EMPTY_VIEW_COUNTS = {
@@ -75,7 +71,9 @@ export function useAppData({
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [allTasks, setAllTasks] = useState<Task[]>([]);
 	const [goals, setGoals] = useState<Goal[]>([]);
-	const [allReminders, setAllReminders] = useState<(Reminder & { taskTitle: string })[]>([]);
+	const [allReminders, setAllReminders] = useState<
+		(Reminder & { taskTitle: string })[]
+	>([]);
 	const [settings, setSettings] = useState<AppSettings | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [statusText, setStatusText] = useState("Ready");
@@ -110,57 +108,60 @@ export function useAppData({
 			const upcomingFrom = startOfDay(colStart).toISOString();
 			const upcomingTo = endOfDay(rangeEnd).toISOString();
 
-		const nonInboxProjects = loadedProjects.filter((p) => !p.isInbox);
-		const [
-			allOpenTasks,
-			todayCountTasks,
-			blockedTasks,
-			upcomingRangeTasks,
-			upcomingOverdueTasks,
-			completedTasks,
-			deletedTasks,
-			inboxTasks,
-			allRemindersData,
-			...projectTaskLists
-		] = await Promise.all([
-			api.listTasks({ status: "open" }),
-			api.listTasks({ status: "open", from: todayStart, to: todayEnd }),
-			api.listTasks({ status: "open", blocked: true }),
-			api.listTasks({ status: "open", from: upcomingFrom, to: upcomingTo }),
-			api.listTasks({ status: "open", to: upcomingFrom }),
-			api.listTasks({ status: "completed" }),
-			api.listDeletedTasks(),
-			resolvedInbox
-				? api.listTasks({ projectId: resolvedInbox.id, status: "open" })
-				: Promise.resolve([]),
-			api.listAllReminders(),
-			...nonInboxProjects.map((p) =>
-				api.listTasks({ projectId: p.id, status: "open" }),
-			),
-		]);
-		setAllTasks(allOpenTasks);
+			const nonInboxProjects = loadedProjects.filter((p) => !p.isInbox);
+			const [
+				allOpenTasks,
+				todayCountTasks,
+				blockedTasks,
+				upcomingRangeTasks,
+				upcomingOverdueTasks,
+				completedTasks,
+				deletedTasks,
+				inboxTasks,
+				allRemindersData,
+				...projectTaskLists
+			] = await Promise.all([
+				api.listTasks({ status: "open" }),
+				api.listTasks({ status: "open", from: todayStart, to: todayEnd }),
+				api.listTasks({ status: "open", blocked: true }),
+				api.listTasks({ status: "open", from: upcomingFrom, to: upcomingTo }),
+				api.listTasks({ status: "open", to: upcomingFrom }),
+				api.listTasks({ status: "completed" }),
+				api.listDeletedTasks(),
+				resolvedInbox
+					? api.listTasks({ projectId: resolvedInbox.id, status: "open" })
+					: Promise.resolve([]),
+				api.listAllReminders(),
+				...nonInboxProjects.map((p) =>
+					api.listTasks({ projectId: p.id, status: "open" }),
+				),
+			]);
+			setAllTasks(allOpenTasks);
 
-		const overdueFilteredTasks = upcomingOverdueTasks.filter((t) =>
-			isOverdueTask(t, now),
-		);
-		const projectCounts: Record<number, number> = Object.fromEntries(
-			nonInboxProjects.map((p, i) => [p.id, projectTaskLists[i]?.length ?? 0]),
-		);
-		setViewCounts({
-			today: todayCountTasks.length,
-			blocked: blockedTasks.length,
-			overdue: overdueFilteredTasks.length,
-			inbox: inboxTasks.length,
-			upcoming:
-				upcomingRangeTasks.length +
-				upcomingOverdueTasks.filter(
-					(t) => t.dueAt && parseISO(t.dueAt) < startOfDay(colStart),
-				).length,
-			completed: completedTasks.length,
-			deleted: deletedTasks.length,
-			reminders: allRemindersData.length,
-			projectCounts,
-		});
+			const overdueFilteredTasks = upcomingOverdueTasks.filter((t) =>
+				isOverdueTask(t, now),
+			);
+			const projectCounts: Record<number, number> = Object.fromEntries(
+				nonInboxProjects.map((p, i) => [
+					p.id,
+					projectTaskLists[i]?.length ?? 0,
+				]),
+			);
+			setViewCounts({
+				today: todayCountTasks.length,
+				blocked: blockedTasks.length,
+				overdue: overdueFilteredTasks.length,
+				inbox: inboxTasks.length,
+				upcoming:
+					upcomingRangeTasks.length +
+					upcomingOverdueTasks.filter(
+						(t) => t.dueAt && parseISO(t.dueAt) < startOfDay(colStart),
+					).length,
+				completed: completedTasks.length,
+				deleted: deletedTasks.length,
+				reminders: allRemindersData.length,
+				projectCounts,
+			});
 
 			if (view === "settings") {
 				setTasks([]);
@@ -196,7 +197,9 @@ export function useAppData({
 					`Upcoming · ${format(colStart, "d MMM")} – ${format(rangeEnd, "d MMM")}`,
 				);
 			} else if (view === "priority") {
-				const sorted = [...allOpenTasks].sort((a, b) => a.priority - b.priority);
+				const sorted = [...allOpenTasks].sort(
+					(a, b) => a.priority - b.priority,
+				);
 				setTasks(sorted);
 				setStatusText("By Priority");
 			} else if (view === "project") {
@@ -210,16 +213,16 @@ export function useAppData({
 					);
 					setStatusText(proj?.name ?? "Project");
 				}
-		} else if (view === "deleted") {
-			setTasks(deletedTasks);
-			setStatusText("Deleted");
-		} else if (view === "reminders") {
-			setAllReminders(allRemindersData);
-			setStatusText("Reminders");
-		} else {
-			setTasks(completedTasks);
-			setStatusText("Completed");
-		}
+			} else if (view === "deleted") {
+				setTasks(deletedTasks);
+				setStatusText("Deleted");
+			} else if (view === "reminders") {
+				setAllReminders(allRemindersData);
+				setStatusText("Reminders");
+			} else {
+				setTasks(completedTasks);
+				setStatusText("Completed");
+			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			setErrorText(message);

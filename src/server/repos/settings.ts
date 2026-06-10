@@ -20,9 +20,7 @@ export function updateSettings(
 	const timezone = patch.timezone ?? current.timezone;
 
 	getDb()
-		.prepare(
-			"UPDATE settings SET timezone = ?, updated_at = ? WHERE id = 1",
-		)
+		.prepare("UPDATE settings SET timezone = ?, updated_at = ? WHERE id = 1")
 		.run(timezone, nowIso());
 
 	return getSettings();

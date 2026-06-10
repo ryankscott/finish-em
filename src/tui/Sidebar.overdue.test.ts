@@ -14,9 +14,15 @@ describe("buildSidebarItems - Overdue nav item", () => {
 	it("places Overdue after Today and before Inbox", () => {
 		const items = buildSidebarItems([]);
 		const navItems = items.filter((item) => item.type === "nav");
-		const todayIdx = navItems.findIndex((item) => item.type === "nav" && item.key === "today");
-		const overdueIdx = navItems.findIndex((item) => item.type === "nav" && item.key === "overdue");
-		const inboxIdx = navItems.findIndex((item) => item.type === "nav" && item.key === "inbox");
+		const todayIdx = navItems.findIndex(
+			(item) => item.type === "nav" && item.key === "today",
+		);
+		const overdueIdx = navItems.findIndex(
+			(item) => item.type === "nav" && item.key === "overdue",
+		);
+		const inboxIdx = navItems.findIndex(
+			(item) => item.type === "nav" && item.key === "inbox",
+		);
 
 		expect(overdueIdx).toBeGreaterThan(todayIdx);
 		expect(overdueIdx).toBeLessThan(inboxIdx);

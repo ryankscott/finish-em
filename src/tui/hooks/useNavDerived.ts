@@ -112,7 +112,10 @@ export function useNavDerived({
 		[projects, nav.activeProjectId],
 	);
 
-	const settingsRows = useMemo(() => buildSettingsRows(settings, syncEnabled), [settings, syncEnabled]);
+	const settingsRows = useMemo(
+		() => buildSettingsRows(settings, syncEnabled),
+		[settings, syncEnabled],
+	);
 	const selectedSettingsRow =
 		settingsRows[nav.settingsIndex] ?? settingsRows[0] ?? null;
 

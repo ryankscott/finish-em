@@ -11,7 +11,11 @@ type EnumPickerProps = {
 	selectedIndex: number;
 };
 
-export const EnumPicker = ({ title, items, selectedIndex }: EnumPickerProps) => {
+export const EnumPicker = ({
+	title,
+	items,
+	selectedIndex,
+}: EnumPickerProps) => {
 	if (items.length === 0) return null;
 
 	return (
@@ -20,7 +24,7 @@ export const EnumPicker = ({ title, items, selectedIndex }: EnumPickerProps) => 
 				<Text color="magentaBright" bold>
 					{title}
 				</Text>
-				<Text dimColor>  j/k choose  Enter select  Esc cancel</Text>
+				<Text dimColor> j/k choose Enter select Esc cancel</Text>
 			</Box>
 			{items.map((item, i) => {
 				const isSelected = i === selectedIndex;
@@ -31,10 +35,7 @@ export const EnumPicker = ({ title, items, selectedIndex }: EnumPickerProps) => 
 								{isSelected ? "❯" : " "}
 							</Text>
 						</Box>
-						<Text
-							color={isSelected ? "cyan" : undefined}
-							bold={isSelected}
-						>
+						<Text color={isSelected ? "cyan" : undefined} bold={isSelected}>
 							{item.label}
 						</Text>
 					</Box>

@@ -66,7 +66,13 @@ describe("getEKeyEditOutcome", () => {
 	});
 
 	it("does not return projectEditPicker or taskEditPicker for lowercase e", () => {
-		const taskOutcome = getEKeyEditOutcome("today", "tasks", null, null, MOCK_TASK);
+		const taskOutcome = getEKeyEditOutcome(
+			"today",
+			"tasks",
+			null,
+			null,
+			MOCK_TASK,
+		);
 		expect(taskOutcome?.mode).toBe("editTask");
 		expect(taskOutcome?.mode).not.toBe("taskEditPicker");
 
@@ -84,7 +90,9 @@ describe("getEKeyEditOutcome", () => {
 	it("returns null when no task and no project edit context", () => {
 		expect(getEKeyEditOutcome("today", "tasks", null, null, null)).toBeNull();
 		// project view but focus on tasks (not sidebar) and no selected task → null
-		expect(getEKeyEditOutcome("project", "tasks", 42, MOCK_PROJECT, null)).toBeNull();
+		expect(
+			getEKeyEditOutcome("project", "tasks", 42, MOCK_PROJECT, null),
+		).toBeNull();
 	});
 
 	it("prefers project name edit when in project view with sidebar focus and active project", () => {

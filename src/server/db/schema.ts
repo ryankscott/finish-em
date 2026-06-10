@@ -1,5 +1,5 @@
 export const SCHEMA_STATEMENTS = [
-  `
+	`
   CREATE TABLE IF NOT EXISTS settings (
     id INTEGER PRIMARY KEY CHECK (id = 1),
     timezone TEXT NOT NULL,
@@ -7,7 +7,7 @@ export const SCHEMA_STATEMENTS = [
     updated_at TEXT NOT NULL
   )
 `,
-  `
+	`
   CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -31,7 +31,7 @@ export const SCHEMA_STATEMENTS = [
     updated_at TEXT NOT NULL
   )
 `,
-  `
+	`
   CREATE TABLE IF NOT EXISTS tasks (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     project_id INTEGER NOT NULL,
@@ -54,7 +54,7 @@ export const SCHEMA_STATEMENTS = [
     FOREIGN KEY(parent_task_id) REFERENCES tasks(id) ON DELETE CASCADE
   )
 `,
-  `
+	`
   CREATE TABLE IF NOT EXISTS reminders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     task_id INTEGER NOT NULL,
@@ -66,7 +66,7 @@ export const SCHEMA_STATEMENTS = [
     FOREIGN KEY(task_id) REFERENCES tasks(id) ON DELETE CASCADE
   )
 `,
-  `
+	`
   CREATE TABLE IF NOT EXISTS goals (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     period_type TEXT NOT NULL,
@@ -77,20 +77,20 @@ export const SCHEMA_STATEMENTS = [
     updated_at TEXT NOT NULL
   )
 `,
-  'CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id)',
-  'CREATE INDEX IF NOT EXISTS idx_tasks_due_at ON tasks(due_at)',
-  'CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)',
-  'CREATE INDEX IF NOT EXISTS idx_tasks_parent_task_id ON tasks(parent_task_id)',
-  'CREATE INDEX IF NOT EXISTS idx_reminders_task_id ON reminders(task_id)',
-  'CREATE INDEX IF NOT EXISTS idx_reminders_remind_at ON reminders(remind_at)',
-  'CREATE INDEX IF NOT EXISTS idx_goals_period ON goals(period_type, period_start)',
-  `
+	"CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id)",
+	"CREATE INDEX IF NOT EXISTS idx_tasks_due_at ON tasks(due_at)",
+	"CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)",
+	"CREATE INDEX IF NOT EXISTS idx_tasks_parent_task_id ON tasks(parent_task_id)",
+	"CREATE INDEX IF NOT EXISTS idx_reminders_task_id ON reminders(task_id)",
+	"CREATE INDEX IF NOT EXISTS idx_reminders_remind_at ON reminders(remind_at)",
+	"CREATE INDEX IF NOT EXISTS idx_goals_period ON goals(period_type, period_start)",
+	`
   CREATE TABLE IF NOT EXISTS sync_meta (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
   )
 `,
-  `
+	`
   CREATE TABLE IF NOT EXISTS sync_changelog (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     entity_type TEXT NOT NULL,
@@ -102,6 +102,6 @@ export const SCHEMA_STATEMENTS = [
     synced INTEGER NOT NULL DEFAULT 0
   )
 `,
-  'CREATE INDEX IF NOT EXISTS idx_sync_changelog_synced ON sync_changelog(synced)',
-  'CREATE INDEX IF NOT EXISTS idx_sync_changelog_entity ON sync_changelog(entity_type, entity_uuid)',
-]
+	"CREATE INDEX IF NOT EXISTS idx_sync_changelog_synced ON sync_changelog(synced)",
+	"CREATE INDEX IF NOT EXISTS idx_sync_changelog_entity ON sync_changelog(entity_type, entity_uuid)",
+];

@@ -6,8 +6,26 @@ type NavItem = {
 	type: "nav";
 	key: string;
 	label: string;
-	countKey?: "today" | "blocked" | "overdue" | "inbox" | "upcoming" | "completed" | "deleted" | "reminders";
-	view: "today" | "blocked" | "overdue" | "inbox" | "upcoming" | "priority" | "completed" | "deleted" | "settings" | "reminders";
+	countKey?:
+		| "today"
+		| "blocked"
+		| "overdue"
+		| "inbox"
+		| "upcoming"
+		| "completed"
+		| "deleted"
+		| "reminders";
+	view:
+		| "today"
+		| "blocked"
+		| "overdue"
+		| "inbox"
+		| "upcoming"
+		| "priority"
+		| "completed"
+		| "deleted"
+		| "settings"
+		| "reminders";
 };
 
 type ProjectItem = {
@@ -101,7 +119,17 @@ export const buildSidebarItems = (projects: Project[]): SidebarItem[] => {
 type SidebarProps = {
 	items: SidebarItem[];
 	viewCounts?: Partial<
-		Record<"today" | "blocked" | "overdue" | "inbox" | "upcoming" | "completed" | "deleted" | "reminders", number> & {
+		Record<
+			| "today"
+			| "blocked"
+			| "overdue"
+			| "inbox"
+			| "upcoming"
+			| "completed"
+			| "deleted"
+			| "reminders",
+			number
+		> & {
 			projectCounts?: Record<number, number>;
 		}
 	>;
@@ -138,7 +166,9 @@ export const Sidebar = ({
 		const isSelected = index === selectedIndex;
 		const isNav = item.type === "nav";
 		const suffix = isNav
-			? (item.countKey ? ` [${viewCounts?.[item.countKey] ?? 0}]` : "")
+			? item.countKey
+				? ` [${viewCounts?.[item.countKey] ?? 0}]`
+				: ""
 			: ` [${viewCounts?.projectCounts?.[item.project.id] ?? 0}]`;
 		const prefix = isNav
 			? item.label
@@ -149,23 +179,24 @@ export const Sidebar = ({
 				? prefix.slice(0, maxPrefixLen - 1) + "…"
 				: prefix;
 		const color =
-			isSelected && focused
-				? "cyan"
-				: isSelected
-					? "blueBright"
-					: undefined;
+			isSelected && focused ? "cyan" : isSelected ? "blueBright" : undefined;
 		const isBold = isSelected && focused;
 
 		return (
-			<Box
-				key={isNav ? item.key : `p-${item.project.id}`}
-				flexDirection="row"
-			>
-				<Text bold={isBold} color={color}>{isSelected ? "❯ " : "  "}</Text>
+			<Box key={isNav ? item.key : `p-${item.project.id}`} flexDirection="row">
+				<Text bold={isBold} color={color}>
+					{isSelected ? "❯ " : "  "}
+				</Text>
 				<Box flexGrow={1}>
-					<Text bold={isBold} color={color}>{truncatedPrefix}</Text>
+					<Text bold={isBold} color={color}>
+						{truncatedPrefix}
+					</Text>
 				</Box>
-				{suffix && <Text bold={isBold} color={color}>{suffix}</Text>}
+				{suffix && (
+					<Text bold={isBold} color={color}>
+						{suffix}
+					</Text>
+				)}
 			</Box>
 		);
 	};

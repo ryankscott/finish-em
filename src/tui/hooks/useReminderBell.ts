@@ -1,27 +1,31 @@
-import { useEffect, useRef, useCallback } from "react";
 import { execFile } from "node:child_process";
 import { join } from "node:path";
+import { useCallback, useEffect, useRef } from "react";
 
 import type { ApiClient } from "../api-client";
 
 const POLL_INTERVAL_MS = 60_000;
 
-export function dueReminderKey(
-	reminder: { id: number; remindAt: string; snoozedUntil: string | null },
-): string {
+export function dueReminderKey(reminder: {
+	id: number;
+	remindAt: string;
+	snoozedUntil: string | null;
+}): string {
 	return `${reminder.id}-${reminder.snoozedUntil ?? reminder.remindAt}`;
 }
 
-export function getNewlyDueReminders<T extends { id: number; remindAt: string; snoozedUntil: string | null }>(
-	due: T[],
-	notifiedKeys: Set<string>,
-): T[] {
+export function getNewlyDueReminders<
+	T extends { id: number; remindAt: string; snoozedUntil: string | null },
+>(due: T[], notifiedKeys: Set<string>): T[] {
 	return due.filter((r) => !notifiedKeys.has(dueReminderKey(r)));
 }
 
 export function useReminderBell(
 	api: ApiClient,
-	pushToast: (text: string, tone?: "info" | "success" | "warning" | "error") => void,
+	pushToast: (
+		text: string,
+		tone?: "info" | "success" | "warning" | "error",
+	) => void,
 ): void {
 	const notifiedKeysRef = useRef<Set<string>>(new Set());
 
@@ -36,12 +40,19 @@ export function useReminderBell(
 			process.stdout.write("\x07");
 			pushToast(`Reminder: ${r.taskTitle || "Task"}`, "info");
 			const title = r.taskTitle || "Task";
-			const iconPath = join(__dirname, "../../../../dist/finish-em.app/Contents/Resources/AppIcon.icns");
+			const iconPath = join(
+				__dirname,
+				"../../../../dist/finish-em.app/Contents/Resources/AppIcon.icns",
+			);
 			execFile("terminal-notifier", [
-				"-message", title,
-				"-title", "finish-em",
-				"-appIcon", iconPath,
-				"-sound", "Glass",
+				"-message",
+				title,
+				"-title",
+				"finish-em",
+				"-appIcon",
+				iconPath,
+				"-sound",
+				"Glass",
 			]);
 		}
 

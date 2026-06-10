@@ -1,7 +1,7 @@
 import { startOfWeek } from "date-fns";
 import { Box, useStdout } from "ink";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
+import { getSyncService } from "../server/sync/sync-service";
 import type { Reminder } from "../server/types";
 import type { ApiClient } from "./api-client";
 import { CalendarPicker } from "./CalendarPicker";
@@ -10,29 +10,31 @@ import { CreateTaskModal } from "./CreateTaskModal";
 import { Dashboard } from "./Dashboard";
 import { EnumPicker, type EnumPickerItem } from "./EnumPicker";
 import { HelpModal } from "./HelpModal";
+import { useAppData } from "./hooks/useAppData";
+import {
+	initCalendarPicker,
+	useCalendarPicker,
+} from "./hooks/useCalendarPicker";
+import type { InputMode } from "./hooks/useInputBar";
+import { useInputBar } from "./hooks/useInputBar";
+import { useKeybindings } from "./hooks/useKeybindings";
+import { useNavDerived } from "./hooks/useNavDerived";
+import { useNavigation } from "./hooks/useNavigation";
+import { useReminderBell } from "./hooks/useReminderBell";
+import { useSubmitInput } from "./hooks/useSubmitInput";
+import { useTaskActions } from "./hooks/useTaskActions";
+import { useToasts } from "./hooks/useToasts";
 import { InputBar } from "./InputBar";
 import { LinkPicker } from "./LinkPicker";
 import { ProjectEditPicker } from "./ProjectEditPicker";
-import { SettingsPanel } from "./SettingsPanel";
 import { RemindersPanel } from "./RemindersPanel";
+import { SettingsPanel } from "./SettingsPanel";
 import { buildSidebarItems, Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
 import { TaskActionPicker } from "./TaskActionPicker";
 import { TaskEditPicker } from "./TaskEditPicker";
 import { buildTaskPanelRows, TaskPanel } from "./TaskPanel";
 import { dateKey, UpcomingPanel } from "./UpcomingPanel";
-import { useAppData } from "./hooks/useAppData";
-import { useCalendarPicker, initCalendarPicker } from "./hooks/useCalendarPicker";
-import { useInputBar } from "./hooks/useInputBar";
-import type { InputMode } from "./hooks/useInputBar";
-import { useKeybindings } from "./hooks/useKeybindings";
-import { useNavDerived } from "./hooks/useNavDerived";
-import { useNavigation } from "./hooks/useNavigation";
-import { useSubmitInput } from "./hooks/useSubmitInput";
-import { useTaskActions } from "./hooks/useTaskActions";
-import { useReminderBell } from "./hooks/useReminderBell";
-import { useToasts } from "./hooks/useToasts";
-import { getSyncService } from "../server/sync/sync-service";
 
 const CALENDAR_PICKER_MODES: InputMode[] = [
 	"calendarPickerDueDate",
@@ -42,8 +44,8 @@ const CALENDAR_PICKER_MODES: InputMode[] = [
 	"calendarPickerReminderDate",
 ];
 
-export { shouldStartProjectEdit } from "./hooks/useMainKeys";
 export { applyTextEdit } from "./apply-text-edit";
+export { shouldStartProjectEdit } from "./hooks/useMainKeys";
 
 const SIDEBAR_WIDTH = 36;
 
@@ -67,12 +69,18 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [reminders, setReminders] = useState<Reminder[]>([]);
 	const [enumPickerItems, setEnumPickerItems] = useState<EnumPickerItem[]>([]);
 	const [enumPickerTitle, setEnumPickerTitle] = useState("");
-	const [syncEnabled, setSyncEnabled] = useState(() => getSyncService().isEnabled());
+	const [syncEnabled, setSyncEnabled] = useState(() =>
+		getSyncService().isEnabled(),
+	);
 	const [syncState, setSyncState] = useState<{
 		syncing: boolean;
 		lastSyncAt: string | null;
 		error: string | null;
-	}>({ syncing: false, lastSyncAt: getSyncService().getStatus().lastSyncAt, error: null });
+	}>({
+		syncing: false,
+		lastSyncAt: getSyncService().getStatus().lastSyncAt,
+		error: null,
+	});
 
 	useEffect(() => {
 		const svc = getSyncService();
@@ -82,11 +90,17 @@ export const App = ({ api, onQuit }: AppProps) => {
 			if (result instanceof Error) {
 				setSyncState((s) => ({ ...s, syncing: false, error: result.message }));
 			} else {
-				setSyncState({ syncing: false, lastSyncAt: new Date().toISOString(), error: null });
+				setSyncState({
+					syncing: false,
+					lastSyncAt: new Date().toISOString(),
+					error: null,
+				});
 				if (result.inboxImported > 0) {
 					const n = result.inboxImported;
 					pushToast(
-						n === 1 ? "1 task imported from iPhone" : `${n} tasks imported from iPhone`,
+						n === 1
+							? "1 task imported from iPhone"
+							: `${n} tasks imported from iPhone`,
 						"success",
 					);
 				}
@@ -94,9 +108,12 @@ export const App = ({ api, onQuit }: AppProps) => {
 		});
 		if (svc.isEnabled()) {
 			setSyncState((s) => ({ ...s, syncing: true }));
-			svc.syncNow().catch(() => {}).finally(() => {
-				setSyncState((s) => ({ ...s, syncing: false }));
-			});
+			svc
+				.syncNow()
+				.catch(() => {})
+				.finally(() => {
+					setSyncState((s) => ({ ...s, syncing: false }));
+				});
 		}
 		return () => {
 			unsub();
@@ -113,14 +130,18 @@ export const App = ({ api, onQuit }: AppProps) => {
 		} else {
 			svc.enable();
 			setSyncState((s) => ({ ...s, syncing: true, error: null }));
-			svc.syncNow().catch(() => {}).finally(() => {
-				setSyncState((s) => ({ ...s, syncing: false }));
-			});
+			svc
+				.syncNow()
+				.catch(() => {})
+				.finally(() => {
+					setSyncState((s) => ({ ...s, syncing: false }));
+				});
 		}
 		setSyncEnabled(svc.isEnabled());
 	}, []);
 
-	const goalPeriodType = nav.viewMode === "day" ? ("daily" as const) : ("weekly" as const);
+	const goalPeriodType =
+		nav.viewMode === "day" ? ("daily" as const) : ("weekly" as const);
 	const goalPeriodStart = useMemo(() => {
 		if (nav.viewMode === "day") return dateKey(nav.anchorDate);
 		return dateKey(startOfWeek(nav.anchorDate, { weekStartsOn: 1 }));
@@ -148,13 +169,16 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 	// Global search: filter all open tasks by title
 	const searchResults = useMemo(() => {
-		if (inputBar.inputMode !== "globalSearch" || !inputBar.inputValue.trim()) return [];
+		if (inputBar.inputMode !== "globalSearch" || !inputBar.inputValue.trim())
+			return [];
 		const q = inputBar.inputValue.toLowerCase();
 		return data.allTasks.filter((t) => t.title.toLowerCase().includes(q));
 	}, [inputBar.inputMode, inputBar.inputValue, data.allTasks]);
 
 	const isSearchMode = inputBar.inputMode === "globalSearch";
-	const displayRows = isSearchMode ? buildTaskPanelRows(searchResults) : navDerived.taskRows;
+	const displayRows = isSearchMode
+		? buildTaskPanelRows(searchResults)
+		: navDerived.taskRows;
 	const todayOverdueSplitIndex =
 		!isSearchMode && nav.view === "today" ? data.viewCounts.overdue : undefined;
 	const displayLabel = isSearchMode
@@ -189,7 +213,10 @@ export const App = ({ api, onQuit }: AppProps) => {
 	// Reset taskIndex when leaving search mode so it doesn't point out of bounds
 	const prevInputModeRef = useRef(inputBar.inputMode);
 	useEffect(() => {
-		if (prevInputModeRef.current === "globalSearch" && inputBar.inputMode !== "globalSearch") {
+		if (
+			prevInputModeRef.current === "globalSearch" &&
+			inputBar.inputMode !== "globalSearch"
+		) {
 			nav.setTaskIndex(0);
 		}
 		prevInputModeRef.current = inputBar.inputMode;
@@ -275,9 +302,10 @@ export const App = ({ api, onQuit }: AppProps) => {
 		[data.projects],
 	);
 
-	const selectedReminder = nav.view === "reminders"
-		? (data.allReminders[nav.taskIndex] ?? null)
-		: (reminders[0] ?? null);
+	const selectedReminder =
+		nav.view === "reminders"
+			? (data.allReminders[nav.taskIndex] ?? null)
+			: (reminders[0] ?? null);
 	const selectedTaskHasSubtasks = effectiveSelectedTask
 		? navDerived.expandableTaskIds.has(effectiveSelectedTask.id)
 		: false;
@@ -413,19 +441,19 @@ export const App = ({ api, onQuit }: AppProps) => {
 						terminalHeight={terminalHeight}
 					/>
 				) : nav.view === "upcoming" ? (
-				<UpcomingPanel
-					columns={navDerived.columns}
-					goals={data.goals}
-					projectMap={navDerived.projectMap}
-					viewMode={nav.viewMode}
-					anchorDate={nav.anchorDate}
-					focused={nav.focusArea === "tasks" || nav.focusArea === "goals"}
-					focusArea={nav.focusArea}
-					selectedColumnIndex={nav.columnIndex}
-					selectedTaskIndex={nav.taskIndex}
-					selectedGoalIndex={nav.goalIndex}
-					terminalWidth={contentPaneTerminalWidth}
-				/>
+					<UpcomingPanel
+						columns={navDerived.columns}
+						goals={data.goals}
+						projectMap={navDerived.projectMap}
+						viewMode={nav.viewMode}
+						anchorDate={nav.anchorDate}
+						focused={nav.focusArea === "tasks" || nav.focusArea === "goals"}
+						focusArea={nav.focusArea}
+						selectedColumnIndex={nav.columnIndex}
+						selectedTaskIndex={nav.taskIndex}
+						selectedGoalIndex={nav.goalIndex}
+						terminalWidth={contentPaneTerminalWidth}
+					/>
 				) : (
 					<TaskPanel
 						rows={displayRows}
@@ -434,8 +462,14 @@ export const App = ({ api, onQuit }: AppProps) => {
 						focused={nav.focusArea === "tasks"}
 						selectedIndex={nav.taskIndex}
 						expandedTaskId={isSearchMode ? null : nav.expandedTaskId}
-						expandableTaskIds={isSearchMode ? undefined : navDerived.expandableTaskIds}
-						activeProject={nav.view === "project" && !isSearchMode ? navDerived.activeProject : null}
+						expandableTaskIds={
+							isSearchMode ? undefined : navDerived.expandableTaskIds
+						}
+						activeProject={
+							nav.view === "project" && !isSearchMode
+								? navDerived.activeProject
+								: null
+						}
 						terminalHeight={terminalHeight}
 						overdueSplitIndex={todayOverdueSplitIndex}
 						sections={prioritySections}
@@ -461,12 +495,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 				<TaskEditPicker selectedIndex={inputBar.pickerIndex} />
 			)}
 
-			{inputBar.inputMode === "projectEditPicker" && navDerived.activeProject && (
-				<ProjectEditPicker
-					selectedIndex={inputBar.pickerIndex}
-					projectName={navDerived.activeProject.name}
-				/>
-			)}
+			{inputBar.inputMode === "projectEditPicker" &&
+				navDerived.activeProject && (
+					<ProjectEditPicker
+						selectedIndex={inputBar.pickerIndex}
+						projectName={navDerived.activeProject.name}
+					/>
+				)}
 
 			{inputBar.isEnumPickerMode && (
 				<EnumPicker
@@ -501,44 +536,51 @@ export const App = ({ api, onQuit }: AppProps) => {
 				syncState={syncState}
 				activeToast={visibleToasts[0] ?? null}
 			/>
-		{inputBar.inputMode === "createTaskModal" && (
-			<CreateTaskModal
-				activeFieldIndex={inputBar.modalFieldIndex}
-				modalValues={inputBar.modalValues}
-				inputCursorOffset={inputBar.inputCursorOffset}
-				validationError={inputBar.validationError}
-				projectLabels={Object.fromEntries(
-					data.projects.map((p) => [String(p.id), p.emoji ? `${p.emoji} ${p.name}` : p.name]),
-				)}
-			/>
-		)}
-		{inputBar.inputMode === "editTaskModal" && (
-			<CreateTaskModal
-				mode="editTaskModal"
-				activeFieldIndex={inputBar.modalFieldIndex}
-				modalValues={inputBar.modalValues}
-				inputCursorOffset={inputBar.inputCursorOffset}
-				validationError={inputBar.validationError}
-				projectLabels={Object.fromEntries(
-					data.projects.map((p) => [String(p.id), p.emoji ? `${p.emoji} ${p.name}` : p.name]),
-				)}
-			/>
-		)}
-		{(inputBar.inputMode === "createProjectModal" || inputBar.inputMode === "editProjectModal") && (
-			<CreateProjectModal
-				mode={inputBar.inputMode}
-				activeFieldIndex={inputBar.modalFieldIndex}
-				modalValues={inputBar.modalValues}
-				inputCursorOffset={inputBar.inputCursorOffset}
-				validationError={inputBar.validationError}
-			/>
-		)}
-		{nav.showHelp && (
-			<HelpModal
-				terminalWidth={stdout?.columns ?? 120}
-				terminalHeight={terminalHeight}
-			/>
-		)}
+			{inputBar.inputMode === "createTaskModal" && (
+				<CreateTaskModal
+					activeFieldIndex={inputBar.modalFieldIndex}
+					modalValues={inputBar.modalValues}
+					inputCursorOffset={inputBar.inputCursorOffset}
+					validationError={inputBar.validationError}
+					projectLabels={Object.fromEntries(
+						data.projects.map((p) => [
+							String(p.id),
+							p.emoji ? `${p.emoji} ${p.name}` : p.name,
+						]),
+					)}
+				/>
+			)}
+			{inputBar.inputMode === "editTaskModal" && (
+				<CreateTaskModal
+					mode="editTaskModal"
+					activeFieldIndex={inputBar.modalFieldIndex}
+					modalValues={inputBar.modalValues}
+					inputCursorOffset={inputBar.inputCursorOffset}
+					validationError={inputBar.validationError}
+					projectLabels={Object.fromEntries(
+						data.projects.map((p) => [
+							String(p.id),
+							p.emoji ? `${p.emoji} ${p.name}` : p.name,
+						]),
+					)}
+				/>
+			)}
+			{(inputBar.inputMode === "createProjectModal" ||
+				inputBar.inputMode === "editProjectModal") && (
+				<CreateProjectModal
+					mode={inputBar.inputMode}
+					activeFieldIndex={inputBar.modalFieldIndex}
+					modalValues={inputBar.modalValues}
+					inputCursorOffset={inputBar.inputCursorOffset}
+					validationError={inputBar.validationError}
+				/>
+			)}
+			{nav.showHelp && (
+				<HelpModal
+					terminalWidth={stdout?.columns ?? 120}
+					terminalHeight={terminalHeight}
+				/>
+			)}
 		</Box>
 	);
 };

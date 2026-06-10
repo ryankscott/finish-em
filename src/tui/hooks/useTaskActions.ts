@@ -95,7 +95,15 @@ export function useTaskActions({
 		} finally {
 			setLoading(false);
 		}
-	}, [api, loadData, pushToast, selectedTask, setErrorText, setLoading, setStatusText]);
+	}, [
+		api,
+		loadData,
+		pushToast,
+		selectedTask,
+		setErrorText,
+		setLoading,
+		setStatusText,
+	]);
 
 	const deleteActiveProject = useCallback(async () => {
 		if (!activeProject || activeProject.isInbox) return;
@@ -184,7 +192,15 @@ export function useTaskActions({
 		} finally {
 			setLoading(false);
 		}
-	}, [api, loadData, pushToast, selectedGoal, setErrorText, setLoading, setStatusText]);
+	}, [
+		api,
+		loadData,
+		pushToast,
+		selectedGoal,
+		setErrorText,
+		setLoading,
+		setStatusText,
+	]);
 
 	return {
 		toggleSelectedTask,

@@ -7,7 +7,12 @@ import { applyTextEdit } from "../apply-text-edit";
 
 function applyModalTextEdit(
 	input: string,
-	keys: { backspace?: boolean; delete?: boolean; leftArrow?: boolean; rightArrow?: boolean },
+	keys: {
+		backspace?: boolean;
+		delete?: boolean;
+		leftArrow?: boolean;
+		rightArrow?: boolean;
+	},
 	modalValues: Record<string, string>,
 	fieldKey: string,
 	cursor: number,
@@ -29,25 +34,49 @@ describe("useTextInputKeys modal routing", () => {
 	});
 
 	it("typing does not affect other modal field values", () => {
-		const result = applyModalTextEdit("x", {}, { title: "hello", notes: "note" }, "title", 5);
+		const result = applyModalTextEdit(
+			"x",
+			{},
+			{ title: "hello", notes: "note" },
+			"title",
+			5,
+		);
 		expect(result?.modalValues.title).toBe("hellox");
 		expect(result?.modalValues.notes).toBe("note");
 	});
 
 	it("backspace removes character before cursor in modal field", () => {
-		const result = applyModalTextEdit("", { backspace: true }, { title: "abc" }, "title", 3);
+		const result = applyModalTextEdit(
+			"",
+			{ backspace: true },
+			{ title: "abc" },
+			"title",
+			3,
+		);
 		expect(result?.modalValues.title).toBe("ab");
 		expect(result?.cursor).toBe(2);
 	});
 
 	it("left arrow moves cursor left in modal field", () => {
-		const result = applyModalTextEdit("", { leftArrow: true }, { title: "abc" }, "title", 3);
+		const result = applyModalTextEdit(
+			"",
+			{ leftArrow: true },
+			{ title: "abc" },
+			"title",
+			3,
+		);
 		expect(result?.cursor).toBe(2);
 		expect(result?.modalValues.title).toBe("abc");
 	});
 
 	it("right arrow moves cursor right in modal field", () => {
-		const result = applyModalTextEdit("", { rightArrow: true }, { title: "abc" }, "title", 1);
+		const result = applyModalTextEdit(
+			"",
+			{ rightArrow: true },
+			{ title: "abc" },
+			"title",
+			1,
+		);
 		expect(result?.cursor).toBe(2);
 	});
 

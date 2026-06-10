@@ -1,254 +1,255 @@
-import { z } from '@hono/zod-openapi'
+import { z } from "@hono/zod-openapi";
 
 export const prioritySchema = z
-  .union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)])
-  .openapi({ description: 'Task priority: 1=Urgent, 2=High, 3=Normal, 4=Low' })
+	.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)])
+	.openapi({ description: "Task priority: 1=Urgent, 2=High, 3=Normal, 4=Low" });
 
-export const jiraTicketStatusSchema = z.enum(['todo', 'in_progress', 'done'])
+export const jiraTicketStatusSchema = z.enum(["todo", "in_progress", "done"]);
 
-export const taskStatusSchema = z.enum(['open', 'completed'])
+export const taskStatusSchema = z.enum(["open", "completed"]);
 
 export const recurrencePresetSchema = z.enum([
-  'daily',
-  'weekly',
-  'monthly',
-  'yearly',
-  'every_weekday',
-])
+	"daily",
+	"weekly",
+	"monthly",
+	"yearly",
+	"every_weekday",
+]);
 
 export const reminderStatusSchema = z.enum([
-  'pending',
-  'fired',
-  'snoozed',
-  'dismissed',
-])
+	"pending",
+	"fired",
+	"snoozed",
+	"dismissed",
+]);
 
-export const goalPeriodSchema = z.enum(['daily', 'weekly'])
+export const goalPeriodSchema = z.enum(["daily", "weekly"]);
 
 export const settingsSchema = z
-  .object({
-    id: z.literal(1),
-    timezone: z.string(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  })
-  .openapi('Settings')
+	.object({
+		id: z.literal(1),
+		timezone: z.string(),
+		createdAt: z.string(),
+		updatedAt: z.string(),
+	})
+	.openapi("Settings");
 
 export const settingsUpdateSchema = z
-  .object({
-    timezone: z.string().optional(),
-  })
-  .openapi('SettingsUpdate')
+	.object({
+		timezone: z.string().optional(),
+	})
+	.openapi("SettingsUpdate");
 
 export const projectSchema = z
-  .object({
-    id: z.number().int(),
-    name: z.string(),
-    emoji: z.string().nullable(),
-    description: z.string(),
-    startAt: z.string().nullable(),
-    endAt: z.string().nullable(),
-    color: z.string(),
-    isInbox: z.boolean(),
-    jiraDiscoveryUrl: z.string().nullable(),
-    jiraDiscoveryStatus: jiraTicketStatusSchema.nullable(),
-    jiraDeliveryUrl: z.string().nullable(),
-    jiraDeliveryStatus: jiraTicketStatusSchema.nullable(),
-    confluenceUrl: z.string().nullable(),
-    jiraDocsUrl: z.string().nullable(),
-    jiraDocsStatus: jiraTicketStatusSchema.nullable(),
-    jiraReleaseNoteUrl: z.string().nullable(),
-    jiraReleaseNoteStatus: jiraTicketStatusSchema.nullable(),
-    teamsReleaseNoteUrl: z.string().nullable(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  })
-  .openapi('Project')
+	.object({
+		id: z.number().int(),
+		name: z.string(),
+		emoji: z.string().nullable(),
+		description: z.string(),
+		startAt: z.string().nullable(),
+		endAt: z.string().nullable(),
+		color: z.string(),
+		isInbox: z.boolean(),
+		jiraDiscoveryUrl: z.string().nullable(),
+		jiraDiscoveryStatus: jiraTicketStatusSchema.nullable(),
+		jiraDeliveryUrl: z.string().nullable(),
+		jiraDeliveryStatus: jiraTicketStatusSchema.nullable(),
+		confluenceUrl: z.string().nullable(),
+		jiraDocsUrl: z.string().nullable(),
+		jiraDocsStatus: jiraTicketStatusSchema.nullable(),
+		jiraReleaseNoteUrl: z.string().nullable(),
+		jiraReleaseNoteStatus: jiraTicketStatusSchema.nullable(),
+		teamsReleaseNoteUrl: z.string().nullable(),
+		createdAt: z.string(),
+		updatedAt: z.string(),
+	})
+	.openapi("Project");
 
 const projectInputFields = {
-  name: z.string().min(1),
-  emoji: z.string().nullable().optional(),
-  description: z.string().optional(),
-  startAt: z.string().nullable().optional(),
-  endAt: z.string().nullable().optional(),
-  color: z.string().optional(),
-  isInbox: z.boolean().optional(),
-  jiraDiscoveryUrl: z.string().nullable().optional(),
-  jiraDiscoveryStatus: jiraTicketStatusSchema.nullable().optional(),
-  jiraDeliveryUrl: z.string().nullable().optional(),
-  jiraDeliveryStatus: jiraTicketStatusSchema.nullable().optional(),
-  confluenceUrl: z.string().nullable().optional(),
-  jiraDocsUrl: z.string().nullable().optional(),
-  jiraDocsStatus: jiraTicketStatusSchema.nullable().optional(),
-  jiraReleaseNoteUrl: z.string().nullable().optional(),
-  jiraReleaseNoteStatus: jiraTicketStatusSchema.nullable().optional(),
-  teamsReleaseNoteUrl: z.string().nullable().optional(),
-}
+	name: z.string().min(1),
+	emoji: z.string().nullable().optional(),
+	description: z.string().optional(),
+	startAt: z.string().nullable().optional(),
+	endAt: z.string().nullable().optional(),
+	color: z.string().optional(),
+	isInbox: z.boolean().optional(),
+	jiraDiscoveryUrl: z.string().nullable().optional(),
+	jiraDiscoveryStatus: jiraTicketStatusSchema.nullable().optional(),
+	jiraDeliveryUrl: z.string().nullable().optional(),
+	jiraDeliveryStatus: jiraTicketStatusSchema.nullable().optional(),
+	confluenceUrl: z.string().nullable().optional(),
+	jiraDocsUrl: z.string().nullable().optional(),
+	jiraDocsStatus: jiraTicketStatusSchema.nullable().optional(),
+	jiraReleaseNoteUrl: z.string().nullable().optional(),
+	jiraReleaseNoteStatus: jiraTicketStatusSchema.nullable().optional(),
+	teamsReleaseNoteUrl: z.string().nullable().optional(),
+};
 
 export const projectCreateSchema = z
-  .object(projectInputFields)
-  .openapi('ProjectCreate')
+	.object(projectInputFields)
+	.openapi("ProjectCreate");
 
 export const projectUpdateSchema = z
-  .object({ ...projectInputFields, name: z.string().min(1).optional() })
-  .openapi('ProjectUpdate')
+	.object({ ...projectInputFields, name: z.string().min(1).optional() })
+	.openapi("ProjectUpdate");
 
 export const taskSchema = z
-  .object({
-    id: z.number().int(),
-    projectId: z.number().int(),
-    parentTaskId: z.number().int().nullable(),
-    title: z.string(),
-    notes: z.string(),
-    priority: prioritySchema,
-    scheduledAt: z.string().nullable(),
-    dueAt: z.string().nullable(),
-    dueTimezone: z.string().nullable(),
-    recurrencePreset: recurrencePresetSchema.nullable(),
-    recurrenceRRule: z.string().nullable(),
-    status: taskStatusSchema,
-    completedAt: z.string().nullable(),
-    blockedAt: z.string().nullable(),
-    blockedReason: z.string().nullable(),
-    deletedAt: z.string().nullable(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  })
-  .openapi('Task')
+	.object({
+		id: z.number().int(),
+		projectId: z.number().int(),
+		parentTaskId: z.number().int().nullable(),
+		title: z.string(),
+		notes: z.string(),
+		priority: prioritySchema,
+		scheduledAt: z.string().nullable(),
+		dueAt: z.string().nullable(),
+		dueTimezone: z.string().nullable(),
+		recurrencePreset: recurrencePresetSchema.nullable(),
+		recurrenceRRule: z.string().nullable(),
+		status: taskStatusSchema,
+		completedAt: z.string().nullable(),
+		blockedAt: z.string().nullable(),
+		blockedReason: z.string().nullable(),
+		deletedAt: z.string().nullable(),
+		createdAt: z.string(),
+		updatedAt: z.string(),
+	})
+	.openapi("Task");
 
 export const taskCreateSchema = z
-  .object({
-    projectId: z.number().int(),
-    parentTaskId: z.number().int().nullable().optional(),
-    title: z.string().min(1),
-    notes: z.string().optional(),
-    priority: prioritySchema.optional(),
-    scheduledAt: z.string().nullable().optional(),
-    dueAt: z.string().nullable().optional(),
-    dueTimezone: z.string().nullable().optional(),
-    recurrencePreset: recurrencePresetSchema.nullable().optional(),
-    recurrenceRRule: z.string().nullable().optional(),
-    blockedReason: z.string().nullable().optional(),
-  })
-  .openapi('TaskCreate')
+	.object({
+		projectId: z.number().int(),
+		parentTaskId: z.number().int().nullable().optional(),
+		title: z.string().min(1),
+		notes: z.string().optional(),
+		priority: prioritySchema.optional(),
+		scheduledAt: z.string().nullable().optional(),
+		dueAt: z.string().nullable().optional(),
+		dueTimezone: z.string().nullable().optional(),
+		recurrencePreset: recurrencePresetSchema.nullable().optional(),
+		recurrenceRRule: z.string().nullable().optional(),
+		blockedReason: z.string().nullable().optional(),
+	})
+	.openapi("TaskCreate");
 
 export const taskUpdateSchema = z
-  .object({
-    title: z.string().min(1).optional(),
-    notes: z.string().optional(),
-    projectId: z.number().int().optional(),
-    parentTaskId: z.number().int().nullable().optional(),
-    priority: prioritySchema.optional(),
-    scheduledAt: z.string().nullable().optional(),
-    dueAt: z.string().nullable().optional(),
-    dueTimezone: z.string().optional(),
-    recurrencePreset: recurrencePresetSchema.nullable().optional(),
-    recurrenceRRule: z.string().nullable().optional(),
-    blockedReason: z.string().nullable().optional(),
-  })
-  .openapi('TaskUpdate')
+	.object({
+		title: z.string().min(1).optional(),
+		notes: z.string().optional(),
+		projectId: z.number().int().optional(),
+		parentTaskId: z.number().int().nullable().optional(),
+		priority: prioritySchema.optional(),
+		scheduledAt: z.string().nullable().optional(),
+		dueAt: z.string().nullable().optional(),
+		dueTimezone: z.string().optional(),
+		recurrencePreset: recurrencePresetSchema.nullable().optional(),
+		recurrenceRRule: z.string().nullable().optional(),
+		blockedReason: z.string().nullable().optional(),
+	})
+	.openapi("TaskUpdate");
 
 const queryBoolean = z
-  .enum(['true', 'false'])
-  .transform((value) => value === 'true')
+	.enum(["true", "false"])
+	.transform((value) => value === "true");
 
 export const taskQuerySchema = z
-  .object({
-    projectId: z.coerce.number().int().optional(),
-    status: taskStatusSchema.optional(),
-    blocked: queryBoolean.optional(),
-    from: z.string().optional(),
-    to: z.string().optional(),
-    priority: z.coerce.number().pipe(prioritySchema).optional(),
-    noDueDate: queryBoolean.optional(),
-    parentTaskId: z
-      .string()
-      .transform((value) => (value === 'null' ? null : Number(value)))
-      .optional(),
-    rootsOnly: queryBoolean.optional(),
-  })
-  .openapi('TaskQuery')
+	.object({
+		projectId: z.coerce.number().int().optional(),
+		status: taskStatusSchema.optional(),
+		blocked: queryBoolean.optional(),
+		from: z.string().optional(),
+		to: z.string().optional(),
+		priority: z.coerce.number().pipe(prioritySchema).optional(),
+		noDueDate: queryBoolean.optional(),
+		parentTaskId: z
+			.string()
+			.transform((value) => (value === "null" ? null : Number(value)))
+			.optional(),
+		rootsOnly: queryBoolean.optional(),
+	})
+	.openapi("TaskQuery");
 
 export const goalSchema = z
-  .object({
-    id: z.number().int(),
-    periodType: goalPeriodSchema,
-    periodStart: z.string(),
-    title: z.string(),
-    done: z.boolean(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  })
-  .openapi('Goal')
+	.object({
+		id: z.number().int(),
+		periodType: goalPeriodSchema,
+		periodStart: z.string(),
+		title: z.string(),
+		done: z.boolean(),
+		createdAt: z.string(),
+		updatedAt: z.string(),
+	})
+	.openapi("Goal");
 
 export const goalQuerySchema = z.object({
-  periodType: goalPeriodSchema.optional(),
-  periodStart: z.string().optional(),
-})
+	periodType: goalPeriodSchema.optional(),
+	periodStart: z.string().optional(),
+});
 
 export const goalCreateSchema = z
-  .object({
-    periodType: goalPeriodSchema,
-    periodStart: z.string(),
-    title: z.string().min(1),
-    done: z.boolean().optional(),
-  })
-  .openapi('GoalCreate')
+	.object({
+		periodType: goalPeriodSchema,
+		periodStart: z.string(),
+		title: z.string().min(1),
+		done: z.boolean().optional(),
+	})
+	.openapi("GoalCreate");
 
 export const goalUpdateSchema = z
-  .object({
-    title: z.string().min(1).optional(),
-    done: z.boolean().optional(),
-  })
-  .openapi('GoalUpdate')
+	.object({
+		title: z.string().min(1).optional(),
+		done: z.boolean().optional(),
+	})
+	.openapi("GoalUpdate");
 
 export const reminderSchema = z
-  .object({
-    id: z.number().int(),
-    taskId: z.number().int(),
-    remindAt: z.string(),
-    status: reminderStatusSchema,
-    snoozedUntil: z.string().nullable(),
-    createdAt: z.string(),
-    updatedAt: z.string(),
-  })
-  .openapi('Reminder')
+	.object({
+		id: z.number().int(),
+		taskId: z.number().int(),
+		remindAt: z.string(),
+		status: reminderStatusSchema,
+		snoozedUntil: z.string().nullable(),
+		createdAt: z.string(),
+		updatedAt: z.string(),
+	})
+	.openapi("Reminder");
 
 export const reminderWithTitleSchema = reminderSchema
-  .extend({ taskTitle: z.string() })
-  .openapi('ReminderWithTitle')
+	.extend({ taskTitle: z.string() })
+	.openapi("ReminderWithTitle");
 
 export const reminderCreateSchema = z
-  .object({
-    remindAt: z.string(),
-    status: reminderStatusSchema.optional(),
-  })
-  .openapi('ReminderCreate')
+	.object({
+		remindAt: z.string(),
+		status: reminderStatusSchema.optional(),
+	})
+	.openapi("ReminderCreate");
 
 export const syncStatusSchema = z
-  .object({
-    enabled: z.boolean(),
-    deviceId: z.string().nullable(),
-    lastSyncAt: z.string().nullable(),
-    lastPushAt: z.string().nullable(),
-    pendingChanges: z.number().int(),
-  })
-  .openapi('SyncStatus')
+	.object({
+		enabled: z.boolean(),
+		deviceId: z.string().nullable(),
+		lastSyncAt: z.string().nullable(),
+		lastPushAt: z.string().nullable(),
+		pendingChanges: z.number().int(),
+	})
+	.openapi("SyncStatus");
 
 export const syncResultSchema = z
-  .object({
-    pushed: z.number().int(),
-    pulled: z.number().int(),
-    inboxImported: z.number().int(),
-  })
-  .openapi('SyncResult')
+	.object({
+		pushed: z.number().int(),
+		pulled: z.number().int(),
+		inboxImported: z.number().int(),
+	})
+	.openapi("SyncResult");
 
 export const idParamSchema = z.object({
-  id: z.coerce.number().int().openapi({ param: { name: 'id', in: 'path' } }),
-})
+	id: z.coerce
+		.number()
+		.int()
+		.openapi({ param: { name: "id", in: "path" } }),
+});
 
-export const errorSchema = z
-  .object({ error: z.string() })
-  .openapi('Error')
+export const errorSchema = z.object({ error: z.string() }).openapi("Error");
 
-export const emptySchema = z.object({}).openapi('Empty')
+export const emptySchema = z.object({}).openapi("Empty");

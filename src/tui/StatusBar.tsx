@@ -27,13 +27,24 @@ const TONE_PREFIX: Record<StatusMessageTone, string> = {
 	error: "✗",
 };
 
-function buildSyncIndicator(syncEnabled: boolean, syncState: SyncState): string {
+function buildSyncIndicator(
+	syncEnabled: boolean,
+	syncState: SyncState,
+): string {
 	if (!syncEnabled) return "";
 	if (syncState.error) return " ⚡sync";
 	if (syncState.syncing) return " ↻";
 	if (syncState.lastSyncAt) {
-		const mins = differenceInMinutes(new Date(), new Date(syncState.lastSyncAt));
-		const timeStr = mins < 1 ? "now" : mins < 60 ? `${mins}m` : format(new Date(syncState.lastSyncAt), "HH:mm");
+		const mins = differenceInMinutes(
+			new Date(),
+			new Date(syncState.lastSyncAt),
+		);
+		const timeStr =
+			mins < 1
+				? "now"
+				: mins < 60
+					? `${mins}m`
+					: format(new Date(syncState.lastSyncAt), "HH:mm");
 		return ` ↑↓ ${timeStr}`;
 	}
 	return " ↑↓";
@@ -56,9 +67,10 @@ export const StatusBar = ({
 	const rawLine = ` ${leftText}`;
 	const minWidth = Math.max(terminalWidth, rightText.length + 3);
 	const spaceForLeft = Math.max(minWidth - rightText.length, 1);
-	const clippedLeft = rawLine.length > spaceForLeft
-		? `${rawLine.slice(0, Math.max(spaceForLeft - 1, 0))}…`
-		: rawLine;
+	const clippedLeft =
+		rawLine.length > spaceForLeft
+			? `${rawLine.slice(0, Math.max(spaceForLeft - 1, 0))}…`
+			: rawLine;
 	const line = `${clippedLeft.padEnd(spaceForLeft, " ")}${rightText}`;
 
 	return (

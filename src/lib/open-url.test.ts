@@ -36,7 +36,11 @@ describe("withScheme", () => {
 
 describe("openUrl spawn behavior", () => {
 	const originalSpawn = spawn;
-	let spawnCalls: { cmd: string; args: string[]; opts: Record<string, unknown> }[] = [];
+	let spawnCalls: {
+		cmd: string;
+		args: string[];
+		opts: Record<string, unknown>;
+	}[] = [];
 
 	afterEach(() => {
 		spawnCalls = [];
@@ -45,10 +49,12 @@ describe("openUrl spawn behavior", () => {
 
 	it("does not use shell: true (prevents URL mangling by shell metacharacters)", async () => {
 		const mockChild = { unref: mock(() => {}) };
-		const spawnMock = mock((cmd: string, args: string[], opts: Record<string, unknown>) => {
-			spawnCalls.push({ cmd, args, opts });
-			return mockChild;
-		});
+		const spawnMock = mock(
+			(cmd: string, args: string[], opts: Record<string, unknown>) => {
+				spawnCalls.push({ cmd, args, opts });
+				return mockChild;
+			},
+		);
 
 		mock.module("node:child_process", () => ({ spawn: spawnMock }));
 
@@ -57,6 +63,8 @@ describe("openUrl spawn behavior", () => {
 
 		expect(spawnCalls).toHaveLength(1);
 		expect(spawnCalls[0].opts.shell).toBeFalsy();
-		expect(spawnCalls[0].args).toContain("https://example.com/search?q=test&page=2#section");
+		expect(spawnCalls[0].args).toContain(
+			"https://example.com/search?q=test&page=2#section",
+		);
 	});
 });

@@ -63,9 +63,17 @@ function computeFlags(mode: InputMode) {
 		!isPickerMode &&
 		!isEnumPickerMode;
 	const isInputMode = mode !== "none";
-	const isBottomBarMode = isInputMode && mode !== "linkPicker" && !isPickerMode && !isEnumPickerMode;
+	const isBottomBarMode =
+		isInputMode && mode !== "linkPicker" && !isPickerMode && !isEnumPickerMode;
 	const isLinkPickerMode = mode === "linkPicker";
-	return { isTextInputMode, isInputMode, isBottomBarMode, isLinkPickerMode, isPickerMode, isEnumPickerMode };
+	return {
+		isTextInputMode,
+		isInputMode,
+		isBottomBarMode,
+		isLinkPickerMode,
+		isPickerMode,
+		isEnumPickerMode,
+	};
 }
 
 describe("picker mode flags", () => {

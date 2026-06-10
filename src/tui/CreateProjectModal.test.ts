@@ -3,16 +3,21 @@ import { describe, expect, it } from "bun:test";
 import { PROJECT_CREATE_FIELDS } from "./modal-field-defs";
 
 describe("PROJECT_CREATE_FIELDS structure", () => {
-	it("contains exactly 9 fields (8 data fields + submit)", () => {
-		expect(PROJECT_CREATE_FIELDS).toHaveLength(9);
+	it("contains exactly 16 fields (15 data fields + submit)", () => {
+		expect(PROJECT_CREATE_FIELDS).toHaveLength(16);
 	});
 
 	it("first field is name (text)", () => {
-		expect(PROJECT_CREATE_FIELDS[0]).toMatchObject({ key: "name", type: "text" });
+		expect(PROJECT_CREATE_FIELDS[0]).toMatchObject({
+			key: "name",
+			type: "text",
+		});
 	});
 
 	it("last field is submit", () => {
-		expect(PROJECT_CREATE_FIELDS[PROJECT_CREATE_FIELDS.length - 1]).toMatchObject({
+		expect(
+			PROJECT_CREATE_FIELDS[PROJECT_CREATE_FIELDS.length - 1],
+		).toMatchObject({
 			type: "submit",
 			label: "Create Project",
 		});
@@ -33,9 +38,12 @@ describe("PROJECT_CREATE_FIELDS structure", () => {
 		}
 	});
 
-	it("has no enum fields (all data fields are text or date)", () => {
+	it("has enum fields for Jira ticket statuses", () => {
 		const enumFields = PROJECT_CREATE_FIELDS.filter((f) => f.type === "enum");
-		expect(enumFields).toHaveLength(0);
+		expect(enumFields.length).toBeGreaterThan(0);
+		const enumKeys = enumFields.map((f) => f.key);
+		expect(enumKeys).toContain("jiraDiscoveryStatus");
+		expect(enumKeys).toContain("jiraDeliveryStatus");
 	});
 
 	it("includes jira and confluence URL fields", () => {
@@ -52,7 +60,9 @@ describe("modal rendering logic", () => {
 	});
 
 	it("submit row is the last index", () => {
-		const submitIndex = PROJECT_CREATE_FIELDS.findIndex((f) => f.type === "submit");
+		const submitIndex = PROJECT_CREATE_FIELDS.findIndex(
+			(f) => f.type === "submit",
+		);
 		expect(submitIndex).toBe(PROJECT_CREATE_FIELDS.length - 1);
 	});
 });

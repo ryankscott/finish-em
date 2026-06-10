@@ -43,12 +43,12 @@ describe("input autocomplete", () => {
 	});
 
 	it("suggests project emoji shortcode values from shared source", () => {
-		const suggestion = getProjectCreateAutocomplete("emoji::ro");
+		const suggestion = getProjectCreateAutocomplete("emoji::rock");
 		expect(suggestion?.nextValue).toBe("emoji::rocket:");
 	});
 
 	it("suggests additional emoji shortcodes (e.g. heart)", () => {
-		const suggestion = getProjectCreateAutocomplete("emoji::he");
+		const suggestion = getProjectCreateAutocomplete("emoji::heart");
 		expect(suggestion?.nextValue).toBe("emoji::heart:");
 	});
 

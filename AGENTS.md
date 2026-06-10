@@ -80,6 +80,15 @@ Always restore `TODO_DB_PATH` to its original value (or unset it) after manual T
 - **TypeScript strict** — do not use `any` without a clear justification.
 - **Biome** for formatting and linting; run `bun run check` before committing.
 
+## Web Development
+
+When building or modifying the web interface (if applicable):
+
+- **Prefer shadcn/ui components** — use shadcn/ui components where possible before building custom ones. Install via the CLI (`npx shadcn add <component>`) and follow the project's established component patterns.
+- **Radix UI primitives** — shadcn components are built on Radix UI; extend or customize them rather than replacing accessibility or behavior from scratch.
+- **Tailwind CSS for styling** — use Tailwind utility classes for layout and styling; avoid inline styles or CSS-in-JS unless there's a specific justification.
+- **Consistent design tokens** — stick to the existing color palette, spacing scale, and typography defined in the project configuration (e.g., `tailwind.config.ts` or CSS variables).
+
 ## Database Safety
 
 - **NEVER run `drizzle-kit` against the live database.** Schema is owned by `SCHEMA_STATEMENTS` + the `ensure*Schema` guards in `client.ts` and the SQL migrations in `src/server/db/migrations/`. `drizzle-schema.ts` is reference-only and intentionally incomplete; `drizzle-kit push`/`studio`/`migrate` would drop the tables/columns it omits (this is what once wiped the `tasks` table). `drizzle.config.ts` defaults to a disposable scratch DB and hard-throws if pointed at `~/.finish-em/todo.db`. Use `DRIZZLE_DB_PATH` for an explicit scratch path if you need drizzle-kit for diffing.

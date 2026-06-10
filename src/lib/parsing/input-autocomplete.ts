@@ -1,5 +1,5 @@
-import { shortcodeListForAutocomplete } from "../emoji-shortcodes";
 import type { Project } from "../../server/types";
+import { shortcodeListForAutocomplete } from "../emoji-shortcodes";
 
 type AutocompleteSuggestion = {
 	nextValue: string;
@@ -18,7 +18,16 @@ const PROJECT_KEYS = [
 	"jiraDelivery:",
 	"confluence:",
 ];
-const TASK_KEYS = ["title:", "project:", "priority:", "due:", "scheduled:", "notes:", "parent:", "recurs:"];
+const TASK_KEYS = [
+	"title:",
+	"project:",
+	"priority:",
+	"due:",
+	"scheduled:",
+	"notes:",
+	"parent:",
+	"recurs:",
+];
 
 function normalizeWords(input: string): { prefix: string; fragment: string } {
 	const trimmedEnd = input.replace(/\s+$/, "");
@@ -32,7 +41,10 @@ function normalizeWords(input: string): { prefix: string; fragment: string } {
 	};
 }
 
-function keySuggestion(input: string, keys: string[]): AutocompleteSuggestion | null {
+function keySuggestion(
+	input: string,
+	keys: string[],
+): AutocompleteSuggestion | null {
 	const { prefix, fragment } = normalizeWords(input);
 	if (fragment.includes(":")) {
 		return null;
@@ -54,13 +66,18 @@ function keySuggestion(input: string, keys: string[]): AutocompleteSuggestion | 
 	};
 }
 
-function valueSuggestion(input: string, values: string[]): AutocompleteSuggestion | null {
+function valueSuggestion(
+	input: string,
+	values: string[],
+): AutocompleteSuggestion | null {
 	const { prefix, fragment } = normalizeWords(input);
 	const colonIndex = fragment.indexOf(":");
 	if (colonIndex === -1) return null;
 	const key = fragment.slice(0, colonIndex + 1);
 	const valuePrefix = fragment.slice(colonIndex + 1).toLowerCase();
-	const match = values.find((value) => value.toLowerCase().startsWith(valuePrefix));
+	const match = values.find((value) =>
+		value.toLowerCase().startsWith(valuePrefix),
+	);
 	if (!match) {
 		return null;
 	}
@@ -70,7 +87,9 @@ function valueSuggestion(input: string, values: string[]): AutocompleteSuggestio
 	};
 }
 
-export function getProjectCreateAutocomplete(input: string): AutocompleteSuggestion | null {
+export function getProjectCreateAutocomplete(
+	input: string,
+): AutocompleteSuggestion | null {
 	const keyMatch = keySuggestion(input, PROJECT_KEYS);
 	if (keyMatch) return keyMatch;
 
@@ -112,7 +131,14 @@ export function getTaskCreateAutocomplete(
 		return valueSuggestion(input, ["1", "2", "3", "4"]);
 	}
 	if (lower.startsWith("recurs:")) {
-		return valueSuggestion(input, ["daily", "weekly", "monthly", "yearly", "every_weekday", "none"]);
+		return valueSuggestion(input, [
+			"daily",
+			"weekly",
+			"monthly",
+			"yearly",
+			"every_weekday",
+			"none",
+		]);
 	}
 	if (lower.startsWith("due:")) {
 		return valueSuggestion(input, ["today", "tomorrow", "next week", "none"]);

@@ -1,7 +1,10 @@
 import { describe, expect, it } from "bun:test";
 
 import type { Project } from "../../server/types";
-import { parseTaskEditInput, serializeTaskToEditInput } from "./parse-task-input";
+import {
+	parseTaskEditInput,
+	serializeTaskToEditInput,
+} from "./parse-task-input";
 
 const makeProject = (id: number, name: string): Project => ({
 	id,
@@ -41,7 +44,10 @@ describe("parseTaskEditInput", () => {
 		});
 
 		it("returns title after stripping tokens", () => {
-			const { patch } = parseTaskEditInput("Do the thing p1 due:today", PROJECTS);
+			const { patch } = parseTaskEditInput(
+				"Do the thing p1 due:today",
+				PROJECTS,
+			);
 			expect(patch.title).toBe("Do the thing");
 		});
 
@@ -68,8 +74,12 @@ describe("parseTaskEditInput", () => {
 		});
 
 		it("parses priority: and prio: aliases", () => {
-			expect(parseTaskEditInput("Buy milk priority:1", PROJECTS).patch.priority).toBe(1);
-			expect(parseTaskEditInput("Buy milk prio:2", PROJECTS).patch.priority).toBe(2);
+			expect(
+				parseTaskEditInput("Buy milk priority:1", PROJECTS).patch.priority,
+			).toBe(1);
+			expect(
+				parseTaskEditInput("Buy milk prio:2", PROJECTS).patch.priority,
+			).toBe(2);
 		});
 
 		it("parses emoji priority marker", () => {
@@ -87,7 +97,10 @@ describe("parseTaskEditInput", () => {
 			["yearly", "yearly"],
 			["every_weekday", "every_weekday"],
 		])("parses recurs:%s", (preset, expected) => {
-			const { patch } = parseTaskEditInput(`Standup recurs:${preset}`, PROJECTS);
+			const { patch } = parseTaskEditInput(
+				`Standup recurs:${preset}`,
+				PROJECTS,
+			);
 			expect(patch.recurrencePreset).toBe(expected);
 		});
 
@@ -98,15 +111,26 @@ describe("parseTaskEditInput", () => {
 		});
 
 		it("warns on unknown recurrence preset", () => {
-			const { patch, warnings } = parseTaskEditInput("Standup recurs:fortnightly", PROJECTS);
+			const { patch, warnings } = parseTaskEditInput(
+				"Standup recurs:fortnightly",
+				PROJECTS,
+			);
 			expect(patch.recurrencePreset).toBeUndefined();
 			expect(warnings.some((w) => w.includes("fortnightly"))).toBe(true);
 		});
 
 		it("parses rec:/recurrence: aliases and emoji marker", () => {
-			expect(parseTaskEditInput("Standup rec:weekly", PROJECTS).patch.recurrencePreset).toBe("weekly");
-			expect(parseTaskEditInput("Standup recurrence:monthly", PROJECTS).patch.recurrencePreset).toBe("monthly");
-			expect(parseTaskEditInput("Standup 🔁 daily", PROJECTS).patch.recurrencePreset).toBe("daily");
+			expect(
+				parseTaskEditInput("Standup rec:weekly", PROJECTS).patch
+					.recurrencePreset,
+			).toBe("weekly");
+			expect(
+				parseTaskEditInput("Standup recurrence:monthly", PROJECTS).patch
+					.recurrencePreset,
+			).toBe("monthly");
+			expect(
+				parseTaskEditInput("Standup 🔁 daily", PROJECTS).patch.recurrencePreset,
+			).toBe("daily");
 		});
 	});
 
@@ -190,38 +214,56 @@ describe("parseTaskEditInput", () => {
 		});
 
 		it("parses sch: alias and scheduled emoji marker", () => {
-			expect(parseTaskEditInput("Task sch:tomorrow", PROJECTS).patch.scheduledAt).toBeTruthy();
-			expect(parseTaskEditInput("Task 🗓 tomorrow", PROJECTS).patch.scheduledAt).toBeTruthy();
+			expect(
+				parseTaskEditInput("Task sch:tomorrow", PROJECTS).patch.scheduledAt,
+			).toBeTruthy();
+			expect(
+				parseTaskEditInput("Task 🗓 tomorrow", PROJECTS).patch.scheduledAt,
+			).toBeTruthy();
 		});
 	});
 
 	describe("project", () => {
 		it("resolves project by name (case-insensitive)", () => {
-			const { patch, warnings } = parseTaskEditInput("Task project:work", PROJECTS);
+			const { patch, warnings } = parseTaskEditInput(
+				"Task project:work",
+				PROJECTS,
+			);
 			expect(patch.projectId).toBe(1);
 			expect(warnings).toHaveLength(0);
 		});
 
 		it("resolves multi-word project name", () => {
-			const { patch } = parseTaskEditInput("Task project:My Long Project", PROJECTS);
+			const { patch } = parseTaskEditInput(
+				"Task project:My Long Project",
+				PROJECTS,
+			);
 			expect(patch.projectId).toBe(3);
 		});
 
 		it("warns when project not found", () => {
-			const { patch, warnings } = parseTaskEditInput("Task project:Unknown", PROJECTS);
+			const { patch, warnings } = parseTaskEditInput(
+				"Task project:Unknown",
+				PROJECTS,
+			);
 			expect(patch.projectId).toBeUndefined();
 			expect(warnings.some((w) => w.includes("Unknown"))).toBe(true);
 		});
 
 		it("parses proj: alias and project emoji marker", () => {
-			expect(parseTaskEditInput("Task proj:work", PROJECTS).patch.projectId).toBe(1);
-			expect(parseTaskEditInput("Task 📁 My Long Project", PROJECTS).patch.projectId).toBe(3);
+			expect(
+				parseTaskEditInput("Task proj:work", PROJECTS).patch.projectId,
+			).toBe(1);
+			expect(
+				parseTaskEditInput("Task 📁 My Long Project", PROJECTS).patch.projectId,
+			).toBe(3);
 		});
 	});
 
 	describe("combined tokens", () => {
 		it("parses all tokens together", () => {
-			const input = "Do the thing project:Work due:today scheduled:tomorrow recurs:daily p1";
+			const input =
+				"Do the thing project:Work due:today scheduled:tomorrow recurs:daily p1";
 			const { patch, warnings } = parseTaskEditInput(input, PROJECTS);
 			expect(warnings).toHaveLength(0);
 			expect(patch.title).toBe("Do the thing");
@@ -233,7 +275,10 @@ describe("parseTaskEditInput", () => {
 		});
 
 		it("preserves title when tokens appear mid-string", () => {
-			const { patch } = parseTaskEditInput("Buy groceries p2 due:tomorrow", PROJECTS);
+			const { patch } = parseTaskEditInput(
+				"Buy groceries p2 due:tomorrow",
+				PROJECTS,
+			);
 			expect(patch.title).toBe("Buy groceries");
 			expect(patch.priority).toBe(2);
 		});
@@ -260,15 +305,23 @@ describe("parseTaskEditInput", () => {
 		});
 
 		it("parses notes: token (rest of line)", () => {
-			const { patch } = parseTaskEditInput("Title notes: Some notes with [link](https://x.com)", PROJECTS);
+			const { patch } = parseTaskEditInput(
+				"Title notes: Some notes with [link](https://x.com)",
+				PROJECTS,
+			);
 			expect(patch.title).toBe("Title");
 			expect(patch.notes).toBe("Some notes with [link](https://x.com)");
 		});
 
 		it("parses notes: when notes contain spaces and links", () => {
-			const { patch } = parseTaskEditInput("Ship it notes: See https://example.com and [Spec](https://spec.com)", PROJECTS);
+			const { patch } = parseTaskEditInput(
+				"Ship it notes: See https://example.com and [Spec](https://spec.com)",
+				PROJECTS,
+			);
 			expect(patch.title).toBe("Ship it");
-			expect(patch.notes).toBe("See https://example.com and [Spec](https://spec.com)");
+			expect(patch.notes).toBe(
+				"See https://example.com and [Spec](https://spec.com)",
+			);
 		});
 	});
 });
@@ -279,7 +332,9 @@ describe("serializeTaskToEditInput", () => {
 	});
 
 	it("appends project name", () => {
-		expect(serializeTaskToEditInput("Task", { projectName: "Work" })).toBe("Task 📁 Work");
+		expect(serializeTaskToEditInput("Task", { projectName: "Work" })).toBe(
+			"Task 📁 Work",
+		);
 	});
 
 	it("appends parent task id", () => {
@@ -299,17 +354,23 @@ describe("serializeTaskToEditInput", () => {
 	});
 
 	it("appends due date as YYYY-MM-DD", () => {
-		const result = serializeTaskToEditInput("Task", { dueAt: "2026-03-10T09:00:00.000Z" });
+		const result = serializeTaskToEditInput("Task", {
+			dueAt: "2026-03-10T09:00:00.000Z",
+		});
 		expect(result).toContain("⏰ 2026-03-10");
 	});
 
 	it("appends scheduled date as YYYY-MM-DD", () => {
-		const result = serializeTaskToEditInput("Task", { scheduledAt: "2026-03-10T09:00:00.000Z" });
+		const result = serializeTaskToEditInput("Task", {
+			scheduledAt: "2026-03-10T09:00:00.000Z",
+		});
 		expect(result).toContain("🗓 2026-03-10");
 	});
 
 	it("appends recurrence preset", () => {
-		const result = serializeTaskToEditInput("Task", { recurrencePreset: "weekly" });
+		const result = serializeTaskToEditInput("Task", {
+			recurrencePreset: "weekly",
+		});
 		expect(result).toContain("🔁 weekly");
 	});
 
@@ -319,7 +380,9 @@ describe("serializeTaskToEditInput", () => {
 	});
 
 	it("appends notes when provided", () => {
-		const result = serializeTaskToEditInput("Task", { notes: "Some notes with link https://x.com" });
+		const result = serializeTaskToEditInput("Task", {
+			notes: "Some notes with link https://x.com",
+		});
 		expect(result).toBe("Task notes:Some notes with link https://x.com");
 	});
 
