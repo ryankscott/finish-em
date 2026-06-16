@@ -1,0 +1,13 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-10T23:55:19.801Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "3d7d7adc-a16f-481a-b5f3-09e2dd4d7395",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T23:55:05.227Z"
+    }
+  ]
+}

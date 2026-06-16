@@ -1,0 +1,90 @@
+export type Priority = 1 | 2 | 3 | 4;
+export type TaskStatus = "open" | "completed";
+export type GoalPeriod = "daily" | "weekly";
+export type ReminderStatus = "pending" | "fired" | "snoozed" | "dismissed";
+
+export type RecurrencePreset =
+	| "daily"
+	| "weekly"
+	| "monthly"
+	| "yearly"
+	| "every_weekday"
+	| null;
+
+export type Project = {
+	id: number;
+	name: string;
+	emoji: string | null;
+	description: string;
+	startAt: string | null;
+	endAt: string | null;
+	color: string;
+	isInbox: boolean;
+	jiraDiscoveryUrl: string | null;
+	jiraDeliveryUrl: string | null;
+	confluenceUrl: string | null;
+	jiraDocsUrl: string | null;
+	jiraReleaseNoteUrl: string | null;
+	teamsReleaseNoteUrl: string | null;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type Task = {
+	id: number;
+	projectId: number;
+	parentTaskId: number | null;
+	title: string;
+	notes: string;
+	priority: Priority;
+	scheduledAt: string | null;
+	dueAt: string | null;
+	dueTimezone: string | null;
+	recurrencePreset: RecurrencePreset;
+	recurrenceRRule: string | null;
+	status: TaskStatus;
+	someday: boolean;
+	completedAt: string | null;
+	deletedAt: string | null;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type Reminder = {
+	id: number;
+	taskId: number;
+	remindAt: string;
+	status: ReminderStatus;
+	snoozedUntil: string | null;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type Goal = {
+	id: number;
+	periodType: GoalPeriod;
+	periodStart: string;
+	title: string;
+	done: boolean;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type AppSettings = {
+	id: 1;
+	timezone: string;
+	createdAt: string;
+	updatedAt: string;
+};
+
+export type TaskFilters = {
+	projectId?: number;
+	status?: TaskStatus;
+	from?: string;
+	to?: string;
+	noDueDate?: boolean;
+	priority?: Priority;
+	parentTaskId?: number | null;
+	rootsOnly?: boolean;
+	someday?: boolean;
+};

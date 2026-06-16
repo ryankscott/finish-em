@@ -1,0 +1,21 @@
+{
+  "name": "pi-live-preview",
+  "version": "1.0.0",
+  "description": "Claude-style web app previews for pi — screenshots for the LLM, live Glimpse windows for the user",
+  "type": "module",
+  "keywords": ["pi-package", "preview", "screenshot", "playwright", "glimpse", "webview"],
+  "license": "MIT",
+  "pi": {
+    "extensions": ["./src/index.ts"],
+    "skills": ["./skills"]
+  },
+  "dependencies": {
+    "playwright": "^1.52.0",
+    "glimpseui": "*"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "typebox": "*"
+  }
+}

@@ -1,0 +1,59 @@
+@import "tailwindcss";
+@plugin 'tailwindcss-animate';
+@source "../components/ui";
+@source "../web/components";
+
+@theme {
+	/* shadcn new-york zinc — dark (default) */
+	--color-background: oklch(0.141 0.005 285.823);   /* zinc-950 */
+	--color-surface: oklch(0.21 0.006 285.885);        /* zinc-900 */
+	--color-surface-raised: oklch(0.274 0.006 286.618); /* zinc-800 */
+	--color-border: oklch(0.274 0.006 286.618);        /* zinc-800 */
+	--color-foreground: oklch(0.985 0 0);              /* zinc-50 */
+	--color-muted: oklch(0.705 0.015 286.067);         /* zinc-400 */
+	--color-accent: oklch(0.871 0.006 286.286);        /* zinc-300 — ring/focus */
+	--color-p1: oklch(0.65 0.21 25);
+	--color-p2: oklch(0.8 0.16 85);
+	--color-p3: oklch(0.72 0.17 150);
+	--color-p4: oklch(0.68 0.12 250);
+}
+
+html.light {
+	/* shadcn new-york zinc — light */
+	--color-background: oklch(1 0 0);                  /* white */
+	--color-surface: oklch(0.985 0 0);                 /* zinc-50 */
+	--color-surface-raised: oklch(0.967 0.001 286.375); /* zinc-100 */
+	--color-border: oklch(0.92 0.004 286.32);          /* zinc-200 */
+	--color-foreground: oklch(0.141 0.005 285.823);    /* zinc-950 */
+	--color-muted: oklch(0.552 0.016 285.938);         /* zinc-500 */
+	--color-accent: oklch(0.21 0.006 285.885);         /* zinc-900 — ring/focus */
+	--color-p1: oklch(0.52 0.20 25);
+	--color-p2: oklch(0.58 0.16 85);
+	--color-p3: oklch(0.52 0.18 150);
+	--color-p4: oklch(0.50 0.14 250);
+}
+
+html,
+body,
+#root {
+	height: 100%;
+}
+
+body {
+	background-color: var(--color-background);
+	color: var(--color-foreground);
+	font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+	font-size: 14px;
+	-webkit-font-smoothing: antialiased;
+}
+
+::selection {
+	background-color: color-mix(in oklch, var(--color-accent) 35%, transparent);
+}
+
+@layer base {
+	*:focus-visible {
+		outline: 2px solid var(--color-accent);
+		outline-offset: -2px;
+	}
+}

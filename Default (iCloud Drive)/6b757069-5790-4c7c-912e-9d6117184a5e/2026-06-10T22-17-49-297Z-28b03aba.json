@@ -1,0 +1,104 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-10T22:17:49.297Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "cb8e58b6-f065-47c4-bc5c-355b2dce17aa",
+      "field": "title",
+      "value": "Review what I can do in WalkMe",
+      "updatedAt": "2026-06-10T22:17:25.911Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "cb8e58b6-f065-47c4-bc5c-355b2dce17aa",
+      "field": "notes",
+      "value": "",
+      "updatedAt": "2026-06-10T22:17:25.911Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "cb8e58b6-f065-47c4-bc5c-355b2dce17aa",
+      "field": "priority",
+      "value": "4",
+      "updatedAt": "2026-06-10T22:17:25.911Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "cb8e58b6-f065-47c4-bc5c-355b2dce17aa",
+      "field": "project_id",
+      "value": "1",
+      "updatedAt": "2026-06-10T22:17:25.911Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "cb8e58b6-f065-47c4-bc5c-355b2dce17aa",
+      "field": "scheduled_at",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:25.911Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "cb8e58b6-f065-47c4-bc5c-355b2dce17aa",
+      "field": "due_at",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:25.911Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "cb8e58b6-f065-47c4-bc5c-355b2dce17aa",
+      "field": "recurrence_preset",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:25.911Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "51f457ea-67e6-47ee-a211-3d13c2c397d4",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:38.105Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "5214c455-1b78-48c0-954c-7b7f0341f3bd",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:42.162Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "a8e538d7-4cdc-4126-80da-d1e0bfe69d1e",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:42.871Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d211878d-a43c-4e4f-b2d5-c960b11d8690",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:44.706Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "62c69da3-7e1c-4314-ba96-97f9fa27dd14",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:46.601Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "9a450984-ef01-4b54-bbb2-d0a7c285eb7b",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:47.569Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "060eb398-a1df-4176-8ee4-a827bd0122e3",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:17:49.002Z"
+    }
+  ]
+}

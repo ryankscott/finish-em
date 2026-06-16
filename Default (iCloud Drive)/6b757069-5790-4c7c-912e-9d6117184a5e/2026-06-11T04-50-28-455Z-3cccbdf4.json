@@ -1,0 +1,160 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-11T04:50:28.455Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "5478a0c2-d97a-4b53-a4bc-4601035ad56e",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-11T04:16:25.153Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "685a2fe6-1d73-4efc-86ce-a104f30b4218",
+      "field": "*",
+      "value": "{\"id\":165,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Buy milk\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:29.355Z\",\"updated_at\":\"2026-06-11T04:33:29.355Z\",\"deleted_at\":null,\"uuid\":\"685a2fe6-1d73-4efc-86ce-a104f30b4218\"}",
+      "updatedAt": "2026-06-11T04:33:29.355Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "b9dd6a21-32da-4c50-bce6-e65799d860b9",
+      "field": "*",
+      "value": "{\"id\":166,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Call dentist\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:29.359Z\",\"updated_at\":\"2026-06-11T04:33:29.359Z\",\"deleted_at\":null,\"uuid\":\"b9dd6a21-32da-4c50-bce6-e65799d860b9\"}",
+      "updatedAt": "2026-06-11T04:33:29.359Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "c8b89b9e-f66d-47d5-8e6a-2a996312aaa5",
+      "field": "*",
+      "value": "{\"id\":167,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Review PR\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:29.360Z\",\"updated_at\":\"2026-06-11T04:33:29.360Z\",\"deleted_at\":null,\"uuid\":\"c8b89b9e-f66d-47d5-8e6a-2a996312aaa5\"}",
+      "updatedAt": "2026-06-11T04:33:29.360Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "df3e8054-b068-46c3-944f-9016e3846d30",
+      "field": "*",
+      "value": "{\"id\":168,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Renew passport\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:29.360Z\",\"updated_at\":\"2026-06-11T04:33:29.360Z\",\"deleted_at\":null,\"uuid\":\"df3e8054-b068-46c3-944f-9016e3846d30\"}",
+      "updatedAt": "2026-06-11T04:33:29.360Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "a845dbae-8834-497f-b7e3-397a61e46cc6",
+      "field": "*",
+      "value": "{\"id\":169,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Actual task\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:29.362Z\",\"updated_at\":\"2026-06-11T04:33:29.362Z\",\"deleted_at\":null,\"uuid\":\"a845dbae-8834-497f-b7e3-397a61e46cc6\"}",
+      "updatedAt": "2026-06-11T04:33:29.362Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "a0432351-84f9-48f6-aa16-e51d41fedc65",
+      "field": "*",
+      "value": "{\"id\":170,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Keep this\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:29.370Z\",\"updated_at\":\"2026-06-11T04:33:29.370Z\",\"deleted_at\":null,\"uuid\":\"a0432351-84f9-48f6-aa16-e51d41fedc65\"}",
+      "updatedAt": "2026-06-11T04:33:29.370Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d3b0dfe9-3b1d-4da4-ba68-7cbc8a7a0c97",
+      "field": "*",
+      "value": "{\"id\":171,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Submit report\",\"notes\":\"\",\"priority\":1,\"scheduled_at\":null,\"due_at\":\"2026-06-12T09:00:00.000Z\",\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:29.372Z\",\"updated_at\":\"2026-06-11T04:33:29.372Z\",\"deleted_at\":null,\"uuid\":\"d3b0dfe9-3b1d-4da4-ba68-7cbc8a7a0c97\"}",
+      "updatedAt": "2026-06-11T04:33:29.372Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "212ec5c6-0963-4aba-afd7-f6ba7418b749",
+      "field": "*",
+      "value": "{\"id\":1,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Buy milk\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:32.373Z\",\"updated_at\":\"2026-06-11T04:33:32.373Z\",\"deleted_at\":null,\"uuid\":\"212ec5c6-0963-4aba-afd7-f6ba7418b749\"}",
+      "updatedAt": "2026-06-11T04:33:32.373Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "87377ef1-5102-4eab-b1b1-c573f1a9f79c",
+      "field": "*",
+      "value": "{\"id\":2,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Call dentist\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:32.376Z\",\"updated_at\":\"2026-06-11T04:33:32.376Z\",\"deleted_at\":null,\"uuid\":\"87377ef1-5102-4eab-b1b1-c573f1a9f79c\"}",
+      "updatedAt": "2026-06-11T04:33:32.376Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "87bdf43b-2d7f-41ee-bd15-e782a17edbeb",
+      "field": "*",
+      "value": "{\"id\":3,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Review PR\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:32.376Z\",\"updated_at\":\"2026-06-11T04:33:32.376Z\",\"deleted_at\":null,\"uuid\":\"87bdf43b-2d7f-41ee-bd15-e782a17edbeb\"}",
+      "updatedAt": "2026-06-11T04:33:32.376Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "390521ab-4a1f-425e-93cb-90455c80f997",
+      "field": "*",
+      "value": "{\"id\":4,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Renew passport\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:32.376Z\",\"updated_at\":\"2026-06-11T04:33:32.376Z\",\"deleted_at\":null,\"uuid\":\"390521ab-4a1f-425e-93cb-90455c80f997\"}",
+      "updatedAt": "2026-06-11T04:33:32.376Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d8789b49-6229-4190-a6ba-0b4320626c5e",
+      "field": "*",
+      "value": "{\"id\":5,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Actual task\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:32.378Z\",\"updated_at\":\"2026-06-11T04:33:32.378Z\",\"deleted_at\":null,\"uuid\":\"d8789b49-6229-4190-a6ba-0b4320626c5e\"}",
+      "updatedAt": "2026-06-11T04:33:32.378Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "21b14e92-535a-4c62-9d28-8b9a2a5bd0db",
+      "field": "*",
+      "value": "{\"id\":6,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Keep this\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:32.385Z\",\"updated_at\":\"2026-06-11T04:33:32.385Z\",\"deleted_at\":null,\"uuid\":\"21b14e92-535a-4c62-9d28-8b9a2a5bd0db\"}",
+      "updatedAt": "2026-06-11T04:33:32.385Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "5b3721d7-873b-46c2-bfd6-ba11cf20818a",
+      "field": "*",
+      "value": "{\"id\":7,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Submit report\",\"notes\":\"\",\"priority\":1,\"scheduled_at\":null,\"due_at\":\"2026-06-12T09:00:00.000Z\",\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:33:32.387Z\",\"updated_at\":\"2026-06-11T04:33:32.387Z\",\"deleted_at\":null,\"uuid\":\"5b3721d7-873b-46c2-bfd6-ba11cf20818a\"}",
+      "updatedAt": "2026-06-11T04:33:32.387Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d745f38d-c2ec-4027-8ca4-cf3d6b994e2b",
+      "field": "*",
+      "value": "{\"id\":1,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Buy milk\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:34:05.758Z\",\"updated_at\":\"2026-06-11T04:34:05.758Z\",\"deleted_at\":null,\"uuid\":\"d745f38d-c2ec-4027-8ca4-cf3d6b994e2b\"}",
+      "updatedAt": "2026-06-11T04:34:05.758Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "ea38152b-e82a-4422-8580-e29666157f7c",
+      "field": "*",
+      "value": "{\"id\":2,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Call dentist\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:34:05.761Z\",\"updated_at\":\"2026-06-11T04:34:05.761Z\",\"deleted_at\":null,\"uuid\":\"ea38152b-e82a-4422-8580-e29666157f7c\"}",
+      "updatedAt": "2026-06-11T04:34:05.761Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "f706f765-81e0-4338-8e86-81094bfbe264",
+      "field": "*",
+      "value": "{\"id\":3,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Review PR\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:34:05.762Z\",\"updated_at\":\"2026-06-11T04:34:05.762Z\",\"deleted_at\":null,\"uuid\":\"f706f765-81e0-4338-8e86-81094bfbe264\"}",
+      "updatedAt": "2026-06-11T04:34:05.762Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "403c57b0-adab-46f3-9c1c-21aa40d26e5c",
+      "field": "*",
+      "value": "{\"id\":4,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Renew passport\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:34:05.762Z\",\"updated_at\":\"2026-06-11T04:34:05.762Z\",\"deleted_at\":null,\"uuid\":\"403c57b0-adab-46f3-9c1c-21aa40d26e5c\"}",
+      "updatedAt": "2026-06-11T04:34:05.762Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "0fe6d302-9d51-4c44-904d-dd3873cc62d7",
+      "field": "*",
+      "value": "{\"id\":5,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Actual task\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:34:05.766Z\",\"updated_at\":\"2026-06-11T04:34:05.766Z\",\"deleted_at\":null,\"uuid\":\"0fe6d302-9d51-4c44-904d-dd3873cc62d7\"}",
+      "updatedAt": "2026-06-11T04:34:05.766Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "c0bc38fa-1d32-489d-a05c-8d895ccb62d2",
+      "field": "*",
+      "value": "{\"id\":6,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Keep this\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:34:05.785Z\",\"updated_at\":\"2026-06-11T04:34:05.785Z\",\"deleted_at\":null,\"uuid\":\"c0bc38fa-1d32-489d-a05c-8d895ccb62d2\"}",
+      "updatedAt": "2026-06-11T04:34:05.785Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "a20cdd8f-9441-4921-9f49-e93c9e0eb32c",
+      "field": "*",
+      "value": "{\"id\":7,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Submit report\",\"notes\":\"\",\"priority\":1,\"scheduled_at\":null,\"due_at\":\"2026-06-12T09:00:00.000Z\",\"due_timezone\":\"UTC\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T04:34:05.787Z\",\"updated_at\":\"2026-06-11T04:34:05.787Z\",\"deleted_at\":null,\"uuid\":\"a20cdd8f-9441-4921-9f49-e93c9e0eb32c\"}",
+      "updatedAt": "2026-06-11T04:34:05.787Z"
+    }
+  ]
+}

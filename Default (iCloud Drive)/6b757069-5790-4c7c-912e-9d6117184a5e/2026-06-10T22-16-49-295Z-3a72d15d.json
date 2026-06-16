@@ -1,0 +1,76 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-10T22:16:49.295Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "d0b0ace1-5cb6-4ed3-9a9e-f826effe5a9e",
+      "field": "title",
+      "value": "Ensure we have dashboads for multi-form",
+      "updatedAt": "2026-06-10T22:16:31.326Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d0b0ace1-5cb6-4ed3-9a9e-f826effe5a9e",
+      "field": "notes",
+      "value": "",
+      "updatedAt": "2026-06-10T22:16:31.326Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d0b0ace1-5cb6-4ed3-9a9e-f826effe5a9e",
+      "field": "priority",
+      "value": "4",
+      "updatedAt": "2026-06-10T22:16:31.326Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d0b0ace1-5cb6-4ed3-9a9e-f826effe5a9e",
+      "field": "project_id",
+      "value": "1",
+      "updatedAt": "2026-06-10T22:16:31.326Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d0b0ace1-5cb6-4ed3-9a9e-f826effe5a9e",
+      "field": "scheduled_at",
+      "value": null,
+      "updatedAt": "2026-06-10T22:16:31.326Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d0b0ace1-5cb6-4ed3-9a9e-f826effe5a9e",
+      "field": "due_at",
+      "value": "2026-06-02T21:00:00.000Z",
+      "updatedAt": "2026-06-10T22:16:31.326Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d0b0ace1-5cb6-4ed3-9a9e-f826effe5a9e",
+      "field": "recurrence_preset",
+      "value": null,
+      "updatedAt": "2026-06-10T22:16:31.326Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4d84d8fe-5556-4873-8f3d-700b7c2e8bf5",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:16:34.642Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "93807707-8cca-461c-aa6c-6fea0251a696",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:16:38.372Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "5a08241e-82f4-4329-bf08-69183fbd4071",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T22:16:44.534Z"
+    }
+  ]
+}

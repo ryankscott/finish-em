@@ -1,0 +1,20 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-10T19:55:18.207Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "14197b0b-a392-40ed-925f-99f4b21e6227",
+      "field": "*",
+      "value": "{\"id\":160,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Check if we want to release multi-forms\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":null,\"due_timezone\":null,\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-10T19:55:02.019Z\",\"updated_at\":\"2026-06-10T19:55:02.019Z\",\"deleted_at\":null,\"uuid\":\"14197b0b-a392-40ed-925f-99f4b21e6227\"}",
+      "updatedAt": "2026-06-10T19:55:02.019Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "19446d70-330a-4fec-bea8-48ec14c7b4d8",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T19:55:12.865Z"
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+/**
+ * Direct API adapter — calls repo/service functions in-process with no transport layer.
+ * Shared by the TUI and CLI command surface.
+ */
+
+import * as goalRepo from "@/server/repos/goals";
+import * as projectRepo from "@/server/repos/projects";
+import * as reminderRepo from "@/server/repos/reminders";
+import * as settingsRepo from "@/server/repos/settings";
+import * as taskRepo from "@/server/repos/tasks";
+import { getSyncService } from "@/server/sync/sync-service";
+import type { ApiClient } from "./api-client";
+
+export const createDirectApi = (): ApiClient => ({
+	getSettings: () => Promise.resolve(settingsRepo.getSettings()),
+
+	updateSettings: (input) =>
+		Promise.resolve(settingsRepo.updateSettings(input)),
+
+	listProjects: () => Promise.resolve(projectRepo.listProjects()),
+
+	listTasks: (query = {}) => Promise.resolve(taskRepo.listTasks(query)),
+
+	createTask: (input) => Promise.resolve(taskRepo.createTask(input)),
+
+	listGoals: (query = {}) => Promise.resolve(goalRepo.listGoals(query)),
+
+	createGoal: (input) => Promise.resolve(goalRepo.createGoal(input)),
+
+	updateGoal: (goalId, input) => {
+		const result = goalRepo.updateGoal(goalId, input);
+		if (!result) throw new Error(`Goal ${goalId} not found`);
+		return Promise.resolve(result);
+	},
+
+	deleteGoal: (goalId) => {
+		goalRepo.deleteGoal(goalId);
+		return Promise.resolve();
+	},
+
+	updateTask: (taskId, input) => {
+		const result = taskRepo.updateTask(taskId, input);
+		if (!result) throw new Error(`Task ${taskId} not found`);
+		return Promise.resolve(result);
+	},
+
+	deleteTask: (taskId) => {
+		taskRepo.deleteTask(taskId);
+		return Promise.resolve();
+	},
+
+	listDeletedTasks: () => Promise.resolve(taskRepo.listDeletedTasks()),
+
+	undeleteTask: (taskId) => {
+		const result = taskRepo.undeleteTask(taskId);
+		if (!result) throw new Error(`Task ${taskId} not found`);
+		return Promise.resolve(result);
+	},
+
+	completeTask: (taskId) => {
+		const result = taskRepo.completeTask(taskId);
+		if (!result.task) throw new Error(`Task ${taskId} not found`);
+		return Promise.resolve(result.task);
+	},
+
+	uncompleteTask: (taskId) => {
+		const result = taskRepo.uncompleteTask(taskId);
+		if (!result) throw new Error(`Task ${taskId} not found`);
+		return Promise.resolve(result);
+	},
+
+	createProject: (input) => Promise.resolve(projectRepo.createProject(input)),
+
+	updateProject: (projectId, input) => {
+		const result = projectRepo.updateProject(projectId, input);
+		if (!result) throw new Error(`Project ${projectId} not found`);
+		return Promise.resolve(result);
+	},
+
+	deleteProject: (projectId) => {
+		const ok = projectRepo.deleteProject(projectId);
+		if (!ok) {
+			return Promise.reject(
+				new Error(`Project ${projectId} not found or cannot delete inbox`),
+			);
+		}
+		return Promise.resolve();
+	},
+
+	listTaskReminders: (taskId) =>
+		Promise.resolve(reminderRepo.listTaskReminders(taskId)),
+
+	listDueReminders: () =>
+		Promise.resolve(reminderRepo.listDueRemindersWithTitles()),
+
+	listAllReminders: () =>
+		Promise.resolve(reminderRepo.listAllRemindersWithTitles()),
+
+	createReminder: (taskId, input) =>
+		Promise.resolve(reminderRepo.createReminder({ taskId, ...input })),
+
+	deleteReminder: (reminderId) => {
+		reminderRepo.deleteReminder(reminderId);
+		return Promise.resolve();
+	},
+
+	getSyncStatus: () => Promise.resolve(getSyncService().getStatus()),
+
+	enableSync: async () => {
+		const sync = getSyncService();
+		sync.enable();
+		sync.startAutoSync();
+		await sync.syncNow().catch(() => {});
+		return sync.getStatus();
+	},
+
+	disableSync: () => {
+		const sync = getSyncService();
+		sync.disable();
+		return Promise.resolve(sync.getStatus());
+	},
+
+	syncNow: () => getSyncService().syncNow(),
+});
