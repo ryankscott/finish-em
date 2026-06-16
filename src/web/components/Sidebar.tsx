@@ -4,6 +4,8 @@ import {
 	Bell,
 	CalendarDays,
 	CheckCircle2,
+	ChevronLeft,
+	ChevronRight,
 	Flag,
 	Inbox,
 	Moon,
@@ -168,11 +170,43 @@ export function Sidebar() {
 		);
 	}
 
+	// Collapsed strip with expand button
+	if (ui.sidebarCollapsed) {
+		return (
+			<aside
+				style={{ width: 40 }}
+				className="flex shrink-0 flex-col items-center border-r border-border bg-surface/50 py-2"
+			>
+				<button
+					type="button"
+					aria-label="Expand sidebar"
+					onClick={() => ui.toggleSidebarCollapsed()}
+					className="flex h-7 w-7 items-center justify-center rounded-md text-muted hover:bg-surface hover:text-foreground"
+				>
+					<ChevronRight className="h-4 w-4" />
+				</button>
+			</aside>
+		);
+	}
+
 	if (!ui.sidebarVisible) return null;
 
 	const iconClass = "h-4 w-4 shrink-0";
 	return (
-		<aside className="flex w-60 shrink-0 flex-col gap-0.5 overflow-y-auto border-r border-border bg-surface/50 p-2">
+		<aside
+			style={{ width: ui.sidebarWidth }}
+			className="flex shrink-0 flex-col gap-0.5 overflow-y-auto border-r border-border bg-surface/50 p-2"
+		>
+			<div className="mb-1 flex items-center justify-end px-1">
+				<button
+					type="button"
+					aria-label="Collapse sidebar"
+					onClick={() => ui.toggleSidebarCollapsed()}
+					className="flex h-6 w-6 items-center justify-center rounded-md text-muted hover:bg-surface hover:text-foreground"
+				>
+					<ChevronLeft className="h-4 w-4" />
+				</button>
+			</div>
 			<NavLink
 				to="/today"
 				icon={<Sun className={iconClass} />}

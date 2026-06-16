@@ -1,7 +1,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Moon, Search, Sun } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Toaster } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
@@ -26,6 +26,51 @@ const VIEW_KEYS = [
 	"/completed",
 	"/deleted",
 ];
+
+function ResizeHandle() {
+	const ui = useUi();
+	const handleRef = useRef<HTMLDivElement>(null);
+	const startXRef = useRef(0);
+	const startWidthRef = useRef(0);
+
+	useEffect(() => {
+		const el = handleRef.current;
+		if (!el) return;
+
+		const onMouseDown = (e: MouseEvent) => {
+			e.preventDefault();
+			startXRef.current = e.clientX;
+			startWidthRef.current = ui.sidebarWidth;
+			document.body.style.userSelect = "none";
+			document.body.style.cursor = "col-resize";
+
+			const onMouseMove = (e: MouseEvent) => {
+				const delta = e.clientX - startXRef.current;
+				ui.setSidebarWidth(startWidthRef.current + delta);
+			};
+
+			const onMouseUp = () => {
+				document.body.style.userSelect = "";
+				document.body.style.cursor = "";
+				document.removeEventListener("mousemove", onMouseMove);
+				document.removeEventListener("mouseup", onMouseUp);
+			};
+
+			document.addEventListener("mousemove", onMouseMove);
+			document.addEventListener("mouseup", onMouseUp);
+		};
+
+		el.addEventListener("mousedown", onMouseDown);
+		return () => el.removeEventListener("mousedown", onMouseDown);
+	}, [ui]);
+
+	return (
+		<div
+			ref={handleRef}
+			className="w-1 shrink-0 cursor-col-resize bg-border transition-colors hover:bg-accent active:bg-accent"
+		/>
+	);
+}
 
 export function AppShell() {
 	const ui = useUi();
@@ -62,6 +107,7 @@ export function AppShell() {
 	return (
 		<div className="flex h-full">
 			<Sidebar />
+			{ui.sidebarVisible && !ui.sidebarCollapsed && <ResizeHandle />}
 			<div className="flex min-w-0 flex-1 flex-col">
 				<header className="flex items-center gap-2 px-4 py-2">
 					<Search className="h-4 w-4 text-muted" />

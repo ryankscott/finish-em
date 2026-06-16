@@ -11,6 +11,34 @@ export type ProjectDialogState =
 	| { mode: "create" }
 	| { mode: "edit"; project: Project };
 
+const MIN_SIDEBAR_WIDTH = 160;
+const MAX_SIDEBAR_WIDTH = 480;
+const DEFAULT_SIDEBAR_WIDTH = 240;
+
+function readStoredNumber(key: string, fallback: number): number {
+	try {
+		const stored = localStorage.getItem(key);
+		if (stored) {
+			const parsed = Number.parseInt(stored, 10);
+			if (!Number.isNaN(parsed)) return parsed;
+		}
+	} catch {
+		// localStorage unavailable
+	}
+	return fallback;
+}
+
+function readStoredBool(key: string, fallback: boolean): boolean {
+	try {
+		const stored = localStorage.getItem(key);
+		if (stored === "true") return true;
+		if (stored === "false") return false;
+	} catch {
+		// localStorage unavailable
+	}
+	return fallback;
+}
+
 type UiState = {
 	quickAdd: QuickAddOptions | null;
 	openQuickAdd: (options?: QuickAddOptions) => void;
@@ -32,6 +60,12 @@ type UiState = {
 
 	sidebarVisible: boolean;
 	toggleSidebar: () => void;
+
+	sidebarWidth: number;
+	setSidebarWidth: (width: number) => void;
+
+	sidebarCollapsed: boolean;
+	toggleSidebarCollapsed: () => void;
 
 	search: string;
 	setSearch: (value: string) => void;
@@ -57,11 +91,29 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		if (stored === "light" || stored === "dark") return stored;
 		return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 	});
+	const [sidebarWidth, setSidebarWidthRaw] = useState(() =>
+		readStoredNumber("sidebarWidth", DEFAULT_SIDEBAR_WIDTH),
+	);
+	const [sidebarCollapsed, setSidebarCollapsed] = useState(() =>
+		readStoredBool("sidebarCollapsed", false),
+	);
 
 	useEffect(() => {
 		document.documentElement.classList.toggle("light", theme === "light");
 		localStorage.setItem("theme", theme);
 	}, [theme]);
+
+	useEffect(() => {
+		localStorage.setItem("sidebarWidth", String(sidebarWidth));
+	}, [sidebarWidth]);
+
+	useEffect(() => {
+		localStorage.setItem("sidebarCollapsed", String(sidebarCollapsed));
+	}, [sidebarCollapsed]);
+
+	const setSidebarWidth = (width: number) => {
+		setSidebarWidthRaw(Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, Math.round(width))));
+	};
 
 	const value = useMemo<UiState>(
 		() => ({
@@ -80,6 +132,10 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			setPaletteOpen,
 			sidebarVisible,
 			toggleSidebar: () => setSidebarVisible((v) => !v),
+			sidebarWidth,
+			setSidebarWidth,
+			sidebarCollapsed,
+			toggleSidebarCollapsed: () => setSidebarCollapsed((v) => !v),
 			search,
 			setSearch,
 			theme,
@@ -92,6 +148,8 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			helpOpen,
 			paletteOpen,
 			sidebarVisible,
+			sidebarWidth,
+			sidebarCollapsed,
 			search,
 			theme,
 		],
