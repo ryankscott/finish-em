@@ -7,6 +7,7 @@ import { parseTaskCreateInput } from "@/lib/parsing/parse-task-create-input";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjects, useTaskMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
+import { QuickAddPills } from "./QuickAddPills";
 
 /**
  * Quick-add bar using the same token syntax as the TUI:
@@ -98,6 +99,12 @@ export function QuickAdd() {
 					onChange={(e) => setValue(e.target.value)}
 					placeholder="Ship docs project:Work p1 due:today recurs:weekly"
 					className="w-full bg-transparent px-4 py-3 text-base outline-none placeholder:text-muted/60"
+				/>
+				<QuickAddPills
+					value={value}
+					onChange={setValue}
+					projects={projects}
+					parsed={parsed}
 				/>
 				<div className="flex min-h-8 items-center gap-3 border-t border-border px-4 py-1.5 text-xs">
 					{suggestion ? (
