@@ -1,0 +1,258 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-10T20:52:48.695Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "89a59dc9-9aa4-4329-bb66-aacd80dd8b97",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:37.920Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "822f243a-0e98-46f5-94e6-8fdb0e38babc",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:38.803Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "dfd25dba-5f5f-46c6-a1df-a8573f29517f",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:39.101Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "f82520bd-f7ba-4b71-8905-c1cc00c1f817",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:39.363Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "3029658a-bcd1-4065-b4b9-d71def877b51",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:40.015Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "34101f42-d980-471d-8ad4-e3040793834d",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:40.262Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "456271b1-422a-498c-9d2d-d93771e24ce9",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:40.552Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "c8153c25-dc70-4aff-bc13-7330f7630bb2",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:40.784Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "26821f6d-0c28-46df-b468-3058859612bd",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:40.984Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "f15a3e86-9fae-4b23-a2ca-06b1c061058e",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:41.190Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "2a47a297-d904-4a4c-ac83-4ea6a51c60ff",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:41.379Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "984661b6-d1c0-4d1c-8b6c-973b66f56287",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:41.563Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "eaa2f229-a478-41d4-9ebe-fa9e819145be",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:41.764Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d6170357-52a6-4010-9315-9b17adda7f95",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:41.934Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "940c41a0-fb68-4fbf-8021-c7f8fa6d903f",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:42.109Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4ad01060-9934-428a-88db-78de7086e5e1",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:42.283Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "22603629-4271-4fe5-923c-950d3d13e6e2",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:42.446Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "ef18214f-7453-44c2-bcd1-959bc7342bc2",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:42.612Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "a5cb7c44-0d99-49e9-bbe1-d68a679ae01f",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:42.780Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "1ebfbeff-954d-4e68-b19a-943421d1638c",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:42.947Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "b54a7f61-7caf-4848-9069-fc6a23b7a348",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:43.113Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "920e6c03-2f3e-4311-b55b-ba062e26965c",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:43.280Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "6ae0ebf9-1d73-4792-8d2a-632a89d320df",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:43.467Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "aa9c5217-a46d-48cb-9a9e-392e983fd3a5",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:43.595Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "fc5b3ed5-5ee1-41ba-ab08-6013cbf06f62",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:43.758Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "8756b17b-cc4f-4195-a16d-50fea5d77c1d",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:43.932Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "271873c4-df22-4746-844f-e4a50bdc8852",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:44.120Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "2e628343-8cf7-4664-9acf-f52ada105936",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:44.567Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "d20c8485-d91e-4738-9ff6-456ae4dfb7c4",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:44.805Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "f1854ba6-f98a-418f-80d0-485b32797d28",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:45.082Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "79429eb7-62d0-4746-b341-a342cd317b05",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:45.321Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "358e5ba6-66c3-4963-90b6-ce06dddd6bd3",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:45.567Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "e708a3e8-13dc-492c-a221-c28efd39799f",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:45.833Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "525e7fb4-02d2-4158-a0c0-8fc2a5f56843",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:46.139Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "721f97cf-2d78-46b1-bc79-4ae7c1c2aace",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:46.497Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "396ec243-7761-4b76-a8db-8a7e8eb496f3",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T20:52:46.951Z"
+    }
+  ]
+}

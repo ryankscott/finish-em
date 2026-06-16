@@ -24,6 +24,7 @@ import { useReminderBell } from "./hooks/useReminderBell";
 import { useSubmitInput } from "./hooks/useSubmitInput";
 import { useTaskActions } from "./hooks/useTaskActions";
 import { useToasts } from "./hooks/useToasts";
+import { useUndo } from "./hooks/useUndo";
 import { InputBar } from "./InputBar";
 import { LinkPicker } from "./LinkPicker";
 import { ProjectEditPicker } from "./ProjectEditPicker";
@@ -253,6 +254,13 @@ export const App = ({ api, onQuit }: AppProps) => {
 
 	const selectedGoal = data.goals[nav.goalIndex] ?? null;
 
+	const undo = useUndo({
+		api,
+		loadData: data.loadData,
+		setStatusText: data.setStatusText,
+		setErrorText: data.setErrorText,
+	});
+
 	const taskActions = useTaskActions({
 		api,
 		loadData: data.loadData,
@@ -260,6 +268,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		activeProject: navDerived.activeProject,
 		selectedGoal,
 		pushToast,
+		recordUndo: undo.recordUndo,
 		setLoading: data.setLoading,
 		setErrorText: data.setErrorText,
 		setStatusText: data.setStatusText,
@@ -282,6 +291,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 		goalPeriodStart,
 		enumPickerTargetMode: inputBar.enumPickerTargetMode,
 		pushToast,
+		recordUndo: undo.recordUndo,
 		closeInput: inputBar.closeInput,
 		loadData: data.loadData,
 		setLoading: data.setLoading,
@@ -394,12 +404,14 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setStatusText: data.setStatusText,
 		loadData: data.loadData,
 		toggleSelectedTask: taskActions.toggleSelectedTask,
+		toggleSelectedTaskSomeday: taskActions.toggleSelectedTaskSomeday,
 		deleteSelectedTask: taskActions.deleteSelectedTask,
 		undeleteSelectedTask: taskActions.undeleteSelectedTask,
 		deleteActiveProject: taskActions.deleteActiveProject,
 		deleteSelectedReminder: taskActions.deleteSelectedReminder,
 		toggleSelectedGoal: taskActions.toggleSelectedGoal,
 		deleteSelectedGoal: taskActions.deleteSelectedGoal,
+		undoLast: undo.undoLast,
 		reminderPickerDateRef,
 		onQuit,
 	});

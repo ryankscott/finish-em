@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Task } from "@/server/types";
+import type { Goal, Reminder, Task } from "@/server/types";
 import type { TaskQuery } from "@/shared/api-client";
+import { snapshotGoal, snapshotTaskFields } from "@/shared/undo";
 
 import { api } from "./api";
+import { recordUndo } from "./undo";
 
 export const keys = {
 	settings: ["settings"] as const,
@@ -93,11 +95,19 @@ export function useTaskMutations() {
 			task.status === "completed"
 				? api.uncompleteTask(task.id)
 				: api.completeTask(task.id),
+		onSuccess: (_data, task) =>
+			recordUndo(
+				task.status === "completed"
+					? { kind: "task_reopen", taskId: task.id, label: task.title }
+					: { kind: "task_complete", taskId: task.id, label: task.title },
+			),
 		onSettled: invalidate,
 	});
 
 	const deleteTask = useMutation({
-		mutationFn: (taskId: number) => api.deleteTask(taskId),
+		mutationFn: (task: Task) => api.deleteTask(task.id),
+		onSuccess: (_data, task) =>
+			recordUndo({ kind: "task_delete", taskId: task.id, label: task.title }),
 		onSettled: invalidate,
 	});
 
@@ -109,6 +119,8 @@ export function useTaskMutations() {
 	const createTask = useMutation({
 		mutationFn: (input: Parameters<typeof api.createTask>[0]) =>
 			api.createTask(input),
+		onSuccess: (task) =>
+			recordUndo({ kind: "task_create", taskId: task.id, label: task.title }),
 		onSettled: invalidate,
 	});
 
@@ -119,7 +131,17 @@ export function useTaskMutations() {
 		}: {
 			taskId: number;
 			input: Parameters<typeof api.updateTask>[1];
+			before?: Task;
 		}) => api.updateTask(taskId, input),
+		onSuccess: (_data, { taskId, before }) => {
+			if (before)
+				recordUndo({
+					kind: "task_update",
+					taskId,
+					label: before.title,
+					before: snapshotTaskFields(before),
+				});
+		},
 		onSettled: invalidate,
 	});
 
@@ -166,6 +188,8 @@ export function useGoalMutations() {
 	const createGoal = useMutation({
 		mutationFn: (input: Parameters<typeof api.createGoal>[0]) =>
 			api.createGoal(input),
+		onSuccess: (goal) =>
+			recordUndo({ kind: "goal_create", goalId: goal.id, label: goal.title }),
 		onSettled: invalidate,
 	});
 
@@ -176,12 +200,29 @@ export function useGoalMutations() {
 		}: {
 			goalId: number;
 			input: Parameters<typeof api.updateGoal>[1];
+			before?: { title?: string; done?: boolean };
+			label?: string;
 		}) => api.updateGoal(goalId, input),
+		onSuccess: (_data, { goalId, before, label }) => {
+			if (before)
+				recordUndo({
+					kind: "goal_update",
+					goalId,
+					label: label ?? "goal",
+					before,
+				});
+		},
 		onSettled: invalidate,
 	});
 
 	const deleteGoal = useMutation({
-		mutationFn: (goalId: number) => api.deleteGoal(goalId),
+		mutationFn: (goal: Goal) => api.deleteGoal(goal.id),
+		onSuccess: (_data, goal) =>
+			recordUndo({
+				kind: "goal_delete",
+				label: goal.title,
+				snapshot: snapshotGoal(goal),
+			}),
 		onSettled: invalidate,
 	});
 
@@ -196,11 +237,24 @@ export function useReminderMutations() {
 	const createReminder = useMutation({
 		mutationFn: ({ taskId, remindAt }: { taskId: number; remindAt: string }) =>
 			api.createReminder(taskId, { remindAt }),
+		onSuccess: (reminder) =>
+			recordUndo({
+				kind: "reminder_create",
+				reminderId: reminder.id,
+				label: "reminder",
+			}),
 		onSettled: invalidate,
 	});
 
 	const deleteReminder = useMutation({
-		mutationFn: (reminderId: number) => api.deleteReminder(reminderId),
+		mutationFn: (reminder: Reminder) => api.deleteReminder(reminder.id),
+		onSuccess: (_data, reminder) =>
+			recordUndo({
+				kind: "reminder_delete",
+				label: "reminder",
+				taskId: reminder.taskId,
+				remindAt: reminder.remindAt,
+			}),
 		onSettled: invalidate,
 	});
 

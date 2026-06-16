@@ -50,7 +50,7 @@ export function RemindersView() {
 										type="button"
 										aria-label="Delete reminder"
 										onClick={() =>
-											deleteReminder.mutate(reminder.id, {
+											deleteReminder.mutate(reminder, {
 												onSuccess: () => toast.success("Reminder deleted"),
 												onError: (err) => toast.error(err.message),
 											})

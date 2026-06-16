@@ -1,22 +1,24 @@
 #!/usr/bin/env bash
 
-# Builds "finish-em Desktop.app": a macOS bundle whose launcher starts the
-# bundled Bun server (if not already running) and opens the web UI in a
-# chromeless browser app window (Chrome/Edge --app=), falling back to the
-# default browser. The TUI's Terminal-based .app (build-macos-app.sh) is
-# unaffected.
+# Builds "finish-em Desktop.app": a macOS bundle whose executable is a native
+# Swift/AppKit app. It starts the bundled Bun server (if not already running)
+# as a hidden child process and hosts the web UI in a native WKWebView window —
+# no terminal window, no Chrome. The TUI's Terminal-based .app
+# (build-macos-app.sh) is unaffected.
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DIST_DIR="${REPO_ROOT}/dist"
-APP_NAME="finish-em Desktop"
+APP_NAME="finish-em"
 APP_DIR="${DIST_DIR}/${APP_NAME}.app"
 CONTENTS_DIR="${APP_DIR}/Contents"
 MACOS_DIR="${CONTENTS_DIR}/MacOS"
 RESOURCES_DIR="${CONTENTS_DIR}/Resources"
 SOURCE_DIR="${DIST_DIR}/desktop"
-LAUNCHER_PATH="${MACOS_DIR}/finish-em-desktop-launcher"
+SWIFT_SOURCE="${REPO_ROOT}/desktop/FinishEmApp.swift"
+LAUNCHER_NAME="finish-em"
+LAUNCHER_PATH="${MACOS_DIR}/${LAUNCHER_NAME}"
 ICON_SOURCE="${REPO_ROOT}/public/icon.svg"
 ICONSET_DIR="${DIST_DIR}/AppIcon.iconset"
 ICON_PATH="${RESOURCES_DIR}/AppIcon.icns"
@@ -29,8 +31,8 @@ VERSION="$(bun -e "import pkg from './package.json' assert { type: 'json' }; con
 cd "${REPO_ROOT}"
 bash scripts/build-desktop-binary.sh
 
-if [[ ! -x "${SOURCE_DIR}/finish-em-desktop" ]]; then
-  echo "Missing compiled binary at ${SOURCE_DIR}/finish-em-desktop."
+if [[ ! -x "${SOURCE_DIR}/finish-em" ]]; then
+  echo "Missing compiled binary at ${SOURCE_DIR}/finish-em."
   exit 1
 fi
 
@@ -51,51 +53,18 @@ else
   echo "Skipping icon generation; missing ${ICON_SOURCE}, sips, or iconutil."
 fi
 
-cp "${SOURCE_DIR}/finish-em-desktop" "${RESOURCES_DIR}/finish-em-desktop"
-chmod +x "${RESOURCES_DIR}/finish-em-desktop"
+# Bundle the Bun server binary (renamed to avoid colliding with the Swift
+# launcher executable name) and the built web assets.
+cp "${SOURCE_DIR}/finish-em" "${RESOURCES_DIR}/finish-em-server"
+chmod +x "${RESOURCES_DIR}/finish-em-server"
 cp -R "${SOURCE_DIR}/web" "${RESOURCES_DIR}/web"
 
-cat > "${LAUNCHER_PATH}" <<'EOF'
-#!/usr/bin/env bash
-
-set -euo pipefail
-
-APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-BINARY_PATH="${APP_DIR}/Resources/finish-em-desktop"
-PORT="${FINISH_EM_PORT:-5717}"
-URL="http://127.0.0.1:${PORT}"
-LOG_FILE="${HOME}/.finish-em/desktop-server.log"
-
-mkdir -p "${HOME}/.finish-em"
-
-server_up() {
-  curl -s -o /dev/null --max-time 1 "${URL}/api/settings"
-}
-
-if ! server_up; then
-  PORT="${PORT}" nohup "${BINARY_PATH}" >> "${LOG_FILE}" 2>&1 &
-  for _ in $(seq 1 50); do
-    if server_up; then break; fi
-    sleep 0.1
-  done
-fi
-
-if ! server_up; then
-  osascript -e 'display alert "finish-em" message "The finish-em server failed to start. See ~/.finish-em/desktop-server.log" as critical'
+# Compile the native Swift/AppKit launcher into the bundle's executable.
+if [[ ! -f "${SWIFT_SOURCE}" ]]; then
+  echo "Missing Swift source at ${SWIFT_SOURCE}."
   exit 1
 fi
-
-for browser in \
-  "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge" \
-  "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser"; do
-  if [[ -x "${browser}" ]]; then
-    exec "${browser}" --app="${URL}" --user-data-dir="${HOME}/.finish-em/app-window-profile"
-  fi
-done
-
-exec open "${URL}"
-EOF
+swiftc -O "${SWIFT_SOURCE}" -o "${LAUNCHER_PATH}"
 chmod +x "${LAUNCHER_PATH}"
 
 cat > "${PLIST_PATH}" <<EOF
@@ -106,11 +75,11 @@ cat > "${PLIST_PATH}" <<EOF
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleExecutable</key>
-  <string>finish-em-desktop-launcher</string>
+  <string>${LAUNCHER_NAME}</string>
   <key>CFBundleIconFile</key>
   <string>AppIcon</string>
   <key>CFBundleIdentifier</key>
-  <string>com.ryankscott.finish-em-desktop</string>
+  <string>com.ryankscott.finish-em</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
@@ -125,9 +94,18 @@ cat > "${PLIST_PATH}" <<EOF
   <string>13.0</string>
   <key>NSHighResolutionCapable</key>
   <true/>
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsLocalNetworking</key>
+    <true/>
+  </dict>
 </dict>
 </plist>
 EOF
+
+# Ad-hoc sign so Gatekeeper runs the locally-built app without a deep prompt.
+codesign --force --deep --sign - "${APP_DIR}" >/dev/null 2>&1 || \
+  echo "Warning: codesign failed; app may prompt on first launch."
 
 touch "${APP_DIR}"
 

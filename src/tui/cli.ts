@@ -38,9 +38,9 @@ const HELP_BY_GROUP: Record<string, string> = {
 	task: `finish-em task <subcommand> [flags]
 
 Subcommands:
-  list [--project-id <id>] [--status open|completed] [--blocked true|false] [--json]
-  add <title> --project-id <id> [--notes <text>] [--priority <1-4>] [--blocked-reason <text>] [--json]
-  update <task-id> [--title <text>] [--notes <text>] [--priority <1-4>] [--blocked-reason <text> | --clear-blocked] [--json]
+  list [--project-id <id>] [--status open|completed] [--json]
+  add <title> --project-id <id> [--notes <text>] [--priority <1-4>] [--json]
+  update <task-id> [--title <text>] [--notes <text>] [--priority <1-4>] [--json]
   done <task-id> [--json]
   undone <task-id> [--json]
   delete <task-id> [--json]
@@ -50,19 +50,13 @@ Subcommands:
 Subcommands:
   list [--json]
   add <name> [--emoji <emoji>] [--description <text>] [--color <hex>]
-             [--jira-discovery-url <url>] [--jira-discovery-status todo|in_progress|done]
-             [--jira-delivery-url <url>] [--jira-delivery-status todo|in_progress|done]
-             [--confluence-url <url>]
-             [--jira-docs-url <url>] [--jira-docs-status todo|in_progress|done]
-             [--jira-release-note-url <url>] [--jira-release-note-status todo|in_progress|done]
-             [--teams-release-note-url <url>] [--json]
+             [--jira-discovery-url <url>] [--jira-delivery-url <url>]
+             [--confluence-url <url>] [--jira-docs-url <url>]
+             [--jira-release-note-url <url>] [--teams-release-note-url <url>] [--json]
   update <project-id> [--name <text>] [--emoji <emoji>] [--description <text>] [--color <hex>]
-             [--jira-discovery-url <url>] [--jira-discovery-status todo|in_progress|done]
-             [--jira-delivery-url <url>] [--jira-delivery-status todo|in_progress|done]
-             [--confluence-url <url>]
-             [--jira-docs-url <url>] [--jira-docs-status todo|in_progress|done]
-             [--jira-release-note-url <url>] [--jira-release-note-status todo|in_progress|done]
-             [--teams-release-note-url <url>] [--json]
+             [--jira-discovery-url <url>] [--jira-delivery-url <url>]
+             [--confluence-url <url>] [--jira-docs-url <url>]
+             [--jira-release-note-url <url>] [--teams-release-note-url <url>] [--json]
   delete <project-id> [--json]
 `,
 	goal: `finish-em goal <subcommand> [flags]
@@ -201,17 +195,11 @@ const formatTaskList = (
 		status: string;
 		priority: number;
 		title: string;
-		blockedReason?: string | null;
 	}>,
 ) => {
 	if (tasks.length === 0) return "No tasks found.";
 	return tasks
-		.map((task) => {
-			const blocked = task.blockedReason
-				? ` blocked:${task.blockedReason}`
-				: "";
-			return `[${task.id}] ${task.status} p${task.priority} ${task.title}${blocked}`;
-		})
+		.map((task) => `[${task.id}] ${task.status} p${task.priority} ${task.title}`)
 		.join("\n");
 };
 
@@ -262,19 +250,6 @@ const formatReminderList = (
 		.join("\n");
 };
 
-const asJiraStatus = (
-	flags: Record<string, string | boolean>,
-	key: string,
-): "todo" | "in_progress" | "done" | undefined => {
-	const value = asString(flags, key);
-	if (value === undefined) return undefined;
-	if (value === "todo" || value === "in_progress" || value === "done")
-		return value;
-	throw new Error(
-		`Invalid value for --${key}. Expected todo, in_progress, or done`,
-	);
-};
-
 const requirePositional = (
 	positionals: string[],
 	index: number,
@@ -301,7 +276,6 @@ async function runTaskCommand(args: string[], api: ApiClient, io: CliIo) {
 		const tasks = await api.listTasks({
 			projectId: asNumber(flags, "project-id"),
 			status: asString(flags, "status") as "open" | "completed" | undefined,
-			blocked: asBoolean(flags, "blocked"),
 		});
 		printResult(io, tasks, { json: outputJson, human: formatTaskList(tasks) });
 		return;
@@ -316,7 +290,6 @@ async function runTaskCommand(args: string[], api: ApiClient, io: CliIo) {
 			projectId,
 			notes: asString(flags, "notes"),
 			priority: asNumber(flags, "priority") as 1 | 2 | 3 | 4 | undefined,
-			blockedReason: asString(flags, "blocked-reason") ?? undefined,
 		});
 		printResult(io, task, {
 			json: outputJson,
@@ -330,14 +303,10 @@ async function runTaskCommand(args: string[], api: ApiClient, io: CliIo) {
 			requirePositional(positionals, 1, "task-id"),
 			10,
 		);
-		const clearBlocked = flags["clear-blocked"] === true;
 		const task = await api.updateTask(taskId, {
 			title: asString(flags, "title"),
 			notes: asString(flags, "notes"),
 			priority: asNumber(flags, "priority") as 1 | 2 | 3 | 4 | undefined,
-			blockedReason: clearBlocked
-				? null
-				: (asString(flags, "blocked-reason") ?? undefined),
 		});
 		printResult(io, task, {
 			json: outputJson,
@@ -419,15 +388,10 @@ async function runProjectCommand(args: string[], api: ApiClient, io: CliIo) {
 			description: asString(flags, "description"),
 			color: asString(flags, "color"),
 			jiraDiscoveryUrl: asString(flags, "jira-discovery-url") ?? null,
-			jiraDiscoveryStatus: asJiraStatus(flags, "jira-discovery-status") ?? null,
 			jiraDeliveryUrl: asString(flags, "jira-delivery-url") ?? null,
-			jiraDeliveryStatus: asJiraStatus(flags, "jira-delivery-status") ?? null,
 			confluenceUrl: asString(flags, "confluence-url") ?? null,
 			jiraDocsUrl: asString(flags, "jira-docs-url") ?? null,
-			jiraDocsStatus: asJiraStatus(flags, "jira-docs-status") ?? null,
 			jiraReleaseNoteUrl: asString(flags, "jira-release-note-url") ?? null,
-			jiraReleaseNoteStatus:
-				asJiraStatus(flags, "jira-release-note-status") ?? null,
 			teamsReleaseNoteUrl: asString(flags, "teams-release-note-url") ?? null,
 		});
 		printResult(io, project, {
@@ -448,14 +412,10 @@ async function runProjectCommand(args: string[], api: ApiClient, io: CliIo) {
 			description: asString(flags, "description"),
 			color: asString(flags, "color"),
 			jiraDiscoveryUrl: asString(flags, "jira-discovery-url"),
-			jiraDiscoveryStatus: asJiraStatus(flags, "jira-discovery-status"),
 			jiraDeliveryUrl: asString(flags, "jira-delivery-url"),
-			jiraDeliveryStatus: asJiraStatus(flags, "jira-delivery-status"),
 			confluenceUrl: asString(flags, "confluence-url"),
 			jiraDocsUrl: asString(flags, "jira-docs-url"),
-			jiraDocsStatus: asJiraStatus(flags, "jira-docs-status"),
 			jiraReleaseNoteUrl: asString(flags, "jira-release-note-url"),
-			jiraReleaseNoteStatus: asJiraStatus(flags, "jira-release-note-status"),
 			teamsReleaseNoteUrl: asString(flags, "teams-release-note-url"),
 		});
 		printResult(io, project, {

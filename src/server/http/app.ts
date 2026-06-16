@@ -225,6 +225,36 @@ export function createApp() {
 		},
 	);
 
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/tasks/{id}/complete",
+			request: { params: idParamSchema },
+			responses: jsonResponse(taskSchema, "Completed task"),
+		}),
+		(c) => {
+			const { id } = c.req.valid("param");
+			const result = taskRepo.completeTask(id);
+			if (!result.task) throw new NotFoundError(`Task ${id} not found`);
+			return c.json(result.task, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/tasks/{id}/uncomplete",
+			request: { params: idParamSchema },
+			responses: jsonResponse(taskSchema, "Uncompleted task"),
+		}),
+		(c) => {
+			const { id } = c.req.valid("param");
+			const task = taskRepo.uncompleteTask(id);
+			if (!task) throw new NotFoundError(`Task ${id} not found`);
+			return c.json(task, 200);
+		},
+	);
+
 	const taskAction = (
 		path: string,
 		action: (id: number) => ReturnType<typeof taskRepo.uncompleteTask>,
@@ -245,11 +275,6 @@ export function createApp() {
 		);
 	};
 
-	taskAction(
-		"/api/tasks/{id}/complete",
-		(id) => taskRepo.completeTask(id).task,
-	);
-	taskAction("/api/tasks/{id}/uncomplete", (id) => taskRepo.uncompleteTask(id));
 	taskAction("/api/tasks/{id}/undelete", (id) => taskRepo.undeleteTask(id));
 
 	// Goals

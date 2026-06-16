@@ -53,14 +53,10 @@ function projectToModalValues(project: Project): Record<string, string> {
 			: "",
 		endAt: project.endAt ? format(new Date(project.endAt), "yyyy-MM-dd") : "",
 		jiraDiscovery: project.jiraDiscoveryUrl ?? "",
-		jiraDiscoveryStatus: project.jiraDiscoveryStatus ?? "",
 		jiraDelivery: project.jiraDeliveryUrl ?? "",
-		jiraDeliveryStatus: project.jiraDeliveryStatus ?? "",
 		confluenceUrl: project.confluenceUrl ?? "",
 		jiraDocsUrl: project.jiraDocsUrl ?? "",
-		jiraDocsStatus: project.jiraDocsStatus ?? "",
 		jiraReleaseNoteUrl: project.jiraReleaseNoteUrl ?? "",
-		jiraReleaseNoteStatus: project.jiraReleaseNoteStatus ?? "",
 		teamsReleaseNoteUrl: project.teamsReleaseNoteUrl ?? "",
 	};
 }
@@ -75,7 +71,6 @@ export function taskToModalValues(task: Task): Record<string, string> {
 			? format(new Date(task.scheduledAt), "yyyy-MM-dd")
 			: "",
 		recurrence: task.recurrencePreset ?? "",
-		blockedReason: task.blockedReason ?? "",
 		notes: task.notes ?? "",
 	};
 }
@@ -209,12 +204,14 @@ type UseMainKeysParams = {
 	setInputValue: (value: string) => void;
 	loadData: () => Promise<void>;
 	toggleSelectedTask: () => Promise<void>;
+	toggleSelectedTaskSomeday: () => Promise<void>;
 	deleteSelectedTask: () => Promise<void>;
 	undeleteSelectedTask: () => Promise<void>;
 	deleteActiveProject: () => Promise<void>;
 	deleteSelectedReminder: (reminder: Reminder) => Promise<void>;
 	toggleSelectedGoal: () => Promise<void>;
 	deleteSelectedGoal: () => Promise<void>;
+	undoLast: () => Promise<void>;
 	submitInput: (overrideValue?: string) => Promise<void>;
 	onQuit: () => void;
 };
@@ -294,12 +291,14 @@ export function useMainKeys({
 	setInputValue,
 	loadData,
 	toggleSelectedTask,
+	toggleSelectedTaskSomeday,
 	deleteSelectedTask,
 	undeleteSelectedTask,
 	deleteActiveProject,
 	deleteSelectedReminder,
 	toggleSelectedGoal,
 	deleteSelectedGoal,
+	undoLast,
 	submitInput,
 	onQuit,
 }: UseMainKeysParams) {
@@ -318,21 +317,6 @@ export function useMainKeys({
 		{ label: "Monthly", value: "monthly" },
 		{ label: "Yearly", value: "yearly" },
 	];
-
-	const JIRA_STATUS_ITEMS: EnumPickerItem[] = [
-		{ label: "Todo", value: "todo" },
-		{ label: "In Progress", value: "in_progress" },
-		{ label: "Done", value: "done" },
-		{ label: "Clear", value: "" },
-	];
-
-	const INLINE_STATUS_KEYS = new Set([
-		"jiraDiscoveryStatus",
-		"jiraDeliveryStatus",
-		"jiraDocsStatus",
-		"jiraReleaseNoteStatus",
-	]);
-	const STATUS_CYCLE = ["", "todo", "in_progress", "done"];
 
 	const openEnumPicker = (
 		title: string,
@@ -383,31 +367,6 @@ export function useMainKeys({
 
 				const currentField = fields[modalFieldIndex];
 
-				if (currentField && INLINE_STATUS_KEYS.has(currentField.key)) {
-					if (key.rightArrow || input === "l") {
-						const cur = modalValuesRef.current[currentField.key] ?? "";
-						const idx = STATUS_CYCLE.indexOf(cur);
-						const next =
-							STATUS_CYCLE[(idx === -1 ? 0 : idx + 1) % STATUS_CYCLE.length];
-						setModalValues((prev) => ({ ...prev, [currentField.key]: next }));
-						return;
-					}
-					if (key.leftArrow || input === "h") {
-						const cur = modalValuesRef.current[currentField.key] ?? "";
-						const idx = STATUS_CYCLE.indexOf(cur);
-						const safeIdx = idx === -1 ? 0 : idx;
-						const prev =
-							STATUS_CYCLE[
-								(safeIdx - 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length
-							];
-						setModalValues((prevVals) => ({
-							...prevVals,
-							[currentField.key]: prev,
-						}));
-						return;
-					}
-				}
-
 				if (input === "j" || key.downArrow || (key.tab && !key.shift)) {
 					setModalFieldIndex((i) => (i + 1) % fieldCount);
 					setValidationError(null);
@@ -451,9 +410,6 @@ export function useMainKeys({
 								projectItems,
 								`modal:${modalMode}:project`,
 							);
-						} else if (INLINE_STATUS_KEYS.has(currentField.key)) {
-							setModalFieldIndex((i) => (i + 1) % fieldCount);
-							setValidationError(null);
 						}
 						return;
 					}
@@ -557,9 +513,6 @@ export function useMainKeys({
 						);
 					} else if (field.key === "reminder") {
 						openCalendarPicker("calendarPickerReminderDate");
-					} else if (field.key === "blocked") {
-						setInputMode("editBlockedReason");
-						setInputValue(selectedTask?.blockedReason ?? "");
 					} else if (field.key === "notes") {
 						setInputMode("editNotes");
 						setInputValue(selectedTask?.notes ?? "");
@@ -626,26 +579,6 @@ export function useMainKeys({
 							initialValue = activeProject.jiraReleaseNoteUrl ?? "";
 						else if (field.key === "teamsReleaseNote")
 							initialValue = activeProject.teamsReleaseNoteUrl ?? "";
-					}
-					if (field.key === "jiraDiscoveryStatus") {
-						setInputMode("editProjectJiraDiscoveryStatus");
-						setInputValue(activeProject?.jiraDiscoveryStatus ?? "");
-						return;
-					}
-					if (field.key === "jiraDeliveryStatus") {
-						setInputMode("editProjectJiraDeliveryStatus");
-						setInputValue(activeProject?.jiraDeliveryStatus ?? "");
-						return;
-					}
-					if (field.key === "jiraDocsStatus") {
-						setInputMode("editProjectJiraDocsStatus");
-						setInputValue(activeProject?.jiraDocsStatus ?? "");
-						return;
-					}
-					if (field.key === "jiraReleaseNoteStatus") {
-						setInputMode("editProjectJiraReleaseNoteStatus");
-						setInputValue(activeProject?.jiraReleaseNoteStatus ?? "");
-						return;
 					}
 					const modeMap: Record<string, InputMode> = {
 						name: "editProjectName",
@@ -1041,6 +974,15 @@ export function useMainKeys({
 				return;
 			}
 
+			if (input === "S") {
+				if (!selectedTask) {
+					setStatusText("No task selected");
+					return;
+				}
+				void toggleSelectedTaskSomeday();
+				return;
+			}
+
 			if (input === "a") {
 				setInputMode("quickAdd");
 				setInputValue("");
@@ -1157,9 +1099,12 @@ export function useMainKeys({
 			}
 
 			if (input === "u") {
-				if (view !== "deleted") return;
-				if (!selectedTask) return;
-				void undeleteSelectedTask();
+				if (view === "deleted") {
+					if (!selectedTask) return;
+					void undeleteSelectedTask();
+					return;
+				}
+				void undoLast();
 				return;
 			}
 

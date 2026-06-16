@@ -2,7 +2,6 @@ import type { SyncStatus } from "../server/sync/types";
 import type {
 	AppSettings,
 	Goal,
-	JiraTicketStatus,
 	Project,
 	Reminder,
 	Task,
@@ -17,13 +16,13 @@ export type SyncResult = {
 export type TaskQuery = {
 	projectId?: number;
 	status?: "open" | "completed";
-	blocked?: boolean;
 	from?: string;
 	to?: string;
 	priority?: 1 | 2 | 3 | 4;
 	noDueDate?: boolean;
 	parentTaskId?: number | null;
 	rootsOnly?: boolean;
+	someday?: boolean;
 };
 
 export type ApiClient = {
@@ -52,7 +51,7 @@ export type ApiClient = {
 			| "every_weekday"
 			| null;
 		recurrenceRRule?: string | null;
-		blockedReason?: string | null;
+		someday?: boolean;
 	}) => Promise<Task>;
 	listGoals: (query?: {
 		periodType?: "daily" | "weekly";
@@ -88,7 +87,7 @@ export type ApiClient = {
 				| "every_weekday"
 				| null;
 			recurrenceRRule?: string | null;
-			blockedReason?: string | null;
+			someday?: boolean;
 		},
 	) => Promise<Task>;
 	deleteTask: (taskId: number) => Promise<void>;
@@ -105,14 +104,10 @@ export type ApiClient = {
 		color?: string;
 		isInbox?: boolean;
 		jiraDiscoveryUrl?: string | null;
-		jiraDiscoveryStatus?: JiraTicketStatus | null;
 		jiraDeliveryUrl?: string | null;
-		jiraDeliveryStatus?: JiraTicketStatus | null;
 		confluenceUrl?: string | null;
 		jiraDocsUrl?: string | null;
-		jiraDocsStatus?: JiraTicketStatus | null;
 		jiraReleaseNoteUrl?: string | null;
-		jiraReleaseNoteStatus?: JiraTicketStatus | null;
 		teamsReleaseNoteUrl?: string | null;
 	}) => Promise<Project>;
 	updateProject: (
@@ -126,14 +121,10 @@ export type ApiClient = {
 			color?: string;
 			isInbox?: boolean;
 			jiraDiscoveryUrl?: string | null;
-			jiraDiscoveryStatus?: JiraTicketStatus | null;
 			jiraDeliveryUrl?: string | null;
-			jiraDeliveryStatus?: JiraTicketStatus | null;
 			confluenceUrl?: string | null;
 			jiraDocsUrl?: string | null;
-			jiraDocsStatus?: JiraTicketStatus | null;
 			jiraReleaseNoteUrl?: string | null;
-			jiraReleaseNoteStatus?: JiraTicketStatus | null;
 			teamsReleaseNoteUrl?: string | null;
 		},
 	) => Promise<Project>;

@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
 import type { Goal, Project, Reminder, Task } from "../../server/types";
+import { type UndoRecord, snapshotGoal } from "../../shared/undo";
 import type { ApiClient } from "../api-client";
 import type { StatusMessageTone } from "../StatusMessage";
 
@@ -11,6 +12,7 @@ type UseTaskActionsParams = {
 	activeProject: Project | null;
 	selectedGoal: Goal | null;
 	pushToast: (text: string, tone?: StatusMessageTone) => void;
+	recordUndo: (record: UndoRecord) => void;
 	setLoading: (loading: boolean) => void;
 	setErrorText: (text: string | null) => void;
 	setStatusText: (text: string) => void;
@@ -21,6 +23,7 @@ type UseTaskActionsParams = {
 
 type UseTaskActionsResult = {
 	toggleSelectedTask: () => Promise<void>;
+	toggleSelectedTaskSomeday: () => Promise<void>;
 	deleteSelectedTask: () => Promise<void>;
 	undeleteSelectedTask: () => Promise<void>;
 	deleteActiveProject: () => Promise<void>;
@@ -36,6 +39,7 @@ export function useTaskActions({
 	activeProject,
 	selectedGoal,
 	pushToast,
+	recordUndo,
 	setLoading,
 	setErrorText,
 	setStatusText,
@@ -50,9 +54,19 @@ export function useTaskActions({
 		try {
 			if (selectedTask.status === "completed") {
 				await api.uncompleteTask(selectedTask.id);
+				recordUndo({
+					kind: "task_reopen",
+					taskId: selectedTask.id,
+					label: selectedTask.title,
+				});
 				setStatusText("Task reopened");
 			} else {
 				await api.completeTask(selectedTask.id);
+				recordUndo({
+					kind: "task_complete",
+					taskId: selectedTask.id,
+					label: selectedTask.title,
+				});
 				setStatusText("Task completed");
 			}
 			await loadData();
@@ -62,7 +76,46 @@ export function useTaskActions({
 		} finally {
 			setLoading(false);
 		}
-	}, [api, loadData, selectedTask, setErrorText, setLoading, setStatusText]);
+	}, [
+		api,
+		loadData,
+		recordUndo,
+		selectedTask,
+		setErrorText,
+		setLoading,
+		setStatusText,
+	]);
+
+	const toggleSelectedTaskSomeday = useCallback(async () => {
+		if (!selectedTask) return;
+		setLoading(true);
+		setErrorText(null);
+		try {
+			const next = !selectedTask.someday;
+			await api.updateTask(selectedTask.id, { someday: next });
+			recordUndo({
+				kind: "task_update",
+				taskId: selectedTask.id,
+				label: selectedTask.title,
+				before: { someday: selectedTask.someday },
+			});
+			setStatusText(next ? "Parked in Someday" : "Removed from Someday");
+			await loadData();
+		} catch (error) {
+			const message = error instanceof Error ? error.message : String(error);
+			setErrorText(message);
+		} finally {
+			setLoading(false);
+		}
+	}, [
+		api,
+		loadData,
+		recordUndo,
+		selectedTask,
+		setErrorText,
+		setLoading,
+		setStatusText,
+	]);
 
 	const deleteSelectedTask = useCallback(async () => {
 		if (!selectedTask) return;
@@ -70,6 +123,11 @@ export function useTaskActions({
 		setErrorText(null);
 		try {
 			await api.deleteTask(selectedTask.id);
+			recordUndo({
+				kind: "task_delete",
+				taskId: selectedTask.id,
+				label: selectedTask.title,
+			});
 			setStatusText("Task deleted");
 			await loadData();
 		} catch (error) {
@@ -78,7 +136,15 @@ export function useTaskActions({
 		} finally {
 			setLoading(false);
 		}
-	}, [api, loadData, selectedTask, setErrorText, setLoading, setStatusText]);
+	}, [
+		api,
+		loadData,
+		recordUndo,
+		selectedTask,
+		setErrorText,
+		setLoading,
+		setStatusText,
+	]);
 
 	const undeleteSelectedTask = useCallback(async () => {
 		if (!selectedTask) return;
@@ -138,6 +204,12 @@ export function useTaskActions({
 			setErrorText(null);
 			try {
 				await api.deleteReminder(reminder.id);
+				recordUndo({
+					kind: "reminder_delete",
+					label: "reminder",
+					taskId: reminder.taskId,
+					remindAt: reminder.remindAt,
+				});
 				setStatusText("Reminder deleted");
 				pushToast("Reminder deleted", "info");
 				if (selectedTask) {
@@ -153,6 +225,7 @@ export function useTaskActions({
 		[
 			api,
 			pushToast,
+			recordUndo,
 			selectedTask,
 			setErrorText,
 			setLoading,
@@ -167,6 +240,12 @@ export function useTaskActions({
 		setErrorText(null);
 		try {
 			await api.updateGoal(selectedGoal.id, { done: !selectedGoal.done });
+			recordUndo({
+				kind: "goal_update",
+				goalId: selectedGoal.id,
+				label: selectedGoal.title,
+				before: { done: selectedGoal.done },
+			});
 			setStatusText(selectedGoal.done ? "Goal reopened" : "Goal completed");
 			await loadData();
 		} catch (error) {
@@ -175,7 +254,15 @@ export function useTaskActions({
 		} finally {
 			setLoading(false);
 		}
-	}, [api, loadData, selectedGoal, setErrorText, setLoading, setStatusText]);
+	}, [
+		api,
+		loadData,
+		recordUndo,
+		selectedGoal,
+		setErrorText,
+		setLoading,
+		setStatusText,
+	]);
 
 	const deleteSelectedGoal = useCallback(async () => {
 		if (!selectedGoal) return;
@@ -183,6 +270,11 @@ export function useTaskActions({
 		setErrorText(null);
 		try {
 			await api.deleteGoal(selectedGoal.id);
+			recordUndo({
+				kind: "goal_delete",
+				label: selectedGoal.title,
+				snapshot: snapshotGoal(selectedGoal),
+			});
 			setStatusText("Goal deleted");
 			pushToast("Goal deleted", "info");
 			await loadData();
@@ -196,6 +288,7 @@ export function useTaskActions({
 		api,
 		loadData,
 		pushToast,
+		recordUndo,
 		selectedGoal,
 		setErrorText,
 		setLoading,
@@ -204,6 +297,7 @@ export function useTaskActions({
 
 	return {
 		toggleSelectedTask,
+		toggleSelectedTaskSomeday,
 		deleteSelectedTask,
 		undeleteSelectedTask,
 		deleteActiveProject,

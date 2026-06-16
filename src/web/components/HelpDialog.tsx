@@ -30,8 +30,8 @@ const SECTIONS: Array<[string, Array<[string, string]>]> = [
 			["s", "Add subtask to selected task"],
 			["e / enter", "Edit task (incl. reminder)"],
 			["d", "Delete task"],
-			["u", "Restore task (Deleted view)"],
-			["o", "Open link in task"],
+			["u / ⌘Z", "Undo last change (Deleted view: restore task)"],
+			["o", "Open link in task (project view: open project link)"],
 		],
 	],
 	[

@@ -1,12 +1,16 @@
 import { useParams } from "@tanstack/react-router";
 import { endOfDay, startOfDay } from "date-fns";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
 import { isOverdueTask } from "@/lib/datetime";
+import { ensureScheme } from "@/lib/task-links";
 
+import { LinkPickerDialog, type LinkChoice } from "../components/LinkPickerDialog";
 import { ProjectHeader } from "../components/ProjectHeader";
 import { TaskListView } from "../components/TaskListView";
+import { useHotkeyScope } from "../lib/hotkeys";
 import { useDeletedTasks, useProjects, useTasks } from "../lib/queries";
 import { useUi } from "../state/ui";
 
@@ -68,6 +72,20 @@ export function InboxView() {
 	);
 }
 
+export function SomedayView() {
+	const { data: tasks = [] } = useTasks({ status: "open", someday: true });
+	return (
+		<>
+			<ViewTitle title="Someday" count={tasks.length} />
+			<TaskListView
+				tasks={tasks}
+				emptyMessage="Nothing parked for someday"
+				showProject={true}
+			/>
+		</>
+	);
+}
+
 export function OverdueView() {
 	const now = new Date();
 	const { data: pastTasks = [] } = useTasks({
@@ -79,16 +97,6 @@ export function OverdueView() {
 		<>
 			<ViewTitle title="Overdue" count={tasks.length} />
 			<TaskListView tasks={tasks} emptyMessage="Nothing overdue" />
-		</>
-	);
-}
-
-export function BlockedView() {
-	const { data: tasks = [] } = useTasks({ status: "open", blocked: true });
-	return (
-		<>
-			<ViewTitle title="Blocked" count={tasks.length} />
-			<TaskListView tasks={tasks} emptyMessage="Nothing blocked" />
 		</>
 	);
 }
@@ -133,6 +141,29 @@ export function ProjectView() {
 	const { data: projects = [] } = useProjects();
 	const project = projects.find((p) => p.id === id);
 	const { data: tasks = [] } = useTasks({ status: "open", projectId: id });
+	const [pickerLinks, setPickerLinks] = useState<LinkChoice[] | null>(null);
+
+	useHotkeyScope({
+		o: () => {
+			if (!project) return;
+			const links: LinkChoice[] = [
+				project.jiraDiscoveryUrl && { url: project.jiraDiscoveryUrl, displayLabel: "Jira Discovery" },
+				project.jiraDeliveryUrl && { url: project.jiraDeliveryUrl, displayLabel: "Jira Delivery" },
+				project.confluenceUrl && { url: project.confluenceUrl, displayLabel: "Confluence" },
+				project.jiraDocsUrl && { url: project.jiraDocsUrl, displayLabel: "Docs Jira" },
+				project.jiraReleaseNoteUrl && { url: project.jiraReleaseNoteUrl, displayLabel: "Release Note Jira" },
+				project.teamsReleaseNoteUrl && { url: project.teamsReleaseNoteUrl, displayLabel: "Teams Release Note" },
+			].filter((x): x is LinkChoice => !!x);
+			if (links.length === 0) {
+				toast.info("No project links");
+			} else if (links.length === 1) {
+				window.open(ensureScheme(links[0].url), "_blank");
+			} else {
+				setPickerLinks(links);
+			}
+		},
+	});
+
 	return (
 		<>
 			{project ? (
@@ -145,6 +176,12 @@ export function ProjectView() {
 				emptyMessage="No open tasks in this project"
 				showProject={false}
 				defaultProjectId={id}
+				disableOpenLink
+			/>
+			<LinkPickerDialog
+				open={pickerLinks !== null}
+				links={pickerLinks ?? []}
+				onClose={() => setPickerLinks(null)}
 			/>
 		</>
 	);

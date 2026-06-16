@@ -8,16 +8,15 @@ type NavItem = {
 	label: string;
 	countKey?:
 		| "today"
-		| "blocked"
 		| "overdue"
 		| "inbox"
 		| "upcoming"
 		| "completed"
 		| "deleted"
-		| "reminders";
+		| "reminders"
+		| "someday";
 	view:
 		| "today"
-		| "blocked"
 		| "overdue"
 		| "inbox"
 		| "upcoming"
@@ -25,7 +24,8 @@ type NavItem = {
 		| "completed"
 		| "deleted"
 		| "settings"
-		| "reminders";
+		| "reminders"
+		| "someday";
 };
 
 type ProjectItem = {
@@ -42,13 +42,6 @@ const NAV_ITEMS: NavItem[] = [
 		label: "Today",
 		countKey: "today",
 		view: "today",
-	},
-	{
-		type: "nav",
-		key: "blocked",
-		label: "Blocked",
-		countKey: "blocked",
-		view: "blocked",
 	},
 	{
 		type: "nav",
@@ -98,6 +91,13 @@ const NAV_ITEMS: NavItem[] = [
 		countKey: "deleted",
 		view: "deleted",
 	},
+	{
+		type: "nav",
+		key: "someday",
+		label: "Someday",
+		countKey: "someday",
+		view: "someday",
+	},
 ];
 
 const SETTINGS_ITEM: NavItem = {
@@ -121,13 +121,13 @@ type SidebarProps = {
 	viewCounts?: Partial<
 		Record<
 			| "today"
-			| "blocked"
 			| "overdue"
 			| "inbox"
 			| "upcoming"
 			| "completed"
 			| "deleted"
-			| "reminders",
+			| "reminders"
+			| "someday",
 			number
 		> & {
 			projectCounts?: Record<number, number>;

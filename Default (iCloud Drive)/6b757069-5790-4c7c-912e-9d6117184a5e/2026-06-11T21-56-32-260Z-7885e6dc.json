@@ -1,0 +1,13 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-11T21:56:32.260Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "30f37a3a-1293-40fd-b88c-0798fcb1c0a6",
+      "field": "*",
+      "value": "{\"id\":168,\"project_id\":1,\"parent_task_id\":null,\"title\":\"Create screening questions / parameters for Reed\",\"notes\":\"\",\"priority\":4,\"scheduled_at\":null,\"due_at\":\"2026-06-11T21:00:00.000Z\",\"due_timezone\":\"Pacific/Auckland\",\"recurrence_preset\":null,\"recurrence_rrule\":null,\"status\":\"open\",\"completed_at\":null,\"blocked_at\":null,\"blocked_reason\":null,\"created_at\":\"2026-06-11T21:56:07.391Z\",\"updated_at\":\"2026-06-11T21:56:07.391Z\",\"deleted_at\":null,\"uuid\":\"30f37a3a-1293-40fd-b88c-0798fcb1c0a6\"}",
+      "updatedAt": "2026-06-11T21:56:07.391Z"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import type { Project, Task } from "@/server/types";
 
@@ -35,6 +35,9 @@ type UiState = {
 
 	search: string;
 	setSearch: (value: string) => void;
+
+	theme: "dark" | "light";
+	toggleTheme: () => void;
 };
 
 const UiContext = createContext<UiState | null>(null);
@@ -49,6 +52,16 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 	const [paletteOpen, setPaletteOpen] = useState(false);
 	const [sidebarVisible, setSidebarVisible] = useState(true);
 	const [search, setSearch] = useState("");
+	const [theme, setTheme] = useState<"dark" | "light">(() => {
+		const stored = localStorage.getItem("theme");
+		if (stored === "light" || stored === "dark") return stored;
+		return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+	});
+
+	useEffect(() => {
+		document.documentElement.classList.toggle("light", theme === "light");
+		localStorage.setItem("theme", theme);
+	}, [theme]);
 
 	const value = useMemo<UiState>(
 		() => ({
@@ -69,6 +82,8 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			toggleSidebar: () => setSidebarVisible((v) => !v),
 			search,
 			setSearch,
+			theme,
+			toggleTheme: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
 		}),
 		[
 			quickAdd,
@@ -78,6 +93,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			paletteOpen,
 			sidebarVisible,
 			search,
+			theme,
 		],
 	);
 

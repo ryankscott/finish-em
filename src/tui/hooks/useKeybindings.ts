@@ -104,12 +104,14 @@ type UseKeybindingsParams = {
 	setStatusText: (text: string) => void;
 	loadData: () => Promise<void>;
 	toggleSelectedTask: () => Promise<void>;
+	toggleSelectedTaskSomeday: () => Promise<void>;
 	deleteSelectedTask: () => Promise<void>;
 	undeleteSelectedTask: () => Promise<void>;
 	deleteActiveProject: () => Promise<void>;
 	deleteSelectedReminder: (reminder: Reminder) => Promise<void>;
 	toggleSelectedGoal: () => Promise<void>;
 	deleteSelectedGoal: () => Promise<void>;
+	undoLast: () => Promise<void>;
 	reminderPickerDateRef: React.MutableRefObject<string>;
 	onQuit: () => void;
 };
@@ -198,12 +200,14 @@ export function useKeybindings({
 	setStatusText,
 	loadData,
 	toggleSelectedTask,
+	toggleSelectedTaskSomeday,
 	deleteSelectedTask,
 	undeleteSelectedTask,
 	deleteActiveProject,
 	deleteSelectedReminder,
 	toggleSelectedGoal,
 	deleteSelectedGoal,
+	undoLast,
 	reminderPickerDateRef,
 	onQuit,
 }: UseKeybindingsParams) {
@@ -328,12 +332,14 @@ export function useKeybindings({
 		setInputValue,
 		loadData,
 		toggleSelectedTask,
+		toggleSelectedTaskSomeday,
 		deleteSelectedTask,
 		undeleteSelectedTask,
 		deleteActiveProject,
 		deleteSelectedReminder,
 		toggleSelectedGoal,
 		deleteSelectedGoal,
+		undoLast,
 		reminderPickerDateRef,
 		submitInput,
 		onQuit,

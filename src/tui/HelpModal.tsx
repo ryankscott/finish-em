@@ -22,6 +22,10 @@ export const SHORTCUTS: ShortcutRow[] = [
 		action: "Complete selected task (or reopen if already completed)",
 		section: "Tasks",
 	},
+	{
+		keys: "S",
+		action: "Toggle Someday — park/unpark selected task in the Someday list",
+	},
 	{ keys: "Space", action: "Expand/collapse subtasks" },
 	{
 		keys: "Enter",
@@ -48,7 +52,10 @@ export const SHORTCUTS: ShortcutRow[] = [
 			"Open link (task links, or project links in project view; if multiple: j/k or 1–9, Enter open)",
 	},
 	{ keys: "d", action: "Delete selected task (soft-delete, recoverable)" },
-	{ keys: "u", action: "Restore deleted task (Deleted view only)" },
+	{
+		keys: "u",
+		action: "Undo last change (Deleted view: restore selected task)",
+	},
 	{ keys: "n", action: "Add reminder to selected task" },
 	{ keys: "z", action: "Delete reminder from selected task" },
 	{

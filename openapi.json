@@ -94,34 +94,10 @@
               "null"
             ]
           },
-          "jiraDiscoveryStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
-            ]
-          },
           "jiraDeliveryUrl": {
             "type": [
               "string",
               "null"
-            ]
-          },
-          "jiraDeliveryStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
             ]
           },
           "confluenceUrl": {
@@ -136,34 +112,10 @@
               "null"
             ]
           },
-          "jiraDocsStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
-            ]
-          },
           "jiraReleaseNoteUrl": {
             "type": [
               "string",
               "null"
-            ]
-          },
-          "jiraReleaseNoteStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
             ]
           },
           "teamsReleaseNoteUrl": {
@@ -189,14 +141,10 @@
           "color",
           "isInbox",
           "jiraDiscoveryUrl",
-          "jiraDiscoveryStatus",
           "jiraDeliveryUrl",
-          "jiraDeliveryStatus",
           "confluenceUrl",
           "jiraDocsUrl",
-          "jiraDocsStatus",
           "jiraReleaseNoteUrl",
-          "jiraReleaseNoteStatus",
           "teamsReleaseNoteUrl",
           "createdAt",
           "updatedAt"
@@ -242,34 +190,10 @@
               "null"
             ]
           },
-          "jiraDiscoveryStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
-            ]
-          },
           "jiraDeliveryUrl": {
             "type": [
               "string",
               "null"
-            ]
-          },
-          "jiraDeliveryStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
             ]
           },
           "confluenceUrl": {
@@ -284,34 +208,10 @@
               "null"
             ]
           },
-          "jiraDocsStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
-            ]
-          },
           "jiraReleaseNoteUrl": {
             "type": [
               "string",
               "null"
-            ]
-          },
-          "jiraReleaseNoteStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
             ]
           },
           "teamsReleaseNoteUrl": {
@@ -365,34 +265,10 @@
               "null"
             ]
           },
-          "jiraDiscoveryStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
-            ]
-          },
           "jiraDeliveryUrl": {
             "type": [
               "string",
               "null"
-            ]
-          },
-          "jiraDeliveryStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
             ]
           },
           "confluenceUrl": {
@@ -407,34 +283,10 @@
               "null"
             ]
           },
-          "jiraDocsStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
-            ]
-          },
           "jiraReleaseNoteUrl": {
             "type": [
               "string",
               "null"
-            ]
-          },
-          "jiraReleaseNoteStatus": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "enum": [
-              "todo",
-              "in_progress",
-              "done",
-              null
             ]
           },
           "teamsReleaseNoteUrl": {
@@ -544,19 +396,10 @@
               "completed"
             ]
           },
+          "someday": {
+            "type": "boolean"
+          },
           "completedAt": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "blockedAt": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "blockedReason": {
             "type": [
               "string",
               "null"
@@ -588,9 +431,8 @@
           "recurrencePreset",
           "recurrenceRRule",
           "status",
+          "someday",
           "completedAt",
-          "blockedAt",
-          "blockedReason",
           "deletedAt",
           "createdAt",
           "updatedAt"
@@ -682,11 +524,8 @@
               "null"
             ]
           },
-          "blockedReason": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "someday": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -777,11 +616,8 @@
               "null"
             ]
           },
-          "blockedReason": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "someday": {
+            "type": "boolean"
           }
         }
       },
@@ -943,6 +779,61 @@
         },
         "required": [
           "remindAt"
+        ]
+      },
+      "SyncStatus": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "deviceId": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lastSyncAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "lastPushAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "pendingChanges": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enabled",
+          "deviceId",
+          "lastSyncAt",
+          "lastPushAt",
+          "pendingChanges"
+        ]
+      },
+      "SyncResult": {
+        "type": "object",
+        "properties": {
+          "pushed": {
+            "type": "integer"
+          },
+          "pulled": {
+            "type": "integer"
+          },
+          "inboxImported": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pushed",
+          "pulled",
+          "inboxImported"
         ]
       }
     },
@@ -1243,18 +1134,6 @@
           },
           {
             "schema": {
-              "type": "string",
-              "enum": [
-                "true",
-                "false"
-              ]
-            },
-            "required": false,
-            "name": "blocked",
-            "in": "query"
-          },
-          {
-            "schema": {
               "type": "string"
             },
             "required": false,
@@ -1307,6 +1186,18 @@
             },
             "required": false,
             "name": "rootsOnly",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "required": false,
+            "name": "someday",
             "in": "query"
           }
         ],
@@ -1551,7 +1442,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Updated task",
+            "description": "Completed task",
             "content": {
               "application/json": {
                 "schema": {
@@ -1600,7 +1491,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Updated task",
+            "description": "Uncompleted task",
             "content": {
               "application/json": {
                 "schema": {
@@ -2098,6 +1989,150 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Empty"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sync": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Sync status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sync/enable": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Sync enabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sync/disable": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Sync disabled",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncStatus"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sync/now": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Sync result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SyncResult"
                 }
               }
             }

@@ -4,14 +4,6 @@ import { useEffectEvent } from "react";
 import { applyTextEdit } from "../apply-text-edit";
 import type { InputMode } from "./useInputBar";
 
-const STATUS_INPUT_MODES: InputMode[] = [
-	"editProjectJiraDiscoveryStatus",
-	"editProjectJiraDeliveryStatus",
-	"editProjectJiraDocsStatus",
-	"editProjectJiraReleaseNoteStatus",
-];
-const STATUS_CYCLE = ["", "todo", "in_progress", "done"];
-
 const DATE_TEXT_INPUT_MODES: InputMode[] = [
 	"editDueDate",
 	"editScheduledDate",
@@ -141,31 +133,6 @@ export function useTextInputKeys({
 				void submitInput();
 				return;
 			}
-			// h/l and left/right cycle through values in status input modes
-			if (STATUS_INPUT_MODES.includes(inputMode)) {
-				if (key.rightArrow || input === "l") {
-					const cur = inputValueRef.current;
-					const idx = STATUS_CYCLE.indexOf(cur);
-					const next =
-						STATUS_CYCLE[(idx === -1 ? 0 : idx + 1) % STATUS_CYCLE.length];
-					setInputValue(next);
-					setInputCursorOffset(next.length);
-					return;
-				}
-				if (key.leftArrow || input === "h") {
-					const cur = inputValueRef.current;
-					const idx = STATUS_CYCLE.indexOf(cur);
-					const safeIdx = idx === -1 ? 0 : idx;
-					const prev =
-						STATUS_CYCLE[
-							(safeIdx - 1 + STATUS_CYCLE.length) % STATUS_CYCLE.length
-						];
-					setInputValue(prev);
-					setInputCursorOffset(prev.length);
-					return;
-				}
-			}
-
 			// E opens the calendar picker when in a date text-input mode
 			if (input === "E" && DATE_TEXT_INPUT_MODES.includes(inputMode)) {
 				const calendarMode = DATE_MODE_TO_CALENDAR_MODE[inputMode];

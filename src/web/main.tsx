@@ -15,7 +15,6 @@ import { UiProvider } from "./state/ui";
 import { RemindersView } from "./views/RemindersView";
 import { SettingsView } from "./views/SettingsView";
 import {
-	BlockedView,
 	CompletedView,
 	DeletedView,
 	InboxView,
@@ -23,6 +22,7 @@ import {
 	PriorityView,
 	ProjectView,
 	SearchView,
+	SomedayView,
 	TodayView,
 } from "./views/SimpleViews";
 import { UpcomingView } from "./views/UpcomingView";
@@ -70,11 +70,6 @@ const routes = [
 	}),
 	createRoute({
 		getParentRoute: () => rootRoute,
-		path: "/blocked",
-		component: BlockedView,
-	}),
-	createRoute({
-		getParentRoute: () => rootRoute,
 		path: "/priority",
 		component: PriorityView,
 	}),
@@ -92,6 +87,11 @@ const routes = [
 		getParentRoute: () => rootRoute,
 		path: "/reminders",
 		component: RemindersView,
+	}),
+	createRoute({
+		getParentRoute: () => rootRoute,
+		path: "/someday",
+		component: SomedayView,
 	}),
 	createRoute({
 		getParentRoute: () => rootRoute,

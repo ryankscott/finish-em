@@ -13,59 +13,6 @@ import {
 
 import type { Priority, Task, TaskFilters, TaskStatus } from "@/server/types";
 
-function normalizeBlockedReason(blockedReason: string | null | undefined) {
-	if (blockedReason === undefined) {
-		return undefined;
-	}
-
-	if (blockedReason === null) {
-		return null;
-	}
-
-	const normalized = blockedReason.trim();
-	if (normalized.length === 0) {
-		throw new Error("Blocked reason must not be empty");
-	}
-
-	return normalized;
-}
-
-function resolveBlockedState(input: {
-	existingBlockedAt: string | null;
-	existingBlockedReason: string | null;
-	nextBlockedReason: string | null | undefined;
-	nextStatus: TaskStatus;
-}) {
-	if (input.nextStatus === "completed") {
-		if (input.nextBlockedReason === undefined) {
-			if (input.existingBlockedReason !== null) {
-				throw new Error("Blocked tasks cannot be completed until unblocked");
-			}
-		} else if (input.nextBlockedReason !== null) {
-			throw new Error("Blocked tasks cannot be completed until unblocked");
-		}
-	}
-
-	if (input.nextBlockedReason === undefined) {
-		return {
-			blockedAt: input.existingBlockedAt,
-			blockedReason: input.existingBlockedReason,
-		};
-	}
-
-	if (input.nextBlockedReason === null) {
-		return {
-			blockedAt: null,
-			blockedReason: null,
-		};
-	}
-
-	return {
-		blockedAt: input.existingBlockedAt ?? nowIso(),
-		blockedReason: input.nextBlockedReason,
-	};
-}
-
 function buildFilterClause(filters: TaskFilters) {
 	const clauses: string[] = [];
 	const values: Array<number | string> = [];
@@ -78,12 +25,6 @@ function buildFilterClause(filters: TaskFilters) {
 	if (filters.status) {
 		clauses.push("status = ?");
 		values.push(filters.status);
-	}
-
-	if (filters.blocked === true) {
-		clauses.push("blocked_at IS NOT NULL");
-	} else if (filters.blocked === false) {
-		clauses.push("blocked_at IS NULL");
 	}
 
 	if (filters.priority) {
@@ -114,6 +55,13 @@ function buildFilterClause(filters: TaskFilters) {
 	if (!filters.noDueDate && filters.to) {
 		clauses.push("(due_at IS NOT NULL AND due_at <= ?)");
 		values.push(filters.to);
+	}
+
+	// Someday tasks are parked: hidden from every view unless explicitly requested.
+	if (filters.someday === true) {
+		clauses.push("someday = 1");
+	} else {
+		clauses.push("someday = 0");
 	}
 
 	// Always exclude soft-deleted tasks from regular queries
@@ -195,7 +143,7 @@ export function createTask(input: {
 	dueTimezone?: string | null;
 	recurrencePreset?: string | null;
 	recurrenceRRule?: string | null;
-	blockedReason?: string | null;
+	someday?: boolean;
 }): Task {
 	const project = getProject(input.projectId);
 	if (!project) {
@@ -215,16 +163,13 @@ export function createTask(input: {
 		throw new Error("Invalid RRULE subset");
 	}
 
-	const blockedReason = normalizeBlockedReason(input.blockedReason);
-	const blockedAt = blockedReason ? now : null;
-
 	const uuid = crypto.randomUUID();
 	const result = db
 		.prepare(
 			`INSERT INTO tasks (
         uuid, project_id, parent_task_id, title, notes, priority, scheduled_at, due_at, due_timezone,
-        recurrence_preset, recurrence_rrule, status, completed_at, blocked_at, blocked_reason, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', NULL, ?, ?, ?, ?)`,
+        recurrence_preset, recurrence_rrule, status, someday, completed_at, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, NULL, ?, ?)`,
 		)
 		.run(
 			uuid,
@@ -238,8 +183,7 @@ export function createTask(input: {
 			input.dueTimezone ?? null,
 			input.recurrencePreset ?? null,
 			input.recurrenceRRule ?? null,
-			blockedAt,
-			blockedReason ?? null,
+			input.someday ? 1 : 0,
 			now,
 			now,
 		);
@@ -267,7 +211,7 @@ export function updateTask(
 		recurrencePreset: string | null;
 		recurrenceRRule: string | null;
 		status: TaskStatus;
-		blockedReason: string | null;
+		someday: boolean;
 	}>,
 ): Task | null {
 	const db = getDb();
@@ -287,7 +231,6 @@ export function updateTask(
 			? existing.parentTaskId
 			: patch.parentTaskId;
 	const nextStatus = patch.status ?? existing.status;
-	const nextBlockedReason = normalizeBlockedReason(patch.blockedReason);
 
 	if (nextParentTaskId !== null && taskHasChildren(taskId)) {
 		throw new Error("A task with subtasks cannot be assigned as a subtask");
@@ -297,13 +240,6 @@ export function updateTask(
 		taskId,
 		projectId: nextProjectId,
 		parentTaskId: nextParentTaskId,
-	});
-
-	const blockedState = resolveBlockedState({
-		existingBlockedAt: existing.blockedAt,
-		existingBlockedReason: existing.blockedReason,
-		nextBlockedReason,
-		nextStatus,
 	});
 
 	const now = nowIso();
@@ -320,8 +256,7 @@ export function updateTask(
       recurrence_preset = ?,
       recurrence_rrule = ?,
       status = ?,
-      blocked_at = ?,
-      blocked_reason = ?,
+      someday = ?,
       updated_at = ?
     WHERE id = ?`,
 	).run(
@@ -340,8 +275,7 @@ export function updateTask(
 			? existing.recurrenceRRule
 			: patch.recurrenceRRule,
 		nextStatus,
-		blockedState.blockedAt,
-		blockedState.blockedReason,
+		(patch.someday === undefined ? existing.someday : patch.someday) ? 1 : 0,
 		now,
 		taskId,
 	);
@@ -369,6 +303,8 @@ export function updateTask(
 		if (patch.recurrenceRRule !== undefined)
 			fields.recurrence_rrule = patch.recurrenceRRule;
 		if (patch.status !== undefined) fields.status = patch.status;
+		if (patch.someday !== undefined)
+			fields.someday = patch.someday ? "1" : "0";
 		if (Object.keys(fields).length > 0) {
 			trackFieldChanges(db, "task", uuidRow.uuid, fields, now);
 		}
@@ -457,13 +393,11 @@ export function completeTask(taskId: number): {
 		return { task: null, nextTask: null };
 	}
 
-	if (existing.blockedReason !== null) {
-		throw new Error("Blocked tasks cannot be completed until unblocked");
-	}
-
 	const now = nowIso();
+	// Completing a task unparks it, so it appears in the Completed view (which is
+	// subject to the default someday exclusion) rather than vanishing.
 	db.prepare(
-		"UPDATE tasks SET status = ?, completed_at = ?, updated_at = ? WHERE id = ?",
+		"UPDATE tasks SET status = ?, someday = 0, completed_at = ?, updated_at = ? WHERE id = ?",
 	).run("completed", now, now, taskId);
 
 	let nextTask: Task | null = null;

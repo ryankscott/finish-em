@@ -19,13 +19,13 @@ import type { View } from "./useNavigation";
 
 const EMPTY_VIEW_COUNTS = {
 	today: 0,
-	blocked: 0,
 	overdue: 0,
 	inbox: 0,
 	upcoming: 0,
 	completed: 0,
 	deleted: 0,
 	reminders: 0,
+	someday: 0,
 	projectCounts: {} as Record<number, number>,
 };
 
@@ -87,13 +87,13 @@ export function useAppData({
 		if (view === "settings") setStatusText("Settings");
 		else if (view === "inbox") setStatusText("Inbox");
 		else if (view === "today") setStatusText("Today");
-		else if (view === "blocked") setStatusText("Blocked");
 		else if (view === "overdue") setStatusText("Overdue");
 		else if (view === "upcoming") setStatusText("Upcoming");
 		else if (view === "priority") setStatusText("By Priority");
 		else if (view === "completed") setStatusText("Completed");
 		else if (view === "deleted") setStatusText("Deleted");
 		else if (view === "reminders") setStatusText("Reminders");
+		else if (view === "someday") setStatusText("Someday");
 		try {
 			setSettings(await api.getSettings());
 			const loadedProjects = await api.listProjects();
@@ -112,18 +112,17 @@ export function useAppData({
 			const [
 				allOpenTasks,
 				todayCountTasks,
-				blockedTasks,
 				upcomingRangeTasks,
 				upcomingOverdueTasks,
 				completedTasks,
 				deletedTasks,
 				inboxTasks,
 				allRemindersData,
+				somedayTasks,
 				...projectTaskLists
 			] = await Promise.all([
 				api.listTasks({ status: "open" }),
 				api.listTasks({ status: "open", from: todayStart, to: todayEnd }),
-				api.listTasks({ status: "open", blocked: true }),
 				api.listTasks({ status: "open", from: upcomingFrom, to: upcomingTo }),
 				api.listTasks({ status: "open", to: upcomingFrom }),
 				api.listTasks({ status: "completed" }),
@@ -132,6 +131,7 @@ export function useAppData({
 					? api.listTasks({ projectId: resolvedInbox.id, status: "open" })
 					: Promise.resolve([]),
 				api.listAllReminders(),
+				api.listTasks({ status: "open", someday: true }),
 				...nonInboxProjects.map((p) =>
 					api.listTasks({ projectId: p.id, status: "open" }),
 				),
@@ -149,7 +149,6 @@ export function useAppData({
 			);
 			setViewCounts({
 				today: todayCountTasks.length,
-				blocked: blockedTasks.length,
 				overdue: overdueFilteredTasks.length,
 				inbox: inboxTasks.length,
 				upcoming:
@@ -160,6 +159,7 @@ export function useAppData({
 				completed: completedTasks.length,
 				deleted: deletedTasks.length,
 				reminders: allRemindersData.length,
+				someday: somedayTasks.length,
 				projectCounts,
 			});
 
@@ -177,9 +177,6 @@ export function useAppData({
 			} else if (view === "today") {
 				setTasks([...overdueFilteredTasks, ...todayCountTasks]);
 				setStatusText("Today");
-			} else if (view === "blocked") {
-				setTasks(blockedTasks);
-				setStatusText("Blocked");
 			} else if (view === "overdue") {
 				setTasks(overdueFilteredTasks);
 				setStatusText("Overdue");
@@ -219,6 +216,9 @@ export function useAppData({
 			} else if (view === "reminders") {
 				setAllReminders(allRemindersData);
 				setStatusText("Reminders");
+			} else if (view === "someday") {
+				setTasks(somedayTasks);
+				setStatusText("Someday");
 			} else {
 				setTasks(completedTasks);
 				setStatusText("Completed");

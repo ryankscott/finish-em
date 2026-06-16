@@ -1,12 +1,13 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Search } from "lucide-react";
+import { Moon, Search, Sun } from "lucide-react";
 import { useRef } from "react";
 import { Toaster } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
 
 import { useHotkeyScope } from "../lib/hotkeys";
+import { useUndo } from "../lib/undo";
 import { useUi } from "../state/ui";
 import { CommandPalette } from "./CommandPalette";
 import { HelpDialog } from "./HelpDialog";
@@ -21,7 +22,6 @@ const VIEW_KEYS = [
 	"/inbox",
 	"/upcoming",
 	"/overdue",
-	"/blocked",
 	"/priority",
 	"/completed",
 	"/deleted",
@@ -31,6 +31,7 @@ export function AppShell() {
 	const ui = useUi();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
+	const { undoLast } = useUndo();
 	const searchRef = useRef<HTMLInputElement>(null);
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
 
@@ -41,6 +42,8 @@ export function AppShell() {
 		"/": () => searchRef.current?.focus(),
 		"?": () => ui.setHelpOpen(!ui.helpOpen),
 		"mod+k": () => ui.setPaletteOpen(!ui.paletteOpen),
+		"mod+z": () => void undoLast(),
+		u: () => void undoLast(),
 		"\\": () => ui.toggleSidebar(),
 		r: () => queryClient.invalidateQueries(),
 		...Object.fromEntries(
@@ -80,6 +83,18 @@ export function AppShell() {
 						}}
 					/>
 					<span className="ml-auto text-xs text-muted">? for shortcuts</span>
+					<button
+						type="button"
+						aria-label="Toggle theme"
+						onClick={() => ui.toggleTheme()}
+						className="text-muted hover:text-foreground"
+					>
+						{ui.theme === "dark" ? (
+							<Sun className="h-4 w-4" />
+						) : (
+							<Moon className="h-4 w-4" />
+						)}
+					</button>
 				</header>
 				<Separator />
 				<main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
@@ -92,7 +107,7 @@ export function AppShell() {
 			<HelpDialog />
 			<CommandPalette />
 			<ReminderWatcher />
-			<Toaster theme="dark" position="bottom-right" />
+			<Toaster theme={ui.theme} position="bottom-right" />
 		</div>
 	);
 }

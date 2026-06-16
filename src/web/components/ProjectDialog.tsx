@@ -9,28 +9,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { JiraTicketStatus } from "@/server/types";
 
 import { formatDateField, resolveDateField } from "../lib/date-field";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjectMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
 import { DateField } from "./DateField";
-
-const STATUS_OPTIONS: Array<{ value: string; label: string }> = [
-	{ value: "__none__", label: "—" },
-	{ value: "todo", label: "Todo" },
-	{ value: "in_progress", label: "In Progress" },
-	{ value: "done", label: "Done" },
-];
 
 function Field({
 	label,
@@ -47,65 +32,21 @@ function Field({
 	);
 }
 
-function StatusSelect({
-	value,
-	onChange,
-}: {
-	value: string;
-	onChange: (value: string) => void;
-}) {
-	const selectValue = value || "__none__";
-	return (
-		<Select
-			value={selectValue}
-			onValueChange={(v) => onChange(v === "__none__" ? "" : v)}
-		>
-			<SelectTrigger aria-label="Status">
-				<SelectValue />
-			</SelectTrigger>
-			<SelectContent>
-				{STATUS_OPTIONS.map((option) => (
-					<SelectItem key={option.value} value={option.value}>
-						{option.label}
-					</SelectItem>
-				))}
-			</SelectContent>
-		</Select>
-	);
-}
-
-/** A link URL paired with an optional Jira ticket status. */
 function LinkRow({
 	label,
 	url,
 	setUrl,
-	status,
-	setStatus,
-	withStatus = true,
 }: {
 	label: string;
 	url: string;
 	setUrl: (value: string) => void;
-	status?: string;
-	setStatus?: (value: string) => void;
-	withStatus?: boolean;
 }) {
 	return (
-		<div className={withStatus ? "grid grid-cols-[1fr_8rem] gap-3" : ""}>
-			<Field label={label}>
-				<Input value={url} onChange={(e) => setUrl(e.target.value)} />
-			</Field>
-			{withStatus && setStatus ? (
-				<Field label="Status">
-					<StatusSelect value={status ?? ""} onChange={setStatus} />
-				</Field>
-			) : null}
-		</div>
+		<Field label={label}>
+			<Input value={url} onChange={(e) => setUrl(e.target.value)} />
+		</Field>
 	);
 }
-
-const asStatus = (value: string): JiraTicketStatus | null =>
-	value && value !== "__none__" ? (value as JiraTicketStatus) : null;
 
 export function ProjectDialog() {
 	const ui = useUi();
@@ -119,14 +60,10 @@ export function ProjectDialog() {
 	const [start, setStart] = useState("");
 	const [end, setEnd] = useState("");
 	const [jiraDiscoveryUrl, setJiraDiscoveryUrl] = useState("");
-	const [jiraDiscoveryStatus, setJiraDiscoveryStatus] = useState("");
 	const [confluenceUrl, setConfluenceUrl] = useState("");
 	const [jiraDeliveryUrl, setJiraDeliveryUrl] = useState("");
-	const [jiraDeliveryStatus, setJiraDeliveryStatus] = useState("");
 	const [jiraDocsUrl, setJiraDocsUrl] = useState("");
-	const [jiraDocsStatus, setJiraDocsStatus] = useState("");
 	const [jiraReleaseNoteUrl, setJiraReleaseNoteUrl] = useState("");
-	const [jiraReleaseNoteStatus, setJiraReleaseNoteStatus] = useState("");
 	const [teamsReleaseNoteUrl, setTeamsReleaseNoteUrl] = useState("");
 
 	useEffect(() => {
@@ -138,14 +75,10 @@ export function ProjectDialog() {
 		setStart(formatDateField(p?.startAt ?? null));
 		setEnd(formatDateField(p?.endAt ?? null));
 		setJiraDiscoveryUrl(p?.jiraDiscoveryUrl ?? "");
-		setJiraDiscoveryStatus(p?.jiraDiscoveryStatus ?? "");
 		setConfluenceUrl(p?.confluenceUrl ?? "");
 		setJiraDeliveryUrl(p?.jiraDeliveryUrl ?? "");
-		setJiraDeliveryStatus(p?.jiraDeliveryStatus ?? "");
 		setJiraDocsUrl(p?.jiraDocsUrl ?? "");
-		setJiraDocsStatus(p?.jiraDocsStatus ?? "");
 		setJiraReleaseNoteUrl(p?.jiraReleaseNoteUrl ?? "");
-		setJiraReleaseNoteStatus(p?.jiraReleaseNoteStatus ?? "");
 		setTeamsReleaseNoteUrl(p?.teamsReleaseNoteUrl ?? "");
 	}, [state]);
 
@@ -171,14 +104,10 @@ export function ProjectDialog() {
 			startAt,
 			endAt,
 			jiraDiscoveryUrl: jiraDiscoveryUrl.trim() || null,
-			jiraDiscoveryStatus: asStatus(jiraDiscoveryStatus),
 			confluenceUrl: confluenceUrl.trim() || null,
 			jiraDeliveryUrl: jiraDeliveryUrl.trim() || null,
-			jiraDeliveryStatus: asStatus(jiraDeliveryStatus),
 			jiraDocsUrl: jiraDocsUrl.trim() || null,
-			jiraDocsStatus: asStatus(jiraDocsStatus),
 			jiraReleaseNoteUrl: jiraReleaseNoteUrl.trim() || null,
-			jiraReleaseNoteStatus: asStatus(jiraReleaseNoteStatus),
 			teamsReleaseNoteUrl: teamsReleaseNoteUrl.trim() || null,
 		};
 
@@ -256,14 +185,11 @@ export function ProjectDialog() {
 						label="Jira Discovery URL"
 						url={jiraDiscoveryUrl}
 						setUrl={setJiraDiscoveryUrl}
-						status={jiraDiscoveryStatus}
-						setStatus={setJiraDiscoveryStatus}
 					/>
 					<LinkRow
 						label="Confluence PRD URL"
 						url={confluenceUrl}
 						setUrl={setConfluenceUrl}
-						withStatus={false}
 					/>
 
 					<div className="mt-2 text-[11px] font-semibold tracking-wide text-muted uppercase">
@@ -273,28 +199,21 @@ export function ProjectDialog() {
 						label="Jira Delivery Epic URL"
 						url={jiraDeliveryUrl}
 						setUrl={setJiraDeliveryUrl}
-						status={jiraDeliveryStatus}
-						setStatus={setJiraDeliveryStatus}
 					/>
 					<LinkRow
 						label="Jira Docs URL"
 						url={jiraDocsUrl}
 						setUrl={setJiraDocsUrl}
-						status={jiraDocsStatus}
-						setStatus={setJiraDocsStatus}
 					/>
 					<LinkRow
 						label="Jira Release Note URL"
 						url={jiraReleaseNoteUrl}
 						setUrl={setJiraReleaseNoteUrl}
-						status={jiraReleaseNoteStatus}
-						setStatus={setJiraReleaseNoteStatus}
 					/>
 					<LinkRow
 						label="Teams Release Note URL"
 						url={teamsReleaseNoteUrl}
 						setUrl={setTeamsReleaseNoteUrl}
-						withStatus={false}
 					/>
 				</div>
 				<div className="mt-4 flex items-center justify-end gap-3 text-xs text-muted">

@@ -57,30 +57,6 @@ describe("repositories integration", () => {
 		expect(completion.nextTask?.dueAt).toBe("2026-02-16T09:00:00.000Z");
 	});
 
-	it("rejects completing a blocked task until it is unblocked", () => {
-		const project = createProject({ name: "Blocked" });
-		const task = createTask({
-			projectId: project.id,
-			title: "Wait for review",
-			blockedReason: "Waiting on design review",
-		});
-
-		expect(task.blockedAt).toBeTruthy();
-		expect(task.blockedReason).toBe("Waiting on design review");
-		expect(() => completeTask(task.id)).toThrow(
-			"Blocked tasks cannot be completed until unblocked",
-		);
-
-		expect(getTask(task.id)?.status).toBe("open");
-
-		const unblocked = updateTask(task.id, { blockedReason: null });
-		expect(unblocked?.blockedAt).toBeNull();
-		expect(unblocked?.blockedReason).toBeNull();
-
-		const completion = completeTask(task.id);
-		expect(completion.task?.status).toBe("completed");
-	});
-
 	it("supports reminders with snoozing", () => {
 		const project = createProject({ name: "Ops" });
 		const task = createTask({ projectId: project.id, title: "Rotate keys" });
@@ -119,6 +95,29 @@ describe("repositories integration", () => {
 		const task = createTask({ projectId: project.id, title: "Book dentist" });
 
 		expect(getTask(task.id)?.title).toBe("Book dentist");
+	});
+
+	it("parks tasks in someday and excludes them from default queries", () => {
+		const project = createProject({ name: "Personal" });
+		const active = createTask({ projectId: project.id, title: "Active" });
+		const parked = createTask({ projectId: project.id, title: "Parked" });
+		updateTask(parked.id, { someday: true });
+
+		// Default open query hides someday tasks.
+		const openIds = listTasks({ status: "open" }).map((t) => t.id);
+		expect(openIds).toContain(active.id);
+		expect(openIds).not.toContain(parked.id);
+
+		// Opting in with someday: true returns only parked tasks.
+		const somedayTasks = listTasks({ status: "open", someday: true });
+		expect(somedayTasks.map((t) => t.id)).toEqual([parked.id]);
+		expect(somedayTasks[0]?.someday).toBe(true);
+
+		// Completing a parked task unparks it so it appears in Completed.
+		completeTask(parked.id);
+		const completed = listTasks({ status: "completed" });
+		expect(completed.map((t) => t.id)).toContain(parked.id);
+		expect(getTask(parked.id)?.someday).toBe(false);
 	});
 
 	it("throws clear error when creating task with non-existent project", () => {

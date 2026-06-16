@@ -17,7 +17,7 @@ bun run web:build
 rm -rf "${OUT_DIR}"
 mkdir -p "${OUT_DIR}"
 
-bun build --compile src/server/http/main.ts --outfile "${OUT_DIR}/finish-em-desktop"
+bun build --compile src/server/http/main.ts --outfile "${OUT_DIR}/finish-em"
 cp -R "${REPO_ROOT}/dist/web" "${OUT_DIR}/web"
 
-echo "Built desktop server binary at ${OUT_DIR}/finish-em-desktop"
+echo "Built desktop server binary at ${OUT_DIR}/finish-em"

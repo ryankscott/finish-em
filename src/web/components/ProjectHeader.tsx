@@ -1,26 +1,11 @@
 import { format, parseISO } from "date-fns";
 import { ExternalLink, Pencil } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import type { JiraTicketStatus, Project } from "@/server/types";
+import type { Project } from "@/server/types";
 
 import { cn } from "../lib/cn";
 import { useUi } from "../state/ui";
-
-const STATUS_LABEL: Record<JiraTicketStatus, string> = {
-	todo: "Todo",
-	in_progress: "In Progress",
-	done: "Done",
-};
-
-const statusVariant: Record<
-	JiraTicketStatus,
-	"default" | "secondary" | "outline"
-> = {
-	todo: "outline",
-	in_progress: "default",
-	done: "secondary",
-};
+import { InlineText } from "./InlineText";
 
 function shortUrl(url: string): string {
 	try {
@@ -32,15 +17,7 @@ function shortUrl(url: string): string {
 	}
 }
 
-function LinkLine({
-	label,
-	url,
-	status,
-}: {
-	label: string;
-	url: string;
-	status?: JiraTicketStatus | null;
-}) {
+function LinkLine({ label, url }: { label: string; url: string }) {
 	return (
 		<div className="flex items-center gap-2 text-sm">
 			<span className="w-16 shrink-0 font-medium text-muted">{label}</span>
@@ -53,11 +30,6 @@ function LinkLine({
 				<span className="truncate">{shortUrl(url)}</span>
 				<ExternalLink className="h-3 w-3 shrink-0" />
 			</a>
-			{status ? (
-				<Badge variant={statusVariant[status]} className="text-[10px]">
-					{STATUS_LABEL[status]}
-				</Badge>
-			) : null}
 		</div>
 	);
 }
@@ -97,7 +69,7 @@ export function ProjectHeader({
 			</div>
 
 			{project.description ? (
-				<p className="mt-1 text-sm text-muted">{project.description}</p>
+				<p className="mt-1 text-sm text-muted"><InlineText text={project.description} /></p>
 			) : null}
 
 			{project.startAt || project.endAt ? (
@@ -120,11 +92,7 @@ export function ProjectHeader({
 					</div>
 					<div className="flex flex-col gap-1">
 						{project.jiraDiscoveryUrl ? (
-							<LinkLine
-								label="Jira"
-								url={project.jiraDiscoveryUrl}
-								status={project.jiraDiscoveryStatus}
-							/>
+							<LinkLine label="Jira" url={project.jiraDiscoveryUrl} />
 						) : null}
 						{project.confluenceUrl ? (
 							<LinkLine label="PRD" url={project.confluenceUrl} />
@@ -140,25 +108,13 @@ export function ProjectHeader({
 					</div>
 					<div className="flex flex-col gap-1">
 						{project.jiraDeliveryUrl ? (
-							<LinkLine
-								label="Epic"
-								url={project.jiraDeliveryUrl}
-								status={project.jiraDeliveryStatus}
-							/>
+							<LinkLine label="Epic" url={project.jiraDeliveryUrl} />
 						) : null}
 						{project.jiraDocsUrl ? (
-							<LinkLine
-								label="Docs"
-								url={project.jiraDocsUrl}
-								status={project.jiraDocsStatus}
-							/>
+							<LinkLine label="Docs" url={project.jiraDocsUrl} />
 						) : null}
 						{project.jiraReleaseNoteUrl ? (
-							<LinkLine
-								label="Release"
-								url={project.jiraReleaseNoteUrl}
-								status={project.jiraReleaseNoteStatus}
-							/>
+							<LinkLine label="Release" url={project.jiraReleaseNoteUrl} />
 						) : null}
 						{project.teamsReleaseNoteUrl ? (
 							<LinkLine label="Teams" url={project.teamsReleaseNoteUrl} />

@@ -95,14 +95,14 @@ export function useNavDerived({
 		const labels: Record<typeof nav.view, string> = {
 			inbox: "Inbox",
 			today: "Today",
-			blocked: "Blocked",
 			overdue: "Overdue",
 			upcoming: "Upcoming",
 			priority: "By Priority",
 			completed: "Completed",
 			deleted: "Deleted",
 			settings: "Settings",
-			project: "Project",
+			reminders: "Reminders",
+			someday: "Someday",
 		};
 		return labels[nav.view] ?? nav.view;
 	}, [nav.view, projects, nav.activeProjectId]);

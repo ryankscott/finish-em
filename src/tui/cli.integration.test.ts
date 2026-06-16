@@ -131,57 +131,5 @@ describe("runCli integration", () => {
 		expect(failInbox.result.exitCode).toBe(1);
 	});
 
-	it("supports blocking and unblocking tasks through CLI", async () => {
-		const api = createDirectApi();
-		const inbox = (await api.listProjects()).find((project) => project.isInbox);
-		expect(inbox).toBeDefined();
-
-		const created = await runWithCapture([
-			"task",
-			"add",
-			"Blocked from CLI",
-			"--project-id",
-			String(inbox!.id),
-			"--blocked-reason",
-			"Waiting on legal",
-		]);
-
-		expect(created.result.exitCode).toBe(0);
-
-		const blockedList = await runWithCapture([
-			"task",
-			"list",
-			"--blocked",
-			"true",
-		]);
-		expect(blockedList.result.exitCode).toBe(0);
-		expect(blockedList.stdout).toContain("Blocked from CLI");
-		expect(blockedList.stdout).toContain("blocked:Waiting on legal");
-
-		const task = (await api.listTasks({ blocked: true })).find(
-			(item) => item.title === "Blocked from CLI",
-		);
-		expect(task).toBeDefined();
-
-		const blockedDone = await runWithCapture([
-			"task",
-			"done",
-			String(task!.id),
-		]);
-		expect(blockedDone.result.exitCode).toBe(1);
-		expect(blockedDone.stderr).toContain(
-			"Blocked tasks cannot be completed until unblocked",
-		);
-
-		const unblocked = await runWithCapture([
-			"task",
-			"update",
-			String(task!.id),
-			"--clear-blocked",
-		]);
-		expect(unblocked.result.exitCode).toBe(0);
-
-		const done = await runWithCapture(["task", "done", String(task!.id)]);
-		expect(done.result.exitCode).toBe(0);
-	});
 });
+

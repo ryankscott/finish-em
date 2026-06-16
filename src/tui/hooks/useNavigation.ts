@@ -7,7 +7,6 @@ import type { ViewMode } from "../UpcomingPanel";
 export type View =
 	| "inbox"
 	| "today"
-	| "blocked"
 	| "overdue"
 	| "upcoming"
 	| "priority"
@@ -15,7 +14,8 @@ export type View =
 	| "deleted"
 	| "project"
 	| "settings"
-	| "reminders";
+	| "reminders"
+	| "someday";
 
 export type FocusArea = "sidebar" | "tasks" | "goals";
 

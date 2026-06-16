@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -18,8 +19,11 @@ function writeFile(dir: string, name: string, content: string): string {
 
 describe("processInbox", () => {
 	let tmpDir: string;
+	let dbPath: string;
 
 	beforeEach(() => {
+		dbPath = path.join(os.tmpdir(), `finish-em-inbox-test-${randomUUID()}.db`);
+		process.env.TODO_DB_PATH = dbPath;
 		resetDbForTests();
 		tmpDir = makeTempDir();
 	});
@@ -27,6 +31,10 @@ describe("processInbox", () => {
 	afterEach(() => {
 		fs.rmSync(tmpDir, { recursive: true, force: true });
 		resetDbForTests();
+		delete process.env.TODO_DB_PATH;
+		for (const suffix of ["", "-wal", "-shm"]) {
+			fs.rmSync(`${dbPath}${suffix}`, { force: true });
+		}
 	});
 
 	it("returns zeros when inbox directory does not exist", async () => {

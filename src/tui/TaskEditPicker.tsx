@@ -20,11 +20,6 @@ export const TASK_EDIT_FIELDS: TaskEditField[] = [
 	},
 	{ key: "recurrence", label: "Recurring", hint: "select from list" },
 	{
-		key: "blocked",
-		label: "Blocked reason",
-		hint: "free text, blank to unblock",
-	},
-	{
 		key: "reminder",
 		label: "Reminder",
 		hint: "today / tomorrow / ISO datetime",

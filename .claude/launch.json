@@ -5,7 +5,8 @@
       "name": "finish-em-web",
       "runtimeExecutable": "bun",
       "runtimeArgs": ["run", "web:dev"],
-      "port": 5174
+      "port": 5174,
+      "autoPort": false
     }
   ]
 }

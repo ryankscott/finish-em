@@ -15,7 +15,12 @@ function GoalRow({ goal }: { goal: Goal }) {
 
 	const toggle = (checked: boolean) =>
 		updateGoal.mutate(
-			{ goalId: goal.id, input: { done: checked } },
+			{
+				goalId: goal.id,
+				input: { done: checked },
+				before: { done: goal.done },
+				label: goal.title,
+			},
 			{ onError: (err) => toast.error(err.message) },
 		);
 
@@ -27,7 +32,12 @@ function GoalRow({ goal }: { goal: Goal }) {
 			return;
 		}
 		updateGoal.mutate(
-			{ goalId: goal.id, input: { title: next } },
+			{
+				goalId: goal.id,
+				input: { title: next },
+				before: { title: goal.title },
+				label: goal.title,
+			},
 			{ onError: (err) => toast.error(err.message) },
 		);
 	};
@@ -80,7 +90,7 @@ function GoalRow({ goal }: { goal: Goal }) {
 				type="button"
 				aria-label="Delete goal"
 				onClick={() =>
-					deleteGoal.mutate(goal.id, {
+					deleteGoal.mutate(goal, {
 						onError: (err) => toast.error(err.message),
 					})
 				}

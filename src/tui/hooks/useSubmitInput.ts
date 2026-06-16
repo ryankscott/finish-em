@@ -5,6 +5,7 @@ import { parseProjectCreateInput } from "../../lib/parsing/parse-project-input";
 import { parseDatePhrase } from "../../lib/parsing/parse-task-input";
 import { normalizeBareUrlsInText } from "../../lib/task-links";
 import type { Goal, Project, Task } from "../../server/types";
+import { type UndoRecord, snapshotTaskFields } from "../../shared/undo";
 import type { ApiClient } from "../api-client";
 import type { StatusMessageTone } from "../StatusMessage";
 import type { InputMode } from "./useInputBar";
@@ -44,6 +45,7 @@ type UseSubmitInputParams = {
 	goalPeriodStart: string;
 	enumPickerTargetMode: string | null;
 	pushToast: (text: string, tone?: StatusMessageTone) => void;
+	recordUndo: (record: UndoRecord) => void;
 	closeInput: () => void;
 	loadData: () => Promise<void>;
 	setLoading: (loading: boolean) => void;
@@ -63,7 +65,6 @@ type UseSubmitInputParams = {
 // Modes where an empty/blank value is intentional (e.g. clearing notes or dates).
 const ALLOW_EMPTY_MODES: InputMode[] = [
 	"editNotes",
-	"editBlockedReason",
 	"editDueDate",
 	"editScheduledDate",
 	"editProjectEndDate",
@@ -74,13 +75,33 @@ const ALLOW_EMPTY_MODES: InputMode[] = [
 	"editProjectJiraDocs",
 	"editProjectJiraReleaseNote",
 	"editProjectTeamsReleaseNote",
-	"editProjectJiraDiscoveryStatus",
-	"editProjectJiraDeliveryStatus",
 	"calendarPickerDueDate",
 	"calendarPickerScheduledDate",
 	"calendarPickerProjectStartDate",
 	"calendarPickerProjectEndDate",
 ];
+
+// Modes that update fields on the currently selected task. After a successful
+// submit in one of these modes we record a `task_update` undo entry from a
+// snapshot taken before the mutation.
+const TASK_UPDATE_MODES: InputMode[] = [
+	"editTask",
+	"editNotes",
+	"editDueDate",
+	"calendarPickerDueDate",
+	"editScheduledDate",
+	"calendarPickerScheduledDate",
+	"editPriority",
+	"editRecurrence",
+	"editMoveProject",
+	"editTaskModal",
+];
+
+const TASK_UPDATE_ENUM_TARGETS = new Set([
+	"editPriority",
+	"editRecurrence",
+	"editMoveProject",
+]);
 
 export function useSubmitInput({
 	api,
@@ -96,6 +117,7 @@ export function useSubmitInput({
 	goalPeriodStart,
 	enumPickerTargetMode,
 	pushToast,
+	recordUndo,
 	closeInput,
 	loadData,
 	setLoading,
@@ -147,6 +169,29 @@ export function useSubmitInput({
 				return;
 			}
 
+			// Snapshot before mutating so an undo can restore the prior values.
+			const taskUpdateUndo: UndoRecord | null =
+				selectedTask &&
+				(TASK_UPDATE_MODES.includes(inputMode) ||
+					(inputMode === "enumPicker" &&
+						TASK_UPDATE_ENUM_TARGETS.has(enumPickerTargetMode ?? "")))
+					? {
+							kind: "task_update",
+							taskId: selectedTask.id,
+							label: selectedTask.title,
+							before: snapshotTaskFields(selectedTask),
+						}
+					: null;
+			const goalUpdateUndo: UndoRecord | null =
+				selectedGoal && inputMode === "editGoalTitle"
+					? {
+							kind: "goal_update",
+							goalId: selectedGoal.id,
+							label: selectedGoal.title,
+							before: { title: selectedGoal.title },
+						}
+					: null;
+
 			setLoading(true);
 			setErrorText(null);
 			try {
@@ -159,22 +204,32 @@ export function useSubmitInput({
 					}
 					setEditingSettingField(null);
 				} else if (inputMode === "quickAdd") {
-					await api.createTask({
+					const created = await api.createTask({
 						title: normalizeBareUrlsInText(value),
 						projectId:
 							activeProjectId ??
 							projects.find((project) => project.isInbox)?.id ??
 							1,
 					});
+					recordUndo({
+						kind: "task_create",
+						taskId: created.id,
+						label: created.title,
+					});
 					setStatusText("Task created");
 				} else if (inputMode === "createSubtask") {
 					if (!selectedTask) {
 						setStatusText("No task selected");
 					} else {
-						await api.createTask({
+						const created = await api.createTask({
 							projectId: selectedTask.projectId,
 							parentTaskId: selectedTask.id,
 							title: normalizeBareUrlsInText(value),
+						});
+						recordUndo({
+							kind: "task_create",
+							taskId: created.id,
+							label: created.title,
 						});
 						setStatusText("Subtask created");
 					}
@@ -234,6 +289,11 @@ export function useSubmitInput({
 						const reminder = await api.createReminder(selectedTask.id, {
 							remindAt: value,
 						});
+						recordUndo({
+							kind: "reminder_create",
+							reminderId: reminder.id,
+							label: "reminder",
+						});
 						const reminderTime = (() => {
 							try {
 								return format(parseISO(reminder.remindAt), "MMM d, h:mm a");
@@ -254,10 +314,15 @@ export function useSubmitInput({
 						setStatusText("Task updated");
 					}
 				} else if (inputMode === "addGoal") {
-					await api.createGoal({
+					const created = await api.createGoal({
 						periodType: goalPeriodType,
 						periodStart: goalPeriodStart,
 						title: value,
+					});
+					recordUndo({
+						kind: "goal_create",
+						goalId: created.id,
+						label: created.title,
 					});
 					setStatusText("Goal created");
 				} else if (inputMode === "editGoalTitle") {
@@ -276,21 +341,17 @@ export function useSubmitInput({
 						});
 						setStatusText("Notes updated");
 					}
-				} else if (inputMode === "editBlockedReason") {
-					if (!selectedTask) {
-						setStatusText("No task selected");
-					} else {
-						await api.updateTask(selectedTask.id, {
-							blockedReason: value.length > 0 ? value : null,
-						});
-						setStatusText(value.length > 0 ? "Task blocked" : "Task unblocked");
-					}
 				} else if (inputMode === "editReminder") {
 					if (!selectedTask) {
 						setStatusText("No task selected");
 					} else {
 						const reminder = await api.createReminder(selectedTask.id, {
 							remindAt: value,
+						});
+						recordUndo({
+							kind: "reminder_create",
+							reminderId: reminder.id,
+							label: "reminder",
 						});
 						const reminderTime = (() => {
 							try {
@@ -377,68 +438,6 @@ export function useSubmitInput({
 								setStatusText("Task moved to project");
 							}
 						}
-					} else if (target === "editProjectJiraDiscoveryStatus") {
-						if (!activeProjectId) {
-							setStatusText("No project selected");
-						} else {
-							const status = value || null;
-							await api.updateProject(activeProjectId, {
-								jiraDiscoveryStatus: status as
-									| import("../../server/types").JiraTicketStatus
-									| null,
-							});
-							setStatusText(
-								status
-									? `Discovery status set to ${status}`
-									: "Discovery status cleared",
-							);
-						}
-					} else if (target === "editProjectJiraDeliveryStatus") {
-						if (!activeProjectId) {
-							setStatusText("No project selected");
-						} else {
-							const status = value || null;
-							await api.updateProject(activeProjectId, {
-								jiraDeliveryStatus: status as
-									| import("../../server/types").JiraTicketStatus
-									| null,
-							});
-							setStatusText(
-								status
-									? `Delivery status set to ${status}`
-									: "Delivery status cleared",
-							);
-						}
-					} else if (target === "editProjectJiraDocsStatus") {
-						if (!activeProjectId) {
-							setStatusText("No project selected");
-						} else {
-							const status = value || null;
-							await api.updateProject(activeProjectId, {
-								jiraDocsStatus: status as
-									| import("../../server/types").JiraTicketStatus
-									| null,
-							});
-							setStatusText(
-								status ? `Docs status set to ${status}` : "Docs status cleared",
-							);
-						}
-					} else if (target === "editProjectJiraReleaseNoteStatus") {
-						if (!activeProjectId) {
-							setStatusText("No project selected");
-						} else {
-							const status = value || null;
-							await api.updateProject(activeProjectId, {
-								jiraReleaseNoteStatus: status as
-									| import("../../server/types").JiraTicketStatus
-									| null,
-							});
-							setStatusText(
-								status
-									? `Release Note status set to ${status}`
-									: "Release Note status cleared",
-							);
-						}
 					} else if (target === "createReminder") {
 						if (!selectedTask) {
 							setStatusText("No task selected");
@@ -450,6 +449,11 @@ export function useSubmitInput({
 							const remindAt = dt.toISOString();
 							const reminder = await api.createReminder(selectedTask.id, {
 								remindAt,
+							});
+							recordUndo({
+								kind: "reminder_create",
+								reminderId: reminder.id,
+								label: "reminder",
 							});
 							const reminderTime = (() => {
 								try {
@@ -563,22 +567,6 @@ export function useSubmitInput({
 								: "Discovery Jira URL cleared",
 						);
 					}
-				} else if (inputMode === "editProjectJiraDiscoveryStatus") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						const status = value || null;
-						await api.updateProject(activeProjectId, {
-							jiraDiscoveryStatus: status as
-								| import("../../server/types").JiraTicketStatus
-								| null,
-						});
-						setStatusText(
-							status
-								? `Discovery status set to ${status}`
-								: "Discovery status cleared",
-						);
-					}
 				} else if (inputMode === "editProjectJiraDelivery") {
 					if (!activeProjectId) {
 						setStatusText("No project selected");
@@ -588,22 +576,6 @@ export function useSubmitInput({
 						});
 						setStatusText(
 							value ? "Delivery epic URL updated" : "Delivery epic URL cleared",
-						);
-					}
-				} else if (inputMode === "editProjectJiraDeliveryStatus") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						const status = value || null;
-						await api.updateProject(activeProjectId, {
-							jiraDeliveryStatus: status as
-								| import("../../server/types").JiraTicketStatus
-								| null,
-						});
-						setStatusText(
-							status
-								? `Delivery status set to ${status}`
-								: "Delivery status cleared",
 						);
 					}
 				} else if (inputMode === "editProjectConfluence") {
@@ -626,20 +598,6 @@ export function useSubmitInput({
 							value ? "Docs Jira URL updated" : "Docs Jira URL cleared",
 						);
 					}
-				} else if (inputMode === "editProjectJiraDocsStatus") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						const status = value || null;
-						await api.updateProject(activeProjectId, {
-							jiraDocsStatus: status as
-								| import("../../server/types").JiraTicketStatus
-								| null,
-						});
-						setStatusText(
-							status ? `Docs status set to ${status}` : "Docs status cleared",
-						);
-					}
 				} else if (inputMode === "editProjectJiraReleaseNote") {
 					if (!activeProjectId) {
 						setStatusText("No project selected");
@@ -651,22 +609,6 @@ export function useSubmitInput({
 							value
 								? "Release Note Jira URL updated"
 								: "Release Note Jira URL cleared",
-						);
-					}
-				} else if (inputMode === "editProjectJiraReleaseNoteStatus") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						const status = value || null;
-						await api.updateProject(activeProjectId, {
-							jiraReleaseNoteStatus: status as
-								| import("../../server/types").JiraTicketStatus
-								| null,
-						});
-						setStatusText(
-							status
-								? `Release Note status set to ${status}`
-								: "Release Note status cleared",
 						);
 					}
 				} else if (inputMode === "editProjectTeamsReleaseNote") {
@@ -708,11 +650,10 @@ export function useSubmitInput({
 									| "yearly"
 									| "every_weekday")
 							: null;
-					const blockedReason = modalValues.blockedReason?.trim() || undefined;
 					const notes = modalValues.notes?.trim()
 						? normalizeBareUrlsInText(modalValues.notes.trim())
 						: undefined;
-					await api.createTask({
+					const created = await api.createTask({
 						title: normalizeBareUrlsInText(title),
 						projectId,
 						priority,
@@ -722,8 +663,12 @@ export function useSubmitInput({
 							: undefined,
 						scheduledAt: scheduledAt || undefined,
 						recurrencePreset,
-						blockedReason,
 						notes,
+					});
+					recordUndo({
+						kind: "task_create",
+						taskId: created.id,
+						label: created.title,
 					});
 					pushToast("Task created", "success");
 				} else if (inputMode === "editTaskModal") {
@@ -759,7 +704,6 @@ export function useSubmitInput({
 									| "yearly"
 									| "every_weekday")
 							: null;
-					const blockedReason = modalValues.blockedReason?.trim() || null;
 					const notes = modalValues.notes?.trim()
 						? normalizeBareUrlsInText(modalValues.notes.trim())
 						: null;
@@ -773,7 +717,6 @@ export function useSubmitInput({
 							: undefined,
 						scheduledAt: scheduledAt || null,
 						recurrencePreset,
-						blockedReason,
 						notes: notes ?? undefined,
 					});
 					pushToast("Task updated", "success");
@@ -793,26 +736,11 @@ export function useSubmitInput({
 						startAt: startAt || undefined,
 						endAt: endAt || undefined,
 						jiraDiscoveryUrl: modalValues.jiraDiscovery?.trim() || undefined,
-						jiraDiscoveryStatus: (modalValues.jiraDiscoveryStatus?.trim() ||
-							undefined) as
-							| import("../../server/types").JiraTicketStatus
-							| undefined,
 						jiraDeliveryUrl: modalValues.jiraDelivery?.trim() || undefined,
-						jiraDeliveryStatus: (modalValues.jiraDeliveryStatus?.trim() ||
-							undefined) as
-							| import("../../server/types").JiraTicketStatus
-							| undefined,
 						confluenceUrl: modalValues.confluenceUrl?.trim() || undefined,
 						jiraDocsUrl: modalValues.jiraDocsUrl?.trim() || undefined,
-						jiraDocsStatus: (modalValues.jiraDocsStatus?.trim() || undefined) as
-							| import("../../server/types").JiraTicketStatus
-							| undefined,
 						jiraReleaseNoteUrl:
 							modalValues.jiraReleaseNoteUrl?.trim() || undefined,
-						jiraReleaseNoteStatus: (modalValues.jiraReleaseNoteStatus?.trim() ||
-							undefined) as
-							| import("../../server/types").JiraTicketStatus
-							| undefined,
 						teamsReleaseNoteUrl:
 							modalValues.teamsReleaseNoteUrl?.trim() || undefined,
 					});
@@ -837,24 +765,17 @@ export function useSubmitInput({
 						startAt: startAt || null,
 						endAt: endAt || null,
 						jiraDiscoveryUrl: modalValues.jiraDiscovery?.trim() || null,
-						jiraDiscoveryStatus: (modalValues.jiraDiscoveryStatus?.trim() ||
-							null) as import("../../server/types").JiraTicketStatus | null,
 						jiraDeliveryUrl: modalValues.jiraDelivery?.trim() || null,
-						jiraDeliveryStatus: (modalValues.jiraDeliveryStatus?.trim() ||
-							null) as import("../../server/types").JiraTicketStatus | null,
 						confluenceUrl: modalValues.confluenceUrl?.trim() || null,
 						jiraDocsUrl: modalValues.jiraDocsUrl?.trim() || null,
-						jiraDocsStatus: (modalValues.jiraDocsStatus?.trim() || null) as
-							| import("../../server/types").JiraTicketStatus
-							| null,
 						jiraReleaseNoteUrl: modalValues.jiraReleaseNoteUrl?.trim() || null,
-						jiraReleaseNoteStatus: (modalValues.jiraReleaseNoteStatus?.trim() ||
-							null) as import("../../server/types").JiraTicketStatus | null,
 						teamsReleaseNoteUrl:
 							modalValues.teamsReleaseNoteUrl?.trim() || null,
 					});
 					pushToast("Project updated", "success");
 				}
+				if (taskUpdateUndo) recordUndo(taskUpdateUndo);
+				if (goalUpdateUndo) recordUndo(goalUpdateUndo);
 				closeInput();
 				await loadData();
 			} catch (error) {
@@ -880,6 +801,7 @@ export function useSubmitInput({
 			selectedGoal,
 			activeProject,
 			pushToast,
+			recordUndo,
 			setEditingSettingField,
 			setErrorText,
 			setLoading,

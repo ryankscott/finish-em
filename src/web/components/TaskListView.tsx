@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ensureScheme, parseTaskLinkSegments } from "@/lib/task-links";
-import type { Project, Task } from "@/server/types";
+import { ensureScheme, toDisplaySegments } from "@/lib/task-links";
+import type { Task } from "@/server/types";
 
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjects, useTaskMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
+import { LinkPickerDialog, type LinkChoice } from "./LinkPickerDialog";
 import { TaskRow } from "./TaskRow";
 
 type VisibleRow = {
@@ -26,18 +27,21 @@ export function TaskListView({
 	showProject = true,
 	deletedView = false,
 	defaultProjectId,
+	disableOpenLink = false,
 }: {
 	tasks: Task[];
 	emptyMessage?: string;
 	showProject?: boolean;
 	deletedView?: boolean;
 	defaultProjectId?: number;
+	disableOpenLink?: boolean;
 }) {
 	const { data: projects = [] } = useProjects();
 	const { completeTask, deleteTask, undeleteTask } = useTaskMutations();
 	const ui = useUi();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+	const [pickerLinks, setPickerLinks] = useState<LinkChoice[] | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const projectById = useMemo(
@@ -107,13 +111,14 @@ export function TaskListView({
 		},
 		d: () => {
 			if (!selected) return;
-			deleteTask.mutate(selected.task.id, {
+			deleteTask.mutate(selected.task, {
 				onSuccess: () => toast.success("Task deleted"),
 				onError: (err) => toast.error(err.message),
 			});
 		},
 		u: () => {
-			if (!deletedView || !selected) return;
+			// Outside the Deleted view, fall through to the global undo handler.
+			if (!deletedView || !selected) return false;
 			undeleteTask.mutate(selected.task.id, {
 				onSuccess: () => toast.success("Task restored"),
 				onError: (err) => toast.error(err.message),
@@ -132,15 +137,22 @@ export function TaskListView({
 			ui.openQuickAdd({ projectId: defaultProjectId });
 		},
 		o: () => {
+			if (disableOpenLink) return false;
 			if (!selected) return;
-			const text = `${selected.task.title}\n${selected.task.notes}`;
-			const link = parseTaskLinkSegments(text).find(
-				(segment) => segment.type === "link",
-			);
-			if (link && "url" in link) {
-				window.open(ensureScheme(link.url), "_blank");
-			} else {
+			const titleSegs = toDisplaySegments(selected.task.title);
+			const notesSegs = toDisplaySegments(selected.task.notes ?? "");
+			const links: LinkChoice[] = [...titleSegs, ...notesSegs]
+				.filter((s) => s.type === "link")
+				.map((s) => ({
+					url: (s as { type: "link"; url: string; displayLabel: string }).url,
+					displayLabel: (s as { type: "link"; url: string; displayLabel: string }).displayLabel,
+				}));
+			if (links.length === 0) {
 				toast.info("No links in this task");
+			} else if (links.length === 1) {
+				window.open(ensureScheme(links[0].url), "_blank");
+			} else {
+				setPickerLinks(links);
 			}
 		},
 	});
@@ -152,19 +164,26 @@ export function TaskListView({
 	}
 
 	return (
-		<div ref={containerRef} className="flex flex-col gap-0.5 px-2 py-2">
-			{rows.map((row, index) => (
-				<TaskRow
-					key={row.task.id}
-					task={row.task}
-					project={projectById.get(row.task.projectId)}
-					selected={index === clampedIndex}
-					depth={row.depth}
-					hasSubtasks={row.hasSubtasks}
-					expanded={row.expanded}
-					showProject={showProject}
-				/>
-			))}
-		</div>
+		<>
+			<div ref={containerRef} className="flex flex-col gap-0.5 px-2 py-2">
+				{rows.map((row, index) => (
+					<TaskRow
+						key={row.task.id}
+						task={row.task}
+						project={projectById.get(row.task.projectId)}
+						selected={index === clampedIndex}
+						depth={row.depth}
+						hasSubtasks={row.hasSubtasks}
+						expanded={row.expanded}
+						showProject={showProject}
+					/>
+				))}
+			</div>
+			<LinkPickerDialog
+				open={pickerLinks !== null}
+				links={pickerLinks ?? []}
+				onClose={() => setPickerLinks(null)}
+			/>
+		</>
 	);
 }

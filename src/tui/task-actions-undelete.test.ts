@@ -15,6 +15,7 @@ const MOCK_DELETED_TASK: Task = {
 	recurrencePreset: null,
 	recurrenceRRule: null,
 	status: "open",
+	someday: false,
 	completedAt: null,
 	deletedAt: "2026-03-04T10:00:00.000Z",
 	createdAt: "2026-03-04T09:00:00.000Z",

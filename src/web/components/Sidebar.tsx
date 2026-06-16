@@ -1,12 +1,12 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { endOfDay, startOfDay } from "date-fns";
 import {
-	Ban,
 	Bell,
 	CalendarDays,
 	CheckCircle2,
 	Flag,
 	Inbox,
+	Moon,
 	Pencil,
 	Plus,
 	Settings,
@@ -148,11 +148,11 @@ export function Sidebar() {
 		status: "open",
 		to: startOfDay(now).toISOString(),
 	});
-	const { data: blockedTasks = [] } = useTasks({
-		status: "open",
-		blocked: true,
-	});
 	const { data: openTasks = [] } = useTasks({ status: "open" });
+	const { data: somedayTasks = [] } = useTasks({
+		status: "open",
+		someday: true,
+	});
 	const { data: deletedTasks = [] } = useDeletedTasks();
 
 	const overdueCount = pastTasks.filter((t) => isOverdueTask(t, now)).length;
@@ -201,13 +201,6 @@ export function Sidebar() {
 				active={pathname === "/overdue"}
 			/>
 			<NavLink
-				to="/blocked"
-				icon={<Ban className={iconClass} />}
-				label="Blocked"
-				count={blockedTasks.length}
-				active={pathname === "/blocked"}
-			/>
-			<NavLink
 				to="/priority"
 				icon={<Star className={iconClass} />}
 				label="By Priority"
@@ -231,6 +224,13 @@ export function Sidebar() {
 				icon={<Bell className={iconClass} />}
 				label="Reminders"
 				active={pathname === "/reminders"}
+			/>
+			<NavLink
+				to="/someday"
+				icon={<Moon className={iconClass} />}
+				label="Someday"
+				count={somedayTasks.length}
+				active={pathname === "/someday"}
 			/>
 			<NavLink
 				to="/settings"

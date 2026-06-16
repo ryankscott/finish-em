@@ -34,7 +34,6 @@ export function CommandPalette() {
 		["Inbox", "/inbox"],
 		["Upcoming", "/upcoming"],
 		["Overdue", "/overdue"],
-		["Blocked", "/blocked"],
 		["By Priority", "/priority"],
 		["Completed", "/completed"],
 		["Deleted", "/deleted"],

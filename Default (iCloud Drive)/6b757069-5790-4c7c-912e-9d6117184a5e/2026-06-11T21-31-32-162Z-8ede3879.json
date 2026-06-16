@@ -1,0 +1,104 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-11T21:31:32.162Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "498705e0-e8aa-4a32-9dd0-61127aa3603a",
+      "field": "title",
+      "value": "Talk to Susan about helping Daniel",
+      "updatedAt": "2026-06-11T21:31:10.945Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "498705e0-e8aa-4a32-9dd0-61127aa3603a",
+      "field": "notes",
+      "value": "",
+      "updatedAt": "2026-06-11T21:31:10.945Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "498705e0-e8aa-4a32-9dd0-61127aa3603a",
+      "field": "priority",
+      "value": "4",
+      "updatedAt": "2026-06-11T21:31:10.945Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "498705e0-e8aa-4a32-9dd0-61127aa3603a",
+      "field": "project_id",
+      "value": "1",
+      "updatedAt": "2026-06-11T21:31:10.945Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "498705e0-e8aa-4a32-9dd0-61127aa3603a",
+      "field": "scheduled_at",
+      "value": null,
+      "updatedAt": "2026-06-11T21:31:10.945Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "498705e0-e8aa-4a32-9dd0-61127aa3603a",
+      "field": "due_at",
+      "value": "2026-06-11T21:00:00.000Z",
+      "updatedAt": "2026-06-11T21:31:10.945Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "498705e0-e8aa-4a32-9dd0-61127aa3603a",
+      "field": "recurrence_preset",
+      "value": null,
+      "updatedAt": "2026-06-11T21:31:10.945Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4636de74-2b8a-43c7-bd23-cce2f4e871b0",
+      "field": "title",
+      "value": "Talk to Alex about Cody's involvement",
+      "updatedAt": "2026-06-11T21:31:19.024Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4636de74-2b8a-43c7-bd23-cce2f4e871b0",
+      "field": "notes",
+      "value": "",
+      "updatedAt": "2026-06-11T21:31:19.024Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4636de74-2b8a-43c7-bd23-cce2f4e871b0",
+      "field": "priority",
+      "value": "4",
+      "updatedAt": "2026-06-11T21:31:19.024Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4636de74-2b8a-43c7-bd23-cce2f4e871b0",
+      "field": "project_id",
+      "value": "1",
+      "updatedAt": "2026-06-11T21:31:19.024Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4636de74-2b8a-43c7-bd23-cce2f4e871b0",
+      "field": "scheduled_at",
+      "value": null,
+      "updatedAt": "2026-06-11T21:31:19.024Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4636de74-2b8a-43c7-bd23-cce2f4e871b0",
+      "field": "due_at",
+      "value": "2026-06-11T21:00:00.000Z",
+      "updatedAt": "2026-06-11T21:31:19.024Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "4636de74-2b8a-43c7-bd23-cce2f4e871b0",
+      "field": "recurrence_preset",
+      "value": null,
+      "updatedAt": "2026-06-11T21:31:19.024Z"
+    }
+  ]
+}

@@ -50,8 +50,7 @@ export function UpcomingView() {
 	const { completeTask, deleteTask } = useTaskMutations();
 	const [anchorDate, setAnchorDate] = useState(() => startOfDay(new Date()));
 	const [viewMode, setViewMode] = useState<ViewMode>("work-week");
-	const [columnIndex, setColumnIndex] = useState(0);
-	const [rowIndex, setRowIndex] = useState(0);
+	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [goalAddSignal, setGoalAddSignal] = useState(0);
 
 	const goalPeriodType = viewMode === "day" ? "daily" : "weekly";
@@ -103,35 +102,28 @@ export function UpcomingView() {
 		return out;
 	}, [pastTasks, rangeTasks, colStart, days]);
 
-	const clampedColumn = Math.min(columnIndex, columns.length - 1);
-	const column = columns[clampedColumn];
-	const clampedRow = Math.min(
-		rowIndex,
-		Math.max(0, (column?.tasks.length ?? 0) - 1),
+	const flatTasks = useMemo(
+		() =>
+			columns.flatMap((col, ci) =>
+				col.tasks.map((task, ri) => ({ task, ci, ri })),
+			),
+		[columns],
 	);
-	const selected = column?.tasks[clampedRow];
+
+	const clampedIndex = Math.min(selectedIndex, Math.max(0, flatTasks.length - 1));
+	const selectedFlat = flatTasks[clampedIndex];
+	const selected = selectedFlat?.task;
 
 	useHotkeyScope({
-		h: () => setColumnIndex((i) => Math.max(0, i - 1)),
-		arrowleft: () => setColumnIndex((i) => Math.max(0, i - 1)),
-		l: () => setColumnIndex((i) => Math.min(columns.length - 1, i + 1)),
-		arrowright: () =>
-			setColumnIndex((i) => Math.min(columns.length - 1, i + 1)),
-		j: () =>
-			setRowIndex((i) =>
-				Math.min(i + 1, Math.max(0, (column?.tasks.length ?? 1) - 1)),
-			),
-		arrowdown: () =>
-			setRowIndex((i) =>
-				Math.min(i + 1, Math.max(0, (column?.tasks.length ?? 1) - 1)),
-			),
-		k: () => setRowIndex((i) => Math.max(i - 1, 0)),
-		arrowup: () => setRowIndex((i) => Math.max(i - 1, 0)),
+		j: () => setSelectedIndex((i) => Math.min(i + 1, Math.max(0, flatTasks.length - 1))),
+		arrowdown: () => setSelectedIndex((i) => Math.min(i + 1, Math.max(0, flatTasks.length - 1))),
+		k: () => setSelectedIndex((i) => Math.max(i - 1, 0)),
+		arrowup: () => setSelectedIndex((i) => Math.max(i - 1, 0)),
 		"[": () => setAnchorDate((d) => addDays(d, -7)),
 		"]": () => setAnchorDate((d) => addDays(d, 7)),
 		t: () => {
 			setAnchorDate(startOfDay(new Date()));
-			setColumnIndex(0);
+			setSelectedIndex(0);
 		},
 		v: () => setViewMode((mode) => nextMode[mode]),
 		g: () => setGoalAddSignal((n) => n + 1),
@@ -144,7 +136,7 @@ export function UpcomingView() {
 		},
 		d: () => {
 			if (!selected) return;
-			deleteTask.mutate(selected.id, {
+			deleteTask.mutate(selected, {
 				onSuccess: () => toast.success("Task deleted"),
 				onError: (err) => toast.error(err.message),
 			});
@@ -166,49 +158,53 @@ export function UpcomingView() {
 						addSignal={goalAddSignal}
 					/>
 				</div>
-				<div className="flex flex-1 gap-2 overflow-x-auto p-3">
-					{columns.map((col, ci) => (
-						<div
-							key={col.key}
-							className={cn(
-								"flex min-w-56 flex-1 flex-col rounded-lg border border-border/60 bg-surface/40",
-								ci === clampedColumn && "border-accent/50",
-							)}
-						>
+				<ScrollArea className="flex-1">
+					<div className="flex flex-col gap-2 p-3">
+						{columns.map((col, ci) => (
 							<div
+								key={col.key}
 								className={cn(
-									"border-b border-border/60 px-3 py-2 text-xs font-semibold",
-									col.key === "overdue"
-										? "text-p1"
-										: col.isToday
-											? "text-accent"
-											: "text-muted",
+									"flex flex-col rounded-lg border border-border/60 bg-surface/40",
+									ci === selectedFlat?.ci && "border-accent/50",
 								)}
 							>
-								{col.label}
-								<span className="ml-2 font-normal text-muted">
-									{col.tasks.length}
-								</span>
-							</div>
-							<ScrollArea className="flex-1">
-								<div className="flex flex-col gap-0.5 p-1.5">
-									{col.tasks.map((task, ri) => (
-										<TaskRow
-											key={task.id}
-											task={task}
-											project={projectById.get(task.projectId)}
-											selected={ci === clampedColumn && ri === clampedRow}
-											depth={0}
-											hasSubtasks={false}
-											expanded={false}
-											showProject
-										/>
-									))}
+								<div
+									className={cn(
+										"border-b border-border/60 px-3 py-2 text-xs font-semibold",
+										col.key === "overdue"
+											? "text-p1"
+											: col.isToday
+												? "text-accent"
+												: "text-muted",
+									)}
+								>
+									{col.label}
+									<span className="ml-2 font-normal text-muted">
+										{col.tasks.length}
+									</span>
 								</div>
-							</ScrollArea>
-						</div>
-					))}
-				</div>
+								<div className="flex flex-col gap-0.5 p-1.5">
+									{col.tasks.length === 0 ? (
+										<p className="px-2 py-1.5 text-xs text-muted/50">No tasks</p>
+									) : (
+										col.tasks.map((task, ri) => (
+											<TaskRow
+												key={task.id}
+												task={task}
+												project={projectById.get(task.projectId)}
+												selected={ci === selectedFlat?.ci && ri === selectedFlat?.ri}
+												depth={0}
+												hasSubtasks={false}
+												expanded={false}
+												showProject
+											/>
+										))
+									)}
+								</div>
+							</div>
+						))}
+					</div>
+				</ScrollArea>
 			</div>
 		</>
 	);

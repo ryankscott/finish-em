@@ -144,7 +144,7 @@ function ensureSoftDeleteSchema(db: DbLike) {
 	);
 }
 
-function ensureBlockedTaskSchema(db: DbLike) {
+function ensureSomedaySchema(db: DbLike) {
 	const tasksTable = db
 		.prepare(
 			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'",
@@ -158,25 +158,13 @@ function ensureBlockedTaskSchema(db: DbLike) {
 	const columns = db.prepare("PRAGMA table_info(tasks)").all() as Array<{
 		name: unknown;
 	}>;
-
-	const hasBlockedAt = columns.some(
-		(column) => String(column.name) === "blocked_at",
-	);
-	const hasBlockedReason = columns.some(
-		(column) => String(column.name) === "blocked_reason",
+	const hasSomeday = columns.some(
+		(column) => String(column.name) === "someday",
 	);
 
-	if (!hasBlockedAt) {
-		db.exec("ALTER TABLE tasks ADD COLUMN blocked_at TEXT");
+	if (!hasSomeday) {
+		db.exec("ALTER TABLE tasks ADD COLUMN someday INTEGER NOT NULL DEFAULT 0");
 	}
-
-	if (!hasBlockedReason) {
-		db.exec("ALTER TABLE tasks ADD COLUMN blocked_reason TEXT");
-	}
-
-	db.exec(
-		"CREATE INDEX IF NOT EXISTS idx_tasks_blocked_at ON tasks(blocked_at)",
-	);
 }
 
 function ensureProjectEnhancementsSchema(db: DbLike) {
@@ -272,26 +260,45 @@ function ensureProjectMetaLinksSchema(db: DbLike) {
 
 	const columnNames = columns.map((c) => String(c.name));
 
-	if (!columnNames.includes("jira_discovery_status")) {
-		db.exec("ALTER TABLE projects ADD COLUMN jira_discovery_status TEXT");
-	}
-	if (!columnNames.includes("jira_delivery_status")) {
-		db.exec("ALTER TABLE projects ADD COLUMN jira_delivery_status TEXT");
-	}
 	if (!columnNames.includes("jira_docs_url")) {
 		db.exec("ALTER TABLE projects ADD COLUMN jira_docs_url TEXT");
-	}
-	if (!columnNames.includes("jira_docs_status")) {
-		db.exec("ALTER TABLE projects ADD COLUMN jira_docs_status TEXT");
 	}
 	if (!columnNames.includes("jira_release_note_url")) {
 		db.exec("ALTER TABLE projects ADD COLUMN jira_release_note_url TEXT");
 	}
-	if (!columnNames.includes("jira_release_note_status")) {
-		db.exec("ALTER TABLE projects ADD COLUMN jira_release_note_status TEXT");
-	}
 	if (!columnNames.includes("teams_release_note_url")) {
 		db.exec("ALTER TABLE projects ADD COLUMN teams_release_note_url TEXT");
+	}
+}
+
+function dropProjectStatusColumns(db: DbLike) {
+	const projectsTable = db
+		.prepare(
+			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
+		)
+		.get() as { name?: string } | undefined;
+
+	if (!projectsTable?.name) {
+		return;
+	}
+
+	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
+		name: unknown;
+	}>;
+
+	const columnNames = columns.map((c) => String(c.name));
+
+	for (const col of [
+		"jira_discovery_status",
+		"jira_delivery_status",
+		"jira_docs_status",
+		"jira_release_note_status",
+		"analytics_url",
+		"analytics_status",
+	]) {
+		if (columnNames.includes(col)) {
+			db.exec(`ALTER TABLE projects DROP COLUMN ${col}`);
+		}
 	}
 }
 
@@ -431,8 +438,9 @@ function initialize(db: DbLike) {
 	ensureProjectEnhancementsSchema(db);
 	ensureProjectExternalLinksSchema(db);
 	ensureProjectMetaLinksSchema(db);
+	dropProjectStatusColumns(db);
 	ensureSoftDeleteSchema(db);
-	ensureBlockedTaskSchema(db);
+	ensureSomedaySchema(db);
 	ensureSyncSchema(db);
 	seedDefaults(db);
 }
@@ -480,6 +488,17 @@ export function nowIso() {
 }
 
 export function resetDbForTests() {
+	const resolved = path.resolve(getDbPath());
+	const productionPath = path.resolve(
+		path.join(os.homedir(), ".finish-em", "todo.db"),
+	);
+	if (resolved === productionPath) {
+		throw new Error(
+			`resetDbForTests() refused: TODO_DB_PATH resolves to the production database (${productionPath}). ` +
+				"Point TODO_DB_PATH at a temp file in your test's beforeEach before calling resetDbForTests(), " +
+				"otherwise test setup/teardown would mutate or drop real data.",
+		);
+	}
 	if (dbInstance) {
 		dbInstance.close();
 		dbInstance = null;

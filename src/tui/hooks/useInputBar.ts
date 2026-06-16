@@ -34,7 +34,6 @@ export type InputMode =
 	| "editRecurrence"
 	| "editPriority"
 	| "editMoveProject"
-	| "editBlockedReason"
 	| "editReminder"
 	| "editNotes"
 	// Project field edit modes
@@ -45,14 +44,10 @@ export type InputMode =
 	| "editProjectStartDate"
 	| "editProjectEndDate"
 	| "editProjectJiraDiscovery"
-	| "editProjectJiraDiscoveryStatus"
 	| "editProjectJiraDelivery"
-	| "editProjectJiraDeliveryStatus"
 	| "editProjectConfluence"
 	| "editProjectJiraDocs"
-	| "editProjectJiraDocsStatus"
 	| "editProjectJiraReleaseNote"
-	| "editProjectJiraReleaseNoteStatus"
 	| "editProjectTeamsReleaseNote"
 	// Goal edit modes
 	| "editGoalTitle"

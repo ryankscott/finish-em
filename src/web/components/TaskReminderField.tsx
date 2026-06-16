@@ -54,7 +54,7 @@ export function TaskReminderField({ taskId }: { taskId: number }) {
 
 	const remove = () => {
 		if (!existing) return;
-		deleteReminder.mutate(existing.id, {
+		deleteReminder.mutate(existing, {
 			onSuccess: () => toast.success("Reminder deleted"),
 			onError: (err) => toast.error(err.message),
 		});

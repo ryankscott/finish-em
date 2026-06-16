@@ -4,8 +4,6 @@ export const prioritySchema = z
 	.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4)])
 	.openapi({ description: "Task priority: 1=Urgent, 2=High, 3=Normal, 4=Low" });
 
-export const jiraTicketStatusSchema = z.enum(["todo", "in_progress", "done"]);
-
 export const taskStatusSchema = z.enum(["open", "completed"]);
 
 export const recurrencePresetSchema = z.enum([
@@ -51,14 +49,10 @@ export const projectSchema = z
 		color: z.string(),
 		isInbox: z.boolean(),
 		jiraDiscoveryUrl: z.string().nullable(),
-		jiraDiscoveryStatus: jiraTicketStatusSchema.nullable(),
 		jiraDeliveryUrl: z.string().nullable(),
-		jiraDeliveryStatus: jiraTicketStatusSchema.nullable(),
 		confluenceUrl: z.string().nullable(),
 		jiraDocsUrl: z.string().nullable(),
-		jiraDocsStatus: jiraTicketStatusSchema.nullable(),
 		jiraReleaseNoteUrl: z.string().nullable(),
-		jiraReleaseNoteStatus: jiraTicketStatusSchema.nullable(),
 		teamsReleaseNoteUrl: z.string().nullable(),
 		createdAt: z.string(),
 		updatedAt: z.string(),
@@ -74,14 +68,10 @@ const projectInputFields = {
 	color: z.string().optional(),
 	isInbox: z.boolean().optional(),
 	jiraDiscoveryUrl: z.string().nullable().optional(),
-	jiraDiscoveryStatus: jiraTicketStatusSchema.nullable().optional(),
 	jiraDeliveryUrl: z.string().nullable().optional(),
-	jiraDeliveryStatus: jiraTicketStatusSchema.nullable().optional(),
 	confluenceUrl: z.string().nullable().optional(),
 	jiraDocsUrl: z.string().nullable().optional(),
-	jiraDocsStatus: jiraTicketStatusSchema.nullable().optional(),
 	jiraReleaseNoteUrl: z.string().nullable().optional(),
-	jiraReleaseNoteStatus: jiraTicketStatusSchema.nullable().optional(),
 	teamsReleaseNoteUrl: z.string().nullable().optional(),
 };
 
@@ -107,9 +97,8 @@ export const taskSchema = z
 		recurrencePreset: recurrencePresetSchema.nullable(),
 		recurrenceRRule: z.string().nullable(),
 		status: taskStatusSchema,
+		someday: z.boolean(),
 		completedAt: z.string().nullable(),
-		blockedAt: z.string().nullable(),
-		blockedReason: z.string().nullable(),
 		deletedAt: z.string().nullable(),
 		createdAt: z.string(),
 		updatedAt: z.string(),
@@ -128,7 +117,7 @@ export const taskCreateSchema = z
 		dueTimezone: z.string().nullable().optional(),
 		recurrencePreset: recurrencePresetSchema.nullable().optional(),
 		recurrenceRRule: z.string().nullable().optional(),
-		blockedReason: z.string().nullable().optional(),
+		someday: z.boolean().optional(),
 	})
 	.openapi("TaskCreate");
 
@@ -144,7 +133,7 @@ export const taskUpdateSchema = z
 		dueTimezone: z.string().optional(),
 		recurrencePreset: recurrencePresetSchema.nullable().optional(),
 		recurrenceRRule: z.string().nullable().optional(),
-		blockedReason: z.string().nullable().optional(),
+		someday: z.boolean().optional(),
 	})
 	.openapi("TaskUpdate");
 
@@ -156,7 +145,6 @@ export const taskQuerySchema = z
 	.object({
 		projectId: z.coerce.number().int().optional(),
 		status: taskStatusSchema.optional(),
-		blocked: queryBoolean.optional(),
 		from: z.string().optional(),
 		to: z.string().optional(),
 		priority: z.coerce.number().pipe(prioritySchema).optional(),
@@ -166,6 +154,7 @@ export const taskQuerySchema = z
 			.transform((value) => (value === "null" ? null : Number(value)))
 			.optional(),
 		rootsOnly: queryBoolean.optional(),
+		someday: queryBoolean.optional(),
 	})
 	.openapi("TaskQuery");
 

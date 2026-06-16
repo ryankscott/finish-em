@@ -1,9 +1,8 @@
 import { Box, Text } from "ink";
 
 import { getLinkDisplayLabel, toDisplayString } from "../lib/task-links";
-import type { JiraTicketStatus, Project, Task } from "../server/types";
+import type { Project, Task } from "../server/types";
 import {
-	blockedIndicator,
 	formatDueDate,
 	formatScheduledDate,
 	isOverdueDueDate,
@@ -18,18 +17,6 @@ export type TaskPanelRow = TaskRow;
 
 export function buildTaskPanelRows(tasks: Task[]): TaskPanelRow[] {
 	return buildTaskRows(tasks);
-}
-
-function statusColor(status: JiraTicketStatus): string {
-	if (status === "done") return "green";
-	if (status === "in_progress") return "cyan";
-	return "yellow";
-}
-
-function statusLabel(status: JiraTicketStatus): string {
-	if (status === "done") return "Done";
-	if (status === "in_progress") return "In Progress";
-	return "Todo";
 }
 
 function shortUrl(url: string): string {
@@ -72,7 +59,6 @@ const TaskRowItem = ({
 	const isSelected = flatIndex === selectedIndex;
 	const isExpanded = hasSubtasks && expandedTaskId === task.id;
 	const isCompleted = task.status === "completed";
-	const isBlocked = task.blockedReason !== null;
 	const isOverdue = task.dueAt ? isOverdueDueDate(task.dueAt) : false;
 	const pColor = priorityColor(task.priority);
 	const project = projectMap?.[task.projectId];
@@ -85,8 +71,8 @@ const TaskRowItem = ({
 	const projectIcon = project?.emoji ?? (project?.isInbox ? "📥" : "●");
 	const projectLabel = `${projectIcon} ${truncate(project ? project.name : "-", PROP_WIDTHS.project - 3)}`;
 
-	// border(2) + paddingX*2(2) + expand(2) + circle(2) + blocked(2) + metadata+margin(27)
-	const prefixCost = isSubtask ? 42 : 37;
+	// border(2) + paddingX*2(2) + expand(2) + circle(2) + metadata+margin(27)
+	const prefixCost = isSubtask ? 40 : 35;
 	const titleWidth = Math.max(10, terminalWidth - prefixCost);
 	const titleText = truncate(toDisplayString(task.title), titleWidth);
 
@@ -101,11 +87,6 @@ const TaskRowItem = ({
 				</Box>
 				<Box width={2}>
 					<Text color={isCompleted ? undefined : pColor}>{circle}</Text>
-				</Box>
-				<Box width={2}>
-					<Text color={isBlocked ? "yellow" : undefined}>
-						{blockedIndicator(task.blockedReason)}
-					</Text>
 				</Box>
 				<Box width={titleWidth}>
 					<Text
@@ -155,9 +136,6 @@ const TaskRowItem = ({
 							<Text>{toDisplayString(task.notes)}</Text>
 						</Box>
 					)}
-					{task.blockedReason && (
-						<Text color="yellow">Blocked: {task.blockedReason}</Text>
-					)}
 					{project && <Text dimColor>Project: {project.name}</Text>}
 				</Box>
 			)}
@@ -194,7 +172,6 @@ function rowLineHeight(
 		// title line + blank line before detail block + at least 1 detail line
 		let h = 3;
 		if (row.task.notes) h++;
-		if (row.task.blockedReason) h++;
 		return h;
 	}
 	return row.task.notes ? 2 : 1;
@@ -393,16 +370,6 @@ export const TaskPanel = ({
 									<Text color="cyan">
 										[{shortUrl(activeProject.jiraDiscoveryUrl)}]
 									</Text>
-									{activeProject.jiraDiscoveryStatus ? (
-										<Text>
-											{" "}
-											<Text
-												color={statusColor(activeProject.jiraDiscoveryStatus)}
-											>
-												{statusLabel(activeProject.jiraDiscoveryStatus)}
-											</Text>
-										</Text>
-									) : null}
 								</Text>
 							)}
 							{activeProject.confluenceUrl && (
@@ -432,16 +399,6 @@ export const TaskPanel = ({
 									<Text color="cyan">
 										[{shortUrl(activeProject.jiraDeliveryUrl)}]
 									</Text>
-									{activeProject.jiraDeliveryStatus ? (
-										<Text>
-											{" "}
-											<Text
-												color={statusColor(activeProject.jiraDeliveryStatus)}
-											>
-												{statusLabel(activeProject.jiraDeliveryStatus)}
-											</Text>
-										</Text>
-									) : null}
 								</Text>
 							)}
 							{activeProject.jiraDocsUrl && (
@@ -451,14 +408,6 @@ export const TaskPanel = ({
 									<Text color="cyan">
 										[{shortUrl(activeProject.jiraDocsUrl)}]
 									</Text>
-									{activeProject.jiraDocsStatus ? (
-										<Text>
-											{" "}
-											<Text color={statusColor(activeProject.jiraDocsStatus)}>
-												{statusLabel(activeProject.jiraDocsStatus)}
-											</Text>
-										</Text>
-									) : null}
 								</Text>
 							)}
 							{activeProject.jiraReleaseNoteUrl && (
@@ -468,16 +417,6 @@ export const TaskPanel = ({
 									<Text color="cyan">
 										[{shortUrl(activeProject.jiraReleaseNoteUrl)}]
 									</Text>
-									{activeProject.jiraReleaseNoteStatus ? (
-										<Text>
-											{" "}
-											<Text
-												color={statusColor(activeProject.jiraReleaseNoteStatus)}
-											>
-												{statusLabel(activeProject.jiraReleaseNoteStatus)}
-											</Text>
-										</Text>
-									) : null}
 								</Text>
 							)}
 							{activeProject.teamsReleaseNoteUrl && (

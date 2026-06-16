@@ -7,8 +7,8 @@ import { TASK_CREATE_FIELDS } from "./modal-field-defs";
 // correctness is verified here as the pure logic layer.
 
 describe("TASK_CREATE_FIELDS structure", () => {
-	it("contains exactly 9 fields (8 data fields + submit)", () => {
-		expect(TASK_CREATE_FIELDS).toHaveLength(9);
+	it("contains exactly 8 fields (7 data fields + submit)", () => {
+		expect(TASK_CREATE_FIELDS).toHaveLength(8);
 	});
 
 	it("first field is title (text)", () => {
@@ -43,14 +43,8 @@ describe("TASK_CREATE_FIELDS structure", () => {
 		expect(enumKeys).toContain("recurrence");
 	});
 
-	it("includes blocked reason as a text field", () => {
-		expect(
-			TASK_CREATE_FIELDS.some(
-				(field) => field.key === "blockedReason" && field.type === "text",
-			),
-		).toBe(true);
-	});
 });
+
 
 describe("modal field active/inactive rendering logic", () => {
 	it("active field index 0 corresponds to title", () => {

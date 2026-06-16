@@ -16,6 +16,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { RecurrencePreset } from "@/server/types";
 
@@ -48,8 +49,8 @@ export function TaskEditDialog() {
 	const [due, setDue] = useState("");
 	const [scheduled, setScheduled] = useState("");
 	const [recurrence, setRecurrence] = useState("");
-	const [blockedReason, setBlockedReason] = useState("");
 	const [notes, setNotes] = useState("");
+	const [someday, setSomeday] = useState(false);
 
 	useEffect(() => {
 		if (!task) return;
@@ -59,8 +60,8 @@ export function TaskEditDialog() {
 		setDue(formatDateField(task.dueAt));
 		setScheduled(formatDateField(task.scheduledAt));
 		setRecurrence(task.recurrencePreset ?? "");
-		setBlockedReason(task.blockedReason ?? "");
 		setNotes(task.notes);
+		setSomeday(task.someday);
 	}, [task]);
 
 	const submit = () => {
@@ -80,6 +81,7 @@ export function TaskEditDialog() {
 		updateTask.mutate(
 			{
 				taskId: task.id,
+				before: task,
 				input: {
 					title: title.trim(),
 					projectId,
@@ -87,8 +89,8 @@ export function TaskEditDialog() {
 					dueAt,
 					scheduledAt,
 					recurrencePreset: (recurrence || null) as RecurrencePreset,
-					blockedReason: blockedReason.trim() ? blockedReason.trim() : null,
 					notes,
+					someday,
 				},
 			},
 			{
@@ -215,12 +217,20 @@ export function TaskEditDialog() {
 							</Select>
 						</div>
 						<div className="flex flex-col gap-1">
-							<Label>Blocked reason</Label>
-							<Input
-								value={blockedReason}
-								onChange={(e) => setBlockedReason(e.target.value)}
-								placeholder="Empty = not blocked"
-							/>
+							<Label htmlFor="task-someday">Someday</Label>
+							<div className="flex h-9 items-center gap-2">
+								<Switch
+									id="task-someday"
+									checked={someday}
+									onCheckedChange={setSomeday}
+								/>
+								<label
+									htmlFor="task-someday"
+									className="cursor-pointer text-sm text-muted"
+								>
+									Park in Someday
+								</label>
+							</div>
 						</div>
 					</div>
 					<div className="flex flex-col gap-1">

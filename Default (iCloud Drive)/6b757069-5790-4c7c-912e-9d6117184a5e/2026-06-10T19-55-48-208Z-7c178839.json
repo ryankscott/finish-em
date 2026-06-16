@@ -1,0 +1,55 @@
+{
+  "deviceId": "6b757069-5790-4c7c-912e-9d6117184a5e",
+  "timestamp": "2026-06-10T19:55:48.208Z",
+  "changes": [
+    {
+      "entityType": "task",
+      "entityUuid": "ff2d158c-5d81-40eb-a40c-927a273b3529",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T19:55:20.421Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "94228474-640a-41d9-abef-ca5a890f528e",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T19:55:32.505Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "409b4179-79ad-4074-a80d-e17a9741d051",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T19:55:32.892Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "14ce3788-b64a-4009-8703-6fe3177ec068",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T19:55:33.115Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "9943c29c-6801-44a4-8ac9-f35c4b228dd3",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T19:55:33.296Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "e8ef9d22-7d52-4dfc-bee5-975c45c47908",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T19:55:33.653Z"
+    },
+    {
+      "entityType": "task",
+      "entityUuid": "0702546c-1d48-4e13-81c4-850f044cb769",
+      "field": "*",
+      "value": null,
+      "updatedAt": "2026-06-10T19:55:34.029Z"
+    }
+  ]
+}

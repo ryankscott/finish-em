@@ -2,7 +2,6 @@ import type {
 	AppSettings,
 	Goal,
 	GoalPeriod,
-	JiraTicketStatus,
 	Priority,
 	Project,
 	Reminder,
@@ -24,25 +23,13 @@ export function mapProjectRow(row: Record<string, unknown>): Project {
 		jiraDiscoveryUrl: row.jira_discovery_url
 			? String(row.jira_discovery_url)
 			: null,
-		jiraDiscoveryStatus: row.jira_discovery_status
-			? (String(row.jira_discovery_status) as JiraTicketStatus)
-			: null,
 		jiraDeliveryUrl: row.jira_delivery_url
 			? String(row.jira_delivery_url)
 			: null,
-		jiraDeliveryStatus: row.jira_delivery_status
-			? (String(row.jira_delivery_status) as JiraTicketStatus)
-			: null,
 		confluenceUrl: row.confluence_url ? String(row.confluence_url) : null,
 		jiraDocsUrl: row.jira_docs_url ? String(row.jira_docs_url) : null,
-		jiraDocsStatus: row.jira_docs_status
-			? (String(row.jira_docs_status) as JiraTicketStatus)
-			: null,
 		jiraReleaseNoteUrl: row.jira_release_note_url
 			? String(row.jira_release_note_url)
-			: null,
-		jiraReleaseNoteStatus: row.jira_release_note_status
-			? (String(row.jira_release_note_status) as JiraTicketStatus)
 			: null,
 		teamsReleaseNoteUrl: row.teams_release_note_url
 			? String(row.teams_release_note_url)
@@ -70,9 +57,8 @@ export function mapTaskRow(row: Record<string, unknown>): Task {
 			(row.recurrence_preset as Task["recurrencePreset"]) ?? null,
 		recurrenceRRule: row.recurrence_rrule ? String(row.recurrence_rrule) : null,
 		status: String(row.status) as TaskStatus,
+		someday: Number(row.someday) === 1,
 		completedAt: row.completed_at ? String(row.completed_at) : null,
-		blockedAt: row.blocked_at ? String(row.blocked_at) : null,
-		blockedReason: row.blocked_reason ? String(row.blocked_reason) : null,
 		deletedAt: row.deleted_at ? String(row.deleted_at) : null,
 		createdAt: String(row.created_at),
 		updatedAt: String(row.updated_at),

@@ -17,24 +17,11 @@ type CreateProjectModalProps = {
 
 const LABEL_WIDTH = 20;
 
-const DISCOVERY_KEYS = new Set([
-	"jiraDiscovery",
-	"jiraDiscoveryStatus",
-	"confluenceUrl",
-]);
-const INLINE_STATUS_KEYS = new Set([
-	"jiraDiscoveryStatus",
-	"jiraDeliveryStatus",
-	"jiraDocsStatus",
-	"jiraReleaseNoteStatus",
-]);
+const DISCOVERY_KEYS = new Set(["jiraDiscovery", "confluenceUrl"]);
 const DELIVERY_KEYS = new Set([
 	"jiraDelivery",
-	"jiraDeliveryStatus",
 	"jiraDocsUrl",
-	"jiraDocsStatus",
 	"jiraReleaseNoteUrl",
-	"jiraReleaseNoteStatus",
 	"teamsReleaseNoteUrl",
 ]);
 
@@ -49,12 +36,6 @@ function shortLabel(label: string): string {
 	if (label.startsWith("Delivery: ")) return label.slice("Delivery: ".length);
 	return label;
 }
-
-const STATUS_DISPLAY: Record<string, { label: string; color: string }> = {
-	todo: { label: "Todo", color: "yellow" },
-	in_progress: { label: "In Progress", color: "cyan" },
-	done: { label: "Done", color: "green" },
-};
 
 function renderActiveTextValue(
 	value: string,
@@ -72,63 +53,17 @@ function renderActiveTextValue(
 	);
 }
 
-const STATUS_OPTIONS = [
-	{ label: "—", value: "" },
-	{ label: "Todo", value: "todo" },
-	{ label: "In Progress", value: "in_progress" },
-	{ label: "Done", value: "done" },
-];
-
 function renderFieldValue(
 	field: ModalField,
 	value: string,
 	isActive: boolean,
 	cursorOffset: number,
 ): React.ReactElement {
-	if (field.type === "enum" && INLINE_STATUS_KEYS.has(field.key)) {
-		if (isActive) {
-			return (
-				<Box gap={1}>
-					{STATUS_OPTIONS.map((opt) => {
-						const isSel = value === opt.value;
-						const color = STATUS_DISPLAY[opt.value]?.color ?? "cyan";
-						return (
-							<Text
-								key={opt.value}
-								bold={isSel}
-								color={isSel ? color : undefined}
-								dimColor={!isSel}
-							>
-								{isSel ? `[${opt.label}]` : opt.label}
-							</Text>
-						);
-					})}
-				</Box>
-			);
-		}
-		const status = STATUS_DISPLAY[value];
-		if (status) {
-			return (
-				<Text bold color={status.color}>
-					{status.label}
-				</Text>
-			);
-		}
-		return <Text dimColor>—</Text>;
-	}
 	if (field.type === "enum") {
 		if (isActive) {
 			return (
 				<Text color="cyan" dimColor>
 					↵ pick
-				</Text>
-			);
-		}
-		const status = STATUS_DISPLAY[value];
-		if (status) {
-			return (
-				<Text bold color={status.color}>
-					{status.label}
 				</Text>
 			);
 		}
@@ -253,8 +188,7 @@ export const CreateProjectModal = ({
 
 				<Box marginTop={1}>
 					<Text dimColor>
-						j/k navigate · Enter advance · h/l or ◀▶ cycle status · E calendar ·
-						Esc cancel
+						j/k navigate · Enter advance · E calendar · Esc cancel
 					</Text>
 				</Box>
 			</Box>
