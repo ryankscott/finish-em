@@ -16,7 +16,7 @@ const SECTIONS: Array<[string, Array<[string, string]>]> = [
 			["k / ↑", "Move up"],
 			["g / G", "First / last task"],
 			["space", "Expand or collapse subtasks"],
-			["\\", "Toggle sidebar"],
+			["\\", "Show / hide sidebar"],
 			["/", "Search tasks"],
 			["⌘K", "Command palette"],
 			["1–8", "Switch view (Today, Inbox, Upcoming…)"],
