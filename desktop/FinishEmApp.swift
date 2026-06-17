@@ -25,7 +25,7 @@ func logFileURL() -> URL {
 	return dir.appendingPathComponent("desktop-server.log")
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate {
 	let port = resolvePort()
 	var window: NSWindow!
 	var webView: WKWebView!
@@ -83,6 +83,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate {
 			frame: NSRect(x: 0, y: 0, width: 1100, height: 800),
 			configuration: config)
 		webView.navigationDelegate = self
+		webView.uiDelegate = self
 
 		window = NSWindow(
 			contentRect: NSRect(x: 0, y: 0, width: 1100, height: 800),
@@ -99,6 +100,55 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate {
 
 	func loadApp() {
 		webView.load(URLRequest(url: baseURL))
+	}
+
+	// MARK: - External links
+
+	// True for http(s) URLs that don't point at our own local server. These
+	// should open in the user's default browser, not inside the WKWebView.
+	func isExternal(_ url: URL?) -> Bool {
+		guard let url, let scheme = url.scheme?.lowercased() else { return false }
+		guard scheme == "http" || scheme == "https" else { return false }
+		let host = url.host?.lowercased()
+		return host != "127.0.0.1" && host != "localhost"
+	}
+
+	func openExternally(_ url: URL) {
+		NSWorkspace.shared.open(url)
+	}
+
+	// Intercept ordinary link clicks/navigations to off-site URLs.
+	func webView(
+		_ webView: WKWebView,
+		decidePolicyFor navigationAction: WKNavigationAction,
+		decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+	) {
+		let url = navigationAction.request.url
+		if navigationAction.navigationType == .linkActivated, isExternal(url) {
+			openExternally(url!)
+			decisionHandler(.cancel)
+			return
+		}
+		decisionHandler(.allow)
+	}
+
+	// Handle target="_blank" / window.open links, which would otherwise be
+	// dropped because a WKWebView has no place to put a new window.
+	func webView(
+		_ webView: WKWebView,
+		createWebViewWith configuration: WKWebViewConfiguration,
+		for navigationAction: WKNavigationAction,
+		windowFeatures: WKWindowFeatures
+	) -> WKWebView? {
+		if let url = navigationAction.request.url {
+			if isExternal(url) {
+				openExternally(url)
+			} else {
+				// Same-origin popup: load it in the main webview instead.
+				webView.load(navigationAction.request)
+			}
+		}
+		return nil
 	}
 
 	// MARK: - Server lifecycle
