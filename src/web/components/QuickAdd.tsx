@@ -11,7 +11,8 @@ import { QuickAddPills } from "./QuickAddPills";
 import { type Segment, tokenizeQuickAdd } from "./quick-add-highlight";
 
 // Pill styling for recognized tokens rendered inline in the editor.
-const PILL_CLASS = "mx-[3px] rounded bg-accent/20 px-1.5 py-0.5 text-accent";
+const PILL_CLASS =
+	"mx-[3px] rounded bg-p4/15 px-1.5 py-0.5 font-medium text-p4";
 
 /** Character offset of the caret within a contentEditable root, or null. */
 function getCaretOffset(root: HTMLElement): number | null {
