@@ -150,6 +150,27 @@ describe("parseTaskEditInput", () => {
 			expect(d.getDate()).toBe(tomorrow.getDate());
 		});
 
+		it("parses abbreviations tod/tom/nxt", () => {
+			const tod = new Date(
+				parseTaskEditInput("Task due:tod", PROJECTS).patch.dueAt!,
+			);
+			expect(tod.getDate()).toBe(new Date().getDate());
+
+			const tom = new Date(
+				parseTaskEditInput("Task due:tom", PROJECTS).patch.dueAt!,
+			);
+			const tomorrow = new Date();
+			tomorrow.setDate(tomorrow.getDate() + 1);
+			expect(tom.getDate()).toBe(tomorrow.getDate());
+
+			const nxt = new Date(
+				parseTaskEditInput("Task due:nxt", PROJECTS).patch.dueAt!,
+			);
+			const nextWeek = new Date();
+			nextWeek.setDate(nextWeek.getDate() + 7);
+			expect(nxt.getDate()).toBe(nextWeek.getDate());
+		});
+
 		it("parses due:friday as the next friday", () => {
 			const { patch } = parseTaskEditInput("Task due:friday", PROJECTS);
 			const d = new Date(patch.dueAt!);
