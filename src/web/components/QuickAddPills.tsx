@@ -1,32 +1,68 @@
-import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown, X } from "lucide-react";
-import type { Project } from "@/server/types";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { ParseTaskCreateResult } from "@/lib/parsing/parse-task-create-input";
+import type { Project } from "@/server/types";
 import { cn } from "../lib/cn";
 
 /* ------------------------------------------------------------------ */
 /*  Token helpers                                                      */
 /* ------------------------------------------------------------------ */
 
-function escapeRegExp(s: string) {
+export function escapeRegExp(s: string) {
 	return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function removeToken(value: string, regex: RegExp): string {
+export function removeToken(value: string, regex: RegExp): string {
 	return value
 		.replace(regex, "")
 		.replace(/\s{2,}/g, " ")
 		.trim();
 }
 
-function insertToken(value: string, token: string): string {
+export function insertToken(value: string, token: string): string {
 	return `${value} ${token}`.trim();
 }
 
-function replaceToken(value: string, regex: RegExp, token: string): string {
-	const replaced = value.replace(regex, token);
-	if (replaced !== value) return replaced.replace(/\s{2,}/g, " ").trim();
-	return insertToken(value, token);
+/*
+ * Boundary that ends a project token's value: the next known token prefix or
+ * end of string. Mirrors the parser, which reads a project name until the next
+ * token, so multi-word names like "Work Stuff" are handled correctly.
+ */
+const PROJECT_VALUE_STOP =
+	"(?=\\s+(?:title:|project:|proj:|priority:|prio:|due:|scheduled:|sch:|notes:|parent:|recurs:|rec:|recurrence:|p[1-4]\\b|⏰|🗓|🔁|🚩|📁)|$)";
+
+/** Remove a specific named project token (handles multi-word names). */
+export function removeProjectToken(value: string, name: string): string {
+	const regex = new RegExp(
+		`\\b(?:project:|proj:|📁\\s*)\\s*${escapeRegExp(name)}(?=\\s|$)`,
+		"i",
+	);
+	return removeToken(value, regex);
+}
+
+/*
+ * Date phrases the parser accepts for due/scheduled tokens, including the
+ * short abbreviations (tod/tom/nxt). Used to detect and strip date tokens.
+ */
+const DATE_PHRASE = "today|tod|tomorrow|tom|next\\s*week|nxt";
+const DATE_TOKEN_VALUE = `(?:${DATE_PHRASE}|none|never|clear|\\d{4}-\\d{2}-\\d{2})`;
+
+/** Map a matched date phrase to its canonical pill label (Today/Tomorrow/Next week). */
+function dateLabelFor(phrase: string): string | null {
+	const text = phrase.toLowerCase().replace(/\s+/g, " ");
+	if (text === "today" || text === "tod") return "Today";
+	if (text === "tomorrow" || text === "tom") return "Tomorrow";
+	if (text === "next week" || text === "nxt") return "Next week";
+	return null;
+}
+
+/** Remove any existing project token, regardless of its value. */
+export function removeAnyProjectToken(value: string): string {
+	const regex = new RegExp(
+		`\\b(?:project:|proj:|📁\\s*)\\s*.+?${PROJECT_VALUE_STOP}`,
+		"gi",
+	);
+	return removeToken(value, regex);
 }
 
 /* ------------------------------------------------------------------ */
@@ -90,7 +126,8 @@ function ProjectDropdown({
 		}
 		if (open) {
 			document.addEventListener("mousedown", handleClickOutside);
-			return () => document.removeEventListener("mousedown", handleClickOutside);
+			return () =>
+				document.removeEventListener("mousedown", handleClickOutside);
 		}
 	}, [open]);
 
@@ -125,12 +162,12 @@ function ProjectDropdown({
 							) : null}
 							<span className="truncate">{project.name}</span>
 						</button>
-						))}
-					</div>
-				) : null}
-			</div>
-		);
-	}
+					))}
+				</div>
+			) : null}
+		</div>
+	);
+}
 
 /* ------------------------------------------------------------------ */
 /*  QuickAddPills                                                      */
@@ -189,18 +226,10 @@ export function QuickAddPills({
 	/* ---------- project ---------- */
 	function toggleProject(project: Project) {
 		if (activeProjectId === project.id) {
-			const regex = new RegExp(
-				`\\b(?:project:|proj:|📁\\s*)\\s*${escapeRegExp(project.name)}\\b`,
-				"i",
-			);
-			onChange(removeToken(value, regex));
+			onChange(removeProjectToken(value, project.name));
 		} else {
-			// remove existing project token
-			const removeExisting = value.replace(
-				/\b(?:project:|proj:|📁\s*)\s*[^\s]+/gi,
-				"",
-			);
-			const cleaned = removeExisting.replace(/\s{2,}/g, " ").trim();
+			// remove existing project token (handles multi-word names)
+			const cleaned = removeAnyProjectToken(value);
 			onChange(insertToken(cleaned, `project:${project.name}`));
 		}
 	}
@@ -213,33 +242,27 @@ export function QuickAddPills({
 	] as const;
 
 	function toggleDue(option: (typeof dateOptions)[number]) {
-		if (activeDue !== null && activeDue !== undefined) {
-			// remove any due token
-			const regex = /\b(?:due:|⏰\s*)\s*(?:today|tomorrow|next\s*week|none|never|clear|\d{4}-\d{2}-\d{2})\b/gi;
-			const cleaned = removeToken(value, regex);
-			if (activeDue && option.token.includes("due:")) {
-				// already active with same type? toggle off
-				const currentMatch = value.match(
-					/\b(?:due:|⏰\s*)\s*(today|tomorrow|next\s*week)/i,
-				);
-				if (currentMatch && option.token.includes(currentMatch[1].toLowerCase())) {
-					onChange(cleaned);
-					return;
-				}
-				onChange(insertToken(cleaned, option.token));
-				return;
-			}
-			onChange(insertToken(cleaned, option.token));
+		// strip any existing due token (preset or absolute date), then either
+		// toggle the clicked option off or insert it in place of the old one
+		const regex = new RegExp(
+			`\\b(?:due:|⏰\\s*)\\s*${DATE_TOKEN_VALUE}\\b`,
+			"gi",
+		);
+		const cleaned = removeToken(value, regex);
+		if (isDueActive(option.label)) {
+			onChange(cleaned);
 			return;
 		}
-		onChange(insertToken(value, option.token));
+		onChange(insertToken(cleaned, option.token));
 	}
 
 	function isDueActive(label: string): boolean {
 		if (activeDue === null || activeDue === undefined) return false;
-		const match = value.match(/\b(?:due:|⏰\s*)\s*(today|tomorrow|next\s*week)/i);
+		const match = value.match(
+			new RegExp(`\\b(?:due:|⏰\\s*)\\s*(${DATE_PHRASE})`, "i"),
+		);
 		if (!match) return false;
-		return match[1].toLowerCase().replace(/\s+/g, " ") === label.toLowerCase();
+		return dateLabelFor(match[1]) === label;
 	}
 
 	/* ---------- scheduled date ---------- */
@@ -250,31 +273,25 @@ export function QuickAddPills({
 	] as const;
 
 	function toggleScheduled(option: (typeof schedOptions)[number]) {
-		if (activeScheduled !== null && activeScheduled !== undefined) {
-			const regex = /\b(?:scheduled:|sch:|🗓\s*)\s*(?:today|tomorrow|next\s*week|none|never|clear|\d{4}-\d{2}-\d{2})\b/gi;
-			const cleaned = removeToken(value, regex);
-			if (activeScheduled && option.token.includes("sch:")) {
-				const currentMatch = value.match(
-					/\b(?:scheduled:|sch:|🗓\s*)\s*(today|tomorrow|next\s*week)/i,
-				);
-				if (currentMatch && option.token.includes(currentMatch[1].toLowerCase())) {
-					onChange(cleaned);
-					return;
-				}
-				onChange(insertToken(cleaned, option.token));
-				return;
-			}
-			onChange(insertToken(cleaned, option.token));
+		const regex = new RegExp(
+			`\\b(?:scheduled:|sch:|🗓\\s*)\\s*${DATE_TOKEN_VALUE}\\b`,
+			"gi",
+		);
+		const cleaned = removeToken(value, regex);
+		if (isScheduledActive(option.label)) {
+			onChange(cleaned);
 			return;
 		}
-		onChange(insertToken(value, option.token));
+		onChange(insertToken(cleaned, option.token));
 	}
 
 	function isScheduledActive(label: string): boolean {
 		if (activeScheduled === null || activeScheduled === undefined) return false;
-		const match = value.match(/\b(?:scheduled:|sch:|🗓\s*)\s*(today|tomorrow|next\s*week)/i);
+		const match = value.match(
+			new RegExp(`\\b(?:scheduled:|sch:|🗓\\s*)\\s*(${DATE_PHRASE})`, "i"),
+		);
 		if (!match) return false;
-		return match[1].toLowerCase().replace(/\s+/g, " ") === label.toLowerCase();
+		return dateLabelFor(match[1]) === label;
 	}
 
 	/* ---------- recurrence ---------- */
@@ -286,7 +303,8 @@ export function QuickAddPills({
 
 	function toggleRecurrence(option: (typeof recOptions)[number]) {
 		if (activeRecurrence) {
-			const regex = /\b(?:recurs:|rec:|recurrence:)\s*(?:daily|weekly|monthly|yearly|every_weekday|none|never|clear)\b/gi;
+			const regex =
+				/\b(?:recurs:|rec:|recurrence:)\s*(?:daily|weekly|monthly|yearly|every_weekday|none|never|clear)\b/gi;
 			const cleaned = removeToken(value, regex);
 			if (activeRecurrence === option.token.split(":")[1]) {
 				onChange(cleaned);
@@ -365,7 +383,7 @@ export function QuickAddPills({
 				{schedOptions.map((opt) => (
 					<Pill
 						key={opt.token}
-						label={`Sched ${opt.label}`}
+						label={`Scheduled ${opt.label}`}
 						active={isScheduledActive(opt.label)}
 						onClick={() => toggleScheduled(opt)}
 						className="hidden sm:inline-flex"

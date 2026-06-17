@@ -53,7 +53,7 @@ export function parseDatePhrase(phrase: string): string | null {
 	const text = phrase.trim().toLowerCase();
 	const now = new Date();
 
-	if (text === "today") {
+	if (text === "today" || text === "tod") {
 		return set(now, {
 			hours: 9,
 			minutes: 0,
@@ -62,7 +62,7 @@ export function parseDatePhrase(phrase: string): string | null {
 		}).toISOString();
 	}
 
-	if (text === "tomorrow") {
+	if (text === "tomorrow" || text === "tom") {
 		return set(addDays(now, 1), {
 			hours: 9,
 			minutes: 0,
@@ -71,7 +71,7 @@ export function parseDatePhrase(phrase: string): string | null {
 		}).toISOString();
 	}
 
-	if (text === "next week") {
+	if (text === "next week" || text === "nxt") {
 		return set(addWeeks(now, 1), {
 			hours: 9,
 			minutes: 0,
