@@ -266,12 +266,6 @@ export function Sidebar() {
 				count={somedayTasks.length}
 				active={pathname === "/someday"}
 			/>
-			<NavLink
-				to="/settings"
-				icon={<Settings className={iconClass} />}
-				label="Settings"
-				active={pathname === "/settings"}
-			/>
 			<Separator className="my-2" />
 			<div className="mb-1 flex items-center px-3 text-[11px] font-semibold tracking-wide text-muted uppercase">
 				<span>Projects</span>
@@ -294,6 +288,15 @@ export function Sidebar() {
 						active={pathname === `/projects/${project.id}`}
 					/>
 				))}
+			<div className="mt-auto">
+				<Separator className="my-2" />
+				<NavLink
+					to="/settings"
+					icon={<Settings className={iconClass} />}
+					label="Settings"
+					active={pathname === "/settings"}
+				/>
+			</div>
 		</aside>
 	);
 }
