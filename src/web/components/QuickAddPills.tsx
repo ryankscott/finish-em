@@ -91,7 +91,7 @@ function Pill({
 				"inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors",
 				"focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2",
 				active
-					? "border-accent bg-accent/20 text-accent"
+					? "border-p4 bg-p4/15 text-p4"
 					: "border-border text-muted hover:bg-surface-raised hover:text-foreground",
 				className,
 			)}
@@ -333,10 +333,10 @@ export function QuickAddPills({
 						onClick={() => togglePriority(p)}
 						className={cn(
 							activePriority === p && [
-								p === 1 && "text-p1",
-								p === 2 && "text-p2",
-								p === 3 && "text-p3",
-								p === 4 && "text-p4",
+								p === 1 && "border-p1 bg-p1/15 text-p1",
+								p === 2 && "border-p2 bg-p2/15 text-p2",
+								p === 3 && "border-p3 bg-p3/15 text-p3",
+								p === 4 && "border-p4 bg-p4/15 text-p4",
 							],
 						)}
 					/>
