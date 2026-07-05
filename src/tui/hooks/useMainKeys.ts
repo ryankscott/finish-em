@@ -52,12 +52,6 @@ function projectToModalValues(project: Project): Record<string, string> {
 			? format(new Date(project.startAt), "yyyy-MM-dd")
 			: "",
 		endAt: project.endAt ? format(new Date(project.endAt), "yyyy-MM-dd") : "",
-		jiraDiscovery: project.jiraDiscoveryUrl ?? "",
-		jiraDelivery: project.jiraDeliveryUrl ?? "",
-		confluenceUrl: project.confluenceUrl ?? "",
-		jiraDocsUrl: project.jiraDocsUrl ?? "",
-		jiraReleaseNoteUrl: project.jiraReleaseNoteUrl ?? "",
-		teamsReleaseNoteUrl: project.teamsReleaseNoteUrl ?? "",
 	};
 }
 
@@ -177,7 +171,6 @@ type UseMainKeysParams = {
 	setSettingsIndex: React.Dispatch<React.SetStateAction<number>>;
 	selectedSettingsRow: SettingsRow | null;
 	setEditingSettingField: (field: "timezone" | null) => void;
-	onSyncToggle: () => void;
 	columns: DayColumn[];
 	setColumnIndex: React.Dispatch<React.SetStateAction<number>>;
 	currentColumnRows: ColumnTaskRow[];
@@ -264,7 +257,6 @@ export function useMainKeys({
 	setSettingsIndex,
 	selectedSettingsRow,
 	setEditingSettingField,
-	onSyncToggle,
 	columns,
 	setColumnIndex,
 	currentColumnRows,
@@ -567,18 +559,6 @@ export function useMainKeys({
 							initialValue = activeProject.startAt?.slice(0, 10) ?? "";
 						else if (field.key === "endDate")
 							initialValue = activeProject.endAt?.slice(0, 10) ?? "";
-						else if (field.key === "jiraDiscovery")
-							initialValue = activeProject.jiraDiscoveryUrl ?? "";
-						else if (field.key === "jiraDelivery")
-							initialValue = activeProject.jiraDeliveryUrl ?? "";
-						else if (field.key === "confluence")
-							initialValue = activeProject.confluenceUrl ?? "";
-						else if (field.key === "jiraDocs")
-							initialValue = activeProject.jiraDocsUrl ?? "";
-						else if (field.key === "jiraReleaseNote")
-							initialValue = activeProject.jiraReleaseNoteUrl ?? "";
-						else if (field.key === "teamsReleaseNote")
-							initialValue = activeProject.teamsReleaseNoteUrl ?? "";
 					}
 					const modeMap: Record<string, InputMode> = {
 						name: "editProjectName",
@@ -586,12 +566,6 @@ export function useMainKeys({
 						description: "editProjectDescription",
 						startDate: "editProjectStartDate",
 						endDate: "editProjectEndDate",
-						jiraDiscovery: "editProjectJiraDiscovery",
-						jiraDelivery: "editProjectJiraDelivery",
-						confluence: "editProjectConfluence",
-						jiraDocs: "editProjectJiraDocs",
-						jiraReleaseNote: "editProjectJiraReleaseNote",
-						teamsReleaseNote: "editProjectTeamsReleaseNote",
 					};
 					const mode = modeMap[field.key];
 					if (mode) {
@@ -873,10 +847,6 @@ export function useMainKeys({
 					}
 					if (input === "e" || key.return) {
 						if (!selectedSettingsRow) return;
-						if (selectedSettingsRow.field === "syncEnabled") {
-							onSyncToggle();
-							return;
-						}
 						setEditingSettingField(selectedSettingsRow.field);
 						setInputMode("editSetting");
 						setInputValue(selectedSettingsRow.value);
@@ -1081,12 +1051,7 @@ export function useMainKeys({
 			}
 
 			if (input === "D") {
-				if (
-					view === "project" &&
-					activeProject &&
-					!activeProject.isInbox &&
-					focusArea !== "sidebar"
-				) {
+				if (view === "project" && activeProject && !activeProject.isInbox) {
 					void deleteActiveProject();
 				}
 				return;
@@ -1110,37 +1075,11 @@ export function useMainKeys({
 
 			if (input === "o") {
 				if (view === "project" && activeProject) {
-					const projectLinks: { url: string; displayLabel: string }[] = [];
-					if (activeProject.jiraDiscoveryUrl)
-						projectLinks.push({
-							url: activeProject.jiraDiscoveryUrl,
-							displayLabel: "Jira Discovery",
-						});
-					if (activeProject.jiraDeliveryUrl)
-						projectLinks.push({
-							url: activeProject.jiraDeliveryUrl,
-							displayLabel: "Jira Delivery",
-						});
-					if (activeProject.confluenceUrl)
-						projectLinks.push({
-							url: activeProject.confluenceUrl,
-							displayLabel: "Confluence",
-						});
-					if (activeProject.jiraDocsUrl)
-						projectLinks.push({
-							url: activeProject.jiraDocsUrl,
-							displayLabel: "Docs Jira",
-						});
-					if (activeProject.jiraReleaseNoteUrl)
-						projectLinks.push({
-							url: activeProject.jiraReleaseNoteUrl,
-							displayLabel: "Release Note Jira",
-						});
-					if (activeProject.teamsReleaseNoteUrl)
-						projectLinks.push({
-							url: activeProject.teamsReleaseNoteUrl,
-							displayLabel: "Teams Release Note",
-						});
+					const projectLinks: { url: string; displayLabel: string }[] =
+						activeProject.resources.map((resource) => ({
+							url: resource.url,
+							displayLabel: resource.label,
+						}));
 					if (projectLinks.length === 0) {
 						setStatusText("No project links");
 					} else if (projectLinks.length === 1) {

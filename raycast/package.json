@@ -13,6 +13,12 @@
       "title": "Add Task",
       "description": "Quickly add a task to finish-em",
       "mode": "view"
+    },
+    {
+      "name": "today",
+      "title": "Today",
+      "description": "Browse and complete overdue, due-today, and stale tasks",
+      "mode": "view"
     }
   ],
   "dependencies": {
@@ -22,6 +28,10 @@
   "devDependencies": {
     "@raycast/eslint-config": "^1.0.11",
     "typescript": "^5.7.2"
+  },
+  "overrides": {
+    "esbuild": "^0.28.1",
+    "minimatch": "^9.0.7"
   },
   "scripts": {
     "build": "ray build",

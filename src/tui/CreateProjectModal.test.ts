@@ -3,8 +3,8 @@ import { describe, expect, it } from "bun:test";
 import { PROJECT_CREATE_FIELDS } from "./modal-field-defs";
 
 describe("PROJECT_CREATE_FIELDS structure", () => {
-	it("contains exactly 12 fields (11 data fields + submit)", () => {
-		expect(PROJECT_CREATE_FIELDS).toHaveLength(12);
+	it("contains exactly 6 fields (5 data fields + submit)", () => {
+		expect(PROJECT_CREATE_FIELDS).toHaveLength(6);
 	});
 
 	it("first field is name (text)", () => {
@@ -43,11 +43,11 @@ describe("PROJECT_CREATE_FIELDS structure", () => {
 		expect(enumFields.length).toBe(0);
 	});
 
-	it("includes jira and confluence URL fields", () => {
+	it("does not include resource URL fields (managed in web UI)", () => {
 		const keys = PROJECT_CREATE_FIELDS.map((f) => f.key);
-		expect(keys).toContain("jiraDiscovery");
-		expect(keys).toContain("jiraDelivery");
-		expect(keys).toContain("confluenceUrl");
+		expect(keys).not.toContain("jiraDiscovery");
+		expect(keys).not.toContain("jiraDelivery");
+		expect(keys).not.toContain("confluenceUrl");
 	});
 });
 

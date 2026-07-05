@@ -20,35 +20,36 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import type { RecurrencePreset } from "@/server/types";
 
+import { RecurrenceSelector } from "./RecurrenceSelector";
+
 import { formatDateField, resolveDateField } from "../lib/date-field";
 import { useHotkeyScope } from "../lib/hotkeys";
-import { useProjects, useTaskMutations } from "../lib/queries";
+import {
+	useCalendarMutations,
+	useProjects,
+	useTaskMutations,
+} from "../lib/queries";
 import { useUi } from "../state/ui";
 import { DateField } from "./DateField";
+import { MeetingLinkField } from "./MeetingLinkField";
 import { PriorityFlag } from "./PriorityFlag";
 import { TaskReminderField } from "./TaskReminderField";
-
-const RECURRENCE_OPTIONS: Array<{ value: string; label: string }> = [
-	{ value: "__none__", label: "None" },
-	{ value: "daily", label: "Daily" },
-	{ value: "weekly", label: "Weekly" },
-	{ value: "monthly", label: "Monthly" },
-	{ value: "yearly", label: "Yearly" },
-	{ value: "every_weekday", label: "Every weekday" },
-];
 
 export function TaskEditDialog() {
 	const ui = useUi();
 	const { data: projects = [] } = useProjects();
 	const { updateTask } = useTaskMutations();
+	const { linkTaskToEvent } = useCalendarMutations();
 	const task = ui.editingTask;
 
 	const [title, setTitle] = useState("");
+	const [calendarEventUid, setCalendarEventUid] = useState<string | null>(null);
 	const [projectId, setProjectId] = useState<number>(0);
 	const [priority, setPriority] = useState<number>(4);
 	const [due, setDue] = useState("");
 	const [scheduled, setScheduled] = useState("");
-	const [recurrence, setRecurrence] = useState("");
+	const [recurrencePreset, setRecurrencePreset] = useState<RecurrencePreset>(null);
+	const [recurrenceRRule, setRecurrenceRRule] = useState<string | null>(null);
 	const [notes, setNotes] = useState("");
 	const [someday, setSomeday] = useState(false);
 
@@ -59,10 +60,29 @@ export function TaskEditDialog() {
 		setPriority(task.priority);
 		setDue(formatDateField(task.dueAt));
 		setScheduled(formatDateField(task.scheduledAt));
-		setRecurrence(task.recurrencePreset ?? "");
+		setRecurrencePreset(task.recurrencePreset ?? null);
+		setRecurrenceRRule(task.recurrenceRRule ?? null);
 		setNotes(task.notes);
 		setSomeday(task.someday);
+		setCalendarEventUid(task.calendarEventUid ?? null);
 	}, [task]);
+
+	const onLinkMeeting = (event: { uid: string; startAt: string } | null) => {
+		if (!task) return;
+		const eventUid = event ? event.uid : null;
+		setCalendarEventUid(eventUid);
+		// Linking pins the due date to the meeting start; reflect it in the field
+		// so saving the task keeps the dates consistent.
+		if (event) setDue(formatDateField(event.startAt));
+		linkTaskToEvent.mutate(
+			{ taskId: task.id, eventUid },
+			{
+				onSuccess: () =>
+					toast.success(event ? "Linked to meeting" : "Meeting unlinked"),
+				onError: (err) => toast.error(err.message),
+			},
+		);
+	};
 
 	const submit = () => {
 		if (!task) return;
@@ -88,7 +108,8 @@ export function TaskEditDialog() {
 					priority: priority as 1 | 2 | 3 | 4,
 					dueAt,
 					scheduledAt,
-					recurrencePreset: (recurrence || null) as RecurrencePreset,
+					recurrencePreset,
+					recurrenceRRule,
 					notes,
 					someday,
 				},
@@ -200,21 +221,15 @@ export function TaskEditDialog() {
 					<div className="grid grid-cols-2 gap-3">
 						<div className="flex flex-col gap-1">
 							<Label>Recurrence</Label>
-							<Select
-								value={recurrence || "__none__"}
-								onValueChange={(v) => setRecurrence(v === "__none__" ? "" : v)}
-							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{RECURRENCE_OPTIONS.map((option) => (
-										<SelectItem key={option.value} value={option.value}>
-											{option.label}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
+							<RecurrenceSelector
+								value={{ preset: recurrencePreset, rrule: recurrenceRRule, startDate: due }}
+								startDate={due}
+								onChange={({ preset, rrule, startDate }) => {
+									setRecurrencePreset(preset);
+									setRecurrenceRRule(rrule);
+									if (startDate) setDue(startDate);
+								}}
+							/>
 						</div>
 						<div className="flex flex-col gap-1">
 							<Label htmlFor="task-someday">Someday</Label>
@@ -232,6 +247,13 @@ export function TaskEditDialog() {
 								</label>
 							</div>
 						</div>
+					</div>
+					<div className="flex flex-col gap-1">
+						<Label>Link to meeting</Label>
+						<MeetingLinkField
+							value={calendarEventUid}
+							onChange={onLinkMeeting}
+						/>
 					</div>
 					<div className="flex flex-col gap-1">
 						<Label>Notes</Label>

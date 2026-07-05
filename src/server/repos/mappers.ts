@@ -1,5 +1,6 @@
 import type {
 	AppSettings,
+	CalendarEvent,
 	Goal,
 	GoalPeriod,
 	Priority,
@@ -20,20 +21,8 @@ export function mapProjectRow(row: Record<string, unknown>): Project {
 		endAt: row.end_at ? String(row.end_at) : null,
 		color: String(row.color),
 		isInbox: Number(row.is_inbox) === 1,
-		jiraDiscoveryUrl: row.jira_discovery_url
-			? String(row.jira_discovery_url)
-			: null,
-		jiraDeliveryUrl: row.jira_delivery_url
-			? String(row.jira_delivery_url)
-			: null,
-		confluenceUrl: row.confluence_url ? String(row.confluence_url) : null,
-		jiraDocsUrl: row.jira_docs_url ? String(row.jira_docs_url) : null,
-		jiraReleaseNoteUrl: row.jira_release_note_url
-			? String(row.jira_release_note_url)
-			: null,
-		teamsReleaseNoteUrl: row.teams_release_note_url
-			? String(row.teams_release_note_url)
-			: null,
+		sortOrder: Number(row.sort_order ?? 0),
+		resources: [],
 		createdAt: String(row.created_at),
 		updatedAt: String(row.updated_at),
 	};
@@ -60,8 +49,27 @@ export function mapTaskRow(row: Record<string, unknown>): Task {
 		someday: Number(row.someday) === 1,
 		completedAt: row.completed_at ? String(row.completed_at) : null,
 		deletedAt: row.deleted_at ? String(row.deleted_at) : null,
+		calendarEventUid: row.calendar_event_uid
+			? String(row.calendar_event_uid)
+			: null,
 		createdAt: String(row.created_at),
 		updatedAt: String(row.updated_at),
+	};
+}
+
+export function mapCalendarEventRow(
+	row: Record<string, unknown>,
+): CalendarEvent {
+	return {
+		id: Number(row.id),
+		uid: String(row.uid),
+		recurrenceId: String(row.recurrence_id ?? ""),
+		summary: String(row.summary ?? ""),
+		startAt: String(row.start_at),
+		endAt: row.end_at ? String(row.end_at) : null,
+		allDay: Number(row.all_day) === 1,
+		location: row.location ? String(row.location) : null,
+		organizer: row.organizer ? String(row.organizer) : null,
 	};
 }
 
@@ -93,6 +101,10 @@ export function mapSettingsRow(row: Record<string, unknown>): AppSettings {
 	return {
 		id: 1,
 		timezone: String(row.timezone),
+		calendarIcsUrl: row.calendar_ics_url ? String(row.calendar_ics_url) : null,
+		calendarLastSyncedAt: row.calendar_last_synced_at
+			? String(row.calendar_last_synced_at)
+			: null,
 		createdAt: String(row.created_at),
 		updatedAt: String(row.updated_at),
 	};

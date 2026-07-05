@@ -1,16 +1,21 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { endOfDay, startOfDay } from "date-fns";
+import { useState } from "react";
 import {
 	Bell,
+	BookOpen,
+	CalendarClock,
 	CalendarDays,
 	CheckCircle2,
 	ChevronLeft,
 	ChevronRight,
 	Flag,
+	GripVertical,
 	Inbox,
 	Moon,
 	Pencil,
 	Plus,
+	RefreshCw,
 	Settings,
 	Star,
 	Sun,
@@ -30,6 +35,7 @@ import {
 	useTasks,
 } from "../lib/queries";
 import { useUi } from "../state/ui";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 function NavLink({
 	to,
@@ -68,24 +74,30 @@ function ProjectNavLink({
 	project,
 	count,
 	active,
+	dragging,
+	dropTarget,
+	onDragStart,
+	onDragOver,
+	onDrop,
+	onDragEnd,
 }: {
 	project: Project;
 	count: number;
 	active: boolean;
+	dragging: boolean;
+	dropTarget: boolean;
+	onDragStart: () => void;
+	onDragOver: (e: React.DragEvent) => void;
+	onDrop: () => void;
+	onDragEnd: () => void;
 }) {
 	const ui = useUi();
 	const navigate = useNavigate();
 	const { deleteProject } = useProjectMutations();
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
+	const [confirmOpen, setConfirmOpen] = useState(false);
 
 	const onDelete = () => {
-		if (
-			!window.confirm(
-				`Delete project "${project.name}"? Its tasks are removed too.`,
-			)
-		) {
-			return;
-		}
 		deleteProject.mutate(project.id, {
 			onSuccess: () => {
 				toast.success("Project deleted");
@@ -97,16 +109,31 @@ function ProjectNavLink({
 
 	return (
 		<div
+			draggable
+			onDragStart={onDragStart}
+			onDragOver={onDragOver}
+			onDrop={onDrop}
+			onDragEnd={onDragEnd}
 			className={cn(
-				"group flex items-center gap-2 rounded-md px-3 py-1.5 text-sm",
+				"group flex items-center gap-1 rounded-md px-1 py-1.5 text-sm",
 				active
 					? "bg-surface-raised text-foreground"
 					: "text-muted hover:bg-surface",
+				dragging && "opacity-40",
+				dropTarget && "border-t-2 border-p4",
 			)}
 		>
+			<span
+				aria-hidden
+				className="flex w-4 shrink-0 cursor-grab justify-center text-muted opacity-0 group-hover:opacity-100 active:cursor-grabbing"
+			>
+				<GripVertical className="h-3.5 w-3.5" />
+			</span>
 			<Link
-				to={`/projects/${project.id}`}
+				to="/projects/$projectId"
+				params={{ projectId: String(project.id) }}
 				tabIndex={-1}
+				draggable={false}
 				className="flex min-w-0 flex-1 items-center gap-2"
 			>
 				<span className="w-4 text-center text-xs">{project.emoji ?? "●"}</span>
@@ -123,7 +150,7 @@ function ProjectNavLink({
 			<button
 				type="button"
 				aria-label="Delete project"
-				onClick={onDelete}
+				onClick={() => setConfirmOpen(true)}
 				className="hidden text-muted hover:text-p1 group-hover:block"
 			>
 				<Trash2 className="h-3.5 w-3.5" />
@@ -131,6 +158,13 @@ function ProjectNavLink({
 			{count > 0 ? (
 				<span className="text-xs text-muted group-hover:hidden">{count}</span>
 			) : null}
+			<ConfirmDialog
+				open={confirmOpen}
+				onOpenChange={setConfirmOpen}
+				title="Delete project"
+				description={`Delete project "${project.name}"? Its tasks are moved to Inbox.`}
+				onConfirm={onDelete}
+			/>
 		</div>
 	);
 }
@@ -138,7 +172,10 @@ function ProjectNavLink({
 export function Sidebar() {
 	const ui = useUi();
 	const { data: projects = [] } = useProjects();
+	const { reorderProjects } = useProjectMutations();
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
+	const [dragIndex, setDragIndex] = useState<number | null>(null);
+	const [overIndex, setOverIndex] = useState<number | null>(null);
 
 	const now = new Date();
 	const { data: todayTasks = [] } = useTasks({
@@ -155,6 +192,7 @@ export function Sidebar() {
 		status: "open",
 		someday: true,
 	});
+	const { data: recurringTasks = [] } = useTasks({ status: "open", recurring: true });
 	const { data: deletedTasks = [] } = useDeletedTasks();
 
 	const overdueCount = pastTasks.filter((t) => isOverdueTask(t, now)).length;
@@ -169,6 +207,22 @@ export function Sidebar() {
 			(projectCounts.get(task.projectId) ?? 0) + 1,
 		);
 	}
+
+	const visibleProjects = projects.filter((p) => !p.isInbox);
+
+	const commitReorder = (targetIndex: number) => {
+		if (dragIndex === null || dragIndex === targetIndex) {
+			setDragIndex(null);
+			setOverIndex(null);
+			return;
+		}
+		const next = [...visibleProjects];
+		const [moved] = next.splice(dragIndex, 1);
+		next.splice(targetIndex, 0, moved);
+		setDragIndex(null);
+		setOverIndex(null);
+		reorderProjects.mutate(next.map((p) => p.id));
+	};
 
 	// Collapsed strip with expand button
 	if (ui.sidebarCollapsed) {
@@ -228,6 +282,19 @@ export function Sidebar() {
 				active={pathname === "/upcoming"}
 			/>
 			<NavLink
+				to="/calendar"
+				icon={<CalendarClock className={iconClass} />}
+				label="Calendar"
+				active={pathname === "/calendar"}
+			/>
+			<NavLink
+				to="/recurring"
+				icon={<RefreshCw className={iconClass} />}
+				label="Recurring"
+				count={recurringTasks.length}
+				active={pathname === "/recurring"}
+			/>
+			<NavLink
 				to="/overdue"
 				icon={<Flag className={iconClass} />}
 				label="Overdue"
@@ -245,6 +312,12 @@ export function Sidebar() {
 				icon={<CheckCircle2 className={iconClass} />}
 				label="Completed"
 				active={pathname === "/completed"}
+			/>
+			<NavLink
+				to="/logbook"
+				icon={<BookOpen className={iconClass} />}
+				label="Logbook"
+				active={pathname === "/logbook"}
 			/>
 			<NavLink
 				to="/deleted"
@@ -278,16 +351,28 @@ export function Sidebar() {
 					<Plus className="h-3.5 w-3.5" />
 				</button>
 			</div>
-			{projects
-				.filter((p) => !p.isInbox)
-				.map((project) => (
-					<ProjectNavLink
-						key={project.id}
-						project={project}
-						count={projectCounts.get(project.id) ?? 0}
-						active={pathname === `/projects/${project.id}`}
-					/>
-				))}
+			{visibleProjects.map((project, index) => (
+				<ProjectNavLink
+					key={project.id}
+					project={project}
+					count={projectCounts.get(project.id) ?? 0}
+					active={pathname === `/projects/${project.id}`}
+					dragging={dragIndex === index}
+					dropTarget={
+						dragIndex !== null && overIndex === index && dragIndex !== index
+					}
+					onDragStart={() => setDragIndex(index)}
+					onDragOver={(e) => {
+						e.preventDefault();
+						if (overIndex !== index) setOverIndex(index);
+					}}
+					onDrop={() => commitReorder(index)}
+					onDragEnd={() => {
+						setDragIndex(null);
+						setOverIndex(null);
+					}}
+				/>
+			))}
 			<div className="mt-auto">
 				<Separator className="my-2" />
 				<NavLink

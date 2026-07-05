@@ -23,6 +23,7 @@ const MOCK_TASK: Task = {
 	someday: false,
 	completedAt: null,
 	deletedAt: null,
+	calendarEventUid: null,
 	createdAt: "2026-01-01T00:00:00.000Z",
 	updatedAt: "2026-01-01T00:00:00.000Z",
 };
@@ -36,12 +37,8 @@ const MOCK_PROJECT: Project = {
 	endAt: null,
 	color: "#3b82f6",
 	isInbox: false,
-	jiraDiscoveryUrl: null,
-	jiraDeliveryUrl: null,
-	confluenceUrl: null,
-	jiraDocsUrl: null,
-	jiraReleaseNoteUrl: null,
-	teamsReleaseNoteUrl: null,
+	sortOrder: 0,
+	resources: [],
 	createdAt: "2026-01-01T00:00:00.000Z",
 	updatedAt: "2026-01-01T00:00:00.000Z",
 };

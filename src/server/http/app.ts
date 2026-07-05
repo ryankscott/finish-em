@@ -12,10 +12,18 @@ import * as goalRepo from "@/server/repos/goals";
 import * as projectRepo from "@/server/repos/projects";
 import * as reminderRepo from "@/server/repos/reminders";
 import * as settingsRepo from "@/server/repos/settings";
+import * as completionLogRepo from "@/server/repos/task-completion-log";
 import * as taskRepo from "@/server/repos/tasks";
-import { getSyncService } from "@/server/sync/sync-service";
+import {
+	fetchAndSyncCalendar,
+	listCalendarEvents,
+} from "@/server/services/calendar";
 
 import {
+	calendarEventSchema,
+	calendarQuerySchema,
+	calendarRefreshResultSchema,
+	completionLogSchema,
 	emptySchema,
 	errorSchema,
 	goalCreateSchema,
@@ -23,7 +31,9 @@ import {
 	goalSchema,
 	goalUpdateSchema,
 	idParamSchema,
+	linkEventSchema,
 	projectCreateSchema,
+	projectReorderSchema,
 	projectSchema,
 	projectUpdateSchema,
 	reminderCreateSchema,
@@ -31,8 +41,6 @@ import {
 	reminderWithTitleSchema,
 	settingsSchema,
 	settingsUpdateSchema,
-	syncResultSchema,
-	syncStatusSchema,
 	taskCreateSchema,
 	taskQuerySchema,
 	taskSchema,
@@ -98,6 +106,32 @@ export function createApp() {
 		(c) => c.json(settingsRepo.updateSettings(c.req.valid("json")), 200),
 	);
 
+	// Calendar (read-only ICS integration)
+	app.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/calendar/events",
+			request: { query: calendarQuerySchema },
+			responses: jsonResponse(
+				calendarEventSchema.array(),
+				"Cached calendar events in range",
+			),
+		}),
+		(c) => c.json(listCalendarEvents(c.req.valid("query")), 200),
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/calendar/refresh",
+			responses: jsonResponse(
+				calendarRefreshResultSchema,
+				"Refreshed calendar from ICS feed",
+			),
+		}),
+		async (c) => c.json(await fetchAndSyncCalendar(), 200),
+	);
+
 	// Projects
 	app.openapi(
 		createRoute({
@@ -120,6 +154,23 @@ export function createApp() {
 			responses: jsonResponse(projectSchema, "Created project"),
 		}),
 		(c) => c.json(projectRepo.createProject(c.req.valid("json")), 200),
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/projects/reorder",
+			request: {
+				body: {
+					content: { "application/json": { schema: projectReorderSchema } },
+				},
+			},
+			responses: jsonResponse(projectSchema.array(), "Reordered projects"),
+		}),
+		(c) => {
+			const { projectIds } = c.req.valid("json");
+			return c.json(projectRepo.reorderProjects(projectIds), 200);
+		},
 	);
 
 	app.openapi(
@@ -277,6 +328,57 @@ export function createApp() {
 
 	taskAction("/api/tasks/{id}/undelete", (id) => taskRepo.undeleteTask(id));
 
+	app.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/tasks/{id}/completion-history",
+			request: { params: idParamSchema },
+			responses: jsonResponse(
+				completionLogSchema.array(),
+				"Task completion history",
+			),
+		}),
+		(c) => {
+			const { id } = c.req.valid("param");
+			return c.json(completionLogRepo.getCompletionHistory(id), 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/completions",
+			request: { query: calendarQuerySchema },
+			responses: jsonResponse(
+				completionLogSchema.array(),
+				"Completions in a date range",
+			),
+		}),
+		(c) => {
+			const { from, to } = c.req.valid("query");
+			return c.json(completionLogRepo.listCompletions(from, to), 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/tasks/{id}/link-event",
+			request: {
+				params: idParamSchema,
+				body: { content: { "application/json": { schema: linkEventSchema } } },
+			},
+			responses: jsonResponse(taskSchema, "Task linked to calendar event"),
+		}),
+		(c) => {
+			const { id } = c.req.valid("param");
+			const { eventUid } = c.req.valid("json");
+			const task = taskRepo.linkTaskToEvent(id, eventUid);
+			if (!task) throw new NotFoundError(`Task ${id} not found`);
+			return c.json(task, 200);
+		},
+	);
+
 	// Goals
 	app.openapi(
 		createRoute({
@@ -404,53 +506,6 @@ export function createApp() {
 			reminderRepo.deleteReminder(id);
 			return c.json({}, 200);
 		},
-	);
-
-	// Sync (iCloud)
-	app.openapi(
-		createRoute({
-			method: "get",
-			path: "/api/sync",
-			responses: jsonResponse(syncStatusSchema, "Sync status"),
-		}),
-		(c) => c.json(getSyncService().getStatus(), 200),
-	);
-
-	app.openapi(
-		createRoute({
-			method: "post",
-			path: "/api/sync/enable",
-			responses: jsonResponse(syncStatusSchema, "Sync enabled"),
-		}),
-		async (c) => {
-			const sync = getSyncService();
-			sync.enable();
-			sync.startAutoSync();
-			await sync.syncNow().catch(() => {});
-			return c.json(sync.getStatus(), 200);
-		},
-	);
-
-	app.openapi(
-		createRoute({
-			method: "post",
-			path: "/api/sync/disable",
-			responses: jsonResponse(syncStatusSchema, "Sync disabled"),
-		}),
-		(c) => {
-			const sync = getSyncService();
-			sync.disable();
-			return c.json(sync.getStatus(), 200);
-		},
-	);
-
-	app.openapi(
-		createRoute({
-			method: "post",
-			path: "/api/sync/now",
-			responses: jsonResponse(syncResultSchema, "Sync result"),
-		}),
-		async (c) => c.json(await getSyncService().syncNow(), 200),
 	);
 
 	app.doc31("/api/openapi.json", {

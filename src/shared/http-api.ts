@@ -48,6 +48,12 @@ export function createHttpApi(fetchFn: FetchLike, baseUrl = ""): ApiClient {
 		getSettings: () => request("GET", "/api/settings"),
 		updateSettings: (input) => request("PATCH", "/api/settings", input),
 
+		listCalendarEvents: (query = {}) =>
+			request("GET", `/api/calendar/events${queryString(query)}`),
+		refreshCalendar: () => request("POST", "/api/calendar/refresh"),
+		linkTaskToEvent: (taskId, eventUid) =>
+			request("POST", `/api/tasks/${taskId}/link-event`, { eventUid }),
+
 		listProjects: () => request("GET", "/api/projects"),
 		createProject: (input) => request("POST", "/api/projects", input),
 		updateProject: (projectId, input) =>
@@ -55,6 +61,8 @@ export function createHttpApi(fetchFn: FetchLike, baseUrl = ""): ApiClient {
 		deleteProject: async (projectId) => {
 			await request("DELETE", `/api/projects/${projectId}`);
 		},
+		reorderProjects: (projectIds) =>
+			request("POST", "/api/projects/reorder", { projectIds }),
 
 		listTasks: (query: TaskQuery = {}) =>
 			request("GET", `/api/tasks${queryString(query)}`),
@@ -89,9 +97,9 @@ export function createHttpApi(fetchFn: FetchLike, baseUrl = ""): ApiClient {
 			await request("DELETE", `/api/reminders/${reminderId}`);
 		},
 
-		getSyncStatus: () => request("GET", "/api/sync"),
-		enableSync: () => request("POST", "/api/sync/enable"),
-		disableSync: () => request("POST", "/api/sync/disable"),
-		syncNow: () => request("POST", "/api/sync/now"),
+		getCompletionHistory: (taskId) =>
+			request("GET", `/api/tasks/${taskId}/completion-history`),
+		listCompletions: (query = {}) =>
+			request("GET", `/api/completions${queryString(query)}`),
 	};
 }

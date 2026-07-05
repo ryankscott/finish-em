@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Goal, Reminder, Task } from "@/server/types";
+import type { Goal, Project, Reminder, Task } from "@/server/types";
 import type { TaskQuery } from "@/shared/api-client";
 import { snapshotGoal, snapshotTaskFields } from "@/shared/undo";
 
@@ -8,7 +8,6 @@ import { recordUndo } from "./undo";
 
 export const keys = {
 	settings: ["settings"] as const,
-	sync: ["sync"] as const,
 	projects: ["projects"] as const,
 	tasks: (query: TaskQuery = {}) => ["tasks", query] as const,
 	deletedTasks: ["tasks", "deleted"] as const,
@@ -17,6 +16,10 @@ export const keys = {
 	) => ["goals", query] as const,
 	reminders: ["reminders"] as const,
 	taskReminders: (taskId: number) => ["reminders", "task", taskId] as const,
+	calendar: (query: { from?: string; to?: string } = {}) =>
+		["calendar", query] as const,
+	completions: (query: { from?: string; to?: string } = {}) =>
+		["completions", query] as const,
 };
 
 export function useSettings() {
@@ -58,6 +61,17 @@ export function useGoals(query: {
 	});
 }
 
+export function useCompletions(
+	query: { from?: string; to?: string } = {},
+	enabled = true,
+) {
+	return useQuery({
+		queryKey: keys.completions(query),
+		queryFn: () => api.listCompletions(query),
+		enabled,
+	});
+}
+
 export function useAllReminders() {
 	return useQuery({
 		queryKey: keys.reminders,
@@ -73,8 +87,41 @@ export function useTaskReminders(taskId: number | null) {
 	});
 }
 
-export function useSyncStatus() {
-	return useQuery({ queryKey: keys.sync, queryFn: () => api.getSyncStatus() });
+export function useCalendarEvents(
+	query: { from?: string; to?: string } = {},
+	enabled = true,
+) {
+	return useQuery({
+		queryKey: keys.calendar(query),
+		queryFn: () => api.listCalendarEvents(query),
+		enabled,
+	});
+}
+
+export function useCalendarMutations() {
+	const queryClient = useQueryClient();
+	const invalidate = () => {
+		queryClient.invalidateQueries({ queryKey: ["calendar"] });
+		queryClient.invalidateQueries({ queryKey: ["tasks"] });
+	};
+
+	const refreshCalendar = useMutation({
+		mutationFn: () => api.refreshCalendar(),
+		onSettled: invalidate,
+	});
+
+	const linkTaskToEvent = useMutation({
+		mutationFn: ({
+			taskId,
+			eventUid,
+		}: {
+			taskId: number;
+			eventUid: string | null;
+		}) => api.linkTaskToEvent(taskId, eventUid),
+		onSettled: invalidate,
+	});
+
+	return { refreshCalendar, linkTaskToEvent };
 }
 
 /** Invalidate everything task-shaped after a mutation; cheap at this scale. */
@@ -177,7 +224,35 @@ export function useProjectMutations() {
 		onSettled: invalidate,
 	});
 
-	return { createProject, updateProject, deleteProject };
+	const reorderProjects = useMutation({
+		mutationFn: (projectIds: number[]) => api.reorderProjects(projectIds),
+		onMutate: async (projectIds: number[]) => {
+			await queryClient.cancelQueries({ queryKey: keys.projects });
+			const previous = queryClient.getQueryData<Project[]>(keys.projects);
+			if (previous) {
+				const byId = new Map(previous.map((p) => [p.id, p]));
+				const reordered = projectIds
+					.map((id) => byId.get(id))
+					.filter((p): p is Project => p !== undefined);
+				// Keep any projects not in the reorder list (e.g. inbox) in place.
+				const untouched = previous.filter((p) => !projectIds.includes(p.id));
+				queryClient.setQueryData<Project[]>(keys.projects, [
+					...untouched.filter((p) => p.isInbox),
+					...reordered,
+					...untouched.filter((p) => !p.isInbox),
+				]);
+			}
+			return { previous };
+		},
+		onError: (_err, _ids, context) => {
+			if (context?.previous) {
+				queryClient.setQueryData(keys.projects, context.previous);
+			}
+		},
+		onSettled: invalidate,
+	});
+
+	return { createProject, updateProject, deleteProject, reorderProjects };
 }
 
 export function useGoalMutations() {
@@ -269,27 +344,4 @@ export function useSettingsMutations() {
 		onSettled: () => queryClient.invalidateQueries({ queryKey: keys.settings }),
 	});
 	return { updateSettings };
-}
-
-export function useSyncMutations() {
-	const queryClient = useQueryClient();
-	const invalidate = () => {
-		queryClient.invalidateQueries({ queryKey: keys.sync });
-		queryClient.invalidateQueries({ queryKey: ["tasks"] });
-	};
-
-	const enableSync = useMutation({
-		mutationFn: () => api.enableSync(),
-		onSettled: invalidate,
-	});
-	const disableSync = useMutation({
-		mutationFn: () => api.disableSync(),
-		onSettled: invalidate,
-	});
-	const syncNow = useMutation({
-		mutationFn: () => api.syncNow(),
-		onSettled: invalidate,
-	});
-
-	return { enableSync, disableSync, syncNow };
 }

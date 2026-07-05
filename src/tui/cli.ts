@@ -1,3 +1,8 @@
+import {
+	computeDigest,
+	formatDigestText,
+	isDigestEmpty,
+} from "@/server/services/digest";
 import type { ApiClient } from "./api-client";
 import { createDirectApi } from "./direct-api";
 
@@ -25,12 +30,14 @@ Commands:
   goal
   reminder
   settings
+  digest
   help
 
 Examples:
   finish-em task list
   finish-em task add "Ship release notes" --project-id 1 --priority 2
   finish-em project list --json
+  finish-em digest
   finish-em help task
 `;
 
@@ -49,14 +56,8 @@ Subcommands:
 
 Subcommands:
   list [--json]
-  add <name> [--emoji <emoji>] [--description <text>] [--color <hex>]
-             [--jira-discovery-url <url>] [--jira-delivery-url <url>]
-             [--confluence-url <url>] [--jira-docs-url <url>]
-             [--jira-release-note-url <url>] [--teams-release-note-url <url>] [--json]
-  update <project-id> [--name <text>] [--emoji <emoji>] [--description <text>] [--color <hex>]
-             [--jira-discovery-url <url>] [--jira-delivery-url <url>]
-             [--confluence-url <url>] [--jira-docs-url <url>]
-             [--jira-release-note-url <url>] [--teams-release-note-url <url>] [--json]
+  add <name> [--emoji <emoji>] [--description <text>] [--color <hex>] [--json]
+  update <project-id> [--name <text>] [--emoji <emoji>] [--description <text>] [--color <hex>] [--json]
   delete <project-id> [--json]
 `,
 	goal: `finish-em goal <subcommand> [flags]
@@ -82,6 +83,10 @@ Subcommands:
 
 Keys:
   timezone
+`,
+	digest: `finish-em digest [--json]
+
+Prints tasks due today, overdue, or stale (untouched for 14+ days).
 `,
 };
 
@@ -387,12 +392,6 @@ async function runProjectCommand(args: string[], api: ApiClient, io: CliIo) {
 			emoji: asString(flags, "emoji") ?? null,
 			description: asString(flags, "description"),
 			color: asString(flags, "color"),
-			jiraDiscoveryUrl: asString(flags, "jira-discovery-url") ?? null,
-			jiraDeliveryUrl: asString(flags, "jira-delivery-url") ?? null,
-			confluenceUrl: asString(flags, "confluence-url") ?? null,
-			jiraDocsUrl: asString(flags, "jira-docs-url") ?? null,
-			jiraReleaseNoteUrl: asString(flags, "jira-release-note-url") ?? null,
-			teamsReleaseNoteUrl: asString(flags, "teams-release-note-url") ?? null,
 		});
 		printResult(io, project, {
 			json: outputJson,
@@ -411,12 +410,6 @@ async function runProjectCommand(args: string[], api: ApiClient, io: CliIo) {
 			emoji: asString(flags, "emoji"),
 			description: asString(flags, "description"),
 			color: asString(flags, "color"),
-			jiraDiscoveryUrl: asString(flags, "jira-discovery-url"),
-			jiraDeliveryUrl: asString(flags, "jira-delivery-url"),
-			confluenceUrl: asString(flags, "confluence-url"),
-			jiraDocsUrl: asString(flags, "jira-docs-url"),
-			jiraReleaseNoteUrl: asString(flags, "jira-release-note-url"),
-			teamsReleaseNoteUrl: asString(flags, "teams-release-note-url"),
 		});
 		printResult(io, project, {
 			json: outputJson,
@@ -617,6 +610,28 @@ async function runSettingsCommand(args: string[], api: ApiClient, io: CliIo) {
 	throw new Error(`Unknown settings subcommand: ${subcommand}`);
 }
 
+async function runDigestCommand(args: string[], io: CliIo) {
+	const { flags } = parseArgs(args);
+
+	if (isHelpFlag(flags)) {
+		io.stdout.write(`${HELP_BY_GROUP.digest}\n`);
+		return;
+	}
+
+	const outputJson = flags.json === true;
+	const digest = computeDigest();
+
+	if (outputJson) {
+		printResult(io, digest, { json: true, human: null });
+		return;
+	}
+
+	const human = isDigestEmpty(digest)
+		? "Nothing due, overdue, or stale. You're all caught up."
+		: formatDigestText(digest);
+	io.stdout.write(`${human}\n`);
+}
+
 export async function runCli(
 	argv: string[],
 	input: { api?: ApiClient; io?: CliIo } = {},
@@ -660,6 +675,7 @@ export async function runCli(
 		else if (command === "goal") await runGoalCommand(rest, api, io);
 		else if (command === "reminder") await runReminderCommand(rest, api, io);
 		else if (command === "settings") await runSettingsCommand(rest, api, io);
+		else if (command === "digest") await runDigestCommand(rest, io);
 		else throw new Error(`Unknown command: ${command}`);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);

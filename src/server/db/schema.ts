@@ -17,6 +17,7 @@ export const SCHEMA_STATEMENTS = [
     end_at TEXT,
     color TEXT NOT NULL DEFAULT '#ef4444',
     is_inbox INTEGER NOT NULL DEFAULT 0,
+    sort_order INTEGER NOT NULL DEFAULT 0,
     jira_discovery_url TEXT,
     jira_delivery_url TEXT,
     confluence_url TEXT,
@@ -80,23 +81,20 @@ export const SCHEMA_STATEMENTS = [
 	"CREATE INDEX IF NOT EXISTS idx_reminders_remind_at ON reminders(remind_at)",
 	"CREATE INDEX IF NOT EXISTS idx_goals_period ON goals(period_type, period_start)",
 	`
-  CREATE TABLE IF NOT EXISTS sync_meta (
-    key TEXT PRIMARY KEY,
-    value TEXT NOT NULL
-  )
-`,
-	`
-  CREATE TABLE IF NOT EXISTS sync_changelog (
+  CREATE TABLE IF NOT EXISTS calendar_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    entity_type TEXT NOT NULL,
-    entity_uuid TEXT NOT NULL,
-    field_name TEXT NOT NULL,
-    new_value TEXT,
-    updated_at TEXT NOT NULL,
-    device_id TEXT NOT NULL,
-    synced INTEGER NOT NULL DEFAULT 0
+    uid TEXT NOT NULL,
+    recurrence_id TEXT NOT NULL DEFAULT '',
+    summary TEXT NOT NULL DEFAULT '',
+    start_at TEXT NOT NULL,
+    end_at TEXT,
+    all_day INTEGER NOT NULL DEFAULT 0,
+    location TEXT,
+    organizer TEXT,
+    last_seen_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
   )
 `,
-	"CREATE INDEX IF NOT EXISTS idx_sync_changelog_synced ON sync_changelog(synced)",
-	"CREATE INDEX IF NOT EXISTS idx_sync_changelog_entity ON sync_changelog(entity_type, entity_uuid)",
+	"CREATE UNIQUE INDEX IF NOT EXISTS idx_calendar_events_uid ON calendar_events(uid, recurrence_id)",
+	"CREATE INDEX IF NOT EXISTS idx_calendar_events_start_at ON calendar_events(start_at)",
 ];

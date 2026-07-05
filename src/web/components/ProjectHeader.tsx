@@ -3,7 +3,6 @@ import { ExternalLink, Pencil } from "lucide-react";
 
 import type { Project } from "@/server/types";
 
-import { cn } from "../lib/cn";
 import { useUi } from "../state/ui";
 import { InlineText } from "./InlineText";
 
@@ -20,7 +19,9 @@ function shortUrl(url: string): string {
 function LinkLine({ label, url }: { label: string; url: string }) {
 	return (
 		<div className="flex items-center gap-2 text-sm">
-			<span className="w-16 shrink-0 font-medium text-muted">{label}</span>
+			<span className="w-24 shrink-0 truncate font-medium text-muted">
+				{label}
+			</span>
 			<a
 				href={url}
 				target="_blank"
@@ -42,13 +43,6 @@ export function ProjectHeader({
 	count: number;
 }) {
 	const ui = useUi();
-	const hasDiscovery = !!(project.jiraDiscoveryUrl || project.confluenceUrl);
-	const hasDelivery = !!(
-		project.jiraDeliveryUrl ||
-		project.jiraDocsUrl ||
-		project.jiraReleaseNoteUrl ||
-		project.teamsReleaseNoteUrl
-	);
 
 	return (
 		<div className="border-b border-border px-4 py-3">
@@ -85,40 +79,19 @@ export function ProjectHeader({
 				</div>
 			) : null}
 
-			{hasDiscovery ? (
+			{project.resources.length > 0 ? (
 				<div className="mt-3">
 					<div className="mb-1 text-[11px] font-semibold tracking-wide text-muted uppercase">
-						Discovery
+						Resources
 					</div>
 					<div className="flex flex-col gap-1">
-						{project.jiraDiscoveryUrl ? (
-							<LinkLine label="Jira" url={project.jiraDiscoveryUrl} />
-						) : null}
-						{project.confluenceUrl ? (
-							<LinkLine label="PRD" url={project.confluenceUrl} />
-						) : null}
-					</div>
-				</div>
-			) : null}
-
-			{hasDelivery ? (
-				<div className="mt-3">
-					<div className="mb-1 text-[11px] font-semibold tracking-wide text-muted uppercase">
-						Delivery
-					</div>
-					<div className="flex flex-col gap-1">
-						{project.jiraDeliveryUrl ? (
-							<LinkLine label="Epic" url={project.jiraDeliveryUrl} />
-						) : null}
-						{project.jiraDocsUrl ? (
-							<LinkLine label="Docs" url={project.jiraDocsUrl} />
-						) : null}
-						{project.jiraReleaseNoteUrl ? (
-							<LinkLine label="Release" url={project.jiraReleaseNoteUrl} />
-						) : null}
-						{project.teamsReleaseNoteUrl ? (
-							<LinkLine label="Teams" url={project.teamsReleaseNoteUrl} />
-						) : null}
+						{project.resources.map((resource) => (
+							<LinkLine
+								key={resource.id}
+								label={resource.label}
+								url={resource.url}
+							/>
+						))}
 					</div>
 				</div>
 			) : null}

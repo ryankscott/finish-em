@@ -246,9 +246,6 @@ export function useSubmitInput({
 							endAt: parsed.input.endAt,
 							color: parsed.input.color,
 							isInbox: parsed.input.isInbox,
-							jiraDiscoveryUrl: parsed.input.jiraDiscoveryUrl,
-							jiraDeliveryUrl: parsed.input.jiraDeliveryUrl,
-							confluenceUrl: parsed.input.confluenceUrl,
 						});
 						setStatusText(
 							parsed.warnings.length > 0
@@ -270,9 +267,6 @@ export function useSubmitInput({
 								description: parsed.input.description,
 								startAt: parsed.input.startAt,
 								endAt: parsed.input.endAt,
-								jiraDiscoveryUrl: parsed.input.jiraDiscoveryUrl,
-								jiraDeliveryUrl: parsed.input.jiraDeliveryUrl,
-								confluenceUrl: parsed.input.confluenceUrl,
 							};
 							await api.updateProject(activeProjectId, patch);
 							setStatusText(
@@ -554,72 +548,6 @@ export function useSubmitInput({
 							parsed ? "Project end date updated" : "Project end date cleared",
 						);
 					}
-				} else if (inputMode === "editProjectJiraDiscovery") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						await api.updateProject(activeProjectId, {
-							jiraDiscoveryUrl: value || null,
-						});
-						setStatusText(
-							value
-								? "Discovery Jira URL updated"
-								: "Discovery Jira URL cleared",
-						);
-					}
-				} else if (inputMode === "editProjectJiraDelivery") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						await api.updateProject(activeProjectId, {
-							jiraDeliveryUrl: value || null,
-						});
-						setStatusText(
-							value ? "Delivery epic URL updated" : "Delivery epic URL cleared",
-						);
-					}
-				} else if (inputMode === "editProjectConfluence") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						await api.updateProject(activeProjectId, {
-							confluenceUrl: value || null,
-						});
-						setStatusText(value ? "PRD URL updated" : "PRD URL cleared");
-					}
-				} else if (inputMode === "editProjectJiraDocs") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						await api.updateProject(activeProjectId, {
-							jiraDocsUrl: value || null,
-						});
-						setStatusText(
-							value ? "Docs Jira URL updated" : "Docs Jira URL cleared",
-						);
-					}
-				} else if (inputMode === "editProjectJiraReleaseNote") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						await api.updateProject(activeProjectId, {
-							jiraReleaseNoteUrl: value || null,
-						});
-						setStatusText(
-							value
-								? "Release Note Jira URL updated"
-								: "Release Note Jira URL cleared",
-						);
-					}
-				} else if (inputMode === "editProjectTeamsReleaseNote") {
-					if (!activeProjectId) {
-						setStatusText("No project selected");
-					} else {
-						await api.updateProject(activeProjectId, {
-							teamsReleaseNoteUrl: value || null,
-						});
-						setStatusText(value ? "Teams URL updated" : "Teams URL cleared");
-					}
 				} else if (inputMode === "createTaskModal") {
 					const title = modalValues.title?.trim();
 					if (!title) {
@@ -735,14 +663,6 @@ export function useSubmitInput({
 						description: modalValues.description?.trim(),
 						startAt: startAt || undefined,
 						endAt: endAt || undefined,
-						jiraDiscoveryUrl: modalValues.jiraDiscovery?.trim() || undefined,
-						jiraDeliveryUrl: modalValues.jiraDelivery?.trim() || undefined,
-						confluenceUrl: modalValues.confluenceUrl?.trim() || undefined,
-						jiraDocsUrl: modalValues.jiraDocsUrl?.trim() || undefined,
-						jiraReleaseNoteUrl:
-							modalValues.jiraReleaseNoteUrl?.trim() || undefined,
-						teamsReleaseNoteUrl:
-							modalValues.teamsReleaseNoteUrl?.trim() || undefined,
 					});
 					pushToast("Project created", "success");
 				} else if (inputMode === "editProjectModal") {
@@ -764,13 +684,6 @@ export function useSubmitInput({
 						description: modalValues.description?.trim(),
 						startAt: startAt || null,
 						endAt: endAt || null,
-						jiraDiscoveryUrl: modalValues.jiraDiscovery?.trim() || null,
-						jiraDeliveryUrl: modalValues.jiraDelivery?.trim() || null,
-						confluenceUrl: modalValues.confluenceUrl?.trim() || null,
-						jiraDocsUrl: modalValues.jiraDocsUrl?.trim() || null,
-						jiraReleaseNoteUrl: modalValues.jiraReleaseNoteUrl?.trim() || null,
-						teamsReleaseNoteUrl:
-							modalValues.teamsReleaseNoteUrl?.trim() || null,
 					});
 					pushToast("Project updated", "success");
 				}

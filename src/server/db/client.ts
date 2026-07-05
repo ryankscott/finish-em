@@ -271,6 +271,43 @@ function ensureProjectMetaLinksSchema(db: DbLike) {
 	}
 }
 
+function ensureProjectSortOrderSchema(db: DbLike) {
+	const projectsTable = db
+		.prepare(
+			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
+		)
+		.get() as { name?: string } | undefined;
+
+	if (!projectsTable?.name) {
+		return;
+	}
+
+	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
+		name: unknown;
+	}>;
+	const hasSortOrder = columns.some(
+		(column) => String(column.name) === "sort_order",
+	);
+
+	if (hasSortOrder) {
+		return;
+	}
+
+	db.exec("ALTER TABLE projects ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0");
+
+	// Backfill sort_order for existing projects using the previous ordering
+	// (alphabetical), so the initial drag-and-drop order matches what users saw.
+	const rows = db
+		.prepare(
+			"SELECT id FROM projects WHERE is_inbox = 0 ORDER BY name ASC, id ASC",
+		)
+		.all() as Array<{ id: number }>;
+	const update = db.prepare("UPDATE projects SET sort_order = ? WHERE id = ?");
+	rows.forEach((row, index) => {
+		update.run(index, Number(row.id));
+	});
+}
+
 function dropProjectStatusColumns(db: DbLike) {
 	const projectsTable = db
 		.prepare(
@@ -302,45 +339,176 @@ function dropProjectStatusColumns(db: DbLike) {
 	}
 }
 
-function ensureSyncSchema(db: DbLike) {
-	// sync_meta and sync_changelog are created by SCHEMA_STATEMENTS on new DBs,
-	// but existing DBs that pre-date migration 007 need the tables and uuid columns added.
-	const syncMetaExists = db
+function ensureCalendarSettingsSchema(db: DbLike) {
+	const settingsTable = db
 		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sync_meta'",
+			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'settings'",
 		)
 		.get() as { name?: string } | undefined;
-	if (!syncMetaExists?.name) {
-		db.exec(
-			`CREATE TABLE IF NOT EXISTS sync_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)`,
-		);
+
+	if (!settingsTable?.name) {
+		return;
 	}
 
-	const syncChangelogExists = db
+	const columns = db.prepare("PRAGMA table_info(settings)").all() as Array<{
+		name: unknown;
+	}>;
+	const columnNames = columns.map((c) => String(c.name));
+
+	if (!columnNames.includes("calendar_ics_url")) {
+		db.exec("ALTER TABLE settings ADD COLUMN calendar_ics_url TEXT");
+	}
+	if (!columnNames.includes("calendar_last_synced_at")) {
+		db.exec("ALTER TABLE settings ADD COLUMN calendar_last_synced_at TEXT");
+	}
+}
+
+function ensureTaskCalendarLinkSchema(db: DbLike) {
+	const tasksTable = db
 		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'sync_changelog'",
+			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'",
 		)
 		.get() as { name?: string } | undefined;
-	if (!syncChangelogExists?.name) {
-		db.exec(`CREATE TABLE IF NOT EXISTS sync_changelog (
+
+	if (!tasksTable?.name) {
+		return;
+	}
+
+	const columns = db.prepare("PRAGMA table_info(tasks)").all() as Array<{
+		name: unknown;
+	}>;
+	const hasCalendarEventUid = columns.some(
+		(column) => String(column.name) === "calendar_event_uid",
+	);
+
+	if (!hasCalendarEventUid) {
+		db.exec("ALTER TABLE tasks ADD COLUMN calendar_event_uid TEXT");
+	}
+
+	db.exec(
+		"CREATE INDEX IF NOT EXISTS idx_tasks_calendar_event_uid ON tasks(calendar_event_uid)",
+	);
+}
+
+function ensureTaskUpdatedAtIndex(db: DbLike) {
+	const tasksTable = db
+		.prepare(
+			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'",
+		)
+		.get() as { name?: string } | undefined;
+
+	if (!tasksTable?.name) {
+		return;
+	}
+
+	db.exec(
+		"CREATE INDEX IF NOT EXISTS idx_tasks_updated_at ON tasks(updated_at)",
+	);
+}
+
+function ensureTaskCompletionLogSchema(db: DbLike) {
+	db.exec(`CREATE TABLE IF NOT EXISTS task_completion_log (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      entity_type TEXT NOT NULL,
-      entity_uuid TEXT NOT NULL,
-      field_name TEXT NOT NULL,
-      new_value TEXT,
-      updated_at TEXT NOT NULL,
-      device_id TEXT NOT NULL,
-      synced INTEGER NOT NULL DEFAULT 0
+      task_id INTEGER NOT NULL,
+      title TEXT NOT NULL DEFAULT '',
+      completed_at TEXT NOT NULL,
+      notes TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL,
+      FOREIGN KEY(task_id) REFERENCES tasks(id) ON DELETE CASCADE
     )`);
-		db.exec(
-			"CREATE INDEX IF NOT EXISTS idx_sync_changelog_synced ON sync_changelog(synced)",
-		);
-		db.exec(
-			"CREATE INDEX IF NOT EXISTS idx_sync_changelog_entity ON sync_changelog(entity_type, entity_uuid)",
-		);
+	db.exec(
+		"CREATE INDEX IF NOT EXISTS idx_task_completion_log_task_date ON task_completion_log(task_id, completed_at)",
+	);
+	db.exec(
+		"CREATE INDEX IF NOT EXISTS idx_task_completion_log_completed_at ON task_completion_log(completed_at)",
+	);
+}
+
+const LEGACY_PROJECT_LINK_COLUMNS: Array<{ column: string; label: string }> = [
+	{ column: "jira_discovery_url", label: "Jira Discovery" },
+	{ column: "jira_delivery_url", label: "Jira Delivery" },
+	{ column: "confluence_url", label: "Confluence PRD" },
+	{ column: "jira_docs_url", label: "Jira Docs" },
+	{ column: "jira_release_note_url", label: "Jira Release Note" },
+	{ column: "teams_release_note_url", label: "Teams Release Note" },
+];
+
+function ensureProjectResourcesSchema(db: DbLike) {
+	db.exec(`CREATE TABLE IF NOT EXISTS project_resources (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      project_id INTEGER NOT NULL,
+      label TEXT NOT NULL,
+      url TEXT NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
+    )`);
+	db.exec(
+		"CREATE INDEX IF NOT EXISTS idx_project_resources_project ON project_resources(project_id, sort_order)",
+	);
+
+	// One-time backfill: copy any populated legacy per-column links into the
+	// generic table with sensible default labels. Runs only while the table is
+	// empty so it never duplicates rows on subsequent boots.
+	const projectsTable = db
+		.prepare(
+			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
+		)
+		.get() as { name?: string } | undefined;
+	if (!projectsTable?.name) {
+		return;
 	}
 
-	// Add uuid columns to entity tables if missing
+	const existing = db
+		.prepare("SELECT COUNT(*) AS n FROM project_resources")
+		.get() as { n: number };
+	if (existing.n > 0) {
+		return;
+	}
+
+	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
+		name: unknown;
+	}>;
+	const columnNames = new Set(columns.map((c) => String(c.name)));
+	const present = LEGACY_PROJECT_LINK_COLUMNS.filter((entry) =>
+		columnNames.has(entry.column),
+	);
+	if (present.length === 0) {
+		return;
+	}
+
+	const now = new Date().toISOString();
+	const selectCols = present.map((entry) => entry.column).join(", ");
+	const rows = db
+		.prepare(`SELECT id, ${selectCols} FROM projects`)
+		.all() as Array<Record<string, unknown>>;
+	const insert = db.prepare(
+		"INSERT INTO project_resources (project_id, label, url, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
+	);
+	for (const row of rows) {
+		let sortOrder = 0;
+		for (const entry of present) {
+			const value = row[entry.column];
+			if (value) {
+				insert.run(
+					Number(row.id),
+					entry.label,
+					String(value),
+					sortOrder,
+					now,
+					now,
+				);
+				sortOrder += 1;
+			}
+		}
+	}
+}
+
+function ensureUuidColumns(db: DbLike) {
+	// Entity rows carry a stable uuid (originally added for multi-device sync,
+	// now retained as a durable external identifier). New DBs don't define uuid
+	// in the base schema, and older DBs may pre-date it, so add it where missing.
 	for (const [table, index] of [
 		["tasks", "idx_tasks_uuid"],
 		["projects", "idx_projects_uuid"],
@@ -438,10 +606,16 @@ function initialize(db: DbLike) {
 	ensureProjectEnhancementsSchema(db);
 	ensureProjectExternalLinksSchema(db);
 	ensureProjectMetaLinksSchema(db);
+	ensureProjectResourcesSchema(db);
+	ensureProjectSortOrderSchema(db);
 	dropProjectStatusColumns(db);
 	ensureSoftDeleteSchema(db);
 	ensureSomedaySchema(db);
-	ensureSyncSchema(db);
+	ensureTaskUpdatedAtIndex(db);
+	ensureCalendarSettingsSchema(db);
+	ensureTaskCalendarLinkSchema(db);
+	ensureTaskCompletionLogSchema(db);
+	ensureUuidColumns(db);
 	seedDefaults(db);
 }
 

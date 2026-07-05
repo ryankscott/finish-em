@@ -72,6 +72,16 @@ export function InboxView() {
 	);
 }
 
+export function RecurringView() {
+	const { data: tasks = [] } = useTasks({ status: "open", recurring: true });
+	return (
+		<>
+			<ViewTitle title="Recurring" count={tasks.length} />
+			<TaskListView tasks={tasks} emptyMessage="No recurring tasks" showProject={true} />
+		</>
+	);
+}
+
 export function SomedayView() {
 	const { data: tasks = [] } = useTasks({ status: "open", someday: true });
 	return (
@@ -146,14 +156,10 @@ export function ProjectView() {
 	useHotkeyScope({
 		o: () => {
 			if (!project) return;
-			const links: LinkChoice[] = [
-				project.jiraDiscoveryUrl && { url: project.jiraDiscoveryUrl, displayLabel: "Jira Discovery" },
-				project.jiraDeliveryUrl && { url: project.jiraDeliveryUrl, displayLabel: "Jira Delivery" },
-				project.confluenceUrl && { url: project.confluenceUrl, displayLabel: "Confluence" },
-				project.jiraDocsUrl && { url: project.jiraDocsUrl, displayLabel: "Docs Jira" },
-				project.jiraReleaseNoteUrl && { url: project.jiraReleaseNoteUrl, displayLabel: "Release Note Jira" },
-				project.teamsReleaseNoteUrl && { url: project.teamsReleaseNoteUrl, displayLabel: "Teams Release Note" },
-			].filter((x): x is LinkChoice => !!x);
+			const links: LinkChoice[] = project.resources.map((resource) => ({
+				url: resource.url,
+				displayLabel: resource.label,
+			}));
 			if (links.length === 0) {
 				toast.info("No project links");
 			} else if (links.length === 1) {
@@ -192,7 +198,11 @@ export function SearchView() {
 	const { data: tasks = [] } = useTasks({ status: "open" });
 	const query = ui.search.trim().toLowerCase();
 	const matches = query
-		? tasks.filter((t) => t.title.toLowerCase().includes(query))
+		? tasks.filter(
+				(t) =>
+					t.title.toLowerCase().includes(query) ||
+					t.notes.toLowerCase().includes(query),
+			)
 		: [];
 	return (
 		<>

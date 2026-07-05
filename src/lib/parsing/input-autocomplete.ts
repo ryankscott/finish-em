@@ -14,9 +14,6 @@ const PROJECT_KEYS = [
 	"start:",
 	"end:",
 	"inbox:",
-	"jiraDiscovery:",
-	"jiraDelivery:",
-	"confluence:",
 ];
 const TASK_KEYS = [
 	"title:",

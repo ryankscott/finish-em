@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, mock } from "bun:test";
+import { describe, expect, it } from "bun:test";
 
 import type { Goal, Project, Task } from "../../server/types";
 
@@ -22,6 +22,7 @@ const MOCK_TASK: Task = {
 	someday: false,
 	completedAt: null,
 	deletedAt: null,
+	calendarEventUid: null,
 	createdAt: "2026-01-01T00:00:00.000Z",
 	updatedAt: "2026-01-01T00:00:00.000Z",
 };
@@ -46,12 +47,8 @@ const MOCK_PROJECTS: Project[] = [
 		endAt: null,
 		color: "#666",
 		isInbox: true,
-		jiraDiscoveryUrl: null,
-		jiraDeliveryUrl: null,
-		confluenceUrl: null,
-		jiraDocsUrl: null,
-		jiraReleaseNoteUrl: null,
-		teamsReleaseNoteUrl: null,
+		sortOrder: 0,
+		resources: [],
 		createdAt: "2026-01-01T00:00:00.000Z",
 		updatedAt: "2026-01-01T00:00:00.000Z",
 	},
@@ -64,28 +61,14 @@ const MOCK_PROJECTS: Project[] = [
 		endAt: null,
 		color: "#3b82f6",
 		isInbox: false,
-		jiraDiscoveryUrl: null,
-		jiraDeliveryUrl: null,
-		confluenceUrl: null,
-		jiraDocsUrl: null,
-		jiraReleaseNoteUrl: null,
-		teamsReleaseNoteUrl: null,
+		sortOrder: 1,
+		resources: [],
 		createdAt: "2026-01-01T00:00:00.000Z",
 		updatedAt: "2026-01-01T00:00:00.000Z",
 	},
 ];
 
 // Simulate the routing logic from useSubmitInput for the new modes
-type UpdateTaskArgs = Parameters<
-	(id: number, patch: Record<string, unknown>) => void
->;
-type UpdateProjectArgs = Parameters<
-	(id: number, patch: Record<string, unknown>) => void
->;
-type UpdateGoalArgs = Parameters<
-	(id: number, patch: Record<string, unknown>) => void
->;
-
 function resolveTaskUpdateForMode(
 	mode: string,
 	value: string,
@@ -292,12 +275,6 @@ function resolveProjectFieldUpdate(
 	if (mode === "editProjectEmoji") return { patch: { emoji: trimmed || null } };
 	if (mode === "editProjectDescription")
 		return { patch: { description: trimmed } };
-	if (mode === "editProjectJiraDiscovery")
-		return { patch: { jiraDiscoveryUrl: trimmed || null } };
-	if (mode === "editProjectJiraDelivery")
-		return { patch: { jiraDeliveryUrl: trimmed || null } };
-	if (mode === "editProjectConfluence")
-		return { patch: { confluenceUrl: trimmed || null } };
 	return { error: "Unknown mode" };
 }
 
@@ -333,43 +310,6 @@ describe("useSubmitInput routing — project fields", () => {
 	it("returns error when no project selected", () => {
 		const result = resolveProjectFieldUpdate("editProjectName", "Name", null);
 		expect(result).toMatchObject({ error: "No project selected" });
-	});
-
-	it("updates Jira Discovery URL", () => {
-		const result = resolveProjectFieldUpdate(
-			"editProjectJiraDiscovery",
-			"https://jira.example.com/discovery/123",
-			1,
-		);
-		expect(result).toEqual({
-			patch: { jiraDiscoveryUrl: "https://jira.example.com/discovery/123" },
-		});
-	});
-
-	it("clears Jira Discovery URL with empty string", () => {
-		const result = resolveProjectFieldUpdate("editProjectJiraDiscovery", "", 1);
-		expect(result).toEqual({ patch: { jiraDiscoveryUrl: null } });
-	});
-
-	it("updates Jira Delivery and Confluence URLs", () => {
-		expect(
-			resolveProjectFieldUpdate(
-				"editProjectJiraDelivery",
-				"https://jira.example.com/board/1",
-				1,
-			),
-		).toEqual({
-			patch: { jiraDeliveryUrl: "https://jira.example.com/board/1" },
-		});
-		expect(
-			resolveProjectFieldUpdate(
-				"editProjectConfluence",
-				"https://wiki.example.com/space/PRJ",
-				1,
-			),
-		).toEqual({
-			patch: { confluenceUrl: "https://wiki.example.com/space/PRJ" },
-		});
 	});
 });
 

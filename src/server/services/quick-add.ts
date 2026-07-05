@@ -1,10 +1,35 @@
-import { addDays, addWeeks, isValid, parseISO, set } from "date-fns";
-import { z } from "zod/v3";
+import { addDays, addWeeks, isValid, nextDay, parseISO, set } from "date-fns";
+import type { Day } from "date-fns";
 import { getInboxProjectId, listProjects } from "@/server/repos/projects";
 import { createTask } from "@/server/repos/tasks";
 import { validateRRuleSubset } from "@/server/services/recurrence";
 
 import type { Priority, Task } from "@/server/types";
+
+// Maps the leading letters of a weekday name to its date-fns day index (Sun=0)
+// and its RRULE BYDAY token.
+const WEEKDAYS: Record<string, { index: Day; byDay: string }> = {
+	sun: { index: 0, byDay: "SU" },
+	mon: { index: 1, byDay: "MO" },
+	tue: { index: 2, byDay: "TU" },
+	wed: { index: 3, byDay: "WE" },
+	thu: { index: 4, byDay: "TH" },
+	fri: { index: 5, byDay: "FR" },
+	sat: { index: 6, byDay: "SA" },
+};
+
+function matchWeekday(word: string): { index: Day; byDay: string } | null {
+	const key = word.slice(0, 3).toLowerCase();
+	return WEEKDAYS[key] ?? null;
+}
+
+// A shared fragment describing every relative/absolute date phrase the parser
+// understands, with an optional "at <time>" suffix. Reused by the due and
+// scheduled matchers so bare phrases like "tomorrow" are recognised without a
+// "due"/"scheduled" keyword.
+const WEEKDAY_NAMES =
+	"(?:mon|tue|wed|thu|fri|sat|sun)(?:day|s|nesday|rsday|urday)?";
+export const DATE_PHRASE_SOURCE = `(?:today|tomorrow|next week|(?:next|this)\\s+${WEEKDAY_NAMES}|in\\s+\\d+\\s+(?:days?|weeks?)|\\d+\\s+(?:days?|weeks?)\\s+from\\s+now|\\d{4}-\\d{2}-\\d{2})(?:\\s+at\\s+\\d{1,2}(?::\\d{2})?\\s*(?:am|pm)?)?`;
 
 export type QuickAddParseResult = {
 	raw: string;
@@ -17,7 +42,7 @@ export type QuickAddParseResult = {
 	recurrencePreset: "daily" | "weekly" | "monthly" | "every_weekday" | null;
 	recurrenceRRule: string | null;
 	warnings: string[];
-	source: "deterministic" | "ai";
+	source: "deterministic";
 	confidence: number;
 };
 
@@ -73,6 +98,38 @@ function parseDatePhrase(value: string): string | null {
 		return assignTime(addWeeks(now, 1));
 	}
 
+	// "next monday" / "this friday" → the nearest upcoming occurrence of that
+	// weekday. Both forms resolve the same way to stay predictable.
+	const weekdayMatch = normalized.match(/^(?:next|this)\s+([a-z]+)$/);
+	if (weekdayMatch) {
+		const weekday = matchWeekday(weekdayMatch[1]);
+		if (weekday) {
+			return assignTime(nextDay(now, weekday.index));
+		}
+	}
+
+	// "in 3 days" / "in 2 weeks"
+	const inMatch = normalized.match(/^in\s+(\d+)\s+(day|days|week|weeks)$/);
+	if (inMatch) {
+		const amount = Number(inMatch[1]);
+		const unit = inMatch[2];
+		return assignTime(
+			unit.startsWith("week") ? addWeeks(now, amount) : addDays(now, amount),
+		);
+	}
+
+	// "3 days from now" / "2 weeks from now"
+	const fromNowMatch = normalized.match(
+		/^(\d+)\s+(day|days|week|weeks)\s+from\s+now$/,
+	);
+	if (fromNowMatch) {
+		const amount = Number(fromNowMatch[1]);
+		const unit = fromNowMatch[2];
+		return assignTime(
+			unit.startsWith("week") ? addWeeks(now, amount) : addDays(now, amount),
+		);
+	}
+
 	const explicitDate = normalized.match(/(\d{4}-\d{2}-\d{2})$/);
 	if (explicitDate) {
 		const date = parseISO(explicitDate[1]);
@@ -125,9 +182,34 @@ function deterministicParse(rawInput: string): QuickAddParseResult {
 	let recurrencePreset: QuickAddParseResult["recurrencePreset"] = null;
 	let recurrenceRRule: string | null = null;
 
+	// Inline recurrence, checked most-specific first. "every weekday" is a named
+	// preset; "every <weekday>" and "every N days/weeks/months" build an RRULE.
+	const everyWeekdayMatch = working.match(
+		/\bevery\s+([a-z]+day|mon|tue|wed|thu|fri|sat|sun)\b/i,
+	);
+	const everyNMatch = working.match(
+		/\bevery\s+(\d+)\s+(day|days|week|weeks|month|months)\b/i,
+	);
+
 	if (/\bevery weekday\b/i.test(working)) {
 		recurrencePreset = "every_weekday";
 		working = working.replace(/\bevery weekday\b/i, "").trim();
+	} else if (everyWeekdayMatch && matchWeekday(everyWeekdayMatch[1])) {
+		const weekday = matchWeekday(everyWeekdayMatch[1]);
+		if (weekday) {
+			recurrenceRRule = `FREQ=WEEKLY;INTERVAL=1;BYDAY=${weekday.byDay}`;
+			working = working.replace(everyWeekdayMatch[0], "").trim();
+		}
+	} else if (everyNMatch) {
+		const interval = Number(everyNMatch[1]);
+		const unit = everyNMatch[2].toLowerCase();
+		const freq = unit.startsWith("week")
+			? "WEEKLY"
+			: unit.startsWith("month")
+				? "MONTHLY"
+				: "DAILY";
+		recurrenceRRule = `FREQ=${freq};INTERVAL=${interval}`;
+		working = working.replace(everyNMatch[0], "").trim();
 	} else if (/\bevery day\b|\bdaily\b/i.test(working)) {
 		recurrencePreset = "daily";
 		working = working.replace(/\bevery day\b|\bdaily\b/i, "").trim();
@@ -152,7 +234,7 @@ function deterministicParse(rawInput: string): QuickAddParseResult {
 
 	let scheduledAt: string | null = null;
 	const scheduleMatch = working.match(
-		/\b(start|scheduled)\s+(today|tomorrow|next week|\d{4}-\d{2}-\d{2}(?:\s+at\s+.+)?)/i,
+		new RegExp(`\\b(start|scheduled)\\s+(${DATE_PHRASE_SOURCE})`, "i"),
 	);
 	if (scheduleMatch) {
 		scheduledAt = parseDatePhrase(scheduleMatch[2]);
@@ -161,7 +243,7 @@ function deterministicParse(rawInput: string): QuickAddParseResult {
 
 	let dueAt: string | null = null;
 	const dueMatch = working.match(
-		/\b(due\s+)?(today|tomorrow|next week|\d{4}-\d{2}-\d{2}(?:\s+at\s+.+)?)/i,
+		new RegExp(`\\b(due\\s+)?(${DATE_PHRASE_SOURCE})`, "i"),
 	);
 	if (dueMatch) {
 		dueAt = parseDatePhrase(dueMatch[2]);
@@ -203,116 +285,8 @@ function deterministicParse(rawInput: string): QuickAddParseResult {
 	};
 }
 
-async function parseWithAiFallback(
-	rawInput: string,
-	deterministic: QuickAddParseResult,
-): Promise<QuickAddParseResult | null> {
-	const apiKey = process.env.OPENAI_API_KEY;
-	if (!apiKey) {
-		return null;
-	}
-
-	const baseUrl = process.env.OPENAI_BASE_URL || "https://api.openai.com/v1";
-	const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
-
-	const prompt = `Extract todo fields from this input: ${rawInput}`;
-
-	try {
-		const [aiModule, openAiModule] = await Promise.all([
-			import("ai") as Promise<unknown>,
-			import("@ai-sdk/openai") as Promise<unknown>,
-		]);
-
-		const { generateObject } = aiModule as {
-			generateObject: (input: {
-				model: unknown;
-				schema: unknown;
-				system: string;
-				prompt: string;
-				temperature: number;
-			}) => Promise<{ object: Record<string, unknown> }>;
-		};
-
-		const { createOpenAI } = openAiModule as {
-			createOpenAI: (options: {
-				apiKey: string;
-				baseURL: string;
-				compatibility: "compatible";
-			}) => (modelName: string) => unknown;
-		};
-
-		const provider = createOpenAI({
-			apiKey,
-			baseURL: baseUrl,
-			compatibility: "compatible",
-		});
-
-		const schema = z.object({
-			title: z.string().optional(),
-			projectName: z.string().nullable().optional(),
-			priority: z.number().int().min(1).max(4).nullable().optional(),
-			dueAt: z.string().nullable().optional(),
-			scheduledAt: z.string().nullable().optional(),
-			recurrencePreset: z
-				.enum(["daily", "weekly", "monthly", "every_weekday"])
-				.nullable()
-				.optional(),
-			recurrenceRRule: z.string().nullable().optional(),
-			warnings: z.array(z.string()).optional(),
-		});
-
-		const result = await generateObject({
-			model: provider(model),
-			schema,
-			system:
-				"Extract task attributes and return JSON. Prefer null for unknown values. Keep dates as ISO strings when possible.",
-			prompt,
-			temperature: 0,
-		});
-
-		const parsed = result.object as Partial<QuickAddParseResult>;
-
-		return {
-			...deterministic,
-			title: parsed.title?.trim() || deterministic.title,
-			projectName: parsed.projectName ?? deterministic.projectName,
-			priority:
-				parsed.priority && [1, 2, 3, 4].includes(Number(parsed.priority))
-					? (Number(parsed.priority) as Priority)
-					: deterministic.priority,
-			dueAt: parsed.dueAt ?? deterministic.dueAt,
-			scheduledAt: parsed.scheduledAt ?? deterministic.scheduledAt,
-			recurrencePreset:
-				parsed.recurrencePreset ?? deterministic.recurrencePreset,
-			recurrenceRRule: parsed.recurrenceRRule ?? deterministic.recurrenceRRule,
-			warnings: [
-				...deterministic.warnings,
-				...(parsed.warnings ?? []).map((warning) => String(warning)),
-			],
-			source: "ai",
-			confidence: 0.9,
-		};
-	} catch {
-		return null;
-	}
-}
-
 export async function parseQuickAdd(rawInput: string) {
-	const deterministic = deterministicParse(rawInput);
-
-	if (deterministic.confidence >= 0.6) {
-		return deterministic;
-	}
-
-	const aiResult = await parseWithAiFallback(rawInput, deterministic);
-	if (!aiResult) {
-		return {
-			...deterministic,
-			warnings: [...deterministic.warnings, "AI fallback unavailable"],
-		};
-	}
-
-	return aiResult;
+	return deterministicParse(rawInput);
 }
 
 export async function createTaskFromQuickAdd(

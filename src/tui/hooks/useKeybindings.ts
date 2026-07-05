@@ -78,7 +78,6 @@ type UseKeybindingsParams = {
 	setSettingsIndex: React.Dispatch<React.SetStateAction<number>>;
 	selectedSettingsRow: SettingsRow | null;
 	setEditingSettingField: (field: "timezone" | null) => void;
-	onSyncToggle: () => void;
 	columns: DayColumn[];
 	setColumnIndex: React.Dispatch<React.SetStateAction<number>>;
 	currentColumnRows: ColumnTaskRow[];
@@ -174,7 +173,6 @@ export function useKeybindings({
 	setSettingsIndex,
 	selectedSettingsRow,
 	setEditingSettingField,
-	onSyncToggle,
 	columns,
 	setColumnIndex,
 	currentColumnRows,
@@ -306,7 +304,6 @@ export function useKeybindings({
 		setSettingsIndex,
 		selectedSettingsRow,
 		setEditingSettingField,
-		onSyncToggle,
 		columns,
 		setColumnIndex,
 		currentColumnRows,

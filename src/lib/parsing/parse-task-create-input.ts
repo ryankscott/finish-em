@@ -102,11 +102,32 @@ function parseDatePhrase(phrase: string): string | null | undefined {
 		return null;
 	}
 
-	const dayIndex = DAY_NAMES[text];
+	// Bare weekday ("monday") or prefixed ("next monday" / "this monday") →
+	// the nearest upcoming occurrence of that weekday.
+	const weekdayText = text.replace(/^(?:next|this)\s+/, "");
+	const dayIndex = DAY_NAMES[weekdayText];
 	if (dayIndex !== undefined) {
 		const today = startOfDay(now);
 		const next = nextDay(today, dayIndex);
 		return set(next, {
+			hours: 9,
+			minutes: 0,
+			seconds: 0,
+			milliseconds: 0,
+		}).toISOString();
+	}
+
+	// "in 3 days" / "in 2 weeks" and "3 days from now" / "2 weeks from now"
+	const relativeMatch = text.match(
+		/^(?:in\s+(\d+)\s+(days?|weeks?)|(\d+)\s+(days?|weeks?)\s+from\s+now)$/,
+	);
+	if (relativeMatch) {
+		const amount = Number(relativeMatch[1] ?? relativeMatch[3]);
+		const unit = relativeMatch[2] ?? relativeMatch[4];
+		const base = unit.startsWith("week")
+			? addWeeks(now, amount)
+			: addDays(now, amount);
+		return set(base, {
 			hours: 9,
 			minutes: 0,
 			seconds: 0,

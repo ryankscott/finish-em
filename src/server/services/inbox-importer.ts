@@ -22,7 +22,7 @@ export type InboxImportResult = {
 export async function processInbox(
 	inboxDir?: string,
 ): Promise<InboxImportResult> {
-	const dir = inboxDir ?? DEFAULT_INBOX_DIR;
+	const dir = inboxDir ?? process.env.FINISH_EM_INBOX_DIR ?? DEFAULT_INBOX_DIR;
 
 	if (!fs.existsSync(dir)) {
 		return { imported: 0, failed: 0, errors: [] };

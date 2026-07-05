@@ -11,6 +11,18 @@ export type RecurrencePreset =
 	| "every_weekday"
 	| null;
 
+export type ProjectResource = {
+	id: number;
+	label: string;
+	url: string;
+	sortOrder: number;
+};
+
+export type ProjectResourceInput = {
+	label: string;
+	url: string;
+};
+
 export type Project = {
 	id: number;
 	name: string;
@@ -20,12 +32,8 @@ export type Project = {
 	endAt: string | null;
 	color: string;
 	isInbox: boolean;
-	jiraDiscoveryUrl: string | null;
-	jiraDeliveryUrl: string | null;
-	confluenceUrl: string | null;
-	jiraDocsUrl: string | null;
-	jiraReleaseNoteUrl: string | null;
-	teamsReleaseNoteUrl: string | null;
+	sortOrder: number;
+	resources: ProjectResource[];
 	createdAt: string;
 	updatedAt: string;
 };
@@ -46,8 +54,21 @@ export type Task = {
 	someday: boolean;
 	completedAt: string | null;
 	deletedAt: string | null;
+	calendarEventUid: string | null;
 	createdAt: string;
 	updatedAt: string;
+};
+
+export type CalendarEvent = {
+	id: number;
+	uid: string;
+	recurrenceId: string;
+	summary: string;
+	startAt: string;
+	endAt: string | null;
+	allDay: boolean;
+	location: string | null;
+	organizer: string | null;
 };
 
 export type Reminder = {
@@ -70,9 +91,20 @@ export type Goal = {
 	updatedAt: string;
 };
 
+export type CompletionLog = {
+	id: number;
+	taskId: number;
+	title: string;
+	completedAt: string;
+	notes: string;
+	createdAt: string;
+};
+
 export type AppSettings = {
 	id: 1;
 	timezone: string;
+	calendarIcsUrl: string | null;
+	calendarLastSyncedAt: string | null;
 	createdAt: string;
 	updatedAt: string;
 };
@@ -87,4 +119,6 @@ export type TaskFilters = {
 	parentTaskId?: number | null;
 	rootsOnly?: boolean;
 	someday?: boolean;
+	recurring?: boolean;
+	staleBefore?: string;
 };

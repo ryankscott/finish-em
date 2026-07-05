@@ -5,7 +5,11 @@ import path from "node:path";
 
 import { resetDbForTests } from "@/server/db/client";
 import { createGoal, listGoals, updateGoal } from "@/server/repos/goals";
-import { createProject } from "@/server/repos/projects";
+import {
+	createProject,
+	listProjects,
+	reorderProjects,
+} from "@/server/repos/projects";
 import {
 	createReminder,
 	listTaskReminders,
@@ -55,6 +59,26 @@ describe("repositories integration", () => {
 		expect(completion.task?.status).toBe("completed");
 		expect(completion.nextTask).toBeTruthy();
 		expect(completion.nextTask?.dueAt).toBe("2026-02-16T09:00:00.000Z");
+	});
+
+	it("reorders projects and keeps inbox pinned first", () => {
+		const a = createProject({ name: "Alpha" });
+		const b = createProject({ name: "Bravo" });
+		const c = createProject({ name: "Charlie" });
+
+		// New projects append in creation order.
+		const before = listProjects().filter((p) => !p.isInbox);
+		expect(before.map((p) => p.id)).toEqual([a.id, b.id, c.id]);
+
+		reorderProjects([c.id, a.id, b.id]);
+
+		const all = listProjects();
+		expect(all[0]?.isInbox).toBe(true);
+		expect(all.filter((p) => !p.isInbox).map((p) => p.id)).toEqual([
+			c.id,
+			a.id,
+			b.id,
+		]);
 	});
 
 	it("supports reminders with snoozing", () => {

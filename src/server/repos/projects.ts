@@ -1,14 +1,21 @@
 import { getDb, nowIso } from "@/server/db/client";
 import { mapProjectRow } from "@/server/repos/mappers";
+import { listResources, setResources } from "@/server/repos/project-resources";
 
-import type { Project } from "@/server/types";
+import type { Project, ProjectResourceInput } from "@/server/types";
+
+function withResources(project: Project): Project {
+	return { ...project, resources: listResources(project.id) };
+}
 
 export function listProjects(): Project[] {
 	const db = getDb();
 	const rows = db
-		.prepare("SELECT * FROM projects ORDER BY is_inbox DESC, name ASC")
+		.prepare(
+			"SELECT * FROM projects ORDER BY is_inbox DESC, sort_order ASC, name ASC",
+		)
 		.all() as Record<string, unknown>[];
-	return rows.map(mapProjectRow);
+	return rows.map(mapProjectRow).map(withResources);
 }
 
 export function getProject(projectId: number): Project | null {
@@ -17,7 +24,7 @@ export function getProject(projectId: number): Project | null {
 		.prepare("SELECT * FROM projects WHERE id = ?")
 		.get(projectId) as Record<string, unknown> | undefined;
 
-	return row ? mapProjectRow(row) : null;
+	return row ? withResources(mapProjectRow(row)) : null;
 }
 
 export function createProject(input: {
@@ -28,12 +35,7 @@ export function createProject(input: {
 	endAt?: string | null;
 	color?: string;
 	isInbox?: boolean;
-	jiraDiscoveryUrl?: string | null;
-	jiraDeliveryUrl?: string | null;
-	confluenceUrl?: string | null;
-	jiraDocsUrl?: string | null;
-	jiraReleaseNoteUrl?: string | null;
-	teamsReleaseNoteUrl?: string | null;
+	resources?: ProjectResourceInput[];
 }): Project {
 	const db = getDb();
 	const now = nowIso();
@@ -43,20 +45,20 @@ export function createProject(input: {
 	const endAt = input.endAt ?? null;
 	const color = input.color ?? "#ef4444";
 	const isInbox = input.isInbox ? 1 : 0;
-	const jiraDiscoveryUrl = input.jiraDiscoveryUrl ?? null;
-	const jiraDeliveryUrl = input.jiraDeliveryUrl ?? null;
-	const confluenceUrl = input.confluenceUrl ?? null;
-	const jiraDocsUrl = input.jiraDocsUrl ?? null;
-	const jiraReleaseNoteUrl = input.jiraReleaseNoteUrl ?? null;
-	const teamsReleaseNoteUrl = input.teamsReleaseNoteUrl ?? null;
 
 	if (isInbox === 1) {
 		db.prepare("UPDATE projects SET is_inbox = 0, updated_at = ?").run(now);
 	}
 
+	// Append new projects to the end of the sidebar ordering.
+	const maxRow = db
+		.prepare("SELECT MAX(sort_order) AS max FROM projects")
+		.get() as { max: number | null };
+	const sortOrder = (maxRow.max ?? -1) + 1;
+
 	const result = db
 		.prepare(
-			"INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, jira_discovery_url, jira_delivery_url, confluence_url, jira_docs_url, jira_release_note_url, teams_release_note_url, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		)
 		.run(
 			input.name,
@@ -66,22 +68,21 @@ export function createProject(input: {
 			endAt,
 			color,
 			isInbox,
-			jiraDiscoveryUrl,
-			jiraDeliveryUrl,
-			confluenceUrl,
-			jiraDocsUrl,
-			jiraReleaseNoteUrl,
-			teamsReleaseNoteUrl,
+			sortOrder,
 			now,
 			now,
 		);
 
 	const id = Number(result.lastInsertRowid);
+	if (input.resources) {
+		setResources(id, input.resources);
+	}
+
 	const row = db
 		.prepare("SELECT * FROM projects WHERE id = ?")
 		.get(id) as Record<string, unknown>;
 
-	return mapProjectRow(row);
+	return withResources(mapProjectRow(row));
 }
 
 export function updateProject(
@@ -94,12 +95,7 @@ export function updateProject(
 		endAt: string | null;
 		color: string;
 		isInbox: boolean;
-		jiraDiscoveryUrl: string | null;
-		jiraDeliveryUrl: string | null;
-		confluenceUrl: string | null;
-		jiraDocsUrl: string | null;
-		jiraReleaseNoteUrl: string | null;
-		teamsReleaseNoteUrl: string | null;
+		resources: ProjectResourceInput[];
 	}>,
 ): Project | null {
 	const db = getDb();
@@ -117,35 +113,13 @@ export function updateProject(
 	const endAt = patch.endAt ?? existing.endAt;
 	const color = patch.color ?? existing.color;
 	const isInbox = patch.isInbox ?? existing.isInbox;
-	const jiraDiscoveryUrl =
-		"jiraDiscoveryUrl" in patch
-			? (patch.jiraDiscoveryUrl ?? null)
-			: existing.jiraDiscoveryUrl;
-	const jiraDeliveryUrl =
-		"jiraDeliveryUrl" in patch
-			? (patch.jiraDeliveryUrl ?? null)
-			: existing.jiraDeliveryUrl;
-	const confluenceUrl =
-		"confluenceUrl" in patch
-			? (patch.confluenceUrl ?? null)
-			: existing.confluenceUrl;
-	const jiraDocsUrl =
-		"jiraDocsUrl" in patch ? (patch.jiraDocsUrl ?? null) : existing.jiraDocsUrl;
-	const jiraReleaseNoteUrl =
-		"jiraReleaseNoteUrl" in patch
-			? (patch.jiraReleaseNoteUrl ?? null)
-			: existing.jiraReleaseNoteUrl;
-	const teamsReleaseNoteUrl =
-		"teamsReleaseNoteUrl" in patch
-			? (patch.teamsReleaseNoteUrl ?? null)
-			: existing.teamsReleaseNoteUrl;
 
 	if (isInbox) {
 		db.prepare("UPDATE projects SET is_inbox = 0, updated_at = ?").run(now);
 	}
 
 	db.prepare(
-		"UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, jira_discovery_url = ?, jira_delivery_url = ?, confluence_url = ?, jira_docs_url = ?, jira_release_note_url = ?, teams_release_note_url = ?, updated_at = ? WHERE id = ?",
+		"UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, updated_at = ? WHERE id = ?",
 	).run(
 		name,
 		emoji,
@@ -154,15 +128,13 @@ export function updateProject(
 		endAt,
 		color,
 		isInbox ? 1 : 0,
-		jiraDiscoveryUrl,
-		jiraDeliveryUrl,
-		confluenceUrl,
-		jiraDocsUrl,
-		jiraReleaseNoteUrl,
-		teamsReleaseNoteUrl,
 		now,
 		projectId,
 	);
+
+	if (patch.resources !== undefined) {
+		setResources(projectId, patch.resources);
+	}
 
 	return getProject(projectId);
 }
@@ -177,7 +149,11 @@ export function deleteProject(projectId: number): boolean {
 
 	const inbox = db
 		.prepare("SELECT id FROM projects WHERE is_inbox = 1 LIMIT 1")
-		.get() as { id: number };
+		.get() as { id: number } | undefined;
+
+	if (!inbox) {
+		throw new Error("No inbox project found; cannot reassign tasks before delete");
+	}
 
 	db.prepare("UPDATE tasks SET project_id = ? WHERE project_id = ?").run(
 		inbox.id,
@@ -186,6 +162,18 @@ export function deleteProject(projectId: number): boolean {
 
 	const result = db.prepare("DELETE FROM projects WHERE id = ?").run(projectId);
 	return result.changes > 0;
+}
+
+export function reorderProjects(orderedIds: number[]): Project[] {
+	const db = getDb();
+	const now = nowIso();
+	const update = db.prepare(
+		"UPDATE projects SET sort_order = ?, updated_at = ? WHERE id = ? AND is_inbox = 0",
+	);
+	orderedIds.forEach((id, index) => {
+		update.run(index, now, id);
+	});
+	return listProjects();
 }
 
 export function getInboxProjectId(): number {

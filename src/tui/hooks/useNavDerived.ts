@@ -1,12 +1,12 @@
 import { useEffect, useMemo } from "react";
 
 import type { AppSettings, Project, Task } from "../../server/types";
+import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
+import { buildColumns, buildColumnTaskRows } from "../UpcomingPanel";
 import type { SettingsRow } from "../SettingsPanel";
 import { buildSettingsRows } from "../SettingsPanel";
 import type { TaskRow } from "../task-row-utils";
 import { buildTaskRows } from "../task-row-utils";
-import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
-import { buildColumns, buildColumnTaskRows } from "../UpcomingPanel";
 import type { View } from "./useNavigation";
 
 type NavState = {
@@ -28,7 +28,6 @@ type UseNavDerivedParams = {
 	tasks: Task[];
 	projects: Project[];
 	settings: AppSettings | null;
-	syncEnabled: boolean;
 };
 
 type UseNavDerivedResult = {
@@ -49,7 +48,6 @@ export function useNavDerived({
 	tasks,
 	projects,
 	settings,
-	syncEnabled,
 }: UseNavDerivedParams): UseNavDerivedResult {
 	const projectMap = useMemo(() => {
 		const map: Record<number, Project> = {};
@@ -112,10 +110,7 @@ export function useNavDerived({
 		[projects, nav.activeProjectId],
 	);
 
-	const settingsRows = useMemo(
-		() => buildSettingsRows(settings, syncEnabled),
-		[settings, syncEnabled],
-	);
+	const settingsRows = useMemo(() => buildSettingsRows(settings), [settings]);
 	const selectedSettingsRow =
 		settingsRows[nav.settingsIndex] ?? settingsRows[0] ?? null;
 

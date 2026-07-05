@@ -52,35 +52,28 @@ describe("createDirectApi integration", () => {
 		expect(updated.endAt).toBe("2026-05-01");
 	});
 
-	it("updateProject clears project link URLs when passed null", async () => {
+	it("createProject and updateProject persist and replace resources", async () => {
 		const api = createDirectApi();
 		const project = await api.createProject({
 			name: "Links Project",
-			jiraDiscoveryUrl: "https://jira.example.com/discovery",
-			jiraDeliveryUrl: "https://jira.example.com/board/1",
-			confluenceUrl: "https://wiki.example.com/space",
+			resources: [
+				{ label: "Discovery", url: "https://jira.example.com/discovery" },
+				{ label: "PRD", url: "https://wiki.example.com/space" },
+			],
 		});
-		expect(project.jiraDiscoveryUrl).toBe("https://jira.example.com/discovery");
-		expect(project.jiraDeliveryUrl).toBe("https://jira.example.com/board/1");
-		expect(project.confluenceUrl).toBe("https://wiki.example.com/space");
+		expect(project.resources.map((r) => r.label)).toEqual(["Discovery", "PRD"]);
+		expect(project.resources[0].url).toBe("https://jira.example.com/discovery");
 
-		const clearedDiscovery = await api.updateProject(project.id, {
-			jiraDiscoveryUrl: null,
+		// Passing a new list replaces the previous one wholesale.
+		const updated = await api.updateProject(project.id, {
+			resources: [{ label: "Epic", url: "https://jira.example.com/board/1" }],
 		});
-		expect(clearedDiscovery.jiraDiscoveryUrl).toBeNull();
-		expect(clearedDiscovery.jiraDeliveryUrl).toBe(project.jiraDeliveryUrl);
-		expect(clearedDiscovery.confluenceUrl).toBe(project.confluenceUrl);
+		expect(updated.resources).toHaveLength(1);
+		expect(updated.resources[0].label).toBe("Epic");
 
-		const clearedDelivery = await api.updateProject(project.id, {
-			jiraDeliveryUrl: null,
-		});
-		expect(clearedDelivery.jiraDeliveryUrl).toBeNull();
-		expect(clearedDelivery.confluenceUrl).toBe(project.confluenceUrl);
-
-		const clearedConfluence = await api.updateProject(project.id, {
-			confluenceUrl: null,
-		});
-		expect(clearedConfluence.confluenceUrl).toBeNull();
+		// Passing an empty list clears all resources.
+		const cleared = await api.updateProject(project.id, { resources: [] });
+		expect(cleared.resources).toHaveLength(0);
 	});
 
 	it("deleteProject removes non-inbox project and reassigns tasks to inbox", async () => {

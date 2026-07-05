@@ -1,17 +1,13 @@
-import type { SyncStatus } from "../server/sync/types";
 import type {
 	AppSettings,
+	CalendarEvent,
+	CompletionLog,
 	Goal,
 	Project,
+	ProjectResourceInput,
 	Reminder,
 	Task,
 } from "../server/types";
-
-export type SyncResult = {
-	pushed: number;
-	pulled: number;
-	inboxImported: number;
-};
 
 export type TaskQuery = {
 	projectId?: number;
@@ -23,6 +19,7 @@ export type TaskQuery = {
 	parentTaskId?: number | null;
 	rootsOnly?: boolean;
 	someday?: boolean;
+	recurring?: boolean;
 };
 
 export type ApiClient = {
@@ -30,8 +27,18 @@ export type ApiClient = {
 	updateSettings: (
 		input: Partial<{
 			timezone: string;
+			calendarIcsUrl: string | null;
 		}>,
 	) => Promise<AppSettings>;
+	listCalendarEvents: (query?: {
+		from?: string;
+		to?: string;
+	}) => Promise<CalendarEvent[]>;
+	refreshCalendar: () => Promise<{ count: number; lastSyncedAt: string }>;
+	linkTaskToEvent: (
+		taskId: number,
+		eventUid: string | null,
+	) => Promise<Task>;
 	listProjects: () => Promise<Project[]>;
 	listTasks: (query?: TaskQuery) => Promise<Task[]>;
 	createTask: (input: {
@@ -103,12 +110,7 @@ export type ApiClient = {
 		endAt?: string | null;
 		color?: string;
 		isInbox?: boolean;
-		jiraDiscoveryUrl?: string | null;
-		jiraDeliveryUrl?: string | null;
-		confluenceUrl?: string | null;
-		jiraDocsUrl?: string | null;
-		jiraReleaseNoteUrl?: string | null;
-		teamsReleaseNoteUrl?: string | null;
+		resources?: ProjectResourceInput[];
 	}) => Promise<Project>;
 	updateProject: (
 		projectId: number,
@@ -120,15 +122,11 @@ export type ApiClient = {
 			endAt?: string | null;
 			color?: string;
 			isInbox?: boolean;
-			jiraDiscoveryUrl?: string | null;
-			jiraDeliveryUrl?: string | null;
-			confluenceUrl?: string | null;
-			jiraDocsUrl?: string | null;
-			jiraReleaseNoteUrl?: string | null;
-			teamsReleaseNoteUrl?: string | null;
+			resources?: ProjectResourceInput[];
 		},
 	) => Promise<Project>;
 	deleteProject: (projectId: number) => Promise<void>;
+	reorderProjects: (projectIds: number[]) => Promise<Project[]>;
 	listTaskReminders: (taskId: number) => Promise<Reminder[]>;
 	listDueReminders: () => Promise<(Reminder & { taskTitle: string })[]>;
 	listAllReminders: () => Promise<(Reminder & { taskTitle: string })[]>;
@@ -137,8 +135,9 @@ export type ApiClient = {
 		input: { remindAt: string; status?: Reminder["status"] },
 	) => Promise<Reminder>;
 	deleteReminder: (reminderId: number) => Promise<void>;
-	getSyncStatus: () => Promise<SyncStatus>;
-	enableSync: () => Promise<SyncStatus>;
-	disableSync: () => Promise<SyncStatus>;
-	syncNow: () => Promise<SyncResult>;
+	getCompletionHistory: (taskId: number) => Promise<CompletionLog[]>;
+	listCompletions: (query?: {
+		from?: string;
+		to?: string;
+	}) => Promise<CompletionLog[]>;
 };

@@ -13,6 +13,10 @@
     "playwright": "^1.52.0",
     "glimpseui": "*"
   },
+  "overrides": {
+    "ws": "^8.21.0",
+    "protobufjs": "^7.6.3"
+  },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
     "@earendil-works/pi-tui": "*",

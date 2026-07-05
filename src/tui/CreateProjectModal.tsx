@@ -17,26 +17,6 @@ type CreateProjectModalProps = {
 
 const LABEL_WIDTH = 20;
 
-const DISCOVERY_KEYS = new Set(["jiraDiscovery", "confluenceUrl"]);
-const DELIVERY_KEYS = new Set([
-	"jiraDelivery",
-	"jiraDocsUrl",
-	"jiraReleaseNoteUrl",
-	"teamsReleaseNoteUrl",
-]);
-
-function sectionOf(key: string): "discovery" | "delivery" | null {
-	if (DISCOVERY_KEYS.has(key)) return "discovery";
-	if (DELIVERY_KEYS.has(key)) return "delivery";
-	return null;
-}
-
-function shortLabel(label: string): string {
-	if (label.startsWith("Discovery: ")) return label.slice("Discovery: ".length);
-	if (label.startsWith("Delivery: ")) return label.slice("Delivery: ".length);
-	return label;
-}
-
 function renderActiveTextValue(
 	value: string,
 	cursorOffset: number,
@@ -89,8 +69,6 @@ export const CreateProjectModal = ({
 	const title = mode === "editProjectModal" ? "Edit Project" : "New Project";
 	const fields = getModalFields(mode);
 
-	let lastSection: string | null = "none";
-
 	return (
 		<Box
 			backgroundColor="black"
@@ -119,9 +97,6 @@ export const CreateProjectModal = ({
 				{fields.map((field, i) => {
 					const isActive = i === activeFieldIndex;
 					const value = modalValues[field.key] ?? "";
-					const section = sectionOf(field.key);
-					const showSectionHeader = section !== null && section !== lastSection;
-					if (section !== null) lastSection = section;
 
 					if (field.type === "submit") {
 						return (
@@ -147,28 +122,17 @@ export const CreateProjectModal = ({
 						);
 					}
 
-					const inSection = section !== null;
-					const label = inSection ? shortLabel(field.label) : field.label;
-
 					return (
 						<Box key={field.key} flexDirection="column">
-							{showSectionHeader && (
-								<Box marginTop={1}>
-									<Text bold color="magentaBright">
-										{section === "discovery" ? "Discovery" : "Delivery"}
-									</Text>
-								</Box>
-							)}
 							<Box>
 								<Box width={2}>
 									<Text color={isActive ? "cyan" : undefined}>
 										{isActive ? "❯" : " "}
 									</Text>
 								</Box>
-								{inSection && <Text dimColor>{"  "}</Text>}
 								<Box width={LABEL_WIDTH}>
 									<Text color={isActive ? "cyan" : undefined} bold={isActive}>
-										{label}
+										{field.label}
 									</Text>
 								</Box>
 								<Box flexGrow={1}>

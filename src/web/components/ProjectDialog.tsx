@@ -17,36 +17,7 @@ import { useProjectMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
 import { DateField } from "./DateField";
 
-function Field({
-	label,
-	children,
-}: {
-	label: string;
-	children: React.ReactNode;
-}) {
-	return (
-		<div className="flex flex-col gap-1">
-			<Label>{label}</Label>
-			{children}
-		</div>
-	);
-}
-
-function LinkRow({
-	label,
-	url,
-	setUrl,
-}: {
-	label: string;
-	url: string;
-	setUrl: (value: string) => void;
-}) {
-	return (
-		<Field label={label}>
-			<Input value={url} onChange={(e) => setUrl(e.target.value)} />
-		</Field>
-	);
-}
+type ResourceRow = { label: string; url: string };
 
 export function ProjectDialog() {
 	const ui = useUi();
@@ -59,12 +30,7 @@ export function ProjectDialog() {
 	const [description, setDescription] = useState("");
 	const [start, setStart] = useState("");
 	const [end, setEnd] = useState("");
-	const [jiraDiscoveryUrl, setJiraDiscoveryUrl] = useState("");
-	const [confluenceUrl, setConfluenceUrl] = useState("");
-	const [jiraDeliveryUrl, setJiraDeliveryUrl] = useState("");
-	const [jiraDocsUrl, setJiraDocsUrl] = useState("");
-	const [jiraReleaseNoteUrl, setJiraReleaseNoteUrl] = useState("");
-	const [teamsReleaseNoteUrl, setTeamsReleaseNoteUrl] = useState("");
+	const [resources, setResources] = useState<ResourceRow[]>([]);
 
 	useEffect(() => {
 		if (!state) return;
@@ -74,13 +40,20 @@ export function ProjectDialog() {
 		setDescription(p?.description ?? "");
 		setStart(formatDateField(p?.startAt ?? null));
 		setEnd(formatDateField(p?.endAt ?? null));
-		setJiraDiscoveryUrl(p?.jiraDiscoveryUrl ?? "");
-		setConfluenceUrl(p?.confluenceUrl ?? "");
-		setJiraDeliveryUrl(p?.jiraDeliveryUrl ?? "");
-		setJiraDocsUrl(p?.jiraDocsUrl ?? "");
-		setJiraReleaseNoteUrl(p?.jiraReleaseNoteUrl ?? "");
-		setTeamsReleaseNoteUrl(p?.teamsReleaseNoteUrl ?? "");
+		setResources(
+			(p?.resources ?? []).map((r) => ({ label: r.label, url: r.url })),
+		);
 	}, [state]);
+
+	const updateResource = (index: number, patch: Partial<ResourceRow>) => {
+		setResources((rows) =>
+			rows.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+		);
+	};
+	const addResource = () =>
+		setResources((rows) => [...rows, { label: "", url: "" }]);
+	const removeResource = (index: number) =>
+		setResources((rows) => rows.filter((_, i) => i !== index));
 
 	const submit = () => {
 		if (!state) return;
@@ -103,12 +76,9 @@ export function ProjectDialog() {
 			description: description.trim(),
 			startAt,
 			endAt,
-			jiraDiscoveryUrl: jiraDiscoveryUrl.trim() || null,
-			confluenceUrl: confluenceUrl.trim() || null,
-			jiraDeliveryUrl: jiraDeliveryUrl.trim() || null,
-			jiraDocsUrl: jiraDocsUrl.trim() || null,
-			jiraReleaseNoteUrl: jiraReleaseNoteUrl.trim() || null,
-			teamsReleaseNoteUrl: teamsReleaseNoteUrl.trim() || null,
+			resources: resources
+				.map((r) => ({ label: r.label.trim(), url: r.url.trim() }))
+				.filter((r) => r.label.length > 0 && r.url.length > 0),
 		};
 
 		const onSuccess = () => {
@@ -178,43 +148,51 @@ export function ProjectDialog() {
 						</div>
 					</div>
 
-					<div className="mt-2 text-[11px] font-semibold tracking-wide text-muted uppercase">
-						Discovery
+					<div className="mt-2 flex items-center justify-between">
+						<span className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+							Resources
+						</span>
+						<button
+							type="button"
+							onClick={addResource}
+							className="rounded-md border border-border px-2 py-1 text-xs text-foreground hover:bg-surface"
+						>
+							+ Add link
+						</button>
 					</div>
-					<LinkRow
-						label="Jira Discovery URL"
-						url={jiraDiscoveryUrl}
-						setUrl={setJiraDiscoveryUrl}
-					/>
-					<LinkRow
-						label="Confluence PRD URL"
-						url={confluenceUrl}
-						setUrl={setConfluenceUrl}
-					/>
-
-					<div className="mt-2 text-[11px] font-semibold tracking-wide text-muted uppercase">
-						Delivery
-					</div>
-					<LinkRow
-						label="Jira Delivery Epic URL"
-						url={jiraDeliveryUrl}
-						setUrl={setJiraDeliveryUrl}
-					/>
-					<LinkRow
-						label="Jira Docs URL"
-						url={jiraDocsUrl}
-						setUrl={setJiraDocsUrl}
-					/>
-					<LinkRow
-						label="Jira Release Note URL"
-						url={jiraReleaseNoteUrl}
-						setUrl={setJiraReleaseNoteUrl}
-					/>
-					<LinkRow
-						label="Teams Release Note URL"
-						url={teamsReleaseNoteUrl}
-						setUrl={setTeamsReleaseNoteUrl}
-					/>
+					{resources.length === 0 ? (
+						<p className="text-xs text-muted">
+							No links yet. Add Jira, Confluence, docs, or any URL for this
+							project.
+						</p>
+					) : (
+						resources.map((row, index) => (
+							<div
+								// biome-ignore lint/suspicious/noArrayIndexKey: rows are positional and reorder only on explicit add/remove
+								key={index}
+								className="grid grid-cols-[10rem_1fr_2rem] items-center gap-2"
+							>
+								<Input
+									value={row.label}
+									placeholder="Label"
+									onChange={(e) => updateResource(index, { label: e.target.value })}
+								/>
+								<Input
+									value={row.url}
+									placeholder="https://…"
+									onChange={(e) => updateResource(index, { url: e.target.value })}
+								/>
+								<button
+									type="button"
+									aria-label="Remove link"
+									onClick={() => removeResource(index)}
+									className="rounded-md border border-border px-2 py-1 text-xs text-muted hover:bg-surface"
+								>
+									✕
+								</button>
+							</div>
+						))
+					)}
 				</div>
 				<div className="mt-4 flex items-center justify-end gap-3 text-xs text-muted">
 					<span>esc to cancel · ⌘⏎ to save</span>

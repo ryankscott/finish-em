@@ -5,19 +5,13 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 
-import { cn } from "../lib/cn";
 import {
+	useCalendarMutations,
 	useSettings,
 	useSettingsMutations,
-	useSyncMutations,
-	useSyncStatus,
 } from "../lib/queries";
 import { ViewTitle } from "./SimpleViews";
-
-const fieldClass =
-	"rounded-md border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent";
 
 function Section({
 	title,
@@ -49,12 +43,15 @@ function relative(iso: string | null): string {
 export function SettingsView() {
 	const { data: settings } = useSettings();
 	const { updateSettings } = useSettingsMutations();
-	const { data: sync } = useSyncStatus();
-	const { enableSync, disableSync, syncNow } = useSyncMutations();
+	const { refreshCalendar } = useCalendarMutations();
 
 	const [timezone, setTimezone] = useState("");
+	const [icsUrl, setIcsUrl] = useState("");
 	useEffect(() => {
-		if (settings) setTimezone(settings.timezone);
+		if (settings) {
+			setTimezone(settings.timezone);
+			setIcsUrl(settings.calendarIcsUrl ?? "");
+		}
 	}, [settings]);
 
 	const saveTimezone = () => {
@@ -69,13 +66,24 @@ export function SettingsView() {
 		);
 	};
 
-	const toggleSync = () => {
-		const mutation = sync?.enabled ? disableSync : enableSync;
-		mutation.mutate(undefined, {
-			onSuccess: (status) =>
-				toast.success(status.enabled ? "Sync enabled" : "Sync disabled"),
-			onError: (err) => toast.error(err.message),
-		});
+	const saveIcsUrl = () => {
+		const url = icsUrl.trim();
+		updateSettings.mutate(
+			{ calendarIcsUrl: url || null },
+			{
+				onSuccess: () => {
+					toast.success(url ? "Calendar URL saved" : "Calendar disconnected");
+					if (url) {
+						refreshCalendar.mutate(undefined, {
+							onSuccess: (r) =>
+								toast.success(`Calendar refreshed (${r.count} events)`),
+							onError: (err) => toast.error(err.message),
+						});
+					}
+				},
+				onError: (err) => toast.error(err.message),
+			},
+		);
 	};
 
 	return (
@@ -108,39 +116,36 @@ export function SettingsView() {
 					) : null}
 				</Section>
 
-				<Section title="iCloud Sync">
-					<div className="flex items-center gap-3">
-						<Switch
-							checked={sync?.enabled ?? false}
-							onCheckedChange={toggleSync}
-						/>
-						<span className="text-sm">
-							{sync?.enabled ? "Enabled" : "Disabled"}
-						</span>
-						{sync?.enabled ? (
+				<Section title="Outlook Calendar">
+					<div className="flex flex-col gap-1">
+						<Label>Published ICS URL</Label>
+						<div className="flex items-center gap-2">
+							<Input
+								value={icsUrl}
+								onChange={(e) => setIcsUrl(e.target.value)}
+								placeholder="https://outlook.office365.com/owa/calendar/.../calendar.ics"
+								className="flex-1"
+							/>
 							<button
 								type="button"
-								onClick={() =>
-									syncNow.mutate(undefined, {
-										onSuccess: (r) =>
-											toast.success(`Synced (↑${r.pushed} ↓${r.pulled})`),
-										onError: (err) => toast.error(err.message),
-									})
-								}
-								disabled={syncNow.isPending}
-								className="ml-auto rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:bg-surface disabled:opacity-50"
+								onClick={saveIcsUrl}
+								disabled={refreshCalendar.isPending}
+								className="rounded-md border border-border px-3 py-2 text-foreground hover:bg-surface disabled:opacity-50"
 							>
-								{syncNow.isPending ? "Syncing…" : "Sync now"}
+								{refreshCalendar.isPending ? "Syncing…" : "Save"}
 							</button>
+						</div>
+						<span className="text-xs text-muted">
+							In Outlook web: Settings → Calendar → Shared calendars → Publish a
+							calendar, then paste the ICS link here. Read-only; refreshed every
+							15 minutes.
+						</span>
+						{settings?.calendarLastSyncedAt ? (
+							<span className="text-xs text-muted">
+								Last synced {relative(settings.calendarLastSyncedAt)}
+							</span>
 						) : null}
 					</div>
-					{sync ? (
-						<div className="flex flex-col gap-0.5 text-xs text-muted">
-							<span>Device: {sync.deviceId ?? "unknown"}</span>
-							<span>Last sync: {relative(sync.lastSyncAt)}</span>
-							<span>Pending changes: {sync.pendingChanges}</span>
-						</div>
-					) : null}
 				</Section>
 			</div>
 		</>

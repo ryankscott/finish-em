@@ -15,10 +15,14 @@ declare type Preferences = ExtensionPreferences
 declare namespace Preferences {
   /** Preferences accessible in the `add-task` command */
   export type AddTask = ExtensionPreferences & {}
+  /** Preferences accessible in the `today` command */
+  export type Today = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
   /** Arguments passed to the `add-task` command */
   export type AddTask = {}
+  /** Arguments passed to the `today` command */
+  export type Today = {}
 }
 

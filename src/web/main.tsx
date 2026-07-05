@@ -12,6 +12,9 @@ import { createRoot } from "react-dom/client";
 import { AppShell } from "./components/AppShell";
 import { HotkeyProvider } from "./lib/hotkeys";
 import { UiProvider } from "./state/ui";
+import { CalendarView } from "./views/CalendarView";
+import { LogbookView } from "./views/LogbookView";
+import { UpcomingView } from "./views/UpcomingView";
 import { RemindersView } from "./views/RemindersView";
 import { SettingsView } from "./views/SettingsView";
 import {
@@ -21,11 +24,11 @@ import {
 	OverdueView,
 	PriorityView,
 	ProjectView,
+	RecurringView,
 	SearchView,
 	SomedayView,
 	TodayView,
 } from "./views/SimpleViews";
-import { UpcomingView } from "./views/UpcomingView";
 import "./styles.css";
 
 const queryClient = new QueryClient({
@@ -65,6 +68,11 @@ const routes = [
 	}),
 	createRoute({
 		getParentRoute: () => rootRoute,
+		path: "/calendar",
+		component: CalendarView,
+	}),
+	createRoute({
+		getParentRoute: () => rootRoute,
 		path: "/overdue",
 		component: OverdueView,
 	}),
@@ -80,6 +88,11 @@ const routes = [
 	}),
 	createRoute({
 		getParentRoute: () => rootRoute,
+		path: "/logbook",
+		component: LogbookView,
+	}),
+	createRoute({
+		getParentRoute: () => rootRoute,
 		path: "/deleted",
 		component: DeletedView,
 	}),
@@ -92,6 +105,11 @@ const routes = [
 		getParentRoute: () => rootRoute,
 		path: "/someday",
 		component: SomedayView,
+	}),
+	createRoute({
+		getParentRoute: () => rootRoute,
+		path: "/recurring",
+		component: RecurringView,
 	}),
 	createRoute({
 		getParentRoute: () => rootRoute,

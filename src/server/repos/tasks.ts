@@ -1,15 +1,15 @@
 import { getDb, nowIso } from "@/server/db/client";
+import { getEventByUid } from "@/server/repos/calendar";
 import { mapTaskRow } from "@/server/repos/mappers";
 import { getProject } from "@/server/repos/projects";
+import {
+	deleteLatestCompletion,
+	logCompletion,
+} from "@/server/repos/task-completion-log";
 import {
 	getNextOccurrence,
 	validateRRuleSubset,
 } from "@/server/services/recurrence";
-import {
-	trackCreate,
-	trackDelete,
-	trackFieldChanges,
-} from "@/server/sync/repo-sync";
 
 import type { Priority, Task, TaskFilters, TaskStatus } from "@/server/types";
 
@@ -62,6 +62,17 @@ function buildFilterClause(filters: TaskFilters) {
 		clauses.push("someday = 1");
 	} else {
 		clauses.push("someday = 0");
+	}
+
+	if (filters.recurring === true) {
+		clauses.push(
+			"(recurrence_preset IS NOT NULL OR recurrence_rrule IS NOT NULL)",
+		);
+	}
+
+	if (filters.staleBefore) {
+		clauses.push("updated_at < ?");
+		values.push(filters.staleBefore);
 	}
 
 	// Always exclude soft-deleted tasks from regular queries
@@ -193,7 +204,6 @@ export function createTask(input: {
 		string,
 		unknown
 	>;
-	trackCreate(db, "task", uuid, JSON.stringify(row), now);
 	return mapTaskRow(row);
 }
 
@@ -280,45 +290,86 @@ export function updateTask(
 		taskId,
 	);
 
-	const uuidRow = db
-		.prepare("SELECT uuid FROM tasks WHERE id = ?")
-		.get(taskId) as { uuid: string | null };
-	if (uuidRow?.uuid) {
-		const fields: Record<string, string | null> = {};
-		if (patch.title !== undefined) fields.title = patch.title;
-		if (patch.notes !== undefined) fields.notes = patch.notes;
-		if (patch.priority !== undefined) fields.priority = String(patch.priority);
-		if (patch.projectId !== undefined)
-			fields.project_id = String(patch.projectId);
-		if (patch.parentTaskId !== undefined)
-			fields.parent_task_id =
-				patch.parentTaskId === null ? null : String(patch.parentTaskId);
-		if (patch.scheduledAt !== undefined)
-			fields.scheduled_at = patch.scheduledAt;
-		if (patch.dueAt !== undefined) fields.due_at = patch.dueAt;
-		if (patch.dueTimezone !== undefined)
-			fields.due_timezone = patch.dueTimezone;
-		if (patch.recurrencePreset !== undefined)
-			fields.recurrence_preset = patch.recurrencePreset;
-		if (patch.recurrenceRRule !== undefined)
-			fields.recurrence_rrule = patch.recurrenceRRule;
-		if (patch.status !== undefined) fields.status = patch.status;
-		if (patch.someday !== undefined)
-			fields.someday = patch.someday ? "1" : "0";
-		if (Object.keys(fields).length > 0) {
-			trackFieldChanges(db, "task", uuidRow.uuid, fields, now);
-		}
+	return getTask(taskId);
+}
+
+/**
+ * Link (or unlink) a task to a cached calendar event. Linking pins the task's
+ * due date to the event's start time so "finish before this meeting" is
+ * represented directly; passing null clears the link and leaves dueAt as-is.
+ */
+export function linkTaskToEvent(
+	taskId: number,
+	eventUid: string | null,
+): Task | null {
+	const db = getDb();
+	const existing = getTask(taskId);
+	if (!existing) {
+		return null;
 	}
 
+	const now = nowIso();
+
+	if (eventUid === null) {
+		db.prepare(
+			"UPDATE tasks SET calendar_event_uid = NULL, updated_at = ? WHERE id = ?",
+		).run(now, taskId);
+		return getTask(taskId);
+	}
+
+	const event = getEventByUid(eventUid);
+	if (!event) {
+		throw new Error(`Calendar event not found: ${eventUid}`);
+	}
+
+	db.prepare(
+		"UPDATE tasks SET calendar_event_uid = ?, due_at = ?, updated_at = ? WHERE id = ?",
+	).run(eventUid, event.startAt, now, taskId);
+
 	return getTask(taskId);
+}
+
+/**
+ * Re-pin the due date of every task linked to a calendar event to that event's
+ * current start time. Run after a calendar sync so that when a meeting moves
+ * (earlier or later), the linked task's deadline follows it. Tasks whose event
+ * is no longer cached (cancelled, or out of the sync window) are left untouched.
+ * Returns the number of tasks whose due date changed.
+ */
+export function repinLinkedTaskDueDates(): number {
+	const db = getDb();
+	const rows = db
+		.prepare(
+			`SELECT t.id AS id, t.uuid AS uuid, t.due_at AS due_at,
+        (SELECT MIN(c.start_at) FROM calendar_events c WHERE c.uid = t.calendar_event_uid) AS event_start
+       FROM tasks t
+       WHERE t.calendar_event_uid IS NOT NULL AND t.deleted_at IS NULL`,
+		)
+		.all() as Array<{
+		id: number;
+		uuid: string | null;
+		due_at: string | null;
+		event_start: string | null;
+	}>;
+
+	const now = nowIso();
+	let updated = 0;
+	for (const row of rows) {
+		if (!row.event_start) continue;
+		if (row.due_at === row.event_start) continue;
+		db.prepare("UPDATE tasks SET due_at = ?, updated_at = ? WHERE id = ?").run(
+			row.event_start,
+			now,
+			row.id,
+		);
+		updated++;
+	}
+	return updated;
 }
 
 export function deleteTask(taskId: number): boolean {
 	const db = getDb();
 	const now = nowIso();
-	const uuidRow = db
-		.prepare("SELECT uuid FROM tasks WHERE id = ?")
-		.get(taskId) as { uuid: string | null };
 	// Soft-delete the task and all its subtasks
 	db.prepare(
 		"UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE parent_task_id = ? AND deleted_at IS NULL",
@@ -328,9 +379,6 @@ export function deleteTask(taskId: number): boolean {
 			"UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL",
 		)
 		.run(now, now, taskId);
-	if (result.changes > 0 && uuidRow?.uuid) {
-		trackDelete(db, "task", uuidRow.uuid, now);
-	}
 	return result.changes > 0;
 }
 
@@ -402,10 +450,11 @@ export function completeTask(taskId: number): {
 
 	let nextTask: Task | null = null;
 
-	if (
-		existing.dueAt &&
-		(existing.recurrencePreset || existing.recurrenceRRule)
-	) {
+	const isRecurring = Boolean(
+		existing.recurrencePreset || existing.recurrenceRRule,
+	);
+
+	if (isRecurring && existing.dueAt) {
 		const nextDueAt = getNextOccurrence({
 			baseIso: existing.dueAt,
 			recurrencePreset: existing.recurrencePreset,
@@ -428,6 +477,12 @@ export function completeTask(taskId: number): {
 		}
 	}
 
+	// Record each completed occurrence of a recurring task so its history
+	// survives the roll-forward to the next occurrence.
+	if (isRecurring) {
+		logCompletion(taskId, existing.title, now);
+	}
+
 	return { task: getTask(taskId), nextTask };
 }
 
@@ -442,6 +497,11 @@ export function uncompleteTask(taskId: number): Task | null {
 	db.prepare(
 		"UPDATE tasks SET status = ?, completed_at = NULL, updated_at = ? WHERE id = ?",
 	).run("open", nowIso(), taskId);
+
+	// Keep the completion log in step with the task's actual state.
+	if (existing.recurrencePreset || existing.recurrenceRRule) {
+		deleteLatestCompletion(taskId);
+	}
 
 	return getTask(taskId);
 }

@@ -10,9 +10,6 @@ type ProjectCreateInput = {
 	endAt?: string | null;
 	color?: string;
 	isInbox?: boolean;
-	jiraDiscoveryUrl?: string | null;
-	jiraDeliveryUrl?: string | null;
-	confluenceUrl?: string | null;
 };
 
 type ProjectEditValues = {
@@ -21,9 +18,6 @@ type ProjectEditValues = {
 	description?: string;
 	startAt?: string | null;
 	endAt?: string | null;
-	jiraDiscoveryUrl?: string | null;
-	jiraDeliveryUrl?: string | null;
-	confluenceUrl?: string | null;
 };
 
 export type ParseProjectCreateResult = {
@@ -41,9 +35,6 @@ const TOKEN_PREFIXES = [
 	"end:",
 	"color:",
 	"inbox:",
-	"jiraDiscovery:",
-	"jiraDelivery:",
-	"confluence:",
 ];
 
 function parseEmojiValue(value: string, warnings: string[]): string {
@@ -114,7 +105,7 @@ export function parseProjectCreateInput(
 	}
 
 	const usedTokens =
-		/(\bname:|\bemoji:|\bdescription:|\bstart:|\bend:|\bcolor:|\binbox:|\bjiraDiscovery:|\bjiraDelivery:|\bconfluence:)/i.test(
+		/(\bname:|\bemoji:|\bdescription:|\bstart:|\bend:|\bcolor:|\binbox:)/i.test(
 			trimmed,
 		);
 	if (!usedTokens) {
@@ -137,9 +128,6 @@ export function parseProjectCreateInput(
 		"end",
 		"color",
 		"inbox",
-		"jiradiscovery",
-		"jiradelivery",
-		"confluence",
 	];
 	const unknownTokens = [...trimmed.matchAll(/\b([a-z_]+):/gi)]
 		.map((match) => match[1]?.toLowerCase())
@@ -263,57 +251,6 @@ export function parseProjectCreateInput(
 			.trim();
 	}
 
-	const jiraDiscoveryMatch = working.match(/\bjiraDiscovery:/i);
-	if (jiraDiscoveryMatch && jiraDiscoveryMatch.index !== undefined) {
-		const valueStart = jiraDiscoveryMatch.index + jiraDiscoveryMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart, {
-			tokenPrefixes: TOKEN_PREFIXES,
-			caseInsensitive: true,
-		});
-		const normalized = value.trim().toLowerCase();
-		result.jiraDiscoveryUrl =
-			normalized.length === 0 || ["none", "clear", "null"].includes(normalized)
-				? null
-				: value.trim();
-		working = (working.slice(0, jiraDiscoveryMatch.index) + working.slice(end))
-			.replace(/\s{2,}/g, " ")
-			.trim();
-	}
-
-	const jiraDeliveryMatch = working.match(/\bjiraDelivery:/i);
-	if (jiraDeliveryMatch && jiraDeliveryMatch.index !== undefined) {
-		const valueStart = jiraDeliveryMatch.index + jiraDeliveryMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart, {
-			tokenPrefixes: TOKEN_PREFIXES,
-			caseInsensitive: true,
-		});
-		const normalized = value.trim().toLowerCase();
-		result.jiraDeliveryUrl =
-			normalized.length === 0 || ["none", "clear", "null"].includes(normalized)
-				? null
-				: value.trim();
-		working = (working.slice(0, jiraDeliveryMatch.index) + working.slice(end))
-			.replace(/\s{2,}/g, " ")
-			.trim();
-	}
-
-	const confluenceMatch = working.match(/\bconfluence:/i);
-	if (confluenceMatch && confluenceMatch.index !== undefined) {
-		const valueStart = confluenceMatch.index + confluenceMatch[0].length;
-		const [value, end] = extractTokenValue(working, valueStart, {
-			tokenPrefixes: TOKEN_PREFIXES,
-			caseInsensitive: true,
-		});
-		const normalized = value.trim().toLowerCase();
-		result.confluenceUrl =
-			normalized.length === 0 || ["none", "clear", "null"].includes(normalized)
-				? null
-				: value.trim();
-		working = (working.slice(0, confluenceMatch.index) + working.slice(end))
-			.replace(/\s{2,}/g, " ")
-			.trim();
-	}
-
 	if (!result.name && working.length > 0) {
 		result.name = working;
 	}
@@ -343,15 +280,6 @@ export function serializeProjectToEditInput(values: ProjectEditValues): string {
 	}
 	if (values.endAt) {
 		parts.push(`end:${values.endAt}`);
-	}
-	if (values.jiraDiscoveryUrl) {
-		parts.push(`jiraDiscovery:${values.jiraDiscoveryUrl}`);
-	}
-	if (values.jiraDeliveryUrl) {
-		parts.push(`jiraDelivery:${values.jiraDeliveryUrl}`);
-	}
-	if (values.confluenceUrl) {
-		parts.push(`confluence:${values.confluenceUrl}`);
 	}
 	return parts.join(" ");
 }

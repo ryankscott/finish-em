@@ -1,7 +1,7 @@
 import { startOfWeek } from "date-fns";
 import { Box, useStdout } from "ink";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getSyncService } from "../server/sync/sync-service";
+import { processInbox } from "../server/services/inbox-importer";
 import type { Reminder } from "../server/types";
 import type { ApiClient } from "./api-client";
 import { CalendarPicker } from "./CalendarPicker";
@@ -27,6 +27,7 @@ import { useToasts } from "./hooks/useToasts";
 import { useUndo } from "./hooks/useUndo";
 import { InputBar } from "./InputBar";
 import { LinkPicker } from "./LinkPicker";
+import { dateKey, UpcomingPanel } from "./UpcomingPanel";
 import { ProjectEditPicker } from "./ProjectEditPicker";
 import { RemindersPanel } from "./RemindersPanel";
 import { SettingsPanel } from "./SettingsPanel";
@@ -35,7 +36,6 @@ import { StatusBar } from "./StatusBar";
 import { TaskActionPicker } from "./TaskActionPicker";
 import { TaskEditPicker } from "./TaskEditPicker";
 import { buildTaskPanelRows, TaskPanel } from "./TaskPanel";
-import { dateKey, UpcomingPanel } from "./UpcomingPanel";
 
 const CALENDAR_PICKER_MODES: InputMode[] = [
 	"calendarPickerDueDate",
@@ -70,76 +70,29 @@ export const App = ({ api, onQuit }: AppProps) => {
 	const [reminders, setReminders] = useState<Reminder[]>([]);
 	const [enumPickerItems, setEnumPickerItems] = useState<EnumPickerItem[]>([]);
 	const [enumPickerTitle, setEnumPickerTitle] = useState("");
-	const [syncEnabled, setSyncEnabled] = useState(() =>
-		getSyncService().isEnabled(),
-	);
-	const [syncState, setSyncState] = useState<{
-		syncing: boolean;
-		lastSyncAt: string | null;
-		error: string | null;
-	}>({
-		syncing: false,
-		lastSyncAt: getSyncService().getStatus().lastSyncAt,
-		error: null,
-	});
-
+	// Poll the file-drop inbox (e.g. iPhone shortcuts writing .txt files to the
+	// shared folder) so captures made away from the keyboard flow in. Runs on a
+	// fixed interval; failures are swallowed to keep the timer alive.
 	useEffect(() => {
-		const svc = getSyncService();
-		// Always start the timer so inbox import runs even when sync is disabled
-		svc.startAutoSync();
-		const unsub = svc.on((result) => {
-			if (result instanceof Error) {
-				setSyncState((s) => ({ ...s, syncing: false, error: result.message }));
-			} else {
-				setSyncState({
-					syncing: false,
-					lastSyncAt: new Date().toISOString(),
-					error: null,
-				});
-				if (result.inboxImported > 0) {
-					const n = result.inboxImported;
-					pushToast(
-						n === 1
-							? "1 task imported from iPhone"
-							: `${n} tasks imported from iPhone`,
-						"success",
-					);
-				}
-			}
-		});
-		if (svc.isEnabled()) {
-			setSyncState((s) => ({ ...s, syncing: true }));
-			svc
-				.syncNow()
-				.catch(() => {})
-				.finally(() => {
-					setSyncState((s) => ({ ...s, syncing: false }));
-				});
-		}
-		return () => {
-			unsub();
-			svc.stopAutoSync();
+		const runInbox = () => {
+			processInbox()
+				.then((result) => {
+					if (result.imported > 0) {
+						const n = result.imported;
+						pushToast(
+							n === 1
+								? "1 task imported from iPhone"
+								: `${n} tasks imported from iPhone`,
+							"success",
+						);
+					}
+				})
+				.catch(() => {});
 		};
+		runInbox();
+		const timer = setInterval(runInbox, 30_000);
+		return () => clearInterval(timer);
 	}, [pushToast]);
-
-	const onSyncToggle = useCallback(() => {
-		const svc = getSyncService();
-		if (svc.isEnabled()) {
-			svc.disable();
-			svc.startAutoSync(); // keep timer running for inbox polling
-			setSyncState({ syncing: false, lastSyncAt: null, error: null });
-		} else {
-			svc.enable();
-			setSyncState((s) => ({ ...s, syncing: true, error: null }));
-			svc
-				.syncNow()
-				.catch(() => {})
-				.finally(() => {
-					setSyncState((s) => ({ ...s, syncing: false }));
-				});
-		}
-		setSyncEnabled(svc.isEnabled());
-	}, []);
 
 	const goalPeriodType =
 		nav.viewMode === "day" ? ("daily" as const) : ("weekly" as const);
@@ -163,17 +116,19 @@ export const App = ({ api, onQuit }: AppProps) => {
 		tasks: data.tasks,
 		projects: data.projects,
 		settings: data.settings,
-		syncEnabled,
 	});
 
 	const inputBar = useInputBar({ projects: data.projects });
 
-	// Global search: filter all open tasks by title
+	// Global search: filter all open tasks by title or notes
 	const searchResults = useMemo(() => {
 		if (inputBar.inputMode !== "globalSearch" || !inputBar.inputValue.trim())
 			return [];
 		const q = inputBar.inputValue.toLowerCase();
-		return data.allTasks.filter((t) => t.title.toLowerCase().includes(q));
+		return data.allTasks.filter(
+			(t) =>
+				t.title.toLowerCase().includes(q) || t.notes.toLowerCase().includes(q),
+		);
 	}, [inputBar.inputMode, inputBar.inputValue, data.allTasks]);
 
 	const isSearchMode = inputBar.inputMode === "globalSearch";
@@ -378,7 +333,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 		setSettingsIndex: nav.setSettingsIndex,
 		selectedSettingsRow: navDerived.selectedSettingsRow,
 		setEditingSettingField: inputBar.setEditingSettingField,
-		onSyncToggle,
 		columns: navDerived.columns,
 		setColumnIndex: nav.setColumnIndex,
 		currentColumnRows: navDerived.currentColumnRows,
@@ -544,8 +498,6 @@ export const App = ({ api, onQuit }: AppProps) => {
 				statusText={data.loading ? "Loading..." : data.statusText}
 				errorText={data.errorText}
 				terminalWidth={terminalWidth}
-				syncEnabled={syncEnabled}
-				syncState={syncState}
 				activeToast={visibleToasts[0] ?? null}
 			/>
 			{inputBar.inputMode === "createTaskModal" && (

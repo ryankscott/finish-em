@@ -277,26 +277,9 @@ export const TaskPanel = ({
 	let overhead = 5;
 	if (activeProject) {
 		overhead += 4; // description + start + end + separator
-		const hasDiscovery = !!(
-			activeProject.jiraDiscoveryUrl || activeProject.confluenceUrl
-		);
-		const hasDelivery = !!(
-			activeProject.jiraDeliveryUrl ||
-			activeProject.jiraDocsUrl ||
-			activeProject.jiraReleaseNoteUrl ||
-			activeProject.teamsReleaseNoteUrl
-		);
-		if (hasDiscovery) {
-			overhead++; // "Discovery" header
-			if (activeProject.jiraDiscoveryUrl) overhead++;
-			if (activeProject.confluenceUrl) overhead++;
-		}
-		if (hasDelivery) {
-			overhead++; // "Delivery" header
-			if (activeProject.jiraDeliveryUrl) overhead++;
-			if (activeProject.jiraDocsUrl) overhead++;
-			if (activeProject.jiraReleaseNoteUrl) overhead++;
-			if (activeProject.teamsReleaseNoteUrl) overhead++;
+		if (activeProject.resources.length > 0) {
+			overhead++; // "Resources" header
+			overhead += activeProject.resources.length;
 		}
 	}
 	// Each section header takes 2 lines (label + divider)
@@ -349,85 +332,21 @@ export const TaskPanel = ({
 							<Text bold>End</Text> {activeProject.endAt ?? "–"}
 						</Text>
 					</Box>
-					{(activeProject.jiraDiscoveryUrl ||
-						activeProject.confluenceUrl ||
-						activeProject.jiraDeliveryUrl ||
-						activeProject.jiraDocsUrl ||
-						activeProject.jiraReleaseNoteUrl ||
-						activeProject.teamsReleaseNoteUrl) && (
-						<Text dimColor>{"─".repeat(Math.max(terminalWidth - 36, 40))}</Text>
-					)}
-					{(activeProject.jiraDiscoveryUrl || activeProject.confluenceUrl) && (
+					{activeProject.resources.length > 0 && (
 						<>
-							<Text dimColor>{"─".repeat(24)}</Text>
-							<Text bold dimColor>
-								Discovery
+							<Text dimColor>
+								{"─".repeat(Math.max((terminalWidth ?? 80) - 36, 40))}
 							</Text>
-							{activeProject.jiraDiscoveryUrl && (
-								<Text>
-									{"  "}
-									<Text bold>Jira </Text>
-									<Text color="cyan">
-										[{shortUrl(activeProject.jiraDiscoveryUrl)}]
-									</Text>
-								</Text>
-							)}
-							{activeProject.confluenceUrl && (
-								<Text>
-									{"  "}
-									<Text bold>PRD </Text>
-									<Text color="cyan">
-										[{shortUrl(activeProject.confluenceUrl)}]
-									</Text>
-								</Text>
-							)}
-						</>
-					)}
-					{(activeProject.jiraDeliveryUrl ||
-						activeProject.jiraDocsUrl ||
-						activeProject.jiraReleaseNoteUrl ||
-						activeProject.teamsReleaseNoteUrl) && (
-						<>
-							<Text dimColor>{"─".repeat(24)}</Text>
 							<Text bold dimColor>
-								Delivery
+								Resources
 							</Text>
-							{activeProject.jiraDeliveryUrl && (
-								<Text>
+							{activeProject.resources.map((resource) => (
+								<Text key={resource.id}>
 									{"  "}
-									<Text bold>Epic </Text>
-									<Text color="cyan">
-										[{shortUrl(activeProject.jiraDeliveryUrl)}]
-									</Text>
+									<Text bold>{resource.label} </Text>
+									<Text color="cyan">[{shortUrl(resource.url)}]</Text>
 								</Text>
-							)}
-							{activeProject.jiraDocsUrl && (
-								<Text>
-									{"  "}
-									<Text bold>Docs </Text>
-									<Text color="cyan">
-										[{shortUrl(activeProject.jiraDocsUrl)}]
-									</Text>
-								</Text>
-							)}
-							{activeProject.jiraReleaseNoteUrl && (
-								<Text>
-									{"  "}
-									<Text bold>Release</Text>{" "}
-									<Text color="cyan">
-										[{shortUrl(activeProject.jiraReleaseNoteUrl)}]
-									</Text>
-								</Text>
-							)}
-							{activeProject.teamsReleaseNoteUrl && (
-								<Text>
-									{"  "}
-									<Text bold>Teams </Text>
-									<Text color="cyan">
-										[{shortUrl(activeProject.teamsReleaseNoteUrl)}]
-									</Text>
-								</Text>
-							)}
+							))}
 						</>
 					)}
 					<Text dimColor>{"─".repeat(24)}</Text>

@@ -7,8 +7,12 @@ import * as goalRepo from "@/server/repos/goals";
 import * as projectRepo from "@/server/repos/projects";
 import * as reminderRepo from "@/server/repos/reminders";
 import * as settingsRepo from "@/server/repos/settings";
+import * as completionLogRepo from "@/server/repos/task-completion-log";
 import * as taskRepo from "@/server/repos/tasks";
-import { getSyncService } from "@/server/sync/sync-service";
+import {
+	fetchAndSyncCalendar,
+	listCalendarEvents,
+} from "@/server/services/calendar";
 import type { ApiClient } from "./api-client";
 
 export const createDirectApi = (): ApiClient => ({
@@ -16,6 +20,17 @@ export const createDirectApi = (): ApiClient => ({
 
 	updateSettings: (input) =>
 		Promise.resolve(settingsRepo.updateSettings(input)),
+
+	listCalendarEvents: (query = {}) =>
+		Promise.resolve(listCalendarEvents(query)),
+
+	refreshCalendar: () => fetchAndSyncCalendar(),
+
+	linkTaskToEvent: (taskId, eventUid) => {
+		const result = taskRepo.linkTaskToEvent(taskId, eventUid);
+		if (!result) throw new Error(`Task ${taskId} not found`);
+		return Promise.resolve(result);
+	},
 
 	listProjects: () => Promise.resolve(projectRepo.listProjects()),
 
@@ -87,6 +102,9 @@ export const createDirectApi = (): ApiClient => ({
 		return Promise.resolve();
 	},
 
+	reorderProjects: (projectIds) =>
+		Promise.resolve(projectRepo.reorderProjects(projectIds)),
+
 	listTaskReminders: (taskId) =>
 		Promise.resolve(reminderRepo.listTaskReminders(taskId)),
 
@@ -104,21 +122,8 @@ export const createDirectApi = (): ApiClient => ({
 		return Promise.resolve();
 	},
 
-	getSyncStatus: () => Promise.resolve(getSyncService().getStatus()),
-
-	enableSync: async () => {
-		const sync = getSyncService();
-		sync.enable();
-		sync.startAutoSync();
-		await sync.syncNow().catch(() => {});
-		return sync.getStatus();
-	},
-
-	disableSync: () => {
-		const sync = getSyncService();
-		sync.disable();
-		return Promise.resolve(sync.getStatus());
-	},
-
-	syncNow: () => getSyncService().syncNow(),
+	getCompletionHistory: (taskId) =>
+		Promise.resolve(completionLogRepo.getCompletionHistory(taskId)),
+	listCompletions: (query = {}) =>
+		Promise.resolve(completionLogRepo.listCompletions(query.from, query.to)),
 });

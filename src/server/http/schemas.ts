@@ -27,6 +27,8 @@ export const settingsSchema = z
 	.object({
 		id: z.literal(1),
 		timezone: z.string(),
+		calendarIcsUrl: z.string().nullable(),
+		calendarLastSyncedAt: z.string().nullable(),
 		createdAt: z.string(),
 		updatedAt: z.string(),
 	})
@@ -35,8 +37,57 @@ export const settingsSchema = z
 export const settingsUpdateSchema = z
 	.object({
 		timezone: z.string().optional(),
+		calendarIcsUrl: z.string().nullable().optional(),
 	})
 	.openapi("SettingsUpdate");
+
+export const calendarEventSchema = z
+	.object({
+		id: z.number().int(),
+		uid: z.string(),
+		recurrenceId: z.string(),
+		summary: z.string(),
+		startAt: z.string(),
+		endAt: z.string().nullable(),
+		allDay: z.boolean(),
+		location: z.string().nullable(),
+		organizer: z.string().nullable(),
+	})
+	.openapi("CalendarEvent");
+
+export const calendarQuerySchema = z
+	.object({
+		from: z.string().optional(),
+		to: z.string().optional(),
+	})
+	.openapi("CalendarQuery");
+
+export const calendarRefreshResultSchema = z
+	.object({
+		count: z.number().int(),
+		lastSyncedAt: z.string(),
+	})
+	.openapi("CalendarRefreshResult");
+
+export const linkEventSchema = z
+	.object({
+		eventUid: z.string().nullable(),
+	})
+	.openapi("LinkEvent");
+
+export const projectResourceSchema = z
+	.object({
+		id: z.number().int(),
+		label: z.string(),
+		url: z.string(),
+		sortOrder: z.number().int(),
+	})
+	.openapi("ProjectResource");
+
+const projectResourceInputSchema = z.object({
+	label: z.string(),
+	url: z.string(),
+});
 
 export const projectSchema = z
 	.object({
@@ -48,12 +99,8 @@ export const projectSchema = z
 		endAt: z.string().nullable(),
 		color: z.string(),
 		isInbox: z.boolean(),
-		jiraDiscoveryUrl: z.string().nullable(),
-		jiraDeliveryUrl: z.string().nullable(),
-		confluenceUrl: z.string().nullable(),
-		jiraDocsUrl: z.string().nullable(),
-		jiraReleaseNoteUrl: z.string().nullable(),
-		teamsReleaseNoteUrl: z.string().nullable(),
+		sortOrder: z.number().int(),
+		resources: projectResourceSchema.array(),
 		createdAt: z.string(),
 		updatedAt: z.string(),
 	})
@@ -67,12 +114,7 @@ const projectInputFields = {
 	endAt: z.string().nullable().optional(),
 	color: z.string().optional(),
 	isInbox: z.boolean().optional(),
-	jiraDiscoveryUrl: z.string().nullable().optional(),
-	jiraDeliveryUrl: z.string().nullable().optional(),
-	confluenceUrl: z.string().nullable().optional(),
-	jiraDocsUrl: z.string().nullable().optional(),
-	jiraReleaseNoteUrl: z.string().nullable().optional(),
-	teamsReleaseNoteUrl: z.string().nullable().optional(),
+	resources: projectResourceInputSchema.array().optional(),
 };
 
 export const projectCreateSchema = z
@@ -82,6 +124,10 @@ export const projectCreateSchema = z
 export const projectUpdateSchema = z
 	.object({ ...projectInputFields, name: z.string().min(1).optional() })
 	.openapi("ProjectUpdate");
+
+export const projectReorderSchema = z
+	.object({ projectIds: z.number().int().array() })
+	.openapi("ProjectReorder");
 
 export const taskSchema = z
 	.object({
@@ -100,6 +146,7 @@ export const taskSchema = z
 		someday: z.boolean(),
 		completedAt: z.string().nullable(),
 		deletedAt: z.string().nullable(),
+		calendarEventUid: z.string().nullable(),
 		createdAt: z.string(),
 		updatedAt: z.string(),
 	})
@@ -155,6 +202,7 @@ export const taskQuerySchema = z
 			.optional(),
 		rootsOnly: queryBoolean.optional(),
 		someday: queryBoolean.optional(),
+		recurring: queryBoolean.optional(),
 	})
 	.openapi("TaskQuery");
 
@@ -214,23 +262,16 @@ export const reminderCreateSchema = z
 	})
 	.openapi("ReminderCreate");
 
-export const syncStatusSchema = z
+export const completionLogSchema = z
 	.object({
-		enabled: z.boolean(),
-		deviceId: z.string().nullable(),
-		lastSyncAt: z.string().nullable(),
-		lastPushAt: z.string().nullable(),
-		pendingChanges: z.number().int(),
+		id: z.number().int(),
+		taskId: z.number().int(),
+		title: z.string(),
+		completedAt: z.string(),
+		notes: z.string(),
+		createdAt: z.string(),
 	})
-	.openapi("SyncStatus");
-
-export const syncResultSchema = z
-	.object({
-		pushed: z.number().int(),
-		pulled: z.number().int(),
-		inboxImported: z.number().int(),
-	})
-	.openapi("SyncResult");
+	.openapi("CompletionLog");
 
 export const idParamSchema = z.object({
 	id: z.coerce

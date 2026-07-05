@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { resetDbForTests } from "@/server/db/client";
 import { listTasks } from "@/server/repos/tasks";
-import { processInbox } from "@/server/sync/inbox-importer";
+import { processInbox } from "@/server/services/inbox-importer";
 
 function makeTempDir(): string {
 	return fs.mkdtempSync(path.join(os.tmpdir(), "finish-em-inbox-test-"));

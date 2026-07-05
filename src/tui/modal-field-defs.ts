@@ -44,16 +44,6 @@ export const PROJECT_CREATE_FIELDS: ModalField[] = [
 		type: "date",
 		hint: "YYYY-MM-DD · E calendar",
 	},
-	{ key: "jiraDiscovery", label: "Discovery: Jira URL", type: "text" },
-	{ key: "confluenceUrl", label: "Discovery: PRD URL", type: "text" },
-	{ key: "jiraDelivery", label: "Delivery: Epic URL", type: "text" },
-	{ key: "jiraDocsUrl", label: "Delivery: Docs URL", type: "text" },
-	{
-		key: "jiraReleaseNoteUrl",
-		label: "Delivery: Release Note URL",
-		type: "text",
-	},
-	{ key: "teamsReleaseNoteUrl", label: "Delivery: Teams URL", type: "text" },
 	{ key: "_submit", label: "Create Project", type: "submit" },
 ];
 
@@ -94,16 +84,6 @@ export const PROJECT_EDIT_MODAL_FIELDS: ModalField[] = [
 		type: "date",
 		hint: "YYYY-MM-DD · E calendar",
 	},
-	{ key: "jiraDiscovery", label: "Discovery: Jira URL", type: "text" },
-	{ key: "confluenceUrl", label: "Discovery: PRD URL", type: "text" },
-	{ key: "jiraDelivery", label: "Delivery: Epic URL", type: "text" },
-	{ key: "jiraDocsUrl", label: "Delivery: Docs URL", type: "text" },
-	{
-		key: "jiraReleaseNoteUrl",
-		label: "Delivery: Release Note URL",
-		type: "text",
-	},
-	{ key: "teamsReleaseNoteUrl", label: "Delivery: Teams URL", type: "text" },
 	{ key: "_submit", label: "Save Project", type: "submit" },
 ];
 

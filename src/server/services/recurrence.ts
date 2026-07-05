@@ -20,6 +20,8 @@ type ParsedRule = {
 	freq: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY";
 	interval: number;
 	byDay: number[];
+	count: number | null;
+	until: Date | null;
 };
 
 function addDays(date: Date, days: number) {
@@ -71,7 +73,33 @@ function parseRRule(rule: string): ParsedRule | null {
 				.filter((value) => Number.isInteger(value))
 		: [];
 
-	return { freq, interval, byDay };
+	const countRaw = data.get("COUNT");
+	let count: number | null = null;
+	if (countRaw !== undefined) {
+		const countVal = Number(countRaw);
+		if (!Number.isInteger(countVal) || countVal <= 0) return null;
+		count = countVal;
+	}
+
+	const untilRaw = data.get("UNTIL");
+	let until: Date | null = null;
+	if (untilRaw !== undefined) {
+		let parsed: Date;
+		if (/^\d{8}T\d{6}Z?$/.test(untilRaw)) {
+			parsed = new Date(untilRaw);
+		} else if (/^\d{8}$/.test(untilRaw)) {
+			const y = untilRaw.slice(0, 4);
+			const m = untilRaw.slice(4, 6);
+			const d = untilRaw.slice(6, 8);
+			parsed = new Date(`${y}-${m}-${d}T00:00:00Z`);
+		} else {
+			return null;
+		}
+		if (Number.isNaN(parsed.getTime())) return null;
+		until = parsed;
+	}
+
+	return { freq, interval, byDay, count, until };
 }
 
 export function presetToRRule(preset: string | null) {
@@ -137,17 +165,21 @@ export function getNextOccurrence(input: {
 		return null;
 	}
 
+	let next: Date;
+
 	if (parsed.freq === "DAILY") {
-		return addDays(base, parsed.interval).toISOString();
+		next = addDays(base, parsed.interval);
+	} else if (parsed.freq === "MONTHLY") {
+		next = addMonths(base, parsed.interval);
+	} else if (parsed.freq === "YEARLY") {
+		next = addYears(base, parsed.interval);
+	} else {
+		next = nextWeeklyByDay(base, parsed.interval, parsed.byDay);
 	}
 
-	if (parsed.freq === "MONTHLY") {
-		return addMonths(base, parsed.interval).toISOString();
+	if (parsed.until !== null && next > parsed.until) {
+		return null;
 	}
 
-	if (parsed.freq === "YEARLY") {
-		return addYears(base, parsed.interval).toISOString();
-	}
-
-	return nextWeeklyByDay(base, parsed.interval, parsed.byDay).toISOString();
+	return next.toISOString();
 }

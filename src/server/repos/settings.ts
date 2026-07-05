@@ -14,14 +14,26 @@ export function getSettings(): AppSettings {
 export function updateSettings(
 	patch: Partial<{
 		timezone: string;
+		calendarIcsUrl: string | null;
+		calendarLastSyncedAt: string | null;
 	}>,
 ): AppSettings {
 	const current = getSettings();
 	const timezone = patch.timezone ?? current.timezone;
+	const calendarIcsUrl =
+		patch.calendarIcsUrl === undefined
+			? current.calendarIcsUrl
+			: patch.calendarIcsUrl;
+	const calendarLastSyncedAt =
+		patch.calendarLastSyncedAt === undefined
+			? current.calendarLastSyncedAt
+			: patch.calendarLastSyncedAt;
 
 	getDb()
-		.prepare("UPDATE settings SET timezone = ?, updated_at = ? WHERE id = 1")
-		.run(timezone, nowIso());
+		.prepare(
+			"UPDATE settings SET timezone = ?, calendar_ics_url = ?, calendar_last_synced_at = ?, updated_at = ? WHERE id = 1",
+		)
+		.run(timezone, calendarIcsUrl, calendarLastSyncedAt, nowIso());
 
 	return getSettings();
 }
