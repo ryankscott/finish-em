@@ -84,6 +84,11 @@ export function PlanningView() {
 		from: startOfDay(colStart).toISOString(),
 		to: endOfDay(rangeEnd).toISOString(),
 	});
+	const inboxProject = projects.find((p) => p.isInbox);
+	const { data: inboxTasks = [] } = useTasks(
+		{ status: "open", projectId: inboxProject?.id },
+		inboxProject != null,
+	);
 
 	const projectById = useMemo(
 		() => new Map(projects.map((p) => [p.id, p])),
@@ -101,6 +106,15 @@ export function PlanningView() {
 			events: CalendarEvent[];
 			isToday: boolean;
 		}> = [
+			{
+				key: "inbox",
+				// Unscheduled captures needing triage; dated inbox tasks already
+				// show in their day / overdue column, so exclude them here.
+				label: "Inbox",
+				tasks: inboxTasks.filter((t) => t.dueAt === null),
+				events: [],
+				isToday: false,
+			},
 			{
 				key: "overdue",
 				label: "Overdue",
@@ -127,7 +141,7 @@ export function PlanningView() {
 			});
 		}
 		return out;
-	}, [pastTasks, rangeTasks, events, colStart, days]);
+	}, [inboxTasks, pastTasks, rangeTasks, events, colStart, days]);
 
 	const flatTasks = useMemo(
 		() =>
