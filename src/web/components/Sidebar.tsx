@@ -276,10 +276,10 @@ export function Sidebar() {
 				active={pathname === "/inbox"}
 			/>
 			<NavLink
-				to="/upcoming"
+				to="/planning"
 				icon={<CalendarDays className={iconClass} />}
-				label="Upcoming"
-				active={pathname === "/upcoming"}
+				label="Planning"
+				active={pathname === "/planning"}
 			/>
 			<NavLink
 				to="/calendar"

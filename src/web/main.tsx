@@ -14,7 +14,7 @@ import { HotkeyProvider } from "./lib/hotkeys";
 import { UiProvider } from "./state/ui";
 import { CalendarView } from "./views/CalendarView";
 import { LogbookView } from "./views/LogbookView";
-import { UpcomingView } from "./views/UpcomingView";
+import { PlanningView } from "./views/PlanningView";
 import { RemindersView } from "./views/RemindersView";
 import { SettingsView } from "./views/SettingsView";
 import {
@@ -63,8 +63,8 @@ const routes = [
 	}),
 	createRoute({
 		getParentRoute: () => rootRoute,
-		path: "/upcoming",
-		component: UpcomingView,
+		path: "/planning",
+		component: PlanningView,
 	}),
 	createRoute({
 		getParentRoute: () => rootRoute,

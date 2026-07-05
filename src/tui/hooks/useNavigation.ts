@@ -2,7 +2,7 @@ import { startOfDay } from "date-fns";
 import { useCallback, useState } from "react";
 
 import type { SidebarItem } from "../Sidebar";
-import type { ViewMode } from "../UpcomingPanel";
+import type { ViewMode } from "../PlanningPanel";
 
 export type View =
 	| "inbox"

@@ -12,7 +12,7 @@ import type { SettingsRow } from "../SettingsPanel";
 import type { SidebarItem } from "../Sidebar";
 import { getTaskActions } from "../TaskActionPicker";
 import { TASK_EDIT_FIELDS } from "../TaskEditPicker";
-import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
+import type { ColumnTaskRow, DayColumn, ViewMode } from "../PlanningPanel";
 import { moveCursorByDays, stepCalendarMonth } from "./useCalendarPicker";
 import type { InputMode } from "./useInputBar";
 import type { FocusArea, View } from "./useNavigation";

@@ -13,8 +13,8 @@ import type {
 	Task,
 } from "../../server/types";
 import type { ApiClient } from "../api-client";
-import type { ViewMode } from "../UpcomingPanel";
-import { columnStartDate, daysToShow } from "../UpcomingPanel";
+import type { ViewMode } from "../PlanningPanel";
+import { columnStartDate, daysToShow } from "../PlanningPanel";
 import type { View } from "./useNavigation";
 
 const EMPTY_VIEW_COUNTS = {
@@ -88,7 +88,7 @@ export function useAppData({
 		else if (view === "inbox") setStatusText("Inbox");
 		else if (view === "today") setStatusText("Today");
 		else if (view === "overdue") setStatusText("Overdue");
-		else if (view === "upcoming") setStatusText("Upcoming");
+		else if (view === "upcoming") setStatusText("Planning");
 		else if (view === "priority") setStatusText("By Priority");
 		else if (view === "completed") setStatusText("Completed");
 		else if (view === "deleted") setStatusText("Deleted");
@@ -191,7 +191,7 @@ export function useAppData({
 				setTasks([...overdueFiltered, ...upcomingRangeTasks]);
 				setGoals(goalData);
 				setStatusText(
-					`Upcoming · ${format(colStart, "d MMM")} – ${format(rangeEnd, "d MMM")}`,
+					`Planning · ${format(colStart, "d MMM")} – ${format(rangeEnd, "d MMM")}`,
 				);
 			} else if (view === "priority") {
 				const sorted = [...allOpenTasks].sort(

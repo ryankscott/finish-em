@@ -1,8 +1,8 @@
 import { useEffect, useMemo } from "react";
 
 import type { AppSettings, Project, Task } from "../../server/types";
-import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
-import { buildColumns, buildColumnTaskRows } from "../UpcomingPanel";
+import type { ColumnTaskRow, DayColumn, ViewMode } from "../PlanningPanel";
+import { buildColumns, buildColumnTaskRows } from "../PlanningPanel";
 import type { SettingsRow } from "../SettingsPanel";
 import { buildSettingsRows } from "../SettingsPanel";
 import type { TaskRow } from "../task-row-utils";
@@ -94,7 +94,7 @@ export function useNavDerived({
 			inbox: "Inbox",
 			today: "Today",
 			overdue: "Overdue",
-			upcoming: "Upcoming",
+			upcoming: "Planning",
 			priority: "By Priority",
 			completed: "Completed",
 			deleted: "Deleted",

@@ -32,7 +32,7 @@ export function CommandPalette() {
 	const views: Array<[string, string]> = [
 		["Today", "/today"],
 		["Inbox", "/inbox"],
-		["Upcoming", "/upcoming"],
+		["Planning", "/planning"],
 		["Overdue", "/overdue"],
 		["By Priority", "/priority"],
 		["Completed", "/completed"],

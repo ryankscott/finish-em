@@ -27,7 +27,7 @@ import { useToasts } from "./hooks/useToasts";
 import { useUndo } from "./hooks/useUndo";
 import { InputBar } from "./InputBar";
 import { LinkPicker } from "./LinkPicker";
-import { dateKey, UpcomingPanel } from "./UpcomingPanel";
+import { dateKey, PlanningPanel } from "./PlanningPanel";
 import { ProjectEditPicker } from "./ProjectEditPicker";
 import { RemindersPanel } from "./RemindersPanel";
 import { SettingsPanel } from "./SettingsPanel";
@@ -407,7 +407,7 @@ export const App = ({ api, onQuit }: AppProps) => {
 						terminalHeight={terminalHeight}
 					/>
 				) : nav.view === "upcoming" ? (
-					<UpcomingPanel
+					<PlanningPanel
 						columns={navDerived.columns}
 						goals={data.goals}
 						projectMap={navDerived.projectMap}

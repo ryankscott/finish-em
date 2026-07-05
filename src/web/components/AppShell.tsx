@@ -20,7 +20,7 @@ import { TaskEditDialog } from "./TaskEditDialog";
 const VIEW_KEYS = [
 	"/today",
 	"/inbox",
-	"/upcoming",
+	"/planning",
 	"/overdue",
 	"/priority",
 	"/completed",

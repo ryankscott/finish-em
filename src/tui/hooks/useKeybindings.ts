@@ -4,7 +4,7 @@ import type { Goal, Project, Reminder, Task } from "../../server/types";
 import type { EnumPickerItem } from "../EnumPicker";
 import type { SettingsRow } from "../SettingsPanel";
 import type { SidebarItem } from "../Sidebar";
-import type { ColumnTaskRow, DayColumn, ViewMode } from "../UpcomingPanel";
+import type { ColumnTaskRow, DayColumn, ViewMode } from "../PlanningPanel";
 import type { InputMode } from "./useInputBar";
 import { taskToModalValues, useMainKeys } from "./useMainKeys";
 import type { FocusArea, View } from "./useNavigation";

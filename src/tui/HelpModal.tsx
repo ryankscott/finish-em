@@ -84,7 +84,7 @@ export const SHORTCUTS: ShortcutRow[] = [
 			"Edit project — full form modal (works from any view when sidebar is focused)",
 	},
 	{ keys: "D", action: "Delete project (in project view, non-inbox)" },
-	{ keys: "h / ←", action: "Previous column", section: "Upcoming" },
+	{ keys: "h / ←", action: "Previous column", section: "Planning" },
 	{ keys: "l / →", action: "Next column" },
 	{ keys: "[ / ]", action: "Previous / next week" },
 	{ keys: "t", action: "Jump to today" },

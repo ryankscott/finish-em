@@ -19,7 +19,7 @@ const SECTIONS: Array<[string, Array<[string, string]>]> = [
 			["\\", "Show / hide sidebar"],
 			["/", "Search tasks"],
 			["⌘K", "Command palette"],
-			["1–8", "Switch view (Today, Inbox, Upcoming…)"],
+			["1–8", "Switch view (Today, Inbox, Planning…)"],
 		],
 	],
 	[
@@ -42,7 +42,7 @@ const SECTIONS: Array<[string, Array<[string, string]>]> = [
 		],
 	],
 	[
-		"Upcoming",
+		"Planning",
 		[
 			["h / l", "Previous / next column"],
 			["[ / ]", "Previous / next week"],

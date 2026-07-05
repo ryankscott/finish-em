@@ -60,7 +60,7 @@ const NAV_ITEMS: NavItem[] = [
 	{
 		type: "nav",
 		key: "upcoming",
-		label: "Upcoming",
+		label: "Planning",
 		countKey: "upcoming",
 		view: "upcoming",
 	},

@@ -11,13 +11,20 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { Task } from "@/server/types";
+import type { CalendarEvent, Task } from "@/server/types";
 
+import { EventRow } from "../components/EventRow";
 import { GoalsPanel } from "../components/GoalsPanel";
 import { TaskRow } from "../components/TaskRow";
 import { cn } from "../lib/cn";
 import { useHotkeyScope } from "../lib/hotkeys";
-import { useProjects, useTaskMutations, useTasks } from "../lib/queries";
+import {
+	useCalendarEvents,
+	useProjects,
+	useTaskMutations,
+	useTasks,
+} from "../lib/queries";
+import { useAddTodoFromEvent } from "../lib/use-add-todo-from-event";
 import { useUi } from "../state/ui";
 import { ViewTitle } from "./SimpleViews";
 
@@ -25,7 +32,7 @@ type ViewMode = "day" | "work-week" | "week";
 
 const dateKey = (date: Date) => format(date, "yyyy-MM-dd");
 
-// Mirrors src/tui/UpcomingPanel.tsx (which is Ink-coupled and can't be imported).
+// Mirrors src/tui/PlanningPanel.tsx (which is Ink-coupled and can't be imported).
 function columnStartDate(anchorDate: Date, viewMode: ViewMode): Date {
 	if (viewMode === "work-week")
 		return startOfWeek(anchorDate, { weekStartsOn: 1 });
@@ -44,10 +51,11 @@ const nextMode: Record<ViewMode, ViewMode> = {
 	week: "day",
 };
 
-export function UpcomingView() {
+export function PlanningView() {
 	const ui = useUi();
 	const { data: projects = [] } = useProjects();
 	const { completeTask, deleteTask } = useTaskMutations();
+	const { onAddTodo, addingUid } = useAddTodoFromEvent();
 	const [anchorDate, setAnchorDate] = useState(() => startOfDay(new Date()));
 	const [viewMode, setViewMode] = useState<ViewMode>("work-week");
 	const [selectedIndex, setSelectedIndex] = useState(0);
@@ -72,6 +80,10 @@ export function UpcomingView() {
 		status: "open",
 		to: startOfDay(colStart).toISOString(),
 	});
+	const { data: events = [] } = useCalendarEvents({
+		from: startOfDay(colStart).toISOString(),
+		to: endOfDay(rangeEnd).toISOString(),
+	});
 
 	const projectById = useMemo(
 		() => new Map(projects.map((p) => [p.id, p])),
@@ -86,8 +98,17 @@ export function UpcomingView() {
 			key: string;
 			label: string;
 			tasks: Task[];
+			events: CalendarEvent[];
 			isToday: boolean;
-		}> = [{ key: "overdue", label: "Overdue", tasks: overdue, isToday: false }];
+		}> = [
+			{
+				key: "overdue",
+				label: "Overdue",
+				tasks: overdue,
+				events: [],
+				isToday: false,
+			},
+		];
 		for (let i = 0; i < days; i++) {
 			const date = addDays(colStart, i);
 			out.push({
@@ -96,11 +117,17 @@ export function UpcomingView() {
 				tasks: rangeTasks.filter(
 					(t) => t.dueAt && isSameDay(parseISO(t.dueAt), date),
 				),
+				events: events
+					.filter((e) => isSameDay(parseISO(e.startAt), date))
+					.sort((a, b) => {
+						if (a.allDay !== b.allDay) return a.allDay ? -1 : 1;
+						return a.startAt.localeCompare(b.startAt);
+					}),
 				isToday: isSameDay(date, new Date()),
 			});
 		}
 		return out;
-	}, [pastTasks, rangeTasks, colStart, days]);
+	}, [pastTasks, rangeTasks, events, colStart, days]);
 
 	const flatTasks = useMemo(
 		() =>
@@ -110,13 +137,22 @@ export function UpcomingView() {
 		[columns],
 	);
 
-	const clampedIndex = Math.min(selectedIndex, Math.max(0, flatTasks.length - 1));
+	const clampedIndex = Math.min(
+		selectedIndex,
+		Math.max(0, flatTasks.length - 1),
+	);
 	const selectedFlat = flatTasks[clampedIndex];
 	const selected = selectedFlat?.task;
 
 	useHotkeyScope({
-		j: () => setSelectedIndex((i) => Math.min(i + 1, Math.max(0, flatTasks.length - 1))),
-		arrowdown: () => setSelectedIndex((i) => Math.min(i + 1, Math.max(0, flatTasks.length - 1))),
+		j: () =>
+			setSelectedIndex((i) =>
+				Math.min(i + 1, Math.max(0, flatTasks.length - 1)),
+			),
+		arrowdown: () =>
+			setSelectedIndex((i) =>
+				Math.min(i + 1, Math.max(0, flatTasks.length - 1)),
+			),
 		k: () => setSelectedIndex((i) => Math.max(i - 1, 0)),
 		arrowup: () => setSelectedIndex((i) => Math.max(i - 1, 0)),
 		"[": () => setAnchorDate((d) => addDays(d, -7)),
@@ -148,7 +184,7 @@ export function UpcomingView() {
 	return (
 		<>
 			<ViewTitle
-				title={`Upcoming · ${format(colStart, "d MMM")} - ${format(rangeEnd, "d MMM")}`}
+				title={`Planning · ${format(colStart, "d MMM")} - ${format(rangeEnd, "d MMM")}`}
 			/>
 			<div className="flex min-h-0 flex-1 flex-col">
 				<div className="shrink-0 border-b border-border">
@@ -160,49 +196,68 @@ export function UpcomingView() {
 				</div>
 				<ScrollArea className="flex-1">
 					<div className="flex flex-col gap-2 p-3">
-						{columns.map((col, ci) => (
-							<div
-								key={col.key}
-								className={cn(
-									"flex flex-col rounded-lg border border-border/60 bg-surface/40",
-									ci === selectedFlat?.ci && "border-accent/50",
-								)}
-							>
+						{columns.map((col, ci) => {
+							const itemCount = col.tasks.length + col.events.length;
+							return (
 								<div
+									key={col.key}
 									className={cn(
-										"border-b border-border/60 px-3 py-2 text-xs font-semibold",
-										col.key === "overdue"
-											? "text-p1"
-											: col.isToday
-												? "text-accent"
-												: "text-muted",
+										"flex flex-col rounded-lg border border-border/60 bg-surface/40",
+										ci === selectedFlat?.ci && "border-accent/50",
 									)}
 								>
-									{col.label}
-									<span className="ml-2 font-normal text-muted">
-										{col.tasks.length}
-									</span>
+									<div
+										className={cn(
+											"border-b border-border/60 px-3 py-2 text-xs font-semibold",
+											col.key === "overdue"
+												? "text-p1"
+												: col.isToday
+													? "text-accent"
+													: "text-muted",
+										)}
+									>
+										{col.label}
+										<span className="ml-2 font-normal text-muted">
+											{itemCount}
+										</span>
+									</div>
+									<div className="flex flex-col gap-0.5 p-1.5">
+										{col.events.length > 0 ? (
+											<div className="flex flex-col gap-1.5 px-1 pb-1.5">
+												{col.events.map((event) => (
+													<EventRow
+														key={`${event.uid}-${event.recurrenceId}`}
+														event={event}
+														onAddTodo={onAddTodo}
+														adding={addingUid === event.uid}
+													/>
+												))}
+											</div>
+										) : null}
+										{itemCount === 0 ? (
+											<p className="px-2 py-1.5 text-xs text-muted/50">
+												No tasks
+											</p>
+										) : (
+											col.tasks.map((task, ri) => (
+												<TaskRow
+													key={task.id}
+													task={task}
+													project={projectById.get(task.projectId)}
+													selected={
+														ci === selectedFlat?.ci && ri === selectedFlat?.ri
+													}
+													depth={0}
+													hasSubtasks={false}
+													expanded={false}
+													showProject
+												/>
+											))
+										)}
+									</div>
 								</div>
-								<div className="flex flex-col gap-0.5 p-1.5">
-									{col.tasks.length === 0 ? (
-										<p className="px-2 py-1.5 text-xs text-muted/50">No tasks</p>
-									) : (
-										col.tasks.map((task, ri) => (
-											<TaskRow
-												key={task.id}
-												task={task}
-												project={projectById.get(task.projectId)}
-												selected={ci === selectedFlat?.ci && ri === selectedFlat?.ri}
-												depth={0}
-												hasSubtasks={false}
-												expanded={false}
-												showProject
-											/>
-										))
-									)}
-								</div>
-							</div>
-						))}
+							);
+						})}
 					</div>
 				</ScrollArea>
 			</div>

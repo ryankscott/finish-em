@@ -297,7 +297,7 @@ const DayColumnView = ({
 	);
 };
 
-type UpcomingPanelProps = {
+type PlanningPanelProps = {
 	columns: DayColumn[];
 	goals: Goal[];
 	projectMap: Record<number, Project>;
@@ -311,7 +311,7 @@ type UpcomingPanelProps = {
 	terminalWidth: number;
 };
 
-export const UpcomingPanel = ({
+export const PlanningPanel = ({
 	columns,
 	goals,
 	projectMap,
@@ -323,7 +323,7 @@ export const UpcomingPanel = ({
 	selectedTaskIndex,
 	selectedGoalIndex,
 	terminalWidth: _terminalWidth,
-}: UpcomingPanelProps) => {
+}: PlanningPanelProps) => {
 	const borderColor = focused ? "magentaBright" : "gray";
 
 	const viewModeLabel =
@@ -353,7 +353,7 @@ export const UpcomingPanel = ({
 		>
 			<Box marginBottom={1} justifyContent="space-between">
 				<Text bold color="magentaBright">
-					Upcoming
+					Planning
 				</Text>
 				<Text dimColor>
 					{viewModeLabel} · {dateLabel} · v mode · t today · g goal
