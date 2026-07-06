@@ -7,6 +7,7 @@ import {
 	startOfDay,
 	startOfWeek,
 } from "date-fns";
+import { Columns3, Rows3 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -29,6 +30,7 @@ import { useUi } from "../state/ui";
 import { ViewTitle } from "./SimpleViews";
 
 type ViewMode = "day" | "work-week" | "week";
+type Layout = "vertical" | "horizontal";
 
 const dateKey = (date: Date) => format(date, "yyyy-MM-dd");
 
@@ -58,6 +60,7 @@ export function PlanningView() {
 	const { onAddTodo, addingUid } = useAddTodoFromEvent();
 	const [anchorDate, setAnchorDate] = useState(() => startOfDay(new Date()));
 	const [viewMode, setViewMode] = useState<ViewMode>("work-week");
+	const [layout, setLayout] = useState<Layout>("vertical");
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [goalAddSignal, setGoalAddSignal] = useState(0);
 
@@ -208,15 +211,55 @@ export function PlanningView() {
 						addSignal={goalAddSignal}
 					/>
 				</div>
-				<ScrollArea className="flex-1">
-					<div className="flex flex-col gap-2 p-3">
+				<div className="flex items-center justify-end gap-2 border-b border-border/60 px-3 py-2">
+					<div className="flex items-center rounded-md border border-border p-0.5">
+						<button
+							type="button"
+							onClick={() => setLayout("vertical")}
+							aria-label="Stack columns vertically"
+							title="Stack columns vertically"
+							className={cn(
+								"flex items-center gap-1 rounded px-2 py-1",
+								layout === "vertical"
+									? "bg-accent/15 text-accent"
+									: "text-muted hover:text-foreground",
+							)}
+						>
+							<Rows3 className="h-3.5 w-3.5" />
+						</button>
+						<button
+							type="button"
+							onClick={() => setLayout("horizontal")}
+							aria-label="Arrange columns horizontally"
+							title="Arrange columns horizontally"
+							className={cn(
+								"flex items-center gap-1 rounded px-2 py-1",
+								layout === "horizontal"
+									? "bg-accent/15 text-accent"
+									: "text-muted hover:text-foreground",
+							)}
+						>
+							<Columns3 className="h-3.5 w-3.5" />
+						</button>
+					</div>
+				</div>
+				<ScrollArea className="flex-1" horizontal={layout === "horizontal"}>
+					<div
+						className={cn(
+							"gap-2 p-3",
+							layout === "vertical"
+								? "flex flex-col"
+								: "flex flex-row items-start overflow-x-auto",
+						)}
+					>
 						{columns.map((col, ci) => {
 							const itemCount = col.tasks.length + col.events.length;
 							return (
 								<div
 									key={col.key}
 									className={cn(
-										"flex flex-col rounded-lg border border-border/60 bg-surface/40",
+										"flex min-w-0 flex-col rounded-lg border border-border/60 bg-surface/40",
+										layout === "horizontal" && "w-80 shrink-0",
 										ci === selectedFlat?.ci && "border-accent/50",
 									)}
 								>
@@ -235,9 +278,9 @@ export function PlanningView() {
 											{itemCount}
 										</span>
 									</div>
-									<div className="flex flex-col gap-0.5 p-1.5">
+									<div className="flex min-w-0 flex-col gap-0.5 p-1.5">
 										{col.events.length > 0 ? (
-											<div className="flex flex-col gap-1.5 px-1 pb-1.5">
+											<div className="flex min-w-0 flex-col gap-1.5 px-1 pb-1.5">
 												{col.events.map((event) => (
 													<EventRow
 														key={`${event.uid}-${event.recurrenceId}`}

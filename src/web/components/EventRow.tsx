@@ -37,7 +37,7 @@ export function EventRow({
 			<div className="w-16 shrink-0 pt-0.5 text-right text-xs font-medium text-muted">
 				{startLabel(event)}
 			</div>
-			<div className="relative flex flex-1 items-start gap-2 rounded-md border border-border/60 bg-surface/60 px-3 py-2">
+			<div className="relative flex min-w-0 flex-1 items-start gap-2 rounded-md border border-border/60 bg-surface/60 px-3 py-2">
 				<div className="absolute inset-y-0 left-0 w-1 rounded-l-md bg-accent/70" />
 				<div className="min-w-0 flex-1">
 					<span className="block truncate text-sm font-medium">
