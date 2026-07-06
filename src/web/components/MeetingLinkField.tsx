@@ -95,7 +95,7 @@ export function MeetingLinkField({ value, onChange }: MeetingLinkFieldProps) {
 									<span className="truncate">{event.summary}</span>
 									<span className="text-xs text-muted">
 										{event.allDay
-											? format(parseISO(event.startAt), "EEE d MMM · All day")
+											? format(parseISO(event.startAt), "EEE d MMM · 'All day'")
 											: format(parseISO(event.startAt), "EEE d MMM · h:mm a")}
 									</span>
 								</button>
