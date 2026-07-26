@@ -27,10 +27,10 @@ plans/         # Planning docs, change notes, and capability specs
 
 ```bash
 bun install          # Install dependencies
-bun run dev          # Run TUI in watch mode
+bun run dev          # Run the API server + Vite web dev server
 bun test             # Run all tests
 bun run check        # Lint + format check (Biome)
-bun run db:migrate   # Apply SQL migrations from src/server/db/migrations/
+bun run db:export    # Export local SQLite as D1 INSERT statements
 ```
 
 ## Environment Variables
@@ -91,17 +91,28 @@ When building or modifying the web interface (if applicable):
 
 ## Database Safety
 
-- **NEVER run `drizzle-kit` against the live database.** Schema is owned by `SCHEMA_STATEMENTS` + the `ensure*Schema` guards in `client.ts` and the SQL migrations in `src/server/db/migrations/`. `drizzle-schema.ts` is reference-only and intentionally incomplete; `drizzle-kit push`/`studio`/`migrate` would drop the tables/columns it omits (this is what once wiped the `tasks` table). `drizzle.config.ts` defaults to a disposable scratch DB and hard-throws if pointed at `~/.finish-em/todo.db`. Use `DRIZZLE_DB_PATH` for an explicit scratch path if you need drizzle-kit for diffing.
-- **Automatic backups.** `getDb()` takes a consistent `VACUUM INTO` snapshot of an existing DB before any schema work, once per day, rotated to the last 14, in `<dbDir>/backups/` (e.g. `~/.finish-em/backups/`). Disable with `TODO_DB_NO_BACKUP=1`; tests and temp DBs are skipped.
-- **Manual backup / restore.** `bun run db:backup` writes a timestamped `manual-*.db` snapshot. To restore: stop the app/server (release the DB), copy a backup over `~/.finish-em/todo.db`, delete the `-wal`/`-shm` sidecars, relaunch. `scripts/recover-from-sync.ts` can rebuild tasks/goals from the iCloud sync changeset history if a snapshot is unavailable.
+- **Schema is owned by `migrations/`.** Drizzle has been removed; there is no `drizzle-kit` in this project any more. Do not reintroduce a schema-diffing tool that points at real data.
+- **Production backups are D1 Time Travel** — 30-day point-in-time restore, managed by Cloudflare, no code. This replaced the daily `VACUUM INTO` snapshot that `getDb()` used to take, which cannot work on D1.
+- **Manual local backup.** `bun run db:backup` writes a timestamped `manual-*.db` snapshot of the local SQLite file. To restore: stop the server (release the DB), copy a backup over `~/.finish-em/todo.db`, delete the `-wal`/`-shm` sidecars, relaunch.
 
 ## Database Migrations
 
-SQL migrations live in `src/server/db/migrations/` and are applied with `bun run db:migrate`. The `getDb()` function in `src/server/db/client.ts` also runs schema guards on startup for column additions (soft deletes, subtasks, project enhancements).
+Schema lives in `migrations/` as Cloudflare D1 migration files, applied with
+`wrangler d1 migrations apply finish-em --local|--remote`.
+
+`migrations/0001_init.sql` is the flattened current-state schema. It replaced the
+old `src/server/db/migrations/` files *and* the 14 `ensure*Schema` guards that
+used to run on every `getDb()`. Those guards decided what to add by inspecting
+`PRAGMA table_info` and `sqlite_master`, neither of which D1 supports, so
+schema changes are now ordered run-once files with no introspection.
 
 When adding a new migration:
-1. Create a new numbered file: `src/server/db/migrations/00N_description.sql`
-2. Add the corresponding schema guard in `client.ts` if needed for backward compatibility
+1. Create `migrations/000N_description.sql`
+2. Apply it locally, then remotely. Do not edit an already-applied file.
+
+Deliberately dropped when flattening (see the header comment in `0001_init.sql`
+for the reasoning): `sync_meta`, `sync_changelog`, `assistant_messages`,
+`schema_migrations`, `settings.ai_*`, and `tasks.blocked_at`/`blocked_reason`.
 3. Update the Drizzle schema in `src/server/db/drizzle-schema.ts`
 
 ## Planning Docs

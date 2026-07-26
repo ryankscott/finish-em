@@ -18,8 +18,8 @@
     "format": "biome format",
     "lint": "biome lint",
     "check": "biome check",
-    "db:migrate": "bun scripts/db-migrate.mjs",
-    "db:backup": "PATH=\"$HOME/.bun/bin:$PATH\" bun scripts/db-backup.ts"
+    "db:backup": "PATH=\"$HOME/.bun/bin:$PATH\" bun scripts/db-backup.ts",
+    "db:export": "PATH=\"$HOME/.bun/bin:$PATH\" bun scripts/export-for-d1.ts"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",

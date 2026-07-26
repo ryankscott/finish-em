@@ -98,16 +98,24 @@ The app bundle is built at `dist/finish-em.app` and uses `public/icon.svg` to ge
 
 ## Migration tooling
 
+Schema lives in `migrations/` as Cloudflare D1 migration files, applied with
+wrangler:
+
 ```bash
-bun run db:generate
-bun run db:migrate
-bun run db:drizzle-migrate
-bun run db:studio
+wrangler d1 migrations apply finish-em --local   # local dev database
+wrangler d1 migrations apply finish-em --remote  # production
 ```
 
-`drizzle.config.ts` points to `src/server/db/drizzle-schema.ts`.
-Generated Drizzle migrations are written to `src/server/db/drizzle`.
-`db:migrate` applies idempotent SQL migrations from `src/server/db/migrations`.
+`migrations/0001_init.sql` is the flattened current-state schema. It replaces
+both the old `src/server/db/migrations/` files and the `ensure*Schema` guards
+that used to run on every `getDb()`, since those relied on `PRAGMA table_info`
+and `sqlite_master` introspection that D1 does not support.
+
+To export the local SQLite database as D1-compatible INSERT statements:
+
+```bash
+bun run db:export > data.sql
+```
 
 ## Environment variables
 
