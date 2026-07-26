@@ -13,7 +13,6 @@ import { createRoute, OpenAPIHono, type RouteConfig } from "@hono/zod-openapi";
 import type { Context } from "hono";
 
 import type { Db } from "@/server/db/types";
-
 import * as goalRepo from "@/server/repos/goals";
 import * as projectRepo from "@/server/repos/projects";
 import * as reminderRepo from "@/server/repos/reminders";
@@ -24,6 +23,12 @@ import {
 	fetchAndSyncCalendar,
 	listCalendarEvents,
 } from "@/server/services/calendar";
+import {
+	clearedSessionCookie,
+	createAuthMiddleware,
+	sessionCookie,
+	sha256Hex,
+} from "./auth";
 
 import {
 	calendarEventSchema,
@@ -36,8 +41,10 @@ import {
 	goalQuerySchema,
 	goalSchema,
 	goalUpdateSchema,
+	healthSchema,
 	idParamSchema,
 	linkEventSchema,
+	loginSchema,
 	projectCreateSchema,
 	projectReorderSchema,
 	projectSchema,
@@ -45,6 +52,7 @@ import {
 	reminderCreateSchema,
 	reminderSchema,
 	reminderWithTitleSchema,
+	sessionSchema,
 	settingsSchema,
 	settingsUpdateSchema,
 	taskCreateSchema,
@@ -65,6 +73,10 @@ function jsonResponse(schema: z.ZodTypeAny, description: string) {
 			content: { "application/json": { schema: errorSchema } },
 			description: "Invalid request",
 		},
+		401: {
+			content: { "application/json": { schema: errorSchema } },
+			description: "Authentication required",
+		},
 		404: {
 			content: { "application/json": { schema: errorSchema } },
 			description: "Not found",
@@ -74,11 +86,20 @@ function jsonResponse(schema: z.ZodTypeAny, description: string) {
 
 export type AppEnv = { Variables: { db: Db } };
 
-/**
- * @param resolveDb turns a request into a Db. Local dev passes `() => getDb()`
- *   (bun:sqlite); the Worker passes `(c) => createD1Db(c.env.DB)`.
- */
-export function createApp(resolveDb: (c: Context<AppEnv>) => Db) {
+export type AppOptions = {
+	/**
+	 * Turns a request into a Db. Local dev passes `() => getDb()` (bun:sqlite);
+	 * the Worker passes `(c) => createD1Db(c.env.DB)`.
+	 */
+	resolveDb: (c: Context<AppEnv>) => Db;
+	/**
+	 * The shared password. Returning undefined leaves the API open, which is what
+	 * local dev and the test suite rely on.
+	 */
+	getSecret?: (c: Context<AppEnv>) => string | undefined;
+};
+
+export function createApp({ resolveDb, getSecret }: AppOptions) {
 	const app = new OpenAPIHono<AppEnv>({
 		defaultHook: (result, c) => {
 			if (!result.success) {
@@ -98,6 +119,73 @@ export function createApp(resolveDb: (c: Context<AppEnv>) => Db) {
 		c.set("db", resolveDb(c));
 		await next();
 	});
+
+	app.use(
+		"*",
+		createAuthMiddleware((c) => getSecret?.(c as Context<AppEnv>)),
+	);
+
+	// Health check. Exempt from auth and deliberately does not touch the
+	// database, so it reports "the Worker is up" rather than "D1 is reachable".
+	app.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/health",
+			responses: jsonResponse(healthSchema, "Service is up"),
+		}),
+		(c) => c.json({ ok: true } as const, 200),
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/login",
+			request: {
+				body: { content: { "application/json": { schema: loginSchema } } },
+			},
+			responses: jsonResponse(sessionSchema, "Logged in"),
+		}),
+		async (c) => {
+			const secret = getSecret?.(c);
+			if (!secret) {
+				// No secret configured: the API is already open, so report success
+				// rather than leaving the login screen stuck on a failing request.
+				return c.json({ authenticated: true }, 200);
+			}
+
+			const { password } = c.req.valid("json");
+			const token = await sha256Hex(secret);
+			if ((await sha256Hex(password)) !== token) {
+				return c.json({ error: "Invalid password" }, 401);
+			}
+
+			const secure = new URL(c.req.url).protocol === "https:";
+			c.header("Set-Cookie", sessionCookie(token, secure));
+			return c.json({ authenticated: true }, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/logout",
+			responses: jsonResponse(sessionSchema, "Logged out"),
+		}),
+		(c) => {
+			c.header("Set-Cookie", clearedSessionCookie());
+			return c.json({ authenticated: false }, 200);
+		},
+	);
+
+	// Reaching this at all means the auth middleware let the request through.
+	app.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/session",
+			responses: jsonResponse(sessionSchema, "Session state"),
+		}),
+		(c) => c.json({ authenticated: true }, 200),
+	);
 
 	// Settings
 	app.openapi(

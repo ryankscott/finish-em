@@ -1,4 +1,4 @@
-import { nowIso } from "@/server/db/client";
+import { nowIso } from "@/lib/datetime";
 import type { BatchOp, Db } from "@/server/db/types";
 import { mapProjectRow } from "@/server/repos/mappers";
 import {

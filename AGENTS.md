@@ -26,18 +26,37 @@ plans/         # Planning docs, change notes, and capability specs
 ## Development Commands
 
 ```bash
-bun install          # Install dependencies
-bun run dev          # Run the API server + Vite web dev server
-bun test             # Run all tests
-bun run check        # Lint + format check (Biome)
-bun run db:export    # Export local SQLite as D1 INSERT statements
+bun install               # Install dependencies
+bun run dev               # Bun API server + Vite web dev server (bun:sqlite)
+bun run worker:dev        # The real Worker on local D1 (workerd via wrangler)
+bun test                  # Run all tests
+bun run check             # Lint + format check (Biome)
+bun run d1:migrate:local  # Apply migrations to the local D1
+bun run db:export         # Export local SQLite as D1 INSERT statements
+bun run worker:deploy     # Build the web UI and deploy the Worker
+```
+
+## Two Runtimes
+
+The deployed target is a Cloudflare Worker (`src/server/worker.ts`, D1). The Bun
+server (`src/server/http/main.ts`, bun:sqlite) is kept for fast local dev and
+because the test suite runs on `bun test` rather than in workerd.
+
+Both share everything above the database via the `Db` seam in
+`src/server/db/types.ts`:
+
+```
+app.ts + repos/ + services/   runtime-agnostic, no bun:sqlite / node builtins
+  ├── db/client.ts            bun:sqlite  (local dev, tests)
+  └── db/d1.ts                D1          (deployed Worker)
 ```
 
 ## Environment Variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `TODO_DB_PATH` | `./data/todo.db` (dev) / `~/.finish-em/todo.db` (compiled) | Path to the SQLite database |
+| `TODO_DB_PATH` | `~/.finish-em/todo.db` | Local SQLite path (Bun server only; the Worker uses the D1 binding) |
+| `FINISH_EM_AUTH_SECRET` | — | Shared password. **Unset leaves the API open** — that is what keeps local dev and tests unauthenticated. Set in production with `wrangler secret put`. |
 | `OPENAI_API_KEY` | — | Enables AI fallback in Quick Add |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Custom OpenAI-compatible base URL |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Model used for AI Quick Add |

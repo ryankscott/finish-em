@@ -10,6 +10,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { AppShell } from "./components/AppShell";
+import { LoginGate } from "./components/LoginGate";
 import { HotkeyProvider } from "./lib/hotkeys";
 import { UiProvider } from "./state/ui";
 import { CalendarView } from "./views/CalendarView";
@@ -41,7 +42,16 @@ const queryClient = new QueryClient({
 	},
 });
 
-const rootRoute = createRootRoute({ component: AppShell });
+// LoginGate wraps AppShell rather than living inside it, so none of the app's
+// hooks, hotkeys, or polling queries run while locked out. It renders its
+// children straight through when no password is configured.
+const rootRoute = createRootRoute({
+	component: () => (
+		<LoginGate>
+			<AppShell />
+		</LoginGate>
+	),
+});
 
 const routes = [
 	createRoute({

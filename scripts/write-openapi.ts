@@ -8,7 +8,7 @@ import path from 'node:path'
 import { getDb } from '../src/server/db/client'
 import { createApp } from '../src/server/http/app'
 
-const app = createApp(() => getDb())
+const app = createApp({ resolveDb: () => getDb() })
 const response = await app.request('/api/openapi.json')
 if (!response.ok) {
   console.error(`Failed to generate OpenAPI document: ${response.status}`)

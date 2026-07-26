@@ -1,4 +1,4 @@
-import { nowIso } from "@/server/db/client";
+import { nowIso } from "@/lib/datetime";
 import type { Db } from "@/server/db/types";
 import { mapCalendarEventRow } from "@/server/repos/mappers";
 import type { CalendarEvent } from "@/server/types";

@@ -16,7 +16,10 @@ import { createApp } from "./app";
 const CALENDAR_POLL_MS = 15 * 60 * 1000;
 
 const port = Number(process.env.PORT || 5717);
-const app = createApp(() => getDb());
+const app = createApp({
+	resolveDb: () => getDb(),
+	getSecret: () => process.env.FINISH_EM_AUTH_SECRET,
+});
 
 // Poll the configured Outlook/ICS calendar feed in the background. No-ops when
 // no ICS URL is set; failures are logged but never crash the server. In

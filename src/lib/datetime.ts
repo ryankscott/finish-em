@@ -79,3 +79,14 @@ export function isOverdueDueDate(dueAt: string): boolean {
 		return false;
 	}
 }
+
+/**
+ * Timestamp for persisted created_at/updated_at values.
+ *
+ * Lives here rather than in the database client because every repo needs it,
+ * and importing it from the bun:sqlite module pulled that module into the
+ * Cloudflare Worker bundle, which fails to build (no bun:sqlite on workerd).
+ */
+export function nowIso() {
+	return new Date().toISOString();
+}

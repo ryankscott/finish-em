@@ -126,10 +126,6 @@ export function getDb(): Db {
 	return dbInstance;
 }
 
-export function nowIso() {
-	return new Date().toISOString();
-}
-
 export function resetDbForTests() {
 	const resolved = path.resolve(getDbPath());
 	const productionPath = path.resolve(
