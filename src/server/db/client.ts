@@ -1,61 +1,38 @@
+/**
+ * bun:sqlite implementation of the Db seam, for local development and tests.
+ *
+ * The deployed Worker uses d1.ts instead. This exists so `bun run server:dev`
+ * and `bun test` keep working without miniflare in the loop.
+ *
+ * Schema comes from the same migrations/*.sql files that wrangler applies to
+ * D1 -- there is exactly one schema definition in the repo. This replaced
+ * SCHEMA_STATEMENTS plus the 14 ensure*Schema guards that used to run on every
+ * getDb(); those decided what to add via PRAGMA table_info and sqlite_master
+ * introspection, which D1 does not support.
+ */
+
 import { Database } from "bun:sqlite";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { SCHEMA_STATEMENTS } from "./schema";
+import type { BatchOp, Db, DbRunResult, DbStatement } from "./types";
 
-// Minimal interface used by repos/services on top of bun:sqlite
-type StatementRunResult = {
-	changes: number;
-	lastInsertRowid: number | bigint;
-};
+type SqliteBindings = Parameters<
+	ReturnType<Database["prepare"]>["all"]
+>[number][];
 
-type DbStatement = {
-	all(...params: unknown[]): unknown[];
-	get(...params: unknown[]): unknown;
-	run(...params: unknown[]): StatementRunResult;
-};
+const MIGRATIONS_DIR = path.join(import.meta.dir, "../../../migrations");
 
-type DbLike = {
-	prepare(sql: string): DbStatement;
-	exec(sql: string): void;
-	close(): void;
-};
-
-function openSqliteDb(filePath: string): DbLike {
-	const raw = new Database(filePath);
-	return {
-		prepare(sql: string): DbStatement {
-			const stmt = raw.prepare(sql);
-			return {
-				all(...params) {
-					return stmt.all(...params);
-				},
-				get(...params) {
-					return stmt.get(...params);
-				},
-				run(...params) {
-					stmt.run(...params);
-					const meta = raw
-						.query("SELECT last_insert_rowid() AS lid, changes() AS ch")
-						.get() as { lid: number; ch: number } | null;
-					return { changes: meta?.ch ?? 0, lastInsertRowid: meta?.lid ?? 0 };
-				},
-			};
-		},
-		exec(sql) {
-			raw.exec(sql);
-		},
-		close() {
-			raw.close();
-		},
-	};
+function readMigrations(): string[] {
+	return fs
+		.readdirSync(MIGRATIONS_DIR)
+		.filter((name) => name.endsWith(".sql"))
+		.sort()
+		.map((name) => fs.readFileSync(path.join(MIGRATIONS_DIR, name), "utf8"));
 }
 
-let dbInstance: DbLike | null = null;
-
-function getDbPath() {
+export function getDbPath() {
 	const override = process.env.TODO_DB_PATH;
 	if (override && override.trim().length > 0) {
 		return path.resolve(override);
@@ -63,505 +40,48 @@ function getDbPath() {
 	return path.join(os.homedir(), ".finish-em", "todo.db");
 }
 
-function seedDefaults(db: DbLike) {
-	const now = new Date().toISOString();
-
-	const settingsCount = db
-		.prepare("SELECT COUNT(*) as count FROM settings")
-		.get() as { count: number };
-
-	if (settingsCount.count === 0) {
-		const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
-		db.prepare(
-			"INSERT INTO settings (id, timezone, created_at, updated_at) VALUES (1, ?, ?, ?)",
-		).run(timezone, now, now);
-	}
-
-	const inboxCount = db
-		.prepare("SELECT COUNT(*) as count FROM projects WHERE is_inbox = 1")
-		.get() as { count: number };
-
-	if (inboxCount.count === 0) {
-		db.prepare(
-			"INSERT INTO projects (name, color, is_inbox, created_at, updated_at) VALUES (?, ?, 1, ?, ?)",
-		).run("Inbox", "#ef4444", now, now);
-	}
-}
-
-function ensureTaskSubtaskSchema(db: DbLike) {
-	const tasksTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!tasksTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(tasks)").all() as Array<{
-		name: unknown;
-	}>;
-	const hasParentTaskId = columns.some(
-		(column) => String(column.name) === "parent_task_id",
-	);
-
-	if (!hasParentTaskId) {
-		db.exec(
-			"ALTER TABLE tasks ADD COLUMN parent_task_id INTEGER REFERENCES tasks(id) ON DELETE CASCADE",
-		);
-	}
-
-	db.exec(
-		"CREATE INDEX IF NOT EXISTS idx_tasks_parent_task_id ON tasks(parent_task_id)",
-	);
-}
-
-function ensureSoftDeleteSchema(db: DbLike) {
-	const tasksTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!tasksTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(tasks)").all() as Array<{
-		name: unknown;
-	}>;
-	const hasDeletedAt = columns.some(
-		(column) => String(column.name) === "deleted_at",
-	);
-
-	if (!hasDeletedAt) {
-		db.exec("ALTER TABLE tasks ADD COLUMN deleted_at TEXT");
-	}
-
-	db.exec(
-		"CREATE INDEX IF NOT EXISTS idx_tasks_deleted_at ON tasks(deleted_at)",
-	);
-}
-
-function ensureSomedaySchema(db: DbLike) {
-	const tasksTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!tasksTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(tasks)").all() as Array<{
-		name: unknown;
-	}>;
-	const hasSomeday = columns.some(
-		(column) => String(column.name) === "someday",
-	);
-
-	if (!hasSomeday) {
-		db.exec("ALTER TABLE tasks ADD COLUMN someday INTEGER NOT NULL DEFAULT 0");
-	}
-}
-
-function ensureProjectEnhancementsSchema(db: DbLike) {
-	const projectsTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!projectsTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
-		name: unknown;
-	}>;
-
-	const hasEmoji = columns.some((column) => String(column.name) === "emoji");
-	const hasDescription = columns.some(
-		(column) => String(column.name) === "description",
-	);
-	const hasStartAt = columns.some(
-		(column) => String(column.name) === "start_at",
-	);
-	const hasEndAt = columns.some((column) => String(column.name) === "end_at");
-
-	if (!hasEmoji) {
-		db.exec("ALTER TABLE projects ADD COLUMN emoji TEXT");
-	}
-	if (!hasDescription) {
-		db.exec(
-			"ALTER TABLE projects ADD COLUMN description TEXT NOT NULL DEFAULT ''",
-		);
-	}
-	if (!hasStartAt) {
-		db.exec("ALTER TABLE projects ADD COLUMN start_at TEXT");
-	}
-	if (!hasEndAt) {
-		db.exec("ALTER TABLE projects ADD COLUMN end_at TEXT");
-	}
-}
-
-function ensureProjectExternalLinksSchema(db: DbLike) {
-	const projectsTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!projectsTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
-		name: unknown;
-	}>;
-
-	const hasJiraDiscoveryUrl = columns.some(
-		(column) => String(column.name) === "jira_discovery_url",
-	);
-	const hasJiraDeliveryUrl = columns.some(
-		(column) => String(column.name) === "jira_delivery_url",
-	);
-	const hasConfluenceUrl = columns.some(
-		(column) => String(column.name) === "confluence_url",
-	);
-
-	if (!hasJiraDiscoveryUrl) {
-		db.exec("ALTER TABLE projects ADD COLUMN jira_discovery_url TEXT");
-	}
-	if (!hasJiraDeliveryUrl) {
-		db.exec("ALTER TABLE projects ADD COLUMN jira_delivery_url TEXT");
-	}
-	if (!hasConfluenceUrl) {
-		db.exec("ALTER TABLE projects ADD COLUMN confluence_url TEXT");
-	}
-}
-
-function ensureProjectMetaLinksSchema(db: DbLike) {
-	const projectsTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!projectsTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
-		name: unknown;
-	}>;
-
-	const columnNames = columns.map((c) => String(c.name));
-
-	if (!columnNames.includes("jira_docs_url")) {
-		db.exec("ALTER TABLE projects ADD COLUMN jira_docs_url TEXT");
-	}
-	if (!columnNames.includes("jira_release_note_url")) {
-		db.exec("ALTER TABLE projects ADD COLUMN jira_release_note_url TEXT");
-	}
-	if (!columnNames.includes("teams_release_note_url")) {
-		db.exec("ALTER TABLE projects ADD COLUMN teams_release_note_url TEXT");
-	}
-}
-
-function ensureProjectSortOrderSchema(db: DbLike) {
-	const projectsTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!projectsTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
-		name: unknown;
-	}>;
-	const hasSortOrder = columns.some(
-		(column) => String(column.name) === "sort_order",
-	);
-
-	if (hasSortOrder) {
-		return;
-	}
-
-	db.exec(
-		"ALTER TABLE projects ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0",
-	);
-
-	// Backfill sort_order for existing projects using the previous ordering
-	// (alphabetical), so the initial drag-and-drop order matches what users saw.
-	const rows = db
-		.prepare(
-			"SELECT id FROM projects WHERE is_inbox = 0 ORDER BY name ASC, id ASC",
-		)
-		.all() as Array<{ id: number }>;
-	const update = db.prepare("UPDATE projects SET sort_order = ? WHERE id = ?");
-	rows.forEach((row, index) => {
-		update.run(index, Number(row.id));
+/**
+ * Wraps bun:sqlite's synchronous API in the async Db seam. `run()` reports
+ * changes/lastInsertRowid via a follow-up query, mirroring what D1 returns in
+ * result.meta.
+ */
+function wrap(raw: Database): Db {
+	const statement = (sql: string): DbStatement => ({
+		async all<T>(...params: unknown[]): Promise<T[]> {
+			return raw.prepare(sql).all(...(params as SqliteBindings)) as T[];
+		},
+		async get<T>(...params: unknown[]): Promise<T | null> {
+			return (raw.prepare(sql).get(...(params as SqliteBindings)) ??
+				null) as T | null;
+		},
+		async run(...params: unknown[]): Promise<DbRunResult> {
+			raw.prepare(sql).run(...(params as SqliteBindings));
+			const meta = raw
+				.query("SELECT last_insert_rowid() AS lid, changes() AS ch")
+				.get() as { lid: number; ch: number } | null;
+			return { changes: meta?.ch ?? 0, lastInsertRowid: meta?.lid ?? 0 };
+		},
 	});
+
+	return {
+		prepare: statement,
+		async batch(ops: BatchOp[]): Promise<void> {
+			if (ops.length === 0) return;
+			// D1's batch is atomic, so the local backend must be too, otherwise a
+			// mid-batch failure would leave different state in dev than in prod.
+			raw.transaction(() => {
+				for (const op of ops) {
+					raw.prepare(op.sql).run(...((op.params ?? []) as SqliteBindings));
+				}
+			})();
+		},
+	};
 }
 
-function dropProjectStatusColumns(db: DbLike) {
-	const projectsTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
-		)
-		.get() as { name?: string } | undefined;
+let dbInstance: Db | null = null;
+let rawInstance: Database | null = null;
 
-	if (!projectsTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
-		name: unknown;
-	}>;
-
-	const columnNames = columns.map((c) => String(c.name));
-
-	for (const col of [
-		"jira_discovery_status",
-		"jira_delivery_status",
-		"jira_docs_status",
-		"jira_release_note_status",
-		"analytics_url",
-		"analytics_status",
-	]) {
-		if (columnNames.includes(col)) {
-			db.exec(`ALTER TABLE projects DROP COLUMN ${col}`);
-		}
-	}
-}
-
-function ensureCalendarSettingsSchema(db: DbLike) {
-	const settingsTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'settings'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!settingsTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(settings)").all() as Array<{
-		name: unknown;
-	}>;
-	const columnNames = columns.map((c) => String(c.name));
-
-	if (!columnNames.includes("calendar_ics_url")) {
-		db.exec("ALTER TABLE settings ADD COLUMN calendar_ics_url TEXT");
-	}
-	if (!columnNames.includes("calendar_last_synced_at")) {
-		db.exec("ALTER TABLE settings ADD COLUMN calendar_last_synced_at TEXT");
-	}
-}
-
-function ensureTaskCalendarLinkSchema(db: DbLike) {
-	const tasksTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!tasksTable?.name) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(tasks)").all() as Array<{
-		name: unknown;
-	}>;
-	const hasCalendarEventUid = columns.some(
-		(column) => String(column.name) === "calendar_event_uid",
-	);
-
-	if (!hasCalendarEventUid) {
-		db.exec("ALTER TABLE tasks ADD COLUMN calendar_event_uid TEXT");
-	}
-
-	db.exec(
-		"CREATE INDEX IF NOT EXISTS idx_tasks_calendar_event_uid ON tasks(calendar_event_uid)",
-	);
-}
-
-function ensureTaskUpdatedAtIndex(db: DbLike) {
-	const tasksTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks'",
-		)
-		.get() as { name?: string } | undefined;
-
-	if (!tasksTable?.name) {
-		return;
-	}
-
-	db.exec(
-		"CREATE INDEX IF NOT EXISTS idx_tasks_updated_at ON tasks(updated_at)",
-	);
-}
-
-function ensureTaskCompletionLogSchema(db: DbLike) {
-	db.exec(`CREATE TABLE IF NOT EXISTS task_completion_log (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      task_id INTEGER NOT NULL,
-      title TEXT NOT NULL DEFAULT '',
-      completed_at TEXT NOT NULL,
-      notes TEXT NOT NULL DEFAULT '',
-      created_at TEXT NOT NULL,
-      FOREIGN KEY(task_id) REFERENCES tasks(id) ON DELETE CASCADE
-    )`);
-	db.exec(
-		"CREATE INDEX IF NOT EXISTS idx_task_completion_log_task_date ON task_completion_log(task_id, completed_at)",
-	);
-	db.exec(
-		"CREATE INDEX IF NOT EXISTS idx_task_completion_log_completed_at ON task_completion_log(completed_at)",
-	);
-}
-
-const LEGACY_PROJECT_LINK_COLUMNS: Array<{ column: string; label: string }> = [
-	{ column: "jira_discovery_url", label: "Jira Discovery" },
-	{ column: "jira_delivery_url", label: "Jira Delivery" },
-	{ column: "confluence_url", label: "Confluence PRD" },
-	{ column: "jira_docs_url", label: "Jira Docs" },
-	{ column: "jira_release_note_url", label: "Jira Release Note" },
-	{ column: "teams_release_note_url", label: "Teams Release Note" },
-];
-
-function ensureProjectResourcesSchema(db: DbLike) {
-	db.exec(`CREATE TABLE IF NOT EXISTS project_resources (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      project_id INTEGER NOT NULL,
-      label TEXT NOT NULL,
-      url TEXT NOT NULL,
-      sort_order INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL,
-      updated_at TEXT NOT NULL,
-      FOREIGN KEY(project_id) REFERENCES projects(id) ON DELETE CASCADE
-    )`);
-	db.exec(
-		"CREATE INDEX IF NOT EXISTS idx_project_resources_project ON project_resources(project_id, sort_order)",
-	);
-
-	// One-time backfill: copy any populated legacy per-column links into the
-	// generic table with sensible default labels. Runs only while the table is
-	// empty so it never duplicates rows on subsequent boots.
-	const projectsTable = db
-		.prepare(
-			"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'projects'",
-		)
-		.get() as { name?: string } | undefined;
-	if (!projectsTable?.name) {
-		return;
-	}
-
-	const existing = db
-		.prepare("SELECT COUNT(*) AS n FROM project_resources")
-		.get() as { n: number };
-	if (existing.n > 0) {
-		return;
-	}
-
-	const columns = db.prepare("PRAGMA table_info(projects)").all() as Array<{
-		name: unknown;
-	}>;
-	const columnNames = new Set(columns.map((c) => String(c.name)));
-	const present = LEGACY_PROJECT_LINK_COLUMNS.filter((entry) =>
-		columnNames.has(entry.column),
-	);
-	if (present.length === 0) {
-		return;
-	}
-
-	const now = new Date().toISOString();
-	const selectCols = present.map((entry) => entry.column).join(", ");
-	const rows = db
-		.prepare(`SELECT id, ${selectCols} FROM projects`)
-		.all() as Array<Record<string, unknown>>;
-	const insert = db.prepare(
-		"INSERT INTO project_resources (project_id, label, url, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)",
-	);
-	for (const row of rows) {
-		let sortOrder = 0;
-		for (const entry of present) {
-			const value = row[entry.column];
-			if (value) {
-				insert.run(
-					Number(row.id),
-					entry.label,
-					String(value),
-					sortOrder,
-					now,
-					now,
-				);
-				sortOrder += 1;
-			}
-		}
-	}
-}
-
-function ensureUuidColumns(db: DbLike) {
-	// Entity rows carry a stable uuid (originally added for multi-device sync,
-	// now retained as a durable external identifier). New DBs don't define uuid
-	// in the base schema, and older DBs may pre-date it, so add it where missing.
-	for (const [table, index] of [
-		["tasks", "idx_tasks_uuid"],
-		["projects", "idx_projects_uuid"],
-		["goals", "idx_goals_uuid"],
-		["reminders", "idx_reminders_uuid"],
-	] as const) {
-		const tableExists = db
-			.prepare(
-				`SELECT name FROM sqlite_master WHERE type = 'table' AND name = '${table}'`,
-			)
-			.get() as { name?: string } | undefined;
-		if (!tableExists?.name) continue;
-
-		const columns = db.prepare(`PRAGMA table_info(${table})`).all() as Array<{
-			name: unknown;
-		}>;
-		if (!columns.some((c) => String(c.name) === "uuid")) {
-			db.exec(`ALTER TABLE ${table} ADD COLUMN uuid TEXT`);
-		}
-		db.exec(
-			`CREATE UNIQUE INDEX IF NOT EXISTS ${index} ON ${table}(uuid) WHERE uuid IS NOT NULL`,
-		);
-	}
-}
-
-function initialize(db: DbLike) {
-	db.exec("PRAGMA foreign_keys = ON");
-	// WAL + busy timeout so the TUI/CLI and the desktop HTTP server can share the DB
-	db.exec("PRAGMA journal_mode = WAL");
-	db.exec("PRAGMA busy_timeout = 5000");
-	for (const statement of SCHEMA_STATEMENTS) {
-		db.exec(statement);
-	}
-	ensureTaskSubtaskSchema(db);
-	ensureProjectEnhancementsSchema(db);
-	ensureProjectExternalLinksSchema(db);
-	ensureProjectMetaLinksSchema(db);
-	ensureProjectResourcesSchema(db);
-	ensureProjectSortOrderSchema(db);
-	dropProjectStatusColumns(db);
-	ensureSoftDeleteSchema(db);
-	ensureSomedaySchema(db);
-	ensureTaskUpdatedAtIndex(db);
-	ensureCalendarSettingsSchema(db);
-	ensureTaskCalendarLinkSchema(db);
-	ensureTaskCompletionLogSchema(db);
-	ensureUuidColumns(db);
-	seedDefaults(db);
-}
-
-export function getDb() {
+export function getDb(): Db {
 	if (dbInstance) {
 		return dbInstance;
 	}
@@ -569,15 +89,15 @@ export function getDb() {
 	const dbPath = getDbPath();
 	const dir = path.dirname(dbPath);
 
-	if (!fs.existsSync(dir)) {
+	if (dbPath !== ":memory:" && !fs.existsSync(dir)) {
 		fs.mkdirSync(dir, { recursive: true });
 	}
 
-	const isNewDb = !fs.existsSync(dbPath);
+	const isNewDb = dbPath === ":memory:" || !fs.existsSync(dbPath);
 
 	// Orphaned WAL sidecars (main DB deleted, -wal/-shm left behind) make
 	// SQLite fail with a disk I/O error when re-enabling WAL mode.
-	if (isNewDb) {
+	if (isNewDb && dbPath !== ":memory:") {
 		for (const suffix of ["-wal", "-shm"]) {
 			const sidecar = `${dbPath}${suffix}`;
 			if (fs.existsSync(sidecar)) {
@@ -586,10 +106,23 @@ export function getDb() {
 		}
 	}
 
-	dbInstance = openSqliteDb(dbPath);
+	const raw = new Database(dbPath);
+	raw.exec("PRAGMA foreign_keys = ON");
+	if (dbPath !== ":memory:") {
+		raw.exec("PRAGMA journal_mode = WAL");
+		raw.exec("PRAGMA busy_timeout = 5000");
+	}
 
-	initialize(dbInstance);
+	// CREATE TABLE in 0001 is unconditional, so only apply to a fresh database.
+	// An existing local file has already been migrated.
+	if (isNewDb) {
+		for (const sql of readMigrations()) {
+			raw.exec(sql);
+		}
+	}
 
+	rawInstance = raw;
+	dbInstance = wrap(raw);
 	return dbInstance;
 }
 
@@ -609,8 +142,9 @@ export function resetDbForTests() {
 				"otherwise test setup/teardown would mutate or drop real data.",
 		);
 	}
-	if (dbInstance) {
-		dbInstance.close();
-		dbInstance = null;
+	if (rawInstance) {
+		rawInstance.close();
+		rawInstance = null;
 	}
+	dbInstance = null;
 }

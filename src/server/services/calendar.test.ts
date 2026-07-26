@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { resetDbForTests } from "@/server/db/client";
+import { getDb, resetDbForTests } from "@/server/db/client";
 import {
 	getEventByUid,
 	listEvents,
@@ -19,7 +19,10 @@ import {
 } from "@/server/repos/tasks";
 import { expandEvent, listCalendarEvents } from "@/server/services/calendar";
 
-const dbPath = path.join(os.tmpdir(), `finish-em-calendar-test-${Date.now()}.db`);
+const dbPath = path.join(
+	os.tmpdir(),
+	`finish-em-calendar-test-${Date.now()}.db`,
+);
 
 beforeEach(() => {
 	process.env.TODO_DB_PATH = dbPath;
@@ -36,7 +39,7 @@ const start = new Date("2026-06-01T00:00:00Z");
 const end = new Date("2026-06-30T00:00:00Z");
 
 describe("expandEvent", () => {
-	it("keeps a single event inside the window and drops one outside", () => {
+	it("keeps a single event inside the window and drops one outside", async () => {
 		const inside = expandEvent(
 			{
 				type: "VEVENT",
@@ -50,7 +53,9 @@ describe("expandEvent", () => {
 		);
 		expect(inside).toHaveLength(1);
 		expect(inside[0]?.summary).toBe("Standup");
-		expect(inside[0]?.endAt).toBe(new Date("2026-06-10T09:30:00Z").toISOString());
+		expect(inside[0]?.endAt).toBe(
+			new Date("2026-06-10T09:30:00Z").toISOString(),
+		);
 
 		const outside = expandEvent(
 			{
@@ -66,7 +71,7 @@ describe("expandEvent", () => {
 		expect(outside).toHaveLength(0);
 	});
 
-	it("expands a recurring event into multiple instances", () => {
+	it("expands a recurring event into multiple instances", async () => {
 		const occurrences = [
 			new Date("2026-06-02T09:00:00Z"),
 			new Date("2026-06-09T09:00:00Z"),
@@ -95,7 +100,7 @@ describe("expandEvent", () => {
 		}
 	});
 
-	it("skips excluded dates", () => {
+	it("skips excluded dates", async () => {
 		const occurrences = [
 			new Date("2026-06-02T09:00:00Z"),
 			new Date("2026-06-09T09:00:00Z"),
@@ -118,8 +123,10 @@ describe("expandEvent", () => {
 });
 
 describe("calendar repo", () => {
-	it("upserts, lists by range, and prunes stale events", () => {
-		upsertEvents(
+	it("upserts, lists by range, and prunes stale events", async () => {
+		const db = getDb();
+		await upsertEvents(
+			db,
 			[
 				{
 					uid: "a",
@@ -143,15 +150,16 @@ describe("calendar repo", () => {
 			"2026-06-01T00:00:00.000Z",
 		);
 
-		expect(listEvents()).toHaveLength(2);
-		const ranged = listEvents({
+		expect(await listEvents(db)).toHaveLength(2);
+		const ranged = await listEvents(db, {
 			from: "2026-06-10T00:00:00.000Z",
 			to: "2026-06-30T00:00:00.000Z",
 		});
 		expect(ranged.map((e) => e.uid)).toEqual(["b"]);
 
 		// A newer sync that only re-sees "a" should prune "b".
-		upsertEvents(
+		await upsertEvents(
+			db,
 			[
 				{
 					uid: "a",
@@ -165,19 +173,24 @@ describe("calendar repo", () => {
 			],
 			"2026-06-02T00:00:00.000Z",
 		);
-		const removed = pruneStale("2026-06-02T00:00:00.000Z");
+		const removed = await pruneStale(db, "2026-06-02T00:00:00.000Z");
 		expect(removed).toBe(1);
-		expect(listCalendarEvents().map((e) => e.uid)).toEqual(["a"]);
-		expect(getEventByUid("a")?.summary).toBe("Early");
+		expect((await listCalendarEvents(db)).map((e) => e.uid)).toEqual(["a"]);
+		expect((await getEventByUid(db, "a"))?.summary).toBe("Early");
 	});
 });
 
 describe("linkTaskToEvent", () => {
-	it("pins the task due date to the event start and clears on unlink", () => {
-		const project = createProject({ name: "Work" });
-		const task = createTask({ projectId: project.id, title: "Prep deck" });
+	it("pins the task due date to the event start and clears on unlink", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Work" });
+		const task = await createTask(db, {
+			projectId: project.id,
+			title: "Prep deck",
+		});
 
-		upsertEvents(
+		await upsertEvents(
+			db,
 			[
 				{
 					uid: "meeting-1",
@@ -192,21 +205,28 @@ describe("linkTaskToEvent", () => {
 			"2026-06-01T00:00:00.000Z",
 		);
 
-		const linked = linkTaskToEvent(task.id, "meeting-1");
+		const linked = await linkTaskToEvent(db, task.id, "meeting-1");
 		expect(linked?.calendarEventUid).toBe("meeting-1");
 		expect(linked?.dueAt).toBe("2026-06-15T14:00:00.000Z");
 
-		const unlinked = linkTaskToEvent(task.id, null);
+		const unlinked = await linkTaskToEvent(db, task.id, null);
 		expect(unlinked?.calendarEventUid).toBeNull();
 		// Due date is left intact after unlinking.
-		expect(getTask(task.id)?.dueAt).toBe("2026-06-15T14:00:00.000Z");
+		expect((await getTask(db, task.id))?.dueAt).toBe(
+			"2026-06-15T14:00:00.000Z",
+		);
 	});
 
-	it("re-pins the due date when the linked meeting moves earlier", () => {
-		const project = createProject({ name: "Work" });
-		const task = createTask({ projectId: project.id, title: "Prep deck" });
+	it("re-pins the due date when the linked meeting moves earlier", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Work" });
+		const task = await createTask(db, {
+			projectId: project.id,
+			title: "Prep deck",
+		});
 
-		upsertEvents(
+		await upsertEvents(
+			db,
 			[
 				{
 					uid: "meeting-1",
@@ -220,11 +240,14 @@ describe("linkTaskToEvent", () => {
 			],
 			"2026-06-01T00:00:00.000Z",
 		);
-		linkTaskToEvent(task.id, "meeting-1");
-		expect(getTask(task.id)?.dueAt).toBe("2026-06-15T14:00:00.000Z");
+		await linkTaskToEvent(db, task.id, "meeting-1");
+		expect((await getTask(db, task.id))?.dueAt).toBe(
+			"2026-06-15T14:00:00.000Z",
+		);
 
 		// Meeting moves two days earlier; a later sync overwrites the cached event.
-		upsertEvents(
+		await upsertEvents(
+			db,
 			[
 				{
 					uid: "meeting-1",
@@ -239,18 +262,25 @@ describe("linkTaskToEvent", () => {
 			"2026-06-02T00:00:00.000Z",
 		);
 
-		const changed = repinLinkedTaskDueDates();
+		const changed = await repinLinkedTaskDueDates(db);
 		expect(changed).toBe(1);
-		expect(getTask(task.id)?.dueAt).toBe("2026-06-13T10:00:00.000Z");
+		expect((await getTask(db, task.id))?.dueAt).toBe(
+			"2026-06-13T10:00:00.000Z",
+		);
 
 		// Idempotent: a second pass with no change reports zero updates.
-		expect(repinLinkedTaskDueDates()).toBe(0);
+		expect(await repinLinkedTaskDueDates(db)).toBe(0);
 	});
 
-	it("leaves the due date untouched when the linked event is gone", () => {
-		const project = createProject({ name: "Work" });
-		const task = createTask({ projectId: project.id, title: "Prep deck" });
-		upsertEvents(
+	it("leaves the due date untouched when the linked event is gone", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Work" });
+		const task = await createTask(db, {
+			projectId: project.id,
+			title: "Prep deck",
+		});
+		await upsertEvents(
+			db,
 			[
 				{
 					uid: "meeting-1",
@@ -264,16 +294,22 @@ describe("linkTaskToEvent", () => {
 			],
 			"2026-06-01T00:00:00.000Z",
 		);
-		linkTaskToEvent(task.id, "meeting-1");
-		pruneStale("2026-06-02T00:00:00.000Z"); // event drops out of cache
+		await linkTaskToEvent(db, task.id, "meeting-1");
+		await pruneStale(db, "2026-06-02T00:00:00.000Z"); // event drops out of cache
 
-		expect(repinLinkedTaskDueDates()).toBe(0);
-		expect(getTask(task.id)?.dueAt).toBe("2026-06-15T14:00:00.000Z");
+		expect(await repinLinkedTaskDueDates(db)).toBe(0);
+		expect((await getTask(db, task.id))?.dueAt).toBe(
+			"2026-06-15T14:00:00.000Z",
+		);
 	});
 
-	it("throws for an unknown event uid", () => {
-		const project = createProject({ name: "Work" });
-		const task = createTask({ projectId: project.id, title: "Thing" });
-		expect(() => linkTaskToEvent(task.id, "nope")).toThrow();
+	it("throws for an unknown event uid", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Work" });
+		const task = await createTask(db, {
+			projectId: project.id,
+			title: "Thing",
+		});
+		await expect(linkTaskToEvent(db, task.id, "nope")).rejects.toThrow();
 	});
 });

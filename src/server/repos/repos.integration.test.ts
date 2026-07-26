@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { resetDbForTests } from "@/server/db/client";
+import { getDb, resetDbForTests } from "@/server/db/client";
 import { createGoal, listGoals, updateGoal } from "@/server/repos/goals";
 import {
 	createProject,
@@ -44,9 +44,10 @@ afterEach(() => {
 });
 
 describe("repositories integration", () => {
-	it("creates recurring next task on complete", () => {
-		const project = createProject({ name: "Work" });
-		const task = createTask({
+	it("creates recurring next task on complete", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Work" });
+		const task = await createTask(db, {
 			projectId: project.id,
 			title: "Daily standup notes",
 			priority: 2,
@@ -54,25 +55,26 @@ describe("repositories integration", () => {
 			recurrencePreset: "daily",
 		});
 
-		const completion = completeTask(task.id);
+		const completion = await completeTask(db, task.id);
 
 		expect(completion.task?.status).toBe("completed");
 		expect(completion.nextTask).toBeTruthy();
 		expect(completion.nextTask?.dueAt).toBe("2026-02-16T09:00:00.000Z");
 	});
 
-	it("reorders projects and keeps inbox pinned first", () => {
-		const a = createProject({ name: "Alpha" });
-		const b = createProject({ name: "Bravo" });
-		const c = createProject({ name: "Charlie" });
+	it("reorders projects and keeps inbox pinned first", async () => {
+		const db = getDb();
+		const a = await createProject(db, { name: "Alpha" });
+		const b = await createProject(db, { name: "Bravo" });
+		const c = await createProject(db, { name: "Charlie" });
 
 		// New projects append in creation order.
-		const before = listProjects().filter((p) => !p.isInbox);
+		const before = (await listProjects(db)).filter((p) => !p.isInbox);
 		expect(before.map((p) => p.id)).toEqual([a.id, b.id, c.id]);
 
-		reorderProjects([c.id, a.id, b.id]);
+		await reorderProjects(db, [c.id, a.id, b.id]);
 
-		const all = listProjects();
+		const all = await listProjects(db);
 		expect(all[0]?.isInbox).toBe(true);
 		expect(all.filter((p) => !p.isInbox).map((p) => p.id)).toEqual([
 			c.id,
@@ -81,18 +83,22 @@ describe("repositories integration", () => {
 		]);
 	});
 
-	it("supports reminders with snoozing", () => {
-		const project = createProject({ name: "Ops" });
-		const task = createTask({ projectId: project.id, title: "Rotate keys" });
+	it("supports reminders with snoozing", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Ops" });
+		const task = await createTask(db, {
+			projectId: project.id,
+			title: "Rotate keys",
+		});
 
-		const reminder = createReminder({
+		const reminder = await createReminder(db, {
 			taskId: task.id,
 			remindAt: "2026-02-15T12:00:00.000Z",
 		});
 
-		expect(listTaskReminders(task.id)).toHaveLength(1);
+		expect(await listTaskReminders(db, task.id)).toHaveLength(1);
 
-		const snoozed = snoozeReminder({
+		const snoozed = await snoozeReminder(db, {
 			reminderId: reminder.id,
 			preset: "this_evening",
 		});
@@ -101,59 +107,76 @@ describe("repositories integration", () => {
 		expect(snoozed?.snoozedUntil).toBeTruthy();
 	});
 
-	it("supports goal creation and completion state", () => {
-		const goal = createGoal({
+	it("supports goal creation and completion state", async () => {
+		const db = getDb();
+		const goal = await createGoal(db, {
 			periodType: "daily",
 			periodStart: "2026-02-15",
 			title: "Ship API docs",
 		});
 
-		const updated = updateGoal(goal.id, { done: true });
+		const updated = await updateGoal(db, goal.id, { done: true });
 
 		expect(updated?.done).toBe(true);
-		expect(listGoals({ periodType: "daily" })).toHaveLength(1);
+		expect(await listGoals(db, { periodType: "daily" })).toHaveLength(1);
 	});
 
-	it("creates and retrieves tasks", () => {
-		const project = createProject({ name: "Personal" });
-		const task = createTask({ projectId: project.id, title: "Book dentist" });
+	it("creates and retrieves tasks", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Personal" });
+		const task = await createTask(db, {
+			projectId: project.id,
+			title: "Book dentist",
+		});
 
-		expect(getTask(task.id)?.title).toBe("Book dentist");
+		expect((await getTask(db, task.id))?.title).toBe("Book dentist");
 	});
 
-	it("parks tasks in someday and excludes them from default queries", () => {
-		const project = createProject({ name: "Personal" });
-		const active = createTask({ projectId: project.id, title: "Active" });
-		const parked = createTask({ projectId: project.id, title: "Parked" });
-		updateTask(parked.id, { someday: true });
+	it("parks tasks in someday and excludes them from default queries", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Personal" });
+		const active = await createTask(db, {
+			projectId: project.id,
+			title: "Active",
+		});
+		const parked = await createTask(db, {
+			projectId: project.id,
+			title: "Parked",
+		});
+		await updateTask(db, parked.id, { someday: true });
 
 		// Default open query hides someday tasks.
-		const openIds = listTasks({ status: "open" }).map((t) => t.id);
+		const openIds = (await listTasks(db, { status: "open" })).map((t) => t.id);
 		expect(openIds).toContain(active.id);
 		expect(openIds).not.toContain(parked.id);
 
 		// Opting in with someday: true returns only parked tasks.
-		const somedayTasks = listTasks({ status: "open", someday: true });
+		const somedayTasks = await listTasks(db, { status: "open", someday: true });
 		expect(somedayTasks.map((t) => t.id)).toEqual([parked.id]);
 		expect(somedayTasks[0]?.someday).toBe(true);
 
 		// Completing a parked task unparks it so it appears in Completed.
-		completeTask(parked.id);
-		const completed = listTasks({ status: "completed" });
+		await completeTask(db, parked.id);
+		const completed = await listTasks(db, { status: "completed" });
 		expect(completed.map((t) => t.id)).toContain(parked.id);
-		expect(getTask(parked.id)?.someday).toBe(false);
+		expect((await getTask(db, parked.id))?.someday).toBe(false);
 	});
 
-	it("throws clear error when creating task with non-existent project", () => {
-		expect(() =>
-			createTask({ projectId: 99999, title: "Orphan task" }),
-		).toThrow("Project not found: 99999");
+	it("throws clear error when creating task with non-existent project", async () => {
+		const db = getDb();
+		(
+			await expect(createTask(db, { projectId: 99999, title: "Orphan task" }))
+		).rejects.toThrow("Project not found: 99999");
 	});
 
-	it("supports parent + subtask and filtering", () => {
-		const project = createProject({ name: "Work" });
-		const parent = createTask({ projectId: project.id, title: "Launch v2" });
-		const subtask = createTask({
+	it("supports parent + subtask and filtering", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Work" });
+		const parent = await createTask(db, {
+			projectId: project.id,
+			title: "Launch v2",
+		});
+		const subtask = await createTask(db, {
 			projectId: project.id,
 			title: "Write changelog",
 			parentTaskId: parent.id,
@@ -161,110 +184,134 @@ describe("repositories integration", () => {
 
 		expect(subtask.parentTaskId).toBe(parent.id);
 		expect(
-			listTasks({ rootsOnly: true }).some((task) => task.id === parent.id),
+			(await listTasks(db, { rootsOnly: true })).some(
+				(task) => task.id === parent.id,
+			),
 		).toBe(true);
 		expect(
-			listTasks({ parentTaskId: parent.id }).some(
+			(await listTasks(db, { parentTaskId: parent.id })).some(
 				(task) => task.id === subtask.id,
 			),
 		).toBe(true);
 	});
 
-	it("rejects assigning a subtask as a parent task", () => {
-		const project = createProject({ name: "Ops" });
-		const parent = createTask({ projectId: project.id, title: "Parent" });
-		const child = createTask({
+	it("rejects assigning a subtask as a parent task", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Ops" });
+		const parent = await createTask(db, {
+			projectId: project.id,
+			title: "Parent",
+		});
+		const child = await createTask(db, {
 			projectId: project.id,
 			title: "Child",
 			parentTaskId: parent.id,
 		});
 
-		expect(() =>
-			createTask({
-				projectId: project.id,
-				title: "Grandchild",
-				parentTaskId: child.id,
-			}),
-		).toThrow("Parent task cannot be a subtask");
+		(
+			await expect(
+				createTask(db, {
+					projectId: project.id,
+					title: "Grandchild",
+					parentTaskId: child.id,
+				}),
+			)
+		).rejects.toThrow("Parent task cannot be a subtask");
 	});
 
-	it("rejects assigning parent task across projects", () => {
-		const projectA = createProject({ name: "A" });
-		const projectB = createProject({ name: "B" });
-		const parent = createTask({ projectId: projectA.id, title: "Parent A" });
+	it("rejects assigning parent task across projects", async () => {
+		const db = getDb();
+		const projectA = await createProject(db, { name: "A" });
+		const projectB = await createProject(db, { name: "B" });
+		const parent = await createTask(db, {
+			projectId: projectA.id,
+			title: "Parent A",
+		});
 
-		expect(() =>
-			createTask({
-				projectId: projectB.id,
-				title: "Task B",
-				parentTaskId: parent.id,
-			}),
-		).toThrow("Parent task must belong to the same project");
+		(
+			await expect(
+				createTask(db, {
+					projectId: projectB.id,
+					title: "Task B",
+					parentTaskId: parent.id,
+				}),
+			)
+		).rejects.toThrow("Parent task must belong to the same project");
 	});
 
-	it("rejects setting task parent to itself", () => {
-		const project = createProject({ name: "Self-check" });
-		const task = createTask({ projectId: project.id, title: "Task" });
+	it("rejects setting task parent to itself", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Self-check" });
+		const task = await createTask(db, { projectId: project.id, title: "Task" });
 
-		expect(() => updateTask(task.id, { parentTaskId: task.id })).toThrow(
-			"Task cannot be its own parent",
-		);
+		(
+			await expect(updateTask(db, task.id, { parentTaskId: task.id }))
+		).rejects.toThrow("Task cannot be its own parent");
 	});
 
-	it("soft-deletes parent task and cascades to subtasks", () => {
-		const project = createProject({ name: "Cascade" });
-		const parent = createTask({ projectId: project.id, title: "Parent" });
-		const subtask = createTask({
+	it("soft-deletes parent task and cascades to subtasks", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Cascade" });
+		const parent = await createTask(db, {
+			projectId: project.id,
+			title: "Parent",
+		});
+		const subtask = await createTask(db, {
 			projectId: project.id,
 			title: "Child",
 			parentTaskId: parent.id,
 		});
 
-		expect(deleteTask(parent.id)).toBe(true);
+		expect(await deleteTask(db, parent.id)).toBe(true);
 
 		// getTask still returns soft-deleted tasks (rows are preserved)
-		const deletedParent = getTask(parent.id);
+		const deletedParent = await getTask(db, parent.id);
 		expect(deletedParent).not.toBeNull();
 		expect(deletedParent?.deletedAt).not.toBeNull();
 
-		const deletedSubtask = getTask(subtask.id);
+		const deletedSubtask = await getTask(db, subtask.id);
 		expect(deletedSubtask).not.toBeNull();
 		expect(deletedSubtask?.deletedAt).not.toBeNull();
 
 		// listTasks excludes soft-deleted tasks
-		const visibleTasks = listTasks({ projectId: project.id });
+		const visibleTasks = await listTasks(db, { projectId: project.id });
 		expect(visibleTasks).toHaveLength(0);
 	});
 
-	it("rejects assigning parent when task already has subtasks", () => {
-		const project = createProject({ name: "Hierarchy" });
-		const parent = createTask({ projectId: project.id, title: "Parent" });
-		const child = createTask({
+	it("rejects assigning parent when task already has subtasks", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Hierarchy" });
+		const parent = await createTask(db, {
+			projectId: project.id,
+			title: "Parent",
+		});
+		const child = await createTask(db, {
 			projectId: project.id,
 			title: "Child",
 			parentTaskId: parent.id,
 		});
-		const anotherRoot = createTask({
+		const anotherRoot = await createTask(db, {
 			projectId: project.id,
 			title: "Another root",
 		});
 
-		expect(() =>
-			updateTask(parent.id, { parentTaskId: anotherRoot.id }),
-		).toThrow("A task with subtasks cannot be assigned as a subtask");
+		(
+			await expect(updateTask(db, parent.id, { parentTaskId: anotherRoot.id }))
+		).rejects.toThrow("A task with subtasks cannot be assigned as a subtask");
 		expect(child.parentTaskId).toBe(parent.id);
 	});
 
-	it("listDeletedTasks returns only soft-deleted tasks ordered by deleted_at desc", () => {
-		const project = createProject({ name: "Trash" });
-		const t1 = createTask({ projectId: project.id, title: "First" });
-		const t2 = createTask({ projectId: project.id, title: "Second" });
-		createTask({ projectId: project.id, title: "Alive" });
+	it("listDeletedTasks returns only soft-deleted tasks ordered by deleted_at desc", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Trash" });
+		const t1 = await createTask(db, { projectId: project.id, title: "First" });
+		const t2 = await createTask(db, { projectId: project.id, title: "Second" });
+		await createTask(db, { projectId: project.id, title: "Alive" });
 
-		deleteTask(t1.id);
-		deleteTask(t2.id);
+		await deleteTask(db, t1.id);
+		await deleteTask(db, t2.id);
 
-		const deleted = listDeletedTasks();
+		const deleted = await listDeletedTasks(db);
 		expect(deleted.length).toBeGreaterThanOrEqual(2);
 		const ids = deleted.map((t) => t.id);
 		expect(ids).toContain(t1.id);
@@ -276,46 +323,54 @@ describe("repositories integration", () => {
 		expect(t2Idx).toBeLessThan(t1Idx);
 	});
 
-	it("undeleteTask restores a soft-deleted task and its subtasks", () => {
-		const project = createProject({ name: "Restore" });
-		const parent = createTask({ projectId: project.id, title: "Parent" });
-		const child = createTask({
+	it("undeleteTask restores a soft-deleted task and its subtasks", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Restore" });
+		const parent = await createTask(db, {
+			projectId: project.id,
+			title: "Parent",
+		});
+		const child = await createTask(db, {
 			projectId: project.id,
 			title: "Child",
 			parentTaskId: parent.id,
 		});
 
-		deleteTask(parent.id);
-		expect(getTask(parent.id)?.deletedAt).not.toBeNull();
-		expect(getTask(child.id)?.deletedAt).not.toBeNull();
+		await deleteTask(db, parent.id);
+		expect((await getTask(db, parent.id))?.deletedAt).not.toBeNull();
+		expect((await getTask(db, child.id))?.deletedAt).not.toBeNull();
 
-		const restored = undeleteTask(parent.id);
+		const restored = await undeleteTask(db, parent.id);
 		expect(restored).not.toBeNull();
 		expect(restored?.deletedAt).toBeNull();
-		expect(getTask(child.id)?.deletedAt).toBeNull();
+		expect((await getTask(db, child.id))?.deletedAt).toBeNull();
 
-		const visible = listTasks({ projectId: project.id });
+		const visible = await listTasks(db, { projectId: project.id });
 		const ids = visible.map((t) => t.id);
 		expect(ids).toContain(parent.id);
 		expect(ids).toContain(child.id);
 	});
 
-	it("undeleteTask also restores parent when undeleting a subtask with a deleted parent", () => {
-		const project = createProject({ name: "OrphanRestore" });
-		const parent = createTask({ projectId: project.id, title: "Parent" });
-		const child = createTask({
+	it("undeleteTask also restores parent when undeleting a subtask with a deleted parent", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "OrphanRestore" });
+		const parent = await createTask(db, {
+			projectId: project.id,
+			title: "Parent",
+		});
+		const child = await createTask(db, {
 			projectId: project.id,
 			title: "Child",
 			parentTaskId: parent.id,
 		});
 
-		deleteTask(parent.id);
-		expect(getTask(parent.id)?.deletedAt).not.toBeNull();
-		expect(getTask(child.id)?.deletedAt).not.toBeNull();
+		await deleteTask(db, parent.id);
+		expect((await getTask(db, parent.id))?.deletedAt).not.toBeNull();
+		expect((await getTask(db, child.id))?.deletedAt).not.toBeNull();
 
-		const restored = undeleteTask(child.id);
+		const restored = await undeleteTask(db, child.id);
 		expect(restored).not.toBeNull();
 		expect(restored?.deletedAt).toBeNull();
-		expect(getTask(parent.id)?.deletedAt).toBeNull();
+		expect((await getTask(db, parent.id))?.deletedAt).toBeNull();
 	});
 });

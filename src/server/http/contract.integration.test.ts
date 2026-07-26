@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { resetDbForTests } from "@/server/db/client";
+import { getDb, resetDbForTests } from "@/server/db/client";
 import { createApp } from "@/server/http/app";
 import type { ApiClient } from "@/shared/api-client";
 import { createHttpApi } from "@/shared/http-api";
@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 function makeClient(): ApiClient {
-	const app = createApp();
+	const app = createApp(() => getDb());
 	return createHttpApi(async (input, init) => app.request(input, init));
 }
 
@@ -186,7 +186,7 @@ describe("api contract (http)", () => {
 
 describe("openapi document", () => {
 	it("is served and covers every API route", async () => {
-		const app = createApp();
+		const app = createApp(() => getDb());
 		const response = await app.request("/api/openapi.json");
 		expect(response.status).toBe(200);
 		const doc = (await response.json()) as {

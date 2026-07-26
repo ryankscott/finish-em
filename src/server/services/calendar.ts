@@ -7,7 +7,7 @@
  */
 
 import * as ical from "node-ical";
-
+import type { Db } from "@/server/db/types";
 import {
 	type CalendarEventInput,
 	listEvents,
@@ -32,9 +32,14 @@ function asString(value: unknown): string | null {
 	if (value === null || value === undefined) return null;
 	if (typeof value === "string") return value.trim() || null;
 	// node-ical organizer can be an object with params/val
-	if (typeof value === "object" && "val" in (value as Record<string, unknown>)) {
+	if (
+		typeof value === "object" &&
+		"val" in (value as Record<string, unknown>)
+	) {
 		const val = (value as { val?: unknown }).val;
-		return typeof val === "string" ? val.replace(/^mailto:/i, "") || null : null;
+		return typeof val === "string"
+			? val.replace(/^mailto:/i, "") || null
+			: null;
 	}
 	return null;
 }
@@ -114,7 +119,16 @@ export function expandEvent(
 		// Single occurrence; only keep it if it falls in the window.
 		if (event.start < start || event.start > end) return [];
 		return [
-			toInput(uid, "", summary, event.start, durationMs, allDay, location, organizer),
+			toInput(
+				uid,
+				"",
+				summary,
+				event.start,
+				durationMs,
+				allDay,
+				location,
+				organizer,
+			),
 		];
 	}
 
@@ -166,11 +180,14 @@ export function expandEvent(
  * Returns the number of cached event instances. No-op (returns 0) when no URL
  * is configured. Throws on fetch/parse failure so callers can surface it.
  */
-export async function fetchAndSyncCalendar(now: Date = new Date()): Promise<{
+export async function fetchAndSyncCalendar(
+	db: Db,
+	now: Date = new Date(),
+): Promise<{
 	count: number;
 	lastSyncedAt: string;
 }> {
-	const settings = getSettings();
+	const settings = await getSettings(db);
 	const url = settings.calendarIcsUrl?.trim();
 	if (!url) {
 		return { count: 0, lastSyncedAt: settings.calendarLastSyncedAt ?? "" };
@@ -185,19 +202,22 @@ export async function fetchAndSyncCalendar(now: Date = new Date()): Promise<{
 	}
 
 	const syncedAt = now.toISOString();
-	upsertEvents(instances, syncedAt);
-	pruneStale(syncedAt);
+	await upsertEvents(db, instances, syncedAt);
+	await pruneStale(db, syncedAt);
 	// Keep tasks linked to a meeting pinned to that meeting's current start, so
 	// a rescheduled meeting drags its task's due date along with it.
-	repinLinkedTaskDueDates();
-	updateSettings({ calendarLastSyncedAt: syncedAt });
+	await repinLinkedTaskDueDates(db);
+	await updateSettings(db, { calendarLastSyncedAt: syncedAt });
 
 	return { count: instances.length, lastSyncedAt: syncedAt };
 }
 
-export function listCalendarEvents(range: {
-	from?: string;
-	to?: string;
-} = {}): CalendarEvent[] {
-	return listEvents(range);
+export async function listCalendarEvents(
+	db: Db,
+	range: {
+		from?: string;
+		to?: string;
+	} = {},
+): Promise<CalendarEvent[]> {
+	return listEvents(db, range);
 }

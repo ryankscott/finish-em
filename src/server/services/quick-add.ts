@@ -1,5 +1,6 @@
-import { addDays, addWeeks, isValid, nextDay, parseISO, set } from "date-fns";
 import type { Day } from "date-fns";
+import { addDays, addWeeks, isValid, nextDay, parseISO, set } from "date-fns";
+import type { Db } from "@/server/db/types";
 import { getInboxProjectId, listProjects } from "@/server/repos/projects";
 import { createTask } from "@/server/repos/tasks";
 import { validateRRuleSubset } from "@/server/services/recurrence";
@@ -290,6 +291,7 @@ export async function parseQuickAdd(rawInput: string) {
 }
 
 export async function createTaskFromQuickAdd(
+	db: Db,
 	rawInput: string,
 	options?: { parentTaskId?: number | null },
 ): Promise<{
@@ -297,7 +299,7 @@ export async function createTaskFromQuickAdd(
 	task: Task;
 }> {
 	const parsed = await parseQuickAdd(rawInput);
-	const projects = listProjects();
+	const projects = await listProjects(db);
 	const project = parsed.projectName
 		? projects.find(
 				(candidate) =>
@@ -305,9 +307,9 @@ export async function createTaskFromQuickAdd(
 			)
 		: null;
 
-	const projectId = project?.id ?? getInboxProjectId();
+	const projectId = project?.id ?? (await getInboxProjectId(db));
 
-	const task = createTask({
+	const task = await createTask(db, {
 		projectId,
 		parentTaskId: options?.parentTaskId,
 		title: parsed.title,

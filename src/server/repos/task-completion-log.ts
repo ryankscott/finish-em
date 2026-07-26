@@ -1,4 +1,5 @@
-import { getDb, nowIso } from "@/server/db/client";
+import { nowIso } from "@/server/db/client";
+import type { Db } from "@/server/db/types";
 
 import type { CompletionLog } from "@/server/types";
 
@@ -14,33 +15,31 @@ function mapRow(row: Record<string, unknown>): CompletionLog {
 }
 
 /** Record that a task instance was completed at a point in time. */
-export function logCompletion(
+export async function logCompletion(
+	db: Db,
 	taskId: number,
 	title: string,
 	completedAt: string,
 	notes = "",
-): CompletionLog {
-	const db = getDb();
+): Promise<CompletionLog> {
 	const now = nowIso();
-	const result = db
+	const row = await db
 		.prepare(
-			"INSERT INTO task_completion_log (task_id, title, completed_at, notes, created_at) VALUES (?, ?, ?, ?, ?)",
+			`INSERT INTO task_completion_log (task_id, title, completed_at, notes, created_at)
+			 VALUES (?, ?, ?, ?, ?)
+			 RETURNING *`,
 		)
-		.run(taskId, title, completedAt, notes, now);
-	const id = Number(result.lastInsertRowid);
-	const row = db
-		.prepare("SELECT * FROM task_completion_log WHERE id = ?")
-		.get(id) as Record<string, unknown>;
-	return mapRow(row);
+		.get<Record<string, unknown>>(taskId, title, completedAt, notes, now);
+	return mapRow(row as Record<string, unknown>);
 }
 
 /** Completion history for a single task, most recent first. */
-export function getCompletionHistory(
+export async function getCompletionHistory(
+	db: Db,
 	taskId: number,
 	from?: string,
 	to?: string,
-): CompletionLog[] {
-	const db = getDb();
+): Promise<CompletionLog[]> {
 	const clauses = ["task_id = ?"];
 	const params: unknown[] = [taskId];
 	if (from) {
@@ -51,19 +50,22 @@ export function getCompletionHistory(
 		clauses.push("completed_at <= ?");
 		params.push(to);
 	}
-	const rows = db
+	const rows = await db
 		.prepare(
 			`SELECT * FROM task_completion_log WHERE ${clauses.join(
 				" AND ",
 			)} ORDER BY completed_at DESC`,
 		)
-		.all(...params) as Record<string, unknown>[];
+		.all<Record<string, unknown>>(...params);
 	return rows.map(mapRow);
 }
 
 /** All completions in a date range, most recent first (for the Logbook). */
-export function listCompletions(from?: string, to?: string): CompletionLog[] {
-	const db = getDb();
+export async function listCompletions(
+	db: Db,
+	from?: string,
+	to?: string,
+): Promise<CompletionLog[]> {
 	const clauses: string[] = [];
 	const params: unknown[] = [];
 	if (from) {
@@ -75,11 +77,11 @@ export function listCompletions(from?: string, to?: string): CompletionLog[] {
 		params.push(to);
 	}
 	const where = clauses.length ? `WHERE ${clauses.join(" AND ")}` : "";
-	const rows = db
+	const rows = await db
 		.prepare(
 			`SELECT * FROM task_completion_log ${where} ORDER BY completed_at DESC`,
 		)
-		.all(...params) as Record<string, unknown>[];
+		.all<Record<string, unknown>>(...params);
 	return rows.map(mapRow);
 }
 
@@ -87,9 +89,11 @@ export function listCompletions(from?: string, to?: string): CompletionLog[] {
  * Remove the most recent completion entry for a task. Used when a completion is
  * undone so the log stays consistent with the task's actual state.
  */
-export function deleteLatestCompletion(taskId: number): boolean {
-	const db = getDb();
-	const result = db
+export async function deleteLatestCompletion(
+	db: Db,
+	taskId: number,
+): Promise<boolean> {
+	const result = await db
 		.prepare(
 			`DELETE FROM task_completion_log
        WHERE id = (

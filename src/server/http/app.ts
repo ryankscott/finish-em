@@ -1,12 +1,18 @@
 /**
  * HTTP API for finish-em. Thin OpenAPI-documented wrappers over the repo
- * layer in src/server/repos — all business logic stays in the repos so the
- * TUI/CLI (direct API) and this server behave identically.
+ * layer in src/server/repos — all business logic stays in the repos.
+ *
+ * Runtime-agnostic: nothing here imports bun:sqlite, D1, or node builtins. The
+ * caller supplies a `resolveDb` that turns a request into a Db, so the same app
+ * serves the local Bun server (bun:sqlite) and the deployed Worker (D1).
  */
 
 import { swaggerUI } from "@hono/swagger-ui";
 import type { z } from "@hono/zod-openapi";
 import { createRoute, OpenAPIHono, type RouteConfig } from "@hono/zod-openapi";
+import type { Context } from "hono";
+
+import type { Db } from "@/server/db/types";
 
 import * as goalRepo from "@/server/repos/goals";
 import * as projectRepo from "@/server/repos/projects";
@@ -66,8 +72,14 @@ function jsonResponse(schema: z.ZodTypeAny, description: string) {
 	} satisfies RouteConfig["responses"];
 }
 
-export function createApp() {
-	const app = new OpenAPIHono({
+export type AppEnv = { Variables: { db: Db } };
+
+/**
+ * @param resolveDb turns a request into a Db. Local dev passes `() => getDb()`
+ *   (bun:sqlite); the Worker passes `(c) => createD1Db(c.env.DB)`.
+ */
+export function createApp(resolveDb: (c: Context<AppEnv>) => Db) {
+	const app = new OpenAPIHono<AppEnv>({
 		defaultHook: (result, c) => {
 			if (!result.success) {
 				return c.json({ error: result.error.message }, 400);
@@ -82,6 +94,11 @@ export function createApp() {
 		return c.json({ error: err.message }, 400);
 	});
 
+	app.use("*", async (c, next) => {
+		c.set("db", resolveDb(c));
+		await next();
+	});
+
 	// Settings
 	app.openapi(
 		createRoute({
@@ -89,7 +106,7 @@ export function createApp() {
 			path: "/api/settings",
 			responses: jsonResponse(settingsSchema, "App settings"),
 		}),
-		(c) => c.json(settingsRepo.getSettings(), 200),
+		async (c) => c.json(await settingsRepo.getSettings(c.get("db")), 200),
 	);
 
 	app.openapi(
@@ -103,7 +120,11 @@ export function createApp() {
 			},
 			responses: jsonResponse(settingsSchema, "Updated settings"),
 		}),
-		(c) => c.json(settingsRepo.updateSettings(c.req.valid("json")), 200),
+		async (c) =>
+			c.json(
+				await settingsRepo.updateSettings(c.get("db"), c.req.valid("json")),
+				200,
+			),
 	);
 
 	// Calendar (read-only ICS integration)
@@ -117,7 +138,8 @@ export function createApp() {
 				"Cached calendar events in range",
 			),
 		}),
-		(c) => c.json(listCalendarEvents(c.req.valid("query")), 200),
+		async (c) =>
+			c.json(await listCalendarEvents(c.get("db"), c.req.valid("query")), 200),
 	);
 
 	app.openapi(
@@ -129,7 +151,7 @@ export function createApp() {
 				"Refreshed calendar from ICS feed",
 			),
 		}),
-		async (c) => c.json(await fetchAndSyncCalendar(), 200),
+		async (c) => c.json(await fetchAndSyncCalendar(c.get("db")), 200),
 	);
 
 	// Projects
@@ -139,7 +161,7 @@ export function createApp() {
 			path: "/api/projects",
 			responses: jsonResponse(projectSchema.array(), "All projects"),
 		}),
-		(c) => c.json(projectRepo.listProjects(), 200),
+		async (c) => c.json(await projectRepo.listProjects(c.get("db")), 200),
 	);
 
 	app.openapi(
@@ -153,7 +175,11 @@ export function createApp() {
 			},
 			responses: jsonResponse(projectSchema, "Created project"),
 		}),
-		(c) => c.json(projectRepo.createProject(c.req.valid("json")), 200),
+		async (c) =>
+			c.json(
+				await projectRepo.createProject(c.get("db"), c.req.valid("json")),
+				200,
+			),
 	);
 
 	app.openapi(
@@ -167,9 +193,12 @@ export function createApp() {
 			},
 			responses: jsonResponse(projectSchema.array(), "Reordered projects"),
 		}),
-		(c) => {
+		async (c) => {
 			const { projectIds } = c.req.valid("json");
-			return c.json(projectRepo.reorderProjects(projectIds), 200);
+			return c.json(
+				await projectRepo.reorderProjects(c.get("db"), projectIds),
+				200,
+			);
 		},
 	);
 
@@ -185,9 +214,13 @@ export function createApp() {
 			},
 			responses: jsonResponse(projectSchema, "Updated project"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			const project = projectRepo.updateProject(id, c.req.valid("json"));
+			const project = await projectRepo.updateProject(
+				c.get("db"),
+				id,
+				c.req.valid("json"),
+			);
 			if (!project) throw new NotFoundError(`Project ${id} not found`);
 			return c.json(project, 200);
 		},
@@ -200,9 +233,9 @@ export function createApp() {
 			request: { params: idParamSchema },
 			responses: jsonResponse(emptySchema, "Deleted"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			const ok = projectRepo.deleteProject(id);
+			const ok = await projectRepo.deleteProject(c.get("db"), id);
 			if (!ok) {
 				throw new NotFoundError(
 					`Project ${id} not found or cannot delete inbox`,
@@ -220,7 +253,8 @@ export function createApp() {
 			request: { query: taskQuerySchema },
 			responses: jsonResponse(taskSchema.array(), "Tasks matching the query"),
 		}),
-		(c) => c.json(taskRepo.listTasks(c.req.valid("query")), 200),
+		async (c) =>
+			c.json(await taskRepo.listTasks(c.get("db"), c.req.valid("query")), 200),
 	);
 
 	app.openapi(
@@ -229,7 +263,7 @@ export function createApp() {
 			path: "/api/tasks/deleted",
 			responses: jsonResponse(taskSchema.array(), "Soft-deleted tasks"),
 		}),
-		(c) => c.json(taskRepo.listDeletedTasks(), 200),
+		async (c) => c.json(await taskRepo.listDeletedTasks(c.get("db")), 200),
 	);
 
 	app.openapi(
@@ -241,7 +275,8 @@ export function createApp() {
 			},
 			responses: jsonResponse(taskSchema, "Created task"),
 		}),
-		(c) => c.json(taskRepo.createTask(c.req.valid("json")), 200),
+		async (c) =>
+			c.json(await taskRepo.createTask(c.get("db"), c.req.valid("json")), 200),
 	);
 
 	app.openapi(
@@ -254,9 +289,13 @@ export function createApp() {
 			},
 			responses: jsonResponse(taskSchema, "Updated task"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			const task = taskRepo.updateTask(id, c.req.valid("json"));
+			const task = await taskRepo.updateTask(
+				c.get("db"),
+				id,
+				c.req.valid("json"),
+			);
 			if (!task) throw new NotFoundError(`Task ${id} not found`);
 			return c.json(task, 200);
 		},
@@ -269,9 +308,9 @@ export function createApp() {
 			request: { params: idParamSchema },
 			responses: jsonResponse(emptySchema, "Deleted"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			taskRepo.deleteTask(id);
+			await taskRepo.deleteTask(c.get("db"), id);
 			return c.json({}, 200);
 		},
 	);
@@ -283,9 +322,9 @@ export function createApp() {
 			request: { params: idParamSchema },
 			responses: jsonResponse(taskSchema, "Completed task"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			const result = taskRepo.completeTask(id);
+			const result = await taskRepo.completeTask(c.get("db"), id);
 			if (!result.task) throw new NotFoundError(`Task ${id} not found`);
 			return c.json(result.task, 200);
 		},
@@ -298,9 +337,9 @@ export function createApp() {
 			request: { params: idParamSchema },
 			responses: jsonResponse(taskSchema, "Uncompleted task"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			const task = taskRepo.uncompleteTask(id);
+			const task = await taskRepo.uncompleteTask(c.get("db"), id);
 			if (!task) throw new NotFoundError(`Task ${id} not found`);
 			return c.json(task, 200);
 		},
@@ -308,7 +347,7 @@ export function createApp() {
 
 	const taskAction = (
 		path: string,
-		action: (id: number) => ReturnType<typeof taskRepo.uncompleteTask>,
+		action: (db: Db, id: number) => ReturnType<typeof taskRepo.uncompleteTask>,
 	) => {
 		app.openapi(
 			createRoute({
@@ -317,16 +356,18 @@ export function createApp() {
 				request: { params: idParamSchema },
 				responses: jsonResponse(taskSchema, "Updated task"),
 			}),
-			(c) => {
+			async (c) => {
 				const { id } = c.req.valid("param");
-				const task = action(id);
+				const task = await action(c.get("db"), id);
 				if (!task) throw new NotFoundError(`Task ${id} not found`);
 				return c.json(task, 200);
 			},
 		);
 	};
 
-	taskAction("/api/tasks/{id}/undelete", (id) => taskRepo.undeleteTask(id));
+	taskAction("/api/tasks/{id}/undelete", (db, id) =>
+		taskRepo.undeleteTask(db, id),
+	);
 
 	app.openapi(
 		createRoute({
@@ -338,9 +379,12 @@ export function createApp() {
 				"Task completion history",
 			),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			return c.json(completionLogRepo.getCompletionHistory(id), 200);
+			return c.json(
+				await completionLogRepo.getCompletionHistory(c.get("db"), id),
+				200,
+			);
 		},
 	);
 
@@ -354,9 +398,12 @@ export function createApp() {
 				"Completions in a date range",
 			),
 		}),
-		(c) => {
+		async (c) => {
 			const { from, to } = c.req.valid("query");
-			return c.json(completionLogRepo.listCompletions(from, to), 200);
+			return c.json(
+				await completionLogRepo.listCompletions(c.get("db"), from, to),
+				200,
+			);
 		},
 	);
 
@@ -370,10 +417,10 @@ export function createApp() {
 			},
 			responses: jsonResponse(taskSchema, "Task linked to calendar event"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
 			const { eventUid } = c.req.valid("json");
-			const task = taskRepo.linkTaskToEvent(id, eventUid);
+			const task = await taskRepo.linkTaskToEvent(c.get("db"), id, eventUid);
 			if (!task) throw new NotFoundError(`Task ${id} not found`);
 			return c.json(task, 200);
 		},
@@ -387,7 +434,8 @@ export function createApp() {
 			request: { query: goalQuerySchema },
 			responses: jsonResponse(goalSchema.array(), "Goals matching the query"),
 		}),
-		(c) => c.json(goalRepo.listGoals(c.req.valid("query")), 200),
+		async (c) =>
+			c.json(await goalRepo.listGoals(c.get("db"), c.req.valid("query")), 200),
 	);
 
 	app.openapi(
@@ -399,7 +447,8 @@ export function createApp() {
 			},
 			responses: jsonResponse(goalSchema, "Created goal"),
 		}),
-		(c) => c.json(goalRepo.createGoal(c.req.valid("json")), 200),
+		async (c) =>
+			c.json(await goalRepo.createGoal(c.get("db"), c.req.valid("json")), 200),
 	);
 
 	app.openapi(
@@ -412,9 +461,13 @@ export function createApp() {
 			},
 			responses: jsonResponse(goalSchema, "Updated goal"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			const goal = goalRepo.updateGoal(id, c.req.valid("json"));
+			const goal = await goalRepo.updateGoal(
+				c.get("db"),
+				id,
+				c.req.valid("json"),
+			);
 			if (!goal) throw new NotFoundError(`Goal ${id} not found`);
 			return c.json(goal, 200);
 		},
@@ -427,9 +480,9 @@ export function createApp() {
 			request: { params: idParamSchema },
 			responses: jsonResponse(emptySchema, "Deleted"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			goalRepo.deleteGoal(id);
+			await goalRepo.deleteGoal(c.get("db"), id);
 			return c.json({}, 200);
 		},
 	);
@@ -444,7 +497,8 @@ export function createApp() {
 				"All reminders with task titles",
 			),
 		}),
-		(c) => c.json(reminderRepo.listAllRemindersWithTitles(), 200),
+		async (c) =>
+			c.json(await reminderRepo.listAllRemindersWithTitles(c.get("db")), 200),
 	);
 
 	app.openapi(
@@ -456,7 +510,8 @@ export function createApp() {
 				"Due reminders with task titles",
 			),
 		}),
-		(c) => c.json(reminderRepo.listDueRemindersWithTitles(), 200),
+		async (c) =>
+			c.json(await reminderRepo.listDueRemindersWithTitles(c.get("db")), 200),
 	);
 
 	app.openapi(
@@ -466,9 +521,9 @@ export function createApp() {
 			request: { params: idParamSchema },
 			responses: jsonResponse(reminderSchema.array(), "Reminders for a task"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			return c.json(reminderRepo.listTaskReminders(id), 200);
+			return c.json(await reminderRepo.listTaskReminders(c.get("db"), id), 200);
 		},
 	);
 
@@ -484,9 +539,9 @@ export function createApp() {
 			},
 			responses: jsonResponse(reminderSchema, "Created reminder"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			const reminder = reminderRepo.createReminder({
+			const reminder = await reminderRepo.createReminder(c.get("db"), {
 				taskId: id,
 				...c.req.valid("json"),
 			});
@@ -501,9 +556,9 @@ export function createApp() {
 			request: { params: idParamSchema },
 			responses: jsonResponse(emptySchema, "Deleted"),
 		}),
-		(c) => {
+		async (c) => {
 			const { id } = c.req.valid("param");
-			reminderRepo.deleteReminder(id);
+			await reminderRepo.deleteReminder(c.get("db"), id);
 			return c.json({}, 200);
 		},
 	);

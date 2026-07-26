@@ -1,12 +1,10 @@
 #!/usr/bin/env bun
 import { getDb } from '@/server/db/client'
-import { mapTaskRow } from '@/server/repos/mappers'
-import { getProject } from '@/server/repos/projects'
 
 const db = getDb()
 const now = new Date().toISOString()
 
-const rows = db
+const rows = (await db
   .prepare(`
     SELECT t.*, p.name as project_name, p.color as project_color
     FROM tasks t
@@ -17,7 +15,7 @@ const rows = db
       AND t.deleted_at IS NULL
     ORDER BY t.due_at ASC, t.priority ASC
   `)
-  .all(now) as Array<Record<string, unknown>>
+  .all(now)) as Array<Record<string, unknown>>
 
 if (rows.length === 0) {
   console.log('No overdue tasks!')

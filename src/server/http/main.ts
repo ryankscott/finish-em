@@ -9,19 +9,20 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { getDb } from "@/server/db/client";
 import { fetchAndSyncCalendar } from "@/server/services/calendar";
 import { createApp } from "./app";
 
 const CALENDAR_POLL_MS = 15 * 60 * 1000;
 
 const port = Number(process.env.PORT || 5717);
-const app = createApp();
+const app = createApp(() => getDb());
 
 // Poll the configured Outlook/ICS calendar feed in the background. No-ops when
 // no ICS URL is set; failures are logged but never crash the server. In
 // production this is a Cron Trigger instead (see src/server/worker.ts).
 const refreshCalendar = () => {
-	fetchAndSyncCalendar().catch((err) => {
+	fetchAndSyncCalendar(getDb()).catch((err) => {
 		console.error("Calendar refresh failed:", err);
 	});
 };
