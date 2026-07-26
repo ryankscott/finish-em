@@ -3,6 +3,7 @@ import {
 	startOfDay as fnsStartOfDay,
 	startOfWeek as fnsStartOfWeek,
 	format,
+	isBefore,
 	isValid,
 	parseISO,
 	set,
@@ -63,4 +64,18 @@ export function isOverdueTask(
 	now: Date,
 ): boolean {
 	return !!task.dueAt && parseISO(task.dueAt) < fnsStartOfDay(now);
+}
+
+/**
+ * Overdue to the exact moment, unlike isOverdueTask which is day-granular.
+ * Used for styling an individual due-date label, where a task due earlier
+ * today should already read as overdue.
+ */
+export function isOverdueDueDate(dueAt: string): boolean {
+	try {
+		const dueDate = parseISO(dueAt);
+		return isValid(dueDate) && isBefore(dueDate, new Date());
+	} catch {
+		return false;
+	}
 }

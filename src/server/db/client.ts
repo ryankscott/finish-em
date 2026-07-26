@@ -293,7 +293,9 @@ function ensureProjectSortOrderSchema(db: DbLike) {
 		return;
 	}
 
-	db.exec("ALTER TABLE projects ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0");
+	db.exec(
+		"ALTER TABLE projects ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0",
+	);
 
 	// Backfill sort_order for existing projects using the previous ordering
 	// (alphabetical), so the initial drag-and-drop order matches what users saw.
@@ -534,66 +536,6 @@ function ensureUuidColumns(db: DbLike) {
 	}
 }
 
-const BACKUP_RETENTION = 14;
-
-function pruneBackups(backupsDir: string) {
-	let entries: string[];
-	try {
-		entries = fs.readdirSync(backupsDir);
-	} catch {
-		return;
-	}
-	const backups = entries
-		.filter((name) => /^todo-\d{4}-\d{2}-\d{2}\.db$/.test(name))
-		.sort();
-	while (backups.length > BACKUP_RETENTION) {
-		const oldest = backups.shift();
-		if (!oldest) break;
-		try {
-			fs.unlinkSync(path.join(backupsDir, oldest));
-		} catch {
-			// best effort
-		}
-	}
-}
-
-/**
- * Takes a consistent, point-in-time snapshot of the database before any schema
- * work runs. Backups are kept once per day (rotated) so an accidental schema
- * rewrite or data loss can be restored in seconds. Disabled for tests/temp DBs
- * and via TODO_DB_NO_BACKUP=1.
- */
-function maybeBackup(dbPath: string, db: DbLike) {
-	if (process.env.TODO_DB_NO_BACKUP === "1") return;
-	if (dbPath === ":memory:") return;
-	if (
-		dbPath.startsWith(`${os.tmpdir()}${path.sep}`) ||
-		dbPath.startsWith("/tmp/")
-	)
-		return;
-
-	const backupsDir = path.join(path.dirname(dbPath), "backups");
-	const day = new Date().toISOString().slice(0, 10);
-	const target = path.join(backupsDir, `todo-${day}.db`);
-	if (fs.existsSync(target)) {
-		pruneBackups(backupsDir);
-		return;
-	}
-
-	try {
-		fs.mkdirSync(backupsDir, { recursive: true });
-		const tmpTarget = `${target}.tmp`;
-		for (const stale of [tmpTarget, `${tmpTarget}-wal`, `${tmpTarget}-shm`]) {
-			if (fs.existsSync(stale)) fs.unlinkSync(stale);
-		}
-		db.exec(`VACUUM INTO '${tmpTarget.replace(/'/g, "''")}'`);
-		fs.renameSync(tmpTarget, target);
-		pruneBackups(backupsDir);
-	} catch (err) {
-		console.error("finish-em: automatic DB backup failed:", err);
-	}
-}
-
 function initialize(db: DbLike) {
 	db.exec("PRAGMA foreign_keys = ON");
 	// WAL + busy timeout so the TUI/CLI and the desktop HTTP server can share the DB
@@ -645,12 +587,6 @@ export function getDb() {
 	}
 
 	dbInstance = openSqliteDb(dbPath);
-
-	// Snapshot existing data before any schema work runs, so a future accidental
-	// schema rewrite can be restored. Skipped for brand-new (empty) databases.
-	if (!isNewDb) {
-		maybeBackup(dbPath, dbInstance);
-	}
 
 	initialize(dbInstance);
 

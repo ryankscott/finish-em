@@ -9,8 +9,8 @@ import {
 	Repeat,
 } from "lucide-react";
 
+import { isOverdueDueDate } from "@/lib/datetime";
 import type { Project, Task } from "@/server/types";
-import { isOverdueDueDate } from "@/tui/task-display-helpers";
 
 import { cn } from "../lib/cn";
 import { InlineText } from "./InlineText";
@@ -62,10 +62,7 @@ export function TaskRow({
 			<div className="flex min-w-0 flex-1 flex-col">
 				<div className="flex items-center gap-2">
 					<span
-						className={cn(
-							"truncate",
-							completed && "text-muted line-through",
-						)}
+						className={cn("truncate", completed && "text-muted line-through")}
 					>
 						<InlineText text={task.title} />
 					</span>
