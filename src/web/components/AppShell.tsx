@@ -1,16 +1,25 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Moon, Search, Sun } from "lucide-react";
-import { useEffect, useRef } from "react";
+import {
+	Outlet,
+	useNavigate,
+	useRouter,
+	useRouterState,
+} from "@tanstack/react-router";
+import { ChevronLeft, Moon, Search, Sun } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 
+import { cn } from "../lib/cn";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useUndo } from "../lib/undo";
+import { useIsMobile } from "../lib/use-is-mobile";
 import { useUi } from "../state/ui";
 import { CommandPalette } from "./CommandPalette";
 import { HelpDialog } from "./HelpDialog";
+import { MOBILE_NAV_PATHS, MobileNav } from "./MobileNav";
 import { ProjectDialog } from "./ProjectDialog";
 import { QuickAdd } from "./QuickAdd";
 import { ReminderWatcher } from "./ReminderWatcher";
@@ -75,47 +84,87 @@ function ResizeHandle() {
 export function AppShell() {
 	const ui = useUi();
 	const navigate = useNavigate();
+	const router = useRouter();
 	const queryClient = useQueryClient();
 	const { undoLast } = useUndo();
 	const searchRef = useRef<HTMLInputElement>(null);
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
+	const isMobile = useIsMobile();
+	const [drawerOpen, setDrawerOpen] = useState(false);
 
-	useHotkeyScope({
-		a: () => ui.openQuickAdd(),
-		"shift+a": () => ui.openQuickAdd(),
-		"shift+p": () => ui.openProjectDialog({ mode: "create" }),
-		"/": () => searchRef.current?.focus(),
-		"?": () => ui.setHelpOpen(!ui.helpOpen),
-		"mod+k": () => ui.setPaletteOpen(!ui.paletteOpen),
-		"mod+z": () => void undoLast(),
-		u: () => void undoLast(),
-		"\\": () => ui.toggleSidebar(),
-		r: () => queryClient.invalidateQueries(),
-		...Object.fromEntries(
-			VIEW_KEYS.map((to, index) => [String(index + 1), () => navigate({ to })]),
-		),
-	});
+	// Anything that isn't a bottom-nav destination is a detail route the user
+	// needs a way out of.
+	const canGoBack = !MOBILE_NAV_PATHS.includes(pathname) && pathname !== "/";
+
+	// Close the drawer on navigation, so tapping a link doesn't leave it covering
+	// the view it just navigated to.
+	useEffect(() => {
+		setDrawerOpen(false);
+	}, [pathname]);
+
+	// Hotkeys are meaningless on a touch device, and leaving the listeners
+	// attached means an external keyboard types into scopes with no visible
+	// affordance for them.
+	const hotkeysEnabled = !isMobile;
+
+	useHotkeyScope(
+		{
+			a: () => ui.openQuickAdd(),
+			"shift+a": () => ui.openQuickAdd(),
+			"shift+p": () => ui.openProjectDialog({ mode: "create" }),
+			"/": () => searchRef.current?.focus(),
+			"?": () => ui.setHelpOpen(!ui.helpOpen),
+			"mod+k": () => ui.setPaletteOpen(!ui.paletteOpen),
+			"mod+z": () => void undoLast(),
+			u: () => void undoLast(),
+			"\\": () => ui.toggleSidebar(),
+			r: () => queryClient.invalidateQueries(),
+			...Object.fromEntries(
+				VIEW_KEYS.map((to, index) => [
+					String(index + 1),
+					() => navigate({ to }),
+				]),
+			),
+		},
+		{ enabled: hotkeysEnabled },
+	);
 
 	// mod+k must also work while typing in inputs
 	useHotkeyScope(
 		{
 			"mod+k": () => ui.setPaletteOpen(!ui.paletteOpen),
 		},
-		{ allowInInput: true },
+		{ allowInInput: true, enabled: hotkeysEnabled },
 	);
 
 	return (
 		<div className="flex h-full">
-			<Sidebar />
-			{ui.sidebarVisible && !ui.sidebarCollapsed && <ResizeHandle />}
+			{isMobile ? null : (
+				<>
+					<Sidebar />
+					{ui.sidebarVisible && !ui.sidebarCollapsed && <ResizeHandle />}
+				</>
+			)}
 			<div className="flex min-w-0 flex-1 flex-col">
-				<header className="flex items-center gap-2 px-4 py-2">
-					<Search className="h-4 w-4 text-muted" />
+				<header className="flex items-center gap-2 px-4 py-2 pt-safe">
+					{/* Standalone PWAs have no browser back button or edge-swipe, so a
+					    detail route without this is a dead end. */}
+					{isMobile && canGoBack ? (
+						<button
+							type="button"
+							aria-label="Back"
+							onClick={() => router.history.back()}
+							className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center text-muted hover:text-foreground"
+						>
+							<ChevronLeft className="h-5 w-5" />
+						</button>
+					) : null}
+					<Search className="h-4 w-4 shrink-0 text-muted" />
 					<input
 						ref={searchRef}
 						value={ui.search}
-						placeholder="Search tasks ( / )"
-						className="w-64 bg-transparent text-sm outline-none placeholder:text-muted/60"
+						placeholder={isMobile ? "Search" : "Search tasks ( / )"}
+						className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted/60 md:w-64 md:flex-none"
 						onChange={(e) => {
 							ui.setSearch(e.target.value);
 							if (pathname !== "/search") navigate({ to: "/search" });
@@ -128,12 +177,17 @@ export function AppShell() {
 							}
 						}}
 					/>
-					<span className="ml-auto text-xs text-muted">? for shortcuts</span>
+					{isMobile ? null : (
+						<span className="ml-auto text-xs text-muted">? for shortcuts</span>
+					)}
 					<button
 						type="button"
 						aria-label="Toggle theme"
 						onClick={() => ui.toggleTheme()}
-						className="text-muted hover:text-foreground"
+						className={cn(
+							"shrink-0 text-muted hover:text-foreground",
+							isMobile && "flex h-11 w-11 items-center justify-center",
+						)}
 					>
 						{ui.theme === "dark" ? (
 							<Sun className="h-4 w-4" />
@@ -146,14 +200,37 @@ export function AppShell() {
 				<main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
 					<Outlet />
 				</main>
+				{isMobile ? (
+					<MobileNav
+						pathname={pathname}
+						onOpenMenu={() => setDrawerOpen(true)}
+						onQuickAdd={() => ui.openQuickAdd()}
+					/>
+				) : null}
 			</div>
+
+			{isMobile ? (
+				<Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
+					<DialogContent
+						className="fixed inset-y-0 left-0 top-0 flex h-dvh max-w-[85vw] translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-border border-r p-0 pt-safe pb-safe sm:max-w-xs"
+						aria-describedby={undefined}
+					>
+						<DialogTitle className="sr-only">Navigation</DialogTitle>
+						<Sidebar variant="drawer" />
+					</DialogContent>
+				</Dialog>
+			) : null}
+
 			<QuickAdd />
 			<TaskEditDialog />
 			<ProjectDialog />
-			<HelpDialog />
+			{isMobile ? null : <HelpDialog />}
 			<CommandPalette />
 			<ReminderWatcher />
-			<Toaster theme={ui.theme} position="bottom-right" />
+			<Toaster
+				theme={ui.theme}
+				position={isMobile ? "top-center" : "bottom-right"}
+			/>
 		</div>
 	);
 }

@@ -38,7 +38,9 @@ export function TaskRow({
 		<div
 			data-selected={selected || undefined}
 			className={cn(
-				"flex items-start gap-2 rounded-md px-3 py-1.5",
+				// Taller rows below md so a row is a comfortable tap target; the
+				// desktop density is unchanged.
+				"flex min-h-[44px] items-start gap-2 rounded-md px-3 py-2.5 md:min-h-0 md:py-1.5",
 				selected
 					? "bg-surface-raised ring-1 ring-accent/60"
 					: "hover:bg-surface",

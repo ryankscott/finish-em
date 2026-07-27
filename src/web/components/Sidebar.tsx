@@ -1,6 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { endOfDay, startOfDay } from "date-fns";
-import { useState } from "react";
 import {
 	Bell,
 	BookOpen,
@@ -21,6 +20,7 @@ import {
 	Sun,
 	Trash2,
 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Separator } from "@/components/ui/separator";
@@ -169,7 +169,12 @@ function ProjectNavLink({
 	);
 }
 
-export function Sidebar() {
+/**
+ * @param variant "rail" is the resizable desktop column. "drawer" is the same
+ *   navigation rendered inside the mobile drawer: full width, always expanded,
+ *   and without the collapse affordance, which has no meaning there.
+ */
+export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 	const ui = useUi();
 	const { data: projects = [] } = useProjects();
 	const { reorderProjects } = useProjectMutations();
@@ -192,7 +197,10 @@ export function Sidebar() {
 		status: "open",
 		someday: true,
 	});
-	const { data: recurringTasks = [] } = useTasks({ status: "open", recurring: true });
+	const { data: recurringTasks = [] } = useTasks({
+		status: "open",
+		recurring: true,
+	});
 	const { data: deletedTasks = [] } = useDeletedTasks();
 
 	const overdueCount = pastTasks.filter((t) => isOverdueTask(t, now)).length;
@@ -224,8 +232,10 @@ export function Sidebar() {
 		reorderProjects.mutate(next.map((p) => p.id));
 	};
 
+	const isDrawer = variant === "drawer";
+
 	// Collapsed strip with expand button
-	if (ui.sidebarCollapsed) {
+	if (!isDrawer && ui.sidebarCollapsed) {
 		return (
 			<aside
 				style={{ width: 40 }}
@@ -243,24 +253,31 @@ export function Sidebar() {
 		);
 	}
 
-	if (!ui.sidebarVisible) return null;
+	if (!isDrawer && !ui.sidebarVisible) return null;
 
 	const iconClass = "h-4 w-4 shrink-0";
 	return (
 		<aside
-			style={{ width: ui.sidebarWidth }}
-			className="flex shrink-0 flex-col gap-0.5 overflow-y-auto border-r border-border bg-surface/50 p-2"
+			style={isDrawer ? undefined : { width: ui.sidebarWidth }}
+			className={cn(
+				"flex flex-col gap-0.5 overflow-y-auto p-2",
+				isDrawer
+					? "h-full w-full"
+					: "shrink-0 border-r border-border bg-surface/50",
+			)}
 		>
-			<div className="mb-1 flex items-center justify-end px-1">
-				<button
-					type="button"
-					aria-label="Collapse sidebar"
-					onClick={() => ui.toggleSidebarCollapsed()}
-					className="flex h-6 w-6 items-center justify-center rounded-md text-muted hover:bg-surface hover:text-foreground"
-				>
-					<ChevronLeft className="h-4 w-4" />
-				</button>
-			</div>
+			{isDrawer ? null : (
+				<div className="mb-1 flex items-center justify-end px-1">
+					<button
+						type="button"
+						aria-label="Collapse sidebar"
+						onClick={() => ui.toggleSidebarCollapsed()}
+						className="flex h-6 w-6 items-center justify-center rounded-md text-muted hover:bg-surface hover:text-foreground"
+					>
+						<ChevronLeft className="h-4 w-4" />
+					</button>
+				</div>
+			)}
 			<NavLink
 				to="/today"
 				icon={<Sun className={iconClass} />}
