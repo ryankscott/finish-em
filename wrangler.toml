@@ -17,8 +17,7 @@ run_worker_first = ["/api/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "finish-em"
-# Filled in by `wrangler d1 create finish-em`.
-database_id = "PLACEHOLDER_RUN_WRANGLER_D1_CREATE"
+database_id = "f46d0097-c67b-4d1c-94ec-842bb2e8c531"
 migrations_dir = "migrations"
 
 # Replaces the 15-minute setInterval in main.ts; a Worker has no process to
