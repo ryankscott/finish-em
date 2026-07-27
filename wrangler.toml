@@ -1,0 +1,33 @@
+name = "finish-em"
+main = "src/server/worker.ts"
+compatibility_date = "2026-07-01"
+
+# node:path and friends used by the ICS parser. The repo layer itself is free of
+# node builtins; this is for dependencies.
+compatibility_flags = ["nodejs_compat"]
+
+# The built web UI. run_worker_first routes /api/* to the Worker; everything
+# else is served as a static asset, falling back to index.html so client-side
+# routes like /today deep-link correctly.
+[assets]
+directory = "dist/web"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "finish-em"
+database_id = "f46d0097-c67b-4d1c-94ec-842bb2e8c531"
+migrations_dir = "migrations"
+
+# Replaces the 15-minute setInterval in main.ts; a Worker has no process to
+# hold a timer.
+[triggers]
+crons = ["*/15 * * * *"]
+
+[observability]
+enabled = true
+
+# FINISH_EM_AUTH_SECRET is NOT set here. It is a secret:
+#   wrangler secret put FINISH_EM_AUTH_SECRET
+# Leaving it unset leaves the API open to anyone with the URL.

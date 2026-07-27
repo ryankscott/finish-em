@@ -1,43 +1,57 @@
-import { getDb, nowIso } from "@/server/db/client";
+import { nowIso } from "@/lib/datetime";
+import type { BatchOp, Db } from "@/server/db/types";
 import { mapProjectRow } from "@/server/repos/mappers";
-import { listResources, setResources } from "@/server/repos/project-resources";
+import {
+	listResources,
+	listResourcesByProject,
+	setResources,
+} from "@/server/repos/project-resources";
 
 import type { Project, ProjectResourceInput } from "@/server/types";
 
-function withResources(project: Project): Project {
-	return { ...project, resources: listResources(project.id) };
+async function withResources(db: Db, project: Project): Promise<Project> {
+	return { ...project, resources: await listResources(db, project.id) };
 }
 
-export function listProjects(): Project[] {
-	const db = getDb();
-	const rows = db
+export async function listProjects(db: Db): Promise<Project[]> {
+	const rows = await db
 		.prepare(
 			"SELECT * FROM projects ORDER BY is_inbox DESC, sort_order ASC, name ASC",
 		)
-		.all() as Record<string, unknown>[];
-	return rows.map(mapProjectRow).map(withResources);
+		.all<Record<string, unknown>>();
+
+	// One grouped resource query instead of one per project.
+	const resources = await listResourcesByProject(db);
+	return rows.map(mapProjectRow).map((project) => ({
+		...project,
+		resources: resources.get(project.id) ?? [],
+	}));
 }
 
-export function getProject(projectId: number): Project | null {
-	const db = getDb();
-	const row = db
+export async function getProject(
+	db: Db,
+	projectId: number,
+): Promise<Project | null> {
+	const row = await db
 		.prepare("SELECT * FROM projects WHERE id = ?")
-		.get(projectId) as Record<string, unknown> | undefined;
+		.get<Record<string, unknown>>(projectId);
 
-	return row ? withResources(mapProjectRow(row)) : null;
+	return row ? withResources(db, mapProjectRow(row)) : null;
 }
 
-export function createProject(input: {
-	name: string;
-	emoji?: string | null;
-	description?: string;
-	startAt?: string | null;
-	endAt?: string | null;
-	color?: string;
-	isInbox?: boolean;
-	resources?: ProjectResourceInput[];
-}): Project {
-	const db = getDb();
+export async function createProject(
+	db: Db,
+	input: {
+		name: string;
+		emoji?: string | null;
+		description?: string;
+		startAt?: string | null;
+		endAt?: string | null;
+		color?: string;
+		isInbox?: boolean;
+		resources?: ProjectResourceInput[];
+	},
+): Promise<Project> {
 	const now = nowIso();
 	const emoji = input.emoji ?? null;
 	const description = input.description ?? "";
@@ -47,20 +61,24 @@ export function createProject(input: {
 	const isInbox = input.isInbox ? 1 : 0;
 
 	if (isInbox === 1) {
-		db.prepare("UPDATE projects SET is_inbox = 0, updated_at = ?").run(now);
+		await db
+			.prepare("UPDATE projects SET is_inbox = 0, updated_at = ?")
+			.run(now);
 	}
 
 	// Append new projects to the end of the sidebar ordering.
-	const maxRow = db
+	const maxRow = await db
 		.prepare("SELECT MAX(sort_order) AS max FROM projects")
-		.get() as { max: number | null };
-	const sortOrder = (maxRow.max ?? -1) + 1;
+		.get<{ max: number | null }>();
+	const sortOrder = (maxRow?.max ?? -1) + 1;
 
-	const result = db
+	const row = await db
 		.prepare(
-			"INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, sort_order, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			`INSERT INTO projects (name, emoji, description, start_at, end_at, color, is_inbox, sort_order, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			 RETURNING *`,
 		)
-		.run(
+		.get<Record<string, unknown>>(
 			input.name,
 			emoji,
 			description,
@@ -73,19 +91,16 @@ export function createProject(input: {
 			now,
 		);
 
-	const id = Number(result.lastInsertRowid);
+	const project = mapProjectRow(row as Record<string, unknown>);
 	if (input.resources) {
-		setResources(id, input.resources);
+		await setResources(db, project.id, input.resources);
 	}
 
-	const row = db
-		.prepare("SELECT * FROM projects WHERE id = ?")
-		.get(id) as Record<string, unknown>;
-
-	return withResources(mapProjectRow(row));
+	return withResources(db, project);
 }
 
-export function updateProject(
+export async function updateProject(
+	db: Db,
 	projectId: number,
 	patch: Partial<{
 		name: string;
@@ -97,9 +112,8 @@ export function updateProject(
 		isInbox: boolean;
 		resources: ProjectResourceInput[];
 	}>,
-): Project | null {
-	const db = getDb();
-	const existing = getProject(projectId);
+): Promise<Project | null> {
+	const existing = await getProject(db, projectId);
 
 	if (!existing) {
 		return null;
@@ -115,71 +129,88 @@ export function updateProject(
 	const isInbox = patch.isInbox ?? existing.isInbox;
 
 	if (isInbox) {
-		db.prepare("UPDATE projects SET is_inbox = 0, updated_at = ?").run(now);
+		await db
+			.prepare("UPDATE projects SET is_inbox = 0, updated_at = ?")
+			.run(now);
 	}
 
-	db.prepare(
-		"UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, updated_at = ? WHERE id = ?",
-	).run(
-		name,
-		emoji,
-		description,
-		startAt,
-		endAt,
-		color,
-		isInbox ? 1 : 0,
-		now,
-		projectId,
-	);
+	await db
+		.prepare(
+			"UPDATE projects SET name = ?, emoji = ?, description = ?, start_at = ?, end_at = ?, color = ?, is_inbox = ?, updated_at = ? WHERE id = ?",
+		)
+		.run(
+			name,
+			emoji,
+			description,
+			startAt,
+			endAt,
+			color,
+			isInbox ? 1 : 0,
+			now,
+			projectId,
+		);
 
 	if (patch.resources !== undefined) {
-		setResources(projectId, patch.resources);
+		await setResources(db, projectId, patch.resources);
 	}
 
-	return getProject(projectId);
+	return getProject(db, projectId);
 }
 
-export function deleteProject(projectId: number): boolean {
-	const db = getDb();
-	const existing = getProject(projectId);
+export async function deleteProject(
+	db: Db,
+	projectId: number,
+): Promise<boolean> {
+	const existing = await getProject(db, projectId);
 
 	if (!existing || existing.isInbox) {
 		return false;
 	}
 
-	const inbox = db
+	const inbox = await db
 		.prepare("SELECT id FROM projects WHERE is_inbox = 1 LIMIT 1")
-		.get() as { id: number } | undefined;
+		.get<{ id: number }>();
 
 	if (!inbox) {
-		throw new Error("No inbox project found; cannot reassign tasks before delete");
+		throw new Error(
+			"No inbox project found; cannot reassign tasks before delete",
+		);
 	}
 
-	db.prepare("UPDATE tasks SET project_id = ? WHERE project_id = ?").run(
-		inbox.id,
-		projectId,
-	);
+	// Reassign and delete atomically. tasks.project_id is ON DELETE CASCADE, so
+	// if the reassign landed but the delete didn't we would have moved tasks to
+	// the inbox for a project that still exists; if the delete landed without the
+	// reassign, the cascade would take the tasks with it.
+	await db.batch([
+		{
+			sql: "UPDATE tasks SET project_id = ? WHERE project_id = ?",
+			params: [inbox.id, projectId],
+		},
+		{ sql: "DELETE FROM projects WHERE id = ?", params: [projectId] },
+	]);
 
-	const result = db.prepare("DELETE FROM projects WHERE id = ?").run(projectId);
-	return result.changes > 0;
+	return true;
 }
 
-export function reorderProjects(orderedIds: number[]): Project[] {
-	const db = getDb();
+export async function reorderProjects(
+	db: Db,
+	orderedIds: number[],
+): Promise<Project[]> {
 	const now = nowIso();
-	const update = db.prepare(
-		"UPDATE projects SET sort_order = ?, updated_at = ? WHERE id = ? AND is_inbox = 0",
-	);
-	orderedIds.forEach((id, index) => {
-		update.run(index, now, id);
-	});
-	return listProjects();
+	const ops: BatchOp[] = orderedIds.map((id, index) => ({
+		sql: "UPDATE projects SET sort_order = ?, updated_at = ? WHERE id = ? AND is_inbox = 0",
+		params: [index, now, id],
+	}));
+	await db.batch(ops);
+	return listProjects(db);
 }
 
-export function getInboxProjectId(): number {
-	const db = getDb();
-	const row = db
+export async function getInboxProjectId(db: Db): Promise<number> {
+	const row = await db
 		.prepare("SELECT id FROM projects WHERE is_inbox = 1 LIMIT 1")
-		.get() as { id: number };
+		.get<{ id: number }>();
+	if (!row) {
+		throw new Error("No inbox project found");
+	}
 	return row.id;
 }

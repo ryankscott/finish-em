@@ -34,7 +34,6 @@ type Layout = "vertical" | "horizontal";
 
 const dateKey = (date: Date) => format(date, "yyyy-MM-dd");
 
-// Mirrors src/tui/PlanningPanel.tsx (which is Ink-coupled and can't be imported).
 function columnStartDate(anchorDate: Date, viewMode: ViewMode): Date {
 	if (viewMode === "work-week")
 		return startOfWeek(anchorDate, { weekStartsOn: 1 });

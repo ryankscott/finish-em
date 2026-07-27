@@ -1,167 +1,197 @@
-import { getDb, nowIso } from "@/server/db/client";
+import { nowIso } from "@/lib/datetime";
+import type { Db } from "@/server/db/types";
 import { mapReminderRow } from "@/server/repos/mappers";
 import { resolveSnoozeTime } from "@/server/services/reminders";
 
 import type { Reminder, ReminderStatus } from "@/server/types";
 
-export function listTaskReminders(taskId: number): Reminder[] {
-	const db = getDb();
-	const rows = db
+export async function listTaskReminders(
+	db: Db,
+	taskId: number,
+): Promise<Reminder[]> {
+	const rows = await db
 		.prepare(
 			"SELECT * FROM reminders WHERE task_id = ? ORDER BY updated_at DESC LIMIT 1",
 		)
-		.all(taskId) as Record<string, unknown>[];
+		.all<Record<string, unknown>>(taskId);
 
 	return rows.map(mapReminderRow);
 }
 
-export function getReminder(reminderId: number): Reminder | null {
-	const db = getDb();
-	const row = db
+export async function getReminder(
+	db: Db,
+	reminderId: number,
+): Promise<Reminder | null> {
+	const row = await db
 		.prepare("SELECT * FROM reminders WHERE id = ?")
-		.get(reminderId) as Record<string, unknown> | undefined;
+		.get<Record<string, unknown>>(reminderId);
 
 	return row ? mapReminderRow(row) : null;
 }
 
-export function createReminder(input: {
-	taskId: number;
-	remindAt: string;
-	status?: ReminderStatus;
-}): Reminder {
-	const db = getDb();
+export async function createReminder(
+	db: Db,
+	input: {
+		taskId: number;
+		remindAt: string;
+		status?: ReminderStatus;
+	},
+): Promise<Reminder> {
 	const now = nowIso();
-	const existingRows = db
+	const existingRows = await db
 		.prepare(
 			"SELECT id FROM reminders WHERE task_id = ? ORDER BY created_at ASC",
 		)
-		.all(input.taskId) as Array<{ id: number }>;
+		.all<{ id: number }>(input.taskId);
 
 	const existingPrimary = existingRows[0];
 
 	if (existingPrimary) {
-		db.prepare(
-			`UPDATE reminders SET
+		// Collapse to a single reminder per task: update the oldest, drop any
+		// duplicates. Batched so a task can never be left with the update applied
+		// and the duplicates still present.
+		const duplicateIds = existingRows.slice(1).map((row) => row.id);
+		const ops = [
+			{
+				sql: `UPDATE reminders SET
         remind_at = ?,
         status = ?,
         snoozed_until = NULL,
         updated_at = ?
       WHERE id = ?`,
-		).run(input.remindAt, input.status ?? "pending", now, existingPrimary.id);
-
-		if (existingRows.length > 1) {
-			const duplicateIds = existingRows.slice(1).map((row) => row.id);
+				params: [
+					input.remindAt,
+					input.status ?? "pending",
+					now,
+					existingPrimary.id,
+				],
+			},
+		];
+		if (duplicateIds.length > 0) {
 			const placeholders = duplicateIds.map(() => "?").join(",");
-			db.prepare(`DELETE FROM reminders WHERE id IN (${placeholders})`).run(
-				...duplicateIds,
-			);
+			ops.push({
+				sql: `DELETE FROM reminders WHERE id IN (${placeholders})`,
+				params: duplicateIds,
+			});
 		}
+		await db.batch(ops);
 
-		const row = db
+		const row = await db
 			.prepare("SELECT * FROM reminders WHERE id = ?")
-			.get(existingPrimary.id) as Record<string, unknown>;
+			.get<Record<string, unknown>>(existingPrimary.id);
 
-		return mapReminderRow(row);
+		return mapReminderRow(row as Record<string, unknown>);
 	}
 
-	const result = db
+	const row = await db
 		.prepare(
-			"INSERT INTO reminders (task_id, remind_at, status, snoozed_until, created_at, updated_at) VALUES (?, ?, ?, NULL, ?, ?)",
+			`INSERT INTO reminders (task_id, remind_at, status, snoozed_until, created_at, updated_at)
+			 VALUES (?, ?, ?, NULL, ?, ?)
+			 RETURNING *`,
 		)
-		.run(input.taskId, input.remindAt, input.status ?? "pending", now, now);
+		.get<Record<string, unknown>>(
+			input.taskId,
+			input.remindAt,
+			input.status ?? "pending",
+			now,
+			now,
+		);
 
-	const id = Number(result.lastInsertRowid);
-	const row = db
-		.prepare("SELECT * FROM reminders WHERE id = ?")
-		.get(id) as Record<string, unknown>;
-
-	return mapReminderRow(row);
+	return mapReminderRow(row as Record<string, unknown>);
 }
 
-export function updateReminder(
+export async function updateReminder(
+	db: Db,
 	reminderId: number,
 	patch: Partial<{
 		remindAt: string;
 		status: ReminderStatus;
 		snoozedUntil: string | null;
 	}>,
-): Reminder | null {
-	const db = getDb();
-	const existing = getReminder(reminderId);
+): Promise<Reminder | null> {
+	const existing = await getReminder(db, reminderId);
 
 	if (!existing) {
 		return null;
 	}
 
-	db.prepare(
-		`UPDATE reminders SET
+	const row = await db
+		.prepare(
+			`UPDATE reminders SET
       remind_at = ?,
       status = ?,
       snoozed_until = ?,
       updated_at = ?
-    WHERE id = ?`,
-	).run(
-		patch.remindAt ?? existing.remindAt,
-		patch.status ?? existing.status,
-		patch.snoozedUntil === undefined
-			? existing.snoozedUntil
-			: patch.snoozedUntil,
-		nowIso(),
-		reminderId,
-	);
+    WHERE id = ?
+    RETURNING *`,
+		)
+		.get<Record<string, unknown>>(
+			patch.remindAt ?? existing.remindAt,
+			patch.status ?? existing.status,
+			patch.snoozedUntil === undefined
+				? existing.snoozedUntil
+				: patch.snoozedUntil,
+			nowIso(),
+			reminderId,
+		);
 
-	return getReminder(reminderId);
+	return row ? mapReminderRow(row) : null;
 }
 
-export function deleteReminder(reminderId: number): boolean {
-	const db = getDb();
-	const result = db
+export async function deleteReminder(
+	db: Db,
+	reminderId: number,
+): Promise<boolean> {
+	const result = await db
 		.prepare("DELETE FROM reminders WHERE id = ?")
 		.run(reminderId);
 	return result.changes > 0;
 }
 
-export function snoozeReminder(input: {
-	reminderId: number;
-	preset:
-		| "this_morning"
-		| "this_evening"
-		| "tomorrow_morning"
-		| "next_week"
-		| "custom";
-	customMinutes?: number;
-}): Reminder | null {
+export async function snoozeReminder(
+	db: Db,
+	input: {
+		reminderId: number;
+		preset:
+			| "this_morning"
+			| "this_evening"
+			| "tomorrow_morning"
+			| "next_week"
+			| "custom";
+		customMinutes?: number;
+	},
+): Promise<Reminder | null> {
 	const next = resolveSnoozeTime({
 		preset: input.preset,
 		customMinutes: input.customMinutes,
 	});
 
-	return updateReminder(input.reminderId, {
+	return updateReminder(db, input.reminderId, {
 		status: "snoozed",
 		snoozedUntil: next,
 	});
 }
 
-export function listDueReminders(): Reminder[] {
-	const db = getDb();
+export async function listDueReminders(db: Db): Promise<Reminder[]> {
 	const now = nowIso();
-	const rows = db
+	const rows = await db
 		.prepare(
 			`SELECT * FROM reminders
        WHERE status IN ('pending', 'snoozed')
          AND COALESCE(snoozed_until, remind_at) <= ?
        ORDER BY COALESCE(snoozed_until, remind_at) ASC`,
 		)
-		.all(now) as Record<string, unknown>[];
+		.all<Record<string, unknown>>(now);
 
 	return rows.map(mapReminderRow);
 }
 
 export type AllReminderWithTitle = Reminder & { taskTitle: string };
 
-export function listAllRemindersWithTitles(): AllReminderWithTitle[] {
-	const db = getDb();
-	const rows = db
+export async function listAllRemindersWithTitles(
+	db: Db,
+): Promise<AllReminderWithTitle[]> {
+	const rows = await db
 		.prepare(
 			`SELECT r.*, t.title AS task_title
        FROM reminders r
@@ -170,7 +200,7 @@ export function listAllRemindersWithTitles(): AllReminderWithTitle[] {
          AND t.deleted_at IS NULL
        ORDER BY COALESCE(r.snoozed_until, r.remind_at) ASC`,
 		)
-		.all() as (Record<string, unknown> & { task_title: string })[];
+		.all<Record<string, unknown> & { task_title: string }>();
 
 	return rows.map((row) => {
 		const { task_title, ...rest } = row;
@@ -183,10 +213,11 @@ export function listAllRemindersWithTitles(): AllReminderWithTitle[] {
 
 export type DueReminderWithTitle = Reminder & { taskTitle: string };
 
-export function listDueRemindersWithTitles(): DueReminderWithTitle[] {
-	const db = getDb();
+export async function listDueRemindersWithTitles(
+	db: Db,
+): Promise<DueReminderWithTitle[]> {
 	const now = nowIso();
-	const rows = db
+	const rows = await db
 		.prepare(
 			`SELECT r.*, t.title AS task_title
        FROM reminders r
@@ -195,7 +226,7 @@ export function listDueRemindersWithTitles(): DueReminderWithTitle[] {
          AND COALESCE(r.snoozed_until, r.remind_at) <= ?
        ORDER BY COALESCE(r.snoozed_until, r.remind_at) ASC`,
 		)
-		.all(now) as (Record<string, unknown> & { task_title: string })[];
+		.all<Record<string, unknown> & { task_title: string }>(now);
 
 	return rows.map((row) => {
 		const { task_title, ...rest } = row;

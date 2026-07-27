@@ -1,13 +1,16 @@
-import { getDb, nowIso } from "@/server/db/client";
+import { nowIso } from "@/lib/datetime";
+import type { Db } from "@/server/db/types";
 import { mapGoalRow } from "@/server/repos/mappers";
 
 import type { Goal, GoalPeriod } from "@/server/types";
 
-export function listGoals(filters?: {
-	periodType?: GoalPeriod;
-	periodStart?: string;
-}): Goal[] {
-	const db = getDb();
+export async function listGoals(
+	db: Db,
+	filters?: {
+		periodType?: GoalPeriod;
+		periodStart?: string;
+	},
+): Promise<Goal[]> {
 	const clauses: string[] = [];
 	const values: string[] = [];
 
@@ -23,37 +26,40 @@ export function listGoals(filters?: {
 
 	const where = clauses.length > 0 ? `WHERE ${clauses.join(" AND ")}` : "";
 
-	const rows = db
+	const rows = await db
 		.prepare(`SELECT * FROM goals ${where} ORDER BY period_start DESC, id DESC`)
-		.all(...values) as Record<string, unknown>[];
+		.all<Record<string, unknown>>(...values);
 
 	return rows.map(mapGoalRow);
 }
 
-export function getGoal(goalId: number): Goal | null {
-	const db = getDb();
-	const row = db.prepare("SELECT * FROM goals WHERE id = ?").get(goalId) as
-		| Record<string, unknown>
-		| undefined;
+export async function getGoal(db: Db, goalId: number): Promise<Goal | null> {
+	const row = await db
+		.prepare("SELECT * FROM goals WHERE id = ?")
+		.get<Record<string, unknown>>(goalId);
 
 	return row ? mapGoalRow(row) : null;
 }
 
-export function createGoal(input: {
-	periodType: GoalPeriod;
-	periodStart: string;
-	title: string;
-	done?: boolean;
-}): Goal {
-	const db = getDb();
+export async function createGoal(
+	db: Db,
+	input: {
+		periodType: GoalPeriod;
+		periodStart: string;
+		title: string;
+		done?: boolean;
+	},
+): Promise<Goal> {
 	const now = nowIso();
 	const uuid = crypto.randomUUID();
 
-	const result = db
+	const row = await db
 		.prepare(
-			"INSERT INTO goals (uuid, period_type, period_start, title, done, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			`INSERT INTO goals (uuid, period_type, period_start, title, done, created_at, updated_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?)
+			 RETURNING *`,
 		)
-		.run(
+		.get<Record<string, unknown>>(
 			uuid,
 			input.periodType,
 			input.periodStart,
@@ -63,15 +69,11 @@ export function createGoal(input: {
 			now,
 		);
 
-	const id = Number(result.lastInsertRowid);
-	const row = db.prepare("SELECT * FROM goals WHERE id = ?").get(id) as Record<
-		string,
-		unknown
-	>;
-	return mapGoalRow(row);
+	return mapGoalRow(row as Record<string, unknown>);
 }
 
-export function updateGoal(
+export async function updateGoal(
+	db: Db,
 	goalId: number,
 	patch: Partial<{
 		periodType: GoalPeriod;
@@ -79,36 +81,37 @@ export function updateGoal(
 		title: string;
 		done: boolean;
 	}>,
-): Goal | null {
-	const db = getDb();
-	const existing = getGoal(goalId);
+): Promise<Goal | null> {
+	const existing = await getGoal(db, goalId);
 
 	if (!existing) {
 		return null;
 	}
 
-	db.prepare(
-		`UPDATE goals SET
+	const row = await db
+		.prepare(
+			`UPDATE goals SET
       period_type = ?,
       period_start = ?,
       title = ?,
       done = ?,
       updated_at = ?
-     WHERE id = ?`,
-	).run(
-		patch.periodType ?? existing.periodType,
-		patch.periodStart ?? existing.periodStart,
-		patch.title ?? existing.title,
-		patch.done === undefined ? (existing.done ? 1 : 0) : patch.done ? 1 : 0,
-		nowIso(),
-		goalId,
-	);
+     WHERE id = ?
+     RETURNING *`,
+		)
+		.get<Record<string, unknown>>(
+			patch.periodType ?? existing.periodType,
+			patch.periodStart ?? existing.periodStart,
+			patch.title ?? existing.title,
+			patch.done === undefined ? (existing.done ? 1 : 0) : patch.done ? 1 : 0,
+			nowIso(),
+			goalId,
+		);
 
-	return getGoal(goalId);
+	return row ? mapGoalRow(row) : null;
 }
 
-export function deleteGoal(goalId: number): boolean {
-	const db = getDb();
-	const result = db.prepare("DELETE FROM goals WHERE id = ?").run(goalId);
+export async function deleteGoal(db: Db, goalId: number): Promise<boolean> {
+	const result = await db.prepare("DELETE FROM goals WHERE id = ?").run(goalId);
 	return result.changes > 0;
 }

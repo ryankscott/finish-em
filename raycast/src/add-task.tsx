@@ -7,7 +7,7 @@ import {
 	Toast,
 } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
-import { runCli } from "./cli";
+import { apiGet, apiPost } from "./api";
 
 type Project = {
 	id: number;
@@ -31,7 +31,7 @@ const PRIORITIES = [
 
 export default function AddTask() {
 	const { data: projects, isLoading } = useCachedPromise(() =>
-		runCli<Project[]>("project list --json"),
+		apiGet<Project[]>("/api/projects"),
 	);
 
 	async function handleSubmit(values: {
@@ -39,28 +39,29 @@ export default function AddTask() {
 		projectId?: string;
 		priority?: string;
 	}) {
-		const flags: string[] = ["--json"];
 		const selectedProjectId = values.projectId?.trim();
 		const fallbackProjectId =
 			projects?.find((project) => project.isInbox)?.id ?? projects?.[0]?.id;
-		const projectIdToUse =
-			selectedProjectId || (fallbackProjectId ? String(fallbackProjectId) : "");
+		const projectId = selectedProjectId
+			? Number(selectedProjectId)
+			: fallbackProjectId;
 
-		if (projectIdToUse) {
-			flags.push(`--project-id ${projectIdToUse}`);
+		if (!projectId) {
+			await showToast({
+				style: Toast.Style.Failure,
+				title: "No project available",
+			});
+			return;
 		}
-
-		if (values.priority) flags.push(`--priority ${values.priority}`);
 
 		await showToast({ style: Toast.Style.Animated, title: "Adding task…" });
 
 		try {
-			const task = await runCli<Task>(
-				`task add "$TASK_TITLE" ${flags.join(" ")}`,
-				{
-					TASK_TITLE: values.title,
-				},
-			);
+			const task = await apiPost<Task>("/api/tasks", {
+				projectId,
+				title: values.title,
+				...(values.priority ? { priority: Number(values.priority) } : {}),
+			});
 			await showToast({
 				style: Toast.Style.Success,
 				title: `Added: ${task.title}`,

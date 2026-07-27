@@ -4,43 +4,69 @@ Guidelines for AI agents working in this repository.
 
 ## Project Overview
 
-`finish-em` is a Todoist-style task manager — a terminal UI (TUI) built with [Ink](https://github.com/vadimdemedes/ink) (React for the terminal). The stack is:
+`finish-em` is a personal task manager: a React web app deployed as a
+Cloudflare Worker with D1, installable as an iPhone PWA. The stack is:
 
-- **Runtime**: Bun
-- **TUI**: Ink + React (TypeScript/TSX)
-- **Database**: SQLite via `bun:sqlite`, schema managed with Drizzle ORM
+- **Deployed runtime**: Cloudflare Workers + D1
+- **Local runtime**: Bun + `bun:sqlite`
+- **Web**: React 19, Vite, Tailwind v4, shadcn/Radix, TanStack Router + Query
+- **API**: Hono (`@hono/zod-openapi`)
 - **Testing**: `bun test`
 - **Linting/Formatting**: Biome (`bun run check`)
+
+The TUI was removed; do not add one back without reading the git history first.
 
 ## Repository Structure
 
 ```
+migrations/    # D1 schema (the single source of truth)
 src/
-  tui/         # Terminal UI components, hooks, and utilities
-  server/      # DB client, repos, services, types
-  cli.ts       # CLI entrypoint
-data/          # Local SQLite database (todo.db) — not committed
+  server/      # db seam + adapters, repos, services, HTTP app, worker entry
+  web/         # React app (Vite root)
+  shared/      # ApiClient contract + HTTP implementation
+  lib/         # pure helpers (parsing, datetime)
+  components/  # shadcn primitives
+desktop/       # Swift + WKWebView macOS wrapper
+raycast/       # Raycast extension (separate npm project)
 plans/         # Planning docs, change notes, and capability specs
 ```
 
 ## Development Commands
 
 ```bash
-bun install          # Install dependencies
-bun run dev          # Run TUI in watch mode
-bun test             # Run all tests
-bun run check        # Lint + format check (Biome)
-bun run db:migrate   # Apply SQL migrations from src/server/db/migrations/
+bun install               # Install dependencies
+bun run dev               # Bun API server + Vite web dev server (bun:sqlite)
+bun run worker:dev        # The real Worker on local D1 (workerd via wrangler)
+bun test                  # Run all tests
+bun run check             # Lint + format check (Biome)
+bun run d1:migrate:local  # Apply migrations to the local D1
+bun run db:export         # Export local SQLite as D1 INSERT statements
+bun run worker:deploy     # Build the web UI and deploy the Worker
+```
+
+## Two Runtimes
+
+The deployed target is a Cloudflare Worker (`src/server/worker.ts`, D1). The Bun
+server (`src/server/http/main.ts`, bun:sqlite) is kept for fast local dev and
+because the test suite runs on `bun test` rather than in workerd.
+
+Both share everything above the database via the `Db` seam in
+`src/server/db/types.ts`:
+
+```
+app.ts + repos/ + services/   runtime-agnostic, no bun:sqlite / node builtins
+  ├── db/client.ts            bun:sqlite  (local dev, tests)
+  └── db/d1.ts                D1          (deployed Worker)
 ```
 
 ## Environment Variables
 
 | Variable | Default | Description |
 |---|---|---|
-| `TODO_DB_PATH` | `./data/todo.db` (dev) / `~/.finish-em/todo.db` (compiled) | Path to the SQLite database |
-| `OPENAI_API_KEY` | — | Enables AI fallback in Quick Add |
-| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Custom OpenAI-compatible base URL |
-| `OPENAI_MODEL` | `gpt-4o-mini` | Model used for AI Quick Add |
+| `TODO_DB_PATH` | `~/.finish-em/todo.db` | Local SQLite path (Bun server only; the Worker uses the D1 binding) |
+| `FINISH_EM_AUTH_SECRET` | — | Shared password. **Unset leaves the API open** — that is what keeps local dev and tests unauthenticated. Set in production with `wrangler secret put`. |
+| `PORT` / `HOST` | `5717` / `127.0.0.1` | Bun server only |
+| `FINISH_EM_REMOTE_URL` | — | macOS app: load the deployed Worker instead of spawning a local server |
 
 ## Testing
 
@@ -52,25 +78,23 @@ bun test
 
 Tests use `bun:test`. Integration tests set `TODO_DB_PATH` to a temp file and call `resetDbForTests()` from `src/server/db/client.ts` in `beforeEach`/`afterEach` to isolate each test's database.
 
-### Verifying TUI Changes Manually
+### Verifying Changes Manually
 
-When making changes to TUI components or behavior, verify against a test database so you don't affect real data.
-
-```bash
-# Launch TUI against a dedicated test DB
-TODO_DB_PATH=/tmp/finish-em-test.db bun run tui
-
-# When done, clear the env var (or just close the shell)
-unset TODO_DB_PATH
-```
-
-The test DB is auto-created and migrated on first run. You can delete it at any time to start fresh:
+Never point a manual run at `~/.finish-em/todo.db`. Use an isolated database:
 
 ```bash
-rm -f /tmp/finish-em-test.db
+TODO_DB_PATH=/tmp/finish-em-test.db PORT=5799 bun src/server/http/main.ts
 ```
 
-Always restore `TODO_DB_PATH` to its original value (or unset it) after manual TUI verification so you don't accidentally modify the production database.
+To exercise the real deployed stack (workerd + D1) rather than the Bun server:
+
+```bash
+bun run d1:migrate:local
+bun run worker:dev        # serves dist/web, so run `bun run web:build` first
+```
+
+`wrangler dev --local` keeps its D1 state in `.wrangler/`, entirely separate
+from `~/.finish-em/todo.db`.
 
 ## Code Conventions
 
@@ -91,18 +115,28 @@ When building or modifying the web interface (if applicable):
 
 ## Database Safety
 
-- **NEVER run `drizzle-kit` against the live database.** Schema is owned by `SCHEMA_STATEMENTS` + the `ensure*Schema` guards in `client.ts` and the SQL migrations in `src/server/db/migrations/`. `drizzle-schema.ts` is reference-only and intentionally incomplete; `drizzle-kit push`/`studio`/`migrate` would drop the tables/columns it omits (this is what once wiped the `tasks` table). `drizzle.config.ts` defaults to a disposable scratch DB and hard-throws if pointed at `~/.finish-em/todo.db`. Use `DRIZZLE_DB_PATH` for an explicit scratch path if you need drizzle-kit for diffing.
-- **Automatic backups.** `getDb()` takes a consistent `VACUUM INTO` snapshot of an existing DB before any schema work, once per day, rotated to the last 14, in `<dbDir>/backups/` (e.g. `~/.finish-em/backups/`). Disable with `TODO_DB_NO_BACKUP=1`; tests and temp DBs are skipped.
-- **Manual backup / restore.** `bun run db:backup` writes a timestamped `manual-*.db` snapshot. To restore: stop the app/server (release the DB), copy a backup over `~/.finish-em/todo.db`, delete the `-wal`/`-shm` sidecars, relaunch. `scripts/recover-from-sync.ts` can rebuild tasks/goals from the iCloud sync changeset history if a snapshot is unavailable.
+- **Schema is owned by `migrations/`.** Drizzle has been removed; there is no `drizzle-kit` in this project any more. Do not reintroduce a schema-diffing tool that points at real data.
+- **Production backups are D1 Time Travel** — 30-day point-in-time restore, managed by Cloudflare, no code. This replaced the daily `VACUUM INTO` snapshot that `getDb()` used to take, which cannot work on D1.
+- **Manual local backup.** `bun run db:backup` writes a timestamped `manual-*.db` snapshot of the local SQLite file. To restore: stop the server (release the DB), copy a backup over `~/.finish-em/todo.db`, delete the `-wal`/`-shm` sidecars, relaunch.
 
 ## Database Migrations
 
-SQL migrations live in `src/server/db/migrations/` and are applied with `bun run db:migrate`. The `getDb()` function in `src/server/db/client.ts` also runs schema guards on startup for column additions (soft deletes, subtasks, project enhancements).
+Schema lives in `migrations/` as Cloudflare D1 migration files, applied with
+`wrangler d1 migrations apply finish-em --local|--remote`.
+
+`migrations/0001_init.sql` is the flattened current-state schema. It replaced the
+old `src/server/db/migrations/` files *and* the 14 `ensure*Schema` guards that
+used to run on every `getDb()`. Those guards decided what to add by inspecting
+`PRAGMA table_info` and `sqlite_master`, neither of which D1 supports, so
+schema changes are now ordered run-once files with no introspection.
 
 When adding a new migration:
-1. Create a new numbered file: `src/server/db/migrations/00N_description.sql`
-2. Add the corresponding schema guard in `client.ts` if needed for backward compatibility
-3. Update the Drizzle schema in `src/server/db/drizzle-schema.ts`
+1. Create `migrations/000N_description.sql`
+2. Apply it locally, then remotely. Do not edit an already-applied file.
+
+Deliberately dropped when flattening (see the header comment in `0001_init.sql`
+for the reasoning): `sync_meta`, `sync_changelog`, `assistant_messages`,
+`schema_migrations`, `settings.ai_*`, and `tasks.blocked_at`/`blocked_reason`.
 
 ## Planning Docs
 

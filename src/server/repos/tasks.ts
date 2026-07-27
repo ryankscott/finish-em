@@ -1,4 +1,5 @@
-import { getDb, nowIso } from "@/server/db/client";
+import { nowIso } from "@/lib/datetime";
+import type { BatchOp, Db } from "@/server/db/types";
 import { getEventByUid } from "@/server/repos/calendar";
 import { mapTaskRow } from "@/server/repos/mappers";
 import { getProject } from "@/server/repos/projects";
@@ -84,24 +85,26 @@ function buildFilterClause(filters: TaskFilters) {
 	};
 }
 
-function taskHasChildren(taskId: number) {
-	const db = getDb();
-	const row = db
+async function taskHasChildren(db: Db, taskId: number) {
+	const row = await db
 		.prepare("SELECT COUNT(*) AS count FROM tasks WHERE parent_task_id = ?")
-		.get(taskId) as { count: number };
-	return Number(row.count) > 0;
+		.get<{ count: number }>(taskId);
+	return Number(row?.count ?? 0) > 0;
 }
 
-function validateParentTaskId(input: {
-	taskId?: number;
-	projectId: number;
-	parentTaskId: number | null;
-}) {
+async function validateParentTaskId(
+	db: Db,
+	input: {
+		taskId?: number;
+		projectId: number;
+		parentTaskId: number | null;
+	},
+) {
 	if (input.parentTaskId === null) {
 		return null;
 	}
 
-	const parent = getTask(input.parentTaskId);
+	const parent = await getTask(db, input.parentTaskId);
 	if (!parent) {
 		throw new Error("Parent task not found");
 	}
@@ -121,51 +124,54 @@ function validateParentTaskId(input: {
 	return parent.id;
 }
 
-export function listTasks(filters: TaskFilters = {}): Task[] {
-	const db = getDb();
+export async function listTasks(
+	db: Db,
+	filters: TaskFilters = {},
+): Promise<Task[]> {
 	const { clause, values } = buildFilterClause(filters);
 
-	const rows = db
+	const rows = await db
 		.prepare(
 			`SELECT * FROM tasks ${clause} ORDER BY status ASC, due_at IS NULL ASC, due_at ASC, priority ASC, created_at DESC`,
 		)
-		.all(...values) as Record<string, unknown>[];
+		.all<Record<string, unknown>>(...values);
 
 	return rows.map(mapTaskRow);
 }
 
-export function getTask(taskId: number): Task | null {
-	const db = getDb();
-	const row = db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId) as
-		| Record<string, unknown>
-		| undefined;
+export async function getTask(db: Db, taskId: number): Promise<Task | null> {
+	const row = await db
+		.prepare("SELECT * FROM tasks WHERE id = ?")
+		.get<Record<string, unknown>>(taskId);
 
 	return row ? mapTaskRow(row) : null;
 }
 
-export function createTask(input: {
-	projectId: number;
-	parentTaskId?: number | null;
-	title: string;
-	notes?: string;
-	priority?: Priority;
-	scheduledAt?: string | null;
-	dueAt?: string | null;
-	dueTimezone?: string | null;
-	recurrencePreset?: string | null;
-	recurrenceRRule?: string | null;
-	someday?: boolean;
-}): Task {
-	const project = getProject(input.projectId);
+export async function createTask(
+	db: Db,
+	input: {
+		projectId: number;
+		parentTaskId?: number | null;
+		title: string;
+		notes?: string;
+		priority?: Priority;
+		scheduledAt?: string | null;
+		dueAt?: string | null;
+		dueTimezone?: string | null;
+		recurrencePreset?: string | null;
+		recurrenceRRule?: string | null;
+		someday?: boolean;
+	},
+): Promise<Task> {
+	const project = await getProject(db, input.projectId);
 	if (!project) {
 		throw new Error(
-			`Project not found: ${input.projectId}. Use "finish-em project list" to see valid project IDs.`,
+			`Project not found: ${input.projectId}. Use the projects list to see valid project IDs.`,
 		);
 	}
 
-	const db = getDb();
 	const now = nowIso();
-	const parentTaskId = validateParentTaskId({
+	const parentTaskId = await validateParentTaskId(db, {
 		projectId: input.projectId,
 		parentTaskId: input.parentTaskId ?? null,
 	});
@@ -175,14 +181,15 @@ export function createTask(input: {
 	}
 
 	const uuid = crypto.randomUUID();
-	const result = db
+	const row = await db
 		.prepare(
 			`INSERT INTO tasks (
         uuid, project_id, parent_task_id, title, notes, priority, scheduled_at, due_at, due_timezone,
         recurrence_preset, recurrence_rrule, status, someday, completed_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, NULL, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, NULL, ?, ?)
+      RETURNING *`,
 		)
-		.run(
+		.get<Record<string, unknown>>(
 			uuid,
 			input.projectId,
 			parentTaskId,
@@ -199,15 +206,11 @@ export function createTask(input: {
 			now,
 		);
 
-	const id = Number(result.lastInsertRowid);
-	const row = db.prepare("SELECT * FROM tasks WHERE id = ?").get(id) as Record<
-		string,
-		unknown
-	>;
-	return mapTaskRow(row);
+	return mapTaskRow(row as Record<string, unknown>);
 }
 
-export function updateTask(
+export async function updateTask(
+	db: Db,
 	taskId: number,
 	patch: Partial<{
 		projectId: number;
@@ -223,9 +226,8 @@ export function updateTask(
 		status: TaskStatus;
 		someday: boolean;
 	}>,
-): Task | null {
-	const db = getDb();
-	const existing = getTask(taskId);
+): Promise<Task | null> {
+	const existing = await getTask(db, taskId);
 
 	if (!existing) {
 		return null;
@@ -242,19 +244,20 @@ export function updateTask(
 			: patch.parentTaskId;
 	const nextStatus = patch.status ?? existing.status;
 
-	if (nextParentTaskId !== null && taskHasChildren(taskId)) {
+	if (nextParentTaskId !== null && (await taskHasChildren(db, taskId))) {
 		throw new Error("A task with subtasks cannot be assigned as a subtask");
 	}
 
-	const validatedParentTaskId = validateParentTaskId({
+	const validatedParentTaskId = await validateParentTaskId(db, {
 		taskId,
 		projectId: nextProjectId,
 		parentTaskId: nextParentTaskId,
 	});
 
 	const now = nowIso();
-	db.prepare(
-		`UPDATE tasks SET
+	const row = await db
+		.prepare(
+			`UPDATE tasks SET
       project_id = ?,
       parent_task_id = ?,
       title = ?,
@@ -268,29 +271,35 @@ export function updateTask(
       status = ?,
       someday = ?,
       updated_at = ?
-    WHERE id = ?`,
-	).run(
-		nextProjectId,
-		validatedParentTaskId,
-		patch.title ?? existing.title,
-		patch.notes ?? existing.notes,
-		patch.priority ?? existing.priority,
-		patch.scheduledAt === undefined ? existing.scheduledAt : patch.scheduledAt,
-		patch.dueAt === undefined ? existing.dueAt : patch.dueAt,
-		patch.dueTimezone === undefined ? existing.dueTimezone : patch.dueTimezone,
-		patch.recurrencePreset === undefined
-			? existing.recurrencePreset
-			: patch.recurrencePreset,
-		patch.recurrenceRRule === undefined
-			? existing.recurrenceRRule
-			: patch.recurrenceRRule,
-		nextStatus,
-		(patch.someday === undefined ? existing.someday : patch.someday) ? 1 : 0,
-		now,
-		taskId,
-	);
+    WHERE id = ?
+    RETURNING *`,
+		)
+		.get<Record<string, unknown>>(
+			nextProjectId,
+			validatedParentTaskId,
+			patch.title ?? existing.title,
+			patch.notes ?? existing.notes,
+			patch.priority ?? existing.priority,
+			patch.scheduledAt === undefined
+				? existing.scheduledAt
+				: patch.scheduledAt,
+			patch.dueAt === undefined ? existing.dueAt : patch.dueAt,
+			patch.dueTimezone === undefined
+				? existing.dueTimezone
+				: patch.dueTimezone,
+			patch.recurrencePreset === undefined
+				? existing.recurrencePreset
+				: patch.recurrencePreset,
+			patch.recurrenceRRule === undefined
+				? existing.recurrenceRRule
+				: patch.recurrenceRRule,
+			nextStatus,
+			(patch.someday === undefined ? existing.someday : patch.someday) ? 1 : 0,
+			now,
+			taskId,
+		);
 
-	return getTask(taskId);
+	return row ? mapTaskRow(row) : null;
 }
 
 /**
@@ -298,12 +307,12 @@ export function updateTask(
  * due date to the event's start time so "finish before this meeting" is
  * represented directly; passing null clears the link and leaves dueAt as-is.
  */
-export function linkTaskToEvent(
+export async function linkTaskToEvent(
+	db: Db,
 	taskId: number,
 	eventUid: string | null,
-): Task | null {
-	const db = getDb();
-	const existing = getTask(taskId);
+): Promise<Task | null> {
+	const existing = await getTask(db, taskId);
 	if (!existing) {
 		return null;
 	}
@@ -311,22 +320,26 @@ export function linkTaskToEvent(
 	const now = nowIso();
 
 	if (eventUid === null) {
-		db.prepare(
-			"UPDATE tasks SET calendar_event_uid = NULL, updated_at = ? WHERE id = ?",
-		).run(now, taskId);
-		return getTask(taskId);
+		const row = await db
+			.prepare(
+				"UPDATE tasks SET calendar_event_uid = NULL, updated_at = ? WHERE id = ? RETURNING *",
+			)
+			.get<Record<string, unknown>>(now, taskId);
+		return row ? mapTaskRow(row) : null;
 	}
 
-	const event = getEventByUid(eventUid);
+	const event = await getEventByUid(db, eventUid);
 	if (!event) {
 		throw new Error(`Calendar event not found: ${eventUid}`);
 	}
 
-	db.prepare(
-		"UPDATE tasks SET calendar_event_uid = ?, due_at = ?, updated_at = ? WHERE id = ?",
-	).run(eventUid, event.startAt, now, taskId);
+	const row = await db
+		.prepare(
+			"UPDATE tasks SET calendar_event_uid = ?, due_at = ?, updated_at = ? WHERE id = ? RETURNING *",
+		)
+		.get<Record<string, unknown>>(eventUid, event.startAt, now, taskId);
 
-	return getTask(taskId);
+	return row ? mapTaskRow(row) : null;
 }
 
 /**
@@ -336,106 +349,126 @@ export function linkTaskToEvent(
  * is no longer cached (cancelled, or out of the sync window) are left untouched.
  * Returns the number of tasks whose due date changed.
  */
-export function repinLinkedTaskDueDates(): number {
-	const db = getDb();
-	const rows = db
+export async function repinLinkedTaskDueDates(db: Db): Promise<number> {
+	const rows = await db
 		.prepare(
 			`SELECT t.id AS id, t.uuid AS uuid, t.due_at AS due_at,
         (SELECT MIN(c.start_at) FROM calendar_events c WHERE c.uid = t.calendar_event_uid) AS event_start
        FROM tasks t
        WHERE t.calendar_event_uid IS NOT NULL AND t.deleted_at IS NULL`,
 		)
-		.all() as Array<{
-		id: number;
-		uuid: string | null;
-		due_at: string | null;
-		event_start: string | null;
-	}>;
+		.all<{
+			id: number;
+			uuid: string | null;
+			due_at: string | null;
+			event_start: string | null;
+		}>();
 
 	const now = nowIso();
-	let updated = 0;
-	for (const row of rows) {
-		if (!row.event_start) continue;
-		if (row.due_at === row.event_start) continue;
-		db.prepare("UPDATE tasks SET due_at = ?, updated_at = ? WHERE id = ?").run(
-			row.event_start,
-			now,
-			row.id,
-		);
-		updated++;
+	// One batch instead of one UPDATE per row: this runs after every calendar
+	// sync, so on D1 the loop would be a round trip per linked task.
+	const ops: BatchOp[] = rows
+		.filter((row) => row.event_start && row.due_at !== row.event_start)
+		.map((row) => ({
+			sql: "UPDATE tasks SET due_at = ?, updated_at = ? WHERE id = ?",
+			params: [row.event_start, now, row.id],
+		}));
+
+	await db.batch(ops);
+	return ops.length;
+}
+
+export async function deleteTask(db: Db, taskId: number): Promise<boolean> {
+	// Mirrors the old `changes > 0` result: only report success when the task
+	// exists and was not already soft-deleted.
+	const target = await db
+		.prepare("SELECT id FROM tasks WHERE id = ? AND deleted_at IS NULL")
+		.get<{ id: number }>(taskId);
+
+	if (!target) {
+		return false;
 	}
-	return updated;
-}
 
-export function deleteTask(taskId: number): boolean {
-	const db = getDb();
 	const now = nowIso();
-	// Soft-delete the task and all its subtasks
-	db.prepare(
-		"UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE parent_task_id = ? AND deleted_at IS NULL",
-	).run(now, now, taskId);
-	const result = db
-		.prepare(
-			"UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL",
-		)
-		.run(now, now, taskId);
-	return result.changes > 0;
+	// Soft-delete the task and all its subtasks, atomically, so a task can never
+	// be left deleted while its subtasks stay visible.
+	await db.batch([
+		{
+			sql: "UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE parent_task_id = ? AND deleted_at IS NULL",
+			params: [now, now, taskId],
+		},
+		{
+			sql: "UPDATE tasks SET deleted_at = ?, updated_at = ? WHERE id = ? AND deleted_at IS NULL",
+			params: [now, now, taskId],
+		},
+	]);
+
+	return true;
 }
 
-export function listDeletedTasks(): Task[] {
-	const db = getDb();
-	const rows = db
+export async function listDeletedTasks(db: Db): Promise<Task[]> {
+	const rows = await db
 		.prepare(
 			"SELECT * FROM tasks WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC",
 		)
-		.all() as Record<string, unknown>[];
+		.all<Record<string, unknown>>();
 	return rows.map(mapTaskRow);
 }
 
-export function undeleteTask(taskId: number): Task | null {
-	const db = getDb();
+export async function undeleteTask(
+	db: Db,
+	taskId: number,
+): Promise<Task | null> {
 	const now = nowIso();
-	const existing = db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId) as
-		| Record<string, unknown>
-		| undefined;
+	const existing = await db
+		.prepare("SELECT * FROM tasks WHERE id = ?")
+		.get<Record<string, unknown>>(taskId);
 
 	if (!existing) {
 		return null;
 	}
 
 	const task = mapTaskRow(existing);
+	const ops: BatchOp[] = [];
 
 	// If this task has a soft-deleted parent, undelete the parent first
 	if (task.parentTaskId !== null) {
-		const parent = db
-			.prepare("SELECT * FROM tasks WHERE id = ? AND deleted_at IS NOT NULL")
-			.get(task.parentTaskId) as Record<string, unknown> | undefined;
+		const parent = await db
+			.prepare("SELECT id FROM tasks WHERE id = ? AND deleted_at IS NOT NULL")
+			.get<{ id: number }>(task.parentTaskId);
 		if (parent) {
-			db.prepare(
-				"UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE id = ?",
-			).run(now, task.parentTaskId);
+			ops.push({
+				sql: "UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE id = ?",
+				params: [now, task.parentTaskId],
+			});
 		}
 	}
 
 	// Undelete soft-deleted subtasks of this task
-	db.prepare(
-		"UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE parent_task_id = ? AND deleted_at IS NOT NULL",
-	).run(now, taskId);
+	ops.push({
+		sql: "UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE parent_task_id = ? AND deleted_at IS NOT NULL",
+		params: [now, taskId],
+	});
 
 	// Undelete the task itself
-	db.prepare(
-		"UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE id = ?",
-	).run(now, taskId);
+	ops.push({
+		sql: "UPDATE tasks SET deleted_at = NULL, updated_at = ? WHERE id = ?",
+		params: [now, taskId],
+	});
 
-	return getTask(taskId);
+	await db.batch(ops);
+
+	return getTask(db, taskId);
 }
 
-export function completeTask(taskId: number): {
+export async function completeTask(
+	db: Db,
+	taskId: number,
+): Promise<{
 	task: Task | null;
 	nextTask: Task | null;
-} {
-	const db = getDb();
-	const existing = getTask(taskId);
+}> {
+	const existing = await getTask(db, taskId);
 
 	if (!existing) {
 		return { task: null, nextTask: null };
@@ -444,9 +477,11 @@ export function completeTask(taskId: number): {
 	const now = nowIso();
 	// Completing a task unparks it, so it appears in the Completed view (which is
 	// subject to the default someday exclusion) rather than vanishing.
-	db.prepare(
-		"UPDATE tasks SET status = ?, someday = 0, completed_at = ?, updated_at = ? WHERE id = ?",
-	).run("completed", now, now, taskId);
+	await db
+		.prepare(
+			"UPDATE tasks SET status = ?, someday = 0, completed_at = ?, updated_at = ? WHERE id = ?",
+		)
+		.run("completed", now, now, taskId);
 
 	let nextTask: Task | null = null;
 
@@ -462,7 +497,7 @@ export function completeTask(taskId: number): {
 		});
 
 		if (nextDueAt) {
-			nextTask = createTask({
+			nextTask = await createTask(db, {
 				projectId: existing.projectId,
 				parentTaskId: existing.parentTaskId,
 				title: existing.title,
@@ -480,28 +515,32 @@ export function completeTask(taskId: number): {
 	// Record each completed occurrence of a recurring task so its history
 	// survives the roll-forward to the next occurrence.
 	if (isRecurring) {
-		logCompletion(taskId, existing.title, now);
+		await logCompletion(db, taskId, existing.title, now);
 	}
 
-	return { task: getTask(taskId), nextTask };
+	return { task: await getTask(db, taskId), nextTask };
 }
 
-export function uncompleteTask(taskId: number): Task | null {
-	const db = getDb();
-	const existing = getTask(taskId);
+export async function uncompleteTask(
+	db: Db,
+	taskId: number,
+): Promise<Task | null> {
+	const existing = await getTask(db, taskId);
 
 	if (!existing) {
 		return null;
 	}
 
-	db.prepare(
-		"UPDATE tasks SET status = ?, completed_at = NULL, updated_at = ? WHERE id = ?",
-	).run("open", nowIso(), taskId);
+	await db
+		.prepare(
+			"UPDATE tasks SET status = ?, completed_at = NULL, updated_at = ? WHERE id = ?",
+		)
+		.run("open", nowIso(), taskId);
 
 	// Keep the completion log in step with the task's actual state.
 	if (existing.recurrencePreset || existing.recurrenceRRule) {
-		deleteLatestCompletion(taskId);
+		await deleteLatestCompletion(db, taskId);
 	}
 
-	return getTask(taskId);
+	return getTask(db, taskId);
 }

@@ -9,8 +9,8 @@ import {
 	Repeat,
 } from "lucide-react";
 
+import { isOverdueDueDate } from "@/lib/datetime";
 import type { Project, Task } from "@/server/types";
-import { isOverdueDueDate } from "@/tui/task-display-helpers";
 
 import { cn } from "../lib/cn";
 import { InlineText } from "./InlineText";
@@ -38,7 +38,9 @@ export function TaskRow({
 		<div
 			data-selected={selected || undefined}
 			className={cn(
-				"flex items-start gap-2 rounded-md px-3 py-1.5",
+				// Taller rows below md so a row is a comfortable tap target; the
+				// desktop density is unchanged.
+				"flex min-h-[44px] items-start gap-2 rounded-md px-3 py-2.5 md:min-h-0 md:py-1.5",
 				selected
 					? "bg-surface-raised ring-1 ring-accent/60"
 					: "hover:bg-surface",
@@ -62,10 +64,7 @@ export function TaskRow({
 			<div className="flex min-w-0 flex-1 flex-col">
 				<div className="flex items-center gap-2">
 					<span
-						className={cn(
-							"truncate",
-							completed && "text-muted line-through",
-						)}
+						className={cn("truncate", completed && "text-muted line-through")}
 					>
 						<InlineText text={task.title} />
 					</span>

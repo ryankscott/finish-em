@@ -7,30 +7,18 @@
   },
   "components": {
     "schemas": {
-      "Settings": {
+      "Health": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "number",
+          "ok": {
+            "type": "boolean",
             "enum": [
-              1
+              true
             ]
-          },
-          "timezone": {
-            "type": "string"
-          },
-          "createdAt": {
-            "type": "string"
-          },
-          "updatedAt": {
-            "type": "string"
           }
         },
         "required": [
-          "id",
-          "timezone",
-          "createdAt",
-          "updatedAt"
+          "ok"
         ]
       },
       "Error": {
@@ -44,13 +32,149 @@
           "error"
         ]
       },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "authenticated": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "authenticated"
+        ]
+      },
+      "Login": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "password"
+        ]
+      },
+      "Settings": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "enum": [
+              1
+            ]
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "calendarIcsUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "calendarLastSyncedAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "timezone",
+          "calendarIcsUrl",
+          "calendarLastSyncedAt",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
       "SettingsUpdate": {
         "type": "object",
         "properties": {
           "timezone": {
             "type": "string"
+          },
+          "calendarIcsUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
+      },
+      "CalendarEvent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "uid": {
+            "type": "string"
+          },
+          "recurrenceId": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "startAt": {
+            "type": "string"
+          },
+          "endAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "allDay": {
+            "type": "boolean"
+          },
+          "location": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "organizer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "uid",
+          "recurrenceId",
+          "summary",
+          "startAt",
+          "endAt",
+          "allDay",
+          "location",
+          "organizer"
+        ]
+      },
+      "CalendarRefreshResult": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "lastSyncedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "count",
+          "lastSyncedAt"
+        ]
       },
       "Project": {
         "type": "object",
@@ -88,41 +212,14 @@
           "isInbox": {
             "type": "boolean"
           },
-          "jiraDiscoveryUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "sortOrder": {
+            "type": "integer"
           },
-          "jiraDeliveryUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "confluenceUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "jiraDocsUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "jiraReleaseNoteUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "teamsReleaseNoteUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "resources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProjectResource"
+            }
           },
           "createdAt": {
             "type": "string"
@@ -140,14 +237,33 @@
           "endAt",
           "color",
           "isInbox",
-          "jiraDiscoveryUrl",
-          "jiraDeliveryUrl",
-          "confluenceUrl",
-          "jiraDocsUrl",
-          "jiraReleaseNoteUrl",
-          "teamsReleaseNoteUrl",
+          "sortOrder",
+          "resources",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "ProjectResource": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "label": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "url",
+          "sortOrder"
         ]
       },
       "ProjectCreate": {
@@ -184,45 +300,41 @@
           "isInbox": {
             "type": "boolean"
           },
-          "jiraDiscoveryUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "jiraDeliveryUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "confluenceUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "jiraDocsUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "jiraReleaseNoteUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "teamsReleaseNoteUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "url"
+              ]
+            }
           }
         },
         "required": [
           "name"
+        ]
+      },
+      "ProjectReorder": {
+        "type": "object",
+        "properties": {
+          "projectIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "projectIds"
         ]
       },
       "ProjectUpdate": {
@@ -259,41 +371,23 @@
           "isInbox": {
             "type": "boolean"
           },
-          "jiraDiscoveryUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "jiraDeliveryUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "confluenceUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "jiraDocsUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "jiraReleaseNoteUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "teamsReleaseNoteUrl": {
-            "type": [
-              "string",
-              "null"
-            ]
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "url"
+              ]
+            }
           }
         }
       },
@@ -411,6 +505,12 @@
               "null"
             ]
           },
+          "calendarEventUid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "createdAt": {
             "type": "string"
           },
@@ -434,6 +534,7 @@
           "someday",
           "completedAt",
           "deletedAt",
+          "calendarEventUid",
           "createdAt",
           "updatedAt"
         ]
@@ -621,6 +722,51 @@
           }
         }
       },
+      "CompletionLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "taskId": {
+            "type": "integer"
+          },
+          "title": {
+            "type": "string"
+          },
+          "completedAt": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "taskId",
+          "title",
+          "completedAt",
+          "notes",
+          "createdAt"
+        ]
+      },
+      "LinkEvent": {
+        "type": "object",
+        "properties": {
+          "eventUid": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "eventUid"
+        ]
+      },
       "Goal": {
         "type": "object",
         "properties": {
@@ -780,66 +926,204 @@
         "required": [
           "remindAt"
         ]
-      },
-      "SyncStatus": {
-        "type": "object",
-        "properties": {
-          "enabled": {
-            "type": "boolean"
-          },
-          "deviceId": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "lastSyncAt": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "lastPushAt": {
-            "type": [
-              "string",
-              "null"
-            ]
-          },
-          "pendingChanges": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "enabled",
-          "deviceId",
-          "lastSyncAt",
-          "lastPushAt",
-          "pendingChanges"
-        ]
-      },
-      "SyncResult": {
-        "type": "object",
-        "properties": {
-          "pushed": {
-            "type": "integer"
-          },
-          "pulled": {
-            "type": "integer"
-          },
-          "inboxImported": {
-            "type": "integer"
-          }
-        },
-        "required": [
-          "pushed",
-          "pulled",
-          "inboxImported"
-        ]
       }
     },
     "parameters": {}
   },
   "paths": {
+    "/api/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Service is up",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/login": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Logged in",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Logged out",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/session": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Session state",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/settings": {
       "get": {
         "responses": {
@@ -855,6 +1139,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -906,6 +1200,129 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendar/events": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cached calendar events in range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CalendarEvent"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/calendar/refresh": {
+      "post": {
+        "responses": {
+          "200": {
+            "description": "Refreshed calendar from ICS feed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalendarRefreshResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -937,6 +1354,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -980,6 +1407,74 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/projects/reorder": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProjectReorder"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reordered projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1046,6 +1541,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1085,6 +1590,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1199,6 +1714,18 @@
             "required": false,
             "name": "someday",
             "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "required": false,
+            "name": "recurring",
+            "in": "query"
           }
         ],
         "responses": {
@@ -1217,6 +1744,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1268,6 +1805,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1299,6 +1846,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1365,6 +1922,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1404,6 +1971,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1461,6 +2038,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1510,6 +2097,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1551,6 +2148,213 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/{id}/completion-history": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "required": false,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task completion history",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompletionLog"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/completions": {
+      "get": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Completions in a date range",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompletionLog"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tasks/{id}/link-event": {
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "required": false,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task linked to calendar event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1620,6 +2424,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1655,6 +2469,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1721,6 +2545,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1768,6 +2602,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1807,6 +2651,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1838,6 +2692,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1890,6 +2754,16 @@
           },
           "400": {
             "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1954,6 +2828,16 @@
               }
             }
           },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -2003,142 +2887,8 @@
               }
             }
           },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/sync": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "Sync status",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SyncStatus"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/sync/enable": {
-      "post": {
-        "responses": {
-          "200": {
-            "description": "Sync enabled",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SyncStatus"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/sync/disable": {
-      "post": {
-        "responses": {
-          "200": {
-            "description": "Sync disabled",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SyncStatus"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/sync/now": {
-      "post": {
-        "responses": {
-          "200": {
-            "description": "Sync result",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SyncResult"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request",
+          "401": {
+            "description": "Authentication required",
             "content": {
               "application/json": {
                 "schema": {

@@ -1,6 +1,7 @@
 # finish-em
 
-Todoist-style task manager — a terminal UI (TUI) built with Ink.
+Personal task manager. React web app on Cloudflare Workers + D1, installable as
+an iPhone PWA, with a thin macOS wrapper and a Raycast extension.
 
 ## Features
 
@@ -9,117 +10,102 @@ Todoist-style task manager — a terminal UI (TUI) built with Ink.
 - Due dates and scheduled dates
 - Recurring due dates (`daily`, `weekly`, `monthly`, `every weekday`, RRULE subset)
 - Reminders and snoozing (`10m`, `1h`, `tomorrow 9am`, custom)
-- Quick Add with keyboard shortcut (`c`) and NLP-style parsing
+- Quick Add with NLP-style token parsing
 - Daily and weekly text goals
+- Read-only ICS calendar sync, with tasks pinnable to a meeting's start time
+
+## Architecture
+
+The deployed target is a Cloudflare Worker (`src/server/worker.ts`) backed by
+D1. A Bun server (`src/server/http/main.ts`) backed by `bun:sqlite` is kept for
+local development, and because the test suite runs under `bun test` rather than
+in workerd.
+
+Both share everything above the database through the `Db` seam in
+`src/server/db/types.ts`:
+
+```
+app.ts + repos/ + services/   runtime-agnostic; no bun:sqlite, no node builtins
+  |-- db/client.ts            bun:sqlite  (local dev, tests)
+  \-- db/d1.ts                D1          (deployed Worker)
+```
+
+Adding a feature: add the behavior to `src/server/repos/` (every repo function
+takes a `Db` first), add the method to the `ApiClient` type in
+`src/shared/api-client.ts`, add a route in `src/server/http/app.ts`, then wire
+the web UI. `src/server/http/contract.integration.test.ts` drives the whole API
+end to end and is the fastest way to catch a break. Quick-entry token parsing is
+shared from `src/lib/parsing/`.
 
 ## Local development
 
 ```bash
 bun install
-bun run dev
+bun run dev               # Bun API server + Vite web dev server
+bun run worker:dev        # the real Worker on local D1 (workerd via wrangler)
+bun run d1:migrate:local  # apply migrations to the local D1
+bun test
+bun run check             # Biome lint + format
+bun run openapi:write     # regenerate openapi.json from the route schemas
 ```
 
-## Desktop app
+API docs are served at `/api/docs` (behind the auth gate when a secret is set).
 
-A keyboard-centric web UI (Vite + React + Tailwind + TanStack Router/Query) served by a local Bun HTTP server that wraps the same repository layer as the TUI/CLI. Both share the SQLite database at `~/.finish-em/todo.db` (WAL mode, safe to run together).
+## Deploying
+
+See [docs/deploy.md](docs/deploy.md). It needs your Cloudflare account.
 
 ```bash
-bun run server:dev    # HTTP API on http://127.0.0.1:5717 (docs at /api/docs)
-bun run web:dev       # Vite dev server with /api proxy
-bun run desktop:app   # build "dist/finish-em Desktop.app" (server binary + web UI)
-bun run openapi:write # regenerate openapi.json from the route schemas
+bun run worker:deploy     # build the web UI, then wrangler deploy
 ```
 
-The `.app` launcher starts the bundled server (if not already running) and opens the UI in a Chrome/Edge/Brave `--app` window, falling back to the default browser. Press `?` in the app for keyboard shortcuts.
+## Auth
 
-Adding a feature so all three surfaces stay in sync: add the behavior to `src/server/repos/`, add the method to the `ApiClient` type in `src/shared/api-client.ts`, implement it in both `src/tui/direct-api.ts` and `src/shared/http-api.ts` plus a route in `src/server/http/app.ts` (the contract test in `src/server/http/contract.integration.test.ts` enforces parity), then wire the TUI keybinding/CLI subcommand and web UI. Quick-entry token parsing is shared from `src/lib/parsing/`.
+A single shared password, off by default. `FINISH_EM_AUTH_SECRET` unset leaves
+the API open, which is what keeps local dev and tests unauthenticated; set it in
+production with `wrangler secret put`. The session token is `sha256(secret)`,
+sent as an `fe_session` cookie by browsers or an `Authorization: Bearer` header
+by scripts.
 
-## Global command setup
-
-Use one of the following flows to run `finish-em` from anywhere.
-
-### Developer flow (Bun link)
+## macOS app
 
 ```bash
-bun run cli:link
+bun run desktop:app       # builds dist/finish-em.app (Swift + WKWebView)
 ```
 
-Verify:
-
-```bash
-which finish-em
-finish-em
-```
-
-Uninstall linked command:
-
-```bash
-bun unlink
-```
-
-### Standalone binary flow
-
-Build and install a symlink into `~/.local/bin`:
-
-```bash
-bun run build
-bun run cli:install
-```
-
-Verify:
-
-```bash
-which finish-em
-finish-em
-```
-
-Uninstall standalone command:
-
-```bash
-bun run cli:uninstall
-```
-
-### macOS app flow
-
-Build a launcher app that opens Terminal.app and runs the compiled TUI binary:
-
-```bash
-bun run app:build
-bun run app:install
-```
-
-This installs `finish-em.app` into `~/Applications` by default. To install somewhere else:
-
-```bash
-bun run app:install -- /Applications
-```
-
-The app bundle is built at `dist/finish-em.app` and uses `public/icon.svg` to generate its launcher icon.
+Set `FINISH_EM_REMOTE_URL` to point it at the deployed Worker; unset, it spawns
+a local server and uses `~/.finish-em/todo.db`. Note those are two different
+databases -- there is no sync between them.
 
 ## Migration tooling
 
+Schema lives in `migrations/` as Cloudflare D1 migration files, applied with
+wrangler:
+
 ```bash
-bun run db:generate
-bun run db:migrate
-bun run db:drizzle-migrate
-bun run db:studio
+wrangler d1 migrations apply finish-em --local   # local dev database
+wrangler d1 migrations apply finish-em --remote  # production
 ```
 
-`drizzle.config.ts` points to `src/server/db/drizzle-schema.ts`.
-Generated Drizzle migrations are written to `src/server/db/drizzle`.
-`db:migrate` applies idempotent SQL migrations from `src/server/db/migrations`.
+`migrations/0001_init.sql` is the flattened current-state schema. It replaces
+both the old `src/server/db/migrations/` files and the `ensure*Schema` guards
+that used to run on every `getDb()`, since those relied on `PRAGMA table_info`
+and `sqlite_master` introspection that D1 does not support.
+
+To export the local SQLite database as D1-compatible INSERT statements:
+
+```bash
+bun run db:export > data.sql
+```
 
 ## Environment variables
 
-Optional for AI fallback in Quick Add:
-
-- `OPENAI_API_KEY` (required to enable AI fallback)
-- `OPENAI_BASE_URL` (default: `https://api.openai.com/v1`)
-- `OPENAI_MODEL` (default: `gpt-4o-mini`)
-
-Optional for custom DB path:
-
-- `TODO_DB_PATH` (default: `./data/todo.db`)
+| Variable | Where | Description |
+|---|---|---|
+| `FINISH_EM_AUTH_SECRET` | Worker secret / Bun server env | Shared password. Unset leaves the API open. |
+| `TODO_DB_PATH` | Bun server only | Local SQLite path (default `~/.finish-em/todo.db`). The Worker uses the D1 binding. |
+| `PORT`, `HOST` | Bun server only | Defaults `5717` / `127.0.0.1`. |
+| `FINISH_EM_REMOTE_URL` | macOS app | Load the deployed Worker instead of spawning a local server. |
 
 ## Testing
 

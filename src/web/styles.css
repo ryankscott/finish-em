@@ -5,13 +5,13 @@
 
 @theme {
 	/* shadcn new-york zinc — dark (default) */
-	--color-background: oklch(0.141 0.005 285.823);   /* zinc-950 */
-	--color-surface: oklch(0.21 0.006 285.885);        /* zinc-900 */
+	--color-background: oklch(0.141 0.005 285.823); /* zinc-950 */
+	--color-surface: oklch(0.21 0.006 285.885); /* zinc-900 */
 	--color-surface-raised: oklch(0.274 0.006 286.618); /* zinc-800 */
-	--color-border: oklch(0.274 0.006 286.618);        /* zinc-800 */
-	--color-foreground: oklch(0.985 0 0);              /* zinc-50 */
-	--color-muted: oklch(0.705 0.015 286.067);         /* zinc-400 */
-	--color-accent: oklch(0.871 0.006 286.286);        /* zinc-300 — ring/focus */
+	--color-border: oklch(0.274 0.006 286.618); /* zinc-800 */
+	--color-foreground: oklch(0.985 0 0); /* zinc-50 */
+	--color-muted: oklch(0.705 0.015 286.067); /* zinc-400 */
+	--color-accent: oklch(0.871 0.006 286.286); /* zinc-300 — ring/focus */
 	--color-p1: oklch(0.65 0.21 25);
 	--color-p2: oklch(0.8 0.16 85);
 	--color-p3: oklch(0.72 0.17 150);
@@ -20,23 +20,25 @@
 
 html.light {
 	/* shadcn new-york zinc — light */
-	--color-background: oklch(1 0 0);                  /* white */
-	--color-surface: oklch(0.985 0 0);                 /* zinc-50 */
+	--color-background: oklch(1 0 0); /* white */
+	--color-surface: oklch(0.985 0 0); /* zinc-50 */
 	--color-surface-raised: oklch(0.967 0.001 286.375); /* zinc-100 */
-	--color-border: oklch(0.92 0.004 286.32);          /* zinc-200 */
-	--color-foreground: oklch(0.141 0.005 285.823);    /* zinc-950 */
-	--color-muted: oklch(0.552 0.016 285.938);         /* zinc-500 */
-	--color-accent: oklch(0.21 0.006 285.885);         /* zinc-900 — ring/focus */
-	--color-p1: oklch(0.52 0.20 25);
+	--color-border: oklch(0.92 0.004 286.32); /* zinc-200 */
+	--color-foreground: oklch(0.141 0.005 285.823); /* zinc-950 */
+	--color-muted: oklch(0.552 0.016 285.938); /* zinc-500 */
+	--color-accent: oklch(0.21 0.006 285.885); /* zinc-900 — ring/focus */
+	--color-p1: oklch(0.52 0.2 25);
 	--color-p2: oklch(0.58 0.16 85);
 	--color-p3: oklch(0.52 0.18 150);
-	--color-p4: oklch(0.50 0.14 250);
+	--color-p4: oklch(0.5 0.14 250);
 }
 
 html,
 body,
 #root {
-	height: 100%;
+	/* dvh, not vh: Safari's collapsing toolbar makes 100vh taller than the
+	   visible viewport, which clips the bottom of the app on iOS. */
+	height: 100dvh;
 }
 
 body {
@@ -45,6 +47,32 @@ body {
 	font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
 	font-size: 14px;
 	-webkit-font-smoothing: antialiased;
+	/* Kill the rubber-band scroll and grey tap flash that make a standalone
+	   PWA feel like a web page rather than an app. */
+	overscroll-behavior-y: contain;
+	-webkit-tap-highlight-color: transparent;
+}
+
+/* Safe-area helpers. viewport-fit=cover (index.html) paints under the notch and
+   home indicator, so anything pinned to an edge has to inset itself or it sits
+   under the status bar. */
+.pt-safe {
+	padding-top: env(safe-area-inset-top);
+}
+
+.pb-safe {
+	padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (max-width: 767px) {
+	/* iOS auto-zooms the viewport when focusing any control under 16px, and
+	   never zooms back out. The app's base font is 14px and Tailwind's text-sm
+	   is 14px, so this needs to be an explicit override rather than a utility. */
+	input,
+	textarea,
+	select {
+		font-size: 16px;
+	}
 }
 
 ::selection {

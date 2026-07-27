@@ -2,10 +2,12 @@
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "finish-em",
   "title": "finish-em",
-  "description": "Quick-add tasks to finish-em",
+  "description": "Quick-add and review finish-em tasks",
   "icon": "extension-icon.png",
   "author": "ryankscott",
-  "categories": ["Productivity"],
+  "categories": [
+    "Productivity"
+  ],
   "license": "MIT",
   "commands": [
     {
@@ -38,5 +40,23 @@
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "lint": "ray lint"
-  }
+  },
+  "preferences": [
+    {
+      "name": "apiUrl",
+      "title": "API URL",
+      "description": "Base URL of your finish-em deployment, e.g. https://finish-em.<subdomain>.workers.dev",
+      "type": "textfield",
+      "required": true,
+      "default": "http://127.0.0.1:5717",
+      "placeholder": "https://finish-em.example.workers.dev"
+    },
+    {
+      "name": "authToken",
+      "title": "Auth Token",
+      "description": "sha256 of FINISH_EM_AUTH_SECRET. Leave blank if the API is unauthenticated.",
+      "type": "password",
+      "required": false
+    }
+  ]
 }

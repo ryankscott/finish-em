@@ -283,3 +283,13 @@ export const idParamSchema = z.object({
 export const errorSchema = z.object({ error: z.string() }).openapi("Error");
 
 export const emptySchema = z.object({}).openapi("Empty");
+
+export const healthSchema = z.object({ ok: z.literal(true) }).openapi("Health");
+
+export const loginSchema = z
+	.object({ password: z.string().min(1) })
+	.openapi("Login");
+
+export const sessionSchema = z
+	.object({ authenticated: z.boolean() })
+	.openapi("Session");

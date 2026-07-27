@@ -6,6 +6,7 @@ import { parseTaskCreateInput } from "@/lib/parsing/parse-task-create-input";
 
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjects, useTaskMutations } from "../lib/queries";
+import { useIsMobile } from "../lib/use-is-mobile";
 import { useUi } from "../state/ui";
 import { QuickAddPills } from "./QuickAddPills";
 import { type Segment, tokenizeQuickAdd } from "./quick-add-highlight";
@@ -82,6 +83,7 @@ function renderSegments(root: HTMLElement, segments: Segment[]) {
  */
 export function QuickAdd() {
 	const ui = useUi();
+	const isMobile = useIsMobile();
 	const { data: projects = [] } = useProjects();
 	const { createTask } = useTaskMutations();
 	const [value, setValue] = useState("");
@@ -212,6 +214,14 @@ export function QuickAdd() {
 					tabIndex={0}
 					aria-label="New task"
 					data-placeholder="Ship docs project:Work p1 due:today recurs:weekly"
+					// autocorrect/autocapitalize off: iOS would "fix" the token syntax,
+					// turning project:Work into Project:work and breaking the parse.
+					// enterKeyHint makes the iOS return key read "done" rather than a
+					// newline affordance the editor does not honour anyway.
+					autoCorrect="off"
+					autoCapitalize="off"
+					spellCheck={false}
+					enterKeyHint="done"
 					onInput={handleInput}
 					onKeyDown={handleKeyDown}
 					className="w-full whitespace-pre-wrap break-words px-4 py-3 text-base leading-relaxed caret-foreground outline-none empty:before:text-muted/60 empty:before:content-[attr(data-placeholder)]"
@@ -238,9 +248,32 @@ export function QuickAdd() {
 							{error}
 						</span>
 					))}
-					<span className="ml-auto text-muted">
-						enter to add · esc to close
-					</span>
+					{isMobile ? (
+						// A phone has no Esc key and the sheet has no backdrop to tap, so
+						// without these the only way out is a keyboard that may not be
+						// showing. Also gives Add a visible target rather than relying on
+						// the return key.
+						<span className="ml-auto flex items-center gap-2">
+							<button
+								type="button"
+								onClick={() => ui.closeQuickAdd()}
+								className="min-h-[36px] px-3 text-muted"
+							>
+								Cancel
+							</button>
+							<button
+								type="button"
+								onClick={submit}
+								className="min-h-[36px] rounded-md bg-accent px-3 font-medium text-background"
+							>
+								Add
+							</button>
+						</span>
+					) : (
+						<span className="ml-auto text-muted">
+							enter to add · esc to close
+						</span>
+					)}
 				</div>
 			</div>
 		</div>
