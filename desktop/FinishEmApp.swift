@@ -31,8 +31,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 	var webView: WKWebView!
 	var serverProcess: Process?
 
-	var baseURL: URL { URL(string: "http://127.0.0.1:\(port)")! }
-	var healthURL: URL { baseURL.appendingPathComponent("api/settings") }
+	// When FINISH_EM_REMOTE_URL is set the app is a thin shell over the deployed
+	// Cloudflare Worker: no bundled server, no local database. Unset, it keeps
+	// the original self-contained behaviour against a local server.
+	let remoteURL: URL? = {
+		guard let raw = ProcessInfo.processInfo.environment["FINISH_EM_REMOTE_URL"],
+			  !raw.trimmingCharacters(in: .whitespaces).isEmpty,
+			  let url = URL(string: raw.trimmingCharacters(in: .whitespaces)),
+			  url.scheme != nil
+		else { return nil }
+		return url
+	}()
+
+	var isRemote: Bool { remoteURL != nil }
+
+	var baseURL: URL { remoteURL ?? URL(string: "http://127.0.0.1:\(port)")! }
+	var healthURL: URL { baseURL.appendingPathComponent("api/health") }
 
 	var signalSources: [DispatchSourceSignal] = []
 
@@ -41,8 +55,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		buildMenu()
 		buildWindow()
 
-		if serverIsUp() {
-			// A server is already running (e.g. TUI or dev server). Reuse it.
+		if isRemote {
+			// Nothing to spawn or wait for; the Worker is already up.
+			loadApp()
+		} else if serverIsUp() {
+			// A server is already running (e.g. a dev server). Reuse it.
 			loadApp()
 		} else {
 			startServer()
@@ -104,13 +121,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 
 	// MARK: - External links
 
-	// True for http(s) URLs that don't point at our own local server. These
-	// should open in the user's default browser, not inside the WKWebView.
+	// True for http(s) URLs that don't point at the app's own origin. These open
+	// in the user's default browser rather than inside the WKWebView.
+	//
+	// This compares against baseURL's host rather than hardcoding localhost:
+	// when running against the deployed Worker the app's own origin is a remote
+	// host, and a localhost-only check would send every in-app navigation to
+	// Safari.
 	func isExternal(_ url: URL?) -> Bool {
 		guard let url, let scheme = url.scheme?.lowercased() else { return false }
 		guard scheme == "http" || scheme == "https" else { return false }
-		let host = url.host?.lowercased()
-		return host != "127.0.0.1" && host != "localhost"
+		guard let host = url.host?.lowercased() else { return false }
+
+		if let ownHost = baseURL.host?.lowercased(), host == ownHost {
+			return false
+		}
+		// Local mode reaches the same server by either name.
+		if !isRemote {
+			return host != "127.0.0.1" && host != "localhost"
+		}
+		return true
 	}
 
 	func openExternally(_ url: URL) {

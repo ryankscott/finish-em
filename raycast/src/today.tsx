@@ -8,20 +8,8 @@ import {
 	Toast,
 } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
-import { runCli } from "./cli";
-
-type Task = {
-	id: number;
-	title: string;
-	priority: 1 | 2 | 3 | 4;
-	dueAt: string | null;
-};
-
-type Digest = {
-	dueToday: Task[];
-	overdue: Task[];
-	stale: Task[];
-};
+import { apiPost } from "./api";
+import { fetchDigest, type Task } from "./digest";
 
 const PRIORITY_ICON: Record<Task["priority"], { source: Icon; tintColor: Color }> = {
 	1: { source: Icon.Circle, tintColor: Color.Red },
@@ -39,14 +27,12 @@ function formatDueDate(dueAt: string | null): string | undefined {
 }
 
 export default function Today() {
-	const { data, isLoading, revalidate } = useCachedPromise(() =>
-		runCli<Digest>("digest --json"),
-	);
+	const { data, isLoading, revalidate } = useCachedPromise(() => fetchDigest());
 
 	async function completeTask(task: Task) {
 		await showToast({ style: Toast.Style.Animated, title: "Completing…" });
 		try {
-			await runCli(`task done ${task.id} --json`);
+			await apiPost(`/api/tasks/${task.id}/complete`);
 			await showToast({
 				style: Toast.Style.Success,
 				title: `Completed: ${task.title}`,

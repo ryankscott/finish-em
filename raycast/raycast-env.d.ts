@@ -7,7 +7,12 @@
 
 /* eslint-disable @typescript-eslint/ban-types */
 
-type ExtensionPreferences = {}
+type ExtensionPreferences = {
+  /** API URL - Base URL of your finish-em deployment, e.g. https://finish-em.<subdomain>.workers.dev */
+  "apiUrl": string,
+  /** Auth Token - sha256 of FINISH_EM_AUTH_SECRET. Leave blank if the API is unauthenticated. */
+  "authToken"?: string
+}
 
 /** Preferences accessible in all the extension's commands */
 declare type Preferences = ExtensionPreferences

@@ -4,22 +4,30 @@ Guidelines for AI agents working in this repository.
 
 ## Project Overview
 
-`finish-em` is a Todoist-style task manager — a terminal UI (TUI) built with [Ink](https://github.com/vadimdemedes/ink) (React for the terminal). The stack is:
+`finish-em` is a personal task manager: a React web app deployed as a
+Cloudflare Worker with D1, installable as an iPhone PWA. The stack is:
 
-- **Runtime**: Bun
-- **TUI**: Ink + React (TypeScript/TSX)
-- **Database**: SQLite via `bun:sqlite`, schema managed with Drizzle ORM
+- **Deployed runtime**: Cloudflare Workers + D1
+- **Local runtime**: Bun + `bun:sqlite`
+- **Web**: React 19, Vite, Tailwind v4, shadcn/Radix, TanStack Router + Query
+- **API**: Hono (`@hono/zod-openapi`)
 - **Testing**: `bun test`
 - **Linting/Formatting**: Biome (`bun run check`)
+
+The TUI was removed; do not add one back without reading the git history first.
 
 ## Repository Structure
 
 ```
+migrations/    # D1 schema (the single source of truth)
 src/
-  tui/         # Terminal UI components, hooks, and utilities
-  server/      # DB client, repos, services, types
-  cli.ts       # CLI entrypoint
-data/          # Local SQLite database (todo.db) — not committed
+  server/      # db seam + adapters, repos, services, HTTP app, worker entry
+  web/         # React app (Vite root)
+  shared/      # ApiClient contract + HTTP implementation
+  lib/         # pure helpers (parsing, datetime)
+  components/  # shadcn primitives
+desktop/       # Swift + WKWebView macOS wrapper
+raycast/       # Raycast extension (separate npm project)
 plans/         # Planning docs, change notes, and capability specs
 ```
 
@@ -57,9 +65,8 @@ app.ts + repos/ + services/   runtime-agnostic, no bun:sqlite / node builtins
 |---|---|---|
 | `TODO_DB_PATH` | `~/.finish-em/todo.db` | Local SQLite path (Bun server only; the Worker uses the D1 binding) |
 | `FINISH_EM_AUTH_SECRET` | — | Shared password. **Unset leaves the API open** — that is what keeps local dev and tests unauthenticated. Set in production with `wrangler secret put`. |
-| `OPENAI_API_KEY` | — | Enables AI fallback in Quick Add |
-| `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Custom OpenAI-compatible base URL |
-| `OPENAI_MODEL` | `gpt-4o-mini` | Model used for AI Quick Add |
+| `PORT` / `HOST` | `5717` / `127.0.0.1` | Bun server only |
+| `FINISH_EM_REMOTE_URL` | — | macOS app: load the deployed Worker instead of spawning a local server |
 
 ## Testing
 
@@ -71,25 +78,23 @@ bun test
 
 Tests use `bun:test`. Integration tests set `TODO_DB_PATH` to a temp file and call `resetDbForTests()` from `src/server/db/client.ts` in `beforeEach`/`afterEach` to isolate each test's database.
 
-### Verifying TUI Changes Manually
+### Verifying Changes Manually
 
-When making changes to TUI components or behavior, verify against a test database so you don't affect real data.
-
-```bash
-# Launch TUI against a dedicated test DB
-TODO_DB_PATH=/tmp/finish-em-test.db bun run tui
-
-# When done, clear the env var (or just close the shell)
-unset TODO_DB_PATH
-```
-
-The test DB is auto-created and migrated on first run. You can delete it at any time to start fresh:
+Never point a manual run at `~/.finish-em/todo.db`. Use an isolated database:
 
 ```bash
-rm -f /tmp/finish-em-test.db
+TODO_DB_PATH=/tmp/finish-em-test.db PORT=5799 bun src/server/http/main.ts
 ```
 
-Always restore `TODO_DB_PATH` to its original value (or unset it) after manual TUI verification so you don't accidentally modify the production database.
+To exercise the real deployed stack (workerd + D1) rather than the Bun server:
+
+```bash
+bun run d1:migrate:local
+bun run worker:dev        # serves dist/web, so run `bun run web:build` first
+```
+
+`wrangler dev --local` keeps its D1 state in `.wrangler/`, entirely separate
+from `~/.finish-em/todo.db`.
 
 ## Code Conventions
 
@@ -132,7 +137,6 @@ When adding a new migration:
 Deliberately dropped when flattening (see the header comment in `0001_init.sql`
 for the reasoning): `sync_meta`, `sync_changelog`, `assistant_messages`,
 `schema_migrations`, `settings.ai_*`, and `tasks.blocked_at`/`blocked_reason`.
-3. Update the Drizzle schema in `src/server/db/drizzle-schema.ts`
 
 ## Planning Docs
 
