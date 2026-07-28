@@ -245,7 +245,7 @@ export function PlanningView() {
 				<ScrollArea className="flex-1" horizontal={layout === "horizontal"}>
 					<div
 						className={cn(
-							"gap-2 p-3",
+							"w-full min-w-0 gap-2 p-3",
 							layout === "vertical"
 								? "flex flex-col"
 								: "flex flex-row items-start overflow-x-auto",

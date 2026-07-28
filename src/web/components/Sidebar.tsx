@@ -43,19 +43,24 @@ function NavLink({
 	label,
 	count,
 	active,
+	isDrawer,
 }: {
 	to: string;
 	icon: React.ReactNode;
 	label: string;
 	count?: number;
 	active: boolean;
+	isDrawer?: boolean;
 }) {
 	return (
 		<Link
 			to={to}
 			tabIndex={-1}
 			className={cn(
-				"flex items-center gap-2 rounded-md px-3 py-1.5 text-sm",
+				"flex items-center gap-2 rounded-md px-3 text-sm",
+				// The drawer is a touch surface with no hover state, so rows get
+				// a real tap target instead of the dense desktop row height.
+				isDrawer ? "min-h-11 py-2.5" : "py-1.5",
 				active
 					? "bg-surface-raised text-foreground"
 					: "text-muted hover:bg-surface",
@@ -80,6 +85,7 @@ function ProjectNavLink({
 	onDragOver,
 	onDrop,
 	onDragEnd,
+	isDrawer,
 }: {
 	project: Project;
 	count: number;
@@ -90,6 +96,7 @@ function ProjectNavLink({
 	onDragOver: (e: React.DragEvent) => void;
 	onDrop: () => void;
 	onDragEnd: () => void;
+	isDrawer?: boolean;
 }) {
 	const ui = useUi();
 	const navigate = useNavigate();
@@ -107,15 +114,20 @@ function ProjectNavLink({
 		});
 	};
 
+	// Drag-to-reorder is native HTML5 drag-and-drop, which touch screens don't
+	// implement -- the handle would just be a dead affordance eating width in
+	// the drawer. Editing/deleting can't hide behind group-hover either, since
+	// touch has no hover: on the drawer they're always on.
 	return (
 		<div
-			draggable
+			draggable={!isDrawer}
 			onDragStart={onDragStart}
 			onDragOver={onDragOver}
 			onDrop={onDrop}
 			onDragEnd={onDragEnd}
 			className={cn(
-				"group flex items-center gap-1 rounded-md px-1 py-1.5 text-sm",
+				"group flex items-center gap-1 rounded-md px-1 text-sm",
+				isDrawer ? "min-h-11 py-2" : "py-1.5",
 				active
 					? "bg-surface-raised text-foreground"
 					: "text-muted hover:bg-surface",
@@ -123,12 +135,14 @@ function ProjectNavLink({
 				dropTarget && "border-t-2 border-p4",
 			)}
 		>
-			<span
-				aria-hidden
-				className="flex w-4 shrink-0 cursor-grab justify-center text-muted opacity-0 group-hover:opacity-100 active:cursor-grabbing"
-			>
-				<GripVertical className="h-3.5 w-3.5" />
-			</span>
+			{isDrawer ? null : (
+				<span
+					aria-hidden
+					className="flex w-4 shrink-0 cursor-grab justify-center text-muted opacity-0 group-hover:opacity-100 active:cursor-grabbing"
+				>
+					<GripVertical className="h-3.5 w-3.5" />
+				</span>
+			)}
 			<Link
 				to="/projects/$projectId"
 				params={{ projectId: String(project.id) }}
@@ -139,11 +153,23 @@ function ProjectNavLink({
 				<span className="w-4 text-center text-xs">{project.emoji ?? "●"}</span>
 				<span className="truncate">{project.name}</span>
 			</Link>
+			{count > 0 ? (
+				<span
+					className={cn("text-xs text-muted", !isDrawer && "group-hover:hidden")}
+				>
+					{count}
+				</span>
+			) : null}
 			<button
 				type="button"
 				aria-label="Edit project"
 				onClick={() => ui.openProjectDialog({ mode: "edit", project })}
-				className="hidden text-muted hover:text-foreground group-hover:block"
+				className={cn(
+					"text-muted hover:text-foreground",
+					isDrawer
+						? "flex h-8 w-8 shrink-0 items-center justify-center"
+						: "hidden group-hover:block",
+				)}
 			>
 				<Pencil className="h-3.5 w-3.5" />
 			</button>
@@ -151,13 +177,15 @@ function ProjectNavLink({
 				type="button"
 				aria-label="Delete project"
 				onClick={() => setConfirmOpen(true)}
-				className="hidden text-muted hover:text-p1 group-hover:block"
+				className={cn(
+					"text-muted hover:text-p1",
+					isDrawer
+						? "flex h-8 w-8 shrink-0 items-center justify-center"
+						: "hidden group-hover:block",
+				)}
 			>
 				<Trash2 className="h-3.5 w-3.5" />
 			</button>
-			{count > 0 ? (
-				<span className="text-xs text-muted group-hover:hidden">{count}</span>
-			) : null}
 			<ConfirmDialog
 				open={confirmOpen}
 				onOpenChange={setConfirmOpen}
@@ -284,6 +312,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				label="Today"
 				count={todayTasks.length + overdueCount}
 				active={pathname === "/today" || pathname === "/"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/inbox"
@@ -291,18 +320,21 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				label="Inbox"
 				count={inboxCount}
 				active={pathname === "/inbox"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/planning"
 				icon={<CalendarDays className={iconClass} />}
 				label="Planning"
 				active={pathname === "/planning"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/calendar"
 				icon={<CalendarClock className={iconClass} />}
 				label="Calendar"
 				active={pathname === "/calendar"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/recurring"
@@ -310,6 +342,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				label="Recurring"
 				count={recurringTasks.length}
 				active={pathname === "/recurring"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/overdue"
@@ -317,24 +350,28 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				label="Overdue"
 				count={overdueCount}
 				active={pathname === "/overdue"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/priority"
 				icon={<Star className={iconClass} />}
 				label="By Priority"
 				active={pathname === "/priority"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/completed"
 				icon={<CheckCircle2 className={iconClass} />}
 				label="Completed"
 				active={pathname === "/completed"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/logbook"
 				icon={<BookOpen className={iconClass} />}
 				label="Logbook"
 				active={pathname === "/logbook"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/deleted"
@@ -342,12 +379,14 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				label="Deleted"
 				count={deletedTasks.length}
 				active={pathname === "/deleted"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/reminders"
 				icon={<Bell className={iconClass} />}
 				label="Reminders"
 				active={pathname === "/reminders"}
+				isDrawer={isDrawer}
 			/>
 			<NavLink
 				to="/someday"
@@ -355,6 +394,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				label="Someday"
 				count={somedayTasks.length}
 				active={pathname === "/someday"}
+				isDrawer={isDrawer}
 			/>
 			<Separator className="my-2" />
 			<div className="mb-1 flex items-center px-3 text-[11px] font-semibold tracking-wide text-muted uppercase">
@@ -384,6 +424,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 						if (overIndex !== index) setOverIndex(index);
 					}}
 					onDrop={() => commitReorder(index)}
+					isDrawer={isDrawer}
 					onDragEnd={() => {
 						setDragIndex(null);
 						setOverIndex(null);
@@ -397,6 +438,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 					icon={<Settings className={iconClass} />}
 					label="Settings"
 					active={pathname === "/settings"}
+					isDrawer={isDrawer}
 				/>
 			</div>
 		</aside>

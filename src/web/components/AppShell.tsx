@@ -9,8 +9,8 @@ import { ChevronLeft, Moon, Search, Sun } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
 import { cn } from "../lib/cn";
 import { useHotkeyScope } from "../lib/hotkeys";
@@ -210,15 +210,17 @@ export function AppShell() {
 			</div>
 
 			{isMobile ? (
-				<Dialog open={drawerOpen} onOpenChange={setDrawerOpen}>
-					<DialogContent
-						className="fixed inset-y-0 left-0 top-0 flex h-dvh max-w-[85vw] translate-x-0 translate-y-0 flex-col gap-0 rounded-none border-border border-r p-0 pt-safe pb-safe sm:max-w-xs"
+				<Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+					<SheetContent
+						side="left"
+						showClose={false}
+						className="h-dvh rounded-none p-0 pt-safe pb-safe"
 						aria-describedby={undefined}
 					>
-						<DialogTitle className="sr-only">Navigation</DialogTitle>
+						<SheetTitle className="sr-only">Navigation</SheetTitle>
 						<Sidebar variant="drawer" />
-					</DialogContent>
-				</Dialog>
+					</SheetContent>
+				</Sheet>
 			) : null}
 
 			<QuickAdd />

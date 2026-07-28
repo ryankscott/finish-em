@@ -14,7 +14,22 @@ const ScrollArea = React.forwardRef<
 		className={cn("relative overflow-hidden", className)}
 		{...props}
 	>
-		<ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
+		{/*
+		 * Radix wraps children in an internal `display: table` element so the
+		 * viewport can measure content size. That's exactly what horizontal
+		 * mode needs (columns stay their natural width so they can overflow
+		 * and scroll), but in vertical mode it lets a single long, unbreakable
+		 * line anywhere in the tree force that wrapper -- and everything
+		 * inside it -- wider than the viewport, silently defeating `truncate`
+		 * on every descendant. Force it back to a normal block that fills the
+		 * viewport unless horizontal scrolling is what we asked for.
+		 */}
+		<ScrollAreaPrimitive.Viewport
+			className={cn(
+				"h-full w-full rounded-[inherit]",
+				!horizontal && "[&>div]:!block [&>div]:!w-full",
+			)}
+		>
 			{children}
 		</ScrollAreaPrimitive.Viewport>
 		<ScrollBar />

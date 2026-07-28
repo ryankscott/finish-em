@@ -99,6 +99,11 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	useEffect(() => {
+		// index.html ships with class="dark" as the pre-hydration default so
+		// there's no flash of light theme; once React is up this effect owns
+		// both classes so an explicit choice of either theme can't leave the
+		// other stuck on, which is what happens if only "light" is toggled.
+		document.documentElement.classList.toggle("dark", theme === "dark");
 		document.documentElement.classList.toggle("light", theme === "light");
 		localStorage.setItem("theme", theme);
 	}, [theme]);

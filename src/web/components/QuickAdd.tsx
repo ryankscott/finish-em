@@ -200,9 +200,27 @@ export function QuickAdd() {
 	if (!open) return null;
 
 	return (
-		<div className="fixed inset-x-0 top-0 z-50 flex justify-center p-4">
-			<div className="w-full max-w-2xl rounded-lg border border-border bg-surface-raised shadow-2xl">
-				<div className="px-4 pt-3 text-xs text-muted">
+		<div
+			className={
+				isMobile
+					? "fixed inset-0 z-50 flex flex-col bg-surface-raised"
+					: "fixed inset-x-0 top-0 z-50 flex justify-center p-4"
+			}
+		>
+			<div
+				className={
+					isMobile
+						? "flex h-full w-full flex-col"
+						: "w-full max-w-2xl rounded-lg border border-border bg-surface-raised shadow-2xl"
+				}
+			>
+				<div
+					className={
+						isMobile
+							? "flex items-center px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-3 text-sm text-muted"
+							: "px-4 pt-3 text-xs text-muted"
+					}
+				>
 					{parentTask ? `New subtask of "${parentTask.title}"` : "New task"}
 				</div>
 				{/* biome-ignore lint/a11y/useSemanticElements: a rich token editor needs contentEditable, not a plain input */}
@@ -224,7 +242,11 @@ export function QuickAdd() {
 					enterKeyHint="done"
 					onInput={handleInput}
 					onKeyDown={handleKeyDown}
-					className="w-full whitespace-pre-wrap break-words px-4 py-3 text-base leading-relaxed caret-foreground outline-none empty:before:text-muted/60 empty:before:content-[attr(data-placeholder)]"
+					className={
+						isMobile
+							? "w-full flex-1 whitespace-pre-wrap break-words px-4 py-3 text-base leading-relaxed caret-foreground outline-none empty:before:text-muted/60 empty:before:content-[attr(data-placeholder)]"
+							: "w-full whitespace-pre-wrap break-words px-4 py-3 text-base leading-relaxed caret-foreground outline-none empty:before:text-muted/60 empty:before:content-[attr(data-placeholder)]"
+					}
 				/>
 				{value.trim() ? (
 					<QuickAddPills
@@ -232,48 +254,53 @@ export function QuickAdd() {
 						onChange={setValueFromPills}
 						projects={projects}
 						parsed={parsed}
+						isMobile={isMobile}
 					/>
 				) : null}
-				<div className="flex min-h-8 items-center gap-3 border-t border-border px-4 py-1.5 text-xs">
-					{suggestion ? (
-						<span className="text-accent">tab → {suggestion.hint}</span>
-					) : null}
-					{parsed?.warnings.map((warning) => (
-						<span key={warning} className="text-p2">
-							{warning}
-						</span>
-					))}
-					{parsed?.errors.map((error) => (
-						<span key={error} className="text-p1">
-							{error}
-						</span>
-					))}
+				<div
+					className={
+						isMobile
+							? "flex flex-col gap-3 border-t border-border px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)] text-xs"
+							: "flex min-h-8 items-center gap-3 border-t border-border px-4 py-1.5 text-xs"
+					}
+				>
+					<div
+						className={isMobile ? "flex flex-col gap-1" : "contents"}
+					>
+						{parsed?.warnings.map((warning) => (
+							<span key={warning} className="text-p2">
+								{warning}
+							</span>
+						))}
+						{parsed?.errors.map((error) => (
+							<span key={error} className="text-p1">
+								{error}
+							</span>
+						))}
+					</div>
 					{isMobile ? (
 						// A phone has no Esc key and the sheet has no backdrop to tap, so
 						// without these the only way out is a keyboard that may not be
 						// showing. Also gives Add a visible target rather than relying on
-						// the return key.
-						<span className="ml-auto flex items-center gap-2">
-							<button
-								type="button"
-								onClick={() => ui.closeQuickAdd()}
-								className="min-h-[36px] px-3 text-muted"
-							>
-								Cancel
-							</button>
+						// the return key. Stacked full-width: Add is the primary action a
+						// thumb should hit without precision, Cancel sits below it.
+						<div className="flex flex-col gap-2">
 							<button
 								type="button"
 								onClick={submit}
-								className="min-h-[36px] rounded-md bg-accent px-3 font-medium text-background"
+								className="min-h-[44px] w-full rounded-md bg-accent px-3 font-medium text-background"
 							>
 								Add
 							</button>
-						</span>
-					) : (
-						<span className="ml-auto text-muted">
-							enter to add · esc to close
-						</span>
-					)}
+							<button
+								type="button"
+								onClick={() => ui.closeQuickAdd()}
+								className="min-h-[44px] w-full px-3 text-muted"
+							>
+								Cancel
+							</button>
+						</div>
+					) : null}
 				</div>
 			</div>
 		</div>

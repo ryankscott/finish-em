@@ -1,20 +1,134 @@
 import { format, parseISO } from "date-fns";
 import {
 	Calendar,
+	Check,
 	CheckCircle2,
 	ChevronDown,
 	ChevronRight,
 	Circle,
 	Clock,
 	Repeat,
+	RotateCcw,
+	Trash2,
 } from "lucide-react";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { isOverdueDueDate } from "@/lib/datetime";
 import type { Project, Task } from "@/server/types";
 
 import { cn } from "../lib/cn";
+import { useTaskMutations } from "../lib/queries";
+import { useUndo } from "../lib/undo";
+import { useIsMobile } from "../lib/use-is-mobile";
 import { InlineText } from "./InlineText";
 import { PriorityFlag } from "./PriorityFlag";
+
+// Distance a swipe needs to travel before release commits the action, and the
+// rubber-band ceiling past that -- dragging further doesn't do anything more,
+// it just resists, so the gesture doesn't feel like it's flown off the rails.
+const SWIPE_THRESHOLD = 72;
+const SWIPE_MAX = 96;
+
+/**
+ * Touch-only swipe-to-complete (right) / swipe-to-delete (left), the mobile
+ * substitute for the `x` / `d` hotkeys -- there's no keyboard on a phone, and
+ * before this a task row had no tap or gesture affordance at all on touch.
+ * Vertical list scroll wins until a drag clearly commits to the horizontal
+ * axis, so this can't fight the page's own scroll gesture.
+ */
+function useSwipeActions(task: Task, enabled: boolean) {
+	const { completeTask, deleteTask } = useTaskMutations();
+	const { undoLast } = useUndo();
+	const [dragX, setDragX] = useState(0);
+	const [dragging, setDragging] = useState(false);
+	const gestureRef = useRef<{ x: number; y: number; locked: boolean } | null>(
+		null,
+	);
+
+	if (!enabled) {
+		return { dragX: 0, dragging: false, handlers: {} };
+	}
+
+	const withUndo = (message: string) => ({
+		onSuccess: () =>
+			toast.success(message, {
+				action: { label: "Undo", onClick: () => undoLast() },
+			}),
+		onError: (err: unknown) =>
+			toast.error(err instanceof Error ? err.message : String(err)),
+	});
+
+	function commit(direction: 1 | -1) {
+		if (direction === 1) {
+			completeTask.mutate(
+				task,
+				withUndo(
+					task.status === "completed" ? "Task reopened" : "Task completed",
+				),
+			);
+		} else {
+			deleteTask.mutate(task, withUndo("Task deleted"));
+		}
+	}
+
+	function handlePointerDown(e: React.PointerEvent) {
+		if (e.pointerType === "mouse") return;
+		gestureRef.current = { x: e.clientX, y: e.clientY, locked: false };
+	}
+
+	function handlePointerMove(e: React.PointerEvent) {
+		const gesture = gestureRef.current;
+		if (!gesture) return;
+		const dx = e.clientX - gesture.x;
+		const dy = e.clientY - gesture.y;
+		if (!gesture.locked) {
+			if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+			if (Math.abs(dy) > Math.abs(dx)) {
+				// Vertical intent -- let the page scroll, this gesture is done.
+				gestureRef.current = null;
+				return;
+			}
+			gesture.locked = true;
+			setDragging(true);
+			// currentTarget (the row itself), not target (whichever child the
+			// finger happens to be over) -- and capture can throw for pointer
+			// ids the browser doesn't consider active, which should never lose
+			// the gesture over.
+			try {
+				e.currentTarget.setPointerCapture(e.pointerId);
+			} catch {
+				// Gesture still tracks via the move/up handlers either way.
+			}
+		}
+		e.preventDefault();
+		setDragX(Math.max(-SWIPE_MAX, Math.min(SWIPE_MAX, dx)));
+	}
+
+	function handlePointerEnd() {
+		const gesture = gestureRef.current;
+		gestureRef.current = null;
+		setDragging(false);
+		if (!gesture?.locked) {
+			setDragX(0);
+			return;
+		}
+		if (dragX >= SWIPE_THRESHOLD) commit(1);
+		else if (dragX <= -SWIPE_THRESHOLD) commit(-1);
+		setDragX(0);
+	}
+
+	return {
+		dragX,
+		dragging,
+		handlers: {
+			onPointerDown: handlePointerDown,
+			onPointerMove: handlePointerMove,
+			onPointerUp: handlePointerEnd,
+			onPointerCancel: handlePointerEnd,
+		},
+	};
+}
 
 export function TaskRow({
 	task,
@@ -34,7 +148,18 @@ export function TaskRow({
 	showProject: boolean;
 }) {
 	const completed = task.status === "completed";
-	return (
+	const isMobile = useIsMobile();
+	// Swiping to delete an already-deleted row (the Deleted view) doesn't mean
+	// anything, so the gesture is only wired up everywhere else.
+	const swipeEnabled = isMobile && !task.deletedAt;
+	const { dragX, dragging, handlers } = useSwipeActions(task, swipeEnabled);
+	// The chevron gutter exists to align expand/collapse controls across a
+	// mixed tree of parent and leaf tasks. On mobile that alignment isn't
+	// worth the width it eats on an already-narrow row, so leaf tasks (the
+	// overwhelming majority) skip the gutter entirely instead of just hiding
+	// its icon.
+	const showChevronGutter = hasSubtasks || !isMobile;
+	const row = (
 		<div
 			data-selected={selected || undefined}
 			className={cn(
@@ -44,18 +169,34 @@ export function TaskRow({
 				selected
 					? "bg-surface-raised ring-1 ring-accent/60"
 					: "hover:bg-surface",
+				// An unselected row is otherwise transparent, which is fine at
+				// rest but means the swipe color underneath would bleed through
+				// the whole row instead of just the sliver the drag actually
+				// exposes. Give it an opaque backing for the duration of the drag.
+				swipeEnabled && !selected && "bg-background",
+				swipeEnabled && "touch-pan-y",
 			)}
-			style={{ paddingLeft: `${12 + depth * 22}px` }}
+			style={{
+				paddingLeft: isMobile ? `${8 + depth * 16}px` : `${12 + depth * 22}px`,
+				transform: swipeEnabled ? `translateX(${dragX}px)` : undefined,
+				transition:
+					swipeEnabled && !dragging
+						? "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)"
+						: undefined,
+			}}
+			{...handlers}
 		>
-			<span className="mt-[3px] w-4 shrink-0 text-muted">
-				{hasSubtasks ? (
-					expanded ? (
-						<ChevronDown className="h-3.5 w-3.5" />
-					) : (
-						<ChevronRight className="h-3.5 w-3.5" />
-					)
-				) : null}
-			</span>
+			{showChevronGutter ? (
+				<span className="mt-[3px] w-4 shrink-0 text-muted">
+					{hasSubtasks ? (
+						expanded ? (
+							<ChevronDown className="h-3.5 w-3.5" />
+						) : (
+							<ChevronRight className="h-3.5 w-3.5" />
+						)
+					) : null}
+				</span>
+			) : null}
 			{completed ? (
 				<CheckCircle2 className="mt-[3px] h-4 w-4 shrink-0 text-p3" />
 			) : (
@@ -102,6 +243,36 @@ export function TaskRow({
 					<p className="truncate text-xs italic text-muted">{task.notes}</p>
 				) : null}
 			</div>
+		</div>
+	);
+
+	if (!swipeEnabled) return row;
+
+	return (
+		<div className="relative overflow-hidden rounded-md">
+			<div
+				aria-hidden
+				className="absolute inset-0 flex items-center justify-start rounded-md bg-p3 pl-5 text-background"
+				style={{
+					opacity: dragX > 0 ? Math.min(1, dragX / SWIPE_THRESHOLD) : 0,
+				}}
+			>
+				{completed ? (
+					<RotateCcw className="h-5 w-5" />
+				) : (
+					<Check className="h-5 w-5" />
+				)}
+			</div>
+			<div
+				aria-hidden
+				className="absolute inset-0 flex items-center justify-end rounded-md bg-p1 pr-5 text-background"
+				style={{
+					opacity: dragX < 0 ? Math.min(1, -dragX / SWIPE_THRESHOLD) : 0,
+				}}
+			>
+				<Trash2 className="h-5 w-5" />
+			</div>
+			{row}
 		</div>
 	);
 }

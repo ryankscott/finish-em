@@ -3,6 +3,8 @@ import { MapPin, Plus } from "lucide-react";
 
 import type { CalendarEvent } from "@/server/types";
 
+import { useIsMobile } from "../lib/use-is-mobile";
+
 export function formatTimeRange(event: CalendarEvent): string {
 	if (event.allDay) return "All day";
 	try {
@@ -32,6 +34,8 @@ export function EventRow({
 	onAddTodo: (event: CalendarEvent) => void;
 	adding: boolean;
 }) {
+	const isMobile = useIsMobile();
+
 	return (
 		<div className="group flex items-stretch gap-3">
 			<div className="w-16 shrink-0 pt-0.5 text-right text-xs font-medium text-muted">
@@ -53,16 +57,32 @@ export function EventRow({
 						) : null}
 					</span>
 				</div>
-				<button
-					type="button"
-					onClick={() => onAddTodo(event)}
-					disabled={adding}
-					title="Add a todo linked to this meeting"
-					className="flex shrink-0 items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted opacity-0 transition-opacity hover:bg-surface hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100 disabled:opacity-50"
-				>
-					<Plus className="h-3.5 w-3.5" />
-					Todo
-				</button>
+				{isMobile ? (
+					// No hover on touch, so the desktop button (hidden until
+					// hovered) would just be permanently invisible dead space.
+					// A small always-visible icon button instead.
+					<button
+						type="button"
+						onClick={() => onAddTodo(event)}
+						disabled={adding}
+						title="Add a todo linked to this meeting"
+						aria-label="Add a todo linked to this meeting"
+						className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface hover:text-foreground disabled:opacity-50"
+					>
+						<Plus className="h-3.5 w-3.5" />
+					</button>
+				) : (
+					<button
+						type="button"
+						onClick={() => onAddTodo(event)}
+						disabled={adding}
+						title="Add a todo linked to this meeting"
+						className="flex shrink-0 items-center gap-1 rounded-md border border-border px-2 py-1 text-xs text-muted opacity-0 transition-opacity hover:bg-surface hover:text-foreground focus-visible:opacity-100 group-hover:opacity-100 disabled:opacity-50"
+					>
+						<Plus className="h-3.5 w-3.5" />
+						Todo
+					</button>
+				)}
 			</div>
 		</div>
 	);

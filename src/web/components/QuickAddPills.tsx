@@ -173,16 +173,35 @@ function ProjectDropdown({
 /*  QuickAddPills                                                      */
 /* ------------------------------------------------------------------ */
 
+function Section({
+	label,
+	children,
+}: {
+	label: string;
+	children: React.ReactNode;
+}) {
+	return (
+		<div className="flex flex-col gap-1">
+			<span className="text-[10px] font-medium uppercase tracking-wide text-muted/70">
+				{label}
+			</span>
+			<div className="flex flex-wrap items-center gap-1.5">{children}</div>
+		</div>
+	);
+}
+
 export function QuickAddPills({
 	value,
 	onChange,
 	projects,
 	parsed,
+	isMobile,
 }: {
 	value: string;
 	onChange: (value: string) => void;
 	projects: Project[];
 	parsed: ParseTaskCreateResult | null;
+	isMobile?: boolean;
 }) {
 	const MAX_PROJECT_PILLS = 5;
 
@@ -322,9 +341,13 @@ export function QuickAddPills({
 
 	/* ---------- render ---------- */
 	return (
-		<div className="flex flex-wrap items-center gap-1.5 px-4 py-1.5">
-			{/* Priority */}
-			<div className="flex items-center gap-1">
+		<div
+			className={cn(
+				"px-4 py-2",
+				isMobile ? "flex flex-col gap-3" : "flex flex-wrap items-center gap-3",
+			)}
+		>
+			<Section label="Priority">
 				{[1, 2, 3, 4].map((p) => (
 					<Pill
 						key={p}
@@ -341,11 +364,10 @@ export function QuickAddPills({
 						)}
 					/>
 				))}
-			</div>
+			</Section>
 
-			{/* Projects */}
 			{visibleProjects.length > 0 ? (
-				<div className="flex items-center gap-1">
+				<Section label="Project">
 					{visibleProjects.map((project) => (
 						<Pill
 							key={project.id}
@@ -362,37 +384,34 @@ export function QuickAddPills({
 							{overflowLabel}
 						</ProjectDropdown>
 					) : null}
-				</div>
+				</Section>
 			) : null}
 
-			{/* Due */}
-			<div className="flex items-center gap-1">
+			<Section label="Due">
 				{dateOptions.map((opt) => (
 					<Pill
 						key={opt.token}
-						label={`Due ${opt.label}`}
+						label={opt.label}
 						active={isDueActive(opt.label)}
 						onClick={() => toggleDue(opt)}
-						className="hidden sm:inline-flex"
+						className={isMobile ? undefined : "hidden sm:inline-flex"}
 					/>
 				))}
-			</div>
+			</Section>
 
-			{/* Scheduled */}
-			<div className="flex items-center gap-1">
+			<Section label="Scheduled">
 				{schedOptions.map((opt) => (
 					<Pill
 						key={opt.token}
-						label={`Scheduled ${opt.label}`}
+						label={opt.label}
 						active={isScheduledActive(opt.label)}
 						onClick={() => toggleScheduled(opt)}
-						className="hidden sm:inline-flex"
+						className={isMobile ? undefined : "hidden sm:inline-flex"}
 					/>
 				))}
-			</div>
+			</Section>
 
-			{/* Recurrence */}
-			<div className="flex items-center gap-1">
+			<Section label="Recurring">
 				{recOptions.map((opt) => (
 					<Pill
 						key={opt.token}
@@ -401,7 +420,7 @@ export function QuickAddPills({
 						onClick={() => toggleRecurrence(opt)}
 					/>
 				))}
-			</div>
+			</Section>
 		</div>
 	);
 }

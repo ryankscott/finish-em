@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { Eye, EyeOff } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ export function LoginGate({ children }: { children: React.ReactNode }) {
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 
 	useEffect(() => {
 		checkSession().then(setAuthenticated);
@@ -68,17 +70,32 @@ export function LoginGate({ children }: { children: React.ReactNode }) {
 					<p className="text-muted text-sm">Enter your password to continue.</p>
 				</div>
 
-				<Input
-					type="password"
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
-					placeholder="Password"
-					autoFocus
-					// iOS zooms the viewport on focus for anything under 16px.
-					className="text-base"
-					autoComplete="current-password"
-					aria-label="Password"
-				/>
+				<div className="relative">
+					<Input
+						type={showPassword ? "text" : "password"}
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						placeholder="Password"
+						autoFocus
+						// iOS zooms the viewport on focus for anything under 16px.
+						className="pr-10 text-base"
+						autoComplete="current-password"
+						aria-label="Password"
+					/>
+					<button
+						type="button"
+						onClick={() => setShowPassword((v) => !v)}
+						className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-muted hover:text-foreground"
+						aria-label={showPassword ? "Hide password" : "Show password"}
+						tabIndex={-1}
+					>
+						{showPassword ? (
+							<EyeOff className="size-4" />
+						) : (
+							<Eye className="size-4" />
+						)}
+					</button>
+				</div>
 
 				{error ? (
 					<p className="text-p1 text-sm" role="alert">
