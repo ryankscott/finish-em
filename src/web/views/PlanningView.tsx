@@ -7,7 +7,7 @@ import {
 	startOfDay,
 	startOfWeek,
 } from "date-fns";
-import { Columns3, Rows3 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Columns3, Rows3 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
@@ -26,6 +26,7 @@ import {
 	useTasks,
 } from "../lib/queries";
 import { useAddTodoFromEvent } from "../lib/use-add-todo-from-event";
+import { useIsMobile } from "../lib/use-is-mobile";
 import { useUi } from "../state/ui";
 import { ViewTitle } from "./SimpleViews";
 
@@ -52,8 +53,16 @@ const nextMode: Record<ViewMode, ViewMode> = {
 	week: "day",
 };
 
+/** Shown on the mobile view-mode button, which cycles through the same order. */
+const VIEW_MODE_LABELS: Record<ViewMode, string> = {
+	day: "Day",
+	"work-week": "Work week",
+	week: "Week",
+};
+
 export function PlanningView() {
 	const ui = useUi();
+	const isMobile = useIsMobile();
 	const { data: projects = [] } = useProjects();
 	const { completeTask, deleteTask } = useTaskMutations();
 	const { onAddTodo, addingUid } = useAddTodoFromEvent();
@@ -210,8 +219,53 @@ export function PlanningView() {
 						addSignal={goalAddSignal}
 					/>
 				</div>
-				<div className="flex items-center justify-end gap-2 border-b border-border/60 px-3 py-2">
-					<div className="flex items-center rounded-md border border-border p-0.5">
+				<div className="flex items-center gap-2 border-b border-border/60 px-3 py-2">
+					{/* Week paging, "today", and the day/work-week/week toggle were all
+					    hotkey-only ([ ] t v), which left the Planning view stuck on the
+					    current week with no way to change range on a phone. */}
+					{isMobile ? (
+						<div className="flex min-w-0 flex-1 items-center gap-1">
+							<button
+								type="button"
+								aria-label="Previous week"
+								onClick={() => setAnchorDate((d) => addDays(d, -7))}
+								className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted"
+							>
+								<ChevronLeft className="h-4 w-4" />
+							</button>
+							<button
+								type="button"
+								onClick={() => {
+									setAnchorDate(startOfDay(new Date()));
+									setSelectedIndex(0);
+								}}
+								className="h-9 shrink-0 rounded-md border border-border px-3 text-xs text-muted"
+							>
+								Today
+							</button>
+							<button
+								type="button"
+								aria-label="Next week"
+								onClick={() => setAnchorDate((d) => addDays(d, 7))}
+								className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted"
+							>
+								<ChevronRight className="h-4 w-4" />
+							</button>
+							<button
+								type="button"
+								onClick={() => setViewMode((mode) => nextMode[mode])}
+								className="ml-1 h-9 min-w-0 flex-1 truncate rounded-md border border-border px-2 text-xs text-muted"
+							>
+								{VIEW_MODE_LABELS[viewMode]}
+							</button>
+						</div>
+					) : null}
+					<div
+						className={cn(
+							"flex items-center rounded-md border border-border p-0.5",
+							!isMobile && "ml-auto",
+						)}
+					>
 						<button
 							type="button"
 							onClick={() => setLayout("vertical")}
@@ -307,6 +361,7 @@ export function PlanningView() {
 													hasSubtasks={false}
 													expanded={false}
 													showProject
+													onOpen={() => ui.openTaskEditor(task)}
 												/>
 											))
 										)}

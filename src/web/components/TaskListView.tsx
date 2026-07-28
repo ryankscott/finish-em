@@ -6,7 +6,7 @@ import type { Task } from "@/server/types";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjects, useTaskMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
-import { LinkPickerDialog, type LinkChoice } from "./LinkPickerDialog";
+import { type LinkChoice, LinkPickerDialog } from "./LinkPickerDialog";
 import { TaskRow } from "./TaskRow";
 
 type VisibleRow = {
@@ -83,6 +83,15 @@ export function TaskListView({
 		el?.scrollIntoView({ block: "nearest" });
 	}, [clampedIndex, rows]);
 
+	const toggleExpanded = (taskId: number) => {
+		setExpandedIds((prev) => {
+			const next = new Set(prev);
+			if (next.has(taskId)) next.delete(taskId);
+			else next.add(taskId);
+			return next;
+		});
+	};
+
 	useHotkeyScope({
 		j: () => setSelectedIndex((i) => Math.min(i + 1, rows.length - 1)),
 		arrowdown: () => setSelectedIndex((i) => Math.min(i + 1, rows.length - 1)),
@@ -92,12 +101,7 @@ export function TaskListView({
 		"shift+g": () => setSelectedIndex(rows.length - 1),
 		space: () => {
 			if (!selected?.hasSubtasks) return;
-			setExpandedIds((prev) => {
-				const next = new Set(prev);
-				if (next.has(selected.task.id)) next.delete(selected.task.id);
-				else next.add(selected.task.id);
-				return next;
-			});
+			toggleExpanded(selected.task.id);
 		},
 		x: () => {
 			if (!selected) return;
@@ -145,7 +149,9 @@ export function TaskListView({
 				.filter((s) => s.type === "link")
 				.map((s) => ({
 					url: (s as { type: "link"; url: string; displayLabel: string }).url,
-					displayLabel: (s as { type: "link"; url: string; displayLabel: string }).displayLabel,
+					displayLabel: (
+						s as { type: "link"; url: string; displayLabel: string }
+					).displayLabel,
 				}));
 			if (links.length === 0) {
 				toast.info("No links in this task");
@@ -176,6 +182,13 @@ export function TaskListView({
 						hasSubtasks={row.hasSubtasks}
 						expanded={row.expanded}
 						showProject={showProject}
+						onOpen={() => {
+							// Keep the keyboard cursor in sync with what was tapped, so a
+							// later hotkey acts on the row the user just touched.
+							setSelectedIndex(index);
+							ui.openTaskEditor(row.task);
+						}}
+						onToggleExpand={() => toggleExpanded(row.task.id)}
 					/>
 				))}
 			</div>

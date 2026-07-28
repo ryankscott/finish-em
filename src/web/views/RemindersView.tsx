@@ -6,9 +6,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 import { cn } from "../lib/cn";
 import { useAllReminders, useReminderMutations } from "../lib/queries";
+import { useIsMobile } from "../lib/use-is-mobile";
 import { ViewTitle } from "./SimpleViews";
 
 export function RemindersView() {
+	const isMobile = useIsMobile();
 	const { data: reminders = [] } = useAllReminders();
 	const { deleteReminder } = useReminderMutations();
 	const now = new Date();
@@ -55,7 +57,14 @@ export function RemindersView() {
 												onError: (err) => toast.error(err.message),
 											})
 										}
-										className="hidden shrink-0 text-muted hover:text-p1 group-hover:block"
+										// Hover-gated on desktop, but always shown on touch --
+										// otherwise a reminder can never be deleted on a phone.
+										className={cn(
+											"shrink-0 text-muted hover:text-p1",
+											isMobile
+												? "flex h-9 w-9 items-center justify-center"
+												: "hidden group-hover:block",
+										)}
 									>
 										<Trash2 className="h-3.5 w-3.5" />
 									</button>

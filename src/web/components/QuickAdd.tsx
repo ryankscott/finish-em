@@ -4,11 +4,18 @@ import { toast } from "sonner";
 import { getTaskCreateAutocomplete } from "@/lib/parsing/input-autocomplete";
 import { parseTaskCreateInput } from "@/lib/parsing/parse-task-create-input";
 
+import { cn } from "../lib/cn";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjects, useTaskMutations } from "../lib/queries";
 import { useIsMobile } from "../lib/use-is-mobile";
+import { useKeyboardInset } from "../lib/use-viewport-inset";
 import { useUi } from "../state/ui";
-import { QuickAddPills } from "./QuickAddPills";
+import { ProjectPickerSheet } from "./ProjectPickerSheet";
+import {
+	insertToken,
+	QuickAddPills,
+	removeAnyProjectToken,
+} from "./QuickAddPills";
 import { type Segment, tokenizeQuickAdd } from "./quick-add-highlight";
 
 // Pill styling for recognized tokens rendered inline in the editor.
@@ -84,6 +91,7 @@ function renderSegments(root: HTMLElement, segments: Segment[]) {
 export function QuickAdd() {
 	const ui = useUi();
 	const isMobile = useIsMobile();
+	const keyboardInset = useKeyboardInset();
 	const { data: projects = [] } = useProjects();
 	const { createTask } = useTaskMutations();
 	const [value, setValue] = useState("");
@@ -93,6 +101,8 @@ export function QuickAdd() {
 
 	const open = ui.quickAdd !== null;
 	const parentTask = ui.quickAdd?.parentTask;
+	const keyboardUp = keyboardInset > 0;
+	const [projectPickerOpen, setProjectPickerOpen] = useState(false);
 
 	useEffect(() => {
 		if (open) {
@@ -206,6 +216,13 @@ export function QuickAdd() {
 					? "fixed inset-0 z-50 flex flex-col bg-surface-raised"
 					: "fixed inset-x-0 top-0 z-50 flex justify-center p-4"
 			}
+			// Shrink to the space above the keyboard rather than sitting behind
+			// it, so the option pills and Add/Cancel stay reachable while typing.
+			style={
+				isMobile && keyboardInset > 0
+					? { bottom: `${keyboardInset}px` }
+					: undefined
+			}
 		>
 			<div
 				className={
@@ -242,20 +259,32 @@ export function QuickAdd() {
 					enterKeyHint="done"
 					onInput={handleInput}
 					onKeyDown={handleKeyDown}
-					className={
-						isMobile
-							? "w-full flex-1 whitespace-pre-wrap break-words px-4 py-3 text-base leading-relaxed caret-foreground outline-none empty:before:text-muted/60 empty:before:content-[attr(data-placeholder)]"
-							: "w-full whitespace-pre-wrap break-words px-4 py-3 text-base leading-relaxed caret-foreground outline-none empty:before:text-muted/60 empty:before:content-[attr(data-placeholder)]"
-					}
+					className={cn(
+						"w-full whitespace-pre-wrap break-words px-4 py-3 text-base leading-relaxed caret-foreground outline-none empty:before:text-muted/60 empty:before:content-[attr(data-placeholder)]",
+						// With the keyboard down the editor fills the sheet, so tapping
+						// anywhere lands in the field. With it up, vertical space is
+						// scarce: the editor gives way to a couple of lines and the
+						// options below become the scrollable region instead.
+						isMobile && !keyboardUp && "flex-1",
+						isMobile && keyboardUp && "max-h-32 shrink-0 overflow-y-auto",
+					)}
 				/>
 				{value.trim() ? (
-					<QuickAddPills
-						value={value}
-						onChange={setValueFromPills}
-						projects={projects}
-						parsed={parsed}
-						isMobile={isMobile}
-					/>
+					<div
+						className={cn(
+							isMobile && keyboardUp && "min-h-0 flex-1 overflow-y-auto",
+							isMobile && !keyboardUp && "shrink-0",
+						)}
+					>
+						<QuickAddPills
+							value={value}
+							onChange={setValueFromPills}
+							projects={projects}
+							parsed={parsed}
+							isMobile={isMobile}
+							onPickProject={() => setProjectPickerOpen(true)}
+						/>
+					</div>
 				) : null}
 				<div
 					className={
@@ -264,9 +293,7 @@ export function QuickAdd() {
 							: "flex min-h-8 items-center gap-3 border-t border-border px-4 py-1.5 text-xs"
 					}
 				>
-					<div
-						className={isMobile ? "flex flex-col gap-1" : "contents"}
-					>
+					<div className={isMobile ? "flex flex-col gap-1" : "contents"}>
 						{parsed?.warnings.map((warning) => (
 							<span key={warning} className="text-p2">
 								{warning}
@@ -303,6 +330,25 @@ export function QuickAdd() {
 					) : null}
 				</div>
 			</div>
+			{isMobile ? (
+				<ProjectPickerSheet
+					open={projectPickerOpen}
+					onOpenChange={setProjectPickerOpen}
+					projects={projects}
+					selectedId={parsed?.input.projectId}
+					onSelect={(project) => {
+						// Rewrite the token rather than tracking project in separate
+						// state -- the text is the single source of truth here, so the
+						// pills and the editor can't disagree.
+						setValueFromPills(
+							insertToken(
+								removeAnyProjectToken(value),
+								`project:${project.name}`,
+							),
+						);
+					}}
+				/>
+			) : null}
 		</div>
 	);
 }

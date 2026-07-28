@@ -45,9 +45,15 @@ function useSwipeActions(task: Task, enabled: boolean) {
 	const gestureRef = useRef<{ x: number; y: number; locked: boolean } | null>(
 		null,
 	);
+	const swipedRef = useRef(false);
 
 	if (!enabled) {
-		return { dragX: 0, dragging: false, handlers: {} };
+		return {
+			dragX: 0,
+			dragging: false,
+			consumeSwipe: () => false,
+			handlers: {},
+		};
 	}
 
 	const withUndo = (message: string) => ({
@@ -113,6 +119,10 @@ function useSwipeActions(task: Task, enabled: boolean) {
 			setDragX(0);
 			return;
 		}
+		// A completed swipe is followed by a click event on the row. Flag it so
+		// the row's tap-to-edit handler can ignore that one, otherwise every
+		// swipe would also pop the editor open.
+		swipedRef.current = true;
 		if (dragX >= SWIPE_THRESHOLD) commit(1);
 		else if (dragX <= -SWIPE_THRESHOLD) commit(-1);
 		setDragX(0);
@@ -121,6 +131,12 @@ function useSwipeActions(task: Task, enabled: boolean) {
 	return {
 		dragX,
 		dragging,
+		/** True (once) if the click now arriving was the tail of a swipe. */
+		consumeSwipe: () => {
+			const was = swipedRef.current;
+			swipedRef.current = false;
+			return was;
+		},
 		handlers: {
 			onPointerDown: handlePointerDown,
 			onPointerMove: handlePointerMove,
@@ -138,6 +154,8 @@ export function TaskRow({
 	hasSubtasks,
 	expanded,
 	showProject,
+	onOpen,
+	onToggleExpand,
 }: {
 	task: Task;
 	project: Project | undefined;
@@ -146,13 +164,21 @@ export function TaskRow({
 	hasSubtasks: boolean;
 	expanded: boolean;
 	showProject: boolean;
+	/** Tap-to-edit on touch, where the `e` / enter hotkeys don't exist. */
+	onOpen?: () => void;
+	/** Chevron tap target, standing in for the `space` hotkey. */
+	onToggleExpand?: () => void;
 }) {
 	const completed = task.status === "completed";
 	const isMobile = useIsMobile();
 	// Swiping to delete an already-deleted row (the Deleted view) doesn't mean
 	// anything, so the gesture is only wired up everywhere else.
 	const swipeEnabled = isMobile && !task.deletedAt;
-	const { dragX, dragging, handlers } = useSwipeActions(task, swipeEnabled);
+	const { dragX, dragging, consumeSwipe, handlers } = useSwipeActions(
+		task,
+		swipeEnabled,
+	);
+	const tappable = isMobile && Boolean(onOpen);
 	// The chevron gutter exists to align expand/collapse controls across a
 	// mixed tree of parent and leaf tasks. On mobile that alignment isn't
 	// worth the width it eats on an already-narrow row, so leaf tasks (the
@@ -160,6 +186,15 @@ export function TaskRow({
 	// its icon.
 	const showChevronGutter = hasSubtasks || !isMobile;
 	const row = (
+		/*
+		 * biome-ignore lint/a11y/noStaticElementInteractions: the row can't become
+		 * a button -- it contains its own interactive children (task links and the
+		 * subtask disclosure), which nesting inside a button would break.
+		 * biome-ignore lint/a11y/useKeyWithClickEvents: this handler exists only to
+		 * give touch an equivalent of the `e` / enter hotkeys, which the global
+		 * hotkey scope already provides for keyboard users; it's attached solely on
+		 * mobile, where there is no key to press.
+		 */
 		<div
 			data-selected={selected || undefined}
 			className={cn(
@@ -184,18 +219,45 @@ export function TaskRow({
 						? "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)"
 						: undefined,
 			}}
+			onClick={
+				tappable
+					? () => {
+							// Swallow the click that trails a committed swipe.
+							if (consumeSwipe()) return;
+							onOpen?.();
+						}
+					: undefined
+			}
 			{...handlers}
 		>
 			{showChevronGutter ? (
-				<span className="mt-[3px] w-4 shrink-0 text-muted">
-					{hasSubtasks ? (
-						expanded ? (
+				hasSubtasks && onToggleExpand ? (
+					<button
+						type="button"
+						aria-label={expanded ? "Collapse subtasks" : "Expand subtasks"}
+						aria-expanded={expanded}
+						onClick={(e) => {
+							// Without this the row's tap-to-edit would fire too and the
+							// chevron could never collapse anything.
+							e.stopPropagation();
+							onToggleExpand();
+						}}
+						className={cn(
+							"-my-2.5 -ml-1 flex shrink-0 items-center justify-center text-muted",
+							// A 14px chevron is not a touch target; pad it out on mobile
+							// without changing the desktop row height.
+							isMobile ? "min-h-11 w-7" : "mt-[3px] w-4 self-start",
+						)}
+					>
+						{expanded ? (
 							<ChevronDown className="h-3.5 w-3.5" />
 						) : (
 							<ChevronRight className="h-3.5 w-3.5" />
-						)
-					) : null}
-				</span>
+						)}
+					</button>
+				) : (
+					<span className="mt-[3px] w-4 shrink-0 text-muted" />
+				)
 			) : null}
 			{completed ? (
 				<CheckCircle2 className="mt-[3px] h-4 w-4 shrink-0 text-p3" />

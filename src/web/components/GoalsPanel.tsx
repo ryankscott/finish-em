@@ -7,8 +7,10 @@ import type { Goal } from "@/server/types";
 
 import { cn } from "../lib/cn";
 import { useGoalMutations, useGoals } from "../lib/queries";
+import { useIsMobile } from "../lib/use-is-mobile";
 
 function GoalRow({ goal }: { goal: Goal }) {
+	const isMobile = useIsMobile();
 	const { updateGoal, deleteGoal } = useGoalMutations();
 	const [editing, setEditing] = useState(false);
 	const [title, setTitle] = useState(goal.title);
@@ -75,6 +77,9 @@ function GoalRow({ goal }: { goal: Goal }) {
 					{goal.title}
 				</span>
 			)}
+			{/* Touch has no hover, so gating these on group-hover left goals
+			    uneditable and undeletable on a phone. Always shown there, sized as
+			    real tap targets; desktop keeps the reveal-on-hover behaviour. */}
 			<button
 				type="button"
 				aria-label="Edit goal"
@@ -82,7 +87,12 @@ function GoalRow({ goal }: { goal: Goal }) {
 					setTitle(goal.title);
 					setEditing(true);
 				}}
-				className="hidden text-muted hover:text-foreground group-hover:block"
+				className={cn(
+					"text-muted hover:text-foreground",
+					isMobile
+						? "flex h-9 w-9 shrink-0 items-center justify-center"
+						: "hidden group-hover:block",
+				)}
 			>
 				<Pencil className="h-3.5 w-3.5" />
 			</button>
@@ -94,7 +104,12 @@ function GoalRow({ goal }: { goal: Goal }) {
 						onError: (err) => toast.error(err.message),
 					})
 				}
-				className="hidden text-muted hover:text-p1 group-hover:block"
+				className={cn(
+					"text-muted hover:text-p1",
+					isMobile
+						? "flex h-9 w-9 shrink-0 items-center justify-center"
+						: "hidden group-hover:block",
+				)}
 			>
 				<Trash2 className="h-3.5 w-3.5" />
 			</button>

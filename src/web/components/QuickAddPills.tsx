@@ -1,4 +1,4 @@
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, ChevronRight, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ParseTaskCreateResult } from "@/lib/parsing/parse-task-create-input";
 import type { Project } from "@/server/types";
@@ -196,12 +196,14 @@ export function QuickAddPills({
 	projects,
 	parsed,
 	isMobile,
+	onPickProject,
 }: {
 	value: string;
 	onChange: (value: string) => void;
 	projects: Project[];
 	parsed: ParseTaskCreateResult | null;
 	isMobile?: boolean;
+	onPickProject?: () => void;
 }) {
 	const MAX_PROJECT_PILLS = 5;
 
@@ -221,6 +223,8 @@ export function QuickAddPills({
 
 	const hasOverflow = overflowProjects.length > 0;
 	const overflowLabel = `+${overflowProjects.length}`;
+
+	const activeProject = projects.find((p) => p.id === activeProjectId);
 
 	/* ---------- priority ---------- */
 	function togglePriority(priority: number) {
@@ -366,7 +370,27 @@ export function QuickAddPills({
 				))}
 			</Section>
 
-			{visibleProjects.length > 0 ? (
+			{isMobile && onPickProject ? (
+				<Section label="Project">
+					<button
+						type="button"
+						onClick={onPickProject}
+						className="flex min-h-11 w-full items-center gap-2 rounded-md border border-border px-3 text-left text-sm"
+					>
+						{activeProject ? (
+							<>
+								<span className="shrink-0">{activeProject.emoji ?? "●"}</span>
+								<span className="min-w-0 flex-1 truncate text-foreground">
+									{activeProject.name}
+								</span>
+							</>
+						) : (
+							<span className="flex-1 text-muted">Choose project</span>
+						)}
+						<ChevronRight className="h-4 w-4 shrink-0 text-muted" />
+					</button>
+				</Section>
+			) : visibleProjects.length > 0 ? (
 				<Section label="Project">
 					{visibleProjects.map((project) => (
 						<Pill
