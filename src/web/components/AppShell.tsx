@@ -146,7 +146,10 @@ export function AppShell() {
 				</>
 			)}
 			<div className="flex min-w-0 flex-1 flex-col">
-				<header className="flex items-center gap-2 px-4 py-2 pt-safe">
+				{/* pt is max(), not pt-safe: pt-safe sets padding-top to the safe-area
+				    inset outright, which is 0 everywhere except iOS and so leaves the
+				    search row jammed against the top of the window. */}
+				<header className="flex items-center gap-3 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
 					{/* Standalone PWAs have no browser back button or edge-swipe, so a
 					    detail route without this is a dead end. */}
 					{isMobile && canGoBack ? (

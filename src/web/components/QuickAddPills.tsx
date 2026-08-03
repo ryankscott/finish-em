@@ -88,15 +88,17 @@ function Pill({
 			onClick={onClick}
 			title={title}
 			className={cn(
-				"inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors",
+				"inline-flex min-h-8 items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
 				"focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2",
 				active
 					? "border-p4 bg-p4/15 text-p4"
-					: "border-border text-muted hover:bg-surface-raised hover:text-foreground",
+					: // The quick-add panel is bg-surface-raised, so the pill fill has to
+						// step away from it to read as a button at all.
+						"border-border bg-surface text-muted hover:border-muted/50 hover:text-foreground",
 				className,
 			)}
 		>
-			{active ? <X className="h-3 w-3" /> : null}
+			{active ? <X className="h-3.5 w-3.5" /> : null}
 			{label}
 		</button>
 	);
@@ -137,13 +139,15 @@ function ProjectDropdown({
 				type="button"
 				onClick={() => setOpen(!open)}
 				className={cn(
-					"inline-flex items-center gap-0.5 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors",
-					"border-border text-muted hover:bg-surface-raised hover:text-foreground",
+					"inline-flex min-h-8 items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+					// The quick-add panel is bg-surface-raised, so the pill fill has to
+					// step away from it to read as a button at all.
+					"border-border bg-surface text-muted hover:border-muted/50 hover:text-foreground",
 					"focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2",
 				)}
 			>
 				{children}
-				<ChevronDown className="h-3 w-3" />
+				<ChevronDown className="h-4 w-4" />
 			</button>
 			{open ? (
 				<div className="absolute left-0 top-full z-50 mt-1 max-h-48 min-w-[12rem] overflow-auto rounded-md border border-border bg-surface-raised shadow-lg">
@@ -155,7 +159,7 @@ function ProjectDropdown({
 								onSelect(project);
 								setOpen(false);
 							}}
-							className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-foreground hover:bg-surface"
+							className="flex min-h-9 w-full items-center gap-2 px-3 py-2 text-left text-sm text-foreground hover:bg-surface"
 						>
 							{project.emoji ? (
 								<span className="text-sm">{project.emoji}</span>
@@ -182,10 +186,10 @@ function Section({
 }) {
 	return (
 		<div className="flex flex-col gap-1">
-			<span className="text-[10px] font-medium uppercase tracking-wide text-muted/70">
+			<span className="text-[11px] font-medium uppercase tracking-wide text-muted/70">
 				{label}
 			</span>
-			<div className="flex flex-wrap items-center gap-1.5">{children}</div>
+			<div className="flex flex-wrap items-center gap-2">{children}</div>
 		</div>
 	);
 }
@@ -347,8 +351,10 @@ export function QuickAddPills({
 	return (
 		<div
 			className={cn(
-				"px-4 py-2",
-				isMobile ? "flex flex-col gap-3" : "flex flex-wrap items-center gap-3",
+				"px-4 py-3",
+				isMobile
+					? "flex flex-col gap-4"
+					: "flex flex-wrap items-start gap-x-5 gap-y-4",
 			)}
 		>
 			<Section label="Priority">

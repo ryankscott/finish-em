@@ -200,7 +200,9 @@ export function TaskRow({
 			className={cn(
 				// Taller rows below md so a row is a comfortable tap target; the
 				// desktop density is unchanged.
-				"flex min-h-[44px] items-start gap-2 rounded-md px-3 py-2.5 md:min-h-0 md:py-1.5",
+				// px-2 here plus the list container's px-2 puts row content on the
+				// same 16px gutter as the page header and search bar.
+				"flex min-h-[44px] items-start gap-2 rounded-md px-2 py-2.5 md:min-h-0 md:py-1.5",
 				selected
 					? "bg-surface-raised ring-1 ring-accent/60"
 					: "hover:bg-surface",
