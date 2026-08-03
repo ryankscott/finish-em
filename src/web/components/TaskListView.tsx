@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ensureScheme, toDisplaySegments } from "@/lib/task-links";
 import type { Task } from "@/server/types";
@@ -28,6 +28,7 @@ export function TaskListView({
 	deletedView = false,
 	defaultProjectId,
 	disableOpenLink = false,
+	sectionLabels,
 }: {
 	tasks: Task[];
 	emptyMessage?: string;
@@ -35,6 +36,12 @@ export function TaskListView({
 	deletedView?: boolean;
 	defaultProjectId?: number;
 	disableOpenLink?: boolean;
+	/**
+	 * Task id -> heading rendered immediately above that task. Lets a caller
+	 * split one list into labelled groups without splitting it into separate
+	 * TaskListViews, which would give each group its own keyboard cursor.
+	 */
+	sectionLabels?: Map<number, string>;
 }) {
 	const { data: projects = [] } = useProjects();
 	const { completeTask, deleteTask, undeleteTask } = useTaskMutations();
@@ -172,25 +179,35 @@ export function TaskListView({
 	return (
 		<>
 			<div ref={containerRef} className="flex flex-col gap-0.5 px-2 py-2">
-				{rows.map((row, index) => (
-					<TaskRow
-						key={row.task.id}
-						task={row.task}
-						project={projectById.get(row.task.projectId)}
-						selected={index === clampedIndex}
-						depth={row.depth}
-						hasSubtasks={row.hasSubtasks}
-						expanded={row.expanded}
-						showProject={showProject}
-						onOpen={() => {
-							// Keep the keyboard cursor in sync with what was tapped, so a
-							// later hotkey acts on the row the user just touched.
-							setSelectedIndex(index);
-							ui.openTaskEditor(row.task);
-						}}
-						onToggleExpand={() => toggleExpanded(row.task.id)}
-					/>
-				))}
+				{rows.map((row, index) => {
+					const heading =
+						row.depth === 0 ? sectionLabels?.get(row.task.id) : undefined;
+					return (
+						<Fragment key={row.task.id}>
+							{heading ? (
+								<span className="px-2 pt-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted/70 first:pt-0">
+									{heading}
+								</span>
+							) : null}
+							<TaskRow
+								task={row.task}
+								project={projectById.get(row.task.projectId)}
+								selected={index === clampedIndex}
+								depth={row.depth}
+								hasSubtasks={row.hasSubtasks}
+								expanded={row.expanded}
+								showProject={showProject}
+								onOpen={() => {
+									// Keep the keyboard cursor in sync with what was tapped, so a
+									// later hotkey acts on the row the user just touched.
+									setSelectedIndex(index);
+									ui.openTaskEditor(row.task);
+								}}
+								onToggleExpand={() => toggleExpanded(row.task.id)}
+							/>
+						</Fragment>
+					);
+				})}
 			</div>
 			<LinkPickerDialog
 				open={pickerLinks !== null}

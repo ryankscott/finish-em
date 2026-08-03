@@ -7,7 +7,10 @@ import { Separator } from "@/components/ui/separator";
 import { isOverdueTask } from "@/lib/datetime";
 import { ensureScheme } from "@/lib/task-links";
 
-import { LinkPickerDialog, type LinkChoice } from "../components/LinkPickerDialog";
+import {
+	type LinkChoice,
+	LinkPickerDialog,
+} from "../components/LinkPickerDialog";
 import { ProjectHeader } from "../components/ProjectHeader";
 import { TaskListView } from "../components/TaskListView";
 import { useHotkeyScope } from "../lib/hotkeys";
@@ -39,15 +42,25 @@ export function TodayView() {
 		status: "open",
 		to: startOfDay(now).toISOString(),
 	});
-	const tasks = useMemo(() => {
+	const { tasks, sectionLabels } = useMemo(() => {
 		const overdue = pastTasks.filter((t) => isOverdueTask(t, now));
 		const overdueIds = new Set(overdue.map((t) => t.id));
-		return [...overdue, ...todayTasks.filter((t) => !overdueIds.has(t.id))];
+		const due = todayTasks.filter((t) => !overdueIds.has(t.id));
+		// Overdue tasks were already mixed into this view but looked identical to
+		// today's; the headings separate them without hiding either group.
+		const labels = new Map<number, string>();
+		if (overdue.length > 0) labels.set(overdue[0].id, "Overdue");
+		if (due.length > 0 && overdue.length > 0) labels.set(due[0].id, "Today");
+		return { tasks: [...overdue, ...due], sectionLabels: labels };
 	}, [todayTasks, pastTasks]);
 	return (
 		<>
 			<ViewTitle title="Today" count={tasks.length} />
-			<TaskListView tasks={tasks} emptyMessage="Nothing due today" />
+			<TaskListView
+				tasks={tasks}
+				emptyMessage="Nothing due today"
+				sectionLabels={sectionLabels}
+			/>
 		</>
 	);
 }
@@ -77,7 +90,11 @@ export function RecurringView() {
 	return (
 		<>
 			<ViewTitle title="Recurring" count={tasks.length} />
-			<TaskListView tasks={tasks} emptyMessage="No recurring tasks" showProject={true} />
+			<TaskListView
+				tasks={tasks}
+				emptyMessage="No recurring tasks"
+				showProject={true}
+			/>
 		</>
 	);
 }
