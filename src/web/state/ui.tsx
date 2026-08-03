@@ -11,6 +11,17 @@ export type ProjectDialogState =
 	| { mode: "create" }
 	| { mode: "edit"; project: Project };
 
+declare global {
+	interface Window {
+		// Present only inside the macOS WKWebView shell (desktop/FinishEmApp.swift).
+		webkit?: {
+			messageHandlers?: {
+				appearance?: { postMessage: (message: string) => void };
+			};
+		};
+	}
+}
+
 const MIN_SIDEBAR_WIDTH = 160;
 const MAX_SIDEBAR_WIDTH = 480;
 const DEFAULT_SIDEBAR_WIDTH = 240;
@@ -86,11 +97,30 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 	const [paletteOpen, setPaletteOpen] = useState(false);
 	const [sidebarVisible, setSidebarVisible] = useState(true);
 	const [search, setSearch] = useState("");
-	const [theme, setTheme] = useState<"dark" | "light">(() => {
-		const stored = localStorage.getItem("theme");
-		if (stored === "light" || stored === "dark") return stored;
-		return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-	});
+	// "system" means: track the OS appearance live. An explicit toggle pins the
+	// theme; only a pinned theme is persisted, so an app that has never been
+	// toggled keeps following the OS instead of freezing on whatever the OS
+	// happened to be the first time it ran.
+	const [themeMode, setThemeMode] = useState<"system" | "dark" | "light">(
+		() => {
+			const stored = localStorage.getItem("theme");
+			return stored === "light" || stored === "dark" ? stored : "system";
+		},
+	);
+	const [systemTheme, setSystemTheme] = useState<"dark" | "light">(() =>
+		window.matchMedia("(prefers-color-scheme: light)").matches
+			? "light"
+			: "dark",
+	);
+	const theme = themeMode === "system" ? systemTheme : themeMode;
+
+	useEffect(() => {
+		const query = window.matchMedia("(prefers-color-scheme: light)");
+		const onChange = (e: MediaQueryListEvent) =>
+			setSystemTheme(e.matches ? "light" : "dark");
+		query.addEventListener("change", onChange);
+		return () => query.removeEventListener("change", onChange);
+	}, []);
 	const [sidebarWidth, setSidebarWidthRaw] = useState(() =>
 		readStoredNumber("sidebarWidth", DEFAULT_SIDEBAR_WIDTH),
 	);
@@ -105,8 +135,12 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		// other stuck on, which is what happens if only "light" is toggled.
 		document.documentElement.classList.toggle("dark", theme === "dark");
 		document.documentElement.classList.toggle("light", theme === "light");
-		localStorage.setItem("theme", theme);
-	}, [theme]);
+		if (themeMode === "system") localStorage.removeItem("theme");
+		else localStorage.setItem("theme", themeMode);
+		// The native desktop shell draws its own titlebar, which stays on the OS
+		// appearance unless we tell it which way the web UI went.
+		window.webkit?.messageHandlers?.appearance?.postMessage(theme);
+	}, [theme, themeMode]);
 
 	useEffect(() => {
 		localStorage.setItem("sidebarWidth", String(sidebarWidth));
@@ -144,7 +178,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			search,
 			setSearch,
 			theme,
-			toggleTheme: () => setTheme((t) => (t === "dark" ? "light" : "dark")),
+			toggleTheme: () => setThemeMode(theme === "dark" ? "light" : "dark"),
 		}),
 		[
 			quickAdd,

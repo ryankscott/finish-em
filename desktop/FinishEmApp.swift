@@ -25,7 +25,9 @@ func logFileURL() -> URL {
 	return dir.appendingPathComponent("desktop-server.log")
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate,
+	WKScriptMessageHandler
+{
 	let port = resolvePort()
 	var window: NSWindow!
 	var webView: WKWebView!
@@ -96,6 +98,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 
 	func buildWindow() {
 		let config = WKWebViewConfiguration()
+		// The web UI posts its resolved theme here so the native titlebar can
+		// match it; without this the titlebar follows the OS appearance and can
+		// end up dark above a light app (or the reverse).
+		config.userContentController.add(self, name: "appearance")
 		webView = WKWebView(
 			frame: NSRect(x: 0, y: 0, width: 1100, height: 800),
 			configuration: config)
@@ -117,6 +123,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 
 	func loadApp() {
 		webView.load(URLRequest(url: baseURL))
+	}
+
+	// MARK: - Appearance
+
+	func userContentController(
+		_ userContentController: WKUserContentController,
+		didReceive message: WKScriptMessage
+	) {
+		guard message.name == "appearance", let theme = message.body as? String else { return }
+		let appearance: NSAppearance? =
+			theme == "dark"
+			? NSAppearance(named: .darkAqua)
+			: theme == "light" ? NSAppearance(named: .aqua) : nil
+		guard let appearance else { return }
+		window.appearance = appearance
 	}
 
 	// MARK: - External links
