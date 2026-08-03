@@ -33,13 +33,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 	var webView: WKWebView!
 	var serverProcess: Process?
 
-	// When FINISH_EM_REMOTE_URL is set the app is a thin shell over the deployed
-	// Cloudflare Worker: no bundled server, no local database. Unset, it keeps
-	// the original self-contained behaviour against a local server.
+	// With a remote URL the app is a thin shell over the deployed Cloudflare
+	// Worker: no bundled server, no local database. Without one it keeps the
+	// original self-contained behaviour against a local server.
+	//
+	// The URL is baked into Info.plist at build time (see
+	// scripts/build-desktop-app.sh), so a built .app targets the Worker without
+	// depending on ambient environment state. FINISH_EM_REMOTE_URL still wins
+	// when set, as an escape hatch for pointing a build at a staging Worker or
+	// forcing local mode with FINISH_EM_REMOTE_URL=""; it is deliberately not
+	// how a normal build is configured.
 	let remoteURL: URL? = {
-		guard let raw = ProcessInfo.processInfo.environment["FINISH_EM_REMOTE_URL"],
-			  !raw.trimmingCharacters(in: .whitespaces).isEmpty,
-			  let url = URL(string: raw.trimmingCharacters(in: .whitespaces)),
+		let env = ProcessInfo.processInfo.environment["FINISH_EM_REMOTE_URL"]
+		let baked = Bundle.main.object(forInfoDictionaryKey: "FinishEmRemoteURL") as? String
+		guard let raw = env ?? baked else { return nil }
+		let trimmed = raw.trimmingCharacters(in: .whitespaces)
+		guard !trimmed.isEmpty,
+			  let url = URL(string: trimmed),
 			  url.scheme != nil
 		else { return nil }
 		return url

@@ -28,6 +28,13 @@ PLIST_PATH="${CONTENTS_DIR}/Info.plist"
 export PATH="$HOME/.bun/bin:$PATH"
 VERSION="$(bun -e "import pkg from './package.json' assert { type: 'json' }; console.log(pkg.version ?? '0.0.0')" 2>/dev/null || echo "0.0.0")"
 
+# The deployed Worker the built app talks to. Baked into Info.plist so the .app
+# is self-describing rather than depending on ambient environment state, which
+# would also leak into dev. Override for a staging build with
+# FINISH_EM_REMOTE_URL=..., or build a local-server app with
+# FINISH_EM_REMOTE_URL="" bun run desktop:app
+REMOTE_URL="${FINISH_EM_REMOTE_URL-https://finish-em.ryankennethscott.workers.dev}"
+
 cd "${REPO_ROOT}"
 bash scripts/build-desktop-binary.sh
 
@@ -92,6 +99,8 @@ cat > "${PLIST_PATH}" <<EOF
   <string>${VERSION}</string>
   <key>LSMinimumSystemVersion</key>
   <string>13.0</string>
+  <key>FinishEmRemoteURL</key>
+  <string>${REMOTE_URL}</string>
   <key>NSHighResolutionCapable</key>
   <true/>
   <key>NSAppTransportSecurity</key>
