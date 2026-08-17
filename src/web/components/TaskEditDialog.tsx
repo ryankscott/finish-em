@@ -1,4 +1,4 @@
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight, Plus, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -45,6 +45,22 @@ const PRIORITY_LABELS: Record<number, string> = {
 	3: "Normal",
 	4: "Low",
 };
+
+// claude:// opens Claude Desktop directly; q is prefilled into the prompt
+// field there (truncated by the app at ~14k chars, so clamp well under that).
+function buildClaudeDelegateHref(
+	title: string,
+	projectName: string | undefined,
+	dueLabel: string,
+	notes: string,
+): string {
+	const lines = [`Task: ${title}`];
+	if (projectName) lines.push(`Project: ${projectName}`);
+	if (dueLabel) lines.push(`Due: ${dueLabel}`);
+	if (notes.trim()) lines.push("", notes.trim());
+	const prompt = lines.join("\n").slice(0, 8000);
+	return `claude://claude.ai/new?q=${encodeURIComponent(prompt)}`;
+}
 
 export function TaskEditDialog() {
 	const ui = useUi();
@@ -320,6 +336,23 @@ export function TaskEditDialog() {
 					<Plus className="h-4 w-4" />
 					Add subtask
 				</button>
+			) : null}
+			{task ? (
+				<a
+					href={buildClaudeDelegateHref(
+						title,
+						selectedProject?.name,
+						due,
+						notes,
+					)}
+					className={cn(
+						"flex items-center justify-center gap-2 rounded-md border border-border text-sm text-muted hover:bg-surface hover:text-foreground",
+						isMobile ? "min-h-11" : "px-3 py-2",
+					)}
+				>
+					<Sparkles className="h-4 w-4" />
+					Delegate to Claude
+				</a>
 			) : null}
 		</div>
 	);
