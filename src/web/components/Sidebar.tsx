@@ -167,7 +167,7 @@ function ProjectNavLink({
 				className={cn(
 					"text-muted hover:text-foreground",
 					isDrawer
-						? "flex h-8 w-8 shrink-0 items-center justify-center"
+						? "flex h-11 w-11 shrink-0 items-center justify-center"
 						: "hidden group-hover:block",
 				)}
 			>
@@ -180,7 +180,7 @@ function ProjectNavLink({
 				className={cn(
 					"text-muted hover:text-p1",
 					isDrawer
-						? "flex h-8 w-8 shrink-0 items-center justify-center"
+						? "flex h-11 w-11 shrink-0 items-center justify-center"
 						: "hidden group-hover:block",
 				)}
 			>

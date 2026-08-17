@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import type { RecurrencePreset } from "@/server/types";
+import { cn } from "../lib/cn";
+import { useIsMobile } from "../lib/use-is-mobile";
 
 type RecurrenceFreq = "none" | "daily" | "weekly" | "monthly" | "yearly";
 type RecurrenceEndType = "none" | "count" | "until";
@@ -277,6 +279,7 @@ export function RecurrenceSelector({
 	startDate,
 	onChange,
 }: RecurrenceSelectorProps) {
+	const isMobile = useIsMobile();
 	const [open, setOpen] = useState(false);
 	const [draftConfig, setDraftConfig] = useState<RecurrenceConfig>(
 		defaultConfig,
@@ -335,7 +338,10 @@ export function RecurrenceSelector({
 					<span className="truncate text-sm">{triggerLabel}</span>
 				</button>
 			</PopoverTrigger>
-			<PopoverContent className="w-80 p-4" align="start">
+			<PopoverContent
+				className={cn(isMobile ? "w-[calc(100vw-2rem)] max-w-sm" : "w-80", "p-4")}
+				align="start"
+			>
 				<p className="mb-3 text-sm font-semibold">Recurrence</p>
 
 				{/* Start date */}
@@ -396,9 +402,23 @@ export function RecurrenceSelector({
 
 						{/* Day-of-week toggles (weekly only) */}
 						{draftConfig.freq === "weekly" && (
-							<div className="mb-3 flex items-center gap-3">
+							<div
+								className={cn(
+									"mb-3",
+									// The day row needs its full width for 7 44px-ish touch
+									// targets; stacked, not squeezed next to a label column.
+									isMobile
+										? "flex flex-col gap-2"
+										: "flex items-center gap-3",
+								)}
+							>
 								<Label className="w-16 shrink-0 text-sm">On</Label>
-								<div className="flex gap-1">
+								<div
+									className={cn(
+										"flex",
+										isMobile ? "justify-between gap-1" : "gap-1",
+									)}
+								>
 									{DAY_CODES.map((day) => {
 										const active = draftConfig.byDay.includes(day);
 										return (
@@ -406,11 +426,13 @@ export function RecurrenceSelector({
 												key={day}
 												type="button"
 												onClick={() => toggleDay(day)}
-												className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors ${
+												className={cn(
+													"flex items-center justify-center rounded-full font-medium transition-colors",
+													isMobile ? "h-9 w-9 text-sm" : "h-7 w-7 text-xs",
 													active
 														? "bg-accent text-background"
-														: "border border-border text-muted hover:bg-surface"
-												}`}
+														: "border border-border text-muted hover:bg-surface",
+												)}
 											>
 												{DAY_LABELS[day]}
 											</button>
