@@ -288,7 +288,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 		<aside
 			style={isDrawer ? undefined : { width: ui.sidebarWidth }}
 			className={cn(
-				"flex flex-col gap-0.5 overflow-y-auto p-2",
+				"flex flex-col gap-0.5 overflow-y-auto overscroll-contain p-2",
 				isDrawer
 					? "h-full w-full"
 					: "shrink-0 border-r border-border bg-surface/50",
