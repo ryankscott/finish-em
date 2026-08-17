@@ -10,8 +10,10 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { parseDatePhrase } from "@/lib/parsing/parse-task-input";
 import { cn } from "@/web/lib/cn";
+import { useIsMobile } from "../lib/use-is-mobile";
 
 type Preset = {
 	label: string;
@@ -32,12 +34,21 @@ const chipClass =
 const activeChipClass =
 	"rounded-full border border-accent/60 bg-accent/10 px-2.5 py-0.5 text-[11px] leading-tight text-accent cursor-pointer select-none";
 
+// Mobile presets are tap targets, not inline chips: 44px minimum, not the
+// desktop pill sized for a mouse pointer.
+const mobileChipClass =
+	"min-h-11 flex-1 rounded-md border border-border px-2 text-sm text-muted";
+
+const mobileActiveChipClass =
+	"min-h-11 flex-1 rounded-md border border-accent/60 bg-accent/10 px-2 text-sm text-accent";
+
 interface DateFieldProps {
 	value: string;
 	onChange: (value: string) => void;
 }
 
 export function DateField({ value, onChange }: DateFieldProps) {
+	const isMobile = useIsMobile();
 	const [open, setOpen] = useState(false);
 	const trimmed = value.trim().toLowerCase();
 
@@ -96,47 +107,104 @@ export function DateField({ value, onChange }: DateFieldProps) {
 		onChange(resolved ?? "");
 	};
 
+	const presets = (
+		<div className={cn("flex gap-1.5", isMobile ? "" : "flex-wrap items-center")}>
+			{PRESETS.map((preset) => (
+				<button
+					key={preset.value}
+					type="button"
+					onClick={() => handlePresetClick(preset.value)}
+					className={
+						isMobile
+							? isPresetActive(preset.value)
+								? mobileActiveChipClass
+								: mobileChipClass
+							: isPresetActive(preset.value)
+								? activeChipClass
+								: chipClass
+					}
+				>
+					{preset.label}
+				</button>
+			))}
+		</div>
+	);
+
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="relative">
-				<Input value={value} onChange={(e) => onChange(e.target.value)} />
-				<Popover open={open} onOpenChange={setOpen}>
-					<PopoverTrigger asChild>
-						<Button
-							variant="ghost"
-							size="icon"
-							className={cn(
-								"absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted hover:text-accent",
-							)}
-							title="Pick a date"
+				<Input
+					value={value}
+					onChange={(e) => onChange(e.target.value)}
+					className={isMobile ? "h-11 text-base" : undefined}
+				/>
+				{isMobile ? (
+					<>
+						<button
+							type="button"
+							aria-label="Pick a date"
+							onClick={() => setOpen(true)}
+							className="absolute top-1/2 right-1 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-muted hover:text-accent"
 						>
 							<CalendarIcon className="h-4 w-4" />
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent className="w-auto p-0" align="end">
-						<Calendar
-							mode="single"
-							selected={selectedDate}
-							onSelect={handleCalendarSelect}
-							initialFocus
-						/>
-					</PopoverContent>
-				</Popover>
+						</button>
+						<Sheet open={open} onOpenChange={setOpen}>
+							<SheetContent
+								side="bottom"
+								showClose={false}
+								className="flex max-h-none flex-col rounded-t-xl p-0"
+								aria-describedby={undefined}
+							>
+								<div className="flex items-center justify-between px-4 pt-4 pb-1">
+									<SheetTitle>Pick a date</SheetTitle>
+									<button
+										type="button"
+										onClick={() => setOpen(false)}
+										className="min-h-9 px-2 text-sm text-muted"
+									>
+										Cancel
+									</button>
+								</div>
+								<div className="flex justify-center px-2 pb-2">
+									<Calendar
+										mode="single"
+										selected={selectedDate}
+										onSelect={handleCalendarSelect}
+										initialFocus
+									/>
+								</div>
+								<div className="flex gap-1.5 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+									{presets}
+								</div>
+							</SheetContent>
+						</Sheet>
+					</>
+				) : (
+					<Popover open={open} onOpenChange={setOpen}>
+						<PopoverTrigger asChild>
+							<Button
+								variant="ghost"
+								size="icon"
+								className={cn(
+									"absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted hover:text-accent",
+								)}
+								title="Pick a date"
+							>
+								<CalendarIcon className="h-4 w-4" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-auto p-0" align="end">
+							<Calendar
+								mode="single"
+								selected={selectedDate}
+								onSelect={handleCalendarSelect}
+								initialFocus
+							/>
+						</PopoverContent>
+					</Popover>
+				)}
 			</div>
-			<div className="flex flex-wrap items-center gap-1.5">
-				{PRESETS.map((preset) => (
-					<button
-						key={preset.value}
-						type="button"
-						onClick={() => handlePresetClick(preset.value)}
-						className={
-							isPresetActive(preset.value) ? activeChipClass : chipClass
-						}
-					>
-						{preset.label}
-					</button>
-				))}
-			</div>
+			{isMobile ? null : presets}
 		</div>
 	);
 }
