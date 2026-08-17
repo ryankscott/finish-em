@@ -161,6 +161,12 @@ export function TaskEditDialog() {
 					// user has seen what they're editing.
 					autoFocus={!isMobile}
 					className={isMobile ? "h-11 text-base" : undefined}
+					// Titles routinely start with lowercase token-like words (e.g. a
+					// pasted "project:Work" fragment); iOS's default autocapitalize
+					// keeps "fixing" that, same as QuickAdd's editor.
+					autoCorrect="off"
+					autoCapitalize="off"
+					spellCheck={false}
 				/>
 			</div>
 			<div className={twoCol}>
