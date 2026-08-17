@@ -131,6 +131,7 @@ function useInvalidateTasks() {
 		queryClient.invalidateQueries({ queryKey: ["tasks"] });
 		queryClient.invalidateQueries({ queryKey: ["projects"] });
 		queryClient.invalidateQueries({ queryKey: ["reminders"] });
+		queryClient.invalidateQueries({ queryKey: ["completions"] });
 	};
 }
 

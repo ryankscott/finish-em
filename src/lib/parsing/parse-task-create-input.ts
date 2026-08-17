@@ -9,7 +9,7 @@ import {
 } from "date-fns";
 
 import type { Priority, Project, RecurrencePreset } from "../../server/types";
-import { extractTokenValue } from "./token-input";
+import { extractTokenValue, maskUrls } from "./token-input";
 
 type TaskCreateInput = {
 	title: string;
@@ -198,9 +198,13 @@ export function parseTaskCreateInput(
 		};
 	}
 
+	// URLs and email addresses are masked so their colons and path segments are
+	// never mistaken for tokens; the originals are restored at the end.
+	const { masked, restore } = maskUrls(trimmed);
+
 	const usedTokens =
 		/(\btitle:|\bproject:|\bproj:|\bpriority:|\bprio:|\bdue:|⏰|\bscheduled:|\bsch:|🗓|\bnotes:|\bparent:|\brecurs:|\brec:|\brecurrence:|🔁|🚩\s*[1-4]|\bp[1-4]\b|📁)/i.test(
-			trimmed,
+			masked,
 		);
 	if (!usedTokens) {
 		return {
@@ -211,10 +215,10 @@ export function parseTaskCreateInput(
 		};
 	}
 
-	let working = trimmed;
+	let working = masked;
 	const result: Partial<TaskCreateInput> = {};
 
-	const unknownTokens = [...trimmed.matchAll(/\b([a-z_]+):/gi)]
+	const unknownTokens = [...masked.matchAll(/\b([a-z_]+):/gi)]
 		.map((match) => match[1]?.toLowerCase())
 		.filter(
 			(key) =>
@@ -425,10 +429,13 @@ export function parseTaskCreateInput(
 		errors.push('title is required (use plain text or "title:")');
 	}
 
+	if (result.title !== undefined) result.title = restore(result.title);
+	if (result.notes !== undefined) result.notes = restore(result.notes);
+
 	return {
 		input: result,
-		warnings,
-		errors,
+		warnings: warnings.map(restore),
+		errors: errors.map(restore),
 		usedTokens: true,
 	};
 }

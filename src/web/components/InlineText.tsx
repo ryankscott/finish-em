@@ -1,5 +1,7 @@
 import { ensureScheme, toDisplaySegments } from "@/lib/task-links";
 
+import { LinkIcon } from "./LinkIcon";
+
 export function InlineText({ text }: { text: string }) {
 	const segments = toDisplaySegments(text);
 
@@ -18,6 +20,10 @@ export function InlineText({ text }: { text: string }) {
 						onClick={(e) => e.stopPropagation()}
 						className="rounded px-0.5 text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
 					>
+						<LinkIcon
+							url={seg.url}
+							className="mr-0.5 inline h-3 w-3 shrink-0 align-[-0.125em] no-underline"
+						/>
 						{seg.displayLabel}
 					</a>
 				);

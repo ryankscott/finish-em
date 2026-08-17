@@ -105,9 +105,27 @@ describe("task-links", () => {
 			expect(getLinkDisplayLabel("https://docs.example.com/spec", null)).toBe(
 				"spec",
 			);
+		});
+
+		it("prefers a service-aware label when the URL matches a known service", () => {
 			expect(getLinkDisplayLabel("https://github.com/user/repo", null)).toBe(
-				"repo",
+				"user/repo",
 			);
+			expect(
+				getLinkDisplayLabel("https://github.com/user/repo/pull/42", null),
+			).toBe("user/repo#42");
+			expect(
+				getLinkDisplayLabel(
+					"https://myco.atlassian.net/browse/PROJ-123",
+					null,
+				),
+			).toBe("PROJ-123");
+		});
+
+		it("still prefers an explicit custom label over a service-aware label", () => {
+			expect(
+				getLinkDisplayLabel("https://github.com/user/repo/pull/42", "My PR"),
+			).toBe("My PR");
 		});
 
 		it("returns hostname when URL has no meaningful path", () => {
@@ -125,13 +143,13 @@ describe("task-links", () => {
 			).toBe("hello world");
 		});
 
-		it("uses last segment for deep paths (Confluence-style URLs)", () => {
+		it("derives a readable title for deep paths (Confluence-style URLs)", () => {
 			expect(
 				getLinkDisplayLabel(
 					"https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page+Title",
 					null,
 				),
-			).toBe("My+Page+Title");
+			).toBe("My Page Title");
 		});
 
 		it("returns fallback when URL is empty or throws", () => {
@@ -263,13 +281,13 @@ describe("task-links", () => {
 			);
 		});
 
-		it("uses last path segment for deep URLs", () => {
+		it("derives a readable title for deep Confluence URLs", () => {
 			expect(
 				normalizeBareUrlsInText(
 					"https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page",
 				),
 			).toBe(
-				"[My+Page](https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page)",
+				"[My Page](https://idexx.atlassian.net/wiki/spaces/DEV/pages/123/My+Page)",
 			);
 		});
 
@@ -329,7 +347,7 @@ describe("task-links", () => {
 				"https://idexx.atlassian.net/wiki/spaces/DEV/pages/6058935682/2025-02-27+ezyVet+Feature+Release+Process",
 			);
 			expect(links[0].displayLabel).toBe(
-				"2025-02-27+ezyVet+Feature+Release+Process",
+				"2025 02 27 ezyVet Feature Release Process",
 			);
 		});
 	});

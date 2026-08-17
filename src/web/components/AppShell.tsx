@@ -24,6 +24,7 @@ import { ProjectDialog } from "./ProjectDialog";
 import { QuickAdd } from "./QuickAdd";
 import { ReminderWatcher } from "./ReminderWatcher";
 import { Sidebar } from "./Sidebar";
+import { StatusBar } from "./StatusBar";
 import { TaskEditDialog } from "./TaskEditDialog";
 
 const VIEW_KEYS = [
@@ -203,6 +204,12 @@ export function AppShell() {
 				<main className="flex min-h-0 flex-1 flex-col overflow-y-auto">
 					<Outlet />
 				</main>
+				{isMobile ? null : (
+					<>
+						<Separator />
+						<StatusBar />
+					</>
+				)}
 				{isMobile ? (
 					<MobileNav
 						pathname={pathname}

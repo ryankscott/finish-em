@@ -1,6 +1,6 @@
 import { isValid, parseISO } from "date-fns";
 import { lookup as emojiShortcodeLookup } from "../emoji-shortcodes";
-import { extractTokenValue } from "./token-input";
+import { extractTokenValue, maskUrls } from "./token-input";
 
 type ProjectCreateInput = {
 	name: string;
@@ -104,9 +104,13 @@ export function parseProjectCreateInput(
 		};
 	}
 
+	// URLs and email addresses are masked so their colons are never mistaken for
+	// tokens; the originals are restored at the end.
+	const { masked, restore } = maskUrls(trimmed);
+
 	const usedTokens =
 		/(\bname:|\bemoji:|\bdescription:|\bstart:|\bend:|\bcolor:|\binbox:)/i.test(
-			trimmed,
+			masked,
 		);
 	if (!usedTokens) {
 		return {
@@ -117,7 +121,7 @@ export function parseProjectCreateInput(
 		};
 	}
 
-	let working = trimmed;
+	let working = masked;
 	const result: Partial<ProjectCreateInput> = {};
 
 	const knownKeys = [
@@ -129,7 +133,7 @@ export function parseProjectCreateInput(
 		"color",
 		"inbox",
 	];
-	const unknownTokens = [...trimmed.matchAll(/\b([a-z_]+):/gi)]
+	const unknownTokens = [...masked.matchAll(/\b([a-z_]+):/gi)]
 		.map((match) => match[1]?.toLowerCase())
 		.filter((key) => key && !knownKeys.includes(key));
 	for (const unknown of unknownTokens) {
@@ -259,10 +263,15 @@ export function parseProjectCreateInput(
 		errors.push('name is required (use plain text or "name:")');
 	}
 
+	if (result.name !== undefined) result.name = restore(result.name);
+	if (result.description !== undefined) {
+		result.description = restore(result.description);
+	}
+
 	return {
 		input: result,
-		warnings,
-		errors,
+		warnings: warnings.map(restore),
+		errors: errors.map(restore),
 		usedTokens: true,
 	};
 }

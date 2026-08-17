@@ -57,4 +57,13 @@ describe("tokenizeQuickAdd", () => {
 			{ text: " b", kind: null },
 		]);
 	});
+
+	it("does not highlight tokens inside a URL", () => {
+		const url = "https://example.com/p1/due:today";
+		const segs = tokenizeQuickAdd(`see ${url} p2`, PROJECTS);
+		expect(segs).toEqual([
+			{ text: `see ${url} `, kind: null },
+			{ text: "p2", kind: "priority" },
+		]);
+	});
 });

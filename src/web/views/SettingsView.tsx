@@ -11,6 +11,7 @@ import {
 	useSettings,
 	useSettingsMutations,
 } from "../lib/queries";
+import { useUi } from "../state/ui";
 import { ViewTitle } from "./SimpleViews";
 
 function Section({
@@ -44,6 +45,7 @@ export function SettingsView() {
 	const { data: settings } = useSettings();
 	const { updateSettings } = useSettingsMutations();
 	const { refreshCalendar } = useCalendarMutations();
+	const ui = useUi();
 
 	const [timezone, setTimezone] = useState("");
 	const [icsUrl, setIcsUrl] = useState("");
@@ -145,6 +147,27 @@ export function SettingsView() {
 								Last synced {relative(settings.calendarLastSyncedAt)}
 							</span>
 						) : null}
+					</div>
+				</Section>
+
+				<Section title="Daily goal">
+					<div className="flex flex-col gap-1">
+						<Label>Tasks to complete per day</Label>
+						<Input
+							type="number"
+							min={1}
+							max={100}
+							value={ui.dailyTarget}
+							onChange={(e) => {
+								const parsed = Number.parseInt(e.target.value, 10);
+								if (!Number.isNaN(parsed)) ui.setDailyTarget(parsed);
+							}}
+							className="max-w-24"
+						/>
+						<span className="text-xs text-muted">
+							Drives the nyan cat's progress in the status bar. Stored on this
+							device only.
+						</span>
 					</div>
 				</Section>
 			</div>

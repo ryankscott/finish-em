@@ -1,10 +1,11 @@
 import { format, parseISO } from "date-fns";
-import { ExternalLink, Pencil } from "lucide-react";
+import { Pencil } from "lucide-react";
 
 import type { Project } from "@/server/types";
 
 import { useUi } from "../state/ui";
 import { InlineText } from "./InlineText";
+import { LinkIcon } from "./LinkIcon";
 
 function shortUrl(url: string): string {
 	try {
@@ -25,11 +26,11 @@ function LinkLine({ label, url }: { label: string; url: string }) {
 			<a
 				href={url}
 				target="_blank"
-				rel="noreferrer"
+				rel="noopener noreferrer"
 				className="flex min-w-0 items-center gap-1 text-accent hover:underline"
 			>
+				<LinkIcon url={url} className="h-3 w-3 shrink-0" />
 				<span className="truncate">{shortUrl(url)}</span>
-				<ExternalLink className="h-3 w-3 shrink-0" />
 			</a>
 		</div>
 	);
@@ -63,7 +64,9 @@ export function ProjectHeader({
 			</div>
 
 			{project.description ? (
-				<p className="mt-1 text-sm text-muted"><InlineText text={project.description} /></p>
+				<p className="mt-1 text-sm text-muted">
+					<InlineText text={project.description} />
+				</p>
 			) : null}
 
 			{project.startAt || project.endAt ? (

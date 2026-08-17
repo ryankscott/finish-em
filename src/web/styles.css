@@ -85,3 +85,48 @@ body {
 		outline-offset: -2px;
 	}
 }
+
+@keyframes nyan-glow {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 0 transparent);
+	}
+	50% {
+		filter: drop-shadow(0 0 4px var(--color-p2));
+	}
+}
+
+.animate-nyan-glow {
+	animation: nyan-glow 1.2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-nyan-glow {
+		animation: none;
+	}
+}
+
+@keyframes goal-fade {
+	0% {
+		opacity: 0;
+	}
+	10% {
+		opacity: 1;
+	}
+	90% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
+}
+
+.animate-goal-fade {
+	animation: goal-fade 4s ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-goal-fade {
+		animation: none;
+	}
+}

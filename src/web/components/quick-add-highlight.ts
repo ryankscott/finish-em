@@ -1,3 +1,4 @@
+import { findUrlRanges } from "@/lib/parsing/token-input";
 import type { Project } from "@/server/types";
 
 /**
@@ -49,6 +50,7 @@ export function tokenizeQuickAdd(
 	projects: Project[],
 ): Segment[] {
 	const projectNames = new Set(projects.map((p) => p.name.toLowerCase()));
+	const urlRanges = findUrlRanges(value);
 	const segments: Segment[] = [];
 	let plain = "";
 	let i = 0;
@@ -61,6 +63,15 @@ export function tokenizeQuickAdd(
 	};
 
 	while (i < value.length) {
+		// URLs and email addresses pass through untouched, so colons and path
+		// segments inside them are never read as tokens.
+		const url = urlRanges.find(([start]) => start === i);
+		if (url) {
+			plain += value.slice(url[0], url[1]);
+			i = url[1];
+			continue;
+		}
+
 		// Project token: prefix followed by a known (possibly multi-word) name.
 		PROJECT_PREFIX.lastIndex = i;
 		const pm = PROJECT_PREFIX.exec(value);

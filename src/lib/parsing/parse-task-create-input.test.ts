@@ -92,4 +92,40 @@ describe("parseTaskCreateInput", () => {
 		expect(result.input.scheduledAt).toBeTruthy();
 		expect(result.input.recurrencePreset).toBe("daily");
 	});
+
+	it("keeps URLs intact and does not read them as tokens", () => {
+		const url =
+			"https://idexx.atlassian.net/wiki/spaces/IV/pages/6755942577/Adoption+vello-practice-web+pages+and+routes";
+		const result = parseTaskCreateInput(
+			`Review this page around authz (${url}) p2 due:today`,
+			PROJECTS,
+		);
+		expect(result.warnings).toHaveLength(0);
+		expect(result.errors).toHaveLength(0);
+		expect(result.input.title).toBe(`Review this page around authz (${url})`);
+		expect(result.input.priority).toBe(2);
+		expect(result.input.dueAt).toBeTruthy();
+	});
+
+	it("keeps a URL-only title untouched", () => {
+		const result = parseTaskCreateInput(
+			"https://example.com/p1/due:today notes:check it",
+			PROJECTS,
+		);
+		expect(result.warnings).toHaveLength(0);
+		expect(result.input.title).toBe("https://example.com/p1/due:today");
+		expect(result.input.notes).toBe("check it");
+		expect(result.input.priority).toBeUndefined();
+		expect(result.input.dueAt).toBeUndefined();
+	});
+
+	it("does not treat an email address as a token", () => {
+		const result = parseTaskCreateInput(
+			"Email ryan@example.com about docs p1",
+			PROJECTS,
+		);
+		expect(result.warnings).toHaveLength(0);
+		expect(result.input.title).toBe("Email ryan@example.com about docs");
+		expect(result.input.priority).toBe(1);
+	});
 });

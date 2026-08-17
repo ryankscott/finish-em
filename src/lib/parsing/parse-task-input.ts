@@ -10,7 +10,7 @@ import {
 } from "date-fns";
 
 import type { Priority, Project, RecurrencePreset } from "../../server/types";
-import { extractTokenValue } from "./token-input";
+import { extractTokenValue, maskUrls } from "./token-input";
 
 export type TaskEditPatch = {
 	title?: string;
@@ -158,7 +158,10 @@ export function parseTaskEditInput(
 	const warnings: string[] = [];
 	const patch: TaskEditPatch = {};
 
-	let working = input.trim();
+	// URLs and email addresses are masked so their colons and path segments are
+	// never mistaken for tokens; the originals are restored at the end.
+	const { masked, restore } = maskUrls(input.trim());
+	let working = masked;
 
 	// --- priority: p1–p4, priority:1, prio:1, 🚩1 ---
 	const priorityMatch = working.match(
@@ -317,7 +320,10 @@ export function parseTaskEditInput(
 		patch.title = title;
 	}
 
-	return { patch, warnings };
+	if (patch.title !== undefined) patch.title = restore(patch.title);
+	if (patch.notes !== undefined) patch.notes = restore(patch.notes);
+
+	return { patch, warnings: warnings.map(restore) };
 }
 
 /**

@@ -26,6 +26,10 @@ const MIN_SIDEBAR_WIDTH = 160;
 const MAX_SIDEBAR_WIDTH = 480;
 const DEFAULT_SIDEBAR_WIDTH = 240;
 
+const MIN_DAILY_TARGET = 1;
+const MAX_DAILY_TARGET = 100;
+const DEFAULT_DAILY_TARGET = 10;
+
 function readStoredNumber(key: string, fallback: number): number {
 	try {
 		const stored = localStorage.getItem(key);
@@ -83,6 +87,9 @@ type UiState = {
 
 	theme: "dark" | "light";
 	toggleTheme: () => void;
+
+	dailyTarget: number;
+	setDailyTarget: (target: number) => void;
 };
 
 const UiContext = createContext<UiState | null>(null);
@@ -127,6 +134,9 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(() =>
 		readStoredBool("sidebarCollapsed", false),
 	);
+	const [dailyTarget, setDailyTargetRaw] = useState(() =>
+		readStoredNumber("dailyTarget", DEFAULT_DAILY_TARGET),
+	);
 
 	useEffect(() => {
 		// index.html ships with class="dark" as the pre-hydration default so
@@ -150,8 +160,26 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		localStorage.setItem("sidebarCollapsed", String(sidebarCollapsed));
 	}, [sidebarCollapsed]);
 
+	useEffect(() => {
+		localStorage.setItem("dailyTarget", String(dailyTarget));
+	}, [dailyTarget]);
+
 	const setSidebarWidth = (width: number) => {
-		setSidebarWidthRaw(Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, Math.round(width))));
+		setSidebarWidthRaw(
+			Math.min(
+				MAX_SIDEBAR_WIDTH,
+				Math.max(MIN_SIDEBAR_WIDTH, Math.round(width)),
+			),
+		);
+	};
+
+	const setDailyTarget = (target: number) => {
+		setDailyTargetRaw(
+			Math.min(
+				MAX_DAILY_TARGET,
+				Math.max(MIN_DAILY_TARGET, Math.round(target)),
+			),
+		);
 	};
 
 	const value = useMemo<UiState>(
@@ -179,6 +207,8 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			setSearch,
 			theme,
 			toggleTheme: () => setThemeMode(theme === "dark" ? "light" : "dark"),
+			dailyTarget,
+			setDailyTarget,
 		}),
 		[
 			quickAdd,
@@ -191,6 +221,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			sidebarCollapsed,
 			search,
 			theme,
+			dailyTarget,
 		],
 	);
 

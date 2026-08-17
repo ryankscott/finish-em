@@ -3,6 +3,8 @@
  * Convention: Markdown-style [link text](url); bare URLs displayed with domain as label.
  */
 
+import { getServiceLinkLabel } from "./link-services";
+
 /** A segment of parsed content: either plain text or a link with url and optional label */
 export type TaskLinkSegment =
 	| { type: "text"; text: string }
@@ -111,6 +113,8 @@ export function getLinkDisplayLabel(
 	if (customLabel != null && customLabel.trim() !== "") {
 		return customLabel.trim();
 	}
+	const serviceLabel = getServiceLinkLabel(url);
+	if (serviceLabel) return serviceLabel;
 	try {
 		const parsed = new URL(ensureScheme(url));
 		const pathSegments = parsed.pathname.split("/").filter(Boolean);
