@@ -242,6 +242,9 @@ export function AppShell() {
 			<Toaster
 				theme={ui.theme}
 				position={isMobile ? "top-center" : "bottom-right"}
+				mobileOffset={{
+					top: "max(4.5rem, calc(env(safe-area-inset-top) + 4rem))",
+				}}
 			/>
 		</div>
 	);
