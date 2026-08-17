@@ -80,7 +80,7 @@ export function ProjectPickerSheet({
 						/>
 					</div>
 				</div>
-				<div className="min-h-0 flex-1 overflow-y-auto pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
+				<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[calc(env(safe-area-inset-bottom)+0.5rem)]">
 					{filtered.length === 0 ? (
 						<p className="px-4 py-6 text-center text-sm text-muted">
 							No projects match "{query}"
