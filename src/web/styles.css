@@ -34,11 +34,20 @@ html.light {
 }
 
 html,
-body,
+body {
+	height: 100%;
+	overflow: hidden;
+}
+
 #root {
-	/* dvh, not vh: Safari's collapsing toolbar makes 100vh taller than the
-	   visible viewport, which clips the bottom of the app on iOS. */
-	height: 100dvh;
+	/* fixed/inset-0 rather than any viewport height unit. In a standalone iOS
+	   PWA with viewport-fit=cover, 100dvh resolves to the window minus the
+	   status bar while content still lays out from the top of the screen, so
+	   the app ends short of the bottom and leaves a strip of body background
+	   under the tab bar. Anchoring to the visual viewport's own edges has no
+	   such gap, on iOS or anywhere else. */
+	position: fixed;
+	inset: 0;
 }
 
 body {
