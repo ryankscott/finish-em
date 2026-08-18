@@ -147,6 +147,12 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		document.documentElement.classList.toggle("light", theme === "light");
 		if (themeMode === "system") localStorage.removeItem("theme");
 		else localStorage.setItem("theme", themeMode);
+		// iOS paints the standalone status bar area itself, outside the web view,
+		// and takes its colour from theme-color. Without this the bar stays
+		// zinc-950 after a switch to the light theme.
+		document
+			.querySelector('meta[name="theme-color"]')
+			?.setAttribute("content", theme === "dark" ? "#09090b" : "#ffffff");
 		// The native desktop shell draws its own titlebar, which stays on the OS
 		// appearance unless we tell it which way the web UI went.
 		window.webkit?.messageHandlers?.appearance?.postMessage(theme);
