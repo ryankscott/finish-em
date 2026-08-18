@@ -46,20 +46,16 @@ const PRIORITY_LABELS: Record<number, string> = {
 	4: "Low",
 };
 
-// claude:// opens Claude Desktop directly; q is prefilled into the prompt
-// field there (truncated by the app at ~14k chars, so clamp well under that).
-function buildClaudeDelegateHref(
-	title: string,
-	projectName: string | undefined,
-	dueLabel: string,
-	notes: string,
-): string {
-	const lines = [`Task: ${title}`];
-	if (projectName) lines.push(`Project: ${projectName}`);
-	if (dueLabel) lines.push(`Due: ${dueLabel}`);
-	if (notes.trim()) lines.push("", notes.trim());
-	const prompt = lines.join("\n").slice(0, 8000);
-	return `claude://claude.ai/new?q=${encodeURIComponent(prompt)}`;
+// claude:// opens Claude Desktop directly; /code/new is the Code surface's
+// new-session route and q is prefilled into its prompt field (the same route
+// the app uses internally). Truncated by the app at ~14k chars, so clamp well
+// under that.
+//
+// Only the task title is sent: project and due-date are scheduling metadata
+// that just add noise to a coding prompt.
+function buildClaudeDelegateHref(title: string): string {
+	const prompt = title.trim().slice(0, 8000);
+	return `claude://claude.ai/code/new?q=${encodeURIComponent(prompt)}`;
 }
 
 export function TaskEditDialog() {
@@ -345,12 +341,7 @@ export function TaskEditDialog() {
 			) : null}
 			{task ? (
 				<a
-					href={buildClaudeDelegateHref(
-						title,
-						selectedProject?.name,
-						due,
-						notes,
-					)}
+					href={buildClaudeDelegateHref(title)}
 					className={cn(
 						"flex items-center justify-center gap-2 rounded-md border border-border text-sm text-muted hover:bg-surface hover:text-foreground",
 						isMobile ? "min-h-11" : "px-3 py-2",
