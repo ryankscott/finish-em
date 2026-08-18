@@ -77,9 +77,10 @@ export function TaskReminderField({ taskId }: { taskId: number }) {
 					value={date}
 					onChange={(e) => setDate(e.target.value)}
 					className="w-auto"
+					aria-label="Reminder date"
 				/>
 				<Select value={time} onValueChange={setTime}>
-					<SelectTrigger className="h-9 w-auto">
+					<SelectTrigger className="h-9 w-auto" aria-label="Reminder time">
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>

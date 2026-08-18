@@ -6,8 +6,10 @@ import {
 	CalendarClock,
 	CalendarDays,
 	CheckCircle2,
+	ChevronDown,
 	ChevronLeft,
 	ChevronRight,
+	ChevronUp,
 	Flag,
 	GripVertical,
 	Inbox,
@@ -85,6 +87,8 @@ function ProjectNavLink({
 	onDragOver,
 	onDrop,
 	onDragEnd,
+	onMoveUp,
+	onMoveDown,
 	isDrawer,
 }: {
 	project: Project;
@@ -96,6 +100,9 @@ function ProjectNavLink({
 	onDragOver: (e: React.DragEvent) => void;
 	onDrop: () => void;
 	onDragEnd: () => void;
+	/** Keyboard/touch equivalent of dragging a row up -- drag itself is mouse-only. */
+	onMoveUp?: () => void;
+	onMoveDown?: () => void;
 	isDrawer?: boolean;
 }) {
 	const ui = useUi();
@@ -155,11 +162,47 @@ function ProjectNavLink({
 			</Link>
 			{count > 0 ? (
 				<span
-					className={cn("text-xs text-muted", !isDrawer && "group-hover:hidden")}
+					className={cn(
+						"text-xs text-muted",
+						!isDrawer && "group-hover:hidden",
+					)}
 				>
 					{count}
 				</span>
 			) : null}
+			<button
+				type="button"
+				aria-label="Move project up"
+				disabled={!onMoveUp}
+				onClick={onMoveUp}
+				className={cn(
+					"text-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30",
+					isDrawer
+						? "flex h-11 w-11 shrink-0 items-center justify-center"
+						: // sr-only, not `hidden` -- a display:none button can never
+							// receive keyboard focus, so Tab could never reach it to
+							// trigger the reveal. sr-only keeps it focusable and out of
+							// flow at rest, same as `hidden` was for layout purposes, and
+							// pops into view on its own focus or on row hover.
+							"sr-only shrink-0 items-center justify-center focus:static focus:flex focus:h-7 focus:w-7 group-hover:static group-hover:flex group-hover:h-7 group-hover:w-7",
+				)}
+			>
+				<ChevronUp className="h-3.5 w-3.5" />
+			</button>
+			<button
+				type="button"
+				aria-label="Move project down"
+				disabled={!onMoveDown}
+				onClick={onMoveDown}
+				className={cn(
+					"text-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30",
+					isDrawer
+						? "flex h-11 w-11 shrink-0 items-center justify-center"
+						: "sr-only shrink-0 items-center justify-center focus:static focus:flex focus:h-7 focus:w-7 group-hover:static group-hover:flex group-hover:h-7 group-hover:w-7",
+				)}
+			>
+				<ChevronDown className="h-3.5 w-3.5" />
+			</button>
 			<button
 				type="button"
 				aria-label="Edit project"
@@ -168,7 +211,7 @@ function ProjectNavLink({
 					"text-muted hover:text-foreground",
 					isDrawer
 						? "flex h-11 w-11 shrink-0 items-center justify-center"
-						: "hidden group-hover:block",
+						: "sr-only shrink-0 items-center justify-center focus:static focus:flex focus:h-7 focus:w-7 group-hover:static group-hover:flex group-hover:h-7 group-hover:w-7",
 				)}
 			>
 				<Pencil className="h-3.5 w-3.5" />
@@ -181,7 +224,7 @@ function ProjectNavLink({
 					"text-muted hover:text-p1",
 					isDrawer
 						? "flex h-11 w-11 shrink-0 items-center justify-center"
-						: "hidden group-hover:block",
+						: "sr-only shrink-0 items-center justify-center focus:static focus:flex focus:h-7 focus:w-7 group-hover:static group-hover:flex group-hover:h-7 group-hover:w-7",
 				)}
 			>
 				<Trash2 className="h-3.5 w-3.5" />
@@ -257,6 +300,15 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 		next.splice(targetIndex, 0, moved);
 		setDragIndex(null);
 		setOverIndex(null);
+		reorderProjects.mutate(next.map((p) => p.id));
+	};
+
+	const moveProject = (index: number, delta: 1 | -1) => {
+		const target = index + delta;
+		if (target < 0 || target >= visibleProjects.length) return;
+		const next = [...visibleProjects];
+		const [moved] = next.splice(index, 1);
+		next.splice(target, 0, moved);
 		reorderProjects.mutate(next.map((p) => p.id));
 	};
 
@@ -429,6 +481,12 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 						setDragIndex(null);
 						setOverIndex(null);
 					}}
+					onMoveUp={index > 0 ? () => moveProject(index, -1) : undefined}
+					onMoveDown={
+						index < visibleProjects.length - 1
+							? () => moveProject(index, 1)
+							: undefined
+					}
 				/>
 			))}
 			<div className="mt-auto">

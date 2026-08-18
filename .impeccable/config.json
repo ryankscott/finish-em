@@ -1,0 +1,80 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-font-size",
+        "value": "16px",
+        "files": [
+          "src/web/styles.css"
+        ],
+        "createdAt": "2026-08-18T06:46:13.464Z",
+        "reason": "iOS zoom-prevention override, already documented inline; larger than body, not a shrink"
+      },
+      {
+        "rule": "design-system-font-size",
+        "value": "0.8rem",
+        "files": [
+          "src/components/ui/calendar.tsx"
+        ],
+        "createdAt": "2026-08-18T06:46:13.528Z",
+        "reason": "vendored shadcn calendar primitive default, not hand-authored"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ff2d2d",
+        "files": [
+          "src/web/components/NyanCat.tsx"
+        ],
+        "createdAt": "2026-08-18T06:46:20.801Z",
+        "reason": "DESIGN.md's own carve-out: the Nyan Cat easter egg is the one place personality/rainbow color is sanctioned to break the zinc+signal palette"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ff9a2d",
+        "files": [
+          "src/web/components/NyanCat.tsx"
+        ],
+        "createdAt": "2026-08-18T06:46:20.864Z",
+        "reason": "DESIGN.md's own carve-out: the Nyan Cat easter egg is the one place personality/rainbow color is sanctioned to break the zinc+signal palette"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ffe62d",
+        "files": [
+          "src/web/components/NyanCat.tsx"
+        ],
+        "createdAt": "2026-08-18T06:46:20.928Z",
+        "reason": "DESIGN.md's own carve-out: the Nyan Cat easter egg is the one place personality/rainbow color is sanctioned to break the zinc+signal palette"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#3ddc4a",
+        "files": [
+          "src/web/components/NyanCat.tsx"
+        ],
+        "createdAt": "2026-08-18T06:46:20.996Z",
+        "reason": "DESIGN.md's own carve-out: the Nyan Cat easter egg is the one place personality/rainbow color is sanctioned to break the zinc+signal palette"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#2d8cff",
+        "files": [
+          "src/web/components/NyanCat.tsx"
+        ],
+        "createdAt": "2026-08-18T06:46:21.057Z",
+        "reason": "DESIGN.md's own carve-out: the Nyan Cat easter egg is the one place personality/rainbow color is sanctioned to break the zinc+signal palette"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#a12dff",
+        "files": [
+          "src/web/components/NyanCat.tsx"
+        ],
+        "createdAt": "2026-08-18T06:46:21.119Z",
+        "reason": "DESIGN.md's own carve-out: the Nyan Cat easter egg is the one place personality/rainbow color is sanctioned to break the zinc+signal palette"
+      }
+    ]
+  }
+}
