@@ -17,10 +17,14 @@
          Add to Home Screen produce an app rather than a bookmark. -->
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
+    <!-- "black", not "black-translucent". Under black-translucent iOS sizes the
+         standalone window to the screen minus the status bar (848pt of 896 on an
+         XR) but still anchors it at y=0 under the status bar, so the 48pt it took
+         off the height turns into dead space below the tab bar that no CSS can
+         reach. "black" positions the window below the status bar instead: same
+         height, no gap. safe-area-inset-top then reports 0, which the header's
+         max() already handles. -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="finish-em" />
   </head>
   <body>
