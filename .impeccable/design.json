@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-18T02:30:00.000Z",
+  "title": "Design System: finish-em",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Void",
+        "canonical": "oklch(0.141 0.005 285.823)",
+        "tonalRamp": [
+          "oklch(0.141 0.005 285.823)",
+          "oklch(0.21 0.006 285.885)",
+          "oklch(0.274 0.006 286.618)",
+          "oklch(0.37 0.008 286)",
+          "oklch(0.47 0.01 286)",
+          "oklch(0.552 0.016 285.938)",
+          "oklch(0.705 0.015 286.067)",
+          "oklch(0.871 0.006 286.286)"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Panel",
+        "canonical": "oklch(0.21 0.006 285.885)",
+        "tonalRamp": [
+          "oklch(0.141 0.005 285.823)",
+          "oklch(0.21 0.006 285.885)",
+          "oklch(0.274 0.006 286.618)",
+          "oklch(0.37 0.008 286)",
+          "oklch(0.552 0.016 285.938)",
+          "oklch(0.705 0.015 286.067)",
+          "oklch(0.871 0.006 286.286)",
+          "oklch(0.985 0 0)"
+        ]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Panel Raised",
+        "canonical": "oklch(0.274 0.006 286.618)",
+        "tonalRamp": [
+          "oklch(0.141 0.005 285.823)",
+          "oklch(0.21 0.006 285.885)",
+          "oklch(0.274 0.006 286.618)",
+          "oklch(0.37 0.008 286)",
+          "oklch(0.552 0.016 285.938)",
+          "oklch(0.705 0.015 286.067)",
+          "oklch(0.871 0.006 286.286)",
+          "oklch(0.985 0 0)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(0.274 0.006 286.618)",
+        "tonalRamp": [
+          "oklch(0.141 0.005 285.823)",
+          "oklch(0.21 0.006 285.885)",
+          "oklch(0.274 0.006 286.618)",
+          "oklch(0.37 0.008 286)",
+          "oklch(0.552 0.016 285.938)",
+          "oklch(0.705 0.015 286.067)",
+          "oklch(0.871 0.006 286.286)",
+          "oklch(0.985 0 0)"
+        ]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(0.985 0 0)",
+        "tonalRamp": [
+          "oklch(0.141 0.005 285.823)",
+          "oklch(0.274 0.006 286.618)",
+          "oklch(0.37 0.008 286)",
+          "oklch(0.552 0.016 285.938)",
+          "oklch(0.705 0.015 286.067)",
+          "oklch(0.871 0.006 286.286)",
+          "oklch(0.92 0.004 286.32)",
+          "oklch(0.985 0 0)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Instrument Gray",
+        "canonical": "oklch(0.705 0.015 286.067)",
+        "tonalRamp": [
+          "oklch(0.141 0.005 285.823)",
+          "oklch(0.274 0.006 286.618)",
+          "oklch(0.37 0.008 286)",
+          "oklch(0.47 0.01 286)",
+          "oklch(0.552 0.016 285.938)",
+          "oklch(0.705 0.015 286.067)",
+          "oklch(0.871 0.006 286.286)",
+          "oklch(0.985 0 0)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Foreground Ring",
+        "canonical": "oklch(0.871 0.006 286.286)",
+        "tonalRamp": [
+          "oklch(0.141 0.005 285.823)",
+          "oklch(0.21 0.006 285.885)",
+          "oklch(0.37 0.008 286)",
+          "oklch(0.552 0.016 285.938)",
+          "oklch(0.705 0.015 286.067)",
+          "oklch(0.871 0.006 286.286)",
+          "oklch(0.92 0.004 286.32)",
+          "oklch(0.985 0 0)"
+        ]
+      },
+      "p1-urgent": {
+        "role": "secondary",
+        "displayName": "P1 Urgent",
+        "canonical": "oklch(0.65 0.21 25)",
+        "tonalRamp": [
+          "oklch(0.2 0.08 25)",
+          "oklch(0.32 0.13 25)",
+          "oklch(0.44 0.17 25)",
+          "oklch(0.52 0.2 25)",
+          "oklch(0.65 0.21 25)",
+          "oklch(0.75 0.17 25)",
+          "oklch(0.85 0.1 25)",
+          "oklch(0.93 0.05 25)"
+        ]
+      },
+      "p2-high": {
+        "role": "secondary",
+        "displayName": "P2 High",
+        "canonical": "oklch(0.8 0.16 85)",
+        "tonalRamp": [
+          "oklch(0.25 0.06 85)",
+          "oklch(0.37 0.1 85)",
+          "oklch(0.5 0.14 85)",
+          "oklch(0.58 0.16 85)",
+          "oklch(0.7 0.17 85)",
+          "oklch(0.8 0.16 85)",
+          "oklch(0.88 0.11 85)",
+          "oklch(0.95 0.05 85)"
+        ]
+      },
+      "p3-normal": {
+        "role": "secondary",
+        "displayName": "P3 Normal",
+        "canonical": "oklch(0.72 0.17 150)",
+        "tonalRamp": [
+          "oklch(0.22 0.06 150)",
+          "oklch(0.34 0.1 150)",
+          "oklch(0.46 0.14 150)",
+          "oklch(0.52 0.18 150)",
+          "oklch(0.63 0.18 150)",
+          "oklch(0.72 0.17 150)",
+          "oklch(0.83 0.12 150)",
+          "oklch(0.93 0.06 150)"
+        ]
+      },
+      "p4-low": {
+        "role": "secondary",
+        "displayName": "P4 Low",
+        "canonical": "oklch(0.68 0.12 250)",
+        "tonalRamp": [
+          "oklch(0.22 0.05 250)",
+          "oklch(0.33 0.08 250)",
+          "oklch(0.45 0.11 250)",
+          "oklch(0.5 0.14 250)",
+          "oklch(0.59 0.13 250)",
+          "oklch(0.68 0.12 250)",
+          "oklch(0.8 0.08 250)",
+          "oklch(0.91 0.04 250)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "body": { "displayName": "Body", "purpose": "Base size for nearly everything: task titles, row content, form fields." },
+      "label": { "displayName": "Label", "purpose": "Row metadata: timestamps, counts, project/priority chips." },
+      "section-label": { "displayName": "Section Label", "purpose": "Uppercase tracked group-header pattern: Projects/Resources headers, list-date groupings, settings section titles." },
+      "micro": { "displayName": "Micro", "purpose": "Tightest tier: mobile bottom-nav captions, emoji-picker category dividers." },
+      "title": { "displayName": "Title", "purpose": "Dialog titles and page headers." }
+    },
+    "shadows": [
+      { "name": "control-rest", "value": "shadow-sm", "purpose": "Barely-there separation on buttons and inputs at rest." },
+      { "name": "overlay", "value": "shadow-2xl", "purpose": "True floating overlays: dialogs, sheets, popovers." }
+    ],
+    "motion": [
+      { "name": "ease-swipe", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Snap-back easing for the mobile swipe-to-complete/delete gesture." },
+      { "name": "duration-dialog", "value": "200ms", "purpose": "Dialog/sheet open-close transition." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Default button variant; solid accent fill, used for the one primary action in a view.",
+      "html": "<button class=\"ds-btn ds-btn-primary\">Save</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 16px; border-radius: 6px; font-size: 14px; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.15s ease; } .ds-btn-primary { background: oklch(0.871 0.006 286.286); color: oklch(0.141 0.005 285.823); box-shadow: 0 1px 2px rgba(0,0,0,0.3); } .ds-btn-primary:hover { background: color-mix(in oklch, oklch(0.871 0.006 286.286) 90%, transparent); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(0.871 0.006 286.286); outline-offset: -2px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action button; transparent fill with a hairline border.",
+      "html": "<button class=\"ds-btn ds-btn-outline\">Cancel</button>",
+      "css": ".ds-btn-outline { background: transparent; color: oklch(0.985 0 0); border: 1px solid oklch(0.274 0.006 286.618); box-shadow: 0 1px 2px rgba(0,0,0,0.3); } .ds-btn-outline:hover { background: oklch(0.21 0.006 285.885); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard text field used across quick-add, task edit, and settings forms.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Add a task\" />",
+      "css": ".ds-input { display: block; width: 100%; height: 36px; padding: 4px 12px; border-radius: 6px; border: 1px solid oklch(0.274 0.006 286.618); background: oklch(0.21 0.006 285.885); color: oklch(0.985 0 0); font-size: 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.3); } .ds-input::placeholder { color: oklch(0.705 0.015 286.067); } .ds-input:focus-visible { outline: 2px solid oklch(0.871 0.006 286.286); outline-offset: -2px; }"
+    },
+    {
+      "name": "Priority Badge",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Pill badge used for status/priority labels; not interactive.",
+      "html": "<span class=\"ds-badge\">P1</span>",
+      "css": ".ds-badge { display: inline-flex; align-items: center; border-radius: 9999px; padding: 2px 10px; font-size: 12px; font-weight: 600; background: oklch(0.65 0.21 25); color: oklch(0.141 0.005 285.823); }"
+    },
+    {
+      "name": "Task Row",
+      "kind": "custom",
+      "refersTo": "task-row",
+      "description": "The core signature component: a scannable row with status icon, title, and right-aligned metadata (recurrence, dates, priority, project). Selected state raises to Panel Raised with an accent ring; hover raises to Panel.",
+      "html": "<div class=\"ds-row\"><svg class=\"ds-row-check\" viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/></svg><span class=\"ds-row-title\">Write the quarterly review</span><span class=\"ds-row-meta\">P2 · Mar 4</span></div>",
+      "css": ".ds-row { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 6px 8px; border-radius: 6px; color: oklch(0.985 0 0); font-size: 14px; } .ds-row:hover { background: oklch(0.21 0.006 285.885); } .ds-row-check { color: oklch(0.705 0.015 286.067); flex-shrink: 0; } .ds-row-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .ds-row-meta { font-size: 12px; color: oklch(0.705 0.015 286.067); flex-shrink: 0; }"
+    },
+    {
+      "name": "Nav Link",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Sidebar navigation item; flat at rest, raises to Panel Raised when active.",
+      "html": "<a class=\"ds-nav ds-nav-active\" href=\"#\">Today <span class=\"ds-nav-count\">4</span></a>",
+      "css": ".ds-nav { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 6px; font-size: 14px; color: oklch(0.705 0.015 286.067); text-decoration: none; } .ds-nav:hover { background: oklch(0.21 0.006 285.885); } .ds-nav-active { background: oklch(0.274 0.006 286.618); color: oklch(0.985 0 0); } .ds-nav-count { margin-left: auto; font-size: 12px; color: oklch(0.705 0.015 286.067); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Control Room",
+    "overview": "finish-em is a dense, dark-first instrument panel for one operator, not a storefront for many visitors. Every surface — the task list, the status bar's overdue/today/week counters, the weekly goals ticker, the calendar sync — is built to stay visible and legible at once, the way a console keeps its gauges in view rather than hiding them behind menus. The palette is almost entirely achromatic zinc; the only saturated color is the four-step priority scale, which exists to be read at a glance across a long list, not to decorate it. Density and speed lead; decoration follows only where it clarifies status. This is explicitly not a soft, illustrated, Todoist-style task app — it takes its cues from Linear: keyboard-first, dark-mode-native, information-dense without becoming cluttered.",
+    "keyCharacteristics": [
+      "Dark-first, zinc-neutral, near-monochrome by default",
+      "One saturated signal system (priority p1-p4), reserved for meaning",
+      "Flat surfaces distinguished by tone, not shadow",
+      "Small radii, tight padding, 14px base type — built for scanning rows, not reading prose",
+      "Touch and keyboard both first-class (swipe gestures on mobile, hotkeys on desktop), never at odds"
+    ],
+    "rules": [
+      { "name": "The Signal Rule", "body": "Priority colors (p1-p4) exist to be read as status at a glance across a list — due-date urgency, priority flags, completion state. They are never used decoratively. Future chart or data-viz work may extend this palette, but any new color must carry the same signal role, not a brand or mood role.", "section": "colors" },
+      { "name": "The Four Sizes, Not One Rule", "body": "The type scale has exactly four steps -- 14px (Title/Body), 12px (Label), 11px (Section Label), 10px (Micro) -- each tied to a specific role, not a free-floating small/smaller scale. Reach for weight, tracking, case, and color (muted vs foreground) to add emphasis within a step before ever introducing a fifth size.", "section": "typography" }
+    ],
+    "dos": [
+      "Do keep the priority palette (p1-p4) as the only saturated color family; every new status or signal should map onto it or extend it with the same signal-only role, not introduce a new hue.",
+      "Do use tone-stepping (background -> surface -> surface-raised) for depth and state, not shadow.",
+      "Do keep the body type at 14px and reach for weight/color before introducing a new type size.",
+      "Do give every touch-only row a 44px minimum tap target without changing its desktop density."
+    ],
+    "donts": [
+      "Don't wrap ordinary list content in a card. Rows sit directly on the page background; borders and tone shifts do the separating work cards would otherwise do.",
+      "Don't add colored or thick borders (side-stripes, accent outlines) as a decorative device. Borders are always the 1px hairline token.",
+      "Don't introduce gradients, glassmorphism, or ambient shadow — the system is flat and tonal by design.",
+      "Don't let the Nyan Cat / easter-egg register bleed into primary task, project, or planning surfaces — personality stays in the status bar corner it already owns."
+    ]
+  }
+}

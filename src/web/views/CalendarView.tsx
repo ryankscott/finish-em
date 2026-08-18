@@ -148,7 +148,7 @@ export function CalendarView() {
 					type="button"
 					onClick={() => goToRange(-1)}
 					aria-label="Previous"
-					className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted hover:bg-surface hover:text-foreground"
+					className="flex h-11 w-11 items-center justify-center rounded-md border border-border text-muted hover:bg-surface hover:text-foreground md:h-8 md:w-8"
 				>
 					<ChevronLeft className="h-4 w-4" />
 				</button>
@@ -156,7 +156,7 @@ export function CalendarView() {
 					type="button"
 					onClick={() => goToRange(1)}
 					aria-label="Next"
-					className="flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted hover:bg-surface hover:text-foreground"
+					className="flex h-11 w-11 items-center justify-center rounded-md border border-border text-muted hover:bg-surface hover:text-foreground md:h-8 md:w-8"
 				>
 					<ChevronRight className="h-4 w-4" />
 				</button>
@@ -180,7 +180,7 @@ export function CalendarView() {
 					<button
 						type="button"
 						onClick={goToToday}
-						className="ml-auto rounded-md border border-border px-2.5 py-1 text-xs text-foreground hover:bg-surface"
+						className="ml-auto flex min-h-11 items-center rounded-md border border-border px-3 text-xs text-foreground hover:bg-surface md:min-h-0 md:px-2.5 md:py-1"
 					>
 						Today
 					</button>
