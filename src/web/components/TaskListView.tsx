@@ -85,6 +85,7 @@ export function TaskListView({
 	const clampedIndex = Math.min(selectedIndex, Math.max(0, rows.length - 1));
 	const selected = rows[clampedIndex];
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: the deps are the trigger -- a selection or list change re-runs the scroll
 	useEffect(() => {
 		const el = containerRef.current?.querySelector("[data-selected]");
 		el?.scrollIntoView({ block: "nearest" });

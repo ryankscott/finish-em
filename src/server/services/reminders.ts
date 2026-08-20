@@ -69,7 +69,6 @@ export function resolveSnoozeTime(input: {
 }
 
 export function isReminderDue(remindAt: string, snoozedUntil: string | null) {
-	const now = new Date();
 	const target = snoozedUntil ? new Date(snoozedUntil) : new Date(remindAt);
 	return isPast(target);
 }

@@ -316,7 +316,9 @@ describe("repositories integration", () => {
 		const ids = deleted.map((t) => t.id);
 		expect(ids).toContain(t1.id);
 		expect(ids).toContain(t2.id);
-		deleted.forEach((t) => expect(t.deletedAt).not.toBeNull());
+		for (const t of deleted) {
+			expect(t.deletedAt).not.toBeNull();
+		}
 		// Most recently deleted first
 		const t1Idx = ids.indexOf(t1.id);
 		const t2Idx = ids.indexOf(t2.id);

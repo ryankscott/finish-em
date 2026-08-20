@@ -21,6 +21,7 @@ const TASK: Task = {
 	dueTimezone: "Pacific/Auckland",
 	recurrencePreset: "weekly",
 	recurrenceRRule: null,
+	calendarEventUid: null,
 	status: "open",
 	someday: false,
 	completedAt: null,

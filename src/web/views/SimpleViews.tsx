@@ -42,6 +42,7 @@ export function TodayView() {
 		status: "open",
 		to: startOfDay(now).toISOString(),
 	});
+	// biome-ignore lint/correctness/useExhaustiveDependencies: now is a fresh Date each render; the task lists are what actually change
 	const { tasks, sectionLabels } = useMemo(() => {
 		const overdue = pastTasks.filter((t) => isOverdueTask(t, now));
 		const overdueIds = new Set(overdue.map((t) => t.id));

@@ -11,7 +11,10 @@ import { useCachedPromise } from "@raycast/utils";
 import { apiPost } from "./api";
 import { fetchDigest, type Task } from "./digest";
 
-const PRIORITY_ICON: Record<Task["priority"], { source: Icon; tintColor: Color }> = {
+const PRIORITY_ICON: Record<
+	Task["priority"],
+	{ source: Icon; tintColor: Color }
+> = {
 	1: { source: Icon.Circle, tintColor: Color.Red },
 	2: { source: Icon.Circle, tintColor: Color.Orange },
 	3: { source: Icon.Circle, tintColor: Color.Yellow },
@@ -87,13 +90,22 @@ export default function Today() {
 				/>
 			) : (
 				<>
-					<List.Section title="Overdue" subtitle={String(data?.overdue.length ?? 0)}>
+					<List.Section
+						title="Overdue"
+						subtitle={String(data?.overdue.length ?? 0)}
+					>
 						{(data?.overdue ?? []).map(renderTask)}
 					</List.Section>
-					<List.Section title="Due Today" subtitle={String(data?.dueToday.length ?? 0)}>
+					<List.Section
+						title="Due Today"
+						subtitle={String(data?.dueToday.length ?? 0)}
+					>
 						{(data?.dueToday ?? []).map(renderTask)}
 					</List.Section>
-					<List.Section title="Stale" subtitle={String(data?.stale.length ?? 0)}>
+					<List.Section
+						title="Stale"
+						subtitle={String(data?.stale.length ?? 0)}
+					>
 						{(data?.stale ?? []).map(renderTask)}
 					</List.Section>
 				</>

@@ -27,18 +27,15 @@ export function parseTaskLinkSegments(input: string): TaskLinkSegment[] {
 	if (!input) return [];
 
 	const segments: TaskLinkSegment[] = [];
-	const lastEnd = 0;
 
 	// Match [link text](url) first
-	LABELED_LINK_RE.lastIndex = 0;
-	let match: RegExpExecArray | null;
 	const labeledRanges: {
 		start: number;
 		end: number;
-		label: string;
+		label: string | null;
 		url: string;
 	}[] = [];
-	while ((match = LABELED_LINK_RE.exec(input)) !== null) {
+	for (const match of input.matchAll(LABELED_LINK_RE)) {
 		labeledRanges.push({
 			start: match.index,
 			end: match.index + match[0].length,
@@ -70,10 +67,8 @@ export function parseTaskLinkSegments(input: string): TaskLinkSegment[] {
 
 function parseBareUrls(text: string): TaskLinkSegment[] {
 	const segments: TaskLinkSegment[] = [];
-	BARE_URL_RE.lastIndex = 0;
-	let match: RegExpExecArray | null;
 	let lastEnd = 0;
-	while ((match = BARE_URL_RE.exec(text)) !== null) {
+	for (const match of text.matchAll(BARE_URL_RE)) {
 		if (match.index > lastEnd) {
 			segments.push({ type: "text", text: text.slice(lastEnd, match.index) });
 		}

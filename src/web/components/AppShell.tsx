@@ -99,6 +99,7 @@ export function AppShell() {
 
 	// Close the drawer on navigation, so tapping a link doesn't leave it covering
 	// the view it just navigated to.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: pathname is the trigger, not a value the effect reads
 	useEffect(() => {
 		setDrawerOpen(false);
 	}, [pathname]);
@@ -119,7 +120,7 @@ export function AppShell() {
 			"mod+z": () => void undoLast(),
 			u: () => void undoLast(),
 			"\\": () => ui.toggleSidebar(),
-			r: () => queryClient.invalidateQueries(),
+			r: () => void queryClient.invalidateQueries(),
 			...Object.fromEntries(
 				VIEW_KEYS.map((to, index) => [
 					String(index + 1),

@@ -108,7 +108,9 @@ export function DateField({ value, onChange }: DateFieldProps) {
 	};
 
 	const presets = (
-		<div className={cn("flex gap-1.5", isMobile ? "" : "flex-wrap items-center")}>
+		<div
+			className={cn("flex gap-1.5", isMobile ? "" : "flex-wrap items-center")}
+		>
 			{PRESETS.map((preset) => (
 				<button
 					key={preset.value}
@@ -170,7 +172,6 @@ export function DateField({ value, onChange }: DateFieldProps) {
 										mode="single"
 										selected={selectedDate}
 										onSelect={handleCalendarSelect}
-										initialFocus
 									/>
 								</div>
 								<div className="flex gap-1.5 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
@@ -198,7 +199,6 @@ export function DateField({ value, onChange }: DateFieldProps) {
 								mode="single"
 								selected={selectedDate}
 								onSelect={handleCalendarSelect}
-								initialFocus
 							/>
 						</PopoverContent>
 					</Popover>

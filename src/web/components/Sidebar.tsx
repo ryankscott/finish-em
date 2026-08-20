@@ -126,6 +126,7 @@ function ProjectNavLink({
 	// the drawer. Editing/deleting can't hide behind group-hover either, since
 	// touch has no hover: on the drawer they're always on.
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: drag handlers only wire native HTML5 reordering; the row's own link and buttons carry the keyboard-reachable actions
 		<div
 			draggable={!isDrawer}
 			onDragStart={onDragStart}
