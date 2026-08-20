@@ -3,15 +3,15 @@ import { describe, expect, it } from "bun:test";
 import type { CalendarEvent, Task } from "@/server/types";
 
 import {
+	DEFAULT_ESTIMATE_MINUTES,
 	dayCapacity,
 	dayKey,
 	dayWindow,
-	DEFAULT_ESTIMATE_MINUTES,
 	formatElapsed,
 	formatMinutes,
 	layoutBlocks,
-	meetingMinutes,
 	MIN_BLOCK_PX,
+	meetingMinutes,
 	minutesFromGridTop,
 	nextFreeSlot,
 	partitionDay,
@@ -175,7 +175,9 @@ describe("ad-hoc commits", () => {
 /** Local wall-clock, because the grid and the capacity bar are device-local. */
 const at = (day: string, time: string) => new Date(`${day}T${time}`);
 
-function event(overrides: Partial<CalendarEvent> & { id: number }): CalendarEvent {
+function event(
+	overrides: Partial<CalendarEvent> & { id: number },
+): CalendarEvent {
 	return {
 		uid: `uid-${overrides.id}`,
 		recurrenceId: "",
@@ -415,11 +417,7 @@ describe("layoutBlocks", () => {
 
 	it("does not leak a cluster's lane count into the next cluster", () => {
 		const placed = layoutBlocks(
-			[
-				item("a", "09:00", 60),
-				item("b", "09:30", 60),
-				item("c", "14:00", 30),
-			],
+			[item("a", "09:00", 60), item("b", "09:30", 60), item("c", "14:00", 30)],
 			opts,
 		);
 		expect(placed.find((p) => p.key === "c")?.lanes).toBe(1);
@@ -447,7 +445,10 @@ describe("nextFreeSlot", () => {
 	});
 
 	it("takes the requested time when nothing is in the way", () => {
-		const slot = nextFreeSlot([], { ...opts, after: at("2026-08-20", "09:00") });
+		const slot = nextFreeSlot([], {
+			...opts,
+			after: at("2026-08-20", "09:00"),
+		});
 		expect(slot?.getHours()).toBe(9);
 		expect(slot?.getMinutes()).toBe(0);
 	});
@@ -470,7 +471,10 @@ describe("nextFreeSlot", () => {
 	});
 
 	it("never places anything before the grid opens", () => {
-		const slot = nextFreeSlot([], { ...opts, after: at("2026-08-20", "03:00") });
+		const slot = nextFreeSlot([], {
+			...opts,
+			after: at("2026-08-20", "03:00"),
+		});
 		expect(slot?.getHours()).toBe(7);
 	});
 

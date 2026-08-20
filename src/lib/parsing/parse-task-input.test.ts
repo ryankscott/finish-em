@@ -411,9 +411,9 @@ describe("serializeTaskToEditInput", () => {
 		});
 
 		it("accepts the hour form", () => {
-			expect(parseTaskEditInput("est:1h30", PROJECTS).patch.estimateMinutes).toBe(
-				90,
-			);
+			expect(
+				parseTaskEditInput("est:1h30", PROJECTS).patch.estimateMinutes,
+			).toBe(90);
 		});
 
 		it("clears an estimate on request", () => {
@@ -434,5 +434,4 @@ describe("serializeTaskToEditInput", () => {
 			expect(patch.dueAt).not.toBeUndefined();
 		});
 	});
-
 });

@@ -304,7 +304,13 @@ export function layoutBlocks(
 	const flush = () => {
 		const lanes = cluster.reduce((max, c) => Math.max(max, c.lane + 1), 1);
 		for (const c of cluster) {
-			out.push({ ...c.item, top: c.top, height: c.height, lane: c.lane, lanes });
+			out.push({
+				...c.item,
+				top: c.top,
+				height: c.height,
+				lane: c.lane,
+				lanes,
+			});
 		}
 		cluster = [];
 	};

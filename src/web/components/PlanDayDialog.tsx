@@ -125,10 +125,7 @@ export function PlanDayDialog() {
 	// Both bars are measured against the whole workday, so meetings and tasks
 	// stay comparable and an overcommitted plan visibly fills the track.
 	const day = Math.max(1, capacity.workdayMinutes);
-	const meetingShare = Math.min(
-		100,
-		(capacity.meetingMinutes / day) * 100,
-	);
+	const meetingShare = Math.min(100, (capacity.meetingMinutes / day) * 100);
 	const plannedShare = Math.min(
 		100 - meetingShare,
 		(capacity.plannedMinutes / day) * 100,
@@ -172,10 +169,7 @@ export function PlanDayDialog() {
 							style={{ width: `${meetingShare}%` }}
 						/>
 						<span
-							className={cn(
-								"h-full",
-								capacity.isOver ? "bg-p1" : "bg-accent",
-							)}
+							className={cn("h-full", capacity.isOver ? "bg-p1" : "bg-accent")}
 							style={{ width: `${plannedShare}%` }}
 						/>
 					</div>
@@ -195,8 +189,8 @@ export function PlanDayDialog() {
 					</p>
 					{capacity.isOver && lastPicked ? (
 						<p className="mt-1 text-xs text-muted">
-							Something has to go. Dropping “{toDisplayString(lastPicked.title)}”
-							frees {formatMinutes(taskEstimate(lastPicked))}.
+							Something has to go. Dropping “{toDisplayString(lastPicked.title)}
+							” frees {formatMinutes(taskEstimate(lastPicked))}.
 						</p>
 					) : null}
 					{events.length > 0 ? (
@@ -255,8 +249,7 @@ export function PlanDayDialog() {
 					{/* Count only, no second warning: two competing warnings train you
 					    to ignore both, and capacity above is the honest one. */}
 					<span className="text-xs text-muted">
-						{chosen.length} chosen ·{" "}
-						{formatMinutes(capacity.plannedMinutes)}
+						{chosen.length} chosen · {formatMinutes(capacity.plannedMinutes)}
 					</span>
 					<span className="flex gap-2">
 						<Button variant="outline" onClick={() => setOpen(false)}>

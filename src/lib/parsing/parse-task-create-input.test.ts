@@ -186,5 +186,4 @@ describe("parseTaskCreateInput", () => {
 			expect(result.input.estimateMinutes).toBeUndefined();
 		});
 	});
-
 });

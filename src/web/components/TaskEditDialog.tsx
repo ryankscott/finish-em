@@ -23,8 +23,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { parseDurationMinutes } from "@/lib/parsing/parse-duration";
 import type { RecurrencePreset } from "@/server/types";
 import { cn } from "../lib/cn";
-import { formatMinutes } from "../lib/day-plan";
 import { formatDateField, resolveDateField } from "../lib/date-field";
+import { formatMinutes } from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
 import {
 	useCalendarMutations,

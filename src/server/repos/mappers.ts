@@ -55,9 +55,7 @@ export function mapTaskRow(row: Record<string, unknown>): Task {
 			row.estimate_minutes === null || row.estimate_minutes === undefined
 				? null
 				: Number(row.estimate_minutes),
-		plannedStartAt: row.planned_start_at
-			? String(row.planned_start_at)
-			: null,
+		plannedStartAt: row.planned_start_at ? String(row.planned_start_at) : null,
 		completedAt: row.completed_at ? String(row.completed_at) : null,
 		deletedAt: row.deleted_at ? String(row.deleted_at) : null,
 		calendarEventUid: row.calendar_event_uid

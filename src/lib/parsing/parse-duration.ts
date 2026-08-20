@@ -9,9 +9,7 @@
  * A bare number means minutes, because "est:45" reads as 45 minutes to anyone
  * typing it quickly, and 45 hours is not a plausible estimate.
  */
-export function parseDurationMinutes(
-	text: string,
-): number | null | undefined {
+export function parseDurationMinutes(text: string): number | null | undefined {
 	const value = text.trim().toLowerCase();
 	if (value.length === 0) return undefined;
 	if (value === "none" || value === "clear" || value === "0") {

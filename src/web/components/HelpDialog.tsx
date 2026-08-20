@@ -61,6 +61,8 @@ const SECTIONS: Array<[string, Array<[string, string]>]> = [
 			["h / l", "Previous / next column"],
 			["[ / ]", "Previous / next week"],
 			["t", "Jump to today"],
+			["b", "Timebox: drop the task into the next free slot"],
+			["shift+b", "Clear the timebox"],
 			["v", "Cycle day / work week / week"],
 			["g", "Add goal"],
 		],

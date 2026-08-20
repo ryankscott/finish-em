@@ -9,8 +9,8 @@ import {
 } from "date-fns";
 
 import type { Priority, Project, RecurrencePreset } from "../../server/types";
-import { extractTokenValue, maskUrls } from "./token-input";
 import { parseDurationMinutes } from "./parse-duration";
+import { extractTokenValue, maskUrls } from "./token-input";
 
 type TaskCreateInput = {
 	title: string;
