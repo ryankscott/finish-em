@@ -129,6 +129,10 @@ export const projectReorderSchema = z
 	.object({ projectIds: z.number().int().array() })
 	.openapi("ProjectReorder");
 
+// Capped at a day: a fat-fingered "600" must not render a block taller than
+// the whole grid.
+const estimateMinutesSchema = z.number().int().min(0).max(1440);
+
 export const taskSchema = z
 	.object({
 		id: z.number().int(),
@@ -146,6 +150,8 @@ export const taskSchema = z
 		someday: z.boolean(),
 		planOrder: z.number().int(),
 		startedAt: z.string().nullable(),
+		estimateMinutes: z.number().int().nullable(),
+		plannedStartAt: z.string().nullable(),
 		completedAt: z.string().nullable(),
 		deletedAt: z.string().nullable(),
 		calendarEventUid: z.string().nullable(),
@@ -167,6 +173,7 @@ export const taskCreateSchema = z
 		recurrencePreset: recurrencePresetSchema.nullable().optional(),
 		recurrenceRRule: z.string().nullable().optional(),
 		someday: z.boolean().optional(),
+		estimateMinutes: estimateMinutesSchema.nullable().optional(),
 	})
 	.openapi("TaskCreate");
 
@@ -183,6 +190,8 @@ export const taskUpdateSchema = z
 		recurrencePreset: recurrencePresetSchema.nullable().optional(),
 		recurrenceRRule: z.string().nullable().optional(),
 		someday: z.boolean().optional(),
+		estimateMinutes: estimateMinutesSchema.nullable().optional(),
+		plannedStartAt: z.string().nullable().optional(),
 	})
 	.openapi("TaskUpdate");
 

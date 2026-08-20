@@ -22,6 +22,8 @@ const TASK: Task = {
 	recurrencePreset: "weekly",
 	recurrenceRRule: null,
 	planOrder: 0,
+	estimateMinutes: null,
+	plannedStartAt: null,
 	startedAt: null,
 	calendarEventUid: null,
 	status: "open",
@@ -80,6 +82,8 @@ describe("snapshotTaskFields", () => {
 			recurrencePreset: "weekly",
 			recurrenceRRule: null,
 			someday: false,
+			estimateMinutes: null,
+			plannedStartAt: null,
 		});
 	});
 

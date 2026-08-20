@@ -128,4 +128,63 @@ describe("parseTaskCreateInput", () => {
 		expect(result.input.title).toBe("Email ryan@example.com about docs");
 		expect(result.input.priority).toBe(1);
 	});
+
+	describe("estimates", () => {
+		it("reads an estimate and strips it from the title", () => {
+			const result = parseTaskCreateInput("Write the spec est:90m", PROJECTS);
+			expect(result.input.estimateMinutes).toBe(90);
+			expect(result.input.title).toBe("Write the spec");
+			expect(result.errors).toEqual([]);
+		});
+
+		it("accepts the hour forms", () => {
+			expect(
+				parseTaskCreateInput("Write est:1h30", PROJECTS).input.estimateMinutes,
+			).toBe(90);
+			expect(
+				parseTaskCreateInput("Write estimate:2h", PROJECTS).input
+					.estimateMinutes,
+			).toBe(120);
+		});
+
+		it("errors rather than mangling an unreadable estimate", () => {
+			const result = parseTaskCreateInput("Write the spec est:soon", PROJECTS);
+			expect(result.errors).toContain(
+				"estimate must be a duration like 45m, 1h or 1h30",
+			);
+			expect(result.input.estimateMinutes).toBeUndefined();
+		});
+
+		it("does not swallow the token that follows it", () => {
+			const result = parseTaskCreateInput(
+				"Write the spec est:45m due:today project:Work",
+				PROJECTS,
+			);
+			expect(result.input.estimateMinutes).toBe(45);
+			expect(result.input.projectId).toBe(2);
+			expect(result.input.dueAt).not.toBeUndefined();
+			expect(result.input.title).toBe("Write the spec");
+		});
+
+		it("is not consumed by a preceding multi-word token", () => {
+			const result = parseTaskCreateInput(
+				"Ship it project:Work est:1h",
+				PROJECTS,
+			);
+			expect(result.input.projectId).toBe(2);
+			expect(result.input.estimateMinutes).toBe(60);
+			expect(result.input.title).toBe("Ship it");
+		});
+
+		it("does not warn about est: as an unknown token", () => {
+			const result = parseTaskCreateInput("Write est:45m", PROJECTS);
+			expect(result.warnings).toEqual([]);
+		});
+
+		it("leaves the estimate unset when no token is present", () => {
+			const result = parseTaskCreateInput("Write the spec due:today", PROJECTS);
+			expect(result.input.estimateMinutes).toBeUndefined();
+		});
+	});
+
 });

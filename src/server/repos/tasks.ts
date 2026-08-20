@@ -178,6 +178,7 @@ export async function createTask(
 		recurrencePreset?: string | null;
 		recurrenceRRule?: string | null;
 		someday?: boolean;
+		estimateMinutes?: number | null;
 	},
 ): Promise<Task> {
 	const project = await getProject(db, input.projectId);
@@ -202,8 +203,8 @@ export async function createTask(
 		.prepare(
 			`INSERT INTO tasks (
         uuid, project_id, parent_task_id, title, notes, priority, scheduled_at, due_at, due_timezone,
-        recurrence_preset, recurrence_rrule, status, someday, completed_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, NULL, ?, ?)
+        recurrence_preset, recurrence_rrule, status, someday, estimate_minutes, completed_at, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'open', ?, ?, NULL, ?, ?)
       RETURNING *`,
 		)
 		.get<Record<string, unknown>>(
@@ -219,6 +220,7 @@ export async function createTask(
 			input.recurrencePreset ?? null,
 			input.recurrenceRRule ?? null,
 			input.someday ? 1 : 0,
+			input.estimateMinutes ?? null,
 			now,
 			now,
 		);
@@ -242,6 +244,8 @@ export async function updateTask(
 		recurrenceRRule: string | null;
 		status: TaskStatus;
 		someday: boolean;
+		estimateMinutes: number | null;
+		plannedStartAt: string | null;
 	}>,
 ): Promise<Task | null> {
 	const existing = await getTask(db, taskId);
@@ -291,6 +295,8 @@ export async function updateTask(
       someday = ?,
       plan_order = ?,
       started_at = ?,
+      estimate_minutes = ?,
+      planned_start_at = ?,
       updated_at = ?
     WHERE id = ?
     RETURNING *`,
@@ -319,6 +325,16 @@ export async function updateTask(
 			nextScheduledAt === null ? 0 : existing.planOrder,
 			// Nothing can still be "in progress" once it is done.
 			nextStatus === "completed" ? null : existing.startedAt,
+			patch.estimateMinutes === undefined
+				? existing.estimateMinutes
+				: patch.estimateMinutes,
+			// A task with no day cannot hold a time on that day, so the same
+			// backlog rule that clears plan_order clears the block too.
+			nextScheduledAt === null
+				? null
+				: patch.plannedStartAt === undefined
+					? existing.plannedStartAt
+					: patch.plannedStartAt,
 			now,
 			taskId,
 		);
@@ -520,7 +536,7 @@ export async function completeTask(
 	// subject to the default someday exclusion) rather than vanishing.
 	await db
 		.prepare(
-			"UPDATE tasks SET status = ?, someday = 0, started_at = NULL, plan_order = 0, completed_at = ?, updated_at = ? WHERE id = ?",
+			"UPDATE tasks SET status = ?, someday = 0, started_at = NULL, plan_order = 0, planned_start_at = NULL, completed_at = ?, updated_at = ? WHERE id = ?",
 		)
 		.run("completed", now, now, taskId);
 

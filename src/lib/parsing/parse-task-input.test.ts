@@ -403,4 +403,36 @@ describe("serializeTaskToEditInput", () => {
 		const result = serializeTaskToEditInput("Task", { notes: "" });
 		expect(result).toBe("Task");
 	});
+
+	describe("estimates", () => {
+		it("reads an estimate into the patch", () => {
+			const { patch } = parseTaskEditInput("est:45m", PROJECTS);
+			expect(patch.estimateMinutes).toBe(45);
+		});
+
+		it("accepts the hour form", () => {
+			expect(parseTaskEditInput("est:1h30", PROJECTS).patch.estimateMinutes).toBe(
+				90,
+			);
+		});
+
+		it("clears an estimate on request", () => {
+			const { patch } = parseTaskEditInput("est:none", PROJECTS);
+			expect(patch.estimateMinutes).toBeNull();
+		});
+
+		it("warns rather than guessing when it cannot read the value", () => {
+			const { patch, warnings } = parseTaskEditInput("est:soon", PROJECTS);
+			expect(patch.estimateMinutes).toBeUndefined();
+			expect(warnings.length).toBeGreaterThan(0);
+		});
+
+		it("coexists with other tokens", () => {
+			const { patch } = parseTaskEditInput("est:1h due:today p1", PROJECTS);
+			expect(patch.estimateMinutes).toBe(60);
+			expect(patch.priority).toBe(1);
+			expect(patch.dueAt).not.toBeUndefined();
+		});
+	});
+
 });

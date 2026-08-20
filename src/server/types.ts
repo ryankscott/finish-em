@@ -54,6 +54,8 @@ export type Task = {
 	someday: boolean;
 	planOrder: number;
 	startedAt: string | null;
+	estimateMinutes: number | null;
+	plannedStartAt: string | null;
 	completedAt: string | null;
 	deletedAt: string | null;
 	calendarEventUid: string | null;

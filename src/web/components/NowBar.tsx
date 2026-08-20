@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { toDisplayString } from "@/lib/task-links";
 import type { Task } from "@/server/types";
+import { cn } from "../lib/cn";
+import { formatMinutes, taskEstimate } from "../lib/day-plan";
 import { useTaskMutations } from "../lib/queries";
 import { useElapsed } from "../lib/use-elapsed";
 
@@ -25,6 +27,16 @@ export function NowBar({
 	const { startTask, stopTask, completeTask } = useTaskMutations();
 	const elapsed = useElapsed(focused?.startedAt ?? null);
 
+	// useElapsed re-renders this component every second, so reading the clock
+	// here stays in step with the label without a second interval.
+	const estimate = focused ? taskEstimate(focused) : 0;
+	const elapsedMinutes = focused?.startedAt
+		? Math.max(0, (Date.now() - Date.parse(focused.startedAt)) / 60_000)
+		: 0;
+	const overEstimate = estimate > 0 && elapsedMinutes > estimate;
+	const progress =
+		estimate > 0 ? Math.min(100, (elapsedMinutes / estimate) * 100) : 0;
+
 	if (focused) {
 		return (
 			<div className="mx-4 mt-3 flex items-center gap-3 rounded-lg border border-accent bg-surface-raised px-4 py-3">
@@ -36,9 +48,30 @@ export function NowBar({
 						{toDisplayString(focused.title)}
 					</div>
 					{focused.startedAt ? (
-						<div className="text-xs text-muted">
-							started {format(parseISO(focused.startedAt), "HH:mm")} · {elapsed}
-						</div>
+						<>
+							<div
+								className={cn(
+									"text-xs",
+									overEstimate ? "text-amber-500" : "text-muted",
+								)}
+							>
+								started {format(parseISO(focused.startedAt), "HH:mm")} ·{" "}
+								{overEstimate
+									? `${elapsed} over ${formatMinutes(estimate)}`
+									: `${elapsed} of ${formatMinutes(estimate)}`}
+							</div>
+							{/* Running long is normal, so this is an amber note rather than
+							    an alarm: no modal, no toast, nothing to dismiss. */}
+							<div className="mt-1 h-0.5 w-full overflow-hidden rounded-full bg-border">
+								<span
+									className={cn(
+										"block h-full",
+										overEstimate ? "bg-amber-500" : "bg-accent",
+									)}
+									style={{ width: `${progress}%` }}
+								/>
+							</div>
+						</>
 					) : null}
 				</div>
 				<Button
@@ -83,7 +116,9 @@ export function NowBar({
 					<span className="block truncate text-base font-medium">
 						{toDisplayString(next.title)}
 					</span>
-					<span className="block text-xs text-muted">Start this</span>
+					<span className="block text-xs text-muted">
+						Start this · {formatMinutes(taskEstimate(next))}
+					</span>
 				</span>
 			</button>
 		</div>

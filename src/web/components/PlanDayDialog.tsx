@@ -16,7 +16,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toDisplayString } from "@/lib/task-links";
 import type { Task } from "@/server/types";
 
-import { dayWindow, planCandidates } from "../lib/day-plan";
+import { cn } from "../lib/cn";
+import {
+	dayCapacity,
+	dayWindow,
+	formatMinutes,
+	planCandidates,
+	taskEstimate,
+} from "../lib/day-plan";
 import {
 	useCalendarEvents,
 	useDayLogMutations,
@@ -73,6 +80,11 @@ export function PlanDayDialog() {
 		[committed, overdue, dueToday, inbox],
 	);
 
+	const byId = useMemo(
+		() => new Map(candidates.map((task) => [task.id, task])),
+		[candidates],
+	);
+
 	// Selection order is the plan order, so the list is ranked by construction.
 	// null means "untouched", which seeds from whatever is already committed
 	// without needing an effect to copy it in when the dialog opens.
@@ -95,7 +107,32 @@ export function PlanDayDialog() {
 		ui.setPlanDayOpen(open);
 	};
 
-	const overTarget = chosen.length > ui.dailyTarget;
+	// Capacity, not task count, decides whether the day is overcommitted: a
+	// five-minute email and a three-hour writing block are not one unit each.
+	const chosenTasks = useMemo(
+		() => chosen.map((id) => byId.get(id)).filter((t): t is Task => !!t),
+		[chosen, byId],
+	);
+	const capacity = dayCapacity({
+		workdayMinutes: ui.workdayMinutes,
+		events,
+		day: now,
+		tasks: chosenTasks,
+	});
+	// Named so the over-capacity hint can point at something specific to drop.
+	const lastPicked = chosenTasks[chosenTasks.length - 1];
+
+	// Both bars are measured against the whole workday, so meetings and tasks
+	// stay comparable and an overcommitted plan visibly fills the track.
+	const day = Math.max(1, capacity.workdayMinutes);
+	const meetingShare = Math.min(
+		100,
+		(capacity.meetingMinutes / day) * 100,
+	);
+	const plannedShare = Math.min(
+		100 - meetingShare,
+		(capacity.plannedMinutes / day) * 100,
+	);
 
 	const commit = () => {
 		planDay.mutate(
@@ -126,14 +163,51 @@ export function PlanDayDialog() {
 					</DialogDescription>
 				</DialogHeader>
 
-				{events.length > 0 ? (
-					<div className="rounded-md border border-border px-3 py-2 text-xs text-muted">
-						{events.length} meeting{events.length === 1 ? "" : "s"} today
-						{events[0]?.startAt
-							? `, first at ${format(new Date(events[0].startAt), "HH:mm")}`
-							: null}
+				<div className="rounded-md border border-border px-3 py-2">
+					<div className="flex h-2 w-full overflow-hidden rounded-full bg-surface-raised">
+						{/* Meetings are charged first, because that is the order reality
+						    applies them. */}
+						<span
+							className="h-full bg-border"
+							style={{ width: `${meetingShare}%` }}
+						/>
+						<span
+							className={cn(
+								"h-full",
+								capacity.isOver ? "bg-p1" : "bg-accent",
+							)}
+							style={{ width: `${plannedShare}%` }}
+						/>
 					</div>
-				) : null}
+					<p
+						className={cn(
+							"mt-2 text-xs",
+							capacity.isOver ? "text-p1" : "text-muted",
+						)}
+					>
+						{capacity.isOver
+							? `${formatMinutes(capacity.plannedMinutes)} planned · ${formatMinutes(capacity.overBy)} over`
+							: `${formatMinutes(capacity.plannedMinutes)} planned · ${formatMinutes(capacity.remainingMinutes)} free`}
+						{` (${formatMinutes(capacity.workdayMinutes)} day`}
+						{capacity.meetingMinutes > 0
+							? ` − ${formatMinutes(capacity.meetingMinutes)} meetings)`
+							: ")"}
+					</p>
+					{capacity.isOver && lastPicked ? (
+						<p className="mt-1 text-xs text-muted">
+							Something has to go. Dropping “{toDisplayString(lastPicked.title)}”
+							frees {formatMinutes(taskEstimate(lastPicked))}.
+						</p>
+					) : null}
+					{events.length > 0 ? (
+						<p className="mt-1 text-xs text-muted">
+							{events.length} meeting{events.length === 1 ? "" : "s"} today
+							{events[0]?.startAt
+								? `, first at ${format(new Date(events[0].startAt), "HH:mm")}`
+								: null}
+						</p>
+					) : null}
+				</div>
 
 				<ScrollArea className="max-h-80">
 					<ul className="flex flex-col gap-1 pr-3">
@@ -155,6 +229,16 @@ export function PlanDayDialog() {
 										<span className="min-w-0 flex-1 truncate">
 											{toDisplayString(task.title)}
 										</span>
+										<span
+											className={cn(
+												"shrink-0 text-xs",
+												task.estimateMinutes === null
+													? "text-muted/60"
+													: "text-muted",
+											)}
+										>
+											{formatMinutes(taskEstimate(task))}
+										</span>
 										{position !== -1 ? (
 											<span className="shrink-0 text-xs text-accent">
 												{position + 1}
@@ -168,13 +252,11 @@ export function PlanDayDialog() {
 				</ScrollArea>
 
 				<DialogFooter className="items-center justify-between sm:justify-between">
-					<span
-						className={overTarget ? "text-xs text-p1" : "text-xs text-muted"}
-					>
-						{chosen.length} chosen
-						{overTarget
-							? ` — more than your usual ${ui.dailyTarget}`
-							: ` of about ${ui.dailyTarget}`}
+					{/* Count only, no second warning: two competing warnings train you
+					    to ignore both, and capacity above is the honest one. */}
+					<span className="text-xs text-muted">
+						{chosen.length} chosen ·{" "}
+						{formatMinutes(capacity.plannedMinutes)}
 					</span>
 					<span className="flex gap-2">
 						<Button variant="outline" onClick={() => setOpen(false)}>

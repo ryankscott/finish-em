@@ -61,6 +61,7 @@ export type ApiClient = {
 			| null;
 		recurrenceRRule?: string | null;
 		someday?: boolean;
+		estimateMinutes?: number | null;
 	}) => Promise<Task>;
 	listGoals: (query?: {
 		periodType?: "daily" | "weekly";
@@ -97,6 +98,8 @@ export type ApiClient = {
 				| null;
 			recurrenceRRule?: string | null;
 			someday?: boolean;
+			estimateMinutes?: number | null;
+			plannedStartAt?: string | null;
 		},
 	) => Promise<Task>;
 	deleteTask: (taskId: number) => Promise<void>;

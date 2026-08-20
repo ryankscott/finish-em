@@ -265,3 +265,110 @@ describe("day log", () => {
 		expect(afterClose.closedAt).not.toBeNull();
 	});
 });
+
+describe("estimates and timeboxes", () => {
+	const NINE_AM = "2026-08-20T09:00:00.000Z";
+
+	it("persists an estimate given at creation", async () => {
+		const db = await getDb();
+		const task = await createTask(db, {
+			projectId: 1,
+			title: "write the spec",
+			estimateMinutes: 90,
+		});
+		expect(task.estimateMinutes).toBe(90);
+		expect((await getTask(db, task.id))?.estimateMinutes).toBe(90);
+	});
+
+	it("leaves an omitted estimate null rather than guessing on the server", async () => {
+		const task = await makeTask("unsized");
+		expect(task.estimateMinutes).toBeNull();
+		expect(task.plannedStartAt).toBeNull();
+	});
+
+	it("keeps an explicit zero distinct from never estimated", async () => {
+		const db = await getDb();
+		const task = await createTask(db, {
+			projectId: 1,
+			title: "trivial",
+			estimateMinutes: 0,
+		});
+		expect(task.estimateMinutes).toBe(0);
+	});
+
+	it("round-trips a timebox", async () => {
+		const db = await getDb();
+		const task = await makeTask("focus block");
+		await updateTask(db, task.id, { scheduledAt: TODAY });
+
+		const boxed = await updateTask(db, task.id, { plannedStartAt: NINE_AM });
+		expect(boxed?.plannedStartAt).toBe(NINE_AM);
+		expect((await getTask(db, task.id))?.plannedStartAt).toBe(NINE_AM);
+	});
+
+	it("clears the timebox when the task loses its day", async () => {
+		const db = await getDb();
+		const task = await makeTask("back to the backlog");
+		await updateTask(db, task.id, {
+			scheduledAt: TODAY,
+			plannedStartAt: NINE_AM,
+		});
+
+		const backlogged = await updateTask(db, task.id, { scheduledAt: null });
+		expect(backlogged?.plannedStartAt).toBeNull();
+		expect(backlogged?.planOrder).toBe(0);
+	});
+
+	it("clears the timebox on completion", async () => {
+		const db = await getDb();
+		const task = await makeTask("done and gone");
+		await updateTask(db, task.id, {
+			scheduledAt: TODAY,
+			plannedStartAt: NINE_AM,
+		});
+
+		const { task: completed } = await completeTask(db, task.id);
+		expect(completed?.plannedStartAt).toBeNull();
+		expect(completed?.startedAt).toBeNull();
+		expect(completed?.planOrder).toBe(0);
+	});
+
+	it("preserves timeboxes when the day is re-planned", async () => {
+		const db = await getDb();
+		const a = await makeTask("a");
+		const b = await makeTask("b");
+		await planDay(db, TODAY, [a.id, b.id]);
+		await updateTask(db, a.id, { plannedStartAt: NINE_AM });
+
+		// Re-ranking a day must not throw away the times already committed to it.
+		const replanned = await planDay(db, TODAY, [b.id, a.id]);
+
+		expect(replanned.map((t) => t.title)).toEqual(["b", "a"]);
+		expect(replanned.find((t) => t.id === a.id)?.plannedStartAt).toBe(NINE_AM);
+		expect(replanned.find((t) => t.id === b.id)?.plannedStartAt).toBeNull();
+	});
+
+	it("does not disturb an estimate when other fields are patched", async () => {
+		const db = await getDb();
+		const task = await createTask(db, {
+			projectId: 1,
+			title: "sized",
+			estimateMinutes: 45,
+		});
+
+		const renamed = await updateTask(db, task.id, { title: "still sized" });
+		expect(renamed?.estimateMinutes).toBe(45);
+	});
+
+	it("clears an estimate when explicitly nulled", async () => {
+		const db = await getDb();
+		const task = await createTask(db, {
+			projectId: 1,
+			title: "unsize me",
+			estimateMinutes: 45,
+		});
+
+		const cleared = await updateTask(db, task.id, { estimateMinutes: null });
+		expect(cleared?.estimateMinutes).toBeNull();
+	});
+});

@@ -20,8 +20,10 @@ import {
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { parseDurationMinutes } from "@/lib/parsing/parse-duration";
 import type { RecurrencePreset } from "@/server/types";
 import { cn } from "../lib/cn";
+import { formatMinutes } from "../lib/day-plan";
 import { formatDateField, resolveDateField } from "../lib/date-field";
 import { useHotkeyScope } from "../lib/hotkeys";
 import {
@@ -38,6 +40,9 @@ import { PriorityFlag } from "./PriorityFlag";
 import { ProjectPickerSheet } from "./ProjectPickerSheet";
 import { RecurrenceSelector } from "./RecurrenceSelector";
 import { TaskReminderField } from "./TaskReminderField";
+
+/** 15m / 30m / 1h / 90m: the sizes almost every task actually is. */
+const ESTIMATE_PRESETS = [15, 30, 60, 90];
 
 const PRIORITY_LABELS: Record<number, string> = {
 	1: "Urgent",
@@ -80,6 +85,8 @@ export function TaskEditDialog() {
 	const [recurrenceRRule, setRecurrenceRRule] = useState<string | null>(null);
 	const [notes, setNotes] = useState("");
 	const [someday, setSomeday] = useState(false);
+	// Free text rather than a number input: "1h30" is how people write it.
+	const [estimate, setEstimate] = useState("");
 
 	useEffect(() => {
 		if (!task) return;
@@ -92,6 +99,9 @@ export function TaskEditDialog() {
 		setRecurrenceRRule(task.recurrenceRRule ?? null);
 		setNotes(task.notes);
 		setSomeday(task.someday);
+		setEstimate(
+			task.estimateMinutes === null ? "" : String(task.estimateMinutes),
+		);
 		setCalendarEventUid(task.calendarEventUid ?? null);
 	}, [task]);
 
@@ -118,6 +128,18 @@ export function TaskEditDialog() {
 			toast.error("Title is required");
 			return;
 		}
+		// Blank clears the estimate; anything unreadable stops the save rather
+		// than silently discarding what was typed.
+		const trimmedEstimate = estimate.trim();
+		const estimateMinutes =
+			trimmedEstimate.length === 0
+				? null
+				: parseDurationMinutes(trimmedEstimate);
+		if (estimateMinutes === undefined) {
+			toast.error("Estimate accepts: 45m, 1h, 1h30, 90");
+			return;
+		}
+
 		const dueAt = resolveDateField(due, task.dueAt);
 		const scheduledAt = resolveDateField(scheduled, task.scheduledAt);
 		if (dueAt === "invalid" || scheduledAt === "invalid") {
@@ -140,6 +162,7 @@ export function TaskEditDialog() {
 					recurrenceRRule,
 					notes,
 					someday,
+					estimateMinutes,
 				},
 			},
 			{
@@ -263,6 +286,39 @@ export function TaskEditDialog() {
 						</Select>
 					)}
 				</div>
+			</div>
+			<div className={twoCol}>
+				<div className="flex flex-col gap-1">
+					<Label>Estimate</Label>
+					{/* Presets first: tapping "30m" is not a decision, typing a number
+					    is. The field stays for anything the presets do not cover. */}
+					<div className="flex gap-1.5">
+						{ESTIMATE_PRESETS.map((minutes) => (
+							<button
+								key={minutes}
+								type="button"
+								onClick={() => setEstimate(String(minutes))}
+								aria-pressed={estimate.trim() === String(minutes)}
+								className={cn(
+									"flex-1 rounded-md border px-2 py-1.5 text-sm",
+									isMobile && "min-h-11",
+									estimate.trim() === String(minutes)
+										? "border-accent bg-accent/15 text-foreground"
+										: "border-border text-muted",
+								)}
+							>
+								{formatMinutes(minutes)}
+							</button>
+						))}
+					</div>
+					<Input
+						value={estimate}
+						onChange={(e) => setEstimate(e.target.value)}
+						placeholder="45m, 1h, 1h30 — blank for none"
+						aria-label="Estimate"
+					/>
+				</div>
+				<div className="flex flex-col gap-1" />
 			</div>
 			<div className={twoCol}>
 				<div className="flex flex-col gap-1">

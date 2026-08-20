@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ensureScheme, toDisplaySegments } from "@/lib/task-links";
 import type { Task } from "@/server/types";
 
+import { formatMinutes } from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjects, useTaskMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
@@ -114,6 +115,21 @@ export function TaskListView({
 		});
 	};
 
+	const setEstimate = (minutes: number) => {
+		if (!selected) return;
+		updateTask.mutate(
+			{
+				taskId: selected.task.id,
+				input: { estimateMinutes: minutes },
+				before: selected.task,
+			},
+			{
+				onSuccess: () => toast.success(`Estimated ${formatMinutes(minutes)}`),
+				onError: (err) => toast.error(err.message),
+			},
+		);
+	};
+
 	useHotkeyScope({
 		j: () => setSelectedIndex((i) => Math.min(i + 1, rows.length - 1)),
 		arrowdown: () => setSelectedIndex((i) => Math.min(i + 1, rows.length - 1)),
@@ -180,6 +196,12 @@ export function TaskListView({
 				},
 			);
 		},
+		// Sizing a task has to be cheaper than opening the editor, or it never
+		// happens and the capacity readout stays a guess.
+		"shift+1": () => setEstimate(15),
+		"shift+2": () => setEstimate(30),
+		"shift+3": () => setEstimate(60),
+		"shift+4": () => setEstimate(90),
 		f: () => {
 			if (!selected) return;
 			const mutation = selected.task.startedAt ? stopTask : startTask;

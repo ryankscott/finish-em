@@ -37,6 +37,12 @@ const MIN_DAILY_TARGET = 1;
 const MAX_DAILY_TARGET = 100;
 const DEFAULT_DAILY_TARGET = 10;
 
+// Six hours of real focus rather than eight hours at a desk. Meetings come out
+// of this before tasks get any of it.
+const MIN_WORKDAY_MINUTES = 60;
+const MAX_WORKDAY_MINUTES = 720;
+const DEFAULT_WORKDAY = 360;
+
 function readStoredNumber(key: string, fallback: number): number {
 	try {
 		const stored = localStorage.getItem(key);
@@ -101,6 +107,10 @@ type UiState = {
 
 	dailyTarget: number;
 	setDailyTarget: (target: number) => void;
+
+	/** Minutes of task time a day can hold before meetings are subtracted. */
+	workdayMinutes: number;
+	setWorkdayMinutes: (minutes: number) => void;
 };
 
 const UiContext = createContext<UiState | null>(null);
@@ -150,6 +160,9 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 	const [dailyTarget, setDailyTargetRaw] = useState(() =>
 		readStoredNumber("dailyTarget", DEFAULT_DAILY_TARGET),
 	);
+	const [workdayMinutes, setWorkdayMinutesRaw] = useState(() =>
+		readStoredNumber("workdayMinutes", DEFAULT_WORKDAY),
+	);
 
 	useEffect(() => {
 		// index.html ships with class="dark" as the pre-hydration default so
@@ -177,6 +190,10 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		localStorage.setItem("dailyTarget", String(dailyTarget));
 	}, [dailyTarget]);
 
+	useEffect(() => {
+		localStorage.setItem("workdayMinutes", String(workdayMinutes));
+	}, [workdayMinutes]);
+
 	const setSidebarWidth = useCallback((width: number) => {
 		setSidebarWidthRaw(
 			Math.min(
@@ -191,6 +208,15 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			Math.min(
 				MAX_DAILY_TARGET,
 				Math.max(MIN_DAILY_TARGET, Math.round(target)),
+			),
+		);
+	}, []);
+
+	const setWorkdayMinutes = useCallback((minutes: number) => {
+		setWorkdayMinutesRaw(
+			Math.min(
+				MAX_WORKDAY_MINUTES,
+				Math.max(MIN_WORKDAY_MINUTES, Math.round(minutes)),
 			),
 		);
 	}, []);
@@ -226,6 +252,8 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			toggleTheme: () => setThemeMode(theme === "dark" ? "light" : "dark"),
 			dailyTarget,
 			setDailyTarget,
+			workdayMinutes,
+			setWorkdayMinutes,
 		}),
 		[
 			quickAdd,
@@ -242,6 +270,8 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			theme,
 			dailyTarget,
 			setDailyTarget,
+			workdayMinutes,
+			setWorkdayMinutes,
 			setSidebarWidth,
 		],
 	);

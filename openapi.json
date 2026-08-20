@@ -502,6 +502,18 @@
               "null"
             ]
           },
+          "estimateMinutes": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "plannedStartAt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "completedAt": {
             "type": [
               "string",
@@ -543,6 +555,8 @@
           "someday",
           "planOrder",
           "startedAt",
+          "estimateMinutes",
+          "plannedStartAt",
           "completedAt",
           "deletedAt",
           "calendarEventUid",
@@ -638,6 +652,14 @@
           },
           "someday": {
             "type": "boolean"
+          },
+          "estimateMinutes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1440
           }
         },
         "required": [
@@ -730,6 +752,20 @@
           },
           "someday": {
             "type": "boolean"
+          },
+          "estimateMinutes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0,
+            "maximum": 1440
+          },
+          "plannedStartAt": {
+            "type": [
+              "string",
+              "null"
+            ]
           }
         }
       },

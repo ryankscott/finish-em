@@ -10,6 +10,7 @@ import {
 } from "date-fns";
 
 import type { Priority, Project, RecurrencePreset } from "../../server/types";
+import { parseDurationMinutes } from "./parse-duration";
 import { extractTokenValue, maskUrls } from "./token-input";
 
 export type TaskEditPatch = {
@@ -23,6 +24,7 @@ export type TaskEditPatch = {
 	dueTimezone?: string;
 	recurrencePreset?: RecurrencePreset;
 	recurrenceRRule?: string | null;
+	estimateMinutes?: number | null;
 };
 
 export type ParseTaskEditResult = {
@@ -135,6 +137,9 @@ export function parseDatePhrase(phrase: string): string | null {
 // Known token prefixes used to delimit multi-word project names and notes
 const TOKEN_PREFIXES = [
 	"due:",
+	"est:",
+	"estimate:",
+	"⏱",
 	"scheduled:",
 	"sch:",
 	"recurs:",
@@ -176,6 +181,23 @@ export function parseTaskEditInput(
 		patch.priority = Number(value) as Priority;
 		working = working
 			.replace(priorityMatch[0], "")
+			.replace(/\s{2,}/g, " ")
+			.trim();
+	}
+
+	// --- est:<duration>, estimate:<duration>, ⏱ <duration> ---
+	const estimateMatch = working.match(
+		/(?:\best:|\bestimate:|⏱)\s*([^\s]+(?:\s+\d+\s*m(?:in(?:ute)?s?)?)?)/i,
+	);
+	if (estimateMatch?.[1]) {
+		const minutes = parseDurationMinutes(estimateMatch[1]);
+		if (minutes === undefined) {
+			warnings.push(`Could not read estimate "${estimateMatch[1]}"`);
+		} else {
+			patch.estimateMinutes = minutes;
+		}
+		working = working
+			.replace(estimateMatch[0], "")
 			.replace(/\s{2,}/g, " ")
 			.trim();
 	}
