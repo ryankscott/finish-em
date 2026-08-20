@@ -50,7 +50,9 @@ export async function fetchDigest(now = new Date()): Promise<Digest> {
 	const startOfTomorrow = new Date(
 		new Date(startOfToday).getTime() + DAY_MS,
 	).toISOString();
-	const staleBefore = new Date(now.getTime() - STALE_DAYS * DAY_MS).toISOString();
+	const staleBefore = new Date(
+		now.getTime() - STALE_DAYS * DAY_MS,
+	).toISOString();
 
 	const [dueTodayRaw, overdueRaw, staleRaw] = await Promise.all([
 		apiGet<Task[]>(
@@ -61,7 +63,9 @@ export async function fetchDigest(now = new Date()): Promise<Digest> {
 				to: startOfTomorrow,
 			}),
 		),
-		apiGet<Task[]>(query({ status: "open", rootsOnly: true, to: startOfToday })),
+		apiGet<Task[]>(
+			query({ status: "open", rootsOnly: true, to: startOfToday }),
+		),
 		apiGet<Task[]>(query({ status: "open", rootsOnly: true, staleBefore })),
 	]);
 

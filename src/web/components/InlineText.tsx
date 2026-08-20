@@ -9,10 +9,12 @@ export function InlineText({ text }: { text: string }) {
 		<>
 			{segments.map((seg, i) => {
 				if (seg.type === "text") {
+					// biome-ignore lint/suspicious/noArrayIndexKey: segments are positional slices of one string, so the index is the identity
 					return <span key={i}>{seg.text}</span>;
 				}
 				return (
 					<a
+						// biome-ignore lint/suspicious/noArrayIndexKey: segments are positional slices of one string, so the index is the identity
 						key={i}
 						href={ensureScheme(seg.url)}
 						target="_blank"

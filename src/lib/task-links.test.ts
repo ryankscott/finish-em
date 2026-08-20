@@ -115,10 +115,7 @@ describe("task-links", () => {
 				getLinkDisplayLabel("https://github.com/user/repo/pull/42", null),
 			).toBe("user/repo#42");
 			expect(
-				getLinkDisplayLabel(
-					"https://myco.atlassian.net/browse/PROJ-123",
-					null,
-				),
+				getLinkDisplayLabel("https://myco.atlassian.net/browse/PROJ-123", null),
 			).toBe("PROJ-123");
 		});
 

@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, mock } from "bun:test";
-import { spawn } from "node:child_process";
 
 import { withScheme } from "./open-url";
 
@@ -35,7 +34,6 @@ describe("withScheme", () => {
 });
 
 describe("openUrl spawn behavior", () => {
-	const originalSpawn = spawn;
 	let spawnCalls: {
 		cmd: string;
 		args: string[];

@@ -10,13 +10,13 @@ export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 function Chevron({
 	orientation,
 	...chevronProps
-}: React.ComponentProps<typeof DayPicker> extends {
-	components: { Chevron: infer C };
-}
-	? C extends (props: infer P) => unknown
-		? P
-		: never
-	: never) {
+}: {
+	className?: string;
+	style?: React.CSSProperties;
+	size?: number;
+	disabled?: boolean;
+	orientation?: "left" | "up" | "down" | "right";
+}) {
 	if (orientation === "left") {
 		return <ChevronLeft className="h-4 w-4" {...chevronProps} />;
 	}

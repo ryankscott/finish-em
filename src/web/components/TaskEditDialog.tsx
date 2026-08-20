@@ -1,5 +1,5 @@
 import { ChevronRight, Plus, Sparkles } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -59,6 +59,7 @@ function buildClaudeDelegateHref(title: string): string {
 }
 
 export function TaskEditDialog() {
+	const somedayId = useId();
 	const ui = useUi();
 	const isMobile = useIsMobile();
 	const keyboardInset = useKeyboardInset();
@@ -291,17 +292,17 @@ export function TaskEditDialog() {
 					/>
 				</div>
 				<div className="flex flex-col gap-1">
-					<Label htmlFor="task-someday">Someday</Label>
+					<Label htmlFor={somedayId}>Someday</Label>
 					<div
 						className={cn("flex items-center gap-2", isMobile ? "h-11" : "h-9")}
 					>
 						<Switch
-							id="task-someday"
+							id={somedayId}
 							checked={someday}
 							onCheckedChange={setSomeday}
 						/>
 						<label
-							htmlFor="task-someday"
+							htmlFor={somedayId}
 							className="cursor-pointer text-sm text-muted"
 						>
 							Park in Someday

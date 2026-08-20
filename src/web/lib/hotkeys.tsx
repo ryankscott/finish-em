@@ -7,6 +7,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useRef } from "react";
 
+// biome-ignore lint/suspicious/noConfusingVoidType: returning true consumes the event; handlers that return nothing let it fall through
 export type HotkeyHandler = (event: KeyboardEvent) => boolean | void;
 
 export type HotkeyMap = Record<string, HotkeyHandler>;

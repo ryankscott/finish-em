@@ -64,13 +64,7 @@ export function LinkIcon({
 // Slack's mark is four colored bars, not a single-tone glyph, so it can't
 // share the currentColor path map above. Colors and geometry from Slack's
 // official brand SVG.
-function SlackIcon({
-	className,
-	name,
-}: {
-	className?: string;
-	name: string;
-}) {
+function SlackIcon({ className, name }: { className?: string; name: string }) {
 	return (
 		<svg
 			viewBox="0 0 127 127"

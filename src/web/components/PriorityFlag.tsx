@@ -29,9 +29,10 @@ export function PriorityFlag({
 				priorityColorClass[priority] ?? "text-muted",
 				className,
 			)}
-			title={priorityLabel[priority] ?? `P${priority}`}
 			aria-label={`Priority ${priority}: ${priorityLabel[priority] ?? `P${priority}`}`}
 			strokeWidth={2.5}
-		/>
+		>
+			<title>{priorityLabel[priority] ?? `P${priority}`}</title>
+		</Flag>
 	);
 }
