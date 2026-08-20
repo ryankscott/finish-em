@@ -35,10 +35,7 @@ export type ApiClient = {
 		to?: string;
 	}) => Promise<CalendarEvent[]>;
 	refreshCalendar: () => Promise<{ count: number; lastSyncedAt: string }>;
-	linkTaskToEvent: (
-		taskId: number,
-		eventUid: string | null,
-	) => Promise<Task>;
+	linkTaskToEvent: (taskId: number, eventUid: string | null) => Promise<Task>;
 	listProjects: () => Promise<Project[]>;
 	listTasks: (query?: TaskQuery) => Promise<Task[]>;
 	createTask: (input: {

@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from "react";
 
 import type { Project, Task } from "@/server/types";
 
@@ -170,23 +177,23 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		localStorage.setItem("dailyTarget", String(dailyTarget));
 	}, [dailyTarget]);
 
-	const setSidebarWidth = (width: number) => {
+	const setSidebarWidth = useCallback((width: number) => {
 		setSidebarWidthRaw(
 			Math.min(
 				MAX_SIDEBAR_WIDTH,
 				Math.max(MIN_SIDEBAR_WIDTH, Math.round(width)),
 			),
 		);
-	};
+	}, []);
 
-	const setDailyTarget = (target: number) => {
+	const setDailyTarget = useCallback((target: number) => {
 		setDailyTargetRaw(
 			Math.min(
 				MAX_DAILY_TARGET,
 				Math.max(MIN_DAILY_TARGET, Math.round(target)),
 			),
 		);
-	};
+	}, []);
 
 	const value = useMemo<UiState>(
 		() => ({
@@ -228,6 +235,8 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			search,
 			theme,
 			dailyTarget,
+			setSidebarWidth,
+			setDailyTarget,
 		],
 	);
 

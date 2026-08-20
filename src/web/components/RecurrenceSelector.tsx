@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import {
 	Select,
 	SelectContent,
@@ -86,11 +90,7 @@ export function rruleToConfig(
 	const base = defaultConfig();
 
 	if (rrule) {
-		const parts = rrule
-			.trim()
-			.toUpperCase()
-			.split(";")
-			.filter(Boolean);
+		const parts = rrule.trim().toUpperCase().split(";").filter(Boolean);
 		const data = new Map<string, string>();
 		for (const part of parts) {
 			const eq = part.indexOf("=");
@@ -197,7 +197,11 @@ export function configToRRule(config: RecurrenceConfig): string | null {
 }
 
 export function configToPreset(config: RecurrenceConfig): RecurrencePreset {
-	if (config.freq === "none" || config.endType !== "none" || config.interval !== 1) {
+	if (
+		config.freq === "none" ||
+		config.endType !== "none" ||
+		config.interval !== 1
+	) {
 		return null;
 	}
 
@@ -281,9 +285,8 @@ export function RecurrenceSelector({
 }: RecurrenceSelectorProps) {
 	const isMobile = useIsMobile();
 	const [open, setOpen] = useState(false);
-	const [draftConfig, setDraftConfig] = useState<RecurrenceConfig>(
-		defaultConfig,
-	);
+	const [draftConfig, setDraftConfig] =
+		useState<RecurrenceConfig>(defaultConfig);
 	const [draftStart, setDraftStart] = useState(startDate || todayIso());
 
 	useEffect(() => {
@@ -339,7 +342,10 @@ export function RecurrenceSelector({
 				</button>
 			</PopoverTrigger>
 			<PopoverContent
-				className={cn(isMobile ? "w-[calc(100vw-2rem)] max-w-sm" : "w-80", "p-4")}
+				className={cn(
+					isMobile ? "w-[calc(100vw-2rem)] max-w-sm" : "w-80",
+					"p-4",
+				)}
 				align="start"
 			>
 				<p className="mb-3 text-sm font-semibold">Recurrence</p>
@@ -390,7 +396,10 @@ export function RecurrenceSelector({
 								onChange={(e) =>
 									setDraftConfig((c) => ({
 										...c,
-										interval: Math.max(1, parseInt(e.target.value) || 1),
+										interval: Math.max(
+											1,
+											Number.parseInt(e.target.value, 10) || 1,
+										),
 									}))
 								}
 								className="w-16"
@@ -407,9 +416,7 @@ export function RecurrenceSelector({
 									"mb-3",
 									// The day row needs its full width for 7 44px-ish touch
 									// targets; stacked, not squeezed next to a label column.
-									isMobile
-										? "flex flex-col gap-2"
-										: "flex items-center gap-3",
+									isMobile ? "flex flex-col gap-2" : "flex items-center gap-3",
 								)}
 							>
 								<Label className="w-16 shrink-0 text-sm">On</Label>
@@ -473,7 +480,10 @@ export function RecurrenceSelector({
 										onChange={(e) =>
 											setDraftConfig((c) => ({
 												...c,
-												count: Math.max(1, parseInt(e.target.value) || 1),
+												count: Math.max(
+													1,
+													Number.parseInt(e.target.value, 10) || 1,
+												),
 											}))
 										}
 										className="w-16"

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import type { Project } from "../../server/types";
+import type { Priority, Project, RecurrencePreset } from "../../server/types";
 import {
 	parseTaskEditInput,
 	serializeTaskToEditInput,
@@ -57,7 +57,7 @@ describe("parseTaskEditInput", () => {
 			["p4", 4],
 		])("parses %s → priority %i", (token, expected) => {
 			const { patch } = parseTaskEditInput(`Buy milk ${token}`, PROJECTS);
-			expect(patch.priority).toBe(expected);
+			expect(patch.priority).toBe(expected as Priority);
 		});
 
 		it("is case-insensitive", () => {
@@ -93,7 +93,7 @@ describe("parseTaskEditInput", () => {
 				`Standup recurs:${preset}`,
 				PROJECTS,
 			);
-			expect(patch.recurrencePreset).toBe(expected);
+			expect(patch.recurrencePreset).toBe(expected as RecurrencePreset);
 		});
 
 		it("clears recurrence with recurs:none", () => {

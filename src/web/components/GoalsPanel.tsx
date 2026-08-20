@@ -55,6 +55,7 @@ function GoalRow({ goal }: { goal: Goal }) {
 			{editing ? (
 				<input
 					value={title}
+					// biome-ignore lint/a11y/noAutofocus: inline edit opens on demand, so focus belongs in the field the user just opened
 					autoFocus
 					onChange={(e) => setTitle(e.target.value)}
 					onBlur={saveTitle}
@@ -180,6 +181,7 @@ export function GoalsPanel({
 					<div className="flex items-center gap-1 px-2 py-1">
 						<input
 							value={value}
+							// biome-ignore lint/a11y/noAutofocus: the new-goal row only renders after the user asks to add one
 							autoFocus
 							placeholder="New goal"
 							onChange={(e) => setValue(e.target.value)}

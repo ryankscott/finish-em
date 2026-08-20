@@ -84,8 +84,8 @@ export function LogbookView() {
 
 				{groups.length === 0 ? (
 					<p className="text-sm text-muted">
-						Nothing completed{" "}
-						{mode === "week" ? "this week" : "this month"} yet.
+						Nothing completed {mode === "week" ? "this week" : "this month"}{" "}
+						yet.
 					</p>
 				) : (
 					groups.map((group) => (
