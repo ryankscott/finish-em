@@ -2,6 +2,7 @@ import type {
 	AppSettings,
 	CalendarEvent,
 	CompletionLog,
+	DayLog,
 	Goal,
 	Project,
 	ProjectResourceInput,
@@ -20,6 +21,10 @@ export type TaskQuery = {
 	rootsOnly?: boolean;
 	someday?: boolean;
 	recurring?: boolean;
+	/** Commitment window on `scheduledAt`, as opposed to from/to on `dueAt`. */
+	scheduledFrom?: string;
+	scheduledTo?: string;
+	unplanned?: boolean;
 };
 
 export type ApiClient = {
@@ -35,10 +40,7 @@ export type ApiClient = {
 		to?: string;
 	}) => Promise<CalendarEvent[]>;
 	refreshCalendar: () => Promise<{ count: number; lastSyncedAt: string }>;
-	linkTaskToEvent: (
-		taskId: number,
-		eventUid: string | null,
-	) => Promise<Task>;
+	linkTaskToEvent: (taskId: number, eventUid: string | null) => Promise<Task>;
 	listProjects: () => Promise<Project[]>;
 	listTasks: (query?: TaskQuery) => Promise<Task[]>;
 	createTask: (input: {
@@ -101,6 +103,13 @@ export type ApiClient = {
 	listDeletedTasks: () => Promise<Task[]>;
 	undeleteTask: (taskId: number) => Promise<Task>;
 	completeTask: (taskId: number) => Promise<Task>;
+	/** Commit an ordered list of tasks to one day, replacing that day's plan. */
+	planDay: (day: string, taskIds: number[]) => Promise<Task[]>;
+	startTask: (taskId: number) => Promise<Task>;
+	stopTask: (taskId: number) => Promise<Task>;
+	getDayLog: (day: string) => Promise<DayLog>;
+	markDayPlanned: (day: string) => Promise<DayLog>;
+	markDayClosed: (day: string) => Promise<DayLog>;
 	uncompleteTask: (taskId: number) => Promise<Task>;
 	createProject: (input: {
 		name: string;

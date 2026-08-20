@@ -17,9 +17,11 @@ import { useHotkeyScope } from "../lib/hotkeys";
 import { useUndo } from "../lib/undo";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { useUi } from "../state/ui";
+import { CloseDayDialog } from "./CloseDayDialog";
 import { CommandPalette } from "./CommandPalette";
 import { HelpDialog } from "./HelpDialog";
 import { MOBILE_NAV_PATHS, MobileNav } from "./MobileNav";
+import { PlanDayDialog } from "./PlanDayDialog";
 import { ProjectDialog } from "./ProjectDialog";
 import { QuickAdd } from "./QuickAdd";
 import { ReminderWatcher } from "./ReminderWatcher";
@@ -99,6 +101,7 @@ export function AppShell() {
 
 	// Close the drawer on navigation, so tapping a link doesn't leave it covering
 	// the view it just navigated to.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: pathname is the trigger, not a value the effect reads
 	useEffect(() => {
 		setDrawerOpen(false);
 	}, [pathname]);
@@ -111,6 +114,8 @@ export function AppShell() {
 	useHotkeyScope(
 		{
 			a: () => ui.openQuickAdd(),
+			p: () => ui.setPlanDayOpen(true),
+			w: () => ui.setCloseDayOpen(true),
 			"shift+a": () => ui.openQuickAdd(),
 			"shift+p": () => ui.openProjectDialog({ mode: "create" }),
 			"/": () => searchRef.current?.focus(),
@@ -119,7 +124,7 @@ export function AppShell() {
 			"mod+z": () => void undoLast(),
 			u: () => void undoLast(),
 			"\\": () => ui.toggleSidebar(),
-			r: () => queryClient.invalidateQueries(),
+			r: () => void queryClient.invalidateQueries(),
 			...Object.fromEntries(
 				VIEW_KEYS.map((to, index) => [
 					String(index + 1),
@@ -235,6 +240,8 @@ export function AppShell() {
 
 			<QuickAdd />
 			<TaskEditDialog />
+			<PlanDayDialog />
+			<CloseDayDialog />
 			<ProjectDialog />
 			{isMobile ? null : <HelpDialog />}
 			<CommandPalette />

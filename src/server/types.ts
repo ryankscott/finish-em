@@ -52,6 +52,8 @@ export type Task = {
 	recurrenceRRule: string | null;
 	status: TaskStatus;
 	someday: boolean;
+	planOrder: number;
+	startedAt: string | null;
 	completedAt: string | null;
 	deletedAt: string | null;
 	calendarEventUid: string | null;
@@ -121,4 +123,15 @@ export type TaskFilters = {
 	someday?: boolean;
 	recurring?: boolean;
 	staleBefore?: string;
+	/** Commitment window on `scheduled_at`, as opposed to `from`/`to` on `due_at`. */
+	scheduledFrom?: string;
+	scheduledTo?: string;
+	/** Only tasks with no `scheduled_at` -- the backlog. */
+	unplanned?: boolean;
+};
+
+export type DayLog = {
+	day: string;
+	plannedAt: string | null;
+	closedAt: string | null;
 };

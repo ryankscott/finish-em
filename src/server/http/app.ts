@@ -13,6 +13,7 @@ import { createRoute, OpenAPIHono, type RouteConfig } from "@hono/zod-openapi";
 import type { Context } from "hono";
 
 import type { Db } from "@/server/db/types";
+import * as dayLogRepo from "@/server/repos/day-log";
 import * as goalRepo from "@/server/repos/goals";
 import * as projectRepo from "@/server/repos/projects";
 import * as reminderRepo from "@/server/repos/reminders";
@@ -35,6 +36,8 @@ import {
 	calendarQuerySchema,
 	calendarRefreshResultSchema,
 	completionLogSchema,
+	dayLogSchema,
+	dayParamSchema,
 	emptySchema,
 	errorSchema,
 	goalCreateSchema,
@@ -45,6 +48,7 @@ import {
 	idParamSchema,
 	linkEventSchema,
 	loginSchema,
+	planDaySchema,
 	projectCreateSchema,
 	projectReorderSchema,
 	projectSchema,
@@ -455,6 +459,62 @@ export function createApp({ resolveDb, getSecret }: AppOptions) {
 
 	taskAction("/api/tasks/{id}/undelete", (db, id) =>
 		taskRepo.undeleteTask(db, id),
+	);
+
+	taskAction("/api/tasks/{id}/start", (db, id) => taskRepo.startTask(db, id));
+	taskAction("/api/tasks/{id}/stop", (db, id) => taskRepo.stopTask(db, id));
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/tasks/plan",
+			request: {
+				body: { content: { "application/json": { schema: planDaySchema } } },
+			},
+			responses: jsonResponse(taskSchema.array(), "The day's plan"),
+		}),
+		async (c) => {
+			const { day, taskIds } = c.req.valid("json");
+			return c.json(await taskRepo.planDay(c.get("db"), day, taskIds), 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/days/{day}",
+			request: { params: dayParamSchema },
+			responses: jsonResponse(dayLogSchema, "Day log"),
+		}),
+		async (c) => {
+			const { day } = c.req.valid("param");
+			return c.json(await dayLogRepo.getDayLog(c.get("db"), day), 200);
+		},
+	);
+
+	const dayAction = (
+		path: string,
+		action: (db: Db, day: string) => ReturnType<typeof dayLogRepo.getDayLog>,
+	) => {
+		app.openapi(
+			createRoute({
+				method: "post",
+				path,
+				request: { params: dayParamSchema },
+				responses: jsonResponse(dayLogSchema, "Day log"),
+			}),
+			async (c) => {
+				const { day } = c.req.valid("param");
+				return c.json(await action(c.get("db"), day), 200);
+			},
+		);
+	};
+
+	dayAction("/api/days/{day}/planned", (db, day) =>
+		dayLogRepo.markDayPlanned(db, day),
+	);
+	dayAction("/api/days/{day}/closed", (db, day) =>
+		dayLogRepo.markDayClosed(db, day),
 	);
 
 	app.openapi(

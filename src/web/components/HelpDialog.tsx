@@ -35,6 +35,19 @@ const SECTIONS: Array<[string, Array<[string, string]>]> = [
 		],
 	],
 	[
+		"The day",
+		[
+			["p", "Plan my day"],
+			["w", "Wrap up / close the day"],
+			["c", "Commit selected task to today"],
+			["f", "Start or stop working on the selected task"],
+			[
+				"x t b s d",
+				"Inside Close the day: done, tomorrow, backlog, someday, drop",
+			],
+		],
+	],
+	[
 		"Projects",
 		[
 			["P", "New project"],

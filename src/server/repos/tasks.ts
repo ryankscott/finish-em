@@ -76,6 +76,23 @@ function buildFilterClause(filters: TaskFilters) {
 		values.push(filters.staleBefore);
 	}
 
+	// scheduledFrom/scheduledTo filter the commitment ("doing it this day"),
+	// where from/to above filter the deadline. A task can be in today's plan
+	// and due next week, or overdue and not planned at all.
+	if (filters.scheduledFrom) {
+		clauses.push("scheduled_at >= ?");
+		values.push(filters.scheduledFrom);
+	}
+
+	if (filters.scheduledTo) {
+		clauses.push("scheduled_at <= ?");
+		values.push(filters.scheduledTo);
+	}
+
+	if (filters.unplanned === true) {
+		clauses.push("scheduled_at IS NULL");
+	}
+
 	// Always exclude soft-deleted tasks from regular queries
 	clauses.push("deleted_at IS NULL");
 
@@ -243,6 +260,8 @@ export async function updateTask(
 			? existing.parentTaskId
 			: patch.parentTaskId;
 	const nextStatus = patch.status ?? existing.status;
+	const nextScheduledAt =
+		patch.scheduledAt === undefined ? existing.scheduledAt : patch.scheduledAt;
 
 	if (nextParentTaskId !== null && (await taskHasChildren(db, taskId))) {
 		throw new Error("A task with subtasks cannot be assigned as a subtask");
@@ -270,6 +289,8 @@ export async function updateTask(
       recurrence_rrule = ?,
       status = ?,
       someday = ?,
+      plan_order = ?,
+      started_at = ?,
       updated_at = ?
     WHERE id = ?
     RETURNING *`,
@@ -280,9 +301,7 @@ export async function updateTask(
 			patch.title ?? existing.title,
 			patch.notes ?? existing.notes,
 			patch.priority ?? existing.priority,
-			patch.scheduledAt === undefined
-				? existing.scheduledAt
-				: patch.scheduledAt,
+			nextScheduledAt,
 			patch.dueAt === undefined ? existing.dueAt : patch.dueAt,
 			patch.dueTimezone === undefined
 				? existing.dueTimezone
@@ -295,6 +314,11 @@ export async function updateTask(
 				: patch.recurrenceRRule,
 			nextStatus,
 			(patch.someday === undefined ? existing.someday : patch.someday) ? 1 : 0,
+			// A task pushed back to the backlog must not keep a stale rank, or it
+			// jumps to that position the next time it is planned.
+			nextScheduledAt === null ? 0 : existing.planOrder,
+			// Nothing can still be "in progress" once it is done.
+			nextStatus === "completed" ? null : existing.startedAt,
 			now,
 			taskId,
 		);
@@ -461,6 +485,23 @@ export async function undeleteTask(
 	return getTask(db, taskId);
 }
 
+/**
+ * Move a commitment date forward by the same span the deadline moved. Returns
+ * null when there was no commitment to move.
+ */
+export function shiftScheduledAt(
+	scheduledAt: string | null,
+	fromDueAt: string,
+	toDueAt: string,
+): string | null {
+	if (!scheduledAt) return null;
+	const delta = Date.parse(toDueAt) - Date.parse(fromDueAt);
+	if (!Number.isFinite(delta)) return scheduledAt;
+	const shifted = Date.parse(scheduledAt) + delta;
+	if (!Number.isFinite(shifted)) return scheduledAt;
+	return new Date(shifted).toISOString();
+}
+
 export async function completeTask(
 	db: Db,
 	taskId: number,
@@ -479,7 +520,7 @@ export async function completeTask(
 	// subject to the default someday exclusion) rather than vanishing.
 	await db
 		.prepare(
-			"UPDATE tasks SET status = ?, someday = 0, completed_at = ?, updated_at = ? WHERE id = ?",
+			"UPDATE tasks SET status = ?, someday = 0, started_at = NULL, plan_order = 0, completed_at = ?, updated_at = ? WHERE id = ?",
 		)
 		.run("completed", now, now, taskId);
 
@@ -503,7 +544,15 @@ export async function completeTask(
 				title: existing.title,
 				notes: existing.notes,
 				priority: existing.priority,
-				scheduledAt: existing.scheduledAt,
+				// Copying scheduledAt verbatim would recreate the occurrence still
+				// committed to today, so a recurring task in today's plan would
+				// reappear there the instant it is ticked off and never leave. Shift
+				// the commitment by however far the deadline moved instead.
+				scheduledAt: shiftScheduledAt(
+					existing.scheduledAt,
+					existing.dueAt,
+					nextDueAt,
+				),
 				dueAt: nextDueAt,
 				dueTimezone: existing.dueTimezone,
 				recurrencePreset: existing.recurrencePreset,
@@ -543,4 +592,78 @@ export async function uncompleteTask(
 	}
 
 	return getTask(db, taskId);
+}
+
+/**
+ * Commit an ordered list of tasks to one day. `plan_order` is 1-based so that
+ * planned tasks are always distinguishable from the 0 default carried by
+ * everything that has never been planned.
+ */
+export async function planDay(
+	db: Db,
+	day: string,
+	orderedIds: number[],
+): Promise<Task[]> {
+	const now = nowIso();
+	const ops: BatchOp[] = orderedIds.map((id, index) => ({
+		sql: "UPDATE tasks SET scheduled_at = ?, plan_order = ?, someday = 0, updated_at = ? WHERE id = ? AND status = 'open' AND deleted_at IS NULL",
+		params: [day, index + 1, now, id],
+	}));
+	await db.batch(ops);
+
+	const rows = await db
+		.prepare(
+			"SELECT * FROM tasks WHERE scheduled_at = ? AND status = 'open' AND deleted_at IS NULL ORDER BY plan_order ASC",
+		)
+		.all<Record<string, unknown>>(day);
+	return rows.map(mapTaskRow);
+}
+
+/**
+ * Mark a task as the one being worked on. Single focus is enforced here rather
+ * than in the UI so the web app, the macOS wrapper and Raycast cannot disagree
+ * about what "now" is.
+ */
+export async function startTask(db: Db, taskId: number): Promise<Task | null> {
+	const existing = await getTask(db, taskId);
+	if (!existing || existing.status !== "open") {
+		return null;
+	}
+
+	const now = nowIso();
+	await db.batch([
+		{
+			sql: "UPDATE tasks SET started_at = NULL, updated_at = ? WHERE started_at IS NOT NULL AND id != ?",
+			params: [now, taskId],
+		},
+		{
+			sql: "UPDATE tasks SET started_at = ?, updated_at = ? WHERE id = ?",
+			params: [now, now, taskId],
+		},
+	]);
+
+	return getTask(db, taskId);
+}
+
+export async function stopTask(db: Db, taskId: number): Promise<Task | null> {
+	const existing = await getTask(db, taskId);
+	if (!existing) {
+		return null;
+	}
+
+	await db
+		.prepare("UPDATE tasks SET started_at = NULL, updated_at = ? WHERE id = ?")
+		.run(nowIso(), taskId);
+
+	return getTask(db, taskId);
+}
+
+/** The task currently being worked on, if any. */
+export async function getStartedTask(db: Db): Promise<Task | null> {
+	const row = await db
+		.prepare(
+			"SELECT * FROM tasks WHERE started_at IS NOT NULL AND status = 'open' AND deleted_at IS NULL LIMIT 1",
+		)
+		.get<Record<string, unknown>>();
+	return row ? mapTaskRow(row) : null;
 }

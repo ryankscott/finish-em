@@ -182,6 +182,59 @@ describe("api contract (http)", () => {
 		await api.deleteReminder(reminder.id);
 		expect(await api.listTaskReminders(task.id)).toHaveLength(0);
 	});
+	it("plans a day, focuses one task, and closes the day", async () => {
+		const api = makeClient();
+		const projects = await api.listProjects();
+		const inbox = projects.find((p) => p.isInbox);
+		if (!inbox) throw new Error("no inbox");
+
+		const a = await api.createTask({ projectId: inbox.id, title: "a" });
+		const b = await api.createTask({ projectId: inbox.id, title: "b" });
+		const backlog = await api.createTask({
+			projectId: inbox.id,
+			title: "backlog",
+		});
+
+		const day = "2026-08-20T00:00:00.000Z";
+		const plan = await api.planDay(day, [b.id, a.id]);
+		expect(plan.map((t) => t.title)).toEqual(["b", "a"]);
+		expect(plan.map((t) => t.planOrder)).toEqual([1, 2]);
+
+		const committed = await api.listTasks({
+			status: "open",
+			scheduledFrom: day,
+			scheduledTo: "2026-08-20T23:59:59.999Z",
+		});
+		expect(committed.map((t) => t.id).sort()).toEqual([a.id, b.id].sort());
+
+		const unplanned = await api.listTasks({ status: "open", unplanned: true });
+		expect(unplanned.map((t) => t.id)).toEqual([backlog.id]);
+
+		const started = await api.startTask(b.id);
+		expect(started.startedAt).not.toBeNull();
+		const switched = await api.startTask(a.id);
+		expect(switched.startedAt).not.toBeNull();
+
+		const stopped = await api.stopTask(a.id);
+		expect(stopped.startedAt).toBeNull();
+
+		expect(await api.getDayLog("2026-08-20")).toEqual({
+			day: "2026-08-20",
+			plannedAt: null,
+			closedAt: null,
+		});
+		const planned = await api.markDayPlanned("2026-08-20");
+		expect(planned.plannedAt).not.toBeNull();
+		const closed = await api.markDayClosed("2026-08-20");
+		expect(closed.closedAt).not.toBeNull();
+		expect(closed.plannedAt).toBe(planned.plannedAt);
+	});
+
+	it("rejects a day that is not a plain calendar date", async () => {
+		const app = createApp({ resolveDb: () => getDb() });
+		const response = await app.request("/api/days/2026-08-20T00:00:00.000Z");
+		expect(response.status).toBe(400);
+	});
 });
 
 describe("openapi document", () => {
@@ -210,6 +263,12 @@ describe("openapi document", () => {
 			"/api/reminders",
 			"/api/reminders/due",
 			"/api/reminders/{id}",
+			"/api/tasks/plan",
+			"/api/tasks/{id}/start",
+			"/api/tasks/{id}/stop",
+			"/api/days/{day}",
+			"/api/days/{day}/planned",
+			"/api/days/{day}/closed",
 		]) {
 			expect(Object.keys(doc.paths)).toContain(expected);
 		}
