@@ -286,6 +286,10 @@ export const emptySchema = z.object({}).openapi("Empty");
 
 export const healthSchema = z.object({ ok: z.literal(true) }).openapi("Health");
 
+export const changesSchema = z
+	.object({ version: z.number().int() })
+	.openapi("Changes");
+
 export const loginSchema = z
 	.object({ password: z.string().min(1) })
 	.openapi("Login");

@@ -32,6 +32,63 @@ function makeClient(): ApiClient {
 	return createHttpApi(async (input, init) => app.request(input, init));
 }
 
+describe("change version", () => {
+	it("bumps on mutations and holds steady on reads", async () => {
+		const api = makeClient();
+		const start = (await api.getChanges()).version;
+
+		// Reads must not move it, or every poll would trigger a refetch storm.
+		await api.listTasks();
+		await api.listProjects();
+		expect((await api.getChanges()).version).toBe(start);
+
+		const project = await api.createProject({ name: "Work" });
+		const afterCreate = (await api.getChanges()).version;
+		expect(afterCreate).toBeGreaterThan(start);
+
+		const task = await api.createTask({
+			projectId: project.id,
+			title: "Ship it",
+		});
+		await api.updateTask(task.id, { title: "Ship it twice" });
+		await api.completeTask(task.id);
+		await api.deleteTask(task.id);
+		expect((await api.getChanges()).version).toBeGreaterThan(afterCreate);
+	});
+
+	it("stamps the new version on the mutation response", async () => {
+		// The web client banks this so the change poller can tell its own write
+		// from someone else's and skip a duplicate refetch.
+		const app = createApp({ resolveDb: () => getDb() });
+		const projects = await (await app.request("/api/projects")).json();
+		const response = await app.request("/api/tasks", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({
+				projectId: projects[0].id,
+				title: "Stamped",
+			}),
+		});
+		expect(response.status).toBe(200);
+		const stamped = Number(response.headers.get("X-Change-Version"));
+		const current = await (await app.request("/api/changes")).json();
+		expect(stamped).toBe(current.version);
+
+		// Reads carry no stamp, so a poll never looks like a local write.
+		const read = await app.request("/api/tasks");
+		expect(read.headers.get("X-Change-Version")).toBeNull();
+	});
+
+	it("does not bump on a failed mutation", async () => {
+		const api = makeClient();
+		const before = (await api.getChanges()).version;
+		await expect(
+			api.createTask({ projectId: 99_999, title: "Orphan" }),
+		).rejects.toThrow();
+		expect((await api.getChanges()).version).toBe(before);
+	});
+});
+
 describe("api contract (http)", () => {
 	it("reads and updates settings", async () => {
 		const api = makeClient();

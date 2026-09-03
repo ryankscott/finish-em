@@ -23,6 +23,12 @@ export type TaskQuery = {
 };
 
 export type ApiClient = {
+	/**
+	 * Monotonic counter bumped by every server-side write. Clients poll this
+	 * instead of re-reading every table on a timer; see
+	 * src/server/repos/change-version.ts.
+	 */
+	getChanges: () => Promise<{ version: number }>;
 	getSettings: () => Promise<AppSettings>;
 	updateSettings: (
 		input: Partial<{

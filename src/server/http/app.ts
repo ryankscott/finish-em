@@ -13,6 +13,7 @@ import { createRoute, OpenAPIHono, type RouteConfig } from "@hono/zod-openapi";
 import type { Context } from "hono";
 
 import type { Db } from "@/server/db/types";
+import { bumpVersion, getVersion } from "@/server/repos/change-version";
 import * as goalRepo from "@/server/repos/goals";
 import * as projectRepo from "@/server/repos/projects";
 import * as reminderRepo from "@/server/repos/reminders";
@@ -34,6 +35,7 @@ import {
 	calendarEventSchema,
 	calendarQuerySchema,
 	calendarRefreshResultSchema,
+	changesSchema,
 	completionLogSchema,
 	emptySchema,
 	errorSchema,
@@ -125,6 +127,29 @@ export function createApp({ resolveDb, getSecret }: AppOptions) {
 		createAuthMiddleware((c) => getSecret?.(c as Context<AppEnv>)),
 	);
 
+	// Bump the change counter after any successful mutation, so polling clients
+	// know to refetch. Middleware rather than a call in each handler: a new
+	// mutating route added later is covered without remembering to opt in, and
+	// the failure mode of forgetting (every client silently stale) is quiet.
+	//
+	// The await is deliberate. c.executionCtx.waitUntil would shave ~10ms off
+	// each mutation but is Worker-only, and this file is shared with the Bun
+	// server.
+	app.use("/api/*", async (c, next) => {
+		await next();
+		if (c.req.method === "GET" || c.req.method === "HEAD") return;
+		if (!c.res.ok) return;
+		const path = new URL(c.req.url).pathname;
+		// Auth transitions change no user data.
+		if (path === "/api/login" || path === "/api/logout") return;
+		const version = await bumpVersion(c.get("db"));
+		// Tell the caller which version its own write produced. A client that
+		// already refetched after its own mutation can then recognise that
+		// version as accounted for and skip a second, identical refetch when the
+		// change poller next runs.
+		c.header("X-Change-Version", String(version));
+	});
+
 	// Health check. Exempt from auth and deliberately does not touch the
 	// database, so it reports "the Worker is up" rather than "D1 is reachable".
 	app.openapi(
@@ -134,6 +159,23 @@ export function createApp({ resolveDb, getSecret }: AppOptions) {
 			responses: jsonResponse(healthSchema, "Service is up"),
 		}),
 		(c) => c.json({ ok: true } as const, 200),
+	);
+
+	// The whole read-reduction scheme hinges on this route staying cheap: one
+	// integer-PK lookup, one row read. Clients poll it every 15s and only
+	// refetch real data when the version moves. Inside auth, unlike /api/health,
+	// because it reports on user data.
+	app.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/changes",
+			responses: jsonResponse(changesSchema, "Current change version"),
+		}),
+		async (c) => {
+			const version = await getVersion(c.get("db"));
+			c.header("Cache-Control", "no-store");
+			return c.json({ version }, 200);
+		},
 	);
 
 	app.openapi(

@@ -409,7 +409,7 @@ export async function deleteTask(db: Db, taskId: number): Promise<boolean> {
 export async function listDeletedTasks(db: Db): Promise<Task[]> {
 	const rows = await db
 		.prepare(
-			"SELECT * FROM tasks WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC",
+			"SELECT * FROM tasks WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC, id DESC",
 		)
 		.all<Record<string, unknown>>();
 	return rows.map(mapTaskRow);
