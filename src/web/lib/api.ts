@@ -1,5 +1,7 @@
 import { createHttpApi } from "@/shared/http-api";
 
+import { acknowledgeVersion } from "./change-version";
+
 /**
  * Set when any request comes back 401, so the shell can swap in the login
  * screen instead of surfacing a wall of failed queries.
@@ -22,6 +24,14 @@ export const api = createHttpApi(async (input, init) => {
 	});
 	if (response.status === 401) {
 		onUnauthorized?.();
+	}
+	// Mutations come back stamped with the change version they produced. Banking
+	// it here stops ChangeWatcher from treating this client's own write as
+	// someone else's and refetching everything a second time.
+	const version = response.headers.get("X-Change-Version");
+	if (version !== null) {
+		const parsed = Number(version);
+		if (Number.isFinite(parsed)) acknowledgeVersion(parsed);
 	}
 	return response;
 });

@@ -11,9 +11,9 @@ import type { Db } from "@/server/db/types";
 import {
 	type CalendarEventInput,
 	listEvents,
-	pruneStale,
-	upsertEvents,
+	syncEvents,
 } from "@/server/repos/calendar";
+import { bumpVersion } from "@/server/repos/change-version";
 import { getSettings, updateSettings } from "@/server/repos/settings";
 import { repinLinkedTaskDueDates } from "@/server/repos/tasks";
 import type { CalendarEvent } from "@/server/types";
@@ -175,6 +175,16 @@ export function expandEvent(
 	return out;
 }
 
+const SYNC_STAMP_MAX_AGE_MS = 60 * 60 * 1000;
+
+/** True when the recorded sync time is missing, unparseable, or over an hour old. */
+function isSyncStampStale(stamp: string | null, now: Date): boolean {
+	if (!stamp) return true;
+	const recorded = Date.parse(stamp);
+	if (Number.isNaN(recorded)) return true;
+	return now.getTime() - recorded >= SYNC_STAMP_MAX_AGE_MS;
+}
+
 /**
  * Fetch the configured ICS URL, parse + expand it, and refresh the cache.
  * Returns the number of cached event instances. No-op (returns 0) when no URL
@@ -202,12 +212,25 @@ export async function fetchAndSyncCalendar(
 	}
 
 	const syncedAt = now.toISOString();
-	await upsertEvents(db, instances, syncedAt);
-	await pruneStale(db, syncedAt);
+	const diff = await syncEvents(db, instances, syncedAt);
 	// Keep tasks linked to a meeting pinned to that meeting's current start, so
 	// a rescheduled meeting drags its task's due date along with it.
-	await repinLinkedTaskDueDates(db);
-	await updateSettings(db, { calendarLastSyncedAt: syncedAt });
+	const repinned = await repinLinkedTaskDueDates(db);
+	const changed = diff.inserted + diff.updated + diff.deleted + repinned > 0;
+
+	// The cron runs every 15 minutes and most runs find nothing new, so both
+	// writes below are gated on a real change. updateSettings still runs
+	// hourly regardless, so "last synced" does not go stale on the screen that
+	// shows it.
+	if (changed || isSyncStampStale(settings.calendarLastSyncedAt, now)) {
+		await updateSettings(db, { calendarLastSyncedAt: syncedAt });
+	}
+	// Only bump on a real change. An unconditional bump here would make every
+	// connected client refetch its whole screen every 15 minutes, which is the
+	// cost the change counter exists to avoid.
+	if (changed) {
+		await bumpVersion(db);
+	}
 
 	return { count: instances.length, lastSyncedAt: syncedAt };
 }

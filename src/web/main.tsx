@@ -32,12 +32,17 @@ import {
 } from "./views/SimpleViews";
 import "./styles.css";
 
+// No polling and no refetch-on-focus by default. A screen mounts around nine
+// queries, each a full table read, so a global 30s interval meant ~1.3M D1 rows
+// read per day per open window whether or not anything had changed. ChangeWatcher
+// polls a single-integer version endpoint instead and invalidates everything
+// only when the server reports a real write.
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
-			refetchOnWindowFocus: true,
-			refetchInterval: 30_000,
-			staleTime: 5_000,
+			refetchOnWindowFocus: false,
+			refetchInterval: false,
+			staleTime: 60_000,
 		},
 	},
 });

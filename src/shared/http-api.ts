@@ -45,6 +45,8 @@ export function createHttpApi(fetchFn: FetchLike, baseUrl = ""): ApiClient {
 	};
 
 	return {
+		getChanges: () => request("GET", "/api/changes"),
+
 		getSettings: () => request("GET", "/api/settings"),
 		updateSettings: (input) => request("PATCH", "/api/settings", input),
 

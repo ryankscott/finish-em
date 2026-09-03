@@ -17,6 +17,7 @@ import { useHotkeyScope } from "../lib/hotkeys";
 import { useUndo } from "../lib/undo";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { useUi } from "../state/ui";
+import { ChangeWatcher } from "./ChangeWatcher";
 import { CommandPalette } from "./CommandPalette";
 import { HelpDialog } from "./HelpDialog";
 import { MOBILE_NAV_PATHS, MobileNav } from "./MobileNav";
@@ -239,6 +240,7 @@ export function AppShell() {
 			<ProjectDialog />
 			{isMobile ? null : <HelpDialog />}
 			<CommandPalette />
+			<ChangeWatcher />
 			<ReminderWatcher />
 			<Toaster
 				theme={ui.theme}

@@ -5,10 +5,10 @@ import path from "node:path";
 
 import { getDb, resetDbForTests } from "@/server/db/client";
 import {
+	type CalendarEventInput,
 	getEventByUid,
 	listEvents,
-	pruneStale,
-	upsertEvents,
+	syncEvents,
 } from "@/server/repos/calendar";
 import { createProject } from "@/server/repos/projects";
 import {
@@ -123,32 +123,34 @@ describe("expandEvent", () => {
 });
 
 describe("calendar repo", () => {
-	it("upserts, lists by range, and prunes stale events", async () => {
+	const event = (
+		overrides: Partial<CalendarEventInput> & { uid: string },
+	): CalendarEventInput => ({
+		summary: "Standup",
+		startAt: "2026-06-05T09:00:00.000Z",
+		endAt: null,
+		allDay: false,
+		location: null,
+		organizer: null,
+		...overrides,
+	});
+
+	it("inserts, lists by range, and deletes events that left the feed", async () => {
 		const db = getDb();
-		await upsertEvents(
-			db,
-			[
-				{
-					uid: "a",
-					summary: "Early",
-					startAt: "2026-06-05T09:00:00.000Z",
-					endAt: null,
-					allDay: false,
-					location: null,
-					organizer: null,
-				},
-				{
-					uid: "b",
-					summary: "Late",
-					startAt: "2026-06-20T09:00:00.000Z",
-					endAt: null,
-					allDay: false,
-					location: null,
-					organizer: null,
-				},
-			],
-			"2026-06-01T00:00:00.000Z",
-		);
+		expect(
+			await syncEvents(
+				db,
+				[
+					event({ uid: "a", summary: "Early" }),
+					event({
+						uid: "b",
+						summary: "Late",
+						startAt: "2026-06-20T09:00:00.000Z",
+					}),
+				],
+				"2026-06-01T00:00:00.000Z",
+			),
+		).toEqual({ inserted: 2, updated: 0, deleted: 0 });
 
 		expect(await listEvents(db)).toHaveLength(2);
 		const ranged = await listEvents(db, {
@@ -157,26 +159,126 @@ describe("calendar repo", () => {
 		});
 		expect(ranged.map((e) => e.uid)).toEqual(["b"]);
 
-		// A newer sync that only re-sees "a" should prune "b".
-		await upsertEvents(
-			db,
-			[
-				{
-					uid: "a",
-					summary: "Early",
-					startAt: "2026-06-05T09:00:00.000Z",
-					endAt: null,
-					allDay: false,
-					location: null,
-					organizer: null,
-				},
-			],
-			"2026-06-02T00:00:00.000Z",
-		);
-		const removed = await pruneStale(db, "2026-06-02T00:00:00.000Z");
-		expect(removed).toBe(1);
+		// A newer sync that only sees "a" drops "b" (a cancelled meeting).
+		expect(
+			await syncEvents(
+				db,
+				[event({ uid: "a", summary: "Early" })],
+				"2026-06-02T00:00:00.000Z",
+			),
+		).toEqual({ inserted: 0, updated: 0, deleted: 1 });
 		expect((await listCalendarEvents(db)).map((e) => e.uid)).toEqual(["a"]);
 		expect((await getEventByUid(db, "a"))?.summary).toBe("Early");
+	});
+
+	it("writes nothing when the feed is unchanged", async () => {
+		const db = getDb();
+		const feed = [
+			event({
+				uid: "a",
+				endAt: "2026-06-05T10:00:00.000Z",
+				location: "Room 1",
+				organizer: "boss@example.com",
+				allDay: false,
+			}),
+			event({ uid: "b", allDay: true, startAt: "2026-06-06T00:00:00.000Z" }),
+		];
+		await syncEvents(db, feed, "2026-06-01T00:00:00.000Z");
+
+		// The whole point: a cron run against a quiet feed issues no writes. The
+		// old blind upsert rewrote every row here, 96 times a day.
+		expect(await syncEvents(db, feed, "2026-06-02T00:00:00.000Z")).toEqual({
+			inserted: 0,
+			updated: 0,
+			deleted: 0,
+		});
+	});
+
+	it("updates only the instance that actually moved", async () => {
+		const db = getDb();
+		await syncEvents(
+			db,
+			[event({ uid: "a" }), event({ uid: "b" })],
+			"2026-06-01T00:00:00.000Z",
+		);
+
+		expect(
+			await syncEvents(
+				db,
+				[
+					event({ uid: "a", startAt: "2026-06-05T11:00:00.000Z" }),
+					event({ uid: "b" }),
+				],
+				"2026-06-02T00:00:00.000Z",
+			),
+		).toEqual({ inserted: 0, updated: 1, deleted: 0 });
+		expect((await getEventByUid(db, "a"))?.startAt).toBe(
+			"2026-06-05T11:00:00.000Z",
+		);
+	});
+
+	it("detects a nullable field being cleared", async () => {
+		const db = getDb();
+		await syncEvents(
+			db,
+			[
+				event({
+					uid: "a",
+					location: "Room 1",
+					endAt: "2026-06-05T10:00:00.000Z",
+				}),
+			],
+			"2026-06-01T00:00:00.000Z",
+		);
+
+		// A null-blind comparison would miss this and leave the stale room on
+		// screen forever.
+		expect(
+			await syncEvents(
+				db,
+				[
+					event({
+						uid: "a",
+						location: null,
+						endAt: "2026-06-05T10:00:00.000Z",
+					}),
+				],
+				"2026-06-02T00:00:00.000Z",
+			),
+		).toEqual({ inserted: 0, updated: 1, deleted: 0 });
+		expect((await getEventByUid(db, "a"))?.location).toBeNull();
+	});
+
+	it("treats recurrence overrides as separate instances", async () => {
+		const db = getDb();
+		expect(
+			await syncEvents(
+				db,
+				[
+					event({ uid: "weekly", recurrenceId: "2026-06-02T09:00:00.000Z" }),
+					event({
+						uid: "weekly",
+						recurrenceId: "2026-06-09T09:00:00.000Z",
+						startAt: "2026-06-09T09:00:00.000Z",
+					}),
+				],
+				"2026-06-01T00:00:00.000Z",
+			),
+		).toEqual({ inserted: 2, updated: 0, deleted: 0 });
+		expect(await listEvents(db)).toHaveLength(2);
+	});
+
+	it("ignores a duplicate instance rather than counting it as a delete", async () => {
+		const db = getDb();
+		await syncEvents(db, [event({ uid: "a" })], "2026-06-01T00:00:00.000Z");
+		expect(
+			await syncEvents(
+				db,
+				[event({ uid: "a" }), event({ uid: "a" })],
+				"2026-06-02T00:00:00.000Z",
+			),
+		).toEqual({ inserted: 0, updated: 0, deleted: 0 });
+		expect(await listEvents(db)).toHaveLength(1);
 	});
 });
 
@@ -189,7 +291,7 @@ describe("linkTaskToEvent", () => {
 			title: "Prep deck",
 		});
 
-		await upsertEvents(
+		await syncEvents(
 			db,
 			[
 				{
@@ -225,7 +327,7 @@ describe("linkTaskToEvent", () => {
 			title: "Prep deck",
 		});
 
-		await upsertEvents(
+		await syncEvents(
 			db,
 			[
 				{
@@ -246,7 +348,7 @@ describe("linkTaskToEvent", () => {
 		);
 
 		// Meeting moves two days earlier; a later sync overwrites the cached event.
-		await upsertEvents(
+		await syncEvents(
 			db,
 			[
 				{
@@ -279,7 +381,7 @@ describe("linkTaskToEvent", () => {
 			projectId: project.id,
 			title: "Prep deck",
 		});
-		await upsertEvents(
+		await syncEvents(
 			db,
 			[
 				{
@@ -295,7 +397,7 @@ describe("linkTaskToEvent", () => {
 			"2026-06-01T00:00:00.000Z",
 		);
 		await linkTaskToEvent(db, task.id, "meeting-1");
-		await pruneStale(db, "2026-06-02T00:00:00.000Z"); // event drops out of cache
+		await syncEvents(db, [], "2026-06-02T00:00:00.000Z"); // event drops out of cache
 
 		expect(await repinLinkedTaskDueDates(db)).toBe(0);
 		expect((await getTask(db, task.id))?.dueAt).toBe(
