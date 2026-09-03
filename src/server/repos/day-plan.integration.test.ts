@@ -36,8 +36,17 @@ afterEach(() => {
 	if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
 });
 
-const TODAY = "2026-08-20T00:00:00.000Z";
-const TOMORROW = "2026-08-21T00:00:00.000Z";
+// Completion rolls a recurring task forward to its next *future* occurrence, so
+// these fixtures have to track the real clock rather than a frozen date.
+const startOfToday = new Date();
+startOfToday.setUTCHours(0, 0, 0, 0);
+const TODAY = startOfToday.toISOString();
+const DAY_MS = 24 * 60 * 60 * 1000;
+const TOMORROW = new Date(startOfToday.getTime() + DAY_MS).toISOString();
+const NEXT_WEEK = new Date(startOfToday.getTime() + 7 * DAY_MS).toISOString();
+const END_OF_TODAY = new Date(
+	startOfToday.getTime() + DAY_MS - 1,
+).toISOString();
 
 async function makeTask(title: string) {
 	return createTask(await getDb(), { projectId: 1, title });
@@ -98,7 +107,7 @@ describe("scheduled filters", () => {
 			projectId: 1,
 			title: "planned today, due later",
 			scheduledAt: TODAY,
-			dueAt: "2026-08-27T00:00:00.000Z",
+			dueAt: NEXT_WEEK,
 		});
 		// Due today, but never committed to.
 		await createTask(db, {
@@ -110,7 +119,7 @@ describe("scheduled filters", () => {
 		const plan = await listTasks(db, {
 			status: "open",
 			scheduledFrom: TODAY,
-			scheduledTo: "2026-08-20T23:59:59.999Z",
+			scheduledTo: END_OF_TODAY,
 		});
 		expect(plan.map((t) => t.id)).toEqual([planned.id]);
 

@@ -144,10 +144,29 @@ function nextWeeklyByDay(base: Date, interval: number, byDay: number[]) {
 	return addDays(base, 7 * interval);
 }
 
+function stepOnce(base: Date, parsed: ParsedRule) {
+	if (parsed.freq === "DAILY") {
+		return addDays(base, parsed.interval);
+	}
+	if (parsed.freq === "MONTHLY") {
+		return addMonths(base, parsed.interval);
+	}
+	if (parsed.freq === "YEARLY") {
+		return addYears(base, parsed.interval);
+	}
+	return nextWeeklyByDay(base, parsed.interval, parsed.byDay);
+}
+
 export function getNextOccurrence(input: {
 	baseIso: string;
 	recurrencePreset: string | null;
 	recurrenceRRule: string | null;
+	/**
+	 * When given, keep stepping until the occurrence lands after this instant.
+	 * A daily task ticked off a week late should come back tomorrow, not last
+	 * Tuesday, so completion passes "now" here.
+	 */
+	notBeforeIso?: string | null;
 }): string | null {
 	const base = new Date(input.baseIso);
 	if (Number.isNaN(base.getTime())) {
@@ -165,16 +184,18 @@ export function getNextOccurrence(input: {
 		return null;
 	}
 
-	let next: Date;
+	const notBefore = input.notBeforeIso ? new Date(input.notBeforeIso) : null;
+	const floor =
+		notBefore && !Number.isNaN(notBefore.getTime()) ? notBefore : null;
 
-	if (parsed.freq === "DAILY") {
-		next = addDays(base, parsed.interval);
-	} else if (parsed.freq === "MONTHLY") {
-		next = addMonths(base, parsed.interval);
-	} else if (parsed.freq === "YEARLY") {
-		next = addYears(base, parsed.interval);
-	} else {
-		next = nextWeeklyByDay(base, parsed.interval, parsed.byDay);
+	let next = stepOnce(base, parsed);
+
+	// Cap the catch-up so a stale yearly rule cannot spin forever.
+	for (let i = 0; floor !== null && next <= floor && i < 1000; i += 1) {
+		if (parsed.until !== null && next > parsed.until) {
+			break;
+		}
+		next = stepOnce(next, parsed);
 	}
 
 	if (parsed.until !== null && next > parsed.until) {

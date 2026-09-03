@@ -1,5 +1,5 @@
 import { format, startOfDay } from "date-fns";
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -90,6 +90,7 @@ export function PlanDayDialog() {
 	// without needing an effect to copy it in when the dialog opens.
 	const [picked, setPicked] = useState<number[] | null>(null);
 	const chosen = picked ?? committed.map((t) => t.id);
+	const rowIdPrefix = useId();
 
 	// Functional updater, not a read of `chosen`: several toggles can land in one
 	// React batch, and reading the rendered value would make each one overwrite
@@ -214,12 +215,17 @@ export function PlanDayDialog() {
 							const position = chosen.indexOf(task.id);
 							return (
 								<li key={task.id}>
-									<button
-										type="button"
-										onClick={() => toggle(task)}
-										className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-surface-raised"
+									{/* One interactive element per row: the label forwards
+									    clicks to the checkbox, so no nested buttons. */}
+									<label
+										htmlFor={`${rowIdPrefix}-${task.id}`}
+										className="flex w-full cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-surface-raised"
 									>
-										<Checkbox checked={position !== -1} tabIndex={-1} />
+										<Checkbox
+											id={`${rowIdPrefix}-${task.id}`}
+											checked={position !== -1}
+											onCheckedChange={() => toggle(task)}
+										/>
 										<span className="min-w-0 flex-1 truncate">
 											{toDisplayString(task.title)}
 										</span>
@@ -238,7 +244,7 @@ export function PlanDayDialog() {
 												{position + 1}
 											</span>
 										) : null}
-									</button>
+									</label>
 								</li>
 							);
 						})}

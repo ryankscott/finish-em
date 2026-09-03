@@ -59,19 +59,25 @@ export function TodayView() {
 		status: "open",
 		scheduledTo: today.to,
 	});
-	const { data: pastTasks = [] } = useTasks({
+	// Through end of today, not just up to midnight, so a task due later
+	// today shows up before it lapses into "overdue" tomorrow.
+	const { data: dueTasks = [] } = useTasks({
 		status: "open",
-		to: startOfDay(now).toISOString(),
+		to: today.to,
 	});
 	const { data: dayLog } = useDayLog(dayKey(now));
 
 	const { tasks, sectionLabels, focused, next } = useMemo(() => {
-		const overdue = pastTasks.filter((t) => isOverdueTask(t, now));
+		const overdue = dueTasks.filter((t) => isOverdueTask(t, now));
+		const dueToday = dueTasks.filter(
+			(t) => t.dueAt !== null && !isOverdueTask(t, now),
+		);
 		const {
 			leftover,
 			today: planned,
+			unplannedDueToday,
 			unplannedOverdue,
-		} = partitionDay(committed, overdue, now);
+		} = partitionDay(committed, dueToday, overdue, now);
 
 		const labels = new Map<number, string>();
 		if (leftover.length > 0 && leftover[0].scheduledAt) {
@@ -81,18 +87,26 @@ export function TodayView() {
 			);
 		}
 		if (planned.length > 0) labels.set(planned[0].id, "Today");
+		if (unplannedDueToday.length > 0) {
+			labels.set(unplannedDueToday[0].id, "Due today, not planned");
+		}
 		if (unplannedOverdue.length > 0) {
 			labels.set(unplannedOverdue[0].id, "Deadline passed, not planned");
 		}
 
-		const ordered = [...leftover, ...planned, ...unplannedOverdue];
+		const ordered = [
+			...leftover,
+			...planned,
+			...unplannedDueToday,
+			...unplannedOverdue,
+		];
 		return {
 			tasks: ordered,
 			sectionLabels: labels,
 			focused: ordered.find((t) => t.startedAt !== null) ?? null,
 			next: leftover[0] ?? planned[0] ?? null,
 		};
-	}, [committed, pastTasks, now]);
+	}, [committed, dueTasks, now]);
 
 	const showPlanPrompt = dayLog !== undefined && dayLog.plannedAt === null;
 

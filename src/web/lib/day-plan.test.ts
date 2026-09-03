@@ -79,6 +79,7 @@ describe("partitionDay", () => {
 		const sections = partitionDay(
 			[yesterday, todays],
 			[],
+			[],
 			new Date(2026, 7, 20, 10),
 		);
 
@@ -95,6 +96,7 @@ describe("partitionDay", () => {
 		const sections = partitionDay(
 			[third, first, second],
 			[],
+			[],
 			new Date(2026, 7, 20, 10),
 		);
 
@@ -104,9 +106,25 @@ describe("partitionDay", () => {
 	it("shows a missed deadline that was never committed to", () => {
 		const overdue = task({ id: 9, dueAt: new Date(2026, 7, 18).toISOString() });
 
-		const sections = partitionDay([], [overdue], new Date(2026, 7, 20, 10));
+		const sections = partitionDay([], [], [overdue], new Date(2026, 7, 20, 10));
 
 		expect(sections.unplannedOverdue.map((t) => t.id)).toEqual([9]);
+	});
+
+	it("shows a task due today that was never committed to a day", () => {
+		const dueToday = task({
+			id: 5,
+			dueAt: new Date(2026, 7, 20, 17).toISOString(),
+		});
+
+		const sections = partitionDay(
+			[],
+			[dueToday],
+			[],
+			new Date(2026, 7, 20, 10),
+		);
+
+		expect(sections.unplannedDueToday.map((t) => t.id)).toEqual([5]);
 	});
 
 	it("does not list an overdue task twice when it is already in the plan", () => {
@@ -119,6 +137,7 @@ describe("partitionDay", () => {
 
 		const sections = partitionDay(
 			[planned],
+			[],
 			[planned],
 			new Date(2026, 7, 20, 10),
 		);
@@ -164,6 +183,7 @@ describe("ad-hoc commits", () => {
 
 		const sections = partitionDay(
 			[adHoc, ranked, alsoRanked],
+			[],
 			[],
 			new Date(2026, 7, 20, 10),
 		);

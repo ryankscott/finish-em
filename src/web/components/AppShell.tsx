@@ -28,6 +28,7 @@ import { ReminderWatcher } from "./ReminderWatcher";
 import { Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
 import { TaskEditDialog } from "./TaskEditDialog";
+import { WeeklyGoalsBanner } from "./WeeklyGoalsBanner";
 
 const VIEW_KEYS = [
 	"/today",
@@ -152,6 +153,7 @@ export function AppShell() {
 				</>
 			)}
 			<div className="flex min-w-0 flex-1 flex-col">
+				<WeeklyGoalsBanner />
 				{/* pt is max(), not pt-safe: pt-safe sets padding-top to the safe-area
 				    inset outright, which is 0 everywhere except iOS and so leaves the
 				    search row jammed against the top of the window. */}

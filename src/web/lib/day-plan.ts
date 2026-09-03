@@ -26,6 +26,8 @@ export type DaySections = {
 	leftover: Task[];
 	/** Committed to today, in the order they were planned. */
 	today: Task[];
+	/** Due today but never committed to a day. */
+	unplannedDueToday: Task[];
 	/** Past its deadline but never committed to a day. */
 	unplannedOverdue: Task[];
 };
@@ -47,9 +49,14 @@ const byPlanOrder = (a: Task, b: Task) => rank(a) - rank(b);
  * so leftovers surface themselves the next morning instead of silently
  * disappearing. That is the whole no-silent-rollover guarantee, and it needs no
  * cron to enforce.
+ *
+ * `dueToday` and `overdue` are disjoint: a task due today that slips past
+ * midnight without being dealt with moves from one to the other on its own,
+ * since both are derived fresh from `dueAt` and `now` on every render.
  */
 export function partitionDay(
 	committed: Task[],
+	dueToday: Task[],
 	overdue: Task[],
 	now: Date,
 ): DaySections {
@@ -63,6 +70,9 @@ export function partitionDay(
 	}
 
 	const committedIds = new Set(committed.map((t) => t.id));
+	const unplannedDueToday = dueToday.filter(
+		(t) => t.scheduledAt === null && !committedIds.has(t.id),
+	);
 	const unplannedOverdue = overdue.filter(
 		(t) => t.scheduledAt === null && !committedIds.has(t.id),
 	);
@@ -70,6 +80,7 @@ export function partitionDay(
 	return {
 		leftover: leftover.sort(byPlanOrder),
 		today: today.sort(byPlanOrder),
+		unplannedDueToday,
 		unplannedOverdue,
 	};
 }

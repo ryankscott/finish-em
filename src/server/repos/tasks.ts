@@ -551,6 +551,9 @@ export async function completeTask(
 			baseIso: existing.dueAt,
 			recurrencePreset: existing.recurrencePreset,
 			recurrenceRRule: existing.recurrenceRRule,
+			// Skip past every occurrence already missed, so an overdue recurring
+			// task comes back on its next future date instead of another overdue one.
+			notBeforeIso: now,
 		});
 
 		if (nextDueAt) {

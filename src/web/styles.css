@@ -105,28 +105,3 @@ body {
 		animation: none;
 	}
 }
-
-@keyframes goal-fade {
-	0% {
-		opacity: 0;
-	}
-	10% {
-		opacity: 1;
-	}
-	90% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-	}
-}
-
-.animate-goal-fade {
-	animation: goal-fade 4s ease-in-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.animate-goal-fade {
-		animation: none;
-	}
-}
