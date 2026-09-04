@@ -77,6 +77,13 @@ export function createHttpApi(fetchFn: FetchLike, baseUrl = ""): ApiClient {
 		listDeletedTasks: () => request("GET", "/api/tasks/deleted"),
 		undeleteTask: (taskId) => request("POST", `/api/tasks/${taskId}/undelete`),
 		completeTask: (taskId) => request("POST", `/api/tasks/${taskId}/complete`),
+		planDay: (day, taskIds) =>
+			request("POST", "/api/tasks/plan", { day, taskIds }),
+		startTask: (taskId) => request("POST", `/api/tasks/${taskId}/start`),
+		stopTask: (taskId) => request("POST", `/api/tasks/${taskId}/stop`),
+		getDayLog: (day) => request("GET", `/api/days/${day}`),
+		markDayPlanned: (day) => request("POST", `/api/days/${day}/planned`),
+		markDayClosed: (day) => request("POST", `/api/days/${day}/closed`),
 		uncompleteTask: (taskId) =>
 			request("POST", `/api/tasks/${taskId}/uncomplete`),
 

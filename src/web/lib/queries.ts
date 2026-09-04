@@ -20,6 +20,9 @@ export const keys = {
 		["calendar", query] as const,
 	completions: (query: { from?: string; to?: string } = {}) =>
 		["completions", query] as const,
+	// Nested under "tasks" so the blanket invalidate in useInvalidateTasks picks
+	// it up without any extra wiring.
+	dayLog: (day: string) => ["tasks", "day-log", day] as const,
 };
 
 export function useSettings() {
@@ -193,7 +196,57 @@ export function useTaskMutations() {
 		onSettled: invalidate,
 	});
 
-	return { completeTask, deleteTask, undeleteTask, createTask, updateTask };
+	const planDay = useMutation({
+		mutationFn: ({ day, taskIds }: { day: string; taskIds: number[] }) =>
+			api.planDay(day, taskIds),
+		onSettled: invalidate,
+	});
+
+	// Focus is deliberately not on the undo stack: it is ephemeral, and putting
+	// it there would make `u` un-focus instead of undoing real work.
+	const startTask = useMutation({
+		mutationFn: (taskId: number) => api.startTask(taskId),
+		onSettled: invalidate,
+	});
+
+	const stopTask = useMutation({
+		mutationFn: (taskId: number) => api.stopTask(taskId),
+		onSettled: invalidate,
+	});
+
+	return {
+		completeTask,
+		deleteTask,
+		undeleteTask,
+		createTask,
+		updateTask,
+		planDay,
+		startTask,
+		stopTask,
+	};
+}
+
+export function useDayLog(day: string) {
+	return useQuery({
+		queryKey: keys.dayLog(day),
+		queryFn: () => api.getDayLog(day),
+	});
+}
+
+export function useDayLogMutations() {
+	const invalidate = useInvalidateTasks();
+
+	const markPlanned = useMutation({
+		mutationFn: (day: string) => api.markDayPlanned(day),
+		onSettled: invalidate,
+	});
+
+	const markClosed = useMutation({
+		mutationFn: (day: string) => api.markDayClosed(day),
+		onSettled: invalidate,
+	});
+
+	return { markPlanned, markClosed };
 }
 
 export function useProjectMutations() {

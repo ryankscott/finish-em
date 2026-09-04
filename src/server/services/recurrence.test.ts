@@ -51,4 +51,43 @@ describe("recurrence service", () => {
 			}),
 		).toBe("2027-02-16T09:00:00.000Z");
 	});
+	it("skips missed occurrences when notBeforeIso is given", () => {
+		expect(
+			getNextOccurrence({
+				baseIso: "2026-02-13T09:00:00.000Z",
+				recurrencePreset: "daily",
+				recurrenceRRule: null,
+				notBeforeIso: "2026-02-20T12:00:00.000Z",
+			}),
+		).toBe("2026-02-21T09:00:00.000Z");
+
+		expect(
+			getNextOccurrence({
+				baseIso: "2026-02-13T09:00:00.000Z",
+				recurrencePreset: null,
+				recurrenceRRule: "FREQ=WEEKLY;INTERVAL=1;BYDAY=FR",
+				notBeforeIso: "2026-03-04T12:00:00.000Z",
+			}),
+		).toBe("2026-03-06T09:00:00.000Z");
+	});
+
+	it("stops at UNTIL while catching up", () => {
+		expect(
+			getNextOccurrence({
+				baseIso: "2026-02-13T09:00:00.000Z",
+				recurrencePreset: "daily",
+				recurrenceRRule: null,
+				notBeforeIso: "2026-03-20T12:00:00.000Z",
+			}),
+		).toBe("2026-03-21T09:00:00.000Z");
+
+		expect(
+			getNextOccurrence({
+				baseIso: "2026-02-13T09:00:00.000Z",
+				recurrencePreset: null,
+				recurrenceRRule: "FREQ=DAILY;INTERVAL=1;UNTIL=20260215",
+				notBeforeIso: "2026-03-20T12:00:00.000Z",
+			}),
+		).toBe(null);
+	});
 });

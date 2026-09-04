@@ -21,6 +21,10 @@ const TASK: Task = {
 	dueTimezone: "Pacific/Auckland",
 	recurrencePreset: "weekly",
 	recurrenceRRule: null,
+	planOrder: 0,
+	estimateMinutes: null,
+	plannedStartAt: null,
+	startedAt: null,
 	calendarEventUid: null,
 	status: "open",
 	someday: false,
@@ -78,6 +82,8 @@ describe("snapshotTaskFields", () => {
 			recurrencePreset: "weekly",
 			recurrenceRRule: null,
 			someday: false,
+			estimateMinutes: null,
+			plannedStartAt: null,
 		});
 	});
 

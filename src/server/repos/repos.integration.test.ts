@@ -59,7 +59,11 @@ describe("repositories integration", () => {
 
 		expect(completion.task?.status).toBe("completed");
 		expect(completion.nextTask).toBeTruthy();
-		expect(completion.nextTask?.dueAt).toBe("2026-02-16T09:00:00.000Z");
+		// Long overdue: the next occurrence lands in the future, not on the day
+		// after the missed one.
+		expect(new Date(completion.nextTask?.dueAt ?? 0).getTime()).toBeGreaterThan(
+			Date.now(),
+		);
 	});
 
 	it("reorders projects and keeps inbox pinned first", async () => {

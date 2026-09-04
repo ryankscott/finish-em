@@ -14,10 +14,19 @@ import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { CalendarEvent, Task } from "@/server/types";
 
+import { DayGrid } from "../components/DayGrid";
 import { EventRow } from "../components/EventRow";
 import { GoalsPanel } from "../components/GoalsPanel";
 import { TaskRow } from "../components/TaskRow";
 import { cn } from "../lib/cn";
+import {
+	dayWindow,
+	GRID_END_HOUR,
+	GRID_START_HOUR,
+	type GridItem,
+	nextFreeSlot,
+	taskEstimate,
+} from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
 import {
 	useCalendarEvents,
@@ -64,7 +73,7 @@ export function PlanningView() {
 	const ui = useUi();
 	const isMobile = useIsMobile();
 	const { data: projects = [] } = useProjects();
-	const { completeTask, deleteTask } = useTaskMutations();
+	const { completeTask, deleteTask, updateTask } = useTaskMutations();
 	const { onAddTodo, addingUid } = useAddTodoFromEvent();
 	const [anchorDate, setAnchorDate] = useState(() => startOfDay(new Date()));
 	const [viewMode, setViewMode] = useState<ViewMode>("work-week");
@@ -100,6 +109,19 @@ export function PlanningView() {
 		{ status: "open", projectId: inboxProject?.id },
 		inboxProject != null,
 	);
+
+	// What is committed to the focused day, which is the axis the grid works on
+	// (the columns above are keyed by deadline instead).
+	const dayCommittedWindow = dayWindow(colStart);
+	const { data: dayCommitted = [] } = useTasks({
+		status: "open",
+		scheduledFrom: dayCommittedWindow.from,
+		scheduledTo: dayCommittedWindow.to,
+	});
+
+	// Seven columns at 56px an hour is unreadable at this width, and HTML5 drag
+	// does not work on touch.
+	const showGrid = viewMode === "day" && !isMobile;
 
 	const projectById = useMemo(
 		() => new Map(projects.map((p) => [p.id, p])),
@@ -204,6 +226,87 @@ export function PlanningView() {
 		},
 		e: () => selected && ui.openTaskEditor(selected),
 		enter: () => selected && ui.openTaskEditor(selected),
+		// One keystroke, no placement mode: a decent slot chosen now beats a
+		// perfect slot chosen never.
+		b: () => {
+			// On the grid the column list is not rendered, so `selected` points at
+			// something invisible. The rail's first task is what the eye is on.
+			const target = showGrid
+				? dayCommitted.find((t) => t.plannedStartAt === null)
+				: selected;
+			if (!target) return;
+			const day = startOfDay(colStart);
+			const occupied: GridItem[] = [
+				...events
+					.filter(
+						(e) => !e.allDay && e.endAt && isSameDay(parseISO(e.startAt), day),
+					)
+					.map((e) => ({
+						key: `${e.uid}-${e.recurrenceId}`,
+						startAt: e.startAt,
+						minutes: Math.max(
+							15,
+							(new Date(e.endAt as string).getTime() -
+								new Date(e.startAt).getTime()) /
+								60_000,
+						),
+					})),
+				...dayCommitted
+					.filter((t) => t.plannedStartAt !== null && t.id !== target.id)
+					.map((t) => ({
+						key: String(t.id),
+						startAt: t.plannedStartAt as string,
+						minutes: taskEstimate(t),
+					})),
+			];
+			const isToday = isSameDay(day, new Date());
+			const after = isToday ? new Date() : day;
+			const slot = nextFreeSlot(occupied, {
+				day,
+				after,
+				minutes: taskEstimate(target),
+				startHour: GRID_START_HOUR,
+				endHour: GRID_END_HOUR,
+			});
+			if (!slot) {
+				toast.error("No free slot left in this day");
+				return;
+			}
+			updateTask.mutate(
+				{
+					taskId: target.id,
+					// Committing to the day as well, so `b` works on a task that is
+					// only in this column because of its deadline.
+					input: {
+						scheduledAt: day.toISOString(),
+						plannedStartAt: slot.toISOString(),
+					},
+					before: target,
+				},
+				{
+					onSuccess: () =>
+						toast.success(`Timeboxed for ${format(slot, "HH:mm")}`),
+					onError: (err) => toast.error(err.message),
+				},
+			);
+		},
+		"shift+b": () => {
+			const target = showGrid
+				? [...dayCommitted].reverse().find((t) => t.plannedStartAt !== null)
+				: selected;
+			if (!target) return;
+			updateTask.mutate(
+				{
+					taskId: target.id,
+					input: { plannedStartAt: null },
+					before: target,
+				},
+				{
+					onSuccess: () => toast.success("Timebox cleared"),
+					onError: (err) => toast.error(err.message),
+				},
+			);
+		},
 	});
 
 	return (
@@ -296,81 +399,85 @@ export function PlanningView() {
 						</button>
 					</div>
 				</div>
-				<ScrollArea className="flex-1" horizontal={layout === "horizontal"}>
-					<div
-						className={cn(
-							"w-full min-w-0 gap-2 p-3",
-							layout === "vertical"
-								? "flex flex-col"
-								: "flex flex-row items-start overflow-x-auto",
-						)}
-					>
-						{columns.map((col, ci) => {
-							const itemCount = col.tasks.length + col.events.length;
-							return (
-								<div
-									key={col.key}
-									className={cn(
-										"flex min-w-0 flex-col rounded-lg border border-border/60 bg-surface/40",
-										layout === "horizontal" && "w-80 shrink-0",
-										ci === selectedFlat?.ci && "border-accent/50",
-									)}
-								>
+				{showGrid ? (
+					<DayGrid day={colStart} />
+				) : (
+					<ScrollArea className="flex-1" horizontal={layout === "horizontal"}>
+						<div
+							className={cn(
+								"w-full min-w-0 gap-2 p-3",
+								layout === "vertical"
+									? "flex flex-col"
+									: "flex flex-row items-start overflow-x-auto",
+							)}
+						>
+							{columns.map((col, ci) => {
+								const itemCount = col.tasks.length + col.events.length;
+								return (
 									<div
+										key={col.key}
 										className={cn(
-											"border-b border-border/60 px-3 py-2 text-xs font-semibold",
-											col.key === "overdue"
-												? "text-p1"
-												: col.isToday
-													? "text-accent"
-													: "text-muted",
+											"flex min-w-0 flex-col rounded-lg border border-border/60 bg-surface/40",
+											layout === "horizontal" && "w-80 shrink-0",
+											ci === selectedFlat?.ci && "border-accent/50",
 										)}
 									>
-										{col.label}
-										<span className="ml-2 font-normal text-muted">
-											{itemCount}
-										</span>
-									</div>
-									<div className="flex min-w-0 flex-col gap-0.5 p-1.5">
-										{col.events.length > 0 ? (
-											<div className="flex min-w-0 flex-col gap-1.5 px-1 pb-1.5">
-												{col.events.map((event) => (
-													<EventRow
-														key={`${event.uid}-${event.recurrenceId}`}
-														event={event}
-														onAddTodo={onAddTodo}
-														adding={addingUid === event.uid}
+										<div
+											className={cn(
+												"border-b border-border/60 px-3 py-2 text-xs font-semibold",
+												col.key === "overdue"
+													? "text-p1"
+													: col.isToday
+														? "text-accent"
+														: "text-muted",
+											)}
+										>
+											{col.label}
+											<span className="ml-2 font-normal text-muted">
+												{itemCount}
+											</span>
+										</div>
+										<div className="flex min-w-0 flex-col gap-0.5 p-1.5">
+											{col.events.length > 0 ? (
+												<div className="flex min-w-0 flex-col gap-1.5 px-1 pb-1.5">
+													{col.events.map((event) => (
+														<EventRow
+															key={`${event.uid}-${event.recurrenceId}`}
+															event={event}
+															onAddTodo={onAddTodo}
+															adding={addingUid === event.uid}
+														/>
+													))}
+												</div>
+											) : null}
+											{itemCount === 0 ? (
+												<p className="px-2 py-1.5 text-xs text-muted/50">
+													No tasks
+												</p>
+											) : (
+												col.tasks.map((task, ri) => (
+													<TaskRow
+														key={task.id}
+														task={task}
+														project={projectById.get(task.projectId)}
+														selected={
+															ci === selectedFlat?.ci && ri === selectedFlat?.ri
+														}
+														depth={0}
+														hasSubtasks={false}
+														expanded={false}
+														showProject
+														onOpen={() => ui.openTaskEditor(task)}
 													/>
-												))}
-											</div>
-										) : null}
-										{itemCount === 0 ? (
-											<p className="px-2 py-1.5 text-xs text-muted/50">
-												No tasks
-											</p>
-										) : (
-											col.tasks.map((task, ri) => (
-												<TaskRow
-													key={task.id}
-													task={task}
-													project={projectById.get(task.projectId)}
-													selected={
-														ci === selectedFlat?.ci && ri === selectedFlat?.ri
-													}
-													depth={0}
-													hasSubtasks={false}
-													expanded={false}
-													showProject
-													onOpen={() => ui.openTaskEditor(task)}
-												/>
-											))
-										)}
+												))
+											)}
+										</div>
 									</div>
-								</div>
-							);
-						})}
-					</div>
-				</ScrollArea>
+								);
+							})}
+						</div>
+					</ScrollArea>
+				)}
 			</div>
 		</>
 	);

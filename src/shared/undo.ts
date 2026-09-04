@@ -59,6 +59,10 @@ export function snapshotTaskFields(task: Task): TaskFieldSnapshot {
 		recurrencePreset: task.recurrencePreset,
 		recurrenceRRule: task.recurrenceRRule,
 		someday: task.someday,
+		estimateMinutes: task.estimateMinutes,
+		// Without this, dragging a block onto the grid would not be undoable,
+		// which is the difference between drag feeling free and feeling risky.
+		plannedStartAt: task.plannedStartAt,
 	};
 }
 

@@ -35,6 +35,20 @@ const SECTIONS: Array<[string, Array<[string, string]>]> = [
 		],
 	],
 	[
+		"The day",
+		[
+			["p", "Plan my day"],
+			["w", "Wrap up / close the day"],
+			["c", "Commit selected task to today"],
+			["f", "Start or stop working on the selected task"],
+			["shift+1..4", "Estimate the selected task: 15m, 30m, 1h, 90m"],
+			[
+				"x t b s d",
+				"Inside Close the day: done, tomorrow, backlog, someday, drop",
+			],
+		],
+	],
+	[
 		"Projects",
 		[
 			["P", "New project"],
@@ -47,6 +61,8 @@ const SECTIONS: Array<[string, Array<[string, string]>]> = [
 			["h / l", "Previous / next column"],
 			["[ / ]", "Previous / next week"],
 			["t", "Jump to today"],
+			["b", "Timebox: drop the task into the next free slot"],
+			["shift+b", "Clear the timebox"],
 			["v", "Cycle day / work week / week"],
 			["g", "Add goal"],
 		],

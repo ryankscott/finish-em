@@ -1,8 +1,9 @@
 import { useParams } from "@tanstack/react-router";
-import { endOfDay, startOfDay } from "date-fns";
+import { format, startOfDay } from "date-fns";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { isOverdueTask } from "@/lib/datetime";
 import { ensureScheme } from "@/lib/task-links";
@@ -11,13 +12,28 @@ import {
 	type LinkChoice,
 	LinkPickerDialog,
 } from "../components/LinkPickerDialog";
+import { NowBar } from "../components/NowBar";
 import { ProjectHeader } from "../components/ProjectHeader";
 import { TaskListView } from "../components/TaskListView";
+import { dayKey, dayWindow, partitionDay } from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
-import { useDeletedTasks, useProjects, useTasks } from "../lib/queries";
+import {
+	useDayLog,
+	useDeletedTasks,
+	useProjects,
+	useTasks,
+} from "../lib/queries";
 import { useUi } from "../state/ui";
 
-export function ViewTitle({ title, count }: { title: string; count?: number }) {
+export function ViewTitle({
+	title,
+	count,
+	action,
+}: {
+	title: string;
+	count?: number;
+	action?: React.ReactNode;
+}) {
 	return (
 		<div className="flex flex-col">
 			<div className="flex items-baseline gap-2 px-4 py-3">
@@ -25,6 +41,7 @@ export function ViewTitle({ title, count }: { title: string; count?: number }) {
 				{count !== undefined ? (
 					<span className="text-xs text-muted">{count}</span>
 				) : null}
+				{action ? <div className="ml-auto self-center">{action}</div> : null}
 			</div>
 			<Separator />
 		</div>
@@ -32,35 +49,106 @@ export function ViewTitle({ title, count }: { title: string; count?: number }) {
 }
 
 export function TodayView() {
+	const ui = useUi();
 	const now = new Date();
-	const { data: todayTasks = [] } = useTasks({
+	const today = dayWindow(now);
+	// Everything committed to today OR to an earlier day that never got closed.
+	// Leftovers surfacing here the next morning is what makes the shutdown
+	// routine optional rather than a cron job.
+	const { data: committed = [] } = useTasks({
 		status: "open",
-		from: startOfDay(now).toISOString(),
-		to: endOfDay(now).toISOString(),
+		scheduledTo: today.to,
 	});
-	const { data: pastTasks = [] } = useTasks({
+	// Through end of today, not just up to midnight, so a task due later
+	// today shows up before it lapses into "overdue" tomorrow.
+	const { data: dueTasks = [] } = useTasks({
 		status: "open",
-		to: startOfDay(now).toISOString(),
+		to: today.to,
 	});
-	// biome-ignore lint/correctness/useExhaustiveDependencies: now is a fresh Date each render; the task lists are what actually change
-	const { tasks, sectionLabels } = useMemo(() => {
-		const overdue = pastTasks.filter((t) => isOverdueTask(t, now));
-		const overdueIds = new Set(overdue.map((t) => t.id));
-		const due = todayTasks.filter((t) => !overdueIds.has(t.id));
-		// Overdue tasks were already mixed into this view but looked identical to
-		// today's; the headings separate them without hiding either group.
+	const { data: dayLog } = useDayLog(dayKey(now));
+
+	const { tasks, sectionLabels, focused, next } = useMemo(() => {
+		const overdue = dueTasks.filter((t) => isOverdueTask(t, now));
+		const dueToday = dueTasks.filter(
+			(t) => t.dueAt !== null && !isOverdueTask(t, now),
+		);
+		const {
+			leftover,
+			today: planned,
+			unplannedDueToday,
+			unplannedOverdue,
+		} = partitionDay(committed, dueToday, overdue, now);
+
 		const labels = new Map<number, string>();
-		if (overdue.length > 0) labels.set(overdue[0].id, "Overdue");
-		if (due.length > 0 && overdue.length > 0) labels.set(due[0].id, "Today");
-		return { tasks: [...overdue, ...due], sectionLabels: labels };
-	}, [todayTasks, pastTasks]);
+		if (leftover.length > 0 && leftover[0].scheduledAt) {
+			labels.set(
+				leftover[0].id,
+				`Left over from ${format(new Date(leftover[0].scheduledAt), "EEE d MMM")}`,
+			);
+		}
+		if (planned.length > 0) labels.set(planned[0].id, "Today");
+		if (unplannedDueToday.length > 0) {
+			labels.set(unplannedDueToday[0].id, "Due today, not planned");
+		}
+		if (unplannedOverdue.length > 0) {
+			labels.set(unplannedOverdue[0].id, "Deadline passed, not planned");
+		}
+
+		const ordered = [
+			...leftover,
+			...planned,
+			...unplannedDueToday,
+			...unplannedOverdue,
+		];
+		return {
+			tasks: ordered,
+			sectionLabels: labels,
+			focused: ordered.find((t) => t.startedAt !== null) ?? null,
+			next: leftover[0] ?? planned[0] ?? null,
+		};
+	}, [committed, dueTasks, now]);
+
+	const showPlanPrompt = dayLog !== undefined && dayLog.plannedAt === null;
+
 	return (
 		<>
-			<ViewTitle title="Today" count={tasks.length} />
+			<ViewTitle
+				title="Today"
+				count={tasks.length}
+				action={
+					<div className="flex gap-2">
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={() => ui.setPlanDayOpen(true)}
+						>
+							Plan day
+						</Button>
+						<Button
+							size="sm"
+							variant="outline"
+							onClick={() => ui.setCloseDayOpen(true)}
+						>
+							Close day
+						</Button>
+					</div>
+				}
+			/>
+			{showPlanPrompt ? (
+				<button
+					type="button"
+					onClick={() => ui.setPlanDayOpen(true)}
+					className="mx-4 mt-3 rounded-lg border border-dashed border-border px-4 py-3 text-left text-sm text-muted hover:border-accent"
+				>
+					You have not planned today yet. Pick what today is.
+				</button>
+			) : null}
+			<NowBar focused={focused} next={next} />
 			<TaskListView
 				tasks={tasks}
-				emptyMessage="Nothing due today"
+				emptyMessage="Nothing committed to today. Press p to plan it."
 				sectionLabels={sectionLabels}
+				dimUnfocused={focused !== null}
 			/>
 		</>
 	);

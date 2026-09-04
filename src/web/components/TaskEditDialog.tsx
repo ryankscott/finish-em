@@ -20,9 +20,11 @@ import {
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { parseDurationMinutes } from "@/lib/parsing/parse-duration";
 import type { RecurrencePreset } from "@/server/types";
 import { cn } from "../lib/cn";
 import { formatDateField, resolveDateField } from "../lib/date-field";
+import { formatMinutes } from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
 import {
 	useCalendarMutations,
@@ -39,6 +41,9 @@ import { ProjectPickerSheet } from "./ProjectPickerSheet";
 import { RecurrenceSelector } from "./RecurrenceSelector";
 import { TaskReminderField } from "./TaskReminderField";
 
+/** 15m / 30m / 1h / 90m: the sizes almost every task actually is. */
+const ESTIMATE_PRESETS = [15, 30, 60, 90];
+
 const PRIORITY_LABELS: Record<number, string> = {
 	1: "Urgent",
 	2: "High",
@@ -46,20 +51,16 @@ const PRIORITY_LABELS: Record<number, string> = {
 	4: "Low",
 };
 
-// claude:// opens Claude Desktop directly; q is prefilled into the prompt
-// field there (truncated by the app at ~14k chars, so clamp well under that).
-function buildClaudeDelegateHref(
-	title: string,
-	projectName: string | undefined,
-	dueLabel: string,
-	notes: string,
-): string {
-	const lines = [`Task: ${title}`];
-	if (projectName) lines.push(`Project: ${projectName}`);
-	if (dueLabel) lines.push(`Due: ${dueLabel}`);
-	if (notes.trim()) lines.push("", notes.trim());
-	const prompt = lines.join("\n").slice(0, 8000);
-	return `claude://claude.ai/new?q=${encodeURIComponent(prompt)}`;
+// claude:// opens Claude Desktop directly; /code/new is the Code surface's
+// new-session route and q is prefilled into its prompt field (the same route
+// the app uses internally). Truncated by the app at ~14k chars, so clamp well
+// under that.
+//
+// Only the task title is sent: project and due-date are scheduling metadata
+// that just add noise to a coding prompt.
+function buildClaudeDelegateHref(title: string): string {
+	const prompt = title.trim().slice(0, 8000);
+	return `claude://claude.ai/code/new?q=${encodeURIComponent(prompt)}`;
 }
 
 export function TaskEditDialog() {
@@ -84,6 +85,8 @@ export function TaskEditDialog() {
 	const [recurrenceRRule, setRecurrenceRRule] = useState<string | null>(null);
 	const [notes, setNotes] = useState("");
 	const [someday, setSomeday] = useState(false);
+	// Free text rather than a number input: "1h30" is how people write it.
+	const [estimate, setEstimate] = useState("");
 
 	useEffect(() => {
 		if (!task) return;
@@ -96,6 +99,9 @@ export function TaskEditDialog() {
 		setRecurrenceRRule(task.recurrenceRRule ?? null);
 		setNotes(task.notes);
 		setSomeday(task.someday);
+		setEstimate(
+			task.estimateMinutes === null ? "" : String(task.estimateMinutes),
+		);
 		setCalendarEventUid(task.calendarEventUid ?? null);
 	}, [task]);
 
@@ -122,6 +128,18 @@ export function TaskEditDialog() {
 			toast.error("Title is required");
 			return;
 		}
+		// Blank clears the estimate; anything unreadable stops the save rather
+		// than silently discarding what was typed.
+		const trimmedEstimate = estimate.trim();
+		const estimateMinutes =
+			trimmedEstimate.length === 0
+				? null
+				: parseDurationMinutes(trimmedEstimate);
+		if (estimateMinutes === undefined) {
+			toast.error("Estimate accepts: 45m, 1h, 1h30, 90");
+			return;
+		}
+
 		const dueAt = resolveDateField(due, task.dueAt);
 		const scheduledAt = resolveDateField(scheduled, task.scheduledAt);
 		if (dueAt === "invalid" || scheduledAt === "invalid") {
@@ -144,6 +162,7 @@ export function TaskEditDialog() {
 					recurrenceRRule,
 					notes,
 					someday,
+					estimateMinutes,
 				},
 			},
 			{
@@ -270,6 +289,39 @@ export function TaskEditDialog() {
 			</div>
 			<div className={twoCol}>
 				<div className="flex flex-col gap-1">
+					<Label>Estimate</Label>
+					{/* Presets first: tapping "30m" is not a decision, typing a number
+					    is. The field stays for anything the presets do not cover. */}
+					<div className="flex gap-1.5">
+						{ESTIMATE_PRESETS.map((minutes) => (
+							<button
+								key={minutes}
+								type="button"
+								onClick={() => setEstimate(String(minutes))}
+								aria-pressed={estimate.trim() === String(minutes)}
+								className={cn(
+									"flex-1 rounded-md border px-2 py-1.5 text-sm",
+									isMobile && "min-h-11",
+									estimate.trim() === String(minutes)
+										? "border-accent bg-accent/15 text-foreground"
+										: "border-border text-muted",
+								)}
+							>
+								{formatMinutes(minutes)}
+							</button>
+						))}
+					</div>
+					<Input
+						value={estimate}
+						onChange={(e) => setEstimate(e.target.value)}
+						placeholder="45m, 1h, 1h30 — blank for none"
+						aria-label="Estimate"
+					/>
+				</div>
+				<div className="flex flex-col gap-1" />
+			</div>
+			<div className={twoCol}>
+				<div className="flex flex-col gap-1">
 					<Label>Due date</Label>
 					<DateField value={due} onChange={setDue} />
 				</div>
@@ -346,12 +398,7 @@ export function TaskEditDialog() {
 			) : null}
 			{task ? (
 				<a
-					href={buildClaudeDelegateHref(
-						title,
-						selectedProject?.name,
-						due,
-						notes,
-					)}
+					href={buildClaudeDelegateHref(title)}
 					className={cn(
 						"flex items-center justify-center gap-2 rounded-md border border-border text-sm text-muted hover:bg-surface hover:text-foreground",
 						isMobile ? "min-h-11" : "px-3 py-2",

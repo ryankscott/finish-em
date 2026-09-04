@@ -178,6 +178,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		NSWorkspace.shared.open(url)
 	}
 
+	// True for custom-scheme URLs (e.g. claude://) that WKWebView can't render
+	// itself and that must be handed off to the OS to dispatch to a registered
+	// app handler.
+	func isCustomScheme(_ url: URL?) -> Bool {
+		guard let url, let scheme = url.scheme?.lowercased() else { return false }
+		return !["http", "https", "file", "about", "blob", "data"].contains(scheme)
+	}
+
 	// Intercept ordinary link clicks/navigations to off-site URLs.
 	func webView(
 		_ webView: WKWebView,
@@ -185,7 +193,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
 	) {
 		let url = navigationAction.request.url
-		if navigationAction.navigationType == .linkActivated, isExternal(url) {
+		if navigationAction.navigationType == .linkActivated,
+			isExternal(url) || isCustomScheme(url)
+		{
 			openExternally(url!)
 			decisionHandler(.cancel)
 			return
@@ -202,7 +212,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		windowFeatures: WKWindowFeatures
 	) -> WKWebView? {
 		if let url = navigationAction.request.url {
-			if isExternal(url) {
+			if isExternal(url) || isCustomScheme(url) {
 				openExternally(url)
 			} else {
 				// Same-origin popup: load it in the main webview instead.

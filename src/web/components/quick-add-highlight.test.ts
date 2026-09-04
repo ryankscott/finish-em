@@ -67,3 +67,61 @@ describe("tokenizeQuickAdd", () => {
 		]);
 	});
 });
+
+describe("estimate tokens", () => {
+	it("pills a minute estimate", () => {
+		expect(tokenizeQuickAdd("Write est:45m", PROJECTS)).toEqual([
+			{ text: "Write ", kind: null },
+			{ text: "est:45m", kind: "estimate" },
+		]);
+	});
+
+	it("pills the hour forms", () => {
+		expect(
+			tokenizeQuickAdd("est:1h30", PROJECTS).find((s) => s.kind === "estimate")
+				?.text,
+		).toBe("est:1h30");
+		expect(
+			tokenizeQuickAdd("estimate:2h", PROJECTS).find(
+				(s) => s.kind === "estimate",
+			)?.text,
+		).toBe("estimate:2h");
+	});
+
+	it("pills a bare number as minutes", () => {
+		expect(
+			tokenizeQuickAdd("est:45", PROJECTS).find((s) => s.kind === "estimate")
+				?.text,
+		).toBe("est:45");
+	});
+
+	it("leaves an incomplete estimate as plain text", () => {
+		expect(
+			tokenizeQuickAdd("Write est:", PROJECTS).some(
+				(s) => s.kind === "estimate",
+			),
+		).toBe(false);
+	});
+
+	it("does not pill an unreadable value", () => {
+		expect(
+			tokenizeQuickAdd("Write est:soon", PROJECTS).some(
+				(s) => s.kind === "estimate",
+			),
+		).toBe(false);
+	});
+
+	it("leaves a URL containing est: untouched", () => {
+		const segments = tokenizeQuickAdd(
+			"Read https://example.com/est:45m/docs",
+			PROJECTS,
+		);
+		expect(segments.some((s) => s.kind === "estimate")).toBe(false);
+	});
+
+	it("does not swallow a following token", () => {
+		const segments = tokenizeQuickAdd("Write est:45m due:today", PROJECTS);
+		expect(segments.find((s) => s.kind === "estimate")?.text).toBe("est:45m");
+		expect(segments.find((s) => s.kind === "due")?.text).toBe("due:today");
+	});
+});

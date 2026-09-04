@@ -169,6 +169,27 @@ export function SettingsView() {
 							device only.
 						</span>
 					</div>
+
+					<div className="flex flex-col gap-1">
+						<Label>Hours of focus per day</Label>
+						<Input
+							type="number"
+							min={1}
+							max={12}
+							step={0.5}
+							value={ui.workdayMinutes / 60}
+							onChange={(e) => {
+								const parsed = Number.parseFloat(e.target.value);
+								if (!Number.isNaN(parsed)) ui.setWorkdayMinutes(parsed * 60);
+							}}
+							className="max-w-24"
+						/>
+						<span className="text-xs text-muted">
+							The capacity Plan day measures against, before meetings are
+							subtracted. Six hours of real focus beats eight hours at a desk.
+							Stored on this device only.
+						</span>
+					</div>
 				</Section>
 			</div>
 		</>

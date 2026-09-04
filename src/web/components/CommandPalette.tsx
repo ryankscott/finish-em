@@ -56,6 +56,14 @@ export function CommandPalette() {
 						New project
 						<CommandShortcut>P</CommandShortcut>
 					</CommandItem>
+					<CommandItem onSelect={() => run(() => ui.setPlanDayOpen(true))}>
+						Plan my day
+						<CommandShortcut>p</CommandShortcut>
+					</CommandItem>
+					<CommandItem onSelect={() => run(() => ui.setCloseDayOpen(true))}>
+						Close the day
+						<CommandShortcut>w</CommandShortcut>
+					</CommandItem>
 					<CommandItem onSelect={() => run(() => ui.setHelpOpen(true))}>
 						Keyboard shortcuts
 						<CommandShortcut>?</CommandShortcut>

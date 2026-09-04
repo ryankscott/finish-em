@@ -255,10 +255,12 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 	const [overIndex, setOverIndex] = useState<number | null>(null);
 
 	const now = new Date();
-	const { data: todayTasks = [] } = useTasks({
+	// Matches what the Today view actually shows: the day's plan plus anything
+	// left over from an earlier day. A badge counting due-today instead would
+	// disagree with the view it links to.
+	const { data: committedTasks = [] } = useTasks({
 		status: "open",
-		from: startOfDay(now).toISOString(),
-		to: endOfDay(now).toISOString(),
+		scheduledTo: endOfDay(now).toISOString(),
 	});
 	const { data: pastTasks = [] } = useTasks({
 		status: "open",
@@ -275,7 +277,12 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 	});
 	const { data: deletedTasks = [] } = useDeletedTasks();
 
-	const overdueCount = pastTasks.filter((t) => isOverdueTask(t, now)).length;
+	const overdue = pastTasks.filter((t) => isOverdueTask(t, now));
+	const overdueCount = overdue.length;
+	// Overdue tasks already in the plan are counted by committedTasks.
+	const unplannedOverdueCount = overdue.filter(
+		(t) => t.scheduledAt === null,
+	).length;
 	const inbox = projects.find((p) => p.isInbox);
 	const inboxCount = inbox
 		? openTasks.filter((t) => t.projectId === inbox.id).length
@@ -363,7 +370,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				to="/today"
 				icon={<Sun className={iconClass} />}
 				label="Today"
-				count={todayTasks.length + overdueCount}
+				count={committedTasks.length + unplannedOverdueCount}
 				active={pathname === "/today" || pathname === "/"}
 				isDrawer={isDrawer}
 			/>

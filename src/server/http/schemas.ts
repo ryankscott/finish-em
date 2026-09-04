@@ -129,6 +129,10 @@ export const projectReorderSchema = z
 	.object({ projectIds: z.number().int().array() })
 	.openapi("ProjectReorder");
 
+// Capped at a day: a fat-fingered "600" must not render a block taller than
+// the whole grid.
+const estimateMinutesSchema = z.number().int().min(0).max(1440);
+
 export const taskSchema = z
 	.object({
 		id: z.number().int(),
@@ -144,6 +148,10 @@ export const taskSchema = z
 		recurrenceRRule: z.string().nullable(),
 		status: taskStatusSchema,
 		someday: z.boolean(),
+		planOrder: z.number().int(),
+		startedAt: z.string().nullable(),
+		estimateMinutes: z.number().int().nullable(),
+		plannedStartAt: z.string().nullable(),
 		completedAt: z.string().nullable(),
 		deletedAt: z.string().nullable(),
 		calendarEventUid: z.string().nullable(),
@@ -165,6 +173,7 @@ export const taskCreateSchema = z
 		recurrencePreset: recurrencePresetSchema.nullable().optional(),
 		recurrenceRRule: z.string().nullable().optional(),
 		someday: z.boolean().optional(),
+		estimateMinutes: estimateMinutesSchema.nullable().optional(),
 	})
 	.openapi("TaskCreate");
 
@@ -181,6 +190,8 @@ export const taskUpdateSchema = z
 		recurrencePreset: recurrencePresetSchema.nullable().optional(),
 		recurrenceRRule: z.string().nullable().optional(),
 		someday: z.boolean().optional(),
+		estimateMinutes: estimateMinutesSchema.nullable().optional(),
+		plannedStartAt: z.string().nullable().optional(),
 	})
 	.openapi("TaskUpdate");
 
@@ -203,8 +214,31 @@ export const taskQuerySchema = z
 		rootsOnly: queryBoolean.optional(),
 		someday: queryBoolean.optional(),
 		recurring: queryBoolean.optional(),
+		scheduledFrom: z.string().optional(),
+		scheduledTo: z.string().optional(),
+		unplanned: queryBoolean.optional(),
 	})
 	.openapi("TaskQuery");
+
+export const planDaySchema = z
+	.object({
+		day: z.string(),
+		taskIds: z.number().int().array(),
+	})
+	.openapi("PlanDay");
+
+/** A local calendar day, `yyyy-mm-dd`. */
+export const dayParamSchema = z
+	.object({ day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/) })
+	.openapi("DayParam");
+
+export const dayLogSchema = z
+	.object({
+		day: z.string(),
+		plannedAt: z.string().nullable(),
+		closedAt: z.string().nullable(),
+	})
+	.openapi("DayLog");
 
 export const goalSchema = z
 	.object({

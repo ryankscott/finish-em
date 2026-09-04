@@ -1,9 +1,7 @@
 import { Link } from "@tanstack/react-router";
-import { format } from "date-fns";
-
 import { startOfDay, startOfWeek } from "@/lib/datetime";
 import { cn } from "../lib/cn";
-import { useGoals, useTasks } from "../lib/queries";
+import { useTasks } from "../lib/queries";
 import {
 	countCompletionsSince,
 	countOverdue,
@@ -11,7 +9,6 @@ import {
 } from "../lib/status-metrics";
 import { useUi } from "../state/ui";
 import { NyanCat } from "./NyanCat";
-import { WeeklyGoalsTicker } from "./WeeklyGoalsTicker";
 
 export function StatusBar() {
 	const ui = useUi();
@@ -27,15 +24,13 @@ export function StatusBar() {
 	// endpoint's from/to filter (that filters due_at); all completed tasks are
 	// fetched and the date range applied client-side, same as LogbookView does.
 	const { data: completedTasks = [] } = useTasks({ status: "completed" });
-	const { data: weeklyGoals = [] } = useGoals({
-		periodType: "weekly",
-		periodStart: format(weekStart, "yyyy-MM-dd"),
-	});
-
 	const overdue = countOverdue(openPast, now);
 	const completedToday = countCompletionsSince(completedTasks, dayStart);
 	const completedWeek = countCompletionsSince(completedTasks, weekStart);
 	const progress = nyanProgress(completedToday, ui.dailyTarget);
+	// The cat stops at the goal, so the counter stops there too: showing 13/10
+	// next to a cat parked at the end of its track reads as a stuck cat.
+	const shownToday = Math.min(completedToday, ui.dailyTarget);
 
 	return (
 		<output
@@ -53,7 +48,6 @@ export function StatusBar() {
 			</Link>
 			<span className="shrink-0">{completedToday} today</span>
 			<span className="shrink-0">{completedWeek} this week</span>
-			<WeeklyGoalsTicker goals={weeklyGoals} />
 			<div className="flex min-w-0 flex-1 items-center justify-end gap-2">
 				<div className="min-w-0 max-w-64 flex-1">
 					<NyanCat progress={progress} />
@@ -72,7 +66,7 @@ export function StatusBar() {
 					className="shrink-0 tabular-nums hover:text-foreground"
 					title="Set daily goal"
 				>
-					{completedToday}/{ui.dailyTarget}
+					{shownToday}/{ui.dailyTarget}
 				</button>
 			</div>
 		</output>

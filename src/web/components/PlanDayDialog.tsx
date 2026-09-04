@@ -1,0 +1,270 @@
+import { format, startOfDay } from "date-fns";
+import { useId, useMemo, useState } from "react";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { toDisplayString } from "@/lib/task-links";
+import type { Task } from "@/server/types";
+
+import { cn } from "../lib/cn";
+import {
+	dayCapacity,
+	dayWindow,
+	formatMinutes,
+	planCandidates,
+	taskEstimate,
+} from "../lib/day-plan";
+import {
+	useCalendarEvents,
+	useDayLogMutations,
+	useProjects,
+	useTaskMutations,
+	useTasks,
+} from "../lib/queries";
+import { useUi } from "../state/ui";
+
+/**
+ * The guided step: choose what today actually is, in order.
+ *
+ * Candidates lead with what is already late or already committed, because a list
+ * that opens with unfinished business is the one that gets planned honestly.
+ * Meetings are shown alongside so the plan is made against the time that is
+ * really left, not against a blank day.
+ */
+export function PlanDayDialog() {
+	const ui = useUi();
+	// Recomputed each render on purpose: dayWindow rounds to the day boundary, so
+	// the query keys below stay stable even though the clock moves.
+	const now = new Date();
+	const today = dayWindow(now);
+	const { planDay } = useTaskMutations();
+	const { markPlanned } = useDayLogMutations();
+	const { data: projects = [] } = useProjects();
+	const inboxId = projects.find((p) => p.isInbox)?.id;
+
+	// Already committed to today or earlier: these are the plan's starting point.
+	const { data: committed = [] } = useTasks({
+		status: "open",
+		scheduledTo: today.to,
+	});
+	const { data: overdue = [] } = useTasks({
+		status: "open",
+		to: startOfDay(now).toISOString(),
+	});
+	const { data: dueToday = [] } = useTasks({
+		status: "open",
+		from: today.from,
+		to: today.to,
+	});
+	const { data: inbox = [] } = useTasks(
+		{ status: "open", projectId: inboxId, unplanned: true },
+		inboxId !== undefined,
+	);
+	const { data: events = [] } = useCalendarEvents({
+		from: today.from,
+		to: today.to,
+	});
+
+	const candidates = useMemo(
+		() => planCandidates([committed, overdue, dueToday, inbox]),
+		[committed, overdue, dueToday, inbox],
+	);
+
+	const byId = useMemo(
+		() => new Map(candidates.map((task) => [task.id, task])),
+		[candidates],
+	);
+
+	// Selection order is the plan order, so the list is ranked by construction.
+	// null means "untouched", which seeds from whatever is already committed
+	// without needing an effect to copy it in when the dialog opens.
+	const [picked, setPicked] = useState<number[] | null>(null);
+	const chosen = picked ?? committed.map((t) => t.id);
+	const rowIdPrefix = useId();
+
+	// Functional updater, not a read of `chosen`: several toggles can land in one
+	// React batch, and reading the rendered value would make each one overwrite
+	// the last instead of accumulating.
+	const toggle = (task: Task) =>
+		setPicked((prev) => {
+			const base = prev ?? committed.map((t) => t.id);
+			return base.includes(task.id)
+				? base.filter((id) => id !== task.id)
+				: [...base, task.id];
+		});
+
+	const setOpen = (open: boolean) => {
+		if (!open) setPicked(null);
+		ui.setPlanDayOpen(open);
+	};
+
+	// Capacity, not task count, decides whether the day is overcommitted: a
+	// five-minute email and a three-hour writing block are not one unit each.
+	const chosenTasks = useMemo(
+		() => chosen.map((id) => byId.get(id)).filter((t): t is Task => !!t),
+		[chosen, byId],
+	);
+	const capacity = dayCapacity({
+		workdayMinutes: ui.workdayMinutes,
+		events,
+		day: now,
+		tasks: chosenTasks,
+	});
+	// Named so the over-capacity hint can point at something specific to drop.
+	const lastPicked = chosenTasks[chosenTasks.length - 1];
+
+	// Both bars are measured against the whole workday, so meetings and tasks
+	// stay comparable and an overcommitted plan visibly fills the track.
+	const day = Math.max(1, capacity.workdayMinutes);
+	const meetingShare = Math.min(100, (capacity.meetingMinutes / day) * 100);
+	const plannedShare = Math.min(
+		100 - meetingShare,
+		(capacity.plannedMinutes / day) * 100,
+	);
+
+	const commit = () => {
+		planDay.mutate(
+			{ day: startOfDay(now).toISOString(), taskIds: chosen },
+			{
+				onSuccess: () => {
+					markPlanned.mutate(format(now, "yyyy-MM-dd"));
+					setOpen(false);
+					toast.success(
+						chosen.length === 0
+							? "Today is deliberately empty"
+							: `${chosen.length} committed to today`,
+					);
+				},
+				onError: (err) => toast.error(err.message),
+			},
+		);
+	};
+
+	return (
+		<Dialog open={ui.planDayOpen} onOpenChange={setOpen}>
+			<DialogContent className="max-w-xl">
+				<DialogHeader>
+					<DialogTitle>Plan {format(now, "EEEE d MMMM")}</DialogTitle>
+					<DialogDescription>
+						Pick what you are actually doing today, in the order you will do it.
+						Everything you leave out stays where it is.
+					</DialogDescription>
+				</DialogHeader>
+
+				<div className="rounded-md border border-border px-3 py-2">
+					<div className="flex h-2 w-full overflow-hidden rounded-full bg-surface-raised">
+						{/* Meetings are charged first, because that is the order reality
+						    applies them. */}
+						<span
+							className="h-full bg-border"
+							style={{ width: `${meetingShare}%` }}
+						/>
+						<span
+							className={cn("h-full", capacity.isOver ? "bg-p1" : "bg-accent")}
+							style={{ width: `${plannedShare}%` }}
+						/>
+					</div>
+					<p
+						className={cn(
+							"mt-2 text-xs",
+							capacity.isOver ? "text-p1" : "text-muted",
+						)}
+					>
+						{capacity.isOver
+							? `${formatMinutes(capacity.plannedMinutes)} planned · ${formatMinutes(capacity.overBy)} over`
+							: `${formatMinutes(capacity.plannedMinutes)} planned · ${formatMinutes(capacity.remainingMinutes)} free`}
+						{` (${formatMinutes(capacity.workdayMinutes)} day`}
+						{capacity.meetingMinutes > 0
+							? ` − ${formatMinutes(capacity.meetingMinutes)} meetings)`
+							: ")"}
+					</p>
+					{capacity.isOver && lastPicked ? (
+						<p className="mt-1 text-xs text-muted">
+							Something has to go. Dropping “{toDisplayString(lastPicked.title)}
+							” frees {formatMinutes(taskEstimate(lastPicked))}.
+						</p>
+					) : null}
+					{events.length > 0 ? (
+						<p className="mt-1 text-xs text-muted">
+							{events.length} meeting{events.length === 1 ? "" : "s"} today
+							{events[0]?.startAt
+								? `, first at ${format(new Date(events[0].startAt), "HH:mm")}`
+								: null}
+						</p>
+					) : null}
+				</div>
+
+				<ScrollArea className="max-h-80">
+					<ul className="flex flex-col gap-1 pr-3">
+						{candidates.length === 0 ? (
+							<li className="py-6 text-center text-muted">
+								Nothing waiting. Add a task first.
+							</li>
+						) : null}
+						{candidates.map((task) => {
+							const position = chosen.indexOf(task.id);
+							return (
+								<li key={task.id}>
+									{/* One interactive element per row: the label forwards
+									    clicks to the checkbox, so no nested buttons. */}
+									<label
+										htmlFor={`${rowIdPrefix}-${task.id}`}
+										className="flex w-full cursor-pointer items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-surface-raised"
+									>
+										<Checkbox
+											id={`${rowIdPrefix}-${task.id}`}
+											checked={position !== -1}
+											onCheckedChange={() => toggle(task)}
+										/>
+										<span className="min-w-0 flex-1 truncate">
+											{toDisplayString(task.title)}
+										</span>
+										<span
+											className={cn(
+												"shrink-0 text-xs",
+												task.estimateMinutes === null
+													? "text-muted/60"
+													: "text-muted",
+											)}
+										>
+											{formatMinutes(taskEstimate(task))}
+										</span>
+										{position !== -1 ? (
+											<span className="shrink-0 text-xs text-accent">
+												{position + 1}
+											</span>
+										) : null}
+									</label>
+								</li>
+							);
+						})}
+					</ul>
+				</ScrollArea>
+
+				<DialogFooter className="items-center justify-between sm:justify-between">
+					{/* Count only, no second warning: two competing warnings train you
+					    to ignore both, and capacity above is the honest one. */}
+					<span className="text-xs text-muted">
+						{chosen.length} chosen · {formatMinutes(capacity.plannedMinutes)}
+					</span>
+					<span className="flex gap-2">
+						<Button variant="outline" onClick={() => setOpen(false)}>
+							Cancel
+						</Button>
+						<Button onClick={commit}>Commit to today</Button>
+					</span>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
+}

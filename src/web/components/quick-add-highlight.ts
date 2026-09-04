@@ -14,7 +14,8 @@ export type TokenKind =
 	| "project"
 	| "due"
 	| "scheduled"
-	| "recurrence";
+	| "recurrence"
+	| "estimate";
 
 export type Segment = { text: string; kind: TokenKind | null };
 
@@ -36,6 +37,11 @@ const PATTERNS: { kind: TokenKind; re: RegExp }[] = [
 		re: new RegExp(`(?:\\bscheduled:|\\bsch:|🗓\\s*)\\s*${DATE_VALUE}\\b`, "iy"),
 	},
 	{
+		// Mirrors parseDurationMinutes: 45, 45m, 1h, 1h30, 1h 30m, 1.5h, none.
+		kind: "estimate",
+		re: /(?:\best:|\bestimate:|⏱\s*)\s*(?:none|clear|\d+(?:\.\d+)?\s*h(?:ou)?r?s?(?:\s*\d+\s*(?:m(?:in(?:ute)?s?)?)?)?|\d+\s*m(?:in(?:ute)?s?)?|\d+)(?![\w:])/iy,
+	},
+	{
 		kind: "recurrence",
 		re: /(?:\brecurs:|\brec:|\brecurrence:|🔁\s*)\s*(?:daily|weekly|monthly|yearly|every_weekday|none|never|clear)\b/iy,
 	},
@@ -43,7 +49,7 @@ const PATTERNS: { kind: TokenKind; re: RegExp }[] = [
 
 const PROJECT_PREFIX = /(?:\bproject:|\bproj:|📁\s*)\s*/iy;
 const NEXT_TOKEN =
-	/\s+(?:title:|project:|proj:|priority:|prio:|due:|scheduled:|sch:|notes:|parent:|recurs:|rec:|recurrence:|p[1-4]\b|⏰|🗓|🔁|🚩|📁)/i;
+	/\s+(?:title:|project:|proj:|priority:|prio:|due:|scheduled:|sch:|notes:|parent:|recurs:|rec:|recurrence:|est:|estimate:|p[1-4]\b|⏰|🗓|🔁|🚩|📁|⏱)/i;
 
 export function tokenizeQuickAdd(
 	value: string,

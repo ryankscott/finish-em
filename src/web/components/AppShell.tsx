@@ -18,15 +18,18 @@ import { useUndo } from "../lib/undo";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { useUi } from "../state/ui";
 import { ChangeWatcher } from "./ChangeWatcher";
+import { CloseDayDialog } from "./CloseDayDialog";
 import { CommandPalette } from "./CommandPalette";
 import { HelpDialog } from "./HelpDialog";
 import { MOBILE_NAV_PATHS, MobileNav } from "./MobileNav";
+import { PlanDayDialog } from "./PlanDayDialog";
 import { ProjectDialog } from "./ProjectDialog";
 import { QuickAdd } from "./QuickAdd";
 import { ReminderWatcher } from "./ReminderWatcher";
 import { Sidebar } from "./Sidebar";
 import { StatusBar } from "./StatusBar";
 import { TaskEditDialog } from "./TaskEditDialog";
+import { WeeklyGoalsBanner } from "./WeeklyGoalsBanner";
 
 const VIEW_KEYS = [
 	"/today",
@@ -113,6 +116,8 @@ export function AppShell() {
 	useHotkeyScope(
 		{
 			a: () => ui.openQuickAdd(),
+			p: () => ui.setPlanDayOpen(true),
+			w: () => ui.setCloseDayOpen(true),
 			"shift+a": () => ui.openQuickAdd(),
 			"shift+p": () => ui.openProjectDialog({ mode: "create" }),
 			"/": () => searchRef.current?.focus(),
@@ -149,6 +154,7 @@ export function AppShell() {
 				</>
 			)}
 			<div className="flex min-w-0 flex-1 flex-col">
+				<WeeklyGoalsBanner />
 				{/* pt is max(), not pt-safe: pt-safe sets padding-top to the safe-area
 				    inset outright, which is 0 everywhere except iOS and so leaves the
 				    search row jammed against the top of the window. */}
@@ -237,6 +243,8 @@ export function AppShell() {
 
 			<QuickAdd />
 			<TaskEditDialog />
+			<PlanDayDialog />
+			<CloseDayDialog />
 			<ProjectDialog />
 			{isMobile ? null : <HelpDialog />}
 			<CommandPalette />

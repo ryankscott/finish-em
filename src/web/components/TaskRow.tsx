@@ -7,6 +7,7 @@ import {
 	ChevronRight,
 	Circle,
 	Clock,
+	Hourglass,
 	Repeat,
 	RotateCcw,
 	Trash2,
@@ -18,6 +19,7 @@ import { isOverdueDueDate } from "@/lib/datetime";
 import type { Project, Task } from "@/server/types";
 
 import { cn } from "../lib/cn";
+import { formatMinutes, taskEstimate } from "../lib/day-plan";
 import { useTaskMutations } from "../lib/queries";
 import { useUndo } from "../lib/undo";
 import { useIsMobile } from "../lib/use-is-mobile";
@@ -277,6 +279,21 @@ export function TaskRow({
 						{task.recurrencePreset || task.recurrenceRRule ? (
 							<Repeat className="h-3.5 w-3.5" />
 						) : null}
+						{task.plannedStartAt ? (
+							<span className="flex items-center gap-1 text-accent">
+								{format(parseISO(task.plannedStartAt), "HH:mm")}
+							</span>
+						) : null}
+						{/* Dimmed when unestimated, so a guess never reads as a decision. */}
+						<span
+							className={cn(
+								"flex items-center gap-1",
+								task.estimateMinutes === null && "text-muted/50",
+							)}
+						>
+							<Hourglass className="h-3 w-3" />
+							{formatMinutes(taskEstimate(task))}
+						</span>
 						{task.scheduledAt ? (
 							<span className="flex items-center gap-1">
 								<Calendar className="h-3 w-3" />

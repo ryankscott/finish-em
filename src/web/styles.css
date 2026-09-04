@@ -117,31 +117,6 @@ body {
 	}
 }
 
-@keyframes goal-fade {
-	0% {
-		opacity: 0;
-	}
-	10% {
-		opacity: 1;
-	}
-	90% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0;
-	}
-}
-
-.animate-goal-fade {
-	animation: goal-fade 4s ease-in-out;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.animate-goal-fade {
-		animation: none;
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 	/* tailwindcss-animate's .animate-in/.animate-out drive every Radix
 	   dialog/sheet/popover/command-palette open-close transition (slide,

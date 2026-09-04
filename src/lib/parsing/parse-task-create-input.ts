@@ -9,6 +9,7 @@ import {
 } from "date-fns";
 
 import type { Priority, Project, RecurrencePreset } from "../../server/types";
+import { parseDurationMinutes } from "./parse-duration";
 import { extractTokenValue, maskUrls } from "./token-input";
 
 type TaskCreateInput = {
@@ -17,6 +18,7 @@ type TaskCreateInput = {
 	parentTaskId?: number | null;
 	notes?: string;
 	priority?: Priority;
+	estimateMinutes?: number | null;
 	scheduledAt?: string | null;
 	dueAt?: string | null;
 	dueTimezone?: string;
@@ -57,6 +59,9 @@ const TOKEN_PREFIXES = [
 	"prio:",
 	"due:",
 	"⏰",
+	"est:",
+	"estimate:",
+	"⏱",
 	"scheduled:",
 	"sch:",
 	"🗓",
@@ -203,7 +208,7 @@ export function parseTaskCreateInput(
 	const { masked, restore } = maskUrls(trimmed);
 
 	const usedTokens =
-		/(\btitle:|\bproject:|\bproj:|\bpriority:|\bprio:|\bdue:|⏰|\bscheduled:|\bsch:|🗓|\bnotes:|\bparent:|\brecurs:|\brec:|\brecurrence:|🔁|🚩\s*[1-4]|\bp[1-4]\b|📁)/i.test(
+		/(\btitle:|\bproject:|\bproj:|\bpriority:|\bprio:|\bdue:|⏰|\bscheduled:|\bsch:|🗓|\bnotes:|\bparent:|\brecurs:|\brec:|\brecurrence:|🔁|🚩\s*[1-4]|\bp[1-4]\b|📁|\best:|\bestimate:|⏱)/i.test(
 			masked,
 		);
 	if (!usedTokens) {
@@ -237,6 +242,8 @@ export function parseTaskCreateInput(
 					"recurs",
 					"rec",
 					"recurrence",
+					"est",
+					"estimate",
 				].includes(key),
 		);
 	for (const unknown of unknownTokens) {
@@ -326,6 +333,25 @@ export function parseTaskCreateInput(
 			result.priority = priority;
 		}
 		working = (working.slice(0, priorityMatch.index) + working.slice(end))
+			.replace(/\s{2,}/g, " ")
+			.trim();
+	}
+
+	const estimateMatch = working.match(/(?:\best:|\bestimate:|⏱)/i);
+	if (estimateMatch && estimateMatch.index !== undefined) {
+		const valueStart = estimateMatch.index + estimateMatch[0].length;
+		const [value, end] = extractTokenValue(working, valueStart, {
+			tokenPrefixes: TOKEN_PREFIXES,
+			extraStopPattern: /\s+p[1-4](?:\s|$)/i,
+			caseInsensitive: true,
+		});
+		const minutes = parseDurationMinutes(value);
+		if (minutes === undefined) {
+			errors.push("estimate must be a duration like 45m, 1h or 1h30");
+		} else {
+			result.estimateMinutes = minutes;
+		}
+		working = (working.slice(0, estimateMatch.index) + working.slice(end))
 			.replace(/\s{2,}/g, " ")
 			.trim();
 	}

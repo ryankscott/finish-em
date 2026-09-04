@@ -1,8 +1,10 @@
+import { startOfDay } from "date-fns";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { ensureScheme, toDisplaySegments } from "@/lib/task-links";
 import type { Task } from "@/server/types";
 
+import { formatMinutes } from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useProjects, useTaskMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
@@ -29,6 +31,7 @@ export function TaskListView({
 	defaultProjectId,
 	disableOpenLink = false,
 	sectionLabels,
+	dimUnfocused = false,
 }: {
 	tasks: Task[];
 	emptyMessage?: string;
@@ -42,9 +45,21 @@ export function TaskListView({
 	 * TaskListViews, which would give each group its own keyboard cursor.
 	 */
 	sectionLabels?: Map<number, string>;
+	/**
+	 * Fade every row while one task is being worked on. Fades rather than hides,
+	 * because hiding rows would move the keyboard cursor out from under the user.
+	 */
+	dimUnfocused?: boolean;
 }) {
 	const { data: projects = [] } = useProjects();
-	const { completeTask, deleteTask, undeleteTask } = useTaskMutations();
+	const {
+		completeTask,
+		deleteTask,
+		undeleteTask,
+		updateTask,
+		startTask,
+		stopTask,
+	} = useTaskMutations();
 	const ui = useUi();
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
@@ -100,6 +115,21 @@ export function TaskListView({
 		});
 	};
 
+	const setEstimate = (minutes: number) => {
+		if (!selected) return;
+		updateTask.mutate(
+			{
+				taskId: selected.task.id,
+				input: { estimateMinutes: minutes },
+				before: selected.task,
+			},
+			{
+				onSuccess: () => toast.success(`Estimated ${formatMinutes(minutes)}`),
+				onError: (err) => toast.error(err.message),
+			},
+		);
+	};
+
 	useHotkeyScope({
 		j: () => setSelectedIndex((i) => Math.min(i + 1, rows.length - 1)),
 		arrowdown: () => setSelectedIndex((i) => Math.min(i + 1, rows.length - 1)),
@@ -148,6 +178,37 @@ export function TaskListView({
 		a: () => {
 			ui.openQuickAdd({ projectId: defaultProjectId });
 		},
+		c: () => {
+			if (!selected) return;
+			// Commit to today from any list, so capturing in the Inbox and deciding
+			// to do it are one keystroke apart. This goes through updateTask rather
+			// than planDay because it appends one task without touching the day's
+			// existing order -- and because updateTask is already undoable.
+			updateTask.mutate(
+				{
+					taskId: selected.task.id,
+					input: { scheduledAt: startOfDay(new Date()).toISOString() },
+					before: selected.task,
+				},
+				{
+					onSuccess: () => toast.success("Committed to today"),
+					onError: (err) => toast.error(err.message),
+				},
+			);
+		},
+		// Sizing a task has to be cheaper than opening the editor, or it never
+		// happens and the capacity readout stays a guess.
+		"shift+1": () => setEstimate(15),
+		"shift+2": () => setEstimate(30),
+		"shift+3": () => setEstimate(60),
+		"shift+4": () => setEstimate(90),
+		f: () => {
+			if (!selected) return;
+			const mutation = selected.task.startedAt ? stopTask : startTask;
+			mutation.mutate(selected.task.id, {
+				onError: (err) => toast.error(err.message),
+			});
+		},
 		o: () => {
 			if (disableOpenLink) return false;
 			if (!selected) return;
@@ -183,6 +244,12 @@ export function TaskListView({
 				{rows.map((row, index) => {
 					const heading =
 						row.depth === 0 ? sectionLabels?.get(row.task.id) : undefined;
+					// While one task is in progress, everything else recedes. The row
+					// being worked on stays at full strength.
+					const dimmed =
+						dimUnfocused && row.task.startedAt === null
+							? "opacity-50 transition-opacity"
+							: undefined;
 					return (
 						<Fragment key={row.task.id}>
 							{heading ? (
@@ -190,22 +257,24 @@ export function TaskListView({
 									{heading}
 								</span>
 							) : null}
-							<TaskRow
-								task={row.task}
-								project={projectById.get(row.task.projectId)}
-								selected={index === clampedIndex}
-								depth={row.depth}
-								hasSubtasks={row.hasSubtasks}
-								expanded={row.expanded}
-								showProject={showProject}
-								onOpen={() => {
-									// Keep the keyboard cursor in sync with what was tapped, so a
-									// later hotkey acts on the row the user just touched.
-									setSelectedIndex(index);
-									ui.openTaskEditor(row.task);
-								}}
-								onToggleExpand={() => toggleExpanded(row.task.id)}
-							/>
+							<div className={dimmed}>
+								<TaskRow
+									task={row.task}
+									project={projectById.get(row.task.projectId)}
+									selected={index === clampedIndex}
+									depth={row.depth}
+									hasSubtasks={row.hasSubtasks}
+									expanded={row.expanded}
+									showProject={showProject}
+									onOpen={() => {
+										// Keep the keyboard cursor in sync with what was tapped, so a
+										// later hotkey acts on the row the user just touched.
+										setSelectedIndex(index);
+										ui.openTaskEditor(row.task);
+									}}
+									onToggleExpand={() => toggleExpanded(row.task.id)}
+								/>
+							</div>
 						</Fragment>
 					);
 				})}
