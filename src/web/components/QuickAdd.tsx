@@ -178,9 +178,17 @@ export function QuickAdd() {
 
 	// Escape stays on the global scope; Enter/Tab are handled on the editor so
 	// we can preventDefault before the browser inserts a newline / moves focus.
+	// Enter is also claimed here: when focus is not in the editor (it lands a
+	// frame after open, or the user clicked a pill), the list scope underneath
+	// would otherwise open the selected task's editor.
 	useHotkeyScope(
 		{
 			escape: () => ui.closeQuickAdd(),
+			enter: (event) => {
+				if (event.target !== editorRef.current && !event.isComposing) {
+					submit();
+				}
+			},
 		},
 		{ enabled: open, allowInInput: true },
 	);
@@ -188,6 +196,8 @@ export function QuickAdd() {
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "Enter") {
 			e.preventDefault();
+			// Enter that confirms an IME/dictation candidate is not a submit.
+			if (e.nativeEvent.isComposing) return;
 			submit();
 		} else if (e.key === "Tab") {
 			if (suggestion) {
@@ -248,7 +258,7 @@ export function QuickAdd() {
 					role="textbox"
 					tabIndex={0}
 					aria-label="New task"
-					data-placeholder="Ship docs project:Work p1 due:today recurs:weekly"
+					data-placeholder="Ship docs project:Work p1 due:today notes:ask Sam first"
 					// autocorrect/autocapitalize off: iOS would "fix" the token syntax,
 					// turning project:Work into Project:work and breaking the parse.
 					// enterKeyHint makes the iOS return key read "done" rather than a

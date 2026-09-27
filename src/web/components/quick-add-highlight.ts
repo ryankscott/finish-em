@@ -15,7 +15,8 @@ export type TokenKind =
 	| "due"
 	| "scheduled"
 	| "recurrence"
-	| "estimate";
+	| "estimate"
+	| "notes";
 
 export type Segment = { text: string; kind: TokenKind | null };
 
@@ -48,6 +49,7 @@ const PATTERNS: { kind: TokenKind; re: RegExp }[] = [
 ];
 
 const PROJECT_PREFIX = /(?:\bproject:|\bproj:|📁\s*)\s*/iy;
+const NOTES_PREFIX = /\bnotes:\s*/iy;
 const NEXT_TOKEN =
 	/\s+(?:title:|project:|proj:|priority:|prio:|due:|scheduled:|sch:|notes:|parent:|recurs:|rec:|recurrence:|est:|estimate:|p[1-4]\b|⏰|🗓|🔁|🚩|📁|⏱)/i;
 
@@ -91,6 +93,23 @@ export function tokenizeQuickAdd(
 				const end = valStart + rawVal.trimEnd().length;
 				flushPlain();
 				segments.push({ text: value.slice(i, end), kind: "project" });
+				i = end;
+				continue;
+			}
+		}
+
+		// Notes token: free text running to the next token or the end.
+		NOTES_PREFIX.lastIndex = i;
+		const nm = NOTES_PREFIX.exec(value);
+		if (nm && nm.index === i) {
+			const valStart = i + nm[0].length;
+			const rest = value.slice(valStart);
+			const stop = rest.search(NEXT_TOKEN);
+			const rawVal = stop === -1 ? rest : rest.slice(0, stop);
+			if (rawVal.trim()) {
+				const end = valStart + rawVal.trimEnd().length;
+				flushPlain();
+				segments.push({ text: value.slice(i, end), kind: "notes" });
 				i = end;
 				continue;
 			}

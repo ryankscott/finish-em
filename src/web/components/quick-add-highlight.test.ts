@@ -125,3 +125,24 @@ describe("estimate tokens", () => {
 		expect(segments.find((s) => s.kind === "due")?.text).toBe("due:today");
 	});
 });
+
+describe("tokenizeQuickAdd notes", () => {
+	it("pills multi-word notes up to the next token", () => {
+		const segments = tokenizeQuickAdd(
+			"Call vet notes:ask about the diet p1",
+			PROJECTS,
+		);
+		expect(segments.find((s) => s.kind === "notes")?.text).toBe(
+			"notes:ask about the diet",
+		);
+		expect(segments.find((s) => s.kind === "priority")?.text).toBe("p1");
+	});
+
+	it("leaves a bare notes: as plain text", () => {
+		expect(
+			tokenizeQuickAdd("Call vet notes:", PROJECTS).some(
+				(s) => s.kind === "notes",
+			),
+		).toBe(false);
+	});
+});
