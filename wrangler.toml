@@ -12,7 +12,7 @@ compatibility_flags = ["nodejs_compat"]
 [assets]
 directory = "dist/web"
 not_found_handling = "single-page-application"
-run_worker_first = ["/api/*"]
+run_worker_first = ["/api/*", "/mcp/*"]
 
 [[d1_databases]]
 binding = "DB"
@@ -28,6 +28,10 @@ crons = ["*/15 * * * *"]
 [observability]
 enabled = true
 
+# FINISH_EM_MCP_SECRET (the /mcp/<secret> path) is also a secret:
+#   wrangler secret put FINISH_EM_MCP_SECRET     (use 32+ random characters)
+# Leaving it unset disables the MCP endpoint.
+#
 # FINISH_EM_AUTH_SECRET is NOT set here. It is a secret:
 #   wrangler secret put FINISH_EM_AUTH_SECRET
 # Leaving it unset leaves the API open to anyone with the URL.
