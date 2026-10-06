@@ -1,4 +1,5 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-npx lint-staged
+# Plain git hook (husky was removed); core.hooksPath points at this directory.
+# Checks only staged files so unrelated work in the tree cannot block a commit.
+export PATH="$HOME/.bun/bin:$PATH"
+exec bunx biome check --staged --no-errors-on-unmatched --files-ignore-unknown=true
