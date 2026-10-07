@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { SnoozePreset } from "@/server/services/reminders";
 import type { Goal, Project, Reminder, Task } from "@/server/types";
 import type { TaskQuery } from "@/shared/api-client";
 import { snapshotGoal, snapshotTaskFields } from "@/shared/undo";
@@ -15,6 +16,7 @@ export const keys = {
 		query: { periodType?: "daily" | "weekly"; periodStart?: string } = {},
 	) => ["goals", query] as const,
 	reminders: ["reminders"] as const,
+	dueReminders: ["reminders", "due"] as const,
 	taskReminders: (taskId: number) => ["reminders", "task", taskId] as const,
 	calendar: (query: { from?: string; to?: string } = {}) =>
 		["calendar", query] as const,
@@ -79,6 +81,21 @@ export function useAllReminders() {
 	return useQuery({
 		queryKey: keys.reminders,
 		queryFn: () => api.listAllReminders(),
+	});
+}
+
+/**
+ * Reminders whose time has passed: both not-yet-delivered and delivered but
+ * not acted on ("missed"). Polled on its own timer because reminders become
+ * due by the clock, not by a write that bumps the change version.
+ */
+export function useDueReminders() {
+	return useQuery({
+		queryKey: keys.dueReminders,
+		queryFn: () => api.listDueReminders(),
+		refetchInterval: 30_000,
+		refetchIntervalInBackground: true,
+		refetchOnWindowFocus: true,
 	});
 }
 
@@ -387,7 +404,45 @@ export function useReminderMutations() {
 		onSettled: invalidate,
 	});
 
-	return { createReminder, deleteReminder };
+	const dismissReminder = useMutation({
+		mutationFn: (reminderId: number) => api.dismissReminder(reminderId),
+		onSettled: invalidate,
+	});
+
+	const snoozeReminder = useMutation({
+		mutationFn: ({
+			reminderId,
+			...input
+		}: {
+			reminderId: number;
+			preset: SnoozePreset;
+			customMinutes?: number;
+		}) => api.snoozeReminder(reminderId, input),
+		onSettled: invalidate,
+	});
+
+	// Completing hides the reminder (closed tasks are filtered out server-side),
+	// and undo reopens the task, which brings the reminder back with it.
+	const completeFromReminder = useMutation({
+		mutationFn: ({ taskId }: { taskId: number; title: string }) =>
+			api.completeTask(taskId),
+		onSuccess: (_data, { taskId, title }) =>
+			recordUndo({ kind: "task_complete", taskId, label: title }),
+		onSettled: () => {
+			invalidate();
+			queryClient.invalidateQueries({ queryKey: ["tasks"] });
+			queryClient.invalidateQueries({ queryKey: ["projects"] });
+			queryClient.invalidateQueries({ queryKey: ["completions"] });
+		},
+	});
+
+	return {
+		createReminder,
+		deleteReminder,
+		dismissReminder,
+		snoozeReminder,
+		completeFromReminder,
+	};
 }
 
 export function useSettingsMutations() {

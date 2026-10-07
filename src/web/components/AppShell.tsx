@@ -21,6 +21,7 @@ import { ChangeWatcher } from "./ChangeWatcher";
 import { CloseDayDialog } from "./CloseDayDialog";
 import { CommandPalette } from "./CommandPalette";
 import { HelpDialog } from "./HelpDialog";
+import { MissedRemindersBanner } from "./MissedReminders";
 import { MOBILE_NAV_PATHS, MobileNav } from "./MobileNav";
 import { PlanDayDialog } from "./PlanDayDialog";
 import { ProjectDialog } from "./ProjectDialog";
@@ -209,6 +210,7 @@ export function AppShell() {
 					</button>
 				</header>
 				<Separator />
+				<MissedRemindersBanner />
 				<main className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 					<Outlet />
 				</main>

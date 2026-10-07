@@ -1,6 +1,9 @@
 import { format, parseISO } from "date-fns";
 import { Bell, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -8,6 +11,36 @@ import { cn } from "../lib/cn";
 import { useAllReminders, useReminderMutations } from "../lib/queries";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { ViewTitle } from "./SimpleViews";
+
+function notificationPermission() {
+	return typeof Notification === "undefined" ? null : Notification.permission;
+}
+
+/**
+ * Safari and the iPhone home-screen app only grant notification permission
+ * from a tap, so this has to be a button rather than a request on load.
+ */
+function EnableNotifications() {
+	const [permission, setPermission] = useState(notificationPermission);
+	if (permission !== "default") return null;
+	return (
+		<div className="flex items-center gap-3 px-4 py-2 text-sm">
+			<span className="text-muted">
+				Turn on notifications so reminders reach you outside this tab.
+			</span>
+			<Button
+				size="sm"
+				onClick={() =>
+					Notification.requestPermission()
+						.then(setPermission)
+						.catch(() => {})
+				}
+			>
+				Turn on
+			</Button>
+		</div>
+	);
+}
 
 export function RemindersView() {
 	const isMobile = useIsMobile();
@@ -18,6 +51,7 @@ export function RemindersView() {
 	return (
 		<>
 			<ViewTitle title="Reminders" count={reminders.length} />
+			<EnableNotifications />
 			{reminders.length === 0 ? (
 				<p className="px-4 py-6 text-sm text-muted">No upcoming reminders</p>
 			) : (

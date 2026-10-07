@@ -1,5 +1,7 @@
 import { format, parseISO } from "date-fns";
 import {
+	Bell,
+	BellRing,
 	Calendar,
 	Check,
 	CheckCircle2,
@@ -20,7 +22,8 @@ import type { Project, Task } from "@/server/types";
 
 import { cn } from "../lib/cn";
 import { formatMinutes, taskEstimate } from "../lib/day-plan";
-import { useTaskMutations } from "../lib/queries";
+import { useAllReminders, useTaskMutations } from "../lib/queries";
+import { reminderTime } from "../lib/reminders";
 import { useUndo } from "../lib/undo";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { InlineText } from "./InlineText";
@@ -172,6 +175,8 @@ export function TaskRow({
 	onToggleExpand?: () => void;
 }) {
 	const completed = task.status === "completed";
+	const { data: reminders = [] } = useAllReminders();
+	const reminder = reminders.find((r) => r.taskId === task.id);
 	const isMobile = useIsMobile();
 	// Swiping to delete an already-deleted row (the Deleted view) doesn't mean
 	// anything, so the gesture is only wired up everywhere else.
@@ -298,6 +303,24 @@ export function TaskRow({
 							<span className="flex items-center gap-1">
 								<Calendar className="h-3 w-3" />
 								{format(parseISO(task.scheduledAt), "MMM d")}
+							</span>
+						) : null}
+						{reminder && !completed ? (
+							<span
+								title={
+									reminder.status === "fired" ? "Missed reminder" : "Reminder"
+								}
+								className={cn(
+									"flex items-center gap-1",
+									reminder.status === "fired" && "font-semibold text-p1",
+								)}
+							>
+								{reminder.status === "fired" ? (
+									<BellRing className="h-3 w-3" />
+								) : (
+									<Bell className="h-3 w-3" />
+								)}
+								{format(reminderTime(reminder), "MMM d, h:mm a")}
 							</span>
 						) : null}
 						{task.dueAt ? (
