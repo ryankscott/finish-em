@@ -3,7 +3,17 @@ import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
 import { api } from "../lib/api";
-import { useDueReminders, useReminderMutations } from "../lib/queries";
+import {
+	deliverNativeReminders,
+	hasNativeReminders,
+	registerNativeActionHandler,
+	syncNativeReminders,
+} from "../lib/native-bridge";
+import {
+	useAllReminders,
+	useDueReminders,
+	useReminderMutations,
+} from "../lib/queries";
 import {
 	type DueReminder,
 	titleWithCount,
@@ -81,6 +91,7 @@ export function ReminderWatcher() {
 			});
 			showSystemNotification(reminder);
 		}
+		deliverNativeReminders(fresh);
 
 		api
 			.markRemindersFired(fresh.map((r) => r.id))
@@ -90,6 +101,38 @@ export function ReminderWatcher() {
 				for (const r of fresh) delivered.current.delete(r.id);
 			});
 	}, [due, queryClient, snoozeReminder, completeFromReminder]);
+
+	const { data: all } = useAllReminders();
+	useEffect(() => {
+		if (all && hasNativeReminders()) syncNativeReminders(all);
+	}, [all]);
+
+	const actions = useRef({ snoozeReminder, completeFromReminder });
+	actions.current = { snoozeReminder, completeFromReminder };
+	useEffect(
+		() =>
+			registerNativeActionHandler((reminderId, taskId, action) => {
+				const { snoozeReminder, completeFromReminder } = actions.current;
+				if (action === "DONE") {
+					const title =
+						queryClient
+							.getQueryData<DueReminder[]>(["reminders"])
+							?.find((r) => r.id === reminderId)?.taskTitle ?? "task";
+					completeFromReminder.mutate({ taskId, title });
+					return;
+				}
+				snoozeReminder.mutate(
+					action === "TOMORROW"
+						? { reminderId, preset: "tomorrow_morning" }
+						: {
+								reminderId,
+								preset: "custom",
+								customMinutes: action === "SNOOZE_15" ? 15 : 60,
+							},
+				);
+			}),
+		[queryClient],
+	);
 
 	const missedCount = due.length;
 	useEffect(() => {
