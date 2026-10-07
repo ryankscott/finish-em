@@ -24,7 +24,8 @@
     "check": "biome check",
     "db:backup": "PATH=\"$HOME/.bun/bin:$PATH\" bun scripts/db-backup.ts",
     "db:export": "PATH=\"$HOME/.bun/bin:$PATH\" bun scripts/export-for-d1.ts",
-    "push:keys": "bun scripts/generate-vapid-keys.ts"
+    "push:keys": "bun scripts/generate-vapid-keys.ts",
+    "ship": "bash scripts/ship.sh"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",

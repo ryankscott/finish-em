@@ -42,7 +42,25 @@ bun run check             # Lint + format check (Biome)
 bun run d1:migrate:local  # Apply migrations to the local D1
 bun run db:export         # Export local SQLite as D1 INSERT statements
 bun run worker:deploy     # Build the web UI and deploy the Worker
+bun run ship              # Full release from main: checks, push, migrate, deploy, install Mac app
 ```
+
+## Shipping Changes
+
+Every finished change ships the same way. Do not stop at a commit.
+
+1. Merge the branch into `main`. `gh` on this machine is an Enterprise Managed
+   account and cannot open PRs on this repo, so merge locally:
+   `git checkout main && git pull && git merge --no-ff <branch>`.
+2. Run `bun run ship` (`scripts/ship.sh`). It refuses to run off `main` or
+   with a dirty tree, then runs tests and lint, pushes, applies remote D1
+   migrations, deploys the Worker, builds the macOS app, installs it to
+   `/Applications/finish-em.app` and relaunches it.
+3. Report the shipped commit and anything that still needs a manual check
+   (for example a test on the iPhone).
+
+New Worker secrets (`wrangler secret put ...`) are not part of the script; set
+them before shipping a change that needs them.
 
 ## Two Runtimes
 
