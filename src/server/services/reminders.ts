@@ -1,9 +1,6 @@
-import {
-	addDays,
-	addMinutes as fnsAddMinutes,
-	isAfter,
-	isPast,
-} from "date-fns";
+import { addMinutes as fnsAddMinutes, isAfter, isPast } from "date-fns";
+
+import { atZonedHour } from "@/lib/zoned";
 
 export type SnoozePreset =
 	| "this_morning"
@@ -12,52 +9,33 @@ export type SnoozePreset =
 	| "next_week"
 	| "custom";
 
-function setUTCTime(base: Date, hour: number) {
-	const next = new Date(base);
-	next.setUTCHours(hour, 0, 0, 0);
-	return next;
-}
+const MORNING_HOUR = 9;
+const EVENING_HOUR = 18;
 
-function thisMorning(base: Date) {
-	const candidate = setUTCTime(base, 9);
-	if (!isAfter(candidate, base)) {
-		return addDays(candidate, 1);
-	}
-	return candidate;
-}
-
-function thisEvening(base: Date) {
-	const candidate = setUTCTime(base, 18);
-	if (!isAfter(candidate, base)) {
-		return addDays(candidate, 1);
-	}
-	return candidate;
-}
-
-function tomorrowMorning(base: Date) {
-	return setUTCTime(addDays(base, 1), 9);
-}
-
-function nextWeek(base: Date) {
-	return setUTCTime(addDays(base, 7), 9);
+/** Today at `hour` if that is still ahead, otherwise tomorrow at `hour`. */
+function nextAt(base: Date, timeZone: string, hour: number) {
+	const today = atZonedHour(base, timeZone, 0, hour);
+	return isAfter(today, base) ? today : atZonedHour(base, timeZone, 1, hour);
 }
 
 export function resolveSnoozeTime(input: {
 	now?: Date;
 	preset: SnoozePreset;
 	customMinutes?: number;
+	timeZone?: string;
 }): string {
 	const base = input.now ?? new Date();
+	const tz = input.timeZone ?? "UTC";
 
 	switch (input.preset) {
 		case "this_morning":
-			return thisMorning(base).toISOString();
+			return nextAt(base, tz, MORNING_HOUR).toISOString();
 		case "this_evening":
-			return thisEvening(base).toISOString();
+			return nextAt(base, tz, EVENING_HOUR).toISOString();
 		case "tomorrow_morning":
-			return tomorrowMorning(base).toISOString();
+			return atZonedHour(base, tz, 1, MORNING_HOUR).toISOString();
 		case "next_week":
-			return nextWeek(base).toISOString();
+			return atZonedHour(base, tz, 7, MORNING_HOUR).toISOString();
 		case "custom": {
 			const minutes = input.customMinutes ?? 0;
 			if (!Number.isInteger(minutes) || minutes <= 0) {

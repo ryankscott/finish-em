@@ -239,6 +239,92 @@ describe("api contract (http)", () => {
 		await api.deleteReminder(reminder.id);
 		expect(await api.listTaskReminders(task.id)).toHaveLength(0);
 	});
+
+	it("tracks reminder delivery and keeps missed reminders until acted on", async () => {
+		const api = makeClient();
+		const projectId =
+			(await api.listProjects()).find((p) => p.isInbox)?.id ?? 0;
+		const task = await api.createTask({ projectId, title: "Renew passport" });
+		const reminder = await api.createReminder(task.id, {
+			remindAt: "2020-01-01T09:00:00.000Z",
+		});
+		expect(reminder.firedAt).toBeNull();
+
+		expect(await api.markRemindersFired([reminder.id])).toEqual({ fired: 1 });
+		// A second device delivering the same reminder changes nothing.
+		expect(await api.markRemindersFired([reminder.id])).toEqual({ fired: 0 });
+
+		const [missed] = await api.listDueReminders();
+		expect(missed?.status).toBe("fired");
+		expect(missed?.firedAt).not.toBeNull();
+
+		const snoozed = await api.snoozeReminder(reminder.id, {
+			preset: "custom",
+			customMinutes: 30,
+		});
+		expect(snoozed.status).toBe("snoozed");
+		expect(snoozed.firedAt).toBeNull();
+		expect(await api.listDueReminders()).toHaveLength(0);
+
+		const dismissed = await api.dismissReminder(reminder.id);
+		expect(dismissed.status).toBe("dismissed");
+		expect(await api.listAllReminders()).toHaveLength(0);
+	});
+
+	it("does not mark future reminders as fired", async () => {
+		const api = makeClient();
+		const projectId =
+			(await api.listProjects()).find((p) => p.isInbox)?.id ?? 0;
+		const task = await api.createTask({ projectId, title: "Later" });
+		const reminder = await api.createReminder(task.id, {
+			remindAt: "2999-01-01T09:00:00.000Z",
+		});
+		expect(await api.markRemindersFired([reminder.id])).toEqual({ fired: 0 });
+	});
+
+	it("hides reminders for completed and deleted tasks, and restores them on undo", async () => {
+		const api = makeClient();
+		const projectId =
+			(await api.listProjects()).find((p) => p.isInbox)?.id ?? 0;
+		const done = await api.createTask({ projectId, title: "Done one" });
+		const gone = await api.createTask({ projectId, title: "Deleted one" });
+		for (const t of [done, gone]) {
+			await api.createReminder(t.id, { remindAt: "2020-01-01T09:00:00.000Z" });
+		}
+		expect(await api.listDueReminders()).toHaveLength(2);
+
+		await api.completeTask(done.id);
+		await api.deleteTask(gone.id);
+		expect(await api.listDueReminders()).toHaveLength(0);
+		expect(await api.listAllReminders()).toHaveLength(0);
+
+		await api.uncompleteTask(done.id);
+		await api.undeleteTask(gone.id);
+		expect(await api.listDueReminders()).toHaveLength(2);
+	});
+
+	it("moves a recurring task's reminder to the next occurrence", async () => {
+		const api = makeClient();
+		const projectId =
+			(await api.listProjects()).find((p) => p.isInbox)?.id ?? 0;
+		const dueAt = new Date(Date.now() + 60 * 60_000);
+		const task = await api.createTask({
+			projectId,
+			title: "Water plants",
+			dueAt: dueAt.toISOString(),
+			recurrencePreset: "daily",
+		});
+		const remindAt = new Date(dueAt.getTime() - 15 * 60_000);
+		await api.createReminder(task.id, { remindAt: remindAt.toISOString() });
+
+		await api.completeTask(task.id);
+		const [carried] = await api.listAllReminders();
+		expect(carried?.taskId).not.toBe(task.id);
+		expect(carried?.taskTitle).toBe("Water plants");
+		expect(Date.parse(carried?.remindAt ?? "")).toBe(
+			remindAt.getTime() + 24 * 60 * 60_000,
+		);
+	});
 	it("plans a day, focuses one task, and closes the day", async () => {
 		const api = makeClient();
 		const projects = await api.listProjects();
@@ -320,6 +406,9 @@ describe("openapi document", () => {
 			"/api/reminders",
 			"/api/reminders/due",
 			"/api/reminders/{id}",
+			"/api/reminders/fire",
+			"/api/reminders/{id}/dismiss",
+			"/api/reminders/{id}/snooze",
 			"/api/tasks/plan",
 			"/api/tasks/{id}/start",
 			"/api/tasks/{id}/stop",

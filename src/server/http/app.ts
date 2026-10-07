@@ -56,7 +56,10 @@ import {
 	projectSchema,
 	projectUpdateSchema,
 	reminderCreateSchema,
+	reminderFireResultSchema,
+	reminderFireSchema,
 	reminderSchema,
+	reminderSnoozeSchema,
 	reminderWithTitleSchema,
 	sessionSchema,
 	settingsSchema,
@@ -750,6 +753,68 @@ export function createApp({ resolveDb, getSecret }: AppOptions) {
 			const { id } = c.req.valid("param");
 			await reminderRepo.deleteReminder(c.get("db"), id);
 			return c.json({}, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/reminders/fire",
+			request: {
+				body: {
+					content: { "application/json": { schema: reminderFireSchema } },
+				},
+			},
+			responses: jsonResponse(
+				reminderFireResultSchema,
+				"Number of reminders newly marked as delivered",
+			),
+		}),
+		async (c) => {
+			const { ids } = c.req.valid("json");
+			const fired = await reminderRepo.markRemindersFired(c.get("db"), ids);
+			return c.json({ fired }, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/reminders/{id}/dismiss",
+			request: { params: idParamSchema },
+			responses: jsonResponse(reminderSchema, "Dismissed reminder"),
+		}),
+		async (c) => {
+			const { id } = c.req.valid("param");
+			const reminder = await reminderRepo.dismissReminder(c.get("db"), id);
+			if (!reminder) throw new NotFoundError("Reminder not found");
+			return c.json(reminder, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/reminders/{id}/snooze",
+			request: {
+				params: idParamSchema,
+				body: {
+					content: { "application/json": { schema: reminderSnoozeSchema } },
+				},
+			},
+			responses: jsonResponse(reminderSchema, "Snoozed reminder"),
+		}),
+		async (c) => {
+			const { id } = c.req.valid("param");
+			const db = c.get("db");
+			const { timezone } = await settingsRepo.getSettings(db);
+			const reminder = await reminderRepo.snoozeReminder(db, {
+				reminderId: id,
+				...c.req.valid("json"),
+				timeZone: timezone,
+			});
+			if (!reminder) throw new NotFoundError("Reminder not found");
+			return c.json(reminder, 200);
 		},
 	);
 

@@ -57,6 +57,7 @@ export async function createReminder(
         remind_at = ?,
         status = ?,
         snoozed_until = NULL,
+        fired_at = NULL,
         updated_at = ?
       WHERE id = ?`,
 				params: [
@@ -107,6 +108,7 @@ export async function updateReminder(
 		remindAt: string;
 		status: ReminderStatus;
 		snoozedUntil: string | null;
+		firedAt: string | null;
 	}>,
 ): Promise<Reminder | null> {
 	const existing = await getReminder(db, reminderId);
@@ -121,6 +123,7 @@ export async function updateReminder(
       remind_at = ?,
       status = ?,
       snoozed_until = ?,
+      fired_at = ?,
       updated_at = ?
     WHERE id = ?
     RETURNING *`,
@@ -131,6 +134,7 @@ export async function updateReminder(
 			patch.snoozedUntil === undefined
 				? existing.snoozedUntil
 				: patch.snoozedUntil,
+			patch.firedAt === undefined ? existing.firedAt : patch.firedAt,
 			nowIso(),
 			reminderId,
 		);
@@ -159,17 +163,52 @@ export async function snoozeReminder(
 			| "next_week"
 			| "custom";
 		customMinutes?: number;
+		timeZone?: string;
+		now?: Date;
 	},
 ): Promise<Reminder | null> {
 	const next = resolveSnoozeTime({
 		preset: input.preset,
 		customMinutes: input.customMinutes,
+		timeZone: input.timeZone,
+		now: input.now,
 	});
 
+	// Clearing fired_at re-arms delivery for the snoozed time.
 	return updateReminder(db, input.reminderId, {
 		status: "snoozed",
 		snoozedUntil: next,
+		firedAt: null,
 	});
+}
+
+export async function dismissReminder(
+	db: Db,
+	reminderId: number,
+): Promise<Reminder | null> {
+	return updateReminder(db, reminderId, { status: "dismissed" });
+}
+
+/**
+ * Record delivery. Only reminders that are due and not yet delivered change, so
+ * two devices racing to deliver the same reminder are harmless.
+ */
+export async function markRemindersFired(
+	db: Db,
+	reminderIds: number[],
+): Promise<number> {
+	if (reminderIds.length === 0) return 0;
+	const now = nowIso();
+	const placeholders = reminderIds.map(() => "?").join(",");
+	const result = await db
+		.prepare(
+			`UPDATE reminders SET status = 'fired', fired_at = ?, updated_at = ?
+       WHERE id IN (${placeholders})
+         AND status IN ('pending', 'snoozed')
+         AND COALESCE(snoozed_until, remind_at) <= ?`,
+		)
+		.run(now, now, ...reminderIds, now);
+	return result.changes;
 }
 
 export async function listDueReminders(db: Db): Promise<Reminder[]> {
@@ -177,7 +216,7 @@ export async function listDueReminders(db: Db): Promise<Reminder[]> {
 	const rows = await db
 		.prepare(
 			`SELECT * FROM reminders
-       WHERE status IN ('pending', 'snoozed')
+       WHERE status IN ('pending', 'snoozed', 'fired')
          AND COALESCE(snoozed_until, remind_at) <= ?
        ORDER BY COALESCE(snoozed_until, remind_at) ASC`,
 		)
@@ -196,8 +235,9 @@ export async function listAllRemindersWithTitles(
 			`SELECT r.*, t.title AS task_title
        FROM reminders r
        INNER JOIN tasks t ON t.id = r.task_id
-       WHERE r.status IN ('pending', 'snoozed')
+       WHERE r.status IN ('pending', 'snoozed', 'fired')
          AND t.deleted_at IS NULL
+         AND t.status = 'open'
        ORDER BY COALESCE(r.snoozed_until, r.remind_at) ASC`,
 		)
 		.all<Record<string, unknown> & { task_title: string }>();
@@ -222,8 +262,10 @@ export async function listDueRemindersWithTitles(
 			`SELECT r.*, t.title AS task_title
        FROM reminders r
        INNER JOIN tasks t ON t.id = r.task_id
-       WHERE r.status IN ('pending', 'snoozed')
+       WHERE r.status IN ('pending', 'snoozed', 'fired')
          AND COALESCE(r.snoozed_until, r.remind_at) <= ?
+         AND t.deleted_at IS NULL
+         AND t.status = 'open'
        ORDER BY COALESCE(r.snoozed_until, r.remind_at) ASC`,
 		)
 		.all<Record<string, unknown> & { task_title: string }>(now);

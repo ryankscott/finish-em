@@ -89,6 +89,7 @@ export function mapReminderRow(row: Record<string, unknown>): Reminder {
 		remindAt: String(row.remind_at),
 		status: String(row.status) as ReminderStatus,
 		snoozedUntil: row.snoozed_until ? String(row.snoozed_until) : null,
+		firedAt: row.fired_at ? String(row.fired_at) : null,
 		createdAt: String(row.created_at),
 		updatedAt: String(row.updated_at),
 	};

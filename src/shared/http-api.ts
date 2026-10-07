@@ -105,6 +105,12 @@ export function createHttpApi(fetchFn: FetchLike, baseUrl = ""): ApiClient {
 		deleteReminder: async (reminderId) => {
 			await request("DELETE", `/api/reminders/${reminderId}`);
 		},
+		markRemindersFired: (ids) =>
+			request("POST", "/api/reminders/fire", { ids }),
+		dismissReminder: (reminderId) =>
+			request("POST", `/api/reminders/${reminderId}/dismiss`),
+		snoozeReminder: (reminderId, input) =>
+			request("POST", `/api/reminders/${reminderId}/snooze`, input),
 
 		getCompletionHistory: (taskId) =>
 			request("GET", `/api/tasks/${taskId}/completion-history`),

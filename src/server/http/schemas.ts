@@ -280,10 +280,32 @@ export const reminderSchema = z
 		remindAt: z.string(),
 		status: reminderStatusSchema,
 		snoozedUntil: z.string().nullable(),
+		firedAt: z.string().nullable(),
 		createdAt: z.string(),
 		updatedAt: z.string(),
 	})
 	.openapi("Reminder");
+
+export const reminderFireSchema = z
+	.object({ ids: z.array(z.number().int()).max(200) })
+	.openapi("ReminderFire");
+
+export const reminderFireResultSchema = z
+	.object({ fired: z.number().int() })
+	.openapi("ReminderFireResult");
+
+export const reminderSnoozeSchema = z
+	.object({
+		preset: z.enum([
+			"this_morning",
+			"this_evening",
+			"tomorrow_morning",
+			"next_week",
+			"custom",
+		]),
+		customMinutes: z.number().int().positive().optional(),
+	})
+	.openapi("ReminderSnooze");
 
 export const reminderWithTitleSchema = reminderSchema
 	.extend({ taskTitle: z.string() })
