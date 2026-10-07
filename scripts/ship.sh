@@ -16,6 +16,18 @@ INSTALLED_APP="/Applications/${APP_NAME}.app"
 
 step() { printf '\n==> %s\n' "$1"; }
 
+# Wrangler's OAuth token expires and is only refreshed by some calls, so the
+# first D1 query after a quiet spell can fail with 7403 "account is not valid".
+# Retry once after a whoami, which refreshes it.
+with_retry() {
+  if ! "$@"; then
+    echo "Retrying after refreshing the Cloudflare login..." >&2
+    bunx wrangler whoami >/dev/null 2>&1 || true
+    sleep 2
+    "$@"
+  fi
+}
+
 step "Checking branch and working tree"
 branch="$(git rev-parse --abbrev-ref HEAD)"
 if [ "$branch" != "main" ]; then
@@ -36,11 +48,17 @@ bun run check
 step "Pushing main"
 git push origin main
 
+step "Checking the Cloudflare login"
+if ! bunx wrangler whoami 2>&1 | grep -q "You are logged in"; then
+  echo "Not logged in to Cloudflare. Run: bunx wrangler login" >&2
+  exit 1
+fi
+
 step "Applying D1 migrations (remote)"
-bunx wrangler d1 migrations apply finish-em --remote
+with_retry bunx wrangler d1 migrations apply finish-em --remote
 
 step "Deploying the Worker"
-bun run worker:deploy
+with_retry bun run worker:deploy
 
 step "Building the macOS app"
 bun run desktop:app
