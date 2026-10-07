@@ -9,6 +9,7 @@ import {
 	registerNativeActionHandler,
 	syncNativeReminders,
 } from "../lib/native-bridge";
+import { showReminderNotification } from "../lib/push";
 import {
 	useAllReminders,
 	useDueReminders,
@@ -19,24 +20,6 @@ import {
 	titleWithCount,
 	undelivered,
 } from "../lib/reminders";
-
-function showSystemNotification(reminder: DueReminder) {
-	if (
-		typeof Notification === "undefined" ||
-		Notification.permission !== "granted"
-	) {
-		return;
-	}
-	try {
-		new Notification("finish-em", {
-			body: reminder.taskTitle,
-			tag: `reminder-${reminder.id}`,
-			requireInteraction: true,
-		});
-	} catch {
-		// Some browsers throw when constructing notifications without a SW.
-	}
-}
 
 /**
  * Delivers due reminders while the app is open: a toast that stays until it is
@@ -89,7 +72,7 @@ export function ReminderWatcher() {
 						}),
 				},
 			});
-			showSystemNotification(reminder);
+			showReminderNotification(reminder.id, reminder.taskTitle).catch(() => {});
 		}
 		deliverNativeReminders(fresh);
 

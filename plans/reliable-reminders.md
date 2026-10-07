@@ -3,7 +3,21 @@
 Goal: a reminder is never missed. It is delivered by the OS even when the app is
 closed, and it stays visible as "missed" until the user acts on it.
 
-## Current gaps (2026-10-08)
+## Status (2026-10-08)
+
+Phases 1 to 4 are built on `feat/reliable-reminders`. Phase 4 still needs a
+deploy and an iPhone test (see Deploy). Phase 5 is not started.
+
+## Deploy
+
+1. `bun run push:keys`, then `wrangler secret put` for `VAPID_PUBLIC_KEY`,
+   `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT` (a `mailto:` address).
+2. `wrangler d1 migrations apply finish-em --remote` (0005 and 0006).
+3. `bun run worker:deploy`.
+4. iPhone: open the Home Screen app, Settings, Reminders, Turn on, then Send
+   test notification.
+
+## Gaps found before this work (2026-10-08)
 
 1. Delivery depends on `ReminderWatcher` polling while a window is open. Closing
    the macOS window quits the app.

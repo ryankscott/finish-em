@@ -271,6 +271,22 @@ describe("api contract (http)", () => {
 		expect(await api.listAllReminders()).toHaveLength(0);
 	});
 
+	it("stores push subscriptions and reports push as unconfigured", async () => {
+		const api = makeClient();
+		expect(await api.getPushConfig()).toEqual({ publicKey: null });
+		await api.subscribePush({
+			endpoint: "https://web.push.apple.com/abc",
+			keys: { p256dh: "p", auth: "a" },
+		});
+		// Re-subscribing the same endpoint updates rather than duplicates.
+		await api.subscribePush({
+			endpoint: "https://web.push.apple.com/abc",
+			keys: { p256dh: "p2", auth: "a2" },
+		});
+		await api.unsubscribePush("https://web.push.apple.com/abc");
+		await expect(api.testPush()).rejects.toThrow();
+	});
+
 	it("does not mark future reminders as fired", async () => {
 		const api = makeClient();
 		const projectId =
@@ -409,6 +425,10 @@ describe("openapi document", () => {
 			"/api/reminders/fire",
 			"/api/reminders/{id}/dismiss",
 			"/api/reminders/{id}/snooze",
+			"/api/push/config",
+			"/api/push/subscribe",
+			"/api/push/unsubscribe",
+			"/api/push/test",
 			"/api/tasks/plan",
 			"/api/tasks/{id}/start",
 			"/api/tasks/{id}/stop",

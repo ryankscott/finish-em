@@ -12,6 +12,7 @@ import { createRoot } from "react-dom/client";
 import { AppShell } from "./components/AppShell";
 import { LoginGate } from "./components/LoginGate";
 import { HotkeyProvider } from "./lib/hotkeys";
+import { registerServiceWorker } from "./lib/push";
 import { UiProvider } from "./state/ui";
 import { CalendarView } from "./views/CalendarView";
 import { LogbookView } from "./views/LogbookView";
@@ -153,6 +154,8 @@ declare module "@tanstack/react-router" {
 
 const rootElement = document.getElementById("root");
 if (!rootElement) throw new Error("Missing #root element");
+
+registerServiceWorker();
 
 createRoot(rootElement).render(
 	<StrictMode>

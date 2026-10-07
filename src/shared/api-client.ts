@@ -155,6 +155,13 @@ export type ApiClient = {
 	) => Promise<Reminder>;
 	deleteReminder: (reminderId: number) => Promise<void>;
 	markRemindersFired: (ids: number[]) => Promise<{ fired: number }>;
+	getPushConfig: () => Promise<{ publicKey: string | null }>;
+	subscribePush: (input: {
+		endpoint: string;
+		keys: { p256dh: string; auth: string };
+	}) => Promise<void>;
+	unsubscribePush: (endpoint: string) => Promise<void>;
+	testPush: () => Promise<{ sent: number; removed: number }>;
 	dismissReminder: (reminderId: number) => Promise<Reminder>;
 	snoozeReminder: (
 		reminderId: number,

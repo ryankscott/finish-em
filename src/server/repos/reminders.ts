@@ -58,6 +58,7 @@ export async function createReminder(
         status = ?,
         snoozed_until = NULL,
         fired_at = NULL,
+        pushed_at = NULL,
         updated_at = ?
       WHERE id = ?`,
 				params: [
@@ -174,7 +175,10 @@ export async function snoozeReminder(
 		now: input.now,
 	});
 
-	// Clearing fired_at re-arms delivery for the snoozed time.
+	// Clearing fired_at and pushed_at re-arms delivery for the snoozed time.
+	await db
+		.prepare("UPDATE reminders SET pushed_at = NULL WHERE id = ?")
+		.run(input.reminderId);
 	return updateReminder(db, input.reminderId, {
 		status: "snoozed",
 		snoozedUntil: next,

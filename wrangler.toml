@@ -20,10 +20,10 @@ database_name = "finish-em"
 database_id = "f46d0097-c67b-4d1c-94ec-842bb2e8c531"
 migrations_dir = "migrations"
 
-# Replaces the 15-minute setInterval in main.ts; a Worker has no process to
-# hold a timer.
+# Every minute: reminder pushes are due to the minute. The calendar refresh
+# inside scheduled() still runs only on every 15th minute.
 [triggers]
-crons = ["*/15 * * * *"]
+crons = ["* * * * *"]
 
 [observability]
 enabled = true
@@ -31,6 +31,11 @@ enabled = true
 # FINISH_EM_MCP_SECRET (the /mcp/<secret> path) is also a secret:
 #   wrangler secret put FINISH_EM_MCP_SECRET     (use 32+ random characters)
 # Leaving it unset disables the MCP endpoint.
+#
+# Web Push (reminders on iPhone and in browsers). Generate keys with
+#   bun run push:keys
+# then: wrangler secret put VAPID_PRIVATE_KEY  (and VAPID_PUBLIC_KEY, VAPID_SUBJECT)
+# Leaving them unset disables push.
 #
 # FINISH_EM_AUTH_SECRET is NOT set here. It is a secret:
 #   wrangler secret put FINISH_EM_AUTH_SECRET

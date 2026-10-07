@@ -353,3 +353,22 @@ export const loginSchema = z
 export const sessionSchema = z
 	.object({ authenticated: z.boolean() })
 	.openapi("Session");
+
+export const pushConfigSchema = z
+	.object({ publicKey: z.string().nullable() })
+	.openapi("PushConfig");
+
+export const pushSubscribeSchema = z
+	.object({
+		endpoint: z.string().url(),
+		keys: z.object({ p256dh: z.string().min(1), auth: z.string().min(1) }),
+	})
+	.openapi("PushSubscribe");
+
+export const pushUnsubscribeSchema = z
+	.object({ endpoint: z.string().url() })
+	.openapi("PushUnsubscribe");
+
+export const pushTestResultSchema = z
+	.object({ sent: z.number().int(), removed: z.number().int() })
+	.openapi("PushTestResult");

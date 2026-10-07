@@ -12,7 +12,12 @@ import { createD1Db, type D1Database } from "@/server/db/d1";
 import { createApp } from "@/server/http/app";
 import { sha256Hex } from "@/server/http/auth";
 import { handleMcpRequest } from "@/server/http/mcp";
+import type { VapidConfig } from "@/server/push/web-push";
 import { fetchAndSyncCalendar } from "@/server/services/calendar";
+import {
+	dispatchDueReminderPushes,
+	vapidSender,
+} from "@/server/services/reminder-push";
 
 export type Env = {
 	DB: D1Database;
@@ -20,11 +25,25 @@ export type Env = {
 	FINISH_EM_AUTH_SECRET?: string;
 	/** Path secret for /mcp/<secret>. Absent = the MCP endpoint does not exist. */
 	FINISH_EM_MCP_SECRET?: string;
+	/** Web Push. Generate with `bun run push:keys`; private key is a secret. */
+	VAPID_PUBLIC_KEY?: string;
+	VAPID_PRIVATE_KEY?: string;
+	VAPID_SUBJECT?: string;
 };
+
+function vapidFrom(env: Env): VapidConfig | undefined {
+	if (!env.VAPID_PUBLIC_KEY || !env.VAPID_PRIVATE_KEY) return undefined;
+	return {
+		publicKey: env.VAPID_PUBLIC_KEY,
+		privateKey: env.VAPID_PRIVATE_KEY,
+		subject: env.VAPID_SUBJECT ?? "mailto:finish-em@example.invalid",
+	};
+}
 
 const app = createApp({
 	resolveDb: (c) => createD1Db((c.env as Env).DB),
 	getSecret: (c) => (c.env as Env).FINISH_EM_AUTH_SECRET,
+	getVapid: (c) => vapidFrom(c.env as Env),
 });
 
 export default {
@@ -59,16 +78,31 @@ export default {
 	},
 
 	/**
-	 * Cron Trigger: refresh the cached calendar. Errors are logged rather than
-	 * thrown so one bad ICS response doesn't mark the schedule as failing.
+	 * Cron Trigger, every minute: push due reminders, and every 15th minute
+	 * refresh the cached calendar. Errors are logged rather than thrown so one
+	 * failure doesn't mark the schedule as failing.
 	 */
 	async scheduled(
-		_event: unknown,
+		event: { scheduledTime?: number },
 		env: Env,
 		ctx: { waitUntil(promise: Promise<unknown>): void },
 	) {
+		const db = createD1Db(env.DB);
+		const vapid = vapidFrom(env);
+		if (vapid) {
+			ctx.waitUntil(
+				dispatchDueReminderPushes(db, vapidSender(vapid))
+					.then((r) => {
+						if (r.reminders > 0) console.log("reminder push:", r);
+					})
+					.catch((err) => console.error("Reminder push failed:", err)),
+			);
+		}
+
+		const minute = new Date(event.scheduledTime ?? Date.now()).getUTCMinutes();
+		if (minute % 15 !== 0) return;
 		ctx.waitUntil(
-			fetchAndSyncCalendar(createD1Db(env.DB))
+			fetchAndSyncCalendar(db)
 				.then(({ count }) => {
 					console.log(`calendar sync: cached ${count} event instances`);
 				})

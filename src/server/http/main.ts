@@ -10,15 +10,31 @@
 import fs from "node:fs";
 import path from "node:path";
 import { getDb } from "@/server/db/client";
+import type { VapidConfig } from "@/server/push/web-push";
 import { fetchAndSyncCalendar } from "@/server/services/calendar";
+import {
+	dispatchDueReminderPushes,
+	vapidSender,
+} from "@/server/services/reminder-push";
 import { createApp } from "./app";
 
 const CALENDAR_POLL_MS = 15 * 60 * 1000;
 
 const port = Number(process.env.PORT || 5717);
+
+const vapid: VapidConfig | undefined =
+	process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY
+		? {
+				publicKey: process.env.VAPID_PUBLIC_KEY,
+				privateKey: process.env.VAPID_PRIVATE_KEY,
+				subject:
+					process.env.VAPID_SUBJECT ?? "mailto:finish-em@example.invalid",
+			}
+		: undefined;
 const app = createApp({
 	resolveDb: () => getDb(),
 	getSecret: () => process.env.FINISH_EM_AUTH_SECRET,
+	getVapid: () => vapid,
 });
 
 // Poll the configured Outlook/ICS calendar feed in the background. No-ops when
@@ -31,6 +47,16 @@ const refreshCalendar = () => {
 };
 refreshCalendar();
 setInterval(refreshCalendar, CALENDAR_POLL_MS);
+
+// Mirrors the Worker's every-minute cron for reminder pushes.
+if (vapid) {
+	const sender = vapidSender(vapid);
+	setInterval(() => {
+		dispatchDueReminderPushes(getDb(), sender).catch((err) => {
+			console.error("Reminder push failed:", err);
+		});
+	}, 60_000);
+}
 
 const webDistCandidates = [
 	process.env.WEB_DIST_PATH,
