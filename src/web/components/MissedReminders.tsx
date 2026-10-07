@@ -16,24 +16,29 @@ import {
 	missedLabel,
 	SNOOZE_OPTIONS,
 } from "../lib/reminders";
+import { useIsMobile } from "../lib/use-is-mobile";
 
 function MissedRow({ reminder }: { reminder: DueReminder }) {
 	const { dismissReminder, snoozeReminder, completeFromReminder } =
 		useReminderMutations();
 	const [snoozeOpen, setSnoozeOpen] = useState(false);
+	const isMobile = useIsMobile();
+	// Red outline buttons, compact on desktop; touch keeps a usable target.
+	const action = cn(
+		"gap-1 border border-p1/40 bg-transparent px-2 text-p1 text-xs shadow-none hover:bg-p1/10 hover:text-p1 [&_svg]:size-3.5",
+		isMobile ? "h-9" : "h-6",
+	);
 	const onError = (err: Error) => toast.error(err.message);
 
 	return (
-		<li className="flex min-h-11 items-center gap-2 py-1 text-sm">
-			<span className="min-w-0 flex-1 truncate font-medium">
-				{reminder.taskTitle}
-			</span>
-			<span className="shrink-0 text-muted text-xs tabular-nums">
+		<li className="flex items-center gap-1.5 py-0.5 text-sm">
+			<span className="min-w-0 flex-1 truncate">{reminder.taskTitle}</span>
+			<span className="mr-1 shrink-0 text-p1/70 text-xs tabular-nums">
 				{missedLabel(reminder)}
 			</span>
 			<Button
-				size="sm"
-				variant="outline"
+				variant="ghost"
+				className={action}
 				aria-label={`Complete ${reminder.taskTitle}`}
 				onClick={() =>
 					completeFromReminder.mutate(
@@ -48,8 +53,8 @@ function MissedRow({ reminder }: { reminder: DueReminder }) {
 			<Popover open={snoozeOpen} onOpenChange={setSnoozeOpen}>
 				<PopoverTrigger asChild>
 					<Button
-						size="sm"
-						variant="outline"
+						variant="ghost"
+						className={action}
 						aria-label={`Snooze ${reminder.taskTitle}`}
 					>
 						<Clock />
@@ -84,8 +89,8 @@ function MissedRow({ reminder }: { reminder: DueReminder }) {
 				</PopoverContent>
 			</Popover>
 			<Button
-				size="icon"
 				variant="ghost"
+				className={cn(action, "border-transparent px-1")}
 				aria-label={`Dismiss reminder for ${reminder.taskTitle}`}
 				onClick={() => dismissReminder.mutate(reminder.id, { onError })}
 			>
@@ -110,27 +115,27 @@ export function MissedRemindersBanner() {
 	return (
 		<section
 			aria-label="Missed reminders"
-			className="shrink-0 border-border border-b bg-p1/10 px-4 py-2"
+			className="shrink-0 border-p1/20 border-b bg-p1/5 px-4 py-1"
 		>
 			<button
 				type="button"
 				onClick={() => setExpanded((v) => !v)}
 				aria-expanded={expanded}
-				className="flex w-full items-center gap-2 text-left font-semibold text-p1 text-sm"
+				className="flex w-full items-center gap-1.5 py-0.5 text-left font-semibold text-p1 text-xs"
 			>
-				<BellRing className="h-4 w-4" />
+				<BellRing className="h-3.5 w-3.5" />
 				{missed.length === 1
 					? "1 missed reminder"
 					: `${missed.length} missed reminders`}
 				<ChevronDown
 					className={cn(
-						"ml-auto h-4 w-4 transition-transform",
+						"ml-auto h-3.5 w-3.5 transition-transform",
 						expanded && "rotate-180",
 					)}
 				/>
 			</button>
 			{expanded ? (
-				<ul className="mt-1 divide-y divide-border">
+				<ul className="divide-y divide-p1/10">
 					{missed.map((reminder) => (
 						<MissedRow key={reminder.id} reminder={reminder} />
 					))}

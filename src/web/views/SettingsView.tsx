@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-
+import { NotificationSettings } from "../components/NotificationSettings";
 import {
 	useCalendarMutations,
 	useSettings,
@@ -116,6 +116,10 @@ export function SettingsView() {
 							Updated {relative(settings.updatedAt)}
 						</span>
 					) : null}
+				</Section>
+
+				<Section title="Reminders">
+					<NotificationSettings />
 				</Section>
 
 				<Section title="Outlook Calendar">
