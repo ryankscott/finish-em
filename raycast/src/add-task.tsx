@@ -7,45 +7,73 @@ import {
 	Toast,
 } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
+import { useMemo, useState } from "react";
+// Shared with the web quick-add so both accept exactly the same syntax.
+import { parseTaskCreateInput } from "../../src/lib/parsing/parse-task-create-input";
+import type { Project } from "../../src/server/types";
 import { apiGet, apiPost } from "./api";
-
-type Project = {
-	id: number;
-	name: string;
-	emoji: string | null;
-	isInbox: boolean;
-};
 
 type Task = {
 	id: number;
 	title: string;
 };
 
-const PRIORITIES = [
-	{ label: "None", value: "" },
-	{ label: "Urgent", value: "1" },
-	{ label: "High", value: "2" },
-	{ label: "Medium", value: "3" },
-	{ label: "Low", value: "4" },
-];
+const PRIORITY_LABELS = ["", "Urgent", "High", "Medium", "Low"];
+
+function formatDate(iso: string): string {
+	const date = new Date(iso);
+	const hasTime = date.getHours() !== 0 || date.getMinutes() !== 0;
+	return date.toLocaleString(undefined, {
+		weekday: "short",
+		month: "short",
+		day: "numeric",
+		...(hasTime ? { hour: "numeric", minute: "2-digit" } : {}),
+	});
+}
 
 export default function AddTask() {
-	const { data: projects, isLoading } = useCachedPromise(() =>
+	const { data: projects = [], isLoading } = useCachedPromise(() =>
 		apiGet<Project[]>("/api/projects"),
 	);
+	const [text, setText] = useState("");
 
-	async function handleSubmit(values: {
-		title: string;
-		projectId?: string;
-		priority?: string;
-	}) {
-		const selectedProjectId = values.projectId?.trim();
-		const fallbackProjectId =
-			projects?.find((project) => project.isInbox)?.id ?? projects?.[0]?.id;
-		const projectId = selectedProjectId
-			? Number(selectedProjectId)
-			: fallbackProjectId;
+	const parsed = useMemo(
+		() => (text.trim() ? parseTaskCreateInput(text, projects) : null),
+		[text, projects],
+	);
 
+	const preview = useMemo(() => {
+		if (!parsed) return "";
+		const { input } = parsed;
+		const project = projects.find((p) => p.id === input.projectId);
+		const lines = [
+			input.title ? `Title: ${input.title}` : null,
+			project ? `Project: ${project.emoji ?? ""} ${project.name}`.trim() : null,
+			input.priority ? `Priority: ${PRIORITY_LABELS[input.priority]}` : null,
+			input.dueAt ? `Due: ${formatDate(input.dueAt)}` : null,
+			input.scheduledAt ? `Scheduled: ${formatDate(input.scheduledAt)}` : null,
+			input.recurrencePreset ? `Recurs: ${input.recurrencePreset}` : null,
+			input.estimateMinutes ? `Estimate: ${input.estimateMinutes}m` : null,
+			input.notes ? `Notes: ${input.notes}` : null,
+			...parsed.warnings.map((w) => `⚠️ ${w}`),
+			...parsed.errors.map((e) => `❌ ${e}`),
+		];
+		return lines.filter(Boolean).join("\n");
+	}, [parsed, projects]);
+
+	async function handleSubmit(values: { projectId?: string }) {
+		if (!parsed || parsed.errors.length > 0 || !parsed.input.title) {
+			await showToast({
+				style: Toast.Style.Failure,
+				title: parsed?.errors[0] ?? "Task title is required",
+			});
+			return;
+		}
+
+		const projectId =
+			parsed.input.projectId ??
+			(values.projectId ? Number(values.projectId) : undefined) ??
+			projects.find((p) => p.isInbox)?.id;
 		if (!projectId) {
 			await showToast({
 				style: Toast.Style.Failure,
@@ -55,12 +83,11 @@ export default function AddTask() {
 		}
 
 		await showToast({ style: Toast.Style.Animated, title: "Adding task…" });
-
 		try {
 			const task = await apiPost<Task>("/api/tasks", {
+				...parsed.input,
+				title: parsed.input.title,
 				projectId,
-				title: values.title,
-				...(values.priority ? { priority: Number(values.priority) } : {}),
 			});
 			await showToast({
 				style: Toast.Style.Success,
@@ -86,25 +113,31 @@ export default function AddTask() {
 			}
 		>
 			<Form.TextField
-				id="title"
-				title="Title"
-				placeholder="Task title"
+				id="text"
+				title="Task"
+				placeholder="Ship docs project:Work p1 due:today notes:ask Sam first"
+				info="Same syntax as the web quick add: project:, p1-p4, due:, scheduled:, recurs:, est:, notes:"
+				value={text}
+				onChange={setText}
 				autoFocus
 			/>
-			<Form.Dropdown id="projectId" title="Project" defaultValue="">
-				<Form.Dropdown.Item key="none" value="" title="Default (Inbox)" />
-				{(projects ?? []).map((p) => (
-					<Form.Dropdown.Item
-						key={p.id}
-						value={String(p.id)}
-						title={p.emoji ? `${p.emoji} ${p.name}` : p.name}
-					/>
-				))}
-			</Form.Dropdown>
-			<Form.Dropdown id="priority" title="Priority" defaultValue="">
-				{PRIORITIES.map((p) => (
-					<Form.Dropdown.Item key={p.value} value={p.value} title={p.label} />
-				))}
+			{preview ? <Form.Description title="Preview" text={preview} /> : null}
+			<Form.Dropdown
+				id="projectId"
+				title="Default Project"
+				info="Used when the text has no project: token"
+				defaultValue=""
+			>
+				<Form.Dropdown.Item value="" title="Inbox" />
+				{projects
+					.filter((p) => !p.isInbox)
+					.map((p) => (
+						<Form.Dropdown.Item
+							key={p.id}
+							value={String(p.id)}
+							title={p.emoji ? `${p.emoji} ${p.name}` : p.name}
+						/>
+					))}
 			</Form.Dropdown>
 		</Form>
 	);
