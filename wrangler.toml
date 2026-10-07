@@ -20,10 +20,12 @@ database_name = "finish-em"
 database_id = "f46d0097-c67b-4d1c-94ec-842bb2e8c531"
 migrations_dir = "migrations"
 
-# Every minute: reminder pushes are due to the minute. The calendar refresh
-# inside scheduled() still runs only on every 15th minute.
+# Every 5 minutes: phone reminder pushes can be up to 5 minutes late (the Mac
+# app schedules its own notifications and is exact). Chosen over every minute
+# to keep D1 reads low. The calendar refresh inside scheduled() still runs only
+# on every 15th minute.
 [triggers]
-crons = ["* * * * *"]
+crons = ["*/5 * * * *"]
 
 [observability]
 enabled = true

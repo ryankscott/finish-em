@@ -37,7 +37,7 @@ export function vapidSender(config: VapidConfig): SendFn {
 /**
  * Push every due reminder that has not been pushed yet to every subscribed
  * browser, then mark it pushed (and fired, if no open tab got there first).
- * Runs from the every-minute cron. Writes outside HTTP, so it bumps the change
+ * Runs from the every-5-minute cron. Writes outside HTTP, so it bumps the change
  * version itself.
  */
 export async function dispatchDueReminderPushes(

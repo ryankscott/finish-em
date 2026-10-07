@@ -78,7 +78,7 @@ export default {
 	},
 
 	/**
-	 * Cron Trigger, every minute: push due reminders, and every 15th minute
+	 * Cron Trigger, every 5 minutes: push due reminders, and every 15th minute
 	 * refresh the cached calendar. Errors are logged rather than thrown so one
 	 * failure doesn't mark the schedule as failing.
 	 */

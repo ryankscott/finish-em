@@ -48,7 +48,7 @@ const refreshCalendar = () => {
 refreshCalendar();
 setInterval(refreshCalendar, CALENDAR_POLL_MS);
 
-// Mirrors the Worker's every-minute cron for reminder pushes.
+// The Worker cron runs every 5 minutes; locally a minute keeps testing quick.
 if (vapid) {
 	const sender = vapidSender(vapid);
 	setInterval(() => {
