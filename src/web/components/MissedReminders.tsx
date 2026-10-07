@@ -23,9 +23,10 @@ function MissedRow({ reminder }: { reminder: DueReminder }) {
 		useReminderMutations();
 	const [snoozeOpen, setSnoozeOpen] = useState(false);
 	const isMobile = useIsMobile();
-	// Red outline buttons, compact on desktop; touch keeps a usable target.
+	// Red marks lateness only (header, bell, time); actions stay neutral, as in
+	// Apple Reminders and Things. Compact on desktop; touch keeps a usable target.
 	const action = cn(
-		"gap-1 border border-p1/40 bg-transparent px-2 text-p1 text-xs shadow-none hover:bg-p1/10 hover:text-p1 [&_svg]:size-3.5",
+		"gap-1 border border-border bg-transparent px-2 text-foreground text-xs shadow-none hover:bg-surface [&_svg]:size-3.5",
 		isMobile ? "h-9" : "h-6",
 	);
 	const onError = (err: Error) => toast.error(err.message);
@@ -90,7 +91,10 @@ function MissedRow({ reminder }: { reminder: DueReminder }) {
 			</Popover>
 			<Button
 				variant="ghost"
-				className={cn(action, "border-transparent px-1")}
+				className={cn(
+					action,
+					"border-transparent px-1 text-muted hover:bg-p1/10 hover:text-p1",
+				)}
 				aria-label={`Dismiss reminder for ${reminder.taskTitle}`}
 				onClick={() => dismissReminder.mutate(reminder.id, { onError })}
 			>
