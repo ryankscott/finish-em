@@ -4,6 +4,7 @@
 // web UI in a WKWebView window — no Chrome dependency.
 
 import AppKit
+import UserNotifications
 import WebKit
 
 let serverBinaryName = "finish-em-server"
@@ -26,8 +27,14 @@ func logFileURL() -> URL {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate,
-	WKScriptMessageHandler
+	WKScriptMessageHandler, UNUserNotificationCenterDelegate
 {
+	// Notification actions that arrive before the web UI has loaded (for example
+	// a "Done" tapped on a notification that relaunched the app). They run once
+	// the page reports in through the "reminders" message.
+	var pendingReminderActions: [(reminderId: Int, taskId: Int, action: String)] = []
+	var webReady = false
+
 	let port = resolvePort()
 	var window: NSWindow!
 	var webView: WKWebView!
@@ -64,6 +71,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 
 	func applicationDidFinishLaunching(_ notification: Notification) {
 		installSignalHandlers()
+		setUpNotifications()
 		buildMenu()
 		buildWindow()
 
@@ -100,8 +108,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		}
 	}
 
+	// Closing the window hides it; the app keeps running so the web UI can keep
+	// the notification schedule current. Scheduled notifications are delivered
+	// by macOS even after a full quit (⌘Q).
 	func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-		true
+		false
+	}
+
+	func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool)
+		-> Bool
+	{
+		if !flag { window.makeKeyAndOrderFront(nil) }
+		return true
 	}
 
 	// MARK: - Window & WebView
@@ -112,6 +130,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		// match it; without this the titlebar follows the OS appearance and can
 		// end up dark above a light app (or the reverse).
 		config.userContentController.add(self, name: "appearance")
+		// The web UI posts its reminder list here so macOS can schedule them.
+		config.userContentController.add(self, name: "reminders")
 		webView = WKWebView(
 			frame: NSRect(x: 0, y: 0, width: 1100, height: 800),
 			configuration: config)
@@ -124,6 +144,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 			backing: .buffered,
 			defer: false)
 		window.title = "finish-em"
+		window.isReleasedWhenClosed = false
 		window.center()
 		window.setFrameAutosaveName("FinishEmMainWindow")
 		window.contentView = webView
@@ -132,6 +153,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 	}
 
 	func loadApp() {
+		webReady = false
 		webView.load(URLRequest(url: baseURL))
 	}
 
@@ -141,6 +163,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 		_ userContentController: WKUserContentController,
 		didReceive message: WKScriptMessage
 	) {
+		if message.name == "reminders" {
+			handleReminderSync(message.body)
+			return
+		}
 		guard message.name == "appearance", let theme = message.body as? String else { return }
 		let appearance: NSAppearance? =
 			theme == "dark"
@@ -148,6 +174,172 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 			: theme == "light" ? NSAppearance(named: .aqua) : nil
 		guard let appearance else { return }
 		window.appearance = appearance
+	}
+
+	// MARK: - Reminder notifications
+
+	static let reminderCategory = "REMINDER"
+	static let idPrefix = "reminder-"
+	// macOS keeps at most 64 pending requests per app; stay under it.
+	static let maxScheduled = 60
+	static let horizon: TimeInterval = 7 * 24 * 60 * 60
+
+	func setUpNotifications() {
+		let center = UNUserNotificationCenter.current()
+		center.delegate = self
+		let actions = [
+			UNNotificationAction(identifier: "DONE", title: "Mark Done", options: []),
+			UNNotificationAction(identifier: "SNOOZE_15", title: "Snooze 15 Minutes", options: []),
+			UNNotificationAction(identifier: "SNOOZE_60", title: "Snooze 1 Hour", options: []),
+			UNNotificationAction(identifier: "TOMORROW", title: "Tomorrow Morning", options: []),
+		]
+		center.setNotificationCategories([
+			UNNotificationCategory(
+				identifier: Self.reminderCategory, actions: actions, intentIdentifiers: [],
+				options: [])
+		])
+		center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+	}
+
+	struct SyncedReminder {
+		let id: Int
+		let taskId: Int
+		let title: String
+		let at: Date
+		let fired: Bool
+
+		// The time is part of the identifier, so a snoozed reminder is a new
+		// notification rather than a replacement of the delivered one.
+		var identifier: String {
+			"\(AppDelegate.idPrefix)\(id)-\(Int(at.timeIntervalSince1970))"
+		}
+	}
+
+	func parseSync(_ body: Any) -> (reminders: [SyncedReminder], missed: Int)? {
+		guard let dict = body as? [String: Any],
+			let list = dict["reminders"] as? [[String: Any]]
+		else { return nil }
+		let iso = ISO8601DateFormatter()
+		iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+		let reminders = list.compactMap { item -> SyncedReminder? in
+			guard let id = item["id"] as? Int,
+				let taskId = item["taskId"] as? Int,
+				let title = item["title"] as? String,
+				let raw = item["at"] as? String,
+				let at = iso.date(from: raw)
+			else { return nil }
+			return SyncedReminder(
+				id: id, taskId: taskId, title: title, at: at,
+				fired: item["fired"] as? Bool ?? false)
+		}
+		return (reminders, dict["missed"] as? Int ?? 0)
+	}
+
+	/// "sync" replaces the pending schedule with the page's full list and sets
+	/// the Dock badge. "deliver" posts due reminders now, unless macOS already
+	/// showed them from the schedule (for example while the app was quit).
+	func handleReminderSync(_ body: Any) {
+		guard let (reminders, missed) = parseSync(body) else { return }
+		let isDeliver = (body as? [String: Any])?["kind"] as? String == "deliver"
+		if !isDeliver {
+			NSApp.dockTile.badgeLabel = missed > 0 ? String(missed) : nil
+		}
+
+		if !webReady {
+			webReady = true
+			flushPendingReminderActions()
+		}
+
+		let center = UNUserNotificationCenter.current()
+		let now = Date()
+		center.getDeliveredNotifications { delivered in
+			let shown = Set(delivered.map(\.request.identifier))
+
+			if isDeliver {
+				for reminder in reminders where !shown.contains(reminder.identifier) {
+					self.post(reminder, trigger: nil)
+				}
+				return
+			}
+
+			center.getPendingNotificationRequests { pending in
+				let ours = pending.map(\.identifier).filter { $0.hasPrefix(Self.idPrefix) }
+				center.removePendingNotificationRequests(withIdentifiers: ours)
+
+				// Clear notifications for reminders that were acted on elsewhere.
+				let live = Set(reminders.map(\.identifier))
+				let stale = shown.filter { $0.hasPrefix(Self.idPrefix) && !live.contains($0) }
+				center.removeDeliveredNotifications(withIdentifiers: Array(stale))
+
+				let upcoming = reminders
+					.filter { $0.at > now && $0.at < now.addingTimeInterval(Self.horizon) }
+					.sorted { $0.at < $1.at }
+					.prefix(Self.maxScheduled)
+				for reminder in upcoming {
+					self.post(reminder, trigger: self.trigger(for: reminder.at))
+				}
+			}
+		}
+	}
+
+	func trigger(for date: Date) -> UNNotificationTrigger {
+		let parts = Calendar.current.dateComponents(
+			[.year, .month, .day, .hour, .minute, .second], from: date)
+		return UNCalendarNotificationTrigger(dateMatching: parts, repeats: false)
+	}
+
+	func post(_ reminder: SyncedReminder, trigger: UNNotificationTrigger?) {
+		let content = UNMutableNotificationContent()
+		content.title = reminder.title
+		content.body = "Reminder"
+		content.sound = .default
+		content.categoryIdentifier = Self.reminderCategory
+		content.interruptionLevel = .timeSensitive
+		content.userInfo = ["reminderId": reminder.id, "taskId": reminder.taskId]
+		UNUserNotificationCenter.current().add(
+			UNNotificationRequest(identifier: reminder.identifier, content: content, trigger: trigger))
+	}
+
+	// Show the banner even while the app is frontmost.
+	func userNotificationCenter(
+		_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+		withCompletionHandler completionHandler:
+			@escaping (UNNotificationPresentationOptions) -> Void
+	) {
+		completionHandler([.banner, .list, .sound])
+	}
+
+	func userNotificationCenter(
+		_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+		withCompletionHandler completionHandler: @escaping () -> Void
+	) {
+		let info = response.notification.request.content.userInfo
+		defer { completionHandler() }
+		guard let reminderId = info["reminderId"] as? Int,
+			let taskId = info["taskId"] as? Int
+		else { return }
+
+		switch response.actionIdentifier {
+		case "DONE", "SNOOZE_15", "SNOOZE_60", "TOMORROW":
+			pendingReminderActions.append((reminderId, taskId, response.actionIdentifier))
+			if webReady { flushPendingReminderActions() }
+		default:
+			// Clicked the notification itself: bring the app forward.
+			window.makeKeyAndOrderFront(nil)
+			NSApp.activate(ignoringOtherApps: true)
+		}
+	}
+
+	// Actions run inside the page so they use its session cookie and its query
+	// cache refreshes straight away.
+	func flushPendingReminderActions() {
+		let actions = pendingReminderActions
+		pendingReminderActions.removeAll()
+		for item in actions {
+			let js =
+				"window.finishEmNative?.reminderAction(\(item.reminderId), \(item.taskId), '\(item.action)')"
+			webView.evaluateJavaScript(js, completionHandler: nil)
+		}
 	}
 
 	// MARK: - External links

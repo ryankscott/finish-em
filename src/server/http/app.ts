@@ -13,10 +13,12 @@ import { createRoute, OpenAPIHono, type RouteConfig } from "@hono/zod-openapi";
 import type { Context } from "hono";
 
 import type { Db } from "@/server/db/types";
+import { sendWebPush, type VapidConfig } from "@/server/push/web-push";
 import { bumpVersion, getVersion } from "@/server/repos/change-version";
 import * as dayLogRepo from "@/server/repos/day-log";
 import * as goalRepo from "@/server/repos/goals";
 import * as projectRepo from "@/server/repos/projects";
+import * as pushRepo from "@/server/repos/push-subscriptions";
 import * as reminderRepo from "@/server/repos/reminders";
 import * as settingsRepo from "@/server/repos/settings";
 import * as completionLogRepo from "@/server/repos/task-completion-log";
@@ -55,8 +57,15 @@ import {
 	projectReorderSchema,
 	projectSchema,
 	projectUpdateSchema,
+	pushConfigSchema,
+	pushSubscribeSchema,
+	pushTestResultSchema,
+	pushUnsubscribeSchema,
 	reminderCreateSchema,
+	reminderFireResultSchema,
+	reminderFireSchema,
 	reminderSchema,
+	reminderSnoozeSchema,
 	reminderWithTitleSchema,
 	sessionSchema,
 	settingsSchema,
@@ -103,9 +112,11 @@ export type AppOptions = {
 	 * local dev and the test suite rely on.
 	 */
 	getSecret?: (c: Context<AppEnv>) => string | undefined;
+	/** VAPID keys for Web Push. Undefined disables push (the routes still exist). */
+	getVapid?: (c: Context<AppEnv>) => VapidConfig | undefined;
 };
 
-export function createApp({ resolveDb, getSecret }: AppOptions) {
+export function createApp({ resolveDb, getSecret, getVapid }: AppOptions) {
 	const app = new OpenAPIHono<AppEnv>({
 		defaultHook: (result, c) => {
 			if (!result.success) {
@@ -750,6 +761,149 @@ export function createApp({ resolveDb, getSecret }: AppOptions) {
 			const { id } = c.req.valid("param");
 			await reminderRepo.deleteReminder(c.get("db"), id);
 			return c.json({}, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/reminders/fire",
+			request: {
+				body: {
+					content: { "application/json": { schema: reminderFireSchema } },
+				},
+			},
+			responses: jsonResponse(
+				reminderFireResultSchema,
+				"Number of reminders newly marked as delivered",
+			),
+		}),
+		async (c) => {
+			const { ids } = c.req.valid("json");
+			const fired = await reminderRepo.markRemindersFired(c.get("db"), ids);
+			return c.json({ fired }, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/reminders/{id}/dismiss",
+			request: { params: idParamSchema },
+			responses: jsonResponse(reminderSchema, "Dismissed reminder"),
+		}),
+		async (c) => {
+			const { id } = c.req.valid("param");
+			const reminder = await reminderRepo.dismissReminder(c.get("db"), id);
+			if (!reminder) throw new NotFoundError("Reminder not found");
+			return c.json(reminder, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/reminders/{id}/snooze",
+			request: {
+				params: idParamSchema,
+				body: {
+					content: { "application/json": { schema: reminderSnoozeSchema } },
+				},
+			},
+			responses: jsonResponse(reminderSchema, "Snoozed reminder"),
+		}),
+		async (c) => {
+			const { id } = c.req.valid("param");
+			const db = c.get("db");
+			const { timezone } = await settingsRepo.getSettings(db);
+			const reminder = await reminderRepo.snoozeReminder(db, {
+				reminderId: id,
+				...c.req.valid("json"),
+				timeZone: timezone,
+			});
+			if (!reminder) throw new NotFoundError("Reminder not found");
+			return c.json(reminder, 200);
+		},
+	);
+
+	// Web Push
+	app.openapi(
+		createRoute({
+			method: "get",
+			path: "/api/push/config",
+			responses: jsonResponse(pushConfigSchema, "VAPID public key, or null"),
+		}),
+		(c) => c.json({ publicKey: getVapid?.(c)?.publicKey ?? null }, 200),
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/push/subscribe",
+			request: {
+				body: {
+					content: { "application/json": { schema: pushSubscribeSchema } },
+				},
+			},
+			responses: jsonResponse(emptySchema, "Subscribed"),
+		}),
+		async (c) => {
+			const { endpoint, keys } = c.req.valid("json");
+			await pushRepo.upsertPushSubscription(c.get("db"), {
+				endpoint,
+				...keys,
+				userAgent: c.req.header("user-agent") ?? null,
+			});
+			return c.json({}, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/push/unsubscribe",
+			request: {
+				body: {
+					content: { "application/json": { schema: pushUnsubscribeSchema } },
+				},
+			},
+			responses: jsonResponse(emptySchema, "Unsubscribed"),
+		}),
+		async (c) => {
+			await pushRepo.deletePushSubscription(
+				c.get("db"),
+				c.req.valid("json").endpoint,
+			);
+			return c.json({}, 200);
+		},
+	);
+
+	app.openapi(
+		createRoute({
+			method: "post",
+			path: "/api/push/test",
+			responses: jsonResponse(pushTestResultSchema, "Test push result"),
+		}),
+		async (c) => {
+			const vapid = getVapid?.(c);
+			if (!vapid)
+				throw new NotFoundError("Push is not configured on this server");
+			const db = c.get("db");
+			let sent = 0;
+			let removed = 0;
+			for (const sub of await pushRepo.listPushSubscriptions(db)) {
+				const result = await sendWebPush(
+					sub,
+					{ title: "finish-em", body: "Test notification", tag: "test" },
+					vapid,
+				);
+				if (result.ok) sent += 1;
+				if (result.gone) {
+					removed += 1;
+					await pushRepo.deletePushSubscription(db, sub.endpoint);
+				}
+			}
+			return c.json({ sent, removed }, 200);
 		},
 	);
 

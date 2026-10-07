@@ -3,6 +3,7 @@ import type { BatchOp, Db } from "@/server/db/types";
 import { getEventByUid } from "@/server/repos/calendar";
 import { mapTaskRow } from "@/server/repos/mappers";
 import { getProject } from "@/server/repos/projects";
+import { createReminder, listTaskReminders } from "@/server/repos/reminders";
 import {
 	deleteLatestCompletion,
 	logCompletion,
@@ -577,6 +578,7 @@ export async function completeTask(
 				recurrencePreset: existing.recurrencePreset,
 				recurrenceRRule: existing.recurrenceRRule,
 			});
+			await carryReminderForward(db, existing, nextTask, nextDueAt);
 		}
 	}
 
@@ -587,6 +589,29 @@ export async function completeTask(
 	}
 
 	return { task: await getTask(db, taskId), nextTask };
+}
+
+/**
+ * A recurring task's next occurrence keeps its reminder at the same offset from
+ * the due time, as Apple Reminders and Todoist do. A shifted time already in
+ * the past is dropped rather than firing at once.
+ */
+async function carryReminderForward(
+	db: Db,
+	previous: Task,
+	next: Task,
+	nextDueAt: string,
+) {
+	if (!previous.dueAt) return;
+	const [reminder] = await listTaskReminders(db, previous.id);
+	if (!reminder || reminder.status === "dismissed") return;
+	const shiftMs = Date.parse(nextDueAt) - Date.parse(previous.dueAt);
+	const remindAt = new Date(Date.parse(reminder.remindAt) + shiftMs);
+	if (remindAt.getTime() <= Date.now()) return;
+	await createReminder(db, {
+		taskId: next.id,
+		remindAt: remindAt.toISOString(),
+	});
 }
 
 export async function uncompleteTask(

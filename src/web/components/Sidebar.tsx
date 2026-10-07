@@ -32,6 +32,7 @@ import type { Project } from "@/server/types";
 import { cn } from "../lib/cn";
 import {
 	useDeletedTasks,
+	useDueReminders,
 	useProjectMutations,
 	useProjects,
 	useTasks,
@@ -44,6 +45,7 @@ function NavLink({
 	icon,
 	label,
 	count,
+	alert,
 	active,
 	isDrawer,
 }: {
@@ -51,6 +53,8 @@ function NavLink({
 	icon: React.ReactNode;
 	label: string;
 	count?: number;
+	/** Shows the count as a red badge: something needs attention now. */
+	alert?: boolean;
 	active: boolean;
 	isDrawer?: boolean;
 }) {
@@ -71,7 +75,16 @@ function NavLink({
 			{icon}
 			<span className="truncate">{label}</span>
 			{count !== undefined && count > 0 ? (
-				<span className="ml-auto text-xs text-muted">{count}</span>
+				<span
+					className={cn(
+						"ml-auto text-xs",
+						alert
+							? "rounded-full bg-p1 px-1.5 font-semibold text-background"
+							: "text-muted",
+					)}
+				>
+					{count}
+				</span>
 			) : null}
 		</Link>
 	);
@@ -276,6 +289,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 		recurring: true,
 	});
 	const { data: deletedTasks = [] } = useDeletedTasks();
+	const { data: dueReminders = [] } = useDueReminders();
 
 	const overdue = pastTasks.filter((t) => isOverdueTask(t, now));
 	const overdueCount = overdue.length;
@@ -445,6 +459,8 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				to="/reminders"
 				icon={<Bell className={iconClass} />}
 				label="Reminders"
+				count={dueReminders.length}
+				alert
 				active={pathname === "/reminders"}
 				isDrawer={isDrawer}
 			/>

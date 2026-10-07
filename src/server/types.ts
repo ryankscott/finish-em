@@ -81,6 +81,8 @@ export type Reminder = {
 	remindAt: string;
 	status: ReminderStatus;
 	snoozedUntil: string | null;
+	/** When the reminder was first delivered; null until then. */
+	firedAt: string | null;
 	createdAt: string;
 	updatedAt: string;
 };

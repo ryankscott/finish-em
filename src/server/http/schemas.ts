@@ -280,10 +280,32 @@ export const reminderSchema = z
 		remindAt: z.string(),
 		status: reminderStatusSchema,
 		snoozedUntil: z.string().nullable(),
+		firedAt: z.string().nullable(),
 		createdAt: z.string(),
 		updatedAt: z.string(),
 	})
 	.openapi("Reminder");
+
+export const reminderFireSchema = z
+	.object({ ids: z.array(z.number().int()).max(200) })
+	.openapi("ReminderFire");
+
+export const reminderFireResultSchema = z
+	.object({ fired: z.number().int() })
+	.openapi("ReminderFireResult");
+
+export const reminderSnoozeSchema = z
+	.object({
+		preset: z.enum([
+			"this_morning",
+			"this_evening",
+			"tomorrow_morning",
+			"next_week",
+			"custom",
+		]),
+		customMinutes: z.number().int().positive().optional(),
+	})
+	.openapi("ReminderSnooze");
 
 export const reminderWithTitleSchema = reminderSchema
 	.extend({ taskTitle: z.string() })
@@ -331,3 +353,22 @@ export const loginSchema = z
 export const sessionSchema = z
 	.object({ authenticated: z.boolean() })
 	.openapi("Session");
+
+export const pushConfigSchema = z
+	.object({ publicKey: z.string().nullable() })
+	.openapi("PushConfig");
+
+export const pushSubscribeSchema = z
+	.object({
+		endpoint: z.string().url(),
+		keys: z.object({ p256dh: z.string().min(1), auth: z.string().min(1) }),
+	})
+	.openapi("PushSubscribe");
+
+export const pushUnsubscribeSchema = z
+	.object({ endpoint: z.string().url() })
+	.openapi("PushUnsubscribe");
+
+export const pushTestResultSchema = z
+	.object({ sent: z.number().int(), removed: z.number().int() })
+	.openapi("PushTestResult");

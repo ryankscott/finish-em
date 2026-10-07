@@ -1,3 +1,4 @@
+import type { SnoozePreset } from "../server/services/reminders";
 import type {
 	AppSettings,
 	CalendarEvent,
@@ -153,6 +154,19 @@ export type ApiClient = {
 		input: { remindAt: string; status?: Reminder["status"] },
 	) => Promise<Reminder>;
 	deleteReminder: (reminderId: number) => Promise<void>;
+	markRemindersFired: (ids: number[]) => Promise<{ fired: number }>;
+	getPushConfig: () => Promise<{ publicKey: string | null }>;
+	subscribePush: (input: {
+		endpoint: string;
+		keys: { p256dh: string; auth: string };
+	}) => Promise<void>;
+	unsubscribePush: (endpoint: string) => Promise<void>;
+	testPush: () => Promise<{ sent: number; removed: number }>;
+	dismissReminder: (reminderId: number) => Promise<Reminder>;
+	snoozeReminder: (
+		reminderId: number,
+		input: { preset: SnoozePreset; customMinutes?: number },
+	) => Promise<Reminder>;
 	getCompletionHistory: (taskId: number) => Promise<CompletionLog[]>;
 	listCompletions: (query?: {
 		from?: string;
