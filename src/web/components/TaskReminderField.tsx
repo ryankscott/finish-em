@@ -3,7 +3,6 @@ import { Bell, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { Input } from "@/components/ui/input";
 import {
 	Select,
 	SelectContent,
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/select";
 
 import { useReminderMutations, useTaskReminders } from "../lib/queries";
+import { DateField } from "./DateField";
 
 const TIME_SLOTS: Array<{ value: string; label: string }> = Array.from(
 	{ length: 15 },
@@ -71,14 +71,14 @@ export function TaskReminderField({ taskId }: { taskId: number }) {
 					</span>
 				) : null}
 			</span>
+			<DateField
+				value={date}
+				onChange={setDate}
+				dateOnly
+				allowNone={false}
+				aria-label="Reminder date"
+			/>
 			<div className="flex items-center gap-2">
-				<Input
-					type="date"
-					value={date}
-					onChange={(e) => setDate(e.target.value)}
-					className="w-auto"
-					aria-label="Reminder date"
-				/>
 				<Select value={time} onValueChange={setTime}>
 					<SelectTrigger className="h-9 w-auto" aria-label="Reminder time">
 						<SelectValue />
