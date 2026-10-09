@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import type { RecurrencePreset } from "@/server/types";
 import { cn } from "../lib/cn";
 import { useIsMobile } from "../lib/use-is-mobile";
+import { DateField } from "./DateField";
 
 type RecurrenceFreq = "none" | "daily" | "weekly" | "monthly" | "yearly";
 type RecurrenceEndType = "none" | "count" | "until";
@@ -353,12 +354,15 @@ export function RecurrenceSelector({
 				{/* Start date */}
 				<div className="mb-3 flex items-center gap-3">
 					<Label className="w-16 shrink-0 text-sm">Start</Label>
-					<input
-						type="date"
-						value={draftStart}
-						onChange={(e) => setDraftStart(e.target.value)}
-						className="h-9 flex-1 rounded-md border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-					/>
+					<div className="flex-1">
+						<DateField
+							value={draftStart}
+							onChange={setDraftStart}
+							dateOnly
+							allowNone={false}
+							aria-label="Start date"
+						/>
+					</div>
 				</div>
 
 				<Separator className="my-3" />
@@ -492,14 +496,17 @@ export function RecurrenceSelector({
 								</>
 							)}
 							{draftConfig.endType === "until" && (
-								<input
-									type="date"
-									value={draftConfig.until}
-									onChange={(e) =>
-										setDraftConfig((c) => ({ ...c, until: e.target.value }))
-									}
-									className="h-9 w-36 rounded-md border border-input bg-transparent px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-								/>
+								<div className="mt-2 w-full">
+									<DateField
+										value={draftConfig.until}
+										onChange={(until) =>
+											setDraftConfig((c) => ({ ...c, until }))
+										}
+										dateOnly
+										allowNone={false}
+										aria-label="End date"
+									/>
+								</div>
 							)}
 						</div>
 					</>

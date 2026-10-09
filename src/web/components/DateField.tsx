@@ -1,6 +1,6 @@
 import { format, isSameDay, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -45,12 +45,53 @@ const mobileActiveChipClass =
 interface DateFieldProps {
 	value: string;
 	onChange: (value: string) => void;
+	/**
+	 * Only ever emit `yyyy-MM-dd` (or "" when cleared). Typed phrases are kept
+	 * locally and resolved on blur/Enter, so consumers that parse the value
+	 * immediately never see "tomorrow" or a half-typed date.
+	 */
+	dateOnly?: boolean;
+	/** Hide the "None" preset for fields that must hold a date. */
+	allowNone?: boolean;
+	"aria-label"?: string;
 }
 
-export function DateField({ value, onChange }: DateFieldProps) {
+/** Resolve a typed date phrase to `yyyy-MM-dd`, "" for none, or undefined if unparseable. */
+export function resolveDateOnly(raw: string): string | undefined {
+	const text = raw.trim();
+	if (!text) return "";
+	const parsed = parseDatePhrase(text);
+	if (parsed === null) return "";
+	if (parsed === undefined) return undefined;
+	return format(parseISO(parsed), "yyyy-MM-dd");
+}
+
+export function DateField({
+	value,
+	onChange,
+	dateOnly = false,
+	allowNone = true,
+	"aria-label": ariaLabel,
+}: DateFieldProps) {
 	const isMobile = useIsMobile();
 	const [open, setOpen] = useState(false);
-	const trimmed = value.trim().toLowerCase();
+	const [draft, setDraft] = useState(value);
+	useEffect(() => setDraft(value), [value]);
+	const text = dateOnly ? draft : value;
+	const trimmed = text.trim().toLowerCase();
+	const presets_ = allowNone
+		? PRESETS
+		: PRESETS.filter((p) => p.value !== "none");
+
+	const commitDraft = () => {
+		const resolved = resolveDateOnly(draft);
+		if (resolved === undefined || (resolved === "" && !allowNone)) {
+			setDraft(value);
+			return;
+		}
+		setDraft(resolved);
+		if (resolved !== value) onChange(resolved);
+	};
 
 	// Resolve a preset value to an ISO date string (or null for "none")
 	const resolvePreset = (presetValue: string): string | null => {
@@ -96,8 +137,8 @@ export function DateField({ value, onChange }: DateFieldProps) {
 	const handleCalendarSelect = (date: Date | undefined) => {
 		if (date) {
 			onChange(format(date, "yyyy-MM-dd"));
-		} else {
-			onChange("none");
+		} else if (allowNone) {
+			onChange(dateOnly ? "" : "none");
 		}
 		setOpen(false);
 	};
@@ -111,7 +152,7 @@ export function DateField({ value, onChange }: DateFieldProps) {
 		<div
 			className={cn("flex gap-1.5", isMobile ? "" : "flex-wrap items-center")}
 		>
-			{PRESETS.map((preset) => (
+			{presets_.map((preset) => (
 				<button
 					key={preset.value}
 					type="button"
@@ -136,8 +177,22 @@ export function DateField({ value, onChange }: DateFieldProps) {
 		<div className="flex flex-col gap-2">
 			<div className="relative">
 				<Input
-					value={value}
-					onChange={(e) => onChange(e.target.value)}
+					value={text}
+					aria-label={ariaLabel}
+					onChange={(e) =>
+						dateOnly ? setDraft(e.target.value) : onChange(e.target.value)
+					}
+					onBlur={dateOnly ? commitDraft : undefined}
+					onKeyDown={
+						dateOnly
+							? (e) => {
+									if (e.key === "Enter") {
+										e.preventDefault();
+										commitDraft();
+									}
+								}
+							: undefined
+					}
 					className={isMobile ? "h-11 text-base" : undefined}
 				/>
 				{isMobile ? (
