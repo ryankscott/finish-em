@@ -22,8 +22,8 @@ self.addEventListener("push", (event) => {
 			tag: data.tag,
 			renotify: true,
 			requireInteraction: isReminder,
-			icon: "/logo192.png",
-			badge: "/logo192.png",
+			icon: "/icon-192.png",
+			badge: "/icon-192.png",
 			data,
 			// iOS ignores actions; Chrome and Edge show them as buttons.
 			actions: isReminder
