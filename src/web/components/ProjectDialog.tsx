@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -13,8 +13,9 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 
 import { cn } from "../lib/cn";
-import { formatDateField, resolveDateField } from "../lib/date-field";
+import { formatDateField } from "../lib/date-field";
 import { useHotkeyScope } from "../lib/hotkeys";
+import { resolveProjectDraft } from "../lib/project-draft";
 import { useProjectMutations } from "../lib/queries";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { useKeyboardInset } from "../lib/use-viewport-inset";
@@ -26,6 +27,9 @@ type ResourceRow = { label: string; url: string };
 
 export function ProjectDialog() {
 	const ui = useUi();
+	const id = useId();
+	const [color, setColor] = useState("#435c76");
+	const [error, setError] = useState("");
 	const isMobile = useIsMobile();
 	const keyboardInset = useKeyboardInset();
 	const { createProject, updateProject } = useProjectMutations();
@@ -43,6 +47,8 @@ export function ProjectDialog() {
 		if (!state) return;
 		const p = state.mode === "edit" ? state.project : null;
 		setName(p?.name ?? "");
+		setColor(p?.color ?? "#435c76");
+		setError("");
 		setEmoji(p?.emoji ?? "");
 		setDescription(p?.description ?? "");
 		setStart(formatDateField(p?.startAt ?? null));
@@ -64,35 +70,23 @@ export function ProjectDialog() {
 
 	const submit = () => {
 		if (!state) return;
-		if (!name.trim()) {
-			toast.error("Project name is required");
+		if (createProject.isPending || updateProject.isPending) return;
+		const result = resolveProjectDraft(
+			{ name, emoji, description, start, end, color, resources },
+			editing,
+		);
+		if (result.error) {
+			setError(result.error);
 			return;
 		}
-		const startAt = resolveDateField(start, editing?.startAt ?? null);
-		const endAt = resolveDateField(end, editing?.endAt ?? null);
-		if (startAt === "invalid" || endAt === "invalid") {
-			toast.error(
-				"Dates accept: today, tomorrow, monday, next week, 2026-07-01",
-			);
-			return;
-		}
-
-		const input = {
-			name: name.trim(),
-			emoji: emoji.trim() ? emoji.trim() : null,
-			description: description.trim(),
-			startAt,
-			endAt,
-			resources: resources
-				.map((r) => ({ label: r.label.trim(), url: r.url.trim() }))
-				.filter((r) => r.label.length > 0 && r.url.length > 0),
-		};
+		if (!result.input) return;
+		const input = result.input;
 
 		const onSuccess = () => {
 			toast.success(editing ? "Project saved" : "Project created");
 			ui.closeProjectDialog();
 		};
-		const onError = (err: Error) => toast.error(err.message);
+		const onError = (err: Error) => setError(err.message);
 
 		if (editing) {
 			updateProject.mutate(
@@ -126,8 +120,9 @@ export function ProjectDialog() {
 				)}
 			>
 				<div className="flex flex-col gap-1">
-					<Label>Name</Label>
+					<Label htmlFor={`${id}-name`}>Name</Label>
 					<Input
+						id={`${id}-name`}
 						value={name}
 						onChange={(e) => setName(e.target.value)}
 						// Autofocusing on mobile throws up the keyboard before the user
@@ -142,8 +137,9 @@ export function ProjectDialog() {
 				</div>
 			</div>
 			<div className="flex flex-col gap-1">
-				<Label>Description</Label>
+				<Label htmlFor={`${id}-description`}>Description</Label>
 				<Textarea
+					id={`${id}-description`}
 					value={description}
 					onChange={(e) => setDescription(e.target.value)}
 					rows={2}
@@ -155,11 +151,39 @@ export function ProjectDialog() {
 			>
 				<div className="flex flex-col gap-1">
 					<Label>Start date</Label>
-					<DateField value={start} onChange={setStart} />
+					<DateField
+						value={start}
+						onChange={setStart}
+						aria-label="Project start date"
+					/>
 				</div>
 				<div className="flex flex-col gap-1">
 					<Label>End date</Label>
-					<DateField value={end} onChange={setEnd} />
+					<DateField
+						value={end}
+						onChange={setEnd}
+						aria-label="Project end date"
+					/>
+				</div>
+			</div>
+
+			<div className="flex flex-col gap-2">
+				<Label htmlFor={`${id}-color`}>Colour</Label>
+				<div className="flex items-center gap-3">
+					<input
+						id={`${id}-color`}
+						type="color"
+						aria-label="Project colour picker"
+						value={/^#[0-9a-f]{6}$/i.test(color) ? color : "#435c76"}
+						onChange={(e) => setColor(e.target.value)}
+						className="h-11 w-14 shrink-0 rounded-xl border border-border bg-background p-1"
+					/>
+					<Input
+						aria-label="Project colour hex"
+						value={color}
+						onChange={(e) => setColor(e.target.value)}
+						className="h-11 min-w-0 flex-1"
+					/>
 				</div>
 			</div>
 
@@ -195,6 +219,7 @@ export function ProjectDialog() {
 						)}
 					>
 						<Input
+							aria-label={`Resource ${index + 1} label`}
 							value={row.label}
 							placeholder="Label"
 							onChange={(e) => updateResource(index, { label: e.target.value })}
@@ -203,6 +228,7 @@ export function ProjectDialog() {
 						{/* A URL row that's 2rem wide on a phone is unusable; on mobile
 						    each link becomes a stacked card with a full-width remove. */}
 						<Input
+							aria-label={`Resource ${index + 1} URL`}
 							value={row.url}
 							placeholder="https://…"
 							onChange={(e) => updateResource(index, { url: e.target.value })}
@@ -237,9 +263,14 @@ export function ProjectDialog() {
 				<SheetContent
 					side="bottom"
 					showClose={false}
-					className="flex h-dvh max-h-none flex-col rounded-none p-0"
+					className="flex h-[100dvh] max-h-none flex-col rounded-none bg-surface-raised p-0"
 					style={
-						keyboardInset > 0 ? { bottom: `${keyboardInset}px` } : undefined
+						keyboardInset > 0
+							? {
+									bottom: keyboardInset,
+									height: `calc(100dvh - ${keyboardInset}px)`,
+								}
+							: undefined
 					}
 					aria-describedby={undefined}
 				>
@@ -255,14 +286,20 @@ export function ProjectDialog() {
 					</div>
 					<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
 						{fields}
+						{error && (
+							<p role="alert" className="mt-3 text-sm text-p1">
+								{error}
+							</p>
+						)}
 					</div>
 					{/* Pinned rather than at the end of the scroll area: the resources
 					    list can grow past a screen, and Save shouldn't scroll away. */}
 					<div className="shrink-0 border-t border-border px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
 						<button
 							type="button"
+							disabled={createProject.isPending || updateProject.isPending}
 							onClick={submit}
-							className="min-h-[44px] w-full rounded-md bg-accent font-medium text-background"
+							className="min-h-[44px] w-full rounded-xl bg-accent font-medium text-accent-foreground disabled:opacity-50"
 						>
 							{saveLabel}
 						</button>
@@ -277,17 +314,25 @@ export function ProjectDialog() {
 			open={state !== null}
 			onOpenChange={(open) => !open && ui.closeProjectDialog()}
 		>
-			<DialogContent className="max-h-[85vh] w-full max-w-xl overflow-y-auto">
+			<DialogContent className="max-h-[85dvh] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-[22px] bg-surface-raised">
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				<div className="mt-4">{fields}</div>
+				<div className="mt-4">
+					{fields}
+					{error && (
+						<p role="alert" className="mt-3 text-sm text-p1">
+							{error}
+						</p>
+					)}
+				</div>
 				<div className="mt-4 flex items-center justify-end gap-3 text-xs text-muted">
 					<span>esc to cancel · ⌘⏎ to save</span>
 					<button
 						type="button"
+						disabled={createProject.isPending || updateProject.isPending}
 						onClick={submit}
-						className="rounded-md bg-accent px-4 py-2 font-medium text-background"
+						className="rounded-xl bg-accent px-4 py-3 font-medium text-accent-foreground disabled:opacity-50"
 					>
 						{saveLabel}
 					</button>

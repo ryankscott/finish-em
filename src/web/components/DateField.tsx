@@ -207,7 +207,8 @@ export function DateField({
 			<PopoverContent
 				onEscapeKeyDown={(e) => e.stopPropagation()}
 				align="end"
-				className="w-[min(350px,calc(100vw-2rem))] rounded-2xl bg-surface-raised p-0"
+				collisionPadding={16}
+				className="max-h-[var(--radix-popover-content-available-height)] w-[min(350px,calc(100vw-2rem))] overflow-y-auto rounded-2xl bg-surface-raised p-0"
 				aria-label={ariaLabel}
 			>
 				{picker}

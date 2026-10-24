@@ -56,6 +56,7 @@ export function HotkeyProvider({ children }: { children: React.ReactNode }) {
 		(window as unknown as { __hotkeyScopes?: unknown }).__hotkeyScopes =
 			scopesRef;
 		const listener = (event: KeyboardEvent) => {
+			if (event.defaultPrevented) return;
 			const key = eventKey(event);
 			const inInput = isTextInput(event.target);
 			const scopes = scopesRef.current;

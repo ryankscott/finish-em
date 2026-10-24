@@ -66,7 +66,7 @@ export function LoginGate({ children }: { children: React.ReactNode }) {
 				className="flex w-full max-w-xs flex-col gap-4"
 			>
 				<div className="flex flex-col gap-1">
-					<h1 className="font-medium text-lg">finish-em</h1>
+					<h1 className="font-medium text-lg">Your workspace</h1>
 					<p className="text-muted text-sm">Enter your password to continue.</p>
 				</div>
 

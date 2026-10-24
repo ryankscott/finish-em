@@ -16,7 +16,7 @@ import type { CalendarEvent, Task } from "@/server/types";
 
 import { DayGrid } from "../components/DayGrid";
 import { EventRow } from "../components/EventRow";
-import { GoalsPanel } from "../components/GoalsPanel";
+import { GoalsSummary } from "../components/GoalsSummary";
 import { TaskRow } from "../components/TaskRow";
 import { cn } from "../lib/cn";
 import {
@@ -315,8 +315,8 @@ export function PlanningView() {
 				title={`Planning · ${format(colStart, "d MMM")} - ${format(rangeEnd, "d MMM")}`}
 			/>
 			<div className="flex min-h-0 flex-1 flex-col">
-				<div className="shrink-0 border-b border-border">
-					<GoalsPanel
+				<div className="workspace-page shrink-0 !pt-0 !pb-3">
+					<GoalsSummary
 						periodType={goalPeriodType}
 						periodStart={goalPeriodStart}
 						addSignal={goalAddSignal}
