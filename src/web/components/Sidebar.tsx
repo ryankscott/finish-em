@@ -47,7 +47,6 @@ function NavLink({
 	count,
 	alert,
 	active,
-	isDrawer,
 }: {
 	to: string;
 	icon: React.ReactNode;
@@ -61,15 +60,13 @@ function NavLink({
 	return (
 		<Link
 			to={to}
-			tabIndex={-1}
+			aria-current={active ? "page" : undefined}
 			className={cn(
-				"flex items-center gap-2 rounded-md px-3 text-sm",
+				"flex items-center gap-2.5 rounded-xl px-3 text-[13px]",
 				// The drawer is a touch surface with no hover state, so rows get
 				// a real tap target instead of the dense desktop row height.
-				isDrawer ? "min-h-11 py-2.5" : "py-1.5",
-				active
-					? "bg-surface-raised text-foreground"
-					: "text-muted hover:bg-surface",
+				"min-h-11 py-2.5",
+				active ? "bg-accent-soft text-accent" : "text-muted hover:bg-surface",
 			)}
 		>
 			{icon}
@@ -147,11 +144,9 @@ function ProjectNavLink({
 			onDrop={onDrop}
 			onDragEnd={onDragEnd}
 			className={cn(
-				"group flex items-center gap-1 rounded-md px-1 text-sm",
-				isDrawer ? "min-h-11 py-2" : "py-1.5",
-				active
-					? "bg-surface-raised text-foreground"
-					: "text-muted hover:bg-surface",
+				"group flex items-center gap-1 rounded-xl px-1 text-[13px]",
+				"min-h-11 py-2",
+				active ? "bg-accent-soft text-accent" : "text-muted hover:bg-surface",
 				dragging && "opacity-40",
 				dropTarget && "border-t-2 border-p4",
 			)}
@@ -167,7 +162,7 @@ function ProjectNavLink({
 			<Link
 				to="/projects/$projectId"
 				params={{ projectId: String(project.id) }}
-				tabIndex={-1}
+				aria-current={active ? "page" : undefined}
 				draggable={false}
 				className="flex min-w-0 flex-1 items-center gap-2"
 			>
@@ -362,24 +357,27 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 		<aside
 			style={isDrawer ? undefined : { width: ui.sidebarWidth }}
 			className={cn(
-				"flex flex-col gap-0.5 overflow-y-auto overscroll-contain p-2",
+				"flex flex-col gap-0.5 overflow-y-auto overscroll-contain px-3 py-5",
 				isDrawer
 					? "h-full w-full"
-					: "shrink-0 border-r border-border bg-surface/50",
+					: "desktop-sidebar shrink-0 border-r border-border bg-sidebar",
 			)}
 		>
-			{isDrawer ? null : (
-				<div className="mb-1 flex items-center justify-end px-1">
+			<div className="mb-5 flex items-center justify-between px-2">
+				<span className="text-lg font-semibold tracking-[-0.7px]">
+					finish-em<span className="text-accent">.</span>
+				</span>
+				{!isDrawer && (
 					<button
 						type="button"
 						aria-label="Collapse sidebar"
 						onClick={() => ui.toggleSidebarCollapsed()}
-						className="flex h-6 w-6 items-center justify-center rounded-md text-muted hover:bg-surface hover:text-foreground"
+						className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface"
 					>
 						<ChevronLeft className="h-4 w-4" />
 					</button>
-				</div>
-			)}
+				)}
+			</div>
 			<NavLink
 				to="/today"
 				icon={<Sun className={iconClass} />}
@@ -404,75 +402,87 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				isDrawer={isDrawer}
 			/>
 			<NavLink
-				to="/calendar"
-				icon={<CalendarClock className={iconClass} />}
-				label="Calendar"
-				active={pathname === "/calendar"}
-				isDrawer={isDrawer}
-			/>
-			<NavLink
-				to="/recurring"
-				icon={<RefreshCw className={iconClass} />}
-				label="Recurring"
-				count={recurringTasks.length}
-				active={pathname === "/recurring"}
-				isDrawer={isDrawer}
-			/>
-			<NavLink
-				to="/overdue"
-				icon={<Flag className={iconClass} />}
-				label="Overdue"
-				count={overdueCount}
-				active={pathname === "/overdue"}
-				isDrawer={isDrawer}
-			/>
-			<NavLink
-				to="/priority"
-				icon={<Star className={iconClass} />}
-				label="By Priority"
-				active={pathname === "/priority"}
-				isDrawer={isDrawer}
-			/>
-			<NavLink
 				to="/completed"
 				icon={<CheckCircle2 className={iconClass} />}
 				label="Completed"
 				active={pathname === "/completed"}
 				isDrawer={isDrawer}
 			/>
-			<NavLink
-				to="/logbook"
-				icon={<BookOpen className={iconClass} />}
-				label="Logbook"
-				active={pathname === "/logbook"}
-				isDrawer={isDrawer}
-			/>
-			<NavLink
-				to="/deleted"
-				icon={<Trash2 className={iconClass} />}
-				label="Deleted"
-				count={deletedTasks.length}
-				active={pathname === "/deleted"}
-				isDrawer={isDrawer}
-			/>
-			<NavLink
-				to="/reminders"
-				icon={<Bell className={iconClass} />}
-				label="Reminders"
-				count={dueReminders.length}
-				alert
-				active={pathname === "/reminders"}
-				isDrawer={isDrawer}
-			/>
-			<NavLink
-				to="/someday"
-				icon={<Moon className={iconClass} />}
-				label="Someday"
-				count={somedayTasks.length}
-				active={pathname === "/someday"}
-				isDrawer={isDrawer}
-			/>
-			<Separator className="my-2" />
+			<details
+				className="mt-1 text-muted"
+				open={
+					!["/", "/today", "/inbox", "/planning", "/completed"].includes(
+						pathname,
+					) && !pathname.startsWith("/projects")
+				}
+			>
+				<summary className="min-h-11 cursor-pointer rounded-xl px-3 py-3 text-xs hover:bg-surface">
+					More views
+				</summary>
+				<NavLink
+					to="/calendar"
+					icon={<CalendarClock className={iconClass} />}
+					label="Calendar"
+					active={pathname === "/calendar"}
+					isDrawer={isDrawer}
+				/>
+				<NavLink
+					to="/recurring"
+					icon={<RefreshCw className={iconClass} />}
+					label="Recurring"
+					count={recurringTasks.length}
+					active={pathname === "/recurring"}
+					isDrawer={isDrawer}
+				/>
+				<NavLink
+					to="/overdue"
+					icon={<Flag className={iconClass} />}
+					label="Overdue"
+					count={overdueCount}
+					active={pathname === "/overdue"}
+					isDrawer={isDrawer}
+				/>
+				<NavLink
+					to="/priority"
+					icon={<Star className={iconClass} />}
+					label="By Priority"
+					active={pathname === "/priority"}
+					isDrawer={isDrawer}
+				/>
+				<NavLink
+					to="/logbook"
+					icon={<BookOpen className={iconClass} />}
+					label="Logbook"
+					active={pathname === "/logbook"}
+					isDrawer={isDrawer}
+				/>
+				<NavLink
+					to="/deleted"
+					icon={<Trash2 className={iconClass} />}
+					label="Deleted"
+					count={deletedTasks.length}
+					active={pathname === "/deleted"}
+					isDrawer={isDrawer}
+				/>
+				<NavLink
+					to="/reminders"
+					icon={<Bell className={iconClass} />}
+					label="Reminders"
+					count={dueReminders.length}
+					alert
+					active={pathname === "/reminders"}
+					isDrawer={isDrawer}
+				/>
+				<NavLink
+					to="/someday"
+					icon={<Moon className={iconClass} />}
+					label="Someday"
+					count={somedayTasks.length}
+					active={pathname === "/someday"}
+					isDrawer={isDrawer}
+				/>
+			</details>
+			<Separator className="my-4 opacity-50" />
 			<div className="mb-1 flex items-center px-3 text-[11px] font-semibold tracking-wide text-muted uppercase">
 				<span>Projects</span>
 				<button

@@ -1,6 +1,6 @@
-import { format, isSameDay, parseISO } from "date-fns";
+import { addDays, addWeeks, format, isSameDay, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useId, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,255 +11,207 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { parseDatePhrase } from "@/lib/parsing/parse-task-input";
 import { cn } from "@/web/lib/cn";
+import { parseDateInput } from "../lib/date-field";
 import { useIsMobile } from "../lib/use-is-mobile";
 
-type Preset = {
-	label: string;
-	value: string;
-};
-
-const PRESETS: Preset[] = [
-	{ label: "Today", value: "today" },
-	{ label: "Tomorrow", value: "tomorrow" },
-	{ label: "Next week", value: "next week" },
-	{ label: "Monday", value: "monday" },
-	{ label: "None", value: "none" },
-];
-
-const chipClass =
-	"rounded-full border border-border px-2.5 py-0.5 text-[11px] leading-tight text-muted transition-colors hover:border-accent/50 hover:text-foreground cursor-pointer select-none";
-
-const activeChipClass =
-	"rounded-full border border-accent/60 bg-accent/10 px-2.5 py-0.5 text-[11px] leading-tight text-accent cursor-pointer select-none";
-
-// Mobile presets are tap targets, not inline chips: 44px minimum, not the
-// desktop pill sized for a mouse pointer.
-const mobileChipClass =
-	"min-h-11 flex-1 rounded-md border border-border px-2 text-sm text-muted";
-
-const mobileActiveChipClass =
-	"min-h-11 flex-1 rounded-md border border-accent/60 bg-accent/10 px-2 text-sm text-accent";
-
 interface DateFieldProps {
+	compact?: boolean;
 	value: string;
 	onChange: (value: string) => void;
-	/**
-	 * Only ever emit `yyyy-MM-dd` (or "" when cleared). Typed phrases are kept
-	 * locally and resolved on blur/Enter, so consumers that parse the value
-	 * immediately never see "tomorrow" or a half-typed date.
-	 */
 	dateOnly?: boolean;
-	/** Hide the "None" preset for fields that must hold a date. */
 	allowNone?: boolean;
 	"aria-label"?: string;
 }
 
-/** Resolve a typed date phrase to `yyyy-MM-dd`, "" for none, or undefined if unparseable. */
 export function resolveDateOnly(raw: string): string | undefined {
 	const text = raw.trim();
 	if (!text) return "";
-	const parsed = parseDatePhrase(text);
+	const parsed = parseDateInput(text);
 	if (parsed === null) return "";
 	if (parsed === undefined) return undefined;
 	return format(parseISO(parsed), "yyyy-MM-dd");
 }
 
+/** Keep date phrases and existing time components intact until the user saves. */
 export function DateField({
+	compact = false,
 	value,
 	onChange,
 	dateOnly = false,
 	allowNone = true,
-	"aria-label": ariaLabel,
+	"aria-label": ariaLabel = "Date",
 }: DateFieldProps) {
 	const isMobile = useIsMobile();
+	const inputId = useId();
 	const [open, setOpen] = useState(false);
 	const [draft, setDraft] = useState(value);
-	useEffect(() => setDraft(value), [value]);
-	const text = dateOnly ? draft : value;
-	const trimmed = text.trim().toLowerCase();
-	const presets_ = allowNone
-		? PRESETS
-		: PRESETS.filter((p) => p.value !== "none");
-
-	const commitDraft = () => {
-		const resolved = resolveDateOnly(draft);
-		if (resolved === undefined || (resolved === "" && !allowNone)) {
+	const [error, setError] = useState("");
+	const parse = (text: string) => {
+		const resolved = parseDateInput(text.trim());
+		return resolved ? parseISO(resolved) : undefined;
+	};
+	const selected = parse(draft);
+	const current = parse(value);
+	const label = current
+		? isSameDay(current, new Date())
+			? "Today"
+			: format(current, "d MMM yyyy")
+		: "No date";
+	const changeOpen = (next: boolean) => {
+		if (next) {
 			setDraft(value);
+			setError("");
+		}
+		setOpen(next);
+	};
+	const save = () => {
+		const resolved = resolveDateOnly(draft);
+		if (resolved === undefined || (!resolved && !allowNone)) {
+			setError("Choose a date or enter something like tomorrow.");
 			return;
 		}
-		setDraft(resolved);
-		if (resolved !== value) onChange(resolved);
-	};
-
-	// Resolve a preset value to an ISO date string (or null for "none")
-	const resolvePreset = (presetValue: string): string | null => {
-		const parsed = parseDatePhrase(presetValue);
-		if (parsed === null) return null;
-		if (parsed === undefined) return presetValue;
-		return format(parseISO(parsed), "yyyy-MM-dd");
-	};
-
-	const isPresetActive = (presetValue: string) => {
-		const resolved = resolvePreset(presetValue);
-		if (resolved === null) return trimmed === "none" || trimmed === "";
-		const currentDate = (() => {
-			const isoMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2})$/);
-			if (isoMatch) {
-				const d = new Date(`${isoMatch[1]}T00:00:00`);
-				if (!Number.isNaN(d.getTime())) return d;
-			}
-			const parsed = parseDatePhrase(trimmed);
-			if (parsed && parsed !== undefined) {
-				return parseISO(parsed);
-			}
-			return null;
-		})();
-		if (!currentDate) return false;
-		return isSameDay(currentDate, parseISO(`${resolved}T00:00:00`));
-	};
-
-	// Try to parse the current value as a Date for the calendar selection
-	const selectedDate = (() => {
-		const isoMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2})$/);
-		if (isoMatch) {
-			const d = new Date(`${isoMatch[1]}T00:00:00`);
-			if (!Number.isNaN(d.getTime())) return d;
-		}
-		const parsed = parseDatePhrase(trimmed);
-		if (parsed && parsed !== undefined) {
-			return parseISO(parsed);
-		}
-		return undefined;
-	})();
-
-	const handleCalendarSelect = (date: Date | undefined) => {
-		if (date) {
-			onChange(format(date, "yyyy-MM-dd"));
-		} else if (allowNone) {
-			onChange(dateOnly ? "" : "none");
-		}
+		onChange(dateOnly || !resolved ? resolved : draft.trim());
 		setOpen(false);
 	};
-
-	const handlePresetClick = (presetValue: string) => {
-		const resolved = resolvePreset(presetValue);
-		onChange(resolved ?? "");
-	};
-
-	const presets = (
-		<div
-			className={cn("flex gap-1.5", isMobile ? "" : "flex-wrap items-center")}
+	const trigger = (
+		<button
+			type="button"
+			onClick={isMobile ? () => changeOpen(true) : undefined}
+			aria-label={`${ariaLabel}: ${label}`}
+			aria-haspopup="dialog"
+			aria-expanded={open}
+			className={cn(
+				"flex min-h-11 w-full items-center gap-2 rounded-lg px-1 text-left text-sm hover:bg-accent-soft",
+				current ? "text-accent" : "text-muted",
+				compact &&
+					"relative min-h-7 px-0 text-[11px] before:absolute before:inset-x-0 before:-inset-y-2",
+			)}
 		>
-			{presets_.map((preset) => (
-				<button
-					key={preset.value}
-					type="button"
-					onClick={() => handlePresetClick(preset.value)}
-					className={
-						isMobile
-							? isPresetActive(preset.value)
-								? mobileActiveChipClass
-								: mobileChipClass
-							: isPresetActive(preset.value)
-								? activeChipClass
-								: chipClass
+			{compact && <CalendarIcon className="size-3.5 shrink-0" />}
+			<span className="min-w-0 truncate">{label}</span>
+		</button>
+	);
+	const picker = (
+		// biome-ignore lint/a11y/noStaticElementInteractions: keep calendar navigation keys inside the picker instead of the task-list hotkey scope.
+		<div
+			onKeyDown={(e) => {
+				if (e.key !== "Escape") e.stopPropagation();
+			}}
+			className="flex w-full min-w-0 flex-col gap-3 p-4"
+		>
+			<div className="grid grid-cols-3 gap-2">
+				{[
+					{ label: "Today", date: new Date() },
+					{ label: "Tomorrow", date: addDays(new Date(), 1) },
+					{ label: "Next week", date: addWeeks(new Date(), 1) },
+				].map((preset) => (
+					<button
+						key={preset.label}
+						type="button"
+						onClick={() => {
+							setDraft(format(preset.date, "yyyy-MM-dd"));
+							setError("");
+						}}
+						aria-pressed={!!selected && isSameDay(selected, preset.date)}
+						className="min-h-11 rounded-xl border border-border bg-background px-1 text-xs aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent"
+					>
+						{preset.label}
+					</button>
+				))}
+			</div>
+			<Calendar
+				mode="single"
+				selected={selected}
+				defaultMonth={selected}
+				onSelect={(date) => {
+					if (date) {
+						setDraft(format(date, "yyyy-MM-dd"));
+						setError("");
 					}
-				>
-					{preset.label}
-				</button>
-			))}
+				}}
+			/>
+			<label htmlFor={inputId} className="text-xs text-muted">
+				Or type a date{!dateOnly && " and time"}
+			</label>
+			<Input
+				id={inputId}
+				value={draft}
+				onChange={(e) => setDraft(e.target.value)}
+				onKeyDown={(e) => {
+					if (e.key === "Enter") {
+						e.preventDefault();
+						e.stopPropagation();
+						save();
+					}
+				}}
+				placeholder={
+					dateOnly ? "Tomorrow or 2026-10-26" : "Tomorrow or 2026-10-26 14:00"
+				}
+				className="h-11 text-base"
+			/>
+			{error && (
+				<p role="alert" className="text-xs text-p1">
+					{error}
+				</p>
+			)}
+			<div className="flex items-center justify-between gap-3">
+				{allowNone ? (
+					<button
+						type="button"
+						onClick={() => {
+							setDraft("");
+							setError("");
+						}}
+						className="min-h-11 px-1 text-xs text-muted"
+					>
+						Remove date
+					</button>
+				) : (
+					<span />
+				)}
+				<Button type="button" onClick={save}>
+					Save date
+				</Button>
+			</div>
 		</div>
 	);
-
-	return (
-		<div className="flex flex-col gap-2">
-			<div className="relative">
-				<Input
-					value={text}
-					aria-label={ariaLabel}
-					onChange={(e) =>
-						dateOnly ? setDraft(e.target.value) : onChange(e.target.value)
-					}
-					onBlur={dateOnly ? commitDraft : undefined}
-					onKeyDown={
-						dateOnly
-							? (e) => {
-									if (e.key === "Enter") {
-										e.preventDefault();
-										commitDraft();
-									}
-								}
-							: undefined
-					}
-					className={isMobile ? "h-11 text-base" : undefined}
-				/>
-				{isMobile ? (
-					<>
+	return isMobile ? (
+		<>
+			<div>{trigger}</div>
+			<Sheet open={open} onOpenChange={changeOpen}>
+				<SheetContent
+					onEscapeKeyDown={(e) => e.stopPropagation()}
+					side="bottom"
+					showClose={false}
+					className="max-h-[90dvh] overflow-y-auto rounded-t-3xl bg-surface-raised p-0 pb-safe"
+					aria-describedby={undefined}
+				>
+					<div className="flex items-center justify-between px-4 pt-4">
+						<SheetTitle>{ariaLabel}</SheetTitle>
 						<button
 							type="button"
-							aria-label="Pick a date"
-							onClick={() => setOpen(true)}
-							className="absolute top-1/2 right-1 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-muted hover:text-accent"
+							onClick={() => changeOpen(false)}
+							className="min-h-11 px-2 text-sm text-muted"
 						>
-							<CalendarIcon className="h-4 w-4" />
+							Cancel
 						</button>
-						<Sheet open={open} onOpenChange={setOpen}>
-							<SheetContent
-								side="bottom"
-								showClose={false}
-								className="flex max-h-none flex-col rounded-t-xl p-0"
-								aria-describedby={undefined}
-							>
-								<div className="flex items-center justify-between px-4 pt-4 pb-1">
-									<SheetTitle>Pick a date</SheetTitle>
-									<button
-										type="button"
-										onClick={() => setOpen(false)}
-										className="min-h-9 px-2 text-sm text-muted"
-									>
-										Cancel
-									</button>
-								</div>
-								<div className="flex justify-center px-2 pb-2">
-									<Calendar
-										mode="single"
-										selected={selectedDate}
-										onSelect={handleCalendarSelect}
-									/>
-								</div>
-								<div className="flex gap-1.5 px-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
-									{presets}
-								</div>
-							</SheetContent>
-						</Sheet>
-					</>
-				) : (
-					<Popover open={open} onOpenChange={setOpen}>
-						<PopoverTrigger asChild>
-							<Button
-								variant="ghost"
-								size="icon"
-								className={cn(
-									"absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted hover:text-accent",
-								)}
-								title="Pick a date"
-							>
-								<CalendarIcon className="h-4 w-4" />
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className="w-auto p-0" align="end">
-							<Calendar
-								mode="single"
-								selected={selectedDate}
-								onSelect={handleCalendarSelect}
-							/>
-						</PopoverContent>
-					</Popover>
-				)}
-			</div>
-			{isMobile ? null : presets}
-		</div>
+					</div>
+					{picker}
+				</SheetContent>
+			</Sheet>
+		</>
+	) : (
+		<Popover open={open} onOpenChange={changeOpen}>
+			<PopoverTrigger asChild>{trigger}</PopoverTrigger>
+			<PopoverContent
+				onEscapeKeyDown={(e) => e.stopPropagation()}
+				align="end"
+				className="w-[min(350px,calc(100vw-2rem))] rounded-2xl bg-surface-raised p-0"
+				aria-label={ariaLabel}
+			>
+				{picker}
+			</PopoverContent>
+		</Popover>
 	);
 }

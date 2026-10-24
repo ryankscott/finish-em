@@ -31,7 +31,7 @@ declare global {
 
 const MIN_SIDEBAR_WIDTH = 160;
 const MAX_SIDEBAR_WIDTH = 480;
-const DEFAULT_SIDEBAR_WIDTH = 240;
+const DEFAULT_SIDEBAR_WIDTH = 204;
 
 const MIN_DAILY_TARGET = 1;
 const MAX_DAILY_TARGET = 100;
@@ -178,7 +178,7 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		// zinc-950 after a switch to the light theme.
 		document
 			.querySelector('meta[name="theme-color"]')
-			?.setAttribute("content", theme === "dark" ? "#09090b" : "#ffffff");
+			?.setAttribute("content", theme === "dark" ? "#191e25" : "#f8f6f3");
 		// The native desktop shell draws its own titlebar, which stays on the OS
 		// appearance unless we tell it which way the web UI went.
 		window.webkit?.messageHandlers?.appearance?.postMessage(theme);

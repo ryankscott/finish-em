@@ -1,22 +1,13 @@
-import { format, parseISO } from "date-fns";
-import { Check, Play, Square } from "lucide-react";
+import { Check, Pause, Play, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { toDisplayString } from "@/lib/task-links";
 import type { Task } from "@/server/types";
-import { cn } from "../lib/cn";
 import { formatMinutes, taskEstimate } from "../lib/day-plan";
-import { useTaskMutations } from "../lib/queries";
+import { useProjects, useTaskMutations } from "../lib/queries";
 import { useElapsed } from "../lib/use-elapsed";
 
-/**
- * The one thing being worked on, and the single button that starts it.
- *
- * Deliberately the loudest element on the Today screen: the gap between opening
- * the app and doing something is the whole problem this solves, so starting must
- * cost one click and require no decision.
- */
 export function NowBar({
 	focused,
 	next,
@@ -25,102 +16,71 @@ export function NowBar({
 	next: Task | null;
 }) {
 	const { startTask, stopTask, completeTask } = useTaskMutations();
+	const { data: projects = [] } = useProjects();
 	const elapsed = useElapsed(focused?.startedAt ?? null);
-
-	// useElapsed re-renders this component every second, so reading the clock
-	// here stays in step with the label without a second interval.
-	const estimate = focused ? taskEstimate(focused) : 0;
-	const elapsedMinutes = focused?.startedAt
-		? Math.max(0, (Date.now() - Date.parse(focused.startedAt)) / 60_000)
-		: 0;
-	const overEstimate = estimate > 0 && elapsedMinutes > estimate;
-	const progress =
-		estimate > 0 ? Math.min(100, (elapsedMinutes / estimate) * 100) : 0;
-
-	if (focused) {
-		return (
-			<div className="mx-4 mt-3 flex items-center gap-3 rounded-lg border border-accent bg-surface-raised px-4 py-3">
-				<div className="min-w-0 flex-1">
-					<div className="text-[10px] font-semibold uppercase tracking-wide text-accent">
-						Now
-					</div>
-					<div className="truncate text-base font-medium">
-						{toDisplayString(focused.title)}
-					</div>
-					{focused.startedAt ? (
-						<>
-							<div
-								className={cn(
-									"text-xs",
-									overEstimate ? "text-amber-500" : "text-muted",
-								)}
-							>
-								started {format(parseISO(focused.startedAt), "HH:mm")} ·{" "}
-								{overEstimate
-									? `${elapsed} over ${formatMinutes(estimate)}`
-									: `${elapsed} of ${formatMinutes(estimate)}`}
-							</div>
-							{/* Running long is normal, so this is an amber note rather than
-							    an alarm: no modal, no toast, nothing to dismiss. */}
-							<div className="mt-1 h-0.5 w-full overflow-hidden rounded-full bg-border">
-								<span
-									className={cn(
-										"block h-full",
-										overEstimate ? "bg-amber-500" : "bg-accent",
-									)}
-									style={{ width: `${progress}%` }}
-								/>
-							</div>
-						</>
-					) : null}
-				</div>
-				<Button
-					size="sm"
-					onClick={() =>
-						completeTask.mutate(focused, {
-							onSuccess: () => toast.success("Task completed"),
-							onError: (err) => toast.error(err.message),
-						})
-					}
-				>
-					<Check className="size-4" /> Done
-				</Button>
-				<Button
-					size="sm"
-					variant="outline"
-					onClick={() => stopTask.mutate(focused.id)}
-					aria-label="Stop"
-				>
-					<Square className="size-4" />
-				</Button>
-			</div>
-		);
-	}
-
-	if (!next) return null;
-
+	const task = focused ?? next;
+	if (!task) return null;
+	const project = projects.find((p) => p.id === task.projectId);
+	const onError = (err: Error) => toast.error(err.message);
 	return (
-		<div className="mx-4 mt-3 rounded-lg border border-border bg-surface-raised px-4 py-3">
-			<div className="text-[10px] font-semibold uppercase tracking-wide text-muted">
-				Next up
+		<section
+			aria-label={focused ? "In focus" : "Next up"}
+			className="mt-7 mb-5 rounded-[18px] bg-accent-soft px-[23px] py-[21px]"
+		>
+			<div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[1.4px] text-accent">
+				<Sparkles className="size-3.5" />
+				{focused ? "In focus" : "Next up"}
 			</div>
-			<button
-				type="button"
-				className="mt-1 flex w-full items-center gap-3 text-left"
-				onClick={() => startTask.mutate(next.id)}
-			>
-				<span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent text-background">
-					<Play className="size-4" />
+			<h2 className="mt-3 mb-2 text-[19px] leading-snug font-medium tracking-[-0.5px]">
+				{toDisplayString(task.title)}
+			</h2>
+			<p className="text-xs text-muted">
+				{project?.name ?? ""}
+				{project ? " · " : ""}
+				{formatMinutes(taskEstimate(task))}
+			</p>
+			<div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+				<span className="text-xs text-muted">
+					{focused ? `${elapsed} elapsed` : "One thing at a time."}
 				</span>
-				<span className="min-w-0 flex-1">
-					<span className="block truncate text-base font-medium">
-						{toDisplayString(next.title)}
-					</span>
-					<span className="block text-xs text-muted">
-						Start this · {formatMinutes(taskEstimate(next))}
-					</span>
-				</span>
-			</button>
-		</div>
+				<div className="flex gap-2">
+					{focused ? (
+						<>
+							<Button
+								size="sm"
+								variant="ghost"
+								aria-label="Pause focus"
+								disabled={stopTask.isPending}
+								onClick={() => stopTask.mutate(task.id, { onError })}
+							>
+								<Pause className="size-4" />
+							</Button>
+							<Button
+								size="sm"
+								disabled={completeTask.isPending}
+								onClick={() =>
+									completeTask.mutate(task, {
+										onSuccess: () => toast.success("Task completed"),
+										onError,
+									})
+								}
+							>
+								<Check className="size-4" />
+								Done
+							</Button>
+						</>
+					) : (
+						<Button
+							size="sm"
+							disabled={startTask.isPending}
+							onClick={() => startTask.mutate(task.id, { onError })}
+						>
+							<Play className="size-4" />
+							Start focus
+						</Button>
+					)}
+				</div>
+			</div>
+		</section>
 	);
 }

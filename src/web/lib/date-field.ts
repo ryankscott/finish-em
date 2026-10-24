@@ -1,27 +1,34 @@
-import { format, parseISO } from "date-fns";
+import { format, isValid, parseISO } from "date-fns";
 
 import { parseDatePhrase } from "@/lib/parsing/parse-task-input";
 
-/** Render an ISO datetime for a free-text date field, or empty when unset. */
 export function formatDateField(iso: string | null): string {
 	return iso ? format(parseISO(iso), "yyyy-MM-dd HH:mm") : "";
 }
 
-/**
- * Resolve a free-text date field back to an ISO string (or null when blank).
- * Accepts the TUI date phrases (today, tomorrow, monday, next week,
- * 2026-07-01, none). Returns 'invalid' when the phrase can't be parsed.
- * Keeps the original value when the text matches the loaded datetime so an
- * unchanged field never loses its time component.
- */
+/** Date phrases use the existing 9am convention; explicit times stay local. */
+export function parseDateInput(raw: string): string | null | undefined {
+	const text = raw.trim();
+	if (!text) return null;
+	if (
+		/^\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?$/.test(
+			text,
+		)
+	) {
+		const date = parseISO(text);
+		return isValid(date) ? date.toISOString() : undefined;
+	}
+	return parseDatePhrase(text);
+}
+
+/** Preserve seconds and timezone offsets on unchanged fields. */
 export function resolveDateField(
 	raw: string,
 	original: string | null,
 ): string | null | "invalid" {
 	const text = raw.trim();
-	if (!text) return null;
-	if (original && text === format(parseISO(original), "yyyy-MM-dd HH:mm")) {
+	if (original && text === format(parseISO(original), "yyyy-MM-dd HH:mm"))
 		return original;
-	}
-	return parseDatePhrase(text) ?? "invalid";
+	const parsed = parseDateInput(text);
+	return parsed === undefined ? "invalid" : parsed;
 }

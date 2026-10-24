@@ -62,6 +62,11 @@ export function TaskListView({
 	} = useTaskMutations();
 	const ui = useUi();
 	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [keyboardActive, setKeyboardActive] = useState(false);
+	const moveSelection = (next: number | ((i: number) => number)) => {
+		setKeyboardActive(true);
+		setSelectedIndex(next);
+	};
 	const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
 	const [pickerLinks, setPickerLinks] = useState<LinkChoice[] | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -131,12 +136,12 @@ export function TaskListView({
 	};
 
 	useHotkeyScope({
-		j: () => setSelectedIndex((i) => Math.min(i + 1, rows.length - 1)),
-		arrowdown: () => setSelectedIndex((i) => Math.min(i + 1, rows.length - 1)),
-		k: () => setSelectedIndex((i) => Math.max(i - 1, 0)),
-		arrowup: () => setSelectedIndex((i) => Math.max(i - 1, 0)),
-		g: () => setSelectedIndex(0),
-		"shift+g": () => setSelectedIndex(rows.length - 1),
+		j: () => moveSelection((i) => Math.min(i + 1, rows.length - 1)),
+		arrowdown: () => moveSelection((i) => Math.min(i + 1, rows.length - 1)),
+		k: () => moveSelection((i) => Math.max(i - 1, 0)),
+		arrowup: () => moveSelection((i) => Math.max(i - 1, 0)),
+		g: () => moveSelection(0),
+		"shift+g": () => moveSelection(rows.length - 1),
 		space: () => {
 			if (!selected?.hasSubtasks) return;
 			toggleExpanded(selected.task.id);
@@ -234,13 +239,20 @@ export function TaskListView({
 
 	if (rows.length === 0) {
 		return (
-			<div className="px-4 py-8 text-center text-muted">{emptyMessage}</div>
+			<div className="px-4 py-8 text-center text-sm text-muted">
+				{emptyMessage}
+			</div>
 		);
 	}
 
 	return (
 		<>
-			<div ref={containerRef} className="flex flex-col gap-0.5 px-2 py-2">
+			<div
+				ref={containerRef}
+				data-keyboard-active={keyboardActive || undefined}
+				onPointerDown={() => setKeyboardActive(false)}
+				className="task-list mx-auto flex w-full max-w-[800px] flex-col"
+			>
 				{rows.map((row, index) => {
 					const heading =
 						row.depth === 0 ? sectionLabels?.get(row.task.id) : undefined;
@@ -253,7 +265,7 @@ export function TaskListView({
 					return (
 						<Fragment key={row.task.id}>
 							{heading ? (
-								<span className="px-2 pt-3 pb-1 text-[11px] font-medium uppercase tracking-wide text-muted/70 first:pt-0">
+								<span className="mt-4 py-3 text-xs font-medium text-muted first:mt-0">
 									{heading}
 								</span>
 							) : null}

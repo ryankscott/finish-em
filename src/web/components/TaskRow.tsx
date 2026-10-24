@@ -2,14 +2,10 @@ import { format, parseISO } from "date-fns";
 import {
 	Bell,
 	BellRing,
-	Calendar,
 	Check,
-	CheckCircle2,
 	ChevronDown,
 	ChevronRight,
-	Circle,
 	Clock,
-	Hourglass,
 	Repeat,
 	RotateCcw,
 	Trash2,
@@ -26,6 +22,8 @@ import { useAllReminders, useTaskMutations } from "../lib/queries";
 import { reminderTime } from "../lib/reminders";
 import { useUndo } from "../lib/undo";
 import { useIsMobile } from "../lib/use-is-mobile";
+import { useUi } from "../state/ui";
+import { DateField } from "./DateField";
 import { InlineText } from "./InlineText";
 import { PriorityFlag } from "./PriorityFlag";
 
@@ -84,7 +82,11 @@ function useSwipeActions(task: Task, enabled: boolean) {
 	}
 
 	function handlePointerDown(e: React.PointerEvent) {
-		if (e.pointerType === "mouse") return;
+		if (
+			e.pointerType === "mouse" ||
+			(e.target as HTMLElement).closest("button, a, input")
+		)
+			return;
 		gestureRef.current = { x: e.clientX, y: e.clientY, locked: false };
 	}
 
@@ -176,205 +178,214 @@ export function TaskRow({
 }) {
 	const completed = task.status === "completed";
 	const { data: reminders = [] } = useAllReminders();
+	const { completeTask, updateTask } = useTaskMutations();
+	const { undoLast } = useUndo();
+	const ui = useUi();
 	const reminder = reminders.find((r) => r.taskId === task.id);
 	const isMobile = useIsMobile();
-	// Swiping to delete an already-deleted row (the Deleted view) doesn't mean
-	// anything, so the gesture is only wired up everywhere else.
 	const swipeEnabled = isMobile && !task.deletedAt;
 	const { dragX, dragging, consumeSwipe, handlers } = useSwipeActions(
 		task,
 		swipeEnabled,
 	);
-	const tappable = isMobile && Boolean(onOpen);
-	// The chevron gutter exists to align expand/collapse controls across a
-	// mixed tree of parent and leaf tasks. On mobile that alignment isn't
-	// worth the width it eats on an already-narrow row, so leaf tasks (the
-	// overwhelming majority) skip the gutter entirely instead of just hiding
-	// its icon.
-	const showChevronGutter = hasSubtasks || !isMobile;
+	const editing = ui.editingTask?.id === task.id;
 	const row = (
-		/*
-		 * biome-ignore lint/a11y/noStaticElementInteractions: the row can't become
-		 * a button -- it contains its own interactive children (task links and the
-		 * subtask disclosure), which nesting inside a button would break.
-		 * biome-ignore lint/a11y/useKeyWithClickEvents: this handler exists only to
-		 * give touch an equivalent of the `e` / enter hotkeys, which the global
-		 * hotkey scope already provides for keyboard users; it's attached solely on
-		 * mobile, where there is no key to press.
-		 */
+		// biome-ignore lint/a11y/noStaticElementInteractions: the row has native completion and edit buttons; clicking its non-interactive space also edits it.
+		// biome-ignore lint/a11y/useKeyWithClickEvents: native child buttons and the list keyboard scope provide keyboard equivalents.
 		<div
 			data-selected={selected || undefined}
 			className={cn(
-				// Taller rows below md so a row is a comfortable tap target; the
-				// desktop density is unchanged.
-				// px-2 here plus the list container's px-2 puts row content on the
-				// same 16px gutter as the page header and search bar.
-				"flex min-h-[44px] items-start gap-2 rounded-md px-2 py-2.5 md:min-h-0 md:py-1.5",
-				selected
-					? "bg-surface-raised ring-1 ring-accent/60"
-					: "hover:bg-surface",
-				// An unselected row is otherwise transparent, which is fine at
-				// rest but means the swipe color underneath would bleed through
-				// the whole row instead of just the sliver the drag actually
-				// exposes. Give it an opaque backing for the duration of the drag.
-				swipeEnabled && !selected && "bg-background",
-				swipeEnabled && "touch-pan-y",
+				"group flex min-h-[76px] items-start gap-1 border-b border-border py-3.5 pr-1",
+				editing && "rounded-lg bg-accent-soft",
+				swipeEnabled && "bg-background touch-pan-y",
 			)}
 			style={{
-				paddingLeft: isMobile ? `${8 + depth * 16}px` : `${12 + depth * 22}px`,
+				paddingLeft: `${depth * 16}px`,
 				transform: swipeEnabled ? `translateX(${dragX}px)` : undefined,
 				transition:
 					swipeEnabled && !dragging
 						? "transform 200ms cubic-bezier(0.16, 1, 0.3, 1)"
 						: undefined,
 			}}
-			onClick={
-				tappable
-					? () => {
-							// Swallow the click that trails a committed swipe.
-							if (consumeSwipe()) return;
-							onOpen?.();
-						}
-					: undefined
-			}
+			onClick={(e) => {
+				if (
+					(e.target as HTMLElement).closest("button, a, input, [role=dialog]")
+				)
+					return;
+				if (!consumeSwipe()) onOpen?.();
+			}}
 			{...handlers}
 		>
-			{showChevronGutter ? (
-				hasSubtasks && onToggleExpand ? (
-					<button
-						type="button"
-						aria-label={expanded ? "Collapse subtasks" : "Expand subtasks"}
-						aria-expanded={expanded}
-						onClick={(e) => {
-							// Without this the row's tap-to-edit would fire too and the
-							// chevron could never collapse anything.
-							e.stopPropagation();
-							onToggleExpand();
-						}}
-						className={cn(
-							"-my-2.5 -ml-1 flex shrink-0 items-center justify-center text-muted",
-							// A 14px chevron is not a touch target; pad it out on mobile
-							// without changing the desktop row height.
-							isMobile ? "min-h-11 w-7" : "mt-[3px] w-4 self-start",
-						)}
-					>
-						{expanded ? (
-							<ChevronDown className="h-3.5 w-3.5" />
-						) : (
-							<ChevronRight className="h-3.5 w-3.5" />
-						)}
-					</button>
-				) : (
-					<span className="mt-[3px] w-4 shrink-0 text-muted" />
-				)
-			) : null}
-			{completed ? (
-				<CheckCircle2 className="mt-[3px] h-4 w-4 shrink-0 text-p3" />
-			) : (
-				<Circle className="mt-[3px] h-4 w-4 shrink-0 text-muted" />
+			{hasSubtasks && (
+				<button
+					type="button"
+					aria-label={expanded ? "Collapse subtasks" : "Expand subtasks"}
+					aria-expanded={expanded}
+					onClick={(e) => {
+						e.stopPropagation();
+						onToggleExpand?.();
+					}}
+					className="flex h-11 w-6 shrink-0 items-center justify-center text-muted"
+				>
+					{expanded ? (
+						<ChevronDown className="size-3.5" />
+					) : (
+						<ChevronRight className="size-3.5" />
+					)}
+				</button>
 			)}
-			<div className="flex min-w-0 flex-1 flex-col">
-				<div className="flex items-center gap-2">
+			<button
+				type="button"
+				aria-label={`${completed ? "Reopen" : "Complete"} ${task.title}`}
+				aria-pressed={completed}
+				disabled={!!task.deletedAt || completeTask.isPending}
+				onClick={(e) => {
+					e.stopPropagation();
+					completeTask.mutate(task, {
+						onSuccess: () =>
+							toast.success(completed ? "Task reopened" : "Task completed", {
+								action: { label: "Undo", onClick: () => void undoLast() },
+							}),
+						onError: (err) => toast.error(err.message),
+					});
+				}}
+				className="-mt-1 flex size-11 shrink-0 items-center justify-center rounded-xl disabled:opacity-40"
+			>
+				<span
+					className={cn(
+						"flex size-[21px] items-center justify-center rounded-[7px] border-[1.5px]",
+						completed
+							? "border-accent bg-accent text-accent-foreground"
+							: "border-muted/70",
+					)}
+				>
+					{completed && <Check className="size-3.5" />}
+				</span>
+			</button>
+			<div className="min-w-0 flex-1">
+				<div className="flex items-start gap-2">
 					<span
-						className={cn("truncate", completed && "text-muted line-through")}
+						className={cn(
+							"min-w-0 flex-1 break-words text-sm leading-relaxed",
+							completed && "text-muted line-through",
+						)}
 					>
 						<InlineText text={task.title} />
 					</span>
-					<span className="ml-auto flex shrink-0 items-center gap-2 text-xs text-muted">
-						{task.recurrencePreset || task.recurrenceRRule ? (
-							<Repeat className="h-3.5 w-3.5" />
-						) : null}
-						{task.plannedStartAt ? (
-							<span className="flex items-center gap-1 text-accent">
-								{format(parseISO(task.plannedStartAt), "HH:mm")}
-							</span>
-						) : null}
-						{/* Dimmed when unestimated, so a guess never reads as a decision. */}
+					<button
+						type="button"
+						aria-label={`Edit ${task.title}`}
+						onClick={(e) => {
+							e.stopPropagation();
+							onOpen?.();
+						}}
+						className="sr-only text-muted focus:not-sr-only focus:flex focus:size-8 focus:items-center focus:justify-center"
+					>
+						<ChevronRight className="size-4" />
+					</button>
+				</div>
+				<div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted">
+					{showProject && project && (
+						<span>
+							{project.emoji ? `${project.emoji} ` : ""}
+							{project.name}
+						</span>
+					)}
+					<span
+						className={cn(
+							"flex items-center gap-1",
+							task.estimateMinutes === null && "opacity-60",
+						)}
+					>
+						{formatMinutes(taskEstimate(task))}
+					</span>
+					{task.scheduledAt && (
+						<span>
+							<DateField
+								compact
+								value={format(parseISO(task.scheduledAt), "yyyy-MM-dd")}
+								aria-label="Scheduled date"
+								onChange={(value) =>
+									updateTask.mutate(
+										{
+											taskId: task.id,
+											before: task,
+											input: {
+												scheduledAt: value
+													? new Date(`${value}T00:00:00`).toISOString()
+													: null,
+											},
+										},
+										{ onError: (err) => toast.error(err.message) },
+									)
+								}
+								dateOnly
+							/>
+						</span>
+					)}
+					{task.plannedStartAt && (
+						<span className="text-accent">
+							{format(parseISO(task.plannedStartAt), "HH:mm")}
+						</span>
+					)}
+					{task.dueAt && (
 						<span
 							className={cn(
 								"flex items-center gap-1",
-								task.estimateMinutes === null && "text-muted/50",
+								!completed && isOverdueDueDate(task.dueAt) && "text-p1",
 							)}
 						>
-							<Hourglass className="h-3 w-3" />
-							{formatMinutes(taskEstimate(task))}
+							<Clock className="size-3" />
+							Due {format(parseISO(task.dueAt), "d MMM")}
 						</span>
-						{task.scheduledAt ? (
-							<span className="flex items-center gap-1">
-								<Calendar className="h-3 w-3" />
-								{format(parseISO(task.scheduledAt), "MMM d")}
-							</span>
-						) : null}
-						{reminder && !completed ? (
-							<span
-								title={
-									reminder.status === "fired" ? "Missed reminder" : "Reminder"
-								}
-								className={cn(
-									"flex items-center gap-1",
-									reminder.status === "fired" && "font-semibold text-p1",
-								)}
-							>
-								{reminder.status === "fired" ? (
-									<BellRing className="h-3 w-3" />
-								) : (
-									<Bell className="h-3 w-3" />
-								)}
-								{format(reminderTime(reminder), "MMM d, h:mm a")}
-							</span>
-						) : null}
-						{task.dueAt ? (
-							<span
-								className={cn(
-									"flex items-center gap-1",
-									!completed && isOverdueDueDate(task.dueAt) && "text-p1",
-								)}
-							>
-								<Clock className="h-3 w-3" />
-								{format(parseISO(task.dueAt), "MMM d")}
-							</span>
-						) : null}
-						<PriorityFlag priority={task.priority} />
-						{showProject && project ? (
-							<span className="max-w-32 truncate">
-								{project.emoji ? `${project.emoji} ` : ""}
-								{project.name}
-							</span>
-						) : null}
-					</span>
+					)}
+					{reminder && !completed && (
+						<span
+							className={cn(
+								"flex items-center gap-1",
+								reminder.status === "fired" && "text-p1",
+							)}
+						>
+							{reminder.status === "fired" ? (
+								<BellRing className="size-3" />
+							) : (
+								<Bell className="size-3" />
+							)}
+							{format(reminderTime(reminder), "d MMM, h:mm a")}
+						</span>
+					)}
+					{(task.recurrencePreset || task.recurrenceRRule) && (
+						<Repeat className="size-3" aria-label="Repeating task" />
+					)}
+					{task.priority < 4 && <PriorityFlag priority={task.priority} />}
 				</div>
-				{task.notes ? (
-					<p className="truncate text-xs italic text-muted">{task.notes}</p>
-				) : null}
 			</div>
 		</div>
 	);
-
 	if (!swipeEnabled) return row;
-
 	return (
-		<div className="relative overflow-hidden rounded-md">
+		<div className="relative overflow-hidden rounded-lg">
 			<div
 				aria-hidden
-				className="absolute inset-0 flex items-center justify-start rounded-md bg-p3 pl-5 text-background"
+				className="absolute inset-0 flex items-center justify-start bg-accent pl-5 text-accent-foreground"
 				style={{
 					opacity: dragX > 0 ? Math.min(1, dragX / SWIPE_THRESHOLD) : 0,
 				}}
 			>
 				{completed ? (
-					<RotateCcw className="h-5 w-5" />
+					<RotateCcw className="size-5" />
 				) : (
-					<Check className="h-5 w-5" />
+					<Check className="size-5" />
 				)}
 			</div>
 			<div
 				aria-hidden
-				className="absolute inset-0 flex items-center justify-end rounded-md bg-p1 pr-5 text-background"
+				className="absolute inset-0 flex items-center justify-end bg-p1 pr-5 text-background"
 				style={{
 					opacity: dragX < 0 ? Math.min(1, -dragX / SWIPE_THRESHOLD) : 0,
 				}}
 			>
-				<Trash2 className="h-5 w-5" />
+				<Trash2 className="size-5" />
 			</div>
 			{row}
 		</div>

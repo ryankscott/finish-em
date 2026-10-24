@@ -1,9 +1,9 @@
 import { useParams } from "@tanstack/react-router";
 import { format, startOfDay } from "date-fns";
+import { Plus } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { isOverdueTask } from "@/lib/datetime";
 import { ensureScheme } from "@/lib/task-links";
@@ -15,14 +15,9 @@ import {
 import { NowBar } from "../components/NowBar";
 import { ProjectHeader } from "../components/ProjectHeader";
 import { TaskListView } from "../components/TaskListView";
-import { dayKey, dayWindow, partitionDay } from "../lib/day-plan";
+import { dayWindow, partitionDay } from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
-import {
-	useDayLog,
-	useDeletedTasks,
-	useProjects,
-	useTasks,
-} from "../lib/queries";
+import { useDeletedTasks, useProjects, useTasks } from "../lib/queries";
 import { useUi } from "../state/ui";
 
 export function ViewTitle({
@@ -35,9 +30,9 @@ export function ViewTitle({
 	action?: React.ReactNode;
 }) {
 	return (
-		<div className="flex flex-col">
-			<div className="flex items-baseline gap-2 px-4 py-3">
-				<h1 className="text-base font-semibold">{title}</h1>
+		<div className="workspace-page !pb-3">
+			<div className="flex items-baseline gap-2 py-3">
+				<h1 className="text-[28px] font-semibold tracking-tight">{title}</h1>
 				{count !== undefined ? (
 					<span className="text-xs text-muted">{count}</span>
 				) : null}
@@ -65,7 +60,6 @@ export function TodayView() {
 		status: "open",
 		to: today.to,
 	});
-	const { data: dayLog } = useDayLog(dayKey(now));
 
 	const { tasks, sectionLabels, focused, next } = useMemo(() => {
 		const overdue = dueTasks.filter((t) => isOverdueTask(t, now));
@@ -86,7 +80,6 @@ export function TodayView() {
 				`Left over from ${format(new Date(leftover[0].scheduledAt), "EEE d MMM")}`,
 			);
 		}
-		if (planned.length > 0) labels.set(planned[0].id, "Today");
 		if (unplannedDueToday.length > 0) {
 			labels.set(unplannedDueToday[0].id, "Due today, not planned");
 		}
@@ -108,49 +101,45 @@ export function TodayView() {
 		};
 	}, [committed, dueTasks, now]);
 
-	const showPlanPrompt = dayLog !== undefined && dayLog.plannedAt === null;
-
 	return (
-		<>
-			<ViewTitle
-				title="Today"
-				count={tasks.length}
-				action={
-					<div className="flex gap-2">
-						<Button
-							size="sm"
-							variant="outline"
-							onClick={() => ui.setPlanDayOpen(true)}
-						>
-							Plan day
-						</Button>
-						<Button
-							size="sm"
-							variant="outline"
-							onClick={() => ui.setCloseDayOpen(true)}
-						>
-							Close day
-						</Button>
-					</div>
-				}
-			/>
-			{showPlanPrompt ? (
-				<button
-					type="button"
-					onClick={() => ui.setPlanDayOpen(true)}
-					className="mx-4 mt-3 rounded-lg border border-dashed border-border px-4 py-3 text-left text-sm text-muted hover:border-accent"
-				>
-					You have not planned today yet. Pick what today is.
-				</button>
-			) : null}
+		<div className="workspace-page">
+			<p className="text-[11px] uppercase tracking-[1.1px] text-muted">
+				{format(now, "EEEE, d MMMM")}
+			</p>
+			<h1 className="mt-2 mb-2 text-[34px] leading-tight font-semibold tracking-[-1.3px]">
+				Today
+			</h1>
+			<p className="text-xs text-muted">
+				{tasks.length} {tasks.length === 1 ? "task" : "tasks"} planned
+			</p>
 			<NowBar focused={focused} next={next} />
+			{
+				<div className="mt-5 flex items-center justify-between">
+					<span className="text-xs font-medium">Your plan</span>
+					<button
+						type="button"
+						onClick={() => ui.setPlanDayOpen(true)}
+						className="min-h-11 text-xs text-accent"
+					>
+						Plan day
+					</button>
+				</div>
+			}
 			<TaskListView
 				tasks={tasks}
-				emptyMessage="Nothing committed to today. Press p to plan it."
+				emptyMessage="A little breathing room. Add a task or plan your day."
 				sectionLabels={sectionLabels}
 				dimUnfocused={focused !== null}
 			/>
-		</>
+			<button
+				type="button"
+				onClick={() => ui.openQuickAdd()}
+				className="flex min-h-[55px] items-center gap-2.5 px-2 text-xs text-accent"
+			>
+				<Plus className="size-[18px]" />
+				Add a task
+			</button>
+		</div>
 	);
 }
 

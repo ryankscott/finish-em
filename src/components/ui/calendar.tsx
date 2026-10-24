@@ -2,25 +2,20 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import type * as React from "react";
 import { DayFlag, DayPicker, SelectionState, UI } from "react-day-picker";
 
-import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/web/lib/cn";
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
 function Chevron({
 	orientation,
-	...chevronProps
 }: {
-	className?: string;
-	style?: React.CSSProperties;
-	size?: number;
-	disabled?: boolean;
 	orientation?: "left" | "up" | "down" | "right";
 }) {
-	if (orientation === "left") {
-		return <ChevronLeft className="h-4 w-4" {...chevronProps} />;
-	}
-	return <ChevronRight className="h-4 w-4" {...chevronProps} />;
+	return orientation === "left" ? (
+		<ChevronLeft className="size-4" />
+	) : (
+		<ChevronRight className="size-4" />
+	);
 }
 
 function Calendar({
@@ -32,51 +27,42 @@ function Calendar({
 	return (
 		<DayPicker
 			showOutsideDays={showOutsideDays}
-			className={cn("p-3", className)}
+			weekStartsOn={1}
+			className={cn("task-calendar relative w-full p-0", className)}
 			classNames={{
-				[UI.Root]: cn("w-full"),
-				[UI.Months]:
-					"flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-				[UI.Month]: "space-y-4",
-				[UI.MonthCaption]: "flex justify-center pt-1 relative items-center",
+				[UI.Root]: "relative w-full",
+				[UI.Months]: "relative w-full",
+				[UI.Month]: "w-full",
+				[UI.MonthCaption]: "flex h-11 items-center justify-center px-12",
 				[UI.CaptionLabel]: "text-sm font-medium",
-				[UI.Nav]: "space-x-1 flex items-center",
-				[UI.PreviousMonthButton]: cn(
-					buttonVariants({ variant: "outline" }),
-					"h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 absolute left-1",
-				),
-				[UI.NextMonthButton]: cn(
-					buttonVariants({ variant: "outline" }),
-					"h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100 absolute right-1",
-				),
-				[UI.MonthGrid]: "w-full border-collapse space-y-1",
-				[UI.Weekdays]: "flex",
-				[UI.Weekday]: "text-muted rounded-md w-8 font-normal text-[0.8rem]",
-				[UI.Weeks]: "w-full",
-				[UI.Week]: "flex w-full mt-2",
-				[UI.Day]: cn(
-					"relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
-					"[&:has(.rdp-selected)]:bg-accent/20 rounded-md",
-					"[&:has(.rdp-range_end)]:rounded-r-md",
-				),
-				[UI.DayButton]: cn(
-					"h-8 w-8 p-0 font-normal rounded-md",
-					"hover:bg-accent/20",
-				),
-				[DayFlag.today]: "text-accent font-semibold",
-				[DayFlag.outside]: "text-muted opacity-50",
-				[DayFlag.disabled]: "text-muted opacity-50",
+				[UI.Nav]: "absolute inset-x-0 top-0 flex items-center justify-between",
+				[UI.PreviousMonthButton]:
+					"flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface disabled:opacity-40",
+				[UI.NextMonthButton]:
+					"flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface disabled:opacity-40",
+				[UI.MonthGrid]: "w-full table-fixed border-collapse",
+				[UI.Weekdays]: "",
+				[UI.Weekday]: "h-10 text-center text-xs font-normal text-muted",
+				[UI.Weeks]: "",
+				[UI.Week]: "",
+				[UI.Day]: "p-0 text-center",
+				[UI.DayButton]:
+					"flex h-11 w-full items-center justify-center rounded-xl text-sm hover:bg-accent-soft aria-selected:bg-accent",
+				[DayFlag.today]:
+					"font-semibold text-accent [&_button]:ring-1 [&_button]:ring-inset [&_button]:ring-accent/50",
+				[DayFlag.outside]: "text-muted opacity-45",
+				[DayFlag.disabled]: "text-muted opacity-30",
 				[DayFlag.hidden]: "invisible",
 				[SelectionState.selected]:
-					"bg-accent text-background hover:bg-accent/90",
-				[SelectionState.range_middle]: "bg-accent/20 text-foreground",
-				[SelectionState.range_start]: "bg-accent text-background",
-				[SelectionState.range_end]: "bg-accent text-background",
+					"[&_button]:bg-accent [&_button]:text-accent-foreground [&_button]:hover:bg-accent",
+				[SelectionState.range_middle]: "bg-accent-soft",
+				[SelectionState.range_start]:
+					"rounded-l-xl bg-accent text-accent-foreground",
+				[SelectionState.range_end]:
+					"rounded-r-xl bg-accent text-accent-foreground",
 				...classNames,
 			}}
-			components={{
-				Chevron: Chevron,
-			}}
+			components={{ Chevron }}
 			{...props}
 		/>
 	);

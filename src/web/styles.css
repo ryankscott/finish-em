@@ -4,35 +4,37 @@
 @source "../web/components";
 
 @theme {
-	/* shadcn new-york zinc — dark (default) */
-	--color-background: oklch(0.141 0.005 285.823); /* zinc-950 */
-	--color-surface: oklch(0.21 0.006 285.885); /* zinc-900 */
-	--color-surface-raised: oklch(0.274 0.006 286.618); /* zinc-800 */
-	--color-border: oklch(0.274 0.006 286.618); /* zinc-800 */
-	--color-foreground: oklch(0.985 0 0); /* zinc-50 */
-	--color-muted: oklch(0.705 0.015 286.067); /* zinc-400 */
-	--color-accent: oklch(0.871 0.006 286.286); /* zinc-300 — ring/focus */
-	--color-p1: oklch(0.65 0.21 25);
-	--color-p2: oklch(0.8 0.16 85);
-	--color-p3: oklch(0.72 0.17 150);
-	--color-p4: oklch(0.68 0.12 250);
+	--color-background: #191e25;
+	--color-surface: #202630;
+	--color-surface-raised: #242c37;
+	--color-sidebar: #1d232b;
+	--color-border: #35404f;
+	--color-foreground: #edf1f5;
+	--color-muted: #aebac8;
+	--color-accent: #a8bfd9;
+	--color-accent-foreground: #17212d;
+	--color-accent-soft: #293646;
+	--color-p1: #ef97a1;
+	--color-p2: #dfbe80;
+	--color-p3: #99c8ae;
+	--color-p4: #a8bfd9;
 }
 
 html.light {
-	/* shadcn new-york zinc — light */
-	--color-background: oklch(1 0 0); /* white */
-	--color-surface: oklch(0.985 0 0); /* zinc-50 */
-	--color-surface-raised: oklch(0.967 0.001 286.375); /* zinc-100 */
-	--color-border: oklch(0.92 0.004 286.32); /* zinc-200 */
-	--color-foreground: oklch(0.141 0.005 285.823); /* zinc-950 */
-	/* zinc-600, not zinc-500: zinc-500 on surface-raised (selected rows) was
-	   ~4.4:1, just under the 4.5:1 AA floor for normal text. */
-	--color-muted: oklch(0.446 0.017 285.786); /* zinc-600 */
-	--color-accent: oklch(0.21 0.006 285.885); /* zinc-900 — ring/focus */
-	--color-p1: oklch(0.52 0.2 25);
-	--color-p2: oklch(0.58 0.16 85);
-	--color-p3: oklch(0.52 0.18 150);
-	--color-p4: oklch(0.5 0.14 250);
+	--color-background: #f8f6f3;
+	--color-surface: #f0eeeb;
+	--color-surface-raised: #fffefa;
+	--color-sidebar: #efede9;
+	--color-border: #e4e1df;
+	--color-foreground: #293440;
+	--color-muted: #69717a;
+	--color-accent: #435c76;
+	--color-accent-foreground: #fffefa;
+	--color-accent-soft: #e7edf3;
+	--color-p1: #a34453;
+	--color-p2: #8a642b;
+	--color-p3: #3e755a;
+	--color-p4: #435c76;
 }
 
 html,
@@ -55,7 +57,7 @@ body {
 body {
 	background-color: var(--color-background);
 	color: var(--color-foreground);
-	font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+	font-family: "Sora Variable", "Sora", ui-sans-serif, system-ui, sans-serif;
 	font-size: 14px;
 	-webkit-font-smoothing: antialiased;
 	/* Kill the rubber-band scroll and grey tap flash that make a standalone
@@ -128,3 +130,18 @@ body {
 		animation-duration: 0.01ms !important;
 	}
 }
+
+/* Shared geometry follows the approved Today / task-editor prototype. */
+.workspace-page { width: 100%; max-width: 800px; margin-inline: auto; padding: 20px 38px 32px; }
+.task-editor-panel { width: 380px; min-width: 0; flex-shrink: 0; border-left: 1px solid var(--color-border); background: var(--color-surface-raised); }
+.task-fields-row { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 49px; border-bottom: 1px solid var(--color-border); }
+.task-fields-row > :last-child { min-width: 0; }
+.task-calendar { --rdp-day-width: 44px; --rdp-day-height: 44px; }
+.task-list:has(:focus-visible) [data-selected], .task-list[data-keyboard-active] [data-selected] { background: var(--color-accent-soft); }
+@media (max-width: 1099px) and (min-width: 768px) { .has-task-editor .desktop-sidebar, .has-task-editor .sidebar-resize { display: none; } .task-editor-panel { width: 350px; } }
+@media (max-width: 767px) { .workspace-page { padding: 20px 21px 25px; } }
+
+main > .task-list { padding-inline: 38px; }
+@media (max-width: 767px) { main > .task-list { padding-inline: 21px; } }
+
+.task-title-input { font-size: 21px; line-height: 1.4; }
