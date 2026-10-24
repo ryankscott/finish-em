@@ -1,495 +1,256 @@
-import { ChevronRight, Plus, Sparkles } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { ArrowUpRight, Plus, Sparkles, X } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { parseDurationMinutes } from "@/lib/parsing/parse-duration";
-import type { RecurrencePreset } from "@/server/types";
-import { cn } from "../lib/cn";
-import { formatDateField, resolveDateField } from "../lib/date-field";
-import { formatMinutes } from "../lib/day-plan";
+import { formatDateField } from "../lib/date-field";
 import { useHotkeyScope } from "../lib/hotkeys";
 import {
 	useCalendarMutations,
 	useProjects,
 	useTaskMutations,
 } from "../lib/queries";
+import {
+	newTaskDraft,
+	resolveTaskDraft,
+	type TaskDraft,
+	taskToDraft,
+} from "../lib/task-draft";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { useKeyboardInset } from "../lib/use-viewport-inset";
 import { useUi } from "../state/ui";
-import { DateField } from "./DateField";
 import { MeetingLinkField } from "./MeetingLinkField";
-import { PriorityFlag } from "./PriorityFlag";
-import { ProjectPickerSheet } from "./ProjectPickerSheet";
-import { RecurrenceSelector } from "./RecurrenceSelector";
+import { TaskFields } from "./TaskFields";
 import { TaskReminderField } from "./TaskReminderField";
 
-/** 15m / 30m / 1h / 90m: the sizes almost every task actually is. */
-const ESTIMATE_PRESETS = [15, 30, 60, 90];
-
-const PRIORITY_LABELS: Record<number, string> = {
-	1: "Urgent",
-	2: "High",
-	3: "Normal",
-	4: "Low",
-};
-
-// claude:// opens Claude Desktop directly; /code/new is the Code surface's
-// new-session route and q is prefilled into its prompt field (the same route
-// the app uses internally). Truncated by the app at ~14k chars, so clamp well
-// under that.
-//
-// Only the task title is sent: project and due-date are scheduling metadata
-// that just add noise to a coding prompt.
-function buildClaudeDelegateHref(title: string): string {
-	const prompt = title.trim().slice(0, 8000);
-	return `claude://claude.ai/code/new?q=${encodeURIComponent(prompt)}`;
-}
-
 export function TaskEditDialog() {
-	const somedayId = useId();
 	const ui = useUi();
+	const formId = useId();
+	const headingId = useId();
+	const task = ui.editingTask;
 	const isMobile = useIsMobile();
 	const keyboardInset = useKeyboardInset();
 	const { data: projects = [] } = useProjects();
-	const { updateTask } = useTaskMutations();
+	const { updateTask, completeTask } = useTaskMutations();
 	const { linkTaskToEvent } = useCalendarMutations();
-	const task = ui.editingTask;
-	const [projectPickerOpen, setProjectPickerOpen] = useState(false);
-
-	const [title, setTitle] = useState("");
+	const [draft, setDraft] = useState<TaskDraft>(() => newTaskDraft(0));
 	const [calendarEventUid, setCalendarEventUid] = useState<string | null>(null);
-	const [projectId, setProjectId] = useState<number>(0);
-	const [priority, setPriority] = useState<number>(4);
-	const [due, setDue] = useState("");
-	const [scheduled, setScheduled] = useState("");
-	const [recurrencePreset, setRecurrencePreset] =
-		useState<RecurrencePreset>(null);
-	const [recurrenceRRule, setRecurrenceRRule] = useState<string | null>(null);
-	const [notes, setNotes] = useState("");
-	const [someday, setSomeday] = useState(false);
-	// Free text rather than a number input: "1h30" is how people write it.
-	const [estimate, setEstimate] = useState("");
+	const [error, setError] = useState("");
+	const titleRef = useRef<HTMLTextAreaElement>(null);
+	const closeRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
 		if (!task) return;
-		setTitle(task.title);
-		setProjectId(task.projectId);
-		setPriority(task.priority);
-		setDue(formatDateField(task.dueAt));
-		setScheduled(formatDateField(task.scheduledAt));
-		setRecurrencePreset(task.recurrencePreset ?? null);
-		setRecurrenceRRule(task.recurrenceRRule ?? null);
-		setNotes(task.notes);
-		setSomeday(task.someday);
-		setEstimate(
-			task.estimateMinutes === null ? "" : String(task.estimateMinutes),
-		);
+		setDraft(taskToDraft(task));
 		setCalendarEventUid(task.calendarEventUid ?? null);
+		setError("");
 	}, [task]);
-
-	const onLinkMeeting = (event: { uid: string; startAt: string } | null) => {
-		if (!task) return;
-		const eventUid = event ? event.uid : null;
-		setCalendarEventUid(eventUid);
-		// Linking pins the due date to the meeting start; reflect it in the field
-		// so saving the task keeps the dates consistent.
-		if (event) setDue(formatDateField(event.startAt));
-		linkTaskToEvent.mutate(
-			{ taskId: task.id, eventUid },
-			{
-				onSuccess: () =>
-					toast.success(event ? "Linked to meeting" : "Meeting unlinked"),
-				onError: (err) => toast.error(err.message),
-			},
-		);
-	};
-
-	const submit = () => {
-		if (!task) return;
-		if (!title.trim()) {
-			toast.error("Title is required");
+	useEffect(() => {
+		if (task && !isMobile)
+			requestAnimationFrame(() => closeRef.current?.focus());
+	}, [task, isMobile]);
+	const submit = (complete = false) => {
+		if (!task || updateTask.isPending || completeTask.isPending) return;
+		const result = resolveTaskDraft(draft, projects, task);
+		if (result.error) {
+			setError(result.error);
 			return;
 		}
-		// Blank clears the estimate; anything unreadable stops the save rather
-		// than silently discarding what was typed.
-		const trimmedEstimate = estimate.trim();
-		const estimateMinutes =
-			trimmedEstimate.length === 0
-				? null
-				: parseDurationMinutes(trimmedEstimate);
-		if (estimateMinutes === undefined) {
-			toast.error("Estimate accepts: 45m, 1h, 1h30, 90");
-			return;
-		}
-
-		const dueAt = resolveDateField(due, task.dueAt);
-		const scheduledAt = resolveDateField(scheduled, task.scheduledAt);
-		if (dueAt === "invalid" || scheduledAt === "invalid") {
-			toast.error(
-				"Dates accept: today, tomorrow, monday, next week, 2026-07-01",
-			);
-			return;
-		}
+		if (!result.input) return;
 		updateTask.mutate(
 			{
 				taskId: task.id,
 				before: task,
 				input: {
-					title: title.trim(),
-					projectId,
-					priority: priority as 1 | 2 | 3 | 4,
-					dueAt,
-					scheduledAt,
-					recurrencePreset,
-					recurrenceRRule,
-					notes,
-					someday,
-					estimateMinutes,
+					...result.input,
+					dueTimezone: result.input.dueTimezone ?? undefined,
 				},
 			},
 			{
-				onSuccess: () => {
-					toast.success("Task saved");
-					ui.closeTaskEditor();
+				onSuccess: (saved) => {
+					if (complete)
+						completeTask.mutate(saved, {
+							onSuccess: () => {
+								toast.success(
+									saved.status === "completed"
+										? "Task reopened"
+										: "Task completed",
+								);
+								ui.closeTaskEditor();
+							},
+							onError: (err) => setError(err.message),
+						});
+					else {
+						toast.success("Changes saved");
+						ui.closeTaskEditor();
+					}
 				},
-				onError: (err) => toast.error(err.message),
+				onError: (err) => setError(err.message),
 			},
 		);
 	};
-
 	useHotkeyScope(
-		{
-			escape: () => ui.closeTaskEditor(),
-			"mod+enter": () => submit(),
-		},
+		{ escape: () => ui.closeTaskEditor(), "mod+enter": () => submit() },
 		{ enabled: task !== null, allowInInput: true },
 	);
-
-	const selectedProject = projects.find((p) => p.id === projectId);
-	const twoCol = isMobile ? "flex flex-col gap-3" : "grid grid-cols-2 gap-3";
-
+	const linkMeeting = (event: { uid: string; startAt: string } | null) => {
+		if (!task) return;
+		const eventUid = event?.uid ?? null;
+		linkTaskToEvent.mutate(
+			{ taskId: task.id, eventUid },
+			{
+				onSuccess: () => {
+					setCalendarEventUid(eventUid);
+					if (event)
+						setDraft((prev) => ({
+							...prev,
+							due: formatDateField(event.startAt),
+						}));
+					toast.success(event ? "Linked to meeting" : "Meeting unlinked");
+				},
+				onError: (err) => setError(err.message),
+			},
+		);
+	};
 	const fields = (
-		<div className={cn("flex flex-col", isMobile ? "gap-4" : "gap-3")}>
-			<div className="flex flex-col gap-1">
-				<Label>Title</Label>
-				<Input
-					value={title}
-					onChange={(e) => setTitle(e.target.value)}
-					// Autofocus on a phone opens the keyboard over the form before the
-					// user has seen what they're editing.
-					autoFocus={!isMobile}
-					className={isMobile ? "h-11 text-base" : undefined}
-					// Titles routinely start with lowercase token-like words (e.g. a
-					// pasted "project:Work" fragment); iOS's default autocapitalize
-					// keeps "fixing" that, same as QuickAdd's editor.
-					autoCorrect="off"
-					autoCapitalize="off"
-					spellCheck={false}
-				/>
-			</div>
-			<div className={twoCol}>
-				<div className="flex flex-col gap-1">
-					<Label>Project</Label>
-					{isMobile ? (
-						// Same searchable sheet quick-add uses: a Radix Select listing 13
-						// projects with 40-character names is unusable on a phone.
-						<button
-							type="button"
-							onClick={() => setProjectPickerOpen(true)}
-							className="flex min-h-11 w-full items-center gap-2 rounded-md border border-border px-3 text-left text-base"
-						>
-							<span className="shrink-0">{selectedProject?.emoji ?? "●"}</span>
-							<span className="min-w-0 flex-1 truncate">
-								{selectedProject?.name ?? "Choose project"}
-							</span>
-							<ChevronRight className="h-4 w-4 shrink-0 text-muted" />
-						</button>
-					) : (
-						<Select
-							value={String(projectId)}
-							onValueChange={(v) => setProjectId(Number(v))}
-						>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{projects.map((project) => (
-									<SelectItem key={project.id} value={String(project.id)}>
-										{project.emoji ? `${project.emoji} ` : ""}
-										{project.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					)}
-				</div>
-				<div className="flex flex-col gap-1">
-					<Label>Priority</Label>
-					{isMobile ? (
-						// Four options fit as buttons, which beats opening a select just
-						// to move between them.
-						<div className="flex gap-1.5">
-							{[1, 2, 3, 4].map((p) => (
-								<button
-									key={p}
-									type="button"
-									onClick={() => setPriority(p)}
-									aria-pressed={priority === p}
-									className={cn(
-										"flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-md border text-sm",
-										priority === p
-											? "border-accent bg-accent/15 text-foreground"
-											: "border-border text-muted",
-									)}
-								>
-									<PriorityFlag priority={p} />
-									{PRIORITY_LABELS[p]}
-								</button>
-							))}
-						</div>
-					) : (
-						<Select
-							value={String(priority)}
-							onValueChange={(v) => setPriority(Number(v))}
-						>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								{[1, 2, 3, 4].map((p) => (
-									<SelectItem key={p} value={String(p)}>
-										<div className="flex items-center gap-2">
-											<PriorityFlag priority={p} />
-											<span>{PRIORITY_LABELS[p]}</span>
-										</div>
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					)}
-				</div>
-			</div>
-			<div className={twoCol}>
-				<div className="flex flex-col gap-1">
-					<Label>Estimate</Label>
-					{/* Presets first: tapping "30m" is not a decision, typing a number
-					    is. The field stays for anything the presets do not cover. */}
-					<div className="flex gap-1.5">
-						{ESTIMATE_PRESETS.map((minutes) => (
+		<form
+			id={formId}
+			onSubmit={(e) => {
+				e.preventDefault();
+				submit();
+			}}
+		>
+			<TaskFields
+				value={draft}
+				onChange={setDraft}
+				projects={projects}
+				titleRef={titleRef}
+				advancedContent={
+					task && (
+						<>
+							<TaskReminderField taskId={task.id} />
+							<div className="flex flex-col gap-2">
+								<span className="text-xs text-muted">Link to meeting</span>
+								<MeetingLinkField
+									value={calendarEventUid}
+									onChange={linkMeeting}
+								/>
+							</div>
 							<button
-								key={minutes}
 								type="button"
-								onClick={() => setEstimate(String(minutes))}
-								aria-pressed={estimate.trim() === String(minutes)}
-								className={cn(
-									"flex-1 rounded-md border px-2 py-1.5 text-sm",
-									isMobile && "min-h-11",
-									estimate.trim() === String(minutes)
-										? "border-accent bg-accent/15 text-foreground"
-										: "border-border text-muted",
-								)}
+								onClick={() => {
+									ui.closeTaskEditor();
+									ui.openQuickAdd({ parentTask: task });
+								}}
+								className="flex min-h-11 items-center gap-2 text-xs text-muted"
 							>
-								{formatMinutes(minutes)}
+								<Plus className="size-4" />
+								Add subtask
 							</button>
-						))}
-					</div>
-					<Input
-						value={estimate}
-						onChange={(e) => setEstimate(e.target.value)}
-						placeholder="45m, 1h, 1h30 — blank for none"
-						aria-label="Estimate"
-					/>
-				</div>
-				<div className="flex flex-col gap-1" />
-			</div>
-			<div className={twoCol}>
-				<div className="flex flex-col gap-1">
-					<Label>Due date</Label>
-					<DateField value={due} onChange={setDue} />
-				</div>
-				<div className="flex flex-col gap-1">
-					<Label>Scheduled date</Label>
-					<DateField value={scheduled} onChange={setScheduled} />
-				</div>
-			</div>
-			<div className={twoCol}>
-				<div className="flex flex-col gap-1">
-					<Label>Recurrence</Label>
-					<RecurrenceSelector
-						value={{
-							preset: recurrencePreset,
-							rrule: recurrenceRRule,
-							startDate: due,
-						}}
-						startDate={due}
-						onChange={({ preset, rrule, startDate }) => {
-							setRecurrencePreset(preset);
-							setRecurrenceRRule(rrule);
-							if (startDate) setDue(startDate);
-						}}
-					/>
-				</div>
-				<div className="flex flex-col gap-1">
-					<Label htmlFor={somedayId}>Someday</Label>
-					<div
-						className={cn("flex items-center gap-2", isMobile ? "h-11" : "h-9")}
-					>
-						<Switch
-							id={somedayId}
-							checked={someday}
-							onCheckedChange={setSomeday}
-						/>
-						<label
-							htmlFor={somedayId}
-							className="cursor-pointer text-sm text-muted"
-						>
-							Park in Someday
-						</label>
-					</div>
-				</div>
-			</div>
-			<div className="flex flex-col gap-1">
-				<Label>Link to meeting</Label>
-				<MeetingLinkField value={calendarEventUid} onChange={onLinkMeeting} />
-			</div>
-			<div className="flex flex-col gap-1">
-				<Label>Notes</Label>
-				<Textarea
-					value={notes}
-					onChange={(e) => setNotes(e.target.value)}
-					rows={3}
-					className={isMobile ? "text-base" : undefined}
-				/>
-			</div>
-			{task ? <TaskReminderField taskId={task.id} /> : null}
-			{isMobile && task ? (
-				// Stands in for the `s` hotkey, which is the only way to add a subtask
-				// on desktop and therefore unreachable on a phone.
-				<button
-					type="button"
-					onClick={() => {
-						const parent = task;
-						ui.closeTaskEditor();
-						ui.openQuickAdd({ parentTask: parent });
-					}}
-					className="flex min-h-11 items-center justify-center gap-2 rounded-md border border-border text-sm text-muted"
-				>
-					<Plus className="h-4 w-4" />
-					Add subtask
-				</button>
-			) : null}
-			{task ? (
-				<a
-					href={buildClaudeDelegateHref(title)}
-					className={cn(
-						"flex items-center justify-center gap-2 rounded-md border border-border text-sm text-muted hover:bg-surface hover:text-foreground",
-						isMobile ? "min-h-11" : "px-3 py-2",
-					)}
-				>
-					<Sparkles className="h-4 w-4" />
-					Delegate to Claude
-				</a>
-			) : null}
+							<a
+								href={`claude://claude.ai/code/new?q=${encodeURIComponent(draft.title.trim().slice(0, 8000))}`}
+								className="flex min-h-11 items-center gap-2 text-xs text-muted"
+							>
+								<Sparkles className="size-4" />
+								Delegate to Claude
+							</a>
+						</>
+					)
+				}
+			/>
+			{error && (
+				<p role="alert" className="mt-3 text-sm text-p1">
+					{error}
+				</p>
+			)}
+		</form>
+	);
+	const pending = updateTask.isPending || completeTask.isPending;
+	const footer = (
+		<div className="flex items-center justify-between gap-3 pt-5">
+			<button
+				type="button"
+				disabled={pending}
+				onClick={() => submit(true)}
+				className="min-h-11 text-xs text-muted disabled:opacity-50"
+			>
+				{task?.status === "completed" ? "Reopen task" : "Mark complete"}
+			</button>
+			<Button type="submit" form={formId} disabled={pending}>
+				{pending ? "Saving…" : "Save changes"}
+				<ArrowUpRight className="size-4" />
+			</Button>
 		</div>
 	);
-
-	const picker =
-		isMobile && task ? (
-			<ProjectPickerSheet
-				open={projectPickerOpen}
-				onOpenChange={setProjectPickerOpen}
-				projects={projects}
-				selectedId={projectId}
-				onSelect={(project) => setProjectId(project.id)}
-			/>
-		) : null;
-
-	if (isMobile) {
+	if (isMobile)
 		return (
-			<>
-				<Sheet
-					open={task !== null}
-					onOpenChange={(open) => !open && ui.closeTaskEditor()}
+			<Sheet
+				open={task !== null}
+				onOpenChange={(next) => !next && ui.closeTaskEditor()}
+			>
+				<SheetContent
+					side="bottom"
+					showClose={false}
+					aria-describedby={undefined}
+					onOpenAutoFocus={(e) => {
+						e.preventDefault();
+						closeRef.current?.focus();
+					}}
+					className="flex h-[100dvh] max-h-none flex-col rounded-none bg-surface-raised p-0"
+					style={
+						keyboardInset > 0
+							? {
+									bottom: keyboardInset,
+									height: `calc(100dvh - ${keyboardInset}px)`,
+								}
+							: undefined
+					}
 				>
-					<SheetContent
-						side="bottom"
-						showClose={false}
-						className="flex h-dvh max-h-none flex-col rounded-none p-0"
-						style={
-							keyboardInset > 0 ? { bottom: `${keyboardInset}px` } : undefined
-						}
-						aria-describedby={undefined}
-					>
-						<div className="flex shrink-0 items-center justify-between border-b border-border px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-3">
-							<SheetTitle>Edit task</SheetTitle>
-							<button
-								type="button"
-								onClick={() => ui.closeTaskEditor()}
-								className="min-h-9 px-2 text-sm text-muted"
-							>
-								Cancel
-							</button>
-						</div>
-						<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
-							{fields}
-						</div>
-						{/* Pinned: the form is taller than a phone screen, and Save
-						    shouldn't require scrolling to the bottom to find. */}
-						<div className="shrink-0 border-t border-border px-4 py-3 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
-							<button
-								type="button"
-								onClick={submit}
-								className="min-h-[44px] w-full rounded-md bg-accent font-medium text-background"
-							>
-								Save task
-							</button>
-						</div>
-					</SheetContent>
-				</Sheet>
-				{picker}
-			</>
+					<header className="flex shrink-0 items-center justify-between px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-4">
+						<SheetTitle className="text-lg">Task details</SheetTitle>
+						<button
+							ref={closeRef}
+							type="button"
+							onClick={() => ui.closeTaskEditor()}
+							className="min-h-11 px-2 text-xs text-muted"
+						>
+							Cancel
+						</button>
+					</header>
+					<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-3">
+						{fields}
+					</div>
+					<div className="shrink-0 border-t border-border px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+						{footer}
+					</div>
+				</SheetContent>
+			</Sheet>
 		);
-	}
-
+	if (!task) return null;
 	return (
-		<Dialog
-			open={task !== null}
-			onOpenChange={(open) => !open && ui.closeTaskEditor()}
+		<aside
+			className="task-editor-panel flex h-full flex-col"
+			aria-labelledby={headingId}
 		>
-			<DialogContent className="w-full max-w-xl">
-				<DialogHeader>
-					<DialogTitle>Edit task</DialogTitle>
-				</DialogHeader>
-				<div className="mt-4">{fields}</div>
-				<div className="mt-4 flex items-center justify-end gap-3 text-xs text-muted">
-					<span>esc to cancel · ⌘⏎ to save</span>
-					<button
-						type="button"
-						onClick={submit}
-						className="rounded-md bg-accent px-4 py-2 font-medium text-background"
-					>
-						Save task
-					</button>
-				</div>
-			</DialogContent>
-		</Dialog>
+			<header className="flex shrink-0 items-center justify-between gap-3 px-6 pt-5 pb-4">
+				<h2 id={headingId} className="text-[15px] font-medium tracking-tight">
+					Task details
+				</h2>
+				<button
+					ref={closeRef}
+					type="button"
+					aria-label="Close task details"
+					onClick={() => ui.closeTaskEditor()}
+					className="flex size-10 items-center justify-center rounded-xl text-muted hover:bg-surface"
+				>
+					<X className="size-4" />
+				</button>
+			</header>
+			<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-3">
+				{fields}
+			</div>
+			<div className="shrink-0 border-t border-border px-6 pb-5">{footer}</div>
+		</aside>
 	);
 }

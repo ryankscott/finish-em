@@ -26,15 +26,17 @@ function NavButton({
 }) {
 	// 44px is Apple's minimum comfortable touch target; the icons alone are 20px.
 	const className = cn(
-		"flex min-h-[44px] flex-1 flex-col items-center justify-center gap-0.5 text-[10px]",
-		active ? "text-foreground" : "text-muted",
+		"flex min-h-[44px] flex-1 flex-col items-center justify-center gap-1 text-[10px]",
+		active ? "text-accent" : "text-muted",
 	);
 
 	if (to) {
 		return (
 			<Link to={to} className={className} aria-label={label}>
 				{icon}
-				<span>{label}</span>
+				<span className={label === "Add task" ? "sr-only" : undefined}>
+					{label}
+				</span>
 			</Link>
 		);
 	}
@@ -47,7 +49,9 @@ function NavButton({
 			aria-label={label}
 		>
 			{icon}
-			<span>{label}</span>
+			<span className={label === "Add task" ? "sr-only" : undefined}>
+				{label}
+			</span>
 		</button>
 	);
 }
@@ -64,7 +68,7 @@ export function MobileNav({
 	const icon = "h-5 w-5";
 
 	return (
-		<nav className="flex shrink-0 items-stretch border-border border-t bg-surface/80 pb-safe backdrop-blur">
+		<nav className="flex shrink-0 items-stretch border-border border-t bg-surface-raised px-1 pt-2 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
 			<NavButton
 				to="/today"
 				label="Today"
@@ -78,8 +82,12 @@ export function MobileNav({
 				active={pathname === "/inbox"}
 			/>
 			<NavButton
-				label="Add"
-				icon={<Plus className={icon} />}
+				label="Add task"
+				icon={
+					<span className="flex size-11 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
+						<Plus className={icon} />
+					</span>
+				}
 				onClick={onQuickAdd}
 			/>
 			<NavButton

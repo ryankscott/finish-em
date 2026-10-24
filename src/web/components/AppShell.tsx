@@ -5,10 +5,24 @@ import {
 	useRouter,
 	useRouterState,
 } from "@tanstack/react-router";
-import { ChevronLeft, Moon, Search, Sun } from "lucide-react";
+import {
+	ChevronLeft,
+	Moon,
+	MoreHorizontal,
+	Plus,
+	Search,
+	Sun,
+	X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Toaster } from "sonner";
 
+import { Button } from "@/components/ui/button";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
@@ -82,7 +96,7 @@ function ResizeHandle() {
 	return (
 		<div
 			ref={handleRef}
-			className="w-1 shrink-0 cursor-col-resize bg-border transition-colors hover:bg-accent active:bg-accent"
+			className="sidebar-resize w-px shrink-0 cursor-col-resize bg-border/50 transition-colors hover:bg-accent active:bg-accent"
 		/>
 	);
 }
@@ -97,6 +111,10 @@ export function AppShell() {
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
 	const isMobile = useIsMobile();
 	const [drawerOpen, setDrawerOpen] = useState(false);
+	const [searchOpen, setSearchOpen] = useState(false);
+	useEffect(() => {
+		if (searchOpen) searchRef.current?.focus();
+	}, [searchOpen]);
 
 	// Anything that isn't a bottom-nav destination is a detail route the user
 	// needs a way out of.
@@ -121,7 +139,7 @@ export function AppShell() {
 			w: () => ui.setCloseDayOpen(true),
 			"shift+a": () => ui.openQuickAdd(),
 			"shift+p": () => ui.openProjectDialog({ mode: "create" }),
-			"/": () => searchRef.current?.focus(),
+			"/": () => setSearchOpen(true),
 			"?": () => ui.setHelpOpen(!ui.helpOpen),
 			"mod+k": () => ui.setPaletteOpen(!ui.paletteOpen),
 			"mod+z": () => void undoLast(),
@@ -147,7 +165,7 @@ export function AppShell() {
 	);
 
 	return (
-		<div className="flex h-full">
+		<div className={cn("flex h-full", ui.editingTask && "has-task-editor")}>
 			{isMobile ? null : (
 				<>
 					<Sidebar />
@@ -159,61 +177,149 @@ export function AppShell() {
 				{/* pt is max(), not pt-safe: pt-safe sets padding-top to the safe-area
 				    inset outright, which is 0 everywhere except iOS and so leaves the
 				    search row jammed against the top of the window. */}
-				<header className="flex items-center gap-3 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-					{/* Standalone PWAs have no browser back button or edge-swipe, so a
-					    detail route without this is a dead end. */}
-					{isMobile && canGoBack ? (
+				<header className="flex min-h-[72px] shrink-0 items-center gap-2 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 md:gap-3 md:px-7">
+					{isMobile && canGoBack && (
 						<button
 							type="button"
 							aria-label="Back"
 							onClick={() => router.history.back()}
-							className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center text-muted hover:text-foreground"
+							className="flex size-11 shrink-0 items-center justify-center text-muted"
 						>
-							<ChevronLeft className="h-5 w-5" />
+							<ChevronLeft className="size-5" />
 						</button>
-					) : null}
-					<Search className="h-4 w-4 shrink-0 text-muted" />
-					<input
-						ref={searchRef}
-						value={ui.search}
-						placeholder={isMobile ? "Search" : "Search tasks ( / )"}
-						className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted/60 md:w-64 md:flex-none"
-						onChange={(e) => {
-							ui.setSearch(e.target.value);
-							if (pathname !== "/search") navigate({ to: "/search" });
-						}}
-						onKeyDown={(e) => {
-							if (e.key === "Escape") {
-								ui.setSearch("");
-								e.currentTarget.blur();
-								navigate({ to: "/today" });
-							}
-						}}
-					/>
-					{isMobile ? null : (
-						<span className="ml-auto text-xs text-muted">? for shortcuts</span>
 					)}
-					<button
-						type="button"
-						aria-label="Toggle theme"
-						onClick={() => ui.toggleTheme()}
-						className={cn(
-							"shrink-0 text-muted hover:text-foreground",
-							isMobile && "flex h-11 w-11 items-center justify-center",
-						)}
-					>
-						{ui.theme === "dark" ? (
-							<Sun className="h-4 w-4" />
-						) : (
-							<Moon className="h-4 w-4" />
-						)}
-					</button>
+					{searchOpen ? (
+						<>
+							<Search className="size-4 shrink-0 text-muted" />
+							<input
+								ref={searchRef}
+								value={ui.search}
+								aria-label="Search tasks"
+								placeholder="Search tasks"
+								className="min-w-0 flex-1 bg-transparent text-base outline-none md:text-sm"
+								onChange={(e) => {
+									ui.setSearch(e.target.value);
+									if (pathname !== "/search") navigate({ to: "/search" });
+								}}
+								onKeyDown={(e) => {
+									if (e.key === "Escape") {
+										ui.setSearch("");
+										setSearchOpen(false);
+										navigate({ to: "/today" });
+									}
+								}}
+							/>
+							<button
+								type="button"
+								aria-label="Close search"
+								onClick={() => {
+									setSearchOpen(false);
+									ui.setSearch("");
+									if (pathname === "/search") navigate({ to: "/today" });
+								}}
+								className="flex size-11 items-center justify-center text-muted"
+							>
+								<X className="size-4" />
+							</button>
+						</>
+					) : (
+						<>
+							<span className="min-w-0 flex-1 truncate text-xs text-muted">
+								{isMobile ? (
+									<span className="text-lg font-semibold tracking-[-0.7px] text-foreground">
+										finish-em<span className="text-accent">.</span>
+									</span>
+								) : (
+									<>
+										My workspace <span className="px-2 opacity-50">/</span>{" "}
+										{pathname.startsWith("/projects")
+											? "Project"
+											: (pathname.split("/")[1] || "today").replace(/^./, (c) =>
+													c.toUpperCase(),
+												)}
+									</>
+								)}
+							</span>
+							{!isMobile && (
+								<Button
+									onClick={() => ui.openQuickAdd()}
+									className="h-[42px] text-xs"
+								>
+									<Plus className="size-4" />
+									New task
+								</Button>
+							)}
+							<button
+								type="button"
+								aria-label="Search tasks"
+								onClick={() => setSearchOpen(true)}
+								className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+							>
+								<Search className="size-[18px]" />
+							</button>
+							<Popover>
+								<PopoverTrigger asChild>
+									<button
+										type="button"
+										aria-label="Day actions"
+										className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+									>
+										<MoreHorizontal className="size-[18px]" />
+									</button>
+								</PopoverTrigger>
+								<PopoverContent
+									align="end"
+									className="w-48 rounded-2xl bg-surface-raised p-2"
+								>
+									<div className="flex flex-col">
+										<button
+											type="button"
+											onClick={() => ui.setPlanDayOpen(true)}
+											className="min-h-11 rounded-lg px-3 text-left text-sm hover:bg-surface"
+										>
+											Plan day
+										</button>
+										<button
+											type="button"
+											onClick={() => ui.setCloseDayOpen(true)}
+											className="min-h-11 rounded-lg px-3 text-left text-sm hover:bg-surface"
+										>
+											Close day
+										</button>
+										<button
+											type="button"
+											onClick={() => ui.toggleTheme()}
+											className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-left text-sm hover:bg-surface"
+										>
+											{ui.theme === "dark" ? (
+												<Sun className="size-4" />
+											) : (
+												<Moon className="size-4" />
+											)}
+											Switch to {ui.theme === "dark" ? "light" : "dark"}
+										</button>
+										{!isMobile && (
+											<button
+												type="button"
+												onClick={() => ui.setHelpOpen(true)}
+												className="min-h-11 rounded-lg px-3 text-left text-sm hover:bg-surface"
+											>
+												Keyboard shortcuts
+											</button>
+										)}
+									</div>
+								</PopoverContent>
+							</Popover>
+						</>
+					)}
 				</header>
-				<Separator />
 				<MissedRemindersBanner />
-				<main className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain">
-					<Outlet />
-				</main>
+				<div className="flex min-h-0 flex-1">
+					<main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+						<Outlet />
+					</main>
+					<TaskEditDialog />
+				</div>
 				{isMobile ? null : (
 					<>
 						<Separator />
@@ -244,7 +350,6 @@ export function AppShell() {
 			) : null}
 
 			<QuickAdd />
-			<TaskEditDialog />
 			<PlanDayDialog />
 			<CloseDayDialog />
 			<ProjectDialog />
