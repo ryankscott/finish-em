@@ -9,6 +9,7 @@ import {
 	createProject,
 	listProjects,
 	reorderProjects,
+	updateProject,
 } from "@/server/repos/projects";
 import {
 	createReminder,
@@ -44,6 +45,43 @@ afterEach(() => {
 });
 
 describe("repositories integration", () => {
+	it("edits all project details and explicitly clears nullable fields", async () => {
+		const db = getDb();
+		const project = await createProject(db, {
+			name: "Project",
+			emoji: "🐶",
+			startAt: "2026-10-24T01:30:15.123Z",
+			endAt: "2026-11-01T01:30:15.123Z",
+			color: "#435c76",
+			resources: [{ label: "Docs", url: "https://example.com/docs" }],
+		});
+		const saved = await updateProject(db, project.id, {
+			name: "Updated",
+			emoji: null,
+			startAt: null,
+			endAt: null,
+			color: "#567890",
+			description: "Details",
+			resources: [{ label: "Roadmap", url: "https://example.com/roadmap" }],
+		});
+		expect(saved).toMatchObject({
+			name: "Updated",
+			emoji: null,
+			startAt: null,
+			endAt: null,
+			color: "#567890",
+			description: "Details",
+		});
+		expect(saved?.resources).toHaveLength(1);
+		expect(saved?.resources[0]).toMatchObject({
+			label: "Roadmap",
+			url: "https://example.com/roadmap",
+		});
+		const preserved = await updateProject(db, project.id, { name: "Renamed" });
+		expect(preserved?.resources).toEqual(saved?.resources);
+		expect(preserved?.isInbox).toBe(false);
+	});
+
 	it("creates recurring next task on complete", async () => {
 		const db = getDb();
 		const project = await createProject(db, { name: "Work" });

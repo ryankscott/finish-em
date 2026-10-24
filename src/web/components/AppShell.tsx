@@ -5,6 +5,7 @@ import {
 	useRouter,
 	useRouterState,
 } from "@tanstack/react-router";
+import { format } from "date-fns";
 import {
 	ChevronLeft,
 	Moon,
@@ -173,7 +174,6 @@ export function AppShell() {
 				</>
 			)}
 			<div className="flex min-w-0 flex-1 flex-col">
-				<WeeklyGoalsBanner />
 				{/* pt is max(), not pt-safe: pt-safe sets padding-top to the safe-area
 				    inset outright, which is 0 everywhere except iOS and so leaves the
 				    search row jammed against the top of the window. */}
@@ -226,9 +226,7 @@ export function AppShell() {
 						<>
 							<span className="min-w-0 flex-1 truncate text-xs text-muted">
 								{isMobile ? (
-									<span className="text-lg font-semibold tracking-[-0.7px] text-foreground">
-										finish-em<span className="text-accent">.</span>
-									</span>
+									<span>{format(new Date(), "EEEE, d MMMM")}</span>
 								) : (
 									<>
 										My workspace <span className="px-2 opacity-50">/</span>{" "}
@@ -313,6 +311,11 @@ export function AppShell() {
 						</>
 					)}
 				</header>
+				{!["/", "/today", "/planning"].includes(pathname) && (
+					<div className="workspace-page !pt-0 !pb-3">
+						<WeeklyGoalsBanner />
+					</div>
+				)}
 				<MissedRemindersBanner />
 				<div className="flex min-h-0 flex-1">
 					<main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">

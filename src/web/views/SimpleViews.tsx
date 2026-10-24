@@ -15,6 +15,7 @@ import {
 import { NowBar } from "../components/NowBar";
 import { ProjectHeader } from "../components/ProjectHeader";
 import { TaskListView } from "../components/TaskListView";
+import { WeeklyGoalsBanner } from "../components/WeeklyGoalsBanner";
 import { dayWindow, partitionDay } from "../lib/day-plan";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useDeletedTasks, useProjects, useTasks } from "../lib/queries";
@@ -103,7 +104,7 @@ export function TodayView() {
 
 	return (
 		<div className="workspace-page">
-			<p className="text-[11px] uppercase tracking-[1.1px] text-muted">
+			<p className="hidden text-[11px] uppercase tracking-[1.1px] text-muted md:block">
 				{format(now, "EEEE, d MMMM")}
 			</p>
 			<h1 className="mt-2 mb-2 text-[34px] leading-tight font-semibold tracking-[-1.3px]">
@@ -112,6 +113,9 @@ export function TodayView() {
 			<p className="text-xs text-muted">
 				{tasks.length} {tasks.length === 1 ? "task" : "tasks"} planned
 			</p>
+			<div className="mt-5">
+				<WeeklyGoalsBanner />
+			</div>
 			<NowBar focused={focused} next={next} />
 			{
 				<div className="mt-5 flex items-center justify-between">

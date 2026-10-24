@@ -1,3 +1,17 @@
+import {
+	closestCenter,
+	DndContext,
+	MouseSensor,
+	TouchSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
+import {
+	SortableContext,
+	useSortable,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { endOfDay, startOfDay } from "date-fns";
 import {
@@ -6,14 +20,13 @@ import {
 	CalendarClock,
 	CalendarDays,
 	CheckCircle2,
-	ChevronDown,
 	ChevronLeft,
 	ChevronRight,
-	ChevronUp,
 	Flag,
 	GripVertical,
 	Inbox,
 	Moon,
+	MoreHorizontal,
 	Pencil,
 	Plus,
 	RefreshCw,
@@ -22,14 +35,19 @@ import {
 	Sun,
 	Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
 
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { isOverdueTask } from "@/lib/datetime";
 import type { Project } from "@/server/types";
-
 import { cn } from "../lib/cn";
+import { reorderProjectIds } from "../lib/project-order";
 import {
 	useDeletedTasks,
 	useDueReminders,
@@ -91,159 +109,140 @@ function ProjectNavLink({
 	project,
 	count,
 	active,
-	dragging,
-	dropTarget,
-	onDragStart,
-	onDragOver,
-	onDrop,
-	onDragEnd,
-	onMoveUp,
-	onMoveDown,
-	isDrawer,
+	disabled,
+	instructionsId,
+	onMove,
 }: {
 	project: Project;
 	count: number;
 	active: boolean;
-	dragging: boolean;
-	dropTarget: boolean;
-	onDragStart: () => void;
-	onDragOver: (e: React.DragEvent) => void;
-	onDrop: () => void;
-	onDragEnd: () => void;
-	/** Keyboard/touch equivalent of dragging a row up -- drag itself is mouse-only. */
-	onMoveUp?: () => void;
-	onMoveDown?: () => void;
-	isDrawer?: boolean;
+	disabled: boolean;
+	instructionsId: string;
+	onMove: (direction: -1 | 1) => void;
 }) {
 	const ui = useUi();
 	const navigate = useNavigate();
-	const { deleteProject } = useProjectMutations();
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
+	const { deleteProject } = useProjectMutations();
 	const [confirmOpen, setConfirmOpen] = useState(false);
-
-	const onDelete = () => {
-		deleteProject.mutate(project.id, {
-			onSuccess: () => {
-				toast.success("Project deleted");
-				if (pathname === `/projects/${project.id}`) navigate({ to: "/today" });
-			},
-			onError: (err) => toast.error(err.message),
-		});
-	};
-
-	// Drag-to-reorder is native HTML5 drag-and-drop, which touch screens don't
-	// implement -- the handle would just be a dead affordance eating width in
-	// the drawer. Editing/deleting can't hide behind group-hover either, since
-	// touch has no hover: on the drawer they're always on.
+	const [menuOpen, setMenuOpen] = useState(false);
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		setActivatorNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id: project.id, disabled });
 	return (
-		// biome-ignore lint/a11y/noStaticElementInteractions: drag handlers only wire native HTML5 reordering; the row's own link and buttons carry the keyboard-reachable actions
 		<div
-			draggable={!isDrawer}
-			onDragStart={onDragStart}
-			onDragOver={onDragOver}
-			onDrop={onDrop}
-			onDragEnd={onDragEnd}
+			ref={setNodeRef}
+			data-project-id={project.id}
+			style={{
+				transform: CSS.Transform.toString(transform),
+				transition,
+				zIndex: isDragging ? 10 : undefined,
+			}}
 			className={cn(
-				"group flex items-center gap-1 rounded-xl px-1 text-[13px]",
-				"min-h-11 py-2",
+				"relative flex min-h-[52px] items-center gap-1 rounded-xl px-1 text-[13px]",
 				active ? "bg-accent-soft text-accent" : "text-muted hover:bg-surface",
-				dragging && "opacity-40",
-				dropTarget && "border-t-2 border-p4",
+				isDragging && "bg-accent-soft shadow-md ring-1 ring-accent",
 			)}
 		>
-			{isDrawer ? null : (
-				<span
-					aria-hidden
-					className="flex w-4 shrink-0 cursor-grab justify-center text-muted opacity-0 group-hover:opacity-100 active:cursor-grabbing"
-				>
-					<GripVertical className="h-3.5 w-3.5" />
-				</span>
-			)}
+			<button
+				type="button"
+				ref={setActivatorNodeRef}
+				{...attributes}
+				{...listeners}
+				aria-label={`Reorder ${project.name}`}
+				aria-describedby={instructionsId}
+				onKeyDown={(e) => {
+					if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+						e.preventDefault();
+						e.stopPropagation();
+						onMove(e.key === "ArrowUp" ? -1 : 1);
+					}
+				}}
+				className="flex min-h-11 w-6 shrink-0 touch-none cursor-grab items-center justify-center rounded-lg text-muted active:cursor-grabbing [@media(pointer:coarse)]:w-11"
+				disabled={disabled}
+			>
+				<GripVertical className="size-3.5" />
+			</button>
 			<Link
 				to="/projects/$projectId"
 				params={{ projectId: String(project.id) }}
 				aria-current={active ? "page" : undefined}
-				draggable={false}
-				className="flex min-w-0 flex-1 items-center gap-2"
+				className="flex min-h-11 min-w-0 flex-1 items-center gap-2 py-2"
 			>
-				<span className="w-4 text-center text-xs">{project.emoji ?? "●"}</span>
-				<span className="truncate">{project.name}</span>
-			</Link>
-			{count > 0 ? (
-				<span
-					className={cn(
-						"text-xs text-muted",
-						!isDrawer && "group-hover:hidden",
+				<span className="flex w-3 shrink-0 items-center justify-center text-xs">
+					{project.emoji ?? (
+						<span
+							className="project-color-dot size-1.5 rounded-full"
+							style={{ backgroundColor: project.color }}
+						/>
 					)}
-				>
-					{count}
 				</span>
-			) : null}
-			<button
-				type="button"
-				aria-label="Move project up"
-				disabled={!onMoveUp}
-				onClick={onMoveUp}
-				className={cn(
-					"text-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30",
-					isDrawer
-						? "flex h-11 w-11 shrink-0 items-center justify-center"
-						: // sr-only, not `hidden` -- a display:none button can never
-							// receive keyboard focus, so Tab could never reach it to
-							// trigger the reveal. sr-only keeps it focusable and out of
-							// flow at rest, same as `hidden` was for layout purposes, and
-							// pops into view on its own focus or on row hover.
-							"sr-only shrink-0 items-center justify-center focus:static focus:flex focus:h-7 focus:w-7 group-hover:static group-hover:flex group-hover:h-7 group-hover:w-7",
-				)}
-			>
-				<ChevronUp className="h-3.5 w-3.5" />
-			</button>
-			<button
-				type="button"
-				aria-label="Move project down"
-				disabled={!onMoveDown}
-				onClick={onMoveDown}
-				className={cn(
-					"text-muted hover:text-foreground disabled:pointer-events-none disabled:opacity-30",
-					isDrawer
-						? "flex h-11 w-11 shrink-0 items-center justify-center"
-						: "sr-only shrink-0 items-center justify-center focus:static focus:flex focus:h-7 focus:w-7 group-hover:static group-hover:flex group-hover:h-7 group-hover:w-7",
-				)}
-			>
-				<ChevronDown className="h-3.5 w-3.5" />
-			</button>
-			<button
-				type="button"
-				aria-label="Edit project"
-				onClick={() => ui.openProjectDialog({ mode: "edit", project })}
-				className={cn(
-					"text-muted hover:text-foreground",
-					isDrawer
-						? "flex h-11 w-11 shrink-0 items-center justify-center"
-						: "sr-only shrink-0 items-center justify-center focus:static focus:flex focus:h-7 focus:w-7 group-hover:static group-hover:flex group-hover:h-7 group-hover:w-7",
-				)}
-			>
-				<Pencil className="h-3.5 w-3.5" />
-			</button>
-			<button
-				type="button"
-				aria-label="Delete project"
-				onClick={() => setConfirmOpen(true)}
-				className={cn(
-					"text-muted hover:text-p1",
-					isDrawer
-						? "flex h-11 w-11 shrink-0 items-center justify-center"
-						: "sr-only shrink-0 items-center justify-center focus:static focus:flex focus:h-7 focus:w-7 group-hover:static group-hover:flex group-hover:h-7 group-hover:w-7",
-				)}
-			>
-				<Trash2 className="h-3.5 w-3.5" />
-			</button>
+				<span className="min-w-0 break-words leading-relaxed">
+					{project.name}
+				</span>
+			</Link>
+			{count > 0 && (
+				<span className="shrink-0 text-[11px] tabular-nums">{count}</span>
+			)}
+			<Popover open={menuOpen} onOpenChange={setMenuOpen}>
+				<PopoverTrigger asChild>
+					<button
+						type="button"
+						aria-label={`Actions for project ${project.name}`}
+						className="flex min-h-11 w-7 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-surface-raised [@media(pointer:coarse)]:w-11"
+					>
+						<MoreHorizontal className="size-4" />
+					</button>
+				</PopoverTrigger>
+				<PopoverContent
+					align="start"
+					className="w-44 rounded-xl bg-surface-raised p-1"
+				>
+					<button
+						type="button"
+						onClick={() => {
+							setMenuOpen(false);
+							ui.openProjectDialog({ mode: "edit", project });
+						}}
+						className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left text-xs hover:bg-surface"
+					>
+						<Pencil className="size-3.5" />
+						Edit project
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							setMenuOpen(false);
+							setConfirmOpen(true);
+						}}
+						className="flex min-h-11 w-full items-center gap-2 rounded-lg px-3 text-left text-xs text-p1 hover:bg-surface"
+					>
+						<Trash2 className="size-3.5" />
+						Delete project
+					</button>
+				</PopoverContent>
+			</Popover>
 			<ConfirmDialog
 				open={confirmOpen}
 				onOpenChange={setConfirmOpen}
 				title="Delete project"
-				description={`Delete project "${project.name}"? Its tasks are moved to Inbox.`}
-				onConfirm={onDelete}
+				description={`Delete project “${project.name}”? Its tasks are moved to Inbox.`}
+				onConfirm={() =>
+					deleteProject.mutate(project.id, {
+						onSuccess: () => {
+							toast.success("Project deleted");
+							if (pathname === `/projects/${project.id}`)
+								navigate({ to: "/today" });
+						},
+						onError: (err) => toast.error(err.message),
+					})
+				}
 			/>
 		</div>
 	);
@@ -259,8 +258,14 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 	const { data: projects = [] } = useProjects();
 	const { reorderProjects } = useProjectMutations();
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
-	const [dragIndex, setDragIndex] = useState<number | null>(null);
-	const [overIndex, setOverIndex] = useState<number | null>(null);
+	const instructionsId = useId();
+	const [announcement, setAnnouncement] = useState("");
+	const sensors = useSensors(
+		useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
+		useSensor(TouchSensor, {
+			activationConstraint: { delay: 150, tolerance: 5 },
+		}),
+	);
 
 	const now = new Date();
 	// Matches what the Today view actually shows: the day's plan plus anything
@@ -306,29 +311,6 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 
 	const visibleProjects = projects.filter((p) => !p.isInbox);
 
-	const commitReorder = (targetIndex: number) => {
-		if (dragIndex === null || dragIndex === targetIndex) {
-			setDragIndex(null);
-			setOverIndex(null);
-			return;
-		}
-		const next = [...visibleProjects];
-		const [moved] = next.splice(dragIndex, 1);
-		next.splice(targetIndex, 0, moved);
-		setDragIndex(null);
-		setOverIndex(null);
-		reorderProjects.mutate(next.map((p) => p.id));
-	};
-
-	const moveProject = (index: number, delta: 1 | -1) => {
-		const target = index + delta;
-		if (target < 0 || target >= visibleProjects.length) return;
-		const next = [...visibleProjects];
-		const [moved] = next.splice(index, 1);
-		next.splice(target, 0, moved);
-		reorderProjects.mutate(next.map((p) => p.id));
-	};
-
 	const isDrawer = variant === "drawer";
 
 	// Collapsed strip with expand button
@@ -363,21 +345,18 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 					: "desktop-sidebar shrink-0 border-r border-border bg-sidebar",
 			)}
 		>
-			<div className="mb-5 flex items-center justify-between px-2">
-				<span className="text-lg font-semibold tracking-[-0.7px]">
-					finish-em<span className="text-accent">.</span>
-				</span>
-				{!isDrawer && (
+			{!isDrawer && (
+				<div className="mb-1 flex justify-end px-1">
 					<button
 						type="button"
 						aria-label="Collapse sidebar"
 						onClick={() => ui.toggleSidebarCollapsed()}
-						className="flex h-8 w-8 items-center justify-center rounded-lg text-muted hover:bg-surface"
+						className="flex size-8 items-center justify-center rounded-lg text-muted hover:bg-surface"
 					>
-						<ChevronLeft className="h-4 w-4" />
+						<ChevronLeft className="size-4" />
 					</button>
-				)}
-			</div>
+				</div>
+			)}
 			<NavLink
 				to="/today"
 				icon={<Sun className={iconClass} />}
@@ -494,35 +473,65 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 					<Plus className="h-3.5 w-3.5" />
 				</button>
 			</div>
-			{visibleProjects.map((project, index) => (
-				<ProjectNavLink
-					key={project.id}
-					project={project}
-					count={projectCounts.get(project.id) ?? 0}
-					active={pathname === `/projects/${project.id}`}
-					dragging={dragIndex === index}
-					dropTarget={
-						dragIndex !== null && overIndex === index && dragIndex !== index
-					}
-					onDragStart={() => setDragIndex(index)}
-					onDragOver={(e) => {
-						e.preventDefault();
-						if (overIndex !== index) setOverIndex(index);
-					}}
-					onDrop={() => commitReorder(index)}
-					isDrawer={isDrawer}
-					onDragEnd={() => {
-						setDragIndex(null);
-						setOverIndex(null);
-					}}
-					onMoveUp={index > 0 ? () => moveProject(index, -1) : undefined}
-					onMoveDown={
-						index < visibleProjects.length - 1
-							? () => moveProject(index, 1)
-							: undefined
-					}
-				/>
-			))}
+			<p id={instructionsId} className="sr-only">
+				Drag the grip to reorder projects, or focus it and press the up and down
+				arrow keys.
+			</p>
+			<div className="sr-only" aria-live="polite">
+				{announcement}
+			</div>
+			<DndContext
+				sensors={sensors}
+				collisionDetection={closestCenter}
+				onDragEnd={({ active, over }) => {
+					if (!over || active.id === over.id || reorderProjects.isPending)
+						return;
+					reorderProjects.mutate(
+						reorderProjectIds(
+							visibleProjects,
+							Number(active.id),
+							Number(over.id),
+						),
+						{
+							onError: (err) => toast.error(err.message),
+							onSuccess: () => setAnnouncement("Project order saved"),
+						},
+					);
+				}}
+			>
+				<SortableContext
+					items={visibleProjects.map((p) => p.id)}
+					strategy={verticalListSortingStrategy}
+				>
+					{visibleProjects.map((project) => (
+						<ProjectNavLink
+							key={project.id}
+							project={project}
+							count={projectCounts.get(project.id) ?? 0}
+							active={pathname === `/projects/${project.id}`}
+							disabled={reorderProjects.isPending}
+							instructionsId={instructionsId}
+							onMove={(direction) => {
+								const at = visibleProjects.findIndex(
+									(p) => p.id === project.id,
+								);
+								const target = visibleProjects[at + direction];
+								if (!target || reorderProjects.isPending) return;
+								reorderProjects.mutate(
+									reorderProjectIds(visibleProjects, project.id, target.id),
+									{
+										onSuccess: () =>
+											setAnnouncement(
+												`${project.name} moved to position ${at + direction + 1} of ${visibleProjects.length}`,
+											),
+										onError: (err) => toast.error(err.message),
+									},
+								);
+							}}
+						/>
+					))}
+				</SortableContext>
+			</DndContext>
 			<div className="mt-auto">
 				<Separator className="my-2" />
 				<NavLink

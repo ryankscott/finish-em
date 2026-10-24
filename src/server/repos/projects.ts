@@ -121,10 +121,11 @@ export async function updateProject(
 
 	const now = nowIso();
 	const name = patch.name ?? existing.name;
-	const emoji = patch.emoji ?? existing.emoji;
+	const emoji = patch.emoji === undefined ? existing.emoji : patch.emoji;
 	const description = patch.description ?? existing.description;
-	const startAt = patch.startAt ?? existing.startAt;
-	const endAt = patch.endAt ?? existing.endAt;
+	const startAt =
+		patch.startAt === undefined ? existing.startAt : patch.startAt;
+	const endAt = patch.endAt === undefined ? existing.endAt : patch.endAt;
 	const color = patch.color ?? existing.color;
 	const isInbox = patch.isInbox ?? existing.isInbox;
 
