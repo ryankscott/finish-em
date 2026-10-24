@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,13 @@ export function QuickAdd() {
 	const [draft, setDraft] = useState<TaskDraft>(() => newTaskDraft(0));
 	const [error, setError] = useState("");
 	const titleRef = useRef<HTMLTextAreaElement>(null);
+	const scrollRef = useRef<HTMLDivElement>(null);
+	// Focus during mount, inside the opening tap. A delayed effect can lose iOS
+	// keyboard activation; preventScroll keeps the form at its initial position.
+	const mountTitle = useCallback((node: HTMLTextAreaElement | null) => {
+		titleRef.current = node;
+		node?.focus({ preventScroll: true });
+	}, []);
 	const options = ui.quickAdd;
 	const open = options !== null;
 	const inboxId = projects.find((p) => p.isInbox)?.id ?? 0;
@@ -109,7 +116,7 @@ export function QuickAdd() {
 				value={draft}
 				onChange={setDraft}
 				projects={projects}
-				titleRef={titleRef}
+				titleRef={mountTitle}
 			/>
 			{error && (
 				<p role="alert" className="mt-3 text-sm text-p1">
@@ -138,9 +145,10 @@ export function QuickAdd() {
 					aria-describedby={undefined}
 					onOpenAutoFocus={(e) => {
 						e.preventDefault();
-						titleRef.current?.focus();
+						titleRef.current?.focus({ preventScroll: true });
+						if (scrollRef.current) scrollRef.current.scrollTop = 0;
 					}}
-					className="flex h-[100dvh] max-h-none flex-col rounded-none bg-surface-raised p-0"
+					className="flex h-[100dvh] max-h-none flex-col rounded-none bg-surface-raised p-0 data-[state=open]:animate-none data-[state=closed]:animate-none"
 					style={
 						keyboardInset > 0
 							? {
@@ -160,7 +168,10 @@ export function QuickAdd() {
 							Cancel
 						</button>
 					</header>
-					<div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-3">
+					<div
+						ref={scrollRef}
+						className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-3"
+					>
 						{fields}
 					</div>
 					<div className="shrink-0 border-t border-border px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
@@ -175,7 +186,8 @@ export function QuickAdd() {
 				aria-describedby={undefined}
 				onOpenAutoFocus={(e) => {
 					e.preventDefault();
-					titleRef.current?.focus();
+					titleRef.current?.focus({ preventScroll: true });
+					if (scrollRef.current) scrollRef.current.scrollTop = 0;
 				}}
 				className="flex max-h-[90dvh] w-[calc(100%-3rem)] max-w-[500px] flex-col gap-0 overflow-y-auto rounded-[22px] bg-surface-raised p-[26px]"
 			>

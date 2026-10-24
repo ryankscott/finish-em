@@ -1,7 +1,25 @@
-import { CalendarDays, Flag, Folder, Hourglass } from "lucide-react";
+import {
+	CalendarDays,
+	ChevronDown,
+	Flag,
+	Folder,
+	Hourglass,
+} from "lucide-react";
 import { type ReactNode, useId } from "react";
 
 import { Input } from "@/components/ui/input";
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import type { Priority, Project } from "@/server/types";
 import type { TaskDraft } from "../lib/task-draft";
@@ -58,22 +76,25 @@ export function TaskFields({
 						<Folder className="size-3.5" />
 						Project
 					</label>
-					<select
-						id={`${id}-project`}
-						value={value.projectId || ""}
-						onChange={(e) => set("projectId", Number(e.target.value))}
-						className="min-h-11 w-full min-w-0 rounded-lg bg-surface-raised px-1 text-sm"
+					<Select
+						value={value.projectId ? String(value.projectId) : ""}
+						onValueChange={(v) => set("projectId", Number(v))}
 					>
-						<option value="" disabled>
-							Choose project
-						</option>
-						{projects.map((p) => (
-							<option key={p.id} value={p.id}>
-								{p.emoji ? `${p.emoji} ` : ""}
-								{p.name}
-							</option>
-						))}
-					</select>
+						<SelectTrigger
+							id={`${id}-project`}
+							className="h-11 border-0 bg-transparent px-2 shadow-none"
+						>
+							<SelectValue placeholder="Choose project" />
+						</SelectTrigger>
+						<SelectContent align="end" collisionPadding={12}>
+							{projects.map((p) => (
+								<SelectItem key={p.id} value={String(p.id)}>
+									{p.emoji ? `${p.emoji} ` : ""}
+									{p.name}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
 				</div>
 				<div className="task-fields-row">
 					<span className="flex items-center gap-2 text-xs text-muted">
@@ -105,19 +126,26 @@ export function TaskFields({
 						<Flag className="size-3.5" />
 						Priority
 					</label>
-					<select
-						id={`${id}-priority`}
-						value={value.priority}
-						onChange={(e) =>
-							set("priority", Number(e.target.value) as Priority)
-						}
-						className="min-h-11 w-full rounded-lg bg-surface-raised px-1 text-sm"
+					<Select
+						value={String(value.priority)}
+						onValueChange={(v) => set("priority", Number(v) as Priority)}
 					>
-						<option value={1}>Urgent · P1</option>
-						<option value={2}>High · P2</option>
-						<option value={3}>Normal · P3</option>
-						<option value={4}>Low · P4</option>
-					</select>
+						<SelectTrigger
+							id={`${id}-priority`}
+							className="h-11 border-0 bg-transparent px-2 shadow-none"
+						>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent align="end" collisionPadding={12}>
+							{["Urgent · P1", "High · P2", "Normal · P3", "Low · P4"].map(
+								(label, index) => (
+									<SelectItem key={label} value={String(index + 1)}>
+										{label}
+									</SelectItem>
+								),
+							)}
+						</SelectContent>
+					</Select>
 				</div>
 				<div className="task-fields-row">
 					<label
@@ -127,19 +155,48 @@ export function TaskFields({
 						<Hourglass className="size-3.5" />
 						Estimate
 					</label>
-					<Input
-						id={`${id}-estimate`}
-						value={value.estimate}
-						onChange={(e) => set("estimate", e.target.value)}
-						placeholder="No estimate"
-						className="h-11 border-0 bg-transparent px-1 text-sm shadow-none"
-						list={`${id}-estimates`}
-					/>
-					<datalist id={`${id}-estimates`}>
-						{[5, 10, 15, 30, 45, 60, 90].map((minutes) => (
-							<option key={minutes} value={`${minutes}m`} />
-						))}
-					</datalist>
+					<div className="flex min-w-0 items-center">
+						<Input
+							id={`${id}-estimate`}
+							value={value.estimate}
+							onChange={(e) => set("estimate", e.target.value)}
+							placeholder="No estimate"
+							className="h-11 border-0 bg-transparent px-1 text-sm shadow-none"
+						/>
+						<Popover>
+							<PopoverTrigger asChild>
+								<button
+									type="button"
+									aria-label="Estimate suggestions"
+									className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+								>
+									<ChevronDown className="size-4" />
+								</button>
+							</PopoverTrigger>
+							<PopoverContent
+								align="end"
+								collisionPadding={12}
+								className="w-60 rounded-2xl p-3"
+							>
+								<p className="mb-2 text-xs text-muted">Quick estimates</p>
+								<div className="flex flex-wrap gap-2">
+									{[5, 10, 15, 30, 45, 60, 90].map((minutes) => (
+										<button
+											type="button"
+											key={minutes}
+											onClick={() => set("estimate", `${minutes}m`)}
+											className="min-h-11 rounded-xl bg-surface px-3 text-sm hover:bg-accent-soft"
+										>
+											{minutes}m
+										</button>
+									))}
+								</div>
+								<p className="mt-3 text-xs text-muted">
+									Or type your own duration in the field.
+								</p>
+							</PopoverContent>
+						</Popover>
+					</div>
 				</div>
 			</div>
 			<details className="mt-4 text-sm">
