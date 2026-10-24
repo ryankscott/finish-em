@@ -21,3 +21,11 @@ The app wordmark is removed from screen headers and the sidebar. Project names k
 The real project editor retains name, emoji, description, start/end dates, and labelled resource links, and adds colour editing. Incomplete links produce an error rather than disappearing. Internal identity, Inbox status, and ordering metadata are preserved. Project repository updates now distinguish omitted nullable fields from explicit clears, fixing date/emoji removal. Date popovers are constrained to the available viewport height.
 
 Validation: 499 tests, TypeScript, Biome, production build, isolated browser checks for goals, project editing, date/emoji clearing, mouse/keyboard/touch reorder persistence, and mobile layouts. Native iPhone and macOS wrapper checks remain manual.
+
+
+## Mobile dialog follow-up
+
+- Mount the task title with preventScroll focus during the opening action; full-screen create sheets no longer slide an offscreen field into focus. Reset the form scroll on open.
+- Project create/edit now share the task form's title treatment, field rows, description area, modal dimensions, mobile header, and pinned save action. All editable fields remain available.
+- Replace task project/priority native selects with Radix controls. Replace estimate datalist with styled presets while retaining free text. Shared select menus have rounded surfaces, touch targets, and viewport height limits.
+- Validation: repeated mobile opens preserve title focus and top scroll; simulated keyboard resize keeps the footer visible; project/priority choices and estimates persist; complete project creation and keyboard select navigation pass. Tests run with TZ=UTC because the existing recurrence UTC expectation crosses Los Angeles daylight saving time. Actual iPhone keyboard behavior still needs device verification.

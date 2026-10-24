@@ -144,4 +144,4 @@ body {
 main > .task-list { padding-inline: 38px; }
 @media (max-width: 767px) { main > .task-list { padding-inline: 21px; } }
 
-.task-title-input { font-size: 21px; line-height: 1.4; }
+.project-title-input, .task-title-input { font-size: 21px; line-height: 1.4; }
