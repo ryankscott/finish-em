@@ -25,29 +25,30 @@ export function NowBar({
 	return (
 		<section
 			aria-label={focused ? "In focus" : "Next up"}
-			className="mt-7 mb-5 rounded-[18px] bg-accent-soft px-[23px] py-[21px]"
+			className="mt-4 mb-3 rounded-2xl bg-accent-soft p-4"
 		>
 			<div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[1.4px] text-accent">
 				<Sparkles className="size-3.5" />
 				{focused ? "In focus" : "Next up"}
 			</div>
-			<h2 className="mt-3 mb-2 text-[19px] leading-snug font-medium tracking-[-0.5px]">
+			<h2 className="mt-2 mb-2 text-[17px] md:text-[19px] leading-snug font-medium tracking-[-0.5px]">
 				{toDisplayString(task.title)}
 			</h2>
-			<p className="text-xs text-muted">
-				{project?.name ?? ""}
-				{project ? " · " : ""}
-				{formatMinutes(taskEstimate(task))}
-			</p>
-			<div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-				<span className="text-xs text-muted">
-					{focused ? `${elapsed} elapsed` : "One thing at a time."}
-				</span>
+			<div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+				<div className="min-w-0 text-xs text-muted">
+					<p>
+						{project?.name ?? ""}
+						{project ? " · " : ""}
+						{formatMinutes(taskEstimate(task))}
+					</p>
+					{focused && <p className="mt-1">{elapsed} elapsed</p>}
+				</div>
 				<div className="flex gap-2">
 					{focused ? (
 						<>
 							<Button
 								size="sm"
+								className="min-h-11"
 								variant="ghost"
 								aria-label="Pause focus"
 								disabled={stopTask.isPending}
@@ -57,6 +58,7 @@ export function NowBar({
 							</Button>
 							<Button
 								size="sm"
+								className="min-h-11"
 								disabled={completeTask.isPending}
 								onClick={() =>
 									completeTask.mutate(task, {
@@ -72,6 +74,7 @@ export function NowBar({
 					) : (
 						<Button
 							size="sm"
+							className="min-h-11"
 							disabled={startTask.isPending}
 							onClick={() => startTask.mutate(task.id, { onError })}
 						>

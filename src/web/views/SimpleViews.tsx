@@ -32,7 +32,7 @@ export function ViewTitle({
 }) {
 	return (
 		<div className="workspace-page !pb-3">
-			<div className="flex items-baseline gap-2 py-3">
+			<div className="flex items-baseline gap-2 pt-1 pb-3">
 				<h1 className="text-[28px] font-semibold tracking-tight">{title}</h1>
 				{count !== undefined ? (
 					<span className="text-xs text-muted">{count}</span>
@@ -107,7 +107,7 @@ export function TodayView() {
 			<p className="hidden text-[11px] uppercase tracking-[1.1px] text-muted md:block">
 				{format(now, "EEEE, d MMMM")}
 			</p>
-			<h1 className="mt-2 mb-2 text-[34px] leading-tight font-semibold tracking-[-1.3px]">
+			<h1 className="mt-0 mb-2 text-[34px] md:mt-2 leading-tight font-semibold tracking-[-1.3px]">
 				Today
 			</h1>
 			<p className="text-xs text-muted">

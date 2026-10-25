@@ -177,7 +177,7 @@ export function AppShell() {
 				{/* pt is max(), not pt-safe: pt-safe sets padding-top to the safe-area
 				    inset outright, which is 0 everywhere except iOS and so leaves the
 				    search row jammed against the top of the window. */}
-				<header className="flex min-h-[72px] shrink-0 items-center gap-2 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-3 md:gap-3 md:px-7">
+				<header className="flex min-h-[64px] shrink-0 items-center gap-2 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1 md:min-h-[72px] md:gap-3 md:px-7 md:pb-3">
 					{isMobile && canGoBack && (
 						<button
 							type="button"
