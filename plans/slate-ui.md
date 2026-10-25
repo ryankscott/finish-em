@@ -29,3 +29,11 @@ Validation: 499 tests, TypeScript, Biome, production build, isolated browser che
 - Project create/edit now share the task form's title treatment, field rows, description area, modal dimensions, mobile header, and pinned save action. All editable fields remain available.
 - Replace task project/priority native selects with Radix controls. Replace estimate datalist with styled presets while retaining free text. Shared select menus have rounded surfaces, touch targets, and viewport height limits.
 - Validation: repeated mobile opens preserve title focus and top scroll; simulated keyboard resize keeps the footer visible; project/priority choices and estimates persist; complete project creation and keyboard select navigation pass. Tests run with TZ=UTC because the existing recurrence UTC expectation crosses Los Angeles daylight saving time. Actual iPhone keyboard behavior still needs device verification.
+
+
+## Desktop navigation and page geometry
+
+- Sidebar navigation and project text use 15px DM Sans on desktop. New/default width is 264px, with saved widths clamped to 220–480px.
+- Collapse becomes a 64px icon rail with primary destinations, new task, project/more menus, settings, tooltips, and an expand control. The keyboard toggle uses the same persisted collapse state. Width transitions respect reduced motion; drag resizing disables the transition and supports keyboard arrows.
+- Today, Inbox, Planning, Calendar, project pages and other views share a 1120px content frame and consistent inner gutters. Planning boards retain internal horizontal scrolling; settings fields keep their readable narrower form width. Mobile retains its drawer and 21px gutters.
+- Validation: all 499 tests, TypeScript, Biome and production build pass. Browser checks verify identical Today/Inbox/Planning content geometry, enlarged text, rail navigation/menus/tooltips, reload persistence, resize/keyboard controls, task-editor navigation recovery, mobile drawer and widths 320–1920px.

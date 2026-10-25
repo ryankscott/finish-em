@@ -46,7 +46,7 @@ export function ProjectHeader({
 	const ui = useUi();
 
 	return (
-		<div className="border-b border-border px-4 py-3">
+		<div className="workspace-page border-b border-border !pb-3">
 			<div className="flex items-baseline gap-2">
 				<h1 className="text-base font-semibold">
 					{project.emoji ? `${project.emoji} ` : ""}

@@ -322,7 +322,7 @@ export function PlanningView() {
 						addSignal={goalAddSignal}
 					/>
 				</div>
-				<div className="flex items-center gap-2 border-b border-border/60 px-3 py-2">
+				<div className="flex items-center gap-2 border-b border-border/60 py-2">
 					{/* Week paging, "today", and the day/work-week/week toggle were all
 					    hotkey-only ([ ] t v), which left the Planning view stuck on the
 					    current week with no way to change range on a phone. */}
@@ -405,7 +405,7 @@ export function PlanningView() {
 					<ScrollArea className="flex-1" horizontal={layout === "horizontal"}>
 						<div
 							className={cn(
-								"w-full min-w-0 gap-2 p-3",
+								"w-full min-w-0 gap-2 py-3",
 								layout === "vertical"
 									? "flex flex-col"
 									: "flex flex-row items-start overflow-x-auto",

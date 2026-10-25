@@ -59,7 +59,7 @@ export function LogbookView() {
 	return (
 		<>
 			<ViewTitle title="Logbook" count={total} />
-			<div className="flex flex-col gap-4 px-4 py-3">
+			<div className="flex flex-col gap-4 py-3">
 				<div className="flex items-center gap-2">
 					{(["week", "month"] as const).map((m) => (
 						<button

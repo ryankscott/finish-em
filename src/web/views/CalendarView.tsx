@@ -143,7 +143,7 @@ export function CalendarView() {
 			/>
 
 			{/* Range switcher */}
-			<div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
+			<div className="flex items-center gap-2 border-b border-border/60 py-3">
 				<button
 					type="button"
 					onClick={() => goToRange(-1)}
@@ -192,7 +192,7 @@ export function CalendarView() {
 			</div>
 
 			{/* View mode / layout / refresh row */}
-			<div className="flex flex-wrap items-center gap-3 px-4 py-2 text-xs text-muted">
+			<div className="flex flex-wrap items-center gap-3 py-2 text-xs text-muted">
 				<div className="flex items-center rounded-md border border-border p-0.5">
 					{VIEW_MODES.map(({ mode, label }) => (
 						<button
@@ -287,7 +287,7 @@ export function CalendarView() {
 						<p>Nothing scheduled for this {days === 1 ? "day" : "range"}.</p>
 					</div>
 				) : days === 1 ? (
-					<div className="flex flex-col gap-4 p-4">
+					<div className="flex flex-col gap-4 py-4">
 						{columns[0].events.length > 0 ? (
 							<div className="flex flex-col gap-2">
 								{columns[0].events.map((event) => (
@@ -324,7 +324,7 @@ export function CalendarView() {
 				) : (
 					<div
 						className={cn(
-							"gap-2 p-3",
+							"gap-2 py-3",
 							layout === "vertical"
 								? "flex flex-col"
 								: "flex flex-row items-start overflow-x-auto",
