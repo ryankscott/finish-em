@@ -31,7 +31,7 @@ import {
 	SomedayView,
 	TodayView,
 } from "./views/SimpleViews";
-import "@fontsource-variable/dm-sans";
+import "@fontsource-variable/sora";
 import "./styles.css";
 
 // No polling and no refetch-on-focus by default. A screen mounts around nine
