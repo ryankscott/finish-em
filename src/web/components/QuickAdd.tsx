@@ -127,7 +127,7 @@ export function QuickAdd() {
 	);
 	const footer = (
 		<div className="flex items-center justify-between gap-3 pt-5">
-			<span className="text-[11px] text-muted">
+			<span className="text-[11px] md:text-xs text-muted">
 				{draft.scheduled ? "Added to your plan" : "Unscheduled"}
 			</span>
 			<Button type="submit" form={formId} disabled={createTask.isPending}>

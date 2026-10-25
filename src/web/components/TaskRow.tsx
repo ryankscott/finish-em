@@ -284,7 +284,7 @@ export function TaskRow({
 						<ChevronRight className="size-4" />
 					</button>
 				</div>
-				<div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted">
+				<div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] md:text-xs text-muted">
 					{showProject && project && (
 						<span>
 							{project.emoji ? `${project.emoji} ` : ""}

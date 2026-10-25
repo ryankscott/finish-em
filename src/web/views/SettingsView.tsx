@@ -23,7 +23,7 @@ function Section({
 }) {
 	return (
 		<div className="flex flex-col gap-2 py-4">
-			<div className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+			<div className="text-[11px] md:text-xs font-semibold tracking-wide text-muted uppercase">
 				{title}
 			</div>
 			{children}

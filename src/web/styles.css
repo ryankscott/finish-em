@@ -148,3 +148,11 @@ body[data-sidebar-resizing] .desktop-sidebar { transition: none; }
 @media (max-width: 767px) { .workspace-content { padding-inline: 21px; } }
 
 .project-title-input, .task-title-input { font-size: 21px; line-height: 1.4; }
+
+/* Secondary desktop text stays readable without enlarging headings or mobile UI. */
+@media (min-width: 768px) {
+    :root {
+        --text-xs: 0.8125rem;
+        --text-xs--line-height: 1.5;
+    }
+}

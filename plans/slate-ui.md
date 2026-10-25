@@ -37,3 +37,8 @@ Validation: 499 tests, TypeScript, Biome, production build, isolated browser che
 - Collapse becomes a 64px icon rail with primary destinations, new task, project/more menus, settings, tooltips, and an expand control. The keyboard toggle uses the same persisted collapse state. Width transitions respect reduced motion; drag resizing disables the transition and supports keyboard arrows.
 - Today, Inbox, Planning, Calendar, project pages and other views share a 1120px content frame and consistent inner gutters. Planning boards retain internal horizontal scrolling; settings fields keep their readable narrower form width. Mobile retains its drawer and 21px gutters.
 - Validation: all 499 tests, TypeScript, Biome and production build pass. Browser checks verify identical Today/Inbox/Planning content geometry, enlarged text, rail navigation/menus/tooltips, reload persistence, resize/keyboard controls, task-editor navigation recovery, mobile drawer and widths 320–1920px.
+
+
+## Desktop minimum text size
+
+Desktop secondary text uses a 13px minimum via the shared text-xs token. Explicit 10–11px labels, metadata and compact dates use that token from the desktop breakpoint. Mobile sizes, body text, sidebar text and headings retain their existing scale. Browser audit covers Today, Inbox, Planning, task creation/editing and the date picker, with widths 768–1920px and mobile regression checks.

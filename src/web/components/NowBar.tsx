@@ -27,7 +27,7 @@ export function NowBar({
 			aria-label={focused ? "In focus" : "Next up"}
 			className="mt-4 mb-3 rounded-2xl bg-accent-soft p-4"
 		>
-			<div className="flex items-center gap-2 text-[10px] font-medium uppercase tracking-[1.4px] text-accent">
+			<div className="flex items-center gap-2 text-[10px] md:text-xs font-medium uppercase tracking-[1.4px] text-accent">
 				<Sparkles className="size-3.5" />
 				{focused ? "In focus" : "Next up"}
 			</div>
