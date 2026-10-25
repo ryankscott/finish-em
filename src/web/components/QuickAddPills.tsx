@@ -186,7 +186,7 @@ function Section({
 }) {
 	return (
 		<div className="flex flex-col gap-1">
-			<span className="text-[11px] font-medium uppercase tracking-wide text-muted/70">
+			<span className="text-[11px] md:text-xs font-medium uppercase tracking-wide text-muted/70">
 				{label}
 			</span>
 			<div className="flex flex-wrap items-center gap-2">{children}</div>

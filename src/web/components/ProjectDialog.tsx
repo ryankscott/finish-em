@@ -298,7 +298,7 @@ export function ProjectDialog() {
 	);
 	const footer = (
 		<div className="flex items-center justify-between gap-3 pt-5">
-			<span className="text-[11px] text-muted">
+			<span className="text-[11px] md:text-xs text-muted">
 				{isMobile ? "Links and dates are optional" : "⌘↵ to save"}
 			</span>
 			<Button type="submit" form={formId} disabled={pending}>

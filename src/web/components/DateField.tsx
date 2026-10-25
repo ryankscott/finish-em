@@ -85,7 +85,7 @@ export function DateField({
 				"flex min-h-11 w-full items-center gap-2 rounded-lg px-1 text-left text-sm hover:bg-accent-soft",
 				current ? "text-accent" : "text-muted",
 				compact &&
-					"relative min-h-7 px-0 text-[11px] before:absolute before:inset-x-0 before:-inset-y-2",
+					"relative min-h-7 px-0 text-[11px] md:text-xs before:absolute before:inset-x-0 before:-inset-y-2",
 			)}
 		>
 			{compact && <CalendarIcon className="size-3.5 shrink-0" />}

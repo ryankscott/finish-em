@@ -164,7 +164,7 @@ export function DayGrid({ day }: { day: Date }) {
 						{HOURS.map((hour) => (
 							<div
 								key={hour}
-								className="pr-2 text-right text-[10px] text-muted/70"
+								className="pr-2 text-right text-[10px] md:text-xs text-muted/70"
 								style={{ height: GRID_PX_PER_HOUR }}
 							>
 								{format(new Date(2026, 0, 1, hour), "h a")}

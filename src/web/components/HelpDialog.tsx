@@ -89,7 +89,7 @@ export function HelpDialog() {
 				<div className="mt-4 grid grid-cols-2 gap-x-8 gap-y-5">
 					{SECTIONS.map(([section, rows]) => (
 						<div key={section}>
-							<div className="mb-2 text-[11px] font-semibold tracking-wide text-muted uppercase">
+							<div className="mb-2 text-[11px] md:text-xs font-semibold tracking-wide text-muted uppercase">
 								{section}
 							</div>
 							<Table>

@@ -104,7 +104,7 @@ export function TodayView() {
 
 	return (
 		<div className="workspace-page">
-			<p className="hidden text-[11px] uppercase tracking-[1.1px] text-muted md:block">
+			<p className="hidden text-[11px] md:text-xs uppercase tracking-[1.1px] text-muted md:block">
 				{format(now, "EEEE, d MMMM")}
 			</p>
 			<h1 className="mt-0 mb-2 text-[34px] md:mt-2 leading-tight font-semibold tracking-[-1.3px]">

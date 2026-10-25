@@ -84,7 +84,7 @@ export function ProjectHeader({
 
 			{project.resources.length > 0 ? (
 				<div className="mt-3">
-					<div className="mb-1 text-[11px] font-semibold tracking-wide text-muted uppercase">
+					<div className="mb-1 text-[11px] md:text-xs font-semibold tracking-wide text-muted uppercase">
 						Resources
 					</div>
 					<div className="flex flex-col gap-1">

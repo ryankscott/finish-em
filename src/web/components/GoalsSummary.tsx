@@ -48,7 +48,7 @@ export function GoalsSummary({
 			<span className="line-clamp-2 min-w-0 flex-1 break-words">
 				{summary.title}
 			</span>
-			<span className="shrink-0 text-[11px] text-muted tabular-nums">
+			<span className="shrink-0 text-[11px] md:text-xs text-muted tabular-nums">
 				{summary.completed} of {summary.total}
 			</span>
 			<span
@@ -65,7 +65,7 @@ export function GoalsSummary({
 	);
 	const body = (
 		<>
-			<p className="px-5 pb-2 text-[11px] text-muted">
+			<p className="px-5 pb-2 text-[11px] md:text-xs text-muted">
 				{format(parseISO(periodStart), "d MMMM")} · {summary.completed} of{" "}
 				{summary.total} complete
 			</p>

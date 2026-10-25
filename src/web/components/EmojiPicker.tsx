@@ -97,7 +97,7 @@ function EmojiGrid({
 				) : groups ? (
 					groups.map((group) => (
 						<div key={group.category}>
-							<div className="px-1 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+							<div className="px-1 pt-2 pb-1 text-[10px] md:text-xs font-semibold uppercase tracking-wide text-muted/70">
 								{CATEGORY_LABELS[group.category] ?? group.category}
 							</div>
 							<Row entries={group.entries} value={value} onSelect={onSelect} />
