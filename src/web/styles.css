@@ -57,7 +57,7 @@ body {
 body {
 	background-color: var(--color-background);
 	color: var(--color-foreground);
-	font-family: "Sora Variable", "Sora", ui-sans-serif, system-ui, sans-serif;
+	font-family: "DM Sans Variable", "DM Sans", ui-sans-serif, system-ui, sans-serif;
 	font-size: 14px;
 	-webkit-font-smoothing: antialiased;
 	/* Kill the rubber-band scroll and grey tap flash that make a standalone
