@@ -251,7 +251,7 @@ export function TaskListView({
 				ref={containerRef}
 				data-keyboard-active={keyboardActive || undefined}
 				onPointerDown={() => setKeyboardActive(false)}
-				className="task-list mx-auto flex w-full max-w-[800px] flex-col"
+				className="task-list flex w-full min-w-0 flex-col"
 			>
 				{rows.map((row, index) => {
 					const heading =

@@ -91,7 +91,7 @@ export function SettingsView() {
 	return (
 		<>
 			<ViewTitle title="Settings" />
-			<div className="max-w-xl px-4">
+			<div className="max-w-xl">
 				<Section title="General">
 					<div className="flex flex-col gap-1">
 						<Label>Timezone</Label>

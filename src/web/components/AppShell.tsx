@@ -10,6 +10,7 @@ import {
 	ChevronLeft,
 	Moon,
 	MoreHorizontal,
+	PanelLeftOpen,
 	Plus,
 	Search,
 	Sun,
@@ -31,7 +32,7 @@ import { cn } from "../lib/cn";
 import { useHotkeyScope } from "../lib/hotkeys";
 import { useUndo } from "../lib/undo";
 import { useIsMobile } from "../lib/use-is-mobile";
-import { useUi } from "../state/ui";
+import { MAX_SIDEBAR_WIDTH, MIN_SIDEBAR_WIDTH, useUi } from "../state/ui";
 import { ChangeWatcher } from "./ChangeWatcher";
 import { CloseDayDialog } from "./CloseDayDialog";
 import { CommandPalette } from "./CommandPalette";
@@ -59,7 +60,7 @@ const VIEW_KEYS = [
 
 function ResizeHandle() {
 	const ui = useUi();
-	const handleRef = useRef<HTMLDivElement>(null);
+	const handleRef = useRef<HTMLHRElement>(null);
 	const startXRef = useRef(0);
 	const startWidthRef = useRef(0);
 
@@ -73,6 +74,7 @@ function ResizeHandle() {
 			startWidthRef.current = ui.sidebarWidth;
 			document.body.style.userSelect = "none";
 			document.body.style.cursor = "col-resize";
+			document.body.dataset.sidebarResizing = "true";
 
 			const onMouseMove = (e: MouseEvent) => {
 				const delta = e.clientX - startXRef.current;
@@ -82,6 +84,7 @@ function ResizeHandle() {
 			const onMouseUp = () => {
 				document.body.style.userSelect = "";
 				document.body.style.cursor = "";
+				delete document.body.dataset.sidebarResizing;
 				document.removeEventListener("mousemove", onMouseMove);
 				document.removeEventListener("mouseup", onMouseUp);
 			};
@@ -95,9 +98,22 @@ function ResizeHandle() {
 	}, [ui]);
 
 	return (
-		<div
+		<hr
 			ref={handleRef}
-			className="sidebar-resize w-px shrink-0 cursor-col-resize bg-border/50 transition-colors hover:bg-accent active:bg-accent"
+			aria-label="Resize sidebar"
+			aria-orientation="vertical"
+			aria-valuemin={MIN_SIDEBAR_WIDTH}
+			aria-valuemax={MAX_SIDEBAR_WIDTH}
+			aria-valuenow={ui.sidebarWidth}
+			tabIndex={0}
+			onKeyDown={(event) => {
+				if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+				event.preventDefault();
+				ui.setSidebarWidth(
+					ui.sidebarWidth + (event.key === "ArrowRight" ? 16 : -16),
+				);
+			}}
+			className="sidebar-resize relative z-20 m-0 h-auto self-stretch border-0 w-px shrink-0 cursor-col-resize bg-border/50 transition-colors before:absolute before:inset-y-0 before:-left-1 before:w-2 before:content-[''] hover:bg-accent active:bg-accent"
 		/>
 	);
 }
@@ -145,7 +161,7 @@ export function AppShell() {
 			"mod+k": () => ui.setPaletteOpen(!ui.paletteOpen),
 			"mod+z": () => void undoLast(),
 			u: () => void undoLast(),
-			"\\": () => ui.toggleSidebar(),
+			"\\": () => ui.toggleSidebarCollapsed(),
 			r: () => void queryClient.invalidateQueries(),
 			...Object.fromEntries(
 				VIEW_KEYS.map((to, index) => [
@@ -166,11 +182,17 @@ export function AppShell() {
 	);
 
 	return (
-		<div className={cn("flex h-full", ui.editingTask && "has-task-editor")}>
+		<div
+			className={cn(
+				"flex h-full",
+				ui.editingTask && "has-task-editor",
+				ui.sidebarCollapsed && "sidebar-collapsed",
+			)}
+		>
 			{isMobile ? null : (
 				<>
 					<Sidebar />
-					{ui.sidebarVisible && !ui.sidebarCollapsed && <ResizeHandle />}
+					{!ui.sidebarCollapsed && <ResizeHandle />}
 				</>
 			)}
 			<div className="flex min-w-0 flex-1 flex-col">
@@ -178,6 +200,16 @@ export function AppShell() {
 				    inset outright, which is 0 everywhere except iOS and so leaves the
 				    search row jammed against the top of the window. */}
 				<header className="flex min-h-[64px] shrink-0 items-center gap-2 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1 md:min-h-[72px] md:gap-3 md:px-7 md:pb-3">
+					{!isMobile && (
+						<button
+							type="button"
+							aria-label="Show navigation"
+							onClick={ui.toggleSidebarCollapsed}
+							className="sidebar-reveal size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+						>
+							<PanelLeftOpen className="size-5" />
+						</button>
+					)}
 					{isMobile && canGoBack && (
 						<button
 							type="button"
@@ -318,7 +350,7 @@ export function AppShell() {
 				)}
 				<MissedRemindersBanner />
 				<div className="flex min-h-0 flex-1">
-					<main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+					<main className="workspace-content flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 						<Outlet />
 					</main>
 					<TaskEditDialog />

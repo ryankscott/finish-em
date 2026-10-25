@@ -29,9 +29,9 @@ declare global {
 	}
 }
 
-const MIN_SIDEBAR_WIDTH = 160;
-const MAX_SIDEBAR_WIDTH = 480;
-const DEFAULT_SIDEBAR_WIDTH = 204;
+export const MIN_SIDEBAR_WIDTH = 220;
+export const MAX_SIDEBAR_WIDTH = 480;
+const DEFAULT_SIDEBAR_WIDTH = 264;
 
 const MIN_DAILY_TARGET = 1;
 const MAX_DAILY_TARGET = 100;
@@ -90,9 +90,6 @@ type UiState = {
 	paletteOpen: boolean;
 	setPaletteOpen: (open: boolean) => void;
 
-	sidebarVisible: boolean;
-	toggleSidebar: () => void;
-
 	sidebarWidth: number;
 	setSidebarWidth: (width: number) => void;
 
@@ -125,7 +122,6 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 	const [planDayOpen, setPlanDayOpen] = useState(false);
 	const [closeDayOpen, setCloseDayOpen] = useState(false);
 	const [paletteOpen, setPaletteOpen] = useState(false);
-	const [sidebarVisible, setSidebarVisible] = useState(true);
 	const [search, setSearch] = useState("");
 	// "system" means: track the OS appearance live. An explicit toggle pins the
 	// theme; only a pinned theme is persisted, so an app that has never been
@@ -152,7 +148,13 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 		return () => query.removeEventListener("change", onChange);
 	}, []);
 	const [sidebarWidth, setSidebarWidthRaw] = useState(() =>
-		readStoredNumber("sidebarWidth", DEFAULT_SIDEBAR_WIDTH),
+		Math.min(
+			MAX_SIDEBAR_WIDTH,
+			Math.max(
+				MIN_SIDEBAR_WIDTH,
+				readStoredNumber("sidebarWidth", DEFAULT_SIDEBAR_WIDTH),
+			),
+		),
 	);
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(() =>
 		readStoredBool("sidebarCollapsed", false),
@@ -246,8 +248,6 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			setCloseDayOpen,
 			paletteOpen,
 			setPaletteOpen,
-			sidebarVisible,
-			toggleSidebar: () => setSidebarVisible((v) => !v),
 			sidebarWidth,
 			setSidebarWidth,
 			sidebarCollapsed,
@@ -269,7 +269,6 @@ export function UiProvider({ children }: { children: React.ReactNode }) {
 			planDayOpen,
 			closeDayOpen,
 			paletteOpen,
-			sidebarVisible,
 			sidebarWidth,
 			sidebarCollapsed,
 			search,

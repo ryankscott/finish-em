@@ -132,16 +132,19 @@ body {
 }
 
 /* Shared geometry follows the approved Today / task-editor prototype. */
-.workspace-page { width: 100%; max-width: 800px; margin-inline: auto; padding: 12px 38px 32px; }
+.workspace-page { width: 100%; max-width: 1120px; margin-inline: auto; padding: 12px 38px 32px; }
 .task-editor-panel { width: 380px; min-width: 0; flex-shrink: 0; border-left: 1px solid var(--color-border); background: var(--color-surface-raised); }
 .task-fields-row { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 12px; align-items: center; min-height: 49px; border-bottom: 1px solid var(--color-border); }
 .task-fields-row > :last-child { min-width: 0; }
 .task-calendar { --rdp-day-width: 44px; --rdp-day-height: 44px; }
 .task-list:has(:focus-visible) [data-selected], .task-list[data-keyboard-active] [data-selected] { background: var(--color-accent-soft); }
-@media (max-width: 1099px) and (min-width: 768px) { .has-task-editor .desktop-sidebar, .has-task-editor .sidebar-resize { display: none; } .task-editor-panel { width: 350px; } }
+@media (max-width: 1099px) and (min-width: 768px) { .has-task-editor .desktop-sidebar:not([data-collapsed="true"]), .has-task-editor .sidebar-resize { display: none; } .has-task-editor:not(.sidebar-collapsed) .sidebar-reveal { display: inline-flex; } .task-editor-panel { width: 350px; } }
 @media (max-width: 767px) { .workspace-page { padding: 4px 21px 25px; } }
 
-main > .task-list { padding-inline: 38px; }
-@media (max-width: 767px) { main > .task-list { padding-inline: 21px; } }
+.workspace-content { width: 100%; max-width: 1120px; margin-inline: auto; padding-inline: 38px; }
+.workspace-content .workspace-page { padding-inline: 0; }
+.sidebar-reveal { display: none; }
+body[data-sidebar-resizing] .desktop-sidebar { transition: none; }
+@media (max-width: 767px) { .workspace-content { padding-inline: 21px; } }
 
 .project-title-input, .task-title-input { font-size: 21px; line-height: 1.4; }
