@@ -1,5 +1,6 @@
 import type { Project, ProjectResourceInput } from "@/server/types";
 import { resolveDateField } from "./date-field";
+import { resourceError } from "./project-resources";
 
 export type ProjectDraft = {
 	name: string;
@@ -28,13 +29,8 @@ export function resolveProjectDraft(
 		.map((r) => ({ label: r.label.trim(), url: r.url.trim() }))
 		.filter((r) => r.label || r.url);
 	for (const resource of resources) {
-		if (!resource.label || !resource.url)
-			return { error: "Each resource needs a label and a URL." };
-		try {
-			new URL(resource.url);
-		} catch {
-			return { error: "Enter a complete resource URL, including https://." };
-		}
+		const error = resourceError(resource);
+		if (error) return { error };
 	}
 	return {
 		input: {

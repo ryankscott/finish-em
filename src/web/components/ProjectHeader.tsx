@@ -1,41 +1,14 @@
 import { format, parseISO } from "date-fns";
-import { Pencil } from "lucide-react";
+import { ExternalLink, Pencil } from "lucide-react";
 
+import { toast } from "sonner";
 import type { Project } from "@/server/types";
 
+import { useProjectMutations } from "../lib/queries";
 import { useUi } from "../state/ui";
 import { InlineText } from "./InlineText";
-import { LinkIcon } from "./LinkIcon";
-
-function shortUrl(url: string): string {
-	try {
-		const { hostname, pathname } = new URL(url);
-		const tail = pathname.split("/").filter(Boolean).pop();
-		return tail ? `${hostname.replace(/^www\./, "")}/${tail}` : hostname;
-	} catch {
-		return url;
-	}
-}
-
-function LinkLine({ label, url }: { label: string; url: string }) {
-	return (
-		<div className="flex items-center gap-2 text-sm">
-			<span className="w-24 shrink-0 truncate font-medium text-muted">
-				{label}
-			</span>
-			<a
-				href={url}
-				target="_blank"
-				rel="noopener noreferrer"
-				className="flex min-w-0 items-center gap-1 text-accent hover:underline"
-			>
-				<LinkIcon url={url} className="h-3 w-3 shrink-0" />
-				<span className="truncate">{shortUrl(url)}</span>
-			</a>
-		</div>
-	);
-}
-
+import { ProjectColourPicker } from "./ProjectColourPicker";
+import { ProjectResourceContent } from "./ProjectResourceContent";
 export function ProjectHeader({
 	project,
 	count,
@@ -44,23 +17,38 @@ export function ProjectHeader({
 	count: number;
 }) {
 	const ui = useUi();
+	const { updateProject } = useProjectMutations();
 
 	return (
 		<div className="workspace-page border-b border-border !pb-3">
-			<div className="flex items-baseline gap-2">
-				<h1 className="text-base font-semibold">
+			<div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+				<h1 className="min-w-0 break-words text-base font-semibold">
 					{project.emoji ? `${project.emoji} ` : ""}
 					{project.name}
 				</h1>
 				<span className="text-xs text-muted">{count}</span>
-				<button
-					type="button"
-					onClick={() => ui.openProjectDialog({ mode: "edit", project })}
-					className="ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted hover:bg-surface hover:text-foreground"
-				>
-					<Pencil className="h-3.5 w-3.5" />
-					Edit
-				</button>
+				<div className="ml-auto flex shrink-0 items-center gap-1">
+					{!project.isInbox && (
+						<ProjectColourPicker
+							value={project.color}
+							disabled={updateProject.isPending}
+							onChange={(color) =>
+								updateProject.mutate(
+									{ projectId: project.id, input: { color } },
+									{ onError: (err) => toast.error(err.message) },
+								)
+							}
+						/>
+					)}
+					<button
+						type="button"
+						onClick={() => ui.openProjectDialog({ mode: "edit", project })}
+						className="flex min-h-11 items-center gap-1 rounded-md px-2 py-1 text-xs text-muted hover:bg-surface hover:text-foreground"
+					>
+						<Pencil className="h-3.5 w-3.5" />
+						Edit
+					</button>
+				</div>
 			</div>
 
 			{project.description ? (
@@ -70,33 +58,49 @@ export function ProjectHeader({
 			) : null}
 
 			{project.startAt || project.endAt ? (
-				<div className="mt-1 flex gap-4 text-xs text-muted">
+				<div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
 					{project.startAt ? (
-						<span>
-							Start {format(parseISO(project.startAt), "MMM d, yyyy")}
-						</span>
+						<span>Start {format(parseISO(project.startAt), "dd/MM/yyyy")}</span>
 					) : null}
 					{project.endAt ? (
-						<span>End {format(parseISO(project.endAt), "MMM d, yyyy")}</span>
+						<span>End {format(parseISO(project.endAt), "dd/MM/yyyy")}</span>
 					) : null}
 				</div>
 			) : null}
 
 			{project.resources.length > 0 ? (
-				<div className="mt-3">
-					<div className="mb-1 text-[11px] md:text-xs font-semibold tracking-wide text-muted uppercase">
-						Resources
+				<section className="mt-3 max-w-lg" aria-label="Project resources">
+					<div className="mb-1 flex items-center justify-between gap-2">
+						<h2 className="text-xs font-medium">
+							Resources{" "}
+							<span className="ml-1 text-muted">
+								{project.resources.length}
+							</span>
+						</h2>
+						<button
+							type="button"
+							onClick={() => ui.openProjectDialog({ mode: "edit", project })}
+							className="min-h-11 rounded-md px-2 text-xs text-muted hover:bg-surface"
+						>
+							Edit links
+						</button>
 					</div>
-					<div className="flex flex-col gap-1">
-						{project.resources.map((resource) => (
-							<LinkLine
-								key={resource.id}
+					{project.resources.map((resource) => (
+						<a
+							key={resource.id}
+							href={resource.url}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="flex min-h-11 min-w-0 items-center gap-3 border-b border-border py-2 text-foreground hover:bg-surface"
+						>
+							<ProjectResourceContent
 								label={resource.label}
 								url={resource.url}
 							/>
-						))}
-					</div>
-				</div>
+							<ExternalLink className="size-3.5 shrink-0 text-muted" />
+						</a>
+					))}
+				</section>
 			) : null}
 		</div>
 	);
