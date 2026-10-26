@@ -177,7 +177,7 @@ function ProjectNavLink({
 				zIndex: isDragging ? 10 : undefined,
 			}}
 			className={cn(
-				"relative flex min-h-[52px] items-center gap-1 rounded-xl px-1 text-[13px] md:text-[15px]",
+				"relative flex min-h-[52px] shrink-0 items-center gap-1 rounded-xl px-1 text-[13px] md:text-[15px]",
 				active ? "bg-accent-soft text-accent" : "text-muted hover:bg-surface",
 				isDragging && "bg-accent-soft shadow-md ring-1 ring-accent",
 			)}
@@ -215,7 +215,7 @@ function ProjectNavLink({
 						/>
 					)}
 				</span>
-				<span className="min-w-0 break-words leading-relaxed">
+				<span className="min-w-0 flex-1 break-words leading-relaxed">
 					{project.name}
 				</span>
 			</Link>
