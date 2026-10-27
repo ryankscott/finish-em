@@ -78,7 +78,9 @@ export function TaskFields({
 					</label>
 					<Select
 						value={value.projectId ? String(value.projectId) : ""}
-						onValueChange={(v) => set("projectId", Number(v))}
+						// Radix Select can emit "" (e.g. while items mount); ignore it
+						// rather than clearing the project to 0.
+						onValueChange={(v) => v && set("projectId", Number(v))}
 					>
 						<SelectTrigger
 							id={`${id}-project`}
