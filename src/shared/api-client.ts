@@ -107,6 +107,8 @@ export type ApiClient = {
 			someday?: boolean;
 			estimateMinutes?: number | null;
 			plannedStartAt?: string | null;
+			delegateStatus?: Task["delegateStatus"];
+			delegateAgent?: Task["delegateAgent"];
 		},
 	) => Promise<Task>;
 	deleteTask: (taskId: number) => Promise<void>;

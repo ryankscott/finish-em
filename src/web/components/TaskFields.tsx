@@ -31,12 +31,15 @@ export function TaskFields({
 	onChange,
 	projects,
 	advancedContent,
+	afterNotes,
 	titleRef,
 }: {
 	value: TaskDraft;
 	onChange: (value: TaskDraft) => void;
 	projects: Project[];
 	advancedContent?: ReactNode;
+	/** Shown under the notes, outside the collapsed advanced section. */
+	afterNotes?: ReactNode;
 	titleRef?: React.Ref<HTMLTextAreaElement>;
 }) {
 	const id = useId();
@@ -67,6 +70,7 @@ export function TaskFields({
 				placeholder="Add a little context…"
 				className="mt-2 min-h-[85px] rounded-xl border-border bg-background p-3 text-sm shadow-none"
 			/>
+			{afterNotes && <div className="mt-3">{afterNotes}</div>}
 			<div className="mt-5 border-t border-border">
 				<div className="task-fields-row">
 					<label

@@ -247,6 +247,8 @@ export async function updateTask(
 		someday: boolean;
 		estimateMinutes: number | null;
 		plannedStartAt: string | null;
+		delegateStatus: Task["delegateStatus"];
+		delegateAgent: Task["delegateAgent"];
 	}>,
 ): Promise<Task | null> {
 	const existing = await getTask(db, taskId);
@@ -298,6 +300,8 @@ export async function updateTask(
       started_at = ?,
       estimate_minutes = ?,
       planned_start_at = ?,
+      delegate_status = ?,
+      delegate_agent = ?,
       updated_at = ?
     WHERE id = ?
     RETURNING *`,
@@ -336,6 +340,15 @@ export async function updateTask(
 				: patch.plannedStartAt === undefined
 					? existing.plannedStartAt
 					: patch.plannedStartAt,
+			// A finished task is no longer waiting on an agent.
+			nextStatus === "completed"
+				? null
+				: patch.delegateStatus === undefined
+					? existing.delegateStatus
+					: patch.delegateStatus,
+			patch.delegateAgent === undefined
+				? existing.delegateAgent
+				: patch.delegateAgent,
 			now,
 			taskId,
 		);
@@ -537,7 +550,7 @@ export async function completeTask(
 	// subject to the default someday exclusion) rather than vanishing.
 	await db
 		.prepare(
-			"UPDATE tasks SET status = ?, someday = 0, started_at = NULL, plan_order = 0, planned_start_at = NULL, completed_at = ?, updated_at = ? WHERE id = ?",
+			"UPDATE tasks SET status = ?, someday = 0, started_at = NULL, delegate_status = NULL, plan_order = 0, planned_start_at = NULL, completed_at = ?, updated_at = ? WHERE id = ?",
 		)
 		.run("completed", now, now, taskId);
 

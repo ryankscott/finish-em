@@ -5,6 +5,13 @@ export const prioritySchema = z
 	.openapi({ description: "Task priority: 1=Urgent, 2=High, 3=Normal, 4=Low" });
 
 export const taskStatusSchema = z.enum(["open", "completed"]);
+export const delegateStatusSchema = z.enum(["delegated", "review"]);
+export const delegateAgentSchema = z.enum([
+	"claude",
+	"claude-code",
+	"chatgpt",
+	"codex",
+]);
 
 export const recurrencePresetSchema = z.enum([
 	"daily",
@@ -155,6 +162,8 @@ export const taskSchema = z
 		completedAt: z.string().nullable(),
 		deletedAt: z.string().nullable(),
 		calendarEventUid: z.string().nullable(),
+		delegateStatus: delegateStatusSchema.nullable(),
+		delegateAgent: delegateAgentSchema.nullable(),
 		createdAt: z.string(),
 		updatedAt: z.string(),
 	})
@@ -192,6 +201,8 @@ export const taskUpdateSchema = z
 		someday: z.boolean().optional(),
 		estimateMinutes: estimateMinutesSchema.nullable().optional(),
 		plannedStartAt: z.string().nullable().optional(),
+		delegateStatus: delegateStatusSchema.nullable().optional(),
+		delegateAgent: delegateAgentSchema.nullable().optional(),
 	})
 	.openapi("TaskUpdate");
 

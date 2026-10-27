@@ -61,6 +61,12 @@ export function mapTaskRow(row: Record<string, unknown>): Task {
 		calendarEventUid: row.calendar_event_uid
 			? String(row.calendar_event_uid)
 			: null,
+		delegateStatus: row.delegate_status
+			? (String(row.delegate_status) as Task["delegateStatus"])
+			: null,
+		delegateAgent: row.delegate_agent
+			? (String(row.delegate_agent) as Task["delegateAgent"])
+			: null,
 		createdAt: String(row.created_at),
 		updatedAt: String(row.updated_at),
 	};

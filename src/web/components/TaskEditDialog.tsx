@@ -1,4 +1,4 @@
-import { ArrowUpRight, Plus, Sparkles, X } from "lucide-react";
+import { ArrowUpRight, Plus, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -20,6 +20,7 @@ import {
 import { useIsMobile } from "../lib/use-is-mobile";
 import { useKeyboardInset } from "../lib/use-viewport-inset";
 import { useUi } from "../state/ui";
+import { DelegatePanel } from "./DelegatePanel";
 import { MeetingLinkField } from "./MeetingLinkField";
 import { TaskFields } from "./TaskFields";
 import { TaskReminderField } from "./TaskReminderField";
@@ -126,6 +127,7 @@ export function TaskEditDialog() {
 				onChange={setDraft}
 				projects={projects}
 				titleRef={titleRef}
+				afterNotes={task && <DelegatePanel task={task} />}
 				advancedContent={
 					task && (
 						<>
@@ -148,13 +150,6 @@ export function TaskEditDialog() {
 								<Plus className="size-4" />
 								Add subtask
 							</button>
-							<a
-								href={`claude://claude.ai/code/new?q=${encodeURIComponent(draft.title.trim().slice(0, 8000))}`}
-								className="flex min-h-11 items-center gap-2 text-xs text-muted"
-							>
-								<Sparkles className="size-4" />
-								Delegate to Claude
-							</a>
 						</>
 					)
 				}

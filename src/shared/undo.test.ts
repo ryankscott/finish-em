@@ -26,6 +26,8 @@ const TASK: Task = {
 	plannedStartAt: null,
 	startedAt: null,
 	calendarEventUid: null,
+	delegateStatus: null,
+	delegateAgent: null,
 	status: "open",
 	someday: false,
 	completedAt: null,
