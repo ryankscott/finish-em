@@ -59,9 +59,14 @@ export type Task = {
 	completedAt: string | null;
 	deletedAt: string | null;
 	calendarEventUid: string | null;
+	delegateStatus: DelegateStatus | null;
+	delegateAgent: DelegateAgent | null;
 	createdAt: string;
 	updatedAt: string;
 };
+
+export type DelegateStatus = "delegated" | "review";
+export type DelegateAgent = "claude" | "claude-code" | "chatgpt" | "codex";
 
 export type CalendarEvent = {
 	id: number;

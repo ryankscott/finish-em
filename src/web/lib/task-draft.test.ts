@@ -39,6 +39,8 @@ const task: Task = {
 	completedAt: null,
 	deletedAt: null,
 	calendarEventUid: null,
+	delegateStatus: null,
+	delegateAgent: null,
 	createdAt: "",
 	updatedAt: "",
 };

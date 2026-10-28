@@ -144,12 +144,16 @@ export const TOOLS: Tool[] = [
 	{
 		name: "update_task",
 		description:
-			"Update a task. Send only the fields to change; null clears a nullable field.",
+			"Update a task. Send only the fields to change; null clears a nullable field. An agent that finished a delegated task sets delegateStatus to review and appends its result to notes (keep the existing notes).",
 		inputSchema: obj(
 			{
 				id,
 				projectId: id,
 				plannedStartAt: { type: ["string", "null"] },
+				delegateStatus: {
+					type: ["string", "null"],
+					enum: ["delegated", "review", null],
+				},
 				...taskFields,
 			},
 			["id"],

@@ -18,6 +18,7 @@ import type { Project, Task } from "@/server/types";
 
 import { cn } from "../lib/cn";
 import { formatMinutes, taskEstimate } from "../lib/day-plan";
+import { delegateTarget } from "../lib/delegate";
 import { useAllReminders, useTaskMutations } from "../lib/queries";
 import { reminderTime } from "../lib/reminders";
 import { useUndo } from "../lib/undo";
@@ -285,6 +286,20 @@ export function TaskRow({
 					</button>
 				</div>
 				<div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] md:text-xs text-muted">
+					{task.delegateStatus && task.delegateAgent && (
+						<span
+							className={cn(
+								"rounded-full px-1.5 font-medium",
+								task.delegateStatus === "review"
+									? "bg-accent-soft text-accent"
+									: "bg-surface text-foreground",
+							)}
+						>
+							{task.delegateStatus === "review"
+								? "Needs review"
+								: `With ${delegateTarget(task.delegateAgent).label}`}
+						</span>
+					)}
 					{showProject && project && (
 						<span>
 							{project.emoji ? `${project.emoji} ` : ""}

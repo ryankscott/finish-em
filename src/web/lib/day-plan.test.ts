@@ -45,6 +45,8 @@ function task(overrides: Partial<Task> & { id: number }): Task {
 		completedAt: null,
 		deletedAt: null,
 		calendarEventUid: null,
+		delegateStatus: null,
+		delegateAgent: null,
 		createdAt: NOW.toISOString(),
 		updatedAt: NOW.toISOString(),
 		...overrides,

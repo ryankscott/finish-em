@@ -45,6 +45,33 @@ afterEach(() => {
 });
 
 describe("repositories integration", () => {
+	it("tracks a delegated task through review and clears it on completion", async () => {
+		const db = getDb();
+		const project = await createProject(db, { name: "Delegation" });
+		const task = await createTask(db, { projectId: project.id, title: "T" });
+		expect(task).toMatchObject({ delegateStatus: null, delegateAgent: null });
+
+		const sent = await updateTask(db, task.id, {
+			delegateStatus: "delegated",
+			delegateAgent: "codex",
+		});
+		expect(sent).toMatchObject({
+			delegateStatus: "delegated",
+			delegateAgent: "codex",
+		});
+
+		const reviewed = await updateTask(db, task.id, {
+			delegateStatus: "review",
+		});
+		expect(reviewed).toMatchObject({
+			delegateStatus: "review",
+			delegateAgent: "codex",
+		});
+
+		await completeTask(db, task.id);
+		expect((await getTask(db, task.id))?.delegateStatus).toBeNull();
+	});
+
 	it("edits all project details and explicitly clears nullable fields", async () => {
 		const db = getDb();
 		const project = await createProject(db, {
