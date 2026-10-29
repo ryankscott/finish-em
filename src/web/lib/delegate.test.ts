@@ -63,14 +63,16 @@ describe("delegateUrl", () => {
 		expect(delegateUrl("claude-code", "a b")).toBe(
 			"claude://claude.ai/code/new?q=a%20b",
 		);
-		expect(delegateUrl("claude", "a")).toBe("https://claude.ai/new?q=a");
+		expect(delegateUrl("claude", "a")).toBe("claude://claude.ai/new?q=a");
 		expect(delegateUrl("chatgpt", "a")).toBe("https://chatgpt.com/?q=a");
 		expect(delegateUrl("codex", "a")).toBe("https://chatgpt.com/codex");
 	});
 
 	test("caps the prompt length in the URL", () => {
 		const url = delegateUrl("claude", "x".repeat(MAX_URL_PROMPT + 50));
-		expect(url.length).toBe("https://claude.ai/new?q=".length + MAX_URL_PROMPT);
+		expect(url.length).toBe(
+			"claude://claude.ai/new?q=".length + MAX_URL_PROMPT,
+		);
 	});
 });
 
