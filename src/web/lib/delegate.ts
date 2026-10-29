@@ -18,7 +18,7 @@ export const DELEGATE_TARGETS: DelegateTarget[] = [
 	{
 		agent: "claude",
 		label: "Claude",
-		hint: "Opens a new chat on claude.ai",
+		hint: "Opens a new chat in the Claude app",
 		prefill: true,
 	},
 	{
@@ -50,7 +50,7 @@ export function delegateUrl(agent: DelegateAgent, prompt: string): string {
 		case "claude-code":
 			return `claude://claude.ai/code/new?q=${q}`;
 		case "claude":
-			return `https://claude.ai/new?q=${q}`;
+			return `claude://claude.ai/new?q=${q}`;
 		case "chatgpt":
 			return `https://chatgpt.com/?q=${q}`;
 		case "codex":
