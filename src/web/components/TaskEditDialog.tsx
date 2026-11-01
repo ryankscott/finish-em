@@ -1,4 +1,4 @@
-import { ArrowUpRight, Plus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -174,7 +174,6 @@ export function TaskEditDialog() {
 			</button>
 			<Button type="submit" form={formId} disabled={pending}>
 				{pending ? "Saving…" : "Save changes"}
-				<ArrowUpRight className="size-4" />
 			</Button>
 		</div>
 	);
