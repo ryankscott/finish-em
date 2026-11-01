@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/popover";
 import type { Goal } from "@/server/types";
 import { cn } from "../lib/cn";
+import { sortGoalsForDisplay } from "../lib/goal-summary";
 import { useGoalMutations, useGoals } from "../lib/queries";
 
 function GoalRow({ goal }: { goal: Goal }) {
@@ -183,7 +184,7 @@ export function GoalsPanel({
 					{periodType === "daily" ? "Daily goals" : "Weekly goals"}
 				</h2>
 			)}
-			{goals.map((goal) => (
+			{sortGoalsForDisplay(goals).map((goal) => (
 				<GoalRow key={goal.id} goal={goal} />
 			))}
 			{goals.length === 0 && (

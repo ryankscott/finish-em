@@ -1,5 +1,5 @@
 import { format, parseISO } from "date-fns";
-import { CheckCircle2, ChevronRight, Target, X } from "lucide-react";
+import { CheckCircle2, ChevronRight, Plus, Target, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import {
@@ -8,7 +8,8 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { summarizeGoals } from "../lib/goal-summary";
+import { cn } from "../lib/cn";
+import { sortGoalsForDisplay, summarizeGoals } from "../lib/goal-summary";
 import { useGoals } from "../lib/queries";
 import { useIsMobile } from "../lib/use-is-mobile";
 import { GoalsPanel } from "./GoalsPanel";
@@ -79,10 +80,51 @@ export function GoalsSummary({
 			/>
 		</>
 	);
+	// On a phone every goal shows as a chip, so the list is visible without
+	// opening the sheet. Tapping a chip opens the sheet rather than ticking it,
+	// because a stray tap while scrolling sideways would complete a goal.
+	const chips = (
+		<ul
+			aria-label={`${heading}: ${summary.completed} of ${summary.total} complete`}
+			className="-mx-[21px] flex gap-1.5 overflow-x-auto px-[21px] pb-0.5 [scrollbar-width:none]"
+		>
+			{sortGoalsForDisplay(goals).map((goal) => (
+				<li key={goal.id} className="shrink-0">
+					<button
+						type="button"
+						onClick={() => setOpen(true)}
+						aria-haspopup="dialog"
+						className={cn(
+							"flex min-h-9 max-w-56 items-center gap-1.5 rounded-full border border-border bg-surface-raised px-3 text-xs",
+							goal.done && "text-muted line-through",
+						)}
+					>
+						{goal.done ? (
+							<CheckCircle2 className="size-3.5 shrink-0 text-accent" />
+						) : (
+							<Target className="size-3.5 shrink-0 text-accent" />
+						)}
+						<span className="truncate">{goal.title}</span>
+					</button>
+				</li>
+			))}
+			<li className="shrink-0">
+				<button
+					type="button"
+					onClick={() => setOpen(true)}
+					aria-haspopup="dialog"
+					className="flex min-h-9 items-center gap-1 rounded-full border border-dashed border-border px-3 text-xs text-muted"
+				>
+					<Plus className="size-3.5" />
+					{goals.length ? "Goal" : summary.title}
+				</button>
+			</li>
+		</ul>
+	);
 	if (isMobile)
 		return (
 			<>
-				{trigger}
+				{chips}
 				<Sheet open={open} onOpenChange={setOpen}>
 					<SheetContent
 						side="bottom"

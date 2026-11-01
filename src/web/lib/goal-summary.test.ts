@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { Goal } from "@/server/types";
-import { summarizeGoals } from "./goal-summary";
+import { sortGoalsForDisplay, summarizeGoals } from "./goal-summary";
 
 const goal: Goal = {
 	id: 1,
@@ -36,4 +36,14 @@ test("empty daily and weekly goals have useful labels and finite progress", () =
 		allComplete: false,
 	});
 	expect(summarizeGoals([], "weekly").title).toBe("Add your first weekly goal");
+});
+
+test("display order puts open goals before done ones and keeps list order", () => {
+	const goals = [
+		{ ...goal, id: 1, done: true },
+		{ ...goal, id: 2 },
+		{ ...goal, id: 3, done: true },
+		{ ...goal, id: 4 },
+	];
+	expect(sortGoalsForDisplay(goals).map((g) => g.id)).toEqual([2, 4, 1, 3]);
 });

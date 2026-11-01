@@ -16,3 +16,8 @@ export function summarizeGoals(goals: Goal[], periodType: "daily" | "weekly") {
 		allComplete: goals.length > 0 && !next,
 	};
 }
+
+/** Open goals first so the rail and chips lead with what is still to do. */
+export function sortGoalsForDisplay(goals: Goal[]): Goal[] {
+	return [...goals.filter((g) => !g.done), ...goals.filter((g) => g.done)];
+}
