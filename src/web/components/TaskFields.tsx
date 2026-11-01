@@ -88,7 +88,7 @@ export function TaskFields({
 					>
 						<SelectTrigger
 							id={`${id}-project`}
-							className="h-11 border-0 bg-transparent px-2 shadow-none"
+							className="h-11 border-0 bg-transparent px-1 shadow-none"
 						>
 							<SelectValue placeholder="Choose project" />
 						</SelectTrigger>
@@ -138,7 +138,7 @@ export function TaskFields({
 					>
 						<SelectTrigger
 							id={`${id}-priority`}
-							className="h-11 border-0 bg-transparent px-2 shadow-none"
+							className="h-11 border-0 bg-transparent px-1 shadow-none"
 						>
 							<SelectValue />
 						</SelectTrigger>

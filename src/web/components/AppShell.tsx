@@ -199,7 +199,7 @@ export function AppShell() {
 				{/* pt is max(), not pt-safe: pt-safe sets padding-top to the safe-area
 				    inset outright, which is 0 everywhere except iOS and so leaves the
 				    search row jammed against the top of the window. */}
-				<header className="flex min-h-[64px] shrink-0 items-center gap-2 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1 md:min-h-[72px] md:gap-3 md:px-7 md:pb-3">
+				<header className="app-header workspace-content flex min-h-[64px] shrink-0 items-center gap-2 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1 md:min-h-[56px] md:gap-3 md:pt-2 md:pb-2">
 					{!isMobile && (
 						<button
 							type="button"
@@ -259,16 +259,7 @@ export function AppShell() {
 							<span className="min-w-0 flex-1 truncate text-xs text-muted">
 								{isMobile ? (
 									<span>{format(new Date(), "EEEE, d MMMM")}</span>
-								) : (
-									<>
-										My workspace <span className="px-2 opacity-50">/</span>{" "}
-										{pathname.startsWith("/projects")
-											? "Project"
-											: (pathname.split("/")[1] || "today").replace(/^./, (c) =>
-													c.toUpperCase(),
-												)}
-									</>
-								)}
+								) : null}
 							</span>
 							{!isMobile && (
 								<Button
@@ -292,7 +283,7 @@ export function AppShell() {
 									<button
 										type="button"
 										aria-label="Day actions"
-										className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+										className="-mr-3 flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
 									>
 										<MoreHorizontal className="size-[18px]" />
 									</button>
@@ -353,7 +344,6 @@ export function AppShell() {
 					<main className="workspace-content flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
 						<Outlet />
 					</main>
-					<TaskEditDialog />
 				</div>
 				{isMobile ? null : (
 					<>
@@ -369,6 +359,9 @@ export function AppShell() {
 					/>
 				) : null}
 			</div>
+			{/* Beside the whole content column, not inside it, so the panel runs
+			    the full window height instead of starting under the header. */}
+			<TaskEditDialog />
 
 			{isMobile ? (
 				<Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>

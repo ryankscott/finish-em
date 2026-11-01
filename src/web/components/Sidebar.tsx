@@ -537,7 +537,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 			)}
 		>
 			{!isDrawer && (
-				<div className="mb-3 flex justify-start px-1">
+				<div className="titlebar-row mb-3 flex justify-start px-1">
 					<button
 						type="button"
 						aria-label="Collapse sidebar"
