@@ -199,7 +199,7 @@ export function AppShell() {
 				{/* pt is max(), not pt-safe: pt-safe sets padding-top to the safe-area
 				    inset outright, which is 0 everywhere except iOS and so leaves the
 				    search row jammed against the top of the window. */}
-				<header className="flex min-h-[64px] shrink-0 items-center gap-2 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1 md:min-h-[56px] md:gap-3 md:px-7 md:pt-2 md:pb-0">
+				<header className="workspace-content flex min-h-[64px] shrink-0 items-center gap-2 pt-[max(0.75rem,env(safe-area-inset-top))] pb-1 md:min-h-[56px] md:gap-3 md:pt-2 md:pb-2">
 					{!isMobile && (
 						<button
 							type="button"
@@ -283,7 +283,7 @@ export function AppShell() {
 									<button
 										type="button"
 										aria-label="Day actions"
-										className="flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
+										className="-mr-3 flex size-11 shrink-0 items-center justify-center rounded-xl text-muted hover:bg-surface"
 									>
 										<MoreHorizontal className="size-[18px]" />
 									</button>
