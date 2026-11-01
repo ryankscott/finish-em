@@ -12,7 +12,6 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Portal as TooltipPortal } from "@radix-ui/react-tooltip";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { endOfDay, startOfDay } from "date-fns";
 import {
@@ -22,13 +21,11 @@ import {
 	CalendarDays,
 	CheckCircle2,
 	Flag,
-	Folder,
 	GripVertical,
 	Inbox,
 	Moon,
 	MoreHorizontal,
 	PanelLeftClose,
-	PanelLeftOpen,
 	Pencil,
 	Plus,
 	RefreshCw,
@@ -37,7 +34,7 @@ import {
 	Sun,
 	Trash2,
 } from "lucide-react";
-import { type ReactElement, useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -46,12 +43,6 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { isOverdueTask } from "@/lib/datetime";
 import type { Project } from "@/server/types";
 import { cn } from "../lib/cn";
@@ -66,25 +57,6 @@ import {
 import { useUi } from "../state/ui";
 import { ConfirmDialog } from "./ConfirmDialog";
 
-function SidebarHint({
-	label,
-	children,
-}: {
-	label: string;
-	children: ReactElement;
-}) {
-	return (
-		<Tooltip>
-			<TooltipTrigger asChild>{children}</TooltipTrigger>
-			<TooltipPortal>
-				<TooltipContent side="right" sideOffset={12}>
-					{label}
-				</TooltipContent>
-			</TooltipPortal>
-		</Tooltip>
-	);
-}
-
 function NavLink({
 	to,
 	icon,
@@ -92,7 +64,6 @@ function NavLink({
 	count,
 	alert,
 	active,
-	collapsed = false,
 }: {
 	to: string;
 	icon: React.ReactNode;
@@ -102,16 +73,15 @@ function NavLink({
 	alert?: boolean;
 	active: boolean;
 	isDrawer?: boolean;
-	collapsed?: boolean;
 }) {
-	const link = (
+	return (
 		<Link
 			to={to}
 			aria-label={label}
 			aria-current={active ? "page" : undefined}
 			className={cn(
 				"relative flex items-center gap-2.5 rounded-xl text-[13px] md:text-[15px]",
-				collapsed ? "size-11 justify-center" : "px-3",
+				"px-3",
 				// The drawer is a touch surface with no hover state, so rows get
 				// a real tap target instead of the dense desktop row height.
 				"min-h-11 py-2.5",
@@ -119,8 +89,8 @@ function NavLink({
 			)}
 		>
 			{icon}
-			<span className={collapsed ? "sr-only" : "truncate"}>{label}</span>
-			{!collapsed && count !== undefined && count > 0 ? (
+			<span className="truncate">{label}</span>
+			{count !== undefined && count > 0 ? (
 				<span
 					className={cn(
 						"ml-auto text-xs",
@@ -134,7 +104,6 @@ function NavLink({
 			) : null}
 		</Link>
 	);
-	return collapsed ? <SidebarHint label={label}>{link}</SidebarHint> : link;
 }
 
 function ProjectNavLink({
@@ -292,10 +261,6 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 	const pathname = useRouterState({ select: (s) => s.location.pathname });
 	const instructionsId = useId();
 	const [announcement, setAnnouncement] = useState("");
-	const [railMenu, setRailMenu] = useState<"projects" | "more" | null>(null);
-	// Navigation and collapse changes dismiss transient rail menus.
-	// biome-ignore lint/correctness/useExhaustiveDependencies: pathname and collapsed state are dismissal triggers
-	useEffect(() => setRailMenu(null), [pathname, ui.sidebarCollapsed]);
 	const sensors = useSensors(
 		useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
 		useSensor(TouchSensor, {
@@ -348,180 +313,6 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 	const visibleProjects = projects.filter((p) => !p.isInbox);
 
 	const isDrawer = variant === "drawer";
-
-	const primaryLinks = [
-		{
-			to: "/today",
-			label: "Today",
-			icon: Sun,
-			active: pathname === "/today" || pathname === "/",
-		},
-		{
-			to: "/inbox",
-			label: "Inbox",
-			icon: Inbox,
-			active: pathname === "/inbox",
-		},
-		{
-			to: "/planning",
-			label: "Planning",
-			icon: CalendarDays,
-			active: pathname === "/planning",
-		},
-		{
-			to: "/completed",
-			label: "Completed",
-			icon: CheckCircle2,
-			active: pathname === "/completed",
-		},
-	];
-	if (!isDrawer && ui.sidebarCollapsed)
-		return (
-			<aside
-				aria-label="Main navigation"
-				data-collapsed="true"
-				style={{ width: 64 }}
-				className="desktop-sidebar flex shrink-0 flex-col items-center overflow-hidden border-r border-border bg-sidebar px-2 py-5 transition-[width] duration-200 ease-out motion-reduce:transition-none"
-			>
-				<TooltipProvider delayDuration={150}>
-					<SidebarHint label="Expand sidebar">
-						<button
-							type="button"
-							aria-label="Expand sidebar"
-							aria-expanded={false}
-							onClick={ui.toggleSidebarCollapsed}
-							className="mb-3 flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface"
-						>
-							<PanelLeftOpen className="size-5" />
-						</button>
-					</SidebarHint>
-					<SidebarHint label="New task">
-						<button
-							type="button"
-							aria-label="New task"
-							onClick={() => ui.openQuickAdd()}
-							className="mb-2 flex size-11 items-center justify-center rounded-xl text-accent hover:bg-accent-soft"
-						>
-							<Plus className="size-5" />
-						</button>
-					</SidebarHint>
-					{primaryLinks.map(({ icon: Icon, ...link }) => (
-						<NavLink
-							key={link.to}
-							{...link}
-							icon={<Icon className="size-5" />}
-							collapsed
-						/>
-					))}
-					<Separator className="my-3" />
-					<Popover
-						open={railMenu === "projects"}
-						onOpenChange={(open) => setRailMenu(open ? "projects" : null)}
-					>
-						<SidebarHint label="Projects">
-							<PopoverTrigger asChild>
-								<button
-									type="button"
-									aria-label="Projects"
-									className="flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface"
-								>
-									<Folder className="size-5" />
-								</button>
-							</PopoverTrigger>
-						</SidebarHint>
-						<PopoverContent
-							side="right"
-							align="start"
-							sideOffset={12}
-							collisionPadding={12}
-							className="max-h-[min(32rem,var(--radix-popover-content-available-height))] w-72 overflow-y-auto rounded-2xl p-2"
-						>
-							<div className="flex items-center justify-between px-3 py-2">
-								<span className="text-xs font-medium text-muted">Projects</span>
-								<button
-									type="button"
-									aria-label="New project"
-									onClick={() => {
-										setRailMenu(null);
-										ui.openProjectDialog({ mode: "create" });
-									}}
-									className="flex size-9 items-center justify-center rounded-lg hover:bg-surface"
-								>
-									<Plus className="size-4" />
-								</button>
-							</div>
-							{visibleProjects.map((project) => (
-								<NavLink
-									key={project.id}
-									to={`/projects/${project.id}`}
-									label={project.name}
-									active={pathname === `/projects/${project.id}`}
-									icon={
-										<span className="flex size-5 shrink-0 items-center justify-center">
-											{project.emoji || <Folder className="size-4" />}
-										</span>
-									}
-									count={projectCounts.get(project.id)}
-								/>
-							))}
-							{visibleProjects.length === 0 && (
-								<p className="px-3 py-2 text-sm text-muted">No projects yet.</p>
-							)}
-						</PopoverContent>
-					</Popover>
-					<Popover
-						open={railMenu === "more"}
-						onOpenChange={(open) => setRailMenu(open ? "more" : null)}
-					>
-						<SidebarHint label="More views">
-							<PopoverTrigger asChild>
-								<button
-									type="button"
-									aria-label="More views"
-									className="flex size-11 items-center justify-center rounded-xl text-muted hover:bg-surface"
-								>
-									<MoreHorizontal className="size-5" />
-								</button>
-							</PopoverTrigger>
-						</SidebarHint>
-						<PopoverContent
-							side="right"
-							align="start"
-							sideOffset={12}
-							collisionPadding={12}
-							className="w-60 rounded-2xl p-2"
-						>
-							{[
-								{ to: "/calendar", label: "Calendar", icon: CalendarClock },
-								{ to: "/recurring", label: "Recurring", icon: RefreshCw },
-								{ to: "/overdue", label: "Overdue", icon: Flag },
-								{ to: "/priority", label: "By Priority", icon: Star },
-								{ to: "/logbook", label: "Logbook", icon: BookOpen },
-								{ to: "/deleted", label: "Deleted", icon: Trash2 },
-								{ to: "/reminders", label: "Reminders", icon: Bell },
-								{ to: "/someday", label: "Someday", icon: Moon },
-							].map(({ icon: Icon, ...link }) => (
-								<NavLink
-									key={link.to}
-									{...link}
-									icon={<Icon className="size-4" />}
-									active={pathname === link.to}
-								/>
-							))}
-						</PopoverContent>
-					</Popover>
-					<div className="mt-auto pt-3">
-						<NavLink
-							to="/settings"
-							label="Settings"
-							icon={<Settings className="size-5" />}
-							active={pathname === "/settings"}
-							collapsed
-						/>
-					</div>
-				</TooltipProvider>
-			</aside>
-		);
 
 	const iconClass = "size-5 shrink-0";
 	return (
@@ -659,10 +450,7 @@ export function Sidebar({ variant = "rail" }: { variant?: "rail" | "drawer" }) {
 				<button
 					type="button"
 					aria-label="New project"
-					onClick={() => {
-						setRailMenu(null);
-						ui.openProjectDialog({ mode: "create" });
-					}}
+					onClick={() => ui.openProjectDialog({ mode: "create" })}
 					className="ml-auto text-muted hover:text-foreground"
 				>
 					<Plus className="h-3.5 w-3.5" />
