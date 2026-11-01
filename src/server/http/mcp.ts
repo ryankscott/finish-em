@@ -219,6 +219,12 @@ export const TOOLS: Tool[] = [
 		run: (a, api) => api("PATCH", `/api/goals/${a.id}`, pick(a, ["id"])),
 	},
 	{
+		name: "delete_goal",
+		description: "Permanently delete a goal. This cannot be undone.",
+		inputSchema: obj({ id }, ["id"]),
+		run: (a, api) => api("DELETE", `/api/goals/${a.id}`),
+	},
+	{
 		name: "list_completions",
 		description: "List tasks completed in a date range.",
 		inputSchema: obj({ from: date, to: date }, ["from", "to"]),
